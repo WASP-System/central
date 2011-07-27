@@ -1,0 +1,122 @@
+
+Open Questions
+
+
+
+DATABASES
+In what form should the data exist and be related?
+  - relational database with full relational model
+    This will be easier and more concise to report against at the expense of 
+    making changes of the schema harder to implement.
+  - relational database with generic abstracted entities (generic attribute tables)
+    The reverse of above and harder to do direct to database management.
+  - full object database (mongoDB or the sort)
+    Should make code development easier (with extensiblity, but not to changing)
+
+How often do we expect schema changes to happen?
+
+Are changes in schema handled by an dba or we provide a mechanism
+of updating and data loading and conversion? 
+  
+
+PERMISSIONING
+
+Will users of different types be limited to viewing tasks in the workflow?
+What is the expected level of granularity (from roles/permission to 
+    system/project/task levels)?
+Are permisson controlled by convention (blacklisting) vs configuration (whitelisting)?
+
+Do we need a full blown UI for managing permissions on the system/project/task level?
+
+
+WORKFLOW ENGINE
+
+This is a big question.  
+Do users select a workflow and inputs are presented (template-based) or
+Do users select inputs and workflows are recommended?
+
+Will an investagator (or other user) be able to change inputs mid-workflow?
+if yes, what does that imply to jobs run, running, and future jobs?
+
+Can users append tasks to the end of running and finished workflows? 
+  -ie new file convertor or rerun assay
+Can users modify the workflow while it is still active?
+
+If workflows are modified, does it have to go through new approval/billing tasks?
+
+Will users need to link results from one project to create a another project? 
+  -ie FASTQ file output from project 123 are used for a new project.
+
+
+Who chooses the lab resource if multiple resource are available?  
+  - the lab tech, the investagator, or the system.
+  - does this affect pricing (ie, if there is a new sequencer vs. old sequencer)
+
+Do we need to store realtime or intervaled data about tasks running?
+
+We have a choice of implementing a full-fledged workflow engine (jBpm)
+or writing a lightweight custom one. 
+
+
+Backend DNA Sequencing/Assay Piple
+
+Multiplexing
+  Can projects be multiplexed to different pipelines?
+  What are the failure flows for multiplexed FASTQ files? 
+    - ie one stream is corrupt
+    - does the entire task fail?
+    - do good streams keep going?
+
+Are QSEQ files generic?
+  - do all assays run from the same format of QSEC files or does the
+   assay type need to be an input for CASAVA
+
+Will assays need to be rerun w/ tweaked inputs?
+  - does that mean a new project is created or a tasks appended to that project?
+
+Can samples get rerun and what is the process for it?
+
+Should provisioning/batching onf multiple sample be provisioned by
+the system automatically or does the lab tech take care of it?
+
+Are samples always recieved at the same time?
+
+
+Extendablity 
+
+Who extends the input forms, schema, workflows and resources?
+Will they be java literate or will they depend on written documention
+implementing either an xml dsl or likes of?
+
+How do you envision outside parties to extend the code?
+  - as an open source project 
+    the source is publicly available implementers can change and extend at 
+    their leisure; bug fixes are rechecked back into the trunk (after code 
+    review)
+  - as a plugin module
+    implementers work against interfaces and templates and are only allowed
+    to extend, but not change core functionalities.
+
+Technologies
+
+Any perfered technologies for...
+Presentation and how does it tie in with the backend?
+  - integrated with container (JSP/JSF)
+  - as a webservice/rest api (consumable by any type of presentation tier)
+  - backend push to wiki-type page
+
+Osgi... 
+  - provides nice vertical stack separation, but we are wondering if 
+    it is worth the additional configuration overhead for this workflow engine. 
+
+Spring Batch 
+  - provides more of a cron based functionality, we are currently thinking
+    of a full-fledge or a custom lightweight workflow engine to manage tasks.
+
+   
+
+
+
+
+
+

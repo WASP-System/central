@@ -1,0 +1,327 @@
+Ok, I have it finished this time. I hope I answered all your questions - I got the impression you're starting to understand the system pretty well from what I sent you before. I also threw in a lot more technical stuff this time too - I hope it isn't too much at this stage, but it might help you to get a better understanding of the problem domain. If you have any more questions keep them coming. 
+
+Enjoy the Memorial weekend
+
+
+Andy
+
+
+> On May 24, 2011, at 5:06 PM, Ed Cheng wrote:
+>
+> Hi guys, we took a look at the document and have a 'few' questions
+> about how you envision the system work.
+> Answer what you can, I guess the rest of the stuff we can talk to you
+> over the phone or in person about.
+>
+>
+> Open Questions
+>
+> DATABASES
+> In what form should the data exist and be related?
+> - relational database with full relational model
+>  This will be easier and more concise to report against at the
+> expense of
+>  making changes of the schema harder to implement.
+> - relational database with generic abstracted entities (generic
+> attribute tables)
+>  The reverse of above and harder to do direct to database
+> management.
+> - full object database (mongoDB or the sort)
+>  Should make code development easier (with extensibility, but not
+> to changing)
+>
+We're thinking relational but with the possibility of mixing in the
+EAV patterns in well defined cases. For example, information kept
+about samples may need to be flexible - different assay's require
+different information about samples and new attributes may need to
+be added regularly to provide new information for new assays.
+
+How often do we expect schema changes to happen?
+
+Regularly. The technology changes all the time - new machines, new
+file formats, new analysis tools. This requires a flexible database.
+Core LIMS tables and accounting are fairly standard though.
+
+
+
+> Are changes in schema handled by an dba or we provide a mechanism
+> of updating and data loading and conversion?
+
+Say we wish to provide for a new assay (new assay plugin). There are
+is an extra set of attributes required for the sample, we might need
+to link samples in the analysis (i.e. allow grouping of samples) and
+there are new file-types produced as output. Maybe we could modify
+the existing database schema in such a way as to not affect existing
+data. Or maybe we should create a new database for that assay with
+its own domain objects and DAOs etc. One thing to consider is that
+we are assuming an institution will install the core WASP software.
+Select some suitable plugins (based on the sequencing machines they
+have on site e.g. Illumina, ABI, Roche and the assays they wish to
+support e.g. DNA-seq, RNA-seq, ChIP-seq, miRNA-seq, Bisulfite-seq,
+Reseq etc) and maybe even write new plugins for a new assay (e.g. we
+have invented one called HELP-tagging which we can write a module
+for). You can see that different institutions may have configured
+very different setups so data management will need to be flexible.
+Also what happens when we update the core schema, or a plugin writer
+updates the schema required for their plugin? Presumably it's best
+for us (and plugin developers) to provide update scripts that can
+use database versioning to figure out how to update a database
+schema of say version 1.0 to version 1.1 etc.
+
+
+
+> PERMISSIONS
+>
+> Will users of different types be limited to viewing tasks in the
+> work flow?
+
+Yes. The UML use-case diagrams should show how certain user roles
+provide for different use-cases and permissions should reflect this.
+We were thinking role-based access to certain functions.
+
+> What is the expected level of granularity (from roles/permission to
+>  system/project/task levels)?
+
+For the system use the use-case diagrams and role description to see
+how this should work. For access to data this is a bit different.
+You'll see that a PI is a super-lab member which allows for some
+role-based control i.e. a PI (principle investigator) can authorize
+jobs a lab-member submits. They are also a lab-member themselves and
+can also submit jobs (and presumably don't need to approve their own
+submissions). A PI can look at the data of any of their lab members.
+A lab member can have all other lab members view their data, but may
+hide data from other lab members (not their PI though). Two PI's may
+collaborate on a project. It is therefore necessary for lab-
+members  / PI to be able to control access to view either all jobs
+submitted by anyone in their lab, all jobs submitted by specific lab-
+members, specific projects only or even specific jobs only. There
+may be also further granularity i.e. a lab-member may authorize a
+member of another lab to download a data file only but not see
+details of the job or they may have full access to the entire data
+and metadata associated with a job.
+
+> Are permission controlled by convention (blacklisting) vs
+> configuration (white listing)?
+
+white listing
+
+> Do we need a full blown UI for managing permissions on the
+> system/project/task level?
+
+For the Facility Manager (the master user) and subsequently any appointed System Administrators, a web-form for adding certain users to specific roles will be required. For lab / project / job level access control PIs / lab-users will need some mechanism for adding / removing other lab-users from the view list as described above
+
+> WORK FLOW ENGINE
+>
+> This is a big question.
+> Do users select a work flow and inputs are presented (template-
+> based) or
+> Do users select inputs and work flows are recommended?
+
+Currently users simply select an assay (experiment) type e.g. DNA-seq, RNA-seq and an appropriate pipeline is selected, or if not available only the core data processing is perfomed using pipelines we define entirely programatically. The new system need more flexibility. For users with absolutely no knowledge of how to analyze their data we wish to provide a pre-defined workflow, using tools and parameters we define. For more advanced users, we would like to provide the option of choosing from different tools at specific points in the workflow and the parameters used (all are command line tools we can design wrappers for). Of course we specify default (recommended) tools / parameters to help.
+
+for example: there are many aligners, that map the DNA sequences to a genome (specified by the user) to obtain genome coordinates which can be useful for visualization / counting of sequence hits to specific locations in the genome or how many sequences  overlap specific annotations to the genome (simple example - which sequences overlap with coordinates of know genes)  - think of like a kind of Google maps for DNA and you get the idea of how this stuff works. A user may have a preference for particular alignment software and whether to consider sequences with errors in them when mapping and whether to discard those mapping to more than one location etc. Lots of options.
+
+The idea would be for them to define their workflow during the submission process. Sometimes they may need to even match samples for analysis (e.g. a tumor sample vs a normal samplel). So for each assay they is a template workflow to direct the forms say, but the user effectively customizes the actual software to be used at each step in the workflow. This could be stored as an XML file. The nice thing about this is that it could be re-used and we have accountability - we can always trace back to exactly how an analysis was performed, meaning that we should persist these custom workflows.
+
+We had the concept of trying to standardize an analysis across jobs run in a project. The third party tools we use change all the time so someone may need to ensure a batch of ChIP-seq jobs for example are all analyzed the same way even if analyzed a few months apart. 
+
+>
+> Will an investigator (or other user) be able to change inputs mid-
+> work flow?
+> if yes, what does that imply to jobs run, running, and future jobs?
+
+No
+
+>
+> Can users append tasks to the end of running and finished work flows?
+> -ie new file converter or rerun assay
+> Can users modify the work flow while it is still active?
+>
+
+No
+
+> If work flows are modified, does it have to go through new
+> approval/billing tasks?
+
+Not for analysis as analysis costs are factored into the overall pricing at least here. It may be worth having the option to charge for analysis separately based on cpu time which is particularly important if people are submitting analysis-only jobs using existing data.
+
+As for changes to submitted jobs: this happens all the time. Often a lab-user chooses a wrong option or on review by the Facility Manager it is recommended they change the machine they selected or some other parameter which may alter the cost. We should anticipate several rounds of modification of the original request (and quotes / quote authorization by PI and accounts) before a job is accepted for processing. Of course tracking of all changes to the original submission are essential. Such changes to the original submission should only be allowable by the Facility Manager.
+
+>
+> Will users need to link results from one project to create a
+> another project?
+> -ie FASTQ file output from project 123 are used for a new project.
+>
+
+Yes, sometimes a control sample submitted in job 123 is linked into the analysis of samples in job 124 and 127 etc. Of course this is simply a database link, but they need the functionality on the forms to do this when setting up their analysis. This also opens up the door to analysis-only jobs which should be feasible.
+
+>
+> Who chooses the lab resource if multiple resource are available?
+> - the lab tech, the investigator, or the system.
+> - does this affect pricing (ie, if there is a new sequencer vs. old
+> sequencer)
+
+Generally, depending on the experiment-type, the user is offered a list of compatible sequencer technologies (and costs) during the sample submission form filling stage. Facility Managers need to be able to configure what assays are linked to certain sequencers and the costs for certain type of sequencing and library preparation.
+
+e.g. DNA-seq: choose from Roche FLX or Illumina HiSeq
+ChIP-seq: choose from Illumina HiSeq, Illumina GA or ABI SOLiD
+
+
+>
+> Do we need to store real time or intervals data about tasks running?
+
+Intervals. Both facility sample processing and analysis takes time.
+
+>
+> We have a choice of implementing a full-fledged work flow engine
+> (jBpm)
+> or writing a lightweight custom one.
+
+We're open to both ideas at your recommendation. We'll have a look at jBpm in more detail before we next meet.
+
+>
+>
+> Backend DNA Sequencing/Assay Pipeline
+>
+> Multiplexing
+> Can projects be multiplexed to different pipelines?
+
+Yes. For example, certain types of assay can include SNP calling (reporting details about mutations). There are some things we may wish to do regardless of the assay e.g. Looking for contamination from other genomes. These could be run independently of the core analysis pipelines.
+
+> What are the failure flows for multiplexed FASTQ files?
+>  - ie one stream is corrupt
+>  - does the entire task fail?
+>  - do good streams keep going?
+
+With multiplexed FASTQ files there is a demultiplex step very early in (in fact at the stage we generate FASTQ files). After this they are treated as individual samples (except that we have some quality metrics related to the demultiplexing e.g. representation of each multiplexed sample).
+
+>
+> Are QSEQ files generic?
+> - do all assays run from the same format of QSEC files or does the
+> assay type need to be an input for CASAVA
+
+With Illumina there is a binary BCL (base-calls) file which is converted to QSEQ (ascii) using a script they supply in CASAVA. We then transform these to FASTQ format. Remember other machines have different proprietary file formats but they can all be converted into a standardized format for downstream use. Actually there is another format, BAM, which we have decided to use instead of FASTQ. you can see a great specification here ...
+
+general: http://samtools.sourceforge.net/
+specification: http://samtools.sourceforge.net/SAM1.pdf
+
+SAM format is ascii whereas BAM format is the binary version which is also compressed and allows for random access. BAM/SAM are becoming the de-facto standard file format for genome sequence and there are many great tools for manipulating them e.g the samtools API and Picard Java suite (http://picard.sourceforge.net/command-line-overview.shtml).
+
+
+Picard supplies a tool for converting BCL files from Illumina directly to BAM and from converting BAM files to FASTQ, so if people wish to download FASTQ files we can stream BAM -> FASTQ and bzip2 them on the fly - takes a bit longer but storage will be an issue for most institutions using our software so it makes sense not to duplicate the data. Also, it's possible to store information about every manipulation of the data within the BAM header and some programs do this already. For example I could extract the following information from a real BAM file which tells me the alignment data was provided by aligner Bowtie version 0.12.6 and all parameters used in that alignment and the input file:
+
+@PG ID:Bowtie.9 VN:0.12.6 CL:"/apps1/bowtie/bowtie-0.12.6/bowtie /results2/indexes/genomes//mm9/bowtie/mm9 --phred33-quals -a -m 10 --sam --tryhard -p 8 --chunkmbs=1024 SCQ.A81PPLABXX.lane_8_P0_I0.mm9.sequence.fastq.ah splitTmp_ah.SCQ.A81PPLABXX.lane_8_P0_I0.mm9.alignment.sam"
+
+BAM files can store raw sequences and aligned sequences so there is no need for separate files. Also they can store information about which sequences failed vendor QC tests and these reads can be filtered out easily if required later. 
+
+FYI, a typical sequence entry (single line) in a SAM file looks like this (this one is aligned hence there is chromosome coordinates present - chromosome 10 starting position 6104687) .....
+
+HWI-ST395_A81PPLABXX_1:8:2105:10700:152397#0/1 0 chr10 6104687 255 119M * 0 0 TAAATGTGTGTGTGTGTGTGTGTGTGTGTGTGTGTGTGTGTGTGTGTGTGTTTGTGTGTTTGTGTGTGTGTGTGTGTGTGTGTGTGTGTGTGTGTGTGTGTGTGTGTGTGTGTGTGTGT HHFGHHEHEHFHEHHGEGEGEGEGEGDGFGDGCFDGEGEFFGEFE0DDDDC2EDCFFFF2EGEGEFFHEF?DA(AFFFFEHHHHHGG:GEECE=EHHHHHGHHHHGG=G/EEEEEBFBE XA:i:1 MD:Z:2T48G7G59 NM:i:3
+
+a typical sequence entry (4 lines!!!) in a FASTQ file looks like this:
+
+@header
+DNA sequence (characters A,C,T,G and where 'N' is an uncalled nucleotide)
++header
+PHRED score => ascii representation of a quality score (a kind of probability that the nucleotide at each position is correctly called as assessed by the sequencing machine)
+
+real example...
+
+@HWI-ST395_A81PPLABXX_1:8:1101:1590:2201#0/1
+NAATACATAATGAATGATAATAATAATATTAAAAATTTCCTGTGTAACTAATTTACTATATGGTTTCTGATAAGAATCATTGCAAAGATCAAACAACTTGTATTACATTGACAGTTAAG
++HWI-ST395_A81PPLABXX_1:8:1101:1590:2201#0/1
+#999:<;<9;DDDDDD@DDDDDDDDDDDDDDDD=DDDDDDD=@DD=??<;@@@@@@DD7D<<<9<??9??@DD@=@<@@@DDD=@@@7@@<D@DD:9=@####################
+
+There may be up to 100 million such sequence records in a typical lane of Illumina sequencing and apparently Illumina is to increase it's output 4x within the next month or two with an upgrade!!
+
+
+>
+> Will assays need to be rerun w/ tweaked inputs?
+
+Possibly -> concept of an analysis job
+
+> - does that mean a new project is created or a tasks appended to
+> that project?
+>
+
+same project, new job
+
+> Can samples get rerun and what is the process for it?
+
+Yes. Look at the class diagram we had for Samples I supplied before as this is probably the most mature and thought out of all the diagrams. The important point here is how do you define a 'sample': a piece of DNA you're sequencing or the tissue from which that preparation of DNA originated? We have agreed on treating the sample as having two components 'SampleMacromolecule' and 'SampleMetadata'. One 'sample' e.g. lung cancer biopsy, has associated metadata (e.g. pathology infomation, organism, de-identified patient identifier etc) which we store in the database and many macromolecule preparations (DNA, RNA, miRNA, protein samples etc). A 'library' is made from the macromolecule (lets say DNA) by shearing the DNA into fragments, size selecting and attaching 'adaptors' (special DNA sequences which are necessary for the sequencing process). Libraries are what are actually sequenced. A lab user may supply to the facility the raw DNA and incurr a library preparation charge, or may make and supply their own library. So a job is really the sequencing of a collection of libraries and each sequenced library is represented by a single BAM / FASTQ etc file after sequencing. 
+
+A lot to digest I know, but if you got that this should answer your question....
+
+Notice how samples (macromolecules) may be stored. So re-running of a sample may involve re-running of more of the same batch provided (a) it has not passed a Facility Supervisor configured shelf-life or (b) there is not enough material left to use. Otherwise the lab user must submit another batch of the sample (macromolecule). We envison the providing of users with barcoded tubes into which to place their 'samples' / libraries (see the BioMaterial class.
+
+It is actually possible to strip and re-run a flowcell. This is messy and doesn't work well and so we'll not worry about that. If we were to support it a 1:N relationship would be required for flowcell and sequence-run.
+
+
+>
+> Should provisioning/batching on multiple sample be provisioned by
+> the system automatically or does the lab tech take care of it?
+
+Our policy at Einstein is to sell lanes of sequencing so a user can choose to multiplex samples within a single lane (incurring a small 'multiplex fee' for each sample multiplexed) on top of the lane fee (and library fees if they are to be prepared in house). In other institutions they may wish to multiplex samples from different users together. it should be easy to support this. We envision getting from sequencer to individual (demultiplexed if necessary) file per sequenced library as soon as possible, at which point life is easier as we can forget how we got the sequence for the purposes of analyzing job data.
+
+We could support selling 'lanes' of sequencing (may be vendor specific issues here), and an alternative of  a guaranteed minimum amount of sequence (ideal in theory but not easy as easy to implement and an institution can loose out if it takes 6 lanes of sequence to achieve the required amount because the original sample preparation was poor - at $2500 a lane this is dangerous). I'd say we stick to only selling lanes to keep scope manageable (but we should aware than an Illumina 'lane' is something different on other machines hence we generalized to 'SequenceCell' in one of the models I gave you).
+
+>
+> Are samples always received at the same time?
+
+Yes and No, meaning they usually are, but the Facility Manager may find one to be of substandard quality and ask the user to prepare another batch, but in the mean time run the other samples. Sometimes that dodgy sample never materializes and has to be dropped from the job entirely - maybe the user ran out of starting material. Whilst on this point, often a lane of sequencing fails or even an entire flowcell and must be re-run. Both situations need to be handled and properly recorded in the database. This is also important for auditing and influences analysis.
+
+>
+>
+> Extendability
+>
+> Who extends the input forms, schema, work flows and resources?
+> Will they be java literate or will they depend on written
+> documentation
+> implementing either an xml dsl or likes of?
+
+Institutions have computational biologists associated with their sequencing facilities who should be able to do this themselves. Obviously the better the documentation and API the easier it will be for them.
+
+>
+> How do you envision outside parties to extend the code?
+> - as an open source project
+>  the source is publicly available implementers can change and
+> extend at
+>  their leisure; bug fixes are rechecked back into the trunk (after
+> code
+>  review)
+> - as a plugin module
+>  implementers work against interfaces and templates and are only
+> allowed
+>  to extend, but not change core functionalities.
+
+the second option: We will maintain the core and third parties will maintain their plugins. We will do testing and integration and maintain a SourceForge page / wiki so people can download the core and plugins. 
+
+>
+> Technologies
+>
+> Any preferred technologies for...
+> Presentation and how does it tie in with the back end?
+> - integrated with container (JSP/JSF)
+> - as a webservice/rest api (consumable by any type of presentation
+> tier)
+> - backend push to wiki-type page
+>
+
+We were planning to keep the Wiki but rather than write static wiki-pages, embed JSP pages within wiki-pages (we use a wiki plugin that implements an iframe that works well). This is done already for the current WASP application forms and bug-reporting forms. However, every time the wiki is updated we have re-implement a lot of changes we made to make it work as we like which is a pain. Users seem to like the familiarity of the wiki too, and all the documentation is handy.  If it makes it easier to design a completely new front end we are open to that idea too, but it'd have to look professional and so might add extra load onto the project. We can discuss this.
+
+> Osgi...
+> - provides nice vertical stack separation, but we are wondering if
+>  it is worth the additional configuration overhead for this work
+> flow engine.
+
+Good point. it was a nice idea but we'll drop that idea if it adds too much headache to configuration.
+
+> Spring Batch
+> - provides more of a cron based functionality, we are currently
+> thinking
+>  of a full-fledged or a custom lightweight work flow engine to
+> manage tasks.
+>
+
+Sure, we're open to that.
+

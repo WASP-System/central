@@ -1,0 +1,160 @@
+<project name="Wasp 2.0" default="all" basedir=".">
+
+  <target name="all" depends="init,clean,compile,copy-resources" />
+
+  <target name="init">
+    <property name="name" value="wasp"/>
+
+    <property name="dirs.base" value="${basedir}"/>
+    <property name="src" value="${dirs.base}/src/java"/>
+    <property name="web" value="${dirs.base}/web"/>
+    <property name="build" value="${web}/WEB-INF/classes"/>
+
+    <property name="deploy" value="${dirs.base}/deploy"/>
+    <!-- property name="war" value="${dirs.base}/war"/ -->
+    <!--property name="war" value="C:/apps/tomcat70eintstein/webapps" /-->
+    <property name="war" value="/home/ewah/j/apache-tomcat-7.0.14/webapps" /> 
+
+    <!--property name="appserver.lib" value="C:/apps/tomcat70eintstein/lib/" /-->
+    <property name="appserver.lib" value="/home/ewah/j/apache-tomcat-7.0.14/lib/" />
+    <path id="compile.classpath">
+      <fileset dir="${web}/WEB-INF/lib">
+        <include name="*.jar"/>
+      </fileset>
+      <fileset dir="${appserver.lib}">
+        <include name="*.jar"/>
+      </fileset>
+    </path> 
+
+    <path id="run.classpath">
+      <path location="${build}" />
+      <path refid="compile.classpath" /> 
+    </path> 
+
+  </target>
+
+  <target name="clean" depends="init">
+    <delete dir="${build}"/>
+    <delete dir="${deploy}"/>
+
+    <mkdir dir="${build}"/>
+    <mkdir dir="${deploy}"/>
+  </target> 
+
+  <target name="compile" depends="init">
+    <javac srcdir="${src}" destdir="${build}">
+      <classpath refid="compile.classpath"/>
+    </javac>
+  </target>
+
+  <target name="copy-resources" depends="init">
+    <copy todir="${build}">
+       <fileset dir="${src}">
+          <exclude name="**/*.java"/>
+          <exclude name="**/*.swp"/>
+       </fileset>
+    </copy>
+  	<native2ascii src="src/resources" dest="${web}/WEB-INF/classes" includes="**/*.utf8" ext=".properties"/>
+  </target>
+
+  <target name="deploy" depends="compile, copy-resources">
+    <copy todir="${deploy}" preservelastmodified="true">
+      <fileset dir="${web}">
+        <include name="**/*.*"/>
+        <exclude name="**/*.swp"/>
+      </fileset>
+    </copy>   
+  </target>
+
+  <target name="deploywar" depends="deploy">
+    <war destfile="${name}.war" webxml="${web}/WEB-INF/web.xml">
+      <fileset dir="${deploy}">
+        <include name="**/*.*"/>
+      </fileset>
+    </war>
+    <copy todir="${war}" preservelastmodified="true">
+      <fileset dir=".">
+        <include name="*.war"/>
+      </fileset>
+    </copy>
+  </target>
+
+  <target name="cuser" depends="init">
+    <javac srcdir="${src}" destdir="${build}">
+      <classpath refid="compile.classpath"/>
+    </javac>
+  </target>
+
+  <target name="huser" depends="init">
+    <java classname="edu.yu.einstein.wasp.HUser" fork="yes">
+      <classpath refid="run.classpath"/>
+    </java>
+  </target>
+	
+  
+  <!-- tomcat -->
+<!--
+    <property name="appserver.lib" value="/home/ewah/j/apache-tomcat-7.0.14/lib/" />
+    <property name="tomcat.manager.url" value="" />
+    <property name="tomcat.manager.username" value="" />
+    <property name="tomcat.manager.password" value="" />
+
+    <path id="catalina-ant-classpath">
+        <fileset dir="${appserver.lib}">
+            <include name="catalina-ant.jar"/>
+        </fileset>
+    </path>
+
+    <taskdef name="install" classname="org.apache.catalina.ant.InstallTask">
+        <classpath refid="catalina-ant-classpath"/>
+    </taskdef>
+    <taskdef name="reload" classname="org.apache.catalina.ant.ReloadTask">
+        <classpath refid="catalina-ant-classpath"/>
+    </taskdef>
+    <taskdef name="list" classname="org.apache.catalina.ant.ListTask">
+        <classpath refid="catalina-ant-classpath"/>
+    </taskdef>
+    <taskdef name="start" classname="org.apache.catalina.ant.StartTask">
+        <classpath refid="catalina-ant-classpath"/>
+    </taskdef>
+    <taskdef name="stop" classname="org.apache.catalina.ant.StopTask">
+        <classpath refid="catalina-ant-classpath"/>
+    </taskdef>
+
+    <target name="install" description="Install application in Tomcat">
+        <install url="${tomcat.manager.url}"
+                 username="${tomcat.manager.username}"
+                 password="${tomcat.manager.password}"
+                 path="/${name}"
+                 war="${name}"/>
+    </target>
+
+    <target name="reload" description="Reload application in Tomcat">
+        <reload url="${tomcat.manager.url}"
+                 username="${tomcat.manager.username}"
+                 password="${tomcat.manager.password}"
+                 path="/${name}"/>
+    </target>
+
+    <target name="start" description="Start Tomcat application">
+        <start url="${tomcat.manager.url}"
+                 username="${tomcat.manager.username}"
+                 password="${tomcat.manager.password}"
+                 path="/${name}"/>
+    </target>
+
+    <target name="stop" description="Stop Tomcat application">
+        <stop url="${tomcat.manager.url}"
+                 username="${tomcat.manager.username}"
+                 password="${tomcat.manager.password}"
+                 path="/${name}"/>
+    </target>
+
+    <target name="list" description="List Tomcat applications">
+        <list url="${tomcat.manager.url}"
+                 username="${tomcat.manager.username}"
+                 password="${tomcat.manager.password}"/>
+    </target>
+-->
+
+</project>

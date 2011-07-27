@@ -1,0 +1,112 @@
+I think I am getting a better idea of the moving parts for
+project. Below is what I call general glossary I have digested
+so far. That of course will be expanded as wasp is being developed.
+
+Things in square brackets ([]) I need some clarification on.
+
+Users are people.
+- some Users are Lab Members 
+  - Lab Members belong to one Lab [or many?] 
+  - Lab Members can submit projects for their Lab.
+  - submits a project they become an Investigator.
+  - some Lab Members are Primary Investigators (PIs). 
+    - PIs approve submitted projects for their Lab.
+    - [PIs may create other Lab Members for their lab]
+    - [PIs may promote another Lab Member to PI for their Lab] 
+- some Users are [Fulfillers]
+  - [Fulfillers] perform tasks on the project. 
+  - some [Fulfillers] are Administrators
+    - Administrators manage billing and accounts
+  - some [Fulfillers] are Facilities Techs
+    - Facilities Techs manage specific resources (ie. Illumnia)
+    - Facilities Techs perform tasks on physical materials. 
+- some Users are Chief Administrators (CAs) [not the best of names]
+  - CAs may create labs
+  - CAs are PIs for all labs.
+  - CAs can promote another User to be a CA
+- some Users are Facility Managers 
+  - Facility Managers can perform all duties of CAs
+  - [Facility Managers can perform all duties of Administrators ?]
+  - [Facility Managers can perform all duties of Facilities Techs ?]
+  - Facility Managers can create Users
+  - Facility Managers can promote Users to a Fulfillers, Admins, Facilities Techs, CAs and Facilities Managers
+- some Users are System Administrators
+  - System Administrators can perform all duties of Facilites Managers
+  - [System Administrators will do everything else?]
+
+- Users maybe be any combination of Lab Member and [Fulfiller]
+
+Labs are organization units
+  - Labs contain one more more users
+  - Labs must contain at least one PI
+
+Projects
+  - Projects belong to a single Lab. [shared?]
+  - The Lab Member submitting a Project is it's Investigator
+  - Projects are accessible to any Lab Member in their Lab
+  - Project Workflow are a set of Tasks and order they should be run.
+  - Project Inputs are Investigator selections
+    - Project Inputs are validated against the Project Workflow.
+  - Project Outputs are the results of the Project. 
+  - Project Cost is generated based on Project Workflow, Inputs and Outputs.
+  - Before beginning
+    - Projects must be approved by one of the Lab's PI {task}
+    - Projects must be approved by an Administrator {task}
+      - approval is a back an forth on Project Costs
+      - [Administrators allocate Resources to the Project ?]
+    - During this period, Project Inputs can change.
+      - [by whom?]
+  - some Projects are Sequencing Projects
+    - Sequencing Projects need Samples
+      - Facilities Techs receive Samples
+      - Facilities Techs test if samples are "good".
+    - Samples 
+      - can be DNA (Macromolecule) Samples 
+      - can be Tissue Samples
+        - tissue which DNA is originated from 
+        - Facilities Tech need to be convert these to DNA Samples {task}
+      - Samples Metadata
+        - DNA Samples
+          - macromolecule preparation
+        - Tissue Samples
+          - pathology information
+          - organism 
+          - de-identified patient identifier
+    - Libraries [these are physical right?]
+      - Facilities Tech generated Libraries from DNA Samples {task}
+      - [does multiplexing happen here?, or did it happen before?] {task}
+    - Raw Sequence Files
+      - Facilities Tech use Sequencer generate Raw Sequence File (QSEQ) {task}
+    - Generic Sequence Files
+      - System converts Raw Sequence File to Generic Sequence File {task}
+    - Demultiplex Sequence
+      - If the Generic Sequence is multiplexed, 
+        demultiplex it and generate more Generic Sequence Files{task} 
+  - some Projects are Assay Projects
+    - Assay Projects require a set of Generic Sequence Files
+    - Assay Projects require a set of Project Inputs
+    - Project Inputs and Generic Sequence are sent to Assay Pipelines {task}
+      - Assay Pipelines
+        - [this is where i get lost, i assume work is happening.] 
+        - Results are sent back.
+  - some Projects are both
+    - this basically chains the output of Sequencing Projects with Assay Projects
+    - most Projects are both
+      - by default Assay Piplelines are run on Generic Sequence Files to check for contamination
+  - any Project Input or Project Output may be used by a future Project of the same Lab. 
+
+
+Resources are physical tools.
+  - Facilities Techs are in charge of Resources
+  - some Resources are DNA Sequencers
+    - DNA Sequencers have multiple Lanes
+      - each Lane takes a DNA Sample
+      - each Lane outputs (eventually) a Raw Sequence File
+      - Lanes run together are a Job [or is Job something different?]
+        - a Job may be DNA Samples from different Projects
+        - a Project need not finish in a single Job
+        - Job Metadata
+          - this is a 'Lab Workbook' of how the Job was run
+  - some Resources are Tissue Sample to DNA Sample Robots
+    [i made that up, but can only imagine.]
+

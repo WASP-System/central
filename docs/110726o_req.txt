@@ -1,0 +1,421 @@
+Login Screen 
+  * Default Action 
+    + user/passwd input
+    + submission 
+      - failure, returns w/ "incorrect password"
+      - ok, to dashboard (or orginal destination)
+  * Link to 'Forgot Password'
+  * Link to 'New Registration'
+  * Link to 'About/ Static Page'
+
+
+Forgot Password
+  * Default Action 
+    + user/capcha input
+    + submission 
+      - bad capcha, bad captcha please retry
+      - no such user, returns w/ "no such user"
+      - ok
+        . reset passwd, send email to user w/ 'Reset Password'
+        . send user to 'please check your email' page
+       
+
+Reset Password
+  * Default Action 
+    + validate reset password action token
+    + user input, new password input
+    + submission 
+      - validate reset password action token, "error ..."
+      - user doesn't match, "error..."
+      - password too weak, "please enter a better password"
+      - ok
+        . password change
+        . send user to 'Login Page' with 'please login w/ your new passwd' message
+
+New Registration 
+  * Default Action 
+    + email, first, last, password, confirm password, 
+         p.i. of lab to be accessed.   capcha input
+    + message to approver
+    + no existing lab, opens a new lab pane (user is assumed to be PI)
+      input lab addr, and department
+    + submission 
+      - validates
+       . pi 
+      - ok
+       . generate userid (first initial, lastname, + counter)
+       . add to user table w/ pending status
+       . add pending role into labuser table
+       // this may need a user/lab pending table instead
+       . email to registrant "New Register" 
+       . email to p.i. "New Register" 
+       . if new lab, add to lab table w/ pending status   
+
+
+Dashboard
+  * 'My Profile' Link
+  * 'My Jobs' pane
+    - list of links to 'Job Detail' (jobDao.getJobsBySubmitterId())
+  * 'My Labs' pane
+    - list of links to 'Lab Detail'
+    - link 'Request Access to Lab'
+  * 'My Projects' pane
+    - list of links to 'Project Detail'
+    - link to 'Project Create'
+  * 'Department Admin' pane (Department Admin)
+    - list of Departments
+      - list of links to 'Lab Detail'
+      - link to 'Pending Lab Screen'
+      - link to 'Lab Create'
+      - link to 'Deparment Admin User'
+  * 'Job Approval Task' pane (Department Admin, Primary Investigator)
+    - list of links to 'Job Approval'
+  * 'Facility Manager' pane
+    - list to links 'Job Requote Task' Detail 
+    - list to links 'Job Account Receivable Task' Detail 
+  * 'Sample Manager' pane
+    - list of links 'Samples Receiving Pending Detail'
+  * 'Lab Tech' pane
+    - list of links 'Macromolecule to Library Detail'
+    - list of links 'Cassette Manager'
+  * 'God' pane 
+    - 'Department Create'
+    - 'User Create'
+
++++++++++++ 
+
+My Profile
+  * View Action
+    - user information for authenicated user, 
+      - firstname, lastname, email, address, locale, usermeta
+    - click to 'Edit'
+    - 'Change Password' Link
+  * Edit Action 
+    - click to 'return to 'View''
+    - submission
+      - validate
+      - update user and usermeta tables
+      - return to 'Edit' action with 'Saved message'
+
+Change My Password
+  * Default Action
+    + new password input
+    + submission 
+      - password too weak, "please enter a better password"
+      - ok
+        . password change
+        . return user to 'My Profile' with 'Password changed message'
+
+Lab Detail (Lab Member/Lab Manager/PI | Department Admin)
+  * View
+    + Click to 'Edit' (Lab Manager/PI)
+    + Click to 'Active/Inactive' (Department Admin)
+    + List of links to 'Job Detail'
+    + Link to 'Job Submission'
+    + Click to 'Lab User Manager' (Lab Manager/PI)
+    + Click to 'Pending Lab Users' (Lab Manager/PI)
+  * Edit Action 
+    - click to 'return to 'View''
+    - submission
+      - validate
+      - update lab and labmeta tables
+      - return to 'Edit' action with 'Ok message'
+  * active/inactive (Department Admin)
+    - return to 'View' action with 'Ok message'
+
+Lab User Manager (Lab Manager, PI)
+  * List
+    + List of link to 'Detail'
+    + Click to 'return to 'Lab Detail''
+    + add user to lab
+      - enter email address
+      - valid email address
+      - ok
+         - insert user into labrole (as labmember)
+  * Detail 
+    + output of first name, lastname, email, status
+    + 'Promote/Demote/Active/Inactive' Submission 
+      - inactive users may become active(lab member)
+      - lab members may be deactivated to inactive
+      - lab members may be promoted to lab managers (PI)
+      - lab manager may be demoted to lab members (PI)
+      - no actions possible on PI
+      - return to 'List' with 'Ok message'
+
+Request Access to Lab 
+  (to become a lab member)
+  * Default Action 
+    + email address of the P.I.,  message to approver
+    + submission 
+      - validate
+        . email address
+      - already has access, "you already have access to that lab"
+      - ok,
+        . adds to role pending to labuser
+  
+
+Pending Lab Screen (Department Admin)
+  * List Action
+    - show all pending labs
+    - click for 'Detail'
+  * Detail Action 
+    + Approve submission
+      - marks pending lab as active. 
+      - marks p.i. user as active. 
+      - sends 'New Lab' email to p.i.
+      - return to 'List' w/ status msg
+    + Reject submission
+      - marks pending lab as rejected (delete records)
+      - marks p.i. user as rejected (if it is her only lab)
+           (delete record if no other attached labs)
+      - sends 'Rejected Lab' email to p.i.
+      - return to 'List' w/ status msg
+
+Lab Create (Department Admin)
+  * Default Action 
+    + input name, labmeta, primary investigator
+    + Submission
+      - validate
+      - insert into lab
+      - insert into labmeta
+      - insert into labuser
+      - insert into user
+      - insert into usermeta
+      - email p.i. "New Lab Created" w/ reset password link
+      - forward to 'Lab Detail' 
+
+Pending Lab Users (Lab Manager/Primary Investagator)
+  * List Action 
+    - show all pending users (first/last/email/lab)
+    - per user
+      + Approve submission
+        - marks user as active.
+        - send to registrant 'Lab New User' email
+        - return to 'List' w/ status msg
+      + Reject submission
+        - delete from labuser table
+           (delete user record if no other attached labs)
+        - send 'Lab Reject User' email 
+        - return to 'List' w/ status msg
+  
+
+Job Detail (Job Viewer/Lab Manager/Primary Investigator for job.labId)  
+  * View
+    + Click to 'return to 'Lab''
+    + show details
+    + lisk of link to 'Job Task Detail'
+    + list of link to 'Job File'
+    + list of link to 'Job Sample'
+    + Click to 'Edit' (Facility Manager)
+    + Click to 'Job Viewer Manager' (Lab Manager/PI)
+  * Edit (Facility Manger)
+    + edit details
+    + submission 
+      - validate
+      - update job and job meta
+      - requote if necessary
+      - reapproval if necessary
+      - email P.I. and submitter
+
+Job Task Detail (Job Viewer/Lab Manger/Primary Investigator for task.job.labId)
+  * View
+    + Click to 'return to 'Job''
+    + show details
+
+Job File (Job Viewer/Lab Manager/Primary Investigator for jobfile.job.lab.labId)
+  * View
+    + Click to 'return to 'Job''
+    + show "thumbnail/digest"
+    + download file
+    + show details
+    
+Job Sample (Job Viewer/Lab Manager/Primary Investigator for sample.lab.labId)
+  * View
+    + Click to 'return to 'Job''
+    + list of links to related 'Job Samples'
+    + show details
+
+
+Job Viewer Manager(Lab Manager/Primary Investigator)
+  * List of Rules
+    + People who can view the job
+      - all members of lab 'Lab'
+      - explicit list of users 
+        . link of remove access
+          . are you sure?
+          . delete from jobuser
+    + add viewer
+      - checkbox list of lab members
+      - input box for external users
+      - checkbox for 'All' lab members
+      - validate
+      - ok
+        . insert into jobuser
+        . update job.viewablebylab
+
+
+Job Submission (Lab Member/Lab Manager/Primary Investigator)
+  * Select Workflow
+    + radio selctions of available workflows and descriptions
+    + submit
+      - forward to workflow input 
+  * Workflow inputs
+    + pulls list of input dynamically
+    + select sample configuration
+    + submit
+      - validate 
+      - forward to sample input 
+  * Sample inputs 
+    + input sample data
+    + submit
+      - validate 
+      - add job, jobmeta, sample, samplemeta, jobsample, task, jobtask
+      - forward to 'Job Detail'
+
+Project List 
+   * list of userprojects of other users in the same lab.
+   * 'Project Clone' action
+
+Project Detail
+  * View
+    + list of all jobs in project
+    + remove job from project
+      - delete into userprojectjob
+      - forward to 'Project Detail'
+    + add job to project 
+      - multi dropdown of all accessible jobs
+      - insert into userprojectjob
+      - forward to 'Project Detail'
+  * Detail
+    + input name 
+    + submission
+      - validate
+      - update userproject
+    + delete 
+      - are you sure?
+      - delete from userproject
+
+Project Create
+    + input name of project
+    + checkboxes of all accessible jobs
+    + submission    
+      - add into userproject
+      - add into userprojectlab
+      - forward to 'Project Detail'
+
+Departement Create
+  * Default Action 
+    + input name
+    + submission 
+      - validate
+      - insert into deparment
+
+Department Admin User (Department Admin, God)
+  * List
+    + list of links  
+    + Demote 
+      - delete from departmentadmin
+    + dropdown of all users
+    + Promote
+      - insert into departmentadmin
+ 
+Job Approval Task Detail (Department Admin, Lab Manager) 
+  * Click 'return to 'Dashboard''
+  * Default Action 
+    + related fields
+    + Approve Submission
+      - email 'Approval Job' job submitter
+      - return to dashboard with 'approved' message
+    + Reject Submission 
+      - cancel other job approval tasks for that job
+      - email 'Reject Job' job submitter
+      - return to dashboard with 'rejected' message
+
+Job Requote Task Detail (Facilities Manager)
+  * Click 'return to 'Dashboard''
+  * Default Action 
+    + related fields
+    + input requote message
+    + Submission
+      - validate
+      - ok
+        . insert into job quote
+        . cancel all other job quote
+        . cancel all other job quote approval
+          . if discount applied  xxx
+        . email p.i. and department admin
+        . return to dashboard with 'requote success' message
+
+Job Payment Receivable Task Detail (Facilities Manager)
+  * Click 'return to 'Dashboard''
+  * Default Action 
+    + related fields
+    + input received amount, grant 
+    + Submission
+      - validate
+      - ok
+        . insert into acct_ledger
+        . return to dashboard with 'received sucess' message
+
+Samples Receiving Pending Detail
+  * Click 'return to 'Dashboard''
+  * Default Action 
+    + related fields
+    + readjust inputs
+    + Received Submission
+      - validate
+      - ok 
+        . update sample
+        . return to dashboard with 'sample x received' message
+
+Macromolecule to become Library Detail
+  * Click 'return to 'Dashboard''
+  * Default Action 
+    + related fields
+    + input metadata
+    + Received Submission
+      - validate
+      - ok 
+        . insert into sample type.libary 
+        . insert into sourcesample 
+        . return to dashboard with 'sample x received' message
+
+Cassette Manager
+  * List
+    + list links to 'Flow Cell Detail'
+    + link to 'Create'
+  * Detail 
+    + drop down of available samples (libraries)
+    + add sample to lane submission
+      - validate
+        . of the same job
+        . no metadata adaptors are different
+      - ok 
+        . insert into sourcesample libary -> lane
+    + amplify run (start/end) submission 
+      - validate metadata
+      - ok 
+    + sequence run 
+      - validate metadata
+      - ok
+        . insert into run 
+        . insert into runlane
+    + post sequence run 
+      - validate metadata
+      - pass fail per lane
+        . email submitter, p.i.
+  * Create
+    + name input
+    + submission 
+      - validate (valid id)
+      - ok 
+        . insert into sample
+        . insert into sample lane (x8)
+        . insert into samplsource lane (x8) -> flowcell
+        . create flowcell workflow
+
+Assay Manager
+  * List
+    - list of links to Detail
+  * Detail
+

@@ -1,0 +1,123 @@
+some terminology between Project and Job clicked when I looked at the ER diagram again.
+so below is the working glossary.
+
+
+
+Things in square brackets ([]) I need some clarification on.
+
+Users are people.
+- some Users are Lab Members 
+  - Lab Members belong to one Lab [or many?] 
+  - Lab Members can submit projects for their Lab.
+  - submits a project they become an Investigator.
+  - some Lab Members are Primary Investigators (PIs). 
+    - PIs approve submitted projects for their Lab.
+    - [PIs may create other Lab Members for their Lab]
+    - [PIs may promote another Lab Member to PI for their Lab] 
+- some Users are [Fulfillers]
+  - [Fulfillers] perform tasks on the project. 
+  - some [Fulfillers] are Administrators
+    - Administrators manage billing and accounts
+  - some [Fulfillers] are Facilities Techs
+    - Facilities Techs manage specific Resources (ie. Illumnia)
+    - Facilities Techs perform tasks on physical materials. 
+- some Users are Chief Administrators (CAs) [not the best of names]
+  - CAs may create Labs
+  - CAs are PIs for all Labs.
+  - CAs can promote another User to be a CA
+- some Users are Facility Managers 
+  - Facility Managers can perform all duties of CAs
+  - [Facility Managers can perform all duties of Administrators ?]
+  - [Facility Managers can perform all duties of Facilities Techs ?]
+  - Facility Managers can create Users
+  - Facility Managers can promote Users to a Fulfillers, Admins, Facilities Techs, CAs and Facilities Managers
+- some Users are System Administrators
+  - System Administrators can perform all duties of Facilites Managers
+  - [System Administrators will do everything else?]
+
+- Users maybe be any combination of Lab Member and [Fulfiller]
+
+Labs are organization units
+  - Labs contain one more more users
+  - Labs must contain at least one PI
+
+Projects
+  - Projects belong to a single Lab. [shared?]
+  - Projects are groupings of Jobs.
+
+Jobs
+  - The Lab Member submitting a Job is it's Investigator
+  - Jobs are accessible to any Lab Member in their Lab
+  - Job Workflow are a set of Tasks and order they should be executed.
+    - [todo: expand...]
+  - Job Inputs are Investigator selections
+    - Job Inputs are defaulted to values set in Job Workflow
+    - Job Inputs are validated against the Job Workflow.
+  - Job Outputs are the results of the Job. 
+    - Job Outputs are either Files or strings.
+  - Job Cost is generated based on Job Workflow, Inputs and Outputs.
+  - Before beginning
+    - Jobs must be approved by one of the Lab's PI {task}
+      - if the Investigator is a PI, it is automatically approved
+    - Jobs must be approved by an Administrator {task}
+      - approval is a back and forth on Job Costs
+      - [Administrators allocate Resources to the Job ?]
+      - payment must be received first
+    - During this period, Job Inputs can change.
+      - [by whom?]
+  - some Jobs are Sequencing Jobs
+    - Sequencing Jobs need Samples
+      - Facilities Techs receive Samples {task}
+      - Facilities Techs test if Samples are "good".
+    - Samples 
+      - can be DNA (Macromolecule) Samples 
+      - can be Tissue Samples
+        - Facilities Tech need to be convert these to DNA Samples {task}
+      - can be Libraries
+        - Facilities Tech generated Libraries from DNA Samples {task}
+        - [does multiplexing happen here?, or did it happen before?] {task}
+      - Samples Metadata
+        - DNA Samples
+          - macromolecule preparation
+        - Tissue Samples
+          - pathology information
+          - organism 
+          - de-identified patient identifier
+        - Library Samples
+          - adaptors 
+    - Raw Sequence Files
+      - Facilities Tech use Sequencer generate Raw Sequence File (QSEQ) {task}
+    - Generic Sequence Files
+      - System converts Raw Sequence File to Generic Sequence File {task}
+    - Demultiplex Sequence
+      - If the Generic Sequence is multiplexed, 
+        demultiplex it and generate more Generic Sequence Files{task} 
+  - some Jobs are Assay Jobs
+    - Assay Jobs require a set of Generic Sequence Files
+    - Assay Jobs require a set of Job Inputs
+    - Job Inputs and Generic Sequence are sent to Assay Pipelines {task}
+      - Assay Pipelines
+        - [this is where i get lost, i assume work is happening.] 
+        - Results are sent back.
+  - some Jobs are both
+    - this basically chains the output of Sequencing Jobs with Assay Jobs
+    - most Sequencing Jobs are both
+      - by default a Contaminiation Check Assay Piplelines is on Generic Sequence Files.
+  - any Job Input or Job Output may be used by a future Job of the same Lab [same Project?].  
+
+Resources are physical tools.
+  - Facilities Techs are in charge of Resources
+  - some Resources are DNA Sequencers
+    - DNA Sequencers have multiple Lanes
+      - each Lane takes a DNA Sample
+      - each Lane outputs (eventually) a Raw Sequence File
+      - Lanes run together are a Run 
+        - a Run may be DNA Samples from different Projects/Jobs
+        - a Job need not finish in a single Run
+        - Run Metadata
+          - this is a 'Lab Workbook' of how the Job was run
+  - some Resources are Tissue Sample to DNA Sample Robots
+    [i made that up, but can only imagine.]
+
+Files
+  - Files live on a shared file system accessible by the a common URI across all modules

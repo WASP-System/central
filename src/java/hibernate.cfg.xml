@@ -1,0 +1,77 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-configuration PUBLIC
+    "-//Hibernate/Hibernate Configuration DTD//EN"
+    "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+<session-factory>
+  <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
+  <property name="hibernate.connection.url">jdbc:mysql://localhost/wasp</property>
+  <property name="hibernate.connection.username">wasp</property>
+  <property name="hibernate.connection.password">waspV2</property>
+  <property name="hibernate.connection.pool_size">10</property>
+  <property name="show_sql">true</property>
+  <property name="dialect">org.hibernate.dialect.MySQLDialect</property>
+  <property name="hibernate.hbm2ddl.auto">update</property>
+
+  <!-- Mapping files -->
+
+  <mapping class="edu.yu.einstein.wasp.model.User" />
+  <mapping class="edu.yu.einstein.wasp.model.Role" />
+  <mapping class="edu.yu.einstein.wasp.model.Userrole" />
+
+  <mapping class="edu.yu.einstein.wasp.model.Department" />
+  <mapping class="edu.yu.einstein.wasp.model.DepartmentUser" />
+
+  <mapping class="edu.yu.einstein.wasp.model.Lab" />
+  <mapping class="edu.yu.einstein.wasp.model.LabUser" />
+
+  <mapping class="edu.yu.einstein.wasp.model.Project" />
+  <mapping class="edu.yu.einstein.wasp.model.ProjectLab" />
+
+
+  <mapping class="edu.yu.einstein.wasp.model.Workflow" />
+  <mapping class="edu.yu.einstein.wasp.model.Job" />
+
+  <mapping class="edu.yu.einstein.wasp.model.JobMeta" />
+  <mapping class="edu.yu.einstein.wasp.model.JobCost" />
+  <mapping class="edu.yu.einstein.wasp.model.JobApproved" />
+
+  <mapping class="edu.yu.einstein.wasp.model.Barcode" />
+
+  <mapping class="edu.yu.einstein.wasp.model.TypeSample" />
+  <mapping class="edu.yu.einstein.wasp.model.Sample" />
+  <mapping class="edu.yu.einstein.wasp.model.SampleMeta" />
+  <mapping class="edu.yu.einstein.wasp.model.SampleSource" />
+  <mapping class="edu.yu.einstein.wasp.model.SampleLab" />
+  <mapping class="edu.yu.einstein.wasp.model.SampleBarcode" />
+
+  <mapping class="edu.yu.einstein.wasp.model.RIlluminaRun" />
+  <mapping class="edu.yu.einstein.wasp.model.RIlluminaLane" />
+  <mapping class="edu.yu.einstein.wasp.model.RIlluminaRunlanesample" />
+  <mapping class="edu.yu.einstein.wasp.model.RIlluminaRlsfile" />
+  <mapping class="edu.yu.einstein.wasp.model.RIlluminaRunlanesample" />
+
+  <mapping class="edu.yu.einstein.wasp.model.TypeResource" />
+  <mapping class="edu.yu.einstein.wasp.model.Resource" />
+  <mapping class="edu.yu.einstein.wasp.model.ResourceMeta" />
+  <mapping class="edu.yu.einstein.wasp.model.ResourceUser" />
+  <mapping class="edu.yu.einstein.wasp.model.ResourceBarcode" />
+
+  <mapping class="edu.yu.einstein.wasp.model.File" />
+  <mapping class="edu.yu.einstein.wasp.model.JobFile" />
+  <mapping class="edu.yu.einstein.wasp.model.ResourceBarcode" /> 
+
+  <mapping class="edu.yu.einstein.wasp.model.AChipseqArun" />
+  <mapping class="edu.yu.einstein.wasp.model.JobTaskAChipseqArun" />
+  <mapping class="edu.yu.einstein.wasp.model.AChipseqArunargs" />
+
+  <mapping class="edu.yu.einstein.wasp.model.Task" />
+  <mapping class="edu.yu.einstein.wasp.model.JobTask" />
+  <mapping class="edu.yu.einstein.wasp.model.JobTaskRIlluminaRls" />
+
+  <mapping class="edu.yu.einstein.wasp.model.JobSample" />
+<!--
+  -->
+</session-factory>
+</hibernate-configuration>
