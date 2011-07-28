@@ -51,14 +51,8 @@ public class LabController {
     return "lab/list";
   }
 
-  @RequestMapping(value="/{strId}/detail", method=RequestMethod.GET)
-  // @PreAuthorize("\"8\".equals(\"8\")") // ok
-  // @PreAuthorize("\"8\".equals(#str)") // nok - require auth
-  // @PreAuthorize("\"8\".equals(\"\" + #str)") // nok - require auth
-  // @PreAuthorize("hasRole(\"8\")")  // ok 
-  // @PreAuthorize("hasPermission('8', 'LM')")   // ok
-  // @PreAuthorize("hasPermission(#strId, 'LM')")  
-  @PreAuthorize("hasRole(#str)")   // nok
+  @RequestMapping(value="/detail/{strId}", method=RequestMethod.GET)
+  @PreAuthorize("hasRole('god') or hasRole('lu-' + #str)")   
   public String detail(@PathVariable("strId") String str, ModelMap m) {
     String now = (new Date()).toString();
 

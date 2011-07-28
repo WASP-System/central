@@ -42,7 +42,10 @@
   </target> 
 
   <target name="compile" depends="init">
-    <javac srcdir="${src}" destdir="${build}">
+    <!--
+      debug="true" for security annotations
+      -->
+    <javac srcdir="${src}" destdir="${build}" debug="true">
       <classpath refid="compile.classpath"/>
     </javac>
   </target>

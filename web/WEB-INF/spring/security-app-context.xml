@@ -7,9 +7,7 @@
                     http://www.springframework.org/schema/security/spring-security-3.1.xsd">
 
 
-    <global-method-security pre-post-annotations="enabled" proxy-target-class="true"> 
-      <expression-handler ref="expressionHandler"/>
-    </global-method-security>
+    <global-method-security pre-post-annotations="enabled" proxy-target-class="true" />
 
     <http use-expressions="true">
     <!-- // only if i say you can permissions
@@ -26,23 +24,45 @@
       <authentication-provider>
         <jdbc-user-service data-source-ref="dataSource" 
            authorities-by-username-query="
-SELECT login username, ifnull(r.rolename, '8') authority
+SELECT login username,
+  case ab.roleid
+    when 1 then
+      case r.domain
+        when 'system' then r.rolename
+        when 'department' then concat(provr.rolename, '-', du.departmentid)
+        when 'lab' then concat(provr.rolename, '-', lu.labid)
+        when 'job' then concat(provr.rolename, '-', ju.jobid)
+      end
+    when 2 then
+      concat(r.rolename, '-*')
+  end authority
 FROM
-user u
-left outer join userrole ur
-  on (u.userid = ur.userid)
-left outer join role r
-  on (ur.roleid = r.roleid)
+  user u
+  inner join role ab on (roleid in (1,2))
+  inner join role r on (1 = 1)
+  inner join roleset rs on (r.roleid = rs.parentroleid)
+  inner join role provr on (rs.parentroleid = provr.roleid)
+  left outer join userrole ur
+    on (u.userid = ur.userid and r.roleid = ur.roleid)
+  left outer join departmentuser du
+    on (u.userid = du.userid)
+  left outer join labuser lu
+    on (u.userid = lu.userid and r.roleid = lu.roleid)
+  left outer join jobuser ju
+    on (u.userid = ju.userid and r.roleid = ju.roleid)
 where
-  u.login = ?"
+  u.login = ? and 
+  case r.domain
+    when 'system' then ifnull(ur.userid, 0)
+    when 'department' then ifnull(du.userid, 0)
+    when 'lab' then ifnull(lu.userid, 0)
+    when 'job' then ifnull(ju.userid, 0)
+  end
+group by 1, 2
+"
            users-by-username-query="SELECT login username, password, isactive enabled FROM user WHERE login = ?" />
        </authentication-provider>
 
     </authentication-manager>
-
-  <beans:bean id="permissionEvaluator" class="edu.yu.einstein.wasp.security.LabPermissionEvaluator" />
-  <beans:bean id="expressionHandler" class="org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler">
-    <beans:property name="permissionEvaluator" ref="permissionEvaluator" />
-  </beans:bean>
 
 </beans:beans>   

@@ -82,9 +82,39 @@ insert into role values
 (5, 'ft', 'Facilities Tech', 'system'), 
 (6, 'pi', 'Primary Investigator', 'lab'), -- labuser, explicit
 (7, 'lm', 'Lab Manager', 'lab'), -- labuser, explicit
-(8, 'lu', 'Lab Member', 'lab'); -- labuser, explicit
-(9, 'js', 'Job Submitter', 'job'); -- jobuser, explicit
-(10, 'jv', 'Job Viewer', 'job'); -- jobuser, explicit
+(8, 'lu', 'Lab Member', 'lab'), -- labuser, explicit
+(9, 'js', 'Job Submitter', 'job'),-- jobuser, explicit
+(10, 'jv', 'Job Viewer', 'job'), -- jobuser, explicit
+(11, 'god', 'God', 'system');
+
+
+create table roleset (
+  rolesetid int(10) not null primary key auto_increment, 
+  parentroleid int(10) not null,
+  childroleid int(10) not null,
+  
+  foreign key fk_roleset_prid (parentroleid) references role(roleid),
+  foreign key fk_roleset_crid (childroleid) references role(roleid),
+
+  constraint unique index u_role_rname (parentroleid, childroleid)
+) ENGINE=InnoDB;
+
+insert into roleset
+(parentroleid, childroleid)
+select 
+roleid, roleid 
+from role;
+
+insert into roleset 
+(parentroleid, childroleid)
+values
+(6, 7),
+(6, 8),
+(7, 8),
+(11, 1),
+(11, 2),
+(11, 3),
+(11, 5);
 
 -- USER.ROLE
 --

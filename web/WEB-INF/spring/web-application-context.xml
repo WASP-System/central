@@ -57,17 +57,28 @@
   <bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
     <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"></property>
     <property name="prefix" value="/WEB-INF/jsp/"></property>
-    <property name="suffix" value=".jsp"></property>        
+    <property name="suffix" value=".jsp"></property>    
+    <property name="contentType" value="text/html;charset=UTF-8" />        
   </bean>
 
 
   <!-- locale -->
   <mvc:interceptors>
-    <bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor" />
+    <bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor">
+     	<property name="paramName"><value>setUserLocale</value></property>
+    </bean>
+      
+    <!-- bean class="edu.yu.einstein.wasp.controller.DefaultLocaleInterceptor" /-->            
+    
   </mvc:interceptors>
 
-  <bean id="localeResolver" class="org.springframework.web.servlet.i18n.CookieLocaleResolver" >
-    <property name="defaultLocale" value="en_US"/> 
+  <bean id="localeResolver" class="org.springframework.web.servlet.i18n.SessionLocaleResolver" >  
+    <property name="defaultLocale" ref="usLocale"/>
+  </bean>
+  
+  <bean id="usLocale" class="java.util.Locale" >  
+     <constructor-arg value="en"/>
+	 <constructor-arg value="US"/>
   </bean>
 
   <bean id="messageSource"

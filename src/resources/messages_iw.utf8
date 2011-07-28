@@ -1,3 +1,10 @@
+user.label.login=Login
+user.error.login=Login cannot be empty
+user.error.login_exists=Login already exists
+
+user.label.password=Password
+user.error.password=Password cannot be empty
+
 user.label.firstName=השם
 user.error.firstName=השם cannot be empty
 

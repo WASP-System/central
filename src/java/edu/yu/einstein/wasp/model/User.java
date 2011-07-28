@@ -11,12 +11,23 @@
 
 package edu.yu.einstein.wasp.model;
 
-import org.hibernate.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.validation.constraints.Pattern;
+
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
-
-import javax.persistence.*;
-import java.util.*;
+import org.hibernate.validator.constraints.NotEmpty;
 
 @Entity
 @Audited
@@ -34,6 +45,7 @@ public class User extends WaspModel {
 
   @Column(name="login")
   protected String login;
+  
   public void setLogin (String login) {
     this.login = login;
   }
@@ -42,7 +54,8 @@ public class User extends WaspModel {
   }
 
 
-  @Column(name="email")
+  @Column(name="email")  
+  @Pattern(regexp=".+@.+\\.[a-z]+")
   protected String email;
   public void setEmail (String email) {
     this.email = email;
@@ -52,7 +65,7 @@ public class User extends WaspModel {
   }
 
 
-  @Column(name="password")
+  @Column(name="password")  
   protected String password;
   public void setPassword (String password) {
     this.password = password;
@@ -63,6 +76,7 @@ public class User extends WaspModel {
 
 
   @Column(name="firstname")
+  @NotEmpty
   protected String firstName;
   public void setFirstName (String firstName) {
     this.firstName = firstName;
@@ -73,22 +87,13 @@ public class User extends WaspModel {
 
 
   @Column(name="lastname")
+  @NotEmpty
   protected String lastName;
   public void setLastName (String lastName) {
     this.lastName = lastName;
   }
   public String getLastName () {
     return this.lastName;
-  }
-
-
-  @Column(name="locale")
-  protected String locale;
-  public void setLocale (String locale) {
-    this.locale = locale;
-  }
-  public String getLocale () {
-    return this.locale;
   }
 
 
@@ -196,18 +201,6 @@ public class User extends WaspModel {
 
   @NotAudited
   @OneToMany
-   @JoinColumn(name="userid", insertable=false, updatable=false)
-  protected List<JobUser> jobUser;
-  public List<JobUser> getJobUser()  {
-    return this.jobUser;
-  }
-  public void setJobUser (List<JobUser> jobUser)  {
-    this.jobUser = jobUser;
-  }
-
-
-  @NotAudited
-  @OneToMany
    @JoinColumn(name="submitter_userid", insertable=false, updatable=false)
   protected List<Sample> sample;
   public List<Sample> getSample()  {
@@ -252,7 +245,17 @@ public class User extends WaspModel {
   public void setRun (List<Run> run)  {
     this.run = run;
   }
-
-
-
+  
+  @Column(name="locale")
+  @NotEmpty
+  protected String locale;
+  
+  public void setLocale (String locale) {
+    this.locale = locale;
+  }
+  public String getLocale () {
+    return this.locale;
+   
+  }
+  
 }
