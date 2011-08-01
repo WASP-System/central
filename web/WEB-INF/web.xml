@@ -42,7 +42,6 @@
   </context-param>
 
 
-      <!-- classpath:applicationContext-business.xml -->
   <context-param>
     <param-name>contextConfigLocation</param-name>
     <param-value>

@@ -32,7 +32,7 @@ public class BeanValidator implements org.springframework.validation.Validator, 
 	            //String messageKey=constraintViolation.getRootBean().getClass().getSimpleName().toLowerCase();
 	            //messageKey=messageKey+".error."+propertyPath;
 	            
-	            errors.rejectValue(propertyPath, "user.error."+propertyPath);
+	            errors.rejectValue(propertyPath, "user."+propertyPath+".error");
 	        }
 	    }
 	}

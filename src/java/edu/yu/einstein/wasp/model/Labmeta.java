@@ -11,17 +11,32 @@
 
 package edu.yu.einstein.wasp.model;
 
-import org.hibernate.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
-
-import javax.persistence.*;
-import java.util.*;
 
 @Entity
 @Audited
 @Table(name="labmeta")
-public class Labmeta extends WaspModel {
+public class Labmeta extends MetaBase {
+	
+	public Labmeta() {
+		super();
+	}
+	
+	public Labmeta(String k, Integer pos) {
+		super(k,pos);
+	}
+	
   @Id @GeneratedValue(strategy=GenerationType.IDENTITY)
   protected int labmetaId;
   public void setLabmetaId (int labmetaId) {
@@ -40,57 +55,6 @@ public class Labmeta extends WaspModel {
   public int getLabId () {
     return this.labId;
   }
-
-
-  @Column(name="k")
-  protected String k;
-  public void setK (String k) {
-    this.k = k;
-  }
-  public String getK () {
-    return this.k;
-  }
-
-
-  @Column(name="v")
-  protected String v;
-  public void setV (String v) {
-    this.v = v;
-  }
-  public String getV () {
-    return this.v;
-  }
-
-
-  @Column(name="position")
-  protected int position;
-  public void setPosition (int position) {
-    this.position = position;
-  }
-  public int getPosition () {
-    return this.position;
-  }
-
-
-  @Column(name="lastupdts")
-  protected Date lastUpdTs;
-  public void setLastUpdTs (Date lastUpdTs) {
-    this.lastUpdTs = lastUpdTs;
-  }
-  public Date getLastUpdTs () {
-    return this.lastUpdTs;
-  }
-
-
-  @Column(name="lastupduser")
-  protected int lastUpdUser;
-  public void setLastUpdUser (int lastUpdUser) {
-    this.lastUpdUser = lastUpdUser;
-  }
-  public int getLastUpdUser () {
-    return this.lastUpdUser;
-  }
-
 
 
   @NotAudited

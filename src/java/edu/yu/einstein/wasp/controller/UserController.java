@@ -2,26 +2,24 @@ package edu.yu.einstein.wasp.controller;
 
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
@@ -30,13 +28,19 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
-import edu.yu.einstein.wasp.service.UserService;
-import edu.yu.einstein.wasp.service.UsermetaService;
+import org.springframework.security.access.prepost.*;
+
+import edu.yu.einstein.wasp.model.MetaProperty;
+import edu.yu.einstein.wasp.model.MetaProperty.Country;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Usermeta;
+import edu.yu.einstein.wasp.service.UserService;
+import edu.yu.einstein.wasp.service.UsermetaService;
+
 
 
 @Controller
@@ -60,30 +64,32 @@ public class UserController {
   protected void initBinder(WebDataBinder binder) {
       binder.setValidator(validator);
   }
+
+  public static final String AREA="user";
   
   @RequestMapping("/list")
+  @PreAuthorize("hasRole('god')")
   public String list(ModelMap m) {
     List <User> userList = this.userService.findAll();
     
-    m.addAttribute("user", userList);
+    m.addAttribute(AREA, userList);
 
     return "user/list";
   }
   
-  private static final ResourceBundle BASE_BUNDLE=ResourceBundle.getBundle("messages", Locale.ENGLISH);
-  
-  
   @RequestMapping(value="/create/form.do", method=RequestMethod.GET)
+  @PreAuthorize("hasRole('god')")
   public String showEmptyForm(ModelMap m) {
 	  
     String now = (new Date()).toString();
     
     User user = new User();
     
-    user.setUsermeta(getUsermetaList("user"));
+    user.setUsermeta(getUsermetaList(AREA));
     
     m.addAttribute("now", now);
-    m.addAttribute("user", user);
+    m.addAttribute(AREA, user);
+    m.addAttribute("countries", Country.getList());
   
     return "user/detail";
   }
@@ -94,7 +100,7 @@ public class UserController {
 	    List<Usermeta> list = new ArrayList<Usermeta>();   
 	  
 	  //get current list of meta properties to capture
-	    Set<String> set=getUniqueKeys("user");
+	    Set<String> set=MetaProperty.getUniqueKeys(AREA);
 	    
 	    for(String name:set) {
 	    	Usermeta meta=new Usermeta();
@@ -104,35 +110,36 @@ public class UserController {
 	       
 
 	    //set property attributes and sort them according to "position"
-	    setAttributesAndSort(list);
+	    MetaProperty.setAttributesAndSort(list,AREA);
 	    
 	    return list;
   }
   
   @RequestMapping(value="/create/form.do", method=RequestMethod.POST)
+  @PreAuthorize("hasRole('god')")
   public String create(@Valid User userForm, BindingResult result, SessionStatus status, ModelMap m) {
 	  	   
   	    //read properties from form
 	  	List<Usermeta> usermetaList = getUsermetaFromForm(null);
 	  	
 	  	//set property attributes and sort them according to "position"
-	  	setAttributesAndSort(usermetaList);
+	  	MetaProperty.setAttributesAndSort(usermetaList,AREA);
 	  	
 		userForm.setUsermeta(usermetaList) ;
 		
-		//manually val;idate login and password
-		Errors errors=new BindException(result.getTarget(), "user"); 
+		//manually validate login and password
+		Errors errors=new BindException(result.getTarget(), AREA); 
 		if (userForm.getLogin()==null || userForm.getLogin().isEmpty()) {
-			errors.rejectValue("login", "user.error.login");
+			errors.rejectValue("login", "user.login.error");
 		} else {
 			User user=userService.getUserByLogin(userForm.getLogin());
 			if (user!=null && user.getLogin()!=null) {
-				errors.rejectValue("login", "user.error.login_exists");
+				errors.rejectValue("login", "user.login.exists_error");
 			}
 		}
 		
 		if (userForm.getPassword()==null || userForm.getPassword().isEmpty()) {
-			errors.rejectValue("password", "user.error.password");
+			errors.rejectValue("password", "user.password.error");
 		}
 		
 		result.addAllErrors(errors);
@@ -170,17 +177,31 @@ public class UserController {
 	 	return "redirect:/user/detail/"+userDb.getUserId()+".do";
   }
   
+  @RequestMapping(value="/me.do", method=RequestMethod.GET)
+  public String detailSelf(ModelMap m) {
+    Authentication authentication = SecurityContextHolder.getContext()
+           .getAuthentication();
+
+    User user = this.userService.getUserByLogin(authentication.getName());
+
+    return detail(user.getUserId(), m);
+  }
+
  
   @RequestMapping(value="/detail/{userId}.do", method=RequestMethod.GET)
-  public String detail(@PathVariable("userId") Integer userId, ModelMap m) {
+  @PreAuthorize("hasRole('god')")
+  public String detailById(@PathVariable("userId") Integer userId, ModelMap m) {
+    return detail(userId, m);
+  }
 	  
+  public String detail(Integer userId, ModelMap m) {
     String now = (new Date()).toString();
 
     User user = this.userService.getById(userId);
     
     //check if there are new metafields defined in property files
     //and add them to the form according to "postion" attribute
-    user.setUsermeta(merge(user.getUsermeta(), getUniqueKeys("user")));
+    user.setUsermeta(merge(user.getUsermeta(), MetaProperty.getUniqueKeys(AREA)));
     
     //TODO: remove. just for testing. move to "login" controller when it's implemented
     String lang=user.getLocale().substring(0,2);
@@ -189,37 +210,32 @@ public class UserController {
     request.getSession().setAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME, locale);
 
     m.addAttribute("now", now);
-    m.addAttribute("user", user);
+    m.addAttribute(AREA, user);
+    m.addAttribute("countries", Country.getList());
   
     return "user/detail";
   }
   
 
-	// returns list of unique "k" values for the given "prefix"
-	public static Set<String> getUniqueKeys(String prefix) {
-	     
-	     Set<String> set = new HashSet<String>();
-	     
-	     Enumeration<String> en=BASE_BUNDLE.getKeys();
-	     while(en.hasMoreElements()) {
-	    	String k = en.nextElement();
-	    	
-	    	if (!k.startsWith(prefix+".metaposition.")) continue;
-	    	
-	    	String name=k.substring(k.lastIndexOf(".")+1);
-	    	
-	    	set.add(name);
+  	
+  @RequestMapping(value="/me.do", method=RequestMethod.POST)
+  public String updateDetail(@Valid User userForm, BindingResult result, SessionStatus status, ModelMap m) {
+    Authentication authentication = SecurityContextHolder.getContext()
+           .getAuthentication();
 
-	    }
-	     
-	     return set;
-	  }
+    User user = this.userService.getUserByLogin(authentication.getName());
+
+    updateDetail(user.getUserId(), userForm, result, status, m);
+
+ 	  return "redirect:" + "me.do";
+  }
   
   @RequestMapping(value="/detail/{userId}.do", method=RequestMethod.POST)
+  @PreAuthorize("hasRole('god') or User.login == principal.name")
   public String updateDetail(@PathVariable("userId") Integer userId, @Valid User userForm, BindingResult result, SessionStatus status, ModelMap m) {
     
 	 List<Usermeta> usermetaList = getUsermetaFromForm(userId);	
-	 setAttributesAndSort(usermetaList);
+	 MetaProperty.setAttributesAndSort(usermetaList,AREA);
 	 userForm.setUsermeta(usermetaList) ;
 	 	
    	 List<String> validateList=new ArrayList<String>();
@@ -256,6 +272,22 @@ public class UserController {
  	return "redirect:"+userId+".do";
     
   }
+
+  @RequestMapping(value="/mypassword.do", method=RequestMethod.GET)
+  public String myPasswordForm (ModelMap m) {
+    return "user/mypassword";
+  }
+
+  @RequestMapping(value="/mypassword.do", method=RequestMethod.POST)
+  public String myPassword (
+        @RequestParam(value="passwordold") String passwordold,
+        @RequestParam(value="password") String password,
+        @RequestParam(value="password2") String password2,
+      ModelMap m) {
+    return "redirect:/dashboard.do";
+  }
+
+  
   
   
   private List<Usermeta> getUsermetaFromForm(Integer userId) {
@@ -280,73 +312,6 @@ public class UserController {
 	    return usermetaList;
   }
   
-  /* 1. populates "control" and "position" property of each object in the list
-  * with values from the messages_en.properties file
-  *
-  * 2. Sorts list on meta.position field 
-  */
-  
-  private void setAttributesAndSort(List<Usermeta> list) {
-	  
-	 for(Usermeta m:list) {
-		String name=m.getK();
-		String basename=name.substring(name.lastIndexOf(".")+1);
-		
-		//some old key we dont know about 
-		if (!BASE_BUNDLE.containsKey("user.metaposition."+basename)) continue;
-		
-		Usermeta.Property p=new Usermeta.Property();
-		m.setProperty(p);
-		
-		int pos=-1;
-		if (BASE_BUNDLE.containsKey("user.metaposition."+basename)) {
-				    		
-			try {	    			
-				pos=Integer.parseInt(BASE_BUNDLE.getString("user.metaposition."+basename));
-			} catch (Throwable e) {}
- 		}
-		p.setMetaposition(pos);
-		
- 		if (BASE_BUNDLE.containsKey("user.control."+basename)) {
- 			String controlStr=BASE_BUNDLE.getString("user.control."+basename);
- 			String typeStr=controlStr.substring(0,controlStr.indexOf(":"));
- 			Usermeta.Property.Control.Type type=Usermeta.Property.Control.Type.valueOf(typeStr);
- 			if (type==Usermeta.Property.Control.Type.select) {
- 				String[] pairs=StringUtils.tokenizeToStringArray(controlStr.substring(controlStr.indexOf(":")+1),";");
- 				List<Usermeta.Property.Control.Option> options=new ArrayList<Usermeta.Property.Control.Option>();
- 				
- 				for(String el:pairs) {
- 					String [] pair=StringUtils.split(el,":");
- 					Usermeta.Property.Control.Option option = new Usermeta.Property.Control.Option();
- 					option.setValue(pair[0]);
- 					option.setLabel(pair[1]);
- 					options.add(option);
- 				}
- 				
- 				Usermeta.Property.Control control=new Usermeta.Property.Control();
- 				control.setType(Usermeta.Property.Control.Type.select);
- 				control.setOptions(options);	    				
- 				p.setControl(control);
- 			}	
- 		}
- 		
- 		if (BASE_BUNDLE.containsKey("user.label."+basename)) {
- 			p.setLabel(BASE_BUNDLE.getString("user.label."+basename));
- 		}
- 		
- 		if (BASE_BUNDLE.containsKey("user.constraint."+basename)) {
- 			p.setLabel(BASE_BUNDLE.getString("user.constraint."+basename));
- 		}
-
- 		if (BASE_BUNDLE.containsKey("user.error."+basename)) {
- 			p.setLabel(BASE_BUNDLE.getString("user.error."+basename));
- 		}
- 		
-	 }
-	 
-	 Collections.sort( list, META_POSITION_COMPARATOR);
- }
-  
   private List<Usermeta> merge(List<Usermeta> dbList,Set<String> keys) {
 	  
 	  List<Usermeta> resultList = new ArrayList<Usermeta>();
@@ -364,27 +329,9 @@ public class UserController {
 		  }
 	  }
 	  
-	  setAttributesAndSort(resultList);
+	  MetaProperty.setAttributesAndSort(resultList,AREA);
 	  
 	  return resultList;
   }
     
-  private final static Comparator<Usermeta> META_POSITION_COMPARATOR =  new Comparator<Usermeta>() {
-		public int compare(Usermeta f1, Usermeta f2) {
-   		 
- 			if (f1==null) return -1;
- 			if (f2==null) return 1;
- 			
- 			Integer p1=f1.getPosition();
- 			Integer p2=f2.getPosition();	    		 
-
- 			if (p1==null) return -1;
- 			if (p2==null) return 1;
-
- 			
- 			return p1.compareTo(p2);
-	 
- }
-};
-  
 }

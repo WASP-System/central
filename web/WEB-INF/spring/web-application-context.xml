@@ -26,6 +26,20 @@
     <property name="password"><value>waspV2</value></property>
   </bean>
 
+
+  <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+    <property name="configLocation" value="/WEB-INF/ehcache.xml"/>
+  </bean>
+      
+  <bean id="userCacheBackend" class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+    <property name="cacheManager" ref="cacheManager"/>
+    <property name="cacheName" value="userCache"/>
+  </bean>
+
+  <bean id="userCache" class="org.springframework.security.core.userdetails.cache.EhCacheBasedUserCache">
+    <property name="cache" ref="userCacheBackend"/>
+  </bean>
+
   <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalEntityManagerFactoryBean">
     <property name="persistenceUnitName" value="wasp1" /> 
   </bean>
@@ -55,9 +69,9 @@
   <mvc:annotation-driven /> 
 
   <bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
-    <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"></property>
-    <property name="prefix" value="/WEB-INF/jsp/"></property>
-    <property name="suffix" value=".jsp"></property>    
+    <property name="viewClass" value="org.springframework.web.servlet.view.JstlView" />
+    <property name="prefix" value="/WEB-INF/jsp/" />
+    <property name="suffix" value=".jsp" />
     <property name="contentType" value="text/html;charset=UTF-8" />        
   </bean>
 

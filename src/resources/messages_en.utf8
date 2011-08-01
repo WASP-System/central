@@ -1,79 +1,82 @@
 # -------------------------- static user fields --------------------------
-user.label.login=Login
-user.error.login=Login cannot be empty
-user.error.login_exists=Login already exists
+user.login.label=Login
+user.login.error=Login cannot be empty
+user.login.exists_error=Login already exists
 
-user.label.password=Password
-user.error.password=Password cannot be empty
+user.password.label=Password
+user.password.error=Password cannot be empty
 
-user.label.firstName=First Name
-user.error.firstName=First Name cannot be empty
+user.firstName.label=First Name
+user.firstName.error=First Name cannot be empty
 
-user.label.lastName=Last Name
-user.error.lastName=Last Name cannot be empty
+user.lastName.label=Last Name
+user.lastName.error=Last Name cannot be empty
 
-user.label.email=Email
-user.error.email=Wrong email address format
+user.email.label=Email
+user.email.error=Wrong email address format
 
-user.label.locale=Locale
-user.error.locale=Locale cannot be empty
-
-
+user.locale.label=Locale
+user.locale.error=Locale cannot be empty
 
 # -------------------------- dynamic user fields --------------------------
 
 # Fields that have "metaposition" property defined
 # are considered dynamic and stored to Usermeta table.
 # 
-# WARNING: *.constraint.* and *.metaposition.* properties can only be defined in this file (messages_en.properties)
+# WARNING: *.constraint.*,*.control.* and *.metaposition.* properties can only be defined in this file (i.e. messages_en.properties)
 
-user.label.title=Title
-user.error.title=Title cannot be empty
-user.constraint.title=NotEmpty
-user.control.title=select:Mr:Mr;Ms:Ms;Mrs:Mrs;Miss:Miss
-user.metaposition.title=0
+user.title.label=Title
+user.title.error=Title cannot be empty
+user.title.constraint=NotEmpty
+user.title.control=select:Mr:Mr;Ms:Ms;Mrs:Mrs;Miss:Miss
+user.title.metaposition=0
 
-user.label.institution=Institution
-user.error.institution=Institution cannot be empty
-user.constraint.institution=NotEmpty
-user.metaposition.institution=1
+user.institution.label=Institution
+user.institution.error=Institution cannot be empty
+user.institution.constraint=NotEmpty
+user.institution.metaposition=1
 
-user.label.department=Department
-user.metaposition.department=2
+user.department.label=Department
+user.department.metaposition=2
 
-user.label.building_room=Room
-user.metaposition.building_room=3
+user.building_room.label=Room
+user.building_room.metaposition=3
 
-user.label.address=Address
-user.error.address=Address cannot be empty
-user.constraint.address=NotEmpty
-user.metaposition.address=4
+user.address.label=Address
+user.address.error=Address cannot be empty
+user.address.constraint=NotEmpty
+user.address.metaposition=4
 
-user.label.city=City 
-user.error.city=City cannot be empty
-user.constraint.address=NotEmpty
-user.metaposition.city=5
+user.city.label=City 
+user.city.error=City cannot be empty
+user.address.constraint=NotEmpty
+user.city.metaposition=5
 
-user.label.state=State
-user.control.state=select:AL:Alabama;AK:Alaska;AZ:Arizona;AR:Arkansas;CA:California;CO:Colorado;CT:Connecticut;DE:Delaware;DC:District of Columbia;FL:Florida;GA:Georgia;HI:Hawaii;ID:Idaho;IL:Illinois;IN:Indiana;IA:Iowa;KS:Kansas;KY:Kentucky;LA:Louisiana;ME:Maine;MD:Maryland;MA:Massachusetts;MI:Michigan;MN:Minnesota;MS:Mississippi;MO:Missouri;MT:Montana;NE:Nebraska;NV:Nevada;NH:New Hampshire;NJ:New Jersey;NM:New Mexico;NY:New York;NC:North Carolina;ND:North Dakota;OH:Ohio;OK:Oklahoma;OR:Oregon;PA:Pennsylvania;RI:Rhode Island;SC:South Carolina;SD:South Dakota;TN:Tennessee;TX:Texas;UT:Utah;VT:Vermont;VA:Virginia;WA:Washington;WV:West Virginia;WI:Wisconsin;WY:Wyoming;
-user.metaposition.state=6
+user.state.label=State
+user.state.control=select:AL:Alabama;AK:Alaska;AZ:Arizona;AR:Arkansas;CA:California;CO:Colorado;CT:Connecticut;DE:Delaware;DC:District of Columbia;FL:Florida;GA:Georgia;HI:Hawaii;ID:Idaho;IL:Illinois;IN:Indiana;IA:Iowa;KS:Kansas;KY:Kentucky;LA:Louisiana;ME:Maine;MD:Maryland;MA:Massachusetts;MI:Michigan;MN:Minnesota;MS:Mississippi;MO:Missouri;MT:Montana;NE:Nebraska;NV:Nevada;NH:New Hampshire;NJ:New Jersey;NM:New Mexico;NY:New York;NC:North Carolina;ND:North Dakota;OH:Ohio;OK:Oklahoma;OR:Oregon;PA:Pennsylvania;RI:Rhode Island;SC:South Carolina;SD:South Dakota;TN:Tennessee;TX:Texas;UT:Utah;VT:Vermont;VA:Virginia;WA:Washington;WV:West Virginia;WI:Wisconsin;WY:Wyoming;
+user.state.metaposition=6
 
-user.label.country=Country
-user.error.country=Country cannot be empty
-user.constraint.country=NotEmpty
-user.metaposition.country=7
+user.country.label=Country
+user.country.error=Country cannot be empty
+user.country.control=select:${countries}:code:name
+user.country.constraint=NotEmpty
+user.country.metaposition=7
 
-user.label.zip=Zip
-user.error.zip=Zip cannot be empty
-user.constraint.zip=NotEmpty
-user.metaposition.zip=8
+user.zip.label=Zip
+user.zip.error=Zip cannot be empty
+user.zip.constraint=NotEmpty
+user.zip.metaposition=8
 
-user.label.phone=Phone
-user.error.phone=Phone cannot be empty
-user.constraint.phone=NotEmpty
-user.metaposition.phone=9
+user.phone.label=Phone
+user.phone.error=Phone cannot be empty
+user.phone.constraint=NotEmpty
+user.phone.metaposition=9
 
-user.label.fax=Fax
-user.error.fax=Fax cannot be empty
-user.constraint.fax=NotEmpty
-user.metaposition.fax=10
+user.fax.label=Fax
+user.fax.error=Fax cannot be empty
+user.fax.constraint=NotEmpty
+user.fax.metaposition=10
+
+
+
+

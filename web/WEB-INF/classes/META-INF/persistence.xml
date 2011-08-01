@@ -4,6 +4,7 @@
              version="2.0">
   <persistence-unit name="wasp1">
     <provider>org.hibernate.ejb.HibernatePersistence</provider>
+
     <class>edu.yu.einstein.wasp.model.AChipseqArun</class>
     <class>edu.yu.einstein.wasp.model.AChipseqArunargs</class>
     <class>edu.yu.einstein.wasp.model.AcctGrant</class>
@@ -19,40 +20,20 @@
     <class>edu.yu.einstein.wasp.model.DepartmentUser</class>
     <class>edu.yu.einstein.wasp.model.File</class>
     <class>edu.yu.einstein.wasp.model.Job</class>
-    <class>edu.yu.einstein.wasp.model.JobApproved</class>
-    <class>edu.yu.einstein.wasp.model.JobCost</class>
     <class>edu.yu.einstein.wasp.model.JobFile</class>
     <class>edu.yu.einstein.wasp.model.JobMeta</class>
     <class>edu.yu.einstein.wasp.model.JobSample</class>
     <class>edu.yu.einstein.wasp.model.JobSamplemeta</class>
-    <class>edu.yu.einstein.wasp.model.JobTask</class>
-    <class>edu.yu.einstein.wasp.model.JobTaskAChipseqArun</class>
-    <class>edu.yu.einstein.wasp.model.JobTaskRIlluminaRls</class>
-    <class>edu.yu.einstein.wasp.model.JobTaskRunlane</class>
-    <class>edu.yu.einstein.wasp.model.JobTaskmeta</class>
     <class>edu.yu.einstein.wasp.model.JobUser</class>
     <class>edu.yu.einstein.wasp.model.Lab</class>
     <class>edu.yu.einstein.wasp.model.LabUser</class>
     <class>edu.yu.einstein.wasp.model.Labmeta</class>
     <class>edu.yu.einstein.wasp.model.Meta</class>
-    <class>edu.yu.einstein.wasp.model.P</class>
-    <class>edu.yu.einstein.wasp.model.PAChipseqArun</class>
-    <class>edu.yu.einstein.wasp.model.Pjob</class>
-    <class>edu.yu.einstein.wasp.model.Pmeta</class>
     <class>edu.yu.einstein.wasp.model.Project</class>
-    <class>edu.yu.einstein.wasp.model.ProjectLab</class>
-    <class>edu.yu.einstein.wasp.model.Prun</class>
-    <class>edu.yu.einstein.wasp.model.Prunlane</class>
-    <class>edu.yu.einstein.wasp.model.Psample</class>
-    <class>edu.yu.einstein.wasp.model.RIlluminaLane</class>
-    <class>edu.yu.einstein.wasp.model.RIlluminaRlsfile</class>
-    <class>edu.yu.einstein.wasp.model.RIlluminaRun</class>
-    <class>edu.yu.einstein.wasp.model.RIlluminaRunlanesample</class>
     <class>edu.yu.einstein.wasp.model.Resource</class>
     <class>edu.yu.einstein.wasp.model.ResourceBarcode</class>
     <class>edu.yu.einstein.wasp.model.ResourceLane</class>
     <class>edu.yu.einstein.wasp.model.ResourceMeta</class>
-    <class>edu.yu.einstein.wasp.model.ResourceUser</class>
     <class>edu.yu.einstein.wasp.model.Role</class>
     <class>edu.yu.einstein.wasp.model.Run</class>
     <class>edu.yu.einstein.wasp.model.RunFile</class>
@@ -76,14 +57,13 @@
     <class>edu.yu.einstein.wasp.model.TypeResource</class>
     <class>edu.yu.einstein.wasp.model.TypeSample</class>
     <class>edu.yu.einstein.wasp.model.User</class>
-    <class>edu.yu.einstein.wasp.model.UserListener</class>
     <class>edu.yu.einstein.wasp.model.Usermeta</class>
     <class>edu.yu.einstein.wasp.model.Userrole</class>
-    <class>edu.yu.einstein.wasp.model.WaspModel</class>
     <class>edu.yu.einstein.wasp.model.Workflow</class>
     <class>edu.yu.einstein.wasp.model.Workflowmeta</class>
     <class>edu.yu.einstein.wasp.model.Workflowtask</class>
     <class>edu.yu.einstein.wasp.model.Workflowtasksource</class>
+
 
     <properties>
       <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver"/>

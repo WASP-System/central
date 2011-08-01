@@ -1,8 +1,11 @@
 <%@ include file="/WEB-INF/jsp/include.jsp" %>
 
-<h1>My Profile</h1>
-<div><a href="/wasp/user/me.do">View User Profile</a></div>
-<div><a href="/wasp/user/mypassword.do">Change Password</a></div>
+<div><a href="/wasp/user/me.do">My Profile</a></div>
+<div><a href="/wasp/user/mypassword.do">My Password</a></div>
+
+<hr>
+
+<br>
 
 <h1>Super User Utils</h1>
 <div><a href="/wasp/user/list.do">User Utils</a></div>

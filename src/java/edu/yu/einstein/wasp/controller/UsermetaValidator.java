@@ -50,13 +50,13 @@ public class UsermetaValidator {
 	    			 
 	    				    			 
 	    			 if (!b) {
-	    				 errors.rejectValue("usermeta["+i+"].k", "user.error."+meta.getK().replace("user.", ""));  
+	    				 errors.rejectValue("usermeta["+i+"].k", "user."+meta.getK().replace("user.", "")+".error");  
 	    			 }
 	    				    			 
 	    		} else if (constraint.equals(Constraint.NotEmpty.name())){
 	    			if (meta.getV()==null || meta.getV().isEmpty()) {
 	    				
-	    				 errors.rejectValue("usermeta["+i+"]", "user.error."+meta.getK().replace("user.", ""));  
+	    				 errors.rejectValue("usermeta["+i+"]", "user."+meta.getK().replace("user.", "")+".error");  
 	    				 
 	    				
 	    			}	    			 

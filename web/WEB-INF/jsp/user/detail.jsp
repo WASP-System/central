@@ -1,45 +1,44 @@
 <%@ include file="/WEB-INF/jsp/include.jsp" %>
 
 <html>
-  <head><title>WASP</title><head>
+  <head><title>User Detail</title><head>
   <body>
     
-    <h1>WASP</h1>
-    <p><c:out value="${now}"/></p>
-    <hr> 
+    <h1>User Detail</h1>
+
     <form:form commandName="user">
     
      <table>
      	  <tr><td colspan=2 align=left></br><b>User Details:</b></td></tr>
      	   <c:if  test="${user.userId == 0}">
      	   <tr>
-              <td><fmt:message key="user.label.login" />:</td>
+              <td><fmt:message key="user.login.label" />:</td>
               <td><form:input path="login" /></td>
               <td><form:errors path="login"/></td>
           </tr>
           <tr>
-              <td><fmt:message key="user.label.password"/>:</td>
-              <td><form:input path="password" /></td>
+              <td><fmt:message key="user.password.label"/>:</td>
+              <td><form:password path="password" /></td>
               <td><form:errors path="password" /></td>
           </tr>     	   
      	   </c:if>	
           <tr>
-              <td><fmt:message key="user.label.firstName" />:</td>
+              <td><fmt:message key="user.firstName.label" />:</td>
               <td><form:input path="firstName" /></td>
               <td><form:errors path="firstName"/></td>
           </tr>
           <tr>
-              <td><fmt:message key="user.label.lastName"/>:</td>
+              <td><fmt:message key="user.lastName.label"/>:</td>
               <td><form:input path="lastName" /></td>
               <td><form:errors path="lastName" /></td>
           </tr>
           <tr>
-              <td><fmt:message key="user.label.email"/>:</td>
+              <td><fmt:message key="user.email.label"/>:</td>
               <td><form:input path="email" /></td>
               <td><form:errors path="email" /></td>
           </tr>         
           <tr>
-              <td><fmt:message key="user.label.locale"/>:</td>
+              <td><fmt:message key="user.locale.label"/>:</td>
               <td>
               <select name=locale>
                 <option value=''>-- select --</option>
@@ -53,15 +52,27 @@
           <c:forEach items="${user.usermeta}" var="meta" varStatus="status">
           <tr>
        
-            <td><fmt:message key="user.label.${fn:replace(meta.k, \"user.\", \"\")}"/>:</td>
+            <td><fmt:message key="user.${fn:replace(meta.k, \"user.\", \"\")}.label"/>:</td>
             <td>
             <c:if test="${not empty meta.property.control}">
-            <select name="usermeta_${meta.k}">
-                <option value=''>-- select --</option>
-                <c:forEach var="option" items="${meta.property.control.options}">
-                <option value="${option.value}" <c:if test="${option.value == meta.v}"> selected</c:if>><c:out value="${option.label}"/></option>
-                </c:forEach>               	              
-            </select>
+            	<c:if test="${meta.property.control.items != null}">            	
+            		<c:set var="selectItems" scope="request" value="${requestScope[meta.property.control.items]}"/>
+            		<c:set var="itemValue" scope="request">${meta.property.control.itemValue}</c:set>
+            		<c:set var="itemLabel" scope="request">${meta.property.control.itemLabel}</c:set>                       	
+            	</c:if>
+            	<c:if test="${meta.property.control.items == null}">
+            		<c:set var="selectItems" scope="request" value="${meta.property.control.options}" />
+            		<c:set var="itemValue" scope="request">value</c:set>
+            		<c:set var="itemLabel" scope="request">label</c:set>            	
+            	</c:if>
+            	 
+            	 <select name="usermeta_${meta.k}">
+	                <option value=''>-- select --</option>
+                	<c:forEach var="option" items="${selectItems}">
+                	<option value="${option[itemValue]}" <c:if test="${option[itemValue] == meta.v}"> selected</c:if>><c:out value="${option[itemLabel]}"/></option>
+                	</c:forEach>               	              
+	            </select>
+            
             </c:if>
             <c:if test="${empty meta.property.control}"><input name="usermeta_${meta.k}" value="${meta.v}" /></c:if>
             </td>            	           
@@ -100,8 +111,6 @@
   
     </form:form>
    
-  
-    [inactivate]
-    [change password]
+ 
   </body>
 </html>

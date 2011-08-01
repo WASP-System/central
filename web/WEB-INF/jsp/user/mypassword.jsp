@@ -1,9 +1,9 @@
 <%@ include file="/WEB-INF/jsp/include.jsp" %>
 
-<form method="POST" action="<c:out value="${c}"/>/user/mypassword.do">
+<form method="POST" action="<c:url value="/user/mypassword.do"/>">
   <div>
   Old Password
-  <input type="name" name="username">
+  <input type="name" name="passwordold">
   </div>
   <div>
   New Password
