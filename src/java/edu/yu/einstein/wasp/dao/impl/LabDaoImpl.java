@@ -77,5 +77,27 @@ public class LabDaoImpl extends WaspDaoImpl<Lab> implements edu.yu.einstein.wasp
   }
 
 
+  @SuppressWarnings("unchecked")
+  @Transactional
+  public Lab getLabByPrimaryUserId (final int primaryUserId) {
+   Object res = getJpaTemplate().execute(new JpaCallback() {
+   public Object doInJpa(EntityManager em) throws PersistenceException {
+     String queryString = "SELECT a FROM Lab a WHERE "
+       + "a.primaryUserId = :primaryUserId";
+     Query query = em.createQuery(queryString);
+      query.setParameter("primaryUserId", primaryUserId);
+
+    return query.getResultList();
+  }
+  });
+    List<Lab> results = (List<Lab>) res;
+    if (results.size() == 0) {
+      Lab rt = new Lab();
+      return rt;
+    }
+    return (Lab) results.get(0);
+  }
+
+
 }
 

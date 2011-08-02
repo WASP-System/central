@@ -62,7 +62,7 @@ public class ResourceMetaDaoImpl extends WaspDaoImpl<ResourceMeta> implements ed
    public Object doInJpa(EntityManager em) throws PersistenceException {
      String queryString = "SELECT a FROM ResourceMeta a WHERE "
        + "a.k = :k"
-       + "AND "+ "a.resourceId = :resourceId";
+       + " AND "+ "a.resourceId = :resourceId";
      Query query = em.createQuery(queryString);
       query.setParameter("k", k);
       query.setParameter("resourceId", resourceId);

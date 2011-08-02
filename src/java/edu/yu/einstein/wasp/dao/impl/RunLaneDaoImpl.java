@@ -62,7 +62,7 @@ public class RunLaneDaoImpl extends WaspDaoImpl<RunLane> implements edu.yu.einst
    public Object doInJpa(EntityManager em) throws PersistenceException {
      String queryString = "SELECT a FROM RunLane a WHERE "
        + "a.runId = :runId"
-       + "AND "+ "a.resourcelaneId = :resourcelaneId";
+       + " AND "+ "a.resourcelaneId = :resourcelaneId";
      Query query = em.createQuery(queryString);
       query.setParameter("runId", runId);
       query.setParameter("resourcelaneId", resourcelaneId);
@@ -86,7 +86,7 @@ public class RunLaneDaoImpl extends WaspDaoImpl<RunLane> implements edu.yu.einst
    public Object doInJpa(EntityManager em) throws PersistenceException {
      String queryString = "SELECT a FROM RunLane a WHERE "
        + "a.sampleId = :sampleId"
-       + "AND "+ "a.runId = :runId";
+       + " AND "+ "a.runId = :runId";
      Query query = em.createQuery(queryString);
       query.setParameter("sampleId", sampleId);
       query.setParameter("runId", runId);

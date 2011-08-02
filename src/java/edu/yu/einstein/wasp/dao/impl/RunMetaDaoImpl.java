@@ -62,7 +62,7 @@ public class RunMetaDaoImpl extends WaspDaoImpl<RunMeta> implements edu.yu.einst
    public Object doInJpa(EntityManager em) throws PersistenceException {
      String queryString = "SELECT a FROM RunMeta a WHERE "
        + "a.k = :k"
-       + "AND "+ "a.runId = :runId";
+       + " AND "+ "a.runId = :runId";
      Query query = em.createQuery(queryString);
       query.setParameter("k", k);
       query.setParameter("runId", runId);

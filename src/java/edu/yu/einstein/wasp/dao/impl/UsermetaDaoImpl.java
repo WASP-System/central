@@ -62,7 +62,7 @@ public class UsermetaDaoImpl extends WaspDaoImpl<Usermeta> implements edu.yu.ein
    public Object doInJpa(EntityManager em) throws PersistenceException {
      String queryString = "SELECT a FROM Usermeta a WHERE "
        + "a.k = :k"
-       + "AND "+ "a.UserId = :UserId";
+       + " AND "+ "a.UserId = :UserId";
      Query query = em.createQuery(queryString);
       query.setParameter("k", k);
       query.setParameter("UserId", UserId);

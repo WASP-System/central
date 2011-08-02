@@ -62,7 +62,7 @@ public class UserroleDaoImpl extends WaspDaoImpl<Userrole> implements edu.yu.ein
    public Object doInJpa(EntityManager em) throws PersistenceException {
      String queryString = "SELECT a FROM Userrole a WHERE "
        + "a.UserId = :UserId"
-       + "AND "+ "a.roleId = :roleId";
+       + " AND "+ "a.roleId = :roleId";
      Query query = em.createQuery(queryString);
       query.setParameter("UserId", UserId);
       query.setParameter("roleId", roleId);

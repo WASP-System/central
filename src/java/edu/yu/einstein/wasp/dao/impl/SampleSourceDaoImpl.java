@@ -62,7 +62,7 @@ public class SampleSourceDaoImpl extends WaspDaoImpl<SampleSource> implements ed
    public Object doInJpa(EntityManager em) throws PersistenceException {
      String queryString = "SELECT a FROM SampleSource a WHERE "
        + "a.sampleId = :sampleId"
-       + "AND "+ "a.multiplexindex = :multiplexindex";
+       + " AND "+ "a.multiplexindex = :multiplexindex";
      Query query = em.createQuery(queryString);
       query.setParameter("sampleId", sampleId);
       query.setParameter("multiplexindex", multiplexindex);

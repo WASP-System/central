@@ -62,7 +62,7 @@ public class StatemetaDaoImpl extends WaspDaoImpl<Statemeta> implements edu.yu.e
    public Object doInJpa(EntityManager em) throws PersistenceException {
      String queryString = "SELECT a FROM Statemeta a WHERE "
        + "a.k = :k"
-       + "AND "+ "a.stateId = :stateId";
+       + " AND "+ "a.stateId = :stateId";
      Query query = em.createQuery(queryString);
       query.setParameter("k", k);
       query.setParameter("stateId", stateId);

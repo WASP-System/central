@@ -62,7 +62,7 @@ public class SampleLabDaoImpl extends WaspDaoImpl<SampleLab> implements edu.yu.e
    public Object doInJpa(EntityManager em) throws PersistenceException {
      String queryString = "SELECT a FROM SampleLab a WHERE "
        + "a.sampleId = :sampleId"
-       + "AND "+ "a.labId = :labId";
+       + " AND "+ "a.labId = :labId";
      Query query = em.createQuery(queryString);
       query.setParameter("sampleId", sampleId);
       query.setParameter("labId", labId);

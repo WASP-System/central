@@ -62,7 +62,7 @@ public class JobDaoImpl extends WaspDaoImpl<Job> implements edu.yu.einstein.wasp
    public Object doInJpa(EntityManager em) throws PersistenceException {
      String queryString = "SELECT a FROM Job a WHERE "
        + "a.name = :name"
-       + "AND "+ "a.labId = :labId";
+       + " AND "+ "a.labId = :labId";
      Query query = em.createQuery(queryString);
       query.setParameter("name", name);
       query.setParameter("labId", labId);

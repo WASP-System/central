@@ -62,7 +62,7 @@ public class AChipseqArunargsDaoImpl extends WaspDaoImpl<AChipseqArunargs> imple
    public Object doInJpa(EntityManager em) throws PersistenceException {
      String queryString = "SELECT a FROM AChipseqArunargs a WHERE "
        + "a.arunId = :arunId"
-       + "AND "+ "a.argc = :argc";
+       + " AND "+ "a.argc = :argc";
      Query query = em.createQuery(queryString);
       query.setParameter("arunId", arunId);
       query.setParameter("argc", argc);

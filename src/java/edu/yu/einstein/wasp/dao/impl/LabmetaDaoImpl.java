@@ -62,7 +62,7 @@ public class LabmetaDaoImpl extends WaspDaoImpl<Labmeta> implements edu.yu.einst
    public Object doInJpa(EntityManager em) throws PersistenceException {
      String queryString = "SELECT a FROM Labmeta a WHERE "
        + "a.k = :k"
-       + "AND "+ "a.labId = :labId";
+       + " AND "+ "a.labId = :labId";
      Query query = em.createQuery(queryString);
       query.setParameter("k", k);
       query.setParameter("labId", labId);

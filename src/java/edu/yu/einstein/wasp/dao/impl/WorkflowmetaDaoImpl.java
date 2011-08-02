@@ -62,7 +62,7 @@ public class WorkflowmetaDaoImpl extends WaspDaoImpl<Workflowmeta> implements ed
    public Object doInJpa(EntityManager em) throws PersistenceException {
      String queryString = "SELECT a FROM Workflowmeta a WHERE "
        + "a.k = :k"
-       + "AND "+ "a.workflowId = :workflowId";
+       + " AND "+ "a.workflowId = :workflowId";
      Query query = em.createQuery(queryString);
       query.setParameter("k", k);
       query.setParameter("workflowId", workflowId);

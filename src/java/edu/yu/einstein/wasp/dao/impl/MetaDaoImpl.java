@@ -62,7 +62,7 @@ public class MetaDaoImpl extends WaspDaoImpl<Meta> implements edu.yu.einstein.wa
    public Object doInJpa(EntityManager em) throws PersistenceException {
      String queryString = "SELECT a FROM Meta a WHERE "
        + "a.property = :property"
-       + "AND "+ "a.k = :k";
+       + " AND "+ "a.k = :k";
      Query query = em.createQuery(queryString);
       query.setParameter("property", property);
       query.setParameter("k", k);
@@ -86,7 +86,7 @@ public class MetaDaoImpl extends WaspDaoImpl<Meta> implements edu.yu.einstein.wa
    public Object doInJpa(EntityManager em) throws PersistenceException {
      String queryString = "SELECT a FROM Meta a WHERE "
        + "a.property = :property"
-       + "AND "+ "a.v = :v";
+       + " AND "+ "a.v = :v";
      Query query = em.createQuery(queryString);
       query.setParameter("property", property);
       query.setParameter("v", v);
