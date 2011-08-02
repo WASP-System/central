@@ -309,7 +309,7 @@ public class $t->{'Table'}ServiceImpl extends WaspServiceImpl<$t->{'Table'}> imp
       $e .= ", " if $e;
       $e .= $t->{'cols'}->{$col}->{'var'};
 
-      $c .= qq|\n       + "AND "| if $c;
+      $c .= qq|\n       + " AND "| if $c;
       $c .= qq|+ "a.$t->{'cols'}->{$col}->{'var'} = :$t->{'cols'}->{$col}->{'var'}"|;
       $d .= qq|      query.setParameter("$t->{'cols'}->{$col}->{'var'}", $t->{'cols'}->{$col}->{'var'});\n|;
     }

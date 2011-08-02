@@ -85,7 +85,9 @@ insert into role values
 (8, 'lu', 'Lab Member', 'lab'), -- labuser, explicit
 (9, 'js', 'Job Submitter', 'job'),-- jobuser, explicit
 (10, 'jv', 'Job Viewer', 'job'), -- jobuser, explicit
-(11, 'god', 'God', 'system');
+(11, 'god', 'God', 'system'),
+(12, 'lx', 'Lab Member Inactive', 'lab'), -- labuser, explicit
+(13, 'lx', 'Lab Member Pending', 'lab'); -- labuser, explicit
 
 
 create table roleset (
@@ -193,7 +195,8 @@ create table lab (
   foreign key fk_lab_did (departmentid) references department(departmentid),
   foreign key fk_lab_puid (primaryuserid) references user(userid),
 
-  constraint unique index u_lab_name (name)
+  constraint unique index u_lab_name (name),
+  constraint unique index u_lab_puid (primaryuserid)
 ) ENGINE=InnoDB;
 
 -- insert into lab values 
