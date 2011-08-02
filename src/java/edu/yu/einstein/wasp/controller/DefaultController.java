@@ -26,7 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 @Controller
 public class DefaultController {
 
-  @RequestMapping("/**")
+  @RequestMapping("/**/*")
   public String def(HttpServletRequest req, ModelMap m) {
      String c = req.getContextPath();
      String s = req.getRequestURI();

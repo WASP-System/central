@@ -19,7 +19,7 @@
               <td><fmt:message key="lab.departmentId.label"/>:</td>
               <td>
               <select name=departmentId>
-                <option value=''>-- select --</option>
+                <option value='-1'>-- select --</option>
               	<c:forEach var="dept" items="${departments}">
                 	<option value="${dept.departmentId}" <c:if test="${dept.departmentId == lab.departmentId}"> selected</c:if>><c:out value="${dept.name}"/></option>
                	</c:forEach>     
@@ -53,7 +53,7 @@
             </c:if>
             <c:if test="${empty meta.property.control}"><input name="labmeta_${meta.k}" value="${meta.v}" /></c:if>
             </td>            	           
-            <td><form:errors path="labmeta[${status.index}]" /> </td>            
+            <td><form:errors path="labmeta[${status.index}].k" /> </td>            
           </tr>
           </c:forEach>
           <tr>

@@ -85,13 +85,13 @@ public class MetaBase extends WaspModel {
 	}
 
 	@Transient
-	private MetaProperty property;
+	private MetaAttribute property;
 
-	public MetaProperty getProperty() {
+	public MetaAttribute getProperty() {
 		return property;
 	}
 
-	public void setProperty(MetaProperty property) {
+	public void setProperty(MetaAttribute property) {
 		this.property = property;
 	}
 	

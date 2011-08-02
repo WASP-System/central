@@ -24,10 +24,12 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 import org.hibernate.validator.constraints.NotEmpty;
+import org.hibernate.validator.constraints.Range;
 
 @Entity
 @Audited
@@ -44,7 +46,9 @@ public class Lab extends WaspModel {
 
 
   @Column(name="departmentid")
+  @Range(min=1)
   protected int departmentId;
+  
   public void setDepartmentId (int departmentId) {
     this.departmentId = departmentId;
   }

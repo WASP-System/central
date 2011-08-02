@@ -9,6 +9,13 @@ import javax.validation.ValidatorFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
+/*
+ * Utility class to make JSR-303 annotations work  
+ * with Spring MVC validation
+ * 
+ * @Author Sasha Levchuk 
+ */
+
 
 @Component
 public class BeanValidator implements org.springframework.validation.Validator, InitializingBean {
@@ -28,11 +35,10 @@ public class BeanValidator implements org.springframework.validation.Validator, 
 		  
 	        Set<ConstraintViolation<Object>> constraintViolations = validator.validate(target);
 	        for (ConstraintViolation<Object> constraintViolation : constraintViolations) {
-	            String propertyPath = constraintViolation.getPropertyPath().toString();
-	            //String messageKey=constraintViolation.getRootBean().getClass().getSimpleName().toLowerCase();
-	            //messageKey=messageKey+".error."+propertyPath;
-	            
-	            errors.rejectValue(propertyPath, "user."+propertyPath+".error");
+	            String propertyPath = constraintViolation.getPropertyPath().toString();	      
+	            String area=constraintViolation.getRootBeanClass().getSimpleName().toLowerCase();
+	            errors.rejectValue(propertyPath, area+"."+propertyPath+".error");
 	        }
+	        
 	    }
 	}

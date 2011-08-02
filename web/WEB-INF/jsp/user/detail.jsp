@@ -76,7 +76,7 @@
             </c:if>
             <c:if test="${empty meta.property.control}"><input name="usermeta_${meta.k}" value="${meta.v}" /></c:if>
             </td>            	           
-            <td><form:errors path="usermeta[${status.index}]" /> </td>            
+            <td><form:errors path="usermeta[${status.index}].k" /> </td>            
           </tr>
           </c:forEach>
            <tr>
