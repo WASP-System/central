@@ -28,5 +28,7 @@ public interface LabService extends WaspService<Lab> {
 
   public Lab getLabByName (final String name);
 
+  public Lab getLabByPrimaryUserId (final int primaryUserId);
+
 }
 

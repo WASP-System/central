@@ -46,5 +46,9 @@ public class LabServiceImpl extends WaspServiceImpl<Lab> implements LabService {
   public Lab getLabByName (final String name) {
     return this.getLabDao().getLabByName(name);
   }
+
+  public Lab getLabByPrimaryUserId (final int primaryUserId) {
+    return this.getLabDao().getLabByPrimaryUserId(primaryUserId);
+  }
 }
 
