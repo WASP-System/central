@@ -32,7 +32,6 @@
 
     <beans:bean id="userDetailsService" class="org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl">
       <beans:property name="dataSource" ref="dataSource" />
-      <!-- beans:property name="userCache" ref="userCache" / -->
 
       <beans:property name="usersByUsernameQuery" value="SELECT login username, password, isactive enabled FROM user WHERE login = ?" />
 
@@ -79,7 +78,6 @@ group by 1, 2
     <authentication-manager>
       <authentication-provider>
         <jdbc-user-service data-source-ref="dataSource" 
-           cache-ref="userCache"
            authorities-by-username-query="
 SELECT login username,
   case ab.roleid

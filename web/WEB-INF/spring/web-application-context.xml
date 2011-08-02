@@ -27,6 +27,7 @@
   </bean>
 
 
+  <!--
   <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
     <property name="configLocation" value="/WEB-INF/ehcache.xml"/>
   </bean>
@@ -39,6 +40,7 @@
   <bean id="userCache" class="org.springframework.security.core.userdetails.cache.EhCacheBasedUserCache">
     <property name="cache" ref="userCacheBackend"/>
   </bean>
+  -->
 
   <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalEntityManagerFactoryBean">
     <property name="persistenceUnitName" value="wasp1" /> 

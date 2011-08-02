@@ -45,23 +45,7 @@ public class AuthController {
   @Autowired
   private DepartmentService departmentService;
 
-  UserCache userCache = new NullUserCache();
-  @Autowired
-  public void setUserCache(UserCache userCache) {
-    this.userCache = userCache;
-  }
-  public UserCache getUserCache() {
-    return this.userCache;
-  }
 
-  UserDetailsService userDetailsService; 
-  @Autowired
-  public void setUserDetailsSerivice(UserDetailsService userDetailsService) {
-    this.userDetailsService = userDetailsService;
-  }
-  public UserDetailsService getUserDetailsSerivice() {
-    return this.userDetailsService;
-  }
 
   @RequestMapping(value="/forgotpassword", method=RequestMethod.GET)
   public String showForgotPasswordForm(ModelMap m) {

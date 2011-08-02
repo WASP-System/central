@@ -13,10 +13,10 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
@@ -32,15 +32,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
-import org.springframework.security.access.prepost.*;
-
 import edu.yu.einstein.wasp.model.MetaProperty;
 import edu.yu.einstein.wasp.model.MetaProperty.Country;
+import edu.yu.einstein.wasp.model.MetaProperty.State;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Usermeta;
 import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.service.UsermetaService;
-
 
 
 @Controller
@@ -60,12 +58,12 @@ public class UserController {
   @Autowired
   HttpServletRequest request;
   
+  public static final String AREA="user";
+  
   @InitBinder
   protected void initBinder(WebDataBinder binder) {
       binder.setValidator(validator);
   }
-
-  public static final String AREA="user";
   
   @RequestMapping("/list")
   @PreAuthorize("hasRole('god')")
@@ -76,7 +74,7 @@ public class UserController {
 
     return "user/list";
   }
-  
+ 
   @RequestMapping(value="/create/form.do", method=RequestMethod.GET)
   @PreAuthorize("hasRole('god')")
   public String showEmptyForm(ModelMap m) {
@@ -85,36 +83,18 @@ public class UserController {
     
     User user = new User();
     
-    user.setUsermeta(getUsermetaList(AREA));
+    user.setUsermeta(getUsermetaList());
     
     m.addAttribute("now", now);
     m.addAttribute(AREA, user);
     m.addAttribute("countries", Country.getList());
-  
-    return "user/detail";
+    m.addAttribute("states", State.getList());
+    
+    return AREA+"/detail";
   }
   
   
-  private List<Usermeta> getUsermetaList(String prefix) {
-	  
-	    List<Usermeta> list = new ArrayList<Usermeta>();   
-	  
-	  //get current list of meta properties to capture
-	    Set<String> set=MetaProperty.getUniqueKeys(AREA);
-	    
-	    for(String name:set) {
-	    	Usermeta meta=new Usermeta();
-	    	meta.setK("user."+name);
-	    	list.add(meta);
-	    }
-	       
-
-	    //set property attributes and sort them according to "position"
-	    MetaProperty.setAttributesAndSort(list,AREA);
-	    
-	    return list;
-  }
-  
+    
   @RequestMapping(value="/create/form.do", method=RequestMethod.POST)
   @PreAuthorize("hasRole('god')")
   public String create(@Valid User userForm, BindingResult result, SessionStatus status, ModelMap m) {
@@ -146,17 +126,17 @@ public class UserController {
 	
 		List<String> validateList=new ArrayList<String>();
 		
-		validateList.add("login");validateList.add(UsermetaValidator.Constraint.NotEmpty.name());
-		validateList.add("password");validateList.add(UsermetaValidator.Constraint.NotEmpty.name());
+		validateList.add("login");validateList.add(MetaValidator.Constraint.NotEmpty.name());
+		validateList.add("password");validateList.add(MetaValidator.Constraint.NotEmpty.name());
 		
 		for(Usermeta meta:usermetaList) {
 			if (meta.getProperty()!=null && meta.getProperty().getConstraint()!=null) {
 				validateList.add(meta.getK());validateList.add(meta.getProperty().getConstraint());
 			}
 		}
-	    UsermetaValidator validator=new UsermetaValidator(validateList.toArray(new String[]{}));
+	    MetaValidator validator=new MetaValidator(validateList.toArray(new String[]{}));
 		 
-		validator.validate(usermetaList, result);
+		validator.validate(usermetaList, result,AREA);
 		   
 	     if (result.hasErrors()) {        
 	        return "user/detail";
@@ -177,24 +157,11 @@ public class UserController {
 	 	return "redirect:/user/detail/"+userDb.getUserId()+".do";
   }
   
-  @RequestMapping(value="/me.do", method=RequestMethod.GET)
-  public String detailSelf(ModelMap m) {
-    Authentication authentication = SecurityContextHolder.getContext()
-           .getAuthentication();
-
-    User user = this.userService.getUserByLogin(authentication.getName());
-
-    return detail(user.getUserId(), m);
-  }
-
  
   @RequestMapping(value="/detail/{userId}.do", method=RequestMethod.GET)
   @PreAuthorize("hasRole('god')")
-  public String detailById(@PathVariable("userId") Integer userId, ModelMap m) {
-    return detail(userId, m);
-  }
+  public String detail(@PathVariable("userId") Integer userId, ModelMap m) {
 	  
-  public String detail(Integer userId, ModelMap m) {
     String now = (new Date()).toString();
 
     User user = this.userService.getById(userId);
@@ -212,12 +179,19 @@ public class UserController {
     m.addAttribute("now", now);
     m.addAttribute(AREA, user);
     m.addAttribute("countries", Country.getList());
-  
+    m.addAttribute("states", State.getList());
     return "user/detail";
   }
-  
 
-  	
+  @RequestMapping(value="/me.do", method=RequestMethod.GET)
+  public String myDetail(ModelMap m) {
+    Authentication authentication = SecurityContextHolder.getContext()
+           .getAuthentication();
+    User user = this.userService.getUserByLogin(authentication.getName());
+
+    return this.detail(user.getUserId(), m);
+  }
+   
   @RequestMapping(value="/me.do", method=RequestMethod.POST)
   public String updateDetail(@Valid User userForm, BindingResult result, SessionStatus status, ModelMap m) {
     Authentication authentication = SecurityContextHolder.getContext()
@@ -229,9 +203,10 @@ public class UserController {
 
  	  return "redirect:" + "me.do";
   }
+	
   
   @RequestMapping(value="/detail/{userId}.do", method=RequestMethod.POST)
-  @PreAuthorize("hasRole('god') or User.login == principal.name")
+    @PreAuthorize("hasRole('god') or User.login == principal.name")
   public String updateDetail(@PathVariable("userId") Integer userId, @Valid User userForm, BindingResult result, SessionStatus status, ModelMap m) {
     
 	 List<Usermeta> usermetaList = getUsermetaFromForm(userId);	
@@ -246,9 +221,9 @@ public class UserController {
 		}
 	 }
 	 	
-	 UsermetaValidator validator=new UsermetaValidator(validateList.toArray(new String[] {}));
+	 MetaValidator validator=new MetaValidator(validateList.toArray(new String[] {}));
 	 
-	 validator.validate(usermetaList, result);
+	 validator.validate(usermetaList, result, AREA);
 	   
      if (result.hasErrors()) {        
         return "user/detail";
@@ -272,7 +247,7 @@ public class UserController {
  	return "redirect:"+userId+".do";
     
   }
-
+  
   @RequestMapping(value="/mypassword.do", method=RequestMethod.GET)
   public String myPasswordForm (ModelMap m) {
     return "user/mypassword";
@@ -287,8 +262,6 @@ public class UserController {
     return "redirect:/dashboard.do";
   }
 
-  
-  
   
   private List<Usermeta> getUsermetaFromForm(Integer userId) {
 	  
@@ -319,8 +292,14 @@ public class UserController {
 	  Set<String> dbKeys = new HashSet<String>();
 	  
 	  for(Usermeta m:dbList) {
+		  if (!m.getK().startsWith(AREA)) continue;
+		  
+		  String name=m.getK().substring(AREA.length()+1);
+		  
+		  if (!keys.contains(name)) continue;
+		  
 		  resultList.add(m);
-		  dbKeys.add(m.getK());		  
+		  dbKeys.add(m.getK());		    
 	  }
 	  
 	  for(String key:keys) {		  
@@ -333,5 +312,26 @@ public class UserController {
 	  
 	  return resultList;
   }
+  
+  private List<Usermeta> getUsermetaList() {
+	  
+	    List<Usermeta> list = new ArrayList<Usermeta>();   
+	  
+	    //get current list of meta properties to capture
+	    Set<String> set=MetaProperty.getUniqueKeys(AREA);
+	    
+	    for(String name:set) {
+	    	Usermeta meta=new Usermeta();
+	    	meta.setK(AREA+"."+name);
+	    	list.add(meta);
+	    }
+	       
+
+	    //set property attributes and sort them according to "position"
+	    MetaProperty.setAttributesAndSort(list,AREA);
+	    
+	    return list;
+}
+
     
 }

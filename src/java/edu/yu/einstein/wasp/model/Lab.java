@@ -11,12 +11,23 @@
 
 package edu.yu.einstein.wasp.model;
 
-import org.hibernate.*;
+import java.util.Date;
+import java.util.List;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
-
-import javax.persistence.*;
-import java.util.*;
+import org.hibernate.validator.constraints.NotEmpty;
 
 @Entity
 @Audited
@@ -43,6 +54,7 @@ public class Lab extends WaspModel {
 
 
   @Column(name="name")
+  @NotEmpty
   protected String name;
   public void setName (String name) {
     this.name = name;
@@ -198,6 +210,13 @@ public class Lab extends WaspModel {
   public void setAcctGrant (List<AcctGrant> acctGrant)  {
     this.acctGrant = acctGrant;
   }
+@Override
+public String toString() {
+	return "Lab [labId=" + labId + ", departmentId=" + departmentId + ", name="
+			+ name + ", primaryUserId=" + primaryUserId + ", isActive="
+			+ isActive + ", lastUpdTs=" + lastUpdTs + ", lastUpdUser="
+			+ lastUpdUser + "]";
+}
 
 
 

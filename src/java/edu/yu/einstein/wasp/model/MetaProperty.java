@@ -258,15 +258,12 @@ public final class MetaProperty implements Serializable {
 		  private final static Comparator<MetaBase> META_POSITION_COMPARATOR =  new Comparator<MetaBase>() {
 				public int compare(MetaBase f1, MetaBase f2) {
 		   		 
-		 			if (f1==null) return -1;
-		 			if (f2==null) return 1;
+		 			if (f1==null || f1.getProperty()==null || f1.getProperty().getMetaposition()==-1 ) return -1;
+		 			if (f2==null || f2.getProperty()==null || f2.getProperty().getMetaposition()==-1 ) return 1;
 		 			
-		 			Integer p1=f1.getPosition();
-		 			Integer p2=f2.getPosition();	    		 
-
-		 			if (p1==null) return -1;
-		 			if (p2==null) return 1;
-
+		 			
+		 			Integer p1=f1.getProperty().getMetaposition();
+		 			Integer p2=f2.getProperty().getMetaposition();	    		 
 		 			
 		 			return p1.compareTo(p2);
 			 
@@ -282,7 +279,7 @@ public final class MetaProperty implements Serializable {
 		     while(en.hasMoreElements()) {
 		    	String k = en.nextElement();
 		    	
-		    	if (!k.endsWith(".metaposition")) continue;
+		    	if (!k.startsWith(prefix) || !k.endsWith(".metaposition")) continue;
 		    	
 		    	String[] path=StringUtils.tokenizeToStringArray(k,".");
 		    	
@@ -575,5 +572,87 @@ public final class MetaProperty implements Serializable {
 			list.add(new Country("ZW", "ZIMBABWE"));
 		}
 	} 
+	  
+	  public static final class State {
+		  private String code;
+		  private String name;
+		  
+		public String getCode() {
+			return code;
+		}
+		public String getName() {
+			return name;
+		}
+		public static List<State> getList() {
+			return list;
+		}
+		public State(String code, String name) {
+			  this.code=code;
+			  this.name=name;
+		}
+		
+		  
+		@Override
+		public String toString() {
+			return "State [code=" + code + ", name=" + name + "]";
+		}
+
+	    public static final List<State> list = new ArrayList<State>();
+		static {
+			list.add(new State("AL","Alabama"));
+			list.add(new State("AK","Alaska"));
+			list.add(new State("AZ","Arizona"));
+			list.add(new State("AR","Arkansas"));
+			list.add(new State("CA","California"));
+			list.add(new State("CO","Colorado"));
+			list.add(new State("CT","Connecticut"));
+			list.add(new State("DE","Delaware"));
+			list.add(new State("DC","District of Columbia"));
+			list.add(new State("FL","Florida"));
+			list.add(new State("GA","Georgia"));
+			list.add(new State("HI","Hawaii"));
+			list.add(new State("ID","Idaho"));
+			list.add(new State("IL","Illinois"));
+			list.add(new State("IN","Indiana"));
+			list.add(new State("IA","Iowa"));
+			list.add(new State("KS","Kansas"));
+			list.add(new State("KY","Kentucky"));
+			list.add(new State("LA","Louisiana"));
+			list.add(new State("ME","Maine"));
+			list.add(new State("MD","Maryland"));
+			list.add(new State("MA","Massachusetts"));
+			list.add(new State("MI","Michigan"));
+			list.add(new State("MN","Minnesota"));
+			list.add(new State("MS","Mississippi"));
+			list.add(new State("MO","Missouri"));
+			list.add(new State("MT","Montana"));
+			list.add(new State("NE","Nebraska"));
+			list.add(new State("NV","Nevada"));
+			list.add(new State("NH","New Hampshire"));
+			list.add(new State("NJ","New Jersey"));
+			list.add(new State("NM","New Mexico"));
+			list.add(new State("NY","New York"));
+			list.add(new State("NC","North Carolina"));
+			list.add(new State("ND","North Dakota"));
+			list.add(new State("OH","Ohio"));
+			list.add(new State("OK","Oklahoma"));
+			list.add(new State("OR","Oregon"));
+			list.add(new State("PA","Pennsylvania"));
+			list.add(new State("RI","Rhode Island"));
+			list.add(new State("SC","South Carolina"));
+			list.add(new State("SD","South Dakota"));
+			list.add(new State("TN","Tennessee"));
+			list.add(new State("TX","Texas"));
+			list.add(new State("UT","Utah"));
+			list.add(new State("VT","Vermont"));
+			list.add(new State("VA","Virginia"));
+			list.add(new State("WA","Washington"));
+			list.add(new State("WV","West Virginia"));
+			list.add(new State("WI","Wisconsin"));
+			list.add(new State("WY","Wyoming"));
+
+		}
+	} 
+	  
 	  
 	}
