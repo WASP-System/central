@@ -16,3 +16,13 @@
 </c:forEach>
 </table>
 
+<div>
+create department
+    <form name="f" action="<c:url value='/department/create.do'/>" method="POST">
+      Department Name:
+      <input type='text' name='name' value=''/>
+      <input type="submit" value="Create Department" />
+
+    </form>
+</div>
+

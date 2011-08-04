@@ -9,6 +9,7 @@
 "-->
 
 <h1>List List</h1>
+<a href="/wasp/lab/create/form.do">create</a>
 <table cellpadding="0" cellspacing="0" border="0">
 <c:forEach items="${lab}" var="l">
 <!-- sec:authorize access="
@@ -18,7 +19,7 @@
    "-->
   <tr>
   <td>
-  <a href="/wasp/lab/detail/<c:out value="${l.labId}" />.do"><c:out value="${l.name}" /></a>
+  <a href="/wasp/lab/detail_ro/<c:out value="${l.labId}" />.do"><c:out value="${l.name}" /></a>
   </td>
   </tr>
 <!-- /sec:authorize-->
