@@ -94,7 +94,7 @@ public class RunMeta extends WaspModel {
 
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="runid", insertable=false, updatable=false)
   protected Run run;
   public void setRun (Run run) {

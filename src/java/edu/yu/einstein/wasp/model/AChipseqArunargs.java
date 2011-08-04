@@ -64,7 +64,7 @@ public class AChipseqArunargs extends WaspModel {
 
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="arunid", insertable=false, updatable=false)
   protected AChipseqArun aChipseqArun;
   public void setAChipseqArun (AChipseqArun aChipseqArun) {

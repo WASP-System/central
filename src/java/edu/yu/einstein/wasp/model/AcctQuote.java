@@ -104,7 +104,7 @@ public class AcctQuote extends WaspModel {
 
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="jobid", insertable=false, updatable=false)
   protected Job job;
   public void setJob (Job job) {
@@ -116,7 +116,7 @@ public class AcctQuote extends WaspModel {
   }
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="userid", insertable=false, updatable=false)
   protected User user;
   public void setUser (User user) {

@@ -60,7 +60,7 @@ public class Usermeta extends MetaBase {
 	}
 
 	@NotAudited
-	@ManyToOne(cascade = CascadeType.ALL)
+	@ManyToOne
 	@JoinColumn(name = "userid", insertable = false, updatable = false)
 	protected User user;
 

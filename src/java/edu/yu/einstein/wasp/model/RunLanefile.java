@@ -104,7 +104,7 @@ public class RunLanefile extends WaspModel {
 
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="runlaneid", insertable=false, updatable=false)
   protected RunLane runLane;
   public void setRunLane (RunLane runLane) {
@@ -116,7 +116,7 @@ public class RunLanefile extends WaspModel {
   }
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="fileid", insertable=false, updatable=false)
   protected File file;
   public void setFile (File file) {

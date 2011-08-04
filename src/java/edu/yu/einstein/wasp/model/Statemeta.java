@@ -94,7 +94,7 @@ public class Statemeta extends WaspModel {
 
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="stateid", insertable=false, updatable=false)
   protected State state;
   public void setState (State state) {

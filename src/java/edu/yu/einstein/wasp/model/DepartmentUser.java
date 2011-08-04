@@ -74,7 +74,7 @@ public class DepartmentUser extends WaspModel {
 
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="userid", insertable=false, updatable=false)
   protected User user;
   public void setUser (User user) {
@@ -86,7 +86,7 @@ public class DepartmentUser extends WaspModel {
   }
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="departmentid", insertable=false, updatable=false)
   protected Department department;
   public void setDepartment (Department department) {

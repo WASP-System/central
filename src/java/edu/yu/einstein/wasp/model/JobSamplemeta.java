@@ -94,7 +94,7 @@ public class JobSamplemeta extends WaspModel {
 
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="jobsampleid", insertable=false, updatable=false)
   protected JobSample jobSample;
   public void setJobSample (JobSample jobSample) {

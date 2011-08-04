@@ -64,7 +64,7 @@ public class RunLane extends WaspModel {
 
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="runid", insertable=false, updatable=false)
   protected Run run;
   public void setRun (Run run) {
@@ -76,7 +76,7 @@ public class RunLane extends WaspModel {
   }
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="resourcelaneid", insertable=false, updatable=false)
   protected ResourceLane resourceLane;
   public void setResourceLane (ResourceLane resourceLane) {
@@ -88,7 +88,7 @@ public class RunLane extends WaspModel {
   }
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="sampleid", insertable=false, updatable=false)
   protected Sample sample;
   public void setSample (Sample sample) {

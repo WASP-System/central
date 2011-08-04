@@ -134,7 +134,7 @@ public class Run extends WaspModel {
 
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="resourceid", insertable=false, updatable=false)
   protected Resource resource;
   public void setResource (Resource resource) {
@@ -146,7 +146,7 @@ public class Run extends WaspModel {
   }
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="sampleid", insertable=false, updatable=false)
   protected Sample sample;
   public void setSample (Sample sample) {
@@ -158,7 +158,7 @@ public class Run extends WaspModel {
   }
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="userid", insertable=false, updatable=false)
   protected User user;
   public void setUser (User user) {

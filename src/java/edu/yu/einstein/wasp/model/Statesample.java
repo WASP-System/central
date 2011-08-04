@@ -54,7 +54,7 @@ public class Statesample extends WaspModel {
 
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="stateid", insertable=false, updatable=false)
   protected State state;
   public void setState (State state) {
@@ -66,7 +66,7 @@ public class Statesample extends WaspModel {
   }
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="sampleid", insertable=false, updatable=false)
   protected Sample sample;
   public void setSample (Sample sample) {

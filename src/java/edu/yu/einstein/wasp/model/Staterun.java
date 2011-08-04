@@ -54,7 +54,7 @@ public class Staterun extends WaspModel {
 
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="stateid", insertable=false, updatable=false)
   protected State state;
   public void setState (State state) {
@@ -66,7 +66,7 @@ public class Staterun extends WaspModel {
   }
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="runid", insertable=false, updatable=false)
   protected Run run;
   public void setRun (Run run) {

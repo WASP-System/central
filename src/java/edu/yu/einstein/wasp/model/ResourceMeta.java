@@ -94,7 +94,7 @@ public class ResourceMeta extends WaspModel {
 
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="resourceid", insertable=false, updatable=false)
   protected Resource resource;
   public void setResource (Resource resource) {

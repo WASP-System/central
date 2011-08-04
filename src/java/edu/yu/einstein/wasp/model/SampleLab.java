@@ -84,7 +84,7 @@ public class SampleLab extends WaspModel {
 
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="sampleid", insertable=false, updatable=false)
   protected Sample sample;
   public void setSample (Sample sample) {
@@ -96,7 +96,7 @@ public class SampleLab extends WaspModel {
   }
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="labid", insertable=false, updatable=false)
   protected Lab lab;
   public void setLab (Lab lab) {

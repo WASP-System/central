@@ -114,7 +114,7 @@ public class SampleFile extends WaspModel {
 
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="sampleid", insertable=false, updatable=false)
   protected Sample sample;
   public void setSample (Sample sample) {
@@ -126,7 +126,7 @@ public class SampleFile extends WaspModel {
   }
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="fileid", insertable=false, updatable=false)
   protected File file;
   public void setFile (File file) {

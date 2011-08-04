@@ -54,7 +54,7 @@ public class StateAChipseqArun extends WaspModel {
 
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="stateid", insertable=false, updatable=false)
   protected State state;
   public void setState (State state) {
@@ -66,7 +66,7 @@ public class StateAChipseqArun extends WaspModel {
   }
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="arunid", insertable=false, updatable=false)
   protected AChipseqArun aChipseqArun;
   public void setAChipseqArun (AChipseqArun aChipseqArun) {

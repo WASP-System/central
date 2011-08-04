@@ -94,7 +94,7 @@ public class AcctLedger extends WaspModel {
 
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="invoiceid", insertable=false, updatable=false)
   protected AcctInvoice acctInvoice;
   public void setAcctInvoice (AcctInvoice acctInvoice) {
@@ -106,7 +106,7 @@ public class AcctLedger extends WaspModel {
   }
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="jobid", insertable=false, updatable=false)
   protected Job job;
   public void setJob (Job job) {

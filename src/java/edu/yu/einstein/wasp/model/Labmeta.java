@@ -58,7 +58,7 @@ public class Labmeta extends MetaBase {
 
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="labid", insertable=false, updatable=false)
   protected Lab lab;
   public void setLab (Lab lab) {

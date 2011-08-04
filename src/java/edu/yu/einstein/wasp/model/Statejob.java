@@ -54,7 +54,7 @@ public class Statejob extends WaspModel {
 
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="stateid", insertable=false, updatable=false)
   protected State state;
   public void setState (State state) {
@@ -66,7 +66,7 @@ public class Statejob extends WaspModel {
   }
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="jobid", insertable=false, updatable=false)
   protected Job job;
   public void setJob (Job job) {

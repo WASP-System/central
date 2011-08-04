@@ -114,7 +114,7 @@ public class JobFile extends WaspModel {
 
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="jobid", insertable=false, updatable=false)
   protected Job job;
   public void setJob (Job job) {
@@ -126,7 +126,7 @@ public class JobFile extends WaspModel {
   }
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="fileid", insertable=false, updatable=false)
   protected File file;
   public void setFile (File file) {

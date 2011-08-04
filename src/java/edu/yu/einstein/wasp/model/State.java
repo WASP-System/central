@@ -104,7 +104,7 @@ public class State extends WaspModel {
 
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="taskid", insertable=false, updatable=false)
   protected Task task;
   public void setTask (Task task) {

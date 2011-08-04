@@ -74,7 +74,7 @@ public class AcctGrantjob extends WaspModel {
 
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="jobid", insertable=false, updatable=false)
   protected AcctLedger acctLedger;
   public void setAcctLedger (AcctLedger acctLedger) {
@@ -86,7 +86,7 @@ public class AcctGrantjob extends WaspModel {
   }
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="grantid", insertable=false, updatable=false)
   protected AcctGrant acctGrant;
   public void setAcctGrant (AcctGrant acctGrant) {

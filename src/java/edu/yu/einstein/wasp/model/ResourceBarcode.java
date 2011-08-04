@@ -54,7 +54,7 @@ public class ResourceBarcode extends WaspModel {
 
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="resourceid", insertable=false, updatable=false)
   protected Resource resource;
   public void setResource (Resource resource) {
@@ -66,7 +66,7 @@ public class ResourceBarcode extends WaspModel {
   }
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="barcodeid", insertable=false, updatable=false)
   protected Barcode barcode;
   public void setBarcode (Barcode barcode) {

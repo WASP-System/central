@@ -64,7 +64,7 @@ public class AcctWorkflowcost extends WaspModel {
 
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="workflowid", insertable=false, updatable=false)
   protected Job job;
   public void setJob (Job job) {

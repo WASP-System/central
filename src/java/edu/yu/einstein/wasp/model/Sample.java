@@ -154,7 +154,7 @@ public class Sample extends WaspModel {
 
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="typesampleid", insertable=false, updatable=false)
   protected TypeSample typeSample;
   public void setTypeSample (TypeSample typeSample) {
@@ -166,7 +166,7 @@ public class Sample extends WaspModel {
   }
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="submitter_jobid", insertable=false, updatable=false)
   protected Job job;
   public void setJob (Job job) {
@@ -178,7 +178,7 @@ public class Sample extends WaspModel {
   }
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="submitter_labid", insertable=false, updatable=false)
   protected Lab lab;
   public void setLab (Lab lab) {
@@ -190,7 +190,7 @@ public class Sample extends WaspModel {
   }
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="submitter_userid", insertable=false, updatable=false)
   protected User user;
   public void setUser (User user) {

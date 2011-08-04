@@ -94,7 +94,7 @@ public class Resource extends WaspModel {
 
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="typeresourceid", insertable=false, updatable=false)
   protected TypeResource typeResource;
   public void setTypeResource (TypeResource typeResource) {

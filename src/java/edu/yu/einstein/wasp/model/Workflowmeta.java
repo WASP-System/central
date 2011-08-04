@@ -94,7 +94,7 @@ public class Workflowmeta extends WaspModel {
 
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="workflowid", insertable=false, updatable=false)
   protected Workflow workflow;
   public void setWorkflow (Workflow workflow) {

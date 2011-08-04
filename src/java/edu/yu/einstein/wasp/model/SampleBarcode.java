@@ -74,7 +74,7 @@ public class SampleBarcode extends WaspModel {
 
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="sampleid", insertable=false, updatable=false)
   protected Sample sample;
   public void setSample (Sample sample) {
@@ -86,7 +86,7 @@ public class SampleBarcode extends WaspModel {
   }
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="barcodeid", insertable=false, updatable=false)
   protected Barcode barcode;
   public void setBarcode (Barcode barcode) {

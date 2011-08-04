@@ -69,6 +69,7 @@ public class Lab extends WaspModel {
 
 
   @Column(name="primaryuserid")
+  @Range(min=1)
   protected int primaryUserId;
   public void setPrimaryUserId (int primaryUserId) {
     this.primaryUserId = primaryUserId;
@@ -110,7 +111,7 @@ public class Lab extends WaspModel {
 
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="departmentid", insertable=false, updatable=false)
   protected Department department;
   public void setDepartment (Department department) {
@@ -122,7 +123,7 @@ public class Lab extends WaspModel {
   }
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="primaryuserid", insertable=false, updatable=false)
   protected User user;
   public void setUser (User user) {

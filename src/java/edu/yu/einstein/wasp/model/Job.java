@@ -124,7 +124,7 @@ public class Job extends WaspModel {
 
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="labid", insertable=false, updatable=false)
   protected Lab lab;
   public void setLab (Lab lab) {
@@ -136,7 +136,7 @@ public class Job extends WaspModel {
   }
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="userid", insertable=false, updatable=false)
   protected User user;
   public void setUser (User user) {
@@ -148,7 +148,7 @@ public class Job extends WaspModel {
   }
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="workflowid", insertable=false, updatable=false)
   protected Workflow workflow;
   public void setWorkflow (Workflow workflow) {

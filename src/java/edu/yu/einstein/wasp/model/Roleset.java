@@ -54,7 +54,7 @@ public class Roleset extends WaspModel {
 
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="parentroleid", insertable=false, updatable=false)
   protected Role role;
   public void setRole (Role role) {
@@ -66,7 +66,7 @@ public class Roleset extends WaspModel {
   }
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="childroleid", insertable=false, updatable=false)
   protected Role roleVia;
   public void setRoleVia (Role role) {

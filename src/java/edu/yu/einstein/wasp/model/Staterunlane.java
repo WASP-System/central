@@ -54,7 +54,7 @@ public class Staterunlane extends WaspModel {
 
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="stateid", insertable=false, updatable=false)
   protected State state;
   public void setState (State state) {
@@ -66,7 +66,7 @@ public class Staterunlane extends WaspModel {
   }
 
   @NotAudited
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
    @JoinColumn(name="runlaneid", insertable=false, updatable=false)
   protected RunLane runLane;
   public void setRunLane (RunLane runLane) {
