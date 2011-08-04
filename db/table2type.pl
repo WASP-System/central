@@ -455,7 +455,7 @@ public class $t->{'Table'} extends WaspModel {
     my $jtype = "\@OneToOne(cascade = CascadeType.ALL)";
     my $rttype = $parentt->{'Table'};
     if (! $thisc->{'uniq'})  {
-      $jtype = "\@ManyToOne(cascade = CascadeType.ALL)";
+      $jtype = "\@ManyToOne";
       $rttype = "List<" . $rttype . ">";
     }
     my $via = "";
