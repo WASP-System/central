@@ -84,7 +84,8 @@ lab.name.label=Lab Name
 lab.name.constraint=NotEmpty
 lab.name.error=Lab Name cannot be empty
 
-lab.primaryuser.label=Primary User
+lab.primaryUserId.label=Primary User
+lab.primaryUserId.error=Please select Primary User
 
 lab.departmentId.label=Department
 lab.departmentId.error=Please select department
@@ -146,6 +147,18 @@ lab.research_center_name.metaposition=130
 lab.researchcenter_user_list_location.label=Research Center Name User List Location
 lab.researchcenter_user_list_location.metaposition=140
 
+
+
+--------------------------- feedback messages ----------------------------
+lab.updated.success=Lab was updated
+lab.created.success=Lab was created
+lab.updated.error=Lab was NOT updated. Please fill in required fields.
+lab.created.error=Lab was NOT created. Please fill in required fields.
+
+user.updated.success=User was updated
+user.created.success=User was created
+user.updated.error=User was NOT updated. Please fill in required fields.
+user.created.error=User was NOT created. Please fill in required fields.
 
 
 

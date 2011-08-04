@@ -303,7 +303,7 @@ Project Create
       - add into userprojectlab
       - forward to 'Project Detail'
 
-Departement Create
+Department Create
   * Default Action 
     + input name
     + submission 
@@ -315,7 +315,7 @@ Department Admin User (Department Admin, God)
     + list of links  
     + Demote 
       - delete from departmentadmin
-    + dropdown of all users
+    + enter an email address of a 
     + Promote
       - insert into departmentadmin
  
