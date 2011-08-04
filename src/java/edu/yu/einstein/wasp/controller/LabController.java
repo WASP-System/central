@@ -8,35 +8,36 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
 
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabUser;
-import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Labmeta;
-import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.MetaAttribute.Country;
 import edu.yu.einstein.wasp.model.MetaAttribute.State;
 import edu.yu.einstein.wasp.model.MetaUtil;
+import edu.yu.einstein.wasp.model.Role;
+import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.service.DepartmentService;
 import edu.yu.einstein.wasp.service.LabService;
-import edu.yu.einstein.wasp.service.LabmetaService;
-import edu.yu.einstein.wasp.service.UserService;
-import edu.yu.einstein.wasp.service.RoleService;
 import edu.yu.einstein.wasp.service.LabUserService;
+import edu.yu.einstein.wasp.service.LabmetaService;
+import edu.yu.einstein.wasp.service.RoleService;
+import edu.yu.einstein.wasp.service.UserService;
+import edu.yu.einstein.wasp.taglib.MessageTag;
 
 @Controller
 @Transactional
@@ -53,7 +54,7 @@ public class LabController extends WaspController {
 
 	@Autowired
 	private RoleService roleService;
-
+	
 	@Autowired
 	HttpServletRequest request;
 
@@ -88,26 +89,30 @@ public class LabController extends WaspController {
 	@PreAuthorize("hasRole('god')")
 	public String showEmptyForm(ModelMap m) {
 
-		String now = (new Date()).toString();
-
 		Lab lab = new Lab();
 
 		lab.setLabmeta(MetaUtil.getMasterList(Labmeta.class, AREA));
 
-		m.addAttribute("now", now);
 		m.addAttribute(AREA.name(), lab);
-		m.addAttribute("countries", Country.getList());
-		m.addAttribute("states", State.getList());
-		m.addAttribute("departments", deptService.findAll());
-
-		return AREA + "/detail";
+		
+		prepareSelectListData(m);
+		
+		return AREA + "/detail_rw";
 	}
 
-	@RequestMapping(value = "/detail/{labId}.do", method = RequestMethod.GET)
+	@RequestMapping(value = "/detail_rw/{labId}.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('god') or hasRole('lu-' + #labId)")
-	public String detail(@PathVariable("labId") Integer labId, ModelMap m) {
-
-		String now = (new Date()).toString();
+	public String detailRW(@PathVariable("labId") Integer labId, ModelMap m) {
+		return detail(labId,m,true);
+	}
+	
+	@RequestMapping(value = "/detail_ro/{labId}.do", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('god') or hasRole('lu-' + #labId)")
+	public String detailRO(@PathVariable("labId") Integer labId, ModelMap m) {
+		return detail(labId,m,false);
+	}
+	
+	private String detail(Integer labId, ModelMap m, boolean isRW) {
 
 		Lab lab = this.labService.getById(labId);
 
@@ -120,17 +125,14 @@ public class LabController extends WaspController {
 
 		List<Job> jobList = lab.getJob();
 		jobList.size();
-
-		m.addAttribute("now", now);
+		
 		m.addAttribute(AREA.name(), lab);
-		m.addAttribute("primaryuser",
-				userService.findById(lab.getPrimaryUserId()));
-		m.addAttribute("countries", Country.getList());
-		m.addAttribute("states", State.getList());
-		m.addAttribute("departments", deptService.findAll());
 
-		return "lab/detail";
+		prepareSelectListData(m);
+		
+		return isRW?"lab/detail_rw":"lab/detail_ro";
 	}
+	
 
 	@RequestMapping(value = "/create/form.do", method = RequestMethod.POST)
 	@PreAuthorize("hasRole('god')")
@@ -165,13 +167,13 @@ public class LabController extends WaspController {
 		validator.validate(labmetaList, result, AREA);
 
 		if (result.hasErrors()) {
-			m.addAttribute("countries", Country.getList());
-			m.addAttribute("states", State.getList());
-			m.addAttribute("departments", deptService.findAll());
-			return "lab/detail";
+			prepareSelectListData(m);
+			MessageTag.addMessage(request.getSession(), "lab.created.error");
+			return "lab/detail_rw";
 		}
 
 		labForm.setLastUpdTs(new Date());
+		
 
 		Lab labDb = this.labService.save(labForm);
 		for (Labmeta um : labmetaList) {
@@ -183,10 +185,12 @@ public class LabController extends WaspController {
 
 		status.setComplete();
 
-		return "redirect:/lab/detail/" + labDb.getLabId() + ".do";
+		MessageTag.addMessage(request.getSession(), "lab.created.success");
+		
+		return "redirect:/lab/detail_rw/" + labDb.getLabId() + ".do";
 	}
 
-	@RequestMapping(value = "/detail/{labId}.do", method = RequestMethod.POST)
+	@RequestMapping(value = "/detail_rw/{labId}.do", method = RequestMethod.POST)
 	@PreAuthorize("hasRole('god') or hasRole('lm-' + #labId)")
 	public String updateDetail(@PathVariable("labId") Integer labId,
 			@Valid Lab labForm, BindingResult result, SessionStatus status,
@@ -219,14 +223,15 @@ public class LabController extends WaspController {
 		validator.validate(labmetaList, result, AREA);
 
 		if (result.hasErrors()) {
-			m.addAttribute("countries", Country.getList());
-			m.addAttribute("states", State.getList());
-			m.addAttribute("departments", deptService.findAll());
-			return "lab/detail";
+			prepareSelectListData(m);
+			MessageTag.addMessage(request.getSession(), "lab.updated.error");
+			return "lab/detail_rw";
 		}
 
 		Lab labDb = this.labService.getById(labId);
 		labDb.setName(labForm.getName());
+		labDb.setDepartmentId(labForm.getDepartmentId());
+		labDb.setPrimaryUserId(labForm.getPrimaryUserId());
 
 		labDb.setLastUpdTs(new Date());
 
@@ -235,96 +240,102 @@ public class LabController extends WaspController {
 		labmetaService.updateByLabId(labId, labmetaList);
 
 		status.setComplete();
-
+		
+		MessageTag.addMessage(request.getSession(), "lab.updated.success");
+		
 		return "redirect:" + labId + ".do";
 
 	}
 
+	  @RequestMapping(value = "/user/{labId}.do", method = RequestMethod.GET)
+	  @PreAuthorize("hasRole('god') or hasRole('lu-' + #labId)")
+	  public String userList(@PathVariable("labId") Integer labId, ModelMap m) {
+	    Lab lab = this.labService.getById(labId);
+	    List<LabUser> labUser = lab.getLabUser();
 
-  @RequestMapping(value = "/user/{labId}.do", method = RequestMethod.GET)
-  @PreAuthorize("hasRole('god') or hasRole('lu-' + #labId)")
-  public String userList(@PathVariable("labId") Integer labId, ModelMap m) {
-    Lab lab = this.labService.getById(labId);
-    List<LabUser> labUser = lab.getLabUser();
+			m.addAttribute("lab", lab);
+			m.addAttribute("labuser", labUser);
 
-		m.addAttribute("lab", lab);
-		m.addAttribute("labuser", labUser);
+	    return "lab/user";
+	  }
+	
+	  @RequestMapping(value = "/user/role/{labId}/{userId}/{roleName}.do", method = RequestMethod.GET)
+	  @PreAuthorize("hasRole('god') or hasRole('lm-' + #labId)")
+	  public String userDetail ( @PathVariable("labId") Integer labId, @PathVariable("userId") Integer userId, @PathVariable("roleName") String roleName, ModelMap m) {
 
-    return "lab/user";
-  }
+	    LabUser labUser = labUserService.getLabUserByLabIdUserId(labId, userId); 
+	    Role role = roleService.getRoleByRoleName(roleName);
 
-  @RequestMapping(value = "/user/role/{labId}/{userId}/{roleName}.do", method = RequestMethod.GET)
-  @PreAuthorize("hasRole('god') or hasRole('lm-' + #labId)")
-  public String userDetail ( @PathVariable("labId") Integer labId, @PathVariable("userId") Integer userId, @PathVariable("roleName") String roleName, ModelMap m) {
+	    labUser.setRoleId(role.getRoleId());
+	    labUserService.merge(labUser);
 
-    LabUser labUser = labUserService.getLabUserByLabIdUserId(labId, userId); 
-    Role role = roleService.getRoleByRoleName(roleName);
+	    return "redirect:/lab/user/" + labId + ".do";
+	  }
 
-    labUser.setRoleId(role.getRoleId());
-    labUserService.merge(labUser);
+	  @RequestMapping(value = "/request.do", method = RequestMethod.GET)
+	  public String showRequestAccessForm(ModelMap m) {
+	    return "lab/request";
+	  }
 
-    return "redirect:/lab/user/" + labId + ".do";
-  }
+	  @RequestMapping(value = "/request.do", method = RequestMethod.POST)
+	  public String requestAccess( @RequestParam("primaryuseremail") String primaryuseremail, ModelMap m) {
+	    User primaryUser = userService.getUserByEmail(primaryuseremail);
+	    Lab lab = labService.getLabByPrimaryUserId(primaryUser.getUserId());
 
-  @RequestMapping(value = "/request.do", method = RequestMethod.GET)
-  public String showRequestAccessForm(ModelMap m) {
-    return "lab/request";
-  }
+	    // check existance of primaryUser/lab
 
-  @RequestMapping(value = "/request.do", method = RequestMethod.POST)
-  public String requestAccess( @RequestParam("primaryuseremail") String primaryuseremail, ModelMap m) {
-    User primaryUser = userService.getUserByEmail(primaryuseremail);
-    Lab lab = labService.getLabByPrimaryUserId(primaryUser.getUserId());
+	    User user = this.getAuthenticatedUser();
 
-    // check existance of primaryUser/lab
+	    // check user does not already have access
 
-    User user = this.getAuthenticatedUser();
-
-    // check user does not already have access
-
-    // create pending labuser record
-
-
-    return "redirect:/dashboard.do";
-  }
-
-  @RequestMapping(value = "/pendinglab/list.do", method = RequestMethod.GET)
-  @PreAuthorize("hasRole('god') or hasRole('da-*')")
-  public String pendingLabList(ModelMap m) {
-    return "lab/pendinglab/list";
-  }
-
-  @RequestMapping(value = "/pendinglab/{departmentId}/{labId}/{newStatus}.do", method = RequestMethod.GET)
-  @PreAuthorize("hasRole('god') or hasRole('da-' + #departmentId)")
-  public String pendingLab (
-      @PathVariable("departmentId") Integer departmentId, 
-      @PathVariable("labId") Integer labId, 
-      @PathVariable("newStatus") String newStatus, ModelMap m) {
-
-    return "redirect:/lab/pendinglab/list";
-  }
-
-  @RequestMapping(value = "/pendinguser/list/{labId}.do", method = RequestMethod.GET)
-  @PreAuthorize("hasRole('god') or hasRole('lm-' + #labId)")
-  public String pendingLabUserList (
-      @PathVariable("labId") Integer labId, ModelMap m) {
-
-    return "redirect:/lab/pendinguser/list";
-  }
-
-  @RequestMapping(value = "/pendinguser/detail/{labId}/{userId}/{roleName}.do", method = RequestMethod.GET)
-  @PreAuthorize("hasRole('god') or hasRole('lm-' + #labId)")
-  public String pendingLabUserDetail (
-      @PathVariable("labId") Integer labId, @PathVariable("userId") Integer userId, @PathVariable("roleName") String roleName, ModelMap m) {
-
-    LabUser labUser = labUserService.getLabUserByLabIdUserId(labId, userId); 
-    Role role = roleService.getRoleByRoleName(roleName);
-
-    labUser.setRoleId(role.getRoleId());
-    labUserService.merge(labUser);
-
-    return "redirect:/lab/user/" + labId + ".do";
-  }
+	    // create pending labuser record
 
 
+	    return "redirect:/dashboard.do";
+	  }
+
+	  @RequestMapping(value = "/pendinglab/list.do", method = RequestMethod.GET)
+	  @PreAuthorize("hasRole('god') or hasRole('da-*')")
+	  public String pendingLabList(ModelMap m) {
+	    return "lab/pendinglab/list";
+	  }
+
+	  @RequestMapping(value = "/pendinglab/{departmentId}/{labId}/{newStatus}.do", method = RequestMethod.GET)
+	  @PreAuthorize("hasRole('god') or hasRole('da-' + #departmentId)")
+	  public String pendingLab (
+	      @PathVariable("departmentId") Integer departmentId, 
+	      @PathVariable("labId") Integer labId, 
+	      @PathVariable("newStatus") String newStatus, ModelMap m) {
+
+	    return "redirect:/lab/pendinglab/list";
+	  }
+
+	  @RequestMapping(value = "/pendinguser/list/{labId}.do", method = RequestMethod.GET)
+	  @PreAuthorize("hasRole('god') or hasRole('lm-' + #labId)")
+	  public String pendingLabUserList (
+	      @PathVariable("labId") Integer labId, ModelMap m) {
+
+	    return "redirect:/lab/pendinguser/list";
+	  }
+
+	  @RequestMapping(value = "/pendinguser/detail/{labId}/{userId}/{roleName}.do", method = RequestMethod.GET)
+	  @PreAuthorize("hasRole('god') or hasRole('lm-' + #labId)")
+	  public String pendingLabUserDetail (
+	      @PathVariable("labId") Integer labId, @PathVariable("userId") Integer userId, @PathVariable("roleName") String roleName, ModelMap m) {
+
+	    LabUser labUser = labUserService.getLabUserByLabIdUserId(labId, userId); 
+	    Role role = roleService.getRoleByRoleName(roleName);
+
+	    labUser.setRoleId(role.getRoleId());
+	    labUserService.merge(labUser);
+
+	    return "redirect:/lab/user/" + labId + ".do";
+	  }
+	  
+	private void prepareSelectListData(ModelMap m) {	
+		m.addAttribute("pusers", userService.findAll());
+		m.addAttribute("countries", Country.getList());
+		m.addAttribute("states", State.getList());
+		m.addAttribute("departments", deptService.findAll());
+	}
 }

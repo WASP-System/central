@@ -3,15 +3,12 @@ package edu.yu.einstein.wasp.controller;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
@@ -25,7 +22,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
-import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.MetaAttribute.Country;
@@ -35,6 +31,7 @@ import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Usermeta;
 import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.service.UsermetaService;
+import edu.yu.einstein.wasp.taglib.MessageTag;
 
 @Controller
 @Transactional
@@ -60,7 +57,6 @@ public class UserController extends WaspController {
 
 	public static final MetaAttribute.Area AREA = MetaAttribute.Area.user;
 
-	
 
 	@RequestMapping("/list")
 	@PreAuthorize("hasRole('god')")
@@ -75,21 +71,19 @@ public class UserController extends WaspController {
 	@RequestMapping(value = "/create/form.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('god')")
 	public String showEmptyForm(ModelMap m) {
-
-		String now = (new Date()).toString();
-
+	
 		User user = new User();
 
 		user.setUsermeta(MetaUtil.getMasterList(Usermeta.class, AREA));
-
-		m.addAttribute("now", now);
+		
 		m.addAttribute(AREA.name(), user);
-		m.addAttribute("countries", Country.getList());
-		m.addAttribute("states", State.getList());
+		
+		prepareSelectListData(m);		
 
-		return AREA + "/detail";
+		return AREA + "/detail_rw";
 	}
-
+	
+	
 	@RequestMapping(value = "/create/form.do", method = RequestMethod.POST)
 	@PreAuthorize("hasRole('god')")
 	public String create(@Valid User userForm, BindingResult result,
@@ -97,8 +91,7 @@ public class UserController extends WaspController {
 
 		List<Usermeta> usermetaList = MetaUtil.getMetaFromForm(request,
 				AREA, Usermeta.class);
-
-		// set property attributes and sort them according to "position"
+		
 		MetaUtil.setAttributesAndSort(usermetaList, AREA);
 
 		userForm.setUsermeta(usermetaList);
@@ -140,7 +133,9 @@ public class UserController extends WaspController {
 		validator.validate(usermetaList, result, AREA);
 
 		if (result.hasErrors()) {
-			return "user/detail";
+			prepareSelectListData(m);
+			MessageTag.addMessage(request.getSession(), "user.created.error");
+			return "user/detail_rw";
 		}
 
 		userForm.setLastUpdTs(new Date());
@@ -155,14 +150,24 @@ public class UserController extends WaspController {
 
 		status.setComplete();
 
-		return "redirect:/user/detail/" + userDb.getUserId() + ".do";
+		MessageTag.addMessage(request.getSession(), "user.created.success");
+		
+		return "redirect:/user/detail_rw/" + userDb.getUserId() + ".do";
 	}
 
-	@RequestMapping(value = "/detail/{userId}.do", method = RequestMethod.GET)
+	@RequestMapping(value = "/detail_rw/{userId}.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('god')")
-	public String detail(@PathVariable("userId") Integer userId, ModelMap m) {
-
-		String now = (new Date()).toString();
+	public String detailRW(@PathVariable("userId") Integer userId, ModelMap m) {		
+		return detail(userId,m,true);
+	}
+	
+	@RequestMapping(value = "/detail_ro/{userId}.do", method = RequestMethod.GET)
+	
+	public String detailRO(@PathVariable("userId") Integer userId, ModelMap m) {
+		return detail(userId,m,false);
+	}
+	
+	private String detail(Integer userId, ModelMap m,boolean isRW) {
 
 		User user = this.userService.getById(userId);
 
@@ -170,25 +175,17 @@ public class UserController extends WaspController {
 		
 		MetaUtil.setAttributesAndSort(user.getUsermeta(), AREA);
 
-		// TODO: remove. just for testing. move to "login" controller when it's
-		// implemented
-		String lang = user.getLocale().substring(0, 2);
-		String cntry = user.getLocale().substring(3);
-		Locale locale = new Locale(lang, cntry);
-		request.getSession().setAttribute(
-				SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME, locale);
-
-		m.addAttribute("now", now);
 		m.addAttribute(AREA.name(), user);
-		m.addAttribute("countries", Country.getList());
-		m.addAttribute("states", State.getList());
-		return "user/detail";
+		
+		prepareSelectListData(m);
+		
+		return isRW?"user/detail_rw":"user/detail_ro";
 	}
-
+	
 	@RequestMapping(value = "/me.do", method = RequestMethod.GET)
 	public String myDetail(ModelMap m) {
 		User user = this.getAuthenticatedUser();		
-		return this.detail(user.getUserId(), m);
+		return this.detailRW(user.getUserId(), m);
 	}
 
 	@RequestMapping(value = "/me.do", method = RequestMethod.POST)
@@ -200,8 +197,8 @@ public class UserController extends WaspController {
 
 		return "redirect:" + "me.do";
 	}
-
-	@RequestMapping(value = "/detail/{userId}.do", method = RequestMethod.POST)
+	
+	@RequestMapping(value = "/detail_rw/{userId}.do", method = RequestMethod.POST)
 	@PreAuthorize("hasRole('god') or User.login == principal.name")
 	public String updateDetail(@PathVariable("userId") Integer userId,
 			@Valid User userForm, BindingResult result, SessionStatus status,
@@ -215,6 +212,7 @@ public class UserController extends WaspController {
 		}
 
 		MetaUtil.setAttributesAndSort(usermetaList, AREA);
+		
 		userForm.setUsermeta(usermetaList);
 
 		List<String> validateList = new ArrayList<String>();
@@ -234,9 +232,9 @@ public class UserController extends WaspController {
 
 		if (result.hasErrors()) {
 			userForm.setUserId(userId);
-			m.addAttribute("countries", Country.getList());
-			m.addAttribute("states", State.getList());
-			return "user/detail";
+			prepareSelectListData(m);
+			MessageTag.addMessage(request.getSession(), "user.updated.error");
+			return "user/detail_rw";
 		}
 
 		User userDb = this.userService.getById(userId);
@@ -254,8 +252,9 @@ public class UserController extends WaspController {
 
 		status.setComplete();
 
+		MessageTag.addMessage(request.getSession(), "user.updated.success");
+		
 		return "redirect:" + userId + ".do";
-
 	}
 
 	@RequestMapping(value = "/mypassword.do", method = RequestMethod.GET)
@@ -269,6 +268,11 @@ public class UserController extends WaspController {
 			@RequestParam(value = "password") String password,
 			@RequestParam(value = "password2") String password2, ModelMap m) {
 		return "redirect:/dashboard.do";
+	}
+	
+	private void prepareSelectListData(ModelMap m) {
+		m.addAttribute("countries", Country.getList());
+		m.addAttribute("states", State.getList());
 	}
 
 }
