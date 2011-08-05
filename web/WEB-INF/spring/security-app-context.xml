@@ -18,9 +18,6 @@
         <intercept-url pattern="/user/**" access="isAuthenticated()" />
         <intercept-url pattern="/lab/**" access="isAuthenticated()" />
 
-
-
-
         <intercept-url pattern="/supersecure/**" access="hasRole('never')" />
         <form-login login-page="/auth/login.do"
            authentication-failure-url="/auth/login.do?error=1"
@@ -77,6 +74,7 @@ group by 1, 2
 
     <authentication-manager>
       <authentication-provider>
+        <password-encoder hash="sha" />        
         <jdbc-user-service data-source-ref="dataSource" 
            authorities-by-username-query="
 SELECT login username,

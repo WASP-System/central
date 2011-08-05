@@ -84,7 +84,7 @@
      	<property name="paramName"><value>setUserLocale</value></property>
     </bean>
       
-    <!-- bean class="edu.yu.einstein.wasp.controller.DefaultLocaleInterceptor" /-->            
+    <bean class="edu.yu.einstein.wasp.controller.UserLocaleInterceptor" />            
     
   </mvc:interceptors>
 

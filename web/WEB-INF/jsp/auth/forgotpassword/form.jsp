@@ -4,8 +4,11 @@
   <head> <title>Forgot Password</title> </head>
 
   <body onload='document.f.j_username.focus();'>
-
+   
+     
     <h1>Forgot Password</h1>
+
+     <font color="red"><wasp:message /></font>  
 
     <form name="f" action="<c:url value='/auth/forgotpassword.do'/>" method="POST">
       <table>

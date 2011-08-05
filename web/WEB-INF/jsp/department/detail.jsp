@@ -28,7 +28,7 @@
     <h2>Labs</h2>
     <c:forEach items="${lab}" var="l">
       <div>
-        <a href="/wasp/lab/detail/<c:out value="${l.labId}" />.do">
+        <a href="/wasp/lab/detail_ro/<c:out value="${l.labId}" />.do">
         <c:out value="${l.name}" />
         </a>
       </div>

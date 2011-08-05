@@ -11,7 +11,7 @@
     
      <table>
      	  <tr><td colspan=2 align=left></br><b>User Details:</b></td></tr>
-     	   <c:if  test="${user.userId == 0}">
+     	   <c:if test="${user.userId == 0}">
      	   <tr>
               <td><fmt:message key="user.login.label" />:</td>
               <td><form:input path="login" /></td>
@@ -22,7 +22,18 @@
               <td><form:password path="password" /></td>
               <td><form:errors path="password" /></td>
           </tr>     	   
-     	   </c:if>	
+     	  </c:if>	
+     	  <c:if test="${user.userId != 0}">
+     	   <tr>
+              <td><fmt:message key="user.login.label" />:</td>
+              <td>${user.login}</td>              
+          </tr>
+          <tr>
+              <td><fmt:message key="user.password.label"/>:</td>
+              <td><input type="password" value=""/></td>
+              <td><form:errors path="password" /></td>
+          </tr>     	   
+     	   </c:if>	 
           <tr>
               <td><fmt:message key="user.firstName.label" />:</td>
               <td><form:input path="firstName" /></td>
@@ -43,9 +54,11 @@
               <td>
               <select name=locale>
                 <option value=''>-- select --</option>
-              	<option value=en_US <c:if test="${user.locale == 'en_US'}"> selected</c:if>>USA</option>
-              	<option value=iw_IL <c:if test="${user.locale == 'iw_IL'}"> selected</c:if>>Hebrew</option>
-              	<option value=ru_RU <c:if test="${user.locale == 'ru_RU'}"> selected</c:if>>Russian</option>
+                 <c:forEach var="localeEntry" items="${locales}">
+                    <c:set var="localeValue" value="${localeEntry.key}"/>
+                    <c:set var="localeLabel" value="${localeEntry.value}"/>        
+                    <option value=${localeValue} <c:if test="${user.locale == localeValue}">selected</c:if>>${localeLabel}</option>                           
+                </c:forEach>
               </select>
               </td>
               <td><form:errors path="locale" /></td>

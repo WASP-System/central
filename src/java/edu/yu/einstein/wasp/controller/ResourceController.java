@@ -20,8 +20,7 @@ import org.springframework.transaction.annotation.*;
 import java.util.Date; 
 import java.util.List; 
 
-import edu.yu.einstein.wasp.dao.impl.ResourceDaoImpl;
-import edu.yu.einstein.wasp.dao.ResourceDao;
+import edu.yu.einstein.wasp.service.ResourceService;
 import edu.yu.einstein.wasp.model.*;
 
 @Controller
@@ -29,19 +28,19 @@ import edu.yu.einstein.wasp.model.*;
 @RequestMapping("/resource")
 public class ResourceController {
 
-  private ResourceDao resourceDao;
+  private ResourceService resourceService;
   @Autowired
-  public void setResourceDao(ResourceDao resourceDao) {
-    this.resourceDao = resourceDao;
+  public void setResourceService(ResourceService resourceService) {
+    this.resourceService = resourceService;
   }
-  public ResourceDao getResourceDao() {
-    return this.resourceDao;
+  public ResourceService getResourceService() {
+    return this.resourceService;
   }
 
 
   @RequestMapping("/list")
   public String list(ModelMap m) {
-    List<Resource> resourceList = this.getResourceDao().findAll();
+    List<Resource> resourceList = this.getResourceService().findAll();
     
     m.addAttribute("resource", resourceList);
 
@@ -59,7 +58,7 @@ public class ResourceController {
       return "default";
     }
 
-    Resource resource = this.getResourceDao().getById(i.intValue());
+    Resource resource = this.getResourceService().getById(i.intValue());
 
     List<ResourceMeta> resourceMetaList = resource.getResourceMeta();
     resourceMetaList.size();

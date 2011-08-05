@@ -3,12 +3,17 @@ package edu.yu.einstein.wasp.controller;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.encoding.PasswordEncoder;
+import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
@@ -57,6 +62,14 @@ public class UserController extends WaspController {
 
 	public static final MetaAttribute.Area AREA = MetaAttribute.Area.user;
 
+	private static final Map<String, String> LOCALES=new TreeMap<String, String>();
+	static {
+		LOCALES.put("en_US","English");
+		LOCALES.put("iw_IL","Hebrew");	
+		LOCALES.put("ru_RU","Russian");
+		LOCALES.put("ja_JA","Japanese");
+		}
+	
 
 	@RequestMapping("/list")
 	@PreAuthorize("hasRole('god')")
@@ -140,7 +153,15 @@ public class UserController extends WaspController {
 
 		userForm.setLastUpdTs(new Date());
 
+		//PasswordEncoder encoder = new Md5PasswordEncoder();
+		PasswordEncoder encoder = new ShaPasswordEncoder();
+		String hashedPass = encoder.encodePassword(userForm.getPassword(), null);
+		userForm.setPassword(hashedPass);
+		
+		userForm.setIsActive(1);
+		
 		User userDb = this.userService.save(userForm);
+		
 		for (Usermeta um : usermetaList) {
 			um.setUserId(userDb.getUserId());
 		}
@@ -164,6 +185,9 @@ public class UserController extends WaspController {
 	@RequestMapping(value = "/detail_ro/{userId}.do", method = RequestMethod.GET)
 	
 	public String detailRO(@PathVariable("userId") Integer userId, ModelMap m) {
+		
+		String lang=Locale.JAPANESE.getLanguage();
+		String c=Locale.JAPANESE.getCountry();
 		return detail(userId,m,false);
 	}
 	
@@ -240,7 +264,11 @@ public class UserController extends WaspController {
 		User userDb = this.userService.getById(userId);
 		userDb.setFirstName(userForm.getFirstName());
 		userDb.setLastName(userForm.getLastName());
-
+		if (userForm.getPassword()!=null && !userForm.getPassword().trim().isEmpty()) {
+			PasswordEncoder encoder = new ShaPasswordEncoder();
+			String hashedPass = encoder.encodePassword(userForm.getPassword(), null);
+			userForm.setPassword(hashedPass);
+		}
 		userDb.setEmail(userForm.getEmail());
 		userDb.setLocale(userForm.getLocale());
 
@@ -273,6 +301,8 @@ public class UserController extends WaspController {
 	private void prepareSelectListData(ModelMap m) {
 		m.addAttribute("countries", Country.getList());
 		m.addAttribute("states", State.getList());
+		m.addAttribute("locales", LOCALES);		
 	}
+	
 
 }

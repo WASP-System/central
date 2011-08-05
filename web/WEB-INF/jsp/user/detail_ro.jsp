@@ -28,10 +28,12 @@
           <tr>
               <td><fmt:message key="user.locale.label"/>:</td>
               <td>                              
-                <c:if test="${user.locale == 'en_US'}">USA</c:if>
-              	<c:if test="${user.locale == 'iw_IL'}">Hebrew</c:if>
-              	<c:if test="${user.locale == 'ru_RU'}">Russian</c:if>   
-              </td>
+              <c:forEach var="localeEntry" items="${locales}">
+                <c:set var="localeValue" value="${localeEntry.key}"/>
+                <c:set var="localeLabel" value="${localeEntry.value}"/>               
+                <c:if test="${user.locale == localeValue}">${localeLabel}</c:if>
+              </c:forEach>
+  			  </td>
               <td><form:errors path="locale" /></td>
           </tr>
 		

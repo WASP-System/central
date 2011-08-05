@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 
@@ -29,6 +31,7 @@ import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Department;
 import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.service.DepartmentService;
+import edu.yu.einstein.wasp.taglib.MessageTag;
 
 
 
@@ -45,6 +48,8 @@ public class AuthController {
   @Autowired
   private DepartmentService departmentService;
 
+  @Autowired
+  HttpServletRequest request;
 
 
   @RequestMapping(value="/forgotpassword", method=RequestMethod.GET)
@@ -57,7 +62,15 @@ public class AuthController {
 
     // - check if user exists
     // - email user 
-
+	  User user=userService.getUserByLogin(username);
+	  
+	  if (user==null || user.getUserId()==0)  {
+		  MessageTag.addMessage(request.getSession(), "auth.forgotpassword.bad.username");
+		  return "auth/forgotpassword/form";
+	  }
+	  
+	  
+	//TODO: reset pass and email it to user  
     return "auth/forgotpassword/email";
   }
 

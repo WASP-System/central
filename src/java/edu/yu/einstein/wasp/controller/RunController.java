@@ -20,10 +20,8 @@ import org.springframework.transaction.annotation.*;
 import java.util.Date; 
 import java.util.List; 
 
-import edu.yu.einstein.wasp.dao.RunDao;
-import edu.yu.einstein.wasp.dao.RunLaneDao;
-import edu.yu.einstein.wasp.dao.impl.RunDaoImpl;
-import edu.yu.einstein.wasp.dao.impl.RunLaneDaoImpl;
+import edu.yu.einstein.wasp.service.RunService;
+import edu.yu.einstein.wasp.service.RunLaneService;
 import edu.yu.einstein.wasp.model.*;
 
 @Controller
@@ -31,28 +29,28 @@ import edu.yu.einstein.wasp.model.*;
 @RequestMapping("/run")
 public class RunController {
 
-  private RunDao runDao;
+  private RunService runService;
   @Autowired
-  public void setRunDao(RunDao runDao) {
-    this.runDao = runDao;
+  public void setRunService(RunService runService) {
+    this.runService = runService;
   }
-  public RunDao getRunDao() {
-    return this.runDao;
+  public RunService getRunService() {
+    return this.runService;
   }
 
-  private RunLaneDao runLaneDao;
+  private RunLaneService runLaneService;
   @Autowired
-  public void setRunLaneDao(RunLaneDao runLaneDao) {
-    this.runLaneDao = runLaneDao;
+  public void setRunLaneService(RunLaneService runLaneService) {
+    this.runLaneService = runLaneService;
   }
-  public RunLaneDao getRunLaneDao() {
-    return this.runLaneDao;
+  public RunLaneService getRunLaneService() {
+    return this.runLaneService;
   }
 
 
   @RequestMapping("/list")
   public String list(ModelMap m) {
-    List<Run> runList = this.getRunDao().findAll();
+    List<Run> runList = this.getRunService().findAll();
     
     m.addAttribute("run", runList);
 
@@ -70,7 +68,7 @@ public class RunController {
       return "default";
     }
 
-    Run run = this.getRunDao().getById(i.intValue());
+    Run run = this.getRunService().getById(i.intValue());
 
     List<RunMeta> runMetaList = run.getRunMeta();
     runMetaList.size();
@@ -108,7 +106,7 @@ public class RunController {
       return "default";
     }
 
-    RunLane runLane = this.getRunLaneDao().getById(i.intValue());
+    RunLane runLane = this.getRunLaneService().getById(i.intValue());
 
     //
     // TODO THROW EXCEPTION IF RUNID != RUNLANE.RUNID

@@ -3,9 +3,10 @@ package edu.yu.einstein.wasp.model;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /*
- * holds attributes for a *meta object
+ * holds attributes for a *meta" object
  * @Author Sasha Levchuk
  */
 public final class MetaAttribute implements Serializable {
@@ -25,13 +26,14 @@ public final class MetaAttribute implements Serializable {
 
 		private int metaposition;
 
+		Locale l;
 		  
 		
 		public String getLabel() {
 			return label;
 		}
 
-		public void setLabel(String label) {
+		public void setLabel(String label) {			
 			this.label = label;
 		}
 

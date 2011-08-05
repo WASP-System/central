@@ -161,4 +161,4 @@ user.updated.error=User was NOT updated. Please fill in required fields.
 user.created.error=User was NOT created. Please fill in required fields.
 
 
-
+auth.forgotpassword.bad.username = User does not exist

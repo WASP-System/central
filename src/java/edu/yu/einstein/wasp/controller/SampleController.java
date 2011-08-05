@@ -20,8 +20,7 @@ import org.springframework.transaction.annotation.*;
 import java.util.Date; 
 import java.util.List; 
 
-import edu.yu.einstein.wasp.dao.SampleDao;
-import edu.yu.einstein.wasp.dao.impl.SampleDaoImpl;
+import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.model.*;
 
 @Controller
@@ -29,19 +28,19 @@ import edu.yu.einstein.wasp.model.*;
 @RequestMapping("/sample")
 public class SampleController {
 
-  private SampleDao sampleDao;
+  private SampleService sampleService;
   @Autowired
-  public void setSampleDao(SampleDao sampleDao) {
-    this.sampleDao = sampleDao;
+  public void setSampleService(SampleService sampleService) {
+    this.sampleService = sampleService;
   }
-  public SampleDao getSampleDao() {
-    return this.sampleDao;
+  public SampleService getSampleService() {
+    return this.sampleService;
   }
 
 
   @RequestMapping("/list")
   public String list(ModelMap m) {
-    List <Sample> sampleList = this.getSampleDao().findAll();
+    List <Sample> sampleList = this.getSampleService().findAll();
     
     m.addAttribute("sample", sampleList);
 
@@ -59,7 +58,7 @@ public class SampleController {
       return "default";
     }
 
-    Sample sample = this.getSampleDao().getById(i.intValue());
+    Sample sample = this.getSampleService().getById(i.intValue());
 
     List<SampleMeta> sampleMetaList = sample.getSampleMeta();
     sampleMetaList.size();

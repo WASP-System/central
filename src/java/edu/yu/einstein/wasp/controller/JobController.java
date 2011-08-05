@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.*;
 import java.util.Date; 
 import java.util.List; 
 
-import edu.yu.einstein.wasp.dao.JobDao;
+import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.model.*;
 
 @Controller
@@ -28,18 +28,18 @@ import edu.yu.einstein.wasp.model.*;
 @RequestMapping("/job")
 public class JobController {
 
-  private JobDao jobDao;
+  private JobService jobService;
   @Autowired
-  public void setJobDao(JobDao jobDao) {
-    this.jobDao = jobDao;
+  public void setJobService(JobService jobService) {
+    this.jobService = jobService;
   }
-  public JobDao getJobDao() {
-    return this.jobDao;
+  public JobService getJobService() {
+    return this.jobService;
   }
 
   @RequestMapping("/list")
   public String list(ModelMap m) {
-    List <Job> jobList = this.getJobDao().findAll();
+    List <Job> jobList = this.getJobService().findAll();
     
     m.addAttribute("job", jobList);
 
@@ -57,7 +57,7 @@ public class JobController {
       return "default";
     }
 
-    Job job = this.getJobDao().getById(i.intValue());
+    Job job = this.getJobService().getById(i.intValue());
 
     List<JobMeta> jobMetaList = job.getJobMeta();
     jobMetaList.size();
