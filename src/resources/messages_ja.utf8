@@ -1,0 +1,111 @@
+# -------------------------- static user fields --------------------------
+user.login.label=ログイン
+user.login.error=ログイン cannot be empty
+user.login.exists_error=ログイン already exists
+
+user.password.label=Password
+user.password.error=Password cannot be empty
+
+user.firstName.label=First Name
+user.firstName.error=First Name cannot be empty
+
+user.lastName.label=Last Name
+user.lastName.error=Last Name cannot be empty
+
+user.email.label=Email
+user.email.error=Wrong email address format
+
+user.locale.label=Locale
+user.locale.error=Locale cannot be empty
+
+# -------------------------- dynamic user fields --------------------------
+
+user.title.label=タイトル
+user.title.error=タイトル cannot be empty
+
+user.institution.label=Institution
+user.institution.error=Institution cannot be empty
+
+user.department.label=Department
+
+user.building_room.label=Room
+
+user.address.label=Address
+user.address.error=Address cannot be empty
+
+user.city.label=City 
+user.city.error=City cannot be empty
+
+user.state.label=State
+
+user.country.label=Country
+user.country.error=Country cannot be empty
+
+user.zip.label=Zip
+user.zip.error=Zip cannot be empty
+
+user.phone.label=Phone
+user.phone.error=Phone cannot be empty
+
+user.fax.label=Fax
+user.fax.error=Fax cannot be empty
+
+# -------------------------- static lab fields --------------------------
+
+lab.name.label=Lab Name
+lab.name.error=Lab Name cannot be empty
+
+lab.primaryUserId.label=Primary User
+lab.primaryUserId.error=Please select Primary User
+
+lab.departmentId.label=Department
+lab.departmentId.error=Please select department
+
+# -------------------------- dynamic lab fields --------------------------
+lab.internal_external_lab.label=External/Internal
+lab.internal_external_lab.error=Please specify lab type (External/Internal)
+
+lab.phone.label=Phone
+lab.phone.error=Phone cannot be empty
+
+lab.building_room.label=Room
+
+lab.billing_billing_dept_name.label=Billing Dept. Name
+
+lab.billing_contact_name.label=Billing Contact Name
+
+lab.billing_institution_name.label=Billing Institution Name
+
+lab.billing_building_room.label=Billing Building Room
+
+lab.billing_address.label=Billing Address
+
+lab.billing_city.label=Billing City
+
+lab.billing_state.label=Billing State
+
+lab.billing_country.label=Billing Country
+
+lab.billing_zip.label=Billing Zip
+
+lab.billing_email.label=Billing Email
+
+lab.billing_phone.label=Billing Phone
+
+lab.research_center_name.label=Research Center Name
+
+lab.researchcenter_user_list_location.label=Research Center Name User List Location
+
+
+--------------------------- feedback messages ----------------------------
+lab.updated.success=Lab was updated
+lab.created.success=Lab was created
+lab.updated.error=Lab was NOT updated. Please fill in required fields.
+lab.created.error=Lab was NOT created. Please fill in required fields.
+
+user.updated.success=User was updated
+user.created.success=User was created
+user.updated.error=User was NOT updated. Please fill in required fields.
+user.created.error=User was NOT created. Please fill in required fields.
+
+auth.forgotpassword.bad.username = User does not exist
