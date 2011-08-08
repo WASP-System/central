@@ -1,40 +1,119 @@
-user.label.firstName=Имя
-user.error.firstName=Имя должно быть не пустым
+# -------------------------- static user fields --------------------------
+user.login.label=Логин
+user.login.error=Логин cannot be empty
+user.login.exists_error=Логин already exists
 
-user.label.lastName=Фамилия
-user.error.lastName=Укажите фамилию
+user.password.label=Password
+user.password.error=Password cannot be empty
 
-user.label.email=Email
-user.error.email=Wrong email address format
+user.firstName.label=First Name
+user.firstName.error=First Name cannot be empty
 
-user.label.locale=Locale
-user.error.locale=Locale cannot be empty
+user.lastName.label=Last Name
+user.lastName.error=Last Name cannot be empty
 
-user.label.title=Title
-user.error.title=Title cannot be empty
+user.email.label=Email
+user.email.error=Wrong email address format
 
-user.label.institution=Institution	
-user.error.institution=Institution cannot be empty
+user.locale.label=Locale
+user.locale.error=Locale cannot be empty
 
-user.label.department=Department	
-user.label.building_room=Room
+# -------------------------- dynamic user fields --------------------------
 
-user.label.address=Address
-user.error.address=Address cannot be empty
+# Fields that have "metaposition" property defined
+# are considered dynamic and stored to Usermeta table.
+# 
+# WARNING: *.constraint.*,*.control.* and *.metaposition.* properties can only be defined in this file (i.e. messages_en.properties)
 
-user.label.city=City 
-user.error.city=City cannot be empty
+user.title.label=Title
+user.title.error=Title cannot be empty
 
-user.label.state=State
+user.institution.label=Institution
+user.institution.error=Institution cannot be empty
 
-user.label.country=Country
-user.error.country=Country cannot be empty
+user.department.label=Department
 
-user.label.zip=Zip
-user.error.zip=Zip cannot be empty
+user.building_room.label=Room
 
-user.label.phone=Phone
-user.error.phone=Phone cannot be empty
+user.address.label=Address
 
-user.label.fax=Phone
-user.error.fax=Phone cannot be empty
+user.city.label=City 
+user.city.error=City cannot be empty
+
+user.state.label=State
+
+user.country.label=Country
+user.country.error=Country cannot be empty
+
+user.zip.label=Zip
+user.zip.error=Zip cannot be empty
+
+user.phone.label=Phone
+user.phone.error=Phone cannot be empty
+
+user.fax.label=Fax
+user.fax.error=Fax cannot be empty
+
+
+# -------------------------- static lab fields --------------------------
+
+lab.name.label=Lab Name
+lab.name.constraint=NotEmpty
+lab.name.error=Lab Name cannot be empty
+
+lab.primaryUserId.label=Primary User
+lab.primaryUserId.error=Please select Primary User
+
+lab.departmentId.label=Department
+lab.departmentId.error=Please select department
+
+
+# -------------------------- dynamic lab fields --------------------------
+lab.internal_external_lab.label=External/Internal
+lab.internal_external_lab.error=Please specify lab type (External/Internal)
+
+lab.phone.label=Phone
+lab.phone.error=Phone cannot be empty
+
+lab.building_room.label=Room
+
+lab.billing_billing_dept_name.label=Billing Dept. Name
+
+lab.billing_contact_name.label=Billing Contact Name
+
+lab.billing_institution_name.label=Billing Institution Name
+
+lab.billing_building_room.label=Billing Building Room
+
+lab.billing_address.label=Billing Address
+
+lab.billing_city.label=Billing City
+
+lab.billing_state.label=Billing State
+
+lab.billing_country.label=Billing Country
+
+lab.billing_zip.label=Billing Zip
+
+lab.billing_email.label=Billing Email
+
+lab.billing_phone.label=Billing Phone
+
+lab.research_center_name.label=Research Center Name
+
+lab.researchcenter_user_list_location.label=Research Center Name User List Location
+
+
+--------------------------- feedback messages ----------------------------
+lab.updated.success=Лаборатория сохранена
+lab.created.success=Lab was created
+lab.updated.error=Lab was NOT updated. Please fill in required fields.
+lab.created.error=Lab was NOT created. Please fill in required fields.
+
+user.updated.success=Пользователь сохранен
+user.created.success=User was created
+user.updated.error=User was NOT updated. Please fill in required fields.
+user.created.error=User was NOT created. Please fill in required fields.
+
+
+auth.forgotpassword.bad.username = User does not exist

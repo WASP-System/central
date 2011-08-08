@@ -1,16 +1,16 @@
 # -------------------------- static user fields --------------------------
-user.login.label=Login
-user.login.error=שם המשתמש לא יכיל להיות רק
-user.login.exists_error=Login already exists
+user.login.label=Логин
+user.login.error=Логин cannot be empty
+user.login.exists_error=Логин already exists
 
 user.password.label=Password
 user.password.error=Password cannot be empty
 
-user.label.firstName=השם
-user.error.firstName=השם cannot be empty
+user.firstName.label=First Name
+user.firstName.error=First Name cannot be empty
 
-user.label.lastName=פנה ל
-user.error.lastName=פנה ל cannot be empty
+user.lastName.label=Last Name
+user.lastName.error=Last Name cannot be empty
 
 user.email.label=Email
 user.email.error=Wrong email address format
@@ -19,6 +19,11 @@ user.locale.label=Locale
 user.locale.error=Locale cannot be empty
 
 # -------------------------- dynamic user fields --------------------------
+
+# Fields that have "metaposition" property defined
+# are considered dynamic and stored to Usermeta table.
+# 
+# WARNING: *.constraint.*,*.control.* and *.metaposition.* properties can only be defined in this file (i.e. messages_en.properties)
 
 user.title.label=Title
 user.title.error=Title cannot be empty
@@ -31,7 +36,6 @@ user.department.label=Department
 user.building_room.label=Room
 
 user.address.label=Address
-user.address.error=Address cannot be empty
 
 user.city.label=City 
 user.city.error=City cannot be empty
@@ -50,9 +54,11 @@ user.phone.error=Phone cannot be empty
 user.fax.label=Fax
 user.fax.error=Fax cannot be empty
 
+
 # -------------------------- static lab fields --------------------------
 
 lab.name.label=Lab Name
+lab.name.constraint=NotEmpty
 lab.name.error=Lab Name cannot be empty
 
 lab.primaryUserId.label=Primary User
@@ -60,6 +66,7 @@ lab.primaryUserId.error=Please select Primary User
 
 lab.departmentId.label=Department
 lab.departmentId.error=Please select department
+
 
 # -------------------------- dynamic lab fields --------------------------
 lab.internal_external_lab.label=External/Internal
@@ -98,65 +105,15 @@ lab.researchcenter_user_list_location.label=Research Center Name User List Locat
 
 
 --------------------------- feedback messages ----------------------------
-lab.updated.success=Lab was updated
+lab.updated.success=Лаборатория сохранена
 lab.created.success=Lab was created
 lab.updated.error=Lab was NOT updated. Please fill in required fields.
 lab.created.error=Lab was NOT created. Please fill in required fields.
 
-user.updated.success=User was updated
+user.updated.success=Пользователь сохранен
 user.created.success=User was created
 user.updated.error=User was NOT updated. Please fill in required fields.
 user.created.error=User was NOT created. Please fill in required fields.
 
+
 auth.forgotpassword.bad.username = User does not exist
-
-
-
-
-user.label.login=Login
-user.error.login=Login cannot be empty
-user.error.login_exists=Login already exists
-
-user.label.password=Password
-user.error.password=Password cannot be empty
-
-user.label.firstName=השם
-user.error.firstName=השם cannot be empty
-
-user.label.lastName=פנה ל
-user.error.lastName=פנה ל cannot be empty
-
-user.label.email=Email
-user.error.email=Wrong email address format
-
-user.label.locale=Locale
-user.error.locale=Locale cannot be empty
-
-user.label.title=Title
-user.error.title=Title cannot be empty
-
-user.label.institution=Institution	
-user.error.institution=Institution cannot be empty
-
-user.label.department=Department	
-user.label.building_room=Room
-
-user.label.address=Address
-user.error.address=Address cannot be empty
-
-user.label.city=City 
-user.error.city=City cannot be empty
-
-user.label.state=State
-
-user.label.country=Country
-user.error.country=Country cannot be empty
-
-user.label.zip=Zip
-user.error.zip=Zip cannot be empty
-
-user.label.phone=Phone
-user.error.phone=Phone cannot be empty
-
-user.label.fax=Phone
-user.error.fax=Phone cannot be empty

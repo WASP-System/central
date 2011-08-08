@@ -21,6 +21,10 @@ import edu.yu.einstein.wasp.service.EmailService;
 @Service
 public class EmailServiceImpl implements EmailService {
 	
+	  static {
+		  System.setProperty("mail.mime.charset", "utf8");
+	  }
+	
 	   @Autowired
 	   private JavaMailSender mailSender;
 	   
@@ -47,13 +51,18 @@ public class EmailServiceImpl implements EmailService {
 		            
 		            String lang=user.getLocale().substring(0, 2);
 		            
-		            String text = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, "emails/new_password_"+lang+".vm", model);
+		            String text =
+		            	VelocityEngineUtils.mergeTemplateIntoString(velocityEngine,
+		            			"emails/new_password_"+lang+".vm", "UTF-8", model);
 		            
+		          
 		            String subject = extractSubject(text);
 		            String body = extractBody(text);
 		            
-		            message.setSubject(subject);		            
-		            message.setText(body, true);
+		            //message.setSubject(subject,"UTF-8");		            
+		            //message.setText(body, true);
+		            mimeMessage.setSubject(subject,"UTF-8");
+		            mimeMessage.setText(body,"UTF-8");
 		            
 		            
 		         }

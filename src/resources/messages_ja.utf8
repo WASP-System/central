@@ -1,7 +1,7 @@
 # -------------------------- static user fields --------------------------
-user.login.label=ログイン
-user.login.error=ログイン cannot be empty
-user.login.exists_error=ログイン already exists
+user.login.label=Логин
+user.login.error=Логин cannot be empty
+user.login.exists_error=Логин already exists
 
 user.password.label=Password
 user.password.error=Password cannot be empty
@@ -20,8 +20,13 @@ user.locale.error=Locale cannot be empty
 
 # -------------------------- dynamic user fields --------------------------
 
-user.title.label=タイトル
-user.title.error=タイトル cannot be empty
+# Fields that have "metaposition" property defined
+# are considered dynamic and stored to Usermeta table.
+# 
+# WARNING: *.constraint.*,*.control.* and *.metaposition.* properties can only be defined in this file (i.e. messages_en.properties)
+
+user.title.label=Title
+user.title.error=Title cannot be empty
 
 user.institution.label=Institution
 user.institution.error=Institution cannot be empty
@@ -31,7 +36,6 @@ user.department.label=Department
 user.building_room.label=Room
 
 user.address.label=Address
-user.address.error=Address cannot be empty
 
 user.city.label=City 
 user.city.error=City cannot be empty
@@ -50,9 +54,11 @@ user.phone.error=Phone cannot be empty
 user.fax.label=Fax
 user.fax.error=Fax cannot be empty
 
+
 # -------------------------- static lab fields --------------------------
 
 lab.name.label=Lab Name
+lab.name.constraint=NotEmpty
 lab.name.error=Lab Name cannot be empty
 
 lab.primaryUserId.label=Primary User
@@ -60,6 +66,7 @@ lab.primaryUserId.error=Please select Primary User
 
 lab.departmentId.label=Department
 lab.departmentId.error=Please select department
+
 
 # -------------------------- dynamic lab fields --------------------------
 lab.internal_external_lab.label=External/Internal
@@ -98,14 +105,15 @@ lab.researchcenter_user_list_location.label=Research Center Name User List Locat
 
 
 --------------------------- feedback messages ----------------------------
-lab.updated.success=Lab was updated
+lab.updated.success=Лаборатория сохранена
 lab.created.success=Lab was created
 lab.updated.error=Lab was NOT updated. Please fill in required fields.
 lab.created.error=Lab was NOT created. Please fill in required fields.
 
-user.updated.success=User was updated
+user.updated.success=Пользователь сохранен
 user.created.success=User was created
 user.updated.error=User was NOT updated. Please fill in required fields.
 user.created.error=User was NOT created. Please fill in required fields.
+
 
 auth.forgotpassword.bad.username = User does not exist

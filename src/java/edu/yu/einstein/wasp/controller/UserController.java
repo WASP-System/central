@@ -289,7 +289,7 @@ public class UserController extends WaspController {
 
 		MessageTag.addMessage(request.getSession(), "user.updated.success");
 		
-		emailService.sendNewPassword(userDb, "new pass");
+		//emailService.sendNewPassword(userDb, "new pass");
 		
 		return "redirect:" + userId + ".do";
 	}
