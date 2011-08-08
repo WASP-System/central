@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.encoding.PasswordEncoder;
 import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
@@ -34,6 +35,7 @@ import edu.yu.einstein.wasp.model.MetaAttribute.State;
 import edu.yu.einstein.wasp.model.MetaUtil;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Usermeta;
+import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.service.UsermetaService;
 import edu.yu.einstein.wasp.taglib.MessageTag;
@@ -51,6 +53,9 @@ public class UserController extends WaspController {
 
 	@Autowired
 	private BeanValidator validator;
+	
+	@Autowired
+	private EmailService emailService;
 
 	@InitBinder
 	protected void initBinder(WebDataBinder binder) {
@@ -278,9 +283,13 @@ public class UserController extends WaspController {
 
 		usermetaService.updateByUserId(userId, usermetaList);
 
+		MimeMessageHelper a;
+		
 		status.setComplete();
 
 		MessageTag.addMessage(request.getSession(), "user.updated.success");
+		
+		emailService.sendNewPassword(userDb, "new pass");
 		
 		return "redirect:" + userId + ".do";
 	}

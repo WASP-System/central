@@ -294,9 +294,9 @@ public class LabController extends WaspController {
 	    return "redirect:/dashboard.do";
 	  }
 
-	  @RequestMapping(value = "/pendinglab/list.do", method = RequestMethod.GET)
-	  @PreAuthorize("hasRole('god') or hasRole('da-*')")
-	  public String pendingLabList(ModelMap m) {
+	  @RequestMapping(value = "/pendinglab/list/{departmentId}.do", method = RequestMethod.GET)
+	  @PreAuthorize("hasRole('god') or hasRole('da-' + $departmentId)")
+	  public String pendingLabList(@PathVariable("departmentId") Integer departmentId, ModelMap m) {
 	    return "lab/pendinglab/list";
 	  }
 

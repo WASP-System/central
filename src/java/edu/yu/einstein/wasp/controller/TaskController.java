@@ -85,12 +85,14 @@ public class TaskController extends WaspController {
     return "task/detail";
   }
 
-  @RequestMapping("/lmapproval/list")
-  @PreAuthorize("hasRole('god') or hasRole('lm-*')")
-  public String listLabManagerApproval(ModelMap m) {
+  @RequestMapping("/lmapproval/list/{labId}")
+  @PreAuthorize("hasRole('god') or hasRole('lm-' + #labId)")
+  public String listLabManagerApproval(@PathVariable("labId") Integer labId, ModelMap m) {
 
     Task task = this.getTaskService().getTaskByIName("PI Approval");
     List<State> states = task.getState();
+
+    // TODO LIMIT BY LABID
     
     m.addAttribute("task", task);
     m.addAttribute("states", states);
@@ -110,17 +112,17 @@ public class TaskController extends WaspController {
     state.setStatus(newStatus);
     this.getStateService().merge(state);
 
-    return "redirect:/task/lmapproval/list.do";
+    return "redirect:/task/lmapproval/list/" + labId + ".do";
   }
 
-  @RequestMapping("/daapproval/list")
-  @PreAuthorize("hasRole('god') or hasRole('da-*')")
-  public String listDepartementAdminApproval(ModelMap m) {
+  @RequestMapping("/daapproval/list/{departmentId}")
+  @PreAuthorize("hasRole('god') or hasRole('da-' + #departmentId)")
+  public String listDepartementAdminApproval(@PathVariable("departmentId") Integer departmentId, ModelMap m) {
 
     Task task = this.getTaskService().getTaskByIName("DA Approval");
     List<State> states = task.getState();
 
-    // TODO filter by labmanager
+    // TODO filter by departmentId
     
     m.addAttribute("task", task);
     m.addAttribute("states", states);
@@ -140,8 +142,114 @@ public class TaskController extends WaspController {
     state.setStatus(newStatus);
     this.getStateService().merge(state);
 
-    return "redirect:/task/daapproval/list.do";
+    return "redirect:/task/daapproval/list/" + departmentId + ".do";
   }
 
+  @RequestMapping(value = "/fmrequote/list", method = RequestMethod.GET)
+  @PreAuthorize("hasRole('god') or hasRole('fm')")
+  public String listRequote(ModelMap m) {
+
+    Task task = this.getTaskService().getTaskByIName("Requote");
+    List<State> states = task.getState();
+
+    // TODO filter by status
+    
+    m.addAttribute("task", task);
+    m.addAttribute("states", states);
+
+    return "task/fmrequote/list";
+  }
+
+  @RequestMapping(value = "/fmrequote/requote", method = RequestMethod.GET)
+  @PreAuthorize("hasRole('god') or hasRole('fm')")
+  public String requote(
+      @RequestParam("stateId") Integer stateId,
+      @RequestParam("jobId") Integer jobId,
+      @RequestParam("amount") Integer amount,
+      ModelMap m
+    ) {
+
+    // TODO jobId belongs to stateId
+    // TODO check valid state
+    // TODO invalidate old quote
+    // TODO insert new quote
+    // TODO invalidate old PI/DA approvals
+    // TODO email LM/PI/DA/submitter
+
+
+    // TODO add status message
+
+    return "redirect:/task/fmrequote/list.do";
+  }
+
+  @RequestMapping(value = "/fmpayment/list", method = RequestMethod.GET)
+  @PreAuthorize("hasRole('god') or hasRole('fm')")
+  public String listPayment(ModelMap m) {
+
+    Task task = this.getTaskService().getTaskByIName("Receive Payment");
+    List<State> states = task.getState();
+
+    // TODO filter by status
+    
+    m.addAttribute("task", task);
+    m.addAttribute("states", states);
+
+    return "task/fmpayment/list";
+  }
+
+  @RequestMapping(value = "/fmpayment/payment", method = RequestMethod.POST)
+  @PreAuthorize("hasRole('god') or hasRole('fm')")
+  public String payment(
+      @RequestParam("stateId") Integer stateId,
+      @RequestParam("jobId") Integer jobId,
+      @RequestParam("amount") Integer amount,
+      ModelMap m
+    ) {
+
+    // TODO jobId belongs to stateId
+    // TODO check valid state
+    // TODO insert payment
+    // TODO email LM/PI/DA/submitter
+    //   
+
+
+    // TODO add status message
+
+    return "redirect:/task/fmpayment/list.do";
+  }
+
+  @RequestMapping(value = "/samplereceive/list", method = RequestMethod.GET)
+  @PreAuthorize("hasRole('god') or hasRole('fm')")
+  public String listSampleReceive(ModelMap m) {
+
+    Task task = this.getTaskService().getTaskByIName("Receive Sample");
+    List<State> states = task.getState();
+
+    // TODO filter by status
+    
+    m.addAttribute("task", task);
+    m.addAttribute("states", states);
+
+    return "task/samplereceive/list";
+  }
+
+  @RequestMapping(value = "/samplereceive/receive", method = RequestMethod.POST)
+  @PreAuthorize("hasRole('god') or hasRole('fm')")
+  public String payment(
+      @RequestParam("stateId") Integer stateId,
+      @RequestParam("sampleId") Integer sampleId,
+      ModelMap m
+    ) {
+
+    // TODO jobId belongs to stateId
+    // TODO check valid state
+    // TODO email LM/PI/DA/submitter
+    //   
+
+
+    // TODO add status message
+
+    return "redirect:/task/samplereceive/list.do";
+  }
 
 }

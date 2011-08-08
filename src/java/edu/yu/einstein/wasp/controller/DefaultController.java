@@ -24,23 +24,24 @@ import org.springframework.transaction.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 
 @Controller
-public class DefaultController {
+public class DefaultController extends WaspController {
 
   @RequestMapping("/**/*")
   public String def(HttpServletRequest req, ModelMap m) {
-     String c = req.getContextPath();
-     String s = req.getRequestURI();
-     String p = req.getServletPath();
+    String c = req.getContextPath();
+    String s = req.getRequestURI();
+    String p = req.getServletPath();
 
-     // strips context, lead slash ("/"), spring mapping 
-     String d = s.replaceFirst(c + "/", "").replaceFirst("\\.do$", "");
+    // strips context, lead slash ("/"), spring mapping 
+    String d = s.replaceFirst(c + "/", "").replaceFirst("\\.do$", "");
    
-     m.addAttribute("c", c);
-     m.addAttribute("s", s);
-     m.addAttribute("p", p);
-     m.addAttribute("d", d);
+    m.addAttribute("c", c);
+    m.addAttribute("s", s);
+    m.addAttribute("p", p);
+    m.addAttribute("d", d);
+
+    m.addAttribute("roles", getRoles());
 
     return d;
   }
-
 }
