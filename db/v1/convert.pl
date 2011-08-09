@@ -822,6 +822,8 @@ update sample set isgood =1;
 update run set startts = null where startts = '0000-00-00 00:00:00';
 update run set endts = null where endts = '0000-00-00 00:00:00';
 
+insert into jobuser (jobid, userid, roleid) select jobid, userid, 9 from job;
+
 update user set password = sha1('abc123');
 
 ";
