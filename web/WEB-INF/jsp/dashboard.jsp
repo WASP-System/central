@@ -8,13 +8,13 @@
 <sec:authorize access="hasRole('god')">
   <div>
   <h1>Super User Utils</h1>
-  <div><a href=<c:url value="/user/list.do"/>">User Utils</a></div>
-  <div><a href=<c:url value="/department/list.do"/>">Department Utils</a></div>
-  <div><a href=<c:url value="/lab/list.do"/>">- Lab Utils</a></div>
-  <div><a href=<c:url value="/sample/list.do"/>">Sample Utils</a></div>
-  <div><a href=<c:url value="/resource/list.do"/>">Resource Utils</a></div>
-  <div><a href=<c:url value="/run/list.do"/>">- Run Utils</a></div>
-  <div><a href=<c:url value="/task/list.do"/>">Task Utils</a></div>
+  <div><a href="<c:url value="/user/list.do"/>">User Utils</a></div>
+  <div><a href="<c:url value="/department/list.do"/>">Department Utils</a></div>
+  <div><a href="<c:url value="/lab/list.do"/>">- Lab Utils</a></div>
+  <div><a href="<c:url value="/sample/list.do"/>">Sample Utils</a></div>
+  <div><a href="<c:url value="/resource/list.do"/>">Resource Utils</a></div>
+  <div><a href="<c:url value="/run/list.do"/>">- Run Utils</a></div>
+  <div><a href="<c:url value="/task/list.do"/>">Task Utils</a></div>
   </div>
 </sec:authorize>
 
