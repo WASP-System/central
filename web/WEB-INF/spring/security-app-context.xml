@@ -37,20 +37,20 @@ SELECT login username,
   case ab.roleid
     when 1 then
       case r.domain
-        when 'system' then r.rolename
+        when 'system' then provr.rolename
         when 'department' then concat(provr.rolename, '-', du.departmentid)
         when 'lab' then concat(provr.rolename, '-', lu.labid)
         when 'job' then concat(provr.rolename, '-', ju.jobid)
       end
     when 2 then
-      concat(r.rolename, '-*')
-  end authority
+      concat(provr.rolename, '-*')
+      end authority
 FROM
   user u
   inner join role ab on (roleid in (1,2))
   inner join role r on (1 = 1)
   inner join roleset rs on (r.roleid = rs.parentroleid)
-  inner join role provr on (rs.parentroleid = provr.roleid)
+  inner join role provr on (rs.childroleid = provr.roleid)
   left outer join userrole ur
     on (u.userid = ur.userid and r.roleid = ur.roleid)
   left outer join departmentuser du
@@ -60,7 +60,7 @@ FROM
   left outer join jobuser ju
     on (u.userid = ju.userid and r.roleid = ju.roleid)
 where
-  u.login = ? and 
+  u.login = ? and
   case r.domain
     when 'system' then ifnull(ur.userid, 0)
     when 'department' then ifnull(du.userid, 0)
@@ -88,4 +88,4 @@ group by 1, 2
 
     </authentication-manager>
 
-</beans:beans>   
+</beans:beans>
