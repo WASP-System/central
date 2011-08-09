@@ -72,50 +72,19 @@ group by 1, 2
     </beans:bean>
 
 
+    <beans:bean id="daoAuthenticationProvider"  class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
+       <beans:property name="userDetailsService" ref="userDetailsService"/>
+    </beans:bean>
+
     <authentication-manager>
-      <authentication-provider>
-        <password-encoder hash="sha" />        
-        <jdbc-user-service data-source-ref="dataSource" 
-           authorities-by-username-query="
-SELECT login username,
-  case ab.roleid
-    when 1 then
-      case r.domain
-        when 'system' then r.rolename
-        when 'department' then concat(provr.rolename, '-', du.departmentid)
-        when 'lab' then concat(provr.rolename, '-', lu.labid)
-        when 'job' then concat(provr.rolename, '-', ju.jobid)
-      end
-    when 2 then
-      concat(r.rolename, '-*')
-  end authority
-FROM
-  user u
-  inner join role ab on (roleid in (1,2))
-  inner join role r on (1 = 1)
-  inner join roleset rs on (r.roleid = rs.parentroleid)
-  inner join role provr on (rs.parentroleid = provr.roleid)
-  left outer join userrole ur
-    on (u.userid = ur.userid and r.roleid = ur.roleid)
-  left outer join departmentuser du
-    on (u.userid = du.userid)
-  left outer join labuser lu
-    on (u.userid = lu.userid and r.roleid = lu.roleid)
-  left outer join jobuser ju
-    on (u.userid = ju.userid and r.roleid = ju.roleid)
-where
-  u.login = ? and 
-  case r.domain
-    when 'system' then ifnull(ur.userid, 0)
-    when 'department' then ifnull(du.userid, 0)
-    when 'lab' then ifnull(lu.userid, 0)
-    when 'job' then ifnull(ju.userid, 0)
-  end
-group by 1, 2
-"
-           users-by-username-query="SELECT login username, password, isactive enabled FROM user WHERE login = ?" 
-           />
-       </authentication-provider>
+
+      <authentication-provider user-service-ref="userDetailsService">
+        <password-encoder hash="sha" />
+      </authentication-provider>
+
+      <!-- no password encoder to reauth -->
+      <authentication-provider user-service-ref="userDetailsService">
+      </authentication-provider>
 
     </authentication-manager>
 
