@@ -23,6 +23,30 @@
       <c:out value="${job.user.lastName}"/>
     </p>
 
+
+    Job Viewer 
+    <c:forEach items="${jobuser}" var="u">
+      <p>
+      <c:if test="${u.role.roleName == 'jv'}">
+        <a href="/wasp/user/detail/<c:out value="${u.user.userId}" />.do"><c:out value="${u.user.login}" /></a>
+        <c:out value="${u.user.firstName}" />
+        <c:out value="${u.user.lastName}" />
+          <a href="/wasp/job/user/roleRemove/<c:out value="${job.labId}" />/<c:out value="${job.jobId}" />/<c:out value="${u.user.userId}" />.do">
+          Remove
+          </a>
+      </c:if>
+      </p>
+    </c:forEach>
+    <form name="f" action="<c:url value='/job/user/roleAdd.do'/>" method="POST">
+      Email Address:
+      <input type='hidden' name='labId' value='<c:out value="${lab.labId}" />'/>
+      <input type='hidden' name='jobId' value='<c:out value="${job.jobId}" />'/>
+      <input type='text' name='useremail' value=''/>
+      <input type="submit" value="Add Job Viewer" />
+
+    </form>
+
+
     <c:forEach items="${jobmeta}" var="meta">
       <p>
       <span><c:out value="${meta.k}" /></span>
