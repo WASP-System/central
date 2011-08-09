@@ -47,6 +47,23 @@
 
 
 <div>
+<h1>Viewable Jobs</h1>
+<c:forEach items="${roles}" var="r">
+  <c:if test="${fn:startsWith(r,'jv-')}">
+    <c:if test="${r != 'jv-*'}">
+      <c:set var="jobId" value="${fn:substring(r,3,-1)}" />
+
+      <div>
+        <div><a href="<c:url value="/job/detail/${jobId}.do"/>">TODO JOB NAME</a></div>
+      </div>
+    </c:if>
+  </c:if>
+</c:forEach>
+<div>[Submit a Job]</div>
+</div>
+
+
+<div>
 <h1>Systems Admin Utils</h1>
 <div>[View Task]</div>
 <div>- [View Job Task]</div>
@@ -120,24 +137,5 @@
 
 
 
-<div>
-<h1>Lab Member Utils</h1>
 <div><a href="<c:url value="/lab/request.do"/>">Request Access to a Lab</a></div>
-
-<div>[View My Project]</div>
-<div>- [View Job]</div>
-<div>- [View Job]</div>
-<div>- [View Job]</div>
-<div>[My Jobs]</div>
-<div>- [View Job]</div>
-<div>- [View Job]</div>
-<div>- [View Job]</div>
-<div>[View Project]</div>
-<div>- [View Job]</div>
-<div>- [View Job]</div>
-<div>- [View Job]</div>
-<div>- [View Job]</div>
-<div>[Register as a PI]</div>
-<div>[Submit a Job]</div>
-</div>
 
