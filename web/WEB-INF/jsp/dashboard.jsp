@@ -2,6 +2,7 @@
 
 <div><a href="<c:url value="/user/me.do"/>">My Profile</a></div>
 <div><a href="<c:url value="/user/mypassword.do"/>">My Password</a></div>
+<div><a href="<c:url value="/auth/reauth.do"/>">Refresh Auth</a></div>
 <div><a href="<c:url value="/lab/request.do"/>">Request Access to a Lab</a></div>
 
 
@@ -19,19 +20,22 @@
 </sec:authorize>
 
 
-<sec:authorize access="hasRole('lm-*')">
+<sec:authorize access="hasRole('lu-*')">
   <div>
-  <h1>Lab Manager Utils</h1>
+  <h1>Lab Utils</h1>
   <c:forEach items="${roles}" var="r">
-    <c:if test="${fn:startsWith(r,'lm-')}">
-      <c:if test="${r != 'lm-*'}">
+    <c:if test="${fn:startsWith(r,'lu-')}">
+      <c:if test="${r != 'lu-*'}">
         <c:set var="labId" value="${fn:substring(r,3,-1)}" />
   
         <div>
           <div>TODO LABNAME</div>
-          <div><a href="<c:url value="/lab/pendinguser/list/${labId}.do"/>">Pending User Approval</a></div>
-          <div><a href="<c:url value="/lab/user/${labId}.do"/>">User Manager</a></div>
-          <div><a href="<c:url value="/task/lmapproval/list/${labId}.do"/>">Pending Lab Manager Job Approval</a></div>
+          <div><a href="<c:url value="/lab/detail_ro/${labId}.do"/>">View</a></div>
+          <sec:authorize access="hasRole('lm-*')">
+            <div><a href="<c:url value="/lab/pendinguser/list/${labId}.do"/>">Pending User Approval</a></div>
+            <div><a href="<c:url value="/lab/user/${labId}.do"/>">User Manager</a></div>
+            <div><a href="<c:url value="/task/lmapproval/list/${labId}.do"/>">Pending Lab Manager Job Approval</a></div>
+           </sec:authorize>
         </div>
       </c:if>
     </c:if>
@@ -47,6 +51,7 @@
       <c:if test="${r != 'da-*'}">
         TODO DEPARTMENTNAME
         <c:set var="departmentId" value="${fn:substring(r,3,-1)}" />
+        <div><a href="<c:url value="/department/detail/${departmentId}.do"/>">Department Detail</a></div>
         <div><a href="<c:url value="/department/pendinglab/list/${departmentId}.do"/>">Pending Lab Approval</a></div>
         <div><a href="<c:url value="/task/daapproval/list/${departmentId}.do"/>">Pending Department Admin Job Approval</a></div>
       </c:if>
