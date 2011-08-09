@@ -11,6 +11,7 @@ import org.springframework.ui.ModelMap;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContext;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -19,11 +20,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PathVariable;
 
-import org.springframework.security.core.userdetails.UserCache;
-import org.springframework.security.core.userdetails.cache.NullUserCache;
-
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import org.springframework.security.access.prepost.*;
 
@@ -34,6 +30,12 @@ import edu.yu.einstein.wasp.service.DepartmentService;
 import edu.yu.einstein.wasp.taglib.MessageTag;
 
 
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserCache;
+import org.springframework.security.core.userdetails.cache.NullUserCache;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UserDetails;
+
 
 
 @Controller
@@ -41,6 +43,9 @@ import edu.yu.einstein.wasp.taglib.MessageTag;
 public class AuthController {
 
   private static final ResourceBundle BASE_BUNDLE=ResourceBundle.getBundle("messages", Locale.ENGLISH);
+
+  @Autowired
+  private UserDetailsService userDetailsService;
 
   @Autowired
   private UserService userService;
@@ -121,26 +126,15 @@ public class AuthController {
   @RequestMapping("/reauth")
   public String reauth(ModelMap m) {
 
-    Authentication authentication = SecurityContextHolder.getContext()
-           .getAuthentication();
+    SecurityContext securityContext= SecurityContextHolder.getContext();
+    Authentication currentUser = securityContext.getAuthentication();
+    UserDetails currentUserDetails = (UserDetails) currentUser.getPrincipal();
 
-    /*
-    UserDetails oldUserDetails = userCache.getUserFromCache(authentication.getName()); 
-    userCache.removeUserFromCache(authentication.getName()); 
+    UserDetails u = userDetailsService.loadUserByUsername(currentUserDetails.getUsername());
 
-    UserDetails newUserDetails = userDetailsService.loadUserByUsername(authentication.getName());
+    UsernamePasswordAuthenticationToken newToken = new UsernamePasswordAuthenticationToken(u.getUsername(), u.getPassword());
 
-    userCache.putUserInCache(newUserDetails);
-
-    if (!("anonymous".equalsIgnoreCase(authentication.getName()))
-           && authentication.isAuthenticated()
-           && userCache.getUserFromCache(authentication.getName()) == null
-       ) {
-       authentication.setAuthenticated(false);
-    }
-    */
-    
-       authentication.setAuthenticated(false);
+    SecurityContextHolder.getContext().setAuthentication(newToken);
 
     return "redirect:/dashboard.do";
   }
