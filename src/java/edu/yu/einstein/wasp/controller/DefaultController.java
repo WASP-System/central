@@ -33,7 +33,7 @@ public class DefaultController extends WaspController {
     String p = req.getServletPath();
 
     // strips context, lead slash ("/"), spring mapping 
-    String d = s.replaceFirst(c + "/", "").replaceFirst("\\.do$", "");
+    String d = s.replaceFirst(c + "/", "").replaceFirst("\\.do.*$", "");
    
     m.addAttribute("c", c);
     m.addAttribute("s", s);
