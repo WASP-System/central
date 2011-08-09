@@ -11,14 +11,11 @@
     <global-method-security pre-post-annotations="enabled" proxy-target-class="true" />
 
     <http use-expressions="true">
-    <!-- // only if i say you can permissions
-        <intercept-url pattern="/job/**" access="hasRole('supervisor')" />
-      -->
 
-        <intercept-url pattern="/user/**" access="isAuthenticated()" />
-        <intercept-url pattern="/lab/**" access="isAuthenticated()" />
+        <intercept-url pattern="/auth/**" access="permitAll" />
+        <intercept-url pattern="/open/**" access="permitAll" />
+        <intercept-url pattern="/**" access="isAuthenticated()" />
 
-        <intercept-url pattern="/supersecure/**" access="hasRole('never')" />
         <form-login login-page="/auth/login.do"
            authentication-failure-url="/auth/login.do?error=1"
            default-target-url="/dashboard.do"   
