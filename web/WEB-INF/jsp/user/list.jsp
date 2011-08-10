@@ -25,20 +25,20 @@ html, body {
   
   <script type="text/javascript">
 $(function(){ 
-  $("#list").jqGrid({
+  $("#grid_id").jqGrid({
     url:'/wasp/user/listJSON.do',
     datatype: 'json',
     mtype: 'GET',
     colNames:['Login','First Name','Last Name', 'Email','Locale','Active'],
     colModel :[ 
-      {name:'login', index:'login', width:80, align:'right'},
-      {name:'firstName', width:100, align:'right'}, 
-      {name:'lastName', width:100, align:'right'},    
-      {name:'email', index:'email', width:255, align:'right'}, 
-      {name:'locale', index:'locale', width:70, align:'center'}, 
-      {name:'isActive', index:'isActive', width:70, align:'center'}      
+      {name:'login', index:'login', width:80, align:'right',editable:false,editoptions:{readonly:true,size:10}},
+      {name:'firstName', width:100, align:'right',editable:true,editoptions:{size:20}}, 
+      {name:'lastName', width:100, align:'right',editable:true,editoptions:{size:20}},    
+      {name:'email', index:'email', width:255, align:'right',editable:true,editoptions:{size:100}}, 
+      {name:'locale', index:'locale', width:70, align:'center',editable:false,editoptions:{readonly:true,size:10}}, 
+      {name:'isActive', index:'isActive', width:70, align:'center',editable:false,editoptions:{readonly:true,size:10}}      
     ],
-    pager: '#pager',
+    pager: '#gridpager',
     rowNum:50,    
     sortname: 'login',
     sortorder: 'desc',
@@ -52,7 +52,14 @@ $(function(){
 	height: 300,
 
 	caption: "User List"
-  }); 
+  }).navGrid('#gridpager',{view:true, del:true}, 
+		  {}, // use default settings for edit
+		  {}, // use default settings for add
+		  {},  // delete instead that del:false we need this
+		  {multipleSearch : true}, // enable the advanced searching
+		  {closeOnEscape:true} /* allow the view dialog to be closed when user press ESC key*/
+		  );
+
 }); 
 </script>
   
@@ -62,8 +69,11 @@ $(function(){
 
 <h1>User List</h1>
  <a href="/wasp/user/create/form.do">create</a>
-<table id="list"><tr><td/></tr></table> 
-<div id="pager"></div>
+ 
+</br>
+ 
+<table id="grid_id"></table> 
+<div id="gridpager"></div>
 
 </table>
 </body>
