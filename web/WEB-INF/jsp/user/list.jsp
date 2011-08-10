@@ -4,13 +4,20 @@
  
   <link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/jquery/jquery-ui.css" />
   <link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/jquery/ui.jqgrid.css" />
-  <style>
-	html, body {
-    margin: 0;
-    padding: 0;
+ <style>
+
+html, body {
+
+	margin: 0;			/* Remove body margin/padding */
+
+	padding: 0;
+
+	overflow: hidden;	/* Remove scroll bars on browser window */	
+
     font-size: 75%;
-	}
-	</style>
+
+}
+ </style>	
   
   <script src="/wasp/scripts/jquery/jquery-1.6.2.js" type="text/javascript"></script>
   <script src="/wasp/scripts/jqgrid/grid.locale-en.js" type="text/javascript"></script>
@@ -42,7 +49,9 @@ $(function(){
 	loadui: 'block',
 	scroll: true,
 	emptyrecords: 'No users',
-	height: 300
+	height: 300,
+
+	caption: "User List"
   }); 
 }); 
 </script>

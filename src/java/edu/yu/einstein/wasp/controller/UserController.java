@@ -93,7 +93,7 @@ public class UserController extends WaspController {
 	}
 
 	@RequestMapping(value="/listJSON", method=RequestMethod.GET)	
-	public @ResponseBody String getAvailability() {
+	public @ResponseBody String getListJSON() {
 	
 		//result
 		Map <String, Object> jqgrid = new HashMap<String, Object>();
@@ -240,6 +240,66 @@ public class UserController extends WaspController {
 	public String detailRW(@PathVariable("userId") Integer userId, ModelMap m) {		
 		return detail(userId,m,true);
 	}
+	
+	/*
+	@RequestMapping(value = "/user/detail_ro/JSON.do", method = RequestMethod.GET)	
+	private @ResponseBody String detailJSON() {
+
+		User user = this.userService.getById(1);
+
+		user.setUsermeta(MetaUtil.syncWithMaster(user.getUsermeta(), AREA, Usermeta.class));
+		
+		MetaUtil.setAttributesAndSort(user.getUsermeta(), AREA);
+		
+		List<String[]> result=new ArrayList<String[]>();
+		
+		//result
+		//Map <String, Object> jqgrid = new HashMap<String, Object>();
+		
+	
+
+    	ObjectMapper mapper = new ObjectMapper();
+		
+		 try {
+			 //String users = mapper.writeValueAsString(userList);
+					 jqgrid.put("page","1");
+			 jqgrid.put("records",userList.size()+"");
+			 jqgrid.put("total",userList.size()+"");
+			 
+			 
+			 List<Map> rows = new ArrayList<Map>();
+			 
+			 for (User user:userList) {
+				 Map cell = new HashMap();
+				 cell.put("id", user.getUserId());
+				 
+				 cell.put("cell", new String[] {
+							"<a href=detail_ro/"+user.getUserId()+".do>"+user.getLogin()+"</a>",
+							user.getFirstName(),
+							user.getLastName(),						
+							user.getEmail(),
+							LOCALES.get(user.getLocale()),
+							user.getIsActive()==1?"yes":"no"}
+				 );
+				 
+				 rows.add(cell);
+			 }
+
+			 
+			 jqgrid.put("rows",rows);
+			 
+			 String json=mapper.writeValueAsString(jqgrid);
+			 
+			 return json;
+		 } catch (Throwable e) {
+			 throw new IllegalStateException("Can't marshall to JSON "+userList,e);
+		 }
+	
+		
+
+		
+	}
+	*/
 	
 	@RequestMapping(value = "/detail_ro/{userId}.do", method = RequestMethod.GET)	
 	public String detailRO(@PathVariable("userId") Integer userId, ModelMap m) {
