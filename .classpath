@@ -61,5 +61,7 @@
 	<classpathentry kind="lib" path="web/WEB-INF/lib/velocity-1.7.jar"/>
 	<classpathentry kind="lib" path="C:/apps/tomcat_f/lib/jsp-api.jar"/>
 	<classpathentry kind="lib" path="C:/apps/tomcat_f/lib/servlet-api.jar"/>
+	<classpathentry kind="lib" path="web/WEB-INF/lib/jackson-core-asl-1.8.5.jar"/>
+	<classpathentry kind="lib" path="web/WEB-INF/lib/jackson-mapper-lgpl-1.8.5.jar"/>
 	<classpathentry kind="output" path="web/WEB-INF/classes"/>
 </classpath>

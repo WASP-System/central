@@ -3,7 +3,6 @@ package edu.yu.einstein.wasp.model;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 /*
  * holds attributes for a *meta" object
@@ -26,8 +25,7 @@ public final class MetaAttribute implements Serializable {
 
 		private int metaposition;
 
-		Locale l;
-		  
+	
 		
 		public String getLabel() {
 			return label;

@@ -1,7 +1,13 @@
 <%@ include file="/WEB-INF/jsp/include.jsp" %>
 
 <html>
-  <head><title>User Detail</title><head>
+  <head>
+  <title>User Detail</title>
+  
+  
+  
+  
+  </head>
   <body>
     
     <h1>User Detail</h1>

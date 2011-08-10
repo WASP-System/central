@@ -13,7 +13,6 @@ package edu.yu.einstein.wasp.model;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -23,10 +22,11 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.validation.constraints.Pattern;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
+import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
 
 @Entity
@@ -54,8 +54,9 @@ public class User extends WaspModel {
   }
 
 
-  @Column(name="email")  
-  @Pattern(regexp=".+@.+\\.[a-z]+")
+  @Column(name="email")
+  @Email
+  //@Pattern(regexp=".+@.+\\.[a-z]+")
   protected String email;
   public void setEmail (String email) {
     this.email = email;
@@ -130,7 +131,9 @@ public class User extends WaspModel {
   @NotAudited
   @OneToMany
    @JoinColumn(name="userid", insertable=false, updatable=false)
+
   protected List<Usermeta> usermeta;
+  @JsonIgnore 
   public List<Usermeta> getUsermeta()  {
     return this.usermeta;
   }
@@ -141,8 +144,9 @@ public class User extends WaspModel {
 
   @NotAudited
   @OneToMany
-   @JoinColumn(name="userid", insertable=false, updatable=false)
+   @JoinColumn(name="userid", insertable=false, updatable=false) 
   protected List<Userrole> userrole;
+  @JsonIgnore 
   public List<Userrole> getUserrole()  {
     return this.userrole;
   }
@@ -153,8 +157,9 @@ public class User extends WaspModel {
 
   @NotAudited
   @OneToMany
-   @JoinColumn(name="userid", insertable=false, updatable=false)
+   @JoinColumn(name="userid", insertable=false, updatable=false)  
   protected List<DepartmentUser> departmentUser;
+  @JsonIgnore
   public List<DepartmentUser> getDepartmentUser()  {
     return this.departmentUser;
   }
@@ -165,8 +170,9 @@ public class User extends WaspModel {
 
   @NotAudited
   @OneToMany
-   @JoinColumn(name="primaryuserid", insertable=false, updatable=false)
+   @JoinColumn(name="primaryuserid", insertable=false, updatable=false)  
   protected List<Lab> lab;
+  @JsonIgnore 
   public List<Lab> getLab()  {
     return this.lab;
   }
@@ -177,8 +183,9 @@ public class User extends WaspModel {
 
   @NotAudited
   @OneToMany
-   @JoinColumn(name="userid", insertable=false, updatable=false)
+   @JoinColumn(name="userid", insertable=false, updatable=false)  
   protected List<LabUser> labUser;
+  @JsonIgnore 
   public List<LabUser> getLabUser()  {
     return this.labUser;
   }
@@ -191,6 +198,7 @@ public class User extends WaspModel {
   @OneToMany
    @JoinColumn(name="userid", insertable=false, updatable=false)
   protected List<Job> job;
+  @JsonIgnore 
   public List<Job> getJob()  {
     return this.job;
   }
@@ -201,8 +209,9 @@ public class User extends WaspModel {
 
   @NotAudited
   @OneToMany
-   @JoinColumn(name="submitter_userid", insertable=false, updatable=false)
+   @JoinColumn(name="submitter_userid", insertable=false, updatable=false)  
   protected List<Sample> sample;
+  @JsonIgnore 
   public List<Sample> getSample()  {
     return this.sample;
   }
@@ -215,6 +224,7 @@ public class User extends WaspModel {
   @OneToMany
    @JoinColumn(name="userid", insertable=false, updatable=false)
   protected List<AcctQuote> acctQuote;
+  @JsonIgnore 
   public List<AcctQuote> getAcctQuote()  {
     return this.acctQuote;
   }
@@ -225,8 +235,9 @@ public class User extends WaspModel {
 
   @NotAudited
   @OneToMany
-   @JoinColumn(name="userid", insertable=false, updatable=false)
+   @JoinColumn(name="userid", insertable=false, updatable=false) 
   protected List<AcctQuoteUser> acctQuoteUser;
+  @JsonIgnore 
   public List<AcctQuoteUser> getAcctQuoteUser()  {
     return this.acctQuoteUser;
   }
@@ -239,6 +250,7 @@ public class User extends WaspModel {
   @OneToMany
    @JoinColumn(name="userid", insertable=false, updatable=false)
   protected List<Run> run;
+  @JsonIgnore 
   public List<Run> getRun()  {
     return this.run;
   }

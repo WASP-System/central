@@ -12,11 +12,11 @@
 
     <property name="deploy" value="${dirs.base}/deploy"/>
     <!-- property name="war" value="${dirs.base}/war"/ -->
-    <!--property name="war" value="C:/apps/tomcat70eintstein/webapps" /-->
-    <property name="war" value="/home/ewah/j/apache-tomcat-7.0.14/webapps" /> 
+    <property name="war" value="C:/apps/tomcat70eintstein/webapps" />
+    <!--property name="war" value="/home/ewah/j/apache-tomcat-7.0.14/webapps" /--> 
 
-    <!--property name="appserver.lib" value="C:/apps/tomcat70eintstein/lib/" /-->
-    <property name="appserver.lib" value="/home/ewah/j/apache-tomcat-7.0.14/lib/" />
+    <property name="appserver.lib" value="C:/apps/tomcat70eintstein/lib/" />
+    <!--property name="appserver.lib" value="/home/ewah/j/apache-tomcat-7.0.14/lib/" /-->
     <path id="compile.classpath">
       <fileset dir="${web}/WEB-INF/lib">
         <include name="*.jar"/>
@@ -58,6 +58,7 @@
   	          <exclude name="**/*.swp"/>
   	       </fileset>
   	 </copy>  	 
+  	
     <copydir src="src/resources/emails" dest="${build}/emails/"/>
   	
   	<native2ascii src="src/resources" dest="${web}/WEB-INF/classes" includes="**/*.utf8" ext=".properties"/>

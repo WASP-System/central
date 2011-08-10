@@ -2,15 +2,17 @@ package edu.yu.einstein.wasp.controller;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.converter.json.MappingJacksonHttpMessageConverter;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.encoding.PasswordEncoder;
@@ -27,6 +29,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
 
 import edu.yu.einstein.wasp.model.MetaAttribute;
@@ -57,6 +60,9 @@ public class UserController extends WaspController {
 	@Autowired
 	private EmailService emailService;
 
+	@Autowired
+	private MappingJacksonHttpMessageConverter jsonnMapper;
+	
 	@InitBinder
 	protected void initBinder(WebDataBinder binder) {
 		binder.setValidator(validator);
@@ -86,6 +92,54 @@ public class UserController extends WaspController {
 		return "user/list";
 	}
 
+	@RequestMapping(value="/listJSON", method=RequestMethod.GET)	
+	public @ResponseBody String getAvailability() {
+	
+		//result
+		Map <String, Object> jqgrid = new HashMap<String, Object>();
+		
+		List<User> userList = this.userService.findAll();
+
+    	ObjectMapper mapper = new ObjectMapper();
+		
+		 try {
+			 //String users = mapper.writeValueAsString(userList);
+					 jqgrid.put("page","1");
+			 jqgrid.put("records",userList.size()+"");
+			 jqgrid.put("total",userList.size()+"");
+			 
+			 
+			 List<Map> rows = new ArrayList<Map>();
+			 
+			 for (User user:userList) {
+				 Map cell = new HashMap();
+				 cell.put("id", user.getUserId());
+				 
+				 cell.put("cell", new String[] {
+							"<a href=detail_ro/"+user.getUserId()+".do>"+user.getLogin()+"</a>",
+							user.getFirstName(),
+							user.getLastName(),						
+							user.getEmail(),
+							LOCALES.get(user.getLocale()),
+							user.getIsActive()==1?"yes":"no"}
+				 );
+				 
+				 rows.add(cell);
+			 }
+
+			 
+			 jqgrid.put("rows",rows);
+			 
+			 String json=mapper.writeValueAsString(jqgrid);
+			 
+			 return json;
+		 } catch (Throwable e) {
+			 throw new IllegalStateException("Can't marshall to JSON "+userList,e);
+		 }
+	
+	}
+
+	
 	@RequestMapping(value = "/create/form.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('god')")
 	public String showEmptyForm(ModelMap m) {
@@ -187,12 +241,8 @@ public class UserController extends WaspController {
 		return detail(userId,m,true);
 	}
 	
-	@RequestMapping(value = "/detail_ro/{userId}.do", method = RequestMethod.GET)
-	
+	@RequestMapping(value = "/detail_ro/{userId}.do", method = RequestMethod.GET)	
 	public String detailRO(@PathVariable("userId") Integer userId, ModelMap m) {
-		
-		String lang=Locale.JAPANESE.getLanguage();
-		String c=Locale.JAPANESE.getCountry();
 		return detail(userId,m,false);
 	}
 	
