@@ -4,6 +4,7 @@ import edu.yu.einstein.wasp.service.WaspService;
 import edu.yu.einstein.wasp.dao.WaspDao;
 
 import java.util.List;
+import java.util.Map;
 
 
 public abstract class WaspServiceImpl<E> implements WaspService<E> {
@@ -67,6 +68,10 @@ public abstract class WaspServiceImpl<E> implements WaspService<E> {
 
   public Integer removeAll() {
     return this.getWaspDao().removeAll();
+  }
+
+  public List findByMap(Map m) {
+    return this.getWaspDao().findByMap(m);
   }
 
 }

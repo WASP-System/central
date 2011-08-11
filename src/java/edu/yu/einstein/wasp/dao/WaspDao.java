@@ -15,6 +15,7 @@ import edu.yu.einstein.wasp.model.WaspModel;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceException;
@@ -57,6 +58,8 @@ public interface WaspDao<E> {
  public E flush(E entity);
  public List findAll();
  public Integer removeAll();
+
+ public List findByMap(Map m);
 
 }
 

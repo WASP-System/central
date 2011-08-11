@@ -16,6 +16,7 @@ import edu.yu.einstein.wasp.model.WaspModel;
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceException;
@@ -118,5 +119,38 @@ public abstract class WaspDaoImpl<E extends Serializable> extends JpaDaoSupport 
   });
  }
 
+  @SuppressWarnings("unchecked")
+  // @ Transactional
+  public List findByMap(final Map m) {
+    Object res = getJpaTemplate().execute(new JpaCallback() {
+
+      public Object doInJpa(EntityManager em) throws PersistenceException {
+        boolean first = true;
+
+
+        String qString = "SELECT h FROM " + entityClass.getName() + " h";
+        for (Object key: m.keySet()){
+          if (! first) {
+             qString += " and ";
+          } else { 
+             qString += " WHERE ";
+          }
+
+          qString += "h." + key.toString() + " = :" + key.toString() + "\n";
+          first = false;
+        }
+
+        Query q = em.createQuery(qString);
+
+        for (Object key: m.keySet()){
+          q.setParameter(key.toString(), m.get(key));
+        }
+
+        return q.getResultList();
+      }
+    });
+
+    return (List) res;
+  }
 }
 

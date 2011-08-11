@@ -1,6 +1,7 @@
 package edu.yu.einstein.wasp.service;
 
 import java.util.List;
+import java.util.Map;
 import edu.yu.einstein.wasp.dao.WaspDao;
 
 
@@ -30,6 +31,8 @@ public interface WaspService<E> {
  public E flush(E entity);
  public List findAll();
  public Integer removeAll();
+
+ public List findByMap(Map m);
 
 
 } 
