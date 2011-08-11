@@ -22,7 +22,10 @@ import org.springframework.transaction.annotation.*;
 import org.springframework.security.access.prepost.*;
 
 import java.util.Date; 
+import java.util.ArrayList; 
 import java.util.List; 
+import java.util.HashMap; 
+import java.util.Map; 
 
 import edu.yu.einstein.wasp.service.TaskService;
 import edu.yu.einstein.wasp.service.StateService;
@@ -90,10 +93,22 @@ public class TaskController extends WaspController {
   public String listLabManagerApproval(@PathVariable("labId") Integer labId, ModelMap m) {
 
     Task task = this.getTaskService().getTaskByIName("PI Approval");
-    List<State> states = task.getState();
 
-    // TODO LIMIT BY LABID
-    
+    HashMap map = new HashMap();
+    map.put("taskId", task.getTaskId()); 
+    map.put("status", "RUNNING");
+    List<State> rawStates = stateService.findByMap(map);
+
+    ArrayList<State> states = new ArrayList();
+    for (State state:rawStates) {
+      List<Statejob> stateJob = state.getStatejob();
+      int stateLabId = stateJob.get(0).getJob().getLabId(); 
+
+      if (stateLabId == labId) {
+        states.add(state);
+      }
+    }
+
     m.addAttribute("task", task);
     m.addAttribute("states", states);
 
@@ -120,10 +135,22 @@ public class TaskController extends WaspController {
   public String listDepartementAdminApproval(@PathVariable("departmentId") Integer departmentId, ModelMap m) {
 
     Task task = this.getTaskService().getTaskByIName("DA Approval");
-    List<State> states = task.getState();
 
-    // TODO filter by departmentId
-    
+    HashMap map = new HashMap();
+    map.put("taskId", task.getTaskId()); 
+    map.put("status", "RUNNING");
+    List<State> rawStates = stateService.findByMap(map);
+
+    ArrayList<State> states = new ArrayList();
+    for (State state:rawStates) {
+      List<Statejob> stateJob = state.getStatejob();
+      int stateDeptId = stateJob.get(0).getJob().getLab().getDepartmentId(); 
+
+      if (stateDeptId == departmentId) {
+        states.add(state);
+      }
+    }
+
     m.addAttribute("task", task);
     m.addAttribute("states", states);
 
@@ -169,6 +196,8 @@ public class TaskController extends WaspController {
       ModelMap m
     ) {
 
+    State state = stateService.getStateByStateId(stateId);
+
     // TODO jobId belongs to stateId
     // TODO check valid state
     // TODO invalidate old quote
@@ -187,9 +216,11 @@ public class TaskController extends WaspController {
   public String listPayment(ModelMap m) {
 
     Task task = this.getTaskService().getTaskByIName("Receive Payment");
-    List<State> states = task.getState();
 
-    // TODO filter by status
+    HashMap map = new HashMap();
+    map.put("taskId", task.getTaskId()); 
+    map.put("status", "WAITING");
+    List<State> states = stateService.findByMap(map);
     
     m.addAttribute("task", task);
     m.addAttribute("states", states);
