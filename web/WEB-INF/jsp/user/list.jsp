@@ -24,20 +24,41 @@ html, body {
   <script src="/wasp/scripts/jqgrid/jquery.jqGrid.min.js" type="text/javascript"></script>
   
   <script type="text/javascript">
+  
+  var colNames=['Login','First Name','Last Name', 'Email','Locale','Active'];
+  var colModel=[ 
+                {name:'login', index:'login', width:80, align:'right',editable:false,editoptions:{readonly:true,size:10}},
+                {name:'firstName', width:100, align:'right',editable:true,editoptions:{size:20}}, 
+                {name:'lastName', width:100, align:'right',editable:true,editoptions:{size:20}},    
+                {name:'email',  width:255, align:'right',editable:true,editoptions:{size:100}},
+                {name:'isActive', width:70, align:'center',editable:false,editoptions:{readonly:true,size:10}},
+                {name:'locale', width:70, align:'center',hidden:true,editable:true,editrules:{required:true, edithidden:true},formoptions:{elmsuffix:'<font color=red>*</font>'},editoptions:{size:10}} 
+                      
+              ];
+
+  var _wasp_fields=${fieldsArr};
+  
+
+  for (key in _wasp_fields) {
+	  	var _wasp_field=_wasp_fields[key];
+	  	var _wasp_prop=_wasp_field['property'];
+	  	colNames.push(_wasp_prop['label']);
+	  	colModel.push(
+	  		    {name:_wasp_field['k'],  width:80, align:'right',editable:true,editoptions:{size:10}}
+	  	);
+	  	//document.write(p['label']+"</br>");  	  
+  }
+
+  
+  
 $(function(){ 
   $("#grid_id").jqGrid({
     url:'/wasp/user/listJSON.do',
+    editurl:'/wasp/user/detail_rw/updateJSON.do',
     datatype: 'json',
     mtype: 'GET',
-    colNames:['Login','First Name','Last Name', 'Email','Locale','Active'],
-    colModel :[ 
-      {name:'login', index:'login', width:80, align:'right',editable:false,editoptions:{readonly:true,size:10}},
-      {name:'firstName', width:100, align:'right',editable:true,editoptions:{size:20}}, 
-      {name:'lastName', width:100, align:'right',editable:true,editoptions:{size:20}},    
-      {name:'email', index:'email', width:255, align:'right',editable:true,editoptions:{size:100}}, 
-      {name:'locale', index:'locale', width:70, align:'center',editable:false,editoptions:{readonly:true,size:10}}, 
-      {name:'isActive', index:'isActive', width:70, align:'center',editable:false,editoptions:{readonly:true,size:10}}      
-    ],
+    colNames:colNames,
+    colModel : colModel,
     pager: '#gridpager',
     rowNum:50,    
     sortname: 'login',
@@ -74,6 +95,8 @@ $(function(){
  
 <table id="grid_id"></table> 
 <div id="gridpager"></div>
+
+</script>
 
 </table>
 </body>

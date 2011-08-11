@@ -1,6 +1,7 @@
 package edu.yu.einstein.wasp.controller;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -11,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.converter.json.MappingJacksonHttpMessageConverter;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -35,6 +37,7 @@ import org.springframework.web.bind.support.SessionStatus;
 import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.MetaAttribute.Country;
 import edu.yu.einstein.wasp.model.MetaAttribute.State;
+import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.MetaUtil;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Usermeta;
@@ -71,8 +74,10 @@ public class UserController extends WaspController {
 	@Autowired
 	HttpServletRequest request;
 
-	public static final MetaAttribute.Area AREA = MetaAttribute.Area.user;
+	private static final MetaAttribute.Area AREA = MetaAttribute.Area.user;
 
+	private static List<MetaBase> FIELD_LIST=MetaUtil.getMasterList(MetaBase.class, AREA);
+	
 	private static final Map<String, String> LOCALES=new TreeMap<String, String>();
 	static {
 		LOCALES.put("en_US","English");
@@ -89,8 +94,35 @@ public class UserController extends WaspController {
 
 		m.addAttribute(AREA.name(), userList);
 
+		ObjectMapper mapper = new ObjectMapper();
+		
+		 try {
+			 String json=mapper.writeValueAsString(FIELD_LIST);
+			 m.addAttribute("fieldsArr", json);
+		 } catch (Throwable e) {
+			 throw new IllegalStateException("Can't marshall to JSON "+FIELD_LIST,e);
+		 }
+		
 		return "user/list";
 	}
+	
+	@RequestMapping(value="/testJSON", method=RequestMethod.GET)	
+	public @JsonSerialize @ResponseBody String getTestJSON() {
+
+
+    	ObjectMapper mapper = new ObjectMapper();
+		
+		 try {
+			 
+			 String json=mapper.writeValueAsString(FIELD_LIST);
+			 Object o=FIELD_LIST;
+			 return json;
+		 } catch (Throwable e) {
+			 throw new IllegalStateException("Can't marshall to JSON ",e);
+		 }
+	
+	}
+	
 
 	@RequestMapping(value="/listJSON", method=RequestMethod.GET)	
 	public @ResponseBody String getListJSON() {
@@ -115,14 +147,25 @@ public class UserController extends WaspController {
 				 Map cell = new HashMap();
 				 cell.put("id", user.getUserId());
 				 
-				 cell.put("cell", new String[] {
-							"<a href=detail_ro/"+user.getUserId()+".do>"+user.getLogin()+"</a>",
+				 List<Usermeta> usermeta=MetaUtil.syncWithMaster(user.getUsermeta(), AREA, Usermeta.class);
+				 					
+				 MetaUtil.setAttributesAndSort(usermeta, AREA);
+				 
+				 List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
+							user.getLogin(),
 							user.getFirstName(),
 							user.getLastName(),						
 							user.getEmail(),
 							LOCALES.get(user.getLocale()),
-							user.getIsActive()==1?"yes":"no"}
-				 );
+							user.getIsActive()==1?"yes":"no"
+				}));
+				 
+				for(Usermeta meta:usermeta) {
+					cellList.add(meta.getV());
+				}
+				
+				 
+				 cell.put("cell", cellList);
 				 
 				 rows.add(cell);
 			 }
@@ -241,65 +284,7 @@ public class UserController extends WaspController {
 		return detail(userId,m,true);
 	}
 	
-	/*
-	@RequestMapping(value = "/user/detail_ro/JSON.do", method = RequestMethod.GET)	
-	private @ResponseBody String detailJSON() {
-
-		User user = this.userService.getById(1);
-
-		user.setUsermeta(MetaUtil.syncWithMaster(user.getUsermeta(), AREA, Usermeta.class));
-		
-		MetaUtil.setAttributesAndSort(user.getUsermeta(), AREA);
-		
-		List<String[]> result=new ArrayList<String[]>();
-		
-		//result
-		//Map <String, Object> jqgrid = new HashMap<String, Object>();
-		
 	
-
-    	ObjectMapper mapper = new ObjectMapper();
-		
-		 try {
-			 //String users = mapper.writeValueAsString(userList);
-					 jqgrid.put("page","1");
-			 jqgrid.put("records",userList.size()+"");
-			 jqgrid.put("total",userList.size()+"");
-			 
-			 
-			 List<Map> rows = new ArrayList<Map>();
-			 
-			 for (User user:userList) {
-				 Map cell = new HashMap();
-				 cell.put("id", user.getUserId());
-				 
-				 cell.put("cell", new String[] {
-							"<a href=detail_ro/"+user.getUserId()+".do>"+user.getLogin()+"</a>",
-							user.getFirstName(),
-							user.getLastName(),						
-							user.getEmail(),
-							LOCALES.get(user.getLocale()),
-							user.getIsActive()==1?"yes":"no"}
-				 );
-				 
-				 rows.add(cell);
-			 }
-
-			 
-			 jqgrid.put("rows",rows);
-			 
-			 String json=mapper.writeValueAsString(jqgrid);
-			 
-			 return json;
-		 } catch (Throwable e) {
-			 throw new IllegalStateException("Can't marshall to JSON "+userList,e);
-		 }
-	
-		
-
-		
-	}
-	*/
 	
 	@RequestMapping(value = "/detail_ro/{userId}.do", method = RequestMethod.GET)	
 	public String detailRO(@PathVariable("userId") Integer userId, ModelMap m) {
@@ -404,6 +389,108 @@ public class UserController extends WaspController {
 		return "redirect:" + userId + ".do";
 	}
 
+
+	@RequestMapping(value = "/detail_rw/updateJSON.do", method = RequestMethod.POST)
+	@PreAuthorize("hasRole('god') or User.login == principal.name")
+	public String updateDetailJSON(@RequestParam("id") Integer userId,
+			@Valid User userForm, BindingResult result, SessionStatus status,
+			ModelMap m) {
+
+		/*
+		
+		id->4
+		user.city->sha1
+		user.institution->sha1
+		user.phone->sha1
+		user.country->US
+		oper->edit
+		user.title->Mr
+		user.zip->sha1
+		user.fax->sha1
+		user.building_room->sha1
+		email->sha1@ddd.com
+		user.state->AL
+		locale->yes
+		user.department->sha1
+		user.address->sha1
+		firstName->sha1
+		lastName->sha1
+		Enumeration paraNames = request.getParameterNames();
+		
+	    String pname;
+	    String pvalue;
+	    while (paraNames.hasMoreElements()) {
+	      pname = (String)paraNames.nextElement();
+	      pvalue = request.getParameter(pname);
+	      System.err.println(pname+"->"+pvalue);
+	    }
+		*/
+		
+		
+		List<Usermeta> usermetaList = MetaUtil.getMetaFromForm(request,
+				AREA, Usermeta.class);
+
+		for (Usermeta meta : usermetaList) {
+			meta.setUserId(userId);
+		}
+
+		MetaUtil.setAttributesAndSort(usermetaList, AREA);
+		
+		userForm.setUsermeta(usermetaList);
+
+		List<String> validateList = new ArrayList<String>();
+
+		for (Usermeta meta : usermetaList) {
+			if (meta.getProperty() != null
+					&& meta.getProperty().getConstraint() != null) {
+				validateList.add(meta.getK());
+				validateList.add(meta.getProperty().getConstraint());
+			}
+		}
+
+		MetaValidator validator = new MetaValidator(
+				validateList.toArray(new String[] {}));
+
+		validator.validate(usermetaList, result, AREA);
+
+		if (result.hasErrors()) {
+			userForm.setUserId(userId);
+			prepareSelectListData(m);
+			MessageTag.addMessage(request.getSession(), "user.updated.error");
+			return "user/detail_rw";
+		}
+
+		User userDb = this.userService.getById(userId);
+		userDb.setFirstName(userForm.getFirstName());
+		userDb.setLastName(userForm.getLastName());
+		if (userForm.getPassword()!=null && !userForm.getPassword().trim().isEmpty()) {
+			PasswordEncoder encoder = new ShaPasswordEncoder();
+			String hashedPass = encoder.encodePassword(userForm.getPassword(), null);
+			userForm.setPassword(hashedPass);
+		}
+		userDb.setEmail(userForm.getEmail());
+		userDb.setLocale(userForm.getLocale());
+
+		userDb.setLastUpdTs(new Date());
+
+		this.userService.merge(userDb);
+
+		usermetaService.updateByUserId(userId, usermetaList);
+
+		MimeMessageHelper a;
+		
+		status.setComplete();
+
+		MessageTag.addMessage(request.getSession(), "user.updated.success");
+		
+		//emailService.sendNewPassword(userDb, "new pass");
+		
+		return "redirect:" + userId + ".do";
+	
+	    
+	}
+
+	
 	@RequestMapping(value = "/mypassword.do", method = RequestMethod.GET)
 	public String myPasswordForm(ModelMap m) {
 		return "user/mypassword";
