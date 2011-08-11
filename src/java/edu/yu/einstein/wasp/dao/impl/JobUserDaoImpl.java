@@ -16,6 +16,8 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.orm.jpa.JpaCallback;
@@ -36,17 +38,9 @@ public class JobUserDaoImpl extends WaspDaoImpl<JobUser> implements edu.yu.einst
   @SuppressWarnings("unchecked")
   @Transactional
   public JobUser getJobUserByJobUserId (final int jobUserId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM JobUser a WHERE "
-       + "a.jobUserId = :jobUserId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("jobUserId", jobUserId);
-
-    return query.getResultList();
-  }
-  });
-    List<JobUser> results = (List<JobUser>) res;
+    HashMap m = new HashMap();
+    m.put("jobUserId", jobUserId);
+    List<JobUser> results = (List<JobUser>) this.findByMap((Map) m);
     if (results.size() == 0) {
       JobUser rt = new JobUser();
       return rt;
@@ -58,19 +52,10 @@ public class JobUserDaoImpl extends WaspDaoImpl<JobUser> implements edu.yu.einst
   @SuppressWarnings("unchecked")
   @Transactional
   public JobUser getJobUserByJobIdUserId (final int jobId, final int UserId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM JobUser a WHERE "
-       + "a.jobId = :jobId"
-       + " AND "+ "a.UserId = :UserId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("jobId", jobId);
-      query.setParameter("UserId", UserId);
-
-    return query.getResultList();
-  }
-  });
-    List<JobUser> results = (List<JobUser>) res;
+    HashMap m = new HashMap();
+    m.put("jobId", jobId);
+    m.put("UserId", UserId);
+    List<JobUser> results = (List<JobUser>) this.findByMap((Map) m);
     if (results.size() == 0) {
       JobUser rt = new JobUser();
       return rt;

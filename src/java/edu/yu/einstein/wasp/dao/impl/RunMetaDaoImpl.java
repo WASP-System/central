@@ -16,6 +16,8 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.orm.jpa.JpaCallback;
@@ -36,17 +38,9 @@ public class RunMetaDaoImpl extends WaspDaoImpl<RunMeta> implements edu.yu.einst
   @SuppressWarnings("unchecked")
   @Transactional
   public RunMeta getRunMetaByRunMetaId (final int runMetaId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM RunMeta a WHERE "
-       + "a.runMetaId = :runMetaId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("runMetaId", runMetaId);
-
-    return query.getResultList();
-  }
-  });
-    List<RunMeta> results = (List<RunMeta>) res;
+    HashMap m = new HashMap();
+    m.put("runMetaId", runMetaId);
+    List<RunMeta> results = (List<RunMeta>) this.findByMap((Map) m);
     if (results.size() == 0) {
       RunMeta rt = new RunMeta();
       return rt;
@@ -58,19 +52,10 @@ public class RunMetaDaoImpl extends WaspDaoImpl<RunMeta> implements edu.yu.einst
   @SuppressWarnings("unchecked")
   @Transactional
   public RunMeta getRunMetaByKRunId (final String k, final int runId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM RunMeta a WHERE "
-       + "a.k = :k"
-       + " AND "+ "a.runId = :runId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("k", k);
-      query.setParameter("runId", runId);
-
-    return query.getResultList();
-  }
-  });
-    List<RunMeta> results = (List<RunMeta>) res;
+    HashMap m = new HashMap();
+    m.put("k", k);
+    m.put("runId", runId);
+    List<RunMeta> results = (List<RunMeta>) this.findByMap((Map) m);
     if (results.size() == 0) {
       RunMeta rt = new RunMeta();
       return rt;

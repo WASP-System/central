@@ -16,6 +16,8 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.orm.jpa.JpaCallback;
@@ -36,17 +38,9 @@ public class ResourceMetaDaoImpl extends WaspDaoImpl<ResourceMeta> implements ed
   @SuppressWarnings("unchecked")
   @Transactional
   public ResourceMeta getResourceMetaByResourceMetaId (final int resourceMetaId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM ResourceMeta a WHERE "
-       + "a.resourceMetaId = :resourceMetaId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("resourceMetaId", resourceMetaId);
-
-    return query.getResultList();
-  }
-  });
-    List<ResourceMeta> results = (List<ResourceMeta>) res;
+    HashMap m = new HashMap();
+    m.put("resourceMetaId", resourceMetaId);
+    List<ResourceMeta> results = (List<ResourceMeta>) this.findByMap((Map) m);
     if (results.size() == 0) {
       ResourceMeta rt = new ResourceMeta();
       return rt;
@@ -58,19 +52,10 @@ public class ResourceMetaDaoImpl extends WaspDaoImpl<ResourceMeta> implements ed
   @SuppressWarnings("unchecked")
   @Transactional
   public ResourceMeta getResourceMetaByKResourceId (final String k, final int resourceId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM ResourceMeta a WHERE "
-       + "a.k = :k"
-       + " AND "+ "a.resourceId = :resourceId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("k", k);
-      query.setParameter("resourceId", resourceId);
-
-    return query.getResultList();
-  }
-  });
-    List<ResourceMeta> results = (List<ResourceMeta>) res;
+    HashMap m = new HashMap();
+    m.put("k", k);
+    m.put("resourceId", resourceId);
+    List<ResourceMeta> results = (List<ResourceMeta>) this.findByMap((Map) m);
     if (results.size() == 0) {
       ResourceMeta rt = new ResourceMeta();
       return rt;

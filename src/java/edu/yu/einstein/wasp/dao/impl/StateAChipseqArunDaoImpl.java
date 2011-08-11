@@ -16,6 +16,8 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.orm.jpa.JpaCallback;
@@ -36,17 +38,9 @@ public class StateAChipseqArunDaoImpl extends WaspDaoImpl<StateAChipseqArun> imp
   @SuppressWarnings("unchecked")
   @Transactional
   public StateAChipseqArun getStateAChipseqArunByStateArunId (final int stateArunId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM StateAChipseqArun a WHERE "
-       + "a.stateArunId = :stateArunId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("stateArunId", stateArunId);
-
-    return query.getResultList();
-  }
-  });
-    List<StateAChipseqArun> results = (List<StateAChipseqArun>) res;
+    HashMap m = new HashMap();
+    m.put("stateArunId", stateArunId);
+    List<StateAChipseqArun> results = (List<StateAChipseqArun>) this.findByMap((Map) m);
     if (results.size() == 0) {
       StateAChipseqArun rt = new StateAChipseqArun();
       return rt;

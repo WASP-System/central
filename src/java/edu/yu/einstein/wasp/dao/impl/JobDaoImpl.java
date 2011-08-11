@@ -16,6 +16,8 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.orm.jpa.JpaCallback;
@@ -36,17 +38,9 @@ public class JobDaoImpl extends WaspDaoImpl<Job> implements edu.yu.einstein.wasp
   @SuppressWarnings("unchecked")
   @Transactional
   public Job getJobByJobId (final int jobId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM Job a WHERE "
-       + "a.jobId = :jobId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("jobId", jobId);
-
-    return query.getResultList();
-  }
-  });
-    List<Job> results = (List<Job>) res;
+    HashMap m = new HashMap();
+    m.put("jobId", jobId);
+    List<Job> results = (List<Job>) this.findByMap((Map) m);
     if (results.size() == 0) {
       Job rt = new Job();
       return rt;
@@ -58,19 +52,10 @@ public class JobDaoImpl extends WaspDaoImpl<Job> implements edu.yu.einstein.wasp
   @SuppressWarnings("unchecked")
   @Transactional
   public Job getJobByNameLabId (final String name, final int labId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM Job a WHERE "
-       + "a.name = :name"
-       + " AND "+ "a.labId = :labId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("name", name);
-      query.setParameter("labId", labId);
-
-    return query.getResultList();
-  }
-  });
-    List<Job> results = (List<Job>) res;
+    HashMap m = new HashMap();
+    m.put("name", name);
+    m.put("labId", labId);
+    List<Job> results = (List<Job>) this.findByMap((Map) m);
     if (results.size() == 0) {
       Job rt = new Job();
       return rt;

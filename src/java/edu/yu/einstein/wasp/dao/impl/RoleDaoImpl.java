@@ -16,6 +16,8 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.orm.jpa.JpaCallback;
@@ -36,17 +38,9 @@ public class RoleDaoImpl extends WaspDaoImpl<Role> implements edu.yu.einstein.wa
   @SuppressWarnings("unchecked")
   @Transactional
   public Role getRoleByRoleId (final int roleId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM Role a WHERE "
-       + "a.roleId = :roleId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("roleId", roleId);
-
-    return query.getResultList();
-  }
-  });
-    List<Role> results = (List<Role>) res;
+    HashMap m = new HashMap();
+    m.put("roleId", roleId);
+    List<Role> results = (List<Role>) this.findByMap((Map) m);
     if (results.size() == 0) {
       Role rt = new Role();
       return rt;
@@ -58,17 +52,9 @@ public class RoleDaoImpl extends WaspDaoImpl<Role> implements edu.yu.einstein.wa
   @SuppressWarnings("unchecked")
   @Transactional
   public Role getRoleByRoleName (final String roleName) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM Role a WHERE "
-       + "a.roleName = :roleName";
-     Query query = em.createQuery(queryString);
-      query.setParameter("roleName", roleName);
-
-    return query.getResultList();
-  }
-  });
-    List<Role> results = (List<Role>) res;
+    HashMap m = new HashMap();
+    m.put("roleName", roleName);
+    List<Role> results = (List<Role>) this.findByMap((Map) m);
     if (results.size() == 0) {
       Role rt = new Role();
       return rt;
@@ -80,17 +66,9 @@ public class RoleDaoImpl extends WaspDaoImpl<Role> implements edu.yu.einstein.wa
   @SuppressWarnings("unchecked")
   @Transactional
   public Role getRoleByName (final String name) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM Role a WHERE "
-       + "a.name = :name";
-     Query query = em.createQuery(queryString);
-      query.setParameter("name", name);
-
-    return query.getResultList();
-  }
-  });
-    List<Role> results = (List<Role>) res;
+    HashMap m = new HashMap();
+    m.put("name", name);
+    List<Role> results = (List<Role>) this.findByMap((Map) m);
     if (results.size() == 0) {
       Role rt = new Role();
       return rt;

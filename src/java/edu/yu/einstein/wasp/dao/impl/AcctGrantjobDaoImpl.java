@@ -16,6 +16,8 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.orm.jpa.JpaCallback;
@@ -36,17 +38,9 @@ public class AcctGrantjobDaoImpl extends WaspDaoImpl<AcctGrantjob> implements ed
   @SuppressWarnings("unchecked")
   @Transactional
   public AcctGrantjob getAcctGrantjobByJobId (final int jobId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM AcctGrantjob a WHERE "
-       + "a.jobId = :jobId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("jobId", jobId);
-
-    return query.getResultList();
-  }
-  });
-    List<AcctGrantjob> results = (List<AcctGrantjob>) res;
+    HashMap m = new HashMap();
+    m.put("jobId", jobId);
+    List<AcctGrantjob> results = (List<AcctGrantjob>) this.findByMap((Map) m);
     if (results.size() == 0) {
       AcctGrantjob rt = new AcctGrantjob();
       return rt;

@@ -16,6 +16,8 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.orm.jpa.JpaCallback;
@@ -36,17 +38,9 @@ public class UserroleDaoImpl extends WaspDaoImpl<Userrole> implements edu.yu.ein
   @SuppressWarnings("unchecked")
   @Transactional
   public Userrole getUserroleByUserroleId (final int userroleId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM Userrole a WHERE "
-       + "a.userroleId = :userroleId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("userroleId", userroleId);
-
-    return query.getResultList();
-  }
-  });
-    List<Userrole> results = (List<Userrole>) res;
+    HashMap m = new HashMap();
+    m.put("userroleId", userroleId);
+    List<Userrole> results = (List<Userrole>) this.findByMap((Map) m);
     if (results.size() == 0) {
       Userrole rt = new Userrole();
       return rt;
@@ -58,19 +52,10 @@ public class UserroleDaoImpl extends WaspDaoImpl<Userrole> implements edu.yu.ein
   @SuppressWarnings("unchecked")
   @Transactional
   public Userrole getUserroleByUserIdRoleId (final int UserId, final int roleId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM Userrole a WHERE "
-       + "a.UserId = :UserId"
-       + " AND "+ "a.roleId = :roleId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("UserId", UserId);
-      query.setParameter("roleId", roleId);
-
-    return query.getResultList();
-  }
-  });
-    List<Userrole> results = (List<Userrole>) res;
+    HashMap m = new HashMap();
+    m.put("UserId", UserId);
+    m.put("roleId", roleId);
+    List<Userrole> results = (List<Userrole>) this.findByMap((Map) m);
     if (results.size() == 0) {
       Userrole rt = new Userrole();
       return rt;

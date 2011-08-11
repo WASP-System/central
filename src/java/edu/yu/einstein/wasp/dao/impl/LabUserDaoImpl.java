@@ -16,6 +16,8 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.orm.jpa.JpaCallback;
@@ -36,17 +38,9 @@ public class LabUserDaoImpl extends WaspDaoImpl<LabUser> implements edu.yu.einst
   @SuppressWarnings("unchecked")
   @Transactional
   public LabUser getLabUserByLabUserId (final int labUserId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM LabUser a WHERE "
-       + "a.labUserId = :labUserId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("labUserId", labUserId);
-
-    return query.getResultList();
-  }
-  });
-    List<LabUser> results = (List<LabUser>) res;
+    HashMap m = new HashMap();
+    m.put("labUserId", labUserId);
+    List<LabUser> results = (List<LabUser>) this.findByMap((Map) m);
     if (results.size() == 0) {
       LabUser rt = new LabUser();
       return rt;
@@ -58,19 +52,10 @@ public class LabUserDaoImpl extends WaspDaoImpl<LabUser> implements edu.yu.einst
   @SuppressWarnings("unchecked")
   @Transactional
   public LabUser getLabUserByLabIdUserId (final int labId, final int UserId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM LabUser a WHERE "
-       + "a.labId = :labId"
-       + " AND "+ "a.UserId = :UserId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("labId", labId);
-      query.setParameter("UserId", UserId);
-
-    return query.getResultList();
-  }
-  });
-    List<LabUser> results = (List<LabUser>) res;
+    HashMap m = new HashMap();
+    m.put("labId", labId);
+    m.put("UserId", UserId);
+    List<LabUser> results = (List<LabUser>) this.findByMap((Map) m);
     if (results.size() == 0) {
       LabUser rt = new LabUser();
       return rt;

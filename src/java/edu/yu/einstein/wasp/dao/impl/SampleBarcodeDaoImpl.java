@@ -16,6 +16,8 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.orm.jpa.JpaCallback;
@@ -36,17 +38,9 @@ public class SampleBarcodeDaoImpl extends WaspDaoImpl<SampleBarcode> implements 
   @SuppressWarnings("unchecked")
   @Transactional
   public SampleBarcode getSampleBarcodeBySampleBarcode (final int sampleBarcode) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM SampleBarcode a WHERE "
-       + "a.sampleBarcode = :sampleBarcode";
-     Query query = em.createQuery(queryString);
-      query.setParameter("sampleBarcode", sampleBarcode);
-
-    return query.getResultList();
-  }
-  });
-    List<SampleBarcode> results = (List<SampleBarcode>) res;
+    HashMap m = new HashMap();
+    m.put("sampleBarcode", sampleBarcode);
+    List<SampleBarcode> results = (List<SampleBarcode>) this.findByMap((Map) m);
     if (results.size() == 0) {
       SampleBarcode rt = new SampleBarcode();
       return rt;
@@ -58,17 +52,9 @@ public class SampleBarcodeDaoImpl extends WaspDaoImpl<SampleBarcode> implements 
   @SuppressWarnings("unchecked")
   @Transactional
   public SampleBarcode getSampleBarcodeBySampleId (final int sampleId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM SampleBarcode a WHERE "
-       + "a.sampleId = :sampleId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("sampleId", sampleId);
-
-    return query.getResultList();
-  }
-  });
-    List<SampleBarcode> results = (List<SampleBarcode>) res;
+    HashMap m = new HashMap();
+    m.put("sampleId", sampleId);
+    List<SampleBarcode> results = (List<SampleBarcode>) this.findByMap((Map) m);
     if (results.size() == 0) {
       SampleBarcode rt = new SampleBarcode();
       return rt;
@@ -80,17 +66,9 @@ public class SampleBarcodeDaoImpl extends WaspDaoImpl<SampleBarcode> implements 
   @SuppressWarnings("unchecked")
   @Transactional
   public SampleBarcode getSampleBarcodeByBarcodeId (final int barcodeId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM SampleBarcode a WHERE "
-       + "a.barcodeId = :barcodeId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("barcodeId", barcodeId);
-
-    return query.getResultList();
-  }
-  });
-    List<SampleBarcode> results = (List<SampleBarcode>) res;
+    HashMap m = new HashMap();
+    m.put("barcodeId", barcodeId);
+    List<SampleBarcode> results = (List<SampleBarcode>) this.findByMap((Map) m);
     if (results.size() == 0) {
       SampleBarcode rt = new SampleBarcode();
       return rt;

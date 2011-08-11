@@ -16,6 +16,8 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.orm.jpa.JpaCallback;
@@ -36,17 +38,9 @@ public class RolesetDaoImpl extends WaspDaoImpl<Roleset> implements edu.yu.einst
   @SuppressWarnings("unchecked")
   @Transactional
   public Roleset getRolesetByRolesetId (final int rolesetId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM Roleset a WHERE "
-       + "a.rolesetId = :rolesetId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("rolesetId", rolesetId);
-
-    return query.getResultList();
-  }
-  });
-    List<Roleset> results = (List<Roleset>) res;
+    HashMap m = new HashMap();
+    m.put("rolesetId", rolesetId);
+    List<Roleset> results = (List<Roleset>) this.findByMap((Map) m);
     if (results.size() == 0) {
       Roleset rt = new Roleset();
       return rt;
@@ -58,19 +52,10 @@ public class RolesetDaoImpl extends WaspDaoImpl<Roleset> implements edu.yu.einst
   @SuppressWarnings("unchecked")
   @Transactional
   public Roleset getRolesetByParentroleIdChildroleId (final int parentroleId, final int childroleId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM Roleset a WHERE "
-       + "a.parentroleId = :parentroleId"
-       + " AND "+ "a.childroleId = :childroleId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("parentroleId", parentroleId);
-      query.setParameter("childroleId", childroleId);
-
-    return query.getResultList();
-  }
-  });
-    List<Roleset> results = (List<Roleset>) res;
+    HashMap m = new HashMap();
+    m.put("parentroleId", parentroleId);
+    m.put("childroleId", childroleId);
+    List<Roleset> results = (List<Roleset>) this.findByMap((Map) m);
     if (results.size() == 0) {
       Roleset rt = new Roleset();
       return rt;

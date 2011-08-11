@@ -16,6 +16,8 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.orm.jpa.JpaCallback;
@@ -36,17 +38,9 @@ public class JobMetaDaoImpl extends WaspDaoImpl<JobMeta> implements edu.yu.einst
   @SuppressWarnings("unchecked")
   @Transactional
   public JobMeta getJobMetaByJobMetaId (final int jobMetaId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM JobMeta a WHERE "
-       + "a.jobMetaId = :jobMetaId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("jobMetaId", jobMetaId);
-
-    return query.getResultList();
-  }
-  });
-    List<JobMeta> results = (List<JobMeta>) res;
+    HashMap m = new HashMap();
+    m.put("jobMetaId", jobMetaId);
+    List<JobMeta> results = (List<JobMeta>) this.findByMap((Map) m);
     if (results.size() == 0) {
       JobMeta rt = new JobMeta();
       return rt;
@@ -58,19 +52,10 @@ public class JobMetaDaoImpl extends WaspDaoImpl<JobMeta> implements edu.yu.einst
   @SuppressWarnings("unchecked")
   @Transactional
   public JobMeta getJobMetaByKJobId (final String k, final int jobId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM JobMeta a WHERE "
-       + "a.k = :k"
-       + " AND "+ "a.jobId = :jobId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("k", k);
-      query.setParameter("jobId", jobId);
-
-    return query.getResultList();
-  }
-  });
-    List<JobMeta> results = (List<JobMeta>) res;
+    HashMap m = new HashMap();
+    m.put("k", k);
+    m.put("jobId", jobId);
+    List<JobMeta> results = (List<JobMeta>) this.findByMap((Map) m);
     if (results.size() == 0) {
       JobMeta rt = new JobMeta();
       return rt;

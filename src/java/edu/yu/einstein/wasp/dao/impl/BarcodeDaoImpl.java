@@ -16,6 +16,8 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.orm.jpa.JpaCallback;
@@ -36,17 +38,9 @@ public class BarcodeDaoImpl extends WaspDaoImpl<Barcode> implements edu.yu.einst
   @SuppressWarnings("unchecked")
   @Transactional
   public Barcode getBarcodeByBarcodeId (final int barcodeId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM Barcode a WHERE "
-       + "a.barcodeId = :barcodeId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("barcodeId", barcodeId);
-
-    return query.getResultList();
-  }
-  });
-    List<Barcode> results = (List<Barcode>) res;
+    HashMap m = new HashMap();
+    m.put("barcodeId", barcodeId);
+    List<Barcode> results = (List<Barcode>) this.findByMap((Map) m);
     if (results.size() == 0) {
       Barcode rt = new Barcode();
       return rt;
@@ -58,17 +52,9 @@ public class BarcodeDaoImpl extends WaspDaoImpl<Barcode> implements edu.yu.einst
   @SuppressWarnings("unchecked")
   @Transactional
   public Barcode getBarcodeByBarcode (final String barcode) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM Barcode a WHERE "
-       + "a.barcode = :barcode";
-     Query query = em.createQuery(queryString);
-      query.setParameter("barcode", barcode);
-
-    return query.getResultList();
-  }
-  });
-    List<Barcode> results = (List<Barcode>) res;
+    HashMap m = new HashMap();
+    m.put("barcode", barcode);
+    List<Barcode> results = (List<Barcode>) this.findByMap((Map) m);
     if (results.size() == 0) {
       Barcode rt = new Barcode();
       return rt;

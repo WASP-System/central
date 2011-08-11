@@ -16,6 +16,8 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.orm.jpa.JpaCallback;
@@ -36,17 +38,9 @@ public class SampleLabDaoImpl extends WaspDaoImpl<SampleLab> implements edu.yu.e
   @SuppressWarnings("unchecked")
   @Transactional
   public SampleLab getSampleLabBySampleLabId (final int sampleLabId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM SampleLab a WHERE "
-       + "a.sampleLabId = :sampleLabId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("sampleLabId", sampleLabId);
-
-    return query.getResultList();
-  }
-  });
-    List<SampleLab> results = (List<SampleLab>) res;
+    HashMap m = new HashMap();
+    m.put("sampleLabId", sampleLabId);
+    List<SampleLab> results = (List<SampleLab>) this.findByMap((Map) m);
     if (results.size() == 0) {
       SampleLab rt = new SampleLab();
       return rt;
@@ -58,19 +52,10 @@ public class SampleLabDaoImpl extends WaspDaoImpl<SampleLab> implements edu.yu.e
   @SuppressWarnings("unchecked")
   @Transactional
   public SampleLab getSampleLabBySampleIdLabId (final int sampleId, final int labId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM SampleLab a WHERE "
-       + "a.sampleId = :sampleId"
-       + " AND "+ "a.labId = :labId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("sampleId", sampleId);
-      query.setParameter("labId", labId);
-
-    return query.getResultList();
-  }
-  });
-    List<SampleLab> results = (List<SampleLab>) res;
+    HashMap m = new HashMap();
+    m.put("sampleId", sampleId);
+    m.put("labId", labId);
+    List<SampleLab> results = (List<SampleLab>) this.findByMap((Map) m);
     if (results.size() == 0) {
       SampleLab rt = new SampleLab();
       return rt;

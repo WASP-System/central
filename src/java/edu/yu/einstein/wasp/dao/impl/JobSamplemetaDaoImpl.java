@@ -16,6 +16,8 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.orm.jpa.JpaCallback;
@@ -36,17 +38,9 @@ public class JobSamplemetaDaoImpl extends WaspDaoImpl<JobSamplemeta> implements 
   @SuppressWarnings("unchecked")
   @Transactional
   public JobSamplemeta getJobSamplemetaByJobSamplemetaId (final int jobSamplemetaId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM JobSamplemeta a WHERE "
-       + "a.jobSamplemetaId = :jobSamplemetaId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("jobSamplemetaId", jobSamplemetaId);
-
-    return query.getResultList();
-  }
-  });
-    List<JobSamplemeta> results = (List<JobSamplemeta>) res;
+    HashMap m = new HashMap();
+    m.put("jobSamplemetaId", jobSamplemetaId);
+    List<JobSamplemeta> results = (List<JobSamplemeta>) this.findByMap((Map) m);
     if (results.size() == 0) {
       JobSamplemeta rt = new JobSamplemeta();
       return rt;
@@ -58,19 +52,10 @@ public class JobSamplemetaDaoImpl extends WaspDaoImpl<JobSamplemeta> implements 
   @SuppressWarnings("unchecked")
   @Transactional
   public JobSamplemeta getJobSamplemetaByKJobsampleId (final String k, final int jobsampleId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM JobSamplemeta a WHERE "
-       + "a.k = :k"
-       + " AND "+ "a.jobsampleId = :jobsampleId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("k", k);
-      query.setParameter("jobsampleId", jobsampleId);
-
-    return query.getResultList();
-  }
-  });
-    List<JobSamplemeta> results = (List<JobSamplemeta>) res;
+    HashMap m = new HashMap();
+    m.put("k", k);
+    m.put("jobsampleId", jobsampleId);
+    List<JobSamplemeta> results = (List<JobSamplemeta>) this.findByMap((Map) m);
     if (results.size() == 0) {
       JobSamplemeta rt = new JobSamplemeta();
       return rt;

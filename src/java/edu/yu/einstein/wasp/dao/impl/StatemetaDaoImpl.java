@@ -16,6 +16,8 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.orm.jpa.JpaCallback;
@@ -36,17 +38,9 @@ public class StatemetaDaoImpl extends WaspDaoImpl<Statemeta> implements edu.yu.e
   @SuppressWarnings("unchecked")
   @Transactional
   public Statemeta getStatemetaByStatemetaId (final int statemetaId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM Statemeta a WHERE "
-       + "a.statemetaId = :statemetaId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("statemetaId", statemetaId);
-
-    return query.getResultList();
-  }
-  });
-    List<Statemeta> results = (List<Statemeta>) res;
+    HashMap m = new HashMap();
+    m.put("statemetaId", statemetaId);
+    List<Statemeta> results = (List<Statemeta>) this.findByMap((Map) m);
     if (results.size() == 0) {
       Statemeta rt = new Statemeta();
       return rt;
@@ -58,19 +52,10 @@ public class StatemetaDaoImpl extends WaspDaoImpl<Statemeta> implements edu.yu.e
   @SuppressWarnings("unchecked")
   @Transactional
   public Statemeta getStatemetaByKStateId (final String k, final int stateId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM Statemeta a WHERE "
-       + "a.k = :k"
-       + " AND "+ "a.stateId = :stateId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("k", k);
-      query.setParameter("stateId", stateId);
-
-    return query.getResultList();
-  }
-  });
-    List<Statemeta> results = (List<Statemeta>) res;
+    HashMap m = new HashMap();
+    m.put("k", k);
+    m.put("stateId", stateId);
+    List<Statemeta> results = (List<Statemeta>) this.findByMap((Map) m);
     if (results.size() == 0) {
       Statemeta rt = new Statemeta();
       return rt;

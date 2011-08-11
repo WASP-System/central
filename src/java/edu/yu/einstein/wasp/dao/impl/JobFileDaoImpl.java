@@ -16,6 +16,8 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.orm.jpa.JpaCallback;
@@ -36,17 +38,9 @@ public class JobFileDaoImpl extends WaspDaoImpl<JobFile> implements edu.yu.einst
   @SuppressWarnings("unchecked")
   @Transactional
   public JobFile getJobFileByJobFileId (final int jobFileId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM JobFile a WHERE "
-       + "a.jobFileId = :jobFileId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("jobFileId", jobFileId);
-
-    return query.getResultList();
-  }
-  });
-    List<JobFile> results = (List<JobFile>) res;
+    HashMap m = new HashMap();
+    m.put("jobFileId", jobFileId);
+    List<JobFile> results = (List<JobFile>) this.findByMap((Map) m);
     if (results.size() == 0) {
       JobFile rt = new JobFile();
       return rt;

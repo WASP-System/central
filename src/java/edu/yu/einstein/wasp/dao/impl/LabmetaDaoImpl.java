@@ -16,6 +16,8 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.orm.jpa.JpaCallback;
@@ -36,17 +38,9 @@ public class LabmetaDaoImpl extends WaspDaoImpl<Labmeta> implements edu.yu.einst
   @SuppressWarnings("unchecked")
   @Transactional
   public Labmeta getLabmetaByLabmetaId (final int labmetaId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM Labmeta a WHERE "
-       + "a.labmetaId = :labmetaId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("labmetaId", labmetaId);
-
-    return query.getResultList();
-  }
-  });
-    List<Labmeta> results = (List<Labmeta>) res;
+    HashMap m = new HashMap();
+    m.put("labmetaId", labmetaId);
+    List<Labmeta> results = (List<Labmeta>) this.findByMap((Map) m);
     if (results.size() == 0) {
       Labmeta rt = new Labmeta();
       return rt;
@@ -58,19 +52,10 @@ public class LabmetaDaoImpl extends WaspDaoImpl<Labmeta> implements edu.yu.einst
   @SuppressWarnings("unchecked")
   @Transactional
   public Labmeta getLabmetaByKLabId (final String k, final int labId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM Labmeta a WHERE "
-       + "a.k = :k"
-       + " AND "+ "a.labId = :labId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("k", k);
-      query.setParameter("labId", labId);
-
-    return query.getResultList();
-  }
-  });
-    List<Labmeta> results = (List<Labmeta>) res;
+    HashMap m = new HashMap();
+    m.put("k", k);
+    m.put("labId", labId);
+    List<Labmeta> results = (List<Labmeta>) this.findByMap((Map) m);
     if (results.size() == 0) {
       Labmeta rt = new Labmeta();
       return rt;

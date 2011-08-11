@@ -16,6 +16,8 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.orm.jpa.JpaCallback;
@@ -36,17 +38,9 @@ public class WorkflowDaoImpl extends WaspDaoImpl<Workflow> implements edu.yu.ein
   @SuppressWarnings("unchecked")
   @Transactional
   public Workflow getWorkflowByWorkflowId (final int workflowId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM Workflow a WHERE "
-       + "a.workflowId = :workflowId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("workflowId", workflowId);
-
-    return query.getResultList();
-  }
-  });
-    List<Workflow> results = (List<Workflow>) res;
+    HashMap m = new HashMap();
+    m.put("workflowId", workflowId);
+    List<Workflow> results = (List<Workflow>) this.findByMap((Map) m);
     if (results.size() == 0) {
       Workflow rt = new Workflow();
       return rt;
@@ -58,17 +52,9 @@ public class WorkflowDaoImpl extends WaspDaoImpl<Workflow> implements edu.yu.ein
   @SuppressWarnings("unchecked")
   @Transactional
   public Workflow getWorkflowByIName (final String iName) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM Workflow a WHERE "
-       + "a.iName = :iName";
-     Query query = em.createQuery(queryString);
-      query.setParameter("iName", iName);
-
-    return query.getResultList();
-  }
-  });
-    List<Workflow> results = (List<Workflow>) res;
+    HashMap m = new HashMap();
+    m.put("iName", iName);
+    List<Workflow> results = (List<Workflow>) this.findByMap((Map) m);
     if (results.size() == 0) {
       Workflow rt = new Workflow();
       return rt;
@@ -80,17 +66,9 @@ public class WorkflowDaoImpl extends WaspDaoImpl<Workflow> implements edu.yu.ein
   @SuppressWarnings("unchecked")
   @Transactional
   public Workflow getWorkflowByName (final String name) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM Workflow a WHERE "
-       + "a.name = :name";
-     Query query = em.createQuery(queryString);
-      query.setParameter("name", name);
-
-    return query.getResultList();
-  }
-  });
-    List<Workflow> results = (List<Workflow>) res;
+    HashMap m = new HashMap();
+    m.put("name", name);
+    List<Workflow> results = (List<Workflow>) this.findByMap((Map) m);
     if (results.size() == 0) {
       Workflow rt = new Workflow();
       return rt;

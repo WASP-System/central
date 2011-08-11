@@ -16,6 +16,8 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.orm.jpa.JpaCallback;
@@ -36,17 +38,9 @@ public class TaskDaoImpl extends WaspDaoImpl<Task> implements edu.yu.einstein.wa
   @SuppressWarnings("unchecked")
   @Transactional
   public Task getTaskByTaskId (final int taskId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM Task a WHERE "
-       + "a.taskId = :taskId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("taskId", taskId);
-
-    return query.getResultList();
-  }
-  });
-    List<Task> results = (List<Task>) res;
+    HashMap m = new HashMap();
+    m.put("taskId", taskId);
+    List<Task> results = (List<Task>) this.findByMap((Map) m);
     if (results.size() == 0) {
       Task rt = new Task();
       return rt;
@@ -58,17 +52,9 @@ public class TaskDaoImpl extends WaspDaoImpl<Task> implements edu.yu.einstein.wa
   @SuppressWarnings("unchecked")
   @Transactional
   public Task getTaskByIName (final String iName) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM Task a WHERE "
-       + "a.iName = :iName";
-     Query query = em.createQuery(queryString);
-      query.setParameter("iName", iName);
-
-    return query.getResultList();
-  }
-  });
-    List<Task> results = (List<Task>) res;
+    HashMap m = new HashMap();
+    m.put("iName", iName);
+    List<Task> results = (List<Task>) this.findByMap((Map) m);
     if (results.size() == 0) {
       Task rt = new Task();
       return rt;

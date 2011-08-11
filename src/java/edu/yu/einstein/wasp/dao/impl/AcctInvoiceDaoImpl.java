@@ -16,6 +16,8 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.orm.jpa.JpaCallback;
@@ -36,17 +38,9 @@ public class AcctInvoiceDaoImpl extends WaspDaoImpl<AcctInvoice> implements edu.
   @SuppressWarnings("unchecked")
   @Transactional
   public AcctInvoice getAcctInvoiceByInvoiceId (final int invoiceId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM AcctInvoice a WHERE "
-       + "a.invoiceId = :invoiceId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("invoiceId", invoiceId);
-
-    return query.getResultList();
-  }
-  });
-    List<AcctInvoice> results = (List<AcctInvoice>) res;
+    HashMap m = new HashMap();
+    m.put("invoiceId", invoiceId);
+    List<AcctInvoice> results = (List<AcctInvoice>) this.findByMap((Map) m);
     if (results.size() == 0) {
       AcctInvoice rt = new AcctInvoice();
       return rt;

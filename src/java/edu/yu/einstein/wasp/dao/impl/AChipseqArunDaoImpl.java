@@ -16,6 +16,8 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.orm.jpa.JpaCallback;
@@ -36,17 +38,9 @@ public class AChipseqArunDaoImpl extends WaspDaoImpl<AChipseqArun> implements ed
   @SuppressWarnings("unchecked")
   @Transactional
   public AChipseqArun getAChipseqArunByArunId (final int arunId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM AChipseqArun a WHERE "
-       + "a.arunId = :arunId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("arunId", arunId);
-
-    return query.getResultList();
-  }
-  });
-    List<AChipseqArun> results = (List<AChipseqArun>) res;
+    HashMap m = new HashMap();
+    m.put("arunId", arunId);
+    List<AChipseqArun> results = (List<AChipseqArun>) this.findByMap((Map) m);
     if (results.size() == 0) {
       AChipseqArun rt = new AChipseqArun();
       return rt;

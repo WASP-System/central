@@ -16,6 +16,8 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.orm.jpa.JpaCallback;
@@ -36,17 +38,9 @@ public class ResourceLaneDaoImpl extends WaspDaoImpl<ResourceLane> implements ed
   @SuppressWarnings("unchecked")
   @Transactional
   public ResourceLane getResourceLaneByResourceLaneId (final int resourceLaneId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM ResourceLane a WHERE "
-       + "a.resourceLaneId = :resourceLaneId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("resourceLaneId", resourceLaneId);
-
-    return query.getResultList();
-  }
-  });
-    List<ResourceLane> results = (List<ResourceLane>) res;
+    HashMap m = new HashMap();
+    m.put("resourceLaneId", resourceLaneId);
+    List<ResourceLane> results = (List<ResourceLane>) this.findByMap((Map) m);
     if (results.size() == 0) {
       ResourceLane rt = new ResourceLane();
       return rt;
@@ -58,19 +52,10 @@ public class ResourceLaneDaoImpl extends WaspDaoImpl<ResourceLane> implements ed
   @SuppressWarnings("unchecked")
   @Transactional
   public ResourceLane getResourceLaneByINameResourceId (final String iName, final int resourceId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM ResourceLane a WHERE "
-       + "a.iName = :iName"
-       + " AND "+ "a.resourceId = :resourceId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("iName", iName);
-      query.setParameter("resourceId", resourceId);
-
-    return query.getResultList();
-  }
-  });
-    List<ResourceLane> results = (List<ResourceLane>) res;
+    HashMap m = new HashMap();
+    m.put("iName", iName);
+    m.put("resourceId", resourceId);
+    List<ResourceLane> results = (List<ResourceLane>) this.findByMap((Map) m);
     if (results.size() == 0) {
       ResourceLane rt = new ResourceLane();
       return rt;
@@ -82,19 +67,10 @@ public class ResourceLaneDaoImpl extends WaspDaoImpl<ResourceLane> implements ed
   @SuppressWarnings("unchecked")
   @Transactional
   public ResourceLane getResourceLaneByNameResourceId (final String name, final int resourceId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM ResourceLane a WHERE "
-       + "a.name = :name"
-       + " AND "+ "a.resourceId = :resourceId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("name", name);
-      query.setParameter("resourceId", resourceId);
-
-    return query.getResultList();
-  }
-  });
-    List<ResourceLane> results = (List<ResourceLane>) res;
+    HashMap m = new HashMap();
+    m.put("name", name);
+    m.put("resourceId", resourceId);
+    List<ResourceLane> results = (List<ResourceLane>) this.findByMap((Map) m);
     if (results.size() == 0) {
       ResourceLane rt = new ResourceLane();
       return rt;

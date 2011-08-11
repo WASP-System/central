@@ -16,6 +16,8 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.orm.jpa.JpaCallback;
@@ -36,17 +38,9 @@ public class WorkflowtasksourceDaoImpl extends WaspDaoImpl<Workflowtasksource> i
   @SuppressWarnings("unchecked")
   @Transactional
   public Workflowtasksource getWorkflowtasksourceByWorkflowtasksourceId (final int workflowtasksourceId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM Workflowtasksource a WHERE "
-       + "a.workflowtasksourceId = :workflowtasksourceId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("workflowtasksourceId", workflowtasksourceId);
-
-    return query.getResultList();
-  }
-  });
-    List<Workflowtasksource> results = (List<Workflowtasksource>) res;
+    HashMap m = new HashMap();
+    m.put("workflowtasksourceId", workflowtasksourceId);
+    List<Workflowtasksource> results = (List<Workflowtasksource>) this.findByMap((Map) m);
     if (results.size() == 0) {
       Workflowtasksource rt = new Workflowtasksource();
       return rt;

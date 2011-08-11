@@ -16,6 +16,8 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.orm.jpa.JpaCallback;
@@ -36,17 +38,9 @@ public class UserDaoImpl extends WaspDaoImpl<User> implements edu.yu.einstein.wa
   @SuppressWarnings("unchecked")
   @Transactional
   public User getUserByUserId (final int UserId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM User a WHERE "
-       + "a.UserId = :UserId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("UserId", UserId);
-
-    return query.getResultList();
-  }
-  });
-    List<User> results = (List<User>) res;
+    HashMap m = new HashMap();
+    m.put("UserId", UserId);
+    List<User> results = (List<User>) this.findByMap((Map) m);
     if (results.size() == 0) {
       User rt = new User();
       return rt;
@@ -58,17 +52,9 @@ public class UserDaoImpl extends WaspDaoImpl<User> implements edu.yu.einstein.wa
   @SuppressWarnings("unchecked")
   @Transactional
   public User getUserByLogin (final String login) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM User a WHERE "
-       + "a.login = :login";
-     Query query = em.createQuery(queryString);
-      query.setParameter("login", login);
-
-    return query.getResultList();
-  }
-  });
-    List<User> results = (List<User>) res;
+    HashMap m = new HashMap();
+    m.put("login", login);
+    List<User> results = (List<User>) this.findByMap((Map) m);
     if (results.size() == 0) {
       User rt = new User();
       return rt;
@@ -80,17 +66,9 @@ public class UserDaoImpl extends WaspDaoImpl<User> implements edu.yu.einstein.wa
   @SuppressWarnings("unchecked")
   @Transactional
   public User getUserByEmail (final String email) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM User a WHERE "
-       + "a.email = :email";
-     Query query = em.createQuery(queryString);
-      query.setParameter("email", email);
-
-    return query.getResultList();
-  }
-  });
-    List<User> results = (List<User>) res;
+    HashMap m = new HashMap();
+    m.put("email", email);
+    List<User> results = (List<User>) this.findByMap((Map) m);
     if (results.size() == 0) {
       User rt = new User();
       return rt;

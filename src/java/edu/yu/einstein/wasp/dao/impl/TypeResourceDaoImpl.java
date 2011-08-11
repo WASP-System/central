@@ -16,6 +16,8 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.orm.jpa.JpaCallback;
@@ -36,17 +38,9 @@ public class TypeResourceDaoImpl extends WaspDaoImpl<TypeResource> implements ed
   @SuppressWarnings("unchecked")
   @Transactional
   public TypeResource getTypeResourceByTypeResourceId (final int typeResourceId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM TypeResource a WHERE "
-       + "a.typeResourceId = :typeResourceId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("typeResourceId", typeResourceId);
-
-    return query.getResultList();
-  }
-  });
-    List<TypeResource> results = (List<TypeResource>) res;
+    HashMap m = new HashMap();
+    m.put("typeResourceId", typeResourceId);
+    List<TypeResource> results = (List<TypeResource>) this.findByMap((Map) m);
     if (results.size() == 0) {
       TypeResource rt = new TypeResource();
       return rt;
@@ -58,17 +52,9 @@ public class TypeResourceDaoImpl extends WaspDaoImpl<TypeResource> implements ed
   @SuppressWarnings("unchecked")
   @Transactional
   public TypeResource getTypeResourceByIName (final String iName) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM TypeResource a WHERE "
-       + "a.iName = :iName";
-     Query query = em.createQuery(queryString);
-      query.setParameter("iName", iName);
-
-    return query.getResultList();
-  }
-  });
-    List<TypeResource> results = (List<TypeResource>) res;
+    HashMap m = new HashMap();
+    m.put("iName", iName);
+    List<TypeResource> results = (List<TypeResource>) this.findByMap((Map) m);
     if (results.size() == 0) {
       TypeResource rt = new TypeResource();
       return rt;
@@ -80,17 +66,9 @@ public class TypeResourceDaoImpl extends WaspDaoImpl<TypeResource> implements ed
   @SuppressWarnings("unchecked")
   @Transactional
   public TypeResource getTypeResourceByName (final String name) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM TypeResource a WHERE "
-       + "a.name = :name";
-     Query query = em.createQuery(queryString);
-      query.setParameter("name", name);
-
-    return query.getResultList();
-  }
-  });
-    List<TypeResource> results = (List<TypeResource>) res;
+    HashMap m = new HashMap();
+    m.put("name", name);
+    List<TypeResource> results = (List<TypeResource>) this.findByMap((Map) m);
     if (results.size() == 0) {
       TypeResource rt = new TypeResource();
       return rt;

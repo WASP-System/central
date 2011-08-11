@@ -16,6 +16,8 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.orm.jpa.JpaCallback;
@@ -36,17 +38,9 @@ public class StateDaoImpl extends WaspDaoImpl<State> implements edu.yu.einstein.
   @SuppressWarnings("unchecked")
   @Transactional
   public State getStateByStateId (final int stateId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM State a WHERE "
-       + "a.stateId = :stateId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("stateId", stateId);
-
-    return query.getResultList();
-  }
-  });
-    List<State> results = (List<State>) res;
+    HashMap m = new HashMap();
+    m.put("stateId", stateId);
+    List<State> results = (List<State>) this.findByMap((Map) m);
     if (results.size() == 0) {
       State rt = new State();
       return rt;

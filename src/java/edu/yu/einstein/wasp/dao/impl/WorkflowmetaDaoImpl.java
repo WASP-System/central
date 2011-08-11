@@ -16,6 +16,8 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.orm.jpa.JpaCallback;
@@ -36,17 +38,9 @@ public class WorkflowmetaDaoImpl extends WaspDaoImpl<Workflowmeta> implements ed
   @SuppressWarnings("unchecked")
   @Transactional
   public Workflowmeta getWorkflowmetaByWorkflowmetaId (final int workflowmetaId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM Workflowmeta a WHERE "
-       + "a.workflowmetaId = :workflowmetaId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("workflowmetaId", workflowmetaId);
-
-    return query.getResultList();
-  }
-  });
-    List<Workflowmeta> results = (List<Workflowmeta>) res;
+    HashMap m = new HashMap();
+    m.put("workflowmetaId", workflowmetaId);
+    List<Workflowmeta> results = (List<Workflowmeta>) this.findByMap((Map) m);
     if (results.size() == 0) {
       Workflowmeta rt = new Workflowmeta();
       return rt;
@@ -58,19 +52,10 @@ public class WorkflowmetaDaoImpl extends WaspDaoImpl<Workflowmeta> implements ed
   @SuppressWarnings("unchecked")
   @Transactional
   public Workflowmeta getWorkflowmetaByKWorkflowId (final String k, final int workflowId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM Workflowmeta a WHERE "
-       + "a.k = :k"
-       + " AND "+ "a.workflowId = :workflowId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("k", k);
-      query.setParameter("workflowId", workflowId);
-
-    return query.getResultList();
-  }
-  });
-    List<Workflowmeta> results = (List<Workflowmeta>) res;
+    HashMap m = new HashMap();
+    m.put("k", k);
+    m.put("workflowId", workflowId);
+    List<Workflowmeta> results = (List<Workflowmeta>) this.findByMap((Map) m);
     if (results.size() == 0) {
       Workflowmeta rt = new Workflowmeta();
       return rt;

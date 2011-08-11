@@ -16,6 +16,8 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.orm.jpa.JpaCallback;
@@ -36,17 +38,9 @@ public class RunLanefileDaoImpl extends WaspDaoImpl<RunLanefile> implements edu.
   @SuppressWarnings("unchecked")
   @Transactional
   public RunLanefile getRunLanefileByRunLanefileId (final int runLanefileId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM RunLanefile a WHERE "
-       + "a.runLanefileId = :runLanefileId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("runLanefileId", runLanefileId);
-
-    return query.getResultList();
-  }
-  });
-    List<RunLanefile> results = (List<RunLanefile>) res;
+    HashMap m = new HashMap();
+    m.put("runLanefileId", runLanefileId);
+    List<RunLanefile> results = (List<RunLanefile>) this.findByMap((Map) m);
     if (results.size() == 0) {
       RunLanefile rt = new RunLanefile();
       return rt;
@@ -58,17 +52,9 @@ public class RunLanefileDaoImpl extends WaspDaoImpl<RunLanefile> implements edu.
   @SuppressWarnings("unchecked")
   @Transactional
   public RunLanefile getRunLanefileByFileId (final int fileId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM RunLanefile a WHERE "
-       + "a.fileId = :fileId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("fileId", fileId);
-
-    return query.getResultList();
-  }
-  });
-    List<RunLanefile> results = (List<RunLanefile>) res;
+    HashMap m = new HashMap();
+    m.put("fileId", fileId);
+    List<RunLanefile> results = (List<RunLanefile>) this.findByMap((Map) m);
     if (results.size() == 0) {
       RunLanefile rt = new RunLanefile();
       return rt;

@@ -16,6 +16,8 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.orm.jpa.JpaCallback;
@@ -36,17 +38,9 @@ public class DepartmentUserDaoImpl extends WaspDaoImpl<DepartmentUser> implement
   @SuppressWarnings("unchecked")
   @Transactional
   public DepartmentUser getDepartmentUserByDepartmentUserId (final int departmentUserId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM DepartmentUser a WHERE "
-       + "a.departmentUserId = :departmentUserId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("departmentUserId", departmentUserId);
-
-    return query.getResultList();
-  }
-  });
-    List<DepartmentUser> results = (List<DepartmentUser>) res;
+    HashMap m = new HashMap();
+    m.put("departmentUserId", departmentUserId);
+    List<DepartmentUser> results = (List<DepartmentUser>) this.findByMap((Map) m);
     if (results.size() == 0) {
       DepartmentUser rt = new DepartmentUser();
       return rt;
@@ -58,19 +52,10 @@ public class DepartmentUserDaoImpl extends WaspDaoImpl<DepartmentUser> implement
   @SuppressWarnings("unchecked")
   @Transactional
   public DepartmentUser getDepartmentUserByDepartmentIdUserId (final int departmentId, final int UserId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM DepartmentUser a WHERE "
-       + "a.departmentId = :departmentId"
-       + " AND "+ "a.UserId = :UserId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("departmentId", departmentId);
-      query.setParameter("UserId", UserId);
-
-    return query.getResultList();
-  }
-  });
-    List<DepartmentUser> results = (List<DepartmentUser>) res;
+    HashMap m = new HashMap();
+    m.put("departmentId", departmentId);
+    m.put("UserId", UserId);
+    List<DepartmentUser> results = (List<DepartmentUser>) this.findByMap((Map) m);
     if (results.size() == 0) {
       DepartmentUser rt = new DepartmentUser();
       return rt;

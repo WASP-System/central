@@ -16,6 +16,8 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.orm.jpa.JpaCallback;
@@ -36,17 +38,9 @@ public class RunDaoImpl extends WaspDaoImpl<Run> implements edu.yu.einstein.wasp
   @SuppressWarnings("unchecked")
   @Transactional
   public Run getRunByRunId (final int runId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM Run a WHERE "
-       + "a.runId = :runId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("runId", runId);
-
-    return query.getResultList();
-  }
-  });
-    List<Run> results = (List<Run>) res;
+    HashMap m = new HashMap();
+    m.put("runId", runId);
+    List<Run> results = (List<Run>) this.findByMap((Map) m);
     if (results.size() == 0) {
       Run rt = new Run();
       return rt;

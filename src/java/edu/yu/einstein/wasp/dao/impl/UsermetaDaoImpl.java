@@ -16,6 +16,8 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.orm.jpa.JpaCallback;
@@ -36,17 +38,9 @@ public class UsermetaDaoImpl extends WaspDaoImpl<Usermeta> implements edu.yu.ein
   @SuppressWarnings("unchecked")
   @Transactional
   public Usermeta getUsermetaByUsermetaId (final int usermetaId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM Usermeta a WHERE "
-       + "a.usermetaId = :usermetaId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("usermetaId", usermetaId);
-
-    return query.getResultList();
-  }
-  });
-    List<Usermeta> results = (List<Usermeta>) res;
+    HashMap m = new HashMap();
+    m.put("usermetaId", usermetaId);
+    List<Usermeta> results = (List<Usermeta>) this.findByMap((Map) m);
     if (results.size() == 0) {
       Usermeta rt = new Usermeta();
       return rt;
@@ -58,19 +52,10 @@ public class UsermetaDaoImpl extends WaspDaoImpl<Usermeta> implements edu.yu.ein
   @SuppressWarnings("unchecked")
   @Transactional
   public Usermeta getUsermetaByKUserId (final String k, final int UserId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM Usermeta a WHERE "
-       + "a.k = :k"
-       + " AND "+ "a.UserId = :UserId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("k", k);
-      query.setParameter("UserId", UserId);
-
-    return query.getResultList();
-  }
-  });
-    List<Usermeta> results = (List<Usermeta>) res;
+    HashMap m = new HashMap();
+    m.put("k", k);
+    m.put("UserId", UserId);
+    List<Usermeta> results = (List<Usermeta>) this.findByMap((Map) m);
     if (results.size() == 0) {
       Usermeta rt = new Usermeta();
       return rt;

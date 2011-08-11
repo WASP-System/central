@@ -16,6 +16,8 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.orm.jpa.JpaCallback;
@@ -36,17 +38,9 @@ public class SampleSourceDaoImpl extends WaspDaoImpl<SampleSource> implements ed
   @SuppressWarnings("unchecked")
   @Transactional
   public SampleSource getSampleSourceBySampleSourceId (final int sampleSourceId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM SampleSource a WHERE "
-       + "a.sampleSourceId = :sampleSourceId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("sampleSourceId", sampleSourceId);
-
-    return query.getResultList();
-  }
-  });
-    List<SampleSource> results = (List<SampleSource>) res;
+    HashMap m = new HashMap();
+    m.put("sampleSourceId", sampleSourceId);
+    List<SampleSource> results = (List<SampleSource>) this.findByMap((Map) m);
     if (results.size() == 0) {
       SampleSource rt = new SampleSource();
       return rt;
@@ -58,19 +52,10 @@ public class SampleSourceDaoImpl extends WaspDaoImpl<SampleSource> implements ed
   @SuppressWarnings("unchecked")
   @Transactional
   public SampleSource getSampleSourceBySampleIdMultiplexindex (final int sampleId, final int multiplexindex) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM SampleSource a WHERE "
-       + "a.sampleId = :sampleId"
-       + " AND "+ "a.multiplexindex = :multiplexindex";
-     Query query = em.createQuery(queryString);
-      query.setParameter("sampleId", sampleId);
-      query.setParameter("multiplexindex", multiplexindex);
-
-    return query.getResultList();
-  }
-  });
-    List<SampleSource> results = (List<SampleSource>) res;
+    HashMap m = new HashMap();
+    m.put("sampleId", sampleId);
+    m.put("multiplexindex", multiplexindex);
+    List<SampleSource> results = (List<SampleSource>) this.findByMap((Map) m);
     if (results.size() == 0) {
       SampleSource rt = new SampleSource();
       return rt;

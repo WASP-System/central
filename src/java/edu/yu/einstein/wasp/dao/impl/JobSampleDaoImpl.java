@@ -16,6 +16,8 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.orm.jpa.JpaCallback;
@@ -36,17 +38,9 @@ public class JobSampleDaoImpl extends WaspDaoImpl<JobSample> implements edu.yu.e
   @SuppressWarnings("unchecked")
   @Transactional
   public JobSample getJobSampleByJobSampleId (final int jobSampleId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM JobSample a WHERE "
-       + "a.jobSampleId = :jobSampleId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("jobSampleId", jobSampleId);
-
-    return query.getResultList();
-  }
-  });
-    List<JobSample> results = (List<JobSample>) res;
+    HashMap m = new HashMap();
+    m.put("jobSampleId", jobSampleId);
+    List<JobSample> results = (List<JobSample>) this.findByMap((Map) m);
     if (results.size() == 0) {
       JobSample rt = new JobSample();
       return rt;
@@ -58,19 +52,10 @@ public class JobSampleDaoImpl extends WaspDaoImpl<JobSample> implements edu.yu.e
   @SuppressWarnings("unchecked")
   @Transactional
   public JobSample getJobSampleByJobIdSampleId (final int jobId, final int sampleId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM JobSample a WHERE "
-       + "a.jobId = :jobId"
-       + " AND "+ "a.sampleId = :sampleId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("jobId", jobId);
-      query.setParameter("sampleId", sampleId);
-
-    return query.getResultList();
-  }
-  });
-    List<JobSample> results = (List<JobSample>) res;
+    HashMap m = new HashMap();
+    m.put("jobId", jobId);
+    m.put("sampleId", sampleId);
+    List<JobSample> results = (List<JobSample>) this.findByMap((Map) m);
     if (results.size() == 0) {
       JobSample rt = new JobSample();
       return rt;

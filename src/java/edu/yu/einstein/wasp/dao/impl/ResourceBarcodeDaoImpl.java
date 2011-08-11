@@ -16,6 +16,8 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.orm.jpa.JpaCallback;
@@ -36,17 +38,9 @@ public class ResourceBarcodeDaoImpl extends WaspDaoImpl<ResourceBarcode> impleme
   @SuppressWarnings("unchecked")
   @Transactional
   public ResourceBarcode getResourceBarcodeByResourceBarcodeId (final int resourceBarcodeId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM ResourceBarcode a WHERE "
-       + "a.resourceBarcodeId = :resourceBarcodeId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("resourceBarcodeId", resourceBarcodeId);
-
-    return query.getResultList();
-  }
-  });
-    List<ResourceBarcode> results = (List<ResourceBarcode>) res;
+    HashMap m = new HashMap();
+    m.put("resourceBarcodeId", resourceBarcodeId);
+    List<ResourceBarcode> results = (List<ResourceBarcode>) this.findByMap((Map) m);
     if (results.size() == 0) {
       ResourceBarcode rt = new ResourceBarcode();
       return rt;
@@ -58,17 +52,9 @@ public class ResourceBarcodeDaoImpl extends WaspDaoImpl<ResourceBarcode> impleme
   @SuppressWarnings("unchecked")
   @Transactional
   public ResourceBarcode getResourceBarcodeByResourceId (final int resourceId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM ResourceBarcode a WHERE "
-       + "a.resourceId = :resourceId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("resourceId", resourceId);
-
-    return query.getResultList();
-  }
-  });
-    List<ResourceBarcode> results = (List<ResourceBarcode>) res;
+    HashMap m = new HashMap();
+    m.put("resourceId", resourceId);
+    List<ResourceBarcode> results = (List<ResourceBarcode>) this.findByMap((Map) m);
     if (results.size() == 0) {
       ResourceBarcode rt = new ResourceBarcode();
       return rt;
@@ -80,17 +66,9 @@ public class ResourceBarcodeDaoImpl extends WaspDaoImpl<ResourceBarcode> impleme
   @SuppressWarnings("unchecked")
   @Transactional
   public ResourceBarcode getResourceBarcodeByBarcodeId (final int barcodeId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM ResourceBarcode a WHERE "
-       + "a.barcodeId = :barcodeId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("barcodeId", barcodeId);
-
-    return query.getResultList();
-  }
-  });
-    List<ResourceBarcode> results = (List<ResourceBarcode>) res;
+    HashMap m = new HashMap();
+    m.put("barcodeId", barcodeId);
+    List<ResourceBarcode> results = (List<ResourceBarcode>) this.findByMap((Map) m);
     if (results.size() == 0) {
       ResourceBarcode rt = new ResourceBarcode();
       return rt;

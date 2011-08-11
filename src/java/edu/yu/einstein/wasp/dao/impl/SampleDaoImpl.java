@@ -16,6 +16,8 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.orm.jpa.JpaCallback;
@@ -36,17 +38,9 @@ public class SampleDaoImpl extends WaspDaoImpl<Sample> implements edu.yu.einstei
   @SuppressWarnings("unchecked")
   @Transactional
   public Sample getSampleBySampleId (final int sampleId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM Sample a WHERE "
-       + "a.sampleId = :sampleId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("sampleId", sampleId);
-
-    return query.getResultList();
-  }
-  });
-    List<Sample> results = (List<Sample>) res;
+    HashMap m = new HashMap();
+    m.put("sampleId", sampleId);
+    List<Sample> results = (List<Sample>) this.findByMap((Map) m);
     if (results.size() == 0) {
       Sample rt = new Sample();
       return rt;

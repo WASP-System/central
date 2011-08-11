@@ -16,6 +16,8 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.orm.jpa.JpaCallback;
@@ -36,17 +38,9 @@ public class LabDaoImpl extends WaspDaoImpl<Lab> implements edu.yu.einstein.wasp
   @SuppressWarnings("unchecked")
   @Transactional
   public Lab getLabByLabId (final int labId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM Lab a WHERE "
-       + "a.labId = :labId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("labId", labId);
-
-    return query.getResultList();
-  }
-  });
-    List<Lab> results = (List<Lab>) res;
+    HashMap m = new HashMap();
+    m.put("labId", labId);
+    List<Lab> results = (List<Lab>) this.findByMap((Map) m);
     if (results.size() == 0) {
       Lab rt = new Lab();
       return rt;
@@ -58,17 +52,9 @@ public class LabDaoImpl extends WaspDaoImpl<Lab> implements edu.yu.einstein.wasp
   @SuppressWarnings("unchecked")
   @Transactional
   public Lab getLabByName (final String name) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM Lab a WHERE "
-       + "a.name = :name";
-     Query query = em.createQuery(queryString);
-      query.setParameter("name", name);
-
-    return query.getResultList();
-  }
-  });
-    List<Lab> results = (List<Lab>) res;
+    HashMap m = new HashMap();
+    m.put("name", name);
+    List<Lab> results = (List<Lab>) this.findByMap((Map) m);
     if (results.size() == 0) {
       Lab rt = new Lab();
       return rt;
@@ -80,17 +66,9 @@ public class LabDaoImpl extends WaspDaoImpl<Lab> implements edu.yu.einstein.wasp
   @SuppressWarnings("unchecked")
   @Transactional
   public Lab getLabByPrimaryUserId (final int primaryUserId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM Lab a WHERE "
-       + "a.primaryUserId = :primaryUserId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("primaryUserId", primaryUserId);
-
-    return query.getResultList();
-  }
-  });
-    List<Lab> results = (List<Lab>) res;
+    HashMap m = new HashMap();
+    m.put("primaryUserId", primaryUserId);
+    List<Lab> results = (List<Lab>) this.findByMap((Map) m);
     if (results.size() == 0) {
       Lab rt = new Lab();
       return rt;

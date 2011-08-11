@@ -16,6 +16,8 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.orm.jpa.JpaCallback;
@@ -36,17 +38,9 @@ public class AChipseqArunargsDaoImpl extends WaspDaoImpl<AChipseqArunargs> imple
   @SuppressWarnings("unchecked")
   @Transactional
   public AChipseqArunargs getAChipseqArunargsByArunargsId (final int arunargsId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM AChipseqArunargs a WHERE "
-       + "a.arunargsId = :arunargsId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("arunargsId", arunargsId);
-
-    return query.getResultList();
-  }
-  });
-    List<AChipseqArunargs> results = (List<AChipseqArunargs>) res;
+    HashMap m = new HashMap();
+    m.put("arunargsId", arunargsId);
+    List<AChipseqArunargs> results = (List<AChipseqArunargs>) this.findByMap((Map) m);
     if (results.size() == 0) {
       AChipseqArunargs rt = new AChipseqArunargs();
       return rt;
@@ -58,19 +52,10 @@ public class AChipseqArunargsDaoImpl extends WaspDaoImpl<AChipseqArunargs> imple
   @SuppressWarnings("unchecked")
   @Transactional
   public AChipseqArunargs getAChipseqArunargsByArunIdArgc (final Integer arunId, final int argc) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM AChipseqArunargs a WHERE "
-       + "a.arunId = :arunId"
-       + " AND "+ "a.argc = :argc";
-     Query query = em.createQuery(queryString);
-      query.setParameter("arunId", arunId);
-      query.setParameter("argc", argc);
-
-    return query.getResultList();
-  }
-  });
-    List<AChipseqArunargs> results = (List<AChipseqArunargs>) res;
+    HashMap m = new HashMap();
+    m.put("arunId", arunId);
+    m.put("argc", argc);
+    List<AChipseqArunargs> results = (List<AChipseqArunargs>) this.findByMap((Map) m);
     if (results.size() == 0) {
       AChipseqArunargs rt = new AChipseqArunargs();
       return rt;

@@ -16,6 +16,8 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.orm.jpa.JpaCallback;
@@ -36,17 +38,9 @@ public class RunFileDaoImpl extends WaspDaoImpl<RunFile> implements edu.yu.einst
   @SuppressWarnings("unchecked")
   @Transactional
   public RunFile getRunFileByRunlanefileId (final int runlanefileId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM RunFile a WHERE "
-       + "a.runlanefileId = :runlanefileId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("runlanefileId", runlanefileId);
-
-    return query.getResultList();
-  }
-  });
-    List<RunFile> results = (List<RunFile>) res;
+    HashMap m = new HashMap();
+    m.put("runlanefileId", runlanefileId);
+    List<RunFile> results = (List<RunFile>) this.findByMap((Map) m);
     if (results.size() == 0) {
       RunFile rt = new RunFile();
       return rt;
@@ -58,17 +52,9 @@ public class RunFileDaoImpl extends WaspDaoImpl<RunFile> implements edu.yu.einst
   @SuppressWarnings("unchecked")
   @Transactional
   public RunFile getRunFileByFileId (final int fileId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM RunFile a WHERE "
-       + "a.fileId = :fileId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("fileId", fileId);
-
-    return query.getResultList();
-  }
-  });
-    List<RunFile> results = (List<RunFile>) res;
+    HashMap m = new HashMap();
+    m.put("fileId", fileId);
+    List<RunFile> results = (List<RunFile>) this.findByMap((Map) m);
     if (results.size() == 0) {
       RunFile rt = new RunFile();
       return rt;

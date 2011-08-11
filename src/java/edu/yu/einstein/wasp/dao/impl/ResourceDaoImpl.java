@@ -16,6 +16,8 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.orm.jpa.JpaCallback;
@@ -36,17 +38,9 @@ public class ResourceDaoImpl extends WaspDaoImpl<Resource> implements edu.yu.ein
   @SuppressWarnings("unchecked")
   @Transactional
   public Resource getResourceByResourceId (final int resourceId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM Resource a WHERE "
-       + "a.resourceId = :resourceId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("resourceId", resourceId);
-
-    return query.getResultList();
-  }
-  });
-    List<Resource> results = (List<Resource>) res;
+    HashMap m = new HashMap();
+    m.put("resourceId", resourceId);
+    List<Resource> results = (List<Resource>) this.findByMap((Map) m);
     if (results.size() == 0) {
       Resource rt = new Resource();
       return rt;
@@ -58,17 +52,9 @@ public class ResourceDaoImpl extends WaspDaoImpl<Resource> implements edu.yu.ein
   @SuppressWarnings("unchecked")
   @Transactional
   public Resource getResourceByName (final String name) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM Resource a WHERE "
-       + "a.name = :name";
-     Query query = em.createQuery(queryString);
-      query.setParameter("name", name);
-
-    return query.getResultList();
-  }
-  });
-    List<Resource> results = (List<Resource>) res;
+    HashMap m = new HashMap();
+    m.put("name", name);
+    List<Resource> results = (List<Resource>) this.findByMap((Map) m);
     if (results.size() == 0) {
       Resource rt = new Resource();
       return rt;

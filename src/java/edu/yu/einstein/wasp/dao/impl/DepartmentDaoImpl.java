@@ -16,6 +16,8 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.orm.jpa.JpaCallback;
@@ -36,17 +38,9 @@ public class DepartmentDaoImpl extends WaspDaoImpl<Department> implements edu.yu
   @SuppressWarnings("unchecked")
   @Transactional
   public Department getDepartmentByDepartmentId (final int departmentId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM Department a WHERE "
-       + "a.departmentId = :departmentId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("departmentId", departmentId);
-
-    return query.getResultList();
-  }
-  });
-    List<Department> results = (List<Department>) res;
+    HashMap m = new HashMap();
+    m.put("departmentId", departmentId);
+    List<Department> results = (List<Department>) this.findByMap((Map) m);
     if (results.size() == 0) {
       Department rt = new Department();
       return rt;
@@ -58,17 +52,9 @@ public class DepartmentDaoImpl extends WaspDaoImpl<Department> implements edu.yu
   @SuppressWarnings("unchecked")
   @Transactional
   public Department getDepartmentByName (final String name) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM Department a WHERE "
-       + "a.name = :name";
-     Query query = em.createQuery(queryString);
-      query.setParameter("name", name);
-
-    return query.getResultList();
-  }
-  });
-    List<Department> results = (List<Department>) res;
+    HashMap m = new HashMap();
+    m.put("name", name);
+    List<Department> results = (List<Department>) this.findByMap((Map) m);
     if (results.size() == 0) {
       Department rt = new Department();
       return rt;

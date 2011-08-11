@@ -16,6 +16,8 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.orm.jpa.JpaCallback;
@@ -36,17 +38,9 @@ public class SampleMetaDaoImpl extends WaspDaoImpl<SampleMeta> implements edu.yu
   @SuppressWarnings("unchecked")
   @Transactional
   public SampleMeta getSampleMetaBySampleMetaId (final int sampleMetaId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM SampleMeta a WHERE "
-       + "a.sampleMetaId = :sampleMetaId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("sampleMetaId", sampleMetaId);
-
-    return query.getResultList();
-  }
-  });
-    List<SampleMeta> results = (List<SampleMeta>) res;
+    HashMap m = new HashMap();
+    m.put("sampleMetaId", sampleMetaId);
+    List<SampleMeta> results = (List<SampleMeta>) this.findByMap((Map) m);
     if (results.size() == 0) {
       SampleMeta rt = new SampleMeta();
       return rt;
@@ -58,19 +52,10 @@ public class SampleMetaDaoImpl extends WaspDaoImpl<SampleMeta> implements edu.yu
   @SuppressWarnings("unchecked")
   @Transactional
   public SampleMeta getSampleMetaByKSampleId (final String k, final int sampleId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM SampleMeta a WHERE "
-       + "a.k = :k"
-       + " AND "+ "a.sampleId = :sampleId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("k", k);
-      query.setParameter("sampleId", sampleId);
-
-    return query.getResultList();
-  }
-  });
-    List<SampleMeta> results = (List<SampleMeta>) res;
+    HashMap m = new HashMap();
+    m.put("k", k);
+    m.put("sampleId", sampleId);
+    List<SampleMeta> results = (List<SampleMeta>) this.findByMap((Map) m);
     if (results.size() == 0) {
       SampleMeta rt = new SampleMeta();
       return rt;

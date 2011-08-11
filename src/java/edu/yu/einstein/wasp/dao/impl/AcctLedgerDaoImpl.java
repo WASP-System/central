@@ -16,6 +16,8 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.orm.jpa.JpaCallback;
@@ -36,17 +38,9 @@ public class AcctLedgerDaoImpl extends WaspDaoImpl<AcctLedger> implements edu.yu
   @SuppressWarnings("unchecked")
   @Transactional
   public AcctLedger getAcctLedgerByLedgerId (final int ledgerId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM AcctLedger a WHERE "
-       + "a.ledgerId = :ledgerId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("ledgerId", ledgerId);
-
-    return query.getResultList();
-  }
-  });
-    List<AcctLedger> results = (List<AcctLedger>) res;
+    HashMap m = new HashMap();
+    m.put("ledgerId", ledgerId);
+    List<AcctLedger> results = (List<AcctLedger>) this.findByMap((Map) m);
     if (results.size() == 0) {
       AcctLedger rt = new AcctLedger();
       return rt;

@@ -16,6 +16,8 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.orm.jpa.JpaCallback;
@@ -36,17 +38,9 @@ public class AcctQuoteDaoImpl extends WaspDaoImpl<AcctQuote> implements edu.yu.e
   @SuppressWarnings("unchecked")
   @Transactional
   public AcctQuote getAcctQuoteByQuoteId (final int quoteId) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-     String queryString = "SELECT a FROM AcctQuote a WHERE "
-       + "a.quoteId = :quoteId";
-     Query query = em.createQuery(queryString);
-      query.setParameter("quoteId", quoteId);
-
-    return query.getResultList();
-  }
-  });
-    List<AcctQuote> results = (List<AcctQuote>) res;
+    HashMap m = new HashMap();
+    m.put("quoteId", quoteId);
+    List<AcctQuote> results = (List<AcctQuote>) this.findByMap((Map) m);
     if (results.size() == 0) {
       AcctQuote rt = new AcctQuote();
       return rt;
