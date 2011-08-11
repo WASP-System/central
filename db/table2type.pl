@@ -173,6 +173,7 @@ package edu.yu.einstein.wasp.dao;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.Map;
 import edu.yu.einstein.wasp.model.*;
 
 import org.springframework.stereotype.Repository;
@@ -201,6 +202,8 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.orm.jpa.JpaCallback;
@@ -237,6 +240,7 @@ import edu.yu.einstein.wasp.dao.$t->{'Table'}Dao;
 import edu.yu.einstein.wasp.model.$t->{'Table'};
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
@@ -267,6 +271,8 @@ import edu.yu.einstein.wasp.dao.WaspDao;
 import edu.yu.einstein.wasp.model.$t->{'Table'};
 
 import java.util.List;
+import java.util.Map;
+
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PostFilter;
@@ -309,8 +315,10 @@ public class $t->{'Table'}ServiceImpl extends WaspServiceImpl<$t->{'Table'}> imp
       $e .= ", " if $e;
       $e .= $t->{'cols'}->{$col}->{'var'};
 
-      $c .= qq|\n       + " AND "| if $c;
-      $c .= qq|+ "a.$t->{'cols'}->{$col}->{'var'} = :$t->{'cols'}->{$col}->{'var'}"|;
+      $c .= qq|    m.put("$t->{'cols'}->{$col}->{'var'}", $t->{'cols'}->{$col}->{'var'});\n|;
+
+#      $c .= qq|\n       + " AND "| if $c;
+#      $c .= qq|+ "a.$t->{'cols'}->{$col}->{'var'} = :$t->{'cols'}->{$col}->{'var'}"|;
       $d .= qq|      query.setParameter("$t->{'cols'}->{$col}->{'var'}", $t->{'cols'}->{$col}->{'var'});\n|;
     }
 
@@ -326,21 +334,11 @@ public class $t->{'Table'}ServiceImpl extends WaspServiceImpl<$t->{'Table'}> imp
   }
 |;
 
-    $j_dao .= "  public $t->{'Table'} get$t->{'Table'}By$a ($b) {\n"; 
-    $j_dao .= "   Object res = getJpaTemplate().execute(new JpaCallback() {\n";
-    $j_dao .= qq|   public Object doInJpa(EntityManager em) throws PersistenceException {\n|;
+    $j_dao .= "  public $t->{'Table'} get$t->{'Table'}By$a ($b) {\n";
 
-    $j_dao .= qq|     String queryString = "SELECT a FROM $t->{'Table'} a WHERE "\n|; 
-    $j_dao .= qq|       $c;\n|; 
-
-    $j_dao .= qq|     Query query = em.createQuery(queryString);\n|;
-    $j_dao .= qq|$d\n|;
-
-    $j_dao .= qq|    return query.getResultList();\n|;
-    $j_dao .= qq|  }\n|;
-    $j_dao .= "  });\n";
-
-    $j_dao .= qq|    List<$t->{'Table'}> results = (List<$t->{'Table'}>) res;\n|;
+    $j_dao .= "    HashMap m = new HashMap();\n";
+    $j_dao .= $c;
+    $j_dao .= "    List<$t->{'Table'}> results = (List<$t->{'Table'}>) this.findByMap((Map) m);\n";
     $j_dao .= qq|    if (results.size() == 0) {\n|;
     $j_dao .= qq|      $t->{'Table'} rt = new $t->{'Table'}();\n|;
     $j_dao .= qq|      return rt;\n|;
