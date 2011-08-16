@@ -48,6 +48,22 @@ html, body {
 	     return [false,errMsg];
 	  }
    }
+  
+  function _validate_email(value, colname) {
+		 
+	  var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/; 		
+	  
+	  if (value && value.match(re))  
+	     return [true,""];
+	  else { 
+		
+		 var errIdx=colNames.indexOf(colname);
+		
+		 var errMsg=colErrors[errIdx];
+		
+	     return [false,errMsg];
+	  }
+   }
  
   //these will be populated by the wasp:field tags below
   var colNames=[];  
@@ -55,26 +71,35 @@ html, body {
   var colErrors=[];
   
   <wasp:field name="login" object="user" />  
+  <wasp:field name="password" object="user" />
   <wasp:field name="firstName" object="user" />
   <wasp:field name="lastName" object="user" />
   <wasp:field name="email" object="user" />
   <wasp:field name="locale" object="user" />
   <wasp:field name="isActive" object="user" />
-
+  
+  
+  email.jq['editrules']={custom:true,custom_func:_validate_email};
   
   isActive.jq['edittype']='checkbox';
   isActive.jq['editoptions']={value:"1:0"}; 
   isActive.jq['formatter']='checkbox';
   isActive.jq['formatoptions']={disabled : true};
   isActive.jq['align']='center';
-  
+  isActive.jq['search']=false;
   
   locale.jq['edittype']='select';
   locale.jq['editoptions']={value:{}};
- 
+  locale.jq['search']=false;
+  
+  password.jq['hidden']=true;
+  password.jq['edittype']='password';  
+  password.jq['editrules']={edithidden:true};
+  password.jq['formoptions']={};//{elmsuffix:'<font color=red>*</font>'};
+  
   <c:forEach var="localeEntry" items="${locales}">     
-  locale.jq['editoptions']['value']['${localeEntry.key}']='${localeEntry.value}';
-</c:forEach>
+  	locale.jq['editoptions']['value']['${localeEntry.key}']='${localeEntry.value}';
+  </c:forEach>
 
   
   //adjust fieldsName.jq.* properties hear to alter default look
@@ -98,7 +123,7 @@ html, body {
 	  	var formoptions=required?{elmsuffix:'<font color=red>*</font>'}:{};
 	  
 	  	colModel.push(
-	  			{name:_field_name, width:80, align:'right',hidden:true,editable:true,editrules:{edithidden:true,custom:true,custom_func:_validate_required},formoptions:formoptions,editoptions:{size:10}}
+	  			{name:_field_name, width:80, align:'right',hidden:true,editable:true,editrules:{edithidden:true,custom:true,custom_func:_validate_required},formoptions:formoptions,editoptions:{size:20}}
 	  	);
 	  	
 	  	colErrors.push(_wasp_prop['error']);
@@ -110,7 +135,7 @@ html, body {
 	};
 	
   _del_function = function (id) {
-	   alert("Deleting users is not allowed. Use 'edit' button to mark user '"+$("#grid_id").getRowData(id).login+"' as inactive.");
+	   alert("User cannot be deleted once created. Instead, use the 'edit' button to mark the '"+$("#grid_id").getRowData(id).login+"' user as inactive.");
 	   return false;
 	};	
   
@@ -128,8 +153,7 @@ $(function(){
     sortname: 'login',
     sortorder: 'desc',
     viewrecords: true,
-    gridview: true,
-	caption: '',
+    gridview: true,	
     autowidth: true,
 	loadui: 'block',
 	scroll: true,
@@ -140,11 +164,13 @@ $(function(){
     	$("#grid_id").jqGrid('editGridRow',rowid,{errorTextFormat:_errorTextFormat,closeAfterEdit:true,closeOnEscape:true});
    }
   }).navGrid('#gridpager',{view:true, del:true,delfunc:_del_function}, 
-		  {closeAfterEdit:true,closeOnEscape:true,errorTextFormat:_errorTextFormat}, // use default settings for edit
-		  {closeAfterEdit:true,closeOnEscape:true,errorTextFormat:_errorTextFormat}, // use default settings for add
-		  {},  // delete instead that del:false we need this
-		  {multipleSearch : true}, // enable the advanced searching
-		  {closeAfterEdit:true,closeOnEscape:true,errorTextFormat:_errorTextFormat} /* allow the view dialog to be closed when user press ESC key*/
+		  {closeAfterEdit:true,closeOnEscape:true,errorTextFormat:_errorTextFormat}, // edit
+		  {serializeEditData: function(data){ 
+			    return $.param($.extend({}, data, {id:0}));
+		  },closeAfterAdd:true,closeOnEscape:true,errorTextFormat:_errorTextFormat}, // add
+		  {},  // delete
+		  {drag:true,resize:true,modal:true,caption:'Lookup Users',closeOnEscape:true,sopt:['eq','ne']}, //search
+		  {} /* allow the view dialog to be closed when user press ESC key*/
 		  );
 
 }); 

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -14,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,11 +96,6 @@ public class UserController extends WaspController {
 	@RequestMapping("/list")
 	@PreAuthorize("hasRole('god')")
 	public String list(ModelMap m) {
-		//List<User> userList = this.userService.findAll();
-
-		//m.addAttribute(AREA.name(), userList);
-
-		List<MetaBase> aa=MetaUtil.getMasterList(MetaBase.class, AREA);
 		
 		ObjectMapper mapper = new ObjectMapper();
 		
@@ -136,13 +133,34 @@ public class UserController extends WaspController {
 		//result
 		Map <String, Object> jqgrid = new HashMap<String, Object>();
 		
-		List<User> userList = this.userService.findAll();
+		
+		List<User> userList;
+		
+		if (request.getParameter("_search")==null || StringUtils.isEmpty(request.getParameter("searchString"))) {
+			userList = this.userService.findAll();
+		} else {
+			
+			  Map<String, String> m = new HashMap<String, String>();
+			  
+			  m.put(request.getParameter("searchField"), request.getParameter("searchString"));
+			  				  
+			  userList = this.userService.findByMap(m);
+			  
+			  if ("ne".equals(request.getParameter("searchOper"))) {
+				  List<User> allUsers=new ArrayList<User>(this.userService.findAll());
+				  for(Iterator<User> it=userList.iterator();it.hasNext();)  {
+					  User excludeUser=it.next();
+					  allUsers.remove(excludeUser);
+				  }
+				  userList=allUsers;
+			  }
+		}
 
     	ObjectMapper mapper = new ObjectMapper();
 		
 		 try {
 			 //String users = mapper.writeValueAsString(userList);
-					 jqgrid.put("page","1");
+			 jqgrid.put("page","1");
 			 jqgrid.put("records",userList.size()+"");
 			 jqgrid.put("total",userList.size()+"");
 			 
@@ -159,6 +177,7 @@ public class UserController extends WaspController {
 				 
 				 List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 							user.getLogin(),
+							"",//password - always empty
 							user.getFirstName(),
 							user.getLastName(),						
 							user.getEmail(),
@@ -410,8 +429,7 @@ public class UserController extends WaspController {
 	
 	@RequestMapping(value = "/detail_rw/updateJSON.do", method = RequestMethod.POST)
 	@PreAuthorize("hasRole('god') or User.login == principal.name")
-	public String updateDetailJSON(@RequestParam("id") Integer userId,
-			@Valid User userForm, BindingResult result, SessionStatus status,ModelMap m, HttpServletResponse response) {
+	public String updateDetailJSON(@RequestParam("id") Integer userId,User userForm, ModelMap m, HttpServletResponse response) {
 
 		if ( userService.loginExists(userForm.getLogin(), userId)) {
 						
@@ -428,62 +446,49 @@ public class UserController extends WaspController {
 		List<Usermeta> usermetaList = MetaUtil.getMetaFromForm(request,
 				AREA, Usermeta.class);
 
-		for (Usermeta meta : usermetaList) {
-			meta.setUserId(userId);
-		}
 
 		MetaUtil.setAttributesAndSort(usermetaList, AREA);
 		
 		userForm.setUsermeta(usermetaList);
 
-		List<String> validateList = new ArrayList<String>();
-
-		/*
-		for (Usermeta meta : usermetaList) {
-			if (meta.getProperty() != null
-					&& meta.getProperty().getConstraint() != null) {
-				validateList.add(meta.getK());
-				validateList.add(meta.getProperty().getConstraint());
-			}
-		}
-
-		MetaValidator validator = new MetaValidator(
-				validateList.toArray(new String[] {}));
-
-		validator.validate(usermetaList, result, AREA);
-
-		if (result.hasErrors()) {
-			userForm.setUserId(userId);
-			prepareSelectListData(m);
-			MessageTag.addMessage(request.getSession(), "user.updated.error");
-			return "user/detail_rw";
-		}
-		 */
-		
-		User userDb = this.userService.getById(userId);
-		userDb.setFirstName(userForm.getFirstName());
-		userDb.setLastName(userForm.getLastName());
-		if (userForm.getPassword()!=null && !userForm.getPassword().trim().isEmpty()) {
+		if (userId==0) {
 			PasswordEncoder encoder = new ShaPasswordEncoder();
 			String hashedPass = encoder.encodePassword(userForm.getPassword(), null);
 			userForm.setPassword(hashedPass);
-		}
-		userDb.setEmail(userForm.getEmail());
-		userDb.setLocale(userForm.getLocale());
-		userDb.setIsActive(userForm.getIsActive());
-		userDb.setLogin(userForm.getLogin());
-		
-		userDb.setLastUpdTs(new Date());
+			userForm.setLastUpdTs(new Date());
+			userForm.setIsActive(1);
+			
+			User userDb = this.userService.save(userForm);
+			
+			userId=userDb.getUserId();
+		} else {
+			User userDb = this.userService.getById(userId);
+			userDb.setFirstName(userForm.getFirstName());
+			userDb.setLastName(userForm.getLastName());
+			if (userForm.getPassword()!=null && !userForm.getPassword().trim().isEmpty()) {
+				PasswordEncoder encoder = new ShaPasswordEncoder();
+				String hashedPass = encoder.encodePassword(userForm.getPassword(), null);
+				userForm.setPassword(hashedPass);
+			}
+			userDb.setEmail(userForm.getEmail());
+			userDb.setLocale(userForm.getLocale());
+			userDb.setIsActive(userForm.getIsActive());
+			userDb.setLogin(userForm.getLogin());
+			userDb.setLastUpdTs(new Date());
 
-		this.userService.merge(userDb);
+			this.userService.merge(userDb);
+		}
+
+
+		for (Usermeta meta : usermetaList) {
+			meta.setUserId(userId);
+		}
 
 		usermetaService.updateByUserId(userId, usermetaList);
 
 		MimeMessageHelper a;
 		
-		status.setComplete();
-
-		MessageTag.addMessage(request.getSession(), "user.updated.success");
+		//MessageTag.addMessage(request.getSession(), "user.updated.success");
 		
 		//emailService.sendNewPassword(userDb, "new pass");
 		

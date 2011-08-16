@@ -93,6 +93,7 @@ public class JQFieldTag extends BodyTagSupport {
 		 		"	name:'"+name+"', \n"+
 				"	width:80, \n"+
 				"	align:'center',\n"+
+				"	sortable:false,\n"+				
 				"	sorttype:'text',\n"+		
 				"	editable:true,\n"+
 				(required?"	editrules:{custom:true,custom_func:_validate_required},formoptions:{elmsuffix:'<font color=red>*</font>'},":"")+"\n"+

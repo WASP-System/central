@@ -269,5 +269,38 @@ public class User extends WaspModel {
     return this.locale;
    
   }
+@Override
+public int hashCode() {
+	final int prime = 31;
+	int result = 1;
+	result = prime * result + UserId;
+	return result;
+}
+@Override
+public boolean equals(Object obj) {
+	if (this == obj)
+		return true;
+	if (obj == null)
+		return false;
+	if (getClass() != obj.getClass())
+		return false;
+	User other = (User) obj;
+	if (UserId != other.UserId)
+		return false;
+	return true;
+}
+@Override
+public String toString() {
+	return "User [UserId=" + UserId + ", login=" + login + ", email=" + email
+			+ ", password=" + password + ", firstName=" + firstName
+			+ ", lastName=" + lastName + ", isActive=" + isActive
+			+ ", lastUpdTs=" + lastUpdTs + ", lastUpdUser=" + lastUpdUser
+			+ ", usermeta=" + usermeta + ", departmentUser=" + departmentUser
+			+ ", lab=" + lab + ", job=" + job + ", sample=" + sample
+			+ ", acctQuote=" + acctQuote + ", acctQuoteUser=" + acctQuoteUser
+			+ ", locale=" + locale + "]";
+}
+  
+  
   
 }
