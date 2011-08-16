@@ -8,19 +8,18 @@
  *
  *
  **/
-
+ 
 package edu.yu.einstein.wasp.dao.impl;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceException;
-import javax.persistence.Query;
 
-import java.util.List;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.springframework.stereotype.Repository;
 import org.springframework.orm.jpa.JpaCallback;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.User;
@@ -75,6 +74,26 @@ public class UserDaoImpl extends WaspDaoImpl<User> implements edu.yu.einstein.wa
     }
     return (User) results.get(0);
   }
+  
+  public boolean loginExists(final String login, final Integer excludeUserId) {
+
+	    return (Boolean)getJpaTemplate().execute(new JpaCallback() {
+
+	      public Boolean doInJpa(EntityManager em) throws PersistenceException {
+	    	  
+	    	if (excludeUserId==null) {
+	    		 List l = em.createNativeQuery("select 1 from user where login=:login").setParameter("login", login).getResultList();
+	    		 return !l.isEmpty();
+	    	}
+	    	
+	    	 List l = em.createNativeQuery("select 1 from user where login=:login and userId!=:userId")
+	    		 .setParameter("login", login)
+	    		 .setParameter("userId", excludeUserId)
+	    		 .getResultList();
+	    	 return !l.isEmpty();
+	    	}	      
+	    });
+	  }
 
 
 }

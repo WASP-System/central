@@ -11,11 +11,9 @@
 
 package edu.yu.einstein.wasp.dao;
 
-import javax.persistence.*;
 import java.util.List;
-import edu.yu.einstein.wasp.model.*;
 
-import org.springframework.stereotype.Repository;
+import edu.yu.einstein.wasp.model.Usermeta;
 
 
 public interface UsermetaDao extends WaspDao<Usermeta> {
@@ -25,6 +23,6 @@ public interface UsermetaDao extends WaspDao<Usermeta> {
   public Usermeta getUsermetaByKUserId (final String k, final int UserId);
 
   public void updateByUserId (final int UserId, final List<Usermeta> metaList);
-
+  
 }
 

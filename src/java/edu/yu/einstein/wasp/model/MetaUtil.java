@@ -36,10 +36,9 @@ public final class MetaUtil {
 			 for(T t:list) {
 				 
 				 MetaBase m=(MetaBase)t;
-				 
-				String name=m.getK();
+		
 				
-				String basename=name.substring(name.lastIndexOf(".")+1);
+				String basename=m.getK().substring(area.name().length()+1);
 				
 				//some old key we dont know about 
 				if (getValue(area,basename,"metaposition")==null) continue;
@@ -159,7 +158,7 @@ public final class MetaUtil {
 		  }
 	  
 	  
-	
+	 
 	  
 	  /*
 	   * updates "dbList" so it only contains fields found in "properties" file
@@ -243,16 +242,16 @@ public final class MetaUtil {
 		    for (Iterator iterator = parms.entrySet().iterator(); iterator.hasNext();)  {  
 		    	Map.Entry entry = (Map.Entry) iterator.next();
 		    	String key=(String)entry.getKey();
-		    	if (key.startsWith(area+"meta_")) {
+		    	if (key.startsWith(area+".")) {
 					  try {
 						  
 						   T obj=(T)clazz.newInstance();
 						   
 						   MetaBase meta=((MetaBase)obj);
 						   
-						   String name=key.substring((area+"meta_").length());
+						   String name=key.substring((area+".").length());
 						 	
-				    	   meta.setK(name);
+				    	   meta.setK(area+"."+name);//???
 				    	   meta.setV(((String[])entry.getValue())[0]);
 				    	   
 				    	   resultList.add(obj);	    		
@@ -266,5 +265,53 @@ public final class MetaUtil {
 		    
 		    return resultList;
 	  }
+	 
+
+	 public static final <T> List<T> getAttributes(Class<T> clazz,MetaAttribute.Area area, Locale locale) {
+		  
+		  ResourceBundle bundleEN=ResourceBundle.getBundle("messages",Locale.ENGLISH);
+		  
+		  ResourceBundle bundle=ResourceBundle.getBundle("messages",locale);		 
+		 
+		    List<T> list = new ArrayList<T>();   
+		  
+		    //get current list of meta properties to capture
+		    Set<String> set=getUniqueKeys(area);
+		    
+		    Enumeration<String> en=BASE_BUNDLE.getKeys();
+		    
+		    while(en.hasMoreElements()) {
+		    	String k = en.nextElement();
+		    	
+		    	if (!k.startsWith(area.name())) continue;
+		    	
+		    	String[] path=StringUtils.tokenizeToStringArray(k,".");
+		    	
+		    	String name=path[1];
+		    	
+		    	try {
+		    		T obj=(T)clazz.newInstance();
+				   
+		    		((MetaBase)obj).setK(area+"."+name);
+			  
+		    		list.add(obj);
+		    	  } catch (Throwable e) {
+					  throw new IllegalStateException("cant merge attributes ",e);
+				  }
+		    	
+		    	set.add(name);
+
+		    }
+		    
+		    for(String name:set) {
+		    	
+		    }
+		       
+
+		    //set property attributes and sort them according to "position"
+		    setAttributesAndSort(list,area);
+		    
+		    return list;
+	}
 	 
 }

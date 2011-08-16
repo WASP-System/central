@@ -25,6 +25,8 @@ public interface UserDao extends WaspDao<User> {
   public User getUserByLogin (final String login);
 
   public User getUserByEmail (final String email);
+  
+  boolean loginExists(final String login, final Integer excludeUserId);
 
 }
 

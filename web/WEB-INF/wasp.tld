@@ -6,8 +6,8 @@
 		Provides tags for WASP project
 	</description>
 	<display-name>WASP Tag Library - Messages</display-name>
-	<tlib-version>1.0</tlib-version>
-	<short-name>wasp</short-name>
+	<tlib-version>1.0</tlib-version>  
+	<short-name>wasp</short-name> 
 	<uri>http://einstein.yu.edu/wasp</uri>
 	<tag>
 		<description><![CDATA[
@@ -16,5 +16,23 @@
 		<name>message</name>
 		<tag-class>edu.yu.einstein.wasp.taglib.MessageTag</tag-class>
 		<body-content>JSP</body-content>
+	</tag>
+	<tag>
+		<description><![CDATA[
+            <p>Builds jqGrid-compatible JavaScript object to describe a field; </p>
+        ]]></description>
+		<name>field</name>
+		<tag-class>edu.yu.einstein.wasp.taglib.JQFieldTag</tag-class>
+		<body-content>JSP</body-content>
+		<attribute>
+			<name>name</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+			<name>object</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
 	</tag>
 </taglib>

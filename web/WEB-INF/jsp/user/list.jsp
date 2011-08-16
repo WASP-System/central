@@ -1,6 +1,7 @@
 <html>
 
-<head>
+<head> 
+<%@ include file="/WEB-INF/jsp/include.jsp" %>
  
   <link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/jquery/jquery-ui.css" />
   <link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/jquery/ui.jqgrid.css" />
@@ -15,8 +16,8 @@ html, body {
 	overflow: hidden;	/* Remove scroll bars on browser window */	
 
     font-size: 75%;
-
 }
+
  </style>	
   
   <script src="/wasp/scripts/jquery/jquery-1.6.2.js" type="text/javascript"></script>
@@ -24,32 +25,94 @@ html, body {
   <script src="/wasp/scripts/jqgrid/jquery.jqGrid.min.js" type="text/javascript"></script>
   
   <script type="text/javascript">
-  
-  var colNames=['Login','First Name','Last Name', 'Email','Locale','Active'];
-  var colModel=[ 
-                {name:'login', index:'login', width:80, align:'right',editable:false,editoptions:{readonly:true,size:10}},
-                {name:'firstName', width:100, align:'right',editable:true,editoptions:{size:20}}, 
-                {name:'lastName', width:100, align:'right',editable:true,editoptions:{size:20}},    
-                {name:'email',  width:255, align:'right',editable:true,editoptions:{size:100}},
-                {name:'isActive', width:70, align:'center',editable:false,editoptions:{readonly:true,size:10}},
-                {name:'locale', width:70, align:'center',hidden:true,editable:true,editrules:{required:true, edithidden:true},formoptions:{elmsuffix:'<font color=red>*</font>'},editoptions:{size:10}} 
-                      
-              ];
 
-  var _wasp_fields=${fieldsArr};
-  
+  $.jgrid.no_legacy_api = true;
 
-  for (key in _wasp_fields) {
-	  	var _wasp_field=_wasp_fields[key];
-	  	var _wasp_prop=_wasp_field['property'];
-	  	colNames.push(_wasp_prop['label']);
-	  	colModel.push(
-	  		    {name:_wasp_field['k'],  width:80, align:'right',editable:true,editoptions:{size:10}}
-	  	);
-	  	//document.write(p['label']+"</br>");  	  
+  $.jgrid.useJSON = true;
+
+  
+  function _noop(value, colname) {
+	  return [true,""];
   }
+  
+  function _validate_required(value, colname) {
+	 
+	  if (value)  
+	     return [true,""];
+	  else { 
+		
+		 var errIdx=colNames.indexOf(colname);
+		
+		 var errMsg=colErrors[errIdx];
+		
+	     return [false,errMsg];
+	  }
+   }
+ 
+  //these will be populated by the wasp:field tags below
+  var colNames=[];  
+  var colModel=[];  
+  var colErrors=[];
+  
+  <wasp:field name="login" object="user" />  
+  <wasp:field name="firstName" object="user" />
+  <wasp:field name="lastName" object="user" />
+  <wasp:field name="email" object="user" />
+  <wasp:field name="locale" object="user" />
+  <wasp:field name="isActive" object="user" />
 
   
+  isActive.jq['edittype']='checkbox';
+  isActive.jq['editoptions']={value:"1:0"}; 
+  isActive.jq['formatter']='checkbox';
+  isActive.jq['formatoptions']={disabled : true};
+  isActive.jq['align']='center';
+  
+  
+  locale.jq['edittype']='select';
+  locale.jq['editoptions']={value:{}};
+ 
+  <c:forEach var="localeEntry" items="${locales}">     
+  locale.jq['editoptions']['value']['${localeEntry.key}']='${localeEntry.value}';
+</c:forEach>
+
+  
+  //adjust fieldsName.jq.* properties hear to alter default look
+  //value:{1:'One',2:'Two'} 
+   //edittype:'checkbox', editoptions: { value:"True:False"}, 
+  //formatter: "checkbox", formatoptions: {disabled : false}
+  
+  //get meta fiel definitions from servlet
+  var _wasp_meta_fields=${fieldsArr};
+  
+  
+  //add to jqGrid definitions
+  for (key in _wasp_meta_fields) {
+	  	var _wasp_field=_wasp_meta_fields[key];
+	  	var _wasp_prop=_wasp_field['property'];
+	  	var _field_name=_wasp_field['k'];
+	  	
+	  	colNames.push(_wasp_prop['label']);
+	  	var constraint = _wasp_prop['constraint'];
+	  	var required=constraint=='NotEmpty';
+	  	var formoptions=required?{elmsuffix:'<font color=red>*</font>'}:{};
+	  
+	  	colModel.push(
+	  			{name:_field_name, width:80, align:'right',hidden:true,editable:true,editrules:{edithidden:true,custom:true,custom_func:_validate_required},formoptions:formoptions,editoptions:{size:10}}
+	  	);
+	  	
+	  	colErrors.push(_wasp_prop['error']);
+
+  }
+  
+  _errorTextFormat = function (data) {
+	   return data.responseText;
+	};
+	
+  _del_function = function (id) {
+	   alert("Deleting users is not allowed. Use 'edit' button to mark user '"+$("#grid_id").getRowData(id).login+"' as inactive.");
+	   return false;
+	};	
   
 $(function(){ 
   $("#grid_id").jqGrid({
@@ -60,7 +123,8 @@ $(function(){
     colNames:colNames,
     colModel : colModel,
     pager: '#gridpager',
-    rowNum:50,    
+    rowNum:100,    
+    rowList:[5,10,20],
     sortname: 'login',
     sortorder: 'desc',
     viewrecords: true,
@@ -70,29 +134,29 @@ $(function(){
 	loadui: 'block',
 	scroll: true,
 	emptyrecords: 'No users',
-	height: 300,
-
-	caption: "User List"
-  }).navGrid('#gridpager',{view:true, del:true}, 
-		  {}, // use default settings for edit
-		  {}, // use default settings for add
+	height: 'auto',
+	caption: "User List",
+    ondblClickRow: function(rowid) {
+    	$("#grid_id").jqGrid('editGridRow',rowid,{errorTextFormat:_errorTextFormat,closeAfterEdit:true,closeOnEscape:true});
+   }
+  }).navGrid('#gridpager',{view:true, del:true,delfunc:_del_function}, 
+		  {closeAfterEdit:true,closeOnEscape:true,errorTextFormat:_errorTextFormat}, // use default settings for edit
+		  {closeAfterEdit:true,closeOnEscape:true,errorTextFormat:_errorTextFormat}, // use default settings for add
 		  {},  // delete instead that del:false we need this
 		  {multipleSearch : true}, // enable the advanced searching
-		  {closeOnEscape:true} /* allow the view dialog to be closed when user press ESC key*/
+		  {closeAfterEdit:true,closeOnEscape:true,errorTextFormat:_errorTextFormat} /* allow the view dialog to be closed when user press ESC key*/
 		  );
 
 }); 
+
+
+
 </script>
   
 </head>
 <body>
-<%@ include file="/WEB-INF/jsp/include.jsp" %>
 
-<h1>User List</h1>
- <a href="/wasp/user/create/form.do">create</a>
- 
-</br>
- 
+
 <table id="grid_id"></table> 
 <div id="gridpager"></div>
 

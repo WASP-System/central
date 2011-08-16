@@ -5,10 +5,13 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.codehaus.jackson.map.ObjectMapper;
@@ -33,6 +36,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
+import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.MetaAttribute.Country;
@@ -90,10 +94,12 @@ public class UserController extends WaspController {
 	@RequestMapping("/list")
 	@PreAuthorize("hasRole('god')")
 	public String list(ModelMap m) {
-		List<User> userList = this.userService.findAll();
+		//List<User> userList = this.userService.findAll();
 
-		m.addAttribute(AREA.name(), userList);
+		//m.addAttribute(AREA.name(), userList);
 
+		List<MetaBase> aa=MetaUtil.getMasterList(MetaBase.class, AREA);
+		
 		ObjectMapper mapper = new ObjectMapper();
 		
 		 try {
@@ -102,7 +108,7 @@ public class UserController extends WaspController {
 		 } catch (Throwable e) {
 			 throw new IllegalStateException("Can't marshall to JSON "+FIELD_LIST,e);
 		 }
-		
+		 prepareSelectListData(m);
 		return "user/list";
 	}
 	
@@ -390,43 +396,35 @@ public class UserController extends WaspController {
 	}
 
 
+	private String getMessage(String key) {
+		Locale locale=(Locale)request.getSession().getAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
+		
+		if (locale==null) locale=Locale.ENGLISH;
+		
+		ResourceBundle bundle=ResourceBundle.getBundle("messages",locale);
+				
+		String message=(String)bundle.getObject(key);
+		
+		return message;
+	}
+	
 	@RequestMapping(value = "/detail_rw/updateJSON.do", method = RequestMethod.POST)
 	@PreAuthorize("hasRole('god') or User.login == principal.name")
 	public String updateDetailJSON(@RequestParam("id") Integer userId,
-			@Valid User userForm, BindingResult result, SessionStatus status,
-			ModelMap m) {
+			@Valid User userForm, BindingResult result, SessionStatus status,ModelMap m, HttpServletResponse response) {
 
-		/*
+		if ( userService.loginExists(userForm.getLogin(), userId)) {
+						
+			try {
+				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+				response.getWriter().println(getMessage("user.login.exists_error"));
+				return null;
+			} catch (Throwable e) {
+				throw new IllegalStateException("Cant output validation error "+getMessage("user.login.exists_error"),e);
+			}
 		
-		id->4
-		user.city->sha1
-		user.institution->sha1
-		user.phone->sha1
-		user.country->US
-		oper->edit
-		user.title->Mr
-		user.zip->sha1
-		user.fax->sha1
-		user.building_room->sha1
-		email->sha1@ddd.com
-		user.state->AL
-		locale->yes
-		user.department->sha1
-		user.address->sha1
-		firstName->sha1
-		lastName->sha1
-		Enumeration paraNames = request.getParameterNames();
-		
-	    String pname;
-	    String pvalue;
-	    while (paraNames.hasMoreElements()) {
-	      pname = (String)paraNames.nextElement();
-	      pvalue = request.getParameter(pname);
-	      System.err.println(pname+"->"+pvalue);
-	    }
-		*/
-		
-		
+		}
+				
 		List<Usermeta> usermetaList = MetaUtil.getMetaFromForm(request,
 				AREA, Usermeta.class);
 
@@ -440,6 +438,7 @@ public class UserController extends WaspController {
 
 		List<String> validateList = new ArrayList<String>();
 
+		/*
 		for (Usermeta meta : usermetaList) {
 			if (meta.getProperty() != null
 					&& meta.getProperty().getConstraint() != null) {
@@ -459,7 +458,8 @@ public class UserController extends WaspController {
 			MessageTag.addMessage(request.getSession(), "user.updated.error");
 			return "user/detail_rw";
 		}
-
+		 */
+		
 		User userDb = this.userService.getById(userId);
 		userDb.setFirstName(userForm.getFirstName());
 		userDb.setLastName(userForm.getLastName());
@@ -470,7 +470,9 @@ public class UserController extends WaspController {
 		}
 		userDb.setEmail(userForm.getEmail());
 		userDb.setLocale(userForm.getLocale());
-
+		userDb.setIsActive(userForm.getIsActive());
+		userDb.setLogin(userForm.getLogin());
+		
 		userDb.setLastUpdTs(new Date());
 
 		this.userService.merge(userDb);
@@ -485,7 +487,7 @@ public class UserController extends WaspController {
 		
 		//emailService.sendNewPassword(userDb, "new pass");
 		
-		return "redirect:" + userId + ".do";
+		return null;
 	
 	    
 	}

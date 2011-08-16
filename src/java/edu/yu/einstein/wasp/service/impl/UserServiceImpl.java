@@ -50,5 +50,9 @@ public class UserServiceImpl extends WaspServiceImpl<User> implements UserServic
   public User getUserByEmail (final String email) {
     return this.getUserDao().getUserByEmail(email);
   }
+  
+  public boolean loginExists(final String login, final Integer excludeUserId){
+	  return  this.getUserDao().loginExists(login, excludeUserId);
+  }
 }
 

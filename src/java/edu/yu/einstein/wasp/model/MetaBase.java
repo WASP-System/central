@@ -99,7 +99,7 @@ public class MetaBase extends WaspModel {
 	@Override
 	public String toString() {
 		return "MetaBase ["
-				+ ", k=" + k + ", v=" + v + ", position=" + position
+				+ "k=" + k + ", v=" + v + ", position=" + position
 				+ ", lastUpdTs=" + lastUpdTs + ", lastUpdUser=" + lastUpdUser
 				+ ", property=" + property + "]";
 	}

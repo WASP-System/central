@@ -18,6 +18,8 @@ user.email.error=Wrong email address format
 user.locale.label=Locale
 user.locale.error=Locale cannot be empty
 
+user.isActive.label=Активный?
+
 # -------------------------- dynamic user fields --------------------------
 
 # Fields that have "metaposition" property defined
