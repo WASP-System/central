@@ -87,7 +87,7 @@ insert into role values
 (10, 'jv', 'Job Viewer', 'job'), -- jobuser, explicit
 (11, 'god', 'God', 'system'),
 (12, 'lx', 'Lab Member Inactive', 'lab'), -- labuser, explicit
-(13, 'lx', 'Lab Member Pending', 'lab'); -- labuser, explicit
+(13, 'lp', 'Lab Member Pending', 'lab'); -- labuser, explicit
 
 
 create table roleset (
