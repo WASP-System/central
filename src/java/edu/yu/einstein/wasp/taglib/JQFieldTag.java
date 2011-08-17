@@ -76,17 +76,17 @@ public class JQFieldTag extends BodyTagSupport {
 		boolean required=clazz.getDeclaredField(name).getAnnotation(org.hibernate.validator.constraints.NotEmpty.class)==null?false:true;
 			
 
-		String error="";
+		String error="error:'',\n";
 		
 		try {
-			error="error:'"+bundle.getObject("user."+name+".error")+"',\n";
+			error="error:'"+bundle.getObject(area+"."+name+".error")+"',\n";
 		} catch (Throwable e) {
 			 
 		}
 		
 		String buf="var "+name+"={\n"+
 		 "name:'"+name+"',\n"+
-		 "label:'"+bundle.getObject("user."+name+".label")+"',\n"+
+		 "label:'"+bundle.getObject(area+"."+name+".label")+"',\n"+
 	     "required:"+required+",\n"+
 	     error+
 	     "jq:{\n"+

@@ -14,7 +14,6 @@ package edu.yu.einstein.wasp.model;
 import java.util.Date;
 import java.util.List;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -24,8 +23,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -94,6 +93,8 @@ public class Lab extends WaspModel {
   public void setLastUpdTs (Date lastUpdTs) {
     this.lastUpdTs = lastUpdTs;
   }
+  
+  @JsonIgnore 
   public Date getLastUpdTs () {
     return this.lastUpdTs;
   }
@@ -104,6 +105,8 @@ public class Lab extends WaspModel {
   public void setLastUpdUser (int lastUpdUser) {
     this.lastUpdUser = lastUpdUser;
   }
+  
+  @JsonIgnore 
   public int getLastUpdUser () {
     return this.lastUpdUser;
   }
@@ -118,6 +121,8 @@ public class Lab extends WaspModel {
     this.department = department;
     this.departmentId = department.departmentId;
   }
+  
+  @JsonIgnore 
   public Department getDepartment () {
     return this.department;
   }
@@ -130,6 +135,8 @@ public class Lab extends WaspModel {
     this.user = user;
     this.primaryUserId = user.UserId;
   }
+  
+  @JsonIgnore 
   public User getUser () {
     return this.user;
   }
@@ -137,6 +144,8 @@ public class Lab extends WaspModel {
   @OneToMany
    @JoinColumn(name="labid", insertable=false, updatable=false)
   protected List<Labmeta> labmeta;
+  
+  @JsonIgnore 
   public List<Labmeta> getLabmeta()  {
     return this.labmeta;
   }
@@ -149,6 +158,8 @@ public class Lab extends WaspModel {
   @OneToMany
    @JoinColumn(name="labid", insertable=false, updatable=false)
   protected List<LabUser> labUser;
+  
+  @JsonIgnore 
   public List<LabUser> getLabUser()  {
     return this.labUser;
   }
@@ -161,6 +172,8 @@ public class Lab extends WaspModel {
   @OneToMany
    @JoinColumn(name="labid", insertable=false, updatable=false)
   protected List<Job> job;
+  
+  @JsonIgnore 
   public List<Job> getJob()  {
     return this.job;
   }
@@ -173,6 +186,8 @@ public class Lab extends WaspModel {
   @OneToMany
    @JoinColumn(name="labid", insertable=false, updatable=false)
   protected List<Project> project;
+  
+  @JsonIgnore 
   public List<Project> getProject()  {
     return this.project;
   }
@@ -185,6 +200,8 @@ public class Lab extends WaspModel {
   @OneToMany
    @JoinColumn(name="submitter_labid", insertable=false, updatable=false)
   protected List<Sample> sample;
+  
+  @JsonIgnore 
   public List<Sample> getSample()  {
     return this.sample;
   }
@@ -197,6 +214,8 @@ public class Lab extends WaspModel {
   @OneToMany
    @JoinColumn(name="labid", insertable=false, updatable=false)
   protected List<SampleLab> sampleLab;
+  
+  @JsonIgnore 
   public List<SampleLab> getSampleLab()  {
     return this.sampleLab;
   }
@@ -209,6 +228,8 @@ public class Lab extends WaspModel {
   @OneToMany
    @JoinColumn(name="labid", insertable=false, updatable=false)
   protected List<AcctGrant> acctGrant;
+  
+  @JsonIgnore 
   public List<AcctGrant> getAcctGrant()  {
     return this.acctGrant;
   }

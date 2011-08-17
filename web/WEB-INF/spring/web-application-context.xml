@@ -70,12 +70,16 @@
 
   <mvc:annotation-driven /> 
 
-  <bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+  <!-- bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">  
     <property name="viewClass" value="org.springframework.web.servlet.view.JstlView" />
     <property name="prefix" value="/WEB-INF/jsp/" />
     <property name="suffix" value=".jsp" />
-    <property name="contentType" value="text/html;charset=UTF-8" />        
-  </bean>
+    <property name="contentType" value="text/html;charset=UTF-8" />           
+  </bean-->
+
+<bean id="viewResolver" class="org.springframework.web.servlet.view.UrlBasedViewResolver">
+  <property name="viewClass" value="org.springframework.web.servlet.view.tiles2.TilesView"/>
+</bean>
 
 
   <!-- locale -->
@@ -127,14 +131,16 @@
       </property>
    </bean>
 
+   <!-- Import Tiles-related configuration -->
+   <import resource="tiles-context.xml" />
 
-<bean id="jacksonMessageConverter" class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter"></bean>
+   <bean id="jacksonMessageConverter" class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter"></bean>
 
- <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
-<property name="messageConverters">
-  <list>
-    <ref bean="jacksonMessageConverter"/>
-  </list>
-</property>
+    <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
+    <property name="messageConverters">
+    <list>
+       <ref bean="jacksonMessageConverter"/>
+    </list>
+  </property>
 </bean> 
 </beans>

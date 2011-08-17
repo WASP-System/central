@@ -106,7 +106,7 @@ public class UserController extends WaspController {
 			 throw new IllegalStateException("Can't marshall to JSON "+FIELD_LIST,e);
 		 }
 		 prepareSelectListData(m);
-		return "user/list";
+		 return "user-list";
 	}
 	
 	@RequestMapping(value="/testJSON", method=RequestMethod.GET)	

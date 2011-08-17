@@ -63,5 +63,15 @@
 	<classpathentry kind="lib" path="C:/apps/tomcat_f/lib/servlet-api.jar"/>
 	<classpathentry kind="lib" path="web/WEB-INF/lib/jackson-core-asl-1.8.5.jar"/>
 	<classpathentry kind="lib" path="web/WEB-INF/lib/jackson-mapper-lgpl-1.8.5.jar"/>
+	<classpathentry kind="lib" path="web/WEB-INF/lib/commons-beanutils-1.8.0.jar"/>
+	<classpathentry kind="lib" path="web/WEB-INF/lib/commons-digester-2.0.jar"/>
+	<classpathentry kind="lib" path="web/WEB-INF/lib/tiles-api-2.2.2.jar"/>
+	<classpathentry kind="lib" path="web/WEB-INF/lib/tiles-compat-2.2.2.jar"/>
+	<classpathentry kind="lib" path="web/WEB-INF/lib/tiles-core-2.2.2.jar"/>
+	<classpathentry kind="lib" path="web/WEB-INF/lib/tiles-el-2.2.2.jar"/>
+	<classpathentry kind="lib" path="web/WEB-INF/lib/tiles-jsp-2.2.2.jar"/>
+	<classpathentry kind="lib" path="web/WEB-INF/lib/tiles-servlet-2.2.2.jar"/>
+	<classpathentry kind="lib" path="web/WEB-INF/lib/tiles-servlet-wildcard-2.2.2.jar"/>
+	<classpathentry kind="lib" path="web/WEB-INF/lib/tiles-template-2.2.2.jar"/>
 	<classpathentry kind="output" path="web/WEB-INF/classes"/>
 </classpath>

@@ -83,7 +83,6 @@ user.fax.metaposition=10
 # -------------------------- static lab fields --------------------------
 
 lab.name.label=Lab Name
-lab.name.constraint=NotEmpty
 lab.name.error=Lab Name cannot be empty
 
 lab.primaryUserId.label=Primary User
@@ -91,8 +90,8 @@ lab.primaryUserId.error=Please select Primary User
 
 lab.departmentId.label=Department
 lab.departmentId.error=Please select department
-lab.departmentId.constraint=NotEmpty
 
+lab.isActive.label=Active
 # -------------------------- dynamic lab fields --------------------------
 lab.internal_external_lab.label=External/Internal
 lab.internal_external_lab.error=Please specify lab type (External/Internal)
@@ -114,10 +113,10 @@ lab.billing_billing_dept_name.metaposition=40
 lab.billing_contact_name.label=Billing Contact Name
 lab.billing_contact_name.metaposition=50
 
-lab.billing_institution_name.label=Billing Institution Name
+lab.billing_institution_name.label=Billing Inst. Name
 lab.billing_institution_name.metaposition=60
 
-lab.billing_building_room.label=Billing Building Room
+lab.billing_building_room.label=Billing Bld. Room
 lab.billing_building_room.metaposition=70
 
 lab.billing_address.label=Billing Address
@@ -143,12 +142,11 @@ lab.billing_email.metaposition=120
 lab.billing_phone.label=Billing Phone
 lab.billing_phone.metaposition=130
 
-lab.research_center_name.label=Research Center Name
+lab.research_center_name.label=RS Name
 lab.research_center_name.metaposition=130
 
-lab.researchcenter_user_list_location.label=Research Center Name User List Location
+lab.researchcenter_user_list_location.label=RS User URL
 lab.researchcenter_user_list_location.metaposition=140
-
 
 
 --------------------------- feedback messages ----------------------------
