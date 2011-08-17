@@ -37,6 +37,7 @@ html, body {
   
   function _validate_required(value, colname) {
 	 
+	  
 	  if (value)  
 	     return [true,""];
 	  else { 
@@ -100,13 +101,7 @@ html, body {
   <c:forEach var="localeEntry" items="${locales}">     
   	locale.jq['editoptions']['value']['${localeEntry.key}']='${localeEntry.value}';
   </c:forEach>
-
-  
-  //adjust fieldsName.jq.* properties hear to alter default look
-  //value:{1:'One',2:'Two'} 
-   //edittype:'checkbox', editoptions: { value:"True:False"}, 
-  //formatter: "checkbox", formatoptions: {disabled : false}
-  
+    
   //get meta fiel definitions from servlet
   var _wasp_meta_fields=${fieldsArr};
   
@@ -120,24 +115,74 @@ html, body {
 	  	colNames.push(_wasp_prop['label']);
 	  	var constraint = _wasp_prop['constraint'];
 	  	var required=constraint=='NotEmpty';
-	  	var formoptions=required?{elmsuffix:'<font color=red>*</font>'}:{};
+	  
+	  	var editrules={edithidden:true};
+	  	var formoptions={};
+	  	if (required) {
+	  		formoptions={elmsuffix:'<font color=red>*</font>'};
+	  		editrules={edithidden:true,custom:true,custom_func:_validate_required};	
+	  	}
+	  	
 	  
 	  	colModel.push(
-	  			{name:_field_name, width:80, align:'right',hidden:true,editable:true,editrules:{edithidden:true,custom:true,custom_func:_validate_required},formoptions:formoptions,editoptions:{size:20}}
+	  			{name:_field_name, width:80, align:'right',hidden:true,editable:true,editrules:editrules,formoptions:formoptions,editoptions:{size:20}}
 	  	);
 	  	
 	  	colErrors.push(_wasp_prop['error']);
 
   }
   
-  _errorTextFormat = function (data) {
-	   return data.responseText;
-	};
-	
+ 
   _del_function = function (id) {
 	   alert("User cannot be deleted once created. Instead, use the 'edit' button to mark the '"+$("#grid_id").getRowData(id).login+"' user as inactive.");
 	   return false;
 	};	
+	
+	
+	_errorTextFormat = function(response) {
+		return response.responseText;
+	}
+
+	
+   _afterSubmit = function(response, data) {
+	
+	   var myInfo = '<div class="ui-state-highlight ui-corner-all">'+
+
+       '<span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>' +
+
+       '<strong>Status:</strong> ' +
+
+       response.responseText +
+
+       '</div>';
+       
+       grid = $("#grid_id");
+
+       var infoTR = $("table#TblGrid_"+grid[0].id+">tbody>tr.tinfo"); 
+
+       var infoTD = infoTR.children("td.topinfo");
+       
+       infoTD.html(myInfo);
+       
+       infoTR.show();
+       
+       setTimeout(function() {
+
+   		    infoTD.children("div").fadeOut('slow',
+
+     		function() {       		
+       			infoTR.hide();
+   			});
+   		},5000);
+       
+
+       //reload grid
+       grid.trigger("reloadGrid");
+
+  	   return [false,''];
+       
+   }
+
   
 $(function(){ 
   $("#grid_id").jqGrid({
@@ -161,10 +206,10 @@ $(function(){
 	height: 'auto',
 	caption: "User List",
     ondblClickRow: function(rowid) {
-    	$("#grid_id").jqGrid('editGridRow',rowid,{errorTextFormat:_errorTextFormat,closeAfterEdit:true,closeOnEscape:true});
+    	$("#grid_id").jqGrid('editGridRow',rowid,{closeAfterEdit:false,closeOnEscape:true,afterSubmit:_afterSubmit,errorTextFormat:_errorTextFormat});
    }
   }).navGrid('#gridpager',{view:true, del:true,delfunc:_del_function}, 
-		  {closeAfterEdit:true,closeOnEscape:true,errorTextFormat:_errorTextFormat}, // edit
+		  {closeAfterEdit:false,closeOnEscape:true,afterSubmit:_afterSubmit,errorTextFormat:_errorTextFormat}, // edit
 		  {serializeEditData: function(data){ 
 			    return $.param($.extend({}, data, {id:0}));
 		  },closeAfterAdd:true,closeOnEscape:true,errorTextFormat:_errorTextFormat}, // add

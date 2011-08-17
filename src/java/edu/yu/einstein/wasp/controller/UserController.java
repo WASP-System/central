@@ -492,7 +492,12 @@ public class UserController extends WaspController {
 		
 		//emailService.sendNewPassword(userDb, "new pass");
 		
-		return null;
+		try {
+			response.getWriter().println(getMessage("user.updated.success"));
+			return null;
+		} catch (Throwable e) {
+			throw new IllegalStateException("Cant output success message ",e);
+		}
 	
 	    
 	}
