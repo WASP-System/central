@@ -164,3 +164,15 @@ user.created.error=User was NOT created. Please fill in required fields.
 
 
 auth.forgotpassword.bad.username = User does not exist
+
+--------------------------- lab user request ----------------------------
+
+labuser.request.title=Request Access To Lab
+labuser.request.primaryuser.label=Primary User
+labuser.request.primaryuser.error=Invalid Primary User
+labuser.request.submit.label=Request Access
+labuser.request.success=Your request for access has been submitted.
+labuser.request.alreadypending.error=Could not request for access to that Lab.
+labuser.request.alreadyaccess.error=Could not request for access to that Lab.
+
+hello.error=Hello World
