@@ -31,7 +31,7 @@
         <div>
           <div>TODO LABNAME</div>
           <div><a href="<c:url value="/lab/detail_ro/${labId}.do"/>">View</a></div>
-          <sec:authorize access="hasRole('lm-*')">
+          <sec:authorize access="hasRole('lm-${labId} )">
             <div><a href="<c:url value="/lab/pendinguser/list/${labId}.do"/>">Pending User Approval</a></div>
             <div><a href="<c:url value="/lab/user/${labId}.do"/>">User Manager</a></div>
             <div><a href="<c:url value="/task/lmapproval/list/${labId}.do"/>">Pending Lab Manager Job Approval</a></div>
