@@ -102,6 +102,19 @@ public class EmailServiceImpl implements EmailService {
 		};
 		this.mailSender.send(preparator);
 	}
+
+	public void sendForgotPassword(final User user, final String authcode) {
+		MimeMessagePreparator preparator = new MimeMessagePreparator() {
+			public void prepare(MimeMessage mimeMessage) throws Exception {
+				Map model = new HashMap();
+				model.put("user", user);
+				model.put("authcode", authcode);
+				
+				generateMessage(user, "emails/forgot_password", model, mimeMessage); 
+			}
+		};
+		this.mailSender.send(preparator);
+	}
 	   
 	public void sendNewPassword(final User user, final String password) {
 		MimeMessagePreparator preparator = new MimeMessagePreparator() {

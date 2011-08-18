@@ -23,5 +23,7 @@ public interface EmailService  {
 
   void sendPendingLabUser(LabUser labUser);
 
+  void sendForgotPassword(User user, String authcode);
+
 }
 
