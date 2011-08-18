@@ -58,6 +58,7 @@
     <class>edu.yu.einstein.wasp.model.TypeSample</class>
     <class>edu.yu.einstein.wasp.model.User</class>
     <class>edu.yu.einstein.wasp.model.Usermeta</class>
+    <class>edu.yu.einstein.wasp.model.Userpasswordauth</class>
     <class>edu.yu.einstein.wasp.model.Userrole</class>
     <class>edu.yu.einstein.wasp.model.Workflow</class>
     <class>edu.yu.einstein.wasp.model.Workflowmeta</class>
