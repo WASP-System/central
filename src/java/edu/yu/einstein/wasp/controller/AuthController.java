@@ -24,23 +24,28 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.security.access.prepost.*;
 
 import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.model.Userpasswordauth;
 import edu.yu.einstein.wasp.model.Department;
 import edu.yu.einstein.wasp.service.UserService;
+import edu.yu.einstein.wasp.service.UserpasswordauthService;
 import edu.yu.einstein.wasp.service.DepartmentService;
+import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.taglib.MessageTag;
 
-
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserCache;
 import org.springframework.security.core.userdetails.cache.NullUserCache;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
 
-
+import org.springframework.security.authentication.encoding.PasswordEncoder;
+import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 
 @Controller
+@Transactional
 @RequestMapping("/auth")
-public class AuthController {
+public class AuthController extends WaspController {
 
   private static final ResourceBundle BASE_BUNDLE=ResourceBundle.getBundle("messages", Locale.ENGLISH);
 
@@ -51,7 +56,13 @@ public class AuthController {
   private UserService userService;
 
   @Autowired
+  private UserpasswordauthService userpasswordauthService;
+
+  @Autowired
   private DepartmentService departmentService;
+
+  @Autowired
+  private EmailService emailService;
 
   @Autowired
   HttpServletRequest request;
@@ -65,28 +76,43 @@ public class AuthController {
   @RequestMapping(value="/forgotpassword", method=RequestMethod.POST)
   public String forgotPassword(@RequestParam("j_username") String username, ModelMap m) {
 
-    // - check if user exists
-    // - email user 
 	  User user=userService.getUserByLogin(username);
 	  
 	  if (user==null || user.getUserId()==0)  {
-		  MessageTag.addMessage(request.getSession(), "auth.forgotpassword.bad.username");
+		  MessageTag.addMessage(request.getSession(), "auth.forgotpassword.error.username");
 		  return "auth/forgotpassword/form";
 	  }
+
+// TODO generate table w/ good authcode	
+	String authcode = user.getEmail();
+
+	Userpasswordauth oldUserpasswordauth = userpasswordauthService.getUserpasswordauthByUserId(user.getUserId());
+	if (oldUserpasswordauth.getUserId() != 0) {
+		// userpasswordauthService.remove(oldUserpasswordauth);
+	}
+
+	// Userpasswordauth userpasswordauth = new Userpasswordauth();
+	Userpasswordauth userpasswordauth = userpasswordauthService.getUserpasswordauthByUserId(user.getUserId());
+
+	userpasswordauth.setUserId(user.getUserId());
+	userpasswordauth.setAuthcode(authcode);
+
+	userpasswordauthService.persist(userpasswordauth);
+
+	emailService.sendForgotPassword(user, authcode);
 	  
-	  
-	//TODO: reset pass and email it to user  
     return "auth/forgotpassword/email";
   }
 
   @RequestMapping(value="/recoverpassword", method=RequestMethod.GET)
   public String showRecoverPasswordForm(
-        @RequestParam(required = false, value="j_username") String username, 
         @RequestParam(required = false, value="authcode") String authCode, 
         ModelMap m) {
     if (authCode == null || "".equals(authCode)) {
       return "auth/recoverpassword/authcodeform";
     }
+
+    m.put("authcode", authCode);
     return "auth/recoverpassword/form";
   }
 
@@ -100,6 +126,55 @@ public class AuthController {
     if (authCode == null || "".equals(authCode)) {
       return "auth/recoverpassword/authcodeform";
     }
+
+// TODO real error
+    if (username.equals("")) {
+       MessageTag.addMessage(request.getSession(), "hello.error");
+       m.put("authcode", authCode);
+       return "auth/recoverpassword/form";
+    }
+    if (password1.equals("") || password2.equals("") || ! password1.equals(password2)) {
+       MessageTag.addMessage(request.getSession(), "hello.error");
+       m.put("authcode", authCode);
+       return "auth/recoverpassword/form";
+    }
+
+    Userpasswordauth userpasswordauth   = userpasswordauthService.getUserpasswordauthByAuthcode(authCode);
+    User user = userService.getUserByLogin(username);
+
+    if (userpasswordauth.getUserId() == 0) {
+       MessageTag.addMessage(request.getSession(), "auth.recoverpassword.error.badauthcode");
+       m.put("authcode", authCode);
+       return "auth/recoverpassword/form";
+    }
+
+    // cannot find user
+    if (user.getUserId() == 0) {
+       m.put("authcode", authCode);
+
+       MessageTag.addMessage(request.getSession(), "hello.error");
+       return "auth/recoverpassword/form";
+    }
+
+    if (user.getUserId() != userpasswordauth.getUserId()) {
+      m.put("authcode", authCode);
+
+       MessageTag.addMessage(request.getSession(), "auth.recoverpassword.error.wronguser");
+       return "auth/recoverpassword/form";
+    }
+
+
+    PasswordEncoder encoder = new ShaPasswordEncoder();
+    String hashedPassword = encoder.encodePassword(password1, null);
+
+    user.setPassword(hashedPassword);
+    userService.merge(user);
+
+    // removes auth code from future use
+    userpasswordauthService.remove(userpasswordauth);
+
+    m.put("user", user); 
+
     return "auth/recoverpassword/ok";
   }
 
