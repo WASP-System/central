@@ -161,7 +161,6 @@ user.updated.error=User was NOT updated. Please fill in required fields.
 user.created.error=User was NOT created. Please fill in required fields.
 
 
-auth.forgotpassword.bad.username = User does not exist
 
 --------------------------- lab user request ----------------------------
 
@@ -173,4 +172,22 @@ labuser.request.success=Your request for access has been submitted.
 labuser.request.alreadypending.error=Could not request for access to that Lab.
 labuser.request.alreadyaccess.error=Could not request for access to that Lab.
 
+--------------------------- auth forgot password ----------------------------
+auth.forgotpassword.title=Forgot Password
+auth.forgotpassword.user.label=Username
+auth.forgotpassword.submit=Submit
+auth.forgotpassword.error.username = User does not exist
+
+--------------------------- auth recover password ----------------------------
+auth.recoverpassword.title=Recover Password
+auth.recoverpassword.user.label=Username
+auth.recoverpassword.password.label=Password
+auth.recoverpassword.password2.label=Again
+auth.recoverpassword.submit=Submit
+
+auth.recoverpassword.error.badauthcode=Bad Auth Code
+auth.recoverpassword.error.wronguser=User is not associate w/ that authcode
+
+
+--------------------------- auth forgot password ----------------------------
 hello.error=Hello World
