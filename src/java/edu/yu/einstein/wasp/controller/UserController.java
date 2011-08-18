@@ -82,7 +82,6 @@ public class UserController extends WaspController {
 
 	private static final MetaAttribute.Area AREA = MetaAttribute.Area.user;
 
-	private static List<MetaBase> FIELD_LIST=MetaUtil.getMasterList(MetaBase.class, AREA);
 	
 	private static final Map<String, String> LOCALES=new TreeMap<String, String>();
 	static {
@@ -97,6 +96,9 @@ public class UserController extends WaspController {
 	@PreAuthorize("hasRole('god')")
 	public String list(ModelMap m) {
 		
+		m.addAttribute("_metaList", MetaUtil.getMasterList(MetaBase.class, AREA, getBundle()));
+		m.addAttribute("_area", AREA.name());
+		/*
 		ObjectMapper mapper = new ObjectMapper();
 		
 		 try {
@@ -104,29 +106,12 @@ public class UserController extends WaspController {
 			 m.addAttribute("fieldsArr", json);
 		 } catch (Throwable e) {
 			 throw new IllegalStateException("Can't marshall to JSON "+FIELD_LIST,e);
-		 }
+		 }*/
 		 prepareSelectListData(m);
 		 return "user-list";
 	}
 	
-	@RequestMapping(value="/testJSON", method=RequestMethod.GET)	
-	public @JsonSerialize @ResponseBody String getTestJSON() {
-
-
-    	ObjectMapper mapper = new ObjectMapper();
-		
-		 try {
-			 
-			 String json=mapper.writeValueAsString(FIELD_LIST);
-			 Object o=FIELD_LIST;
-			 return json;
-		 } catch (Throwable e) {
-			 throw new IllegalStateException("Can't marshall to JSON ",e);
-		 }
 	
-	}
-	
-
 	@RequestMapping(value="/listJSON", method=RequestMethod.GET)	
 	public @ResponseBody String getListJSON() {
 	
@@ -173,7 +158,7 @@ public class UserController extends WaspController {
 				 
 				 List<Usermeta> usermeta=MetaUtil.syncWithMaster(user.getUsermeta(), AREA, Usermeta.class);
 				 					
-				 MetaUtil.setAttributesAndSort(usermeta, AREA);
+				 MetaUtil.setAttributesAndSort(usermeta, AREA,getBundle());
 				 
 				 List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 							user.getLogin(),
@@ -208,13 +193,217 @@ public class UserController extends WaspController {
 	}
 
 	
+	@RequestMapping(value = "/detail_rw/updateJSON.do", method = RequestMethod.POST)
+	@PreAuthorize("hasRole('god') or User.login == principal.name")
+	public String updateDetailJSON(@RequestParam("id") Integer userId,User userForm, ModelMap m, HttpServletResponse response) {
+
+		if ( userService.loginExists(userForm.getLogin(), userId)) {
+						
+			try {
+				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+				response.getWriter().println(getMessage("user.login.exists_error"));
+				return null;
+			} catch (Throwable e) {
+				throw new IllegalStateException("Cant output validation error "+getMessage("user.login.exists_error"),e);
+			}
+		
+		}
+				
+		List<Usermeta> usermetaList = MetaUtil.getMetaFromForm(request,
+				AREA, Usermeta.class);
+
+
+		MetaUtil.setAttributesAndSort(usermetaList, AREA,getBundle());
+		
+		userForm.setUsermeta(usermetaList);
+
+		if (userId==0) {
+			PasswordEncoder encoder = new ShaPasswordEncoder();
+			String hashedPass = encoder.encodePassword(userForm.getPassword(), null);
+			userForm.setPassword(hashedPass);
+			userForm.setLastUpdTs(new Date());
+			userForm.setIsActive(1);
+			
+			User userDb = this.userService.save(userForm);
+			
+			userId=userDb.getUserId();
+		} else {
+			User userDb = this.userService.getById(userId);
+			userDb.setFirstName(userForm.getFirstName());
+			userDb.setLastName(userForm.getLastName());
+			if (userForm.getPassword()!=null && !userForm.getPassword().trim().isEmpty()) {
+				PasswordEncoder encoder = new ShaPasswordEncoder();
+				String hashedPass = encoder.encodePassword(userForm.getPassword(), null);
+				userForm.setPassword(hashedPass);
+			} else {
+				userForm.setPassword(userDb.getPassword());
+			}
+			userDb.setEmail(userForm.getEmail());
+			userDb.setLocale(userForm.getLocale());
+			userDb.setIsActive(userForm.getIsActive());
+			userDb.setLogin(userForm.getLogin());
+			userDb.setLastUpdTs(new Date());
+			userDb.setPassword(userForm.getPassword());
+
+			this.userService.merge(userDb);
+		}
+
+
+		for (Usermeta meta : usermetaList) {
+			meta.setUserId(userId);
+		}
+
+		usermetaService.updateByUserId(userId, usermetaList);
+
+		MimeMessageHelper a;
+		
+		//MessageTag.addMessage(request.getSession(), "user.updated.success");
+		
+		//emailService.sendNewPassword(userDb, "new pass");
+		
+		try {
+			response.getWriter().println(getMessage("user.updated.success"));
+			return null;
+		} catch (Throwable e) {
+			throw new IllegalStateException("Cant output success message ",e);
+		}
+	
+	    
+	}
+	
+	
+	@RequestMapping(value = "/me.do", method = RequestMethod.GET)
+	public String myDetail(ModelMap m) {
+		User user = this.getAuthenticatedUser();		
+		return this.detailRW(user.getUserId(), m);
+	}
+
+	@RequestMapping(value = "/me.do", method = RequestMethod.POST)
+	public String updateDetail(@Valid User userForm, BindingResult result,
+			SessionStatus status, ModelMap m) {
+		User user = this.getAuthenticatedUser();		
+
+		updateDetail(user.getUserId(), userForm, result, status, m);
+
+		return "redirect:" + "me.do";
+	}
+	
+	@RequestMapping(value = "/detail_rw/{userId}.do", method = RequestMethod.POST)
+	@PreAuthorize("hasRole('god') or User.login == principal.name")
+	public String updateDetail(@PathVariable("userId") Integer userId,
+			@Valid User userForm, BindingResult result, SessionStatus status,
+			ModelMap m) {
+
+		List<Usermeta> usermetaList = MetaUtil.getMetaFromForm(request,
+				AREA, Usermeta.class);
+
+		for (Usermeta meta : usermetaList) {
+			meta.setUserId(userId);
+		}
+
+		MetaUtil.setAttributesAndSort(usermetaList, AREA,getBundle());
+		
+		userForm.setUsermeta(usermetaList);
+
+		List<String> validateList = new ArrayList<String>();
+
+		for (Usermeta meta : usermetaList) {
+			if (meta.getProperty() != null
+					&& meta.getProperty().getConstraint() != null) {
+				validateList.add(meta.getK());
+				validateList.add(meta.getProperty().getConstraint());
+			}
+		}
+
+		MetaValidator validator = new MetaValidator(
+				validateList.toArray(new String[] {}));
+
+		validator.validate(usermetaList, result, AREA);
+
+		if (result.hasErrors()) {
+			userForm.setUserId(userId);
+			prepareSelectListData(m);
+			MessageTag.addMessage(request.getSession(), "user.updated.error");
+			return "user/detail_rw";
+		}
+
+		User userDb = this.userService.getById(userId);
+		userDb.setFirstName(userForm.getFirstName());
+		userDb.setLastName(userForm.getLastName());
+		if (userForm.getPassword()!=null && !userForm.getPassword().trim().isEmpty()) {
+			PasswordEncoder encoder = new ShaPasswordEncoder();
+			String hashedPass = encoder.encodePassword(userForm.getPassword(), null);
+			userForm.setPassword(hashedPass);
+		}
+		userDb.setEmail(userForm.getEmail());
+		userDb.setLocale(userForm.getLocale());
+
+		userDb.setLastUpdTs(new Date());
+
+		this.userService.merge(userDb);
+
+		usermetaService.updateByUserId(userId, usermetaList);
+
+		MimeMessageHelper a;
+		
+		status.setComplete();
+
+		MessageTag.addMessage(request.getSession(), "user.updated.success");
+		
+		//emailService.sendNewPassword(userDb, "new pass");
+		
+		return "redirect:" + userId + ".do";
+	}
+
+
+	private String getMessage(String key) {
+
+		String message=(String)getBundle().getObject(key);
+		
+		return message;
+	}
+	
+	private ResourceBundle getBundle() {
+		
+		Locale locale=(Locale)request.getSession().getAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
+		
+		if (locale==null) locale=Locale.ENGLISH;
+		
+		ResourceBundle bundle=ResourceBundle.getBundle("messages",locale);
+		
+		return bundle;
+	}
+	
+	
+
+	
+	@RequestMapping(value = "/mypassword.do", method = RequestMethod.GET)
+	public String myPasswordForm(ModelMap m) {
+		return "user/mypassword";
+	}
+
+	@RequestMapping(value = "/mypassword.do", method = RequestMethod.POST)
+	public String myPassword(
+			@RequestParam(value = "passwordold") String passwordold,
+			@RequestParam(value = "password") String password,
+			@RequestParam(value = "password2") String password2, ModelMap m) {
+		return "redirect:/dashboard.do";
+	}
+	
+	private void prepareSelectListData(ModelMap m) {
+		m.addAttribute("countries", Country.getList());
+		m.addAttribute("states", State.getList());
+		m.addAttribute("locales", LOCALES);		
+	}
+
+
 	@RequestMapping(value = "/create/form.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('god')")
 	public String showEmptyForm(ModelMap m) {
 	
 		User user = new User();
 
-		user.setUsermeta(MetaUtil.getMasterList(Usermeta.class, AREA));
+		user.setUsermeta(MetaUtil.getMasterList(Usermeta.class, AREA,getBundle()));
 		
 		m.addAttribute(AREA.name(), user);
 		
@@ -232,7 +421,7 @@ public class UserController extends WaspController {
 		List<Usermeta> usermetaList = MetaUtil.getMetaFromForm(request,
 				AREA, Usermeta.class);
 		
-		MetaUtil.setAttributesAndSort(usermetaList, AREA);
+		MetaUtil.setAttributesAndSort(usermetaList, AREA,getBundle());
 
 		userForm.setUsermeta(usermetaList);
 
@@ -322,7 +511,7 @@ public class UserController extends WaspController {
 
 		user.setUsermeta(MetaUtil.syncWithMaster(user.getUsermeta(), AREA, Usermeta.class));
 		
-		MetaUtil.setAttributesAndSort(user.getUsermeta(), AREA);
+		MetaUtil.setAttributesAndSort(user.getUsermeta(), AREA,getBundle());
 
 		m.addAttribute(AREA.name(), user);
 		
@@ -330,197 +519,5 @@ public class UserController extends WaspController {
 		
 		return isRW?"user/detail_rw":"user/detail_ro";
 	}
-	
-	@RequestMapping(value = "/me.do", method = RequestMethod.GET)
-	public String myDetail(ModelMap m) {
-		User user = this.getAuthenticatedUser();		
-		return this.detailRW(user.getUserId(), m);
-	}
-
-	@RequestMapping(value = "/me.do", method = RequestMethod.POST)
-	public String updateDetail(@Valid User userForm, BindingResult result,
-			SessionStatus status, ModelMap m) {
-		User user = this.getAuthenticatedUser();		
-
-		updateDetail(user.getUserId(), userForm, result, status, m);
-
-		return "redirect:" + "me.do";
-	}
-	
-	@RequestMapping(value = "/detail_rw/{userId}.do", method = RequestMethod.POST)
-	@PreAuthorize("hasRole('god') or User.login == principal.name")
-	public String updateDetail(@PathVariable("userId") Integer userId,
-			@Valid User userForm, BindingResult result, SessionStatus status,
-			ModelMap m) {
-
-		List<Usermeta> usermetaList = MetaUtil.getMetaFromForm(request,
-				AREA, Usermeta.class);
-
-		for (Usermeta meta : usermetaList) {
-			meta.setUserId(userId);
-		}
-
-		MetaUtil.setAttributesAndSort(usermetaList, AREA);
-		
-		userForm.setUsermeta(usermetaList);
-
-		List<String> validateList = new ArrayList<String>();
-
-		for (Usermeta meta : usermetaList) {
-			if (meta.getProperty() != null
-					&& meta.getProperty().getConstraint() != null) {
-				validateList.add(meta.getK());
-				validateList.add(meta.getProperty().getConstraint());
-			}
-		}
-
-		MetaValidator validator = new MetaValidator(
-				validateList.toArray(new String[] {}));
-
-		validator.validate(usermetaList, result, AREA);
-
-		if (result.hasErrors()) {
-			userForm.setUserId(userId);
-			prepareSelectListData(m);
-			MessageTag.addMessage(request.getSession(), "user.updated.error");
-			return "user/detail_rw";
-		}
-
-		User userDb = this.userService.getById(userId);
-		userDb.setFirstName(userForm.getFirstName());
-		userDb.setLastName(userForm.getLastName());
-		if (userForm.getPassword()!=null && !userForm.getPassword().trim().isEmpty()) {
-			PasswordEncoder encoder = new ShaPasswordEncoder();
-			String hashedPass = encoder.encodePassword(userForm.getPassword(), null);
-			userForm.setPassword(hashedPass);
-		}
-		userDb.setEmail(userForm.getEmail());
-		userDb.setLocale(userForm.getLocale());
-
-		userDb.setLastUpdTs(new Date());
-
-		this.userService.merge(userDb);
-
-		usermetaService.updateByUserId(userId, usermetaList);
-
-		MimeMessageHelper a;
-		
-		status.setComplete();
-
-		MessageTag.addMessage(request.getSession(), "user.updated.success");
-		
-		//emailService.sendNewPassword(userDb, "new pass");
-		
-		return "redirect:" + userId + ".do";
-	}
-
-
-	private String getMessage(String key) {
-		Locale locale=(Locale)request.getSession().getAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
-		
-		if (locale==null) locale=Locale.ENGLISH;
-		
-		ResourceBundle bundle=ResourceBundle.getBundle("messages",locale);
-				
-		String message=(String)bundle.getObject(key);
-		
-		return message;
-	}
-	
-	@RequestMapping(value = "/detail_rw/updateJSON.do", method = RequestMethod.POST)
-	@PreAuthorize("hasRole('god') or User.login == principal.name")
-	public String updateDetailJSON(@RequestParam("id") Integer userId,User userForm, ModelMap m, HttpServletResponse response) {
-
-		if ( userService.loginExists(userForm.getLogin(), userId)) {
-						
-			try {
-				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-				response.getWriter().println(getMessage("user.login.exists_error"));
-				return null;
-			} catch (Throwable e) {
-				throw new IllegalStateException("Cant output validation error "+getMessage("user.login.exists_error"),e);
-			}
-		
-		}
-				
-		List<Usermeta> usermetaList = MetaUtil.getMetaFromForm(request,
-				AREA, Usermeta.class);
-
-
-		MetaUtil.setAttributesAndSort(usermetaList, AREA);
-		
-		userForm.setUsermeta(usermetaList);
-
-		if (userId==0) {
-			PasswordEncoder encoder = new ShaPasswordEncoder();
-			String hashedPass = encoder.encodePassword(userForm.getPassword(), null);
-			userForm.setPassword(hashedPass);
-			userForm.setLastUpdTs(new Date());
-			userForm.setIsActive(1);
-			
-			User userDb = this.userService.save(userForm);
-			
-			userId=userDb.getUserId();
-		} else {
-			User userDb = this.userService.getById(userId);
-			userDb.setFirstName(userForm.getFirstName());
-			userDb.setLastName(userForm.getLastName());
-			if (userForm.getPassword()!=null && !userForm.getPassword().trim().isEmpty()) {
-				PasswordEncoder encoder = new ShaPasswordEncoder();
-				String hashedPass = encoder.encodePassword(userForm.getPassword(), null);
-				userForm.setPassword(hashedPass);
-			}
-			userDb.setEmail(userForm.getEmail());
-			userDb.setLocale(userForm.getLocale());
-			userDb.setIsActive(userForm.getIsActive());
-			userDb.setLogin(userForm.getLogin());
-			userDb.setLastUpdTs(new Date());
-
-			this.userService.merge(userDb);
-		}
-
-
-		for (Usermeta meta : usermetaList) {
-			meta.setUserId(userId);
-		}
-
-		usermetaService.updateByUserId(userId, usermetaList);
-
-		MimeMessageHelper a;
-		
-		//MessageTag.addMessage(request.getSession(), "user.updated.success");
-		
-		//emailService.sendNewPassword(userDb, "new pass");
-		
-		try {
-			response.getWriter().println(getMessage("user.updated.success"));
-			return null;
-		} catch (Throwable e) {
-			throw new IllegalStateException("Cant output success message ",e);
-		}
-	
-	    
-	}
-
-	
-	@RequestMapping(value = "/mypassword.do", method = RequestMethod.GET)
-	public String myPasswordForm(ModelMap m) {
-		return "user/mypassword";
-	}
-
-	@RequestMapping(value = "/mypassword.do", method = RequestMethod.POST)
-	public String myPassword(
-			@RequestParam(value = "passwordold") String passwordold,
-			@RequestParam(value = "password") String password,
-			@RequestParam(value = "password2") String password2, ModelMap m) {
-		return "redirect:/dashboard.do";
-	}
-	
-	private void prepareSelectListData(ModelMap m) {
-		m.addAttribute("countries", Country.getList());
-		m.addAttribute("states", State.getList());
-		m.addAttribute("locales", LOCALES);		
-	}
-	
 
 }

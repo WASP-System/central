@@ -44,6 +44,7 @@ public class User extends WaspModel {
 
 
   @Column(name="login")
+  @NotEmpty
   protected String login;
   
   public void setLogin (String login) {
@@ -66,7 +67,7 @@ public class User extends WaspModel {
   }
 
 
-  @Column(name="password")  
+  @Column(name="password")
   protected String password;
   public void setPassword (String password) {
     this.password = password;

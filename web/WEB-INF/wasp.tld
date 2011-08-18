@@ -35,4 +35,17 @@
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
 	</tag>
+	<tag>
+		<description><![CDATA[
+            <p>Converts java collection to string containing JSON array. </p>
+        ]]></description>
+		<name>json</name>
+		<tag-class>edu.yu.einstein.wasp.taglib.JSONTag</tag-class>
+		<body-content>JSP</body-content>
+		<attribute>
+			<name>object</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>		
+	</tag>
 </taglib>

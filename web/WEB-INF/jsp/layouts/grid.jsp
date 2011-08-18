@@ -67,6 +67,16 @@ html, body {
    }
  
   
+
+  var _beforeShowAddForm = function(formId) {
+	  
+  }
+  
+  var _beforeShowEditForm = function(formId) {
+	  
+  }
+ 
+  
   //these will be populated by the wasp:field tags below
   var colNames=[];  
   var colModel=[];  
@@ -74,46 +84,66 @@ html, body {
   
   <tiles:insertAttribute name="grid-columns" />
   
-  <c:forEach var="localeEntry" items="${locales}">     
-	locale.jq['editoptions']['value']['${localeEntry.key}']='${localeEntry.value}';
+  //add meta fields
+  <c:forEach items="${_metaList}" var="_meta" varStatus="status">
+
+	_field_name='${_meta.k}';
+	_wasp_prop='${_meta.property}';
+
+	required='${_meta.property.constraint}'=='NotEmpty';
+
+	editrules={edithidden:true};
+	formoptions={};
+	if(required){
+		formoptions={elmsuffix:'<fontcolor=red>*</font>'};
+		editrules={edithidden:true,custom:true,custom_func:_validate_required};	
+	}
+
+	editoptions={size:20};
+  	edittype='text';
+  	   
+    <c:if test="${not empty _meta.property.control}">
+        editoptions={size:20,value:{}};
+        edittype='select';
+   		<c:if test="${_meta.property.control.items != null}">  	
+   			<c:set var="selectItems" scope="request" value="${requestScope[_meta.property.control.items]}"/>
+   			<c:set var="itemValue" scope="request">${_meta.property.control.itemValue}</c:set>
+   			<c:set var="itemLabel" scope="request">${_meta.property.control.itemLabel}</c:set>   	
+   		</c:if>
+  		<c:if test="${_meta.property.control.items == null}">
+	  		<c:set var="selectItems" scope="request" value="${_meta.property.control.options}" />
+  			<c:set var="itemValue" scope="request">value</c:set>
+  			<c:set var="itemLabel" scope="request">label</c:set>  	
+  		</c:if>
+   	              
+  		selectItems=<wasp:json object="${selectItems}" />;
+
+  		editoptions['value']['']=' --- select --- ';
+  		for(sKey in selectItems) {
+  			_option=selectItems[sKey];
+  			_value=_option['${itemValue}'];
+  			_label=_option['${itemLabel}'];
+  			
+  			editoptions['value'][_value]=_label;
+  		}
+  		//
+   </c:if>          
+  		
+   //populate jq structures
+   colNames.push('${_meta.property.label}');
+
+	colModel.push(
+ 			{name:'${_meta.k}', width:80, edittype:edittype, align:'right',hidden:true,editable:true,editrules:editrules,formoptions:formoptions,editoptions:editoptions}
+ 	);
+ 	
+ 	colErrors.push('${_meta.property.error}');
+
  </c:forEach>
- 
- 
- //get meta fiel definitions from servlet
- var _wasp_meta_fields=${fieldsArr};
- 
-
-//add to jqGrid definitions
-for (key in _wasp_meta_fields) {
-	  	var _wasp_field=_wasp_meta_fields[key];
-	  	var _wasp_prop=_wasp_field['property'];
-	  	var _field_name=_wasp_field['k'];
-	  	
-	  	colNames.push(_wasp_prop['label']);
-	  	var constraint = _wasp_prop['constraint'];
-	  	var required=constraint=='NotEmpty';
-	  
-	  	var editrules={edithidden:true};
-	  	var formoptions={};
-	  	if (required) {
-	  		formoptions={elmsuffix:'<font color=red>*</font>'};
-	  		editrules={edithidden:true,custom:true,custom_func:_validate_required};	
-	  	}
-	  	
-	  
-	  	colModel.push(
-	  			{name:_field_name, width:80, align:'right',hidden:true,editable:true,editrules:editrules,formoptions:formoptions,editoptions:{size:20}}
-	  	);
-	  	
-	  	colErrors.push(_wasp_prop['error']);
-
-}
-
-
-  _del_function = function (id) {
-	   alert("Lab cannot be deleted once created. Instead, use the 'edit' button to mark the '"+$("#grid_id").getRowData(id).login+"' lab as inactive.");
-	   return false;
-  };	
+  	
+    _del_function = function (id) {
+	     alert("Lab cannot be deleted once created. Instead, use the 'edit' button to mark the '"+$("#grid_id").getRowData(id).login+"' lab as inactive.");
+	     return false;
+    };	
 	
 	
 	_errorTextFormat = function(response) {
@@ -154,16 +184,18 @@ for (key in _wasp_meta_fields) {
      
 
      //reload grid
-     grid.trigger("reloadGrid");
-
-	   return [false,''];
-     
+     //grid.trigger("reloadGrid");
+     if (document.forms[0].password.value) {
+    	 document.forms[0].password.value='';
+     }
+	
+	   return [false,''];     
  }
  
 
 $(function(){
 	
-	var editAttr={width:500,closeAfterEdit:false,closeOnEscape:true,afterSubmit:_afterSubmit,errorTextFormat:_errorTextFormat};
+	var editAttr={width:500,closeAfterEdit:false,closeOnEscape:true,afterSubmit:_afterSubmit,errorTextFormat:_errorTextFormat,beforeShowForm:_beforeShowEditForm};
 	
 $("#grid_id").jqGrid({
   url:'/wasp/<tiles:insertAttribute name="area" />/listJSON.do',
@@ -190,7 +222,7 @@ $("#grid_id").jqGrid({
 		  editAttr, // edit
 		  {serializeEditData: function(data){ 
 			    return $.param($.extend({}, data, {id:0}));
-		  },closeAfterAdd:true,closeOnEscape:true,errorTextFormat:_errorTextFormat}, // add
+		  },closeAfterAdd:false,closeOnEscape:true,errorTextFormat:_errorTextFormat,beforeShowForm:_beforeShowAddForm}, // add
 		  {},  // delete
 		  {drag:true,resize:true,modal:true,caption:'Lookup',closeOnEscape:true,sopt:['eq','ne']}, //search
 		  editAttr

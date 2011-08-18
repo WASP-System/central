@@ -88,7 +88,6 @@ public class LabController extends WaspController {
 	private EmailService emailService;
 
 
-	private static List<MetaBase> FIELD_LIST=MetaUtil.getMasterList(MetaBase.class, AREA);
 	
 	@InitBinder
 	protected void initBinder(WebDataBinder binder) {
@@ -99,14 +98,17 @@ public class LabController extends WaspController {
 	@PreAuthorize("hasRole('god')")
 	public String list(ModelMap m) {
 		
-		ObjectMapper mapper = new ObjectMapper();
+		m.addAttribute("_metaList", MetaUtil.getMasterList(MetaBase.class, AREA, getBundle()));
+		m.addAttribute("_area", AREA.name());
+		
+		/*ObjectMapper mapper = new ObjectMapper();
 		
 		 try {
 			 String json=mapper.writeValueAsString(FIELD_LIST);
 			 m.addAttribute("fieldsArr", json);
 		 } catch (Throwable e) {
 			 throw new IllegalStateException("Can't marshall to JSON "+FIELD_LIST,e);
-		 }
+		 }*/
 		 prepareSelectListData(m);
 		 
 		 return "lab-list";
@@ -158,7 +160,7 @@ public class LabController extends WaspController {
 				 
 				 List<Labmeta> labmeta=MetaUtil.syncWithMaster(lab.getLabmeta(), AREA, Labmeta.class);
 				 					
-				 MetaUtil.setAttributesAndSort(labmeta, AREA);
+				 MetaUtil.setAttributesAndSort(labmeta, AREA,getBundle());
 				 
 				 List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 							lab.getName(),
@@ -195,7 +197,7 @@ public class LabController extends WaspController {
 				AREA, Labmeta.class);
 
 
-		MetaUtil.setAttributesAndSort(labmetaList, AREA);
+		MetaUtil.setAttributesAndSort(labmetaList, AREA,getBundle());
 		
 		labForm.setLabmeta(labmetaList);
 
@@ -241,15 +243,21 @@ public class LabController extends WaspController {
 	}
 	
 	private String getMessage(String key) {
+
+		String message=(String)getBundle().getObject(key);
+		
+		return message;
+	}
+	
+	private ResourceBundle getBundle() {
+		
 		Locale locale=(Locale)request.getSession().getAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 		
 		if (locale==null) locale=Locale.ENGLISH;
 		
 		ResourceBundle bundle=ResourceBundle.getBundle("messages",locale);
-				
-		String message=(String)bundle.getObject(key);
 		
-		return message;
+		return bundle;
 	}
 	
 
@@ -259,7 +267,7 @@ public class LabController extends WaspController {
 
 		Lab lab = new Lab();
 
-		lab.setLabmeta(MetaUtil.getMasterList(Labmeta.class, AREA));
+		lab.setLabmeta(MetaUtil.getMasterList(Labmeta.class, AREA,getBundle()));
 
 		m.addAttribute(AREA.name(), lab);
 		
@@ -286,7 +294,7 @@ public class LabController extends WaspController {
 
 		lab.setLabmeta(MetaUtil.syncWithMaster(lab.getLabmeta(), AREA, Labmeta.class));
 
-		MetaUtil.setAttributesAndSort(lab.getLabmeta(), AREA);
+		MetaUtil.setAttributesAndSort(lab.getLabmeta(), AREA,getBundle());
 
 		List<LabUser> labUserList = lab.getLabUser();
 		labUserList.size();
@@ -313,7 +321,7 @@ public class LabController extends WaspController {
 				Labmeta.class);
 
 		// set property attributes and sort them according to "position"
-		MetaUtil.setAttributesAndSort(labmetaList, AREA);
+		MetaUtil.setAttributesAndSort(labmetaList, AREA,getBundle());
 
 		labForm.setLabmeta(labmetaList);
 
@@ -371,7 +379,7 @@ public class LabController extends WaspController {
 			meta.setLabId(labId);
 		}
 
-		MetaUtil.setAttributesAndSort(labmetaList, AREA);
+		MetaUtil.setAttributesAndSort(labmetaList, AREA,getBundle());
 
 		labForm.setLabmeta(labmetaList);
 

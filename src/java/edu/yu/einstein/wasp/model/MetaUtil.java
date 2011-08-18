@@ -31,7 +31,7 @@ public final class MetaUtil {
 		  * 2. Sorts list on meta.position field 
 		  */
 		
-		public static final <T> void setAttributesAndSort(List<T> list, MetaAttribute.Area area) {
+		public static final <T> void setAttributesAndSort(List<T> list, MetaAttribute.Area area, ResourceBundle bundle) {
 			 
 			 for(T t:list) {
 				 
@@ -56,7 +56,7 @@ public final class MetaUtil {
 				p.setMetaposition(pos);
 				
 		 		if (getValue(area,basename,"control")!=null) {
-		 			String controlStr=getValue(area,basename,"control");
+		 			String controlStr=getValue(area,basename,"control", bundle);
 		 			String typeStr=controlStr.substring(0,controlStr.indexOf(":"));
 		 			MetaAttribute.Control.Type type=MetaAttribute.Control.Type.valueOf(typeStr);
 		 			if (type==MetaAttribute.Control.Type.select) {
@@ -97,9 +97,9 @@ public final class MetaUtil {
 		 			}	
 		 		}
 		 		
-		 		p.setLabel(getValue(area,basename,"label"));
+		 		p.setLabel(getValue(area,basename,"label", bundle));
 		 		p.setConstraint(getValue(area,basename,"constraint"));
-		 		p.setError(getValue(area,basename,"error"));		 		
+		 		p.setError(getValue(area,basename,"error",bundle));		 		
 		 		
 			 }
 			 
@@ -107,15 +107,21 @@ public final class MetaUtil {
 		 }
 		
 		 private static String getValue(MetaAttribute.Area area, String name, String attribute) {
-			 
-			if (BASE_BUNDLE.containsKey(area.name()+"."+name+"."+attribute)) { 
-					 return BASE_BUNDLE.getString(area.name()+"."+name+"."+attribute);
-		 	} else {
-		 		return null;
-		 	}
-			 
+			 return  getValue(area, name, attribute, BASE_BUNDLE);
 		 }
-		  
+		 
+		 private static String getValue(MetaAttribute.Area area, String name, String attribute, ResourceBundle bundle) {
+
+				if ( bundle.containsKey(area.name()+"."+name+"."+attribute)) { 
+					 return bundle.getString(area.name()+"."+name+"."+attribute);
+				} else if (BASE_BUNDLE.containsKey(area.name()+"."+name+"."+attribute)) { 
+				     return BASE_BUNDLE.getString(area.name()+"."+name+"."+attribute);
+			 	} else {
+			 		return null;
+			 	}
+				 
+		 }
+		 
 	
 		private final static Comparator META_POSITION_COMPARATOR =  new Comparator() {
 			public int compare(Object o1, Object o2) {
@@ -205,7 +211,7 @@ public final class MetaUtil {
 		  
 	  }
 	
-	 public static final <T> List<T> getMasterList(Class<T> clazz,MetaAttribute.Area area) {
+	 public static final <T> List<T> getMasterList(Class<T> clazz,MetaAttribute.Area area,ResourceBundle bundle) {
 		  
 		 
 		    List<T> list = new ArrayList<T>();   
@@ -227,7 +233,7 @@ public final class MetaUtil {
 		       
 
 		    //set property attributes and sort them according to "position"
-		    setAttributesAndSort(list,area);
+		    setAttributesAndSort(list,area,bundle);
 		    
 		    return list;
 	}
@@ -267,51 +273,6 @@ public final class MetaUtil {
 	  }
 	 
 
-	 public static final <T> List<T> getAttributes(Class<T> clazz,MetaAttribute.Area area, Locale locale) {
-		  
-		  ResourceBundle bundleEN=ResourceBundle.getBundle("messages",Locale.ENGLISH);
-		  
-		  ResourceBundle bundle=ResourceBundle.getBundle("messages",locale);		 
-		 
-		    List<T> list = new ArrayList<T>();   
-		  
-		    //get current list of meta properties to capture
-		    Set<String> set=getUniqueKeys(area);
-		    
-		    Enumeration<String> en=BASE_BUNDLE.getKeys();
-		    
-		    while(en.hasMoreElements()) {
-		    	String k = en.nextElement();
-		    	
-		    	if (!k.startsWith(area.name())) continue;
-		    	
-		    	String[] path=StringUtils.tokenizeToStringArray(k,".");
-		    	
-		    	String name=path[1];
-		    	
-		    	try {
-		    		T obj=(T)clazz.newInstance();
-				   
-		    		((MetaBase)obj).setK(area+"."+name);
-			  
-		    		list.add(obj);
-		    	  } catch (Throwable e) {
-					  throw new IllegalStateException("cant merge attributes ",e);
-				  }
-		    	
-		    	set.add(name);
-
-		    }
-		    
-		    for(String name:set) {
-		    	
-		    }
-		       
-
-		    //set property attributes and sort them according to "position"
-		    setAttributesAndSort(list,area);
-		    
-		    return list;
-	}
+	
 	 
 }

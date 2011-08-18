@@ -1,6 +1,6 @@
 # -------------------------- static user fields --------------------------
 user.login.label=Логин
-user.login.error=Логин cannot be empty
+user.login.error=Логин должен быть не пустой
 user.login.exists_error=Логин already exists
 
 user.password.label=Password
@@ -18,7 +18,7 @@ user.email.error=Wrong email address format
 user.locale.label=Locale
 user.locale.error=Locale cannot be empty
 
-user.isActive.label=��������?
+user.isActive.label=Активный
 
 # -------------------------- dynamic user fields --------------------------
 
@@ -30,8 +30,8 @@ user.isActive.label=��������?
 user.title.label=Title
 user.title.error=Title cannot be empty
 
-user.institution.label=Institution
-user.institution.error=Institution cannot be empty
+user.institution.label=Учереждение
+user.institution.error=Укажите учереждение
 
 user.department.label=Department
 

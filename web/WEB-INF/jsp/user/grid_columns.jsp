@@ -20,8 +20,26 @@ isActive.jq['search']=false;
 locale.jq['edittype']='select';
 locale.jq['editoptions']={value:{}};
 locale.jq['search']=false;
+<c:forEach var="localeEntry" items="${locales}">     
+	locale.jq['editoptions']['value']['${localeEntry.key}']='${localeEntry.value}';
+</c:forEach>
 
 password.jq['hidden']=true;
 password.jq['edittype']='password';
-password.jq['editrules']={edithidden:true};
-password.jq['formoptions']={};//{elmsuffix:'<font color=red>*</font>'};
+password.jq['editrules']={};	
+password.jq['editrules']['edithidden']=true;	
+
+
+_beforeShowAddForm = function (formId) {
+    var myPass=jQuery("#grid_id").jqGrid ('getGridParam', 'colModel')[1];//TODO: get password field dynammicly
+    myPass['editrules']['custom_func']=_validate_required;
+	myPass['editrules']['custom']=true;
+	myPass['formoptions']={elmsuffix:'<font color=red>*</font>'};//TODO: make it work		
+}
+  
+_beforeShowEditForm = function (formId) {
+    var myPass=jQuery("#grid_id").jqGrid ('getGridParam', 'colModel')[1];//TODO: get password field dynammicly    
+    myPass['editrules']['custom']=false;
+	myPass['formoptions']={};	
+}
+
