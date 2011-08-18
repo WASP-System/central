@@ -60,6 +60,18 @@ create table usermeta (
   constraint unique index u_usermeta_k_uid (k, userid)
 ) ENGINE=InnoDB;
 
+--
+-- forgot password
+--
+create table userpasswordauth (
+  userid int(10) not null primary key, 
+  authcode varchar(250) not null,
+  lastupdts timestamp not null default current_timestamp, 
+  lastupduser int(10) not null default 0,
+
+  foreign key fk_userpasswordauth_userid (userid) references user(userid),
+  constraint unique index u_userpasswordauth (authcode)
+) ENGINE=InnoDB;
 
 --
 -- ROLE
