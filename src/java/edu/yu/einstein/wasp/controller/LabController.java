@@ -460,26 +460,27 @@ public class LabController extends WaspController {
 			return "redirect:/lab/request.do";
 		}
 
-		// check existance of primaryUser/lab
+		// check role of lab user
 		User user = this.getAuthenticatedUser();
 		LabUser labUser = labUserService.getLabUserByLabIdUserId(lab.getLabId(), user.getUserId());
 
-		ArrayList<String> alreadyPendingRoles = new ArrayList();
-		alreadyPendingRoles.add("lp");
-		ArrayList<String> alreadyAccessRoles = new ArrayList();
-		alreadyPendingRoles.add("pi");
-		alreadyPendingRoles.add("lm");
-		alreadyPendingRoles.add("lu");
-
 		if (labUser.getLabUserId() != 0) {
+			ArrayList<String> alreadyPendingRoles = new ArrayList();
+			alreadyPendingRoles.add("lp");
+			ArrayList<String> alreadyAccessRoles = new ArrayList();
+			alreadyPendingRoles.add("pi");
+			alreadyPendingRoles.add("lm");
+			alreadyPendingRoles.add("lu");
+
 			if (alreadyPendingRoles.contains(labUser.getRole().getRoleName())) {
 				MessageTag.addMessage(request.getSession(), "labuser.request.alreadypending.error");
- 	  	}
+		  		return "redirect:/lab/request.do";
+ 	  		}
 
 			if (alreadyAccessRoles.contains(labUser.getRole().getRoleName())) {
 				MessageTag.addMessage(request.getSession(), "labuser.request.alreadyaccess.error");
+				  return "redirect:/lab/request.do";
 			}
-		  return "redirect:/lab/request.do";
 		}
 
 		Role role = roleService.getRoleByRoleName("lp");
@@ -497,6 +498,7 @@ public class LabController extends WaspController {
 
 		return "redirect:/lab/request.do";
 
+		// TODO RESET TO DASHBOARD!
 		// return "redirect:/dashboard.do";
 	}
 
