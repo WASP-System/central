@@ -69,7 +69,7 @@ lab.primaryUserId.error=Please select Primary User
 lab.departmentId.label=Department
 lab.departmentId.error=Please select department
 
-
+lab.isActive.label=Активный
 # -------------------------- dynamic lab fields --------------------------
 lab.internal_external_lab.label=External/Internal
 lab.internal_external_lab.error=Please specify lab type (External/Internal)

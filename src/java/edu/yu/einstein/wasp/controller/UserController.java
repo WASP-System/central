@@ -142,7 +142,7 @@ public class UserController extends WaspController {
 		}
 
     	ObjectMapper mapper = new ObjectMapper();
-		
+    	
 		 try {
 			 //String users = mapper.writeValueAsString(userList);
 			 jqgrid.put("page","1");

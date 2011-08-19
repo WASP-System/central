@@ -25,13 +25,38 @@
 		<tag-class>edu.yu.einstein.wasp.taglib.JQFieldTag</tag-class>
 		<body-content>JSP</body-content>
 		<attribute>
-			<name>name</name>
+			<name>name</name>   
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue> 
+		</attribute>
+		<attribute>
+			<name>object</name>
+			<description>Object class to read validation rules from. Currently supported types are "user" or "lab"</description>
 			<required>true</required>
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
 		<attribute>
-			<name>object</name>
+			<name>type</name>
+			<description>Type of HTML element to render. Currently support "text","select","password" and "checkbox"</description>
 			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+			<description>The Collection or Map of objects used to generate the inner 'option' tags. If suppliying a collection then itemValue and itemLabel props are required</description>
+			<name>items</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+			<description>Name of the property mapped to 'value' attribute of the 'option' tag</description>
+			<name>itemValue</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+			<description>Name of the property mapped to the inner text of the 'option' tag</description>
+			<name>itemLabel</name>
+			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
 	</tag>

@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -33,6 +34,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
+import edu.yu.einstein.wasp.model.Department;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabUser;
@@ -154,6 +156,16 @@ public class LabController extends WaspController {
 			 
 			 List<Map> rows = new ArrayList<Map>();
 			 
+			 Map<Integer, String> allDepts=new TreeMap<Integer, String>();
+			 for(Department dept:(List<Department>)deptService.findAll()) {
+				 allDepts.put(dept.getDepartmentId(),dept.getName());
+			 }
+			 
+			 Map<Integer, String> allUsers=new TreeMap<Integer, String>();
+			 for(User user:(List<User>)userService.findAll()) {
+				 allUsers.put(user.getUserId(),user.getFirstName()+" "+user.getLastName());
+			 }
+			 
 			 for (Lab lab:labList) {
 				 Map cell = new HashMap();
 				 cell.put("id", lab.getLabId());
@@ -164,8 +176,8 @@ public class LabController extends WaspController {
 				 
 				 List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 							lab.getName(),
-							lab.getPrimaryUserId()+"",
-							lab.getDepartmentId()+"",
+							allUsers.get(lab.getPrimaryUserId()),
+							allDepts.get(lab.getDepartmentId()),
 							lab.getIsActive()==1?"yes":"no"
 				}));
 				 
@@ -548,8 +560,18 @@ public class LabController extends WaspController {
 		return "redirect:/lab/user/" + labId + ".do";
 	}
 
-	private void prepareSelectListData(ModelMap m) {	
-		m.addAttribute("pusers", userService.findAll());
+	private void prepareSelectListData(ModelMap m) {
+		List<User> users=userService.findAll();
+		List<User> usersLight=new ArrayList<User>();
+		for(User user: users) {
+			User u = new User();
+			u.setUserId(user.getUserId());
+			u.setFirstName(user.getFirstName()+" "+user.getLastName());
+			
+			usersLight.add(u);
+		}
+		
+		m.addAttribute("pusers", usersLight);
 		m.addAttribute("countries", Country.getList());
 		m.addAttribute("states", State.getList());
 		m.addAttribute("departments", deptService.findAll());
