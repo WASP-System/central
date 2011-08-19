@@ -69,6 +69,8 @@ public class UserLocaleInterceptor extends HandlerInterceptorAdapter {
 		Locale locale = new Locale(lang, cntry);
 		request.getSession().setAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME, locale);
 
+		request.getSession().setAttribute("jqLang", lang);
+		
 		request.getSession().setAttribute(LOCK, "locale set");
     	
         return true;

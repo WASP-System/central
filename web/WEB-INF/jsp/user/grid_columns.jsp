@@ -7,7 +7,7 @@
 <wasp:field name="email" object="user" type="text"/>
 <wasp:field name="locale" object="user" type="select" items="${locales}" itemValue="key" itemLabel="value"/>
 <wasp:field name="isActive" object="user" type="text"/>
-
+  
 email.jq['editrules']={custom:true,custom_func:_validate_email};
 
 isActive.jq['edittype']='checkbox';   

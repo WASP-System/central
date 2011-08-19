@@ -111,7 +111,7 @@ public class JQFieldTag extends BodyTagSupport {
 
 		String error="error:'',\n";
 		
-		try {
+		try {			
 			error="error:'"+bundle.getObject(area+"."+name+".error")+"',\n";
 		} catch (Throwable e) {
 			 

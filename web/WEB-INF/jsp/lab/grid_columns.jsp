@@ -11,3 +11,4 @@
   isActive.jq['formatoptions']={disabled : true};
   isActive.jq['align']='center';
   isActive.jq['search']=false;
+ 

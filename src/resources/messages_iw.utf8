@@ -1,6 +1,6 @@
 # -------------------------- static user fields --------------------------
 user.login.label=Логин
-user.login.error=Логин cannot be empty
+user.login.error=Логин должен быть не пустой
 user.login.exists_error=Логин already exists
 
 user.password.label=Password
@@ -18,7 +18,7 @@ user.email.error=Wrong email address format
 user.locale.label=Locale
 user.locale.error=Locale cannot be empty
 
-user.isActive.label=Active
+user.isActive.label=Активный
 
 # -------------------------- dynamic user fields --------------------------
 
@@ -30,8 +30,8 @@ user.isActive.label=Active
 user.title.label=Title
 user.title.error=Title cannot be empty
 
-user.institution.label=Institution
-user.institution.error=Institution cannot be empty
+user.institution.label=Учереждение
+user.institution.error=Укажите учереждение
 
 user.department.label=Department
 
@@ -69,7 +69,7 @@ lab.primaryUserId.error=Please select Primary User
 lab.departmentId.label=Department
 lab.departmentId.error=Please select department
 
-
+lab.isActive.label=Активный
 # -------------------------- dynamic lab fields --------------------------
 lab.internal_external_lab.label=External/Internal
 lab.internal_external_lab.error=Please specify lab type (External/Internal)

@@ -17,7 +17,6 @@ import javax.validation.Valid;
 
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.converter.json.MappingJacksonHttpMessageConverter;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -98,6 +97,9 @@ public class UserController extends WaspController {
 		
 		m.addAttribute("_metaList", MetaUtil.getMasterList(MetaBase.class, AREA, getBundle()));
 		m.addAttribute("_area", AREA.name());
+		
+		
+		
 		/*
 		ObjectMapper mapper = new ObjectMapper();
 		

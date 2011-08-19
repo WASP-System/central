@@ -7,7 +7,7 @@
 <link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/jquery/ui.jqgrid.css" />
 <style>
 
-html, body {
+html, body { 
 
 	margin: 0;			/* Remove body margin/padding */
 
@@ -21,13 +21,13 @@ html, body {
 </style>	
 
   <script src="/wasp/scripts/jquery/jquery-1.6.2.js" type="text/javascript"></script>
-  <script src="/wasp/scripts/jqgrid/grid.locale-en.js" type="text/javascript"></script>
+  <script src="/wasp/scripts/jqgrid/grid.locale-<%= ((HttpServletRequest)pageContext.getRequest()).getSession().getAttribute("jqLang") %>.js" type="text/javascript"></script>
   <script src="/wasp/scripts/jqgrid/jquery.jqGrid.min.js" type="text/javascript"></script>
   
   <script type="text/javascript">
 
   $.jgrid.no_legacy_api = true;
-
+ 
   $.jgrid.useJSON = true;
 
   
