@@ -12,7 +12,9 @@ public final class MetaAttribute implements Serializable {
 
 		public static enum Area {
 			user,
-			lab
+			lab,
+			userPending,
+			labPending
 		}
 			
 		private String label;

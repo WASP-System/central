@@ -52,55 +52,55 @@ public final class MetaUtil {
 				try {	    			
 					pos=Integer.parseInt(getValue(area,basename,"metaposition"));
 				} catch (Throwable e) {}
-		 		
+				
 				p.setMetaposition(pos);
 				
-		 		if (getValue(area,basename,"control")!=null) {
-		 			String controlStr=getValue(area,basename,"control", bundle);
-		 			String typeStr=controlStr.substring(0,controlStr.indexOf(":"));
-		 			MetaAttribute.Control.Type type=MetaAttribute.Control.Type.valueOf(typeStr);
-		 			if (type==MetaAttribute.Control.Type.select) {
-		 				 				
-		 				MetaAttribute.Control control=new MetaAttribute.Control();
-		 				control.setType(MetaAttribute.Control.Type.select); 				
-		 				p.setControl(control);
-		 				
-		 				if (controlStr.startsWith("select:${")) {
-		 					String [] els=StringUtils.tokenizeToStringArray(controlStr,":");
-		 					if (els==null || els.length!=4) {
-		 						throw new IllegalStateException(controlStr+" must match 'select:${beanName}:itemValue:itemLabel' pattern");
-		 					}
-		 					
-		 					String beanName=els[1].replace("${","").replace("}", "");
-		 					control.setItems(beanName);
-		 					control.setItemValue(els[2]);
-		 					control.setItemLabel(els[3]);
-		 					 					
-		 				} else {
-		 				 
-		 					List<MetaAttribute.Control.Option> options=new ArrayList<MetaAttribute.Control.Option>();
-		 					
-		 					String[] pairs=StringUtils.tokenizeToStringArray(controlStr.substring(controlStr.indexOf(":")+1),";");
-		 				 				
-		 					for(String el:pairs) {
-		 						String [] pair=StringUtils.split(el,":");
-		 						MetaAttribute.Control.Option option = new MetaAttribute.Control.Option();
-		 						option.setValue(pair[0]);
-		 						option.setLabel(pair[1]);
-		 						options.add(option);
-		 					}
-		 					control.setOptions(options);	
-		 				}
-		 				
-		 				 
-		 				
-		 			}	
-		 		}
-		 		
-		 		p.setLabel(getValue(area,basename,"label", bundle));
-		 		p.setConstraint(getValue(area,basename,"constraint"));
-		 		p.setError(getValue(area,basename,"error",bundle));		 		
-		 		
+				if (getValue(area,basename,"control")!=null) {
+					String controlStr=getValue(area,basename,"control", bundle);
+					String typeStr=controlStr.substring(0,controlStr.indexOf(":"));
+					MetaAttribute.Control.Type type=MetaAttribute.Control.Type.valueOf(typeStr);
+					if (type==MetaAttribute.Control.Type.select) {
+						 				
+						MetaAttribute.Control control=new MetaAttribute.Control();
+						control.setType(MetaAttribute.Control.Type.select); 				
+						p.setControl(control);
+						
+						if (controlStr.startsWith("select:${")) {
+							String [] els=StringUtils.tokenizeToStringArray(controlStr,":");
+							if (els==null || els.length!=4) {
+								throw new IllegalStateException(controlStr+" must match 'select:${beanName}:itemValue:itemLabel' pattern");
+							}
+							
+							String beanName=els[1].replace("${","").replace("}", "");
+							control.setItems(beanName);
+							control.setItemValue(els[2]);
+							control.setItemLabel(els[3]);
+							 					
+						} else {
+						 
+							List<MetaAttribute.Control.Option> options=new ArrayList<MetaAttribute.Control.Option>();
+							
+							String[] pairs=StringUtils.tokenizeToStringArray(controlStr.substring(controlStr.indexOf(":")+1),";");
+										
+							for(String el:pairs) {
+								String [] pair=StringUtils.split(el,":");
+								MetaAttribute.Control.Option option = new MetaAttribute.Control.Option();
+								option.setValue(pair[0]);
+								option.setLabel(pair[1]);
+								options.add(option);
+							}
+							control.setOptions(options);	
+						}
+						
+						 
+						
+					}	
+				}
+				
+				p.setLabel(getValue(area,basename,"label", bundle));
+				p.setConstraint(getValue(area,basename,"constraint"));
+				p.setError(getValue(area,basename,"error",bundle));		 		
+				
 			 }
 			 
 			 Collections.sort( list, META_POSITION_COMPARATOR);
@@ -128,17 +128,17 @@ public final class MetaUtil {
 				
 				MetaBase f1=(MetaBase)o1;
 				MetaBase f2=(MetaBase)o2;
-	   		 
-	 			if (f1==null || f1.getProperty()==null || f1.getProperty().getMetaposition()==-1 ) return -1;
-	 			if (f2==null || f2.getProperty()==null || f2.getProperty().getMetaposition()==-1 ) return 1;
-	 			
-	 			
-	 			Integer p1=f1.getProperty().getMetaposition();
-	 			Integer p2=f2.getProperty().getMetaposition();	    		 
-	 			
-	 			return p1.compareTo(p2);
-		 
-	 }
+	
+				if (f1==null || f1.getProperty()==null || f1.getProperty().getMetaposition()==-1 ) return -1;
+				if (f2==null || f2.getProperty()==null || f2.getProperty().getMetaposition()==-1 ) return 1;
+				
+				
+				Integer p1=f1.getProperty().getMetaposition();
+				Integer p2=f2.getProperty().getMetaposition();	    		 
+				
+				return p1.compareTo(p2);
+		
+		}
 	};
 		
 	  // returns list of unique "k" values for the given "prefix"
@@ -239,40 +239,28 @@ public final class MetaUtil {
 	}
 
 
-	 public static final <T> List<T> getMetaFromForm(HttpServletRequest request, MetaAttribute.Area area, Class clazz) {
-		  
-		  	List<T> resultList = new ArrayList<T>();
-		  			  
-		    Map parms = request.getParameterMap();
-		    
-		    for (Iterator iterator = parms.entrySet().iterator(); iterator.hasNext();)  {  
-		    	Map.Entry entry = (Map.Entry) iterator.next();
-		    	String key=(String)entry.getKey();
-		    	if (key.startsWith(area+".")) {
-					  try {
-						  
-						   T obj=(T)clazz.newInstance();
-						   
-						   MetaBase meta=((MetaBase)obj);
-						   
-						   String name=key.substring((area+".").length());
-						 	
-				    	   meta.setK(area+"."+name);//???
-				    	   meta.setV(((String[])entry.getValue())[0]);
-				    	   
-				    	   resultList.add(obj);	    		
-				    		
-					  } catch (Throwable e) {
-						  throw new IllegalStateException("cant merge attributes ",e);
-					  }
-		    		
-		    	}    	
-		    }
-		    
-		    return resultList;
-	  }
-	 
+	public static final <T> List<T> getMetaFromForm(HttpServletRequest request, MetaAttribute.Area area, Class clazz, ResourceBundle bundle) {
+		
+		List<T> resultList = MetaUtil.getMasterList(clazz, area, bundle); 
 
-	
+		Map parms = request.getParameterMap();
+		for (Iterator iterator = parms.entrySet().iterator(); iterator.hasNext();)  {  
+			Map.Entry entry = (Map.Entry) iterator.next();
+			String key=(String)entry.getKey();
+			for (T metaObj: resultList) {
+				MetaBase meta = (MetaBase) metaObj;
+				if (key.equals(area.name() + "meta" + "_" + meta.getK())) {
+					try {
+						meta.setV(((String[])entry.getValue())[0]);
+					} catch (Throwable e) {
+						throw new IllegalStateException("cant merge attributes ",e);
+					}
+					break;
+				}
+			}
+		}
+
+		return resultList;
+	}
 	 
 }

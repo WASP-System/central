@@ -18,6 +18,8 @@ import org.hibernate.envers.NotAudited;
 import javax.persistence.*;
 import java.util.*;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
+
 @Entity
 @Audited
 @Table(name="meta")

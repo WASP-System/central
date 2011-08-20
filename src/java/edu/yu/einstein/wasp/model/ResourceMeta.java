@@ -18,10 +18,12 @@ import org.hibernate.envers.NotAudited;
 import javax.persistence.*;
 import java.util.*;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
+
 @Entity
 @Audited
 @Table(name="resourcemeta")
-public class ResourceMeta extends WaspModel {
+public class ResourceMeta extends MetaBase {
   @Id @GeneratedValue(strategy=GenerationType.IDENTITY)
   protected int resourceMetaId;
   public void setResourceMetaId (int resourceMetaId) {
@@ -42,55 +44,6 @@ public class ResourceMeta extends WaspModel {
   }
 
 
-  @Column(name="k")
-  protected String k;
-  public void setK (String k) {
-    this.k = k;
-  }
-  public String getK () {
-    return this.k;
-  }
-
-
-  @Column(name="v")
-  protected String v;
-  public void setV (String v) {
-    this.v = v;
-  }
-  public String getV () {
-    return this.v;
-  }
-
-
-  @Column(name="position")
-  protected int position;
-  public void setPosition (int position) {
-    this.position = position;
-  }
-  public int getPosition () {
-    return this.position;
-  }
-
-
-  @Column(name="lastupdts")
-  protected Date lastUpdTs;
-  public void setLastUpdTs (Date lastUpdTs) {
-    this.lastUpdTs = lastUpdTs;
-  }
-  public Date getLastUpdTs () {
-    return this.lastUpdTs;
-  }
-
-
-  @Column(name="lastupduser")
-  protected int lastUpdUser;
-  public void setLastUpdUser (int lastUpdUser) {
-    this.lastUpdUser = lastUpdUser;
-  }
-  public int getLastUpdUser () {
-    return this.lastUpdUser;
-  }
-
 
 
   @NotAudited
@@ -101,6 +54,7 @@ public class ResourceMeta extends WaspModel {
     this.resource = resource;
     this.resourceId = resource.resourceId;
   }
+  
   public Resource getResource () {
     return this.resource;
   }
