@@ -39,6 +39,9 @@ foreach my $block (split /\s*;\s*/, $fc) {
 
   $table =~ s/^type(.)/"type\U$1"/e;
   $table =~ s/(.)user$/$1User/;
+  $table =~ s/(.)pendingmeta$/$1PendingMeta/;
+  $table =~ s/(.)pending$/$1Pending/;
+  $table =~ s/(.)meta$/$1Meta/;
 
   $table =~ s/^job(.)/"job\U$1"/ie;
   $table =~ s/^project(.)/"project\U$1"/ie;
@@ -88,6 +91,9 @@ foreach my $block (split /\s*;\s*/, $fc) {
       push @{$schema->{$_table}->{'fka'}}, $fk;
       push @{$schema->{$ptable}->{'fkb'}}, $fk;
       schema->{$ptable}->{'cols'}->{$pcol}->{'fkb'}->{$_table}->{$col} = 1;
+
+    } elsif ($row =~ /^index/ ) {
+      # todo create get by list 
 
     } elsif ($row =~ /^constraint/ ) {
 
@@ -416,6 +422,8 @@ import org.hibernate.envers.NotAudited;
 import javax.persistence.*;
 import java.util.*;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
+
 \@Entity
 \@Audited
 \@Table(name="$t->{'_table'}")
@@ -475,6 +483,7 @@ public class $t->{'Table'} extends WaspModel {
     $j .= "    this.$parentt->{'table'} = $parentt->{'table'};\n";
     $j .= "    this.$thisc->{'var'} = $parentt->{'table'}.$parentc->{'var'};\n";
     $j .= "  }\n";
+    $j .= "  @JsonIgnore\n";
     $j .= "  public $parentt->{'Table'} get$parentt->{'Table'}$via () {\n";
     $j .= "    return this.$parentt->{'table'};\n";
     $j .= "  }\n";
