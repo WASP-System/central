@@ -6,9 +6,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
@@ -32,16 +30,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
-import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import edu.yu.einstein.wasp.model.Department;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabUser;
-import edu.yu.einstein.wasp.model.Labmeta;
+import edu.yu.einstein.wasp.model.LabMeta;
 import edu.yu.einstein.wasp.model.MetaAttribute;
-import edu.yu.einstein.wasp.model.MetaAttribute.Country;
-import edu.yu.einstein.wasp.model.MetaAttribute.State;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.MetaUtil;
 import edu.yu.einstein.wasp.model.Role;
@@ -50,7 +45,7 @@ import edu.yu.einstein.wasp.service.DepartmentService;
 import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.service.LabService;
 import edu.yu.einstein.wasp.service.LabUserService;
-import edu.yu.einstein.wasp.service.LabmetaService;
+import edu.yu.einstein.wasp.service.LabMetaService;
 import edu.yu.einstein.wasp.service.RoleService;
 import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.taglib.MessageTag;
@@ -70,12 +65,9 @@ public class LabController extends WaspController {
 
 	@Autowired
 	private RoleService roleService;
-	
-	@Autowired
-	HttpServletRequest request;
 
 	@Autowired
-	private LabmetaService labmetaService;
+	private LabMetaService labMetaService;
 
 	@Autowired
 	private DepartmentService deptService;
@@ -88,8 +80,6 @@ public class LabController extends WaspController {
 
 	@Autowired
 	private EmailService emailService;
-
-
 	
 	@InitBinder
 	protected void initBinder(WebDataBinder binder) {
@@ -170,9 +160,9 @@ public class LabController extends WaspController {
 				 Map cell = new HashMap();
 				 cell.put("id", lab.getLabId());
 				 
-				 List<Labmeta> labmeta=MetaUtil.syncWithMaster(lab.getLabmeta(), AREA, Labmeta.class);
+				 List<LabMeta> labMeta=MetaUtil.syncWithMaster(lab.getLabMeta(), AREA, LabMeta.class);
 				 					
-				 MetaUtil.setAttributesAndSort(labmeta, AREA,getBundle());
+				 MetaUtil.setAttributesAndSort(labMeta, AREA,getBundle());
 				 
 				 List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 							lab.getName(),
@@ -181,7 +171,7 @@ public class LabController extends WaspController {
 							lab.getIsActive()==1?"yes":"no"
 				}));
 				 
-				for(Labmeta meta:labmeta) {
+				for(LabMeta meta:labMeta) {
 					cellList.add(meta.getV());
 				}				
 				 
@@ -205,13 +195,10 @@ public class LabController extends WaspController {
 	@RequestMapping(value = "/detail_rw/updateJSON.do", method = RequestMethod.POST)
 	public String updateDetailJSON(@RequestParam("id") Integer labId,Lab labForm, ModelMap m, HttpServletResponse response) {
 				
-		List<Labmeta> labmetaList = MetaUtil.getMetaFromForm(request,
-				AREA, Labmeta.class);
+		List<LabMeta> labMetaList = MetaUtil.getMetaFromForm(request,
+				AREA, LabMeta.class, getBundle());
 
-
-		MetaUtil.setAttributesAndSort(labmetaList, AREA,getBundle());
-		
-		labForm.setLabmeta(labmetaList);
+		labForm.setLabMeta(labMetaList);
 
 		if (labId==0) {
 			
@@ -232,11 +219,11 @@ public class LabController extends WaspController {
 		}
 
 
-		for (Labmeta meta : labmetaList) {
+		for (LabMeta meta : labMetaList) {
 			meta.setLabId(labId);
 		}
 
-		labmetaService.updateByLabId(labId, labmetaList);
+		labMetaService.updateByLabId(labId, labMetaList);
 
 		MimeMessageHelper a;
 		
@@ -254,32 +241,13 @@ public class LabController extends WaspController {
 	    
 	}
 	
-	private String getMessage(String key) {
-
-		String message=(String)getBundle().getObject(key);
-		
-		return message;
-	}
-	
-	private ResourceBundle getBundle() {
-		
-		Locale locale=(Locale)request.getSession().getAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
-		
-		if (locale==null) locale=Locale.ENGLISH;
-		
-		ResourceBundle bundle=ResourceBundle.getBundle("messages",locale);
-		
-		return bundle;
-	}
-	
-
 	@RequestMapping(value = "/create/form.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('god')")
 	public String showEmptyForm(ModelMap m) {
 
 		Lab lab = new Lab();
 
-		lab.setLabmeta(MetaUtil.getMasterList(Labmeta.class, AREA,getBundle()));
+		lab.setLabMeta(MetaUtil.getMasterList(LabMeta.class, AREA,getBundle()));
 
 		m.addAttribute(AREA.name(), lab);
 		
@@ -304,9 +272,9 @@ public class LabController extends WaspController {
 
 		Lab lab = this.labService.getById(labId);
 
-		lab.setLabmeta(MetaUtil.syncWithMaster(lab.getLabmeta(), AREA, Labmeta.class));
+		lab.setLabMeta(MetaUtil.syncWithMaster(lab.getLabMeta(), AREA, LabMeta.class));
 
-		MetaUtil.setAttributesAndSort(lab.getLabmeta(), AREA,getBundle());
+		MetaUtil.setAttributesAndSort(lab.getLabMeta(), AREA,getBundle());
 
 		List<LabUser> labUserList = lab.getLabUser();
 		labUserList.size();
@@ -329,19 +297,16 @@ public class LabController extends WaspController {
 
 		// read properties from form
 
-		List<Labmeta> labmetaList = MetaUtil.getMetaFromForm(request, AREA,
-				Labmeta.class);
+		List<LabMeta> labMetaList = MetaUtil.getMetaFromForm(request, AREA,
+				LabMeta.class, getBundle());
 
-		// set property attributes and sort them according to "position"
-		MetaUtil.setAttributesAndSort(labmetaList, AREA,getBundle());
-
-		labForm.setLabmeta(labmetaList);
+		labForm.setLabMeta(labMetaList);
 
 		// manually validate login and password
 
 		List<String> validateList = new ArrayList<String>();
 
-		for (Labmeta meta : labmetaList) {
+		for (LabMeta meta : labMetaList) {
 			if (meta.getProperty() != null
 					&& meta.getProperty().getConstraint() != null) {
 				validateList.add(meta.getK());
@@ -352,7 +317,7 @@ public class LabController extends WaspController {
 		MetaValidator validator = new MetaValidator(
 				validateList.toArray(new String[] {}));
 
-		validator.validate(labmetaList, result, AREA);
+		validator.validate(labMetaList, result, AREA);
 
 		if (result.hasErrors()) {
 			prepareSelectListData(m);
@@ -364,12 +329,12 @@ public class LabController extends WaspController {
 		
 
 		Lab labDb = this.labService.save(labForm);
-		for (Labmeta um : labmetaList) {
+		for (LabMeta um : labMetaList) {
 			um.setLabId(labDb.getLabId());
 		}
 		;
 
-		labmetaService.updateByLabId(labDb.getLabId(), labmetaList);
+		labMetaService.updateByLabId(labDb.getLabId(), labMetaList);
 
 		status.setComplete();
 
@@ -384,20 +349,18 @@ public class LabController extends WaspController {
 			@Valid Lab labForm, BindingResult result, SessionStatus status,
 			ModelMap m) {
 
-		List<Labmeta> labmetaList = MetaUtil.getMetaFromForm(request, AREA,
-				Labmeta.class);
+		List<LabMeta> labMetaList = MetaUtil.getMetaFromForm(request, AREA,
+				LabMeta.class, getBundle());
 
-		for (Labmeta meta : labmetaList) {
+		for (LabMeta meta : labMetaList) {
 			meta.setLabId(labId);
 		}
 
-		MetaUtil.setAttributesAndSort(labmetaList, AREA,getBundle());
-
-		labForm.setLabmeta(labmetaList);
+		labForm.setLabMeta(labMetaList);
 
 		List<String> validateList = new ArrayList<String>();
 
-		for (Labmeta meta : labmetaList) {
+		for (LabMeta meta : labMetaList) {
 			if (meta.getProperty() != null
 					&& meta.getProperty().getConstraint() != null) {
 				validateList.add(meta.getK());
@@ -408,7 +371,7 @@ public class LabController extends WaspController {
 		MetaValidator validator = new MetaValidator(
 				validateList.toArray(new String[] {}));
 
-		validator.validate(labmetaList, result, AREA);
+		validator.validate(labMetaList, result, AREA);
 
 		if (result.hasErrors()) {
 			prepareSelectListData(m);
@@ -425,7 +388,7 @@ public class LabController extends WaspController {
 
 		this.labService.merge(labDb);
 
-		labmetaService.updateByLabId(labId, labmetaList);
+		labMetaService.updateByLabId(labId, labMetaList);
 
 		status.setComplete();
 		
@@ -560,6 +523,7 @@ public class LabController extends WaspController {
 		return "redirect:/lab/user/" + labId + ".do";
 	}
 
+/* moved to Wasp Controller?
 	private void prepareSelectListData(ModelMap m) {
 		List<User> users=userService.findAll();
 		List<User> usersLight=new ArrayList<User>();
@@ -576,4 +540,5 @@ public class LabController extends WaspController {
 		m.addAttribute("states", State.getList());
 		m.addAttribute("departments", deptService.findAll());
 	}
+*/
 }
