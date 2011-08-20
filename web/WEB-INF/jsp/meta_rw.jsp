@@ -20,7 +20,7 @@
  		<c:set var="itemValue" scope="request">value</c:set>
  		<c:set var="itemLabel" scope="request">label</c:set>  	
  	</c:if>
-  	 
+
     <select name="${_area}meta_${_meta.k}">
 	                <option value=''>-- select --</option>
                 	<c:forEach var="option" items="${selectItems}">
@@ -30,7 +30,8 @@
              	    	    
   </c:if>
   <c:if test="${empty _meta.property.control}"><input name="${_area}meta_${_meta.k}" value="${_meta.v}" /></c:if>
-  </td>  	 
-  <td><form:errors path="${_area}meta[${status.index}].k" /> </td>              
+  </td>  	
+
+  <td><form:errors path="${_area}Meta[${status.index}].k" /> </td>              
 </tr>         
 </c:forEach>
