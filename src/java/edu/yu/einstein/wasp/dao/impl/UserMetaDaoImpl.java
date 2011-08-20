@@ -1,10 +1,10 @@
 
 /**
  *
- * LabmetaImpl.java 
+ * UserMetaImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the Labmeta object
+ * the UserMeta object
  *
  *
  **/
@@ -23,58 +23,58 @@ import org.springframework.stereotype.Repository;
 import org.springframework.orm.jpa.JpaCallback;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.yu.einstein.wasp.model.Labmeta;
+import edu.yu.einstein.wasp.model.UserMeta;
 
 @SuppressWarnings("unchecked")
 @Transactional
 @Repository
-public class LabmetaDaoImpl extends WaspDaoImpl<Labmeta> implements edu.yu.einstein.wasp.dao.LabmetaDao {
+public class UserMetaDaoImpl extends WaspDaoImpl<UserMeta> implements edu.yu.einstein.wasp.dao.UserMetaDao {
 
-  public LabmetaDaoImpl() {
+  public UserMetaDaoImpl() {
     super();
-    this.entityClass = Labmeta.class;
+    this.entityClass = UserMeta.class;
   }
 
   @SuppressWarnings("unchecked")
   @Transactional
-  public Labmeta getLabmetaByLabmetaId (final int labmetaId) {
+  public UserMeta getUserMetaByUserMetaId (final int userMetaId) {
     HashMap m = new HashMap();
-    m.put("labmetaId", labmetaId);
-    List<Labmeta> results = (List<Labmeta>) this.findByMap((Map) m);
+    m.put("userMetaId", userMetaId);
+    List<UserMeta> results = (List<UserMeta>) this.findByMap((Map) m);
     if (results.size() == 0) {
-      Labmeta rt = new Labmeta();
+      UserMeta rt = new UserMeta();
       return rt;
     }
-    return (Labmeta) results.get(0);
+    return (UserMeta) results.get(0);
   }
 
 
   @SuppressWarnings("unchecked")
   @Transactional
-  public Labmeta getLabmetaByKLabId (final String k, final int labId) {
+  public UserMeta getUserMetaByKUserId (final String k, final int UserId) {
     HashMap m = new HashMap();
     m.put("k", k);
-    m.put("labId", labId);
-    List<Labmeta> results = (List<Labmeta>) this.findByMap((Map) m);
+    m.put("UserId", UserId);
+    List<UserMeta> results = (List<UserMeta>) this.findByMap((Map) m);
     if (results.size() == 0) {
-      Labmeta rt = new Labmeta();
+      UserMeta rt = new UserMeta();
       return rt;
     }
-    return (Labmeta) results.get(0);
+    return (UserMeta) results.get(0);
   }
 
 
 
   @SuppressWarnings("unchecked")
   @Transactional
-  public void updateByLabId (final int labId, final List<Labmeta> metaList) {
+  public void updateByUserId (final int UserId, final List<UserMeta> metaList) {
 
     getJpaTemplate().execute(new JpaCallback() {
 
       public Object doInJpa(EntityManager em) throws PersistenceException {
-        em.createNativeQuery("delete from labmeta where labId=:labId").setParameter("labId", labId).executeUpdate();
+        em.createNativeQuery("delete from userMeta where UserId=:UserId").setParameter("UserId", UserId).executeUpdate();
 
-        for (Labmeta m:metaList) {
+        for (UserMeta m:metaList) {
           em.persist(m);
         }
 

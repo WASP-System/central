@@ -1,10 +1,10 @@
 
 /**
  *
- * StatemetaImpl.java 
+ * StateMetaImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the Statemeta object
+ * the StateMeta object
  *
  *
  **/
@@ -23,58 +23,58 @@ import org.springframework.stereotype.Repository;
 import org.springframework.orm.jpa.JpaCallback;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.yu.einstein.wasp.model.Statemeta;
+import edu.yu.einstein.wasp.model.StateMeta;
 
 @SuppressWarnings("unchecked")
 @Transactional
 @Repository
-public class StatemetaDaoImpl extends WaspDaoImpl<Statemeta> implements edu.yu.einstein.wasp.dao.StatemetaDao {
+public class StateMetaDaoImpl extends WaspDaoImpl<StateMeta> implements edu.yu.einstein.wasp.dao.StateMetaDao {
 
-  public StatemetaDaoImpl() {
+  public StateMetaDaoImpl() {
     super();
-    this.entityClass = Statemeta.class;
+    this.entityClass = StateMeta.class;
   }
 
   @SuppressWarnings("unchecked")
   @Transactional
-  public Statemeta getStatemetaByStatemetaId (final int statemetaId) {
+  public StateMeta getStateMetaByStateMetaId (final int stateMetaId) {
     HashMap m = new HashMap();
-    m.put("statemetaId", statemetaId);
-    List<Statemeta> results = (List<Statemeta>) this.findByMap((Map) m);
+    m.put("stateMetaId", stateMetaId);
+    List<StateMeta> results = (List<StateMeta>) this.findByMap((Map) m);
     if (results.size() == 0) {
-      Statemeta rt = new Statemeta();
+      StateMeta rt = new StateMeta();
       return rt;
     }
-    return (Statemeta) results.get(0);
+    return (StateMeta) results.get(0);
   }
 
 
   @SuppressWarnings("unchecked")
   @Transactional
-  public Statemeta getStatemetaByKStateId (final String k, final int stateId) {
+  public StateMeta getStateMetaByKStateId (final String k, final int stateId) {
     HashMap m = new HashMap();
     m.put("k", k);
     m.put("stateId", stateId);
-    List<Statemeta> results = (List<Statemeta>) this.findByMap((Map) m);
+    List<StateMeta> results = (List<StateMeta>) this.findByMap((Map) m);
     if (results.size() == 0) {
-      Statemeta rt = new Statemeta();
+      StateMeta rt = new StateMeta();
       return rt;
     }
-    return (Statemeta) results.get(0);
+    return (StateMeta) results.get(0);
   }
 
 
 
   @SuppressWarnings("unchecked")
   @Transactional
-  public void updateByStateId (final int stateId, final List<Statemeta> metaList) {
+  public void updateByStateId (final int stateId, final List<StateMeta> metaList) {
 
     getJpaTemplate().execute(new JpaCallback() {
 
       public Object doInJpa(EntityManager em) throws PersistenceException {
-        em.createNativeQuery("delete from statemeta where stateId=:stateId").setParameter("stateId", stateId).executeUpdate();
+        em.createNativeQuery("delete from stateMeta where stateId=:stateId").setParameter("stateId", stateId).executeUpdate();
 
-        for (Statemeta m:metaList) {
+        for (StateMeta m:metaList) {
           em.persist(m);
         }
 

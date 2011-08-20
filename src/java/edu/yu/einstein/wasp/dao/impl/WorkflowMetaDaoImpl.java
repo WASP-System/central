@@ -1,10 +1,10 @@
 
 /**
  *
- * WorkflowmetaImpl.java 
+ * WorkflowMetaImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the Workflowmeta object
+ * the WorkflowMeta object
  *
  *
  **/
@@ -23,58 +23,58 @@ import org.springframework.stereotype.Repository;
 import org.springframework.orm.jpa.JpaCallback;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.yu.einstein.wasp.model.Workflowmeta;
+import edu.yu.einstein.wasp.model.WorkflowMeta;
 
 @SuppressWarnings("unchecked")
 @Transactional
 @Repository
-public class WorkflowmetaDaoImpl extends WaspDaoImpl<Workflowmeta> implements edu.yu.einstein.wasp.dao.WorkflowmetaDao {
+public class WorkflowMetaDaoImpl extends WaspDaoImpl<WorkflowMeta> implements edu.yu.einstein.wasp.dao.WorkflowMetaDao {
 
-  public WorkflowmetaDaoImpl() {
+  public WorkflowMetaDaoImpl() {
     super();
-    this.entityClass = Workflowmeta.class;
+    this.entityClass = WorkflowMeta.class;
   }
 
   @SuppressWarnings("unchecked")
   @Transactional
-  public Workflowmeta getWorkflowmetaByWorkflowmetaId (final int workflowmetaId) {
+  public WorkflowMeta getWorkflowMetaByWorkflowMetaId (final int workflowMetaId) {
     HashMap m = new HashMap();
-    m.put("workflowmetaId", workflowmetaId);
-    List<Workflowmeta> results = (List<Workflowmeta>) this.findByMap((Map) m);
+    m.put("workflowMetaId", workflowMetaId);
+    List<WorkflowMeta> results = (List<WorkflowMeta>) this.findByMap((Map) m);
     if (results.size() == 0) {
-      Workflowmeta rt = new Workflowmeta();
+      WorkflowMeta rt = new WorkflowMeta();
       return rt;
     }
-    return (Workflowmeta) results.get(0);
+    return (WorkflowMeta) results.get(0);
   }
 
 
   @SuppressWarnings("unchecked")
   @Transactional
-  public Workflowmeta getWorkflowmetaByKWorkflowId (final String k, final int workflowId) {
+  public WorkflowMeta getWorkflowMetaByKWorkflowId (final String k, final int workflowId) {
     HashMap m = new HashMap();
     m.put("k", k);
     m.put("workflowId", workflowId);
-    List<Workflowmeta> results = (List<Workflowmeta>) this.findByMap((Map) m);
+    List<WorkflowMeta> results = (List<WorkflowMeta>) this.findByMap((Map) m);
     if (results.size() == 0) {
-      Workflowmeta rt = new Workflowmeta();
+      WorkflowMeta rt = new WorkflowMeta();
       return rt;
     }
-    return (Workflowmeta) results.get(0);
+    return (WorkflowMeta) results.get(0);
   }
 
 
 
   @SuppressWarnings("unchecked")
   @Transactional
-  public void updateByWorkflowId (final int workflowId, final List<Workflowmeta> metaList) {
+  public void updateByWorkflowId (final int workflowId, final List<WorkflowMeta> metaList) {
 
     getJpaTemplate().execute(new JpaCallback() {
 
       public Object doInJpa(EntityManager em) throws PersistenceException {
-        em.createNativeQuery("delete from workflowmeta where workflowId=:workflowId").setParameter("workflowId", workflowId).executeUpdate();
+        em.createNativeQuery("delete from workflowMeta where workflowId=:workflowId").setParameter("workflowId", workflowId).executeUpdate();
 
-        for (Workflowmeta m:metaList) {
+        for (WorkflowMeta m:metaList) {
           em.persist(m);
         }
 
