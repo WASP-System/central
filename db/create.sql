@@ -73,6 +73,7 @@ create table userpasswordauth (
   constraint unique index u_userpasswordauth (authcode)
 ) ENGINE=InnoDB;
 
+
 --
 -- ROLE
 --
@@ -252,7 +253,78 @@ create table labuser (
   constraint unique index u_labuser_lid_uid (labid, userid)
 ) ENGINE=InnoDB;
 
+--
+-- pending user
+-- 
+create table userpending (
+  userpendingid int(10) not null primary key auto_increment,
 
+  email varchar(250) not null, 
+  password varchar(250) not null, 
+  firstname varchar(250) not null, 
+  lastname varchar(250) not null, 
+  locale varchar(5) not null default 'en_US',
+  labid int(10),
+
+  status varchar(10) not null default 'PENDING', -- PENDING, APPROVED, DECLINED
+
+  lastupdts timestamp not null default current_timestamp, 
+  lastupduser int(10) not null default 0,
+
+  foreign key fk_userpending_lid (labid) references lab(labid),
+
+  index i_userpending_status(status, email) 
+) ENGINE=InnoDB;
+
+create table userpendingmeta (
+  userpendingmetaid int(10) not null primary key auto_increment,
+  userpendingid int(10) not null,
+
+  k varchar(250) not null, 
+  v varchar(250), 
+  position int(10) not null default 0,
+
+  lastupdts timestamp not null default current_timestamp,
+  lastupduser int(10) not null default 0,
+
+  foreign key fk_userpendingmeta_userpendingid (userpendingid) references userpending(userpendingid),
+  constraint unique index u_userpendingmeta_k_lid (k, userpendingid)
+) ENGINE=InnoDB;
+
+create table labpending ( 
+  labpendingid int(10) not null primary key auto_increment,
+
+  departmentid int(10) not null, 
+  name varchar(250) not null,
+
+  primaryuserid int(10),
+  userpendingid int(10),
+
+  status varchar(10) not null default 'PENDING', -- PENDING, APPROVED, DECLINED
+
+  lastupdts timestamp not null default current_timestamp,
+  lastupduser int(10) not null default 0,
+
+  foreign key fk_labpending_did (departmentid) references department(departmentid),
+  foreign key fk_labpending_pruid (primaryuserid) references user(userid),
+  foreign key fk_labpending_peuid (userpendingid) references userpending(userpendingid),
+  index (status, name)
+) ENGINE=InnoDB;
+
+create table labpendingmeta (
+  labpendingmetaid int(10) not null primary key auto_increment,
+  labpendingid int(10) not null,
+
+  k varchar(250) not null, 
+  v varchar(250), 
+  position int(10) not null default 0,
+
+  lastupdts timestamp not null default current_timestamp,
+  lastupduser int(10) not null default 0,
+
+  foreign key fk_labpendingmeta_labpendingid (labpendingid) references labpending(labpendingid),
+  constraint unique index u_labpendingmeta_k_lid (k, labpendingid)
+) ENGINE=InnoDB;
 
 --
 -- type.RESOURCE
