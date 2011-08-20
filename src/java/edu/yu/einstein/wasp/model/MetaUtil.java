@@ -249,7 +249,7 @@ public final class MetaUtil {
 			String key=(String)entry.getKey();
 			for (T metaObj: resultList) {
 				MetaBase meta = (MetaBase) metaObj;
-				if (key.equals(area.name() + "meta" + "_" + meta.getK())) {
+				if (key.equals(area.name() + "Meta" + "_" + meta.getK())) {
 					try {
 						meta.setV(((String[])entry.getValue())[0]);
 					} catch (Throwable e) {
