@@ -21,7 +21,8 @@
 
 <div>
 <a href="/wasp/auth/forgotpassword.do">Forgot Password</a> |
-<a href="/wasp/auth/newuser.do">New Registration</a> |
+<a href="/wasp/auth/newuser.do">New User</a> |
+<a href="/wasp/auth/newlab.do">New Lab</a> |
 <a href="/wasp/static/about.do">About</a>
 </div>
 
