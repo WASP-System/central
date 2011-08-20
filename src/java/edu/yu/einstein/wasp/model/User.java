@@ -68,6 +68,7 @@ public class User extends WaspModel {
 
 
   @Column(name="password")
+  @NotEmpty
   protected String password;
   public void setPassword (String password) {
     this.password = password;
@@ -133,13 +134,13 @@ public class User extends WaspModel {
   @OneToMany
    @JoinColumn(name="userid", insertable=false, updatable=false)
 
-  protected List<Usermeta> usermeta;
+  protected List<UserMeta> userMeta;
   @JsonIgnore 
-  public List<Usermeta> getUsermeta()  {
-    return this.usermeta;
+  public List<UserMeta> getUserMeta()  {
+    return this.userMeta;
   }
-  public void setUsermeta (List<Usermeta> usermeta)  {
-    this.usermeta = usermeta;
+  public void setUserMeta (List<UserMeta> userMeta)  {
+    this.userMeta = userMeta;
   }
 
 
@@ -296,7 +297,7 @@ public String toString() {
 			+ ", password=" + password + ", firstName=" + firstName
 			+ ", lastName=" + lastName + ", isActive=" + isActive
 			+ ", lastUpdTs=" + lastUpdTs + ", lastUpdUser=" + lastUpdUser
-			+ ", usermeta=" + usermeta + ", departmentUser=" + departmentUser
+			+ ", userMeta=" + userMeta + ", departmentUser=" + departmentUser
 			+ ", lab=" + lab + ", job=" + job + ", sample=" + sample
 			+ ", acctQuote=" + acctQuote + ", acctQuoteUser=" + acctQuoteUser
 			+ ", locale=" + locale + "]";

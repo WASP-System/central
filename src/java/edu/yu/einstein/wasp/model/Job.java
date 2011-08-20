@@ -18,6 +18,8 @@ import org.hibernate.envers.NotAudited;
 import javax.persistence.*;
 import java.util.*;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
+
 @Entity
 @Audited
 @Table(name="job")
@@ -131,6 +133,7 @@ public class Job extends WaspModel {
     this.lab = lab;
     this.labId = lab.labId;
   }
+  
   public Lab getLab () {
     return this.lab;
   }
@@ -143,6 +146,7 @@ public class Job extends WaspModel {
     this.user = user;
     this.UserId = user.UserId;
   }
+  
   public User getUser () {
     return this.user;
   }
@@ -155,6 +159,7 @@ public class Job extends WaspModel {
     this.workflow = workflow;
     this.workflowId = workflow.workflowId;
   }
+  
   public Workflow getWorkflow () {
     return this.workflow;
   }

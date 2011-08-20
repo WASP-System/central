@@ -18,6 +18,8 @@ import org.hibernate.envers.NotAudited;
 import javax.persistence.*;
 import java.util.*;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
+
 @Entity
 @Audited
 @Table(name="workflow")
@@ -95,12 +97,12 @@ public class Workflow extends WaspModel {
   @NotAudited
   @OneToMany
    @JoinColumn(name="workflowid", insertable=false, updatable=false)
-  protected List<Workflowmeta> workflowmeta;
-  public List<Workflowmeta> getWorkflowmeta()  {
-    return this.workflowmeta;
+  protected List<WorkflowMeta> workflowMeta;
+  public List<WorkflowMeta> getWorkflowMeta()  {
+    return this.workflowMeta;
   }
-  public void setWorkflowmeta (List<Workflowmeta> workflowmeta)  {
-    this.workflowmeta = workflowmeta;
+  public void setWorkflowMeta (List<WorkflowMeta> workflowMeta)  {
+    this.workflowMeta = workflowMeta;
   }
 
 

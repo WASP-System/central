@@ -18,6 +18,8 @@ import org.hibernate.envers.NotAudited;
 import javax.persistence.*;
 import java.util.*;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
+
 @Entity
 @Audited
 @Table(name="state")
@@ -111,18 +113,19 @@ public class State extends WaspModel {
     this.task = task;
     this.taskId = task.taskId;
   }
+  
   public Task getTask () {
     return this.task;
   }
   @NotAudited
   @OneToMany
    @JoinColumn(name="stateid", insertable=false, updatable=false)
-  protected List<Statemeta> statemeta;
-  public List<Statemeta> getStatemeta()  {
-    return this.statemeta;
+  protected List<StateMeta> stateMeta;
+  public List<StateMeta> getStateMeta()  {
+    return this.stateMeta;
   }
-  public void setStatemeta (List<Statemeta> statemeta)  {
-    this.statemeta = statemeta;
+  public void setStateMeta (List<StateMeta> stateMeta)  {
+    this.stateMeta = stateMeta;
   }
 
 

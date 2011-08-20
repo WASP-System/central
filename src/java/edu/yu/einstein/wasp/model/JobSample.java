@@ -18,6 +18,8 @@ import org.hibernate.envers.NotAudited;
 import javax.persistence.*;
 import java.util.*;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
+
 @Entity
 @Audited
 @Table(name="jobsample")
@@ -81,6 +83,7 @@ public class JobSample extends WaspModel {
     this.job = job;
     this.jobId = job.jobId;
   }
+  
   public Job getJob () {
     return this.job;
   }
@@ -93,18 +96,19 @@ public class JobSample extends WaspModel {
     this.sample = sample;
     this.sampleId = sample.sampleId;
   }
+  
   public Sample getSample () {
     return this.sample;
   }
   @NotAudited
   @OneToMany
    @JoinColumn(name="jobsampleid", insertable=false, updatable=false)
-  protected List<JobSamplemeta> jobSamplemeta;
-  public List<JobSamplemeta> getJobSamplemeta()  {
-    return this.jobSamplemeta;
+  protected List<JobSampleMeta> jobSampleMeta;
+  public List<JobSampleMeta> getJobSampleMeta()  {
+    return this.jobSampleMeta;
   }
-  public void setJobSamplemeta (List<JobSamplemeta> jobSamplemeta)  {
-    this.jobSamplemeta = jobSamplemeta;
+  public void setJobSampleMeta (List<JobSampleMeta> jobSampleMeta)  {
+    this.jobSampleMeta = jobSampleMeta;
   }
 
 

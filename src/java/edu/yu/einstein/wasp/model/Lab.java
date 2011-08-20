@@ -143,14 +143,14 @@ public class Lab extends WaspModel {
   @NotAudited
   @OneToMany
    @JoinColumn(name="labid", insertable=false, updatable=false)
-  protected List<Labmeta> labmeta;
+  protected List<LabMeta> labMeta;
   
   @JsonIgnore 
-  public List<Labmeta> getLabmeta()  {
-    return this.labmeta;
+  public List<LabMeta> getLabMeta()  {
+    return this.labMeta;
   }
-  public void setLabmeta (List<Labmeta> labmeta)  {
-    this.labmeta = labmeta;
+  public void setLabMeta (List<LabMeta> labMeta)  {
+    this.labMeta = labMeta;
   }
 
 
