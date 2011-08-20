@@ -23,11 +23,11 @@
     <class>edu.yu.einstein.wasp.model.JobFile</class>
     <class>edu.yu.einstein.wasp.model.JobMeta</class>
     <class>edu.yu.einstein.wasp.model.JobSample</class>
-    <class>edu.yu.einstein.wasp.model.JobSamplemeta</class>
+    <class>edu.yu.einstein.wasp.model.JobSampleMeta</class>
     <class>edu.yu.einstein.wasp.model.JobUser</class>
     <class>edu.yu.einstein.wasp.model.Lab</class>
     <class>edu.yu.einstein.wasp.model.LabUser</class>
-    <class>edu.yu.einstein.wasp.model.Labmeta</class>
+    <class>edu.yu.einstein.wasp.model.LabMeta</class>
     <class>edu.yu.einstein.wasp.model.Meta</class>
     <class>edu.yu.einstein.wasp.model.Project</class>
     <class>edu.yu.einstein.wasp.model.Resource</class>
@@ -49,7 +49,7 @@
     <class>edu.yu.einstein.wasp.model.State</class>
     <class>edu.yu.einstein.wasp.model.StateAChipseqArun</class>
     <class>edu.yu.einstein.wasp.model.Statejob</class>
-    <class>edu.yu.einstein.wasp.model.Statemeta</class>
+    <class>edu.yu.einstein.wasp.model.StateMeta</class>
     <class>edu.yu.einstein.wasp.model.Staterun</class>
     <class>edu.yu.einstein.wasp.model.Staterunlane</class>
     <class>edu.yu.einstein.wasp.model.Statesample</class>
@@ -57,14 +57,18 @@
     <class>edu.yu.einstein.wasp.model.TypeResource</class>
     <class>edu.yu.einstein.wasp.model.TypeSample</class>
     <class>edu.yu.einstein.wasp.model.User</class>
-    <class>edu.yu.einstein.wasp.model.Usermeta</class>
+    <class>edu.yu.einstein.wasp.model.UserMeta</class>
     <class>edu.yu.einstein.wasp.model.Userpasswordauth</class>
     <class>edu.yu.einstein.wasp.model.Userrole</class>
     <class>edu.yu.einstein.wasp.model.Workflow</class>
-    <class>edu.yu.einstein.wasp.model.Workflowmeta</class>
+    <class>edu.yu.einstein.wasp.model.WorkflowMeta</class>
     <class>edu.yu.einstein.wasp.model.Workflowtask</class>
     <class>edu.yu.einstein.wasp.model.Workflowtasksource</class>
 
+    <class>edu.yu.einstein.wasp.model.UserPending</class>
+    <class>edu.yu.einstein.wasp.model.UserPendingMeta</class>
+    <class>edu.yu.einstein.wasp.model.LabPending</class>
+    <class>edu.yu.einstein.wasp.model.LabPendingMeta</class>
 
     <properties>
       <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver"/>
