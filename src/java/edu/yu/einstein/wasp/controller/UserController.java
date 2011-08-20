@@ -6,9 +6,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
@@ -37,7 +35,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
-import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.MetaAttribute.Country;
@@ -45,10 +42,11 @@ import edu.yu.einstein.wasp.model.MetaAttribute.State;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.MetaUtil;
 import edu.yu.einstein.wasp.model.User;
-import edu.yu.einstein.wasp.model.Usermeta;
+import edu.yu.einstein.wasp.model.UserMeta;
 import edu.yu.einstein.wasp.service.EmailService;
+import edu.yu.einstein.wasp.service.PasswordEncoderService;
 import edu.yu.einstein.wasp.service.UserService;
-import edu.yu.einstein.wasp.service.UsermetaService;
+import edu.yu.einstein.wasp.service.UserMetaService;
 import edu.yu.einstein.wasp.taglib.MessageTag;
 
 @Controller
@@ -60,13 +58,16 @@ public class UserController extends WaspController {
 	private UserService userService;
 
 	@Autowired
-	private UsermetaService usermetaService;
+	private UserMetaService userMetaService;
 
 	@Autowired
 	private BeanValidator validator;
 	
 	@Autowired
 	private EmailService emailService;
+
+	@Autowired
+	private PasswordEncoderService passwordEncoderService;
 
 	@Autowired
 	private MappingJacksonHttpMessageConverter jsonnMapper;
@@ -76,21 +77,8 @@ public class UserController extends WaspController {
 		binder.setValidator(validator);
 	}
 	
-	@Autowired
-	HttpServletRequest request;
-
 	private static final MetaAttribute.Area AREA = MetaAttribute.Area.user;
-
 	
-	private static final Map<String, String> LOCALES=new TreeMap<String, String>();
-	static {
-		LOCALES.put("en_US","English");
-		LOCALES.put("iw_IL","Hebrew");	
-		LOCALES.put("ru_RU","Russian");
-		LOCALES.put("ja_JA","Japanese");
-		}
-	
-
 	@RequestMapping("/list")
 	@PreAuthorize("hasRole('god')")
 	public String list(ModelMap m) {
@@ -158,9 +146,9 @@ public class UserController extends WaspController {
 				 Map cell = new HashMap();
 				 cell.put("id", user.getUserId());
 				 
-				 List<Usermeta> usermeta=MetaUtil.syncWithMaster(user.getUsermeta(), AREA, Usermeta.class);
+				 List<UserMeta> userMeta=MetaUtil.syncWithMaster(user.getUserMeta(), AREA, UserMeta.class);
 				 					
-				 MetaUtil.setAttributesAndSort(usermeta, AREA,getBundle());
+				 MetaUtil.setAttributesAndSort(userMeta, AREA,getBundle());
 				 
 				 List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 							user.getLogin(),
@@ -172,7 +160,7 @@ public class UserController extends WaspController {
 							user.getIsActive()==1?"yes":"no"
 				}));
 				 
-				for(Usermeta meta:usermeta) {
+				for(UserMeta meta:userMeta) {
 					cellList.add(meta.getV());
 				}
 				
@@ -211,13 +199,10 @@ public class UserController extends WaspController {
 		
 		}
 				
-		List<Usermeta> usermetaList = MetaUtil.getMetaFromForm(request,
-				AREA, Usermeta.class);
-
-
-		MetaUtil.setAttributesAndSort(usermetaList, AREA,getBundle());
+		List<UserMeta> userMetaList = MetaUtil.getMetaFromForm(request,
+				AREA, UserMeta.class, getBundle());
 		
-		userForm.setUsermeta(usermetaList);
+		userForm.setUserMeta(userMetaList);
 
 		if (userId==0) {
 			PasswordEncoder encoder = new ShaPasswordEncoder();
@@ -251,13 +236,23 @@ public class UserController extends WaspController {
 		}
 
 
-		for (Usermeta meta : usermetaList) {
+		for (UserMeta meta : userMetaList) {
 			meta.setUserId(userId);
 		}
 
-		usermetaService.updateByUserId(userId, usermetaList);
+		userMetaService.updateByUserId(userId, userMetaList);
 
-		MimeMessageHelper a;
+		/*
+		if (result.hasErrors()) {
+			prepareSelectListData(m);
+			MessageTag.addMessage(request.getSession(), "user.created.error");
+			return "user/detail_rw";
+		}
+		*/
+
+		userForm.setLastUpdTs(new Date());
+
+		userForm.setPassword( passwordEncoderService.encodePassword(userForm.getPassword()) );
 		
 		//MessageTag.addMessage(request.getSession(), "user.updated.success");
 		
@@ -296,20 +291,18 @@ public class UserController extends WaspController {
 			@Valid User userForm, BindingResult result, SessionStatus status,
 			ModelMap m) {
 
-		List<Usermeta> usermetaList = MetaUtil.getMetaFromForm(request,
-				AREA, Usermeta.class);
+		List<UserMeta> userMetaList = MetaUtil.getMetaFromForm(request,
+				AREA, UserMeta.class, getBundle());
 
-		for (Usermeta meta : usermetaList) {
+		for (UserMeta meta : userMetaList) {
 			meta.setUserId(userId);
 		}
 
-		MetaUtil.setAttributesAndSort(usermetaList, AREA,getBundle());
-		
-		userForm.setUsermeta(usermetaList);
+		userForm.setUserMeta(userMetaList);
 
 		List<String> validateList = new ArrayList<String>();
 
-		for (Usermeta meta : usermetaList) {
+		for (UserMeta meta : userMetaList) {
 			if (meta.getProperty() != null
 					&& meta.getProperty().getConstraint() != null) {
 				validateList.add(meta.getK());
@@ -320,7 +313,7 @@ public class UserController extends WaspController {
 		MetaValidator validator = new MetaValidator(
 				validateList.toArray(new String[] {}));
 
-		validator.validate(usermetaList, result, AREA);
+		validator.validate(userMetaList, result, AREA);
 
 		if (result.hasErrors()) {
 			userForm.setUserId(userId);
@@ -344,7 +337,7 @@ public class UserController extends WaspController {
 
 		this.userService.merge(userDb);
 
-		usermetaService.updateByUserId(userId, usermetaList);
+		userMetaService.updateByUserId(userId, userMetaList);
 
 		MimeMessageHelper a;
 		
@@ -357,26 +350,6 @@ public class UserController extends WaspController {
 		return "redirect:" + userId + ".do";
 	}
 
-
-	private String getMessage(String key) {
-
-		String message=(String)getBundle().getObject(key);
-		
-		return message;
-	}
-	
-	private ResourceBundle getBundle() {
-		
-		Locale locale=(Locale)request.getSession().getAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
-		
-		if (locale==null) locale=Locale.ENGLISH;
-		
-		ResourceBundle bundle=ResourceBundle.getBundle("messages",locale);
-		
-		return bundle;
-	}
-	
-	
 
 	
 	@RequestMapping(value = "/mypassword.do", method = RequestMethod.GET)
@@ -392,12 +365,6 @@ public class UserController extends WaspController {
 		return "redirect:/dashboard.do";
 	}
 	
-	private void prepareSelectListData(ModelMap m) {
-		m.addAttribute("countries", Country.getList());
-		m.addAttribute("states", State.getList());
-		m.addAttribute("locales", LOCALES);		
-	}
-
 
 	@RequestMapping(value = "/create/form.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('god')")
@@ -405,7 +372,7 @@ public class UserController extends WaspController {
 	
 		User user = new User();
 
-		user.setUsermeta(MetaUtil.getMasterList(Usermeta.class, AREA,getBundle()));
+		user.setUserMeta(MetaUtil.getMasterList(UserMeta.class, AREA,getBundle()));
 		
 		m.addAttribute(AREA.name(), user);
 		
@@ -420,12 +387,10 @@ public class UserController extends WaspController {
 	public String create(@Valid User userForm, BindingResult result,
 			SessionStatus status, ModelMap m) {
 
-		List<Usermeta> usermetaList = MetaUtil.getMetaFromForm(request,
-				AREA, Usermeta.class);
+		List<UserMeta> userMetaList = MetaUtil.getMetaFromForm(request,
+				AREA, UserMeta.class, getBundle());
 		
-		MetaUtil.setAttributesAndSort(usermetaList, AREA,getBundle());
-
-		userForm.setUsermeta(usermetaList);
+		userForm.setUserMeta(userMetaList);
 
 		// manually validate login and password
 		Errors errors = new BindException(result.getTarget(), AREA.name());
@@ -451,7 +416,7 @@ public class UserController extends WaspController {
 		validateList.add("password");
 		validateList.add(MetaValidator.Constraint.NotEmpty.name());
 
-		for (Usermeta meta : usermetaList) {
+		for (UserMeta meta : userMetaList) {
 			if (meta.getProperty() != null
 					&& meta.getProperty().getConstraint() != null) {
 				validateList.add(meta.getK());
@@ -461,7 +426,7 @@ public class UserController extends WaspController {
 		MetaValidator validator = new MetaValidator(
 				validateList.toArray(new String[] {}));
 
-		validator.validate(usermetaList, result, AREA);
+		validator.validate(userMetaList, result, AREA);
 
 		if (result.hasErrors()) {
 			prepareSelectListData(m);
@@ -480,12 +445,12 @@ public class UserController extends WaspController {
 		
 		User userDb = this.userService.save(userForm);
 		
-		for (Usermeta um : usermetaList) {
+		for (UserMeta um : userMetaList) {
 			um.setUserId(userDb.getUserId());
 		}
 		;
 
-		usermetaService.updateByUserId(userDb.getUserId(), usermetaList);
+		userMetaService.updateByUserId(userDb.getUserId(), userMetaList);
 
 		status.setComplete();
 
@@ -500,8 +465,6 @@ public class UserController extends WaspController {
 		return detail(userId,m,true);
 	}
 	
-	
-	
 	@RequestMapping(value = "/detail_ro/{userId}.do", method = RequestMethod.GET)	
 	public String detailRO(@PathVariable("userId") Integer userId, ModelMap m) {
 		return detail(userId,m,false);
@@ -511,9 +474,9 @@ public class UserController extends WaspController {
 
 		User user = this.userService.getById(userId);
 
-		user.setUsermeta(MetaUtil.syncWithMaster(user.getUsermeta(), AREA, Usermeta.class));
+		user.setUserMeta(MetaUtil.syncWithMaster(user.getUserMeta(), AREA, UserMeta.class));
 		
-		MetaUtil.setAttributesAndSort(user.getUsermeta(), AREA,getBundle());
+		MetaUtil.setAttributesAndSort(user.getUserMeta(), AREA,getBundle());
 
 		m.addAttribute(AREA.name(), user);
 		
