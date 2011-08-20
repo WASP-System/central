@@ -79,6 +79,82 @@ user.fax.error=Fax cannot be empty
 user.fax.constraint=NotEmpty
 user.fax.metaposition=10
 
+# --- user pending --
+userPending.password.label=Password
+userPending.password.error=Password cannot be empty
+
+userPending.firstName.label=First Name
+userPending.firstName.error=First Name cannot be empty
+
+userPending.lastName.label=Last Name
+userPending.lastName.error=Last Name cannot be empty
+
+userPending.email.label=Email
+userPending.email.error=Wrong email address format
+
+userPending.locale.label=Locale
+userPending.locale.error=Locale cannot be empty
+
+# ------------------------ dynamic user pending fields ----------------------
+
+userPending.primaryuseremail.label=Primary Lab User
+userPending.primaryuseremail.error=Primary Lab User cannot be empty
+userPending.primaryuseremail.constraint=NotEmpty
+userPending.primaryuseremail.metaposition=0
+
+userPending.title.label=Title
+userPending.title.error=Title cannot be empty
+userPending.title.constraint=NotEmpty
+userPending.title.control=select:Mr:Mr;Ms:Ms;Mrs:Mrs;Miss:Miss
+userPending.title.metaposition=5
+
+userPending.institution.label=Institution
+userPending.institution.error=Institution cannot be empty
+userPending.institution.constraint=NotEmpty
+userPending.institution.metaposition=10
+
+userPending.department.label=Department
+userPending.department.metaposition=20
+
+userPending.building_room.label=Room
+userPending.building_room.metaposition=30
+
+userPending.address.label=Address
+userPending.address.error=Address cannot be empty
+userPending.address.constraint=NotEmpty
+userPending.address.metaposition=40
+
+userPending.city.label=City 
+userPending.city.error=City cannot be empty
+userPending.address.constraint=NotEmpty
+userPending.city.metaposition=50
+
+userPending.state.label=State
+userPending.state.control=select:${states}:code:name
+userPending.state.metaposition=60
+
+userPending.country.label=Country
+userPending.country.error=Country cannot be empty
+userPending.country.control=select:${countries}:code:name
+userPending.country.constraint=NotEmpty
+userPending.country.metaposition=70
+
+userPending.zip.label=Zip
+userPending.zip.error=Zip cannot be empty
+userPending.zip.constraint=NotEmpty
+userPending.zip.metaposition=80
+
+userPending.phone.label=Phone
+userPending.phone.error=Phone cannot be empty
+userPending.phone.constraint=NotEmpty
+userPending.phone.metaposition=90
+
+userPending.fax.label=Fax
+userPending.fax.error=Fax cannot be empty
+userPending.fax.constraint=NotEmpty
+userPending.fax.metaposition=100
+
+
 
 # -------------------------- static lab fields --------------------------
 
