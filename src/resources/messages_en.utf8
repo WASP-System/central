@@ -82,18 +82,23 @@ user.fax.metaposition=10
 # --- user pending --
 userPending.password.label=Password
 userPending.password.error=Password cannot be empty
+userpending.password.error=Password cannot be empty
 
 userPending.firstName.label=First Name
 userPending.firstName.error=First Name cannot be empty
+userpending.firstName.error=First Name cannot be empty
 
 userPending.lastName.label=Last Name
 userPending.lastName.error=Last Name cannot be empty
+userpending.lastName.error=Last Name cannot be empty
 
 userPending.email.label=Email
 userPending.email.error=Wrong email address format
+userpending.email.error=Wrong email address format
 
 userPending.locale.label=Locale
 userPending.locale.error=Locale cannot be empty
+userpending.locale.error=Locale cannot be empty
 
 # ------------------------ dynamic user pending fields ----------------------
 
