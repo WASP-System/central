@@ -1,5 +1,7 @@
 package edu.yu.einstein.wasp.controller;
 
+import edu.yu.einstein.wasp.service.impl.PasswordValidatorServiceImpl;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -68,6 +70,9 @@ public class UserController extends WaspController {
 
 	@Autowired
 	private PasswordEncoderService passwordEncoderService;
+	
+	//@Autowired
+	private PasswordValidatorServiceImpl passwordValidatorServiceImpl = new PasswordValidatorServiceImpl();
 
 	@Autowired
 	private MappingJacksonHttpMessageConverter jsonnMapper;
@@ -359,10 +364,50 @@ public class UserController extends WaspController {
 
 	@RequestMapping(value = "/mypassword.do", method = RequestMethod.POST)
 	public String myPassword(
-			@RequestParam(value = "passwordold") String passwordold,
-			@RequestParam(value = "password") String password,
-			@RequestParam(value = "password2") String password2, ModelMap m) {
-		return "redirect:/dashboard.do";
+			@RequestParam(required=true, value = "oldpassword") String oldpassword,
+			@RequestParam(required=true, value = "newpassword1") String newpassword1,
+			@RequestParam(required=true, value = "newpassword2") String newpassword2, ModelMap m) {
+		
+		
+		User user = this.getAuthenticatedUser();
+		String currentPasswordAsHash = user.getPassword();//this is from database and is hashed
+		String oldPasswordAsHash = passwordEncoderService.encodePassword(oldpassword);//oldpassword is from the form, so must hash it for comparison
+		  
+		  logger.debug("one");
+		  logger.debug(currentPasswordAsHash);
+		  logger.debug("two");
+		  logger.debug(oldPasswordAsHash);
+		  logger.debug("three");
+		  
+		  if (oldpassword == null || "".equals(oldpassword) ||
+			  newpassword1 == null || "".equals(newpassword1) ||
+			  newpassword2 == null || "".equals(newpassword2)) 
+		  {
+			  MessageTag.addMessage(request.getSession(), "user.mypassword.missingparam.error");
+		      return "user/mypassword";
+		  }
+		  else if(!currentPasswordAsHash.equals(oldPasswordAsHash)){
+			  MessageTag.addMessage(request.getSession(), "user.mypassword.cur_mismatch.error");
+		      return "user/mypassword";
+		  }
+		  else if(!newpassword1.equals(newpassword2)){
+			  MessageTag.addMessage(request.getSession(), "user.mypassword.new_mismatch.error");
+		      return "user/mypassword";
+		  }
+		  else if(oldpassword.equals(newpassword1)){//old and new passwords do NOT differ
+			  MessageTag.addMessage(request.getSession(), "user.mypassword.nodiff.error");
+		      return "user/mypassword";
+		  }
+		  else if(!passwordValidatorServiceImpl.validatePassword(newpassword1)){
+			  MessageTag.addMessage(request.getSession(), "user.mypassword.new_invalid.error");
+		      return "user/mypassword";
+		  }
+		  
+		  user.setPassword( passwordEncoderService.encodePassword(newpassword1) ); 
+		  userService.merge(user);
+		  MessageTag.addMessage(request.getSession(), "user.changepassword.ok");
+		  return "user/mypassword";		
+		//original return statement; can be removed ////return "redirect:/dashboard.do";
 	}
 	
 
