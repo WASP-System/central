@@ -1,0 +1,13 @@
+Pending User
+
+<html>
+<body>
+<h3>
+${user.firstName},
+
+${pendinguser.firstName}, ${pendinguser.lastName}
+request and account for 
+${lab.name}
+</h3>
+</body>
+</html>
