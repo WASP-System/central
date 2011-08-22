@@ -272,3 +272,16 @@ auth.recoverpassword.error.wronguser=User is not associate w/ that authcode
 
 --------------------------- auth forgot password ----------------------------
 hello.error=Hello World
+
+--------------------------- user change password ----------------------------
+user.changepassword.title=Change Password
+user.changepassword.oldpassword.label=Old Password
+user.changepassword.newpassword1.label=New Password
+user.changepassword.newpassword2.label=Confirm New Password
+user.changepassword.submit=Submit
+user.mypassword.missingparam.error=Please provide values for all fields
+user.mypassword.cur_mismatch.error=Your old password does NOT match the password in our database
+user.mypassword.new_mismatch.error=The two entries for your NEW password are NOT identical
+user.mypassword.nodiff.error=Your old and new passwords may NOT be the same
+user.mypassword.new_invalid.error=New password: only letters and numbers permitted (with at least one of each type); total of 6-20 characters
+user.changepassword.ok=Password Has Been Changed
