@@ -31,13 +31,17 @@
 		</attribute>
 		<attribute>
 			<name>object</name>
+			<!-- 
 			<description>Object class to read validation rules from. Currently supported types are "user" or "lab"</description>
+			 -->
 			<required>true</required>
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
 		<attribute>
 			<name>type</name>
+			<!-- 
 			<description>Type of HTML element to render. Currently support "text","select","password" and "checkbox"</description>
+			 -->
 			<required>true</required>
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>

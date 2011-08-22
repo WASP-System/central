@@ -40,7 +40,7 @@
       </c:if>
     </c:if>
   </c:forEach>
-  <div>
+  </div>
 </sec:authorize>
 
 <sec:authorize access="hasRole('da-*')">
