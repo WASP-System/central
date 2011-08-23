@@ -22,7 +22,8 @@ import java.util.*;
 @Audited
 @Table(name="userpasswordauth")
 public class Userpasswordauth extends WaspModel {
-  @Id @GeneratedValue(strategy=GenerationType.IDENTITY)
+  @Id
+  @Column(name="userid")
   protected int UserId;
   public void setUserId (int UserId) {
     this.UserId = UserId;

@@ -3,6 +3,7 @@ package edu.yu.einstein.wasp.controller;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.Random;
 import java.util.ResourceBundle;
 
 import javax.validation.Valid;
@@ -116,6 +117,28 @@ public class AuthController extends WaspController {
     binder.setValidator(validator);
   }
 
+  private String _createAuthcode(){
+	  final int CODE_LENGTH = 20;
+	  String authcode = new String();
+	  Random random = new Random();
+	  for (int i=0; i < CODE_LENGTH; i++){
+		  int ascii = 0;
+		  switch(random.nextInt(3)){
+		  	case 0:
+		  		ascii = 48 + random.nextInt(10); // 0-9
+		  		break;
+		  	case 1:
+		  		ascii = 65 + random.nextInt(26); // A-Z 
+		  		break;
+		  	case 2:
+		  		ascii = 97 + random.nextInt(26); // a-z
+		  		break;	
+		  }
+		  authcode = authcode.concat(String.valueOf( (char)ascii ));  
+	  }
+	  return authcode;
+  }
+  
   @RequestMapping(value="/forgotpassword", method=RequestMethod.GET)
   public String showForgotPasswordForm(ModelMap m) {
     return "auth/forgotpassword/form";
@@ -131,22 +154,21 @@ public class AuthController extends WaspController {
 		  return "auth/forgotpassword/form";
 	  }
 
-// TODO generate table w/ good authcode	
-	String authcode = user.getEmail();
-
-	Userpasswordauth oldUserpasswordauth = userpasswordauthService.getUserpasswordauthByUserId(user.getUserId());
-	if (oldUserpasswordauth.getUserId() != 0) {
-		// userpasswordauthService.remove(oldUserpasswordauth);
+	String authcode = this._createAuthcode();
+	logger.debug("ANDY: Setting authcode: ".concat(authcode));
+	Userpasswordauth existingUserpasswordauth = userpasswordauthService.getUserpasswordauthByUserId(user.getUserId());
+	Userpasswordauth userpasswordauth;
+	if (existingUserpasswordauth.getUserId() != 0) {
+		logger.debug("ANDY: modifying existing Userpasswordauth");
+		userpasswordauth = existingUserpasswordauth; // old entry exists for current user so update 
 	}
-
-	// Userpasswordauth userpasswordauth = new Userpasswordauth();
-	Userpasswordauth userpasswordauth = userpasswordauthService.getUserpasswordauthByUserId(user.getUserId());
-
-	userpasswordauth.setUserId(user.getUserId());
+	else{
+		logger.debug("ANDY: creating new Userpasswordauth");
+		userpasswordauth = new Userpasswordauth(); // no existing entry so create a new one
+		userpasswordauth.setUserId(user.getUserId());
+	}
 	userpasswordauth.setAuthcode(authcode);
-
-	userpasswordauthService.persist(userpasswordauth);
-
+	userpasswordauthService.merge(userpasswordauth);
 	emailService.sendForgotPassword(user, authcode);
 	  
     return "auth/forgotpassword/email";
@@ -163,7 +185,7 @@ public class AuthController extends WaspController {
     m.put("authcode", authCode);
     return "auth/recoverpassword/form";
   }
-
+  
   @RequestMapping(value="/recoverpassword", method=RequestMethod.POST)
   public String resetPassword(
         @RequestParam("j_username") String username, 
@@ -221,6 +243,7 @@ public class AuthController extends WaspController {
 
     return "auth/recoverpassword/ok";
   }
+
 
 
 
