@@ -64,7 +64,7 @@
               <td><form:errors path="locale" /></td>
           </tr>
           <c:set var="_area" value = "user" scope="request"/>	
-		  <c:set var="_metaList" value = "${user.usermeta}" scope="request" />		
+		  <c:set var="_metaList" value = "${user.userMeta}" scope="request" />		
           <c:import url="/WEB-INF/jsp/meta_rw.jsp"/>
           <tr>
               <td colspan="2" align=right>

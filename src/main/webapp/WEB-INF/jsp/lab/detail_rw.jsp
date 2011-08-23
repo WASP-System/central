@@ -37,7 +37,7 @@
               <td><form:errors path="departmentId" /></td>
           </tr>
           <c:set var="_area" value = "lab" scope="request"/>	
-		  <c:set var="_metaList" value = "${lab.labmeta}" scope="request" />		
+		  <c:set var="_metaList" value = "${lab.labMeta}" scope="request" />		
           <c:import url="/WEB-INF/jsp/meta_rw.jsp"/>
           <tr>
               <td colspan="2" align=right>
