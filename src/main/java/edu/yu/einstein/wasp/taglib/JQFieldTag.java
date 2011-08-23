@@ -1,5 +1,6 @@
 package edu.yu.einstein.wasp.taglib;
 
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -13,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
+import javax.servlet.jsp.tagext.BodyContent;
 import javax.servlet.jsp.tagext.BodyTagSupport;
 
 import org.apache.commons.beanutils.BeanUtils;
@@ -62,6 +64,15 @@ public class JQFieldTag extends BodyTagSupport {
 	}
 
 
+	public void release() {
+		name=null;
+		object=null;
+		items=null;
+		type=null;
+		itemLabel=null;
+		itemValue=null;		
+	}
+	
 	public static enum Type {
 		text,
 		select,
@@ -96,6 +107,8 @@ public class JQFieldTag extends BodyTagSupport {
 		
 		ResourceBundle bundle=ResourceBundle.getBundle("messages",locale);
 		
+		String jsName=object+"_"+name;
+		
 		try {
 		
 			Class clazz=null;
@@ -108,7 +121,6 @@ public class JQFieldTag extends BodyTagSupport {
 		
 		boolean required=clazz.getDeclaredField(name).getAnnotation(org.hibernate.validator.constraints.NotEmpty.class)==null?false:true;
 			
-
 		String error="error:'',\n";
 		
 		try {			
@@ -117,7 +129,7 @@ public class JQFieldTag extends BodyTagSupport {
 			 
 		}
 		
-		String buf="var "+name+"={\n"+
+		String buf="var "+jsName+"={\n"+
 		 "name:'"+name+"',\n"+
 		 "label:'"+bundle.getObject(area+"."+name+".label")+"',\n"+
 	     "required:"+required+",\n"+
@@ -135,9 +147,9 @@ public class JQFieldTag extends BodyTagSupport {
 		 "};\n";
 	
 		buf=buf+
-		"colNames.push("+name+".label)\n"+
-		"colModel.push("+name+".jq)\n"+
-		"colErrors.push("+name+".error)\n";
+		"colNames.push("+jsName+".label);\n"+
+		"colModel.push("+jsName+".jq);\n"+
+		"colErrors.push("+jsName+".error);\n";
 	
 		if (type==Type.select) {
 			
@@ -151,20 +163,21 @@ public class JQFieldTag extends BodyTagSupport {
 		}
 		
 			buf=buf+
-			name+".jq['edittype']='select';\n"+
-			name+".jq['editoptions']={value:{}};\n"+
-			name+".jq['search']=false;\n"+
-			name+".jq['editoptions']['value']="+getOptions()+";\n";
+			jsName+".jq['edittype']='select';\n"+
+			jsName+".jq['editoptions']={value:{}};\n"+
+			jsName+".jq['search']=false;\n"+
+			jsName+".jq['editoptions']['value']="+getOptions()+";\n";
 			
 		} else if (type==Type.password) { 
 			buf=buf+
-			name+".jq['edittype']='password';\n"+
-			name+".jq['hidden']=true;\n"+
-			name+".jq['search']=false;\n"+
-			name+".jq['editrules']={};"+
-			name+".jq['editrules']['edithidden']=true;\n";
+			jsName+".jq['edittype']='password';\n"+
+			jsName+".jq['hidden']=true;\n"+
+			jsName+".jq['search']=false;\n"+
+			jsName+".jq['editrules']={};"+
+			jsName+".jq['editrules']['edithidden']=true;\n";
 		}
 		
+	
 		
 		this.pageContext.getOut().print(buf);
 	
@@ -177,7 +190,28 @@ public class JQFieldTag extends BodyTagSupport {
 		return BodyTagSupport.EVAL_PAGE;
 	}
 	
-
+	public int doEndTag() throws javax.servlet.jsp.JspException {
+		//append body of the tag
+		String body="";
+		
+		BodyContent bodyTag=getBodyContent();
+		
+		if (bodyTag!=null) {
+			body=bodyTag.getString();
+		}
+		
+		body=body.replaceAll("#field",object+"_"+name);
+		
+		try {
+			this.pageContext.getOut().print(body);
+	
+		} catch (Throwable e) {
+			log.error("Cant build JS props",e);
+			throw new JspTagException(e.getMessage());
+		}
+		
+		return EVAL_PAGE;
+	}
 	private String getOptions() throws JspException {
 		Map map = new TreeMap();
 		
@@ -243,7 +277,7 @@ public class JQFieldTag extends BodyTagSupport {
 	   		String json=mapper.writeValueAsString(this.items);
 	   			   		
 	   		
-	   		return " "+name+".jq['editoptions']['value']="+json+";";
+	   		return " "+object+"_"+name+".jq['editoptions']['value']="+json+";";
 	   		
 			/*
 			String jsName= "_"+name+"_list";

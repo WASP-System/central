@@ -257,15 +257,15 @@ public class AuthController extends WaspController {
 
     Errors errors = new BindException(result.getTarget(), AREA.name());
 
-    if (userPendingForm.getPassword() == null || userPendingForm.getPassword().isEmpty()) {
-      errors.rejectValue("password", "user.password.error");
-    }
+    //if (userPendingForm.getPassword() == null || userPendingForm.getPassword().isEmpty()) {
+    //  errors.rejectValue("password", "userPending.password.error");
+    //}
 
     result.addAllErrors(errors);
 
     List<String> validateList = new ArrayList<String>();
-    validateList.add("password");
-    validateList.add(MetaValidator.Constraint.NotEmpty.name());
+    //validateList.add("password");
+    //validateList.add(MetaValidator.Constraint.NotEmpty.name());
 
     for (UserPendingMeta meta : userPendingMetaList) {
       if (meta.getProperty() != null

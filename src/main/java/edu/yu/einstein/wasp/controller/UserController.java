@@ -1,7 +1,5 @@
 package edu.yu.einstein.wasp.controller;
 
-import edu.yu.einstein.wasp.service.impl.PasswordValidatorServiceImpl;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -9,9 +7,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
@@ -38,17 +34,19 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
 
+import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.Lab;
+import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.MetaAttribute;
-import edu.yu.einstein.wasp.model.MetaAttribute.Country;
-import edu.yu.einstein.wasp.model.MetaAttribute.State;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.MetaUtil;
+import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserMeta;
 import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.service.PasswordEncoderService;
-import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.service.UserMetaService;
+import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.taglib.MessageTag;
 
 @Controller
@@ -70,9 +68,6 @@ public class UserController extends WaspController {
 
 	@Autowired
 	private PasswordEncoderService passwordEncoderService;
-	
-	//@Autowired
-	private PasswordValidatorServiceImpl passwordValidatorServiceImpl = new PasswordValidatorServiceImpl();
 
 	@Autowired
 	private MappingJacksonHttpMessageConverter jsonnMapper;
@@ -89,7 +84,7 @@ public class UserController extends WaspController {
 	public String list(ModelMap m) {
 		
 		m.addAttribute("_metaList", MetaUtil.getMasterList(MetaBase.class, AREA, getBundle()));
-		m.addAttribute("_area", AREA.name());
+		m.addAttribute("_area", AREA.name());		
 		
 		
 		
@@ -104,6 +99,119 @@ public class UserController extends WaspController {
 		 }*/
 		 prepareSelectListData(m);
 		 return "user-list";
+	}
+	
+	@RequestMapping(value = "/subgridJSON.do", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('god') or User.login == principal.name")
+	public @ResponseBody String subgridJSON(@RequestParam("id") Integer userId,ModelMap m, HttpServletResponse response) {
+				
+		Map <String, Object> jqgrid = new HashMap<String, Object>();
+		
+		User userDb = this.userService.getById(userId);
+		
+		List<Lab> puLabs=userDb.getLab();
+		
+		List<LabUser> uLabs=userDb.getLabUser();
+		
+		List <Job> uJobs=userDb.getJob();
+		
+		List <Sample> uSamples=userDb.getSample();
+		
+		//get max lenth of the previous 4 lists
+		int max=Math.max(Math.max(puLabs.size(), uLabs.size()),Math.max(uJobs.size(),uSamples.size()));
+		
+		if (max==0) {
+			Lab lab=new Lab();
+			lab.setName("No labs");
+			puLabs.add(lab);
+			
+			LabUser lu=new LabUser();
+			lu.setLab(lab);
+			uLabs.add(lu);
+			
+			
+			Job job = new Job();
+			job.setName("No jobs");
+			uJobs.add(job);
+			
+			Sample sample = new Sample();
+			sample.setName("No samples");
+			uSamples.add(sample);
+			
+			max=1;
+		}
+		
+		String [][] mtrx = new String[max][4]	;
+		
+	 	ObjectMapper mapper = new ObjectMapper();
+    	
+		 try {
+			
+			 jqgrid.put("page","1");
+			 jqgrid.put("records",max+"");
+			 jqgrid.put("total",max+"");
+			 
+			 int i=0;
+			 int j=0;
+			 for (Lab lab:puLabs) {		
+			
+				 mtrx[j][i]="<a href=/wasp/lab/list.do?selId="+lab.getLabId()+">"+lab.getName()+"</a>";
+				 
+				 j++;
+				 
+			 }
+
+			 i=1;
+			 j=0;
+			 for (LabUser lab:uLabs) {		
+					
+				 mtrx[j][i]="<a href=/wasp/lab/list.do?selId="+lab.getLab().getLabId()+">"+lab.getLab().getName()+"</a>";
+				 
+				 j++;
+				 
+			 }
+			 
+			 i=2;
+			 j=0;
+			 for (Job job:uJobs) {		
+					
+				 mtrx[j][i]=job.getName();
+				 
+				 j++;
+				 
+			 }
+			 
+			 i=3;
+			 j=0;
+			 for (Sample sample:uSamples) {		
+					
+				 mtrx[j][i]=sample.getName();
+				 
+				 j++;
+				 
+			 }
+
+			 List<Map> rows = new ArrayList<Map>();
+
+			 for(j=0;j<max;j++) {
+				 
+				 Map cell = new HashMap();
+				 rows.add(cell);
+				 
+				 cell.put("id", j+"");
+				 List<String> cellList=Arrays.asList(mtrx[j]);
+				 cell.put("cell", cellList);		
+			 }
+			 
+			jqgrid.put("rows",rows);
+			 
+		    String json=mapper.writeValueAsString(jqgrid);
+			 
+			 return json;
+		 } catch (Throwable e) {
+			 throw new IllegalStateException("Can't marshall to JSON "+puLabs,e);
+		 }
+	
 	}
 	
 	
@@ -144,6 +252,11 @@ public class UserController extends WaspController {
 			 jqgrid.put("records",userList.size()+"");
 			 jqgrid.put("total",userList.size()+"");
 			 
+			 
+			 Map<String, String> userData=new HashMap<String, String>();
+			 userData.put("page","1");
+			 userData.put("selId",StringUtils.isEmpty(request.getParameter("selId"))?"":request.getParameter("selId"));
+			 jqgrid.put("userdata",userData);
 			 
 			 List<Map> rows = new ArrayList<Map>();
 			 
@@ -364,50 +477,10 @@ public class UserController extends WaspController {
 
 	@RequestMapping(value = "/mypassword.do", method = RequestMethod.POST)
 	public String myPassword(
-			@RequestParam(required=true, value = "oldpassword") String oldpassword,
-			@RequestParam(required=true, value = "newpassword1") String newpassword1,
-			@RequestParam(required=true, value = "newpassword2") String newpassword2, ModelMap m) {
-		
-		
-		User user = this.getAuthenticatedUser();
-		String currentPasswordAsHash = user.getPassword();//this is from database and is hashed
-		String oldPasswordAsHash = passwordEncoderService.encodePassword(oldpassword);//oldpassword is from the form, so must hash it for comparison
-		  
-		  logger.debug("one");
-		  logger.debug(currentPasswordAsHash);
-		  logger.debug("two");
-		  logger.debug(oldPasswordAsHash);
-		  logger.debug("three");
-		  
-		  if (oldpassword == null || "".equals(oldpassword) ||
-			  newpassword1 == null || "".equals(newpassword1) ||
-			  newpassword2 == null || "".equals(newpassword2)) 
-		  {
-			  MessageTag.addMessage(request.getSession(), "user.mypassword.missingparam.error");
-		      return "user/mypassword";
-		  }
-		  else if(!currentPasswordAsHash.equals(oldPasswordAsHash)){
-			  MessageTag.addMessage(request.getSession(), "user.mypassword.cur_mismatch.error");
-		      return "user/mypassword";
-		  }
-		  else if(!newpassword1.equals(newpassword2)){
-			  MessageTag.addMessage(request.getSession(), "user.mypassword.new_mismatch.error");
-		      return "user/mypassword";
-		  }
-		  else if(oldpassword.equals(newpassword1)){//old and new passwords do NOT differ
-			  MessageTag.addMessage(request.getSession(), "user.mypassword.nodiff.error");
-		      return "user/mypassword";
-		  }
-		  else if(!passwordValidatorServiceImpl.validatePassword(newpassword1)){
-			  MessageTag.addMessage(request.getSession(), "user.mypassword.new_invalid.error");
-		      return "user/mypassword";
-		  }
-		  
-		  user.setPassword( passwordEncoderService.encodePassword(newpassword1) ); 
-		  userService.merge(user);
-		  MessageTag.addMessage(request.getSession(), "user.changepassword.ok");
-		  return "user/mypassword";		
-		//original return statement; can be removed ////return "redirect:/dashboard.do";
+			@RequestParam(value = "passwordold") String passwordold,
+			@RequestParam(value = "password") String password,
+			@RequestParam(value = "password2") String password2, ModelMap m) {
+		return "redirect:/dashboard.do";
 	}
 	
 

@@ -6,6 +6,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
 
+import org.apache.commons.lang.WordUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
@@ -36,7 +37,10 @@ public class BeanValidator implements org.springframework.validation.Validator, 
 	        Set<ConstraintViolation<Object>> constraintViolations = validator.validate(target);
 	        for (ConstraintViolation<Object> constraintViolation : constraintViolations) {
 	            String propertyPath = constraintViolation.getPropertyPath().toString();	      
-	            String area=constraintViolation.getRootBeanClass().getSimpleName().toLowerCase();
+	            String area=constraintViolation.getRootBeanClass().getSimpleName();
+	            
+	            area=WordUtils.uncapitalize(area);
+	            
 	            errors.rejectValue(propertyPath, area+"."+propertyPath+".error");
 	        }
 	        

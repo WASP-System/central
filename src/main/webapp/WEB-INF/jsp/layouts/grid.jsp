@@ -18,6 +18,8 @@ html, body {
     font-size: 75%;
 }
 
+
+
 </style>	
 
   <script src="/wasp/scripts/jquery/jquery-1.6.2.js" type="text/javascript"></script>
@@ -83,62 +85,6 @@ html, body {
   var colErrors=[];
   
   <tiles:insertAttribute name="grid-columns" />
-  
-  //add meta fields
-  <c:forEach items="${_metaList}" var="_meta" varStatus="status">
-
-	_field_name='${_meta.k}';
-	_wasp_prop='${_meta.property}';
-
-	required='${_meta.property.constraint}'=='NotEmpty';
-
-	editrules={edithidden:true};
-	formoptions={};
-	if(required){
-		formoptions={elmsuffix:'<fontcolor=red>*</font>'};
-		editrules={edithidden:true,custom:true,custom_func:_validate_required};	
-	}
-
-	editoptions={size:20};
-  	edittype='text';
-  	   
-    <c:if test="${not empty _meta.property.control}">
-        editoptions={size:20,value:{}};
-        edittype='select';
-   		<c:if test="${_meta.property.control.items != null}">  	
-   			<c:set var="selectItems" scope="request" value="${requestScope[_meta.property.control.items]}"/>
-   			<c:set var="itemValue" scope="request">${_meta.property.control.itemValue}</c:set>
-   			<c:set var="itemLabel" scope="request">${_meta.property.control.itemLabel}</c:set>   	
-   		</c:if>
-  		<c:if test="${_meta.property.control.items == null}">
-	  		<c:set var="selectItems" scope="request" value="${_meta.property.control.options}" />
-  			<c:set var="itemValue" scope="request">value</c:set>
-  			<c:set var="itemLabel" scope="request">label</c:set>  	
-  		</c:if>
-   	              
-  		selectItems=<wasp:json object="${selectItems}" />;
-
-  		editoptions['value']['']=' --- select --- ';
-  		for(sKey in selectItems) {
-  			_option=selectItems[sKey];
-  			_value=_option['${itemValue}'];
-  			_label=_option['${itemLabel}'];
-  			
-  			editoptions['value'][_value]=_label;
-  		}
-  		//
-   </c:if>          
-  		
-   //populate jq structures
-   colNames.push('${_meta.property.label}');
-
-	colModel.push(
- 			{name:'${_meta.k}', width:80, edittype:edittype, align:'right',hidden:true,editable:true,editrules:editrules,formoptions:formoptions,editoptions:editoptions}
- 	);
- 	
- 	colErrors.push('${_meta.property.error}');
-
- </c:forEach>
   	
     _del_function = function (id) {
 	     alert("Lab cannot be deleted once created. Instead, use the 'edit' button to mark the '"+$("#grid_id").getRowData(id).login+"' lab as inactive.");
@@ -153,7 +99,7 @@ html, body {
 	
  _afterSubmit = function(response, data) {
 	
-	   var myInfo = '<div class="ui-state-highlight ui-corner-all">'+
+	  var myInfo = '<div class="ui-state-highlight ui-corner-all">'+
 
      '<span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>' +
 
@@ -193,28 +139,110 @@ html, body {
  }
  
 
+ 
+
+//add meta fields
+ <c:forEach items="${_metaList}" var="_meta" varStatus="status">
+
+	_field_name='${_meta.k}';
+	_wasp_prop='${_meta.property}';
+
+	required='${_meta.property.constraint}'=='NotEmpty';
+
+	editrules={edithidden:true};
+	formoptions={};
+	if(required){
+		formoptions={elmsuffix:'<fontcolor=red>*</font>'};
+		editrules={edithidden:true,custom:true,custom_func:_validate_required};	
+	}
+
+	editoptions={size:20};
+ 	edittype='text';
+ 	   
+   <c:if test="${not empty _meta.property.control}">
+       editoptions={size:20,value:{}};
+       edittype='select';
+  		<c:if test="${_meta.property.control.items != null}">  	
+  			<c:set var="selectItems" scope="request" value="${requestScope[_meta.property.control.items]}"/>
+  			<c:set var="itemValue" scope="request">${_meta.property.control.itemValue}</c:set>
+  			<c:set var="itemLabel" scope="request">${_meta.property.control.itemLabel}</c:set>   	
+  		</c:if>
+ 		<c:if test="${_meta.property.control.items == null}">
+	  		<c:set var="selectItems" scope="request" value="${_meta.property.control.options}" />
+ 			<c:set var="itemValue" scope="request">value</c:set>
+ 			<c:set var="itemLabel" scope="request">label</c:set>  	
+ 		</c:if>
+  	              
+ 		selectItems=<wasp:json object="${selectItems}" />;
+
+ 		editoptions['value']['']=' --- select --- ';
+ 		for(sKey in selectItems) {
+ 			_option=selectItems[sKey];
+ 			_value=_option['${itemValue}'];
+ 			_label=_option['${itemLabel}'];
+ 			
+ 			editoptions['value'][_value]=_label;
+ 		}
+ 		//
+  </c:if>          
+ 		
+  //populate jq structures
+  colNames.push('${_meta.property.label}');
+
+	colModel.push(
+			{name:'${_meta.k}', width:80, edittype:edittype, align:'right',hidden:true,editable:true,editrules:editrules,formoptions:formoptions,editoptions:editoptions}
+	);
+	
+	colErrors.push('${_meta.property.error}');
+
+</c:forEach>
+ 
+ 
 $(function(){
 	
-	var editAttr={width:500,closeAfterEdit:false,closeOnEscape:true,afterSubmit:_afterSubmit,errorTextFormat:_errorTextFormat,beforeShowForm:_beforeShowEditForm};
+	var editAttr={width:'auto',closeAfterEdit:false,closeOnEscape:true,afterSubmit:_afterSubmit,errorTextFormat:_errorTextFormat,beforeShowForm:_beforeShowEditForm};
 	
 $("#grid_id").jqGrid({
-  url:'/wasp/<tiles:insertAttribute name="area" />/listJSON.do',
-  editurl:'/wasp/<tiles:insertAttribute name="area" />/detail_rw/updateJSON.do',
+  url:'/wasp/<tiles:insertAttribute name="area" />/listJSON.do?selId=${param.selId}',
+  editurl:'/wasp/<tiles:insertAttribute name="area" />/detail_rw/updateJSON.do',  
   datatype: 'json',
+  recordtext: "{2} rows",  
   mtype: 'GET',
   colNames:colNames,
   colModel : colModel,
   pager: '#gridpager',
-  rowNum:100,    
-  rowList:[5,10,20],    
+  rowNum:200,    
+      
   viewrecords: true,
-  gridview: true,	
+  gridview: true,
+  <tiles:insertAttribute name="subgrid-columns" />
   autowidth: true,
-	loadui: 'block',
-	scroll: true,
-	emptyrecords: 'No records',
-	height: 'auto',
-	caption: "List",
+
+  scroll: true,	
+  height: '640', 
+  loadui: 'block',
+  scrollrows:true,
+  
+  loadComplete: function(data) {//pre-select row if userdata.selId is defined
+	    
+	        // data.userdata is the same as jQuery("#grid_id").getGridParam('userData');
+	        var userdata = jQuery("#grid_id").getGridParam('userData');
+	        
+	        if (!userdata.selId) return;//no row to pre-select
+	        
+	        var curPage = jQuery("#grid_id").getGridParam('page'); // is always 1
+	        if (curPage !== userdata.page) {
+	            setTimeout(function(){
+	                jQuery("#grid_id").setGridParam(
+	                    { page: userdata.page }).trigger("reloadGrid");
+	                jQuery("#grid_id").setSelection (userdata.selId, true);
+	            },100);
+	        }
+	        else {
+	            jQuery("#grid_id").setSelection (userdata.selId, true);
+	        }
+	    
+  },
   ondblClickRow: function(rowid) {
   	$("#grid_id").jqGrid('editGridRow',rowid,editAttr);
  }
@@ -222,13 +250,15 @@ $("#grid_id").jqGrid({
 		  editAttr, // edit
 		  {serializeEditData: function(data){ 
 			    return $.param($.extend({}, data, {id:0}));
-		  },closeAfterAdd:false,closeOnEscape:true,errorTextFormat:_errorTextFormat,beforeShowForm:_beforeShowAddForm}, // add
+		  },closeAfterAdd:false,closeOnEscape:true,errorTextFormat:_errorTextFormat,beforeShowForm:_beforeShowAddForm,width:'auto'}, // add
 		  {},  // delete
 		  {drag:true,resize:true,modal:true,caption:'Lookup',closeOnEscape:true,sopt:['eq','ne']}, //search
 		  editAttr
 		  );
 
 }); 
+
+
 
 </script>
 </head>

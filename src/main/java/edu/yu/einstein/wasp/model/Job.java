@@ -85,11 +85,11 @@ public class Job extends WaspModel {
 
 
   @Column(name="viewablebylab")
-  protected int viewablebylab;
-  public void setViewablebylab (int viewablebylab) {
+  protected Integer viewablebylab;
+  public void setViewablebylab (Integer viewablebylab) {
     this.viewablebylab = viewablebylab;
   }
-  public int getViewablebylab () {
+  public Integer getViewablebylab () {
     return this.viewablebylab;
   }
 

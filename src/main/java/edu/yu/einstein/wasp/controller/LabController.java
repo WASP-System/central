@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
@@ -31,21 +30,25 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
 
+import edu.yu.einstein.wasp.model.AcctGrant;
 import edu.yu.einstein.wasp.model.Department;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Lab;
-import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.LabMeta;
+import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.MetaUtil;
+import edu.yu.einstein.wasp.model.Project;
 import edu.yu.einstein.wasp.model.Role;
+import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.SampleLab;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.service.DepartmentService;
 import edu.yu.einstein.wasp.service.EmailService;
+import edu.yu.einstein.wasp.service.LabMetaService;
 import edu.yu.einstein.wasp.service.LabService;
 import edu.yu.einstein.wasp.service.LabUserService;
-import edu.yu.einstein.wasp.service.LabMetaService;
 import edu.yu.einstein.wasp.service.RoleService;
 import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.taglib.MessageTag;
@@ -92,18 +95,10 @@ public class LabController extends WaspController {
 		
 		m.addAttribute("_metaList", MetaUtil.getMasterList(MetaBase.class, AREA, getBundle()));
 		m.addAttribute("_area", AREA.name());
-		
-		/*ObjectMapper mapper = new ObjectMapper();
-		
-		 try {
-			 String json=mapper.writeValueAsString(FIELD_LIST);
-			 m.addAttribute("fieldsArr", json);
-		 } catch (Throwable e) {
-			 throw new IllegalStateException("Can't marshall to JSON "+FIELD_LIST,e);
-		 }*/
-		 prepareSelectListData(m);
+	
+	    prepareSelectListData(m);
 		 
-		 return "lab-list";
+		return "lab-list";
 	}
 
 
@@ -144,6 +139,11 @@ public class LabController extends WaspController {
 			 jqgrid.put("total",labList.size()+"");
 			 
 			 
+			 Map<String, String> userData=new HashMap<String, String>();
+			 userData.put("page","1");
+			 userData.put("selId",StringUtils.isEmpty(request.getParameter("selId"))?"":request.getParameter("selId"));
+			 jqgrid.put("userdata",userData);
+			 
 			 List<Map> rows = new ArrayList<Map>();
 			 
 			 Map<Integer, String> allDepts=new TreeMap<Integer, String>();
@@ -156,7 +156,9 @@ public class LabController extends WaspController {
 				 allUsers.put(user.getUserId(),user.getFirstName()+" "+user.getLastName());
 			 }
 			 
+			 
 			 for (Lab lab:labList) {
+				 
 				 Map cell = new HashMap();
 				 cell.put("id", lab.getLabId());
 				 
@@ -166,8 +168,9 @@ public class LabController extends WaspController {
 				 
 				 List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 							lab.getName(),
-							allUsers.get(lab.getPrimaryUserId()),
+							"<a href=/wasp/user/list.do?selId="+lab.getPrimaryUserId()+">"+allUsers.get(lab.getPrimaryUserId()) +"</a>",							
 							allDepts.get(lab.getDepartmentId()),
+						 
 							lab.getIsActive()==1?"yes":"no"
 				}));
 				 
@@ -175,6 +178,7 @@ public class LabController extends WaspController {
 					cellList.add(meta.getV());
 				}				
 				 
+				int l= cellList.size();
 				 cell.put("cell", cellList);
 				 
 				 rows.add(cell);
@@ -188,6 +192,142 @@ public class LabController extends WaspController {
 			 return json;
 		 } catch (Throwable e) {
 			 throw new IllegalStateException("Can't marshall to JSON "+labList,e);
+		 }
+	
+	}
+	
+	
+	@RequestMapping(value = "/subgridJSON.do", method = RequestMethod.GET)	
+	public @ResponseBody String subgridJSON(@RequestParam("id") Integer labId,ModelMap m, HttpServletResponse response) {
+			
+		Map <String, Object> jqgrid = new HashMap<String, Object>();
+		
+		Lab labDb = this.labService.getById(labId);
+		
+		
+		List<LabUser> users=labDb.getLabUser();
+		
+		List<Project> projects=labDb.getProject();
+		
+		List<Sample> samples=labDb.getSample();
+		
+		List<AcctGrant> accGrants=labDb.getAcctGrant();
+		
+		List<SampleLab> sampleLabs=labDb.getSampleLab();
+		
+		List<Job> jobs=labDb.getJob();
+		
+		
+		//get max lenth of the previous 4 lists
+		int max=Math.max(Math.max(users.size(), projects.size()),Math.max(samples.size(),accGrants.size()));
+		
+		max=Math.max(max,Math.max(sampleLabs.size(), jobs.size()));
+		
+		
+		if (max==0) {
+			LabUser lUser = new LabUser();
+			User user = new User();
+			lUser.setUser(user);			
+			user.setFirstName("No users");			
+			users.add(lUser);
+			
+			//...
+			
+			max=1;
+		}
+		
+		String [][] mtrx = new String[max][6]	;
+		
+	 	ObjectMapper mapper = new ObjectMapper();
+    	
+		 try {
+			 //String labs = mapper.writeValueAsString(labList);
+			 jqgrid.put("page","1");
+			 jqgrid.put("records",max+"");
+			 jqgrid.put("total",max+"");
+			 
+			 
+			 
+			 int i=0;
+			 int j=0;
+			 for (LabUser user:users) {		
+				 
+				 mtrx[j][i]="<a href=/wasp/user/list.do?selId="+user.getUserId()+">"+user.getUser().getFirstName() + " "+user.getUser().getLastName()+"</a>";
+				 
+				 j++;
+				 
+			 }
+
+			 i++;
+			 j=0;
+			 for (Project project:projects) {		
+					
+				 mtrx[j][i]=project.getName();
+				 
+				 j++;
+				 
+			 }
+			 
+			 i++;
+			 j=0;
+			 for (Sample sample:samples) {		
+					
+				 mtrx[j][i]=sample.getName();
+				 
+				 j++;
+				 
+			 }
+			 
+			 i++;
+			 j=0;
+			 for (AcctGrant acc:accGrants) {		
+					
+				 mtrx[j][i]=acc.getName();
+				 
+				 j++;
+				 
+			 }
+			 
+			 i++;
+			 j=0;
+			 for (SampleLab sampleLab:sampleLabs) {		
+					
+				 mtrx[j][i]=sampleLab.getLab().getName();
+				 
+				 j++;
+				 
+			 }
+			 
+			 i++;
+			 j=0;
+			 for (Job job:jobs) {		
+					
+				 mtrx[j][i]=job.getName();
+				 
+				 j++;
+				 
+			 }
+			 
+
+			 List<Map> rows = new ArrayList<Map>();
+
+			 for(j=0;j<max;j++) {
+				 
+				 Map cell = new HashMap();
+				 rows.add(cell);
+				 
+				 cell.put("id", j+"");
+				 List<String> cellList=Arrays.asList(mtrx[j]);
+				 cell.put("cell", cellList);		
+			 }
+			 
+			jqgrid.put("rows",rows);
+			 
+		    String json=mapper.writeValueAsString(jqgrid);
+			 
+			 return json;
+		 } catch (Throwable e) {
+			 throw new IllegalStateException("Can't marshall to JSON "+labDb,e);
 		 }
 	
 	}
@@ -523,8 +663,10 @@ public class LabController extends WaspController {
 		return "redirect:/lab/user/" + labId + ".do";
 	}
 
-/* moved to Wasp Controller?
-	private void prepareSelectListData(ModelMap m) {
+	protected void prepareSelectListData(ModelMap m) {
+		
+		super.prepareSelectListData(m);
+		
 		List<User> users=userService.findAll();
 		List<User> usersLight=new ArrayList<User>();
 		for(User user: users) {
@@ -536,9 +678,7 @@ public class LabController extends WaspController {
 		}
 		
 		m.addAttribute("pusers", usersLight);
-		m.addAttribute("countries", Country.getList());
-		m.addAttribute("states", State.getList());
 		m.addAttribute("departments", deptService.findAll());
 	}
-*/
+
 }

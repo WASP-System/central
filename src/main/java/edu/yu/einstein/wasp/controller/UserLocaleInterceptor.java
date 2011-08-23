@@ -39,6 +39,8 @@ public class UserLocaleInterceptor extends HandlerInterceptorAdapter {
 
     	//not logged in - do thing
     	if (principal==null || principal.getName()==null) {
+    		request.getSession().setAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME, Locale.US);
+    		request.getSession().setAttribute("jqLang", Locale.US.getLanguage());
     		return true;
     	}
 
@@ -60,6 +62,8 @@ public class UserLocaleInterceptor extends HandlerInterceptorAdapter {
     	
     	if (user.getLocale()==null) {
     		log.error("User without locale!!!"+login);
+    		request.getSession().setAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME, Locale.US);
+    		request.getSession().setAttribute("jqLang", Locale.US.getLanguage());
     		return true;
     	}
     	
@@ -73,7 +77,6 @@ public class UserLocaleInterceptor extends HandlerInterceptorAdapter {
 		
 		request.getSession().setAttribute(LOCK, "locale set");
     	
-        return true;
-    	
+        return true;    	
     }
 }
