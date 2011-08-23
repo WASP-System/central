@@ -5,7 +5,7 @@
 
   <c:set var="_myArea">${_area}.</c:set>
   
-  <c:set var="labelKey" value="${_myArea}${fn:replace(_meta.k, _myArea, '\"\"')}.label" />
+  <c:set var="labelKey" value="${_myArea}${fn:replace(_meta.k, _myArea, \"\")}.label" />
   
   <td><fmt:message key="${labelKey}"/>:</td>
   <td>
