@@ -1,34 +1,27 @@
 <project name="Wasp 2.0" default="all" basedir=".">
 
-  <target name="all" depends="init,clean,compile,copy-resources" />
-
+  <target name="all" depends="init,compile"/>
   <target name="init">
     <property name="name" value="wasp"/>
 
     <property name="dirs.base" value="${basedir}"/>
-    <property name="src" value="${dirs.base}/src/java"/>
-    <property name="web" value="${dirs.base}/web"/>
-    <property name="build" value="${web}/WEB-INF/classes"/>
-
+    <property name="src" value="${dirs.base}/src/main/java"/>
+    <property name="build" value="${dirs.base}/target/classes"/>
     <property name="deploy" value="${dirs.base}/deploy"/>
-    <!-- property name="war" value="${dirs.base}/war"/ -->
-    <property name="war" value="C:/apps/tomcat70eintstein/webapps" />
-    <!--property name="war" value="/home/ewah/j/apache-tomcat-7.0.14/webapps" /--> 
+    <property name="srcresources" value="${dirs.base}/src/main/resources"/>
 
-    <property name="appserver.lib" value="C:/apps/tomcat70eintstein/lib/" />
-    <!--property name="appserver.lib" value="/home/ewah/j/apache-tomcat-7.0.14/lib/" /-->
+    <property name="mvn.lib" value="./target/wasp-0.0.1-SNAPSHOT/WEB-INF/lib"/>
+
+    <property name="appserver.lib" value="/home/ewah/j/apache-tomcat-7.0.14/lib/" />
+    <property name="war" value="/home/ewah/j/apache-tomcat-7.0.14/webapps" /> 
+
     <path id="compile.classpath">
-      <fileset dir="${web}/WEB-INF/lib">
+      <fileset dir="${mvn.lib}">
         <include name="*.jar"/>
       </fileset>
       <fileset dir="${appserver.lib}">
         <include name="*.jar"/>
       </fileset>
-    </path> 
-
-    <path id="run.classpath">
-      <path location="${build}" />
-      <path refid="compile.classpath" /> 
     </path> 
 
   </target>
@@ -51,22 +44,39 @@
   </target>
 
   <target name="copy-resources" depends="init">
-        
-  	 <copy todir="${build}">
-  	       <fileset dir="${src}">
-  	          <exclude name="**/*.java"/>
-  	          <exclude name="**/*.swp"/>
-  	       </fileset>
-  	 </copy>  	 
-  	
-    <copydir src="src/resources/emails" dest="${build}/emails/"/>
-  	
-  	<native2ascii src="src/resources" dest="${web}/WEB-INF/classes" includes="**/*.utf8" ext=".properties"/>
+    <copy todir="${build}">
+      <fileset dir="${src}">
+        <exclude name="**/*.java"/>
+        <exclude name="**/*.swp"/>
+      </fileset>
+    </copy>  	 
+    <copy todir="${build}">
+      <fileset dir="${srcresources}">
+        <exclude name="**/*.java"/>
+        <exclude name="**/*.swp"/>
+      </fileset>
+    </copy>
+
+    <native2ascii src="${srcresources}" dest="${build}" includes="**/*.utf8" ext=".properties"/>
   </target>
 
   <target name="deploy" depends="compile, copy-resources">
     <copy todir="${deploy}" preservelastmodified="true">
-      <fileset dir="${web}">
+      <fileset dir="./src/main/webapp">
+        <include name="**/*.*"/>
+        <exclude name="**/*.swp"/>
+      </fileset>
+    </copy>   
+
+    <copy todir="${deploy}/WEB-INF/lib" preservelastmodified="true">
+      <fileset dir="${mvn.lib}">
+        <include name="**/*.*"/>
+        <exclude name="**/*.swp"/>
+      </fileset>
+    </copy>   
+
+    <copy todir="${deploy}/WEB-INF/classes" preservelastmodified="true">
+      <fileset dir="${build}">
         <include name="**/*.*"/>
         <exclude name="**/*.swp"/>
       </fileset>
@@ -74,7 +84,7 @@
   </target>
 
   <target name="deploywar" depends="deploy">
-    <war destfile="${name}.war" webxml="${web}/WEB-INF/web.xml">
+    <war destfile="${name}.war" webxml="./src/main/webapp/WEB-INF/web.xml">
       <fileset dir="${deploy}">
         <include name="**/*.*"/>
       </fileset>
@@ -86,19 +96,7 @@
     </copy>
   </target>
 
-  <target name="cuser" depends="init">
-    <javac srcdir="${src}" destdir="${build}">
-      <classpath refid="compile.classpath"/>
-    </javac>
-  </target>
 
-  <target name="huser" depends="init">
-    <java classname="edu.yu.einstein.wasp.HUser" fork="yes">
-      <classpath refid="run.classpath"/>
-    </java>
-  </target>
-	
-  
   <!-- tomcat -->
 <!--
     <property name="appserver.lib" value="/home/ewah/j/apache-tomcat-7.0.14/lib/" />
@@ -128,7 +126,7 @@
         <classpath refid="catalina-ant-classpath"/>
     </taskdef>
 
-    <target name="install" description="Install application in Tomcat">
+    <target name="OLDinstall" description="Install application in Tomcat">
         <install url="${tomcat.manager.url}"
                  username="${tomcat.manager.username}"
                  password="${tomcat.manager.password}"
@@ -136,28 +134,28 @@
                  war="${name}"/>
     </target>
 
-    <target name="reload" description="Reload application in Tomcat">
+    <target name="OLDreload" description="Reload application in Tomcat">
         <reload url="${tomcat.manager.url}"
                  username="${tomcat.manager.username}"
                  password="${tomcat.manager.password}"
                  path="/${name}"/>
     </target>
 
-    <target name="start" description="Start Tomcat application">
+    <target name="OLDstart" description="Start Tomcat application">
         <start url="${tomcat.manager.url}"
                  username="${tomcat.manager.username}"
                  password="${tomcat.manager.password}"
                  path="/${name}"/>
     </target>
 
-    <target name="stop" description="Stop Tomcat application">
+    <target name="OLDstop" description="Stop Tomcat application">
         <stop url="${tomcat.manager.url}"
                  username="${tomcat.manager.username}"
                  password="${tomcat.manager.password}"
                  path="/${name}"/>
     </target>
 
-    <target name="list" description="List Tomcat applications">
+    <target name="OLDlist" description="List Tomcat applications">
         <list url="${tomcat.manager.url}"
                  username="${tomcat.manager.username}"
                  password="${tomcat.manager.password}"/>
