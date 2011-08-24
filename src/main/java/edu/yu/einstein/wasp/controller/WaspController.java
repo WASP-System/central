@@ -12,8 +12,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -34,7 +33,7 @@ import edu.yu.einstein.wasp.model.MetaAttribute.State;
 @Controller
 public class WaspController {
 
-  protected final Log logger = LogFactory.getLog(getClass());
+  protected final Logger logger = Logger.getLogger(getClass());
 
   protected static final Map<String, String> LOCALES=new TreeMap<String, String>();
   static { LOCALES.put("en_US","English");
