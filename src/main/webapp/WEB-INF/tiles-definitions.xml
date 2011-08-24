@@ -36,6 +36,9 @@
 <definition name="auth/forgotpassword/form" template="/WEB-INF/jsp/auth/forgotpassword/form.jsp"/>
 <definition name="auth/newuser/form" template="/WEB-INF/jsp/auth/newuser/form.jsp"/>
 <definition name="auth/newuser/ok" template="/WEB-INF/jsp/auth/newuser/ok.jsp"/>
+<definition name="auth/newpi/form" template="/WEB-INF/jsp/auth/newpi/form.jsp"/>
+<definition name="auth/newpi/ok" template="/WEB-INF/jsp/auth/newpi/ok.jsp"/>
+
 <definition name="auth/recoverpassword/authcodeform" template="/WEB-INF/jsp/auth/recoverpassword/authcodeform.jsp"/>
 <definition name="auth/recoverpassword/form" template="/WEB-INF/jsp/auth/recoverpassword/form.jsp"/>
 <definition name="auth/recoverpassword/ok" template="/WEB-INF/jsp/auth/recoverpassword/ok.jsp"/>
