@@ -273,9 +273,6 @@ public class AuthController extends WaspController {
     List<UserPendingMeta> userPendingMetaList = MetaUtil.getMetaFromForm(request,
                                 AREA, UserPendingMeta.class, getBundle());
 
-
-    // MetaUtil.setAttributesAndSort(userPendingMetaList, AREA, getBundle());
-
     userPendingForm.setUserPendingMeta(userPendingMetaList);
 
     Errors errors = new BindException(result.getTarget(), AREA.name());
@@ -304,7 +301,7 @@ public class AuthController extends WaspController {
 
     String primaryUserEmail = "";
     for (UserPendingMeta meta : userPendingMetaList) {
-      if (meta.getK().equals("userPending.primaryuseremail")) {
+      if (meta.getK().equals(AREA.name() + ".primaryuseremail")) {
         primaryUserEmail = meta.getV();
         break;
       }
@@ -343,73 +340,110 @@ public class AuthController extends WaspController {
     return "auth/newuser/ok";
   }
 
-  @RequestMapping(value="/newlab", method=RequestMethod.GET)
-  public String showNewPendingLabForm(ModelMap m) {
-    final MetaAttribute.Area AREA = MetaAttribute.Area.labPending;
-    LabPending labPending = new LabPending();
+  @RequestMapping(value="/newpi", method=RequestMethod.GET)
+  public String showNewPendingPiForm(ModelMap m) {
+    final MetaAttribute.Area AREA = MetaAttribute.Area.piPending;
+    final MetaAttribute.Area PARENTAREA = MetaAttribute.Area.userPending;
 
-    labPending.setLabPendingMeta(MetaUtil.getMasterList(LabPendingMeta.class, AREA, getBundle()));
+    UserPending userPending = new UserPending();
 
-    m.addAttribute(AREA.name(), labPending);
+    userPending.setUserPendingMeta(MetaUtil.getMasterList(UserPendingMeta.class, AREA, getBundle()));
+
+    m.addAttribute(PARENTAREA.name(), userPending);
     prepareSelectListData(m);
 
-    return "auth/newlab/form";
+    return "auth/newpi/form";
 
   }
 
-  @RequestMapping(value="/newlab", method=RequestMethod.POST)
-  public String createNewPendingLab (
-       @Valid LabPending labPendingForm, 
+  @RequestMapping(value="/newpi", method=RequestMethod.POST)
+  public String createNewPendingPi (
+       @Valid UserPending userPendingForm, 
        BindingResult result,
        SessionStatus status, 
        ModelMap m) {
-    final MetaAttribute.Area AREA = MetaAttribute.Area.labPending;
+    final MetaAttribute.Area AREA = MetaAttribute.Area.piPending;
+    final MetaAttribute.Area PARENTAREA = MetaAttribute.Area.userPending;
 
-    List<LabPendingMeta> labPendingMetaList = MetaUtil.getMetaFromForm(request,
-                                AREA, LabPendingMeta.class, getBundle());
 
-    // MetaUtil.setAttributesAndSort(labPendingMetaList, AREA, getBundle());
+    List<UserPendingMeta> userPendingMetaList = MetaUtil.getMetaFromForm(request,
+                                AREA, PARENTAREA, UserPendingMeta.class, getBundle());
 
-    labPendingForm.setLabPendingMeta(labPendingMetaList);
+    userPendingForm.setUserPendingMeta(userPendingMetaList);
 
-    Errors errors = new BindException(result.getTarget(), AREA.name());
+    Errors errors = new BindException(result.getTarget(), "userPending");
+
+    //if (userPendingForm.getPassword() == null || userPendingForm.getPassword().isEmpty()) {
+    //  errors.rejectValue("password", "userPending.password.error");
+    //}
 
     result.addAllErrors(errors);
 
     List<String> validateList = new ArrayList<String>();
-    validateList.add(MetaValidator.Constraint.NotEmpty.name());
+    //validateList.add("password");
+    //validateList.add(MetaValidator.Constraint.NotEmpty.name());
 
-    for (LabPendingMeta meta : labPendingMetaList) {
+    // ADD VALIDATION 
+    //   - uniq name 
+    //   - departmentid
+
+    for (UserPendingMeta meta : userPendingMetaList) {
       if (meta.getProperty() != null
           && meta.getProperty().getConstraint() != null) {
         validateList.add(meta.getK());
         validateList.add(meta.getProperty().getConstraint());
       }
     }
+
     MetaValidator validator = new MetaValidator(
         validateList.toArray(new String[] {}));
 
-    validator.validate(labPendingMetaList, result, AREA);
-
+    validator.validate(userPendingMetaList, result, PARENTAREA);
 
     if (result.hasErrors()) {
       prepareSelectListData(m);
-      MessageTag.addMessage(request.getSession(), "lab.created.error");
-      return "auth/newauth/form";
+      MessageTag.addMessage(request.getSession(), "user.created.error");
+
+      return "auth/newpi/form";
     }
 
-    LabPending labPendingDb = this.labPendingService.save(labPendingForm);
+    userPendingForm.setStatus("PENDING");
 
-    for (LabPendingMeta upm : labPendingMetaList) {
-      upm.setLabpendingId(labPendingDb.getLabPendingId());
+    userPendingForm.setPassword( passwordEncoderService.encodePassword(userPendingForm.getPassword()) ); 
+
+    UserPending userPendingDb = userPendingService.save(userPendingForm);
+
+    for (UserPendingMeta upm : userPendingMetaList) {
+      upm.setUserpendingId(userPendingDb.getUserPendingId());
     }
-    labPendingMetaService.updateByLabpendingId(labPendingDb.getLabPendingId(), labPendingMetaList);
+    userPendingMetaService.updateByUserpendingId(userPendingDb.getUserPendingId(), userPendingMetaList);
+
+    // insert into labpending table
+    LabPending labPendingForm = new LabPending();
+    labPendingForm.setStatus("PENDING");
+    labPendingForm.setUserpendingId(userPendingDb.getUserPendingId());
+    labPendingForm.setDepartmentId(1);
+    for (UserPendingMeta meta : userPendingMetaList) {
+      if (meta.getK().equals(AREA.name() + ".labName")) {
+        labPendingForm.setName(meta.getV());
+        continue;
+      }
+      if (meta.getK().equals(AREA.name() + ".departmentId")) {
+        try{
+          labPendingForm.setDepartmentId(Integer.parseInt(meta.getV()));
+        } catch (Exception e) {
+        }
+        continue;
+      }
+    } 
+    LabPending labPendingDb = labPendingService.save(labPendingForm);
 
     status.setComplete();
 
-    MessageTag.addMessage(request.getSession(), "hello.error");
+    // TODO email DA that a new pi is pending
 
-    return "auth/newlab/ok";
+    MessageTag.addMessage(request.getSession(), "hello.error");
+    return "redirect:/auth/newpi/ok.do";
   }
 
   // *********************************************************
