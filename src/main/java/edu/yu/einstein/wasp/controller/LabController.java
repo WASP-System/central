@@ -335,7 +335,7 @@ public class LabController extends WaspController {
 	@RequestMapping(value = "/detail_rw/updateJSON.do", method = RequestMethod.POST)
 	public String updateDetailJSON(@RequestParam("id") Integer labId,Lab labForm, ModelMap m, HttpServletResponse response) {
 				
-		List<LabMeta> labMetaList = MetaUtil.getMetaFromForm(request,
+		List<LabMeta> labMetaList = MetaUtil.getMetaFromJSONForm(request,
 				AREA, LabMeta.class, getBundle());
 
 		labForm.setLabMeta(labMetaList);

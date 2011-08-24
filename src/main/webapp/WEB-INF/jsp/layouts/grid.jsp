@@ -130,7 +130,8 @@ html, body {
      
 
      //reload grid
-     //grid.trigger("reloadGrid");
+     grid.trigger("reloadGrid");
+     
      if (document.forms[0].password.value) {
     	 document.forms[0].password.value='';
      }
@@ -250,7 +251,7 @@ $("#grid_id").jqGrid({
 		  editAttr, // edit
 		  {serializeEditData: function(data){ 
 			    return $.param($.extend({}, data, {id:0}));
-		  },closeAfterAdd:false,closeOnEscape:true,errorTextFormat:_errorTextFormat,beforeShowForm:_beforeShowAddForm,width:'auto'}, // add
+		  },closeAfterAdd:false,closeOnEscape:true,errorTextFormat:_errorTextFormat,afterSubmit:_afterSubmit,beforeShowForm:_beforeShowAddForm,width:'auto'}, // add
 		  {},  // delete
 		  {drag:true,resize:true,modal:true,caption:'Lookup',closeOnEscape:true,sopt:['eq','ne']}, //search
 		  editAttr

@@ -22,6 +22,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.envers.Audited;
@@ -33,6 +34,11 @@ import org.hibernate.validator.constraints.NotEmpty;
 @Audited
 @Table(name="user")
 public class User extends WaspModel {
+	
+	
+  @Transient	
+  public static final String PASSWORD_PLACEHOLDER="--fakepassword--";	
+	
   @Id @GeneratedValue(strategy=GenerationType.IDENTITY)
   protected int UserId;
   public void setUserId (int UserId) {
@@ -68,7 +74,9 @@ public class User extends WaspModel {
 
 
   @Column(name="password")
-  @NotEmpty
+  //@NotEmpty commneted out:
+  //we cannot require editor to enter  password  
+  //when it's someone's else's account the editor cannot know the password
   protected String password;
   public void setPassword (String password) {
     this.password = password;

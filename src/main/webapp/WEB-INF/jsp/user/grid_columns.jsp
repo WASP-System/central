@@ -17,7 +17,6 @@ _beforeShowEditForm = function (formId) {
     myPass['editrules']['custom']=false;
 	myPass['formoptions']={};	
 };
-
 </wasp:field>
 
 <wasp:field name="firstName" object="user" type="text"/>

@@ -237,6 +237,30 @@ public final class MetaUtil {
 	}
 
 
+	public static final <T> List<T> getMetaFromJSONForm(HttpServletRequest request, MetaAttribute.Area area, Class clazz, ResourceBundle bundle) {
+		
+		List<T> resultList = MetaUtil.getMasterList(clazz, area, bundle); 
+
+		Map parms = request.getParameterMap();
+		for (Iterator iterator = parms.entrySet().iterator(); iterator.hasNext();)  {  
+			Map.Entry entry = (Map.Entry) iterator.next();
+			String key=(String)entry.getKey();
+			for (T metaObj: resultList) {
+				MetaBase meta = (MetaBase) metaObj;
+				if (key.equals(meta.getK())) {
+					try {
+						meta.setV(((String[])entry.getValue())[0]);
+					} catch (Throwable e) {
+						throw new IllegalStateException("cant merge attributes ",e);
+					}
+					break;
+				}
+			}
+		}
+
+		return resultList;
+	}
+	
 
 	public static final <T> List<T> getMetaFromForm(HttpServletRequest request, MetaAttribute.Area area, Class clazz, ResourceBundle bundle) {
 		return getMetaFromForm(request, area, area, clazz, bundle);
