@@ -317,12 +317,13 @@ public class UserController extends WaspController {
 		
 		}
 				
-		List<UserMeta> userMetaList = MetaUtil.getMetaFromForm(request,
-				AREA, UserMeta.class, getBundle());
+		List<UserMeta> userMetaList = MetaUtil.getMetaFromJSONForm(request,AREA, UserMeta.class, getBundle());
 		
 		userForm.setUserMeta(userMetaList);
 
-		if (userId==0) {
+		boolean adding=userId==0;
+		
+		if (adding) {
 			PasswordEncoder encoder = new ShaPasswordEncoder();
 			String hashedPass = encoder.encodePassword(userForm.getPassword(), null);
 			userForm.setPassword(hashedPass);
@@ -377,7 +378,7 @@ public class UserController extends WaspController {
 		//emailService.sendNewPassword(userDb, "new pass");
 		
 		try {
-			response.getWriter().println(getMessage("user.updated.success"));
+			response.getWriter().println(adding?getMessage("user.created.success"):getMessage("user.updated.success"));
 			return null;
 		} catch (Throwable e) {
 			throw new IllegalStateException("Cant output success message ",e);
