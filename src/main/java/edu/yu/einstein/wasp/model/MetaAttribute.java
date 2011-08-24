@@ -14,7 +14,7 @@ public final class MetaAttribute implements Serializable {
 			user,
 			lab,
 			userPending,
-			labPending
+			piPending
 		}
 			
 		private String label;
