@@ -209,37 +209,40 @@ public final class MetaUtil {
 		  
 		  return resultList;
 		  
-	  }
-	
-	 public static final <T> List<T> getMasterList(Class<T> clazz,MetaAttribute.Area area,ResourceBundle bundle) {
-		  
-		 
-		    List<T> list = new ArrayList<T>();   
-		  
-		    //get current list of meta properties to capture
-		    Set<String> set=getUniqueKeys(area);
-		    
-		    for(String name:set) {
-		    	try {
-		    		T obj=(T)clazz.newInstance();
-				   
-		    		((MetaBase)obj).setK(area+"."+name);
-			  
-		    		list.add(obj);
-		    	  } catch (Throwable e) {
-					  throw new IllegalStateException("cant merge attributes ",e);
-				  }
-		    }
-		       
-
-		    //set property attributes and sort them according to "position"
-		    setAttributesAndSort(list,area,bundle);
-		    
-		    return list;
 	}
 
 
+	public static final <T> List<T> getMasterList(Class<T> clazz,MetaAttribute.Area area, ResourceBundle bundle) {
+		List<T> list = new ArrayList<T>();   
+		
+		//get current list of meta properties to capture
+		Set<String> set=getUniqueKeys(area);
+		
+		for(String name:set) {
+			try {
+				T obj=(T)clazz.newInstance();
+
+				((MetaBase)obj).setK(area+"."+name);
+
+				list.add(obj);
+			} catch (Throwable e) {
+				throw new IllegalStateException("cant merge attributes ",e);
+			}
+		}
+		
+		//set property attributes and sort them according to "position"
+		setAttributesAndSort(list,area,bundle);
+
+		return list;
+	}
+
+
+
 	public static final <T> List<T> getMetaFromForm(HttpServletRequest request, MetaAttribute.Area area, Class clazz, ResourceBundle bundle) {
+		return getMetaFromForm(request, area, area, clazz, bundle);
+	}
+
+	public static final <T> List<T> getMetaFromForm(HttpServletRequest request, MetaAttribute.Area area, MetaAttribute.Area parentarea, Class clazz, ResourceBundle bundle) {
 		
 		List<T> resultList = MetaUtil.getMasterList(clazz, area, bundle); 
 
@@ -249,7 +252,7 @@ public final class MetaUtil {
 			String key=(String)entry.getKey();
 			for (T metaObj: resultList) {
 				MetaBase meta = (MetaBase) metaObj;
-				if (key.equals(area.name() + "Meta" + "_" + meta.getK())) {
+				if (key.equals(parentarea.name() + "Meta" + "_" + meta.getK())) {
 					try {
 						meta.setV(((String[])entry.getValue())[0]);
 					} catch (Throwable e) {
