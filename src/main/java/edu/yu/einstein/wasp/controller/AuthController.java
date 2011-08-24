@@ -277,10 +277,6 @@ public class AuthController extends WaspController {
 
     Errors errors = new BindException(result.getTarget(), AREA.name());
 
-    //if (userPendingForm.getPassword() == null || userPendingForm.getPassword().isEmpty()) {
-    //  errors.rejectValue("password", "userPending.password.error");
-    //}
-
     result.addAllErrors(errors);
 
     List<String> validateList = new ArrayList<String>();
@@ -337,7 +333,7 @@ public class AuthController extends WaspController {
     // TODO email PI/LM that a new user is pending
 
     MessageTag.addMessage(request.getSession(), "hello.error");
-    return "auth/newuser/ok";
+    return "redirect:/auth/newuser/ok.do";
   }
 
   @RequestMapping(value="/newpi", method=RequestMethod.GET)
