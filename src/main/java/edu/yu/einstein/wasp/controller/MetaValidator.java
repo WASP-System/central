@@ -35,9 +35,13 @@ public class MetaValidator {
 		}
 	
 	}
-	
+
+
 	public void validate(List<? extends MetaBase> list, BindingResult result, MetaAttribute.Area area) {
+	  validate(list, result, area, area);
+	}
 	
+	public void validate(List<? extends MetaBase> list, BindingResult result, MetaAttribute.Area area, MetaAttribute.Area parentarea) {
 		Errors errors=new BindException(result.getTarget(), area.name()); 
 	
 		for(int i=0;i<list.size();i++) {
@@ -52,13 +56,13 @@ public class MetaValidator {
 				Matcher m = p.matcher(meta.getV());
 				boolean b = m.matches();
 				if (!b) {
-					errors.rejectValue(area+"Meta["+i+"].k", area+"."+meta.getK().replace(area+".", "")+".error");  
+					errors.rejectValue(parentarea+"Meta["+i+"].k", meta.getK()+".error");  
 				}
 
 			} else if (constraint.equals(Constraint.NotEmpty.name())){
 				if (meta.getV()==null || meta.getV().isEmpty()) {
-					String fieldName=area+"Meta["+i+"].k";
-					String errorMessageKey=area+"."+meta.getK().replace(area+".", "")+".error";
+					String fieldName = parentarea+"Meta["+i+"].k";
+					String errorMessageKey = meta.getK() + ".error";
 					errors.rejectValue(fieldName,errorMessageKey );
 				}
 					
