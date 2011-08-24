@@ -4,9 +4,13 @@
 <tr>
 
   <c:set var="_myArea">${_area}.</c:set>
-  
-  <c:set var="labelKey" value="${_myArea}${fn:replace(_meta.k, _myArea, '')}.label" />
-  
+  <c:set var="_myCtxArea">${_area}.</c:set>
+  <c:if test="${_metaArea != null}">
+    <c:set var="_myCtxArea">${_metaArea}.</c:set>
+  </c:if>
+
+  <c:set var="labelKey" value="${fn:replace(_meta.k, _myArea, _myCtxArea)}.label" />
+
   <td><fmt:message key="${labelKey}"/>:</td>
   <td>
   <c:if test="${not empty _meta.property.control}">
