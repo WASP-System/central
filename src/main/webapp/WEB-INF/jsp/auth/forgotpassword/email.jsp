@@ -1,8 +1,14 @@
 <%@ include file="/WEB-INF/jsp/include.jsp" %>
 
-please wait for the email and await instruction 
+<html>
+  <head> <title><fmt:message key="auth.resetpasswordemailsent.title" /></title> </head>
 
+  <body>
+    <h1><fmt:message key="auth.resetpasswordemailsent.title" /></h1>
 
-instructions will lead you somewhere like
+     <font color="red"><wasp:message /></font>  
 
-<a href="<c:url value='/auth/recoverpassword.do'/>">Recover Password</a>
+     <fmt:message key="auth.resetpasswordemailsent.text" />
+
+</body></html>
+
