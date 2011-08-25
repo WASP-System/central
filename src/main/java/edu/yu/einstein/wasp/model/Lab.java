@@ -167,6 +167,18 @@ public class Lab extends WaspModel {
     this.labUser = labUser;
   }
 
+  @NotAudited
+  @OneToMany
+   @JoinColumn(name="labid", insertable=false, updatable=false)
+  protected List<UserPending> userPending;
+  public List<UserPending> getUserPending()  {
+    return this.userPending;
+  }
+  public void setUserPending (List<UserPending> userPending)  {
+    this.userPending = userPending;
+  }
+
+
 
   @NotAudited
   @OneToMany
