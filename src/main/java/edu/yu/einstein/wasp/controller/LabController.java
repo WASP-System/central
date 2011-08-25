@@ -253,14 +253,22 @@ public class LabController extends WaspController {
 		
 		
 		if (max==0) {
-			LabUser lUser = new LabUser();
-			User user = new User();
-			lUser.setUser(user);			
-			user.setFirstName("No users");			
+			LabUser lUser = new LabUser();			
+			lUser.setUser(new User());			
 			users.add(lUser);
 			
-			//...
+			projects.add(new Project());
 			
+			samples.add(new Sample());
+			
+			accGrants.add(new AcctGrant());
+			
+			SampleLab sampleLab=new SampleLab();
+			sampleLab.setLab(new Lab());
+			sampleLabs.add(sampleLab);
+			
+			jobs.add(new Job());
+						
 			max=1;
 		}
 		
@@ -268,6 +276,7 @@ public class LabController extends WaspController {
 		
 		ObjectMapper mapper = new ObjectMapper();
 
+		String text;
 		try {
 			//String labs = mapper.writeValueAsString(labList);
 			jqgrid.put("page","1");
@@ -275,12 +284,12 @@ public class LabController extends WaspController {
 			jqgrid.put("total",max+"");
 			
 			
-			
 			int i=0;
 			int j=0;
 			for (LabUser user:users) {		
 				
-				mtrx[j][i]="<a href=/wasp/user/list.do?selId="+user.getUserId()+">"+user.getUser().getFirstName() + " "+user.getUser().getLastName()+"</a>";
+				text=user.getUserId()==0?"No Users":"<a href=/wasp/user/list.do?selId="+user.getUserId()+">"+user.getUser().getFirstName() + " "+user.getUser().getLastName()+"</a>";
+				mtrx[j][i]=text;
 				
 				j++;
 				
@@ -290,7 +299,8 @@ public class LabController extends WaspController {
 			j=0;
 			for (Project project:projects) {		
 					
-				mtrx[j][i]=project.getName();
+				text=project.getProjectId()==0?"No Projects":project.getName();
+				mtrx[j][i]=text;
 				
 				j++;
 				
@@ -300,7 +310,8 @@ public class LabController extends WaspController {
 			j=0;
 			for (Sample sample:samples) {		
 					
-				mtrx[j][i]=sample.getName();
+				text=sample.getSampleId()==0?"No Samples":sample.getName();
+				mtrx[j][i]=text;
 				
 				j++;
 				
@@ -310,7 +321,8 @@ public class LabController extends WaspController {
 			j=0;
 			for (AcctGrant acc:accGrants) {		
 					
-				mtrx[j][i]=acc.getName();
+				text=acc.getGrantId()==0?"No Acc Grants":acc.getName();
+				mtrx[j][i]=text;
 				
 				j++;
 				
@@ -320,7 +332,8 @@ public class LabController extends WaspController {
 			j=0;
 			for (SampleLab sampleLab:sampleLabs) {		
 					
-				mtrx[j][i]=sampleLab.getLab().getName();
+				text=sampleLab.getLab().getLabId()==0?"No Sample Labs":sampleLab.getLab().getName();
+				mtrx[j][i]=text;
 				
 				j++;
 				
@@ -330,7 +343,8 @@ public class LabController extends WaspController {
 			j=0;
 			for (Job job:jobs) {		
 					
-				mtrx[j][i]=job.getName();
+				text=job.getJobId()==0?"No Jobs":job.getName();
+				mtrx[j][i]=text;
 				
 				j++;
 				

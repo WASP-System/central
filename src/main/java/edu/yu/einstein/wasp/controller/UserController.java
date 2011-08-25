@@ -122,21 +122,16 @@ public class UserController extends WaspController {
 		
 		if (max==0) {
 			Lab lab=new Lab();
-			lab.setName("No labs");
+		
 			puLabs.add(lab);
 			
 			LabUser lu=new LabUser();
 			lu.setLab(lab);
 			uLabs.add(lu);
+		
+			uJobs.add(new Job());
 			
-			
-			Job job = new Job();
-			job.setName("No jobs");
-			uJobs.add(job);
-			
-			Sample sample = new Sample();
-			sample.setName("No samples");
-			uSamples.add(sample);
+			uSamples.add(new Sample());
 			
 			max=1;
 		}
@@ -151,11 +146,14 @@ public class UserController extends WaspController {
 			 jqgrid.put("records",max+"");
 			 jqgrid.put("total",max+"");
 			 
+			 String text;
+			 
 			 int i=0;
 			 int j=0;
-			 for (Lab lab:puLabs) {		
-			
-				 mtrx[j][i]="<a href=/wasp/lab/list.do?selId="+lab.getLabId()+">"+lab.getName()+"</a>";
+			 for (Lab lab:puLabs) {
+				 
+				 text=lab.getLabId()==0?"No Labs":"<a href=/wasp/lab/list.do?selId="+lab.getLabId()+">"+lab.getName()+"</a>";
+				 mtrx[j][i]=text;
 				 
 				 j++;
 				 
@@ -164,8 +162,8 @@ public class UserController extends WaspController {
 			 i=1;
 			 j=0;
 			 for (LabUser lab:uLabs) {		
-					
-				 mtrx[j][i]="<a href=/wasp/lab/list.do?selId="+lab.getLab().getLabId()+">"+lab.getLab().getName()+"</a>";
+				 text=lab.getLab().getLabId()==0?"No Labs":"<a href=/wasp/lab/list.do?selId="+lab.getLab().getLabId()+">"+lab.getLab().getName()+"</a>";	
+				 mtrx[j][i]=text;
 				 
 				 j++;
 				 
@@ -174,8 +172,9 @@ public class UserController extends WaspController {
 			 i=2;
 			 j=0;
 			 for (Job job:uJobs) {		
-					
-				 mtrx[j][i]=job.getName();
+				
+				 text=job.getJobId()==0?"No Jobs":job.getName();
+				 mtrx[j][i]=text;
 				 
 				 j++;
 				 
@@ -185,7 +184,8 @@ public class UserController extends WaspController {
 			 j=0;
 			 for (Sample sample:uSamples) {		
 					
-				 mtrx[j][i]=sample.getName();
+				 text=sample.getSampleId()==0?"No Samples":sample.getName();
+				 mtrx[j][i]=text;
 				 
 				 j++;
 				 
