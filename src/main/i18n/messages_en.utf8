@@ -271,10 +271,13 @@ auth.resetpassword.wronguser.error=Username and authorization code provided do n
 auth.resetpassword.new_mismatch.error=The two entries for your NEW password are NOT identical
 auth.resetpassword.new_invalid.error=New password: only letters and numbers permitted (with at least one of each type); total of 6-20 characters
 
---------------------------- auth email sent  --------------------------------
+--------------------------- auth reset password: email sent  -------------------
 auth.resetpasswordemailsent.title=Reset Password Request: Email Sent
 auth.resetpasswordemailsent.text=An email has been sent to your registered email address containing an authorization code. Please click the link within this email or alternatively <a href="resetpassword.do">click here</a> and enter the authorization code provided. 
 
+--------------------------- auth reset password: ok  --------------------------------
+auth.resetpasswordok.title=Reset Password: Complete
+auth.resetpasswordok.text=Your password has been reset. Click <a href="login.do">here</a> to login.
 
 --------------------------- user change password ----------------------------
 user.changepassword.title=Change Password
