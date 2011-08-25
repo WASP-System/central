@@ -48,6 +48,7 @@ import edu.yu.einstein.wasp.model.UserMeta;
 import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.model.UserPendingMeta;
 import edu.yu.einstein.wasp.model.LabPending;
+import edu.yu.einstein.wasp.model.LabPendingMeta;
 
 import edu.yu.einstein.wasp.service.LabService;
 import edu.yu.einstein.wasp.service.LabMetaService;
@@ -58,6 +59,7 @@ import edu.yu.einstein.wasp.service.UserMetaService;
 import edu.yu.einstein.wasp.service.UserPendingService;
 import edu.yu.einstein.wasp.service.UserPendingMetaService;
 import edu.yu.einstein.wasp.service.LabPendingService;
+import edu.yu.einstein.wasp.service.LabPendingMetaService;
 import edu.yu.einstein.wasp.service.DepartmentService;
 
 import edu.yu.einstein.wasp.service.EmailService;
@@ -100,6 +102,9 @@ public class LabController extends WaspController {
 
 	@Autowired
 	private LabPendingService labPendingService;
+
+	@Autowired
+	private LabPendingMetaService labPendingMetaService;
 
 	@Autowired
 	private BeanValidator validator;
@@ -612,7 +617,39 @@ public class LabController extends WaspController {
 
 	public Lab createLabFromLabPending(LabPending labPending) {
 		Lab lab = new Lab();
-		return lab;
+		User user;
+
+		if (labPending.getUserpendingId() != null ) {
+			UserPending userPending = userPendingService.getUserPendingByUserPendingId(labPending.getUserpendingId());
+			user = createUserFromUserPending(userPending);
+		} else {
+			user = userService.getUserByUserId(labPending.getPrimaryUserId());
+		}
+
+		lab.setPrimaryUserId(user.getUserId());
+		lab.setName(labPending.getName());
+		lab.setDepartmentId(labPending.getDepartmentId());
+		lab.setIsActive(1);
+
+		Lab labDb = labService.save(lab);
+
+		// copies meta data
+		Map labPendingMetaQueryMap = new HashMap();
+		labPendingMetaQueryMap.put("labpendingId", labPending.getLabPendingId());
+		List<LabPendingMeta> labPendingMetaList = labPendingMetaService.findByMap(labPendingMetaQueryMap); 
+		for (LabPendingMeta lpm: labPendingMetaList) {
+			LabMeta labMeta = new LabMeta();
+			labMeta.setLabId(labDb.getLabId());
+
+			// convert prefix
+			String newK = lpm.getK().replaceAll("^.*?\\.", "lab" + ".");
+
+			labMeta.setK(newK);
+			labMeta.setV(lpm.getV());
+			labMetaService.save(labMeta);
+		}
+
+		return labDb;
 	}
 
 	public User createUserFromUserPending(UserPending userPending) {
@@ -639,7 +676,6 @@ public class LabController extends WaspController {
 		//List<UserPendingMeta> userPendingMetaList = userPendingMetaService.getUserPendingMetaByUserPendingId(userPending.getUserPendingId());
 
 		// copies meta data
-
 		Map userPendingMetaQueryMap = new HashMap();
 		userPendingMetaQueryMap.put("userpendingId", userPending.getUserPendingId());
 		List<UserPendingMeta> userPendingMetaList = userPendingMetaService.findByMap(userPendingMetaQueryMap); 
@@ -695,7 +731,7 @@ public class LabController extends WaspController {
 			}
 		}
 
-		return user; 
+		return userDb; 
 	}
 
 
@@ -732,6 +768,31 @@ public class LabController extends WaspController {
 		return "redirect:/lab/user/" + labId + ".do";
 	}
 
+	@RequestMapping(value = "/labpending/{action}/{departmentId}/{labPendingId}.do", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('god') or hasRole('la-' + #departmentId)")
+	public String labPendingDetail ( @PathVariable("departmentId") Integer departmentId, @PathVariable("labPendingId") Integer labPendingId, @PathVariable("action") String action, ModelMap m) {
+		// TODO CHECK ACTION IS "approve" or "reject"
+
+		LabPending labPending = labPendingService.getLabPendingByLabPendingId(labPendingId);
+
+		// TODO ERROR IF LABID DOESNT BELONG
+		if (labPending.getDepartmentId() != departmentId) {
+			MessageTag.addMessage(request.getSession(), "hello.error");
+		}
+
+		if ("approve".equals(action)) {
+			Lab lab = createLabFromLabPending(labPending);
+		}
+
+		labPending.setStatus(action);
+		labPendingService.save(labPending);
+
+		// TODO SEND ACTION BASED EMAIL TO PENDING USER
+
+		MessageTag.addMessage(request.getSession(), "hello.error");
+
+		return "redirect:/department/detail/" + departmentId + ".do";
+	}
 
 	@RequestMapping(value = "/request.do", method = RequestMethod.GET)
 	public String showRequestAccessForm(ModelMap m) {
