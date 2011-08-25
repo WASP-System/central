@@ -72,9 +72,6 @@ public class DepartmentController extends WaspController {
 
     Department department = this.getDepartmentService().getById(departmentId.intValue());
 
-    // List<DepartmentMeta> departmentMetaList = department.getDepartmentMeta();
-    // departmentMetaList.size();
-
     List<Lab> labList = department.getLab();
     labList.size();
 
