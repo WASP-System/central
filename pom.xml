@@ -23,6 +23,27 @@
 					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>native2ascii-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>native2ascii</goal>
+						</goals>
+						<!-- specific configurations -->
+						<configuration>
+							<encoding>UTF8</encoding>
+							<dest>${project.build.directory}/classes</dest>
+							<ext>.properties</ext>
+							<includes>*.utf8</includes>
+							<src>${basedir}/src/main/i18n</src>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
 		</plugins>
 	</build>
 	<dependencies>
@@ -63,12 +84,12 @@
 			<scope>provided</scope>
 		</dependency>
 
-<dependency>
-  <groupId>org.slf4j</groupId>
-  <artifactId>jcl-over-slf4j</artifactId>
-  <version>1.6.2</version>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jcl-over-slf4j</artifactId>
+			<version>1.6.2</version>
 			<scope>provided</scope>
-</dependency>
+		</dependency>
 
 		<dependency>
 			<groupId>commons-pool</groupId>
@@ -151,9 +172,9 @@
 			<version>3.12.1.GA</version>
 		</dependency>
 		<dependency>
-		    <groupId>javax.servlet.jsp</groupId>
-		    <artifactId>jsp-api</artifactId>
-		    <version>2.2</version>
+			<groupId>javax.servlet.jsp</groupId>
+			<artifactId>jsp-api</artifactId>
+			<version>2.2</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.servlet</groupId>
@@ -396,7 +417,7 @@
 			<artifactId>javax.servlet-api</artifactId>
 			<version>3.0.1</version>
 		</dependency>
-		
+
 	</dependencies>
 	<repositories>
 		<repository>
