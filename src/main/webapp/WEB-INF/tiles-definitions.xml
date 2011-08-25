@@ -52,6 +52,8 @@
  <definition name="lab/detail_ro" template="/WEB-INF/jsp/lab/detail_ro.jsp"/>
  <definition name="lab/user" template="/WEB-INF/jsp/lab/user.jsp"/>
 
+ <definition name="lab/newrequest" template="/WEB-INF/jsp/lab/newrequest.jsp"/>
+
  <definition name="user/mypassword" template="/WEB-INF/jsp/user/mypassword.jsp"/>
  <definition name="lab/request" template="/WEB-INF/jsp/lab/request.jsp"/>
  <definition name="department/list" template="/WEB-INF/jsp/department/list.jsp"/>
