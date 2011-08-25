@@ -21,9 +21,12 @@ import org.springframework.transaction.annotation.*;
 
 import java.util.Date; 
 import java.util.List; 
+import java.util.Map; 
+import java.util.HashMap; 
 
 import edu.yu.einstein.wasp.service.DepartmentService;
 import edu.yu.einstein.wasp.service.DepartmentUserService;
+import edu.yu.einstein.wasp.service.LabPendingService;
 import edu.yu.einstein.wasp.model.*;
 
 @Controller
@@ -50,6 +53,8 @@ public class DepartmentController extends WaspController {
   }
 
 
+  @Autowired
+  private LabPendingService labPendingService;
  
   @RequestMapping("/list")
   @PreAuthorize("hasRole('god') or hasRole('da-*')")
@@ -76,9 +81,15 @@ public class DepartmentController extends WaspController {
     List<DepartmentUser> departmentUserList = department.getDepartmentUser();
     departmentUserList.size();
 
+    Map labPendingQueryMap = new HashMap();
+    labPendingQueryMap.put("status", "PENDING");
+    labPendingQueryMap.put("departmentId", departmentId);
+
+    List<LabPending> labPendingList = labPendingService.findByMap(labPendingQueryMap);
+
     m.addAttribute("department", department);
     m.addAttribute("lab", labList);
-    m.addAttribute("departmentuser", departmentUserList);
+    m.addAttribute("labpending", labPendingList);
 
     return "department/detail";
   }
