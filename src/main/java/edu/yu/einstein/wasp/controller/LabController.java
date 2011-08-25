@@ -20,7 +20,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
-import org.springframework.validation.BindingResult;
+
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,6 +29,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
+
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.BindException;
+import org.springframework.validation.Errors;
 
 import edu.yu.einstein.wasp.model.AcctGrant;
 import edu.yu.einstein.wasp.model.Department;
@@ -485,8 +489,6 @@ public class LabController extends WaspController {
 
 		labForm.setLabMeta(labMetaList);
 
-		// manually validate login and password
-
 		List<String> validateList = new ArrayList<String>();
 
 		for (LabMeta meta : labMetaList) {
@@ -509,13 +511,11 @@ public class LabController extends WaspController {
 		}
 
 		labForm.setLastUpdTs(new Date());
-		
 
 		Lab labDb = this.labService.save(labForm);
 		for (LabMeta um : labMetaList) {
 			um.setLabId(labDb.getLabId());
 		}
-		;
 
 		labMetaService.updateByLabId(labDb.getLabId(), labMetaList);
 
@@ -808,24 +808,106 @@ public class LabController extends WaspController {
 		return "redirect:/department/detail/" + departmentId + ".do";
 	}
 
-	@RequestMapping(value = "/request.do", method = RequestMethod.GET)
-	public String showRequestAccessForm(ModelMap m) {
-		return "lab/request";
+	@RequestMapping(value = "/newrequest", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('god') or hasRole('lm-' + #labId)")
+	public String showRequestForm (ModelMap m) {
+
+		final MetaAttribute.Area area = MetaAttribute.Area.labPending;
+
+    LabPending labPending = new LabPending();
+
+    labPending.setLabPendingMeta(MetaUtil.getMasterList(LabPendingMeta.class, area,getBundle()));
+
+    m.addAttribute(area.name(), labPending);
+
+    prepareSelectListData(m);
+
+		return "lab/newrequest";
 	}
+
+
+	@RequestMapping(value = "/newrequest", method = RequestMethod.POST)
+	public String createNewLabPending (
+			@Valid LabPending labPendingForm,
+			BindingResult result,
+			SessionStatus status,
+			ModelMap m) {
+
+		final MetaAttribute.Area area = MetaAttribute.Area.labPending;
+
+		List<LabPendingMeta> labPendingMetaList = MetaUtil.getMetaFromForm(request,
+				area, LabPendingMeta.class, getBundle());
+
+		labPendingForm.setLabPendingMeta(labPendingMetaList);
+
+		Errors errors = new BindException(result.getTarget(), "labPending");
+
+		List<String> validateList = new ArrayList<String>();
+		//validateList.add("password");
+		//validateList.add(MetaValidator.Constraint.NotEmpty.name());
+
+		// ADD VALIDATION
+		//   - uniq name
+		//   - departmentid
+
+		for (LabPendingMeta meta : labPendingMetaList) {
+			if (meta.getProperty() != null
+					&& meta.getProperty().getConstraint() != null) {
+				validateList.add(meta.getK());
+				validateList.add(meta.getProperty().getConstraint());
+			}
+		}
+
+		MetaValidator validator = new MetaValidator(
+				validateList.toArray(new String[] {}));
+
+		validator.validate(labPendingMetaList, result, area);
+
+
+		User me = getAuthenticatedUser();
+
+		labPendingForm.setPrimaryUserId(me.getUserId());
+		labPendingForm.setStatus("PENDING");
+
+		if (result.hasErrors()) {
+			prepareSelectListData(m);
+			MessageTag.addMessage(request.getSession(), "user.created.error");
+
+			return "lab/newrequest";
+		}
+
+		LabPending labPendingDb = labPendingService.save(labPendingForm);
+
+		for (LabPendingMeta lpm : labPendingMetaList) {
+			lpm.setLabpendingId(labPendingDb.getLabPendingId());
+			labPendingMetaService.save(lpm);
+		}
+
+		status.setComplete();
+
+		// TODO email DA that a new pi is pending
+
+		MessageTag.addMessage(request.getSession(), "hello.error");
+
+		return "redirect:/lab/newrequest.do";
+	}
+
 
 	@RequestMapping(value = "/request.do", method = RequestMethod.POST)
 	public String requestAccess( @RequestParam("primaryuseremail") String primaryuseremail, ModelMap m) {
 		// check existance of primaryUser/lab
+
 		User primaryUser = userService.getUserByEmail(primaryuseremail);
 		if (primaryUser.getUserId() == 0) {
 			MessageTag.addMessage(request.getSession(), "labuser.request.primaryuser.error");
-			return "redirect:/lab/request.do";
+			return "redirect:/lab/newrequest.do";
 		}
+
 
 		Lab lab = labService.getLabByPrimaryUserId(primaryUser.getUserId());
 		if (lab.getLabId() == 0) {
 			MessageTag.addMessage(request.getSession(), "labuser.request.primaryuser.error");
-			return "redirect:/lab/request.do";
+			return "redirect:/lab/newrequest.do";
 		}
 
 		// check role of lab user
@@ -842,12 +924,12 @@ public class LabController extends WaspController {
 
 			if (alreadyPendingRoles.contains(labUser.getRole().getRoleName())) {
 				MessageTag.addMessage(request.getSession(), "labuser.request.alreadypending.error");
-				return "redirect:/lab/request.do";
+				return "redirect:/lab/newrequest.do";
 			}
 
 			if (alreadyAccessRoles.contains(labUser.getRole().getRoleName())) {
 				MessageTag.addMessage(request.getSession(), "labuser.request.alreadyaccess.error");
-				  return "redirect:/lab/request.do";
+				  return "redirect:/lab/newrequest.do";
 			}
 		}
 
@@ -864,11 +946,12 @@ public class LabController extends WaspController {
 
 		MessageTag.addMessage(request.getSession(), "labuser.request.success");
 
-		return "redirect:/lab/request.do";
+		return "redirect:/lab/newrequest.do";
 
 		// TODO RESET TO DASHBOARD!
 		// return "redirect:/dashboard.do";
 	}
+
 
 	@RequestMapping(value = "/pendinglab/list/{departmentId}.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('god') or hasRole('da-' + $departmentId)")
