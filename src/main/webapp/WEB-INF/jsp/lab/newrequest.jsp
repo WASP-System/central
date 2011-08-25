@@ -15,7 +15,7 @@
 
   <table>
 
-
+  <sec:authorize access="not hasRole('lm-*')">
   <form:form commandName="labPending">
     <table>
       <tr>
@@ -46,4 +46,5 @@
 
   </table>
   </form:form>
+  </sec:authorize>
 
