@@ -417,6 +417,11 @@
 			<artifactId>javax.servlet-api</artifactId>
 			<version>3.0.1</version>
 		</dependency>
+		<dependency>
+  			<groupId>nl.captcha</groupId>
+			<artifactId>simplecaptcha</artifactId>
+			<version>1.1.1</version>
+		</dependency>
 
 	</dependencies>
 	<repositories>
@@ -434,6 +439,11 @@
 			<id>springsource-external</id>
 			<name>SpringSource EXTERNAL Repository</name>
 			<url>http://repository.springsource.com/maven/bundles/external</url>
+		</repository>
+		<repository>
+			<id>nl.captcha</id>
+			<name>Simple Captcha Repository</name>
+			<url>https://hypobytes.com/maven/content/repositories/thirdparty</url>
 		</repository>
 	</repositories>
 </project>
