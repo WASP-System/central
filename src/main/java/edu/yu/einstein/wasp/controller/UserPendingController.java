@@ -44,7 +44,7 @@ import edu.yu.einstein.wasp.service.LabPendingService;
 import edu.yu.einstein.wasp.service.LabPendingMetaService;
 
 import edu.yu.einstein.wasp.service.EmailService;
-import edu.yu.einstein.wasp.service.PasswordEncoderService;
+import edu.yu.einstein.wasp.service.PasswordService;
 
 import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.MetaAttribute.Country;
@@ -92,7 +92,7 @@ public class UserPendingController extends WaspController {
   private EmailService emailService;
 
   @Autowired
-  private PasswordEncoderService passwordEncoderService;
+  private PasswordService passwordService;
 
   @Autowired
   private BeanValidator validator;
@@ -176,7 +176,7 @@ public class UserPendingController extends WaspController {
       return "auth/newuser/form";
     }
 
-    userPendingForm.setPassword( passwordEncoderService.encodePassword(userPendingForm.getPassword()) ); 
+    userPendingForm.setPassword( passwordService.encodePassword(userPendingForm.getPassword()) ); 
 
 
     UserPending userPendingDb = userPendingService.save(userPendingForm);
@@ -263,7 +263,7 @@ public class UserPendingController extends WaspController {
 
     userPendingForm.setStatus("PENDING");
 
-    userPendingForm.setPassword( passwordEncoderService.encodePassword(userPendingForm.getPassword()) ); 
+    userPendingForm.setPassword( passwordService.encodePassword(userPendingForm.getPassword()) ); 
 
     UserPending userPendingDb = userPendingService.save(userPendingForm);
 

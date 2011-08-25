@@ -44,7 +44,7 @@ import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserMeta;
 import edu.yu.einstein.wasp.service.EmailService;
-import edu.yu.einstein.wasp.service.PasswordEncoderService;
+import edu.yu.einstein.wasp.service.PasswordService;
 import edu.yu.einstein.wasp.service.UserMetaService;
 import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.taglib.MessageTag;
@@ -67,8 +67,8 @@ public class UserController extends WaspController {
 	private EmailService emailService;
 
 	@Autowired
-	private PasswordEncoderService passwordEncoderService;
-
+	private PasswordService passwordService;
+	
 	@Autowired
 	private MappingJacksonHttpMessageConverter jsonnMapper;
 	
@@ -371,7 +371,7 @@ public class UserController extends WaspController {
 
 		userForm.setLastUpdTs(new Date());
 
-		userForm.setPassword( passwordEncoderService.encodePassword(userForm.getPassword()) );
+		userForm.setPassword( passwordService.encodePassword(userForm.getPassword()) );
 		
 		//MessageTag.addMessage(request.getSession(), "user.updated.success");
 		
@@ -475,15 +475,54 @@ public class UserController extends WaspController {
 	public String myPasswordForm(ModelMap m) {
 		return "user/mypassword";
 	}
-
+	
 	@RequestMapping(value = "/mypassword.do", method = RequestMethod.POST)
 	public String myPassword(
-			@RequestParam(value = "passwordold") String passwordold,
-			@RequestParam(value = "password") String password,
-			@RequestParam(value = "password2") String password2, ModelMap m) {
-		return "redirect:/dashboard.do";
+			@RequestParam(required=true, value = "oldpassword") String oldpassword,
+			@RequestParam(required=true, value = "newpassword1") String newpassword1,
+			@RequestParam(required=true, value = "newpassword2") String newpassword2, ModelMap m) {		
+		
+		if (oldpassword  == null || "".equals(oldpassword)  ||
+			newpassword1 == null || "".equals(newpassword1) ||
+			newpassword2 == null || "".equals(newpassword2)  ) 
+		{
+				MessageTag.addMessage(request.getSession(), "user.mypassword.missingparam.error");
+				return "user/mypassword";
+		}
+		
+		User user = this.getAuthenticatedUser();
+		String currentPasswordAsHash = user.getPassword();//this is from database and is hashed
+		String oldPasswordAsHash = passwordService.encodePassword(oldpassword);//oldpassword is from the form, so must hash it for comparison
+		  
+		  logger.debug("one");logger.debug(currentPasswordAsHash);
+		  logger.debug("two");logger.debug(oldPasswordAsHash);
+		  logger.debug("three");
+		  
+		//if(!currentPasswordAsHash.equals(oldPasswordAsHash)){//current from db; old is from form as hash
+		if(!passwordService.matchPassword(currentPasswordAsHash, oldPasswordAsHash)){
+			MessageTag.addMessage(request.getSession(), "user.mypassword.cur_mismatch.error");
+			return "user/mypassword";
+		}
+		//else if(!newpassword1.equals(newpassword2)){//both from form
+		else if(!passwordService.matchPassword(newpassword1, newpassword2)){
+			MessageTag.addMessage(request.getSession(), "user.mypassword.new_mismatch.error");
+		    return "user/mypassword";
+		}
+		//else if(oldpassword.equals(newpassword1)){
+		else if(passwordService.matchPassword(oldpassword, newpassword1)){//make sure old and new passwords differ
+			MessageTag.addMessage(request.getSession(), "user.mypassword.nodiff.error");
+		    return "user/mypassword";
+		}
+		else if(!passwordService.validatePassword(newpassword1)){//at least 8 char, at least one letter; at least one number
+			MessageTag.addMessage(request.getSession(), "user.mypassword.new_invalid.error");
+		    return "user/mypassword";
+		}
+		  
+		user.setPassword( passwordService.encodePassword(newpassword1) ); 
+		userService.merge(user);
+		MessageTag.addMessage(request.getSession(), "user.changepassword.ok");	
+		return "redirect:/dashboard.do";		 
 	}
-	
 
 	@RequestMapping(value = "/create/form.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('god')")

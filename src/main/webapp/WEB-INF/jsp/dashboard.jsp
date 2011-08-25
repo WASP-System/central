@@ -1,5 +1,5 @@
 <%@ include file="/WEB-INF/jsp/include.jsp" %>
-
+<div><font color="red"><wasp:message /></font></div>
 <div><a href="<c:url value="/user/me.do"/>">My Profile</a></div>
 <div><a href="<c:url value="/user/mypassword.do"/>">My Password</a></div>
 <div><a href="<c:url value="/auth/reauth.do"/>">Refresh Auth</a></div>

@@ -12,11 +12,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.security.authentication.encoding.PasswordEncoder;
 import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 
-import edu.yu.einstein.wasp.service.PasswordEncoderService;
+import edu.yu.einstein.wasp.service.PasswordService;
 
 
 @Service
-public class PasswordEncoderServiceImpl implements PasswordEncoderService {
+public class PasswordServiceImpl implements PasswordService {
 	
   public String encodePassword(String s) {
     PasswordEncoder encoder = new ShaPasswordEncoder();
@@ -25,5 +25,16 @@ public class PasswordEncoderServiceImpl implements PasswordEncoderService {
     return hashedPassword;
   }
 	
+  public boolean validatePassword(String s) {
+	  //http://www.the-art-of-web.com/javascript/validate-password/
+	  //see orange box on this web page
+	  //only letters and numbers, at least one number, at least one letter, and at least 8 characters
+	  //I replaced the \w with [0-9a-zA-Z]
+	  return s.matches("^(?=.*[0-9])(?=.*[a-zA-Z])[0-9a-zA-Z]{8,}$"); 	  
+  }
+  
+  public boolean matchPassword(String s1, String s2){
+	  return s1.equals(s2);
+  }
 }
 

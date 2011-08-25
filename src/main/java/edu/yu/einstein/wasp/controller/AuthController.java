@@ -33,11 +33,10 @@ import org.springframework.security.access.prepost.*;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Userpasswordauth;
 
-import edu.yu.einstein.wasp.service.PasswordValidatorService;
 import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.service.UserpasswordauthService;
 import edu.yu.einstein.wasp.service.EmailService;
-import edu.yu.einstein.wasp.service.PasswordEncoderService;
+import edu.yu.einstein.wasp.service.PasswordService;
 
 import edu.yu.einstein.wasp.taglib.MessageTag;
 
@@ -61,11 +60,8 @@ public class AuthController extends WaspController {
   private EmailService emailService;
 
   @Autowired
-  private PasswordEncoderService passwordEncoderService;
+  private PasswordService passwordService;
   
-  @Autowired
-  private PasswordValidatorService passwordValidatorService;
-
   @Autowired
   private BeanValidator validator;
 
@@ -151,7 +147,7 @@ public class AuthController extends WaspController {
        return "auth/resetpassword/form";
     }
     
-    if (! passwordValidatorService.validatePassword(password1)){
+    if (! passwordService.validatePassword(password1)){
     	 MessageTag.addMessage(request.getSession(), "auth.resetpassword.new_invalid.error");
          m.put("authcode", authCode);
          m.put("username", username);
@@ -178,7 +174,7 @@ public class AuthController extends WaspController {
     	return "auth/resetpassword/authcodeform";
     }
 
-    user.setPassword( passwordEncoderService.encodePassword(password1) ); 
+    user.setPassword( passwordService.encodePassword(password1) ); 
     userService.merge(user);
 
     // removes auth code from future use
