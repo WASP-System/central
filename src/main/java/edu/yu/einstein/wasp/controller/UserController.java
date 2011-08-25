@@ -476,7 +476,7 @@ public class UserController extends WaspController {
 		return "user/mypassword";
 	}
 	
-	@RequestMapping(value = "/mypassword.do", method = RequestMethod.POST)
+	@RequestMapping(value = "/mypassword.do", method = RequestMethod.POST)   
 	public String myPassword(
 			@RequestParam(required=true, value = "oldpassword") String oldpassword,
 			@RequestParam(required=true, value = "newpassword1") String newpassword1,
