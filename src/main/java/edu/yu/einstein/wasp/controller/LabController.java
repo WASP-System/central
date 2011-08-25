@@ -625,6 +625,12 @@ public class LabController extends WaspController {
 
 		// TODO ADD MESSAGE
 
+		// if i am the user,  reauth
+		User me = getAuthenticatedUser();
+		if (me.getUserId() == userId) {
+			doReauth(); 
+		}
+
 		MessageTag.addMessage(request.getSession(), "hello.error");
 		return "redirect:/lab/user/" + labId + ".do";
 	}
@@ -661,6 +667,23 @@ public class LabController extends WaspController {
 			labMeta.setK(newK);
 			labMeta.setV(lpm.getV());
 			labMetaService.save(labMeta);
+		}
+
+
+		// set p.i.
+		Role role = roleService.getRoleByRoleName("pi");
+
+		LabUser labUser = new LabUser();
+		labUser.setUserId(user.getUserId());
+		labUser.setLabId(lab.getLabId());
+		labUser.setRoleId(role.getRoleId());
+		labUserService.save(labUser);
+
+		// if i am the p.i. reauth
+		User me = getAuthenticatedUser();
+
+		if (me.getUserId() == user.getUserId()) {
+			doReauth(); 
 		}
 
 		return labDb;
@@ -827,6 +850,7 @@ public class LabController extends WaspController {
 
 
 	@RequestMapping(value = "/newrequest", method = RequestMethod.POST)
+	@PreAuthorize("not hasRole('lm-*')")
 	public String createNewLabPending (
 			@Valid LabPending labPendingForm,
 			BindingResult result,
@@ -953,21 +977,6 @@ public class LabController extends WaspController {
 	}
 
 
-	@RequestMapping(value = "/pendinglab/list/{departmentId}.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('god') or hasRole('da-' + $departmentId)")
-	public String pendingLabList(@PathVariable("departmentId") Integer departmentId, ModelMap m) {
-		return "lab/pendinglab/list";
-	}
-
-	@RequestMapping(value = "/pendinglab/{departmentId}/{labId}/{newStatus}.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('god') or hasRole('da-' + #departmentId)")
-	public String pendingLab (
-			@PathVariable("departmentId") Integer departmentId, 
-			@PathVariable("labId") Integer labId, 
-			@PathVariable("newStatus") String newStatus, ModelMap m) {
-
-		return "redirect:/lab/pendinglab/list";
-	}
 
 
 	protected void prepareSelectListData(ModelMap m) {
