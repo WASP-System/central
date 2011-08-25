@@ -183,9 +183,8 @@ public class UserPendingController extends WaspController {
 
     for (UserPendingMeta upm : userPendingMetaList) {
       upm.setUserpendingId(userPendingDb.getUserPendingId());
+      userPendingMetaService.save(upm);
     }
-    userPendingMetaService.updateByUserpendingId(userPendingDb.getUserPendingId(), userPendingMetaList);
-
 
     status.setComplete();
 
