@@ -42,11 +42,6 @@ import edu.yu.einstein.wasp.service.PasswordEncoderService;
 import edu.yu.einstein.wasp.taglib.MessageTag;
 
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserCache;
-import org.springframework.security.core.userdetails.cache.NullUserCache;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
@@ -58,9 +53,6 @@ import org.springframework.web.bind.annotation.InitBinder;
 public class AuthController extends WaspController {
 
   private static final ResourceBundle BASE_BUNDLE=ResourceBundle.getBundle("messages", Locale.ENGLISH);
-
-  @Autowired
-  private UserDetailsService userDetailsService;
 
   @Autowired
   private UserpasswordauthService userpasswordauthService;
@@ -199,16 +191,7 @@ public class AuthController extends WaspController {
 
   @RequestMapping("/reauth")
   public String reauth(ModelMap m) {
-
-    SecurityContext securityContext= SecurityContextHolder.getContext();
-    Authentication currentUser = securityContext.getAuthentication();
-    UserDetails currentUserDetails = (UserDetails) currentUser.getPrincipal();
-
-    UserDetails u = userDetailsService.loadUserByUsername(currentUserDetails.getUsername());
-
-    UsernamePasswordAuthenticationToken newToken = new UsernamePasswordAuthenticationToken(u.getUsername(), u.getPassword());
-
-    SecurityContextHolder.getContext().setAuthentication(newToken);
+    doReauth();
 
     return "redirect:/dashboard.do";
   }

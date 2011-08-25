@@ -20,6 +20,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 
@@ -41,6 +47,9 @@ public class WaspController {
                 LOCALES.put("ru_RU","Russian");
                 LOCALES.put("ja_JA","Japanese");
                 }
+
+  @Autowired
+  private UserDetailsService userDetailsService;
 
   @Autowired
   protected UserService userService;
@@ -94,6 +103,20 @@ public class WaspController {
     ResourceBundle bundle=ResourceBundle.getBundle("messages",locale);
 
     return bundle;
+  }
+
+
+  public void doReauth() {
+    SecurityContext securityContext= SecurityContextHolder.getContext();
+    Authentication currentUser = securityContext.getAuthentication();
+    UserDetails currentUserDetails = (UserDetails) currentUser.getPrincipal();
+
+    UserDetails u = userDetailsService.loadUserByUsername(currentUserDetails.getUsername());
+
+    UsernamePasswordAuthenticationToken newToken = new UsernamePasswordAuthenticationToken(u.getUsername(), u.getPassword());
+
+    SecurityContextHolder.getContext().setAuthentication(newToken);
+
   }
 
 
