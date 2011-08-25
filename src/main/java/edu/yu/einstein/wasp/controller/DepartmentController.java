@@ -112,6 +112,12 @@ public class DepartmentController extends WaspController {
 
     departmentUserService.remove(departmentUser);
 
+    // if i am the user,  reauth
+    User me = getAuthenticatedUser();
+    if (me.getUserId() == userId) {
+      doReauth();
+    }
+
     return "redirect:/department/detail/" + departmentId + ".do";
   }
 
@@ -127,6 +133,12 @@ public class DepartmentController extends WaspController {
     departmentUser.setDepartmentId(departmentId); 
     departmentUser.setUserId(user.getUserId()); 
     departmentUserService.save(departmentUser);
+
+    // if i am the user,  reauth
+    User me = getAuthenticatedUser();
+    if (me.getUserId() == user.getUserId()) {
+      doReauth();
+    }
 
     return "redirect:/department/detail/" + departmentId + ".do";
   }
