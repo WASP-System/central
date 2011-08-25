@@ -14,6 +14,9 @@ package edu.yu.einstein.wasp.model;
 import org.hibernate.*;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
+import org.hibernate.validator.constraints.NotEmpty;
+import org.hibernate.validator.constraints.Range;
+
 
 import javax.persistence.*;
 import java.util.*;
@@ -35,6 +38,8 @@ public class LabPending extends WaspModel {
 
 
   @Column(name="departmentid")
+  @Range(min=1)
+
   protected int departmentId;
   public void setDepartmentId (int departmentId) {
     this.departmentId = departmentId;
@@ -45,6 +50,7 @@ public class LabPending extends WaspModel {
 
 
   @Column(name="name")
+  @NotEmpty
   protected String name;
   public void setName (String name) {
     this.name = name;
@@ -143,6 +149,7 @@ public class LabPending extends WaspModel {
   public UserPending getUserPending () {
     return this.userPending;
   }
+
   @NotAudited
   @OneToMany
    @JoinColumn(name="labpendingid", insertable=false, updatable=false)
