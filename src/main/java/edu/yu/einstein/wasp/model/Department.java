@@ -18,6 +18,8 @@ import org.hibernate.envers.NotAudited;
 import javax.persistence.*;
 import java.util.*;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
+
 @Entity
 @Audited
 @Table(name="department")
@@ -103,6 +105,18 @@ public class Department extends WaspModel {
   }
   public void setLab (List<Lab> lab)  {
     this.lab = lab;
+  }
+
+
+  @NotAudited
+  @OneToMany
+   @JoinColumn(name="departmentid", insertable=false, updatable=false)
+  protected List<LabPending> labPending;
+  public List<LabPending> getLabPending()  {
+    return this.labPending;
+  }
+  public void setLabPending (List<LabPending> labPending)  {
+    this.labPending = labPending;
   }
 
 
