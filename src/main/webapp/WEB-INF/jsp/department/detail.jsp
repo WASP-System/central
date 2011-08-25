@@ -38,10 +38,10 @@
     <c:forEach items="${labpending}" var="lp">
       <div>
         <c:out value="${lp.name}" />
-        <c:url value="/lab/labpending/approve/${d.deparmentId}/${lp.labPendingId}.do" />
+        <a href="<c:url value="/lab/labpending/approve/${department.departmentId}/${lp.labPendingId}.do" />">
 	Approve
         </a>
-        <c:url value="/lab/labpending/reject/${d.deparmentId}/${lp.labPendingId}.do" />
+        <a href="<c:url value="/lab/labpending/reject/${department.departmentId}/${lp.labPendingId}.do" />">
 	Reject
         </a>
       </div>
