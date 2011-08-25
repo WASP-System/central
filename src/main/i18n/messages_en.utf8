@@ -30,7 +30,7 @@ user.isActive.label=Active
 user.title.label=Title
 user.title.error=Title cannot be empty
 user.title.constraint=NotEmpty
-user.title.control=select:Mr:Mr;Ms:Ms;Mrs:Mrs;Miss:Miss
+user.title.control=select:Prof:Prof;Dr:Dr;Mr:Mr;Ms:Ms;Mrs:Mrs;Miss:Miss
 user.title.metaposition=0
 
 user.institution.label=Institution
@@ -105,7 +105,7 @@ userPending.primaryuseremail.metaposition=0
 userPending.title.label=Title
 userPending.title.error=Title cannot be empty
 userPending.title.constraint=NotEmpty
-userPending.title.control=select:Mr:Mr;Ms:Ms;Mrs:Mrs;Miss:Miss
+userPending.title.control=select:Prof:Prof;Dr:Dr;Mr:Mr;Ms:Ms;Mrs:Mrs;Miss:Miss
 userPending.title.metaposition=5
 
 userPending.institution.label=Institution
@@ -154,6 +154,84 @@ userPending.fax.error=Fax cannot be empty
 userPending.fax.constraint=NotEmpty
 userPending.fax.metaposition=100
 
+
+piPending.password.label=PI Password
+piPending.password.error=Password cannot be empty
+
+piPending.firstName.label=PI First Name
+piPending.firstName.error=First Name cannot be empty
+
+piPending.lastName.label=PI Last Name
+piPending.lastName.error=Last Name cannot be empty
+
+piPending.email.label=PI Email
+piPending.email.error=Wrong email address format
+
+piPending.locale.label=PI Locale
+piPending.locale.error=Locale cannot be empty
+
+# ------------------------ dynamic lab pending fields ----------------------
+piPending.labName.label=Lab Name
+piPending.labName.error=Lab Name cannot be empty
+piPending.labName.constraint=NotEmpty
+piPending.labName.metaposition=1
+
+piPending.departmentId.label=departmentId
+piPending.departmentId.error=departmentId cannot be empty
+piPending.departmentId.constraint=NotEmpty
+piPending.departmentId.metaposition=2
+
+piPending.title.label=Title
+piPending.title.error=Title cannot be empty
+piPending.title.constraint=NotEmpty
+piPending.title.control=select:Prof:Prof;Dr:Dr;Mr:Mr;Ms:Ms;Mrs:Mrs;Miss:Miss
+piPending.title.metaposition=5
+
+piPending.institution.label=Institution
+piPending.institution.error=Institution cannot be empty
+piPending.institution.constraint=NotEmpty
+piPending.institution.metaposition=10
+
+piPending.department.label=Department
+piPending.department.metaposition=20
+
+piPending.building_room.label=Room
+piPending.building_room.metaposition=30
+
+piPending.address.label=Address
+piPending.address.error=Address cannot be empty
+piPending.address.constraint=NotEmpty
+piPending.address.metaposition=40
+
+piPending.city.label=City
+piPending.city.error=City cannot be empty
+piPending.address.constraint=NotEmpty
+piPending.city.metaposition=50
+
+piPending.state.label=State
+piPending.state.control=select:${states}:code:name
+piPending.state.metaposition=60
+
+piPending.country.label=Country
+piPending.country.error=Country cannot be empty
+piPending.country.control=select:${countries}:code:name
+piPending.country.constraint=NotEmpty
+piPending.country.metaposition=70
+
+piPending.zip.label=Zip
+piPending.zip.error=Zip cannot be empty
+piPending.zip.constraint=NotEmpty
+piPending.zip.metaposition=80
+
+piPending.phone.label=Phone
+piPending.phone.error=Phone cannot be empty
+piPending.phone.constraint=NotEmpty
+piPending.phone.metaposition=90
+
+piPending.fax.label=Fax
+piPending.fax.error=Fax cannot be empty
+piPending.fax.constraint=NotEmpty
+piPending.fax.metaposition=100
 
 
 # -------------------------- static lab fields --------------------------
@@ -248,11 +326,23 @@ labuser.request.success=Your request for access has been submitted.
 labuser.request.alreadypending.error=Could not request for access to that Lab.
 labuser.request.alreadyaccess.error=Could not request for access to that Lab.
 
+
 --------------------------- auth forgot password ----------------------------
 auth.forgotpassword.title=Reset Password Request  
 auth.forgotpassword.user.label=Username
 auth.forgotpassword.submit=Submit
 auth.forgotpassword.error.username=A user with the supplied username does not exist
+
+--------------------------- auth recover password ----------------------------
+auth.recoverpassword.title=Recover Password
+auth.recoverpassword.user.label=Username
+auth.recoverpassword.password.label=Password
+auth.recoverpassword.password2.label=Again
+auth.recoverpassword.submit=Submit
+
+auth.recoverpassword.error.badauthcode=Bad Auth Code
+auth.recoverpassword.error.wronguser=User is not associate w/ that authcode
+
 
 --------------------------- auth reset password ----------------------------
 auth.resetpassword.title1=Reset Password: Step 1
@@ -266,6 +356,7 @@ auth.resetpassword.submit=Submit
 auth.resetpassword.noauthcode.error=No authorization code provided
 auth.resetpassword.missingparam.error=Please provide values for all fields
 auth.resetpassword.badauthcode.error=Invalid authorization code provided
+
 auth.resetpassword.error.username=A user with the supplied username does not exist
 auth.resetpassword.wronguser.error=Username and authorization code provided do not match
 auth.resetpassword.new_mismatch.error=The two entries for your NEW password are NOT identical
@@ -292,3 +383,6 @@ user.mypassword.nodiff.error=Your old and new passwords may NOT be the same
 user.mypassword.new_invalid.error=New password: only letters and numbers permitted (with at least one of each type); total of 6-20 characters
 user.changepassword.ok=Password Has Been Changed
 
+
+---- for debuging ----
+hello.error=Hello World
