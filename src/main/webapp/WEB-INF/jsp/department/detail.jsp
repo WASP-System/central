@@ -34,5 +34,18 @@
       </div>
     </c:forEach>
 
+    <h2>Pending Lab</h2>
+    <c:forEach items="${labpending}" var="lp">
+      <div>
+        <c:out value="${lp.name}" />
+        <c:url value="/lab/labpending/approve/${d.deparmentId}/${lp.labPendingId}.do" />
+	Approve
+        </a>
+        <c:url value="/lab/labpending/reject/${d.deparmentId}/${lp.labPendingId}.do" />
+	Reject
+        </a>
+      </div>
+    </c:forEach>
+
   </body>
 </html>
