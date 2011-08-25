@@ -44,13 +44,24 @@ import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleLab;
 import edu.yu.einstein.wasp.model.User;
-import edu.yu.einstein.wasp.service.DepartmentService;
-import edu.yu.einstein.wasp.service.EmailService;
-import edu.yu.einstein.wasp.service.LabMetaService;
+import edu.yu.einstein.wasp.model.UserMeta;
+import edu.yu.einstein.wasp.model.UserPending;
+import edu.yu.einstein.wasp.model.UserPendingMeta;
+import edu.yu.einstein.wasp.model.LabPending;
+
 import edu.yu.einstein.wasp.service.LabService;
+import edu.yu.einstein.wasp.service.LabMetaService;
 import edu.yu.einstein.wasp.service.LabUserService;
 import edu.yu.einstein.wasp.service.RoleService;
 import edu.yu.einstein.wasp.service.UserService;
+import edu.yu.einstein.wasp.service.UserMetaService;
+import edu.yu.einstein.wasp.service.UserPendingService;
+import edu.yu.einstein.wasp.service.UserPendingMetaService;
+import edu.yu.einstein.wasp.service.LabPendingService;
+import edu.yu.einstein.wasp.service.DepartmentService;
+
+import edu.yu.einstein.wasp.service.EmailService;
+
 import edu.yu.einstein.wasp.taglib.MessageTag;
 
 @Controller
@@ -79,6 +90,18 @@ public class LabController extends WaspController {
 	private UserService userService;
 
 	@Autowired
+	private UserMetaService userMetaService;
+
+	@Autowired
+	private UserPendingService userPendingService;
+
+	@Autowired
+	private UserPendingMetaService userPendingMetaService;
+
+	@Autowired
+	private LabPendingService labPendingService;
+
+	@Autowired
 	private BeanValidator validator;
 
 	@Autowired
@@ -95,9 +118,9 @@ public class LabController extends WaspController {
 		
 		m.addAttribute("_metaList", MetaUtil.getMasterList(MetaBase.class, AREA, getBundle()));
 		m.addAttribute("_area", AREA.name());
-	
-	    prepareSelectListData(m);
-		 
+
+		prepareSelectListData(m);
+
 		return "lab-list";
 	}
 
@@ -114,63 +137,63 @@ public class LabController extends WaspController {
 			labList = this.labService.findAll();
 		} else {
 			
-			  Map<String, String> m = new HashMap<String, String>();
-			  
-			  m.put(request.getParameter("searchField"), request.getParameter("searchString"));
-			  				  
-			  labList = this.labService.findByMap(m);
-			  
-			  if ("ne".equals(request.getParameter("searchOper"))) {
-				  List<Lab> allLabs=new ArrayList<Lab>(this.labService.findAll());
-				  for(Iterator<Lab> it=labList.iterator();it.hasNext();)  {
-					  Lab excludeLab=it.next();
-					  allLabs.remove(excludeLab);
-				  }
-				  labList=allLabs;
-			  }
+			Map<String, String> m = new HashMap<String, String>();
+			
+			m.put(request.getParameter("searchField"), request.getParameter("searchString"));
+
+			labList = this.labService.findByMap(m);
+			
+			if ("ne".equals(request.getParameter("searchOper"))) {
+				List<Lab> allLabs=new ArrayList<Lab>(this.labService.findAll());
+				for(Iterator<Lab> it=labList.iterator();it.hasNext();)  {
+					Lab excludeLab=it.next();
+					allLabs.remove(excludeLab);
+				}
+				labList=allLabs;
+			}
 		}
 
-    	ObjectMapper mapper = new ObjectMapper();
+		ObjectMapper mapper = new ObjectMapper();
 		
-		 try {
-			 //String labs = mapper.writeValueAsString(labList);
-			 jqgrid.put("page","1");
-			 jqgrid.put("records",labList.size()+"");
-			 jqgrid.put("total",labList.size()+"");
-			 
-			 
-			 Map<String, String> userData=new HashMap<String, String>();
-			 userData.put("page","1");
-			 userData.put("selId",StringUtils.isEmpty(request.getParameter("selId"))?"":request.getParameter("selId"));
-			 jqgrid.put("userdata",userData);
-			 
-			 List<Map> rows = new ArrayList<Map>();
-			 
-			 Map<Integer, String> allDepts=new TreeMap<Integer, String>();
-			 for(Department dept:(List<Department>)deptService.findAll()) {
-				 allDepts.put(dept.getDepartmentId(),dept.getName());
-			 }
-			 
-			 Map<Integer, String> allUsers=new TreeMap<Integer, String>();
-			 for(User user:(List<User>)userService.findAll()) {
-				 allUsers.put(user.getUserId(),user.getFirstName()+" "+user.getLastName());
-			 }
-			 
-			 
-			 for (Lab lab:labList) {
-				 
-				 Map cell = new HashMap();
-				 cell.put("id", lab.getLabId());
-				 
-				 List<LabMeta> labMeta=MetaUtil.syncWithMaster(lab.getLabMeta(), AREA, LabMeta.class);
-				 					
-				 MetaUtil.setAttributesAndSort(labMeta, AREA,getBundle());
-				 
-				 List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
-							lab.getName(),
-							"<a href=/wasp/user/list.do?selId="+lab.getPrimaryUserId()+">"+allUsers.get(lab.getPrimaryUserId()) +"</a>",							
+		try {
+			//String labs = mapper.writeValueAsString(labList);
+			jqgrid.put("page","1");
+			jqgrid.put("records",labList.size()+"");
+			jqgrid.put("total",labList.size()+"");
+			
+			
+			Map<String, String> userData=new HashMap<String, String>();
+			userData.put("page","1");
+			userData.put("selId",StringUtils.isEmpty(request.getParameter("selId"))?"":request.getParameter("selId"));
+			jqgrid.put("userdata",userData);
+			
+			List<Map> rows = new ArrayList<Map>();
+			
+			Map<Integer, String> allDepts=new TreeMap<Integer, String>();
+			for(Department dept:(List<Department>)deptService.findAll()) {
+				allDepts.put(dept.getDepartmentId(),dept.getName());
+			}
+			
+			Map<Integer, String> allUsers=new TreeMap<Integer, String>();
+			for(User user:(List<User>)userService.findAll()) {
+				allUsers.put(user.getUserId(),user.getFirstName()+" "+user.getLastName());
+			}
+			
+			
+			for (Lab lab:labList) {
+				
+				Map cell = new HashMap();
+				cell.put("id", lab.getLabId());
+				
+				List<LabMeta> labMeta=MetaUtil.syncWithMaster(lab.getLabMeta(), AREA, LabMeta.class);
+									
+				MetaUtil.setAttributesAndSort(labMeta, AREA,getBundle());
+				
+				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
+						lab.getName(),
+						"<a href=/wasp/user/list.do?selId="+lab.getPrimaryUserId()+">"+allUsers.get(lab.getPrimaryUserId()) +"</a>",							
 							allDepts.get(lab.getDepartmentId()),
-						 
+						
 							lab.getIsActive()==1?"yes":"no"
 				}));
 				 
@@ -238,98 +261,97 @@ public class LabController extends WaspController {
 		
 		String [][] mtrx = new String[max][6]	;
 		
-	 	ObjectMapper mapper = new ObjectMapper();
-    	
-		 try {
-			 //String labs = mapper.writeValueAsString(labList);
-			 jqgrid.put("page","1");
-			 jqgrid.put("records",max+"");
-			 jqgrid.put("total",max+"");
-			 
-			 
-			 
-			 int i=0;
-			 int j=0;
-			 for (LabUser user:users) {		
-				 
-				 mtrx[j][i]="<a href=/wasp/user/list.do?selId="+user.getUserId()+">"+user.getUser().getFirstName() + " "+user.getUser().getLastName()+"</a>";
-				 
-				 j++;
-				 
-			 }
+		ObjectMapper mapper = new ObjectMapper();
 
-			 i++;
-			 j=0;
-			 for (Project project:projects) {		
+		try {
+			//String labs = mapper.writeValueAsString(labList);
+			jqgrid.put("page","1");
+			jqgrid.put("records",max+"");
+			jqgrid.put("total",max+"");
+			
+			
+			
+			int i=0;
+			int j=0;
+			for (LabUser user:users) {		
+				
+				mtrx[j][i]="<a href=/wasp/user/list.do?selId="+user.getUserId()+">"+user.getUser().getFirstName() + " "+user.getUser().getLastName()+"</a>";
+				
+				j++;
+				
+			}
+
+			i++;
+			j=0;
+			for (Project project:projects) {		
 					
-				 mtrx[j][i]=project.getName();
-				 
-				 j++;
-				 
-			 }
-			 
-			 i++;
-			 j=0;
-			 for (Sample sample:samples) {		
+				mtrx[j][i]=project.getName();
+				
+				j++;
+				
+			}
+			
+			i++;
+			j=0;
+			for (Sample sample:samples) {		
 					
-				 mtrx[j][i]=sample.getName();
-				 
-				 j++;
-				 
-			 }
-			 
-			 i++;
-			 j=0;
-			 for (AcctGrant acc:accGrants) {		
+				mtrx[j][i]=sample.getName();
+				
+				j++;
+				
+			}
+			
+			i++;
+			j=0;
+			for (AcctGrant acc:accGrants) {		
 					
-				 mtrx[j][i]=acc.getName();
-				 
-				 j++;
-				 
-			 }
-			 
-			 i++;
-			 j=0;
-			 for (SampleLab sampleLab:sampleLabs) {		
+				mtrx[j][i]=acc.getName();
+				
+				j++;
+				
+			}
+			
+			i++;
+			j=0;
+			for (SampleLab sampleLab:sampleLabs) {		
 					
-				 mtrx[j][i]=sampleLab.getLab().getName();
-				 
-				 j++;
-				 
-			 }
-			 
-			 i++;
-			 j=0;
-			 for (Job job:jobs) {		
+				mtrx[j][i]=sampleLab.getLab().getName();
+				
+				j++;
+				
+			}
+			
+			i++;
+			j=0;
+			for (Job job:jobs) {		
 					
-				 mtrx[j][i]=job.getName();
-				 
-				 j++;
-				 
-			 }
+				mtrx[j][i]=job.getName();
+				
+				j++;
+				
+			}
 			 
 
-			 List<Map> rows = new ArrayList<Map>();
+			List<Map> rows = new ArrayList<Map>();
 
-			 for(j=0;j<max;j++) {
-				 
-				 Map cell = new HashMap();
-				 rows.add(cell);
-				 
-				 cell.put("id", j+"");
-				 List<String> cellList=Arrays.asList(mtrx[j]);
-				 cell.put("cell", cellList);		
-			 }
-			 
+			for(j=0;j<max;j++) {
+				
+				Map cell = new HashMap();
+				rows.add(cell);
+				
+				cell.put("id", j+"");
+				List<String> cellList=Arrays.asList(mtrx[j]);
+				cell.put("cell", cellList);		
+			}
+			
 			jqgrid.put("rows",rows);
-			 
-		    String json=mapper.writeValueAsString(jqgrid);
-			 
-			 return json;
-		 } catch (Throwable e) {
-			 throw new IllegalStateException("Can't marshall to JSON "+labDb,e);
-		 }
-	
+			
+			String json=mapper.writeValueAsString(jqgrid);
+			
+			return json;
+		} catch (Throwable e) {
+			throw new IllegalStateException("Can't marshall to JSON "+labDb,e);
+		}
 	}
 	
 	@RequestMapping(value = "/detail_rw/updateJSON.do", method = RequestMethod.POST)
@@ -381,20 +403,6 @@ public class LabController extends WaspController {
 	    
 	}
 	
-	@RequestMapping(value = "/create/form.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('god')")
-	public String showEmptyForm(ModelMap m) {
-
-		Lab lab = new Lab();
-
-		lab.setLabMeta(MetaUtil.getMasterList(LabMeta.class, AREA,getBundle()));
-
-		m.addAttribute(AREA.name(), lab);
-		
-		prepareSelectListData(m);
-		
-		return AREA + "/detail_rw";
-	}
 
 	@RequestMapping(value = "/detail_rw/{labId}.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('god') or hasRole('lu-' + #labId)")
@@ -429,6 +437,22 @@ public class LabController extends WaspController {
 		return isRW?"lab/detail_rw":"lab/detail_ro";
 	}
 	
+
+	@RequestMapping(value = "/create/form.do", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('god')")
+	public String showEmptyForm(ModelMap m) {
+
+		Lab lab = new Lab();
+
+		lab.setLabMeta(MetaUtil.getMasterList(LabMeta.class, AREA,getBundle()));
+
+		m.addAttribute(AREA.name(), lab);
+		
+		prepareSelectListData(m);
+		
+		return AREA + "/detail_rw";
+	}
+
 
 	@RequestMapping(value = "/create/form.do", method = RequestMethod.POST)
 	@PreAuthorize("hasRole('god')")
@@ -544,8 +568,15 @@ public class LabController extends WaspController {
 		Lab lab = this.labService.getById(labId);
 		List<LabUser> labUser = lab.getLabUser();
 
+		Map userPendingQueryMap = new HashMap();
+		userPendingQueryMap.put("labId", labId);
+		userPendingQueryMap.put("status", "PENDING");
+
+		List<UserPending> userPending = userPendingService.findByMap(userPendingQueryMap);
+
 		m.addAttribute("lab", lab);
 		m.addAttribute("labuser", labUser);
+		m.addAttribute("labuserpending", userPending);
 
 		return "lab/user";
 	}
@@ -554,14 +585,153 @@ public class LabController extends WaspController {
 	@PreAuthorize("hasRole('god') or hasRole('lm-' + #labId)")
 	public String userDetail ( @PathVariable("labId") Integer labId, @PathVariable("userId") Integer userId, @PathVariable("roleName") String roleName, ModelMap m) {
 
+    // TODO CHECK VALID LABUSER
 		LabUser labUser = labUserService.getLabUserByLabIdUserId(labId, userId); 
+
+		if (roleName.equals("xx")) {
+			// TODO CONFIRM ROLE WAS "LP"
+			labUserService.remove(labUser);
+
+			MessageTag.addMessage(request.getSession(), "hello.error");
+			return "redirect:/lab/user/" + labId + ".do";
+		}
+
+    // TODO CHECK VALID ROLE NAME
 		Role role = roleService.getRoleByRoleName(roleName);
+
+    // TODO CHECK VALID ROLE FLOW
 
 		labUser.setRoleId(role.getRoleId());
 		labUserService.merge(labUser);
 
+		// TODO ADD MESSAGE
+
+		MessageTag.addMessage(request.getSession(), "hello.error");
 		return "redirect:/lab/user/" + labId + ".do";
 	}
+
+	public Lab createLabFromLabPending(LabPending labPending) {
+		Lab lab = new Lab();
+		return lab;
+	}
+
+	public User createUserFromUserPending(UserPending userPending) {
+		User user = new User();
+
+		user.setFirstName(userPending.getFirstName());
+		user.setLastName(userPending.getLastName());
+		user.setEmail(userPending.getEmail());
+		user.setPassword(userPending.getPassword());
+		user.setLocale(userPending.getLocale());
+
+		// find me a unique login name
+		String loginBase = userPending.getFirstName().substring(0, 1) + 
+				userPending.getLastName();
+		String login = loginBase;
+		int c = 1; 
+		while (userService.getUserByLogin(login).getUserId() > 0 )	{
+			login = loginBase + c;
+			c++;				
+		}
+		user.setLogin(login);
+		User userDb = userService.save(user);
+
+		//List<UserPendingMeta> userPendingMetaList = userPendingMetaService.getUserPendingMetaByUserPendingId(userPending.getUserPendingId());
+
+		// copies meta data
+
+		Map userPendingMetaQueryMap = new HashMap();
+		userPendingMetaQueryMap.put("userpendingId", userPending.getUserPendingId());
+		List<UserPendingMeta> userPendingMetaList = userPendingMetaService.findByMap(userPendingMetaQueryMap); 
+		for (UserPendingMeta upm: userPendingMetaList) {
+			UserMeta userMeta = new UserMeta();
+			userMeta.setUserId(userDb.getUserId());
+
+			// convert prefix
+			String newK = upm.getK().replaceAll("^.*?\\.", "user" + ".");
+
+			userMeta.setK(newK);
+			userMeta.setV(upm.getV());
+			userMetaService.save(userMeta);
+		}
+
+		Map userPendingQueryMap = new HashMap();
+		userPendingQueryMap.put("email", userPending.getEmail());
+		userPendingQueryMap.put("status", "PENDING");
+
+		Role roleLabPending = roleService.getRoleByRoleName("lp");
+
+		List<UserPending> userPendingList = userPendingService.findByMap(userPendingQueryMap);
+		for (UserPending userPendingOther: userPendingList) {
+
+			userPendingOther.setStatus("CREATED");
+			userPendingService.save(userPendingOther);
+
+			if (userPendingOther.getLabId() != null) {
+				LabUser labUserOther = labUserService.getLabUserByLabIdUserId(userPendingOther.getLabId(), userDb.getUserId());
+				if (labUserOther.getLabUserId() > 0) {
+					// already created
+					continue;
+				}
+
+				labUserOther.setUserId(userDb.getUserId());
+				labUserOther.setLabId(userPendingOther.getLabId());
+				labUserOther.setRoleId(roleLabPending.getRoleId());
+				labUserService.save(labUserOther);
+
+			}	else {
+
+				// requesting to be a PI
+				Map labPendingQueryMap = new HashMap();
+				userPendingQueryMap.put("userPendingId", userPendingOther.getUserPendingId());
+
+				List<LabPending> labPendingList = labPendingService.findByMap(labPendingQueryMap);
+				for (LabPending labPending: labPendingList) {
+					labPending.setUserpendingId((Integer) null);
+					labPending.setPrimaryUserId(userDb.getUserId());
+					labPendingService.save(labPending);
+				}
+
+			}
+		}
+
+		return user; 
+	}
+
+
+	@RequestMapping(value = "/userpending/{action}/{labId}/{userPendingId}.do", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('god') or hasRole('lm-' + #labId)")
+	public String userPendingDetail ( @PathVariable("labId") Integer labId, @PathVariable("userPendingId") Integer userPendingId, @PathVariable("action") String action, ModelMap m) {
+		// TODO CHECK ACTION IS "approve" or "reject"
+
+		UserPending userPending = userPendingService.getUserPendingByUserPendingId(userPendingId);
+
+		// TODO ERROR IF LABID DOESNT BELONG
+		if (userPending.getLabId() != labId) {
+			MessageTag.addMessage(request.getSession(), "hello.error");
+		}
+
+		if ("approve".equals(action)) {
+			User user = createUserFromUserPending(userPending);
+
+			Role roleLabUser = roleService.getRoleByRoleName("lu");
+
+			// createUserFromUserPending, should have made this.
+			LabUser labUser = labUserService.getLabUserByLabIdUserId(labId, user.getUserId());
+			labUser.setRoleId(roleLabUser.getRoleId());
+			labUserService.merge(labUser);
+		}
+
+		userPending.setStatus(action);
+		userPendingService.save(userPending);
+
+		// TODO SEND ACTION BASED EMAIL TO PENDING USER
+
+		MessageTag.addMessage(request.getSession(), "hello.error");
+
+		return "redirect:/lab/user/" + labId + ".do";
+	}
+
 
 	@RequestMapping(value = "/request.do", method = RequestMethod.GET)
 	public String showRequestAccessForm(ModelMap m) {
@@ -597,8 +767,8 @@ public class LabController extends WaspController {
 
 			if (alreadyPendingRoles.contains(labUser.getRole().getRoleName())) {
 				MessageTag.addMessage(request.getSession(), "labuser.request.alreadypending.error");
-		  		return "redirect:/lab/request.do";
- 	  		}
+				return "redirect:/lab/request.do";
+			}
 
 			if (alreadyAccessRoles.contains(labUser.getRole().getRoleName())) {
 				MessageTag.addMessage(request.getSession(), "labuser.request.alreadyaccess.error");
@@ -641,27 +811,6 @@ public class LabController extends WaspController {
 		return "redirect:/lab/pendinglab/list";
 	}
 
-	@RequestMapping(value = "/pendinguser/list/{labId}.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('god') or hasRole('lm-' + #labId)")
-	public String pendingLabUserList (
-			@PathVariable("labId") Integer labId, ModelMap m) {
-
-		return "redirect:/lab/pendinguser/list";
-	}
-
-	@RequestMapping(value = "/pendinguser/detail/{labId}/{userId}/{roleName}.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('god') or hasRole('lm-' + #labId)")
-	public String pendingLabUserDetail (
-			@PathVariable("labId") Integer labId, @PathVariable("userId") Integer userId, @PathVariable("roleName") String roleName, ModelMap m) {
-
-		LabUser labUser = labUserService.getLabUserByLabIdUserId(labId, userId); 
-		Role role = roleService.getRoleByRoleName(roleName);
-
-		labUser.setRoleId(role.getRoleId());
-		labUserService.merge(labUser);
-
-		return "redirect:/lab/user/" + labId + ".do";
-	}
 
 	protected void prepareSelectListData(ModelMap m) {
 		
