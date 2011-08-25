@@ -3,7 +3,7 @@
 <div><a href="<c:url value="/user/me.do"/>">My Profile</a></div>
 <div><a href="<c:url value="/user/mypassword.do"/>">My Password</a></div>
 <div><a href="<c:url value="/auth/reauth.do"/>">Refresh Auth</a></div>
-<div><a href="<c:url value="/lab/request.do"/>">Request Access to a Lab</a></div>
+<div><a href="<c:url value="/lab/newrequest.do"/>">Request Access to a Lab</a></div>
 
 
 <sec:authorize access="hasRole('god')">
