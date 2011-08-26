@@ -1,9 +1,6 @@
 package edu.yu.einstein.wasp.controller;
 
 import java.util.Date;
-import java.util.Locale;
-import java.util.ResourceBundle;
-
 import nl.captcha.Captcha;
 
 import org.springframework.stereotype.Controller;
@@ -30,8 +27,6 @@ import org.springframework.web.bind.annotation.InitBinder;
 @Transactional
 @RequestMapping("/auth")
 public class AuthController extends WaspController {
-
-  private static final ResourceBundle BASE_BUNDLE=ResourceBundle.getBundle("messages", Locale.ENGLISH);
 
   @Autowired
   private UserpasswordauthService userpasswordauthService;
@@ -62,14 +57,15 @@ public class AuthController extends WaspController {
 	  User user=userService.getUserByLogin(username);
 	  Captcha captcha = (Captcha) request.getSession().getAttribute(Captcha.NAME);
 	  
-	  if (user == null || captchaText == null || user.equals("") || captchaText.equals(""))
+	  if (username == null || captchaText == null || username.equals("") || captchaText.equals(""))
 	  {
 		  waspMessage("auth.forgotpassword.missingparam.error");
+		  m.put("username", username);
 		  return "auth/forgotpassword/form";
 	  }
 	  
 	  if (captcha == null || (! captcha.isCorrect(captchaText)) ){
-		  waspMessage("auth.forgotpassword.nocaptcha.error");
+		  waspMessage("auth.forgotpassword.captcha.error");
 		  m.put("username", username);
 		  return "auth/forgotpassword/form";
 	  }
@@ -83,8 +79,8 @@ public class AuthController extends WaspController {
 	userpasswordauth.setUserId(user.getUserId());
 	String authcode = userpasswordauthService.createAuthCode(20);
 	userpasswordauth.setAuthcode(authcode);
-	userpasswordauth.setLastUpdTs(new Date());
-	userpasswordauth.setLastUpdUser(user.getUserId());
+	//userpasswordauth.setLastUpdTs(new Date());
+	//userpasswordauth.setLastUpdUser(user.getUserId());
 	userpasswordauthService.merge(userpasswordauth); // merge handles both inserts and updates. Doesn't have problem with disconnected entities like persist does
 	emailService.sendForgotPassword(user, authcode);
 	  
@@ -106,6 +102,7 @@ public class AuthController extends WaspController {
 	  }
 
 	  m.put("authcode", authCode);
+	  request.getSession().removeAttribute(Captcha.NAME); // ensures fresh capcha issued if required in this session
 	  return "auth/resetpassword/form";
   }
   
@@ -115,37 +112,36 @@ public class AuthController extends WaspController {
         @RequestParam("authcode") String authCode, 
         @RequestParam("password1") String password1, 
         @RequestParam("password2") String password2, 
+        @RequestParam("captcha_text") String captchaText,
         ModelMap m) {
-    if (authCode == null || authCode.equals("")) {
-    	waspMessage("auth.resetpassword.noauthcode.error");
-    	return "auth/resetpassword/authcodeform";
-    }
-
-    if (username == null || username.equals("")) {
-       waspMessage("auth.resetpassword.missingparam.error");
-       m.put("authcode", authCode);
-       return "auth/resetpassword/form";
-    }
-    if (password1 == null || password2 == null || password1.equals("") || password2.equals("") ){
-    	waspMessage("auth.resetpassword.missingparam.error");
-        m.put("authcode", authCode);
-        m.put("username", username);
-        return "auth/resetpassword/form";
-    }
-    
-    if (password1.equals("") || password2.equals("") || ! password1.equals(password2)) {
-       waspMessage("auth.resetpassword.new_mismatch.error");
-       m.put("authcode", authCode);
-       m.put("username", username);
-       return "auth/resetpassword/form";
-    }
-    
-    if (! passwordService.validatePassword(password1)){
-    	 waspMessage("auth.resetpassword.new_invalid.error");
-         m.put("authcode", authCode);
-         m.put("username", username);
-         return "auth/resetpassword/form";
-    }
+	
+	  if (authCode == null || authCode.equals("")) {
+	    	waspMessage("auth.resetpassword.noauthcode.error");
+	    	return "auth/resetpassword/authcodeform";
+	  }
+	  
+	 if (username == null || 
+			 captchaText == null || 
+			 password1 == null || 
+			 password2 == null || 
+			 username.equals("") || 
+			 captchaText.equals("") || 
+			 password1.equals("") || 
+			 password2.equals("") ){
+	    	waspMessage("auth.resetpassword.missingparam.error");
+	        m.put("authcode", authCode);
+	        m.put("username", username);
+	        return "auth/resetpassword/form";
+	 }
+	 
+	 Captcha captcha = (Captcha) request.getSession().getAttribute(Captcha.NAME);
+	 
+	if (captcha == null || (! captcha.isCorrect(captchaText)) ){
+		waspMessage("auth.resetpassword.captcha.error");
+		m.put("authcode", authCode);
+	    m.put("username", username);
+	    return "auth/resetpassword/form";
+	}
 
     Userpasswordauth userpasswordauth   = userpasswordauthService.getUserpasswordauthByAuthcode(authCode);
     User user = userService.getUserByLogin(username);
@@ -166,13 +162,25 @@ public class AuthController extends WaspController {
     	waspMessage("auth.resetpassword.wronguser.error");
     	return "auth/resetpassword/authcodeform";
     }
+    
+    if (! password1.equals(password2)) {
+    	waspMessage("auth.resetpassword.new_mismatch.error");
+    	m.put("authcode", authCode);
+    	m.put("username", username);
+    	return "auth/resetpassword/form";
+    }
+    
+    if (! passwordService.validatePassword(password1)){
+    	 waspMessage("auth.resetpassword.new_invalid.error");
+         m.put("authcode", authCode);
+         m.put("username", username);
+         return "auth/resetpassword/form";
+    }
 
     user.setPassword( passwordService.encodePassword(password1) ); 
     userService.merge(user);
-
-    // removes auth code from future use
-    userpasswordauthService.remove(userpasswordauth);
-
+    userpasswordauthService.remove(userpasswordauth); // removes auth code from future use
+    request.getSession().removeAttribute(Captcha.NAME); // ensures fresh capcha issued if required in this session
     m.put("user", user); 
 
     return "auth/resetpassword/ok";

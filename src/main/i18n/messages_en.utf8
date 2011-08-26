@@ -391,6 +391,7 @@ auth.forgotpassword.title=Reset Password Request
 auth.forgotpassword.user.label=Username
 auth.forgotpassword.submit=Submit
 auth.forgotpassword.missingparam.error=Please provide values for all fields
+auth.forgotpassword.captcha.error=Captcha text incorrect
 auth.forgotpassword.username.error=A user with the supplied username does not exist
 auth.forgotpassword.captcha.label=Captcha text
 
@@ -401,11 +402,13 @@ auth.resetpassword.user.label=Username
 auth.resetpassword.authcode.label=Authorization Code
 auth.resetpassword.password1.label=New Password
 auth.resetpassword.password2.label=Confirm New Password
+auth.resetpassword.captcha.label=Captcha text
 auth.resetpassword.submit=Submit
 
 auth.resetpassword.noauthcode.error=No authorization code provided
 auth.resetpassword.missingparam.error=Please provide values for all fields
 auth.resetpassword.badauthcode.error=Invalid authorization code provided
+auth.resetpassword.captcha.error=Captcha text incorrect
 
 auth.resetpassword.username.error=A user with the supplied username does not exist
 auth.resetpassword.wronguser.error=Username and authorization code provided do not match
