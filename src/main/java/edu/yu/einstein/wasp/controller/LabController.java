@@ -68,8 +68,6 @@ import edu.yu.einstein.wasp.service.DepartmentService;
 
 import edu.yu.einstein.wasp.service.EmailService;
 
-import edu.yu.einstein.wasp.taglib.MessageTag;
-
 @Controller
 @Transactional
 @RequestMapping("/lab")
@@ -506,7 +504,7 @@ public class LabController extends WaspController {
 
 		if (result.hasErrors()) {
 			prepareSelectListData(m);
-			MessageTag.addMessage(request.getSession(), "lab.created.error");
+			waspMessage("lab.created.error");
 			return "lab/detail_rw";
 		}
 
@@ -521,7 +519,7 @@ public class LabController extends WaspController {
 
 		status.setComplete();
 
-		MessageTag.addMessage(request.getSession(), "lab.created.success");
+		waspMessage("lab.created.success");
 		
 		return "redirect:/lab/detail_rw/" + labDb.getLabId() + ".do";
 	}
@@ -558,7 +556,7 @@ public class LabController extends WaspController {
 
 		if (result.hasErrors()) {
 			prepareSelectListData(m);
-			MessageTag.addMessage(request.getSession(), "lab.updated.error");
+			waspMessage("lab.updated.error");
 			return "lab/detail_rw";
 		}
 
@@ -575,7 +573,7 @@ public class LabController extends WaspController {
 
 		status.setComplete();
 		
-		MessageTag.addMessage(request.getSession(), "lab.updated.success");
+		waspMessage("lab.updated.success");
 		
 		return "redirect:" + labId + ".do";
 
@@ -611,7 +609,7 @@ public class LabController extends WaspController {
 			// TODO CONFIRM ROLE WAS "LP"
 			labUserService.remove(labUser);
 
-			MessageTag.addMessage(request.getSession(), "hello.error");
+			waspMessage("hello.error");
 			return "redirect:/lab/user/" + labId + ".do";
 		}
 
@@ -631,7 +629,7 @@ public class LabController extends WaspController {
 			doReauth(); 
 		}
 
-		MessageTag.addMessage(request.getSession(), "hello.error");
+		waspMessage("hello.error");
 		return "redirect:/lab/user/" + labId + ".do";
 	}
 
@@ -781,7 +779,7 @@ public class LabController extends WaspController {
 
 		// TODO ERROR IF LABID DOESNT BELONG
 		if (userPending.getLabId() != labId) {
-			MessageTag.addMessage(request.getSession(), "hello.error");
+			waspMessage("hello.error");
 		}
 
 		if ("approve".equals(action)) {
@@ -800,7 +798,7 @@ public class LabController extends WaspController {
 
 		// TODO SEND ACTION BASED EMAIL TO PENDING USER
 
-		MessageTag.addMessage(request.getSession(), "hello.error");
+		waspMessage("hello.error");
 
 		return "redirect:/lab/user/" + labId + ".do";
 	}
@@ -814,7 +812,7 @@ public class LabController extends WaspController {
 
 		// TODO ERROR IF LABID DOESNT BELONG
 		if (labPending.getDepartmentId() != departmentId) {
-			MessageTag.addMessage(request.getSession(), "hello.error");
+			waspMessage("hello.error");
 		}
 
 		if ("approve".equals(action)) {
@@ -826,7 +824,7 @@ public class LabController extends WaspController {
 
 		// TODO SEND ACTION BASED EMAIL TO PENDING USER
 
-		MessageTag.addMessage(request.getSession(), "hello.error");
+		waspMessage("hello.error");
 
 		return "redirect:/department/detail/" + departmentId + ".do";
 	}
@@ -895,7 +893,7 @@ public class LabController extends WaspController {
 
 		if (result.hasErrors()) {
 			prepareSelectListData(m);
-			MessageTag.addMessage(request.getSession(), "user.created.error");
+			waspMessage("user.created.error");
 
 			return "lab/newrequest";
 		}
@@ -911,7 +909,7 @@ public class LabController extends WaspController {
 
 		// TODO email DA that a new pi is pending
 
-		MessageTag.addMessage(request.getSession(), "hello.error");
+		waspMessage("hello.error");
 
 		return "redirect:/lab/newrequest.do";
 	}
@@ -923,14 +921,14 @@ public class LabController extends WaspController {
 
 		User primaryUser = userService.getUserByEmail(primaryuseremail);
 		if (primaryUser.getUserId() == 0) {
-			MessageTag.addMessage(request.getSession(), "labuser.request.primaryuser.error");
+			waspMessage("labuser.requestprimary.error");
 			return "redirect:/lab/newrequest.do";
 		}
 
 
 		Lab lab = labService.getLabByPrimaryUserId(primaryUser.getUserId());
 		if (lab.getLabId() == 0) {
-			MessageTag.addMessage(request.getSession(), "labuser.request.primaryuser.error");
+			waspMessage("labuser.requestprimary.error");
 			return "redirect:/lab/newrequest.do";
 		}
 
@@ -947,12 +945,12 @@ public class LabController extends WaspController {
 			alreadyPendingRoles.add("lu");
 
 			if (alreadyPendingRoles.contains(labUser.getRole().getRoleName())) {
-				MessageTag.addMessage(request.getSession(), "labuser.request.alreadypending.error");
+				waspMessage("labuser.request.alreadypending.error");
 				return "redirect:/lab/newrequest.do";
 			}
 
 			if (alreadyAccessRoles.contains(labUser.getRole().getRoleName())) {
-				MessageTag.addMessage(request.getSession(), "labuser.request.alreadyaccess.error");
+				waspMessage("labuser.request.alreadyaccess.error");
 				  return "redirect:/lab/newrequest.do";
 			}
 		}
@@ -968,7 +966,7 @@ public class LabController extends WaspController {
 
 		emailService.sendPendingLabUser(labUser);
 
-		MessageTag.addMessage(request.getSession(), "labuser.request.success");
+		waspMessage("labuser.request.success");
 
 		return "redirect:/lab/newrequest.do";
 
