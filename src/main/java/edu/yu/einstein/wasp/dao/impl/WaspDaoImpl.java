@@ -11,10 +11,9 @@
 
 package edu.yu.einstein.wasp.dao.impl;
 
-import edu.yu.einstein.wasp.model.WaspModel;
-
 import java.io.Serializable;
-import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Method;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -23,11 +22,10 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
 import org.apache.log4j.Logger;
-import org.springframework.stereotype.Repository;
 import org.springframework.orm.jpa.JpaCallback;
 import org.springframework.orm.jpa.support.JpaDaoSupport;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Repository;
 
 // @ Transactional
 @Repository
@@ -45,16 +43,68 @@ public abstract class WaspDaoImpl<E extends Serializable> extends JpaDaoSupport 
 
  // @ Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
  public void persist(E entity) {
+	 
+  setUpdateTs(entity);
+  setEditorId(entity);
+  
   getJpaTemplate().persist(entity);
  }
 
+ private void setEditorId(E entity) {
+	 try {
+		 Method method = entity.getClass().getMethod("setLastUpdUser", new Class[] {Integer.TYPE});
+		 
+		 if (method!=null) {
+			 
+			 org.springframework.security.core.userdetails.User u=
+				 (org.springframework.security.core.userdetails.User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+			   
+			 final String login = u.getUsername();
+			 
+			 Integer userId = (Integer)getJpaTemplate().execute(new JpaCallback() {
+
+				   public Object doInJpa(EntityManager em) throws PersistenceException {
+					   
+				    Query q = em.createNativeQuery("select userId from user where login=:login").setParameter("login",login);
+				    
+				    return (Integer)q.getSingleResult();
+				   }
+
+				  });
+			 
+			 
+			  method.invoke(entity, new Object[]{userId});		
+		 }
+	 } catch (Throwable e) {
+		 log.error(e);//comment out - will happen too often
+	 }
+ }
+ 
+ private void setUpdateTs(E entity) {
+	 try {
+		 Method method = entity.getClass().getMethod("setLastUpdTs", new Class[] {Date.class});
+		 
+		 if (method!=null) {
+		   method.invoke(entity, new Object[]{new Date()});		
+		 }
+	 } catch (Throwable e) {
+		 log.error(e);//comment out - will happen too often
+	 }
+ }
+ 
  // @ Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
  public E save(E entity) {
+	 
+    setEditorId(entity);
+    setUpdateTs(entity); 
+    
    if (getJpaTemplate().contains(entity)) {
      getJpaTemplate().merge(entity);
    } else {
      getJpaTemplate().persist(entity);
    }
+   
+   
    getJpaTemplate().flush();
    return entity;
  }
@@ -66,6 +116,10 @@ public abstract class WaspDaoImpl<E extends Serializable> extends JpaDaoSupport 
 
  // @ Transactional
  public E merge(E entity) {
+	 
+  setUpdateTs(entity);
+  setEditorId(entity);
+	 
   return getJpaTemplate().merge(entity);
  }
 
