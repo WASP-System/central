@@ -9,6 +9,8 @@ import java.util.ResourceBundle;
 
 import javax.validation.Valid;
 
+import nl.captcha.Captcha;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 
@@ -73,12 +75,25 @@ public class AuthController extends WaspController {
   }
 
   @RequestMapping(value="/forgotpassword", method=RequestMethod.POST)
-  public String forgotPassword(@RequestParam("j_username") String username, ModelMap m) {
+  public String forgotPassword(@RequestParam("j_username") String username, @RequestParam("captcha_text") String captchaText, ModelMap m) {
 
 	  User user=userService.getUserByLogin(username);
+	  Captcha captcha = (Captcha) request.getSession().getAttribute(Captcha.NAME);
+	  
+	  if (user == null || captchaText == null || user.equals("") || captchaText.equals(""))
+	  {
+		  MessageTag.addMessage(request.getSession(), "auth.forgotpassword.missingparam.error");
+		  return "auth/forgotpassword/form";
+	  }
+	  
+	  if (! captcha.isCorrect(captchaText)){
+		  MessageTag.addMessage(request.getSession(), "auth.forgotpassword.nocaptcha.error");
+		  m.put("username", username);
+		  return "auth/forgotpassword/form";
+	  }
 	  
 	  if (user==null || user.getUserId()==0)  {
-		  waspMessage("auth.forgotpassword.error.username");
+		  waspMessage("auth.forgotpassword.username.error");
 		  return "auth/forgotpassword/form";
 	  }
 
@@ -154,7 +169,7 @@ public class AuthController extends WaspController {
     User user = userService.getUserByLogin(username);
     
     if (user.getUserId() == 0) {
-        waspMessage("auth.resetpassword.error.username");
+        waspMessage("auth.resetpassword.username.error");
         m.put("authcode", authCode);
         return "auth/resetpassword/form";
      }
