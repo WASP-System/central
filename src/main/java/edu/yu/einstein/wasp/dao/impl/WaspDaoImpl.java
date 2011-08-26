@@ -50,47 +50,6 @@ public abstract class WaspDaoImpl<E extends Serializable> extends JpaDaoSupport 
   getJpaTemplate().persist(entity);
  }
 
- private void setEditorId(E entity) {
-	 try {
-		 Method method = entity.getClass().getMethod("setLastUpdUser", new Class[] {Integer.TYPE});
-		 
-		 if (method!=null) {
-			 
-			 org.springframework.security.core.userdetails.User u=
-				 (org.springframework.security.core.userdetails.User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-			   
-			 final String login = u.getUsername();
-			 
-			 Integer userId = (Integer)getJpaTemplate().execute(new JpaCallback() {
-
-				   public Object doInJpa(EntityManager em) throws PersistenceException {
-					   
-				    Query q = em.createNativeQuery("select userId from user where login=:login").setParameter("login",login);
-				    
-				    return (Integer)q.getSingleResult();
-				   }
-
-				  });
-			 
-			 
-			  method.invoke(entity, new Object[]{userId});		
-		 }
-	 } catch (Throwable e) {
-		 log.error(e);//comment out - will happen too often
-	 }
- }
- 
- private void setUpdateTs(E entity) {
-	 try {
-		 Method method = entity.getClass().getMethod("setLastUpdTs", new Class[] {Date.class});
-		 
-		 if (method!=null) {
-		   method.invoke(entity, new Object[]{new Date()});		
-		 }
-	 } catch (Throwable e) {
-		 log.error(e);//comment out - will happen too often
-	 }
- }
  
  // @ Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
  public E save(E entity) {
@@ -206,5 +165,48 @@ public abstract class WaspDaoImpl<E extends Serializable> extends JpaDaoSupport 
 
     return (List) res;
   }
+  
+  private void setEditorId(E entity) {
+		 try {
+			 Method method = entity.getClass().getMethod("setLastUpdUser", new Class[] {Integer.TYPE});
+			 
+			 if (method!=null) {
+				 
+				 org.springframework.security.core.userdetails.User u=
+					 (org.springframework.security.core.userdetails.User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+				   
+				 final String login = u.getUsername();
+				 
+				 Integer userId = (Integer)getJpaTemplate().execute(new JpaCallback() {
+
+					   public Object doInJpa(EntityManager em) throws PersistenceException {
+						   
+					    Query q = em.createNativeQuery("select userId from user where login=:login").setParameter("login",login);
+					    
+					    return (Integer)q.getSingleResult();
+					   }
+
+					  });
+				 
+				 
+				  method.invoke(entity, new Object[]{userId});		
+			 }
+		 } catch (Throwable e) {
+			 
+		 }
+	 }
+	 
+	 private void setUpdateTs(E entity) {
+		 try {
+			 Method method = entity.getClass().getMethod("setLastUpdTs", new Class[] {Date.class});
+			 
+			 if (method!=null) {
+			   method.invoke(entity, new Object[]{new Date()});		
+			 }
+		 } catch (Throwable e) {
+			
+		 }
+	 }
+	 
 }
 
