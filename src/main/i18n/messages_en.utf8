@@ -390,7 +390,7 @@ labPending.researchcenter_user_list_location.metaposition=140
 auth.forgotpassword.title=Reset Password Request  
 auth.forgotpassword.user.label=Username
 auth.forgotpassword.submit=Submit
-user.forgotpassword.missingparam.error=Please provide values for all fields
+auth.forgotpassword.missingparam.error=Please provide values for all fields
 auth.forgotpassword.username.error=A user with the supplied username does not exist
 auth.forgotpassword.captcha.label=Captcha text
 

@@ -1,39 +1,21 @@
 package edu.yu.einstein.wasp.controller;
 
 import java.util.Date;
-import java.util.List;
-import java.util.ArrayList;
 import java.util.Locale;
-import java.util.Random;
 import java.util.ResourceBundle;
-
-import javax.validation.Valid;
 
 import nl.captcha.Captcha;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 
-import org.springframework.security.core.Authentication;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.PathVariable;
-
-import org.springframework.web.bind.support.SessionStatus;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.BindException;
-import org.springframework.validation.Errors;
-
-import org.springframework.security.access.prepost.*;
-
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Userpasswordauth;
 
-import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.service.UserpasswordauthService;
 import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.service.PasswordService;
@@ -86,7 +68,7 @@ public class AuthController extends WaspController {
 		  return "auth/forgotpassword/form";
 	  }
 	  
-	  if (! captcha.isCorrect(captchaText)){
+	  if (captcha == null || (! captcha.isCorrect(captchaText)) ){
 		  waspMessage("auth.forgotpassword.nocaptcha.error");
 		  m.put("username", username);
 		  return "auth/forgotpassword/form";
