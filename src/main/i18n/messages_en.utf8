@@ -390,18 +390,9 @@ labPending.researchcenter_user_list_location.metaposition=140
 auth.forgotpassword.title=Reset Password Request  
 auth.forgotpassword.user.label=Username
 auth.forgotpassword.submit=Submit
-auth.forgotpassword.error.username=A user with the supplied username does not exist
-
---------------------------- auth recover password ----------------------------
-auth.recoverpassword.title=Recover Password
-auth.recoverpassword.user.label=Username
-auth.recoverpassword.password.label=Password
-auth.recoverpassword.password2.label=Again
-auth.recoverpassword.submit=Submit
-
-auth.recoverpassword.error.badauthcode=Bad Auth Code
-auth.recoverpassword.error.wronguser=User is not associate w/ that authcode
-
+user.forgotpassword.missingparam.error=Please provide values for all fields
+auth.forgotpassword.username.error=A user with the supplied username does not exist
+auth.forgotpassword.captcha.label=Captcha text
 
 --------------------------- auth reset password ----------------------------
 auth.resetpassword.title1=Reset Password: Step 1
@@ -416,7 +407,7 @@ auth.resetpassword.noauthcode.error=No authorization code provided
 auth.resetpassword.missingparam.error=Please provide values for all fields
 auth.resetpassword.badauthcode.error=Invalid authorization code provided
 
-auth.resetpassword.error.username=A user with the supplied username does not exist
+auth.resetpassword.username.error=A user with the supplied username does not exist
 auth.resetpassword.wronguser.error=Username and authorization code provided do not match
 auth.resetpassword.new_mismatch.error=The two entries for your NEW password are NOT identical
 auth.resetpassword.new_invalid.error=New password: only letters and numbers permitted (with at least one of each type); total of 6-20 characters
