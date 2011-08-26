@@ -66,4 +66,6 @@
  <definition name="task/samplereceive/list" template="/WEB-INF/jsp/task/samplereceive/list.jsp"/>
  <definition name="department/detail" template="/WEB-INF/jsp/department/detail.jsp"/>
  <definition name="resource/create/form" template="/WEB-INF/jsp/department/detail.jsp"/>
+
+ <definition name="sysrole/list" template="/WEB-INF/jsp/sysrole/list.jsp"/>
 </tiles-definitions>

@@ -10,6 +10,7 @@
   <div>
   <h1>Super User Utils</h1>
   <div><a href="<c:url value="/user/list.do"/>">User Utils</a></div>
+  <div><a href="<c:url value="/sysrole/list.do"/>">System Users</a></div>
   <div><a href="<c:url value="/department/list.do"/>">Department Utils</a></div>
   <div><a href="<c:url value="/lab/list.do"/>">- Lab Utils</a></div>
   <div><a href="<c:url value="/sample/list.do"/>">Sample Utils</a></div>
