@@ -82,12 +82,12 @@ public class AuthController extends WaspController {
 	  
 	  if (user == null || captchaText == null || user.equals("") || captchaText.equals(""))
 	  {
-		  MessageTag.addMessage(request.getSession(), "auth.forgotpassword.missingparam.error");
+		  waspMessage("auth.forgotpassword.missingparam.error");
 		  return "auth/forgotpassword/form";
 	  }
 	  
 	  if (! captcha.isCorrect(captchaText)){
-		  MessageTag.addMessage(request.getSession(), "auth.forgotpassword.nocaptcha.error");
+		  waspMessage("auth.forgotpassword.nocaptcha.error");
 		  m.put("username", username);
 		  return "auth/forgotpassword/form";
 	  }

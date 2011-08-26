@@ -135,7 +135,7 @@
 
     <servlet-mapping>
         <servlet-name>StickyCaptcha</servlet-name>
-        <url-pattern>/stickyImg</url-pattern>
+        <url-pattern>/stickyCaptchaImg</url-pattern>
     </servlet-mapping>
 
   <welcome-file-list>
