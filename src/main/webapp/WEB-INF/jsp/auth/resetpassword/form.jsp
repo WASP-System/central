@@ -6,7 +6,7 @@
   <body onload='document.f.j_username.focus();'>
 
     <h1><fmt:message key="auth.resetpassword.title2" /></h1>
-
+	<h4><fmt:message key="user.resetpassword.instructions" /></h4>
      <font color="red"><wasp:message /></font>
 
     <form name="f" action="<c:url value='/auth/resetpassword.do'/>" method="POST">

@@ -163,7 +163,7 @@ public class AuthController extends WaspController {
     	return "auth/resetpassword/authcodeform";
     }
     
-    if (! password1.equals(password2)) {
+    if (! passwordService.matchPassword(password1, password2)){
     	waspMessage("auth.resetpassword.new_mismatch.error");
     	m.put("authcode", authCode);
     	m.put("username", username);
