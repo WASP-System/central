@@ -425,19 +425,19 @@ auth.resetpasswordemailsent.text=An email has been sent to your registered email
 auth.resetpasswordok.title=Reset Password: Complete
 auth.resetpasswordok.text=Your password has been reset. Click <a href="login.do">here</a> to login.
 
---------------------------- user change password ----------------------------
-user.changepassword.title=Change Password
-user.changepassword.instructions=New Password Requirements:<br />At least 8 characters in length<br />Only letters & numbers permitted (no spaces, etc)<br />At least one letter and one number<br />
-user.changepassword.oldpassword.label=Old Password
-user.changepassword.newpassword1.label=New Password
-user.changepassword.newpassword2.label=Confirm New Password
-user.changepassword.submit=Submit
+--------------------------- user mypassword (change password) ----------------------------
+user.mypassword.title=Change Password
+user.mypassword.instructions=New Password Requirements:<br />At least 8 characters in length<br />Only letters & numbers permitted (no spaces, etc)<br />At least one letter and one number<br />
+user.mypassword.oldpassword.label=Old Password
+user.mypassword.newpassword1.label=New Password
+user.mypassword.newpassword2.label=Confirm New Password
+user.mypassword.submit=Submit
 user.mypassword.missingparam.error=Please provide values for all fields
 user.mypassword.cur_mismatch.error=Your old password does NOT match the password in our database
 user.mypassword.new_mismatch.error=The two entries for your NEW password are NOT identical
 user.mypassword.nodiff.error=Your old and new passwords may NOT be the same
 user.mypassword.new_invalid.error=New password must be at least 8 characters, containing only letters and numbers, with at least one letter and number
-user.changepassword.ok=Password Has Been Changed
+user.mypassword.ok=Password Has Been Changed
 
 
 ---- for debuging ----

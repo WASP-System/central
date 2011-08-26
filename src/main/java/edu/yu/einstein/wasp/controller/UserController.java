@@ -519,7 +519,7 @@ public class UserController extends WaspController {
 		  
 		user.setPassword( passwordService.encodePassword(newpassword1) ); 
 		userService.merge(user);
-		waspMessage("user.changepassword.ok");	
+		waspMessage("user.mypassword.ok");	
 		return "redirect:/dashboard.do";		 
 	}
 
