@@ -125,17 +125,17 @@
         <!-- The width and height params are optional; if unspecified they default to 200 and 50 respectively. -->
         <init-param>
             <param-name>width</param-name>
-            <param-value>250</param-value>
+            <param-value>150</param-value>
         </init-param>
         <init-param>
             <param-name>height</param-name>
-            <param-value>75</param-value>
+            <param-value>50</param-value>
         </init-param>
     </servlet>
 
     <servlet-mapping>
         <servlet-name>StickyCaptcha</servlet-name>
-        <url-pattern>/stickyCaptchaImg</url-pattern>
+        <url-pattern>/stickyCaptchaImg.png</url-pattern>
     </servlet-mapping>
 
   <welcome-file-list>
