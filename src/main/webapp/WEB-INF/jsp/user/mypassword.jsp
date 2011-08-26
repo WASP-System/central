@@ -7,7 +7,7 @@
 		function validate(){
 			//alert("test123"); return false;
 			var error = false;
-			var message = "Please supply valid input for all fields";
+			var message = '<fmt:message key="user.mypassword.missingparam.error" />';
 			if(document.f.oldpassword.value == "" || document.f.newpassword1.value == ""|| document.f.newpassword2.value == "" ){
 				error = true;
 			}
