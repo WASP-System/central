@@ -36,8 +36,6 @@ import edu.yu.einstein.wasp.service.UserpasswordauthService;
 import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.service.PasswordService;
 
-import edu.yu.einstein.wasp.taglib.MessageTag;
-
 import org.springframework.transaction.annotation.Transactional;
 
 import org.springframework.web.bind.WebDataBinder;
@@ -80,7 +78,7 @@ public class AuthController extends WaspController {
 	  User user=userService.getUserByLogin(username);
 	  
 	  if (user==null || user.getUserId()==0)  {
-		  MessageTag.addMessage(request.getSession(), "auth.forgotpassword.error.username");
+		  waspMessage("auth.forgotpassword.error.username");
 		  return "auth/forgotpassword/form";
 	  }
 
@@ -106,7 +104,7 @@ public class AuthController extends WaspController {
 		  
 	  Userpasswordauth userpasswordauth   = userpasswordauthService.getUserpasswordauthByAuthcode(authCode);
 	  if (userpasswordauth.getUserId() == 0){
-		  MessageTag.addMessage(request.getSession(), "auth.resetpassword.badauthcode.error");
+		  waspMessage("auth.resetpassword.badauthcode.error");
 		  return "auth/resetpassword/authcodeform";
 	  }
 
@@ -122,31 +120,31 @@ public class AuthController extends WaspController {
         @RequestParam("password2") String password2, 
         ModelMap m) {
     if (authCode == null || authCode.equals("")) {
-    	MessageTag.addMessage(request.getSession(), "auth.resetpassword.noauthcode.error");
+    	waspMessage("auth.resetpassword.noauthcode.error");
     	return "auth/resetpassword/authcodeform";
     }
 
     if (username == null || username.equals("")) {
-       MessageTag.addMessage(request.getSession(), "auth.resetpassword.missingparam.error");
+       waspMessage("auth.resetpassword.missingparam.error");
        m.put("authcode", authCode);
        return "auth/resetpassword/form";
     }
     if (password1 == null || password2 == null || password1.equals("") || password2.equals("") ){
-    	MessageTag.addMessage(request.getSession(), "auth.resetpassword.missingparam.error");
+    	waspMessage("auth.resetpassword.missingparam.error");
         m.put("authcode", authCode);
         m.put("username", username);
         return "auth/resetpassword/form";
     }
     
     if (password1.equals("") || password2.equals("") || ! password1.equals(password2)) {
-       MessageTag.addMessage(request.getSession(), "auth.resetpassword.new_mismatch.error");
+       waspMessage("auth.resetpassword.new_mismatch.error");
        m.put("authcode", authCode);
        m.put("username", username);
        return "auth/resetpassword/form";
     }
     
     if (! passwordService.validatePassword(password1)){
-    	 MessageTag.addMessage(request.getSession(), "auth.resetpassword.new_invalid.error");
+    	 waspMessage("auth.resetpassword.new_invalid.error");
          m.put("authcode", authCode);
          m.put("username", username);
          return "auth/resetpassword/form";
@@ -156,19 +154,19 @@ public class AuthController extends WaspController {
     User user = userService.getUserByLogin(username);
     
     if (user.getUserId() == 0) {
-        MessageTag.addMessage(request.getSession(), "auth.resetpassword.error.username");
+        waspMessage("auth.resetpassword.error.username");
         m.put("authcode", authCode);
         return "auth/resetpassword/form";
      }
     
     if (userpasswordauth.getUserId() == 0){
-    	MessageTag.addMessage(request.getSession(), "auth.resetpassword.badauthcode.error");
+    	waspMessage("auth.resetpassword.badauthcode.error");
     	return "auth/resetpassword/authcodeform";
     }
 
     if (user.getUserId() != userpasswordauth.getUserId()) {
     	m.put("authcode", authCode);
-    	MessageTag.addMessage(request.getSession(), "auth.resetpassword.wronguser.error");
+    	waspMessage("auth.resetpassword.wronguser.error");
     	return "auth/resetpassword/authcodeform";
     }
 

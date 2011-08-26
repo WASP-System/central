@@ -52,8 +52,6 @@ import edu.yu.einstein.wasp.model.MetaAttribute.State;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.MetaUtil;
 
-import edu.yu.einstein.wasp.taglib.MessageTag;
-
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserCache;
@@ -171,7 +169,7 @@ public class UserPendingController extends WaspController {
 
     if (result.hasErrors()) {
       prepareSelectListData(m);
-      MessageTag.addMessage(request.getSession(), "user.created.error");
+      waspMessage("user.created.error");
 
       return "auth/newuser/form";
     }
@@ -190,7 +188,7 @@ public class UserPendingController extends WaspController {
 
     // TODO email PI/LM that a new user is pending
 
-    MessageTag.addMessage(request.getSession(), "hello.error");
+    waspMessage("hello.error");
     return "redirect:/auth/newuser/ok.do";
   }
 
@@ -256,7 +254,7 @@ public class UserPendingController extends WaspController {
 
     if (result.hasErrors()) {
       prepareSelectListData(m);
-      MessageTag.addMessage(request.getSession(), "user.created.error");
+      waspMessage("user.created.error");
 
       return "auth/newpi/form";
     }
@@ -296,7 +294,7 @@ public class UserPendingController extends WaspController {
 
     // TODO email DA that a new pi is pending
 
-    MessageTag.addMessage(request.getSession(), "hello.error");
+    waspMessage("hello.error");
     return "redirect:/auth/newpi/ok.do";
   }
 

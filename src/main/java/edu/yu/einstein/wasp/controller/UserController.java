@@ -47,7 +47,6 @@ import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.service.PasswordService;
 import edu.yu.einstein.wasp.service.UserMetaService;
 import edu.yu.einstein.wasp.service.UserService;
-import edu.yu.einstein.wasp.taglib.MessageTag;
 
 @Controller
 @Transactional
@@ -364,7 +363,7 @@ public class UserController extends WaspController {
 		/*
 		if (result.hasErrors()) {
 			prepareSelectListData(m);
-			MessageTag.addMessage(request.getSession(), "user.created.error");
+			waspMessage("user.created.error");
 			return "user/detail_rw";
 		}
 		*/
@@ -373,7 +372,7 @@ public class UserController extends WaspController {
 
 		userForm.setPassword( passwordService.encodePassword(userForm.getPassword()) );
 		
-		//MessageTag.addMessage(request.getSession(), "user.updated.success");
+		//waspMessage("user.updated.success");
 		
 		//emailService.sendNewPassword(userDb, "new pass");
 		
@@ -437,7 +436,7 @@ public class UserController extends WaspController {
 		if (result.hasErrors()) {
 			userForm.setUserId(userId);
 			prepareSelectListData(m);
-			MessageTag.addMessage(request.getSession(), "user.updated.error");
+			waspMessage("user.updated.error");
 			return "user/detail_rw";
 		}
 
@@ -462,7 +461,7 @@ public class UserController extends WaspController {
 		
 		status.setComplete();
 
-		MessageTag.addMessage(request.getSession(), "user.updated.success");
+		waspMessage("user.updated.success");
 		
 		//emailService.sendNewPassword(userDb, "new pass");
 		
@@ -486,7 +485,7 @@ public class UserController extends WaspController {
 			newpassword1 == null || "".equals(newpassword1) ||
 			newpassword2 == null || "".equals(newpassword2)  ) 
 		{
-				MessageTag.addMessage(request.getSession(), "user.mypassword.missingparam.error");
+				waspMessage("user.mypassword.missingparam.error");
 				return "user/mypassword";
 		}
 		
@@ -500,27 +499,27 @@ public class UserController extends WaspController {
 		  
 		//if(!currentPasswordAsHash.equals(oldPasswordAsHash)){//current from db; old is from form as hash
 		if(!passwordService.matchPassword(currentPasswordAsHash, oldPasswordAsHash)){
-			MessageTag.addMessage(request.getSession(), "user.mypassword.cur_mismatch.error");
+			waspMessage("user.mypassword.cur_mismatch.error");
 			return "user/mypassword";
 		}
 		//else if(!newpassword1.equals(newpassword2)){//both from form
 		else if(!passwordService.matchPassword(newpassword1, newpassword2)){
-			MessageTag.addMessage(request.getSession(), "user.mypassword.new_mismatch.error");
+			waspMessage("user.mypassword.new_mismatch.error");
 		    return "user/mypassword";
 		}
 		//else if(oldpassword.equals(newpassword1)){
 		else if(passwordService.matchPassword(oldpassword, newpassword1)){//make sure old and new passwords differ
-			MessageTag.addMessage(request.getSession(), "user.mypassword.nodiff.error");
+			waspMessage("user.mypassword.nodiff.error");
 		    return "user/mypassword";
 		}
 		else if(!passwordService.validatePassword(newpassword1)){//at least 8 char, at least one letter; at least one number
-			MessageTag.addMessage(request.getSession(), "user.mypassword.new_invalid.error");
+			waspMessage("user.mypassword.new_invalid.error");
 		    return "user/mypassword";
 		}
 		  
 		user.setPassword( passwordService.encodePassword(newpassword1) ); 
 		userService.merge(user);
-		MessageTag.addMessage(request.getSession(), "user.changepassword.ok");	
+		waspMessage("user.changepassword.ok");	
 		return "redirect:/dashboard.do";		 
 	}
 
@@ -588,7 +587,7 @@ public class UserController extends WaspController {
 
 		if (result.hasErrors()) {
 			prepareSelectListData(m);
-			MessageTag.addMessage(request.getSession(), "user.created.error");
+			waspMessage("user.created.error");
 			return "user/detail_rw";
 		}
 
@@ -612,7 +611,7 @@ public class UserController extends WaspController {
 
 		status.setComplete();
 
-		MessageTag.addMessage(request.getSession(), "user.created.success");
+		waspMessage("user.created.success");
 		
 		return "redirect:/user/detail_rw/" + userDb.getUserId() + ".do";
 	}

@@ -410,7 +410,7 @@ public class LabController extends WaspController {
 
 		MimeMessageHelper a;
 		
-		//MessageTag.addMessage(request.getSession(), "lab.updated.success");
+		//waspMessage("lab.updated.success");
 		
 		//emailService.sendNewPassword(labDb, "new pass");
 		
