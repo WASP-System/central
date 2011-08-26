@@ -36,6 +36,8 @@ import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.MetaAttribute.Country;
 import edu.yu.einstein.wasp.model.MetaAttribute.State;
 
+import edu.yu.einstein.wasp.taglib.MessageTag;
+
 @Controller
 public class WaspController {
 
@@ -117,6 +119,10 @@ public class WaspController {
 
     SecurityContextHolder.getContext().setAuthentication(newToken);
 
+  }
+
+  public void waspMessage(String propertyString) {
+    MessageTag.addMessage(request.getSession(), propertyString);
   }
 
 
