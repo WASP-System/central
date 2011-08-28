@@ -500,6 +500,42 @@ create table jobuser (
   constraint unique index u_jobuser_jid_uid (jobid, userid)
 ) ENGINE=InnoDB;
 
+create table jobdraft (
+  jobdraftid int(10) not null primary key auto_increment, 
+
+  labid int(10) not null,
+  userid int(10) not null,  -- investigator
+  workflowid int(10) not null,  
+
+  name varchar(250) not null, 
+   
+  createts datetime not null,
+
+  status varchar(50) not null default 1,
+  lastupdts timestamp not null default current_timestamp,
+  lastupduser int(10) not null default 0,
+
+  foreign key fk_jobdraft_lid (labid) references lab(labid),
+  foreign key fk_jobdraft_uid (userid) references user(userid),
+  foreign key fk_jobdraft_wid (workflowid) references workflow(workflowid)
+) ENGINE=InnoDB;
+
+
+create table jobdraftmeta (
+  jobdraftmetaid int(10) not null primary key auto_increment,
+  jobdraftid int(10) not null,
+
+  k varchar(250) not null, 
+  v varchar(250), 
+  position int(10) not null default 0,
+
+  lastupdts timestamp not null default current_timestamp,
+  lastupduser int(10) not null default 0,
+
+  foreign key fk_jobdraftmeta_jdid (jobdraftid) references jobdraft(jobdraftid),
+
+  constraint unique index u_jobdraftmeta_k_jdid (k, jobdraftid)
+) ENGINE=InnoDB;
 
 -- ---------------------------------------------------
 
@@ -668,6 +704,42 @@ create table samplelab (
   foreign key fk_samplelab_lid (labid) references lab(labid),
 
   constraint unique index u_samplelab_sid_lid (sampleid, labid)
+) ENGINE=InnoDB;
+
+
+create table sampledraft (
+  sampledraftid int(10) not null primary key auto_increment,
+  typesampleid int(10) not null,
+
+  labid int(10) not null,
+  userid int(10) not null,
+  jobdraftid int(10) null,
+
+  name varchar(250),
+  status varchar(50), 
+
+  lastupdts timestamp not null default current_timestamp,
+  lastupduser int(10) not null default 0,
+
+  foreign key fk_sampledraft_tsid (typesampleid) references typesample(typesampleid),
+  foreign key fk_sampledraft_sjid (jobdraftid) references jobdraft(jobdraftid),
+  foreign key fk_sampledraft_slid (labid) references lab(labid),
+  foreign key fk_sampledraft_suid (userid) references user(userid)
+) ENGINE=InnoDB;
+
+create table sampledraftmeta (
+  sampledraftmetaid int(10) not null primary key auto_increment,
+  sampledraftid int(10) not null,
+
+  k varchar(250) not null, 
+  v varchar(250), 
+  position int(10) not null default 0,
+
+  lastupdts timestamp not null default current_timestamp,
+  lastupduser int(10) not null default 0,
+
+  foreign key fk_sampledraftmeta_sdid (sampledraftid) references sampledraft(sampledraftid),
+  constraint unique index u_sampledraftmeta_k_sid (k, sampledraftid)
 ) ENGINE=InnoDB;
 
 

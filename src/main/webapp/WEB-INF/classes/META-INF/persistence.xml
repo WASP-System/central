@@ -70,6 +70,10 @@
     <class>edu.yu.einstein.wasp.model.LabPending</class>
     <class>edu.yu.einstein.wasp.model.LabPendingMeta</class>
 
+    <class>edu.yu.einstein.wasp.model.JobDraft</class>
+    <class>edu.yu.einstein.wasp.model.JobDraftMeta</class>
+    <class>edu.yu.einstein.wasp.model.SampleDraft</class>
+    <class>edu.yu.einstein.wasp.model.SampleDraftMeta</class>
 
     <properties>
       <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver"/>
