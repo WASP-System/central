@@ -50,6 +50,9 @@ public class WaspController {
                 LOCALES.put("ja_JA","Japanese");
                 }
 
+  protected static final ResourceBundle BASE_BUNDLE=ResourceBundle.getBundle("messages", Locale.ENGLISH);
+
+
   @Autowired
   private UserDetailsService userDetailsService;
 
