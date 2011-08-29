@@ -284,13 +284,17 @@ foreach my $workflow (sort keys %$workflows) {
   $w->{'assay_name'} = "CONTROL (SEQ)" if ($workflow == 14);
   $w->{'assay_name'} = "CONTROL (MICROARRAY)" if ($workflow == 15);
 
+  $w->{'iname'} = "\L$w->{'assay_name'}";
+  $w->{'iname'} =~ s/[^A-Za-z ]//g;
+  $w->{'iname'} =~ s/ (.)/\U$1/g;
+
   sqlescape($w); 
 
   $out .= qq|
     insert into workflow
     (workflowid, iname, name, createts, isactive)
     values
-    ($w->{'assay_id'}, '$w->{'assay_name'}', '$w->{'assay_name'}', '$w->{'created_date'}', $w->{'active'});
+    ($w->{'assay_id'}, '$w->{'iname'}', '$w->{'assay_name'}', '$w->{'created_date'}', $w->{'active'});
   |; 
 
   $out .= meta("workflow", [qw|general_assay_type primer_adaptor_type|], 'assay_id', $w);

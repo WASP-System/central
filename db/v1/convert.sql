@@ -16444,7 +16444,7 @@ where
     insert into workflow
     (workflowid, iname, name, createts, isactive)
     values
-    (1, 'ChIP SEQ', 'ChIP SEQ', '2009-10-12', 1);
+    (1, 'chipSeq', 'ChIP SEQ', '2009-10-12', 1);
   
       insert into workflowmeta
       (workflowid, k, v, position)
@@ -16459,7 +16459,7 @@ where
     insert into workflow
     (workflowid, iname, name, createts, isactive)
     values
-    (10, 'SEQ CAP', 'SEQ CAP', '2009-10-12', 1);
+    (10, 'seqCap', 'SEQ CAP', '2009-10-12', 1);
   
       insert into workflowmeta
       (workflowid, k, v, position)
@@ -16474,7 +16474,7 @@ where
     insert into workflow
     (workflowid, iname, name, createts, isactive)
     values
-    (11, 'Digital Expression Profiling', 'Digital Expression Profiling', '2009-10-12', 0);
+    (11, 'digitalExpressionProfiling', 'Digital Expression Profiling', '2009-10-12', 0);
   
       insert into workflowmeta
       (workflowid, k, v, position)
@@ -16484,7 +16484,7 @@ where
     insert into workflow
     (workflowid, iname, name, createts, isactive)
     values
-    (12, 'RNA SEQ', 'RNA SEQ', '2009-10-12', 1);
+    (12, 'rnaSeq', 'RNA SEQ', '2009-10-12', 1);
   
       insert into workflowmeta
       (workflowid, k, v, position)
@@ -16499,7 +16499,7 @@ where
     insert into workflow
     (workflowid, iname, name, createts, isactive)
     values
-    (13, 'miRNA SEQ', 'miRNA SEQ', '2009-10-12', 1);
+    (13, 'mirnaSeq', 'miRNA SEQ', '2009-10-12', 1);
   
       insert into workflowmeta
       (workflowid, k, v, position)
@@ -16514,7 +16514,7 @@ where
     insert into workflow
     (workflowid, iname, name, createts, isactive)
     values
-    (14, 'CONTROL (SEQ)', 'CONTROL (SEQ)', '2009-11-18', 1);
+    (14, 'controlSeq', 'CONTROL (SEQ)', '2009-11-18', 1);
   
       insert into workflowmeta
       (workflowid, k, v, position)
@@ -16524,7 +16524,7 @@ where
     insert into workflow
     (workflowid, iname, name, createts, isactive)
     values
-    (15, 'CONTROL (MICROARRAY)', 'CONTROL (MICROARRAY)', '2009-11-18', 0);
+    (15, 'controlMicroarray', 'CONTROL (MICROARRAY)', '2009-11-18', 0);
   
       insert into workflowmeta
       (workflowid, k, v, position)
@@ -16534,7 +16534,7 @@ where
     insert into workflow
     (workflowid, iname, name, createts, isactive)
     values
-    (16, 'DE NOVO SEQ', 'DE NOVO SEQ', '2010-08-31', 1);
+    (16, 'deNovoSeq', 'DE NOVO SEQ', '2010-08-31', 1);
   
       insert into workflowmeta
       (workflowid, k, v, position)
@@ -16549,7 +16549,7 @@ where
     insert into workflow
     (workflowid, iname, name, createts, isactive)
     values
-    (17, 'MATE PAIR SEQ', 'MATE PAIR SEQ', '2010-09-14', 1);
+    (17, 'matePairSeq', 'MATE PAIR SEQ', '2010-09-14', 1);
   
       insert into workflowmeta
       (workflowid, k, v, position)
@@ -16564,7 +16564,7 @@ where
     insert into workflow
     (workflowid, iname, name, createts, isactive)
     values
-    (18, 'DIRECTIONAL RNA SEQ', 'DIRECTIONAL RNA SEQ', '2010-11-09', 0);
+    (18, 'directionalRnaSeq', 'DIRECTIONAL RNA SEQ', '2010-11-09', 0);
   
       insert into workflowmeta
       (workflowid, k, v, position)
@@ -16579,7 +16579,7 @@ where
     insert into workflow
     (workflowid, iname, name, createts, isactive)
     values
-    (19, 'OTHER SEQ (DNA SAMPLES)', 'OTHER SEQ (DNA SAMPLES)', '2010-11-09', 1);
+    (19, 'otherSeqDnaSamples', 'OTHER SEQ (DNA SAMPLES)', '2010-11-09', 1);
   
       insert into workflowmeta
       (workflowid, k, v, position)
@@ -16594,7 +16594,7 @@ where
     insert into workflow
     (workflowid, iname, name, createts, isactive)
     values
-    (2, 'Microarray ChIP', 'Microarray ChIP', '2009-10-12', 0);
+    (2, 'microarrayChip', 'Microarray ChIP', '2009-10-12', 0);
   
       insert into workflowmeta
       (workflowid, k, v, position)
@@ -16604,7 +16604,7 @@ where
     insert into workflow
     (workflowid, iname, name, createts, isactive)
     values
-    (20, 'OTHER SEQ (RNA SAMPLES)', 'OTHER SEQ (RNA SAMPLES)', '2010-11-09', 1);
+    (20, 'otherSeqRnaSamples', 'OTHER SEQ (RNA SAMPLES)', '2010-11-09', 1);
   
       insert into workflowmeta
       (workflowid, k, v, position)
@@ -16619,7 +16619,7 @@ where
     insert into workflow
     (workflowid, iname, name, createts, isactive)
     values
-    (3, 'Gene Expression SEQ', 'Gene Expression SEQ', '2009-10-12', 0);
+    (3, 'geneExpressionSeq', 'Gene Expression SEQ', '2009-10-12', 0);
   
       insert into workflowmeta
       (workflowid, k, v, position)
@@ -16629,7 +16629,7 @@ where
     insert into workflow
     (workflowid, iname, name, createts, isactive)
     values
-    (4, 'Microarray Gene Expression', 'Microarray Gene Expression', '2009-10-12', 0);
+    (4, 'microarrayGeneExpression', 'Microarray Gene Expression', '2009-10-12', 0);
   
       insert into workflowmeta
       (workflowid, k, v, position)
@@ -16639,7 +16639,7 @@ where
     insert into workflow
     (workflowid, iname, name, createts, isactive)
     values
-    (5, 'HELP TAG', 'HELP TAG', '2009-10-12', 1);
+    (5, 'helpTag', 'HELP TAG', '2009-10-12', 1);
   
       insert into workflowmeta
       (workflowid, k, v, position)
@@ -16654,7 +16654,7 @@ where
     insert into workflow
     (workflowid, iname, name, createts, isactive)
     values
-    (6, 'Microarray HELP', 'Microarray HELP', '2009-10-12', 0);
+    (6, 'microarrayHelp', 'Microarray HELP', '2009-10-12', 0);
   
       insert into workflowmeta
       (workflowid, k, v, position)
@@ -16664,7 +16664,7 @@ where
     insert into workflow
     (workflowid, iname, name, createts, isactive)
     values
-    (7, 'CGH', 'CGH', '2009-10-12', 0);
+    (7, 'cgh', 'CGH', '2009-10-12', 0);
   
       insert into workflowmeta
       (workflowid, k, v, position)
@@ -16674,7 +16674,7 @@ where
     insert into workflow
     (workflowid, iname, name, createts, isactive)
     values
-    (8, 'RESEQUENCING', 'RESEQUENCING', '2009-10-12', 1);
+    (8, 'resequencing', 'RESEQUENCING', '2009-10-12', 1);
   
       insert into workflowmeta
       (workflowid, k, v, position)
@@ -16689,7 +16689,7 @@ where
     insert into workflow
     (workflowid, iname, name, createts, isactive)
     values
-    (9, 'AMPLICON SEQ', 'AMPLICON SEQ', '2009-10-12', 1);
+    (9, 'ampliconSeq', 'AMPLICON SEQ', '2009-10-12', 1);
   
       insert into workflowmeta
       (workflowid, k, v, position)
