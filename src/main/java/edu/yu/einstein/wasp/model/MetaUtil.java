@@ -150,7 +150,7 @@ public final class MetaUtil {
 		     while(en.hasMoreElements()) {
 		    	String k = en.nextElement();
 		    	
-		    	if (!k.startsWith(area.name()) || !k.endsWith(".metaposition")) continue;
+		    	if (!k.startsWith(area.name()+".") || !k.endsWith(".metaposition")) continue;
 		    	
 		    	String[] path=StringUtils.tokenizeToStringArray(k,".");
 		    	

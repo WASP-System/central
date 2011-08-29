@@ -14,7 +14,6 @@ import javax.validation.Valid;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.converter.json.MappingJacksonHttpMessageConverter;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.encoding.PasswordEncoder;
@@ -67,9 +66,7 @@ public class UserController extends WaspController {
 
 	@Autowired
 	private PasswordService passwordService;
-	
-	@Autowired
-	private MappingJacksonHttpMessageConverter jsonnMapper;
+
 	
 	@InitBinder
 	protected void initBinder(WebDataBinder binder) {
