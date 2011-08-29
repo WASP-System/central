@@ -23,7 +23,7 @@ import org.codehaus.jackson.annotate.JsonIgnore;
 @Entity
 @Audited
 @Table(name="sampledraftmeta")
-public class SampleDraftMeta extends WaspModel {
+public class SampleDraftMeta extends MetaBase {
   @Id @GeneratedValue(strategy=GenerationType.IDENTITY)
   protected int sampleDraftMetaId;
   public void setSampleDraftMetaId (int sampleDraftMetaId) {
@@ -42,58 +42,6 @@ public class SampleDraftMeta extends WaspModel {
   public int getSampledraftId () {
     return this.sampledraftId;
   }
-
-
-  @Column(name="k")
-  protected String k;
-  public void setK (String k) {
-    this.k = k;
-  }
-  public String getK () {
-    return this.k;
-  }
-
-
-  @Column(name="v")
-  protected String v;
-  public void setV (String v) {
-    this.v = v;
-  }
-  public String getV () {
-    return this.v;
-  }
-
-
-  @Column(name="position")
-  protected int position;
-  public void setPosition (int position) {
-    this.position = position;
-  }
-  public int getPosition () {
-    return this.position;
-  }
-
-
-  @Column(name="lastupdts")
-  protected Date lastUpdTs;
-  public void setLastUpdTs (Date lastUpdTs) {
-    this.lastUpdTs = lastUpdTs;
-  }
-  public Date getLastUpdTs () {
-    return this.lastUpdTs;
-  }
-
-
-  @Column(name="lastupduser")
-  protected int lastUpdUser;
-  public void setLastUpdUser (int lastUpdUser) {
-    this.lastUpdUser = lastUpdUser;
-  }
-  public int getLastUpdUser () {
-    return this.lastUpdUser;
-  }
-
-
 
   @NotAudited
   @ManyToOne
