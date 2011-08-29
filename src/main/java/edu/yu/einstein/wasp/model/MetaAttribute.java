@@ -15,7 +15,29 @@ public final class MetaAttribute implements Serializable {
 			userPending,
 			piPending,
 			lab,
-			labPending
+			labPending,
+			
+			jobDraft,
+			ampliconSeq,
+			cgh,
+			chipSeq,
+			controlMicroarray,
+			controlSeq,
+			deNovoSeq,
+			digitalExpressionProfiling,
+			directionalRnaSeq,
+			geneExpressionSeq,
+			helpTag,
+			matePairSeq,
+			microarrayChip,
+			microarrayGeneExpression,
+			microarrayHelp,
+			mirnaSeq,
+			otherSeqDnaSamples,
+			otherSeqRnaSamples,
+			resequencing,
+			rnaSeq,
+			seqCap
 		}
 			
 		private String label;
