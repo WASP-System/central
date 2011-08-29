@@ -14,6 +14,8 @@ package edu.yu.einstein.wasp.model;
 import org.hibernate.*;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
+import org.hibernate.validator.constraints.Range;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.*;
 import java.util.*;
@@ -35,6 +37,7 @@ public class JobDraft extends WaspModel {
 
 
   @Column(name="labid")
+  @Range(min=1)
   protected int labId;
   public void setLabId (int labId) {
     this.labId = labId;
@@ -55,6 +58,7 @@ public class JobDraft extends WaspModel {
 
 
   @Column(name="workflowid")
+  @Range(min=1)
   protected int workflowId;
   public void setWorkflowId (int workflowId) {
     this.workflowId = workflowId;
@@ -65,6 +69,7 @@ public class JobDraft extends WaspModel {
 
 
   @Column(name="name")
+  @NotEmpty
   protected String name;
   public void setName (String name) {
     this.name = name;
