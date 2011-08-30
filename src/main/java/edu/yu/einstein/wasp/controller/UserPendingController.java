@@ -29,6 +29,7 @@ import org.springframework.validation.FieldError;
 
 import org.springframework.security.access.prepost.*;
 
+import edu.yu.einstein.wasp.controller.validator.MetaValidator;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.Department;
@@ -144,20 +145,18 @@ public class UserPendingController extends WaspController {
         validateList.toArray(new String[] {}));
 
     validator.validate(userPendingMetaList, result, AREA);
+    Errors errors = new BindException(result.getTarget(), AREA.name());
     
     // validate password
     String password2 = (String) request.getParameter("password2");
     if (! result.hasFieldErrors("password")){
-    	Errors errors = new BindException(result.getTarget(), AREA.name());
 	    if (! passwordService.validatePassword(userPendingForm.getPassword()) ){ 
 	    	errors.rejectValue("password", AREA.name()+".password_invalid.error");
 	    }
 	    else if (! passwordService.matchPassword(userPendingForm.getPassword(), password2) ){
 	    	errors.rejectValue("password", AREA.name()+".password_mismatch.error");
 	    }
-	    result.addAllErrors(errors);
     }
-    
     String primaryUserEmail = "";
     for (UserPendingMeta meta : userPendingMetaList) {
       if (meta.getK().equals(AREA.name() + ".primaryuseremail")) {
@@ -165,9 +164,13 @@ public class UserPendingController extends WaspController {
         break;
       }
     } 
+    User primaryInvestigator = userService.getUserByEmail(primaryUserEmail);
+    result.addAllErrors(errors);
+    
+    
 
     // TODO add  user not found add lab not found
-    User primaryInvestigator = userService.getUserByEmail(primaryUserEmail);
+    
     Lab lab = labService.getLabByPrimaryUserId(primaryInvestigator.getUserId());
 
     userPendingForm.setLabId(lab.getLabId());

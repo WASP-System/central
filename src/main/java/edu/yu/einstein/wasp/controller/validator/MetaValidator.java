@@ -1,4 +1,4 @@
-package edu.yu.einstein.wasp.controller;
+package edu.yu.einstein.wasp.controller.validator;
 
 import java.util.HashMap;
 import java.util.List;

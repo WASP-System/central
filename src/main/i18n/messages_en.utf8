@@ -58,6 +58,7 @@ user.city.metaposition=5
 
 user.state.label=State
 user.state.control=select:${states}:code:name
+user.state.constraint=NotEmpty
 user.state.metaposition=6
 
 user.country.label=Country
