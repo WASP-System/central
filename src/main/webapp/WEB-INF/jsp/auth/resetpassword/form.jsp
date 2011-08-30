@@ -13,7 +13,7 @@
        <input type='hidden' name='authcode' value='<c:out value="${authcode}" default="" />'/>
 
       <table>
-        <tr><td><fmt:message key="auth.resetpassword.user.label" /></td><td><input type='text' name='j_username' value='<c:out value="${username}" default="" />'/></td></tr>
+        <tr><td><fmt:message key="auth.resetpassword.user.label" /></td><td><input type='text' name='username' value='<c:out value="${username}" default="" />'/></td></tr>
         <tr><td><fmt:message key="auth.resetpassword.password1.label" /></td><td><input type='password' name='password1' value=''/></td></tr>
         <tr><td><fmt:message key="auth.resetpassword.password2.label" /></td><td><input type='password' name='password2' value=''/></td></tr>
         <tr><td>&nbsp;</td><td><img src="<c:url value='/stickyCaptchaImg.png'/>" /></td></tr>

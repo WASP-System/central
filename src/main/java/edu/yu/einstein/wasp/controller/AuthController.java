@@ -1,6 +1,5 @@
 package edu.yu.einstein.wasp.controller;
 
-import java.util.Date;
 import nl.captcha.Captcha;
 
 import org.springframework.stereotype.Controller;
@@ -52,7 +51,7 @@ public class AuthController extends WaspController {
   }
 
   @RequestMapping(value="/forgotpassword", method=RequestMethod.POST)
-  public String forgotPassword(@RequestParam("j_username") String username, @RequestParam("captcha_text") String captchaText, ModelMap m) {
+  public String forgotPassword(@RequestParam("username") String username, @RequestParam("captcha_text") String captchaText, ModelMap m) {
 
 	  User user=userService.getUserByLogin(username);
 	  Captcha captcha = (Captcha) request.getSession().getAttribute(Captcha.NAME);
@@ -108,7 +107,7 @@ public class AuthController extends WaspController {
   
   @RequestMapping(value="/resetpassword", method=RequestMethod.POST)
   public String resetPassword(
-        @RequestParam("j_username") String username, 
+        @RequestParam("username") String username, 
         @RequestParam("authcode") String authCode, 
         @RequestParam("password1") String password1, 
         @RequestParam("password2") String password2, 
