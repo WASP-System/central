@@ -56,14 +56,14 @@ public class MetaValidator {
 				Matcher m = p.matcher(meta.getV());
 				boolean b = m.matches();
 				if (!b) {
-					errors.rejectValue(parentarea+"Meta["+i+"].k", meta.getK()+".error");  
+					errors.rejectValue(parentarea+"Meta["+i+"].k", meta.getK()+".error",  meta.getK()+".error (no message has been defined for this property)");  
 				}
 
 			} else if (constraint.equals(Constraint.NotEmpty.name())){
 				if (meta.getV()==null || meta.getV().isEmpty()) {
 					String fieldName = parentarea+"Meta["+i+"].k";
 					String errorMessageKey = meta.getK() + ".error";
-					errors.rejectValue(fieldName,errorMessageKey );
+					errors.rejectValue(fieldName, errorMessageKey, errorMessageKey+" (no message has been defined for this property)");
 				}
 					
 			} else {
