@@ -1,4 +1,6 @@
 # -------------------------- static user fields --------------------------
+
+
 user.login.label=Login
 user.login.error=Login cannot be empty
 user.login.exists_error=Login already exists
@@ -80,8 +82,17 @@ user.fax.constraint=NotEmpty
 user.fax.metaposition=10
 
 # --- user pending --
+userPending.page.title=New User
+userPending.select.default=-- select --
+userPending.submit=Apply for Account
 userPending.password.label=Password
 userPending.password.error=Password cannot be empty
+userPending.password_mismatch.error=The two entries for your password are NOT identical
+userPending.password_invalid.error=Password must be at least 8 characters, containing only letters and numbers, with at least one letter and number
+
+
+userPending.password2.label=Re-confirm Password
+userPending.password2.error=Re-confirm password cannot be empty
 
 userPending.firstName.label=First Name
 userPending.firstName.error=First Name cannot be empty
@@ -97,8 +108,8 @@ userPending.locale.error=Locale cannot be empty
 
 # ------------------------ dynamic user pending fields ----------------------
 
-userPending.primaryuseremail.label=Primary Lab User
-userPending.primaryuseremail.error=Primary Lab User cannot be empty
+userPending.primaryuseremail.label=PI Email Address
+userPending.primaryuseremail.error=PI Email Address cannot be empty
 userPending.primaryuseremail.constraint=NotEmpty
 userPending.primaryuseremail.metaposition=0
 

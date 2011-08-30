@@ -30,10 +30,18 @@ public class PasswordServiceImpl implements PasswordService {
 	  //see orange box on this web page
 	  //only letters and numbers, at least one number, at least one letter, and at least 8 characters
 	  //I replaced the \w with [0-9a-zA-Z]
+	  if (s == null || s.isEmpty()){
+		  // defensive: not valid if not set
+		  return false;
+	  }
 	  return s.matches("^(?=.*[0-9])(?=.*[a-zA-Z])[0-9a-zA-Z]{8,}$"); 	  
   }
   
   public boolean matchPassword(String s1, String s2){
+	  if (s1 == null || s1.isEmpty() || s2 == null || s2.isEmpty()){
+		  // defensive: must have a value as well as match (do not want to try to match null or empty passwords)
+		  return false;
+	  }
 	  return s1.equals(s2);
   }
 }

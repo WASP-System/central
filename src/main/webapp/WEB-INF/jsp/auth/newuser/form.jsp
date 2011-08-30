@@ -1,10 +1,13 @@
 <%@ include file="/WEB-INF/jsp/include.jsp" %>
 
 <html>
-  <head><title>New User</title><head>
+  <head>
+  		<title><fmt:message key="userPending.page.title" /></title>
+  <head> 
   <body>
     
-    <h1>New User</h1>
+    <h1><fmt:message key="userPending.page.title" /></h1>
+    <font color="red"><wasp:message /></font> 
     <form:form commandName="userPending">
       <table>
         <tr>
@@ -24,15 +27,20 @@
         </tr>         
         <tr>
           <td><fmt:message key="userPending.password.label"/>:</td>
-          <td><form:input path="password" /></td>
+          <td><form:password path="password" /></td>
           <td><form:errors path="password" /></td>
+        </tr>
+        <tr>
+        	<td><fmt:message key="userPending.password2.label"/>:</td>
+        	<td><input type="password", name="password2" /></td>
+        	<td>&nbsp;</td>
         </tr>     	   
 
         <tr>
           <td><fmt:message key="userPending.locale.label"/>:</td>
           <td>
             <select name=locale>
-              <option value=''>-- select --</option>
+              <option value=''><fmt:message key="userPending.select.default"/></option> 
               <c:forEach var="localeEntry" items="${locales}">
                 <c:set var="localeValue" value="${localeEntry.key}"/>
                 <c:set var="localeLabel" value="${localeEntry.value}"/>     
@@ -48,7 +56,7 @@
           <c:import url="/WEB-INF/jsp/meta_rw.jsp"/>
           <tr>
               <td colspan="2" align=right>
-                  <input type="submit" value="Save Changes" />
+                  <input type="submit" value="<fmt:message key='userPending.submit'/>" /> 
               </td>
           </tr>
 

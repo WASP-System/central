@@ -25,6 +25,7 @@ import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
+import org.springframework.validation.FieldError;
 
 import org.springframework.security.access.prepost.*;
 
@@ -125,20 +126,12 @@ public class UserPendingController extends WaspController {
        SessionStatus status, 
        ModelMap m) {
     final MetaAttribute.Area AREA = MetaAttribute.Area.userPending;
-
-
     List<UserPendingMeta> userPendingMetaList = MetaUtil.getMetaFromForm(request,
                                 AREA, UserPendingMeta.class, getBundle());
 
     userPendingForm.setUserPendingMeta(userPendingMetaList);
-
-    Errors errors = new BindException(result.getTarget(), AREA.name());
-
-    result.addAllErrors(errors);
-
+    
     List<String> validateList = new ArrayList<String>();
-    //validateList.add("password");
-    //validateList.add(MetaValidator.Constraint.NotEmpty.name());
 
     for (UserPendingMeta meta : userPendingMetaList) {
       if (meta.getProperty() != null
@@ -151,7 +144,20 @@ public class UserPendingController extends WaspController {
         validateList.toArray(new String[] {}));
 
     validator.validate(userPendingMetaList, result, AREA);
-
+    
+    // validate password
+    String password2 = (String) request.getParameter("password2");
+    if (! result.hasFieldErrors("password")){
+    	Errors errors = new BindException(result.getTarget(), AREA.name());
+	    if (! passwordService.validatePassword(userPendingForm.getPassword()) ){ 
+	    	errors.rejectValue("password", AREA.name()+".password_invalid.error");
+	    }
+	    else if (! passwordService.matchPassword(userPendingForm.getPassword(), password2) ){
+	    	errors.rejectValue("password", AREA.name()+".password_mismatch.error");
+	    }
+	    result.addAllErrors(errors);
+    }
+    
     String primaryUserEmail = "";
     for (UserPendingMeta meta : userPendingMetaList) {
       if (meta.getK().equals(AREA.name() + ".primaryuseremail")) {
@@ -161,8 +167,8 @@ public class UserPendingController extends WaspController {
     } 
 
     // TODO add  user not found add lab not found
-    User primaryUser = userService.getUserByEmail(primaryUserEmail);
-    Lab lab = labService.getLabByPrimaryUserId(primaryUser.getUserId());
+    User primaryInvestigator = userService.getUserByEmail(primaryUserEmail);
+    Lab lab = labService.getLabByPrimaryUserId(primaryInvestigator.getUserId());
 
     userPendingForm.setLabId(lab.getLabId());
     userPendingForm.setStatus("PENDING");
