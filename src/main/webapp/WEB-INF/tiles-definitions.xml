@@ -69,12 +69,16 @@
 
  <definition name="sysrole/list" template="/WEB-INF/jsp/sysrole/list.jsp"/>
 
+
+
  <definition name="jobsubmit/list" template="/WEB-INF/jsp/jobsubmit/list.jsp"/>
  <definition name="jobsubmit/create" template="/WEB-INF/jsp/jobsubmit/create.jsp"/>
  <definition name="jobsubmit/metaform" template="/WEB-INF/jsp/jobsubmit/metaform.jsp"/>
  <definition name="jobsubmit/samplelist" template="/WEB-INF/jsp/jobsubmit/samplelist.jsp"/>
  <definition name="jobsubmit/verify" template="/WEB-INF/jsp/jobsubmit/verify.jsp"/>
+ <definition name="jobsubmit/ok" template="/WEB-INF/jsp/jobsubmit/ok.jsp"/>
 
+ <definition name="job/detail" template="/WEB-INF/jsp/job/detail.jsp"/>
 
 
 </tiles-definitions>
