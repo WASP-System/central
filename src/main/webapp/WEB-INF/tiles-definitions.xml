@@ -86,6 +86,12 @@
 
  <definition name="job/detail" template="/WEB-INF/jsp/job/detail.jsp"/>
 
+ <definition name="hello" template="/WEB-INF/jsp/hello.jsp"/>
+
+
+ <definition name="facility/platformunit/detail_rw" template="/WEB-INF/jsp/facility/platformunit/detail_rw.jsp" />
+ <definition name="facility/platformunit/ok" template="/WEB-INF/jsp/facility/platformunit/ok.jsp" />
+
 
 </tiles-definitions>
 
