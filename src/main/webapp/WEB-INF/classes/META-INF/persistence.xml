@@ -5,8 +5,6 @@
   <persistence-unit name="waspPU">
     <provider>org.hibernate.ejb.HibernatePersistence</provider>
 
-    <class>edu.yu.einstein.wasp.model.AChipseqArun</class>
-    <class>edu.yu.einstein.wasp.model.AChipseqArunargs</class>
     <class>edu.yu.einstein.wasp.model.AcctGrant</class>
     <class>edu.yu.einstein.wasp.model.AcctGrantjob</class>
     <class>edu.yu.einstein.wasp.model.AcctInvoice</class>
