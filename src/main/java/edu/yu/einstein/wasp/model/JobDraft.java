@@ -88,6 +88,15 @@ public class JobDraft extends WaspModel {
     return this.createts;
   }
 
+  @Column(name="submittedjobid")
+  protected Integer submittedjobId;
+  public void setSubmittedjobId (Integer submittedjobId) {
+    this.submittedjobId = submittedjobId;
+  }
+  public Integer getSubmittedjobId () {
+    return this.submittedjobId;
+  }
+
 
   @Column(name="status")
   protected String status;
