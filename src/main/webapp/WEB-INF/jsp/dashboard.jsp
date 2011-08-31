@@ -20,44 +20,41 @@
   </div>
 </sec:authorize>
 
-
-<sec:authorize access="hasRole('lu-*')">
+<sec:authorize access="hasRole('du-*')">
   <div>
-  <h1>Lab Utils</h1>
-  <c:forEach items="${roles}" var="r">
-    <c:if test="${fn:startsWith(r,'lu-')}">
-      <c:if test="${r != 'lu-*'}">
-        <c:set var="labId" value="${fn:substring(r,3,-1)}" />
-  
-        <div>
-          <div>TODO LABNAME</div>
-          <div><a href="<c:url value="/lab/detail_ro/${labId}.do"/>">View</a></div>
-          <sec:authorize access="hasRole('lm-${labId}' )">
-            <div><a href="<c:url value="/lab/pendinguser/list/${labId}.do"/>">Pending User Approval</a></div>
-            <div><a href="<c:url value="/lab/user/${labId}.do"/>">User Manager</a></div>
-            <div><a href="<c:url value="/task/lmapproval/list/${labId}.do"/>">Pending Lab Manager Job Approval</a></div>
-           </sec:authorize>
-        </div>
-      </c:if>
-    </c:if>
+  <h1>Department Admin</h1>
+  <c:forEach items="${departments}" var="d">
+    <div>
+    <b><c:out value="${d.name}" /></b>
+    <c:set var="departmentId" value="${d.departmentId}" />
+
+    <div><a href="<c:url value="/department/detail/${departmentId}.do"/>">Department Detail</a></div>
+    <div><a href="<c:url value="/department/pendinglab/list/${departmentId}.do"/>">Pending Lab Approval</a></div>
+    <div><a href="<c:url value="/task/daapproval/list/${departmentId}.do"/>">Pending Department Admin Job Approval</a></div>
   </c:forEach>
   </div>
 </sec:authorize>
 
-<sec:authorize access="hasRole('da-*')">
+
+
+<sec:authorize access="hasRole('lu-*')">
   <div>
-  <h1>Department Admin</h1>
-  <c:forEach items="${roles}" var="r">
-    <c:if test="${fn:startsWith(r,'da-')}">
-      <c:if test="${r != 'da-*'}">
-        TODO DEPARTMENTNAME
-        <c:set var="departmentId" value="${fn:substring(r,3,-1)}" />
-        <div><a href="<c:url value="/department/detail/${departmentId}.do"/>">Department Detail</a></div>
-        <div><a href="<c:url value="/department/pendinglab/list/${departmentId}.do"/>">Pending Lab Approval</a></div>
-        <div><a href="<c:url value="/task/daapproval/list/${departmentId}.do"/>">Pending Department Admin Job Approval</a></div>
-      </c:if>
-    </c:if>
+  <h1>Lab Utils</h1>
+  <c:forEach items="${labs}" var="l">
+    <div>
+    <b><c:out value="${l.name}" /></b>
+    <c:set var="labId" value="${l.labId}" />
+    <div><a href="<c:url value="/lab/detail_ro/${labId}.do"/>">View</a></div>
+
+    <sec:authorize access="hasRole('lm-${labId}' )">
+      <div><a href="<c:url value="/lab/pendinguser/list/${labId}.do"/>">Pending User Approval</a></div>
+      <div><a href="<c:url value="/lab/user/${labId}.do"/>">User Manager</a></div>
+      <div><a href="<c:url value="/task/lmapproval/list/${labId}.do"/>">Pending Lab Manager Job Approval</a></div>
+    </sec:authorize>
+
+    </div>
   </c:forEach>
+
   </div>
 </sec:authorize>
 
@@ -65,17 +62,31 @@
 <sec:authorize access="hasRole('jv-*')">
   <div>
   <h1>Viewable Jobs</h1>
-  <c:forEach items="${roles}" var="r">
-    <c:if test="${fn:startsWith(r,'jv-')}">
-      <c:if test="${r != 'jv-*'}">
-        <c:set var="jobId" value="${fn:substring(r,3,-1)}" />
-  
-        <div><a href="<c:url value="/job/detail/${jobId}.do"/>">TODO JOB NAME</a></div>
-      </c:if>
-    </c:if>
+  <c:forEach items="${jobs}" var="j">
+    <c:set var="jobId" value="${j.jobId}" />
+
+    <div>
+      <b><c:out value="${j.lab.name}" /></b> - 
+      <a href="<c:url value="/job/detail/${jobId}.do"/>">
+      <b><c:out value="${j.name}" /></b>
+      </a>
+    </div>
   </c:forEach>
-  <div>[Submit a Job]</div>
-  </div>
+</sec:authorize>
+
+<sec:authorize access="hasRole('jd-*')">
+  <div>
+  <h1>Drafted Jobs</h1>
+  <c:forEach items="${jobdrafts}" var="j">
+    <c:set var="jobDraftId" value="${j.jobDraftId}" />
+
+    <div>
+      <b><c:out value="${j.lab.name}" /></b> - 
+      <a href="<c:url value="/jobsubmit/verify/${jobDraftId}.do"/>">
+      <b><c:out value="${j.name}" /></b>
+      </a>
+    </div>
+  </c:forEach>
 </sec:authorize>
 
 <sec:authorize access="hasRole('fm')">
@@ -116,28 +127,6 @@
 <div>- [View Job Task]</div>
 <div>- [View Job Task]</div>
 <div>- [View Job Task]</div>
-</div>
-
-
-<div>[View Labs]</div>
-<div> - Lab</div>
-<div> - Lab</div>
-<div> - Lab</div>
-<div> - Lab</div>
-<div> - Lab</div>
-<div>[View Users]</div>
-<div> - User</div>
-<div> - User</div>
-<div> - User</div>
-<div> - User</div>
-<div> - User</div>
-<div>[Awaiting FM Approval]</div>
-<div>- [View Job]</div>
-<div>- [View Job]</div>
-<div>- [View Job]</div>
-<div>- [View Job]</div>
-<div>- [View Job]</div>
-<div>- [View Job]</div>
 </div>
 
 
