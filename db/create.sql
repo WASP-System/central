@@ -124,6 +124,7 @@ from role;
 insert into roleset 
 (parentroleid, childroleid)
 values
+(1, 5),
 (6, 7),
 (6, 8),
 (7, 8),
@@ -1218,36 +1219,6 @@ create table a_chipseq_arun (
   foreign key fk_acs_arun_fid (fileid) references file(fileid)
 ) ENGINE=InnoDB;
 
-
---
--- ASSAY CHIPSEQ ARGS
---   - track command line arguments
---
-
-create table a_chipseq_arunargs (
-  arunargsid int(10) not null primary key auto_increment, 
-
-  arunid int(10),
-
-  argv varchar(250) not null default 0,
-  argc int(10) not null default 0,
-
-  foreign key fk_acs_arunargs_arid (arunid) references a_chipseq_arun(arunid),
-  constraint unique index u_acs_arunargs_arid_argc (arunid, argc)
-) ENGINE=InnoDB;
-
---
--- tie chipseq runs back to real tasks
---   [still unsure of this design]
-create table state_a_chipseq_arun (
-  state_arunid int(10) not null primary key auto_increment,
-  
-  stateid int(10) not null,
-  arunid int(10) not null,
-
-  foreign key fk_state_arun_jtid (stateid) references state(stateid),
-  foreign key fk_state_arun_arid (arunid) references a_chipseq_arun(arunid)
-) ENGINE=InnoDB;
 
 /*
 */
