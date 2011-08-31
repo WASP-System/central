@@ -150,7 +150,7 @@ public class UserPendingController extends WaspController {
     
     // validate password
     PasswordValidator passwordValidator = new PasswordValidator();
-    passwordValidator.validate(result, userPendingForm.getPassword(), (String) request.getParameter("password2"), AREA);
+    passwordValidator.validate(result, userPendingForm.getPassword(), (String) request.getParameter("password2"), AREA, "password");
     
     String primaryUserEmail = "";
     for (UserPendingMeta meta : userPendingMetaList) {
