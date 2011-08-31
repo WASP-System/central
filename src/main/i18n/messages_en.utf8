@@ -602,4 +602,29 @@ sampleDraft.enrich_primer_pair_id.metaposition=130
 hello.error=Hello World
 
 
+
+--- platformunit
+sample.name.label = Name
+sample.name.error = Name cannot be null
+
+platformunit.barcode.label = Barcode
+platformunit.barcode.constraint=NotEmpty
+platformunit.barcode.error= Barcode cannot be empty
+platformunit.barcode.metaposition=10
+
+platformunit.comment.label = Comment
+platformunit.comment.error= Comment
+platformunit.comment.metaposition=20
+
+platformunit.version.label = Version
+platformunit.version.error= VErsioN
+platformunit.version.metaposition=30
+
+platformunit.lanecount.label = Lane Count
+platformunit.lanecount.constraint=NotEmpty
+platformunit.lanecount.error= Lane Count cannot be empty 
+platformunit.lanecount.control=select:1:1;8:8
+platformunit.lanecount.metaposition=40
+
+
  
