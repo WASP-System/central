@@ -29,6 +29,12 @@
    <put-attribute name="primary-content"  value="/WEB-INF/jsp/lab/list.jsp" />   
  </definition>
 
+  <definition name="jobsubmit-sample" extends="template-grid">    
+   <put-attribute name="area"  value="sampleDraft" />   
+   <put-attribute name="grid-columns"  value="/WEB-INF/jsp/jobsubmit/sample_grid_columns.jsp" />
+   <put-attribute name="subgrid-columns" value="" />
+   <put-attribute name="primary-content"  value="/WEB-INF/jsp/jobsubmit/sample.jsp" />   
+ </definition>
  
  <definition name="auth/login" template="/WEB-INF/jsp/auth/login.jsp"/>
 

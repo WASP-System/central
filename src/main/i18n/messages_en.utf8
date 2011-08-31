@@ -553,6 +553,51 @@ ampliconSeq.pcrprimers.control=select:xyz:xyz
 ampliconSeq.pcrprimers.metaposition=140
 
 
+--static sampleDraft fields --
+sampleDraft.name.label=Name
+sampleDraft.name.constraint=NotEmpty
+sampleDraft.name.error=Please specify sample name
+
+sampleDraft.typeSampleId.label=Type
+sampleDraft.typeSampleId.constraint=NotEmpty
+sampleDraft.typeSampleId.error=Please specify type
+
+sampleDraft.status.label=Status
+sampleDraft.status.constraint=NotEmpty
+sampleDraft.status.error=Please specify status
+
+sampleDraft.created.success=Sample Created
+sampleDraft.updated.success=Sample Updated
+
+--dynamic sampleDraft fields --
+sampleDraft.material_provided.label=material_provided
+sampleDraft.reference_genome_id.label=reference_genome_id
+sampleDraft.species_id.label=species_id
+sampleDraft.fragment_size.label=fragment_size
+sampleDraft.amount.label=amount
+sampleDraft.concentration.label=concentration
+sampleDraft.260_280.label=260_280
+sampleDraft.260_230.label=260_230
+sampleDraft.volume.label=volume
+sampleDraft.buffer.label=buffer
+sampleDraft.sample_type.label=sample_type
+sampleDraft.antibody_id.label=antibody_id
+sampleDraft.enrich_primer_pair_id.label=enrich_primer_pair_id
+
+sampleDraft.material_provided.metaposition=10
+sampleDraft.reference_genome_id.metaposition=20
+sampleDraft.species_id.metaposition=30
+sampleDraft.fragment_size.metaposition=40
+sampleDraft.amount.metaposition=50
+sampleDraft.concentration.metaposition=60
+sampleDraft.260_280.metaposition=70
+sampleDraft.260_230.metaposition=80
+sampleDraft.volume.metaposition=90
+sampleDraft.buffer.metaposition=100
+sampleDraft.sample_type.metaposition=110
+sampleDraft.antibody_id.metaposition=120
+sampleDraft.enrich_primer_pair_id.metaposition=130
+
 ---- for debuging ----
 hello.error=Hello World
 

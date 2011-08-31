@@ -11,16 +11,11 @@
 
 package edu.yu.einstein.wasp.dao.impl;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceException;
-import javax.persistence.Query;
-
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Repository;
-import org.springframework.orm.jpa.JpaCallback;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.SampleDraft;
@@ -46,6 +41,16 @@ public class SampleDraftDaoImpl extends WaspDaoImpl<SampleDraft> implements edu.
       return rt;
     }
     return (SampleDraft) results.get(0);
+  }
+
+  
+  @SuppressWarnings("unchecked")
+  @Transactional
+  public List<SampleDraft> getSampleDraftByJobId (final int jobdraftId) {
+    HashMap m = new HashMap();
+    m.put("jobdraftId", jobdraftId);
+   List<SampleDraft> results = (List<SampleDraft>) this.findByMap((Map) m);
+   return results;
   }
 
 

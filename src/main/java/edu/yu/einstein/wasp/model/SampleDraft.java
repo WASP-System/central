@@ -11,19 +11,33 @@
 
 package edu.yu.einstein.wasp.model;
 
-import org.hibernate.*;
+import java.util.Date;
+import java.util.List;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
-
-import javax.persistence.*;
-import java.util.*;
-
-import org.codehaus.jackson.annotate.JsonIgnore;
 
 @Entity
 @Audited
 @Table(name="sampledraft")
 public class SampleDraft extends WaspModel {
+	
+  public static enum Status {
+	  pending,
+	  inprocess,
+	  processed	 
+  }
+	
   @Id @GeneratedValue(strategy=GenerationType.IDENTITY)
   protected int sampleDraftId;
   public void setSampleDraftId (int sampleDraftId) {
@@ -55,12 +69,12 @@ public class SampleDraft extends WaspModel {
 
 
   @Column(name="userid")
-  protected int UserId;
-  public void setUserId (int UserId) {
-    this.UserId = UserId;
+  protected int userId;
+  public void setUserId (int userId) {
+    this.userId = userId;
   }
   public int getUserId () {
-    return this.UserId;
+    return this.userId;
   }
 
 
@@ -160,7 +174,7 @@ public class SampleDraft extends WaspModel {
   protected User user;
   public void setUser (User user) {
     this.user = user;
-    this.UserId = user.UserId;
+    this.userId = user.UserId;
   }
   
   public User getUser () {

@@ -78,6 +78,8 @@ html, body {
 	  
   }
  
+  var _url='/wasp/<tiles:insertAttribute name="area" />/listJSON.do?selId=${param.selId}';
+  var _editurl='/wasp/<tiles:insertAttribute name="area" />/detail_rw/updateJSON.do';
   
   //these will be populated by the wasp:field tags below
   var colNames=[];  
@@ -204,8 +206,8 @@ $(function(){
 	var editAttr={width:'auto',closeAfterEdit:false,closeOnEscape:true,afterSubmit:_afterSubmit,errorTextFormat:_errorTextFormat,beforeShowForm:_beforeShowEditForm};
 	
 $("#grid_id").jqGrid({
-  url:'/wasp/<tiles:insertAttribute name="area" />/listJSON.do?selId=${param.selId}',
-  editurl:'/wasp/<tiles:insertAttribute name="area" />/detail_rw/updateJSON.do',  
+  url:_url,
+  editurl:_editurl,
   datatype: 'json',
   recordtext: "{2} rows",  
   mtype: 'GET',

@@ -32,9 +32,9 @@
 		<attribute>
 			<name>object</name>
 			<!-- 
-			<description>Object class to read validation rules from. Currently supported types are "user" or "lab"</description>
+			<description>Object class to read validation rules from. See MetaAttribute.Area for supported types</description>
 			 -->
-			<required>true</required>
+			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
 		<attribute>

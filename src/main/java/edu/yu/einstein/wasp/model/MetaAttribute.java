@@ -18,6 +18,7 @@ public final class MetaAttribute implements Serializable {
 			labPending,
 			
 			jobDraft,
+			sampleDraft,
 			ampliconSeq,
 			cgh,
 			chipSeq,

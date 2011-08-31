@@ -1,6 +1,5 @@
 package edu.yu.einstein.wasp.taglib;
 
-import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -26,6 +25,7 @@ import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.MetaAttribute.Area;
+import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.User;
 
 /*
@@ -34,6 +34,8 @@ import edu.yu.einstein.wasp.model.User;
  * @Author Sasha Levchuk
  */
 public class JQFieldTag extends BodyTagSupport {
+	
+	public static final String AREA_ATTR="jqfield_area";
 	
 	Logger log=Logger.getLogger(JQFieldTag.class);
 	
@@ -77,7 +79,8 @@ public class JQFieldTag extends BodyTagSupport {
 		text,
 		select,
 		checkbox,
-		password
+		password,
+		hidden
 	}
 	
 	
@@ -98,6 +101,12 @@ public class JQFieldTag extends BodyTagSupport {
 
 
 	public int doStartTag() throws javax.servlet.jsp.JspException {
+		
+		if (object==null) {
+			String objectStr=(String)((HttpServletRequest)this.pageContext.getRequest()).getAttribute(AREA_ATTR);
+			if (objectStr==null) throw new JspException("'object' tag parameter or "+AREA_ATTR+" request attribute are required");
+			object=MetaAttribute.Area.valueOf(objectStr);
+		}
 
 		HttpSession session=((HttpServletRequest)this.pageContext.getRequest()).getSession();
 		
@@ -117,21 +126,24 @@ public class JQFieldTag extends BodyTagSupport {
 			
 			if (area==Area.user) clazz=User.class;
 			else if(area==Area.lab) clazz=Lab.class;
+			else if(area==Area.sampleDraft) clazz=SampleDraft.class;
 			else throw new JspTagException("unknown area "+object+" currently support user or lab");
 		
 		boolean required=clazz.getDeclaredField(name).getAnnotation(org.hibernate.validator.constraints.NotEmpty.class)==null?false:true;
 			
+		String label=name;
 		String error="error:'',\n";
 		
 		try {			
 			error="error:'"+bundle.getObject(area+"."+name+".error")+"',\n";
+			label=(String)bundle.getObject(area+"."+name+".label");
 		} catch (Throwable e) {
 			 
 		}
 		
 		String buf="var "+jsName+"={\n"+
 		 "name:'"+name+"',\n"+
-		 "label:'"+bundle.getObject(area+"."+name+".label")+"',\n"+
+		 "label:'"+label+"',\n"+
 	     "required:"+required+",\n"+
 	     error+
 	     "jq:{\n"+
@@ -175,6 +187,13 @@ public class JQFieldTag extends BodyTagSupport {
 			jsName+".jq['search']=false;\n"+
 			jsName+".jq['editrules']={};"+
 			jsName+".jq['editrules']['edithidden']=true;\n";
+		} else if (type==Type.hidden) { 
+			buf=buf+
+			jsName+".jq['edittype']='hidden';\n"+
+			jsName+".jq['hidden']=true;\n"+
+			jsName+".jq['search']=false;\n"+
+			jsName+".jq['editrules']={};"+
+			jsName+".jq['editrules']['edithidden']=false;\n";
 		}
 		
 	
@@ -183,7 +202,7 @@ public class JQFieldTag extends BodyTagSupport {
 	
 		} catch (Throwable e) {
 			log.error("Cant build JS props",e);
-			throw new JspTagException(e.getMessage());
+			throw new JspTagException(e.getMessage(),e);
 		}
 		
 		

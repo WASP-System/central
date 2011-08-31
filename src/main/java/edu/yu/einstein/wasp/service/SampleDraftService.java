@@ -11,13 +11,12 @@
 
 package edu.yu.einstein.wasp.service;
 
-import edu.yu.einstein.wasp.dao.SampleDraftDao;
-import edu.yu.einstein.wasp.model.SampleDraft;
-
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.stereotype.Service;
+
+import edu.yu.einstein.wasp.dao.SampleDraftDao;
+import edu.yu.einstein.wasp.model.SampleDraft;
 
 @Service
 public interface SampleDraftService extends WaspService<SampleDraft> {
@@ -27,5 +26,7 @@ public interface SampleDraftService extends WaspService<SampleDraft> {
 
   public SampleDraft getSampleDraftBySampleDraftId (final int sampleDraftId);
 
+  List<SampleDraft> getSampleDraftByJobId (final int jobdraftId);
+  
 }
 
