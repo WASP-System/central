@@ -14,6 +14,7 @@ package edu.yu.einstein.wasp.model;
 import org.hibernate.*;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.*;
 import java.util.*;
@@ -103,6 +104,7 @@ public class Sample extends WaspModel {
 
 
   @Column(name="name")
+  @NotEmpty
   protected String name;
   public void setName (String name) {
     this.name = name;
