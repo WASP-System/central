@@ -38,7 +38,10 @@ public final class MetaAttribute implements Serializable {
 			otherSeqRnaSamples,
 			resequencing,
 			rnaSeq,
-			seqCap
+			seqCap,
+
+			sample,
+			platformunit
 		}
 			
 		private String label;
