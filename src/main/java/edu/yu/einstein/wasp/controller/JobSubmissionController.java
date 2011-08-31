@@ -5,6 +5,13 @@ import edu.yu.einstein.wasp.service.JobDraftMetaService;
 import edu.yu.einstein.wasp.service.SampleDraftService;
 import edu.yu.einstein.wasp.service.SampleDraftMetaService;
 
+import edu.yu.einstein.wasp.service.JobService;
+import edu.yu.einstein.wasp.service.JobMetaService;
+import edu.yu.einstein.wasp.service.JobUserService;
+import edu.yu.einstein.wasp.service.RoleService;
+import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.service.SampleMetaService;
+
 import edu.yu.einstein.wasp.service.WorkflowService;
 import edu.yu.einstein.wasp.controller.validator.MetaValidator;
 import edu.yu.einstein.wasp.model.*;
@@ -54,6 +61,26 @@ public class JobSubmissionController extends WaspController {
 	@Autowired
 	private SampleDraftMetaService sampleDraftMetaService;
 
+
+	@Autowired
+	private JobService jobService;
+
+	@Autowired
+	private JobUserService jobUserService;
+
+	@Autowired
+	private RoleService roleService;
+
+	@Autowired
+	private JobMetaService jobMetaService;
+
+	@Autowired
+	private SampleService sampleService;
+
+	@Autowired
+	private SampleMetaService sampleMetaService;
+
+
 	@Autowired
 	private BeanValidator validator;
 
@@ -69,6 +96,16 @@ public class JobSubmissionController extends WaspController {
 	@RequestMapping(value="/list", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('lu-*')")
 	public String list(ModelMap m) {
+		User me = getAuthenticatedUser();
+
+		Map jobDraftQueryMap = new HashMap();
+		jobDraftQueryMap.put("UserId", me.getUserId());
+		jobDraftQueryMap.put("status", "PENDING");
+
+		List<JobDraft> jobDraftList = jobDraftService.findByMap(jobDraftQueryMap);
+
+		m.put("jobdrafts", jobDraftList); 
+
 		return "jobsubmit/list";
 	}
 
@@ -118,11 +155,16 @@ public class JobSubmissionController extends WaspController {
 		jobDraftForm.setStatus("PENDING");
 		jobDraftForm.setCreatets(new Date());
 
-		return doModify(jobDraftForm, result, status, m); 
+		String rt = doModify(jobDraftForm, result, status, m); 
+
+		// Adds the jobdraft to authorized list
+ 		doReauth();
+
+		return rt;
 	}
 
 	@RequestMapping(value="/modify/{jobDraftId}.do", method=RequestMethod.GET)
-	@PreAuthorize("hasRole('lu-*')")
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public String modify(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
 		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
 
@@ -145,7 +187,7 @@ public class JobSubmissionController extends WaspController {
 
 
 	@RequestMapping(value="/modify/{jobDraftId}.do", method=RequestMethod.POST)
-	@PreAuthorize("hasRole('lu-*')")
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public String modify (
 			@PathVariable Integer jobDraftId,
 			@Valid JobDraft jobDraftForm,
@@ -165,12 +207,13 @@ public class JobSubmissionController extends WaspController {
 			return "hello";
 		}
 
-		jobDraftForm.setUserId(jobDraftDb.getUserId());
-		jobDraftForm.setStatus(jobDraftDb.getStatus());
-		jobDraftForm.setCreatets(jobDraftDb.getCreatets());
+		jobDraftDb.setName(jobDraftForm.getName());
+		jobDraftDb.setWorkflowId(jobDraftForm.getWorkflowId());
+		jobDraftDb.setLabId(jobDraftForm.getLabId());
+
 
 		// TODO CHECK PERMS IT IS MY JOB
-		return doModify(jobDraftForm, result, status, m); 
+		return doModify(jobDraftDb, result, status, m); 
 	}
 
 	public String doModify (
@@ -197,7 +240,7 @@ public class JobSubmissionController extends WaspController {
 
 
 	@RequestMapping(value="/modifymeta/{jobDraftId}", method=RequestMethod.GET)
-	@PreAuthorize("hasRole('lu-*')")
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public String showModifyMetaForm(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
 		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
 
@@ -206,8 +249,6 @@ public class JobSubmissionController extends WaspController {
 
 		jobDraft.setJobDraftMeta(MetaUtil.syncWithMaster(jobDraft.getJobDraftMeta(), AREA, JobDraftMeta.class));
 		MetaUtil.setAttributesAndSort(jobDraft.getJobDraftMeta(), AREA,getBundle());
-
-
 
 		m.put("jobDraftDb", jobDraft);
 		m.put("jobDraft", jobDraft);
@@ -218,7 +259,7 @@ public class JobSubmissionController extends WaspController {
 	}
 	
 	@RequestMapping(value="/modifymeta/{jobDraftId}", method=RequestMethod.POST)
-	@PreAuthorize("hasRole('lu-*')")
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public String showModifyMetaForm(
 			@PathVariable Integer jobDraftId,
 			@Valid JobDraft jobDraftForm,
@@ -244,7 +285,7 @@ public class JobSubmissionController extends WaspController {
 
 		Errors errors = new BindException(result.getTarget(), PARENTAREA.name());
 
-		result.addAllErrors(errors);
+		// result.addAllErrors(errors);
 
 
 		List<String> validateList = new ArrayList<String>();
@@ -276,5 +317,74 @@ public class JobSubmissionController extends WaspController {
 		jobDraftMetaService.updateByJobdraftId(jobDraftId, jobDraftMetaList);
 
 		return "jobsubmit/sample";
+	}
+
+	@RequestMapping(value="/verify/{jobDraftId}.do", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String showJobDraft(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
+		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
+		final MetaAttribute.Area AREA = MetaAttribute.Area.valueOf(jobDraft.getWorkflow().getIName());
+
+		jobDraft.setJobDraftMeta(MetaUtil.syncWithMaster(jobDraft.getJobDraftMeta(), AREA, JobDraftMeta.class));
+		MetaUtil.setAttributesAndSort(jobDraft.getJobDraftMeta(), AREA,getBundle());
+
+		m.put("jobDraft", jobDraft);
+
+		return "jobsubmit/verify";
+	}
+
+	@RequestMapping(value="/submit/{jobDraftId}.do", method=RequestMethod.POST)
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String submitJob(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
+		User me = getAuthenticatedUser();
+
+		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
+		final MetaAttribute.Area AREA = MetaAttribute.Area.valueOf(jobDraft.getWorkflow().getIName());
+
+		jobDraft.setJobDraftMeta(MetaUtil.syncWithMaster(jobDraft.getJobDraftMeta(), AREA, JobDraftMeta.class));
+		MetaUtil.setAttributesAndSort(jobDraft.getJobDraftMeta(), AREA,getBundle());
+
+		// Copies JobDraft to a new Job
+		Job job = new Job();
+		job.setUserId(me.getUserId());
+		job.setLabId(jobDraft.getLabId());
+		job.setName(jobDraft.getName());
+		job.setWorkflowId(jobDraft.getWorkflowId());
+		job.setIsActive(1);
+		job.setCreatets(new Date());
+
+		job.setViewablebylab(0); // Todo: get from lab? // really not being used yet
+
+		Job jobDb = jobService.save(job); 
+
+		// Saves the metadata
+		for (JobDraftMeta jdm: jobDraft.getJobDraftMeta()) {
+			JobMeta jobMeta = new JobMeta();
+			jobMeta.setJobId(jobDb.getJobId());
+			jobMeta.setK(jdm.getK());
+			jobMeta.setV(jdm.getV());
+
+			jobMetaService.save(jobMeta); 
+		}
+
+		// Creates the JobUser Permission
+		JobUser jobUser = new JobUser(); 
+		jobUser.setUserId(me.getUserId());
+		jobUser.setJobId(jobDb.getJobId());
+		Role role = roleService.getRoleByRoleName("js");
+		jobUser.setRoleId(role.getRoleId());
+		jobUserService.save(jobUser);
+
+		// update the jobdraft
+		jobDraft.setStatus("SUBMITTED");
+		jobDraft.setSubmittedjobId(jobDb.getJobId());
+		jobDraftService.save(jobDraft); 
+
+		// TODO!!! ADD!!! WORKFLOW!!! STEPS!!!
+
+		// Adds new Job to Authorized List
+		doReauth();
+
+		return "jobsubmit/ok";
 	}
 }
