@@ -1,6 +1,6 @@
 package edu.yu.einstein.wasp.controller;
 
-// import nl.captcha.Captcha;
+import nl.captcha.Captcha;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -54,7 +54,7 @@ public class AuthController extends WaspController {
   public String forgotPassword(@RequestParam("username") String username, @RequestParam("captcha_text") String captchaText, ModelMap m) {
 
 	  User user=userService.getUserByLogin(username);
-//	  Captcha captcha = (Captcha) request.getSession().getAttribute(Captcha.NAME);
+	  Captcha captcha = (Captcha) request.getSession().getAttribute(Captcha.NAME);
 	  
 	  if (username == null || captchaText == null || username.equals("") || captchaText.equals(""))
 	  {
@@ -62,14 +62,12 @@ public class AuthController extends WaspController {
 		  m.put("username", username);
 		  return "auth/forgotpassword/form";
 	  }
-
-/*	  
+	  
 	  if (captcha == null || (! captcha.isCorrect(captchaText)) ){
 		  waspMessage("auth.forgotpassword.captcha.error");
 		  m.put("username", username);
 		  return "auth/forgotpassword/form";
 	  }
-*/
 	  
 	  if (user==null || user.getUserId()==0)  {
 		  waspMessage("auth.forgotpassword.username.error");
@@ -103,7 +101,7 @@ public class AuthController extends WaspController {
 	  }
 
 	  m.put("authcode", authCode);
-// 	  request.getSession().removeAttribute(Captcha.NAME); // ensures fresh capcha issued if required in this session
+	  request.getSession().removeAttribute(Captcha.NAME); // ensures fresh capcha issued if required in this session
 	  return "auth/resetpassword/form";
   }
   
@@ -135,15 +133,14 @@ public class AuthController extends WaspController {
 	        return "auth/resetpassword/form";
 	 }
 	 
-//	 Captcha captcha = (Captcha) request.getSession().getAttribute(Captcha.NAME);
-	/* 
+	 Captcha captcha = (Captcha) request.getSession().getAttribute(Captcha.NAME);
+	 
 	if (captcha == null || (! captcha.isCorrect(captchaText)) ){
 		waspMessage("auth.resetpassword.captcha.error");
 		m.put("authcode", authCode);
 	    m.put("username", username);
 	    return "auth/resetpassword/form";
 	}
-*/
 
     Userpasswordauth userpasswordauth   = userpasswordauthService.getUserpasswordauthByAuthcode(authCode);
     User user = userService.getUserByLogin(username);
@@ -182,7 +179,7 @@ public class AuthController extends WaspController {
     user.setPassword( passwordService.encodePassword(password1) ); 
     userService.merge(user);
     userpasswordauthService.remove(userpasswordauth); // removes auth code from future use
-//    request.getSession().removeAttribute(Captcha.NAME); // ensures fresh capcha issued if required in this session
+    request.getSession().removeAttribute(Captcha.NAME); // ensures fresh capcha issued if required in this session
     m.put("user", user); 
 
     return "auth/resetpassword/ok";
