@@ -170,17 +170,4 @@ public class File extends WaspModel {
   }
 
 
-  @NotAudited
-  @OneToMany
-   @JoinColumn(name="fileid", insertable=false, updatable=false)
-  protected List<AChipseqArun> aChipseqArun;
-  public List<AChipseqArun> getAChipseqArun()  {
-    return this.aChipseqArun;
-  }
-  public void setAChipseqArun (List<AChipseqArun> aChipseqArun)  {
-    this.aChipseqArun = aChipseqArun;
-  }
-
-
-
 }

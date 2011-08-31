@@ -177,17 +177,4 @@ public class State extends WaspModel {
   }
 
 
-  @NotAudited
-  @OneToMany
-   @JoinColumn(name="stateid", insertable=false, updatable=false)
-  protected List<StateAChipseqArun> stateAChipseqArun;
-  public List<StateAChipseqArun> getStateAChipseqArun()  {
-    return this.stateAChipseqArun;
-  }
-  public void setStateAChipseqArun (List<StateAChipseqArun> stateAChipseqArun)  {
-    this.stateAChipseqArun = stateAChipseqArun;
-  }
-
-
-
 }
