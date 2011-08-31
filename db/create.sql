@@ -100,7 +100,8 @@ insert into role values
 (10, 'jv', 'Job Viewer', 'job'), -- jobuser, explicit
 (11, 'god', 'God', 'system'),
 (12, 'lx', 'Lab Member Inactive', 'lab'), -- labuser, explicit
-(13, 'lp', 'Lab Member Pending', 'lab'); -- labuser, explicit
+(13, 'lp', 'Lab Member Pending', 'lab'), -- labuser, explicit
+(14, 'jd', 'Job Drafter', 'jobdraft'); -- labuser, explicit
 
 
 create table roleset (
@@ -510,6 +511,7 @@ create table jobdraft (
   name varchar(250) not null, 
    
   createts datetime not null,
+  submittedjobid int(10),
 
   status varchar(50) not null default 1,
   lastupdts timestamp not null default current_timestamp,
@@ -518,6 +520,8 @@ create table jobdraft (
   foreign key fk_jobdraft_lid (labid) references lab(labid),
   foreign key fk_jobdraft_uid (userid) references user(userid),
   foreign key fk_jobdraft_wid (workflowid) references workflow(workflowid)
+  foreign key fk_jobdraft_sjid (submittedjobid) references jobid(jobid)
+
 ) ENGINE=InnoDB;
 
 
