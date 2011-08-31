@@ -39,6 +39,7 @@ SELECT login username,
         when 'department' then concat(provr.rolename, '-', du.departmentid)
         when 'lab' then concat(provr.rolename, '-', lu.labid)
         when 'job' then concat(provr.rolename, '-', ju.jobid)
+        when 'jobdraft' then concat(provr.rolename, '-', jd.jobdraftid)
       end
     when 2 then
       concat(provr.rolename, '-*')
@@ -57,6 +58,8 @@ FROM
     on (u.userid = lu.userid and r.roleid = lu.roleid)
   left outer join jobuser ju
     on (u.userid = ju.userid and r.roleid = ju.roleid)
+  left outer join jobdraft jd
+    on (u.userid = jd.userid)
 where
   u.login = ? and
   case r.domain
@@ -64,6 +67,7 @@ where
     when 'department' then ifnull(du.userid, 0)
     when 'lab' then ifnull(lu.userid, 0)
     when 'job' then ifnull(ju.userid, 0)
+    when 'jobdraft' then ifnull(jd.userid, 0)
   end
 group by 1, 2
 " />
