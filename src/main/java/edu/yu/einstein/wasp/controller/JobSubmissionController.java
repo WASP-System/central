@@ -261,7 +261,7 @@ public class JobSubmissionController extends WaspController {
 
 
 	@RequestMapping(value="/modifymeta/{jobDraftId}", method=RequestMethod.GET)
-	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	//@PreAuthorize("hasRole('jd-' + #jobDraftId)") TODO: uncomment
 	public String showModifyMetaForm(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
 		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
 
@@ -550,12 +550,24 @@ public class JobSubmissionController extends WaspController {
 		} catch (Throwable e) {
 			throw new IllegalStateException("Cant output success message ",e);
 		}
+	}
 	
-	    
+	@RequestMapping(value = "/deleteSampleDraftJSON", method = RequestMethod.DELETE)	
+	public String deleteSampleDraftJSON(@RequestParam("id") Integer sampleDraftId,HttpServletResponse response) {
+
+		sampleDraftMetaService.updateBySampledraftId(sampleDraftId, new ArrayList<SampleDraftMeta>());
+		this.sampleDraftService.remove(sampleDraftService.findById(sampleDraftId));
+		
+		try {
+			response.getWriter().println(getMessage("sampleDraft.removed.success"));
+			return null;
+		} catch (Throwable e) {
+			throw new IllegalStateException("Cant output success message ",e);
+		}
 	}
 	
 
-protected void prepareSelectListData(ModelMap m) {
+	protected void prepareSelectListData(ModelMap m) {
 		super.prepareSelectListData(m);
 		m.addAttribute("typeSamples",typeSampleService.findAll());
 		Map<String, String> statuses=new TreeMap<String, String>();
