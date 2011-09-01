@@ -79,6 +79,7 @@ public class DepartmentController extends WaspController {
     List<LabPending> labPendingList = labPendingService.findByMap(labPendingQueryMap);
 
     m.addAttribute("department", department);
+    m.addAttribute("departmentuser", departmentUserList);
     m.addAttribute("lab", labList);
     m.addAttribute("labpending", labPendingList);
 
