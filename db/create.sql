@@ -520,8 +520,8 @@ create table jobdraft (
 
   foreign key fk_jobdraft_lid (labid) references lab(labid),
   foreign key fk_jobdraft_uid (userid) references user(userid),
-  foreign key fk_jobdraft_wid (workflowid) references workflow(workflowid)
-  foreign key fk_jobdraft_sjid (submittedjobid) references jobid(jobid)
+  foreign key fk_jobdraft_wid (workflowid) references workflow(workflowid),
+  foreign key fk_jobdraft_sjid (submittedjobid) references job(jobid)
 
 ) ENGINE=InnoDB;
 
@@ -1194,30 +1194,6 @@ create table staterunlane (
 ) ENGINE=InnoDB;
 
 
--- ----------------------------------------
-
---
--- assay pipelines
---
-
-create table a_chipseq_arun (
-  arunid int(10) not null primary key auto_increment, 
-
-  fileid int(10) not null,  -- pointer to qseq file
-
-  version varchar(250) not null,
-
-  startts datetime, 
-  endts datetime, 
-
-  status varchar(50), -- started, pending, completed, failed?
-
-  isactive int(1) not null default 1, 
-  lastupdts timestamp not null default current_timestamp,
-  lastupduser int(10) not null default 0,
-
-  foreign key fk_acs_arun_fid (fileid) references file(fileid)
-) ENGINE=InnoDB;
 
 
 /*
