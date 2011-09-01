@@ -78,8 +78,58 @@ html, body {
 	  
   }
  
+  _del_function = function (id) {
+	     alert("Lab cannot be deleted once created. Instead, use the 'edit' button to mark the '"+$("#grid_id").getRowData(id).login+"' lab as inactive.");
+	     return false;
+ };	
+	
+	
+ _errorTextFormat = function(response) {
+		return response.responseText;
+  }
+
+	
+  _afterSubmit = function(response, data) {
+	  
+	   document.getElementById('statusMessage').innerText=response.responseText;
+	  
+	 // alert('status set to '+document.getElementById('statusMessage').innerText);
+	   setTimeout(function() {
+	  	
+	    $('#statusMessage').fadeOut('slow',
+
+		function() {       		
+	    	document.getElementById('statusMessage').innerText="";
+	    	 $('#statusMessage').show();
+ 			//annimation complete
+			});
+		},5000);
+
+     //reload grid
+     //grid.trigger("reloadGrid");
+  
+    //if (document.forms[0].password && document.forms[0].password.value) {
+ 	//   document.forms[0].password.value='';
+   //  }
+	
+	   return [true,''];     
+ }
+
+  
   var _url='/wasp/<tiles:insertAttribute name="area" />/listJSON.do?selId=${param.selId}';
   var _editurl='/wasp/<tiles:insertAttribute name="area" />/detail_rw/updateJSON.do';
+  
+  var _editAttr={width:'auto',closeAfterEdit:true,closeOnEscape:true,afterSubmit:_afterSubmit,errorTextFormat:_errorTextFormat,beforeShowForm:_beforeShowEditForm};
+  
+  var _addAttr={
+	serializeEditData: function(data){ return $.param($.extend({}, data, {id:0}));},//pass '0' on add instead of empty string
+	closeAfterAdd:true,closeOnEscape:true,errorTextFormat:_errorTextFormat,afterSubmit:_afterSubmit,beforeShowForm:_beforeShowAddForm,width:'auto'};
+  
+  var _delAttr={};
+  
+  var _searchAttr={drag:true,resize:true,modal:true,caption:'Lookup',closeOnEscape:true,sopt:['eq','ne']};
+  
+  var _navAttr={view:true,del:true,delfunc:_del_function};
   
   //these will be populated by the wasp:field tags below
   var colNames=[];  
@@ -88,59 +138,7 @@ html, body {
   
   <tiles:insertAttribute name="grid-columns" />
   	
-    _del_function = function (id) {
-	     alert("Lab cannot be deleted once created. Instead, use the 'edit' button to mark the '"+$("#grid_id").getRowData(id).login+"' lab as inactive.");
-	     return false;
-    };	
-	
-	
-	_errorTextFormat = function(response) {
-		return response.responseText;
-	}
-
-	
- _afterSubmit = function(response, data) {
-	
-	  var myInfo = '<div class="ui-state-highlight ui-corner-all">'+
-
-     '<span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>' +
-
-     '<strong>Status:</strong> ' +
-
-     response.responseText +
-
-     '</div>';
-     
-     grid = $("#grid_id");
-
-     var infoTR = $("table#TblGrid_"+grid[0].id+">tbody>tr.tinfo"); 
-
-     var infoTD = infoTR.children("td.topinfo");
-     
-     infoTD.html(myInfo);
-     
-     infoTR.show();
-     
-     setTimeout(function() {
-
- 		    infoTD.children("div").fadeOut('slow',
-
-   		function() {       		
-     			infoTR.hide();
- 			});
- 		},5000);
-     
-
-     //reload grid
-     grid.trigger("reloadGrid");
-     
-     if (document.forms[0].password.value) {
-    	 document.forms[0].password.value='';
-     }
-	
-	   return [false,''];     
- }
- 
+  
 
  
 
@@ -202,9 +200,7 @@ html, body {
  
  
 $(function(){
-	
-	var editAttr={width:'auto',closeAfterEdit:false,closeOnEscape:true,afterSubmit:_afterSubmit,errorTextFormat:_errorTextFormat,beforeShowForm:_beforeShowEditForm};
-	
+		
 $("#grid_id").jqGrid({
   url:_url,
   editurl:_editurl,
@@ -247,21 +243,18 @@ $("#grid_id").jqGrid({
 	    
   },
   ondblClickRow: function(rowid) {
-  	$("#grid_id").jqGrid('editGridRow',rowid,editAttr);
+  	$("#grid_id").jqGrid('editGridRow',rowid,_editAttr);
  }
-}).navGrid('#gridpager',{view:true, del:true,delfunc:_del_function}, 
-		  editAttr, // edit
-		  {serializeEditData: function(data){ 
-			    return $.param($.extend({}, data, {id:0}));
-		  },closeAfterAdd:false,closeOnEscape:true,errorTextFormat:_errorTextFormat,afterSubmit:_afterSubmit,beforeShowForm:_beforeShowAddForm,width:'auto'}, // add
-		  {},  // delete
-		  {drag:true,resize:true,modal:true,caption:'Lookup',closeOnEscape:true,sopt:['eq','ne']}, //search
-		  editAttr
+}).navGrid('#gridpager',
+		  _navAttr, 
+		  _editAttr,   // edit
+		  _addAttr,    // add
+		  _delAttr,    // delete
+		  _searchAttr, // search
+		  _editAttr
 		  );
 
 }); 
-
-
 
 </script>
 </head>
