@@ -1,4 +1,9 @@
 -- as root
+
+GRANT USAGE ON *.* TO 'wasp'@'localhost';
+DROP USER 'wasp'@'localhost';
+DROP DATABASE IF EXISTS wasp;
+
 create database wasp;
 create user wasp;
 
