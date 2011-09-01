@@ -45,7 +45,6 @@
     <class>edu.yu.einstein.wasp.model.SampleMeta</class>
     <class>edu.yu.einstein.wasp.model.SampleSource</class>
     <class>edu.yu.einstein.wasp.model.State</class>
-    <class>edu.yu.einstein.wasp.model.StateAChipseqArun</class>
     <class>edu.yu.einstein.wasp.model.Statejob</class>
     <class>edu.yu.einstein.wasp.model.StateMeta</class>
     <class>edu.yu.einstein.wasp.model.Staterun</class>
