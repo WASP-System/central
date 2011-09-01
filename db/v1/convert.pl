@@ -830,6 +830,8 @@ insert into jobuser (jobid, userid, roleid) select jobid, userid, 9 from job;
 
 update user set password = sha1('abc123');
 
+insert into `userrole` (`userroleid`, `userid`, `roleid`, `lastupdts`, `lastupduser`) values (1, 5, 11, '0000-00-00 00:00:00', 0);
+
 ";
 
 print $out;
