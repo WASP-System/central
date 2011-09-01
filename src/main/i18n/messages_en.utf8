@@ -568,6 +568,7 @@ sampleDraft.status.error=Please specify status
 
 sampleDraft.created.success=Sample Created
 sampleDraft.updated.success=Sample Updated
+sampleDraft.removed.success=Sample Removed
 
 --dynamic sampleDraft fields --
 sampleDraft.material_provided.label=material_provided
@@ -600,8 +601,6 @@ sampleDraft.enrich_primer_pair_id.metaposition=130
 
 ---- for debuging ----
 hello.error=Hello World
-
-
 
 --- platformunit
 sample.name.label = Name
