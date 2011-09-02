@@ -75,8 +75,6 @@
 
  <definition name="sysrole/list" template="/WEB-INF/jsp/sysrole/list.jsp"/>
 
-
-
  <definition name="jobsubmit/list" template="/WEB-INF/jsp/jobsubmit/list.jsp"/>
  <definition name="jobsubmit/create" template="/WEB-INF/jsp/jobsubmit/create.jsp"/>
  <definition name="jobsubmit/metaform" template="/WEB-INF/jsp/jobsubmit/metaform.jsp"/>
@@ -92,6 +90,7 @@
  <definition name="facility/platformunit/detail_rw" template="/WEB-INF/jsp/facility/platformunit/detail_rw.jsp" />
  <definition name="facility/platformunit/ok" template="/WEB-INF/jsp/facility/platformunit/ok.jsp" />
 
+<definition name="lab/pendinguser/list" template="/WEB-INF/jsp/lab/pendinguser/list.jsp" />
 
 </tiles-definitions>
 
