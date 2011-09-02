@@ -10,35 +10,20 @@ import javax.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.context.SecurityContext;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.PathVariable;
-
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
-import org.springframework.validation.FieldError;
-
-import org.springframework.security.access.prepost.*;
-
 import edu.yu.einstein.wasp.controller.validator.MetaValidator;
 import edu.yu.einstein.wasp.controller.validator.PasswordValidator;
-import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Lab;
-import edu.yu.einstein.wasp.model.Department;
+import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.model.UserPendingMeta;
 import edu.yu.einstein.wasp.model.LabPending;
-import edu.yu.einstein.wasp.model.LabPendingMeta;
-
 import edu.yu.einstein.wasp.service.LabService;
 import edu.yu.einstein.wasp.service.DepartmentService;
 import edu.yu.einstein.wasp.service.UserPendingService;
@@ -50,16 +35,9 @@ import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.service.PasswordService;
 
 import edu.yu.einstein.wasp.model.MetaAttribute;
-import edu.yu.einstein.wasp.model.MetaAttribute.Country;
-import edu.yu.einstein.wasp.model.MetaAttribute.State;
-import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.MetaUtil;
 
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserCache;
-import org.springframework.security.core.userdetails.cache.NullUserCache;
-
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 
@@ -152,38 +130,27 @@ public class UserPendingController extends WaspController {
         
     // validate password
     passwordValidator.validate(result, userPendingForm.getPassword(), (String) request.getParameter("password2"), AREA, "password");
-    /*
+   
     String piUserEmail = "";
-    String piEmailErrorField = "";
     String areaName = AREA.name();
     
     for (UserPendingMeta meta : userPendingMetaList) {
     	
     	if (meta.getK().equals(areaName + ".primaryuseremail") ) {
     		piUserEmail = meta.getV();
-    		piEmailErrorField = areaName+"Meta["+metaIndex+"].k";
-    		logger.debug("ANDY"+piEmailErrorField);
     		break;
     	}
     } 
     User primaryInvestigator = userService.getUserByEmail(piUserEmail);
-    if (! result.hasFieldErrors(piEmailErrorField)){
-	    if (primaryInvestigator.getUserId() == 0){
-	    	Errors errors = new BindException(result.getTarget(), AREA.name());
-	    	errors.rejectValue(piEmailErrorField, areaName+".primaryuseremail.invalid_pi_email.error", areaName+".primaryuseremail.invalid_pi_email.error (no message has been defined for this property)");
-	    	result.addAllErrors(errors);
-	    }
-    }
-  
-    */
+    
+
 
     // TODO add  user not found add lab not found
     
-   /* Lab lab = labService.getLabByPrimaryUserId(primaryInvestigator.getUserId());
+    Lab lab = labService.getLabByPrimaryUserId(primaryInvestigator.getUserId());
 
     userPendingForm.setLabId(lab.getLabId());
     userPendingForm.setStatus("PENDING");
-*/
     if (result.hasErrors()) {
       prepareSelectListData(m);
       waspMessage("user.created.error");
