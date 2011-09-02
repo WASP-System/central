@@ -52,7 +52,14 @@ public class MetaValidator {
 	}
 
 
-	public void validate(List<String> vlist, List<? extends MetaBase> list, BindingResult result, MetaAttribute.Area area) {
+	public void validate(List<String> validateList, List<? extends MetaBase> list, BindingResult result, MetaAttribute.Area area) {
+    if (validateList.size() % 2!=0) throw new IllegalStateException("Number of params must be even");
+
+    for(int i=0;i<validateList.size();i+=2) {
+      this.map.put(validateList.get(i),validateList.get(i+1));
+    }
+
+
 	  validate(list, result, area.name(), area.name());
   }
 
