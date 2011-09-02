@@ -70,7 +70,10 @@ public class PlatformUnitController extends WaspController {
 
   @Autowired
   private TypeSampleService typeSampleService;
-
+  
+  @Autowired
+  private MetaValidator metaValidator;
+	
   @Autowired
   private BeanValidator validator;
 
@@ -128,10 +131,8 @@ public class PlatformUnitController extends WaspController {
         validateList.add(meta.getProperty().getConstraint());
       }
     }
-    MetaValidator validator = new MetaValidator(
-        validateList.toArray(new String[] {}));
-
-    validator.validate(sampleMetaList, result, PARENTAREA);
+    
+   metaValidator.validate(validateList, sampleMetaList, result, PARENTAREA);
 
     if (result.hasErrors()) {
       // TODO REAL ERROR

@@ -97,7 +97,9 @@ public class JobSubmissionController extends WaspController {
 
 	@Autowired
 	private SampleMetaService sampleMetaService;
-
+	
+	@Autowired
+    private MetaValidator metaValidator;
 
 	@Autowired
 	private BeanValidator validator;
@@ -317,10 +319,7 @@ public class JobSubmissionController extends WaspController {
 				validateList.add(meta.getProperty().getConstraint());
 			}
 		}
-		MetaValidator validator = new MetaValidator(
-				validateList.toArray(new String[] {}));
-
-		validator.validate(jobDraftMetaList, result, PARENTAREA);
+		metaValidator.validate(validateList,jobDraftMetaList, result, PARENTAREA);
 
 		if (result.hasErrors()) {
 			waspMessage("hello.error");

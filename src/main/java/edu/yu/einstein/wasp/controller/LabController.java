@@ -110,6 +110,9 @@ public class LabController extends WaspController {
 	private LabPendingMetaService labPendingMetaService;
 
 	@Autowired
+    private MetaValidator metaValidator;
+	
+	@Autowired
 	private BeanValidator validator;
 
 	@Autowired
@@ -498,10 +501,7 @@ public class LabController extends WaspController {
 			}
 		}
 
-		MetaValidator validator = new MetaValidator(
-				validateList.toArray(new String[] {}));
-
-		validator.validate(labMetaList, result, AREA);
+		metaValidator.validate(validateList,labMetaList, result, AREA);
 
 		if (result.hasErrors()) {
 			prepareSelectListData(m);
@@ -549,12 +549,8 @@ public class LabController extends WaspController {
 				validateList.add(meta.getProperty().getConstraint());
 			}
 		}
-
-		MetaValidator validator = new MetaValidator(
-				validateList.toArray(new String[] {}));
-
-		validator.validate(labMetaList, result, AREA);
-
+		metaValidator.validate(validateList, labMetaList, result, AREA);
+		
 		if (result.hasErrors()) {
 			prepareSelectListData(m);
 			waspMessage("lab.updated.error");
@@ -880,13 +876,8 @@ public class LabController extends WaspController {
 				validateList.add(meta.getProperty().getConstraint());
 			}
 		}
-
-		MetaValidator validator = new MetaValidator(
-				validateList.toArray(new String[] {}));
-
-		validator.validate(labPendingMetaList, result, area);
-
-
+		metaValidator.validate(validateList, labPendingMetaList, result, AREA);
+		
 		User me = getAuthenticatedUser();
 
 		labPendingForm.setPrimaryUserId(me.getUserId());

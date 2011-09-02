@@ -67,7 +67,9 @@ public class UserController extends WaspController {
 
 	@Autowired
 	private PasswordService passwordService;
-
+	  
+	@Autowired
+	private MetaValidator metaValidator;
 	
 	@InitBinder
 	protected void initBinder(WebDataBinder binder) {
@@ -426,10 +428,7 @@ public class UserController extends WaspController {
 			}
 		}
 
-		MetaValidator validator = new MetaValidator(
-				validateList.toArray(new String[] {}));
-
-		validator.validate(userMetaList, result, AREA);
+		metaValidator.validate(validateList, userMetaList, result, AREA);
 
 		if (result.hasErrors()) {
 			userForm.setUserId(userId);
@@ -578,11 +577,8 @@ public class UserController extends WaspController {
 				validateList.add(meta.getProperty().getConstraint());
 			}
 		}
-		MetaValidator validator = new MetaValidator(
-				validateList.toArray(new String[] {}));
-
-		validator.validate(userMetaList, result, AREA);
-
+		metaValidator.validate(validateList, userMetaList, result, AREA);
+		
 		if (result.hasErrors()) {
 			prepareSelectListData(m);
 			waspMessage("user.created.error");

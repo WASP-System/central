@@ -97,6 +97,13 @@ public class UserPendingController extends WaspController {
 
   @Autowired
   private BeanValidator validator;
+  
+  @Autowired
+  private MetaValidator metaValidator;
+  
+  @Autowired
+  private PasswordValidator passwordValidator;
+  
 
   @InitBinder
   protected void initBinder(WebDataBinder binder) {
@@ -134,7 +141,6 @@ public class UserPendingController extends WaspController {
     userPendingForm.setUserPendingMeta(userPendingMetaList);
     
     List<String> validateList = new ArrayList<String>();
-
     for (UserPendingMeta meta : userPendingMetaList) {
       if (meta.getProperty() != null
           && meta.getProperty().getConstraint() != null) {
@@ -142,39 +148,45 @@ public class UserPendingController extends WaspController {
         validateList.add(meta.getProperty().getConstraint());
       }
     }
-    MetaValidator validator = new MetaValidator(
-        validateList.toArray(new String[] {}));
-
-    validator.validate(userPendingMetaList, result, AREA);
-    Errors errors = new BindException(result.getTarget(), AREA.name());
-    
+    metaValidator.validate(validateList, userPendingMetaList, result, AREA);
+        
     // validate password
-    PasswordValidator passwordValidator = new PasswordValidator();
     passwordValidator.validate(result, userPendingForm.getPassword(), (String) request.getParameter("password2"), AREA, "password");
+    /*
+    String piUserEmail = "";
+    String piEmailErrorField = "";
+    String areaName = AREA.name();
     
-    String primaryUserEmail = "";
     for (UserPendingMeta meta : userPendingMetaList) {
-      if (meta.getK().equals(AREA.name() + ".primaryuseremail")) {
-        primaryUserEmail = meta.getV();
-        break;
-      }
+    	
+    	if (meta.getK().equals(areaName + ".primaryuseremail") ) {
+    		piUserEmail = meta.getV();
+    		piEmailErrorField = areaName+"Meta["+metaIndex+"].k";
+    		logger.debug("ANDY"+piEmailErrorField);
+    		break;
+    	}
     } 
-    User primaryInvestigator = userService.getUserByEmail(primaryUserEmail);
-    result.addAllErrors(errors);
-    
-    
+    User primaryInvestigator = userService.getUserByEmail(piUserEmail);
+    if (! result.hasFieldErrors(piEmailErrorField)){
+	    if (primaryInvestigator.getUserId() == 0){
+	    	Errors errors = new BindException(result.getTarget(), AREA.name());
+	    	errors.rejectValue(piEmailErrorField, areaName+".primaryuseremail.invalid_pi_email.error", areaName+".primaryuseremail.invalid_pi_email.error (no message has been defined for this property)");
+	    	result.addAllErrors(errors);
+	    }
+    }
+  
+    */
 
     // TODO add  user not found add lab not found
     
-    Lab lab = labService.getLabByPrimaryUserId(primaryInvestigator.getUserId());
+   /* Lab lab = labService.getLabByPrimaryUserId(primaryInvestigator.getUserId());
 
     userPendingForm.setLabId(lab.getLabId());
     userPendingForm.setStatus("PENDING");
-
+*/
     if (result.hasErrors()) {
       prepareSelectListData(m);
       waspMessage("user.created.error");
-
       return "auth/newuser/form";
     }
 
@@ -251,10 +263,7 @@ public class UserPendingController extends WaspController {
       }
     }
 
-    MetaValidator validator = new MetaValidator(
-        validateList.toArray(new String[] {}));
-
-    validator.validate(userPendingMetaList, result, PARENTAREA);
+    metaValidator.validate(validateList, userPendingMetaList, result, PARENTAREA);
 
     if (result.hasErrors()) {
       prepareSelectListData(m);
