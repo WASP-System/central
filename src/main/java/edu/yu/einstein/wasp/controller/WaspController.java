@@ -36,6 +36,9 @@ import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.MetaAttribute.Country;
 import edu.yu.einstein.wasp.model.MetaAttribute.State;
 
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
+
 import edu.yu.einstein.wasp.taglib.MessageTag;
 
 @Controller
@@ -61,6 +64,15 @@ public class WaspController {
 
   @Autowired
   HttpServletRequest request;
+
+  @Autowired
+  private BeanValidator validator;
+
+  @InitBinder
+  protected void initBinder(WebDataBinder binder) {
+    binder.setValidator(validator);
+  }
+
 
   public User getAuthenticatedUser() { 
     Authentication authentication = SecurityContextHolder.getContext()
