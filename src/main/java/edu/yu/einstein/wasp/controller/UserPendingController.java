@@ -35,6 +35,7 @@ import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.service.PasswordService;
 
 import edu.yu.einstein.wasp.model.MetaAttribute;
+import edu.yu.einstein.wasp.model.MetaHelper;
 import edu.yu.einstein.wasp.model.MetaUtil;
 
 import org.springframework.transaction.annotation.Transactional;
@@ -47,236 +48,221 @@ import org.springframework.web.bind.annotation.InitBinder;
 @RequestMapping("/auth")
 public class UserPendingController extends WaspController {
 
-  private static final ResourceBundle BASE_BUNDLE=ResourceBundle.getBundle("messages", Locale.ENGLISH);
+	@Autowired
+	private UserPendingService userPendingService;
 
-  @Autowired
-  private UserPendingService userPendingService;
+	@Autowired
+	private UserPendingMetaService userPendingMetaService;
 
-  @Autowired
-  private UserPendingMetaService userPendingMetaService;
+	@Autowired
+	private LabService labService;
 
-  @Autowired
-  private LabService labService;
+	@Autowired
+	private LabPendingService labPendingService;
 
-  @Autowired
-  private LabPendingService labPendingService;
+	@Autowired
+	private LabPendingMetaService labPendingMetaService;
 
-  @Autowired
-  private LabPendingMetaService labPendingMetaService;
+	@Autowired
+	private DepartmentService departmentService;
 
-  @Autowired
-  private DepartmentService departmentService;
+	@Autowired
+	private EmailService emailService;
 
-  @Autowired
-  private EmailService emailService;
+	@Autowired
+	private PasswordService passwordService;
 
-  @Autowired
-  private PasswordService passwordService;
-
-  @Autowired
-  private BeanValidator validator;
-  
-  @Autowired
-  private MetaValidator metaValidator;
-  
-  @Autowired
-  private PasswordValidator passwordValidator;
-  
-
-  @InitBinder
-  protected void initBinder(WebDataBinder binder) {
-    binder.setValidator(validator);
-  }
-
-  /**
-   *
-   */
-
-  @RequestMapping(value="/newuser", method=RequestMethod.GET)
-  public String showNewPendingUserForm(ModelMap m) {
-    final MetaAttribute.Area AREA = MetaAttribute.Area.userPending;
-    UserPending userPending = new UserPending();
-
-    userPending.setUserPendingMeta(MetaUtil.getMasterList(UserPendingMeta.class, AREA, getBundle()));
-
-    m.addAttribute(AREA.name(), userPending);
-    prepareSelectListData(m);
-
-    return "auth/newuser/form";
-
-  }
-
-  @RequestMapping(value="/newuser", method=RequestMethod.POST)
-  public String createNewPendingUser (
-       @Valid UserPending userPendingForm, 
-       BindingResult result,
-       SessionStatus status, 
-       ModelMap m) {
-    final MetaAttribute.Area AREA = MetaAttribute.Area.userPending;
-    List<UserPendingMeta> userPendingMetaList = MetaUtil.getMetaFromForm(request,
-                                AREA, UserPendingMeta.class, getBundle());
-
-    userPendingForm.setUserPendingMeta(userPendingMetaList);
-    
-    List<String> validateList = new ArrayList<String>();
-    for (UserPendingMeta meta : userPendingMetaList) {
-      if (meta.getProperty() != null
-          && meta.getProperty().getConstraint() != null) {
-        validateList.add(meta.getK());
-        validateList.add(meta.getProperty().getConstraint());
-      }
-    }
-    metaValidator.validate(validateList, userPendingMetaList, result, AREA);
-        
-    // validate password
-    passwordValidator.validate(result, userPendingForm.getPassword(), (String) request.getParameter("password2"), AREA, "password");
-   
-    String piUserEmail = "";
-    String areaName = AREA.name();
-    
-    for (UserPendingMeta meta : userPendingMetaList) {
-    	
-    	if (meta.getK().equals(areaName + ".primaryuseremail") ) {
-    		piUserEmail = meta.getV();
-    		break;
-    	}
-    } 
-    User primaryInvestigator = userService.getUserByEmail(piUserEmail);
-    
+	@Autowired
+	private MetaValidator metaValidator;
+	
+	@Autowired
+	private PasswordValidator passwordValidator;
+	
+	/**
+	 *
+	 */
 
 
-    // TODO add  user not found add lab not found
-    
-    Lab lab = labService.getLabByPrimaryUserId(primaryInvestigator.getUserId());
+	MetaHelper metaHelper = new MetaHelper("userPending", UserPending.class);
 
-    userPendingForm.setLabId(lab.getLabId());
-    userPendingForm.setStatus("PENDING");
-    if (result.hasErrors()) {
-      prepareSelectListData(m);
-      waspMessage("user.created.error");
-      return "auth/newuser/form";
-    }
+	@RequestMapping(value="/newuser", method=RequestMethod.GET)
+	public String showNewPendingUserForm(ModelMap m) {
+		metaHelper.setBundle(getBundle());
 
-    userPendingForm.setPassword( passwordService.encodePassword(userPendingForm.getPassword()) ); 
+		UserPending userPending = new UserPending();
 
+		userPending.setUserPendingMeta(metaHelper.getMasterList(UserPendingMeta.class)); 
 
-    UserPending userPendingDb = userPendingService.save(userPendingForm);
+		m.addAttribute(metaHelper.getParentArea(), userPending);
+		prepareSelectListData(m);
 
-    for (UserPendingMeta upm : userPendingMetaList) {
-      upm.setUserpendingId(userPendingDb.getUserPendingId());
-      userPendingMetaService.save(upm);
-    }
+		return "auth/newuser/form";
 
-    status.setComplete();
+	}
 
-    // TODO email PI/LM that a new user is pending
+	@RequestMapping(value="/newuser", method=RequestMethod.POST)
+	public String createNewPendingUser (
+			 @Valid UserPending userPendingForm, 
+			 BindingResult result,
+			 SessionStatus status, 
+			 ModelMap m) {
+		metaHelper.setBundle(getBundle());
+		List<UserPendingMeta> userPendingMetaList = metaHelper.getFromRequest(request, UserPendingMeta.class);
 
-    waspMessage("hello.error");
-    return "redirect:/auth/newuser/ok.do";
-  }
+		userPendingForm.setUserPendingMeta(userPendingMetaList);
 
-  @RequestMapping(value="/newpi", method=RequestMethod.GET)
-  public String showNewPendingPiForm(ModelMap m) {
-    final MetaAttribute.Area AREA = MetaAttribute.Area.piPending;
-    final MetaAttribute.Area PARENTAREA = MetaAttribute.Area.userPending;
+		metaHelper.validate(userPendingMetaList, result);
 
-    UserPending userPending = new UserPending();
-
-    userPending.setUserPendingMeta(MetaUtil.getMasterList(UserPendingMeta.class, AREA, getBundle()));
-
-    m.addAttribute(PARENTAREA.name(), userPending);
-    prepareSelectListData(m);
-
-    return "auth/newpi/form";
-
-  }
-
-  @RequestMapping(value="/newpi", method=RequestMethod.POST)
-  public String createNewPendingPi (
-       @Valid UserPending userPendingForm, 
-       BindingResult result,
-       SessionStatus status, 
-       ModelMap m) {
-    final MetaAttribute.Area AREA = MetaAttribute.Area.piPending;
-    final MetaAttribute.Area PARENTAREA = MetaAttribute.Area.userPending;
+		// validate password
+		// TODO USING STRING!
+		passwordValidator.validate(result, userPendingForm.getPassword(), (String) request.getParameter("password2"), MetaAttribute.Area.valueOf(metaHelper.getParentArea()), "password");
+	 
+		String piUserEmail = "";
+		
+		for (UserPendingMeta meta : userPendingMetaList) {
+			if (meta.getK().equals(metaHelper.getArea() + ".primaryuseremail") ) {
+				piUserEmail = meta.getV();
+				break;
+			}
+		} 
+		User primaryInvestigator = userService.getUserByEmail(piUserEmail);
+		
 
 
-    List<UserPendingMeta> userPendingMetaList = MetaUtil.getMetaFromForm(request,
-                                AREA, PARENTAREA, UserPendingMeta.class, getBundle());
+		// TODO add  user not found add lab not found
+		
+		Lab lab = labService.getLabByPrimaryUserId(primaryInvestigator.getUserId());
 
-    userPendingForm.setUserPendingMeta(userPendingMetaList);
+		userPendingForm.setLabId(lab.getLabId());
+		userPendingForm.setStatus("PENDING");
+		if (result.hasErrors()) {
+			prepareSelectListData(m);
+			waspMessage("user.created.error");
+			return "auth/newuser/form";
+		}
 
-    Errors errors = new BindException(result.getTarget(), "userPending");
+		userPendingForm.setPassword( passwordService.encodePassword(userPendingForm.getPassword()) ); 
 
-    //if (userPendingForm.getPassword() == null || userPendingForm.getPassword().isEmpty()) {
-    //  errors.rejectValue("password", "userPending.password.error");
-    //}
 
-    result.addAllErrors(errors);
+		UserPending userPendingDb = userPendingService.save(userPendingForm);
 
-    List<String> validateList = new ArrayList<String>();
-    //validateList.add("password");
-    //validateList.add(MetaValidator.Constraint.NotEmpty.name());
+		for (UserPendingMeta upm : userPendingMetaList) {
+			upm.setUserpendingId(userPendingDb.getUserPendingId());
+			userPendingMetaService.save(upm);
+		}
 
-    // ADD VALIDATION 
-    //   - uniq name 
-    //   - departmentid
+		status.setComplete();
 
-    for (UserPendingMeta meta : userPendingMetaList) {
-      if (meta.getProperty() != null
-          && meta.getProperty().getConstraint() != null) {
-        validateList.add(meta.getK());
-        validateList.add(meta.getProperty().getConstraint());
-      }
-    }
+		// TODO email PI/LM that a new user is pending
 
-    metaValidator.validate(validateList, userPendingMetaList, result, PARENTAREA);
+		waspMessage("hello.error");
+		return "redirect:/auth/newuser/ok.do";
+	}
 
-    if (result.hasErrors()) {
-      prepareSelectListData(m);
-      waspMessage("user.created.error");
+	@RequestMapping(value="/newpi", method=RequestMethod.GET)
+	public String showNewPendingPiForm(ModelMap m) {
+		metaHelper.setArea("piPending"); 
+		metaHelper.setBundle(getBundle());
 
-      return "auth/newpi/form";
-    }
+		UserPending userPending = new UserPending();
 
-    userPendingForm.setStatus("PENDING");
+		userPending.setUserPendingMeta(metaHelper.getMasterList(UserPendingMeta.class));
 
-    userPendingForm.setPassword( passwordService.encodePassword(userPendingForm.getPassword()) ); 
+		m.addAttribute(metaHelper.getParentArea(), userPending);
+		prepareSelectListData(m);
 
-    UserPending userPendingDb = userPendingService.save(userPendingForm);
+		return "auth/newpi/form";
 
-    for (UserPendingMeta upm : userPendingMetaList) {
-      upm.setUserpendingId(userPendingDb.getUserPendingId());
-    }
-    userPendingMetaService.updateByUserpendingId(userPendingDb.getUserPendingId(), userPendingMetaList);
+	}
 
-    // insert into labpending table
-    LabPending labPendingForm = new LabPending();
-    labPendingForm.setStatus("PENDING");
-    labPendingForm.setUserpendingId(userPendingDb.getUserPendingId());
-    labPendingForm.setDepartmentId(1);
-    for (UserPendingMeta meta : userPendingMetaList) {
-      if (meta.getK().equals(AREA.name() + ".labName")) {
-        labPendingForm.setName(meta.getV());
-        continue;
-      }
-      if (meta.getK().equals(AREA.name() + ".departmentId")) {
-        try{
-          labPendingForm.setDepartmentId(Integer.parseInt(meta.getV()));
-        } catch (Exception e) {
-        }
-        continue;
-      }
-    } 
-    LabPending labPendingDb = labPendingService.save(labPendingForm);
+	@RequestMapping(value="/newpi", method=RequestMethod.POST)
+	public String createNewPendingPi (
+			 @Valid UserPending userPendingForm, 
+			 BindingResult result,
+			 SessionStatus status, 
+			 ModelMap m) {
+		metaHelper.setBundle(getBundle());
 
-    status.setComplete();
+		final MetaAttribute.Area AREA = MetaAttribute.Area.piPending;
+		final MetaAttribute.Area PARENTAREA = MetaAttribute.Area.userPending;
 
-    // TODO email DA that a new pi is pending
 
-    waspMessage("hello.error");
-    return "redirect:/auth/newpi/ok.do";
-  }
+		List<UserPendingMeta> userPendingMetaList = MetaUtil.getMetaFromForm(request,
+					                      AREA, PARENTAREA, UserPendingMeta.class, getBundle());
+
+		userPendingForm.setUserPendingMeta(userPendingMetaList);
+
+		Errors errors = new BindException(result.getTarget(), "userPending");
+
+		//if (userPendingForm.getPassword() == null || userPendingForm.getPassword().isEmpty()) {
+		//  errors.rejectValue("password", "userPending.password.error");
+		//}
+
+		result.addAllErrors(errors);
+
+		List<String> validateList = new ArrayList<String>();
+		//validateList.add("password");
+		//validateList.add(MetaValidator.Constraint.NotEmpty.name());
+
+		// ADD VALIDATION 
+		//   - uniq name 
+		//   - departmentid
+
+		for (UserPendingMeta meta : userPendingMetaList) {
+			if (meta.getProperty() != null
+					&& meta.getProperty().getConstraint() != null) {
+				validateList.add(meta.getK());
+				validateList.add(meta.getProperty().getConstraint());
+			}
+		}
+
+		metaValidator.validate(validateList, userPendingMetaList, result, PARENTAREA);
+
+		if (result.hasErrors()) {
+			prepareSelectListData(m);
+			waspMessage("user.created.error");
+
+			return "auth/newpi/form";
+		}
+
+		userPendingForm.setStatus("PENDING");
+
+		userPendingForm.setPassword( passwordService.encodePassword(userPendingForm.getPassword()) ); 
+
+		UserPending userPendingDb = userPendingService.save(userPendingForm);
+
+		for (UserPendingMeta upm : userPendingMetaList) {
+			upm.setUserpendingId(userPendingDb.getUserPendingId());
+		}
+		userPendingMetaService.updateByUserpendingId(userPendingDb.getUserPendingId(), userPendingMetaList);
+
+		// insert into labpending table
+		LabPending labPendingForm = new LabPending();
+		labPendingForm.setStatus("PENDING");
+		labPendingForm.setUserpendingId(userPendingDb.getUserPendingId());
+		labPendingForm.setDepartmentId(1);
+		for (UserPendingMeta meta : userPendingMetaList) {
+			if (meta.getK().equals(AREA.name() + ".labName")) {
+				labPendingForm.setName(meta.getV());
+				continue;
+			}
+			if (meta.getK().equals(AREA.name() + ".departmentId")) {
+				try{
+					labPendingForm.setDepartmentId(Integer.parseInt(meta.getV()));
+				} catch (Exception e) {
+				}
+				continue;
+			}
+		} 
+		LabPending labPendingDb = labPendingService.save(labPendingForm);
+
+		status.setComplete();
+
+		// TODO email DA that a new pi is pending
+
+		waspMessage("hello.error");
+		return "redirect:/auth/newpi/ok.do";
+	}
 
 
 }
