@@ -33,6 +33,7 @@ public class MetaHelper {
 
   public MetaHelper(String area, Class clazz) {
     this.area = area;
+    this.parentArea = area;
     this.clazz = clazz;
     this.bundle = BASE_BUNDLE; 
   }
@@ -46,6 +47,7 @@ public class MetaHelper {
 
   public MetaHelper(String area, Class clazz, ResourceBundle bundle) {
     this.area = area;
+    this.parentArea = area;
     this.clazz = clazz;
     this.bundle = bundle; 
   }
@@ -279,8 +281,8 @@ public class MetaHelper {
         validateList.add(meta.getProperty().getConstraint());
       }
     }
-    MetaValidator validator = new MetaValidator(
-        validateList.toArray(new String[] {}));
+    MetaValidator validator = new MetaValidator();
+    validator.setValidateList(validateList);
 
     return validator;
   }
