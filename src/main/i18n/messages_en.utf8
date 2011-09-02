@@ -110,8 +110,8 @@ userPending.locale.error=Locale cannot be empty
 # ------------------------ dynamic user pending fields ----------------------
 
 userPending.primaryuseremail.label=PI Email Address
-userPending.primaryuseremail.error=PI Email Address cannot be empty
-userPending.primaryuseremail.constraint=NotEmpty
+userPending.primaryuseremail.error=Must be an active PI email address in the database
+userPending.primaryuseremail.constraint=isValidPiEmail
 userPending.primaryuseremail.metaposition=0
 
 userPending.title.label=Title
