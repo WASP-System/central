@@ -51,6 +51,11 @@ public class MetaValidator {
 		}
 	}
 
+
+	public void validate(List<String> vlist, List<? extends MetaBase> list, BindingResult result, MetaAttribute.Area area) {
+	  validate(list, result, area.name(), area.name());
+  }
+
 	public void validate(List<? extends MetaBase> list, BindingResult result, MetaAttribute.Area area) {
 	  validate(list, result, area.name(), area.name());
   }
