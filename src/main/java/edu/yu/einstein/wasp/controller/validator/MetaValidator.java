@@ -42,7 +42,8 @@ public class MetaValidator {
 	}
 	
 	private Map<String, String> map=new HashMap<String, String>(); 
-		
+
+/*		
 	public MetaValidator(String... pairs)  {
 		if (pairs.length % 2!=0) throw new IllegalStateException("Number of params must be even");
 			
@@ -50,15 +51,18 @@ public class MetaValidator {
 			map.put(pairs[i],pairs[i+1]);
 		}
 	}
+*/
 
-
-	public void validate(List<String> validateList, List<? extends MetaBase> list, BindingResult result, MetaAttribute.Area area) {
+  public void setValidateList(List <String> validateList) {
     if (validateList.size() % 2!=0) throw new IllegalStateException("Number of params must be even");
 
     for(int i=0;i<validateList.size();i+=2) {
       this.map.put(validateList.get(i),validateList.get(i+1));
     }
+  }
 
+	public void validate(List<String> validateList, List<? extends MetaBase> list, BindingResult result, MetaAttribute.Area area) {
+		setValidateList(validateList);
 
 	  validate(list, result, area.name(), area.name());
   }
