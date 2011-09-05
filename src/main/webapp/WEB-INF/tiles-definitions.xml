@@ -87,10 +87,18 @@
  <definition name="hello" template="/WEB-INF/jsp/hello.jsp"/>
 
 
- <definition name="facility/platformunit/detail_rw" template="/WEB-INF/jsp/facility/platformunit/detail_rw.jsp" />
- <definition name="facility/platformunit/ok" template="/WEB-INF/jsp/facility/platformunit/ok.jsp" />
+ <definition name="facility/platformunit/list" extends="template-grid">
+   <put-attribute name="area"  value="platformunit" />   
+
+   <put-attribute name="grid-columns"  value="/WEB-INF/jsp/facility/platformunit/sample_grid_columns.jsp" />
+   <put-attribute name="subgrid-columns" value="" />
+   <put-attribute name="primary-content"  value="/WEB-INF/jsp/facility/platformunit/sample.jsp" />   
+ </definition>
+  <definition name="facility/platformunit/detail_rw" template="/WEB-INF/jsp/facility/platformunit/detail_rw.jsp" />
+  <definition name="facility/platformunit/ok" template="/WEB-INF/jsp/facility/platformunit/ok.jsp" />
 
 <definition name="lab/pendinguser/list" template="/WEB-INF/jsp/lab/pendinguser/list.jsp" />
+
 
 </tiles-definitions>
 
