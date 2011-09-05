@@ -75,6 +75,7 @@ public class JobDraftMetaDaoImpl extends WaspDaoImpl<JobDraftMeta> implements ed
         em.createNativeQuery("delete from jobdraftmeta where jobdraftId=:jobdraftId").setParameter("jobdraftId", jobdraftId).executeUpdate();
 
         for (JobDraftMeta m:metaList) {
+          m.setJobdraftId(jobdraftId);
           em.persist(m);
         }
 
