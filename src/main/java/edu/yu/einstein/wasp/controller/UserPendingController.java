@@ -34,9 +34,7 @@ import edu.yu.einstein.wasp.service.LabPendingMetaService;
 import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.service.PasswordService;
 
-import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.MetaHelper;
-import edu.yu.einstein.wasp.model.MetaUtil;
 
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.WebDataBinder;
@@ -115,7 +113,7 @@ public class UserPendingController extends WaspController {
 
 		// validate password
 		// TODO USING STRING!
-		passwordValidator.validate(result, userPendingForm.getPassword(), (String) request.getParameter("password2"), MetaAttribute.Area.valueOf(metaHelper.getParentArea()), "password");
+		passwordValidator.validate(result, userPendingForm.getPassword(), (String) request.getParameter("password2"), metaHelper.getParentArea(), "password");
 	 
 		String piUserEmail = "";
 		
@@ -182,41 +180,12 @@ public class UserPendingController extends WaspController {
 			 SessionStatus status, 
 			 ModelMap m) {
 		metaHelper.setBundle(getBundle());
-
-		final MetaAttribute.Area AREA = MetaAttribute.Area.piPending;
-		final MetaAttribute.Area PARENTAREA = MetaAttribute.Area.userPending;
-
-
-		List<UserPendingMeta> userPendingMetaList = MetaUtil.getMetaFromForm(request,
-					                      AREA, PARENTAREA, UserPendingMeta.class, getBundle());
-
+		metaHelper.setArea("piPending");
+		
+		List<UserPendingMeta> userPendingMetaList = metaHelper.getFromRequest(request, UserPendingMeta.class);
 		userPendingForm.setUserPendingMeta(userPendingMetaList);
 
-		Errors errors = new BindException(result.getTarget(), "userPending");
-
-		//if (userPendingForm.getPassword() == null || userPendingForm.getPassword().isEmpty()) {
-		//  errors.rejectValue("password", "userPending.password.error");
-		//}
-
-		result.addAllErrors(errors);
-
-		List<String> validateList = new ArrayList<String>();
-		//validateList.add("password");
-		//validateList.add(MetaValidator.Constraint.NotEmpty.name());
-
-		// ADD VALIDATION 
-		//   - uniq name 
-		//   - departmentid
-
-		for (UserPendingMeta meta : userPendingMetaList) {
-			if (meta.getProperty() != null
-					&& meta.getProperty().getConstraint() != null) {
-				validateList.add(meta.getK());
-				validateList.add(meta.getProperty().getConstraint());
-			}
-		}
-
-		metaValidator.validate(validateList, userPendingMetaList, result, PARENTAREA);
+		metaHelper.validate(userPendingMetaList, result);
 
 		if (result.hasErrors()) {
 			prepareSelectListData(m);
@@ -240,13 +209,15 @@ public class UserPendingController extends WaspController {
 		LabPending labPendingForm = new LabPending();
 		labPendingForm.setStatus("PENDING");
 		labPendingForm.setUserpendingId(userPendingDb.getUserPendingId());
+
+		// TODO DEPARTMENT ID
 		labPendingForm.setDepartmentId(1);
 		for (UserPendingMeta meta : userPendingMetaList) {
-			if (meta.getK().equals(AREA.name() + ".labName")) {
+			if (meta.getK().equals(metaHelper.getArea() + ".labName")) {
 				labPendingForm.setName(meta.getV());
 				continue;
 			}
-			if (meta.getK().equals(AREA.name() + ".departmentId")) {
+			if (meta.getK().equals(metaHelper.getArea() + ".departmentId")) {
 				try{
 					labPendingForm.setDepartmentId(Integer.parseInt(meta.getV()));
 				} catch (Exception e) {
