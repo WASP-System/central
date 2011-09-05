@@ -72,9 +72,10 @@ public class UserMetaDaoImpl extends WaspDaoImpl<UserMeta> implements edu.yu.ein
     getJpaTemplate().execute(new JpaCallback() {
 
       public Object doInJpa(EntityManager em) throws PersistenceException {
-        em.createNativeQuery("delete from userMeta where UserId=:UserId").setParameter("UserId", UserId).executeUpdate();
+        em.createNativeQuery("delete from usermeta where UserId=:UserId").setParameter("UserId", UserId).executeUpdate();
 
         for (UserMeta m:metaList) {
+          m.setUserId(UserId);
           em.persist(m);
         }
 
