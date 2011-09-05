@@ -33,20 +33,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
 
-import edu.yu.einstein.wasp.controller.validator.MetaValidator;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabUser;
-import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.MetaBase;
-import edu.yu.einstein.wasp.model.MetaUtil;
+import edu.yu.einstein.wasp.model.MetaHelper;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserMeta;
 import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.service.PasswordService;
 import edu.yu.einstein.wasp.service.UserMetaService;
-import edu.yu.einstein.wasp.service.UserService;
+import edu.yu.einstein.wasp.controller.validator.MetaValidator;
 
 @Controller
 @Transactional
@@ -54,13 +52,7 @@ import edu.yu.einstein.wasp.service.UserService;
 public class UserController extends WaspController {
 
 	@Autowired
-	private UserService userService;
-
-	@Autowired
 	private UserMetaService userMetaService;
-
-	@Autowired
-	private BeanValidator validator;
 	
 	@Autowired
 	private EmailService emailService;
@@ -71,33 +63,19 @@ public class UserController extends WaspController {
 	@Autowired
 	private MetaValidator metaValidator;
 	
-	@InitBinder
-	protected void initBinder(WebDataBinder binder) {
-		binder.setValidator(validator);
-	}
-	
-	private static final MetaAttribute.Area AREA = MetaAttribute.Area.user;
+	MetaHelper metaHelper = new MetaHelper("user", UserMeta.class);
+
+
 	
 	@RequestMapping("/list")
 	@PreAuthorize("hasRole('god')")
 	public String list(ModelMap m) {
 		
-		m.addAttribute("_metaList", MetaUtil.getMasterList(MetaBase.class, AREA, getBundle()));
-		m.addAttribute("_area", AREA.name());		
+		m.addAttribute("_metaList", metaHelper.getMasterList(MetaBase.class));
+		m.addAttribute("_area", metaHelper.getArea());		
 		
-		
-		
-		/*
-		ObjectMapper mapper = new ObjectMapper();
-		
-		 try {
-			 String json=mapper.writeValueAsString(FIELD_LIST);
-			 m.addAttribute("fieldsArr", json);
-		 } catch (Throwable e) {
-			 throw new IllegalStateException("Can't marshall to JSON "+FIELD_LIST,e);
-		 }*/
-		 prepareSelectListData(m);
-		 return "user-list";
+		prepareSelectListData(m);
+		return "user-list";
 	}
 	
 	@RequestMapping(value = "/subgridJSON.do", method = RequestMethod.GET)
@@ -263,10 +241,8 @@ public class UserController extends WaspController {
 				 Map cell = new HashMap();
 				 cell.put("id", user.getUserId());
 				 
-				 List<UserMeta> userMeta=MetaUtil.syncWithMaster(user.getUserMeta(), AREA, UserMeta.class);
+				 List<UserMeta> userMeta=metaHelper.syncWithMaster(user.getUserMeta());
 				 					
-				 MetaUtil.setAttributesAndSort(userMeta, AREA,getBundle());
-				 
 				 List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 							user.getLogin(),
 							"",//password - always empty
@@ -316,7 +292,7 @@ public class UserController extends WaspController {
 		
 		}
 				
-		List<UserMeta> userMetaList = MetaUtil.getMetaFromJSONForm(request,AREA, UserMeta.class, getBundle());
+		List<UserMeta> userMetaList = metaHelper.getFromJsonForm(request, UserMeta.class);
 		
 		userForm.setUserMeta(userMetaList);
 
@@ -409,26 +385,14 @@ public class UserController extends WaspController {
 			@Valid User userForm, BindingResult result, SessionStatus status,
 			ModelMap m) {
 
-		List<UserMeta> userMetaList = MetaUtil.getMetaFromForm(request,
-				AREA, UserMeta.class, getBundle());
+		List<UserMeta> userMetaList = metaHelper.getFromRequest(request, UserMeta.class);
 
 		for (UserMeta meta : userMetaList) {
 			meta.setUserId(userId);
 		}
 
 		userForm.setUserMeta(userMetaList);
-
-		List<String> validateList = new ArrayList<String>();
-
-		for (UserMeta meta : userMetaList) {
-			if (meta.getProperty() != null
-					&& meta.getProperty().getConstraint() != null) {
-				validateList.add(meta.getK());
-				validateList.add(meta.getProperty().getConstraint());
-			}
-		}
-
-		metaValidator.validate(validateList, userMetaList, result, AREA);
+		metaHelper.validate(userMetaList, result);
 
 		if (result.hasErrors()) {
 			userForm.setUserId(userId);
@@ -526,13 +490,13 @@ public class UserController extends WaspController {
 	
 		User user = new User();
 
-		user.setUserMeta(MetaUtil.getMasterList(UserMeta.class, AREA,getBundle()));
+		user.setUserMeta(metaHelper.getMasterList(UserMeta.class));
 		
-		m.addAttribute(AREA.name(), user);
+		m.addAttribute("user", user);
 		
 		prepareSelectListData(m);		
 
-		return AREA + "/detail_rw";
+		return "user/detail_rw";
 	}
 	
 	
@@ -541,13 +505,12 @@ public class UserController extends WaspController {
 	public String create(@Valid User userForm, BindingResult result,
 			SessionStatus status, ModelMap m) {
 
-		List<UserMeta> userMetaList = MetaUtil.getMetaFromForm(request,
-				AREA, UserMeta.class, getBundle());
+		List<UserMeta> userMetaList = metaHelper.getFromRequest(request, UserMeta.class);
 		
 		userForm.setUserMeta(userMetaList);
 
 		// manually validate login and password
-		Errors errors = new BindException(result.getTarget(), AREA.name());
+		Errors errors = new BindException(result.getTarget(), metaHelper.getArea());
 		if (userForm.getLogin() == null || userForm.getLogin().isEmpty()) {
 			errors.rejectValue("login", "user.login.error");
 		} else {
@@ -577,7 +540,8 @@ public class UserController extends WaspController {
 				validateList.add(meta.getProperty().getConstraint());
 			}
 		}
-		metaValidator.validate(validateList, userMetaList, result, AREA);
+		metaHelper.validate(userMetaList, result);
+		metaValidator.validate(validateList, userMetaList, result, metaHelper.getArea());
 		
 		if (result.hasErrors()) {
 			prepareSelectListData(m);
@@ -625,11 +589,9 @@ public class UserController extends WaspController {
 
 		User user = this.userService.getById(userId);
 
-		user.setUserMeta(MetaUtil.syncWithMaster(user.getUserMeta(), AREA, UserMeta.class));
+		user.setUserMeta(metaHelper.syncWithMaster(user.getUserMeta()));
 		
-		MetaUtil.setAttributesAndSort(user.getUserMeta(), AREA,getBundle());
-
-		m.addAttribute(AREA.name(), user);
+		m.addAttribute("user", user);
 		
 		prepareSelectListData(m);
 		
