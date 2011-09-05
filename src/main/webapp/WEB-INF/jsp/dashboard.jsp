@@ -104,6 +104,14 @@
   </div>
 </sec:authorize>
 
+<sec:authorize access="hasRole('ft')">
+  <div>
+  <h1>Platform Unit</h1>
+  <div><a href="<c:url value="/facility/platformunit/list.do"/>">List</a></div>
+  <div><a href="<c:url value="/facility/platformunit/create.do"/>">Create</a></div>
+  </div>
+</sec:authorize>
+
 <hr>
 
 <div>
