@@ -41,9 +41,8 @@ import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabMeta;
 import edu.yu.einstein.wasp.model.LabUser;
-import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.MetaBase;
-import edu.yu.einstein.wasp.model.MetaUtil;
+import edu.yu.einstein.wasp.model.MetaHelper;
 import edu.yu.einstein.wasp.model.Project;
 import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.Sample;
@@ -59,7 +58,6 @@ import edu.yu.einstein.wasp.service.LabService;
 import edu.yu.einstein.wasp.service.LabMetaService;
 import edu.yu.einstein.wasp.service.LabUserService;
 import edu.yu.einstein.wasp.service.RoleService;
-import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.service.UserMetaService;
 import edu.yu.einstein.wasp.service.UserPendingService;
 import edu.yu.einstein.wasp.service.UserPendingMetaService;
@@ -73,8 +71,6 @@ import edu.yu.einstein.wasp.service.EmailService;
 @Transactional
 @RequestMapping("/lab")
 public class LabController extends WaspController {
-
-	public static final MetaAttribute.Area AREA = MetaAttribute.Area.lab;
 
 	@Autowired
 	private LabService labService;
@@ -92,9 +88,6 @@ public class LabController extends WaspController {
 	private DepartmentService deptService;
 
 	@Autowired
-	private UserService userService;
-
-	@Autowired
 	private UserMetaService userMetaService;
 
 	@Autowired
@@ -110,25 +103,23 @@ public class LabController extends WaspController {
 	private LabPendingMetaService labPendingMetaService;
 
 	@Autowired
-    private MetaValidator metaValidator;
+	private MetaValidator metaValidator;
 	
-	@Autowired
-	private BeanValidator validator;
-
 	@Autowired
 	private EmailService emailService;
+
+
+	MetaHelper metaHelper = new MetaHelper("lab", LabMeta.class);
+
+
 	
-	@InitBinder
-	protected void initBinder(WebDataBinder binder) {
-		binder.setValidator(validator);
-	}
 	
 	@RequestMapping("/list")
 	@PreAuthorize("hasRole('god')")
 	public String list(ModelMap m) {
-		
-		m.addAttribute("_metaList", MetaUtil.getMasterList(MetaBase.class, AREA, getBundle()));
-		m.addAttribute("_area", AREA.name());
+		metaHelper.setBundle(getBundle())	;
+		m.addAttribute("_metaList", metaHelper.getMasterList(MetaBase.class));
+		m.addAttribute("_area", metaHelper.getArea());
 
 		prepareSelectListData(m);
 
@@ -196,10 +187,8 @@ public class LabController extends WaspController {
 				Map cell = new HashMap();
 				cell.put("id", lab.getLabId());
 				
-				List<LabMeta> labMeta=MetaUtil.syncWithMaster(lab.getLabMeta(), AREA, LabMeta.class);
+				List<LabMeta> labMeta=metaHelper.syncWithMaster(lab.getLabMeta());
 									
-				MetaUtil.setAttributesAndSort(labMeta, AREA,getBundle());
-				
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 						lab.getName(),
 						"<a href=/wasp/user/list.do?selId="+lab.getPrimaryUserId()+">"+allUsers.get(lab.getPrimaryUserId()) +"</a>",							
@@ -382,8 +371,7 @@ public class LabController extends WaspController {
 	@RequestMapping(value = "/detail_rw/updateJSON.do", method = RequestMethod.POST)
 	public String updateDetailJSON(@RequestParam("id") Integer labId,Lab labForm, ModelMap m, HttpServletResponse response) {
 				
-		List<LabMeta> labMetaList = MetaUtil.getMetaFromJSONForm(request,
-				AREA, LabMeta.class, getBundle());
+		List<LabMeta> labMetaList = metaHelper.getFromJsonForm(request, LabMeta.class);
 
 		labForm.setLabMeta(labMetaList);
 
@@ -445,9 +433,7 @@ public class LabController extends WaspController {
 
 		Lab lab = this.labService.getById(labId);
 
-		lab.setLabMeta(MetaUtil.syncWithMaster(lab.getLabMeta(), AREA, LabMeta.class));
-
-		MetaUtil.setAttributesAndSort(lab.getLabMeta(), AREA,getBundle());
+		lab.setLabMeta(metaHelper.syncWithMaster(lab.getLabMeta()));
 
 		List<LabUser> labUserList = lab.getLabUser();
 		labUserList.size();
@@ -455,7 +441,7 @@ public class LabController extends WaspController {
 		List<Job> jobList = lab.getJob();
 		jobList.size();
 		
-		m.addAttribute(AREA.name(), lab);
+		m.addAttribute("lab", lab);
 
 		prepareSelectListData(m);
 		
@@ -466,16 +452,16 @@ public class LabController extends WaspController {
 	@RequestMapping(value = "/create/form.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('god')")
 	public String showEmptyForm(ModelMap m) {
+		metaHelper.setBundle(getBundle()); 
 
 		Lab lab = new Lab();
+		lab.setLabMeta(metaHelper.getMasterList(LabMeta.class));
 
-		lab.setLabMeta(MetaUtil.getMasterList(LabMeta.class, AREA,getBundle()));
-
-		m.addAttribute(AREA.name(), lab);
+		m.addAttribute("lab", lab);
 		
 		prepareSelectListData(m);
 		
-		return AREA + "/detail_rw";
+		return "lab/detail_rw";
 	}
 
 
@@ -484,24 +470,14 @@ public class LabController extends WaspController {
 	public String create(@Valid Lab labForm, BindingResult result,
 			SessionStatus status, ModelMap m) {
 
+		metaHelper.setBundle(getBundle()); 
+
 		// read properties from form
 
-		List<LabMeta> labMetaList = MetaUtil.getMetaFromForm(request, AREA,
-				LabMeta.class, getBundle());
+		List<LabMeta> labMetaList = metaHelper.getFromRequest(request, LabMeta.class);
+		metaHelper.validate(labMetaList, result);
 
 		labForm.setLabMeta(labMetaList);
-
-		List<String> validateList = new ArrayList<String>();
-
-		for (LabMeta meta : labMetaList) {
-			if (meta.getProperty() != null
-					&& meta.getProperty().getConstraint() != null) {
-				validateList.add(meta.getK());
-				validateList.add(meta.getProperty().getConstraint());
-			}
-		}
-
-		metaValidator.validate(validateList,labMetaList, result, AREA);
 
 		if (result.hasErrors()) {
 			prepareSelectListData(m);
@@ -531,8 +507,7 @@ public class LabController extends WaspController {
 			@Valid Lab labForm, BindingResult result, SessionStatus status,
 			ModelMap m) {
 
-		List<LabMeta> labMetaList = MetaUtil.getMetaFromForm(request, AREA,
-				LabMeta.class, getBundle());
+		List<LabMeta> labMetaList = metaHelper.getFromRequest(request, LabMeta.class);
 
 		for (LabMeta meta : labMetaList) {
 			meta.setLabId(labId);
@@ -540,16 +515,8 @@ public class LabController extends WaspController {
 
 		labForm.setLabMeta(labMetaList);
 
-		List<String> validateList = new ArrayList<String>();
+		metaHelper.validate(labMetaList, result);
 
-		for (LabMeta meta : labMetaList) {
-			if (meta.getProperty() != null
-					&& meta.getProperty().getConstraint() != null) {
-				validateList.add(meta.getK());
-				validateList.add(meta.getProperty().getConstraint());
-			}
-		}
-		metaValidator.validate(validateList, labMetaList, result, AREA);
 		
 		if (result.hasErrors()) {
 			prepareSelectListData(m);
@@ -827,16 +794,13 @@ public class LabController extends WaspController {
 	}
 
 	@RequestMapping(value = "/newrequest", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('god') or hasRole('lm-' + #labId)")
 	public String showRequestForm (ModelMap m) {
-
-		final MetaAttribute.Area area = MetaAttribute.Area.labPending;
+		MetaHelper pendingMetaHelper = new MetaHelper("labPending", LabPendingMeta.class, getBundle());
 
     LabPending labPending = new LabPending();
 
-    labPending.setLabPendingMeta(MetaUtil.getMasterList(LabPendingMeta.class, area,getBundle()));
-
-    m.addAttribute(area.name(), labPending);
+    labPending.setLabPendingMeta(pendingMetaHelper.getMasterList(LabPendingMeta.class));
+    m.addAttribute("labPending", labPending);
 
     prepareSelectListData(m);
 
@@ -845,45 +809,24 @@ public class LabController extends WaspController {
 
 
 	@RequestMapping(value = "/newrequest", method = RequestMethod.POST)
-	@PreAuthorize("not hasRole('lm-*')")
+	@PreAuthorize("not hasRole('pi-*')")
 	public String createNewLabPending (
 			@Valid LabPending labPendingForm,
 			BindingResult result,
 			SessionStatus status,
 			ModelMap m) {
+		MetaHelper pendingMetaHelper = new MetaHelper("labPending", LabPendingMeta.class, getBundle());
 
-		final MetaAttribute.Area area = MetaAttribute.Area.labPending;
+		List<LabPendingMeta> labPendingMetaList = pendingMetaHelper.getFromRequest(request, LabPendingMeta.class);
+		pendingMetaHelper.validate(labPendingMetaList, result);
 
-		List<LabPendingMeta> labPendingMetaList = MetaUtil.getMetaFromForm(request,
-				area, LabPendingMeta.class, getBundle());
-
-		labPendingForm.setLabPendingMeta(labPendingMetaList);
-
-		Errors errors = new BindException(result.getTarget(), "labPending");
-
-		List<String> validateList = new ArrayList<String>();
-		//validateList.add("password");
-		//validateList.add(MetaValidator.Constraint.NotEmpty.name());
-
-		// ADD VALIDATION
-		//   - uniq name
-		//   - departmentid
-
-		for (LabPendingMeta meta : labPendingMetaList) {
-			if (meta.getProperty() != null
-					&& meta.getProperty().getConstraint() != null) {
-				validateList.add(meta.getK());
-				validateList.add(meta.getProperty().getConstraint());
-			}
-		}
-		metaValidator.validate(validateList, labPendingMetaList, result, AREA);
-		
 		User me = getAuthenticatedUser();
 
 		labPendingForm.setPrimaryUserId(me.getUserId());
 		labPendingForm.setStatus("PENDING");
 
 		if (result.hasErrors()) {
+			labPendingForm.setLabPendingMeta(labPendingMetaList);
 			prepareSelectListData(m);
 			waspMessage("user.created.error");
 
