@@ -26,6 +26,7 @@ import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.MetaAttribute.Area;
 import edu.yu.einstein.wasp.model.SampleDraft;
+import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.User;
 
 /*
@@ -127,6 +128,7 @@ public class JQFieldTag extends BodyTagSupport {
 			if (area==Area.user) clazz=User.class;
 			else if(area==Area.lab) clazz=Lab.class;
 			else if(area==Area.sampleDraft) clazz=SampleDraft.class;
+			else if(area==Area.sample) clazz=Sample.class;
 			else throw new JspTagException("unknown area "+object+" currently support user or lab");
 		
 		boolean required=clazz.getDeclaredField(name).getAnnotation(org.hibernate.validator.constraints.NotEmpty.class)==null?false:true;
