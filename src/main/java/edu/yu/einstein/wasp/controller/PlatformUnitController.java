@@ -57,8 +57,6 @@ public class PlatformUnitController extends WaspController {
   public String showList(ModelMap m) {
 
     /*
-    final MetaAttribute.Area AREA = MetaAttribute.Area.platformunit;
-
 
     m.addAttribute("_metaList", MetaUtil.getMasterList(SampleMeta.class, AREA, getBundle()));
     m.addAttribute(JQFieldTag.AREA_ATTR, "platformunit");
@@ -105,6 +103,20 @@ public class PlatformUnitController extends WaspController {
     sampleForm.setIsActive(1);
 
     return updatePlatformUnit(sampleForm, result, status, m);
+  }
+
+  @RequestMapping(value="/view/{sampleId}.do", method=RequestMethod.GET)
+  @PreAuthorize("hasRole('ft')")
+  public String viewPlatformUnit(
+       @PathVariable("sampleId") Integer sampleId,
+       ModelMap m) {
+    Sample sample = sampleService.getSampleBySampleId(sampleId);
+
+    sample.setSampleMeta(metaHelper.syncWithMaster(sample.getSampleMeta()));
+
+    m.put("sample", sample);
+
+    return "facility/platformunit/detail_ro";
   }
 
   @RequestMapping(value="/modify/{sampleId}.do", method=RequestMethod.GET)
