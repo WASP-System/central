@@ -37,10 +37,8 @@ import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.JobUser;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabUser;
-import edu.yu.einstein.wasp.model.MetaAttribute;
-import edu.yu.einstein.wasp.model.MetaAttribute.Area;
 import edu.yu.einstein.wasp.model.MetaBase;
-import edu.yu.einstein.wasp.model.MetaUtil;
+import edu.yu.einstein.wasp.model.MetaHelper;
 import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleDraftMeta;
@@ -99,22 +97,16 @@ public class JobSubmissionController extends WaspController {
 	private SampleMetaService sampleMetaService;
 	
 	@Autowired
-    private MetaValidator metaValidator;
-
-	@Autowired
-	private BeanValidator validator;
+	private MetaValidator metaValidator;
 
 	@Autowired
 	private TypeSampleService typeSampleService;  
 	
-	@InitBinder
-	protected void initBinder(WebDataBinder binder) {
-		binder.setValidator(validator);
-	}
-
-
 	@Autowired
 	private WorkflowService workflowService;
+
+	MetaHelper metaHelper = new MetaHelper("jobDraft", JobDraft.class);
+
 
 	@RequestMapping(value="/list", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('lu-*')")
@@ -189,6 +181,7 @@ public class JobSubmissionController extends WaspController {
 	@RequestMapping(value="/modify/{jobDraftId}.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public String modify(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
+	
 		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
 
 		// check if i am the drafter
@@ -265,18 +258,18 @@ public class JobSubmissionController extends WaspController {
 	@RequestMapping(value="/modifymeta/{jobDraftId}", method=RequestMethod.GET)
 	//@PreAuthorize("hasRole('jd-' + #jobDraftId)") TODO: uncomment
 	public String showModifyMetaForm(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
+		metaHelper.setBundle(getBundle());
+
 		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
 
-		final MetaAttribute.Area AREA = MetaAttribute.Area.valueOf(jobDraft.getWorkflow().getIName());
-		final MetaAttribute.Area PARENTAREA = MetaAttribute.Area.jobDraft;
+		metaHelper.setArea(jobDraft.getWorkflow().getIName());
 
-		jobDraft.setJobDraftMeta(MetaUtil.syncWithMaster(jobDraft.getJobDraftMeta(), AREA, JobDraftMeta.class));
-		MetaUtil.setAttributesAndSort(jobDraft.getJobDraftMeta(), AREA,getBundle());
+    jobDraft.setJobDraftMeta(metaHelper.getMasterList(JobDraftMeta.class));
 
 		m.put("jobDraftDb", jobDraft);
 		m.put("jobDraft", jobDraft);
-		m.put("area", AREA.name());
-		m.put("parentarea", PARENTAREA.name());
+		m.put("area", metaHelper.getArea());
+		m.put("parentarea", metaHelper.getParentArea());
 
 		return "jobsubmit/metaform";
 	}
@@ -297,48 +290,36 @@ public class JobSubmissionController extends WaspController {
 		jobDraftForm.setLabId(jobDraft.getLabId());
 		jobDraftForm.setWorkflowId(jobDraft.getWorkflowId());
 
-		final MetaAttribute.Area AREA = MetaAttribute.Area.valueOf(jobDraft.getWorkflow().getIName());
-		final MetaAttribute.Area PARENTAREA = MetaAttribute.Area.jobDraft;
+		metaHelper.setBundle(getBundle());
+		metaHelper.setArea(jobDraft.getWorkflow().getIName());
 
-
-		List<JobDraftMeta> jobDraftMetaList = MetaUtil.getMetaFromForm(request,
-				AREA, PARENTAREA, JobDraftMeta.class, getBundle());
+		List<JobDraftMeta> jobDraftMetaList = metaHelper.getFromRequest(request, JobDraftMeta.class);
 
 		jobDraftForm.setJobDraftMeta(jobDraftMetaList);
 
-		Errors errors = new BindException(result.getTarget(), PARENTAREA.name());
-
-		result.addAllErrors(errors);
-
-
-		List<String> validateList = new ArrayList<String>();
-		for (JobDraftMeta meta : jobDraftMetaList) {
-			if (meta.getProperty() != null
-					&& meta.getProperty().getConstraint() != null) {
-				validateList.add(meta.getK());
-				validateList.add(meta.getProperty().getConstraint());
-			}
-		}
-		metaValidator.validate(validateList,jobDraftMetaList, result, PARENTAREA);
+		metaHelper.validate(jobDraftMetaList, result);
 
 		if (result.hasErrors()) {
 			waspMessage("hello.error");
 
 			m.put("jobDraftDb", jobDraft);
-			m.put("area", AREA.name());
-			m.put("parentarea", PARENTAREA.name());
+			m.put("area", metaHelper.getArea());
+			m.put("parentarea", metaHelper.getParentArea());
 
 			return "jobsubmit/metaform";
 		}
 
-		for (JobDraftMeta jdm : jobDraftMetaList) {
-			jdm.setJobdraftId(jobDraftId);
-		}
 		jobDraftMetaService.updateByJobdraftId(jobDraftId, jobDraftMetaList);
 
-		m.addAttribute("_metaList", MetaUtil.getMasterList(MetaBase.class, MetaAttribute.Area.sampleDraft, getBundle()));
-		m.addAttribute(JQFieldTag.AREA_ATTR, MetaAttribute.Area.sampleDraft.name());		
-		
+
+
+		// TODO SHOULD ACTUALLY FORWARD
+	  MetaHelper sampleMetaHelper = new MetaHelper("sampleDraft", SampleDraftMeta.class);
+
+    sampleMetaHelper.getMasterList(JobDraftMeta.class);
+
+		m.addAttribute("_metaList", sampleMetaHelper.getMasterList(SampleDraftMeta.class));
+		m.addAttribute(JQFieldTag.AREA_ATTR, "sampleDraft");		
 		prepareSelectListData(m);
 		m.addAttribute("jobdraftId",jobDraftId);
 		return "jobsubmit-sample";
@@ -349,10 +330,11 @@ public class JobSubmissionController extends WaspController {
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public String showJobDraft(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
 		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
-		final MetaAttribute.Area AREA = MetaAttribute.Area.valueOf(jobDraft.getWorkflow().getIName());
 
-		jobDraft.setJobDraftMeta(MetaUtil.syncWithMaster(jobDraft.getJobDraftMeta(), AREA, JobDraftMeta.class));
-		MetaUtil.setAttributesAndSort(jobDraft.getJobDraftMeta(), AREA,getBundle());
+		metaHelper.setBundle(getBundle());
+		metaHelper.setArea(jobDraft.getWorkflow().getIName());
+
+    jobDraft.setJobDraftMeta(metaHelper.syncWithMaster(jobDraft.getJobDraftMeta()));
 
 		m.put("jobDraft", jobDraft);
 
@@ -365,10 +347,12 @@ public class JobSubmissionController extends WaspController {
 		User me = getAuthenticatedUser();
 
 		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
-		final MetaAttribute.Area AREA = MetaAttribute.Area.valueOf(jobDraft.getWorkflow().getIName());
 
-		jobDraft.setJobDraftMeta(MetaUtil.syncWithMaster(jobDraft.getJobDraftMeta(), AREA, JobDraftMeta.class));
-		MetaUtil.setAttributesAndSort(jobDraft.getJobDraftMeta(), AREA,getBundle());
+		metaHelper.setBundle(getBundle());
+		metaHelper.setArea(jobDraft.getWorkflow().getIName());
+
+    jobDraft.setJobDraftMeta(metaHelper.syncWithMaster(jobDraft.getJobDraftMeta()));
+
 
 		// Copies JobDraft to a new Job
 		Job job = new Job();
@@ -447,69 +431,67 @@ public class JobSubmissionController extends WaspController {
 			  }
 		}*/
 
-    	ObjectMapper mapper = new ObjectMapper();
-    	
-		 try {
-			 //String users = mapper.writeValueAsString(userList);
-			 jqgrid.put("page","1");
-			 jqgrid.put("records",drafts.size()+"");
-			 jqgrid.put("total",drafts.size()+"");
-			 
-			 /*
-			 Map<String, String> userData=new HashMap<String, String>();
-			 userData.put("page","1");
-			 userData.put("selId",StringUtils.isEmpty(request.getParameter("selId"))?"":request.getParameter("selId"));
-			 jqgrid.put("userdata",userData);
-			 */
-			 List<Map> rows = new ArrayList<Map>();
-			 
-			 Map<Integer, String> allSampleTypes=new TreeMap<Integer, String>();
-		     for(TypeSample type:(List<TypeSample>)typeSampleService.findAll()) {
-					allSampleTypes.put(type.getTypeSampleId(),type.getName());
-			 }
-			 
-			 for (SampleDraft draft:drafts) {
-				 Map cell = new HashMap();
-				 cell.put("id", draft.getSampleDraftId());
-				 
-				 List<SampleDraftMeta> draftMeta=MetaUtil.syncWithMaster(draft.getSampleDraftMeta(), Area.sampleDraft, SampleDraftMeta.class);
-				 					
-				 MetaUtil.setAttributesAndSort(draftMeta, Area.sampleDraft, getBundle());
-				 
-				 List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
-							draft.getName(),
-							allSampleTypes.get(draft.getTypeSampleId()),							
-							draft.getStatus()							
+   	ObjectMapper mapper = new ObjectMapper();
+   	
+		try {
+			//String users = mapper.writeValueAsString(userList);
+			jqgrid.put("page","1");
+			jqgrid.put("records",drafts.size()+"");
+			jqgrid.put("total",drafts.size()+"");
+			
+			/*
+			Map<String, String> userData=new HashMap<String, String>();
+			userData.put("page","1");
+			userData.put("selId",StringUtils.isEmpty(request.getParameter("selId"))?"":request.getParameter("selId"));
+			jqgrid.put("userdata",userData);
+			*/
+			List<Map> rows = new ArrayList<Map>();
+			
+			Map<Integer, String> allSampleTypes=new TreeMap<Integer, String>();
+			for(TypeSample type:(List<TypeSample>)typeSampleService.findAll()) {
+				allSampleTypes.put(type.getTypeSampleId(),type.getName());
+			}
+			
+			for (SampleDraft draft:drafts) {
+				Map cell = new HashMap();
+				cell.put("id", draft.getSampleDraftId());
+			
+				MetaHelper sampleMetaHelper = new MetaHelper("sampleDraft", SampleDraftMeta.class);
+
+				List<SampleDraftMeta> draftMeta=sampleMetaHelper.syncWithMaster(draft.getSampleDraftMeta());
+			
+				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
+						draft.getName(),
+						allSampleTypes.get(draft.getTypeSampleId()),							
+						draft.getStatus()							
 				}));
-				 
+			
 				for(SampleDraftMeta meta:draftMeta) {
 					cellList.add(meta.getV());
 				}
-				
-				 
-				 cell.put("cell", cellList);
-				 
-				 rows.add(cell);
-			 }
+			
+				cell.put("cell", cellList);
+			 
+				rows.add(cell);
+			}
 
-			 
-			 jqgrid.put("rows",rows);
-			 
-			 String json=mapper.writeValueAsString(jqgrid);
-			 
-			 return json;
-		 } catch (Throwable e) {
-			 throw new IllegalStateException("Can't marshall to JSON "+drafts,e);
-		 }
-	
+			jqgrid.put("rows",rows);
+		
+			String json=mapper.writeValueAsString(jqgrid);
+		
+			return json;
+		} catch (Throwable e) {
+			throw new IllegalStateException("Can't marshall to JSON "+drafts,e);
+		}
 	}
 
 	
 	@RequestMapping(value = "/updateSampleDraftsJSON", method = RequestMethod.POST)	
 	public String updateDetailJSON(@RequestParam("id") Integer sampleDraftId,SampleDraft sampleDraftForm, ModelMap m, HttpServletResponse response) {
 
-		List<SampleDraftMeta> sampleDraftMetaList = MetaUtil.getMetaFromJSONForm(request,Area.sampleDraft, SampleDraftMeta.class, getBundle());
-		
+		MetaHelper sampleMetaHelper = new MetaHelper("sampleDraft", SampleDraftMeta.class);
+		List<SampleDraftMeta> sampleDraftMetaList = sampleMetaHelper.getFromJsonForm(request, SampleDraftMeta.class);
+
 		sampleDraftForm.setSampleDraftMeta(sampleDraftMetaList);
 
 		boolean adding=sampleDraftId==0;
