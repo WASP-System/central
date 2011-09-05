@@ -44,7 +44,7 @@ public class MetaValidator {
 	private Map<String, String> map=new HashMap<String, String>(); 
 
 /*		
-	public MetaValidator(String... pairs)  {
+	public MetaValidator(String... pairs)	{
 		if (pairs.length % 2!=0) throw new IllegalStateException("Number of params must be even");
 			
 		for(int i=0;i<pairs.length;i+=2) {
@@ -53,31 +53,37 @@ public class MetaValidator {
 	}
 */
 
-  public void setValidateList(List <String> validateList) {
-    if (validateList.size() % 2!=0) throw new IllegalStateException("Number of params must be even");
+	public void setValidateList(List <String> validateList) {
+		if (validateList.size() % 2!=0) throw new IllegalStateException("Number of params must be even");
 
-    for(int i=0;i<validateList.size();i+=2) {
-      this.map.put(validateList.get(i),validateList.get(i+1));
-    }
-  }
+		for(int i=0;i<validateList.size();i+=2) {
+			this.map.put(validateList.get(i),validateList.get(i+1));
+		}
+	}
 
 	public void validate(List<String> validateList, List<? extends MetaBase> list, BindingResult result, MetaAttribute.Area area) {
 		setValidateList(validateList);
 
-	  validate(list, result, area.name(), area.name());
-  }
+		validate(list, result, area.name(), area.name());
+	}
+
+	public void validate(List<String> validateList, List<? extends MetaBase> list, BindingResult result, String area) {
+		setValidateList(validateList);
+
+		validate(list, result, area, area);
+	}
 
 	public void validate(List<? extends MetaBase> list, BindingResult result, MetaAttribute.Area area) {
-	  validate(list, result, area.name(), area.name());
-  }
+		validate(list, result, area.name(), area.name());
+	}
 
 	public void validate(List<? extends MetaBase> list, BindingResult result, String area) {
-	  validate(list, result, area, area);
+		validate(list, result, area, area);
 	}
 
 	public void validate(List<? extends MetaBase> list, BindingResult result, MetaAttribute.Area area, MetaAttribute.Area parentArea) {
-	  validate(list, result, area.name(), parentArea.name());
-  }
+		validate(list, result, area.name(), parentArea.name());
+	}
 	
 	public void validate(List<? extends MetaBase> list, BindingResult result, String area, String parentarea) {
 		Errors errors=new BindException(result.getTarget(), parentarea); 
@@ -89,7 +95,7 @@ public class MetaValidator {
 
 			String errorFieldName = parentarea+"Meta["+i+"].k";
 			String errorMessageKey = meta.getK() + ".error";
-      String defaultMessage = errorMessageKey+" (no message has been defined for this property)";
+			String defaultMessage = errorMessageKey+" (no message has been defined for this property)";
 
 			if (constraint.startsWith(Constraint.Regexp.name()+":")) {
 				//TODO: optimize for speed (pre-compile) if used outside of admin pages
@@ -106,15 +112,15 @@ public class MetaValidator {
 					errors.rejectValue(errorFieldName, errorMessageKey, defaultMessage);
 				}
 
-      } else if (constraint.equals(Constraint.isValidPiEmail.name())){
-        if (meta.getV()==null || meta.getV().isEmpty()) {
-          errors.rejectValue(errorFieldName, errorMessageKey, defaultMessage);
-        } else {
-          User primaryInvestigator = userService.getUserByEmail(meta.getV());
-          if (primaryInvestigator.getUserId() == 0){
-            errors.rejectValue(errorFieldName, errorMessageKey, defaultMessage);
-          }
-        }
+			} else if (constraint.equals(Constraint.isValidPiEmail.name())){
+				if (meta.getV()==null || meta.getV().isEmpty()) {
+					errors.rejectValue(errorFieldName, errorMessageKey, defaultMessage);
+				} else {
+					User primaryInvestigator = userService.getUserByEmail(meta.getV());
+					if (primaryInvestigator.getUserId() == 0){
+						errors.rejectValue(errorFieldName, errorMessageKey, defaultMessage);
+					}
+				}
 
 					
 			} else {
