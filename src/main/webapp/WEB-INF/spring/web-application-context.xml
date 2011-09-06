@@ -143,4 +143,15 @@
     </list>
   </property>
 </bean> 
+
+ 
+ <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver"> 
+        <property name="maxUploadSize" value="10000000" />
+ </bean>
+ 
+ <bean id="sampleDir" class="java.io.File">
+    <constructor-arg index="0" value="C:\apps\tomcat70eintstein\temp" />
+</bean>
+ 
+ 
 </beans>

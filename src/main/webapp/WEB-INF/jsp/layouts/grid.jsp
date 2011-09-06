@@ -18,13 +18,16 @@ html, body {
     font-size: 75%;
 }
 
-
-
 </style>	
 
   <script src="/wasp/scripts/jquery/jquery-1.6.2.js" type="text/javascript"></script>
+  <script src="/wasp/scripts/jquery/ajaxfileupload.js" type="text/javascript"></script>
   <script src="/wasp/scripts/jqgrid/grid.locale-<%= ((HttpServletRequest)pageContext.getRequest()).getSession().getAttribute("jqLang") %>.js" type="text/javascript"></script>
   <script src="/wasp/scripts/jqgrid/jquery.jqGrid.min.js" type="text/javascript"></script>
+  
+  <script src="/wasp/scripts/jqgrid/grid.locale-<%= ((HttpServletRequest)pageContext.getRequest()).getSession().getAttribute("jqLang") %>.js" type="text/javascript"></script>
+  <script src="/wasp/scripts/jqgrid/jquery.jqGrid.min.js" type="text/javascript"></script>
+  
   
   <script type="text/javascript">
 
@@ -32,7 +35,79 @@ html, body {
  
   $.jgrid.useJSON = true;
 
+  function waspFade(el, msg) {
+		
+	  document.getElementById(el).innerText=msg;
+	
+	  setTimeout(function() {
+	  	  		
+	  	    	$('#'+el).fadeOut('slow',
+
+	  			function() {
+	  			      	
+	  	    		document.getElementById(el).innerText="";
+	  	    	
+	  	    	 	$('#'+el).show();
+	   				
+	  				});
+	  			},5000);
+	  			
+  }
   
+  function odump(object, depth, max){
+  depth = depth || 0;
+  max = max || 2;
+
+  if (depth > max)
+    return false;
+
+  var indent = "";
+  for (var i = 0; i < depth; i++)
+    indent += "  ";
+
+  var output = "";  
+  for (var key in object){
+    output += "\n" + indent + key + ": ";
+    switch (typeof object[key]){
+      case "object": output += odump(object[key], depth + 1, max); break;
+      case "function": output += "function"; break;
+      default: {
+    	  try {
+    		  output += object[key]; break;  
+    	  } catch(e) {
+    		  output += key+' cant get value ';
+    		  break;
+    	  }
+    	          
+      }
+    }
+  }
+  return output;
+}
+
+  
+  function waspHandleError4(xhr, xml, status, ex)  {
+     var error_msg = 'xhr:['+odump(xhr)+'] xml['+odump(xml)+'] status['+odump(status)+'] ex['+odump(ex)+']';           
+     //alert(error_msg);
+     window.parent.document.write(error_msg);
+ }
+
+
+ function waspHandleError3(xhr, xml, textStatus)  {
+ 	 var error_msg = 'xhr:['+odump(xhr)+'] xml['+odump(xml)+'] status['+odump(status)+']';
+ 	 
+ }
+
+   
+ jQuery.ajaxSetup( {
+ 	  
+ 	  error: function(XMLHttpRequest, textStatus, errorThrown) {
+ 		  alert(textStatus+'|'+errorThrown);
+ 	  },
+ 	  async:false 
+   } 
+  );
+ 
   function _noop(value, colname) {
 	  return [true,""];
   }
@@ -91,26 +166,7 @@ html, body {
 	
   _afterSubmit = function(response, data) {
 	  
-	   document.getElementById('statusMessage').innerText=response.responseText;
-	  
-	 // alert('status set to '+document.getElementById('statusMessage').innerText);
-	   setTimeout(function() {
-	  	
-	    $('#statusMessage').fadeOut('slow',
-
-		function() {       		
-	    	document.getElementById('statusMessage').innerText="";
-	    	 $('#statusMessage').show();
- 			//annimation complete
-			});
-		},5000);
-
-     //reload grid
-     //grid.trigger("reloadGrid");
-  
-    //if (document.forms[0].password && document.forms[0].password.value) {
- 	//   document.forms[0].password.value='';
-   //  }
+       waspFade('statusMessage',response.responseText);
 	
 	   return [true,''];     
  }
@@ -119,11 +175,14 @@ html, body {
   var _url='/wasp/<tiles:insertAttribute name="area" />/listJSON.do?selId=${param.selId}';
   var _editurl='/wasp/<tiles:insertAttribute name="area" />/detail_rw/updateJSON.do';
   
-  var _editAttr={width:'auto',closeAfterEdit:true,closeOnEscape:true,afterSubmit:_afterSubmit,errorTextFormat:_errorTextFormat,beforeShowForm:_beforeShowEditForm};
+  var _editAttr={
+		  width:'auto',closeAfterEdit:true,closeOnEscape:true,afterSubmit:_afterSubmit,errorTextFormat:_errorTextFormat,beforeShowForm:_beforeShowEditForm
+  };
   
   var _addAttr={
 	serializeEditData: function(data){ return $.param($.extend({}, data, {id:0}));},//pass '0' on add instead of empty string
-	closeAfterAdd:true,closeOnEscape:true,errorTextFormat:_errorTextFormat,afterSubmit:_afterSubmit,beforeShowForm:_beforeShowAddForm,width:'auto'};
+	closeAfterAdd:true,closeOnEscape:true,errorTextFormat:_errorTextFormat,afterSubmit:_afterSubmit,beforeShowForm:_beforeShowAddForm,width:'auto'
+  };
   
   var _delAttr={};
   
@@ -138,10 +197,6 @@ html, body {
   
   <tiles:insertAttribute name="grid-columns" />
   	
-  
-
- 
-
 //add meta fields
  <c:forEach items="${_metaList}" var="_meta" varStatus="status">
 
@@ -255,6 +310,9 @@ $("#grid_id").jqGrid({
 		  );
 
 }); 
+
+
+
 
 </script>
 </head>

@@ -11,12 +11,10 @@
 
 package edu.yu.einstein.wasp.service;
 
+import org.springframework.stereotype.Service;
+
 import edu.yu.einstein.wasp.dao.FileDao;
 import edu.yu.einstein.wasp.model.File;
-
-import java.util.List;
-
-import org.springframework.stereotype.Service;
 
 @Service
 public interface FileService extends WaspService<File> {

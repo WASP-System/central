@@ -81,7 +81,8 @@ public class JQFieldTag extends BodyTagSupport {
 		select,
 		checkbox,
 		password,
-		hidden
+		hidden,
+		file
 	}
 	
 	
@@ -160,21 +161,15 @@ public class JQFieldTag extends BodyTagSupport {
 				"}\n\n"+
 		 "};\n";
 	
-		buf=buf+
-		"colNames.push("+jsName+".label);\n"+
-		"colModel.push("+jsName+".jq);\n"+
-		"colErrors.push("+jsName+".error);\n";
-	
 		if (type==Type.select) {
 			
-			
-		if (this.items==null) {
+			if (this.items==null) {
 				throw new JspTagException("'items' parameter is required when type is 'select'");
-		}
+			}
 		
-		if (items instanceof Collection && (this.itemValue==null || this.itemLabel==null)) {
-			throw new JspTagException("'items','itemValue' and 'itemLabel' parameters are required when type is 'select' and 'items' is a collection");
-		}
+			if (items instanceof Collection && (this.itemValue==null || this.itemLabel==null)) {
+				throw new JspTagException("'items','itemValue' and 'itemLabel' parameters are required when type is 'select' and 'items' is a collection");
+			}
 		
 			buf=buf+
 			jsName+".jq['edittype']='select';\n"+
@@ -187,18 +182,28 @@ public class JQFieldTag extends BodyTagSupport {
 			jsName+".jq['edittype']='password';\n"+
 			jsName+".jq['hidden']=true;\n"+
 			jsName+".jq['search']=false;\n"+
-			jsName+".jq['editrules']={};"+
+			jsName+".jq['editrules']={};\n"+
 			jsName+".jq['editrules']['edithidden']=true;\n";
 		} else if (type==Type.hidden) { 
 			buf=buf+
 			jsName+".jq['edittype']='hidden';\n"+
 			jsName+".jq['hidden']=true;\n"+
 			jsName+".jq['search']=false;\n"+
-			jsName+".jq['editrules']={};"+
+			jsName+".jq['editrules']={};\n"+
 			jsName+".jq['editrules']['edithidden']=false;\n";
+		} else if (type==Type.file) { 
+			buf=buf+
+			jsName+".jq['edittype']='file';\n"+
+			jsName+".jq['hidden']=false;\n"+
+			jsName+".jq['search']=false;\n"+
+			jsName+".jq['editrules']={};\n"+
+			jsName+".jq['editrules']['edithidden']=true;\n";			
 		}
-		
-	
+
+		buf=buf+
+		"\ncolNames.push("+jsName+".label);\n"+
+		"colModel.push("+jsName+".jq);\n"+
+		"colErrors.push("+jsName+".error);\n";
 		
 		this.pageContext.getOut().print(buf);
 	

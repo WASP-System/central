@@ -1,5 +1,8 @@
 package edu.yu.einstein.wasp.controller;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -8,26 +11,29 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
-import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
+import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 import edu.yu.einstein.wasp.controller.validator.MetaValidator;
 import edu.yu.einstein.wasp.model.Job;
@@ -37,7 +43,6 @@ import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.JobUser;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabUser;
-import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.MetaHelper;
 import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.SampleDraft;
@@ -45,6 +50,7 @@ import edu.yu.einstein.wasp.model.SampleDraftMeta;
 import edu.yu.einstein.wasp.model.TypeSample;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Workflow;
+import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobDraftMetaService;
 import edu.yu.einstein.wasp.service.JobDraftService;
 import edu.yu.einstein.wasp.service.JobMetaService;
@@ -105,6 +111,12 @@ public class JobSubmissionController extends WaspController {
 	@Autowired
 	private WorkflowService workflowService;
 
+	@Autowired
+	private File sampleDir;
+	
+	@Autowired
+	private FileService fileService;
+	
 	MetaHelper metaHelper = new MetaHelper("jobDraft", JobDraft.class);
 
 
@@ -264,7 +276,7 @@ public class JobSubmissionController extends WaspController {
 
 		metaHelper.setArea(jobDraft.getWorkflow().getIName());
 
-    jobDraft.setJobDraftMeta(metaHelper.getMasterList(JobDraftMeta.class));
+		jobDraft.setJobDraftMeta(metaHelper.getMasterList(JobDraftMeta.class));
 
 		m.put("jobDraftDb", jobDraft);
 		m.put("jobDraft", jobDraft);
@@ -316,13 +328,14 @@ public class JobSubmissionController extends WaspController {
 		// TODO SHOULD ACTUALLY FORWARD
 	  MetaHelper sampleMetaHelper = new MetaHelper("sampleDraft", SampleDraftMeta.class);
 
-    sampleMetaHelper.getMasterList(JobDraftMeta.class);
+	  sampleMetaHelper.getMasterList(JobDraftMeta.class);
 
-		m.addAttribute("_metaList", sampleMetaHelper.getMasterList(SampleDraftMeta.class));
-		m.addAttribute(JQFieldTag.AREA_ATTR, "sampleDraft");		
-		prepareSelectListData(m);
-		m.addAttribute("jobdraftId",jobDraftId);
-		return "jobsubmit-sample";
+	  m.addAttribute("_metaList", sampleMetaHelper.getMasterList(SampleDraftMeta.class));
+	  m.addAttribute(JQFieldTag.AREA_ATTR, "sampleDraft");		
+	  prepareSelectListData(m);
+	  m.addAttribute("jobdraftId",jobDraftId);
+	  m.addAttribute("uploadStartedMessage",getMessage("sampleDraft.fileupload.started"));
+	  return "jobsubmit-sample";
 	}
 	
 
@@ -399,7 +412,7 @@ public class JobSubmissionController extends WaspController {
 	}
 
 
-@RequestMapping(value="/listSampleDraftsJSON", method=RequestMethod.GET)	
+    @RequestMapping(value="/listSampleDraftsJSON", method=RequestMethod.GET)	
 	public @ResponseBody String getSampleDraftListJSON(@RequestParam("jobdraftId") Integer jobdraftId) {
 	
 		//result
@@ -407,31 +420,8 @@ public class JobSubmissionController extends WaspController {
 		
 		List<SampleDraft> drafts=sampleDraftService.getSampleDraftByJobId(jobdraftId);
 
-		
-		//private SampleDraftMetaService sampleDraftMetaService;
 
-		/*
-		if (request.getParameter("_search")==null || StringUtils.isEmpty(request.getParameter("searchString"))) {
-			userList = this.userService.findAll();
-		} else {
-			
-			  Map<String, String> m = new HashMap<String, String>();
-			  
-			  m.put(request.getParameter("searchField"), request.getParameter("searchString"));
-			  				  
-			  userList = this.userService.findByMap(m);
-			  
-			  if ("ne".equals(request.getParameter("searchOper"))) {
-				  List<User> allUsers=new ArrayList<User>(this.userService.findAll());
-				  for(Iterator<User> it=userList.iterator();it.hasNext();)  {
-					  User excludeUser=it.next();
-					  allUsers.remove(excludeUser);
-				  }
-				  userList=allUsers;
-			  }
-		}*/
-
-   	ObjectMapper mapper = new ObjectMapper();
+		ObjectMapper mapper = new ObjectMapper();
    	
 		try {
 			//String users = mapper.writeValueAsString(userList);
@@ -439,12 +429,7 @@ public class JobSubmissionController extends WaspController {
 			jqgrid.put("records",drafts.size()+"");
 			jqgrid.put("total",drafts.size()+"");
 			
-			/*
-			Map<String, String> userData=new HashMap<String, String>();
-			userData.put("page","1");
-			userData.put("selId",StringUtils.isEmpty(request.getParameter("selId"))?"":request.getParameter("selId"));
-			jqgrid.put("userdata",userData);
-			*/
+			
 			List<Map> rows = new ArrayList<Map>();
 			
 			Map<Integer, String> allSampleTypes=new TreeMap<Integer, String>();
@@ -452,18 +437,35 @@ public class JobSubmissionController extends WaspController {
 				allSampleTypes.put(type.getTypeSampleId(),type.getName());
 			}
 			
-			for (SampleDraft draft:drafts) {
+			for (SampleDraft draft : drafts) {
 				Map cell = new HashMap();
 				cell.put("id", draft.getSampleDraftId());
 			
 				MetaHelper sampleMetaHelper = new MetaHelper("sampleDraft", SampleDraftMeta.class);
 
 				List<SampleDraftMeta> draftMeta=sampleMetaHelper.syncWithMaster(draft.getSampleDraftMeta());
-			
+				String fileCell="";
+				if (draft.getFile()!=null ) {
+					String fileName=draft.getFile().getFilelocation();
+					if (fileName!=null && ( fileName.indexOf('/')>-1 || fileName.indexOf('\\')>-1)) {
+						int idx = fileName.lastIndexOf('/');
+						if (idx==-1) idx = fileName.lastIndexOf('\\');
+						fileName=fileName.substring(idx+1);						
+					}
+					
+					if (fileName!=null && fileName.indexOf('.')>-1) {
+						int idx = fileName.lastIndexOf('.');
+						fileName=fileName.substring(0,idx);		
+					}
+					
+					fileCell="<a href='/wasp/jobsubmit/downloadFile.do?id="+draft.getFile().getFileId()+"'>"+fileName+"</a> "+draft.getFile().getSizek()+"kB";
+				}
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 						draft.getName(),
 						allSampleTypes.get(draft.getTypeSampleId()),							
-						draft.getStatus()							
+						draft.getStatus(),
+						fileCell
+							
 				}));
 			
 				for(SampleDraftMeta meta:draftMeta) {
@@ -485,53 +487,135 @@ public class JobSubmissionController extends WaspController {
 		}
 	}
 
-	
-	@RequestMapping(value = "/updateSampleDraftsJSON", method = RequestMethod.POST)	
-	public String updateDetailJSON(@RequestParam("id") Integer sampleDraftId,SampleDraft sampleDraftForm, ModelMap m, HttpServletResponse response) {
 
-		MetaHelper sampleMetaHelper = new MetaHelper("sampleDraft", SampleDraftMeta.class);
-		List<SampleDraftMeta> sampleDraftMetaList = sampleMetaHelper.getFromJsonForm(request, SampleDraftMeta.class);
-
-		sampleDraftForm.setSampleDraftMeta(sampleDraftMetaList);
-
-		boolean adding=sampleDraftId==0;
-		
-		//get from jobdraft table
-		JobDraft jd=jobDraftService.findById(sampleDraftForm.getJobdraftId());
-		sampleDraftForm.setUserId(jd.getUserId());
-		sampleDraftForm.setLabId(jd.getLabId());
-		
-		
-		if (adding) {
-					
-			SampleDraft sampleDraftDb = this.sampleDraftService.save(sampleDraftForm);
-			
-			sampleDraftId=sampleDraftDb.getSampleDraftId();
-		} else {
-			
-			SampleDraft sampleDraftDb = this.sampleDraftService.getById(sampleDraftId);
-			
-			sampleDraftDb.setName(sampleDraftForm.getName());			
-			sampleDraftDb.setStatus(sampleDraftForm.getStatus());
-			sampleDraftDb.setTypeSampleId(sampleDraftForm.getTypeSampleId());
-
-			this.sampleDraftService.merge(sampleDraftDb);
-		}
-
-
-		for (SampleDraftMeta meta : sampleDraftMetaList) {
-			meta.setSampledraftId(sampleDraftId);
-		}
-
-		sampleDraftMetaService.updateBySampledraftId(sampleDraftId, sampleDraftMetaList);
-		
+    
+    @RequestMapping(value = "/uploadFile", method = RequestMethod.POST)		
+    public String uploadFile(@RequestParam("id") Integer sampleDraftId,SampleDraft sampleDraftForm, ModelMap m, HttpServletResponse response) {
+	   	
+    	String jsCallback="<html>\n"+
+"<head>\n"+
+"<script type='text/javascript'>\n"+
+"function init() {\n"+
+	"if(top.uploadDone) top.uploadDone('{message}'); \n"+
+"}\n"+
+"window.onload=init;\n"+
+"</script>\n"+
+"<body>\n"+
+"</body>\n";
+ 
+    	
 		try {
-			response.getWriter().println(adding?getMessage("sampleDraft.created.success"):getMessage("sampleDraft.updated.success"));
-			return null;
-		} catch (Throwable e) {
-			throw new IllegalStateException("Cant output success message ",e);
-		}
+			
+			if (sampleDraftForm.getFileData()!=null) {//uploading just file				
+			    
+			    CommonsMultipartFile fileData=sampleDraftForm.getFileData();
+			    
+			    SampleDraft samplDraft=sampleDraftService.findById(sampleDraftId);
+			    
+			    Lab lab=samplDraft.getLab();
+			    
+			    User piUser=userService.getById(lab.getPrimaryUserId());
+			    
+			    final String login = 
+			    ((org.springframework.security.core.userdetails.User)
+			    		SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+			    ).getUsername();
+			   			   
+			    String[] path=new String[] {
+			    		this.sampleDir.toString(),
+			    		piUser.getLogin(),
+			    		login,
+			    		"jobdraft_"+sampleDraftForm.getJobdraftId(),
+			    		fileData.getOriginalFilename()+"."+System.currentTimeMillis()
+			    		};
+			    
+			    String destStr=StringUtils.join(path, System.getProperty("file.separator"));
+			    
+			    File dest=new File(destStr);
+			    
+			    FileUtils.forceMkdir(dest);
+			    
+			    fileData.transferTo(dest);
+			    			 	
+			    edu.yu.einstein.wasp.model.File file = new edu.yu.einstein.wasp.model.File();
+			    
+			    file.setFilelocation(dest.getAbsolutePath());
+			    file.setIsActive(1);
+			    file.setContenttype("?");
+			    file.setMd5hash("xxx");
+			    file.setSizek((int)(fileData.getSize()/1024));
+			    			    
+			    fileService.persist(file);
+			    
+			    samplDraft.setFileId(file.getFileId());
+			    
+			    sampleDraftService.merge(samplDraft);
+			    			  
+			    jsCallback=jsCallback.replace("{message}",getMessage("sampleDraft.fileupload.done"));
+			    response.setContentType( "text/html; charset=UTF-8" );
+			    response.getWriter().print(jsCallback);
+			  
+			} else {
+				jsCallback=jsCallback.replace("{message}",getMessage("sampleDraft.fileupload.empty"));
+			    response.setContentType( "text/html; charset=UTF-8" );
+			    response.getWriter().print(jsCallback);				
+			}
+		} catch(Throwable e) {
+			throw new IllegalStateException("cant get file to upload",e);
+		}		
+		return null;
 	}
+  
+    @RequestMapping(value = "/updateSampleDrafts", method = RequestMethod.POST)		
+    public String updateDetailJSON(@RequestParam("id") Integer sampleDraftId,SampleDraft sampleDraftForm, ModelMap m, HttpServletResponse response) {
+
+
+    MetaHelper sampleMetaHelper = new MetaHelper("sampleDraft", SampleDraftMeta.class);	
+	List<SampleDraftMeta> sampleDraftMetaList = sampleMetaHelper.getFromJsonForm(request, SampleDraftMeta.class);
+	
+	sampleDraftForm.setSampleDraftMeta(sampleDraftMetaList);
+
+	boolean adding=sampleDraftId==0;
+	
+	//get from jobdraft table
+	JobDraft jd=jobDraftService.findById(sampleDraftForm.getJobdraftId());
+	sampleDraftForm.setUserId(jd.getUserId());
+	sampleDraftForm.setLabId(jd.getLabId());
+	
+	
+	if (adding) {
+				
+		SampleDraft sampleDraftDb = this.sampleDraftService.save(sampleDraftForm);
+		
+		sampleDraftId=sampleDraftDb.getSampleDraftId();
+	} else {
+		
+		SampleDraft sampleDraftDb = this.sampleDraftService.getById(sampleDraftId);
+		
+		sampleDraftDb.setName(sampleDraftForm.getName());			
+		sampleDraftDb.setStatus(sampleDraftForm.getStatus());
+		sampleDraftDb.setTypeSampleId(sampleDraftForm.getTypeSampleId());
+
+		this.sampleDraftService.merge(sampleDraftDb);
+	}
+
+
+	for (SampleDraftMeta meta : sampleDraftMetaList) {
+		meta.setSampledraftId(sampleDraftId);
+	}
+
+	sampleDraftMetaService.updateBySampledraftId(sampleDraftId, sampleDraftMetaList);
+	
+	try {			
+		response.getWriter().println(sampleDraftId+"|"+(adding?getMessage("sampleDraft.created.success"):getMessage("sampleDraft.updated.success")));		
+		return null;
+		
+	} catch (Throwable e) {
+		throw new IllegalStateException("Cant output success message ",e);
+	}
+}
+	
+	
 	
 	@RequestMapping(value = "/deleteSampleDraftJSON", method = RequestMethod.DELETE)	
 	public String deleteSampleDraftJSON(@RequestParam("id") Integer sampleDraftId,HttpServletResponse response) {
@@ -547,7 +631,51 @@ public class JobSubmissionController extends WaspController {
 		}
 	}
 	
+	@RequestMapping(value = "/downloadFile.do", method = RequestMethod.GET)	
+	public String downloadSampleDraftFile(@RequestParam("id") Integer fileId,HttpServletResponse response) {
+		
+		int FILEBUFFERSIZE=1000000;//megabyte
+		
+		edu.yu.einstein.wasp.model.File file=fileService.findById(fileId);
+		
+		
+		
+		try {
+			ServletOutputStream out = response.getOutputStream();
+			
+			File diskFile=new File(file.getFilelocation());
+			InputStream in = new FileInputStream(diskFile);
+			
+			String mimeType = "application/octet-stream";
+			byte[] bytes = new byte[FILEBUFFERSIZE];
+			int bytesRead;
 
+			response.setContentType(mimeType);
+			
+			response.setContentLength( (int)diskFile.length() );
+			
+			String fileName=diskFile.getName();
+				
+			if (fileName!=null && fileName.indexOf('.')>-1) {
+				int idx = fileName.lastIndexOf('.');
+				fileName=fileName.substring(0,idx);		
+			}
+			
+	        response.setHeader( "Content-Disposition", "attachment; filename=\"" + fileName + "\"" );
+
+			while ((bytesRead = in.read(bytes)) != -1) {
+			    out.write(bytes, 0, bytesRead);
+			}
+
+			// do the following in a finally block:
+			in.close();
+			out.close();
+			return null;
+		} catch (Throwable e) {
+			throw new IllegalStateException("Cant output success message ",e);
+		}
+	}
+	
 	protected void prepareSelectListData(ModelMap m) {
 		super.prepareSelectListData(m);
 		m.addAttribute("typeSamples",typeSampleService.findAll());

@@ -22,10 +22,13 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
+import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 @Entity
 @Audited
@@ -191,6 +194,40 @@ public class SampleDraft extends WaspModel {
     this.sampleDraftMeta = sampleDraftMeta;
   }
 
+  @Column(name="fileid")
+  private Integer fileId;  
+  public Integer getFileId() {
+	return fileId;
+  }
+  public void setFileId(Integer fileId) {
+	this.fileId = fileId;
+  }
+
+
+  @NotAudited
+  @OneToOne
+   @JoinColumn(name="fileid", insertable=false, updatable=false)
+  protected File file;
+  public void setFile (File file) {
+    this.file = file;
+    this.fileId = file.fileId;
+  }
+  
+  public File getFile () {
+    return this.file;
+  }
+  
+@Transient
+ private CommonsMultipartFile fileData;
+ public CommonsMultipartFile getFileData()
+ {
+   return fileData;
+ }
+
+ public void setFileData(CommonsMultipartFile fileData)
+ {
+   this.fileData = fileData;
+ }
 
 
 }
