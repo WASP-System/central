@@ -343,6 +343,9 @@ labuser.request.alreadyaccess.error=Could not request for access to that Lab.
 labPending.name.label=Lab Name
 labPending.name.error=Lab Name cannot be empty
 
+labPending.primaryUserId.label=Primary User
+labPending.primaryUserId.error=Please select Primary User
+
 labPending.departmentId.label=Department
 labPending.departmentId.error=Please select department
 

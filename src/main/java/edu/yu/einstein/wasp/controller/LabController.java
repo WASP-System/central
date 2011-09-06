@@ -448,6 +448,30 @@ public class LabController extends WaspController {
 		return isRW?"lab/detail_rw":"lab/detail_ro";
 	}
 	
+	@RequestMapping(value = "/pending/detail_ro/{labPendingId}.do", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('god') or hasRole('da-' + #labPendingId)")
+	public String pendingDetailRO(@PathVariable("labPendingId") Integer labPendingId, ModelMap m) {
+		return pendingDetail(labPendingId,m,false);
+	}
+	
+	private String pendingDetail(Integer labPendingId, ModelMap m, boolean isRW) {
+
+		LabPending labPending = this.labPendingService.getById(labPendingId);
+
+		labPending.setLabPendingMeta(metaHelper.syncWithMaster(labPending.getLabPendingMeta()));
+
+		//List<LabUser> labUserList = labPending.getLabUser();
+		//labUserList.size();
+
+		//List<Job> jobList = labPending.getJob();
+		//jobList.size();
+		
+		m.addAttribute("labpending", labPending);
+
+		prepareSelectListData(m);
+		
+		return isRW?"lab/pending/detail_rw":"lab/pending/detail_ro";
+	}
 
 	@RequestMapping(value = "/create/form.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('god')")
@@ -601,8 +625,8 @@ public class LabController extends WaspController {
 		Lab lab = new Lab();
 		User user;
 
-		if (labPending.getUserpendingId() != null ) {
-			UserPending userPending = userPendingService.getUserPendingByUserPendingId(labPending.getUserpendingId());
+		if (labPending.getUserPendingId() != null ) {
+			UserPending userPending = userPendingService.getUserPendingByUserPendingId(labPending.getUserPendingId());
 			user = createUserFromUserPending(userPending);
 		} else {
 			user = userService.getUserByUserId(labPending.getPrimaryUserId());
@@ -722,7 +746,7 @@ public class LabController extends WaspController {
 
 				List<LabPending> labPendingList = labPendingService.findByMap(labPendingQueryMap);
 				for (LabPending labPending: labPendingList) {
-					labPending.setUserpendingId((Integer) null);
+					labPending.setUserPendingId((Integer) null);
 					labPending.setPrimaryUserId(userDb.getUserId());
 					labPendingService.save(labPending);
 				}

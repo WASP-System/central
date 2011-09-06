@@ -37,13 +37,9 @@
     <h2>Pending Lab</h2>
     <c:forEach items="${labpending}" var="lp">
       <div>
-        <c:out value="${lp.name}" />
-        <a href="<c:url value="/lab/labpending/approve/${department.departmentId}/${lp.labPendingId}.do" />">
-	Approve
-        </a>
-        <a href="<c:url value="/lab/labpending/reject/${department.departmentId}/${lp.labPendingId}.do" />">
-	Reject
-        </a>
+      	<a href="/wasp/lab/pending/detail_ro/<c:out value="${lp.labPendingId}" />.do">
+      	<c:out value="${lp.name}" />
+      	</a>
       </div>
     </c:forEach>
 

@@ -49,6 +49,8 @@ public class DepartmentController extends WaspController {
 
   @Autowired
   private LabPendingService labPendingService;
+  
+  //private static final MetaAttribute.Area AREA = MetaAttribute.Area.labPending;
  
   @RequestMapping("/list")
   @PreAuthorize("hasRole('god') or hasRole('da-*')")
@@ -118,7 +120,7 @@ public class DepartmentController extends WaspController {
 
   @RequestMapping(value="/user/roleAdd", method=RequestMethod.POST)
   @PreAuthorize("hasRole('god') or hasRole('da-' + #departmentId)")
-  public String departmentUserRoleRemove (
+  public String departmentUserRoleAdd (
     @RequestParam("departmentId") Integer departmentId,
     @RequestParam("useremail") String useremail,
     ModelMap m) {

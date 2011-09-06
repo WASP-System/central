@@ -56,6 +56,7 @@
  <definition name="user/detail_ro" template="/WEB-INF/jsp/user/detail_ro.jsp"/>
  <definition name="lab/detail_rw" template="/WEB-INF/jsp/lab/detail_rw.jsp"/>
  <definition name="lab/detail_ro" template="/WEB-INF/jsp/lab/detail_ro.jsp"/>
+ <definition name="lab/pending/detail_ro" template="/WEB-INF/jsp/lab/pendinglab/detail_ro.jsp"/>
  <definition name="lab/user" template="/WEB-INF/jsp/lab/user.jsp"/>
 
  <definition name="lab/newrequest" template="/WEB-INF/jsp/lab/newrequest.jsp"/>
