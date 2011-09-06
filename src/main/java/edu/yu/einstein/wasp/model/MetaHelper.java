@@ -93,6 +93,7 @@ public class MetaHelper {
 		this.clazz = clazz;
 	}
 
+
 	private List<MetaBase> lastList;
 
 	/* 
@@ -277,8 +278,11 @@ public class MetaHelper {
 	}
 
 
-
 	public final MetaValidator getMetaValidator(List<? extends MetaBase> list) {
+		return getMetaValidator(list, MetaValidator.class);
+	}
+
+	public final <T extends MetaValidator> T getMetaValidator(List<? extends MetaBase> list, Class <T>metaValidatorClazz) {
 		List<String> validateList = new ArrayList<String>();
 
 		for (MetaBase meta : list) {
@@ -288,7 +292,14 @@ public class MetaHelper {
 				validateList.add(meta.getProperty().getConstraint());
 			}
 		}
-		MetaValidator validator = new MetaValidator();
+
+		T validator;
+		try {
+			validator = (T) metaValidatorClazz.newInstance();
+		} catch (Exception e) {
+			return null;
+		}
+
 		validator.setValidateList(validateList);
 
 		return validator;
@@ -296,6 +307,10 @@ public class MetaHelper {
 
 	public final MetaValidator getMetaValidator() {
 		return getMetaValidator(this.lastList);
+	}
+
+	public final <T extends MetaValidator> T getMetaValidator(Class<T> metaValidatorClazz) {
+		return getMetaValidator(this.lastList, metaValidatorClazz);
 	}
 
 	public void validate(MetaValidator validator, List<MetaBase> list, BindingResult result) {
@@ -312,5 +327,9 @@ public class MetaHelper {
 
 	public void validate(BindingResult result) {
 		getMetaValidator().validate(this.lastList, result, area, parentArea);
+	}
+
+	public void validate(Class metaValidatorClazz, BindingResult result) {
+		getMetaValidator(metaValidatorClazz).validate(this.lastList, result, area, parentArea);
 	}
 }
