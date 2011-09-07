@@ -223,10 +223,15 @@ import edu.yu.einstein.wasp.model.$t->{'Table'};
 \@Repository
 public class $t->{'Table'}DaoImpl extends WaspDaoImpl<$t->{'Table'}> implements edu.yu.einstein.wasp.dao.$t->{'Table'}Dao {
 
-  public $t->{'Table'}DaoImpl() {
-    super();
-    this.entityClass = $t->{'Table'}.class;
-  }
+	/**
+	 * $t->{'Table'}DaoImpl() Constructor
+	 *
+	 *
+	 */
+	public $t->{'Table'}DaoImpl() {
+		super();
+		this.entityClass = $t->{'Table'}.class;
+	}
 
 |; 
 
@@ -322,15 +327,13 @@ public class $t->{'Table'}ServiceImpl extends WaspServiceImpl<$t->{'Table'}> imp
       $e .= ", " if $e;
       $e .= $t->{'cols'}->{$col}->{'var'};
 
-      $c .= qq|    m.put("$t->{'cols'}->{$col}->{'var'}", $t->{'cols'}->{$col}->{'var'});\n|;
+      $c .= qq|\t\tm.put("$t->{'cols'}->{$col}->{'var'}", $t->{'cols'}->{$col}->{'var'});\n|;
 
-#      $c .= qq|\n       + " AND "| if $c;
-#      $c .= qq|+ "a.$t->{'cols'}->{$col}->{'var'} = :$t->{'cols'}->{$col}->{'var'}"|;
-      $d .= qq|      query.setParameter("$t->{'cols'}->{$col}->{'var'}", $t->{'cols'}->{$col}->{'var'});\n|;
+#      $c .= qq|\n\t\t+ " AND "| if $c;
+#      $c .= qq|\t\t+ "a.$t->{'cols'}->{$col}->{'var'} = :$t->{'cols'}->{$col}->{'var'}"|;
+      $d .= qq|\t\tquery.setParameter("$t->{'cols'}->{$col}->{'var'}", $t->{'cols'}->{$col}->{'var'});\n|;
     }
 
-    $j_dao .= "  \@SuppressWarnings(\"unchecked\")\n";
-    $j_dao .= "  \@Transactional\n";
 
     $j_dao_interface .= "  public $t->{'Table'} get$t->{'Table'}By$a ($b);\n\n"; 
     $j_service_interface .= "  public $t->{'Table'} get$t->{'Table'}By$a ($b);\n\n"; 
@@ -341,17 +344,32 @@ public class $t->{'Table'}ServiceImpl extends WaspServiceImpl<$t->{'Table'}> imp
   }
 |;
 
-    $j_dao .= "  public $t->{'Table'} get$t->{'Table'}By$a ($b) {\n";
+    $j_dao .= qq|
+	/**
+	 * get$t->{'Table'}By$a($b)
+	 *
+	 * \@param $b
+	 *
+	 * \@return $t->{'table'}
+	 */
 
-    $j_dao .= "    HashMap m = new HashMap();\n";
-    $j_dao .= $c;
-    $j_dao .= "    List<$t->{'Table'}> results = (List<$t->{'Table'}>) this.findByMap((Map) m);\n";
-    $j_dao .= qq|    if (results.size() == 0) {\n|;
-    $j_dao .= qq|      $t->{'Table'} rt = new $t->{'Table'}();\n|;
-    $j_dao .= qq|      return rt;\n|;
-    $j_dao .= qq|    }\n|;
-    $j_dao .= qq|    return ($t->{'Table'}) results.get(0);\n|;
-    $j_dao .= "  }\n\n\n"; 
+	\@SuppressWarnings(\"unchecked\")
+	\@Transactional
+	public $t->{'Table'} get$t->{'Table'}By$a ($b) {
+    		HashMap m = new HashMap();
+$c
+		List<$t->{'Table'}> results = (List<$t->{'Table'}>) this.findByMap((Map) m);
+
+		if (results.size() == 0) {
+			$t->{'Table'} rt = new $t->{'Table'}();
+			return rt;
+		}
+		return ($t->{'Table'}) results.get(0);
+	}
+
+
+|;
+
 
     # handles meta updater
     if ($t->{'Table'} =~ /[Mm]eta/) {
@@ -372,24 +390,32 @@ public class $t->{'Table'}ServiceImpl extends WaspServiceImpl<$t->{'Table'}> imp
 |;
 
         $j_dao .= qq|
-  \@SuppressWarnings("unchecked")
-  \@Transactional
-  public void updateBy$Var (final int $var, final List<$t->{'Table'}> metaList) {
+	/**
+	 * updateBy$Var (final int $var, final List<$t->{'Table'}> metaList)
+	 *
+	 * \@param $var
+	 * \@param metaList
+	 *
+	 */
+	\@SuppressWarnings("unchecked")
+	\@Transactional
+	public void updateBy$Var (final int $var, final List<$t->{'Table'}> metaList) {
 
-    getJpaTemplate().execute(new JpaCallback() {
+		getJpaTemplate().execute(new JpaCallback() {
 
-      public Object doInJpa(EntityManager em) throws PersistenceException {
-        em.createNativeQuery("delete from $t->{'table'} where $var=:$var").setParameter("$var", $var).executeUpdate();
+			public Object doInJpa(EntityManager em) throws PersistenceException {
+				em.createNativeQuery("delete from $t->{'table'} where $var=:$var").setParameter("$var", $var).executeUpdate();
 
-        for ($t->{'Table'} m:metaList) {
-          em.persist(m);
-        }
+				for ($t->{'Table'} m:metaList) {
+					m.set$Var($var);
+					em.persist(m);
+				}
+        			return null;
+			}
+		});
+	}
 
-        return null;
-      }
-    });
 
-  }
 |;
 
 
@@ -397,10 +423,10 @@ public class $t->{'Table'}ServiceImpl extends WaspServiceImpl<$t->{'Table'}> imp
     }
   }
 
-  $j_dao .= qq|}\n\n|;
-  $j_dao_interface .= qq|}\n\n|;
-  $j_service .= qq|}\n\n|;
-  $j_service_interface .= qq|}\n\n|;
+  $j_dao .= qq|\n}\n\n|;
+  $j_dao_interface .= qq|\n}\n\n|;
+  $j_service .= qq|\n}\n\n|;
+  $j_service_interface .= qq|\n}\n\n|;
 
 
   $j = qq|
