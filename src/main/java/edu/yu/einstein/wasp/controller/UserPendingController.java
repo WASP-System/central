@@ -18,7 +18,9 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 import edu.yu.einstein.wasp.controller.validator.MetaValidator;
+import edu.yu.einstein.wasp.controller.validator.MetaValidatorImpl;
 import edu.yu.einstein.wasp.controller.validator.PasswordValidator;
+import edu.yu.einstein.wasp.controller.validator.UserPendingMetaValidatorImpl;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserPending;
@@ -70,8 +72,6 @@ public class UserPendingController extends WaspController {
 	@Autowired
 	private PasswordService passwordService;
 
-	@Autowired
-	private MetaValidator metaValidator;
 	
 	@Autowired
 	private PasswordValidator passwordValidator;
@@ -109,12 +109,17 @@ public class UserPendingController extends WaspController {
 
 		userPendingForm.setUserPendingMeta(userPendingMetaList);
 
-		metaHelper.validate(userPendingMetaList, result);
+		metaHelper.validate(new UserPendingMetaValidatorImpl(userService, labService), userPendingMetaList, result);
+	
 
-		// validate password
 		// TODO USING STRING!
 		passwordValidator.validate(result, userPendingForm.getPassword(), (String) request.getParameter("password2"), metaHelper.getParentArea(), "password");
-	 
+		if (result.hasErrors()) {
+			prepareSelectListData(m);
+			waspMessage("user.created.error");
+			return "auth/newuser/form";
+		}
+		
 		String piUserEmail = "";
 		
 		for (UserPendingMeta meta : userPendingMetaList) {
@@ -124,20 +129,12 @@ public class UserPendingController extends WaspController {
 			}
 		} 
 		User primaryInvestigator = userService.getUserByEmail(piUserEmail);
-		
-
-
-		// TODO add  user not found add lab not found
-		
 		Lab lab = labService.getLabByPrimaryUserId(primaryInvestigator.getUserId());
+
 
 		userPendingForm.setLabId(lab.getLabId());
 		userPendingForm.setStatus("PENDING");
-		if (result.hasErrors()) {
-			prepareSelectListData(m);
-			waspMessage("user.created.error");
-			return "auth/newuser/form";
-		}
+		
 
 		userPendingForm.setPassword( passwordService.encodePassword(userPendingForm.getPassword()) ); 
 

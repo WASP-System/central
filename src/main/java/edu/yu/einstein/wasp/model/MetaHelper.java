@@ -2,6 +2,7 @@ package edu.yu.einstein.wasp.model;
 
 
 import edu.yu.einstein.wasp.controller.validator.MetaValidator;
+import edu.yu.einstein.wasp.controller.validator.MetaValidatorImpl;
 
 import java.util.ResourceBundle;
 import java.util.Locale;
@@ -279,19 +280,11 @@ public class MetaHelper {
 
 
 	public final MetaValidator getMetaValidator(List<? extends MetaBase> list) {
-		return getMetaValidator(list, MetaValidator.class);
+		return getMetaValidator(list, MetaValidatorImpl.class);
 	}
 
 	public final <T extends MetaValidator> T getMetaValidator(List<? extends MetaBase> list, Class <T>metaValidatorClazz) {
 		List<String> validateList = new ArrayList<String>();
-
-		for (MetaBase meta : list) {
-			if (meta.getProperty() != null
-					&& meta.getProperty().getConstraint() != null) {
-				validateList.add(meta.getK());
-				validateList.add(meta.getProperty().getConstraint());
-			}
-		}
 
 		T validator;
 		try {
@@ -300,7 +293,7 @@ public class MetaHelper {
 			return null;
 		}
 
-		validator.setValidateList(validateList);
+		validator.setValidateList(getValidateList(list));
 
 		return validator;
 	}
@@ -313,11 +306,13 @@ public class MetaHelper {
 		return getMetaValidator(this.lastList, metaValidatorClazz);
 	}
 
-	public void validate(MetaValidator validator, List<MetaBase> list, BindingResult result) {
+	public void validate(MetaValidator validator, List<? extends MetaBase> list, BindingResult result) {
+		validator.setValidateList(getValidateList(list));
 		validator.validate(list, result, area, parentArea);
 	}
 
 	public void validate(MetaValidator validator, BindingResult result) {
+		validator.setValidateList(getValidateList(this.lastList));
 		validator.validate(this.lastList, result, area, parentArea);
 	}
 
@@ -332,4 +327,17 @@ public class MetaHelper {
 	public void validate(Class metaValidatorClazz, BindingResult result) {
 		getMetaValidator(metaValidatorClazz).validate(this.lastList, result, area, parentArea);
 	}
+	
+	public List<String> getValidateList(List<? extends MetaBase> list){
+		List<String> validateList = new ArrayList<String>();
+		for (MetaBase meta : this.lastList) {
+			if (meta.getProperty() != null
+					&& meta.getProperty().getConstraint() != null) {
+				validateList.add(meta.getK());
+				validateList.add(meta.getProperty().getConstraint());
+			}
+		}
+		return validateList;
+	}
+	
 }

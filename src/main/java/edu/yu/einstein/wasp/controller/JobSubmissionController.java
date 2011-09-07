@@ -101,9 +101,6 @@ public class JobSubmissionController extends WaspController {
 
 	@Autowired
 	private SampleMetaService sampleMetaService;
-	
-	@Autowired
-	private MetaValidator metaValidator;
 
 	@Autowired
 	private TypeSampleService typeSampleService;  

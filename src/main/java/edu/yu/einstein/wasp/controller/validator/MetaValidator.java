@@ -25,108 +25,19 @@ import edu.yu.einstein.wasp.service.UserService;
  * @Author Sasha Levchuk
  */
 
-@Component
-public class MetaValidator {
+public interface MetaValidator {
 
+	public void setValidateList(List <String> validateList); 
 
-	@Autowired
-	private UserService userService;
+	public void validate(List<String> validateList, List<? extends MetaBase> list, BindingResult result, MetaAttribute.Area area);
 
-	protected final Logger logger = Logger.getLogger(getClass());
+	public void validate(List<String> validateList, List<? extends MetaBase> list, BindingResult result, String area);
 
+	public void validate(List<? extends MetaBase> list, BindingResult result, MetaAttribute.Area area);
+
+	public void validate(List<? extends MetaBase> list, BindingResult result, String area);
 	
-	public enum Constraint {
-		NotEmpty,
-		isValidPiEmail,
-		Regexp
-	}
+	public void validate(List<? extends MetaBase> list, BindingResult result, MetaAttribute.Area area, MetaAttribute.Area parentArea);
 	
-	private Map<String, String> map=new HashMap<String, String>(); 
-
-/*		
-	public MetaValidator(String... pairs)	{
-		if (pairs.length % 2!=0) throw new IllegalStateException("Number of params must be even");
-			
-		for(int i=0;i<pairs.length;i+=2) {
-			map.put(pairs[i],pairs[i+1]);
-		}
-	}
-*/
-
-	public void setValidateList(List <String> validateList) {
-		if (validateList.size() % 2!=0) throw new IllegalStateException("Number of params must be even");
-
-		for(int i=0;i<validateList.size();i+=2) {
-			this.map.put(validateList.get(i),validateList.get(i+1));
-		}
-	}
-
-	public void validate(List<String> validateList, List<? extends MetaBase> list, BindingResult result, MetaAttribute.Area area) {
-		setValidateList(validateList);
-
-		validate(list, result, area.name(), area.name());
-	}
-
-	public void validate(List<String> validateList, List<? extends MetaBase> list, BindingResult result, String area) {
-		setValidateList(validateList);
-
-		validate(list, result, area, area);
-	}
-
-	public void validate(List<? extends MetaBase> list, BindingResult result, MetaAttribute.Area area) {
-		validate(list, result, area.name(), area.name());
-	}
-
-	public void validate(List<? extends MetaBase> list, BindingResult result, String area) {
-		validate(list, result, area, area);
-	}
-
-	public void validate(List<? extends MetaBase> list, BindingResult result, MetaAttribute.Area area, MetaAttribute.Area parentArea) {
-		validate(list, result, area.name(), parentArea.name());
-	}
-	
-	public void validate(List<? extends MetaBase> list, BindingResult result, String area, String parentarea) {
-		Errors errors=new BindException(result.getTarget(), parentarea); 
-	
-		for(int i=0;i<list.size();i++) {
-			MetaBase meta=list.get(i);
-			String constraint=map.get(meta.getK());
-			if (constraint==null) continue;
-
-			String errorFieldName = parentarea+"Meta["+i+"].k";
-			String errorMessageKey = meta.getK() + ".error";
-			String defaultMessage = errorMessageKey+" (no message has been defined for this property)";
-
-			if (constraint.startsWith(Constraint.Regexp.name()+":")) {
-				//TODO: optimize for speed (pre-compile) if used outside of admin pages
-				String regexp=constraint.substring(Constraint.Regexp.name().length()+1); 
-				Pattern p = Pattern.compile(regexp);
-				Matcher m = p.matcher(meta.getV());
-				boolean b = m.matches();
-				if (!b) {
-					errors.rejectValue(errorFieldName, errorMessageKey, defaultMessage);
-				}
-
-			} else if (constraint.equals(Constraint.NotEmpty.name())){
-				if (meta.getV()==null || meta.getV().isEmpty()) {
-					errors.rejectValue(errorFieldName, errorMessageKey, defaultMessage);
-				}
-
-			} else if (constraint.equals(Constraint.isValidPiEmail.name())){
-				if (meta.getV()==null || meta.getV().isEmpty()) {
-					errors.rejectValue(errorFieldName, errorMessageKey, defaultMessage);
-				} else {
-					User primaryInvestigator = userService.getUserByEmail(meta.getV());
-					if (primaryInvestigator.getUserId() == 0){
-						errors.rejectValue(errorFieldName, errorMessageKey, defaultMessage);
-					}
-				}
-
-					
-			} else {
-				throw new IllegalStateException("Unknown constraint "+constraint+"|"+meta);
-			}
-		}
-		result.addAllErrors(errors);
-	}
+	public void validate(List<? extends MetaBase> list, BindingResult result, String area, String parentarea);
 }

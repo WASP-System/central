@@ -101,9 +101,6 @@ public class LabController extends WaspController {
 
 	@Autowired
 	private LabPendingMetaService labPendingMetaService;
-
-	@Autowired
-	private MetaValidator metaValidator;
 	
 	@Autowired
 	private EmailService emailService;

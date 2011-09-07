@@ -44,6 +44,7 @@ import edu.yu.einstein.wasp.model.UserMeta;
 import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.service.PasswordService;
 import edu.yu.einstein.wasp.service.UserMetaService;
+import edu.yu.einstein.wasp.controller.validator.Constraint;
 import edu.yu.einstein.wasp.controller.validator.MetaValidator;
 
 @Controller
@@ -59,9 +60,6 @@ public class UserController extends WaspController {
 
 	@Autowired
 	private PasswordService passwordService;
-	  
-	@Autowired
-	private MetaValidator metaValidator;
 	
 	MetaHelper metaHelper = new MetaHelper("user", UserMeta.class);
 
@@ -529,9 +527,9 @@ public class UserController extends WaspController {
 		List<String> validateList = new ArrayList<String>();
 
 		validateList.add("login");
-		validateList.add(MetaValidator.Constraint.NotEmpty.name());
+		validateList.add(Constraint.NotEmpty.name());
 		validateList.add("password");
-		validateList.add(MetaValidator.Constraint.NotEmpty.name());
+		validateList.add(Constraint.NotEmpty.name());
 
 		for (UserMeta meta : userMetaList) {
 			if (meta.getProperty() != null
@@ -541,7 +539,6 @@ public class UserController extends WaspController {
 			}
 		}
 		metaHelper.validate(userMetaList, result);
-		metaValidator.validate(validateList, userMetaList, result, metaHelper.getArea());
 		
 		if (result.hasErrors()) {
 			prepareSelectListData(m);
