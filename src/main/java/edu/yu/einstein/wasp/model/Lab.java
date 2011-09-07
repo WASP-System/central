@@ -4,7 +4,7 @@
  * Lab.java 
  * @author echeng (table2type.pl)
  *  
- * the Lab object
+ * the Lab
  *
  *
  */
@@ -14,247 +14,645 @@ package edu.yu.einstein.wasp.model;
 import java.util.Date;
 import java.util.List;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
-import org.hibernate.validator.constraints.NotEmpty;
-import org.hibernate.validator.constraints.Range;
+
+import org.hibernate.validator.constraints.*;
+
+import org.codehaus.jackson.annotate.JsonIgnore;
 
 @Entity
 @Audited
 @Table(name="lab")
 public class Lab extends WaspModel {
-  @Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-  protected int labId;
-  public void setLabId (int labId) {
-    this.labId = labId;
-  }
-  public int getLabId () {
-    return this.labId;
-  }
 
+	/** 
+	 * labId
+	 *
+	 */
+	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
+	protected int labId;
 
-  @Column(name="departmentid")
-  @Range(min=1)
-  protected int departmentId;
-  
-  public void setDepartmentId (int departmentId) {
-    this.departmentId = departmentId;
-  }
-  public int getDepartmentId () {
-    return this.departmentId;
-  }
+	/**
+	 * setLabId(int labId)
+	 *
+	 * @param labId
+	 *
+	 */
+	
+	public void setLabId (int labId) {
+		this.labId = labId;
+	}
 
-
-  @Column(name="name")
-  @NotEmpty
-  protected String name;
-  public void setName (String name) {
-    this.name = name;
-  }
-  public String getName () {
-    return this.name;
-  }
-
-
-  @Column(name="primaryuserid")
-  @Range(min=1)
-  protected int primaryUserId;
-  public void setPrimaryUserId (int primaryUserId) {
-    this.primaryUserId = primaryUserId;
-  }
-  public int getPrimaryUserId () {
-    return this.primaryUserId;
-  }
-
-
-  @Column(name="isactive")
-  protected int isActive;
-  public void setIsActive (int isActive) {
-    this.isActive = isActive;
-  }
-  public int getIsActive () {
-    return this.isActive;
-  }
-
-
-  @Column(name="lastupdts")
-  protected Date lastUpdTs;
-  public void setLastUpdTs (Date lastUpdTs) {
-    this.lastUpdTs = lastUpdTs;
-  }
-  
-  @JsonIgnore 
-  public Date getLastUpdTs () {
-    return this.lastUpdTs;
-  }
-
-
-  @Column(name="lastupduser")
-  protected int lastUpdUser;
-  public void setLastUpdUser (int lastUpdUser) {
-    this.lastUpdUser = lastUpdUser;
-  }
-  
-  @JsonIgnore 
-  public int getLastUpdUser () {
-    return this.lastUpdUser;
-  }
+	/**
+	 * getLabId()
+	 *
+	 * @return labId
+	 *
+	 */
+	public int getLabId () {
+		return this.labId;
+	}
 
 
 
-  @NotAudited
-  @ManyToOne
-   @JoinColumn(name="departmentid", insertable=false, updatable=false)
-  protected Department department;
-  public void setDepartment (Department department) {
-    this.department = department;
-    this.departmentId = department.departmentId;
-  }
-  
-  @JsonIgnore 
-  public Department getDepartment () {
-    return this.department;
-  }
 
-  @NotAudited
-  @ManyToOne
-   @JoinColumn(name="primaryuserid", insertable=false, updatable=false)
-  protected User user;
-  public void setUser (User user) {
-    this.user = user;
-    this.primaryUserId = user.UserId;
-  }
-  
-  @JsonIgnore 
-  public User getUser () {
-    return this.user;
-  }
-  @NotAudited
-  @OneToMany
-   @JoinColumn(name="labid", insertable=false, updatable=false)
-  protected List<LabMeta> labMeta;
-  
-  @JsonIgnore 
-  public List<LabMeta> getLabMeta()  {
-    return this.labMeta;
-  }
-  public void setLabMeta (List<LabMeta> labMeta)  {
-    this.labMeta = labMeta;
-  }
+	/** 
+	 * departmentId
+	 *
+	 */
+	@Column(name="departmentid")
+	@Range(min=1)
+	protected int departmentId;
 
+	/**
+	 * setDepartmentId(int departmentId)
+	 *
+	 * @param departmentId
+	 *
+	 */
+	
+	public void setDepartmentId (int departmentId) {
+		this.departmentId = departmentId;
+	}
 
-  @NotAudited
-  @OneToMany
-   @JoinColumn(name="labid", insertable=false, updatable=false)
-  protected List<LabUser> labUser;
-  
-  @JsonIgnore 
-  public List<LabUser> getLabUser()  {
-    return this.labUser;
-  }
-  public void setLabUser (List<LabUser> labUser)  {
-    this.labUser = labUser;
-  }
-
-  @NotAudited
-  @OneToMany
-   @JoinColumn(name="labid", insertable=false, updatable=false)
-  protected List<UserPending> userPending;
-  public List<UserPending> getUserPending()  {
-    return this.userPending;
-  }
-  public void setUserPending (List<UserPending> userPending)  {
-    this.userPending = userPending;
-  }
+	/**
+	 * getDepartmentId()
+	 *
+	 * @return departmentId
+	 *
+	 */
+	public int getDepartmentId () {
+		return this.departmentId;
+	}
 
 
 
-  @NotAudited
-  @OneToMany
-   @JoinColumn(name="labid", insertable=false, updatable=false)
-  protected List<Job> job;
-  
-  @JsonIgnore 
-  public List<Job> getJob()  {
-    return this.job;
-  }
-  public void setJob (List<Job> job)  {
-    this.job = job;
-  }
+
+	/** 
+	 * name
+	 *
+	 */
+	@Column(name="name")
+	@NotEmpty
+	protected String name;
+
+	/**
+	 * setName(String name)
+	 *
+	 * @param name
+	 *
+	 */
+	
+	public void setName (String name) {
+		this.name = name;
+	}
+
+	/**
+	 * getName()
+	 *
+	 * @return name
+	 *
+	 */
+	public String getName () {
+		return this.name;
+	}
 
 
-  @NotAudited
-  @OneToMany
-   @JoinColumn(name="labid", insertable=false, updatable=false)
-  protected List<Project> project;
-  
-  @JsonIgnore 
-  public List<Project> getProject()  {
-    return this.project;
-  }
-  public void setProject (List<Project> project)  {
-    this.project = project;
-  }
 
 
-  @NotAudited
-  @OneToMany
-   @JoinColumn(name="submitter_labid", insertable=false, updatable=false)
-  protected List<Sample> sample;
-  
-  @JsonIgnore 
-  public List<Sample> getSample()  {
-    return this.sample;
-  }
-  public void setSample (List<Sample> sample)  {
-    this.sample = sample;
-  }
+	/** 
+	 * primaryUserId
+	 *
+	 */
+	@Column(name="primaryuserid")
+	@Range(min=1)
+	protected int primaryUserId;
+
+	/**
+	 * setPrimaryUserId(int primaryUserId)
+	 *
+	 * @param primaryUserId
+	 *
+	 */
+	
+	public void setPrimaryUserId (int primaryUserId) {
+		this.primaryUserId = primaryUserId;
+	}
+
+	/**
+	 * getPrimaryUserId()
+	 *
+	 * @return primaryUserId
+	 *
+	 */
+	public int getPrimaryUserId () {
+		return this.primaryUserId;
+	}
 
 
-  @NotAudited
-  @OneToMany
-   @JoinColumn(name="labid", insertable=false, updatable=false)
-  protected List<SampleLab> sampleLab;
-  
-  @JsonIgnore 
-  public List<SampleLab> getSampleLab()  {
-    return this.sampleLab;
-  }
-  public void setSampleLab (List<SampleLab> sampleLab)  {
-    this.sampleLab = sampleLab;
-  }
 
 
-  @NotAudited
-  @OneToMany
-   @JoinColumn(name="labid", insertable=false, updatable=false)
-  protected List<AcctGrant> acctGrant;
-  
-  @JsonIgnore 
-  public List<AcctGrant> getAcctGrant()  {
-    return this.acctGrant;
-  }
-  public void setAcctGrant (List<AcctGrant> acctGrant)  {
-    this.acctGrant = acctGrant;
-  }
-@Override
-public String toString() {
-	return "Lab [labId=" + labId + ", departmentId=" + departmentId + ", name="
-			+ name + ", primaryUserId=" + primaryUserId + ", isActive="
-			+ isActive + ", lastUpdTs=" + lastUpdTs + ", lastUpdUser="
-			+ lastUpdUser + "]";
-}
+	/** 
+	 * isActive
+	 *
+	 */
+	@Column(name="isactive")
+	protected int isActive;
+
+	/**
+	 * setIsActive(int isActive)
+	 *
+	 * @param isActive
+	 *
+	 */
+	
+	public void setIsActive (int isActive) {
+		this.isActive = isActive;
+	}
+
+	/**
+	 * getIsActive()
+	 *
+	 * @return isActive
+	 *
+	 */
+	public int getIsActive () {
+		return this.isActive;
+	}
+
+
+
+
+	/** 
+	 * lastUpdTs
+	 *
+	 */
+	@Column(name="lastupdts")
+	protected Date lastUpdTs;
+
+	/**
+	 * setLastUpdTs(Date lastUpdTs)
+	 *
+	 * @param lastUpdTs
+	 *
+	 */
+	
+	public void setLastUpdTs (Date lastUpdTs) {
+		this.lastUpdTs = lastUpdTs;
+	}
+
+	/**
+	 * getLastUpdTs()
+	 *
+	 * @return lastUpdTs
+	 *
+	 */
+	@JsonIgnore
+	public Date getLastUpdTs () {
+		return this.lastUpdTs;
+	}
+
+
+
+
+	/** 
+	 * lastUpdUser
+	 *
+	 */
+	@Column(name="lastupduser")
+	protected int lastUpdUser;
+
+	/**
+	 * setLastUpdUser(int lastUpdUser)
+	 *
+	 * @param lastUpdUser
+	 *
+	 */
+	
+	public void setLastUpdUser (int lastUpdUser) {
+		this.lastUpdUser = lastUpdUser;
+	}
+
+	/**
+	 * getLastUpdUser()
+	 *
+	 * @return lastUpdUser
+	 *
+	 */
+	@JsonIgnore
+	public int getLastUpdUser () {
+		return this.lastUpdUser;
+	}
+
+
+
+
+	/**
+	 * department
+	 *
+	 */
+	@NotAudited
+	@ManyToOne
+	@JoinColumn(name="departmentid", insertable=false, updatable=false)
+	protected Department department;
+
+	/**
+	 * setDepartment (Department department)
+	 *
+	 * @param department
+	 *
+	 */
+	public void setDepartment (Department department) {
+		this.department = department;
+		this.departmentId = department.departmentId;
+	}
+
+	/**
+	 * getDepartment ()
+	 *
+	 * @return department
+	 *
+	 */
+	
+	@JsonIgnore
+	public Department getDepartment () {
+		return this.department;
+	}
+
+
+	/**
+	 * user
+	 *
+	 */
+	@NotAudited
+	@ManyToOne
+	@JoinColumn(name="primaryuserid", insertable=false, updatable=false)
+	protected User user;
+
+	/**
+	 * setUser (User user)
+	 *
+	 * @param user
+	 *
+	 */
+	public void setUser (User user) {
+		this.user = user;
+		this.primaryUserId = user.UserId;
+	}
+
+	/**
+	 * getUser ()
+	 *
+	 * @return user
+	 *
+	 */
+	
+	@JsonIgnore
+	public User getUser () {
+		return this.user;
+	}
+
+
+	/** 
+	 * labMeta
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="labid", insertable=false, updatable=false)
+	protected List<LabMeta> labMeta;
+
+
+	/** 
+	 * getLabMeta()
+	 *
+	 * @return labMeta
+	 *
+	 */
+	@JsonIgnore
+	public List<LabMeta> getLabMeta() {
+		return this.labMeta;
+	}
+
+
+	/** 
+	 * setLabMeta
+	 *
+	 * @param labMeta
+	 *
+	 */
+	public void setLabMeta (List<LabMeta> labMeta) {
+		this.labMeta = labMeta;
+	}
+
+
+
+	/** 
+	 * labUser
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="labid", insertable=false, updatable=false)
+	protected List<LabUser> labUser;
+
+
+	/** 
+	 * getLabUser()
+	 *
+	 * @return labUser
+	 *
+	 */
+	@JsonIgnore
+	public List<LabUser> getLabUser() {
+		return this.labUser;
+	}
+
+
+	/** 
+	 * setLabUser
+	 *
+	 * @param labUser
+	 *
+	 */
+	public void setLabUser (List<LabUser> labUser) {
+		this.labUser = labUser;
+	}
+
+
+
+	/** 
+	 * userPending
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="labid", insertable=false, updatable=false)
+	protected List<UserPending> userPending;
+
+
+	/** 
+	 * getUserPending()
+	 *
+	 * @return userPending
+	 *
+	 */
+	@JsonIgnore
+	public List<UserPending> getUserPending() {
+		return this.userPending;
+	}
+
+
+	/** 
+	 * setUserPending
+	 *
+	 * @param userPending
+	 *
+	 */
+	public void setUserPending (List<UserPending> userPending) {
+		this.userPending = userPending;
+	}
+
+
+
+	/** 
+	 * job
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="labid", insertable=false, updatable=false)
+	protected List<Job> job;
+
+
+	/** 
+	 * getJob()
+	 *
+	 * @return job
+	 *
+	 */
+	@JsonIgnore
+	public List<Job> getJob() {
+		return this.job;
+	}
+
+
+	/** 
+	 * setJob
+	 *
+	 * @param job
+	 *
+	 */
+	public void setJob (List<Job> job) {
+		this.job = job;
+	}
+
+
+
+	/** 
+	 * jobDraft
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="labid", insertable=false, updatable=false)
+	protected List<JobDraft> jobDraft;
+
+
+	/** 
+	 * getJobDraft()
+	 *
+	 * @return jobDraft
+	 *
+	 */
+	@JsonIgnore
+	public List<JobDraft> getJobDraft() {
+		return this.jobDraft;
+	}
+
+
+	/** 
+	 * setJobDraft
+	 *
+	 * @param jobDraft
+	 *
+	 */
+	public void setJobDraft (List<JobDraft> jobDraft) {
+		this.jobDraft = jobDraft;
+	}
+
+
+
+	/** 
+	 * project
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="labid", insertable=false, updatable=false)
+	protected List<Project> project;
+
+
+	/** 
+	 * getProject()
+	 *
+	 * @return project
+	 *
+	 */
+	@JsonIgnore
+	public List<Project> getProject() {
+		return this.project;
+	}
+
+
+	/** 
+	 * setProject
+	 *
+	 * @param project
+	 *
+	 */
+	public void setProject (List<Project> project) {
+		this.project = project;
+	}
+
+
+
+	/** 
+	 * sample
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="submitter_labid", insertable=false, updatable=false)
+	protected List<Sample> sample;
+
+
+	/** 
+	 * getSample()
+	 *
+	 * @return sample
+	 *
+	 */
+	@JsonIgnore
+	public List<Sample> getSample() {
+		return this.sample;
+	}
+
+
+	/** 
+	 * setSample
+	 *
+	 * @param sample
+	 *
+	 */
+	public void setSample (List<Sample> sample) {
+		this.sample = sample;
+	}
+
+
+
+	/** 
+	 * sampleLab
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="labid", insertable=false, updatable=false)
+	protected List<SampleLab> sampleLab;
+
+
+	/** 
+	 * getSampleLab()
+	 *
+	 * @return sampleLab
+	 *
+	 */
+	@JsonIgnore
+	public List<SampleLab> getSampleLab() {
+		return this.sampleLab;
+	}
+
+
+	/** 
+	 * setSampleLab
+	 *
+	 * @param sampleLab
+	 *
+	 */
+	public void setSampleLab (List<SampleLab> sampleLab) {
+		this.sampleLab = sampleLab;
+	}
+
+
+
+	/** 
+	 * sampleDraft
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="labid", insertable=false, updatable=false)
+	protected List<SampleDraft> sampleDraft;
+
+
+	/** 
+	 * getSampleDraft()
+	 *
+	 * @return sampleDraft
+	 *
+	 */
+	@JsonIgnore
+	public List<SampleDraft> getSampleDraft() {
+		return this.sampleDraft;
+	}
+
+
+	/** 
+	 * setSampleDraft
+	 *
+	 * @param sampleDraft
+	 *
+	 */
+	public void setSampleDraft (List<SampleDraft> sampleDraft) {
+		this.sampleDraft = sampleDraft;
+	}
+
+
+
+	/** 
+	 * acctGrant
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="labid", insertable=false, updatable=false)
+	protected List<AcctGrant> acctGrant;
+
+
+	/** 
+	 * getAcctGrant()
+	 *
+	 * @return acctGrant
+	 *
+	 */
+	@JsonIgnore
+	public List<AcctGrant> getAcctGrant() {
+		return this.acctGrant;
+	}
+
+
+	/** 
+	 * setAcctGrant
+	 *
+	 * @param acctGrant
+	 *
+	 */
+	public void setAcctGrant (List<AcctGrant> acctGrant) {
+		this.acctGrant = acctGrant;
+	}
 
 
 
