@@ -623,8 +623,8 @@ public class LabController extends WaspController {
 		Lab lab = new Lab();
 		User user;
 
-		if (labPending.getUserPendingId() != null ) {
-			UserPending userPending = userPendingService.getUserPendingByUserPendingId(labPending.getUserPendingId());
+		if (labPending.getUserpendingId() != null ) {
+			UserPending userPending = userPendingService.getUserPendingByUserPendingId(labPending.getUserpendingId());
 			user = createUserFromUserPending(userPending);
 		} else {
 			user = userService.getUserByUserId(labPending.getPrimaryUserId());
@@ -744,7 +744,7 @@ public class LabController extends WaspController {
 
 				List<LabPending> labPendingList = labPendingService.findByMap(labPendingQueryMap);
 				for (LabPending labPending: labPendingList) {
-					labPending.setUserPendingId((Integer) null);
+					labPending.setUserpendingId((Integer) null);
 					labPending.setPrimaryUserId(userDb.getUserId());
 					labPendingService.save(labPending);
 				}

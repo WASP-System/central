@@ -218,7 +218,7 @@ public class UserPendingController extends WaspController {
 		// insert into labpending table
 		LabPending labPendingForm = new LabPending();
 		labPendingForm.setStatus("PENDING");
-		labPendingForm.setUserPendingId(userPendingDb.getUserPendingId());
+		labPendingForm.setUserpendingId(userPendingDb.getUserPendingId());
 
 		// TODO DEPARTMENT ID
 		labPendingForm.setDepartmentId(1);
