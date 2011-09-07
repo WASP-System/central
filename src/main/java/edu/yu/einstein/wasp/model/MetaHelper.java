@@ -330,7 +330,7 @@ public class MetaHelper {
 	
 	public List<String> getValidateList(List<? extends MetaBase> list){
 		List<String> validateList = new ArrayList<String>();
-		for (MetaBase meta : this.lastList) {
+		for (MetaBase meta : list) {
 			if (meta.getProperty() != null
 					&& meta.getProperty().getConstraint() != null) {
 				validateList.add(meta.getK());
