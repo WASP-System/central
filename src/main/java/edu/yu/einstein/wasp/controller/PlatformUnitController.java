@@ -3,10 +3,17 @@ package edu.yu.einstein.wasp.controller;
 import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
 import javax.validation.Valid;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang.StringUtils;
+import org.codehaus.jackson.map.ObjectMapper;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -16,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.validation.BindingResult;
@@ -41,172 +49,289 @@ import org.springframework.transaction.annotation.Transactional;
 @RequestMapping("/facility/platformunit")
 public class PlatformUnitController extends WaspController {
 
-  @Autowired
-  private SampleService sampleService;
+	@Autowired
+	private SampleService sampleService;
 
-  @Autowired
-  private SampleMetaService sampleMetaService;
+	@Autowired
+	private SampleMetaService sampleMetaService;
 
-  @Autowired
-  private TypeSampleService typeSampleService;
-  
-  MetaHelper metaHelper = new MetaHelper("platformunit", "sample", SampleMeta.class);
+	@Autowired
+	private TypeSampleService typeSampleService;
+	
+	MetaHelper metaHelper = new MetaHelper("platformunit", "sample", SampleMeta.class);
 
-  @RequestMapping(value="/list.do", method=RequestMethod.GET)
-  @PreAuthorize("hasRole('ft')")
-  public String showList(ModelMap m) {
+	@RequestMapping(value="/list.do", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('ft')")
+	public String showListShell(ModelMap m) {
+		m.addAttribute("_metaList", metaHelper.getMasterList(SampleMeta.class));
+		m.addAttribute(JQFieldTag.AREA_ATTR, "platformunit");
 
-    /*
+		return "facility/platformunit/list";
+	}
 
-    m.addAttribute("_metaList", MetaUtil.getMasterList(SampleMeta.class, AREA, getBundle()));
-    m.addAttribute(JQFieldTag.AREA_ATTR, "platformunit");
+	@RequestMapping(value="/listJson.do", method=RequestMethod.GET)
+	public @ResponseBody String getListJson() {
 
-    // prepareSelectListData(m);
-    */
+		Map <String, Object> jqgrid = new HashMap<String, Object>();
 
-    return "facility/platformunit/list";
-  }
+		List<Sample> sampleList;
 
-  @RequestMapping(value="/create.do", method=RequestMethod.GET)
-  @PreAuthorize("hasRole('ft')")
-  public String showCreateForm(ModelMap m) {
+		Map sampleListBaseQueryMap = new HashMap();
+		sampleListBaseQueryMap.put("typeSampleId", 5);
 
-    Sample sample = new Sample();
+		if (request.getParameter("_search")==null || request.getParameter("_search").equals("false") || StringUtils.isEmpty(request.getParameter("searchString"))) {
+			sampleList = sampleService.findByMap(sampleListBaseQueryMap);
 
-    sample.setSampleMeta(metaHelper.getMasterList(SampleMeta.class));
+		} else {
 
-    m.put("sample", sample);
-
-    return "facility/platformunit/detail_rw";
-  }
-
-  @RequestMapping(value="/create.do", method=RequestMethod.POST)
-  @PreAuthorize("hasRole('ft')")
-  public String createPlatformUnit(
-    @Valid Sample sampleForm,
-    BindingResult result,
-    SessionStatus status,
-    ModelMap m) {
-
-    User me = getAuthenticatedUser();
-    sampleForm.setSubmitterUserId(me.getUserId());
-
-    // TODO, drop constraint on labid.
-    sampleForm.setSubmitterLabId(1);
-
-    TypeSample typeSample = typeSampleService.getTypeSampleByIName("platformunit");
-    sampleForm.setTypeSampleId(typeSample.getTypeSampleId());
-
-    sampleForm.setReceiverUserId(sampleForm.getSubmitterUserId());
-    sampleForm.setReceiveDts(new Date());
-    sampleForm.setIsReceived(1);
-    sampleForm.setIsActive(1);
-
-    return updatePlatformUnit(sampleForm, result, status, m);
-  }
-
-  @RequestMapping(value="/view/{sampleId}.do", method=RequestMethod.GET)
-  @PreAuthorize("hasRole('ft')")
-  public String viewPlatformUnit(
-       @PathVariable("sampleId") Integer sampleId,
-       ModelMap m) {
-    Sample sample = sampleService.getSampleBySampleId(sampleId);
-
-    sample.setSampleMeta(metaHelper.syncWithMaster(sample.getSampleMeta()));
-
-    m.put("sample", sample);
-
-    return "facility/platformunit/detail_ro";
-  }
-
-  @RequestMapping(value="/modify/{sampleId}.do", method=RequestMethod.GET)
-  @PreAuthorize("hasRole('ft')")
-  public String updatePlatformUnit(
-       @PathVariable("sampleId") Integer sampleId,
-       ModelMap m) {
-    Sample sample = sampleService.getSampleBySampleId(sampleId);
-
-    sample.setSampleMeta(metaHelper.syncWithMaster(sample.getSampleMeta()));
-
-    m.put("sample", sample);
-
-    return "facility/platformunit/detail_rw";
-  }
-
-  @RequestMapping(value="/modify/{sampleId}.do", method=RequestMethod.POST)
-  @PreAuthorize("hasRole('ft')")
-  public String modifyPlatformUnit(
-    @PathVariable("sampleId") Integer sampleId,
-    @Valid Sample sampleForm,
-    BindingResult result,
-    SessionStatus status,
-    ModelMap m) {
-
-    Sample sampleDb =  sampleService.getSampleBySampleId(sampleId);
-
-    // TODO do compares that i am the same sample as sampleform, and not new
-
-    // fetches the updates
-    // sampleDb.setName(sampleForm.getName());
-
-    sampleForm.setSampleId(sampleId);
-
-    sampleForm.setSubmitterUserId(sampleDb.getSubmitterUserId());
-    sampleForm.setSubmitterLabId(sampleDb.getSubmitterLabId());
-    sampleForm.setTypeSampleId(sampleDb.getTypeSampleId());
-
-    sampleForm.setReceiverUserId(sampleDb.getReceiverUserId());
-    sampleForm.setReceiveDts(sampleDb.getReceiveDts());
-    sampleForm.setIsReceived(sampleDb.getIsReceived());
-    sampleForm.setIsActive(sampleDb.getIsActive());
-
-    return updatePlatformUnit(sampleForm, result, status, m);
-  }
-
-  /* ****************************** */
-
-  public String updatePlatformUnit(
-    Sample sampleForm,
-    BindingResult result,
-    SessionStatus status,
-    ModelMap m) {
-
-    List<SampleMeta> sampleMetaList = metaHelper.getFromRequest(request, SampleMeta.class);
-
-    metaHelper.validate(sampleMetaList, result);
-
-    if (result.hasErrors()) {
-      // TODO REAL ERROR
-      waspMessage("hello.error");
-
-      sampleForm.setSampleMeta(sampleMetaList);
-      m.put("sample", sampleForm);
-
-      return "facility/platformunit/detail_rw";
-    }
+			sampleListBaseQueryMap.put(request.getParameter("searchField"), request.getParameter("searchString"));
+	
+			sampleList = this.sampleService.findByMap(sampleListBaseQueryMap);
 
 
-    Sample sampleDb;
-    if (sampleForm.getSampleId() == 0) {
-      sampleDb = sampleService.save(sampleForm);
-    } else {
-      sampleDb = sampleService.merge(sampleForm);
-    }
+			if ("ne".equals(request.getParameter("searchOper"))) {
+				Map allSampleListBaseQueryMap = new HashMap();
+				allSampleListBaseQueryMap.put("typeSampleId", 5);
 
-    sampleMetaService.updateBySampleId(sampleDb.getSampleId(), sampleMetaList);
+				List<Sample> allSampleList = sampleService.findByMap(allSampleListBaseQueryMap);
+				for (Sample excludeSample : allSampleList) {
+					allSampleList.remove(excludeSample);
+				}
+				sampleList=allSampleList;
+			}
 
-    /// TODO depending on how many *.resourceId is set, create sample lanes
-    /// query resourceServices.getLaneCount(resourceId)
+		}
 
-    /// TODO depending on how many *.lanecount is set, create sample lanes
-    // int xxx = somefunction(getLaneCount());
-    // for (int i = 0; i < xxxx; i++) {
-    //   Sample lane = new Sample()
-    // }
+		ObjectMapper mapper = new ObjectMapper();
+
+		jqgrid.put("page","1");
+		jqgrid.put("records", sampleList.size()+"");
+		jqgrid.put("total", sampleList.size()+"");
+
+			Map<String, String> sampleData=new HashMap<String, String>();
+
+			sampleData.put("page","1");
+			sampleData.put("selId",StringUtils.isEmpty(request.getParameter("selId"))?"":request.getParameter("selId"));
+			jqgrid.put("sampledata",sampleData);
+			
+
+			List<Map> rows = new ArrayList<Map>();
+
+			for (Sample sample: sampleList) {
+				Map cell = new HashMap();
+				cell.put("id", sample.getSampleId());
+
+				List<SampleMeta> sampleMetaList=metaHelper.syncWithMaster(sample.getSampleMeta());
+				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
+					sample.getName(),
+				}));
+
+				for(SampleMeta meta:sampleMetaList) {
+					cellList.add(meta.getV());
+				}
+
+				cell.put("cell", cellList);
+
+				rows.add(cell);
+			}
+
+			jqgrid.put("rows",rows);
+
+		try {
+			String json=mapper.writeValueAsString(jqgrid);
+			return json;
 
 
-    //  return "facility/platformunit/ok";
-    return "redirect:/facility/platformunit/ok";
-  }
+		} catch (Exception e) {
+			throw new IllegalStateException("Can't marshall to JSON "+sampleList,e);
+
+		}
+	}
+
+	@RequestMapping(value="/updateJson.do", method=RequestMethod.POST)
+	public String updateJson(
+			@RequestParam("id") Integer sampleId,
+			@Valid Sample sampleForm, 
+			ModelMap m, 
+			HttpServletResponse response) {
+
+		List<SampleMeta> sampleMetaList = metaHelper.getFromJsonForm(request, SampleMeta.class);
+		sampleForm.setSampleMeta(sampleMetaList);
+		sampleForm.setSampleId(sampleId);
+
+		preparePlatformUnit(sampleForm);
+		updatePlatformUnit(sampleForm);
+
+		try {
+			response.getWriter().println(getMessage("hello.error"));
+			return null;
+		} catch (Throwable e) {
+			throw new IllegalStateException("Cant output success message ",e);
+		}
+
+	}
+
+
+
+
+	@RequestMapping(value="/create.do", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('ft')")
+	public String showCreateForm(ModelMap m) {
+
+		Sample sample = new Sample();
+
+		sample.setSampleMeta(metaHelper.getMasterList(SampleMeta.class));
+
+		m.put("sample", sample);
+
+		return "facility/platformunit/detail_rw";
+	}
+
+	@RequestMapping(value="/create.do", method=RequestMethod.POST)
+	@PreAuthorize("hasRole('ft')")
+	public String createPlatformUnit(
+		@Valid Sample sampleForm,
+		BindingResult result,
+		SessionStatus status,
+		ModelMap m) {
+
+		preparePlatformUnit(sampleForm);
+
+		return validateAndUpdatePlatformUnit(sampleForm, result, status, m);
+	}
+
+	@RequestMapping(value="/view/{sampleId}.do", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('ft')")
+	public String viewPlatformUnit(
+			 @PathVariable("sampleId") Integer sampleId,
+			 ModelMap m) {
+		Sample sample = sampleService.getSampleBySampleId(sampleId);
+
+		sample.setSampleMeta(metaHelper.syncWithMaster(sample.getSampleMeta()));
+
+		m.put("sample", sample);
+
+		return "facility/platformunit/detail_ro";
+	}
+
+	@RequestMapping(value="/modify/{sampleId}.do", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('ft')")
+	public String updatePlatformUnitForm(
+			 @PathVariable("sampleId") Integer sampleId,
+			 ModelMap m) {
+		Sample sample = sampleService.getSampleBySampleId(sampleId);
+
+		sample.setSampleMeta(metaHelper.syncWithMaster(sample.getSampleMeta()));
+
+		m.put("sample", sample);
+
+		return "facility/platformunit/detail_rw";
+	}
+
+	@RequestMapping(value="/modify/{sampleId}.do", method=RequestMethod.POST)
+	@PreAuthorize("hasRole('ft')")
+	public String modifyPlatformUnit(
+		@PathVariable("sampleId") Integer sampleId,
+		@Valid Sample sampleForm,
+		BindingResult result,
+		SessionStatus status,
+		ModelMap m) {
+
+		preparePlatformUnit(sampleForm);
+
+		return validateAndUpdatePlatformUnit(sampleForm, result, status, m);
+	}
+
+	/* ****************************** */
+
+	public Sample preparePlatformUnit(Sample sampleForm) {
+		if (sampleForm.getSampleId() == 0) {
+			User me = getAuthenticatedUser();
+			sampleForm.setSubmitterUserId(me.getUserId());
+
+			TypeSample typeSample = typeSampleService.getTypeSampleByIName("platformunit");
+			sampleForm.setTypeSampleId(typeSample.getTypeSampleId());
+
+			sampleForm.setSubmitterLabId(1);
+	
+			sampleForm.setReceiverUserId(sampleForm.getSubmitterUserId());
+			sampleForm.setReceiveDts(new Date());
+			sampleForm.setIsReceived(1);
+			sampleForm.setIsActive(1);
+		} else {
+			Sample sampleDb =	sampleService.getSampleBySampleId(sampleForm.getSampleId());
+
+			// TODO do compares that i am the same sample as sampleform, and not new
+	
+			// fetches the updates
+			// sampleDb.setName(sampleForm.getName());
+	
+	
+			sampleForm.setSubmitterUserId(sampleDb.getSubmitterUserId());
+			sampleForm.setSubmitterLabId(sampleDb.getSubmitterLabId());
+			sampleForm.setTypeSampleId(sampleDb.getTypeSampleId());
+	
+			sampleForm.setReceiverUserId(sampleDb.getReceiverUserId());
+			sampleForm.setReceiveDts(sampleDb.getReceiveDts());
+			sampleForm.setIsReceived(sampleDb.getIsReceived());
+			sampleForm.setIsActive(sampleDb.getIsActive());
+		}
+		return sampleForm;
+	}
+
+	public String validateAndUpdatePlatformUnit(
+		Sample sampleForm,
+		BindingResult result,
+		SessionStatus status,
+		ModelMap m) {
+
+		List<SampleMeta> sampleMetaList = metaHelper.getFromRequest(request, SampleMeta.class);
+
+		metaHelper.validate(sampleMetaList, result);
+
+		if (result.hasErrors()) {
+			// TODO REAL ERROR
+			waspMessage("hello.error");
+
+			sampleForm.setSampleMeta(sampleMetaList);
+			m.put("sample", sampleForm);
+
+			return "facility/platformunit/detail_rw";
+		}
+
+		sampleForm.setSampleMeta(sampleMetaList);
+
+		String returnString = updatePlatformUnit(sampleForm);
+
+
+		return returnString;
+	}
+
+
+	// TODO move to service?
+	public String updatePlatformUnit( Sample sampleForm ) {
+	
+		Sample sampleDb;
+		if (sampleForm.getSampleId() == 0) {
+			sampleDb = sampleService.save(sampleForm);
+		} else {
+			sampleDb = sampleService.merge(sampleForm);
+		}
+
+		sampleMetaService.updateBySampleId(sampleDb.getSampleId(), sampleForm.getSampleMeta());
+
+		/// TODO depending on how many *.resourceId is set, create sample lanes
+		/// query resourceServices.getLaneCount(resourceId)
+
+		/// TODO depending on how many *.lanecount is set, create sample lanes
+		// int xxx = somefunction(getLaneCount());
+		// for (int i = 0; i < xxxx; i++) {
+		//	 Sample lane = new Sample()
+		// }
+
+
+		//	return "facility/platformunit/ok";
+		return "redirect:/facility/platformunit/ok";
+	}
 
 }
