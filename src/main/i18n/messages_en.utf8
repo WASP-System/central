@@ -33,54 +33,54 @@ user.title.label=Title
 user.title.error=Title cannot be empty
 user.title.constraint=NotEmpty
 user.title.control=select:Prof:Prof;Dr:Dr;Mr:Mr;Ms:Ms;Mrs:Mrs;Miss:Miss
-user.title.metaposition=0
+user.title.metaposition=1
 
 user.institution.label=Institution
 user.institution.error=Institution cannot be empty
 user.institution.constraint=NotEmpty
-user.institution.metaposition=1
+user.institution.metaposition=10
 
 user.department.label=Department
-user.department.metaposition=2
+user.department.metaposition=20
 
 user.building_room.label=Room
-user.building_room.metaposition=3
+user.building_room.metaposition=30
 
 user.address.label=Address
 user.address.error=Address cannot be empty
 user.address.constraint=NotEmpty
-user.address.metaposition=4
+user.address.metaposition=40
 
 user.city.label=City 
 user.city.error=City cannot be empty
 user.address.constraint=NotEmpty
-user.city.metaposition=5
+user.city.metaposition=50
 
 user.state.label=State
 user.state.control=select:${states}:code:name
 user.state.constraint=NotEmpty
-user.state.metaposition=6
+user.state.metaposition=60
 
 user.country.label=Country
 user.country.error=Country cannot be empty
 user.country.control=select:${countries}:code:name
 user.country.constraint=NotEmpty
-user.country.metaposition=7
+user.country.metaposition=70
 
 user.zip.label=Zip
 user.zip.error=Zip cannot be empty
 user.zip.constraint=NotEmpty
-user.zip.metaposition=8
+user.zip.metaposition=80
 
 user.phone.label=Phone
 user.phone.error=Phone cannot be empty
 user.phone.constraint=NotEmpty
-user.phone.metaposition=9
+user.phone.metaposition=90
 
 user.fax.label=Fax
 user.fax.error=Fax cannot be empty
 user.fax.constraint=NotEmpty
-user.fax.metaposition=10
+user.fax.metaposition=100
 
 # --- user pending --
 userPending.page.title=New User
@@ -112,7 +112,7 @@ userPending.locale.error=Locale cannot be empty
 userPending.primaryuseremail.label=PI Email Address
 userPending.primaryuseremail.error=Must be an active PI email address in the database
 userPending.primaryuseremail.constraint=isValidPiEmail
-userPending.primaryuseremail.metaposition=0
+userPending.primaryuseremail.metaposition=1
 
 userPending.title.label=Title
 userPending.title.error=Title cannot be empty
