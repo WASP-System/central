@@ -4,19 +4,22 @@
  * Department.java 
  * @author echeng (table2type.pl)
  *  
- * the Department object
+ * the Department
  *
  *
  */
 
 package edu.yu.einstein.wasp.model;
 
-import org.hibernate.*;
+import java.util.Date;
+import java.util.List;
+
+import javax.persistence.*;
+
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 
-import javax.persistence.*;
-import java.util.*;
+import org.hibernate.validator.constraints.*;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 
@@ -24,100 +27,289 @@ import org.codehaus.jackson.annotate.JsonIgnore;
 @Audited
 @Table(name="department")
 public class Department extends WaspModel {
-  @Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-  protected int departmentId;
-  public void setDepartmentId (int departmentId) {
-    this.departmentId = departmentId;
-  }
-  public int getDepartmentId () {
-    return this.departmentId;
-  }
+
+	/** 
+	 * departmentId
+	 *
+	 */
+	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
+	protected int departmentId;
+
+	/**
+	 * setDepartmentId(int departmentId)
+	 *
+	 * @param departmentId
+	 *
+	 */
+	
+	public void setDepartmentId (int departmentId) {
+		this.departmentId = departmentId;
+	}
+
+	/**
+	 * getDepartmentId()
+	 *
+	 * @return departmentId
+	 *
+	 */
+	public int getDepartmentId () {
+		return this.departmentId;
+	}
 
 
-  @Column(name="name")
-  protected String name;
-  public void setName (String name) {
-    this.name = name;
-  }
-  public String getName () {
-    return this.name;
-  }
 
 
-  @Column(name="isinternal")
-  protected int isInternal;
-  public void setIsInternal (int isInternal) {
-    this.isInternal = isInternal;
-  }
-  public int getIsInternal () {
-    return this.isInternal;
-  }
+	/** 
+	 * name
+	 *
+	 */
+	@Column(name="name")
+	protected String name;
+
+	/**
+	 * setName(String name)
+	 *
+	 * @param name
+	 *
+	 */
+	
+	public void setName (String name) {
+		this.name = name;
+	}
+
+	/**
+	 * getName()
+	 *
+	 * @return name
+	 *
+	 */
+	public String getName () {
+		return this.name;
+	}
 
 
-  @Column(name="isactive")
-  protected int isActive;
-  public void setIsActive (int isActive) {
-    this.isActive = isActive;
-  }
-  public int getIsActive () {
-    return this.isActive;
-  }
 
 
-  @Column(name="lastupdts")
-  protected Date lastUpdTs;
-  public void setLastUpdTs (Date lastUpdTs) {
-    this.lastUpdTs = lastUpdTs;
-  }
-  public Date getLastUpdTs () {
-    return this.lastUpdTs;
-  }
+	/** 
+	 * isInternal
+	 *
+	 */
+	@Column(name="isinternal")
+	protected int isInternal;
+
+	/**
+	 * setIsInternal(int isInternal)
+	 *
+	 * @param isInternal
+	 *
+	 */
+	
+	public void setIsInternal (int isInternal) {
+		this.isInternal = isInternal;
+	}
+
+	/**
+	 * getIsInternal()
+	 *
+	 * @return isInternal
+	 *
+	 */
+	public int getIsInternal () {
+		return this.isInternal;
+	}
 
 
-  @Column(name="lastupduser")
-  protected int lastUpdUser;
-  public void setLastUpdUser (int lastUpdUser) {
-    this.lastUpdUser = lastUpdUser;
-  }
-  public int getLastUpdUser () {
-    return this.lastUpdUser;
-  }
 
 
-  @NotAudited
-  @OneToMany
-   @JoinColumn(name="departmentid", insertable=false, updatable=false)
-  protected List<DepartmentUser> departmentUser;
-  public List<DepartmentUser> getDepartmentUser()  {
-    return this.departmentUser;
-  }
-  public void setDepartmentUser (List<DepartmentUser> departmentUser)  {
-    this.departmentUser = departmentUser;
-  }
+	/** 
+	 * isActive
+	 *
+	 */
+	@Column(name="isactive")
+	protected int isActive;
+
+	/**
+	 * setIsActive(int isActive)
+	 *
+	 * @param isActive
+	 *
+	 */
+	
+	public void setIsActive (int isActive) {
+		this.isActive = isActive;
+	}
+
+	/**
+	 * getIsActive()
+	 *
+	 * @return isActive
+	 *
+	 */
+	public int getIsActive () {
+		return this.isActive;
+	}
 
 
-  @NotAudited
-  @OneToMany
-   @JoinColumn(name="departmentid", insertable=false, updatable=false)
-  protected List<Lab> lab;
-  public List<Lab> getLab()  {
-    return this.lab;
-  }
-  public void setLab (List<Lab> lab)  {
-    this.lab = lab;
-  }
 
 
-  @NotAudited
-  @OneToMany
-   @JoinColumn(name="departmentid", insertable=false, updatable=false)
-  protected List<LabPending> labPending;
-  public List<LabPending> getLabPending()  {
-    return this.labPending;
-  }
-  public void setLabPending (List<LabPending> labPending)  {
-    this.labPending = labPending;
-  }
+	/** 
+	 * lastUpdTs
+	 *
+	 */
+	@Column(name="lastupdts")
+	protected Date lastUpdTs;
+
+	/**
+	 * setLastUpdTs(Date lastUpdTs)
+	 *
+	 * @param lastUpdTs
+	 *
+	 */
+	
+	public void setLastUpdTs (Date lastUpdTs) {
+		this.lastUpdTs = lastUpdTs;
+	}
+
+	/**
+	 * getLastUpdTs()
+	 *
+	 * @return lastUpdTs
+	 *
+	 */
+	public Date getLastUpdTs () {
+		return this.lastUpdTs;
+	}
+
+
+
+
+	/** 
+	 * lastUpdUser
+	 *
+	 */
+	@Column(name="lastupduser")
+	protected int lastUpdUser;
+
+	/**
+	 * setLastUpdUser(int lastUpdUser)
+	 *
+	 * @param lastUpdUser
+	 *
+	 */
+	
+	public void setLastUpdUser (int lastUpdUser) {
+		this.lastUpdUser = lastUpdUser;
+	}
+
+	/**
+	 * getLastUpdUser()
+	 *
+	 * @return lastUpdUser
+	 *
+	 */
+	public int getLastUpdUser () {
+		return this.lastUpdUser;
+	}
+
+
+
+
+	/** 
+	 * departmentUser
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="departmentid", insertable=false, updatable=false)
+	protected List<DepartmentUser> departmentUser;
+
+
+	/** 
+	 * getDepartmentUser()
+	 *
+	 * @return departmentUser
+	 *
+	 */
+	public List<DepartmentUser> getDepartmentUser() {
+		return this.departmentUser;
+	}
+
+
+	/** 
+	 * setDepartmentUser
+	 *
+	 * @param departmentUser
+	 *
+	 */
+	public void setDepartmentUser (List<DepartmentUser> departmentUser) {
+		this.departmentUser = departmentUser;
+	}
+
+
+
+	/** 
+	 * lab
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="departmentid", insertable=false, updatable=false)
+	protected List<Lab> lab;
+
+
+	/** 
+	 * getLab()
+	 *
+	 * @return lab
+	 *
+	 */
+	public List<Lab> getLab() {
+		return this.lab;
+	}
+
+
+	/** 
+	 * setLab
+	 *
+	 * @param lab
+	 *
+	 */
+	public void setLab (List<Lab> lab) {
+		this.lab = lab;
+	}
+
+
+
+	/** 
+	 * labPending
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="departmentid", insertable=false, updatable=false)
+	protected List<LabPending> labPending;
+
+
+	/** 
+	 * getLabPending()
+	 *
+	 * @return labPending
+	 *
+	 */
+	public List<LabPending> getLabPending() {
+		return this.labPending;
+	}
+
+
+	/** 
+	 * setLabPending
+	 *
+	 * @param labPending
+	 *
+	 */
+	public void setLabPending (List<LabPending> labPending) {
+		this.labPending = labPending;
+	}
 
 
 
