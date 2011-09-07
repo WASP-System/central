@@ -42,7 +42,7 @@ public class JQFieldTag extends BodyTagSupport {
 	
 	private String name;
 	
-	private MetaAttribute.Area object;
+	private String object;
 	
 	private Type type;
 	
@@ -93,7 +93,7 @@ public class JQFieldTag extends BodyTagSupport {
 	
 
 	public void setObject(String object) {
-		this.object = MetaAttribute.Area.valueOf(object);
+		this.object = object;
 	}
 
 
@@ -107,7 +107,7 @@ public class JQFieldTag extends BodyTagSupport {
 		if (object==null) {
 			String objectStr=(String)((HttpServletRequest)this.pageContext.getRequest()).getAttribute(AREA_ATTR);
 			if (objectStr==null) throw new JspException("'object' tag parameter or "+AREA_ATTR+" request attribute are required");
-			object=MetaAttribute.Area.valueOf(objectStr);
+			object=objectStr;
 		}
 
 		HttpSession session=((HttpServletRequest)this.pageContext.getRequest()).getSession();
@@ -124,12 +124,13 @@ public class JQFieldTag extends BodyTagSupport {
 		
 			Class clazz=null;
 			
-			MetaAttribute.Area area=object;
+			String area=object;
 			
-			if (area==Area.user) clazz=User.class;
-			else if(area==Area.lab) clazz=Lab.class;
-			else if(area==Area.sampleDraft) clazz=SampleDraft.class;
-			else if(area==Area.sample) clazz=Sample.class;
+			if (area.equals("user")) clazz=User.class;
+			else if(area.equals("lab")) clazz=Lab.class;
+			else if(area.equals("sampleDraft")) clazz=SampleDraft.class;
+			else if(area.equals("sample")) clazz=Sample.class;
+			else if(area.equals("platformunit")) clazz=Sample.class;
 			else throw new JspTagException("unknown area "+object+" currently support user or lab");
 		
 		boolean required=clazz.getDeclaredField(name).getAnnotation(org.hibernate.validator.constraints.NotEmpty.class)==null?false:true;
