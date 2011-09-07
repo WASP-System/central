@@ -9,7 +9,7 @@
      	  <tr><td colspan=2 align=left></br><b>Pending Lab Details:</b></td></tr>
            <tr>
               <td><fmt:message key="labPending.name.label" />:</td>
-              <td>${name}</td>              
+              <td>${labpending.name}</td>              
           </tr>
           <tr>
               <td><fmt:message key="labPending.primaryUserId.label"/>:</td>
@@ -30,15 +30,15 @@
               
               </td>
           </tr>
-          <c:set var="_area" value = "labpending" scope="request"/>	
+          <c:set var="_area" value = "labPending" scope="request"/>	
 		  <c:set var="_metaList" value = "${labpending.labPendingMeta}" scope="request" />		
           <c:import url="/WEB-INF/jsp/meta_ro.jsp"/>
-          <sec:authorize access="hasRole('god') or hasRole('da-#')">
+          <sec:authorize access="hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('da-#')">
           	 <tr>
           	 	<td>
-          	 		<a href="<c:url value="/lab/labpending/approve/${department.departmentId}/${lp.labPendingId}.do" />">Approve</a>
+          	 		<a href="<c:url value="/lab/labpending/approve/${labpending.departmentId}/${labpending.labPendingId}.do" />">Approve</a>
           	 		|
-          	 		<a href="<c:url value="/lab/labpending/reject/${department.departmentId}/${lp.labPendingId}.do" />">Reject</a>
+          	 		<a href="<c:url value="/lab/labpending/reject/${labpending.departmentId}/${labpending.labPendingId}.do" />">Reject</a>
           	 	</td>
           	 </tr>
           </sec:authorize>            	      

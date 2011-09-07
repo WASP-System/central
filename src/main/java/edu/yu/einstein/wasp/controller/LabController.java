@@ -414,14 +414,14 @@ public class LabController extends WaspController {
 	}
 	
 
-	@RequestMapping(value = "/detail_rw/{labId}.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('god') or hasRole('lu-' + #labId)")
+	@RequestMapping(value = "/detail_rw/{deptId}/{labId}.do", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('da-' + #deptId) or hasRole('lu-' + #labId)")
 	public String detailRW(@PathVariable("labId") Integer labId, ModelMap m) {
 		return detail(labId,m,true);
 	}
 	
-	@RequestMapping(value = "/detail_ro/{labId}.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('god') or hasRole('lu-' + #labId)")
+	@RequestMapping(value = "/detail_ro/{deptId}/{labId}.do", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('da-' + #deptId) or hasRole('lu-' + #labId)")
 	public String detailRO(@PathVariable("labId") Integer labId, ModelMap m) {
 		return detail(labId,m,false);
 	}
@@ -445,8 +445,8 @@ public class LabController extends WaspController {
 		return isRW?"lab/detail_rw":"lab/detail_ro";
 	}
 	
-	@RequestMapping(value = "/pending/detail_ro/{labPendingId}.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('god') or hasRole('da-' + #labPendingId)")
+	@RequestMapping(value = "/pending/detail_ro/{deptId}/{labPendingId}.do", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('da-' + #deptId)")
 	public String pendingDetailRO(@PathVariable("labPendingId") Integer labPendingId, ModelMap m) {
 		return pendingDetail(labPendingId,m,false);
 	}
@@ -455,7 +455,8 @@ public class LabController extends WaspController {
 
 		LabPending labPending = this.labPendingService.getById(labPendingId);
 
-		labPending.setLabPendingMeta(metaHelper.syncWithMaster(labPending.getLabPendingMeta()));
+		MetaHelper lpMetaHelper = new MetaHelper("labPending", LabPendingMeta.class);
+		labPending.setLabPendingMeta(lpMetaHelper.syncWithMaster(labPending.getLabPendingMeta()));
 
 		//List<LabUser> labUserList = labPending.getLabUser();
 		//labUserList.size();
@@ -942,7 +943,9 @@ public class LabController extends WaspController {
 		for(User user: users) {
 			User u = new User();
 			u.setUserId(user.getUserId());
-			u.setFirstName(user.getFirstName()+" "+user.getLastName());
+			//u.setFirstName(user.getFirstName()+" "+user.getLastName());
+			u.setFirstName(user.getFirstName());
+			u.setLastName(user.getLastName());
 			
 			usersLight.add(u);
 		}

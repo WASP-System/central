@@ -28,7 +28,7 @@
     <h2>Labs</h2>
     <c:forEach items="${lab}" var="l">
       <div>
-        <a href="/wasp/lab/detail_ro/<c:out value="${l.labId}" />.do">
+        <a href="/wasp/lab/detail_ro/<c:out value="${department.departmentId}" />/<c:out value="${l.labId}" />.do">
         <c:out value="${l.name}" />
         </a>
       </div>
@@ -37,7 +37,7 @@
     <h2>Pending Lab</h2>
     <c:forEach items="${labpending}" var="lp">
       <div>
-      	<a href="/wasp/lab/pending/detail_ro/<c:out value="${lp.labPendingId}" />.do">
+      	<a href="/wasp/lab/pending/detail_ro/<c:out value="${department.departmentId}" />/<c:out value="${lp.labPendingId}" />.do">
       	<c:out value="${lp.name}" />
       	</a>
       </div>

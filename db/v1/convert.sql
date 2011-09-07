@@ -12127,7 +12127,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (1, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (1, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -12147,7 +12147,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (100, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (100, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -12167,7 +12167,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (101, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (101, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -12187,7 +12187,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (103, 'lab.internal_external_lab', 'EXTERNAL', 0);
+      (103, 'lab.internal_external_lab', 'external', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -12207,7 +12207,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (104, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (104, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -12227,7 +12227,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (105, 'lab.internal_external_lab', 'EXTERNAL', 0);
+      (105, 'lab.internal_external_lab', 'external', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -12247,7 +12247,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (107, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (107, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -12267,7 +12267,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (108, 'lab.internal_external_lab', 'EXTERNAL', 0);
+      (108, 'lab.internal_external_lab', 'external', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -12287,7 +12287,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (109, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (109, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -12307,7 +12307,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (11, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (11, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -12327,7 +12327,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (111, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (111, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -12347,7 +12347,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (112, 'lab.internal_external_lab', 'EXTERNAL', 0);
+      (112, 'lab.internal_external_lab', 'external', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -12367,7 +12367,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (113, 'lab.internal_external_lab', 'EXTERNAL', 0);
+      (113, 'lab.internal_external_lab', 'external', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -12387,7 +12387,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (114, 'lab.internal_external_lab', 'EXTERNAL', 0);
+      (114, 'lab.internal_external_lab', 'external', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -12407,7 +12407,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (115, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (115, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -12427,7 +12427,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (116, 'lab.internal_external_lab', 'EXTERNAL', 0);
+      (116, 'lab.internal_external_lab', 'external', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -12447,7 +12447,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (117, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (117, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -12467,7 +12467,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (119, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (119, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -12487,7 +12487,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (12, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (12, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -12507,7 +12507,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (120, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (120, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -12527,7 +12527,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (121, 'lab.internal_external_lab', 'EXTERNAL', 0);
+      (121, 'lab.internal_external_lab', 'external', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -12547,7 +12547,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (122, 'lab.internal_external_lab', 'EXTERNAL', 0);
+      (122, 'lab.internal_external_lab', 'external', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -12567,7 +12567,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (123, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (123, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -12587,7 +12587,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (125, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (125, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -12607,7 +12607,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (13, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (13, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -12627,7 +12627,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (14, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (14, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -12647,7 +12647,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (15, 'lab.internal_external_lab', 'EXTERNAL', 0);
+      (15, 'lab.internal_external_lab', 'external', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -12667,7 +12667,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (16, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (16, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -12687,7 +12687,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (17, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (17, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -12707,7 +12707,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (18, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (18, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -12727,7 +12727,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (19, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (19, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -12747,7 +12747,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (2, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (2, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -12767,7 +12767,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (20, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (20, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -12787,7 +12787,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (21, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (21, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -12807,7 +12807,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (22, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (22, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -12827,7 +12827,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (23, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (23, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -12847,7 +12847,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (24, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (24, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -12867,7 +12867,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (25, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (25, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -12887,7 +12887,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (26, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (26, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -12907,7 +12907,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (27, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (27, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -12927,7 +12927,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (28, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (28, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -12947,7 +12947,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (3, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (3, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -12967,7 +12967,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (30, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (30, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -12987,7 +12987,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (31, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (31, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -13007,7 +13007,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (32, 'lab.internal_external_lab', 'EXTERNAL', 0);
+      (32, 'lab.internal_external_lab', 'external', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -13027,7 +13027,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (33, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (33, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -13047,7 +13047,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (34, 'lab.internal_external_lab', 'EXTERNAL', 0);
+      (34, 'lab.internal_external_lab', 'external', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -13067,7 +13067,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (35, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (35, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -13087,7 +13087,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (36, 'lab.internal_external_lab', 'EXTERNAL', 0);
+      (36, 'lab.internal_external_lab', 'external', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -13107,7 +13107,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (37, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (37, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -13127,7 +13127,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (38, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (38, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -13147,7 +13147,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (39, 'lab.internal_external_lab', 'EXTERNAL', 0);
+      (39, 'lab.internal_external_lab', 'external', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -13167,7 +13167,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (4, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (4, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -13187,7 +13187,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (40, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (40, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -13207,7 +13207,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (41, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (41, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -13227,7 +13227,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (43, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (43, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -13247,7 +13247,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (44, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (44, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -13267,7 +13267,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (45, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (45, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -13287,7 +13287,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (46, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (46, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -13307,7 +13307,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (47, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (47, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -13327,7 +13327,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (48, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (48, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -13347,7 +13347,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (49, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (49, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -13367,7 +13367,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (5, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (5, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -13387,7 +13387,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (50, 'lab.internal_external_lab', 'EXTERNAL', 0);
+      (50, 'lab.internal_external_lab', 'external', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -13407,7 +13407,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (51, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (51, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -13427,7 +13427,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (52, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (52, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -13447,7 +13447,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (54, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (54, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -13467,7 +13467,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (55, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (55, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -13487,7 +13487,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (56, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (56, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -13507,7 +13507,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (57, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (57, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -13527,7 +13527,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (58, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (58, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -13547,7 +13547,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (59, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (59, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -13567,7 +13567,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (6, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (6, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -13587,7 +13587,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (60, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (60, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -13607,7 +13607,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (61, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (61, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -13627,7 +13627,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (62, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (62, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -13647,7 +13647,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (63, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (63, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -13667,7 +13667,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (64, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (64, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -13687,7 +13687,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (65, 'lab.internal_external_lab', 'EXTERNAL', 0);
+      (65, 'lab.internal_external_lab', 'external', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -13707,7 +13707,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (67, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (67, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -13727,7 +13727,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (68, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (68, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -13747,7 +13747,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (69, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (69, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -13767,7 +13767,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (7, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (7, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -13787,7 +13787,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (70, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (70, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -13807,7 +13807,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (71, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (71, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -13827,7 +13827,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (72, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (72, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -13847,7 +13847,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (73, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (73, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -13867,7 +13867,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (74, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (74, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -13887,7 +13887,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (75, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (75, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -13907,7 +13907,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (76, 'lab.internal_external_lab', 'EXTERNAL', 0);
+      (76, 'lab.internal_external_lab', 'external', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -13927,7 +13927,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (77, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (77, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -13947,7 +13947,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (78, 'lab.internal_external_lab', 'EXTERNAL', 0);
+      (78, 'lab.internal_external_lab', 'external', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -13967,7 +13967,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (79, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (79, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -13987,7 +13987,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (8, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (8, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -14007,7 +14007,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (80, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (80, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -14027,7 +14027,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (83, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (83, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -14047,7 +14047,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (84, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (84, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -14067,7 +14067,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (85, 'lab.internal_external_lab', 'EXTERNAL', 0);
+      (85, 'lab.internal_external_lab', 'external', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -14087,7 +14087,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (86, 'lab.internal_external_lab', 'EXTERNAL', 0);
+      (86, 'lab.internal_external_lab', 'external', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -14107,7 +14107,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (87, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (87, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -14127,7 +14127,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (88, 'lab.internal_external_lab', 'EXTERNAL', 0);
+      (88, 'lab.internal_external_lab', 'external', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -14147,7 +14147,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (89, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (89, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -14167,7 +14167,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (9, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (9, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -14187,7 +14187,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (90, 'lab.internal_external_lab', 'EXTERNAL', 0);
+      (90, 'lab.internal_external_lab', 'external', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -14207,7 +14207,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (91, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (91, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -14227,7 +14227,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (92, 'lab.internal_external_lab', 'EXTERNAL', 0);
+      (92, 'lab.internal_external_lab', 'external', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -14247,7 +14247,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (93, 'lab.internal_external_lab', 'EXTERNAL', 0);
+      (93, 'lab.internal_external_lab', 'external', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -14267,7 +14267,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (94, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (94, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -14287,7 +14287,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (95, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (95, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -14307,7 +14307,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (96, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (96, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -14327,7 +14327,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (97, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (97, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -14347,7 +14347,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (98, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (98, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -14367,7 +14367,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (99, 'lab.internal_external_lab', 'INTERNAL', 0);
+      (99, 'lab.internal_external_lab', 'internal', 0);
     
       insert into labmeta
       (labid, k, v, position)
@@ -14382,942 +14382,942 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (2, 'lab.billing.billing_dept_name', 'Genetics', 0);
+      (2, 'lab.billing_billing_dept_name', 'Genetics', 0);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (2, 'lab.billing.contact_name', 'Masako Suzuki', 1);
+      (2, 'lab.billing_contact_name', 'Masako Suzuki', 1);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (2, 'lab.billing.institution_name', 'AECOM', 2);
+      (2, 'lab.billing_institution_name', 'AECOM', 2);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (2, 'lab.billing.building_room', 'Price 314', 3);
+      (2, 'lab.billing_building_room', 'Price 314', 3);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (2, 'lab.billing.address', '1301 Morris Park Avenue', 4);
+      (2, 'lab.billing_address', '1301 Morris Park Avenue', 4);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (2, 'lab.billing.city', 'Bronx', 5);
+      (2, 'lab.billing_city', 'Bronx', 5);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (2, 'lab.billing.state', 'NY', 6);
+      (2, 'lab.billing_state', 'NY', 6);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (2, 'lab.billing.zip', '10461', 7);
+      (2, 'lab.billing_zip', '10461', 7);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (2, 'lab.billing.email', 'masako.suzuki@einstein.yu.edu', 8);
+      (2, 'lab.billing_email', 'masako.suzuki@einstein.yu.edu', 8);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (2, 'lab.billing.phone', '#1162', 9);
+      (2, 'lab.billing_phone', '#1162', 9);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (88, 'lab.billing.billing_dept_name', 'Ciencias Biológicas', 0);
+      (88, 'lab.billing_billing_dept_name', 'Ciencias Biológicas', 0);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (88, 'lab.billing.contact_name', 'Jaime Eyzaguirre', 1);
+      (88, 'lab.billing_contact_name', 'Jaime Eyzaguirre', 1);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (88, 'lab.billing.institution_name', 'Universiad Andrés Bello', 2);
+      (88, 'lab.billing_institution_name', 'Universiad Andrés Bello', 2);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (88, 'lab.billing.building_room', 'Tercer piso', 3);
+      (88, 'lab.billing_building_room', 'Tercer piso', 3);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (88, 'lab.billing.address', 'República 217', 4);
+      (88, 'lab.billing_address', 'República 217', 4);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (88, 'lab.billing.city', 'Santiago', 5);
+      (88, 'lab.billing_city', 'Santiago', 5);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (88, 'lab.billing.state', 'Santiago', 6);
+      (88, 'lab.billing_state', 'Santiago', 6);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (88, 'lab.billing.zip', '000000', 7);
+      (88, 'lab.billing_zip', '000000', 7);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (88, 'lab.billing.email', 'jeyzaguirre@unab.cl', 8);
+      (88, 'lab.billing_email', 'jeyzaguirre@unab.cl', 8);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (88, 'lab.billing.phone', '(562) 6618070', 9);
+      (88, 'lab.billing_phone', '(562) 6618070', 9);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (105, 'lab.billing.billing_dept_name', 'Alergia', 0);
+      (105, 'lab.billing_billing_dept_name', 'Alergia', 0);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (105, 'lab.billing.contact_name', 'Maria Isidoro-Garcia', 1);
+      (105, 'lab.billing_contact_name', 'Maria Isidoro-Garcia', 1);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (105, 'lab.billing.institution_name', 'Asociación Salmantina de Inmunoalergia', 2);
+      (105, 'lab.billing_institution_name', 'Asociación Salmantina de Inmunoalergia', 2);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (105, 'lab.billing.building_room', 'Hospital UNiversitario de Salamanca', 3);
+      (105, 'lab.billing_building_room', 'Hospital UNiversitario de Salamanca', 3);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (105, 'lab.billing.address', 'Paseo de San Vicente 58', 4);
+      (105, 'lab.billing_address', 'Paseo de San Vicente 58', 4);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (105, 'lab.billing.city', 'Salamanca', 5);
+      (105, 'lab.billing_city', 'Salamanca', 5);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (105, 'lab.billing.state', 'Salamanca', 6);
+      (105, 'lab.billing_state', 'Salamanca', 6);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (105, 'lab.billing.zip', '37007', 7);
+      (105, 'lab.billing_zip', '37007', 7);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (105, 'lab.billing.email', 'misidoro@usal.es', 8);
+      (105, 'lab.billing_email', 'misidoro@usal.es', 8);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (105, 'lab.billing.phone', '0034 923 29 12 47', 9);
+      (105, 'lab.billing_phone', '0034 923 29 12 47', 9);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (108, 'lab.billing.billing_dept_name', 'Genetics and Biotechnology Lab', 0);
+      (108, 'lab.billing_billing_dept_name', 'Genetics and Biotechnology Lab', 0);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (108, 'lab.billing.contact_name', 'Prof.Charles Spillane', 1);
+      (108, 'lab.billing_contact_name', 'Prof.Charles Spillane', 1);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (108, 'lab.billing.institution_name', 'NUIG', 2);
+      (108, 'lab.billing_institution_name', 'NUIG', 2);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (108, 'lab.billing.building_room', 'Aras de Brun, C318', 3);
+      (108, 'lab.billing_building_room', 'Aras de Brun, C318', 3);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (108, 'lab.billing.address', 'Genetics and Biotechnology Lab, Aras de Brun,', 4);
+      (108, 'lab.billing_address', 'Genetics and Biotechnology Lab, Aras de Brun,', 4);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (108, 'lab.billing.city', 'Galway', 5);
+      (108, 'lab.billing_city', 'Galway', 5);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (108, 'lab.billing.state', 'Galway', 6);
+      (108, 'lab.billing_state', 'Galway', 6);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (108, 'lab.billing.zip', '0000', 7);
+      (108, 'lab.billing_zip', '0000', 7);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (108, 'lab.billing.email', 'charles.spillane@nuigalway.ie', 8);
+      (108, 'lab.billing_email', 'charles.spillane@nuigalway.ie', 8);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (108, 'lab.billing.phone', ' 353 91 493655', 9);
+      (108, 'lab.billing_phone', ' 353 91 493655', 9);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (34, 'lab.billing.billing_dept_name', 'Institute of Biochemistry ', 0);
+      (34, 'lab.billing_billing_dept_name', 'Institute of Biochemistry ', 0);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (34, 'lab.billing.contact_name', 'ChIP-seq', 1);
+      (34, 'lab.billing_contact_name', 'ChIP-seq', 1);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (34, 'lab.billing.institution_name', 'Shanghai Institute of Biological Sciences', 2);
+      (34, 'lab.billing_institution_name', 'Shanghai Institute of Biological Sciences', 2);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (34, 'lab.billing.building_room', 'Room 407, New Biochemistry Building', 3);
+      (34, 'lab.billing_building_room', 'Room 407, New Biochemistry Building', 3);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (34, 'lab.billing.address', 'P.O. Box 61, 320 Yue-yang Road', 4);
+      (34, 'lab.billing_address', 'P.O. Box 61, 320 Yue-yang Road', 4);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (34, 'lab.billing.city', 'Shanghai', 5);
+      (34, 'lab.billing_city', 'Shanghai', 5);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (34, 'lab.billing.state', 'Shanghai', 6);
+      (34, 'lab.billing_state', 'Shanghai', 6);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (34, 'lab.billing.zip', '200031', 7);
+      (34, 'lab.billing_zip', '200031', 7);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (34, 'lab.billing.email', 'coryhu@sibs.ac.cn', 8);
+      (34, 'lab.billing_email', 'coryhu@sibs.ac.cn', 8);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (34, 'lab.billing.phone', '011-86-21-54921408', 9);
+      (34, 'lab.billing_phone', '011-86-21-54921408', 9);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (113, 'lab.billing.billing_dept_name', 'Pharmacology and Thereapeutics', 0);
+      (113, 'lab.billing_billing_dept_name', 'Pharmacology and Thereapeutics', 0);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (113, 'lab.billing.contact_name', 'Coralie Mureau', 1);
+      (113, 'lab.billing_contact_name', 'Coralie Mureau', 1);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (113, 'lab.billing.institution_name', 'NUI Galway', 2);
+      (113, 'lab.billing_institution_name', 'NUI Galway', 2);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (113, 'lab.billing.building_room', 'Clinical Science Institute', 3);
+      (113, 'lab.billing_building_room', 'Clinical Science Institute', 3);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (113, 'lab.billing.address', 'NUI Galway', 4);
+      (113, 'lab.billing_address', 'NUI Galway', 4);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (113, 'lab.billing.city', 'Galway', 5);
+      (113, 'lab.billing_city', 'Galway', 5);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (113, 'lab.billing.state', 'N/A', 6);
+      (113, 'lab.billing_state', 'N/A', 6);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (113, 'lab.billing.zip', '00000', 7);
+      (113, 'lab.billing_zip', '00000', 7);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (113, 'lab.billing.email', 'coralie.mureau@nuigalway.ie', 8);
+      (113, 'lab.billing_email', 'coralie.mureau@nuigalway.ie', 8);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (113, 'lab.billing.phone', ' 35391495369', 9);
+      (113, 'lab.billing_phone', ' 35391495369', 9);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (116, 'lab.billing.billing_dept_name', 'Dermatology', 0);
+      (116, 'lab.billing_billing_dept_name', 'Dermatology', 0);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (116, 'lab.billing.contact_name', 'Patty Garcia', 1);
+      (116, 'lab.billing_contact_name', 'Patty Garcia', 1);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (116, 'lab.billing.institution_name', 'Columbia University', 2);
+      (116, 'lab.billing_institution_name', 'Columbia University', 2);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (116, 'lab.billing.building_room', 'RB-318', 3);
+      (116, 'lab.billing_building_room', 'RB-318', 3);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (116, 'lab.billing.address', '1150 St. Nicholas Avenue', 4);
+      (116, 'lab.billing_address', '1150 St. Nicholas Avenue', 4);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (116, 'lab.billing.city', 'New York', 5);
+      (116, 'lab.billing_city', 'New York', 5);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (116, 'lab.billing.state', 'NY', 6);
+      (116, 'lab.billing_state', 'NY', 6);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (116, 'lab.billing.zip', '10032', 7);
+      (116, 'lab.billing_zip', '10032', 7);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (116, 'lab.billing.email', 'pg136@columbia.edu', 8);
+      (116, 'lab.billing_email', 'pg136@columbia.edu', 8);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (116, 'lab.billing.phone', '212-851-4547', 9);
+      (116, 'lab.billing_phone', '212-851-4547', 9);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (114, 'lab.billing.billing_dept_name', 'Environmental Health Sciences', 0);
+      (114, 'lab.billing_billing_dept_name', 'Environmental Health Sciences', 0);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (114, 'lab.billing.contact_name', 'Annie Tse', 1);
+      (114, 'lab.billing_contact_name', 'Annie Tse', 1);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (114, 'lab.billing.institution_name', 'Columbia University ', 2);
+      (114, 'lab.billing_institution_name', 'Columbia University ', 2);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (114, 'lab.billing.building_room', '1105A', 3);
+      (114, 'lab.billing_building_room', '1105A', 3);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (114, 'lab.billing.address', '722 W168th Street', 4);
+      (114, 'lab.billing_address', '722 W168th Street', 4);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (114, 'lab.billing.city', 'New York', 5);
+      (114, 'lab.billing_city', 'New York', 5);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (114, 'lab.billing.state', 'NY ', 6);
+      (114, 'lab.billing_state', 'NY ', 6);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (114, 'lab.billing.zip', '10032', 7);
+      (114, 'lab.billing_zip', '10032', 7);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (114, 'lab.billing.email', 'yt2024@columbia.edu', 8);
+      (114, 'lab.billing_email', 'yt2024@columbia.edu', 8);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (114, 'lab.billing.phone', '212-305-0507', 9);
+      (114, 'lab.billing_phone', '212-305-0507', 9);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (121, 'lab.billing.billing_dept_name', 'Islet Cell and Regenerative Medicine', 0);
+      (121, 'lab.billing_billing_dept_name', 'Islet Cell and Regenerative Medicine', 0);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (121, 'lab.billing.contact_name', 'Rohit Kulkarni', 1);
+      (121, 'lab.billing_contact_name', 'Rohit Kulkarni', 1);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (121, 'lab.billing.institution_name', 'Joslin Diabetes Center, Harvard Medical Schoo', 2);
+      (121, 'lab.billing_institution_name', 'Joslin Diabetes Center, Harvard Medical Schoo', 2);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (121, 'lab.billing.building_room', 'Joslin Diabetes Center, room 602', 3);
+      (121, 'lab.billing_building_room', 'Joslin Diabetes Center, room 602', 3);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (121, 'lab.billing.address', '1 Joslin Place', 4);
+      (121, 'lab.billing_address', '1 Joslin Place', 4);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (121, 'lab.billing.city', 'Boston', 5);
+      (121, 'lab.billing_city', 'Boston', 5);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (121, 'lab.billing.state', 'MA', 6);
+      (121, 'lab.billing_state', 'MA', 6);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (121, 'lab.billing.zip', '02215', 7);
+      (121, 'lab.billing_zip', '02215', 7);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (121, 'lab.billing.email', 'rohit.kulkarni@joslin.harvard.edu', 8);
+      (121, 'lab.billing_email', 'rohit.kulkarni@joslin.harvard.edu', 8);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (121, 'lab.billing.phone', '(617) 713-3460', 9);
+      (121, 'lab.billing_phone', '(617) 713-3460', 9);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (121, 'lab.billing.fax', '(617) 713-3476', 10);
+      (121, 'lab.billing_fax', '(617) 713-3476', 10);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (51, 'lab.billing.billing_dept_name', 'Anatomy and Structural Biology', 0);
+      (51, 'lab.billing_billing_dept_name', 'Anatomy and Structural Biology', 0);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (51, 'lab.billing.contact_name', 'Lorraine Canny', 1);
+      (51, 'lab.billing_contact_name', 'Lorraine Canny', 1);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (51, 'lab.billing.institution_name', 'Einstein', 2);
+      (51, 'lab.billing_institution_name', 'Einstein', 2);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (51, 'lab.billing.building_room', 'Forchheimer 620', 3);
+      (51, 'lab.billing_building_room', 'Forchheimer 620', 3);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (51, 'lab.billing.address', '1300 Morris Park Ave', 4);
+      (51, 'lab.billing_address', '1300 Morris Park Ave', 4);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (51, 'lab.billing.city', 'Bronx', 5);
+      (51, 'lab.billing_city', 'Bronx', 5);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (51, 'lab.billing.state', 'NY', 6);
+      (51, 'lab.billing_state', 'NY', 6);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (51, 'lab.billing.zip', '10461', 7);
+      (51, 'lab.billing_zip', '10461', 7);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (51, 'lab.billing.email', 'lorraine.canny@einstein.yu.edu', 8);
+      (51, 'lab.billing_email', 'lorraine.canny@einstein.yu.edu', 8);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (51, 'lab.billing.phone', '718-430-2836', 9);
+      (51, 'lab.billing_phone', '718-430-2836', 9);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (16, 'lab.billing.billing_dept_name', 'Hematology', 0);
+      (16, 'lab.billing_billing_dept_name', 'Hematology', 0);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (16, 'lab.billing.contact_name', 'Dr Zipora ETZION', 1);
+      (16, 'lab.billing_contact_name', 'Dr Zipora ETZION', 1);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (16, 'lab.billing.institution_name', 'Einstein', 2);
+      (16, 'lab.billing_institution_name', 'Einstein', 2);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (16, 'lab.billing.building_room', 'Ullmann925', 3);
+      (16, 'lab.billing_building_room', 'Ullmann925', 3);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (16, 'lab.billing.address', '1300 Morris park ave', 4);
+      (16, 'lab.billing_address', '1300 Morris park ave', 4);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (16, 'lab.billing.city', 'Bronx', 5);
+      (16, 'lab.billing_city', 'Bronx', 5);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (16, 'lab.billing.state', 'NY', 6);
+      (16, 'lab.billing_state', 'NY', 6);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (16, 'lab.billing.zip', '10461', 7);
+      (16, 'lab.billing_zip', '10461', 7);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (16, 'lab.billing.email', 'zipora.etzion@einstein.yu.edu', 8);
+      (16, 'lab.billing_email', 'zipora.etzion@einstein.yu.edu', 8);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (16, 'lab.billing.phone', '7184308823', 9);
+      (16, 'lab.billing_phone', '7184308823', 9);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (37, 'lab.billing.billing_dept_name', 'Cancer center', 0);
+      (37, 'lab.billing_billing_dept_name', 'Cancer center', 0);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (37, 'lab.billing.contact_name', 'Deborah Vecchiarello', 1);
+      (37, 'lab.billing_contact_name', 'Deborah Vecchiarello', 1);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (37, 'lab.billing.institution_name', 'Einstein', 2);
+      (37, 'lab.billing_institution_name', 'Einstein', 2);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (37, 'lab.billing.building_room', 'Chanin214', 3);
+      (37, 'lab.billing_building_room', 'Chanin214', 3);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (37, 'lab.billing.address', '1300 Morris park ave', 4);
+      (37, 'lab.billing_address', '1300 Morris park ave', 4);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (37, 'lab.billing.city', 'Bronx', 5);
+      (37, 'lab.billing_city', 'Bronx', 5);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (37, 'lab.billing.state', 'NY', 6);
+      (37, 'lab.billing_state', 'NY', 6);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (37, 'lab.billing.zip', '10461', 7);
+      (37, 'lab.billing_zip', '10461', 7);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (37, 'lab.billing.email', 'dvecchia@aecom.yu.edu', 8);
+      (37, 'lab.billing_email', 'dvecchia@aecom.yu.edu', 8);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (37, 'lab.billing.phone', '7184303515', 9);
+      (37, 'lab.billing_phone', '7184303515', 9);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (3, 'lab.billing.billing_dept_name', 'Genetics', 0);
+      (3, 'lab.billing_billing_dept_name', 'Genetics', 0);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (3, 'lab.billing.contact_name', 'Robert Dubin', 1);
+      (3, 'lab.billing_contact_name', 'Robert Dubin', 1);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (3, 'lab.billing.institution_name', 'Einstein', 2);
+      (3, 'lab.billing_institution_name', 'Einstein', 2);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (3, 'lab.billing.building_room', 'Price 357', 3);
+      (3, 'lab.billing_building_room', 'Price 357', 3);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (3, 'lab.billing.address', '1301 Morris Park Ave', 4);
+      (3, 'lab.billing_address', '1301 Morris Park Ave', 4);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (3, 'lab.billing.city', 'Bronx', 5);
+      (3, 'lab.billing_city', 'Bronx', 5);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (3, 'lab.billing.state', 'NY', 6);
+      (3, 'lab.billing_state', 'NY', 6);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (3, 'lab.billing.zip', '11718', 7);
+      (3, 'lab.billing_zip', '11718', 7);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (3, 'lab.billing.email', 'rdubin@aecom.yu.edu', 8);
+      (3, 'lab.billing_email', 'rdubin@aecom.yu.edu', 8);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (3, 'lab.billing.phone', '718-678-1184', 9);
+      (3, 'lab.billing_phone', '718-678-1184', 9);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (4, 'lab.billing.billing_dept_name', 'Genetics', 0);
+      (4, 'lab.billing_billing_dept_name', 'Genetics', 0);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (4, 'lab.billing.contact_name', 'MoonSook Lee', 1);
+      (4, 'lab.billing_contact_name', 'MoonSook Lee', 1);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (4, 'lab.billing.institution_name', 'AECOM', 2);
+      (4, 'lab.billing_institution_name', 'AECOM', 2);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (4, 'lab.billing.building_room', '468', 3);
+      (4, 'lab.billing_building_room', '468', 3);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (4, 'lab.billing.address', '1301 Morris park ave', 4);
+      (4, 'lab.billing_address', '1301 Morris park ave', 4);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (4, 'lab.billing.city', 'Bronx', 5);
+      (4, 'lab.billing_city', 'Bronx', 5);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (4, 'lab.billing.state', 'NY', 6);
+      (4, 'lab.billing_state', 'NY', 6);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (4, 'lab.billing.zip', '10461', 7);
+      (4, 'lab.billing_zip', '10461', 7);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (4, 'lab.billing.email', 'moonsook.lee@einstein.yu.edu', 8);
+      (4, 'lab.billing_email', 'moonsook.lee@einstein.yu.edu', 8);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (4, 'lab.billing.phone', '(718) 678 1573', 9);
+      (4, 'lab.billing_phone', '(718) 678 1573', 9);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (39, 'lab.billing.billing_dept_name', 'Encrinology', 0);
+      (39, 'lab.billing_billing_dept_name', 'Encrinology', 0);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (39, 'lab.billing.contact_name', 'Luiza caramori', 1);
+      (39, 'lab.billing_contact_name', 'Luiza caramori', 1);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (39, 'lab.billing.institution_name', 'UMN', 2);
+      (39, 'lab.billing_institution_name', 'UMN', 2);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (39, 'lab.billing.building_room', 'PWB', 3);
+      (39, 'lab.billing_building_room', 'PWB', 3);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (39, 'lab.billing.address', 'PWB', 4);
+      (39, 'lab.billing_address', 'PWB', 4);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (39, 'lab.billing.city', 'Minneapolis', 5);
+      (39, 'lab.billing_city', 'Minneapolis', 5);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (39, 'lab.billing.state', 'MN', 6);
+      (39, 'lab.billing_state', 'MN', 6);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (39, 'lab.billing.zip', '55455', 7);
+      (39, 'lab.billing_zip', '55455', 7);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (39, 'lab.billing.email', 'caram001@umn.edu', 8);
+      (39, 'lab.billing_email', 'caram001@umn.edu', 8);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (39, 'lab.billing.phone', '6126257189', 9);
+      (39, 'lab.billing_phone', '6126257189', 9);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (100, 'lab.researchcenter.research_center_name', 'Diabetes Center', 0);
+      (100, 'lab.research_center_name', 'Diabetes Center', 0);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (100, 'lab.researchcenter.user_list_location', 'http://www.einstein.yu.edu/diabetes/page.aspx?id=1638&ekmensel=15074e5e_212_2180_btnlink', 1);
+      (100, 'lab.researchcenter_user_list_location', 'http://www.einstein.yu.edu/diabetes/page.aspx?id=1638&ekmensel=15074e5e_212_2180_btnlink', 1);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (104, 'lab.researchcenter.research_center_name', 'Diabetes Center', 0);
+      (104, 'lab.research_center_name', 'Diabetes Center', 0);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (104, 'lab.researchcenter.user_list_location', 'http://www.einstein.yu.edu/diabetes/page.aspx?id=1638&ekmensel=15074e5e_212_2180_btnlink', 1);
+      (104, 'lab.researchcenter_user_list_location', 'http://www.einstein.yu.edu/diabetes/page.aspx?id=1638&ekmensel=15074e5e_212_2180_btnlink', 1);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (17, 'lab.researchcenter.research_center_name', 'Cancer Center', 0);
+      (17, 'lab.research_center_name', 'Cancer Center', 0);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (18, 'lab.researchcenter.research_center_name', 'Diabetes Center', 0);
+      (18, 'lab.research_center_name', 'Diabetes Center', 0);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (18, 'lab.researchcenter.user_list_location', 'http://www.einstein.yu.edu/diabetes/page.aspx?id=1638&ekmensel=15074e5e_212_2180_btnlink', 1);
+      (18, 'lab.researchcenter_user_list_location', 'http://www.einstein.yu.edu/diabetes/page.aspx?id=1638&ekmensel=15074e5e_212_2180_btnlink', 1);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (19, 'lab.researchcenter.research_center_name', 'Diabetes Center', 0);
+      (19, 'lab.research_center_name', 'Diabetes Center', 0);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (19, 'lab.researchcenter.user_list_location', 'http://www.einstein.yu.edu/diabetes/page.aspx?id=1638&ekmensel=15074e5e_212_2180_btnlink', 1);
+      (19, 'lab.researchcenter_user_list_location', 'http://www.einstein.yu.edu/diabetes/page.aspx?id=1638&ekmensel=15074e5e_212_2180_btnlink', 1);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (2, 'lab.researchcenter.research_center_name', 'Diabetes Center', 0);
+      (2, 'lab.research_center_name', 'Diabetes Center', 0);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (2, 'lab.researchcenter.user_list_location', 'http://www.einstein.yu.edu/diabetes/page.aspx?id=1638&ekmensel=15074e5e_212_2180_btnlink', 1);
+      (2, 'lab.researchcenter_user_list_location', 'http://www.einstein.yu.edu/diabetes/page.aspx?id=1638&ekmensel=15074e5e_212_2180_btnlink', 1);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (20, 'lab.researchcenter.research_center_name', 'Diabetes Center', 0);
+      (20, 'lab.research_center_name', 'Diabetes Center', 0);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (20, 'lab.researchcenter.user_list_location', 'http://www.einstein.yu.edu/diabetes/page.aspx?id=1638&ekmensel=15074e5e_212_2180_btnlink', 1);
+      (20, 'lab.researchcenter_user_list_location', 'http://www.einstein.yu.edu/diabetes/page.aspx?id=1638&ekmensel=15074e5e_212_2180_btnlink', 1);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (25, 'lab.researchcenter.research_center_name', 'Diabetes Center', 0);
+      (25, 'lab.research_center_name', 'Diabetes Center', 0);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (25, 'lab.researchcenter.user_list_location', 'http://www.einstein.yu.edu/diabetes/page.aspx?id=1638&ekmensel=15074e5e_212_2180_btnlink', 1);
+      (25, 'lab.researchcenter_user_list_location', 'http://www.einstein.yu.edu/diabetes/page.aspx?id=1638&ekmensel=15074e5e_212_2180_btnlink', 1);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (3, 'lab.researchcenter.research_center_name', 'Diabetes Center', 0);
+      (3, 'lab.research_center_name', 'Diabetes Center', 0);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (3, 'lab.researchcenter.user_list_location', 'http://www.einstein.yu.edu/diabetes/page.aspx?id=1638&ekmensel=15074e5e_212_2180_btnlink', 1);
+      (3, 'lab.researchcenter_user_list_location', 'http://www.einstein.yu.edu/diabetes/page.aspx?id=1638&ekmensel=15074e5e_212_2180_btnlink', 1);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (35, 'lab.researchcenter.research_center_name', 'Cancer Center', 0);
+      (35, 'lab.research_center_name', 'Cancer Center', 0);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (43, 'lab.researchcenter.research_center_name', 'Diabetes Center', 0);
+      (43, 'lab.research_center_name', 'Diabetes Center', 0);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (43, 'lab.researchcenter.user_list_location', 'http://www.einstein.yu.edu/diabetes/page.aspx?id=1638&ekmensel=15074e5e_212_2180_btnlink', 1);
+      (43, 'lab.researchcenter_user_list_location', 'http://www.einstein.yu.edu/diabetes/page.aspx?id=1638&ekmensel=15074e5e_212_2180_btnlink', 1);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (48, 'lab.researchcenter.research_center_name', 'Center for AIDS Research', 0);
+      (48, 'lab.research_center_name', 'Center for AIDS Research', 0);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (52, 'lab.researchcenter.research_center_name', 'Cancer Center', 0);
+      (52, 'lab.research_center_name', 'Cancer Center', 0);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (55, 'lab.researchcenter.research_center_name', 'Diabetes Center', 0);
+      (55, 'lab.research_center_name', 'Diabetes Center', 0);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (55, 'lab.researchcenter.user_list_location', 'http://www.einstein.yu.edu/diabetes/page.aspx?id=1638&ekmensel=15074e5e_212_2180_btnlink', 1);
+      (55, 'lab.researchcenter_user_list_location', 'http://www.einstein.yu.edu/diabetes/page.aspx?id=1638&ekmensel=15074e5e_212_2180_btnlink', 1);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (56, 'lab.researchcenter.research_center_name', 'Cancer Center', 0);
+      (56, 'lab.research_center_name', 'Cancer Center', 0);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (57, 'lab.researchcenter.research_center_name', 'Institute for Clinical & Translational Research', 0);
+      (57, 'lab.research_center_name', 'Institute for Clinical & Translational Research', 0);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (58, 'lab.researchcenter.research_center_name', 'Institute for Clinical & Translational Research', 0);
+      (58, 'lab.research_center_name', 'Institute for Clinical & Translational Research', 0);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (62, 'lab.researchcenter.research_center_name', 'Diabetes Center', 0);
+      (62, 'lab.research_center_name', 'Diabetes Center', 0);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (62, 'lab.researchcenter.user_list_location', 'http://www.einstein.yu.edu/diabetes/page.aspx?id=1638&ekmensel=15074e5e_212_2180_btnlink', 1);
+      (62, 'lab.researchcenter_user_list_location', 'http://www.einstein.yu.edu/diabetes/page.aspx?id=1638&ekmensel=15074e5e_212_2180_btnlink', 1);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (64, 'lab.researchcenter.research_center_name', 'Cancer Center', 0);
+      (64, 'lab.research_center_name', 'Cancer Center', 0);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (68, 'lab.researchcenter.research_center_name', 'Center for AIDS Research', 0);
+      (68, 'lab.research_center_name', 'Center for AIDS Research', 0);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (69, 'lab.researchcenter.research_center_name', 'Cancer Center', 0);
+      (69, 'lab.research_center_name', 'Cancer Center', 0);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (74, 'lab.researchcenter.research_center_name', 'Diabetes Center', 0);
+      (74, 'lab.research_center_name', 'Diabetes Center', 0);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (74, 'lab.researchcenter.user_list_location', 'http://www.einstein.yu.edu/diabetes/page.aspx?id=1638&ekmensel=15074e5e_212_2180_btnlink', 1);
+      (74, 'lab.researchcenter_user_list_location', 'http://www.einstein.yu.edu/diabetes/page.aspx?id=1638&ekmensel=15074e5e_212_2180_btnlink', 1);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (9, 'lab.researchcenter.research_center_name', 'Cancer Center', 0);
+      (9, 'lab.research_center_name', 'Cancer Center', 0);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (96, 'lab.researchcenter.research_center_name', 'Diabetes Center', 0);
+      (96, 'lab.research_center_name', 'Diabetes Center', 0);
     
       insert into labmeta
       (labid, k, v, position)
       values
-      (96, 'lab.researchcenter.user_list_location', 'http://www.einstein.yu.edu/diabetes/page.aspx?id=1638&ekmensel=15074e5e_212_2180_btnlink', 1);
+      (96, 'lab.researchcenter_user_list_location', 'http://www.einstein.yu.edu/diabetes/page.aspx?id=1638&ekmensel=15074e5e_212_2180_btnlink', 1);
     
     insert into labuser
     (labid, userid, roleid)
