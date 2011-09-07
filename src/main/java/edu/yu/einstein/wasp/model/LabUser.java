@@ -4,119 +4,310 @@
  * LabUser.java 
  * @author echeng (table2type.pl)
  *  
- * the LabUser object
+ * the LabUser
  *
  *
  */
 
 package edu.yu.einstein.wasp.model;
 
-import org.hibernate.*;
+import java.util.Date;
+import java.util.List;
+
+import javax.persistence.*;
+
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 
-import javax.persistence.*;
-import java.util.*;
+import org.hibernate.validator.constraints.*;
+
+import org.codehaus.jackson.annotate.JsonIgnore;
 
 @Entity
 @Audited
 @Table(name="labuser")
 public class LabUser extends WaspModel {
-  @Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-  protected int labUserId;
-  public void setLabUserId (int labUserId) {
-    this.labUserId = labUserId;
-  }
-  public int getLabUserId () {
-    return this.labUserId;
-  }
 
+	/** 
+	 * labUserId
+	 *
+	 */
+	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
+	protected int labUserId;
 
-  @Column(name="labid")
-  protected int labId;
-  public void setLabId (int labId) {
-    this.labId = labId;
-  }
-  public int getLabId () {
-    return this.labId;
-  }
+	/**
+	 * setLabUserId(int labUserId)
+	 *
+	 * @param labUserId
+	 *
+	 */
+	
+	public void setLabUserId (int labUserId) {
+		this.labUserId = labUserId;
+	}
 
-
-  @Column(name="userid")
-  protected int UserId;
-  public void setUserId (int UserId) {
-    this.UserId = UserId;
-  }
-  public int getUserId () {
-    return this.UserId;
-  }
-
-
-  @Column(name="roleid")
-  protected int roleId;
-  public void setRoleId (int roleId) {
-    this.roleId = roleId;
-  }
-  public int getRoleId () {
-    return this.roleId;
-  }
-
-
-  @Column(name="lastupdts")
-  protected Date lastUpdTs;
-  public void setLastUpdTs (Date lastUpdTs) {
-    this.lastUpdTs = lastUpdTs;
-  }
-  public Date getLastUpdTs () {
-    return this.lastUpdTs;
-  }
-
-
-  @Column(name="lastupduser")
-  protected int lastUpdUser;
-  public void setLastUpdUser (int lastUpdUser) {
-    this.lastUpdUser = lastUpdUser;
-  }
-  public int getLastUpdUser () {
-    return this.lastUpdUser;
-  }
+	/**
+	 * getLabUserId()
+	 *
+	 * @return labUserId
+	 *
+	 */
+	public int getLabUserId () {
+		return this.labUserId;
+	}
 
 
 
-  @NotAudited
-  @ManyToOne
-   @JoinColumn(name="labid", insertable=false, updatable=false)
-  protected Lab lab;
-  public void setLab (Lab lab) {
-    this.lab = lab;
-    this.labId = lab.labId;
-  }
-  public Lab getLab () {
-    return this.lab;
-  }
 
-  @NotAudited
-  @ManyToOne
-   @JoinColumn(name="userid", insertable=false, updatable=false)
-  protected User user;
-  public void setUser (User user) {
-    this.user = user;
-    this.UserId = user.UserId;
-  }
-  public User getUser () {
-    return this.user;
-  }
+	/** 
+	 * labId
+	 *
+	 */
+	@Column(name="labid")
+	protected int labId;
 
-  @NotAudited
-  @ManyToOne
-   @JoinColumn(name="roleid", insertable=false, updatable=false)
-  protected Role role;
-  public void setRole (Role role) {
-    this.role = role;
-    this.roleId = role.roleId;
-  }
-  public Role getRole () {
-    return this.role;
-  }
+	/**
+	 * setLabId(int labId)
+	 *
+	 * @param labId
+	 *
+	 */
+	
+	public void setLabId (int labId) {
+		this.labId = labId;
+	}
+
+	/**
+	 * getLabId()
+	 *
+	 * @return labId
+	 *
+	 */
+	public int getLabId () {
+		return this.labId;
+	}
+
+
+
+
+	/** 
+	 * UserId
+	 *
+	 */
+	@Column(name="userid")
+	protected int UserId;
+
+	/**
+	 * setUserId(int UserId)
+	 *
+	 * @param UserId
+	 *
+	 */
+	
+	public void setUserId (int UserId) {
+		this.UserId = UserId;
+	}
+
+	/**
+	 * getUserId()
+	 *
+	 * @return UserId
+	 *
+	 */
+	public int getUserId () {
+		return this.UserId;
+	}
+
+
+
+
+	/** 
+	 * roleId
+	 *
+	 */
+	@Column(name="roleid")
+	protected int roleId;
+
+	/**
+	 * setRoleId(int roleId)
+	 *
+	 * @param roleId
+	 *
+	 */
+	
+	public void setRoleId (int roleId) {
+		this.roleId = roleId;
+	}
+
+	/**
+	 * getRoleId()
+	 *
+	 * @return roleId
+	 *
+	 */
+	public int getRoleId () {
+		return this.roleId;
+	}
+
+
+
+
+	/** 
+	 * lastUpdTs
+	 *
+	 */
+	@Column(name="lastupdts")
+	protected Date lastUpdTs;
+
+	/**
+	 * setLastUpdTs(Date lastUpdTs)
+	 *
+	 * @param lastUpdTs
+	 *
+	 */
+	
+	public void setLastUpdTs (Date lastUpdTs) {
+		this.lastUpdTs = lastUpdTs;
+	}
+
+	/**
+	 * getLastUpdTs()
+	 *
+	 * @return lastUpdTs
+	 *
+	 */
+	public Date getLastUpdTs () {
+		return this.lastUpdTs;
+	}
+
+
+
+
+	/** 
+	 * lastUpdUser
+	 *
+	 */
+	@Column(name="lastupduser")
+	protected int lastUpdUser;
+
+	/**
+	 * setLastUpdUser(int lastUpdUser)
+	 *
+	 * @param lastUpdUser
+	 *
+	 */
+	
+	public void setLastUpdUser (int lastUpdUser) {
+		this.lastUpdUser = lastUpdUser;
+	}
+
+	/**
+	 * getLastUpdUser()
+	 *
+	 * @return lastUpdUser
+	 *
+	 */
+	public int getLastUpdUser () {
+		return this.lastUpdUser;
+	}
+
+
+
+
+	/**
+	 * lab
+	 *
+	 */
+	@NotAudited
+	@ManyToOne
+	@JoinColumn(name="labid", insertable=false, updatable=false)
+	protected Lab lab;
+
+	/**
+	 * setLab (Lab lab)
+	 *
+	 * @param lab
+	 *
+	 */
+	public void setLab (Lab lab) {
+		this.lab = lab;
+		this.labId = lab.labId;
+	}
+
+	/**
+	 * getLab ()
+	 *
+	 * @return lab
+	 *
+	 */
+	
+	public Lab getLab () {
+		return this.lab;
+	}
+
+
+	/**
+	 * user
+	 *
+	 */
+	@NotAudited
+	@ManyToOne
+	@JoinColumn(name="userid", insertable=false, updatable=false)
+	protected User user;
+
+	/**
+	 * setUser (User user)
+	 *
+	 * @param user
+	 *
+	 */
+	public void setUser (User user) {
+		this.user = user;
+		this.UserId = user.UserId;
+	}
+
+	/**
+	 * getUser ()
+	 *
+	 * @return user
+	 *
+	 */
+	
+	public User getUser () {
+		return this.user;
+	}
+
+
+	/**
+	 * role
+	 *
+	 */
+	@NotAudited
+	@ManyToOne
+	@JoinColumn(name="roleid", insertable=false, updatable=false)
+	protected Role role;
+
+	/**
+	 * setRole (Role role)
+	 *
+	 * @param role
+	 *
+	 */
+	public void setRole (Role role) {
+		this.role = role;
+		this.roleId = role.roleId;
+	}
+
+	/**
+	 * getRole ()
+	 *
+	 * @return role
+	 *
+	 */
+	
+	public Role getRole () {
+		return this.role;
+	}
+
 
 }
