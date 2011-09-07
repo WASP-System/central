@@ -18,7 +18,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 import edu.yu.einstein.wasp.controller.validator.MetaValidator;
-import edu.yu.einstein.wasp.controller.validator.MetaValidatorImpl;
 import edu.yu.einstein.wasp.controller.validator.PasswordValidator;
 import edu.yu.einstein.wasp.controller.validator.UserPendingMetaValidatorImpl;
 import edu.yu.einstein.wasp.model.Lab;
@@ -111,14 +110,28 @@ public class UserPendingController extends WaspController {
 
 		metaHelper.validate(new UserPendingMetaValidatorImpl(userService, labService), userPendingMetaList, result);
 	
-
 		// TODO USING STRING!
 		passwordValidator.validate(result, userPendingForm.getPassword(), (String) request.getParameter("password2"), metaHelper.getParentArea(), "password");
+		
+		if (! result.hasFieldErrors("email")){
+			Errors errors=new BindException(result.getTarget(), metaHelper.getParentArea());
+			User user = userService.getUserByEmail(userPendingForm.getEmail());
+			UserPending userPending = userPendingService.getUserPendingByEmail(userPendingForm.getEmail());
+			if (user.getUserId() != 0 || userPending.getUserPendingId() != 0){
+				errors.rejectValue("email", metaHelper.getParentArea()+".email_exists.error", metaHelper.getParentArea()+".email_exists.error (no message has been defined for this property)");
+			}
+			result.addAllErrors(errors);
+		}
+		
 		if (result.hasErrors()) {
 			prepareSelectListData(m);
 			waspMessage("user.created.error");
 			return "auth/newuser/form";
 		}
+		
+		
+		
+		
 		
 		String piUserEmail = "";
 		

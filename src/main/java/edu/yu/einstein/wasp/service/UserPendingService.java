@@ -12,6 +12,7 @@
 package edu.yu.einstein.wasp.service;
 
 import edu.yu.einstein.wasp.dao.UserPendingDao;
+import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserPending;
 
 import java.util.List;
@@ -26,6 +27,8 @@ public interface UserPendingService extends WaspService<UserPending> {
   public UserPendingDao getUserPendingDao();
 
   public UserPending getUserPendingByUserPendingId (final int userPendingId);
+  
+  public UserPending getUserPendingByEmail (final String email);
 
 }
 

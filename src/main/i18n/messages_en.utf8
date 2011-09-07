@@ -102,7 +102,8 @@ userPending.lastName.label=Last Name
 userPending.lastName.error=Last Name cannot be empty
 
 userPending.email.label=Email
-userPending.email.error=Wrong email address format
+userPending.email.error=Must be correctly formatted
+userPending.email_exists.error=Email already exists in the database
 
 userPending.locale.label=Locale
 userPending.locale.error=Locale cannot be empty

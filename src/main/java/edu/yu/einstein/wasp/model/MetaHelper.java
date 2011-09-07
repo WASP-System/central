@@ -325,7 +325,7 @@ public class MetaHelper {
 	}
 
 	public void validate(Class metaValidatorClazz, BindingResult result) {
-		getMetaValidator(metaValidatorClazz).validate(this.lastList, result, area, parentArea);
+		getMetaValidator(this.lastList, metaValidatorClazz).validate(this.lastList, result, area, parentArea);
 	}
 	
 	public List<String> getValidateList(List<? extends MetaBase> list){

@@ -14,6 +14,7 @@ package edu.yu.einstein.wasp.service.impl;
 import edu.yu.einstein.wasp.service.UserPendingService;
 import edu.yu.einstein.wasp.dao.UserPendingDao;
 import edu.yu.einstein.wasp.dao.WaspDao;
+import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserPending;
 
 import java.util.List;
@@ -40,6 +41,9 @@ public class UserPendingServiceImpl extends WaspServiceImpl<UserPending> impleme
 
   // **
 
+  public UserPending getUserPendingByEmail (final String email) {
+	    return this.getUserPendingDao().getUserPendingByEmail(email);
+	  }
   
   public UserPending getUserPendingByUserPendingId (final int userPendingId) {
     return this.getUserPendingDao().getUserPendingByUserPendingId(userPendingId);

@@ -30,11 +30,7 @@ public class PasswordValidator{
 	    	if (password1 == null || password1.isEmpty()){
 	    		errors.rejectValue(passwordFieldName, area +".password.error", area +".password.error (no message has been defined for this property)");
 	    	}
-	    	logger.debug("ANDY: "+password1);
-	    	if (passwordService==null){
-	    		logger.debug("ANDY: password service is null");
-	    	}
-	    	else if (! passwordService.validatePassword(password1) ){ 
+	    	if (! passwordService.validatePassword(password1) ){ 
 		    	errors.rejectValue(passwordFieldName, area +".password_invalid.error", area +".password_invalid.error (no message has been defined for this property)");
 		    }
 		    else if (! passwordService.matchPassword(password1, password2) ){
