@@ -4,86 +4,216 @@
  * ResourceLane.java 
  * @author echeng (table2type.pl)
  *  
- * the ResourceLane object
+ * the ResourceLane
  *
  *
  */
 
 package edu.yu.einstein.wasp.model;
 
-import org.hibernate.*;
+import java.util.Date;
+import java.util.List;
+
+import javax.persistence.*;
+
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 
-import javax.persistence.*;
-import java.util.*;
+import org.hibernate.validator.constraints.*;
+
+import org.codehaus.jackson.annotate.JsonIgnore;
 
 @Entity
 @Audited
 @Table(name="resourcelane")
 public class ResourceLane extends WaspModel {
-  @Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-  protected int resourceLaneId;
-  public void setResourceLaneId (int resourceLaneId) {
-    this.resourceLaneId = resourceLaneId;
-  }
-  public int getResourceLaneId () {
-    return this.resourceLaneId;
-  }
 
+	/** 
+	 * resourceLaneId
+	 *
+	 */
+	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
+	protected int resourceLaneId;
 
-  @Column(name="resourceid")
-  protected int resourceId;
-  public void setResourceId (int resourceId) {
-    this.resourceId = resourceId;
-  }
-  public int getResourceId () {
-    return this.resourceId;
-  }
+	/**
+	 * setResourceLaneId(int resourceLaneId)
+	 *
+	 * @param resourceLaneId
+	 *
+	 */
+	
+	public void setResourceLaneId (int resourceLaneId) {
+		this.resourceLaneId = resourceLaneId;
+	}
 
-
-  @Column(name="iname")
-  protected String iName;
-  public void setIName (String iName) {
-    this.iName = iName;
-  }
-  public String getIName () {
-    return this.iName;
-  }
-
-
-  @Column(name="name")
-  protected String name;
-  public void setName (String name) {
-    this.name = name;
-  }
-  public String getName () {
-    return this.name;
-  }
+	/**
+	 * getResourceLaneId()
+	 *
+	 * @return resourceLaneId
+	 *
+	 */
+	public int getResourceLaneId () {
+		return this.resourceLaneId;
+	}
 
 
 
-  @NotAudited
-  @ManyToOne
-   @JoinColumn(name="resourceid", insertable=false, updatable=false)
-  protected Resource resource;
-  public void setResource (Resource resource) {
-    this.resource = resource;
-    this.resourceId = resource.resourceId;
-  }
-  public Resource getResource () {
-    return this.resource;
-  }
-  @NotAudited
-  @OneToMany
-   @JoinColumn(name="resourcelaneid", insertable=false, updatable=false)
-  protected List<RunLane> runLane;
-  public List<RunLane> getRunLane()  {
-    return this.runLane;
-  }
-  public void setRunLane (List<RunLane> runLane)  {
-    this.runLane = runLane;
-  }
+
+	/** 
+	 * resourceId
+	 *
+	 */
+	@Column(name="resourceid")
+	protected int resourceId;
+
+	/**
+	 * setResourceId(int resourceId)
+	 *
+	 * @param resourceId
+	 *
+	 */
+	
+	public void setResourceId (int resourceId) {
+		this.resourceId = resourceId;
+	}
+
+	/**
+	 * getResourceId()
+	 *
+	 * @return resourceId
+	 *
+	 */
+	public int getResourceId () {
+		return this.resourceId;
+	}
+
+
+
+
+	/** 
+	 * iName
+	 *
+	 */
+	@Column(name="iname")
+	protected String iName;
+
+	/**
+	 * setIName(String iName)
+	 *
+	 * @param iName
+	 *
+	 */
+	
+	public void setIName (String iName) {
+		this.iName = iName;
+	}
+
+	/**
+	 * getIName()
+	 *
+	 * @return iName
+	 *
+	 */
+	public String getIName () {
+		return this.iName;
+	}
+
+
+
+
+	/** 
+	 * name
+	 *
+	 */
+	@Column(name="name")
+	protected String name;
+
+	/**
+	 * setName(String name)
+	 *
+	 * @param name
+	 *
+	 */
+	
+	public void setName (String name) {
+		this.name = name;
+	}
+
+	/**
+	 * getName()
+	 *
+	 * @return name
+	 *
+	 */
+	public String getName () {
+		return this.name;
+	}
+
+
+
+
+	/**
+	 * resource
+	 *
+	 */
+	@NotAudited
+	@ManyToOne
+	@JoinColumn(name="resourceid", insertable=false, updatable=false)
+	protected Resource resource;
+
+	/**
+	 * setResource (Resource resource)
+	 *
+	 * @param resource
+	 *
+	 */
+	public void setResource (Resource resource) {
+		this.resource = resource;
+		this.resourceId = resource.resourceId;
+	}
+
+	/**
+	 * getResource ()
+	 *
+	 * @return resource
+	 *
+	 */
+	
+	public Resource getResource () {
+		return this.resource;
+	}
+
+
+	/** 
+	 * runLane
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="resourcelaneid", insertable=false, updatable=false)
+	protected List<RunLane> runLane;
+
+
+	/** 
+	 * getRunLane()
+	 *
+	 * @return runLane
+	 *
+	 */
+	public List<RunLane> getRunLane() {
+		return this.runLane;
+	}
+
+
+	/** 
+	 * setRunLane
+	 *
+	 * @param runLane
+	 *
+	 */
+	public void setRunLane (List<RunLane> runLane) {
+		this.runLane = runLane;
+	}
 
 
 

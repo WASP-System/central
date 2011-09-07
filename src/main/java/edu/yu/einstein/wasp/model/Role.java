@@ -4,110 +4,349 @@
  * Role.java 
  * @author echeng (table2type.pl)
  *  
- * the Role object
+ * the Role
  *
  *
  */
 
 package edu.yu.einstein.wasp.model;
 
-import org.hibernate.*;
+import java.util.Date;
+import java.util.List;
+
+import javax.persistence.*;
+
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 
-import javax.persistence.*;
-import java.util.*;
+import org.hibernate.validator.constraints.*;
+
+import org.codehaus.jackson.annotate.JsonIgnore;
 
 @Entity
 @Audited
 @Table(name="role")
 public class Role extends WaspModel {
-  @Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-  protected int roleId;
-  public void setRoleId (int roleId) {
-    this.roleId = roleId;
-  }
-  public int getRoleId () {
-    return this.roleId;
-  }
+
+	/** 
+	 * roleId
+	 *
+	 */
+	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
+	protected int roleId;
+
+	/**
+	 * setRoleId(int roleId)
+	 *
+	 * @param roleId
+	 *
+	 */
+	
+	public void setRoleId (int roleId) {
+		this.roleId = roleId;
+	}
+
+	/**
+	 * getRoleId()
+	 *
+	 * @return roleId
+	 *
+	 */
+	public int getRoleId () {
+		return this.roleId;
+	}
 
 
-  @Column(name="rolename")
-  protected String roleName;
-  public void setRoleName (String roleName) {
-    this.roleName = roleName;
-  }
-  public String getRoleName () {
-    return this.roleName;
-  }
 
 
-  @Column(name="name")
-  protected String name;
-  public void setName (String name) {
-    this.name = name;
-  }
-  public String getName () {
-    return this.name;
-  }
+	/** 
+	 * roleName
+	 *
+	 */
+	@Column(name="rolename")
+	protected String roleName;
+
+	/**
+	 * setRoleName(String roleName)
+	 *
+	 * @param roleName
+	 *
+	 */
+	
+	public void setRoleName (String roleName) {
+		this.roleName = roleName;
+	}
+
+	/**
+	 * getRoleName()
+	 *
+	 * @return roleName
+	 *
+	 */
+	public String getRoleName () {
+		return this.roleName;
+	}
 
 
-  @Column(name="domain")
-  protected String domain;
-  public void setDomain (String domain) {
-    this.domain = domain;
-  }
-  public String getDomain () {
-    return this.domain;
-  }
 
 
-  @NotAudited
-  @OneToMany
-   @JoinColumn(name="roleid", insertable=false, updatable=false)
-  protected List<Userrole> userrole;
-  public List<Userrole> getUserrole()  {
-    return this.userrole;
-  }
-  public void setUserrole (List<Userrole> userrole)  {
-    this.userrole = userrole;
-  }
+	/** 
+	 * name
+	 *
+	 */
+	@Column(name="name")
+	protected String name;
+
+	/**
+	 * setName(String name)
+	 *
+	 * @param name
+	 *
+	 */
+	
+	public void setName (String name) {
+		this.name = name;
+	}
+
+	/**
+	 * getName()
+	 *
+	 * @return name
+	 *
+	 */
+	public String getName () {
+		return this.name;
+	}
 
 
-  @NotAudited
-  @OneToMany
-   @JoinColumn(name="roleid", insertable=false, updatable=false)
-  protected List<LabUser> labUser;
-  public List<LabUser> getLabUser()  {
-    return this.labUser;
-  }
-  public void setLabUser (List<LabUser> labUser)  {
-    this.labUser = labUser;
-  }
 
 
-  @NotAudited
-  @OneToMany
-   @JoinColumn(name="roleid", insertable=false, updatable=false)
-  protected List<JobUser> jobUser;
-  public List<JobUser> getJobUser()  {
-    return this.jobUser;
-  }
-  public void setJobUser (List<JobUser> jobUser)  {
-    this.jobUser = jobUser;
-  }
+	/** 
+	 * domain
+	 *
+	 */
+	@Column(name="domain")
+	protected String domain;
+
+	/**
+	 * setDomain(String domain)
+	 *
+	 * @param domain
+	 *
+	 */
+	
+	public void setDomain (String domain) {
+		this.domain = domain;
+	}
+
+	/**
+	 * getDomain()
+	 *
+	 * @return domain
+	 *
+	 */
+	public String getDomain () {
+		return this.domain;
+	}
 
 
-  @NotAudited
-  @OneToMany
-   @JoinColumn(name="roleid", insertable=false, updatable=false)
-  protected List<AcctQuoteUser> acctQuoteUser;
-  public List<AcctQuoteUser> getAcctQuoteUser()  {
-    return this.acctQuoteUser;
-  }
-  public void setAcctQuoteUser (List<AcctQuoteUser> acctQuoteUser)  {
-    this.acctQuoteUser = acctQuoteUser;
-  }
+
+
+	/** 
+	 * roleset
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="parentroleid", insertable=false, updatable=false)
+	protected List<Roleset> roleset;
+
+
+	/** 
+	 * getRoleset()
+	 *
+	 * @return roleset
+	 *
+	 */
+	public List<Roleset> getRoleset() {
+		return this.roleset;
+	}
+
+
+	/** 
+	 * setRoleset
+	 *
+	 * @param roleset
+	 *
+	 */
+	public void setRoleset (List<Roleset> roleset) {
+		this.roleset = roleset;
+	}
+
+
+
+	/** 
+	 * rolesetViaChildroleId
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="childroleid", insertable=false, updatable=false)
+	protected List<Roleset> rolesetViaChildroleId;
+
+
+	/** 
+	 * getRolesetViaChildroleId()
+	 *
+	 * @return rolesetViaChildroleId
+	 *
+	 */
+	public List<Roleset> getRolesetViaChildroleId() {
+		return this.rolesetViaChildroleId;
+	}
+
+
+	/** 
+	 * setRolesetViaChildroleId
+	 *
+	 * @param roleset
+	 *
+	 */
+	public void setRolesetViaChildroleId (List<Roleset> roleset) {
+		this.rolesetViaChildroleId = roleset;
+	}
+
+
+
+	/** 
+	 * userrole
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="roleid", insertable=false, updatable=false)
+	protected List<Userrole> userrole;
+
+
+	/** 
+	 * getUserrole()
+	 *
+	 * @return userrole
+	 *
+	 */
+	public List<Userrole> getUserrole() {
+		return this.userrole;
+	}
+
+
+	/** 
+	 * setUserrole
+	 *
+	 * @param userrole
+	 *
+	 */
+	public void setUserrole (List<Userrole> userrole) {
+		this.userrole = userrole;
+	}
+
+
+
+	/** 
+	 * labUser
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="roleid", insertable=false, updatable=false)
+	protected List<LabUser> labUser;
+
+
+	/** 
+	 * getLabUser()
+	 *
+	 * @return labUser
+	 *
+	 */
+	public List<LabUser> getLabUser() {
+		return this.labUser;
+	}
+
+
+	/** 
+	 * setLabUser
+	 *
+	 * @param labUser
+	 *
+	 */
+	public void setLabUser (List<LabUser> labUser) {
+		this.labUser = labUser;
+	}
+
+
+
+	/** 
+	 * jobUser
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="roleid", insertable=false, updatable=false)
+	protected List<JobUser> jobUser;
+
+
+	/** 
+	 * getJobUser()
+	 *
+	 * @return jobUser
+	 *
+	 */
+	public List<JobUser> getJobUser() {
+		return this.jobUser;
+	}
+
+
+	/** 
+	 * setJobUser
+	 *
+	 * @param jobUser
+	 *
+	 */
+	public void setJobUser (List<JobUser> jobUser) {
+		this.jobUser = jobUser;
+	}
+
+
+
+	/** 
+	 * acctQuoteUser
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="roleid", insertable=false, updatable=false)
+	protected List<AcctQuoteUser> acctQuoteUser;
+
+
+	/** 
+	 * getAcctQuoteUser()
+	 *
+	 * @return acctQuoteUser
+	 *
+	 */
+	public List<AcctQuoteUser> getAcctQuoteUser() {
+		return this.acctQuoteUser;
+	}
+
+
+	/** 
+	 * setAcctQuoteUser
+	 *
+	 * @param acctQuoteUser
+	 *
+	 */
+	public void setAcctQuoteUser (List<AcctQuoteUser> acctQuoteUser) {
+		this.acctQuoteUser = acctQuoteUser;
+	}
 
 
 
