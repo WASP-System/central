@@ -38,6 +38,8 @@ public class UserPendingMetaValidatorImpl extends MetaValidatorImpl{
 		        if (meta.getV()==null || meta.getV().isEmpty()) {
 		        	errors.rejectValue(errorFieldName, errorMessageKey, defaultMessage);
 		        } else {
+		        	errorMessageKey = meta.getK() + "_notvalid.error";
+					defaultMessage = errorMessageKey+" (no message has been defined for this property)";
 					User primaryInvestigator = userService.getUserByEmail(meta.getV());
 					if (primaryInvestigator.getUserId() == 0 || primaryInvestigator.getIsActive() == 0){
 					  errors.rejectValue(errorFieldName, errorMessageKey, defaultMessage);
