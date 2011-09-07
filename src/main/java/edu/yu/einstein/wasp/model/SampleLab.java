@@ -4,107 +4,278 @@
  * SampleLab.java 
  * @author echeng (table2type.pl)
  *  
- * the SampleLab object
+ * the SampleLab
  *
  *
  */
 
 package edu.yu.einstein.wasp.model;
 
-import org.hibernate.*;
+import java.util.Date;
+import java.util.List;
+
+import javax.persistence.*;
+
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 
-import javax.persistence.*;
-import java.util.*;
+import org.hibernate.validator.constraints.*;
+
+import org.codehaus.jackson.annotate.JsonIgnore;
 
 @Entity
 @Audited
 @Table(name="samplelab")
 public class SampleLab extends WaspModel {
-  @Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-  protected int sampleLabId;
-  public void setSampleLabId (int sampleLabId) {
-    this.sampleLabId = sampleLabId;
-  }
-  public int getSampleLabId () {
-    return this.sampleLabId;
-  }
 
+	/** 
+	 * sampleLabId
+	 *
+	 */
+	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
+	protected int sampleLabId;
 
-  @Column(name="sampleid")
-  protected int sampleId;
-  public void setSampleId (int sampleId) {
-    this.sampleId = sampleId;
-  }
-  public int getSampleId () {
-    return this.sampleId;
-  }
+	/**
+	 * setSampleLabId(int sampleLabId)
+	 *
+	 * @param sampleLabId
+	 *
+	 */
+	
+	public void setSampleLabId (int sampleLabId) {
+		this.sampleLabId = sampleLabId;
+	}
 
-
-  @Column(name="labid")
-  protected int labId;
-  public void setLabId (int labId) {
-    this.labId = labId;
-  }
-  public int getLabId () {
-    return this.labId;
-  }
-
-
-  @Column(name="isprimary")
-  protected int isPrimary;
-  public void setIsPrimary (int isPrimary) {
-    this.isPrimary = isPrimary;
-  }
-  public int getIsPrimary () {
-    return this.isPrimary;
-  }
-
-
-  @Column(name="lastupdts")
-  protected Date lastUpdTs;
-  public void setLastUpdTs (Date lastUpdTs) {
-    this.lastUpdTs = lastUpdTs;
-  }
-  public Date getLastUpdTs () {
-    return this.lastUpdTs;
-  }
-
-
-  @Column(name="lastupduser")
-  protected int lastUpdUser;
-  public void setLastUpdUser (int lastUpdUser) {
-    this.lastUpdUser = lastUpdUser;
-  }
-  public int getLastUpdUser () {
-    return this.lastUpdUser;
-  }
+	/**
+	 * getSampleLabId()
+	 *
+	 * @return sampleLabId
+	 *
+	 */
+	public int getSampleLabId () {
+		return this.sampleLabId;
+	}
 
 
 
-  @NotAudited
-  @ManyToOne
-   @JoinColumn(name="sampleid", insertable=false, updatable=false)
-  protected Sample sample;
-  public void setSample (Sample sample) {
-    this.sample = sample;
-    this.sampleId = sample.sampleId;
-  }
-  public Sample getSample () {
-    return this.sample;
-  }
 
-  @NotAudited
-  @ManyToOne
-   @JoinColumn(name="labid", insertable=false, updatable=false)
-  protected Lab lab;
-  public void setLab (Lab lab) {
-    this.lab = lab;
-    this.labId = lab.labId;
-  }
-  public Lab getLab () {
-    return this.lab;
-  }
+	/** 
+	 * sampleId
+	 *
+	 */
+	@Column(name="sampleid")
+	protected int sampleId;
+
+	/**
+	 * setSampleId(int sampleId)
+	 *
+	 * @param sampleId
+	 *
+	 */
+	
+	public void setSampleId (int sampleId) {
+		this.sampleId = sampleId;
+	}
+
+	/**
+	 * getSampleId()
+	 *
+	 * @return sampleId
+	 *
+	 */
+	public int getSampleId () {
+		return this.sampleId;
+	}
+
+
+
+
+	/** 
+	 * labId
+	 *
+	 */
+	@Column(name="labid")
+	protected int labId;
+
+	/**
+	 * setLabId(int labId)
+	 *
+	 * @param labId
+	 *
+	 */
+	
+	public void setLabId (int labId) {
+		this.labId = labId;
+	}
+
+	/**
+	 * getLabId()
+	 *
+	 * @return labId
+	 *
+	 */
+	public int getLabId () {
+		return this.labId;
+	}
+
+
+
+
+	/** 
+	 * isPrimary
+	 *
+	 */
+	@Column(name="isprimary")
+	protected int isPrimary;
+
+	/**
+	 * setIsPrimary(int isPrimary)
+	 *
+	 * @param isPrimary
+	 *
+	 */
+	
+	public void setIsPrimary (int isPrimary) {
+		this.isPrimary = isPrimary;
+	}
+
+	/**
+	 * getIsPrimary()
+	 *
+	 * @return isPrimary
+	 *
+	 */
+	public int getIsPrimary () {
+		return this.isPrimary;
+	}
+
+
+
+
+	/** 
+	 * lastUpdTs
+	 *
+	 */
+	@Column(name="lastupdts")
+	protected Date lastUpdTs;
+
+	/**
+	 * setLastUpdTs(Date lastUpdTs)
+	 *
+	 * @param lastUpdTs
+	 *
+	 */
+	
+	public void setLastUpdTs (Date lastUpdTs) {
+		this.lastUpdTs = lastUpdTs;
+	}
+
+	/**
+	 * getLastUpdTs()
+	 *
+	 * @return lastUpdTs
+	 *
+	 */
+	public Date getLastUpdTs () {
+		return this.lastUpdTs;
+	}
+
+
+
+
+	/** 
+	 * lastUpdUser
+	 *
+	 */
+	@Column(name="lastupduser")
+	protected int lastUpdUser;
+
+	/**
+	 * setLastUpdUser(int lastUpdUser)
+	 *
+	 * @param lastUpdUser
+	 *
+	 */
+	
+	public void setLastUpdUser (int lastUpdUser) {
+		this.lastUpdUser = lastUpdUser;
+	}
+
+	/**
+	 * getLastUpdUser()
+	 *
+	 * @return lastUpdUser
+	 *
+	 */
+	public int getLastUpdUser () {
+		return this.lastUpdUser;
+	}
+
+
+
+
+	/**
+	 * sample
+	 *
+	 */
+	@NotAudited
+	@ManyToOne
+	@JoinColumn(name="sampleid", insertable=false, updatable=false)
+	protected Sample sample;
+
+	/**
+	 * setSample (Sample sample)
+	 *
+	 * @param sample
+	 *
+	 */
+	public void setSample (Sample sample) {
+		this.sample = sample;
+		this.sampleId = sample.sampleId;
+	}
+
+	/**
+	 * getSample ()
+	 *
+	 * @return sample
+	 *
+	 */
+	
+	public Sample getSample () {
+		return this.sample;
+	}
+
+
+	/**
+	 * lab
+	 *
+	 */
+	@NotAudited
+	@ManyToOne
+	@JoinColumn(name="labid", insertable=false, updatable=false)
+	protected Lab lab;
+
+	/**
+	 * setLab (Lab lab)
+	 *
+	 * @param lab
+	 *
+	 */
+	public void setLab (Lab lab) {
+		this.lab = lab;
+		this.labId = lab.labId;
+	}
+
+	/**
+	 * getLab ()
+	 *
+	 * @return lab
+	 *
+	 */
+	
+	public Lab getLab () {
+		return this.lab;
+	}
+
 
 }
