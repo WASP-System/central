@@ -4,21 +4,22 @@
  * JobDraft.java 
  * @author echeng (table2type.pl)
  *  
- * the JobDraft object
+ * the JobDraft
  *
  *
  */
 
 package edu.yu.einstein.wasp.model;
 
-import org.hibernate.*;
-import org.hibernate.envers.Audited;
-import org.hibernate.envers.NotAudited;
-import org.hibernate.validator.constraints.Range;
-import org.hibernate.validator.constraints.NotEmpty;
+import java.util.Date;
+import java.util.List;
 
 import javax.persistence.*;
-import java.util.*;
+
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
+
+import org.hibernate.validator.constraints.*;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 
@@ -26,169 +27,511 @@ import org.codehaus.jackson.annotate.JsonIgnore;
 @Audited
 @Table(name="jobdraft")
 public class JobDraft extends WaspModel {
-  @Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-  protected int jobDraftId;
-  public void setJobDraftId (int jobDraftId) {
-    this.jobDraftId = jobDraftId;
-  }
-  public int getJobDraftId () {
-    return this.jobDraftId;
-  }
 
+	/** 
+	 * jobDraftId
+	 *
+	 */
+	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
+	protected int jobDraftId;
 
-  @Column(name="labid")
-  @Range(min=1)
-  protected int labId;
-  public void setLabId (int labId) {
-    this.labId = labId;
-  }
-  public int getLabId () {
-    return this.labId;
-  }
+	/**
+	 * setJobDraftId(int jobDraftId)
+	 *
+	 * @param jobDraftId
+	 *
+	 */
+	
+	public void setJobDraftId (int jobDraftId) {
+		this.jobDraftId = jobDraftId;
+	}
 
-
-  @Column(name="userid")
-  protected int UserId;
-  public void setUserId (int UserId) {
-    this.UserId = UserId;
-  }
-  public int getUserId () {
-    return this.UserId;
-  }
-
-
-  @Column(name="workflowid")
-  @Range(min=1)
-  protected int workflowId;
-  public void setWorkflowId (int workflowId) {
-    this.workflowId = workflowId;
-  }
-  public int getWorkflowId () {
-    return this.workflowId;
-  }
-
-
-  @Column(name="name")
-  @NotEmpty
-  protected String name;
-  public void setName (String name) {
-    this.name = name;
-  }
-  public String getName () {
-    return this.name;
-  }
-
-
-  @Column(name="createts")
-  protected Date createts;
-  public void setCreatets (Date createts) {
-    this.createts = createts;
-  }
-  public Date getCreatets () {
-    return this.createts;
-  }
-
-  @Column(name="submittedjobid")
-  protected Integer submittedjobId;
-  public void setSubmittedjobId (Integer submittedjobId) {
-    this.submittedjobId = submittedjobId;
-  }
-  public Integer getSubmittedjobId () {
-    return this.submittedjobId;
-  }
-
-
-  @Column(name="status")
-  protected String status;
-  public void setStatus (String status) {
-    this.status = status;
-  }
-  public String getStatus () {
-    return this.status;
-  }
-
-
-  @Column(name="lastupdts")
-  protected Date lastUpdTs;
-  public void setLastUpdTs (Date lastUpdTs) {
-    this.lastUpdTs = lastUpdTs;
-  }
-  public Date getLastUpdTs () {
-    return this.lastUpdTs;
-  }
-
-
-  @Column(name="lastupduser")
-  protected int lastUpdUser;
-  public void setLastUpdUser (int lastUpdUser) {
-    this.lastUpdUser = lastUpdUser;
-  }
-  public int getLastUpdUser () {
-    return this.lastUpdUser;
-  }
+	/**
+	 * getJobDraftId()
+	 *
+	 * @return jobDraftId
+	 *
+	 */
+	public int getJobDraftId () {
+		return this.jobDraftId;
+	}
 
 
 
-  @NotAudited
-  @ManyToOne
-   @JoinColumn(name="labid", insertable=false, updatable=false)
-  protected Lab lab;
-  public void setLab (Lab lab) {
-    this.lab = lab;
-    this.labId = lab.labId;
-  }
-  
-  public Lab getLab () {
-    return this.lab;
-  }
 
-  @NotAudited
-  @ManyToOne
-   @JoinColumn(name="userid", insertable=false, updatable=false)
-  protected User user;
-  public void setUser (User user) {
-    this.user = user;
-    this.UserId = user.UserId;
-  }
-  
-  public User getUser () {
-    return this.user;
-  }
+	/** 
+	 * labId
+	 *
+	 */
+	@Column(name="labid")
+	protected int labId;
 
-  @NotAudited
-  @ManyToOne
-   @JoinColumn(name="workflowid", insertable=false, updatable=false)
-  protected Workflow workflow;
-  public void setWorkflow (Workflow workflow) {
-    this.workflow = workflow;
-    this.workflowId = workflow.workflowId;
-  }
-  
-  public Workflow getWorkflow () {
-    return this.workflow;
-  }
-  @NotAudited
-  @OneToMany
-   @JoinColumn(name="jobdraftid", insertable=false, updatable=false)
-  protected List<JobDraftMeta> jobDraftMeta;
-  public List<JobDraftMeta> getJobDraftMeta()  {
-    return this.jobDraftMeta;
-  }
-  public void setJobDraftMeta (List<JobDraftMeta> jobDraftMeta)  {
-    this.jobDraftMeta = jobDraftMeta;
-  }
+	/**
+	 * setLabId(int labId)
+	 *
+	 * @param labId
+	 *
+	 */
+	
+	public void setLabId (int labId) {
+		this.labId = labId;
+	}
+
+	/**
+	 * getLabId()
+	 *
+	 * @return labId
+	 *
+	 */
+	public int getLabId () {
+		return this.labId;
+	}
 
 
-  @NotAudited
-  @OneToMany
-   @JoinColumn(name="jobdraftid", insertable=false, updatable=false)
-  protected List<SampleDraft> sampleDraft;
-  public List<SampleDraft> getSampleDraft()  {
-    return this.sampleDraft;
-  }
-  public void setSampleDraft (List<SampleDraft> sampleDraft)  {
-    this.sampleDraft = sampleDraft;
-  }
+
+
+	/** 
+	 * UserId
+	 *
+	 */
+	@Column(name="userid")
+	@Range(min=1)
+	protected int UserId;
+
+	/**
+	 * setUserId(int UserId)
+	 *
+	 * @param UserId
+	 *
+	 */
+	
+	public void setUserId (int UserId) {
+		this.UserId = UserId;
+	}
+
+	/**
+	 * getUserId()
+	 *
+	 * @return UserId
+	 *
+	 */
+	public int getUserId () {
+		return this.UserId;
+	}
+
+
+
+
+	/** 
+	 * workflowId
+	 *
+	 */
+	@Column(name="workflowid")
+	@Range(min=1)
+	protected int workflowId;
+
+	/**
+	 * setWorkflowId(int workflowId)
+	 *
+	 * @param workflowId
+	 *
+	 */
+	
+	public void setWorkflowId (int workflowId) {
+		this.workflowId = workflowId;
+	}
+
+	/**
+	 * getWorkflowId()
+	 *
+	 * @return workflowId
+	 *
+	 */
+	public int getWorkflowId () {
+		return this.workflowId;
+	}
+
+
+
+
+	/** 
+	 * name
+	 *
+	 */
+	@Column(name="name")
+	@NotEmpty
+	protected String name;
+
+	/**
+	 * setName(String name)
+	 *
+	 * @param name
+	 *
+	 */
+	
+	public void setName (String name) {
+		this.name = name;
+	}
+
+	/**
+	 * getName()
+	 *
+	 * @return name
+	 *
+	 */
+	public String getName () {
+		return this.name;
+	}
+
+
+
+
+	/** 
+	 * createts
+	 *
+	 */
+	@Column(name="createts")
+	protected Date createts;
+
+	/**
+	 * setCreatets(Date createts)
+	 *
+	 * @param createts
+	 *
+	 */
+	
+	public void setCreatets (Date createts) {
+		this.createts = createts;
+	}
+
+	/**
+	 * getCreatets()
+	 *
+	 * @return createts
+	 *
+	 */
+	public Date getCreatets () {
+		return this.createts;
+	}
+
+
+
+
+	/** 
+	 * submittedjobId
+	 *
+	 */
+	@Column(name="submittedjobid")
+	protected Integer submittedjobId;
+
+	/**
+	 * setSubmittedjobId(Integer submittedjobId)
+	 *
+	 * @param submittedjobId
+	 *
+	 */
+	
+	public void setSubmittedjobId (Integer submittedjobId) {
+		this.submittedjobId = submittedjobId;
+	}
+
+	/**
+	 * getSubmittedjobId()
+	 *
+	 * @return submittedjobId
+	 *
+	 */
+	public Integer getSubmittedjobId () {
+		return this.submittedjobId;
+	}
+
+
+
+
+	/** 
+	 * status
+	 *
+	 */
+	@Column(name="status")
+	protected String status;
+
+	/**
+	 * setStatus(String status)
+	 *
+	 * @param status
+	 *
+	 */
+	
+	public void setStatus (String status) {
+		this.status = status;
+	}
+
+	/**
+	 * getStatus()
+	 *
+	 * @return status
+	 *
+	 */
+	public String getStatus () {
+		return this.status;
+	}
+
+
+
+
+	/** 
+	 * lastUpdTs
+	 *
+	 */
+	@Column(name="lastupdts")
+	protected Date lastUpdTs;
+
+	/**
+	 * setLastUpdTs(Date lastUpdTs)
+	 *
+	 * @param lastUpdTs
+	 *
+	 */
+	
+	public void setLastUpdTs (Date lastUpdTs) {
+		this.lastUpdTs = lastUpdTs;
+	}
+
+	/**
+	 * getLastUpdTs()
+	 *
+	 * @return lastUpdTs
+	 *
+	 */
+	public Date getLastUpdTs () {
+		return this.lastUpdTs;
+	}
+
+
+
+
+	/** 
+	 * lastUpdUser
+	 *
+	 */
+	@Column(name="lastupduser")
+	protected int lastUpdUser;
+
+	/**
+	 * setLastUpdUser(int lastUpdUser)
+	 *
+	 * @param lastUpdUser
+	 *
+	 */
+	
+	public void setLastUpdUser (int lastUpdUser) {
+		this.lastUpdUser = lastUpdUser;
+	}
+
+	/**
+	 * getLastUpdUser()
+	 *
+	 * @return lastUpdUser
+	 *
+	 */
+	public int getLastUpdUser () {
+		return this.lastUpdUser;
+	}
+
+
+
+
+	/**
+	 * lab
+	 *
+	 */
+	@NotAudited
+	@ManyToOne
+	@JoinColumn(name="labid", insertable=false, updatable=false)
+	protected Lab lab;
+
+	/**
+	 * setLab (Lab lab)
+	 *
+	 * @param lab
+	 *
+	 */
+	public void setLab (Lab lab) {
+		this.lab = lab;
+		this.labId = lab.labId;
+	}
+
+	/**
+	 * getLab ()
+	 *
+	 * @return lab
+	 *
+	 */
+	
+	public Lab getLab () {
+		return this.lab;
+	}
+
+
+	/**
+	 * user
+	 *
+	 */
+	@NotAudited
+	@ManyToOne
+	@JoinColumn(name="userid", insertable=false, updatable=false)
+	protected User user;
+
+	/**
+	 * setUser (User user)
+	 *
+	 * @param user
+	 *
+	 */
+	public void setUser (User user) {
+		this.user = user;
+		this.UserId = user.UserId;
+	}
+
+	/**
+	 * getUser ()
+	 *
+	 * @return user
+	 *
+	 */
+	
+	public User getUser () {
+		return this.user;
+	}
+
+
+	/**
+	 * workflow
+	 *
+	 */
+	@NotAudited
+	@ManyToOne
+	@JoinColumn(name="workflowid", insertable=false, updatable=false)
+	protected Workflow workflow;
+
+	/**
+	 * setWorkflow (Workflow workflow)
+	 *
+	 * @param workflow
+	 *
+	 */
+	public void setWorkflow (Workflow workflow) {
+		this.workflow = workflow;
+		this.workflowId = workflow.workflowId;
+	}
+
+	/**
+	 * getWorkflow ()
+	 *
+	 * @return workflow
+	 *
+	 */
+	
+	public Workflow getWorkflow () {
+		return this.workflow;
+	}
+
+
+	/**
+	 * job
+	 *
+	 */
+	@NotAudited
+	@ManyToOne
+	@JoinColumn(name="submittedjobid", insertable=false, updatable=false)
+	protected Job job;
+
+	/**
+	 * setJob (Job job)
+	 *
+	 * @param job
+	 *
+	 */
+	public void setJob (Job job) {
+		this.job = job;
+		this.submittedjobId = job.jobId;
+	}
+
+	/**
+	 * getJob ()
+	 *
+	 * @return job
+	 *
+	 */
+	
+	public Job getJob () {
+		return this.job;
+	}
+
+
+	/** 
+	 * jobDraftMeta
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="jobdraftid", insertable=false, updatable=false)
+	protected List<JobDraftMeta> jobDraftMeta;
+
+
+	/** 
+	 * getJobDraftMeta()
+	 *
+	 * @return jobDraftMeta
+	 *
+	 */
+	public List<JobDraftMeta> getJobDraftMeta() {
+		return this.jobDraftMeta;
+	}
+
+
+	/** 
+	 * setJobDraftMeta
+	 *
+	 * @param jobDraftMeta
+	 *
+	 */
+	public void setJobDraftMeta (List<JobDraftMeta> jobDraftMeta) {
+		this.jobDraftMeta = jobDraftMeta;
+	}
+
+
+
+	/** 
+	 * sampleDraft
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="jobdraftid", insertable=false, updatable=false)
+	protected List<SampleDraft> sampleDraft;
+
+
+	/** 
+	 * getSampleDraft()
+	 *
+	 * @return sampleDraft
+	 *
+	 */
+	public List<SampleDraft> getSampleDraft() {
+		return this.sampleDraft;
+	}
+
+
+	/** 
+	 * setSampleDraft
+	 *
+	 * @param sampleDraft
+	 *
+	 */
+	public void setSampleDraft (List<SampleDraft> sampleDraft) {
+		this.sampleDraft = sampleDraft;
+	}
 
 
 
