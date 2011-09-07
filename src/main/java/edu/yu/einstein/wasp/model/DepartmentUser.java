@@ -4,97 +4,247 @@
  * DepartmentUser.java 
  * @author echeng (table2type.pl)
  *  
- * the DepartmentUser object
+ * the DepartmentUser
  *
  *
  */
 
 package edu.yu.einstein.wasp.model;
 
-import org.hibernate.*;
+import java.util.Date;
+import java.util.List;
+
+import javax.persistence.*;
+
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 
-import javax.persistence.*;
-import java.util.*;
+import org.hibernate.validator.constraints.*;
+
+import org.codehaus.jackson.annotate.JsonIgnore;
 
 @Entity
 @Audited
 @Table(name="departmentuser")
 public class DepartmentUser extends WaspModel {
-  @Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-  protected int departmentUserId;
-  public void setDepartmentUserId (int departmentUserId) {
-    this.departmentUserId = departmentUserId;
-  }
-  public int getDepartmentUserId () {
-    return this.departmentUserId;
-  }
 
+	/** 
+	 * departmentUserId
+	 *
+	 */
+	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
+	protected int departmentUserId;
 
-  @Column(name="departmentid")
-  protected int departmentId;
-  public void setDepartmentId (int departmentId) {
-    this.departmentId = departmentId;
-  }
-  public int getDepartmentId () {
-    return this.departmentId;
-  }
+	/**
+	 * setDepartmentUserId(int departmentUserId)
+	 *
+	 * @param departmentUserId
+	 *
+	 */
+	
+	public void setDepartmentUserId (int departmentUserId) {
+		this.departmentUserId = departmentUserId;
+	}
 
-
-  @Column(name="userid")
-  protected int UserId;
-  public void setUserId (int UserId) {
-    this.UserId = UserId;
-  }
-  public int getUserId () {
-    return this.UserId;
-  }
-
-
-  @Column(name="lastupdts")
-  protected Date lastUpdTs;
-  public void setLastUpdTs (Date lastUpdTs) {
-    this.lastUpdTs = lastUpdTs;
-  }
-  public Date getLastUpdTs () {
-    return this.lastUpdTs;
-  }
-
-
-  @Column(name="lastupduser")
-  protected int lastUpdUser;
-  public void setLastUpdUser (int lastUpdUser) {
-    this.lastUpdUser = lastUpdUser;
-  }
-  public int getLastUpdUser () {
-    return this.lastUpdUser;
-  }
+	/**
+	 * getDepartmentUserId()
+	 *
+	 * @return departmentUserId
+	 *
+	 */
+	public int getDepartmentUserId () {
+		return this.departmentUserId;
+	}
 
 
 
-  @NotAudited
-  @ManyToOne
-   @JoinColumn(name="userid", insertable=false, updatable=false)
-  protected User user;
-  public void setUser (User user) {
-    this.user = user;
-    this.UserId = user.UserId;
-  }
-  public User getUser () {
-    return this.user;
-  }
 
-  @NotAudited
-  @ManyToOne
-   @JoinColumn(name="departmentid", insertable=false, updatable=false)
-  protected Department department;
-  public void setDepartment (Department department) {
-    this.department = department;
-    this.departmentId = department.departmentId;
-  }
-  public Department getDepartment () {
-    return this.department;
-  }
+	/** 
+	 * departmentId
+	 *
+	 */
+	@Column(name="departmentid")
+	protected int departmentId;
+
+	/**
+	 * setDepartmentId(int departmentId)
+	 *
+	 * @param departmentId
+	 *
+	 */
+	
+	public void setDepartmentId (int departmentId) {
+		this.departmentId = departmentId;
+	}
+
+	/**
+	 * getDepartmentId()
+	 *
+	 * @return departmentId
+	 *
+	 */
+	public int getDepartmentId () {
+		return this.departmentId;
+	}
+
+
+
+
+	/** 
+	 * UserId
+	 *
+	 */
+	@Column(name="userid")
+	protected int UserId;
+
+	/**
+	 * setUserId(int UserId)
+	 *
+	 * @param UserId
+	 *
+	 */
+	
+	public void setUserId (int UserId) {
+		this.UserId = UserId;
+	}
+
+	/**
+	 * getUserId()
+	 *
+	 * @return UserId
+	 *
+	 */
+	public int getUserId () {
+		return this.UserId;
+	}
+
+
+
+
+	/** 
+	 * lastUpdTs
+	 *
+	 */
+	@Column(name="lastupdts")
+	protected Date lastUpdTs;
+
+	/**
+	 * setLastUpdTs(Date lastUpdTs)
+	 *
+	 * @param lastUpdTs
+	 *
+	 */
+	
+	public void setLastUpdTs (Date lastUpdTs) {
+		this.lastUpdTs = lastUpdTs;
+	}
+
+	/**
+	 * getLastUpdTs()
+	 *
+	 * @return lastUpdTs
+	 *
+	 */
+	public Date getLastUpdTs () {
+		return this.lastUpdTs;
+	}
+
+
+
+
+	/** 
+	 * lastUpdUser
+	 *
+	 */
+	@Column(name="lastupduser")
+	protected int lastUpdUser;
+
+	/**
+	 * setLastUpdUser(int lastUpdUser)
+	 *
+	 * @param lastUpdUser
+	 *
+	 */
+	
+	public void setLastUpdUser (int lastUpdUser) {
+		this.lastUpdUser = lastUpdUser;
+	}
+
+	/**
+	 * getLastUpdUser()
+	 *
+	 * @return lastUpdUser
+	 *
+	 */
+	public int getLastUpdUser () {
+		return this.lastUpdUser;
+	}
+
+
+
+
+	/**
+	 * user
+	 *
+	 */
+	@NotAudited
+	@ManyToOne
+	@JoinColumn(name="userid", insertable=false, updatable=false)
+	protected User user;
+
+	/**
+	 * setUser (User user)
+	 *
+	 * @param user
+	 *
+	 */
+	public void setUser (User user) {
+		this.user = user;
+		this.UserId = user.UserId;
+	}
+
+	/**
+	 * getUser ()
+	 *
+	 * @return user
+	 *
+	 */
+	
+	public User getUser () {
+		return this.user;
+	}
+
+
+	/**
+	 * department
+	 *
+	 */
+	@NotAudited
+	@ManyToOne
+	@JoinColumn(name="departmentid", insertable=false, updatable=false)
+	protected Department department;
+
+	/**
+	 * setDepartment (Department department)
+	 *
+	 * @param department
+	 *
+	 */
+	public void setDepartment (Department department) {
+		this.department = department;
+		this.departmentId = department.departmentId;
+	}
+
+	/**
+	 * getDepartment ()
+	 *
+	 * @return department
+	 *
+	 */
+	
+	public Department getDepartment () {
+		return this.department;
+	}
+
 
 }
