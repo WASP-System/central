@@ -1,10 +1,10 @@
 
 /**
  *
- * DepartmentUserImpl.java 
+ * DepartmentUserDaoImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the DepartmentUser object
+ * the DepartmentUser Dao Impl
  *
  *
  **/
@@ -30,38 +30,66 @@ import edu.yu.einstein.wasp.model.DepartmentUser;
 @Repository
 public class DepartmentUserDaoImpl extends WaspDaoImpl<DepartmentUser> implements edu.yu.einstein.wasp.dao.DepartmentUserDao {
 
-  public DepartmentUserDaoImpl() {
-    super();
-    this.entityClass = DepartmentUser.class;
-  }
-
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public DepartmentUser getDepartmentUserByDepartmentUserId (final int departmentUserId) {
-    HashMap m = new HashMap();
-    m.put("departmentUserId", departmentUserId);
-    List<DepartmentUser> results = (List<DepartmentUser>) this.findByMap((Map) m);
-    if (results.size() == 0) {
-      DepartmentUser rt = new DepartmentUser();
-      return rt;
-    }
-    return (DepartmentUser) results.get(0);
-  }
+	/**
+	 * DepartmentUserDaoImpl() Constructor
+	 *
+	 *
+	 */
+	public DepartmentUserDaoImpl() {
+		super();
+		this.entityClass = DepartmentUser.class;
+	}
 
 
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public DepartmentUser getDepartmentUserByDepartmentIdUserId (final int departmentId, final int UserId) {
-    HashMap m = new HashMap();
-    m.put("departmentId", departmentId);
-    m.put("UserId", UserId);
-    List<DepartmentUser> results = (List<DepartmentUser>) this.findByMap((Map) m);
-    if (results.size() == 0) {
-      DepartmentUser rt = new DepartmentUser();
-      return rt;
-    }
-    return (DepartmentUser) results.get(0);
-  }
+	/**
+	 * getDepartmentUserByDepartmentUserId(final int departmentUserId)
+	 *
+	 * @param final int departmentUserId
+	 *
+	 * @return departmentUser
+	 */
+
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public DepartmentUser getDepartmentUserByDepartmentUserId (final int departmentUserId) {
+    		HashMap m = new HashMap();
+		m.put("departmentUserId", departmentUserId);
+
+		List<DepartmentUser> results = (List<DepartmentUser>) this.findByMap((Map) m);
+
+		if (results.size() == 0) {
+			DepartmentUser rt = new DepartmentUser();
+			return rt;
+		}
+		return (DepartmentUser) results.get(0);
+	}
+
+
+
+	/**
+	 * getDepartmentUserByDepartmentIdUserId(final int departmentId, final int UserId)
+	 *
+	 * @param final int departmentId, final int UserId
+	 *
+	 * @return departmentUser
+	 */
+
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public DepartmentUser getDepartmentUserByDepartmentIdUserId (final int departmentId, final int UserId) {
+    		HashMap m = new HashMap();
+		m.put("departmentId", departmentId);
+		m.put("UserId", UserId);
+
+		List<DepartmentUser> results = (List<DepartmentUser>) this.findByMap((Map) m);
+
+		if (results.size() == 0) {
+			DepartmentUser rt = new DepartmentUser();
+			return rt;
+		}
+		return (DepartmentUser) results.get(0);
+	}
+
 
 
 }

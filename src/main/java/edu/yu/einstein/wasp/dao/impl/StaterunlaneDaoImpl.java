@@ -1,10 +1,10 @@
 
 /**
  *
- * StaterunlaneImpl.java 
+ * StaterunlaneDaoImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the Staterunlane object
+ * the Staterunlane Dao Impl
  *
  *
  **/
@@ -30,23 +30,40 @@ import edu.yu.einstein.wasp.model.Staterunlane;
 @Repository
 public class StaterunlaneDaoImpl extends WaspDaoImpl<Staterunlane> implements edu.yu.einstein.wasp.dao.StaterunlaneDao {
 
-  public StaterunlaneDaoImpl() {
-    super();
-    this.entityClass = Staterunlane.class;
-  }
+	/**
+	 * StaterunlaneDaoImpl() Constructor
+	 *
+	 *
+	 */
+	public StaterunlaneDaoImpl() {
+		super();
+		this.entityClass = Staterunlane.class;
+	}
 
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public Staterunlane getStaterunlaneByStaterunlaneId (final int staterunlaneId) {
-    HashMap m = new HashMap();
-    m.put("staterunlaneId", staterunlaneId);
-    List<Staterunlane> results = (List<Staterunlane>) this.findByMap((Map) m);
-    if (results.size() == 0) {
-      Staterunlane rt = new Staterunlane();
-      return rt;
-    }
-    return (Staterunlane) results.get(0);
-  }
+
+	/**
+	 * getStaterunlaneByStaterunlaneId(final int staterunlaneId)
+	 *
+	 * @param final int staterunlaneId
+	 *
+	 * @return staterunlane
+	 */
+
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public Staterunlane getStaterunlaneByStaterunlaneId (final int staterunlaneId) {
+    		HashMap m = new HashMap();
+		m.put("staterunlaneId", staterunlaneId);
+
+		List<Staterunlane> results = (List<Staterunlane>) this.findByMap((Map) m);
+
+		if (results.size() == 0) {
+			Staterunlane rt = new Staterunlane();
+			return rt;
+		}
+		return (Staterunlane) results.get(0);
+	}
+
 
 
 }

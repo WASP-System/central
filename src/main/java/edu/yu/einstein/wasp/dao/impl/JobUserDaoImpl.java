@@ -1,10 +1,10 @@
 
 /**
  *
- * JobUserImpl.java 
+ * JobUserDaoImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the JobUser object
+ * the JobUser Dao Impl
  *
  *
  **/
@@ -30,38 +30,66 @@ import edu.yu.einstein.wasp.model.JobUser;
 @Repository
 public class JobUserDaoImpl extends WaspDaoImpl<JobUser> implements edu.yu.einstein.wasp.dao.JobUserDao {
 
-  public JobUserDaoImpl() {
-    super();
-    this.entityClass = JobUser.class;
-  }
-
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public JobUser getJobUserByJobUserId (final int jobUserId) {
-    HashMap m = new HashMap();
-    m.put("jobUserId", jobUserId);
-    List<JobUser> results = (List<JobUser>) this.findByMap((Map) m);
-    if (results.size() == 0) {
-      JobUser rt = new JobUser();
-      return rt;
-    }
-    return (JobUser) results.get(0);
-  }
+	/**
+	 * JobUserDaoImpl() Constructor
+	 *
+	 *
+	 */
+	public JobUserDaoImpl() {
+		super();
+		this.entityClass = JobUser.class;
+	}
 
 
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public JobUser getJobUserByJobIdUserId (final int jobId, final int UserId) {
-    HashMap m = new HashMap();
-    m.put("jobId", jobId);
-    m.put("UserId", UserId);
-    List<JobUser> results = (List<JobUser>) this.findByMap((Map) m);
-    if (results.size() == 0) {
-      JobUser rt = new JobUser();
-      return rt;
-    }
-    return (JobUser) results.get(0);
-  }
+	/**
+	 * getJobUserByJobUserId(final int jobUserId)
+	 *
+	 * @param final int jobUserId
+	 *
+	 * @return jobUser
+	 */
+
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public JobUser getJobUserByJobUserId (final int jobUserId) {
+    		HashMap m = new HashMap();
+		m.put("jobUserId", jobUserId);
+
+		List<JobUser> results = (List<JobUser>) this.findByMap((Map) m);
+
+		if (results.size() == 0) {
+			JobUser rt = new JobUser();
+			return rt;
+		}
+		return (JobUser) results.get(0);
+	}
+
+
+
+	/**
+	 * getJobUserByJobIdUserId(final int jobId, final int UserId)
+	 *
+	 * @param final int jobId, final int UserId
+	 *
+	 * @return jobUser
+	 */
+
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public JobUser getJobUserByJobIdUserId (final int jobId, final int UserId) {
+    		HashMap m = new HashMap();
+		m.put("jobId", jobId);
+		m.put("UserId", UserId);
+
+		List<JobUser> results = (List<JobUser>) this.findByMap((Map) m);
+
+		if (results.size() == 0) {
+			JobUser rt = new JobUser();
+			return rt;
+		}
+		return (JobUser) results.get(0);
+	}
+
 
 
 }

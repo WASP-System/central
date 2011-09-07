@@ -1,10 +1,10 @@
 
 /**
  *
- * BarcodeImpl.java 
+ * BarcodeDaoImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the Barcode object
+ * the Barcode Dao Impl
  *
  *
  **/
@@ -30,37 +30,65 @@ import edu.yu.einstein.wasp.model.Barcode;
 @Repository
 public class BarcodeDaoImpl extends WaspDaoImpl<Barcode> implements edu.yu.einstein.wasp.dao.BarcodeDao {
 
-  public BarcodeDaoImpl() {
-    super();
-    this.entityClass = Barcode.class;
-  }
-
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public Barcode getBarcodeByBarcodeId (final int barcodeId) {
-    HashMap m = new HashMap();
-    m.put("barcodeId", barcodeId);
-    List<Barcode> results = (List<Barcode>) this.findByMap((Map) m);
-    if (results.size() == 0) {
-      Barcode rt = new Barcode();
-      return rt;
-    }
-    return (Barcode) results.get(0);
-  }
+	/**
+	 * BarcodeDaoImpl() Constructor
+	 *
+	 *
+	 */
+	public BarcodeDaoImpl() {
+		super();
+		this.entityClass = Barcode.class;
+	}
 
 
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public Barcode getBarcodeByBarcode (final String barcode) {
-    HashMap m = new HashMap();
-    m.put("barcode", barcode);
-    List<Barcode> results = (List<Barcode>) this.findByMap((Map) m);
-    if (results.size() == 0) {
-      Barcode rt = new Barcode();
-      return rt;
-    }
-    return (Barcode) results.get(0);
-  }
+	/**
+	 * getBarcodeByBarcodeId(final int barcodeId)
+	 *
+	 * @param final int barcodeId
+	 *
+	 * @return barcode
+	 */
+
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public Barcode getBarcodeByBarcodeId (final int barcodeId) {
+    		HashMap m = new HashMap();
+		m.put("barcodeId", barcodeId);
+
+		List<Barcode> results = (List<Barcode>) this.findByMap((Map) m);
+
+		if (results.size() == 0) {
+			Barcode rt = new Barcode();
+			return rt;
+		}
+		return (Barcode) results.get(0);
+	}
+
+
+
+	/**
+	 * getBarcodeByBarcode(final String barcode)
+	 *
+	 * @param final String barcode
+	 *
+	 * @return barcode
+	 */
+
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public Barcode getBarcodeByBarcode (final String barcode) {
+    		HashMap m = new HashMap();
+		m.put("barcode", barcode);
+
+		List<Barcode> results = (List<Barcode>) this.findByMap((Map) m);
+
+		if (results.size() == 0) {
+			Barcode rt = new Barcode();
+			return rt;
+		}
+		return (Barcode) results.get(0);
+	}
+
 
 
 }

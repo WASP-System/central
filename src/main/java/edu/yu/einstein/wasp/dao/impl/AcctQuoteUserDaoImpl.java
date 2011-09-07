@@ -1,10 +1,10 @@
 
 /**
  *
- * AcctQuoteUserImpl.java 
+ * AcctQuoteUserDaoImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the AcctQuoteUser object
+ * the AcctQuoteUser Dao Impl
  *
  *
  **/
@@ -30,23 +30,40 @@ import edu.yu.einstein.wasp.model.AcctQuoteUser;
 @Repository
 public class AcctQuoteUserDaoImpl extends WaspDaoImpl<AcctQuoteUser> implements edu.yu.einstein.wasp.dao.AcctQuoteUserDao {
 
-  public AcctQuoteUserDaoImpl() {
-    super();
-    this.entityClass = AcctQuoteUser.class;
-  }
+	/**
+	 * AcctQuoteUserDaoImpl() Constructor
+	 *
+	 *
+	 */
+	public AcctQuoteUserDaoImpl() {
+		super();
+		this.entityClass = AcctQuoteUser.class;
+	}
 
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public AcctQuoteUser getAcctQuoteUserByQuoteUserId (final int quoteUserId) {
-    HashMap m = new HashMap();
-    m.put("quoteUserId", quoteUserId);
-    List<AcctQuoteUser> results = (List<AcctQuoteUser>) this.findByMap((Map) m);
-    if (results.size() == 0) {
-      AcctQuoteUser rt = new AcctQuoteUser();
-      return rt;
-    }
-    return (AcctQuoteUser) results.get(0);
-  }
+
+	/**
+	 * getAcctQuoteUserByQuoteUserId(final int quoteUserId)
+	 *
+	 * @param final int quoteUserId
+	 *
+	 * @return acctQuoteUser
+	 */
+
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public AcctQuoteUser getAcctQuoteUserByQuoteUserId (final int quoteUserId) {
+    		HashMap m = new HashMap();
+		m.put("quoteUserId", quoteUserId);
+
+		List<AcctQuoteUser> results = (List<AcctQuoteUser>) this.findByMap((Map) m);
+
+		if (results.size() == 0) {
+			AcctQuoteUser rt = new AcctQuoteUser();
+			return rt;
+		}
+		return (AcctQuoteUser) results.get(0);
+	}
+
 
 
 }

@@ -1,10 +1,10 @@
 
 /**
  *
- * LabPendingImpl.java 
+ * LabPendingDaoImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the LabPending object
+ * the LabPending Dao Impl
  *
  *
  **/
@@ -30,23 +30,40 @@ import edu.yu.einstein.wasp.model.LabPending;
 @Repository
 public class LabPendingDaoImpl extends WaspDaoImpl<LabPending> implements edu.yu.einstein.wasp.dao.LabPendingDao {
 
-  public LabPendingDaoImpl() {
-    super();
-    this.entityClass = LabPending.class;
-  }
+	/**
+	 * LabPendingDaoImpl() Constructor
+	 *
+	 *
+	 */
+	public LabPendingDaoImpl() {
+		super();
+		this.entityClass = LabPending.class;
+	}
 
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public LabPending getLabPendingByLabPendingId (final int labPendingId) {
-    HashMap m = new HashMap();
-    m.put("labPendingId", labPendingId);
-    List<LabPending> results = (List<LabPending>) this.findByMap((Map) m);
-    if (results.size() == 0) {
-      LabPending rt = new LabPending();
-      return rt;
-    }
-    return (LabPending) results.get(0);
-  }
+
+	/**
+	 * getLabPendingByLabPendingId(final int labPendingId)
+	 *
+	 * @param final int labPendingId
+	 *
+	 * @return labPending
+	 */
+
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public LabPending getLabPendingByLabPendingId (final int labPendingId) {
+    		HashMap m = new HashMap();
+		m.put("labPendingId", labPendingId);
+
+		List<LabPending> results = (List<LabPending>) this.findByMap((Map) m);
+
+		if (results.size() == 0) {
+			LabPending rt = new LabPending();
+			return rt;
+		}
+		return (LabPending) results.get(0);
+	}
+
 
 
 }

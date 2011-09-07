@@ -1,10 +1,10 @@
 
 /**
  *
- * AcctWorkflowcostImpl.java 
+ * AcctWorkflowcostDaoImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the AcctWorkflowcost object
+ * the AcctWorkflowcost Dao Impl
  *
  *
  **/
@@ -30,23 +30,40 @@ import edu.yu.einstein.wasp.model.AcctWorkflowcost;
 @Repository
 public class AcctWorkflowcostDaoImpl extends WaspDaoImpl<AcctWorkflowcost> implements edu.yu.einstein.wasp.dao.AcctWorkflowcostDao {
 
-  public AcctWorkflowcostDaoImpl() {
-    super();
-    this.entityClass = AcctWorkflowcost.class;
-  }
+	/**
+	 * AcctWorkflowcostDaoImpl() Constructor
+	 *
+	 *
+	 */
+	public AcctWorkflowcostDaoImpl() {
+		super();
+		this.entityClass = AcctWorkflowcost.class;
+	}
 
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public AcctWorkflowcost getAcctWorkflowcostByWorkflowId (final int workflowId) {
-    HashMap m = new HashMap();
-    m.put("workflowId", workflowId);
-    List<AcctWorkflowcost> results = (List<AcctWorkflowcost>) this.findByMap((Map) m);
-    if (results.size() == 0) {
-      AcctWorkflowcost rt = new AcctWorkflowcost();
-      return rt;
-    }
-    return (AcctWorkflowcost) results.get(0);
-  }
+
+	/**
+	 * getAcctWorkflowcostByWorkflowId(final int workflowId)
+	 *
+	 * @param final int workflowId
+	 *
+	 * @return acctWorkflowcost
+	 */
+
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public AcctWorkflowcost getAcctWorkflowcostByWorkflowId (final int workflowId) {
+    		HashMap m = new HashMap();
+		m.put("workflowId", workflowId);
+
+		List<AcctWorkflowcost> results = (List<AcctWorkflowcost>) this.findByMap((Map) m);
+
+		if (results.size() == 0) {
+			AcctWorkflowcost rt = new AcctWorkflowcost();
+			return rt;
+		}
+		return (AcctWorkflowcost) results.get(0);
+	}
+
 
 
 }

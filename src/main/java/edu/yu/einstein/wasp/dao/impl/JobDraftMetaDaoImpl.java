@@ -1,10 +1,10 @@
 
 /**
  *
- * JobDraftMetaImpl.java 
+ * JobDraftMetaDaoImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the JobDraftMeta object
+ * the JobDraftMeta Dao Impl
  *
  *
  **/
@@ -30,59 +30,94 @@ import edu.yu.einstein.wasp.model.JobDraftMeta;
 @Repository
 public class JobDraftMetaDaoImpl extends WaspDaoImpl<JobDraftMeta> implements edu.yu.einstein.wasp.dao.JobDraftMetaDao {
 
-  public JobDraftMetaDaoImpl() {
-    super();
-    this.entityClass = JobDraftMeta.class;
-  }
-
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public JobDraftMeta getJobDraftMetaByJobDraftMetaId (final int jobDraftMetaId) {
-    HashMap m = new HashMap();
-    m.put("jobDraftMetaId", jobDraftMetaId);
-    List<JobDraftMeta> results = (List<JobDraftMeta>) this.findByMap((Map) m);
-    if (results.size() == 0) {
-      JobDraftMeta rt = new JobDraftMeta();
-      return rt;
-    }
-    return (JobDraftMeta) results.get(0);
-  }
+	/**
+	 * JobDraftMetaDaoImpl() Constructor
+	 *
+	 *
+	 */
+	public JobDraftMetaDaoImpl() {
+		super();
+		this.entityClass = JobDraftMeta.class;
+	}
 
 
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public JobDraftMeta getJobDraftMetaByKJobdraftId (final String k, final int jobdraftId) {
-    HashMap m = new HashMap();
-    m.put("k", k);
-    m.put("jobdraftId", jobdraftId);
-    List<JobDraftMeta> results = (List<JobDraftMeta>) this.findByMap((Map) m);
-    if (results.size() == 0) {
-      JobDraftMeta rt = new JobDraftMeta();
-      return rt;
-    }
-    return (JobDraftMeta) results.get(0);
-  }
+	/**
+	 * getJobDraftMetaByJobDraftMetaId(final int jobDraftMetaId)
+	 *
+	 * @param final int jobDraftMetaId
+	 *
+	 * @return jobDraftMeta
+	 */
+
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public JobDraftMeta getJobDraftMetaByJobDraftMetaId (final int jobDraftMetaId) {
+    		HashMap m = new HashMap();
+		m.put("jobDraftMetaId", jobDraftMetaId);
+
+		List<JobDraftMeta> results = (List<JobDraftMeta>) this.findByMap((Map) m);
+
+		if (results.size() == 0) {
+			JobDraftMeta rt = new JobDraftMeta();
+			return rt;
+		}
+		return (JobDraftMeta) results.get(0);
+	}
 
 
 
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public void updateByJobdraftId (final int jobdraftId, final List<JobDraftMeta> metaList) {
+	/**
+	 * getJobDraftMetaByKJobdraftId(final String k, final int jobdraftId)
+	 *
+	 * @param final String k, final int jobdraftId
+	 *
+	 * @return jobDraftMeta
+	 */
 
-    getJpaTemplate().execute(new JpaCallback() {
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public JobDraftMeta getJobDraftMetaByKJobdraftId (final String k, final int jobdraftId) {
+    		HashMap m = new HashMap();
+		m.put("k", k);
+		m.put("jobdraftId", jobdraftId);
 
-      public Object doInJpa(EntityManager em) throws PersistenceException {
-        em.createNativeQuery("delete from jobdraftmeta where jobdraftId=:jobdraftId").setParameter("jobdraftId", jobdraftId).executeUpdate();
+		List<JobDraftMeta> results = (List<JobDraftMeta>) this.findByMap((Map) m);
 
-        for (JobDraftMeta m:metaList) {
-          m.setJobdraftId(jobdraftId);
-          em.persist(m);
-        }
+		if (results.size() == 0) {
+			JobDraftMeta rt = new JobDraftMeta();
+			return rt;
+		}
+		return (JobDraftMeta) results.get(0);
+	}
 
-        return null;
-      }
-    });
 
-  }
+
+	/**
+	 * updateByJobdraftId (final int jobdraftId, final List<JobDraftMeta> metaList)
+	 *
+	 * @param jobdraftId
+	 * @param metaList
+	 *
+	 */
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public void updateByJobdraftId (final int jobdraftId, final List<JobDraftMeta> metaList) {
+
+		getJpaTemplate().execute(new JpaCallback() {
+
+			public Object doInJpa(EntityManager em) throws PersistenceException {
+				em.createNativeQuery("delete from jobDraftMeta where jobdraftId=:jobdraftId").setParameter("jobdraftId", jobdraftId).executeUpdate();
+
+				for (JobDraftMeta m:metaList) {
+					m.setJobdraftId(jobdraftId);
+					em.persist(m);
+				}
+        			return null;
+			}
+		});
+	}
+
+
+
 }
 

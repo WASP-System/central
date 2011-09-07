@@ -1,10 +1,10 @@
 
 /**
  *
- * UserMetaImpl.java 
+ * UserMetaDaoImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the UserMeta object
+ * the UserMeta Dao Impl
  *
  *
  **/
@@ -30,59 +30,94 @@ import edu.yu.einstein.wasp.model.UserMeta;
 @Repository
 public class UserMetaDaoImpl extends WaspDaoImpl<UserMeta> implements edu.yu.einstein.wasp.dao.UserMetaDao {
 
-  public UserMetaDaoImpl() {
-    super();
-    this.entityClass = UserMeta.class;
-  }
-
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public UserMeta getUserMetaByUserMetaId (final int userMetaId) {
-    HashMap m = new HashMap();
-    m.put("userMetaId", userMetaId);
-    List<UserMeta> results = (List<UserMeta>) this.findByMap((Map) m);
-    if (results.size() == 0) {
-      UserMeta rt = new UserMeta();
-      return rt;
-    }
-    return (UserMeta) results.get(0);
-  }
+	/**
+	 * UserMetaDaoImpl() Constructor
+	 *
+	 *
+	 */
+	public UserMetaDaoImpl() {
+		super();
+		this.entityClass = UserMeta.class;
+	}
 
 
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public UserMeta getUserMetaByKUserId (final String k, final int UserId) {
-    HashMap m = new HashMap();
-    m.put("k", k);
-    m.put("UserId", UserId);
-    List<UserMeta> results = (List<UserMeta>) this.findByMap((Map) m);
-    if (results.size() == 0) {
-      UserMeta rt = new UserMeta();
-      return rt;
-    }
-    return (UserMeta) results.get(0);
-  }
+	/**
+	 * getUserMetaByUserMetaId(final int userMetaId)
+	 *
+	 * @param final int userMetaId
+	 *
+	 * @return userMeta
+	 */
+
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public UserMeta getUserMetaByUserMetaId (final int userMetaId) {
+    		HashMap m = new HashMap();
+		m.put("userMetaId", userMetaId);
+
+		List<UserMeta> results = (List<UserMeta>) this.findByMap((Map) m);
+
+		if (results.size() == 0) {
+			UserMeta rt = new UserMeta();
+			return rt;
+		}
+		return (UserMeta) results.get(0);
+	}
 
 
 
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public void updateByUserId (final int UserId, final List<UserMeta> metaList) {
+	/**
+	 * getUserMetaByKUserId(final String k, final int UserId)
+	 *
+	 * @param final String k, final int UserId
+	 *
+	 * @return userMeta
+	 */
 
-    getJpaTemplate().execute(new JpaCallback() {
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public UserMeta getUserMetaByKUserId (final String k, final int UserId) {
+    		HashMap m = new HashMap();
+		m.put("k", k);
+		m.put("UserId", UserId);
 
-      public Object doInJpa(EntityManager em) throws PersistenceException {
-        em.createNativeQuery("delete from usermeta where UserId=:UserId").setParameter("UserId", UserId).executeUpdate();
+		List<UserMeta> results = (List<UserMeta>) this.findByMap((Map) m);
 
-        for (UserMeta m:metaList) {
-          m.setUserId(UserId);
-          em.persist(m);
-        }
+		if (results.size() == 0) {
+			UserMeta rt = new UserMeta();
+			return rt;
+		}
+		return (UserMeta) results.get(0);
+	}
 
-        return null;
-      }
-    });
 
-  }
+
+	/**
+	 * updateByUserId (final int UserId, final List<UserMeta> metaList)
+	 *
+	 * @param UserId
+	 * @param metaList
+	 *
+	 */
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public void updateByUserId (final int UserId, final List<UserMeta> metaList) {
+
+		getJpaTemplate().execute(new JpaCallback() {
+
+			public Object doInJpa(EntityManager em) throws PersistenceException {
+				em.createNativeQuery("delete from userMeta where UserId=:UserId").setParameter("UserId", UserId).executeUpdate();
+
+				for (UserMeta m:metaList) {
+					m.setUserId(UserId);
+					em.persist(m);
+				}
+        			return null;
+			}
+		});
+	}
+
+
+
 }
 

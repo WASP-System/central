@@ -1,10 +1,10 @@
 
 /**
  *
- * AcctInvoiceImpl.java 
+ * AcctInvoiceDaoImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the AcctInvoice object
+ * the AcctInvoice Dao Impl
  *
  *
  **/
@@ -30,23 +30,40 @@ import edu.yu.einstein.wasp.model.AcctInvoice;
 @Repository
 public class AcctInvoiceDaoImpl extends WaspDaoImpl<AcctInvoice> implements edu.yu.einstein.wasp.dao.AcctInvoiceDao {
 
-  public AcctInvoiceDaoImpl() {
-    super();
-    this.entityClass = AcctInvoice.class;
-  }
+	/**
+	 * AcctInvoiceDaoImpl() Constructor
+	 *
+	 *
+	 */
+	public AcctInvoiceDaoImpl() {
+		super();
+		this.entityClass = AcctInvoice.class;
+	}
 
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public AcctInvoice getAcctInvoiceByInvoiceId (final int invoiceId) {
-    HashMap m = new HashMap();
-    m.put("invoiceId", invoiceId);
-    List<AcctInvoice> results = (List<AcctInvoice>) this.findByMap((Map) m);
-    if (results.size() == 0) {
-      AcctInvoice rt = new AcctInvoice();
-      return rt;
-    }
-    return (AcctInvoice) results.get(0);
-  }
+
+	/**
+	 * getAcctInvoiceByInvoiceId(final int invoiceId)
+	 *
+	 * @param final int invoiceId
+	 *
+	 * @return acctInvoice
+	 */
+
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public AcctInvoice getAcctInvoiceByInvoiceId (final int invoiceId) {
+    		HashMap m = new HashMap();
+		m.put("invoiceId", invoiceId);
+
+		List<AcctInvoice> results = (List<AcctInvoice>) this.findByMap((Map) m);
+
+		if (results.size() == 0) {
+			AcctInvoice rt = new AcctInvoice();
+			return rt;
+		}
+		return (AcctInvoice) results.get(0);
+	}
+
 
 
 }

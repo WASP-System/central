@@ -1,10 +1,10 @@
 
 /**
  *
- * JobDraftImpl.java 
+ * JobDraftDaoImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the JobDraft object
+ * the JobDraft Dao Impl
  *
  *
  **/
@@ -30,23 +30,40 @@ import edu.yu.einstein.wasp.model.JobDraft;
 @Repository
 public class JobDraftDaoImpl extends WaspDaoImpl<JobDraft> implements edu.yu.einstein.wasp.dao.JobDraftDao {
 
-  public JobDraftDaoImpl() {
-    super();
-    this.entityClass = JobDraft.class;
-  }
+	/**
+	 * JobDraftDaoImpl() Constructor
+	 *
+	 *
+	 */
+	public JobDraftDaoImpl() {
+		super();
+		this.entityClass = JobDraft.class;
+	}
 
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public JobDraft getJobDraftByJobDraftId (final int jobDraftId) {
-    HashMap m = new HashMap();
-    m.put("jobDraftId", jobDraftId);
-    List<JobDraft> results = (List<JobDraft>) this.findByMap((Map) m);
-    if (results.size() == 0) {
-      JobDraft rt = new JobDraft();
-      return rt;
-    }
-    return (JobDraft) results.get(0);
-  }
+
+	/**
+	 * getJobDraftByJobDraftId(final int jobDraftId)
+	 *
+	 * @param final int jobDraftId
+	 *
+	 * @return jobDraft
+	 */
+
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public JobDraft getJobDraftByJobDraftId (final int jobDraftId) {
+    		HashMap m = new HashMap();
+		m.put("jobDraftId", jobDraftId);
+
+		List<JobDraft> results = (List<JobDraft>) this.findByMap((Map) m);
+
+		if (results.size() == 0) {
+			JobDraft rt = new JobDraft();
+			return rt;
+		}
+		return (JobDraft) results.get(0);
+	}
+
 
 
 }

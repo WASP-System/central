@@ -1,10 +1,10 @@
 
 /**
  *
- * SampleDraftMetaImpl.java 
+ * SampleDraftMetaDaoImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the SampleDraftMeta object
+ * the SampleDraftMeta Dao Impl
  *
  *
  **/
@@ -30,59 +30,94 @@ import edu.yu.einstein.wasp.model.SampleDraftMeta;
 @Repository
 public class SampleDraftMetaDaoImpl extends WaspDaoImpl<SampleDraftMeta> implements edu.yu.einstein.wasp.dao.SampleDraftMetaDao {
 
-  public SampleDraftMetaDaoImpl() {
-    super();
-    this.entityClass = SampleDraftMeta.class;
-  }
-
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public SampleDraftMeta getSampleDraftMetaBySampleDraftMetaId (final int sampleDraftMetaId) {
-    HashMap m = new HashMap();
-    m.put("sampleDraftMetaId", sampleDraftMetaId);
-    List<SampleDraftMeta> results = (List<SampleDraftMeta>) this.findByMap((Map) m);
-    if (results.size() == 0) {
-      SampleDraftMeta rt = new SampleDraftMeta();
-      return rt;
-    }
-    return (SampleDraftMeta) results.get(0);
-  }
+	/**
+	 * SampleDraftMetaDaoImpl() Constructor
+	 *
+	 *
+	 */
+	public SampleDraftMetaDaoImpl() {
+		super();
+		this.entityClass = SampleDraftMeta.class;
+	}
 
 
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public SampleDraftMeta getSampleDraftMetaByKSampledraftId (final String k, final int sampledraftId) {
-    HashMap m = new HashMap();
-    m.put("k", k);
-    m.put("sampledraftId", sampledraftId);
-    List<SampleDraftMeta> results = (List<SampleDraftMeta>) this.findByMap((Map) m);
-    if (results.size() == 0) {
-      SampleDraftMeta rt = new SampleDraftMeta();
-      return rt;
-    }
-    return (SampleDraftMeta) results.get(0);
-  }
+	/**
+	 * getSampleDraftMetaBySampleDraftMetaId(final int sampleDraftMetaId)
+	 *
+	 * @param final int sampleDraftMetaId
+	 *
+	 * @return sampleDraftMeta
+	 */
+
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public SampleDraftMeta getSampleDraftMetaBySampleDraftMetaId (final int sampleDraftMetaId) {
+    		HashMap m = new HashMap();
+		m.put("sampleDraftMetaId", sampleDraftMetaId);
+
+		List<SampleDraftMeta> results = (List<SampleDraftMeta>) this.findByMap((Map) m);
+
+		if (results.size() == 0) {
+			SampleDraftMeta rt = new SampleDraftMeta();
+			return rt;
+		}
+		return (SampleDraftMeta) results.get(0);
+	}
 
 
 
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public void updateBySampledraftId (final int sampledraftId, final List<SampleDraftMeta> metaList) {
+	/**
+	 * getSampleDraftMetaByKSampledraftId(final String k, final int sampledraftId)
+	 *
+	 * @param final String k, final int sampledraftId
+	 *
+	 * @return sampleDraftMeta
+	 */
 
-    getJpaTemplate().execute(new JpaCallback() {
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public SampleDraftMeta getSampleDraftMetaByKSampledraftId (final String k, final int sampledraftId) {
+    		HashMap m = new HashMap();
+		m.put("k", k);
+		m.put("sampledraftId", sampledraftId);
 
-      public Object doInJpa(EntityManager em) throws PersistenceException {
-        em.createNativeQuery("delete from sampledraftmeta where sampledraftId=:sampledraftId").setParameter("sampledraftId", sampledraftId).executeUpdate();
+		List<SampleDraftMeta> results = (List<SampleDraftMeta>) this.findByMap((Map) m);
 
-        for (SampleDraftMeta m:metaList) {
-          em.persist(m);
-        }
+		if (results.size() == 0) {
+			SampleDraftMeta rt = new SampleDraftMeta();
+			return rt;
+		}
+		return (SampleDraftMeta) results.get(0);
+	}
 
-        return null;
-      }
-    });
-  }
 
-  
+
+	/**
+	 * updateBySampledraftId (final int sampledraftId, final List<SampleDraftMeta> metaList)
+	 *
+	 * @param sampledraftId
+	 * @param metaList
+	 *
+	 */
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public void updateBySampledraftId (final int sampledraftId, final List<SampleDraftMeta> metaList) {
+
+		getJpaTemplate().execute(new JpaCallback() {
+
+			public Object doInJpa(EntityManager em) throws PersistenceException {
+				em.createNativeQuery("delete from sampleDraftMeta where sampledraftId=:sampledraftId").setParameter("sampledraftId", sampledraftId).executeUpdate();
+
+				for (SampleDraftMeta m:metaList) {
+					m.setSampledraftId(sampledraftId);
+					em.persist(m);
+				}
+        			return null;
+			}
+		});
+	}
+
+
+
 }
 

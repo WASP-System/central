@@ -1,10 +1,10 @@
 
 /**
  *
- * StatejobImpl.java 
+ * StatejobDaoImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the Statejob object
+ * the Statejob Dao Impl
  *
  *
  **/
@@ -30,23 +30,40 @@ import edu.yu.einstein.wasp.model.Statejob;
 @Repository
 public class StatejobDaoImpl extends WaspDaoImpl<Statejob> implements edu.yu.einstein.wasp.dao.StatejobDao {
 
-  public StatejobDaoImpl() {
-    super();
-    this.entityClass = Statejob.class;
-  }
+	/**
+	 * StatejobDaoImpl() Constructor
+	 *
+	 *
+	 */
+	public StatejobDaoImpl() {
+		super();
+		this.entityClass = Statejob.class;
+	}
 
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public Statejob getStatejobByStatejobId (final int statejobId) {
-    HashMap m = new HashMap();
-    m.put("statejobId", statejobId);
-    List<Statejob> results = (List<Statejob>) this.findByMap((Map) m);
-    if (results.size() == 0) {
-      Statejob rt = new Statejob();
-      return rt;
-    }
-    return (Statejob) results.get(0);
-  }
+
+	/**
+	 * getStatejobByStatejobId(final int statejobId)
+	 *
+	 * @param final int statejobId
+	 *
+	 * @return statejob
+	 */
+
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public Statejob getStatejobByStatejobId (final int statejobId) {
+    		HashMap m = new HashMap();
+		m.put("statejobId", statejobId);
+
+		List<Statejob> results = (List<Statejob>) this.findByMap((Map) m);
+
+		if (results.size() == 0) {
+			Statejob rt = new Statejob();
+			return rt;
+		}
+		return (Statejob) results.get(0);
+	}
+
 
 
 }

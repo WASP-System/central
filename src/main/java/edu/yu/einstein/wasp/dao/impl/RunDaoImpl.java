@@ -1,10 +1,10 @@
 
 /**
  *
- * RunImpl.java 
+ * RunDaoImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the Run object
+ * the Run Dao Impl
  *
  *
  **/
@@ -30,23 +30,40 @@ import edu.yu.einstein.wasp.model.Run;
 @Repository
 public class RunDaoImpl extends WaspDaoImpl<Run> implements edu.yu.einstein.wasp.dao.RunDao {
 
-  public RunDaoImpl() {
-    super();
-    this.entityClass = Run.class;
-  }
+	/**
+	 * RunDaoImpl() Constructor
+	 *
+	 *
+	 */
+	public RunDaoImpl() {
+		super();
+		this.entityClass = Run.class;
+	}
 
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public Run getRunByRunId (final int runId) {
-    HashMap m = new HashMap();
-    m.put("runId", runId);
-    List<Run> results = (List<Run>) this.findByMap((Map) m);
-    if (results.size() == 0) {
-      Run rt = new Run();
-      return rt;
-    }
-    return (Run) results.get(0);
-  }
+
+	/**
+	 * getRunByRunId(final int runId)
+	 *
+	 * @param final int runId
+	 *
+	 * @return run
+	 */
+
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public Run getRunByRunId (final int runId) {
+    		HashMap m = new HashMap();
+		m.put("runId", runId);
+
+		List<Run> results = (List<Run>) this.findByMap((Map) m);
+
+		if (results.size() == 0) {
+			Run rt = new Run();
+			return rt;
+		}
+		return (Run) results.get(0);
+	}
+
 
 
 }

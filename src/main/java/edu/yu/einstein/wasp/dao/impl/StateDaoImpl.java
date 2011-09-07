@@ -1,10 +1,10 @@
 
 /**
  *
- * StateImpl.java 
+ * StateDaoImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the State object
+ * the State Dao Impl
  *
  *
  **/
@@ -30,23 +30,40 @@ import edu.yu.einstein.wasp.model.State;
 @Repository
 public class StateDaoImpl extends WaspDaoImpl<State> implements edu.yu.einstein.wasp.dao.StateDao {
 
-  public StateDaoImpl() {
-    super();
-    this.entityClass = State.class;
-  }
+	/**
+	 * StateDaoImpl() Constructor
+	 *
+	 *
+	 */
+	public StateDaoImpl() {
+		super();
+		this.entityClass = State.class;
+	}
 
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public State getStateByStateId (final int stateId) {
-    HashMap m = new HashMap();
-    m.put("stateId", stateId);
-    List<State> results = (List<State>) this.findByMap((Map) m);
-    if (results.size() == 0) {
-      State rt = new State();
-      return rt;
-    }
-    return (State) results.get(0);
-  }
+
+	/**
+	 * getStateByStateId(final int stateId)
+	 *
+	 * @param final int stateId
+	 *
+	 * @return state
+	 */
+
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public State getStateByStateId (final int stateId) {
+    		HashMap m = new HashMap();
+		m.put("stateId", stateId);
+
+		List<State> results = (List<State>) this.findByMap((Map) m);
+
+		if (results.size() == 0) {
+			State rt = new State();
+			return rt;
+		}
+		return (State) results.get(0);
+	}
+
 
 
 }

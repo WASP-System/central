@@ -1,10 +1,10 @@
 
 /**
  *
- * SampleFileImpl.java 
+ * SampleFileDaoImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the SampleFile object
+ * the SampleFile Dao Impl
  *
  *
  **/
@@ -30,23 +30,40 @@ import edu.yu.einstein.wasp.model.SampleFile;
 @Repository
 public class SampleFileDaoImpl extends WaspDaoImpl<SampleFile> implements edu.yu.einstein.wasp.dao.SampleFileDao {
 
-  public SampleFileDaoImpl() {
-    super();
-    this.entityClass = SampleFile.class;
-  }
+	/**
+	 * SampleFileDaoImpl() Constructor
+	 *
+	 *
+	 */
+	public SampleFileDaoImpl() {
+		super();
+		this.entityClass = SampleFile.class;
+	}
 
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public SampleFile getSampleFileBySampleFileId (final int sampleFileId) {
-    HashMap m = new HashMap();
-    m.put("sampleFileId", sampleFileId);
-    List<SampleFile> results = (List<SampleFile>) this.findByMap((Map) m);
-    if (results.size() == 0) {
-      SampleFile rt = new SampleFile();
-      return rt;
-    }
-    return (SampleFile) results.get(0);
-  }
+
+	/**
+	 * getSampleFileBySampleFileId(final int sampleFileId)
+	 *
+	 * @param final int sampleFileId
+	 *
+	 * @return sampleFile
+	 */
+
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public SampleFile getSampleFileBySampleFileId (final int sampleFileId) {
+    		HashMap m = new HashMap();
+		m.put("sampleFileId", sampleFileId);
+
+		List<SampleFile> results = (List<SampleFile>) this.findByMap((Map) m);
+
+		if (results.size() == 0) {
+			SampleFile rt = new SampleFile();
+			return rt;
+		}
+		return (SampleFile) results.get(0);
+	}
+
 
 
 }

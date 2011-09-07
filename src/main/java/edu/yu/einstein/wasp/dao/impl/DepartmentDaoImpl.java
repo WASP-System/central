@@ -1,10 +1,10 @@
 
 /**
  *
- * DepartmentImpl.java 
+ * DepartmentDaoImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the Department object
+ * the Department Dao Impl
  *
  *
  **/
@@ -30,37 +30,65 @@ import edu.yu.einstein.wasp.model.Department;
 @Repository
 public class DepartmentDaoImpl extends WaspDaoImpl<Department> implements edu.yu.einstein.wasp.dao.DepartmentDao {
 
-  public DepartmentDaoImpl() {
-    super();
-    this.entityClass = Department.class;
-  }
-
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public Department getDepartmentByDepartmentId (final int departmentId) {
-    HashMap m = new HashMap();
-    m.put("departmentId", departmentId);
-    List<Department> results = (List<Department>) this.findByMap((Map) m);
-    if (results.size() == 0) {
-      Department rt = new Department();
-      return rt;
-    }
-    return (Department) results.get(0);
-  }
+	/**
+	 * DepartmentDaoImpl() Constructor
+	 *
+	 *
+	 */
+	public DepartmentDaoImpl() {
+		super();
+		this.entityClass = Department.class;
+	}
 
 
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public Department getDepartmentByName (final String name) {
-    HashMap m = new HashMap();
-    m.put("name", name);
-    List<Department> results = (List<Department>) this.findByMap((Map) m);
-    if (results.size() == 0) {
-      Department rt = new Department();
-      return rt;
-    }
-    return (Department) results.get(0);
-  }
+	/**
+	 * getDepartmentByDepartmentId(final int departmentId)
+	 *
+	 * @param final int departmentId
+	 *
+	 * @return department
+	 */
+
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public Department getDepartmentByDepartmentId (final int departmentId) {
+    		HashMap m = new HashMap();
+		m.put("departmentId", departmentId);
+
+		List<Department> results = (List<Department>) this.findByMap((Map) m);
+
+		if (results.size() == 0) {
+			Department rt = new Department();
+			return rt;
+		}
+		return (Department) results.get(0);
+	}
+
+
+
+	/**
+	 * getDepartmentByName(final String name)
+	 *
+	 * @param final String name
+	 *
+	 * @return department
+	 */
+
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public Department getDepartmentByName (final String name) {
+    		HashMap m = new HashMap();
+		m.put("name", name);
+
+		List<Department> results = (List<Department>) this.findByMap((Map) m);
+
+		if (results.size() == 0) {
+			Department rt = new Department();
+			return rt;
+		}
+		return (Department) results.get(0);
+	}
+
 
 
 }

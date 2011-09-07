@@ -1,10 +1,10 @@
 
 /**
  *
- * RunMetaImpl.java 
+ * RunMetaDaoImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the RunMeta object
+ * the RunMeta Dao Impl
  *
  *
  **/
@@ -30,58 +30,94 @@ import edu.yu.einstein.wasp.model.RunMeta;
 @Repository
 public class RunMetaDaoImpl extends WaspDaoImpl<RunMeta> implements edu.yu.einstein.wasp.dao.RunMetaDao {
 
-  public RunMetaDaoImpl() {
-    super();
-    this.entityClass = RunMeta.class;
-  }
-
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public RunMeta getRunMetaByRunMetaId (final int runMetaId) {
-    HashMap m = new HashMap();
-    m.put("runMetaId", runMetaId);
-    List<RunMeta> results = (List<RunMeta>) this.findByMap((Map) m);
-    if (results.size() == 0) {
-      RunMeta rt = new RunMeta();
-      return rt;
-    }
-    return (RunMeta) results.get(0);
-  }
+	/**
+	 * RunMetaDaoImpl() Constructor
+	 *
+	 *
+	 */
+	public RunMetaDaoImpl() {
+		super();
+		this.entityClass = RunMeta.class;
+	}
 
 
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public RunMeta getRunMetaByKRunId (final String k, final int runId) {
-    HashMap m = new HashMap();
-    m.put("k", k);
-    m.put("runId", runId);
-    List<RunMeta> results = (List<RunMeta>) this.findByMap((Map) m);
-    if (results.size() == 0) {
-      RunMeta rt = new RunMeta();
-      return rt;
-    }
-    return (RunMeta) results.get(0);
-  }
+	/**
+	 * getRunMetaByRunMetaId(final int runMetaId)
+	 *
+	 * @param final int runMetaId
+	 *
+	 * @return runMeta
+	 */
+
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public RunMeta getRunMetaByRunMetaId (final int runMetaId) {
+    		HashMap m = new HashMap();
+		m.put("runMetaId", runMetaId);
+
+		List<RunMeta> results = (List<RunMeta>) this.findByMap((Map) m);
+
+		if (results.size() == 0) {
+			RunMeta rt = new RunMeta();
+			return rt;
+		}
+		return (RunMeta) results.get(0);
+	}
 
 
 
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public void updateByRunId (final int runId, final List<RunMeta> metaList) {
+	/**
+	 * getRunMetaByKRunId(final String k, final int runId)
+	 *
+	 * @param final String k, final int runId
+	 *
+	 * @return runMeta
+	 */
 
-    getJpaTemplate().execute(new JpaCallback() {
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public RunMeta getRunMetaByKRunId (final String k, final int runId) {
+    		HashMap m = new HashMap();
+		m.put("k", k);
+		m.put("runId", runId);
 
-      public Object doInJpa(EntityManager em) throws PersistenceException {
-        em.createNativeQuery("delete from runMeta where runId=:runId").setParameter("runId", runId).executeUpdate();
+		List<RunMeta> results = (List<RunMeta>) this.findByMap((Map) m);
 
-        for (RunMeta m:metaList) {
-          em.persist(m);
-        }
+		if (results.size() == 0) {
+			RunMeta rt = new RunMeta();
+			return rt;
+		}
+		return (RunMeta) results.get(0);
+	}
 
-        return null;
-      }
-    });
 
-  }
+
+	/**
+	 * updateByRunId (final int runId, final List<RunMeta> metaList)
+	 *
+	 * @param runId
+	 * @param metaList
+	 *
+	 */
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public void updateByRunId (final int runId, final List<RunMeta> metaList) {
+
+		getJpaTemplate().execute(new JpaCallback() {
+
+			public Object doInJpa(EntityManager em) throws PersistenceException {
+				em.createNativeQuery("delete from runMeta where runId=:runId").setParameter("runId", runId).executeUpdate();
+
+				for (RunMeta m:metaList) {
+					m.setRunId(runId);
+					em.persist(m);
+				}
+        			return null;
+			}
+		});
+	}
+
+
+
 }
 

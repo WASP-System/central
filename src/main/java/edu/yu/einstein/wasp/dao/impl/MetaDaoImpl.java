@@ -1,10 +1,10 @@
 
 /**
  *
- * MetaImpl.java 
+ * MetaDaoImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the Meta object
+ * the Meta Dao Impl
  *
  *
  **/
@@ -30,53 +30,92 @@ import edu.yu.einstein.wasp.model.Meta;
 @Repository
 public class MetaDaoImpl extends WaspDaoImpl<Meta> implements edu.yu.einstein.wasp.dao.MetaDao {
 
-  public MetaDaoImpl() {
-    super();
-    this.entityClass = Meta.class;
-  }
-
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public Meta getMetaByMetaId (final int metaId) {
-    HashMap m = new HashMap();
-    m.put("metaId", metaId);
-    List<Meta> results = (List<Meta>) this.findByMap((Map) m);
-    if (results.size() == 0) {
-      Meta rt = new Meta();
-      return rt;
-    }
-    return (Meta) results.get(0);
-  }
+	/**
+	 * MetaDaoImpl() Constructor
+	 *
+	 *
+	 */
+	public MetaDaoImpl() {
+		super();
+		this.entityClass = Meta.class;
+	}
 
 
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public Meta getMetaByPropertyK (final String property, final String k) {
-    HashMap m = new HashMap();
-    m.put("property", property);
-    m.put("k", k);
-    List<Meta> results = (List<Meta>) this.findByMap((Map) m);
-    if (results.size() == 0) {
-      Meta rt = new Meta();
-      return rt;
-    }
-    return (Meta) results.get(0);
-  }
+	/**
+	 * getMetaByMetaId(final int metaId)
+	 *
+	 * @param final int metaId
+	 *
+	 * @return meta
+	 */
+
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public Meta getMetaByMetaId (final int metaId) {
+    		HashMap m = new HashMap();
+		m.put("metaId", metaId);
+
+		List<Meta> results = (List<Meta>) this.findByMap((Map) m);
+
+		if (results.size() == 0) {
+			Meta rt = new Meta();
+			return rt;
+		}
+		return (Meta) results.get(0);
+	}
 
 
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public Meta getMetaByPropertyV (final String property, final String v) {
-    HashMap m = new HashMap();
-    m.put("property", property);
-    m.put("v", v);
-    List<Meta> results = (List<Meta>) this.findByMap((Map) m);
-    if (results.size() == 0) {
-      Meta rt = new Meta();
-      return rt;
-    }
-    return (Meta) results.get(0);
-  }
+
+	/**
+	 * getMetaByPropertyK(final String property, final String k)
+	 *
+	 * @param final String property, final String k
+	 *
+	 * @return meta
+	 */
+
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public Meta getMetaByPropertyK (final String property, final String k) {
+    		HashMap m = new HashMap();
+		m.put("property", property);
+		m.put("k", k);
+
+		List<Meta> results = (List<Meta>) this.findByMap((Map) m);
+
+		if (results.size() == 0) {
+			Meta rt = new Meta();
+			return rt;
+		}
+		return (Meta) results.get(0);
+	}
+
+
+
+	/**
+	 * getMetaByPropertyV(final String property, final String v)
+	 *
+	 * @param final String property, final String v
+	 *
+	 * @return meta
+	 */
+
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public Meta getMetaByPropertyV (final String property, final String v) {
+    		HashMap m = new HashMap();
+		m.put("property", property);
+		m.put("v", v);
+
+		List<Meta> results = (List<Meta>) this.findByMap((Map) m);
+
+		if (results.size() == 0) {
+			Meta rt = new Meta();
+			return rt;
+		}
+		return (Meta) results.get(0);
+	}
+
 
 
 }

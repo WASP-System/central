@@ -1,10 +1,10 @@
 
 /**
  *
- * AcctGrantjobImpl.java 
+ * AcctGrantjobDaoImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the AcctGrantjob object
+ * the AcctGrantjob Dao Impl
  *
  *
  **/
@@ -30,23 +30,40 @@ import edu.yu.einstein.wasp.model.AcctGrantjob;
 @Repository
 public class AcctGrantjobDaoImpl extends WaspDaoImpl<AcctGrantjob> implements edu.yu.einstein.wasp.dao.AcctGrantjobDao {
 
-  public AcctGrantjobDaoImpl() {
-    super();
-    this.entityClass = AcctGrantjob.class;
-  }
+	/**
+	 * AcctGrantjobDaoImpl() Constructor
+	 *
+	 *
+	 */
+	public AcctGrantjobDaoImpl() {
+		super();
+		this.entityClass = AcctGrantjob.class;
+	}
 
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public AcctGrantjob getAcctGrantjobByJobId (final int jobId) {
-    HashMap m = new HashMap();
-    m.put("jobId", jobId);
-    List<AcctGrantjob> results = (List<AcctGrantjob>) this.findByMap((Map) m);
-    if (results.size() == 0) {
-      AcctGrantjob rt = new AcctGrantjob();
-      return rt;
-    }
-    return (AcctGrantjob) results.get(0);
-  }
+
+	/**
+	 * getAcctGrantjobByJobId(final int jobId)
+	 *
+	 * @param final int jobId
+	 *
+	 * @return acctGrantjob
+	 */
+
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public AcctGrantjob getAcctGrantjobByJobId (final int jobId) {
+    		HashMap m = new HashMap();
+		m.put("jobId", jobId);
+
+		List<AcctGrantjob> results = (List<AcctGrantjob>) this.findByMap((Map) m);
+
+		if (results.size() == 0) {
+			AcctGrantjob rt = new AcctGrantjob();
+			return rt;
+		}
+		return (AcctGrantjob) results.get(0);
+	}
+
 
 
 }

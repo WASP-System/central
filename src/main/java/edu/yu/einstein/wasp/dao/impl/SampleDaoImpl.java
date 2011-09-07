@@ -1,10 +1,10 @@
 
 /**
  *
- * SampleImpl.java 
+ * SampleDaoImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the Sample object
+ * the Sample Dao Impl
  *
  *
  **/
@@ -30,23 +30,40 @@ import edu.yu.einstein.wasp.model.Sample;
 @Repository
 public class SampleDaoImpl extends WaspDaoImpl<Sample> implements edu.yu.einstein.wasp.dao.SampleDao {
 
-  public SampleDaoImpl() {
-    super();
-    this.entityClass = Sample.class;
-  }
+	/**
+	 * SampleDaoImpl() Constructor
+	 *
+	 *
+	 */
+	public SampleDaoImpl() {
+		super();
+		this.entityClass = Sample.class;
+	}
 
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public Sample getSampleBySampleId (final int sampleId) {
-    HashMap m = new HashMap();
-    m.put("sampleId", sampleId);
-    List<Sample> results = (List<Sample>) this.findByMap((Map) m);
-    if (results.size() == 0) {
-      Sample rt = new Sample();
-      return rt;
-    }
-    return (Sample) results.get(0);
-  }
+
+	/**
+	 * getSampleBySampleId(final int sampleId)
+	 *
+	 * @param final int sampleId
+	 *
+	 * @return sample
+	 */
+
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public Sample getSampleBySampleId (final int sampleId) {
+    		HashMap m = new HashMap();
+		m.put("sampleId", sampleId);
+
+		List<Sample> results = (List<Sample>) this.findByMap((Map) m);
+
+		if (results.size() == 0) {
+			Sample rt = new Sample();
+			return rt;
+		}
+		return (Sample) results.get(0);
+	}
+
 
 
 }

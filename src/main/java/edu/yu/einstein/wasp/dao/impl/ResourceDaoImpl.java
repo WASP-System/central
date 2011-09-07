@@ -1,10 +1,10 @@
 
 /**
  *
- * ResourceImpl.java 
+ * ResourceDaoImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the Resource object
+ * the Resource Dao Impl
  *
  *
  **/
@@ -30,37 +30,65 @@ import edu.yu.einstein.wasp.model.Resource;
 @Repository
 public class ResourceDaoImpl extends WaspDaoImpl<Resource> implements edu.yu.einstein.wasp.dao.ResourceDao {
 
-  public ResourceDaoImpl() {
-    super();
-    this.entityClass = Resource.class;
-  }
-
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public Resource getResourceByResourceId (final int resourceId) {
-    HashMap m = new HashMap();
-    m.put("resourceId", resourceId);
-    List<Resource> results = (List<Resource>) this.findByMap((Map) m);
-    if (results.size() == 0) {
-      Resource rt = new Resource();
-      return rt;
-    }
-    return (Resource) results.get(0);
-  }
+	/**
+	 * ResourceDaoImpl() Constructor
+	 *
+	 *
+	 */
+	public ResourceDaoImpl() {
+		super();
+		this.entityClass = Resource.class;
+	}
 
 
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public Resource getResourceByName (final String name) {
-    HashMap m = new HashMap();
-    m.put("name", name);
-    List<Resource> results = (List<Resource>) this.findByMap((Map) m);
-    if (results.size() == 0) {
-      Resource rt = new Resource();
-      return rt;
-    }
-    return (Resource) results.get(0);
-  }
+	/**
+	 * getResourceByResourceId(final int resourceId)
+	 *
+	 * @param final int resourceId
+	 *
+	 * @return resource
+	 */
+
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public Resource getResourceByResourceId (final int resourceId) {
+    		HashMap m = new HashMap();
+		m.put("resourceId", resourceId);
+
+		List<Resource> results = (List<Resource>) this.findByMap((Map) m);
+
+		if (results.size() == 0) {
+			Resource rt = new Resource();
+			return rt;
+		}
+		return (Resource) results.get(0);
+	}
+
+
+
+	/**
+	 * getResourceByName(final String name)
+	 *
+	 * @param final String name
+	 *
+	 * @return resource
+	 */
+
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public Resource getResourceByName (final String name) {
+    		HashMap m = new HashMap();
+		m.put("name", name);
+
+		List<Resource> results = (List<Resource>) this.findByMap((Map) m);
+
+		if (results.size() == 0) {
+			Resource rt = new Resource();
+			return rt;
+		}
+		return (Resource) results.get(0);
+	}
+
 
 
 }

@@ -1,10 +1,10 @@
 
 /**
  *
- * SampleMetaImpl.java 
+ * SampleMetaDaoImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the SampleMeta object
+ * the SampleMeta Dao Impl
  *
  *
  **/
@@ -30,60 +30,94 @@ import edu.yu.einstein.wasp.model.SampleMeta;
 @Repository
 public class SampleMetaDaoImpl extends WaspDaoImpl<SampleMeta> implements edu.yu.einstein.wasp.dao.SampleMetaDao {
 
-  public SampleMetaDaoImpl() {
-    super();
-    this.entityClass = SampleMeta.class;
-  }
-
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public SampleMeta getSampleMetaBySampleMetaId (final int sampleMetaId) {
-    HashMap m = new HashMap();
-    m.put("sampleMetaId", sampleMetaId);
-    List<SampleMeta> results = (List<SampleMeta>) this.findByMap((Map) m);
-    if (results.size() == 0) {
-      SampleMeta rt = new SampleMeta();
-      return rt;
-    }
-    return (SampleMeta) results.get(0);
-  }
+	/**
+	 * SampleMetaDaoImpl() Constructor
+	 *
+	 *
+	 */
+	public SampleMetaDaoImpl() {
+		super();
+		this.entityClass = SampleMeta.class;
+	}
 
 
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public SampleMeta getSampleMetaByKSampleId (final String k, final int sampleId) {
-    HashMap m = new HashMap();
-    m.put("k", k);
-    m.put("sampleId", sampleId);
-    List<SampleMeta> results = (List<SampleMeta>) this.findByMap((Map) m);
-    if (results.size() == 0) {
-      SampleMeta rt = new SampleMeta();
-      return rt;
-    }
-    return (SampleMeta) results.get(0);
-  }
+	/**
+	 * getSampleMetaBySampleMetaId(final int sampleMetaId)
+	 *
+	 * @param final int sampleMetaId
+	 *
+	 * @return sampleMeta
+	 */
+
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public SampleMeta getSampleMetaBySampleMetaId (final int sampleMetaId) {
+    		HashMap m = new HashMap();
+		m.put("sampleMetaId", sampleMetaId);
+
+		List<SampleMeta> results = (List<SampleMeta>) this.findByMap((Map) m);
+
+		if (results.size() == 0) {
+			SampleMeta rt = new SampleMeta();
+			return rt;
+		}
+		return (SampleMeta) results.get(0);
+	}
 
 
 
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public void updateBySampleId (final int sampleId, final List<SampleMeta> metaList) {
+	/**
+	 * getSampleMetaByKSampleId(final String k, final int sampleId)
+	 *
+	 * @param final String k, final int sampleId
+	 *
+	 * @return sampleMeta
+	 */
 
-    getJpaTemplate().execute(new JpaCallback() {
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public SampleMeta getSampleMetaByKSampleId (final String k, final int sampleId) {
+    		HashMap m = new HashMap();
+		m.put("k", k);
+		m.put("sampleId", sampleId);
 
-      public Object doInJpa(EntityManager em) throws PersistenceException {
-        em.createNativeQuery("delete from samplemeta where sampleId=:sampleId").setParameter("sampleId", sampleId).executeUpdate();
+		List<SampleMeta> results = (List<SampleMeta>) this.findByMap((Map) m);
 
-        for (SampleMeta m:metaList) {
-          m.setSampleId(sampleId);
-          persist(m);
-        }
+		if (results.size() == 0) {
+			SampleMeta rt = new SampleMeta();
+			return rt;
+		}
+		return (SampleMeta) results.get(0);
+	}
 
-        return null;
-      }
-    });
 
-  }
+
+	/**
+	 * updateBySampleId (final int sampleId, final List<SampleMeta> metaList)
+	 *
+	 * @param sampleId
+	 * @param metaList
+	 *
+	 */
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public void updateBySampleId (final int sampleId, final List<SampleMeta> metaList) {
+
+		getJpaTemplate().execute(new JpaCallback() {
+
+			public Object doInJpa(EntityManager em) throws PersistenceException {
+				em.createNativeQuery("delete from sampleMeta where sampleId=:sampleId").setParameter("sampleId", sampleId).executeUpdate();
+
+				for (SampleMeta m:metaList) {
+					m.setSampleId(sampleId);
+					em.persist(m);
+				}
+        			return null;
+			}
+		});
+	}
+
+
 
 }
 

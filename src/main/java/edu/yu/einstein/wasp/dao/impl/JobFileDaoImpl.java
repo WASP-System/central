@@ -1,10 +1,10 @@
 
 /**
  *
- * JobFileImpl.java 
+ * JobFileDaoImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the JobFile object
+ * the JobFile Dao Impl
  *
  *
  **/
@@ -30,23 +30,40 @@ import edu.yu.einstein.wasp.model.JobFile;
 @Repository
 public class JobFileDaoImpl extends WaspDaoImpl<JobFile> implements edu.yu.einstein.wasp.dao.JobFileDao {
 
-  public JobFileDaoImpl() {
-    super();
-    this.entityClass = JobFile.class;
-  }
+	/**
+	 * JobFileDaoImpl() Constructor
+	 *
+	 *
+	 */
+	public JobFileDaoImpl() {
+		super();
+		this.entityClass = JobFile.class;
+	}
 
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public JobFile getJobFileByJobFileId (final int jobFileId) {
-    HashMap m = new HashMap();
-    m.put("jobFileId", jobFileId);
-    List<JobFile> results = (List<JobFile>) this.findByMap((Map) m);
-    if (results.size() == 0) {
-      JobFile rt = new JobFile();
-      return rt;
-    }
-    return (JobFile) results.get(0);
-  }
+
+	/**
+	 * getJobFileByJobFileId(final int jobFileId)
+	 *
+	 * @param final int jobFileId
+	 *
+	 * @return jobFile
+	 */
+
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public JobFile getJobFileByJobFileId (final int jobFileId) {
+    		HashMap m = new HashMap();
+		m.put("jobFileId", jobFileId);
+
+		List<JobFile> results = (List<JobFile>) this.findByMap((Map) m);
+
+		if (results.size() == 0) {
+			JobFile rt = new JobFile();
+			return rt;
+		}
+		return (JobFile) results.get(0);
+	}
+
 
 
 }

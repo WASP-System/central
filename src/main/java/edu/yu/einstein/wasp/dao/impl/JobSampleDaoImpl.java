@@ -1,10 +1,10 @@
 
 /**
  *
- * JobSampleImpl.java 
+ * JobSampleDaoImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the JobSample object
+ * the JobSample Dao Impl
  *
  *
  **/
@@ -30,38 +30,66 @@ import edu.yu.einstein.wasp.model.JobSample;
 @Repository
 public class JobSampleDaoImpl extends WaspDaoImpl<JobSample> implements edu.yu.einstein.wasp.dao.JobSampleDao {
 
-  public JobSampleDaoImpl() {
-    super();
-    this.entityClass = JobSample.class;
-  }
-
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public JobSample getJobSampleByJobSampleId (final int jobSampleId) {
-    HashMap m = new HashMap();
-    m.put("jobSampleId", jobSampleId);
-    List<JobSample> results = (List<JobSample>) this.findByMap((Map) m);
-    if (results.size() == 0) {
-      JobSample rt = new JobSample();
-      return rt;
-    }
-    return (JobSample) results.get(0);
-  }
+	/**
+	 * JobSampleDaoImpl() Constructor
+	 *
+	 *
+	 */
+	public JobSampleDaoImpl() {
+		super();
+		this.entityClass = JobSample.class;
+	}
 
 
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public JobSample getJobSampleByJobIdSampleId (final int jobId, final int sampleId) {
-    HashMap m = new HashMap();
-    m.put("jobId", jobId);
-    m.put("sampleId", sampleId);
-    List<JobSample> results = (List<JobSample>) this.findByMap((Map) m);
-    if (results.size() == 0) {
-      JobSample rt = new JobSample();
-      return rt;
-    }
-    return (JobSample) results.get(0);
-  }
+	/**
+	 * getJobSampleByJobSampleId(final int jobSampleId)
+	 *
+	 * @param final int jobSampleId
+	 *
+	 * @return jobSample
+	 */
+
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public JobSample getJobSampleByJobSampleId (final int jobSampleId) {
+    		HashMap m = new HashMap();
+		m.put("jobSampleId", jobSampleId);
+
+		List<JobSample> results = (List<JobSample>) this.findByMap((Map) m);
+
+		if (results.size() == 0) {
+			JobSample rt = new JobSample();
+			return rt;
+		}
+		return (JobSample) results.get(0);
+	}
+
+
+
+	/**
+	 * getJobSampleByJobIdSampleId(final int jobId, final int sampleId)
+	 *
+	 * @param final int jobId, final int sampleId
+	 *
+	 * @return jobSample
+	 */
+
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public JobSample getJobSampleByJobIdSampleId (final int jobId, final int sampleId) {
+    		HashMap m = new HashMap();
+		m.put("jobId", jobId);
+		m.put("sampleId", sampleId);
+
+		List<JobSample> results = (List<JobSample>) this.findByMap((Map) m);
+
+		if (results.size() == 0) {
+			JobSample rt = new JobSample();
+			return rt;
+		}
+		return (JobSample) results.get(0);
+	}
+
 
 
 }

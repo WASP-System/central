@@ -1,10 +1,10 @@
 
 /**
  *
- * AcctJobquotecurrentImpl.java 
+ * AcctJobquotecurrentDaoImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the AcctJobquotecurrent object
+ * the AcctJobquotecurrent Dao Impl
  *
  *
  **/
@@ -30,23 +30,40 @@ import edu.yu.einstein.wasp.model.AcctJobquotecurrent;
 @Repository
 public class AcctJobquotecurrentDaoImpl extends WaspDaoImpl<AcctJobquotecurrent> implements edu.yu.einstein.wasp.dao.AcctJobquotecurrentDao {
 
-  public AcctJobquotecurrentDaoImpl() {
-    super();
-    this.entityClass = AcctJobquotecurrent.class;
-  }
+	/**
+	 * AcctJobquotecurrentDaoImpl() Constructor
+	 *
+	 *
+	 */
+	public AcctJobquotecurrentDaoImpl() {
+		super();
+		this.entityClass = AcctJobquotecurrent.class;
+	}
 
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public AcctJobquotecurrent getAcctJobquotecurrentByJobId (final int jobId) {
-    HashMap m = new HashMap();
-    m.put("jobId", jobId);
-    List<AcctJobquotecurrent> results = (List<AcctJobquotecurrent>) this.findByMap((Map) m);
-    if (results.size() == 0) {
-      AcctJobquotecurrent rt = new AcctJobquotecurrent();
-      return rt;
-    }
-    return (AcctJobquotecurrent) results.get(0);
-  }
+
+	/**
+	 * getAcctJobquotecurrentByJobId(final int jobId)
+	 *
+	 * @param final int jobId
+	 *
+	 * @return acctJobquotecurrent
+	 */
+
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public AcctJobquotecurrent getAcctJobquotecurrentByJobId (final int jobId) {
+    		HashMap m = new HashMap();
+		m.put("jobId", jobId);
+
+		List<AcctJobquotecurrent> results = (List<AcctJobquotecurrent>) this.findByMap((Map) m);
+
+		if (results.size() == 0) {
+			AcctJobquotecurrent rt = new AcctJobquotecurrent();
+			return rt;
+		}
+		return (AcctJobquotecurrent) results.get(0);
+	}
+
 
 
 }

@@ -1,10 +1,10 @@
 
 /**
  *
- * SampleSourceImpl.java 
+ * SampleSourceDaoImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the SampleSource object
+ * the SampleSource Dao Impl
  *
  *
  **/
@@ -30,38 +30,66 @@ import edu.yu.einstein.wasp.model.SampleSource;
 @Repository
 public class SampleSourceDaoImpl extends WaspDaoImpl<SampleSource> implements edu.yu.einstein.wasp.dao.SampleSourceDao {
 
-  public SampleSourceDaoImpl() {
-    super();
-    this.entityClass = SampleSource.class;
-  }
-
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public SampleSource getSampleSourceBySampleSourceId (final int sampleSourceId) {
-    HashMap m = new HashMap();
-    m.put("sampleSourceId", sampleSourceId);
-    List<SampleSource> results = (List<SampleSource>) this.findByMap((Map) m);
-    if (results.size() == 0) {
-      SampleSource rt = new SampleSource();
-      return rt;
-    }
-    return (SampleSource) results.get(0);
-  }
+	/**
+	 * SampleSourceDaoImpl() Constructor
+	 *
+	 *
+	 */
+	public SampleSourceDaoImpl() {
+		super();
+		this.entityClass = SampleSource.class;
+	}
 
 
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public SampleSource getSampleSourceBySampleIdMultiplexindex (final int sampleId, final int multiplexindex) {
-    HashMap m = new HashMap();
-    m.put("sampleId", sampleId);
-    m.put("multiplexindex", multiplexindex);
-    List<SampleSource> results = (List<SampleSource>) this.findByMap((Map) m);
-    if (results.size() == 0) {
-      SampleSource rt = new SampleSource();
-      return rt;
-    }
-    return (SampleSource) results.get(0);
-  }
+	/**
+	 * getSampleSourceBySampleSourceId(final int sampleSourceId)
+	 *
+	 * @param final int sampleSourceId
+	 *
+	 * @return sampleSource
+	 */
+
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public SampleSource getSampleSourceBySampleSourceId (final int sampleSourceId) {
+    		HashMap m = new HashMap();
+		m.put("sampleSourceId", sampleSourceId);
+
+		List<SampleSource> results = (List<SampleSource>) this.findByMap((Map) m);
+
+		if (results.size() == 0) {
+			SampleSource rt = new SampleSource();
+			return rt;
+		}
+		return (SampleSource) results.get(0);
+	}
+
+
+
+	/**
+	 * getSampleSourceBySampleIdMultiplexindex(final int sampleId, final int multiplexindex)
+	 *
+	 * @param final int sampleId, final int multiplexindex
+	 *
+	 * @return sampleSource
+	 */
+
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public SampleSource getSampleSourceBySampleIdMultiplexindex (final int sampleId, final int multiplexindex) {
+    		HashMap m = new HashMap();
+		m.put("sampleId", sampleId);
+		m.put("multiplexindex", multiplexindex);
+
+		List<SampleSource> results = (List<SampleSource>) this.findByMap((Map) m);
+
+		if (results.size() == 0) {
+			SampleSource rt = new SampleSource();
+			return rt;
+		}
+		return (SampleSource) results.get(0);
+	}
+
 
 
 }

@@ -1,10 +1,10 @@
 
 /**
  *
- * ResourceMetaImpl.java 
+ * ResourceMetaDaoImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the ResourceMeta object
+ * the ResourceMeta Dao Impl
  *
  *
  **/
@@ -30,58 +30,94 @@ import edu.yu.einstein.wasp.model.ResourceMeta;
 @Repository
 public class ResourceMetaDaoImpl extends WaspDaoImpl<ResourceMeta> implements edu.yu.einstein.wasp.dao.ResourceMetaDao {
 
-  public ResourceMetaDaoImpl() {
-    super();
-    this.entityClass = ResourceMeta.class;
-  }
-
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public ResourceMeta getResourceMetaByResourceMetaId (final int resourceMetaId) {
-    HashMap m = new HashMap();
-    m.put("resourceMetaId", resourceMetaId);
-    List<ResourceMeta> results = (List<ResourceMeta>) this.findByMap((Map) m);
-    if (results.size() == 0) {
-      ResourceMeta rt = new ResourceMeta();
-      return rt;
-    }
-    return (ResourceMeta) results.get(0);
-  }
+	/**
+	 * ResourceMetaDaoImpl() Constructor
+	 *
+	 *
+	 */
+	public ResourceMetaDaoImpl() {
+		super();
+		this.entityClass = ResourceMeta.class;
+	}
 
 
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public ResourceMeta getResourceMetaByKResourceId (final String k, final int resourceId) {
-    HashMap m = new HashMap();
-    m.put("k", k);
-    m.put("resourceId", resourceId);
-    List<ResourceMeta> results = (List<ResourceMeta>) this.findByMap((Map) m);
-    if (results.size() == 0) {
-      ResourceMeta rt = new ResourceMeta();
-      return rt;
-    }
-    return (ResourceMeta) results.get(0);
-  }
+	/**
+	 * getResourceMetaByResourceMetaId(final int resourceMetaId)
+	 *
+	 * @param final int resourceMetaId
+	 *
+	 * @return resourceMeta
+	 */
+
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public ResourceMeta getResourceMetaByResourceMetaId (final int resourceMetaId) {
+    		HashMap m = new HashMap();
+		m.put("resourceMetaId", resourceMetaId);
+
+		List<ResourceMeta> results = (List<ResourceMeta>) this.findByMap((Map) m);
+
+		if (results.size() == 0) {
+			ResourceMeta rt = new ResourceMeta();
+			return rt;
+		}
+		return (ResourceMeta) results.get(0);
+	}
 
 
 
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public void updateByResourceId (final int resourceId, final List<ResourceMeta> metaList) {
+	/**
+	 * getResourceMetaByKResourceId(final String k, final int resourceId)
+	 *
+	 * @param final String k, final int resourceId
+	 *
+	 * @return resourceMeta
+	 */
 
-    getJpaTemplate().execute(new JpaCallback() {
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public ResourceMeta getResourceMetaByKResourceId (final String k, final int resourceId) {
+    		HashMap m = new HashMap();
+		m.put("k", k);
+		m.put("resourceId", resourceId);
 
-      public Object doInJpa(EntityManager em) throws PersistenceException {
-        em.createNativeQuery("delete from resourceMeta where resourceId=:resourceId").setParameter("resourceId", resourceId).executeUpdate();
+		List<ResourceMeta> results = (List<ResourceMeta>) this.findByMap((Map) m);
 
-        for (ResourceMeta m:metaList) {
-          em.persist(m);
-        }
+		if (results.size() == 0) {
+			ResourceMeta rt = new ResourceMeta();
+			return rt;
+		}
+		return (ResourceMeta) results.get(0);
+	}
 
-        return null;
-      }
-    });
 
-  }
+
+	/**
+	 * updateByResourceId (final int resourceId, final List<ResourceMeta> metaList)
+	 *
+	 * @param resourceId
+	 * @param metaList
+	 *
+	 */
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public void updateByResourceId (final int resourceId, final List<ResourceMeta> metaList) {
+
+		getJpaTemplate().execute(new JpaCallback() {
+
+			public Object doInJpa(EntityManager em) throws PersistenceException {
+				em.createNativeQuery("delete from resourceMeta where resourceId=:resourceId").setParameter("resourceId", resourceId).executeUpdate();
+
+				for (ResourceMeta m:metaList) {
+					m.setResourceId(resourceId);
+					em.persist(m);
+				}
+        			return null;
+			}
+		});
+	}
+
+
+
 }
 

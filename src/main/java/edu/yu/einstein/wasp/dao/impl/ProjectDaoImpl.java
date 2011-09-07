@@ -1,10 +1,10 @@
 
 /**
  *
- * ProjectImpl.java 
+ * ProjectDaoImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the Project object
+ * the Project Dao Impl
  *
  *
  **/
@@ -30,38 +30,66 @@ import edu.yu.einstein.wasp.model.Project;
 @Repository
 public class ProjectDaoImpl extends WaspDaoImpl<Project> implements edu.yu.einstein.wasp.dao.ProjectDao {
 
-  public ProjectDaoImpl() {
-    super();
-    this.entityClass = Project.class;
-  }
-
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public Project getProjectByProjectId (final int projectId) {
-    HashMap m = new HashMap();
-    m.put("projectId", projectId);
-    List<Project> results = (List<Project>) this.findByMap((Map) m);
-    if (results.size() == 0) {
-      Project rt = new Project();
-      return rt;
-    }
-    return (Project) results.get(0);
-  }
+	/**
+	 * ProjectDaoImpl() Constructor
+	 *
+	 *
+	 */
+	public ProjectDaoImpl() {
+		super();
+		this.entityClass = Project.class;
+	}
 
 
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public Project getProjectByNameLabId (final String name, final int labId) {
-    HashMap m = new HashMap();
-    m.put("name", name);
-    m.put("labId", labId);
-    List<Project> results = (List<Project>) this.findByMap((Map) m);
-    if (results.size() == 0) {
-      Project rt = new Project();
-      return rt;
-    }
-    return (Project) results.get(0);
-  }
+	/**
+	 * getProjectByProjectId(final int projectId)
+	 *
+	 * @param final int projectId
+	 *
+	 * @return project
+	 */
+
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public Project getProjectByProjectId (final int projectId) {
+    		HashMap m = new HashMap();
+		m.put("projectId", projectId);
+
+		List<Project> results = (List<Project>) this.findByMap((Map) m);
+
+		if (results.size() == 0) {
+			Project rt = new Project();
+			return rt;
+		}
+		return (Project) results.get(0);
+	}
+
+
+
+	/**
+	 * getProjectByNameLabId(final String name, final int labId)
+	 *
+	 * @param final String name, final int labId
+	 *
+	 * @return project
+	 */
+
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public Project getProjectByNameLabId (final String name, final int labId) {
+    		HashMap m = new HashMap();
+		m.put("name", name);
+		m.put("labId", labId);
+
+		List<Project> results = (List<Project>) this.findByMap((Map) m);
+
+		if (results.size() == 0) {
+			Project rt = new Project();
+			return rt;
+		}
+		return (Project) results.get(0);
+	}
+
 
 
 }

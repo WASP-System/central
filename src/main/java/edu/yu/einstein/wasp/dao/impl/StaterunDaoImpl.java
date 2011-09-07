@@ -1,10 +1,10 @@
 
 /**
  *
- * StaterunImpl.java 
+ * StaterunDaoImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the Staterun object
+ * the Staterun Dao Impl
  *
  *
  **/
@@ -30,23 +30,40 @@ import edu.yu.einstein.wasp.model.Staterun;
 @Repository
 public class StaterunDaoImpl extends WaspDaoImpl<Staterun> implements edu.yu.einstein.wasp.dao.StaterunDao {
 
-  public StaterunDaoImpl() {
-    super();
-    this.entityClass = Staterun.class;
-  }
+	/**
+	 * StaterunDaoImpl() Constructor
+	 *
+	 *
+	 */
+	public StaterunDaoImpl() {
+		super();
+		this.entityClass = Staterun.class;
+	}
 
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public Staterun getStaterunByStaterunId (final int staterunId) {
-    HashMap m = new HashMap();
-    m.put("staterunId", staterunId);
-    List<Staterun> results = (List<Staterun>) this.findByMap((Map) m);
-    if (results.size() == 0) {
-      Staterun rt = new Staterun();
-      return rt;
-    }
-    return (Staterun) results.get(0);
-  }
+
+	/**
+	 * getStaterunByStaterunId(final int staterunId)
+	 *
+	 * @param final int staterunId
+	 *
+	 * @return staterun
+	 */
+
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public Staterun getStaterunByStaterunId (final int staterunId) {
+    		HashMap m = new HashMap();
+		m.put("staterunId", staterunId);
+
+		List<Staterun> results = (List<Staterun>) this.findByMap((Map) m);
+
+		if (results.size() == 0) {
+			Staterun rt = new Staterun();
+			return rt;
+		}
+		return (Staterun) results.get(0);
+	}
+
 
 
 }

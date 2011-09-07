@@ -1,10 +1,10 @@
 
 /**
  *
- * AcctGrantImpl.java 
+ * AcctGrantDaoImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the AcctGrant object
+ * the AcctGrant Dao Impl
  *
  *
  **/
@@ -30,23 +30,40 @@ import edu.yu.einstein.wasp.model.AcctGrant;
 @Repository
 public class AcctGrantDaoImpl extends WaspDaoImpl<AcctGrant> implements edu.yu.einstein.wasp.dao.AcctGrantDao {
 
-  public AcctGrantDaoImpl() {
-    super();
-    this.entityClass = AcctGrant.class;
-  }
+	/**
+	 * AcctGrantDaoImpl() Constructor
+	 *
+	 *
+	 */
+	public AcctGrantDaoImpl() {
+		super();
+		this.entityClass = AcctGrant.class;
+	}
 
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public AcctGrant getAcctGrantByGrantId (final int grantId) {
-    HashMap m = new HashMap();
-    m.put("grantId", grantId);
-    List<AcctGrant> results = (List<AcctGrant>) this.findByMap((Map) m);
-    if (results.size() == 0) {
-      AcctGrant rt = new AcctGrant();
-      return rt;
-    }
-    return (AcctGrant) results.get(0);
-  }
+
+	/**
+	 * getAcctGrantByGrantId(final int grantId)
+	 *
+	 * @param final int grantId
+	 *
+	 * @return acctGrant
+	 */
+
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public AcctGrant getAcctGrantByGrantId (final int grantId) {
+    		HashMap m = new HashMap();
+		m.put("grantId", grantId);
+
+		List<AcctGrant> results = (List<AcctGrant>) this.findByMap((Map) m);
+
+		if (results.size() == 0) {
+			AcctGrant rt = new AcctGrant();
+			return rt;
+		}
+		return (AcctGrant) results.get(0);
+	}
+
 
 
 }

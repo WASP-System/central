@@ -1,10 +1,10 @@
 
 /**
  *
- * JobSampleMetaImpl.java 
+ * JobSampleMetaDaoImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the JobSampleMeta object
+ * the JobSampleMeta Dao Impl
  *
  *
  **/
@@ -30,58 +30,94 @@ import edu.yu.einstein.wasp.model.JobSampleMeta;
 @Repository
 public class JobSampleMetaDaoImpl extends WaspDaoImpl<JobSampleMeta> implements edu.yu.einstein.wasp.dao.JobSampleMetaDao {
 
-  public JobSampleMetaDaoImpl() {
-    super();
-    this.entityClass = JobSampleMeta.class;
-  }
-
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public JobSampleMeta getJobSampleMetaByJobSampleMetaId (final int jobSampleMetaId) {
-    HashMap m = new HashMap();
-    m.put("jobSampleMetaId", jobSampleMetaId);
-    List<JobSampleMeta> results = (List<JobSampleMeta>) this.findByMap((Map) m);
-    if (results.size() == 0) {
-      JobSampleMeta rt = new JobSampleMeta();
-      return rt;
-    }
-    return (JobSampleMeta) results.get(0);
-  }
+	/**
+	 * JobSampleMetaDaoImpl() Constructor
+	 *
+	 *
+	 */
+	public JobSampleMetaDaoImpl() {
+		super();
+		this.entityClass = JobSampleMeta.class;
+	}
 
 
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public JobSampleMeta getJobSampleMetaByKJobsampleId (final String k, final int jobsampleId) {
-    HashMap m = new HashMap();
-    m.put("k", k);
-    m.put("jobsampleId", jobsampleId);
-    List<JobSampleMeta> results = (List<JobSampleMeta>) this.findByMap((Map) m);
-    if (results.size() == 0) {
-      JobSampleMeta rt = new JobSampleMeta();
-      return rt;
-    }
-    return (JobSampleMeta) results.get(0);
-  }
+	/**
+	 * getJobSampleMetaByJobSampleMetaId(final int jobSampleMetaId)
+	 *
+	 * @param final int jobSampleMetaId
+	 *
+	 * @return jobSampleMeta
+	 */
+
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public JobSampleMeta getJobSampleMetaByJobSampleMetaId (final int jobSampleMetaId) {
+    		HashMap m = new HashMap();
+		m.put("jobSampleMetaId", jobSampleMetaId);
+
+		List<JobSampleMeta> results = (List<JobSampleMeta>) this.findByMap((Map) m);
+
+		if (results.size() == 0) {
+			JobSampleMeta rt = new JobSampleMeta();
+			return rt;
+		}
+		return (JobSampleMeta) results.get(0);
+	}
 
 
 
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public void updateByJobsampleId (final int jobsampleId, final List<JobSampleMeta> metaList) {
+	/**
+	 * getJobSampleMetaByKJobsampleId(final String k, final int jobsampleId)
+	 *
+	 * @param final String k, final int jobsampleId
+	 *
+	 * @return jobSampleMeta
+	 */
 
-    getJpaTemplate().execute(new JpaCallback() {
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public JobSampleMeta getJobSampleMetaByKJobsampleId (final String k, final int jobsampleId) {
+    		HashMap m = new HashMap();
+		m.put("k", k);
+		m.put("jobsampleId", jobsampleId);
 
-      public Object doInJpa(EntityManager em) throws PersistenceException {
-        em.createNativeQuery("delete from jobSampleMeta where jobsampleId=:jobsampleId").setParameter("jobsampleId", jobsampleId).executeUpdate();
+		List<JobSampleMeta> results = (List<JobSampleMeta>) this.findByMap((Map) m);
 
-        for (JobSampleMeta m:metaList) {
-          em.persist(m);
-        }
+		if (results.size() == 0) {
+			JobSampleMeta rt = new JobSampleMeta();
+			return rt;
+		}
+		return (JobSampleMeta) results.get(0);
+	}
 
-        return null;
-      }
-    });
 
-  }
+
+	/**
+	 * updateByJobsampleId (final int jobsampleId, final List<JobSampleMeta> metaList)
+	 *
+	 * @param jobsampleId
+	 * @param metaList
+	 *
+	 */
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public void updateByJobsampleId (final int jobsampleId, final List<JobSampleMeta> metaList) {
+
+		getJpaTemplate().execute(new JpaCallback() {
+
+			public Object doInJpa(EntityManager em) throws PersistenceException {
+				em.createNativeQuery("delete from jobSampleMeta where jobsampleId=:jobsampleId").setParameter("jobsampleId", jobsampleId).executeUpdate();
+
+				for (JobSampleMeta m:metaList) {
+					m.setJobsampleId(jobsampleId);
+					em.persist(m);
+				}
+        			return null;
+			}
+		});
+	}
+
+
+
 }
 
