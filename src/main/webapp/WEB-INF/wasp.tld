@@ -44,7 +44,7 @@
 			 -->
 			<required>true</required>
 			<rtexprvalue>true</rtexprvalue>
-		</attribute>
+		</attribute>		
 		<attribute>
 			<description>The Collection or Map of objects used to generate the inner 'option' tags. If suppliying a collection then itemValue and itemLabel props are required</description>
 			<name>items</name>

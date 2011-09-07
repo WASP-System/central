@@ -44,6 +44,7 @@ public class JQFieldTag extends BodyTagSupport {
 	
 	private String object;
 	
+
 	private Type type;
 	
 	private Object items;
@@ -101,6 +102,16 @@ public class JQFieldTag extends BodyTagSupport {
 		this.name = name;
 	}
 
+	private String getValue(String key, ResourceBundle bundle, String defaultValue) {
+		
+		if (!bundle.containsKey(key)) {
+			bundle=ResourceBundle.getBundle("messages",Locale.ENGLISH);
+			if (!bundle.containsKey(key)) return defaultValue;
+			return (String)bundle.getObject(key);
+		}
+		
+		return (String)bundle.getObject(key);
+	}
 
 	public int doStartTag() throws javax.servlet.jsp.JspException {
 		
@@ -131,23 +142,28 @@ public class JQFieldTag extends BodyTagSupport {
 			else if(area.equals("sampleDraft")) clazz=SampleDraft.class;
 			else if(area.equals("sample")) clazz=Sample.class;
 			else if(area.equals("platformunit")) clazz=Sample.class;
-			else throw new JspTagException("unknown area "+object+" currently support user or lab");
+			else throw new JspTagException("unknown area "+object+"");
 		
-		boolean required=clazz.getDeclaredField(name).getAnnotation(org.hibernate.validator.constraints.NotEmpty.class)==null?false:true;
+			boolean required=clazz.getDeclaredField(name).getAnnotation(org.hibernate.validator.constraints.NotEmpty.class)==null?false:true;
 			
-		String label=name;
-		String error="error:'',\n";
+				
+			String error="error:'"+getValue(area+"."+name+".error",bundle,"")+"',\n";
+								
+			String label=getValue(area+"."+name+".label",bundle,name);
+				
+			String suffix=getValue(area+"."+name+".suffix",bundle,"");
 		
-		try {			
-			error="error:'"+bundle.getObject(area+"."+name+".error")+"',\n";
+			String editrules="{}";
+			String formoptions="{}";
 			
-		} catch (Throwable e) {			
-		}
-		
-		try {						
-			label=(String)bundle.getObject(area+"."+name+".label");
-		} catch (Throwable e) {			
-		}
+			if (required) {
+				editrules="{custom:true,custom_func:_validate_required}";
+				formoptions="{elmsuffix:'"+suffix+"<font color=red>*</font>'}";
+			} else {
+				formoptions="{elmsuffix:'"+suffix+"'}";
+			}
+			
+			
 		
 		String buf="var "+jsName+"={\n"+
 		 "name:'"+name+"',\n"+
@@ -161,7 +177,8 @@ public class JQFieldTag extends BodyTagSupport {
 				"	sortable:false,\n"+				
 				"	sorttype:'text',\n"+		
 				"	editable:true,\n"+
-				(required?"	editrules:{custom:true,custom_func:_validate_required},formoptions:{elmsuffix:'<font color=red>*</font>'},":"")+"\n"+
+				"   editrules:"+editrules+",\n"+
+				"   formoptions:"+formoptions+",\n"+
 				"	editoptions:{size:20}\n"+
 				"}\n\n"+
 		 "};\n";
@@ -186,23 +203,23 @@ public class JQFieldTag extends BodyTagSupport {
 			buf=buf+
 			jsName+".jq['edittype']='password';\n"+
 			jsName+".jq['hidden']=true;\n"+
-			jsName+".jq['search']=false;\n"+
-			jsName+".jq['editrules']={};\n"+
+			jsName+".jq['search']=false;\n"+			
 			jsName+".jq['editrules']['edithidden']=true;\n";
 		} else if (type==Type.hidden) { 
 			buf=buf+
 			jsName+".jq['edittype']='hidden';\n"+
 			jsName+".jq['hidden']=true;\n"+
 			jsName+".jq['search']=false;\n"+
-			jsName+".jq['editrules']={};\n"+
 			jsName+".jq['editrules']['edithidden']=false;\n";
 		} else if (type==Type.file) { 
 			buf=buf+
 			jsName+".jq['edittype']='file';\n"+
 			jsName+".jq['hidden']=false;\n"+
 			jsName+".jq['search']=false;\n"+
-			jsName+".jq['editrules']={};\n"+
-			jsName+".jq['editrules']['edithidden']=true;\n";			
+			jsName+".jq['editoptions']['alt']='Select Sample File to upload';\n"+
+			jsName+".jq['editoptions']['lang']='"+locale.getLanguage()+"';\n"+
+			jsName+".jq['editrules']['edithidden']=true;\n";		
+			 
 		}
 
 		buf=buf+
@@ -336,6 +353,8 @@ public class JQFieldTag extends BodyTagSupport {
 	   		}
 	   	}
 	
+	   	
+
 }
 
 

@@ -570,14 +570,15 @@ sampleDraft.status.constraint=NotEmpty
 sampleDraft.status.error=Please specify status
 
 sampleDraft.fileData.label=Sample File
+sampleDraft.fileData.suffix=(10Mb Max)
 
-sampleDraft.created.success=Sample Created
-sampleDraft.updated.success=Sample Updated
-sampleDraft.removed.success=Sample Removed
+sampleDraft.created.success=Sample Created. 
+sampleDraft.updated.success=Sample Updated. 
+sampleDraft.removed.success=Sample Removed. 
 
 sampleDraft.fileupload.started=File Upload Started. Please Wait ...
-sampleDraft.fileupload.done=File Upload Done
-sampleDraft.fileupload.empty=No File Selected
+sampleDraft.fileupload.done=File Upload Done.
+sampleDraft.fileupload.empty=No File Selected.
 
 --dynamic sampleDraft fields --
 sampleDraft.material_provided.label=material_provided

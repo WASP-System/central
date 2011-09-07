@@ -216,16 +216,11 @@ jQuery.extend({
         	
         	
         	 if (data) {
-        	
-        	 document.getElementById('uploadStatus').innerText='File Upload Error. For details click ';
-        	 
-        	 document.getElementById('uploadError').innerText = data+"";
-             
-             document.getElementById('uploadErrorInstrClick').style.visibility = 'visible';
-             document.getElementById('uploadErrorInstrClick').style.display = 'inline';
-
-             document.getElementById('uploadErrorInstrClick').innerText = "here";
-        	 }
+        	   $('#uploadStatus').css('color','red');
+        	   $('#uploadStatus').html('File Upload Error. For details click <a href="#" onclick="showUploadError();">here</a>');
+        	   $('#uploadError').hide();
+        	   $('#uploadError').html(data);        	   
+        	  }
              
         	// if we cant 'eval' data - just return it. 
         	// takes care of various unwanted 'plugins' that screw up our responses

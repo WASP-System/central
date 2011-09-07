@@ -35,17 +35,49 @@ html, body {
  
   $.jgrid.useJSON = true;
 
+  function odump(object, depth, max){
+  	depth = depth || 0;
+  	max = max || 2;
+
+  	if (depth > max)
+	    return false;
+
+  	var indent = "";
+  	for (var i = 0; i < depth; i++)
+	    indent += "  ";
+
+	  var output = "";  
+  	for (var key in object){
+	    output += "\n" + indent + key + ": ";
+	    switch (typeof object[key]){
+      	case "object": output += odump(object[key], depth + 1, max); break;
+      	case "function": output += "function"; break;
+      	default: {
+    	  try {
+    		  output += object[key]; break;  
+    	  } catch(e) {
+    		  output += key+' cant get value ';
+    		  break;
+    	  }
+    	          
+	      }
+    	}
+  	}
+  	return output;
+   }
+
+  
   function waspFade(el, msg) {
 		
-	  document.getElementById(el).innerText=msg;
-	
+	  $('#'+el).text(msg);
+	 
 	  setTimeout(function() {
 	  	  		
 	  	    	$('#'+el).fadeOut('slow',
 
 	  			function() {
 	  			      	
-	  	    		document.getElementById(el).innerText="";
+	  	    	    $('#'+el).text('');
 	  	    	
 	  	    	 	$('#'+el).show();
 	   				
@@ -54,37 +86,7 @@ html, body {
 	  			
   }
   
-  function odump(object, depth, max){
-  depth = depth || 0;
-  max = max || 2;
-
-  if (depth > max)
-    return false;
-
-  var indent = "";
-  for (var i = 0; i < depth; i++)
-    indent += "  ";
-
-  var output = "";  
-  for (var key in object){
-    output += "\n" + indent + key + ": ";
-    switch (typeof object[key]){
-      case "object": output += odump(object[key], depth + 1, max); break;
-      case "function": output += "function"; break;
-      default: {
-    	  try {
-    		  output += object[key]; break;  
-    	  } catch(e) {
-    		  output += key+' cant get value ';
-    		  break;
-    	  }
-    	          
-      }
-    }
-  }
-  return output;
-}
-
+ 
   
   function waspHandleError4(xhr, xml, status, ex)  {
      var error_msg = 'xhr:['+odump(xhr)+'] xml['+odump(xml)+'] status['+odump(status)+'] ex['+odump(ex)+']';           

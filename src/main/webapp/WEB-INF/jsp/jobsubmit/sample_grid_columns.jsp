@@ -3,7 +3,7 @@
 <wasp:field name="name"  type="text"/>
 <wasp:field name="typeSampleId" type="select" items="${typeSamples}" itemValue="typeSampleId" itemLabel="name"/>
 <wasp:field name="status" type="select" items="${statuses}" />
-<wasp:field name="fileData"  type="file"/>
+<wasp:field name="fileData" type="file" />
 
 
 _url='/wasp/jobsubmit/listSampleDraftsJSON.do?selId=${param.selId}&jobdraftId=${jobdraftId}';
@@ -40,10 +40,12 @@ _saveFormId=function(postdata, formid) {
             return [true,''];
 };
 
-
+function showUploadError() {
+	$('#uploadError').show();
+}
 
 function uploadDone(msg) { //Function will be called when iframe is loaded
-	 
+	  
 	   waspFade('uploadStatus',msg);
 	   
 	   $("#grid_id").trigger("reloadGrid");
