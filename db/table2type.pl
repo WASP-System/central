@@ -171,7 +171,7 @@ foreach $table (sort keys %$schema) {
  * $t->{'Table'}Dao.java 
  * \@author echeng (table2type.pl)
  *  
- * the $t->{'Table'}Dao object
+ * the $t->{'Table'} Dao 
  *
  *
  **/
@@ -194,10 +194,10 @@ public interface $t->{'Table'}Dao extends WaspDao<$t->{'Table'}> {
   $j_dao = qq|
 /**
  *
- * $t->{'Table'}Impl.java 
+ * $t->{'Table'}DaoImpl.java 
  * \@author echeng (table2type.pl)
  *  
- * the $t->{'Table'} object
+ * the $t->{'Table'} Dao Impl
  *
  *
  **/
@@ -236,7 +236,7 @@ public class $t->{'Table'}DaoImpl extends WaspDaoImpl<$t->{'Table'}> implements 
  * $t->{'Table'}Service.java 
  * \@author echeng (table2type.pl)
  *  
- * the $t->{'Table'}Service object
+ * the $t->{'Table'}Service
  *
  *
  **/
@@ -262,10 +262,10 @@ public interface $t->{'Table'}Service extends WaspService<$t->{'Table'}> {
   $j_service = qq|
 /**
  *
- * $t->{'Table'}Service.java 
+ * $t->{'Table'}ServiceImpl.java 
  * \@author echeng (table2type.pl)
  *  
- * the $t->{'Table'}Service object
+ * the $t->{'Table'}Service Implmentation 
  *
  *
  **/
@@ -409,47 +409,83 @@ public class $t->{'Table'}ServiceImpl extends WaspServiceImpl<$t->{'Table'}> imp
  * $t->{'Table'}.java 
  * \@author echeng (table2type.pl)
  *  
- * the $t->{'Table'} object
+ * the $t->{'Table'}
  *
  *
  */
 
 package edu.yu.einstein.wasp.model;
 
-import org.hibernate.*;
+import java.util.Date;
+import java.util.List;
+
+import javax.persistence.*;
+
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 
-import javax.persistence.*;
-import java.util.*;
+import org.hibernate.validator.constraints.*;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 
 \@Entity
 \@Audited
 \@Table(name="$t->{'_table'}")
-public class $t->{'Table'} extends WaspModel {
 |;
+
+  if ($t->{'Table'} =~ /meta/i ) {
+$j .= "public class $t->{'Table'} extends MetaBase {\n";
+  } else {
+$j .= "public class $t->{'Table'} extends WaspModel {\n";
+  }
 
   foreach my $colname (@{$t->{'colorder'}}) {
     $c = $t->{'cols'}->{$colname};
 
+    # supered colums in meta
+    if ($t->{'Table'} =~ /meta/i && 
+        $colname =~ /^(k|v|position|lastupdts|lastupduser)$/i ) {
+      next 
+    }
+
+    $j .= qq|
+	/** 
+	 * $c->{'var'}
+	 *
+	 */\n|;
+
     if ($c->{'pk'}) {
-      $j .= "  \@Id \@GeneratedValue(strategy=GenerationType.IDENTITY)\n";
+      $j .= "	\@Id \@GeneratedValue(strategy=GenerationType.IDENTITY)\n";
     } else {
 
-      $j .= qq|  \@Column(name="$c->{'_var'}")\n|;
+      $j .= qq|	\@Column(name="$c->{'_var'}")\n|;
     }
-    $j .= "  protected $c->{'t'} $c->{'var'};\n";
+    $j .= qq|	protected $c->{'t'} $c->{'var'};
 
-    $j .= "  public void set$c->{'Var'} ($c->{'t'} $c->{'var'}) {\n";
-    $j .= "    this.$c->{'var'} = $c->{'var'};\n";
-    $j .= "  }\n";
-    $j .= "  public $c->{'t'} get$c->{'Var'} () {\n";
-    $j .= "    return this.$c->{'var'};\n";
-    $j .= "  }\n";
-    $j .= "\n";
-    $j .= "\n";
+	/**
+	 * set$c->{'Var'}($c->{'t'} $c->{'var'})
+	 *
+	 * \@param $c->{'var'}
+	 *
+	 */
+	
+	public void set$c->{'Var'} ($c->{'t'} $c->{'var'}) {
+		this.$c->{'var'} = $c->{'var'};
+	}
+
+	/**
+	 * get$c->{'Var'}()
+	 *
+	 * \@return $c->{'var'}
+	 *
+	 */
+	public $c->{'t'} get$c->{'Var'} () {
+		return this.$c->{'var'};
+	}
+
+
+
+|;
   }
 
   $c = 0;
@@ -470,25 +506,41 @@ public class $t->{'Table'} extends WaspModel {
       $via = "Via" . $childc->{'Var'};
     }
 
-    $g  = ""; 
-    $j .= "\n";
-    $j .= "  \@NotAudited\n";
-    $j .= "  $jtype\n";
-    $j .= qq|   \@JoinColumn(name="$thisc->{'_var'}", insertable=false, updatable=false)\n|;
+    $g  = "";
 
-#    $j .= qq|  \@JoinTable(name="$parentt->{'table'}", |;
-#    $j .= qq|  joinColumns = \@JoinColumn(name="$parentc->{'_var'}", insertable=true, updatable=true)|;
-#    $j .= )\n|;
-    $j .= "  protected $parentt->{'Table'} $parentt->{'table'}$via;\n";
-    $j .= "  public void set$parentt->{'Table'}$via ($parentt->{'Table'} $parentt->{'table'}) {\n";
-    $j .= "    this.$parentt->{'table'} = $parentt->{'table'};\n";
-    $j .= "    this.$thisc->{'var'} = $parentt->{'table'}.$parentc->{'var'};\n";
-    $j .= "  }\n";
-    $j .= "  @JsonIgnore\n";
-    $j .= "  public $parentt->{'Table'} get$parentt->{'Table'}$via () {\n";
-    $j .= "    return this.$parentt->{'table'};\n";
-    $j .= "  }\n";
+    $j .= qq|
+	/**
+	 * $parentt->{'table'}$via
+	 *
+	 */
+	\@NotAudited
+	$jtype
+	\@JoinColumn(name="$thisc->{'_var'}", insertable=false, updatable=false)
+	protected $parentt->{'Table'} $parentt->{'table'}$via;
 
+	/**
+	 * set$parentt->{'Table'}$via ($parentt->{'Table'} $parentt->{'table'})
+	 *
+	 * \@param $parentt->{'table'}
+	 *
+	 */
+	public void set$parentt->{'Table'}$via ($parentt->{'Table'} $parentt->{'table'}) {
+		this.$parentt->{'table'} = $parentt->{'table'};
+		this.$thisc->{'var'} = $parentt->{'table'}.$parentc->{'var'};
+	}
+
+	/**
+	 * get$parentt->{'Table'}$via ()
+	 *
+	 * \@return $parentt->{'table'}
+	 *
+	 */
+	@JsonIgnore
+	public $parentt->{'Table'} get$parentt->{'Table'}$via () {
+		return this.$parentt->{'table'};
+	}
+
+|;
     $seen->{$parentt->{'_table'}}->{$parentc->{'var'}} = 1;
   }
 
@@ -514,21 +566,45 @@ public class $t->{'Table'} extends WaspModel {
       $via = "Via" . $childc->{'Var'}
     }
 
-    $j .= "  \@NotAudited\n";
-    $j .= "  $jtype\n";
-    $j .= qq|   \@JoinColumn(name="$fk->{'col'}", insertable=false, updatable=false)\n|;
+    $j .= qq|
+	/** 
+	 * $childt->{'table'}$via
+	 *
+	 */
+	\@NotAudited
+	$jtype
+	\@JoinColumn(name="$fk->{'col'}", insertable=false, updatable=false)
+	protected $rttype $childt->{'table'}$via;
+
+
+	/** 
+	 * get$childt->{'Table'}$via()
+	 *
+	 * \@return $childt->{'table'}$via
+	 *
+	 */
+	public $rttype get$childt->{'Table'}$via() {
+		return this.$childt->{'table'}$via;
+	}
+
+
+	/** 
+	 * set$childt->{'Table'}$via
+	 *
+	 * \@param $childt->{'table'}
+	 *
+	 */
+	public void set$childt->{'Table'}$via ($rttype $childt->{'table'}) {
+		this.$childt->{'table'}$via = $childt->{'table'};
+	}
+
+
+|;
+
+
     # $j .= qq|  \@JoinTable(name="$childt->{'table'}", |;
     # $j .= qq|  joinColumns = \@JoinColumn(name="$fk->{'col'}", insertable=false, updatable=false))\n|;
     
-    $j .= "  protected $rttype $childt->{'table'}$via;\n";
-    $j .= "  public $rttype get$childt->{'Table'}$via()";
-    $j .= "  {\n";
-    $j .= "    return this.$childt->{'table'}$via;\n";
-    $j .= "  }\n" ;
-    $j .= "  public void set$childt->{'Table'}$via ($rttype $childt->{'table'})";
-    $j .= "  {\n";
-    $j .= "    this.$childt->{'table'}$via = $childt->{'table'};\n";
-    $j .= "  }\n\n\n" ;
 
     $seen->{$childt->{'table'}} = 1;
   }
