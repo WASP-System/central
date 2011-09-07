@@ -140,9 +140,13 @@ public class JQFieldTag extends BodyTagSupport {
 		
 		try {			
 			error="error:'"+bundle.getObject(area+"."+name+".error")+"',\n";
+			
+		} catch (Throwable e) {			
+		}
+		
+		try {						
 			label=(String)bundle.getObject(area+"."+name+".label");
-		} catch (Throwable e) {
-			 
+		} catch (Throwable e) {			
 		}
 		
 		String buf="var "+jsName+"={\n"+

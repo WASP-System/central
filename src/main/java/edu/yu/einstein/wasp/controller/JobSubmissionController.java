@@ -101,6 +101,9 @@ public class JobSubmissionController extends WaspController {
 
 	@Autowired
 	private SampleMetaService sampleMetaService;
+	
+	@Autowired
+	private MetaValidator metaValidator;
 
 	@Autowired
 	private TypeSampleService typeSampleService;  
@@ -463,7 +466,7 @@ public class JobSubmissionController extends WaspController {
 						draft.getStatus(),
 						fileCell
 							
-				}));
+				})); 
 			
 				for(SampleDraftMeta meta:draftMeta) {
 					cellList.add(meta.getV());
@@ -634,9 +637,22 @@ public class JobSubmissionController extends WaspController {
 		int FILEBUFFERSIZE=1000000;//megabyte
 		
 		edu.yu.einstein.wasp.model.File file=fileService.findById(fileId);
-		
-		
-		
+		file=null;
+		if (file==null) {
+	    	String html="<html>\n"+
+	    	"<head>\n"+	    	
+	    	"</script>\n"+
+	    	"<body>\n"+
+	    	"<script>alert('Error: file id "+fileId+" not foud');</script>\n"+
+	    	"</body>\n";
+	    	response.setContentType( "text/html; charset=UTF-8" );
+	    	try {
+	    		response.getWriter().print(html);
+	    	} catch (Throwable e) {
+	    		throw new IllegalStateException("Cant output error message ",e);
+	    	}
+		    return null;
+		}
 		try {
 			ServletOutputStream out = response.getOutputStream();
 			
@@ -669,7 +685,7 @@ public class JobSubmissionController extends WaspController {
 			out.close();
 			return null;
 		} catch (Throwable e) {
-			throw new IllegalStateException("Cant output success message ",e);
+			throw new IllegalStateException("Cant download file id "+fileId,e);
 		}
 	}
 	

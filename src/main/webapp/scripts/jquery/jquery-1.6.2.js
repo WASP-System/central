@@ -6990,6 +6990,8 @@ jQuery.extend({
 		// Force options to be an object
 		options = options || {};
 
+		options.async=false;//Sasha
+		
 		var // Create the final options object
 			s = jQuery.ajaxSetup( {}, options ),
 			// Callbacks context

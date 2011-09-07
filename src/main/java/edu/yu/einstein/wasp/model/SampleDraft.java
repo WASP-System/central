@@ -25,9 +25,11 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.validation.constraints.Min;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
+import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 @Entity
@@ -48,15 +50,15 @@ public class SampleDraft extends WaspModel {
   }
   public int getSampleDraftId () {
     return this.sampleDraftId;
-  }
+  } 
 
 
-  @Column(name="typesampleid")
-  protected int typeSampleId;
-  public void setTypeSampleId (int typeSampleId) {
+  @Column(name="typesampleid")  
+  protected Integer typeSampleId;
+  public void setTypeSampleId (Integer typeSampleId) {
     this.typeSampleId = typeSampleId;
   }
-  public int getTypeSampleId () {
+  public Integer getTypeSampleId () {
     return this.typeSampleId;
   }
 
@@ -92,6 +94,7 @@ public class SampleDraft extends WaspModel {
 
 
   @Column(name="name")
+  @NotEmpty
   protected String name;
   public void setName (String name) {
     this.name = name;
@@ -101,7 +104,7 @@ public class SampleDraft extends WaspModel {
   }
 
 
-  @Column(name="status")
+  @Column(name="status")  
   protected String status;
   public void setStatus (String status) {
     this.status = status;

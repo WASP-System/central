@@ -70,8 +70,9 @@ jQuery.extend({
         var requestDone = false;
         // Create the request object
         var xml = {}   
-        if ( s.global )
+        if ( s.global ) {        	
             jQuery.event.trigger("ajaxSend", [xml, s]);
+        }
         // Wait for a response to come back
         var uploadCallback = function(isTimeout)
 		{			
@@ -210,6 +211,7 @@ jQuery.extend({
         	
         	if ((data+"")) {//ignore empty server response. Sasha
         		 data=(data+"").replace(/^\s*/, "").replace(/\s*$/, "");	//trim
+        		 if (data=='<div id="isChromeWebToolbarDiv" style="display:none"></div>') data='';
         	}
         	
         	
