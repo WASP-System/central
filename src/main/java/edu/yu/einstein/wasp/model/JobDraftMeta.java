@@ -4,19 +4,22 @@
  * JobDraftMeta.java 
  * @author echeng (table2type.pl)
  *  
- * the JobDraftMeta object
+ * the JobDraftMeta
  *
  *
  */
 
 package edu.yu.einstein.wasp.model;
 
-import org.hibernate.*;
+import java.util.Date;
+import java.util.List;
+
+import javax.persistence.*;
+
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 
-import javax.persistence.*;
-import java.util.*;
+import org.hibernate.validator.constraints.*;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 
@@ -24,36 +27,99 @@ import org.codehaus.jackson.annotate.JsonIgnore;
 @Audited
 @Table(name="jobdraftmeta")
 public class JobDraftMeta extends MetaBase {
-  @Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-  protected int jobDraftMetaId;
-  public void setJobDraftMetaId (int jobDraftMetaId) {
-    this.jobDraftMetaId = jobDraftMetaId;
-  }
-  public int getJobDraftMetaId () {
-    return this.jobDraftMetaId;
-  }
+
+	/** 
+	 * jobDraftMetaId
+	 *
+	 */
+	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
+	protected int jobDraftMetaId;
+
+	/**
+	 * setJobDraftMetaId(int jobDraftMetaId)
+	 *
+	 * @param jobDraftMetaId
+	 *
+	 */
+	
+	public void setJobDraftMetaId (int jobDraftMetaId) {
+		this.jobDraftMetaId = jobDraftMetaId;
+	}
+
+	/**
+	 * getJobDraftMetaId()
+	 *
+	 * @return jobDraftMetaId
+	 *
+	 */
+	public int getJobDraftMetaId () {
+		return this.jobDraftMetaId;
+	}
 
 
-  @Column(name="jobdraftid")
-  protected int jobdraftId;
-  public void setJobdraftId (int jobdraftId) {
-    this.jobdraftId = jobdraftId;
-  }
-  public int getJobdraftId () {
-    return this.jobdraftId;
-  }
 
-  @NotAudited
-  @ManyToOne
-   @JoinColumn(name="jobdraftid", insertable=false, updatable=false)
-  protected JobDraft jobDraft;
-  public void setJobDraft (JobDraft jobDraft) {
-    this.jobDraft = jobDraft;
-    this.jobdraftId = jobDraft.jobDraftId;
-  }
-  
-  public JobDraft getJobDraft () {
-    return this.jobDraft;
-  }
+
+	/** 
+	 * jobdraftId
+	 *
+	 */
+	@Column(name="jobdraftid")
+	protected int jobdraftId;
+
+	/**
+	 * setJobdraftId(int jobdraftId)
+	 *
+	 * @param jobdraftId
+	 *
+	 */
+	
+	public void setJobdraftId (int jobdraftId) {
+		this.jobdraftId = jobdraftId;
+	}
+
+	/**
+	 * getJobdraftId()
+	 *
+	 * @return jobdraftId
+	 *
+	 */
+	public int getJobdraftId () {
+		return this.jobdraftId;
+	}
+
+
+
+
+	/**
+	 * jobDraft
+	 *
+	 */
+	@NotAudited
+	@ManyToOne
+	@JoinColumn(name="jobdraftid", insertable=false, updatable=false)
+	protected JobDraft jobDraft;
+
+	/**
+	 * setJobDraft (JobDraft jobDraft)
+	 *
+	 * @param jobDraft
+	 *
+	 */
+	public void setJobDraft (JobDraft jobDraft) {
+		this.jobDraft = jobDraft;
+		this.jobdraftId = jobDraft.jobDraftId;
+	}
+
+	/**
+	 * getJobDraft ()
+	 *
+	 * @return jobDraft
+	 *
+	 */
+	
+	public JobDraft getJobDraft () {
+		return this.jobDraft;
+	}
+
 
 }

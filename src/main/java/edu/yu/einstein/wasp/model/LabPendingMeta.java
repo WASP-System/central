@@ -4,19 +4,22 @@
  * LabPendingMeta.java 
  * @author echeng (table2type.pl)
  *  
- * the LabPendingMeta object
+ * the LabPendingMeta
  *
  *
  */
 
 package edu.yu.einstein.wasp.model;
 
-import org.hibernate.*;
+import java.util.Date;
+import java.util.List;
+
+import javax.persistence.*;
+
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 
-import javax.persistence.*;
-import java.util.*;
+import org.hibernate.validator.constraints.*;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 
@@ -24,38 +27,99 @@ import org.codehaus.jackson.annotate.JsonIgnore;
 @Audited
 @Table(name="labpendingmeta")
 public class LabPendingMeta extends MetaBase {
-  @Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-  protected int labPendingMetaId;
-  public void setLabPendingMetaId (int labPendingMetaId) {
-    this.labPendingMetaId = labPendingMetaId;
-  }
-  public int getLabPendingMetaId () {
-    return this.labPendingMetaId;
-  }
+
+	/** 
+	 * labPendingMetaId
+	 *
+	 */
+	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
+	protected int labPendingMetaId;
+
+	/**
+	 * setLabPendingMetaId(int labPendingMetaId)
+	 *
+	 * @param labPendingMetaId
+	 *
+	 */
+	
+	public void setLabPendingMetaId (int labPendingMetaId) {
+		this.labPendingMetaId = labPendingMetaId;
+	}
+
+	/**
+	 * getLabPendingMetaId()
+	 *
+	 * @return labPendingMetaId
+	 *
+	 */
+	public int getLabPendingMetaId () {
+		return this.labPendingMetaId;
+	}
 
 
-  @Column(name="labpendingid")
-  protected int labpendingId;
-  public void setLabpendingId (int labpendingId) {
-    this.labpendingId = labpendingId;
-  }
-  public int getLabpendingId () {
-    return this.labpendingId;
-  }
+
+
+	/** 
+	 * labpendingId
+	 *
+	 */
+	@Column(name="labpendingid")
+	protected int labpendingId;
+
+	/**
+	 * setLabpendingId(int labpendingId)
+	 *
+	 * @param labpendingId
+	 *
+	 */
+	
+	public void setLabpendingId (int labpendingId) {
+		this.labpendingId = labpendingId;
+	}
+
+	/**
+	 * getLabpendingId()
+	 *
+	 * @return labpendingId
+	 *
+	 */
+	public int getLabpendingId () {
+		return this.labpendingId;
+	}
 
 
 
-  @NotAudited
-  @ManyToOne
-   @JoinColumn(name="labpendingid", insertable=false, updatable=false)
-  protected LabPending labPending;
-  public void setLabPending (LabPending labPending) {
-    this.labPending = labPending;
-    this.labpendingId = labPending.labPendingId;
-  }
-  
-  public LabPending getLabPending () {
-    return this.labPending;
-  }
+
+	/**
+	 * labPending
+	 *
+	 */
+	@NotAudited
+	@ManyToOne
+	@JoinColumn(name="labpendingid", insertable=false, updatable=false)
+	protected LabPending labPending;
+
+	/**
+	 * setLabPending (LabPending labPending)
+	 *
+	 * @param labPending
+	 *
+	 */
+	public void setLabPending (LabPending labPending) {
+		this.labPending = labPending;
+		this.labpendingId = labPending.labPendingId;
+	}
+
+	/**
+	 * getLabPending ()
+	 *
+	 * @return labPending
+	 *
+	 */
+	
+	public LabPending getLabPending () {
+		return this.labPending;
+	}
+
 
 }

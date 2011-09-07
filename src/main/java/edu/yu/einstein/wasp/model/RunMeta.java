@@ -4,19 +4,22 @@
  * RunMeta.java 
  * @author echeng (table2type.pl)
  *  
- * the RunMeta object
+ * the RunMeta
  *
  *
  */
 
 package edu.yu.einstein.wasp.model;
 
-import org.hibernate.*;
+import java.util.Date;
+import java.util.List;
+
+import javax.persistence.*;
+
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 
-import javax.persistence.*;
-import java.util.*;
+import org.hibernate.validator.constraints.*;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 
@@ -24,37 +27,99 @@ import org.codehaus.jackson.annotate.JsonIgnore;
 @Audited
 @Table(name="runmeta")
 public class RunMeta extends MetaBase {
-  @Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-  protected int runMetaId;
-  public void setRunMetaId (int runMetaId) {
-    this.runMetaId = runMetaId;
-  }
-  public int getRunMetaId () {
-    return this.runMetaId;
-  }
+
+	/** 
+	 * runMetaId
+	 *
+	 */
+	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
+	protected int runMetaId;
+
+	/**
+	 * setRunMetaId(int runMetaId)
+	 *
+	 * @param runMetaId
+	 *
+	 */
+	
+	public void setRunMetaId (int runMetaId) {
+		this.runMetaId = runMetaId;
+	}
+
+	/**
+	 * getRunMetaId()
+	 *
+	 * @return runMetaId
+	 *
+	 */
+	public int getRunMetaId () {
+		return this.runMetaId;
+	}
 
 
-  @Column(name="runid")
-  protected int runId;
-  public void setRunId (int runId) {
-    this.runId = runId;
-  }
-  public int getRunId () {
-    return this.runId;
-  }
 
 
-  @NotAudited
-  @ManyToOne
-   @JoinColumn(name="runid", insertable=false, updatable=false)
-  protected Run run;
-  public void setRun (Run run) {
-    this.run = run;
-    this.runId = run.runId;
-  }
-  
-  public Run getRun () {
-    return this.run;
-  }
+	/** 
+	 * runId
+	 *
+	 */
+	@Column(name="runid")
+	protected int runId;
+
+	/**
+	 * setRunId(int runId)
+	 *
+	 * @param runId
+	 *
+	 */
+	
+	public void setRunId (int runId) {
+		this.runId = runId;
+	}
+
+	/**
+	 * getRunId()
+	 *
+	 * @return runId
+	 *
+	 */
+	public int getRunId () {
+		return this.runId;
+	}
+
+
+
+
+	/**
+	 * run
+	 *
+	 */
+	@NotAudited
+	@ManyToOne
+	@JoinColumn(name="runid", insertable=false, updatable=false)
+	protected Run run;
+
+	/**
+	 * setRun (Run run)
+	 *
+	 * @param run
+	 *
+	 */
+	public void setRun (Run run) {
+		this.run = run;
+		this.runId = run.runId;
+	}
+
+	/**
+	 * getRun ()
+	 *
+	 * @return run
+	 *
+	 */
+	
+	public Run getRun () {
+		return this.run;
+	}
+
 
 }

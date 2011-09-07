@@ -4,19 +4,22 @@
  * UserMeta.java 
  * @author echeng (table2type.pl)
  *  
- * the UserMeta object
+ * the UserMeta
  *
  *
  */
 
 package edu.yu.einstein.wasp.model;
 
-import org.hibernate.*;
+import java.util.Date;
+import java.util.List;
+
+import javax.persistence.*;
+
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 
-import javax.persistence.*;
-import java.util.*;
+import org.hibernate.validator.constraints.*;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 
@@ -24,36 +27,99 @@ import org.codehaus.jackson.annotate.JsonIgnore;
 @Audited
 @Table(name="usermeta")
 public class UserMeta extends MetaBase {
-  @Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-  protected int userMetaId;
-  public void setUserMetaId (int userMetaId) {
-    this.userMetaId = userMetaId;
-  }
-  public int getUserMetaId () {
-    return this.userMetaId;
-  }
+
+	/** 
+	 * userMetaId
+	 *
+	 */
+	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
+	protected int userMetaId;
+
+	/**
+	 * setUserMetaId(int userMetaId)
+	 *
+	 * @param userMetaId
+	 *
+	 */
+	
+	public void setUserMetaId (int userMetaId) {
+		this.userMetaId = userMetaId;
+	}
+
+	/**
+	 * getUserMetaId()
+	 *
+	 * @return userMetaId
+	 *
+	 */
+	public int getUserMetaId () {
+		return this.userMetaId;
+	}
 
 
-  @Column(name="userid")
-  protected int UserId;
-  public void setUserId (int UserId) {
-    this.UserId = UserId;
-  }
-  public int getUserId () {
-    return this.UserId;
-  }
 
-  @NotAudited
-  @ManyToOne
-   @JoinColumn(name="userid", insertable=false, updatable=false)
-  protected User user;
-  public void setUser (User user) {
-    this.user = user;
-    this.UserId = user.UserId;
-  }
-  
-  public User getUser () {
-    return this.user;
-  }
+
+	/** 
+	 * UserId
+	 *
+	 */
+	@Column(name="userid")
+	protected int UserId;
+
+	/**
+	 * setUserId(int UserId)
+	 *
+	 * @param UserId
+	 *
+	 */
+	
+	public void setUserId (int UserId) {
+		this.UserId = UserId;
+	}
+
+	/**
+	 * getUserId()
+	 *
+	 * @return UserId
+	 *
+	 */
+	public int getUserId () {
+		return this.UserId;
+	}
+
+
+
+
+	/**
+	 * user
+	 *
+	 */
+	@NotAudited
+	@ManyToOne
+	@JoinColumn(name="userid", insertable=false, updatable=false)
+	protected User user;
+
+	/**
+	 * setUser (User user)
+	 *
+	 * @param user
+	 *
+	 */
+	public void setUser (User user) {
+		this.user = user;
+		this.UserId = user.UserId;
+	}
+
+	/**
+	 * getUser ()
+	 *
+	 * @return user
+	 *
+	 */
+	
+	public User getUser () {
+		return this.user;
+	}
+
 
 }

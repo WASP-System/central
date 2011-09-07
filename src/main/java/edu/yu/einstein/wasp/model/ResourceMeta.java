@@ -4,19 +4,22 @@
  * ResourceMeta.java 
  * @author echeng (table2type.pl)
  *  
- * the ResourceMeta object
+ * the ResourceMeta
  *
  *
  */
 
 package edu.yu.einstein.wasp.model;
 
-import org.hibernate.*;
+import java.util.Date;
+import java.util.List;
+
+import javax.persistence.*;
+
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 
-import javax.persistence.*;
-import java.util.*;
+import org.hibernate.validator.constraints.*;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 
@@ -24,39 +27,99 @@ import org.codehaus.jackson.annotate.JsonIgnore;
 @Audited
 @Table(name="resourcemeta")
 public class ResourceMeta extends MetaBase {
-  @Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-  protected int resourceMetaId;
-  public void setResourceMetaId (int resourceMetaId) {
-    this.resourceMetaId = resourceMetaId;
-  }
-  public int getResourceMetaId () {
-    return this.resourceMetaId;
-  }
+
+	/** 
+	 * resourceMetaId
+	 *
+	 */
+	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
+	protected int resourceMetaId;
+
+	/**
+	 * setResourceMetaId(int resourceMetaId)
+	 *
+	 * @param resourceMetaId
+	 *
+	 */
+	
+	public void setResourceMetaId (int resourceMetaId) {
+		this.resourceMetaId = resourceMetaId;
+	}
+
+	/**
+	 * getResourceMetaId()
+	 *
+	 * @return resourceMetaId
+	 *
+	 */
+	public int getResourceMetaId () {
+		return this.resourceMetaId;
+	}
 
 
-  @Column(name="resourceid")
-  protected int resourceId;
-  public void setResourceId (int resourceId) {
-    this.resourceId = resourceId;
-  }
-  public int getResourceId () {
-    return this.resourceId;
-  }
+
+
+	/** 
+	 * resourceId
+	 *
+	 */
+	@Column(name="resourceid")
+	protected int resourceId;
+
+	/**
+	 * setResourceId(int resourceId)
+	 *
+	 * @param resourceId
+	 *
+	 */
+	
+	public void setResourceId (int resourceId) {
+		this.resourceId = resourceId;
+	}
+
+	/**
+	 * getResourceId()
+	 *
+	 * @return resourceId
+	 *
+	 */
+	public int getResourceId () {
+		return this.resourceId;
+	}
 
 
 
 
-  @NotAudited
-  @ManyToOne
-   @JoinColumn(name="resourceid", insertable=false, updatable=false)
-  protected Resource resource;
-  public void setResource (Resource resource) {
-    this.resource = resource;
-    this.resourceId = resource.resourceId;
-  }
-  
-  public Resource getResource () {
-    return this.resource;
-  }
+	/**
+	 * resource
+	 *
+	 */
+	@NotAudited
+	@ManyToOne
+	@JoinColumn(name="resourceid", insertable=false, updatable=false)
+	protected Resource resource;
+
+	/**
+	 * setResource (Resource resource)
+	 *
+	 * @param resource
+	 *
+	 */
+	public void setResource (Resource resource) {
+		this.resource = resource;
+		this.resourceId = resource.resourceId;
+	}
+
+	/**
+	 * getResource ()
+	 *
+	 * @return resource
+	 *
+	 */
+	
+	public Resource getResource () {
+		return this.resource;
+	}
+
 
 }
