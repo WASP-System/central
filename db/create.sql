@@ -613,7 +613,7 @@ insert into typesample values
 (2, 'tissue', 'Tissue'),
 (3, 'library', 'Library'),
 (4, 'lane', 'Lane'), 
-(5, 'flowcell', 'Cassette');
+(5, 'platformunit', 'Platform Unit');
 
 create table subtypesample (
   subtypesampleid int(10) not null primary key auto_increment,
