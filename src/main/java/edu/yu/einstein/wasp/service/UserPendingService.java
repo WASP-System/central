@@ -27,8 +27,7 @@ public interface UserPendingService extends WaspService<UserPending> {
   public UserPendingDao getUserPendingDao();
 
   public UserPending getUserPendingByUserPendingId (final int userPendingId);
-  
-  public UserPending getUserPendingByEmail (final String email);
+ 
 
 }
 

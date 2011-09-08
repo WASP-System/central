@@ -164,8 +164,6 @@ userPending.phone.constraint=NotEmpty
 userPending.phone.metaposition=90
 
 userPending.fax.label=Fax
-userPending.fax.error=Fax cannot be empty
-userPending.fax.constraint=NotEmpty
 userPending.fax.metaposition=100
 
 
@@ -243,8 +241,6 @@ piPending.phone.constraint=NotEmpty
 piPending.phone.metaposition=90
 
 piPending.fax.label=Fax
-piPending.fax.error=Fax cannot be empty
-piPending.fax.constraint=NotEmpty
 piPending.fax.metaposition=100
 
 

@@ -22,8 +22,6 @@ import org.springframework.stereotype.Repository;
 public interface UserPendingDao extends WaspDao<UserPending> {
 
   public UserPending getUserPendingByUserPendingId (final int userPendingId);
-  
-  public UserPending getUserPendingByEmail (final String email);
 
 }
 

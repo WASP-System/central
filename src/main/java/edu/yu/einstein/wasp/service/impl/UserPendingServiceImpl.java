@@ -41,10 +41,7 @@ public class UserPendingServiceImpl extends WaspServiceImpl<UserPending> impleme
 
   // **
 
-  public UserPending getUserPendingByEmail (final String email) {
-	    return this.getUserPendingDao().getUserPendingByEmail(email);
-	  }
-  
+    
   public UserPending getUserPendingByUserPendingId (final int userPendingId) {
     return this.getUserPendingDao().getUserPendingByUserPendingId(userPendingId);
   }

@@ -49,18 +49,5 @@ public class UserPendingDaoImpl extends WaspDaoImpl<UserPending> implements edu.
     return (UserPending) results.get(0);
   }
 
-  @SuppressWarnings("unchecked")
-  @Transactional
-  public UserPending getUserPendingByEmail (final String email) {
-    HashMap m = new HashMap();
-    m.put("email", email);
-    List<UserPending> results = (List<UserPending>) this.findByMap((Map) m);
-    if (results.size() == 0) {
-    	UserPending rt = new UserPending();
-      return rt;
-    }
-    return (UserPending) results.get(0);
-  }
-
 }
 

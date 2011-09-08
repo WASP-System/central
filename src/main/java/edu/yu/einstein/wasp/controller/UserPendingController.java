@@ -110,14 +110,12 @@ public class UserPendingController extends WaspController {
 
 		metaHelper.validate(new UserPendingMetaValidatorImpl(userService, labService), userPendingMetaList, result);
 	
-		// TODO USING STRING!
 		passwordValidator.validate(result, userPendingForm.getPassword(), (String) request.getParameter("password2"), metaHelper.getParentArea(), "password");
 		
 		if (! result.hasFieldErrors("email")){
 			Errors errors=new BindException(result.getTarget(), metaHelper.getParentArea());
 			User user = userService.getUserByEmail(userPendingForm.getEmail());
-			UserPending userPending = userPendingService.getUserPendingByEmail(userPendingForm.getEmail());
-			if (user.getUserId() != 0 || userPending.getUserPendingId() != 0){
+			if (user.getUserId() != 0 ){
 				errors.rejectValue("email", metaHelper.getParentArea()+".email_exists.error", metaHelper.getParentArea()+".email_exists.error (no message has been defined for this property)");
 			}
 			result.addAllErrors(errors);
@@ -130,9 +128,6 @@ public class UserPendingController extends WaspController {
 		}
 		
 		
-		
-		
-		
 		String piUserEmail = "";
 		
 		for (UserPendingMeta meta : userPendingMetaList) {
@@ -141,14 +136,9 @@ public class UserPendingController extends WaspController {
 				break;
 			}
 		} 
-		User primaryInvestigator = userService.getUserByEmail(piUserEmail);
-		Lab lab = labService.getLabByPrimaryUserId(primaryInvestigator.getUserId());
-
-
+		Lab lab = labService.getLabByPrimaryUserId(userService.getUserByEmail(piUserEmail).getUserId());
 		userPendingForm.setLabId(lab.getLabId());
 		userPendingForm.setStatus("PENDING");
-		
-
 		userPendingForm.setPassword( passwordService.encodePassword(userPendingForm.getPassword()) ); 
 
 
