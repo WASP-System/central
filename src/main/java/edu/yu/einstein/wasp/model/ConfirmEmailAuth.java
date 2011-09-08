@@ -25,7 +25,7 @@ import org.codehaus.jackson.annotate.JsonIgnore;
 
 @Entity
 @Audited
-@Table(name="confirmEmailAuth")
+@Table(name="confirmemailauth")
 public class ConfirmEmailAuth extends WaspModel {
 
 	/** 
