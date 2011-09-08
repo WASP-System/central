@@ -615,11 +615,34 @@ insert into typesample values
 (4, 'lane', 'Lane'), 
 (5, 'flowcell', 'Cassette');
 
+create table subtypesample (
+  subtypesampleid int(10) not null primary key auto_increment,
+
+  typesampleid int(10) not null,
+
+  iname varchar(50) not null, -- meta field prefix
+  name varchar(250) not null,
+
+  constraint unique index u_subtypesample_iname (iname),
+  foreign key fk_subtypesample_tsid (typesampleid) references typesample(typesampleid)
+) ENGINE=InnoDB;
+
+create table workflowsubtypesample (
+  workflowsubtypesampleid int(10) not null primary key auto_increment,
+  workflowid int(10) not null,
+  subtypesampleid int(10) not null,
+ 
+  constraint unique index u_subtypesample_wid_stsid (workflowid, subtypesampleid),
+
+  foreign key fk_workflowsubtypesample_stsid (subtypesampleid) references subtypesample(subtypesampleid),
+  foreign key fk_workflowsubtypesample_wid (workflowid) references workflow(workflowid)
+) ENGINE=InnoDB;
 
 create table sample (
   sampleid int(10) not null primary key auto_increment,
 
   typesampleid int(10) not null,
+  subtypesampleid int(10),
 
   submitter_labid int(10) not null,
   submitter_userid int(10) not null,
@@ -637,6 +660,7 @@ create table sample (
   lastupduser int(10) not null default 0,
 
   foreign key fk_sample_tsid (typesampleid) references typesample(typesampleid),
+  foreign key fk_sample_stsid (subtypesampleid) references subtypesample(subtypesampleid),
   foreign key fk_sample_sjid (submitter_jobid) references job(jobid),
   foreign key fk_sample_slid (submitter_labid) references lab(labid),
   foreign key fk_sample_suid (submitter_userid) references user(userid)
@@ -715,6 +739,7 @@ create table samplelab (
 create table sampledraft (
   sampledraftid int(10) not null primary key auto_increment,
   typesampleid int(10) not null,
+  subtypesampleid int(10) not null,
 
   labid int(10) not null,
   userid int(10) not null,
@@ -727,6 +752,7 @@ create table sampledraft (
   lastupduser int(10) not null default 0,
 
   foreign key fk_sampledraft_tsid (typesampleid) references typesample(typesampleid),
+  foreign key fk_sampledraft_stsid (subtypesampleid) references subtypesample(subtypesampleid),
   foreign key fk_sampledraft_sjid (jobdraftid) references jobdraft(jobdraftid),
   foreign key fk_sampledraft_slid (labid) references lab(labid),
   foreign key fk_sampledraft_suid (userid) references user(userid)
