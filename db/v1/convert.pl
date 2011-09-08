@@ -304,6 +304,30 @@ foreach my $workflow (sort keys %$workflows) {
 print $out;
 $out = "";
 
+$out = qq|
+insert into subtypesample 
+select 
+  workflowid * 10 + s.typesampleid, s.typesampleid, concat(w.iname, s.iname, 'Sample'), concat(w.name, ' ', s.name, ' Sample')
+from workflow w, typesample s
+where
+  typesampleid in (1, 3);
+|;
+print $out;
+$out = "";
+
+$out = qq|
+insert into workflowsubtypesample
+  (workflowid, subtypesampleid)
+select
+  workflowid, t.subtypesampleid
+from 
+  workflow w, typesample s, subtypesample t
+where
+  concat(w.iname, s.iname, 'Sample') = t.iname;
+|;
+print $out;
+$out = "";
+
 ###########################################################
 # JOB table
 
