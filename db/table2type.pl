@@ -38,6 +38,7 @@ foreach my $block (split /\s*;\s*/, $fc) {
 
 
   $table =~ s/^type(.)/"type\U$1"/e;
+  $table =~ s/^subtype(.)/"subtype\U$1"/e;
   $table =~ s/(.)user$/$1User/;
   $table =~ s/(.)pendingmeta$/$1PendingMeta/;
   $table =~ s/(.)pending$/$1Pending/;
@@ -129,6 +130,7 @@ foreach my $block (split /\s*;\s*/, $fc) {
       $var =~ s/(.)name$/$1Name/;
       $var =~ s/^is(.)/"is\U$1"/e;
       $var =~ s/^type(.)/"type\U$1"/e;
+      $var =~ s/^subtype(.)/"subtype\U$1"/e;
       $var =~ s/_(.)/"\U$1"/gie;
 
       $Var = $var;
@@ -259,8 +261,21 @@ import org.springframework.stereotype.Service;
 \@Service
 public interface $t->{'Table'}Service extends WaspService<$t->{'Table'}> {
 
-  public void set$t->{'Table'}Dao($t->{'Table'}Dao $t->{'table'}Dao);
-  public $t->{'Table'}Dao get$t->{'Table'}Dao();
+	/**
+	 * set$t->{'Table'}Dao($t->{'Table'}Dao $t->{'table'}Dao)
+	 *
+	 * \@param $t->{'table'}Dao
+	 *
+	 */
+	public void set$t->{'Table'}Dao($t->{'Table'}Dao $t->{'table'}Dao);
+
+	/**
+	 * get$t->{'Table'}Dao();
+	 *
+	 * \@return $t->{'table'}Dao
+	 *
+	 */
+	public $t->{'Table'}Dao get$t->{'Table'}Dao();
 
 |;
 
@@ -294,19 +309,35 @@ import org.springframework.transaction.annotation.Transactional;
 \@Service
 public class $t->{'Table'}ServiceImpl extends WaspServiceImpl<$t->{'Table'}> implements $t->{'Table'}Service {
 
-  private $t->{'Table'}Dao $t->{'table'}Dao;
-  \@Autowired
-  public void set$t->{'Table'}Dao($t->{'Table'}Dao $t->{'table'}Dao) {
-    this.$t->{'table'}Dao = $t->{'table'}Dao;
-    this.setWaspDao($t->{'table'}Dao);
-  }
-  public $t->{'Table'}Dao get$t->{'Table'}Dao() {
-    return this.$t->{'table'}Dao;
-  }
+	/**
+	 * $t->{'table'}Dao;
+	 *
+	 */
+	private $t->{'Table'}Dao $t->{'table'}Dao;
 
-  // **
+	/**
+	 * set$t->{'Table'}Dao($t->{'Table'}Dao $t->{'table'}Dao)
+	 *
+	 * \@param $t->{'table'}Dao
+	 *
+	 */
+	\@Autowired
+	public void set$t->{'Table'}Dao($t->{'Table'}Dao $t->{'table'}Dao) {
+		this.$t->{'table'}Dao = $t->{'table'}Dao;
+		this.setWaspDao($t->{'table'}Dao);
+	}
 
-  |;
+	/**
+	 * get$t->{'Table'}Dao();
+	 *
+	 * \@return $t->{'table'}Dao
+	 *
+	 */
+	public $t->{'Table'}Dao get$t->{'Table'}Dao() {
+		return this.$t->{'table'}Dao;
+	}
+
+|;
 
 
   foreach my $u (@{$t->{'uniq'}}) {
@@ -404,7 +435,7 @@ $c
 		getJpaTemplate().execute(new JpaCallback() {
 
 			public Object doInJpa(EntityManager em) throws PersistenceException {
-				em.createNativeQuery("delete from $t->{'table'} where $var=:$var").setParameter("$var", $var).executeUpdate();
+				em.createNativeQuery("delete from $table where $var=:$var").setParameter("$var", $var).executeUpdate();
 
 				for ($t->{'Table'} m:metaList) {
 					m.set$Var($var);
