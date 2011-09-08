@@ -24,8 +24,6 @@ import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
-import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -33,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
 
+import edu.yu.einstein.wasp.controller.validator.Constraint;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabUser;
@@ -44,8 +43,7 @@ import edu.yu.einstein.wasp.model.UserMeta;
 import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.service.PasswordService;
 import edu.yu.einstein.wasp.service.UserMetaService;
-import edu.yu.einstein.wasp.controller.validator.Constraint;
-import edu.yu.einstein.wasp.controller.validator.MetaValidator;
+import edu.yu.einstein.wasp.taglib.JQFieldTag;
 
 @Controller
 @Transactional
@@ -70,9 +68,13 @@ public class UserController extends WaspController {
 	public String list(ModelMap m) {
 		
 		m.addAttribute("_metaList", metaHelper.getMasterList(MetaBase.class));
-		m.addAttribute("_area", metaHelper.getArea());		
+		m.addAttribute(JQFieldTag.AREA_ATTR, metaHelper.getArea());		
+		
 		
 		prepareSelectListData(m);
+		
+		
+		
 		return "user-list";
 	}
 	

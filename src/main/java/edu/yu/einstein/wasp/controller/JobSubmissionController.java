@@ -560,55 +560,63 @@ public class JobSubmissionController extends WaspController {
 		return null;
 	}
   
-    @RequestMapping(value = "/updateSampleDrafts", method = RequestMethod.POST)		
-    public String updateDetailJSON(@RequestParam("id") Integer sampleDraftId,SampleDraft sampleDraftForm, ModelMap m, HttpServletResponse response) {
+	@RequestMapping(value = "/updateSampleDraft", method = RequestMethod.POST)
+	public String updateDetailJSON(@RequestParam("id") Integer sampleDraftId,
+			SampleDraft sampleDraftForm, ModelMap m,
+			HttpServletResponse response) {
 
+		MetaHelper sampleMetaHelper = new MetaHelper("sampleDraft",
+				SampleDraftMeta.class);
+		List<SampleDraftMeta> sampleDraftMetaList = sampleMetaHelper
+				.getFromJsonForm(request, SampleDraftMeta.class);
 
-    MetaHelper sampleMetaHelper = new MetaHelper("sampleDraft", SampleDraftMeta.class);	
-	List<SampleDraftMeta> sampleDraftMetaList = sampleMetaHelper.getFromJsonForm(request, SampleDraftMeta.class);
-	
-	sampleDraftForm.setSampleDraftMeta(sampleDraftMetaList);
+		sampleDraftForm.setSampleDraftMeta(sampleDraftMetaList);
 
-	boolean adding=sampleDraftId==0;
-	
-	//get from jobdraft table
-	JobDraft jd=jobDraftService.findById(sampleDraftForm.getJobdraftId());
-	sampleDraftForm.setUserId(jd.getUserId());
-	sampleDraftForm.setLabId(jd.getLabId());
-	
-	
-	if (adding) {
-				
-		SampleDraft sampleDraftDb = this.sampleDraftService.save(sampleDraftForm);
-		
-		sampleDraftId=sampleDraftDb.getSampleDraftId();
-	} else {
-		
-		SampleDraft sampleDraftDb = this.sampleDraftService.getById(sampleDraftId);
-		
-		sampleDraftDb.setName(sampleDraftForm.getName());			
-		sampleDraftDb.setStatus(sampleDraftForm.getStatus());
-		sampleDraftDb.setTypeSampleId(sampleDraftForm.getTypeSampleId());
+		boolean adding = sampleDraftId == 0;
 
-		this.sampleDraftService.merge(sampleDraftDb);
+		// get from jobdraft table
+		JobDraft jd = jobDraftService.findById(sampleDraftForm.getJobdraftId());
+		sampleDraftForm.setUserId(jd.getUserId());
+		sampleDraftForm.setLabId(jd.getLabId());
+
+		if (adding) {
+
+			SampleDraft sampleDraftDb = this.sampleDraftService
+					.save(sampleDraftForm);
+
+			sampleDraftId = sampleDraftDb.getSampleDraftId();
+		} else {
+
+			SampleDraft sampleDraftDb = this.sampleDraftService
+					.getById(sampleDraftId);
+
+			sampleDraftDb.setName(sampleDraftForm.getName());
+			sampleDraftDb.setStatus(sampleDraftForm.getStatus());
+			sampleDraftDb.setTypeSampleId(sampleDraftForm.getTypeSampleId());
+
+			this.sampleDraftService.merge(sampleDraftDb);
+		}
+
+		for (SampleDraftMeta meta : sampleDraftMetaList) {
+			meta.setSampledraftId(sampleDraftId);
+		}
+
+		sampleDraftMetaService.updateBySampledraftId(sampleDraftId,
+				sampleDraftMetaList);
+
+		try {
+			response.getWriter()
+					.println(
+							sampleDraftId
+									+ "|"
+									+ (adding ? getMessage("sampleDraft.created.success")
+											: getMessage("sampleDraft.updated.success")));
+			return null;
+
+		} catch (Throwable e) {
+			throw new IllegalStateException("Cant output success message ", e);
+		}
 	}
-
-
-	for (SampleDraftMeta meta : sampleDraftMetaList) {
-		meta.setSampledraftId(sampleDraftId);
-	}
-
-	sampleDraftMetaService.updateBySampledraftId(sampleDraftId, sampleDraftMetaList);
-	
-	try {			
-		response.getWriter().println(sampleDraftId+"|"+(adding?getMessage("sampleDraft.created.success"):getMessage("sampleDraft.updated.success")));		
-		return null;
-		
-	} catch (Throwable e) {
-		throw new IllegalStateException("Cant output success message ",e);
-	}
-}
-	
 	
 	
 	@RequestMapping(value = "/deleteSampleDraftJSON", method = RequestMethod.DELETE)	
@@ -631,7 +639,7 @@ public class JobSubmissionController extends WaspController {
 		int FILEBUFFERSIZE=1000000;//megabyte
 		
 		edu.yu.einstein.wasp.model.File file=fileService.findById(fileId);
-		file=null;
+		
 		if (file==null) {
 	    	String html="<html>\n"+
 	    	"<head>\n"+	    	

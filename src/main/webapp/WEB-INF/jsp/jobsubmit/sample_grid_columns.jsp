@@ -3,30 +3,10 @@
 <wasp:field name="name"  type="text"/>
 <wasp:field name="typeSampleId" type="select" items="${typeSamples}" itemValue="typeSampleId" itemLabel="name"/>
 <wasp:field name="status" type="select" items="${statuses}" />
-<wasp:field name="fileData" type="file" />
+<wasp:field name="fileData" type="file" >
 
-
-_url='/wasp/jobsubmit/listSampleDraftsJSON.do?selId=${param.selId}&jobdraftId=${jobdraftId}';
-
-_editurl='/wasp/jobsubmit/updateSampleDrafts.do?jobdraftId=${jobdraftId}';
-
-_navAttr.search=false;
-_navAttr.delfunc=null;
-_delAttr=
-{ // Delete parameters
-        ajaxDelOptions: { contentType: "application/json" },
-        mtype: "DELETE",
-        serializeDelData: function () {
-            return ""; 
-        },
-        onclickSubmit: function (params, postdata) {        	
-            params.url = '/wasp/jobsubmit/deleteSampleDraftJSON.do?id=' + encodeURIComponent(postdata);
-        },
-        afterSubmit: _afterSubmit
-};
-
+<%-- file upload custom stuff--%>
 var lastForm=null;
-//var waspFrameId=null;
 
 _saveFormId=function(postdata, formid) {
 
@@ -35,8 +15,7 @@ _saveFormId=function(postdata, formid) {
 			} else {
 				lastForm=null;
 			}
-             
-             
+                          
             return [true,''];
 };
 
@@ -107,6 +86,20 @@ _addAttr.afterSubmit  = _uploadAfterSubmit;
 _editAttr.afterSubmit = _uploadAfterSubmit;
  
  
+</wasp:field>
+
+<wasp:delete url="/wasp/jobsubmit/deleteSampleDraftJSON.do" />
+
+<%--   url to get list of sample drafts for jobdraftId  --%>
+_url='/wasp/jobsubmit/listSampleDraftsJSON.do?jobdraftId=${jobdraftId}';
+
+<%--   url to update sinmgle sample draft  --%>
+_editurl='/wasp/jobsubmit/updateSampleDraft.do?jobdraftId=${jobdraftId}';
+
+<%-- disable search --%>
+_navAttr.search=false;
+
+
  
 
   

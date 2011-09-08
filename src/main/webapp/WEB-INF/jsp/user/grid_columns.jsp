@@ -1,8 +1,8 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
-<wasp:field name="login" object="user" type="text"/>
+<wasp:field name="login" type="text"/>
 
-<wasp:field name="password" object="user" type="password">
+<wasp:field name="password" type="password">
 //Password is required on Add screen and is optional on Edit screen
 //We cannot require password on Edit screen because we cannot pre-populate it (it's hashed) 
 _beforeShowAddForm = function (formId) {
@@ -19,17 +19,17 @@ _beforeShowEditForm = function (formId) {
 };
 </wasp:field>
 
-<wasp:field name="firstName" object="user" type="text"/>
+<wasp:field name="firstName" type="text"/>
 
-<wasp:field name="lastName" object="user" type="text"/>
+<wasp:field name="lastName" type="text"/>
 
-<wasp:field name="email" object="user" type="text">
+<wasp:field name="email" type="text">
 #field.jq['editrules']={custom:true,custom_func:_validate_email};
 </wasp:field>
 
-<wasp:field name="locale" object="user" type="select" items="${locales}" itemValue="key" itemLabel="value"/>
+<wasp:field name="locale" type="select" items="${locales}" itemValue="key" itemLabel="value"/>
 
-<wasp:field name="isActive" object="user" type="text">
+<wasp:field name="isActive"  type="text">
 #field.jq['edittype']='checkbox';   
 #field.jq['editoptions']={value:"1:0"}; 
 #field.jq['formatter']='checkbox';

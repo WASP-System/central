@@ -36,7 +36,7 @@ import edu.yu.einstein.wasp.model.User;
  */
 public class JQFieldTag extends BodyTagSupport {
 	
-	public static final String AREA_ATTR="jqfield_area";
+	public static final String AREA_ATTR="_area";
 	
 	Logger log=Logger.getLogger(JQFieldTag.class);
 	

@@ -66,6 +66,20 @@
 	</tag>
 	<tag>
 		<description><![CDATA[
+            <p>Builds jqGrid-compatible JavaScript to delete selected row on server side. </p>
+        ]]></description>
+		<name>delete</name>
+		<tag-class>edu.yu.einstein.wasp.taglib.JQDeleteTag</tag-class>
+		<body-content>JSP</body-content>
+		<attribute>
+			<description>Server-side url to make 'DELETE' requests against. "id" parameter containing the row's PK will be appended to the url</description>
+			<name>url</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>		
+	</tag>
+	<tag>
+		<description><![CDATA[
             <p>Converts java collection to string containing JSON array. </p>
         ]]></description>
 		<name>json</name>

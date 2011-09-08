@@ -95,7 +95,7 @@ public class JobDraft extends WaspModel {
 	 *
 	 */
 	@Column(name="userid")
-	@Range(min=1)
+	//@Range(min=1)
 	protected int UserId;
 
 	/**

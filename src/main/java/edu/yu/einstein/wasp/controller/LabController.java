@@ -66,6 +66,7 @@ import edu.yu.einstein.wasp.service.LabPendingMetaService;
 import edu.yu.einstein.wasp.service.DepartmentService;
 
 import edu.yu.einstein.wasp.service.EmailService;
+import edu.yu.einstein.wasp.taglib.JQFieldTag;
 
 @Controller
 @Transactional
@@ -116,10 +117,10 @@ public class LabController extends WaspController {
 	public String list(ModelMap m) {
 		metaHelper.setBundle(getBundle())	;
 		m.addAttribute("_metaList", metaHelper.getMasterList(MetaBase.class));
-		m.addAttribute("_area", metaHelper.getArea());
+		m.addAttribute(JQFieldTag.AREA_ATTR, metaHelper.getArea());
 
-		prepareSelectListData(m);
-
+		prepareSelectListData(m);		
+		
 		return "lab-list";
 	}
 
