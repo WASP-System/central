@@ -24,6 +24,7 @@ import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.service.RoleService;
 import edu.yu.einstein.wasp.service.LabUserService;
 import edu.yu.einstein.wasp.service.EmailService;
+import edu.yu.einstein.wasp.model.UserPending;
 
 @Service
 public class EmailServiceImpl implements EmailService {
@@ -40,6 +41,7 @@ public class EmailServiceImpl implements EmailService {
 
 	@Autowired
 	private LabUserService labUserService;
+
 
 	@Autowired
 	private RoleService roleService;
@@ -71,6 +73,16 @@ public class EmailServiceImpl implements EmailService {
 		mimeMessage.setText(body,"UTF-8");
 
 		return mimeMessage;
+	}
+	
+	public void sendPendingUserEmailConfirm(UserPending userPending, String authcode){
+		String emailAddress = userPending.getEmail();
+		String userPendingname = userPending.getFirstName() + " " + userPending.getLastName();
+		
+	}
+	  
+	public void sendPendingUserValidate(UserPending userPending){
+		 
 	}
 
 	public void sendPendingLabUser(final LabUser labUser) {

@@ -74,6 +74,8 @@ create table userpasswordauth (
 ) ENGINE=InnoDB;
 
 
+
+
 --
 -- ROLE
 --
@@ -326,6 +328,20 @@ create table labpendingmeta (
 
   foreign key fk_labpendingmeta_labpendingid (labpendingid) references labpending(labpendingid),
   constraint unique index u_labpendingmeta_k_lid (k, labpendingid)
+) ENGINE=InnoDB;
+
+
+--
+-- confirm email
+--
+create table confirmemailauth (
+  userpendingid int(10) not null primary key, 
+  authcode varchar(250) not null,
+  lastupdts timestamp not null default current_timestamp, 
+  lastupduser int(10) not null default 0,
+
+  foreign key fk_confirmemailauth_userpending (userpendingid) references userpending(userpendingid),
+  constraint unique index u_confirmemailauth (authcode)
 ) ENGINE=InnoDB;
 
 --

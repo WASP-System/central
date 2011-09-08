@@ -152,7 +152,8 @@ public class UserPendingController extends WaspController {
 		status.setComplete();
 
 		// TODO email PI/LM that a new user is pending
-
+		String authcode = "catinahat1"; // TODO: proper authcode
+		emailService.sendPendingUserEmailConfirm(userPendingForm, authcode);
 		waspMessage("hello.error");
 		return "redirect:/auth/newuser/ok.do";
 	}

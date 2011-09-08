@@ -84,6 +84,7 @@ user.fax.metaposition=100
 
 # --- user pending --
 userPending.page.title=New User
+userPending.emailsent.text=Thank you for your account request. You have been sent an email with instructions as to how to confirm your email address. Your principle investigator has also been emailed to request confirmation of your eligibility to join their lab and you are advised to contact them to request they do this if your account does not become activated in good time. Please click to <a href="wasp/auth/login.do"/>Login</a>
 userPending.select.default=-- select --
 userPending.submit=Apply for Account
 userPending.password.label=Password

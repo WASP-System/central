@@ -15,15 +15,20 @@ import org.springframework.stereotype.Service;
 
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.LabUser;
+import edu.yu.einstein.wasp.model.UserPending;
 
 @Service
 public interface EmailService  {
 
-  void sendNewPassword(User user,String password);
+  public void sendNewPassword(User user,String password);
 
-  void sendPendingLabUser(LabUser labUser);
+  public void sendPendingLabUser(LabUser labUser);
+  
+  public void sendPendingUserEmailConfirm(UserPending userPending, String authcode);
+  
+  public void sendPendingUserValidate(UserPending userPending);
 
-  void sendForgotPassword(User user, String authcode);
+  public void sendForgotPassword(User user, String authcode);
 
 }
 
