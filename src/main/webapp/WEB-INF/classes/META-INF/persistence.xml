@@ -72,6 +72,9 @@
     <class>edu.yu.einstein.wasp.model.SampleDraft</class>
     <class>edu.yu.einstein.wasp.model.SampleDraftMeta</class>
 
+    <class>edu.yu.einstein.wasp.model.SubtypeSample</class>
+    <class>edu.yu.einstein.wasp.model.Workflowsubtypesample</class>
+
     <properties>
       <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver"/>
       <property name="javax.persistence.jdbc.user" value="wasp"/>
