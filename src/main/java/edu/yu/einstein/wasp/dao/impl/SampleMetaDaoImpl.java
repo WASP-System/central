@@ -106,7 +106,7 @@ public class SampleMetaDaoImpl extends WaspDaoImpl<SampleMeta> implements edu.yu
 		getJpaTemplate().execute(new JpaCallback() {
 
 			public Object doInJpa(EntityManager em) throws PersistenceException {
-				em.createNativeQuery("delete from sampleMeta where sampleId=:sampleId").setParameter("sampleId", sampleId).executeUpdate();
+				em.createNativeQuery("delete from samplemeta where sampleId=:sampleId").setParameter("sampleId", sampleId).executeUpdate();
 
 				for (SampleMeta m:metaList) {
 					m.setSampleId(sampleId);

@@ -106,7 +106,7 @@ public class WorkflowMetaDaoImpl extends WaspDaoImpl<WorkflowMeta> implements ed
 		getJpaTemplate().execute(new JpaCallback() {
 
 			public Object doInJpa(EntityManager em) throws PersistenceException {
-				em.createNativeQuery("delete from workflowMeta where workflowId=:workflowId").setParameter("workflowId", workflowId).executeUpdate();
+				em.createNativeQuery("delete from workflowmeta where workflowId=:workflowId").setParameter("workflowId", workflowId).executeUpdate();
 
 				for (WorkflowMeta m:metaList) {
 					m.setWorkflowId(workflowId);

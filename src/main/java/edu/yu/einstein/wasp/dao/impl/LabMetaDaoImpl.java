@@ -106,7 +106,7 @@ public class LabMetaDaoImpl extends WaspDaoImpl<LabMeta> implements edu.yu.einst
 		getJpaTemplate().execute(new JpaCallback() {
 
 			public Object doInJpa(EntityManager em) throws PersistenceException {
-				em.createNativeQuery("delete from labMeta where labId=:labId").setParameter("labId", labId).executeUpdate();
+				em.createNativeQuery("delete from labmeta where labId=:labId").setParameter("labId", labId).executeUpdate();
 
 				for (LabMeta m:metaList) {
 					m.setLabId(labId);

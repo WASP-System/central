@@ -106,7 +106,7 @@ public class StateMetaDaoImpl extends WaspDaoImpl<StateMeta> implements edu.yu.e
 		getJpaTemplate().execute(new JpaCallback() {
 
 			public Object doInJpa(EntityManager em) throws PersistenceException {
-				em.createNativeQuery("delete from stateMeta where stateId=:stateId").setParameter("stateId", stateId).executeUpdate();
+				em.createNativeQuery("delete from statemeta where stateId=:stateId").setParameter("stateId", stateId).executeUpdate();
 
 				for (StateMeta m:metaList) {
 					m.setStateId(stateId);

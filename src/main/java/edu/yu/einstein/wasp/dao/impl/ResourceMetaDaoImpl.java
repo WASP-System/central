@@ -106,7 +106,7 @@ public class ResourceMetaDaoImpl extends WaspDaoImpl<ResourceMeta> implements ed
 		getJpaTemplate().execute(new JpaCallback() {
 
 			public Object doInJpa(EntityManager em) throws PersistenceException {
-				em.createNativeQuery("delete from resourceMeta where resourceId=:resourceId").setParameter("resourceId", resourceId).executeUpdate();
+				em.createNativeQuery("delete from resourcemeta where resourceId=:resourceId").setParameter("resourceId", resourceId).executeUpdate();
 
 				for (ResourceMeta m:metaList) {
 					m.setResourceId(resourceId);

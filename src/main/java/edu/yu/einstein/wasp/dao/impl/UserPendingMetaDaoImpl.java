@@ -106,7 +106,7 @@ public class UserPendingMetaDaoImpl extends WaspDaoImpl<UserPendingMeta> impleme
 		getJpaTemplate().execute(new JpaCallback() {
 
 			public Object doInJpa(EntityManager em) throws PersistenceException {
-				em.createNativeQuery("delete from userPendingMeta where userpendingId=:userpendingId").setParameter("userpendingId", userpendingId).executeUpdate();
+				em.createNativeQuery("delete from userpendingmeta where userpendingId=:userpendingId").setParameter("userpendingId", userpendingId).executeUpdate();
 
 				for (UserPendingMeta m:metaList) {
 					m.setUserpendingId(userpendingId);

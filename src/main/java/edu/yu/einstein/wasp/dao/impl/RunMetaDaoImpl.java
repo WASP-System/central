@@ -106,7 +106,7 @@ public class RunMetaDaoImpl extends WaspDaoImpl<RunMeta> implements edu.yu.einst
 		getJpaTemplate().execute(new JpaCallback() {
 
 			public Object doInJpa(EntityManager em) throws PersistenceException {
-				em.createNativeQuery("delete from runMeta where runId=:runId").setParameter("runId", runId).executeUpdate();
+				em.createNativeQuery("delete from runmeta where runId=:runId").setParameter("runId", runId).executeUpdate();
 
 				for (RunMeta m:metaList) {
 					m.setRunId(runId);
