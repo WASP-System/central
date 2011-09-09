@@ -24,6 +24,11 @@ import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
+
+import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
+
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -362,6 +367,11 @@ public class UserController extends WaspController {
 	    
 	}
 	
+	@RequestMapping(value = "/me_ro.do", method = RequestMethod.GET)
+	public String myDetail_RO(ModelMap m) {
+		User user = this.getAuthenticatedUser();		
+		return this.detailRO(user.getUserId(), m);
+	}
 	
 	@RequestMapping(value = "/me.do", method = RequestMethod.GET)
 	public String myDetail(ModelMap m) {
@@ -389,12 +399,20 @@ public class UserController extends WaspController {
 
 		for (UserMeta meta : userMetaList) {
 			meta.setUserId(userId);
+			//logger.debug("ROB: " + meta.getV() + " " + meta.getK() + " " + meta.getPosition());
 		}
 
 		userForm.setUserMeta(userMetaList);
 		metaHelper.validate(userMetaList, result);
 
 		if (result.hasErrors()) {
+			
+			//List<ObjectError> oes = result.getAllErrors();
+			//for(ObjectError oe : oes){
+			//	logger.debug("ROB: " + oe.toString());	
+			//}
+			//if(result.hasErrors())	return "user/mypassword";
+		
 			userForm.setUserId(userId);
 			prepareSelectListData(m);
 			waspMessage("user.updated.error");
@@ -402,14 +420,15 @@ public class UserController extends WaspController {
 		}
 
 		User userDb = this.userService.getById(userId);
-		userDb.setFirstName(userForm.getFirstName());
-		userDb.setLastName(userForm.getLastName());
-		if (userForm.getPassword()!=null && !userForm.getPassword().trim().isEmpty()) {
-			PasswordEncoder encoder = new ShaPasswordEncoder();
-			String hashedPass = encoder.encodePassword(userForm.getPassword(), null);
-			userForm.setPassword(hashedPass);
-		}
-		userDb.setEmail(userForm.getEmail());
+		userDb.setFirstName(userForm.getFirstName().trim());
+		userDb.setLastName(userForm.getLastName().trim());
+		//don't permit user to alter password from this form!
+		//if (userForm.getPassword()!=null && !userForm.getPassword().trim().isEmpty()) {
+		//	PasswordEncoder encoder = new ShaPasswordEncoder();
+		//	String hashedPass = encoder.encodePassword(userForm.getPassword(), null);
+		//	userForm.setPassword(hashedPass);
+		//}
+		userDb.setEmail(userForm.getEmail().trim());
 		userDb.setLocale(userForm.getLocale());
 
 		userDb.setLastUpdTs(new Date());

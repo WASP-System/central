@@ -1,38 +1,45 @@
 <%@ include file="/WEB-INF/jsp/include.jsp" %>
 
 <html>
-  <head><title>User Detail</title><head>
+  <head><title><fmt:message key="user.detail.title" /></title><head>
   <body>
     
-    <h1>User Detail</h1>
+    <h1><fmt:message key="user.detail.title" /></h1>
 
     <font color="blue"><wasp:message /></font>  
+    
+    <!-- 
+    <c:forEach var="robert" items="${dubin}">
+    	<c:out value="${robert}" /><br />
+    </c:forEach >  
+    -->
+    
     <form:form commandName="user">
     
      <table>
-     	  <tr><td colspan=2 align=left></br><b>User Details:</b></td></tr>
+     	  <tr><td colspan=2 align=left></br><b><fmt:message key="user.detail.subtitle" />:</b></td></tr>
      	   <c:if test="${user.userId == 0}">
      	   <tr>
               <td><fmt:message key="user.login.label" />:</td>
               <td><form:input path="login" /></td>
               <td><form:errors path="login"/></td>
           </tr>
-          <tr>
+          <!-- tr>
               <td><fmt:message key="user.password.label"/>:</td>
               <td><form:password path="password" /></td>
               <td><form:errors path="password" /></td>
-          </tr>     	   
+          </tr-->     	   
      	  </c:if>	
      	  <c:if test="${user.userId != 0}">
      	   <tr>
               <td><fmt:message key="user.login.label" />:</td>
-              <td>${user.login}</td>              
+              <td>${user.login}<form:hidden path="login"/></td>              
           </tr>
-          <tr>
+          <!-- tr>
               <td><fmt:message key="user.password.label"/>:</td>
               <td><input type="password" value=""/></td>
               <td><form:errors path="password" /></td>
-          </tr>     	   
+          </tr-->     	   
      	   </c:if>	 
           <tr>
               <td><fmt:message key="user.firstName.label" />:</td>
@@ -67,7 +74,9 @@
 		  <c:set var="_metaList" value = "${user.userMeta}" scope="request" />		
           <c:import url="/WEB-INF/jsp/meta_rw.jsp"/>
           <tr>
-              <td colspan="2" align=right>
+              <td colspan="2" align=left>
+              	  <!-- input type="button" onclick='location="/wasp/user/me_ro.do"' value="Cancel" /--> 
+              	  <a href="/wasp/user/me_ro.do"><input type="button" value="Cancel" /></a>
                   <input type="submit" value="Save Changes" />
               </td>
           </tr>    

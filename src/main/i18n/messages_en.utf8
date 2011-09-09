@@ -5,6 +5,9 @@ user.login.label=Login
 user.login.error=Login cannot be empty
 user.login.exists_error=Login already exists
 
+user.detail.title=User Detail
+user.detail.subtitle=User Details
+
 user.password.label=Password
 user.password.error=Password cannot be empty
 
@@ -53,10 +56,11 @@ user.address.metaposition=40
 
 user.city.label=City 
 user.city.error=City cannot be empty
-user.address.constraint=NotEmpty
+user.city.constraint=NotEmpty
 user.city.metaposition=50
 
 user.state.label=State
+user.state.error=State cannot be empty
 user.state.control=select:${states}:code:name
 user.state.constraint=NotEmpty
 user.state.metaposition=60

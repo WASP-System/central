@@ -2,7 +2,7 @@
 
 <html>
   <head>
-  <title>User Detail</title>
+  <title><fmt:message key="user.detail.title" /></title>
   
   
   
@@ -10,10 +10,10 @@
   </head>
   <body>
     
-    <h1>User Detail</h1>
+    <h1><fmt:message key="user.detail.title" /></h1>
     
      <table>
-     	  <tr><td colspan=2 align=left></br><b>User Details:</b></td></tr>
+     	  <tr><td colspan=2 align=left><br /><b><fmt:message key="user.detail.subtitle" />:</b></td></tr>
      	   
      	   <tr>
               <td><fmt:message key="user.login.label" />:</td>
@@ -43,15 +43,15 @@
               <td><form:errors path="locale" /></td>
           </tr>
 		
-		
 		<c:set var="_area" value = "user" scope="request"/>	
 		<c:set var="_metaList" value = "${user.userMeta}" scope="request" />		
         <c:import url="/WEB-INF/jsp/meta_ro.jsp"/>
           
-		  <sec:authorize access="hasRole('god')">      		   		
-          <tr><td><a href="/wasp/user/detail_rw/${user.userId}.do">Edit</a></td></tr>
+ 		  <sec:authorize access="hasRole('god')">      		   		
+          <tr><td colspan="2" align=left><a href="/wasp/user/detail_rw/${user.userId}.do">Edit</a>
+          &nbsp;&nbsp;<a href="<c:url value="/user/mypassword.do"/>">Change Password</a></td></tr>
           </sec:authorize>	
-		
+
          <tr><td colspan=2 align=left></br><b>Lab Users:</b></td></tr>
          <c:forEach items="${user.labUser}" var="ul">
     	  <tr>
