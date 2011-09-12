@@ -28,8 +28,6 @@ public interface UserpasswordauthService extends WaspService<Userpasswordauth> {
   public Userpasswordauth getUserpasswordauthByUserId (final int UserId);
 
   public Userpasswordauth getUserpasswordauthByAuthcode (final String authcode);
-  
-  public String createAuthCode(int length);
 
 }
 
