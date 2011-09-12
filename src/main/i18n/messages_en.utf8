@@ -408,6 +408,19 @@ labPending.research_center_name.metaposition=130
 labPending.researchcenter_user_list_location.label=RS User URL
 labPending.researchcenter_user_list_location.metaposition=140
 
+--------------------------- auth login --------------------------------------
+auth.login.title=Login Page
+user.auth.login.validate.error=Please provide your user login name AND password.
+auth.login.failed=Your login attempt was not successful. Try again.
+auth.login.reason.label=Reason
+auth.login.user.label=User
+auth.login.password.label=Password
+auth.login.submit=Login
+auth.login.anchor.forgotpass=Forgot Password
+auth.login.anchor.newuser=New User
+auth.login.anchor.newpi=New PI
+auth.login.anchor.about=About
+
 
 --------------------------- auth forgot password ----------------------------
 auth.forgotpassword.title=Reset Password Request  
