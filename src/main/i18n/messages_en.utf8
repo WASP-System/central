@@ -681,4 +681,14 @@ platformunit.lanecount.control=select:1:1;8:8
 platformunit.lanecount.metaposition=40
 
 
- 
+--------------------------
+
+fmpayment.amount.label = Amount 
+fmpayment.amount.constraint=NotEmpty
+fmpayment.amount.metaposition=10
+fmpayment.amount.error=AmounT cannot be Empty
+
+fmpayment.comment.label = Comment
+fmpayment.comment.constraint=NotEmpty
+fmpayment.comment.metaposition=20
+fmpayment.comment.error=Comment cannot be Empty
