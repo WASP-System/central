@@ -369,24 +369,24 @@ public class UserController extends WaspController {
 		return this.detailRO(user.getUserId(), m);
 	}
 	
-	@RequestMapping(value = "/me.do", method = RequestMethod.GET)
+	@RequestMapping(value = "/me_rw.do", method = RequestMethod.GET)
 	public String myDetail(ModelMap m) {
 		User user = this.getAuthenticatedUser();		
 		return this.detailRW(user.getUserId(), m);
 	}
 
-	@RequestMapping(value = "/me.do", method = RequestMethod.POST)
+	@RequestMapping(value = "/me_rw.do", method = RequestMethod.POST)
 	public String updateDetail(@Valid User userForm, BindingResult result,
 			SessionStatus status, ModelMap m) {
 		User user = this.getAuthenticatedUser();		
 
 		updateDetail(user.getUserId(), userForm, result, status, m);
 
-		return "redirect:" + "me.do";
+		return "redirect:" + "/user/me_rw.do";
 	}
 	
 	@RequestMapping(value = "/detail_rw/{userId}.do", method = RequestMethod.POST)
-	@PreAuthorize("hasRole('god') or User.login == principal.name")
+	@PreAuthorize("hasRole('god')")
 	public String updateDetail(@PathVariable("userId") Integer userId,
 			@Valid User userForm, BindingResult result, SessionStatus status,
 			ModelMap m) {
