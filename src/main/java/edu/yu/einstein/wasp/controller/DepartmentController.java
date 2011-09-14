@@ -92,7 +92,7 @@ public class DepartmentController extends WaspController {
   @PreAuthorize("hasRole('god')")
   public String createDepartment(@RequestParam("name") String name, ModelMap m) {
 	  
-	if(name.trim()==""){
+	if( "".equals(name.trim()) ){
 		waspMessage("department.list.missingparam.error");
 	}
 	else{
@@ -137,18 +137,28 @@ public class DepartmentController extends WaspController {
     @RequestParam("useremail") String useremail,
     ModelMap m) {
 
-    User user = userService.getUserByEmail(useremail);
-    DepartmentUser departmentUser = new DepartmentUser(); 
-    departmentUser.setDepartmentId(departmentId); 
-    departmentUser.setUserId(user.getUserId()); 
-    departmentUserService.save(departmentUser);
-
-    // if i am the user,  reauth
-    User me = getAuthenticatedUser();
-    if (me.getUserId() == user.getUserId()) {
-      doReauth();
-    }
-
+	if( "".equals(useremail.trim()) ){
+		waspMessage("department.detail.missingparam.error");
+	}
+	else{
+		User user = userService.getUserByEmail(useremail.trim());
+		if(user.getUserId()==0){
+			waspMessage("department.detail.emailnotfound.error");
+		}
+		else{
+			DepartmentUser departmentUser = new DepartmentUser(); 
+			departmentUser.setDepartmentId(departmentId); 
+			departmentUser.setUserId(user.getUserId()); 
+			departmentUserService.save(departmentUser);
+			waspMessage("department.detail.ok");
+			
+			// if i am the user,  reauth
+			User me = getAuthenticatedUser();
+			if (me.getUserId() == user.getUserId()) {
+				doReauth();
+			}
+		}
+	}
     return "redirect:/department/detail/" + departmentId + ".do";
   }
 
