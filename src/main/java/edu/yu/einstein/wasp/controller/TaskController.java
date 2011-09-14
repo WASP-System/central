@@ -9,21 +9,34 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.transaction.annotation.*; 
+
+
+import org.codehaus.jackson.map.ObjectMapper;
 
 import org.springframework.security.access.prepost.*;
 
 import java.util.Date; 
 import java.util.ArrayList; 
+import java.util.Arrays; 
 import java.util.List; 
 import java.util.HashMap; 
 import java.util.Map; 
 
+import org.apache.commons.lang.StringUtils;
+
 import edu.yu.einstein.wasp.service.TaskService;
 import edu.yu.einstein.wasp.service.StateService;
+import edu.yu.einstein.wasp.service.StateMetaService;
 import edu.yu.einstein.wasp.model.*;
+import edu.yu.einstein.wasp.taglib.JQFieldTag;
+
+
+import javax.validation.Valid;
+import javax.servlet.http.HttpServletResponse;
 
 @Controller
 @Transactional
@@ -48,6 +61,9 @@ public class TaskController extends WaspController {
     return this.stateService;
   }
 
+
+  @Autowired
+  private StateMetaService stateMetaService;
 
 
   @RequestMapping("/list")
@@ -206,6 +222,115 @@ public class TaskController extends WaspController {
   }
 
   @RequestMapping(value = "/fmpayment/list", method = RequestMethod.GET)
+  @PreAuthorize("hasRole('god') or hasRole('fm')")
+  public String showJqPaymentListShell(ModelMap m) {
+	
+		MetaHelper metaHelper = new MetaHelper("fmpayment", "state", StateMeta.class);
+
+    m.addAttribute("_metaList", metaHelper.getMasterList(StateMeta.class));
+    m.addAttribute(JQFieldTag.AREA_ATTR, "fmpayment");
+
+    return "task/fmpayment/list";
+  }
+
+	@RequestMapping(value="/fmpayment/listJson.do", method=RequestMethod.GET)
+	public @ResponseBody String getListJson() {
+
+		MetaHelper metaHelper = new MetaHelper("fmpayment", "state", StateMeta.class);
+
+		List<State> stateList;
+
+    Task task = this.getTaskService().getTaskByIName("Receive Payment");
+
+		Map stateListBaseQueryMap = new HashMap();
+		stateListBaseQueryMap.put("taskId", task.getTaskId()); 
+		stateListBaseQueryMap.put("status", "WAITING");
+
+		stateList = stateService.findByMap(stateListBaseQueryMap);
+
+		Map <String, Object> jqgrid = new HashMap<String, Object>();
+		jqgrid.put("page","1");
+		jqgrid.put("records", stateList.size()+"");
+		jqgrid.put("total", stateList.size()+"");
+
+		Map<String, String> stateData=new HashMap<String, String>();
+		stateData.put("page","1");
+		stateData.put("selId",StringUtils.isEmpty(request.getParameter("selId"))?"":request.getParameter("selId"));
+
+ 		jqgrid.put("statedata",stateData);
+
+		List<Map> rows = new ArrayList<Map>();
+
+		for (State state: stateList) {
+			Map cell = new HashMap();
+			cell.put("id", state.getStateId());
+
+			List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
+				state.getName(),
+				state.getStatus()
+			}));
+
+			List<StateMeta> stateMetaList=metaHelper.syncWithMaster(state.getStateMeta());
+      for(StateMeta meta:stateMetaList) {
+				cellList.add(meta.getV());
+			}
+
+			cell.put("cell", cellList);
+
+      rows.add(cell);
+		}
+
+		jqgrid.put("rows",rows);
+
+
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			String json=mapper.writeValueAsString(jqgrid);
+			return json;
+		} catch (Exception e) {
+			throw new IllegalStateException("Can't marshall to JSON "+stateList,e);
+		}
+
+	}
+
+        @RequestMapping(value="/fmpayment/updateJson.do", method=RequestMethod.POST)
+        public String updateJson(
+                        @RequestParam("id") Integer stateId,
+                        @Valid State stateForm,
+                        ModelMap m,
+                        HttpServletResponse response) {
+		
+MetaHelper metaHelper = new MetaHelper("fmpayment", "state", StateMeta.class);
+
+								State stateDb = stateService.getStateByStateId(stateId);
+
+                List<StateMeta> stateMetaList = metaHelper.getFromJsonForm(request, StateMeta.class);
+                stateForm.setStateMeta(stateMetaList);
+                stateForm.setStateId(stateId);
+                stateForm.setTaskId(stateDb.getTaskId());
+                stateForm.setStatus("PAID?");
+
+								stateDb = stateService.merge(stateForm);
+                stateMetaService.updateByStateId(stateDb.getStateId(), stateForm.getStateMeta());
+
+    // TODO jobId belongs to stateId
+    // TODO check valid state
+    // TODO insert payment
+    // TODO email LM/PI/DA/submitter
+    //   
+
+
+                try {
+                        response.getWriter().println(getMessage("hello.error"));
+                        return null;
+                } catch (Throwable e) {
+                        throw new IllegalStateException("Cant output success message ",e);
+                }
+	}
+
+
+
+  @RequestMapping(value = "/fmpayment/oldlist", method = RequestMethod.GET)
   @PreAuthorize("hasRole('god') or hasRole('fm')")
   public String listPayment(ModelMap m) {
 

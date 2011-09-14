@@ -22,12 +22,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
-import edu.yu.einstein.wasp.model.Lab;
-import edu.yu.einstein.wasp.model.MetaAttribute;
-import edu.yu.einstein.wasp.model.MetaAttribute.Area;
-import edu.yu.einstein.wasp.model.SampleDraft;
-import edu.yu.einstein.wasp.model.Sample;
-import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.model.*;
 
 /*
  * Builds jqGrid-compatible JavaScript object to describe a field
@@ -142,6 +137,7 @@ public class JQFieldTag extends BodyTagSupport {
 			else if(area.equals("sampleDraft")) clazz=SampleDraft.class;
 			else if(area.equals("sample")) clazz=Sample.class;
 			else if(area.equals("platformunit")) clazz=Sample.class;
+			else if(area.equals("fmpayment")) clazz=State.class;
 			else throw new JspTagException("unknown area "+object+"");
 		
 			boolean required=clazz.getDeclaredField(name).getAnnotation(org.hibernate.validator.constraints.NotEmpty.class)==null?false:true;
