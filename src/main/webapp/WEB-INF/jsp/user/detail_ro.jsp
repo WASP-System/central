@@ -47,8 +47,12 @@
 		<c:set var="_metaList" value = "${user.userMeta}" scope="request" />		
         <c:import url="/WEB-INF/jsp/meta_ro.jsp"/>
           
- 		  <sec:authorize access="hasRole('god')">      		   		
-          <tr><td colspan="2" align=left><a href="/wasp/user/detail_rw/${user.userId}.do">Edit</a>
+	  <sec:authorize access="hasRole('god') and ! hasRole('u-${user.userId}')">      		   		
+          <tr><td colspan="2" align=left><a href="/wasp/user/detail_rw/${user.userId}.do">Edit (As other)</a>
+          </sec:authorize>	
+
+	  <sec:authorize access="hasRole('u-${user.userId}')">      		   		
+          <tr><td colspan="2" align=left><a href="/wasp/user/me_rw.do">Edit</a>
           &nbsp;&nbsp;<a href="<c:url value="/user/mypassword.do"/>">Change Password</a></td></tr>
           </sec:authorize>	
 
