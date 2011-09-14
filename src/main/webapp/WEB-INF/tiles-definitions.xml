@@ -49,6 +49,9 @@
 <definition name="auth/resetpassword/form" template="/WEB-INF/jsp/auth/resetpassword/form.jsp"/>
 <definition name="auth/resetpassword/ok" template="/WEB-INF/jsp/auth/resetpassword/ok.jsp"/>
 
+<definition name="auth/confirmemail/authcodeform" template="/WEB-INF/jsp/auth/confirmemail/authcodeform.jsp"/>
+<definition name="auth/confirmemail/ok" template="/WEB-INF/jsp/auth/confirmemail/ok.jsp"/>
+
 
  <definition name="dashboard" template="/WEB-INF/jsp/dashboard.jsp"/>
    

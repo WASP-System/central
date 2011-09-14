@@ -400,10 +400,6 @@ public class LabController extends WaspController {
 
 		MimeMessageHelper a;
 		
-		//waspMessage("lab.updated.success");
-		
-		//emailService.sendNewPassword(labDb, "new pass");
-		
 		try {
 			response.getWriter().println(getMessage("lab.updated.success"));
 			return null;
@@ -922,7 +918,7 @@ public class LabController extends WaspController {
 
 		labUserService.refresh(labUser);
 
-		emailService.sendPendingLabUser(labUser);
+		emailService.sendPendingLabUserPrimaryConfirm(labUser);
 
 		waspMessage("labuser.request.success");
 

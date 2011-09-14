@@ -32,7 +32,7 @@ public class ConfirmEmailAuth extends WaspModel {
 	 * userpendingId
 	 *
 	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
+	@Id 
 	protected int userpendingId;
 
 	/**

@@ -3,7 +3,7 @@
 <html>
   <head> <title><fmt:message key="auth.resetpassword.title1" /></title> </head>
 
-  <body onload='document.f.j_username.focus();'>
+  <body>
 
     <h1><fmt:message key="auth.resetpassword.title1" /></h1>
     

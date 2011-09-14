@@ -32,7 +32,7 @@ public class Userpasswordauth extends WaspModel {
 	 * UserId
 	 *
 	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
+	@Id 
 	protected int UserId;
 
 	/**

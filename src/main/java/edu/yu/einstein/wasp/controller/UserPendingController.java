@@ -1,11 +1,17 @@
 package edu.yu.einstein.wasp.controller;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 import javax.validation.Valid;
+
+import nl.captcha.Captcha;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -13,6 +19,7 @@ import org.springframework.ui.ModelMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.BindException;
@@ -20,11 +27,15 @@ import org.springframework.validation.Errors;
 import edu.yu.einstein.wasp.controller.validator.MetaValidator;
 import edu.yu.einstein.wasp.controller.validator.PasswordValidator;
 import edu.yu.einstein.wasp.controller.validator.UserPendingMetaValidatorImpl;
+import edu.yu.einstein.wasp.model.ConfirmEmailAuth;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.model.UserPendingMeta;
 import edu.yu.einstein.wasp.model.LabPending;
+import edu.yu.einstein.wasp.model.Userpasswordauth;
+import edu.yu.einstein.wasp.service.AuthCodeService;
+import edu.yu.einstein.wasp.service.ConfirmEmailAuthService;
 import edu.yu.einstein.wasp.service.LabService;
 import edu.yu.einstein.wasp.service.DepartmentService;
 import edu.yu.einstein.wasp.service.UserPendingService;
@@ -34,6 +45,7 @@ import edu.yu.einstein.wasp.service.LabPendingMetaService;
 
 import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.service.PasswordService;
+import edu.yu.einstein.wasp.service.impl.ConfirmEmailAuthServiceImpl;
 
 import edu.yu.einstein.wasp.model.MetaHelper;
 
@@ -53,6 +65,9 @@ public class UserPendingController extends WaspController {
 	@Autowired
 	private UserPendingMetaService userPendingMetaService;
 
+	@Autowired
+	private ConfirmEmailAuthService confirmEmailAuthService;
+	
 	@Autowired
 	private LabService labService;
 
@@ -74,6 +89,9 @@ public class UserPendingController extends WaspController {
 	
 	@Autowired
 	private PasswordValidator passwordValidator;
+	
+	@Autowired
+	private AuthCodeService authCodeService;
 	
 	/**
 	 *
@@ -152,9 +170,12 @@ public class UserPendingController extends WaspController {
 		status.setComplete();
 
 		// TODO email PI/LM that a new user is pending
-		String authcode = "catinahat1"; // TODO: proper authcode
+		String authcode = authCodeService.createAuthCode(20);
+		ConfirmEmailAuth confirmEmailAuth = new ConfirmEmailAuth();
+		confirmEmailAuth.setAuthcode(authcode);
+		confirmEmailAuth.setUserpendingId(userPendingDb.getUserPendingId());
+		confirmEmailAuthService.merge(confirmEmailAuth);
 		emailService.sendPendingUserEmailConfirm(userPendingForm, authcode);
-		waspMessage("hello.error");
 		return "redirect:/auth/newuser/ok.do";
 	}
 
@@ -235,6 +256,78 @@ public class UserPendingController extends WaspController {
 		waspMessage("hello.error");
 		return "redirect:/auth/newpi/ok.do";
 	}
+	
+	@RequestMapping(value="/confirmemail", method=RequestMethod.GET)
+	  public String confirmEmailFromEmailLink(
+			  @RequestParam(value="authcode") String authCode,
+			  @RequestParam(value="email") String urlEncodedEmail,
+		      ModelMap m) {
+		  if (authCode == null || authCode.isEmpty()) {
+			  waspMessage("auth.confirmemail.badauthcode.error");
+			  return "auth/confirmemail/authcodeform";
+		  }
+		  
+		  ConfirmEmailAuth confirmEmailAuth = confirmEmailAuthService.getConfirmEmailAuthByAuthcode(authCode);
+		  if (urlEncodedEmail == null || urlEncodedEmail.isEmpty() || confirmEmailAuth.getUserpendingId() == 0) {
+			  waspMessage("auth.confirmemail.bademail.error");
+			  return "auth/confirmemail/authcodeform";
+		  }
+			  
+		  UserPending userPending = userPendingService.getUserPendingByUserPendingId(confirmEmailAuth.getUserpendingId());
+		  try{
+			  if (! userPending.getEmail().equals(URLDecoder.decode(urlEncodedEmail, "UTF-8"))){
+				  waspMessage("auth.confirmemail.wronguser.error");
+				  return "auth/confirmemail/authcodeform";
+			  }
+		  } catch(UnsupportedEncodingException e){
+			  waspMessage("auth.confirmemail.corruptemail.error");
+			  return "auth/confirmemail/authcodeform"; 
+		  }
+		  
+		  confirmEmailAuthService.remove(confirmEmailAuth);
+		  request.getSession().removeAttribute(Captcha.NAME); // ensures fresh capcha issued if required in this session
+		  return "auth/confirmemail/ok";
+	  }
+	
+	 @RequestMapping(value="/confirmemail", method=RequestMethod.POST)
+	  public String confirmEmailFromForm(
+	        @RequestParam(value="authcode") String authCode,
+			@RequestParam(value="email") String email,
+	        @RequestParam(value="captcha_text") String captchaText,
+	        ModelMap m) {
+		
+		 if (authCode == null || authCode.isEmpty()) {
+			 waspMessage("auth.confirmemail.badauthcode.error");
+			 m.put("email", email);
+			 return "auth/confirmemail/authcodeform";
+		  }
+		 
+		  ConfirmEmailAuth confirmEmailAuth = confirmEmailAuthService.getConfirmEmailAuthByAuthcode(authCode);
+		  UserPending userPending = userPendingService.getUserPendingByUserPendingId(confirmEmailAuth.getUserpendingId());
+		  
+		  if (email == null || email.isEmpty() || confirmEmailAuth.getUserpendingId() == 0 ){
+			  m.put("authcode", authCode);
+			  waspMessage("auth.confirmemail.bademail.error");
+			  return "auth/confirmemail/authcodeform";
+		  }
+		  if (! userPending.getEmail().equals(email) ){
+				m.put("authcode", authCode);
+				waspMessage("auth.confirmemail.wrongemail.error");
+				return "auth/confirmemail/authcodeform";
+		  }
 
+		  Captcha captcha = (Captcha) request.getSession().getAttribute(Captcha.NAME);
+		  if (captcha == null || (! captcha.isCorrect(captchaText)) ){
+			  waspMessage("auth.confirmemail.captcha.error");
+			  m.put("authcode", authCode);
+			  m.put("email", email);
+			  return "auth/confirmemail/authcodeform";
+		  }
+		  
+		  confirmEmailAuthService.remove(confirmEmailAuth);
+		  request.getSession().removeAttribute(Captcha.NAME); // ensures fresh capcha issued if required in this session
+		  //TODO:  add logic to make sure email address is confirmed before activating account
+		  return "auth/confirmemail/ok";
+	  }
 
 }

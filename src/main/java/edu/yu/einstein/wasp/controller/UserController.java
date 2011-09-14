@@ -353,10 +353,6 @@ public class UserController extends WaspController {
 
 		userForm.setPassword( passwordService.encodePassword(userForm.getPassword()) );
 		
-		//waspMessage("user.updated.success");
-		
-		//emailService.sendNewPassword(userDb, "new pass");
-		
 		try {
 			response.getWriter().println(adding?getMessage("user.created.success"):getMessage("user.updated.success"));
 			return null;
@@ -442,8 +438,7 @@ public class UserController extends WaspController {
 		status.setComplete();
 
 		waspMessage("user.updated.success");
-		
-		//emailService.sendNewPassword(userDb, "new pass");
+
 		
 		return "redirect:" + userId + ".do";
 	}
