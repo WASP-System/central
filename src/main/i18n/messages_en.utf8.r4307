@@ -1,0 +1,684 @@
+# -------------------------- static user fields --------------------------
+
+
+user.login.label=Login
+user.login.error=Login cannot be empty
+user.login.exists_error=Login already exists
+
+user.detail.title=User Detail
+user.detail.subtitle=User Details
+
+user.password.label=Password
+user.password.error=Password cannot be empty
+
+user.firstName.label=First Name
+user.firstName.error=First Name cannot be empty
+
+user.lastName.label=Last Name
+user.lastName.error=Last Name cannot be empty
+
+user.email.label=Email
+user.email.error=Wrong email address format
+
+user.locale.label=Locale
+user.locale.error=Locale cannot be empty
+
+user.isActive.label=Active
+
+# -------------------------- dynamic user fields --------------------------
+
+# Fields that have "metaposition" property defined
+# are considered dynamic and stored to Usermeta table.
+# 
+# WARNING: *.constraint.*,*.control.* and *.metaposition.* properties can only be defined in this file (i.e. messages_en.properties)
+
+user.title.label=Title
+user.title.error=Title cannot be empty
+user.title.constraint=NotEmpty
+user.title.control=select:Prof:Prof;Dr:Dr;Mr:Mr;Ms:Ms;Mrs:Mrs;Miss:Miss
+user.title.metaposition=1
+
+user.institution.label=Institution
+user.institution.error=Institution cannot be empty
+user.institution.constraint=NotEmpty
+user.institution.metaposition=10
+
+user.department.label=Department
+user.department.metaposition=20
+
+user.building_room.label=Room
+user.building_room.metaposition=30
+
+user.address.label=Address
+user.address.error=Address cannot be empty
+user.address.constraint=NotEmpty
+user.address.metaposition=40
+
+user.city.label=City 
+user.city.error=City cannot be empty
+user.city.constraint=NotEmpty
+user.city.metaposition=50
+
+user.state.label=State
+user.state.error=State cannot be empty
+user.state.control=select:${states}:code:name
+user.state.constraint=NotEmpty
+user.state.metaposition=60
+
+user.country.label=Country
+user.country.error=Country cannot be empty
+user.country.control=select:${countries}:code:name
+user.country.constraint=NotEmpty
+user.country.metaposition=70
+
+user.zip.label=Zip
+user.zip.error=Zip cannot be empty
+user.zip.constraint=NotEmpty
+user.zip.metaposition=80
+
+user.phone.label=Phone
+user.phone.error=Phone cannot be empty
+user.phone.constraint=NotEmpty
+user.phone.metaposition=90
+
+user.fax.label=Fax
+user.fax.error=Fax cannot be empty
+user.fax.constraint=NotEmpty
+user.fax.metaposition=100
+
+# --- user pending --
+userPending.page.title=New User
+userPending.emailsent.text=Thank you for your account request. You have been sent an email with instructions as to how to confirm your email address. Your principle investigator has also been emailed to request confirmation of your eligibility to join their lab and you are advised to contact them to request they do this if your account does not become activated in good time. Please click to <a href="wasp/auth/login.do"/>Login</a>
+userPending.select.default=-- select --
+userPending.submit=Apply for Account
+userPending.password.label=Password
+userPending.password.error=Password cannot be empty
+userPending.password_mismatch.error=The two entries for your password are NOT identical
+userPending.password_invalid.error=Password must be at least 8 characters, containing only letters and numbers, with at least one letter and number
+
+
+userPending.password2.label=Re-confirm Password
+userPending.password2.error=Re-confirm password cannot be empty
+
+userPending.firstName.label=First Name
+userPending.firstName.error=First Name cannot be empty
+
+userPending.lastName.label=Last Name
+userPending.lastName.error=Last Name cannot be empty
+
+userPending.email.label=Email
+userPending.email.error=Must be correctly formatted
+userPending.email_exists.error=Email already exists in the database
+
+userPending.locale.label=Locale
+userPending.locale.error=Locale cannot be empty
+
+# ------------------------ dynamic user pending fields ----------------------
+
+userPending.primaryuseremail.label=PI Email Address
+userPending.primaryuseremail.error=Must be correctly formatted
+userPending.primaryuseremail_notvalid.error=Not an active registered PI email address
+userPending.primaryuseremail.constraint=isValidPiEmail
+userPending.primaryuseremail.metaposition=1
+
+userPending.title.label=Title
+userPending.title.error=Title cannot be empty
+userPending.title.constraint=NotEmpty
+userPending.title.control=select:Prof:Prof;Dr:Dr;Mr:Mr;Ms:Ms;Mrs:Mrs;Miss:Miss
+userPending.title.metaposition=5
+
+userPending.institution.label=Institution
+userPending.institution.error=Institution cannot be empty
+userPending.institution.constraint=NotEmpty
+userPending.institution.metaposition=10
+
+userPending.department.label=Department
+userPending.department.metaposition=20
+
+userPending.building_room.label=Room
+userPending.building_room.metaposition=30
+
+userPending.address.label=Address
+userPending.address.error=Address cannot be empty
+userPending.address.constraint=NotEmpty
+userPending.address.metaposition=40
+
+userPending.city.label=City 
+userPending.city.error=City cannot be empty
+userPending.address.constraint=NotEmpty
+userPending.city.metaposition=50
+
+userPending.state.label=State
+userPending.state.control=select:${states}:code:name
+userPending.state.metaposition=60
+
+userPending.country.label=Country
+userPending.country.error=Country cannot be empty
+userPending.country.control=select:${countries}:code:name
+userPending.country.constraint=NotEmpty
+userPending.country.metaposition=70
+
+userPending.zip.label=Zip
+userPending.zip.error=Zip cannot be empty
+userPending.zip.constraint=NotEmpty
+userPending.zip.metaposition=80
+
+userPending.phone.label=Phone
+userPending.phone.error=Phone cannot be empty
+userPending.phone.constraint=NotEmpty
+userPending.phone.metaposition=90
+
+userPending.fax.label=Fax
+userPending.fax.metaposition=100
+
+
+piPending.password.label=PI Password
+piPending.password.error=Password cannot be empty
+
+piPending.firstName.label=PI First Name
+piPending.firstName.error=First Name cannot be empty
+
+piPending.lastName.label=PI Last Name
+piPending.lastName.error=Last Name cannot be empty
+
+piPending.email.label=PI Email
+piPending.email.error=Wrong email address format
+
+piPending.locale.label=PI Locale
+piPending.locale.error=Locale cannot be empty
+
+# ------------------------ dynamic lab pending fields ----------------------
+piPending.labName.label=Lab Name
+piPending.labName.error=Lab Name cannot be empty
+piPending.labName.constraint=NotEmpty
+piPending.labName.metaposition=1
+
+piPending.departmentId.label=departmentId
+piPending.departmentId.error=departmentId cannot be empty
+piPending.departmentId.constraint=NotEmpty
+piPending.departmentId.metaposition=2
+
+piPending.title.label=Title
+piPending.title.error=Title cannot be empty
+piPending.title.constraint=NotEmpty
+piPending.title.control=select:Prof:Prof;Dr:Dr;Mr:Mr;Ms:Ms;Mrs:Mrs;Miss:Miss
+piPending.title.metaposition=5
+
+piPending.institution.label=Institution
+piPending.institution.error=Institution cannot be empty
+piPending.institution.constraint=NotEmpty
+piPending.institution.metaposition=10
+
+piPending.department.label=Department
+piPending.department.metaposition=20
+
+piPending.building_room.label=Room
+piPending.building_room.metaposition=30
+
+piPending.address.label=Address
+piPending.address.error=Address cannot be empty
+piPending.address.constraint=NotEmpty
+piPending.address.metaposition=40
+
+piPending.city.label=City
+piPending.city.error=City cannot be empty
+piPending.address.constraint=NotEmpty
+piPending.city.metaposition=50
+
+piPending.state.label=State
+piPending.state.control=select:${states}:code:name
+piPending.state.metaposition=60
+
+piPending.country.label=Country
+piPending.country.error=Country cannot be empty
+piPending.country.control=select:${countries}:code:name
+piPending.country.constraint=NotEmpty
+piPending.country.metaposition=70
+
+piPending.zip.label=Zip
+piPending.zip.error=Zip cannot be empty
+piPending.zip.constraint=NotEmpty
+piPending.zip.metaposition=80
+
+piPending.phone.label=Phone
+piPending.phone.error=Phone cannot be empty
+piPending.phone.constraint=NotEmpty
+piPending.phone.metaposition=90
+
+piPending.fax.label=Fax
+piPending.fax.metaposition=100
+
+
+# -------------------------- static lab fields --------------------------
+
+lab.name.label=Lab Name
+lab.name.error=Lab Name cannot be empty
+
+lab.primaryUserId.label=Primary User
+lab.primaryUserId.error=Please select Primary User
+
+lab.departmentId.label=Department
+lab.departmentId.error=Please select department
+
+lab.isActive.label=Active
+# -------------------------- dynamic lab fields --------------------------
+lab.internal_external_lab.label=External/Internal
+lab.internal_external_lab.error=Please specify lab type (External/Internal)
+lab.internal_external_lab.control=select:external:External;internal:Internal
+lab.internal_external_lab.constraint=NotEmpty
+lab.internal_external_lab.metaposition=10
+
+lab.phone.label=Phone
+lab.phone.error=Phone cannot be empty
+lab.phone.constraint=NotEmpty
+lab.phone.metaposition=20
+
+lab.building_room.label=Room
+lab.building_room.metaposition=30
+
+lab.billing_billing_dept_name.label=Billing Dept. Name
+lab.billing_billing_dept_name.metaposition=40
+
+lab.billing_contact_name.label=Billing Contact Name
+lab.billing_contact_name.metaposition=50
+
+lab.billing_institution_name.label=Billing Inst. Name
+lab.billing_institution_name.metaposition=60
+
+lab.billing_building_room.label=Billing Bld. Room
+lab.billing_building_room.metaposition=70
+
+lab.billing_address.label=Billing Address
+lab.billing_address.metaposition=80
+
+lab.billing_city.label=Billing City
+lab.billing_city.metaposition=90
+
+lab.billing_state.label=Billing State
+lab.billing_state.control=select:${states}:code:name
+lab.billing_state.metaposition=100
+
+lab.billing_country.label=Billing Country
+lab.billing_country.control=select:${countries}:code:name
+lab.billing_country.metaposition=105
+
+lab.billing_zip.label=Billing Zip
+lab.billing_zip.metaposition=110
+
+lab.billing_email.label=Billing Email
+lab.billing_email.metaposition=120
+
+lab.billing_phone.label=Billing Phone
+lab.billing_phone.metaposition=130
+
+lab.research_center_name.label=RS Name
+lab.research_center_name.metaposition=140
+
+lab.researchcenter_user_list_location.label=RS User URL
+lab.researchcenter_user_list_location.metaposition=150
+
+
+--------------------------- feedback messages ----------------------------
+lab.updated.success=Lab was updated
+lab.created.success=Lab was created
+lab.updated.error=Lab was NOT updated. Please fill in required fields.
+lab.created.error=Lab was NOT created. Please fill in required fields.
+
+user.updated.success=User was updated
+user.created.success=User was created
+user.updated.error=User was NOT updated. Please fill in required fields.
+user.created.error=User was NOT created. Please fill in required fields.
+
+
+
+--------------------------- lab user request ----------------------------
+
+labuser.request.title=Request Access To Lab
+labuser.request.primaryuser.label=Primary User
+labuser.request.primaryuser.error=Invalid Primary User
+labuser.request.submit.label=Request Access
+labuser.request.success=Your request for access has been submitted.
+labuser.request.alreadypending.error=Could not request for access to that Lab.
+labuser.request.alreadyaccess.error=Could not request for access to that Lab.
+
+--------------------------- lab pending request ----------------------------
+
+labPending.name.label=Lab Name
+labPending.name.error=Lab Name cannot be empty
+
+labPending.primaryUserId.label=Primary User
+labPending.primaryUserId.error=Please select Primary User
+
+labPending.departmentId.label=Department
+labPending.departmentId.error=Please select department
+
+# -------------------------- dynamic lab pending fields --------------------------
+labPending.internal_external_lab.label=External/Internal
+labPending.internal_external_lab.error=Please specify lab type (External/Internal)
+labPending.internal_external_lab.control=select:external:External;internal:Internal
+labPending.internal_external_lab.constraint=NotEmpty
+labPending.internal_external_lab.metaposition=10
+
+labPending.phone.label=Phone
+labPending.phone.error=Phone cannot be empty
+labPending.phone.constraint=NotEmpty
+labPending.phone.metaposition=20
+
+labPending.building_room.label=Room
+labPending.building_room.metaposition=30
+
+labPending.billing_billing_dept_name.label=Billing Dept. Name
+labPending.billing_billing_dept_name.metaposition=40
+
+labPending.billing_contact_name.label=Billing Contact Name
+labPending.billing_contact_name.metaposition=50
+
+labPending.billing_institution_name.label=Billing Inst. Name
+labPending.billing_institution_name.metaposition=60
+
+labPending.billing_building_room.label=Billing Bld. Room
+labPending.billing_building_room.metaposition=70
+
+labPending.billing_address.label=Billing Address
+labPending.billing_address.metaposition=80
+
+labPending.billing_city.label=Billing City
+labPending.billing_city.metaposition=90
+
+labPending.billing_state.label=Billing State
+labPending.billing_state.control=select:${states}:code:name
+labPending.billing_state.metaposition=100
+
+labPending.billing_country.label=Billing Country
+labPending.billing_country.control=select:${countries}:code:name
+labPending.billing_country.metaposition=105
+
+labPending.billing_zip.label=Billing Zip
+labPending.billing_zip.metaposition=110
+
+labPending.billing_email.label=Billing Email
+labPending.billing_email.metaposition=120
+
+labPending.billing_phone.label=Billing Phone
+labPending.billing_phone.metaposition=130
+
+labPending.research_center_name.label=RS Name
+labPending.research_center_name.metaposition=130
+
+labPending.researchcenter_user_list_location.label=RS User URL
+labPending.researchcenter_user_list_location.metaposition=140
+
+--------------------------- auth login --------------------------------------
+auth.login.title=Login Page
+user.auth.login.validate.error=Please provide your user login name AND password.
+auth.login.failed=Your login attempt was not successful. Try again.
+auth.login.reason.label=Reason
+auth.login.user.label=User
+auth.login.password.label=Password
+auth.login.submit=Login
+auth.login.anchor.forgotpass=Forgot Password
+auth.login.anchor.newuser=New User
+auth.login.anchor.newpi=New PI
+auth.login.anchor.about=About
+
+
+--------------------------- auth forgot password ----------------------------
+auth.forgotpassword.title=Reset Password Request  
+auth.forgotpassword.user.label=Username
+auth.forgotpassword.submit=Submit
+auth.forgotpassword.missingparam.error=Please provide values for all fields
+auth.forgotpassword.captcha.error=Captcha text incorrect
+auth.forgotpassword.username.error=A user with the supplied username does not exist
+auth.forgotpassword.captcha.label=Captcha text
+
+--------------------------- auth reset password ----------------------------
+auth.resetpassword.title1=Reset Password: Step 1
+auth.resetpassword.title2=Reset Password: Step 2
+auth.resetpassword.user.label=Username
+auth.resetpassword.authcode.label=Auth Code
+auth.resetpassword.password1.label=New Password
+auth.resetpassword.password2.label=Confirm New Password
+auth.resetpassword.captcha.label=Captcha text
+auth.resetpassword.submit=Submit
+
+auth.resetpassword.noauthcode.error=No authorization code provided
+auth.resetpassword.missingparam.error=Please provide values for all fields
+auth.resetpassword.badauthcode.error=Invalid authorization code provided
+auth.resetpassword.captcha.error=Captcha text incorrect
+
+auth.resetpassword.username.error=A user with the supplied username does not exist
+auth.resetpassword.wronguser.error=Username and authorization code provided do not match
+auth.resetpassword.new_mismatch.error=The two entries for your NEW password are NOT identical
+auth.resetpassword.new_invalid.error=New password must be at least 8 characters, containing only letters and numbers, with at least one letter and number
+auth.resetpassword.instructions=New Password Requirements:<br />At least 8 characters in length<br />Only letters & numbers permitted (no spaces, etc)<br />At least one letter and one number<br />
+
+
+--------------------------- auth reset password: email sent  -------------------
+auth.resetpasswordemailsent.title=Reset Password Request: Email Sent
+auth.resetpasswordemailsent.text=An email has been sent to your registered email address containing an authorization code. Please click the link within this email or alternatively <a href="resetpassword.do">click here</a> and enter the authorization code provided. 
+
+--------------------------- auth reset password: ok  --------------------------------
+auth.resetpasswordok.title=Reset Password: Complete
+auth.resetpasswordok.text=Your password has been reset. Click <a href="login.do">here</a> to login.
+
+--------------------------- user mypassword (change password) ----------------------------
+user.mypassword.title=Change Password
+user.mypassword.instructions=New Password Requirements:<br />At least 8 characters in length<br />Only letters & numbers permitted (no spaces, etc)<br />At least one letter and one number<br />
+user.mypassword.oldpassword.label=Old Password
+user.mypassword.newpassword1.label=New Password
+user.mypassword.newpassword2.label=Confirm New Password
+user.mypassword.submit=Submit
+user.mypassword.missingparam.error=Please provide values for all fields
+user.mypassword.cur_mismatch.error=Your old password does NOT match the password in our database
+user.mypassword.new_mismatch.error=The two entries for your NEW password are NOT identical
+user.mypassword.nodiff.error=Your old and new passwords may NOT be the same
+user.mypassword.new_invalid.error=New password must be at least 8 characters, containing only letters and numbers, with at least one letter and number
+user.mypassword.ok=Password Has Been Changed
+
+-------------------------------- auth confirm email  -----------------------------------
+auth.confirmemail.badauthcode.error=Invalid authorization code provided
+auth.confirmemail.corruptemail.error=email address in url cannot be decoded
+auth.confirmemail.bademail.error=email address is incorrect
+auth.confirmemail.wronguser.error=User email address and authorization code provided do not match
+auth.confirmemail.captcha.error=Captcha text incorrect
+
+auth.confirmemail.title=Confirm Email Address
+auth.confirmemail.email.label=Email Address
+auth.confirmemail.authcode.label=Auth code
+auth.confirmemail.captcha.label=Captcha text
+auth.confirmemail.submit=Submit
+
+auth.confirmemailok.title=Email Address Confirmed
+auth.confirmemailok.text=Thank you for confirming your email address.
+
+
+--------------------------- department ----------------------------------------------------
+department.list.title=Department List
+department.list.create.label=Create Department
+department.list.department.label=Department Name
+department.list.submit=Submit
+department.list.missingparam.error=Please provide a department name
+department.list.department_exists.error=Department already exists
+department.list.ok=New department has been created
+
+----------- Workflow ---------
+
+jobDraft.name.label = Job Name
+jobDraft.name.error = Job Name Must Not Be Empty
+jobDraft.labId.label = Lab
+jobDraft.labId.error = Lab Must Not Be Empty
+jobDraft.workflowId.label = Workflow
+jobDraft.workflowId.error = Workflow Must Not Be Empty
+
+
+ampliconSeq.workflow.label = LABEL:ampliconSeq
+cgh.workflow.label = LABEL:cgh
+chipSeq.workflow.label = LABEL:chipSeq
+controlMicroarray.workflow.label = LABEL:controlMicroarray
+controlSeq.workflow.label = LABEL:controlSeq
+deNovoSeq.workflow.label = LABEL:deNovoSeq
+digitalExpressionProfiling.workflow.label = LABEL:digitalExpressionProfiling
+directionalRnaSeq.workflow.label = LABEL:directionalRnaSeq
+geneExpressionSeq.workflow.label = LABEL:geneExpressionSeq
+helpTag.workflow.label = LABEL:helpTag
+matePairSeq.workflow.label = LABEL:matePairSeq
+microarrayChip.workflow.label = LABEL:microarrayChip
+microarrayGeneExpression.workflow.label = LABEL:microarrayGeneExpression
+microarrayHelp.workflow.label = LABEL:microarrayHelp
+mirnaSeq.workflow.label = LABEL:mirnaSeq
+otherSeqDnaSamples.workflow.label = LABEL:otherSeqDnaSamples
+otherSeqRnaSamples.workflow.label = LABEL:otherSeqRnaSamples
+resequencing.workflow.label = LABEL:resequencing
+rnaSeq.workflow.label = LABEL:rnaSeq
+seqCap.workflow.label = LABEL:seqCap
+
+
+
+chipSeq.workflow.label = LABEL:chipSeq
+chipSeq.samples.allowable = samplefile;chipseqSample
+
+chipSeq.platform.label=Platform
+chipSeq.platform.constraint=NotEmpty
+chipSeq.platform.error=Platform cannot be empty
+chipSeq.platform.control=select:HISeq2000:HISeq2000
+chipSeq.platform.metaposition=100
+
+chipSeq.readlength.label=Read Length
+chipSeq.readlength.constraint=NotEmpty
+chipSeq.readlength.error=readlength cannot be empty
+chipSeq.readlength.control=select:100:100 bp; 150: 150bp
+chipSeq.readlength.metaposition=110
+
+chipSeq.readtype.label=Read Type
+chipSeq.readtype.constraint=NotEmpty
+chipSeq.readtype.error=readtype cannot be empty
+chipSeq.readtype.control=select:single:Single-End Read; pair:Pair-End Read
+chipSeq.readtype.metaposition=120
+
+chipSeq.antibody.label=Anti Body
+chipSeq.antibody.constraint=NotEmpty
+chipSeq.antibody.error=antibody cannot be empty
+chipSeq.antibody.control=select:abc:abc;def:def;ghi:ghi
+chipSeq.antibody.metaposition=130
+
+chipSeq.pcrprimers.label=PCR Primers
+chipSeq.pcrprimers.constraint=NotEmpty
+chipSeq.pcrprimers.error=pcrprimers cannot be empty
+chipSeq.pcrprimers.control=select:xyz:xyz
+chipSeq.pcrprimers.metaposition=140
+
+ampliconSeq.workflow.label = LABEL:ampliconSeq
+ampliconSeq.samples.allowable = samplefile;ampliconSample
+
+ampliconSeq.platform.label=Platform
+ampliconSeq.platform.constraint=NotEmpty
+ampliconSeq.platform.error=Platform cannot be empty
+ampliconSeq.platform.control=select:HISeq2000:HISeq2000
+ampliconSeq.platform.metaposition=100
+
+ampliconSeq.readlength.label=Read Length
+ampliconSeq.readlength.constraint=NotEmpty
+ampliconSeq.readlength.error=readlength cannot be empty
+ampliconSeq.readlength.control=select:100:100 bp; 150: 150bp
+ampliconSeq.readlength.metaposition=110
+
+ampliconSeq.readtype.label=Read Type
+ampliconSeq.readtype.constraint=NotEmpty
+ampliconSeq.readtype.error=readtype cannot be empty
+ampliconSeq.readtype.control=select:single:Single-End Read; pair:Pair-End Read
+ampliconSeq.readtype.metaposition=120
+
+ampliconSeq.antibody.label=Anti Body
+ampliconSeq.antibody.constraint=NotEmpty
+ampliconSeq.antibody.error=antibody cannot be empty
+ampliconSeq.antibody.control=select:abc:abc;def:def;ghi:ghi
+ampliconSeq.antibody.metaposition=130
+
+ampliconSeq.pcrprimers.label=PCR Primers
+ampliconSeq.pcrprimers.constraint=NotEmpty
+ampliconSeq.pcrprimers.error=pcrprimers cannot be empty
+ampliconSeq.pcrprimers.control=select:xyz:xyz
+ampliconSeq.pcrprimers.metaposition=140
+
+
+--static sampleDraft fields --
+sampleDraft.name.label=Name
+sampleDraft.name.constraint=NotEmpty
+sampleDraft.name.error=Please specify sample name
+
+sampleDraft.typeSampleId.label=Type
+sampleDraft.typeSampleId.constraint=NotEmpty
+sampleDraft.typeSampleId.error=Please specify type
+
+sampleDraft.status.label=Status
+sampleDraft.status.constraint=NotEmpty
+sampleDraft.status.error=Please specify status
+
+sampleDraft.fileData.label=Sample File
+sampleDraft.fileData.suffix=(10Mb Max)
+
+sampleDraft.created.success=Sample Created. 
+sampleDraft.updated.success=Sample Updated. 
+sampleDraft.removed.success=Sample Removed. 
+
+sampleDraft.fileupload.started=File Upload Started. Please Wait ...
+sampleDraft.fileupload.done=File Upload Done.
+sampleDraft.fileupload.empty=No File Selected.
+
+--dynamic sampleDraft fields --
+sampleDraft.material_provided.label=material_provided
+sampleDraft.reference_genome_id.label=reference_genome_id
+sampleDraft.species_id.label=species_id
+sampleDraft.fragment_size.label=fragment_size
+sampleDraft.amount.label=amount
+sampleDraft.concentration.label=concentration
+sampleDraft.260_280.label=260_280
+sampleDraft.260_230.label=260_230
+sampleDraft.volume.label=volume
+sampleDraft.buffer.label=buffer
+sampleDraft.sample_type.label=sample_type
+sampleDraft.antibody_id.label=antibody_id
+sampleDraft.enrich_primer_pair_id.label=enrich_primer_pair_id
+
+sampleDraft.material_provided.metaposition=10
+sampleDraft.reference_genome_id.metaposition=20
+sampleDraft.species_id.metaposition=30
+sampleDraft.fragment_size.metaposition=40
+sampleDraft.amount.metaposition=50
+sampleDraft.concentration.metaposition=60
+sampleDraft.260_280.metaposition=70
+sampleDraft.260_230.metaposition=80
+sampleDraft.volume.metaposition=90
+sampleDraft.buffer.metaposition=100
+sampleDraft.sample_type.metaposition=110
+sampleDraft.antibody_id.metaposition=120
+sampleDraft.enrich_primer_pair_id.metaposition=130
+
+---- for debuging ----
+hello.error=Hello World
+
+--- platformunit
+sample.name.label = Name
+sample.name.error = Name cannot be null
+
+platformunit.barcode.label = Barcode
+platformunit.barcode.constraint=NotEmpty
+platformunit.barcode.error= Barcode cannot be empty
+platformunit.barcode.metaposition=10
+
+platformunit.comment.label = Comment
+platformunit.comment.error= Comment
+platformunit.comment.metaposition=20
+
+platformunit.version.label = Version
+platformunit.version.error= VErsioN
+platformunit.version.metaposition=30
+
+platformunit.lanecount.label = Lane Count
+platformunit.lanecount.constraint=NotEmpty
+platformunit.lanecount.error= Lane Count cannot be empty 
+platformunit.lanecount.control=select:1:1;8:8
+platformunit.lanecount.metaposition=40
+
+
+ 
