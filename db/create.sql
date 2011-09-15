@@ -14,7 +14,7 @@ create table meta (
 
   constraint unique index u_meta_p_k (property, k),
   constraint unique index u_meta_p_v (property, v)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 
 
@@ -38,7 +38,7 @@ create table user (
 
   constraint unique index u_user_login (login),
   constraint unique index u_user_email (email)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 
 
@@ -58,7 +58,7 @@ create table usermeta (
 
   foreign key fk_usermeta_userid (userid) references user(userid),
   constraint unique index u_usermeta_k_uid (k, userid)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 --
 -- forgot password
@@ -71,7 +71,7 @@ create table userpasswordauth (
 
   foreign key fk_userpasswordauth_userid (userid) references user(userid),
   constraint unique index u_userpasswordauth (authcode)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 
 
@@ -87,7 +87,7 @@ create table role (
 
   constraint unique index u_role_rname (rolename),
   constraint unique index u_role_name (name)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 insert into role values
 (1, 'fm', 'Facilities Manager', 'system'),
@@ -115,7 +115,7 @@ create table roleset (
   foreign key fk_roleset_crid (childroleid) references role(roleid),
 
   constraint unique index u_role_rname (parentroleid, childroleid)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 insert into roleset
 (parentroleid, childroleid)
@@ -151,7 +151,7 @@ create table userrole (
   foreign key fk_userrole_uid (userid) references user(userid),
 
   constraint unique index userrole_uid_rid (userid, roleid)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 
 -- insert into userrole values (1, 1, 1, now(), 1);
@@ -169,7 +169,7 @@ create table department (
   lastupduser int(10) not null default 0,
 
   constraint unique index u_department_name (name)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 insert into department values 
 ( 1, 'Internal - Default Department', 1, 1, now(), 1 ),
@@ -191,7 +191,7 @@ create table departmentuser (
   foreign key fk_departmentuser_did (departmentid) references department(departmentid),
 
   constraint unique index u_departmentuser_did_uid (departmentid, userid)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 
 
@@ -215,7 +215,7 @@ create table lab (
 
   constraint unique index u_lab_name (name),
   constraint unique index u_lab_puid (primaryuserid)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 -- insert into lab values 
 -- ( 1, 1, 'Default Lab',  1, 1, now(), 1 );
@@ -233,7 +233,7 @@ create table labmeta (
 
   foreign key fk_labmeta_labid (labid) references lab(labid),
   constraint unique index u_labmeta_k_lid (k, labid)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 --
 -- LAB.USER
@@ -255,7 +255,7 @@ create table labuser (
   foreign key fk_labuser_rid (roleid) references role(roleid),
 
   constraint unique index u_labuser_lid_uid (labid, userid)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 --
 -- pending user
@@ -278,7 +278,7 @@ create table userpending (
   foreign key fk_userpending_lid (labid) references lab(labid),
 
   index i_userpending_status(status, email) 
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 create table userpendingmeta (
   userpendingmetaid int(10) not null primary key auto_increment,
@@ -293,7 +293,7 @@ create table userpendingmeta (
 
   foreign key fk_userpendingmeta_userpendingid (userpendingid) references userpending(userpendingid),
   constraint unique index u_userpendingmeta_k_lid (k, userpendingid)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 create table labpending ( 
   labpendingid int(10) not null primary key auto_increment,
@@ -313,7 +313,7 @@ create table labpending (
   foreign key fk_labpending_pruid (primaryuserid) references user(userid),
   foreign key fk_labpending_peuid (userpendingid) references userpending(userpendingid),
   index (status, name)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 create table labpendingmeta (
   labpendingmetaid int(10) not null primary key auto_increment,
@@ -328,7 +328,7 @@ create table labpendingmeta (
 
   foreign key fk_labpendingmeta_labpendingid (labpendingid) references labpending(labpendingid),
   constraint unique index u_labpendingmeta_k_lid (k, labpendingid)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 
 --
@@ -342,7 +342,7 @@ create table confirmemailauth (
 
   foreign key fk_confirmemailauth_userpending (userpendingid) references userpending(userpendingid),
   constraint unique index u_confirmemailauth (authcode)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 --
 -- type.RESOURCE
@@ -355,7 +355,7 @@ create table typeresource (
 
   constraint unique index u_typeresource_iname (iname),
   constraint unique index u_typeresource_name (name)
-) ENGINE=InnoDB; 
+) ENGINE=InnoDB charset=utf8; 
 
 insert into typeresource values (1, 'dna', 'DNA Sequencer'); 
 insert into typeresource values (2, 'amplicon', 'DNA Amplicon'); 
@@ -377,7 +377,7 @@ create table resource (
 
   foreign key fk_resource_trid (typeresourceid) references typeresource(typeresourceid),
   constraint unique index u_resource_name (name)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 
 
@@ -395,7 +395,7 @@ create table resourcemeta (
 
   foreign key fk_resourcemeta_resourceid (resourceid) references resource(resourceid),
   constraint unique index u_resourcemeta_k_rid (k, resourceid)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 
 -- 
@@ -414,7 +414,7 @@ create table resourcemeta (
   -- foreign key fk_resourceuser_uid (userid) references user(userid),
   -- 
   -- constraint unique index u_resourceuser_rid_uid (resourceid, userid)
-  -- ) ENGINE=InnoDB;
+  -- ) ENGINE=InnoDB charset=utf8;
 
 
 
@@ -434,7 +434,7 @@ create table workflow (
 
   constraint unique index u_workflow_iname (iname),
   constraint unique index u_workflow_name (name)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 create table workflowmeta (
   workflowmetaid int(10) not null primary key auto_increment,
@@ -449,7 +449,7 @@ create table workflowmeta (
 
   foreign key fk_workflowmeta_workflowid (workflowid) references workflow(workflowid),
   constraint unique index u_workflowmeta_k_wid (k, workflowid)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 --
 -- JOB
@@ -476,7 +476,7 @@ create table job (
   foreign key fk_job_wid (workflowid) references workflow(workflowid),
 
   constraint unique index u_job_name_lid (name, labid)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 
 create table jobmeta (
@@ -493,7 +493,7 @@ create table jobmeta (
   foreign key fk_jobmeta_jobid (jobid) references job(jobid),
 
   constraint unique index u_jobmeta_k_jid (k, jobid)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 --
 -- JOB.USER
@@ -516,7 +516,7 @@ create table jobuser (
   foreign key fk_jobuser_rid (roleid) references role(roleid),
 
   constraint unique index u_jobuser_jid_uid (jobid, userid)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 create table jobdraft (
   jobdraftid int(10) not null primary key auto_increment, 
@@ -539,7 +539,7 @@ create table jobdraft (
   foreign key fk_jobdraft_wid (workflowid) references workflow(workflowid),
   foreign key fk_jobdraft_sjid (submittedjobid) references job(jobid)
 
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 
 create table jobdraftmeta (
@@ -556,7 +556,7 @@ create table jobdraftmeta (
   foreign key fk_jobdraftmeta_jdid (jobdraftid) references jobdraft(jobdraftid),
 
   constraint unique index u_jobdraftmeta_k_jdid (k, jobdraftid)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 -- ---------------------------------------------------
 
@@ -578,7 +578,7 @@ create table project (
   foreign key fk_project_lid (labid) references lab(labid),
 
   constraint unique index u_project_name_lid (name, labid)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 
 --
@@ -596,7 +596,7 @@ create table barcode (
   lastupduser int(10) not null default 0,
 
   constraint unique index u_barcode_bc (barcode)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 create table resourcebarcode (
   resourcebarcodeid int(10) not null primary key auto_increment, 
@@ -609,7 +609,7 @@ create table resourcebarcode (
 
   constraint unique index u_resourcebarcode_rid (resourceid),
   constraint unique index u_resourcebarcode_bcid (barcodeid)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 -- 
 -- SAMPLE
@@ -622,7 +622,7 @@ create table typesample (
 
   constraint unique index u_typesample_iname (iname),
   constraint unique index u_typesample_name (name)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 insert into typesample values
 (1, 'dna', 'DNA'), 
@@ -641,7 +641,7 @@ create table subtypesample (
 
   constraint unique index u_subtypesample_iname (iname),
   foreign key fk_subtypesample_tsid (typesampleid) references typesample(typesampleid)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 create table workflowsubtypesample (
   workflowsubtypesampleid int(10) not null primary key auto_increment,
@@ -652,7 +652,7 @@ create table workflowsubtypesample (
 
   foreign key fk_workflowsubtypesample_stsid (subtypesampleid) references subtypesample(subtypesampleid),
   foreign key fk_workflowsubtypesample_wid (workflowid) references workflow(workflowid)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 create table sample (
   sampleid int(10) not null primary key auto_increment,
@@ -680,7 +680,7 @@ create table sample (
   foreign key fk_sample_sjid (submitter_jobid) references job(jobid),
   foreign key fk_sample_slid (submitter_labid) references lab(labid),
   foreign key fk_sample_suid (submitter_userid) references user(userid)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 create table samplemeta (
   samplemetaid int(10) not null primary key auto_increment,
@@ -695,7 +695,7 @@ create table samplemeta (
 
   foreign key fk_samplemeta_sampleid (sampleid) references sample(sampleid),
   constraint unique index u_samplemeta_k_sid (k, sampleid)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 
 -- SAMPLE.SOURCE
@@ -713,7 +713,7 @@ create table samplesource (
   foreign key fk_samplesource_ssid (source_sampleid) references sample(sampleid),
 
   constraint unique index u_samplesource_sid (sampleid, multiplexindex)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 -- SAMPLE.BARCODE 
 create table samplebarcode (
@@ -730,7 +730,7 @@ create table samplebarcode (
 
   constraint unique index u_samplebarcode_sid (sampleid),
   constraint unique index u_samplebarcode_bcid (barcodeid)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 -- SAMPLE.LAB
 --   - lab share?
@@ -749,7 +749,7 @@ create table samplelab (
   foreign key fk_samplelab_lid (labid) references lab(labid),
 
   constraint unique index u_samplelab_sid_lid (sampleid, labid)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 
 create table sampledraft (
@@ -772,7 +772,7 @@ create table sampledraft (
   foreign key fk_sampledraft_sjid (jobdraftid) references jobdraft(jobdraftid),
   foreign key fk_sampledraft_slid (labid) references lab(labid),
   foreign key fk_sampledraft_suid (userid) references user(userid)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 create table sampledraftmeta (
   sampledraftmetaid int(10) not null primary key auto_increment,
@@ -787,7 +787,7 @@ create table sampledraftmeta (
 
   foreign key fk_sampledraftmeta_sdid (sampledraftid) references sampledraft(sampledraftid),
   constraint unique index u_sampledraftmeta_k_sid (k, sampledraftid)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 
 
@@ -811,7 +811,7 @@ create table jobsample (
   foreign key fk_jobsample_sid (sampleid) references sample(sampleid),
 
   constraint unique index u_jobsample_jid_sid (jobid, sampleid)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 create table jobsamplemeta (
   jobsamplemetaid int(10) not null primary key auto_increment,
@@ -826,7 +826,7 @@ create table jobsamplemeta (
 
   foreign key fk_jobsamplemeta_jsid (jobsampleid) references jobsample(jobsampleid),
   constraint unique index u_jobsamplemeta_k_jsid (k, jobsampleid)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 
 
@@ -841,7 +841,7 @@ create table acct_workflowcost (
   lastupduser int(10) not null default 0,
 
   foreign key fk_acct_workflowcost_wfid (workflowid) references job(workflowid)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 
 create table acct_quote (
@@ -857,7 +857,7 @@ create table acct_quote (
 
   foreign key fk_acct_quote_jid (jobid) references job(jobid),
   foreign key fk_acct_quote_uid (userid) references user(userid)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 create table acct_jobquotecurrent (
   jobid int(10) not null primary key,
@@ -869,7 +869,7 @@ create table acct_jobquotecurrent (
 
   foreign key fk_acct_jobquotecurrent_jid (jobid) references job(jobid),
   foreign key fk_acct_jobquotecurrent_qid (quoteid) references acct_quote(quoteid)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 create table acct_quoteuser (
   quoteuserid int(10) not null primary key auto_increment, 
@@ -886,7 +886,7 @@ create table acct_quoteuser (
   foreign key fk_acct_quote_jid (quoteid) references acct_quote(quoteid),
   foreign key fk_acct_quote_uid (userid) references user(userid),
   foreign key fk_acct_quote_rid (roleid) references role(roleid)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 
 create table acct_invoice (
@@ -902,7 +902,7 @@ create table acct_invoice (
 
   foreign key fk_acct_invoice_qid (quoteid) references acct_quote(quoteid),
   foreign key fk_acct_invoice_jid (jobid) references job(jobid)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 create table acct_ledger (
   ledgerid int(10) not null primary key auto_increment,
@@ -917,7 +917,7 @@ create table acct_ledger (
 
   foreign key fk_acct_ledger_iid (invoiceid) references acct_invoice(invoiceid),
   foreign key fk_acct_ledger_jid (jobid) references job(jobid)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 create table acct_grant (
   grantid int(10) not null primary key auto_increment,
@@ -932,7 +932,7 @@ create table acct_grant (
 
 
   foreign key fk_grant_lid (labid) references lab(labid)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 create table acct_grantjob (
   jobid int(10) not null primary key auto_increment, 
@@ -944,7 +944,7 @@ create table acct_grantjob (
 
   foreign key fk_acct_ledgergrant_jid (jobid) references acct_ledger(jobid),
   foreign key fk_acct_ledgergrant_gid (grantid) references acct_grant(grantid)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 
 --
@@ -967,7 +967,7 @@ create table file (
   lastupduser int(10) not null default 0 
 
   -- constraint unique index u_file_flocation (filelocation)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 --
 -- JOB.FILE
@@ -989,7 +989,7 @@ create table jobfile (
   foreign key fk_jobfile_fid (fileid) references file(fileid) -- ,
 
   -- constraint unique index u_jobfile_iname_jid (iname, jobid)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 create table samplefile ( 
   samplefileid int(10) not null primary key auto_increment,
@@ -1008,7 +1008,7 @@ create table samplefile (
   foreign key fk_samplefile_fid (fileid) references file(fileid) -- ,
 
   -- constraint unique index u_samplefile_iname_jid (iname, sampleid)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 
 -- ---------------------------------
@@ -1028,7 +1028,7 @@ create table resourcelane (
   foreign key fk_resourcelane_rid (resourceid) references resource(resourceid),
   constraint unique index u_resourcelane_iname_rid (iname, resourceid),
   constraint unique index u_resourcelane_name_rid (name, resourceid)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 --
 -- RUN
@@ -1055,7 +1055,7 @@ create table run (
   foreign key fk_run_rid (resourceid) references resource(resourceid),
   foreign key fk_run_sid (sampleid) references sample(sampleid),
   foreign key fk_run_userid (userid) references user(userid)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 create table runmeta (
   runmetaid int(10) not null primary key auto_increment,
@@ -1070,7 +1070,7 @@ create table runmeta (
 
   foreign key fk_runmeta_runid (runid) references run(runid),
   constraint unique index u_runmeta_k_rid (k, runid)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 --
 -- RUN.resourceLANE (LANE)
@@ -1088,7 +1088,7 @@ create table runlane (
 
   constraint unique index u_runlane_rid_lid (runid, resourcelaneid),
   constraint unique index u_runlane_sid_rid (sampleid, runid) 
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 --
 -- RESOURCE
@@ -1111,7 +1111,7 @@ create table runfile (
   foreign key fk_rfile_fid (fileid) references file(fileid),
 
   constraint unique index u_rlfile_fileid (fileid)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 create table runlanefile (
   runlanefileid int(10) not null primary key auto_increment,
@@ -1129,7 +1129,7 @@ create table runlanefile (
   foreign key fk_rlfile_fileid (fileid) references file(fileid),
 
   constraint unique index u_rlfile_fileid (fileid)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 
 
@@ -1142,7 +1142,7 @@ create table task (
   iname varchar(250) not null,
   name varchar(250) not null,
   constraint unique index u_task_iname (iname)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 create table workflowtask (
   workflowtaskid int(10) not null primary key auto_increment,
@@ -1151,13 +1151,13 @@ create table workflowtask (
 
   iname varchar(250) not null, -- can be multiple task, so this differenciates
   name varchar(250) not null
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 create table workflowtasksource (
   workflowtasksourceid int(10) not null primary key auto_increment,
   workflowtaskid int(10) not null,
   sourceworkflowtaskid int(10) not null
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 create table state (
   stateid int(10) not null primary key auto_increment,
@@ -1173,7 +1173,7 @@ create table state (
   lastupduser int(10) not null default 0,
 
   foreign key fk_state_tid (taskid) references task(taskid)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 create table statemeta (
   statemetaid int(10) not null primary key auto_increment,
@@ -1188,7 +1188,7 @@ create table statemeta (
 
   foreign key fk_statemeta_sid (stateid) references state(stateid),
   constraint unique index u_statemeta_k_pid (k, stateid)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 
 create table statejob (
@@ -1199,7 +1199,7 @@ create table statejob (
 
   foreign key fk_statejob_sid (stateid) references state(stateid),
   foreign key fk_statejob_jid (jobid) references job(jobid)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 
 create table statesample (
@@ -1210,7 +1210,7 @@ create table statesample (
 
   foreign key fk_statesample_sid (stateid) references state(stateid),
   foreign key fk_statesample_sampleid (sampleid) references sample(sampleid)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 create table staterun (
   staterunid int(10) not null primary key auto_increment, 
@@ -1220,7 +1220,7 @@ create table staterun (
 
   foreign key fk_staterun_sid (stateid) references state(stateid),
   foreign key fk_staterun_rid (runid) references run(runid)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 --
 -- tie illumina runs back to real tasks
@@ -1233,35 +1233,30 @@ create table staterunlane (
 
   foreign key fk_staterunlane_sid (stateid) references state(stateid),
   foreign key fk_staterunlane_rlid (runlaneid) references runlane(runlaneid)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB charset=utf8;
 
 
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 
+create table uifield (
+  uifieldid int(11) not null primary key auto_increment,
+  locale varchar(255) not null,
+  area varchar(255) not null,
+  name varchar(255) not null,
+  attrname varchar(255) not null,
+  attrvalue varchar(255) default null,
 
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8 */;
+  lastupdts datetime default null,
+  lastupduser int(11) default null,
 
-CREATE TABLE IF NOT EXISTS `uifield` (
-  `uiFieldId` int(11) NOT NULL AUTO_INCREMENT,
-  `area` varchar(255) NOT NULL,
-  `attrname` varchar(255) NOT NULL,
-  `attrvalue` varchar(255) DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
-  `locale` varchar(255) NOT NULL,
-  `name` varchar(255) NOT NULL,
-  PRIMARY KEY (`uiFieldId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=521 ;
+  constraint unique index u_uifield_laaa (locale, area, name, attrname)
+) ENGINE=InnoDB charset=utf8;
 
 
-INSERT INTO `uifield` (`uiFieldId`, `area`, `attrname`, `attrvalue`, `lastupdts`, `lastupduser`, `locale`, `name`) VALUES
+insert into uifield (`uifieldid`, `area`, `attrname`, `attrvalue`, `lastupdts`, `lastupduser`, `locale`, `name`) values
 (1, 'user', 'label', 'Login', '2011-09-15 11:52:20', 133, 'en_US', 'login'),
 (2, 'user', 'error', 'Login cannot be empty', '2011-09-15 11:29:19', 133, 'en_US', 'login'),
-(3, 'user', 'error', 'Login already exists', '2011-09-15 11:50:36', 133, 'en_US', 'login'),
 (4, 'user', 'label', 'User Detail', '2011-09-15 10:30:52', 133, 'en_US', 'detail'),
 (5, 'user', 'metaposition', 'User Details', '2011-09-15 10:30:59', 133, 'en_US', 'detail'),
 (6, 'user', 'label', 'Password', NULL, 1, 'en_US', 'password'),
@@ -1359,7 +1354,7 @@ INSERT INTO `uifield` (`uiFieldId`, `area`, `attrname`, `attrvalue`, `lastupdts`
 (100, 'userPending', 'metaposition', '40', NULL, 1, 'en_US', 'address'),
 (101, 'userPending', 'label', 'City', NULL, 1, 'en_US', 'city'),
 (102, 'userPending', 'error', 'City cannot be empty', NULL, 1, 'en_US', 'city'),
-(103, 'userPending', 'constraint', 'NotEmpty', NULL, 1, 'en_US', 'address'),
+(103, 'userPending', 'constraint', 'NotEmpty', NULL, 1, 'en_US', 'city'),
 (104, 'userPending', 'metaposition', '50', NULL, 1, 'en_US', 'city'),
 (105, 'userPending', 'label', 'State', NULL, 1, 'en_US', 'state'),
 (106, 'userPending', 'control', 'select:${states}:code:name', NULL, 1, 'en_US', 'state'),
@@ -1416,7 +1411,7 @@ INSERT INTO `uifield` (`uiFieldId`, `area`, `attrname`, `attrvalue`, `lastupdts`
 (157, 'piPending', 'metaposition', '40', NULL, 1, 'en_US', 'address'),
 (158, 'piPending', 'label', 'City', NULL, 1, 'en_US', 'city'),
 (159, 'piPending', 'error', 'City cannot be empty', NULL, 1, 'en_US', 'city'),
-(160, 'piPending', 'constraint', 'NotEmpty', NULL, 1, 'en_US', 'address'),
+(160, 'piPending', 'constraint', 'NotEmpty', NULL, 1, 'en_US', 'city'),
 (161, 'piPending', 'metaposition', '50', NULL, 1, 'en_US', 'city'),
 (162, 'piPending', 'label', 'State', NULL, 1, 'en_US', 'state'),
 (163, 'piPending', 'control', 'select:${states}:code:name', NULL, 1, 'en_US', 'state'),
@@ -1638,7 +1633,7 @@ INSERT INTO `uifield` (`uiFieldId`, `area`, `attrname`, `attrvalue`, `lastupdts`
 (379, 'resequencing', 'label', 'LABEL:resequencing', NULL, 1, 'en_US', 'workflow'),
 (380, 'rnaSeq', 'label', 'LABEL:rnaSeq', NULL, 1, 'en_US', 'workflow'),
 (381, 'seqCap', 'label', 'LABEL:seqCap', NULL, 1, 'en_US', 'workflow'),
-(382, 'chipSeq', 'label', 'LABEL:chipSeq', NULL, 1, 'en_US', 'workflow'),
+
 (383, 'chipSeq', 'data', 'samplefile;chipseqSample', NULL, 1, 'en_US', 'samples'),
 (384, 'chipSeq', 'label', 'Platform', NULL, 1, 'en_US', 'platform'),
 (385, 'chipSeq', 'constraint', 'NotEmpty', NULL, 1, 'en_US', 'platform'),
@@ -1665,7 +1660,6 @@ INSERT INTO `uifield` (`uiFieldId`, `area`, `attrname`, `attrvalue`, `lastupdts`
 (406, 'chipSeq', 'error', 'pcrprimers cannot be empty', NULL, 1, 'en_US', 'pcrprimers'),
 (407, 'chipSeq', 'control', 'select:xyz:xyz', NULL, 1, 'en_US', 'pcrprimers'),
 (408, 'chipSeq', 'metaposition', '140', NULL, 1, 'en_US', 'pcrprimers'),
-(409, 'ampliconSeq', 'label', 'LABEL:ampliconSeq', NULL, 1, 'en_US', 'workflow'),
 (410, 'ampliconSeq', 'data', 'samplefile;ampliconSample', NULL, 1, 'en_US', 'samples'),
 (411, 'ampliconSeq', 'label', 'Platform', NULL, 1, 'en_US', 'platform'),
 (412, 'ampliconSeq', 'constraint', 'NotEmpty', NULL, 1, 'en_US', 'platform'),
@@ -1773,13 +1767,8 @@ INSERT INTO `uifield` (`uiFieldId`, `area`, `attrname`, `attrvalue`, `lastupdts`
 (514, 'user', 'label', 'Логин', '2011-09-15 08:47:33', 133, 'ru_RU', 'login'),
 (515, 'uiField', 'label', 'Язык', '2011-09-15 09:53:07', 133, 'ru_RU', 'locale'),
 (516, 'uiField', 'label', 'Обьект', '2011-09-15 09:54:11', 133, 'ru_RU', 'area'),
-(517, 'uiField', 'label', 'Язык2', '2011-09-15 09:55:16', 133, 'ru_RU', 'locale'),
 (518, 'jobDraft', 'label', 'Название Работы', '2011-09-15 10:04:44', 133, 'ru_RU', 'name'),
 (519, 'uiField', 'suffix', '<font color="blue"> see footnote<sup>1</sup> </font>', '2011-09-15 11:14:33', 133, 'en_US', 'attrName');
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 
 
 
