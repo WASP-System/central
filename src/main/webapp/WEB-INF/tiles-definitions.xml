@@ -29,6 +29,13 @@
    <put-attribute name="primary-content"  value="/WEB-INF/jsp/lab/list.jsp" />   
  </definition>
 
+ <definition name="uifield-list" extends="template-grid">    
+   <put-attribute name="area"  value="uiField" />   
+   <put-attribute name="grid-columns"  value="/WEB-INF/jsp/uiField/grid_columns.jsp" />
+   <put-attribute name="subgrid-columns" value="" />
+   <put-attribute name="primary-content"  value="/WEB-INF/jsp/uiField/list.jsp" />   
+ </definition>
+
   <definition name="jobsubmit-sample" extends="template-grid">    
    <put-attribute name="area"  value="sampleDraft" />   
    <put-attribute name="grid-columns"  value="/WEB-INF/jsp/jobsubmit/sample_grid_columns.jsp" />
@@ -49,9 +56,9 @@
 <definition name="auth/resetpassword/form" template="/WEB-INF/jsp/auth/resetpassword/form.jsp"/>
 <definition name="auth/resetpassword/ok" template="/WEB-INF/jsp/auth/resetpassword/ok.jsp"/>
 
+
 <definition name="auth/confirmemail/authcodeform" template="/WEB-INF/jsp/auth/confirmemail/authcodeform.jsp"/>
 <definition name="auth/confirmemail/ok" template="/WEB-INF/jsp/auth/confirmemail/ok.jsp"/>
-
 
  <definition name="dashboard" template="/WEB-INF/jsp/dashboard.jsp"/>
    
@@ -72,6 +79,8 @@
  <definition name="run/list" template="/WEB-INF/jsp/run/list.jsp"/>
  <definition name="task/list" template="/WEB-INF/jsp/task/list.jsp"/>
  <definition name="task/fmrequote/list" template="/WEB-INF/jsp/task/fmrequote/list.jsp"/>
+
+  <definition name="task/fmrequote/list" template="/WEB-INF/jsp/task/fmrequote/list.jsp"/>
  <definition name="task/samplereceive/list" template="/WEB-INF/jsp/task/samplereceive/list.jsp"/>
  <definition name="department/detail" template="/WEB-INF/jsp/department/detail.jsp"/>
  <definition name="resource/create/form" template="/WEB-INF/jsp/department/detail.jsp"/>
@@ -102,6 +111,7 @@
 
 <definition name="lab/pendinguser/list" template="/WEB-INF/jsp/lab/pendinguser/list.jsp" />
 
+
  <definition name="task/fmpayment/list" extends="template-grid">
    <put-attribute name="area"  value="platformunit" />   
 
@@ -109,6 +119,7 @@
    <put-attribute name="subgrid-columns" value="" />
    <put-attribute name="primary-content"  value="/WEB-INF/jsp/task/fmpayment/payment.jsp" />   
  </definition>
+
 
 </tiles-definitions>
 

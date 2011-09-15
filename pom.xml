@@ -27,7 +27,7 @@
 				</configuration>
 			</plugin>
 
-			<plugin>
+			<!-- plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>native2ascii-maven-plugin</artifactId>
 				<executions>
@@ -35,7 +35,7 @@
 						<goals>
 							<goal>native2ascii</goal>
 						</goals>
-						<!-- specific configurations -->
+						
 						<configuration>
 							<encoding>UTF8</encoding>
 							<dest>${project.build.directory}/classes</dest>
@@ -45,7 +45,7 @@
 						</configuration>
 					</execution>
 				</executions>
-			</plugin>
+			</plugin-->
 
 		</plugins>
 	</build>

@@ -2,56 +2,43 @@ package edu.yu.einstein.wasp.controller;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.util.HashMap;
 import java.util.List;
-import java.util.ArrayList;
-import java.util.Locale;
-import java.util.Map;
-import java.util.ResourceBundle;
 
 import javax.validation.Valid;
 
 import nl.captcha.Captcha;
 
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.ModelMap;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindException;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.BindException;
-import org.springframework.validation.Errors;
-import edu.yu.einstein.wasp.controller.validator.MetaValidator;
+
 import edu.yu.einstein.wasp.controller.validator.PasswordValidator;
 import edu.yu.einstein.wasp.controller.validator.UserPendingMetaValidatorImpl;
 import edu.yu.einstein.wasp.model.ConfirmEmailAuth;
 import edu.yu.einstein.wasp.model.Lab;
+import edu.yu.einstein.wasp.model.LabPending;
+import edu.yu.einstein.wasp.model.MetaHelper;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.model.UserPendingMeta;
-import edu.yu.einstein.wasp.model.LabPending;
-import edu.yu.einstein.wasp.model.Userpasswordauth;
 import edu.yu.einstein.wasp.service.AuthCodeService;
 import edu.yu.einstein.wasp.service.ConfirmEmailAuthService;
-import edu.yu.einstein.wasp.service.LabService;
 import edu.yu.einstein.wasp.service.DepartmentService;
-import edu.yu.einstein.wasp.service.UserPendingService;
-import edu.yu.einstein.wasp.service.UserPendingMetaService;
-import edu.yu.einstein.wasp.service.LabPendingService;
-import edu.yu.einstein.wasp.service.LabPendingMetaService;
-
 import edu.yu.einstein.wasp.service.EmailService;
+import edu.yu.einstein.wasp.service.LabPendingMetaService;
+import edu.yu.einstein.wasp.service.LabPendingService;
+import edu.yu.einstein.wasp.service.LabService;
 import edu.yu.einstein.wasp.service.PasswordService;
-import edu.yu.einstein.wasp.service.impl.ConfirmEmailAuthServiceImpl;
-
-import edu.yu.einstein.wasp.model.MetaHelper;
-
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
+import edu.yu.einstein.wasp.service.UserPendingMetaService;
+import edu.yu.einstein.wasp.service.UserPendingService;
 
 
 @Controller
@@ -97,18 +84,19 @@ public class UserPendingController extends WaspController {
 	 *
 	 */
 
-
-	MetaHelper metaHelper = new MetaHelper("userPending", UserPending.class);
-
+	private final MetaHelper getMetaHelper() {
+		return new MetaHelper("userPending", UserPending.class, request.getSession());
+	}
+	
 	@RequestMapping(value="/newuser", method=RequestMethod.GET)
 	public String showNewPendingUserForm(ModelMap m) {
-		metaHelper.setBundle(getBundle());
+		
 
 		UserPending userPending = new UserPending();
 
-		userPending.setUserPendingMeta(metaHelper.getMasterList(UserPendingMeta.class)); 
+		userPending.setUserPendingMeta(getMetaHelper().getMasterList(UserPendingMeta.class)); 
 
-		m.addAttribute(metaHelper.getParentArea(), userPending);
+		m.addAttribute(getMetaHelper().getParentArea(), userPending);
 		prepareSelectListData(m);
 
 		return "auth/newuser/form";
@@ -121,20 +109,21 @@ public class UserPendingController extends WaspController {
 			 BindingResult result,
 			 SessionStatus status, 
 			 ModelMap m) {
-		metaHelper.setBundle(getBundle());
-		List<UserPendingMeta> userPendingMetaList = metaHelper.getFromRequest(request, UserPendingMeta.class);
+		
+		
+		
+		List<UserPendingMeta> userPendingMetaList = getMetaHelper().getFromRequest(request, UserPendingMeta.class);
 
 		userPendingForm.setUserPendingMeta(userPendingMetaList);
 
-		metaHelper.validate(new UserPendingMetaValidatorImpl(userService, labService), userPendingMetaList, result);
+		getMetaHelper().validate(new UserPendingMetaValidatorImpl(userService, labService), userPendingMetaList, result);
 	
-		passwordValidator.validate(result, userPendingForm.getPassword(), (String) request.getParameter("password2"), metaHelper.getParentArea(), "password");
-		
+		passwordValidator.validate(result, userPendingForm.getPassword(), (String) request.getParameter("password2"), getMetaHelper().getParentArea(), "password");
 		if (! result.hasFieldErrors("email")){
-			Errors errors=new BindException(result.getTarget(), metaHelper.getParentArea());
+			Errors errors=new BindException(result.getTarget(), getMetaHelper().getParentArea());
 			User user = userService.getUserByEmail(userPendingForm.getEmail());
 			if (user.getUserId() != 0 ){
-				errors.rejectValue("email", metaHelper.getParentArea()+".email_exists.error", metaHelper.getParentArea()+".email_exists.error (no message has been defined for this property)");
+				errors.rejectValue("email", getMetaHelper().getParentArea()+".email_exists.error", getMetaHelper().getParentArea()+".email_exists.error (no message has been defined for this property)");
 			}
 			result.addAllErrors(errors);
 		}
@@ -149,7 +138,7 @@ public class UserPendingController extends WaspController {
 		String piUserEmail = "";
 		
 		for (UserPendingMeta meta : userPendingMetaList) {
-			if (meta.getK().equals(metaHelper.getArea() + ".primaryuseremail") ) {
+			if (meta.getK().equals(getMetaHelper().getArea() + ".primaryuseremail") ) {
 				piUserEmail = meta.getV();
 				break;
 			}
@@ -169,6 +158,7 @@ public class UserPendingController extends WaspController {
 
 		status.setComplete();
 
+
 		// TODO email PI/LM that a new user is pending
 		String authcode = authCodeService.createAuthCode(20);
 		ConfirmEmailAuth confirmEmailAuth = new ConfirmEmailAuth();
@@ -181,8 +171,10 @@ public class UserPendingController extends WaspController {
 
 	@RequestMapping(value="/newpi", method=RequestMethod.GET)
 	public String showNewPendingPiForm(ModelMap m) {
+		MetaHelper metaHelper=getMetaHelper();
+		
 		metaHelper.setArea("piPending"); 
-		metaHelper.setBundle(getBundle());
+
 
 		UserPending userPending = new UserPending();
 
@@ -201,13 +193,15 @@ public class UserPendingController extends WaspController {
 			 BindingResult result,
 			 SessionStatus status, 
 			 ModelMap m) {
-		metaHelper.setBundle(getBundle());
-		metaHelper.setArea("piPending");
 		
-		List<UserPendingMeta> userPendingMetaList = metaHelper.getFromRequest(request, UserPendingMeta.class);
+		MetaHelper metaHelper=getMetaHelper();
+		
+		metaHelper.setArea("piPending"); 
+		
+		List<UserPendingMeta> userPendingMetaList =  metaHelper.getFromRequest(request, UserPendingMeta.class);
 		userPendingForm.setUserPendingMeta(userPendingMetaList);
 
-		metaHelper.validate(userPendingMetaList, result);
+		 metaHelper.validate(userPendingMetaList, result);
 
 		if (result.hasErrors()) {
 			prepareSelectListData(m);
@@ -235,11 +229,11 @@ public class UserPendingController extends WaspController {
 		// TODO DEPARTMENT ID
 		labPendingForm.setDepartmentId(1);
 		for (UserPendingMeta meta : userPendingMetaList) {
-			if (meta.getK().equals(metaHelper.getArea() + ".labName")) {
+			if (meta.getK().equals( metaHelper.getArea() + ".labName")) {
 				labPendingForm.setName(meta.getV());
 				continue;
 			}
-			if (meta.getK().equals(metaHelper.getArea() + ".departmentId")) {
+			if (meta.getK().equals( metaHelper.getArea() + ".departmentId")) {
 				try{
 					labPendingForm.setDepartmentId(Integer.parseInt(meta.getV()));
 				} catch (Exception e) {
@@ -256,7 +250,7 @@ public class UserPendingController extends WaspController {
 		waspMessage("hello.error");
 		return "redirect:/auth/newpi/ok.do";
 	}
-	
+
 	@RequestMapping(value="/confirmemail", method=RequestMethod.GET)
 	  public String confirmEmailFromEmailLink(
 			  @RequestParam(value="authcode") String authCode,

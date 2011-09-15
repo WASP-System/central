@@ -24,11 +24,6 @@ import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
-
-import org.springframework.validation.ObjectError;
-import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
-
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -63,17 +58,17 @@ public class UserController extends WaspController {
 
 	@Autowired
 	private PasswordService passwordService;
-	
-	MetaHelper metaHelper = new MetaHelper("user", UserMeta.class);
 
-
+	private final MetaHelper getMetaHelper() {
+		return new MetaHelper("user", UserMeta.class, request.getSession());
+	}
 	
 	@RequestMapping("/list")
 	@PreAuthorize("hasRole('god')")
 	public String list(ModelMap m) {
 		
-		m.addAttribute("_metaList", metaHelper.getMasterList(MetaBase.class));
-		m.addAttribute(JQFieldTag.AREA_ATTR, metaHelper.getArea());		
+		m.addAttribute("_metaList", getMetaHelper().getMasterList(MetaBase.class));
+		m.addAttribute(JQFieldTag.AREA_ATTR, getMetaHelper().getArea());		
 		
 		
 		prepareSelectListData(m);
@@ -85,7 +80,7 @@ public class UserController extends WaspController {
 	
 	@RequestMapping(value = "/subgridJSON.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('god') or User.login == principal.name")
-	public @ResponseBody String subgridJSON(@RequestParam("id") Integer userId,ModelMap m, HttpServletResponse response) {
+	public String subgridJSON(@RequestParam("id") Integer userId,ModelMap m, HttpServletResponse response) {
 				
 		Map <String, Object> jqgrid = new HashMap<String, Object>();
 		
@@ -187,9 +182,8 @@ public class UserController extends WaspController {
 			 
 			jqgrid.put("rows",rows);
 			 
-		    String json=mapper.writeValueAsString(jqgrid);
-			 
-			 return json;
+			return outputJSON(jqgrid, response); 	
+			
 		 } catch (Throwable e) {
 			 throw new IllegalStateException("Can't marshall to JSON "+puLabs,e);
 		 }
@@ -198,7 +192,7 @@ public class UserController extends WaspController {
 	
 	
 	@RequestMapping(value="/listJSON", method=RequestMethod.GET)	
-	public @ResponseBody String getListJSON() {
+	public String getListJSON(HttpServletResponse response) {
 	
 		//result
 		Map <String, Object> jqgrid = new HashMap<String, Object>();
@@ -246,7 +240,7 @@ public class UserController extends WaspController {
 				 Map cell = new HashMap();
 				 cell.put("id", user.getUserId());
 				 
-				 List<UserMeta> userMeta=metaHelper.syncWithMaster(user.getUserMeta());
+				 List<UserMeta> userMeta=getMetaHelper().syncWithMaster(user.getUserMeta());
 				 					
 				 List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 							user.getLogin(),
@@ -271,9 +265,8 @@ public class UserController extends WaspController {
 			 
 			 jqgrid.put("rows",rows);
 			 
-			 String json=mapper.writeValueAsString(jqgrid);
+			 return outputJSON(jqgrid, response); 	
 			 
-			 return json;
 		 } catch (Throwable e) {
 			 throw new IllegalStateException("Can't marshall to JSON "+userList,e);
 		 }
@@ -297,7 +290,7 @@ public class UserController extends WaspController {
 		
 		}
 				
-		List<UserMeta> userMetaList = metaHelper.getFromJsonForm(request, UserMeta.class);
+		List<UserMeta> userMetaList = getMetaHelper().getFromJsonForm(request, UserMeta.class);
 		
 		userForm.setUserMeta(userMetaList);
 
@@ -353,6 +346,10 @@ public class UserController extends WaspController {
 
 		userForm.setPassword( passwordService.encodePassword(userForm.getPassword()) );
 		
+		//waspMessage("user.updated.success");
+		
+		//emailService.sendNewPassword(userDb, "new pass");
+		
 		try {
 			response.getWriter().println(adding?getMessage("user.created.success"):getMessage("user.updated.success"));
 			return null;
@@ -374,7 +371,7 @@ public class UserController extends WaspController {
 		User user = this.getAuthenticatedUser();		
 		return this.detailRW(user.getUserId(), m);
 	}
-
+	
 	@RequestMapping(value = "/me_rw.do", method = RequestMethod.POST)
 	public String updateDetail(@Valid User userForm, BindingResult result,
 			SessionStatus status, ModelMap m) {
@@ -391,7 +388,7 @@ public class UserController extends WaspController {
 			@Valid User userForm, BindingResult result, SessionStatus status,
 			ModelMap m) {
 
-		List<UserMeta> userMetaList = metaHelper.getFromRequest(request, UserMeta.class);
+		List<UserMeta> userMetaList = getMetaHelper().getFromRequest(request, UserMeta.class);
 
 		for (UserMeta meta : userMetaList) {
 			meta.setUserId(userId);
@@ -399,7 +396,7 @@ public class UserController extends WaspController {
 		}
 
 		userForm.setUserMeta(userMetaList);
-		metaHelper.validate(userMetaList, result);
+		getMetaHelper().validate(userMetaList, result);
 
 		if (result.hasErrors()) {
 			
@@ -438,7 +435,8 @@ public class UserController extends WaspController {
 		status.setComplete();
 
 		waspMessage("user.updated.success");
-
+		
+		//emailService.sendNewPassword(userDb, "new pass");
 		
 		return "redirect:" + userId + ".do";
 	}
@@ -504,7 +502,7 @@ public class UserController extends WaspController {
 	
 		User user = new User();
 
-		user.setUserMeta(metaHelper.getMasterList(UserMeta.class));
+		user.setUserMeta(getMetaHelper().getMasterList(UserMeta.class));
 		
 		m.addAttribute("user", user);
 		
@@ -519,12 +517,12 @@ public class UserController extends WaspController {
 	public String create(@Valid User userForm, BindingResult result,
 			SessionStatus status, ModelMap m) {
 
-		List<UserMeta> userMetaList = metaHelper.getFromRequest(request, UserMeta.class);
+		List<UserMeta> userMetaList = getMetaHelper().getFromRequest(request, UserMeta.class);
 		
 		userForm.setUserMeta(userMetaList);
 
 		// manually validate login and password
-		Errors errors = new BindException(result.getTarget(), metaHelper.getArea());
+		Errors errors = new BindException(result.getTarget(), getMetaHelper().getArea());
 		if (userForm.getLogin() == null || userForm.getLogin().isEmpty()) {
 			errors.rejectValue("login", "user.login.error");
 		} else {
@@ -554,7 +552,7 @@ public class UserController extends WaspController {
 				validateList.add(meta.getProperty().getConstraint());
 			}
 		}
-		metaHelper.validate(userMetaList, result);
+		getMetaHelper().validate(userMetaList, result);
 		
 		if (result.hasErrors()) {
 			prepareSelectListData(m);
@@ -602,7 +600,7 @@ public class UserController extends WaspController {
 
 		User user = this.userService.getById(userId);
 
-		user.setUserMeta(metaHelper.syncWithMaster(user.getUserMeta()));
+		user.setUserMeta(getMetaHelper().syncWithMaster(user.getUserMeta()));
 		
 		m.addAttribute("user", user);
 		

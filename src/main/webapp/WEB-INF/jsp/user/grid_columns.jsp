@@ -39,5 +39,9 @@ _beforeShowEditForm = function (formId) {
 </wasp:field>
   
 
+$("#grid_id").setGridParam({
+                    rowNum: 50,
+                    height: 300
+});
 
 

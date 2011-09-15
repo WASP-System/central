@@ -51,8 +51,7 @@ import org.springframework.web.bind.annotation.InitBinder;
 @Transactional
 @RequestMapping("/sysrole")
 public class SystemRoleController extends WaspController {
-
-	private static final ResourceBundle BASE_BUNDLE=ResourceBundle.getBundle("messages", Locale.ENGLISH);
+	
 
 	@Autowired
 	private RoleService roleService;

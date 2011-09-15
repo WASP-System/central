@@ -5,20 +5,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /*
- * holds attributes for a *meta" object
+ * Holds attributes for a *meta" object
  * @Author Sasha Levchuk
  */
 public final class MetaAttribute implements Serializable {
 
+		//alphabetic order!
 		public static enum Area {
-			user,
-			userPending,
-			piPending,
-			lab,
-			labPending,
-			
-			jobDraft,
-			sampleDraft,
 			ampliconSeq,
 			cgh,
 			chipSeq,
@@ -29,6 +22,9 @@ public final class MetaAttribute implements Serializable {
 			directionalRnaSeq,
 			geneExpressionSeq,
 			helpTag,
+			jobDraft,
+			lab,
+			labPending,
 			matePairSeq,
 			microarrayChip,
 			microarrayGeneExpression,
@@ -36,12 +32,17 @@ public final class MetaAttribute implements Serializable {
 			mirnaSeq,
 			otherSeqDnaSamples,
 			otherSeqRnaSamples,
+			piPending,
+			platformunit,
 			resequencing,
 			rnaSeq,
-			seqCap,
-
 			sample,
-			platformunit
+			sampleDraft,
+			seqCap,
+			uiField,
+			user,
+			userPending,
+
 		}
 			
 		private String label;

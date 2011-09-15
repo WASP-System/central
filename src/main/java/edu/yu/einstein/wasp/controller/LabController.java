@@ -20,26 +20,20 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
-
-import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
 
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.BindException;
-import org.springframework.validation.Errors;
-
-import edu.yu.einstein.wasp.controller.validator.MetaValidator;
 import edu.yu.einstein.wasp.model.AcctGrant;
 import edu.yu.einstein.wasp.model.Department;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabMeta;
+import edu.yu.einstein.wasp.model.LabPending;
+import edu.yu.einstein.wasp.model.LabPendingMeta;
 import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.MetaHelper;
@@ -51,21 +45,17 @@ import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserMeta;
 import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.model.UserPendingMeta;
-import edu.yu.einstein.wasp.model.LabPending;
-import edu.yu.einstein.wasp.model.LabPendingMeta;
-
-import edu.yu.einstein.wasp.service.LabService;
+import edu.yu.einstein.wasp.service.DepartmentService;
+import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.service.LabMetaService;
+import edu.yu.einstein.wasp.service.LabPendingMetaService;
+import edu.yu.einstein.wasp.service.LabPendingService;
+import edu.yu.einstein.wasp.service.LabService;
 import edu.yu.einstein.wasp.service.LabUserService;
 import edu.yu.einstein.wasp.service.RoleService;
 import edu.yu.einstein.wasp.service.UserMetaService;
-import edu.yu.einstein.wasp.service.UserPendingService;
 import edu.yu.einstein.wasp.service.UserPendingMetaService;
-import edu.yu.einstein.wasp.service.LabPendingService;
-import edu.yu.einstein.wasp.service.LabPendingMetaService;
-import edu.yu.einstein.wasp.service.DepartmentService;
-
-import edu.yu.einstein.wasp.service.EmailService;
+import edu.yu.einstein.wasp.service.UserPendingService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 
 @Controller
@@ -107,17 +97,17 @@ public class LabController extends WaspController {
 	private EmailService emailService;
 
 
-	MetaHelper metaHelper = new MetaHelper("lab", LabMeta.class);
-
-
+	private final MetaHelper getMetaHelper() {
+		return new MetaHelper("lab", LabMeta.class, request.getSession());
+	}
 	
 	
 	@RequestMapping("/list")
 	@PreAuthorize("hasRole('god')")
 	public String list(ModelMap m) {
-		metaHelper.setBundle(getBundle())	;
-		m.addAttribute("_metaList", metaHelper.getMasterList(MetaBase.class));
-		m.addAttribute(JQFieldTag.AREA_ATTR, metaHelper.getArea());
+		 
+		m.addAttribute("_metaList",  getMetaHelper().getMasterList(MetaBase.class));
+		m.addAttribute(JQFieldTag.AREA_ATTR,  getMetaHelper().getArea());
 
 		prepareSelectListData(m);		
 		
@@ -126,7 +116,7 @@ public class LabController extends WaspController {
 
 
 	@RequestMapping(value="/listJSON", method=RequestMethod.GET)	
-	public @ResponseBody String getListJSON() {
+	public String getListJSON(HttpServletResponse response) {
 	
 		//result
 		Map <String, Object> jqgrid = new HashMap<String, Object>();
@@ -185,7 +175,7 @@ public class LabController extends WaspController {
 				Map cell = new HashMap();
 				cell.put("id", lab.getLabId());
 				
-				List<LabMeta> labMeta=metaHelper.syncWithMaster(lab.getLabMeta());
+				List<LabMeta> labMeta= getMetaHelper().syncWithMaster(lab.getLabMeta());
 									
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 						lab.getName(),
@@ -208,9 +198,8 @@ public class LabController extends WaspController {
 			 
 			 jqgrid.put("rows",rows);
 			 
-			 String json=mapper.writeValueAsString(jqgrid);
-			 
-			 return json;
+			 return outputJSON(jqgrid, response); 	
+			
 		 } catch (Throwable e) {
 			 throw new IllegalStateException("Can't marshall to JSON "+labList,e);
 		 }
@@ -219,7 +208,7 @@ public class LabController extends WaspController {
 	
 	
 	@RequestMapping(value = "/subgridJSON.do", method = RequestMethod.GET)	
-	public @ResponseBody String subgridJSON(@RequestParam("id") Integer labId,ModelMap m, HttpServletResponse response) {
+	public String subgridJSON(@RequestParam("id") Integer labId,ModelMap m, HttpServletResponse response) {
 			
 		Map <String, Object> jqgrid = new HashMap<String, Object>();
 		
@@ -358,9 +347,8 @@ public class LabController extends WaspController {
 			
 			jqgrid.put("rows",rows);
 			
-			String json=mapper.writeValueAsString(jqgrid);
+			return outputJSON(jqgrid, response); 	
 			
-			return json;
 		} catch (Throwable e) {
 			throw new IllegalStateException("Can't marshall to JSON "+labDb,e);
 		}
@@ -369,7 +357,7 @@ public class LabController extends WaspController {
 	@RequestMapping(value = "/detail_rw/updateJSON.do", method = RequestMethod.POST)
 	public String updateDetailJSON(@RequestParam("id") Integer labId,Lab labForm, ModelMap m, HttpServletResponse response) {
 				
-		List<LabMeta> labMetaList = metaHelper.getFromJsonForm(request, LabMeta.class);
+		List<LabMeta> labMetaList =  getMetaHelper().getFromJsonForm(request, LabMeta.class);
 
 		labForm.setLabMeta(labMetaList);
 
@@ -400,6 +388,10 @@ public class LabController extends WaspController {
 
 		MimeMessageHelper a;
 		
+		//waspMessage("lab.updated.success");
+		
+		//emailService.sendNewPassword(labDb, "new pass");
+		
 		try {
 			response.getWriter().println(getMessage("lab.updated.success"));
 			return null;
@@ -427,7 +419,7 @@ public class LabController extends WaspController {
 
 		Lab lab = this.labService.getById(labId);
 
-		lab.setLabMeta(metaHelper.syncWithMaster(lab.getLabMeta()));
+		lab.setLabMeta( getMetaHelper().syncWithMaster(lab.getLabMeta()));
 
 		List<LabUser> labUserList = lab.getLabUser();
 		labUserList.size();
@@ -452,7 +444,7 @@ public class LabController extends WaspController {
 
 		LabPending labPending = this.labPendingService.getById(labPendingId);
 
-		MetaHelper lpMetaHelper = new MetaHelper("labPending", LabPendingMeta.class);
+		MetaHelper lpMetaHelper = new MetaHelper("labPending", LabPendingMeta.class, request.getSession());
 		labPending.setLabPendingMeta(lpMetaHelper.syncWithMaster(labPending.getLabPendingMeta()));
 
 		//List<LabUser> labUserList = labPending.getLabUser();
@@ -471,10 +463,9 @@ public class LabController extends WaspController {
 	@RequestMapping(value = "/create/form.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('god')")
 	public String showEmptyForm(ModelMap m) {
-		metaHelper.setBundle(getBundle()); 
-
+	
 		Lab lab = new Lab();
-		lab.setLabMeta(metaHelper.getMasterList(LabMeta.class));
+		lab.setLabMeta( getMetaHelper().getMasterList(LabMeta.class));
 
 		m.addAttribute("lab", lab);
 		
@@ -489,12 +480,10 @@ public class LabController extends WaspController {
 	public String create(@Valid Lab labForm, BindingResult result,
 			SessionStatus status, ModelMap m) {
 
-		metaHelper.setBundle(getBundle()); 
-
 		// read properties from form
 
-		List<LabMeta> labMetaList = metaHelper.getFromRequest(request, LabMeta.class);
-		metaHelper.validate(labMetaList, result);
+		List<LabMeta> labMetaList =  getMetaHelper().getFromRequest(request, LabMeta.class);
+		getMetaHelper().validate(labMetaList, result);
 
 		labForm.setLabMeta(labMetaList);
 
@@ -526,7 +515,7 @@ public class LabController extends WaspController {
 			@Valid Lab labForm, BindingResult result, SessionStatus status,
 			ModelMap m) {
 
-		List<LabMeta> labMetaList = metaHelper.getFromRequest(request, LabMeta.class);
+		List<LabMeta> labMetaList = getMetaHelper().getFromRequest(request, LabMeta.class);
 
 		for (LabMeta meta : labMetaList) {
 			meta.setLabId(labId);
@@ -534,7 +523,7 @@ public class LabController extends WaspController {
 
 		labForm.setLabMeta(labMetaList);
 
-		metaHelper.validate(labMetaList, result);
+		getMetaHelper().validate(labMetaList, result);
 
 		
 		if (result.hasErrors()) {
@@ -814,7 +803,7 @@ public class LabController extends WaspController {
 
 	@RequestMapping(value = "/newrequest", method = RequestMethod.GET)
 	public String showRequestForm (ModelMap m) {
-		MetaHelper pendingMetaHelper = new MetaHelper("labPending", LabPendingMeta.class, getBundle());
+		MetaHelper pendingMetaHelper = new MetaHelper("labPending", LabPendingMeta.class, request.getSession()); 
 
     LabPending labPending = new LabPending();
 
@@ -834,7 +823,7 @@ public class LabController extends WaspController {
 			BindingResult result,
 			SessionStatus status,
 			ModelMap m) {
-		MetaHelper pendingMetaHelper = new MetaHelper("labPending", LabPendingMeta.class, getBundle());
+		MetaHelper pendingMetaHelper = new MetaHelper("labPending", LabPendingMeta.class,  request.getSession());
 
 		List<LabPendingMeta> labPendingMetaList = pendingMetaHelper.getFromRequest(request, LabPendingMeta.class);
 		pendingMetaHelper.validate(labPendingMetaList, result);
@@ -917,7 +906,7 @@ public class LabController extends WaspController {
 		labUserService.save(labUser);
 
 		labUserService.refresh(labUser);
-
+		
 		emailService.sendPendingLabUserPrimaryConfirm(labUser);
 
 		waspMessage("labuser.request.success");

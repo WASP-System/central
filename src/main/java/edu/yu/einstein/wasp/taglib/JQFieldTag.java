@@ -6,7 +6,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
@@ -17,12 +16,15 @@ import javax.servlet.jsp.tagext.BodyContent;
 import javax.servlet.jsp.tagext.BodyTagSupport;
 
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.lang.WordUtils;
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
-import edu.yu.einstein.wasp.model.*;
+import edu.yu.einstein.wasp.dao.impl.DBResourceBundle;
+import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.State;
 
 /*
  * Builds jqGrid-compatible JavaScript object to describe a field
@@ -47,6 +49,8 @@ public class JQFieldTag extends BodyTagSupport {
 	private String itemLabel;
 	
 	private String itemValue;
+	
+  
 	
 	public void setItems(Object items) {
 		this.items = items;
@@ -97,17 +101,25 @@ public class JQFieldTag extends BodyTagSupport {
 		this.name = name;
 	}
 
-	private String getValue(String key, ResourceBundle bundle, String defaultValue) {
-		
-		if (!bundle.containsKey(key)) {
-			bundle=ResourceBundle.getBundle("messages",Locale.ENGLISH);
-			if (!bundle.containsKey(key)) return defaultValue;
-			return (String)bundle.getObject(key);
-		}
-		
-		return (String)bundle.getObject(key);
-	}
+	
 
+	
+	private String getMessage(String key, String defaultMessage) {
+		String r=getMessage(key);
+		
+		if (defaultMessage!=null && r!=null && r.equals(key)) return defaultMessage; 
+		
+		return r;
+	}
+	
+	private String getMessage(String key) {
+		HttpSession session=((HttpServletRequest)this.pageContext.getRequest()).getSession();
+		
+		Locale locale=(Locale)session.getAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
+		
+		return DBResourceBundle.MESSAGE_SOURCE.getMessage(key, null, locale);
+	}
+	
 	public int doStartTag() throws javax.servlet.jsp.JspException {
 		
 		if (object==null) {
@@ -116,13 +128,6 @@ public class JQFieldTag extends BodyTagSupport {
 			object=objectStr;
 		}
 
-		HttpSession session=((HttpServletRequest)this.pageContext.getRequest()).getSession();
-		
-		Locale locale=(Locale)session.getAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
-		
-		if (locale==null) locale=Locale.ENGLISH;
-		
-		ResourceBundle bundle=ResourceBundle.getBundle("messages",locale);
 		
 		String jsName=object+"_"+name;
 		
@@ -132,22 +137,27 @@ public class JQFieldTag extends BodyTagSupport {
 			
 			String area=object;
 			
-			if (area.equals("user")) clazz=User.class;
-			else if(area.equals("lab")) clazz=Lab.class;
-			else if(area.equals("sampleDraft")) clazz=SampleDraft.class;
-			else if(area.equals("sample")) clazz=Sample.class;
-			else if(area.equals("platformunit")) clazz=Sample.class;
+			if(area.equals("platformunit")) clazz=Sample.class;			
 			else if(area.equals("fmpayment")) clazz=State.class;
-			else throw new JspTagException("unknown area "+object+"");
+			else {
+				try {
+					String path="edu.yu.einstein.wasp.model."+WordUtils.capitalize(area);	
+					clazz = Class.forName(path);
+				 
+				} catch (Throwable e) {
+					throw new JspTagException("unknown area "+object+"");
+				}
+				
+			}
 		
 			boolean required=clazz.getDeclaredField(name).getAnnotation(org.hibernate.validator.constraints.NotEmpty.class)==null?false:true;
 			
 				
-			String error="error:'"+getValue(area+"."+name+".error",bundle,"")+"',\n";
+			String error="error:'"+getMessage(area+"."+name+".error","")+"',\n";
 								
-			String label=getValue(area+"."+name+".label",bundle,name);
+			String label=getMessage(area+"."+name+".label");
 				
-			String suffix=getValue(area+"."+name+".suffix",bundle,"");
+			String suffix=getMessage(area+"."+name+".suffix","");
 		
 			String editrules="{}";
 			String formoptions="{}";
@@ -212,8 +222,7 @@ public class JQFieldTag extends BodyTagSupport {
 			jsName+".jq['edittype']='file';\n"+
 			jsName+".jq['hidden']=false;\n"+
 			jsName+".jq['search']=false;\n"+
-			jsName+".jq['editoptions']['alt']='Select Sample File to upload';\n"+
-			jsName+".jq['editoptions']['lang']='"+locale.getLanguage()+"';\n"+
+			jsName+".jq['editoptions']['alt']='Select Sample File to upload';\n"+			
 			jsName+".jq['editrules']['edithidden']=true;\n";		
 			 
 		}

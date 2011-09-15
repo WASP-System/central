@@ -35,7 +35,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
-import edu.yu.einstein.wasp.controller.validator.MetaValidator;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftMeta;
@@ -59,7 +58,6 @@ import edu.yu.einstein.wasp.service.JobUserService;
 import edu.yu.einstein.wasp.service.RoleService;
 import edu.yu.einstein.wasp.service.SampleDraftMetaService;
 import edu.yu.einstein.wasp.service.SampleDraftService;
-import edu.yu.einstein.wasp.service.SampleMetaService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.TypeSampleService;
 import edu.yu.einstein.wasp.service.WorkflowService;
@@ -110,10 +108,11 @@ public class JobSubmissionController extends WaspController {
 	
 	@Autowired
 	private FileService fileService;
+
+	private final MetaHelper getMetaHelper() {
+		return new MetaHelper("jobDraft", JobDraft.class, request.getSession());
+	}
 	
-	MetaHelper metaHelper = new MetaHelper("jobDraft", JobDraft.class);
-
-
 	@RequestMapping(value="/list", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('lu-*')")
 	public String list(ModelMap m) {
@@ -264,18 +263,17 @@ public class JobSubmissionController extends WaspController {
 	@RequestMapping(value="/modifymeta/{jobDraftId}", method=RequestMethod.GET)
 	//@PreAuthorize("hasRole('jd-' + #jobDraftId)") TODO: uncomment
 	public String showModifyMetaForm(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
-		metaHelper.setBundle(getBundle());
-
+		 
 		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
 
-		metaHelper.setArea(jobDraft.getWorkflow().getIName());
+		getMetaHelper().setArea(jobDraft.getWorkflow().getIName());
 
-		jobDraft.setJobDraftMeta(metaHelper.getMasterList(JobDraftMeta.class));
+		jobDraft.setJobDraftMeta(getMetaHelper().getMasterList(JobDraftMeta.class));
 
 		m.put("jobDraftDb", jobDraft);
 		m.put("jobDraft", jobDraft);
-		m.put("area", metaHelper.getArea());
-		m.put("parentarea", metaHelper.getParentArea());
+		m.put("area", getMetaHelper().getArea());
+		m.put("parentarea", getMetaHelper().getParentArea());
 
 		return "jobsubmit/metaform";
 	}
@@ -296,21 +294,21 @@ public class JobSubmissionController extends WaspController {
 		jobDraftForm.setLabId(jobDraft.getLabId());
 		jobDraftForm.setWorkflowId(jobDraft.getWorkflowId());
 
-		metaHelper.setBundle(getBundle());
-		metaHelper.setArea(jobDraft.getWorkflow().getIName());
+		
+		getMetaHelper().setArea(jobDraft.getWorkflow().getIName());
 
-		List<JobDraftMeta> jobDraftMetaList = metaHelper.getFromRequest(request, JobDraftMeta.class);
+		List<JobDraftMeta> jobDraftMetaList = getMetaHelper().getFromRequest(request, JobDraftMeta.class);
 
 		jobDraftForm.setJobDraftMeta(jobDraftMetaList);
 
-		metaHelper.validate(jobDraftMetaList, result);
+		getMetaHelper().validate(jobDraftMetaList, result);
 
 		if (result.hasErrors()) {
 			waspMessage("hello.error");
 
 			m.put("jobDraftDb", jobDraft);
-			m.put("area", metaHelper.getArea());
-			m.put("parentarea", metaHelper.getParentArea());
+			m.put("area", getMetaHelper().getArea());
+			m.put("parentarea", getMetaHelper().getParentArea());
 
 			return "jobsubmit/metaform";
 		}
@@ -320,7 +318,7 @@ public class JobSubmissionController extends WaspController {
 
 
 		// TODO SHOULD ACTUALLY FORWARD
-	  MetaHelper sampleMetaHelper = new MetaHelper("sampleDraft", SampleDraftMeta.class);
+	  MetaHelper sampleMetaHelper = new MetaHelper("sampleDraft", SampleDraftMeta.class, request.getSession());
 
 	  sampleMetaHelper.getMasterList(JobDraftMeta.class);
 
@@ -328,7 +326,7 @@ public class JobSubmissionController extends WaspController {
 	  m.addAttribute(JQFieldTag.AREA_ATTR, "sampleDraft");		
 	  prepareSelectListData(m);
 	  m.addAttribute("jobdraftId",jobDraftId);
-	  m.addAttribute("uploadStartedMessage",getMessage("sampleDraft.fileupload.started"));
+	  m.addAttribute("uploadStartedMessage",getMessage("sampleDraft.fileupload_started.data"));
 	  return "jobsubmit-sample";
 	}
 	
@@ -338,10 +336,10 @@ public class JobSubmissionController extends WaspController {
 	public String showJobDraft(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
 		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
 
-		metaHelper.setBundle(getBundle());
-		metaHelper.setArea(jobDraft.getWorkflow().getIName());
+		
+		getMetaHelper().setArea(jobDraft.getWorkflow().getIName());
 
-    jobDraft.setJobDraftMeta(metaHelper.syncWithMaster(jobDraft.getJobDraftMeta()));
+    jobDraft.setJobDraftMeta(getMetaHelper().syncWithMaster(jobDraft.getJobDraftMeta()));
 
 		m.put("jobDraft", jobDraft);
 
@@ -355,10 +353,10 @@ public class JobSubmissionController extends WaspController {
 
 		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
 
-		metaHelper.setBundle(getBundle());
-		metaHelper.setArea(jobDraft.getWorkflow().getIName());
+		
+		getMetaHelper().setArea(jobDraft.getWorkflow().getIName());
 
-    jobDraft.setJobDraftMeta(metaHelper.syncWithMaster(jobDraft.getJobDraftMeta()));
+    jobDraft.setJobDraftMeta(getMetaHelper().syncWithMaster(jobDraft.getJobDraftMeta()));
 
 
 		// Copies JobDraft to a new Job
@@ -407,7 +405,7 @@ public class JobSubmissionController extends WaspController {
 
 
     @RequestMapping(value="/listSampleDraftsJSON", method=RequestMethod.GET)	
-	public @ResponseBody String getSampleDraftListJSON(@RequestParam("jobdraftId") Integer jobdraftId) {
+	public String getSampleDraftListJSON(@RequestParam("jobdraftId") Integer jobdraftId, HttpServletResponse response) {
 	
 		//result
 		Map <String, Object> jqgrid = new HashMap<String, Object>();
@@ -435,7 +433,7 @@ public class JobSubmissionController extends WaspController {
 				Map cell = new HashMap();
 				cell.put("id", draft.getSampleDraftId());
 			
-				MetaHelper sampleMetaHelper = new MetaHelper("sampleDraft", SampleDraftMeta.class);
+				MetaHelper sampleMetaHelper = new MetaHelper("sampleDraft", SampleDraftMeta.class, request.getSession());
 
 				List<SampleDraftMeta> draftMeta=sampleMetaHelper.syncWithMaster(draft.getSampleDraftMeta());
 				String fileCell="";
@@ -473,9 +471,8 @@ public class JobSubmissionController extends WaspController {
 
 			jqgrid.put("rows",rows);
 		
-			String json=mapper.writeValueAsString(jqgrid);
-		
-			return json;
+			return outputJSON(jqgrid, response); 	
+			
 		} catch (Throwable e) {
 			throw new IllegalStateException("Can't marshall to JSON "+drafts,e);
 		}
@@ -545,12 +542,12 @@ public class JobSubmissionController extends WaspController {
 			    
 			    sampleDraftService.merge(samplDraft);
 			    			  
-			    jsCallback=jsCallback.replace("{message}",getMessage("sampleDraft.fileupload.done"));
+			    jsCallback=jsCallback.replace("{message}",getMessage("sampleDraft.fileupload_done.data"));
 			    response.setContentType( "text/html; charset=UTF-8" );
 			    response.getWriter().print(jsCallback);
 			  
 			} else {
-				jsCallback=jsCallback.replace("{message}",getMessage("sampleDraft.fileupload.empty"));
+				jsCallback=jsCallback.replace("{message}",getMessage("sampleDraft.fileupload_nofile.data"));
 			    response.setContentType( "text/html; charset=UTF-8" );
 			    response.getWriter().print(jsCallback);				
 			}
@@ -565,8 +562,7 @@ public class JobSubmissionController extends WaspController {
 			SampleDraft sampleDraftForm, ModelMap m,
 			HttpServletResponse response) {
 
-		MetaHelper sampleMetaHelper = new MetaHelper("sampleDraft",
-				SampleDraftMeta.class);
+		MetaHelper sampleMetaHelper = new MetaHelper("sampleDraft",SampleDraftMeta.class, request.getSession());
 		List<SampleDraftMeta> sampleDraftMetaList = sampleMetaHelper
 				.getFromJsonForm(request, SampleDraftMeta.class);
 
@@ -609,8 +605,8 @@ public class JobSubmissionController extends WaspController {
 					.println(
 							sampleDraftId
 									+ "|"
-									+ (adding ? getMessage("sampleDraft.created.success")
-											: getMessage("sampleDraft.updated.success")));
+									+ (adding ? getMessage("sampleDraft.created.data")
+											: getMessage("sampleDraft.updated.data")));
 			return null;
 
 		} catch (Throwable e) {
@@ -626,7 +622,7 @@ public class JobSubmissionController extends WaspController {
 		this.sampleDraftService.remove(sampleDraftService.findById(sampleDraftId));
 		
 		try {
-			response.getWriter().println(getMessage("sampleDraft.removed.success"));
+			response.getWriter().println(getMessage("sampleDraft.removed.data"));
 			return null;
 		} catch (Throwable e) {
 			throw new IllegalStateException("Cant output success message ",e);

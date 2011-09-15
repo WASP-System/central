@@ -225,7 +225,7 @@ public class TaskController extends WaspController {
   @PreAuthorize("hasRole('god') or hasRole('fm')")
   public String showJqPaymentListShell(ModelMap m) {
 	
-		MetaHelper metaHelper = new MetaHelper("fmpayment", "state", StateMeta.class);
+		MetaHelper metaHelper = new MetaHelper("fmpayment", "state", StateMeta.class, request.getSession());
 
     m.addAttribute("_metaList", metaHelper.getMasterList(StateMeta.class));
     m.addAttribute(JQFieldTag.AREA_ATTR, "fmpayment");
@@ -236,7 +236,7 @@ public class TaskController extends WaspController {
 	@RequestMapping(value="/fmpayment/listJson.do", method=RequestMethod.GET)
 	public @ResponseBody String getListJson() {
 
-		MetaHelper metaHelper = new MetaHelper("fmpayment", "state", StateMeta.class);
+		MetaHelper metaHelper = new MetaHelper("fmpayment", "state", StateMeta.class,request.getSession());
 
 		List<State> stateList;
 
@@ -300,7 +300,7 @@ public class TaskController extends WaspController {
                         ModelMap m,
                         HttpServletResponse response) {
 		
-MetaHelper metaHelper = new MetaHelper("fmpayment", "state", StateMeta.class);
+MetaHelper metaHelper = new MetaHelper("fmpayment", "state", StateMeta.class,request.getSession());
 
 								State stateDb = stateService.getStateByStateId(stateId);
 

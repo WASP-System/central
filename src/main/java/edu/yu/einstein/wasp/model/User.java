@@ -35,10 +35,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 @Table(name="user")
 public class User extends WaspModel {
 	
-	
-  @Transient	
-  public static final String PASSWORD_PLACEHOLDER="--fakepassword--";	
-	
+
   @Id @GeneratedValue(strategy=GenerationType.IDENTITY)
   protected int UserId;
   public void setUserId (int UserId) {

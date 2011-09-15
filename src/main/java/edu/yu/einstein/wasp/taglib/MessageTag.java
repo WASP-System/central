@@ -15,6 +15,9 @@ import javax.servlet.jsp.tagext.BodyTagSupport;
 import org.apache.log4j.Logger;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
+import edu.yu.einstein.wasp.dao.impl.DBResourceBundle;
+import edu.yu.einstein.wasp.service.impl.WaspMessageSourceImpl;
+
 /*
  * Displays localized messages using list of keys stored in session under name "_feedback"
  * 
@@ -52,13 +55,13 @@ public class MessageTag extends BodyTagSupport {
 		
 		if (locale==null) locale=Locale.ENGLISH;
 		
-		ResourceBundle BASE_BUNDLE=ResourceBundle.getBundle("messages",locale);
+	
 		
 		StringBuffer buf=new StringBuffer("");
 
 		for(String key:messageKeys) {
 			try {
-				String message=BASE_BUNDLE.getString(key);
+				String message=DBResourceBundle.MESSAGE_SOURCE.getMessage(key, null,Locale.US);
 				if (buf.length()>0) buf.append("</br>\n");
 				buf.append(message);
 			} catch (Throwable e) {

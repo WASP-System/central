@@ -1,17 +1,43 @@
 package edu.yu.einstein.wasp.controller;
 
+/**
+*
+* 1. Stores user's locale to http session under SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME key so Spring MVC can serve proper ResourceBundles
+*  
+* 2. Initializes and stores locale-specific bundle in http session udner key Config.FMT_LOCALIZATION_CONTEXT so JSTL can serve proper bundles.
+* 
+* 3. TODO: cache bundles for #2
+* 
+* Executed once on app startup
+*  
+* @author Sasha Levchuk
+*
+*
+**/
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.security.Principal;
+import java.util.List;
 import java.util.Locale;
+import java.util.PropertyResourceBundle;
+import java.util.ResourceBundle;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import javax.servlet.jsp.jstl.core.Config;
+import javax.servlet.jsp.jstl.fmt.LocalizationContext;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
+import edu.yu.einstein.wasp.model.UiField;
 import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.service.UiFieldService;
 import edu.yu.einstein.wasp.service.UserService;
 
 public class UserLocaleInterceptor extends HandlerInterceptorAdapter {
@@ -21,7 +47,13 @@ public class UserLocaleInterceptor extends HandlerInterceptorAdapter {
 	@Autowired
 	private UserService userService;
 
-	 private static final Logger log = Logger.getLogger(UserLocaleInterceptor.class);
+	@Autowired
+	private UiFieldService uiFieldService;
+	
+	@Autowired
+	private MessageSource messageSource;
+	
+    private static final Logger log = Logger.getLogger(UserLocaleInterceptor.class);
 	
     public boolean preHandle(
             HttpServletRequest request,
@@ -30,21 +62,23 @@ public class UserLocaleInterceptor extends HandlerInterceptorAdapter {
 
     	//final String currentUser = SecurityContextHolder.getContext().getAuthentication().getName();
 
-    	//retun if we already set user's locale
+    	//return if we have already set user's locale
     	if (request.getSession().getAttribute(LOCK)!=null) {
    		 	return true;
     	}
     	
     	final Principal principal=request.getUserPrincipal();
 
-    	//not logged in - do thing
+    	//not logged in - do nothing
     	if (principal==null || principal.getName()==null) {
     		request.getSession().setAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME, Locale.US);
     		request.getSession().setAttribute("jqLang", Locale.US.getLanguage());
+    		
+    		if (Config.get(request.getSession(),Config.FMT_LOCALIZATION_CONTEXT)==null) initJSTLResourceBundle(Locale.US,request.getSession());
     		return true;
     	}
 
-    	//if we here we are logged in.
+    	//if we here -- we are logged in.
     	//do nothing if locale is already set
     	if (request.getSession().getAttribute(LOCK)!=null) {
     		 return true;
@@ -64,6 +98,7 @@ public class UserLocaleInterceptor extends HandlerInterceptorAdapter {
     		log.error("User without locale!!!"+login);
     		request.getSession().setAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME, Locale.US);
     		request.getSession().setAttribute("jqLang", Locale.US.getLanguage());
+    		if (Config.get(request.getSession(),Config.FMT_LOCALIZATION_CONTEXT)==null) initJSTLResourceBundle(Locale.US,request.getSession());
     		return true;
     	}
     	
@@ -77,6 +112,68 @@ public class UserLocaleInterceptor extends HandlerInterceptorAdapter {
 		
 		request.getSession().setAttribute(LOCK, "locale set");
     	
+		initJSTLResourceBundle(locale, request.getSession()); 
+		
         return true;    	
     }
+    
+	private void initJSTLResourceBundle(Locale locale, HttpSession session) {
+
+		StringBuffer buf = new StringBuffer("");
+		//StringBuffer bufEN = new StringBuffer("");
+/*
+		PropertyResourceBundle b = (PropertyResourceBundle) ResourceBundle.getBundle("messages", locale);
+		Enumeration bundleKeys = b.getKeys();
+
+		while (bundleKeys.hasMoreElements()) {
+			String key = (String) bundleKeys.nextElement();
+			String value = b.getString(key);
+			buf.append(key+"="+value+System.getProperty("line.separator"));		
+		}
+				*/
+		List<UiField> res = uiFieldService.findAll();
+
+		for (UiField f : ((List<UiField>) res)) {
+
+			String key = f.getArea() + "." + f.getName() + "."
+					+ f.getAttrName();
+
+			String lang = f.getLocale().substring(0, 2);
+			
+			/*
+			String cntry = f.getLocale().substring(3);
+			
+			
+			Locale dbLocale = new Locale(lang, cntry);
+			
+			if ("en".equals(lang)) {
+				bufEN.append(key + "=" + f.getAttrValue()
+						+ System.getProperty("line.separator"));
+
+			}
+			 */
+			if (!lang.equals(locale.getLanguage())) continue;
+		
+
+			buf.append(key + "=" + f.getAttrValue()
+					+ System.getProperty("line.separator"));
+
+		}
+
+		InputStream is = null;
+		try {
+
+			is = new ByteArrayInputStream(buf.toString().getBytes("UTF-8"));
+			
+			ResourceBundle newBundle = new PropertyResourceBundle(is);
+
+			Config.set(session,Config.FMT_LOCALIZATION_CONTEXT, new LocalizationContext(newBundle, locale));
+			
+		} catch (Throwable e) {
+			throw new IllegalStateException("cant init JSTLResourceBundle");
+		}
+
+		
+	}
+
 }

@@ -1,6 +1,8 @@
+<%@page contentType="text/html" pageEncoding="UTF-8"%> 
 <html>
 
-<head> 
+<head>
+ <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />  
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
 <link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/jquery/jquery-ui.css" />
@@ -19,15 +21,11 @@ html, body {
 }
 
 </style>	
-
+	
   <script src="/wasp/scripts/jquery/jquery-1.6.2.js" type="text/javascript"></script>
   <script src="/wasp/scripts/jquery/ajaxfileupload.js" type="text/javascript"></script>
   <script src="/wasp/scripts/jqgrid/grid.locale-<%= ((HttpServletRequest)pageContext.getRequest()).getSession().getAttribute("jqLang") %>.js" type="text/javascript"></script>
   <script src="/wasp/scripts/jqgrid/jquery.jqGrid.min.js" type="text/javascript"></script>
-  
-  <script src="/wasp/scripts/jqgrid/grid.locale-<%= ((HttpServletRequest)pageContext.getRequest()).getSession().getAttribute("jqLang") %>.js" type="text/javascript"></script>
-  <script src="/wasp/scripts/jqgrid/jquery.jqGrid.min.js" type="text/javascript"></script>
-  
   
   <script type="text/javascript">
 
@@ -148,11 +146,12 @@ html, body {
   
 
   var _beforeShowAddForm = function(formId) {
-	  
+	   
   }
   
   var _beforeShowEditForm = function(formId) {
-	  
+	 // alert($('#attrValue').val());
+	  //alert(document.getElementById(formId[0].id).login );
   }
  
   _del_function = function (id) {
@@ -178,17 +177,17 @@ html, body {
   var _editurl='/wasp/<tiles:insertAttribute name="area" />/detail_rw/updateJSON.do';
   
   var _editAttr={
-		  width:'auto',closeAfterEdit:true,closeOnEscape:true,afterSubmit:_afterSubmit,errorTextFormat:_errorTextFormat,beforeShowForm:_beforeShowEditForm
+		  width:'auto',closeAfterEdit:true,closeOnEscape:true,afterSubmit:_afterSubmit,errorTextFormat:_errorTextFormat,beforeShowForm:_beforeShowEditForm,reloadAfterSubmit:true
   };
   
   var _addAttr={
 	serializeEditData: function(data){ return $.param($.extend({}, data, {id:0}));},//pass '0' on add instead of empty string
-	closeAfterAdd:true,closeOnEscape:true,errorTextFormat:_errorTextFormat,afterSubmit:_afterSubmit,beforeShowForm:_beforeShowAddForm,width:'auto'
+	closeAfterAdd:true,closeOnEscape:true,errorTextFormat:_errorTextFormat,afterSubmit:_afterSubmit,beforeShowForm:_beforeShowAddForm,width:'auto',reloadAfterSubmit:true
   };
   
   var _delAttr={};
   
-  var _searchAttr={drag:true,resize:true,modal:true,caption:'Lookup',closeOnEscape:true,sopt:['eq','ne']};
+  var _searchAttr={drag:true,resize:true,modal:true,caption:'Lookup',closeOnEscape:true,sopt:['eq','ne'],multipleSearch: false, closeAfterSearch: true };
   
   var _navAttr={view:true,del:true,delfunc:_del_function};
   
@@ -254,7 +253,8 @@ html, body {
 	colErrors.push('${_meta.property.error}');
 
 </c:forEach>
- 
+
+ function createGrid() {
  
 $(function(){
 		
@@ -278,6 +278,8 @@ $("#grid_id").jqGrid({
   height: '640', 
   loadui: 'block',
   scrollrows:true,
+  loadonce: false, // to enable sorting on client side
+  sortable: false, //to enable sorting
   
   loadComplete: function(data) {//pre-select row if userdata.selId is defined
 	    
@@ -309,12 +311,16 @@ $("#grid_id").jqGrid({
 		  _delAttr,    // delete
 		  _searchAttr, // search
 		  _editAttr
-		  );
+);
+
+if (_enableFilterToolbar) {
+	$('#grid_id').jqGrid('filterToolbar', { stringResult: true, searchOnEnter: false });
+}
 
 }); 
 
-
-
+}
+createGrid();
 
 </script>
 </head>

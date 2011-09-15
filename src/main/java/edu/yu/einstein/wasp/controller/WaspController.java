@@ -1,44 +1,38 @@
 package edu.yu.einstein.wasp.controller;
 
-import java.util.Collection;
+import java.io.IOException;
 import java.util.Iterator;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.ResourceBundle;
+import java.util.LinkedHashMap;
 import java.util.Locale;
+import java.util.Map;
+import java.util.ResourceBundle;
 
-
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.jsp.jstl.core.Config;
+import javax.servlet.jsp.jstl.fmt.LocalizationContext;
 
 import org.apache.log4j.Logger;
-
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.web.servlet.i18n.SessionLocaleResolver;
-
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.context.SecurityContext;
+import org.springframework.context.MessageSource;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-
-import edu.yu.einstein.wasp.model.User;
-import edu.yu.einstein.wasp.service.UserService;
-
-import edu.yu.einstein.wasp.model.MetaAttribute;
-import edu.yu.einstein.wasp.model.MetaAttribute.Country;
-import edu.yu.einstein.wasp.model.MetaAttribute.State;
-
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 
+import edu.yu.einstein.wasp.model.MetaAttribute.Country;
+import edu.yu.einstein.wasp.model.MetaAttribute.State;
+import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.taglib.MessageTag;
 
 @Controller
@@ -46,14 +40,18 @@ public class WaspController {
 
   protected final Logger logger = Logger.getLogger(getClass());
 
-  protected static final Map<String, String> LOCALES=new TreeMap<String, String>();
-  static { LOCALES.put("en_US","English");
-                LOCALES.put("iw_IL","Hebrew");
-                LOCALES.put("ru_RU","Russian");
-                LOCALES.put("ja_JA","Japanese");
-                }
+  @Autowired
+  private MessageSource messageSource;
+  
+ public  static final Map<String, String> LOCALES=new LinkedHashMap<String, String>();
+  static { 
+	  LOCALES.put("en_US","English");
+      LOCALES.put("iw_IL","Hebrew");
+      LOCALES.put("ru_RU","Russian");
+      LOCALES.put("ja_JA","Japanese");
+  }
 
-  protected static final ResourceBundle BASE_BUNDLE=ResourceBundle.getBundle("messages", Locale.ENGLISH);
+  //protected static final ResourceBundle BASE_BUNDLE=ResourceBundle.getBundle("messages", Locale.ENGLISH);
 
 
   @Autowired
@@ -108,18 +106,23 @@ public class WaspController {
   }
 
   protected String getMessage(String key) {
-    String message=(String)getBundle().getObject(key);
-    return message;
+	  String message=null;
+	  try {
+		  message=(String)getBundle().getObject(key);		  
+	  } catch (Throwable e) {
+		
+	  }
+	  
+	  if (message==null)   return messageSource.getMessage(key, null, Locale.US);//fallback to US locale
+	  return message;
   }
 
   protected ResourceBundle getBundle() {
-    Locale locale=(Locale)request.getSession().getAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
-
-    if (locale==null) locale=Locale.ENGLISH;
-
-    ResourceBundle bundle=ResourceBundle.getBundle("messages",locale);
-
-    return bundle;
+	  
+	LocalizationContext nb=(LocalizationContext)Config.get(request.getSession(), Config.FMT_LOCALIZATION_CONTEXT);
+	
+	return nb.getResourceBundle(); 
+	
   }
 
 
@@ -136,9 +139,21 @@ public class WaspController {
 
   }
 
-  public void waspMessage(String propertyString) {
+  public void waspMessage(String propertyString)   {
     MessageTag.addMessage(request.getSession(), propertyString);
   }
 
+  protected String outputJSON(Map<String, Object> jqgridMap, HttpServletResponse response) throws JsonMappingException, IOException {
+	  
+	  	ObjectMapper mapper = new ObjectMapper();
+	  
+	  	String json=mapper.writeValueAsString(jqgridMap);
+		 
+		 response.setContentType("application/json;charset=UTF-8");
+		
+		 response.getWriter().print(json);
+		 
+		 return null;		
+  }
 
 }

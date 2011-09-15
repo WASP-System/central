@@ -1,48 +1,39 @@
 package edu.yu.einstein.wasp.controller;
 
-import java.util.Date;
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Map;
+import java.util.Date;
 import java.util.HashMap;
-import java.util.Locale;
-import java.util.ResourceBundle;
+import java.util.List;
+import java.util.Map;
 
-import javax.validation.Valid;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
-
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.ModelMap;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
-
 import org.springframework.web.bind.support.SessionStatus;
-import org.springframework.validation.BindingResult;
-
-import org.springframework.security.access.prepost.*;
 
 import edu.yu.einstein.wasp.model.MetaHelper;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
-import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.TypeSample;
-
-import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.service.SampleMetaService;
+import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.TypeSampleService;
-
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
-
-import org.springframework.transaction.annotation.Transactional;
 
 @Controller
 @Transactional
@@ -58,12 +49,14 @@ public class PlatformUnitController extends WaspController {
 	@Autowired
 	private TypeSampleService typeSampleService;
 	
-	MetaHelper metaHelper = new MetaHelper("platformunit", "sample", SampleMeta.class);
+	private final MetaHelper getMetaHelper() {
+		return new MetaHelper("platformunit",  "sample",SampleMeta.class, request.getSession());
+	}
 
 	@RequestMapping(value="/list.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('ft')")
 	public String showListShell(ModelMap m) {
-		m.addAttribute("_metaList", metaHelper.getMasterList(SampleMeta.class));
+		m.addAttribute("_metaList", getMetaHelper().getMasterList(SampleMeta.class));
 		m.addAttribute(JQFieldTag.AREA_ATTR, "platformunit");
 
 		return "facility/platformunit/list";
@@ -121,7 +114,7 @@ public class PlatformUnitController extends WaspController {
 				Map cell = new HashMap();
 				cell.put("id", sample.getSampleId());
 
-				List<SampleMeta> sampleMetaList=metaHelper.syncWithMaster(sample.getSampleMeta());
+				List<SampleMeta> sampleMetaList=getMetaHelper().syncWithMaster(sample.getSampleMeta());
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 					sample.getName(),
 				}));
@@ -155,7 +148,7 @@ public class PlatformUnitController extends WaspController {
 			ModelMap m, 
 			HttpServletResponse response) {
 
-		List<SampleMeta> sampleMetaList = metaHelper.getFromJsonForm(request, SampleMeta.class);
+		List<SampleMeta> sampleMetaList = getMetaHelper().getFromJsonForm(request, SampleMeta.class);
 		sampleForm.setSampleMeta(sampleMetaList);
 		sampleForm.setSampleId(sampleId);
 
@@ -180,7 +173,7 @@ public class PlatformUnitController extends WaspController {
 
 		Sample sample = new Sample();
 
-		sample.setSampleMeta(metaHelper.getMasterList(SampleMeta.class));
+		sample.setSampleMeta(getMetaHelper().getMasterList(SampleMeta.class));
 
 		m.put("sample", sample);
 
@@ -207,7 +200,7 @@ public class PlatformUnitController extends WaspController {
 			 ModelMap m) {
 		Sample sample = sampleService.getSampleBySampleId(sampleId);
 
-		sample.setSampleMeta(metaHelper.syncWithMaster(sample.getSampleMeta()));
+		sample.setSampleMeta(getMetaHelper().syncWithMaster(sample.getSampleMeta()));
 
 		m.put("sample", sample);
 
@@ -221,7 +214,7 @@ public class PlatformUnitController extends WaspController {
 			 ModelMap m) {
 		Sample sample = sampleService.getSampleBySampleId(sampleId);
 
-		sample.setSampleMeta(metaHelper.syncWithMaster(sample.getSampleMeta()));
+		sample.setSampleMeta(getMetaHelper().syncWithMaster(sample.getSampleMeta()));
 
 		m.put("sample", sample);
 
@@ -285,9 +278,9 @@ public class PlatformUnitController extends WaspController {
 		SessionStatus status,
 		ModelMap m) {
 
-		List<SampleMeta> sampleMetaList = metaHelper.getFromRequest(request, SampleMeta.class);
+		List<SampleMeta> sampleMetaList = getMetaHelper().getFromRequest(request, SampleMeta.class);
 
-		metaHelper.validate(sampleMetaList, result);
+		getMetaHelper().validate(sampleMetaList, result);
 
 		if (result.hasErrors()) {
 			// TODO REAL ERROR

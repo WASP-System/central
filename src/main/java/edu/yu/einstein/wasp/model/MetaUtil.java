@@ -3,18 +3,19 @@ package edu.yu.einstein.wasp.model;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.util.StringUtils;
+
+import edu.yu.einstein.wasp.dao.impl.DBResourceBundle;
+import edu.yu.einstein.wasp.service.impl.WaspMessageSourceImpl;
 
 /*
  * contains utility methods for manipulating 
@@ -23,7 +24,6 @@ import org.springframework.util.StringUtils;
  */
 public final class MetaUtil {
 			
-		private static final ResourceBundle BASE_BUNDLE=ResourceBundle.getBundle("messages", Locale.ENGLISH);
 		
 		 /* 1. populates "control" and "position" property of each object in the list
 		  * with values from the messages_en.properties file
@@ -31,7 +31,7 @@ public final class MetaUtil {
 		  * 2. Sorts list on meta.position field 
 		  */
 		
-		public static final <T> void setAttributesAndSort(List<T> list, MetaAttribute.Area area, ResourceBundle bundle) {
+		public static final <T> void setAttributesAndSort(List<T> list, MetaAttribute.Area area, Locale locale) {
 			 
 			 for(T t:list) {
 				 
@@ -56,7 +56,7 @@ public final class MetaUtil {
 				p.setMetaposition(pos);
 				
 				if (getValue(area,basename,"control")!=null) {
-					String controlStr=getValue(area,basename,"control", bundle);
+					String controlStr=getValue(area,basename,"control", locale);
 					String typeStr=controlStr.substring(0,controlStr.indexOf(":"));
 					MetaAttribute.Control.Type type=MetaAttribute.Control.Type.valueOf(typeStr);
 					if (type==MetaAttribute.Control.Type.select) {
@@ -97,30 +97,32 @@ public final class MetaUtil {
 					}	
 				}
 				
-				p.setLabel(getValue(area,basename,"label", bundle));
-				p.setConstraint(getValue(area,basename,"constraint"));
-				p.setError(getValue(area,basename,"error",bundle));		 		
+				p.setLabel(getValue(area,basename,"label", locale));
+				p.setConstraint(getValue(area,basename,"constraint", locale));
+				p.setError(getValue(area,basename,"error",locale));		 		
 				
 			 }
 			 
 			 Collections.sort( list, META_POSITION_COMPARATOR);
 		 }
 		
-		 private static String getValue(MetaAttribute.Area area, String name, String attribute) {
-			 return  getValue(area, name, attribute, BASE_BUNDLE);
-		 }
-		 
-		 private static String getValue(MetaAttribute.Area area, String name, String attribute, ResourceBundle bundle) {
-
-				if ( bundle.containsKey(area.name()+"."+name+"."+attribute)) { 
-					 return bundle.getString(area.name()+"."+name+"."+attribute);
-				} else if (BASE_BUNDLE.containsKey(area.name()+"."+name+"."+attribute)) { 
-				     return BASE_BUNDLE.getString(area.name()+"."+name+"."+attribute);
-			 	} else {
-			 		return null;
-			 	}
+	
+ private static String getValue(MetaAttribute.Area area, String name, String attribute) {
+			 
+			 return getMessage(area.name()+"."+name+"."+attribute,Locale.US);
 				 
 		 }
+		 
+		 private static String getValue(MetaAttribute.Area area, String name, String attribute, Locale locale) {
+			 
+			 return getMessage(area.name()+"."+name+"."+attribute,locale);
+				 
+		 }
+		 
+		private static String getMessage(String key, Locale locale) {
+				
+				return DBResourceBundle.MESSAGE_SOURCE.getMessage(key, null, locale);
+		}
 		 
 	
 		private final static Comparator META_POSITION_COMPARATOR =  new Comparator() {
@@ -142,11 +144,12 @@ public final class MetaUtil {
 	};
 		
 	  // returns list of unique "k" values for the given "prefix"
-	  public static final Set<String> getUniqueKeys(MetaAttribute.Area area) {
+	/*
+	  public static final Set<String> getUniqueKeys(MetaAttribute.Area area, Resourcelocale locale) {
 		     
 		     Set<String> set = new HashSet<String>();
 		     
-		     Enumeration<String> en=BASE_BUNDLE.getKeys();
+		     Enumeration<String> en=BASE_locale.getKeys();
 		     while(en.hasMoreElements()) {
 		    	String k = en.nextElement();
 		    	
@@ -163,7 +166,7 @@ public final class MetaUtil {
 		     return set;
 		  }
 	  
-	  
+	  */
 	 
 	  
 	  /*
@@ -171,7 +174,7 @@ public final class MetaUtil {
 	   */
 	  public static final <T> List<T> syncWithMaster(List<T> dbList, MetaAttribute.Area area, Class clazz) {
 		  
-		  Set<String> keys=getUniqueKeys(area);
+		  Set<String> keys=((WaspMessageSourceImpl)DBResourceBundle.MESSAGE_SOURCE).getKeys(Locale.US);
 		  		  
 		  List<T> resultList = new ArrayList<T>();
 				  
@@ -212,11 +215,11 @@ public final class MetaUtil {
 	}
 
 
-	public static final <T> List<T> getMasterList(Class<T> clazz,MetaAttribute.Area area, ResourceBundle bundle) {
+	public static final <T> List<T> getMasterList(Class<T> clazz,MetaAttribute.Area area, Locale locale) {
 		List<T> list = new ArrayList<T>();   
 		
 		//get current list of meta properties to capture
-		Set<String> set=getUniqueKeys(area);
+		Set<String> set=((WaspMessageSourceImpl)DBResourceBundle.MESSAGE_SOURCE).getKeys(Locale.US);
 		
 		for(String name:set) {
 			try {
@@ -231,15 +234,15 @@ public final class MetaUtil {
 		}
 		
 		//set property attributes and sort them according to "position"
-		setAttributesAndSort(list,area,bundle);
+		setAttributesAndSort(list,area,locale);
 
 		return list;
 	}
 
 
-	public static final <T> List<T> getMetaFromJSONForm(HttpServletRequest request, MetaAttribute.Area area, Class clazz, ResourceBundle bundle) {
+	public static final <T> List<T> getMetaFromJSONForm(HttpServletRequest request, MetaAttribute.Area area, Class clazz, Locale locale) {
 		
-		List<T> resultList = MetaUtil.getMasterList(clazz, area, bundle); 
+		List<T> resultList = MetaUtil.getMasterList(clazz, area, locale); 
 
 		Map parms = request.getParameterMap();
 		for (Iterator iterator = parms.entrySet().iterator(); iterator.hasNext();)  {  
@@ -262,13 +265,13 @@ public final class MetaUtil {
 	}
 	
 
-	public static final <T> List<T> getMetaFromForm(HttpServletRequest request, MetaAttribute.Area area, Class clazz, ResourceBundle bundle) {
-		return getMetaFromForm(request, area, area, clazz, bundle);
+	public static final <T> List<T> getMetaFromForm(HttpServletRequest request, MetaAttribute.Area area, Class clazz, Locale locale) {
+		return getMetaFromForm(request, area, area, clazz, locale);
 	}
 
-	public static final <T> List<T> getMetaFromForm(HttpServletRequest request, MetaAttribute.Area area, MetaAttribute.Area parentarea, Class clazz, ResourceBundle bundle) {
+	public static final <T> List<T> getMetaFromForm(HttpServletRequest request, MetaAttribute.Area area, MetaAttribute.Area parentarea, Class clazz, Locale locale) {
 		
-		List<T> resultList = MetaUtil.getMasterList(clazz, area, bundle); 
+		List<T> resultList = MetaUtil.getMasterList(clazz, area, locale); 
 
 		Map parms = request.getParameterMap();
 		for (Iterator iterator = parms.entrySet().iterator(); iterator.hasNext();)  {  

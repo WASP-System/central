@@ -1,25 +1,29 @@
 package edu.yu.einstein.wasp.model;
 
 
-import edu.yu.einstein.wasp.controller.validator.MetaValidator;
-import edu.yu.einstein.wasp.controller.validator.MetaValidatorImpl;
-
-import java.util.ResourceBundle;
-import java.util.Locale;
-
-import java.util.Enumeration;
-
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
-import java.util.TreeSet;
+import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.servlet.jsp.jstl.core.Config;
+import javax.servlet.jsp.jstl.fmt.LocalizationContext;
 
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.servlet.i18n.SessionLocaleResolver;
+
+import edu.yu.einstein.wasp.controller.validator.MetaValidator;
+import edu.yu.einstein.wasp.controller.validator.MetaValidatorImpl;
+import edu.yu.einstein.wasp.dao.impl.DBResourceBundle;
+import edu.yu.einstein.wasp.service.impl.WaspMessageSourceImpl;
 
 
 
@@ -30,34 +34,34 @@ import org.springframework.validation.BindingResult;
  */
 
 public class MetaHelper {
-	private static final ResourceBundle BASE_BUNDLE=ResourceBundle.getBundle("messages", Locale.ENGLISH);
 
-	public MetaHelper(String area, Class clazz) {
-		this.area = area;
-		this.parentArea = area;
-		this.clazz = clazz;
-		this.bundle = BASE_BUNDLE; 
-	}
 
-	public MetaHelper(String area, String parentArea, Class clazz) {
+	public MetaHelper(String area, String parentArea, Class clazz, HttpSession session) {
 		this.area = area;
 		this.parentArea = parentArea;
 		this.clazz = clazz;
-		this.bundle = BASE_BUNDLE; 
+		
+		this.locale=(Locale)session.getAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
+		 
+	}
+	
+	public MetaHelper(String area, Class clazz,HttpSession session) {
+		this(area,area,clazz,session);
 	}
 
-	public MetaHelper(String area, Class clazz, ResourceBundle bundle) {
+
+	public MetaHelper(String area, Class clazz, Locale locale) {
 		this.area = area;
 		this.parentArea = area;
 		this.clazz = clazz;
-		this.bundle = bundle; 
+		this.locale=locale;
 	}
 
-	public MetaHelper(String area, String parentArea, Class clazz, ResourceBundle bundle) {
+	public MetaHelper(String area, String parentArea, Class clazz, Locale locale) {
 		this.area = area;
 		this.parentArea = parentArea;
 		this.clazz = clazz;
-		this.bundle = bundle; 
+		this.locale=locale;
 	}
 
 	private String area;
@@ -77,14 +81,16 @@ public class MetaHelper {
 		this.parentArea = parentArea;
 	}
 
-	private ResourceBundle bundle;
-	public ResourceBundle getBundle() {
-		return this.bundle;
-	}
-	public void setBundle(ResourceBundle bundle) {
-		this.bundle = bundle;
+	private Locale locale;
+
+
+	public Locale getLocale() {
+		return locale;
 	}
 
+	public void setLocale(Locale locale) {
+		this.locale = locale;
+	}
 
 	private Class clazz;
 	public Class getClazz() {
@@ -109,19 +115,14 @@ public class MetaHelper {
 		Map<String, String> baseResource = new HashMap();
 		Map<String, String> bundleResource = new HashMap();
 
-		Enumeration<String> en=BASE_BUNDLE.getKeys();
-		while(en.hasMoreElements()) {
-			String k = en.nextElement();
+		Set<String> keys=((WaspMessageSourceImpl)DBResourceBundle.MESSAGE_SOURCE).getKeys(Locale.US);
+		for(String k: keys) {
+			
 			if (!k.startsWith(area +".")) continue;
-			// i can cache values here?
-			String baseValue = BASE_BUNDLE.getString(k); 
-			String bundleValue = bundle.getString(k); 
+		
+			String bundleValue = DBResourceBundle.MESSAGE_SOURCE.getMessage(k,null,locale);
 
-			if (bundleValue == null) {
-				bundleValue = baseValue;
-			}
-
-			baseResource.put(k, baseValue);
+		
 			bundleResource.put(k, bundleValue);
 
 			if (!k.endsWith(".metaposition")) continue;
@@ -131,7 +132,7 @@ public class MetaHelper {
 
 			int pos=99;
 			try {
-				pos = Integer.parseInt(baseValue);
+				pos = Integer.parseInt(bundleValue);
 			} catch (Exception e) {
 			}
 
@@ -339,5 +340,23 @@ public class MetaHelper {
 		}
 		return validateList;
 	}
+
+	/*
+	public static String getBundleValue(String key, ResourceBundle bundle, String defaultValue) {
+		if (defaultValue==null) defaultValue=key; 
+		try {
+			String ret=(String)bundle.getObject(key);
+			if (ret==null) return defaultValue;
+			
+			return ret;
+		} catch (Throwable e) {
+			return defaultValue;
+		}
+	}
+	
+	public static String getBundleValue(String key, ResourceBundle bundle) {
+		return getBundleValue(key, bundle, null);
+	}
+	*/
 	
 }
