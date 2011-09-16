@@ -103,7 +103,8 @@ insert into role values
 (11, 'god', 'God', 'system'),
 (12, 'lx', 'Lab Member Inactive', 'lab'), -- labuser, explicit
 (13, 'lp', 'Lab Member Pending', 'lab'), -- labuser, explicit
-(14, 'jd', 'Job Drafter', 'jobdraft'); -- labuser, explicit
+(14, 'jd', 'Job Drafter', 'jobdraft'), -- labuser, explicit
+(15, 'u', 'User', 'user'); -- user, explicit
 
 
 create table roleset (
