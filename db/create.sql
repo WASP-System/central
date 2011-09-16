@@ -1796,23 +1796,7 @@ INSERT INTO `uifield` (`uifieldid`, `locale`, `area`, `name`, `attrname`, `attrv
 
 
 -- populate "sample type" <-> "list of meta fields" link tables. 
-truncate table subtypesample;
-insert into subtypesample(typesampleid,iname,name)
-select 
-t.typesampleid, 
-concat(w.iname,t.iname, 'Sample'), 
-concat(w.name, ' ', t.name, ' Sample')
-from typesample t 
-join workflow w
-where t.typesampleid in (1, 3);
 
-insert into workflowsubtypesample(workflowid, subtypesampleid)
-select w.workflowid, st.subtypesampleid
-from workflow w
-join typesample t
-join subtypesample st on concat(w.iname, t.iname, 'Sample') = st.iname;
-
- 
 
 
 /*
