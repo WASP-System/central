@@ -6,7 +6,7 @@
   <body>
 
     <h1><fmt:message key="auth.resetpasswordok_title.label" /></h1>
-	<fmt:message key="auth.resetpasswordok.label />
+	<fmt:message key="auth.resetpasswordok.label" />
      
 </body></html>
 
