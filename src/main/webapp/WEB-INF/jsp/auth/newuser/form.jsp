@@ -2,7 +2,7 @@
 
 <html>
   <head>
-  		<title><fmt:message key="userPending.page_title.labe;" /></title>
+  		<title><fmt:message key="userPending.page_title.label" /></title>
   <head> 
   <body>
     
