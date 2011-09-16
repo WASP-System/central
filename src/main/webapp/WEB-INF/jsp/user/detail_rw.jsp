@@ -1,10 +1,10 @@
 <%@ include file="/WEB-INF/jsp/include.jsp" %>
 
 <html>
-  <head><title><fmt:message key="user.detail.title" /></title><head>
+  <head><title><fmt:message key="user.detail.label" /></title><head>
   <body>
     
-    <h1><fmt:message key="user.detail.title" /></h1>
+    <h1><fmt:message key="user.detail.label" /></h1>
 
     <font color="blue"><wasp:message /></font>  
     

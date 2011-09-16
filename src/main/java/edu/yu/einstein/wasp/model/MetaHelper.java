@@ -261,23 +261,28 @@ public class MetaHelper {
 	/*
 	 * updates "dbList" so it only contains fields found in "properties" file
 	 */
-	public final <T extends MetaBase> List<T> syncWithMaster(List<T> baseList) {
-		List<T> list = getMasterList(clazz);
-
-		Map<String, String> baseMap = new HashMap();
-		for (T obj : baseList) {
-			baseMap.put(obj.getK(), obj.getV());			
-		}
-
-		for (T obj : list) {
-			obj.setV(baseMap.get(obj.getK()));
-		}
-
-		// replaces List
-		baseList = list;
-
-		return list;
+	public final <T extends MetaBase> List<T> syncWithMaster(List<T> dbList) {
+		return syncWithMaster(dbList,getMasterList(clazz));
 	}
+	
+	/*
+	 * updates "dbList" so it only contains fields found in "properties" file
+	 */
+	public final <T extends MetaBase> List<T> syncWithMaster(List<T> currentList,List<T> masterList) {
+		
+
+		Map<String, String> dbMap = new HashMap();
+		for (T obj : currentList) {
+			dbMap.put(obj.getK(), obj.getV());			
+		}
+
+		for (T obj : masterList) {
+			obj.setV(dbMap.get(obj.getK()));
+		}
+
+		return masterList;
+	}
+	
 
 
 	public final MetaValidator getMetaValidator(List<? extends MetaBase> list) {

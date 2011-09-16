@@ -2,11 +2,11 @@
 
 <html>
   <head>
-  		<title><fmt:message key="userPending.page.title" /></title>
+  		<title><fmt:message key="userPending.page_title.labe;" /></title>
   <head> 
   <body>
     
-    <h1><fmt:message key="userPending.page.title" /></h1>
+    <h1><fmt:message key="userPending.page_title.label" /></h1>
     <font color="red"><wasp:message /></font> 
     <form:form commandName="userPending">
       <table>
@@ -40,7 +40,7 @@
           <td><fmt:message key="userPending.locale.label"/>:</td>
           <td>
             <select name=locale>
-              <option value=''><fmt:message key="userPending.select.default"/></option> 
+              <option value=''><fmt:message key="userPending.select_default.label"/></option> 
               <c:forEach var="localeEntry" items="${locales}">
                 <c:set var="localeValue" value="${localeEntry.key}"/>
                 <c:set var="localeLabel" value="${localeEntry.value}"/>     
@@ -56,7 +56,7 @@
           <c:import url="/WEB-INF/jsp/meta_rw.jsp"/>
           <tr>
               <td colspan="2" align=right>
-                  <input type="submit" value="<fmt:message key='userPending.submit'/>" /> 
+                  <input type="submit" value="<fmt:message key='userPending.submit.label'/>" /> 
               </td>
           </tr>
 

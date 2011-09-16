@@ -393,7 +393,7 @@ public class LabController extends WaspController {
 		//emailService.sendNewPassword(labDb, "new pass");
 		
 		try {
-			response.getWriter().println(getMessage("lab.updated.success"));
+			response.getWriter().println(getMessage("lab.updated_success.label"));
 			return null;
 		} catch (Throwable e) {
 			throw new IllegalStateException("Cant output success message ",e);
@@ -504,7 +504,7 @@ public class LabController extends WaspController {
 
 		status.setComplete();
 
-		waspMessage("lab.created.success");
+		waspMessage("lab.created_success.label");
 		
 		return "redirect:/lab/detail_rw/" + labDb.getLabId() + ".do";
 	}
@@ -545,7 +545,7 @@ public class LabController extends WaspController {
 
 		status.setComplete();
 		
-		waspMessage("lab.updated.success");
+		waspMessage("lab.updated_success.label");
 		
 		return "redirect:" + labId + ".do";
 
@@ -888,12 +888,12 @@ public class LabController extends WaspController {
 			alreadyPendingRoles.add("lu");
 
 			if (alreadyPendingRoles.contains(labUser.getRole().getRoleName())) {
-				waspMessage("labuser.request.alreadypending.error");
+				waspMessage("labuser.request_alreadypending.error");
 				return "redirect:/lab/newrequest.do";
 			}
 
 			if (alreadyAccessRoles.contains(labUser.getRole().getRoleName())) {
-				waspMessage("labuser.request.alreadyaccess.error");
+				waspMessage("labuser.request_alreadyaccess.error");
 				  return "redirect:/lab/newrequest.do";
 			}
 		}
@@ -909,7 +909,7 @@ public class LabController extends WaspController {
 		
 		emailService.sendPendingLabUserPrimaryConfirm(labUser);
 
-		waspMessage("labuser.request.success");
+		waspMessage("labuser.request_success.label");
 
 		return "redirect:/lab/newrequest.do";
 

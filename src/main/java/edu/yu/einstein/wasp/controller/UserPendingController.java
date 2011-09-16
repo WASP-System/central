@@ -257,24 +257,24 @@ public class UserPendingController extends WaspController {
 			  @RequestParam(value="email") String urlEncodedEmail,
 		      ModelMap m) {
 		  if (authCode == null || authCode.isEmpty()) {
-			  waspMessage("auth.confirmemail.badauthcode.error");
+			  waspMessage("auth.confirmemail_badauthcode.error");
 			  return "auth/confirmemail/authcodeform";
 		  }
 		  
 		  ConfirmEmailAuth confirmEmailAuth = confirmEmailAuthService.getConfirmEmailAuthByAuthcode(authCode);
 		  if (urlEncodedEmail == null || urlEncodedEmail.isEmpty() || confirmEmailAuth.getUserpendingId() == 0) {
-			  waspMessage("auth.confirmemail.bademail.error");
+			  waspMessage("auth.confirmemail_bademail.error");
 			  return "auth/confirmemail/authcodeform";
 		  }
 			  
 		  UserPending userPending = userPendingService.getUserPendingByUserPendingId(confirmEmailAuth.getUserpendingId());
 		  try{
 			  if (! userPending.getEmail().equals(URLDecoder.decode(urlEncodedEmail, "UTF-8"))){
-				  waspMessage("auth.confirmemail.wronguser.error");
+				  waspMessage("auth.confirmemail_wronguser.error");
 				  return "auth/confirmemail/authcodeform";
 			  }
 		  } catch(UnsupportedEncodingException e){
-			  waspMessage("auth.confirmemail.corruptemail.error");
+			  waspMessage("auth.confirmemail_corruptemail.error");
 			  return "auth/confirmemail/authcodeform"; 
 		  }
 		  
@@ -291,7 +291,7 @@ public class UserPendingController extends WaspController {
 	        ModelMap m) {
 		
 		 if (authCode == null || authCode.isEmpty()) {
-			 waspMessage("auth.confirmemail.badauthcode.error");
+			 waspMessage("auth.confirmemail_badauthcode.error");
 			 m.put("email", email);
 			 return "auth/confirmemail/authcodeform";
 		  }
@@ -312,7 +312,7 @@ public class UserPendingController extends WaspController {
 
 		  Captcha captcha = (Captcha) request.getSession().getAttribute(Captcha.NAME);
 		  if (captcha == null || (! captcha.isCorrect(captchaText)) ){
-			  waspMessage("auth.confirmemail.captcha.error");
+			  waspMessage("auth.confirmemail_captcha.error");
 			  m.put("authcode", authCode);
 			  m.put("email", email);
 			  return "auth/confirmemail/authcodeform";

@@ -2,13 +2,13 @@
 
 <html>
   <head>
-   <title><fmt:message key="department.detail.title" /></title>
+   <title><fmt:message key="department.detail.label" /></title>
    <script language="JavaScript">
 		<!--
 		function validate(){
 			//alert("test123"); return false;
 			var error = false;
-			var message = '<fmt:message key="department.detail.missingparam.error" />';
+			var message = '<fmt:message key="department.detail_missingparam.error" />';
 			if(document.f.useremail.value == ""){
 				error = true
 				document.f.useremail.focus();
@@ -22,7 +22,7 @@
   <body>
     <h1><c:out value="${department.name}"/></h1>
 
-    <h2><fmt:message key="department.detail.administrators.label" /></h2>
+    <h2><fmt:message key="department.detail_administrators.label" /></h2>
     
     <div>
     <h3><fmt:message key="department.detail.createadmin.label" /></h3>

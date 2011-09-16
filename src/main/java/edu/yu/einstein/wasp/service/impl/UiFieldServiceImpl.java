@@ -11,6 +11,8 @@
 
 package edu.yu.einstein.wasp.service.impl;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +28,14 @@ public class UiFieldServiceImpl extends WaspServiceImpl<UiField> implements UiFi
 	  public void setDao(UiFieldDao dao) {
 	    this.dao = dao;
 	    this.setWaspDao(dao);
+	  }
+	  
+	  public List<String> getUniqueAreas() {
+		  return this.dao.getUniqueAreas();
+	  }
+	  
+	  public boolean exists(String locale, String area, String name, String attrName) {
+		  return this.dao.exists(locale, area, name, attrName);
 	  }
 	
 }

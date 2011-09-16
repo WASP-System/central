@@ -1,7 +1,7 @@
 <%@ include file="/WEB-INF/jsp/include.jsp" %>
 
 <html>
-  <head> <title><fmt:message key="department.list.title" /></title>
+  <head> <title><fmt:message key="department.list_title.label" /></title>
   <script language="JavaScript">
 		<!--
 		function validate(){
@@ -22,15 +22,15 @@
   <body onload='document.f.name.focus();'>
 
 	<div>
-	  <h1><fmt:message key="department.list.create.label" /></h1>
+	  <h1><fmt:message key="department.list_create.label" /></h1>
 	  <font color="red"><wasp:message /></font>
     	<form name="f" action="<c:url value='/department/create.do'/>" method="POST" onsubmit='return validate();'>
-      		<fmt:message key="department.list.department.label" />: <input type='text' name='name' value=''/><br/>
+      		<fmt:message key="department.list_department.label" />: <input type='text' name='name' value=''/><br/>
       		<input type="submit" value="<fmt:message key="department.list.submit" />" />
     	</form>
 	</div>
 
-	<h1><fmt:message key="department.list.title" /></h1>
+	<h1><fmt:message key="department.list_title.label" /></h1>
 	<table cellpadding="0" cellspacing="0" border="0">
 	<c:forEach items="${department}" var="d">
 		<div>

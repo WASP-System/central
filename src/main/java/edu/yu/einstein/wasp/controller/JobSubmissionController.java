@@ -356,7 +356,7 @@ public class JobSubmissionController extends WaspController {
 		
 		getMetaHelper().setArea(jobDraft.getWorkflow().getIName());
 
-    jobDraft.setJobDraftMeta(getMetaHelper().syncWithMaster(jobDraft.getJobDraftMeta()));
+		jobDraft.setJobDraftMeta(getMetaHelper().syncWithMaster(jobDraft.getJobDraftMeta()));
 
 
 		// Copies JobDraft to a new Job
@@ -411,7 +411,10 @@ public class JobSubmissionController extends WaspController {
 		Map <String, Object> jqgrid = new HashMap<String, Object>();
 		
 		List<SampleDraft> drafts=sampleDraftService.getSampleDraftByJobId(jobdraftId);
-
+		
+		int workflowId=jobDraftService.findById(jobdraftId).getWorkflow().getWorkflowId();
+	
+		//List<SampleDraftMeta> allowableMetaFields=sampleDraftService.getAllowableMetaFields(workflowId);
 
 		ObjectMapper mapper = new ObjectMapper();
    	
@@ -434,7 +437,9 @@ public class JobSubmissionController extends WaspController {
 				cell.put("id", draft.getSampleDraftId());
 			
 				MetaHelper sampleMetaHelper = new MetaHelper("sampleDraft", SampleDraftMeta.class, request.getSession());
-
+				
+				
+				
 				List<SampleDraftMeta> draftMeta=sampleMetaHelper.syncWithMaster(draft.getSampleDraftMeta());
 				String fileCell="";
 				if (draft.getFile()!=null ) {

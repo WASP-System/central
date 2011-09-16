@@ -52,6 +52,11 @@ public class SampleDraftMetaServiceImpl extends WaspServiceImpl<SampleDraftMeta>
   public void updateBySampledraftId (final int sampledraftId, final List<SampleDraftMeta> metaList) {
     this.getSampleDraftMetaDao().updateBySampledraftId(sampledraftId, metaList); 
   }
+  
+  public List<SampleDraftMeta> getAllowableMetaFields(int workflowId) {
+	  //this.getSampleDraftMetaDao().getAllowableMetaFields(workflowId);
+	  return null;
+  }
 
 }
 

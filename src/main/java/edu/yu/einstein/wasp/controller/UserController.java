@@ -351,7 +351,7 @@ public class UserController extends WaspController {
 		//emailService.sendNewPassword(userDb, "new pass");
 		
 		try {
-			response.getWriter().println(adding?getMessage("user.created.success"):getMessage("user.updated.success"));
+			response.getWriter().println(adding?getMessage("user.created_success.label"):getMessage("user.updated_success.label"));
 			return null;
 		} catch (Throwable e) {
 			throw new IllegalStateException("Cant output success message ",e);
@@ -458,7 +458,7 @@ public class UserController extends WaspController {
 			newpassword1 == null || "".equals(newpassword1) ||
 			newpassword2 == null || "".equals(newpassword2)  ) 
 		{
-				waspMessage("user.mypassword.missingparam.error");
+				waspMessage("user.mypassword_missingparam.error");
 				return "user/mypassword";
 		}
 		
@@ -472,27 +472,27 @@ public class UserController extends WaspController {
 		  
 		//if(!currentPasswordAsHash.equals(oldPasswordAsHash)){//current from db; old is from form as hash
 		if(!passwordService.matchPassword(currentPasswordAsHash, oldPasswordAsHash)){
-			waspMessage("user.mypassword.cur_mismatch.error");
+			waspMessage("user.mypassword_cur_mismatch.error");
 			return "user/mypassword";
 		}
 		//else if(!newpassword1.equals(newpassword2)){//both from form
 		else if(!passwordService.matchPassword(newpassword1, newpassword2)){
-			waspMessage("user.mypassword.new_mismatch.error");
+			waspMessage("user.mypassword_new_mismatch.error");
 		    return "user/mypassword";
 		}
 		//else if(oldpassword.equals(newpassword1)){
 		else if(passwordService.matchPassword(oldpassword, newpassword1)){//make sure old and new passwords differ
-			waspMessage("user.mypassword.nodiff.error");
+			waspMessage("user.mypassword_nodiff.error");
 		    return "user/mypassword";
 		}
 		else if(!passwordService.validatePassword(newpassword1)){//at least 8 char, at least one letter; at least one number
-			waspMessage("user.mypassword.new_invalid.error");
+			waspMessage("user.mypassword_new_invalid.error");
 		    return "user/mypassword";
 		}
 		  
 		user.setPassword( passwordService.encodePassword(newpassword1) ); 
 		userService.merge(user);
-		waspMessage("user.mypassword.ok");	
+		waspMessage("user.mypassword_ok.label");	
 		return "redirect:/dashboard.do";		 
 	}
 

@@ -11,18 +11,20 @@
 
 package edu.yu.einstein.wasp.dao.impl;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
-import java.util.List;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.springframework.stereotype.Repository;
 import org.springframework.orm.jpa.JpaCallback;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.SampleDraftMeta;
 
 @SuppressWarnings("unchecked")
@@ -118,6 +120,58 @@ public class SampleDraftMetaDaoImpl extends WaspDaoImpl<SampleDraftMeta> impleme
 	}
 
 
+	public List<SampleDraftMeta> getAllMetaFields() {
+		/*
+		 *  Object res = getJpaTemplate().execute(new JpaCallback() {
+
+			   public Object doInJpa(EntityManager em) throws PersistenceException {
+				   String sql=
+					   "select master.area,master.name,master.pos,label.attrValue as label,error.attrValue as error,\n"+ 
+					   "control.attrValue as control,suffix.attrValue as suffix,constr.attrValue as 'constraint'\n"+
+					   "from \n"+
+					   "(select distinct f.area,f.name,convert(f.attrValue, signed)  pos\n"+
+					   "from  subtypesample st\n"+
+					   "join typesample t on st.typesampleid=t.typesampleid\n"+
+					   "join uifield f on  st.iname = concat(f.area,t.iname,'Sample')\n"+ 
+					   "and f.attrName='metaposition'\n"+
+					   "and f.locale='en_US'\n"+
+					   "where st.subtypesampleid in (\n"+
+					   "select st.subtypesampleid\n"+
+					   "from workflowsubtypesample wst\n"+
+					   "join subtypesample st on st.subtypesampleid = wst.subtypesampleid\n"+
+					   ")\n"+
+					   ") as master\n"+
+					   "left outer join uifield label on master.area=label.area and master.name=label.name and label.attrName='label'\n"+
+					   "left outer join uifield error on master.area=error.area and master.name=error.name and label.attrName='error'\n"+
+					   "left outer join uifield control on master.area=control.area and master.name=control.name and label.attrName='control'\n"+
+					   "left outer join uifield suffix on master.area=suffix.area and master.name=suffix.name and label.attrName='suffix'\n"+
+					   "left outer join uifield constr on master.area=constr.area and master.name=constr.name and label.attrName='constraint'\n"+
+					   "order by master.pos\n";
+
+
+				   List<SampleDraftMeta> r = new ArrayList<SampleDraftMeta>();
+				   
+				   List<Object[]> listObj=em.createNativeQuery(sql).getResultList();
+				   for(Object[] o:listObj) {
+					   
+					   SampleDraftMeta m = new SampleDraftMeta();
+					   
+					   m.setK(o[0]+"."+o[1]);
+					   MetaAttribute attr = new MetaAttribute();
+					   
+					   attr.setMetaposition((Integer)o[2]);
+					   
+					   //m.setProperty(property)
+				   }
+				   return null;
+			   }
+
+			  });
+	}
+	
+		 */
+		return null;
+	}
 
 }
 

@@ -83,23 +83,26 @@ public class UiFieldController extends WaspController {
 		  AREA_NAMES.put("","--select--");
 		  for (MetaAttribute.Area a : MetaAttribute.Area.values()) {
 			  AREA_NAMES.put(a.name(),a.name());
-			}
+		  }
 	  }
-	
-	  
-	
-	  
-	  
 	  
 	@RequestMapping("/list")
 	@PreAuthorize("hasRole('god')")
 	public String list(ModelMap m,HttpServletResponse response) {
 		
-		 response.setContentType("text/html;charset=UTF-8");
+		Map<String, String> areas=new TreeMap<String, String>();
+		
+		areas.putAll(AREA_NAMES);
+		
+		for(String area:uiFieldService.getUniqueAreas()) {
+			areas.put(area,area);
+		}
+		
+		response.setContentType("text/html;charset=UTF-8");
 		
 		m.addAttribute(JQFieldTag.AREA_ATTR, "uiField");		
 		m.addAttribute("attrNames", ATTR_NAMES);
-		m.addAttribute("areaNames", AREA_NAMES);
+		m.addAttribute("areaNames", areas);
 		m.addAttribute("locales", MY_LOCALES);
 		
 		return "uifield-list";
@@ -198,8 +201,13 @@ public class UiFieldController extends WaspController {
 
 	@RequestMapping(value = "/detail_rw/updateJSON.do", method = RequestMethod.POST)
 	public String updateDetailJSON(@RequestParam("id") Integer uiFieldId,UiField uiFieldForm, ModelMap m, HttpServletResponse response) {
-	
+		try {
 		if (uiFieldId==0) {
+			
+			if (uiFieldService.exists(uiFieldForm.getLocale(), uiFieldForm.getAttrName(), uiFieldForm.getName(), uiFieldForm.getAttrName())) {
+				response.getWriter().println(getMessage("uiField.error_not_unique.data"));
+				return null;
+			}
 			
 			UiField uiFieldDb = this.uiFieldService.save(uiFieldForm);
 			
@@ -216,7 +224,6 @@ public class UiFieldController extends WaspController {
 
 		
 		
-		try {
 						
 			String newKey=uiFieldForm.getArea()+"."+uiFieldForm.getName()+"."+uiFieldForm.getAttrName();
 			
@@ -227,7 +234,7 @@ public class UiFieldController extends WaspController {
 				
            ((WaspMessageSourceImpl)messageSource).addMessage(newKey, locale, uiFieldForm.getAttrValue());
            
-			response.getWriter().println(getMessage("uiField."+(uiFieldId==0?"added":"updated")+".success"));
+			response.getWriter().println(getMessage("uiField."+(uiFieldId==0?"added":"updated")+".data"));
 			return null;
 		} catch (Throwable e) {
 			throw new IllegalStateException("Cant output success message ",e);

@@ -93,18 +93,18 @@ public class DepartmentController extends WaspController {
   public String createDepartment(@RequestParam("name") String name, ModelMap m) {
 	  
 	if( "".equals(name.trim()) ){
-		waspMessage("department.list.missingparam.error");
+		waspMessage("department.list_missingparam.error");
 	}
 	else{
 		Department existingDepartment = this.departmentService.getDepartmentByName(name.trim()); 
 		if( existingDepartment.getDepartmentId() > 0 ){//the id will be 0 if empty department [ie.: department does not already exist]
-			waspMessage("department.list.department_exists.error");
+			waspMessage("department.list_department_exists.error");
 		}
 		else{
 			Department department = new Department(); 
 			department.setName(name.trim()); 
 			departmentService.save(department);
-			waspMessage("department.list.ok");
+			waspMessage("department.list_ok.label");
 		}
 	}
     return "redirect:/department/list.do";
