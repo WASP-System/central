@@ -52,13 +52,13 @@ public class UiFieldDaoImpl extends WaspDaoImpl<UiField> implements edu.yu.einst
 
 		   public Object doInJpa(EntityManager em) throws PersistenceException {
 			   String sql=
-				   "select 1 from uifield f where exists (\n"+
+				   
 				   	"select 1 from uifield \n"+
 				   	"where locale=:locale\n"+
 				   	"and area=:area\n"+
 				   	"and name=:name\n"+
-				   	"and attrname=:attrname\n"+
-				   ")\n";
+				   	"and attrname=:attrname\n";
+				 
 				   
 				   
 		    Query q = em.createNativeQuery(sql)

@@ -204,8 +204,8 @@ public class UiFieldController extends WaspController {
 		try {
 		if (uiFieldId==0) {
 			
-			if (uiFieldService.exists(uiFieldForm.getLocale(), uiFieldForm.getAttrName(), uiFieldForm.getName(), uiFieldForm.getAttrName())) {
-				response.getWriter().println(getMessage("uiField.error_not_unique.data"));
+			if (uiFieldService.exists(uiFieldForm.getLocale(), uiFieldForm.getArea(), uiFieldForm.getName(), uiFieldForm.getAttrName())) {
+				response.getWriter().println(getMessage("uiField.not_unique.error"));
 				return null;
 			}
 			
