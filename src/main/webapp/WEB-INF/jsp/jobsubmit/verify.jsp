@@ -24,6 +24,29 @@
     <c:import url="/WEB-INF/jsp/meta_ro.jsp"/>
     </table>
 
+<hr>
+ <c:forEach items="${sampleDraft}" var="sd">
+   <div>
+     Sample:
+     <c:out value="${sd.name}" />
+     <c:forEach items="${sd.sampleDraftMeta}" var="sdm">
+       <c:if test="${sdm.v != ''}">
+         <div>
+           <fmt:message key="${sdm.k}" />:
+           <c:out value="${sdm.v}" />
+         </div>
+       </c:if>
+     </c:forEach>
+
+     <c:if test="${! empty(sd.fileId)}">
+       FILE
+       <c:out value="${sd.file.filelocation}" />
+     </c:if>
+   </div>
+   <hr>
+ </c:forEach>
+
+
     <form method="POST" action="<c:url value="/jobsubmit/submit/${jobDraft.jobDraftId}.do" />">
       <input type="submit"/>
     </form>
