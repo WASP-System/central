@@ -60,7 +60,7 @@ FROM
   left outer join jobuser ju
     on (u.userid = ju.userid and r.roleid = ju.roleid)
   left outer join jobdraft jd
-    on (u.userid = jd.userid)
+    on (u.userid = jd.userid and status = 'PENDING')
   left outer join user us 
     on (u.userid = us.userid)
 where
