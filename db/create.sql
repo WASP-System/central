@@ -611,6 +611,28 @@ create table resourcebarcode (
   constraint unique index u_resourcebarcode_bcid (barcodeid)
 ) ENGINE=InnoDB charset=utf8;
 
+-- FILE
+--   mysql max out at 767 bytes for indexable length
+--
+create table file (
+  fileid int(10) not null primary key auto_increment,
+
+  filelocation varchar(2048) not null, 
+  contenttype varchar(250) not null, 
+  sizek int(10) not null,
+  md5hash varchar(250) not null,
+  description varchar(250),
+
+  isarchived int(1) not null default 0,
+  isactive int(1) not null default 1,
+
+  lastupdts timestamp not null default current_timestamp,
+  lastupduser int(10) not null default 0 
+
+  -- constraint unique index u_file_flocation (filelocation)
+) ENGINE=InnoDB charset=utf8;
+
+
 -- 
 -- SAMPLE
 --
@@ -760,6 +782,7 @@ create table sampledraft (
   labid int(10) not null,
   userid int(10) not null,
   jobdraftid int(10) null,
+  fileid int(10) null,
 
   name varchar(250),
   status varchar(50), 
@@ -771,7 +794,8 @@ create table sampledraft (
   foreign key fk_sampledraft_stsid (subtypesampleid) references subtypesample(subtypesampleid),
   foreign key fk_sampledraft_sjid (jobdraftid) references jobdraft(jobdraftid),
   foreign key fk_sampledraft_slid (labid) references lab(labid),
-  foreign key fk_sampledraft_suid (userid) references user(userid)
+  foreign key fk_sampledraft_suid (userid) references user(userid),
+  foreign key fk_sampledraft_fid (fileid) references file(fileid)
 ) ENGINE=InnoDB charset=utf8;
 
 create table sampledraftmeta (
@@ -948,27 +972,6 @@ create table acct_grantjob (
 
 
 --
--- FILE
---   mysql max out at 767 bytes for indexable length
---
-create table file (
-  fileid int(10) not null primary key auto_increment,
-
-  filelocation varchar(2048) not null, 
-  contenttype varchar(250) not null, 
-  sizek int(10) not null,
-  md5hash varchar(250) not null,
-  description varchar(250),
-
-  isarchived int(1) not null default 0,
-  isactive int(1) not null default 1,
-
-  lastupdts timestamp not null default current_timestamp,
-  lastupduser int(10) not null default 0 
-
-  -- constraint unique index u_file_flocation (filelocation)
-) ENGINE=InnoDB charset=utf8;
-
 --
 -- JOB.FILE
 --
