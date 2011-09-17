@@ -40,12 +40,16 @@ import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftMeta;
 import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.JobUser;
+import edu.yu.einstein.wasp.model.JobSample;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.MetaHelper;
 import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleDraftMeta;
+import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.SampleMeta;
+import edu.yu.einstein.wasp.model.SampleFile;
 import edu.yu.einstein.wasp.model.TypeSample;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Workflow;
@@ -55,10 +59,13 @@ import edu.yu.einstein.wasp.service.JobDraftService;
 import edu.yu.einstein.wasp.service.JobMetaService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.JobUserService;
+import edu.yu.einstein.wasp.service.JobSampleService;
 import edu.yu.einstein.wasp.service.RoleService;
 import edu.yu.einstein.wasp.service.SampleDraftMetaService;
 import edu.yu.einstein.wasp.service.SampleDraftService;
 import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.service.SampleMetaService;
+import edu.yu.einstein.wasp.service.SampleFileService;
 import edu.yu.einstein.wasp.service.TypeSampleService;
 import edu.yu.einstein.wasp.service.WorkflowService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
@@ -96,9 +103,18 @@ public class JobSubmissionController extends WaspController {
 
 	@Autowired
 	private SampleService sampleService;
+
+	@Autowired
+	private SampleMetaService sampleMetaService;
+
+	@Autowired
+	private SampleFileService sampleFileService;
+
+	@Autowired
+	private JobSampleService jobSampleService;
 	
 	@Autowired
-	private TypeSampleService typeSampleService;  
+	private TypeSampleService typeSampleService;
 	
 	@Autowired
 	private WorkflowService workflowService;
@@ -316,18 +332,24 @@ public class JobSubmissionController extends WaspController {
 		jobDraftMetaService.updateByJobdraftId(jobDraftId, jobDraftMetaList);
 
 
-
 		// TODO SHOULD ACTUALLY FORWARD
-	  MetaHelper sampleMetaHelper = new MetaHelper("sampleDraft", SampleDraftMeta.class, request.getSession());
+		return "redirect:/jobsubmit/samples/" + jobDraftId + ".do";
+	}
 
-	  sampleMetaHelper.getMasterList(JobDraftMeta.class);
+	@RequestMapping(value="/samples/{jobDraftId}", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('lu-*')")
+	public String showSampleDraft(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
+		MetaHelper sampleMetaHelper = new MetaHelper("sampleDraft", SampleDraftMeta.class, request.getSession());
 
-	  m.addAttribute("_metaList", sampleMetaHelper.getMasterList(SampleDraftMeta.class));
-	  m.addAttribute(JQFieldTag.AREA_ATTR, "sampleDraft");		
-	  prepareSelectListData(m);
-	  m.addAttribute("jobdraftId",jobDraftId);
-	  m.addAttribute("uploadStartedMessage",getMessage("sampleDraft.fileupload_started.data"));
-	  return "jobsubmit-sample";
+		sampleMetaHelper.getMasterList(JobDraftMeta.class);
+
+		m.addAttribute("_metaList", sampleMetaHelper.getMasterList(SampleDraftMeta.class));
+		m.addAttribute(JQFieldTag.AREA_ATTR, "sampleDraft");		
+		prepareSelectListData(m);
+		m.addAttribute("jobdraftId",jobDraftId);
+		m.addAttribute("uploadStartedMessage",getMessage("sampleDraft.fileupload_started.data"));
+		return "jobsubmit-sample";
+
 	}
 	
 
@@ -339,9 +361,12 @@ public class JobSubmissionController extends WaspController {
 		
 		getMetaHelper().setArea(jobDraft.getWorkflow().getIName());
 
-    jobDraft.setJobDraftMeta(getMetaHelper().syncWithMaster(jobDraft.getJobDraftMeta()));
+		jobDraft.setJobDraftMeta(getMetaHelper().syncWithMaster(jobDraft.getJobDraftMeta()));
 
 		m.put("jobDraft", jobDraft);
+
+		List <SampleDraft> sampleDraftList = jobDraft.getSampleDraft();
+		m.put("sampleDraft", sampleDraftList);
 
 		return "jobsubmit/verify";
 	}
@@ -390,12 +415,60 @@ public class JobSubmissionController extends WaspController {
 		jobUser.setRoleId(role.getRoleId());
 		jobUserService.save(jobUser);
 
+		// Create Samples
+		for (SampleDraft sd: jobDraft.getSampleDraft()) {
+			Sample sample = new Sample();
+
+			sample.setName(sd.getName()); 
+			sample.setTypeSampleId(sd.getTypeSampleId()); 
+			sample.setSubtypeSampleId(sd.getSubtypeSampleId()); 
+			sample.setSubmitterLabId(jobDb.getLabId()); 
+			sample.setSubmitterUserId(me.getUserId()); 
+			sample.setSubmitterJobId(jobDb.getJobId()); 
+			sample.setIsReceived(0);
+			sample.setIsActive(1);
+
+			Sample sampleDb = sampleService.save(sample); 
+
+			// sample file
+			if (sd.getFileId() != null) {
+				SampleFile sampleFile = new SampleFile();
+				sampleFile.setSampleId(sampleDb.getSampleId());
+				sampleFile.setFileId(sd.getFileId());
+
+				sampleFile.setIsActive(1);
+
+				// TODO ADD NAME AND INAME
+
+				sampleFileService.save(sampleFile);
+			}
+
+			// Sample Draft Meta Data
+			for (SampleDraftMeta sdm: sd.getSampleDraftMeta()) {
+				SampleMeta sampleMeta = new SampleMeta();
+
+				sampleMeta.setSampleId(sampleDb.getSampleId());	
+				sampleMeta.setK(sdm.getK());	
+				sampleMeta.setV(sdm.getV());	
+				sampleMeta.setPosition(sdm.getPosition());	
+
+				SampleMeta sampleMetaDb = sampleMetaService.save(sampleMeta); 
+			}
+
+			// Job Sample
+			JobSample jobSample = new JobSample();
+			jobSample.setJobId(jobDb.getJobId());
+			jobSample.setSampleId(sampleDb.getSampleId());
+
+			jobSampleService.save(jobSample);
+		}
+
+		// TODO!!! ADD!!! WORKFLOW!!! STEPS!!!
+
 		// update the jobdraft
 		jobDraft.setStatus("SUBMITTED");
 		jobDraft.setSubmittedjobId(jobDb.getJobId());
 		jobDraftService.save(jobDraft); 
-
-		// TODO!!! ADD!!! WORKFLOW!!! STEPS!!!
 
 		// Adds new Job to Authorized List
 		doReauth();
@@ -404,7 +477,7 @@ public class JobSubmissionController extends WaspController {
 	}
 
 
-    @RequestMapping(value="/listSampleDraftsJSON", method=RequestMethod.GET)	
+	@RequestMapping(value="/listSampleDraftsJSON", method=RequestMethod.GET)	
 	public String getSampleDraftListJSON(@RequestParam("jobdraftId") Integer jobdraftId, HttpServletResponse response) {
 	
 		//result
@@ -417,7 +490,7 @@ public class JobSubmissionController extends WaspController {
 		//List<SampleDraftMeta> allowableMetaFields=sampleDraftService.getAllowableMetaFields(workflowId);
 
 		ObjectMapper mapper = new ObjectMapper();
-   	
+
 		try {
 			//String users = mapper.writeValueAsString(userList);
 			jqgrid.put("page","1");
@@ -484,11 +557,11 @@ public class JobSubmissionController extends WaspController {
 	}
 
 
-    
-    @RequestMapping(value = "/uploadFile", method = RequestMethod.POST)		
-    public String uploadFile(@RequestParam("id") Integer sampleDraftId,SampleDraft sampleDraftForm, ModelMap m, HttpServletResponse response) {
-	   	
-    	String jsCallback="<html>\n"+
+		
+	@RequestMapping(value = "/uploadFile", method = RequestMethod.POST)		
+	public String uploadFile(@RequestParam("id") Integer sampleDraftId,SampleDraft sampleDraftForm, ModelMap m, HttpServletResponse response) {
+		 	
+		String jsCallback="<html>\n"+
 "<head>\n"+
 "<script type='text/javascript'>\n"+
 "function init() {\n"+
@@ -499,69 +572,69 @@ public class JobSubmissionController extends WaspController {
 "<body>\n"+
 "</body>\n";
  
-    	
+			
 		try {
 			
 			if (sampleDraftForm.getFileData()!=null) {//uploading just file				
-			    
-			    CommonsMultipartFile fileData=sampleDraftForm.getFileData();
-			    
-			    SampleDraft samplDraft=sampleDraftService.findById(sampleDraftId);
-			    
-			    Lab lab=samplDraft.getLab();
-			    
-			    User piUser=userService.getById(lab.getPrimaryUserId());
-			    
-			    final String login = 
-			    ((org.springframework.security.core.userdetails.User)
-			    		SecurityContextHolder.getContext().getAuthentication().getPrincipal()
-			    ).getUsername();
-			   			   
-			    String[] path=new String[] {
-			    		this.sampleDir.toString(),
-			    		piUser.getLogin(),
-			    		login,
-			    		"jobdraft_"+sampleDraftForm.getJobdraftId(),
-			    		fileData.getOriginalFilename()+"."+System.currentTimeMillis()
-			    		};
-			    
-			    String destStr=StringUtils.join(path, System.getProperty("file.separator"));
-			    
-			    File dest=new File(destStr);
-			    
-			    FileUtils.forceMkdir(dest);
-			    
-			    fileData.transferTo(dest);
-			    			 	
-			    edu.yu.einstein.wasp.model.File file = new edu.yu.einstein.wasp.model.File();
-			    
-			    file.setFilelocation(dest.getAbsolutePath());
-			    file.setIsActive(1);
-			    file.setContenttype("?");
-			    file.setMd5hash("xxx");
-			    file.setSizek((int)(fileData.getSize()/1024));
-			    			    
-			    fileService.persist(file);
-			    
-			    samplDraft.setFileId(file.getFileId());
-			    
-			    sampleDraftService.merge(samplDraft);
-			    			  
-			    jsCallback=jsCallback.replace("{message}",getMessage("sampleDraft.fileupload_done.data"));
-			    response.setContentType( "text/html; charset=UTF-8" );
-			    response.getWriter().print(jsCallback);
-			  
+					
+					CommonsMultipartFile fileData=sampleDraftForm.getFileData();
+					
+					SampleDraft samplDraft=sampleDraftService.findById(sampleDraftId);
+					
+					Lab lab=samplDraft.getLab();
+					
+					User piUser=userService.getById(lab.getPrimaryUserId());
+					
+					final String login = 
+					((org.springframework.security.core.userdetails.User)
+							SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+					).getUsername();
+				 				 
+					String[] path=new String[] {
+							this.sampleDir.toString(),
+							piUser.getLogin(),
+							login,
+							"jobdraft_"+sampleDraftForm.getJobdraftId(),
+							fileData.getOriginalFilename()+"."+System.currentTimeMillis()
+							};
+					
+					String destStr=StringUtils.join(path, System.getProperty("file.separator"));
+					
+					File dest=new File(destStr);
+					
+					FileUtils.forceMkdir(dest);
+					
+					fileData.transferTo(dest);
+								 	
+					edu.yu.einstein.wasp.model.File file = new edu.yu.einstein.wasp.model.File();
+					
+					file.setFilelocation(dest.getAbsolutePath());
+					file.setIsActive(1);
+					file.setContenttype("?");
+					file.setMd5hash("xxx");
+					file.setSizek((int)(fileData.getSize()/1024));
+										
+					fileService.persist(file);
+					
+					samplDraft.setFileId(file.getFileId());
+					
+					sampleDraftService.merge(samplDraft);
+									
+					jsCallback=jsCallback.replace("{message}",getMessage("sampleDraft.fileupload_done.data"));
+					response.setContentType( "text/html; charset=UTF-8" );
+					response.getWriter().print(jsCallback);
+				
 			} else {
 				jsCallback=jsCallback.replace("{message}",getMessage("sampleDraft.fileupload_nofile.data"));
-			    response.setContentType( "text/html; charset=UTF-8" );
-			    response.getWriter().print(jsCallback);				
+					response.setContentType( "text/html; charset=UTF-8" );
+					response.getWriter().print(jsCallback);				
 			}
 		} catch(Throwable e) {
 			throw new IllegalStateException("cant get file to upload",e);
 		}		
 		return null;
 	}
-  
+	
 	@RequestMapping(value = "/updateSampleDraft", method = RequestMethod.POST)
 	public String updateDetailJSON(@RequestParam("id") Integer sampleDraftId,
 			SampleDraft sampleDraftForm, ModelMap m,
@@ -579,6 +652,10 @@ public class JobSubmissionController extends WaspController {
 		JobDraft jd = jobDraftService.findById(sampleDraftForm.getJobdraftId());
 		sampleDraftForm.setUserId(jd.getUserId());
 		sampleDraftForm.setLabId(jd.getLabId());
+
+
+		// TODO SET TO PROPER SUBTYPE
+		sampleDraftForm.setSubtypeSampleId(11);
 
 		if (adding) {
 
@@ -642,19 +719,19 @@ public class JobSubmissionController extends WaspController {
 		edu.yu.einstein.wasp.model.File file=fileService.findById(fileId);
 		
 		if (file==null) {
-	    	String html="<html>\n"+
-	    	"<head>\n"+	    	
-	    	"</script>\n"+
-	    	"<body>\n"+
-	    	"<script>alert('Error: file id "+fileId+" not foud');</script>\n"+
-	    	"</body>\n";
-	    	response.setContentType( "text/html; charset=UTF-8" );
-	    	try {
-	    		response.getWriter().print(html);
-	    	} catch (Throwable e) {
-	    		throw new IllegalStateException("Cant output error message ",e);
-	    	}
-		    return null;
+				String html="<html>\n"+
+				"<head>\n"+				
+				"</script>\n"+
+				"<body>\n"+
+				"<script>alert('Error: file id "+fileId+" not foud');</script>\n"+
+				"</body>\n";
+				response.setContentType( "text/html; charset=UTF-8" );
+				try {
+					response.getWriter().print(html);
+				} catch (Throwable e) {
+					throw new IllegalStateException("Cant output error message ",e);
+				}
+				return null;
 		}
 		try {
 			ServletOutputStream out = response.getOutputStream();
@@ -677,10 +754,10 @@ public class JobSubmissionController extends WaspController {
 				fileName=fileName.substring(0,idx);		
 			}
 			
-	        response.setHeader( "Content-Disposition", "attachment; filename=\"" + fileName + "\"" );
+			response.setHeader( "Content-Disposition", "attachment; filename=\"" + fileName + "\"" );
 
 			while ((bytesRead = in.read(bytes)) != -1) {
-			    out.write(bytes, 0, bytesRead);
+				out.write(bytes, 0, bytesRead);
 			}
 
 			// do the following in a finally block:
