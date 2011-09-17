@@ -88,6 +88,9 @@
     </div>
   </c:forEach>
 </sec:authorize>
+<sec:authorize access="hasRole('lu-*')">
+  <a href="<c:url value="/jobsubmit/create.do" />">Submit a Job</a>
+</sec:authorize>
 
 <sec:authorize access="hasRole('fm')">
   <div>
