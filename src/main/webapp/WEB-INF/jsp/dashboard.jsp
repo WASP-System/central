@@ -44,7 +44,7 @@
     <div>
     <b><c:out value="${l.name}" /></b>
     <c:set var="labId" value="${l.labId}" />
-    <div><a href="<c:url value="/lab/detail_ro/${labId}.do"/>">View</a></div>
+    <div><a href="<c:url value="/lab/detail_ro/${l.departmentId}/${labId}.do"/>">View</a></div>
 
     <sec:authorize access="hasRole('lm-${labId}' )">
       <div><a href="<c:url value="/lab/pendinguser/list/${labId}.do"/>">Pending User Approval</a></div>
