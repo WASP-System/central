@@ -3,13 +3,15 @@ package edu.yu.einstein.wasp.controller;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.TreeMap;
+import java.util.Set;
+import java.util.HashSet;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
@@ -38,6 +40,7 @@ import org.springframework.web.multipart.commons.CommonsMultipartFile;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftMeta;
+import edu.yu.einstein.wasp.model.JobDraftCell;
 import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.JobUser;
 import edu.yu.einstein.wasp.model.JobSample;
@@ -47,6 +50,7 @@ import edu.yu.einstein.wasp.model.MetaHelper;
 import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleDraftMeta;
+import edu.yu.einstein.wasp.model.SampleDraftCell;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleFile;
@@ -54,15 +58,17 @@ import edu.yu.einstein.wasp.model.TypeSample;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Workflow;
 import edu.yu.einstein.wasp.service.FileService;
-import edu.yu.einstein.wasp.service.JobDraftMetaService;
 import edu.yu.einstein.wasp.service.JobDraftService;
+import edu.yu.einstein.wasp.service.JobDraftMetaService;
+import edu.yu.einstein.wasp.service.JobDraftCellService;
 import edu.yu.einstein.wasp.service.JobMetaService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.JobUserService;
 import edu.yu.einstein.wasp.service.JobSampleService;
 import edu.yu.einstein.wasp.service.RoleService;
-import edu.yu.einstein.wasp.service.SampleDraftMetaService;
 import edu.yu.einstein.wasp.service.SampleDraftService;
+import edu.yu.einstein.wasp.service.SampleDraftMetaService;
+import edu.yu.einstein.wasp.service.SampleDraftCellService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.SampleMetaService;
 import edu.yu.einstein.wasp.service.SampleFileService;
@@ -83,10 +89,16 @@ public class JobSubmissionController extends WaspController {
 	private JobDraftMetaService jobDraftMetaService;
 
 	@Autowired
+	private JobDraftCellService jobDraftCellService;
+
+	@Autowired
 	private SampleDraftService sampleDraftService;
 
 	@Autowired
 	private SampleDraftMetaService sampleDraftMetaService;
+
+	@Autowired
+	private SampleDraftCellService sampleDraftCellService;
 
 
 	@Autowired
@@ -351,7 +363,134 @@ public class JobSubmissionController extends WaspController {
 		return "jobsubmit-sample";
 
 	}
+
+	@RequestMapping(value="/cells/{jobDraftId}.do", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('lu-*')")
+	public String showSampleCellDraft(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
+		List<SampleDraft> samples=sampleDraftService.getSampleDraftByJobId(jobDraftId);
+
+		Set<String> selectedSampleCell = new HashSet<String>();
+		Map<Integer, Integer> cellMap = new HashMap<Integer, Integer>();
+		int cellindexCount = 0;
+
+		for (SampleDraft sd: samples) {
+ 			for (SampleDraftCell sdc: sd.getSampleDraftCell()) {
+/*
+				int cellId = sdc.getJobdraftcellId();
+				if (! cellMap.containsKey(cellId)) {
+					cellindexCount++;
+					cellMap.put(cellId, cellindexCount); 
+				}
+				int cellIndex = cellMap.get(cellId);
+*/
+				int cellIndex = sdc.getJobDraftCell().getCellindex();
+
+				String key = sd.getSampleDraftId() + "_" + cellIndex;
+
+				selectedSampleCell.add(key);
+			}
+		}
+
+
+		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
+
+		getMetaHelper().setArea(jobDraft.getWorkflow().getIName());
+
+		jobDraft.setJobDraftMeta(getMetaHelper().getMasterList(JobDraftMeta.class));
+
+		m.put("jobDraftDb", jobDraft);
+		m.put("jobDraft", jobDraft);
+		m.put("area", getMetaHelper().getArea());
+		m.put("parentarea", getMetaHelper().getParentArea());
+
+		m.put("sampleDrafts", samples);
+		m.put("selectedSampleCell", selectedSampleCell);
+
 	
+		return "jobsubmit/cell";
+	}
+
+	@RequestMapping(value="/cells/{jobDraftId}.do", method=RequestMethod.POST)
+	@PreAuthorize("hasRole('lu-*')")
+	public String updateSampleCellDraft(
+			@PathVariable("jobDraftId") Integer jobDraftId, 
+			ModelMap m) {
+
+		//	Removes Old Entries, premature?
+		List<JobDraftCell> oldJobDraftCells = jobDraftService.getJobDraftByJobDraftId(jobDraftId).getJobDraftCell();
+
+		for (JobDraftCell jdc: oldJobDraftCells) {
+			List<SampleDraftCell> oldSampleDraftCells = jdc.getSampleDraftCell();
+		  for (SampleDraftCell sdc: oldSampleDraftCells) {
+				sampleDraftCellService.remove(sdc);
+				sampleDraftCellService.flush(sdc);
+			}
+			jobDraftCellService.remove(jdc);
+			jobDraftCellService.flush(jdc);
+		}
+
+
+		List<SampleDraft> samples=sampleDraftService.getSampleDraftByJobId(jobDraftId);
+
+		Map params = request.getParameterMap();
+		int maxColumns = 10;
+		try {
+			maxColumns = Integer.parseInt(((String[])params.get("jobcells"))[0]);
+		} catch (Exception e) {
+		}
+
+		List<String> checkedList = new ArrayList<String>();
+
+		int cellindex = 0;
+
+		for (int i = 1; i <= maxColumns; i++) {
+		  int libraryindex = 0;
+		  boolean cellfound = false;
+
+			JobDraftCell thisJobDraftCell = new JobDraftCell();
+			thisJobDraftCell.setJobdraftId(jobDraftId);
+			thisJobDraftCell.setCellindex(cellindex + 1);
+
+			for (SampleDraft sd: samples) {
+				String checked = "0";
+				try {
+					checked = ((String[])params.get("sdc_" + sd.getSampleDraftId() + "_" + i ))[0];
+				} catch (Exception e) {
+				}
+
+				if (checked == null || checked.equals("0")) {
+					continue;
+				}
+
+				if (! cellfound) {
+					cellfound = true;
+					cellindex++;
+
+					JobDraftCell jobDraftCellDb = jobDraftCellService.save(thisJobDraftCell);
+					thisJobDraftCell = jobDraftCellDb;
+
+					jobDraftCellService.flush(thisJobDraftCell);
+				}
+
+				libraryindex++;
+				SampleDraftCell sampleDraftCell = new SampleDraftCell();
+
+				sampleDraftCell.setJobdraftcellId(thisJobDraftCell.getJobDraftCellId());
+				sampleDraftCell.setSampledraftId(sd.getSampleDraftId());
+				sampleDraftCell.setLibraryindex(libraryindex);
+
+				SampleDraftCell sampleDraftCellDb = sampleDraftCellService.save(sampleDraftCell);
+
+				// checkedList.add("sdc_" + sd.getSampleDraftId() + "_" + i + " " + cellindex + " " + libraryindex);
+
+			}
+		}
+
+		// m.put("checked", checkedList);
+		// return "hello";
+
+		return "redirect:/jobsubmit/verify/" + jobDraftId + ".do";
+	}
 
 	@RequestMapping(value="/verify/{jobDraftId}.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
