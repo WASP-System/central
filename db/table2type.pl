@@ -44,6 +44,7 @@ foreach my $block (split /\s*;\s*/, $fc) {
   $table =~ s/(.)pending$/$1Pending/;
   $table =~ s/(.)meta/$1Meta/;
   $table =~ s/(.)draft/$1Draft/;
+  $table =~ s/(.)cell/$1Cell/;
 
   $table =~ s/^job(.)/"job\U$1"/ie;
   $table =~ s/^project(.)/"project\U$1"/ie;
