@@ -813,6 +813,26 @@ create table sampledraftmeta (
   constraint unique index u_sampledraftmeta_k_sid (k, sampledraftid)
 ) ENGINE=InnoDB charset=utf8;
 
+create table jobdraftcell (
+  jobdraftcellid int(10) not null primary key auto_increment,
+  jobdraftid int(10) not null,
+  cellindex int(10) not null,
+
+  foreign key fk_jobdraft_jid (jobdraftid) references jobdraft(jobdraftid),
+  constraint unique index u_jobdraftcell_jdid_ci (jobdraftid, cellindex)
+);
+
+create table sampledraftcell (
+  sampledraftcellid int(10) not null primary key auto_increment,
+  sampledraftid int(10) not null,
+  jobdraftcellid int(10) not null,
+
+  libraryindex int(10) not null, 
+
+  foreign key fk_sampledraftcell_sdid (sampledraftid) references sampledraft(sampledraftid),
+  foreign key fk_sampledraftcell_jdcid (jobdraftcellid) references jobdraftcell(jobdraftcellid),
+  constraint unique index u_sampledraftcell_jdcid_li (jobdraftcellid, libraryindex)
+);
 
 
 --
