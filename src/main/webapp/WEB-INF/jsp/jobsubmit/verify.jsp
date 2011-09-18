@@ -38,6 +38,10 @@
        </c:if>
      </c:forEach>
 
+     <c:forEach items="${sd.sampleDraftCell}" var="sdc">
+	Cell <c:out value="${sdc.jobDraftCell.cellindex}" />
+     </c:forEach>
+
      <c:if test="${! empty(sd.fileId)}">
        FILE
        <c:out value="${sd.file.filelocation}" />
