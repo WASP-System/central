@@ -602,6 +602,38 @@ processed
 	}
 
 
+	/**
+	* sampleDraftCell
+	*
+	*/
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="sampledraftid", insertable=false, updatable=false)
+	protected List<SampleDraftCell> sampleDraftCell;
+
+	/**
+	* getSampleDraftCell()
+	*
+	* @return sampleDraftCell
+	*
+	*/
+	public List<SampleDraftCell> getSampleDraftCell() {
+		return this.sampleDraftCell;
+	}
+	
+	
+	/**
+	* setSampleDraftCell
+	*
+	* @param sampleDraftCell
+	*
+	*/
+	public void setSampleDraftCell (List<SampleDraftCell> sampleDraftCell) {
+		this.sampleDraftCell = sampleDraftCell;
+	}
+	
+
+
 
 	@Transient
 	private CommonsMultipartFile fileData;
