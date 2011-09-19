@@ -20,3 +20,8 @@ delete from uifield where area='user' and name='fancypropertyname' and  attrName
  delete from uifield where area='user' and name='fancypropertyname' and  attrName='label';
  
  
+delete from uifield where area='userPending' and name='state' and attrName='error';
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) select 'en_US','userPending','state','error','State cannot be empty',userId from user where login='superuser'; 
+
+delete from uifield where area='userPending' and name='state' and attrName='constraint';
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) select 'en_US','userPending','state','constraint','NotEmpty',userId from user where login='superuser'; 
