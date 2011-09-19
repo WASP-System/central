@@ -13,28 +13,34 @@
 
 package edu.yu.einstein.wasp.dao.impl;
 
+import java.io.File;
 import java.util.List;
 import java.util.Locale;
-import java.util.PropertyResourceBundle;
-import java.util.ResourceBundle;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.MessageSource;
+import org.springframework.core.io.Resource;
 import org.springframework.orm.jpa.JpaCallback;
 import org.springframework.orm.jpa.support.JpaDaoSupport;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.UiField;
 import edu.yu.einstein.wasp.service.impl.WaspMessageSourceImpl;
 
 @Repository
-public class DBResourceBundle extends JpaDaoSupport {
+public class DBResourceBundle extends JpaDaoSupport implements ApplicationContextAware{
 
 	@Autowired
 	private MessageSource messageSource;
@@ -44,10 +50,69 @@ public class DBResourceBundle extends JpaDaoSupport {
 	
 	private final Logger log = Logger.getLogger(getClass());
 	
+	private ApplicationContext applicationContext;
+	
+	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+		this.applicationContext=applicationContext;
+	}
+	
 	@PostConstruct
 	public void init() {
-		Object res = getJpaTemplate().execute(new JpaCallback() {
+		
+		//apply latest updates from WEB-INF/uifield.update.sql file
+		final StringBuffer sqlCurrent= new StringBuffer("");
+		
+		try {
+			//Resource uifield = this.applicationContext.getResource("file:WEB-INF/uifield.update.sql");
+			Resource uifield = this.applicationContext.getResource("classpath:uifield.update.sql");
+			
+			String sql = FileUtils.readFileToString(uifield.getFile());
 
+			final String[] statements=StringUtils.split(sql,';');
+			
+			
+			getJpaTemplate().execute(new JpaCallback() {
+
+				public Object doInJpa(EntityManager em) throws PersistenceException {
+					
+					em.getTransaction().begin();
+					
+					//em.createNativeQuery(sqlFinal).executeUpdate();
+				
+					for(String st:statements) {
+						st=StringUtils.trim(st);
+						
+						if (StringUtils.isEmpty(st)) continue;
+						
+						if (StringUtils.containsIgnoreCase(st, "insert")
+							|| StringUtils.containsIgnoreCase(st, "update")
+							|| StringUtils.containsIgnoreCase(st, "delete")
+						) {
+																						
+							log.info("Executing ["+st+"]");
+					
+							sqlCurrent.setLength(0);sqlCurrent.append(st);
+						
+							em.createNativeQuery(st).executeUpdate();
+						}
+					}
+					
+					em.getTransaction().commit();
+					
+	        		return null;
+	        			
+				}
+			});
+			
+			log.info("Property table was initialized succesfully.");
+			
+		} catch (Throwable e) {
+			log.error("Cannot execute sq; statement ["+sqlCurrent+"]",e);
+			throw new IllegalStateException("Cannot execute sq; statement ["+sqlCurrent+"]",e);
+		}
+		
+		Object res = getJpaTemplate().execute(new JpaCallback() {
+			
 			public Object doInJpa(EntityManager em) throws PersistenceException {
 				Query q = em.createQuery("SELECT h FROM "
 						+ UiField.class.getName() + " h");
