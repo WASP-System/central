@@ -23,6 +23,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.orm.jpa.JpaCallback;
@@ -38,7 +39,10 @@ public class DBResourceBundle extends JpaDaoSupport {
 	@Autowired
 	private MessageSource messageSource;
 
+	//static bridge to access messageSource
 	public static MessageSource MESSAGE_SOURCE=null;
+	
+	private final Logger log = Logger.getLogger(getClass());
 	
 	@PostConstruct
 	public void init() {
@@ -69,7 +73,11 @@ public class DBResourceBundle extends JpaDaoSupport {
 
 			String key = f.getArea() + "." + f.getName() + "."
 					+ f.getAttrName();
-
+			if (f.getLocale()==null || f.getLocale().length()!=5) {
+				log.error("invalid locale "+f);
+				continue;
+			}
+			
 			String lang = f.getLocale().substring(0, 2);
 			String cntry = f.getLocale().substring(3);
 

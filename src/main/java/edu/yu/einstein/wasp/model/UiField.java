@@ -135,6 +135,14 @@ public final class UiField implements Serializable {
 			return false;
 		return true;
 	}
+
+	@Override
+	public String toString() {
+		return "UiField [uiFieldId=" + uiFieldId + ", area=" + area + ", name="
+				+ name + ", attrName=" + attrName + ", attrValue=" + attrValue
+				+ ", locale=" + locale + ", lastUpdTs=" + lastUpdTs
+				+ ", lastUpdUser=" + lastUpdUser + "]";
+	}
 	  
 	  
 

@@ -3,6 +3,7 @@ package edu.yu.einstein.wasp.controller;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.List;
+import java.util.Locale;
 
 import javax.validation.Valid;
 
@@ -22,6 +23,7 @@ import org.springframework.web.bind.support.SessionStatus;
 
 import edu.yu.einstein.wasp.controller.validator.PasswordValidator;
 import edu.yu.einstein.wasp.controller.validator.UserPendingMetaValidatorImpl;
+import edu.yu.einstein.wasp.dao.impl.DBResourceBundle;
 import edu.yu.einstein.wasp.model.ConfirmEmailAuth;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabPending;
@@ -94,6 +96,9 @@ public class UserPendingController extends WaspController {
 
 		UserPending userPending = new UserPending();
 
+		
+		String msg= DBResourceBundle.MESSAGE_SOURCE.getMessage("userPending.lastName.error", null, Locale.US);
+		
 		userPending.setUserPendingMeta(getMetaHelper().getMasterList(UserPendingMeta.class)); 
 
 		m.addAttribute(getMetaHelper().getParentArea(), userPending);

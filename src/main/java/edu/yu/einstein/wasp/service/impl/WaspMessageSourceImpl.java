@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.context.MessageSource;
 import org.springframework.context.support.AbstractMessageSource;
 import org.springframework.util.Assert;
@@ -50,23 +51,39 @@ public class WaspMessageSourceImpl extends AbstractMessageSource implements Mess
 	
 	@Override
 	protected String resolveCodeWithoutArguments(String code, Locale locale) {
-		String msg= this.messages.get(code + "_" + locale.toString());
-		if (msg == null) {
-			msg = this.messages.get(code + "_" + Locale.US.toString());//fallback to US locale if message not defined. Sasha
-			if (msg==null) msg=code;//fallback to code if message not defined. Sasha
+		
+		if (code==null) return null;
+		
+		String msg = getMessageInternal(code, locale);
+		
+		if (msg!=null) return msg;
+			
+		if (StringUtils.split(code, ".").length==3) {//valid 3-part key. return "code" instead of the message
+			return code;
+		} else {//invalid key. return null. 
+			return null;
 		}
-		return msg;
+		
 	}
 
+	private String getMessageInternal(String code, Locale locale) {
+		String msg = this.messages.get(code + "_" + locale.toString());
+		if (msg == null) messages.get(code + "_" + Locale.US.toString());//fallback to US locale if message not defined. Sasha
+		return msg;
+	}
+	
 	@Override
 	protected MessageFormat resolveCode(String code, Locale locale) {
 		String key = code + "_" + locale.toString();
-		String msg = this.messages.get(key);
+		String msg = getMessageInternal(code, locale);
 		if (msg == null) {
-			msg = this.messages.get(code + "_" + Locale.US.toString());//fallback to US locale if message not defined. Sasha
-			if (msg==null) msg=code;//fallback to code if message not defined. Sasha
-		}
-		synchronized (this.cachedMessageFormats) {
+			if (StringUtils.split(code, ".").length==3) {//valid 3-part key. return "code" instead of the message
+				msg=code;//fallback to code if message not defined. Sasha
+			} else {//invalid key.  
+				msg=null;
+			}			 
+       }
+	   synchronized (this.cachedMessageFormats) {
 			MessageFormat messageFormat = this.cachedMessageFormats.get(key);
 			if (messageFormat == null) {
 				messageFormat = createMessageFormat(msg, locale);
