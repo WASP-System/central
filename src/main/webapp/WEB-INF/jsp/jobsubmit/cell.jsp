@@ -25,6 +25,8 @@ function adjustcolumns(c) {
 [<c:out value="${fn:length(jobDraft.jobDraftCell)}" />]
 
 <form command="jobDraft" method="POST">
+
+jobsubmit.numberofcells.label
 <select id="jobcells" name="jobcells" onchange="adjustcolumns(this.options[this.selectedIndex].innerHTML)">
   <c:forEach var="i" begin="1" end="10">
     <c:set var="selected" value="" />
@@ -36,6 +38,14 @@ function adjustcolumns(c) {
 </select>
 
 <table>
+<tr>
+<td>Sample</td>
+  <c:forEach var="i" begin="1" end="10">
+    <td name="column_${i}" style="display:none">
+      Cell <c:out value="${i}" />
+    </td>
+  </c:forEach>
+</tr>
 
 <c:forEach items="${sampleDrafts}" var="sd">
 
@@ -43,7 +53,7 @@ function adjustcolumns(c) {
 <td><c:out value="${sd.name}" /></td>
   <c:forEach var="i" begin="1" end="10">
     <td name="column_${i}" style="display:none">
-      ${sd.sampleDraftId}_${i}
+      <!-- ${sd.sampleDraftId}_${i} -->
       <c:set var="key" value="${sd.sampleDraftId}_${i}" />
       <c:set var="checked" value="" />
       <c:if test="${fn:contains(selectedSampleCell, key)}">
