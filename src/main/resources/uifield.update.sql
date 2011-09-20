@@ -26,4 +26,5 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) select 'en_
 delete from uifield where area='userPending' and name='state' and attrName='constraint';
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) select 'en_US','userPending','state','constraint','NotEmpty',userId from user where login='superuser'; 
 
-delete from uifield where area='user' and name='detail' and (attrname='label' or attrname='metaposition');
+delete from uifield where area='userPending' and name='department' and attrName='control';
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) select 'en_US','userPending','department','control','select:\${department}:departmentId:name',userId from user where login='superuser';
