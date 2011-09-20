@@ -4,8 +4,7 @@
 
     <c:forEach items="${labuser}" var="ul">
       <p>
-      <a href="/wasp/user/detail_ro/<c:out value="${ul.user.userId}" />.do"><c:out
-value="${ul.user.login}" /></a>
+      <a href="/wasp/user/detail_ro/<c:out value="${ul.user.userId}" />.do"><c:out value="${ul.user.login}" /></a>
         <c:out value="${ul.user.firstName}" />
         <c:out value="${ul.user.lastName}" />
       <span><c:out value="${ul.role.name}" /></span>
@@ -29,7 +28,7 @@ value="${ul.user.login}" /></a>
     </c:forEach>
 
     <c:if test="${! empty labuserpending}">
-      PENDING
+      <fmt:message key="labuser.request_title.label"/>
       <c:forEach items="${labuserpending}" var="up">
         <p>
         <c:out value="${up.firstName}" />
