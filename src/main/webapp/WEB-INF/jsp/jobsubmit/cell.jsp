@@ -5,6 +5,13 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <script src="/wasp/scripts/jquery/jquery-1.6.2.js" type="text/javascript"></script>
+  <script src="/wasp/scripts/jquery/jquery.tablednd_0_5.js" type="text/javascript"></script>
+  <script>
+  $(document).ready(function(){
+    $("#cells").tableDnD();
+  });
+  </script>
+
 
   <script>
 var maxColumns = 10; 
@@ -37,7 +44,7 @@ jobsubmit.numberofcells.label
   </c:forEach>
 </select>
 
-<table>
+<table id="cells">
 <tr>
 <td>Sample</td>
   <c:forEach var="i" begin="1" end="10">
@@ -49,7 +56,7 @@ jobsubmit.numberofcells.label
 
 <c:forEach items="${sampleDrafts}" var="sd">
 
-<tr>
+<tr class="row">
 <td><c:out value="${sd.name}" /></td>
   <c:forEach var="i" begin="1" end="10">
     <td name="column_${i}" style="display:none">
