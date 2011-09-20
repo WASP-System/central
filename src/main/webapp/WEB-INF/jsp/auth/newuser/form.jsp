@@ -32,7 +32,7 @@
         </tr>
         <tr>
         	<td><fmt:message key="userPending.password2.label"/>:</td>
-        	<td><input type="password", name="password2" /></td>
+        	<td><input type="password" name="password2" /></td>
         	<td>&nbsp;</td>
         </tr>     	   
 
@@ -54,6 +54,12 @@
 
           <c:set var="_metaList" value = "${userPending.userPendingMeta}" scope="request" />
           <c:import url="/WEB-INF/jsp/meta_rw.jsp"/>
+          <tr><td>&nbsp;</td><td><img src="<c:url value='/stickyCaptchaImg.png'/>" /></td><td>&nbsp;</td></tr>
+          <tr>
+          	<td><fmt:message key="userPending.captcha.label"/>:</td>
+          	<td><input type="text" name="captcha" /></td>
+          	<td>${captchaError}</td>
+          </tr>
           <tr>
               <td colspan="2" align=right>
                   <input type="submit" value="<fmt:message key='userPending.submit.label'/>" /> 

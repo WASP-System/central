@@ -30,3 +30,15 @@ delete from uifield where area='user' and name='detail' and (attrname='label' or
 
 delete from uifield where area='userPending' and name='department' and attrName='control';
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) select 'en_US','userPending','department','control','select:\${department}:departmentId:name',userId from user where login='superuser';
+
+update uifield set name='primaryuserid', attrValue='PI Wasp Username' where area='userPending' and name='primaryuseremail' and attrName='label';
+update uifield set name='primaryuserid', attrValue='PI Wasp Username cannot be empty' where area='userPending' and name='primaryuseremail' and attrName='error';
+update uifield set name='primaryuserid_notvalid', attrValue='Not an active registered PI Username' where area='userPending' and name='primaryuseremail_notvalid' and attrName='error';
+update uifield set name='primaryuserid', attrValue='isValidPiId' where area='userPending' and name='primaryuseremail' and attrName='constraint';
+update uifield set name='primaryuserid', attrValue='1' where area='userPending' and name='primaryuseremail' and attrName='metaposition';
+
+delete from uifield where area='userPending' and name='captcha' and attrName='error';
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) select 'en_US','userPending','captcha','error','Captcha text incorrect',userId from user where login='superuser';
+
+delete from uifield where area='userPending' and name='captcha' and attrName='label';
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) select 'en_US','userPending','captcha','label','Captcha text',userId from user where login='superuser';

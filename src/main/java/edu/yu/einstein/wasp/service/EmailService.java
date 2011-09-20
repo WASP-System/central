@@ -1,15 +1,7 @@
 
 package edu.yu.einstein.wasp.service;
 
-import java.io.UnsupportedEncodingException;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.mail.internet.MimeMessage;
-
-import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.stereotype.Service;
-
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.UserPending;

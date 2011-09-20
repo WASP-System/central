@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
 import edu.yu.einstein.wasp.controller.validator.PasswordValidator;
 import edu.yu.einstein.wasp.controller.validator.UserPendingMetaValidatorImpl;
+import edu.yu.einstein.wasp.dao.impl.DBResourceBundle;
 import edu.yu.einstein.wasp.model.ConfirmEmailAuth;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabPending;
@@ -136,21 +137,31 @@ public class UserPendingController extends WaspController {
 		getMetaHelper().validate(new UserPendingMetaValidatorImpl(userService, labService), userPendingMetaList, result);
 	
 		passwordValidator.validate(result, userPendingForm.getPassword(), (String) request.getParameter("password2"), getMetaHelper().getParentArea(), "password");
+		
 		if (! result.hasFieldErrors("email")){
-			Errors errors=new BindException(result.getTarget(), getMetaHelper().getParentArea());
 			User user = userService.getUserByEmail(userPendingForm.getEmail());
 			if (user.getUserId() != 0 ){
+				Errors errors=new BindException(result.getTarget(), getMetaHelper().getParentArea());
 				errors.rejectValue("email", getMetaHelper().getParentArea()+".email_exists.error", getMetaHelper().getParentArea()+".email_exists.error (no message has been defined for this property)");
+				result.addAllErrors(errors);
 			}
-			result.addAllErrors(errors);
 		}
 		
-		if (result.hasErrors()) {
+		// validate captcha
+		Captcha captcha = (Captcha) request.getSession().getAttribute(Captcha.NAME);
+		String captchaText = (String) request.getParameter("captcha");
+		if (captcha == null || captchaText == null || captchaText.isEmpty() || (! captcha.isCorrect(captchaText)) ){
+			m.put("captchaError", getMessage(getMetaHelper().getParentArea()+".captcha.error"));
+		}
+		
+		if (result.hasErrors() || m.containsKey("captchaError")) {
 			prepareSelectListData(m);
 			m.addAttribute("department", departmentService.findAll());
 			waspMessage("user.created.error");
 			return "auth/newuser/form";
 		}
+		
+		
 		
 		
 		String piUserEmail = "";
@@ -184,6 +195,7 @@ public class UserPendingController extends WaspController {
 		confirmEmailAuth.setUserpendingId(userPendingDb.getUserPendingId());
 		confirmEmailAuthService.merge(confirmEmailAuth);
 		emailService.sendPendingUserEmailConfirm(userPendingForm, authcode);
+		request.getSession().removeAttribute(Captcha.NAME); // ensures fresh capcha issued if required in this session
 		return "redirect:/auth/newuser/ok.do";
 	}
 
@@ -280,7 +292,6 @@ public class UserPendingController extends WaspController {
 			  waspMessage("auth.confirmemail_badauthcode.error");
 			  return "auth/confirmemail/authcodeform";
 		  }
-		  
 		  ConfirmEmailAuth confirmEmailAuth = confirmEmailAuthService.getConfirmEmailAuthByAuthcode(authCode);
 		  if (urlEncodedEmail == null || urlEncodedEmail.isEmpty() || confirmEmailAuth.getUserpendingId() == 0) {
 			  waspMessage("auth.confirmemail_bademail.error");
@@ -309,7 +320,6 @@ public class UserPendingController extends WaspController {
 			@RequestParam(value="email") String email,
 	        @RequestParam(value="captcha_text") String captchaText,
 	        ModelMap m) {
-		
 		 if (authCode == null || authCode.isEmpty()) {
 			 waspMessage("auth.confirmemail_badauthcode.error");
 			 m.put("email", email);
@@ -321,12 +331,12 @@ public class UserPendingController extends WaspController {
 		  
 		  if (email == null || email.isEmpty() || confirmEmailAuth.getUserpendingId() == 0 ){
 			  m.put("authcode", authCode);
-			  waspMessage("auth.confirmemail.bademail.error");
+			  waspMessage("auth.confirmemail_bademail.error");
 			  return "auth/confirmemail/authcodeform";
 		  }
 		  if (! userPending.getEmail().equals(email) ){
 				m.put("authcode", authCode);
-				waspMessage("auth.confirmemail.wrongemail.error");
+				waspMessage("auth.confirmemail_wronguser.error");
 				return "auth/confirmemail/authcodeform";
 		  }
 

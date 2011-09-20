@@ -5,6 +5,7 @@ import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
 import edu.yu.einstein.wasp.model.Lab;
+import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.service.LabService;
@@ -16,7 +17,7 @@ public class UserPendingMetaValidatorImpl extends MetaValidatorImpl{
 	protected LabService labService;
 	
 	public UserPendingMetaValidatorImpl(UserService userService, LabService labService){
-		this.allowableConstraints.add(Constraint.isValidPiEmail);
+		this.allowableConstraints.add(Constraint.isValidPiId);
 		this.userService = userService;
 		this.labService = labService;
 	}
@@ -28,19 +29,20 @@ public class UserPendingMetaValidatorImpl extends MetaValidatorImpl{
 		Errors errors=new BindException(result.getTarget(), parentarea); 
 		for(int i=0;i<list.size();i++) {
 			MetaBase meta=list.get(i);
+			if (meta.getProperty().getFormVisibility().equals(MetaAttribute.FormVisibility.ignore)) continue;
 			String constraint=map.get(meta.getK());
 			if (constraint==null) continue;
 			String errorFieldName = parentarea+"Meta["+i+"].k";
 			String errorMessageKey = meta.getK() + ".error";
 		    String defaultMessage = errorMessageKey+" (no message has been defined for this property)";
 		
-			if (constraint.equals( Constraint.isValidPiEmail.name() ) ){
+			if (constraint.equals( Constraint.isValidPiId.name() ) ){
 		        if (meta.getV()==null || meta.getV().isEmpty()) {
 		        	errors.rejectValue(errorFieldName, errorMessageKey, defaultMessage);
 		        } else {
 		        	errorMessageKey = meta.getK() + "_notvalid.error";
 					defaultMessage = errorMessageKey+" (no message has been defined for this property)";
-					User primaryInvestigator = userService.getUserByEmail(meta.getV());
+					User primaryInvestigator = userService.getUserByLogin(meta.getV());
 					if (primaryInvestigator.getUserId() == 0 || primaryInvestigator.getIsActive() == 0){
 					  errors.rejectValue(errorFieldName, errorMessageKey, defaultMessage);
 					} else {
