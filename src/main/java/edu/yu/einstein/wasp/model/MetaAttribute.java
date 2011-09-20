@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.Transient;
+
 /*
  * Holds attributes for a *meta" object
  * @Author Sasha Levchuk
@@ -44,6 +46,12 @@ public final class MetaAttribute implements Serializable {
 			userPending,
 
 		}
+		
+		public static enum FormVisibility {
+			editable,
+			immutable,
+			ignore
+		}
 			
 		private String label;
 
@@ -55,7 +63,15 @@ public final class MetaAttribute implements Serializable {
 
 		private int metaposition;
 
-	
+		private FormVisibility formVisibility;
+		
+		public void setFormVisibility(FormVisibility formVisibility){
+			this.formVisibility = formVisibility;
+		}
+		
+		public FormVisibility getFormVisibility(){
+			return this.formVisibility;
+		}
 		
 		public String getLabel() {
 			return label;
@@ -455,7 +471,6 @@ public final class MetaAttribute implements Serializable {
 			list.add(new Country("UA", "UKRAINE"));
 			list.add(new Country("AE", "UAE"));
 			list.add(new Country("GB", "UNITED KINGDOM"));
-			list.add(new Country("US", "UNITED STATES"));			
 			list.add(new Country("UY", "URUGUAY"));
 			list.add(new Country("UZ", "UZBEKISTAN"));
 			list.add(new Country("VU", "VANUATU"));
@@ -550,5 +565,5 @@ public final class MetaAttribute implements Serializable {
 
 		}
 	} 
-		 
+	  
 }

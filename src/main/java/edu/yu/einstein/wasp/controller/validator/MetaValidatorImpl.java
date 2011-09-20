@@ -76,6 +76,7 @@ public class MetaValidatorImpl implements MetaValidator {
 	
 		for(int i=0;i<list.size();i++) {
 			MetaBase meta=list.get(i);
+			if (meta.getProperty().getFormVisibility().equals(MetaAttribute.FormVisibility.ignore)) continue;
 			String constraint=map.get(meta.getK());
 			if (constraint==null) continue;
 			

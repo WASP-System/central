@@ -2,13 +2,11 @@ package edu.yu.einstein.wasp.controller;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
-
+import java.util.Map;
 import javax.validation.Valid;
-
 import nl.captcha.Captcha;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,13 +18,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
-
 import edu.yu.einstein.wasp.controller.validator.PasswordValidator;
 import edu.yu.einstein.wasp.controller.validator.UserPendingMetaValidatorImpl;
-import edu.yu.einstein.wasp.dao.impl.DBResourceBundle;
 import edu.yu.einstein.wasp.model.ConfirmEmailAuth;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabPending;
+import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.MetaHelper;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserPending;
@@ -90,6 +87,17 @@ public class UserPendingController extends WaspController {
 		return new MetaHelper("userPending", UserPending.class, request.getSession());
 	}
 	
+	private final Map<String, MetaAttribute.FormVisibility> getUserPendingMetaVisibility(){
+		Map<String, MetaAttribute.FormVisibility> userMetaVisibility = new HashMap();
+		userMetaVisibility.put("userPending.institution", MetaAttribute.FormVisibility.ignore);
+		userMetaVisibility.put("userPending.department", MetaAttribute.FormVisibility.ignore);
+		userMetaVisibility.put("userPending.state", MetaAttribute.FormVisibility.ignore);
+		userMetaVisibility.put("userPending.city", MetaAttribute.FormVisibility.ignore);
+		userMetaVisibility.put("userPending.country", MetaAttribute.FormVisibility.ignore);
+		userMetaVisibility.put("userPending.zip", MetaAttribute.FormVisibility.ignore);
+		return userMetaVisibility;
+	}
+	
 	@RequestMapping(value="/newuser", method=RequestMethod.GET)
 	public String showNewPendingUserForm(ModelMap m) {
 		
@@ -97,11 +105,15 @@ public class UserPendingController extends WaspController {
 		UserPending userPending = new UserPending();
 
 		
-		String msg= DBResourceBundle.MESSAGE_SOURCE.getMessage("userPending.lastName.error", null, Locale.US);
+		//String msg= DBResourceBundle.MESSAGE_SOURCE.getMessage("userPending.lastName.error", null, Locale.US);
 		
-		userPending.setUserPendingMeta(getMetaHelper().getMasterList(UserPendingMeta.class)); 
-
+		// We wish to get some data from the principle investigator User so hide on the form
+		
+		
+		userPending.setUserPendingMeta(getMetaHelper().getMasterList(getUserPendingMetaVisibility(), UserPendingMeta.class));
+		
 		m.addAttribute(getMetaHelper().getParentArea(), userPending);
+		m.addAttribute("department", departmentService.findAll());
 		prepareSelectListData(m);
 
 		return "auth/newuser/form";
@@ -117,7 +129,7 @@ public class UserPendingController extends WaspController {
 		
 		
 		
-		List<UserPendingMeta> userPendingMetaList = getMetaHelper().getFromRequest(request, UserPendingMeta.class);
+		List<UserPendingMeta> userPendingMetaList = getMetaHelper().getFromRequest(request, getUserPendingMetaVisibility(), UserPendingMeta.class);
 
 		userPendingForm.setUserPendingMeta(userPendingMetaList);
 
@@ -135,6 +147,7 @@ public class UserPendingController extends WaspController {
 		
 		if (result.hasErrors()) {
 			prepareSelectListData(m);
+			m.addAttribute("department", departmentService.findAll());
 			waspMessage("user.created.error");
 			return "auth/newuser/form";
 		}
@@ -186,6 +199,7 @@ public class UserPendingController extends WaspController {
 		userPending.setUserPendingMeta(metaHelper.getMasterList(UserPendingMeta.class));
 
 		m.addAttribute(metaHelper.getParentArea(), userPending);
+		m.addAttribute("department", departmentService.findAll());
 		prepareSelectListData(m);
 
 		return "auth/newpi/form";
@@ -209,6 +223,7 @@ public class UserPendingController extends WaspController {
 		 metaHelper.validate(userPendingMetaList, result);
 
 		if (result.hasErrors()) {
+			m.addAttribute("department", departmentService.findAll());
 			prepareSelectListData(m);
 			waspMessage("user.created.error");
 

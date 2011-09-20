@@ -102,6 +102,10 @@ public class MetaHelper {
 
 
 	private List<MetaBase> lastList;
+	
+	public final <T extends MetaBase> List<T> getMasterList(Class<T> clazz) {
+		return getMasterList((HashMap<String, MetaAttribute.FormVisibility>) null, clazz);
+	}
 
 	/* 
 	 * Creates Sorted (by metaposition) Meta List from messages_en
@@ -110,7 +114,7 @@ public class MetaHelper {
 	 * 
 	 */
 
-	public final <T extends MetaBase> List<T> getMasterList(Class<T> clazz) {
+	public final <T extends MetaBase> List<T> getMasterList(Map<String, MetaAttribute.FormVisibility> visibility, Class<T> clazz) {
 		Map<Integer, String> uniquePositions = new HashMap();
 		Map<String, String> baseResource = new HashMap();
 		Map<String, String> bundleResource = new HashMap();
@@ -163,6 +167,14 @@ public class MetaHelper {
 				p.setLabel(bundleResource.get(name + ".label"));
 				p.setConstraint(bundleResource.get(name + ".constraint"));
 				p.setError(bundleResource.get(name + ".error"));
+				if (visibility != null && visibility.containsKey(name)){
+					p.setFormVisibility(visibility.get(name));
+					if (visibility.get(name).equals(MetaAttribute.FormVisibility.ignore)){
+						p.setMetaposition(0); // no ranking for hidden attributes
+					}
+				} else {
+					p.setFormVisibility(MetaAttribute.FormVisibility.editable); // set default form visibility
+				}
 
 				String controlStr = bundleResource.get(name + ".control");
 
@@ -209,16 +221,21 @@ public class MetaHelper {
 
 		return list;
 	}
+	
+		
+	public final <T extends MetaBase> List<T> getFromRequest(HttpServletRequest request, Class<T> clazz) {
+		return getFromRequest(request, (Map<String, MetaAttribute.FormVisibility>) null, clazz);
+	}
 
 	/**
-		* Generates Master List and pulls in from
-		* values from request.  
-		*	[parentarea]Meta_[metakey] (ie. "userMeta_user.phone");
-		*
-		*/
+	* Generates Master List and pulls in from
+	* values from request.  
+	*	[parentarea]Meta_[metakey] (ie. "userMeta_user.phone");
+	*
+	*/
 
-	public final <T extends MetaBase> List<T> getFromRequest(HttpServletRequest request, Class<T> clazz) {
-		List<T> list = getMasterList(clazz);
+	public final <T extends MetaBase> List<T> getFromRequest(HttpServletRequest request, Map<String, MetaAttribute.FormVisibility> visibility, Class<T> clazz) {
+		List<T> list = getMasterList(visibility, clazz);
 
 		Map params = request.getParameterMap();
 
@@ -236,9 +253,13 @@ public class MetaHelper {
 
 		return list;
 	}
-
+	
 	public final <T extends MetaBase> List<T> getFromJsonForm(HttpServletRequest request, Class<T> clazz) {
-		List<T> list = getMasterList(clazz);
+		return getFromJsonForm(request, (Map<String, MetaAttribute.FormVisibility>) null, clazz);
+	}
+
+	public final <T extends MetaBase> List<T> getFromJsonForm(HttpServletRequest request, Map<String, MetaAttribute.FormVisibility> visibility, Class<T> clazz) {
+		List<T> list = getMasterList(visibility, clazz);
 
 		Map params = request.getParameterMap();
 
