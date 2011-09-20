@@ -117,11 +117,11 @@
 
 
    <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
-      <property name="host" value="smtp.aecom.yu.edu"/>
+      <property name="host" value="localhost"/>
       <property name="defaultEncoding" value="UTF-8" />       
       <property name="javaMailProperties">
        		<props>
-               <prop key="mail.smtp.from">andrew.mclellan@einstein.yu.edu</prop>      
+               <prop key="mail.smtp.from">ewah@ewah.com</prop>      
             </props>        
       </property>
    </bean>
