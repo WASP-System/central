@@ -26,7 +26,9 @@ import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabPending;
 import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.MetaHelper;
+import edu.yu.einstein.wasp.model.MetaHelper.WaspMetadataException;
 import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.model.UserMeta;
 import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.model.UserPendingMeta;
 import edu.yu.einstein.wasp.service.AuthCodeService;
@@ -85,7 +87,7 @@ public class UserPendingController extends WaspController {
 	 */
 
 	private final MetaHelper getMetaHelper() {
-		return new MetaHelper("userPending", UserPending.class, request.getSession());
+		return new MetaHelper("userPending", UserPendingMeta.class, request.getSession());
 	}
 	
 	private final Map<String, MetaAttribute.FormVisibility> getUserPendingMetaVisibility(){
@@ -104,16 +106,16 @@ public class UserPendingController extends WaspController {
 		
 
 		UserPending userPending = new UserPending();
-
+		MetaHelper metaHelper = getMetaHelper();
 		
 		//String msg= DBResourceBundle.MESSAGE_SOURCE.getMessage("userPending.lastName.error", null, Locale.US);
 		
 		// We wish to get some data from the principle investigator User so hide on the form
 		
 		
-		userPending.setUserPendingMeta(getMetaHelper().getMasterList(getUserPendingMetaVisibility(), UserPendingMeta.class));
+		userPending.setUserPendingMeta(metaHelper.getMasterList(getUserPendingMetaVisibility(), UserPendingMeta.class));
 		
-		m.addAttribute(getMetaHelper().getParentArea(), userPending);
+		m.addAttribute(metaHelper.getParentArea(), userPending);
 		m.addAttribute("department", departmentService.findAll());
 		prepareSelectListData(m);
 
@@ -126,23 +128,23 @@ public class UserPendingController extends WaspController {
 			 @Valid UserPending userPendingForm, 
 			 BindingResult result,
 			 SessionStatus status, 
-			 ModelMap m) {
+			 ModelMap m) throws WaspMetadataException {
 		
 		
-		
-		List<UserPendingMeta> userPendingMetaList = getMetaHelper().getFromRequest(request, getUserPendingMetaVisibility(), UserPendingMeta.class);
+		MetaHelper userPendingMetaHelper = getMetaHelper();
+		userPendingMetaHelper.getFromRequest(request, getUserPendingMetaVisibility(), UserPendingMeta.class);
 
-		userPendingForm.setUserPendingMeta(userPendingMetaList);
+		
 
-		getMetaHelper().validate(new UserPendingMetaValidatorImpl(userService, labService), userPendingMetaList, result);
+		userPendingMetaHelper.validate(new UserPendingMetaValidatorImpl(userService, labService), result);
 	
-		passwordValidator.validate(result, userPendingForm.getPassword(), (String) request.getParameter("password2"), getMetaHelper().getParentArea(), "password");
+		passwordValidator.validate(result, userPendingForm.getPassword(), (String) request.getParameter("password2"), userPendingMetaHelper.getParentArea(), "password");
 		
 		if (! result.hasFieldErrors("email")){
 			User user = userService.getUserByEmail(userPendingForm.getEmail());
 			if (user.getUserId() != 0 ){
-				Errors errors=new BindException(result.getTarget(), getMetaHelper().getParentArea());
-				errors.rejectValue("email", getMetaHelper().getParentArea()+".email_exists.error", getMetaHelper().getParentArea()+".email_exists.error (no message has been defined for this property)");
+				Errors errors=new BindException(result.getTarget(), userPendingMetaHelper.getParentArea());
+				errors.rejectValue("email", userPendingMetaHelper.getParentArea()+".email_exists.error", userPendingMetaHelper.getParentArea()+".email_exists.error (no message has been defined for this property)");
 				result.addAllErrors(errors);
 			}
 		}
@@ -155,28 +157,33 @@ public class UserPendingController extends WaspController {
 		}
 		
 		if (result.hasErrors() || m.containsKey("captchaError")) {
+			userPendingForm.setUserPendingMeta((List<UserPendingMeta>) userPendingMetaHelper.getMetaList());
 			prepareSelectListData(m);
 			m.addAttribute("department", departmentService.findAll());
 			waspMessage("user.created.error");
 			return "auth/newuser/form";
 		}
 		
-		
-		
-		
-		String piUserEmail = "";
-		
-		for (UserPendingMeta meta : userPendingMetaList) {
-			if (meta.getK().equals(getMetaHelper().getArea() + ".primaryuseremail") ) {
-				piUserEmail = meta.getV();
-				break;
-			}
-		} 
-		Lab lab = labService.getLabByPrimaryUserId(userService.getUserByEmail(piUserEmail).getUserId());
+		// form completed properly so continue		
+		String piUserLogin = userPendingMetaHelper.getMetaByName("primaryuserid").getV();
+				
+		Lab lab = labService.getLabByPrimaryUserId(userService.getUserByLogin(piUserLogin).getUserId());
 		userPendingForm.setLabId(lab.getLabId());
 		userPendingForm.setStatus("PENDING");
 		userPendingForm.setPassword( passwordService.encodePassword(userPendingForm.getPassword()) ); 
-
+		
+		// create a metahelper object to work with metadata for pi.
+		MetaHelper piMetaHelper = new MetaHelper("user", UserMeta.class, request.getSession());
+		piMetaHelper.syncWithMaster(userService.getUserByLogin(piUserLogin).getUserMeta()); // get PI meta from database and sync with current properties
+		userPendingMetaHelper.setMetaValueByName("institution", piMetaHelper.getMetaByName("institution").getV());
+		userPendingMetaHelper.setMetaValueByName("department", piMetaHelper.getMetaByName("department").getV());
+		userPendingMetaHelper.setMetaValueByName("state", piMetaHelper.getMetaByName("state").getV());
+		userPendingMetaHelper.setMetaValueByName("city", piMetaHelper.getMetaByName("city").getV());
+		userPendingMetaHelper.setMetaValueByName("country", piMetaHelper.getMetaByName("country").getV());
+		userPendingMetaHelper.setMetaValueByName("zip", piMetaHelper.getMetaByName("zip").getV());
+		
+		List<UserPendingMeta> userPendingMetaList = (List<UserPendingMeta>) userPendingMetaHelper.getMetaList();
+		userPendingForm.setUserPendingMeta(userPendingMetaList);
 
 		UserPending userPendingDb = userPendingService.save(userPendingForm);
 

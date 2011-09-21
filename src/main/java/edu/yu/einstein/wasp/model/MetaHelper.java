@@ -26,17 +26,22 @@ import edu.yu.einstein.wasp.dao.impl.DBResourceBundle;
 import edu.yu.einstein.wasp.service.impl.WaspMessageSourceImpl;
 
 
-
-/*
- * contains utility methods for manipulating
- * with *meta and MetaAttribute objects
- * @Author Sasha Levchuk
+/**
+ * Contains utility methods for manipulating
+ * meta and MetaAttribute objects
+ * @author Sasha Levchuk
+ *
  */
-
 public class MetaHelper {
 
-
-	public MetaHelper(String area, String parentArea, Class clazz, HttpSession session) {
+	/**
+	 * Constructor
+	 * @param area
+	 * @param parentArea
+	 * @param clazz
+	 * @param session
+	 */
+	public <T extends MetaBase> MetaHelper(String area, String parentArea, Class<T> clazz, HttpSession session) {
 		this.area = area;
 		this.parentArea = parentArea;
 		this.clazz = clazz;
@@ -45,19 +50,37 @@ public class MetaHelper {
 		 
 	}
 	
-	public MetaHelper(String area, Class clazz,HttpSession session) {
+	/**
+	 * Constructor
+	 * @param area
+	 * @param clazz
+	 * @param session
+	 */
+	public <T extends MetaBase> MetaHelper(String area, Class<T> clazz,HttpSession session) {
 		this(area,area,clazz,session);
 	}
 
-
-	public MetaHelper(String area, Class clazz, Locale locale) {
+	/**
+	 * Constructor
+	 * @param area
+	 * @param clazz
+	 * @param locale
+	 */
+	public <T extends MetaBase> MetaHelper(String area, Class<T> clazz, Locale locale) {
 		this.area = area;
 		this.parentArea = area;
 		this.clazz = clazz;
 		this.locale=locale;
 	}
 
-	public MetaHelper(String area, String parentArea, Class clazz, Locale locale) {
+	/**
+	 * Constructor
+	 * @param area
+	 * @param parentArea
+	 * @param clazz
+	 * @param locale
+	 */
+	public <T extends MetaBase> MetaHelper(String area, String parentArea, Class<T> clazz, Locale locale) {
 		this.area = area;
 		this.parentArea = parentArea;
 		this.clazz = clazz;
@@ -65,18 +88,36 @@ public class MetaHelper {
 	}
 
 	private String area;
+	
+	/**
+	 * get area attribute
+	 * @return
+	 */
 	public String getArea() {
 		return this.area;
 	}
+	
+	/**
+	 * set area attribute
+	 * @param area
+	 */
 	public void setArea(String area) {
 		this.area = area;
 	}
 
+	/**
+	 * get parent area attribute
+	 */
 	private String parentArea;
 	public String getParentArea() {
 		if (this.area == null) { return this.area; }
 		return this.parentArea;
 	}
+	
+	/**
+	 * set parent area attribute
+	 * @param parentArea
+	 */
 	public void setParentArea(String parentArea) {
 		this.parentArea = parentArea;
 	}
@@ -84,40 +125,70 @@ public class MetaHelper {
 	private Locale locale;
 
 
+	/**
+	 * get locale
+	 * @return
+	 */
 	public Locale getLocale() {
 		return locale;
 	}
 
+	/**
+	 * set locale
+	 */
 	public void setLocale(Locale locale) {
 		this.locale = locale;
 	}
 
-	private Class clazz;
-	public Class getClazz() {
+	private Class<? extends MetaBase> clazz;
+	
+	/**
+	 * get the {@link Class} attribute
+	 * @return
+	 */
+	public Class<? extends MetaBase> getClazz() {
 		return this.clazz;
 	}
-	public void setClazz(Class clazz) {
+	
+	/**
+	 * set the {@link Class} attribute
+	 * @param clazz
+	 */
+	public <T extends MetaBase> void setClazz(Class<T> clazz) {
 		this.clazz = clazz;
 	}
 
-
-	private List<MetaBase> lastList;
+	private List<? extends MetaBase> lastList = null;
 	
+	/**
+	 * Get the last generated list of metadata. 
+	 * Must call getMasterList(), getFromRequest(), getFromJsonForm() or syncWithMaster() on this object first or will return null.
+	 * @return
+	 */
+	public List<? extends MetaBase> getMetaList(){
+		return this.lastList;
+	}
+	
+	/**
+	 * Creates Sorted (by metaposition) Meta List from messages_en
+	 * Populates property (label/control/error) for each item
+	 * @param clazz
+	 * @return
+	 */
 	public final <T extends MetaBase> List<T> getMasterList(Class<T> clazz) {
 		return getMasterList((HashMap<String, MetaAttribute.FormVisibility>) null, clazz);
 	}
 
-	/* 
+	/**
 	 * Creates Sorted (by metaposition) Meta List from messages_en
 	 * Populates property (label/control/error) for each item
-	 *
-	 * 
+	 * @param visibility
+	 * @param clazz
+	 * @return
 	 */
-
 	public final <T extends MetaBase> List<T> getMasterList(Map<String, MetaAttribute.FormVisibility> visibility, Class<T> clazz) {
-		Map<Integer, String> uniquePositions = new HashMap();
-		Map<String, String> baseResource = new HashMap();
-		Map<String, String> bundleResource = new HashMap();
+		Map<Integer, String> uniquePositions = new HashMap<Integer, String>();
+		Map<String, String> bundleResource = new HashMap<String, String>();
 
 		Set<String> keys=((WaspMessageSourceImpl)DBResourceBundle.MESSAGE_SOURCE).getKeys(Locale.US);
 		for(String k: keys) {
@@ -149,9 +220,9 @@ public class MetaHelper {
 			uniquePositions.put(keyPos, name);
 		}
 
-		Set<Integer> positions = new TreeSet(uniquePositions.keySet());
+		Set<Integer> positions = new TreeSet<Integer>(uniquePositions.keySet());
 
-		List<T> list = new ArrayList();
+		List<T> list = new ArrayList<T>();
 		for (Integer i: positions) {
 			try {
 				T obj = (T) clazz.newInstance();
@@ -217,23 +288,30 @@ public class MetaHelper {
 			}
 		}
 
-		this.lastList = (List<MetaBase>) list; 
+		this.lastList =  list; 
 
 		return list;
 	}
 	
-		
+	/**
+	 *  Generates Master List and pulls in from values from request.  
+	 *	[parentarea]Meta_[metakey] (ie. "userMeta_user.phone");
+	 * @param request
+	 * @param clazz
+	 * @return
+	 */
 	public final <T extends MetaBase> List<T> getFromRequest(HttpServletRequest request, Class<T> clazz) {
 		return getFromRequest(request, (Map<String, MetaAttribute.FormVisibility>) null, clazz);
 	}
 
 	/**
-	* Generates Master List and pulls in from
-	* values from request.  
-	*	[parentarea]Meta_[metakey] (ie. "userMeta_user.phone");
-	*
-	*/
-
+	 * Generates Master List and pulls in from values from request.  
+	 *	[parentarea]Meta_[metakey] (ie. "userMeta_user.phone");
+	 * @param request
+	 * @param visibility 
+	 * @param clazz
+	 * @return
+	 */
 	public final <T extends MetaBase> List<T> getFromRequest(HttpServletRequest request, Map<String, MetaAttribute.FormVisibility> visibility, Class<T> clazz) {
 		List<T> list = getMasterList(visibility, clazz);
 
@@ -249,15 +327,28 @@ public class MetaHelper {
 			}
 		}
 
-		this.lastList = (List<MetaBase>) list; 
+		this.lastList =  list; 
 
 		return list;
 	}
 	
+	/**
+	 * Generates Master List and pulls in from values from request (Json form)
+	 * @param request
+	 * @param clazz
+	 * @return
+	 */
 	public final <T extends MetaBase> List<T> getFromJsonForm(HttpServletRequest request, Class<T> clazz) {
 		return getFromJsonForm(request, (Map<String, MetaAttribute.FormVisibility>) null, clazz);
 	}
 
+	/**
+	 * Generates Master List and pulls in from values from request (Json form)
+	 * @param request
+	 * @param visibility
+	 * @param clazz
+	 * @return
+	 */
 	public final <T extends MetaBase> List<T> getFromJsonForm(HttpServletRequest request, Map<String, MetaAttribute.FormVisibility> visibility, Class<T> clazz) {
 		List<T> list = getMasterList(visibility, clazz);
 
@@ -273,26 +364,32 @@ public class MetaHelper {
 			}
 		}
 
-		this.lastList = (List<MetaBase>) list; 
+		this.lastList =  list; 
 
 		return list;
 	}
 
 
-	/*
-	 * updates "dbList" so it only contains fields found in "properties" file
+	/**
+	 * Updates "dbList" so it only contains fields found in "properties" file
+	 * @param dbList
+	 * @return
 	 */
 	public final <T extends MetaBase> List<T> syncWithMaster(List<T> dbList) {
-		return syncWithMaster(dbList,getMasterList(clazz));
+		return syncWithMaster(dbList, (List<T>) getMasterList(clazz));
 	}
 	
-	/*
-	 * updates "dbList" so it only contains fields found in "properties" file
+	
+	/**
+	 * Updates "currentList" so it only contains fields found in "properties" file
+	 * @param currentList
+	 * @param masterList
+	 * @return
 	 */
 	public final <T extends MetaBase> List<T> syncWithMaster(List<T> currentList,List<T> masterList) {
 		
 
-		Map<String, String> dbMap = new HashMap();
+		Map<String, String> dbMap = new HashMap<String, String>();
 		for (T obj : currentList) {
 			dbMap.put(obj.getK(), obj.getV());			
 		}
@@ -300,61 +397,118 @@ public class MetaHelper {
 		for (T obj : masterList) {
 			obj.setV(dbMap.get(obj.getK()));
 		}
-
+		this.lastList =  masterList; // update with values from current list
 		return masterList;
 	}
 	
 
-
+	/**
+	 * Get a {@link MetaValidatorImpl} instance 
+	 * Validates any metadata with constraints in the supplied list
+	 * @param list
+	 * @return
+	 */
 	public final MetaValidator getMetaValidator(List<? extends MetaBase> list) {
 		return getMetaValidator(list, MetaValidatorImpl.class);
 	}
-
+	
+	/**
+	 * Get a {@link MetaValidator} derived instance of type specified by 'metaValidatorClazz'
+	 * Validates any metadata with constraints in the supplied list
+	 * @param list
+	 * @param metaValidatorClazz
+	 * @return
+	 */
 	public final <T extends MetaValidator> T getMetaValidator(List<? extends MetaBase> list, Class <T>metaValidatorClazz) {
-		List<String> validateList = new ArrayList<String>();
-
+		if (list == null) return null;
 		T validator;
 		try {
-			validator = (T) metaValidatorClazz.newInstance();
+			validator = metaValidatorClazz.newInstance();
 		} catch (Exception e) {
 			return null;
 		}
-
 		validator.setValidateList(getValidateList(list));
 
 		return validator;
 	}
-
+	
+	/**
+	 * Get a {@link MetaValidatorImpl} instance 
+	 * Validates any metadata with constraints in the last generated metadata list
+	 * Must call getMasterList(), getFromRequest(), getFromJsonForm() or syncWithMaster() on this object first or will return null.
+	 * @return
+	 */
 	public final MetaValidator getMetaValidator() {
 		return getMetaValidator(this.lastList);
 	}
-
+	
+	/**
+	 * Get a {@link MetaValidator} derived instance of type specified by 'metaValidatorClazz'
+	 * Validates any metadata with constraints in the last generated metadata list
+	 * Must call getMasterList(), getFromRequest(), getFromJsonForm() or syncWithMaster() on this object first or will return null.
+	 * @param metaValidatorClazz
+	 * @return
+	 */
 	public final <T extends MetaValidator> T getMetaValidator(Class<T> metaValidatorClazz) {
 		return getMetaValidator(this.lastList, metaValidatorClazz);
 	}
-
+	
+	/**
+	 * Validates any metadata with constraints in the supplied list using the supplied validator object
+	 * @param validator
+	 * @param list
+	 * @param result
+	 */
 	public void validate(MetaValidator validator, List<? extends MetaBase> list, BindingResult result) {
 		validator.setValidateList(getValidateList(list));
 		validator.validate(list, result, area, parentArea);
 	}
 
+	/**
+	 * Validates any metadata with constraints in the last generated metadata list using the supplied validator object
+	 * Must call getMasterList(), getFromRequest(), getFromJsonForm() or syncWithMaster() on this object first or will return null.
+	 * @param validator
+	 * @param result
+	 */
 	public void validate(MetaValidator validator, BindingResult result) {
 		validator.setValidateList(getValidateList(this.lastList));
 		validator.validate(this.lastList, result, area, parentArea);
 	}
 
+	/**
+	 * Validates any metadata with constraints in the supplied list using {@link MetaValidatorImpl}
+	 * @param list
+	 * @param result
+	 */
 	public void validate(List<? extends MetaBase> list, BindingResult result) {
 		getMetaValidator(list).validate(list, result, area, parentArea);
 	}
-
+	
+	/**
+	 * Validates any metadata with constraints in the last generated metadata list using {@link MetaValidatorImpl}
+	 * Must call getMasterList(), getFromRequest(), getFromJsonForm() or syncWithMaster() on this object first or will return null.
+	 * @param result
+	 */
 	public void validate(BindingResult result) {
 		getMetaValidator().validate(this.lastList, result, area, parentArea);
 	}
 
-	public void validate(Class metaValidatorClazz, BindingResult result) {
+	/**
+	 * Validates any metadata with constraints in the last generated metadata list using a {@link MetaValidator} derived instance of type specified by 'metaValidatorClazz'
+	 * Must call getMasterList(), getFromRequest(), getFromJsonForm() or syncWithMaster() on this object first or will return null.
+	 * @param metaValidatorClazz
+	 * @param result
+	 */
+	public <T extends MetaValidator> void validate(Class<T> metaValidatorClazz, BindingResult result) {
 		getMetaValidator(this.lastList, metaValidatorClazz).validate(this.lastList, result, area, parentArea);
 	}
 	
+	/**
+	 * Returns a list (List<String>) of metadata key / constraint pairs such that each key is followed by its corresponding
+	 * constraint.
+	 * @param list
+	 * @return
+	 */
 	public List<String> getValidateList(List<? extends MetaBase> list){
 		List<String> validateList = new ArrayList<String>();
 		for (MetaBase meta : list) {
@@ -365,6 +519,72 @@ public class MetaHelper {
 			}
 		}
 		return validateList;
+	}
+	
+	
+	/**
+	 * Finds a {@link MetaBase} derived object by name in the last list generated
+	 * @param name
+	 * @return {@link MetaBase} or null if not found 
+	 * @throws WaspMetadataException
+	 */
+	public  MetaBase getMetaByName(String name) throws WaspMetadataException{
+		return getMetaByName(name, this.lastList);
+	}
+	
+	/**
+	 * Finds a {@link MetaBase} derived object by name in the provided list
+	 * @param name
+	 * @return {@link MetaBase} derived object or null if not found 
+	 * @throws WaspMetadataException 
+	 */
+	public <T extends MetaBase> T getMetaByName(String name, List<T> list) throws WaspMetadataException{
+		for (T meta : list) {
+			if (meta.getK().equals(area + "." + name) ) {
+				return meta;
+			}
+		} 
+		throw new WaspMetadataException("Cannot find metadata with name: "+name);
+	}
+	
+	/**
+	 * Finds a {@link MetaBase} derived object by name in the provided list and sets its value
+	 * @param name
+	 * @param value
+	 * @param list
+	 * @throws WaspMetadataException
+	 */
+	public <T extends MetaBase> void setMetaValueByName(String name,  String value, List<T> list) throws WaspMetadataException{
+		for (T meta : list) {
+			if (meta.getK().equals(area + "." + name) ) {
+				meta.setV(value);
+				return;
+			}
+		} 
+		throw new WaspMetadataException("Cannot find metadata with name: "+name);
+	}
+	
+	/**
+	 * Finds a {@link MetaBase} derived object by name in the last list generated and sets its value
+	 * @param name
+	 * @param value
+	 * @param list
+	 * @throws WaspMetadataException
+	 */
+	public <T extends MetaBase> void setMetaValueByName(String name,  String value) throws WaspMetadataException{
+		setMetaValueByName(name, value, this.lastList);
+	}
+	
+	/**
+	 * Reporting of WASP metadata exceptions
+	 * @author andymac
+	 *
+	 */
+	public class WaspMetadataException extends Exception{
+
+		WaspMetadataException(String message){
+			super(message);
+		}
 	}
 
 	/*

@@ -138,7 +138,7 @@ public class JobSubmissionController extends WaspController {
 	private FileService fileService;
 
 	private final MetaHelper getMetaHelper() {
-		return new MetaHelper("jobDraft", JobDraft.class, request.getSession());
+		return new MetaHelper("jobDraft", JobDraftMeta.class, request.getSession());
 	}
 	
 	@RequestMapping(value="/list", method=RequestMethod.GET)
