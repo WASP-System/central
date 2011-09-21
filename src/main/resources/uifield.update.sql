@@ -9,13 +9,9 @@ delete from uifield where area='user' and name='fancypropertyname' and  attrName
  select 'en_US','user','fancypropertyname','label','Fancy Name',userId
  from user where login='superuser'; 
 
- 
- 
  -- 2. update
  update uifield set attrValue='Updated Value' where area='user' and name='fancypropertyname' and  attrName='label';
- 
- 
- 
+   
  -- 3. delete
  delete from uifield where area='user' and name='fancypropertyname' and  attrName='label';
  
@@ -42,3 +38,28 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) select 'en_
 
 delete from uifield where area='userPending' and name='captcha' and attrName='label';
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) select 'en_US','userPending','captcha','label','Captcha text',userId from user where login='superuser';
+
+ -- Changes by Bin Ye
+delete from uifield where area='hello' and name='default' and  attrName='error';
+ 
+ insert into uifield(locale,area,name,attrName,attrValue,lastupduser)
+ select 'en_US','hello','default','error','Hello World',userId
+ from user where login='superuser'; 
+
+delete from uifield where area='userPending' and name='action_approve' and attrName='label';
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) select 'en_US','userPending','action_approve','label','APPROVE',userId from user where login='superuser';
+
+delete from uifield where area='userPending' and name='action_reject' and attrName='label';
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) select 'en_US','userPending','action_reject','label','REJECT',userId from user where login='superuser';
+
+delete from uifield where area='labuser' and name='status_activate' and attrName='label';
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) select 'en_US','labuser','status_activate','label','Activate',userId from user where login='superuser';
+
+delete from uifield where area='labuser' and name='status_deactivate' and attrName='label';
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) select 'en_US','labuser','status_deactivate','label','Deactivate',userId from user where login='superuser';
+
+delete from uifield where area='labuser' and name='status_promoteLM' and attrName='label';
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) select 'en_US','labuser','status_promoteLM','label','PROMOTE to LM',userId from user where login='superuser';
+
+delete from uifield where area='labuser' and name='status_demoteLU' and attrName='label';
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) select 'en_US','labuser','status_demoteLU','label','DEMOTE to LU',userId from user where login='superuser';
