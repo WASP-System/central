@@ -329,6 +329,7 @@ var navGrid=$("#grid_id").jqGrid({
 
 navGrid.navButtonAdd("#gridpager",{
 	   caption:"${_subtype.name}", 	 
+	   title: "Add Sample of '${_subtype.name}' subtype",
 	   onClickButton: function(){				   
 
 		   var  _myAddAttr = jQuery.extend({subtypeSampleId:${_subtype.subtypeSampleId}}, _addAttr);
