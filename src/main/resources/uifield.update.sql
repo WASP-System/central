@@ -601,3 +601,21 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) select 'en_
 
 delete from uifield where area='labuser' and name='status_demoteLU' and attrName='label';
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) select 'en_US','labuser','status_demoteLU','label','DEMOTE to LU',userId from user where login='superuser';
+
+delete from uifield where area='userPending' and name='building_room' and attrName='constraint';
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) select 'en_US','userPending','building_room','constraint','NotEmpty',userId from user where login='superuser';
+
+delete from uifield where area='userPending' and name='building_room' and attrName='error';
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) select 'en_US','userPending','building_room','error','Room cannot be empty',userId from user where login='superuser';
+
+delete from uifield where area='userPending' and name='locale' and attrName='constraint';
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) select 'en_US','userPending','locale','constraint','NotEmpty',userId from user where login='superuser';
+
+update uifield set name='locale', attrValue='A locale must be selected' where area='userPending' and name='locale' and attrName='error';
+update uifield set name='country', attrValue='A country must be selected' where area='userPending' and name='country' and attrName='error';
+update uifield set name='state', attrValue='A state must be selected' where area='userPending' and name='state' and attrName='error';
+
+delete from uifield where area='userPending' and name='department' and attrName='constraint';
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) select 'en_US','userPending','department','constraint','NotEmpty',userId from user where login='superuser';
+delete from uifield where area='userPending' and name='department' and attrName='error';
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) select 'en_US','userPending','department','error','A department must be selected',userId from user where login='superuser';

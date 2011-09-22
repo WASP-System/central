@@ -701,10 +701,12 @@ public class LabController extends WaspController {
 		Map userPendingQueryMap = new HashMap();
 		userPendingQueryMap.put("email", userPending.getEmail());
 		userPendingQueryMap.put("status", "PENDING");
-
+		List<UserPending> userPendingList = userPendingService.findByMap(userPendingQueryMap);
+		userPendingQueryMap.put("status", "WAIT_EMAIL");
+		userPendingList.addAll(userPendingService.findByMap(userPendingQueryMap));
 		Role roleLabPending = roleService.getRoleByRoleName("lp");
 
-		List<UserPending> userPendingList = userPendingService.findByMap(userPendingQueryMap);
+		
 		for (UserPending userPendingOther: userPendingList) {
 
 			userPendingOther.setStatus("CREATED");

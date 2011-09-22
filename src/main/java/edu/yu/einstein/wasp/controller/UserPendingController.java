@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
 import edu.yu.einstein.wasp.controller.validator.PasswordValidator;
 import edu.yu.einstein.wasp.controller.validator.UserPendingMetaValidatorImpl;
-import edu.yu.einstein.wasp.dao.impl.DBResourceBundle;
 import edu.yu.einstein.wasp.model.ConfirmEmailAuth;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabPending;
@@ -169,7 +168,7 @@ public class UserPendingController extends WaspController {
 				
 		Lab lab = labService.getLabByPrimaryUserId(userService.getUserByLogin(piUserLogin).getUserId());
 		userPendingForm.setLabId(lab.getLabId());
-		userPendingForm.setStatus("PENDING");
+		userPendingForm.setStatus("WAIT_EMAIL"); // await email confirmation
 		userPendingForm.setPassword( passwordService.encodePassword(userPendingForm.getPassword()) ); 
 		
 		// create a metahelper object to work with metadata for pi.
@@ -191,11 +190,7 @@ public class UserPendingController extends WaspController {
 			upm.setUserpendingId(userPendingDb.getUserPendingId());
 			userPendingMetaService.save(upm);
 		}
-
-		status.setComplete();
-
-
-		// TODO email PI/LM that a new user is pending
+		
 		String authcode = authCodeService.createAuthCode(20);
 		ConfirmEmailAuth confirmEmailAuth = new ConfirmEmailAuth();
 		confirmEmailAuth.setAuthcode(authcode);
@@ -203,6 +198,7 @@ public class UserPendingController extends WaspController {
 		confirmEmailAuthService.merge(confirmEmailAuth);
 		emailService.sendPendingUserEmailConfirm(userPendingForm, authcode);
 		request.getSession().removeAttribute(Captcha.NAME); // ensures fresh capcha issued if required in this session
+		status.setComplete();
 		return "redirect:/auth/newuser/ok.do";
 	}
 
@@ -354,7 +350,8 @@ public class UserPendingController extends WaspController {
 			  m.put("email", email);
 			  return "auth/confirmemail/authcodeform";
 		  }
-		  
+		  userPending.setStatus("PENDING");
+		  userPendingService.save(userPending);
 		  confirmEmailAuthService.remove(confirmEmailAuth);
 		  request.getSession().removeAttribute(Captcha.NAME); // ensures fresh capcha issued if required in this session
 		  //TODO:  add logic to make sure email address is confirmed before activating account
