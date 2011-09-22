@@ -226,18 +226,18 @@ public class EmailServiceImpl implements EmailService {
 
 		String subject = extractSubject(mainText);
 		String body = extractBody(mainText);
-		String completeEmailText = headerText + body + footerText;
-		
-		MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
-		Properties props = ((JavaMailSenderImpl)mailSender).getJavaMailProperties();
+		String completeEmailTextHtml = headerText + body + footerText;
 		try{
+			MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+			Properties props = ((JavaMailSenderImpl)mailSender).getJavaMailProperties();
+		
 			message.setFrom(props.getProperty("mail.smtp.from")); //TODO: remove this line and un-comment line below in production code
 			// message.setTo(user.getEmail());
+			
 			message.setTo(props.getProperty("mail.smtp.from"));
-			//message.setSubject(subject,"UTF-8");		            
-			//message.setText(body, true);
-			mimeMessage.setSubject(subject,"UTF-8");
-			mimeMessage.setText(completeEmailText,"UTF-8");
+			message.setSubject(subject);
+			String plainText = completeEmailTextHtml.replaceAll("\\<.*?>","");
+			message.setText(plainText, completeEmailTextHtml);
 		} catch(MessagingException e) {
 			throw new MailPreparationException("problem generating MimeMessage from Velocity template", e); 
 		}
