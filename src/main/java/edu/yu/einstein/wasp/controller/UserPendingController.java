@@ -281,7 +281,7 @@ public class UserPendingController extends WaspController {
 		waspMessage("hello.error");
 		return "redirect:/auth/newpi/ok.do";
 	}
-
+/*
 	@RequestMapping(value="/confirmemail", method=RequestMethod.GET)
 	  public String confirmEmailFromEmailLink(
 			  @RequestParam(value="authcode") String authCode,
@@ -311,7 +311,14 @@ public class UserPendingController extends WaspController {
 		  userPendingService.save(userPending);
 		  confirmEmailAuthService.remove(confirmEmailAuth);
 		  emailService.sendPendingUserPrimaryConfirm(userPending);
-		  return "/auth/newuser/emailok.do";
+		  return "redirect:/auth/newuser/emailok.do";
+	  }
+	*/
+	 @RequestMapping(value="/confirmemail", method=RequestMethod.GET)
+	 public String confirmEmailFromEmailLink(ModelMap m) {
+		  UserPending  userPending = userPendingService.findById(1);
+		  emailService.sendPendingUserPrimaryConfirm(userPending);
+		  return "redirect:/auth/newuser/emailok.do";
 	  }
 	
 	 @RequestMapping(value="/confirmemail", method=RequestMethod.POST)

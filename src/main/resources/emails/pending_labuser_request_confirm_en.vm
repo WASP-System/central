@@ -1,0 +1,14 @@
+Pending User
+
+<html>
+<body>
+<h3>
+Dear ${primaryuser.firstName} ${primaryuser.lastName},
+
+${pendinguser.firstName} ${pendinguser.lastName} has requested an account for your lab named '${lab.name}'.
+
+Please login to your WASP account from where you will be able to accept or deny this request. Please note that this email is sent to the principle investigator and any assigned 
+lab managers, any of whom may process this request. 
+</h3>
+</body>
+</html>

@@ -2,6 +2,7 @@ package edu.yu.einstein.wasp.service.impl;
 
 import java.util.List;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.io.UnsupportedEncodingException;
@@ -21,13 +22,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.ui.velocity.VelocityEngineUtils;
 
 
+import edu.yu.einstein.wasp.model.MetaHelper;
+import edu.yu.einstein.wasp.model.MetaHelper.WaspMetadataException;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.Role;
+import edu.yu.einstein.wasp.model.UserPendingMeta;
 import edu.yu.einstein.wasp.service.RoleService;
 import edu.yu.einstein.wasp.service.LabUserService;
 import edu.yu.einstein.wasp.service.EmailService;
+import edu.yu.einstein.wasp.service.UserPendingService;
+import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.model.UserPending;
 
 
@@ -52,6 +58,9 @@ public class EmailServiceImpl implements EmailService {
 
 	@Autowired
 	private LabUserService labUserService;
+	
+	@Autowired
+	private UserService userService;
 
 	@Autowired
 	private RoleService roleService;
@@ -97,33 +106,69 @@ public class EmailServiceImpl implements EmailService {
 	
 	/**
 	 * {@inheritDoc}
+	 * @throws MailPreparationException 
 	 */
-	public void sendPendingUserPrimaryConfirm(final UserPending userPending) {
+	public void sendPendingUserPrimaryConfirm(final UserPending userPending) throws MailPreparationException {
+		MetaHelper userPendingMetaHelper = new MetaHelper("userPending", UserPendingMeta.class, Locale.US);
+		userPendingMetaHelper.syncWithMaster(userPending.getUserPendingMeta());
+		User primaryUser;
+		try{
+			primaryUser = userService.getUserByLogin(userPendingMetaHelper.getMetaByName("primaryuserid").getV());
+		} catch(WaspMetadataException e){
+			throw new MailPreparationException("Cannot get principle user for pending user with id '" + Integer.toString(userPending.getUserPendingId()), e); 
+		}
+		Map model = new HashMap();
+		model.put("pendinguser", userPending);
+
 		
+		// send email to PI and all lab managers in the requested lab
+		Map labManagerQueryMap = new HashMap();
+		for (Lab lab : primaryUser.getLab()){
+			if (lab.getPrimaryUserId() == primaryUser.getUserId()){
+				labManagerQueryMap.put("labId", lab.getLabId());
+				model.put("lab", lab);
+				break;
+			}
+			throw new MailPreparationException("Cannot email principle user with id '" + Integer.toString(primaryUser.getUserId()) + "' because this user is not the principle of any labs"); 
+		}
+		
+		// send email to PI
+		model.put("primaryuser", primaryUser);
+		prepareAndSend(primaryUser, "emails/pending_labuser_request_confirm", model);
+		
+		// send email to lab managers
+		labManagerQueryMap.put("roleId", roleService.getRoleByRoleName("lm").getRoleId());
+		for (LabUser labUserLM : (List<LabUser>) labUserService.findByMap(labManagerQueryMap)){
+			User labManager = labUserLM.getUser();
+			model.put("primaryuser", labManager);
+			prepareAndSend(labManager, "emails/pending_labuser_request_confirm", model); 
+		}
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public void sendPendingLabUserPrimaryConfirm(final LabUser labUser) {
-		final Lab lab = labUser.getLab(); 
-		final User pendingUser = labUser.getUser(); 
-		final User primaryUser= labUser.getLab().getUser();	
-		Role role = roleService.getRoleByRoleName("lm");
-
+		Lab lab = labUser.getLab(); 
+		User pendingUser = labUser.getUser(); 
+		User primaryUser= userService.getUserByUserId(labUser.getLab().getPrimaryUserId());	
+				
+		Map model = new HashMap();
+		model.put("lab", lab);
+		model.put("pendinguser", pendingUser);
+		
+		// send email to PI
+		model.put("primaryuser", primaryUser);
+		prepareAndSend(primaryUser, "emails/pending_labuser_request_confirm", model);
+		
+		// send email to lab managers
 		Map labManagerQueryMap = new HashMap();
 		labManagerQueryMap.put("labId", labUser.getLabId());
-		labManagerQueryMap.put("roleId", role.getRoleId());
-
-		List<User> toList= labUserService.findByMap(labManagerQueryMap);
-		toList.add(primaryUser);
-
-		for (final User toUser : toList){
-			Map model = new HashMap();
-			model.put("primaryuser", toUser);
-			model.put("pendinguser", pendingUser);
-			model.put("lab", lab);
-			prepareAndSend(toUser, "emails/pending_labuser_request_confirm", model); 
+		labManagerQueryMap.put("roleId", roleService.getRoleByRoleName("lm").getRoleId());
+		for (LabUser labUserLM : (List<LabUser>) labUserService.findByMap(labManagerQueryMap)){
+			User labManager = labUserLM.getUser();
+			model.put("primaryuser", labManager);
+			prepareAndSend(labManager, "emails/pending_labuser_request_confirm", model); 
 		}
 	}
 
@@ -229,6 +274,7 @@ public class EmailServiceImpl implements EmailService {
 		return body;
 		
 	}
+	
 	
 }
 
