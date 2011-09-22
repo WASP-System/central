@@ -65,8 +65,7 @@ public class UserPendingController extends WaspController {
 	@Autowired
 	private LabPendingMetaService labPendingMetaService;
 
-	@Autowired
-	private DepartmentService departmentService;
+	
 
 	@Autowired
 	private EmailService emailService;
@@ -115,7 +114,6 @@ public class UserPendingController extends WaspController {
 		userPending.setUserPendingMeta(metaHelper.getMasterList(getUserPendingMetaVisibility(), UserPendingMeta.class));
 		
 		m.addAttribute(metaHelper.getParentArea(), userPending);
-		m.addAttribute("department", departmentService.findAll());
 		prepareSelectListData(m);
 
 		return "auth/newuser/form";
@@ -158,7 +156,7 @@ public class UserPendingController extends WaspController {
 		if (result.hasErrors() || m.containsKey("captchaError")) {
 			userPendingForm.setUserPendingMeta((List<UserPendingMeta>) userPendingMetaHelper.getMetaList());
 			prepareSelectListData(m);
-			m.addAttribute("department", departmentService.findAll());
+			
 			waspMessage("user.created.error");
 			return "auth/newuser/form";
 		}
@@ -214,7 +212,6 @@ public class UserPendingController extends WaspController {
 		userPending.setUserPendingMeta(metaHelper.getMasterList(UserPendingMeta.class));
 
 		m.addAttribute(metaHelper.getParentArea(), userPending);
-		m.addAttribute("department", departmentService.findAll());
 		prepareSelectListData(m);
 
 		return "auth/newpi/form";
@@ -238,7 +235,6 @@ public class UserPendingController extends WaspController {
 		 metaHelper.validate(userPendingMetaList, result);
 
 		if (result.hasErrors()) {
-			m.addAttribute("department", departmentService.findAll());
 			prepareSelectListData(m);
 			waspMessage("user.created.error");
 

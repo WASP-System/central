@@ -619,3 +619,10 @@ delete from uifield where area='userPending' and name='department' and attrName=
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) select 'en_US','userPending','department','constraint','NotEmpty',userId from user where login='superuser';
 delete from uifield where area='userPending' and name='department' and attrName='error';
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) select 'en_US','userPending','department','error','A department must be selected',userId from user where login='superuser';
+
+delete from uifield where area='user' and name='department' and attrName='control';
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) select 'en_US','user','department','control','select:\${department}:departmentId:name',userId from user where login='superuser';
+delete from uifield where area='user' and name='department' and attrName='constraint';
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) select 'en_US','user','department','constraint','NotEmpty',userId from user where login='superuser';
+delete from uifield where area='user' and name='department' and attrName='error';
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) select 'en_US','user','department','error','A department must be selected',userId from user where login='superuser';

@@ -24,6 +24,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import edu.yu.einstein.wasp.service.DepartmentService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.WebDataBinder;
@@ -53,7 +54,9 @@ public class WaspController {
 
   //protected static final ResourceBundle BASE_BUNDLE=ResourceBundle.getBundle("messages", Locale.ENGLISH);
 
-
+  @Autowired
+  private DepartmentService departmentService;
+  
   @Autowired
   private UserDetailsService userDetailsService;
 
@@ -103,6 +106,7 @@ public class WaspController {
     m.addAttribute("countries", Country.getList());
     m.addAttribute("states", State.getList());
     m.addAttribute("locales", LOCALES);
+    m.addAttribute("department", departmentService.findAll());
   }
 
   protected String getMessage(String key) {
