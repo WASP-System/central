@@ -602,6 +602,71 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) select 'en_
 delete from uifield where area='labuser' and name='status_demoteLU' and attrName='label';
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) select 'en_US','labuser','status_demoteLU','label','DEMOTE to LU',userId from user where login='superuser';
 
+-- Changes by Dubin
+delete from uifield where area='userDetail' and name='page_title' and attrName='label';
+ insert into uifield(locale,area,name,attrName,attrValue,lastupduser)  select 'en_US','userDetail','page_title','label','User Detail',userId  from user where login='superuser'; 
+
+ delete from uifield where area='userDetail' and name='edit' and attrName='label';
+ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) select 'en_US','userDetail','edit','label','Edit',userId from user where login='superuser'; 
+
+ delete from uifield where area='userDetail' and name='edit_as_other' and attrName='label';
+ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) select 'en_US','userDetail','edit_as_other','label','Edit (as other)',userId from user where login='superuser';
+ 
+ delete from uifield where area='userDetail' and name='change_password' and attrName='label';
+ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) select 'en_US','userDetail','change_password','label','Change Password',userId from user where login='superuser'; 
+  
+ delete from uifield where area='userDetail' and name='cancel' and attrName='label'; 
+ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) select 'en_US','userDetail','cancel','label','Cancel',userId from user where login='superuser';
+ 
+ delete from uifield where area='userDetail' and name='save' and attrName='label';
+ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) select 'en_US','userDetail','save','label','Save',userId from user where login='superuser';
+ 
+ delete from uifield where area='userDetail' and name='lab_users' and attrName='label';
+ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) select 'en_US','userDetail','lab_users','label','Lab Users',userId from user where login='superuser';
+ 
+ delete from uifield where area='userDetail' and name='samples' and attrName='label';
+ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) select 'en_US','userDetail','samples','label','Samples',userId from user where login='superuser';
+ 
+ delete from uifield where area='userDetail' and name='jobs' and attrName='label';
+ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) select 'en_US','userDetail','jobs','label','Jobs',userId from user where login='superuser'; 
+ 
+ delete from uifield where area='department' and name='detail_page_title' and attrName='label';
+ insert into uifield(locale,area,name,attrName,attrValue,lastupduser)  select 'en_US','department','detail_page_title','label','Department Detail',userId  from user where login='superuser'; 
+
+ delete from uifield where area='department' and name='detail_createadmin' and attrName='label';
+ insert into uifield(locale,area,name,attrName,attrValue,lastupduser)  select 'en_US','department','detail_createadmin','label','Create Administrator',userId  from user where login='superuser'; 
+
+ delete from uifield where area='department' and name='detail_submit' and attrName='label';
+ insert into uifield(locale,area,name,attrName,attrValue,lastupduser)  select 'en_US','department','detail_submit','label','Submit',userId  from user where login='superuser'; 
+
+ delete from uifield where area='department' and name='detail_email' and attrName='label';
+ insert into uifield(locale,area,name,attrName,attrValue,lastupduser)  select 'en_US','department','detail_email','label','Administrator''s Email',userId  from user where login='superuser'; 
+
+ delete from uifield where area='department' and name='detail_existingadmin' and attrName='label';
+ insert into uifield(locale,area,name,attrName,attrValue,lastupduser)  select 'en_US','department','detail_existingadmin','label','Current Administrators',userId  from user where login='superuser'; 
+
+ delete from uifield where area='department' and name='detail_labs' and attrName='label';
+ insert into uifield(locale,area,name,attrName,attrValue,lastupduser)  select 'en_US','department','detail_labs','label','Labs',userId  from user where login='superuser'; 
+
+ delete from uifield where area='department' and name='detail_pendinglabs' and attrName='label';
+ insert into uifield(locale,area,name,attrName,attrValue,lastupduser)  select 'en_US','department','detail_pendinglabs','label','Pending Labs',userId  from user where login='superuser'; 
+
+ delete from uifield where area='department' and name='detail_ok' and attrName='label';
+ insert into uifield(locale,area,name,attrName,attrValue,lastupduser)  select 'en_US','department','detail_ok','label','New Administrator Created',userId  from user where login='superuser'; 
+ 
+ delete from uifield where area='department' and name='detail_emailnotfound' and attrName='error';
+ insert into uifield(locale,area,name,attrName,attrValue,lastupduser)  select 'en_US','department','detail_emailnotfound','error','Email not found',userId  from user where login='superuser'; 
+ 
+ delete from uifield where area='department' and name='detail_ok' and attrName='label';
+ insert into uifield(locale,area,name,attrName,attrValue,lastupduser)  select 'en_US','department','detail_ok','label','New Administrator Created',userId  from user where login='superuser'; 
+ 
+ delete from uifield where area='department' and name='detail_remove' and attrName='label';
+ insert into uifield(locale,area,name,attrName,attrValue,lastupduser)  select 'en_US','department','detail_remove','label','Remove',userId  from user where login='superuser'; 
+ 
+update uifield  set attrvalue = 'NotEmpty' where area='user' and name='address' and attrname='constraint';
+ 
+--
+
 delete from uifield where area='userPending' and name='building_room' and attrName='constraint';
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) select 'en_US','userPending','building_room','constraint','NotEmpty',userId from user where login='superuser';
 
@@ -620,9 +685,13 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) select 'en_
 delete from uifield where area='userPending' and name='department' and attrName='error';
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) select 'en_US','userPending','department','error','A department must be selected',userId from user where login='superuser';
 
+
+
+
 delete from uifield where area='user' and name='department' and attrName='control';
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) select 'en_US','user','department','control','select:\${department}:departmentId:name',userId from user where login='superuser';
 delete from uifield where area='user' and name='department' and attrName='constraint';
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) select 'en_US','user','department','constraint','NotEmpty',userId from user where login='superuser';
 delete from uifield where area='user' and name='department' and attrName='error';
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) select 'en_US','user','department','error','A department must be selected',userId from user where login='superuser';
+

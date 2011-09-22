@@ -2,19 +2,14 @@
 
 <html>
   <head>
-  <title><fmt:message key="user.detail.title" /></title>
+  <title><fmt:message key="userDetail.page_title.label" /></title>
   
-  
-  
-  
-  </head>
+ </head>
   <body>
     
-    <h1><fmt:message key="user.detail.title" /></h1>
+    <h1><fmt:message key="userDetail.page_title.label" /></h1>
     
      <table>
-     	  <tr><td colspan=2 align=left><br /><b><fmt:message key="user.detail.subtitle" />:</b></td></tr>
-     	   
      	   <tr>
               <td><fmt:message key="user.login.label" />:</td>
               <td>${user.login}</td>            
@@ -48,15 +43,15 @@
         <c:import url="/WEB-INF/jsp/meta_ro.jsp"/>
           
 	  <sec:authorize access="hasRole('god') and ! hasRole('u-${user.userId}')">      		   		
-          <tr><td colspan="2" align=left><a href="/wasp/user/detail_rw/${user.userId}.do">Edit (As other)</a>
+          <tr><td colspan="2" align=left><a href="/wasp/user/detail_rw/${user.userId}.do"><fmt:message key="userDetail.edit_as_other.label" /></a>
           </sec:authorize>	
 
 	  <sec:authorize access="hasRole('u-${user.userId}')">      		   		
-          <tr><td colspan="2" align=left><a href="/wasp/user/me_rw.do">Edit</a>
-          &nbsp;&nbsp;<a href="<c:url value="/user/mypassword.do"/>">Change Password</a></td></tr>
+          <tr><td colspan="2" align=left><a href="/wasp/user/me_rw.do"><fmt:message key="userDetail.edit.label" /></a>
+          &nbsp;&nbsp;<a href="<c:url value="/user/mypassword.do"/>"><fmt:message key="userDetail.change_password.label" /></a></td></tr>
           </sec:authorize>	
 
-         <tr><td colspan=2 align=left></br><b>Lab Users:</b></td></tr>
+         <tr><td colspan=2 align=left></br><b><fmt:message key="userDetail.lab_users.label" />:</b></td></tr>
          <c:forEach items="${user.labUser}" var="ul">
     	  <tr>
             <td><a href="/wasp/lab/detail/<c:out value="${ul.lab.labId}" />.do"><c:out value="${ul.lab.name}" /></a></td>
@@ -64,14 +59,14 @@
           </tr>
         </c:forEach>
           
-		 <tr><td colspan=2 align=left></br><b>Samples:</b></td></tr>
+		 <tr><td colspan=2 align=left></br><b><fmt:message key="userDetail.samples.label" />:</b></td></tr>
          <c:forEach items="${user.sample}" var="sample">
     	  <tr>
             <td><a href="/wasp/sample/detail/<c:out value="${sample.sampleId}" />.do"><c:out value="${sample.name}" /></a></td>           
           </tr>
         </c:forEach>
 		
-         <tr><td colspan=2 align=left></br><b>Jobs:</b></td></tr>
+         <tr><td colspan=2 align=left></br><b><fmt:message key="userDetail.jobs.label" />:</b></td></tr>
          <c:forEach items="${user.job}" var="job">
     	  <tr>
             <td><a href="/wasp/job/detail/<c:out value="${job.jobId}" />.do"><c:out value="${job.name}" /></a></td>           

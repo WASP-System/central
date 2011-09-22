@@ -2,7 +2,7 @@
 
 <html>
   <head>
-   <title><fmt:message key="department.detail.label" /></title>
+   <title><fmt:message key="department.detail_page_title.label" /></title>
    <script language="JavaScript">
 		<!--
 		function validate(){
@@ -25,30 +25,30 @@
     <h2><fmt:message key="department.detail_administrators.label" /></h2>
     
     <div>
-    <h3><fmt:message key="department.detail.createadmin.label" /></h3>
+    <h3><fmt:message key="department.detail_createadmin.label" /></h3>
     <font color="red"><wasp:message /></font>
     <form name="f" action="<c:url value='/department/user/roleAdd.do'/>" method="POST" onsubmit='return validate();'>
-      <fmt:message key="department.detail.email.label" />: 
+      <fmt:message key="department.detail_email.label" />: 
       <input type='hidden' name='departmentId' value='<c:out value="${department.departmentId}" />'/>
       <input type='text' name='useremail' value=''/>
-      <input type="submit" value="<fmt:message key="department.detail.submit" />" /> 
+      <input type="submit" value="<fmt:message key="department.detail_submit.label" />" /> 
     </form>
     </div>
-    <h3><fmt:message key="department.detail.existingadmin.label" /></h3>
+    <h3><fmt:message key="department.detail_existingadmin.label" /></h3>
     <c:forEach items="${departmentuser}" var="u">
       <p>
       <a href="/wasp/user/detail/<c:out value="${u.user.userId}" />.do"><c:out value="${u.user.login}" /></a>
         <c:out value="${u.user.firstName}" />
         <c:out value="${u.user.lastName}" />
         <a href="/wasp/department/user/roleRemove/<c:out value="${department.departmentId}" />/<c:out value="${u.user.userId}" />.do">
-          <fmt:message key="department.detail.remove" />
+          <fmt:message key="department.detail_remove.label" />
         </a>
       </p>
     </c:forEach>
 
     
 
-    <h2><fmt:message key="department.detail.labs.label" /></h2>
+    <h2><fmt:message key="department.detail_labs.label" /></h2>
     <c:forEach items="${lab}" var="l">
       <div>
         <a href="/wasp/lab/detail_ro/<c:out value="${department.departmentId}" />/<c:out value="${l.labId}" />.do">
@@ -57,7 +57,7 @@
       </div>
     </c:forEach>
 
-    <h2><fmt:message key="department.detail.pendinglabs.label" /></h2>
+    <h2><fmt:message key="department.detail_pendinglabs.label" /></h2>
     <c:forEach items="${labpending}" var="lp">
       <div>
       	<a href="/wasp/lab/pending/detail_ro/<c:out value="${department.departmentId}" />/<c:out value="${lp.labPendingId}" />.do">

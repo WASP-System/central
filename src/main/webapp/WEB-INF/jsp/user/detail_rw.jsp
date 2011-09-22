@@ -1,10 +1,10 @@
 <%@ include file="/WEB-INF/jsp/include.jsp" %>
 
 <html>
-  <head><title><fmt:message key="user.detail.label" /></title><head>
+  <head><title><fmt:message key="userDetail.page_title.label" /></title><head>
   <body>
     
-    <h1><fmt:message key="user.detail.label" /></h1>
+    <h1><fmt:message key="userDetail.page_title.label" /></h1>
 
     <font color="blue"><wasp:message /></font>  
     
@@ -17,7 +17,6 @@
     <form:form commandName="user">
     
      <table>
-     	  <tr><td colspan=2 align=left></br><b><fmt:message key="user.detail.subtitle" />:</b></td></tr>
      	   <c:if test="${user.userId == 0}">
      	   <tr>
               <td><fmt:message key="user.login.label" />:</td>
@@ -76,8 +75,8 @@
           <tr>
               <td colspan="2" align=left>
               	  <!-- input type="button" onclick='location="/wasp/user/me_ro.do"' value="Cancel" /--> 
-              	  <a href="/wasp/user/me_ro.do"><input type="button" value="Cancel" /></a>
-                  <input type="submit" value="Save Changes" />
+              	  <a href="/wasp/user/me_ro.do"><input type="button" value="<fmt:message key="userDetail.cancel.label" />" /></a>
+                  <input type="submit" value="<fmt:message key="userDetail.save.label" />" />
               </td>
           </tr>    
          <c:if  test="${user.userId > 0}">

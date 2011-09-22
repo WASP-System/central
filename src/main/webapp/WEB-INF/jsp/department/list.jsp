@@ -7,7 +7,7 @@
 		function validate(){
 			//alert("test123"); return false;
 			var error = false;
-			var message = '<fmt:message key="department.list.missingparam.error" />';
+			var message = '<fmt:message key="department.list_missingparam.error" />';
 			if(document.f.name.value == ""){
 				error = true
 				document.f.name.focus();
@@ -26,7 +26,7 @@
 	  <font color="red"><wasp:message /></font>
     	<form name="f" action="<c:url value='/department/create.do'/>" method="POST" onsubmit='return validate();'>
       		<fmt:message key="department.list_department.label" />: <input type='text' name='name' value=''/><br/>
-      		<input type="submit" value="<fmt:message key="department.list.submit" />" />
+      		<input type="submit" value="<fmt:message key="department.list.data" />" />
     	</form>
 	</div>
 

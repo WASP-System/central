@@ -377,8 +377,10 @@ public class UserController extends WaspController {
 			SessionStatus status, ModelMap m) {
 		User user = this.getAuthenticatedUser();		
 
-		updateDetail(user.getUserId(), userForm, result, status, m);
-
+		String returnPath = updateDetail(user.getUserId(), userForm, result, status, m);
+		if (result.hasErrors()) {
+			return returnPath;
+		}
 		return "redirect:" + "/user/me_rw.do";
 	}
 	
@@ -434,7 +436,7 @@ public class UserController extends WaspController {
 		
 		status.setComplete();
 
-		waspMessage("user.updated.success");
+		waspMessage("user.updated_success.label");
 		
 		//emailService.sendNewPassword(userDb, "new pass");
 		

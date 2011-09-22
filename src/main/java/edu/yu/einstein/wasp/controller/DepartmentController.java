@@ -138,19 +138,19 @@ public class DepartmentController extends WaspController {
     ModelMap m) {
 
 	if( "".equals(useremail.trim()) ){
-		waspMessage("department.detail.missingparam.error");
+		waspMessage("department.detail_missingparam.error");
 	}
 	else{
 		User user = userService.getUserByEmail(useremail.trim());
 		if(user.getUserId()==0){
-			waspMessage("department.detail.emailnotfound.error");
+			waspMessage("department.detail_emailnotfound.error");
 		}
 		else{
 			DepartmentUser departmentUser = new DepartmentUser(); 
 			departmentUser.setDepartmentId(departmentId); 
 			departmentUser.setUserId(user.getUserId()); 
 			departmentUserService.save(departmentUser);
-			waspMessage("department.detail.ok");
+			waspMessage("department.detail_ok.label");
 			
 			// if i am the user,  reauth
 			User me = getAuthenticatedUser();
