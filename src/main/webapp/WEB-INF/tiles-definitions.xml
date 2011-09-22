@@ -48,7 +48,8 @@
 <definition name="auth/forgotpassword/email" template="/WEB-INF/jsp/auth/forgotpassword/email.jsp"/>
 <definition name="auth/forgotpassword/form" template="/WEB-INF/jsp/auth/forgotpassword/form.jsp"/>
 <definition name="auth/newuser/form" template="/WEB-INF/jsp/auth/newuser/form.jsp"/>
-<definition name="auth/newuser/ok" template="/WEB-INF/jsp/auth/newuser/ok.jsp"/>
+<definition name="auth/newuser/emailok" template="/WEB-INF/jsp/auth/newuser/emailok.jsp"/>
+<definition name="auth/newuser/created" template="/WEB-INF/jsp/auth/newuser/created.jsp"/>
 <definition name="auth/newpi/form" template="/WEB-INF/jsp/auth/newpi/form.jsp"/>
 <definition name="auth/newpi/ok" template="/WEB-INF/jsp/auth/newpi/ok.jsp"/>
 
@@ -58,7 +59,6 @@
 
 
 <definition name="auth/confirmemail/authcodeform" template="/WEB-INF/jsp/auth/confirmemail/authcodeform.jsp"/>
-<definition name="auth/confirmemail/ok" template="/WEB-INF/jsp/auth/confirmemail/ok.jsp"/>
 
  <definition name="dashboard" template="/WEB-INF/jsp/dashboard.jsp"/>
    

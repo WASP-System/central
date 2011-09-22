@@ -197,7 +197,7 @@ public class UserPendingController extends WaspController {
 		emailService.sendPendingUserEmailConfirm(userPendingForm, authcode);
 		request.getSession().removeAttribute(Captcha.NAME); // ensures fresh capcha issued if required in this session
 		status.setComplete();
-		return "redirect:/auth/newuser/ok.do";
+		return "redirect:/auth/newuser/created.do";
 	}
 
 	@RequestMapping(value="/newpi", method=RequestMethod.GET)
@@ -307,10 +307,11 @@ public class UserPendingController extends WaspController {
 			  waspMessage("auth.confirmemail_corruptemail.error");
 			  return "auth/confirmemail/authcodeform"; 
 		  }
-		  
+		  userPending.setStatus("PENDING");
+		  userPendingService.save(userPending);
 		  confirmEmailAuthService.remove(confirmEmailAuth);
-		  request.getSession().removeAttribute(Captcha.NAME); // ensures fresh capcha issued if required in this session
-		  return "auth/confirmemail/ok";
+		  emailService.sendPendingUserPrimaryConfirm(userPending);
+		  return "/auth/newuser/emailok.do";
 	  }
 	
 	 @RequestMapping(value="/confirmemail", method=RequestMethod.POST)
@@ -350,8 +351,8 @@ public class UserPendingController extends WaspController {
 		  userPendingService.save(userPending);
 		  confirmEmailAuthService.remove(confirmEmailAuth);
 		  request.getSession().removeAttribute(Captcha.NAME); // ensures fresh capcha issued if required in this session
-		  //TODO:  add logic to make sure email address is confirmed before activating account
-		  return "auth/confirmemail/ok";
+		  emailService.sendPendingUserPrimaryConfirm(userPending);
+		  return "redirect:/auth/newuser/emailok.do";
 	  }
 
 }

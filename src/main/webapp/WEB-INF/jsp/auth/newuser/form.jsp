@@ -48,6 +48,7 @@
               </c:forEach>
             </select>
           </td>
+          <td><form:errors path="locale" /></td>
         </tr>
 
           <c:set var="_area" value = "userPending" scope="request"/>

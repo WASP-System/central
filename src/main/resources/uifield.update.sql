@@ -695,3 +695,12 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) select 'en_
 delete from uifield where area='user' and name='department' and attrName='error';
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) select 'en_US','user','department','error','A department must be selected',userId from user where login='superuser';
 
+delete from uifield where area='userPending' and name='emailsent' and attrName='data';
+update uifield set name='emailsent', attrValue='Thank you for your account request. You have been sent an email with instructions as to how to confirm your email address. Please click to <a href="wasp/auth/login.do"/>Login</a>' where area='userPending' and name='emailsent' and attrName='label';
+
+delete from uifield where area='auth' and name='confirmemailok' and attrName='data';
+delete from uifield where area='auth' and name='confirmemailok' and attrName='label';
+delete from uifield where area='userPending' and name='emailconfirmed' and attrName='label';
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) select 'en_US','userPending','emailconfirmed','label','Thank you for confirming your email address. Your principle investigator has been emailed to request confirmation of your eligibility to join their lab and you are advised to contact them to request they do this if your account does not become activated in good time.',userId from user where login='superuser';
+update uifield set area='userPending', name='emailconfirmed_title' where area='auth' and name='confirmemailok_title' and attrName='label';
+
