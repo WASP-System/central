@@ -11,17 +11,20 @@
 
 package edu.yu.einstein.wasp.model;
 
-import java.util.Date;
 import java.util.List;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
-
-import org.hibernate.validator.constraints.*;
-
-import org.codehaus.jackson.annotate.JsonIgnore;
 
 @Entity
 @Audited
@@ -279,6 +282,35 @@ public class SubtypeSample extends WaspModel {
 	 */
 	public void setSampleDraft (List<SampleDraft> sampleDraft) {
 		this.sampleDraft = sampleDraft;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + subtypeSampleId;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		SubtypeSample other = (SubtypeSample) obj;
+		if (subtypeSampleId != other.subtypeSampleId)
+			return false;
+		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "SubtypeSample [subtypeSampleId=" + subtypeSampleId
+				+ ", typeSampleId=" + typeSampleId + ", iName=" + iName
+				+ ", name=" + name + "]";
 	}
 
 

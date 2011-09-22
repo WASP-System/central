@@ -75,6 +75,63 @@ public class UiFieldDaoImpl extends WaspDaoImpl<UiField> implements edu.yu.einst
 		  return !((List)res).isEmpty();
 		  
 	 }
+
+  private void process(StringBuffer result,String value) {
+      if (value==null) {
+    	  result.append("NULL");
+      } else {
+    	  String outputValue = value.toString();
+          outputValue = outputValue.replaceAll("'","\\'");
+          result.append("'"+outputValue+"'");
+      }
+
+  }
+  
+  private void process(StringBuffer result,Integer value) {
+      if (value==null) {
+    	  result.append("NULL");
+      } else {
+    	  String outputValue = value.toString();         
+          result.append(outputValue);
+      }
+
+  }
+  
+  public String dumpUiFieldTable() {
+	  
+	  final List<UiField> all = super.findAll();
+	  
+	  Object res = getJpaTemplate().execute(new JpaCallback() {
+
+		   public Object doInJpa(EntityManager em) throws PersistenceException {
+			   
+				  StringBuffer result = new StringBuffer("truncate table uifield;\n");
+				  
+				  for(UiField f:all) {
+					  result.append("insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values(");
+					  process(result,f.getLocale());
+					  result.append(",");
+					  process(result,f.getArea());
+					  result.append(",");
+					  process(result,f.getName());
+					  result.append(",");
+					  process(result,f.getAttrName());
+					  result.append(",");
+					  process(result,f.getAttrValue());
+					  result.append(",");
+					  process(result,f.getLastUpdUser());
+					  result.append(");\n");
+				  }
+	              
+				  
+				  return result+"";
+		   }
+	  });
+		
+	  return (String)res;
+	  }
+		   
+	
   
 }
 

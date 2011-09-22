@@ -44,7 +44,7 @@ html, body {
   	for (var i = 0; i < depth; i++)
 	    indent += "  ";
 
-	  var output = "";  
+	var output = "";  
   	for (var key in object){
 	    output += "\n" + indent + key + ": ";
 	    switch (typeof object[key]){
@@ -144,6 +144,16 @@ html, body {
    }
  
   
+  function getCellValue(rowId, cellId) {
+	    var cell = jQuery('#' + rowId + '_' + cellId);
+	    
+	    var val = cell.val();
+	   
+	    return val;
+	}
+	
+	
+  
 
   var _beforeShowAddForm = function(formId) {
 	   
@@ -177,12 +187,12 @@ html, body {
   var _editurl='/wasp/<tiles:insertAttribute name="area" />/detail_rw/updateJSON.do';
   
   var _editAttr={
-		  width:'auto',closeAfterEdit:true,closeOnEscape:true,afterSubmit:_afterSubmit,errorTextFormat:_errorTextFormat,beforeShowForm:_beforeShowEditForm,reloadAfterSubmit:true
+		  width:'auto',closeAfterEdit:true,closeOnEscape:true,afterSubmit:_afterSubmit,errorTextFormat:_errorTextFormat,beforeShowForm:_beforeShowEditForm,reloadAfterSubmit:true,recreateForm:true
   };
   
   var _addAttr={
 	serializeEditData: function(data){ return $.param($.extend({}, data, {id:0}));},//pass '0' on add instead of empty string
-	closeAfterAdd:true,closeOnEscape:true,errorTextFormat:_errorTextFormat,afterSubmit:_afterSubmit,beforeShowForm:_beforeShowAddForm,width:'auto',reloadAfterSubmit:true
+	closeAfterAdd:true,closeOnEscape:true,errorTextFormat:_errorTextFormat,afterSubmit:_afterSubmit,beforeShowForm:_beforeShowAddForm,width:'auto',reloadAfterSubmit:true,recreateForm:true
   };
   
   var _delAttr={};
@@ -258,7 +268,7 @@ html, body {
  
 $(function(){
 		
-$("#grid_id").jqGrid({
+var navGrid=$("#grid_id").jqGrid({
   url:_url,
   editurl:_editurl,
   datatype: 'json',
@@ -301,7 +311,7 @@ $("#grid_id").jqGrid({
 	        }
 	    
   },
-  ondblClickRow: function(rowid) {
+  ondblClickRow: function(rowid) {			
   	$("#grid_id").jqGrid('editGridRow',rowid,_editAttr);
  }
 }).navGrid('#gridpager',
@@ -312,6 +322,22 @@ $("#grid_id").jqGrid({
 		  _searchAttr, // search
 		  _editAttr
 );
+
+<c:forEach items="${_metaBySubtypeList}" var="_entry" varStatus="_substatus">
+<c:set var="_subtype" value="${_entry.key}"/>
+<c:set var="_validMetaFields" value="${_entry.value}"/>
+
+navGrid.navButtonAdd("#gridpager",{
+	   caption:"${_subtype.name}", 	 
+	   onClickButton: function(){				   
+
+		   var  _myAddAttr = jQuery.extend({subtypeSampleId:${_subtype.subtypeSampleId}}, _addAttr);
+		   
+		   $("#grid_id").jqGrid('editGridRow',"new", _myAddAttr); 
+	   }, 
+	   position:"first"
+});
+</c:forEach>
 
 if (_enableFilterToolbar) {
 	$('#grid_id').jqGrid('filterToolbar', { stringResult: true, searchOnEnter: false });

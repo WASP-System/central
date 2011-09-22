@@ -1,7 +1,7 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
 <wasp:field name="name"  type="text"/>
-<wasp:field name="typeSampleId" type="select" items="${typeSamples}" itemValue="typeSampleId" itemLabel="name"/>
+<wasp:field name="subtypeSampleId" type="select" items="${subtypeSamples}" itemValue="subtypeSampleId" itemLabel="name"/>
 <wasp:field name="status" type="select" items="${statuses}" />
 <wasp:field name="fileData" type="file" >
 
@@ -99,7 +99,9 @@ _editurl='/wasp/jobsubmit/updateSampleDraft.do?jobdraftId=${jobdraftId}';
 <%-- disable search --%>
 _navAttr.search=false;
 
-
+ _navAttr.view=false;
+ _navAttr.edit=false;
+ _navAttr.add=false;
  
 
   

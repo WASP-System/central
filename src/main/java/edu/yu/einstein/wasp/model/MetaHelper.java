@@ -247,41 +247,7 @@ public class MetaHelper {
 					p.setFormVisibility(MetaAttribute.FormVisibility.editable); // set default form visibility
 				}
 
-				String controlStr = bundleResource.get(name + ".control");
-
-				if (controlStr != null) {
-					String typeStr=controlStr.substring(0,controlStr.indexOf(":"));
-	
-					MetaAttribute.Control.Type type=MetaAttribute.Control.Type.valueOf(typeStr);
-					MetaAttribute.Control control=new MetaAttribute.Control();
-					control.setType(MetaAttribute.Control.Type.select);
-					p.setControl(control);
-	
-					if (controlStr.startsWith("select:${")) {
-						String [] els=StringUtils.tokenizeToStringArray(controlStr,":");
-						if (els==null || els.length!=4) {
-							throw new IllegalStateException(controlStr+" must match 'select:${beanName}:itemValue:itemLabel' pattern");
-						}
-	
-						String beanName=els[1].replace("${","").replace("}", "");
-						control.setItems(beanName);
-						control.setItemValue(els[2]);
-						control.setItemLabel(els[3]);
-					} else {
-						List<MetaAttribute.Control.Option> options=new ArrayList<MetaAttribute.Control.Option>();
-	
-						String[] pairs=StringUtils.tokenizeToStringArray(controlStr.substring(controlStr.indexOf(":")+1),";");
-	
-						for(String el:pairs) {
-							String [] pair=StringUtils.split(el,":");
-							MetaAttribute.Control.Option option = new MetaAttribute.Control.Option();
-							option.setValue(pair[0]);
-							option.setLabel(pair[1]);
-							options.add(option);
-						}
-						control.setOptions(options);
-					}
-				}
+				p.setControl(MetaUtil.getControl(name + ".control", locale));
 
 				list.add(obj);
 			} catch (Exception e) {

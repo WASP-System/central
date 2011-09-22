@@ -22,5 +22,7 @@ public interface UiFieldService extends WaspService<UiField> {
 
 	List<String> getUniqueAreas();
 	boolean exists(String locale, String area, String name, String attrName);
+	
+	String dumpUiFieldTable();
 }
 

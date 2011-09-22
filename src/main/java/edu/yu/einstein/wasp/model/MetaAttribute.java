@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+
 import javax.persistence.Transient;
 
 /*
@@ -16,7 +17,8 @@ public final class MetaAttribute implements Serializable {
 		public static enum Area {
 			ampliconSeq,
 			cgh,
-			chipSeq,
+			chipSeqdna,
+			chipSeqlibrary,
 			controlMicroarray,
 			controlSeq,
 			deNovoSeq,
@@ -46,25 +48,28 @@ public final class MetaAttribute implements Serializable {
 			userPending,
 
 		}
-		
+			
 		public static enum FormVisibility {
 			editable,
 			immutable,
 			ignore
 		}
-			
+		
 		private String label;
 
 		private String error;
 
 		private String constraint;
+		
+		private String suffix;
 
+		private FormVisibility formVisibility;
+		
+		
 		private Control control;
 
 		private int metaposition;
 
-		private FormVisibility formVisibility;
-		
 		public void setFormVisibility(FormVisibility formVisibility){
 			this.formVisibility = formVisibility;
 		}
@@ -113,6 +118,13 @@ public final class MetaAttribute implements Serializable {
 			this.control = control;
 		}
 		
+		public String getSuffix() {
+			return suffix;
+		}
+
+		public void setSuffix(String suffix) {
+			this.suffix = suffix;
+		}
 		
 
 		public static final class Control implements Serializable{
@@ -228,6 +240,9 @@ public final class MetaAttribute implements Serializable {
 			  this.code=code;
 			  this.name=name;
 		}
+		
+		
+
 		
 		  
 		@Override
@@ -565,5 +580,5 @@ public final class MetaAttribute implements Serializable {
 
 		}
 	} 
-	  
+		 
 }

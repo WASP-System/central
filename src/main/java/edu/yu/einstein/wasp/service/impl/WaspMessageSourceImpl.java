@@ -31,6 +31,12 @@ public class WaspMessageSourceImpl extends AbstractMessageSource implements Mess
 	private final Map<String, String> messages = new HashMap<String, String>();
 
 	
+	public boolean contains(String code, Locale locale)  {
+		String key = code + "_" + locale.toString();
+		
+		return messages.containsKey(key) && messages.get(key)!=null;
+	}
+	
 	
 	private final Map<String, MessageFormat> cachedMessageFormats = new HashMap<String, MessageFormat>();
 

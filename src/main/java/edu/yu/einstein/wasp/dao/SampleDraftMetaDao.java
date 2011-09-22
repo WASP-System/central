@@ -12,8 +12,10 @@
 package edu.yu.einstein.wasp.dao;
 
 import java.util.List;
+import java.util.Map;
 
 import edu.yu.einstein.wasp.model.SampleDraftMeta;
+import edu.yu.einstein.wasp.model.SubtypeSample;
 
 
 public interface SampleDraftMetaDao extends WaspDao<SampleDraftMeta> {
@@ -24,7 +26,7 @@ public interface SampleDraftMetaDao extends WaspDao<SampleDraftMeta> {
 
   public void updateBySampledraftId (final int sampledraftId, final List<SampleDraftMeta> metaList);
   
-  List<SampleDraftMeta> getAllMetaFields();
+  Map<SubtypeSample,List<SampleDraftMeta>> getAllowableMetaFields(final int workflowId);
 
 }
 

@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -87,7 +88,7 @@ public class UiFieldController extends WaspController {
 	  }
 	  
 	@RequestMapping("/list")
-	@PreAuthorize("hasRole('god')")
+	//@PreAuthorize("hasRole('god')")
 	public String list(ModelMap m,HttpServletResponse response) {
 		
 		Map<String, String> areas=new TreeMap<String, String>();
@@ -191,7 +192,7 @@ public class UiFieldController extends WaspController {
 		this.uiFieldService.remove(uiFieldService.findById(uiFieldId));
 		
 		try {
-			response.getWriter().println(getMessage("uiField.removed.success.data"));
+			response.getWriter().println(getMessage("uiField.removed.data"));
 			return null;
 		} catch (Throwable e) {
 			throw new IllegalStateException("Cant output success message ",e);
@@ -259,7 +260,26 @@ public class UiFieldController extends WaspController {
 		return new BufferedOutputStream(new FileOutputStream(f, true));
 	}
 
-	
+	@RequestMapping(value = "/dump", method = RequestMethod.GET)	
+	public String dumpUiFieldTable(HttpServletResponse response) {
+		
+		
+		try {
+			String sql=this.uiFieldService.dumpUiFieldTable();
+			String mimeType = "application/octet-stream";
+			response.setContentType(mimeType);
+			response.setContentLength( sql.getBytes("UTF-8").length);
+			response.setHeader( "Content-Disposition", "attachment; filename=\"uifield.update.sql\"" );
+			PrintWriter writer=response.getWriter();			
+			writer.print(sql);
+			writer.flush();
+			writer.close();
+			return null;
+		} catch (Throwable e) {
+			throw new IllegalStateException("Cant output success message ",e);
+		}
+	}
+    
 }
 
 

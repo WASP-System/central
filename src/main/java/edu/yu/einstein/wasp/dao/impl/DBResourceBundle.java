@@ -68,7 +68,8 @@ public class DBResourceBundle extends JpaDaoSupport implements ApplicationContex
 			
 			String sql = FileUtils.readFileToString(uifield.getFile());
 
-			final String[] statements=StringUtils.split(sql,';');
+			//final String[] statements=StringUtils.splitByWholeSeparator(sql,";\n");
+			final String[] statements=sql.split(";\\s*\\n");
 			
 			
 			getJpaTemplate().execute(new JpaCallback() {
@@ -87,6 +88,7 @@ public class DBResourceBundle extends JpaDaoSupport implements ApplicationContex
 						if (StringUtils.containsIgnoreCase(st, "insert")
 							|| StringUtils.containsIgnoreCase(st, "update")
 							|| StringUtils.containsIgnoreCase(st, "delete")
+							|| StringUtils.containsIgnoreCase(st, "truncate")
 						) {
 																						
 							log.info("Executing ["+st+"]");
@@ -139,8 +141,8 @@ public class DBResourceBundle extends JpaDaoSupport implements ApplicationContex
 			String key = f.getArea() + "." + f.getName() + "."
 					+ f.getAttrName();
 			if (f.getLocale()==null || f.getLocale().length()!=5) {
-				log.error("invalid locale "+f);
-				continue;
+				log.error("invalid locale, defaulting to US "+f);
+				f.setLocale("en_US");
 			}
 			
 			String lang = f.getLocale().substring(0, 2);

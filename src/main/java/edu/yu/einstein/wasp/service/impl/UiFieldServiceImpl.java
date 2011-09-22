@@ -38,5 +38,9 @@ public class UiFieldServiceImpl extends WaspServiceImpl<UiField> implements UiFi
 		  return this.dao.exists(locale, area, name, attrName);
 	  }
 	
+	  public String dumpUiFieldTable() {
+		  return this.dao.dumpUiFieldTable();
+	  }
+	  
 }
 

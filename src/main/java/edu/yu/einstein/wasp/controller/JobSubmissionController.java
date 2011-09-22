@@ -3,15 +3,17 @@ package edu.yu.einstein.wasp.controller;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.Map;
 import java.util.HashMap;
-import java.util.TreeMap;
-import java.util.Set;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
@@ -33,45 +35,45 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
-import edu.yu.einstein.wasp.model.JobDraftMeta;
 import edu.yu.einstein.wasp.model.JobDraftCell;
+import edu.yu.einstein.wasp.model.JobDraftMeta;
 import edu.yu.einstein.wasp.model.JobMeta;
-import edu.yu.einstein.wasp.model.JobUser;
 import edu.yu.einstein.wasp.model.JobSample;
+import edu.yu.einstein.wasp.model.JobUser;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.MetaHelper;
 import edu.yu.einstein.wasp.model.Role;
-import edu.yu.einstein.wasp.model.SampleDraft;
-import edu.yu.einstein.wasp.model.SampleDraftMeta;
-import edu.yu.einstein.wasp.model.SampleDraftCell;
 import edu.yu.einstein.wasp.model.Sample;
-import edu.yu.einstein.wasp.model.SampleMeta;
+import edu.yu.einstein.wasp.model.SampleDraft;
+import edu.yu.einstein.wasp.model.SampleDraftCell;
+import edu.yu.einstein.wasp.model.SampleDraftMeta;
 import edu.yu.einstein.wasp.model.SampleFile;
-import edu.yu.einstein.wasp.model.TypeSample;
+import edu.yu.einstein.wasp.model.SampleMeta;
+import edu.yu.einstein.wasp.model.SubtypeSample;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Workflow;
 import edu.yu.einstein.wasp.service.FileService;
-import edu.yu.einstein.wasp.service.JobDraftService;
-import edu.yu.einstein.wasp.service.JobDraftMetaService;
 import edu.yu.einstein.wasp.service.JobDraftCellService;
+import edu.yu.einstein.wasp.service.JobDraftMetaService;
+import edu.yu.einstein.wasp.service.JobDraftService;
 import edu.yu.einstein.wasp.service.JobMetaService;
+import edu.yu.einstein.wasp.service.JobSampleService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.JobUserService;
-import edu.yu.einstein.wasp.service.JobSampleService;
 import edu.yu.einstein.wasp.service.RoleService;
-import edu.yu.einstein.wasp.service.SampleDraftService;
-import edu.yu.einstein.wasp.service.SampleDraftMetaService;
 import edu.yu.einstein.wasp.service.SampleDraftCellService;
-import edu.yu.einstein.wasp.service.SampleService;
-import edu.yu.einstein.wasp.service.SampleMetaService;
+import edu.yu.einstein.wasp.service.SampleDraftMetaService;
+import edu.yu.einstein.wasp.service.SampleDraftService;
 import edu.yu.einstein.wasp.service.SampleFileService;
+import edu.yu.einstein.wasp.service.SampleMetaService;
+import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.service.SubtypeSampleService;
 import edu.yu.einstein.wasp.service.TypeSampleService;
 import edu.yu.einstein.wasp.service.WorkflowService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
@@ -127,6 +129,9 @@ public class JobSubmissionController extends WaspController {
 	
 	@Autowired
 	private TypeSampleService typeSampleService;
+	
+	@Autowired
+	private SubtypeSampleService subTypeSampleService;
 	
 	@Autowired
 	private WorkflowService workflowService;
@@ -351,15 +356,23 @@ public class JobSubmissionController extends WaspController {
 	@RequestMapping(value="/samples/{jobDraftId}", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('lu-*')")
 	public String showSampleDraft(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
-		MetaHelper sampleMetaHelper = new MetaHelper("sampleDraft", SampleDraftMeta.class, request.getSession());
-
-		sampleMetaHelper.getMasterList(JobDraftMeta.class);
-
-		m.addAttribute("_metaList", sampleMetaHelper.getMasterList(SampleDraftMeta.class));
+	
+		int workflowId=jobDraftService.findById(jobDraftId).getWorkflow().getWorkflowId();
+		Map<SubtypeSample,List<SampleDraftMeta>>allowedMetaFields=sampleDraftMetaService.getAllowableMetaFields(workflowId);
+		
+		Set<SampleDraftMeta> allowedMetaFieldsSet = new LinkedHashSet<SampleDraftMeta>(); 
+		
+		for(List<SampleDraftMeta> metaList:allowedMetaFields.values()) {
+			allowedMetaFieldsSet.addAll(metaList);
+		}
+		
+		m.addAttribute("_metaList", allowedMetaFieldsSet);
+		m.addAttribute("_metaBySubtypeList", allowedMetaFields);
+		
 		m.addAttribute(JQFieldTag.AREA_ATTR, "sampleDraft");		
 		prepareSelectListData(m);
 		m.addAttribute("jobdraftId",jobDraftId);
-		m.addAttribute("uploadStartedMessage",getMessage("sampleDraft.fileupload_started.data"));
+		m.addAttribute("uploadStartedMessage",getMessage("sampleDraft.fileupload_started.data")); 
 		return "jobsubmit-sample";
 
 	}
@@ -639,9 +652,15 @@ public class JobSubmissionController extends WaspController {
 			
 			List<Map> rows = new ArrayList<Map>();
 			
-			Map<Integer, String> allSampleTypes=new TreeMap<Integer, String>();
-			for(TypeSample type:(List<TypeSample>)typeSampleService.findAll()) {
-				allSampleTypes.put(type.getTypeSampleId(),type.getName());
+			Map<Integer, String> allSampleSubTypes=new TreeMap<Integer, String>();
+			for(SubtypeSample type:(List<SubtypeSample>)subTypeSampleService.findAll()) {
+				allSampleSubTypes.put(type.getSubtypeSampleId(),type.getName());
+			}
+			
+			Set<SampleDraftMeta> allowedMetaFields=new LinkedHashSet<SampleDraftMeta>();
+			
+			for(List<SampleDraftMeta> metaList:sampleDraftMetaService.getAllowableMetaFields(workflowId).values()) {
+				allowedMetaFields.addAll(metaList);
 			}
 			
 			for (SampleDraft draft : drafts) {
@@ -649,32 +668,16 @@ public class JobSubmissionController extends WaspController {
 				cell.put("id", draft.getSampleDraftId());
 			
 				MetaHelper sampleMetaHelper = new MetaHelper("sampleDraft", SampleDraftMeta.class, request.getSession());
+								
+				List<SampleDraftMeta> draftMeta=sampleMetaHelper.syncWithMaster(draft.getSampleDraftMeta(),new ArrayList<SampleDraftMeta>(allowedMetaFields));
 				
+				String fileCell=getFileCell(draft.getFile());
 				
-				
-				List<SampleDraftMeta> draftMeta=sampleMetaHelper.syncWithMaster(draft.getSampleDraftMeta());
-				String fileCell="";
-				if (draft.getFile()!=null ) {
-					String fileName=draft.getFile().getFilelocation();
-					if (fileName!=null && ( fileName.indexOf('/')>-1 || fileName.indexOf('\\')>-1)) {
-						int idx = fileName.lastIndexOf('/');
-						if (idx==-1) idx = fileName.lastIndexOf('\\');
-						fileName=fileName.substring(idx+1);						
-					}
-					
-					if (fileName!=null && fileName.indexOf('.')>-1) {
-						int idx = fileName.lastIndexOf('.');
-						fileName=fileName.substring(0,idx);		
-					}
-					
-					fileCell="<a href='/wasp/jobsubmit/downloadFile.do?id="+draft.getFile().getFileId()+"'>"+fileName+"</a> "+draft.getFile().getSizek()+"kB";
-				}
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 						draft.getName(),
-						allSampleTypes.get(draft.getTypeSampleId()),							
-						draft.getStatus(),
+						allSampleSubTypes.get(draft.getSubtypeSampleId()),							
+						draft.getStatus(),						
 						fileCell
-							
 				})); 
 			
 				for(SampleDraftMeta meta:draftMeta) {
@@ -696,7 +699,23 @@ public class JobSubmissionController extends WaspController {
 	}
 
 
+	private String getFileCell( edu.yu.einstein.wasp.model.File file) {
+		if (file==null) return "";
+		String fileName=file.getFilelocation();
+		if (fileName!=null && ( fileName.indexOf('/')>-1 || fileName.indexOf('\\')>-1)) {
+			int idx = fileName.lastIndexOf('/');
+			if (idx==-1) idx = fileName.lastIndexOf('\\');
+			fileName=fileName.substring(idx+1);						
+		}
 		
+		if (fileName!=null && fileName.indexOf('.')>-1) {
+			int idx = fileName.lastIndexOf('.');
+			fileName=fileName.substring(0,idx);		
+		}
+		
+		return "<a href='/wasp/jobsubmit/downloadFile.do?id="+file.getFileId()+"'>"+fileName+"</a> "+file.getSizek()+"kB";
+	}
+	
 	@RequestMapping(value = "/uploadFile", method = RequestMethod.POST)		
 	public String uploadFile(@RequestParam("id") Integer sampleDraftId,SampleDraft sampleDraftForm, ModelMap m, HttpServletResponse response) {
 		 	
@@ -779,11 +798,7 @@ public class JobSubmissionController extends WaspController {
 			SampleDraft sampleDraftForm, ModelMap m,
 			HttpServletResponse response) {
 
-		MetaHelper sampleMetaHelper = new MetaHelper("sampleDraft",SampleDraftMeta.class, request.getSession());
-		List<SampleDraftMeta> sampleDraftMetaList = sampleMetaHelper
-				.getFromJsonForm(request, SampleDraftMeta.class);
-
-		sampleDraftForm.setSampleDraftMeta(sampleDraftMetaList);
+		
 
 		boolean adding = sampleDraftId == 0;
 
@@ -791,16 +806,18 @@ public class JobSubmissionController extends WaspController {
 		JobDraft jd = jobDraftService.findById(sampleDraftForm.getJobdraftId());
 		sampleDraftForm.setUserId(jd.getUserId());
 		sampleDraftForm.setLabId(jd.getLabId());
-
-
-		// TODO SET TO PROPER SUBTYPE
-		sampleDraftForm.setSubtypeSampleId(11);
-
+		
+		SubtypeSample subtype=subTypeSampleService.findById(sampleDraftForm.getSubtypeSampleId());
+		
 		if (adding) {
-
+			
+			//TODO: drop sampleDraftForm.typeSampleId DB column
+			int typeSampleId=subtype.getTypeSample().getTypeSampleId();
+			sampleDraftForm.setTypeSampleId(typeSampleId);
+			
 			SampleDraft sampleDraftDb = this.sampleDraftService
 					.save(sampleDraftForm);
-
+			
 			sampleDraftId = sampleDraftDb.getSampleDraftId();
 		} else {
 
@@ -809,13 +826,23 @@ public class JobSubmissionController extends WaspController {
 
 			sampleDraftDb.setName(sampleDraftForm.getName());
 			sampleDraftDb.setStatus(sampleDraftForm.getStatus());
-			sampleDraftDb.setTypeSampleId(sampleDraftForm.getTypeSampleId());
+			sampleDraftDb.setSubtypeSampleId(sampleDraftForm.getSubtypeSampleId());
 
 			this.sampleDraftService.merge(sampleDraftDb);
 		}
 
-		for (SampleDraftMeta meta : sampleDraftMetaList) {
-			meta.setSampledraftId(sampleDraftId);
+		String area=subtype.getIName().substring(0,subtype.getIName().length()-"Sample".length());//chop Sample suffix
+		
+		MetaHelper sampleMetaHelper = new MetaHelper(area,SampleDraftMeta.class, request.getSession());
+		
+		List<SampleDraftMeta> sampleDraftMetaList = sampleMetaHelper.getFromJsonForm(request, SampleDraftMeta.class);
+
+		sampleDraftForm.setSampleDraftMeta(sampleDraftMetaList);
+		
+		for (Iterator<SampleDraftMeta> it=sampleDraftMetaList.iterator();it.hasNext();) {
+			SampleDraftMeta meta = it.next();
+			if (StringUtils.isEmpty(meta.getV())) it.remove();//remove blank entries
+			else meta.setSampledraftId(sampleDraftId);
 		}
 
 		sampleDraftMetaService.updateBySampledraftId(sampleDraftId,
@@ -910,7 +937,7 @@ public class JobSubmissionController extends WaspController {
 	
 	protected void prepareSelectListData(ModelMap m) {
 		super.prepareSelectListData(m);
-		m.addAttribute("typeSamples",typeSampleService.findAll());
+		m.addAttribute("subtypeSamples",subTypeSampleService.findAll());
 		Map<String, String> statuses=new TreeMap<String, String>();
 		for(SampleDraft.Status status:SampleDraft.Status.values()) {
 			statuses.put(status.name(), status.name());

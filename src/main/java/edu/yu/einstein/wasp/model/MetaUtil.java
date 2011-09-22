@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.util.StringUtils;
 
 import edu.yu.einstein.wasp.dao.impl.DBResourceBundle;
+import edu.yu.einstein.wasp.model.MetaAttribute.Control;
 import edu.yu.einstein.wasp.service.impl.WaspMessageSourceImpl;
 
 /*
@@ -55,47 +56,9 @@ public final class MetaUtil {
 				
 				p.setMetaposition(pos);
 				
-				if (getValue(area,basename,"control")!=null) {
-					String controlStr=getValue(area,basename,"control", locale);
-					String typeStr=controlStr.substring(0,controlStr.indexOf(":"));
-					MetaAttribute.Control.Type type=MetaAttribute.Control.Type.valueOf(typeStr);
-					if (type==MetaAttribute.Control.Type.select) {
-						 				
-						MetaAttribute.Control control=new MetaAttribute.Control();
-						control.setType(MetaAttribute.Control.Type.select); 				
-						p.setControl(control);
-						
-						if (controlStr.startsWith("select:${")) {
-							String [] els=StringUtils.tokenizeToStringArray(controlStr,":");
-							if (els==null || els.length!=4) {
-								throw new IllegalStateException(controlStr+" must match 'select:${beanName}:itemValue:itemLabel' pattern");
-							}
-							
-							String beanName=els[1].replace("${","").replace("}", "");
-							control.setItems(beanName);
-							control.setItemValue(els[2]);
-							control.setItemLabel(els[3]);
-							 					
-						} else {
-						 
-							List<MetaAttribute.Control.Option> options=new ArrayList<MetaAttribute.Control.Option>();
-							
-							String[] pairs=StringUtils.tokenizeToStringArray(controlStr.substring(controlStr.indexOf(":")+1),";");
-										
-							for(String el:pairs) {
-								String [] pair=StringUtils.split(el,":");
-								MetaAttribute.Control.Option option = new MetaAttribute.Control.Option();
-								option.setValue(pair[0]);
-								option.setLabel(pair[1]);
-								options.add(option);
-							}
-							control.setOptions(options);	
-						}
-						
-						 
-						
-					}	
-				}
+				
+				p.setControl(getControl(getValue(area,basename,"control"), locale));
+				
 				
 				p.setLabel(getValue(area,basename,"label", locale));
 				p.setConstraint(getValue(area,basename,"constraint", locale));
@@ -106,18 +69,76 @@ public final class MetaUtil {
 			 Collections.sort( list, META_POSITION_COMPARATOR);
 		 }
 		
+	public static Control getControl(String key, Locale locale) {
+		
+		//WaspMessageSourceImpl
+		if (
+				!
+				((WaspMessageSourceImpl)DBResourceBundle.MESSAGE_SOURCE)
+				.contains(key, locale)
+			) return null;
+		
+		String controlStr=getMessage(key, locale);
+		
+		return getControl(controlStr);
+		
+	}
 	
- private static String getValue(MetaAttribute.Area area, String name, String attribute) {
+	public static Control getControl(String controlStr) {
+		
+		if (controlStr==null) return null;
+		
+		String typeStr=controlStr.substring(0,controlStr.indexOf(":"));
+		
+		MetaAttribute.Control.Type type=MetaAttribute.Control.Type.valueOf(typeStr);
+		
+		if (type!=MetaAttribute.Control.Type.select) return null;
+		
+		MetaAttribute.Control control=new MetaAttribute.Control();
+			
+		control.setType(MetaAttribute.Control.Type.select); 				
+			
+			if (controlStr.startsWith("select:${")) {
+				String [] els=StringUtils.tokenizeToStringArray(controlStr,":");
+				if (els==null || els.length!=4) {
+					throw new IllegalStateException(controlStr+" must match 'select:${beanName}:itemValue:itemLabel' pattern");
+				}
+				
+				String beanName=els[1].replace("${","").replace("}", "");
+				control.setItems(beanName);
+				control.setItemValue(els[2]);
+				control.setItemLabel(els[3]);
+				 					
+			} else {
+			 
+				List<MetaAttribute.Control.Option> options=new ArrayList<MetaAttribute.Control.Option>();
+				
+				String[] pairs=StringUtils.tokenizeToStringArray(controlStr.substring(controlStr.indexOf(":")+1),";");
+							
+				for(String el:pairs) {
+					String [] pair=StringUtils.split(el,":");
+					MetaAttribute.Control.Option option = new MetaAttribute.Control.Option();
+					option.setValue(pair[0]);
+					option.setLabel(pair[1]);
+					options.add(option);
+				}
+				control.setOptions(options);	
+			}						
+
+			return control;
+	}
+	
+	private static String getValue(MetaAttribute.Area area, String name, String attribute) {
 			 
 			 return getMessage(area.name()+"."+name+"."+attribute,Locale.US);
 				 
-		 }
+	 }
 		 
-		 private static String getValue(MetaAttribute.Area area, String name, String attribute, Locale locale) {
-			 
-			 return getMessage(area.name()+"."+name+"."+attribute,locale);
+	 private static String getValue(MetaAttribute.Area area, String name, String attribute, Locale locale) {
+		 
+		 return getMessage(area.name()+"."+name+"."+attribute,locale);
 				 
-		 }
+	 }
 		 
 		private static String getMessage(String key, Locale locale) {
 				

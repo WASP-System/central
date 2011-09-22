@@ -136,8 +136,8 @@ public class UserLocaleInterceptor extends HandlerInterceptorAdapter {
 		for (UiField f : ((List<UiField>) res)) {
 
 			if (f.getLocale()==null || f.getLocale().length()!=5) {
-				log.error("invalid locale "+f);
-				continue;
+				log.error("invalid locale, defaulting to US "+f);
+				f.setLocale("en_US");
 			}
 			
 			String key = f.getArea() + "." + f.getName() + "."

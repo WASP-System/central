@@ -32,7 +32,7 @@ import org.springframework.stereotype.Repository;
 public abstract class WaspDaoImpl<E extends Serializable> extends JpaDaoSupport implements edu.yu.einstein.wasp.dao.WaspDao<E> {
  protected Class<E> entityClass;
 
- private static Logger log = Logger.getLogger(WaspDaoImpl.class);
+ private static final Logger log = Logger.getLogger(WaspDaoImpl.class);
 
 
  @SuppressWarnings("unchecked")
