@@ -24,10 +24,14 @@
         </tr>         
         <tr>
           <td><fmt:message key="piPending.password.label"/>:</td>
-          <td><form:input path="password" /></td>
+          <td><form:password path="password" /></td>
           <td><form:errors path="password" /></td>
         </tr>     	   
-
+		<tr>
+        	<td><fmt:message key="piPending.password2.label"/>:</td>
+        	<td><input type="password" name="password2" /></td>
+        	<td>&nbsp;</td>
+        </tr>  
         <tr>
           <td><fmt:message key="piPending.locale.label"/>:</td>
           <td>

@@ -88,16 +88,7 @@ public class UserPendingController extends WaspController {
 		return new MetaHelper("userPending", UserPendingMeta.class, request.getSession());
 	}
 	
-	private final Map<String, MetaAttribute.FormVisibility> getUserPendingMetaVisibility(){
-		Map<String, MetaAttribute.FormVisibility> userMetaVisibility = new HashMap();
-		userMetaVisibility.put("userPending.institution", MetaAttribute.FormVisibility.ignore);
-		userMetaVisibility.put("userPending.department", MetaAttribute.FormVisibility.ignore);
-		userMetaVisibility.put("userPending.state", MetaAttribute.FormVisibility.ignore);
-		userMetaVisibility.put("userPending.city", MetaAttribute.FormVisibility.ignore);
-		userMetaVisibility.put("userPending.country", MetaAttribute.FormVisibility.ignore);
-		userMetaVisibility.put("userPending.zip", MetaAttribute.FormVisibility.ignore);
-		return userMetaVisibility;
-	}
+		
 	
 	@RequestMapping(value="/newuser", method=RequestMethod.GET)
 	public String showNewPendingUserForm(ModelMap m) {
@@ -111,7 +102,7 @@ public class UserPendingController extends WaspController {
 		// We wish to get some data from the principle investigator User so hide on the form
 		
 		
-		userPending.setUserPendingMeta(metaHelper.getMasterList(getUserPendingMetaVisibility(), UserPendingMeta.class));
+		userPending.setUserPendingMeta(metaHelper.getMasterList(UserPendingMeta.class));
 		
 		m.addAttribute(metaHelper.getParentArea(), userPending);
 		prepareSelectListData(m);
@@ -129,12 +120,9 @@ public class UserPendingController extends WaspController {
 		
 		
 		MetaHelper userPendingMetaHelper = getMetaHelper();
-		userPendingMetaHelper.getFromRequest(request, getUserPendingMetaVisibility(), UserPendingMeta.class);
-
-		
-
+		userPendingMetaHelper.getFromRequest(request, UserPendingMeta.class);
 		userPendingMetaHelper.validate(new UserPendingMetaValidatorImpl(userService, labService), result);
-	
+
 		passwordValidator.validate(result, userPendingForm.getPassword(), (String) request.getParameter("password2"), userPendingMetaHelper.getParentArea(), "password");
 		
 		if (! result.hasFieldErrors("email")){
@@ -169,15 +157,7 @@ public class UserPendingController extends WaspController {
 		userPendingForm.setStatus("WAIT_EMAIL"); // await email confirmation
 		userPendingForm.setPassword( passwordService.encodePassword(userPendingForm.getPassword()) ); 
 		
-		// create a metahelper object to work with metadata for pi.
-		MetaHelper piMetaHelper = new MetaHelper("user", UserMeta.class, request.getSession());
-		piMetaHelper.syncWithMaster(userService.getUserByLogin(piUserLogin).getUserMeta()); // get PI meta from database and sync with current properties
-		userPendingMetaHelper.setMetaValueByName("institution", piMetaHelper.getMetaByName("institution").getV());
-		userPendingMetaHelper.setMetaValueByName("department", piMetaHelper.getMetaByName("department").getV());
-		userPendingMetaHelper.setMetaValueByName("state", piMetaHelper.getMetaByName("state").getV());
-		userPendingMetaHelper.setMetaValueByName("city", piMetaHelper.getMetaByName("city").getV());
-		userPendingMetaHelper.setMetaValueByName("country", piMetaHelper.getMetaByName("country").getV());
-		userPendingMetaHelper.setMetaValueByName("zip", piMetaHelper.getMetaByName("zip").getV());
+		
 		
 		List<UserPendingMeta> userPendingMetaList = (List<UserPendingMeta>) userPendingMetaHelper.getMetaList();
 		userPendingForm.setUserPendingMeta(userPendingMetaList);
@@ -203,12 +183,9 @@ public class UserPendingController extends WaspController {
 	@RequestMapping(value="/newpi", method=RequestMethod.GET)
 	public String showNewPendingPiForm(ModelMap m) {
 		MetaHelper metaHelper=getMetaHelper();
+		metaHelper.setArea("piPending");
 		
-		metaHelper.setArea("piPending"); 
-
-
 		UserPending userPending = new UserPending();
-
 		userPending.setUserPendingMeta(metaHelper.getMasterList(UserPendingMeta.class));
 
 		m.addAttribute(metaHelper.getParentArea(), userPending);
@@ -228,13 +205,12 @@ public class UserPendingController extends WaspController {
 		MetaHelper metaHelper=getMetaHelper();
 		
 		metaHelper.setArea("piPending"); 
-		
-		List<UserPendingMeta> userPendingMetaList =  metaHelper.getFromRequest(request, UserPendingMeta.class);
-		userPendingForm.setUserPendingMeta(userPendingMetaList);
-
-		 metaHelper.validate(userPendingMetaList, result);
+		metaHelper.getFromRequest(request, UserPendingMeta.class);
+		metaHelper.validate(result);
+		passwordValidator.validate(result, userPendingForm.getPassword(), (String) request.getParameter("password2"), metaHelper.getParentArea(), "password");
 
 		if (result.hasErrors()) {
+			userPendingForm.setUserPendingMeta((List<UserPendingMeta>) metaHelper.getMetaList());
 			prepareSelectListData(m);
 			waspMessage("user.created.error");
 
@@ -246,7 +222,7 @@ public class UserPendingController extends WaspController {
 		userPendingForm.setPassword( passwordService.encodePassword(userPendingForm.getPassword()) ); 
 
 		UserPending userPendingDb = userPendingService.save(userPendingForm);
-
+		List<UserPendingMeta> userPendingMetaList = (List<UserPendingMeta>) metaHelper.getMetaList();
 		for (UserPendingMeta upm : userPendingMetaList) {
 			upm.setUserpendingId(userPendingDb.getUserPendingId());
 		}
@@ -313,8 +289,14 @@ public class UserPendingController extends WaspController {
 		  emailService.sendPendingUserPrimaryConfirm(userPending);
 		  return "redirect:/auth/newuser/emailok.do";
 	  }
-
-	
+	/*
+	 @RequestMapping(value="/confirmemail", method=RequestMethod.GET)
+	 public String confirmEmailFromEmailLink(ModelMap m) {
+		  UserPending  userPending = userPendingService.findById(1);
+		  emailService.sendPendingUserPrimaryConfirm(userPending);
+		  return "redirect:/auth/newuser/emailok.do";
+	  }
+	*/
 	 @RequestMapping(value="/confirmemail", method=RequestMethod.POST)
 	  public String confirmEmailFromForm(
 	        @RequestParam(value="authcode") String authCode,

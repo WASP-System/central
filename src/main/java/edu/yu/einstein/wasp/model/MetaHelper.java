@@ -12,6 +12,7 @@ import java.util.TreeSet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.log4j.Logger;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
@@ -30,6 +31,9 @@ import edu.yu.einstein.wasp.service.impl.WaspMessageSourceImpl;
  */
 public class MetaHelper {
 
+	
+	protected final Logger logger = Logger.getLogger(getClass());
+	
 	/**
 	 * Constructor
 	 * @param area
@@ -278,7 +282,6 @@ public class MetaHelper {
 		List<T> list = getMasterList(visibility, clazz);
 
 		Map params = request.getParameterMap();
-
 		for (T obj: list) {
 			String requestKey = parentArea + "Meta" + "_" + obj.getK();
 			if (! params.containsKey(requestKey)) { continue; }
