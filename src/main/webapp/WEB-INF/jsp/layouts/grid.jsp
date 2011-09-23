@@ -3,8 +3,12 @@
 
 <head>
  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />  
-<%@ include file="/WEB-INF/jsp/taglib.jsp" %>
-
+ <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
+ 
+ <title> 
+ 	<tiles:insertAttribute name="title" />
+ </title>
+ 
 <link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/jquery/jquery-ui.css" />
 <link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/jquery/ui.jqgrid.css" />
 <style>
@@ -160,12 +164,10 @@ html, body {
   }
   
   var _beforeShowEditForm = function(formId) {
-	 // alert($('#attrValue').val());
-	  //alert(document.getElementById(formId[0].id).login );
   }
  
   _del_function = function (id) {
-	     alert("Lab cannot be deleted once created. Instead, use the 'edit' button to mark the '"+$("#grid_id").getRowData(id).login+"' lab as inactive.");
+	     alert("Record cannot be deleted. Instead, use the 'edit' button to mark the '"+$("#grid_id").getRowData(id).login+"' record as inactive.");
 	     return false;
  };	
 	

@@ -3,125 +3,142 @@
        "-//Apache Software Foundation//DTD Tiles Configuration 2.0//EN"
        "http://tiles.apache.org/dtds/tiles-config_2_0.dtd">
 <tiles-definitions>
-  
- <definition name="template-grid" template="/WEB-INF/jsp/layouts/grid.jsp">
-  <put-attribute name="area"  value="" />     
-  <put-attribute name="grid-columns" value="" />
-  <put-attribute name="subgrid-columns" value="" />
-  <put-attribute name="banner-content" value="/WEB-INF/jsp/sections/banner.jsp" />
-  <put-attribute name="primary-content" value="" />
-  <put-attribute name="footer-content" value="/WEB-INF/jsp/sections/footer.jsp" />
- </definition>
-  
 
- <!-- Concrete pages. -->
- <definition name="user-list" extends="template-grid">    
-   <put-attribute name="area"  value="user" />   
-   <put-attribute name="grid-columns"  value="/WEB-INF/jsp/user/grid_columns.jsp" />
-   <put-attribute name="subgrid-columns" value="/WEB-INF/jsp/user/subgrid_columns.jsp" />
-   <put-attribute name="primary-content"  value="/WEB-INF/jsp/user/list.jsp" />   
- </definition>
-
- <definition name="lab-list" extends="template-grid">    
-   <put-attribute name="area"  value="lab" />   
-   <put-attribute name="grid-columns"  value="/WEB-INF/jsp/lab/grid_columns.jsp" />
-   <put-attribute name="subgrid-columns" value="/WEB-INF/jsp/lab/subgrid_columns.jsp" />
-   <put-attribute name="primary-content"  value="/WEB-INF/jsp/lab/list.jsp" />   
- </definition>
-
- <definition name="uifield-list" extends="template-grid">    
-   <put-attribute name="area"  value="uiField" />   
-   <put-attribute name="grid-columns"  value="/WEB-INF/jsp/uiField/grid_columns.jsp" />
-   <put-attribute name="subgrid-columns" value="" />
-   <put-attribute name="primary-content"  value="/WEB-INF/jsp/uiField/list.jsp" />   
- </definition>
-
-  <definition name="jobsubmit-sample" extends="template-grid">    
-   <put-attribute name="area"  value="sampleDraft" />   
-   <put-attribute name="grid-columns"  value="/WEB-INF/jsp/jobsubmit/sample_grid_columns.jsp" />
-   <put-attribute name="subgrid-columns" value="" />
-   <put-attribute name="primary-content"  value="/WEB-INF/jsp/jobsubmit/sample.jsp" />   
- </definition>
- 
- <definition name="auth/login" template="/WEB-INF/jsp/auth/login.jsp"/>
-
-<definition name="auth/forgotpassword/email" template="/WEB-INF/jsp/auth/forgotpassword/email.jsp"/>
-<definition name="auth/forgotpassword/form" template="/WEB-INF/jsp/auth/forgotpassword/form.jsp"/>
-<definition name="auth/newuser/form" template="/WEB-INF/jsp/auth/newuser/form.jsp"/>
-<definition name="auth/newuser/emailok" template="/WEB-INF/jsp/auth/newuser/emailok.jsp"/>
-<definition name="auth/newuser/created" template="/WEB-INF/jsp/auth/newuser/created.jsp"/>
-<definition name="auth/newpi/form" template="/WEB-INF/jsp/auth/newpi/form.jsp"/>
-<definition name="auth/newpi/ok" template="/WEB-INF/jsp/auth/newpi/ok.jsp"/>
-
-<definition name="auth/resetpassword/authcodeform" template="/WEB-INF/jsp/auth/resetpassword/authcodeform.jsp"/>
-<definition name="auth/resetpassword/form" template="/WEB-INF/jsp/auth/resetpassword/form.jsp"/>
-<definition name="auth/resetpassword/ok" template="/WEB-INF/jsp/auth/resetpassword/ok.jsp"/>
+	<definition name="template-grid" template="/WEB-INF/jsp/layouts/grid.jsp">
+		<put-attribute name="area" value="" />
+		<put-attribute name="title" value="List" />
+		<put-attribute name="grid-columns" value="" />
+		<put-attribute name="subgrid-columns" value="" />
+		<put-attribute name="banner-content" value="/WEB-INF/jsp/sections/banner.jsp" />
+		<put-attribute name="primary-content" value="" />
+		<put-attribute name="footer-content" value="/WEB-INF/jsp/sections/footer.jsp" />
+	</definition>
 
 
-<definition name="auth/confirmemail/authcodeform" template="/WEB-INF/jsp/auth/confirmemail/authcodeform.jsp"/>
+	<!-- Concrete pages. -->
+	<definition name="user-list" extends="template-grid">
+		<put-attribute name="area" value="user" />
+		<put-attribute name="title" value="User List" />
+		<put-attribute name="grid-columns" value="/WEB-INF/jsp/user/grid_columns.jsp" />
+		<put-attribute name="subgrid-columns"
+			value="/WEB-INF/jsp/user/subgrid_columns.jsp" />
+		<put-attribute name="primary-content" value="/WEB-INF/jsp/user/list.jsp" />
+	</definition>
 
- <definition name="dashboard" template="/WEB-INF/jsp/dashboard.jsp"/>
-   
- <definition name="user/detail_rw" template="/WEB-INF/jsp/user/detail_rw.jsp"/>
- <definition name="user/detail_ro" template="/WEB-INF/jsp/user/detail_ro.jsp"/>
+	<definition name="lab-list" extends="template-grid">
+		<put-attribute name="area" value="lab" />
+		<put-attribute name="title" value="Lab List" />
+		<put-attribute name="grid-columns" value="/WEB-INF/jsp/lab/grid_columns.jsp" />
+		<put-attribute name="subgrid-columns"
+			value="/WEB-INF/jsp/lab/subgrid_columns.jsp" />
+		<put-attribute name="primary-content" value="/WEB-INF/jsp/lab/list.jsp" />
+	</definition>
 
- <definition name="lab/detail_rw" template="/WEB-INF/jsp/lab/detail_rw.jsp"/>
- <definition name="lab/detail_ro" template="/WEB-INF/jsp/lab/detail_ro.jsp"/>
+	<definition name="uifield-list" extends="template-grid">
+		<put-attribute name="area" value="uiField" />
+		<put-attribute name="title" value="Property List" />
+		<put-attribute name="grid-columns"
+			value="/WEB-INF/jsp/uiField/grid_columns.jsp" />
+		<put-attribute name="subgrid-columns" value="" />
+		<put-attribute name="primary-content" value="/WEB-INF/jsp/uiField/list.jsp" />
+	</definition>
 
- <definition name="lab/pending/detail_ro" template="/WEB-INF/jsp/lab/pendinglab/detail_ro.jsp"/>
- <definition name="lab/user" template="/WEB-INF/jsp/lab/user.jsp"/>
+	<definition name="jobsubmit-sample" extends="template-grid">
+		<put-attribute name="area" value="sampleDraft" />
+		<put-attribute name="title" value="Sample Draft List" />
+		<put-attribute name="grid-columns"
+			value="/WEB-INF/jsp/jobsubmit/sample_grid_columns.jsp" />
+		<put-attribute name="subgrid-columns" value="" />
+		<put-attribute name="primary-content" value="/WEB-INF/jsp/jobsubmit/sample.jsp" />
+	</definition>
 
- <definition name="lab/newrequest" template="/WEB-INF/jsp/lab/newrequest.jsp"/>
+	<definition name="auth/login" template="/WEB-INF/jsp/auth/login.jsp" />
 
- <definition name="user/mypassword" template="/WEB-INF/jsp/user/mypassword.jsp"/>
- <definition name="lab/request" template="/WEB-INF/jsp/lab/request.jsp"/>
- <definition name="department/list" template="/WEB-INF/jsp/department/list.jsp"/>
- <definition name="sample/list" template="/WEB-INF/jsp/sample/list.jsp"/>
- <definition name="resource/list" template="/WEB-INF/jsp/resource/list.jsp"/>
- <definition name="run/list" template="/WEB-INF/jsp/run/list.jsp"/>
- <definition name="task/list" template="/WEB-INF/jsp/task/list.jsp"/>
- <definition name="task/fmrequote/list" template="/WEB-INF/jsp/task/fmrequote/list.jsp"/>
+	<definition name="auth/forgotpassword/email"
+		template="/WEB-INF/jsp/auth/forgotpassword/email.jsp" />
+	<definition name="auth/forgotpassword/form" template="/WEB-INF/jsp/auth/forgotpassword/form.jsp" />
+	<definition name="auth/newuser/form" template="/WEB-INF/jsp/auth/newuser/form.jsp" />
+	<definition name="auth/newuser/emailok" template="/WEB-INF/jsp/auth/newuser/emailok.jsp" />
+	<definition name="auth/newuser/created" template="/WEB-INF/jsp/auth/newuser/created.jsp" />
+	<definition name="auth/newpi/form" template="/WEB-INF/jsp/auth/newpi/form.jsp" />
+	<definition name="auth/newpi/ok" template="/WEB-INF/jsp/auth/newpi/ok.jsp" />
 
-  <definition name="task/fmrequote/list" template="/WEB-INF/jsp/task/fmrequote/list.jsp"/>
- <definition name="task/samplereceive/list" template="/WEB-INF/jsp/task/samplereceive/list.jsp"/>
- <definition name="department/detail" template="/WEB-INF/jsp/department/detail.jsp"/>
- <definition name="resource/create/form" template="/WEB-INF/jsp/department/detail.jsp"/>
-
- <definition name="sysrole/list" template="/WEB-INF/jsp/sysrole/list.jsp"/>
-
- <definition name="jobsubmit/list" template="/WEB-INF/jsp/jobsubmit/list.jsp"/>
- <definition name="jobsubmit/create" template="/WEB-INF/jsp/jobsubmit/create.jsp"/>
- <definition name="jobsubmit/metaform" template="/WEB-INF/jsp/jobsubmit/metaform.jsp"/>
- <definition name="jobsubmit/samplelist" template="/WEB-INF/jsp/jobsubmit/samplelist.jsp"/>
- <definition name="jobsubmit/cell" template="/WEB-INF/jsp/jobsubmit/cell.jsp"/>
- <definition name="jobsubmit/verify" template="/WEB-INF/jsp/jobsubmit/verify.jsp"/>
- <definition name="jobsubmit/ok" template="/WEB-INF/jsp/jobsubmit/ok.jsp"/>
-
- <definition name="job/detail" template="/WEB-INF/jsp/job/detail.jsp"/>
-
- <definition name="hello" template="/WEB-INF/jsp/hello.jsp"/>
-
-
- <definition name="facility/platformunit/list" extends="template-grid">
-   <put-attribute name="area"  value="platformunit" />   
-
-   <put-attribute name="grid-columns"  value="/WEB-INF/jsp/facility/platformunit/sample_grid_columns.jsp" />
-   <put-attribute name="subgrid-columns" value="" />
-   <put-attribute name="primary-content"  value="/WEB-INF/jsp/facility/platformunit/sample.jsp" />   
- </definition>
-  <definition name="facility/platformunit/detail_rw" template="/WEB-INF/jsp/facility/platformunit/detail_rw.jsp" />
-  <definition name="facility/platformunit/ok" template="/WEB-INF/jsp/facility/platformunit/ok.jsp" />
-
-<definition name="lab/pendinguser/list" template="/WEB-INF/jsp/lab/pendinguser/list.jsp" />
+	<definition name="auth/resetpassword/authcodeform"
+		template="/WEB-INF/jsp/auth/resetpassword/authcodeform.jsp" />
+	<definition name="auth/resetpassword/form" template="/WEB-INF/jsp/auth/resetpassword/form.jsp" />
+	<definition name="auth/resetpassword/ok" template="/WEB-INF/jsp/auth/resetpassword/ok.jsp" />
 
 
- <definition name="task/fmpayment/list" extends="template-grid">
-   <put-attribute name="area"  value="platformunit" />   
+	<definition name="auth/confirmemail/authcodeform"
+		template="/WEB-INF/jsp/auth/confirmemail/authcodeform.jsp" />
 
-   <put-attribute name="grid-columns"  value="/WEB-INF/jsp/task/fmpayment/payment_grid_columns.jsp" />
-   <put-attribute name="subgrid-columns" value="" />
-   <put-attribute name="primary-content"  value="/WEB-INF/jsp/task/fmpayment/payment.jsp" />   
- </definition>
+	<definition name="dashboard" template="/WEB-INF/jsp/dashboard.jsp" />
+
+	<definition name="user/detail_rw" template="/WEB-INF/jsp/user/detail_rw.jsp" />
+	<definition name="user/detail_ro" template="/WEB-INF/jsp/user/detail_ro.jsp" />
+
+	<definition name="lab/detail_rw" template="/WEB-INF/jsp/lab/detail_rw.jsp" />
+	<definition name="lab/detail_ro" template="/WEB-INF/jsp/lab/detail_ro.jsp" />
+
+	<definition name="lab/pending/detail_ro" template="/WEB-INF/jsp/lab/pendinglab/detail_ro.jsp" />
+	<definition name="lab/user" template="/WEB-INF/jsp/lab/user.jsp" />
+
+	<definition name="lab/newrequest" template="/WEB-INF/jsp/lab/newrequest.jsp" />
+
+	<definition name="user/mypassword" template="/WEB-INF/jsp/user/mypassword.jsp" />
+	<definition name="lab/request" template="/WEB-INF/jsp/lab/request.jsp" />
+	<definition name="department/list" template="/WEB-INF/jsp/department/list.jsp" />
+	<definition name="sample/list" template="/WEB-INF/jsp/sample/list.jsp" />
+	<definition name="resource/list" template="/WEB-INF/jsp/resource/list.jsp" />
+	<definition name="run/list" template="/WEB-INF/jsp/run/list.jsp" />
+	<definition name="task/list" template="/WEB-INF/jsp/task/list.jsp" />
+	<definition name="task/fmrequote/list" template="/WEB-INF/jsp/task/fmrequote/list.jsp" />
+
+	<definition name="task/fmrequote/list" template="/WEB-INF/jsp/task/fmrequote/list.jsp" />
+	<definition name="task/samplereceive/list" template="/WEB-INF/jsp/task/samplereceive/list.jsp" />
+	<definition name="department/detail" template="/WEB-INF/jsp/department/detail.jsp" />
+	<definition name="resource/create/form" template="/WEB-INF/jsp/department/detail.jsp" />
+
+	<definition name="sysrole/list" template="/WEB-INF/jsp/sysrole/list.jsp" />
+
+	<definition name="jobsubmit/list" template="/WEB-INF/jsp/jobsubmit/list.jsp" />
+	<definition name="jobsubmit/create" template="/WEB-INF/jsp/jobsubmit/create.jsp" />
+	<definition name="jobsubmit/metaform" template="/WEB-INF/jsp/jobsubmit/metaform.jsp" />
+	<definition name="jobsubmit/samplelist" template="/WEB-INF/jsp/jobsubmit/samplelist.jsp" />
+	<definition name="jobsubmit/cell" template="/WEB-INF/jsp/jobsubmit/cell.jsp" />
+	<definition name="jobsubmit/verify" template="/WEB-INF/jsp/jobsubmit/verify.jsp" />
+	<definition name="jobsubmit/ok" template="/WEB-INF/jsp/jobsubmit/ok.jsp" />
+
+	<definition name="job/detail" template="/WEB-INF/jsp/job/detail.jsp" />
+
+	<definition name="hello" template="/WEB-INF/jsp/hello.jsp" />
+
+
+	<definition name="facility/platformunit/list" extends="template-grid">
+		<put-attribute name="area" value="platformunit" />
+		<put-attribute name="title" value="Platform Unit List" />
+		<put-attribute name="grid-columns"
+			value="/WEB-INF/jsp/facility/platformunit/sample_grid_columns.jsp" />
+		<put-attribute name="subgrid-columns" value="" />
+		<put-attribute name="primary-content"
+			value="/WEB-INF/jsp/facility/platformunit/sample.jsp" />
+	</definition>
+	<definition name="facility/platformunit/detail_rw"
+		template="/WEB-INF/jsp/facility/platformunit/detail_rw.jsp" />
+	<definition name="facility/platformunit/ok" template="/WEB-INF/jsp/facility/platformunit/ok.jsp" />
+
+	<definition name="lab/pendinguser/list" template="/WEB-INF/jsp/lab/pendinguser/list.jsp" />
+
+
+	<definition name="task/fmpayment/list" extends="template-grid">
+		<put-attribute name="area" value="platformunit" />
+		<put-attribute name="title" value="FM Payment List" />
+		<put-attribute name="grid-columns"
+			value="/WEB-INF/jsp/task/fmpayment/payment_grid_columns.jsp" />
+		<put-attribute name="subgrid-columns" value="" />
+		<put-attribute name="primary-content"
+			value="/WEB-INF/jsp/task/fmpayment/payment.jsp" />
+	</definition>
 
 
 </tiles-definitions>

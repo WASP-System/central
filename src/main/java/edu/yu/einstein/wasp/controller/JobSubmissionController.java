@@ -372,7 +372,7 @@ public class JobSubmissionController extends WaspController {
 		m.addAttribute(JQFieldTag.AREA_ATTR, "sampleDraft");		
 		prepareSelectListData(m);
 		m.addAttribute("jobdraftId",jobDraftId);
-		m.addAttribute("uploadStartedMessage",getMessage("sampleDraft.fileupload_started.data")); 
+		m.addAttribute("uploadStartedMessage",getMessage("sampleDraft.fileupload_wait.data")); 
 		return "jobsubmit-sample";
 
 	}
