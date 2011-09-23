@@ -81,7 +81,7 @@ public class UiFieldDaoImpl extends WaspDaoImpl<UiField> implements edu.yu.einst
     	  result.append("NULL");
       } else {
     	  String outputValue = value.toString();
-          outputValue = outputValue.replaceAll("'","\\'");
+          outputValue = outputValue.replaceAll("'","''");
           result.append("'"+outputValue+"'");
       }
 
@@ -119,7 +119,7 @@ public class UiFieldDaoImpl extends WaspDaoImpl<UiField> implements edu.yu.einst
 					  result.append(",");
 					  process(result,f.getAttrValue());
 					  result.append(",");
-					  process(result,f.getLastUpdUser());
+					  process(result,1+"");
 					  result.append(");\n");
 				  }
 	              

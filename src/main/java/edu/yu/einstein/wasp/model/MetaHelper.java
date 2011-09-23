@@ -2,19 +2,15 @@ package edu.yu.einstein.wasp.model;
 
 
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import javax.servlet.jsp.jstl.core.Config;
-import javax.servlet.jsp.jstl.fmt.LocalizationContext;
 
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
@@ -552,23 +548,5 @@ public class MetaHelper {
 			super(message);
 		}
 	}
-
-	/*
-	public static String getBundleValue(String key, ResourceBundle bundle, String defaultValue) {
-		if (defaultValue==null) defaultValue=key; 
-		try {
-			String ret=(String)bundle.getObject(key);
-			if (ret==null) return defaultValue;
-			
-			return ret;
-		} catch (Throwable e) {
-			return defaultValue;
-		}
-	}
-	
-	public static String getBundleValue(String key, ResourceBundle bundle) {
-		return getBundleValue(key, bundle, null);
-	}
-	*/
 	
 }
