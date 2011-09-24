@@ -37,6 +37,7 @@ import edu.yu.einstein.wasp.model.LabPendingMeta;
 import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.MetaHelper;
+import edu.yu.einstein.wasp.model.MetaHelper.WaspMetadataException;
 import edu.yu.einstein.wasp.model.Project;
 import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.Sample;
@@ -605,7 +606,7 @@ public class LabController extends WaspController {
 		return "redirect:/lab/user/" + labId + ".do";
 	}
 
-	public Lab createLabFromLabPending(LabPending labPending) {
+	public Lab createLabFromLabPending(LabPending labPending) throws WaspMetadataException {
 		Lab lab = new Lab();
 		User user;
 
@@ -659,7 +660,7 @@ public class LabController extends WaspController {
 		return labDb;
 	}
 
-	public User createUserFromUserPending(UserPending userPending) {
+	public User createUserFromUserPending(UserPending userPending) throws WaspMetadataException {
 		User user = new User();
 
 		user.setFirstName(userPending.getFirstName());
@@ -679,22 +680,47 @@ public class LabController extends WaspController {
 		}
 		user.setLogin(login);
 		User userDb = userService.save(user);
+		int userId = userDb.getUserId();
 
 		//List<UserPendingMeta> userPendingMetaList = userPendingMetaService.getUserPendingMetaByUserPendingId(userPending.getUserPendingId());
-
-		// copies meta data
 		Map userPendingMetaQueryMap = new HashMap();
 		userPendingMetaQueryMap.put("userpendingId", userPending.getUserPendingId());
-		List<UserPendingMeta> userPendingMetaList = userPendingMetaService.findByMap(userPendingMetaQueryMap); 
+		
+		// copies meta data
+		MetaHelper userMetaHelper = new MetaHelper("user", UserMeta.class, request.getSession());
+		userMetaHelper.getMasterList(UserMeta.class);
+		MetaHelper userPendingMetaHelper = new MetaHelper("userPending", UserPendingMeta.class, request.getSession());
+		List<UserPendingMeta> userPendingMetaList = userPendingMetaHelper.syncWithMaster(userPendingMetaService.findByMap(userPendingMetaQueryMap));
+		
+		
 		for (UserPendingMeta upm: userPendingMetaList) {
-			UserMeta userMeta = new UserMeta();
-			userMeta.setUserId(userDb.getUserId());
-
 			// convert prefix
-			String newK = upm.getK().replaceAll("^.*?\\.", "user" + ".");
-
-			userMeta.setK(newK);
-			userMeta.setV(upm.getV());
+			String name = upm.getK().replaceAll("^.*?\\.", "");
+			try{
+				userMetaHelper.setMetaValueByName(name, upm.getV());
+			} catch (WaspMetadataException e){
+				// no match for 'name' in user metadata
+				logger.debug("No match for user-pending meta data with name '" + name + "' in user meta data");
+				continue;
+			}
+		}
+		// create a metahelper object to work with metadata for pi.
+		String piUserLogin = userPendingMetaHelper.getMetaByName("primaryuserid").getV();
+		MetaHelper piMetaHelper = new MetaHelper("user", UserMeta.class, request.getSession());
+		piMetaHelper.syncWithMaster(userService.getUserByLogin(piUserLogin).getUserMeta()); // get PI meta from database and sync with current properties
+		try{
+			userMetaHelper.setMetaValueByName("institution", piMetaHelper.getMetaByName("institution").getV());
+			userMetaHelper.setMetaValueByName("department", piMetaHelper.getMetaByName("department").getV());
+			userMetaHelper.setMetaValueByName("state", piMetaHelper.getMetaByName("state").getV());
+			userMetaHelper.setMetaValueByName("city", piMetaHelper.getMetaByName("city").getV());
+			userMetaHelper.setMetaValueByName("country", piMetaHelper.getMetaByName("country").getV());
+			userMetaHelper.setMetaValueByName("zip", piMetaHelper.getMetaByName("zip").getV());
+		} catch (WaspMetadataException e){
+			// should never get here because of sync
+			throw userMetaHelper.new WaspMetadataException("Metadata user / pi meta name mismatch",e);
+		}
+		for (UserMeta userMeta : (List<UserMeta>) userMetaHelper.getMetaList()){
+			userMeta.setUserId(userId);
 			userMetaService.save(userMeta);
 		}
 
@@ -746,7 +772,7 @@ public class LabController extends WaspController {
 
 	@RequestMapping(value = "/userpending/{action}/{labId}/{userPendingId}.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('god') or hasRole('lm-' + #labId)")
-	public String userPendingDetail ( @PathVariable("labId") Integer labId, @PathVariable("userPendingId") Integer userPendingId, @PathVariable("action") String action, ModelMap m) {
+	public String userPendingDetail ( @PathVariable("labId") Integer labId, @PathVariable("userPendingId") Integer userPendingId, @PathVariable("action") String action, ModelMap m) throws WaspMetadataException {
 		// TODO CHECK ACTION IS "approve" or "reject"
 
 		UserPending userPending = userPendingService.getUserPendingByUserPendingId(userPendingId);
@@ -779,7 +805,7 @@ public class LabController extends WaspController {
 
 	@RequestMapping(value = "/labpending/{action}/{departmentId}/{labPendingId}.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('god') or hasRole('la-' + #departmentId)")
-	public String labPendingDetail ( @PathVariable("departmentId") Integer departmentId, @PathVariable("labPendingId") Integer labPendingId, @PathVariable("action") String action, ModelMap m) {
+	public String labPendingDetail ( @PathVariable("departmentId") Integer departmentId, @PathVariable("labPendingId") Integer labPendingId, @PathVariable("action") String action, ModelMap m) throws WaspMetadataException {
 		// TODO CHECK ACTION IS "approve" or "reject"
 
 		LabPending labPending = labPendingService.getLabPendingByLabPendingId(labPendingId);
