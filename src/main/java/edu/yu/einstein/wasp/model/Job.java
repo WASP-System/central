@@ -600,6 +600,39 @@ public class Job extends WaspModel {
 
 
 	/** 
+	 * jobCell
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="jobid", insertable=false, updatable=false)
+	protected List<JobCell> jobCell;
+
+
+	/** 
+	 * getJobCell()
+	 *
+	 * @return jobCell
+	 *
+	 */
+	public List<JobCell> getJobCell() {
+		return this.jobCell;
+	}
+
+
+	/** 
+	 * setJobCell
+	 *
+	 * @param jobCell
+	 *
+	 */
+	public void setJobCell (List<JobCell> jobCell) {
+		this.jobCell = jobCell;
+	}
+
+
+
+	/** 
 	 * acctWorkflowcost
 	 *
 	 */
