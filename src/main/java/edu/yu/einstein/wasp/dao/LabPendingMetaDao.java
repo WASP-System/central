@@ -4,7 +4,7 @@
  * LabPendingMetaDao.java 
  * @author echeng (table2type.pl)
  *  
- * the LabPendingMetaDao object
+ * the LabPendingMeta Dao 
  *
  *
  **/
@@ -26,6 +26,7 @@ public interface LabPendingMetaDao extends WaspDao<LabPendingMeta> {
   public LabPendingMeta getLabPendingMetaByKLabpendingId (final String k, final int labpendingId);
 
   public void updateByLabpendingId (final int labpendingId, final List<LabPendingMeta> metaList);
+
 
 }
 

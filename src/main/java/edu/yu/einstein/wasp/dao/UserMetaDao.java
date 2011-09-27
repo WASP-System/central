@@ -4,7 +4,7 @@
  * UserMetaDao.java 
  * @author echeng (table2type.pl)
  *  
- * the UserMetaDao object
+ * the UserMeta Dao 
  *
  *
  **/
@@ -26,6 +26,7 @@ public interface UserMetaDao extends WaspDao<UserMeta> {
   public UserMeta getUserMetaByKUserId (final String k, final int UserId);
 
   public void updateByUserId (final int UserId, final List<UserMeta> metaList);
+
 
 }
 

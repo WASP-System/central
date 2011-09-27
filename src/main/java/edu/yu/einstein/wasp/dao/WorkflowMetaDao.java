@@ -4,7 +4,7 @@
  * WorkflowMetaDao.java 
  * @author echeng (table2type.pl)
  *  
- * the WorkflowMetaDao object
+ * the WorkflowMeta Dao 
  *
  *
  **/
@@ -26,6 +26,7 @@ public interface WorkflowMetaDao extends WaspDao<WorkflowMeta> {
   public WorkflowMeta getWorkflowMetaByKWorkflowId (final String k, final int workflowId);
 
   public void updateByWorkflowId (final int workflowId, final List<WorkflowMeta> metaList);
+
 
 }
 

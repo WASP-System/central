@@ -4,7 +4,7 @@
  * JobDraftMetaDao.java 
  * @author echeng (table2type.pl)
  *  
- * the JobDraftMetaDao object
+ * the JobDraftMeta Dao 
  *
  *
  **/
@@ -26,6 +26,7 @@ public interface JobDraftMetaDao extends WaspDao<JobDraftMeta> {
   public JobDraftMeta getJobDraftMetaByKJobdraftId (final String k, final int jobdraftId);
 
   public void updateByJobdraftId (final int jobdraftId, final List<JobDraftMeta> metaList);
+
 
 }
 

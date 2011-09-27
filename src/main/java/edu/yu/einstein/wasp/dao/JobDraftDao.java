@@ -4,7 +4,7 @@
  * JobDraftDao.java 
  * @author echeng (table2type.pl)
  *  
- * the JobDraftDao object
+ * the JobDraft Dao 
  *
  *
  **/
@@ -22,6 +22,7 @@ import org.springframework.stereotype.Repository;
 public interface JobDraftDao extends WaspDao<JobDraft> {
 
   public JobDraft getJobDraftByJobDraftId (final int jobDraftId);
+
 
 }
 

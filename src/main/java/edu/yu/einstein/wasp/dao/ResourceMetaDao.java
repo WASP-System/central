@@ -4,7 +4,7 @@
  * ResourceMetaDao.java 
  * @author echeng (table2type.pl)
  *  
- * the ResourceMetaDao object
+ * the ResourceMeta Dao 
  *
  *
  **/
@@ -26,6 +26,7 @@ public interface ResourceMetaDao extends WaspDao<ResourceMeta> {
   public ResourceMeta getResourceMetaByKResourceId (final String k, final int resourceId);
 
   public void updateByResourceId (final int resourceId, final List<ResourceMeta> metaList);
+
 
 }
 

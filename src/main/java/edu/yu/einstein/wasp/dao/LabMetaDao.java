@@ -4,7 +4,7 @@
  * LabMetaDao.java 
  * @author echeng (table2type.pl)
  *  
- * the LabMetaDao object
+ * the LabMeta Dao 
  *
  *
  **/
@@ -26,6 +26,7 @@ public interface LabMetaDao extends WaspDao<LabMeta> {
   public LabMeta getLabMetaByKLabId (final String k, final int labId);
 
   public void updateByLabId (final int labId, final List<LabMeta> metaList);
+
 
 }
 

@@ -4,7 +4,7 @@
  * UserPendingMetaDao.java 
  * @author echeng (table2type.pl)
  *  
- * the UserPendingMetaDao object
+ * the UserPendingMeta Dao 
  *
  *
  **/
@@ -26,6 +26,7 @@ public interface UserPendingMetaDao extends WaspDao<UserPendingMeta> {
   public UserPendingMeta getUserPendingMetaByKUserpendingId (final String k, final int userpendingId);
 
   public void updateByUserpendingId (final int userpendingId, final List<UserPendingMeta> metaList);
+
 
 }
 

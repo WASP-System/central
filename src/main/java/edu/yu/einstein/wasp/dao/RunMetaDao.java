@@ -4,7 +4,7 @@
  * RunMetaDao.java 
  * @author echeng (table2type.pl)
  *  
- * the RunMetaDao object
+ * the RunMeta Dao 
  *
  *
  **/
@@ -26,6 +26,7 @@ public interface RunMetaDao extends WaspDao<RunMeta> {
   public RunMeta getRunMetaByKRunId (final String k, final int runId);
 
   public void updateByRunId (final int runId, final List<RunMeta> metaList);
+
 
 }
 

@@ -4,7 +4,7 @@
  * MetaDao.java 
  * @author echeng (table2type.pl)
  *  
- * the MetaDao object
+ * the Meta Dao 
  *
  *
  **/
@@ -26,6 +26,7 @@ public interface MetaDao extends WaspDao<Meta> {
   public Meta getMetaByPropertyK (final String property, final String k);
 
   public Meta getMetaByPropertyV (final String property, final String v);
+
 
 }
 

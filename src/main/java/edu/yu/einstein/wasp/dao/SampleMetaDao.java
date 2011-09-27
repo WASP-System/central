@@ -4,7 +4,7 @@
  * SampleMetaDao.java 
  * @author echeng (table2type.pl)
  *  
- * the SampleMetaDao object
+ * the SampleMeta Dao 
  *
  *
  **/
@@ -26,6 +26,7 @@ public interface SampleMetaDao extends WaspDao<SampleMeta> {
   public SampleMeta getSampleMetaByKSampleId (final String k, final int sampleId);
 
   public void updateBySampleId (final int sampleId, final List<SampleMeta> metaList);
+
 
 }
 

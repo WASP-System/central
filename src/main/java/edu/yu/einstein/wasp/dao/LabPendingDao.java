@@ -4,7 +4,7 @@
  * LabPendingDao.java 
  * @author echeng (table2type.pl)
  *  
- * the LabPendingDao object
+ * the LabPending Dao 
  *
  *
  **/
@@ -22,6 +22,7 @@ import org.springframework.stereotype.Repository;
 public interface LabPendingDao extends WaspDao<LabPending> {
 
   public LabPending getLabPendingByLabPendingId (final int labPendingId);
+
 
 }
 

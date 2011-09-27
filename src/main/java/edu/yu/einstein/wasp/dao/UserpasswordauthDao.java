@@ -4,7 +4,7 @@
  * UserpasswordauthDao.java 
  * @author echeng (table2type.pl)
  *  
- * the UserpasswordauthDao object
+ * the Userpasswordauth Dao 
  *
  *
  **/
@@ -24,6 +24,7 @@ public interface UserpasswordauthDao extends WaspDao<Userpasswordauth> {
   public Userpasswordauth getUserpasswordauthByUserId (final int UserId);
 
   public Userpasswordauth getUserpasswordauthByAuthcode (final String authcode);
+
 
 }
 

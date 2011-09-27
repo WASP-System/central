@@ -4,7 +4,7 @@
  * StateMetaDao.java 
  * @author echeng (table2type.pl)
  *  
- * the StateMetaDao object
+ * the StateMeta Dao 
  *
  *
  **/
@@ -26,6 +26,7 @@ public interface StateMetaDao extends WaspDao<StateMeta> {
   public StateMeta getStateMetaByKStateId (final String k, final int stateId);
 
   public void updateByStateId (final int stateId, final List<StateMeta> metaList);
+
 
 }
 

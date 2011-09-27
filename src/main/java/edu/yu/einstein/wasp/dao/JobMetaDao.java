@@ -4,7 +4,7 @@
  * JobMetaDao.java 
  * @author echeng (table2type.pl)
  *  
- * the JobMetaDao object
+ * the JobMeta Dao 
  *
  *
  **/
@@ -26,6 +26,7 @@ public interface JobMetaDao extends WaspDao<JobMeta> {
   public JobMeta getJobMetaByKJobId (final String k, final int jobId);
 
   public void updateByJobId (final int jobId, final List<JobMeta> metaList);
+
 
 }
 

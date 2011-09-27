@@ -4,7 +4,7 @@
  * RunLaneDao.java 
  * @author echeng (table2type.pl)
  *  
- * the RunLaneDao object
+ * the RunLane Dao 
  *
  *
  **/
@@ -13,6 +13,7 @@ package edu.yu.einstein.wasp.dao;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.Map;
 import edu.yu.einstein.wasp.model.*;
 
 import org.springframework.stereotype.Repository;
@@ -25,6 +26,7 @@ public interface RunLaneDao extends WaspDao<RunLane> {
   public RunLane getRunLaneByRunIdResourcelaneId (final int runId, final int resourcelaneId);
 
   public RunLane getRunLaneBySampleIdRunId (final int sampleId, final int runId);
+
 
 }
 
