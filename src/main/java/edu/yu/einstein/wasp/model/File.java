@@ -339,6 +339,39 @@ public class File extends WaspModel {
 
 
 	/** 
+	 * sampleDraft
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="fileid", insertable=false, updatable=false)
+	protected List<SampleDraft> sampleDraft;
+
+
+	/** 
+	 * getSampleDraft()
+	 *
+	 * @return sampleDraft
+	 *
+	 */
+	public List<SampleDraft> getSampleDraft() {
+		return this.sampleDraft;
+	}
+
+
+	/** 
+	 * setSampleDraft
+	 *
+	 * @param sampleDraft
+	 *
+	 */
+	public void setSampleDraft (List<SampleDraft> sampleDraft) {
+		this.sampleDraft = sampleDraft;
+	}
+
+
+
+	/** 
 	 * jobFile
 	 *
 	 */
