@@ -874,6 +874,27 @@ create table jobsamplemeta (
 ) ENGINE=InnoDB charset=utf8;
 
 
+create table jobcell (
+  jobcellid int(10) not null primary key auto_increment,
+  jobid int(10) not null,
+  cellindex int(10) not null,
+
+  foreign key fk_job_jid (jobid) references job(jobid),
+  constraint unique index u_jobcell_jdid_ci (jobid, cellindex)
+);
+
+create table samplecell (
+  samplecellid int(10) not null primary key auto_increment,
+  sampleid int(10) not null,
+  jobcellid int(10) not null,
+
+  libraryindex int(10) not null, 
+
+  foreign key fk_samplecell_sdid (sampleid) references sample(sampleid),
+  foreign key fk_samplecell_jdcid (jobcellid) references jobcell(jobcellid),
+  constraint unique index u_samplecell_jdcid_li (jobcellid, libraryindex)
+);
+
 
 --
 -- ACCOUNTING TABLES
