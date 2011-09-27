@@ -821,6 +821,39 @@ public class Sample extends WaspModel {
 
 
 	/** 
+	 * sampleCell
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="sampleid", insertable=false, updatable=false)
+	protected List<SampleCell> sampleCell;
+
+
+	/** 
+	 * getSampleCell()
+	 *
+	 * @return sampleCell
+	 *
+	 */
+	public List<SampleCell> getSampleCell() {
+		return this.sampleCell;
+	}
+
+
+	/** 
+	 * setSampleCell
+	 *
+	 * @param sampleCell
+	 *
+	 */
+	public void setSampleCell (List<SampleCell> sampleCell) {
+		this.sampleCell = sampleCell;
+	}
+
+
+
+	/** 
 	 * sampleFile
 	 *
 	 */
