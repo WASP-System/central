@@ -344,4 +344,37 @@ public class Workflow extends WaspModel {
 
 
 
+	/** 
+	 * workflowsubtypesample
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="workflowid", insertable=false, updatable=false)
+	protected List<Workflowsubtypesample> workflowsubtypesample;
+
+
+	/** 
+	 * getWorkflowsubtypesample()
+	 *
+	 * @return workflowsubtypesample
+	 *
+	 */
+	public List<Workflowsubtypesample> getWorkflowsubtypesample() {
+		return this.workflowsubtypesample;
+	}
+
+
+	/** 
+	 * setWorkflowsubtypesample
+	 *
+	 * @param workflowsubtypesample
+	 *
+	 */
+	public void setWorkflowsubtypesample (List<Workflowsubtypesample> workflowsubtypesample) {
+		this.workflowsubtypesample = workflowsubtypesample;
+	}
+
+
+
 }
