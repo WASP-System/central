@@ -55,7 +55,6 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','fax','error','Fax cannot be empty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','fax','constraint','NotEmpty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','fax','metaposition','100','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','page','label','New User','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','password','label','Password','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','password','error','Password cannot be empty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','password_mismatch','error','The two entries for your password are NOT identical','1');
@@ -83,7 +82,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','title','metaposition','5','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','building_room','label','Building / Room','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','building_room','metaposition','30','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','address','label','Address','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','address','label','Street','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','address','metaposition','40','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','phone','label','Phone','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','phone','error','Phone cannot be empty','1');
@@ -604,3 +603,11 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','contentTypeMap','mv','data','video/x-sgi-movie','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','contentTypeMap','tsv','data','text/tab-separated-values','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','contentTypeMap','ppm','data','image/x-portable-pixmap','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','captcha','error','Captcha text incorrect','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','captcha','label','Captcha text','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','submit','label','Apply for Account','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','select_default','label','-- select --','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','page_title','label','New Principle Investigator','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','emailconfirmed','label','Thank you for confirming your email address. Your department administrator has been emailed to request confirmation of your eligibility to register your lab and you are advised to contact them to request they do this if your account does not become activated in good time.','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','emailsent','label','Thank you for your account request. You have been sent an email with instructions as to how to confirm your email address. Please click to <a href="wasp/auth/login.do"/>Login</a>','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','emailconfirmed_title','label','Email Address Confirmed','1');
