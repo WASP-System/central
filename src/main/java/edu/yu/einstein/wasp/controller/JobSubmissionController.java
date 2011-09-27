@@ -39,6 +39,7 @@ import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.JobCell;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftCell;
 import edu.yu.einstein.wasp.model.JobDraftMeta;
@@ -50,6 +51,7 @@ import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.MetaHelper;
 import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.SampleCell;
 import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleDraftCell;
 import edu.yu.einstein.wasp.model.SampleDraftMeta;
@@ -59,6 +61,7 @@ import edu.yu.einstein.wasp.model.SubtypeSample;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Workflow;
 import edu.yu.einstein.wasp.service.FileService;
+import edu.yu.einstein.wasp.service.JobCellService;
 import edu.yu.einstein.wasp.service.JobDraftCellService;
 import edu.yu.einstein.wasp.service.JobDraftMetaService;
 import edu.yu.einstein.wasp.service.JobDraftService;
@@ -67,6 +70,7 @@ import edu.yu.einstein.wasp.service.JobSampleService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.JobUserService;
 import edu.yu.einstein.wasp.service.RoleService;
+import edu.yu.einstein.wasp.service.SampleCellService;
 import edu.yu.einstein.wasp.service.SampleDraftCellService;
 import edu.yu.einstein.wasp.service.SampleDraftMetaService;
 import edu.yu.einstein.wasp.service.SampleDraftService;
@@ -141,6 +145,12 @@ public class JobSubmissionController extends WaspController {
 	
 	@Autowired
 	private FileService fileService;
+
+	@Autowired
+	private JobCellService jobCellService;
+
+	@Autowired
+	private SampleCellService sampleCellService;
 
 	private final MetaHelper getMetaHelper() {
 		return new MetaHelper("jobDraft", JobDraftMeta.class, request.getSession());
@@ -567,6 +577,19 @@ public class JobSubmissionController extends WaspController {
 		jobUser.setRoleId(role.getRoleId());
 		jobUserService.save(jobUser);
 
+		// Job Cells (oldid, newobj)
+		Map<Integer,JobCell> jobDraftCellMap = new HashMap<Integer,JobCell>();
+
+		for (JobDraftCell jdc: jobDraft.getJobDraftCell()) {
+			JobCell jobCell = new JobCell();
+			jobCell.setJobId(jobDb.getJobId());
+			jobCell.setCellindex(jdc.getCellindex());
+
+			JobCell jobCellDb =	jobCellService.save(jobCell);	
+
+			jobDraftCellMap.put(jdc.getJobDraftCellId(), jobCellDb);
+		}
+
 		// Create Samples
 		for (SampleDraft sd: jobDraft.getSampleDraft()) {
 			Sample sample = new Sample();
@@ -613,6 +636,15 @@ public class JobSubmissionController extends WaspController {
 			jobSample.setSampleId(sampleDb.getSampleId());
 
 			jobSampleService.save(jobSample);
+
+			for (SampleDraftCell sdc: sd.getSampleDraftCell()) {
+				SampleCell sampleCell = new SampleCell();
+				sampleCell.setSampleId(sampleDb.getSampleId());
+				sampleCell.setJobcellId(jobDraftCellMap.get(sdc.getJobdraftcellId()).getJobCellId());
+				sampleCell.setLibraryindex(sdc.getLibraryindex());
+
+				SampleCell sampleCellDb = sampleCellService.save(sampleCell);
+			}
 		}
 
 		// TODO!!! ADD!!! WORKFLOW!!! STEPS!!!
