@@ -122,6 +122,39 @@ public class TypeSample extends WaspModel {
 
 
 	/** 
+	 * subtypeSample
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="typesampleid", insertable=false, updatable=false)
+	protected List<SubtypeSample> subtypeSample;
+
+
+	/** 
+	 * getSubtypeSample()
+	 *
+	 * @return subtypeSample
+	 *
+	 */
+	public List<SubtypeSample> getSubtypeSample() {
+		return this.subtypeSample;
+	}
+
+
+	/** 
+	 * setSubtypeSample
+	 *
+	 * @param subtypeSample
+	 *
+	 */
+	public void setSubtypeSample (List<SubtypeSample> subtypeSample) {
+		this.subtypeSample = subtypeSample;
+	}
+
+
+
+	/** 
 	 * sample
 	 *
 	 */
