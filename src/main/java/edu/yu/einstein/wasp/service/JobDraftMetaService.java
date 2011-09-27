@@ -4,7 +4,7 @@
  * JobDraftMetaService.java 
  * @author echeng (table2type.pl)
  *  
- * the JobDraftMetaService object
+ * the JobDraftMetaService
  *
  *
  **/
@@ -22,14 +22,28 @@ import org.springframework.stereotype.Service;
 @Service
 public interface JobDraftMetaService extends WaspService<JobDraftMeta> {
 
-  public void setJobDraftMetaDao(JobDraftMetaDao jobDraftMetaDao);
-  public JobDraftMetaDao getJobDraftMetaDao();
+	/**
+	 * setJobDraftMetaDao(JobDraftMetaDao jobDraftMetaDao)
+	 *
+	 * @param jobDraftMetaDao
+	 *
+	 */
+	public void setJobDraftMetaDao(JobDraftMetaDao jobDraftMetaDao);
+
+	/**
+	 * getJobDraftMetaDao();
+	 *
+	 * @return jobDraftMetaDao
+	 *
+	 */
+	public JobDraftMetaDao getJobDraftMetaDao();
 
   public JobDraftMeta getJobDraftMetaByJobDraftMetaId (final int jobDraftMetaId);
 
   public JobDraftMeta getJobDraftMetaByKJobdraftId (final String k, final int jobdraftId);
 
   public void updateByJobdraftId (final int jobdraftId, final List<JobDraftMeta> metaList);
+
 
 }
 

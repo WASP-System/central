@@ -1,10 +1,10 @@
 
 /**
  *
- * AcctQuoteUserService.java 
+ * AcctQuoteUserServiceImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the AcctQuoteUserService object
+ * the AcctQuoteUserService Implmentation 
  *
  *
  **/
@@ -17,6 +17,8 @@ import edu.yu.einstein.wasp.dao.WaspDao;
 import edu.yu.einstein.wasp.model.AcctQuoteUser;
 
 import java.util.List;
+import java.util.Map;
+
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PostFilter;
@@ -26,21 +28,38 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class AcctQuoteUserServiceImpl extends WaspServiceImpl<AcctQuoteUser> implements AcctQuoteUserService {
 
-  private AcctQuoteUserDao acctQuoteUserDao;
-  @Autowired
-  public void setAcctQuoteUserDao(AcctQuoteUserDao acctQuoteUserDao) {
-    this.acctQuoteUserDao = acctQuoteUserDao;
-    this.setWaspDao(acctQuoteUserDao);
-  }
-  public AcctQuoteUserDao getAcctQuoteUserDao() {
-    return this.acctQuoteUserDao;
-  }
+	/**
+	 * acctQuoteUserDao;
+	 *
+	 */
+	private AcctQuoteUserDao acctQuoteUserDao;
 
-  // **
+	/**
+	 * setAcctQuoteUserDao(AcctQuoteUserDao acctQuoteUserDao)
+	 *
+	 * @param acctQuoteUserDao
+	 *
+	 */
+	@Autowired
+	public void setAcctQuoteUserDao(AcctQuoteUserDao acctQuoteUserDao) {
+		this.acctQuoteUserDao = acctQuoteUserDao;
+		this.setWaspDao(acctQuoteUserDao);
+	}
 
-  
+	/**
+	 * getAcctQuoteUserDao();
+	 *
+	 * @return acctQuoteUserDao
+	 *
+	 */
+	public AcctQuoteUserDao getAcctQuoteUserDao() {
+		return this.acctQuoteUserDao;
+	}
+
+
   public AcctQuoteUser getAcctQuoteUserByQuoteUserId (final int quoteUserId) {
     return this.getAcctQuoteUserDao().getAcctQuoteUserByQuoteUserId(quoteUserId);
   }
+
 }
 

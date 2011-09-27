@@ -1,10 +1,10 @@
 
 /**
  *
- * UserPendingMetaService.java 
+ * UserPendingMetaServiceImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the UserPendingMetaService object
+ * the UserPendingMetaService Implmentation 
  *
  *
  **/
@@ -28,19 +28,35 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class UserPendingMetaServiceImpl extends WaspServiceImpl<UserPendingMeta> implements UserPendingMetaService {
 
-  private UserPendingMetaDao userPendingMetaDao;
-  @Autowired
-  public void setUserPendingMetaDao(UserPendingMetaDao userPendingMetaDao) {
-    this.userPendingMetaDao = userPendingMetaDao;
-    this.setWaspDao(userPendingMetaDao);
-  }
-  public UserPendingMetaDao getUserPendingMetaDao() {
-    return this.userPendingMetaDao;
-  }
+	/**
+	 * userPendingMetaDao;
+	 *
+	 */
+	private UserPendingMetaDao userPendingMetaDao;
 
-  // **
+	/**
+	 * setUserPendingMetaDao(UserPendingMetaDao userPendingMetaDao)
+	 *
+	 * @param userPendingMetaDao
+	 *
+	 */
+	@Autowired
+	public void setUserPendingMetaDao(UserPendingMetaDao userPendingMetaDao) {
+		this.userPendingMetaDao = userPendingMetaDao;
+		this.setWaspDao(userPendingMetaDao);
+	}
 
-  
+	/**
+	 * getUserPendingMetaDao();
+	 *
+	 * @return userPendingMetaDao
+	 *
+	 */
+	public UserPendingMetaDao getUserPendingMetaDao() {
+		return this.userPendingMetaDao;
+	}
+
+
   public UserPendingMeta getUserPendingMetaByUserPendingMetaId (final int userPendingMetaId) {
     return this.getUserPendingMetaDao().getUserPendingMetaByUserPendingMetaId(userPendingMetaId);
   }
@@ -52,6 +68,7 @@ public class UserPendingMetaServiceImpl extends WaspServiceImpl<UserPendingMeta>
   public void updateByUserpendingId (final int userpendingId, final List<UserPendingMeta> metaList) {
     this.getUserPendingMetaDao().updateByUserpendingId(userpendingId, metaList); 
   }
+
 
 }
 

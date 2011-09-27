@@ -1,10 +1,10 @@
 
 /**
  *
- * StaterunService.java 
+ * StaterunServiceImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the StaterunService object
+ * the StaterunService Implmentation 
  *
  *
  **/
@@ -17,6 +17,8 @@ import edu.yu.einstein.wasp.dao.WaspDao;
 import edu.yu.einstein.wasp.model.Staterun;
 
 import java.util.List;
+import java.util.Map;
+
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PostFilter;
@@ -26,21 +28,38 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class StaterunServiceImpl extends WaspServiceImpl<Staterun> implements StaterunService {
 
-  private StaterunDao staterunDao;
-  @Autowired
-  public void setStaterunDao(StaterunDao staterunDao) {
-    this.staterunDao = staterunDao;
-    this.setWaspDao(staterunDao);
-  }
-  public StaterunDao getStaterunDao() {
-    return this.staterunDao;
-  }
+	/**
+	 * staterunDao;
+	 *
+	 */
+	private StaterunDao staterunDao;
 
-  // **
+	/**
+	 * setStaterunDao(StaterunDao staterunDao)
+	 *
+	 * @param staterunDao
+	 *
+	 */
+	@Autowired
+	public void setStaterunDao(StaterunDao staterunDao) {
+		this.staterunDao = staterunDao;
+		this.setWaspDao(staterunDao);
+	}
 
-  
+	/**
+	 * getStaterunDao();
+	 *
+	 * @return staterunDao
+	 *
+	 */
+	public StaterunDao getStaterunDao() {
+		return this.staterunDao;
+	}
+
+
   public Staterun getStaterunByStaterunId (final int staterunId) {
     return this.getStaterunDao().getStaterunByStaterunId(staterunId);
   }
+
 }
 

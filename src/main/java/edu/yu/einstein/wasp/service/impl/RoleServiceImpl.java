@@ -1,10 +1,10 @@
 
 /**
  *
- * RoleService.java 
+ * RoleServiceImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the RoleService object
+ * the RoleService Implmentation 
  *
  *
  **/
@@ -17,6 +17,8 @@ import edu.yu.einstein.wasp.dao.WaspDao;
 import edu.yu.einstein.wasp.model.Role;
 
 import java.util.List;
+import java.util.Map;
+
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PostFilter;
@@ -26,19 +28,35 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class RoleServiceImpl extends WaspServiceImpl<Role> implements RoleService {
 
-  private RoleDao roleDao;
-  @Autowired
-  public void setRoleDao(RoleDao roleDao) {
-    this.roleDao = roleDao;
-    this.setWaspDao(roleDao);
-  }
-  public RoleDao getRoleDao() {
-    return this.roleDao;
-  }
+	/**
+	 * roleDao;
+	 *
+	 */
+	private RoleDao roleDao;
 
-  // **
+	/**
+	 * setRoleDao(RoleDao roleDao)
+	 *
+	 * @param roleDao
+	 *
+	 */
+	@Autowired
+	public void setRoleDao(RoleDao roleDao) {
+		this.roleDao = roleDao;
+		this.setWaspDao(roleDao);
+	}
 
-  
+	/**
+	 * getRoleDao();
+	 *
+	 * @return roleDao
+	 *
+	 */
+	public RoleDao getRoleDao() {
+		return this.roleDao;
+	}
+
+
   public Role getRoleByRoleId (final int roleId) {
     return this.getRoleDao().getRoleByRoleId(roleId);
   }
@@ -50,5 +68,6 @@ public class RoleServiceImpl extends WaspServiceImpl<Role> implements RoleServic
   public Role getRoleByName (final String name) {
     return this.getRoleDao().getRoleByName(name);
   }
+
 }
 

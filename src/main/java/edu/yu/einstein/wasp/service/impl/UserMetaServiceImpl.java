@@ -1,10 +1,10 @@
 
 /**
  *
- * UserMetaService.java 
+ * UserMetaServiceImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the UserMetaService object
+ * the UserMetaService Implmentation 
  *
  *
  **/
@@ -28,19 +28,35 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class UserMetaServiceImpl extends WaspServiceImpl<UserMeta> implements UserMetaService {
 
-  private UserMetaDao userMetaDao;
-  @Autowired
-  public void setUserMetaDao(UserMetaDao userMetaDao) {
-    this.userMetaDao = userMetaDao;
-    this.setWaspDao(userMetaDao);
-  }
-  public UserMetaDao getUserMetaDao() {
-    return this.userMetaDao;
-  }
+	/**
+	 * userMetaDao;
+	 *
+	 */
+	private UserMetaDao userMetaDao;
 
-  // **
+	/**
+	 * setUserMetaDao(UserMetaDao userMetaDao)
+	 *
+	 * @param userMetaDao
+	 *
+	 */
+	@Autowired
+	public void setUserMetaDao(UserMetaDao userMetaDao) {
+		this.userMetaDao = userMetaDao;
+		this.setWaspDao(userMetaDao);
+	}
 
-  
+	/**
+	 * getUserMetaDao();
+	 *
+	 * @return userMetaDao
+	 *
+	 */
+	public UserMetaDao getUserMetaDao() {
+		return this.userMetaDao;
+	}
+
+
   public UserMeta getUserMetaByUserMetaId (final int userMetaId) {
     return this.getUserMetaDao().getUserMetaByUserMetaId(userMetaId);
   }
@@ -52,6 +68,7 @@ public class UserMetaServiceImpl extends WaspServiceImpl<UserMeta> implements Us
   public void updateByUserId (final int UserId, final List<UserMeta> metaList) {
     this.getUserMetaDao().updateByUserId(UserId, metaList); 
   }
+
 
 }
 

@@ -4,7 +4,7 @@
  * RunLanefileService.java 
  * @author echeng (table2type.pl)
  *  
- * the RunLanefileService object
+ * the RunLanefileService
  *
  *
  **/
@@ -15,18 +15,33 @@ import edu.yu.einstein.wasp.dao.RunLanefileDao;
 import edu.yu.einstein.wasp.model.RunLanefile;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
 @Service
 public interface RunLanefileService extends WaspService<RunLanefile> {
 
-  public void setRunLanefileDao(RunLanefileDao runLanefileDao);
-  public RunLanefileDao getRunLanefileDao();
+	/**
+	 * setRunLanefileDao(RunLanefileDao runLanefileDao)
+	 *
+	 * @param runLanefileDao
+	 *
+	 */
+	public void setRunLanefileDao(RunLanefileDao runLanefileDao);
+
+	/**
+	 * getRunLanefileDao();
+	 *
+	 * @return runLanefileDao
+	 *
+	 */
+	public RunLanefileDao getRunLanefileDao();
 
   public RunLanefile getRunLanefileByRunLanefileId (final int runLanefileId);
 
   public RunLanefile getRunLanefileByFileId (final int fileId);
+
 
 }
 

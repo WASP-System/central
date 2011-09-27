@@ -1,10 +1,10 @@
 
 /**
  *
- * JobMetaService.java 
+ * JobMetaServiceImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the JobMetaService object
+ * the JobMetaService Implmentation 
  *
  *
  **/
@@ -28,19 +28,35 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class JobMetaServiceImpl extends WaspServiceImpl<JobMeta> implements JobMetaService {
 
-  private JobMetaDao jobMetaDao;
-  @Autowired
-  public void setJobMetaDao(JobMetaDao jobMetaDao) {
-    this.jobMetaDao = jobMetaDao;
-    this.setWaspDao(jobMetaDao);
-  }
-  public JobMetaDao getJobMetaDao() {
-    return this.jobMetaDao;
-  }
+	/**
+	 * jobMetaDao;
+	 *
+	 */
+	private JobMetaDao jobMetaDao;
 
-  // **
+	/**
+	 * setJobMetaDao(JobMetaDao jobMetaDao)
+	 *
+	 * @param jobMetaDao
+	 *
+	 */
+	@Autowired
+	public void setJobMetaDao(JobMetaDao jobMetaDao) {
+		this.jobMetaDao = jobMetaDao;
+		this.setWaspDao(jobMetaDao);
+	}
 
-  
+	/**
+	 * getJobMetaDao();
+	 *
+	 * @return jobMetaDao
+	 *
+	 */
+	public JobMetaDao getJobMetaDao() {
+		return this.jobMetaDao;
+	}
+
+
   public JobMeta getJobMetaByJobMetaId (final int jobMetaId) {
     return this.getJobMetaDao().getJobMetaByJobMetaId(jobMetaId);
   }
@@ -52,6 +68,7 @@ public class JobMetaServiceImpl extends WaspServiceImpl<JobMeta> implements JobM
   public void updateByJobId (final int jobId, final List<JobMeta> metaList) {
     this.getJobMetaDao().updateByJobId(jobId, metaList); 
   }
+
 
 }
 

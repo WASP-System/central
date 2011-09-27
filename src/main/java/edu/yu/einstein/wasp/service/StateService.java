@@ -4,7 +4,7 @@
  * StateService.java 
  * @author echeng (table2type.pl)
  *  
- * the StateService object
+ * the StateService
  *
  *
  **/
@@ -15,16 +15,31 @@ import edu.yu.einstein.wasp.dao.StateDao;
 import edu.yu.einstein.wasp.model.State;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
 @Service
 public interface StateService extends WaspService<State> {
 
-  public void setStateDao(StateDao stateDao);
-  public StateDao getStateDao();
+	/**
+	 * setStateDao(StateDao stateDao)
+	 *
+	 * @param stateDao
+	 *
+	 */
+	public void setStateDao(StateDao stateDao);
+
+	/**
+	 * getStateDao();
+	 *
+	 * @return stateDao
+	 *
+	 */
+	public StateDao getStateDao();
 
   public State getStateByStateId (final int stateId);
+
 
 }
 

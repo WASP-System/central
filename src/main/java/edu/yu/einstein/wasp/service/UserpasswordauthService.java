@@ -4,7 +4,7 @@
  * UserpasswordauthService.java 
  * @author echeng (table2type.pl)
  *  
- * the UserpasswordauthService object
+ * the UserpasswordauthService
  *
  *
  **/
@@ -22,12 +22,26 @@ import org.springframework.stereotype.Service;
 @Service
 public interface UserpasswordauthService extends WaspService<Userpasswordauth> {
 
-  public void setUserpasswordauthDao(UserpasswordauthDao userpasswordauthDao);
-  public UserpasswordauthDao getUserpasswordauthDao();
+	/**
+	 * setUserpasswordauthDao(UserpasswordauthDao userpasswordauthDao)
+	 *
+	 * @param userpasswordauthDao
+	 *
+	 */
+	public void setUserpasswordauthDao(UserpasswordauthDao userpasswordauthDao);
+
+	/**
+	 * getUserpasswordauthDao();
+	 *
+	 * @return userpasswordauthDao
+	 *
+	 */
+	public UserpasswordauthDao getUserpasswordauthDao();
 
   public Userpasswordauth getUserpasswordauthByUserId (final int UserId);
 
   public Userpasswordauth getUserpasswordauthByAuthcode (final String authcode);
+
 
 }
 

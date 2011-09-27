@@ -1,10 +1,10 @@
 
 /**
  *
- * SampleBarcodeService.java 
+ * SampleBarcodeServiceImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the SampleBarcodeService object
+ * the SampleBarcodeService Implmentation 
  *
  *
  **/
@@ -17,6 +17,8 @@ import edu.yu.einstein.wasp.dao.WaspDao;
 import edu.yu.einstein.wasp.model.SampleBarcode;
 
 import java.util.List;
+import java.util.Map;
+
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PostFilter;
@@ -26,19 +28,35 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class SampleBarcodeServiceImpl extends WaspServiceImpl<SampleBarcode> implements SampleBarcodeService {
 
-  private SampleBarcodeDao sampleBarcodeDao;
-  @Autowired
-  public void setSampleBarcodeDao(SampleBarcodeDao sampleBarcodeDao) {
-    this.sampleBarcodeDao = sampleBarcodeDao;
-    this.setWaspDao(sampleBarcodeDao);
-  }
-  public SampleBarcodeDao getSampleBarcodeDao() {
-    return this.sampleBarcodeDao;
-  }
+	/**
+	 * sampleBarcodeDao;
+	 *
+	 */
+	private SampleBarcodeDao sampleBarcodeDao;
 
-  // **
+	/**
+	 * setSampleBarcodeDao(SampleBarcodeDao sampleBarcodeDao)
+	 *
+	 * @param sampleBarcodeDao
+	 *
+	 */
+	@Autowired
+	public void setSampleBarcodeDao(SampleBarcodeDao sampleBarcodeDao) {
+		this.sampleBarcodeDao = sampleBarcodeDao;
+		this.setWaspDao(sampleBarcodeDao);
+	}
 
-  
+	/**
+	 * getSampleBarcodeDao();
+	 *
+	 * @return sampleBarcodeDao
+	 *
+	 */
+	public SampleBarcodeDao getSampleBarcodeDao() {
+		return this.sampleBarcodeDao;
+	}
+
+
   public SampleBarcode getSampleBarcodeBySampleBarcode (final int sampleBarcode) {
     return this.getSampleBarcodeDao().getSampleBarcodeBySampleBarcode(sampleBarcode);
   }
@@ -50,5 +68,6 @@ public class SampleBarcodeServiceImpl extends WaspServiceImpl<SampleBarcode> imp
   public SampleBarcode getSampleBarcodeByBarcodeId (final int barcodeId) {
     return this.getSampleBarcodeDao().getSampleBarcodeByBarcodeId(barcodeId);
   }
+
 }
 

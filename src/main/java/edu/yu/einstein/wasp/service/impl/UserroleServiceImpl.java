@@ -1,10 +1,10 @@
 
 /**
  *
- * UserroleService.java 
+ * UserroleServiceImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the UserroleService object
+ * the UserroleService Implmentation 
  *
  *
  **/
@@ -17,6 +17,8 @@ import edu.yu.einstein.wasp.dao.WaspDao;
 import edu.yu.einstein.wasp.model.Userrole;
 
 import java.util.List;
+import java.util.Map;
+
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PostFilter;
@@ -26,19 +28,35 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class UserroleServiceImpl extends WaspServiceImpl<Userrole> implements UserroleService {
 
-  private UserroleDao userroleDao;
-  @Autowired
-  public void setUserroleDao(UserroleDao userroleDao) {
-    this.userroleDao = userroleDao;
-    this.setWaspDao(userroleDao);
-  }
-  public UserroleDao getUserroleDao() {
-    return this.userroleDao;
-  }
+	/**
+	 * userroleDao;
+	 *
+	 */
+	private UserroleDao userroleDao;
 
-  // **
+	/**
+	 * setUserroleDao(UserroleDao userroleDao)
+	 *
+	 * @param userroleDao
+	 *
+	 */
+	@Autowired
+	public void setUserroleDao(UserroleDao userroleDao) {
+		this.userroleDao = userroleDao;
+		this.setWaspDao(userroleDao);
+	}
 
-  
+	/**
+	 * getUserroleDao();
+	 *
+	 * @return userroleDao
+	 *
+	 */
+	public UserroleDao getUserroleDao() {
+		return this.userroleDao;
+	}
+
+
   public Userrole getUserroleByUserroleId (final int userroleId) {
     return this.getUserroleDao().getUserroleByUserroleId(userroleId);
   }
@@ -46,5 +64,6 @@ public class UserroleServiceImpl extends WaspServiceImpl<Userrole> implements Us
   public Userrole getUserroleByUserIdRoleId (final int UserId, final int roleId) {
     return this.getUserroleDao().getUserroleByUserIdRoleId(UserId, roleId);
   }
+
 }
 

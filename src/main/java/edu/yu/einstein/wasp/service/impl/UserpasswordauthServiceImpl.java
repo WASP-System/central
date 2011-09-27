@@ -1,10 +1,10 @@
 
 /**
  *
- * UserpasswordauthService.java 
+ * UserpasswordauthServiceImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the UserpasswordauthService object
+ * the UserpasswordauthService Implmentation 
  *
  *
  **/
@@ -18,7 +18,6 @@ import edu.yu.einstein.wasp.model.Userpasswordauth;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,19 +28,35 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class UserpasswordauthServiceImpl extends WaspServiceImpl<Userpasswordauth> implements UserpasswordauthService {
 
-  private UserpasswordauthDao userpasswordauthDao;
-  @Autowired
-  public void setUserpasswordauthDao(UserpasswordauthDao userpasswordauthDao) {
-    this.userpasswordauthDao = userpasswordauthDao;
-    this.setWaspDao(userpasswordauthDao);
-  }
-  public UserpasswordauthDao getUserpasswordauthDao() {
-    return this.userpasswordauthDao;
-  }
+	/**
+	 * userpasswordauthDao;
+	 *
+	 */
+	private UserpasswordauthDao userpasswordauthDao;
 
-  // **
+	/**
+	 * setUserpasswordauthDao(UserpasswordauthDao userpasswordauthDao)
+	 *
+	 * @param userpasswordauthDao
+	 *
+	 */
+	@Autowired
+	public void setUserpasswordauthDao(UserpasswordauthDao userpasswordauthDao) {
+		this.userpasswordauthDao = userpasswordauthDao;
+		this.setWaspDao(userpasswordauthDao);
+	}
 
-  
+	/**
+	 * getUserpasswordauthDao();
+	 *
+	 * @return userpasswordauthDao
+	 *
+	 */
+	public UserpasswordauthDao getUserpasswordauthDao() {
+		return this.userpasswordauthDao;
+	}
+
+
   public Userpasswordauth getUserpasswordauthByUserId (final int UserId) {
     return this.getUserpasswordauthDao().getUserpasswordauthByUserId(UserId);
   }
@@ -49,7 +64,6 @@ public class UserpasswordauthServiceImpl extends WaspServiceImpl<Userpasswordaut
   public Userpasswordauth getUserpasswordauthByAuthcode (final String authcode) {
     return this.getUserpasswordauthDao().getUserpasswordauthByAuthcode(authcode);
   }
-  
 
 }
 

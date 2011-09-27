@@ -4,7 +4,7 @@
  * RunMetaService.java 
  * @author echeng (table2type.pl)
  *  
- * the RunMetaService object
+ * the RunMetaService
  *
  *
  **/
@@ -22,14 +22,28 @@ import org.springframework.stereotype.Service;
 @Service
 public interface RunMetaService extends WaspService<RunMeta> {
 
-  public void setRunMetaDao(RunMetaDao runMetaDao);
-  public RunMetaDao getRunMetaDao();
+	/**
+	 * setRunMetaDao(RunMetaDao runMetaDao)
+	 *
+	 * @param runMetaDao
+	 *
+	 */
+	public void setRunMetaDao(RunMetaDao runMetaDao);
+
+	/**
+	 * getRunMetaDao();
+	 *
+	 * @return runMetaDao
+	 *
+	 */
+	public RunMetaDao getRunMetaDao();
 
   public RunMeta getRunMetaByRunMetaId (final int runMetaId);
 
   public RunMeta getRunMetaByKRunId (final String k, final int runId);
 
   public void updateByRunId (final int runId, final List<RunMeta> metaList);
+
 
 }
 

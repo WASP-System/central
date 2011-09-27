@@ -1,10 +1,10 @@
 
 /**
  *
- * LabPendingService.java 
+ * LabPendingServiceImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the LabPendingService object
+ * the LabPendingService Implmentation 
  *
  *
  **/
@@ -28,21 +28,38 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class LabPendingServiceImpl extends WaspServiceImpl<LabPending> implements LabPendingService {
 
-  private LabPendingDao labPendingDao;
-  @Autowired
-  public void setLabPendingDao(LabPendingDao labPendingDao) {
-    this.labPendingDao = labPendingDao;
-    this.setWaspDao(labPendingDao);
-  }
-  public LabPendingDao getLabPendingDao() {
-    return this.labPendingDao;
-  }
+	/**
+	 * labPendingDao;
+	 *
+	 */
+	private LabPendingDao labPendingDao;
 
-  // **
+	/**
+	 * setLabPendingDao(LabPendingDao labPendingDao)
+	 *
+	 * @param labPendingDao
+	 *
+	 */
+	@Autowired
+	public void setLabPendingDao(LabPendingDao labPendingDao) {
+		this.labPendingDao = labPendingDao;
+		this.setWaspDao(labPendingDao);
+	}
 
-  
+	/**
+	 * getLabPendingDao();
+	 *
+	 * @return labPendingDao
+	 *
+	 */
+	public LabPendingDao getLabPendingDao() {
+		return this.labPendingDao;
+	}
+
+
   public LabPending getLabPendingByLabPendingId (final int labPendingId) {
     return this.getLabPendingDao().getLabPendingByLabPendingId(labPendingId);
   }
+
 }
 

@@ -4,7 +4,7 @@
  * StateMetaService.java 
  * @author echeng (table2type.pl)
  *  
- * the StateMetaService object
+ * the StateMetaService
  *
  *
  **/
@@ -22,14 +22,28 @@ import org.springframework.stereotype.Service;
 @Service
 public interface StateMetaService extends WaspService<StateMeta> {
 
-  public void setStateMetaDao(StateMetaDao stateMetaDao);
-  public StateMetaDao getStateMetaDao();
+	/**
+	 * setStateMetaDao(StateMetaDao stateMetaDao)
+	 *
+	 * @param stateMetaDao
+	 *
+	 */
+	public void setStateMetaDao(StateMetaDao stateMetaDao);
+
+	/**
+	 * getStateMetaDao();
+	 *
+	 * @return stateMetaDao
+	 *
+	 */
+	public StateMetaDao getStateMetaDao();
 
   public StateMeta getStateMetaByStateMetaId (final int stateMetaId);
 
   public StateMeta getStateMetaByKStateId (final String k, final int stateId);
 
   public void updateByStateId (final int stateId, final List<StateMeta> metaList);
+
 
 }
 

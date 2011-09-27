@@ -4,7 +4,7 @@
  * RolesetService.java 
  * @author echeng (table2type.pl)
  *  
- * the RolesetService object
+ * the RolesetService
  *
  *
  **/
@@ -15,18 +15,33 @@ import edu.yu.einstein.wasp.dao.RolesetDao;
 import edu.yu.einstein.wasp.model.Roleset;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
 @Service
 public interface RolesetService extends WaspService<Roleset> {
 
-  public void setRolesetDao(RolesetDao rolesetDao);
-  public RolesetDao getRolesetDao();
+	/**
+	 * setRolesetDao(RolesetDao rolesetDao)
+	 *
+	 * @param rolesetDao
+	 *
+	 */
+	public void setRolesetDao(RolesetDao rolesetDao);
+
+	/**
+	 * getRolesetDao();
+	 *
+	 * @return rolesetDao
+	 *
+	 */
+	public RolesetDao getRolesetDao();
 
   public Roleset getRolesetByRolesetId (final int rolesetId);
 
   public Roleset getRolesetByParentroleIdChildroleId (final int parentroleId, final int childroleId);
+
 
 }
 

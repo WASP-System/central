@@ -1,10 +1,10 @@
 
 /**
  *
- * LabPendingMetaService.java 
+ * LabPendingMetaServiceImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the LabPendingMetaService object
+ * the LabPendingMetaService Implmentation 
  *
  *
  **/
@@ -28,19 +28,35 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class LabPendingMetaServiceImpl extends WaspServiceImpl<LabPendingMeta> implements LabPendingMetaService {
 
-  private LabPendingMetaDao labPendingMetaDao;
-  @Autowired
-  public void setLabPendingMetaDao(LabPendingMetaDao labPendingMetaDao) {
-    this.labPendingMetaDao = labPendingMetaDao;
-    this.setWaspDao(labPendingMetaDao);
-  }
-  public LabPendingMetaDao getLabPendingMetaDao() {
-    return this.labPendingMetaDao;
-  }
+	/**
+	 * labPendingMetaDao;
+	 *
+	 */
+	private LabPendingMetaDao labPendingMetaDao;
 
-  // **
+	/**
+	 * setLabPendingMetaDao(LabPendingMetaDao labPendingMetaDao)
+	 *
+	 * @param labPendingMetaDao
+	 *
+	 */
+	@Autowired
+	public void setLabPendingMetaDao(LabPendingMetaDao labPendingMetaDao) {
+		this.labPendingMetaDao = labPendingMetaDao;
+		this.setWaspDao(labPendingMetaDao);
+	}
 
-  
+	/**
+	 * getLabPendingMetaDao();
+	 *
+	 * @return labPendingMetaDao
+	 *
+	 */
+	public LabPendingMetaDao getLabPendingMetaDao() {
+		return this.labPendingMetaDao;
+	}
+
+
   public LabPendingMeta getLabPendingMetaByLabPendingMetaId (final int labPendingMetaId) {
     return this.getLabPendingMetaDao().getLabPendingMetaByLabPendingMetaId(labPendingMetaId);
   }
@@ -52,6 +68,7 @@ public class LabPendingMetaServiceImpl extends WaspServiceImpl<LabPendingMeta> i
   public void updateByLabpendingId (final int labpendingId, final List<LabPendingMeta> metaList) {
     this.getLabPendingMetaDao().updateByLabpendingId(labpendingId, metaList); 
   }
+
 
 }
 

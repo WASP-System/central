@@ -4,7 +4,7 @@
  * UserPendingMetaService.java 
  * @author echeng (table2type.pl)
  *  
- * the UserPendingMetaService object
+ * the UserPendingMetaService
  *
  *
  **/
@@ -22,14 +22,28 @@ import org.springframework.stereotype.Service;
 @Service
 public interface UserPendingMetaService extends WaspService<UserPendingMeta> {
 
-  public void setUserPendingMetaDao(UserPendingMetaDao userPendingMetaDao);
-  public UserPendingMetaDao getUserPendingMetaDao();
+	/**
+	 * setUserPendingMetaDao(UserPendingMetaDao userPendingMetaDao)
+	 *
+	 * @param userPendingMetaDao
+	 *
+	 */
+	public void setUserPendingMetaDao(UserPendingMetaDao userPendingMetaDao);
+
+	/**
+	 * getUserPendingMetaDao();
+	 *
+	 * @return userPendingMetaDao
+	 *
+	 */
+	public UserPendingMetaDao getUserPendingMetaDao();
 
   public UserPendingMeta getUserPendingMetaByUserPendingMetaId (final int userPendingMetaId);
 
   public UserPendingMeta getUserPendingMetaByKUserpendingId (final String k, final int userpendingId);
 
   public void updateByUserpendingId (final int userpendingId, final List<UserPendingMeta> metaList);
+
 
 }
 

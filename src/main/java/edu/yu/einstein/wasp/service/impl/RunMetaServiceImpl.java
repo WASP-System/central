@@ -1,10 +1,10 @@
 
 /**
  *
- * RunMetaService.java 
+ * RunMetaServiceImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the RunMetaService object
+ * the RunMetaService Implmentation 
  *
  *
  **/
@@ -28,19 +28,35 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class RunMetaServiceImpl extends WaspServiceImpl<RunMeta> implements RunMetaService {
 
-  private RunMetaDao runMetaDao;
-  @Autowired
-  public void setRunMetaDao(RunMetaDao runMetaDao) {
-    this.runMetaDao = runMetaDao;
-    this.setWaspDao(runMetaDao);
-  }
-  public RunMetaDao getRunMetaDao() {
-    return this.runMetaDao;
-  }
+	/**
+	 * runMetaDao;
+	 *
+	 */
+	private RunMetaDao runMetaDao;
 
-  // **
+	/**
+	 * setRunMetaDao(RunMetaDao runMetaDao)
+	 *
+	 * @param runMetaDao
+	 *
+	 */
+	@Autowired
+	public void setRunMetaDao(RunMetaDao runMetaDao) {
+		this.runMetaDao = runMetaDao;
+		this.setWaspDao(runMetaDao);
+	}
 
-  
+	/**
+	 * getRunMetaDao();
+	 *
+	 * @return runMetaDao
+	 *
+	 */
+	public RunMetaDao getRunMetaDao() {
+		return this.runMetaDao;
+	}
+
+
   public RunMeta getRunMetaByRunMetaId (final int runMetaId) {
     return this.getRunMetaDao().getRunMetaByRunMetaId(runMetaId);
   }
@@ -52,6 +68,7 @@ public class RunMetaServiceImpl extends WaspServiceImpl<RunMeta> implements RunM
   public void updateByRunId (final int runId, final List<RunMeta> metaList) {
     this.getRunMetaDao().updateByRunId(runId, metaList); 
   }
+
 
 }
 

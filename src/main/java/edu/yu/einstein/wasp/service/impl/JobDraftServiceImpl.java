@@ -1,10 +1,10 @@
 
 /**
  *
- * JobDraftService.java 
+ * JobDraftServiceImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the JobDraftService object
+ * the JobDraftService Implmentation 
  *
  *
  **/
@@ -28,21 +28,38 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class JobDraftServiceImpl extends WaspServiceImpl<JobDraft> implements JobDraftService {
 
-  private JobDraftDao jobDraftDao;
-  @Autowired
-  public void setJobDraftDao(JobDraftDao jobDraftDao) {
-    this.jobDraftDao = jobDraftDao;
-    this.setWaspDao(jobDraftDao);
-  }
-  public JobDraftDao getJobDraftDao() {
-    return this.jobDraftDao;
-  }
+	/**
+	 * jobDraftDao;
+	 *
+	 */
+	private JobDraftDao jobDraftDao;
 
-  // **
+	/**
+	 * setJobDraftDao(JobDraftDao jobDraftDao)
+	 *
+	 * @param jobDraftDao
+	 *
+	 */
+	@Autowired
+	public void setJobDraftDao(JobDraftDao jobDraftDao) {
+		this.jobDraftDao = jobDraftDao;
+		this.setWaspDao(jobDraftDao);
+	}
 
-  
+	/**
+	 * getJobDraftDao();
+	 *
+	 * @return jobDraftDao
+	 *
+	 */
+	public JobDraftDao getJobDraftDao() {
+		return this.jobDraftDao;
+	}
+
+
   public JobDraft getJobDraftByJobDraftId (final int jobDraftId) {
     return this.getJobDraftDao().getJobDraftByJobDraftId(jobDraftId);
   }
+
 }
 

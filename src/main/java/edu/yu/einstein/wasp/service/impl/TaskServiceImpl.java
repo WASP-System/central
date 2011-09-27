@@ -1,10 +1,10 @@
 
 /**
  *
- * TaskService.java 
+ * TaskServiceImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the TaskService object
+ * the TaskService Implmentation 
  *
  *
  **/
@@ -17,6 +17,8 @@ import edu.yu.einstein.wasp.dao.WaspDao;
 import edu.yu.einstein.wasp.model.Task;
 
 import java.util.List;
+import java.util.Map;
+
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PostFilter;
@@ -26,19 +28,35 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class TaskServiceImpl extends WaspServiceImpl<Task> implements TaskService {
 
-  private TaskDao taskDao;
-  @Autowired
-  public void setTaskDao(TaskDao taskDao) {
-    this.taskDao = taskDao;
-    this.setWaspDao(taskDao);
-  }
-  public TaskDao getTaskDao() {
-    return this.taskDao;
-  }
+	/**
+	 * taskDao;
+	 *
+	 */
+	private TaskDao taskDao;
 
-  // **
+	/**
+	 * setTaskDao(TaskDao taskDao)
+	 *
+	 * @param taskDao
+	 *
+	 */
+	@Autowired
+	public void setTaskDao(TaskDao taskDao) {
+		this.taskDao = taskDao;
+		this.setWaspDao(taskDao);
+	}
 
-  
+	/**
+	 * getTaskDao();
+	 *
+	 * @return taskDao
+	 *
+	 */
+	public TaskDao getTaskDao() {
+		return this.taskDao;
+	}
+
+
   public Task getTaskByTaskId (final int taskId) {
     return this.getTaskDao().getTaskByTaskId(taskId);
   }
@@ -46,5 +64,6 @@ public class TaskServiceImpl extends WaspServiceImpl<Task> implements TaskServic
   public Task getTaskByIName (final String iName) {
     return this.getTaskDao().getTaskByIName(iName);
   }
+
 }
 

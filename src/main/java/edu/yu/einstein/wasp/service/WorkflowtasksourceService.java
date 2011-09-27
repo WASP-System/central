@@ -4,7 +4,7 @@
  * WorkflowtasksourceService.java 
  * @author echeng (table2type.pl)
  *  
- * the WorkflowtasksourceService object
+ * the WorkflowtasksourceService
  *
  *
  **/
@@ -15,16 +15,31 @@ import edu.yu.einstein.wasp.dao.WorkflowtasksourceDao;
 import edu.yu.einstein.wasp.model.Workflowtasksource;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
 @Service
 public interface WorkflowtasksourceService extends WaspService<Workflowtasksource> {
 
-  public void setWorkflowtasksourceDao(WorkflowtasksourceDao workflowtasksourceDao);
-  public WorkflowtasksourceDao getWorkflowtasksourceDao();
+	/**
+	 * setWorkflowtasksourceDao(WorkflowtasksourceDao workflowtasksourceDao)
+	 *
+	 * @param workflowtasksourceDao
+	 *
+	 */
+	public void setWorkflowtasksourceDao(WorkflowtasksourceDao workflowtasksourceDao);
+
+	/**
+	 * getWorkflowtasksourceDao();
+	 *
+	 * @return workflowtasksourceDao
+	 *
+	 */
+	public WorkflowtasksourceDao getWorkflowtasksourceDao();
 
   public Workflowtasksource getWorkflowtasksourceByWorkflowtasksourceId (final int workflowtasksourceId);
+
 
 }
 

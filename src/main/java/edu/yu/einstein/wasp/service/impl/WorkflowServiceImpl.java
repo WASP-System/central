@@ -1,10 +1,10 @@
 
 /**
  *
- * WorkflowService.java 
+ * WorkflowServiceImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the WorkflowService object
+ * the WorkflowService Implmentation 
  *
  *
  **/
@@ -17,6 +17,8 @@ import edu.yu.einstein.wasp.dao.WaspDao;
 import edu.yu.einstein.wasp.model.Workflow;
 
 import java.util.List;
+import java.util.Map;
+
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PostFilter;
@@ -26,19 +28,35 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class WorkflowServiceImpl extends WaspServiceImpl<Workflow> implements WorkflowService {
 
-  private WorkflowDao workflowDao;
-  @Autowired
-  public void setWorkflowDao(WorkflowDao workflowDao) {
-    this.workflowDao = workflowDao;
-    this.setWaspDao(workflowDao);
-  }
-  public WorkflowDao getWorkflowDao() {
-    return this.workflowDao;
-  }
+	/**
+	 * workflowDao;
+	 *
+	 */
+	private WorkflowDao workflowDao;
 
-  // **
+	/**
+	 * setWorkflowDao(WorkflowDao workflowDao)
+	 *
+	 * @param workflowDao
+	 *
+	 */
+	@Autowired
+	public void setWorkflowDao(WorkflowDao workflowDao) {
+		this.workflowDao = workflowDao;
+		this.setWaspDao(workflowDao);
+	}
 
-  
+	/**
+	 * getWorkflowDao();
+	 *
+	 * @return workflowDao
+	 *
+	 */
+	public WorkflowDao getWorkflowDao() {
+		return this.workflowDao;
+	}
+
+
   public Workflow getWorkflowByWorkflowId (final int workflowId) {
     return this.getWorkflowDao().getWorkflowByWorkflowId(workflowId);
   }
@@ -50,5 +68,6 @@ public class WorkflowServiceImpl extends WaspServiceImpl<Workflow> implements Wo
   public Workflow getWorkflowByName (final String name) {
     return this.getWorkflowDao().getWorkflowByName(name);
   }
+
 }
 

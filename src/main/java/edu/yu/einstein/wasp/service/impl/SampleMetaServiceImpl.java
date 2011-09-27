@@ -1,10 +1,10 @@
 
 /**
  *
- * SampleMetaService.java 
+ * SampleMetaServiceImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the SampleMetaService object
+ * the SampleMetaService Implmentation 
  *
  *
  **/
@@ -28,19 +28,35 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class SampleMetaServiceImpl extends WaspServiceImpl<SampleMeta> implements SampleMetaService {
 
-  private SampleMetaDao sampleMetaDao;
-  @Autowired
-  public void setSampleMetaDao(SampleMetaDao sampleMetaDao) {
-    this.sampleMetaDao = sampleMetaDao;
-    this.setWaspDao(sampleMetaDao);
-  }
-  public SampleMetaDao getSampleMetaDao() {
-    return this.sampleMetaDao;
-  }
+	/**
+	 * sampleMetaDao;
+	 *
+	 */
+	private SampleMetaDao sampleMetaDao;
 
-  // **
+	/**
+	 * setSampleMetaDao(SampleMetaDao sampleMetaDao)
+	 *
+	 * @param sampleMetaDao
+	 *
+	 */
+	@Autowired
+	public void setSampleMetaDao(SampleMetaDao sampleMetaDao) {
+		this.sampleMetaDao = sampleMetaDao;
+		this.setWaspDao(sampleMetaDao);
+	}
 
-  
+	/**
+	 * getSampleMetaDao();
+	 *
+	 * @return sampleMetaDao
+	 *
+	 */
+	public SampleMetaDao getSampleMetaDao() {
+		return this.sampleMetaDao;
+	}
+
+
   public SampleMeta getSampleMetaBySampleMetaId (final int sampleMetaId) {
     return this.getSampleMetaDao().getSampleMetaBySampleMetaId(sampleMetaId);
   }
@@ -52,6 +68,7 @@ public class SampleMetaServiceImpl extends WaspServiceImpl<SampleMeta> implement
   public void updateBySampleId (final int sampleId, final List<SampleMeta> metaList) {
     this.getSampleMetaDao().updateBySampleId(sampleId, metaList); 
   }
+
 
 }
 

@@ -1,10 +1,10 @@
 
 /**
  *
- * ResourceMetaService.java 
+ * ResourceMetaServiceImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the ResourceMetaService object
+ * the ResourceMetaService Implmentation 
  *
  *
  **/
@@ -28,19 +28,35 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class ResourceMetaServiceImpl extends WaspServiceImpl<ResourceMeta> implements ResourceMetaService {
 
-  private ResourceMetaDao resourceMetaDao;
-  @Autowired
-  public void setResourceMetaDao(ResourceMetaDao resourceMetaDao) {
-    this.resourceMetaDao = resourceMetaDao;
-    this.setWaspDao(resourceMetaDao);
-  }
-  public ResourceMetaDao getResourceMetaDao() {
-    return this.resourceMetaDao;
-  }
+	/**
+	 * resourceMetaDao;
+	 *
+	 */
+	private ResourceMetaDao resourceMetaDao;
 
-  // **
+	/**
+	 * setResourceMetaDao(ResourceMetaDao resourceMetaDao)
+	 *
+	 * @param resourceMetaDao
+	 *
+	 */
+	@Autowired
+	public void setResourceMetaDao(ResourceMetaDao resourceMetaDao) {
+		this.resourceMetaDao = resourceMetaDao;
+		this.setWaspDao(resourceMetaDao);
+	}
 
-  
+	/**
+	 * getResourceMetaDao();
+	 *
+	 * @return resourceMetaDao
+	 *
+	 */
+	public ResourceMetaDao getResourceMetaDao() {
+		return this.resourceMetaDao;
+	}
+
+
   public ResourceMeta getResourceMetaByResourceMetaId (final int resourceMetaId) {
     return this.getResourceMetaDao().getResourceMetaByResourceMetaId(resourceMetaId);
   }
@@ -52,6 +68,7 @@ public class ResourceMetaServiceImpl extends WaspServiceImpl<ResourceMeta> imple
   public void updateByResourceId (final int resourceId, final List<ResourceMeta> metaList) {
     this.getResourceMetaDao().updateByResourceId(resourceId, metaList); 
   }
+
 
 }
 

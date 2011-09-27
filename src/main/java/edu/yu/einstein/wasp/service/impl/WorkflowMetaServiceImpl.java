@@ -1,10 +1,10 @@
 
 /**
  *
- * WorkflowMetaService.java 
+ * WorkflowMetaServiceImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the WorkflowMetaService object
+ * the WorkflowMetaService Implmentation 
  *
  *
  **/
@@ -28,19 +28,35 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class WorkflowMetaServiceImpl extends WaspServiceImpl<WorkflowMeta> implements WorkflowMetaService {
 
-  private WorkflowMetaDao workflowMetaDao;
-  @Autowired
-  public void setWorkflowMetaDao(WorkflowMetaDao workflowMetaDao) {
-    this.workflowMetaDao = workflowMetaDao;
-    this.setWaspDao(workflowMetaDao);
-  }
-  public WorkflowMetaDao getWorkflowMetaDao() {
-    return this.workflowMetaDao;
-  }
+	/**
+	 * workflowMetaDao;
+	 *
+	 */
+	private WorkflowMetaDao workflowMetaDao;
 
-  // **
+	/**
+	 * setWorkflowMetaDao(WorkflowMetaDao workflowMetaDao)
+	 *
+	 * @param workflowMetaDao
+	 *
+	 */
+	@Autowired
+	public void setWorkflowMetaDao(WorkflowMetaDao workflowMetaDao) {
+		this.workflowMetaDao = workflowMetaDao;
+		this.setWaspDao(workflowMetaDao);
+	}
 
-  
+	/**
+	 * getWorkflowMetaDao();
+	 *
+	 * @return workflowMetaDao
+	 *
+	 */
+	public WorkflowMetaDao getWorkflowMetaDao() {
+		return this.workflowMetaDao;
+	}
+
+
   public WorkflowMeta getWorkflowMetaByWorkflowMetaId (final int workflowMetaId) {
     return this.getWorkflowMetaDao().getWorkflowMetaByWorkflowMetaId(workflowMetaId);
   }
@@ -52,6 +68,7 @@ public class WorkflowMetaServiceImpl extends WaspServiceImpl<WorkflowMeta> imple
   public void updateByWorkflowId (final int workflowId, final List<WorkflowMeta> metaList) {
     this.getWorkflowMetaDao().updateByWorkflowId(workflowId, metaList); 
   }
+
 
 }
 

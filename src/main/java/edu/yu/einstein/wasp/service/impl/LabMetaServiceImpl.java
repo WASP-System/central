@@ -1,10 +1,10 @@
 
 /**
  *
- * LabMetaService.java 
+ * LabMetaServiceImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the LabMetaService object
+ * the LabMetaService Implmentation 
  *
  *
  **/
@@ -28,19 +28,35 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class LabMetaServiceImpl extends WaspServiceImpl<LabMeta> implements LabMetaService {
 
-  private LabMetaDao labMetaDao;
-  @Autowired
-  public void setLabMetaDao(LabMetaDao labMetaDao) {
-    this.labMetaDao = labMetaDao;
-    this.setWaspDao(labMetaDao);
-  }
-  public LabMetaDao getLabMetaDao() {
-    return this.labMetaDao;
-  }
+	/**
+	 * labMetaDao;
+	 *
+	 */
+	private LabMetaDao labMetaDao;
 
-  // **
+	/**
+	 * setLabMetaDao(LabMetaDao labMetaDao)
+	 *
+	 * @param labMetaDao
+	 *
+	 */
+	@Autowired
+	public void setLabMetaDao(LabMetaDao labMetaDao) {
+		this.labMetaDao = labMetaDao;
+		this.setWaspDao(labMetaDao);
+	}
 
-  
+	/**
+	 * getLabMetaDao();
+	 *
+	 * @return labMetaDao
+	 *
+	 */
+	public LabMetaDao getLabMetaDao() {
+		return this.labMetaDao;
+	}
+
+
   public LabMeta getLabMetaByLabMetaId (final int labMetaId) {
     return this.getLabMetaDao().getLabMetaByLabMetaId(labMetaId);
   }
@@ -52,6 +68,7 @@ public class LabMetaServiceImpl extends WaspServiceImpl<LabMeta> implements LabM
   public void updateByLabId (final int labId, final List<LabMeta> metaList) {
     this.getLabMetaDao().updateByLabId(labId, metaList); 
   }
+
 
 }
 

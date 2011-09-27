@@ -4,7 +4,7 @@
  * LabPendingMetaService.java 
  * @author echeng (table2type.pl)
  *  
- * the LabPendingMetaService object
+ * the LabPendingMetaService
  *
  *
  **/
@@ -22,14 +22,28 @@ import org.springframework.stereotype.Service;
 @Service
 public interface LabPendingMetaService extends WaspService<LabPendingMeta> {
 
-  public void setLabPendingMetaDao(LabPendingMetaDao labPendingMetaDao);
-  public LabPendingMetaDao getLabPendingMetaDao();
+	/**
+	 * setLabPendingMetaDao(LabPendingMetaDao labPendingMetaDao)
+	 *
+	 * @param labPendingMetaDao
+	 *
+	 */
+	public void setLabPendingMetaDao(LabPendingMetaDao labPendingMetaDao);
+
+	/**
+	 * getLabPendingMetaDao();
+	 *
+	 * @return labPendingMetaDao
+	 *
+	 */
+	public LabPendingMetaDao getLabPendingMetaDao();
 
   public LabPendingMeta getLabPendingMetaByLabPendingMetaId (final int labPendingMetaId);
 
   public LabPendingMeta getLabPendingMetaByKLabpendingId (final String k, final int labpendingId);
 
   public void updateByLabpendingId (final int labpendingId, final List<LabPendingMeta> metaList);
+
 
 }
 

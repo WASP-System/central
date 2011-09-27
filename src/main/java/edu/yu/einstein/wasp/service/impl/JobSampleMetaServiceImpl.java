@@ -1,10 +1,10 @@
 
 /**
  *
- * JobSampleMetaService.java 
+ * JobSampleMetaServiceImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the JobSampleMetaService object
+ * the JobSampleMetaService Implmentation 
  *
  *
  **/
@@ -28,19 +28,35 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class JobSampleMetaServiceImpl extends WaspServiceImpl<JobSampleMeta> implements JobSampleMetaService {
 
-  private JobSampleMetaDao jobSampleMetaDao;
-  @Autowired
-  public void setJobSampleMetaDao(JobSampleMetaDao jobSampleMetaDao) {
-    this.jobSampleMetaDao = jobSampleMetaDao;
-    this.setWaspDao(jobSampleMetaDao);
-  }
-  public JobSampleMetaDao getJobSampleMetaDao() {
-    return this.jobSampleMetaDao;
-  }
+	/**
+	 * jobSampleMetaDao;
+	 *
+	 */
+	private JobSampleMetaDao jobSampleMetaDao;
 
-  // **
+	/**
+	 * setJobSampleMetaDao(JobSampleMetaDao jobSampleMetaDao)
+	 *
+	 * @param jobSampleMetaDao
+	 *
+	 */
+	@Autowired
+	public void setJobSampleMetaDao(JobSampleMetaDao jobSampleMetaDao) {
+		this.jobSampleMetaDao = jobSampleMetaDao;
+		this.setWaspDao(jobSampleMetaDao);
+	}
 
-  
+	/**
+	 * getJobSampleMetaDao();
+	 *
+	 * @return jobSampleMetaDao
+	 *
+	 */
+	public JobSampleMetaDao getJobSampleMetaDao() {
+		return this.jobSampleMetaDao;
+	}
+
+
   public JobSampleMeta getJobSampleMetaByJobSampleMetaId (final int jobSampleMetaId) {
     return this.getJobSampleMetaDao().getJobSampleMetaByJobSampleMetaId(jobSampleMetaId);
   }
@@ -52,6 +68,7 @@ public class JobSampleMetaServiceImpl extends WaspServiceImpl<JobSampleMeta> imp
   public void updateByJobsampleId (final int jobsampleId, final List<JobSampleMeta> metaList) {
     this.getJobSampleMetaDao().updateByJobsampleId(jobsampleId, metaList); 
   }
+
 
 }
 

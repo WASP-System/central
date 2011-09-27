@@ -1,10 +1,10 @@
 
 /**
  *
- * RunLaneService.java 
+ * RunLaneServiceImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the RunLaneService object
+ * the RunLaneService Implmentation 
  *
  *
  **/
@@ -17,6 +17,8 @@ import edu.yu.einstein.wasp.dao.WaspDao;
 import edu.yu.einstein.wasp.model.RunLane;
 
 import java.util.List;
+import java.util.Map;
+
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PostFilter;
@@ -26,19 +28,35 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class RunLaneServiceImpl extends WaspServiceImpl<RunLane> implements RunLaneService {
 
-  private RunLaneDao runLaneDao;
-  @Autowired
-  public void setRunLaneDao(RunLaneDao runLaneDao) {
-    this.runLaneDao = runLaneDao;
-    this.setWaspDao(runLaneDao);
-  }
-  public RunLaneDao getRunLaneDao() {
-    return this.runLaneDao;
-  }
+	/**
+	 * runLaneDao;
+	 *
+	 */
+	private RunLaneDao runLaneDao;
 
-  // **
+	/**
+	 * setRunLaneDao(RunLaneDao runLaneDao)
+	 *
+	 * @param runLaneDao
+	 *
+	 */
+	@Autowired
+	public void setRunLaneDao(RunLaneDao runLaneDao) {
+		this.runLaneDao = runLaneDao;
+		this.setWaspDao(runLaneDao);
+	}
 
-  
+	/**
+	 * getRunLaneDao();
+	 *
+	 * @return runLaneDao
+	 *
+	 */
+	public RunLaneDao getRunLaneDao() {
+		return this.runLaneDao;
+	}
+
+
   public RunLane getRunLaneByRunLaneId (final int runLaneId) {
     return this.getRunLaneDao().getRunLaneByRunLaneId(runLaneId);
   }
@@ -50,5 +68,6 @@ public class RunLaneServiceImpl extends WaspServiceImpl<RunLane> implements RunL
   public RunLane getRunLaneBySampleIdRunId (final int sampleId, final int runId) {
     return this.getRunLaneDao().getRunLaneBySampleIdRunId(sampleId, runId);
   }
+
 }
 

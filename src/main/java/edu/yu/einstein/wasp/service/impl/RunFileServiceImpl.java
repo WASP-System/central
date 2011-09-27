@@ -1,10 +1,10 @@
 
 /**
  *
- * RunFileService.java 
+ * RunFileServiceImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the RunFileService object
+ * the RunFileService Implmentation 
  *
  *
  **/
@@ -17,6 +17,8 @@ import edu.yu.einstein.wasp.dao.WaspDao;
 import edu.yu.einstein.wasp.model.RunFile;
 
 import java.util.List;
+import java.util.Map;
+
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PostFilter;
@@ -26,19 +28,35 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class RunFileServiceImpl extends WaspServiceImpl<RunFile> implements RunFileService {
 
-  private RunFileDao runFileDao;
-  @Autowired
-  public void setRunFileDao(RunFileDao runFileDao) {
-    this.runFileDao = runFileDao;
-    this.setWaspDao(runFileDao);
-  }
-  public RunFileDao getRunFileDao() {
-    return this.runFileDao;
-  }
+	/**
+	 * runFileDao;
+	 *
+	 */
+	private RunFileDao runFileDao;
 
-  // **
+	/**
+	 * setRunFileDao(RunFileDao runFileDao)
+	 *
+	 * @param runFileDao
+	 *
+	 */
+	@Autowired
+	public void setRunFileDao(RunFileDao runFileDao) {
+		this.runFileDao = runFileDao;
+		this.setWaspDao(runFileDao);
+	}
 
-  
+	/**
+	 * getRunFileDao();
+	 *
+	 * @return runFileDao
+	 *
+	 */
+	public RunFileDao getRunFileDao() {
+		return this.runFileDao;
+	}
+
+
   public RunFile getRunFileByRunlanefileId (final int runlanefileId) {
     return this.getRunFileDao().getRunFileByRunlanefileId(runlanefileId);
   }
@@ -46,5 +64,6 @@ public class RunFileServiceImpl extends WaspServiceImpl<RunFile> implements RunF
   public RunFile getRunFileByFileId (final int fileId) {
     return this.getRunFileDao().getRunFileByFileId(fileId);
   }
+
 }
 

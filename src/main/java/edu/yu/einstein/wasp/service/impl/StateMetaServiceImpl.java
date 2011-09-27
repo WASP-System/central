@@ -1,10 +1,10 @@
 
 /**
  *
- * StateMetaService.java 
+ * StateMetaServiceImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the StateMetaService object
+ * the StateMetaService Implmentation 
  *
  *
  **/
@@ -28,19 +28,35 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class StateMetaServiceImpl extends WaspServiceImpl<StateMeta> implements StateMetaService {
 
-  private StateMetaDao stateMetaDao;
-  @Autowired
-  public void setStateMetaDao(StateMetaDao stateMetaDao) {
-    this.stateMetaDao = stateMetaDao;
-    this.setWaspDao(stateMetaDao);
-  }
-  public StateMetaDao getStateMetaDao() {
-    return this.stateMetaDao;
-  }
+	/**
+	 * stateMetaDao;
+	 *
+	 */
+	private StateMetaDao stateMetaDao;
 
-  // **
+	/**
+	 * setStateMetaDao(StateMetaDao stateMetaDao)
+	 *
+	 * @param stateMetaDao
+	 *
+	 */
+	@Autowired
+	public void setStateMetaDao(StateMetaDao stateMetaDao) {
+		this.stateMetaDao = stateMetaDao;
+		this.setWaspDao(stateMetaDao);
+	}
 
-  
+	/**
+	 * getStateMetaDao();
+	 *
+	 * @return stateMetaDao
+	 *
+	 */
+	public StateMetaDao getStateMetaDao() {
+		return this.stateMetaDao;
+	}
+
+
   public StateMeta getStateMetaByStateMetaId (final int stateMetaId) {
     return this.getStateMetaDao().getStateMetaByStateMetaId(stateMetaId);
   }
@@ -52,6 +68,7 @@ public class StateMetaServiceImpl extends WaspServiceImpl<StateMeta> implements 
   public void updateByStateId (final int stateId, final List<StateMeta> metaList) {
     this.getStateMetaDao().updateByStateId(stateId, metaList); 
   }
+
 
 }
 

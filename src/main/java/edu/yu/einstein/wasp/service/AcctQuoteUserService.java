@@ -4,7 +4,7 @@
  * AcctQuoteUserService.java 
  * @author echeng (table2type.pl)
  *  
- * the AcctQuoteUserService object
+ * the AcctQuoteUserService
  *
  *
  **/
@@ -15,16 +15,31 @@ import edu.yu.einstein.wasp.dao.AcctQuoteUserDao;
 import edu.yu.einstein.wasp.model.AcctQuoteUser;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
 @Service
 public interface AcctQuoteUserService extends WaspService<AcctQuoteUser> {
 
-  public void setAcctQuoteUserDao(AcctQuoteUserDao acctQuoteUserDao);
-  public AcctQuoteUserDao getAcctQuoteUserDao();
+	/**
+	 * setAcctQuoteUserDao(AcctQuoteUserDao acctQuoteUserDao)
+	 *
+	 * @param acctQuoteUserDao
+	 *
+	 */
+	public void setAcctQuoteUserDao(AcctQuoteUserDao acctQuoteUserDao);
+
+	/**
+	 * getAcctQuoteUserDao();
+	 *
+	 * @return acctQuoteUserDao
+	 *
+	 */
+	public AcctQuoteUserDao getAcctQuoteUserDao();
 
   public AcctQuoteUser getAcctQuoteUserByQuoteUserId (final int quoteUserId);
+
 
 }
 

@@ -4,7 +4,7 @@
  * JobDraftService.java 
  * @author echeng (table2type.pl)
  *  
- * the JobDraftService object
+ * the JobDraftService
  *
  *
  **/
@@ -22,10 +22,24 @@ import org.springframework.stereotype.Service;
 @Service
 public interface JobDraftService extends WaspService<JobDraft> {
 
-  public void setJobDraftDao(JobDraftDao jobDraftDao);
-  public JobDraftDao getJobDraftDao();
+	/**
+	 * setJobDraftDao(JobDraftDao jobDraftDao)
+	 *
+	 * @param jobDraftDao
+	 *
+	 */
+	public void setJobDraftDao(JobDraftDao jobDraftDao);
+
+	/**
+	 * getJobDraftDao();
+	 *
+	 * @return jobDraftDao
+	 *
+	 */
+	public JobDraftDao getJobDraftDao();
 
   public JobDraft getJobDraftByJobDraftId (final int jobDraftId);
+
 
 }
 

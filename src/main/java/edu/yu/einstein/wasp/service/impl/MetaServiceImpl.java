@@ -1,10 +1,10 @@
 
 /**
  *
- * MetaService.java 
+ * MetaServiceImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the MetaService object
+ * the MetaService Implmentation 
  *
  *
  **/
@@ -28,19 +28,35 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class MetaServiceImpl extends WaspServiceImpl<Meta> implements MetaService {
 
-  private MetaDao metaDao;
-  @Autowired
-  public void setMetaDao(MetaDao metaDao) {
-    this.metaDao = metaDao;
-    this.setWaspDao(metaDao);
-  }
-  public MetaDao getMetaDao() {
-    return this.metaDao;
-  }
+	/**
+	 * metaDao;
+	 *
+	 */
+	private MetaDao metaDao;
 
-  // **
+	/**
+	 * setMetaDao(MetaDao metaDao)
+	 *
+	 * @param metaDao
+	 *
+	 */
+	@Autowired
+	public void setMetaDao(MetaDao metaDao) {
+		this.metaDao = metaDao;
+		this.setWaspDao(metaDao);
+	}
 
-  
+	/**
+	 * getMetaDao();
+	 *
+	 * @return metaDao
+	 *
+	 */
+	public MetaDao getMetaDao() {
+		return this.metaDao;
+	}
+
+
   public Meta getMetaByMetaId (final int metaId) {
     return this.getMetaDao().getMetaByMetaId(metaId);
   }
@@ -52,5 +68,6 @@ public class MetaServiceImpl extends WaspServiceImpl<Meta> implements MetaServic
   public Meta getMetaByPropertyV (final String property, final String v) {
     return this.getMetaDao().getMetaByPropertyV(property, v);
   }
+
 }
 

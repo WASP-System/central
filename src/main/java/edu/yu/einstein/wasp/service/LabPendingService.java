@@ -4,7 +4,7 @@
  * LabPendingService.java 
  * @author echeng (table2type.pl)
  *  
- * the LabPendingService object
+ * the LabPendingService
  *
  *
  **/
@@ -22,10 +22,24 @@ import org.springframework.stereotype.Service;
 @Service
 public interface LabPendingService extends WaspService<LabPending> {
 
-  public void setLabPendingDao(LabPendingDao labPendingDao);
-  public LabPendingDao getLabPendingDao();
+	/**
+	 * setLabPendingDao(LabPendingDao labPendingDao)
+	 *
+	 * @param labPendingDao
+	 *
+	 */
+	public void setLabPendingDao(LabPendingDao labPendingDao);
+
+	/**
+	 * getLabPendingDao();
+	 *
+	 * @return labPendingDao
+	 *
+	 */
+	public LabPendingDao getLabPendingDao();
 
   public LabPending getLabPendingByLabPendingId (final int labPendingId);
+
 
 }
 

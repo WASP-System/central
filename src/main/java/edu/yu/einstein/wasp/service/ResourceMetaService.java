@@ -4,7 +4,7 @@
  * ResourceMetaService.java 
  * @author echeng (table2type.pl)
  *  
- * the ResourceMetaService object
+ * the ResourceMetaService
  *
  *
  **/
@@ -22,14 +22,28 @@ import org.springframework.stereotype.Service;
 @Service
 public interface ResourceMetaService extends WaspService<ResourceMeta> {
 
-  public void setResourceMetaDao(ResourceMetaDao resourceMetaDao);
-  public ResourceMetaDao getResourceMetaDao();
+	/**
+	 * setResourceMetaDao(ResourceMetaDao resourceMetaDao)
+	 *
+	 * @param resourceMetaDao
+	 *
+	 */
+	public void setResourceMetaDao(ResourceMetaDao resourceMetaDao);
+
+	/**
+	 * getResourceMetaDao();
+	 *
+	 * @return resourceMetaDao
+	 *
+	 */
+	public ResourceMetaDao getResourceMetaDao();
 
   public ResourceMeta getResourceMetaByResourceMetaId (final int resourceMetaId);
 
   public ResourceMeta getResourceMetaByKResourceId (final String k, final int resourceId);
 
   public void updateByResourceId (final int resourceId, final List<ResourceMeta> metaList);
+
 
 }
 

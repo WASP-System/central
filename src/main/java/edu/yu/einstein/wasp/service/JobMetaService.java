@@ -4,7 +4,7 @@
  * JobMetaService.java 
  * @author echeng (table2type.pl)
  *  
- * the JobMetaService object
+ * the JobMetaService
  *
  *
  **/
@@ -22,14 +22,28 @@ import org.springframework.stereotype.Service;
 @Service
 public interface JobMetaService extends WaspService<JobMeta> {
 
-  public void setJobMetaDao(JobMetaDao jobMetaDao);
-  public JobMetaDao getJobMetaDao();
+	/**
+	 * setJobMetaDao(JobMetaDao jobMetaDao)
+	 *
+	 * @param jobMetaDao
+	 *
+	 */
+	public void setJobMetaDao(JobMetaDao jobMetaDao);
+
+	/**
+	 * getJobMetaDao();
+	 *
+	 * @return jobMetaDao
+	 *
+	 */
+	public JobMetaDao getJobMetaDao();
 
   public JobMeta getJobMetaByJobMetaId (final int jobMetaId);
 
   public JobMeta getJobMetaByKJobId (final String k, final int jobId);
 
   public void updateByJobId (final int jobId, final List<JobMeta> metaList);
+
 
 }
 
