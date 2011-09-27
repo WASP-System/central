@@ -11,13 +11,10 @@
 
 package edu.yu.einstein.wasp.service;
 
+import org.springframework.stereotype.Service;
+
 import edu.yu.einstein.wasp.dao.FileDao;
 import edu.yu.einstein.wasp.model.File;
-
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.stereotype.Service;
 
 @Service
 public interface FileService extends WaspService<File> {
@@ -28,7 +25,7 @@ public interface FileService extends WaspService<File> {
 	 * @param fileDao
 	 *
 	 */
-	public void setFileDao(FileDao fileDao);
+	void setFileDao(FileDao fileDao);
 
 	/**
 	 * getFileDao();
@@ -36,10 +33,12 @@ public interface FileService extends WaspService<File> {
 	 * @return fileDao
 	 *
 	 */
-	public FileDao getFileDao();
+	FileDao getFileDao();
 
-  public File getFileByFileId (final int fileId);
+    File getFileByFileId (final int fileId);
 
+    //returns File object with contentType/md5hash and sizek fields populated.
+    File getMetaInformation(String filePath) throws java.io.IOException;
 
 }
 

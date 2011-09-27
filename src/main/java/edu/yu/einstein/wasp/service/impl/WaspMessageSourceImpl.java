@@ -72,6 +72,11 @@ public class WaspMessageSourceImpl extends AbstractMessageSource implements Mess
 		
 	}
 
+	public String getUSMessage(String code,String defaultMessage) {
+		String msg=messages.get(code + "_" + Locale.US.toString());
+		if (msg==null) msg=defaultMessage;
+		return msg;
+	}
 	private String getMessageInternal(String code, Locale locale) {
 		String msg = this.messages.get(code + "_" + locale.toString());
 		if (msg == null) messages.get(code + "_" + Locale.US.toString());//fallback to US locale if message not defined. Sasha

@@ -8,8 +8,6 @@ import java.util.List;
  * @Author Sasha Levchuk
  */
 public final class JQuerySearch implements Serializable {
-
-	//filters: {"groupOp":"AND","rules":[{"field":"locale","op":"eq","data":""},{"field":"area","op":"eq","data":"lab"}]}
 	
 	public String groupOp;
 	
