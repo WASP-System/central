@@ -13,7 +13,6 @@
 
 package edu.yu.einstein.wasp.dao.impl;
 
-import java.io.File;
 import java.util.List;
 import java.util.Locale;
 
@@ -21,6 +20,7 @@ import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -34,7 +34,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.orm.jpa.JpaCallback;
 import org.springframework.orm.jpa.support.JpaDaoSupport;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import edu.yu.einstein.wasp.model.UiField;
 import edu.yu.einstein.wasp.service.impl.WaspMessageSourceImpl;
@@ -45,8 +45,8 @@ public class DBResourceBundle extends JpaDaoSupport implements ApplicationContex
 	@Autowired
 	private MessageSource messageSource;
 
-	//static bridge to access messageSource
-	public static MessageSource MESSAGE_SOURCE=null;
+	//static bridge to properties
+	public static WaspMessageSourceImpl MESSAGE_SOURCE=null;
 	
 	private final Logger log = Logger.getLogger(getClass());
 	
@@ -156,7 +156,21 @@ public class DBResourceBundle extends JpaDaoSupport implements ApplicationContex
 
 		}
 
-		MESSAGE_SOURCE=messageSource;//save handle to messageSource for easy access
+		MESSAGE_SOURCE=(WaspMessageSourceImpl)messageSource;//save handle to messageSource for easy access
+	}
+	
+	
+	//returns current page title
+	public static final String getPageTitle(HttpServletRequest request) {
+		String def=(String)request.getAttribute("d");//tiles definition
+		String tmp[] = def.split("\\/");
+		if (tmp.length!=2) throw new IllegalStateException("Invalid tiles defition name ["+def+"]. The name shold match {area}/{pagename} pattern.");
+		String code=tmp[0]+"."+tmp[1]+"_page_title.data";
+		Locale locale=(Locale)request.getSession().getAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
+		
+		String msg=MESSAGE_SOURCE.getMessage(code, null, locale);
+		
+		return msg;
 	}
 
 }

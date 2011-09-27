@@ -90,8 +90,7 @@ public class UiFieldController extends WaspController {
 	@RequestMapping("/list")
 	@PreAuthorize("hasRole('god')")
 	public String list(ModelMap m,HttpServletResponse response) {
-		
-		
+	
 		Map<String, String> areas=new TreeMap<String, String>();
 		
 		areas.putAll(AREA_NAMES);

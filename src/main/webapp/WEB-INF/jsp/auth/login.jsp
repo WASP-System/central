@@ -1,24 +1,5 @@
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
-<html>
-  <head> <title><fmt:message key="auth.login_title.label" /></title> 
-  <script language="JavaScript">
-		<!--
-		function validate(){
-			//alert("test123"); return false;
-			var error = false;
-			var message = '<fmt:message key="user.auth_login_validate.error" />';
-			if(document.f.j_username.value == "" || document.f.j_password.value == ""){
-				error = true;
-			}
-			if(error){ alert(message); return false; }
-  			return true;
-		}
-		//-->
-	</script>    
-  </head>
-  <body onload='document.f.j_username.focus();'>
   <h1><fmt:message key="auth.login_title.label" /></h1>
     <c:if test="${not empty param.error}">
       <font color="red">
@@ -42,5 +23,3 @@
 <a href="/wasp/auth/newpi.do"><fmt:message key="auth.login_anchor_newpi.label" /></a> |
 <a href="/wasp/static/about.do"><fmt:message key="auth.login_anchor_about.label" /></a>
 </div>
-
-</body></html>

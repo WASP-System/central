@@ -20,7 +20,6 @@ import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 import edu.yu.einstein.wasp.controller.validator.MetaValidator;
 import edu.yu.einstein.wasp.controller.validator.MetaValidatorImpl;
 import edu.yu.einstein.wasp.dao.impl.DBResourceBundle;
-import edu.yu.einstein.wasp.service.impl.WaspMessageSourceImpl;
 
 
 /**
@@ -190,7 +189,7 @@ public class MetaHelper {
 		Map<Integer, String> uniquePositions = new HashMap<Integer, String>();
 		Map<String, String> bundleResource = new HashMap<String, String>();
 
-		Set<String> keys=((WaspMessageSourceImpl)DBResourceBundle.MESSAGE_SOURCE).getKeys(Locale.US);
+		Set<String> keys=DBResourceBundle.MESSAGE_SOURCE.getKeys(Locale.US);
 		for(String k: keys) {
 			
 			if (!k.startsWith(area +".")) continue;

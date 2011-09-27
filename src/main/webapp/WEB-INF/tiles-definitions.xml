@@ -4,6 +4,18 @@
        "http://tiles.apache.org/dtds/tiles-config_2_0.dtd">
 <tiles-definitions>
 
+    <definition name="template-base" template="/WEB-INF/jsp/layouts/base.jsp">			
+        <put-attribute name="head-js" value="" />	
+		<put-attribute name="banner-content" value="/WEB-INF/jsp/sections/banner.jsp" />
+		<put-attribute name="primary-content" value="" />
+		<put-attribute name="footer-content" value="/WEB-INF/jsp/sections/footer.jsp" />
+	</definition>
+
+	<definition name="auth/login" extends="template-base">
+	    <put-attribute name="head-js" value="/WEB-INF/jsp/auth/login.js" />	
+		<put-attribute name="primary-content" value="/WEB-INF/jsp/auth/login.jsp" />
+	</definition>
+
 	<definition name="template-grid" template="/WEB-INF/jsp/layouts/grid.jsp">
 		<put-attribute name="area" value="" />
 		<put-attribute name="title" value="List" />
@@ -52,7 +64,7 @@
 		<put-attribute name="primary-content" value="/WEB-INF/jsp/jobsubmit/sample.jsp" />
 	</definition>
 
-	<definition name="auth/login" template="/WEB-INF/jsp/auth/login.jsp" />
+
 
 	<definition name="auth/forgotpassword/email"
 		template="/WEB-INF/jsp/auth/forgotpassword/email.jsp" />
