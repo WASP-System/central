@@ -30,10 +30,10 @@ public class DashboardController extends WaspController {
 	@Autowired
 	private JobDraftService jobDraftService;
 
-	// list of baserolenames (du-department admin, lu- labuser ...)
+	// list of baserolenames (da-department admin, lu- labuser ...)
 	//   see role table
-  // higher level roles such as 'lm' or 'js' are used on the view
-	public static enum DashboardEntityRolename {du, lu, jv, jd};
+	// higher level roles such as 'lm' or 'js' are used on the view
+	public static enum DashboardEntityRolename {da, lu, jv, jd};
 
 	@RequestMapping("/dashboard")
 	public String list(ModelMap m) {
@@ -59,7 +59,7 @@ public class DashboardController extends WaspController {
 
 			// adds the role ojbect to the proper bucket
 			switch (entityRolename) {
-				case du: departmentList.add(departmentService.getDepartmentByDepartmentId(roleObjectId)); break;
+				case da: departmentList.add(departmentService.getDepartmentByDepartmentId(roleObjectId)); break;
 				case lu: labList.add(labService.getLabByLabId(roleObjectId)); break;
 				case jv: jobList.add(jobService.getJobByJobId(roleObjectId)); break;
 				case jd: jobDraftList.add(jobDraftService.getJobDraftByJobDraftId(roleObjectId)); break;

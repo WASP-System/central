@@ -6,6 +6,7 @@
 <div><a href="<c:url value="/lab/newrequest.do"/>">Request Access to a Lab</a></div>
 
 
+
 <sec:authorize access="hasRole('god')">
   <div>
   <h1>Super User Utils</h1>
@@ -20,7 +21,7 @@
   </div>
 </sec:authorize>
 
-<sec:authorize access="hasRole('du-*')">
+<sec:authorize access="hasRole('da-*')">
   <div>
   <h1>Department Admin</h1>
   <c:forEach items="${departments}" var="d">
