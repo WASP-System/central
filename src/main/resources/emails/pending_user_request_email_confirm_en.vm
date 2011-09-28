@@ -1,5 +1,4 @@
 WASP: confirm email address request
-
 Dear ${pendinguser.firstName} ${pendinguser.lastName},
 
 click here to 

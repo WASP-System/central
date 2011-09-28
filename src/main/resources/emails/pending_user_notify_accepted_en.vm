@@ -1,10 +1,6 @@
 WASP: Lab Registration Accepted
-
-<html>
-<body>
 <p>Dear ${user.firstName} ${user.lastName},</p>
 
 <p>We are pleased to inform you that you are now an active registered member of lab '${lab.name}' within the WASP system. If this is your first application for a WASP account, your account been activated and you may now log in.</p>
 
-</body>
-</html>
+
