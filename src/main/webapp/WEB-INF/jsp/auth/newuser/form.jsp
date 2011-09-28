@@ -62,7 +62,8 @@
           	<td>${captchaError}</td>
           </tr>
           <tr>
-              <td colspan="2" align=right>
+              <td>&nbsp;</td>
+              <td colspan="2" align=left>
                   <input type="submit" value="<fmt:message key='userPending.submit.label'/>" /> 
               </td>
           </tr>

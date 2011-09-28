@@ -73,7 +73,8 @@
 	<definition name="auth/newuser/emailok" template="/WEB-INF/jsp/auth/newuser/emailok.jsp" />
 	<definition name="auth/newuser/created" template="/WEB-INF/jsp/auth/newuser/created.jsp" />
 	<definition name="auth/newpi/form" template="/WEB-INF/jsp/auth/newpi/form.jsp" />
-	<definition name="auth/newpi/ok" template="/WEB-INF/jsp/auth/newpi/ok.jsp" />
+	<definition name="auth/newpi/emailok" template="/WEB-INF/jsp/auth/newpi/emailok.jsp" />
+	<definition name="auth/newpi/created" template="/WEB-INF/jsp/auth/newpi/created.jsp" />
 
 	<definition name="auth/resetpassword/authcodeform"
 		template="/WEB-INF/jsp/auth/resetpassword/authcodeform.jsp" />

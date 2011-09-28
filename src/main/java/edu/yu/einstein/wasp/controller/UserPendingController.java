@@ -138,7 +138,7 @@ public class UserPendingController extends WaspController {
 		Captcha captcha = (Captcha) request.getSession().getAttribute(Captcha.NAME);
 		String captchaText = (String) request.getParameter("captcha");
 		if (captcha == null || captchaText == null || captchaText.isEmpty() || (! captcha.isCorrect(captchaText)) ){
-			m.put("captchaError", getMessage(getMetaHelper().getParentArea()+".captcha.error"));
+			m.put("captchaError", getMessage(userPendingMetaHelper.getParentArea()+".captcha.error"));
 		}
 		
 		if (result.hasErrors() || m.containsKey("captchaError")) {
@@ -209,7 +209,14 @@ public class UserPendingController extends WaspController {
 		metaHelper.validate(result);
 		passwordValidator.validate(result, userPendingForm.getPassword(), (String) request.getParameter("password2"), metaHelper.getParentArea(), "password");
 
-		if (result.hasErrors()) {
+		// validate captcha
+		Captcha captcha = (Captcha) request.getSession().getAttribute(Captcha.NAME);
+		String captchaText = (String) request.getParameter("captcha");
+		if (captcha == null || captchaText == null || captchaText.isEmpty() || (! captcha.isCorrect(captchaText)) ){
+			m.put("captchaError", getMessage(metaHelper.getParentArea()+".captcha.error"));
+		}
+		
+		if (result.hasErrors() || m.containsKey("captchaError")) {
 			userPendingForm.setUserPendingMeta((List<UserPendingMeta>) metaHelper.getMetaList());
 			prepareSelectListData(m);
 			waspMessage("user.created.error");
@@ -217,7 +224,7 @@ public class UserPendingController extends WaspController {
 			return "auth/newpi/form";
 		}
 
-		userPendingForm.setStatus("PENDING");
+		userPendingForm.setStatus("WAIT_EMAIL");
 
 		userPendingForm.setPassword( passwordService.encodePassword(userPendingForm.getPassword()) ); 
 
@@ -227,102 +234,83 @@ public class UserPendingController extends WaspController {
 			upm.setUserpendingId(userPendingDb.getUserPendingId());
 		}
 		userPendingMetaService.updateByUserpendingId(userPendingDb.getUserPendingId(), userPendingMetaList);
-
-		// insert into labpending table
-		LabPending labPendingForm = new LabPending();
-		labPendingForm.setStatus("PENDING");
-		labPendingForm.setUserpendingId(userPendingDb.getUserPendingId());
-
-		// TODO DEPARTMENT ID
-		labPendingForm.setDepartmentId(1);
-		for (UserPendingMeta meta : userPendingMetaList) {
-			if (meta.getK().equals( metaHelper.getArea() + ".labName")) {
-				labPendingForm.setName(meta.getV());
-				continue;
-			}
-			if (meta.getK().equals( metaHelper.getArea() + ".departmentId")) {
-				try{
-					labPendingForm.setDepartmentId(Integer.parseInt(meta.getV()));
-				} catch (Exception e) {
-				}
-				continue;
-			}
-		} 
-		LabPending labPendingDb = labPendingService.save(labPendingForm);
-
+		String authcode = authCodeService.createAuthCode(20);
+		ConfirmEmailAuth confirmEmailAuth = new ConfirmEmailAuth();
+		confirmEmailAuth.setAuthcode(authcode);
+		confirmEmailAuth.setUserpendingId(userPendingDb.getUserPendingId());
+		confirmEmailAuthService.merge(confirmEmailAuth);
+		emailService.sendPendingPIEmailConfirm(userPendingForm, authcode);
+		request.getSession().removeAttribute(Captcha.NAME); // ensures fresh capcha issued if required in this session
 		status.setComplete();
-
-		// TODO email DA that a new pi is pending
-
-		waspMessage("hello.error");
-		return "redirect:/auth/newpi/ok.do";
+		return "redirect:/auth/newpi/created.do";
 	}
-
-	@RequestMapping(value="/confirmemail", method=RequestMethod.GET)
-	  public String confirmEmailFromEmailLink(
-			  @RequestParam(value="authcode") String authCode,
-			  @RequestParam(value="email") String urlEncodedEmail,
-		      ModelMap m) {
+	
+	protected UserPending getEmailValidatedUserPending(String authCode, String email, ModelMap m){
 		  if (authCode == null || authCode.isEmpty()) {
 			  waspMessage("auth.confirmemail_badauthcode.error");
-			  return "auth/confirmemail/authcodeform";
+			  m.put("email", email);
+			  return null;
 		  }
 		  ConfirmEmailAuth confirmEmailAuth = confirmEmailAuthService.getConfirmEmailAuthByAuthcode(authCode);
-		  if (urlEncodedEmail == null || urlEncodedEmail.isEmpty() || confirmEmailAuth.getUserpendingId() == 0) {
+		  if (email == null || email.isEmpty() || confirmEmailAuth.getUserpendingId() == 0) {
 			  waspMessage("auth.confirmemail_bademail.error");
-			  return "auth/confirmemail/authcodeform";
+			  m.put("authcode", authCode);
+			  return null;
 		  }
 			  
 		  UserPending userPending = userPendingService.getUserPendingByUserPendingId(confirmEmailAuth.getUserpendingId());
-		  try{
-			  if (! userPending.getEmail().equals(URLDecoder.decode(urlEncodedEmail, "UTF-8"))){
-				  waspMessage("auth.confirmemail_wronguser.error");
-				  return "auth/confirmemail/authcodeform";
-			  }
-		  } catch(UnsupportedEncodingException e){
-			  waspMessage("auth.confirmemail_corruptemail.error");
-			  return "auth/confirmemail/authcodeform"; 
+
+		  if (! userPending.getEmail().equals(email)){
+			  waspMessage("auth.confirmemail_wronguser.error");
+			  return null;
 		  }
-		  userPending.setStatus("PENDING");
-		  userPendingService.save(userPending);
 		  confirmEmailAuthService.remove(confirmEmailAuth);
-		  emailService.sendPendingUserPrimaryConfirm(userPending);
-		  return "redirect:/auth/newuser/emailok.do";
-	  }
-	/*
-	 @RequestMapping(value="/confirmemail", method=RequestMethod.GET)
-	 public String confirmEmailFromEmailLink(ModelMap m) {
-		  UserPending  userPending = userPendingService.findById(1);
-		  emailService.sendPendingUserPrimaryConfirm(userPending);
-		  return "redirect:/auth/newuser/emailok.do";
-	  }
-	*/
-	 @RequestMapping(value="/confirmemail", method=RequestMethod.POST)
-	  public String confirmEmailFromForm(
+		  userPending.setStatus("PENDING");
+		  UserPending userPendingDb = userPendingService.save(userPending);
+		  return userPendingDb;
+	}
+	
+	protected LabPending getNewLabPending(UserPending userPending) throws WaspMetadataException{
+		MetaHelper userPendingMetaHelper=getMetaHelper();
+		userPendingMetaHelper.setArea("piPending");
+		userPendingMetaHelper.syncWithMaster(userPending.getUserPendingMeta());
+		LabPending labPending = new LabPending();
+		labPending.setStatus("PENDING");
+		labPending.setUserpendingId(userPending.getUserPendingId());
+		int departmentId = Integer.parseInt(userPendingMetaHelper.getMetaByName("department").getV());
+		labPending.setDepartmentId(departmentId);
+		String labName = userPendingMetaHelper.getMetaByName("labName").getV();
+		labPending.setName(labName);
+		LabPending labPendingDb = labPendingService.save(labPending);
+		return labPendingDb;
+	}
+
+	@RequestMapping(value="/confirmUserEmail", method=RequestMethod.GET)
+	  public String confirmUserEmailFromEmailLink(
+			  @RequestParam(value="authcode") String authCode,
+			  @RequestParam(value="email") String urlEncodedEmail,
+		      ModelMap m) {
+		String decodedEmail;
+		try{
+			decodedEmail = URLDecoder.decode(urlEncodedEmail, "UTF-8");
+		} catch(UnsupportedEncodingException e){
+			waspMessage("auth.confirmemail_corruptemail.error");
+			return "auth/confirmemail/authcodeform"; 
+		}
+			  
+		UserPending userPending = getEmailValidatedUserPending(authCode, decodedEmail, m);
+		if (userPending == null) return "auth/confirmemail/authcodeform"; 
+		emailService.sendPendingUserConfirmRequest(userPending);
+		return "redirect:/auth/newuser/emailok.do";
+	}
+	
+	 @RequestMapping(value="/confirmUserEmail", method=RequestMethod.POST)
+	  public String confirmUserEmailFromForm(
 	        @RequestParam(value="authcode") String authCode,
 			@RequestParam(value="email") String email,
 	        @RequestParam(value="captcha_text") String captchaText,
 	        ModelMap m) {
-		 if (authCode == null || authCode.isEmpty()) {
-			 waspMessage("auth.confirmemail_badauthcode.error");
-			 m.put("email", email);
-			 return "auth/confirmemail/authcodeform";
-		  }
 		 
-		  ConfirmEmailAuth confirmEmailAuth = confirmEmailAuthService.getConfirmEmailAuthByAuthcode(authCode);
-		  UserPending userPending = userPendingService.getUserPendingByUserPendingId(confirmEmailAuth.getUserpendingId());
-		  
-		  if (email == null || email.isEmpty() || confirmEmailAuth.getUserpendingId() == 0 ){
-			  m.put("authcode", authCode);
-			  waspMessage("auth.confirmemail_bademail.error");
-			  return "auth/confirmemail/authcodeform";
-		  }
-		  if (! userPending.getEmail().equals(email) ){
-				m.put("authcode", authCode);
-				waspMessage("auth.confirmemail_wronguser.error");
-				return "auth/confirmemail/authcodeform";
-		  }
-
 		  Captcha captcha = (Captcha) request.getSession().getAttribute(Captcha.NAME);
 		  if (captcha == null || (! captcha.isCorrect(captchaText)) ){
 			  waspMessage("auth.confirmemail_captcha.error");
@@ -330,12 +318,52 @@ public class UserPendingController extends WaspController {
 			  m.put("email", email);
 			  return "auth/confirmemail/authcodeform";
 		  }
-		  userPending.setStatus("PENDING");
-		  userPendingService.save(userPending);
-		  confirmEmailAuthService.remove(confirmEmailAuth);
+		  UserPending userPending = getEmailValidatedUserPending(authCode, email, m);
+		  if (userPending == null) return "auth/confirmemail/authcodeform";
 		  request.getSession().removeAttribute(Captcha.NAME); // ensures fresh capcha issued if required in this session
-		  emailService.sendPendingUserPrimaryConfirm(userPending);
+		  emailService.sendPendingUserConfirmRequest(userPending);
 		  return "redirect:/auth/newuser/emailok.do";
 	  }
 
+	 @RequestMapping(value="/confirmPIEmail", method=RequestMethod.GET)
+	 public String confirmPIEmailFromEmailLink(
+			  @RequestParam(value="authcode") String authCode,
+			  @RequestParam(value="email") String urlEncodedEmail,
+		      ModelMap m) throws WaspMetadataException {
+		 String decodedEmail;
+		 try{
+			 decodedEmail = URLDecoder.decode(urlEncodedEmail, "UTF-8");
+		 } catch(UnsupportedEncodingException e){
+			 waspMessage("auth.confirmemail_corruptemail.error");
+			 return "auth/confirmemail/authcodeform"; 
+		 }
+				  
+		 UserPending userPending = getEmailValidatedUserPending(authCode, decodedEmail, m);
+		 if (userPending == null) return "auth/confirmemail/authcodeform"; 
+		
+		 // email DA that a new pi is pending
+		 emailService.sendPendingPrincipleConfirmRequest(getNewLabPending(userPending));
+		 return "redirect:/auth/newpi/emailok.do";
+	}
+	 
+	@RequestMapping(value="/confirmPIEmail", method=RequestMethod.POST)
+	public String confirmPIEmailFromForm(
+			@RequestParam(value="authcode") String authCode,
+			@RequestParam(value="email") String email,
+			@RequestParam(value="captcha_text") String captchaText,
+			ModelMap m) throws WaspMetadataException {
+		Captcha captcha = (Captcha) request.getSession().getAttribute(Captcha.NAME);
+		if (captcha == null || (! captcha.isCorrect(captchaText)) ){
+			waspMessage("auth.confirmemail_captcha.error");
+			m.put("authcode", authCode);
+			m.put("email", email);
+			return "auth/confirmemail/authcodeform";
+		}
+		UserPending userPending = getEmailValidatedUserPending(authCode, email, m);
+		if (userPending == null) return "auth/confirmemail/authcodeform"; 
+		request.getSession().removeAttribute(Captcha.NAME); // ensures fresh capcha issued if required in this session
+		// email DA that a new pi is pending
+		emailService.sendPendingPrincipleConfirmRequest(getNewLabPending(userPending));
+		return "redirect:/auth/newpi/emailok.do";
+	}
 }

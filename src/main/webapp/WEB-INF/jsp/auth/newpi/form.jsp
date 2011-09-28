@@ -1,10 +1,11 @@
 <%@ include file="/WEB-INF/jsp/include.jsp" %>
 
 <html>
-  <head><title>New User</title><head>
+  <head><title><fmt:message key="piPending.page_title.label" /></title><head>
   <body>
     
-    <h1>New Lab</h1>
+    <h1><fmt:message key="piPending.page_title.label" /></h1>
+    <font color="red"><wasp:message /></font> 
     <form:form commandName="userPending">
       <table>
         <tr>
@@ -36,7 +37,7 @@
           <td><fmt:message key="piPending.locale.label"/>:</td>
           <td>
             <select name=locale>
-              <option value=''>-- select --</option>
+              <option value=''><fmt:message key="piPending.select_default.label"/></option>
               <c:forEach var="localeEntry" items="${locales}">
                 <c:set var="localeValue" value="${localeEntry.key}"/>
                 <c:set var="localeLabel" value="${localeEntry.value}"/>     
@@ -51,12 +52,18 @@
 
           <c:set var="_metaList" value = "${userPending.userPendingMeta}" scope="request" />
           <c:import url="/WEB-INF/jsp/meta_rw.jsp"/>
+		  <tr><td>&nbsp;</td><td><img src="<c:url value='/stickyCaptchaImg.png'/>" /></td><td>&nbsp;</td></tr>
           <tr>
-              <td colspan="2" align=right>
-                  <input type="submit" value="Save Changes" />
+          	<td><fmt:message key="piPending.captcha.label"/>:</td>
+          	<td><input type="text" name="captcha" /></td>
+          	<td>${captchaError}</td>
+          </tr>
+          <tr>
+          	  <td>&nbsp;</td>
+              <td colspan="2" align=left>
+                  <input type="submit" value="<fmt:message key='piPending.submit.label'/>" /> 
               </td>
           </tr>
-
        </table>
     </form:form>
   

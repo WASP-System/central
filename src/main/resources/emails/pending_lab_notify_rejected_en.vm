@@ -1,0 +1,10 @@
+WASP: Lab Registration Denied
+
+<html>
+<body>
+<p>Dear ${user.firstName} ${user.lastName},</p>
+
+<p>We regret that your application to create lab '${labpending.name}' has been rejected.</p>
+
+</body>
+</html>

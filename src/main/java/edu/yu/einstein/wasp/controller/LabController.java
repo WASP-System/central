@@ -611,9 +611,11 @@ public class LabController extends WaspController {
 		User user;
 
 		if (labPending.getUserpendingId() != null ) {
+			// this PI is currently a pending user. Make them a full user before creating lab
 			UserPending userPending = userPendingService.getUserPendingByUserPendingId(labPending.getUserpendingId());
 			user = createUserFromUserPending(userPending);
 		} else {
+			// the referenced PI of this lab exists in the user table already so get their record
 			user = userService.getUserByUserId(labPending.getPrimaryUserId());
 		}
 
@@ -624,22 +626,26 @@ public class LabController extends WaspController {
 
 		Lab labDb = labService.save(lab);
 
-		// copies meta data
-		Map labPendingMetaQueryMap = new HashMap();
-		labPendingMetaQueryMap.put("labpendingId", labPending.getLabPendingId());
-		List<LabPendingMeta> labPendingMetaList = labPendingMetaService.findByMap(labPendingMetaQueryMap); 
+		// copies meta data from labPendingMeta to labMeta. 
+		MetaHelper labMetaHelper = new MetaHelper("lab", LabMeta.class, request.getSession());
+		labMetaHelper.getMasterList(LabMeta.class);
+		MetaHelper labPendingMetaHelper = new MetaHelper("labPending", LabPendingMeta.class, request.getSession());
+		List<LabPendingMeta> labPendingMetaList = labPendingMetaHelper.syncWithMaster(labPending.getLabPendingMeta());
+				
 		for (LabPendingMeta lpm: labPendingMetaList) {
-			LabMeta labMeta = new LabMeta();
+			// get name from prefix by removing area 
+			String name = lpm.getK().replaceAll("^.*?\\.", "");
+			try{
+				labMetaHelper.setMetaValueByName(name, lpm.getV());
+			} catch (WaspMetadataException e){
+				// no match for 'name' in labMeta
+				logger.debug("No match for labPendingMeta property with name '" + name + "' in labMeta properties");
+			}
+		}
+		for (LabMeta labMeta : (List<LabMeta>) labMetaHelper.getMetaList()){
 			labMeta.setLabId(labDb.getLabId());
-
-			// convert prefix
-			String newK = lpm.getK().replaceAll("^.*?\\.", "lab" + ".");
-
-			labMeta.setK(newK);
-			labMeta.setV(lpm.getV());
 			labMetaService.save(labMeta);
 		}
-
 
 		// set p.i.
 		Role role = roleService.getRoleByRoleName("pi");
@@ -668,6 +674,7 @@ public class LabController extends WaspController {
 		user.setEmail(userPending.getEmail());
 		user.setPassword(userPending.getPassword());
 		user.setLocale(userPending.getLocale());
+		user.setIsActive(1);
 
 		// find me a unique login name
 		String loginBase = userPending.getFirstName().substring(0, 1) + 
@@ -683,14 +690,11 @@ public class LabController extends WaspController {
 		int userId = userDb.getUserId();
 
 		//List<UserPendingMeta> userPendingMetaList = userPendingMetaService.getUserPendingMetaByUserPendingId(userPending.getUserPendingId());
-		Map userPendingMetaQueryMap = new HashMap();
-		userPendingMetaQueryMap.put("userpendingId", userPending.getUserPendingId());
-		
 		// copies meta data
 		MetaHelper userMetaHelper = new MetaHelper("user", UserMeta.class, request.getSession());
 		userMetaHelper.getMasterList(UserMeta.class);
 		MetaHelper userPendingMetaHelper = new MetaHelper("userPending", UserPendingMeta.class, request.getSession());
-		List<UserPendingMeta> userPendingMetaList = userPendingMetaHelper.syncWithMaster(userPendingMetaService.findByMap(userPendingMetaQueryMap));
+		List<UserPendingMeta> userPendingMetaList = userPendingMetaHelper.syncWithMaster(userPending.getUserPendingMeta());
 		
 		
 		for (UserPendingMeta upm: userPendingMetaList) {
@@ -699,31 +703,32 @@ public class LabController extends WaspController {
 			try{
 				userMetaHelper.setMetaValueByName(name, upm.getV());
 			} catch (WaspMetadataException e){
-				// no match for 'name' in user metadata
-				logger.debug("No match for user-pending meta data with name '" + name + "' in user meta data");
-				continue;
+				// no match for 'name' in userMeta data
+				logger.debug("No match for userPendingMeta property with name '" + name + "' in userMeta properties");
 			}
 		}
-		// create a metahelper object to work with metadata for pi.
-		String piUserLogin = userPendingMetaHelper.getMetaByName("primaryuserid").getV();
-		MetaHelper piMetaHelper = new MetaHelper("user", UserMeta.class, request.getSession());
-		piMetaHelper.syncWithMaster(userService.getUserByLogin(piUserLogin).getUserMeta()); // get PI meta from database and sync with current properties
-		try{
-			userMetaHelper.setMetaValueByName("institution", piMetaHelper.getMetaByName("institution").getV());
-			userMetaHelper.setMetaValueByName("department", piMetaHelper.getMetaByName("department").getV());
-			userMetaHelper.setMetaValueByName("state", piMetaHelper.getMetaByName("state").getV());
-			userMetaHelper.setMetaValueByName("city", piMetaHelper.getMetaByName("city").getV());
-			userMetaHelper.setMetaValueByName("country", piMetaHelper.getMetaByName("country").getV());
-			userMetaHelper.setMetaValueByName("zip", piMetaHelper.getMetaByName("zip").getV());
-		} catch (WaspMetadataException e){
-			// should never get here because of sync
-			throw userMetaHelper.new WaspMetadataException("Metadata user / pi meta name mismatch",e);
+		if (userPending.getLabId() != null){
+			// not a PI application request
+			// create a metahelper object to work with metadata for pi.
+			String piUserLogin = userPendingMetaHelper.getMetaByName("primaryuserid").getV();
+			MetaHelper piMetaHelper = new MetaHelper("user", UserMeta.class, request.getSession());
+			piMetaHelper.syncWithMaster(userService.getUserByLogin(piUserLogin).getUserMeta()); // get PI meta from database and sync with current properties
+			try{
+				userMetaHelper.setMetaValueByName("institution", piMetaHelper.getMetaByName("institution").getV());
+				userMetaHelper.setMetaValueByName("department", piMetaHelper.getMetaByName("department").getV());
+				userMetaHelper.setMetaValueByName("state", piMetaHelper.getMetaByName("state").getV());
+				userMetaHelper.setMetaValueByName("city", piMetaHelper.getMetaByName("city").getV());
+				userMetaHelper.setMetaValueByName("country", piMetaHelper.getMetaByName("country").getV());
+				userMetaHelper.setMetaValueByName("zip", piMetaHelper.getMetaByName("zip").getV());
+			} catch (WaspMetadataException e){
+				// should never get here because of sync
+				throw userMetaHelper.new WaspMetadataException("Metadata user / pi meta name mismatch",e);
+			}
 		}
 		for (UserMeta userMeta : (List<UserMeta>) userMetaHelper.getMetaList()){
 			userMeta.setUserId(userId);
 			userMetaService.save(userMeta);
 		}
-
 		Map userPendingQueryMap = new HashMap();
 		userPendingQueryMap.put("email", userPending.getEmail());
 		userPendingQueryMap.put("status", "PENDING");
@@ -733,31 +738,32 @@ public class LabController extends WaspController {
 		Role roleLabPending = roleService.getRoleByRoleName("lp");
 
 		
-		for (UserPending userPendingOther: userPendingList) {
+		for (UserPending userPendingCurrent: userPendingList) {
+			userPendingCurrent.setStatus("CREATED");
+			userPendingService.save(userPendingCurrent);
 
-			userPendingOther.setStatus("CREATED");
-			userPendingService.save(userPendingOther);
-
-			if (userPendingOther.getLabId() != null) {
-				LabUser labUserOther = labUserService.getLabUserByLabIdUserId(userPendingOther.getLabId(), userDb.getUserId());
-				if (labUserOther.getLabUserId() > 0) {
-					// already created
+			if (userPendingCurrent.getLabId() != null) {
+				// not a PI application request
+				LabUser labUserCurrent = labUserService.getLabUserByLabIdUserId(userPendingCurrent.getLabId(), userDb.getUserId());
+				if (labUserCurrent.getLabUserId() > 0) {
+					// already registered as a user of the requested lab
 					continue;
 				}
+				// add user to requested lab with lab-pending role
+				labUserCurrent.setUserId(userDb.getUserId());
+				labUserCurrent.setLabId(userPendingCurrent.getLabId());
+				labUserCurrent.setRoleId(roleLabPending.getRoleId());
+				labUserService.save(labUserCurrent);
 
-				labUserOther.setUserId(userDb.getUserId());
-				labUserOther.setLabId(userPendingOther.getLabId());
-				labUserOther.setRoleId(roleLabPending.getRoleId());
-				labUserService.save(labUserOther);
-
-			}	else {
-
+			} else {
 				// requesting to be a PI
 				Map labPendingQueryMap = new HashMap();
-				userPendingQueryMap.put("userPendingId", userPendingOther.getUserPendingId());
+				userPendingQueryMap.put("userPendingId", userPendingCurrent.getUserPendingId());
 
 				List<LabPending> labPendingList = labPendingService.findByMap(labPendingQueryMap);
 				for (LabPending labPending: labPendingList) {
+					// iterate through list of pending labs. If this user was previously registered as 'userPending' in a lab,
+					// remove reference to her userPendingId and insert reference to her new userId instead
 					labPending.setUserpendingId((Integer) null);
 					labPending.setPrimaryUserId(userDb.getUserId());
 					labPendingService.save(labPending);
@@ -781,24 +787,20 @@ public class LabController extends WaspController {
 		if (userPending.getLabId() != labId) {
 			waspMessage("hello.error");
 		}
-
+		User user;
+		userPending.setStatus(action);
+		UserPending userPendingdb = userPendingService.save(userPending);
 		if ("approve".equals(action)) {
-			User user = createUserFromUserPending(userPending);
-
+			user = createUserFromUserPending(userPending);
 			Role roleLabUser = roleService.getRoleByRoleName("lu");
-
 			// createUserFromUserPending, should have made this.
 			LabUser labUser = labUserService.getLabUserByLabIdUserId(labId, user.getUserId());
 			labUser.setRoleId(roleLabUser.getRoleId());
 			labUserService.merge(labUser);
+			emailService.sendPendingUserNotifyAccepted(user, labService.getLabByLabId(labId));
+		} else{
+			emailService.sendPendingUserNotifyRejected(userPendingdb, labService.getLabByLabId(labId));
 		}
-
-		userPending.setStatus(action);
-		userPendingService.save(userPending);
-
-		// TODO SEND ACTION BASED EMAIL TO PENDING USER
-
-		waspMessage("hello.error");
 
 		return "redirect:/lab/user/" + labId + ".do";
 	}
@@ -814,18 +816,16 @@ public class LabController extends WaspController {
 		if (labPending.getDepartmentId() != departmentId) {
 			waspMessage("hello.error");
 		}
-
-		if ("approve".equals(action)) {
-			Lab lab = createLabFromLabPending(labPending);
-		}
-
+		
 		labPending.setStatus(action);
 		labPendingService.save(labPending);
-
-		// TODO SEND ACTION BASED EMAIL TO PENDING USER
-
-		waspMessage("hello.error");
-
+		
+		if ("approve".equals(action)) {
+			Lab lab = createLabFromLabPending(labPending);
+			emailService.sendPendingLabNotifyAccepted(lab);
+		} else{
+			emailService.sendPendingLabNotifyRejected(labPending);
+		}
 		return "redirect:/department/detail/" + departmentId + ".do";
 	}
 
@@ -888,7 +888,7 @@ public class LabController extends WaspController {
 
 	@RequestMapping(value = "/request.do", method = RequestMethod.POST)
 	public String requestAccess( @RequestParam("primaryuseremail") String primaryuseremail, ModelMap m) {
-		// check existance of primaryUser/lab
+		// check existence of primaryUser/lab
 
 		User primaryUser = userService.getUserByEmail(primaryuseremail);
 		if (primaryUser.getUserId() == 0) {
@@ -935,7 +935,7 @@ public class LabController extends WaspController {
 
 		labUserService.refresh(labUser);
 		
-		emailService.sendPendingLabUserPrimaryConfirm(labUser);
+		emailService.sendPendingLabUserConfirmRequest(labUser);
 
 		waspMessage("labuser.request_success.label");
 

@@ -2,6 +2,9 @@
 package edu.yu.einstein.wasp.service;
 
 import org.springframework.stereotype.Service;
+
+import edu.yu.einstein.wasp.model.Lab;
+import edu.yu.einstein.wasp.model.LabPending;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.UserPending;
@@ -24,22 +27,48 @@ public interface EmailService  {
 	 */
 	public void sendPendingUserEmailConfirm(final UserPending userPending, final String authcode);
 	
+	/**
+	 * Sends an email message to a pending PI requesting that they confirm their email address
+	 * 
+	 * @param userPending
+	 * @param authcode
+	 */
+	public void sendPendingPIEmailConfirm(final UserPending userPending, final String authcode);
+	
 	
 	/**
 	 * Sends an email message to a pending user notifying an accepted application to
 	 * join a lab. 
 	 * 
 	 * @param userPending the pending user
+	 * @param lab the lab applied for
 	 */
-	public void sendPendingUserNotifyAccepted(final UserPending userPending);
+	public void sendPendingUserNotifyAccepted(final User user, final Lab lab);
 	
 	/**
 	 * Sends an email message to a pending user notifying a rejected application to
 	 * join a lab. 
 	 * 
 	 * @param userPending the pending user
+	 * @param lab the lab applied for
 	 */
-	public void sendPendingUserNotifyRejected(final UserPending userPending);
+	public void sendPendingUserNotifyRejected(final UserPending userPending, final Lab lab);
+	
+	/**
+	 * Sends an email message to PI notifying an accepted application to create a lab 
+	 * 
+	 * @param userPending the pending user
+	 * @param lab the lab applied for
+	 */
+	public void sendPendingLabNotifyAccepted(final Lab lab);
+	
+	/**
+	 * Sends an email message to a PI notifying a rejected application to create a lab
+	 * 
+	 * @param userPending the pending user
+	 * @param lab the lab applied for
+	 */
+	public void sendPendingLabNotifyRejected(final LabPending labPending);
 	
 	/**
 	 * Sends an email message to the list of lab managers and principle investigator of the lab 
@@ -47,7 +76,7 @@ public interface EmailService  {
 	 *
 	 * @param userPending the pending user
 	 */
-	public void sendPendingUserPrimaryConfirm(final UserPending userPending) ;
+	public void sendPendingUserConfirmRequest(final UserPending userPending) ;
 	
 	/**
 	 * Sends an email message to the list of lab managers and principle investigator of the lab 
@@ -56,8 +85,14 @@ public interface EmailService  {
 	 * @param labUser the pending lab user
 	 *
 	 */
-	public void sendPendingLabUserPrimaryConfirm(final LabUser labUser);
-
+	public void sendPendingLabUserConfirmRequest(final LabUser labUser);
+	
+	/**
+	 * Sends an email message to the department administrator to confirm or deny a principle investigator
+	 * application.
+	 * @param userPending
+	 */
+	public void sendPendingPrincipleConfirmRequest(final LabPending labPending);
 
 	/**
 	 * Sends an email message to anonymous (not logged in) user containing an auth code to permit

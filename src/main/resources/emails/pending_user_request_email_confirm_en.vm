@@ -2,5 +2,5 @@ WASP: confirm email address request
 
 Dear ${pendinguser.firstName} ${pendinguser.lastName},
 
-click here: 
-<a href="http://localhost:8080/wasp/auth/confirmemail.do?authcode=${authcode}&email=${urlencodedemail}">to confirm your email address</a>
+click here to 
+<a href="http://localhost:8080/wasp/auth/confirmUserEmail.do?authcode=${authcode}&email=${urlencodedemail}">confirm your email address</a>

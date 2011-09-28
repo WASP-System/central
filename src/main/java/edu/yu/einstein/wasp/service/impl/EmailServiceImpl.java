@@ -22,6 +22,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.ui.velocity.VelocityEngineUtils;
 
 
+import edu.yu.einstein.wasp.model.Department;
+import edu.yu.einstein.wasp.model.DepartmentUser;
+import edu.yu.einstein.wasp.model.LabPending;
 import edu.yu.einstein.wasp.model.MetaHelper;
 import edu.yu.einstein.wasp.model.MetaHelper.WaspMetadataException;
 import edu.yu.einstein.wasp.model.User;
@@ -29,6 +32,8 @@ import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.UserPendingMeta;
+import edu.yu.einstein.wasp.service.DepartmentService;
+import edu.yu.einstein.wasp.service.LabPendingService;
 import edu.yu.einstein.wasp.service.RoleService;
 import edu.yu.einstein.wasp.service.LabUserService;
 import edu.yu.einstein.wasp.service.EmailService;
@@ -64,6 +69,13 @@ public class EmailServiceImpl implements EmailService {
 
 	@Autowired
 	private RoleService roleService;
+	
+	@Autowired
+	private UserPendingService userPendingService;
+	
+	@Autowired
+	private DepartmentService departmentService;
+
 
 	
 	
@@ -72,7 +84,24 @@ public class EmailServiceImpl implements EmailService {
 	 * {@inheritDoc} 
 	 */
 	public void sendPendingUserEmailConfirm(final UserPending userPending, final String authcode) {
-		final User pendinguser = new User();
+		sendEmailConfirm(userPending, authcode, "emails/pending_user_request_email_confirm");
+	}
+	
+	/**
+	 * {@inheritDoc} 
+	 */
+	public void sendPendingPIEmailConfirm(final UserPending userPending, final String authcode) {
+		sendEmailConfirm(userPending, authcode, "emails/pending_pi_request_email_confirm");
+	}
+	
+	/**
+	 * Send confirmation email to pending user ({@link UserPending}) providing an authorization code and using the velocity template specified
+	 * @param userPending
+	 * @param authcode
+	 * @param emailTemplate
+	 */
+	protected void sendEmailConfirm(final UserPending userPending, final String authcode, final String template){
+		User pendinguser = new User();
 		pendinguser.setFirstName(userPending.getFirstName());
 		pendinguser.setLastName(userPending.getLastName());
 		pendinguser.setEmail(userPending.getEmail());
@@ -87,28 +116,72 @@ public class EmailServiceImpl implements EmailService {
 		model.put("pendinguser", pendinguser);
 		model.put("authcode", authcode);
 		model.put("urlencodedemail", urlEncodedEmail);
-		prepareAndSend(pendinguser, "emails/pending_user_request_email_confirm", model); 
+		prepareAndSend(pendinguser, template, model); 
 	}
 	
 	/**
 	 * {@inheritDoc}  
 	 */
-	public void sendPendingUserNotifyAccepted(final UserPending userPending){
-		 
+	public void sendPendingUserNotifyAccepted(final User user, final Lab lab){
+		Map model = new HashMap();
+		model.put("user", user);
+		model.put("lab", lab);
+		prepareAndSend(user, "emails/pending_user_notify_accepted", model);
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
-	public void sendPendingUserNotifyRejected(final UserPending userPending){
-		 
+	public void sendPendingUserNotifyRejected(final UserPending userPending, final Lab lab){
+		User pendinguser = new User();
+		pendinguser.setFirstName(userPending.getFirstName());
+		pendinguser.setLastName(userPending.getLastName());
+		pendinguser.setEmail(userPending.getEmail());
+		pendinguser.setLocale(userPending.getLocale());
+		Map model = new HashMap();
+		model.put("pendinguser", pendinguser);
+		model.put("lab", lab);
+		prepareAndSend(pendinguser, "emails/pending_user_notify_rejected", model);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public void sendPendingLabNotifyAccepted(final Lab lab){
+		User primaryUser = userService.getUserByUserId(lab.getPrimaryUserId());
+		Map model = new HashMap();
+		model.put("primaryuser", primaryUser);
+		model.put("lab", lab);
+		prepareAndSend(primaryUser, "emails/pending_lab_notify_accepted", model);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public void sendPendingLabNotifyRejected(final LabPending labPending){
+		User user = new User();
+		if (labPending.getUserpendingId() != null ) {
+			// this PI is currently a pending user. 
+			UserPending userPending = userPendingService.getUserPendingByUserPendingId(labPending.getUserpendingId());
+			user.setFirstName(userPending.getFirstName());
+			user.setLastName(userPending.getLastName());
+			user.setEmail(userPending.getEmail());
+			user.setLocale(userPending.getLocale());
+		} else {
+			// the referenced PI of this lab exists in the user table already so get their record
+			user = userService.getUserByUserId(labPending.getPrimaryUserId());
+		}
+		Map model = new HashMap();
+		model.put("user", user);
+		model.put("labpending", labPending);
+		prepareAndSend(user, "emails/pending_lab_notify_rejected", model);
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 * @throws MailPreparationException 
 	 */
-	public void sendPendingUserPrimaryConfirm(final UserPending userPending) throws MailPreparationException {
+	public void sendPendingUserConfirmRequest(final UserPending userPending) throws MailPreparationException {
 		MetaHelper userPendingMetaHelper = new MetaHelper("userPending", UserPendingMeta.class, Locale.US);
 		userPendingMetaHelper.syncWithMaster(userPending.getUserPendingMeta());
 		User primaryUser;
@@ -148,7 +221,7 @@ public class EmailServiceImpl implements EmailService {
 	/**
 	 * {@inheritDoc}
 	 */
-	public void sendPendingLabUserPrimaryConfirm(final LabUser labUser) {
+	public void sendPendingLabUserConfirmRequest(final LabUser labUser) {
 		Lab lab = labUser.getLab(); 
 		User pendingUser = labUser.getUser(); 
 		User primaryUser= userService.getUserByUserId(labUser.getLab().getPrimaryUserId());	
@@ -171,6 +244,23 @@ public class EmailServiceImpl implements EmailService {
 			prepareAndSend(labManager, "emails/pending_labuser_request_confirm", model); 
 		}
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public void sendPendingPrincipleConfirmRequest(final LabPending labPending){
+		UserPending userPending = userPendingService.getUserPendingByUserPendingId(labPending.getUserpendingId());
+		Department department = departmentService.getDepartmentByDepartmentId(labPending.getDepartmentId());
+		Map model = new HashMap();
+		model.put("labpending", labPending);
+		model.put("pendinguser", userPending);
+		model.put("department", department);
+		for (DepartmentUser du: department.getDepartmentUser()){
+			User administrator = userService.getUserByUserId(du.getUserId());
+			model.put("administrator", administrator);
+			prepareAndSend(administrator, "emails/pending_pi_request_confirm", model); 
+		}
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -190,7 +280,7 @@ public class EmailServiceImpl implements EmailService {
 	 * @param template velocityEngine .vm template file prefix (localisation and extension added within this method)
 	 * @param model a Map object containing model data referenced within velocityEngine template
 	 */
-	private void prepareAndSend(final User user, final String template, final Map model){
+	protected void prepareAndSend(final User user, final String template, final Map model){
 		MimeMessagePreparator preparator = new MimeMessagePreparator() {
 			public void prepare(MimeMessage mimeMessage) throws MailPreparationException {
 				generateMessage(user, template, model, mimeMessage); 
