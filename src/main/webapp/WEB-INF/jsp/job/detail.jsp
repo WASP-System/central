@@ -9,14 +9,14 @@
 
     <p>
       Lab
-      <a href="/wasp/lab/detail/<c:out value="${job.lab.labId}"/>.do">
+      <a href="<c:url value="/lab/detail_ro/${job.lab.departmentId}/${job.lab.labId}.do"/>">
         <c:out value="${job.lab.name}"/>
       </a>
     </p>
 
     <p>
       Submitting User
-      <a href="/wasp/user/detail/<c:out value="${job.user.userId}"/>.do">
+      <a href="<c:url value="/user/detail_ro/${job.user.userId}.do"/>">
         <c:out value="${job.user.login}"/>
       </a>
       <c:out value="${job.user.firstName}"/>
