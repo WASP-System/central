@@ -667,8 +667,8 @@ public class LabController extends WaspController {
 	}
 
 	public User createUserFromUserPending(UserPending userPending) throws WaspMetadataException {
+		boolean isPiPending = (userPending.getLabId() == null) ? true : false;
 		User user = new User();
-
 		user.setFirstName(userPending.getFirstName());
 		user.setLastName(userPending.getLastName());
 		user.setEmail(userPending.getEmail());
@@ -694,6 +694,7 @@ public class LabController extends WaspController {
 		MetaHelper userMetaHelper = new MetaHelper("user", UserMeta.class, request.getSession());
 		userMetaHelper.getMasterList(UserMeta.class);
 		MetaHelper userPendingMetaHelper = new MetaHelper("userPending", UserPendingMeta.class, request.getSession());
+		if (isPiPending) userPendingMetaHelper.setArea("piPending");
 		List<UserPendingMeta> userPendingMetaList = userPendingMetaHelper.syncWithMaster(userPending.getUserPendingMeta());
 		
 		
@@ -707,9 +708,9 @@ public class LabController extends WaspController {
 				logger.debug("No match for userPendingMeta property with name '" + name + "' in userMeta properties");
 			}
 		}
-		if (userPending.getLabId() != null){
+		if (! isPiPending){
 			// not a PI application request
-			// create a metahelper object to work with metadata for pi.
+			// create a metahelper object to work with metadata for PI.
 			String piUserLogin = userPendingMetaHelper.getMetaByName("primaryuserid").getV();
 			MetaHelper piMetaHelper = new MetaHelper("user", UserMeta.class, request.getSession());
 			piMetaHelper.syncWithMaster(userService.getUserByLogin(piUserLogin).getUserMeta()); // get PI meta from database and sync with current properties
@@ -725,6 +726,7 @@ public class LabController extends WaspController {
 				throw userMetaHelper.new WaspMetadataException("Metadata user / pi meta name mismatch",e);
 			}
 		}
+		
 		for (UserMeta userMeta : (List<UserMeta>) userMetaHelper.getMetaList()){
 			userMeta.setUserId(userId);
 			userMetaService.save(userMeta);
@@ -750,7 +752,7 @@ public class LabController extends WaspController {
 					continue;
 				}
 				// add user to requested lab with lab-pending role
-				labUserCurrent.setUserId(userDb.getUserId());
+				labUserCurrent.setUserId(userId);
 				labUserCurrent.setLabId(userPendingCurrent.getLabId());
 				labUserCurrent.setRoleId(roleLabPending.getRoleId());
 				labUserService.save(labUserCurrent);
@@ -824,6 +826,12 @@ public class LabController extends WaspController {
 			Lab lab = createLabFromLabPending(labPending);
 			emailService.sendPendingLabNotifyAccepted(lab);
 		} else{
+			if (labPending.getUserpendingId() != null ) {
+				// this PI is currently a pending user. Reject their pending user application too
+				UserPending userPending = userPendingService.getUserPendingByUserPendingId(labPending.getUserpendingId());
+				userPending.setStatus(action);
+				userPendingService.save(userPending);
+			}
 			emailService.sendPendingLabNotifyRejected(labPending);
 		}
 		return "redirect:/department/detail/" + departmentId + ".do";
