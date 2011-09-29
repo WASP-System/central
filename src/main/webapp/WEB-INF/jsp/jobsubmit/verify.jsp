@@ -51,7 +51,7 @@
  </c:forEach>
 
 
-    <form method="POST" action="<c:url value="/jobsubmit/submit/${jobDraft.jobDraftId}.do" />">
+    <form method="POST" action="<c:url value="/jobsubmit/verify/${jobDraft.jobDraftId}.do" />">
       <input type="submit"/>
     </form>
 
