@@ -60,6 +60,8 @@ import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SubtypeSample;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Workflow;
+import edu.yu.einstein.wasp.model.WorkflowMeta;
+
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobCellService;
 import edu.yu.einstein.wasp.service.JobDraftCellService;
@@ -81,6 +83,8 @@ import edu.yu.einstein.wasp.service.SubtypeSampleService;
 import edu.yu.einstein.wasp.service.TypeSampleService;
 import edu.yu.einstein.wasp.service.WorkflowService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
+
+import java.lang.ClassLoader;
 
 
 @Controller
@@ -155,6 +159,51 @@ public class JobSubmissionController extends WaspController {
 	private final MetaHelper getMetaHelper() {
 		return new MetaHelper("jobDraft", JobDraftMeta.class, request.getSession());
 	}
+
+	final public String defaultPageFlow = "/jobsubmit/modifymeta/{n};/jobsubmit/samples/{n};/jobsubmit/cells/{n};/jobsubmit/verify/{n};/jobsubmit/submit/{n};/jobsubmit/ok";
+
+	public String nextPage(JobDraft jobDraft) {
+		String pageFlow = this.defaultPageFlow;
+
+	try {
+		List<WorkflowMeta> wfmList = jobDraft.getWorkflow().getWorkflowMeta();
+		for (WorkflowMeta wfm : wfmList) {
+			if (wfm.getK().equals("workflow.pageflow")) {
+				pageFlow = wfm.getV();
+				break;
+		}
+		}
+	} catch (Exception e) {
+	}
+
+	String context = request.getContextPath();
+	String uri = request.getRequestURI();
+	String path = request.getServletPath();
+
+	// strips context, lead slash ("/"), spring mapping
+	String currentMapping = uri.replaceFirst(context, "").replaceFirst("\\.do.*$", "");
+
+
+	String pageFlowArray[] = pageFlow.split(";");
+
+	int found = -1;
+	for (int i=0; i < pageFlowArray.length -1; i++) {
+		String page = pageFlowArray[i];
+		page = page.replaceAll("\\{n\\}", ""+jobDraft.getJobDraftId());
+
+		if (currentMapping.equals(page)) {
+			found = i;
+			break;
+		}
+	}
+
+
+	String targetPage = pageFlowArray[found+1] + ".do"; 
+
+	targetPage = targetPage.replaceAll("\\{n\\}", ""+jobDraft.getJobDraftId());
+
+	return "redirect:" + targetPage;
+}
 	
 	@RequestMapping(value="/list", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('lu-*')")
@@ -194,6 +243,7 @@ public class JobSubmissionController extends WaspController {
 		m.put("workflows", workflowList); 
 	}
 
+
 	@RequestMapping(value="/create.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('lu-*')")
 	public String showCreateForm(ModelMap m) {
@@ -225,6 +275,7 @@ public class JobSubmissionController extends WaspController {
 
 		return rt;
 	}
+
 
 	@RequestMapping(value="/modify/{jobDraftId}.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
@@ -299,8 +350,9 @@ public class JobSubmissionController extends WaspController {
 
 		JobDraft jobDraftDb = jobDraftService.save(jobDraftForm); 
 
-		return "redirect:/jobsubmit/modifymeta/" + jobDraftDb.getJobDraftId() + ".do";
+		return nextPage(jobDraftDb);
 	}
+
 
 
 	@RequestMapping(value="/modifymeta/{jobDraftId}", method=RequestMethod.GET)
@@ -360,8 +412,9 @@ public class JobSubmissionController extends WaspController {
 
 
 		// TODO SHOULD ACTUALLY FORWARD
-		return "redirect:/jobsubmit/samples/" + jobDraftId + ".do";
+		return nextPage(jobDraft);
 	}
+
 
 	@RequestMapping(value="/samples/{jobDraftId}", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('lu-*')")
@@ -386,6 +439,7 @@ public class JobSubmissionController extends WaspController {
 		return "jobsubmit-sample";
 
 	}
+
 
 	@RequestMapping(value="/cells/{jobDraftId}.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('lu-*')")
@@ -444,7 +498,7 @@ public class JobSubmissionController extends WaspController {
 
 		for (JobDraftCell jdc: oldJobDraftCells) {
 			List<SampleDraftCell> oldSampleDraftCells = jdc.getSampleDraftCell();
-		  for (SampleDraftCell sdc: oldSampleDraftCells) {
+			for (SampleDraftCell sdc: oldSampleDraftCells) {
 				sampleDraftCellService.remove(sdc);
 				sampleDraftCellService.flush(sdc);
 			}
@@ -467,8 +521,8 @@ public class JobSubmissionController extends WaspController {
 		int cellindex = 0;
 
 		for (int i = 1; i <= maxColumns; i++) {
-		  int libraryindex = 0;
-		  boolean cellfound = false;
+			int libraryindex = 0;
+			boolean cellfound = false;
 
 			JobDraftCell thisJobDraftCell = new JobDraftCell();
 			thisJobDraftCell.setJobdraftId(jobDraftId);
@@ -510,9 +564,9 @@ public class JobSubmissionController extends WaspController {
 		}
 
 		// m.put("checked", checkedList);
-		// return "hello";
 
-		return "redirect:/jobsubmit/verify/" + jobDraftId + ".do";
+		JobDraft jobDraftDb = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
+		return nextPage(jobDraftDb);
 	}
 
 	@RequestMapping(value="/verify/{jobDraftId}.do", method=RequestMethod.GET)
@@ -533,7 +587,40 @@ public class JobSubmissionController extends WaspController {
 		return "jobsubmit/verify";
 	}
 
-	@RequestMapping(value="/submit/{jobDraftId}.do", method=RequestMethod.POST)
+
+	@RequestMapping(value="/verify/{jobDraftId}.do", method=RequestMethod.POST)
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String verifyJob(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
+		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
+
+
+		// TODO ClassLoader for validateJobDraft 
+
+		// JobDraftValidator jdv = getDefaultJobDraftValidator();
+		try {
+			List<WorkflowMeta> wfmList = jobDraft.getWorkflow().getWorkflowMeta(); 
+			for (WorkflowMeta wfm: wfmList) {
+				if (wfm.getK().equals("workflow.validatorClass")) {
+					ClassLoader cl = JobSubmissionController.class.getClassLoader();
+					// jdv = (JobDraftValidator) cl.loadClass(wfm.getV()).newInstance();
+					Object o = cl.loadClass(wfm.getV()).newInstance();
+
+
+					break;
+				}
+			}
+			// JobDraftValidator 
+		} catch (Exception e) {
+		}
+
+		// jdv.validate();
+
+
+		return nextPage(jobDraft);
+	}
+
+
+	@RequestMapping(value="/submit/{jobDraftId}.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public String submitJob(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
 		User me = getAuthenticatedUser();
@@ -657,7 +744,7 @@ public class JobSubmissionController extends WaspController {
 		// Adds new Job to Authorized List
 		doReauth();
 
-		return "jobsubmit/ok";
+		return nextPage(jobDraft);
 	}
 
 
