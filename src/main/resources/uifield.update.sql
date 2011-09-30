@@ -556,7 +556,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','department','control','select:${department}:departmentId:name','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','department','constraint','NotEmpty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','department','error','A department must be selected','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','emailconfirmed','label','Thank you for confirming your email address. Your principle investigator has been emailed to request confirmation of your eligibility to join their lab and you are advised to contact them to request they do this if your account does not become activated in good time.','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','emailconfirmed','label','Thank you for confirming your email address. Your principal investigator has been emailed to request confirmation of your eligibility to join their lab and you are advised to contact them to request they do this if your account does not become activated in good time.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','subtypeSampleId','label','Subtype','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','contentTypeMap','etx','data','text/x-setext','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','contentTypeMap','me','data','application/x-troff-me','1');
@@ -607,7 +607,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','captcha','label','Captcha text','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','submit','label','Apply for Account','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','select_default','label','-- select --','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','page_title','label','New Principle Investigator','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','page_title','label','New Principal Investigator','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','emailconfirmed','label','Thank you for confirming your email address. Your department administrator has been emailed to request confirmation of your eligibility to register your lab and you are advised to contact them to request they do this if your account does not become activated in good time.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','emailsent','label','Thank you for your account request. You have been sent an email with instructions as to how to confirm your email address. Please click to <a href="wasp/auth/login.do"/>Login</a>','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','emailconfirmed_title','label','Email Address Confirmed','1');

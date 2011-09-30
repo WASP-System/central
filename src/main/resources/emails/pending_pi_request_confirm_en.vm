@@ -1,4 +1,4 @@
-Please Login to WASP and accept or reject a pending principle investigator application
+Please Login to WASP and accept or reject a pending principal investigator application
 <p>Dear ${administrator.firstName} ${administrator.lastName},</p>
 
 <p>${pendinguser.firstName} ${pendinguser.lastName} has requested an account and wishes to register a lab named '${labpending.name}'.</p>

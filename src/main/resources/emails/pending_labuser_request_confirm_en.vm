@@ -3,6 +3,6 @@ Please Login to WASP and accept or reject a pending lab user application
 
 <p>${pendinguser.firstName} ${pendinguser.lastName} has requested an account for your lab named '${lab.name}'.</p>
 
-<p>Please login to your WASP account from where you will be able to accept or deny this request. Please note that this email is sent to the principle investigator and any assigned 
+<p>Please login to your WASP account from where you will be able to accept or deny this request. Please note that this email is sent to the principal investigator and any assigned 
 lab managers, any of whom may process this request.</p> 
 

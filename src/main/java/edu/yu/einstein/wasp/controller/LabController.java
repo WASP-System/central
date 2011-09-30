@@ -757,21 +757,20 @@ public class LabController extends WaspController {
 				labUserCurrent.setRoleId(roleLabPending.getRoleId());
 				labUserService.save(labUserCurrent);
 
-			} else {
-				// requesting to be a PI
-				Map labPendingQueryMap = new HashMap();
-				userPendingQueryMap.put("userPendingId", userPendingCurrent.getUserPendingId());
-
-				List<LabPending> labPendingList = labPendingService.findByMap(labPendingQueryMap);
-				for (LabPending labPending: labPendingList) {
-					// iterate through list of pending labs. If this user was previously registered as 'userPending' in a lab,
-					// remove reference to her userPendingId and insert reference to her new userId instead
-					labPending.setUserpendingId((Integer) null);
-					labPending.setPrimaryUserId(userDb.getUserId());
-					labPendingService.save(labPending);
-				}
-
 			}
+			// iterate through list of pending labs. If this user was previously registered as 'userPending' in a lab,
+			// remove reference to her userPendingId and insert reference to her new userId instead
+			Map labPendingQueryMap = new HashMap();
+			userPendingQueryMap.put("userPendingId", userPendingCurrent.getUserPendingId());
+
+			List<LabPending> labPendingList = labPendingService.findByMap(labPendingQueryMap);
+			for (LabPending labPending: labPendingList) {
+				labPending.setUserpendingId((Integer) null);
+				labPending.setPrimaryUserId(userDb.getUserId());
+				labPendingService.save(labPending);
+			}
+
+
 		}
 
 		return userDb; 
@@ -790,8 +789,6 @@ public class LabController extends WaspController {
 			waspMessage("hello.error");
 		}
 		User user;
-		userPending.setStatus(action);
-		UserPending userPendingdb = userPendingService.save(userPending);
 		if ("approve".equals(action)) {
 			user = createUserFromUserPending(userPending);
 			Role roleLabUser = roleService.getRoleByRoleName("lu");
@@ -801,9 +798,10 @@ public class LabController extends WaspController {
 			labUserService.merge(labUser);
 			emailService.sendPendingUserNotifyAccepted(user, labService.getLabByLabId(labId));
 		} else{
-			emailService.sendPendingUserNotifyRejected(userPendingdb, labService.getLabByLabId(labId));
+			emailService.sendPendingUserNotifyRejected(userPending, labService.getLabByLabId(labId));
 		}
-
+		userPending.setStatus(action);
+		userPendingService.save(userPending);
 		return "redirect:/lab/user/" + labId + ".do";
 	}
 
@@ -819,8 +817,6 @@ public class LabController extends WaspController {
 			waspMessage("hello.error");
 		}
 		
-		labPending.setStatus(action);
-		labPendingService.save(labPending);
 		
 		if ("approve".equals(action)) {
 			Lab lab = createLabFromLabPending(labPending);
@@ -834,6 +830,8 @@ public class LabController extends WaspController {
 			}
 			emailService.sendPendingLabNotifyRejected(labPending);
 		}
+		labPending.setStatus(action);
+		labPendingService.save(labPending);
 		return "redirect:/department/detail/" + departmentId + ".do";
 	}
 

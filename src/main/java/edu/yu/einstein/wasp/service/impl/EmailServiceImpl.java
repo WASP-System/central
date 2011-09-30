@@ -188,7 +188,7 @@ public class EmailServiceImpl implements EmailService {
 		try{
 			primaryUser = userService.getUserByLogin(userPendingMetaHelper.getMetaByName("primaryuserid").getV());
 		} catch(WaspMetadataException e){
-			throw new MailPreparationException("Cannot get principle user for pending user with id '" + Integer.toString(userPending.getUserPendingId()), e); 
+			throw new MailPreparationException("Cannot get principal user for pending user with id '" + Integer.toString(userPending.getUserPendingId()), e); 
 		}
 		Map model = new HashMap();
 		model.put("pendinguser", userPending);
@@ -202,7 +202,7 @@ public class EmailServiceImpl implements EmailService {
 				model.put("lab", lab);
 				break;
 			}
-			throw new MailPreparationException("Cannot email principle user with id '" + Integer.toString(primaryUser.getUserId()) + "' because this user is not the principle of any labs"); 
+			throw new MailPreparationException("Cannot email principal user with id '" + Integer.toString(primaryUser.getUserId()) + "' because this user is not the principal of any labs"); 
 		}
 		
 		// send email to PI
@@ -248,7 +248,7 @@ public class EmailServiceImpl implements EmailService {
 	/**
 	 * {@inheritDoc}
 	 */
-	public void sendPendingPrincipleConfirmRequest(final LabPending labPending){
+	public void sendPendingPrincipalConfirmRequest(final LabPending labPending){
 		UserPending userPending = userPendingService.getUserPendingByUserPendingId(labPending.getUserpendingId());
 		Department department = departmentService.getDepartmentByDepartmentId(labPending.getDepartmentId());
 		Map model = new HashMap();

@@ -71,7 +71,7 @@ public interface EmailService  {
 	public void sendPendingLabNotifyRejected(final LabPending labPending);
 	
 	/**
-	 * Sends an email message to the list of lab managers and principle investigator of the lab 
+	 * Sends an email message to the list of lab managers and principal investigator of the lab 
 	 * which the pending user would like to join. 
 	 *
 	 * @param userPending the pending user
@@ -79,7 +79,7 @@ public interface EmailService  {
 	public void sendPendingUserConfirmRequest(final UserPending userPending) ;
 	
 	/**
-	 * Sends an email message to the list of lab managers and principle investigator of the lab 
+	 * Sends an email message to the list of lab managers and principal investigator of the lab 
 	 * which the pending labUser would like to join.  
 	 *
 	 * @param labUser the pending lab user
@@ -88,11 +88,11 @@ public interface EmailService  {
 	public void sendPendingLabUserConfirmRequest(final LabUser labUser);
 	
 	/**
-	 * Sends an email message to the department administrator to confirm or deny a principle investigator
+	 * Sends an email message to the department administrator to confirm or deny a principal investigator
 	 * application.
 	 * @param userPending
 	 */
-	public void sendPendingPrincipleConfirmRequest(final LabPending labPending);
+	public void sendPendingPrincipalConfirmRequest(final LabPending labPending);
 
 	/**
 	 * Sends an email message to anonymous (not logged in) user containing an auth code to permit

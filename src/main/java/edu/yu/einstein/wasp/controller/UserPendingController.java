@@ -2,6 +2,7 @@ package edu.yu.einstein.wasp.controller;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -99,7 +100,7 @@ public class UserPendingController extends WaspController {
 		
 		//String msg= DBResourceBundle.MESSAGE_SOURCE.getMessage("userPending.lastName.error", null, Locale.US);
 		
-		// We wish to get some data from the principle investigator User so hide on the form
+		// We wish to get some data from the principal investigator User so hide on the form
 		
 		
 		userPending.setUserPendingMeta(metaHelper.getMasterList(UserPendingMeta.class));
@@ -245,29 +246,49 @@ public class UserPendingController extends WaspController {
 		return "redirect:/auth/newpi/created.do";
 	}
 	
-	protected UserPending getEmailValidatedUserPending(String authCode, String email, ModelMap m){
-		  if (authCode == null || authCode.isEmpty()) {
-			  waspMessage("auth.confirmemail_badauthcode.error");
-			  m.put("email", email);
-			  return null;
-		  }
-		  ConfirmEmailAuth confirmEmailAuth = confirmEmailAuthService.getConfirmEmailAuthByAuthcode(authCode);
-		  if (email == null || email.isEmpty() || confirmEmailAuth.getUserpendingId() == 0) {
-			  waspMessage("auth.confirmemail_bademail.error");
-			  m.put("authcode", authCode);
-			  return null;
-		  }
+	protected boolean userPendingEmailValid(String authCode, String email, ModelMap m) {
+		if (authCode == null || authCode.isEmpty()) {
+			waspMessage("auth.confirmemail_badauthcode.error");
+			m.put("email", email);
+			return false;
+		}
+		ConfirmEmailAuth confirmEmailAuth = confirmEmailAuthService.getConfirmEmailAuthByAuthcode(authCode);
+		if (email == null || email.isEmpty() || confirmEmailAuth.getUserpendingId() == 0) {
+			waspMessage("auth.confirmemail_bademail.error");
+			m.put("authcode", authCode);
+			return false;
+		}
 			  
-		  UserPending userPending = userPendingService.getUserPendingByUserPendingId(confirmEmailAuth.getUserpendingId());
+		UserPending userPending = userPendingService.getUserPendingByUserPendingId(confirmEmailAuth.getUserpendingId());
 
-		  if (! userPending.getEmail().equals(email)){
-			  waspMessage("auth.confirmemail_wronguser.error");
-			  return null;
-		  }
-		  confirmEmailAuthService.remove(confirmEmailAuth);
-		  userPending.setStatus("PENDING");
-		  UserPending userPendingDb = userPendingService.save(userPending);
-		  return userPendingDb;
+		if (! userPending.getEmail().equals(email)){
+			waspMessage("auth.confirmemail_wronguser.error");
+			return false;
+		}
+		return true;
+	}
+		
+	protected void sendPendingUserConfRequestEmail(String email) throws WaspMetadataException{
+		// now find any existing userPending instances with same email and process them too
+		Map userPendingQueryMap = new HashMap();
+		userPendingQueryMap.put("email", email);
+		userPendingQueryMap.put("status", "WAIT_EMAIL");
+		List<UserPending> userPendingList = userPendingService.findByMap(userPendingQueryMap);
+		for (UserPending up: userPendingList){
+			ConfirmEmailAuth auth = confirmEmailAuthService.getConfirmEmailAuthByUserpendingId(up.getUserPendingId());
+			if (auth.getUserpendingId() != 0){
+				confirmEmailAuthService.remove(auth);
+			}
+			up.setStatus("PENDING");
+			userPendingService.save(up);
+			if (up.getLabId() == null){
+				// email DA that a new pi is pending
+				emailService.sendPendingPrincipalConfirmRequest(getNewLabPending(up));
+			} else {
+				// email PI of selected lab
+				emailService.sendPendingUserConfirmRequest(up);
+			}
+		}
 	}
 	
 	protected LabPending getNewLabPending(UserPending userPending) throws WaspMetadataException{
@@ -289,7 +310,7 @@ public class UserPendingController extends WaspController {
 	  public String confirmUserEmailFromEmailLink(
 			  @RequestParam(value="authcode") String authCode,
 			  @RequestParam(value="email") String urlEncodedEmail,
-		      ModelMap m) {
+		      ModelMap m) throws WaspMetadataException {
 		String decodedEmail;
 		try{
 			decodedEmail = URLDecoder.decode(urlEncodedEmail, "UTF-8");
@@ -297,10 +318,16 @@ public class UserPendingController extends WaspController {
 			waspMessage("auth.confirmemail_corruptemail.error");
 			return "auth/confirmemail/authcodeform"; 
 		}
-			  
-		UserPending userPending = getEmailValidatedUserPending(authCode, decodedEmail, m);
-		if (userPending == null) return "auth/confirmemail/authcodeform"; 
-		emailService.sendPendingUserConfirmRequest(userPending);
+		Map userPendingQueryMap = new HashMap();
+		userPendingQueryMap.put("email", decodedEmail);
+		userPendingQueryMap.put("status", "WAIT_EMAIL");
+		if (userPendingService.findByMap(userPendingQueryMap).isEmpty()){
+			// email already confirmed probably accidently re-confirming
+			return "redirect:/auth/newuser/emailok.do";
+		}
+		if (! userPendingEmailValid(authCode, decodedEmail, m)) return "auth/confirmemail/authcodeform";
+		request.getSession().removeAttribute(Captcha.NAME); // ensures fresh capcha issued if required in this session
+		sendPendingUserConfRequestEmail(decodedEmail);
 		return "redirect:/auth/newuser/emailok.do";
 	}
 	
@@ -309,7 +336,7 @@ public class UserPendingController extends WaspController {
 	        @RequestParam(value="authcode") String authCode,
 			@RequestParam(value="email") String email,
 	        @RequestParam(value="captcha_text") String captchaText,
-	        ModelMap m) {
+	        ModelMap m) throws WaspMetadataException {
 		 
 		  Captcha captcha = (Captcha) request.getSession().getAttribute(Captcha.NAME);
 		  if (captcha == null || (! captcha.isCorrect(captchaText)) ){
@@ -318,10 +345,8 @@ public class UserPendingController extends WaspController {
 			  m.put("email", email);
 			  return "auth/confirmemail/authcodeform";
 		  }
-		  UserPending userPending = getEmailValidatedUserPending(authCode, email, m);
-		  if (userPending == null) return "auth/confirmemail/authcodeform";
-		  request.getSession().removeAttribute(Captcha.NAME); // ensures fresh capcha issued if required in this session
-		  emailService.sendPendingUserConfirmRequest(userPending);
+		  if (! userPendingEmailValid(authCode, email, m)) return "auth/confirmemail/authcodeform";
+		  sendPendingUserConfRequestEmail(email);
 		  return "redirect:/auth/newuser/emailok.do";
 	  }
 
@@ -337,12 +362,15 @@ public class UserPendingController extends WaspController {
 			 waspMessage("auth.confirmemail_corruptemail.error");
 			 return "auth/confirmemail/authcodeform"; 
 		 }
-				  
-		 UserPending userPending = getEmailValidatedUserPending(authCode, decodedEmail, m);
-		 if (userPending == null) return "auth/confirmemail/authcodeform"; 
-		
-		 // email DA that a new pi is pending
-		 emailService.sendPendingPrincipleConfirmRequest(getNewLabPending(userPending));
+		 Map userPendingQueryMap = new HashMap();
+		 userPendingQueryMap.put("email", decodedEmail);
+		 userPendingQueryMap.put("status", "WAIT_EMAIL");
+		 if (userPendingService.findByMap(userPendingQueryMap).isEmpty()){
+			 // email already confirmed probably accidently re-confirming
+			 return "redirect:/auth/newuser/emailok.do";
+		 }	  
+		 if (! userPendingEmailValid(authCode, decodedEmail, m)) return "auth/confirmemail/authcodeform";
+		 sendPendingUserConfRequestEmail(decodedEmail);
 		 return "redirect:/auth/newpi/emailok.do";
 	}
 	 
@@ -359,11 +387,9 @@ public class UserPendingController extends WaspController {
 			m.put("email", email);
 			return "auth/confirmemail/authcodeform";
 		}
-		UserPending userPending = getEmailValidatedUserPending(authCode, email, m);
-		if (userPending == null) return "auth/confirmemail/authcodeform"; 
-		request.getSession().removeAttribute(Captcha.NAME); // ensures fresh capcha issued if required in this session
-		// email DA that a new pi is pending
-		emailService.sendPendingPrincipleConfirmRequest(getNewLabPending(userPending));
+
+		if (! userPendingEmailValid(authCode, email, m)) return "auth/confirmemail/authcodeform";
+		sendPendingUserConfRequestEmail(email);
 		return "redirect:/auth/newpi/emailok.do";
 	}
 }
