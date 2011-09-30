@@ -492,7 +492,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','emailsent','label','Thank you for your account request. You have been sent an email with instructions as to how to confirm your email address. Please click to <a href="wasp/auth/login.do"/>Login</a>','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','resetpassword_submit','label','Submit','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail','label','Department','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail_missingparam','error','Email is missing','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail_missingparam','error','Name is missing','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail_administrators','label','Administrators','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','mypassword_submit','label','Submit','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','uiField','not_unique','error','Property already exists','1');
@@ -544,10 +544,14 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail_createadmin','label','Create Administrator','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail_submit','label','Submit','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail_email','label','Administrator''s Email','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail_administrator_name','label','Administrator''s Name','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail_existingadmin','label','Current Administrators','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail_labs','label','Labs','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail_pendinglabs','label','Pending Labs','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail_emailnotfound','error','Email not found','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail_formatting','error','Formatting Error','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail_missinglogin','error','Login is empty','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail_usernotfound','error','User not found in database','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail_ok','label','New Administrator Created','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail_remove','label','Remove','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','building_room','constraint','NotEmpty','1');

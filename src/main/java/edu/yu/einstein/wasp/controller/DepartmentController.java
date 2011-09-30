@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.transaction.annotation.*; 
 
@@ -21,6 +22,9 @@ import java.util.HashMap;
 import edu.yu.einstein.wasp.service.DepartmentService;
 import edu.yu.einstein.wasp.service.DepartmentUserService;
 import edu.yu.einstein.wasp.service.LabPendingService;
+import edu.yu.einstein.wasp.service.UserService;//added by Dubin
+//import edu.yu.einstein.wasp.service.impl.UserServiceImpl;//added by Dubin
+//import edu.yu.einstein.wasp.service.impl.DepartmentServiceImpl;//added by Dubin
 import edu.yu.einstein.wasp.model.*;
 
 @Controller
@@ -47,6 +51,19 @@ public class DepartmentController extends WaspController {
   }
 
 
+  
+  //added by Dubin 9-29-11 for use in getNames
+  private UserService userService;
+  @Autowired
+  public void setUserService(UserService userService) {
+    this.userService = userService;
+  }
+  public UserService getUserService() {
+    return this.userService;
+  }
+  
+  
+  
   @Autowired
   private LabPendingService labPendingService;
   
@@ -134,33 +151,76 @@ public class DepartmentController extends WaspController {
   @PreAuthorize("hasRole('god') or hasRole('da-' + #departmentId)")
   public String departmentUserRoleAdd (
     @RequestParam("departmentId") Integer departmentId,
-    @RequestParam("useremail") String useremail,
+    @RequestParam("adminName") String adminName,
     ModelMap m) {
 
-	if( "".equals(useremail.trim()) ){
+	//adminName will be in the format: John Greally (JGreally)
+	//the login is JGreally
+	//so, must parse adminName to get unique login
+	String trimmedAdminName = adminName.trim();
+	int startIndex = trimmedAdminName.indexOf("(");
+	int endIndex = trimmedAdminName.indexOf(")");
+	
+	if( "".equals(trimmedAdminName) ){
 		waspMessage("department.detail_missingparam.error");
 	}
+	else if(startIndex == -1 || endIndex == -1 || startIndex > endIndex){
+		//ToDo: add new message about unable to discern login
+		waspMessage("department.detail_formatting.error");
+	}
 	else{
-		User user = userService.getUserByEmail(useremail.trim());
-		if(user.getUserId()==0){
-			waspMessage("department.detail_emailnotfound.error");
+		String login = trimmedAdminName.substring(startIndex+1, endIndex);
+		String trimmedLogin = login.trim();
+		if("".equals(trimmedLogin)){
+			waspMessage("department.detail_missinglogin.error");
 		}
 		else{
-			DepartmentUser departmentUser = new DepartmentUser(); 
-			departmentUser.setDepartmentId(departmentId); 
-			departmentUser.setUserId(user.getUserId()); 
-			departmentUserService.save(departmentUser);
-			waspMessage("department.detail_ok.label");
-			
-			// if i am the user,  reauth
-			User me = getAuthenticatedUser();
-			if (me.getUserId() == user.getUserId()) {
-				doReauth();
+			//logger.debug("ROB trimmedLogin: " + trimmedLogin);
+			User user = userService.getUserByLogin(login);
+			if(user.getUserId()==0){//user not found in database
+				waspMessage("department.detail_usernotfound.error");
 			}
-		}
+			else{
+				DepartmentUser departmentUser = new DepartmentUser(); 
+				departmentUser.setDepartmentId(departmentId); 
+				departmentUser.setUserId(user.getUserId()); 
+				departmentUserService.save(departmentUser);
+				waspMessage("department.detail_ok.label");
+			
+				// if i am the user,  reauth
+				User me = getAuthenticatedUser();
+				if (me.getUserId() == user.getUserId()) {
+					doReauth();
+				}
+			}
+		}	
 	}
     return "redirect:/department/detail/" + departmentId + ".do";
   }
 
-
+  @RequestMapping(value="/getUserNamesAndLoginForDisplay", method=RequestMethod.GET)
+  public @ResponseBody String getNames(@RequestParam String adminNameFragment) {
+         
+         List<User> userList = this.getUserService().findAll();
+         int counter = 0;
+         String jsonString = new String();
+         jsonString = jsonString + "{\"source\": [";
+         for (User u : userList){
+        	 if(u.getFirstName().indexOf(adminNameFragment) > -1 || u.getLastName().indexOf(adminNameFragment) > -1 || u.getLogin().indexOf(adminNameFragment) > -1){
+        		 if(counter > 0){
+        			 jsonString = jsonString + ",";
+        		 }
+        	 	jsonString = jsonString + "\""+ u.getFirstName() + " " + u.getLastName() + " (" + u.getLogin() + ")\"";
+        	 	counter++;
+        	 }
+         }
+         jsonString = jsonString + "]}";
+         return jsonString;       
+         
+         //return "{\"source\": [\"c++++\", \"javaaa\", \"phppp\", \"coldfusionnn\", \"javascripttt\", \"asppp\", \"rubyyy\"]}";
+         //return "{\"name\":\"LESLIE TROKIE\", \"name2\":\"Doug TROKIE\"}";
+         //retString = "[{\"firstName\":\""+firstName+"\", \"lastName\":\""+lastName+"\"},{\"firstName\":\""+firstName2+"\", \"lastName\":\""+lastName2+"\"}]";
+         
+  }
+    
 }
