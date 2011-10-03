@@ -1,8 +1,5 @@
-<%@ include file="/WEB-INF/jsp/include.jsp" %>
+<%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
-<html>
-  <head>
-  		<title><fmt:message key="userPending.page_title.label" /></title>
   <head> 
   <body>
     
@@ -70,6 +67,4 @@
 
        </table>
     </form:form>
-  
-  </body>
-</html>
+

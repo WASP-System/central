@@ -611,7 +611,11 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','login_page_title','data','Login','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','auth/login','label','Login','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','auth/newpi/form','label','New User','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','auth/newpi/ok','label','please wait for email approval','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','auth/newpi/emailok','label','Email Confirmed','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','auth/newpi/created','label','Application Submitted','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','auth/newuser/form','label','New User','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','auth/newuser/emailok','label','Email Confirmed','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','auth/newuser/created','label','Application Submitted','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','auth/resetpassword/authcodeform','label','Reset Password: Step 1','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','auth/resetpassword/form','label','Reset Password: Step 2','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','auth/resetpassword/ok','label','Password Was Reset','1');

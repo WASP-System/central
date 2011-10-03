@@ -1,4 +1,4 @@
-<%@ include file="/WEB-INF/jsp/include.jsp" %>
+<%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
 <fmt:message key="userPending.emailsent.label" />
 
