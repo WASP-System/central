@@ -9,6 +9,7 @@
  </title>
 <link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/base.css" />
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<tiles:insertAttribute name="head-js" />
 <script>
 var waspOnLoad=function() {//re-define the waspOnLoad var in head-js if you need custom body onLoad function
 }
