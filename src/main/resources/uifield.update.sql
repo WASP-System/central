@@ -293,9 +293,8 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','resetpassword_new_invalid','error','New password must be at least 8 characters, containing only letters and numbers, with at least one letter and number','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','resetpassword_instructions','label','New Password Requirements:<br />At least 8 characters in length<br />Only letters & numbers permitted (no spaces, etc)<br />At least one letter and one number<br />','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','resetpasswordemailsent_title','label','Reset Password Request: Email Sent','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','resetpasswordemailsent','data','An email has been sent to your registered email address containing an authorization code. Please click the link within this email or alternatively <a href','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','resetpasswordok_title','label','Reset Password: Complete','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','resetpasswordok','label','Your password has been reset. Click <a href<="" td=""></a>','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','resetpasswordok','label','Your password has been reset. Please click to <a href="login.do"/>Login</a>','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','mypassword_title','label','Change Password','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','mypassword_instructions','label','New Password Requirements:<br />At least 8 characters in length<br />Only letters & numbers permitted (no spaces, etc)<br />At least one letter and one number<br />','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','mypassword_oldpassword','label','Old Password','1');
@@ -490,7 +489,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','confirmemail_submit','label','Submit','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','resetpasswordemailsent','label','An email has been sent to your registered email address containing an authorization code. Please click the link within this email or alternatively <a href="resetpassword.do">click here</a> and enter the authorization code provided. ','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','forgotpassword_submit','label','Submit','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','emailsent','label','Thank you for your account request. You have been sent an email with instructions as to how to confirm your email address. Please click to <a href="wasp/auth/login.do"/>Login</a>','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','emailsent','label','Thank you for your account request. You have been sent an email with instructions as to how to confirm your email address. Please click to <a href="login.do"/>Login</a>','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','resetpassword_submit','label','Submit','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail','label','Department','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail_missingparam','error','Name is missing','1');
@@ -620,6 +619,8 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','auth/resetpassword/form','label','Reset Password: Step 2','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','auth/resetpassword/ok','label','Password Was Reset','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','auth/confirmemail/authcodeform','label','Confirm Email Address','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','auth/forgotpassword/form','label','Reset Password Request','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','auth/forgotpassword/email','label','Email Sent','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','dashboard','label','WASP','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','user/detail_rw','label','User Detail','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','user/detail_ro','label','User Detail','1');
