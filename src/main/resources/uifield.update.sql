@@ -609,7 +609,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','contentTypeMap','ppm','data','image/x-portable-pixmap','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','login_page_title','data','Login','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','auth/login','label','Login','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','auth/newpi/form','label','New User','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','auth/newpi/form','label','New Principal Investigator','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','auth/newpi/emailok','label','Email Confirmed','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','auth/newpi/created','label','Application Submitted','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','auth/newuser/form','label','New User','1');
@@ -639,5 +639,5 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','select_default','label','-- select --','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','page_title','label','New Principal Investigator','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','emailconfirmed','label','Thank you for confirming your email address. Your department administrator has been emailed to request confirmation of your eligibility to register your lab and you are advised to contact them to request they do this if your account does not become activated in good time.','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','emailsent','label','Thank you for your account request. You have been sent an email with instructions as to how to confirm your email address. Please click to <a href="wasp/auth/login.do"/>Login</a>','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','emailsent','label','Thank you for your account request. You have been sent an email with instructions as to how to confirm your email address. Please click to <a href="../login.do"/>Login</a>','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','emailconfirmed_title','label','Email Address Confirmed','1');
