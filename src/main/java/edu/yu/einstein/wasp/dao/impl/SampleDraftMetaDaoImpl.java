@@ -57,7 +57,8 @@ public class SampleDraftMetaDaoImpl extends WaspDaoImpl<SampleDraftMeta> impleme
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public SampleDraftMeta getSampleDraftMetaBySampleDraftMetaId (final int sampleDraftMetaId) {
-    		HashMap m = new HashMap();
+		
+    	HashMap m = new HashMap();
 		m.put("sampleDraftMetaId", sampleDraftMetaId);
 
 		List<SampleDraftMeta> results = (List<SampleDraftMeta>) this.findByMap((Map) m);
@@ -82,7 +83,8 @@ public class SampleDraftMetaDaoImpl extends WaspDaoImpl<SampleDraftMeta> impleme
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public SampleDraftMeta getSampleDraftMetaByKSampledraftId (final String k, final int sampledraftId) {
-    		HashMap m = new HashMap();
+		
+    	HashMap m = new HashMap();
 		m.put("k", k);
 		m.put("sampledraftId", sampledraftId);
 
@@ -122,7 +124,60 @@ public class SampleDraftMetaDaoImpl extends WaspDaoImpl<SampleDraftMeta> impleme
 		});
 	}
 
+	/*
+	public Map<Integer,Map<String,Map<Integer,String>>> getJobSamplesByWorkflow(final int workflowId) {
+		
+		Map<Integer,Map<String,Map<Integer,String>>> res = (Map<Integer,Map<String,Map<Integer,String>>>)getJpaTemplate().execute(new JpaCallback() {
 
+			   public Object doInJpa(EntityManager em) throws PersistenceException {
+				   
+				   String sql=
+					   "SELECT ws.subtypesampleId, j.name, js.jobsampleid, s.name\n"+
+					   "FROM job j\n"+
+					   "JOIN jobsample js ON j.jobId = js.jobId\n"+
+					   "JOIN sample s ON s.sampleId = js.sampleId\n"+
+					   "JOIN workflowsubtypesample ws ON ws.workflowId = j.workflowId\n"+
+					   "WHERE j.workflowId = :workflowId\n"+
+					   "ORDER BY j.lastupdts, s.name, j.name DESC\n"; 
+
+				   
+				   Map<Integer,Map<String,Map<Integer,String>>> result=new LinkedHashMap<Integer,Map<String,Map<Integer,String>>>();
+				   
+				   List<Object[]> listObj=em.createNativeQuery(sql).setParameter("workflowId", workflowId).getResultList();
+				   for(Object[] o:listObj) {
+					   
+					   Integer subtypeSampleId=(Integer)o[0];					  
+					   String jobName=(String)o[1];
+					   Integer jobSampleId=(Integer)o[2];
+					   String sampleName=(String)o[3];					   
+					   
+					   Map<String,Map<Integer,String>> mapByType =result.get(subtypeSampleId);
+					   if (mapByType==null) {
+						   mapByType=new LinkedHashMap<String,Map<Integer,String>>();
+						   result.put(subtypeSampleId, mapByType);
+					   }
+					   
+					   Map<Integer,String> mapByJob=mapByType.get(jobName);
+					   if (mapByJob==null) {
+						   mapByJob=new LinkedHashMap<Integer,String>();
+						   mapByType.put(jobName,mapByJob);
+					   }
+					   
+					   mapByJob.put(jobSampleId, sampleName);
+					   
+				   }
+				   return result;
+			   }
+
+			  });
+	
+			 
+		return res;
+		
+	}
+	*/
+	
+	
 	public Map<SubtypeSample,List<SampleDraftMeta>> getAllowableMetaFields(final int workflowId) {
 		
 		Map<SubtypeSample,List<SampleDraftMeta>> res = (Map<SubtypeSample,List<SampleDraftMeta>>)getJpaTemplate().execute(new JpaCallback() {
@@ -153,8 +208,6 @@ public class SampleDraftMetaDaoImpl extends WaspDaoImpl<SampleDraftMeta> impleme
 					   "left outer join uifield constr on master.area=constr.area and master.name=constr.name and label.attrName='constraint'\n"+
 					   "order by master.pos\n";
 
-				   System.err.println("["+sql+"]");
-				   //List<SampleDraftMeta> r = new ArrayList<SampleDraftMeta>();
 				   
 				   Map<SubtypeSample,List<SampleDraftMeta>> result=new LinkedHashMap<SubtypeSample,List<SampleDraftMeta>>();
 				   

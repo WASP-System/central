@@ -11,22 +11,20 @@
 
 package edu.yu.einstein.wasp.dao;
 
-import javax.persistence.*;
 import java.util.List;
-import java.util.Map;
-import edu.yu.einstein.wasp.model.*;
 
-import org.springframework.stereotype.Repository;
+import edu.yu.einstein.wasp.model.SampleMeta;
 
 
 public interface SampleMetaDao extends WaspDao<SampleMeta> {
 
-  public SampleMeta getSampleMetaBySampleMetaId (final int sampleMetaId);
+  SampleMeta getSampleMetaBySampleMetaId (final int sampleMetaId);
 
-  public SampleMeta getSampleMetaByKSampleId (final String k, final int sampleId);
+  SampleMeta getSampleMetaByKSampleId (final String k, final int sampleId);
 
-  public void updateBySampleId (final int sampleId, final List<SampleMeta> metaList);
+  void updateBySampleId (final int sampleId, final List<SampleMeta> metaList);
 
+  List<SampleMeta> getSamplesMetaBySampleId (final int sampleId);
 
 }
 

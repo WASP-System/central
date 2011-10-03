@@ -89,6 +89,16 @@ public class SampleMetaDaoImpl extends WaspDaoImpl<SampleMeta> implements edu.yu
 		}
 		return (SampleMeta) results.get(0);
 	}
+	
+	public List<SampleMeta> getSamplesMetaBySampleId (final int sampleId) {
+		HashMap m = new HashMap();	
+		m.put("sampleId", sampleId);
+
+		List<SampleMeta> results = (List<SampleMeta>) this.findByMap((Map) m);
+
+		return results;
+		
+	}
 
 
 

@@ -1,10 +1,6 @@
-<%@ include file="/WEB-INF/jsp/include.jsp" %>
-
-<html>
-  <head><title><fmt:message key="piPending.page_title.label" /></title><head>
-  <body>
-    
-    <h1><fmt:message key="piPending.page_title.label" /></h1>
+<%@ include file="/WEB-INF/jsp/taglib.jsp" %>
+   
+   <h1><fmt:message key="piPending.page_title.label" /></h1>
     <font color="red"><wasp:message /></font> 
     <form:form commandName="userPending">
       <table>
@@ -47,9 +43,9 @@
           </td>
         </tr>
 
-          <c:set var="_area" value = "userPending" scope="request"/>
-          <c:set var="_metaArea" value = "piPending" scope="request"/>
-
+	   <c:set var="_area" value = "userPending" scope="request"/>
+       <c:set var="_metaArea" value = "piPending" scope="request"/>
+          
           <c:set var="_metaList" value = "${userPending.userPendingMeta}" scope="request" />
           <c:import url="/WEB-INF/jsp/meta_rw.jsp"/>
 		  <tr><td>&nbsp;</td><td><img src="<c:url value='/stickyCaptchaImg.png'/>" /></td><td>&nbsp;</td></tr>
@@ -64,8 +60,6 @@
                   <input type="submit" value="<fmt:message key='piPending.submit.label'/>" /> 
               </td>
           </tr>
+
        </table>
     </form:form>
-  
-  </body>
-</html>

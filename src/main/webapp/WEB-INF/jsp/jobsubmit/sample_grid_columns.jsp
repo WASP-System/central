@@ -88,6 +88,57 @@ _editAttr.afterSubmit = _uploadAfterSubmit;
  
 </wasp:field>
 
+
+var existingJob={
+name:'jobId',
+label:'Existing Job',
+required:false,
+error:'',
+jq:{
+	name:'jobId', 
+	width:80, 
+	align:'center',
+	sortable:false,
+	sorttype:'text',
+	editable:true,
+	hidden:true,	
+    editrules:{edithidden:true},    
+	editoptions:{size:20},
+	edittype:'select',
+	editoptions:{value:{}},
+	search:false
+}
+};
+
+colNames.push(existingJob.label);
+colModel.push(existingJob.jq);
+colErrors.push(existingJob.error);
+
+var existingJobSampleId={
+name:'jobSampleId',
+label:'Existing Job Sample',
+required:false,
+error:'',
+jq:{
+	name:'jobSampleId', 
+	width:80, 
+	align:'center',
+	sortable:false,
+	sorttype:'text',
+	editable:true,
+	hidden:true,	
+    editrules:{edithidden:true},    
+	editoptions:{size:20},
+	edittype:'select',
+	editoptions:{value:{}},
+	search:false
+}
+};
+
+colNames.push(existingJobSampleId.label);
+colModel.push(existingJobSampleId.jq);
+colErrors.push(existingJobSampleId.error);
+
 <wasp:delete url="/wasp/jobsubmit/deleteSampleDraftJSON.do" />
 
 <%--   url to get list of sample drafts for jobdraftId  --%>
@@ -102,7 +153,9 @@ _navAttr.search=false;
  _navAttr.view=false;
  _navAttr.edit=false;
  _navAttr.add=false;
- 
 
+
+
+	
   
  

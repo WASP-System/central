@@ -11,13 +11,13 @@
 
 package edu.yu.einstein.wasp.service;
 
-import edu.yu.einstein.wasp.dao.JobDao;
-import edu.yu.einstein.wasp.model.Job;
-
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
+
+import edu.yu.einstein.wasp.dao.JobDao;
+import edu.yu.einstein.wasp.model.Job;
 
 @Service
 public interface JobService extends WaspService<Job> {
@@ -42,6 +42,6 @@ public interface JobService extends WaspService<Job> {
 
   public Job getJobByNameLabId (final String name, final int labId);
 
-
+  Map<Integer,List<Job>> getJobSamplesByWorkflow(final int workflowId);
 }
 

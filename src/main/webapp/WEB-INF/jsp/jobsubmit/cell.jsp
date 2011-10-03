@@ -1,34 +1,4 @@
-<%@ include file="/WEB-INF/jsp/include.jsp" %>
-
-<html>
-
-<head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <script src="/wasp/scripts/jquery/jquery-1.6.2.js" type="text/javascript"></script>
-  <script src="/wasp/scripts/jquery/jquery.tablednd_0_5.js" type="text/javascript"></script>
-  <script>
-  $(document).ready(function(){
-    $("#cells").tableDnD();
-  });
-  </script>
-
-
-  <script>
-var maxColumns = 10; 
-
-function adjustcolumns(c) {
-  for (var i = 0; i < maxColumns; i++) {
-    var display = "table-cell";
-    if (i >  c) {
-      display = "none"
-    }
-    $("[name=column_"+i+"]").css("display", display);
-  }
-}
-  </script>
-
-</head>
-<body>
+<%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 [<c:out value="${fn:length(jobDraft.jobDraftCell)}" />]
 
 <form command="jobDraft" method="POST">
@@ -82,6 +52,4 @@ jobsubmit.numberofcells.label
 $("#jobcells").trigger("change");
 </script>
 
-</body>
-</html>
 

@@ -27,6 +27,6 @@ public interface SampleDraftMetaDao extends WaspDao<SampleDraftMeta> {
   public void updateBySampledraftId (final int sampledraftId, final List<SampleDraftMeta> metaList);
   
   Map<SubtypeSample,List<SampleDraftMeta>> getAllowableMetaFields(final int workflowId);
-
+ 
 }
 

@@ -69,6 +69,8 @@ public class SampleMetaServiceImpl extends WaspServiceImpl<SampleMeta> implement
     this.getSampleMetaDao().updateBySampleId(sampleId, metaList); 
   }
 
-
+  public  List<SampleMeta> getSamplesMetaBySampleId (final int sampleId) {
+	  return getSampleMetaDao().getSamplesMetaBySampleId(sampleId);
+  }
 }
 

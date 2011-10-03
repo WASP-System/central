@@ -61,5 +61,8 @@ public class SampleServiceImpl extends WaspServiceImpl<Sample> implements Sample
     return this.getSampleDao().getSampleBySampleId(sampleId);
   }
 
+  public List<Sample> getSamplesByJobId (final int jobId) {
+	  return this.getSampleDao().getSamplesByJobId(jobId);
+  }
 }
 

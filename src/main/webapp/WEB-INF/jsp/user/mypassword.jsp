@@ -1,24 +1,4 @@
-<%@ include file="/WEB-INF/jsp/include.jsp" %>
-
-<html>
-  <head> <title><fmt:message key="user.mypassword_title.label" /></title>
-  <script language="JavaScript">
-		<!--
-		function validate(){
-			//alert("test123"); return false;
-			var error = false;
-			var message = '<fmt:message key="user.mypassword_missingparam.error" />';
-			if(document.f.oldpassword.value == "" || document.f.newpassword1.value == ""|| document.f.newpassword2.value == "" ){
-				error = true;
-			}
-			if(error){ alert(message); return false; }
-  			return true;
-		}
-		//-->
-	</script>  
-	 </head>
-
-  <body onload='document.f.oldpassword.focus();'>
+<%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
     <h1><fmt:message key="user.mypassword_title.label" /></h1>
     <h4><fmt:message key="user.mypassword_instructions.label" /></h4>
@@ -35,4 +15,3 @@
       </table>
     </form>
 
-</body></html>

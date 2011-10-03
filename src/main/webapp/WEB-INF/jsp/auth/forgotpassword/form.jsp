@@ -1,10 +1,5 @@
-<%@ include file="/WEB-INF/jsp/include.jsp" %>
+<%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
-<html>
-  <head> <title><fmt:message key="auth.forgotpassword_title.label" /></title> </head>
-
-  <body onload='document.f.j_username.focus();'>
-   
      
     <h1><fmt:message key="auth.forgotpassword_title.label" /></h1>
 
@@ -19,5 +14,3 @@
       </table>
     </form>
 
-</body></html>
- 

@@ -147,7 +147,7 @@ public class WaspController {
     MessageTag.addMessage(request.getSession(), propertyString);
   }
 
-  protected String outputJSON(Map<String, Object> jqgridMap, HttpServletResponse response) throws JsonMappingException, IOException {
+  protected String outputJSON(Map jqgridMap, HttpServletResponse response) throws JsonMappingException, IOException {
 	  
 	  	ObjectMapper mapper = new ObjectMapper();
 	  

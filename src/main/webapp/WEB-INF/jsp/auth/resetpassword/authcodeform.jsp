@@ -1,9 +1,4 @@
-<%@ include file="/WEB-INF/jsp/include.jsp" %>
-
-<html>
-  <head> <title><fmt:message key="auth.resetpassword_title1.label" /></title> </head>
-
-  <body>
+<%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
     <h1><fmt:message key="auth.resetpassword_title1.label" /></h1>
     
@@ -16,5 +11,4 @@
       </table>
     </form>
 
-</body></html>
 

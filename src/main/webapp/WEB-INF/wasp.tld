@@ -19,6 +19,14 @@
 	</tag>
 	<tag>
 		<description><![CDATA[
+            <p>Converts apache tiles mapping to page title string.</p>
+        ]]></description>
+		<name>pageTitle</name>
+		<tag-class>edu.yu.einstein.wasp.taglib.PageTitleTag</tag-class>
+		<body-content>JSP</body-content>
+	</tag>
+	<tag>
+		<description><![CDATA[
             <p>Builds jqGrid-compatible JavaScript object to describe a field; </p>
         ]]></description>
 		<name>field</name>

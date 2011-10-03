@@ -1,25 +1,4 @@
-<%@ include file="/WEB-INF/jsp/include.jsp" %>
-
-<html>
-  <head> <title><fmt:message key="department.list_title.label" /></title>
-  <script language="JavaScript">
-		<!--
-		function validate(){
-			//alert("test123"); return false;
-			var error = false;
-			var message = '<fmt:message key="department.list_missingparam.error" />';
-			if(document.f.name.value == ""){
-				error = true
-				document.f.name.focus();
-			}
-			if(error){ alert(message); return false; }
-  			return true;
-		}
-		//-->
-	</script>  
-	 </head>
-
-  <body onload='document.f.name.focus();'>
+<%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
 	<div>
 	  <h1><fmt:message key="department.list_create.label" /></h1>
@@ -41,4 +20,3 @@
 		</tr>
 	</c:forEach>
 </table>
-</body></html>

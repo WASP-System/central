@@ -1,9 +1,4 @@
-<%@ include file="/WEB-INF/jsp/include.jsp" %>
-
-<html>
-  <head> <title><fmt:message key="auth.confirmemail_title.label" /></title> </head>
-
-  <body>
+<%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
     <h1><fmt:message key="auth.confirmemail_title.label" /></h1>
      <font color="red"><wasp:message /></font>
@@ -17,6 +12,4 @@
         <tr><td colspan='2'><input name="submit" type="submit" value="<fmt:message key="auth.confirmemail_submit.label" />"/></td></tr>
       </table>
     </form>
-
-</body></html>
 

@@ -1,9 +1,4 @@
-<%@ include file="/WEB-INF/jsp/include.jsp" %>
-
-<html>
-  <head><title>New Job</title><head>
-  <body>
-
+<%@ include file="/WEB-INF/jsp/taglib.jsp" %>
     <font color="blue"><wasp:message /></font>
 
     <h1>Create a Job</h1>
@@ -48,8 +43,3 @@
     </table>
     <input type="submit">
   </form:form>
-
-
-
-  </body>
-</html>

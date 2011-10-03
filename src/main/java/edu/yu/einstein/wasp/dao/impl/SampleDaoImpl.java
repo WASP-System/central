@@ -11,16 +11,17 @@
 
 package edu.yu.einstein.wasp.dao.impl;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceException;
-import javax.persistence.Query;
-
-import java.util.List;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
-import org.springframework.stereotype.Repository;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceException;
+
 import org.springframework.orm.jpa.JpaCallback;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.Sample;
@@ -64,6 +65,46 @@ public class SampleDaoImpl extends WaspDaoImpl<Sample> implements edu.yu.einstei
 		return (Sample) results.get(0);
 	}
 
+	public List<Sample> getSamplesByJobId (final int jobId) {
+			
+		 List<Sample> res = ( List<Sample>)getJpaTemplate().execute(new JpaCallback() {
+
+				   public Object doInJpa(EntityManager em) throws PersistenceException {
+					   
+					   String sql=
+						   "SELECT s.sampleId, s.name\n"+
+						   "FROM jobsample js\n"+
+						   "JOIN sample s ON s.sampleId = js.sampleId\n"+
+						   "WHERE jobId = :jobId\n"+
+						   "ORDER by s.name";
+						  
+					   
+					   List<Sample> result=new ArrayList<Sample>();
+					   
+					   List<Object[]> listObj=em.createNativeQuery(sql).setParameter("jobId", jobId).getResultList();
+					   
+					   for(Object[] o:listObj) {
+						   
+						   Integer sampleId=(Integer)o[0];					  
+						   String name=(String)o[1];
+						   
+						   Sample sample = new Sample();
+						   sample.setSampleId(sampleId);
+						   sample.setName(name);
+						   
+						   result.add(sample);
+						   
+					   }
+					   return result;
+				   }
+
+				  });
+		
+				 
+			return res;
+			
+		
+		}
 
 
 }

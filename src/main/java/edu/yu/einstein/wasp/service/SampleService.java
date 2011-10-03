@@ -11,13 +11,12 @@
 
 package edu.yu.einstein.wasp.service;
 
-import edu.yu.einstein.wasp.dao.SampleDao;
-import edu.yu.einstein.wasp.model.Sample;
-
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.stereotype.Service;
+
+import edu.yu.einstein.wasp.dao.SampleDao;
+import edu.yu.einstein.wasp.model.Sample;
 
 @Service
 public interface SampleService extends WaspService<Sample> {
@@ -39,7 +38,8 @@ public interface SampleService extends WaspService<Sample> {
 	public SampleDao getSampleDao();
 
   public Sample getSampleBySampleId (final int sampleId);
-
+  
+  List<Sample> getSamplesByJobId (final int jobId);
 
 }
 

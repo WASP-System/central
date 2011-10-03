@@ -11,12 +11,10 @@
 
 package edu.yu.einstein.wasp.dao;
 
-import javax.persistence.*;
 import java.util.List;
 import java.util.Map;
-import edu.yu.einstein.wasp.model.*;
 
-import org.springframework.stereotype.Repository;
+import edu.yu.einstein.wasp.model.Job;
 
 
 public interface JobDao extends WaspDao<Job> {
@@ -25,6 +23,7 @@ public interface JobDao extends WaspDao<Job> {
 
   public Job getJobByNameLabId (final String name, final int labId);
 
+  Map<Integer,List<Job>> getJobSamplesByWorkflow(final int workflowId);
 
 }
 

@@ -65,5 +65,8 @@ public class JobServiceImpl extends WaspServiceImpl<Job> implements JobService {
     return this.getJobDao().getJobByNameLabId(name, labId);
   }
 
+  public Map<Integer,List<Job>> getJobSamplesByWorkflow(final int workflowId) {
+	  return this.getJobDao().getJobSamplesByWorkflow(workflowId);
+  }
 }
 

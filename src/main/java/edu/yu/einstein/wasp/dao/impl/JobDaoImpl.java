@@ -11,16 +11,17 @@
 
 package edu.yu.einstein.wasp.dao.impl;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceException;
-import javax.persistence.Query;
-
-import java.util.List;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
-import org.springframework.stereotype.Repository;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceException;
+
 import org.springframework.orm.jpa.JpaCallback;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.Job;
@@ -90,7 +91,52 @@ public class JobDaoImpl extends WaspDaoImpl<Job> implements edu.yu.einstein.wasp
 		return (Job) results.get(0);
 	}
 
+	public Map<Integer,List<Job>> getJobSamplesByWorkflow(final int workflowId) {
+		
+		Map<Integer,List<Job>> res = (Map<Integer,List<Job>>)getJpaTemplate().execute(new JpaCallback() {
 
+			   public Object doInJpa(EntityManager em) throws PersistenceException {
+				   
+				   String sql=
+					   "SELECT ws.subtypesampleId, j.jobId, j.name\n"+
+					   "FROM job j\n"+
+					   "JOIN workflowsubtypesample ws ON ws.workflowId = j.workflowId\n"+
+					   "WHERE j.workflowId = :workflowId\n"+
+					   "ORDER BY j.lastupdts DESC , j.name ASC\n";
+				   
+				   Map<Integer,List<Job>> result=new LinkedHashMap<Integer,List<Job>>();
+				   
+				   List<Object[]> listObj=em.createNativeQuery(sql).setParameter("workflowId", workflowId).getResultList();
+				   for(Object[] o:listObj) {
+					   
+					   Integer subtypeSampleId=(Integer)o[0];
+					   Integer jobId=(Integer)o[1];
+					   String jobName=(String)o[2];
+					  
+					 					   
+					   
+					   List<Job> listByType =result.get(subtypeSampleId);
+					   if (listByType==null) {
+						   listByType=new ArrayList<Job>();	
+						   result.put(subtypeSampleId, listByType);
+					   }
+					   Job job = new Job();
+					   job.setJobId(jobId);
+					   job.setName(jobName);
+					   
+					   listByType.add(job);
+					 
+					   
+				   }
+				   return result;
+			   }
+
+			  });
+	
+			 
+		return res;
+		
+	}
 
 }
 

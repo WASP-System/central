@@ -1,8 +1,5 @@
-<%@ include file="/WEB-INF/jsp/include.jsp" %>
+<%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
-<html>
-  <head><title>WASP</title><head>
-  <body>
     <h1>
       <c:out value="${job.name}"/>
     </h1>
@@ -83,7 +80,3 @@
       </a>
       </p>
     </c:forEach>
-
-  </body>
-</html>
-

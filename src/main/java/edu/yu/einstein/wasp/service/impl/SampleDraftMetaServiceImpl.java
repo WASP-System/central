@@ -53,6 +53,7 @@ public class SampleDraftMetaServiceImpl extends WaspServiceImpl<SampleDraftMeta>
   public Map<SubtypeSample,List<SampleDraftMeta>> getAllowableMetaFields(int workflowId) {
 	  return this.getSampleDraftMetaDao().getAllowableMetaFields(workflowId);	  
   }
-
+  
+  
 }
 

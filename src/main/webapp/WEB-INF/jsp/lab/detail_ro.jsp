@@ -1,8 +1,4 @@
-<%@ include file="/WEB-INF/jsp/include.jsp" %>
-
-<html>
-  <head><title>WASP</title><head>
-  <body>
+<%@ include file="/WEB-INF/jsp/taglib.jsp" %>
   <font color="blue"><wasp:message /></font>  
   <form:form commandName="lab">
    <table>
@@ -61,5 +57,3 @@
       <a href="/wasp/job/create/form.do?labid=<c:out value="${lab.labId}" />">create job</a>
     </div>
    </form:form>
-  </body>
-</html>

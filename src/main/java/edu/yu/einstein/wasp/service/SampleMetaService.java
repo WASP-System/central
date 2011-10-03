@@ -11,13 +11,12 @@
 
 package edu.yu.einstein.wasp.service;
 
-import edu.yu.einstein.wasp.dao.SampleMetaDao;
-import edu.yu.einstein.wasp.model.SampleMeta;
-
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.stereotype.Service;
+
+import edu.yu.einstein.wasp.dao.SampleMetaDao;
+import edu.yu.einstein.wasp.model.SampleMeta;
 
 @Service
 public interface SampleMetaService extends WaspService<SampleMeta> {
@@ -43,6 +42,8 @@ public interface SampleMetaService extends WaspService<SampleMeta> {
   public SampleMeta getSampleMetaByKSampleId (final String k, final int sampleId);
 
   public void updateBySampleId (final int sampleId, final List<SampleMeta> metaList);
+  
+  List<SampleMeta> getSamplesMetaBySampleId (final int sampleId);
 
 
 }

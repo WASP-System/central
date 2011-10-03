@@ -11,17 +11,16 @@
 
 package edu.yu.einstein.wasp.dao;
 
-import javax.persistence.*;
 import java.util.List;
-import java.util.Map;
-import edu.yu.einstein.wasp.model.*;
 
-import org.springframework.stereotype.Repository;
+import edu.yu.einstein.wasp.model.Sample;
 
 
 public interface SampleDao extends WaspDao<Sample> {
 
-  public Sample getSampleBySampleId (final int sampleId);
+  Sample getSampleBySampleId (final int sampleId);
+  
+  List<Sample> getSamplesByJobId (final int jobId);
 
 
 }

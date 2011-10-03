@@ -20,7 +20,7 @@
  <!-- Convenience subclass of UrlBasedViewResolver that supports TilesView (i.e. Tiles definitions) and custom subclasses of it. -->
  <!-- Don't forget to set the order if you declared other ViewResolvers -->
  <!-- See http://static.springsource.org/spring/docs/3.0.x/javadoc-api/org/springframework/web/servlet/view/tiles2/TilesViewResolver.html  -->
- <bean id="tilesviewResolver" class="org.springframework.web.servlet.view.tiles2.TilesViewResolver"
+ <bean id="tilesviewResolver" class="org.springframework.web.servlet.view.tiles2.WaspTilesViewResolver"
    p:order="0"/>
   
  <!-- Helper class to configure Tiles 2.x for the Spring Framework -->

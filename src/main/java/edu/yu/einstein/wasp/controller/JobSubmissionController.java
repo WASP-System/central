@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -61,7 +62,6 @@ import edu.yu.einstein.wasp.model.SubtypeSample;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Workflow;
 import edu.yu.einstein.wasp.model.WorkflowMeta;
-
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobCellService;
 import edu.yu.einstein.wasp.service.JobDraftCellService;
@@ -85,7 +85,6 @@ import edu.yu.einstein.wasp.service.WorkflowService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 
 import java.lang.ClassLoader;
-
 
 @Controller
 @Transactional
@@ -159,7 +158,7 @@ public class JobSubmissionController extends WaspController {
 	private final MetaHelper getMetaHelper() {
 		return new MetaHelper("jobDraft", JobDraftMeta.class, request.getSession());
 	}
-
+	
 	final public String defaultPageFlow = "/jobsubmit/modifymeta/{n};/jobsubmit/samples/{n};/jobsubmit/cells/{n};/jobsubmit/verify/{n};/jobsubmit/submit/{n};/jobsubmit/ok";
 
 	public String nextPage(JobDraft jobDraft) {
@@ -243,7 +242,6 @@ public class JobSubmissionController extends WaspController {
 		m.put("workflows", workflowList); 
 	}
 
-
 	@RequestMapping(value="/create.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('lu-*')")
 	public String showCreateForm(ModelMap m) {
@@ -275,7 +273,6 @@ public class JobSubmissionController extends WaspController {
 
 		return rt;
 	}
-
 
 	@RequestMapping(value="/modify/{jobDraftId}.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
@@ -354,7 +351,6 @@ public class JobSubmissionController extends WaspController {
 	}
 
 
-
 	@RequestMapping(value="/modifymeta/{jobDraftId}", method=RequestMethod.GET)
 	//@PreAuthorize("hasRole('jd-' + #jobDraftId)") TODO: uncomment
 	public String showModifyMetaForm(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
@@ -415,7 +411,6 @@ public class JobSubmissionController extends WaspController {
 		return nextPage(jobDraft);
 	}
 
-
 	@RequestMapping(value="/samples/{jobDraftId}", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('lu-*')")
 	public String showSampleDraft(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
@@ -431,7 +426,9 @@ public class JobSubmissionController extends WaspController {
 		
 		m.addAttribute("_metaList", allowedMetaFieldsSet);
 		m.addAttribute("_metaBySubtypeList", allowedMetaFields);
+		m.addAttribute("_jobsBySampleSubtype",jobService.getJobSamplesByWorkflow(workflowId));
 		
+
 		m.addAttribute(JQFieldTag.AREA_ATTR, "sampleDraft");		
 		prepareSelectListData(m);
 		m.addAttribute("jobdraftId",jobDraftId);
@@ -439,7 +436,6 @@ public class JobSubmissionController extends WaspController {
 		return "jobsubmit-sample";
 
 	}
-
 
 	@RequestMapping(value="/cells/{jobDraftId}.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('lu-*')")
@@ -498,7 +494,7 @@ public class JobSubmissionController extends WaspController {
 
 		for (JobDraftCell jdc: oldJobDraftCells) {
 			List<SampleDraftCell> oldSampleDraftCells = jdc.getSampleDraftCell();
-			for (SampleDraftCell sdc: oldSampleDraftCells) {
+		  for (SampleDraftCell sdc: oldSampleDraftCells) {
 				sampleDraftCellService.remove(sdc);
 				sampleDraftCellService.flush(sdc);
 			}
@@ -521,8 +517,8 @@ public class JobSubmissionController extends WaspController {
 		int cellindex = 0;
 
 		for (int i = 1; i <= maxColumns; i++) {
-			int libraryindex = 0;
-			boolean cellfound = false;
+		  int libraryindex = 0;
+		  boolean cellfound = false;
 
 			JobDraftCell thisJobDraftCell = new JobDraftCell();
 			thisJobDraftCell.setJobdraftId(jobDraftId);
@@ -563,8 +559,6 @@ public class JobSubmissionController extends WaspController {
 			}
 		}
 
-		// m.put("checked", checkedList);
-
 		JobDraft jobDraftDb = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
 		return nextPage(jobDraftDb);
 	}
@@ -586,7 +580,6 @@ public class JobSubmissionController extends WaspController {
 
 		return "jobsubmit/verify";
 	}
-
 
 	@RequestMapping(value="/verify/{jobDraftId}.do", method=RequestMethod.POST)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
@@ -814,6 +807,42 @@ public class JobSubmissionController extends WaspController {
 			
 		} catch (Throwable e) {
 			throw new IllegalStateException("Can't marshall to JSON "+drafts,e);
+		}
+	}
+
+	@RequestMapping(value="/samplesByJobId", method=RequestMethod.GET)	
+	public String samplesByJobId(@RequestParam("jobId") Integer jobId, HttpServletResponse response) {
+	
+		//result
+		Map <Integer, String> samplesMap = new LinkedHashMap<Integer, String>();
+		for(Sample sample:sampleService.getSamplesByJobId(jobId)) {
+			samplesMap.put(sample.getSampleId(), sample.getName());
+		}
+
+		try {
+			
+			return outputJSON(samplesMap, response); 	
+			
+		} catch (Throwable e) {
+			throw new IllegalStateException("Can't marshall to JSON "+samplesMap,e);
+		}
+	}
+	
+	@RequestMapping(value="/sampleMetaBySampleId", method=RequestMethod.GET)	
+	public String sampleMetaBySampleId(@RequestParam("sampleId") Integer sampleId, HttpServletResponse response) {
+	
+		//result
+		Map <String, String> metaMap = new LinkedHashMap<String, String>();
+		for(SampleMeta meta:sampleMetaService.getSamplesMetaBySampleId(sampleId)) {
+			metaMap.put(meta.getK(), meta.getV());
+		}
+
+		try {
+			
+			return outputJSON(metaMap, response); 	
+			
+		} catch (Throwable e) {
+			throw new IllegalStateException("Can't marshall to JSON "+metaMap,e);
 		}
 	}
 

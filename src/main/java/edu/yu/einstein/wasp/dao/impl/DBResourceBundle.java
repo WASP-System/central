@@ -13,6 +13,7 @@
 
 package edu.yu.einstein.wasp.dao.impl;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
@@ -48,9 +49,12 @@ public class DBResourceBundle extends JpaDaoSupport implements ApplicationContex
 	//static bridge to properties
 	public static WaspMessageSourceImpl MESSAGE_SOURCE=null;
 	
-	private final Logger log = Logger.getLogger(getClass());
+	private static final Logger log = Logger.getLogger(WaspMessageSourceImpl.class);
 	
 	private ApplicationContext applicationContext;
+	
+	
+	
 	
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		this.applicationContext=applicationContext;
@@ -161,10 +165,31 @@ public class DBResourceBundle extends JpaDaoSupport implements ApplicationContex
 	
 	
 	//returns current page title
+	/*
 	public static final String getPageTitle(HttpServletRequest request) {
 		String def=(String)request.getAttribute("d");//tiles definition
-		String tmp[] = def.split("\\/");
-		if (tmp.length!=2) throw new IllegalStateException("Invalid tiles defition name ["+def+"]. The name shold match {area}/{pagename} pattern.");
+		if (def==null) {
+			
+			
+			for( Object o:(java.lang.Iterable)request.getAttribute("org.apache.tiles.AttributeContext.STACK")) {
+				org.apache.tiles.BasicAttributeContext c=(org.apache.tiles.BasicAttributeContext)o;
+				for(Iterator<String> it=c.getAttributeNames();it.hasNext();) {
+					String key=it.next();
+					log.error(key+":"+c.getAttribute(key)+"["+c+"]");
+				}
+			}
+			
+			Enumeration en=request.getAttributeNames();
+			while(en.hasMoreElements()) {
+				String key=(String)en.nextElement();
+				log.error(key+":"+request.getAttribute(key));
+			}
+			log.error("title definition is unknown. cant figure out page title.");
+			
+			return "";
+		}
+		String tmp[] = def.split("\\/",2);
+		if (tmp.length<2) throw new IllegalStateException("Invalid tiles defition name ["+def+"]. The name shold match {area}/{pagename} pattern.");
 		String code=tmp[0]+"."+tmp[1]+"_page_title.data";
 		Locale locale=(Locale)request.getSession().getAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 		
@@ -172,5 +197,6 @@ public class DBResourceBundle extends JpaDaoSupport implements ApplicationContex
 		
 		return msg;
 	}
+	*/
 
 }

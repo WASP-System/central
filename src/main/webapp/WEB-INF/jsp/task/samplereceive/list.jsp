@@ -1,6 +1,4 @@
-<%@ include file="/WEB-INF/jsp/include.jsp" %>
-
-
+<%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
 <h1>List List</h1>
 <table cellpadding="0" cellspacing="0" border="0">
