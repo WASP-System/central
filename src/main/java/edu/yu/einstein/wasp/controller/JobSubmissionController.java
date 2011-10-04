@@ -167,7 +167,7 @@ public class JobSubmissionController extends WaspController {
 	try {
 		List<WorkflowMeta> wfmList = jobDraft.getWorkflow().getWorkflowMeta();
 		for (WorkflowMeta wfm : wfmList) {
-			if (wfm.getK().equals("workflow.pageflow")) {
+			if (wfm.getK().equals("workflow.submitpageflow")) {
 				pageFlow = wfm.getV();
 				break;
 		}
@@ -352,26 +352,30 @@ public class JobSubmissionController extends WaspController {
 
 
 	@RequestMapping(value="/modifymeta/{jobDraftId}", method=RequestMethod.GET)
-	//@PreAuthorize("hasRole('jd-' + #jobDraftId)") TODO: uncomment
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)") 
 	public String showModifyMetaForm(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
 		 
 		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
 
-		getMetaHelper().setArea(jobDraft.getWorkflow().getIName());
+		MetaHelper metaHelper = getMetaHelper();
+		metaHelper.setArea(jobDraft.getWorkflow().getIName());
 
-		jobDraft.setJobDraftMeta(getMetaHelper().getMasterList(JobDraftMeta.class));
+		// jobDraft.setJobDraftMeta(metaHelper.getMasterList(JobDraftMeta.class));
+		jobDraft.setJobDraftMeta(metaHelper.syncWithMaster(jobDraft.getJobDraftMeta()));
 
 		m.put("jobDraftDb", jobDraft);
 		m.put("jobDraft", jobDraft);
-		m.put("area", getMetaHelper().getArea());
-		m.put("parentarea", getMetaHelper().getParentArea());
+		m.put("area", metaHelper.getArea());
+		m.put("parentarea", metaHelper.getParentArea());
+
+		m.put("workflowiname", jobDraft.getWorkflow().getIName());
 
 		return "jobsubmit/metaform";
 	}
 	
 	@RequestMapping(value="/modifymeta/{jobDraftId}", method=RequestMethod.POST)
-	@PreAuthorize("hasRole('lu-*')")
-	public String showModifyMetaForm(
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String modifyMeta(
 			@PathVariable Integer jobDraftId,
 			@Valid JobDraft jobDraftForm,
 			BindingResult result,
@@ -385,34 +389,120 @@ public class JobSubmissionController extends WaspController {
 		jobDraftForm.setLabId(jobDraft.getLabId());
 		jobDraftForm.setWorkflowId(jobDraft.getWorkflowId());
 
+		MetaHelper metaHelper = getMetaHelper();
 		
-		getMetaHelper().setArea(jobDraft.getWorkflow().getIName());
+		metaHelper.setArea(jobDraft.getWorkflow().getIName());
 
-		List<JobDraftMeta> jobDraftMetaList = getMetaHelper().getFromRequest(request, JobDraftMeta.class);
+		List<JobDraftMeta> jobDraftMetaList = metaHelper.getFromRequest(request, JobDraftMeta.class);
 
 		jobDraftForm.setJobDraftMeta(jobDraftMetaList);
 
-		getMetaHelper().validate(jobDraftMetaList, result);
+		metaHelper.validate(jobDraftMetaList, result);
 
 		if (result.hasErrors()) {
 			waspMessage("hello.error");
 
 			m.put("jobDraftDb", jobDraft);
-			m.put("area", getMetaHelper().getArea());
-			m.put("parentarea", getMetaHelper().getParentArea());
+			m.put("area", metaHelper.getArea());
+			m.put("parentarea", metaHelper.getParentArea());
 
 			return "jobsubmit/metaform";
 		}
 
-		jobDraftMetaService.updateByJobdraftId(jobDraftId, jobDraftMetaList);
+		jobDraftMetaService.updateByJobdraftId(metaHelper.getArea(), jobDraftId, jobDraftMetaList);
 
-
-		// TODO SHOULD ACTUALLY FORWARD
 		return nextPage(jobDraft);
 	}
 
+	@RequestMapping(value="/aligner/{jobDraftId}", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String showAlignerForm(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
+		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
+
+		MetaHelper workflowMetaHelper = getMetaHelper();
+		workflowMetaHelper.setArea(jobDraft.getWorkflow().getIName());
+
+		List<JobDraftMeta> jobDraftMeta = workflowMetaHelper.syncWithMaster(jobDraft.getJobDraftMeta()); 
+
+		JobDraftMeta alignerJdm = new JobDraftMeta();
+		String alignerArea = "";
+		for (JobDraftMeta jdm: jobDraftMeta) {
+			if (! jdm.getK().equals(workflowMetaHelper.getArea() + ".aligner")) { continue; }
+			alignerArea = jdm.getV();
+			alignerJdm = jdm;
+		}
+		
+
+		MetaHelper metaHelper = getMetaHelper();
+		metaHelper.setArea(alignerArea);
+		jobDraft.setJobDraftMeta(metaHelper.syncWithMaster(jobDraft.getJobDraftMeta()));
+
+		m.put("ABC", alignerJdm);
+
+		m.put("jobDraftDb", jobDraft);
+		m.put("jobDraft", jobDraft);
+		m.put("area", metaHelper.getArea());
+		m.put("parentarea", metaHelper.getParentArea());
+
+		return "jobsubmit/aligner";
+	}
+
+	@RequestMapping(value="/aligner/{jobDraftId}", method=RequestMethod.POST)
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String modifyAligner(
+			@PathVariable Integer jobDraftId,
+			@Valid JobDraft jobDraftForm,
+			BindingResult result,
+			SessionStatus status,
+			ModelMap m) {
+		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
+
+		MetaHelper workflowMetaHelper = getMetaHelper();
+		workflowMetaHelper.setArea(jobDraft.getWorkflow().getIName());
+
+		List<JobDraftMeta> jobDraftMeta = workflowMetaHelper.syncWithMaster(jobDraft.getJobDraftMeta()); 
+
+		JobDraftMeta alignerJdm = new JobDraftMeta();
+		String alignerArea = "";
+		for (JobDraftMeta jdm: jobDraftMeta) {
+			if (! jdm.getK().equals(workflowMetaHelper.getArea() + ".aligner")) { continue; }
+			alignerArea = jdm.getV();
+			alignerJdm = jdm;
+		}
+
+		MetaHelper metaHelper = getMetaHelper();
+		metaHelper.setArea(alignerArea);
+		List<JobDraftMeta> jobDraftMetaList = metaHelper.getFromRequest(request, JobDraftMeta.class);
+
+    jobDraftForm.setJobDraftMeta(jobDraftMetaList);
+    metaHelper.validate(jobDraftMetaList, result);
+
+    if (result.hasErrors()) {
+      waspMessage("hello.error");
+
+      m.put("jobDraftDb", jobDraft);
+      m.put("area", metaHelper.getArea());
+      m.put("parentarea", metaHelper.getParentArea());
+
+      return "jobsubmit/metaform";
+    }
+
+
+		// removes old aligners
+		for (edu.yu.einstein.wasp.model.MetaAttribute.Control.Option opt: alignerJdm.getProperty().getControl().getOptions()) {
+			jobDraftMetaService.updateByJobdraftId(opt.getValue(), jobDraftId, new ArrayList());
+
+		}
+
+		jobDraftMetaService.updateByJobdraftId(metaHelper.getArea(), jobDraftId, jobDraftMetaList);
+
+		return nextPage(jobDraft);
+
+	}
+
+
 	@RequestMapping(value="/samples/{jobDraftId}", method=RequestMethod.GET)
-	@PreAuthorize("hasRole('lu-*')")
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public String showSampleDraft(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
 	
 		int workflowId=jobDraftService.findById(jobDraftId).getWorkflow().getWorkflowId();
@@ -438,7 +528,7 @@ public class JobSubmissionController extends WaspController {
 	}
 
 	@RequestMapping(value="/cells/{jobDraftId}.do", method=RequestMethod.GET)
-	@PreAuthorize("hasRole('lu-*')")
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public String showSampleCellDraft(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
 		List<SampleDraft> samples=sampleDraftService.getSampleDraftByJobId(jobDraftId);
 
@@ -484,7 +574,7 @@ public class JobSubmissionController extends WaspController {
 	}
 
 	@RequestMapping(value="/cells/{jobDraftId}.do", method=RequestMethod.POST)
-	@PreAuthorize("hasRole('lu-*')")
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public String updateSampleCellDraft(
 			@PathVariable("jobDraftId") Integer jobDraftId, 
 			ModelMap m) {
@@ -568,11 +658,6 @@ public class JobSubmissionController extends WaspController {
 	public String showJobDraft(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
 		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
 
-		
-		getMetaHelper().setArea(jobDraft.getWorkflow().getIName());
-
-		jobDraft.setJobDraftMeta(getMetaHelper().syncWithMaster(jobDraft.getJobDraftMeta()));
-
 		m.put("jobDraft", jobDraft);
 
 		List <SampleDraft> sampleDraftList = jobDraft.getSampleDraft();
@@ -606,7 +691,7 @@ public class JobSubmissionController extends WaspController {
 		} catch (Exception e) {
 		}
 
-		// jdv.validate();
+		// jdv.validate(jobDraft);
 
 
 		return nextPage(jobDraft);
