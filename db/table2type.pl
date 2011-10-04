@@ -411,10 +411,22 @@ $c
         my $Var = $t->{'cols'}->{$col}->{'Var'};
         my $var = $t->{'cols'}->{$col}->{'var'};
 
-        $j_dao_interface .= qq|  public void updateBy$Var (final int $var, final List<$t->{'Table'}> metaList);\n\n|;
-        $j_service_interface .= qq|  public void updateBy$Var (final int $var, final List<$t->{'Table'}> metaList);\n\n|;
+        $j_dao_interface .= qq|
+  public void updateBy$Var (final String area, final int $var, final List<$t->{'Table'}> metaList);
+
+  public void updateBy$Var (final int $var, final List<$t->{'Table'}> metaList);\n\n
+
+|;
+        $j_service_interface .= qq|
+  public void updateBy$Var (final String area, final int $var, final List<$t->{'Table'}> metaList);
+
+  public void updateBy$Var (final int $var, final List<$t->{'Table'}> metaList);\n\n|;
 
         $j_service .= qq|
+  public void updateBy$Var (final String area, final int $var, final List<$t->{'Table'}> metaList) {
+    this.get$t->{'Table'}Dao().updateBy$Var(area, $var, metaList); 
+  }
+
   public void updateBy$Var (final int $var, final List<$t->{'Table'}> metaList) {
     this.get$t->{'Table'}Dao().updateBy$Var($var, metaList); 
   }
@@ -422,6 +434,32 @@ $c
 |;
 
         $j_dao .= qq|
+	/**
+	 * updateBy$Var (final string area, final int $var, final List<$t->{'Table'}> metaList)
+	 *
+	 * \@param $var
+	 * \@param metaList
+	 *
+	 */
+	\@SuppressWarnings("unchecked")
+	\@Transactional
+	public void updateBy$Var (final String area, final int $var, final List<$t->{'Table'}> metaList) {
+
+		getJpaTemplate().execute(new JpaCallback() {
+
+			public Object doInJpa(EntityManager em) throws PersistenceException {
+				em.createNativeQuery("delete from $table where $var=:$var and k like :area").setParameter("$var", $var).setParameter("area", area + ".%").executeUpdate();
+
+				for ($t->{'Table'} m:metaList) {
+					m.set$Var($var);
+					em.persist(m);
+				}
+        			return null;
+			}
+		});
+	}
+
+
 	/**
 	 * updateBy$Var (final int $var, final List<$t->{'Table'}> metaList)
 	 *
