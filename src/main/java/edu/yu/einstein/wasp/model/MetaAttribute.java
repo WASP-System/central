@@ -7,9 +7,11 @@ import java.util.List;
 
 import javax.persistence.Transient;
 
-/*
+
+/**
  * Holds attributes for a *meta" object
- * @Author Sasha Levchuk
+ * @author  Sasha Levchuk
+ *
  */
 public final class MetaAttribute implements Serializable {
 
@@ -126,18 +128,26 @@ public final class MetaAttribute implements Serializable {
 			this.suffix = suffix;
 		}
 		
-
+		/**
+		 * 
+		 * Represents a control element such as a select box. An object of this class will typically either use the options attribute OR
+		 * the set of items, itemValue and itemLabel attributes depending on whether the items are provided in a bean (former situation)
+		 * or as set of semicolon delimited item:value pairs
+		 *
+		 */
 		public static final class Control implements Serializable{
 			public enum Type {
 				input, select
 			}
 
 			private Type type;
+			// options typically derived from parsing a string such as 'select:item1Value:item1Label;item2Value:item2Label'
 			private List<Option> options;
-
-			private String items;
-			private String itemValue;
-			private String itemLabel;
+			
+			// The next 3 attributes are typically set after parsing control string e.g. 'select:${beanName}:itemValue:itemLabel'
+			private String items; // beanName
+			private String itemValue; // itemValue
+			private String itemLabel; // itemLabel
 			
 			public String getItems() {
 				return items;
@@ -162,7 +172,12 @@ public final class MetaAttribute implements Serializable {
 			public void setItemLabel(String itemLabel) {
 				this.itemLabel = itemLabel;
 			}
-
+			
+			/**
+			 * 
+			 * Represents a control element (e.g. select box) option which has a value and a label
+			 *
+			 */
 			public static final class Option implements Serializable {
 				private String value;
 				private String label;
@@ -222,7 +237,11 @@ public final class MetaAttribute implements Serializable {
 					+ ", metaposition=" + metaposition + "]";
 		}
 		
-		
+	  /**
+	   * 
+	   * A country representation where each country name is given a two letter code
+	   *
+	   */
 	  public static final class Country {
 		  private String code;
 		  private String name;
@@ -249,7 +268,7 @@ public final class MetaAttribute implements Serializable {
 		public String toString() {
 			return "Country [code=" + code + ", name=" + name + "]";
 		}
-
+		
 	  public static final List<Country> list = new ArrayList<Country>();
 		static {
 			list.add(new Country("US", "UNITED STATES"));
@@ -381,8 +400,7 @@ public final class MetaAttribute implements Serializable {
 			list.add(new Country("LT", "LITHUANIA"));
 			list.add(new Country("LU", "LUXEMBOURG"));
 			list.add(new Country("MO", "MACAO"));
-			list.add(new Country("MK",
-					"MACEDONIA"));
+			list.add(new Country("MK", "MACEDONIA"));
 			list.add(new Country("MG", "MADAGASCAR"));
 			list.add(new Country("MW", "MALAWI"));
 			list.add(new Country("MY", "MALAYSIA"));
@@ -435,8 +453,7 @@ public final class MetaAttribute implements Serializable {
 			list.add(new Country("RU", "RUSSIAN FEDERATION"));
 			list.add(new Country("RW", "RWANDA"));
 			list.add(new Country("BL", "SAINT BARTHELEMY"));
-			list.add(new Country("SH",
-					"SAINT HELENA"));
+			list.add(new Country("SH", "SAINT HELENA"));
 			list.add(new Country("KN", "SAINT KITTS AND NEVIS"));
 			list.add(new Country("LC", "SAINT LUCIA"));
 			list.add(new Country("MF", "SAINT MARTIN"));
@@ -457,8 +474,7 @@ public final class MetaAttribute implements Serializable {
 			list.add(new Country("SB", "SOLOMON"));
 			list.add(new Country("SO", "SOMALIA"));
 			list.add(new Country("ZA", "SOUTH AFRICA"));
-			list.add(new Country("GS",
-					"SOUTH GEORGIA"));
+			list.add(new Country("GS", "SOUTH GEORGIA"));
 			list.add(new Country("ES", "SPAIN"));
 			list.add(new Country("LK", "SRI LANKA"));
 			list.add(new Country("SD", "SUDAN"));
@@ -499,7 +515,11 @@ public final class MetaAttribute implements Serializable {
 			list.add(new Country("ZW", "ZIMBABWE"));
 		}
 	} 
-	  
+	  /**
+	   * 
+	   * A state representation where each state name is given a two letter code
+	   *
+	   */
 	  public static final class State {
 		  private String code;
 		  private String name;

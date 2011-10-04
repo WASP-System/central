@@ -18,20 +18,25 @@ import edu.yu.einstein.wasp.dao.impl.DBResourceBundle;
 import edu.yu.einstein.wasp.model.MetaAttribute.Control;
 import edu.yu.einstein.wasp.service.impl.WaspMessageSourceImpl;
 
-/*
+
+/**
  * contains utility methods for manipulating 
  * with *meta and MetaAttribute objects
- * @Author Sasha Levchuk
+ * @author Sasha Levchuk
+ *
  */
 public final class MetaUtil {
 			
 		
-		 /* 1. populates "control" and "position" property of each object in the list
-		  * with values from the messages_en.properties file
-		  *
-		  * 2. Sorts list on meta.position field 
-		  */
-		
+		/**
+		 * 1. populates "control" and "position" property of each object in the list
+		 * with values from the uifield messages database table
+		 *
+		 * 2. Sorts list on meta.position field 
+		 * @param list
+		 * @param area
+		 * @param locale
+		 */
 		public static final <T> void setAttributesAndSort(List<T> list, MetaAttribute.Area area, Locale locale) {
 			 
 			 for(T t:list) {
@@ -69,6 +74,12 @@ public final class MetaUtil {
 			 Collections.sort( list, META_POSITION_COMPARATOR);
 		 }
 		
+	/**
+	 * Gets a control object for supplied key (e.g. 'user.country.control')
+	 * @param key
+	 * @param locale
+	 * @return @{link Control}
+	 */
 	public static Control getControl(String key, Locale locale) {
 		
 		//WaspMessageSourceImpl
@@ -84,6 +95,14 @@ public final class MetaUtil {
 		
 	}
 	
+	/**
+	 * Creates and returns a {@link Control} object by parsing supplied message (controlStr).
+	 * In controlStr a select box is represented as either
+	 * 1) select:${beanName}:itemValue:itemLabel or
+	 * 2) select:item1Value:item1Label;item2Value:item2Label etc
+	 * @param controlStr
+	 * @return @{link Control} (null if controlStr equals null)
+	 */
 	public static Control getControl(String controlStr) {
 		
 		if (controlStr==null) return null;
@@ -128,44 +147,64 @@ public final class MetaUtil {
 			return control;
 	}
 	
+	/**
+	 * Returns message (US locale) for given area, name and attribute (represented as key 'area.name.attribute' in the database)
+	 * @param area
+	 * @param name
+	 * @param attribute
+	 * @return message
+	 */
 	private static String getValue(MetaAttribute.Area area, String name, String attribute) {
 			 
 			 return getMessage(area.name()+"."+name+"."+attribute,Locale.US);
 				 
 	 }
-		 
+	 
+	/**
+	 * Returns message for given area, name and attribute (represented as key 'area.name.attribute' in the database) plus locale
+	 * @param area
+	 * @param name
+	 * @param attribute
+	 * @param locale
+	 * @return message
+	 */
 	 private static String getValue(MetaAttribute.Area area, String name, String attribute, Locale locale) {
 		 
 		 return getMessage(area.name()+"."+name+"."+attribute,locale);
 				 
 	 }
-		 
-		private static String getMessage(String key, Locale locale) {
-				
-				return DBResourceBundle.MESSAGE_SOURCE.getMessage(key, null, locale);
-		}
-		 
-	
-		private final static Comparator META_POSITION_COMPARATOR =  new Comparator() {
-			public int compare(Object o1, Object o2) {
-				
-				MetaBase f1=(MetaBase)o1;
-				MetaBase f2=(MetaBase)o2;
-	
-				if (f1==null || f1.getProperty()==null || f1.getProperty().getMetaposition()==-1 ) return -1;
-				if (f2==null || f2.getProperty()==null || f2.getProperty().getMetaposition()==-1 ) return 1;
-				
-				
-				Integer p1=f1.getProperty().getMetaposition();
-				Integer p2=f2.getProperty().getMetaposition();	    		 
-				
-				return p1.compareTo(p2);
 		
+	/**
+	 * Returns message for given key ('area.name.attribute' in the database) and locale 
+	 * @param key
+	 * @param locale
+	 * @return
+	 */
+	private static String getMessage(String key, Locale locale) {
+			
+			return DBResourceBundle.MESSAGE_SOURCE.getMessage(key, null, locale);
+	}
+		 
+	private final static Comparator META_POSITION_COMPARATOR =  new Comparator() {
+		public int compare(Object o1, Object o2) {
+			
+			MetaBase f1=(MetaBase)o1;
+			MetaBase f2=(MetaBase)o2;
+
+			if (f1==null || f1.getProperty()==null || f1.getProperty().getMetaposition()==-1 ) return -1;
+			if (f2==null || f2.getProperty()==null || f2.getProperty().getMetaposition()==-1 ) return 1;
+			
+			
+			Integer p1=f1.getProperty().getMetaposition();
+			Integer p2=f2.getProperty().getMetaposition();	    		 
+			
+			return p1.compareTo(p2);
+	
 		}
 	};
-		
+	/*		
 	  // returns list of unique "k" values for the given "prefix"
-	/*
+
 	  public static final Set<String> getUniqueKeys(MetaAttribute.Area area, Resourcelocale locale) {
 		     
 		     Set<String> set = new HashSet<String>();
@@ -187,12 +226,8 @@ public final class MetaUtil {
 		     return set;
 		  }
 	  
-	  */
-	 
 	  
-	  /*
-	   * updates "dbList" so it only contains fields found in "properties" file
-	   */
+
 	  public static final <T> List<T> syncWithMaster(List<T> dbList, MetaAttribute.Area area, Class clazz) {
 		  
 		  Set<String> keys=((WaspMessageSourceImpl)DBResourceBundle.MESSAGE_SOURCE).getKeys(Locale.US);
@@ -313,5 +348,5 @@ public final class MetaUtil {
 
 		return resultList;
 	}
-	 
+	*/
 }
