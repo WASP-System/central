@@ -13,6 +13,7 @@
     <http use-expressions="true">
 
         <intercept-url pattern="/auth/**" access="permitAll" />
+        <intercept-url pattern="/css/**" access="permitAll" />
         <intercept-url pattern="/stickyCaptchaImg.png" access="permitAll" />
         <intercept-url pattern="/open/**" access="permitAll" />
         <intercept-url pattern="/**" access="isAuthenticated()" />
