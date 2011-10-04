@@ -42,7 +42,11 @@ import edu.yu.einstein.wasp.service.PasswordService;
 import edu.yu.einstein.wasp.service.UserPendingMetaService;
 import edu.yu.einstein.wasp.service.UserPendingService;
 
-
+/**
+ * 
+ * Controller for handling request mappings for pending user and pending PI applications
+ *
+ */
 @Controller
 @Transactional
 @RequestMapping("/auth")
@@ -81,27 +85,27 @@ public class UserPendingController extends WaspController {
 	@Autowired
 	private AuthCodeService authCodeService;
 	
+	
 	/**
-	 *
+	 * get a @{link MetaHelper} instance for working with userPending metadata
+	 * @return
 	 */
-
 	private final MetaHelper getMetaHelper() {
 		return new MetaHelper("userPending", UserPendingMeta.class, request.getSession());
 	}
 	
 		
-	
+	/**
+	 * Create model for a new user application form view based on the current userPending metadata in the uifield properties table
+	 * @param m model
+	 * @return view
+	 */
 	@RequestMapping(value="/newuser", method=RequestMethod.GET)
 	public String showNewPendingUserForm(ModelMap m) {
 		
 
 		UserPending userPending = new UserPending();
-		MetaHelper metaHelper = getMetaHelper();
-		
-		//String msg= DBResourceBundle.MESSAGE_SOURCE.getMessage("userPending.lastName.error", null, Locale.US);
-		
-		// We wish to get some data from the principal investigator User so hide on the form
-		
+		MetaHelper metaHelper = getMetaHelper();	
 		
 		userPending.setUserPendingMeta(metaHelper.getMasterList(UserPendingMeta.class));
 		
@@ -112,6 +116,15 @@ public class UserPendingController extends WaspController {
 
 	}
 
+	/**
+	 * Validate posted form with bound {@link UserPending} data
+	 * @param userPendingForm
+	 * @param result
+	 * @param status
+	 * @param m model
+	 * @return view
+	 * @throws WaspMetadataException
+	 */
 	@RequestMapping(value="/newuser", method=RequestMethod.POST)
 	public String createNewPendingUser (
 			 @Valid UserPending userPendingForm, 
@@ -150,7 +163,7 @@ public class UserPendingController extends WaspController {
 			return "auth/newuser/form";
 		}
 		
-		// form completed properly so continue		
+		// form passes validation so finalize and persist userPending data and metadata		
 		String piUserLogin = userPendingMetaHelper.getMetaByName("primaryuserid").getV();
 				
 		Lab lab = labService.getLabByPrimaryUserId(userService.getUserByLogin(piUserLogin).getUserId());
@@ -181,6 +194,14 @@ public class UserPendingController extends WaspController {
 		return "redirect:/auth/newuser/created.do";
 	}
 
+	/**
+	 * Create model for a new user principal investigator form view based on the current piPending metadata in the uifield properties table.
+	 * This function is able to prepare a {@link UserPending} object linked to {@link UserPendingMetadata} using piPending properties 
+	 * instead of userPending because the parent area is set to 'userPending' and the area is set to 'piPending'.
+	 * 
+	 * @param m model
+	 * @return view
+	 */
 	@RequestMapping(value="/newpi", method=RequestMethod.GET)
 	public String showNewPendingPiForm(ModelMap m) {
 		MetaHelper metaHelper=getMetaHelper();
@@ -196,6 +217,14 @@ public class UserPendingController extends WaspController {
 
 	}
 
+	/**
+	 * Validate posted form with bound {@link UserPending} data
+	 * @param userPendingForm
+	 * @param result
+	 * @param status
+	 * @param m model
+	 * @return view
+	 */
 	@RequestMapping(value="/newpi", method=RequestMethod.POST)
 	public String createNewPendingPi (
 			 @Valid UserPending userPendingForm, 
@@ -246,6 +275,13 @@ public class UserPendingController extends WaspController {
 		return "redirect:/auth/newpi/created.do";
 	}
 	
+	/**
+	 * Validates a given email address and authCode.
+	 * @param authCode
+	 * @param email
+	 * @param m
+	 * @return is valid result (true / false)
+	 */
 	protected boolean userPendingEmailValid(String authCode, String email, ModelMap m) {
 		if (authCode == null || authCode.isEmpty()) {
 			waspMessage("auth.confirmemail_badauthcode.error");
@@ -268,12 +304,19 @@ public class UserPendingController extends WaspController {
 		return true;
 	}
 		
+	/**
+	 * After confirmation of a pending user's email address, email PIs of any labs for which joining is request and  
+	 * administrators of any departments for which a new labs are requested.  
+	 * @param email
+	 * @throws WaspMetadataException
+	 */
 	protected void sendPendingUserConfRequestEmail(String email) throws WaspMetadataException{
 		// now find any existing userPending instances with same email and process them too
 		Map userPendingQueryMap = new HashMap();
 		userPendingQueryMap.put("email", email);
 		userPendingQueryMap.put("status", "WAIT_EMAIL");
 		List<UserPending> userPendingList = userPendingService.findByMap(userPendingQueryMap);
+		// consider email confirmed for ALL pending user and lab applications linked to this validated email address
 		for (UserPending up: userPendingList){
 			ConfirmEmailAuth auth = confirmEmailAuthService.getConfirmEmailAuthByUserpendingId(up.getUserPendingId());
 			if (auth.getUserpendingId() != 0){
@@ -291,6 +334,12 @@ public class UserPendingController extends WaspController {
 		}
 	}
 	
+	/**
+	 * Create, persist and return a {@link LabPending} object for a given {@link UserPending} instance.
+	 * @param userPending
+	 * @return {@link LabPending}
+	 * @throws WaspMetadataException
+	 */
 	protected LabPending getNewLabPending(UserPending userPending) throws WaspMetadataException{
 		MetaHelper userPendingMetaHelper=getMetaHelper();
 		userPendingMetaHelper.setArea("piPending");
@@ -306,6 +355,15 @@ public class UserPendingController extends WaspController {
 		return labPendingDb;
 	}
 
+	
+	/**
+	 * Processes a pending user email validation GET request (should be from clicking a link in an email) 
+	 * @param authCode
+	 * @param urlEncodedEmail
+	 * @param m model
+	 * @return view
+	 * @throws WaspMetadataException
+	 */
 	@RequestMapping(value="/confirmUserEmail", method=RequestMethod.GET)
 	  public String confirmUserEmailFromEmailLink(
 			  @RequestParam(value="authcode") String authCode,
@@ -331,6 +389,15 @@ public class UserPendingController extends WaspController {
 		return "redirect:/auth/newuser/emailok.do";
 	}
 	
+	/**
+	 * Processes pending user email validation POST request from a form view
+	 * @param authCode
+	 * @param email
+	 * @param captchaText
+	 * @param m model
+	 * @return view
+	 * @throws WaspMetadataException
+	 */
 	 @RequestMapping(value="/confirmUserEmail", method=RequestMethod.POST)
 	  public String confirmUserEmailFromForm(
 	        @RequestParam(value="authcode") String authCode,
@@ -350,6 +417,14 @@ public class UserPendingController extends WaspController {
 		  return "redirect:/auth/newuser/emailok.do";
 	  }
 
+	 /**
+	  * Processes a pending principal investigator email validation GET request (should be from clicking a link in an email) 
+	  * @param authCode
+	  * @param urlEncodedEmail
+	  * @param m model
+	  * @return view
+	  * @throws WaspMetadataException
+	  */
 	 @RequestMapping(value="/confirmPIEmail", method=RequestMethod.GET)
 	 public String confirmPIEmailFromEmailLink(
 			  @RequestParam(value="authcode") String authCode,
@@ -374,6 +449,15 @@ public class UserPendingController extends WaspController {
 		 return "redirect:/auth/newpi/emailok.do";
 	}
 	 
+	/**
+	 * Processes pending principal investigator email validation POST request from a form view
+	 * @param authCode
+	 * @param email
+	 * @param captchaText
+	 * @param m model
+	 * @return view
+	 * @throws WaspMetadataException
+	 */
 	@RequestMapping(value="/confirmPIEmail", method=RequestMethod.POST)
 	public String confirmPIEmailFromForm(
 			@RequestParam(value="authcode") String authCode,

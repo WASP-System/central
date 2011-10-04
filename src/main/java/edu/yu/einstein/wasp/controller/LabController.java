@@ -605,7 +605,14 @@ public class LabController extends WaspController {
 		waspMessage("hello.error");
 		return "redirect:/lab/user/" + labId + ".do";
 	}
-
+	
+	/**
+	 * Creates a new Lab from a LabPending object. If principal investigator is pending, her {@link User} account is generated first.
+	 * 
+	 * @param labPending
+	 * @return {@link Lab} the created lab
+	 * @throws WaspMetadataException
+	 */
 	public Lab createLabFromLabPending(LabPending labPending) throws WaspMetadataException {
 		Lab lab = new Lab();
 		User user;
@@ -647,7 +654,7 @@ public class LabController extends WaspController {
 			labMetaService.save(labMeta);
 		}
 
-		// set p.i.
+		// set pi role 
 		Role role = roleService.getRoleByRoleName("pi");
 
 		LabUser labUser = new LabUser();
@@ -656,6 +663,8 @@ public class LabController extends WaspController {
 		labUser.setRoleId(role.getRoleId());
 		labUserService.save(labUser);
 		
+		// set status to 'CREATED' for any other pending labs of the same name (user may have attempted to apply for their
+		// lab account more than once)
 		Map pendingLabQueryMap = new HashMap();
 		pendingLabQueryMap.put("primaryUserId", user.getUserId());
 		pendingLabQueryMap.put("name", labDb.getName());
@@ -674,6 +683,13 @@ public class LabController extends WaspController {
 		return labDb;
 	}
 
+	/**
+	 * Creates and returns a new {@link User} object from the supplied {@link UserPending} object. 
+	 * 
+	 * @param userPending the pending user
+	 * @return {@link User} the created user
+	 * @throws WaspMetadataException
+	 */
 	public User createUserFromUserPending(UserPending userPending) throws WaspMetadataException {
 		boolean isPiPending = (userPending.getLabId() == null) ? true : false;
 		User user = new User();
@@ -697,8 +713,8 @@ public class LabController extends WaspController {
 		User userDb = userService.save(user);
 		int userId = userDb.getUserId();
 
-		//List<UserPendingMeta> userPendingMetaList = userPendingMetaService.getUserPendingMetaByUserPendingId(userPending.getUserPendingId());
-		// copies meta data
+		/* List<UserPendingMeta> userPendingMetaList = userPendingMetaService.getUserPendingMetaByUserPendingId(userPending.getUserPendingId());
+		copies meta data */
 		MetaHelper userMetaHelper = new MetaHelper("user", UserMeta.class, request.getSession());
 		userMetaHelper.getMasterList(UserMeta.class);
 		MetaHelper userPendingMetaHelper = new MetaHelper("userPending", UserPendingMeta.class, request.getSession());
@@ -716,9 +732,10 @@ public class LabController extends WaspController {
 				logger.debug("No match for userPendingMeta property with name '" + name + "' in userMeta properties");
 			}
 		}
+		// if this user is not a PI, copy address information from the PI's User data.
 		if (! isPiPending){
-			// not a PI application request
-			// create a metahelper object to work with metadata for PI.
+			/* not a PI application request
+			create a metahelper object to work with metadata for PI. */
 			String piUserLogin = userPendingMetaHelper.getMetaByName("primaryuserid").getV();
 			MetaHelper piMetaHelper = new MetaHelper("user", UserMeta.class, request.getSession());
 			piMetaHelper.syncWithMaster(userService.getUserByLogin(piUserLogin).getUserMeta()); // get PI meta from database and sync with current properties
@@ -739,6 +756,11 @@ public class LabController extends WaspController {
 			userMeta.setUserId(userId);
 			userMetaService.save(userMeta);
 		}
+		
+		/* Set status of any other applications from user with the same email address to 'CREATED'
+		If the new user is also pending in other labs but not yet confirmed by the PI of
+		each of those labs, add the user to that lab (via entry into the labUser table) and set
+		their status as 'lp' (lab-pending). */
 		Map userPendingQueryMap = new HashMap();
 		userPendingQueryMap.put("email", userPending.getEmail());
 		userPendingQueryMap.put("status", "PENDING");
@@ -766,8 +788,8 @@ public class LabController extends WaspController {
 				labUserService.save(labUserCurrent);
 
 			}
-			// iterate through list of pending labs. If this user was previously registered as 'userPending' in a lab,
-			// remove reference to her userPendingId and insert reference to her new userId instead
+			/* iterate through list of pending labs. If this user was previously registered as 'userPending' in a lab,
+			remove reference to her userPendingId and insert reference to her new userId instead */
 			Map labPendingQueryMap = new HashMap();
 			labPendingQueryMap.put("userpendingId", userPendingCurrent.getUserPendingId());
 
@@ -777,14 +799,22 @@ public class LabController extends WaspController {
 				labPending.setPrimaryUserId(userId);
 				labPendingService.save(labPending);
 			}
-
-
 		}
 
 		return userDb; 
 	}
 
-
+	/**
+	 * Request-mapped function that allows a principal investigator or lab manager to accept or reject an application from a pending user 
+	 * (not yet an active WASP user) to join their lab.
+	 * 
+	 * @param labId
+	 * @param userPendingId
+	 * @param action
+	 * @param m
+	 * @return view
+	 * @throws WaspMetadataException
+	 */
 	@RequestMapping(value = "/userpending/{action}/{labId}/{userPendingId}.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('god') or hasRole('lm-' + #labId)")
 	public String userPendingDetail ( @PathVariable("labId") Integer labId, @PathVariable("userPendingId") Integer userPendingId, @PathVariable("action") String action, ModelMap m) throws WaspMetadataException {
@@ -801,7 +831,9 @@ public class LabController extends WaspController {
 			return "redirect:/lab/user/" + labId + ".do";
 		}
 		User user;
+				 
 		if ("approve".equals(action)) {
+			// add user to lab (labUser table) with role 'lu' (lab-user) and email pending user notification of acceptance
 			user = createUserFromUserPending(userPending);
 			Role roleLabUser = roleService.getRoleByRoleName("lu");
 			// createUserFromUserPending, should have made this.
@@ -810,6 +842,7 @@ public class LabController extends WaspController {
 			labUserService.merge(labUser);
 			emailService.sendPendingUserNotifyAccepted(user, labService.getLabByLabId(labId));
 		} else{
+			// email pending user notification of rejection
 			emailService.sendPendingUserNotifyRejected(userPending, labService.getLabByLabId(labId));
 		}
 		userPending.setStatus(action);
@@ -817,6 +850,17 @@ public class LabController extends WaspController {
 		return "redirect:/lab/user/" + labId + ".do";
 	}
 
+	/**
+	 * Request-mapped function that allows a department administrator to accept or reject an application for a new lab within
+	 * their department.
+	 * 
+	 * @param departmentId
+	 * @param labPendingId
+	 * @param action
+	 * @param m
+	 * @return
+	 * @throws WaspMetadataException
+	 */
 	@RequestMapping(value = "/labpending/{action}/{departmentId}/{labPendingId}.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('god') or hasRole('la-' + #departmentId)")
 	public String labPendingDetail ( @PathVariable("departmentId") Integer departmentId, @PathVariable("labPendingId") Integer labPendingId, @PathVariable("action") String action, ModelMap m) throws WaspMetadataException {
