@@ -112,7 +112,7 @@ public class LabController extends WaspController {
 
 		prepareSelectListData(m);		
 		
-		return "lab-list";
+		return "lab/list";
 	}
 
 

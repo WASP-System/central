@@ -106,7 +106,7 @@ public class UiFieldController extends WaspController {
 		m.addAttribute("areaNames", areas);
 		m.addAttribute("locales", MY_LOCALES);
 		
-		return "uifield-list";
+		return "uifield/list";
 	}
 
 	

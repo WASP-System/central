@@ -1,3 +1,4 @@
+<%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 <script language="JavaScript">
 		<!--
 		function validate(){

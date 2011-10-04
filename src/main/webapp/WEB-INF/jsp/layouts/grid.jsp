@@ -5,10 +5,10 @@
  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />  
  <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
  
- <title> 
- 	<tiles:insertAttribute name="title" />
+ <title> 	 	
+     <wasp:pageTitle/> 
  </title>
- 
+  
 <link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/jquery/jquery-ui.css" />
 <link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/jquery/ui.jqgrid.css" />
 <style>

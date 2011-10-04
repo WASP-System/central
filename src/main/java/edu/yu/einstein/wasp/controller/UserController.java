@@ -74,7 +74,7 @@ public class UserController extends WaspController {
 		
 		
 		
-		return "user-list";
+		return "user/list";
 	}
 	
 	@RequestMapping(value = "/subgridJSON.do", method = RequestMethod.GET)

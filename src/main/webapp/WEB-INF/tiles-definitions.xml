@@ -10,8 +10,19 @@
         <put-attribute name="body-content" value="" />
         <put-attribute name="footer-content" value="/WEB-INF/jsp/sections/footer.jsp" />
     </definition>
+    
+    <definition name="template-grid" template="/WEB-INF/jsp/layouts/grid.jsp">
+        <put-attribute name="area" value="" />    
+        <put-attribute name="grid-columns" value="" />
+        <put-attribute name="subgrid-columns" value="" />
+        <put-attribute name="banner-content" value="/WEB-INF/jsp/sections/banner.jsp" />
+        <put-attribute name="body-content" value="" />
+        <put-attribute name="footer-content" value="/WEB-INF/jsp/sections/footer.jsp" />
+    </definition>
+    
+    
     <definition name="auth/login" extends="template-base">
-        <put-attribute name="head-js" value="/WEB-INF/jsp/auth/login.js" />
+        <put-attribute name="head-js" value="/WEB-INF/jsp/auth/login.js.jsp" />
         <put-attribute name="body-content" value="/WEB-INF/jsp/auth/login.jsp" />
     </definition>
     <definition name="auth/forgotpassword/email" extends="template-base">
@@ -75,7 +86,7 @@
         <put-attribute name="body-content" value="/WEB-INF/jsp/lab/newrequest.jsp" />
     </definition>
     <definition name="user/mypassword" extends="template-base">
-        <put-attribute name="head-js" value="/WEB-INF/jsp/user/mypassword.js" />
+        <put-attribute name="head-js" value="/WEB-INF/jsp/user/mypassword.js.jsp" />
         <put-attribute name="body-content" value="/WEB-INF/jsp/user/mypassword.jsp" />
     </definition>
     <definition name="department/list" extends="template-base">
@@ -100,11 +111,11 @@
         <put-attribute name="body-content" value="/WEB-INF/jsp/task/samplereceive/list.jsp" />
     </definition>
     <definition name="department/detail" extends="template-base">
-        <put-attribute name="head-js" value="/WEB-INF/jsp/department/detail.js" />
+        <put-attribute name="head-js" value="/WEB-INF/jsp/department/detail.js.jsp" />
         <put-attribute name="body-content" value="/WEB-INF/jsp/department/detail.jsp" />
     </definition>
     <definition name="resource/create/form" extends="template-base">
-        <put-attribute name="head-js" value="/WEB-INF/jsp/department/detail.js" />
+        <put-attribute name="head-js" value="/WEB-INF/jsp/department/detail.js.jsp" />
         <put-attribute name="body-content" value="/WEB-INF/jsp/department/detail.jsp" />
     </definition>
     <definition name="sysrole/list" extends="template-base">
@@ -120,7 +131,7 @@
         <put-attribute name="body-content" value="/WEB-INF/jsp/jobsubmit/metaform.jsp" />
     </definition>
     <definition name="jobsubmit/cell" extends="template-base">
-        <put-attribute name="head-js" value="/WEB-INF/jsp/jobsubmit/cell.js" />
+        <put-attribute name="head-js" value="/WEB-INF/jsp/jobsubmit/cell.js.jsp" />
         <put-attribute name="body-content" value="/WEB-INF/jsp/jobsubmit/cell.jsp" />
     </definition>
     <definition name="jobsubmit/verify" extends="template-base">
@@ -141,57 +152,39 @@
     <definition name="lab/pendinguser/list" extends="template-base">
         <put-attribute name="body-content" value="/WEB-INF/jsp/lab/pendinguser/list.jsp" />
     </definition>
-    <definition name="template-grid" template="/WEB-INF/jsp/layouts/grid.jsp">
-        <put-attribute name="area" value="" />
-        <put-attribute name="title" value="List" />
-        <put-attribute name="grid-columns" value="" />
-        <put-attribute name="subgrid-columns" value="" />
-        <put-attribute name="banner-content" value="/WEB-INF/jsp/sections/banner.jsp" />
-        <put-attribute name="body-content" value="" />
-        <put-attribute name="footer-content" value="/WEB-INF/jsp/sections/footer.jsp" />
-    </definition>
-    <!-- Concrete pages. -->
-    <definition name="user-list" extends="template-grid">
+
+   
+    <definition name="user/list" extends="template-grid">
         <put-attribute name="area" value="user" />
-        <put-attribute name="title" value="User List" />
         <put-attribute name="grid-columns" value="/WEB-INF/jsp/user/grid_columns.jsp" />
         <put-attribute name="subgrid-columns" value="/WEB-INF/jsp/user/subgrid_columns.jsp" />
         <put-attribute name="body-content" value="/WEB-INF/jsp/user/list.jsp" />
     </definition>
-    <definition name="lab-list" extends="template-grid">
+    <definition name="lab/list" extends="template-grid">
         <put-attribute name="area" value="lab" />
-        <put-attribute name="title" value="Lab List" />
         <put-attribute name="grid-columns" value="/WEB-INF/jsp/lab/grid_columns.jsp" />
         <put-attribute name="subgrid-columns" value="/WEB-INF/jsp/lab/subgrid_columns.jsp" />
         <put-attribute name="body-content" value="/WEB-INF/jsp/lab/list.jsp" />
     </definition>
-    <definition name="uifield-list" extends="template-grid">
+    <definition name="uifield/list" extends="template-grid">
         <put-attribute name="area" value="uiField" />
-        <put-attribute name="title" value="Property List" />
-        <put-attribute name="grid-columns" value="/WEB-INF/jsp/uiField/grid_columns.jsp" />
-        <put-attribute name="subgrid-columns" value="" />
+        <put-attribute name="grid-columns" value="/WEB-INF/jsp/uiField/grid_columns.jsp" />        
         <put-attribute name="body-content" value="/WEB-INF/jsp/uiField/list.jsp" />
     </definition>
-    <definition name="jobsubmit-sample" extends="template-grid">
+    <definition name="jobsubmit/sample" extends="template-grid">
         <put-attribute name="area" value="sampleDraft" />
-        <put-attribute name="title" value="Sample Draft List" />
-        <put-attribute name="grid-columns" value="/WEB-INF/jsp/jobsubmit/sample_grid_columns.jsp" />
-        <put-attribute name="subgrid-columns" value="" />
+        <put-attribute name="grid-columns" value="/WEB-INF/jsp/jobsubmit/sample_grid_columns.jsp" />        
         <put-attribute name="body-content" value="/WEB-INF/jsp/jobsubmit/sample.jsp" />
     </definition>
     <definition name="facility/platformunit/list" extends="template-grid">
         <put-attribute name="area" value="platformunit" />
-        <put-attribute name="title" value="Platform Unit List" />
-        <put-attribute name="grid-columns" value="/WEB-INF/jsp/facility/platformunit/sample_grid_columns.jsp" />
-        <put-attribute name="subgrid-columns" value="" />
+        <put-attribute name="grid-columns" value="/WEB-INF/jsp/facility/platformunit/sample_grid_columns.jsp" />        
         <put-attribute name="body-content" value="/WEB-INF/jsp/facility/platformunit/sample.jsp" />
     </definition>
     <definition name="task/fmpayment/list" extends="template-grid">
         <put-attribute name="area" value="platformunit" />
-        <put-attribute name="title" value="FM Payment List" />
-        <put-attribute name="grid-columns" value="/WEB-INF/jsp/task/fmpayment/payment_grid_columns.jsp" />
-        <put-attribute name="subgrid-columns" value="" />
+        <put-attribute name="grid-columns" value="/WEB-INF/jsp/task/fmpayment/payment_grid_columns.jsp" />       
         <put-attribute name="body-content" value="/WEB-INF/jsp/task/fmpayment/payment.jsp" />
     </definition>
-    <definition name="hello" template="/WEB-INF/jsp/hello.jsp" />
+    
 </tiles-definitions>

@@ -433,7 +433,7 @@ public class JobSubmissionController extends WaspController {
 		prepareSelectListData(m);
 		m.addAttribute("jobdraftId",jobDraftId);
 		m.addAttribute("uploadStartedMessage",getMessage("sampleDraft.fileupload_wait.data")); 
-		return "jobsubmit-sample";
+		return "jobsubmit/sample";
 
 	}
 
