@@ -641,7 +641,31 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','emailconfirmed','label','Thank you for confirming your email address. Your department administrator has been emailed to request confirmation of your eligibility to register your lab and you are advised to contact them to request they do this if your account does not become activated in good time.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','emailsent','label','Thank you for your account request. You have been sent an email with instructions as to how to confirm your email address. Please click to <a href="../login.do"/>Login</a>','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','emailconfirmed_title','label','Email Address Confirmed','1');
+
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','action','error','Invalid action. Must be approve or reject only','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','departmentid_mismatch','error','Deparment id mismatch with lab-pending id','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','action','error','Invalid action. Must be approve or reject only','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','labid_mismatch','error','Lab id mismatch with user-pending id','1');
+
+
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values
+('en_US','chipSeq','pageflow','','/jobsubmit/modifymeta/{n};/jobsubmit/aligner/{n};/jobsubmit/samples/{n};/jobsubmit/cells/{n};/jobsubmit/verify/{n};/jobsubmit/submit/{n};/jobsubmit/ok',1),
+('en_US','chipSeq','aligner','metaposition','10',1),
+('en_US','chipSeq','aligner','label','Aligner',1),
+('en_US','chipSeq','aligner','control','select:aligner1:aligner1;aligner2:aligner2',1),
+('en_US','chipSeq','other','metaposition','20',1),
+('en_US','chipSeq','other','label','Other Workflow Field',1),
+
+
+('en_US','aligner1','field1','metaposition','10',1),
+('en_US','aligner1','field1','label','Field A',1),
+
+('en_US','aligner2','field1','metaposition','10',1),
+('en_US','aligner2','field1','label','Field B',1)
+;
+
+truncate table workflowmeta;
+insert into workflowmeta
+(workflowid, k, v)
+values
+(1, 'workflow.submitpageflow', '/jobsubmit/modifymeta/{n};/jobsubmit/aligner/{n};/jobsubmit/samples/{n};/jobsubmit/cells/{n};/jobsubmit/verify/{n};/jobsubmit/submit/{n};/jobsubmit/ok');
