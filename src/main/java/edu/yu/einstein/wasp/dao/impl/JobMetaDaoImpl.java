@@ -93,6 +93,32 @@ public class JobMetaDaoImpl extends WaspDaoImpl<JobMeta> implements edu.yu.einst
 
 
 	/**
+	 * updateByJobId (final string area, final int jobId, final List<JobMeta> metaList)
+	 *
+	 * @param jobId
+	 * @param metaList
+	 *
+	 */
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public void updateByJobId (final String area, final int jobId, final List<JobMeta> metaList) {
+
+		getJpaTemplate().execute(new JpaCallback() {
+
+			public Object doInJpa(EntityManager em) throws PersistenceException {
+				em.createNativeQuery("delete from jobmeta where jobId=:jobId and k like :area").setParameter("jobId", jobId).setParameter("area", area + ".%").executeUpdate();
+
+				for (JobMeta m:metaList) {
+					m.setJobId(jobId);
+					em.persist(m);
+				}
+        			return null;
+			}
+		});
+	}
+
+
+	/**
 	 * updateByJobId (final int jobId, final List<JobMeta> metaList)
 	 *
 	 * @param jobId

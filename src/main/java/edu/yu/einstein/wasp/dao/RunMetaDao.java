@@ -25,7 +25,12 @@ public interface RunMetaDao extends WaspDao<RunMeta> {
 
   public RunMeta getRunMetaByKRunId (final String k, final int runId);
 
+
+  public void updateByRunId (final String area, final int runId, final List<RunMeta> metaList);
+
   public void updateByRunId (final int runId, final List<RunMeta> metaList);
+
+
 
 
 }

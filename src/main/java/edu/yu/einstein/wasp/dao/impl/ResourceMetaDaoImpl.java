@@ -93,6 +93,32 @@ public class ResourceMetaDaoImpl extends WaspDaoImpl<ResourceMeta> implements ed
 
 
 	/**
+	 * updateByResourceId (final string area, final int resourceId, final List<ResourceMeta> metaList)
+	 *
+	 * @param resourceId
+	 * @param metaList
+	 *
+	 */
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public void updateByResourceId (final String area, final int resourceId, final List<ResourceMeta> metaList) {
+
+		getJpaTemplate().execute(new JpaCallback() {
+
+			public Object doInJpa(EntityManager em) throws PersistenceException {
+				em.createNativeQuery("delete from resourcemeta where resourceId=:resourceId and k like :area").setParameter("resourceId", resourceId).setParameter("area", area + ".%").executeUpdate();
+
+				for (ResourceMeta m:metaList) {
+					m.setResourceId(resourceId);
+					em.persist(m);
+				}
+        			return null;
+			}
+		});
+	}
+
+
+	/**
 	 * updateByResourceId (final int resourceId, final List<ResourceMeta> metaList)
 	 *
 	 * @param resourceId

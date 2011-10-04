@@ -93,6 +93,32 @@ public class JobDraftMetaDaoImpl extends WaspDaoImpl<JobDraftMeta> implements ed
 
 
 	/**
+	 * updateByJobdraftId (final string area, final int jobdraftId, final List<JobDraftMeta> metaList)
+	 *
+	 * @param jobdraftId
+	 * @param metaList
+	 *
+	 */
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public void updateByJobdraftId (final String area, final int jobdraftId, final List<JobDraftMeta> metaList) {
+
+		getJpaTemplate().execute(new JpaCallback() {
+
+			public Object doInJpa(EntityManager em) throws PersistenceException {
+				em.createNativeQuery("delete from jobdraftmeta where jobdraftId=:jobdraftId and k like :area").setParameter("jobdraftId", jobdraftId).setParameter("area", area + ".%").executeUpdate();
+
+				for (JobDraftMeta m:metaList) {
+					m.setJobdraftId(jobdraftId);
+					em.persist(m);
+				}
+        			return null;
+			}
+		});
+	}
+
+
+	/**
 	 * updateByJobdraftId (final int jobdraftId, final List<JobDraftMeta> metaList)
 	 *
 	 * @param jobdraftId

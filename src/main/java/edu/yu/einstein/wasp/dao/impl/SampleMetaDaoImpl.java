@@ -89,17 +89,33 @@ public class SampleMetaDaoImpl extends WaspDaoImpl<SampleMeta> implements edu.yu
 		}
 		return (SampleMeta) results.get(0);
 	}
-	
-	public List<SampleMeta> getSamplesMetaBySampleId (final int sampleId) {
-		HashMap m = new HashMap();	
-		m.put("sampleId", sampleId);
 
-		List<SampleMeta> results = (List<SampleMeta>) this.findByMap((Map) m);
 
-		return results;
-		
+
+	/**
+	 * updateBySampleId (final string area, final int sampleId, final List<SampleMeta> metaList)
+	 *
+	 * @param sampleId
+	 * @param metaList
+	 *
+	 */
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public void updateBySampleId (final String area, final int sampleId, final List<SampleMeta> metaList) {
+
+		getJpaTemplate().execute(new JpaCallback() {
+
+			public Object doInJpa(EntityManager em) throws PersistenceException {
+				em.createNativeQuery("delete from samplemeta where sampleId=:sampleId and k like :area").setParameter("sampleId", sampleId).setParameter("area", area + ".%").executeUpdate();
+
+				for (SampleMeta m:metaList) {
+					m.setSampleId(sampleId);
+					em.persist(m);
+				}
+	 			return null;
+			}
+		});
 	}
-
 
 
 	/**
@@ -122,11 +138,20 @@ public class SampleMetaDaoImpl extends WaspDaoImpl<SampleMeta> implements edu.yu
 					m.setSampleId(sampleId);
 					em.persist(m);
 				}
-        			return null;
+	 			return null;
 			}
 		});
 	}
 
+
+	public List<SampleMeta> getSamplesMetaBySampleId (final int sampleId) {
+		HashMap m = new HashMap();
+		m.put("sampleId", sampleId);
+
+		List<SampleMeta> results = (List<SampleMeta>) this.findByMap((Map) m);
+
+		return results;
+	}
 
 
 }

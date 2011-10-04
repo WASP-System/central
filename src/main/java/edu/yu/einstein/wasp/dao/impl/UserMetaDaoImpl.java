@@ -93,6 +93,32 @@ public class UserMetaDaoImpl extends WaspDaoImpl<UserMeta> implements edu.yu.ein
 
 
 	/**
+	 * updateByUserId (final string area, final int UserId, final List<UserMeta> metaList)
+	 *
+	 * @param UserId
+	 * @param metaList
+	 *
+	 */
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public void updateByUserId (final String area, final int UserId, final List<UserMeta> metaList) {
+
+		getJpaTemplate().execute(new JpaCallback() {
+
+			public Object doInJpa(EntityManager em) throws PersistenceException {
+				em.createNativeQuery("delete from usermeta where UserId=:UserId and k like :area").setParameter("UserId", UserId).setParameter("area", area + ".%").executeUpdate();
+
+				for (UserMeta m:metaList) {
+					m.setUserId(UserId);
+					em.persist(m);
+				}
+        			return null;
+			}
+		});
+	}
+
+
+	/**
 	 * updateByUserId (final int UserId, final List<UserMeta> metaList)
 	 *
 	 * @param UserId

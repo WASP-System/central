@@ -106,6 +106,5 @@ public class SampleDaoImpl extends WaspDaoImpl<Sample> implements edu.yu.einstei
 		
 		}
 
-
 }
 

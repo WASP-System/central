@@ -93,6 +93,32 @@ public class UserPendingMetaDaoImpl extends WaspDaoImpl<UserPendingMeta> impleme
 
 
 	/**
+	 * updateByUserpendingId (final string area, final int userpendingId, final List<UserPendingMeta> metaList)
+	 *
+	 * @param userpendingId
+	 * @param metaList
+	 *
+	 */
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public void updateByUserpendingId (final String area, final int userpendingId, final List<UserPendingMeta> metaList) {
+
+		getJpaTemplate().execute(new JpaCallback() {
+
+			public Object doInJpa(EntityManager em) throws PersistenceException {
+				em.createNativeQuery("delete from userpendingmeta where userpendingId=:userpendingId and k like :area").setParameter("userpendingId", userpendingId).setParameter("area", area + ".%").executeUpdate();
+
+				for (UserPendingMeta m:metaList) {
+					m.setUserpendingId(userpendingId);
+					em.persist(m);
+				}
+        			return null;
+			}
+		});
+	}
+
+
+	/**
 	 * updateByUserpendingId (final int userpendingId, final List<UserPendingMeta> metaList)
 	 *
 	 * @param userpendingId

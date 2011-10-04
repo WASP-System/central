@@ -93,6 +93,32 @@ public class StateMetaDaoImpl extends WaspDaoImpl<StateMeta> implements edu.yu.e
 
 
 	/**
+	 * updateByStateId (final string area, final int stateId, final List<StateMeta> metaList)
+	 *
+	 * @param stateId
+	 * @param metaList
+	 *
+	 */
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public void updateByStateId (final String area, final int stateId, final List<StateMeta> metaList) {
+
+		getJpaTemplate().execute(new JpaCallback() {
+
+			public Object doInJpa(EntityManager em) throws PersistenceException {
+				em.createNativeQuery("delete from statemeta where stateId=:stateId and k like :area").setParameter("stateId", stateId).setParameter("area", area + ".%").executeUpdate();
+
+				for (StateMeta m:metaList) {
+					m.setStateId(stateId);
+					em.persist(m);
+				}
+        			return null;
+			}
+		});
+	}
+
+
+	/**
 	 * updateByStateId (final int stateId, final List<StateMeta> metaList)
 	 *
 	 * @param stateId

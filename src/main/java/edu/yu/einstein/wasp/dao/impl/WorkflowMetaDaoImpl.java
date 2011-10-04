@@ -93,6 +93,32 @@ public class WorkflowMetaDaoImpl extends WaspDaoImpl<WorkflowMeta> implements ed
 
 
 	/**
+	 * updateByWorkflowId (final string area, final int workflowId, final List<WorkflowMeta> metaList)
+	 *
+	 * @param workflowId
+	 * @param metaList
+	 *
+	 */
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public void updateByWorkflowId (final String area, final int workflowId, final List<WorkflowMeta> metaList) {
+
+		getJpaTemplate().execute(new JpaCallback() {
+
+			public Object doInJpa(EntityManager em) throws PersistenceException {
+				em.createNativeQuery("delete from workflowmeta where workflowId=:workflowId and k like :area").setParameter("workflowId", workflowId).setParameter("area", area + ".%").executeUpdate();
+
+				for (WorkflowMeta m:metaList) {
+					m.setWorkflowId(workflowId);
+					em.persist(m);
+				}
+        			return null;
+			}
+		});
+	}
+
+
+	/**
 	 * updateByWorkflowId (final int workflowId, final List<WorkflowMeta> metaList)
 	 *
 	 * @param workflowId

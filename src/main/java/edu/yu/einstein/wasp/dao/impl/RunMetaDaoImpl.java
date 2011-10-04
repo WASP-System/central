@@ -93,6 +93,32 @@ public class RunMetaDaoImpl extends WaspDaoImpl<RunMeta> implements edu.yu.einst
 
 
 	/**
+	 * updateByRunId (final string area, final int runId, final List<RunMeta> metaList)
+	 *
+	 * @param runId
+	 * @param metaList
+	 *
+	 */
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public void updateByRunId (final String area, final int runId, final List<RunMeta> metaList) {
+
+		getJpaTemplate().execute(new JpaCallback() {
+
+			public Object doInJpa(EntityManager em) throws PersistenceException {
+				em.createNativeQuery("delete from runmeta where runId=:runId and k like :area").setParameter("runId", runId).setParameter("area", area + ".%").executeUpdate();
+
+				for (RunMeta m:metaList) {
+					m.setRunId(runId);
+					em.persist(m);
+				}
+        			return null;
+			}
+		});
+	}
+
+
+	/**
 	 * updateByRunId (final int runId, final List<RunMeta> metaList)
 	 *
 	 * @param runId
