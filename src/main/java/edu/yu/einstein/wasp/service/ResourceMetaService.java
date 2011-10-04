@@ -42,6 +42,9 @@ public interface ResourceMetaService extends WaspService<ResourceMeta> {
 
   public ResourceMeta getResourceMetaByKResourceId (final String k, final int resourceId);
 
+
+  public void updateByResourceId (final String area, final int resourceId, final List<ResourceMeta> metaList);
+
   public void updateByResourceId (final int resourceId, final List<ResourceMeta> metaList);
 
 

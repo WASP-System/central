@@ -42,6 +42,9 @@ public interface UserMetaService extends WaspService<UserMeta> {
 
   public UserMeta getUserMetaByKUserId (final String k, final int UserId);
 
+
+  public void updateByUserId (final String area, final int UserId, final List<UserMeta> metaList);
+
   public void updateByUserId (final int UserId, final List<UserMeta> metaList);
 
 

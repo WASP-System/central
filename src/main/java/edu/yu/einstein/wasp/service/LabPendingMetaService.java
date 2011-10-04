@@ -42,6 +42,9 @@ public interface LabPendingMetaService extends WaspService<LabPendingMeta> {
 
   public LabPendingMeta getLabPendingMetaByKLabpendingId (final String k, final int labpendingId);
 
+
+  public void updateByLabpendingId (final String area, final int labpendingId, final List<LabPendingMeta> metaList);
+
   public void updateByLabpendingId (final int labpendingId, final List<LabPendingMeta> metaList);
 
 

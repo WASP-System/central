@@ -42,6 +42,9 @@ public interface LabMetaService extends WaspService<LabMeta> {
 
   public LabMeta getLabMetaByKLabId (final String k, final int labId);
 
+
+  public void updateByLabId (final String area, final int labId, final List<LabMeta> metaList);
+
   public void updateByLabId (final int labId, final List<LabMeta> metaList);
 
 

@@ -42,6 +42,9 @@ public interface JobSampleMetaService extends WaspService<JobSampleMeta> {
 
   public JobSampleMeta getJobSampleMetaByKJobsampleId (final String k, final int jobsampleId);
 
+
+  public void updateByJobsampleId (final String area, final int jobsampleId, final List<JobSampleMeta> metaList);
+
   public void updateByJobsampleId (final int jobsampleId, final List<JobSampleMeta> metaList);
 
 
