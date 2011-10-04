@@ -65,6 +65,10 @@ public class UserPendingMetaServiceImpl extends WaspServiceImpl<UserPendingMeta>
     return this.getUserPendingMetaDao().getUserPendingMetaByKUserpendingId(k, userpendingId);
   }
 
+  public void updateByUserpendingId (final String area, final int userpendingId, final List<UserPendingMeta> metaList) {
+    this.getUserPendingMetaDao().updateByUserpendingId(area, userpendingId, metaList); 
+  }
+
   public void updateByUserpendingId (final int userpendingId, final List<UserPendingMeta> metaList) {
     this.getUserPendingMetaDao().updateByUserpendingId(userpendingId, metaList); 
   }

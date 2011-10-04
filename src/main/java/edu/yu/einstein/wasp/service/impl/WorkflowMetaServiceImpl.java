@@ -65,6 +65,10 @@ public class WorkflowMetaServiceImpl extends WaspServiceImpl<WorkflowMeta> imple
     return this.getWorkflowMetaDao().getWorkflowMetaByKWorkflowId(k, workflowId);
   }
 
+  public void updateByWorkflowId (final String area, final int workflowId, final List<WorkflowMeta> metaList) {
+    this.getWorkflowMetaDao().updateByWorkflowId(area, workflowId, metaList); 
+  }
+
   public void updateByWorkflowId (final int workflowId, final List<WorkflowMeta> metaList) {
     this.getWorkflowMetaDao().updateByWorkflowId(workflowId, metaList); 
   }

@@ -65,6 +65,10 @@ public class StateMetaServiceImpl extends WaspServiceImpl<StateMeta> implements 
     return this.getStateMetaDao().getStateMetaByKStateId(k, stateId);
   }
 
+  public void updateByStateId (final String area, final int stateId, final List<StateMeta> metaList) {
+    this.getStateMetaDao().updateByStateId(area, stateId, metaList); 
+  }
+
   public void updateByStateId (final int stateId, final List<StateMeta> metaList) {
     this.getStateMetaDao().updateByStateId(stateId, metaList); 
   }

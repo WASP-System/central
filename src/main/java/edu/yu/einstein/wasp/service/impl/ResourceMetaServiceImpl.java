@@ -65,6 +65,10 @@ public class ResourceMetaServiceImpl extends WaspServiceImpl<ResourceMeta> imple
     return this.getResourceMetaDao().getResourceMetaByKResourceId(k, resourceId);
   }
 
+  public void updateByResourceId (final String area, final int resourceId, final List<ResourceMeta> metaList) {
+    this.getResourceMetaDao().updateByResourceId(area, resourceId, metaList); 
+  }
+
   public void updateByResourceId (final int resourceId, final List<ResourceMeta> metaList) {
     this.getResourceMetaDao().updateByResourceId(resourceId, metaList); 
   }

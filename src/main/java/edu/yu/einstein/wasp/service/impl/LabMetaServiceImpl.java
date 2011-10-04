@@ -65,6 +65,10 @@ public class LabMetaServiceImpl extends WaspServiceImpl<LabMeta> implements LabM
     return this.getLabMetaDao().getLabMetaByKLabId(k, labId);
   }
 
+  public void updateByLabId (final String area, final int labId, final List<LabMeta> metaList) {
+    this.getLabMetaDao().updateByLabId(area, labId, metaList); 
+  }
+
   public void updateByLabId (final int labId, final List<LabMeta> metaList) {
     this.getLabMetaDao().updateByLabId(labId, metaList); 
   }

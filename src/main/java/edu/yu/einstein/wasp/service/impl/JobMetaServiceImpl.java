@@ -65,6 +65,10 @@ public class JobMetaServiceImpl extends WaspServiceImpl<JobMeta> implements JobM
     return this.getJobMetaDao().getJobMetaByKJobId(k, jobId);
   }
 
+  public void updateByJobId (final String area, final int jobId, final List<JobMeta> metaList) {
+    this.getJobMetaDao().updateByJobId(area, jobId, metaList); 
+  }
+
   public void updateByJobId (final int jobId, final List<JobMeta> metaList) {
     this.getJobMetaDao().updateByJobId(jobId, metaList); 
   }

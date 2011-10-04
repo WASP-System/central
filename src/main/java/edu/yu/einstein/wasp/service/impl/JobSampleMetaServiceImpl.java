@@ -65,6 +65,10 @@ public class JobSampleMetaServiceImpl extends WaspServiceImpl<JobSampleMeta> imp
     return this.getJobSampleMetaDao().getJobSampleMetaByKJobsampleId(k, jobsampleId);
   }
 
+  public void updateByJobsampleId (final String area, final int jobsampleId, final List<JobSampleMeta> metaList) {
+    this.getJobSampleMetaDao().updateByJobsampleId(area, jobsampleId, metaList); 
+  }
+
   public void updateByJobsampleId (final int jobsampleId, final List<JobSampleMeta> metaList) {
     this.getJobSampleMetaDao().updateByJobsampleId(jobsampleId, metaList); 
   }

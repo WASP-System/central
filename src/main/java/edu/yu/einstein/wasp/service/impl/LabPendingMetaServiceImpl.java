@@ -65,6 +65,10 @@ public class LabPendingMetaServiceImpl extends WaspServiceImpl<LabPendingMeta> i
     return this.getLabPendingMetaDao().getLabPendingMetaByKLabpendingId(k, labpendingId);
   }
 
+  public void updateByLabpendingId (final String area, final int labpendingId, final List<LabPendingMeta> metaList) {
+    this.getLabPendingMetaDao().updateByLabpendingId(area, labpendingId, metaList); 
+  }
+
   public void updateByLabpendingId (final int labpendingId, final List<LabPendingMeta> metaList) {
     this.getLabPendingMetaDao().updateByLabpendingId(labpendingId, metaList); 
   }

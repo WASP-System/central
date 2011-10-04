@@ -65,6 +65,10 @@ public class UserMetaServiceImpl extends WaspServiceImpl<UserMeta> implements Us
     return this.getUserMetaDao().getUserMetaByKUserId(k, UserId);
   }
 
+  public void updateByUserId (final String area, final int UserId, final List<UserMeta> metaList) {
+    this.getUserMetaDao().updateByUserId(area, UserId, metaList); 
+  }
+
   public void updateByUserId (final int UserId, final List<UserMeta> metaList) {
     this.getUserMetaDao().updateByUserId(UserId, metaList); 
   }

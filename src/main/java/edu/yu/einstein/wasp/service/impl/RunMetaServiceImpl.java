@@ -65,6 +65,10 @@ public class RunMetaServiceImpl extends WaspServiceImpl<RunMeta> implements RunM
     return this.getRunMetaDao().getRunMetaByKRunId(k, runId);
   }
 
+  public void updateByRunId (final String area, final int runId, final List<RunMeta> metaList) {
+    this.getRunMetaDao().updateByRunId(area, runId, metaList); 
+  }
+
   public void updateByRunId (final int runId, final List<RunMeta> metaList) {
     this.getRunMetaDao().updateByRunId(runId, metaList); 
   }
