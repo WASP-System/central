@@ -655,6 +655,14 @@ public class LabController extends WaspController {
 		labUser.setLabId(lab.getLabId());
 		labUser.setRoleId(role.getRoleId());
 		labUserService.save(labUser);
+		
+		Map pendingLabQueryMap = new HashMap();
+		pendingLabQueryMap.put("primaryUserId", user.getUserId());
+		pendingLabQueryMap.put("name", labDb.getName());
+		for (LabPending lp : (List<LabPending>) labPendingService.findByMap(pendingLabQueryMap)){
+			lp.setStatus("CREATED");
+			labPendingService.save(lp);
+		}
 
 		// if i am the p.i. reauth
 		User me = getAuthenticatedUser();
@@ -761,12 +769,12 @@ public class LabController extends WaspController {
 			// iterate through list of pending labs. If this user was previously registered as 'userPending' in a lab,
 			// remove reference to her userPendingId and insert reference to her new userId instead
 			Map labPendingQueryMap = new HashMap();
-			userPendingQueryMap.put("userPendingId", userPendingCurrent.getUserPendingId());
+			labPendingQueryMap.put("userpendingId", userPendingCurrent.getUserPendingId());
 
 			List<LabPending> labPendingList = labPendingService.findByMap(labPendingQueryMap);
 			for (LabPending labPending: labPendingList) {
 				labPending.setUserpendingId((Integer) null);
-				labPending.setPrimaryUserId(userDb.getUserId());
+				labPending.setPrimaryUserId(userId);
 				labPendingService.save(labPending);
 			}
 
@@ -780,13 +788,17 @@ public class LabController extends WaspController {
 	@RequestMapping(value = "/userpending/{action}/{labId}/{userPendingId}.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('god') or hasRole('lm-' + #labId)")
 	public String userPendingDetail ( @PathVariable("labId") Integer labId, @PathVariable("userPendingId") Integer userPendingId, @PathVariable("action") String action, ModelMap m) throws WaspMetadataException {
-		// TODO CHECK ACTION IS "approve" or "reject"
+		
+		if (! (action.equals("approve") || action.equals("reject")) ){
+			waspMessage("userPending.action.error");
+			return "redirect:/lab/user/" + labId + ".do";
+		}
 
 		UserPending userPending = userPendingService.getUserPendingByUserPendingId(userPendingId);
 
-		// TODO ERROR IF LABID DOESNT BELONG
 		if (userPending.getLabId() != labId) {
-			waspMessage("hello.error");
+			waspMessage("userPending.labid_mismatch.error");
+			return "redirect:/lab/user/" + labId + ".do";
 		}
 		User user;
 		if ("approve".equals(action)) {
@@ -808,15 +820,17 @@ public class LabController extends WaspController {
 	@RequestMapping(value = "/labpending/{action}/{departmentId}/{labPendingId}.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('god') or hasRole('la-' + #departmentId)")
 	public String labPendingDetail ( @PathVariable("departmentId") Integer departmentId, @PathVariable("labPendingId") Integer labPendingId, @PathVariable("action") String action, ModelMap m) throws WaspMetadataException {
-		// TODO CHECK ACTION IS "approve" or "reject"
-
-		LabPending labPending = labPendingService.getLabPendingByLabPendingId(labPendingId);
-
-		// TODO ERROR IF LABID DOESNT BELONG
-		if (labPending.getDepartmentId() != departmentId) {
-			waspMessage("hello.error");
+		
+		if (! (action.equals("approve") || action.equals("reject")) ){
+			waspMessage("labPending.action.error");
+			return "redirect:/department/detail/" + departmentId + ".do";
 		}
 		
+		LabPending labPending = labPendingService.getLabPendingByLabPendingId(labPendingId);
+		if (labPending.getDepartmentId() != departmentId) {
+			waspMessage("labPending.departmentid_mismatch.error");
+			return "redirect:/department/detail/" + departmentId + ".do";
+		}
 		
 		if ("approve".equals(action)) {
 			Lab lab = createLabFromLabPending(labPending);
