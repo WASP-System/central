@@ -84,8 +84,6 @@ import edu.yu.einstein.wasp.service.TypeSampleService;
 import edu.yu.einstein.wasp.service.WorkflowService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 
-import java.lang.ClassLoader;
-
 @Controller
 @Transactional
 @RequestMapping("/jobsubmit")
@@ -516,7 +514,17 @@ public class JobSubmissionController extends WaspController {
 		
 		m.addAttribute("_metaList", allowedMetaFieldsSet);
 		m.addAttribute("_metaBySubtypeList", allowedMetaFields);
-		m.addAttribute("_jobsBySampleSubtype",jobService.getJobSamplesByWorkflow(workflowId));
+		
+		
+		Map<Integer,Map<Integer,String>> jobsBySampleSubtype=new LinkedHashMap<Integer,Map<Integer,String>>();
+		for(Map.Entry<Integer, List<Job>> e:jobService.getJobSamplesByWorkflow(workflowId).entrySet()) {
+			Map<Integer,String> jm = new LinkedHashMap<Integer,String>();
+			jobsBySampleSubtype.put(e.getKey(),jm);
+			for(Job j:e.getValue()) {
+				jm.put(j.getJobId(), j.getName());
+			}		
+		}
+		m.addAttribute("_jobsBySampleSubtype",jobsBySampleSubtype);
 		
 
 		m.addAttribute(JQFieldTag.AREA_ATTR, "sampleDraft");		
@@ -895,6 +903,10 @@ public class JobSubmissionController extends WaspController {
 		}
 	}
 
+
+	
+
+
 	@RequestMapping(value="/samplesByJobId", method=RequestMethod.GET)	
 	public String samplesByJobId(@RequestParam("jobId") Integer jobId, HttpServletResponse response) {
 	
@@ -913,6 +925,7 @@ public class JobSubmissionController extends WaspController {
 		}
 	}
 	
+
 	@RequestMapping(value="/sampleMetaBySampleId", method=RequestMethod.GET)	
 	public String sampleMetaBySampleId(@RequestParam("sampleId") Integer sampleId, HttpServletResponse response) {
 	
@@ -929,8 +942,8 @@ public class JobSubmissionController extends WaspController {
 		} catch (Throwable e) {
 			throw new IllegalStateException("Can't marshall to JSON "+metaMap,e);
 		}
+	
 	}
-
 
 	private String getFileCell( edu.yu.einstein.wasp.model.File file) {
 		if (file==null) return "";

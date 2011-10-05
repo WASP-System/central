@@ -37,6 +37,8 @@ html, body {
  
   $.jgrid.useJSON = true;
 
+  _enableFilterToolbar=false;
+  
   function odump(object, depth, max){
   	depth = depth || 0;
   	max = max || 2;

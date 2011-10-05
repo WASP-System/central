@@ -333,7 +333,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','workflowId','error','Workflow Must Not Be Empty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','ampliconSeq','workflow','label','LABEL:ampliconSeq','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','cgh','workflow','label','LABEL:cgh','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','workflow','label','LABEL:chipSeq','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','workflow','label','Workflow','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','controlMicroarray','workflow','label','LABEL:controlMicroarray','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','controlSeq','workflow','label','LABEL:controlSeq','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','deNovoSeq','workflow','label','LABEL:deNovoSeq','1');
@@ -356,27 +356,27 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','platform','constraint','NotEmpty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','platform','error','Platform cannot be empty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','platform','control','select:HISeq2000:HISeq2000','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','platform','metaposition','100','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','platform','metaposition','10','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','readlength','label','Read Length','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','readlength','constraint','NotEmpty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','readlength','error','readlength cannot be empty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','readlength','control','select:100:100 bp; 150: 150bp','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','readlength','metaposition','110','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','readlength','metaposition','20','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','readtype','label','Read Type','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','readtype','constraint','NotEmpty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','readtype','error','readtype cannot be empty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','readtype','control','select:single:Single-End Read; pair:Pair-End Read','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','readtype','metaposition','120','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','readtype','metaposition','30','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','antibody','label','Anti Body','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','antibody','constraint','NotEmpty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','antibody','error','antibody cannot be empty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','antibody','control','select:abc:abc;def:def;ghi:ghi','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','antibody','metaposition','130','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','antibody','metaposition','40','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','pcrprimers','label','PCR Primers','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','pcrprimers','constraint','NotEmpty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','pcrprimers','error','pcrprimers cannot be empty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','pcrprimers','control','select:xyz:xyz','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','pcrprimers','metaposition','140','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','pcrprimers','metaposition','50','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','ampliconSeq','samples','data','samplefile;ampliconSample','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','ampliconSeq','platform','label','Platform','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','ampliconSeq','platform','constraint','NotEmpty','1');
@@ -641,6 +641,33 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','emailconfirmed','label','Thank you for confirming your email address. Your department administrator has been emailed to request confirmation of your eligibility to register your lab and you are advised to contact them to request they do this if your account does not become activated in good time.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','emailsent','label','Thank you for your account request. You have been sent an email with instructions as to how to confirm your email address. Please click to <a href="../login.do"/>Login</a>','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','emailconfirmed_title','label','Email Address Confirmed','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','reference_genome_id','label','Reference Genome ID','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','reference_genome_id','metaposition','60','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','species_id','label','Species ID','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','species_id','metaposition','70','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','fragment_size','label','Fragment Size','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','fragment_size','metaposition','80','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','amount','label','Amount','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','amount','metaposition','90','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','concentration','label','Concentration','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','concentration','metaposition','100','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','260_280','label','260_280','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','260_280','metaposition','110','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','260_230','label','260_230','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','260_230','metaposition','120','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','volume','label','Volume','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','volume','metaposition','130','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','buffer','label','Buffer','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','buffer','metaposition','140','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','sample_type','label','Sample Type','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','sample_type','metaposition','150','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','antibody_id','label','Antibody ID','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','antibody_id','metaposition','160','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','enrich_primer_pair_id','label','Enrich Primer Pair ID','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','enrich_primer_pair_id','metaposition','170','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','jobsubmit/sample','label','Submit Samples','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','uifield/list','label','Properties','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','jobsubmit/cell','label','Cells','1');
 
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','action','error','Invalid action. Must be approve or reject only','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','departmentid_mismatch','error','Deparment id mismatch with lab-pending id','1');
@@ -669,3 +696,4 @@ insert into workflowmeta
 (workflowid, k, v)
 values
 (1, 'workflow.submitpageflow', '/jobsubmit/modifymeta/{n};/jobsubmit/aligner/{n};/jobsubmit/samples/{n};/jobsubmit/cells/{n};/jobsubmit/verify/{n};/jobsubmit/submit/{n};/jobsubmit/ok');
+

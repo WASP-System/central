@@ -10,6 +10,8 @@
 
 <script>
 
+
+
 var _validMetaFields={};
 <c:forEach items="${_metaBySubtypeList}" var="_entry" varStatus="_substatus">
 <c:set var="_subtype" value="${_entry.key}"/>
@@ -18,16 +20,14 @@ var _validMetaFields={};
 _validMetaFields.subtypeSampleId_${_subtype.subtypeSampleId}=[];
 
 <c:forEach items="${_validMetaFields}" var="_validMeta">
+
 _validMetaFields.subtypeSampleId_${_subtype.subtypeSampleId}.push('${_validMeta.k}');
+
 </c:forEach>
 </c:forEach>
 
 
 var _jobsBySampleSubtype=<wasp:json object="${_jobsBySampleSubtype}"/>;
-
-//alert(odump(_jobSamplesByWorkflowMap));
-
-
 
 
 var grid=$("#grid_id");      // your jqGrid (the <table> element)
@@ -60,7 +60,7 @@ $.jgrid.extend ({editGridRow : function(rowid, p){
                 		
                 	}
                		var _myValidMetaFields=_validMetaFields['subtypeSampleId_'+subtypeSampleId];
-                	
+                	//alert(subtypeSampleId);
                		//alert(_myValidMetaFields);
                 	for(var i in colModel) {
                 		var k = colModel[i].name;
@@ -78,22 +78,24 @@ $.jgrid.extend ({editGridRow : function(rowid, p){
                 	
                 	var _jobs4Subtype=_jobsBySampleSubtype[subtypeSampleId];
     				
-                	populateSelect($('#jobId').get(0), $.map(_jobs4Subtype, function(job) { return { name: job.name, value: job.jobId} }));
+                	populateSelect($('#jobId').get(0), _jobs4Subtype);
 
                 	$('#jobId').change(function () {      
                 		var _val=$("#jobId option:selected").val();
                 		
                 		if (!_val) return;
-                		
+                		                		      				    
+                		 var options = '<option value="">--select--</option>';
+            			 
                 		 $.getJSON("/wasp/jobsubmit/samplesByJobId.do",{jobId: _val, ajax: 'true'}, function(data, textStatus, jqXHR){
-                			 var options="";
+                		
                 			 $.each(data, function (index, name) {                				    
                 				 options += '<option value="' + index + '">' + name + '</option>';
                 			  });
-                			 
-                			  $("#jobSampleId").html(options);
-                		    })
-                		    
+                			                 			  
+                		   })
+                		   
+                		   $("#jobSampleId").html(options);
                 		                    	                		    
                       }).change();
                 	
@@ -102,29 +104,35 @@ $.jgrid.extend ({editGridRow : function(rowid, p){
                 		
                 		if (!_val) return;
                 		
-                		 $.getJSON("/wasp/jobsubmit/sampleMetaBySampleId.do",{sampleId: _val, ajax: 'true'}, function(data, textStatus, jqXHR) {
+                		var currentVars={};
+                		
+                		$.each($("input, select"), function(i,v) {
+     					    var theTag = v.tagName;                					   
+     					    var theElement = $(v);
+     					    
+     					    if (theElement.attr('id').indexOf('.')==-1) return;//not a meta field
+     					    
+     					    var curVarName=theElement.attr('id').split(".")[1];
+     					    currentVars[curVarName]=theElement;
+     					    theElement.val('');    					    
+     					});
+                		                	
+                		
+                		$.getJSON("/wasp/jobsubmit/sampleMetaBySampleId.do",{sampleId: _val, ajax: 'true'}, function(data, textStatus, jqXHR) {
                 			 
-                			 $.each(data, function (index, name) {                				    
-                				 $.each($("input, select"), function(i,v) {
-                					    var theTag = v.tagName;                					   
-                					    var theElement = $(v);
-                					    
-                					    if (theElement.attr('id').indexOf('.')>-1) {
-                					    		if (theElement.attr('id') == index) {
-                					    			alert(theElement.attr('id')+"|"+index+" matched!");
-                					    		} else {
-                					    			//alert(theElement.attr('id')+"|"+index+" did not matched!");
-                					    		}
-                					    }
-                					    
-                					    //var theValue = theElement.val();
-                					});
-                			  });
-                			 
-                			 
+                			 $.each(data, function (index, name) {
+                				 
+                				 var histVarName=getSuffix(index);
+                				 
+                				 if (histVarName==null) return;
+                				 
+                				 var curEl=currentVars[histVarName];
+                				
+                				 if (curEl) {
+                					 curEl.val(name);           					    	
+                				 }                			 
                 		    })
-                		    
-                		                    	                		    
+                		 })
                       }).change();
                 	
                  }
@@ -132,12 +140,17 @@ $.jgrid.extend ({editGridRow : function(rowid, p){
     orgEditGridRow.call (this,rowid, p);
 }});
 
+function getSuffix(str) {
+	 if (!str || str.indexOf('.')==-1) return null;//not a meta field	   
+	 return str.split(".")[1];
+}
 function populateSelect(el, items) {
     el.options.length = 0;   
     el.options[0] = new Option('--select--', '');
 
-    $.each(items, function () {
-        el.options[el.options.length] = new Option(this.name, this.value);
+    $.each(items, function (index,value) {
+    	//alert(odump(this));
+        el.options[el.options.length] = new Option(value, index);
     });
 }
 
