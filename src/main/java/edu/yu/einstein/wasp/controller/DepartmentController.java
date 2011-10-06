@@ -109,17 +109,28 @@ public class DepartmentController extends WaspController {
   @PreAuthorize("hasRole('god')")
   public String createDepartment(@RequestParam("name") String name, ModelMap m) {
 	  
-	if( "".equals(name.trim()) ){
+	//capitalize first letter of each word in name
+	//code derived from http://stackoverflow.com/questions/1149855/how-to-upper-case-every-first-letter-of-word-in-a-string
+	StringBuilder b = new StringBuilder(name);
+	int i = 0;
+	do {
+	  b.replace(i, i + 1, b.substring(i,i + 1).toUpperCase());
+	  i =  b.indexOf(" ", i) + 1;
+	} while (i > 0 && i < b.length());
+	
+	String modifiedName = new String(b);
+	
+	if( "".equals(modifiedName.trim()) ){
 		waspMessage("department.list_missingparam.error");
 	}
-	else{
-		Department existingDepartment = this.departmentService.getDepartmentByName(name.trim()); 
+	else{		
+		Department existingDepartment = this.departmentService.getDepartmentByName(modifiedName.trim()); 
 		if( existingDepartment.getDepartmentId() > 0 ){//the id will be 0 if empty department [ie.: department does not already exist]
 			waspMessage("department.list_department_exists.error");
 		}
 		else{
 			Department department = new Department(); 
-			department.setName(name.trim()); 
+			department.setName(modifiedName.trim()); 
 			departmentService.save(department);
 			waspMessage("department.list_ok.label");
 		}
