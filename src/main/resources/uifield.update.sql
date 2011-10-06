@@ -123,7 +123,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','department','constraint','NotEmpty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','department','control','select:${department}:departmentId:name','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','department','metaposition','20','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','building_room','label','Room','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','building_room','label','Building / Room','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','building_room','metaposition','30','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','address','label','Address','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','address','error','Address cannot be empty','1');
@@ -671,6 +671,8 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','action','error','Invalid action. Must be approve or reject only','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','departmentid_mismatch','error','Deparment id mismatch with lab-pending id','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','status_mismatch','error','Status must be pending with lab-pending id','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','labpendingid_notexist','error','Lab-pending id does not exist','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','action','error','Invalid action. Must be approve or reject only','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','labid_mismatch','error','Lab id mismatch with user-pending id','1');
 
