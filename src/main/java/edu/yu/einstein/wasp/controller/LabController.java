@@ -433,8 +433,23 @@ public class LabController extends WaspController {
 	
 	@RequestMapping(value = "/pending/detail_ro/{deptId}/{labPendingId}.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('da-' + #deptId)")
-	public String pendingDetailRO(@PathVariable("deptId") Integer deptId, @PathVariable("labPendingId") Integer labPendingId, ModelMap m) {
-		return pendingDetail(labPendingId,m,false);
+	public String pendingDetailRO(@PathVariable("labPendingId") Integer labPendingId, @PathVariable("deptId") Integer deptId, ModelMap m) {
+		LabPending labPending = this.labPendingService.getLabPendingByLabPendingId(labPendingId);
+		if(labPending.getLabPendingId() == 0){//labpendingId doesn't exist
+			waspMessage("labPending.labpendingid_notexist.error");		
+			return "redirect:/dashboard.do";
+		}
+		if( deptId != labPending.getDepartmentId() ){
+			waspMessage("labPending.departmentid_mismatch.error");		
+			return "redirect:/dashboard.do";
+		}
+		else if(!labPending.getStatus().equalsIgnoreCase("PENDING") ){			
+			waspMessage("labPending.status_mismatch.error");		
+			return "redirect:/dashboard.do";
+		}
+		else{
+			return pendingDetail(labPendingId,m,false);
+		}		
 	}
 	
 	private String pendingDetail(Integer labPendingId, ModelMap m, boolean isRW) {
@@ -857,6 +872,7 @@ public class LabController extends WaspController {
 	 * @return
 	 * @throws WaspMetadataException
 	 */
+
 	@RequestMapping(value = "/labpending/{action}/{deptId}/{labPendingId}.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('god') or hasRole('da-' + #deptId)")
 	public String labPendingDetail ( @PathVariable("deptId") Integer deptId, @PathVariable("labPendingId") Integer labPendingId, @PathVariable("action") String action, ModelMap m) throws WaspMetadataException {
