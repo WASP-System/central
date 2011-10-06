@@ -33,7 +33,7 @@
           <c:set var="_area" value = "labPending" scope="request"/>	
 		  <c:set var="_metaList" value = "${labpending.labPendingMeta}" scope="request" />		
           <c:import url="/WEB-INF/jsp/meta_ro.jsp"/>
-          <sec:authorize access="hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('da-#')">
+          <sec:authorize access="hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('da-*')">
           	 <tr>
           	 	<td>
           	 		<a href="<c:url value="/lab/labpending/approve/${labpending.departmentId}/${labpending.labPendingId}.do" />">Approve</a>
