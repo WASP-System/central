@@ -198,10 +198,17 @@ public class DepartmentController extends WaspController {
     return "redirect:/department/detail/" + departmentId + ".do";
   }
 
+  /**
+   * Obtains a json message containing list of all current users where each entry in the list looks something like "Peter Piper (PPiper)"
+   * Used to populate a JQuery autocomplete managed input box
+   * @param adminNameFragment
+   * @return json message
+   */
   @RequestMapping(value="/getUserNamesAndLoginForDisplay", method=RequestMethod.GET)
   public @ResponseBody String getNames(@RequestParam String adminNameFragment) {
-         
-         List<User> userList = this.getUserService().findAll();
+         Map activeUserQueryMap = new HashMap();
+         activeUserQueryMap.put("isActive", 1);
+         List<User> userList = userService.findByMap(activeUserQueryMap);
          int counter = 0;
          String jsonString = new String();
          jsonString = jsonString + "{\"source\": [";
