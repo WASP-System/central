@@ -21,7 +21,7 @@
     <h3><fmt:message key="department.detail_existingadmin.label" /></h3>
     <c:forEach items="${departmentuser}" var="u">
       <p>
-      <a href="/wasp/user/detail/<c:out value="${u.user.userId}" />.do"><c:out value="${u.user.login}" /></a>
+      <a href="/wasp/user/detail_ro/<c:out value="${u.user.userId}" />.do"><c:out value="${u.user.login}" /></a>
         <c:out value="${u.user.firstName}" />
         <c:out value="${u.user.lastName}" />
         <a href="/wasp/department/user/roleRemove/<c:out value="${department.departmentId}" />/<c:out value="${u.user.userId}" />.do">
