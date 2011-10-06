@@ -9,8 +9,7 @@
 
  <script type="text/javascript">
      $(document).ready(function() {            
-	       $("#adminName").keyup(function(){getAuthNames();});//this works well
-	       // $("input#autocomplete").autocomplete({source: ["c++", "java", "php", "coldfusion", "javascript", "asp", "ruby"]}); 
+	       $("#adminName").keyup(function(){getAuthNames();});
      });
       
      function getAuthNames(){        
@@ -22,7 +21,6 @@
  <script language="JavaScript">
 		<!--
 		function validate(){
-			//alert("test123"); return false;
 			var error = false;
 			var message = '<fmt:message key="department.detail_missingparam.error" />';
 			if(document.f.adminName.value == ""){

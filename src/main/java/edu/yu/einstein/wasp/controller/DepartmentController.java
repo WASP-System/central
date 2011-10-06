@@ -215,12 +215,7 @@ public class DepartmentController extends WaspController {
         	 }
          }
          jsonString = jsonString + "]}";
-         return jsonString;       
-         
-         //return "{\"source\": [\"c++++\", \"javaaa\", \"phppp\", \"coldfusionnn\", \"javascripttt\", \"asppp\", \"rubyyy\"]}";
-         //return "{\"name\":\"LESLIE TROKIE\", \"name2\":\"Doug TROKIE\"}";
-         //retString = "[{\"firstName\":\""+firstName+"\", \"lastName\":\""+lastName+"\"},{\"firstName\":\""+firstName2+"\", \"lastName\":\""+lastName2+"\"}]";
-         
+         return jsonString;                
   }
     
 }
