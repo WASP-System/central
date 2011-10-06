@@ -389,10 +389,6 @@ public class LabController extends WaspController {
 
 		MimeMessageHelper a;
 		
-		//waspMessage("lab.updated.success");
-		
-		//emailService.sendNewPassword(labDb, "new pass");
-		
 		try {
 			response.getWriter().println(getMessage("lab.updated_success.label"));
 			return null;
@@ -406,13 +402,13 @@ public class LabController extends WaspController {
 
 	@RequestMapping(value = "/detail_rw/{deptId}/{labId}.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('da-' + #deptId) or hasRole('lu-' + #labId)")
-	public String detailRW(@PathVariable("labId") Integer labId, ModelMap m) {
+	public String detailRW(@PathVariable("deptId") Integer deptId, @PathVariable("labId") Integer labId, ModelMap m) {
 		return detail(labId,m,true);
 	}
 	
 	@RequestMapping(value = "/detail_ro/{deptId}/{labId}.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('da-' + #deptId) or hasRole('lu-' + #labId)")
-	public String detailRO(@PathVariable("labId") Integer labId, ModelMap m) {
+	public String detailRO(@PathVariable("deptId") Integer deptId, @PathVariable("labId") Integer labId, ModelMap m) {
 		return detail(labId,m,false);
 	}
 	
@@ -437,7 +433,7 @@ public class LabController extends WaspController {
 	
 	@RequestMapping(value = "/pending/detail_ro/{deptId}/{labPendingId}.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('da-' + #deptId)")
-	public String pendingDetailRO(@PathVariable("labPendingId") Integer labPendingId, ModelMap m) {
+	public String pendingDetailRO(@PathVariable("deptId") Integer deptId, @PathVariable("labPendingId") Integer labPendingId, ModelMap m) {
 		return pendingDetail(labPendingId,m,false);
 	}
 	
@@ -861,19 +857,19 @@ public class LabController extends WaspController {
 	 * @return
 	 * @throws WaspMetadataException
 	 */
-	@RequestMapping(value = "/labpending/{action}/{departmentId}/{labPendingId}.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('god') or hasRole('la-' + #departmentId)")
-	public String labPendingDetail ( @PathVariable("departmentId") Integer departmentId, @PathVariable("labPendingId") Integer labPendingId, @PathVariable("action") String action, ModelMap m) throws WaspMetadataException {
+	@RequestMapping(value = "/labpending/{action}/{deptId}/{labPendingId}.do", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('god') or hasRole('da-' + #deptId)")
+	public String labPendingDetail ( @PathVariable("deptId") Integer deptId, @PathVariable("labPendingId") Integer labPendingId, @PathVariable("action") String action, ModelMap m) throws WaspMetadataException {
 		
 		if (! (action.equals("approve") || action.equals("reject")) ){
 			waspMessage("labPending.action.error");
-			return "redirect:/department/detail/" + departmentId + ".do";
+			return "redirect:/department/detail/" + deptId + ".do";
 		}
 		
 		LabPending labPending = labPendingService.getLabPendingByLabPendingId(labPendingId);
-		if (labPending.getDepartmentId() != departmentId) {
+		if (labPending.getDepartmentId() != deptId) {
 			waspMessage("labPending.departmentid_mismatch.error");
-			return "redirect:/department/detail/" + departmentId + ".do";
+			return "redirect:/department/detail/" + deptId + ".do";
 		}
 		
 		if ("approve".equals(action)) {
@@ -890,7 +886,7 @@ public class LabController extends WaspController {
 		}
 		labPending.setStatus(action);
 		labPendingService.save(labPending);
-		return "redirect:/department/detail/" + departmentId + ".do";
+		return "redirect:/department/detail/" + deptId + ".do";
 	}
 
 	@RequestMapping(value = "/newrequest", method = RequestMethod.GET)
@@ -998,7 +994,7 @@ public class LabController extends WaspController {
 		labUserService.save(labUser);
 
 		labUserService.refresh(labUser);
-		
+
 		emailService.sendPendingLabUserConfirmRequest(labUser);
 
 		waspMessage("labuser.request_success.label");
