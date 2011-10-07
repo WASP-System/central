@@ -79,7 +79,7 @@
          <tr><td colspan=2 align=left></br><b>Lab Users:</b></td></tr>
          <c:forEach items="${user.labUser}" var="ul">
     	  <tr>
-            <td><a href="/wasp/lab/detail/<c:out value="${ul.lab.labId}" />.do"><c:out value="${ul.lab.name}" /></a></td>
+            <td><a href="/wasp/lab/detail_ro/<c:out value="${ul.lab.departmentId}" />/<c:out value="${ul.lab.labId}" />.do"><c:out value="${ul.lab.name}" /></a></td>
             <td><span><c:out value="${ul.role.name}" /></span></td>
           </tr>
         </c:forEach>
