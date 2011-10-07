@@ -1,6 +1,6 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
   <font color="blue"><wasp:message /></font>  
-  <form:form commandName="labpending">
+  <form:form commandName="labPending">
    <table>
      	  <tr><td colspan=2 align=left></br><b>Pending Lab Details:</b></td></tr>
            <tr>
@@ -11,7 +11,7 @@
               <td><fmt:message key="labPending.primaryUserId.label"/>:</td>
               <td>
               	<c:forEach var="puser" items="${pusers}">
-                	<c:if test="${puser.userId == labpending.primaryUserId}"><c:out value="${puser.lastName}, ${puser.firstName}"/></c:if>
+                	<c:if test="${puser.userId == labPending.primaryUserId}"><c:out value="${puser.lastName}, ${puser.firstName}"/></c:if>
                	</c:forEach>     
               
               </td>              
@@ -21,22 +21,22 @@
               <td>
               
               	<c:forEach var="dept" items="${departments}">
-                   <c:if test="${dept.departmentId == labpending.departmentId}"> <c:out value="${dept.name}"/></c:if>
+                   <c:if test="${dept.departmentId == labPending.departmentId}"> <c:out value="${dept.name}"/></c:if>
                	</c:forEach>     
               
               </td>
           </tr>
           <c:set var="_area" value = "labPending" scope="request"/>	
-		  <c:set var="_metaList" value = "${labpending.labPendingMeta}" scope="request" />		
+		  <c:set var="_metaList" value = "${labPending.labPendingMeta}" scope="request" />		
           <c:import url="/WEB-INF/jsp/meta_ro.jsp"/>
           <sec:authorize access="hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('da-*')">
           	 <tr>
           	 	<td>
-          	 		<a href="<c:url value="/lab/pending/detail_rw/${labpending.departmentId}/${labpending.labPendingId}.do" />">Edit</a>
+          	 		<a href="<c:url value="/lab/pending/detail_rw/${labPending.departmentId}/${labPending.labPendingId}.do" />">Edit</a>
           	 		|
-          	 		<a href="<c:url value="/lab/pending/approve/${labpending.departmentId}/${labpending.labPendingId}.do" />">Approve</a>
+          	 		<a href="<c:url value="/lab/pending/approve/${labPending.departmentId}/${labPending.labPendingId}.do" />">Approve</a>
           	 		|
-          	 		<a href="<c:url value="/lab/pending/reject/${labpending.departmentId}/${labpending.labPendingId}.do" />">Reject</a>
+          	 		<a href="<c:url value="/lab/pending/reject/${labPending.departmentId}/${labPending.labPendingId}.do" />">Reject</a>
           	 	</td>
           	 </tr>
           </sec:authorize>            	      
