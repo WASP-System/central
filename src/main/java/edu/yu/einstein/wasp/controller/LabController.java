@@ -574,8 +574,9 @@ public class LabController extends WaspController {
 	public String updatePendingDetail(@PathVariable("deptId") Integer deptId, @PathVariable("labId") Integer labId,
 			@Valid LabPending labPendingForm, BindingResult result, SessionStatus status,
 			ModelMap m) {
+		MetaHelper lpMetaHelper = new MetaHelper("labPending", LabPendingMeta.class, request.getSession());
 
-		List<LabPendingMeta> labPendingMetaList = getMetaHelper().getFromRequest(request, LabPendingMeta.class);
+		List<LabPendingMeta> labPendingMetaList = lpMetaHelper.getFromRequest(request, LabPendingMeta.class);
 
 		for (LabPendingMeta meta : labPendingMetaList) {
 			meta.setLabpendingId(labId);
@@ -583,7 +584,6 @@ public class LabController extends WaspController {
 
 		labPendingForm.setLabPendingMeta(labPendingMetaList);
 
-		MetaHelper lpMetaHelper = new MetaHelper("labPending", LabPendingMeta.class, request.getSession());
 		lpMetaHelper.validate(labPendingMetaList, result);
 
 		
