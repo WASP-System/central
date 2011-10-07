@@ -79,6 +79,9 @@
     <definition name="lab/pending/detail_ro" extends="template-base">
         <put-attribute name="body-content" value="/WEB-INF/jsp/lab/pendinglab/detail_ro.jsp" />
     </definition>
+    <definition name="lab/pending/detail_rw" extends="template-base">
+        <put-attribute name="body-content" value="/WEB-INF/jsp/lab/pendinglab/detail_rw.jsp" />
+    </definition>
     <definition name="lab/user" extends="template-base">
         <put-attribute name="body-content" value="/WEB-INF/jsp/lab/user.jsp" />
     </definition>

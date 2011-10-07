@@ -1,8 +1,4 @@
-<%@ include file="/WEB-INF/jsp/include.jsp" %>
-
-<html>
-  <head><title>WASP</title><head>
-  <body>
+<%@ include file="/WEB-INF/jsp/taglib.jsp" %>
   <font color="blue"><wasp:message /></font>  
   <form:form commandName="labpending">
    <table>
@@ -36,9 +32,11 @@
           <sec:authorize access="hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('da-*')">
           	 <tr>
           	 	<td>
-          	 		<a href="<c:url value="/lab/labpending/approve/${labpending.departmentId}/${labpending.labPendingId}.do" />">Approve</a>
+          	 		<a href="<c:url value="/lab/pending/detail_rw/${labpending.departmentId}/${labpending.labPendingId}.do" />">Edit</a>
           	 		|
-          	 		<a href="<c:url value="/lab/labpending/reject/${labpending.departmentId}/${labpending.labPendingId}.do" />">Reject</a>
+          	 		<a href="<c:url value="/lab/pending/approve/${labpending.departmentId}/${labpending.labPendingId}.do" />">Approve</a>
+          	 		|
+          	 		<a href="<c:url value="/lab/pending/reject/${labpending.departmentId}/${labpending.labPendingId}.do" />">Reject</a>
           	 	</td>
           	 </tr>
           </sec:authorize>            	      
@@ -70,5 +68,3 @@
  --%>   
  
    </form:form>
-  </body>
-</html>

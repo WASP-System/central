@@ -431,6 +431,12 @@ public class LabController extends WaspController {
 		return isRW?"lab/detail_rw":"lab/detail_ro";
 	}
 	
+	@RequestMapping(value = "/pending/detail_rw/{deptId}/{labPendingId}.do", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('da-' + #deptId)")
+	public String pendingDetailRW(@PathVariable("deptId") Integer deptId, @PathVariable("labPendingId") Integer labPendingId, ModelMap m) {
+		return pendingDetail(labPendingId,m,true);
+	}
+	
 	@RequestMapping(value = "/pending/detail_ro/{deptId}/{labPendingId}.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('da-' + #deptId)")
 	public String pendingDetailRO(@PathVariable("labPendingId") Integer labPendingId, @PathVariable("deptId") Integer deptId, ModelMap m) {
@@ -521,9 +527,9 @@ public class LabController extends WaspController {
 		return "redirect:/lab/detail_rw/" + labDb.getLabId() + ".do";
 	}
 
-	@RequestMapping(value = "/detail_rw/{labId}.do", method = RequestMethod.POST)
-	@PreAuthorize("hasRole('god') or hasRole('lm-' + #labId)")
-	public String updateDetail(@PathVariable("labId") Integer labId,
+	@RequestMapping(value = "/detail_rw/{deptId}/{labId}.do", method = RequestMethod.POST)
+	@PreAuthorize("hasRole('god') or hasRole('da-' + #deptId) or hasRole('lm-' + #labId)")
+	public String updateDetail(@PathVariable("deptId") Integer deptId, @PathVariable("labId") Integer labId,
 			@Valid Lab labForm, BindingResult result, SessionStatus status,
 			ModelMap m) {
 
@@ -559,8 +565,51 @@ public class LabController extends WaspController {
 		
 		waspMessage("lab.updated_success.label");
 		
-		return "redirect:" + labId + ".do";
+		//return "redirect:" + labId + ".do";
+		return "redirect:/lab/detail_ro/" + deptId + "/" + labId + ".do";
+	}
 
+	@RequestMapping(value = "/pending/detail_rw/{deptId}/{labId}.do", method = RequestMethod.POST)
+	@PreAuthorize("hasRole('god') or hasRole('da-' + #deptId) or hasRole('lm-' + #labId)")
+	public String updatePendingDetail(@PathVariable("deptId") Integer deptId, @PathVariable("labId") Integer labId,
+			@Valid LabPending labPendingForm, BindingResult result, SessionStatus status,
+			ModelMap m) {
+
+		List<LabPendingMeta> labPendingMetaList = getMetaHelper().getFromRequest(request, LabPendingMeta.class);
+
+		for (LabPendingMeta meta : labPendingMetaList) {
+			meta.setLabpendingId(labId);
+		}
+
+		labPendingForm.setLabPendingMeta(labPendingMetaList);
+
+		MetaHelper lpMetaHelper = new MetaHelper("labPending", LabPendingMeta.class, request.getSession());
+		lpMetaHelper.validate(labPendingMetaList, result);
+
+		
+		if (result.hasErrors()) {
+			prepareSelectListData(m);
+			waspMessage("labPending.updated.error");
+			return "lab/pending/detail_rw";
+		}
+
+		LabPending labPendingDb = this.labPendingService.getById(labId);
+		labPendingDb.setName(labPendingForm.getName());
+		labPendingDb.setDepartmentId(labPendingForm.getDepartmentId());
+		labPendingDb.setPrimaryUserId(labPendingForm.getPrimaryUserId());
+
+		labPendingDb.setLastUpdTs(new Date());
+
+		this.labPendingService.merge(labPendingDb);
+
+		labPendingMetaService.updateByLabpendingId(labId, labPendingMetaList);
+
+		status.setComplete();
+		
+		waspMessage("labPending.updated_success.label");
+		
+		//return "redirect:" + labId + ".do";
+		return "redirect:/lab/pending/detail_ro/" + deptId + "/" + labId + ".do";
 	}
 
 	@RequestMapping(value = "/user/{labId}.do", method = RequestMethod.GET)
