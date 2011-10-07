@@ -257,6 +257,10 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','research_center_name','metaposition','130','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','researchcenter_user_list_location','label','RS User URL','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','researchcenter_user_list_location','metaposition','140','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','updated_success','label','Pending Lab was updated','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','created_success','label','Pending Lab was created','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','updated','error','Pending Lab was NOT updated. Please fill in required fields.','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','created','error','Pending Lab was NOT created. Please fill in required fields.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','login_title','data','Login Page','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','auth_login_validate','error','Please provide your user login name AND password.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','login_failed','error','Your login attempt was not successful. Try again.','1');
