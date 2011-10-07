@@ -14,7 +14,7 @@
               <select name=primaryUserId>
                 <option value='-1'>-- select --</option>
               	<c:forEach var="puser" items="${pusers}">
-                	<option value="${puser.userId}" <c:if test="${puser.userId == lab.primaryUserId}"> selected</c:if>><c:out value="${puser.lastName}, ${puser.firstName}"/></option>
+                	<option value="${puser.userId}" <c:if test="${puser.userId == labpending.primaryUserId}"> selected</c:if>><c:out value="${puser.lastName}, ${puser.firstName}"/></option>
                	</c:forEach>     
               </select>
               </td>
@@ -26,7 +26,7 @@
               <select name=departmentId>
                 <option value='-1'>-- select --</option>
               	<c:forEach var="dept" items="${departments}">
-                	<option value="${dept.departmentId}" <c:if test="${dept.departmentId == lab.departmentId}"> selected</c:if>><c:out value="${dept.name}"/></option>
+                	<option value="${dept.departmentId}" <c:if test="${dept.departmentId == labpending.departmentId}"> selected</c:if>><c:out value="${dept.name}"/></option>
                	</c:forEach>     
               </select>
               </td>
