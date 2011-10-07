@@ -254,9 +254,9 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','billing_phone','label','Billing Phone','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','billing_phone','metaposition','130','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','research_center_name','label','RS Name','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','research_center_name','metaposition','130','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','research_center_name','metaposition','140','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','researchcenter_user_list_location','label','RS User URL','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','researchcenter_user_list_location','metaposition','140','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','researchcenter_user_list_location','metaposition','150','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','updated_success','label','Pending Lab was updated','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','created_success','label','Pending Lab was created','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','updated','error','Pending Lab was NOT updated. Please fill in required fields.','1');
