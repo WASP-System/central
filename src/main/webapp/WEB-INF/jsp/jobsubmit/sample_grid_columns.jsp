@@ -88,56 +88,19 @@ _editAttr.afterSubmit = _uploadAfterSubmit;
  
 </wasp:field>
 
+<wasp:field name="jobId" type="select" items="empty">
+#field.jq.hidden=true;
+#field.jq.editrules.edithidden=true;
+</wasp:field>
 
-var existingJob={
-name:'jobId',
-label:'Existing Job',
-required:false,
-error:'',
-jq:{
-	name:'jobId', 
-	width:80, 
-	align:'center',
-	sortable:false,
-	sorttype:'text',
-	editable:true,
-	hidden:true,	
-    editrules:{edithidden:true},    
-	editoptions:{size:20},
-	edittype:'select',
-	editoptions:{value:{}},
-	search:false
-}
-};
+<wasp:field name="sourceSampleId" type="select" items="empty">
+#field.jq.hidden=true;
+#field.jq.editrules.edithidden=true;
+</wasp:field>
 
-colNames.push(existingJob.label);
-colModel.push(existingJob.jq);
-colErrors.push(existingJob.error);
-
-var existingJobSampleId={
-name:'jobSampleId',
-label:'Existing Job Sample',
-required:false,
-error:'',
-jq:{
-	name:'jobSampleId', 
-	width:80, 
-	align:'center',
-	sortable:false,
-	sorttype:'text',
-	editable:true,
-	hidden:true,	
-    editrules:{edithidden:true},    
-	editoptions:{size:20},
-	edittype:'select',
-	editoptions:{value:{}},
-	search:false
-}
-};
-
-colNames.push(existingJobSampleId.label);
-colModel.push(existingJobSampleId.jq);
-colErrors.push(existingJobSampleId.error);
+<wasp:field name="cloned" type="text">
+#field.jq.editable=true;
+</wasp:field>
 
 <wasp:delete url="/wasp/jobsubmit/deleteSampleDraftJSON.do" />
 

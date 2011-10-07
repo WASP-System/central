@@ -668,30 +668,25 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','jobsubmit/sample','label','Submit Samples','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','uifield/list','label','Properties','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','jobsubmit/cell','label','Cells','1');
-
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','action','error','Invalid action. Must be approve or reject only','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','departmentid_mismatch','error','Deparment id mismatch with lab-pending id','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','status_mismatch','error','Status must be pending with lab-pending id','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','labpendingid_notexist','error','Lab-pending id does not exist','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','action','error','Invalid action. Must be approve or reject only','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','labid_mismatch','error','Lab id mismatch with user-pending id','1');
-
-
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values
-('en_US','chipSeq','pageflow','','/jobsubmit/modifymeta/{n};/jobsubmit/aligner/{n};/jobsubmit/samples/{n};/jobsubmit/cells/{n};/jobsubmit/verify/{n};/jobsubmit/submit/{n};/jobsubmit/ok',1),
-('en_US','chipSeq','aligner','metaposition','10',1),
-('en_US','chipSeq','aligner','label','Aligner',1),
-('en_US','chipSeq','aligner','control','select:aligner1:aligner1;aligner2:aligner2',1),
-('en_US','chipSeq','other','metaposition','20',1),
-('en_US','chipSeq','other','label','Other Workflow Field',1),
-
-
-('en_US','aligner1','field1','metaposition','10',1),
-('en_US','aligner1','field1','label','Field A',1),
-
-('en_US','aligner2','field1','metaposition','10',1),
-('en_US','aligner2','field1','label','Field B',1)
-;
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeq','pageflow','','/jobsubmit/modifymeta/{n};/jobsubmit/aligner/{n};/jobsubmit/samples/{n};/jobsubmit/cells/{n};/jobsubmit/verify/{n};/jobsubmit/submit/{n};/jobsubmit/ok','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeq','aligner','metaposition','10','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeq','aligner','label','Aligner','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeq','aligner','control','select:aligner1:aligner1;aligner2:aligner2','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeq','other','metaposition','20','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeq','other','label','Other Workflow Field','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','aligner1','field1','metaposition','10','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','aligner1','field1','label','Field A','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','aligner2','field1','metaposition','10','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','aligner2','field1','label','Field B','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','cloned','label','Locked','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','jobId','label','Existing Job','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','sourceSampleId','label','Existing Sample','1');
 
 truncate table workflowmeta;
 insert into workflowmeta

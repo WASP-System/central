@@ -150,7 +150,13 @@ public class JQFieldTag extends BodyTagSupport {
 				
 			}
 		
-			boolean required=clazz.getDeclaredField(name).getAnnotation(org.hibernate.validator.constraints.NotEmpty.class)==null?false:true;
+			boolean required=false;
+			
+			try {
+				required=clazz.getDeclaredField(name).getAnnotation(org.hibernate.validator.constraints.NotEmpty.class)==null?false:true;
+			} catch (NoSuchFieldException e) {
+				//let it slide - we'll allow fields that are not in the entity objects
+			}
 			
 				
 			String error="error:'"+getMessage(area+"."+name+".error","")+"',\n";
@@ -282,6 +288,8 @@ public class JQFieldTag extends BodyTagSupport {
 					);
 				}
 
+			} else if (this.items instanceof String && "empty".equals(this.items)) {
+				//empty select lists 
 			} else {
 				throw new JspException("Type ["
 						+ this.items.getClass().getName()

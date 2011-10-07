@@ -15,12 +15,12 @@
         <put-attribute name="area" value="" />    
         <put-attribute name="grid-columns" value="" />
         <put-attribute name="subgrid-columns" value="" />
+        <put-attribute name="toolbar-buttons" value="" />
         <put-attribute name="banner-content" value="/WEB-INF/jsp/sections/banner.jsp" />
         <put-attribute name="body-content" value="" />
         <put-attribute name="footer-content" value="/WEB-INF/jsp/sections/footer.jsp" />
     </definition>
-    
-    
+            
     <definition name="auth/login" extends="template-base">
         <put-attribute name="head-js" value="/WEB-INF/jsp/auth/login.js.jsp" />
         <put-attribute name="body-content" value="/WEB-INF/jsp/auth/login.jsp" />
@@ -176,7 +176,8 @@
     </definition>
     <definition name="jobsubmit/sample" extends="template-grid">
         <put-attribute name="area" value="sampleDraft" />
-        <put-attribute name="grid-columns" value="/WEB-INF/jsp/jobsubmit/sample_grid_columns.jsp" />        
+        <put-attribute name="grid-columns" value="/WEB-INF/jsp/jobsubmit/sample_grid_columns.jsp" />
+        <put-attribute name="toolbar-buttons" value="/WEB-INF/jsp/jobsubmit/toolbar-buttons.jsp" />                
         <put-attribute name="body-content" value="/WEB-INF/jsp/jobsubmit/sample.jsp" />
     </definition>
     <definition name="facility/platformunit/list" extends="template-grid">
@@ -191,3 +192,4 @@
     </definition>
     
 </tiles-definitions>
+

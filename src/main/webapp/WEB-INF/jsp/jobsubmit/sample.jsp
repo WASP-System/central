@@ -30,18 +30,23 @@ _validMetaFields.subtypeSampleId_${_subtype.subtypeSampleId}.push('${_validMeta.
 var _jobsBySampleSubtype=<wasp:json object="${_jobsBySampleSubtype}"/>;
 
 
-var grid=$("#grid_id");      // your jqGrid (the <table> element)
+var grid=$("#grid_id");      
 var orgEditGridRow = grid.jqGrid.editGridRow; // save original function
 $.jgrid.extend ({editGridRow : function(rowid, p){
     $.extend(p,
-             { // modify some parameters of editGridRow
-    	beforeShowForm: function(form) {
-                	                	
+             { 
+    		 beforeShowForm: function(form) {
+    				
                 	var subtypeSampleId;
                 	
                 	var _select=document.getElementById(form[0].id).subtypeSampleId;
                 	
                 	_select.disabled="disabled";
+                	
+	
+            		$('#cloned').attr('disabled','disabled');
+            		$('#cloned').val('No');
+            		
                 	
                 	if (p.subtypeSampleId) {//add
                 		
@@ -56,9 +61,17 @@ $.jgrid.extend ({editGridRow : function(rowid, p){
                 		
                 	} else {//edit
                 		
-                		subtypeSampleId = _select.options[_select.selectedIndex].value;                		                		
+                		subtypeSampleId = _select.options[_select.selectedIndex].value;
+                	
+                		//$('#cloned').attr('disabled','disabled');
+                	
+                		var isCloned='Yes'==$('#cloned').val();
                 		
+                		if (isCloned) {
+                			 disableAllFields();
+                		}						
                 	}
+                	
                		var _myValidMetaFields=_validMetaFields['subtypeSampleId_'+subtypeSampleId];
                 	//alert(subtypeSampleId);
                		//alert(_myValidMetaFields);
@@ -75,15 +88,19 @@ $.jgrid.extend ({editGridRow : function(rowid, p){
                 		}                 	
 					}
                 	
-                	
+                
                 	var _jobs4Subtype=_jobsBySampleSubtype[subtypeSampleId];
     				
                 	populateSelect($('#jobId').get(0), _jobs4Subtype);
-
+                	
                 	$('#jobId').change(function () {      
                 		var _val=$("#jobId option:selected").val();
                 		
-                		if (!_val) return;
+                		if (!_val) {
+                			$('#sourceSampleId').children().remove().end();
+                			enableAllFields();                    		            
+                			return;
+                		}
                 		                		      				    
                 		 var options = '<option value="">--select--</option>';
             			 
@@ -95,16 +112,22 @@ $.jgrid.extend ({editGridRow : function(rowid, p){
                 			                 			  
                 		   })
                 		   
-                		   $("#jobSampleId").html(options);
+                		   $("#sourceSampleId").html(options);
                 		                    	                		    
-                      }).change();
+                      });
                 	
-                	$('#jobSampleId').change(function () {      
-                		var _val=$("#jobSampleId option:selected").val();
-                		
-                		if (!_val) return;
+                	$('#sourceSampleId').change(function () {      
+                		var _val=$("#sourceSampleId option:selected").val();
+                		var _label=$("#sourceSampleId option:selected").text();
+                		if (!_val) {
+                			enableAllFields();
+                			return;
+                		}
                 		
                 		var currentVars={};
+                		
+                		$('#name').val(_label);
+                		$('#name').attr('disabled','disabled');
                 		
                 		$.each($("input, select"), function(i,v) {
      					    var theTag = v.tagName;                					   
@@ -114,7 +137,11 @@ $.jgrid.extend ({editGridRow : function(rowid, p){
      					    
      					    var curVarName=theElement.attr('id').split(".")[1];
      					    currentVars[curVarName]=theElement;
-     					    theElement.val('');    					    
+     					    theElement.val('');
+     					    theElement.attr('disabled','disabled');
+     					    
+     					    $('#cloned').val('Yes');
+     					    $('#cloned').attr('disabled','disabled');
      					});
                 		                	
                 		
@@ -133,12 +160,43 @@ $.jgrid.extend ({editGridRow : function(rowid, p){
                 				 }                			 
                 		    })
                 		 })
-                      }).change();
+                      });
                 	
                  }
              });
-    orgEditGridRow.call (this,rowid, p);
+   			 orgEditGridRow.call(this,rowid, p);
 }});
+
+
+function disableAllFields() {
+	//$('#name').attr('disabled','disabled');
+	
+	$.each($("input, select"), function(i,v) {
+		   	
+		    var theElement = $(v);		    
+		    
+		    theElement.attr('disabled','disabled');
+		});
+}
+
+function enableAllFields() {
+	$('#name').attr('disabled',null);
+	$('#name').val('');
+	
+	$('#cloned').attr('disabled',null);
+	$('#cloned').val('No');
+	
+	$.each($("input, select"), function(i,v) {
+		   	
+		    var theElement = $(v);
+		    
+		    if (theElement.attr('id').indexOf('.')==-1) return;//not a meta field
+		  		    
+		    theElement.val('');
+		    theElement.attr('disabled',null);
+		});
+}
+
 
 function getSuffix(str) {
 	 if (!str || str.indexOf('.')==-1) return null;//not a meta field	   

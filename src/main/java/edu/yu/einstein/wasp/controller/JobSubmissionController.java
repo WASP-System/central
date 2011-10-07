@@ -882,7 +882,10 @@ public class JobSubmissionController extends WaspController {
 						draft.getName(),
 						allSampleSubTypes.get(draft.getSubtypeSampleId()),							
 						draft.getStatus(),						
-						fileCell
+						fileCell,
+						"",
+						draft.getSourceSampleId()+"",
+						draft.getSourceSampleId()==null?"No":"Yes"
 				})); 
 			
 				for(SampleDraftMeta meta:draftMeta) {
@@ -925,6 +928,30 @@ public class JobSubmissionController extends WaspController {
 		}
 	}
 	
+
+	//The call just checks if sampleDraft has non-null sourceSampleId field
+	//I can't get sourceSampleId value while editing form due to JQGrid specifics
+	@RequestMapping(value = "/getOldSample", method = RequestMethod.GET)
+	public String getOldSample(@RequestParam("id") Integer sampleDraftId, HttpServletResponse response) {
+
+		SampleDraft samplDraft = sampleDraftService.findById(sampleDraftId);
+
+		try {
+			
+			List<Integer> result = new ArrayList<Integer>();
+
+			if (samplDraft.getSourceSampleId() == null) return outputJSON(result, response);
+
+			result.add(samplDraft.getSourceSampleId());
+			
+			return outputJSON(result, response);
+		} catch (Throwable e) {
+			
+			throw new IllegalStateException("Can't marshall to JSON ", e);
+
+		}
+
+	}
 
 	@RequestMapping(value="/sampleMetaBySampleId", method=RequestMethod.GET)	
 	public String sampleMetaBySampleId(@RequestParam("sampleId") Integer sampleId, HttpServletResponse response) {
@@ -1040,7 +1067,7 @@ public class JobSubmissionController extends WaspController {
 	}
 	
 	@RequestMapping(value = "/updateSampleDraft", method = RequestMethod.POST)
-	public String updateDetailJSON(@RequestParam("id") Integer sampleDraftId,
+	public String updateSampleDraft(@RequestParam("id") Integer sampleDraftId,
 			SampleDraft sampleDraftForm, ModelMap m,
 			HttpServletResponse response) {
 
@@ -1073,6 +1100,7 @@ public class JobSubmissionController extends WaspController {
 			sampleDraftDb.setName(sampleDraftForm.getName());
 			sampleDraftDb.setStatus(sampleDraftForm.getStatus());
 			sampleDraftDb.setSubtypeSampleId(sampleDraftForm.getSubtypeSampleId());
+			sampleDraftDb.setSourceSampleId(sampleDraftForm.getSourceSampleId());
 
 			this.sampleDraftService.merge(sampleDraftDb);
 		}

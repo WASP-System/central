@@ -3,6 +3,7 @@ package edu.yu.einstein.wasp.controller;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -24,7 +25,6 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import edu.yu.einstein.wasp.service.DepartmentService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.WebDataBinder;
@@ -33,6 +33,7 @@ import org.springframework.web.bind.annotation.InitBinder;
 import edu.yu.einstein.wasp.model.MetaAttribute.Country;
 import edu.yu.einstein.wasp.model.MetaAttribute.State;
 import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.service.DepartmentService;
 import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.taglib.MessageTag;
 
@@ -153,11 +154,23 @@ public class WaspController {
 	  
 	  	String json=mapper.writeValueAsString(jqgridMap);
 		 
-		 response.setContentType("application/json;charset=UTF-8");
+		response.setContentType("application/json;charset=UTF-8");
 		
-		 response.getWriter().print(json);
+		response.getWriter().print(json);
 		 
-		 return null;		
+		return null;		
   }
+  protected String outputJSON(List list, HttpServletResponse response) throws JsonMappingException, IOException {
+	  
+	  	ObjectMapper mapper = new ObjectMapper();
+	  
+	  	String json=mapper.writeValueAsString(list);
+		 
+		response.setContentType("application/json;charset=UTF-8");
+		
+		response.getWriter().print(json);
+		 
+		return null;		
+}
 
 }

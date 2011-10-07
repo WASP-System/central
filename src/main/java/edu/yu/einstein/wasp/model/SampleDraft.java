@@ -130,8 +130,17 @@ processed
 	public int getSubtypeSampleId () {
 		return this.subtypeSampleId;
 	}
+	
+	@Column(name="sourcesampleid")
+	protected Integer sourceSampleId;
 
+	public Integer getSourceSampleId() {
+		return sourceSampleId;
+	}
 
+	public void setSourceSampleId(Integer sourceSampleId) {
+		this.sourceSampleId = sourceSampleId;
+	}
 
 
 	/** 
