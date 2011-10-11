@@ -4,7 +4,7 @@
     <c:if test="${not empty param.error}">
       <font color="red">
         <fmt:message key="auth.login_failed.error" /><br/><br/>
-        <fmt:message key="auth.login_reason.label" />: <c:out value="${SPRING_SECURITY_LAST_EXCEPTION.message}"/>.
+        <fmt:message key="auth.login_reason.label" />: <%=((Throwable)request.getSession().getAttribute("SPRING_SECURITY_LAST_EXCEPTION")).getMessage()%>.
       </font>
     </c:if>
  
