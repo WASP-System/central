@@ -1,20 +1,17 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
-  <font color="blue"><wasp:message /></font>  
+  <p><font color="blue"><wasp:message /></font></p>
   <form:form commandName="labPending">
    <table>
      	  <tr><td colspan=2 align=left></br><b>Pending Lab Details:</b></td></tr>
            <tr>
               <td><fmt:message key="labPending.name.label" />:</td>
-              <td>${labpending.name}</td>              
+              <td>${labPending.name}</td>              
           </tr>
           <tr>
               <td><fmt:message key="labPending.primaryUserId.label"/>:</td>
               <td>
-              	<c:forEach var="puser" items="${pusers}">
-                	<c:if test="${puser.userId == labPending.primaryUserId}"><c:out value="${puser.lastName}, ${puser.firstName}"/></c:if>
-               	</c:forEach>     
-              
-              </td>              
+              <c:out value="${puserFullName}"/>
+              </td>             
           </tr>
           <tr>
               <td><fmt:message key="labPending.departmentId.label"/>:</td>

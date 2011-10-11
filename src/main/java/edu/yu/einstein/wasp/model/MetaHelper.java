@@ -225,18 +225,18 @@ public class MetaHelper {
 		for (Integer i: positions) {
 			try {
 				T obj = (T) clazz.newInstance();
+				String name = uniquePositions.get(i);
+				String qualifiedName = area + "." + name;
 
-				String name = area + "." + uniquePositions.get(i); 
-
-				obj.setK(name);
+				obj.setK(qualifiedName);
 
 				MetaAttribute p=new MetaAttribute();
 				obj.setProperty(p);
 
 				p.setMetaposition(i);
-				p.setLabel(bundleResource.get(name + ".label"));
-				p.setConstraint(bundleResource.get(name + ".constraint"));
-				p.setError(bundleResource.get(name + ".error"));
+				p.setLabel(bundleResource.get(qualifiedName + ".label"));
+				p.setConstraint(bundleResource.get(qualifiedName + ".constraint"));
+				p.setError(bundleResource.get(qualifiedName + ".error"));
 				if (visibility != null && visibility.containsKey(name)){
 					p.setFormVisibility(visibility.get(name));
 					if (visibility.get(name).equals(MetaAttribute.FormVisibility.ignore)){
@@ -246,7 +246,7 @@ public class MetaHelper {
 					p.setFormVisibility(MetaAttribute.FormVisibility.editable); // set default form visibility
 				}
 
-				p.setControl(MetaUtil.getControl(name + ".control", locale));
+				p.setControl(MetaUtil.getControl(qualifiedName + ".control", locale));
 
 				list.add(obj);
 			} catch (Exception e) {
@@ -544,7 +544,7 @@ public class MetaHelper {
 	 * @author andymac
 	 *
 	 */
-	public class WaspMetadataException extends Exception{
+	public static class WaspMetadataException extends Exception{
 
 		public WaspMetadataException(String message){
 			super(message);

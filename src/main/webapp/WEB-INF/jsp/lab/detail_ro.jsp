@@ -10,10 +10,7 @@
           <tr>
               <td><fmt:message key="lab.primaryUserId.label"/>:</td>
               <td>
-              	<c:forEach var="puser" items="${pusers}">
-                	<c:if test="${puser.userId == lab.primaryUserId}"><c:out value="${puser.lastName}, ${puser.firstName}"/></c:if>
-               	</c:forEach>     
-              
+              <c:out value="${puserFullName}"/>
               </td>              
           </tr>
           <tr>
@@ -30,7 +27,12 @@
 		  <c:set var="_metaList" value = "${lab.labMeta}" scope="request" />		
           <c:import url="/WEB-INF/jsp/meta_ro.jsp"/>
           <sec:authorize access="hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('lu-#')">
-          	 <tr><td><a href="/wasp/lab/detail_rw/${lab.departmentId}/${lab.labId}.do">Edit</a></td></tr>
+          <tr>
+          	 <td colspan = "3">
+          	 		<a href="<c:url value="/lab/detail_rw/${lab.departmentId}/${lab.labId}.do" />">Edit</a>
+          	 </td>
+          </tr>
+
           </sec:authorize>            	      
    </table> 
     <c:forEach items="${labuser}" var="ul">

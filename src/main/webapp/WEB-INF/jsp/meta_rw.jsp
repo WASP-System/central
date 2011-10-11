@@ -27,17 +27,22 @@
 				 		<c:set var="itemLabel" scope="request">label</c:set>  	
 				 	</c:otherwise>
 				</c:choose>
+				
 			    <select name="${_area}Meta_${_meta.k}">
-				                <option value=''>-- select --</option>
-			                	<c:forEach var="option" items="${selectItems}">
-			                	<option value="${option[itemValue]}"<c:if test="${option[itemValue] == _meta.v}"> selected</c:if>
-			                	<c:if test= "${_meta.property.formVisibility == 'immutable'}"> disabled="disabled"</c:if>><c:out value="${option[itemLabel]}"/></option>
-			                	</c:forEach>               	                                	
+                	<c:if test= "${_meta.property.formVisibility != 'immutable'}">
+		            	<option value=''>-- select --</option>
+		        	</c:if>
+                	<c:forEach var="option" items="${selectItems}">
+                		<c:if test="${option[itemValue] == _meta.v || _meta.property.formVisibility != 'immutable'}">
+                			<option value="${option[itemValue]}"<c:if test="${option[itemValue] == _meta.v}"> selected</c:if>>
+                			<c:out value="${option[itemLabel]}"/></option>
+                		</c:if>
+                	</c:forEach>              	                                	
 			    </select>
 			             	    	    
 			  </c:when>
 			  <c:otherwise>
-			  		<input name="${_area}Meta_${_meta.k}" value="${_meta.v}" <c:if test= "${_meta.property.formVisibility == 'immutable'}"> disabled="disabled"</c:if>/>
+			  		<input name="${_area}Meta_${_meta.k}" value="${_meta.v}" <c:if test= "${_meta.property.formVisibility == 'immutable'}"> readonly="readonly"</c:if>/>
 			  </c:otherwise>
 		  </c:choose>
 		  </td>  	

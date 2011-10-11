@@ -2,7 +2,7 @@
    
    <h1><fmt:message key="piPending.page_title.label" /></h1>
     <font color="red"><wasp:message /></font> 
-    <form:form commandName="userPending">
+    <form:form commandName="userPending" action="/wasp/auth/newpi/form.do">
       <table>
         <tr>
           <td><fmt:message key="piPending.firstName.label" />:</td>

@@ -467,6 +467,7 @@ public class LabController extends WaspController {
 		m.addAttribute("lab", lab);
 
 		prepareSelectListData(m);
+		m.addAttribute("puserFullName", getPiFullNameFromLabId(labId));
 		
 		return isRW?"lab/detail_rw":"lab/detail_ro";
 	}
@@ -498,6 +499,29 @@ public class LabController extends WaspController {
 		}		
 	}
 	
+	private String getPiFullNameFromLabPendingId(int labPendingId){
+		LabPending labPending = this.labPendingService.getById(labPendingId);
+		String puserFullName = "";
+		if (labPending.getUserpendingId() != null ) {
+			// this PI is currently a pending user. Make them a full user before creating lab
+			UserPending userPending = userPendingService.getUserPendingByUserPendingId(labPending.getUserpendingId());
+			puserFullName = userPending.getFirstName() + " " + userPending.getLastName();
+		} else {
+			// the referenced PI of this lab exists in the user table already so get their record
+			User user = userService.getUserByUserId(labPending.getPrimaryUserId());
+			puserFullName = user.getFirstName() + " " + user.getLastName();
+		}
+		return  puserFullName;
+	}
+	
+	private String getPiFullNameFromLabId(int labId){
+		Lab lab = this.labService.getById(labId);
+		String puserFullName = "";
+		User user = userService.getUserByUserId(lab.getPrimaryUserId());
+		puserFullName = user.getFirstName() + " " + user.getLastName();
+		return  puserFullName;
+	}
+	
 	private String pendingDetail(Integer labPendingId, ModelMap m, boolean isRW) {
 
 		LabPending labPending = this.labPendingService.getById(labPendingId);
@@ -509,7 +533,7 @@ public class LabController extends WaspController {
 
 		//List<Job> jobList = labPending.getJob();
 		//jobList.size();
-		
+		m.addAttribute("puserFullName", getPiFullNameFromLabPendingId(labPendingId));
 		m.addAttribute("labPending", labPending);
 
 		prepareSelectListData(m);
@@ -585,6 +609,7 @@ public class LabController extends WaspController {
 		
 		if (result.hasErrors()) {
 			prepareSelectListData(m);
+			m.addAttribute("puserFullName", getPiFullNameFromLabId(labId));
 			waspMessage("lab.updated.error");
 			return "lab/detail_rw";
 		}
@@ -605,7 +630,7 @@ public class LabController extends WaspController {
 		waspMessage("lab.updated_success.label");
 		
 		//return "redirect:" + labId + ".do";
-		return "redirect:/lab/detail_ro/" + deptId + "/" + labId + ".do";
+		return "redirect:/lab/detail_ro/" + Integer.toString(labDb.getDepartmentId()) + "/" + labId + ".do";
 	}
 
 	@RequestMapping(value = "/pending/detail_rw/{deptId}/{labPendingId}.do", method = RequestMethod.POST)
@@ -623,11 +648,11 @@ public class LabController extends WaspController {
 		labPendingForm.setLabPendingMeta(labPendingMetaList);
 
 		getLabPendingMetaHelper().validate(labPendingMetaList, result);
-
 		
 		if (result.hasErrors()) {
-			prepareSelectListData(m);
 			waspMessage("labPending.updated.error");
+			prepareSelectListData(m);
+			m.addAttribute("puserFullName", getPiFullNameFromLabPendingId(labPendingId));
 			return "lab/pending/detail_rw";
 		}
 
@@ -647,7 +672,7 @@ public class LabController extends WaspController {
 		waspMessage("labPending.updated_success.label");
 		
 		//return "redirect:" + labId + ".do";
-		return "redirect:/lab/pending/detail_ro/" + deptId + "/" + labPendingId + ".do";
+		return "redirect:/lab/pending/detail_ro/" + Integer.toString(labPendingDb.getDepartmentId()) + "/" + labPendingId + ".do";
 	}
 
 	@RequestMapping(value = "/user/{labId}.do", method = RequestMethod.GET)
@@ -839,14 +864,14 @@ public class LabController extends WaspController {
 			piMetaHelper.syncWithMaster(userService.getUserByLogin(piUserLogin).getUserMeta()); // get PI meta from database and sync with current properties
 			try{
 				userMetaHelper.setMetaValueByName("institution", piMetaHelper.getMetaByName("institution").getV());
-				userMetaHelper.setMetaValueByName("department", piMetaHelper.getMetaByName("department").getV());
+				userMetaHelper.setMetaValueByName("departmentId", piMetaHelper.getMetaByName("departmentId").getV());
 				userMetaHelper.setMetaValueByName("state", piMetaHelper.getMetaByName("state").getV());
 				userMetaHelper.setMetaValueByName("city", piMetaHelper.getMetaByName("city").getV());
 				userMetaHelper.setMetaValueByName("country", piMetaHelper.getMetaByName("country").getV());
 				userMetaHelper.setMetaValueByName("zip", piMetaHelper.getMetaByName("zip").getV());
 			} catch (WaspMetadataException e){
 				// should never get here because of sync
-				throw userMetaHelper.new WaspMetadataException("Metadata user / pi meta name mismatch",e);
+				throw new MetaHelper.WaspMetadataException("Metadata user / pi meta name mismatch",e);
 			}
 		}
 		
@@ -854,6 +879,9 @@ public class LabController extends WaspController {
 			userMeta.setUserId(userId);
 			userMetaService.save(userMeta);
 		}
+		
+		// userDb doesn't have associated metadata so add it
+		userDb.setUserMeta((List<UserMeta>) userMetaHelper.getMetaList());
 		
 		/* Set status of any other applications from user with the same email address to 'CREATED'
 		If the new user is also pending in other labs but not yet confirmed by the PI of
@@ -919,14 +947,14 @@ public class LabController extends WaspController {
 		
 		if (! (action.equals("approve") || action.equals("reject")) ){
 			waspMessage("userPending.action.error");
-			return "redirect:/lab/user/" + labId + ".do";
+			return "redirect:/dashboard.do";
 		}
 
 		UserPending userPending = userPendingService.getUserPendingByUserPendingId(userPendingId);
 
 		if (userPending.getLabId() != labId) {
 			waspMessage("userPending.labid_mismatch.error");
-			return "redirect:/lab/user/" + labId + ".do";
+			return "redirect:/dashboard.do";
 		}
 		User user;
 				 
@@ -1114,20 +1142,6 @@ public class LabController extends WaspController {
 	protected void prepareSelectListData(ModelMap m) {
 		
 		super.prepareSelectListData(m);
-		
-		List<User> users=userService.findAll();
-		List<User> usersLight=new ArrayList<User>();
-		for(User user: users) {
-			User u = new User();
-			u.setUserId(user.getUserId());
-			//u.setFirstName(user.getFirstName()+" "+user.getLastName());
-			u.setFirstName(user.getFirstName());
-			u.setLastName(user.getLastName());
-			
-			usersLight.add(u);
-		}
-		
-		m.addAttribute("pusers", usersLight);
 		m.addAttribute("departments", deptService.findAll());
 	}
 

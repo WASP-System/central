@@ -3,6 +3,7 @@ package edu.yu.einstein.wasp.controller;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,13 +23,16 @@ import org.springframework.web.bind.support.SessionStatus;
 import edu.yu.einstein.wasp.controller.validator.PasswordValidator;
 import edu.yu.einstein.wasp.controller.validator.UserPendingMetaValidatorImpl;
 import edu.yu.einstein.wasp.model.ConfirmEmailAuth;
+import edu.yu.einstein.wasp.model.Department;
 import edu.yu.einstein.wasp.model.Lab;
+import edu.yu.einstein.wasp.model.LabMeta;
 import edu.yu.einstein.wasp.model.LabPending;
+import edu.yu.einstein.wasp.model.LabPendingMeta;
 import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.MetaHelper;
+import edu.yu.einstein.wasp.model.UserMeta;
 import edu.yu.einstein.wasp.model.MetaHelper.WaspMetadataException;
 import edu.yu.einstein.wasp.model.User;
-import edu.yu.einstein.wasp.model.UserMeta;
 import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.model.UserPendingMeta;
 import edu.yu.einstein.wasp.service.AuthCodeService;
@@ -66,11 +70,12 @@ public class UserPendingController extends WaspController {
 
 	@Autowired
 	private LabPendingService labPendingService;
-
+	
 	@Autowired
 	private LabPendingMetaService labPendingMetaService;
 
-	
+	@Autowired
+	private DepartmentService departmentService;
 
 	@Autowired
 	private EmailService emailService;
@@ -193,29 +198,105 @@ public class UserPendingController extends WaspController {
 		status.setComplete();
 		return "redirect:/auth/newuser/created.do";
 	}
-
+	
 	/**
-	 * Create model for a new user principal investigator form view based on the current piPending metadata in the uifield properties table.
-	 * This function is able to prepare a {@link UserPending} object linked to {@link UserPendingMetadata} using piPending properties 
-	 * instead of userPending because the parent area is set to 'userPending' and the area is set to 'piPending'.
-	 * 
-	 * @param m model
+	 * Display form to applying PI to obtain institute to be joined from GET
+	 * @param m
 	 * @return view
 	 */
-	@RequestMapping(value="/newpi", method=RequestMethod.GET)
-	public String showNewPendingPiForm(ModelMap m) {
+	@RequestMapping(value="/newpi/institute", method=RequestMethod.GET)
+	public String selectPiInstitute(ModelMap m) {
+		String internalInstituteList = this.getMessage("piPending.internal_institute_list.data");
+		List<String> instituteList = new ArrayList();
+		Collections.addAll(instituteList,internalInstituteList.split(";")); 
+		m.addAttribute("instituteList", instituteList);
+		return "auth/newpi/institute";
+	}
+	
+	/**
+	 * Display form to applying PI to obtain institute to be joined from POST
+	 * @param instituteSelect
+	 * @param instituteOther
+	 * @param m
+	 * @return view
+	 * @throws WaspMetadataException
+	 */
+	@RequestMapping(value="/newpi/institute", method=RequestMethod.POST)
+	public String selectPiInstitute(
+			@RequestParam(value="instituteSelect") String instituteSelect,
+			@RequestParam(value="instituteOther", required = false) String instituteOther,
+			ModelMap m) throws WaspMetadataException {
+		String internalInstituteList = this.getMessage("piPending.internal_institute_list.data");
+		List<String> instituteList = new ArrayList();
+		Collections.addAll(instituteList,internalInstituteList.split(";")); 
+		m.addAttribute("instituteList", instituteList);
+		if ( (instituteSelect == null || instituteSelect.equals("other")) && (instituteOther == null || instituteOther.isEmpty()) ){
+			waspMessage("piPending.institute_not_selected.error");
+			return "auth/newpi/institute";
+		}
+		if ( instituteSelect != null && !instituteSelect.equals("other") && instituteOther != null && !instituteOther.isEmpty() ){
+			waspMessage("piPending.institute_multi_select.error");
+			return "auth/newpi/institute";
+		}
+		
 		MetaHelper metaHelper=getMetaHelper();
 		metaHelper.setArea("piPending");
+		String instituteName = "";
+		Map visibilityElementMap = new HashMap();
+		visibilityElementMap.put("institution", MetaAttribute.FormVisibility.immutable);
+		if (instituteSelect != null && !instituteSelect.equals("other")){
+			// internal institute
+			instituteName = instituteSelect;
+			metaHelper.getMasterList(visibilityElementMap, UserPendingMeta.class);
+		} else {
+			// external institute
+			instituteName = instituteOther;
+			visibilityElementMap.put("departmentId", MetaAttribute.FormVisibility.immutable);
+			metaHelper.getMasterList(visibilityElementMap, UserPendingMeta.class);
+			Map departmentQueryMap = new HashMap();
+			departmentQueryMap.put("isInternal", 0);
+			List<Department> extDepartments = (List<Department>) departmentService.findByMap(departmentQueryMap);
+			if (extDepartments.isEmpty() || extDepartments.size() >1 ){
+				throw new MetaHelper.WaspMetadataException("Either 0 or >1 external departments defined in the database. Should only be 1");
+			}
+			metaHelper.setMetaValueByName("departmentId", Integer.toString(extDepartments.get(0).getDepartmentId()));
+		}
+		metaHelper.setMetaValueByName("institution", instituteName);
 		
 		UserPending userPending = new UserPending();
-		userPending.setUserPendingMeta(metaHelper.getMasterList(UserPendingMeta.class));
-
+		userPending.setUserPendingMeta((List<UserPendingMeta>) metaHelper.getMetaList());
 		m.addAttribute(metaHelper.getParentArea(), userPending);
+		
+		// save visibility map to session in order to use it later
+		request.getSession().setAttribute("visibilityElementMap", visibilityElementMap);
 		prepareSelectListData(m);
 
 		return "auth/newpi/form";
 
 	}
+
+//	/**
+//	 * Create model for a new user principal investigator form view based on the current piPending metadata in the uifield properties table.
+//	 * This function is able to prepare a {@link UserPending} object linked to {@link UserPendingMetadata} using piPending properties 
+//	 * instead of userPending because the parent area is set to 'userPending' and the area is set to 'piPending'.
+//	 * 
+//	 * @param m model
+//	 * @return view
+//	 */
+//	@RequestMapping(value="/newpi/form", method=RequestMethod.GET)
+//	public String showNewPendingPiForm(ModelMap m) {
+//		MetaHelper metaHelper=getMetaHelper();
+//		metaHelper.setArea("piPending");
+//		
+//		UserPending userPending = new UserPending();
+//		userPending.setUserPendingMeta(metaHelper.getMasterList(UserPendingMeta.class));
+//
+//		m.addAttribute(metaHelper.getParentArea(), userPending);
+//		prepareSelectListData(m);
+//
+//		return "auth/newpi/form";
+//
+//	}
 
 	/**
 	 * Validate posted form with bound {@link UserPending} data
@@ -225,7 +306,7 @@ public class UserPendingController extends WaspController {
 	 * @param m model
 	 * @return view
 	 */
-	@RequestMapping(value="/newpi", method=RequestMethod.POST)
+	@RequestMapping(value="/newpi/form", method=RequestMethod.POST)
 	public String createNewPendingPi (
 			 @Valid UserPending userPendingForm, 
 			 BindingResult result,
@@ -235,10 +316,21 @@ public class UserPendingController extends WaspController {
 		MetaHelper metaHelper=getMetaHelper();
 		
 		metaHelper.setArea("piPending"); 
-		metaHelper.getFromRequest(request, UserPendingMeta.class);
+		// get the visibilityElement Map previously saved in session
+		Map visibilityElementMap = (Map<String, MetaAttribute.FormVisibility>) request.getSession().getAttribute("visibilityElementMap");
+		metaHelper.getFromRequest(request, visibilityElementMap, UserPendingMeta.class);
 		metaHelper.validate(result);
 		passwordValidator.validate(result, userPendingForm.getPassword(), (String) request.getParameter("password2"), metaHelper.getParentArea(), "password");
-
+		
+		if (! result.hasFieldErrors("email")){
+			User user = userService.getUserByEmail(userPendingForm.getEmail());
+			if (user.getUserId() != 0 ){
+				Errors errors=new BindException(result.getTarget(), metaHelper.getParentArea());
+				errors.rejectValue("email", metaHelper.getParentArea()+".email_exists.error", metaHelper.getParentArea()+".email_exists.error (no message has been defined for this property)");
+				result.addAllErrors(errors);
+			}
+		}
+		
 		// validate captcha
 		Captcha captcha = (Captcha) request.getSession().getAttribute(Captcha.NAME);
 		String captchaText = (String) request.getParameter("captcha");
@@ -271,6 +363,7 @@ public class UserPendingController extends WaspController {
 		confirmEmailAuthService.merge(confirmEmailAuth);
 		emailService.sendPendingPIEmailConfirm(userPendingForm, authcode);
 		request.getSession().removeAttribute(Captcha.NAME); // ensures fresh capcha issued if required in this session
+		request.getSession().removeAttribute("visibilityElementMap"); // remove visibilityElementMap from the session
 		status.setComplete();
 		return "redirect:/auth/newpi/created.do";
 	}
@@ -347,11 +440,51 @@ public class UserPendingController extends WaspController {
 		LabPending labPending = new LabPending();
 		labPending.setStatus("PENDING");
 		labPending.setUserpendingId(userPending.getUserPendingId());
-		int departmentId = Integer.parseInt(userPendingMetaHelper.getMetaByName("department").getV());
+		int departmentId = Integer.parseInt(userPendingMetaHelper.getMetaByName("departmentId").getV());
 		labPending.setDepartmentId(departmentId);
 		String labName = userPendingMetaHelper.getMetaByName("labName").getV();
 		labPending.setName(labName);
 		LabPending labPendingDb = labPendingService.save(labPending);
+		// copies address meta data from PI userMeta to labMeta as billing address info. 
+		MetaHelper labPendingMetaHelper = new MetaHelper("labPending", LabPendingMeta.class, request.getSession());
+		List<LabPendingMeta> labPendingMetaList = labPendingMetaHelper.getMasterList(LabPendingMeta.class);
+				
+		// fill up labpending metadata using information from userpending metadata
+		for (LabPendingMeta lpm: labPendingMetaList) {
+			
+			// get name from prefix by removing area 
+			if (lpm.getK().contains("labPending.billing_")){
+				String sourceName = lpm.getK().replaceAll("labPending\\.billing_", "");
+				String targetName = "billing_" + sourceName;
+				try{
+					if (targetName.equals("billing_contact")){
+						String contactName = userPending.getFirstName() + " " + userPending.getLastName();
+						labPendingMetaHelper.setMetaValueByName(targetName, contactName);
+					} else{
+						labPendingMetaHelper.setMetaValueByName(targetName, userPendingMetaHelper.getMetaByName(sourceName).getV());
+						// see if we need to use this metadata to populate other fields
+						if (sourceName.equals("phone") || sourceName.equals("building_room")){
+							targetName = sourceName;
+							labPendingMetaHelper.setMetaValueByName(targetName, userPendingMetaHelper.getMetaByName(sourceName).getV());
+						} else if (sourceName.equals("departmentId")){
+							String internalExternal = (
+									departmentService.findById( Integer.valueOf( userPendingMetaHelper.getMetaByName(sourceName).getV() ) )
+											.getIsInternal() == 1) ? "internal" : "external";
+							targetName = "internal_external_lab";
+							labPendingMetaHelper.setMetaValueByName(targetName, internalExternal);
+						}
+					}
+				} catch (WaspMetadataException e){
+					// no match for 'name' in labMeta
+					logger.debug("No match for labPendingMeta property with name '" + targetName + "' in userMeta properties with name '" + sourceName + "'");
+				}
+			}
+		}
+		for (LabPendingMeta lpm : (List<LabPendingMeta>) labPendingMetaHelper.getMetaList()){
+			lpm.setLabpendingId(labPendingDb.getLabPendingId());
+			labPendingMetaService.save(lpm);
+		}
+
 		return labPendingDb;
 	}
 

@@ -21,6 +21,6 @@
 <div>
 <a href="/wasp/auth/forgotpassword.do"><fmt:message key="auth.login_anchor_forgotpass.label" /></a> |
 <a href="/wasp/auth/newuser.do"><fmt:message key="auth.login_anchor_newuser.label" /></a> |
-<a href="/wasp/auth/newpi.do"><fmt:message key="auth.login_anchor_newpi.label" /></a> |
+<a href="/wasp/auth/newpi/institute.do"><fmt:message key="auth.login_anchor_newpi.label" /></a> |
 <a href="/wasp/static/about.do"><fmt:message key="auth.login_anchor_about.label" /></a>
 </div>
