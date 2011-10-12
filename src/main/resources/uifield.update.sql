@@ -718,7 +718,8 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','cloned','label','Locked','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','jobId','label','Existing Job','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','sourceSampleId','label','Existing Sample','1');
-
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','lab','adduser','label','Add New LabUser','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','lab','detail','label','Lab Details','1');
 truncate table workflowmeta;
 insert into workflowmeta
 (workflowid, k, v)

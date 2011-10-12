@@ -694,6 +694,23 @@ public class LabController extends WaspController {
 		return "lab/user";
 	}
 
+	@RequestMapping(value = "/pendinguser/list/{labId}.do", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('god') or hasRole('lu-' + #labId)")
+	public String pendingUserList(@PathVariable("labId") Integer labId, ModelMap m) {
+		Lab lab = this.labService.getById(labId);
+
+		Map userPendingQueryMap = new HashMap();
+		userPendingQueryMap.put("labId", labId);
+		userPendingQueryMap.put("status", "PENDING");
+
+		List<UserPending> userPending = userPendingService.findByMap(userPendingQueryMap);
+
+		m.addAttribute("lab", lab);
+		m.addAttribute("labuserpending", userPending);
+
+		return "lab/pendinguser/list";
+	}
+
 	@RequestMapping(value = "/user/role/{labId}/{userId}/{roleName}.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('god') or hasRole('lm-' + #labId)")
 	public String userDetail ( @PathVariable("labId") Integer labId, @PathVariable("userId") Integer userId, @PathVariable("roleName") String roleName, ModelMap m) {
@@ -1135,9 +1152,6 @@ public class LabController extends WaspController {
 		// TODO RESET TO DASHBOARD!
 		// return "redirect:/dashboard.do";
 	}
-
-
-
 
 	protected void prepareSelectListData(ModelMap m) {
 		
