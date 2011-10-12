@@ -189,6 +189,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','lab','billing_departmentId','label','Billing Department','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','lab','billing_departmentId','constraint','NotEmpty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','lab','billing_departmentId','metaposition','60','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','lab','billing_departmentId','control','select:${department}:departmentId:name','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','lab','billing_building_room','label','Room','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','lab','billing_building_room','metaposition','70','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','lab','billing_address','label','Billing Address','1');
@@ -259,6 +260,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','billing_departmentId','label','Billing Department','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','billing_departmentId','constraint','NotEmpty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','billing_departmentId','metaposition','60','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','billing_departmentId','control','select:${department}:departmentId:name','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','billing_building_room','label','Room','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','billing_building_room','metaposition','70','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','billing_address','label','Billing Address','1');

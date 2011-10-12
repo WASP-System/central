@@ -1,5 +1,5 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
-  <p><font color="red"><wasp:message /></font>  </p>
+  <p><font color="blue"><wasp:message /></font></p>  
   <form:form commandName="lab">
    <table>
      	  <tr><td colspan=2 align=left></br><b>Lab Details:</b></td></tr>
@@ -11,9 +11,14 @@
           <tr>
               <td><fmt:message key="lab.primaryUserId.label"/>:</td>
               <td>
-              <c:out value="${puserFullName}"/>
+              <select name=primaryUserId>
+                <option value='-1'>-- select --</option>
+              	<c:forEach var="puser" items="${pusers}">
+                	<option value="${puser.userId}" <c:if test="${puser.userId == lab.primaryUserId}"> selected</c:if>><c:out value="${puser.lastName}, ${puser.firstName}"/></option>
+               	</c:forEach>     
+              </select>
               </td>
-              <td>&nbsp;</td>
+              <td><form:errors path="primaryUserId" /></td>
           </tr>
           <tr>
               <td><fmt:message key="lab.departmentId.label"/>:</td>

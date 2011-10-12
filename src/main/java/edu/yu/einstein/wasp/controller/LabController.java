@@ -467,9 +467,17 @@ public class LabController extends WaspController {
 		m.addAttribute("lab", lab);
 
 		prepareSelectListData(m);
-		m.addAttribute("puserFullName", getPiFullNameFromLabId(labId));
-		
-		return isRW?"lab/detail_rw":"lab/detail_ro";
+		if (isRW){
+			Map userQueryMap = new HashMap();
+			userQueryMap.put("isActive", 1);
+			m.addAttribute("pusers", userService.findByMap(userQueryMap));
+			return "lab/detail_rw";
+			
+		}
+		else{
+			m.addAttribute("puserFullName", getPiFullNameFromLabId(labId));
+			return "lab/detail_ro";
+		}
 	}
 	
 	@RequestMapping(value = "/pending/detail_rw/{deptId}/{labPendingId}.do", method = RequestMethod.GET)
@@ -570,6 +578,9 @@ public class LabController extends WaspController {
 
 		if (result.hasErrors()) {
 			prepareSelectListData(m);
+			Map userQueryMap = new HashMap();
+			userQueryMap.put("isActive", 1);
+			m.addAttribute("pusers", userService.findByMap(userQueryMap));
 			waspMessage("lab.created.error");
 			return "lab/detail_rw";
 		}
@@ -609,7 +620,9 @@ public class LabController extends WaspController {
 		
 		if (result.hasErrors()) {
 			prepareSelectListData(m);
-			m.addAttribute("puserFullName", getPiFullNameFromLabId(labId));
+			Map userQueryMap = new HashMap();
+			userQueryMap.put("isActive", 1);
+			m.addAttribute("pusers", userService.findByMap(userQueryMap));
 			waspMessage("lab.updated.error");
 			return "lab/detail_rw";
 		}
