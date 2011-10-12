@@ -213,9 +213,9 @@ create table lab (
 
   foreign key fk_lab_did (departmentid) references department(departmentid),
   foreign key fk_lab_puid (primaryuserid) references user(userid),
-
-  constraint unique index u_lab_name (name),
-  constraint unique index u_lab_puid (primaryuserid)
+--  There is no reason why lab name needs to be unique or why a user cannot have more than one lab
+--  constraint unique index u_lab_name (name),
+--  constraint unique index u_lab_puid (primaryuserid)
 ) ENGINE=InnoDB charset=utf8;
 
 -- insert into lab values 
