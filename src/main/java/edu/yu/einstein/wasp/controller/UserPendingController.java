@@ -25,12 +25,10 @@ import edu.yu.einstein.wasp.controller.validator.UserPendingMetaValidatorImpl;
 import edu.yu.einstein.wasp.model.ConfirmEmailAuth;
 import edu.yu.einstein.wasp.model.Department;
 import edu.yu.einstein.wasp.model.Lab;
-import edu.yu.einstein.wasp.model.LabMeta;
 import edu.yu.einstein.wasp.model.LabPending;
 import edu.yu.einstein.wasp.model.LabPendingMeta;
 import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.MetaHelper;
-import edu.yu.einstein.wasp.model.UserMeta;
 import edu.yu.einstein.wasp.model.MetaHelper.WaspMetadataException;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserPending;
@@ -269,34 +267,12 @@ public class UserPendingController extends WaspController {
 		
 		// save visibility map to session in order to use it later
 		request.getSession().setAttribute("visibilityElementMap", visibilityElementMap);
-		prepareSelectListData(m);
-
+		prepareSelectListData(m, metaHelper);
 		return "auth/newpi/form";
 
 	}
 
-//	/**
-//	 * Create model for a new user principal investigator form view based on the current piPending metadata in the uifield properties table.
-//	 * This function is able to prepare a {@link UserPending} object linked to {@link UserPendingMetadata} using piPending properties 
-//	 * instead of userPending because the parent area is set to 'userPending' and the area is set to 'piPending'.
-//	 * 
-//	 * @param m model
-//	 * @return view
-//	 */
-//	@RequestMapping(value="/newpi/form", method=RequestMethod.GET)
-//	public String showNewPendingPiForm(ModelMap m) {
-//		MetaHelper metaHelper=getMetaHelper();
-//		metaHelper.setArea("piPending");
-//		
-//		UserPending userPending = new UserPending();
-//		userPending.setUserPendingMeta(metaHelper.getMasterList(UserPendingMeta.class));
-//
-//		m.addAttribute(metaHelper.getParentArea(), userPending);
-//		prepareSelectListData(m);
-//
-//		return "auth/newpi/form";
-//
-//	}
+
 
 	/**
 	 * Validate posted form with bound {@link UserPending} data
@@ -340,7 +316,7 @@ public class UserPendingController extends WaspController {
 		
 		if (result.hasErrors() || m.containsKey("captchaError")) {
 			userPendingForm.setUserPendingMeta((List<UserPendingMeta>) metaHelper.getMetaList());
-			prepareSelectListData(m);
+			prepareSelectListData(m, metaHelper);
 			waspMessage("user.created.error");
 
 			return "auth/newpi/form";
@@ -609,4 +585,31 @@ public class UserPendingController extends WaspController {
 		sendPendingUserConfRequestEmail(email);
 		return "redirect:/auth/newpi/emailok.do";
 	}
+	
+	/**
+	 * Uses internal / external status of specified department so that department select list is only populated internal or external department options
+	 * @param m
+	 * @param departmentId
+	 */
+	private void prepareSelectListData(ModelMap m, final MetaHelper metaHelper) {
+		int isInternal = 0;
+		try{
+			String institueName = metaHelper.getMetaByName("institution").getV();
+			if (institueName.isEmpty()) 
+				throw new Exception();
+			if (getMessage("piPending.internal_institute_list.data").contains(institueName))
+				isInternal = 1;
+		} catch (Exception e){
+			// handle WaspMetaDataException or other Exception thrown by simply logging an error and defaulting to the complete department list
+			logger.debug("Unable to extract a valid departmentId from metadata for preparing department list. Defaulting to whole department list");
+			isInternal = -1;
+		}
+		prepareSelectListData(m);
+		if (isInternal != -1){
+			Map departmentQueryMap = new HashMap();
+			departmentQueryMap.put("isInternal",  isInternal );
+			m.addAttribute("department", departmentService.findByMap(departmentQueryMap));
+		}
+	}
+	
 }
