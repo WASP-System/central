@@ -353,6 +353,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','list_create','label','Create Department','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','list_department','label','Department Name','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','list','data','Submit','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','list_invalid','error','Invalid department name','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','list_missingparam','error','Please provide a department name','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','list_department_exists','error','Department already exists','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','list_ok','label','New department has been created','1');
@@ -718,10 +719,15 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','cloned','label','Locked','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','jobId','label','Existing Job','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','sourceSampleId','label','Existing Sample','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','jobViewerUserRoleAdd','error1','JobId or LabId Error','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','jobViewerUserRoleAdd','error2','Login Not Found','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','jobViewerUserRoleAdd','error3','User is submitter, thus already has access to this job','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','jobViewerUserRoleAdd','error4','User already has access to this job','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','lab','adduser','label','Add New LabUser','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','lab','detail','label','Lab Details','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labuser','active','label','Active','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labuser','inactive','label','Inactive','1');
+
 
 truncate table workflowmeta;
 insert into workflowmeta
