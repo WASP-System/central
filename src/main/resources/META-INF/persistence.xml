@@ -21,8 +21,10 @@
 <property name="hibernate.ejb.event.post-collection-recreate" value="org.hibernate.envers.event.AuditEventListener" />
 
 
+      
+      
       <!--
-      <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect"/
+      <property name="hibernate.dialect" value="org.hibernate.dialect.MySQL5Dialect"/>
       <property name="hibernate.max_fetch_depth" value="3"/>
          -->
     
