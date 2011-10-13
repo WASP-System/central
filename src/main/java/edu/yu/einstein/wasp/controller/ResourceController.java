@@ -54,8 +54,8 @@ public class ResourceController {
 
     Resource resource = this.getResourceService().getById(i.intValue());
 
-    List<ResourceMeta> resourceMetaList = resource.getResourceMeta();
-    resourceMetaList.size();
+    //List<ResourceMeta> resourceMetaList = resource.getResourceMeta();
+    //resourceMetaList.size();
 
     List<ResourceLane> resourceLaneList = resource.getResourceLane();
     resourceLaneList.size();
@@ -68,7 +68,7 @@ public class ResourceController {
 
     m.addAttribute("now", now);
     m.addAttribute("resource", resource);
-    m.addAttribute("resourcemeta", resourceMetaList);
+    //m.addAttribute("resourcemeta", resourceMetaList);
     m.addAttribute("resourcelane", resourceLaneList);
     m.addAttribute("run", runList);
     // m.addAttribute("resourceuser", resourceUserList);

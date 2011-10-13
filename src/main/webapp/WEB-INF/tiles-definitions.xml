@@ -105,6 +105,9 @@
     <definition name="resource/list" extends="template-base">
         <put-attribute name="body-content" value="/WEB-INF/jsp/resource/list.jsp" />
     </definition>
+    <definition name="resource/detail" extends="template-base">
+        <put-attribute name="body-content" value="/WEB-INF/jsp/resource/detail.jsp" />
+    </definition>
     <definition name="run/list" extends="template-base">
         <put-attribute name="body-content" value="/WEB-INF/jsp/run/list.jsp" />
     </definition>

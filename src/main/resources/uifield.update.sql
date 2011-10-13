@@ -290,6 +290,10 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','updated','error','Pending Lab was NOT updated. Please fill in required fields.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','created','error','Pending Lab was NOT created. Please fill in required fields.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','updated_success','label','Pending Lab updated sucessfully.','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','action','error','Invalid action. Must be approve or reject only','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','departmentid_mismatch','error','Deparment id mismatch with lab-pending id','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','status_mismatch','error','Status must be pending with lab-pending id','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','labpendingid_notexist','error','Lab-pending id does not exist','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','login_title','data','Login Page','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','auth_login_validate','error','Please provide your user login name AND password.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','login_failed','error','Your login attempt was not successful. Try again.','1');
@@ -656,16 +660,23 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','auth/forgotpassword/form','label','Reset Password Request','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','auth/forgotpassword/email','label','Email Sent','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','dashboard','label','WASP','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','user/detail_rw','label','User Detail','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','user/detail_rw','label','Update User Detail','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','user/detail_ro','label','User Detail','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','lab/pending/detail_ro','label','Pending Lab','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','lab/pending/detail_rw','label','Pending Lab','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','lab/detail_ro','label','Lab Detail','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','lab/detail_rw','label','Update Lab Detail','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','lab/pending/detail_ro','label','Pending Lab Detail','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','lab/pending/detail_rw','label','Update Pending Lab Detail','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','user/mypassword','label','Change Password','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','department/list','label','Department List','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','department/detail','label','Department Detail','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','resource/list','label','Resource List','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','resource/detail','label','Resource Detail','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','jobsubmit/list','label','New Job','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','jobsubmit/create','label','New Job','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','jobsubmit/metaform','label','New Job','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','jobsubmit/sample','label','Submit Samples','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','uifield/list','label','Properties','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','jobsubmit/cell','label','Cells','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','uiField','updated','data','Attribute Updated','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','captcha','error','Captcha text incorrect','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','captcha','label','Captcha text','1');
@@ -699,13 +710,6 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','antibody_id','metaposition','160','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','enrich_primer_pair_id','label','Enrich Primer Pair ID','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','enrich_primer_pair_id','metaposition','170','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','jobsubmit/sample','label','Submit Samples','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','uifield/list','label','Properties','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','jobsubmit/cell','label','Cells','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','action','error','Invalid action. Must be approve or reject only','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','departmentid_mismatch','error','Deparment id mismatch with lab-pending id','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','status_mismatch','error','Status must be pending with lab-pending id','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','labpendingid_notexist','error','Lab-pending id does not exist','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','action','error','Invalid action. Must be approve or reject only','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','labid_mismatch','error','Lab id mismatch with user-pending id','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeq','pageflow','','/jobsubmit/modifymeta/{n};/jobsubmit/aligner/{n};/jobsubmit/samples/{n};/jobsubmit/cells/{n};/jobsubmit/verify/{n};/jobsubmit/submit/{n};/jobsubmit/ok','1');
@@ -729,6 +733,14 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','lab','detail','label','Lab Details','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labuser','active','label','Active','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labuser','inactive','label','Inactive','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','assay_platform','label','Assay Platform','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','assay_platform','metaposition','50','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','machine_type','label','Machine Type','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','machine_type','metaposition','60','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','commission_date','label','Commission Date','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','commission_date','metaposition','70','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','decommission_date','label','Decommission Date','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','decommission_date','metaposition','80','1');
 
 
 truncate table workflowmeta;
