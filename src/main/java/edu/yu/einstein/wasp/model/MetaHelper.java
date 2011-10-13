@@ -545,7 +545,11 @@ public class MetaHelper {
 	 *
 	 */
 	public static class WaspMetadataException extends Exception{
-
+		
+		public WaspMetadataException(){
+			super();
+		}
+			
 		public WaspMetadataException(String message){
 			super(message);
 		}

@@ -26,7 +26,7 @@
           <c:set var="_area" value = "lab" scope="request"/>	
 		  <c:set var="_metaList" value = "${lab.labMeta}" scope="request" />		
           <c:import url="/WEB-INF/jsp/meta_ro.jsp"/>
-          <sec:authorize access="hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('lu-#')">
+          <sec:authorize access="hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('da-${lab.departmentId}') or hasRole('pi-${lab.labId}')">
           <tr>
           	 <td colspan = "3">
           	 		<a href="<c:url value="/lab/detail_rw/${lab.departmentId}/${lab.labId}.do" />">Edit</a>

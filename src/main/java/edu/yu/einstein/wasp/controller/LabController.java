@@ -97,15 +97,27 @@ public class LabController extends WaspController {
 	@Autowired
 	private EmailService emailService;
 
-
+	/**
+	 * get a @{link MetaHelper} instance for working with LabMeta metadata
+	 * @return
+	 */
 	private final MetaHelper getMetaHelper() {
 		return new MetaHelper("lab", LabMeta.class, request.getSession());
 	}
 	
+	/**
+	 * get a @{link MetaHelper} instance for working with labPending metadata
+	 * @return
+	 */
 	private final MetaHelper getLabPendingMetaHelper() {
 		return new MetaHelper("labPending", LabPendingMeta.class, request.getSession());
 	}
 	
+	/**
+	 * Return list of labs in JGrid
+	 * @param m
+	 * @return
+	 */
 	@RequestMapping("/list")
 	@PreAuthorize("hasRole('god')")
 	public String list(ModelMap m) {
@@ -118,7 +130,11 @@ public class LabController extends WaspController {
 		return "lab/list";
 	}
 
-
+	/**
+	 * Returns list of labs
+	 * @param response
+	 * @return
+	 */
 	@RequestMapping(value="/listJSON", method=RequestMethod.GET)	
 	public String getListJSON(HttpServletResponse response) {
 	
@@ -468,11 +484,7 @@ public class LabController extends WaspController {
 
 		prepareSelectListData(m);
 		if (isRW){
-			Map userQueryMap = new HashMap();
-			userQueryMap.put("isActive", 1);
-			m.addAttribute("pusers", userService.findByMap(userQueryMap));
 			return "lab/detail_rw";
-			
 		}
 		else{
 			m.addAttribute("puserFullName", getPiFullNameFromLabId(labId));
@@ -577,10 +589,6 @@ public class LabController extends WaspController {
 		labForm.setLabMeta(labMetaList);
 
 		if (result.hasErrors()) {
-			prepareSelectListData(m);
-			Map userQueryMap = new HashMap();
-			userQueryMap.put("isActive", 1);
-			m.addAttribute("pusers", userService.findByMap(userQueryMap));
 			waspMessage("lab.created.error");
 			return "lab/detail_rw";
 		}
@@ -620,9 +628,6 @@ public class LabController extends WaspController {
 		
 		if (result.hasErrors()) {
 			prepareSelectListData(m);
-			Map userQueryMap = new HashMap();
-			userQueryMap.put("isActive", 1);
-			m.addAttribute("pusers", userService.findByMap(userQueryMap));
 			waspMessage("lab.updated.error");
 			return "lab/detail_rw";
 		}

@@ -596,12 +596,12 @@ public class UserPendingController extends WaspController {
 		try{
 			String institueName = metaHelper.getMetaByName("institution").getV();
 			if (institueName.isEmpty()) 
-				throw new Exception();
+				throw new MetaHelper.WaspMetadataException();
 			if (getMessage("piPending.internal_institute_list.data").contains(institueName))
 				isInternal = 1;
-		} catch (Exception e){
-			// handle WaspMetaDataException or other Exception thrown by simply logging an error and defaulting to the complete department list
-			logger.debug("Unable to extract a valid departmentId from metadata for preparing department list. Defaulting to whole department list");
+		} catch (MetaHelper.WaspMetadataException e){
+			// handle WaspMetaDataException by simply logging an error and defaulting to the complete department list
+			logger.debug("WARNING: Unable to extract a valid departmentId from metadata for preparing department list. Defaulting to whole department list");
 			isInternal = -1;
 		}
 		prepareSelectListData(m);
