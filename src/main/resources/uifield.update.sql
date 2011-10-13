@@ -671,6 +671,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','department/detail','label','Department Detail','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','resource/list','label','Resource List','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','resource/detail','label','Resource Detail','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','resource/create','label','Create New Resource','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','jobsubmit/list','label','New Job','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','jobsubmit/create','label','New Job','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','jobsubmit/metaform','label','New Job','1');
@@ -733,6 +734,10 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','lab','detail','label','Lab Details','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labuser','active','label','Active','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labuser','inactive','label','Inactive','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','name','label','Name','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','name','metaposition','10','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','type','label','Type','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','type','metaposition','20','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','assay_platform','label','Assay Platform','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','assay_platform','metaposition','50','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','machine_type','label','Machine Type','1');

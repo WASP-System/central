@@ -14,7 +14,9 @@ import org.springframework.transaction.annotation.*;
 import java.util.Date; 
 import java.util.List; 
 
+import edu.yu.einstein.wasp.service.DepartmentService;
 import edu.yu.einstein.wasp.service.ResourceService;
+import edu.yu.einstein.wasp.service.TypeResourceService;
 import edu.yu.einstein.wasp.model.*;
 
 @Controller
@@ -31,6 +33,8 @@ public class ResourceController {
     return this.resourceService;
   }
 
+	@Autowired
+	private TypeResourceService typeResourceService;
 
   @RequestMapping("/list")
   public String list(ModelMap m) {
@@ -66,15 +70,21 @@ public class ResourceController {
     // List<ResourceUser> resourceUserList = resource.getResourceUser();
     // resourceUserList.size();
 
-    m.addAttribute("now", now);
+    //m.addAttribute("now", now);
     m.addAttribute("resource", resource);
     //m.addAttribute("resourcemeta", resourceMetaList);
     m.addAttribute("resourcelane", resourceLaneList);
     m.addAttribute("run", runList);
     // m.addAttribute("resourceuser", resourceUserList);
+    
+    prepareSelectListData(m);
 
     return "resource/detail";
   }
 
+	protected void prepareSelectListData(ModelMap m) {
+		
+		m.addAttribute("typeResources", typeResourceService.findAll());
+	}
 
 }

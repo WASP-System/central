@@ -6,6 +6,15 @@
 
 
 <table>
+     <tr>
+        <td><fmt:message key="resource.type.label" />:</td>
+        <td>
+        	<c:forEach var="type" items="${typeResources}">
+             <c:if test="${type.typeResourceId == resource.typeResourceId}"> <c:out value="${type.name}"/></c:if>
+         	</c:forEach>     
+        </td>
+    </tr>
+
 	<c:set var="_area" value = "resource" scope="request"/>	
 	<c:set var="_metaList" value = "${resource.resourceMeta}" scope="request" />		
 	<c:import url="/WEB-INF/jsp/meta_ro.jsp"/>
