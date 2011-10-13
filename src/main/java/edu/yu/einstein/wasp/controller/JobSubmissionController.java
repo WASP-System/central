@@ -765,42 +765,49 @@ public class JobSubmissionController extends WaspController {
 
 		// Create Samples
 		for (SampleDraft sd: jobDraft.getSampleDraft()) {
-			Sample sample = new Sample();
+			// existing sample...
+			Sample sampleDb;
 
-			sample.setName(sd.getName()); 
-			sample.setTypeSampleId(sd.getTypeSampleId()); 
-			sample.setSubtypeSampleId(sd.getSubtypeSampleId()); 
-			sample.setSubmitterLabId(jobDb.getLabId()); 
-			sample.setSubmitterUserId(me.getUserId()); 
-			sample.setSubmitterJobId(jobDb.getJobId()); 
-			sample.setIsReceived(0);
-			sample.setIsActive(1);
+			if (sd.getSourceSampleId() != null) {
+				sampleDb = sampleService.getSampleBySampleId(sd.getSourceSampleId());
+			} else { 
 
-			Sample sampleDb = sampleService.save(sample); 
-
-			// sample file
-			if (sd.getFileId() != null) {
-				SampleFile sampleFile = new SampleFile();
-				sampleFile.setSampleId(sampleDb.getSampleId());
-				sampleFile.setFileId(sd.getFileId());
-
-				sampleFile.setIsActive(1);
-
-				// TODO ADD NAME AND INAME
-
-				sampleFileService.save(sampleFile);
-			}
-
-			// Sample Draft Meta Data
-			for (SampleDraftMeta sdm: sd.getSampleDraftMeta()) {
-				SampleMeta sampleMeta = new SampleMeta();
-
-				sampleMeta.setSampleId(sampleDb.getSampleId());	
-				sampleMeta.setK(sdm.getK());	
-				sampleMeta.setV(sdm.getV());	
-				sampleMeta.setPosition(sdm.getPosition());	
-
-				SampleMeta sampleMetaDb = sampleMetaService.save(sampleMeta); 
+			  Sample sample = new Sample();
+				sample.setName(sd.getName()); 
+				sample.setTypeSampleId(sd.getTypeSampleId()); 
+				sample.setSubtypeSampleId(sd.getSubtypeSampleId()); 
+				sample.setSubmitterLabId(jobDb.getLabId()); 
+				sample.setSubmitterUserId(me.getUserId()); 
+				sample.setSubmitterJobId(jobDb.getJobId()); 
+				sample.setIsReceived(0);
+				sample.setIsActive(1);
+	
+				sampleDb = sampleService.save(sample); 
+	
+				// sample file
+				if (sd.getFileId() != null) {
+					SampleFile sampleFile = new SampleFile();
+					sampleFile.setSampleId(sampleDb.getSampleId());
+					sampleFile.setFileId(sd.getFileId());
+	
+					sampleFile.setIsActive(1);
+	
+					// TODO ADD NAME AND INAME
+	
+					sampleFileService.save(sampleFile);
+				}
+	
+				// Sample Draft Meta Data
+				for (SampleDraftMeta sdm: sd.getSampleDraftMeta()) {
+					SampleMeta sampleMeta = new SampleMeta();
+	
+					sampleMeta.setSampleId(sampleDb.getSampleId());	
+					sampleMeta.setK(sdm.getK());	
+					sampleMeta.setV(sdm.getV());	
+					sampleMeta.setPosition(sdm.getPosition());	
+	
+					SampleMeta sampleMetaDb = sampleMetaService.save(sampleMeta); 
+				}
 			}
 
 			// Job Sample
