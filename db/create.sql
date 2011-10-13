@@ -783,6 +783,8 @@ create table sampledraft (
   labid int(10) not null,
   userid int(10) not null,
   jobdraftid int(10) null,
+
+  sourcesampleid int(10) null,
   fileid int(10) null,
 
   name varchar(250),
