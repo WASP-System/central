@@ -212,7 +212,7 @@ create table lab (
   lastupduser int(10) not null default 0,
 
   foreign key fk_lab_did (departmentid) references department(departmentid),
-  foreign key fk_lab_puid (primaryuserid) references user(userid),
+  foreign key fk_lab_puid (primaryuserid) references user(userid)
 --  There is no reason why lab name needs to be unique or why a user cannot have more than one lab
 --  constraint unique index u_lab_name (name),
 --  constraint unique index u_lab_puid (primaryuserid)
@@ -336,14 +336,17 @@ create table labpendingmeta (
 -- confirm email
 --
 create table confirmemailauth (
-  userpendingid int(10) not null primary key, 
+  confirmemailauthid  int(10) not null primary key auto_increment,
+  userpendingid int(10),
+  userid int(10),
   authcode varchar(250) not null,
-  lastupdts timestamp not null default current_timestamp, 
-  lastupduser int(10) not null default 0,
-
-  foreign key fk_confirmemailauth_userpending (userpendingid) references userpending(userpendingid),
+  lastupdts timestamp not null default current_timestamp,
+  lastupduser int(10) not null default '0',
+  foreign key fk_labpending_uid (userid) references user(userid),
+  foreign key fk_labpending_peuid (userpendingid) references userpending(userpendingid),
   constraint unique index u_confirmemailauth (authcode)
 ) ENGINE=InnoDB charset=utf8;
+
 
 --
 -- type.RESOURCE

@@ -393,7 +393,6 @@ public class UserController extends WaspController {
 
 		for (UserMeta meta : userMetaList) {
 			meta.setUserId(userId);
-			//logger.debug("ROB: " + meta.getV() + " " + meta.getK() + " " + meta.getPosition());
 		}
 
 		userForm.setUserMeta(userMetaList);

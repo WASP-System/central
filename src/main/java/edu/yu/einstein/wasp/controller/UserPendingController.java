@@ -190,7 +190,7 @@ public class UserPendingController extends WaspController {
 		ConfirmEmailAuth confirmEmailAuth = new ConfirmEmailAuth();
 		confirmEmailAuth.setAuthcode(authcode);
 		confirmEmailAuth.setUserpendingId(userPendingDb.getUserPendingId());
-		confirmEmailAuthService.merge(confirmEmailAuth);
+		confirmEmailAuthService.save(confirmEmailAuth);
 		emailService.sendPendingUserEmailConfirm(userPendingForm, authcode);
 		request.getSession().removeAttribute(Captcha.NAME); // ensures fresh capcha issued if required in this session
 		status.setComplete();
@@ -336,7 +336,7 @@ public class UserPendingController extends WaspController {
 		ConfirmEmailAuth confirmEmailAuth = new ConfirmEmailAuth();
 		confirmEmailAuth.setAuthcode(authcode);
 		confirmEmailAuth.setUserpendingId(userPendingDb.getUserPendingId());
-		confirmEmailAuthService.merge(confirmEmailAuth);
+		confirmEmailAuthService.save(confirmEmailAuth);
 		emailService.sendPendingPIEmailConfirm(userPendingForm, authcode);
 		request.getSession().removeAttribute(Captcha.NAME); // ensures fresh capcha issued if required in this session
 		request.getSession().removeAttribute("visibilityElementMap"); // remove visibilityElementMap from the session

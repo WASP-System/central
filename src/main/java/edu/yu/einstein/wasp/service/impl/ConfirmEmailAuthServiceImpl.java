@@ -1,13 +1,13 @@
 
 /**
- *
- * ConfirmEmailAuthServiceImpl.java 
- * @author echeng (table2type.pl)
- *  
- * the ConfirmEmailAuthService Implmentation 
- *
- *
- **/
+*
+* ConfirmEmailAuthServiceImpl.java 
+* @author echeng (table2type.pl)
+*  
+* the ConfirmEmailAuthService Implmentation 
+*
+*
+**/
 
 package edu.yu.einstein.wasp.service.impl;
 
@@ -27,43 +27,50 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ConfirmEmailAuthServiceImpl extends WaspServiceImpl<ConfirmEmailAuth> implements ConfirmEmailAuthService {
+    
+    /**
+    * confirmEmailAuthDao;
+    *
+    */
+    private ConfirmEmailAuthDao confirmEmailAuthDao;
+    
+    /**
+    * setConfirmEmailAuthDao(ConfirmEmailAuthDao confirmEmailAuthDao)
+    *
+    * @param confirmEmailAuthDao
+    *
+    */
+    @Autowired
+    public void setConfirmEmailAuthDao(ConfirmEmailAuthDao confirmEmailAuthDao) {
+        this.confirmEmailAuthDao = confirmEmailAuthDao;
+        this.setWaspDao(confirmEmailAuthDao);
+    }
+    
+    /**
+    * getConfirmEmailAuthDao();
+    *
+    * @return confirmEmailAuthDao
+    *
+    */
+    public ConfirmEmailAuthDao getConfirmEmailAuthDao() {
+        return this.confirmEmailAuthDao;
+    }
+    
+    public ConfirmEmailAuth getConfirmEmailAuthByConfirmEmailAuthId (final int confirmEmailAuthId) {
+        return this.getConfirmEmailAuthDao().getConfirmEmailAuthByConfirmEmailAuthId(confirmEmailAuthId);
+    }
+    
+    public ConfirmEmailAuth getConfirmEmailAuthByAuthcode (final String authcode) {
+        return this.getConfirmEmailAuthDao().getConfirmEmailAuthByAuthcode(authcode);
+    }
 
-	/**
-	 * confirmEmailAuthDao;
-	 *
-	 */
-	private ConfirmEmailAuthDao confirmEmailAuthDao;
-
-	/**
-	 * setConfirmEmailAuthDao(ConfirmEmailAuthDao confirmEmailAuthDao)
-	 *
-	 * @param confirmEmailAuthDao
-	 *
-	 */
-	@Autowired
-	public void setConfirmEmailAuthDao(ConfirmEmailAuthDao confirmEmailAuthDao) {
-		this.confirmEmailAuthDao = confirmEmailAuthDao;
-		this.setWaspDao(confirmEmailAuthDao);
+	public ConfirmEmailAuth getConfirmEmailAuthByUserpendingId(int userpendingId) {
+		return this.getConfirmEmailAuthDao().getConfirmEmailAuthByUserpendingId(userpendingId);
 	}
 
-	/**
-	 * getConfirmEmailAuthDao();
-	 *
-	 * @return confirmEmailAuthDao
-	 *
-	 */
-	public ConfirmEmailAuthDao getConfirmEmailAuthDao() {
-		return this.confirmEmailAuthDao;
+	public ConfirmEmailAuth getConfirmEmailAuthByUserId(int userId) {
+		return this.getConfirmEmailAuthDao().getConfirmEmailAuthByUserId(userId);
 	}
-
-
-  public ConfirmEmailAuth getConfirmEmailAuthByUserpendingId (final int userpendingId) {
-    return this.getConfirmEmailAuthDao().getConfirmEmailAuthByUserpendingId(userpendingId);
-  }
-
-  public ConfirmEmailAuth getConfirmEmailAuthByAuthcode (final String authcode) {
-    return this.getConfirmEmailAuthDao().getConfirmEmailAuthByAuthcode(authcode);
-  }
-
+        
 }
 

@@ -2,13 +2,8 @@
     
     <h1><fmt:message key="userDetail.page_title.label" /></h1>
 
-    <font color="blue"><wasp:message /></font>  
+    <font color="red"><wasp:message /></font>  
     
-    <!-- 
-    <c:forEach var="robert" items="${dubin}">
-    	<c:out value="${robert}" /><br />
-    </c:forEach >  
-    -->
     
     <form:form commandName="user">
     
