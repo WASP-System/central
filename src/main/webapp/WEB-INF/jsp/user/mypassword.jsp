@@ -1,6 +1,6 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
-    <h1><fmt:message key="user.mypassword_title.label" /></h1>
+    <h1><fmt:message key="pageTitle.user/mypassword.label" /></h1>
     <h4><fmt:message key="user.mypassword_instructions.label" /></h4>
 
      <font color="red"><wasp:message /></font>

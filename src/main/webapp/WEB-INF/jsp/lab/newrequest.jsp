@@ -1,7 +1,7 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
 
-<h1><fmt:message key="labuser.request_title.label" /></h1>
+<h1><fmt:message key="pageTitle.lab/newrequest.label" /></h1>
 
 <font color="blue"><wasp:message /></font>
 
@@ -26,7 +26,7 @@
               <td><fmt:message key="lab.departmentId.label"/>:</td>
               <td>
               <select name=departmentId>
-                <option value='-1'>-- select --</option>
+                <option value='-1'><fmt:message key="wasp.default_select.label"/></option>
                 <c:forEach var="dept" items="${departments}">
                         <option value="${dept.departmentId}" <c:if test="${dept.departmentId == lab.departmentId}"> selected</c:if>><c:out value="${dept.name}"/></option>
                 </c:forEach>

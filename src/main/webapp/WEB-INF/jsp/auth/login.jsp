@@ -1,6 +1,6 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
-  <h1><fmt:message key="auth.login_title.data" /></h1>
+  <h1><fmt:message key="pageTitle.auth/login.label" /></h1>
     <c:if test="${not empty param.error}">
       <font color="red">
         <fmt:message key="auth.login_failed.error" /><br/><br/>

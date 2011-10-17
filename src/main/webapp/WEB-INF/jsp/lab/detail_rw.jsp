@@ -2,7 +2,7 @@
   <p><font color="blue"><wasp:message /></font></p>  
   <form:form commandName="lab">
    <table>
-     	  <tr><td colspan=2 align=left></br><b>Lab Details:</b></td></tr>
+     	  <tr><td colspan=2 align=left></br><b><fmt:message key="pageTitle.lab/detail_rw.label" />:</b></td></tr>
            <tr>
               <td><fmt:message key="lab.name.label" />:</td>
               <td><form:input path="name" /></td>
@@ -12,7 +12,7 @@
               <td><fmt:message key="lab.primaryUserId.label"/>:</td>
               <td>
               <select name=primaryUserId>
-                <option value='-1'>-- select --</option>
+                <option value='-1'><fmt:message key="wasp.default_select.label"/></option>
               	<c:forEach var="puser" items="${pusers}">
                 	<option value="${puser.userId}" <c:if test="${puser.userId == lab.primaryUserId}"> selected</c:if>><c:out value="${puser.lastName}, ${puser.firstName}"/></option>
                	</c:forEach>     
@@ -24,7 +24,7 @@
               <td><fmt:message key="lab.departmentId.label"/>:</td>
               <td>
               <select name=departmentId>
-                <option value='-1'>-- select --</option>
+                <option value='-1'><fmt:message key="wasp.default_select.label"/></option>
               	<c:forEach var="dept" items="${departments}">
                 	<option value="${dept.departmentId}" <c:if test="${dept.departmentId == lab.departmentId}"> selected</c:if>><c:out value="${dept.name}"/></option>
                	</c:forEach>     
@@ -36,8 +36,9 @@
 		  <c:set var="_metaList" value = "${lab.labMeta}" scope="request" />		
           <c:import url="/WEB-INF/jsp/meta_rw.jsp"/>
           <tr>
-              <td colspan="2" align=right>
-                  <input type="submit" value="Save Changes" />
+              <td colspan="3" align=right>
+                  <button type="button" onclick="javascript:history.go(-1)"><fmt:message key="labDetail.cancel.label" /></button>
+                  <input type="submit" value="<fmt:message key="labDetail.save.label" />" />
               </td>
           </tr>    
             	      
@@ -63,6 +64,6 @@
     </c:if>
 
     <div>
-      <a href="/wasp/job/create/form.do?labid=<c:out value="${lab.labId}" />">create job</a>
+      <a href="/wasp/job/create/form.do?labid=<c:out value="${lab.labId}" />"><fmt:message key="labDetail.create_job.label"/></a>
     </div>
    </form:form>

@@ -17,7 +17,7 @@
               <td><fmt:message key="jobDraft.labId.label"/>:</td>
               <td>
               <select name="labId">
-                <option value='-1'>-- select --</option>
+                <option value='-1'><fmt:message key="wasp.default_select.label"/></option>
                 <c:forEach var="lab" items="${labs}">
                         <option value="${lab.labId}" <c:if test="${lab.labId == jobDraft.labId}"> selected</c:if>><c:out value="${lab.name}"/></option>
                 </c:forEach>

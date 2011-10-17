@@ -1,6 +1,6 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
    
-   <h1><fmt:message key="piPending.page_title.label" /></h1>
+   <h1><fmt:message key="pageTitle.auth/newpi/form.label" /></h1>
     <font color="red"><wasp:message /></font> 
     <form:form commandName="userPending" action="/wasp/auth/newpi/form.do">
       <table>

@@ -18,6 +18,7 @@ import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.context.NoSuchMessageException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -115,10 +116,16 @@ public class WaspController {
 	  try {
 		  message=(String)getBundle().getObject(key);		  
 	  } catch (Throwable e) {
-		
+		  logger.warn("Cannot resolve message '" + key + "' from resource bundle (" + e.getMessage() + ")");
 	  }
 	  
-	  if (message==null)   return messageSource.getMessage(key, null, Locale.US);//fallback to US locale
+	  if (message==null){
+		  try{
+			  message =  messageSource.getMessage(key, null, Locale.US); // try to fallback to US locale
+		  } catch (Throwable e){
+			  logger.warn("Cannot resolve message '" + key + "' from messageSource (" + e.getMessage() + ")");
+		  }
+	  }
 	  return message;
   }
 

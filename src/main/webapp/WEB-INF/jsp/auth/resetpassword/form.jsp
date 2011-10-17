@@ -1,6 +1,6 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
-    <h1><fmt:message key="auth.resetpassword_title2.label" /></h1>
+    <h1><fmt:message key="pageTitle.auth/resetpassword/form.label" /></h1>
 	<h4><fmt:message key="auth.resetpassword_instructions.label" /></h4>
      <font color="red"><wasp:message /></font>
 

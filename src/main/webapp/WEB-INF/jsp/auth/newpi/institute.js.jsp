@@ -5,10 +5,10 @@
 
  <script type="text/javascript">
      $(document).ready(function() {            
-	       $("#instituteOther").keyup(function(){getAuthNames();});
+	       $("#instituteOther").keyup(function(){getInstituteNames();});
      });
       
-     function getAuthNames(){        
+     function getInstituteNames(){        
      	if( $("#instituteOther").val().length == 1){
 	        	$.getJSON("/wasp/autocomplete/getInstitutesForDisplay.do", { instituteNameFragment: $("#instituteOther").val() }, function(data) { $("input#instituteOther").autocomplete(data);} );
      	}

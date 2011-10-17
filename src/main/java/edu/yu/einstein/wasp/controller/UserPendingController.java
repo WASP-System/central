@@ -601,7 +601,7 @@ public class UserPendingController extends WaspController {
 				isInternal = 1;
 		} catch (MetaHelper.WaspMetadataException e){
 			// handle WaspMetaDataException by simply logging an error and defaulting to the complete department list
-			logger.debug("WARNING: Unable to extract a valid departmentId from metadata for preparing department list. Defaulting to whole department list");
+			logger.warn("Unable to extract a valid departmentId from metadata for preparing department list. Defaulting to whole department list");
 			isInternal = -1;
 		}
 		prepareSelectListData(m);

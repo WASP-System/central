@@ -10,7 +10,7 @@
 		  </c:if>
 		
 		  <c:set var="labelKey" value="${fn:replace(_meta.k, _myArea, _myCtxArea)}.label" />
-		  
+		  <c:set var="id" value="${fn:substringAfter(_meta.k,'.')}" />
 		  <td><fmt:message key="${labelKey}"/>:</td>
 		  <td>
 		  <c:choose>
@@ -28,9 +28,9 @@
 				 	</c:otherwise>
 				</c:choose>
 				
-			    <select name="${_area}Meta_${_meta.k}">
+			    <select name="${_area}Meta_${_meta.k}" id="${id}">
                 	<c:if test= "${_meta.property.formVisibility != 'immutable'}">
-		            	<option value=''>-- select --</option>
+		            	<option value=''><fmt:message key="wasp.default_select.label"/></option>
 		        	</c:if>
                 	<c:forEach var="option" items="${selectItems}">
                 		<c:if test="${option[itemValue] == _meta.v || _meta.property.formVisibility != 'immutable'}">
@@ -42,7 +42,7 @@
 			             	    	    
 			  </c:when>
 			  <c:otherwise>
-			  		<input name="${_area}Meta_${_meta.k}" value="${_meta.v}" <c:if test= "${_meta.property.formVisibility == 'immutable'}"> readonly="readonly"</c:if>/>
+			  		<input name="${_area}Meta_${_meta.k}" id="${id}" value="${_meta.v}" <c:if test= "${_meta.property.formVisibility == 'immutable'}"> readonly="readonly"</c:if>/>
 			  </c:otherwise>
 		  </c:choose>
 		  </td>  	

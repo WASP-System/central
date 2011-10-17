@@ -1,7 +1,7 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
 	<div>
-	  <h1><fmt:message key="department.list_create.label" /></h1>
+	  <h1><fmt:message key="department.create.label" /></h1>
 	  <font color="red"><wasp:message /></font>
     	<form name="f" action="<c:url value='/department/create.do'/>" method="POST" onsubmit='return validate();'>
       		<fmt:message key="department.list_department.label" />: <input type='text' name='name' value=''/><br/>
@@ -9,7 +9,7 @@
     	</form>
 	</div>
 
-	<h1><fmt:message key="department.list_title.label" /></h1>
+	<h1><fmt:message key="department.list.label" /></h1>
 	<table cellpadding="0" cellspacing="0" border="0">
 	<c:forEach items="${department}" var="d">
 		<div>

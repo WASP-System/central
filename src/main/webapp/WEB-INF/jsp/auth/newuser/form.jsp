@@ -3,7 +3,7 @@
   <head> 
   <body>
     
-    <h1><fmt:message key="userPending.page_title.label" /></h1>
+    <h1><fmt:message key="pageTitle.auth/newuser/form.label" /></h1>
     <font color="red"><wasp:message /></font> 
     <form:form commandName="userPending">
       <table>
@@ -37,7 +37,7 @@
           <td><fmt:message key="userPending.locale.label"/>:</td>
           <td>
             <select name=locale>
-              <option value=''><fmt:message key="userPending.select_default.label"/></option> 
+              <option value=''><fmt:message key="wasp.default_select.label"/></option> 
               <c:forEach var="localeEntry" items="${locales}">
                 <c:set var="localeValue" value="${localeEntry.key}"/>
                 <c:set var="localeLabel" value="${localeEntry.value}"/>     

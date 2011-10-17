@@ -1,7 +1,7 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
 <div>
-	 <h1><fmt:message key="sysrole.list_title.label" /></h1>
+	 <h1><fmt:message key="pageTitle.sysrole/list.label" /></h1>
 	<font color="red"><wasp:message /></font></div>
 
 <div>

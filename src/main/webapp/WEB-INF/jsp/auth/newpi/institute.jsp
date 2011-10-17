@@ -1,6 +1,6 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
-<h1><fmt:message key="piPending.page_title.label" /></h1>
+<h1><fmt:message key="pageTitle.auth/newpi/institute.label" /></h1>
 <font color="red"><wasp:message /></font> 
 <p><fmt:message key="piPending.select_institute_message.label" /></p>
 <div>
@@ -8,7 +8,7 @@
 	<table>
 	<tr><td><fmt:message key='piPending.select_institute.label'/>: </td>
 	<td><select name="instituteSelect" onchange=" return selectChange();">
-		<option value=''>-- select --</option>
+		<option value=''><fmt:message key="wasp.default_select.label"/></option>
 		<c:forEach items="${instituteList}" var="institute" varStatus="status">
 			<option value='${institute}'>${institute}</option>
 		</c:forEach>
