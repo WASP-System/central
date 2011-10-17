@@ -7,6 +7,11 @@
       <a href="/wasp/user/detail_ro/<c:out value="${ul.user.userId}" />.do"><c:out value="${ul.user.login}" /></a>
         <c:out value="${ul.user.firstName}" />
         <c:out value="${ul.user.lastName}" />
+        <c:out value="${ul.user.email}" />
+        <c:if test="${ul.user.isActive == 1}" > <fmt:message key="labuser.active.label"/> 
+        </c:if>
+        <c:if test="${ul.user.isActive == 0}" > <fmt:message key="labuser.inactive.label"/>
+        </c:if>
       <span><c:out value="${ul.role.name}" /></span>
 
       <c:if test="${ul.role.roleName == 'lx'}">
@@ -26,7 +31,9 @@
 
       </p>
     </c:forEach>
-
+    <p>
+    <a href="/wasp/auth/newuser.do"><fmt:message key="lab.adduser.label" /></a> | <a href="/wasp/lab/detail_ro/<c:out value="${lab.departmentId}"/>/<c:out value="${lab.labId}"/>.do"><fmt:message key="lab.detail.label" /></a> 
+	</p>
     <c:if test="${! empty labuserpending}">
       <fmt:message key="labuser.request_title.label"/>
       <c:forEach items="${labuserpending}" var="up">
