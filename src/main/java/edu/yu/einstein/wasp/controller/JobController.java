@@ -98,25 +98,43 @@ public class JobController extends WaspController {
 
 
   @RequestMapping(value="/user/roleAdd", method=RequestMethod.POST)
-  @PreAuthorize("hasRole('god') or hasRole('lm-' + #labId)")
+  @PreAuthorize("hasRole('god') or hasRole('lm-' + #labId) or hasRole('js-' + #jobId)")
   public String jobViewerUserRoleAdd (
       @RequestParam("labId") Integer labId,
       @RequestParam("jobId") Integer jobId,
-      @RequestParam("useremail") String useremail,
+      @RequestParam("login") String login, //10-11-11; changed from useremail to login
       ModelMap m) {
  
-    // todo ensure usermail exists
-    // todo jobid within labid
-    // todo not already job submitter
-
-    Role role = roleService.getRoleByRoleName("jv");
-
-    User user = userService.getUserByEmail(useremail);
-    JobUser jobUser = new JobUser();
-    jobUser.setJobId(jobId);
-    jobUser.setUserId(user.getUserId());
-    jobUser.setRoleId(role.getRoleId());
-    jobUserService.save(jobUser);
+	Job job = this.jobService.findById(jobId);
+	if(job.getJobId()==0 || job.getLabId() != labId){
+		waspMessage("job.jobViewerUserRoleAdd.error1");//this job not found in database or the labId does not belong to this job
+	}
+	else{   
+		User user = userService.getUserByLogin(login);
+		if(user.getUserId()==0){
+			waspMessage("job.jobViewerUserRoleAdd.error2");//user login name does not exist
+		}
+		else{
+			//check that login does not belong to the job submitter (or is not already a job-viewer)
+			JobUser jobUser = this.jobUserService.getJobUserByJobIdUserId(jobId, user.getUserId());
+			if(jobUser.getJobUserId() > 0){
+				if( "js".equals( jobUser.getRole().getRoleName() ) ){
+					waspMessage("job.jobViewerUserRoleAdd.error3");//user is submitter (and thus is, by default, a job-viewer)
+				}
+				else if( "jv".equals( jobUser.getRole().getRoleName() ) ){
+					waspMessage("job.jobViewerUserRoleAdd.error4");//user is already a job-viewer
+				}
+			}
+			else{
+				Role role = roleService.getRoleByRoleName("jv");
+			    JobUser jobUser2 = new JobUser();
+			    jobUser2.setJobId(jobId);
+			    jobUser2.setUserId(user.getUserId());
+			    jobUser2.setRoleId(role.getRoleId());
+			    jobUserService.save(jobUser2);
+			}
+		}
+	}
 
     return "redirect:/job/detail/" + jobId + ".do";
   }
