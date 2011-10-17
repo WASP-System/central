@@ -27,6 +27,8 @@ import org.springframework.orm.jpa.support.JpaDaoSupport;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Repository;
 
+import edu.yu.einstein.wasp.model.Department;
+
 // @ Transactional
 @Repository
 public abstract class WaspDaoImpl<E extends Serializable> extends JpaDaoSupport implements edu.yu.einstein.wasp.dao.WaspDao<E> {
@@ -164,6 +166,148 @@ public abstract class WaspDaoImpl<E extends Serializable> extends JpaDaoSupport 
     });
 
     return (List) res;
+  }
+ 
+  @SuppressWarnings("unchecked")
+  // @ Transactional
+  public List findByMapDistinctOrderBy(final Map m, final List<String> distinctColumnNames, final List<String> orderByColumnNames, final String direction) {
+    Object res = getJpaTemplate().execute(new JpaCallback() {
+
+      public Object doInJpa(EntityManager em) throws PersistenceException {
+        
+    	boolean where = false;
+    	boolean firstMap = true;
+        boolean firstDistinct = true;
+        boolean firstOrderBy = true;
+
+        String qString = "SELECT h FROM " + entityClass.getName() + " h";
+               
+        for (Object key: m.keySet()){
+          if(where == false){
+        	  qString += " WHERE ";
+        	  where = true;
+          }
+          else if (firstMap == false) {
+             qString += " and ";
+          } 
+          qString += "h." + key.toString() + " = :" + key.toString();
+          firstMap = false;
+        }
+
+        for(String distinctColumnName : distinctColumnNames){
+        	if(where == false){
+          	  qString += " WHERE (";
+          	  where = true;
+            }
+        	else if(firstDistinct == true){
+        		qString += " AND (";
+        	}
+        	else if(firstDistinct == false){ 
+                qString += ", ";
+             }
+        	
+        	qString += "h." + distinctColumnName;
+        	firstDistinct = false;
+        }
+        if(firstDistinct == false){ 
+            qString += ") IN (SELECT DISTINCT";
+            firstDistinct = true;
+            
+            for(String distinctColumnName : distinctColumnNames){
+            	
+            	if(firstDistinct == false){
+                	qString += ", ";
+                }
+            	qString += " j." + distinctColumnName;
+            	firstDistinct = false;
+            }
+         }
+        if(firstDistinct == false){
+        	qString += " FROM " + entityClass.getName() + " j) ";
+        }
+          
+        for(String orderByColumnName : orderByColumnNames){
+        	if(firstOrderBy == true){
+        		qString += " ORDER BY ";
+        	}
+        	else if(firstOrderBy == false){
+        		qString += ", ";
+        	}
+        	qString += "h." + orderByColumnName;
+        	firstOrderBy = false;
+        }
+        if( firstOrderBy == false && ! "".equals(direction) ){
+        	qString += " " + direction;
+        }
+       
+        //logger.debug("ROBERT: " + qString);
+        
+        Query q = em.createQuery(qString);
+
+        for (Object key: m.keySet()){
+          q.setParameter(key.toString(), m.get(key));
+        }
+
+        return q.getResultList();
+      }
+    });
+
+    return (List) res;
+  }
+  
+  @SuppressWarnings("unchecked")
+  // @ Transactional
+  public List findDistinctOrderBy(final String distinctColumnName, final String orderByColumnName, final String direction) {
+   Object res = getJpaTemplate().execute(new JpaCallback() {
+
+    public Object doInJpa(EntityManager em) throws PersistenceException {
+     //Query q = em.createQuery("SELECT h FROM " + entityClass.getName() + " h WHERE h." + distinctColumnName + " IN " +
+    //   		"(SELECT DISTINCT j." + distinctColumnName + " FROM " + entityClass.getName() + " j ) ORDER BY h." + orderByColumnName + " " + direction + "");
+    // return q.getResultList();
+        String qString = "SELECT h FROM " + entityClass.getName() + " h";
+        
+        if(! "".equals(distinctColumnName)){
+        	qString += " WHERE h." + distinctColumnName + " IN (SELECT DISTINCT j." + distinctColumnName + " FROM " + entityClass.getName() + " j)";
+        }
+        
+        if( ! "".equals(orderByColumnName) &&  "".equals(direction) ){
+       	 qString += " ORDER BY h." + orderByColumnName;  
+        }
+        else if( ! "".equals(orderByColumnName) && ! "".equals(direction) ){
+       	 qString += " ORDER BY h." + orderByColumnName + " " + direction;
+        }
+        //logger.debug("ROBERT: " + qString);
+        Query q = em.createQuery(qString);
+        return q.getResultList();    	
+    }
+
+   });
+
+   return (List) res;
+  }
+  
+  @SuppressWarnings("unchecked")
+  // @ Transactional
+  public List findAllOrderBy(final String orderByColumnName, final String direction) {
+   Object res = getJpaTemplate().execute(new JpaCallback() {
+
+    public Object doInJpa(EntityManager em) throws PersistenceException {
+     //Query q = em.createQuery("SELECT h FROM " + entityClass.getName() + " h ORDER BY h." + orderByColumnName + " " + direction + "");
+     String qString = "SELECT h FROM " + entityClass.getName() + " h";
+     if( ! "".equals(orderByColumnName) &&  "".equals(direction) ){
+    	 qString += " ORDER BY h." + orderByColumnName;  
+     }
+     else if( ! "".equals(orderByColumnName) && ! "".equals(direction) ){
+    	 qString += " ORDER BY h." + orderByColumnName + " " + direction;
+     }
+     //logger.debug("ROBERT: " + qString);
+     Query q = em.createQuery(qString);
+     return q.getResultList();
+    }
+
+   });
+
+   return (List) res;
   }
   
   private void setEditorId(E entity) {
