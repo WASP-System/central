@@ -74,5 +74,16 @@ public abstract class WaspServiceImpl<E> implements WaspService<E> {
     return this.getWaspDao().findByMap(m);
   }
 
+  public List findDistinctOrderBy(final String distinctColumnName, final String orderByColumnName, final String direction){
+	  return this.getWaspDao().findDistinctOrderBy(distinctColumnName, orderByColumnName, direction);  
+  }
+  
+  public List findAllOrderBy(final String orderByColumnName, final String direction){
+	  return this.getWaspDao().findAllOrderBy(orderByColumnName, direction);
+  }
+  
+  public List findByMapDistinctOrderBy(final Map m, final List<String> distinctColumnNames, final List<String> orderByColumnNames, final String direction) {
+	  return this.getWaspDao().findByMapDistinctOrderBy(m, distinctColumnNames, orderByColumnNames, direction);
+  }	  
 }
 
