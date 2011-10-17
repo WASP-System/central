@@ -230,6 +230,7 @@ public class Department extends WaspModel {
 	 * @return departmentUser
 	 *
 	 */
+	@JsonIgnore
 	public List<DepartmentUser> getDepartmentUser() {
 		return this.departmentUser;
 	}
@@ -296,6 +297,7 @@ public class Department extends WaspModel {
 	 * @return labPending
 	 *
 	 */
+	@JsonIgnore
 	public List<LabPending> getLabPending() {
 		return this.labPending;
 	}
