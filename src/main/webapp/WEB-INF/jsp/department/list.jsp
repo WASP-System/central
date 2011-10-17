@@ -10,12 +10,12 @@
 	</div>
 
 	<h1><fmt:message key="department.list.label" /></h1>
-	<table cellpadding="0" cellspacing="0" border="0">
+	<table cellpadding="3" cellspacing="3" border="0">
 	<c:forEach items="${department}" var="d">
 		<div>
 		<tr>
-		<td>
-			<a href="/wasp/department/detail/<c:out value="${d.departmentId}" />.do"><c:out value="${d.name}" /></a>
+		<td><a href="/wasp/department/detail/<c:out value="${d.departmentId}" />.do"><c:out value="${d.name}" /></a></td>
+		<td><c:choose><c:when test="${d.isActive == 1}"> active</c:when><c:otherwise> inactive</c:otherwise></c:choose></td>
 		</td>
 		</tr>
 	</c:forEach>
