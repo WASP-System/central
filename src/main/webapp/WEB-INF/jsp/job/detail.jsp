@@ -34,15 +34,17 @@
       </c:if>
       </p>
     </c:forEach>
+    
+    <sec:authorize access="hasRole('god') or hasRole('lm-${job.lab.labId}') or hasRole('js-${job.jobId}')">
+    <font color="red"><wasp:message /></font>
     <form name="f" action="<c:url value='/job/user/roleAdd.do'/>" method="POST">
-      Email Address:
-      <input type='hidden' name='labId' value='<c:out value="${lab.labId}" />'/>
+      Login Name:
+      <input type='hidden' name='labId' value='<c:out value="${job.lab.labId}" />'/>
       <input type='hidden' name='jobId' value='<c:out value="${job.jobId}" />'/>
-      <input type='text' name='useremail' value=''/>
+      <input type='text' name='login' value=''/>
       <input type="submit" value="Add Job Viewer" />
-
     </form>
-
+	</sec:authorize>	
 
     <c:forEach items="${jobmeta}" var="meta">
       <p>
