@@ -14,8 +14,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.transaction.annotation.*; 
 
+import java.util.Collections;
 import java.util.Date; 
 import java.util.List; 
+import java.util.ArrayList; //added by Dubin
 import java.util.Map; 
 import java.util.HashMap; 
 
@@ -72,9 +74,11 @@ public class DepartmentController extends WaspController {
   @RequestMapping("/list")
   @PreAuthorize("hasRole('god') or hasRole('da-*')")
   public String list(ModelMap m) {
-    List<Department> departmentList = this.getDepartmentService().findAll();
-    
-    m.addAttribute("department", departmentList);
+	  
+    //List<Department> departmentList = this.getDepartmentService().findAll();
+	List<Department> departmentList = this.getDepartmentService().findAllOrderBy("name", "ASC");
+
+	m.addAttribute("department", departmentList);
 
     return "department/list";
   }
@@ -109,21 +113,23 @@ public class DepartmentController extends WaspController {
   @PreAuthorize("hasRole('god')")
   public String createDepartment(@RequestParam("name") String name, ModelMap m) {
 	  
-	//capitalize first letter of each word in name
-	//code derived from http://stackoverflow.com/questions/1149855/how-to-upper-case-every-first-letter-of-word-in-a-string
-	StringBuilder b = new StringBuilder(name);
-	int i = 0;
-	do {
-	  b.replace(i, i + 1, b.substring(i,i + 1).toUpperCase());
-	  i =  b.indexOf(" ", i) + 1;
-	} while (i > 0 && i < b.length());
-	
-	String modifiedName = new String(b);
-	
-	if( "".equals(modifiedName.trim()) ){
+    if( "".equals(name.trim()) ){
 		waspMessage("department.list_missingparam.error");
+	} 
+    else if(name.toLowerCase().indexOf("external") != -1){//prevent any department from being named %external%
+			waspMessage("department.list_invalid.error");
 	}
-	else{		
+	else{
+		//capitalize first letter of each word in name
+		//code derived from http://stackoverflow.com/questions/1149855/how-to-upper-case-every-first-letter-of-word-in-a-string
+		StringBuilder b = new StringBuilder(name);
+		int i = 0;
+		do {
+			b.replace(i, i + 1, b.substring(i,i + 1).toUpperCase());
+			i =  b.indexOf(" ", i) + 1;
+		} while (i > 0 && i < b.length());
+	
+		String modifiedName = new String(b);
 		Department existingDepartment = this.departmentService.getDepartmentByName(modifiedName.trim()); 
 		if( existingDepartment.getDepartmentId() > 0 ){//the id will be 0 if empty department [ie.: department does not already exist]
 			waspMessage("department.list_department_exists.error");
@@ -131,6 +137,8 @@ public class DepartmentController extends WaspController {
 		else{
 			Department department = new Department(); 
 			department.setName(modifiedName.trim()); 
+			department.setIsActive(1);
+			department.setIsInternal(1);
 			departmentService.save(department);
 			waspMessage("department.list_ok.label");
 		}
