@@ -248,7 +248,7 @@ html, body {
   	              
  		selectItems=<wasp:json object="${selectItems}" />;
 
- 		editoptions['value']['']='-<fmt:message key="wasp.default_select.label"/>-';
+ 		editoptions['value']['']=' --- select --- ';
  		for(sKey in selectItems) {
  			_option=selectItems[sKey];
  			_value=_option['${itemValue}'];

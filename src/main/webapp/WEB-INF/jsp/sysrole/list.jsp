@@ -19,7 +19,7 @@
     <div>
     <fmt:message key="sysrole.list_sysuser_role.label" />: 
     <select name="roleName">
-    <option value="" SELECTED> -- </option>
+    <option value="" SELECTED><fmt:message key="wasp.default_select.label"/></option>
     <c:forEach items="${role}" var="r">
       <option value="<c:out value="${r.roleName}"/>">
          <c:out value="${r.name}"/>

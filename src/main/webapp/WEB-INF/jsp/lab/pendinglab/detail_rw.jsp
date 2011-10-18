@@ -31,10 +31,11 @@
 		  <c:set var="_metaList" value = "${labPending.labPendingMeta}" scope="request" />		
           <c:import url="/WEB-INF/jsp/meta_rw.jsp"/>
           <tr>
-              <td colspan="3" align=right>
+              <td colspan="2" align=right>
               	  <button type="button" onclick="javascript:history.go(-1)"><fmt:message key="labPending.cancel.label" /></button>
                   <input type="submit" value="<fmt:message key="labPending.save.label" />" />
               </td>
+              <td>&nbsp;</td>
           </tr>    
             	      
    </table> 
