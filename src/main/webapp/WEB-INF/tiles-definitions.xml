@@ -105,6 +105,25 @@
     <definition name="sample/list" extends="template-base">
         <put-attribute name="body-content" value="/WEB-INF/jsp/sample/list.jsp" />
     </definition>
+    <definition name="sample/detail" extends="template-base">
+        <put-attribute name="body-content" value="/WEB-INF/jsp/sample/detail.jsp" />
+    </definition>
+
+    <definition name="sampleDnaToLibrary/detail" extends="template-base">
+        <put-attribute name="body-content" value="/WEB-INF/jsp/sampleDnaToLibrary/detail.jsp" />
+    </definition>
+    <definition name="sampleDnaToLibrary/addLibraryMeta" extends="template-base">
+        <put-attribute name="body-content" value="/WEB-INF/jsp/sampleDnaToLibrary/detail.jsp" />
+    </definition>
+    <definition name="sampleDnaToLibrary/signHere" extends="template-base">
+        <put-attribute name="body-content" value="/WEB-INF/jsp/sampleDnaToLibrary/signHere.jsp" />
+    </definition>
+    <definition name="sampleDnaToLibrary/ok" extends="template-base">
+        <put-attribute name="body-content" value="/WEB-INF/jsp/sampleDnaToLibrary/ok.jsp" />
+    </definition>
+
+
+
     <definition name="resource/list" extends="template-base">
         <put-attribute name="body-content" value="/WEB-INF/jsp/resource/list.jsp" />
     </definition>
