@@ -439,6 +439,30 @@
             <artifactId>spring-batch-integration</artifactId>
             <version>1.2.0.RELEASE</version>
         </dependency>
+        <dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.8.1</version>
+			<scope>test</scope>
+		</dependency>
+			
+		<dependency>
+		    <groupId>org.easymock</groupId>
+		    <artifactId>easymock</artifactId>
+		    <version>3.0</version>
+		    <scope>test</scope>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.objenesis</groupId>
+		    <artifactId>objenesis</artifactId>
+		    <version>1.2</version>
+		</dependency>
+		<dependency>
+		    <groupId>cglib</groupId>
+		    <artifactId>cglib</artifactId>
+		    <version>2.2.2</version>
+		</dependency>
     </dependencies>
     <repositories>
         <repository>
@@ -461,5 +485,31 @@
             <name>Simple Captcha Repository</name>
             <url>https://hypobytes.com/maven/content/repositories/thirdparty</url>
         </repository>
+        <repository>
+			<id>junit</id>
+			<name>JUnit Repository</name>
+			<url>http://mvnrepository.com/artifact/junit/junit/4.10</url>
+		</repository>
+		   
+		 <!-- 
+		 <repository>
+			<id>easymock</id>
+			<name>EasyMock</name>
+			<url>http://mvnrepository.com/artifact/easymock/easymock</url>
+		</repository>
+		 -->
+	 
+		<repository>
+			<id>easymock</id>
+			<name>easymock</name>
+			<url>http://mvnrepository.com/artifact/org.easymock/easymock/3.0</url>
+		</repository>
+
+		<repository>
+			<id>objenesis</id>
+			<name>objenesis</name>
+			<url>http://mvnrepository.com/artifact/org.objenesis/objenesis</url>
+		</repository>
+	
     </repositories>
 </project>
