@@ -20,7 +20,7 @@ import edu.yu.einstein.wasp.model.*;
 @Controller
 @Transactional
 @RequestMapping("/sample")
-public class SampleController {
+public class SampleController extends WaspController {
 
   private SampleService sampleService;
   @Autowired
