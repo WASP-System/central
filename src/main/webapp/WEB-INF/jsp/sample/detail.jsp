@@ -4,6 +4,11 @@
   <h1><c:out value="${sample.name}"/></h1>
   <div><c:out value="${sample.typeSample.name}"/></div>
 
+
+  [TODO ADD PERM]
+  <a href="<c:url value="/sampleDnaToLibrary/detail/${sample.sampleId}.do"/>">Fac. Manager Sample to Library</a>
+  [/TODO ADD PERM]
+
   <c:forEach items="${samplemeta}" var="meta">
       <p>
       <span><c:out value="${meta.k}" /></span>
