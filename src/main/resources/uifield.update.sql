@@ -761,3 +761,30 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labDetail','save','label','Save Changes','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','wasp','default_select','label','-- select --','1');
 
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) 
+values('en_US','sampleDnaToLibrary','Mouse','metaposition','10','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) 
+values('en_US','sampleDnaToLibrary','Mouse','label','Mouse','1');
+
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) 
+values('en_US','sampleDnaToLibrary','Keyboard','metaposition','20','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) 
+values('en_US','sampleDnaToLibrary','Keyboard','label','Keyboard','1');
+
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) 
+values('en_US','sampleDnaToLibrary','Chair','metaposition','30','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) 
+values('en_US','sampleDnaToLibrary','Chair','label','Chair','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDnaToLibrary','Chair','control','select:Prof:Prof;Dr:Dr;Mr:Mr;Ms:Ms;Mrs:Mrs;Miss:Miss','1');
+
+
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) 
+values('en_US','sampleDnaToLibraryAddLibraryMeta','Cup','metaposition','10','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) 
+values('en_US','sampleDnaToLibraryAddLibraryMeta','Cup','label','Cup','1');
+
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) 
+values('en_US','sampleDnaToLibraryAddLibraryMeta','Saucer','metaposition','10','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) 
+values('en_US','sampleDnaToLibraryAddLibraryMeta','Saucer','label','Saucer','1');
+
