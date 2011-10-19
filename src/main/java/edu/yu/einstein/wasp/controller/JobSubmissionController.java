@@ -435,7 +435,6 @@ public class JobSubmissionController extends WaspController {
 		metaHelper.setArea(alignerArea);
 		jobDraft.setJobDraftMeta(metaHelper.syncWithMaster(jobDraft.getJobDraftMeta()));
 
-		m.put("ABC", alignerJdm);
 
 		m.put("jobDraftDb", jobDraft);
 		m.put("jobDraft", jobDraft);
