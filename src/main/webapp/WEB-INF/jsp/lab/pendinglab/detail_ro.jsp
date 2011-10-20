@@ -6,7 +6,7 @@
 <form:form commandName="labPending">
 	<table>
 		<tr>
-			<td colspan=2 align=left></br>
+			<td colspan=2 align=left>
 			<b>Pending Lab Details:</b>
 			</td>
 		</tr>
