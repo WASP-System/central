@@ -1,44 +1,49 @@
-<%@ include file="/WEB-INF/jsp/taglib.jsp" %>
-  <p><font color="blue"><wasp:message /></font></p>
-  <form:form commandName="labPending">
-   <table>
-     	  <tr><td colspan=2 align=left></br><b>Pending Lab Details:</b></td></tr>
-           <tr>
-              <td><fmt:message key="labPending.name.label" />:</td>
-              <td>${labPending.name}</td>              
-          </tr>
-          <tr>
-              <td><fmt:message key="labPending.primaryUserId.label"/>:</td>
-              <td>
-              <c:out value="${puserFullName}"/>
-              </td>             
-          </tr>
-          <tr>
-              <td><fmt:message key="labPending.departmentId.label"/>:</td>
-              <td>
-              
-              	<c:forEach var="dept" items="${departments}">
-                   <c:if test="${dept.departmentId == labPending.departmentId}"> <c:out value="${dept.name}"/></c:if>
-               	</c:forEach>     
-              
-              </td>
-          </tr>
-          <c:set var="_area" value = "labPending" scope="request"/>	
-		  <c:set var="_metaList" value = "${labPending.labPendingMeta}" scope="request" />		
-          <c:import url="/WEB-INF/jsp/meta_ro.jsp"/>
-          <sec:authorize access="hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('da-*')">
-          	 <tr>
-          	 	<td>
-          	 		<a href="<c:url value="/lab/pending/detail_rw/${labPending.departmentId}/${labPending.labPendingId}.do" />">Edit</a>
-          	 		|
-          	 		<a href="<c:url value="/lab/pending/approve/${labPending.departmentId}/${labPending.labPendingId}.do" />">Approve</a>
-          	 		|
-          	 		<a href="<c:url value="/lab/pending/reject/${labPending.departmentId}/${labPending.labPendingId}.do" />">Reject</a>
-          	 	</td>
-          	 </tr>
-          </sec:authorize>            	      
-     </table> 
-<%-- 
+<%@ include file="/WEB-INF/jsp/taglib.jsp"%>
+<p>
+	<font color="blue"><wasp:message />
+	</font>
+</p>
+<form:form commandName="labPending">
+	<table>
+		<tr>
+			<td colspan=2 align=left></br>
+			<b>Pending Lab Details:</b>
+			</td>
+		</tr>
+		<tr>
+			<td><fmt:message key="labPending.name.label" />:</td>
+			<td>${labPending.name}</td>
+		</tr>
+		<tr>
+			<td><fmt:message key="labPending.primaryUserId.label" />:</td>
+			<td><c:out value="${puserFullName}" /></td>
+		</tr>
+		<tr>
+			<td><fmt:message key="labPending.departmentId.label" />:</td>
+			<td><c:forEach var="dept" items="${departments}">
+					<c:if test="${dept.departmentId == labPending.departmentId}">
+						<c:out value="${dept.name}" />
+					</c:if>
+				</c:forEach></td>
+		</tr>
+		<c:set var="_area" value="labPending" scope="request" />
+		<c:set var="_metaList" value="${labPending.labPendingMeta}"
+			scope="request" />
+		<c:import url="/WEB-INF/jsp/meta_ro.jsp" />
+		<sec:authorize
+			access="hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('da-*')">
+			<tr>
+				<td><a
+					href="<c:url value="/lab/pending/detail_rw/${labPending.departmentId}/${labPending.labPendingId}.do" />">Edit</a>
+					| <a
+					href="<c:url value="/lab/pending/approve/${labPending.departmentId}/${labPending.labPendingId}.do" />">Approve</a>
+					| <a
+					href="<c:url value="/lab/pending/reject/${labPending.departmentId}/${labPending.labPendingId}.do" />">Reject</a>
+				</td>
+			</tr>
+		</sec:authorize>
+	</table>
+	<%-- 
      <c:forEach items="${labuser}" var="ul">
       <p>
       <a href="/wasp/user/detail/<c:out value="${ul.user.userId}" />.do"><c:out value="${ul.user.login}" /></a>
@@ -62,6 +67,6 @@
     <div>
       <a href="/wasp/job/create/form.do?labid=<c:out value="${lab.labId}" />">create job</a>
     </div>
- --%>   
- 
-   </form:form>
+ --%>
+
+</form:form>

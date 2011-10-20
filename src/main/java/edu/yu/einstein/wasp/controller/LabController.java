@@ -93,302 +93,322 @@ public class LabController extends WaspController {
 
 	@Autowired
 	private LabPendingMetaService labPendingMetaService;
-	
+
 	@Autowired
 	private EmailService emailService;
 
 	/**
 	 * get a @{link MetaHelper} instance for working with LabMeta metadata
+	 * 
 	 * @return
 	 */
 	private final MetaHelper getMetaHelper() {
 		return new MetaHelper("lab", LabMeta.class, request.getSession());
 	}
-	
+
 	/**
 	 * get a @{link MetaHelper} instance for working with labPending metadata
+	 * 
 	 * @return
 	 */
 	private final MetaHelper getLabPendingMetaHelper() {
-		return new MetaHelper("labPending", LabPendingMeta.class, request.getSession());
+		return new MetaHelper("labPending", LabPendingMeta.class,
+				request.getSession());
 	}
-	
+
 	/**
 	 * Return list of labs in JGrid
+	 * 
 	 * @param m
 	 * @return
 	 */
 	@RequestMapping("/list")
 	@PreAuthorize("hasRole('god')")
 	public String list(ModelMap m) {
-		 
-		m.addAttribute("_metaList",  getMetaHelper().getMasterList(MetaBase.class));
-		m.addAttribute(JQFieldTag.AREA_ATTR,  getMetaHelper().getArea());
 
-		prepareSelectListData(m);		
-		
+		m.addAttribute("_metaList",
+				getMetaHelper().getMasterList(MetaBase.class));
+		m.addAttribute(JQFieldTag.AREA_ATTR, getMetaHelper().getArea());
+
+		prepareSelectListData(m);
+
 		return "lab/list";
 	}
 
 	/**
 	 * Returns list of labs
+	 * 
 	 * @param response
 	 * @return
 	 */
-	@RequestMapping(value="/listJSON", method=RequestMethod.GET)	
+	@RequestMapping(value = "/listJSON", method = RequestMethod.GET)
 	public String getListJSON(HttpServletResponse response) {
-	
-		//result
-		Map <String, Object> jqgrid = new HashMap<String, Object>();
-		
+
+		// result
+		Map<String, Object> jqgrid = new HashMap<String, Object>();
+
 		List<Lab> labList;
-		
-		if (request.getParameter("_search")==null || StringUtils.isEmpty(request.getParameter("searchString"))) {
+
+		if (request.getParameter("_search") == null
+				|| StringUtils.isEmpty(request.getParameter("searchString"))) {
 			labList = this.labService.findAll();
 		} else {
-			
+
 			Map<String, String> m = new HashMap<String, String>();
-			
-			m.put(request.getParameter("searchField"), request.getParameter("searchString"));
+
+			m.put(request.getParameter("searchField"),
+					request.getParameter("searchString"));
 
 			labList = this.labService.findByMap(m);
-			
+
 			if ("ne".equals(request.getParameter("searchOper"))) {
-				List<Lab> allLabs=new ArrayList<Lab>(this.labService.findAll());
-				for(Iterator<Lab> it=labList.iterator();it.hasNext();)  {
-					Lab excludeLab=it.next();
+				List<Lab> allLabs = new ArrayList<Lab>(
+						this.labService.findAll());
+				for (Iterator<Lab> it = labList.iterator(); it.hasNext();) {
+					Lab excludeLab = it.next();
 					allLabs.remove(excludeLab);
 				}
-				labList=allLabs;
+				labList = allLabs;
 			}
 		}
 
 		ObjectMapper mapper = new ObjectMapper();
-		
+
 		try {
-			//String labs = mapper.writeValueAsString(labList);
-			jqgrid.put("page","1");
-			jqgrid.put("records",labList.size()+"");
-			jqgrid.put("total",labList.size()+"");
-			
-			
-			Map<String, String> userData=new HashMap<String, String>();
-			userData.put("page","1");
-			userData.put("selId",StringUtils.isEmpty(request.getParameter("selId"))?"":request.getParameter("selId"));
-			jqgrid.put("userdata",userData);
-			
+			// String labs = mapper.writeValueAsString(labList);
+			jqgrid.put("page", "1");
+			jqgrid.put("records", labList.size() + "");
+			jqgrid.put("total", labList.size() + "");
+
+			Map<String, String> userData = new HashMap<String, String>();
+			userData.put("page", "1");
+			userData.put("selId",
+					StringUtils.isEmpty(request.getParameter("selId")) ? ""
+							: request.getParameter("selId"));
+			jqgrid.put("userdata", userData);
+
 			List<Map> rows = new ArrayList<Map>();
-			
-			Map<Integer, String> allDepts=new TreeMap<Integer, String>();
-			for(Department dept:(List<Department>)deptService.findAll()) {
-				allDepts.put(dept.getDepartmentId(),dept.getName());
+
+			Map<Integer, String> allDepts = new TreeMap<Integer, String>();
+			for (Department dept : (List<Department>) deptService.findAll()) {
+				allDepts.put(dept.getDepartmentId(), dept.getName());
 			}
-			
-			Map<Integer, String> allUsers=new TreeMap<Integer, String>();
-			for(User user:(List<User>)userService.findAll()) {
-				allUsers.put(user.getUserId(),user.getFirstName()+" "+user.getLastName());
+
+			Map<Integer, String> allUsers = new TreeMap<Integer, String>();
+			for (User user : (List<User>) userService.findAll()) {
+				allUsers.put(user.getUserId(),
+						user.getFirstName() + " " + user.getLastName());
 			}
-			
-			
-			for (Lab lab:labList) {
-				
+
+			for (Lab lab : labList) {
+
 				Map cell = new HashMap();
 				cell.put("id", lab.getLabId());
-				
-				List<LabMeta> labMeta= getMetaHelper().syncWithMaster(lab.getLabMeta());
-									
-				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
-						lab.getName(),
-						"<a href=/wasp/user/list.do?selId="+lab.getPrimaryUserId()+">"+allUsers.get(lab.getPrimaryUserId()) +"</a>",							
-							allDepts.get(lab.getDepartmentId()),
-						
-							lab.getIsActive()==1?"yes":"no"
-				}));
-				 
-				for(LabMeta meta:labMeta) {
-					cellList.add(meta.getV());
-				}				
-				 
-				int l= cellList.size();
-				 cell.put("cell", cellList);
-				 
-				 rows.add(cell);
-			 }
 
-			 
-			 jqgrid.put("rows",rows);
-			 
-			 return outputJSON(jqgrid, response); 	
-			
-		 } catch (Throwable e) {
-			 throw new IllegalStateException("Can't marshall to JSON "+labList,e);
-		 }
-	
+				List<LabMeta> labMeta = getMetaHelper().syncWithMaster(
+						lab.getLabMeta());
+
+				List<String> cellList = new ArrayList<String>(
+						Arrays.asList(new String[] {
+								lab.getName(),
+								"<a href=/wasp/user/list.do?selId="
+										+ lab.getPrimaryUserId() + ">"
+										+ allUsers.get(lab.getPrimaryUserId())
+										+ "</a>",
+								allDepts.get(lab.getDepartmentId()),
+
+								lab.getIsActive() == 1 ? "yes" : "no" }));
+
+				for (LabMeta meta : labMeta) {
+					cellList.add(meta.getV());
+				}
+
+				int l = cellList.size();
+				cell.put("cell", cellList);
+
+				rows.add(cell);
+			}
+
+			jqgrid.put("rows", rows);
+
+			return outputJSON(jqgrid, response);
+
+		} catch (Throwable e) {
+			throw new IllegalStateException(
+					"Can't marshall to JSON " + labList, e);
+		}
+
 	}
-	
-	
-	@RequestMapping(value = "/subgridJSON.do", method = RequestMethod.GET)	
-	public String subgridJSON(@RequestParam("id") Integer labId,ModelMap m, HttpServletResponse response) {
-			
-		Map <String, Object> jqgrid = new HashMap<String, Object>();
-		
+
+	@RequestMapping(value = "/subgridJSON.do", method = RequestMethod.GET)
+	public String subgridJSON(@RequestParam("id") Integer labId, ModelMap m,
+			HttpServletResponse response) {
+
+		Map<String, Object> jqgrid = new HashMap<String, Object>();
+
 		Lab labDb = this.labService.getById(labId);
-		
-		
-		List<LabUser> users=labDb.getLabUser();
-		
-		List<Project> projects=labDb.getProject();
-		
-		List<Sample> samples=labDb.getSample();
-		
-		List<AcctGrant> accGrants=labDb.getAcctGrant();
-		
-		List<SampleLab> sampleLabs=labDb.getSampleLab();
-		
-		List<Job> jobs=labDb.getJob();
-		
-		
-		//get max lenth of the previous 4 lists
-		int max=Math.max(Math.max(users.size(), projects.size()),Math.max(samples.size(),accGrants.size()));
-		
-		max=Math.max(max,Math.max(sampleLabs.size(), jobs.size()));
-		
-		
-		if (max==0) {
-			LabUser lUser = new LabUser();			
-			lUser.setUser(new User());			
+
+		List<LabUser> users = labDb.getLabUser();
+
+		List<Project> projects = labDb.getProject();
+
+		List<Sample> samples = labDb.getSample();
+
+		List<AcctGrant> accGrants = labDb.getAcctGrant();
+
+		List<SampleLab> sampleLabs = labDb.getSampleLab();
+
+		List<Job> jobs = labDb.getJob();
+
+		// get max lenth of the previous 4 lists
+		int max = Math.max(Math.max(users.size(), projects.size()),
+				Math.max(samples.size(), accGrants.size()));
+
+		max = Math.max(max, Math.max(sampleLabs.size(), jobs.size()));
+
+		if (max == 0) {
+			LabUser lUser = new LabUser();
+			lUser.setUser(new User());
 			users.add(lUser);
-			
+
 			projects.add(new Project());
-			
+
 			samples.add(new Sample());
-			
+
 			accGrants.add(new AcctGrant());
-			
-			SampleLab sampleLab=new SampleLab();
+
+			SampleLab sampleLab = new SampleLab();
 			sampleLab.setLab(new Lab());
 			sampleLabs.add(sampleLab);
-			
+
 			jobs.add(new Job());
-						
-			max=1;
+
+			max = 1;
 		}
-		
-		String [][] mtrx = new String[max][6]	;
-		
+
+		String[][] mtrx = new String[max][6];
+
 		ObjectMapper mapper = new ObjectMapper();
 
 		String text;
 		try {
-			//String labs = mapper.writeValueAsString(labList);
-			jqgrid.put("page","1");
-			jqgrid.put("records",max+"");
-			jqgrid.put("total",max+"");
-			
-			
-			int i=0;
-			int j=0;
-			for (LabUser user:users) {		
-				
-				text=user.getUserId()==0?"No Users":"<a href=/wasp/user/list.do?selId="+user.getUserId()+">"+user.getUser().getFirstName() + " "+user.getUser().getLastName()+"</a>";
-				mtrx[j][i]=text;
-				
+			// String labs = mapper.writeValueAsString(labList);
+			jqgrid.put("page", "1");
+			jqgrid.put("records", max + "");
+			jqgrid.put("total", max + "");
+
+			int i = 0;
+			int j = 0;
+			for (LabUser user : users) {
+
+				text = user.getUserId() == 0 ? "No Users"
+						: "<a href=/wasp/user/list.do?selId="
+								+ user.getUserId() + ">"
+								+ user.getUser().getFirstName() + " "
+								+ user.getUser().getLastName() + "</a>";
+				mtrx[j][i] = text;
+
 				j++;
-				
+
 			}
 
 			i++;
-			j=0;
-			for (Project project:projects) {		
-					
-				text=project.getProjectId()==0?"No Projects":project.getName();
-				mtrx[j][i]=text;
-				
+			j = 0;
+			for (Project project : projects) {
+
+				text = project.getProjectId() == 0 ? "No Projects" : project
+						.getName();
+				mtrx[j][i] = text;
+
 				j++;
-				
+
 			}
-			
+
 			i++;
-			j=0;
-			for (Sample sample:samples) {		
-					
-				text=sample.getSampleId()==0?"No Samples":sample.getName();
-				mtrx[j][i]=text;
-				
+			j = 0;
+			for (Sample sample : samples) {
+
+				text = sample.getSampleId() == 0 ? "No Samples" : sample
+						.getName();
+				mtrx[j][i] = text;
+
 				j++;
-				
+
 			}
-			
+
 			i++;
-			j=0;
-			for (AcctGrant acc:accGrants) {		
-					
-				text=acc.getGrantId()==0?"No Acc Grants":acc.getName();
-				mtrx[j][i]=text;
-				
+			j = 0;
+			for (AcctGrant acc : accGrants) {
+
+				text = acc.getGrantId() == 0 ? "No Acc Grants" : acc.getName();
+				mtrx[j][i] = text;
+
 				j++;
-				
+
 			}
-			
+
 			i++;
-			j=0;
-			for (SampleLab sampleLab:sampleLabs) {		
-					
-				text=sampleLab.getLab().getLabId()==0?"No Sample Labs":sampleLab.getLab().getName();
-				mtrx[j][i]=text;
-				
+			j = 0;
+			for (SampleLab sampleLab : sampleLabs) {
+
+				text = sampleLab.getLab().getLabId() == 0 ? "No Sample Labs"
+						: sampleLab.getLab().getName();
+				mtrx[j][i] = text;
+
 				j++;
-				
+
 			}
-			
+
 			i++;
-			j=0;
-			for (Job job:jobs) {		
-					
-				text=job.getJobId()==0?"No Jobs":job.getName();
-				mtrx[j][i]=text;
-				
+			j = 0;
+			for (Job job : jobs) {
+
+				text = job.getJobId() == 0 ? "No Jobs" : job.getName();
+				mtrx[j][i] = text;
+
 				j++;
-				
+
 			}
-			 
 
 			List<Map> rows = new ArrayList<Map>();
 
-			for(j=0;j<max;j++) {
-				
+			for (j = 0; j < max; j++) {
+
 				Map cell = new HashMap();
 				rows.add(cell);
-				
-				cell.put("id", j+"");
-				List<String> cellList=Arrays.asList(mtrx[j]);
-				cell.put("cell", cellList);		
+
+				cell.put("id", j + "");
+				List<String> cellList = Arrays.asList(mtrx[j]);
+				cell.put("cell", cellList);
 			}
-			
-			jqgrid.put("rows",rows);
-			
-			return outputJSON(jqgrid, response); 	
-			
+
+			jqgrid.put("rows", rows);
+
+			return outputJSON(jqgrid, response);
+
 		} catch (Throwable e) {
-			throw new IllegalStateException("Can't marshall to JSON "+labDb,e);
+			throw new IllegalStateException("Can't marshall to JSON " + labDb,
+					e);
 		}
 	}
-	
+
 	@RequestMapping(value = "/detail_rw/updateJSON.do", method = RequestMethod.POST)
-	public String updateDetailJSON(@RequestParam("id") Integer labId, Lab labForm, ModelMap m, HttpServletResponse response) {
-				
-		List<LabMeta> labMetaList =  getMetaHelper().getFromJsonForm(request, LabMeta.class);
+	public String updateDetailJSON(@RequestParam("id") Integer labId,
+			Lab labForm, ModelMap m, HttpServletResponse response) {
+
+		List<LabMeta> labMetaList = getMetaHelper().getFromJsonForm(request,
+				LabMeta.class);
 
 		labForm.setLabMeta(labMetaList);
 
-		if (labId==0) {
-			
+		if (labId == 0) {
+
 			labForm.setLastUpdTs(new Date());
 			labForm.setIsActive(1);
-			
+
 			Lab labDb = this.labService.save(labForm);
-			
-			labId=labDb.getLabId();
+
+			labId = labDb.getLabId();
 		} else {
 			Lab labDb = this.labService.getById(labId);
 			labDb.setName(labForm.getName());
@@ -405,35 +425,41 @@ public class LabController extends WaspController {
 
 		labMetaService.updateByLabId(labId, labMetaList);
 
-		//MimeMessageHelper a;
-		
+		// MimeMessageHelper a;
+
 		try {
-			response.getWriter().println(getMessage("lab.updated_success.label"));
+			response.getWriter().println(
+					getMessage("lab.updated_success.label"));
 			return null;
 		} catch (Throwable e) {
-			throw new IllegalStateException("Cant output success message ",e);
-		} 
+			throw new IllegalStateException("Cant output success message ", e);
+		}
 	}
-	
+
 	@RequestMapping(value = "/pending/detail_rw/updateJSON.do", method = RequestMethod.POST)
-	public String updatePendingDetailJSON(@RequestParam("id") Integer labPendingId, LabPending labPendingForm, ModelMap m, HttpServletResponse response) {
-				
-		List<LabPendingMeta> labPendingMetaList =  getLabPendingMetaHelper().getFromJsonForm(request, LabPendingMeta.class);
+	public String updatePendingDetailJSON(
+			@RequestParam("id") Integer labPendingId,
+			LabPending labPendingForm, ModelMap m, HttpServletResponse response) {
+
+		List<LabPendingMeta> labPendingMetaList = getLabPendingMetaHelper()
+				.getFromJsonForm(request, LabPendingMeta.class);
 
 		labPendingForm.setLabPendingMeta(labPendingMetaList);
 
-		if (labPendingId==0) {
-			
+		if (labPendingId == 0) {
+
 			labPendingForm.setLastUpdTs(new Date());
-//			labPendingForm.setIsActive(1);
-			
-			LabPending labPendingDb = this.labPendingService.save(labPendingForm);
-			
-			labPendingId=labPendingDb.getLabPendingId();
+			// labPendingForm.setIsActive(1);
+
+			LabPending labPendingDb = this.labPendingService
+					.save(labPendingForm);
+
+			labPendingId = labPendingDb.getLabPendingId();
 		} else {
-			LabPending labPendingDb = this.labPendingService.getById(labPendingId);
+			LabPending labPendingDb = this.labPendingService
+					.getById(labPendingId);
 			labPendingDb.setName(labPendingForm.getName());
-//			labPendingDb.setIsActive(labPendingForm.getIsActive());
+			// labPendingDb.setIsActive(labPendingForm.getIsActive());
 			labPendingDb.setDepartmentId(labPendingForm.getDepartmentId());
 			labPendingDb.setPrimaryUserId(labPendingForm.getPrimaryUserId());
 
@@ -444,137 +470,148 @@ public class LabController extends WaspController {
 			meta.setLabpendingId(labPendingId);
 		}
 
-		labPendingMetaService.updateByLabpendingId(labPendingId, labPendingMetaList);
+		labPendingMetaService.updateByLabpendingId(labPendingId,
+				labPendingMetaList);
 
-		//MimeMessageHelper a;
-		
+		// MimeMessageHelper a;
+
 		try {
-			response.getWriter().println(getMessage("labPending.updated_success.label"));
+			response.getWriter().println(
+					getMessage("labPending.updated_success.label"));
 			return null;
 		} catch (Throwable e) {
-			throw new IllegalStateException("Cant output success message ",e);
+			throw new IllegalStateException("Cant output success message ", e);
 		}
 	}
 
 	@RequestMapping(value = "/detail_rw/{deptId}/{labId}.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('da-' + #deptId) or hasRole('lu-' + #labId)")
-	public String detailRW(@PathVariable("deptId") Integer deptId, @PathVariable("labId") Integer labId, ModelMap m) {
-		return detail(labId,m,true);
+	public String detailRW(@PathVariable("deptId") Integer deptId,
+			@PathVariable("labId") Integer labId, ModelMap m) {
+		return detail(labId, m, true);
 	}
-	
+
 	@RequestMapping(value = "/detail_ro/{deptId}/{labId}.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('da-' + #deptId) or hasRole('lu-' + #labId)")
-	public String detailRO(@PathVariable("deptId") Integer deptId, @PathVariable("labId") Integer labId, ModelMap m) {
-		return detail(labId,m,false);
+	public String detailRO(@PathVariable("deptId") Integer deptId,
+			@PathVariable("labId") Integer labId, ModelMap m) {
+		return detail(labId, m, false);
 	}
-	
+
 	private String detail(Integer labId, ModelMap m, boolean isRW) {
 
 		Lab lab = this.labService.getById(labId);
 
-		lab.setLabMeta( getMetaHelper().syncWithMaster(lab.getLabMeta()));
+		lab.setLabMeta(getMetaHelper().syncWithMaster(lab.getLabMeta()));
 
 		List<LabUser> labUserList = lab.getLabUser();
 		labUserList.size();
 
 		List<Job> jobList = lab.getJob();
 		jobList.size();
-		
+
 		m.addAttribute("lab", lab);
 
 		prepareSelectListData(m);
-		if (isRW){
+		if (isRW) {
 			return "lab/detail_rw";
-		}
-		else{
+		} else {
 			m.addAttribute("puserFullName", getPiFullNameFromLabId(labId));
 			return "lab/detail_ro";
 		}
 	}
-	
+
 	@RequestMapping(value = "/pending/detail_rw/{deptId}/{labPendingId}.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('da-' + #deptId)")
-	public String pendingDetailRW(@PathVariable("deptId") Integer deptId, @PathVariable("labPendingId") Integer labPendingId, ModelMap m) {
-		return pendingDetail(labPendingId,m,true);
+	public String pendingDetailRW(@PathVariable("deptId") Integer deptId,
+			@PathVariable("labPendingId") Integer labPendingId, ModelMap m) {
+		return pendingDetail(labPendingId, m, true);
 	}
-	
+
 	@RequestMapping(value = "/pending/detail_ro/{deptId}/{labPendingId}.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('da-' + #deptId)")
-	public String pendingDetailRO(@PathVariable("deptId") Integer deptId, @PathVariable("labPendingId") Integer labPendingId, ModelMap m) {
-		LabPending labPending = this.labPendingService.getLabPendingByLabPendingId(labPendingId);
-		if(labPending.getLabPendingId() == 0){//labpendingId doesn't exist
-			waspMessage("labPending.labpendingid_notexist.error");		
+	public String pendingDetailRO(@PathVariable("deptId") Integer deptId,
+			@PathVariable("labPendingId") Integer labPendingId, ModelMap m) {
+		LabPending labPending = this.labPendingService
+				.getLabPendingByLabPendingId(labPendingId);
+		if (labPending.getLabPendingId() == 0) {// labpendingId doesn't exist
+			waspMessage("labPending.labpendingid_notexist.error");
 			return "redirect:/dashboard.do";
 		}
-		if( deptId != labPending.getDepartmentId() ){
-			waspMessage("labPending.departmentid_mismatch.error");		
+		if (deptId != labPending.getDepartmentId()) {
+			waspMessage("labPending.departmentid_mismatch.error");
 			return "redirect:/dashboard.do";
-		}
-		else if(!labPending.getStatus().equalsIgnoreCase("PENDING") ){			
-			waspMessage("labPending.status_mismatch.error");		
+		} else if (!labPending.getStatus().equalsIgnoreCase("PENDING")) {
+			waspMessage("labPending.status_mismatch.error");
 			return "redirect:/dashboard.do";
+		} else {
+			return pendingDetail(labPendingId, m, false);
 		}
-		else{
-			return pendingDetail(labPendingId,m,false);
-		}		
 	}
-	
-	private String getPiFullNameFromLabPendingId(int labPendingId){
+
+	private String getPiFullNameFromLabPendingId(int labPendingId) {
 		LabPending labPending = this.labPendingService.getById(labPendingId);
 		String puserFullName = "";
-		if (labPending.getUserpendingId() != null ) {
-			// this PI is currently a pending user. Make them a full user before creating lab
-			UserPending userPending = userPendingService.getUserPendingByUserPendingId(labPending.getUserpendingId());
-			puserFullName = userPending.getFirstName() + " " + userPending.getLastName();
+		if (labPending.getUserpendingId() != null) {
+			// this PI is currently a pending user. Make them a full user before
+			// creating lab
+			UserPending userPending = userPendingService
+					.getUserPendingByUserPendingId(labPending
+							.getUserpendingId());
+			puserFullName = userPending.getFirstName() + " "
+					+ userPending.getLastName();
 		} else {
-			// the referenced PI of this lab exists in the user table already so get their record
-			User user = userService.getUserByUserId(labPending.getPrimaryUserId());
+			// the referenced PI of this lab exists in the user table already so
+			// get their record
+			User user = userService.getUserByUserId(labPending
+					.getPrimaryUserId());
 			puserFullName = user.getFirstName() + " " + user.getLastName();
 		}
-		return  puserFullName;
+		return puserFullName;
 	}
-	
-	private String getPiFullNameFromLabId(int labId){
+
+	private String getPiFullNameFromLabId(int labId) {
 		Lab lab = this.labService.getById(labId);
 		String puserFullName = "";
 		User user = userService.getUserByUserId(lab.getPrimaryUserId());
 		puserFullName = user.getFirstName() + " " + user.getLastName();
-		return  puserFullName;
+		return puserFullName;
 	}
-	
+
 	private String pendingDetail(Integer labPendingId, ModelMap m, boolean isRW) {
 
 		LabPending labPending = this.labPendingService.getById(labPendingId);
 
-		labPending.setLabPendingMeta(getLabPendingMetaHelper().syncWithMaster(labPending.getLabPendingMeta()));
+		labPending.setLabPendingMeta(getLabPendingMetaHelper().syncWithMaster(
+				labPending.getLabPendingMeta()));
 
-		//List<LabUser> labUserList = labPending.getLabUser();
-		//labUserList.size();
+		// List<LabUser> labUserList = labPending.getLabUser();
+		// labUserList.size();
 
-		//List<Job> jobList = labPending.getJob();
-		//jobList.size();
-		m.addAttribute("puserFullName", getPiFullNameFromLabPendingId(labPendingId));
+		// List<Job> jobList = labPending.getJob();
+		// jobList.size();
+		m.addAttribute("puserFullName",
+				getPiFullNameFromLabPendingId(labPendingId));
 		m.addAttribute("labPending", labPending);
 
 		prepareSelectListData(m);
-		
-		return isRW?"lab/pending/detail_rw":"lab/pending/detail_ro";
+
+		return isRW ? "lab/pending/detail_rw" : "lab/pending/detail_ro";
 	}
 
 	@RequestMapping(value = "/create/form.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('god')")
 	public String showEmptyForm(ModelMap m) {
-	
+
 		Lab lab = new Lab();
-		lab.setLabMeta( getMetaHelper().getMasterList(LabMeta.class));
+		lab.setLabMeta(getMetaHelper().getMasterList(LabMeta.class));
 
 		m.addAttribute("lab", lab);
-		
+
 		prepareSelectListData(m);
-		
+
 		return "lab/detail_rw";
 	}
-
 
 	@RequestMapping(value = "/create/form.do", method = RequestMethod.POST)
 	@PreAuthorize("hasRole('god')")
@@ -583,7 +620,8 @@ public class LabController extends WaspController {
 
 		// read properties from form
 
-		List<LabMeta> labMetaList =  getMetaHelper().getFromRequest(request, LabMeta.class);
+		List<LabMeta> labMetaList = getMetaHelper().getFromRequest(request,
+				LabMeta.class);
 		getMetaHelper().validate(labMetaList, result);
 
 		labForm.setLabMeta(labMetaList);
@@ -605,17 +643,18 @@ public class LabController extends WaspController {
 		status.setComplete();
 
 		waspMessage("lab.created_success.label");
-		
+
 		return "redirect:/lab/detail_rw/" + labDb.getLabId() + ".do";
 	}
 
 	@RequestMapping(value = "/detail_rw/{deptId}/{labId}.do", method = RequestMethod.POST)
 	@PreAuthorize("hasRole('god') or hasRole('da-' + #deptId) or hasRole('lm-' + #labId)")
-	public String updateDetail(@PathVariable("deptId") Integer deptId, @PathVariable("labId") Integer labId,
-			@Valid Lab labForm, BindingResult result, SessionStatus status,
-			ModelMap m) {
+	public String updateDetail(@PathVariable("deptId") Integer deptId,
+			@PathVariable("labId") Integer labId, @Valid Lab labForm,
+			BindingResult result, SessionStatus status, ModelMap m) {
 
-		List<LabMeta> labMetaList = getMetaHelper().getFromRequest(request, LabMeta.class);
+		List<LabMeta> labMetaList = getMetaHelper().getFromRequest(request,
+				LabMeta.class);
 
 		for (LabMeta meta : labMetaList) {
 			meta.setLabId(labId);
@@ -625,7 +664,6 @@ public class LabController extends WaspController {
 
 		getMetaHelper().validate(labMetaList, result);
 
-		
 		if (result.hasErrors()) {
 			prepareSelectListData(m);
 			waspMessage("lab.updated.error");
@@ -644,20 +682,24 @@ public class LabController extends WaspController {
 		labMetaService.updateByLabId(labId, labMetaList);
 
 		status.setComplete();
-		
+
 		waspMessage("lab.updated_success.label");
-		
-		//return "redirect:" + labId + ".do";
-		return "redirect:/lab/detail_ro/" + Integer.toString(labDb.getDepartmentId()) + "/" + labId + ".do";
+
+		// return "redirect:" + labId + ".do";
+		return "redirect:/lab/detail_ro/"
+				+ Integer.toString(labDb.getDepartmentId()) + "/" + labId
+				+ ".do";
 	}
 
 	@RequestMapping(value = "/pending/detail_rw/{deptId}/{labPendingId}.do", method = RequestMethod.POST)
 	@PreAuthorize("hasRole('god') or hasRole('da-' + #deptId) or hasRole('lm-' + #labPendingId)")
-	public String updatePendingDetail(@PathVariable("deptId") Integer deptId, @PathVariable("labPendingId") Integer labPendingId,
-			@Valid LabPending labPendingForm, BindingResult result, SessionStatus status,
-			ModelMap m) {
+	public String updatePendingDetail(@PathVariable("deptId") Integer deptId,
+			@PathVariable("labPendingId") Integer labPendingId,
+			@Valid LabPending labPendingForm, BindingResult result,
+			SessionStatus status, ModelMap m) {
 
-		List<LabPendingMeta> labPendingMetaList = getLabPendingMetaHelper().getFromRequest(request, LabPendingMeta.class);
+		List<LabPendingMeta> labPendingMetaList = getLabPendingMetaHelper()
+				.getFromRequest(request, LabPendingMeta.class);
 
 		for (LabPendingMeta meta : labPendingMetaList) {
 			meta.setLabpendingId(labPendingId);
@@ -666,11 +708,12 @@ public class LabController extends WaspController {
 		labPendingForm.setLabPendingMeta(labPendingMetaList);
 
 		getLabPendingMetaHelper().validate(labPendingMetaList, result);
-		
+
 		if (result.hasErrors()) {
 			waspMessage("labPending.updated.error");
 			prepareSelectListData(m);
-			m.addAttribute("puserFullName", getPiFullNameFromLabPendingId(labPendingId));
+			m.addAttribute("puserFullName",
+					getPiFullNameFromLabPendingId(labPendingId));
 			return "lab/pending/detail_rw";
 		}
 
@@ -683,14 +726,17 @@ public class LabController extends WaspController {
 
 		this.labPendingService.merge(labPendingDb);
 
-		labPendingMetaService.updateByLabpendingId(labPendingId, labPendingMetaList);
+		labPendingMetaService.updateByLabpendingId(labPendingId,
+				labPendingMetaList);
 
 		status.setComplete();
-		
+
 		waspMessage("labPending.updated_success.label");
-		
-		//return "redirect:" + labId + ".do";
-		return "redirect:/lab/pending/detail_ro/" + Integer.toString(labPendingDb.getDepartmentId()) + "/" + labPendingId + ".do";
+
+		// return "redirect:" + labId + ".do";
+		return "redirect:/lab/pending/detail_ro/"
+				+ Integer.toString(labPendingDb.getDepartmentId()) + "/"
+				+ labPendingId + ".do";
 	}
 
 	@RequestMapping(value = "/user/{labId}.do", method = RequestMethod.GET)
@@ -703,7 +749,8 @@ public class LabController extends WaspController {
 		userPendingQueryMap.put("labId", labId);
 		userPendingQueryMap.put("status", "PENDING");
 
-		List<UserPending> userPending = userPendingService.findByMap(userPendingQueryMap);
+		List<UserPending> userPending = userPendingService
+				.findByMap(userPendingQueryMap);
 
 		m.addAttribute("lab", lab);
 		m.addAttribute("labuser", labUser);
@@ -714,14 +761,16 @@ public class LabController extends WaspController {
 
 	@RequestMapping(value = "/pendinguser/list/{labId}.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('god') or hasRole('lu-' + #labId)")
-	public String pendingUserList(@PathVariable("labId") Integer labId, ModelMap m) {
+	public String pendingUserList(@PathVariable("labId") Integer labId,
+			ModelMap m) {
 		Lab lab = this.labService.getById(labId);
 
 		Map userPendingQueryMap = new HashMap();
 		userPendingQueryMap.put("labId", labId);
 		userPendingQueryMap.put("status", "PENDING");
 
-		List<UserPending> userPending = userPendingService.findByMap(userPendingQueryMap);
+		List<UserPending> userPending = userPendingService
+				.findByMap(userPendingQueryMap);
 
 		m.addAttribute("lab", lab);
 		m.addAttribute("labuserpending", userPending);
@@ -731,10 +780,12 @@ public class LabController extends WaspController {
 
 	@RequestMapping(value = "/user/role/{labId}/{userId}/{roleName}.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('god') or hasRole('lm-' + #labId)")
-	public String userDetail ( @PathVariable("labId") Integer labId, @PathVariable("userId") Integer userId, @PathVariable("roleName") String roleName, ModelMap m) {
+	public String userDetail(@PathVariable("labId") Integer labId,
+			@PathVariable("userId") Integer userId,
+			@PathVariable("roleName") String roleName, ModelMap m) {
 
-    // TODO CHECK VALID LABUSER
-		LabUser labUser = labUserService.getLabUserByLabIdUserId(labId, userId); 
+		// TODO CHECK VALID LABUSER
+		LabUser labUser = labUserService.getLabUserByLabIdUserId(labId, userId);
 
 		if (roleName.equals("xx")) {
 			// TODO CONFIRM ROLE WAS "LP"
@@ -744,43 +795,49 @@ public class LabController extends WaspController {
 			return "redirect:/lab/user/" + labId + ".do";
 		}
 
-    // TODO CHECK VALID ROLE NAME
+		// TODO CHECK VALID ROLE NAME
 		Role role = roleService.getRoleByRoleName(roleName);
 
-    // TODO CHECK VALID ROLE FLOW
+		// TODO CHECK VALID ROLE FLOW
 
 		labUser.setRoleId(role.getRoleId());
 		labUserService.merge(labUser);
 
 		// TODO ADD MESSAGE
 
-		// if i am the user,  reauth
+		// if i am the user, reauth
 		User me = getAuthenticatedUser();
 		if (me.getUserId() == userId) {
-			doReauth(); 
+			doReauth();
 		}
 
 		waspMessage("hello.error");
 		return "redirect:/lab/user/" + labId + ".do";
 	}
-	
+
 	/**
-	 * Creates a new Lab from a LabPending object. If principal investigator is pending, her {@link User} account is generated first.
+	 * Creates a new Lab from a LabPending object. If principal investigator is
+	 * pending, her {@link User} account is generated first.
 	 * 
 	 * @param labPending
 	 * @return {@link Lab} the created lab
 	 * @throws WaspMetadataException
 	 */
-	public Lab createLabFromLabPending(LabPending labPending) throws WaspMetadataException {
+	public Lab createLabFromLabPending(LabPending labPending)
+			throws WaspMetadataException {
 		Lab lab = new Lab();
 		User user;
 
-		if (labPending.getUserpendingId() != null ) {
-			// this PI is currently a pending user. Make them a full user before creating lab
-			UserPending userPending = userPendingService.getUserPendingByUserPendingId(labPending.getUserpendingId());
+		if (labPending.getUserpendingId() != null) {
+			// this PI is currently a pending user. Make them a full user before
+			// creating lab
+			UserPending userPending = userPendingService
+					.getUserPendingByUserPendingId(labPending
+							.getUserpendingId());
 			user = createUserFromUserPending(userPending);
 		} else {
-			// the referenced PI of this lab exists in the user table already so get their record
+			// the referenced PI of this lab exists in the user table already so
+			// get their record
 			user = userService.getUserByUserId(labPending.getPrimaryUserId());
 		}
 
@@ -791,28 +848,32 @@ public class LabController extends WaspController {
 
 		Lab labDb = labService.save(lab);
 
-		// copies meta data from labPendingMeta to labMeta. 
-		MetaHelper labMetaHelper = new MetaHelper("lab", LabMeta.class, request.getSession());
+		// copies meta data from labPendingMeta to labMeta.
+		MetaHelper labMetaHelper = new MetaHelper("lab", LabMeta.class,
+				request.getSession());
 		labMetaHelper.getMasterList(LabMeta.class);
-		MetaHelper labPendingMetaHelper = new MetaHelper("labPending", LabPendingMeta.class, request.getSession());
-		List<LabPendingMeta> labPendingMetaList = labPendingMetaHelper.syncWithMaster(labPending.getLabPendingMeta());
-				
-		for (LabPendingMeta lpm: labPendingMetaList) {
-			// get name from prefix by removing area 
+		MetaHelper labPendingMetaHelper = new MetaHelper("labPending",
+				LabPendingMeta.class, request.getSession());
+		List<LabPendingMeta> labPendingMetaList = labPendingMetaHelper
+				.syncWithMaster(labPending.getLabPendingMeta());
+
+		for (LabPendingMeta lpm : labPendingMetaList) {
+			// get name from prefix by removing area
 			String name = lpm.getK().replaceAll("^.*?\\.", "");
-			try{
+			try {
 				labMetaHelper.setMetaValueByName(name, lpm.getV());
-			} catch (WaspMetadataException e){
+			} catch (WaspMetadataException e) {
 				// no match for 'name' in labMeta
-				logger.debug("No match for labPendingMeta property with name '" + name + "' in labMeta properties");
+				logger.debug("No match for labPendingMeta property with name '"
+						+ name + "' in labMeta properties");
 			}
 		}
-		for (LabMeta labMeta : (List<LabMeta>) labMetaHelper.getMetaList()){
+		for (LabMeta labMeta : (List<LabMeta>) labMetaHelper.getMetaList()) {
 			labMeta.setLabId(labDb.getLabId());
 			labMetaService.save(labMeta);
 		}
 
-		// set pi role 
+		// set pi role
 		Role role = roleService.getRoleByRoleName("pi");
 
 		LabUser labUser = new LabUser();
@@ -820,13 +881,15 @@ public class LabController extends WaspController {
 		labUser.setLabId(lab.getLabId());
 		labUser.setRoleId(role.getRoleId());
 		labUserService.save(labUser);
-		
-		// set status to 'CREATED' for any other pending labs of the same name (user may have attempted to apply for their
+
+		// set status to 'CREATED' for any other pending labs of the same name
+		// (user may have attempted to apply for their
 		// lab account more than once)
 		Map pendingLabQueryMap = new HashMap();
 		pendingLabQueryMap.put("primaryUserId", user.getUserId());
 		pendingLabQueryMap.put("name", labDb.getName());
-		for (LabPending lp : (List<LabPending>) labPendingService.findByMap(pendingLabQueryMap)){
+		for (LabPending lp : (List<LabPending>) labPendingService
+				.findByMap(pendingLabQueryMap)) {
 			lp.setStatus("CREATED");
 			labPendingService.save(lp);
 		}
@@ -835,20 +898,23 @@ public class LabController extends WaspController {
 		User me = getAuthenticatedUser();
 
 		if (me.getUserId() == user.getUserId()) {
-			doReauth(); 
+			doReauth();
 		}
 
 		return labDb;
 	}
 
 	/**
-	 * Creates and returns a new {@link User} object from the supplied {@link UserPending} object. 
+	 * Creates and returns a new {@link User} object from the supplied
+	 * {@link UserPending} object.
 	 * 
-	 * @param userPending the pending user
+	 * @param userPending
+	 *            the pending user
 	 * @return {@link User} the created user
 	 * @throws WaspMetadataException
 	 */
-	public User createUserFromUserPending(UserPending userPending) throws WaspMetadataException {
+	public User createUserFromUserPending(UserPending userPending)
+			throws WaspMetadataException {
 		boolean isPiPending = (userPending.getLabId() == null) ? true : false;
 		User user = new User();
 		user.setFirstName(userPending.getFirstName());
@@ -859,85 +925,112 @@ public class LabController extends WaspController {
 		user.setIsActive(1);
 
 		// find me a unique login name
-		String loginBase = userPending.getFirstName().substring(0, 1) + 
-				userPending.getLastName();
+		String loginBase = userPending.getFirstName().substring(0, 1)
+				+ userPending.getLastName();
 		String login = loginBase;
-		int c = 1; 
-		while (userService.getUserByLogin(login).getUserId() > 0 )	{
+		int c = 1;
+		while (userService.getUserByLogin(login).getUserId() > 0) {
 			login = loginBase + c;
-			c++;				
+			c++;
 		}
 		user.setLogin(login);
 		User userDb = userService.save(user);
 		int userId = userDb.getUserId();
 
-		/* List<UserPendingMeta> userPendingMetaList = userPendingMetaService.getUserPendingMetaByUserPendingId(userPending.getUserPendingId());
-		copies meta data */
-		MetaHelper userMetaHelper = new MetaHelper("user", UserMeta.class, request.getSession());
+		/*
+		 * List<UserPendingMeta> userPendingMetaList =
+		 * userPendingMetaService.getUserPendingMetaByUserPendingId
+		 * (userPending.getUserPendingId()); copies meta data
+		 */
+		MetaHelper userMetaHelper = new MetaHelper("user", UserMeta.class,
+				request.getSession());
 		userMetaHelper.getMasterList(UserMeta.class);
-		MetaHelper userPendingMetaHelper = new MetaHelper("userPending", UserPendingMeta.class, request.getSession());
-		if (isPiPending) userPendingMetaHelper.setArea("piPending");
-		List<UserPendingMeta> userPendingMetaList = userPendingMetaHelper.syncWithMaster(userPending.getUserPendingMeta());
-		
-		
-		for (UserPendingMeta upm: userPendingMetaList) {
+		MetaHelper userPendingMetaHelper = new MetaHelper("userPending",
+				UserPendingMeta.class, request.getSession());
+		if (isPiPending)
+			userPendingMetaHelper.setArea("piPending");
+		List<UserPendingMeta> userPendingMetaList = userPendingMetaHelper
+				.syncWithMaster(userPending.getUserPendingMeta());
+
+		for (UserPendingMeta upm : userPendingMetaList) {
 			// convert prefix
 			String name = upm.getK().replaceAll("^.*?\\.", "");
-			try{
+			try {
 				userMetaHelper.setMetaValueByName(name, upm.getV());
-			} catch (WaspMetadataException e){
+			} catch (WaspMetadataException e) {
 				// no match for 'name' in userMeta data
-				logger.debug("No match for userPendingMeta property with name '" + name + "' in userMeta properties");
+				logger.debug("No match for userPendingMeta property with name '"
+						+ name + "' in userMeta properties");
 			}
 		}
-		// if this user is not a PI, copy address information from the PI's User data.
-		if (! isPiPending){
-			/* not a PI application request
-			create a metahelper object to work with metadata for PI. */
-			String piUserLogin = userPendingMetaHelper.getMetaByName("primaryuserid").getV();
-			MetaHelper piMetaHelper = new MetaHelper("user", UserMeta.class, request.getSession());
-			piMetaHelper.syncWithMaster(userService.getUserByLogin(piUserLogin).getUserMeta()); // get PI meta from database and sync with current properties
-			try{
-				userMetaHelper.setMetaValueByName("institution", piMetaHelper.getMetaByName("institution").getV());
-				userMetaHelper.setMetaValueByName("departmentId", piMetaHelper.getMetaByName("departmentId").getV());
-				userMetaHelper.setMetaValueByName("state", piMetaHelper.getMetaByName("state").getV());
-				userMetaHelper.setMetaValueByName("city", piMetaHelper.getMetaByName("city").getV());
-				userMetaHelper.setMetaValueByName("country", piMetaHelper.getMetaByName("country").getV());
-				userMetaHelper.setMetaValueByName("zip", piMetaHelper.getMetaByName("zip").getV());
-			} catch (WaspMetadataException e){
+		// if this user is not a PI, copy address information from the PI's User
+		// data.
+		if (!isPiPending) {
+			/*
+			 * not a PI application request create a metahelper object to work
+			 * with metadata for PI.
+			 */
+			String piUserLogin = userPendingMetaHelper.getMetaByName(
+					"primaryuserid").getV();
+			MetaHelper piMetaHelper = new MetaHelper("user", UserMeta.class,
+					request.getSession());
+			piMetaHelper.syncWithMaster(userService.getUserByLogin(piUserLogin)
+					.getUserMeta()); // get PI meta from database and sync with
+										// current properties
+			try {
+				userMetaHelper.setMetaValueByName("institution", piMetaHelper
+						.getMetaByName("institution").getV());
+				userMetaHelper.setMetaValueByName("departmentId", piMetaHelper
+						.getMetaByName("departmentId").getV());
+				userMetaHelper.setMetaValueByName("state", piMetaHelper
+						.getMetaByName("state").getV());
+				userMetaHelper.setMetaValueByName("city", piMetaHelper
+						.getMetaByName("city").getV());
+				userMetaHelper.setMetaValueByName("country", piMetaHelper
+						.getMetaByName("country").getV());
+				userMetaHelper.setMetaValueByName("zip", piMetaHelper
+						.getMetaByName("zip").getV());
+			} catch (WaspMetadataException e) {
 				// should never get here because of sync
-				throw new MetaHelper.WaspMetadataException("Metadata user / pi meta name mismatch",e);
+				throw new MetaHelper.WaspMetadataException(
+						"Metadata user / pi meta name mismatch", e);
 			}
 		}
-		
-		for (UserMeta userMeta : (List<UserMeta>) userMetaHelper.getMetaList()){
+
+		for (UserMeta userMeta : (List<UserMeta>) userMetaHelper.getMetaList()) {
 			userMeta.setUserId(userId);
 			userMetaService.save(userMeta);
 		}
-		
+
 		// userDb doesn't have associated metadata so add it
 		userDb.setUserMeta((List<UserMeta>) userMetaHelper.getMetaList());
-		
-		/* Set status of any other applications from user with the same email address to 'CREATED'
-		If the new user is also pending in other labs but not yet confirmed by the PI of
-		each of those labs, add the user to that lab (via entry into the labUser table) and set
-		their status as 'lp' (lab-pending). */
+
+		/*
+		 * Set status of any other applications from user with the same email
+		 * address to 'CREATED' If the new user is also pending in other labs
+		 * but not yet confirmed by the PI of each of those labs, add the user
+		 * to that lab (via entry into the labUser table) and set their status
+		 * as 'lp' (lab-pending).
+		 */
 		Map userPendingQueryMap = new HashMap();
 		userPendingQueryMap.put("email", userPending.getEmail());
 		userPendingQueryMap.put("status", "PENDING");
-		List<UserPending> userPendingList = userPendingService.findByMap(userPendingQueryMap);
+		List<UserPending> userPendingList = userPendingService
+				.findByMap(userPendingQueryMap);
 		userPendingQueryMap.put("status", "WAIT_EMAIL");
-		userPendingList.addAll(userPendingService.findByMap(userPendingQueryMap));
+		userPendingList.addAll(userPendingService
+				.findByMap(userPendingQueryMap));
 		Role roleLabPending = roleService.getRoleByRoleName("lp");
 
-		
-		for (UserPending userPendingCurrent: userPendingList) {
+		for (UserPending userPendingCurrent : userPendingList) {
 			userPendingCurrent.setStatus("CREATED");
 			userPendingService.save(userPendingCurrent);
 
 			if (userPendingCurrent.getLabId() != null) {
 				// not a PI application request
-				LabUser labUserCurrent = labUserService.getLabUserByLabIdUserId(userPendingCurrent.getLabId(), userDb.getUserId());
+				LabUser labUserCurrent = labUserService
+						.getLabUserByLabIdUserId(userPendingCurrent.getLabId(),
+								userDb.getUserId());
 				if (labUserCurrent.getLabUserId() > 0) {
 					// already registered as a user of the requested lab
 					continue;
@@ -949,25 +1042,31 @@ public class LabController extends WaspController {
 				labUserService.save(labUserCurrent);
 
 			}
-			/* iterate through list of pending labs. If this user was previously registered as 'userPending' in a lab,
-			remove reference to her userPendingId and insert reference to her new userId instead */
+			/*
+			 * iterate through list of pending labs. If this user was previously
+			 * registered as 'userPending' in a lab, remove reference to her
+			 * userPendingId and insert reference to her new userId instead
+			 */
 			Map labPendingQueryMap = new HashMap();
-			labPendingQueryMap.put("userpendingId", userPendingCurrent.getUserPendingId());
+			labPendingQueryMap.put("userpendingId",
+					userPendingCurrent.getUserPendingId());
 
-			List<LabPending> labPendingList = labPendingService.findByMap(labPendingQueryMap);
-			for (LabPending labPending: labPendingList) {
+			List<LabPending> labPendingList = labPendingService
+					.findByMap(labPendingQueryMap);
+			for (LabPending labPending : labPendingList) {
 				labPending.setUserpendingId((Integer) null);
 				labPending.setPrimaryUserId(userId);
 				labPendingService.save(labPending);
 			}
 		}
 
-		return userDb; 
+		return userDb;
 	}
 
 	/**
-	 * Request-mapped function that allows a principal investigator or lab manager to accept or reject an application from a pending user 
-	 * (not yet an active WASP user) to join their lab.
+	 * Request-mapped function that allows a principal investigator or lab
+	 * manager to accept or reject an application from a pending user (not yet
+	 * an active WASP user) to join their lab.
 	 * 
 	 * @param labId
 	 * @param userPendingId
@@ -978,33 +1077,41 @@ public class LabController extends WaspController {
 	 */
 	@RequestMapping(value = "/userpending/{action}/{labId}/{userPendingId}.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('god') or hasRole('lm-' + #labId)")
-	public String userPendingDetail ( @PathVariable("labId") Integer labId, @PathVariable("userPendingId") Integer userPendingId, @PathVariable("action") String action, ModelMap m) throws WaspMetadataException {
-		
-		if (! (action.equals("approve") || action.equals("reject")) ){
+	public String userPendingDetail(@PathVariable("labId") Integer labId,
+			@PathVariable("userPendingId") Integer userPendingId,
+			@PathVariable("action") String action, ModelMap m)
+			throws WaspMetadataException {
+
+		if (!(action.equals("approve") || action.equals("reject"))) {
 			waspMessage("userPending.action.error");
 			return "redirect:/dashboard.do";
 		}
 
-		UserPending userPending = userPendingService.getUserPendingByUserPendingId(userPendingId);
+		UserPending userPending = userPendingService
+				.getUserPendingByUserPendingId(userPendingId);
 
 		if (userPending.getLabId() != labId) {
 			waspMessage("userPending.labid_mismatch.error");
 			return "redirect:/dashboard.do";
 		}
 		User user;
-				 
+
 		if ("approve".equals(action)) {
-			// add user to lab (labUser table) with role 'lu' (lab-user) and email pending user notification of acceptance
+			// add user to lab (labUser table) with role 'lu' (lab-user) and
+			// email pending user notification of acceptance
 			user = createUserFromUserPending(userPending);
 			Role roleLabUser = roleService.getRoleByRoleName("lu");
 			// createUserFromUserPending, should have made this.
-			LabUser labUser = labUserService.getLabUserByLabIdUserId(labId, user.getUserId());
+			LabUser labUser = labUserService.getLabUserByLabIdUserId(labId,
+					user.getUserId());
 			labUser.setRoleId(roleLabUser.getRoleId());
 			labUserService.merge(labUser);
-			emailService.sendPendingUserNotifyAccepted(user, labService.getLabByLabId(labId));
-		} else{
+			emailService.sendPendingUserNotifyAccepted(user,
+					labService.getLabByLabId(labId));
+		} else {
 			// email pending user notification of rejection
-			emailService.sendPendingUserNotifyRejected(userPending, labService.getLabByLabId(labId));
+			emailService.sendPendingUserNotifyRejected(userPending,
+					labService.getLabByLabId(labId));
 		}
 		userPending.setStatus(action);
 		userPendingService.save(userPending);
@@ -1012,8 +1119,8 @@ public class LabController extends WaspController {
 	}
 
 	/**
-	 * Request-mapped function that allows a department administrator to accept or reject an application for a new lab within
-	 * their department.
+	 * Request-mapped function that allows a department administrator to accept
+	 * or reject an application for a new lab within their department.
 	 * 
 	 * @param departmentId
 	 * @param labPendingId
@@ -1025,26 +1132,33 @@ public class LabController extends WaspController {
 
 	@RequestMapping(value = "/pending/{action}/{deptId}/{labPendingId}.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('god') or hasRole('da-' + #deptId)")
-	public String labPendingDetail ( @PathVariable("deptId") Integer deptId, @PathVariable("labPendingId") Integer labPendingId, @PathVariable("action") String action, ModelMap m) throws WaspMetadataException {
-		
-		if (! (action.equals("approve") || action.equals("reject")) ){
+	public String labPendingDetail(@PathVariable("deptId") Integer deptId,
+			@PathVariable("labPendingId") Integer labPendingId,
+			@PathVariable("action") String action, ModelMap m)
+			throws WaspMetadataException {
+
+		if (!(action.equals("approve") || action.equals("reject"))) {
 			waspMessage("labPending.action.error");
 			return "redirect:/department/detail/" + deptId + ".do";
 		}
-		
-		LabPending labPending = labPendingService.getLabPendingByLabPendingId(labPendingId);
+
+		LabPending labPending = labPendingService
+				.getLabPendingByLabPendingId(labPendingId);
 		if (labPending.getDepartmentId() != deptId) {
 			waspMessage("labPending.departmentid_mismatch.error");
 			return "redirect:/department/detail/" + deptId + ".do";
 		}
-		
+
 		if ("approve".equals(action)) {
 			Lab lab = createLabFromLabPending(labPending);
 			emailService.sendPendingLabNotifyAccepted(lab);
-		} else{
-			if (labPending.getUserpendingId() != null ) {
-				// this PI is currently a pending user. Reject their pending user application too
-				UserPending userPending = userPendingService.getUserPendingByUserPendingId(labPending.getUserpendingId());
+		} else {
+			if (labPending.getUserpendingId() != null) {
+				// this PI is currently a pending user. Reject their pending
+				// user application too
+				UserPending userPending = userPendingService
+						.getUserPendingByUserPendingId(labPending
+								.getUserpendingId());
 				userPending.setStatus(action);
 				userPendingService.save(userPending);
 			}
@@ -1056,30 +1170,30 @@ public class LabController extends WaspController {
 	}
 
 	@RequestMapping(value = "/newrequest", method = RequestMethod.GET)
-	public String showRequestForm (ModelMap m) {
-		MetaHelper pendingMetaHelper = new MetaHelper("labPending", LabPendingMeta.class, request.getSession()); 
+	public String showRequestForm(ModelMap m) {
+		MetaHelper pendingMetaHelper = new MetaHelper("labPending",
+				LabPendingMeta.class, request.getSession());
 
-    LabPending labPending = new LabPending();
+		LabPending labPending = new LabPending();
 
-    labPending.setLabPendingMeta(pendingMetaHelper.getMasterList(LabPendingMeta.class));
-    m.addAttribute("labPending", labPending);
+		labPending.setLabPendingMeta(pendingMetaHelper
+				.getMasterList(LabPendingMeta.class));
+		m.addAttribute("labPending", labPending);
 
-    prepareSelectListData(m);
+		prepareSelectListData(m);
 
 		return "lab/newrequest";
 	}
 
-
 	@RequestMapping(value = "/newrequest", method = RequestMethod.POST)
 	@PreAuthorize("not hasRole('pi-*')")
-	public String createNewLabPending (
-			@Valid LabPending labPendingForm,
-			BindingResult result,
-			SessionStatus status,
-			ModelMap m) {
-		MetaHelper pendingMetaHelper = new MetaHelper("labPending", LabPendingMeta.class,  request.getSession());
+	public String createNewLabPending(@Valid LabPending labPendingForm,
+			BindingResult result, SessionStatus status, ModelMap m) {
+		MetaHelper pendingMetaHelper = new MetaHelper("labPending",
+				LabPendingMeta.class, request.getSession());
 
-		List<LabPendingMeta> labPendingMetaList = pendingMetaHelper.getFromRequest(request, LabPendingMeta.class);
+		List<LabPendingMeta> labPendingMetaList = pendingMetaHelper
+				.getFromRequest(request, LabPendingMeta.class);
 		pendingMetaHelper.validate(labPendingMetaList, result);
 
 		User me = getAuthenticatedUser();
@@ -1111,9 +1225,10 @@ public class LabController extends WaspController {
 		return "redirect:/lab/newrequest.do";
 	}
 
-
 	@RequestMapping(value = "/request.do", method = RequestMethod.POST)
-	public String requestAccess( @RequestParam("primaryuseremail") String primaryuseremail, ModelMap m) {
+	public String requestAccess(
+			@RequestParam("primaryuseremail") String primaryuseremail,
+			ModelMap m) {
 		// check existence of primaryUser/lab
 
 		User primaryUser = userService.getUserByEmail(primaryuseremail);
@@ -1121,7 +1236,6 @@ public class LabController extends WaspController {
 			waspMessage("labuser.requestprimary.error");
 			return "redirect:/lab/newrequest.do";
 		}
-
 
 		Lab lab = labService.getLabByPrimaryUserId(primaryUser.getUserId());
 		if (lab.getLabId() == 0) {
@@ -1131,7 +1245,8 @@ public class LabController extends WaspController {
 
 		// check role of lab user
 		User user = this.getAuthenticatedUser();
-		LabUser labUser = labUserService.getLabUserByLabIdUserId(lab.getLabId(), user.getUserId());
+		LabUser labUser = labUserService.getLabUserByLabIdUserId(
+				lab.getLabId(), user.getUserId());
 
 		if (labUser.getLabUserId() != 0) {
 			ArrayList<String> alreadyPendingRoles = new ArrayList();
@@ -1148,7 +1263,7 @@ public class LabController extends WaspController {
 
 			if (alreadyAccessRoles.contains(labUser.getRole().getRoleName())) {
 				waspMessage("labuser.request_alreadyaccess.error");
-				  return "redirect:/lab/newrequest.do";
+				return "redirect:/lab/newrequest.do";
 			}
 		}
 
