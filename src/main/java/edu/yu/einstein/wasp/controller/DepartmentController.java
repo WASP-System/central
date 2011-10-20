@@ -28,6 +28,7 @@ import edu.yu.einstein.wasp.service.UserService;//added by Dubin
 //import edu.yu.einstein.wasp.service.impl.UserServiceImpl;//added by Dubin
 //import edu.yu.einstein.wasp.service.impl.DepartmentServiceImpl;//added by Dubin
 import edu.yu.einstein.wasp.model.*;
+import edu.yu.einstein.wasp.util.*;
 
 @Controller
 @Transactional
@@ -120,23 +121,16 @@ public class DepartmentController extends WaspController {
 			waspMessage("department.list_invalid.error");
 	}
 	else{
-		//capitalize first letter of each word in name
-		//code derived from http://stackoverflow.com/questions/1149855/how-to-upper-case-every-first-letter-of-word-in-a-string
-		StringBuilder b = new StringBuilder(name);
-		int i = 0;
-		do {
-			b.replace(i, i + 1, b.substring(i,i + 1).toUpperCase());
-			i =  b.indexOf(" ", i) + 1;
-		} while (i > 0 && i < b.length());
-	
-		String modifiedName = new String(b);
-		Department existingDepartment = this.departmentService.getDepartmentByName(modifiedName.trim()); 
+		StringHelper stringHelper = new StringHelper();
+		String modifiedName = stringHelper.toRemoveExtraSpacesAndCapOnlyFirstLetterOfEachWord(name);
+		
+		Department existingDepartment = this.departmentService.getDepartmentByName(modifiedName);//is this name already being used as a department name (which is prohibited) 
 		if( existingDepartment.getDepartmentId() > 0 ){//the id will be 0 if empty department [ie.: department does not already exist]
 			waspMessage("department.list_department_exists.error");
 		}
 		else{
 			Department department = new Department(); 
-			department.setName(modifiedName.trim()); 
+			department.setName(modifiedName); 
 			department.setIsActive(1);
 			department.setIsInternal(1);
 			departmentService.save(department);
@@ -158,9 +152,15 @@ public class DepartmentController extends WaspController {
     departmentUserService.remove(departmentUser);
 
     // if i am the user,  reauth
-    User me = getAuthenticatedUser();
+    User me = getAuthenticatedUser();   
     if (me.getUserId() == userId) {
       doReauth();
+      //if a user is NOT god and the user is a da and removes him/herself from being a da, 
+      //then they are NOT permitted to navigate back to /department/detail/" + departmentId + ".do";
+      //Instead send them back to dashboard
+      if(!request.isUserInRole("god")){
+    	  return "redirect:/dashboard.do";
+      }      
     }
 
     return "redirect:/department/detail/" + departmentId + ".do";
@@ -217,6 +217,42 @@ public class DepartmentController extends WaspController {
     return "redirect:/department/detail/" + departmentId + ".do";
   }
 
+  @RequestMapping(value="/updateDepartment", method=RequestMethod.POST)
+  @PreAuthorize("hasRole('god')")
+  public String updateDepartment (
+    @RequestParam("departmentId") Integer departmentId,
+    @RequestParam("name") String name,
+    @RequestParam("isActive") Integer isActive, 
+    ModelMap m) {
+
+	  if( "".equals(name) ){
+			waspMessage("department.detail_update_missingparam.error");//must add to list
+	  }
+	  else if(name.toLowerCase().indexOf("external") != -1){//prevent any department from being re-named %external%
+			waspMessage("department.list_invalid.error");
+	  }
+	  else{
+		  StringHelper stringHelper = new StringHelper();
+		  String modifiedName = stringHelper.toRemoveExtraSpacesAndCapOnlyFirstLetterOfEachWord(name);
+
+		  Department departmentBeingModified = this.departmentService.getDepartmentByDepartmentId(departmentId);
+		  //modifiedName can be the (unchanged) name of the department being modified (which is valid)
+		  //or it can also be the case that the user
+		  //is attempting to set one department name to another department's name (which is invalid)
+		  //These can be distinguished by departmentId
+		  Department otherDepartment = this.departmentService.getDepartmentByName(modifiedName);
+		  if(otherDepartment.getDepartmentId() > 0 && departmentBeingModified.getDepartmentId() != otherDepartment.getDepartmentId()){
+			  waspMessage("department.list_department_exists.error");//this name is taken
+		  }
+		  else{
+			departmentBeingModified.setName(modifiedName);
+			departmentBeingModified.setIsActive(isActive);
+		  	this.departmentService.save(departmentBeingModified);
+		  	waspMessage("department.detail_update_ok.label");
+		  }
+	  }
+      return "redirect:/department/detail/" + departmentId + ".do";
+  }
 
     
 }
