@@ -20,7 +20,7 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 
 @Service
-public interface JobSampleMetaService extends WaspService<JobSampleMeta> {
+public interface JobSampleMetaService extends WaspMetaService<JobSampleMeta> {
 
 	/**
 	 * setJobSampleMetaDao(JobSampleMetaDao jobSampleMetaDao)

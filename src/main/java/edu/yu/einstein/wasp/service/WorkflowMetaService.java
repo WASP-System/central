@@ -20,7 +20,7 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 
 @Service
-public interface WorkflowMetaService extends WaspService<WorkflowMeta> {
+public interface WorkflowMetaService extends WaspMetaService<WorkflowMeta> {
 
 	/**
 	 * setWorkflowMetaDao(WorkflowMetaDao workflowMetaDao)

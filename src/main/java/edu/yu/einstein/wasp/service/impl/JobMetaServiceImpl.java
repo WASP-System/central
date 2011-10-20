@@ -26,7 +26,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class JobMetaServiceImpl extends WaspServiceImpl<JobMeta> implements JobMetaService {
+public class JobMetaServiceImpl extends WaspMetaServiceImpl<JobMeta> implements JobMetaService {
 
 	/**
 	 * jobMetaDao;

@@ -3,11 +3,14 @@
  */
 package edu.yu.einstein.wasp.controller;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -73,13 +76,10 @@ public class AutoCompleteController extends WaspController{
 	   */
 	  @RequestMapping(value="/getInstitutesForDisplay", method=RequestMethod.GET)
 	  public @ResponseBody String getInstitutes(@RequestParam String instituteNameFragment) {
-		  	Map institutionQueryMap = new HashMap();
-		  	institutionQueryMap.put("k", "user.institution");
-		  	List<MetaBase> list = (List<MetaBase>) userMetaService.findByMap(institutionQueryMap);
-		  	institutionQueryMap.put("k", "piPending.institution");
-		  	list.addAll((List<MetaBase>) userPendingMetaService.findByMap(institutionQueryMap));
-	        
-	        String jsonString = new String();
+		  	
+		  	List<MetaBase> list = (List<MetaBase>) userMetaService.findDistinctMetaOrderBy("user.institution" ,"ASC");
+		  	list.addAll((List<MetaBase>) userPendingMetaService.findDistinctMetaOrderBy("piPending.institution","ASC") );
+		  	String jsonString = new String();
 	        jsonString = jsonString + "{\"source\": [";
 	        SortedSet<String> uniqueInstitutes = new TreeSet();
 	        for (MetaBase meta : list){

@@ -21,7 +21,7 @@ import edu.yu.einstein.wasp.model.SampleDraftMeta;
 import edu.yu.einstein.wasp.model.SubtypeSample;
 
 @Service
-public interface SampleDraftMetaService extends WaspService<SampleDraftMeta> {
+public interface SampleDraftMetaService extends WaspMetaService<SampleDraftMeta> {
 
   public void setSampleDraftMetaDao(SampleDraftMetaDao sampleDraftMetaDao);
   public SampleDraftMetaDao getSampleDraftMetaDao();

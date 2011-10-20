@@ -26,7 +26,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class RunMetaServiceImpl extends WaspServiceImpl<RunMeta> implements RunMetaService {
+public class RunMetaServiceImpl extends WaspMetaServiceImpl<RunMeta> implements RunMetaService {
 
 	/**
 	 * runMetaDao;

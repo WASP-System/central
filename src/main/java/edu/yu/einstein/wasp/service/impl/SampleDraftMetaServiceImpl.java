@@ -23,7 +23,7 @@ import edu.yu.einstein.wasp.model.SubtypeSample;
 import edu.yu.einstein.wasp.service.SampleDraftMetaService;
 
 @Service
-public class SampleDraftMetaServiceImpl extends WaspServiceImpl<SampleDraftMeta> implements SampleDraftMetaService {
+public class SampleDraftMetaServiceImpl extends WaspMetaServiceImpl<SampleDraftMeta> implements SampleDraftMetaService {
 
   private SampleDraftMetaDao sampleDraftMetaDao;
   @Autowired

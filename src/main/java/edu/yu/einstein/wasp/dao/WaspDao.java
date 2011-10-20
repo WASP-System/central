@@ -61,15 +61,15 @@ public interface WaspDao<E> {
 
  public List findByMap(Map m);
  
+ 
  /**
-  * Robert Dubin; 17 Oct 2011
   * Generates and executes simple SQL statement that includes
   * 	1. single (optional) DISTINCT   
   * 	2. single (optional) ORDER BY 
   * 	3. single (optional) direction for ORDER BY (used only if an ORDER BY paramater is provided) 
   * 
-  * 	@param final String distinctColumnName for the single (optional) DISTINCT attribute
-  * 	@param final String orderByColumnName for the single (optional) ORDER BY attribute
+  * 	@param final String distinctColumnName for the single (may be null) DISTINCT attribute
+  * 	@param final String orderByColumnName for the single (may be null) ORDER BY attribute
   * 	@param final String direction used in conjunction with the ORDER BY statement (if orderByColumnName is not empty)
   * 	@return List of objects returned by the database that fulfill the query 
   * 
@@ -78,30 +78,30 @@ public interface WaspDao<E> {
  public List findDistinctOrderBy(final String distinctColumnName, final String orderByColumnName, final String direction);
  
  /**
-  * Robert Dubin; 17 Oct 2011
   * Generates and executes simple SQL statement that includes
-  *	1. single (optional) ORDER BY 
+  *		1. single (optional) ORDER BY 
   * 	2. single (optional) direction for ORDER BY (used only if an ORDER BY paramater is provided) 
   * 
-  * 	@param final String orderByColumnName for the single (optional) ORDER BY attribute
-  * 	@param final String direction used in conjunction with the ORDER BY statement (if orderByColumnName is not empty)
+  * 	@param final String orderByColumnName for the single (may be null) ORDER BY attribute
+  * 	@param final String direction used in conjunction with the ORDER BY statement (if orderByColumnName is not null)
   * 	@return List of objects returned by the database that fulfill the query 
   * 
   *    example use: List<Department> departmentList = this.getDepartmentService().findAllOrderBy("name", "ASC");
   */
  public List findAllOrderBy(final String orderByColumnName, final String direction);
+ 
+ 
  /**
-  * Robert Dubin; 17 Oct 2011
   * Generates and executes SQL statement that includes
   * 	1. multiple (optional) WHERE attributes 
   * 	2. multiple (optional) DISTINCT attributes 
   * 	3. multiple (optional) ORDER BY attributes 
   * 	4. single (optional) direction (DESC or ASC) for ORDER BY  (if there is at least one ORDER BY attribute)
   * 
-  * 	@param final Map m for the multiple (optional) WHERE attributes
-  * 	@param final List<String> distinctColumnNames for the multiple (optional) DISTINCT attributes
-  * 	@param final List<String> orderByColumnNames for the multiple (optional) ORDER BY attributes
-  * 	@param final String direction (optinal) used in conjunction with the ORDER BY statement (if at least one ORDER BY attribute provided) 
+  * 	@param final Map m for the multiple (may be null) WHERE attributes
+  * 	@param final List<String> distinctColumnNames for the multiple (may be null) DISTINCT attributes
+  * 	@param final List<String> orderByColumnNames for the multiple (may be null) ORDER BY attributes
+  * 	@param final String direction (may be null) used in conjunction with the ORDER BY statement (if at least one ORDER BY attribute provided) 
   * 	@return List of objects returned by the database that fulfill the query 
   * 
   * example use:

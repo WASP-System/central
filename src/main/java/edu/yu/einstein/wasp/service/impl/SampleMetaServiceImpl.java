@@ -26,7 +26,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class SampleMetaServiceImpl extends WaspServiceImpl<SampleMeta> implements SampleMetaService {
+public class SampleMetaServiceImpl extends WaspMetaServiceImpl<SampleMeta> implements SampleMetaService {
 
 	/**
 	 * sampleMetaDao;

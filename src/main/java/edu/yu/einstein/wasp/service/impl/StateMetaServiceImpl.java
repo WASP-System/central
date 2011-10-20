@@ -26,7 +26,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class StateMetaServiceImpl extends WaspServiceImpl<StateMeta> implements StateMetaService {
+public class StateMetaServiceImpl extends WaspMetaServiceImpl<StateMeta> implements StateMetaService {
 
 	/**
 	 * stateMetaDao;

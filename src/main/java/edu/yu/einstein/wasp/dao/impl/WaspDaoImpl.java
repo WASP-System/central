@@ -193,53 +193,54 @@ public abstract class WaspDaoImpl<E extends Serializable> extends JpaDaoSupport 
           qString += "h." + key.toString() + " = :" + key.toString();
           firstMap = false;
         }
-
-        for(String distinctColumnName : distinctColumnNames){
-        	if(where == false){
-          	  qString += " WHERE (";
-          	  where = true;
-            }
-        	else if(firstDistinct == true){
-        		qString += " AND (";
-        	}
-        	else if(firstDistinct == false){ 
-                qString += ", ";
-             }
-        	
-        	qString += "h." + distinctColumnName;
-        	firstDistinct = false;
+        if (distinctColumnNames != null && ! "".equals(distinctColumnNames)){
+	        for(String distinctColumnName : distinctColumnNames){
+	        	if(where == false){
+	          	  qString += " WHERE (";
+	          	  where = true;
+	            }
+	        	else if(firstDistinct == true){
+	        		qString += " AND (";
+	        	}
+	        	else if(firstDistinct == false){ 
+	                qString += ", ";
+	             }
+	        	
+	        	qString += "h." + distinctColumnName;
+	        	firstDistinct = false;
+	        }
+	        if(firstDistinct == false){ 
+	            qString += ") IN (SELECT DISTINCT";
+	            firstDistinct = true;
+	            
+	            for(String distinctColumnName : distinctColumnNames){
+	            	
+	            	if(firstDistinct == false){
+	                	qString += ", ";
+	                }
+	            	qString += " j." + distinctColumnName;
+	            	firstDistinct = false;
+	            }
+	         }
+	        if(firstDistinct == false){
+	        	qString += " FROM " + entityClass.getName() + " j) ";
+	        }
         }
-        if(firstDistinct == false){ 
-            qString += ") IN (SELECT DISTINCT";
-            firstDistinct = true;
-            
-            for(String distinctColumnName : distinctColumnNames){
-            	
-            	if(firstDistinct == false){
-                	qString += ", ";
-                }
-            	qString += " j." + distinctColumnName;
-            	firstDistinct = false;
-            }
-         }
-        if(firstDistinct == false){
-        	qString += " FROM " + entityClass.getName() + " j) ";
+        if (orderByColumnNames != null && !orderByColumnNames.isEmpty() ){  
+	        for(String orderByColumnName : orderByColumnNames){
+	        	if(firstOrderBy == true){
+	        		qString += " ORDER BY ";
+	        	}
+	        	else if(firstOrderBy == false){
+	        		qString += ", ";
+	        	}
+	        	qString += "h." + orderByColumnName;
+	        	firstOrderBy = false;
+	        }
+	        if( firstOrderBy == false && direction != null && ! "".equals(direction) ){
+	        	qString += " " + direction;
+	        }
         }
-          
-        for(String orderByColumnName : orderByColumnNames){
-        	if(firstOrderBy == true){
-        		qString += " ORDER BY ";
-        	}
-        	else if(firstOrderBy == false){
-        		qString += ", ";
-        	}
-        	qString += "h." + orderByColumnName;
-        	firstOrderBy = false;
-        }
-        if( firstOrderBy == false && ! "".equals(direction) ){
-        	qString += " " + direction;
-        }
-       
         //logger.debug("ROBERT: " + qString);
         
         Query q = em.createQuery(qString);
@@ -255,6 +256,7 @@ public abstract class WaspDaoImpl<E extends Serializable> extends JpaDaoSupport 
     return (List) res;
   }
   
+  
   @SuppressWarnings("unchecked")
   // @ Transactional
   public List findDistinctOrderBy(final String distinctColumnName, final String orderByColumnName, final String direction) {
@@ -266,14 +268,14 @@ public abstract class WaspDaoImpl<E extends Serializable> extends JpaDaoSupport 
     // return q.getResultList();
         String qString = "SELECT h FROM " + entityClass.getName() + " h";
         
-        if(! "".equals(distinctColumnName)){
+        if(distinctColumnName != null && ! "".equals(distinctColumnName)){
         	qString += " WHERE h." + distinctColumnName + " IN (SELECT DISTINCT j." + distinctColumnName + " FROM " + entityClass.getName() + " j)";
         }
         
-        if( ! "".equals(orderByColumnName) &&  "".equals(direction) ){
+        if( orderByColumnName != null && ! "".equals(orderByColumnName) && direction != null && "".equals(direction) ){
        	 qString += " ORDER BY h." + orderByColumnName;  
         }
-        else if( ! "".equals(orderByColumnName) && ! "".equals(direction) ){
+        else if(orderByColumnName != null &&  ! "".equals(orderByColumnName) && direction != null && ! "".equals(direction) ){
        	 qString += " ORDER BY h." + orderByColumnName + " " + direction;
         }
         //logger.debug("ROBERT: " + qString);

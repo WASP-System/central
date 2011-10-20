@@ -20,7 +20,7 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 
 @Service
-public interface UserPendingMetaService extends WaspService<UserPendingMeta> {
+public interface UserPendingMetaService extends WaspMetaService<UserPendingMeta> {
 
 	/**
 	 * setUserPendingMetaDao(UserPendingMetaDao userPendingMetaDao)
