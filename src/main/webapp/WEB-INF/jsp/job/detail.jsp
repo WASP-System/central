@@ -1,5 +1,6 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
+
     <h1>
       <c:out value="${job.name}"/>
     </h1>
@@ -37,11 +38,11 @@
     
     <sec:authorize access="hasRole('god') or hasRole('lm-${job.lab.labId}') or hasRole('js-${job.jobId}')">
     <font color="red"><wasp:message /></font>
-    <form name="f" action="<c:url value='/job/user/roleAdd.do'/>" method="POST">
+    <form name="f" action="<c:url value='/job/user/roleAdd.do'/>" method="POST" onsubmit="return validate();" >
       Login Name:
       <input type='hidden' name='labId' value='<c:out value="${job.lab.labId}" />'/>
       <input type='hidden' name='jobId' value='<c:out value="${job.jobId}" />'/>
-      <input type='text' name='login' value=''/>
+      <input type='text' id='login' name='login' value=''/>
       <input type="submit" value="Add Job Viewer" />
     </form>
 	</sec:authorize>	

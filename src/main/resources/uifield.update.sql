@@ -524,6 +524,8 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','emailsent','label','Thank you for your account request. You have been sent an email with instructions as to how to confirm your email address. Please click to <a href="../login.do"/>Login</a>','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','resetpassword_submit','label','Submit','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail','label','Department','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail_update_missingparam','error','Deaprtment name must be provided','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail_update_ok','label','Department has been updated','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail_missingparam','error','Name is missing','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail_administrators','label','Administrators','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','mypassword_submit','label','Submit','1');

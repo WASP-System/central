@@ -20,12 +20,17 @@
  </script>
  <script language="JavaScript">
 		<!--
-		function validate(){
-			var error = false;
-			var message = '<fmt:message key="department.detail_missingparam.error" />';
-			if(document.f.adminName.value == ""){
+		function validate(param){
+			var error = false;			
+			if(param == 'createAdmin' && document.f.adminName.value == ""){
 				error = true;
+				var message = '<fmt:message key="department.detail_missingparam.error" />';
 				document.f.adminName.focus();
+			}
+			else if(param == 'updateDept' && document.update_form.name.value == ""){
+				error = true;
+				var message = '<fmt:message key="department.detail_update_missingparam.error" />';
+				document.update_form.name.focus();
 			}
 			if(error){ alert(message); return false; }
 			return true;

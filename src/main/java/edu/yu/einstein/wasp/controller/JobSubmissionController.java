@@ -71,6 +71,7 @@ import edu.yu.einstein.wasp.service.JobMetaService;
 import edu.yu.einstein.wasp.service.JobSampleService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.JobUserService;
+import edu.yu.einstein.wasp.service.LabService;
 import edu.yu.einstein.wasp.service.RoleService;
 import edu.yu.einstein.wasp.service.SampleCellService;
 import edu.yu.einstein.wasp.service.SampleDraftCellService;
@@ -110,6 +111,9 @@ public class JobSubmissionController extends WaspController {
 
 	@Autowired
 	private JobService jobService;
+
+	@Autowired
+	private LabService labService;
 
 	@Autowired
 	private JobUserService jobUserService;
@@ -748,6 +752,16 @@ public class JobSubmissionController extends WaspController {
 		Role role = roleService.getRoleByRoleName("js");
 		jobUser.setRoleId(role.getRoleId());
 		jobUserService.save(jobUser);
+		
+		// added 10-20-11 by rob dubin: with job submission, add lab PI as job viewer ("jv")
+		//note: could use similar logic in loop to assign jv to all the lab members
+		Lab lab = labService.getLabByLabId(jobDb.getLabId());		
+		JobUser jobUser2 = new JobUser();		
+		jobUser2.setUserId(lab.getPrimaryUserId());//the lab PI
+		jobUser2.setJobId(jobDb.getJobId());
+		Role role2 = roleService.getRoleByRoleName("jv");
+		jobUser2.setRoleId(role2.getRoleId());
+		jobUserService.save(jobUser2);
 
 		// Job Cells (oldid, newobj)
 		Map<Integer,JobCell> jobDraftCellMap = new HashMap<Integer,JobCell>();

@@ -20,7 +20,9 @@ import java.util.List;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.JobUserService;
 import edu.yu.einstein.wasp.service.RoleService;
+import edu.yu.einstein.wasp.util.StringHelper;
 import edu.yu.einstein.wasp.model.*;
+import edu.yu.einstein.wasp.util.*;
 
 @Controller
 @Transactional
@@ -92,7 +94,7 @@ public class JobController extends WaspController {
     m.addAttribute("jobfile", jobFileList);
     m.addAttribute("jobuser", jobUserList);
     m.addAttribute("statejob", stateJobList);
-
+ 
     return "job/detail";
   }
 
@@ -102,7 +104,7 @@ public class JobController extends WaspController {
   public String jobViewerUserRoleAdd (
       @RequestParam("labId") Integer labId,
       @RequestParam("jobId") Integer jobId,
-      @RequestParam("login") String login, //10-11-11; changed from useremail to login
+      @RequestParam("login") String login, //10-11-11 changed from useremail to login, AND 10-20-11 changed login format from jgreally to the AJAX-generated and formatted login of John Greally (jgreally), so must now extract the login from the formatted string 
       ModelMap m) {
  
 	Job job = this.jobService.findById(jobId);
@@ -110,7 +112,9 @@ public class JobController extends WaspController {
 		waspMessage("job.jobViewerUserRoleAdd.error1");//this job not found in database or the labId does not belong to this job
 	}
 	else{   
-		User user = userService.getUserByLogin(login);
+		StringHelper stringHelper = new StringHelper();
+		String extractedLogin = stringHelper.getLoginFromFormattedNameAndLogin(login);
+		User user = userService.getUserByLogin(extractedLogin);
 		if(user.getUserId()==0){
 			waspMessage("job.jobViewerUserRoleAdd.error2");//user login name does not exist
 		}

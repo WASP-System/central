@@ -67,7 +67,7 @@
     <c:set var="jobId" value="${j.jobId}" />
 
     <div>
-      <b><c:out value="${j.lab.name}" /></b> - 
+      <b><c:out value="${j.lab.name}" />&nbsp;[<c:out value="${j.user.login}" />]</b> - 
       <a href="<c:url value="/job/detail/${jobId}.do"/>">
       <b><c:out value="${j.name}" /></b>
       </a>
@@ -82,7 +82,7 @@
     <c:set var="jobDraftId" value="${j.jobDraftId}" />
 
     <div>
-      <b><c:out value="${j.lab.name}" /></b> - 
+      <b><c:out value="${j.lab.name}" />&nbsp;[<c:out value="${j.user.login}" />]</b> - 
       <a href="<c:url value="/jobsubmit/verify/${jobDraftId}.do"/>">
       <b><c:out value="${j.name}" /></b>
       </a>
