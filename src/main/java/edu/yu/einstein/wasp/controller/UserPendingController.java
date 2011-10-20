@@ -228,11 +228,11 @@ public class UserPendingController extends WaspController {
 		List<String> instituteList = new ArrayList();
 		Collections.addAll(instituteList,internalInstituteList.split(";")); 
 		m.addAttribute("instituteList", instituteList);
-		if ( (instituteSelect == null || instituteSelect.equals("other")) && (instituteOther == null || instituteOther.isEmpty()) ){
+		if ( (instituteSelect == null || instituteSelect.equals("other") || instituteSelect.isEmpty()) && (instituteOther == null || instituteOther.isEmpty()) ){
 			waspMessage("piPending.institute_not_selected.error");
 			return "auth/newpi/institute";
 		}
-		if ( instituteSelect != null && !instituteSelect.equals("other") && instituteOther != null && !instituteOther.isEmpty() ){
+		if ( instituteSelect != null && !instituteSelect.equals("other")  && !instituteSelect.isEmpty() && instituteOther != null && !instituteOther.isEmpty() ){
 			waspMessage("piPending.institute_multi_select.error");
 			return "auth/newpi/institute";
 		}
