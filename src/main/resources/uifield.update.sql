@@ -751,7 +751,13 @@ insert into workflowmeta
 (workflowid, k, v)
 values
 (1, 'workflow.submitpageflow', '/jobsubmit/modifymeta/{n};/jobsubmit/aligner/{n};/jobsubmit/samples/{n};/jobsubmit/cells/{n};/jobsubmit/verify/{n};/jobsubmit/submit/{n};/jobsubmit/ok');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sysrole','list_missingparam','error','Name is missing','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sysrole','noUserSpecified','error','No user specified','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sysrole','userNonexistant','error','The user specified does not exist in the database','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sysrole','noRoleSpecified','error','No role specified','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sysrole','invalidRoleSpecified','error','Invalid role specified','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sysrole','wrongUserRoleCombination','error','Specified user doesn''t have specified role','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sysrole','userRoleExists','error','Specified user already has the selected role','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sysrole','success','label','Update completed successfully','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sysrole','list_sysuser_name','label','Existing User','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sysrole','list_sysuser_role','label','New Role','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sysrole','list_submit','label','Submit','1');

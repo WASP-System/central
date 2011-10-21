@@ -5,12 +5,12 @@
 
  <script type="text/javascript">
      $(document).ready(function() {            
-	       $("#userId").keyup(function(){getAuthNames();});
+	       $("#userHook").keyup(function(){getAuthNames();});
      });
       
      function getAuthNames(){        
-     	if( $("#userId").val().length == 1){
-	        	$.getJSON("/wasp/autocomplete/getUserNamesAndLoginForDisplay.do", { adminNameFragment: $("#userId").val() }, function(data) { $("input#userId").autocomplete(data);} );
+     	if( $("#userHook").val().length == 1){
+	        	$.getJSON("/wasp/autocomplete/getUserNamesAndLoginForDisplay.do", { adminNameFragment: $("#userHook").val() }, function(data) { $("input#userHook").autocomplete(data);} );
      	}
 	 }
  </script>

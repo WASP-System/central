@@ -6,35 +6,51 @@
 
 <div>
   <h3><fmt:message key="sysrole.list_current.label" /></h3>
-  <c:forEach items="${userrole}" var="r">
-    <c:out value="${r.user.firstName}" /> <c:out value="${r.user.lastName}" /> (<c:out value="${r.user.login}" />): role '<c:out value="${r.role.name}" />'
-    <a href="<c:url value="/sysrole/remove/${r.userId}/${r.role.roleName}.do" />">[REMOVE]</a><br />
-  </c:forEach>
+  <table>
+  <tr>
+  	<th>Name (Login Name)</th>
+  	<th>Role</th>
+  	<th>Action</th>
+  </tr>
+  <c:forEach items="${userRoleMap}" var="rs">
+	  <c:forEach items="${rs.value}" var="r">
+	  	<tr>
+		    <td><c:out value="${rs.key}" /></td>
+		    <td><c:out value="${r.role.name}" /></td>
+		    <td><a href="<c:url value="/sysrole/remove/${r.userId}/${r.role.roleName}.do" />">[REMOVE]</a></td>
+	    </tr>
+	  </c:forEach>
+	</c:forEach>
+  </table>
 </div>
 
 <div>
 
   <h3><fmt:message key="sysrole.list_create.label" /></h3>
   <form method="POST" action="<c:url value="/sysrole/add.do"/>" onsubmit='return validate();'>
-    <div>
-    <fmt:message key="sysrole.list_sysuser_role.label" />: 
-    <select name="roleName">
-    <option value="" SELECTED><fmt:message key="wasp.default_select.label"/></option>
-    <c:forEach items="${role}" var="r">
-      <option value="<c:out value="${r.roleName}"/>">
-         <c:out value="${r.name}"/>
-      </option>
-    </c:forEach>
-    </select>
-    </div>
-
-    <div>
-    <fmt:message key="sysrole.list_sysuser_name.label" />: <input type="text" id="userId" name="userId" />
-    </div>
+  <table>
+    <tr>
+    	<td><fmt:message key="sysrole.list_sysuser_role.label" />: </td>
+    	<td><select name="roleName">
+		    <option value="" SELECTED><fmt:message key="wasp.default_select.label"/></option>
+		    <c:forEach items="${role}" var="r">
+		      <option value="<c:out value="${r.roleName}"/>">
+		         <c:out value="${r.name}"/>
+		      </option>
+		    </c:forEach>
+		    </select>
+		</td>
+    </tr>
+    <tr>
+	    <td><fmt:message key="sysrole.list_sysuser_name.label" />: </td>
+	    <td><input type="text" id="userHook" name="userHook" /></td>
+    </tr>
  
-
-    <input type="submit" value="<fmt:message key="sysrole.list_submit.label" />" />
-  </form>
+	<tr>
+		<td colspan="2"> <input type="submit" value="<fmt:message key="sysrole.list_submit.label" />" /></td>
+	</tr>
+  </table>
+    </form>
 
   
 </div>
