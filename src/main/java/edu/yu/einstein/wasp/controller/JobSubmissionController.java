@@ -37,6 +37,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 import edu.yu.einstein.wasp.model.Job;
@@ -154,6 +155,9 @@ public class JobSubmissionController extends WaspController {
 	@Autowired
 	private JobCellService jobCellService;
 
+	@Autowired
+	private java.net.URI jobRunnerHost;
+	
 	@Autowired
 	private SampleCellService sampleCellService;
 
@@ -1070,7 +1074,14 @@ public class JobSubmissionController extends WaspController {
 					samplDraft.setFileId(file.getFileId());
 					
 					sampleDraftService.merge(samplDraft);
-									
+								
+					RestTemplate template = new RestTemplate();
+					try {
+						template.postForLocation(jobRunnerHost+"/bee/jobs/launchBeeJob.do?file={file}",String.class, dest.getAbsolutePath());
+					} catch (Throwable ee) {
+						//ignoring until we have "no downtime" instance to run jobs
+					}
+					
 					jsCallback=jsCallback.replace("{message}",getMessage("sampleDraft.fileupload_done.data"));
 					response.setContentType( "text/html; charset=UTF-8" );
 					response.getWriter().print(jsCallback);

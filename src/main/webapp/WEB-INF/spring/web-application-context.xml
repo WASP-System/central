@@ -169,9 +169,14 @@
         <property name="maxUploadSize" value="10000000" />
  </bean>
  
- <bean id="sampleDir" class="java.io.File">
+<bean id="sampleDir" class="java.io.File">
     <constructor-arg index="0" value="C:\apps\tomcat70eintstein\temp" />
 </bean>
+
+<bean id="jobRunnerHost" class="java.net.URI">
+    <constructor-arg index="0" value="http://localhost:18083" />
+</bean>
+
 
   <!-- Spring Integration/Batch config-->
   <!-- 
