@@ -1,6 +1,6 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp"%>
 
-<h1>Create a New Resource</h1>
+<h1>Update Resource Details</h1>
 
 <p>
 	<font color="red"><wasp:message /> </font>
@@ -24,7 +24,8 @@
 						<fmt:message key="wasp.default_select.label" />
 					</option>
 					<c:forEach var="type" items="${typeResources}">
-						<option value="${type.typeResourceId}">
+						<option value="${type.typeResourceId}"
+							<c:if test="${type.typeResourceId == resource.typeResourceId}"> selected</c:if>>
 							<c:out value="${type.name}" />
 						</option>
 					</c:forEach>

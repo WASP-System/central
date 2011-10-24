@@ -127,12 +127,14 @@
     <definition name="resource/list" extends="template-base">
         <put-attribute name="body-content" value="/WEB-INF/jsp/resource/list.jsp" />
     </definition>
-    <definition name="resource/detail" extends="template-base">
-        <put-attribute name="body-content" value="/WEB-INF/jsp/resource/detail.jsp" />
+    <definition name="resource/detail_ro" extends="template-base">
+        <put-attribute name="body-content" value="/WEB-INF/jsp/resource/detail_ro.jsp" />
+    </definition>
+    <definition name="resource/detail_rw" extends="template-base">
+        <put-attribute name="body-content" value="/WEB-INF/jsp/resource/detail_rw.jsp" />
     </definition>
     <definition name="resource/create" extends="template-base">
-        <put-attribute name="head-js" value="/WEB-INF/jsp/resource/detail.js.jsp" />
-        <put-attribute name="body-content" value="/WEB-INF/jsp/resource/detail.jsp" />
+        <put-attribute name="body-content" value="/WEB-INF/jsp/resource/create.jsp" />
     </definition>
     <definition name="run/list" extends="template-base">
         <put-attribute name="body-content" value="/WEB-INF/jsp/run/list.jsp" />

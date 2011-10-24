@@ -95,6 +95,7 @@ public class Resource extends WaspModel {
 	 *
 	 */
 	@Column(name="name")
+	@NotEmpty
 	protected String name;
 
 	/**
@@ -126,6 +127,7 @@ public class Resource extends WaspModel {
 	 *
 	 */
 	@Column(name="typeresourceid")
+	@Range(min=1)
 	protected int typeResourceId;
 
 	/**
