@@ -177,7 +177,14 @@ public class SystemRoleController extends WaspController {
 			waspMessage("sysrole.invalidRoleSpecified.error");
 			return "redirect:/sysrole/list.do";
 		}
-
+		// ensure we do not remove the only userrole entry for the chosen role
+		// must have at least one user granted each system role.
+		Map roleIdQuery = new HashMap();
+		roleIdQuery.put("roleId", role.getRoleId());
+		if (userroleService.findByMap(roleIdQuery).size() == 1){
+			waspMessage("sysrole.onlyUserWithRole.error");
+			return "redirect:/sysrole/list.do";
+		}
 		Userrole userrole = userroleService.getUserroleByUserIdRoleId(userId, role.getRoleId());
 		
 		if (userrole.getUserroleId() == 0){
@@ -190,7 +197,7 @@ public class SystemRoleController extends WaspController {
 		User me = getAuthenticatedUser();
 		if (me.getUserId() == userId) {
 			doReauth();
-			if (role.getRoleName().equals("god")){
+			if (roleName.equals("god")){
 				return "redirect:/dashboard.do";
 			}
 		}

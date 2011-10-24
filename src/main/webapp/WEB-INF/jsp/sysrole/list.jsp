@@ -17,7 +17,7 @@
 	  	<tr>
 		    <td><c:out value="${rs.key}" /></td>
 		    <td><c:out value="${r.role.name}" /></td>
-		    <td><a href="<c:url value="/sysrole/remove/${r.userId}/${r.role.roleName}.do" />">[REMOVE]</a></td>
+		    <td><a href="<c:url value="/sysrole/remove/${r.userId}/${r.role.roleName}.do" />">[Remove Role]</a></td>
 	    </tr>
 	  </c:forEach>
 	</c:forEach>

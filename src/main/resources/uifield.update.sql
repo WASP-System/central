@@ -757,6 +757,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sysrole','invalidRoleSpecified','error','Invalid role specified','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sysrole','wrongUserRoleCombination','error','Specified user doesn''t have specified role','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sysrole','userRoleExists','error','Specified user already has the selected role','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sysrole','onlyUserWithRole','error','Cannot remove role from user. The role must be granted to another user first.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sysrole','success','label','Update completed successfully','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sysrole','list_sysuser_name','label','Existing User','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sysrole','list_sysuser_role','label','New Role','1');
