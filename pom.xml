@@ -399,7 +399,7 @@
             <version>3.0.1</version>
         </dependency>
         <dependency>
-            <groupId>nl.captcha</groupId>
+            <groupId>simplecaptcha</groupId>
             <artifactId>simplecaptcha</artifactId>
             <version>1.1.1</version>
         </dependency>
@@ -480,9 +480,9 @@
             <url>http://repository.springsource.com/maven/bundles/external</url>
         </repository>
         <repository>
-            <id>nl.captcha</id>
+            <id>simplecaptcha</id>
             <name>Simple Captcha Repository</name>
-            <url>https://hypobytes.com/maven/content/repositories/thirdparty</url>
+            <url>http://savant.inversoft.org/net/sourceforge/simplecaptcha</url>
         </repository>
         <repository>
 			<id>junit</id>
