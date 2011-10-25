@@ -482,7 +482,7 @@
         <repository>
             <id>simplecaptcha</id>
             <name>Simple Captcha Repository</name>
-            <url>http://savant.inversoft.org/net/sourceforge/simplecaptcha</url>
+            <url>http://savant.inversoft.org/net/sourceforge</url>
         </repository>
         <repository>
 			<id>junit</id>
