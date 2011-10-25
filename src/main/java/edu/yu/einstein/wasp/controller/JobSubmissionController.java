@@ -723,7 +723,8 @@ public class JobSubmissionController extends WaspController {
 		
 		getMetaHelper().setArea(jobDraft.getWorkflow().getIName());
 
-		jobDraft.setJobDraftMeta(getMetaHelper().syncWithMaster(jobDraft.getJobDraftMeta()));
+		// no sync w/ master
+		// jobDraft.setJobDraftMeta(getMetaHelper().syncWithMaster(jobDraft.getJobDraftMeta()));
 
 
 		// Copies JobDraft to a new Job
