@@ -398,11 +398,16 @@
             <artifactId>javax.servlet-api</artifactId>
             <version>3.0.1</version>
         </dependency>
-        <dependency>
+  <!--       <dependency>
             <groupId>simplecaptcha</groupId>
             <artifactId>simplecaptcha</artifactId>
             <version>1.1.1</version>
             <type>jar</type>
+        </dependency> -->
+        <dependency>
+        	<groupId>org.gatein.captcha</groupId>
+            <artifactId>simplecaptcha</artifactId>
+         	<version>1.1.1-GA-Patch01</version>
         </dependency>
         <dependency>
             <groupId>commons-fileupload</groupId>
@@ -480,10 +485,17 @@
             <name>SpringSource EXTERNAL Repository</name>
             <url>http://repository.springsource.com/maven/bundles/external</url>
         </repository>
+        <!-- 
         <repository>
             <id>simplecaptcha</id>
             <name>Simple Captcha Repository</name>
             <url>http://savant.inversoft.org/net/sourceforge</url>
+        </repository>
+        -->
+        <repository>
+            <id>simplecaptcha</id>
+            <name>Simple Captcha Repository</name>
+            <url>http://maven.glassfish.org/content/repositories/glassfish-group</url>
         </repository>
         <repository>
 			<id>junit</id>
