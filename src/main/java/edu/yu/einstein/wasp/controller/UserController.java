@@ -117,54 +117,37 @@ public class UserController extends WaspController {
 	 	ObjectMapper mapper = new ObjectMapper();
     	
 		 try {
-			
 			 jqgrid.put("page","1");
 			 jqgrid.put("records",max+"");
 			 jqgrid.put("total",max+"");
-			 
 			 String text;
-			 
-			 int i=0;
-			 int j=0;
+			 int i=0; // column
+			 int j=0; // row
 			 for (Lab lab:puLabs) {
-				 
 				 text=lab.getLabId()==0?"No Labs":"<a href=/wasp/lab/list.do?selId="+lab.getLabId()+">"+lab.getName()+"</a>";
 				 mtrx[j][i]=text;
-				 
 				 j++;
-				 
 			 }
-
 			 i=1;
 			 j=0;
 			 for (LabUser lab:uLabs) {		
 				 text=lab.getLab().getLabId()==0?"No Labs":"<a href=/wasp/lab/list.do?selId="+lab.getLab().getLabId()+">"+lab.getLab().getName()+"</a>";	
 				 mtrx[j][i]=text;
-				 
-				 j++;
-				 
-			 }
-			 
+				 j++;		 
+			 }		 
 			 i=2;
 			 j=0;
-			 for (Job job:uJobs) {		
-				
+			 for (Job job:uJobs) {				
 				 text=job.getJobId()==0?"No Jobs":job.getName();
-				 mtrx[j][i]=text;
-				 
-				 j++;
-				 
-			 }
-			 
+				 mtrx[j][i]=text;			 
+				 j++;				 
+			 }		 
 			 i=3;
 			 j=0;
 			 for (Sample sample:uSamples) {		
-					
 				 text=sample.getSampleId()==0?"No Samples":sample.getName();
 				 mtrx[j][i]=text;
-				 
-				 j++;
-				 
+				 j++;	 
 			 }
 
 			 List<Map> rows = new ArrayList<Map>();

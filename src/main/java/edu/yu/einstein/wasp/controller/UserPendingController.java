@@ -106,7 +106,14 @@ public class UserPendingController extends WaspController {
 	@RequestMapping(value="/newuser", method=RequestMethod.GET)
 	public String showNewPendingUserForm(ModelMap m) {
 		
-
+		Captcha captcha = new Captcha.Builder(150, 50)
+			.addText()
+			.addBackground()
+			.addNoise()
+			.gimp()
+			.addBorder()
+			.build();
+		m.addAttribute(Captcha.NAME, captcha);
 		UserPending userPending = new UserPending();
 		MetaHelper metaHelper = getMetaHelper();	
 		
@@ -452,7 +459,7 @@ public class UserPendingController extends WaspController {
 					}
 				} catch (WaspMetadataException e){
 					// no match for 'name' in labMeta
-					logger.debug("No match for labPendingMeta property with name '" + targetName + "' in userMeta properties with name '" + sourceName + "'");
+					logger.warn("No match for labPendingMeta property with name '" + targetName + "' in userMeta properties with name '" + sourceName + "'");
 				}
 			}
 		}

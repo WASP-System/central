@@ -1170,16 +1170,38 @@ public class LabController extends WaspController {
 	}
 
 	@RequestMapping(value = "/newrequest", method = RequestMethod.GET)
-	public String showRequestForm(ModelMap m) {
-		MetaHelper pendingMetaHelper = new MetaHelper("labPending",
-				LabPendingMeta.class, request.getSession());
+	public String showRequestForm(ModelMap m) throws WaspMetadataException {
+		MetaHelper labPendingMetaHelper = new MetaHelper("labPending",	LabPendingMeta.class, request.getSession());
+		labPendingMetaHelper.getMasterList(LabPendingMeta.class);
+		MetaHelper userMetaHelper = new MetaHelper("user", UserMeta.class, request.getSession());
 
+		// Pre-populate some metadata from user's current information
+		User me = getAuthenticatedUser();
+		userMetaHelper.syncWithMaster(me.getUserMeta()); // get user meta from database and sync with current properties
+
+		try {
+			String departmentId = userMetaHelper.getMetaByName("departmentId").getV();
+			if (departmentId != null && !departmentId.isEmpty()){
+				labPendingMetaHelper.setMetaValueByName("billing_departmentId",departmentId);
+				m.addAttribute("departmentId", departmentId);
+				String internalExternal = (deptService.findById( Integer.valueOf(departmentId) ).getIsInternal() == 1) ? "internal" : "external";
+				labPendingMetaHelper.setMetaValueByName("internal_external_lab", internalExternal);
+			}
+			labPendingMetaHelper.setMetaValueByName("billing_institution", userMetaHelper.getMetaByName("institution").getV());
+			labPendingMetaHelper.setMetaValueByName("billing_state", userMetaHelper.getMetaByName("state").getV());
+			labPendingMetaHelper.setMetaValueByName("billing_city", userMetaHelper.getMetaByName("city").getV());
+			labPendingMetaHelper.setMetaValueByName("billing_country", userMetaHelper.getMetaByName("country").getV());
+			labPendingMetaHelper.setMetaValueByName("billing_zip", userMetaHelper.getMetaByName("zip").getV());
+			labPendingMetaHelper.setMetaValueByName("billing_contact", me.getFirstName() + " " + me.getLastName());
+			
+		} catch (WaspMetadataException e) {
+			// report meta problem
+			logger.warn("Meta mismatch when pre-populating labMeta data from userMeta (" + e.getMessage() + ")");
+		}
+		
 		LabPending labPending = new LabPending();
-
-		labPending.setLabPendingMeta(pendingMetaHelper
-				.getMasterList(LabPendingMeta.class));
+		labPending.setLabPendingMeta( (List<LabPendingMeta>) labPendingMetaHelper.getMetaList());
 		m.addAttribute("labPending", labPending);
-
 		prepareSelectListData(m);
 
 		return "lab/newrequest";
