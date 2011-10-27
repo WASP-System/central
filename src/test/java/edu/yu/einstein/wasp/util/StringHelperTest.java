@@ -34,7 +34,7 @@ public class StringHelperTest {
 	@Test
 	public void test() {
 		String expected = new String("Test");
-		assertEquals("",expected, stringHelper.toCapFirstLetter("test"));
+		assertEquals("",expected, stringHelper.getLoginFromFormattedNameAndLogin("This is a (Test)"));
 		//fail("Not yet implemented");
 	}
 }

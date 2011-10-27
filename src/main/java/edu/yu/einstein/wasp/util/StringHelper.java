@@ -1,5 +1,10 @@
 package edu.yu.einstein.wasp.util;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.commons.lang.WordUtils;
+
 /**
  * 
  * @author nvolnova
@@ -7,51 +12,9 @@ package edu.yu.einstein.wasp.util;
  */
 public class StringHelper {
 		
-	
-	
-	/**
-	 * capitalize first letter of each word in sParam
-	 * code derived from http://stackoverflow.com/questions/1149855/how-to-upper-case-every-first-letter-of-word-in-a-string
-	 * 
-	 * @param sParam
-	 * @return
-	 */
-	public String toCapFirstLetter(String sParam) {
-		
-		StringBuilder b = new StringBuilder(sParam);
-		int i = 0;
-		do {
-		  b.replace(i, i + 1, b.substring(i,i + 1).toUpperCase());
-		  i =  b.indexOf(" ", i) + 1;
-		} while (i > 0 && i < b.length());
-		
-		String modifiedName = new String(b);
-		
-		return modifiedName;
-	}
-	
-	/**
-	 * capitalize first letter of each word in sParam; and all other letters will be lower case
-	 * code modified from http://stackoverflow.com/questions/1149855/how-to-upper-case-every-first-letter-of-word-in-a-string
-	 * 
-	 * @param sParam
-	 * @return
-	 */
-	public String toCapOnlyFirstLetterOfEachWord(String sParam) {
-		
-		String lowercaseString = sParam.toLowerCase();
-		StringBuilder b = new StringBuilder(lowercaseString);
-		int i = 0;
-		do {
-		  b.replace(i, i + 1, b.substring(i,i + 1).toUpperCase());
-		  i =  b.indexOf(" ", i) + 1;
-		} while (i > 0 && i < b.length());
-		
-		String modifiedName = new String(b);
-		
-		return modifiedName;
-	}
-	
+	// NOTE: Before adding methods in here check those available in the org.apache.commons.lang.WordUtils 
+	//       and org.apache.commons.lang.StringUtils packages
+			
 	/**
 	 * trim whitespace from left and right 
 	 * AND
@@ -60,7 +23,7 @@ public class StringHelper {
 	 * @param sParam
 	 * @return
 	 */
-	public String toTrimAndRemoveExtraSpacesBetweenWords(String sParam){
+	public static String trimAndRemoveExtraSpacesBetweenWords(String sParam){
 		String modifiedString = sParam.trim();//trim whitespace from left and right
 		modifiedString = modifiedString.replaceAll("\\s+", " ");//if there are 2 or more adjacent spaces between words, replace them with a single space
 		return modifiedString;
@@ -76,25 +39,25 @@ public class StringHelper {
 	 * @param sParam
 	 * @return
 	 */
-	public String toRemoveExtraSpacesAndCapOnlyFirstLetterOfEachWord(String sParam){
-		
-		String modifiedString = sParam.trim();//trim whitespace from left and right
-		modifiedString = modifiedString.replaceAll("\\s+", " ");//if there are 2 or more adjacent spaces between words, replace them with a single space
-		modifiedString = toCapOnlyFirstLetterOfEachWord(modifiedString);
-		return modifiedString;
+	public static String removeExtraSpacesAndCapOnlyFirstLetterOfEachWord(String sParam){
+		String modifiedString = trimAndRemoveExtraSpacesBetweenWords(sParam);
+		return WordUtils.capitalize(modifiedString); // Capitalizes first letter of all the whitespace separated words in a String.
 	}
 
 	/**
-	 * extract login from formatted string such as John Greally (jgreally) and return login 
-	 * in this example, the returned login would be jgreally
+	 * extract login from formatted string such as 'John Greally (jgreally)' and return login 
+	 * in this example, the returned login would be 'jgreally'. If there is no parenthesis
+	 * this method assumes the input string represents the login (e.g. 'jgreally')
 	 * 
 	 * @param formattedNameAndLogin
-	 * @return
+	 * @return user login name
 	 */
-	public String getLoginFromFormattedNameAndLogin(String formattedNameAndLogin){
-		
-		int startIndex = formattedNameAndLogin.indexOf("(");
-		int endIndex = formattedNameAndLogin.indexOf(")");
-		return formattedNameAndLogin.substring(startIndex+1, endIndex);		
+	public static String getLoginFromFormattedNameAndLogin(String formattedNameAndLogin){
+		Pattern userLoginRegexPattern = Pattern.compile("^.*?\\(?(\\w++)\\)?$");
+		Matcher matchLoginRegex = userLoginRegexPattern.matcher(formattedNameAndLogin.trim());
+		String userLogin = "";
+		if (matchLoginRegex.find())
+			userLogin = matchLoginRegex.group(1);
+		return userLogin;
 	}
 }

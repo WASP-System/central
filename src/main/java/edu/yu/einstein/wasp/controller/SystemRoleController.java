@@ -27,7 +27,7 @@ import edu.yu.einstein.wasp.model.Userrole;
 import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.service.RoleService;
 import edu.yu.einstein.wasp.service.UserroleService;
-
+import edu.yu.einstein.wasp.util.StringHelper;
 
 /**
  * Class for handling requests for adding and removing system roles to existing users
@@ -103,11 +103,8 @@ public class SystemRoleController extends WaspController {
 			waspMessage("sysrole.noUserSpecified.error");
 			return "redirect:/sysrole/list.do";
 		}
-		Pattern userLoginRegexPattern = Pattern.compile("^.*?\\(?(\\w++)\\)?$");
-		Matcher matchLoginRegex = userLoginRegexPattern.matcher(userHook.trim());
-		String userLogin = "";
-		if (matchLoginRegex.find())
-			userLogin = matchLoginRegex.group(1);
+		String userLogin = StringHelper.getLoginFromFormattedNameAndLogin(userHook.trim());
+
 		User user = userService.getUserByLogin(userLogin);
 		if (user.getUserId() == 0){
 			waspMessage("sysrole.userNonexistant.error");

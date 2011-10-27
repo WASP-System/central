@@ -112,8 +112,7 @@ public class JobController extends WaspController {
 		waspMessage("job.jobViewerUserRoleAdd.error1");//this job not found in database or the labId does not belong to this job
 	}
 	else{   
-		StringHelper stringHelper = new StringHelper();
-		String extractedLogin = stringHelper.getLoginFromFormattedNameAndLogin(login);
+		String extractedLogin = StringHelper.getLoginFromFormattedNameAndLogin(login);
 		User user = userService.getUserByLogin(extractedLogin);
 		if(user.getUserId()==0){
 			waspMessage("job.jobViewerUserRoleAdd.error2");//user login name does not exist

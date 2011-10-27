@@ -121,8 +121,7 @@ public class DepartmentController extends WaspController {
 			waspMessage("department.list_invalid.error");
 	}
 	else{
-		StringHelper stringHelper = new StringHelper();
-		String modifiedName = stringHelper.toRemoveExtraSpacesAndCapOnlyFirstLetterOfEachWord(name);
+		String modifiedName = StringHelper.removeExtraSpacesAndCapOnlyFirstLetterOfEachWord(name);
 		
 		Department existingDepartment = this.departmentService.getDepartmentByName(modifiedName);//is this name already being used as a department name (which is prohibited) 
 		if( existingDepartment.getDepartmentId() > 0 ){//the id will be 0 if empty department [ie.: department does not already exist]
@@ -232,8 +231,7 @@ public class DepartmentController extends WaspController {
 			waspMessage("department.list_invalid.error");
 	  }
 	  else{
-		  StringHelper stringHelper = new StringHelper();
-		  String modifiedName = stringHelper.toRemoveExtraSpacesAndCapOnlyFirstLetterOfEachWord(name);
+		   String modifiedName = StringHelper.removeExtraSpacesAndCapOnlyFirstLetterOfEachWord(name);
 
 		  Department departmentBeingModified = this.departmentService.getDepartmentByDepartmentId(departmentId);
 		  //modifiedName can be the (unchanged) name of the department being modified (which is valid)
