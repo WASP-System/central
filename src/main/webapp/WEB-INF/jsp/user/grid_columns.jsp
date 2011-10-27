@@ -29,19 +29,7 @@ _beforeShowEditForm = function (formId) {
 
 <wasp:field name="locale" type="select" items="${locales}" itemValue="key" itemLabel="value"/>
 
-<wasp:field name="isActive"  type="text">
-#field.jq['edittype']='checkbox';   
-#field.jq['editoptions']={value:"1:0"}; 
-#field.jq['formatter']='checkbox';
-#field.jq['formatoptions']={disabled : true};
-#field.jq['align']='center';
-#field.jq['search']=false;
-</wasp:field>
+<wasp:field name="isActive"  type="checkbox" />
   
-
-$("#grid_id").setGridParam({
-                    rowNum: 50,
-                    height: 300
-});
 
 

@@ -15,6 +15,7 @@
         <put-attribute name="area" value="" />    
         <put-attribute name="grid-columns" value="" />
         <put-attribute name="subgrid-columns" value="" />
+        <put-attribute name="grid-customAttributes" value="" />
         <put-attribute name="toolbar-buttons" value="" />
         <put-attribute name="banner-content" value="/WEB-INF/jsp/sections/banner.jsp" />
         <put-attribute name="body-content" value="" />
@@ -93,6 +94,7 @@
         <put-attribute name="body-content" value="/WEB-INF/jsp/lab/user.jsp" />
     </definition>
     <definition name="lab/newrequest" extends="template-base">
+        <put-attribute name="head-js" value="/WEB-INF/jsp/lab/newrequest.js.jsp" />
         <put-attribute name="body-content" value="/WEB-INF/jsp/lab/newrequest.jsp" />
     </definition>
     <definition name="user/mypassword" extends="template-base">
@@ -197,6 +199,7 @@
         <put-attribute name="area" value="user" />
         <put-attribute name="grid-columns" value="/WEB-INF/jsp/user/grid_columns.jsp" />
         <put-attribute name="subgrid-columns" value="/WEB-INF/jsp/user/subgrid_columns.jsp" />
+        <put-attribute name="grid-customAttributes" value="/WEB-INF/jsp/user/grid-customAttributes.jsp" />
         <put-attribute name="body-content" value="/WEB-INF/jsp/user/list.jsp" />
     </definition>
     <definition name="lab/list" extends="template-grid">

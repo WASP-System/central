@@ -319,7 +319,8 @@ var navGrid=$("#grid_id").jqGrid({
   },
   ondblClickRow: function(rowid) {			
   	$("#grid_id").jqGrid('editGridRow',rowid,_editAttr);
- }
+ },
+ <tiles:insertAttribute name="grid-customAttributes" />
 }).navGrid('#gridpager',
 		  _navAttr, 
 		  _editAttr,   // edit

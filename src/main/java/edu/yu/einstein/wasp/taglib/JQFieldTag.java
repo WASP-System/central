@@ -184,9 +184,10 @@ public class JQFieldTag extends BodyTagSupport {
 	     error+
 	     "jq:{\n"+
 		 		"	name:'"+name+"', \n"+
+		 		"	index:'"+name+"', \n"+
 				"	width:80, \n"+
 				"	align:'center',\n"+
-				"	sortable:false,\n"+				
+				"	sortable:true,\n"+				
 				"	sorttype:'text',\n"+		
 				"	editable:true,\n"+
 				"   editrules:"+editrules+",\n"+
@@ -231,7 +232,16 @@ public class JQFieldTag extends BodyTagSupport {
 			jsName+".jq['editoptions']['alt']='Select Sample File to upload';\n"+			
 			jsName+".jq['editrules']['edithidden']=true;\n";		
 			 
+		} else if (type==Type.checkbox) {
+			buf=buf+
+			jsName+".jq['edittype']='checkbox';\n"+   
+			jsName+".jq['editoptions']={value:'1:0'};\n"+ 
+			jsName+".jq['formatter']='checkbox';\n"+
+			jsName+".jq['formatoptions']={disabled : true};\n"+
+			jsName+".jq['align']='center';\n"+
+			jsName+".jq['search']=false;\n";
 		}
+		
 
 		buf=buf+
 		"\ncolNames.push("+jsName+".label);\n"+
