@@ -1,6 +1,7 @@
 WASP: Lab Registration Accepted
 <p>Dear ${primaryuser.firstName} ${primaryuser.lastName},</p>
 
-<p>We are pleased to inform you that your lab '${lab.name}' is registered within the WASP system and you are registered as the principal investigator of this lab. If this is your first application for a WASP account, your account been activated and you may now log in.</p>
+<p>We are pleased to inform you that your lab '${lab.name}' is registered within the WASP system and you are registered as the principal investigator of this lab.</p>
+<p>If this is your first application for a WASP account, your account been activated and you may now log in with user-name '${primaryuser.login}'.</p>
 
 
