@@ -12,8 +12,7 @@ import org.junit.Test;
 public class StringHelperTest {
 	
 
-	StringHelper stringHelper;
-	
+
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 	}
@@ -24,7 +23,7 @@ public class StringHelperTest {
 
 	@Before
 	public void setUp() throws Exception {
-		stringHelper = new StringHelper(); 
+	
 	}
 
 	@After
@@ -34,7 +33,7 @@ public class StringHelperTest {
 	@Test
 	public void test() {
 		String expected = new String("Test");
-		assertEquals("",expected, stringHelper.getLoginFromFormattedNameAndLogin("This is a (Test)"));
+		assertEquals("",expected, StringHelper.getLoginFromFormattedNameAndLogin("This is a (Test)"));
 		//fail("Not yet implemented");
 	}
 }
