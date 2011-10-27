@@ -851,7 +851,17 @@ public class LabController extends WaspController {
 		user.setIsActive(1);
 
 		// find me a unique login name
-		String loginBase = userPending.getFirstName().substring(0, 1) + userPending.getLastName();
+		String loginBase = userPending.getFirstName().substring(0, 1);
+		String loginLastName = userPending.getLastName();
+		loginLastName = loginLastName.replaceAll(" ", "");
+		int posOfQuote = StringUtils.indexOf(loginLastName, "'"); // e.g. O'Broin
+		if (posOfQuote != -1 && (posOfQuote - 1) != -1 && (posOfQuote < loginLastName.length())){
+			loginBase += loginLastName.substring(posOfQuote -1, posOfQuote);
+			loginBase += loginLastName.substring(posOfQuote + 1);
+		} else {
+			loginBase += loginLastName;
+		}
+		loginBase = loginBase.replaceAll("[^\\w-]", "").toLowerCase();
 		String login = loginBase;
 		int c = 1;
 		while (userService.getUserByLogin(login).getUserId() > 0) {

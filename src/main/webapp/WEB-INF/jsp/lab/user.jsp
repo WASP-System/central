@@ -1,7 +1,8 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
-    <font color="red"><wasp:message /></font>
-
+    <p><font color="red"><wasp:message /></font></p>
+    <h1><fmt:message key="pageTitle.lab/user.label"/></h1>
+	<h2><fmt:message key="labuser.current.label"/></h2>
     <c:forEach items="${labuser}" var="ul">
       <p>
       <a href="/wasp/user/detail_ro/<c:out value="${ul.user.userId}" />.do"><c:out value="${ul.user.login}" /></a>
@@ -35,7 +36,7 @@
     <a href="/wasp/auth/newuser.do"><fmt:message key="lab.adduser.label" /></a> | <a href="/wasp/lab/detail_ro/<c:out value="${lab.departmentId}"/>/<c:out value="${lab.labId}"/>.do"><fmt:message key="lab.detail.label" /></a> 
 	</p>
     <c:if test="${! empty labuserpending}">
-      <fmt:message key="labuser.request_title.label"/>
+      <h2><fmt:message key="labuser.request.label"/></h2>
       <c:forEach items="${labuserpending}" var="up">
         <p>
         <c:out value="${up.firstName}" />

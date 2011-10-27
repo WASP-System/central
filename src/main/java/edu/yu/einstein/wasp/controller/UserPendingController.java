@@ -43,6 +43,7 @@ import edu.yu.einstein.wasp.service.LabService;
 import edu.yu.einstein.wasp.service.PasswordService;
 import edu.yu.einstein.wasp.service.UserPendingMetaService;
 import edu.yu.einstein.wasp.service.UserPendingService;
+import edu.yu.einstein.wasp.util.StringHelper;
 
 /**
  * 
@@ -178,7 +179,8 @@ public class UserPendingController extends WaspController {
 		
 		List<UserPendingMeta> userPendingMetaList = (List<UserPendingMeta>) userPendingMetaHelper.getMetaList();
 		userPendingForm.setUserPendingMeta(userPendingMetaList);
-
+		userPendingForm.setFirstName(StringHelper.removeExtraSpacesAndCapFirstLetter(userPendingForm.getFirstName()));
+		userPendingForm.setLastName(StringHelper.removeExtraSpacesAndCapFirstLetter(userPendingForm.getLastName()));
 		UserPending userPendingDb = userPendingService.save(userPendingForm);
 
 		for (UserPendingMeta upm : userPendingMetaList) {
@@ -248,7 +250,7 @@ public class UserPendingController extends WaspController {
 			metaHelper.getMasterList(visibilityElementMap, UserPendingMeta.class);
 		} else {
 			// external institute
-			instituteName = instituteOther;
+			instituteName = StringHelper.removeExtraSpacesAndCapFirstLetter(instituteOther);
 			visibilityElementMap.put("departmentId", MetaAttribute.FormVisibility.immutable);
 			metaHelper.getMasterList(visibilityElementMap, UserPendingMeta.class);
 			Map departmentQueryMap = new HashMap();
@@ -325,7 +327,8 @@ public class UserPendingController extends WaspController {
 		userPendingForm.setStatus("WAIT_EMAIL");
 
 		userPendingForm.setPassword( passwordService.encodePassword(userPendingForm.getPassword()) ); 
-
+		userPendingForm.setFirstName(StringHelper.removeExtraSpacesAndCapFirstLetter(userPendingForm.getFirstName()));
+		userPendingForm.setLastName(StringHelper.removeExtraSpacesAndCapFirstLetter(userPendingForm.getLastName()));
 		UserPending userPendingDb = userPendingService.save(userPendingForm);
 		List<UserPendingMeta> userPendingMetaList = (List<UserPendingMeta>) metaHelper.getMetaList();
 		for (UserPendingMeta upm : userPendingMetaList) {

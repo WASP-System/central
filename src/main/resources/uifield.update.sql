@@ -227,6 +227,8 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','created_success','label','User was created','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','updated','error','User was NOT updated. Please fill in required fields.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','created','error','User was NOT created. Please fill in required fields.','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labuser','current','label','Current Lab Members','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labuser','request','label','Pending Lab Members','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labuser','labUserNote','label','Request subject to principal investigator acceptance.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labuser','request_primaryuser','label','Primary Investigator','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labuser','request_primaryuser','error','Invalid Primary User','1');
@@ -668,6 +670,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','lab/pending/detail_ro','label','Pending Lab Detail','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','lab/pending/detail_rw','label','Update Pending Lab Detail','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','lab/pendinguser/list','label','Pending Users','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','lab/user','label','User Manager','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','user/mypassword','label','Change Password','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','department/list','label','Department List','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','department/detail','label','Department Detail','1');
