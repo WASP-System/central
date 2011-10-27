@@ -106,14 +106,7 @@ public class UserPendingController extends WaspController {
 	@RequestMapping(value="/newuser", method=RequestMethod.GET)
 	public String showNewPendingUserForm(ModelMap m) {
 		
-		Captcha captcha = new Captcha.Builder(150, 50)
-			.addText()
-			.addBackground()
-			.addNoise()
-			.gimp()
-			.addBorder()
-			.build();
-		m.addAttribute(Captcha.NAME, captcha);
+
 		UserPending userPending = new UserPending();
 		MetaHelper metaHelper = getMetaHelper();	
 		
