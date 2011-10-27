@@ -1168,7 +1168,14 @@ public class LabController extends WaspController {
 		labPendingService.save(labPending);
 		return "redirect:/department/detail/" + deptId + ".do";
 	}
-
+	
+	/**
+	 * Handles request to create new laboratory by GET. 
+	 * Pre-populates as much of the form as possible given current user information.
+	 * @param m model
+	 * @return view
+	 * @throws WaspMetadataException
+	 */
 	@RequestMapping(value = "/newrequest", method = RequestMethod.GET)
 	public String showRequestForm(ModelMap m) throws WaspMetadataException {
 		MetaHelper labPendingMetaHelper = new MetaHelper("labPending",	LabPendingMeta.class, request.getSession());
@@ -1178,12 +1185,12 @@ public class LabController extends WaspController {
 		// Pre-populate some metadata from user's current information
 		User me = getAuthenticatedUser();
 		userMetaHelper.syncWithMaster(me.getUserMeta()); // get user meta from database and sync with current properties
-
+		LabPending labPending = new LabPending();
 		try {
 			String departmentId = userMetaHelper.getMetaByName("departmentId").getV();
 			if (departmentId != null && !departmentId.isEmpty()){
 				labPendingMetaHelper.setMetaValueByName("billing_departmentId",departmentId);
-				m.addAttribute("departmentId", departmentId);
+				labPending.setDepartmentId(Integer.valueOf(departmentId));
 				String internalExternal = (deptService.findById( Integer.valueOf(departmentId) ).getIsInternal() == 1) ? "internal" : "external";
 				labPendingMetaHelper.setMetaValueByName("internal_external_lab", internalExternal);
 			}
@@ -1196,26 +1203,32 @@ public class LabController extends WaspController {
 			
 		} catch (WaspMetadataException e) {
 			// report meta problem
-			logger.warn("Meta mismatch when pre-populating labMeta data from userMeta (" + e.getMessage() + ")");
+			logger.warn("Meta data mismatch when pre-populating labMeta data from userMeta (" + e.getMessage() + ")");
 		}
 		
-		LabPending labPending = new LabPending();
 		labPending.setLabPendingMeta( (List<LabPendingMeta>) labPendingMetaHelper.getMetaList());
 		m.addAttribute("labPending", labPending);
 		prepareSelectListData(m);
 
 		return "lab/newrequest";
 	}
-
+	
+	/**
+	 * Handles request to create new laboratory by POST.
+	 * Validates LabPending form.
+	 * @param labPendingForm
+	 * @param result
+	 * @param status
+	 * @param m model
+	 * @return view
+	 */
 	@RequestMapping(value = "/newrequest", method = RequestMethod.POST)
-	@PreAuthorize("not hasRole('pi-*')")
 	public String createNewLabPending(@Valid LabPending labPendingForm,
 			BindingResult result, SessionStatus status, ModelMap m) {
-		MetaHelper pendingMetaHelper = new MetaHelper("labPending",
-				LabPendingMeta.class, request.getSession());
+		
+		MetaHelper pendingMetaHelper = new MetaHelper("labPending",LabPendingMeta.class, request.getSession());
 
-		List<LabPendingMeta> labPendingMetaList = pendingMetaHelper
-				.getFromRequest(request, LabPendingMeta.class);
+		List<LabPendingMeta> labPendingMetaList = pendingMetaHelper.getFromRequest(request, LabPendingMeta.class);
 		pendingMetaHelper.validate(labPendingMetaList, result);
 
 		User me = getAuthenticatedUser();
@@ -1240,49 +1253,58 @@ public class LabController extends WaspController {
 
 		status.setComplete();
 
-		// TODO email DA that a new pi is pending
+		emailService.sendPendingPrincipalConfirmRequest(labPendingDb);
 
-		waspMessage("hello.error");
+		waspMessage("labuser.request_success.label");
 
-		return "redirect:/lab/newrequest.do";
+		return "redirect:/dashboard.do";
 	}
-
+	
+	/**
+	 * Handles request to join an existing lab by logged in user.
+	 * @param primaryUserLogin The login name of the PI of the lab which the user wishes to join
+	 * @param m model
+	 * @return view
+	 */
 	@RequestMapping(value = "/request.do", method = RequestMethod.POST)
 	public String requestAccess(
-			@RequestParam("primaryuseremail") String primaryuseremail,
+			@RequestParam("primaryUserLogin") String primaryUserLogin,
 			ModelMap m) {
+		
 		// check existence of primaryUser/lab
-
-		User primaryUser = userService.getUserByEmail(primaryuseremail);
+		if (primaryUserLogin == null || primaryUserLogin.isEmpty()){
+			waspMessage("labuser.request_primaryuser.error");
+			return "redirect:/lab/newrequest.do";
+		}
+		
+		User primaryUser = userService.getUserByLogin(primaryUserLogin);
 		if (primaryUser.getUserId() == 0) {
-			waspMessage("labuser.requestprimary.error");
+			waspMessage("labuser.request_primaryuser.error");
 			return "redirect:/lab/newrequest.do";
 		}
 
 		Lab lab = labService.getLabByPrimaryUserId(primaryUser.getUserId());
 		if (lab.getLabId() == 0) {
-			waspMessage("labuser.requestprimary.error");
+			waspMessage("labuser.request_primaryuser.error");
 			return "redirect:/lab/newrequest.do";
 		}
 
 		// check role of lab user
-		User user = this.getAuthenticatedUser();
-		LabUser labUser = labUserService.getLabUserByLabIdUserId(
-				lab.getLabId(), user.getUserId());
+		User me = this.getAuthenticatedUser();
+		LabUser labUser = labUserService.getLabUserByLabIdUserId(lab.getLabId(), me.getUserId());
 
 		if (labUser.getLabUserId() != 0) {
 			ArrayList<String> alreadyPendingRoles = new ArrayList();
 			alreadyPendingRoles.add("lp");
-			ArrayList<String> alreadyAccessRoles = new ArrayList();
-			alreadyPendingRoles.add("pi");
-			alreadyPendingRoles.add("lm");
-			alreadyPendingRoles.add("lu");
-
 			if (alreadyPendingRoles.contains(labUser.getRole().getRoleName())) {
 				waspMessage("labuser.request_alreadypending.error");
 				return "redirect:/lab/newrequest.do";
 			}
-
+			
+			ArrayList<String> alreadyAccessRoles = new ArrayList();
+			alreadyAccessRoles.add("pi");
+			alreadyAccessRoles.add("lm");
+			alreadyAccessRoles.add("lu");
 			if (alreadyAccessRoles.contains(labUser.getRole().getRoleName())) {
 				waspMessage("labuser.request_alreadyaccess.error");
 				return "redirect:/lab/newrequest.do";
@@ -1292,7 +1314,7 @@ public class LabController extends WaspController {
 		Role role = roleService.getRoleByRoleName("lp");
 
 		labUser.setLabId(lab.getLabId());
-		labUser.setUserId(user.getUserId());
+		labUser.setUserId(me.getUserId());
 		labUser.setRoleId(role.getRoleId());
 		labUserService.save(labUser);
 
@@ -1302,10 +1324,7 @@ public class LabController extends WaspController {
 
 		waspMessage("labuser.request_success.label");
 
-		return "redirect:/lab/newrequest.do";
-
-		// TODO RESET TO DASHBOARD!
-		// return "redirect:/dashboard.do";
+		return "redirect:/dashboard.do";
 	}
 
 	protected void prepareSelectListData(ModelMap m) {

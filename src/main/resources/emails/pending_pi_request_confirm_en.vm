@@ -1,7 +1,7 @@
 Please Login to WASP and accept or reject a pending principal investigator application
 <p>Dear ${administrator.firstName} ${administrator.lastName},</p>
 
-<p>${pendinguser.firstName} ${pendinguser.lastName} has requested an account and wishes to register a lab named '${labpending.name}'.</p>
+<p>${user.firstName} ${user.lastName} has requested an account and wishes to register a lab named '${labpending.name}'.</p>
 
 <p>Please login to your WASP account from where you will be able to accept or deny this request. Please note that this email is sent to all WASP administrators registered for the department of ${department.name}, any of whom may process this request.</p> 
 

@@ -248,12 +248,24 @@ public class EmailServiceImpl implements EmailService {
 	/**
 	 * {@inheritDoc}
 	 */
-	public void sendPendingPrincipalConfirmRequest(final LabPending labPending){
-		UserPending userPending = userPendingService.getUserPendingByUserPendingId(labPending.getUserpendingId());
+	public void sendPendingPrincipalConfirmRequest(final LabPending labPending) {
+		User user;
+		if (labPending.getUserpendingId() != null){
+			UserPending userPending = userPendingService.getUserPendingByUserPendingId(labPending.getUserpendingId());
+			user = new User();
+			user.setFirstName(userPending.getFirstName());
+			user.setLastName(userPending.getLastName());
+		} else if (labPending.getPrimaryUserId() != null){
+			user = userService.getUserByUserId(labPending.getPrimaryUserId());
+		}
+		else{
+			throw new MailPreparationException("Cannot prepare email as labPending does not have an associated userId or userPendingId");
+		}
+		
 		Department department = departmentService.getDepartmentByDepartmentId(labPending.getDepartmentId());
 		Map model = new HashMap();
 		model.put("labpending", labPending);
-		model.put("pendinguser", userPending);
+		model.put("user", user);
 		model.put("department", department);
 		for (DepartmentUser du: department.getDepartmentUser()){
 			User administrator = userService.getUserByUserId(du.getUserId());
