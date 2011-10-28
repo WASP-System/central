@@ -742,7 +742,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labuser','inactive','label','Inactive','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','name','label','Name','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','name','error','Resource name cannot be empty','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','typeResourceId','label','Type','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','typeResourceId','label','Resource Type','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','typeResourceId','error','Must select type of resource','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','assay_platform','label','Assay Platform','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','assay_platform','error','Must select assay platform','1');
@@ -767,7 +767,8 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','created','error','Resource was NOT created. Please fill in required fields.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','updated_success','label','Resource updated sucessfully.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','created_success','label','Resource created sucessfully.','1');
-
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','isActive','label','Active','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','resourceId','label','ResourceId','1');
 
 truncate table workflowmeta;
 insert into workflowmeta
