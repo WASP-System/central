@@ -1,39 +1,27 @@
 package edu.yu.einstein.wasp.util;
 
 
-import static org.junit.Assert.*;
+//import static org.junit.Assert.*;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.testng.annotations.Test;
+import org.testng.Assert;
+import org.testng.annotations.*;
 
 public class StringHelperTest {
 	
-
-
 	@BeforeClass
-	public static void setUpBeforeClass() throws Exception {
-	}
-
-	@AfterClass
-	public static void tearDownAfterClass() throws Exception {
-	}
-
-	@Before
 	public void setUp() throws Exception {
 	
 	}
 
-	@After
+	@AfterClass
 	public void tearDown() throws Exception {
 	}
 
 	@Test
-	public void test() {
+	public void testGetLoginFromFormattedNameAndLogin() {
 		String expected = new String("Test");
-		assertEquals("",expected, StringHelper.getLoginFromFormattedNameAndLogin("This is a (Test)"));
+		Assert.assertEquals(expected, StringHelper.getLoginFromFormattedNameAndLogin("This is a (Test)"),"Failed in StringHelper.getLoginFromFormattedNameAndLogin()");
 		//fail("Not yet implemented");
 	}
 }
