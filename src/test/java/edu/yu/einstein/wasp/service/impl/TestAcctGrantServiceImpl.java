@@ -1,12 +1,8 @@
 package edu.yu.einstein.wasp.service.impl;
 
-import static org.junit.Assert.*;
-
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.testng.annotations.Test;
+import org.testng.Assert;
+import org.testng.annotations.*;
 
 import edu.yu.einstein.wasp.dao.AcctGrantDao;
 import edu.yu.einstein.wasp.model.AcctGrant;
@@ -17,30 +13,23 @@ public class TestAcctGrantServiceImpl {
 	private AcctGrantServiceImpl acctGrantServiceImpl = new AcctGrantServiceImpl();
 	private AcctGrantDao mockAcctGrantDao;
 	
+	
 	@BeforeClass
-	public static void setUpBeforeClass() throws Exception {
-	}
-
-	@AfterClass
-	public static void tearDownAfterClass() throws Exception {
-	}
-
-	@Before
 	public void setUp() throws Exception {
 		
 		mockAcctGrantDao = createMock(AcctGrantDao.class);
-		assertNotNull(mockAcctGrantDao);
+		Assert.assertNotNull(mockAcctGrantDao);
 		acctGrantServiceImpl.setAcctGrantDao(mockAcctGrantDao);
 	}
 
-	@After
+	@AfterClass
 	public void tearDown() throws Exception {
 		acctGrantServiceImpl = null;
 		mockAcctGrantDao = null;
 	}
 
 	@Test
-	public void test() {
+	public void testGetAcctGrantByGrantId() {
 		AcctGrant results = new AcctGrant();
 			
 		expect(mockAcctGrantDao.getAcctGrantByGrantId(0)).andReturn(results);
