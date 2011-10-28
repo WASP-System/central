@@ -1,8 +1,6 @@
 package edu.yu.einstein.wasp.util;
 
 
-//import static org.junit.Assert.*;
-
 import org.testng.annotations.Test;
 import org.testng.Assert;
 import org.testng.annotations.*;
@@ -18,7 +16,7 @@ public class StringHelperTest {
 	public void tearDown() throws Exception {
 	}
 
-	@Test
+	@Test (groups = "unit-tests")
 	public void testGetLoginFromFormattedNameAndLogin() {
 		String expected = new String("Test");
 		Assert.assertEquals(expected, StringHelper.getLoginFromFormattedNameAndLogin("This is a (Test)"),"Failed in StringHelper.getLoginFromFormattedNameAndLogin()");
