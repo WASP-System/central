@@ -28,7 +28,7 @@ public class TestAcctGrantServiceImpl {
 		mockAcctGrantDao = null;
 	}
 
-	@Test
+	@Test (groups = "unit-tests")
 	public void testGetAcctGrantByGrantId() {
 		AcctGrant results = new AcctGrant();
 			
