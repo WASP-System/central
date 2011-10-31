@@ -64,7 +64,4 @@
       </c:forEach>
     </c:if>
 
-    <div>
-      <a href="/wasp/job/create/form.do?labid=<c:out value="${lab.labId}" />"><fmt:message key="labDetail.create_job.label"/></a>
-    </div>
    </form:form>

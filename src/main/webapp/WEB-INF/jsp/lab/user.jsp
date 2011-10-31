@@ -33,17 +33,19 @@
       </p>
     </c:forEach>
     <p>
-    <a href="/wasp/auth/newuser.do"><fmt:message key="lab.adduser.label" /></a> | <a href="/wasp/lab/detail_ro/<c:out value="${lab.departmentId}"/>/<c:out value="${lab.labId}"/>.do"><fmt:message key="lab.detail.label" /></a> 
+    <a href="/wasp/lab/detail_ro/<c:out value="${lab.departmentId}"/>/<c:out value="${lab.labId}"/>.do"><fmt:message key="lab.detail.label" /></a> 
 	</p>
-    <c:if test="${! empty labuserpending}">
-      <h2><fmt:message key="labuser.request.label"/></h2>
-      <c:forEach items="${labuserpending}" var="up">
-        <p>
-        <c:out value="${up.firstName}" />
-        <c:out value="${up.lastName}" />
-        <c:out value="${up.email}" />
-          <a href="<c:url value="/lab/userpending/approve/${lab.labId}/${up.userPendingId}.do"/>"><fmt:message key="userPending.action_approve.label"/></a>
-          <a href="<c:url value="/lab/userpending/reject/${lab.labId}/${up.userPendingId}.do"/>"><fmt:message key="userPending.action_reject.label"/></a>
-        </p>
-      </c:forEach>
+    <h2><fmt:message key="labuser.request.label"/></h2>
+    <c:if test="${empty labuserpending}">
+    	<p><fmt:message key="userPending.no_pending_users.label"/></p>
     </c:if>
+    <c:forEach items="${labuserpending}" var="up">
+      <p>
+      <c:out value="${up.firstName}" />
+      <c:out value="${up.lastName}" />
+      <c:out value="${up.email}" />
+        <a href="<c:url value="/lab/userpending/approve/${lab.labId}/${up.userPendingId}.do"/>"><fmt:message key="userPending.action_approve.label"/></a>
+        <a href="<c:url value="/lab/userpending/reject/${lab.labId}/${up.userPendingId}.do"/>"><fmt:message key="userPending.action_reject.label"/></a>
+      </p>
+    </c:forEach>
+    

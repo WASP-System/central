@@ -97,6 +97,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','approved','label','User account application sucessfully approved','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','rejected','label','User account application sucessfully rejected','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','status_not_pending','error','Pending user is already approved or rejected','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','no_pending_users','label','There are currently no pending users awaiting approval','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','password','label','Password','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','password','error','Password cannot be empty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','password_mismatch','error','The two entries for your password are NOT identical','1');

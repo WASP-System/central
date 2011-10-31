@@ -50,7 +50,7 @@
     <sec:authorize access="hasRole('lm-${l.labId}' )">
       <div><a href="<c:url value="/lab/pendinguser/list/${l.labId}.do"/>">Pending User Approval</a></div>
       <div><a href="<c:url value="/lab/user/${l.labId}.do"/>">User Manager</a></div>
-      <div><a href="<c:url value="/task/lmapproval/list/${l.labId}.do"/>">Pending Lab Manager Job Approval</a></div>
+      <div><a href="<c:url value="/task/lmapproval/list/${l.labId}.do"/>">Jobs Pending Lab Manager Approval</a></div>
     </sec:authorize>
 
     </div>

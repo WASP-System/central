@@ -98,7 +98,7 @@ public class TaskController extends WaspController {
     return "task/detail";
   }
 
-  @RequestMapping("/lmapproval/list/{labId}")
+  @RequestMapping(value = "/lmapproval/list/{labId}.do", method = RequestMethod.GET)
   @PreAuthorize("hasRole('god') or hasRole('lm-' + #labId)")
   public String listLabManagerApproval(@PathVariable("labId") Integer labId, ModelMap m) {
 

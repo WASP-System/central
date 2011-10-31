@@ -47,7 +47,8 @@ public class User extends WaspModel {
 
 
   @Column(name="login")
-  @NotEmpty
+  //@NotEmpty
+  // commented out as progamatically determined 
   protected String login;
   
   public void setLogin (String login) {

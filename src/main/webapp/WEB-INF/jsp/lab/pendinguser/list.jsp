@@ -3,6 +3,9 @@
 <h1><fmt:message key="pageTitle.lab/pendinguser/list.label"/></h1>
 
 <table cellpadding="0" cellspacing="0" border="0">
+<c:if test="${empty labuserpending}">
+    <p><fmt:message key="userPending.no_pending_users.label"/></p>
+</c:if>
 <c:forEach items="${labuserpending}" var="l">
 <!-- sec:authorize access="
      hasRole('god') or
