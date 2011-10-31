@@ -12,10 +12,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Userpasswordauth;
 
-import edu.yu.einstein.wasp.service.AuthCodeService;
 import edu.yu.einstein.wasp.service.UserpasswordauthService;
 import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.service.PasswordService;
+import edu.yu.einstein.wasp.util.AuthCode;
 
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,9 +36,6 @@ public class AuthController extends WaspController {
 
   @Autowired
   private PasswordService passwordService;
-
-  @Autowired
-  private AuthCodeService authCodeService;
   
   @Autowired
   private BeanValidator validator;
@@ -80,7 +77,7 @@ public class AuthController extends WaspController {
 
 	Userpasswordauth userpasswordauth = new Userpasswordauth();
 	userpasswordauth.setUserId(user.getUserId());
-	String authcode = authCodeService.createAuthCode(20);
+	String authcode = AuthCode.create(20);
 	userpasswordauth.setAuthcode(authcode);
 	//userpasswordauth.setLastUpdTs(new Date());
 	//userpasswordauth.setLastUpdUser(user.getUserId());
