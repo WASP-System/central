@@ -1,26 +1,11 @@
-
-/**
- *
- * AuthCodeServiceImpl.java 
- * @author asmclellan 
- *  
- * the AuthCodeService object
- *
- *
- **/
-
-package edu.yu.einstein.wasp.service.impl;
+package edu.yu.einstein.wasp.util;
 
 import java.util.Random;
 
-import org.springframework.stereotype.Service;
 
-import edu.yu.einstein.wasp.service.AuthCodeService;
+public class AuthCode {
 
-@Service
-public class AuthCodeServiceImpl implements AuthCodeService{
-
-	public String createAuthCode(int length){
+	public static String create(int length){
 		if (length < 5 || length > 50){
 			length = 20; //default 
 		}
@@ -44,5 +29,5 @@ public class AuthCodeServiceImpl implements AuthCodeService{
 		return authcode;
 	}
   
-
 }
+

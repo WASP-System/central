@@ -33,7 +33,6 @@ import edu.yu.einstein.wasp.model.MetaHelper.WaspMetadataException;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.model.UserPendingMeta;
-import edu.yu.einstein.wasp.service.AuthCodeService;
 import edu.yu.einstein.wasp.service.ConfirmEmailAuthService;
 import edu.yu.einstein.wasp.service.DepartmentService;
 import edu.yu.einstein.wasp.service.EmailService;
@@ -43,6 +42,7 @@ import edu.yu.einstein.wasp.service.LabService;
 import edu.yu.einstein.wasp.service.PasswordService;
 import edu.yu.einstein.wasp.service.UserPendingMetaService;
 import edu.yu.einstein.wasp.service.UserPendingService;
+import edu.yu.einstein.wasp.util.AuthCode;
 import edu.yu.einstein.wasp.util.StringHelper;
 
 /**
@@ -86,10 +86,7 @@ public class UserPendingController extends WaspController {
 	@Autowired
 	private PasswordValidator passwordValidator;
 	
-	@Autowired
-	private AuthCodeService authCodeService;
-	
-	
+		
 	/**
 	 * get a @{link MetaHelper} instance for working with userPending metadata
 	 * @return
@@ -188,7 +185,7 @@ public class UserPendingController extends WaspController {
 			userPendingMetaService.save(upm);
 		}
 		
-		String authcode = authCodeService.createAuthCode(20);
+		String authcode = AuthCode.create(20);
 		ConfirmEmailAuth confirmEmailAuth = new ConfirmEmailAuth();
 		confirmEmailAuth.setAuthcode(authcode);
 		confirmEmailAuth.setUserpendingId(userPendingDb.getUserPendingId());
@@ -335,7 +332,7 @@ public class UserPendingController extends WaspController {
 			upm.setUserpendingId(userPendingDb.getUserPendingId());
 		}
 		userPendingMetaService.updateByUserpendingId(userPendingDb.getUserPendingId(), userPendingMetaList);
-		String authcode = authCodeService.createAuthCode(20);
+		String authcode = AuthCode.create(20);
 		ConfirmEmailAuth confirmEmailAuth = new ConfirmEmailAuth();
 		confirmEmailAuth.setAuthcode(authcode);
 		confirmEmailAuth.setUserpendingId(userPendingDb.getUserPendingId());
