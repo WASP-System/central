@@ -157,8 +157,9 @@ public class EmailServiceImpl implements EmailService {
 	
 	/**
 	 * {@inheritDoc}
+	 * @throws MailPreparationException 
 	 */
-	public void sendPendingLabNotifyRejected(final LabPending labPending){
+	public void sendPendingLabNotifyRejected(final LabPending labPending) throws MailPreparationException{
 		User user = new User();
 		if (labPending.getUserpendingId() != null ) {
 			// this PI is currently a pending user. 
@@ -167,9 +168,13 @@ public class EmailServiceImpl implements EmailService {
 			user.setLastName(userPending.getLastName());
 			user.setEmail(userPending.getEmail());
 			user.setLocale(userPending.getLocale());
-		} else {
+		} else if (labPending.getPrimaryUserId() != null ){
 			// the referenced PI of this lab exists in the user table already so get their record
 			user = userService.getUserByUserId(labPending.getPrimaryUserId());
+		}
+		else{
+			// shouldn't get here 
+			throw new MailPreparationException("No user referenced to whom email should be sent for labPending with id '" + labPending.getLabPendingId() + "'");
 		}
 		Map model = new HashMap();
 		model.put("user", user);

@@ -1089,6 +1089,9 @@ public class LabController extends WaspController {
 				userPending.setStatus(action);
 				userPendingService.save(userPending);
 				waspMessage("labPending.rejected.label");
+			} else if (labPending.getPrimaryUserId() == null){
+				waspMessage("labPending.could_not_create_lab.error");
+				return "redirect:/department/detail/" + deptId + ".do";
 			}
 			emailService.sendPendingLabNotifyRejected(labPending);
 		}

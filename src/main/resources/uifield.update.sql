@@ -311,7 +311,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','heading','label','Pending Lab Details:','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','approved','label','New lab application sucessfully approved','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','rejected','label','New lab application sucessfully rejected','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','could_not_create_lab','error','Failed to create new lab','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','could_not_create_lab','error','Failed to process new lab request','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','auth_login_validate','error','Please provide your user login name AND password.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','login_failed','error','Your login attempt was not successful. Try again.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','login_reason','label','Reason','1');
