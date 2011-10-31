@@ -501,15 +501,15 @@ public class LabController extends WaspController {
 		LabPending labPending = this.labPendingService.getById(labPendingId);
 		String puserFullName = "";
 		if (labPending.getUserpendingId() != null) {
-			// this PI is currently a pending user. Make them a full user before
-			// creating lab
+			// this PI is currently a pending user.
 			UserPending userPending = userPendingService.getUserPendingByUserPendingId(labPending.getUserpendingId());
 			puserFullName = userPending.getFirstName() + " " + userPending.getLastName();
-		} else {
-			// the referenced PI of this lab exists in the user table already so
-			// get their record
+		} else if (labPending.getPrimaryUserId() != null){
+			// the referenced PI of this lab exists in the user table already
 			User user = userService.getUserByUserId(labPending.getPrimaryUserId());
 			puserFullName = user.getFirstName() + " " + user.getLastName();
+		} else {
+			// shouldn't get here
 		}
 		return puserFullName;
 	}
@@ -767,10 +767,13 @@ public class LabController extends WaspController {
 			// creating lab
 			UserPending userPending = userPendingService.getUserPendingByUserPendingId(labPending.getUserpendingId());
 			user = createUserFromUserPending(userPending);
-		} else {
+		} else if (labPending.getPrimaryUserId() != null) {
 			// the referenced PI of this lab exists in the user table already so
 			// get their record
 			user = userService.getUserByUserId(labPending.getPrimaryUserId());
+		} else {
+			// shouldn't get here
+			return lab; // return empty lab
 		}
 
 		lab.setPrimaryUserId(user.getUserId());
@@ -1004,7 +1007,11 @@ public class LabController extends WaspController {
 		}
 
 		UserPending userPending = userPendingService.getUserPendingByUserPendingId(userPendingId);
-
+		if (! userPending.getStatus().equals("PENDING") ) {
+			waspMessage("userPending.status_not_pending.error");
+			return "redirect:/dashboard.do";
+		}
+		
 		if (userPending.getLabId() != labId) {
 			waspMessage("userPending.labid_mismatch.error");
 			return "redirect:/dashboard.do";
@@ -1021,9 +1028,11 @@ public class LabController extends WaspController {
 			labUser.setRoleId(roleLabUser.getRoleId());
 			labUserService.merge(labUser);
 			emailService.sendPendingUserNotifyAccepted(user, labService.getLabByLabId(labId));
+			waspMessage("userPending.approved.label");
 		} else {
 			// email pending user notification of rejection
 			emailService.sendPendingUserNotifyRejected(userPending,	labService.getLabByLabId(labId));
+			waspMessage("userPending.rejected.label");
 		}
 		userPending.setStatus(action);
 		userPendingService.save(userPending);
@@ -1053,8 +1062,12 @@ public class LabController extends WaspController {
 			waspMessage("labPending.action.error");
 			return "redirect:/department/detail/" + deptId + ".do";
 		}
-
 		LabPending labPending = labPendingService.getLabPendingByLabPendingId(labPendingId);
+		if (! labPending.getStatus().equals("PENDING") ) {
+			waspMessage("labPending.status_not_pending.error");
+			return "redirect:/department/detail/" + deptId + ".do";
+		}
+		
 		if (labPending.getDepartmentId() != deptId) {
 			waspMessage("labPending.departmentid_mismatch.error");
 			return "redirect:/department/detail/" + deptId + ".do";
@@ -1062,7 +1075,12 @@ public class LabController extends WaspController {
 
 		if ("approve".equals(action)) {
 			Lab lab = createLabFromLabPending(labPending);
+			if (lab.getLabId() == 0){
+				waspMessage("labPending.could_not_create_lab.error");
+				return "redirect:/department/detail/" + deptId + ".do";
+			}
 			emailService.sendPendingLabNotifyAccepted(lab);
+			waspMessage("labPending.approved.label");
 		} else {
 			if (labPending.getUserpendingId() != null) {
 				// this PI is currently a pending user. Reject their pending
@@ -1070,6 +1088,7 @@ public class LabController extends WaspController {
 				UserPending userPending = userPendingService.getUserPendingByUserPendingId(labPending.getUserpendingId());
 				userPending.setStatus(action);
 				userPendingService.save(userPending);
+				waspMessage("labPending.rejected.label");
 			}
 			emailService.sendPendingLabNotifyRejected(labPending);
 		}

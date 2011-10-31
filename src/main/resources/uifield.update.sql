@@ -94,6 +94,9 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','phone','metaposition','90','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','fax','label','Fax','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','fax','metaposition','100','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','approved','label','User account application sucessfully approved','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','rejected','label','User account application sucessfully rejected','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','status_not_pending','error','Pending user is already approved or rejected','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','password','label','Password','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','password','error','Password cannot be empty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','password_mismatch','error','The two entries for your password are NOT identical','1');
@@ -297,6 +300,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','billing_phone','metaposition','130','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','updated','error','Pending Lab was NOT updated. Please fill in required fields.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','created','error','Pending Lab was NOT created. Please fill in required fields.','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','status_not_pending','error','Pending lab is already approved or rejected','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','updated_success','label','Pending Lab updated sucessfully.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','action','error','Invalid action. Must be approve or reject only','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','departmentid_mismatch','error','Deparment id mismatch with lab-pending id','1');
@@ -305,6 +309,9 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','save','label','Save Changes','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','cancel','label','Cancel','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','heading','label','Pending Lab Details:','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','approved','label','New lab application sucessfully approved','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','rejected','label','New lab application sucessfully rejected','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','could_not_create_lab','error','Failed to create new lab','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','auth_login_validate','error','Please provide your user login name AND password.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','login_failed','error','Your login attempt was not successful. Try again.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','login_reason','label','Reason','1');
