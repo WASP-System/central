@@ -9,6 +9,7 @@
     </properties>
     <build>
         <plugins>
+       
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -20,6 +21,8 @@
                 </configuration>
                 
             </plugin>
+           
+            
             <plugin>
             <!-- enable deploying to tomcat -->
             <!--
@@ -54,6 +57,9 @@
                 <artifactId>maven-war-plugin</artifactId>
                 <version>2.1.1</version>
             </plugin>
+              
+     
+            
             <!-- plugin> <groupId>org.codehaus.mojo</groupId> <artifactId>native2ascii-maven-plugin</artifactId> <executions> <execution> <goals> <goal>native2ascii</goal> 
                 </goals> <configuration> <encoding>UTF8</encoding> <dest>${project.build.directory}/classes</dest> <ext>.properties</ext> <includes>*.utf8</includes> <src>${basedir}/src/main/i18n</src> 
                 </configuration> </execution> </executions> </plugin -->
@@ -102,6 +108,16 @@
        	    <properties>
         		<tomcat-server>localhost</tomcat-server>
         		<tomcat-url>http://localhost:8080/manager/text</tomcat-url>
+    		</properties>
+    	</profile>
+    	<profile>
+        	<id>tomcat-wellington</id>
+        	<activation>
+        		<activeByDefault>true</activeByDefault>
+        	</activation>
+       	    <properties>
+        		<tomcat-server>wellington</tomcat-server>
+        		<tomcat-url>http://wellington.einstein.yu.edu.com:8080/manager/text</tomcat-url>
     		</properties>
     	</profile>
     </profiles>
