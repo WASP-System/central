@@ -117,7 +117,7 @@
         	</activation>
        	    <properties>
         		<tomcat-server>wellington</tomcat-server>
-        		<tomcat-url>http://wellington.einstein.yu.edu.com:8080/manager/text</tomcat-url>
+        		<tomcat-url>http://wellington.einstein.yu.edu:8080/manager/text</tomcat-url>
     		</properties>
     	</profile>
     </profiles>
