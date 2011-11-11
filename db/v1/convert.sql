@@ -155876,4 +155876,5 @@ update user set password = sha1('abc123');
 
 insert into `userrole` (`userroleid`, `userid`, `roleid`, `lastupdts`, `lastupduser`) values (1, 5, 11, CURDATE(), 0);
 insert into `userrole` (`userroleid`, `userid`, `roleid`, `lastupdts`, `lastupduser`) values (2, 10, 8, CURDATE(), 0);
-insert into `role` (`rolename`, `name`, `domain`) values ('g', 'Guest User', 'guest'),('ag', 'Authenticated Guest', 'guest');
+insert into `role` (`rolename`, `name`, `domain`) values ('g', 'Guest User', 'guest'),('ag', 'Authenticated Guest', 'guest'),('ldap', 'LDAP or AD Auth User', 'auth');
+

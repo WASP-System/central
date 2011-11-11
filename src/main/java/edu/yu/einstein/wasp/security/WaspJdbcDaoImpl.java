@@ -3,6 +3,8 @@ package edu.yu.einstein.wasp.security;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+import org.hibernate.tool.hbm2x.StringUtils;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl;
@@ -15,6 +17,7 @@ import org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl;
  */
 public class WaspJdbcDaoImpl extends JdbcDaoImpl {
 
+	
 	public WaspJdbcDaoImpl(){
 		super();
 		this.setAuthoritiesByUsernameQuery(
@@ -72,15 +75,10 @@ public class WaspJdbcDaoImpl extends JdbcDaoImpl {
 	 * @return List<GrantedAuthority>
 	 */
 	public List<GrantedAuthority> getUserWaspAuthorities(String username){
-		List<GrantedAuthority> authorities = null;
-		try{
-			 authorities = this.loadUserAuthorities(username);
-		} catch (NullPointerException e){
-			// user authenticates by LDAP but is not yet a wasp user
-			// so set as an authenticated guest user (role = "ag")
-			authorities = new ArrayList<GrantedAuthority>();
+		List<GrantedAuthority> authorities = this.loadUserAuthorities(username);
+		if (authorities.isEmpty())
 			authorities.add(new SimpleGrantedAuthority("ag"));
-		}
+		authorities.add(new SimpleGrantedAuthority("ldap"));
 		return authorities;
 	}
 }

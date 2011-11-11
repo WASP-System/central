@@ -4,6 +4,7 @@ import java.util.Collection;
 
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl;
 import org.springframework.security.ldap.userdetails.LdapAuthoritiesPopulator;
 
 /**
@@ -16,11 +17,24 @@ import org.springframework.security.ldap.userdetails.LdapAuthoritiesPopulator;
  *
  */
 public class WaspLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator {
+	
+	private WaspJdbcDaoImpl jdbcDaoImpl;
+	
+	public WaspJdbcDaoImpl getWaspJdbcDaoImpl(){
+		return jdbcDaoImpl;
+	}
+	
+	public void setWaspJdbcDaoImpl(WaspJdbcDaoImpl jdbcDaoImpl){
+		this.jdbcDaoImpl = jdbcDaoImpl;
+	}
+	
+	public WaspLdapAuthoritiesPopulator(WaspJdbcDaoImpl jdbcDaoImpl){
+		this.jdbcDaoImpl = jdbcDaoImpl;
+	}
 
 	@Override
 	public Collection<? extends GrantedAuthority> getGrantedAuthorities(DirContextOperations context, String userName) {
-		WaspJdbcDaoImpl waspJdbcDaoImpl = new WaspJdbcDaoImpl();
-		return waspJdbcDaoImpl.getUserWaspAuthorities(userName);
+		return jdbcDaoImpl.getUserWaspAuthorities(userName);
 	}
 
 }

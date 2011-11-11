@@ -50,7 +50,9 @@
             </beans:bean>
         </beans:constructor-arg>
         <beans:constructor-arg>
-            <beans:bean class="edu.yu.einstein.wasp.security.WaspLdapAuthoritiesPopulator" />
+            <beans:bean class="edu.yu.einstein.wasp.security.WaspLdapAuthoritiesPopulator">
+            	<beans:constructor-arg ref="waspUserDetailsService" />
+            </beans:bean>
         </beans:constructor-arg>
     </beans:bean>
  
