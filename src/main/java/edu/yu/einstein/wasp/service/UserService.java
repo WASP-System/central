@@ -31,6 +31,8 @@ public interface UserService extends WaspService<User> {
   public User getUserByEmail (final String email);
   
   boolean loginExists(final String login, final Integer excludeUserId);
+  
+  public String getUniqueLoginName(final User user);
 
 }
 

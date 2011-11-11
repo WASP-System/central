@@ -1,7 +1,7 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
     <p><font color="red"><wasp:message /></font></p>
-    <h1><fmt:message key="pageTitle.lab/user.label"/></h1>
+    <h1><fmt:message key="pageTitle.lab/user_manager.label"/></h1>
 	<h2><fmt:message key="labuser.current.label"/></h2>
     <c:forEach items="${labuser}" var="ul">
       <p>

@@ -227,6 +227,8 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','lab','created_success','label','Lab was created','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','lab','updated','error','Lab was NOT updated. Please fill in required fields.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','lab','created','error','Lab was NOT created. Please fill in required fields.','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','lab','list_pi','label','Principal Investigator','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','lab','list_users','label','Lab Members','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','updated_success','label','User was updated','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','created_success','label','User was created','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','updated','error','User was NOT updated. Please fill in required fields.','1');
@@ -323,12 +325,12 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','login_anchor_newuser','label','New User','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','login_anchor_newpi','label','New PI','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','login_anchor_about','label','About','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','forgotpassword_user','label','Username','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','forgotpassword','data','Submit','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','forgotpassword_missingparam','error','Please provide values for all fields','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','forgotpassword_captcha','error','Captcha text incorrect','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','forgotpassword_username','error','A user with the supplied username does not exist','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','forgotpassword_captcha','label','Captcha text','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','resetpasswordRequest_user','label','Username','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','resetpasswordRequest','data','Submit','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','resetpasswordRequest_missingparam','error','Please provide values for all fields','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','resetpasswordRequest_captcha','error','Captcha text incorrect','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','resetpasswordRequest_username','error','A user with the supplied username does not exist','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','resetpasswordRequest_captcha','label','Captcha text','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','resetpassword_user','label','Username','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','resetpassword_authcode','label','Auth Code','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','resetpassword_password1','label','New Password','1');
@@ -345,7 +347,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','resetpassword_new_invalid','error','New password must be at least 8 characters, containing only letters and numbers, with at least one letter and number','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','resetpassword_instructions','label','New Password Requirements:<br />At least 8 characters in length<br />Only letters & numbers permitted (no spaces, etc)<br />At least one letter and one number<br />','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','resetpasswordok_title','label','Reset Password: Complete','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','resetpasswordok','label','Your password has been reset. Please click to <a href="login.do"/>Login</a>','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','resetpasswordok','label','Your password has been reset. Please click to <a href="../login.do"/>Login</a>','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','mypassword_instructions','label','New Password Requirements:<br />At least 8 characters in length<br />Only letters & numbers permitted (no spaces, etc)<br />At least one letter and one number<br />','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','mypassword_oldpassword','label','Old Password','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','mypassword_newpassword1','label','New Password','1');
@@ -533,8 +535,8 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','login_submit','label','Login','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','submit','label','Apply for Account','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','confirmemail_submit','label','Submit','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','resetpasswordemailsent','label','An email has been sent to your registered email address containing an authorization code. Please click the link within this email or alternatively <a href="resetpassword.do">click here</a> and enter the authorization code provided. ','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','forgotpassword_submit','label','Submit','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','resetpasswordemailsent','label','An email has been sent to your registered email address containing an authorization code. Please click the link within this email or alternatively <a href="form.do">click here</a> and enter the authorization code provided. ','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','resetpasswordRequest_submit','label','Submit','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','emailsent','label','Thank you for your account request. You have been sent an email with instructions as to how to confirm your email address. Please click to <a href="../login.do"/>Login</a>','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','resetpassword_submit','label','Submit','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail','label','Department','1');
@@ -667,8 +669,8 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','auth/resetpassword/form','label','Reset Password: Step 2','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','auth/resetpassword/ok','label','Password Was Reset','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','auth/confirmemail/authcodeform','label','Confirm Email Address','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','auth/forgotpassword/form','label','Reset Password Request','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','auth/forgotpassword/email','label','Email Sent','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','auth/resetpassword/request','label','Reset Password Request','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','auth/resetpassword/email','label','Email Sent','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','dashboard','label','WASP','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','user/detail_rw','label','Update User Detail','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','user/detail_ro','label','User Detail','1');
@@ -678,7 +680,8 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','lab/pending/detail_ro','label','Pending Lab Detail','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','lab/pending/detail_rw','label','Update Pending Lab Detail','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','lab/pendinguser/list','label','Pending Users','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','lab/user','label','User Manager','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','lab/user_manager','label','Lab User Manager','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','lab/user_list','label','Lab Member List','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','user/mypassword','label','Change Password','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','department/list','label','Department List','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','department/detail','label','Department Detail','1');
@@ -801,6 +804,8 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labDetail','cancel','label','Cancel','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labDetail','save','label','Save Changes','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','wasp','default_select','label','-- select --','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','wasp','authentication','data','internal','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','wasp','authentication','label','WASP','1');
 
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) 
 values('en_US','sampleDnaToLibrary','Mouse','metaposition','10','1');

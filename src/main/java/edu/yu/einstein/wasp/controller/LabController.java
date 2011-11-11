@@ -677,9 +677,9 @@ public class LabController extends WaspController {
 				+ labPendingId + ".do";
 	}
 
-	@RequestMapping(value = "/user/{labId}.do", method = RequestMethod.GET)
+	@RequestMapping(value = "/user_manager/{labId}.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('god') or hasRole('lu-' + #labId)")
-	public String userList(@PathVariable("labId") Integer labId, ModelMap m) {
+	public String userManager(@PathVariable("labId") Integer labId, ModelMap m) {
 		Lab lab = this.labService.getById(labId);
 		List<LabUser> labUser = lab.getLabUser();
 
@@ -693,7 +693,31 @@ public class LabController extends WaspController {
 		m.addAttribute("labuser", labUser);
 		m.addAttribute("labuserpending", userPending);
 
-		return "lab/user";
+		return "lab/user_manager";
+	}
+	
+	@RequestMapping(value = "/user_list/{labId}.do", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('god') or hasRole('lu-' + #labId)")
+	public String userList(@PathVariable("labId") Integer labId, ModelMap m) {
+		Lab lab = this.labService.getById(labId);
+		List<User> labManagers = new ArrayList();
+		List<User> labMembers= new ArrayList();
+		User pi = new User();
+		for(LabUser labUser : (List<LabUser>) lab.getLabUser() ){
+			User currentUser = userService.getUserByUserId(labUser.getUserId());
+			if (currentUser.getUserId() == lab.getPrimaryUserId()){
+				pi = currentUser;
+			} else if (labUser.getRole().getRoleName().equals("lm")){
+				labManagers.add(currentUser);
+			} else {
+				labMembers.add(currentUser);
+			}
+		}
+		m.addAttribute("lab", lab);
+		m.addAttribute("pi", pi);
+		m.addAttribute("labManagers", labManagers);
+		m.addAttribute("labMembers", labMembers);
+		return "lab/user_list";
 	}
 
 	@RequestMapping(value = "/pendinguser/list/{labId}.do", method = RequestMethod.GET)
@@ -727,7 +751,7 @@ public class LabController extends WaspController {
 			labUserService.remove(labUser);
 
 			waspMessage("hello.error");
-			return "redirect:/lab/user/" + labId + ".do";
+			return "redirect:/lab/user_manager/" + labId + ".do";
 		}
 
 		// TODO CHECK VALID ROLE NAME
@@ -747,7 +771,7 @@ public class LabController extends WaspController {
 		}
 
 		waspMessage("hello.error");
-		return "redirect:/lab/user/" + labId + ".do";
+		return "redirect:/lab/user_manager/" + labId + ".do";
 	}
 
 	/**
@@ -854,23 +878,7 @@ public class LabController extends WaspController {
 		user.setIsActive(1);
 
 		// find me a unique login name
-		String loginBase = userPending.getFirstName().substring(0, 1);
-		String loginLastName = userPending.getLastName();
-		loginLastName = loginLastName.replaceAll(" ", "");
-		int posOfQuote = StringUtils.indexOf(loginLastName, "'"); // e.g. O'Broin
-		if (posOfQuote != -1 && (posOfQuote - 1) != -1 && (posOfQuote < loginLastName.length())){
-			loginBase += loginLastName.substring(posOfQuote -1, posOfQuote);
-			loginBase += loginLastName.substring(posOfQuote + 1);
-		} else {
-			loginBase += loginLastName;
-		}
-		loginBase = loginBase.replaceAll("[^\\w-]", "").toLowerCase();
-		String login = loginBase;
-		int c = 1;
-		while (userService.getUserByLogin(login).getUserId() > 0) {
-			login = loginBase + c;
-			c++;
-		}
+		String login = userService.getUniqueLoginName(user);
 		user.setLogin(login);
 		User userDb = userService.save(user);
 		int userId = userDb.getUserId();
@@ -1036,7 +1044,7 @@ public class LabController extends WaspController {
 		}
 		userPending.setStatus(action);
 		userPendingService.save(userPending);
-		return "redirect:/lab/user/" + labId + ".do";
+		return "redirect:/lab/user_manager/" + labId + ".do";
 	}
 
 	/**

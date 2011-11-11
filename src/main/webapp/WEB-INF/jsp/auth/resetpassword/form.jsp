@@ -4,7 +4,7 @@
 	<h4><fmt:message key="auth.resetpassword_instructions.label" /></h4>
      <font color="red"><wasp:message /></font>
 
-    <form name="f" action="<c:url value='/auth/resetpassword.do'/>" method="POST">
+    <form name="f" action="<c:url value='/auth/resetpassword/form.do'/>" method="POST">
        <input type='hidden' name='authcode' value='<c:out value="${authcode}" default="" />'/>
 
       <table>

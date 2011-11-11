@@ -46,12 +46,12 @@ public class AuthController extends WaspController {
   }
 
     
-  @RequestMapping(value="/forgotpassword", method=RequestMethod.GET)
+  @RequestMapping(value="/resetpassword/request", method=RequestMethod.GET)
   public String showForgotPasswordForm(ModelMap m) {
-    return "auth/forgotpassword/form";
+    return "auth/resetpassword/request";
   }
 
-  @RequestMapping(value="/forgotpassword", method=RequestMethod.POST)
+  @RequestMapping(value="/resetpassword/request", method=RequestMethod.POST)
   public String forgotPassword(@RequestParam("username") String username, @RequestParam("captcha_text") String captchaText, ModelMap m) {
 
 	  User user=userService.getUserByLogin(username);
@@ -59,20 +59,20 @@ public class AuthController extends WaspController {
 	  
 	  if (username == null || captchaText == null || username.equals("") || captchaText.equals(""))
 	  {
-		  waspMessage("auth.forgotpassword_missingparam.error");
+		  waspMessage("auth.resetpasswordRequest_missingparam.error");
 		  m.put("username", username);
-		  return "auth/forgotpassword/form";
+		  return "auth/resetpassword/request";
 	  }
 	  
 	  if (captcha == null || (! captcha.isCorrect(captchaText)) ){
-		  waspMessage("auth.forgotpassword_captcha.error");
+		  waspMessage("auth.resetpasswordRequest_captcha.error");
 		  m.put("username", username);
-		  return "auth/forgotpassword/form";
+		  return "auth/resetpassword/request";
 	  }
 	  
 	  if (user==null || user.getUserId()==0)  {
-		  waspMessage("auth.forgotpassword_username.error");
-		  return "auth/forgotpassword/form";
+		  waspMessage("auth.resetpasswordRequest_username.error");
+		  return "auth/resetpassword/request";
 	  }
 
 	Userpasswordauth userpasswordauth = new Userpasswordauth();
@@ -84,12 +84,12 @@ public class AuthController extends WaspController {
 	userpasswordauthService.merge(userpasswordauth); // merge handles both inserts and updates. Doesn't have problem with disconnected entities like persist does
 	emailService.sendForgotPassword(user, authcode);
 	  
-    return "auth/forgotpassword/email";
+    return "auth/resetpassword/email";
   }
   
   
 
-  @RequestMapping(value="/resetpassword", method=RequestMethod.GET)
+  @RequestMapping(value="/resetpassword/form", method=RequestMethod.GET)
   public String showResetPasswordForm(@RequestParam(required = false, value="authcode") String authCode, ModelMap m) {
 	  if (authCode == null || "".equals(authCode)) {
 		  return "auth/resetpassword/authcodeform";
@@ -106,7 +106,7 @@ public class AuthController extends WaspController {
 	  return "auth/resetpassword/form";
   }
   
-  @RequestMapping(value="/resetpassword", method=RequestMethod.POST)
+  @RequestMapping(value="/resetpassword/form", method=RequestMethod.POST)
   public String resetPassword(
         @RequestParam("username") String username, 
         @RequestParam("authcode") String authCode, 

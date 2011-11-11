@@ -45,11 +45,13 @@
     <div>
     <b><c:out value="${l.name}" /></b>
     <c:set var="labId" value="${l.labId}" />
-    <div><a href="<c:url value="/lab/detail_ro/${l.departmentId}/${l.labId}.do"/>">View</a></div>
-
+    <div><a href="<c:url value="/lab/detail_ro/${l.departmentId}/${l.labId}.do"/>">Lab Details</a></div>
+    <sec:authorize access="not hasRole('lm-${l.labId}' )">
+	<div><a href="<c:url value="/lab/user_list/${l.labId}.do"/>">Lab Members</a></div>
+	</sec:authorize>
     <sec:authorize access="hasRole('lm-${l.labId}' )">
       <div><a href="<c:url value="/lab/pendinguser/list/${l.labId}.do"/>">Pending User Approval</a></div>
-      <div><a href="<c:url value="/lab/user/${l.labId}.do"/>">User Manager</a></div>
+      <div><a href="<c:url value="/lab/user_manager/${l.labId}.do"/>">User Manager</a></div>
       <div><a href="<c:url value="/task/lmapproval/list/${l.labId}.do"/>">Jobs Pending Lab Manager Approval</a></div>
     </sec:authorize>
 

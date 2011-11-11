@@ -225,7 +225,7 @@ html, body {
 	editrules={edithidden:true};
 	formoptions={};
 	if(required){
-		formoptions={elmsuffix:'<fontcolor=red>*</font>'};
+		formoptions={elmsuffix:'<font color=red>*</font>'};
 		editrules={edithidden:true,custom:true,custom_func:_validate_required};	
 	}
 
