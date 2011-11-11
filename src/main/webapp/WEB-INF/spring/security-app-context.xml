@@ -28,72 +28,43 @@
 
     </http>
 
-    <beans:bean id="userDetailsService" class="org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl">
+    <beans:bean id="waspUserDetailsService" class="edu.yu.einstein.wasp.security.WaspJdbcDaoImpl">
       <beans:property name="dataSource" ref="dataSource" />
-
-      <beans:property name="usersByUsernameQuery" value="SELECT login username, password, isactive enabled FROM user WHERE login = ?" />
-
-      <beans:property name="authoritiesByUsernameQuery" value="
-SELECT u.login username,
-  case ab.roleid
-    when 1 then
-      case r.domain
-        when 'system' then provr.rolename
-        when 'department' then concat(provr.rolename, '-', du.departmentid)
-        when 'lab' then concat(provr.rolename, '-', lu.labid)
-        when 'job' then concat(provr.rolename, '-', ju.jobid)
-        when 'jobdraft' then concat(provr.rolename, '-', jd.jobdraftid)
-        when 'user' then concat(provr.rolename, '-', us.userid)
-      end
-    when 2 then
-      concat(provr.rolename, '-*')
-      end authority
-FROM
-  user u
-  inner join role ab on (roleid in (1,2))
-  inner join role r on (1 = 1)
-  inner join roleset rs on (r.roleid = rs.parentroleid)
-  inner join role provr on (rs.childroleid = provr.roleid)
-  left outer join userrole ur
-    on (u.userid = ur.userid and r.roleid = ur.roleid)
-  left outer join departmentuser du
-    on (u.userid = du.userid)
-  left outer join labuser lu
-    on (u.userid = lu.userid and r.roleid = lu.roleid)
-  left outer join jobuser ju
-    on (u.userid = ju.userid and r.roleid = ju.roleid)
-  left outer join jobdraft jd
-    on (u.userid = jd.userid and status = 'PENDING')
-  left outer join user us 
-    on (u.userid = us.userid)
-where
-  u.login = ? and
-  case r.domain
-    when 'system' then ifnull(ur.userid, 0)
-    when 'department' then ifnull(du.userid, 0)
-    when 'lab' then ifnull(lu.userid, 0)
-    when 'job' then ifnull(ju.userid, 0)
-    when 'jobdraft' then ifnull(jd.userid, 0)
-    when 'user' then ifnull(us.userid, 0)
-  end
-group by 1, 2
-" />
     </beans:bean>
 
+	<beans:bean id="contextSource" class="org.springframework.security.ldap.DefaultSpringSecurityContextSource">
+        <beans:constructor-arg value="${authentication.ldap.url}" />
+     </beans:bean>
 
-    <beans:bean id="daoAuthenticationProvider"  class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
-       <beans:property name="userDetailsService" ref="userDetailsService"/>
+    <beans:bean id="testLdapAuthenticationProvider" class="org.springframework.security.ldap.authentication.LdapAuthenticationProvider">
+        <beans:constructor-arg>
+            <beans:bean class="org.springframework.security.ldap.authentication.BindAuthenticator">
+                <beans:constructor-arg ref="contextSource" />
+                <beans:property name="userSearch">
+                    <beans:bean id="userSearch" class="org.springframework.security.ldap.search.FilterBasedLdapUserSearch">
+                      <beans:constructor-arg index="0" value="${authentication.ldap.ou}"/>
+                      <beans:constructor-arg index="1" value="(uid={0})"/>
+                      <beans:constructor-arg index="2" ref="contextSource" />
+                    </beans:bean>
+                </beans:property>
+            </beans:bean>
+        </beans:constructor-arg>
+        <beans:constructor-arg>
+            <beans:bean class="edu.yu.einstein.wasp.security.WaspLdapAuthoritiesPopulator" />
+        </beans:constructor-arg>
     </beans:bean>
-
+ 
     <authentication-manager>
 
-      <authentication-provider user-service-ref="userDetailsService">
+      <authentication-provider user-service-ref="waspUserDetailsService">
         <password-encoder hash="sha" />
       </authentication-provider>
 
       <!-- no password encoder to reauth -->
-      <authentication-provider user-service-ref="userDetailsService">
-      </authentication-provider>
+      <authentication-provider user-service-ref="waspUserDetailsService" />
+   	  
+   	  <!--  test LDAP Authentication -->
+      <authentication-provider ref="testLdapAuthenticationProvider" />
 
     </authentication-manager>
 

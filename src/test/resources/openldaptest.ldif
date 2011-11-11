@@ -1,0 +1,130 @@
+dn: dc=wasp,dc=edu
+objectClass: dcObject
+objectClass: domain
+dc: springsource
+
+dn: ou=users,dc=wasp,dc=edu
+objectClass: organizationalUnit
+objectClass: top
+ou: users
+
+dn: ou=\"quoted people\",dc=wasp,dc=edu
+objectclass: top
+objectclass: organizationalUnit
+ou: "quoted people"
+
+dn: cn=quoteguy,ou=\"quoted people\",dc=wasp,dc=edu
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: quoteguy
+sn: Quote
+uid: quoteguy
+userPassword: quoteguyspassword
+
+dn: uid=newuser,ou=users,dc=wasp,dc=edu
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+objectClass: top
+cn: New
+uid: newuser
+givenName: New
+o: wasp
+sn: User
+userPassword: abc123
+
+dn: uid=testpi,ou=users,dc=wasp,dc=edu
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+objectClass: top
+cn: Test
+uid: testpi
+givenName: TestPI
+o: wasp
+sn: TestPI
+userPassword: qwer1234
+
+dn: ou=policies,dc=wasp,dc=edu
+objectClass: organizationalUnit
+objectClass: top
+ou: policies
+
+dn: cn=default,ou=policies,dc=wasp,dc=edu
+objectClass: device
+objectClass: top
+objectClass: pwdPolicy
+cn: default
+pwdAttribute: userPassword
+pwdCheckQuality: 1
+pwdExpireWarning: 600000
+pwdFailureCountInterval: 0
+pwdGraceAuthNLimit: 100
+pwdInHistory: 50
+pwdLockout: FALSE
+pwdLockoutDuration: 0
+pwdMaxAge: 5184000
+pwdMaxFailure: 3
+pwdMinAge: 0
+pwdMinLength: 8
+pwdMustChange: FALSE
+
+dn: cn=lockoutafter1,ou=policies,dc=wasp,dc=edu
+objectClass: device
+objectClass: top
+objectClass: pwdPolicy
+cn: lockoutafter1
+pwdAttribute: userPassword
+pwdCheckQuality: 1
+pwdFailureCountInterval: 0
+pwdGraceAuthNLimit: 2
+pwdInHistory: 3
+pwdLockout: TRUE
+pwdLockoutDuration: 10
+pwdMaxFailure: 1
+pwdMinAge: 0
+pwdMinLength: 6
+pwdMustChange: TRUE
+
+dn: cn=expirein10,ou=policies,dc=wasp,dc=edu
+objectClass: device
+objectClass: top
+objectClass: pwdPolicy
+cn: expirein10
+pwdAttribute: userPassword
+pwdExpireWarning: 9999
+pwdGraceAuthNLimit: 5
+pwdMaxAge: 10000
+pwdInHistory: 3
+pwdLockout: FALSE
+pwdMinLength: 6
+pwdMustChange: TRUE
+
+
+dn: uid=expireme,ou=users,dc=wasp,dc=edu
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+objectClass: top
+uid: expireme
+cn: Expired
+givenName: Expired
+o: wasp
+sn: User
+userPassword: password
+pwdPolicySubentry: cn=expirein10,ou=policies,dc=wasp,dc=edu
+
+dn: uid=lockme,ou=users,dc=wasp,dc=edu
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+objectClass: top
+uid: lockme
+cn: Expired
+givenName: Expired
+o: wasp
+sn: User
+userPassword: password
+pwdPolicySubentry: cn=lockoutafter1,ou=policies,dc=wasp,dc=edu
