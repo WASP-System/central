@@ -8,29 +8,15 @@
     <form:form commandName="user">
     
      <table>
-     	   <c:if test="${user.userId == 0}">
+     	  <c:set var="readonly" value="${1 == 0}" scope="page" />
+     	  <c:if test="${user.userId == 0}">
+     	  	 <c:set var="readonly" value="${1 == 1}" scope="page" />
+     	  </c:if>
      	   <tr>
               <td><fmt:message key="user.login.label" />:</td>
-              <td><form:input path="login" /></td>
+              <td><form:input path="login" readonly="${readonly}"/></td>
               <td><form:errors path="login"/></td>
-          </tr>
-          <!-- tr>
-              <td><fmt:message key="user.password.label"/>:</td>
-              <td><form:password path="password" /></td>
-              <td><form:errors path="password" /></td>
-          </tr-->     	   
-     	  </c:if>	
-     	  <c:if test="${user.userId != 0}">
-     	   <tr>
-              <td><fmt:message key="user.login.label" />:</td>
-              <td>${user.login}<form:hidden path="login"/></td>              
-          </tr>
-          <!-- tr>
-              <td><fmt:message key="user.password.label"/>:</td>
-              <td><input type="password" value=""/></td>
-              <td><form:errors path="password" /></td>
-          </tr-->     	   
-     	   </c:if>	 
+          </tr> 	   	
           <tr>
               <td><fmt:message key="user.firstName.label" />:</td>
               <td><form:input path="firstName" /></td>

@@ -63,6 +63,7 @@ import edu.yu.einstein.wasp.model.SubtypeSample;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Workflow;
 import edu.yu.einstein.wasp.model.WorkflowMeta;
+import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobCellService;
 import edu.yu.einstein.wasp.service.JobDraftCellService;
@@ -73,6 +74,7 @@ import edu.yu.einstein.wasp.service.JobSampleService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.JobUserService;
 import edu.yu.einstein.wasp.service.LabService;
+import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.RoleService;
 import edu.yu.einstein.wasp.service.SampleCellService;
 import edu.yu.einstein.wasp.service.SampleDraftCellService;
@@ -160,6 +162,12 @@ public class JobSubmissionController extends WaspController {
 	
 	@Autowired
 	private SampleCellService sampleCellService;
+	
+	@Autowired
+	private MessageService messageService;
+	  
+	@Autowired
+	private AuthenticationService authenticationService;
 
 	private final MetaHelper getMetaHelper() {
 		return new MetaHelper("jobDraft", JobDraftMeta.class, request.getSession());
@@ -213,7 +221,7 @@ public class JobSubmissionController extends WaspController {
 	@RequestMapping(value="/list", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('lu-*')")
 	public String list(ModelMap m) {
-		User me = getAuthenticatedUser();
+		User me = authenticationService.getAuthenticatedUser();
 
 		Map jobDraftQueryMap = new HashMap();
 		jobDraftQueryMap.put("UserId", me.getUserId());
@@ -227,7 +235,7 @@ public class JobSubmissionController extends WaspController {
 	}
 
 	protected void generateCreateForm(ModelMap m) {
-		User me = getAuthenticatedUser();
+		User me = authenticationService.getAuthenticatedUser();
 
 		List <LabUser> labUserAllRoleList = me.getLabUser();
 
@@ -266,7 +274,7 @@ public class JobSubmissionController extends WaspController {
 			SessionStatus status,
 			ModelMap m) {
 
-		User me = getAuthenticatedUser();
+		User me = authenticationService.getAuthenticatedUser();
 
 		jobDraftForm.setUserId(me.getUserId());
 		jobDraftForm.setStatus("PENDING");
@@ -287,7 +295,7 @@ public class JobSubmissionController extends WaspController {
 		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
 
 		// check if i am the drafter
-		User me = getAuthenticatedUser();
+		User me = authenticationService.getAuthenticatedUser();
 		if (me.getUserId() != jobDraft.getUserId()) {
 			return "hello";
 		}
@@ -316,7 +324,7 @@ public class JobSubmissionController extends WaspController {
 		JobDraft jobDraftDb = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
 
 		// check if i am the drafter
-		User me = getAuthenticatedUser();
+		User me = authenticationService.getAuthenticatedUser();
 		if (me.getUserId() != jobDraftDb.getUserId()) {
 			return "hello";
 		}
@@ -537,7 +545,7 @@ public class JobSubmissionController extends WaspController {
 		m.addAttribute(JQFieldTag.AREA_ATTR, "sampleDraft");		
 		prepareSelectListData(m);
 		m.addAttribute("jobdraftId",jobDraftId);
-		m.addAttribute("uploadStartedMessage",getMessage("sampleDraft.fileupload_wait.data")); 
+		m.addAttribute("uploadStartedMessage",messageService.getMessage("sampleDraft.fileupload_wait.data")); 
 		return "jobsubmit/sample";
 
 	}
@@ -716,7 +724,7 @@ public class JobSubmissionController extends WaspController {
 	@RequestMapping(value="/submit/{jobDraftId}.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public String submitJob(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
-		User me = getAuthenticatedUser();
+		User me = authenticationService.getAuthenticatedUser();
 
 		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
 
@@ -1083,12 +1091,12 @@ public class JobSubmissionController extends WaspController {
 						//ignoring until we have "no downtime" instance to run jobs
 					}
 					
-					jsCallback=jsCallback.replace("{message}",getMessage("sampleDraft.fileupload_done.data"));
+					jsCallback=jsCallback.replace("{message}", messageService.getMessage("sampleDraft.fileupload_done.data"));
 					response.setContentType( "text/html; charset=UTF-8" );
 					response.getWriter().print(jsCallback);
 				
 			} else {
-				jsCallback=jsCallback.replace("{message}",getMessage("sampleDraft.fileupload_nofile.data"));
+				jsCallback=jsCallback.replace("{message}",messageService.getMessage("sampleDraft.fileupload_nofile.data"));
 					response.setContentType( "text/html; charset=UTF-8" );
 					response.getWriter().print(jsCallback);				
 			}
@@ -1159,8 +1167,8 @@ public class JobSubmissionController extends WaspController {
 					.println(
 							sampleDraftId
 									+ "|"
-									+ (adding ? getMessage("sampleDraft.created.data")
-											: getMessage("sampleDraft.updated.data")));
+									+ (adding ? messageService.getMessage("sampleDraft.created.data")
+											: messageService.getMessage("sampleDraft.updated.data")));
 			return null;
 
 		} catch (Throwable e) {
@@ -1176,7 +1184,7 @@ public class JobSubmissionController extends WaspController {
 		this.sampleDraftService.remove(sampleDraftService.findById(sampleDraftId));
 		
 		try {
-			response.getWriter().println(getMessage("sampleDraft.removed.data"));
+			response.getWriter().println(messageService.getMessage("sampleDraft.removed.data"));
 			return null;
 		} catch (Throwable e) {
 			throw new IllegalStateException("Cant output success message ",e);

@@ -35,6 +35,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import edu.yu.einstein.wasp.model.JQuerySearch;
 import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.UiField;
+import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.UiFieldService;
 import edu.yu.einstein.wasp.service.impl.WaspMessageSourceImpl;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
@@ -51,6 +52,9 @@ public class UiFieldController extends WaspController {
 
 	@Autowired
 	private MessageSource messageSource;
+	
+	@Autowired
+	private MessageService messageService;
 	
 	
 	
@@ -192,7 +196,7 @@ public class UiFieldController extends WaspController {
 		this.uiFieldService.remove(uiFieldService.findById(uiFieldId));
 		
 		try {
-			response.getWriter().println(getMessage("uiField.removed.data"));
+			response.getWriter().println(messageService.getMessage("uiField.removed.data"));
 			return null;
 		} catch (Throwable e) {
 			throw new IllegalStateException("Cant output success message ",e);
@@ -206,7 +210,7 @@ public class UiFieldController extends WaspController {
 		if (uiFieldId==0) {
 			
 			if (uiFieldService.exists(uiFieldForm.getLocale(), uiFieldForm.getArea(), uiFieldForm.getName(), uiFieldForm.getAttrName())) {
-				response.getWriter().println(getMessage("uiField.not_unique.error"));
+				response.getWriter().println(messageService.getMessage("uiField.not_unique.error"));
 				return null;
 			}
 			
@@ -235,7 +239,7 @@ public class UiFieldController extends WaspController {
 				
            ((WaspMessageSourceImpl)messageSource).addMessage(newKey, locale, uiFieldForm.getAttrValue());
            
-			response.getWriter().println(getMessage("uiField."+(uiFieldId==0?"added":"updated")+".data"));
+			response.getWriter().println(messageService.getMessage("uiField."+(uiFieldId==0?"added":"updated")+".data"));
 			return null;
 		} catch (Throwable e) {
 			throw new IllegalStateException("Cant output success message ",e);

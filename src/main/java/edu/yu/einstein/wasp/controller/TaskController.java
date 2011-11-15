@@ -28,6 +28,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.TaskService;
 import edu.yu.einstein.wasp.service.StateService;
 import edu.yu.einstein.wasp.service.StateMetaService;
@@ -61,7 +62,9 @@ public class TaskController extends WaspController {
     return this.stateService;
   }
 
-
+  @Autowired
+  private MessageService messageService;
+  
   @Autowired
   private StateMetaService stateMetaService;
 
@@ -321,7 +324,7 @@ MetaHelper metaHelper = new MetaHelper("fmpayment", "state", StateMeta.class,req
 
 
                 try {
-                        response.getWriter().println(getMessage("hello.error"));
+                        response.getWriter().println(messageService.getMessage("hello.error"));
                         return null;
                 } catch (Throwable e) {
                         throw new IllegalStateException("Cant output success message ",e);

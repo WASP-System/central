@@ -50,9 +50,6 @@ public class UserLocaleInterceptor extends HandlerInterceptorAdapter {
 	@Autowired
 	private UiFieldService uiFieldService;
 	
-	@Autowired
-	private MessageSource messageSource;
-	
     private static final Logger log = Logger.getLogger(UserLocaleInterceptor.class);
 	
     public boolean preHandle(

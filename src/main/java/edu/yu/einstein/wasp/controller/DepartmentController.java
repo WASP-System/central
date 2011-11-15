@@ -21,6 +21,7 @@ import java.util.ArrayList; //added by Dubin
 import java.util.Map; 
 import java.util.HashMap; 
 
+import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.DepartmentService;
 import edu.yu.einstein.wasp.service.DepartmentUserService;
 import edu.yu.einstein.wasp.service.LabPendingService;
@@ -36,6 +37,7 @@ import edu.yu.einstein.wasp.util.*;
 public class DepartmentController extends WaspController {
 
   private DepartmentService departmentService;
+  
   @Autowired
   public void setDepartmentService(DepartmentService departmentService) {
     this.departmentService = departmentService;
@@ -45,6 +47,7 @@ public class DepartmentController extends WaspController {
   }
 
   private DepartmentUserService departmentUserService;
+  
   @Autowired
   public void setDepartmentUserService(DepartmentUserService departmentUserService) {
     this.departmentUserService = departmentUserService;
@@ -53,6 +56,8 @@ public class DepartmentController extends WaspController {
     return this.departmentUserService;
   }
 
+  @Autowired
+  private AuthenticationService authenticationService;
 
   
   //added by Dubin 9-29-11 for use in getNames
@@ -151,7 +156,7 @@ public class DepartmentController extends WaspController {
     departmentUserService.remove(departmentUser);
 
     // if i am the user,  reauth
-    User me = getAuthenticatedUser();   
+    User me = authenticationService.getAuthenticatedUser();   
     if (me.getUserId() == userId) {
       doReauth();
       //if a user is NOT god and the user is a da and removes him/herself from being a da, 
@@ -206,7 +211,7 @@ public class DepartmentController extends WaspController {
 				waspMessage("department.detail_ok.label");
 			
 				// if i am the user,  reauth
-				User me = getAuthenticatedUser();
+				User me = authenticationService.getAuthenticatedUser();
 				if (me.getUserId() == user.getUserId()) {
 					doReauth();
 				}

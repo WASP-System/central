@@ -804,7 +804,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labDetail','cancel','label','Cancel','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labDetail','save','label','Save Changes','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','wasp','default_select','label','-- select --','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','wasp','authentication','data','internal','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','wasp','isAuthenticationExternal','data','TRUE','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','wasp','authentication','label','WASP','1');
 
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) 

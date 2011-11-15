@@ -39,7 +39,9 @@ import edu.yu.einstein.wasp.model.MetaHelper;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserMeta;
+import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.EmailService;
+import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.PasswordService;
 import edu.yu.einstein.wasp.service.UserMetaService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
@@ -57,6 +59,12 @@ public class UserController extends WaspController {
 
 	@Autowired
 	private PasswordService passwordService;
+	
+	@Autowired
+	private MessageService messageService;
+	  
+	@Autowired
+	private AuthenticationService authenticationService;
 
 	private final MetaHelper getMetaHelper() {
 		return new MetaHelper("user", UserMeta.class, request.getSession());
@@ -226,7 +234,6 @@ public class UserController extends WaspController {
 				 					
 				 List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 							user.getLogin(),
-							"",//password - always empty
 							user.getFirstName(),
 							user.getLastName(),						
 							user.getEmail(),
@@ -264,10 +271,10 @@ public class UserController extends WaspController {
 						
 			try {
 				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-				response.getWriter().println(getMessage("user.login.exists_error"));
+				response.getWriter().println(messageService.getMessage("user.login.exists_error"));
 				return null;
 			} catch (Throwable e) {
-				throw new IllegalStateException("Cant output validation error "+getMessage("user.login.exists_error"),e);
+				throw new IllegalStateException("Cant output validation error "+messageService.getMessage("user.login.exists_error"),e);
 			}
 		
 		}
@@ -276,35 +283,26 @@ public class UserController extends WaspController {
 		
 		userForm.setUserMeta(userMetaList);
 
-		boolean adding=userId==0;
+		boolean adding = (userId == 0);
 		
 		if (adding) {
-			PasswordEncoder encoder = new ShaPasswordEncoder();
-			String hashedPass = encoder.encodePassword(userForm.getPassword(), null);
-			userForm.setPassword(hashedPass);
+			// set random password. We don't care what it is as new user will be prompted to
+			// set a new one via email.
+			userForm.setPassword(passwordService.encodePassword(passwordService.getRandomPassword(10))); 
 			userForm.setLastUpdTs(new Date());
 			userForm.setIsActive(1);
-			
+			userForm.setLogin(userService.getUniqueLoginName(userForm));
 			User userDb = this.userService.save(userForm);
-			
 			userId=userDb.getUserId();
 		} else {
 			User userDb = this.userService.getById(userId);
 			userDb.setFirstName(userForm.getFirstName());
 			userDb.setLastName(userForm.getLastName());
-			if (userForm.getPassword()!=null && !userForm.getPassword().trim().isEmpty()) {
-				PasswordEncoder encoder = new ShaPasswordEncoder();
-				String hashedPass = encoder.encodePassword(userForm.getPassword(), null);
-				userForm.setPassword(hashedPass);
-			} else {
-				userForm.setPassword(userDb.getPassword());
-			}
 			userDb.setEmail(userForm.getEmail());
 			userDb.setLocale(userForm.getLocale());
 			userDb.setIsActive(userForm.getIsActive());
-			userDb.setLogin(userForm.getLogin());
 			userDb.setLastUpdTs(new Date());
-			userDb.setPassword(userForm.getPassword());
+
 
 			this.userService.merge(userDb);
 		}
@@ -333,7 +331,7 @@ public class UserController extends WaspController {
 		//emailService.sendNewPassword(userDb, "new pass");
 		
 		try {
-			response.getWriter().println(adding?getMessage("user.created_success.label"):getMessage("user.updated_success.label"));
+			response.getWriter().println(adding?messageService.getMessage("user.created_success.label"):messageService.getMessage("user.updated_success.label"));
 			return null;
 		} catch (Throwable e) {
 			throw new IllegalStateException("Cant output success message ",e);
@@ -344,20 +342,20 @@ public class UserController extends WaspController {
 	
 	@RequestMapping(value = "/me_ro.do", method = RequestMethod.GET)
 	public String myDetail_RO(ModelMap m) {
-		User user = this.getAuthenticatedUser();		
+		User user = authenticationService.getAuthenticatedUser();		
 		return this.detailRO(user.getUserId(), m);
 	}
 	
 	@RequestMapping(value = "/me_rw.do", method = RequestMethod.GET)
 	public String myDetail(ModelMap m) {
-		User user = this.getAuthenticatedUser();		
+		User user = authenticationService.getAuthenticatedUser();		
 		return this.detailRW(user.getUserId(), m);
 	}
 	
 	@RequestMapping(value = "/me_rw.do", method = RequestMethod.POST)
 	public String updateDetail(@Valid User userForm, BindingResult result,
 			SessionStatus status, ModelMap m) {
-		User user = this.getAuthenticatedUser();		
+		User user = authenticationService.getAuthenticatedUser();		
 
 		String returnPath = updateDetail(user.getUserId(), userForm, result, status, m);
 		if (result.hasErrors()) {
@@ -445,25 +443,18 @@ public class UserController extends WaspController {
 				return "user/mypassword";
 		}
 		
-		User user = this.getAuthenticatedUser();
+		User user = authenticationService.getAuthenticatedUser();
 		String currentPasswordAsHash = user.getPassword();//this is from database and is hashed
 		String oldPasswordAsHash = passwordService.encodePassword(oldpassword);//oldpassword is from the form, so must hash it for comparison
 		  
-		  logger.debug("one");logger.debug(currentPasswordAsHash);
-		  logger.debug("two");logger.debug(oldPasswordAsHash);
-		  logger.debug("three");
-		  
-		//if(!currentPasswordAsHash.equals(oldPasswordAsHash)){//current from db; old is from form as hash
 		if(!passwordService.matchPassword(currentPasswordAsHash, oldPasswordAsHash)){
 			waspMessage("user.mypassword_cur_mismatch.error");
 			return "user/mypassword";
 		}
-		//else if(!newpassword1.equals(newpassword2)){//both from form
 		else if(!passwordService.matchPassword(newpassword1, newpassword2)){
 			waspMessage("user.mypassword_new_mismatch.error");
 		    return "user/mypassword";
 		}
-		//else if(oldpassword.equals(newpassword1)){
 		else if(passwordService.matchPassword(oldpassword, newpassword1)){//make sure old and new passwords differ
 			waspMessage("user.mypassword_nodiff.error");
 		    return "user/mypassword";

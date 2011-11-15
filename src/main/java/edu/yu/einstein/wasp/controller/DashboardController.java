@@ -29,6 +29,9 @@ public class DashboardController extends WaspController {
 
 	@Autowired
 	private JobDraftService jobDraftService;
+	  
+	  @Autowired
+	  private AuthenticationService authenticationService;
 
 	// list of baserolenames (da-department admin, lu- labuser ...)
 	//   see role table
@@ -42,7 +45,7 @@ public class DashboardController extends WaspController {
 		List<Job> jobList = new ArrayList<Job>();
 		List<JobDraft> jobDraftList = new ArrayList<JobDraft>();
 
-		for (String role: getRoles()) {
+		for (String role: authenticationService.getRoles()) {
 			String[] splitRole = role.split("-");
 			if (splitRole.length != 2) { continue; }
 			if (splitRole[1].equals("*")) { continue; }

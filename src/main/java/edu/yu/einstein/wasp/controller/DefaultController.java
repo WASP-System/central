@@ -21,10 +21,15 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.transaction.annotation.*;
 
+import edu.yu.einstein.wasp.service.AuthenticationService;
+
 import javax.servlet.http.HttpServletRequest;
 
 @Controller
 public class DefaultController extends WaspController {
+
+  @Autowired
+  private AuthenticationService authenticationService;
 
   @RequestMapping("/**/*")
   public String def(HttpServletRequest req, ModelMap m) {
@@ -40,7 +45,7 @@ public class DefaultController extends WaspController {
     m.addAttribute("p", p);
     m.addAttribute("d", d);
 
-    m.addAttribute("roles", getRoles());
+    m.addAttribute("roles", authenticationService.getRoles());
 
     return d;
   }

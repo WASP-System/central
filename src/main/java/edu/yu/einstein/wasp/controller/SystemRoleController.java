@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Userrole;
+import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.service.RoleService;
 import edu.yu.einstein.wasp.service.UserroleService;
@@ -48,6 +49,9 @@ public class SystemRoleController extends WaspController {
 
 	@Autowired
 	private BeanValidator validator;
+	  
+	@Autowired
+	private AuthenticationService authenticationService;
 
 	@Override
 	@InitBinder
@@ -133,7 +137,7 @@ public class SystemRoleController extends WaspController {
 
 
 		// if i am the user,  reauth
-		User me = getAuthenticatedUser();
+		User me = authenticationService.getAuthenticatedUser();
 		if (me.getUserId() == user.getUserId()) {
 			doReauth();
 		}
@@ -191,7 +195,7 @@ public class SystemRoleController extends WaspController {
 		userroleService.remove(userrole);
 		waspMessage("sysrole.success.label");
 		// if i am the user,  reauth
-		User me = getAuthenticatedUser();
+		User me = authenticationService.getAuthenticatedUser();
 		if (me.getUserId() == userId) {
 			doReauth();
 			if (roleName.equals("god")){

@@ -2,11 +2,12 @@
 
   <h1><fmt:message key="pageTitle.auth/login.label" /></h1>
     <c:if test="${not empty param.error}">
-      <font color="red">
-        <fmt:message key="auth.login_failed.error" /><br/><br/>
+      <p><font color="red">
+      	<fmt:message key="auth.login_failed.error" />
+        <!-- 	<br/><br/>
         <fmt:message key="auth.login_reason.label" />: 
-          <c:out value="${SPRING_SECURITY_LAST_EXCEPTION.message}" />.
-      </font>
+        <c:out value="${SPRING_SECURITY_LAST_EXCEPTION.message}" />. --> 
+      </font></p>
     </c:if>
  
     <form name="f" action="<c:url value='/j_spring_security_check'/>" method="POST" onsubmit='return validate();'>

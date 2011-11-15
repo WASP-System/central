@@ -39,6 +39,7 @@ import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.service.LabPendingMetaService;
 import edu.yu.einstein.wasp.service.LabPendingService;
 import edu.yu.einstein.wasp.service.LabService;
+import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.PasswordService;
 import edu.yu.einstein.wasp.service.UserPendingMetaService;
 import edu.yu.einstein.wasp.service.UserPendingService;
@@ -85,6 +86,9 @@ public class UserPendingController extends WaspController {
 	
 	@Autowired
 	private PasswordValidator passwordValidator;
+	
+	@Autowired
+	private MessageService messageService;
 	
 		
 	/**
@@ -153,7 +157,7 @@ public class UserPendingController extends WaspController {
 		Captcha captcha = (Captcha) request.getSession().getAttribute(Captcha.NAME);
 		String captchaText = (String) request.getParameter("captcha");
 		if (captcha == null || captchaText == null || captchaText.isEmpty() || (! captcha.isCorrect(captchaText)) ){
-			m.put("captchaError", getMessage(userPendingMetaHelper.getParentArea()+".captcha.error"));
+			m.put("captchaError", messageService.getMessage(userPendingMetaHelper.getParentArea()+".captcha.error"));
 		}
 		
 		if (result.hasErrors() || m.containsKey("captchaError")) {
@@ -203,7 +207,7 @@ public class UserPendingController extends WaspController {
 	 */
 	@RequestMapping(value="/newpi/institute", method=RequestMethod.GET)
 	public String selectPiInstitute(ModelMap m) {
-		String internalInstituteList = this.getMessage("piPending.internal_institute_list.data");
+		String internalInstituteList = messageService.getMessage("piPending.internal_institute_list.data");
 		List<String> instituteList = new ArrayList();
 		Collections.addAll(instituteList,internalInstituteList.split(";")); 
 		m.addAttribute("instituteList", instituteList);
@@ -223,7 +227,7 @@ public class UserPendingController extends WaspController {
 			@RequestParam(value="instituteSelect") String instituteSelect,
 			@RequestParam(value="instituteOther", required = false) String instituteOther,
 			ModelMap m) throws WaspMetadataException {
-		String internalInstituteList = this.getMessage("piPending.internal_institute_list.data");
+		String internalInstituteList = messageService.getMessage("piPending.internal_institute_list.data");
 		List<String> instituteList = new ArrayList();
 		Collections.addAll(instituteList,internalInstituteList.split(";")); 
 		m.addAttribute("instituteList", instituteList);
@@ -310,7 +314,7 @@ public class UserPendingController extends WaspController {
 		Captcha captcha = (Captcha) request.getSession().getAttribute(Captcha.NAME);
 		String captchaText = (String) request.getParameter("captcha");
 		if (captcha == null || captchaText == null || captchaText.isEmpty() || (! captcha.isCorrect(captchaText)) ){
-			m.put("captchaError", getMessage(metaHelper.getParentArea()+".captcha.error"));
+			m.put("captchaError", messageService.getMessage(metaHelper.getParentArea()+".captcha.error"));
 		}
 		
 		if (result.hasErrors() || m.containsKey("captchaError")) {
@@ -597,7 +601,7 @@ public class UserPendingController extends WaspController {
 			String institueName = metaHelper.getMetaByName("institution").getV();
 			if (institueName.isEmpty()) 
 				throw new MetaHelper.WaspMetadataException();
-			if (getMessage("piPending.internal_institute_list.data").contains(institueName))
+			if (messageService.getMessage("piPending.internal_institute_list.data").contains(institueName))
 				isInternal = 1;
 		} catch (MetaHelper.WaspMetadataException e){
 			// handle WaspMetaDataException by simply logging an error and defaulting to the complete department list

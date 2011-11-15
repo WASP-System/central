@@ -46,6 +46,7 @@ import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserMeta;
 import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.model.UserPendingMeta;
+import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.DepartmentService;
 import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.service.LabMetaService;
@@ -53,6 +54,7 @@ import edu.yu.einstein.wasp.service.LabPendingMetaService;
 import edu.yu.einstein.wasp.service.LabPendingService;
 import edu.yu.einstein.wasp.service.LabService;
 import edu.yu.einstein.wasp.service.LabUserService;
+import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.RoleService;
 import edu.yu.einstein.wasp.service.UserMetaService;
 import edu.yu.einstein.wasp.service.UserPendingMetaService;
@@ -96,6 +98,12 @@ public class LabController extends WaspController {
 
 	@Autowired
 	private EmailService emailService;
+	
+	@Autowired
+	private MessageService messageService; 
+	  
+	@Autowired
+	private AuthenticationService authenticationService;
 
 	/**
 	 * get a @{link MetaHelper} instance for working with LabMeta metadata
@@ -386,7 +394,7 @@ public class LabController extends WaspController {
 		// MimeMessageHelper a;
 
 		try {
-			response.getWriter().println(getMessage("lab.updated_success.label"));
+			response.getWriter().println(messageService.getMessage("lab.updated_success.label"));
 			return null;
 		} catch (Throwable e) {
 			throw new IllegalStateException("Cant output success message ", e);
@@ -428,7 +436,7 @@ public class LabController extends WaspController {
 		// MimeMessageHelper a;
 
 		try {
-			response.getWriter().println(getMessage("labPending.updated_success.label"));
+			response.getWriter().println(messageService.getMessage("labPending.updated_success.label"));
 			return null;
 		} catch (Throwable e) {
 			throw new IllegalStateException("Cant output success message ", e);
@@ -765,7 +773,7 @@ public class LabController extends WaspController {
 		// TODO ADD MESSAGE
 
 		// if i am the user, reauth
-		User me = getAuthenticatedUser();
+		User me = authenticationService.getAuthenticatedUser();
 		if (me.getUserId() == userId) {
 			doReauth();
 		}
@@ -849,7 +857,7 @@ public class LabController extends WaspController {
 		}
 
 		// if i am the p.i. reauth
-		User me = getAuthenticatedUser();
+		User me = authenticationService.getAuthenticatedUser();
 
 		if (me.getUserId() == user.getUserId()) {
 			doReauth();
@@ -1122,7 +1130,7 @@ public class LabController extends WaspController {
 		MetaHelper userMetaHelper = new MetaHelper("user", UserMeta.class, request.getSession());
 
 		// Pre-populate some metadata from user's current information
-		User me = getAuthenticatedUser();
+		User me = authenticationService.getAuthenticatedUser();
 		userMetaHelper.syncWithMaster(me.getUserMeta()); // get user meta from database and sync with current properties
 		LabPending labPending = new LabPending();
 		try {
@@ -1169,7 +1177,7 @@ public class LabController extends WaspController {
 		List<LabPendingMeta> labPendingMetaList = pendingMetaHelper.getFromRequest(request, LabPendingMeta.class);
 		pendingMetaHelper.validate(labPendingMetaList, result);
 
-		User me = getAuthenticatedUser();
+		User me = authenticationService.getAuthenticatedUser();
 
 		labPendingForm.setPrimaryUserId(me.getUserId());
 		labPendingForm.setStatus("PENDING");
@@ -1228,7 +1236,7 @@ public class LabController extends WaspController {
 		}
 
 		// check role of lab user
-		User me = this.getAuthenticatedUser();
+		User me = authenticationService.getAuthenticatedUser();
 		LabUser labUser = labUserService.getLabUserByLabIdUserId(lab.getLabId(), me.getUserId());
 
 		if (labUser.getLabUserId() != 0) {

@@ -30,6 +30,8 @@ import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.TypeSample;
 import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.service.AuthenticationService;
+import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.SampleMetaService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.TypeSampleService;
@@ -48,6 +50,12 @@ public class PlatformUnitController extends WaspController {
 
 	@Autowired
 	private TypeSampleService typeSampleService;
+	
+	@Autowired
+	private MessageService messageService;
+	  
+	@Autowired
+	private AuthenticationService authenticationService;
 	
 	private final MetaHelper getMetaHelper() {
 		return new MetaHelper("platformunit",  "sample",SampleMeta.class, request.getSession());
@@ -156,7 +164,7 @@ public class PlatformUnitController extends WaspController {
 		updatePlatformUnit(sampleForm);
 
 		try {
-			response.getWriter().println(getMessage("hello.error"));
+			response.getWriter().println(messageService.getMessage("hello.error"));
 			return null;
 		} catch (Throwable e) {
 			throw new IllegalStateException("Cant output success message ",e);
@@ -239,7 +247,7 @@ public class PlatformUnitController extends WaspController {
 
 	public Sample preparePlatformUnit(Sample sampleForm) {
 		if (sampleForm.getSampleId() == 0) {
-			User me = getAuthenticatedUser();
+			User me = authenticationService.getAuthenticatedUser();
 			sampleForm.setSubmitterUserId(me.getUserId());
 
 			TypeSample typeSample = typeSampleService.getTypeSampleByIName("platformunit");
