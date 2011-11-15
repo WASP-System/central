@@ -59,6 +59,7 @@ import edu.yu.einstein.wasp.model.SampleDraftCell;
 import edu.yu.einstein.wasp.model.SampleDraftMeta;
 import edu.yu.einstein.wasp.model.SampleFile;
 import edu.yu.einstein.wasp.model.SampleMeta;
+import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.SubtypeSample;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Workflow;
@@ -854,6 +855,19 @@ public class JobSubmissionController extends WaspController {
 		}
 
 		// TODO!!! ADD!!! WORKFLOW!!! STEPS!!!
+		// something like this:
+		/* State state = new State(); 
+		Task jobCreateTask = taskService.findByIName("jobCreated");
+		state.setTaskId(jobCreateTask.getTaskId());
+		state.setName(jobCreateTask.getName());
+		state.setStartts(new Date());
+		state.setStatus("CREATED"); 
+		stateService.save(state);
+		
+		StateJob stateJob = new Statejob();
+		stateJob.setStateId(state.getStateId());
+		...
+		*/
 
 		// update the jobdraft
 		jobDraft.setStatus("SUBMITTED");
