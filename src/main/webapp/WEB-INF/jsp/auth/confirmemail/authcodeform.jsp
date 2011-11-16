@@ -1,6 +1,6 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
-    <h1><fmt:message key="pageTitle.confirmemail/authcodeform.label" /></h1>
+    <h1><fmt:message key="pageTitle.auth/confirmemail/authcodeform.label" /></h1>
      <font color="red"><wasp:message /></font>
 
     <form name="f" action="<c:url value='/auth/confirmemail.do'/>" method="POST">
