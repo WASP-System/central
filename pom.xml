@@ -66,10 +66,23 @@
        
        
     <!-- Using TestNG groups:  Unit tests are run first. Tests in groups="integration-tests" are skipped if <skip> set to 'true' -->
+    
+   
+    
+    
     <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.10</version>
         <configuration>
-          <skip>true</skip>
+		    <additionalClasspathElements>
+		      <additionalClasspathElement>/src/test/resources/unitils</additionalClasspathElement>
+		    </additionalClasspathElements>
+			<!-- 
+			<suiteXmlFiles>
+      			<suiteXmlFile>src/test/config/testng.xml</suiteXmlFile>
+    		</suiteXmlFiles>
+    		-->
+          	<skip>true</skip>
         </configuration>
         <executions>
           <execution>
@@ -80,7 +93,7 @@
             </goals>
             <configuration>
               <skip>false</skip>
-              <excludedGroups>integration-tests</excludedGroups>
+              <excludedGroups>integration-tests, db-tests, a</excludedGroups>
             </configuration>
           </execution>
           <execution>
@@ -91,8 +104,19 @@
             </goals>
             <configuration>
               <skip>true</skip>
-              <groups>integration-tests</groups>
-            </configuration>
+              <groups>integration-tests, a</groups>
+              </configuration>
+          </execution>
+          <execution>
+            <id>db-tests</id>
+            <phase>integration-tests</phase>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <configuration>
+              <skip>true</skip>
+              <groups>db-tests,a</groups>
+              </configuration>
           </execution>
         </executions>
       </plugin>
@@ -553,6 +577,7 @@
 		    <groupId>org.testng</groupId>
 		    <artifactId>testng</artifactId>
 		    <version>6.3</version>
+		    <scope>test</scope>
 		</dependency>
 		<dependency>
 		    <groupId>org.easymock</groupId>
@@ -587,17 +612,78 @@
 	        <groupId>org.seleniumhq.selenium</groupId>
 	        <artifactId>selenium-java</artifactId>
 	        <version>2.9.0</version>
+	        <scope>test</scope>
 	    </dependency>
 		<dependency>
 	        <groupId>org.seleniumhq.selenium</groupId>
 	        <artifactId>selenium-server</artifactId>
 	        <version>2.9.0</version>
+	        <scope>test</scope>
 	    </dependency>
+
+	          
+        <dependency>
+            <groupId>org.unitils</groupId>
+            <artifactId>unitils-orm</artifactId>
+            <version>3.2</version>
+            <scope>test</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.unitils</groupId>
+            <artifactId>unitils-dbmaintainer</artifactId>
+            <version>3.2</version>
+            <scope>test</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.unitils</groupId>
+            <artifactId>unitils-easymock</artifactId>
+            <version>3.2</version>
+            <scope>test</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.unitils</groupId>
+            <artifactId>unitils-testng</artifactId>
+            <version>3.2</version>
+            <scope>test</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.unitils</groupId>
+            <artifactId>unitils-inject</artifactId>
+            <version>3.2</version>
+            <scope>test</scope>
+        </dependency>
+               
+        <dependency>
+            <groupId>oswego-concurrent</groupId>
+            <artifactId>concurrent</artifactId>
+            <version>1.3.4</version>
+            <scope>test</scope>
+        </dependency>
+		<dependency>
+		    <groupId>org.unitils</groupId>
+		    <artifactId>unitils-dbunit</artifactId>
+		    <version>3.2</version>
+		    <scope>test</scope>
+		</dependency>
+		<dependency>
+		    <groupId>org.unitils</groupId>
+		    <artifactId>unitils-spring</artifactId>
+		    <version>3.2</version>
+		    <scope>test</scope>
+		</dependency>
+		
+		
+
 		<dependency>
 			<groupId>org.springframework.ldap</groupId>
 			<artifactId>spring-ldap-core</artifactId>
 			<version>1.3.0.RELEASE</version>
 		</dependency>
+
     </dependencies>
     <repositories>
     	<repository>
@@ -638,16 +724,11 @@
 			<url>http://mvnrepository.com/artifact/junit/junit/4.10</url>
 		</repository>
 		<repository>
-			<id>easymock</id>
-			<name>easymock</name>
-			<url>http://mvnrepository.com/artifact/org.easymock/easymock/3.0</url>
-		</repository>
-
-		<repository>
 			<id>objenesis</id>
 			<name>objenesis</name>
 			<url>http://mvnrepository.com/artifact/org.objenesis/objenesis</url>
 		</repository>
+		
 	
     </repositories>
  </project>
