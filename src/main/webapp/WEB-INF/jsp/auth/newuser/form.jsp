@@ -7,6 +7,11 @@
     <font color="red"><wasp:message /></font> 
     <form:form commandName="userPending">
       <table>
+      	<tr>
+          <td><fmt:message key="wasp.authentication.label" /> <fmt:message key="userPending.login.label" />:</td>
+          <td><form:input path="login"  /></td>
+          <td><form:errors path="login"/></td>
+        </tr> 
         <tr>
           <td><fmt:message key="userPending.firstName.label" />:</td>
           <td><form:input path="firstName" /></td>
@@ -21,18 +26,22 @@
           <td><fmt:message key="userPending.email.label"/>:</td>
           <td><form:input path="email" /></td>
           <td><form:errors path="email" /></td>
-        </tr>         
+        </tr>      
         <tr>
-          <td><fmt:message key="userPending.password.label"/>:</td>
+          <td><fmt:message key="wasp.authentication.label" /> <fmt:message key="userPending.password.label"/>:</td>
           <td><form:password path="password" /></td>
           <td><form:errors path="password" /></td>
         </tr>
-        <tr>
-        	<td><fmt:message key="userPending.password2.label"/>:</td>
-        	<td><input type="password" name="password2" /></td>
-        	<td>&nbsp;</td>
-        </tr>     	   
-
+	    <c:if test="${isAuthenticationExternal == (1==1)}">
+	    	<input type="hidden" name="password2" value="" />
+        </c:if>
+        <c:if test="${isAuthenticationExternal != (1==1)}">   
+	        <tr>
+	        	<td><fmt:message key="userPending.password2.label"/>:</td>
+	        	<td><input type="password" name="password2" /></td>
+	        	<td>&nbsp;</td>
+	        </tr>     	   
+		</c:if>
         <tr>
           <td><fmt:message key="userPending.locale.label"/>:</td>
           <td>

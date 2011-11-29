@@ -3,7 +3,7 @@
     <font color="blue"><wasp:message /></font>
      <table>
      	   <tr>
-              <td><fmt:message key="user.login.label" />:</td>
+              <td><fmt:message key="wasp.authentication.label" /> <fmt:message key="user.login.label" />:</td>
               <td>${user.login}</td>            
           </tr>          	
           <tr>

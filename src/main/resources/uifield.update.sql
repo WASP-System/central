@@ -58,6 +58,8 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','labusers','label','Lab Users','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','samples','label','Samples','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','jobs','label','Jobs','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','login','label','Login','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','login','error','Login cannot be empty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','page','label','New User','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','password','label','Password','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','password','error','Password cannot be empty','1');
@@ -72,6 +74,8 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','email','label','Email','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','email','error','Must be correctly formatted','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','email_exists','error','Email already exists in the database','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','login_exists','error','Login name already exists in the database','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','login_malformed','error','Contains invalid characters','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','locale','label','Locale','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','locale','error','A locale must be selected','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','primaryuserid','label','PI Wasp Username','1');
@@ -98,6 +102,9 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','rejected','label','User account application sucessfully rejected','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','status_not_pending','error','Pending user is already approved or rejected','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','no_pending_users','label','There are currently no pending users awaiting approval','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','external_authentication','error','Authentication Failed (Login Name or Password incorrect)','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','login','label','Login','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','login','error','Login cannot be empty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','password','label','Password','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','password','error','Password cannot be empty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','password_mismatch','error','The two entries for your password are NOT identical','1');

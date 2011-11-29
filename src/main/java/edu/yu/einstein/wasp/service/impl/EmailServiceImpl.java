@@ -26,7 +26,7 @@ import edu.yu.einstein.wasp.model.Department;
 import edu.yu.einstein.wasp.model.DepartmentUser;
 import edu.yu.einstein.wasp.model.LabPending;
 import edu.yu.einstein.wasp.model.MetaHelper;
-import edu.yu.einstein.wasp.model.MetaHelper.WaspMetadataException;
+import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabUser;
@@ -192,7 +192,7 @@ public class EmailServiceImpl implements EmailService {
 		User primaryUser;
 		try{
 			primaryUser = userService.getUserByLogin(userPendingMetaHelper.getMetaByName("primaryuserid").getV());
-		} catch(WaspMetadataException e){
+		} catch(MetadataException e){
 			throw new MailPreparationException("Cannot get principal user for pending user with id '" + Integer.toString(userPending.getUserPendingId()), e); 
 		}
 		Map model = new HashMap();

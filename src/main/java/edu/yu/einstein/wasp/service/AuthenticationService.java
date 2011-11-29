@@ -1,5 +1,6 @@
 package edu.yu.einstein.wasp.service;
 
+import edu.yu.einstein.wasp.exception.LoginNameException;
 import edu.yu.einstein.wasp.model.User;
 
 public interface AuthenticationService {
@@ -34,5 +35,30 @@ public interface AuthenticationService {
 	 * @return
 	 */
 	public boolean isAuthenticatedGuest();
+	
+	/**
+	 * Attempts to authenticate a user based on given credentials and returns true if user authenticates or false if not.
+	 * @param name
+	 * @param password
+	 * @return
+	 */
+	boolean authenticate(String name, String password);
+	
+	/**
+	 * Checks that a login name is correctly formatted
+	 * @param login
+	 * @return
+	 */
+	boolean isLoginNameWellFormed(String login);
+	
+	/**
+	 * Checks database for existing use of supplied login
+	 * @param login
+	 * @param email
+	 * @return
+	 * @throws LoginNameException 
+	 */
+	boolean isLoginAlreadyInUse(String login, String email) throws LoginNameException;
+	
 	
 }

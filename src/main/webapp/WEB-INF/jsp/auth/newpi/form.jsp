@@ -4,6 +4,11 @@
     <font color="red"><wasp:message /></font> 
     <form:form commandName="userPending" action="/wasp/auth/newpi/form.do">
       <table>
+      	<tr>
+          <td><fmt:message key="wasp.authentication.label" /> <fmt:message key="piPending.login.label" />:</td>
+          <td><form:input path="login"  /></td>
+          <td><form:errors path="login"/></td>
+        </tr> 
         <tr>
           <td><fmt:message key="piPending.firstName.label" />:</td>
           <td><form:input path="firstName" /></td>
@@ -20,15 +25,20 @@
           <td><form:errors path="email" /></td>
         </tr>         
         <tr>
-          <td><fmt:message key="piPending.password.label"/>:</td>
+          <td><fmt:message key="wasp.authentication.label" /> <fmt:message key="piPending.password.label"/>:</td>
           <td><form:password path="password" /></td>
           <td><form:errors path="password" /></td>
         </tr>     	   
-		<tr>
-        	<td><fmt:message key="piPending.password2.label"/>:</td>
-        	<td><input type="password" name="password2" /></td>
-        	<td>&nbsp;</td>
-        </tr>  
+		 <c:if test="${isAuthenticationExternal eq 'TRUE'}">
+	    	<input type="hidden" name="password2" value="" />
+        </c:if>
+        <c:if test="${isAuthenticationExternal ne 'TRUE'}">   
+	        <tr>
+	        	<td><fmt:message key="piPending.password2.label"/>:</td>
+	        	<td><input type="password" name="password2" /></td>
+	        	<td>&nbsp;</td>
+	        </tr>     	   
+		</c:if>
         <tr>
           <td><fmt:message key="piPending.locale.label"/>:</td>
           <td>

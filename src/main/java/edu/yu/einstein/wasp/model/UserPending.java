@@ -89,7 +89,36 @@ public class UserPending extends WaspModel {
 		return this.email;
 	}
 
+	/** 
+	 * Login
+	 *
+	 */
+	@Column(name="login")
+	@NotEmpty
+	protected String login;
 
+	/**
+	 * setLogin(String login)
+	 *
+	 * @param login
+	 *
+	 */
+	
+	public void setLogin (String login) {
+		this.login = login;
+	}
+	
+	
+
+	/**
+	 * getLogin()
+	 *
+	 * @return login
+	 *
+	 */
+	public String getLogin () {
+		return this.login;
+	}
 
 
 	/** 
@@ -142,6 +171,8 @@ public class UserPending extends WaspModel {
 	public void setFirstName (String firstName) {
 		this.firstName = firstName;
 	}
+	
+	
 
 	/**
 	 * getFirstName()

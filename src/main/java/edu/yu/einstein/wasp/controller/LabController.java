@@ -37,7 +37,7 @@ import edu.yu.einstein.wasp.model.LabPendingMeta;
 import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.MetaHelper;
-import edu.yu.einstein.wasp.model.MetaHelper.WaspMetadataException;
+import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.model.Project;
 import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.Sample;
@@ -788,9 +788,9 @@ public class LabController extends WaspController {
 	 * 
 	 * @param labPending
 	 * @return {@link Lab} the created lab
-	 * @throws WaspMetadataException
+	 * @throws MetadataException
 	 */
-	public Lab createLabFromLabPending(LabPending labPending) throws WaspMetadataException {
+	public Lab createLabFromLabPending(LabPending labPending) throws MetadataException {
 		Lab lab = new Lab();
 		User user;
 
@@ -826,7 +826,7 @@ public class LabController extends WaspController {
 			String name = lpm.getK().replaceAll("^.*?\\.", "");
 			try {
 				labMetaHelper.setMetaValueByName(name, lpm.getV());
-			} catch (WaspMetadataException e) {
+			} catch (MetadataException e) {
 				// no match for 'name' in labMeta
 				logger.debug("No match for labPendingMeta property with name '"	+ name + "' in labMeta properties");
 			}
@@ -873,9 +873,9 @@ public class LabController extends WaspController {
 	 * @param userPending
 	 *            the pending user
 	 * @return {@link User} the created user
-	 * @throws WaspMetadataException
+	 * @throws MetadataException
 	 */
-	public User createUserFromUserPending(UserPending userPending) throws WaspMetadataException {
+	public User createUserFromUserPending(UserPending userPending) throws MetadataException {
 		boolean isPiPending = (userPending.getLabId() == null) ? true : false;
 		User user = new User();
 		user.setFirstName(userPending.getFirstName());
@@ -884,10 +884,7 @@ public class LabController extends WaspController {
 		user.setPassword(userPending.getPassword());
 		user.setLocale(userPending.getLocale());
 		user.setIsActive(1);
-
-		// find me a unique login name
-		String login = userService.getUniqueLoginName(user);
-		user.setLogin(login);
+		user.setLogin(userPending.getLogin());
 		User userDb = userService.save(user);
 		int userId = userDb.getUserId();
 
@@ -909,7 +906,7 @@ public class LabController extends WaspController {
 			String name = upm.getK().replaceAll("^.*?\\.", "");
 			try {
 				userMetaHelper.setMetaValueByName(name, upm.getV());
-			} catch (WaspMetadataException e) {
+			} catch (MetadataException e) {
 				// no match for 'name' in userMeta data
 				logger.debug("No match for userPendingMeta property with name '" + name + "' in userMeta properties");
 			}
@@ -932,9 +929,9 @@ public class LabController extends WaspController {
 				userMetaHelper.setMetaValueByName("city", piMetaHelper.getMetaByName("city").getV());
 				userMetaHelper.setMetaValueByName("country", piMetaHelper.getMetaByName("country").getV());
 				userMetaHelper.setMetaValueByName("zip", piMetaHelper.getMetaByName("zip").getV());
-			} catch (WaspMetadataException e) {
+			} catch (MetadataException e) {
 				// should never get here because of sync
-				throw new MetaHelper.WaspMetadataException("Metadata user / pi meta name mismatch", e);
+				throw new MetadataException("Metadata user / pi meta name mismatch", e);
 			}
 		}
 
@@ -1008,14 +1005,14 @@ public class LabController extends WaspController {
 	 * @param action
 	 * @param m
 	 * @return view
-	 * @throws WaspMetadataException
+	 * @throws MetadataException
 	 */
 	@RequestMapping(value = "/userpending/{action}/{labId}/{userPendingId}.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('god') or hasRole('lm-' + #labId)")
 	public String userPendingDetail(@PathVariable("labId") Integer labId,
 			@PathVariable("userPendingId") Integer userPendingId,
 			@PathVariable("action") String action, ModelMap m)
-			throws WaspMetadataException {
+			throws MetadataException {
 
 		if (!(action.equals("approve") || action.equals("reject"))) {
 			waspMessage("userPending.action.error");
@@ -1064,7 +1061,7 @@ public class LabController extends WaspController {
 	 * @param action
 	 * @param m
 	 * @return
-	 * @throws WaspMetadataException
+	 * @throws MetadataException
 	 */
 
 	@RequestMapping(value = "/pending/{action}/{deptId}/{labPendingId}.do", method = RequestMethod.GET)
@@ -1072,7 +1069,7 @@ public class LabController extends WaspController {
 	public String labPendingDetail(@PathVariable("deptId") Integer deptId,
 			@PathVariable("labPendingId") Integer labPendingId,
 			@PathVariable("action") String action, ModelMap m)
-			throws WaspMetadataException {
+			throws MetadataException {
 
 		if (!(action.equals("approve") || action.equals("reject"))) {
 			waspMessage("labPending.action.error");
@@ -1121,10 +1118,10 @@ public class LabController extends WaspController {
 	 * Pre-populates as much of the form as possible given current user information.
 	 * @param m model
 	 * @return view
-	 * @throws WaspMetadataException
+	 * @throws MetadataException
 	 */
 	@RequestMapping(value = "/newrequest", method = RequestMethod.GET)
-	public String showRequestForm(ModelMap m) throws WaspMetadataException {
+	public String showRequestForm(ModelMap m) throws MetadataException {
 		MetaHelper labPendingMetaHelper = new MetaHelper("labPending",	LabPendingMeta.class, request.getSession());
 		labPendingMetaHelper.getMasterList(LabPendingMeta.class);
 		MetaHelper userMetaHelper = new MetaHelper("user", UserMeta.class, request.getSession());
@@ -1148,7 +1145,7 @@ public class LabController extends WaspController {
 			labPendingMetaHelper.setMetaValueByName("billing_zip", userMetaHelper.getMetaByName("zip").getV());
 			labPendingMetaHelper.setMetaValueByName("billing_contact", me.getFirstName() + " " + me.getLastName());
 			
-		} catch (WaspMetadataException e) {
+		} catch (MetadataException e) {
 			// report meta problem
 			logger.warn("Meta data mismatch when pre-populating labMeta data from userMeta (" + e.getMessage() + ")");
 		}

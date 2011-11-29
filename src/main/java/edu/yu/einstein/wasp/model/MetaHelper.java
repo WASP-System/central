@@ -20,6 +20,7 @@ import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 import edu.yu.einstein.wasp.controller.validator.MetaValidator;
 import edu.yu.einstein.wasp.controller.validator.MetaValidatorImpl;
 import edu.yu.einstein.wasp.dao.impl.DBResourceBundle;
+import edu.yu.einstein.wasp.exception.MetadataException;
 
 
 /**
@@ -490,9 +491,9 @@ public class MetaHelper {
 	 * Finds a {@link MetaBase} derived object by name in the last list generated
 	 * @param name
 	 * @return {@link MetaBase} or null if not found 
-	 * @throws WaspMetadataException
+	 * @throws MetadataException
 	 */
-	public  MetaBase getMetaByName(String name) throws WaspMetadataException{
+	public  MetaBase getMetaByName(String name) throws MetadataException{
 		return getMetaByName(name, this.lastList);
 	}
 	
@@ -500,15 +501,15 @@ public class MetaHelper {
 	 * Finds a {@link MetaBase} derived object by name in the provided list
 	 * @param name
 	 * @return {@link MetaBase} derived object or null if not found 
-	 * @throws WaspMetadataException 
+	 * @throws MetadataException 
 	 */
-	public <T extends MetaBase> T getMetaByName(String name, List<T> list) throws WaspMetadataException{
+	public <T extends MetaBase> T getMetaByName(String name, List<T> list) throws MetadataException{
 		for (T meta : list) {
 			if (meta.getK().equals(area + "." + name) ) {
 				return meta;
 			}
 		} 
-		throw new WaspMetadataException("Cannot find metadata with name: "+name);
+		throw new MetadataException("Cannot find metadata with name: "+name);
 	}
 	
 	/**
@@ -516,16 +517,16 @@ public class MetaHelper {
 	 * @param name
 	 * @param value
 	 * @param list
-	 * @throws WaspMetadataException
+	 * @throws MetadataException
 	 */
-	public <T extends MetaBase> void setMetaValueByName(String name,  String value, List<T> list) throws WaspMetadataException{
+	public <T extends MetaBase> void setMetaValueByName(String name,  String value, List<T> list) throws MetadataException{
 		for (T meta : list) {
 			if (meta.getK().equals(area + "." + name) ) {
 				meta.setV(value);
 				return;
 			}
 		} 
-		throw new WaspMetadataException("Cannot find metadata with name: "+name);
+		throw new MetadataException("Cannot find metadata with name: "+name);
 	}
 	
 	/**
@@ -533,30 +534,12 @@ public class MetaHelper {
 	 * @param name
 	 * @param value
 	 * @param list
-	 * @throws WaspMetadataException
+	 * @throws MetadataException
 	 */
-	public <T extends MetaBase> void setMetaValueByName(String name,  String value) throws WaspMetadataException{
+	public <T extends MetaBase> void setMetaValueByName(String name,  String value) throws MetadataException{
 		setMetaValueByName(name, value, this.lastList);
 	}
 	
-	/**
-	 * Reporting of WASP metadata exceptions
-	 * @author andymac
-	 *
-	 */
-	public static class WaspMetadataException extends Exception{
-		
-		public WaspMetadataException(){
-			super();
-		}
-			
-		public WaspMetadataException(String message){
-			super(message);
-		}
-		
-		public WaspMetadataException(String message, Throwable cause){
-			super(message, cause);
-		}
-	}
+
 	
 }

@@ -56,9 +56,9 @@
         </beans:constructor-arg>
     </beans:bean>
  
-    <authentication-manager>
+    <authentication-manager alias="authenticationManager">
 
-      <authentication-provider user-service-ref="waspUserDetailsService">
+      <authentication-provider user-service-ref="waspUserDetailsService" >
         <password-encoder hash="sha" />
       </authentication-provider>
 

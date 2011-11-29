@@ -8,19 +8,15 @@
     <form:form commandName="user">
     
      <table>
-     	  <c:set var="readonly" value="${1 == 0}" scope="page" />
-     	  <c:if test="${user.userId == 0}">
-     	  	 <c:set var="readonly" value="${1 == 1}" scope="page" />
-     	  </c:if>
      	   <tr>
-              <td><fmt:message key="user.login.label" />:</td>
-              <td><form:input path="login" readonly="${readonly}"/></td>
+              <td><fmt:message key="wasp.authentication.label" /> <fmt:message key="user.login.label" />:</td>
+              <td><form:input path="login"  /></td>
               <td><form:errors path="login"/></td>
           </tr> 	   	
           <tr>
               <td><fmt:message key="user.firstName.label" />:</td>
               <td><form:input path="firstName" /></td>
-              <td><form:errors path="firstName"/></td>
+              <td><form:errors path="firstName" /></td>
           </tr>
           <tr>
               <td><fmt:message key="user.lastName.label"/>:</td>

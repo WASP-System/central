@@ -41,4 +41,19 @@ public class MessageServiceImpl implements MessageService{
 		  }
 		  return message;
 	  }
+	  
+	  public String getMessage(String key, Locale locale) {
+		  String message=null;
+		  Logger logger = Logger.getLogger(getClass());
+		  try{
+			  message =  messageSource.getMessage(key, null, locale);
+		  } catch (Throwable e){
+			  logger.warn("Cannot resolve message '" + key + "' from messageSource (" + e.getMessage() + ")");
+		  }
+		  return message;
+	  }
+	  
+	  public String getMetadataValue(String key){
+		  return getMessage(key, Locale.US);
+	  }
 }

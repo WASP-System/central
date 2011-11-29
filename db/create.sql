@@ -266,6 +266,7 @@ create table userpending (
 
   email varchar(250) not null, 
   password varchar(250) not null, 
+  login varchar(250) not null, 
   firstname varchar(250) not null, 
   lastname varchar(250) not null, 
   locale varchar(5) not null default 'en_US',
