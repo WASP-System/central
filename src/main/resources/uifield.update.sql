@@ -359,6 +359,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','mypassword_oldpassword','label','Old Password','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','mypassword_newpassword1','label','New Password','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','mypassword_newpassword2','label','Confirm New Password','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','mypassword_cannotChange','error','Externally authenticated user cannot change password in WASP','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','mypassword','data','Submit','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','mypassword_missingparam','error','Please provide values for all fields','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','mypassword_cur_mismatch','error','Your old password does NOT match the password in our database','1');
@@ -811,7 +812,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labDetail','cancel','label','Cancel','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labDetail','save','label','Save Changes','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','wasp','default_select','label','-- select --','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','wasp','isAuthenticationExternal','data','TRUE','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','wasp','isAuthenticationExternal','data','FALSE','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','wasp','authentication','label','WASP','1');
 
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) 
