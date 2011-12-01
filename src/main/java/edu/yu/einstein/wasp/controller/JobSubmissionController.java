@@ -60,6 +60,8 @@ import edu.yu.einstein.wasp.model.SampleDraftMeta;
 import edu.yu.einstein.wasp.model.SampleFile;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.State;
+import edu.yu.einstein.wasp.model.Statejob;
+import edu.yu.einstein.wasp.model.Task;
 import edu.yu.einstein.wasp.model.SubtypeSample;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Workflow;
@@ -84,6 +86,12 @@ import edu.yu.einstein.wasp.service.SampleDraftService;
 import edu.yu.einstein.wasp.service.SampleFileService;
 import edu.yu.einstein.wasp.service.SampleMetaService;
 import edu.yu.einstein.wasp.service.SampleService;
+
+import edu.yu.einstein.wasp.service.StateService;
+import edu.yu.einstein.wasp.service.StatejobService;
+
+import edu.yu.einstein.wasp.service.TaskService;
+
 import edu.yu.einstein.wasp.service.SubtypeSampleService;
 import edu.yu.einstein.wasp.service.TypeSampleService;
 import edu.yu.einstein.wasp.service.WorkflowService;
@@ -142,6 +150,15 @@ public class JobSubmissionController extends WaspController {
 	
 	@Autowired
 	private TypeSampleService typeSampleService;
+
+	@Autowired
+	private StatejobService statejobService;
+
+	@Autowired
+	private StateService stateService;
+
+	@Autowired
+	private TaskService taskService;
 	
 	@Autowired
 	private SubtypeSampleService subTypeSampleService;
@@ -854,20 +871,19 @@ public class JobSubmissionController extends WaspController {
 			}
 		}
 
-		// TODO!!! ADD!!! WORKFLOW!!! STEPS!!!
 		// something like this:
-		/* State state = new State(); 
-		Task jobCreateTask = taskService.findByIName("jobCreated");
+		State state = new State(); 
+		Task jobCreateTask = taskService.getTaskByIName("jobCreated");
 		state.setTaskId(jobCreateTask.getTaskId());
 		state.setName(jobCreateTask.getName());
 		state.setStartts(new Date());
 		state.setStatus("CREATED"); 
 		stateService.save(state);
 		
-		StateJob stateJob = new Statejob();
-		stateJob.setStateId(state.getStateId());
-		...
-		*/
+		Statejob statejob = new Statejob();
+		statejob.setStateId(state.getStateId());
+		statejob.setJobId(job.getJobId());
+    statejobService.save(statejob);
 
 		// update the jobdraft
 		jobDraft.setStatus("SUBMITTED");
