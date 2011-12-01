@@ -446,9 +446,9 @@ public class JobSubmissionController extends WaspController {
 		return nextPage(jobDraft);
 	}
 
-	@RequestMapping(value="/aligner/{jobDraftId}", method=RequestMethod.GET)
+	@RequestMapping(value="/additionalMeta/{meta}/{jobDraftId}", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
-	public String showAlignerForm(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
+	public String showAdditionalMetaForm(@PathVariable("meta") String additionalMetaArea, @PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
 		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
 
 		MetaHelper workflowMetaHelper = getMetaHelper();
@@ -459,7 +459,7 @@ public class JobSubmissionController extends WaspController {
 		JobDraftMeta alignerJdm = new JobDraftMeta();
 		String alignerArea = "";
 		for (JobDraftMeta jdm: jobDraftMeta) {
-			if (! jdm.getK().equals(workflowMetaHelper.getArea() + ".aligner")) { continue; }
+			if (! jdm.getK().equals(workflowMetaHelper.getArea() + "." + additionalMetaArea)) { continue; }
 			alignerArea = jdm.getV();
 			alignerJdm = jdm;
 		}
@@ -478,9 +478,10 @@ public class JobSubmissionController extends WaspController {
 		return "jobsubmit/aligner";
 	}
 
-	@RequestMapping(value="/aligner/{jobDraftId}", method=RequestMethod.POST)
+	@RequestMapping(value="/additionalMeta/{meta}/{jobDraftId}", method=RequestMethod.POST)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
-	public String modifyAligner(
+	public String modifyAdditionalMeta (
+			@PathVariable String additionalMetaArea,
 			@PathVariable Integer jobDraftId,
 			@Valid JobDraft jobDraftForm,
 			BindingResult result,
@@ -493,16 +494,16 @@ public class JobSubmissionController extends WaspController {
 
 		List<JobDraftMeta> jobDraftMeta = workflowMetaHelper.syncWithMaster(jobDraft.getJobDraftMeta()); 
 
-		JobDraftMeta alignerJdm = new JobDraftMeta();
-		String alignerArea = "";
+		JobDraftMeta ametaJdm = new JobDraftMeta();
+		String ametaArea = "";
 		for (JobDraftMeta jdm: jobDraftMeta) {
-			if (! jdm.getK().equals(workflowMetaHelper.getArea() + ".aligner")) { continue; }
-			alignerArea = jdm.getV();
-			alignerJdm = jdm;
+			if (! jdm.getK().equals(workflowMetaHelper.getArea() + "." + additionalMetaArea)) { continue; }
+			ametaArea = jdm.getV();
+			ametaJdm = jdm;
 		}
 
 		MetaHelper metaHelper = getMetaHelper();
-		metaHelper.setArea(alignerArea);
+		metaHelper.setArea(ametaArea);
 		List<JobDraftMeta> jobDraftMetaList = metaHelper.getFromRequest(request, JobDraftMeta.class);
 
     jobDraftForm.setJobDraftMeta(jobDraftMetaList);
@@ -520,7 +521,7 @@ public class JobSubmissionController extends WaspController {
 
 
 		// removes old aligners
-		for (edu.yu.einstein.wasp.model.MetaAttribute.Control.Option opt: alignerJdm.getProperty().getControl().getOptions()) {
+		for (edu.yu.einstein.wasp.model.MetaAttribute.Control.Option opt: ametaJdm.getProperty().getControl().getOptions()) {
 			jobDraftMetaService.updateByJobdraftId(opt.getValue(), jobDraftId, new ArrayList());
 
 		}
@@ -529,6 +530,25 @@ public class JobSubmissionController extends WaspController {
 
 		return nextPage(jobDraft);
 
+	}
+
+
+	@RequestMapping(value="/aligner/{jobDraftId}", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String showAlignerForm(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
+    return showAdditionalMetaForm("aligner", jobDraftId, m); 
+	}
+
+
+	@RequestMapping(value="/aligner/{jobDraftId}", method=RequestMethod.POST)
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String modifyAligner(
+			@PathVariable Integer jobDraftId,
+			@Valid JobDraft jobDraftForm,
+			BindingResult result,
+			SessionStatus status,
+			ModelMap m) {
+    return modifyAdditionalMeta("aligner", jobDraftId, jobDraftForm, result, status, m); 
 	}
 
 
