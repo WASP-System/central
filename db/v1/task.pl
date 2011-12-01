@@ -70,7 +70,7 @@ from state
 where taskid = 1;");
 
 $v2_dbh->do("update state set lastupduser = null where taskid = 1;");
-$v2_dbh->do("update state set status = 'OK' where taskid = 1;");
+$v2_dbh->do("update state set status = 'FINAL' where taskid = 1;");
 
 ####################################################
 
@@ -87,7 +87,7 @@ from state
 where taskid = 2;");
 
 $v2_dbh->do("update state set lastupduser = null where taskid = 2;");
-$v2_dbh->do("update state set status = 'OK' where taskid = 2;");
+$v2_dbh->do("update state set status = 'FINAL' where taskid = 2;");
 
 ####################################################
 
@@ -106,7 +106,7 @@ where taskid = 3;");
 $v2_dbh->do("
   update state 
   set 
-    status = 'OK' 
+    status = 'FINAL' 
   where 
     status = 'LOADING' and
     taskid = 3 and
@@ -142,7 +142,7 @@ $v2_dbh->do("
     );
 ");
 
-$v2_dbh->do("update state set status = 'RUNNING' where status = 'LOADING' and taskid = 3;");
+$v2_dbh->do("update state set status = 'CREATED' where status = 'LOADING' and taskid = 3;");
 
 $v2_dbh->do("update state set lastupduser = null where taskid = 3;");
 
@@ -163,7 +163,7 @@ where taskid = 4;");
 $v2_dbh->do("
   update state 
   set 
-    status = 'OK' 
+    status = 'FINAL' 
   where 
     status = 'LOADING' and
     taskid = 4 and
@@ -199,7 +199,7 @@ $v2_dbh->do("
     );
 ");
 
-$v2_dbh->do("update state set status = 'RUNNING' where status = 'LOADING' and taskid = 4;");
+$v2_dbh->do("update state set status = 'CREATED' where status = 'LOADING' and taskid = 4;");
 
 $v2_dbh->do("update state set lastupduser = null where taskid = 4;");
 
@@ -236,7 +236,7 @@ where taskid = 6;");
 $v2_dbh->do("
   update state 
   set 
-    status = 'OK' 
+    status = 'FINAL' 
   where 
     status = 'LOADING' and
     taskid = 6 and
@@ -254,7 +254,7 @@ $v2_dbh->do("
 $v2_dbh->do("
   update state 
   set 
-    status = 'OK' 
+    status = 'FINAL' 
   where 
     status = 'LOADING' and
     taskid = 6 and
@@ -299,11 +299,11 @@ foreach my $row (@$rs) {
       where 
         stateid = " . $row->[0] . ";"
     );
-  } elsif($row->[2] eq "OK" && $row->[3] eq "OK") { 
+  } elsif($row->[2] eq "FINAL" && $row->[3] eq "FINAL") { 
     $v2_dbh->do("
       update state 
       set 
-        status = 'RUNNING' 
+        status = 'CREATED' 
       where 
         stateid = " . $row->[0] . ";"
     );
@@ -337,7 +337,7 @@ where taskid = 7;");
 $v2_dbh->do("
   update state 
   set 
-    status = 'OK' 
+    status = 'FINAL' 
   where 
     status = 'LOADING' and
     taskid = 7 and
@@ -377,11 +377,11 @@ foreach my $row (@$rs) {
       where 
         stateid = " . $row->[0] . ";"
     );
-  } elsif($row->[2] eq "OK") { 
+  } elsif($row->[2] eq "FINAL") { 
     $v2_dbh->do("
       update state 
       set 
-        status = 'RUNNING' 
+        status = 'CREATED' 
       where 
         stateid = " . $row->[0] . ";"
     );
