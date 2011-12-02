@@ -144,6 +144,19 @@ public class EmailServiceImpl implements EmailService {
 		prepareAndSend(pendinguser, "emails/pending_user_notify_rejected", model);
 	}
 	
+	@Override
+	public void sendPendingLabUserNotifyAccepted(User user, Lab lab) {
+		sendPendingUserNotifyAccepted(user, lab);
+	}
+
+	@Override
+	public void sendPendingLabUserNotifyRejected(User user, Lab lab) {
+		Map model = new HashMap();
+		model.put("pendinguser", user);
+		model.put("lab", lab);
+		prepareAndSend(user, "emails/pending_user_notify_rejected", model);
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -381,6 +394,8 @@ public class EmailServiceImpl implements EmailService {
 		return body;
 		
 	}
+
+
 	
 	
 }

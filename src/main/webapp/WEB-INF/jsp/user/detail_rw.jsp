@@ -10,7 +10,7 @@
      <table>
      	   <tr>
               <td><fmt:message key="wasp.authentication.label" /> <fmt:message key="user.login.label" />:</td>
-              <td><form:input path="login"  /></td>
+              <td><form:input path="login"  readonly="true" /></td>
               <td><form:errors path="login"/></td>
           </tr> 	   	
           <tr>

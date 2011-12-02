@@ -57,6 +57,10 @@
     </beans:bean>
  
     <authentication-manager alias="authenticationManager">
+    
+      <!--  test LDAP Authentication -->
+      <!-- always try to auth of LDAP or AD before WASP DB -->
+      <authentication-provider ref="testLdapAuthenticationProvider" />
 
       <authentication-provider user-service-ref="waspUserDetailsService" >
         <password-encoder hash="sha" />
@@ -65,8 +69,6 @@
       <!-- no password encoder to reauth -->
       <authentication-provider user-service-ref="waspUserDetailsService" />
    	  
-   	  <!--  test LDAP Authentication -->
-      <authentication-provider ref="testLdapAuthenticationProvider" />
 
     </authentication-manager>
 

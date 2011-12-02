@@ -13,21 +13,6 @@
           <td><form:errors path="login"/></td>
         </tr> 
         <tr>
-          <td><fmt:message key="userPending.firstName.label" />:</td>
-          <td><form:input path="firstName" /></td>
-          <td><form:errors path="firstName" /></td>
-        </tr>
-        <tr>
-          <td><fmt:message key="userPending.lastName.label"/>:</td>
-          <td><form:input path="lastName" /></td>
-          <td><form:errors path="lastName" /></td>
-        </tr>
-        <tr>
-          <td><fmt:message key="userPending.email.label"/>:</td>
-          <td><form:input path="email" /></td>
-          <td><form:errors path="email" /></td>
-        </tr>      
-        <tr>
           <td><fmt:message key="wasp.authentication.label" /> <fmt:message key="userPending.password.label"/>:</td>
           <td><form:password path="password" /></td>
           <td><form:errors path="password" /></td>
@@ -42,6 +27,21 @@
 	        	<td>&nbsp;</td>
 	        </tr>     	   
 		</c:if>
+        <tr>
+          <td><fmt:message key="userPending.firstName.label" />:</td>
+          <td><form:input path="firstName" /></td>
+          <td><form:errors path="firstName" /></td>
+        </tr>
+        <tr>
+          <td><fmt:message key="userPending.lastName.label"/>:</td>
+          <td><form:input path="lastName" /></td>
+          <td><form:errors path="lastName" /></td>
+        </tr>
+        <tr>
+          <td><fmt:message key="userPending.email.label"/>:</td>
+          <td><form:input path="email" /></td>
+          <td><form:errors path="email" /></td>
+        </tr>      
         <tr>
           <td><fmt:message key="userPending.locale.label"/>:</td>
           <td>

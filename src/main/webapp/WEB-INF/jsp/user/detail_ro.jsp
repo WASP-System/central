@@ -37,11 +37,13 @@
 	  <sec:authorize access="hasRole('god') and ! hasRole('u-${user.userId}')">      		   		
           <tr><td colspan="2" align=left><a href="/wasp/user/detail_rw/${user.userId}.do"><fmt:message key="userDetail.edit_as_other.label" /></a>
           </sec:authorize>	
-
-	  <sec:authorize access="hasRole('u-${user.userId}')">      		   		
-          <tr><td colspan="2" align=left><a href="/wasp/user/me_rw.do"><fmt:message key="userDetail.edit.label" /></a>
-          &nbsp;&nbsp;<a href="<c:url value="/user/mypassword.do"/>"><fmt:message key="userDetail.change_password.label" /></a></td></tr>
-          </sec:authorize>	
+	  <sec:authorize access="hasRole('u-${user.userId}')">
+	  	  <tr><td colspan="2" align=left><a href="/wasp/user/me_rw.do"><fmt:message key="userDetail.edit.label" /></a>
+		  <sec:authorize access="not hasRole('ldap')">      		   		
+	          &nbsp;&nbsp;<a href="<c:url value="/user/mypassword.do"/>"><fmt:message key="userDetail.change_password.label" /></a>
+	      </sec:authorize>	
+	      </td></tr>
+	   </sec:authorize>
 
          <tr><td colspan=2 align=left></br><b><fmt:message key="userDetail.lab_users.label" />:</b></td></tr>
          <c:forEach items="${user.labUser}" var="ul">

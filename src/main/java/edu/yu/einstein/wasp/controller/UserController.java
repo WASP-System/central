@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
 
 import edu.yu.einstein.wasp.controller.validator.Constraint;
+import edu.yu.einstein.wasp.exception.LoginNameException;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabUser;
@@ -266,10 +267,14 @@ public class UserController extends WaspController {
 	@RequestMapping(value = "/detail_rw/updateJSON.do", method = RequestMethod.POST)
 	@PreAuthorize("hasRole('god') or User.login == principal.name")
 	public String updateDetailJSON(@RequestParam("id") Integer userId,User userForm, ModelMap m, HttpServletResponse response) {
-
-		if ( userService.loginExists(userForm.getLogin(), userId)) {
-						
-			try {
+		boolean loginExists = false;
+		try {
+			loginExists = authenticationService.isLoginAlreadyInUse(userForm.getLogin(), userForm.getEmail());
+		} catch(LoginNameException e){
+			loginExists = true;
+		}
+		if (loginExists){
+			try{
 				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 				response.getWriter().println(messageService.getMessage("user.login.exists_error"));
 				return null;
@@ -291,7 +296,6 @@ public class UserController extends WaspController {
 			userForm.setPassword(passwordService.encodePassword(passwordService.getRandomPassword(10))); 
 			userForm.setLastUpdTs(new Date());
 			userForm.setIsActive(1);
-			userForm.setLogin(userService.getUniqueLoginName(userForm));
 			User userDb = this.userService.save(userForm);
 			userId=userDb.getUserId();
 		} else {

@@ -2,6 +2,7 @@ package edu.yu.einstein.wasp.controller;
 
 import nl.captcha.Captcha;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 
@@ -88,7 +89,7 @@ public class AuthController extends WaspController {
   }
   
   
-
+  @PreAuthorize("not hasRole('ldap')")
   @RequestMapping(value="/resetpassword/form", method=RequestMethod.GET)
   public String showResetPasswordForm(@RequestParam(required = false, value="authcode") String authCode, ModelMap m) {
 	  if (authCode == null || "".equals(authCode)) {
@@ -106,6 +107,7 @@ public class AuthController extends WaspController {
 	  return "auth/resetpassword/form";
   }
   
+  @PreAuthorize("not hasRole('ldap')")
   @RequestMapping(value="/resetpassword/form", method=RequestMethod.POST)
   public String resetPassword(
         @RequestParam("username") String username, 

@@ -55,6 +55,7 @@ import edu.yu.einstein.wasp.service.LabPendingService;
 import edu.yu.einstein.wasp.service.LabService;
 import edu.yu.einstein.wasp.service.LabUserService;
 import edu.yu.einstein.wasp.service.MessageService;
+import edu.yu.einstein.wasp.service.PasswordService;
 import edu.yu.einstein.wasp.service.RoleService;
 import edu.yu.einstein.wasp.service.UserMetaService;
 import edu.yu.einstein.wasp.service.UserPendingMetaService;
@@ -104,6 +105,10 @@ public class LabController extends WaspController {
 	  
 	@Autowired
 	private AuthenticationService authenticationService;
+
+	@Autowired
+	private PasswordService passwordService;
+	
 
 	/**
 	 * get a @{link MetaHelper} instance for working with LabMeta metadata
@@ -689,17 +694,16 @@ public class LabController extends WaspController {
 	@PreAuthorize("hasRole('god') or hasRole('lu-' + #labId)")
 	public String userManager(@PathVariable("labId") Integer labId, ModelMap m) {
 		Lab lab = this.labService.getById(labId);
-		List<LabUser> labUser = lab.getLabUser();
+		List<LabUser> labUsers = new ArrayList();
+		for (LabUser lu: (List<LabUser>) lab.getLabUser()){
+			if (!lu.getRole().getRoleName().equals("lp")){
+				labUsers.add(lu);
+			}
+		}
 
-		Map userPendingQueryMap = new HashMap();
-		userPendingQueryMap.put("labId", labId);
-		userPendingQueryMap.put("status", "PENDING");
-
-		List<UserPending> userPending = userPendingService.findByMap(userPendingQueryMap);
-
-		m.addAttribute("lab", lab);
-		m.addAttribute("labuser", labUser);
-		m.addAttribute("labuserpending", userPending);
+		m.addAttribute("labuser", labUsers);
+		// add pending users applying to lab
+		pendingUserList(labId, m);
 
 		return "lab/user_manager";
 	}
@@ -736,11 +740,16 @@ public class LabController extends WaspController {
 		Map userPendingQueryMap = new HashMap();
 		userPendingQueryMap.put("labId", labId);
 		userPendingQueryMap.put("status", "PENDING");
-
 		List<UserPending> userPending = userPendingService.findByMap(userPendingQueryMap);
+		
+		Map labUserPendingQueryMap = new HashMap();
+		labUserPendingQueryMap.put("labId", labId);
+		labUserPendingQueryMap.put("roleId", roleService.getRoleByRoleName("lp").getRoleId());
+		List<LabUser> labUserPending = labUserService.findByMap(labUserPendingQueryMap);
 
 		m.addAttribute("lab", lab);
-		m.addAttribute("labuserpending", userPending);
+		m.addAttribute("userpending", userPending);
+		m.addAttribute("labuserpending", labUserPending);
 
 		return "lab/pendinguser/list";
 	}
@@ -997,6 +1006,55 @@ public class LabController extends WaspController {
 
 	/**
 	 * Request-mapped function that allows a principal investigator or lab
+	 * manager to accept or reject an application from a pending lab user (already
+	 * an active WASP user) to join their lab.
+	 * @param labId
+	 * @param labUserId
+	 * @param action
+	 * @param m
+	 * @return
+	 */
+	@RequestMapping(value = "/labuserpending/{action}/{labId}/{labUserId}.do", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('god') or hasRole('lm-' + #labId)")
+	public String labUserPendingDetail(@PathVariable("labId") Integer labId,
+									   @PathVariable("labUserId") Integer labUserId,
+									   @PathVariable("action") String action, ModelMap m){
+		if (!(action.equals("approve") || action.equals("reject"))) {
+			waspMessage("userPending.action.error");
+			return "redirect:/dashboard.do";
+		}
+		LabUser labUserPending = labUserService.getLabUserByLabUserId(labUserId);
+		if (labUserPending.getLabId() != labId){
+			waspMessage("labuser.labUserNotFoundInLab.error");
+			return "redirect:/dashboard.do";
+		}
+		if (labUserPending.getRoleId() != roleService.getRoleByRoleName("lp").getRoleId() ) {
+			waspMessage("userPending.status_not_pending.error");
+			return "redirect:/dashboard.do";
+		}
+
+		if ("approve".equals(action)) {
+			// add user to lab (labUser table) with role 'lu' (lab-user) and
+			// email pending user notification of acceptance
+			Role roleLabUser = roleService.getRoleByRoleName("lu");
+			// createUserFromUserPending, should have made this.
+			labUserPending.setRoleId(roleLabUser.getRoleId());
+			labUserService.save(labUserPending);
+			emailService.sendPendingLabUserNotifyAccepted(labUserPending.getUser(), labUserPending.getLab());
+			waspMessage("userPending.approved.label");
+		} else {
+			labUserService.remove(labUserPending);
+			// email pending user notification of rejection
+			emailService.sendPendingLabUserNotifyRejected(labUserPending.getUser(),	labUserPending.getLab());
+			waspMessage("userPending.rejected.label");
+		}
+
+		String referer = request.getHeader("Referer");
+		return "redirect:"+ referer;
+	}
+	
+	/**
+	 * Request-mapped function that allows a principal investigator or lab
 	 * manager to accept or reject an application from a pending user (not yet
 	 * an active WASP user) to join their lab.
 	 * 
@@ -1049,7 +1107,8 @@ public class LabController extends WaspController {
 		}
 		userPending.setStatus(action);
 		userPendingService.save(userPending);
-		return "redirect:/lab/user_manager/" + labId + ".do";
+		String referer = request.getHeader("Referer");
+		return "redirect:"+ referer;
 	}
 
 	/**

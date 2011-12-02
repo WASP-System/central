@@ -39,13 +39,22 @@
     <c:if test="${empty labuserpending}">
     	<p><fmt:message key="userPending.no_pending_users.label"/></p>
     </c:if>
-    <c:forEach items="${labuserpending}" var="up">
+    <c:forEach items="${userpending}" var="up">
       <p>
       <c:out value="${up.firstName}" />
       <c:out value="${up.lastName}" />
       <c:out value="${up.email}" />
         <a href="<c:url value="/lab/userpending/approve/${lab.labId}/${up.userPendingId}.do"/>"><fmt:message key="userPending.action_approve.label"/></a>
         <a href="<c:url value="/lab/userpending/reject/${lab.labId}/${up.userPendingId}.do"/>"><fmt:message key="userPending.action_reject.label"/></a>
+      </p>
+    </c:forEach>
+    <c:forEach items="${labuserpending}" var="up">
+      <p>
+      <c:out value="${up.user.firstName}" />
+      <c:out value="${up.user.lastName}" />
+      <c:out value="${up.user.email}" />
+        <a href="<c:url value="/lab/labuserpending/approve/${lab.labId}/${up.labUserId}.do"/>"><fmt:message key="userPending.action_approve.label"/></a>
+        <a href="<c:url value="/lab/labuserpending/reject/${lab.labId}/${up.labUserId}.do"/>"><fmt:message key="userPending.action_reject.label"/></a>
       </p>
     </c:forEach>
     

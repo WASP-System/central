@@ -46,6 +46,24 @@ public interface EmailService  {
 	public void sendPendingUserNotifyAccepted(final User user, final Lab lab);
 	
 	/**
+	 * Sends an email message to a pending lab user notifying an accepted application to
+	 * join a lab. 
+	 * 
+	 * @param userPending the pending user
+	 * @param lab the lab applied for
+	 */
+	public void sendPendingLabUserNotifyAccepted(final User user, final Lab lab);
+	
+	/**
+	 * Sends an email message to a pending lab user notifying a rejected application to
+	 * join a lab. 
+	 * 
+	 * @param userPending the pending user
+	 * @param lab the lab applied for
+	 */
+	public void sendPendingLabUserNotifyRejected(final User user, final Lab lab);
+	
+	/**
 	 * Sends an email message to a pending user notifying a rejected application to
 	 * join a lab. 
 	 * 
