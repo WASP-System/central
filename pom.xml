@@ -714,6 +714,11 @@
         </repository>
         -->
         <repository>
+        	<id>maven</id>
+        	<name>repo1 maven2 repository</name>
+        	<url>http://repo1.maven.org/maven2</url>
+        </repository>
+        <repository>
             <id>simplecaptcha</id>
             <name>Simple Captcha Repository</name>
             <url>http://maven.glassfish.org/content/repositories/glassfish-group</url>
