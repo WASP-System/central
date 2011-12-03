@@ -17,7 +17,7 @@
 		 <c:if test="${isAuthenticationExternal == (1==1)}">
 	    	<input type="hidden" name="password2" value="" />
         </c:if>
-        <c:if test="${isAuthenticationExternal == (1==1)}">   
+        <c:if test="${isAuthenticationExternal != (1==1)}">   
 	        <tr>
 	        	<td><fmt:message key="piPending.password2.label"/>:</td>
 	        	<td><input type="password" name="password2" /></td>
