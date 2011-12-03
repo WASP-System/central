@@ -85,9 +85,12 @@
 
   <!-- the application context definition for the DispatcherServlet -->
 
+  <context:component-scan base-package="util.spring" />
   <context:component-scan base-package="edu.yu.einstein.wasp.dao.impl" />
   <context:component-scan base-package="edu.yu.einstein.wasp.service.impl" />
   <context:component-scan base-package="edu.yu.einstein.wasp.controller" />
+  <context:component-scan base-package="edu.yu.einstein.wasp.load" />
+
   <context:annotation-config/>
 
   <bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping" />
@@ -195,6 +198,10 @@
   <import resource="bee-job-filepoller.xml" />
   <import resource="bee-job-fileproccessor.xml" />
     -->
+
+  <!-- load --> 
+  <import resource="classpath*:wasp/*Load.xml" />
+
 </beans>
 
 
