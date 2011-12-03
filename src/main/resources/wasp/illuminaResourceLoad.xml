@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-3.1.xsd"
+    default-autowire="byName">
+
+  <bean class="edu.yu.einstein.wasp.model.UiField" id="illuminiaUiField">
+    <property name="locale" value="en_US" />
+    <property name="area" value="illuminiaHwiEas438" />
+  </bean>
+
+  <bean id="illuminiaHwiEas438Resource" class="edu.yu.einstein.wasp.load.ResourceLoadService">
+    <property name="name" value="HWI-EAS438" />
+    <property name="resourceType" value="dna" />
+    <property name="platform" value="Illumina" />
+
+    <property name="cell">
+      <list>
+        <bean class="edu.yu.einstein.wasp.model.ResourceLane">
+          <property name="iName" value="HWI-EAS438 1" />
+          <property name="name" value="HWI-EAS438 1"  />
+        </bean>
+        <bean class="edu.yu.einstein.wasp.model.ResourceLane">
+          <property name="iName" value="HWI-EAS438 2" />
+          <property name="name" value="HWI-EAS438 2"  />
+        </bean>
+        <bean class="edu.yu.einstein.wasp.model.ResourceLane">
+          <property name="iName" value="HWI-EAS438 3" />
+          <property name="name" value="HWI-EAS438 3"  />
+        </bean>
+        <bean class="edu.yu.einstein.wasp.model.ResourceLane">
+          <property name="iName" value="HWI-EAS438 4" />
+          <property name="name" value="HWI-EAS438 4"  />
+        </bean>
+        <bean class="edu.yu.einstein.wasp.model.ResourceLane">
+          <property name="iName" value="HWI-EAS438 5" />
+          <property name="name" value="HWI-EAS438 5"  />
+        </bean>
+        <bean class="edu.yu.einstein.wasp.model.ResourceLane">
+          <property name="iName" value="HWI-EAS438 6" />
+          <property name="name" value="HWI-EAS438 6"  />
+        </bean>
+        <bean class="edu.yu.einstein.wasp.model.ResourceLane">
+          <property name="iName" value="HWI-EAS438 7" />
+          <property name="name" value="HWI-EAS438 7"  />
+        </bean>
+        <bean class="edu.yu.einstein.wasp.model.ResourceLane">
+          <property name="iName" value="HWI-EAS438 8" />
+          <property name="name" value="HWI-EAS438 8"  />
+        </bean>
+      </list>
+    </property> 
+
+    <property name="meta">
+      <list>
+        <bean class="edu.yu.einstein.wasp.model.ResourceMeta">
+          <property name="k" value="resource.assay_platform" />
+          <property name="v" value="ILLUMINA" />
+        </bean>
+        <bean class="edu.yu.einstein.wasp.model.ResourceMeta">
+          <property name="k" value="resource.machine_type" />
+          <property name="v" value="GAIIx" />
+        </bean>
+        <bean class="edu.yu.einstein.wasp.model.ResourceMeta">
+          <property name="k" value="resource.decommission_date" />
+          <property name="v" value="2010-10-01" />
+        </bean>
+      </list>
+    </property> 
+
+    <property name="uiFields">
+      <list>
+        <bean parent="illuminiaUiField">
+          <property name="name" value="abc" />
+          <property name="attrName" value="metapostion" />
+          <property name="attrValue" value="10" />
+        </bean>
+        <bean parent="illuminiaUiField">
+          <property name="name" value="abc" />
+          <property name="attrName" value="label" />
+          <property name="attrValue" value="Abc" />
+        </bean>
+
+        <bean parent="illuminiaUiField">
+          <property name="name" value="def" />
+          <property name="attrName" value="metapostion" />
+          <property name="attrValue" value="20" />
+        </bean>
+        <bean parent="illuminiaUiField">
+          <property name="name" value="def" />
+          <property name="attrName" value="label" />
+          <property name="attrValue" value="Def" />
+        </bean>
+      </list>
+    </property>
+
+  </bean> 
+
+</beans>

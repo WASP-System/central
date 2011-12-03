@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-3.1.xsd"
+    default-autowire="byName">
+
+  <bean class="edu.yu.einstein.wasp.model.UiField" id="chipSeqUiField">
+    <property name="locale" value="en_US" />
+    <property name="area" value="chipSeq" />
+  </bean>
+
+  <bean id="chipSeqWorkflow" class="edu.yu.einstein.wasp.load.WorkflowLoadService">
+    <property name="iname" value="chipSeq" />
+    <property name="name" value="Chip Seq" />
+    <property name="pageFlowOrder">
+      <list>
+<value>/jobsubmit/modifymeta/{n}</value>
+<value>/jobsubmit/samples/{n}</value>
+<value>/jobsubmit/cells/{n}</value>
+<value>/jobsubmit/aligner/{n}</value>
+<value>/chipSeq/jobsubmit/pairings/{n}</value>
+<value>/chipSeq/jobsubmit/earrings/{n}</value>
+<value>/jobsubmit/verify/{n}</value>
+<value>/jobsubmit/submit/{n}</value>
+<value>/chipSeq/jobsubmit/submit/{n}</value>
+<value>/jobsubmit/ok</value>
+      </list>
+    </property>
+
+    <property name="dependencies">
+      <list>
+        <value>Aligner</value>
+      </list>
+    </property>
+
+    <property name="subtypeSamples">
+      <set>
+        <value>chipSeqdnaSample</value>
+        <value>chipSeqlibrarySample</value>
+      </set>
+    </property>
+    <property name="uiFields">
+      <list>
+        <bean parent="chipSeqUiField">
+          <property name="name" value="aligner" />
+          <property name="attrName" value="metapostion" />
+          <property name="attrValue" value="10" />
+        </bean>
+        <bean parent="chipSeqUiField">
+          <property name="name" value="aligner" />
+          <property name="attrName" value="label" />
+          <property name="attrValue" value="Aligner" />
+        </bean>
+        <bean parent="chipSeqUiField">
+          <property name="name" value="aligner" />
+          <property name="attrName" value="control" />
+          <property name="attrValue" value="select:aligner1:aligner1;aligner2:aligner2" />
+        </bean>
+
+        <bean parent="chipSeqUiField">
+          <property name="name" value="other" />
+          <property name="attrName" value="metapostion" />
+          <property name="attrValue" value="10" />
+        </bean>
+        <bean parent="chipSeqUiField">
+          <property name="name" value="other" />
+          <property name="attrName" value="label" />
+          <property name="attrValue" value="Other Workflow Field" />
+        </bean>
+      </list>
+    </property>
+
+  </bean>
+
+</beans>
