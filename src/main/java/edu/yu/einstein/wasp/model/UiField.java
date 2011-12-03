@@ -33,7 +33,6 @@ public final class UiField implements Serializable {
 	private String name;
 
 	@Column(name = "attrname")
-	@NotEmpty
 	private String attrName;
 
 	@Column(name = "attrvalue")
