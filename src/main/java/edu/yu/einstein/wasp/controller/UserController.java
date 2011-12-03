@@ -267,28 +267,29 @@ public class UserController extends WaspController {
 	@RequestMapping(value = "/detail_rw/updateJSON.do", method = RequestMethod.POST)
 	@PreAuthorize("hasRole('god') or User.login == principal.name")
 	public String updateDetailJSON(@RequestParam("id") Integer userId,User userForm, ModelMap m, HttpServletResponse response) {
-		boolean loginExists = false;
-		try {
-			loginExists = authenticationService.isLoginAlreadyInUse(userForm.getLogin(), userForm.getEmail());
-		} catch(LoginNameException e){
-			loginExists = true;
-		}
-		if (loginExists){
-			try{
-				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-				response.getWriter().println(messageService.getMessage("user.login.exists_error"));
-				return null;
-			} catch (Throwable e) {
-				throw new IllegalStateException("Cant output validation error "+messageService.getMessage("user.login.exists_error"),e);
+		boolean adding = (userId == 0);
+		if (adding || !userService.getById(userId).getLogin().equals(userForm.getLogin())){
+			boolean loginExists = false;
+			try {
+				loginExists = authenticationService.isLoginAlreadyInUse(userForm.getLogin(), userForm.getEmail());
+			} catch(LoginNameException e){
+				loginExists = true;
 			}
-		
+			if (loginExists){
+				try{
+					response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+					response.getWriter().println(messageService.getMessage("user.login_exists.error"));
+					return null;
+				} catch (Throwable e) {
+					throw new IllegalStateException("Cant output validation error "+messageService.getMessage("user.login_exists.error"),e);
+				}
+			
+			}
 		}
 				
 		List<UserMeta> userMetaList = getMetaHelper().getFromJsonForm(request, UserMeta.class);
 		
 		userForm.setUserMeta(userMetaList);
-
-		boolean adding = (userId == 0);
 		
 		if (adding) {
 			// set random password. We don't care what it is as new user will be prompted to

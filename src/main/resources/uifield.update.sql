@@ -25,9 +25,9 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','departmentId','metaposition','20','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','building_room','label','Room','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','building_room','metaposition','30','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','building_room','error','Room cannot be empty','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','building_room','constraint','NotEmpty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','address','label','Address','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','address','error','Address cannot be empty','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','address','constraint','NotEmpty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','address','metaposition','40','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','city','label','City','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','city','error','City cannot be empty','1');
@@ -52,12 +52,11 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','phone','constraint','NotEmpty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','phone','metaposition','90','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','fax','label','Fax','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','fax','error','Fax cannot be empty','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','fax','constraint','NotEmpty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','fax','metaposition','100','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','labusers','label','Lab Users','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','samples','label','Samples','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','jobs','label','Jobs','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','login_exists','error','Login name already exists in the database','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','login','label','Login','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','login','error','Login cannot be empty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','page','label','New User','1');
@@ -589,6 +588,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labuser','status_deactivate','label','Deactivate','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labuser','status_promoteLM','label','PROMOTE to LM','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labuser','status_demoteLU','label','DEMOTE to LU','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labuser','labUserNotFoundInLab','error','Cannot locate specified lab user in specified lab','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userDetail','edit','label','Edit','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userDetail','edit_as_other','label','Edit (as other)','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userDetail','change_password','label','Change Password','1');
