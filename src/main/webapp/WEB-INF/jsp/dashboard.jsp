@@ -20,6 +20,7 @@
   <div><a href="<c:url value="/resource/list.do"/>">Resource Utils</a></div>
   <div><a href="<c:url value="/run/list.do"/>">- Run Utils</a></div>
   <div><a href="<c:url value="/task/list.do"/>">Task Utils</a></div>
+  <div><a href="<c:url value="/workflow/list.do"/>">Workflow Utils</a></div>
   </div>
 </sec:authorize>
 
