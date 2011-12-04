@@ -386,29 +386,6 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','name','error','Job Name Must Not Be Empty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','labId','label','Lab','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','labId','error','Lab Must Not Be Empty','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','workflowId','label','Workflow','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','workflowId','error','Workflow Must Not Be Empty','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','ampliconSeq','workflow','label','LABEL:ampliconSeq','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','cgh','workflow','label','LABEL:cgh','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','workflow','label','Workflow','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','controlMicroarray','workflow','label','LABEL:controlMicroarray','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','controlSeq','workflow','label','LABEL:controlSeq','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','deNovoSeq','workflow','label','LABEL:deNovoSeq','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','digitalExpressionProfiling','workflow','label','LABEL:digitalExpressionProfiling','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','directionalRnaSeq','workflow','label','LABEL:directionalRnaSeq','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','geneExpressionSeq','workflow','label','LABEL:geneExpressionSeq','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','helpTag','workflow','label','LABEL:helpTag','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','matePairSeq','workflow','label','LABEL:matePairSeq','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','microarrayChip','workflow','label','LABEL:microarrayChip','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','microarrayGeneExpression','workflow','label','LABEL:microarrayGeneExpression','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','microarrayHelp','workflow','label','LABEL:microarrayHelp','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','mirnaSeq','workflow','label','LABEL:mirnaSeq','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','otherSeqDnaSamples','workflow','label','LABEL:otherSeqDnaSamples','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','otherSeqRnaSamples','workflow','label','LABEL:otherSeqRnaSamples','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resequencing','workflow','label','LABEL:resequencing','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','rnaSeq','workflow','label','LABEL:rnaSeq','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','seqCap','workflow','label','LABEL:seqCap','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','samples','data','samplefile;chipseqSample','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','platform','label','Platform','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','platform','constraint','NotEmpty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeqdna','platform','error','Platform cannot be empty','1');
@@ -789,11 +766,6 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','isActive','label','Active','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','resourceId','label','ResourceId','1');
 
-truncate table workflowmeta;
-insert into workflowmeta
-(workflowid, k, v)
-values
-(1, 'workflow.submitpageflow', '/jobsubmit/modifymeta/{n};/jobsubmit/aligner/{n};/jobsubmit/samples/{n};/jobsubmit/cells/{n};/jobsubmit/verify/{n};/jobsubmit/submit/{n};/jobsubmit/ok');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sysrole','noUserSpecified','error','No user specified','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sysrole','userNonexistant','error','The user specified does not exist in the database','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sysrole','noRoleSpecified','error','No role specified','1');
