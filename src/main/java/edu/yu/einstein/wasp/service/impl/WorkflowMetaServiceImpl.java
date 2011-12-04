@@ -26,7 +26,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class WorkflowMetaServiceImpl extends WaspMetaServiceImpl<WorkflowMeta> implements WorkflowMetaService {
+public class WorkflowMetaServiceImpl extends WaspServiceImpl<WorkflowMeta> implements WorkflowMetaService {
 
 	/**
 	 * workflowMetaDao;
