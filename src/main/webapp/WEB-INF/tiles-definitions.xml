@@ -240,5 +240,21 @@
 		<put-attribute name="body-content" value="/WEB-INF/jsp/task/fmpayment/payment.jsp" />
 	</definition>
 
+
+
+	<definition name="workflow/list" extends="template-base">
+		<put-attribute name="area" value="workflow" />
+		<put-attribute name="grid-columns" value="/WEB-INF/jsp/workflow/grid_columns.jsp" />
+		<put-attribute name="subgrid-columns" value="/WEB-INF/jsp/workflow/subgrid_columns.jsp" />
+        	<put-attribute name="grid-customAttributes" value="/WEB-INF/jsp/workflow/grid_customAttributes.jsp" />
+	        <put-attribute name="body-content" value="/WEB-INF/jsp/workflow/list.jsp" />
+	</definition>
+	<definition name="workflow/detail_ro" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/workflow/detail_ro.jsp" />
+	</definition>
+	<definition name="workflow/detail_rw" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/workflow/detail_rw.jsp" />
+	</definition>
+
 </tiles-definitions>
 
