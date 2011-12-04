@@ -207,15 +207,14 @@ public class UserPendingController extends WaspController {
 		}
 		
 		// form passes validation so finalize and persist userPending data and metadata		
-		String piUserLogin = userPendingMetaHelper.getMetaByName("primaryuserid").getV();
-				
+		String piUserLogin = userPendingMetaHelper.getMetaByName("primaryuserid").getV();	
+		
 		Lab lab = labService.getLabByPrimaryUserId(userService.getUserByLogin(piUserLogin).getUserId());
 		userPendingForm.setLabId(lab.getLabId());
-		userPendingForm.setStatus("WAIT_EMAIL"); // await email confirmation
+		userPendingForm.setStatus("WAIT_EMAIL"); // set to WAIT_EMAIL even if isEmailApproved == true or sendPendingUserConfRequestEmail() won't work properly
+				
 		userPendingForm.setPassword( passwordService.encodePassword(userPendingForm.getPassword()) ); 
-		
-		
-		
+				
 		List<UserPendingMeta> userPendingMetaList = (List<UserPendingMeta>) userPendingMetaHelper.getMetaList();
 		userPendingForm.setUserPendingMeta(userPendingMetaList);
 		userPendingForm.setFirstName(StringHelper.removeExtraSpacesAndCapFirstLetter(userPendingForm.getFirstName()));
@@ -226,16 +225,42 @@ public class UserPendingController extends WaspController {
 			upm.setUserpendingId(userPendingDb.getUserPendingId());
 			userPendingMetaService.save(upm);
 		}
-		
-		String authcode = AuthCode.create(20);
-		ConfirmEmailAuth confirmEmailAuth = new ConfirmEmailAuth();
-		confirmEmailAuth.setAuthcode(authcode);
-		confirmEmailAuth.setUserpendingId(userPendingDb.getUserPendingId());
-		confirmEmailAuthService.save(confirmEmailAuth);
-		emailService.sendPendingUserEmailConfirm(userPendingForm, authcode);
 		request.getSession().removeAttribute(Captcha.NAME); // ensures fresh capcha issued if required in this session
 		status.setComplete();
+		
+		if (isUserPendingEmailApproved(userPendingDb.getEmail())){ // is email address already confrimed
+			sendPendingUserConfRequestEmail(userPendingDb.getEmail()); // email PI to inform of pending user
+			return "redirect:/auth/newuser/emailok.do";
+		} else {
+			// email address not confirmed yet so request confirmation
+			String authcode = AuthCode.create(20);
+			ConfirmEmailAuth confirmEmailAuth = new ConfirmEmailAuth();
+			confirmEmailAuth.setAuthcode(authcode);
+			confirmEmailAuth.setUserpendingId(userPendingDb.getUserPendingId());
+			confirmEmailAuthService.save(confirmEmailAuth);
+			emailService.sendPendingUserEmailConfirm(userPendingForm, authcode);
+		}
 		return "redirect:/auth/newuser/created.do";
+	}
+	
+	/**
+	 * If any {@link userPending} instances with same email are not in state 'WAIT_EMAIL' we assume the email address is already confirmed 
+	 * @param email
+	 * @return boolean = email address is/is not confirmed
+	 */
+	private boolean isUserPendingEmailApproved(String email){
+		// see if pending user has already confirmed their email
+		Map confirmedEmailQueryMap = new HashMap();
+		confirmedEmailQueryMap.put("email", email);
+		for (UserPending up: (List<UserPending>) userPendingService.findByMap(confirmedEmailQueryMap)){
+			// if any userPending instances with same email are not in state WAIT_EMAIL we assume the email address
+			// is already confirmed
+			if (!up.getStatus().equals("WAIT_EMAIL")){
+				return true;
+			}
+				
+		}
+		return false;
 	}
 	
 	/**
@@ -322,13 +347,14 @@ public class UserPendingController extends WaspController {
 	 * @param status
 	 * @param m model
 	 * @return view
+	 * @throws MetadataException 
 	 */
 	@RequestMapping(value="/newpi/form", method=RequestMethod.POST)
 	public String createNewPendingPi (
 			 @Valid UserPending userPendingForm, 
 			 BindingResult result,
 			 SessionStatus status, 
-			 ModelMap m) {
+			 ModelMap m) throws MetadataException {
 		
 		MetaHelper metaHelper=getMetaHelper();
 		
@@ -411,15 +437,22 @@ public class UserPendingController extends WaspController {
 			upm.setUserpendingId(userPendingDb.getUserPendingId());
 		}
 		userPendingMetaService.updateByUserpendingId(userPendingDb.getUserPendingId(), userPendingMetaList);
-		String authcode = AuthCode.create(20);
-		ConfirmEmailAuth confirmEmailAuth = new ConfirmEmailAuth();
-		confirmEmailAuth.setAuthcode(authcode);
-		confirmEmailAuth.setUserpendingId(userPendingDb.getUserPendingId());
-		confirmEmailAuthService.save(confirmEmailAuth);
-		emailService.sendPendingPIEmailConfirm(userPendingForm, authcode);
 		request.getSession().removeAttribute(Captcha.NAME); // ensures fresh capcha issued if required in this session
 		request.getSession().removeAttribute("visibilityElementMap"); // remove visibilityElementMap from the session
 		status.setComplete();
+		
+		if (isUserPendingEmailApproved(userPendingDb.getEmail())){ // is email already confirmed
+			sendPendingUserConfRequestEmail(userPendingDb.getEmail()); // email DA to inform of pending lab request
+			return "redirect:/auth/newpi/emailok.do";
+		} else {
+			// email address not confirmed yet so request confirmation
+			String authcode = AuthCode.create(20);
+			ConfirmEmailAuth confirmEmailAuth = new ConfirmEmailAuth();
+			confirmEmailAuth.setAuthcode(authcode);
+			confirmEmailAuth.setUserpendingId(userPendingDb.getUserPendingId());
+			confirmEmailAuthService.save(confirmEmailAuth);
+			emailService.sendPendingPIEmailConfirm(userPendingForm, authcode);
+		}
 		return "redirect:/auth/newpi/created.do";
 	}
 	
@@ -467,7 +500,7 @@ public class UserPendingController extends WaspController {
 		// consider email confirmed for ALL pending user and lab applications linked to this validated email address
 		for (UserPending up: userPendingList){
 			ConfirmEmailAuth auth = confirmEmailAuthService.getConfirmEmailAuthByUserpendingId(up.getUserPendingId());
-			if (auth.getUserpendingId() != 0){
+			if (auth.getConfirmEmailAuthId() != 0){
 				confirmEmailAuthService.remove(auth);
 			}
 			up.setStatus("PENDING");
