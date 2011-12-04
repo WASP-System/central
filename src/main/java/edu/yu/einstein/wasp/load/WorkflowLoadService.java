@@ -4,6 +4,9 @@ import edu.yu.einstein.wasp.service.WorkflowService;
 import edu.yu.einstein.wasp.service.UiFieldService;
 import edu.yu.einstein.wasp.service.SubtypeSampleService;
 import edu.yu.einstein.wasp.service.WorkflowsubtypesampleService;
+import edu.yu.einstein.wasp.service.WorkflowtyperesourceService;
+import edu.yu.einstein.wasp.service.TypeResourceService;
+import edu.yu.einstein.wasp.service.WorkflowMetaService;
 
 import edu.yu.einstein.wasp.service.StateService;
 import edu.yu.einstein.wasp.model.*;
@@ -31,6 +34,9 @@ public class WorkflowLoadService {
   private WorkflowService workflowService;
 
   @Autowired
+  private WorkflowMetaService workflowMetaService;
+
+  @Autowired
   private UiFieldService uiFieldService;
 
   @Autowired
@@ -38,6 +44,12 @@ public class WorkflowLoadService {
 
   @Autowired
   private WorkflowsubtypesampleService workflowsubtypesampleService;
+
+  @Autowired
+  private WorkflowtyperesourceService workflowtyperesourceService;
+
+  @Autowired
+  TypeResourceService typeResourceService;
 
   @Autowired
   StateService stateService;
@@ -60,6 +72,9 @@ public class WorkflowLoadService {
   private Set<String> subtypeSamples;
   public void setSubtypeSamples(Set<String> subtypeSamples) {this.subtypeSamples = subtypeSamples; }
 
+  private List<WorkflowMeta> meta; 
+  public void setMeta(List<WorkflowMeta> workflowMeta) {this.meta = workflowMeta; }
+
   Workflow workflow;
   public void setWorkflow(Workflow workflow) {this.workflow = workflow; }
 
@@ -72,7 +87,6 @@ public class WorkflowLoadService {
     if (iname == null) { return; }
 
 
-
     workflow = workflowService.getWorkflowByIName(iname); 
 
     // inserts or update workflow
@@ -81,6 +95,7 @@ public class WorkflowLoadService {
 
       workflow.setIName(iname);
       workflow.setName(name);
+      workflow.setIsActive(0);
       workflow.setCreatets(new Date());
 
       workflowService.save(workflow); 
@@ -116,6 +131,51 @@ public class WorkflowLoadService {
       if (uiField.getName().equals("pageflow")) { continue; }
       uiFieldService.save(uiField); 
     }
+
+
+    // sync metas
+    int lastPosition = 0;
+    Map<String, WorkflowMeta> oldWorkflowMetas  = new HashMap<String, WorkflowMeta>();
+    for (WorkflowMeta workflowMeta: workflow.getWorkflowMeta()) {
+      oldWorkflowMetas.put(workflowMeta.getK(), workflowMeta);
+    }
+    for (WorkflowMeta workflowMeta: meta) {
+
+      // incremental position numbers.
+      if ( workflowMeta.getPosition() == 0 ||
+           workflowMeta.getPosition() <= lastPosition
+        )  {
+        workflowMeta.setPosition(lastPosition +1);
+      }
+      lastPosition = workflowMeta.getPosition();
+
+      if (oldWorkflowMetas.containsKey(workflowMeta.getK())) {
+        WorkflowMeta old = oldWorkflowMetas.get(workflowMeta.getK());
+        if ( old.getV().equals(workflowMeta.getV()) &&
+            old.getPosition() == workflowMeta.getPosition()) {
+          // the same
+          continue;
+        }
+        // different
+        old.setV(workflowMeta.getV());
+        old.setPosition(workflowMeta.getPosition());
+        workflowMetaService.save(old);
+
+        oldWorkflowMetas.remove(old.getK());
+        continue;
+      }
+
+      workflowMeta.setWorkflowId(workflow.getWorkflowId());
+      workflowMetaService.save(workflowMeta);
+    }
+
+    // delete the left overs
+    for (String workflowMetaKey : oldWorkflowMetas.keySet()) {
+      WorkflowMeta workflowMeta = oldWorkflowMetas.get(workflowMetaKey);
+      workflowMetaService.remove(workflowMeta);
+      workflowMetaService.flush(workflowMeta);
+    }
+
 
 
     String pageFlowString = StringUtils.collectionToDelimitedString(pageFlowOrder, ";");
@@ -192,7 +252,27 @@ public class WorkflowLoadService {
 
 
 
-     
+    // update dependencies
+    // TODO: insert/update instead of delete insert
+    List<Workflowtyperesource> oldWorkflowtyperesources = workflow.getWorkflowtyperesource();
+    for (Workflowtyperesource oldWorkflowtyperesource: oldWorkflowtyperesources) {
+      workflowtyperesourceService.remove(oldWorkflowtyperesource);
+      workflowtyperesourceService.flush(oldWorkflowtyperesource);
+    }
+
+    for (String dependency: dependencies) { 
+System.out.println("\n\n\nXXXX: " + dependency + "\n\n\n");
+      TypeResource typeResource = typeResourceService.getTypeResourceByIName(dependency);
+      Workflowtyperesource workflowtyperesource = new Workflowtyperesource(); 
+
+      workflowtyperesource.setWorkflowId(workflow.getWorkflowId()); 
+      workflowtyperesource.setTypeResourceId(typeResource.getTypeResourceId()); 
+
+System.out.println("\n\n\nX type worfkowid: " + workflowtyperesource.getWorkflowId() + "\n\n\n");
+System.out.println("\n\n\nX type workflowtyperesource: " + workflowtyperesource.getTypeResourceId() + "\n\n\n");
+
+      workflowtyperesourceService.save(workflowtyperesource);
+    }
 
 
 
