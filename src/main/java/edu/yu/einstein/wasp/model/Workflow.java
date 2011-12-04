@@ -377,4 +377,70 @@ public class Workflow extends WaspModel {
 
 
 
+	/** 
+	 * workflowtyperesource
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="workflowid", insertable=false, updatable=false)
+	protected List<Workflowtyperesource> workflowtyperesource;
+
+
+	/** 
+	 * getWorkflowtyperesource()
+	 *
+	 * @return workflowtyperesource
+	 *
+	 */
+	public List<Workflowtyperesource> getWorkflowtyperesource() {
+		return this.workflowtyperesource;
+	}
+
+
+	/** 
+	 * setWorkflowtyperesource
+	 *
+	 * @param workflowtyperesource
+	 *
+	 */
+	public void setWorkflowtyperesource (List<Workflowtyperesource> workflowtyperesource) {
+		this.workflowtyperesource = workflowtyperesource;
+	}
+
+
+
+	/** 
+	 * workflowresource
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="workflowid", insertable=false, updatable=false)
+	protected List<Workflowresource> workflowresource;
+
+
+	/** 
+	 * getWorkflowresource()
+	 *
+	 * @return workflowresource
+	 *
+	 */
+	public List<Workflowresource> getWorkflowresource() {
+		return this.workflowresource;
+	}
+
+
+	/** 
+	 * setWorkflowresource
+	 *
+	 * @param workflowresource
+	 *
+	 */
+	public void setWorkflowresource (List<Workflowresource> workflowresource) {
+		this.workflowresource = workflowresource;
+	}
+
+
+
 }
