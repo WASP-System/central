@@ -364,6 +364,7 @@ create table typeresource (
 
 insert into typeresource values (1, 'dna', 'DNA Sequencer'); 
 insert into typeresource values (2, 'amplicon', 'DNA Amplicon'); 
+insert into typeresource values (3, 'aligner', 'Aligner'); 
 
 --
 -- RESOURCE
@@ -433,7 +434,7 @@ create table workflow (
   name varchar(250) not null, 
   createts datetime not null,
 
-  isactive int(1) not null default 1,
+  isactive int(1) not null default 0,
   lastupdts timestamp not null default current_timestamp,
   lastupduser int(10) not null default 0,
 
@@ -680,6 +681,32 @@ create table workflowsubtypesample (
   foreign key fk_workflowsubtypesample_stsid (subtypesampleid) references subtypesample(subtypesampleid),
   foreign key fk_workflowsubtypesample_wid (workflowid) references workflow(workflowid)
 ) ENGINE=InnoDB charset=utf8;
+
+
+
+create table workflowtyperesource (
+  workflowtyperesourceid int(10) not null primary key auto_increment, 
+  workflowid int(10) not null,
+  typeresourceid int(10) not null,
+
+  constraint unique index u_workflowtyperesource_wid_trid (workflowid, typeresourceid),
+
+  foreign key fk_workflowtyperesource_trid (typeresourceid) references typeresource(typeresourceid),
+  foreign key fk_workflowtyperesource_wid (workflowid) references workflow(workflowid)
+) ENGINE=InnoDB charset=utf8;
+
+create table workflowresource (
+  workflowresourceid int(10) not null primary key auto_increment, 
+  workflowid int(10) not null,
+  resourceid int(10) not null,
+
+  constraint unique index u_workflowtyperesource_wid_rid (workflowid, resourceid),
+
+  foreign key fk_workflowtyperesource_rid (resourceid) references resource(resourceid),
+  foreign key fk_workflowtyperesource_wid (workflowid) references workflow(workflowid)
+) ENGINE=InnoDB charset=utf8;
+
+
 
 create table sample (
   sampleid int(10) not null primary key auto_increment,
