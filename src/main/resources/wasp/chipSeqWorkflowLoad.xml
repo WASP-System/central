@@ -34,7 +34,8 @@
 
     <property name="dependencies">
       <list>
-        <value>Aligner</value>
+        <value>dna</value>
+        <value>aligner</value>
       </list>
     </property>
 
@@ -71,6 +72,15 @@
           <property name="name" value="other" />
           <property name="attrName" value="label" />
           <property name="attrValue" value="Other Workflow Field" />
+        </bean>
+      </list>
+    </property>
+
+    <property name="meta">
+      <list>
+        <bean class="edu.yu.einstein.wasp.model.WorkflowMeta">
+          <property name="k" value="metaA" /> 
+          <property name="v" value="metaAValue" />
         </bean>
       </list>
     </property>
