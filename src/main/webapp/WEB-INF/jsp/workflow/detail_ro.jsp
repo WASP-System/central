@@ -18,6 +18,16 @@ isActive:
 	<font color="blue"><wasp:message /> </font>
 </p>
 
+Resources:
+    <c:forEach items="${workflow.workflowresource}" var="r">
+<p>
+<c:out value="${r.resource.resourceId}" />
+<c:out value="${r.resource.name}" />
+<c:out value="${r.resource.platform}" />
+<c:out value="${r.resource.typeResource.name}" />
+</p>
+    </c:forEach>
+
 <table>
 
 	<c:set var="_area" value="workflow" scope="request" />
