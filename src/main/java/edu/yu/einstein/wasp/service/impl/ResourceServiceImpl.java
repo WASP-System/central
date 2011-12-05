@@ -61,8 +61,8 @@ public class ResourceServiceImpl extends WaspServiceImpl<Resource> implements Re
     return this.getResourceDao().getResourceByResourceId(resourceId);
   }
 
-  public Resource getResourceByName (final String name) {
-    return this.getResourceDao().getResourceByName(name);
+  public Resource getResourceByIName (final String iName) {
+    return this.getResourceDao().getResourceByIName(iName);
   }
 
 }
