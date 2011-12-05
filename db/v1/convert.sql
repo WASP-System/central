@@ -9502,7 +9502,7 @@
       insert into usermeta
       (userid, k, v, position)
       values
-      (5, 'user.fax', '�', 10);
+      (5, 'user.fax', '', 10);
     
     insert into user
     (userid, login, password, email, firstname, lastname, isactive)
