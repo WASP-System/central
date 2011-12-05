@@ -45,7 +45,9 @@ import edu.yu.einstein.wasp.model.JobCell;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftCell;
 import edu.yu.einstein.wasp.model.JobDraftMeta;
+import edu.yu.einstein.wasp.model.JobDraftresource;
 import edu.yu.einstein.wasp.model.JobMeta;
+import edu.yu.einstein.wasp.model.JobResource;
 import edu.yu.einstein.wasp.model.JobSample;
 import edu.yu.einstein.wasp.model.JobUser;
 import edu.yu.einstein.wasp.model.Lab;
@@ -59,6 +61,8 @@ import edu.yu.einstein.wasp.model.SampleDraftCell;
 import edu.yu.einstein.wasp.model.SampleDraftMeta;
 import edu.yu.einstein.wasp.model.SampleFile;
 import edu.yu.einstein.wasp.model.SampleMeta;
+import edu.yu.einstein.wasp.model.Resource;
+import edu.yu.einstein.wasp.model.ResourceMeta;
 import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.Statejob;
 import edu.yu.einstein.wasp.model.Task;
@@ -69,16 +73,19 @@ import edu.yu.einstein.wasp.model.WorkflowMeta;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobCellService;
+import edu.yu.einstein.wasp.service.JobDraftService;
 import edu.yu.einstein.wasp.service.JobDraftCellService;
 import edu.yu.einstein.wasp.service.JobDraftMetaService;
-import edu.yu.einstein.wasp.service.JobDraftService;
+import edu.yu.einstein.wasp.service.JobDraftresourceService;
 import edu.yu.einstein.wasp.service.JobMetaService;
+import edu.yu.einstein.wasp.service.JobResourceService;
 import edu.yu.einstein.wasp.service.JobSampleService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.JobUserService;
 import edu.yu.einstein.wasp.service.LabService;
 import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.RoleService;
+import edu.yu.einstein.wasp.service.ResourceService;
 import edu.yu.einstein.wasp.service.SampleCellService;
 import edu.yu.einstein.wasp.service.SampleDraftCellService;
 import edu.yu.einstein.wasp.service.SampleDraftMetaService;
@@ -112,6 +119,12 @@ public class JobSubmissionController extends WaspController {
 	private JobDraftCellService jobDraftCellService;
 
 	@Autowired
+	private JobDraftresourceService jobDraftresourceService;
+
+	@Autowired
+	private JobResourceService jobResourceService;
+
+	@Autowired
 	private SampleDraftService sampleDraftService;
 
 	@Autowired
@@ -132,6 +145,9 @@ public class JobSubmissionController extends WaspController {
 
 	@Autowired
 	private RoleService roleService;
+
+	@Autowired
+	private ResourceService resourceService;
 
 	@Autowired
 	private JobMetaService jobMetaService;
@@ -196,45 +212,45 @@ public class JobSubmissionController extends WaspController {
 	public String nextPage(JobDraft jobDraft) {
 		String pageFlow = this.defaultPageFlow;
 
-	try {
-		List<WorkflowMeta> wfmList = jobDraft.getWorkflow().getWorkflowMeta();
-		for (WorkflowMeta wfm : wfmList) {
-			if (wfm.getK().equals("workflow.submitpageflow")) {
-				pageFlow = wfm.getV();
+		try {
+			List<WorkflowMeta> wfmList = jobDraft.getWorkflow().getWorkflowMeta();
+			for (WorkflowMeta wfm : wfmList) {
+				if (wfm.getK().equals("workflow.submitpageflow")) {
+					pageFlow = wfm.getV();
+					break;
+			}
+		}
+		} catch (Exception e) {
+		}
+
+		String context = request.getContextPath();
+		String uri = request.getRequestURI();
+		String path = request.getServletPath();
+
+		// strips context, lead slash ("/"), spring mapping
+		String currentMapping = uri.replaceFirst(context, "").replaceFirst("\\.do.*$", "");
+
+
+		String pageFlowArray[] = pageFlow.split(";");
+
+		int found = -1;
+		for (int i=0; i < pageFlowArray.length -1; i++) {
+			String page = pageFlowArray[i];
+			page = page.replaceAll("\\{n\\}", ""+jobDraft.getJobDraftId());
+	
+			if (currentMapping.equals(page)) {
+				found = i;
 				break;
+			}
 		}
-		}
-	} catch (Exception e) {
+
+
+		String targetPage = pageFlowArray[found+1] + ".do"; 
+
+		targetPage = targetPage.replaceAll("\\{n\\}", ""+jobDraft.getJobDraftId());
+
+		return "redirect:" + targetPage;
 	}
-
-	String context = request.getContextPath();
-	String uri = request.getRequestURI();
-	String path = request.getServletPath();
-
-	// strips context, lead slash ("/"), spring mapping
-	String currentMapping = uri.replaceFirst(context, "").replaceFirst("\\.do.*$", "");
-
-
-	String pageFlowArray[] = pageFlow.split(";");
-
-	int found = -1;
-	for (int i=0; i < pageFlowArray.length -1; i++) {
-		String page = pageFlowArray[i];
-		page = page.replaceAll("\\{n\\}", ""+jobDraft.getJobDraftId());
-
-		if (currentMapping.equals(page)) {
-			found = i;
-			break;
-		}
-	}
-
-
-	String targetPage = pageFlowArray[found+1] + ".do"; 
-
-	targetPage = targetPage.replaceAll("\\{n\\}", ""+jobDraft.getJobDraftId());
-
-	return "redirect:" + targetPage;
-}
 	
 	@RequestMapping(value="/list", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('lu-*')")
@@ -268,7 +284,11 @@ public class JobSubmissionController extends WaspController {
 			}
 		}
 
-		List <Workflow> workflowList = workflowService.findAll();
+
+    // filter active
+		Map workflowQueryMap = new HashMap();
+		m.put("isActive", 1);
+		List <Workflow> workflowList = workflowService.findByMap(workflowQueryMap);
 
 		m.put("labs", labList); 
 		m.put("workflows", workflowList); 
@@ -392,8 +412,11 @@ public class JobSubmissionController extends WaspController {
 		MetaHelper metaHelper = getMetaHelper();
 		metaHelper.setArea(jobDraft.getWorkflow().getIName());
 
-		// jobDraft.setJobDraftMeta(metaHelper.getMasterList(JobDraftMeta.class));
-		jobDraft.setJobDraftMeta(metaHelper.syncWithMaster(jobDraft.getJobDraftMeta()));
+		jobDraft.setJobDraftMeta(metaHelper.getMasterList(JobDraftMeta.class));
+		// jobDraft.setJobDraftMeta(metaHelper.syncWithMaster(jobDraft.getJobDraftMeta()));
+
+		List workflowTypeResources = jobDraft.getWorkflow().getWorkflowtyperesource();
+
 
 		m.put("jobDraftDb", jobDraft);
 		m.put("jobDraft", jobDraft);
@@ -401,9 +424,11 @@ public class JobSubmissionController extends WaspController {
 		m.put("parentarea", metaHelper.getParentArea());
 
 		m.put("workflowiname", jobDraft.getWorkflow().getIName());
+		m.put("workflowTypeResources", workflowTypeResources);
 
 		return "jobsubmit/metaform";
 	}
+
 	
 	@RequestMapping(value="/modifymeta/{jobDraftId}", method=RequestMethod.POST)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
@@ -431,6 +456,10 @@ public class JobSubmissionController extends WaspController {
 
 		metaHelper.validate(jobDraftMetaList, result);
 
+		List<String> jobResourceIdList = new ArrayList<String>(Arrays.asList((String[]) request.getParameterMap().get("jobdraftresource")));
+
+		// TODO!!! validate resources
+
 		if (result.hasErrors()) {
 			waspMessage("hello.error");
 
@@ -441,10 +470,107 @@ public class JobSubmissionController extends WaspController {
 			return "jobsubmit/metaform";
 		}
 
+
+		// replace job draft resource
+		for(JobDraftresource oldJobDraftresource: jobDraft.getJobDraftresource()) {
+			jobDraftresourceService.remove(oldJobDraftresource);			
+			jobDraftresourceService.flush(oldJobDraftresource);			
+		}
+		for(String jobResourceIdStr: jobResourceIdList) {
+      Integer i = new Integer(jobResourceIdStr); 
+		  // TODO: test i is a real resource id and a valid number
+
+			JobDraftresource jobDraftresource = new JobDraftresource();
+			jobDraftresource.setJobdraftId(jobDraft.getJobDraftId());
+			jobDraftresource.setResourceId(i);
+			jobDraftresourceService.save(jobDraftresource); 
+		}
+
+
 		jobDraftMetaService.updateByJobdraftId(metaHelper.getArea(), jobDraftId, jobDraftMetaList);
 
 		return nextPage(jobDraft);
 	}
+
+	@RequestMapping(value="/resource/{typeresourceiname}/{jobDraftId}", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String showResourceMetaForm(
+			@PathVariable("typeresourceiname") String typeresourceiname, 
+			@PathVariable("jobDraftId") Integer jobDraftId, 
+			ModelMap m) {
+		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
+
+		String resourceArea = ""; 
+		String resourceName = ""; 
+		for (JobDraftresource jdr: jobDraft.getJobDraftresource()) {
+      if (! typeresourceiname.equals( jdr.getResource().getTypeResource().getIName())) { continue; }
+
+      resourceArea = jdr.getResource().getIName(); 
+      resourceName = jdr.getResource().getName(); 
+		}
+
+		MetaHelper metaHelper = getMetaHelper();
+		metaHelper.setArea(resourceArea);
+
+		// jobDraft.setJobDraftMeta(metaHelper.getMasterList(JobDraftMeta.class));
+		jobDraft.setJobDraftMeta(metaHelper.syncWithMaster(jobDraft.getJobDraftMeta()));
+
+		//  TODO if ! resourceArea .. nextpage
+		//  TODO if ! count(meta) == 0 .. nextpage
+
+		m.put("jobDraftDb", jobDraft);
+		m.put("jobDraft", jobDraft);
+		m.put("name",  resourceName);
+		m.put("area", metaHelper.getArea());
+		m.put("parentarea", metaHelper.getParentArea());
+
+		return "jobsubmit/aligner";
+	}
+
+	@RequestMapping(value="/resource/{typeresourceiname}/{jobDraftId}", method=RequestMethod.POST)
+	public String modifyResourceMeta (
+			@PathVariable String typeresourceiname,
+			@PathVariable Integer jobDraftId,
+			@Valid JobDraft jobDraftForm,
+			BindingResult result,
+			SessionStatus status,
+			ModelMap m) {
+		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
+
+		String resourceArea = ""; 
+		String resourceName = ""; 
+		for (JobDraftresource jdr: jobDraft.getJobDraftresource()) {
+      if (! typeresourceiname.equals( jdr.getResource().getTypeResource().getIName())) { continue; }
+
+      resourceArea = jdr.getResource().getIName(); 
+      resourceName = jdr.getResource().getName(); 
+		}
+
+		MetaHelper metaHelper = getMetaHelper();
+		metaHelper.setArea(resourceArea);
+
+		List<JobDraftMeta> jobDraftMetaList = metaHelper.getFromRequest(request, JobDraftMeta.class);
+
+		jobDraftForm.setJobDraftMeta(jobDraftMetaList);
+		metaHelper.validate(jobDraftMetaList, result);
+
+		if (result.hasErrors()) {
+			waspMessage("hello.error");
+			m.put("jobDraftDb", jobDraft);
+			m.put("area", metaHelper.getArea());
+			m.put("parentarea", metaHelper.getParentArea());
+
+			return "jobsubmit/metaform";
+		}
+
+
+
+		jobDraftMetaService.updateByJobdraftId(metaHelper.getArea(), jobDraftId, jobDraftMetaList);
+
+		return nextPage(jobDraft);
+	}
+
+
 
 	@RequestMapping(value="/additionalMeta/{meta}/{jobDraftId}", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
@@ -463,7 +589,6 @@ public class JobSubmissionController extends WaspController {
 			alignerArea = jdm.getV();
 			alignerJdm = jdm;
 		}
-		
 
 		MetaHelper metaHelper = getMetaHelper();
 		metaHelper.setArea(alignerArea);
@@ -506,18 +631,17 @@ public class JobSubmissionController extends WaspController {
 		metaHelper.setArea(ametaArea);
 		List<JobDraftMeta> jobDraftMetaList = metaHelper.getFromRequest(request, JobDraftMeta.class);
 
-    jobDraftForm.setJobDraftMeta(jobDraftMetaList);
-    metaHelper.validate(jobDraftMetaList, result);
+		jobDraftForm.setJobDraftMeta(jobDraftMetaList);
+		metaHelper.validate(jobDraftMetaList, result);
 
-    if (result.hasErrors()) {
-      waspMessage("hello.error");
+		if (result.hasErrors()) {
+			waspMessage("hello.error");
+			m.put("jobDraftDb", jobDraft);
+			m.put("area", metaHelper.getArea());
+			m.put("parentarea", metaHelper.getParentArea());
 
-      m.put("jobDraftDb", jobDraft);
-      m.put("area", metaHelper.getArea());
-      m.put("parentarea", metaHelper.getParentArea());
-
-      return "jobsubmit/metaform";
-    }
+			return "jobsubmit/metaform";
+		}
 
 
 		// removes old aligners
@@ -697,6 +821,7 @@ public class JobSubmissionController extends WaspController {
 				}
 
 				libraryindex++;
+
 				SampleDraftCell sampleDraftCell = new SampleDraftCell();
 
 				sampleDraftCell.setJobdraftcellId(thisJobDraftCell.getJobDraftCellId());
@@ -794,6 +919,14 @@ public class JobSubmissionController extends WaspController {
 			jobMeta.setV(jdm.getV());
 
 			jobMetaService.save(jobMeta); 
+		}
+
+		for (JobDraftresource jdr: jobDraft.getJobDraftresource()) {
+			JobResource jobResource = new JobResource();
+			jobResource.setJobId(jobDb.getJobId());
+			jobResource.setResourceId(jdr.getResourceId());
+
+			jobResourceService.save(jobResource); 
 		}
 
 		// Creates the JobUser Permission
