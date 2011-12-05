@@ -32,26 +32,32 @@ import edu.yu.einstein.wasp.model.State;
  * @Author Sasha Levchuk
  */
 public class JQFieldTag extends BodyTagSupport {
-	
+
+	//name of the request attribute to fetch area name from
 	public static final String AREA_ATTR="_area";
 	
 	Logger log=Logger.getLogger(JQFieldTag.class);
 	
+	
+	//field name
 	private String name;
 	
+	//fields object class to lookup constarints
 	private String object;
 	
-
+	//fields HTML type 
 	private Type type;
 	
+	//list of options to render html select input element
 	private Object items;
 	
+	//Name of the property mapped to 'value' attribute of the 'option' tag
 	private String itemLabel;
 	
+	//Name of the property mapped to the inner text of the 'option' tag
 	private String itemValue;
 	
   
-	
 	public void setItems(Object items) {
 		this.items = items;
 	}
@@ -101,9 +107,7 @@ public class JQFieldTag extends BodyTagSupport {
 		this.name = name;
 	}
 
-	
-
-	
+	//get locale-specifi message
 	private String getMessage(String key, String defaultMessage) {
 		String r=getMessage(key);
 		
@@ -124,7 +128,7 @@ public class JQFieldTag extends BodyTagSupport {
 		
 		if (object==null) {
 			String objectStr=(String)((HttpServletRequest)this.pageContext.getRequest()).getAttribute(AREA_ATTR);
-			if (objectStr==null) throw new JspException("'object' tag parameter or "+AREA_ATTR+" request attribute are required");
+			if (objectStr==null) throw new JspException("either 'object' tag parameter or "+AREA_ATTR+" request attribute are required");
 			object=objectStr;
 		}
 
@@ -133,6 +137,7 @@ public class JQFieldTag extends BodyTagSupport {
 		
 		try {
 		
+			//get class of the "object"
 			Class clazz=null;
 			
 			String area=object;
@@ -150,6 +155,7 @@ public class JQFieldTag extends BodyTagSupport {
 				
 			}
 		
+			//check if the filed is "required" 
 			boolean required=false;
 			
 			try {
@@ -159,15 +165,19 @@ public class JQFieldTag extends BodyTagSupport {
 			}
 			
 				
+			//get error message to display if constraint validation fails
 			String error="error:'"+getMessage(area+"."+name+".error","")+"',\n";
 								
+			//get column label
 			String label=getMessage(area+"."+name+".label");
 				
+			//get suffix to show after field's input 
 			String suffix=getMessage(area+"."+name+".suffix","");
 		
 			String editrules="{}";
 			String formoptions="{}";
 			
+			//display red star if the field is required
 			if (required) {
 				editrules="{custom:true,custom_func:_validate_required}";
 				formoptions="{elmsuffix:'"+suffix+"<font color=red>*</font>'}";
@@ -175,8 +185,7 @@ public class JQFieldTag extends BodyTagSupport {
 				formoptions="{elmsuffix:'"+suffix+"'}";
 			}
 			
-			
-		
+			//init js column definition 
 		String buf="var "+jsName+"={\n"+
 		 "name:'"+name+"',\n"+
 		 "label:'"+label+"',\n"+
@@ -196,6 +205,7 @@ public class JQFieldTag extends BodyTagSupport {
 				"}\n\n"+
 		 "};\n";
 	
+		//add type-specific parameters to field definition
 		if (type==Type.select) {
 			
 			if (this.items==null) {
@@ -259,6 +269,7 @@ public class JQFieldTag extends BodyTagSupport {
 		return BodyTagSupport.EVAL_PAGE;
 	}
 	
+	//replace "#field" tokens in tag body with real name 
 	public int doEndTag() throws javax.servlet.jsp.JspException {
 		//append body of the tag
 		String body="";
@@ -281,6 +292,8 @@ public class JQFieldTag extends BodyTagSupport {
 		
 		return EVAL_PAGE;
 	}
+	
+	//build JSON - formatted string suitable for building JQGrid HTML select dropdowns 
 	private String getOptions() throws JspException {
 		Map map = new TreeMap();
 		
@@ -315,10 +328,13 @@ public class JQFieldTag extends BodyTagSupport {
 		
 	}
 
+		//render HTML select data structure from array
 	   	private String renderFromArray() throws JspException {
 	   		return doRenderFromCollection(CollectionUtils.arrayToList(this.items));
 	   	}
 	
+	   	
+		//render HTML select data structure from array
 	   	private String renderFromMap() throws JspException {
 	   	
 	  		Map optionMap = (Map) this.items;
@@ -337,11 +353,13 @@ public class JQFieldTag extends BodyTagSupport {
 	   	}
 	   
 	
+		//render HTML select data structure from collection
 	   	private String renderFromCollection() throws JspException {
 	   		return doRenderFromCollection((Collection) this.items);
 	   	}
 	
-	   	private String doRenderFromCollection(Collection optionCollection) throws JspException {
+	   //render HTML select data structure from collection
+	    private String doRenderFromCollection(Collection optionCollection) throws JspException {
 	   		try {
 	   				   				   			
 	   		ObjectMapper mapper = new ObjectMapper();
@@ -349,26 +367,6 @@ public class JQFieldTag extends BodyTagSupport {
 	   			   		
 	   		
 	   		return " "+object+"_"+name+".jq['editoptions']['value']="+json+";";
-	   		
-			/*
-			String jsName= "_"+name+"_list";
-			StringBuffer buf=new StringBuffer();
-			
-			buf.append("var="+jsName+"="+json+";\n");
-			
-			
-			buf.append(
-			"var _tmpArr=[];"+
-			"for(lKey in "+jsName+")\n"+
-			"  var opt="+jsName+"[lKey];\n"+
-			" _tmpArr.push({opt['+"+this.itemValue+"+']:opt['+"+this.itemLabel+"+']}\n"+
-			"}\n"
-			);
-			
-			buf.append( " "+name+".jq['editoptions']['value']=_tmpArr;");
-			
-	   		
-			return buf.toString();*/
 	   		
 	   		} catch (Throwable e) {
 	   			log.error("Cant convert "+items,e);
