@@ -51,7 +51,7 @@
         <property name="keyName" value="ENVIRONMENT"/>
     </bean>
 
-<!--  Use this to set additional properties on beans at run time -->
+    <!--  Use this to set additional properties on beans at run time -->
     <bean id="overrideProperties" class="org.springframework.beans.factory.config.PropertyOverrideConfigurer"
         depends-on="environment">
         <property name="location" value="classpath:batch-mysql.properties" />
@@ -86,7 +86,7 @@
 
     <bean id="lobHandler" class="org.springframework.jdbc.support.lob.DefaultLobHandler"/>
     
-    <!--WARNING:REMOVE IN PRODUCTION!  Initialise the database before every run -->
+    <!--WARNING:REMOVE IN PRODUCTION!  Initialise the database before every run. Sasha -->
     <bean id="dataSourceInitializer" class="test.jdbc.datasource.DataSourceInitializer">
         <property name="dataSource" ref="dataSource"/>
         <property name="initialize" value="true"/>
