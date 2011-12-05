@@ -8,9 +8,12 @@ import edu.yu.einstein.wasp.service.WorkflowtyperesourceService;
 import edu.yu.einstein.wasp.service.TypeResourceService;
 import edu.yu.einstein.wasp.service.WorkflowMetaService;
 
+import edu.yu.einstein.wasp.service.impl.WaspMessageSourceImpl;
+
 import edu.yu.einstein.wasp.service.StateService;
 import edu.yu.einstein.wasp.model.*;
 
+import java.util.Locale; 
 import java.util.Map; 
 import java.util.HashMap; 
 import java.util.Set; 
@@ -22,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.*;
+import org.springframework.context.MessageSource;
 
 import org.springframework.util.StringUtils;
 
@@ -50,6 +54,10 @@ public class WorkflowLoadService {
 
   @Autowired
   TypeResourceService typeResourceService;
+
+  @Autowired
+  private MessageSource messageSource;
+
 
   @Autowired
   StateService stateService;
@@ -118,18 +126,26 @@ public class WorkflowLoadService {
     m.put("locale", "en_US");
     m.put("area", iname);
     List<UiField> oldUiFields = uiFieldService.findByMap(m);
-// System.out.println("*******************************\n");
     for (UiField uiField: oldUiFields) {
-// System.out.println("----------- " + uiField.getUiFieldId() +" \n");
       uiFieldService.remove(uiField); 
       uiFieldService.flush(uiField); 
     }
 
     // sets up the new
-    for (UiField uiField: uiFields) {
+    for (UiField f: uiFields) {
       // skips pageflow
-      if (uiField.getName().equals("pageflow")) { continue; }
-      uiFieldService.save(uiField); 
+      if (f.getName().equals("pageflow")) { continue; }
+
+      String key = f.getArea() + "." + f.getName() + "."
+          + f.getAttrName();
+      String lang = f.getLocale().substring(0, 2);
+      String cntry = f.getLocale().substring(3);
+
+      Locale locale = new Locale(lang, cntry);
+
+      ((WaspMessageSourceImpl) messageSource).addMessage(key, locale, f.getAttrValue());
+
+      uiFieldService.save(f); 
     }
 
 
@@ -159,6 +175,7 @@ public class WorkflowLoadService {
         // different
         old.setV(workflowMeta.getV());
         old.setPosition(workflowMeta.getPosition());
+
         workflowMetaService.save(old);
 
         oldWorkflowMetas.remove(old.getK());
@@ -178,46 +195,18 @@ public class WorkflowLoadService {
 
 
 
+    // TODO update instead of delete/insert
+
     String pageFlowString = StringUtils.collectionToDelimitedString(pageFlowOrder, ";");
 
-    /*
-    // old UiPageflow fields
-    m = new HashMap();
-    m.put("locale", "en_US");
-    m.put("area", iname);
-    m.put("name", "pageflow");
-    List<UiField> uiFields = uiFieldService.findByMap(m);
+    // Inserts new UiPageflow fields
+    WorkflowMeta pageFlowWorkflowMeta = new WorkflowMeta();
+    pageFlowWorkflowMeta.setWorkflowId(workflow.getWorkflowId());
+    pageFlowWorkflowMeta.setK("workflow.submitpageflow");
+    pageFlowWorkflowMeta.setV(pageFlowString);
 
-    boolean pageFlowFound = false;
-    for (UiField uiField: uiFields) {
-      if (uiField.getAttrName().equals("")) {
-        pageFlowFound = true; 
-        if (! uiField.getAttrValue().equals(pageFlowString)) {
-          // System.out.println("\n\n\nFOUND and changing\n\n\n");
-          uiField.setAttrValue(pageFlowString); 
-          uiFieldService.save(uiField);
-        }
-        continue;
-      }
-      uiFieldService.remove(uiField);
-    }
+    workflowMetaService.save(pageFlowWorkflowMeta);
 
-    if (! pageFlowFound) {
-    */
-
-      // Inserts new UiPageflow fields
-      UiField pageFlowUiField = new UiField();
-      pageFlowUiField.setLocale("en_Us");
-      pageFlowUiField.setArea(iname);
-      pageFlowUiField.setName("pageflow");
-      pageFlowUiField.setAttrName("");
-      pageFlowUiField.setAttrValue(pageFlowString);
-
-      uiFieldService.save(pageFlowUiField);
-
-    /*
-    }
-    */
      
     // allowable subtype samples
     // - pickup existing
