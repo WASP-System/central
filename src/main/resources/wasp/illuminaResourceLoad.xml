@@ -11,11 +11,12 @@
 
   <bean class="edu.yu.einstein.wasp.model.UiField" id="illuminiaUiField">
     <property name="locale" value="en_US" />
-    <property name="area" value="illuminiaHwiEas438" />
+    <property name="area" value="illuminaHwi" />
   </bean>
 
   <bean id="illuminiaHwiEas438Resource" class="edu.yu.einstein.wasp.load.ResourceLoadService">
-    <property name="name" value="HWI-EAS438" />
+    <property name="iname" value="illuminaHwi" />
+    <property name="name" value="Illumina .. HWI-EAS438" />
     <property name="resourceType" value="dna" />
     <property name="platform" value="Illumina" />
 
@@ -77,7 +78,7 @@
       <list>
         <bean parent="illuminiaUiField">
           <property name="name" value="abc" />
-          <property name="attrName" value="metapostion" />
+          <property name="attrName" value="metaposition" />
           <property name="attrValue" value="10" />
         </bean>
         <bean parent="illuminiaUiField">
@@ -88,7 +89,7 @@
 
         <bean parent="illuminiaUiField">
           <property name="name" value="def" />
-          <property name="attrName" value="metapostion" />
+          <property name="attrName" value="metaposition" />
           <property name="attrValue" value="20" />
         </bean>
         <bean parent="illuminiaUiField">

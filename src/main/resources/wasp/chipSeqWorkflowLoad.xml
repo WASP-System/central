@@ -20,14 +20,13 @@
     <property name="pageFlowOrder">
       <list>
 <value>/jobsubmit/modifymeta/{n}</value>
+<value>/jobsubmit/resource/dna/{n}</value>
+<value>/jobsubmit/resource/aligner/{n}</value>
 <value>/jobsubmit/samples/{n}</value>
 <value>/jobsubmit/cells/{n}</value>
-<value>/jobsubmit/aligner/{n}</value>
-<value>/chipSeq/jobsubmit/pairings/{n}</value>
-<value>/chipSeq/jobsubmit/earrings/{n}</value>
 <value>/jobsubmit/verify/{n}</value>
 <value>/jobsubmit/submit/{n}</value>
-<value>/chipSeq/jobsubmit/submit/{n}</value>
+<!-- value>/chipSeq/jobsubmit/submit/{n}</value -->
 <value>/jobsubmit/ok</value>
       </list>
     </property>
