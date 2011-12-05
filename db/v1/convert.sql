@@ -9502,7 +9502,7 @@
       insert into usermeta
       (userid, k, v, position)
       values
-      (5, 'user.fax', 'ï¿½', 10);
+      (5, 'user.fax', ' ', 10);
     
     insert into user
     (userid, login, password, email, firstname, lastname, isactive)
@@ -16342,9 +16342,9 @@ where
   );
 
     insert into resource
-    (resourceid, platform, name, typeresourceid)
+    (resourceid, platform, iname, name, typeresourceid)
     values
-    (1, 'ROCHE', 'FLX07080405', 1);
+    (1, 'ROCHE', 'FLX07080405',  'FLX07080405', 1);
   
       insert into resourcemeta
       (resourceid, k, v, position)
@@ -16357,9 +16357,9 @@ where
       (1, 'resource.machine_type', 'FLX', 1);
     
     insert into resource
-    (resourceid, platform, name, typeresourceid)
+    (resourceid, platform, iname, name, typeresourceid)
     values
-    (2, 'ILLUMINA', 'HWI-EAS438', 1);
+    (2, 'ILLUMINA', 'HWI-EAS438',  'HWI-EAS438', 1);
   
       insert into resourcemeta
       (resourceid, k, v, position)
@@ -16377,9 +16377,9 @@ where
       (2, 'resource.decommission_date', '2010-10-01', 2);
     
     insert into resource
-    (resourceid, platform, name, typeresourceid)
+    (resourceid, platform, iname, name, typeresourceid)
     values
-    (3, 'ILLUMINA', 'HWUSI-EAS1669', 1);
+    (3, 'ILLUMINA', 'HWUSI-EAS1669',  'HWUSI-EAS1669', 1);
   
       insert into resourcemeta
       (resourceid, k, v, position)
@@ -16397,9 +16397,9 @@ where
       (3, 'resource.decommission_date', '2010-10-01', 2);
     
     insert into resource
-    (resourceid, platform, name, typeresourceid)
+    (resourceid, platform, iname, name, typeresourceid)
     values
-    (4, 'ILLUMINA', 'ILLUMINA-053F9F', 1);
+    (4, 'ILLUMINA', 'ILLUMINA-053F9F',  'ILLUMINA-053F9F', 1);
   
       insert into resourcemeta
       (resourceid, k, v, position)
@@ -16412,9 +16412,9 @@ where
       (4, 'resource.machine_type', 'GAIIx', 1);
     
     insert into resource
-    (resourceid, platform, name, typeresourceid)
+    (resourceid, platform, iname, name, typeresourceid)
     values
-    (5, 'ILLUMINA', 'SN395', 1);
+    (5, 'ILLUMINA', 'SN395',  'SN395', 1);
   
       insert into resourcemeta
       (resourceid, k, v, position)
@@ -16427,9 +16427,9 @@ where
       (5, 'resource.machine_type', 'HISEQ2000', 1);
     
     insert into resource
-    (resourceid, platform, name, typeresourceid)
+    (resourceid, platform, iname, name, typeresourceid)
     values
-    (6, 'ILLUMINA', 'SN844', 1);
+    (6, 'ILLUMINA', 'SN844',  'SN844', 1);
   
       insert into resourcemeta
       (resourceid, k, v, position)
@@ -155874,7 +155874,8 @@ insert into jobuser (jobid, userid, roleid) select jobid, userid, 9 from job;
 
 update user set password = sha1('abc123');
 
-insert into `userrole` (`userroleid`, `userid`, `roleid`, `lastupdts`, `lastupduser`) values (1, 5, 11, CURDATE(), 0);
+insert into `userrole` (`userroleid`, `userid`, `roleid`, `lastupdts`, `lastupduser`) values (1, 5, 11, '0000-00-00 00:00:00', 0);
+
 insert into `userrole` (`userroleid`, `userid`, `roleid`, `lastupdts`, `lastupduser`) values (2, 10, 8, CURDATE(), 0);
 insert into `role` (`rolename`, `name`, `domain`) values ('g', 'Guest User', 'guest'),('ag', 'Authenticated Guest', 'guest'),('ldap', 'LDAP or AD Auth User', 'auth');
 

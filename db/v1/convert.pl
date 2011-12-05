@@ -256,9 +256,9 @@ foreach my $resource (sort keys %$resources) {
 
   $out .= qq|
     insert into resource
-    (resourceid, platform, name, typeresourceid)
+    (resourceid, platform, iname, name, typeresourceid)
     values
-    ($i, '$r->{'assay_platform'}', '$r->{'machine_name'}', 1);
+    ($i, '$r->{'assay_platform'}', '$r->{'machine_name'}',  '$r->{'machine_name'}', 1);
   |; 
 
   $out .= meta("resource", [qw|assay_platform machine_type serial_number commission_date decommission_date comments|], 'i', $r);
