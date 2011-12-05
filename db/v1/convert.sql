@@ -9502,7 +9502,7 @@
       insert into usermeta
       (userid, k, v, position)
       values
-      (5, 'user.fax', ' ', 10);
+      (5, 'user.fax', 'ï¿½', 10);
     
     insert into user
     (userid, login, password, email, firstname, lastname, isactive)
@@ -155867,14 +155867,14 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
 update sample set receivedts = null;
 update sample set isgood =1;
 
-update run set startts = null where startts = '0000-00-00 00:00:00';
-update run set endts = null where endts = '0000-00-00 00:00:00';
+update run set startts = null where startts = '2011-01-01 00:00:00';
+update run set endts = null where endts = '2011-01-01 00:00:00';
 
 insert into jobuser (jobid, userid, roleid) select jobid, userid, 9 from job;
 
 update user set password = sha1('abc123');
 
-insert into `userrole` (`userroleid`, `userid`, `roleid`, `lastupdts`, `lastupduser`) values (1, 5, 11, '0000-00-00 00:00:00', 0);
+insert into `userrole` (`userroleid`, `userid`, `roleid`, `lastupdts`, `lastupduser`) values (1, 5, 11, '2011-01-01 00:00:00', 0);
 
 insert into `userrole` (`userroleid`, `userid`, `roleid`, `lastupdts`, `lastupduser`) values (2, 10, 8, CURDATE(), 0);
 insert into `role` (`rolename`, `name`, `domain`) values ('g', 'Guest User', 'guest'),('ag', 'Authenticated Guest', 'guest'),('ldap', 'LDAP or AD Auth User', 'auth');
