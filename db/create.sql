@@ -373,6 +373,7 @@ create table resource (
   resourceid int(10) not null primary key auto_increment, 
 
   platform varchar(250) not null,   -- another table?
+  iname varchar(250) not null,
   name varchar(250) not null,
 
   typeresourceid int(10) not null,
@@ -382,8 +383,15 @@ create table resource (
   lastupduser int(10) not null default 0,
 
   foreign key fk_resource_trid (typeresourceid) references typeresource(typeresourceid),
-  constraint unique index u_resource_name (name)
+  constraint unique index u_resource_name (iname)
 ) ENGINE=InnoDB charset=utf8;
+
+
+-- TODO in ResourceLoad
+insert into resource (resourceid, platform, iname, name, typeresourceid ) 
+values
+(10, 'software', 'abc', 'Abc Aligner', 3),
+(11, 'software', 'def', 'Def Aligner', 3);
 
 
 
@@ -524,6 +532,23 @@ create table jobuser (
   constraint unique index u_jobuser_jid_uid (jobid, userid)
 ) ENGINE=InnoDB charset=utf8;
 
+create table jobresource (
+  jobresourceid int(10) not null primary key auto_increment,
+  jobid int(10) not null,
+  resourceid int(10) not null,
+
+  lastupdts timestamp not null default current_timestamp,
+  lastupduser int(10) not null default 0,
+
+  foreign key fk_jobresource_jdid (jobid) references job(jobid),
+  foreign key fk_jobresource_rid (resourceid) references resource(resourceid),
+  constraint unique index u_jobresource_rid_jdid (resourceid, jobid)
+) ENGINE=InnoDB charset=utf8;
+
+--
+-- job draft
+--
+
 create table jobdraft (
   jobdraftid int(10) not null primary key auto_increment, 
 
@@ -562,6 +587,19 @@ create table jobdraftmeta (
   foreign key fk_jobdraftmeta_jdid (jobdraftid) references jobdraft(jobdraftid),
 
   constraint unique index u_jobdraftmeta_k_jdid (k, jobdraftid)
+) ENGINE=InnoDB charset=utf8;
+
+create table jobdraftresource (
+  jobdraftresourceid int(10) not null primary key auto_increment,
+  jobdraftid int(10) not null,
+  resourceid int(10) not null,
+
+  lastupdts timestamp not null default current_timestamp,
+  lastupduser int(10) not null default 0,
+
+  foreign key fk_jobdraftresource_jdid (jobdraftid) references jobdraft(jobdraftid),
+  foreign key fk_jobdraftresource_rid (resourceid) references resource(resourceid),
+  constraint unique index u_jobdraftresource_rid_jdid (resourceid, jobdraftid)
 ) ENGINE=InnoDB charset=utf8;
 
 -- ---------------------------------------------------
@@ -1894,4 +1932,7 @@ from workflow w
 join typesample t on t.typesampleid in (1, 3)
 join subtypesample st on concat(w.iname, t.iname, 'Sample') = st.iname;
 
+-- insert into workflowresource(workflowid, resourceid)
+-- values
+-- (1, 10), (1, 11), (1, 2), (1, 3), (1, 4), (1, 5);
 
