@@ -154,4 +154,37 @@ public class TypeResource extends WaspModel {
 
 
 
+	/** 
+	 * workflowtyperesource
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="typeresourceid", insertable=false, updatable=false)
+	protected List<Workflowtyperesource> workflowtyperesource;
+
+
+	/** 
+	 * getWorkflowtyperesource()
+	 *
+	 * @return workflowtyperesource
+	 *
+	 */
+	public List<Workflowtyperesource> getWorkflowtyperesource() {
+		return this.workflowtyperesource;
+	}
+
+
+	/** 
+	 * setWorkflowtyperesource
+	 *
+	 * @param workflowtyperesource
+	 *
+	 */
+	public void setWorkflowtyperesource (List<Workflowtyperesource> workflowtyperesource) {
+		this.workflowtyperesource = workflowtyperesource;
+	}
+
+
+
 }
