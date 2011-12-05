@@ -1,7 +1,7 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
     <font color="blue"><wasp:message /></font>
 
-    <h1>Create a Job -- META</h1>
+    <h1>Create a Job -- <c:out value="${name}" /></h1>
 
     <div>
     Job: <c:out value="${jobDraftDb.name}" />
