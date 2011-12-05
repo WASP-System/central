@@ -40,7 +40,7 @@ public interface ResourceService extends WaspService<Resource> {
 
   public Resource getResourceByResourceId (final int resourceId);
 
-  public Resource getResourceByName (final String name);
+  public Resource getResourceByIName (final String iName);
 
 
 }
