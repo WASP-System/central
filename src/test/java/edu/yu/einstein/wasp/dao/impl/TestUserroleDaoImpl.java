@@ -28,6 +28,7 @@ import edu.yu.einstein.wasp.dao.UserroleDao;
 import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.Userrole;
 
+
 /**
  * 
  * 
@@ -38,9 +39,6 @@ import edu.yu.einstein.wasp.model.Userrole;
 @JpaEntityManagerFactory(persistenceUnit = "testWaspPU", configFile = "META-INF/wasp-persistence-test.xml")
 @DataSet ("TestUserRoleDaoImpl.xml")
 @Transactional(TransactionMode.ROLLBACK)
-/*
-public class TestUserroleDaoImpl extends UnitilsTestNG{
-*/
 public class TestUserroleDaoImpl {
 
 	/**
