@@ -1,11 +1,8 @@
 
 /**
  *
- * UserImpl.java 
- * @author echeng (table2type.pl)
- *  
- * the User object
- *
+ * DAO to manage UIField table
+ * @author Sasha Levchuk
  *
  **/
  
@@ -33,6 +30,7 @@ public class UiFieldDaoImpl extends WaspDaoImpl<UiField> implements edu.yu.einst
     this.entityClass = UiField.class;
   }
 
+  //returns list of unique areas
   public List<String> getUniqueAreas() {
 	  Object res = getJpaTemplate().execute(new JpaCallback() {
 
@@ -47,6 +45,7 @@ public class UiFieldDaoImpl extends WaspDaoImpl<UiField> implements edu.yu.einst
 	  return (List<String>) res;
 	 }
   
+  //returns true if a combination of locale, area, name, attrName already exists
   public boolean exists(final String locale, final String area, final String name, final String attrName) {
 	  Object res = getJpaTemplate().execute(new JpaCallback() {
 
@@ -59,8 +58,6 @@ public class UiFieldDaoImpl extends WaspDaoImpl<UiField> implements edu.yu.einst
 				   	"and name=:name\n"+
 				   	"and attrname=:attrname\n";
 				 
-				   
-				   
 		    Query q = em.createNativeQuery(sql)
 		    .setParameter("locale", locale)
 		    .setParameter("area", area)
@@ -76,6 +73,7 @@ public class UiFieldDaoImpl extends WaspDaoImpl<UiField> implements edu.yu.einst
 		  
 	 }
 
+  //utility functions to format SQL insert queries 
   private void process(StringBuffer result,String value) {
       if (value==null) {
     	  result.append("NULL");
@@ -97,6 +95,7 @@ public class UiFieldDaoImpl extends WaspDaoImpl<UiField> implements edu.yu.einst
 
   }
   
+  //returns content of UIField table as a list of SQL insert statements 
   public String dumpUiFieldTable() {
 	  
 	  final List<UiField> all = super.findAll();

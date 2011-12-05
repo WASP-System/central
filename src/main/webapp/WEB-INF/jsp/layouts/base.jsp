@@ -1,4 +1,7 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+
+<%-- template for pages that do NOT have a JQGrid table --%>
+
 <%@ page import="edu.yu.einstein.wasp.dao.impl.DBResourceBundle" %> 
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 

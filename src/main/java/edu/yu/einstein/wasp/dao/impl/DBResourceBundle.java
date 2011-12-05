@@ -1,6 +1,6 @@
 /**
  *
- * Reads properties from database and from messages*.properties files
+ * Reads properties from database 
  *  
  * and adds them to Spring's MessageSource object
  * 
@@ -13,7 +13,6 @@
 
 package edu.yu.einstein.wasp.dao.impl;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
@@ -21,7 +20,6 @@ import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
-import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -35,7 +33,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.orm.jpa.JpaCallback;
 import org.springframework.orm.jpa.support.JpaDaoSupport;
 import org.springframework.stereotype.Repository;
-import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import edu.yu.einstein.wasp.model.UiField;
 import edu.yu.einstein.wasp.service.impl.WaspMessageSourceImpl;
@@ -67,12 +64,11 @@ public class DBResourceBundle extends JpaDaoSupport implements ApplicationContex
 		final StringBuffer sqlCurrent= new StringBuffer("");
 		
 		try {
-			//Resource uifield = this.applicationContext.getResource("file:WEB-INF/uifield.update.sql");
+			
 			Resource uifield = this.applicationContext.getResource("classpath:uifield.update.sql");
 			
 			String sql = FileUtils.readFileToString(uifield.getFile());
-
-			//final String[] statements=StringUtils.splitByWholeSeparator(sql,";\n");
+			
 			final String[] statements=sql.split(";\\s*\\n");
 			
 			
@@ -82,8 +78,6 @@ public class DBResourceBundle extends JpaDaoSupport implements ApplicationContex
 					
 					em.getTransaction().begin();
 					
-					//em.createNativeQuery(sqlFinal).executeUpdate();
-				
 					for(String st:statements) {
 						st=StringUtils.trim(st);
 						
@@ -126,20 +120,7 @@ public class DBResourceBundle extends JpaDaoSupport implements ApplicationContex
 			}
 
 		});
-/*
-		for (String localeStr : WaspController.LOCALES.keySet()) {
-			Locale locale = new Locale(localeStr);
 
-			PropertyResourceBundle b = (PropertyResourceBundle) ResourceBundle.getBundle("messages", locale);
-			Enumeration bundleKeys = b.getKeys();
-
-			while (bundleKeys.hasMoreElements()) {
-				String key = (String) bundleKeys.nextElement();
-				String value = b.getString(key);
-				((WaspMessageSourceImpl) messageSource).addMessage(key, locale,value);
-			}
-		}
-*/
 		for (UiField f : ((List<UiField>) res)) {
 
 			String key = f.getArea() + "." + f.getName() + "."
@@ -163,40 +144,5 @@ public class DBResourceBundle extends JpaDaoSupport implements ApplicationContex
 		MESSAGE_SOURCE=(WaspMessageSourceImpl)messageSource;//save handle to messageSource for easy access
 	}
 	
-	
-	//returns current page title
-	/*
-	public static final String getPageTitle(HttpServletRequest request) {
-		String def=(String)request.getAttribute("d");//tiles definition
-		if (def==null) {
-			
-			
-			for( Object o:(java.lang.Iterable)request.getAttribute("org.apache.tiles.AttributeContext.STACK")) {
-				org.apache.tiles.BasicAttributeContext c=(org.apache.tiles.BasicAttributeContext)o;
-				for(Iterator<String> it=c.getAttributeNames();it.hasNext();) {
-					String key=it.next();
-					log.error(key+":"+c.getAttribute(key)+"["+c+"]");
-				}
-			}
-			
-			Enumeration en=request.getAttributeNames();
-			while(en.hasMoreElements()) {
-				String key=(String)en.nextElement();
-				log.error(key+":"+request.getAttribute(key));
-			}
-			log.error("title definition is unknown. cant figure out page title.");
-			
-			return "";
-		}
-		String tmp[] = def.split("\\/",2);
-		if (tmp.length<2) throw new IllegalStateException("Invalid tiles defition name ["+def+"]. The name shold match {area}/{pagename} pattern.");
-		String code=tmp[0]+"."+tmp[1]+"_page_title.data";
-		Locale locale=(Locale)request.getSession().getAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
-		
-		String msg=MESSAGE_SOURCE.getMessage(code, null, locale);
-		
-		return msg;
-	}
-	*/
 
 }

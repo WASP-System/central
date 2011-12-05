@@ -1,3 +1,10 @@
+
+<%-- 
+"columns" section of the "sample drafts" page
+
+@author: Sasha Levchuk
+--%>
+
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
 <wasp:field name="name"  type="text"/>
@@ -5,9 +12,11 @@
 <wasp:field name="status" type="select" items="${statuses}" />
 <wasp:field name="fileData" type="file" >
 
-<%-- file upload custom stuff--%>
+<%-- file upload logic--%>
 var lastForm=null;
 
+
+<%-- save form ID so we have access to it later --%>
 _saveFormId=function(postdata, formid) {
 
 			if (document.forms[formid[0].id].fileData) {				
@@ -19,10 +28,12 @@ _saveFormId=function(postdata, formid) {
             return [true,''];
 };
 
+<%-- display file upload error --%>
 function showUploadError() {
 	$('#uploadError').show();
 }
 
+<%-- displays "upload done" message and reload the jqgrid --%>
 function uploadDone(msg) { //Function will be called when iframe is loaded
 	  
 	   waspFade('uploadStatus',msg);
@@ -31,6 +42,7 @@ function uploadDone(msg) { //Function will be called when iframe is loaded
      
 }
 
+<%-- starts file upload after form was submitted in a separate iframe--%>
 _uploadAfterSubmit=function(response, data)  {
 
 			var resp=response.responseText;
@@ -40,8 +52,8 @@ _uploadAfterSubmit=function(response, data)  {
 
 			waspFade('statusMessage',serverResponse);
 
+			<%-- return if there was no file to upload --%>
 			if (!lastForm) return [true,''];		
-
 			if (! $('#fileData').val() ) return [true,'']; 
 
 	
@@ -50,7 +62,8 @@ _uploadAfterSubmit=function(response, data)  {
             $(lastForm).attr("enctype","multipart/form-data");
            
             var _urlString='/wasp/jobsubmit/uploadFile.do?id='+sampleDraftId+'&jobdraftId=${jobdraftId}';
-                                                
+                         
+            <%-- starts file upload via ajaxfileupload.js plugin --%>                                    
             $.ajaxFileUpload({
                 url:_urlString,
                 secureuri:false,
@@ -72,14 +85,14 @@ _uploadAfterSubmit=function(response, data)  {
                 }
             });
             
+            <%-- show 'upload started' message --%>      
             document.getElementById('uploadStatus').innerText='${uploadStartedMessage}';
                 
             return [true,''];
 };
 
 
-
-_addAttr.beforeSubmit  =  _saveFormId;
+_addAttr.beforeSubmit   =  _saveFormId;
 _editAttr.beforeSubmit  =  _saveFormId;
 
 _addAttr.afterSubmit  = _uploadAfterSubmit;
@@ -102,6 +115,7 @@ _editAttr.afterSubmit = _uploadAfterSubmit;
 #field.jq.editable=true;
 </wasp:field>
 
+<%-- define url to call when user clisck "delete" icon --%>      
 <wasp:delete url="/wasp/jobsubmit/deleteSampleDraftJSON.do" />
 
 <%--   url to get list of sample drafts for jobdraftId  --%>
@@ -113,12 +127,8 @@ _editurl='/wasp/jobsubmit/updateSampleDraft.do?jobdraftId=${jobdraftId}';
 <%-- disable search --%>
 _navAttr.search=false;
 
- _navAttr.view=false;
- _navAttr.edit=false;
- _navAttr.add=false;
+<%-- disable view/edit/add buttons --%>      
+_navAttr.view=false;
+_navAttr.edit=false;
+_navAttr.add=false;
 
-
-
-	
-  
- 

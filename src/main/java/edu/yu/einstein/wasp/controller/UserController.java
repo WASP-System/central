@@ -41,12 +41,14 @@ import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserMeta;
 import edu.yu.einstein.wasp.service.AuthenticationService;
-import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.PasswordService;
 import edu.yu.einstein.wasp.service.UserMetaService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
-
+/*
+ * Controller to manage users
+ * 
+ */
 @Controller
 @Transactional
 @RequestMapping("/user")
@@ -55,9 +57,6 @@ public class UserController extends WaspController {
 	@Autowired
 	private UserMetaService userMetaService;
 	
-	@Autowired
-	private EmailService emailService;
-
 	@Autowired
 	private PasswordService passwordService;
 	
@@ -71,6 +70,11 @@ public class UserController extends WaspController {
 		return new MetaHelper("user", UserMeta.class, request.getSession());
 	}
 	
+	/*
+	 * Prepares page to display list of users
+	 * 
+	 * @Author Sasha Levchuk 
+	 */
 	@RequestMapping("/list")
 	@PreAuthorize("hasRole('god')")
 	public String list(ModelMap m) {
@@ -78,14 +82,17 @@ public class UserController extends WaspController {
 		m.addAttribute("_metaList", getMetaHelper().getMasterList(MetaBase.class));
 		m.addAttribute(JQFieldTag.AREA_ATTR, getMetaHelper().getArea());		
 		
-		
 		prepareSelectListData(m);
-		
-		
-		
+	
 		return "user/list";
 	}
 	
+	
+	/*
+	 * Returns data to render a subgrid with user info
+	 * 
+	 * @Author Sasha Levchuk 
+	 */
 	@RequestMapping(value = "/subgridJSON.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('god') or User.login == principal.name")
 	public String subgridJSON(@RequestParam("id") Integer userId,ModelMap m, HttpServletResponse response) {
@@ -182,12 +189,16 @@ public class UserController extends WaspController {
 	}
 	
 	
+	/*
+	 * Prepares page to display JQGrid table witk a list of users
+	 * 
+	 * @Author Sasha Levchuk 
+	 */
 	@RequestMapping(value="/listJSON", method=RequestMethod.GET)	
 	public String getListJSON(HttpServletResponse response) {
 	
 		//result
 		Map <String, Object> jqgrid = new HashMap<String, Object>();
-		
 		
 		List<User> userList;
 		
@@ -210,11 +221,9 @@ public class UserController extends WaspController {
 				  userList=allUsers;
 			  }
 		}
-
-    	ObjectMapper mapper = new ObjectMapper();
     	
 		 try {
-			 //String users = mapper.writeValueAsString(userList);
+			
 			 jqgrid.put("page","1");
 			 jqgrid.put("records",userList.size()+"");
 			 jqgrid.put("total",userList.size()+"");
@@ -263,7 +272,11 @@ public class UserController extends WaspController {
 	
 	}
 
-	
+	/*
+	 * Creates/Updates user
+	 * 
+	 * @Author Sasha Levchuk 
+	 */	
 	@RequestMapping(value = "/detail_rw/updateJSON.do", method = RequestMethod.POST)
 	@PreAuthorize("hasRole('god') or User.login == principal.name")
 	public String updateDetailJSON(@RequestParam("id") Integer userId,User userForm, ModelMap m, HttpServletResponse response) {
@@ -369,6 +382,11 @@ public class UserController extends WaspController {
 		return "redirect:" + "/user/me_rw.do";
 	}
 	
+	/*
+	 * Updates user
+	 * 
+	 * @Author Sasha Levchuk 
+	 */
 	@RequestMapping(value = "/detail_rw/{userId}.do", method = RequestMethod.POST)
 	@PreAuthorize("hasRole('god')")
 	public String updateDetail(@PathVariable("userId") Integer userId,
@@ -386,12 +404,6 @@ public class UserController extends WaspController {
 
 		if (result.hasErrors()) {
 			
-			//List<ObjectError> oes = result.getAllErrors();
-			//for(ObjectError oe : oes){
-			//	logger.debug("ROB: " + oe.toString());	
-			//}
-			//if(result.hasErrors())	return "user/mypassword";
-		
 			userForm.setUserId(userId);
 			prepareSelectListData(m);
 			waspMessage("user.updated.error");
@@ -421,8 +433,6 @@ public class UserController extends WaspController {
 		status.setComplete();
 
 		waspMessage("user.updated_success.label");
-		
-		//emailService.sendNewPassword(userDb, "new pass");
 		
 		return "redirect:" + userId + ".do";
 	}

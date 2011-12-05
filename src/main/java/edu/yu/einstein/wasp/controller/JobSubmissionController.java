@@ -61,21 +61,19 @@ import edu.yu.einstein.wasp.model.SampleDraftCell;
 import edu.yu.einstein.wasp.model.SampleDraftMeta;
 import edu.yu.einstein.wasp.model.SampleFile;
 import edu.yu.einstein.wasp.model.SampleMeta;
-import edu.yu.einstein.wasp.model.Resource;
-import edu.yu.einstein.wasp.model.ResourceMeta;
 import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.Statejob;
-import edu.yu.einstein.wasp.model.Task;
 import edu.yu.einstein.wasp.model.SubtypeSample;
+import edu.yu.einstein.wasp.model.Task;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Workflow;
 import edu.yu.einstein.wasp.model.WorkflowMeta;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobCellService;
-import edu.yu.einstein.wasp.service.JobDraftService;
 import edu.yu.einstein.wasp.service.JobDraftCellService;
 import edu.yu.einstein.wasp.service.JobDraftMetaService;
+import edu.yu.einstein.wasp.service.JobDraftService;
 import edu.yu.einstein.wasp.service.JobDraftresourceService;
 import edu.yu.einstein.wasp.service.JobMetaService;
 import edu.yu.einstein.wasp.service.JobResourceService;
@@ -84,8 +82,8 @@ import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.JobUserService;
 import edu.yu.einstein.wasp.service.LabService;
 import edu.yu.einstein.wasp.service.MessageService;
-import edu.yu.einstein.wasp.service.RoleService;
 import edu.yu.einstein.wasp.service.ResourceService;
+import edu.yu.einstein.wasp.service.RoleService;
 import edu.yu.einstein.wasp.service.SampleCellService;
 import edu.yu.einstein.wasp.service.SampleDraftCellService;
 import edu.yu.einstein.wasp.service.SampleDraftMetaService;
@@ -93,13 +91,10 @@ import edu.yu.einstein.wasp.service.SampleDraftService;
 import edu.yu.einstein.wasp.service.SampleFileService;
 import edu.yu.einstein.wasp.service.SampleMetaService;
 import edu.yu.einstein.wasp.service.SampleService;
-
 import edu.yu.einstein.wasp.service.StateService;
 import edu.yu.einstein.wasp.service.StatejobService;
-
-import edu.yu.einstein.wasp.service.TaskService;
-
 import edu.yu.einstein.wasp.service.SubtypeSampleService;
+import edu.yu.einstein.wasp.service.TaskService;
 import edu.yu.einstein.wasp.service.TypeSampleService;
 import edu.yu.einstein.wasp.service.WorkflowService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
@@ -676,10 +671,16 @@ public class JobSubmissionController extends WaspController {
 	}
 
 
+	/*
+	 * Prepares page to manage sample drafts
+	 * 
+	 * @Author Sasha Levchuk
+	 */	
 	@RequestMapping(value="/samples/{jobDraftId}", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public String showSampleDraft(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
 	
+		//get list of meta fields that are 'allowed' for the given workflowId 
 		int workflowId=jobDraftService.findById(jobDraftId).getWorkflow().getWorkflowId();
 		Map<SubtypeSample,List<SampleDraftMeta>>allowedMetaFields=sampleDraftMetaService.getAllowableMetaFields(workflowId);
 		
@@ -1036,7 +1037,7 @@ public class JobSubmissionController extends WaspController {
 		Statejob statejob = new Statejob();
 		statejob.setStateId(state.getStateId());
 		statejob.setJobId(job.getJobId());
-    statejobService.save(statejob);
+		statejobService.save(statejob);
 
 		// update the jobdraft
 		jobDraft.setStatus("SUBMITTED");
@@ -1050,6 +1051,11 @@ public class JobSubmissionController extends WaspController {
 	}
 
 
+	/*
+	 * Returns sample drafts by job draft ID 
+	 * 
+	 * @Author Sasha Levchuk
+	 */	
 	@RequestMapping(value="/listSampleDraftsJSON", method=RequestMethod.GET)	
 	public String getSampleDraftListJSON(@RequestParam("jobdraftId") Integer jobdraftId, HttpServletResponse response) {
 	
@@ -1059,9 +1065,7 @@ public class JobSubmissionController extends WaspController {
 		List<SampleDraft> drafts=sampleDraftService.getSampleDraftByJobId(jobdraftId);
 		
 		int workflowId=jobDraftService.findById(jobdraftId).getWorkflow().getWorkflowId();
-	
-		//List<SampleDraftMeta> allowableMetaFields=sampleDraftService.getAllowableMetaFields(workflowId);
-
+		
 		ObjectMapper mapper = new ObjectMapper();
 
 		try {
@@ -1123,9 +1127,11 @@ public class JobSubmissionController extends WaspController {
 	}
 
 
-	
-
-
+	/*
+	 * Returns samples by Job ID 
+	 * 
+	 * @Author Sasha Levchuk
+	 */	
 	@RequestMapping(value="/samplesByJobId", method=RequestMethod.GET)	
 	public String samplesByJobId(@RequestParam("jobId") Integer jobId, HttpServletResponse response) {
 	
@@ -1145,8 +1151,12 @@ public class JobSubmissionController extends WaspController {
 	}
 	
 
-	//The call just checks if sampleDraft has non-null sourceSampleId field
-	//I can't get sourceSampleId value while editing form due to JQGrid specifics
+	/*
+	 * The call just checks if sampleDraft has non-null sourceSampleId field
+	 * I can't get sourceSampleId value while editing form due to JQGrid specifics
+	 * 
+	 * @Author Sasha Levchuk
+	 */	
 	@RequestMapping(value = "/getOldSample", method = RequestMethod.GET)
 	public String getOldSample(@RequestParam("id") Integer sampleDraftId, HttpServletResponse response) {
 
@@ -1169,6 +1179,10 @@ public class JobSubmissionController extends WaspController {
 
 	}
 
+	/*
+	 * Renders meta info by smaple ID
+	 * @Author Sasha Levchuk
+	 */
 	@RequestMapping(value="/sampleMetaBySampleId", method=RequestMethod.GET)	
 	public String sampleMetaBySampleId(@RequestParam("sampleId") Integer sampleId, HttpServletResponse response) {
 	
@@ -1188,6 +1202,10 @@ public class JobSubmissionController extends WaspController {
 	
 	}
 
+	/*
+	 * Renders URL to download draft file
+	 * @Author Sasha Levchuk
+	 */
 	private String getFileCell( edu.yu.einstein.wasp.model.File file) {
 		if (file==null) return "";
 		String fileName=file.getFilelocation();
@@ -1205,6 +1223,11 @@ public class JobSubmissionController extends WaspController {
 		return "<a href='/wasp/jobsubmit/downloadFile.do?id="+file.getFileId()+"'>"+fileName+"</a> "+file.getSizek()+"kB";
 	}
 	
+	
+	/*
+	 * Uploads sample draft file
+	 * @Author Sasha Levchuk
+	 */
 	@RequestMapping(value = "/uploadFile", method = RequestMethod.POST)		
 	public String uploadFile(@RequestParam("id") Integer sampleDraftId,SampleDraft sampleDraftForm, ModelMap m, HttpServletResponse response) {
 		 	
@@ -1254,7 +1277,7 @@ public class JobSubmissionController extends WaspController {
 					fileData.transferTo(dest);
 								 	
 					edu.yu.einstein.wasp.model.File file = new edu.yu.einstein.wasp.model.File();
-					
+					 
 					file.setFilelocation(dest.getAbsolutePath());
 					file.setIsActive(1);
 					file.setContenttype("?");
@@ -1289,13 +1312,17 @@ public class JobSubmissionController extends WaspController {
 		return null;
 	}
 	
+	
+	/*
+	 * Updates sample draft record
+	 * @Author Sasha Levchuk
+	 */
 	@RequestMapping(value = "/updateSampleDraft", method = RequestMethod.POST)
 	public String updateSampleDraft(@RequestParam("id") Integer sampleDraftId,
 			SampleDraft sampleDraftForm, ModelMap m,
 			HttpServletResponse response) {
 
 		
-
 		boolean adding = sampleDraftId == 0;
 
 		// get from jobdraft table
@@ -1306,8 +1333,7 @@ public class JobSubmissionController extends WaspController {
 		SubtypeSample subtype=subTypeSampleService.findById(sampleDraftForm.getSubtypeSampleId());
 		
 		if (adding) {
-			
-			//TODO: drop sampleDraftForm.typeSampleId DB column
+						
 			int typeSampleId=subtype.getTypeSample().getTypeSampleId();
 			sampleDraftForm.setTypeSampleId(typeSampleId);
 			
@@ -1360,6 +1386,10 @@ public class JobSubmissionController extends WaspController {
 	}
 	
 	
+	/*
+	 * Deletes sample draft record
+	 * @Author Sasha Levchuk
+	 */
 	@RequestMapping(value = "/deleteSampleDraftJSON", method = RequestMethod.DELETE)	
 	public String deleteSampleDraftJSON(@RequestParam("id") Integer sampleDraftId,HttpServletResponse response) {
 
@@ -1374,6 +1404,11 @@ public class JobSubmissionController extends WaspController {
 		}
 	}
 	
+	/*
+	 * Downloads sample draft file
+	 * 
+	 * @Author Sasha Levchuk
+	 */
 	@RequestMapping(value = "/downloadFile.do", method = RequestMethod.GET)	
 	public String downloadSampleDraftFile(@RequestParam("id") Integer fileId,HttpServletResponse response) {
 		

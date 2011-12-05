@@ -1,3 +1,8 @@
+<%-- 
+Body of the "sample drafts" page
+
+@author: Sasha Levchuk
+--%>
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 </br>
 <span style="color:blue;font-size:200%" id='statusMessage'></span>
@@ -10,8 +15,7 @@
 
 <script>
 
-
-
+//build structure to hold meta fields allowed for the current workflowId
 var _validMetaFields={};
 <c:forEach items="${_metaBySubtypeList}" var="_entry" varStatus="_substatus">
 <c:set var="_subtype" value="${_entry.key}"/>
@@ -26,10 +30,11 @@ _validMetaFields.subtypeSampleId_${_subtype.subtypeSampleId}.push('${_validMeta.
 </c:forEach>
 </c:forEach>
 
-
+//build structure to hold list of samples by subtype
 var _jobsBySampleSubtype=<wasp:json object="${_jobsBySampleSubtype}"/>;
 
-
+//re-define standard "edit" function to implement page-specific logic,
+//i.e. the functionality to select historic samples 
 var grid=$("#grid_id");      
 var orgEditGridRow = grid.jqGrid.editGridRow; // save original function
 $.jgrid.extend ({editGridRow : function(rowid, p){
@@ -39,19 +44,21 @@ $.jgrid.extend ({editGridRow : function(rowid, p){
     				
                 	var subtypeSampleId;
                 	
+                	//disable the list of subtypes (because the subtype is already selected by the "typeful" add button)
                 	var _select=document.getElementById(form[0].id).subtypeSampleId;
                 	
                 	_select.disabled="disabled";
-                	
-	
+                		
+                	// the sample is considered not "cloned" initially
             		$('#cloned').attr('disabled','disabled');
             		$('#cloned').val('No');
             		
                 	
-                	if (p.subtypeSampleId) {//add
+                	if (p.subtypeSampleId) {//adding the sample
                 		
                 		subtypeSampleId=p.subtypeSampleId;
                 	
+                		//pre-select the subtype 
                 		for (var i=0; i < _select.length; i++) {
                 			if ( _select[i].value == subtypeSampleId) {
                 				_select[i].selected = true;
@@ -63,18 +70,19 @@ $.jgrid.extend ({editGridRow : function(rowid, p){
                 		
                 		subtypeSampleId = _select.options[_select.selectedIndex].value;
                 	
-                		//$('#cloned').attr('disabled','disabled');
-                	
                 		var isCloned='Yes'==$('#cloned').val();
                 		
+                		//disable all fields if the sampe was "cloned"
                 		if (isCloned) {
                 			 disableAllFields();
                 		}						
                 	}
                 	
+                	//get the list of valid meta fields for the given subtype
+                	
                		var _myValidMetaFields=_validMetaFields['subtypeSampleId_'+subtypeSampleId];
-                	//alert(subtypeSampleId);
-               		//alert(_myValidMetaFields);
+                
+               		//hide meta fields not valid for the given subtype
                 	for(var i in colModel) {
                 		var k = colModel[i].name;
                 		
@@ -89,6 +97,7 @@ $.jgrid.extend ({editGridRow : function(rowid, p){
 					}
                 	
                 
+               		//implement dynamic population of sub-selects
                 	var _jobs4Subtype=_jobsBySampleSubtype[subtypeSampleId];
     				
                 	populateSelect($('#jobId').get(0), _jobs4Subtype);
@@ -167,9 +176,8 @@ $.jgrid.extend ({editGridRow : function(rowid, p){
    			 orgEditGridRow.call(this,rowid, p);
 }});
 
-
+//disables all fields on the form
 function disableAllFields() {
-	//$('#name').attr('disabled','disabled');
 	
 	$.each($("input, select"), function(i,v) {
 		   	
@@ -179,6 +187,7 @@ function disableAllFields() {
 		});
 }
 
+//enables all fields on the form
 function enableAllFields() {
 	$('#name').attr('disabled',null);
 	$('#name').val('');
@@ -202,12 +211,12 @@ function getSuffix(str) {
 	 if (!str || str.indexOf('.')==-1) return null;//not a meta field	   
 	 return str.split(".")[1];
 }
+
 function populateSelect(el, items) {
     el.options.length = 0;   
     el.options[0] = new Option('--select--', '');
 
-    $.each(items, function (index,value) {
-    	//alert(odump(this));
+    $.each(items, function (index,value) {    	
         el.options[el.options.length] = new Option(value, index);
     });
 }

@@ -2,10 +2,8 @@ package edu.yu.einstein.wasp.taglib;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-import java.util.ResourceBundle;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -16,7 +14,6 @@ import org.apache.log4j.Logger;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import edu.yu.einstein.wasp.dao.impl.DBResourceBundle;
-import edu.yu.einstein.wasp.service.impl.WaspMessageSourceImpl;
 
 /*
  * Displays localized messages using list of keys stored in session under name "_feedback"

@@ -31,7 +31,6 @@ import javax.servlet.jsp.jstl.fmt.LocalizationContext;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
@@ -57,8 +56,7 @@ public class UserLocaleInterceptor extends HandlerInterceptorAdapter {
             HttpServletResponse response,
             Object handler) throws Exception {
 
-    	//final String currentUser = SecurityContextHolder.getContext().getAuthentication().getName();
-
+    	
     	//return if we have already set user's locale
     	if (request.getSession().getAttribute(LOCK)!=null) {
    		 	return true;
@@ -117,17 +115,7 @@ public class UserLocaleInterceptor extends HandlerInterceptorAdapter {
 	private void initJSTLResourceBundle(Locale locale, HttpSession session) {
 
 		StringBuffer buf = new StringBuffer("");
-		//StringBuffer bufEN = new StringBuffer("");
-/*
-		PropertyResourceBundle b = (PropertyResourceBundle) ResourceBundle.getBundle("messages", locale);
-		Enumeration bundleKeys = b.getKeys();
-
-		while (bundleKeys.hasMoreElements()) {
-			String key = (String) bundleKeys.nextElement();
-			String value = b.getString(key);
-			buf.append(key+"="+value+System.getProperty("line.separator"));		
-		}
-				*/
+	
 		List<UiField> res = uiFieldService.findAll();
 
 		for (UiField f : ((List<UiField>) res)) {
@@ -142,18 +130,7 @@ public class UserLocaleInterceptor extends HandlerInterceptorAdapter {
 
 			String lang = f.getLocale().substring(0, 2);
 			
-			/*
-			String cntry = f.getLocale().substring(3);
 			
-			
-			Locale dbLocale = new Locale(lang, cntry);
-			
-			if ("en".equals(lang)) {
-				bufEN.append(key + "=" + f.getAttrValue()
-						+ System.getProperty("line.separator"));
-
-			}
-			 */
 			if (!lang.equals(locale.getLanguage())) continue;
 		
 

@@ -1,7 +1,13 @@
 package org.springframework.web.servlet.view.tiles2;
 
-import org.springframework.web.servlet.view.UrlBasedViewResolver;
+/**
+ * Apache Tiles interceptor to make tile definition name available via request attributes
+ * 
+ *  @author Sasha Levchuk
+ */
 
+
+import org.springframework.web.servlet.view.UrlBasedViewResolver;
 
 public class WaspTilesViewResolver extends UrlBasedViewResolver {
 

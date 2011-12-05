@@ -34,6 +34,9 @@
 		<body-content>JSP</body-content>
 		<attribute>
 			<name>name</name>   
+            <!-- 
+            <description>Field name. Must be a valid object property name (see "object" property below)</description>
+             -->
 			<required>true</required>
 			<rtexprvalue>true</rtexprvalue> 
 		</attribute>
@@ -54,19 +57,25 @@
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>		
 		<attribute>
-			<description>The Collection or Map of objects used to generate the inner 'option' tags. If suppliying a collection then itemValue and itemLabel props are required</description>
+            <!-- 
+			<description>The Collection or Map of objects used to generate the inner 'option' tags. If supplying a collection then itemValue and itemLabel props are required</description>
+            -->
 			<name>items</name>
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
 		<attribute>
+            <!-- 
 			<description>Name of the property mapped to 'value' attribute of the 'option' tag</description>
+             -->
 			<name>itemValue</name>
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
 		<attribute>
+            <!-- 
 			<description>Name of the property mapped to the inner text of the 'option' tag</description>
+            -->
 			<name>itemLabel</name>
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
@@ -80,16 +89,18 @@
 		<tag-class>edu.yu.einstein.wasp.taglib.JQDeleteTag</tag-class>
 		<body-content>JSP</body-content>
 		<attribute>
+            <!-- 
 			<description>Server-side url to make 'DELETE' requests against. "id" parameter containing the row's PK will be appended to the url</description>
+            -->
 			<name>url</name>
 			<required>true</required>
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>		
 	</tag>
 	<tag>
-		<description><![CDATA[
-            <p>Converts java collection to string containing JSON array. </p>
-        ]]></description>
+        <!-- 
+		<description>Converts java collection to string containing JSON array.</description>
+          -->
 		<name>json</name>
 		<tag-class>edu.yu.einstein.wasp.taglib.JSONTag</tag-class>
 		<body-content>JSP</body-content>

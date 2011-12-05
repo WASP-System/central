@@ -127,8 +127,6 @@
 		<put-attribute name="body-content" value="/WEB-INF/jsp/sampleDnaToLibrary/ok.jsp" />
 	</definition>
 
-
-
 	<definition name="resource/list" extends="template-grid">
 		<put-attribute name="area" value="resource" />
 		<put-attribute name="grid-columns" value="/WEB-INF/jsp/resource/grid_columns.jsp" />
@@ -203,7 +201,6 @@
 	<definition name="lab/pendinguser/list" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/lab/pendinguser/list.jsp" />
 	</definition>
-
 
 	<definition name="user/list" extends="template-grid">
 		<put-attribute name="area" value="user" />

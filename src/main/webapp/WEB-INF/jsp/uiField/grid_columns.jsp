@@ -26,7 +26,6 @@
 <wasp:delete url="/wasp/${_area}/delete.do" />
 
 
-
 <%-- disable regular search --%>
 _navAttr.search=false;
 

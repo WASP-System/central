@@ -1,5 +1,9 @@
 package edu.yu.einstein.wasp.controller;
-
+/**
+ * Controller to manage UIField table
+ * 
+ * @Author: Sasha Levchuk
+ */
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -56,19 +60,15 @@ public class UiFieldController extends WaspController {
 	@Autowired
 	private MessageService messageService;
 	
-	
-	
-	
-	
+	//init read-only static structures used ti build dropdown lists
 	private static final Map<String, String> MY_LOCALES=new LinkedHashMap<String, String>();
-	 static { 
+	static { 
 		 MY_LOCALES.put("","--select--");
 		 MY_LOCALES.putAll(LOCALES);
 	 }
 	
 	  private static final Map<String, String> ATTR_NAMES=new LinkedHashMap<String, String>();
 	  static { 
-		  
 
 	  ATTR_NAMES.put("","-- select --");	  
 	  ATTR_NAMES.put("label","Field Label");
@@ -78,10 +78,9 @@ public class UiFieldController extends WaspController {
 	  ATTR_NAMES.put("suffix","Suffix");
 	  ATTR_NAMES.put("metaposition","Position");
 	  ATTR_NAMES.put("data","Area-specific data");
-	  // <font color='Red'><sup>*</sup></font>
-	  
 	  }
 	  
+	  //init read-only static structures used ti build dropdown lists
 	  protected static final Map<String, String> AREA_NAMES=new LinkedHashMap<String, String>();
 	  static { 
 		  
@@ -91,6 +90,12 @@ public class UiFieldController extends WaspController {
 		  }
 	  }
 
+	  /**
+	   * prepares data to display JQGrid
+	   * @param m
+	   * @param response
+	   * @return
+	   */
 	@RequestMapping("/list")
 	@PreAuthorize("hasRole('god')")
 	public String list(ModelMap m,HttpServletResponse response) {
@@ -113,7 +118,12 @@ public class UiFieldController extends WaspController {
 		return "uifield/list";
 	}
 
-	
+	/**
+	 * Returns JSON-formatted list of data rows
+	 * 
+	 * @param response
+	 * @return
+	 */
 	@RequestMapping(value="/listJSON", method=RequestMethod.GET)	
 	public String getListJSON(HttpServletResponse response) {
 	
@@ -143,15 +153,15 @@ public class UiFieldController extends WaspController {
 			uiFieldList=uiFieldService.findAll();
 		}
 		
-		ObjectMapper mapper = new ObjectMapper();
 		
 		try {
-			//String labs = mapper.writeValueAsString(labList);
+			//init JQGrid standard structure
 			jqgrid.put("page","1");
 			jqgrid.put("records",uiFieldList.size()+"");
 			jqgrid.put("total",uiFieldList.size()+"");
 			
 			
+			//init selcted row if any
 			Map<String, String> userData=new HashMap<String, String>();
 			userData.put("page","1");
 			userData.put("selId",StringUtils.isEmpty(request.getParameter("selId"))?"":request.getParameter("selId"));
@@ -189,7 +199,12 @@ public class UiFieldController extends WaspController {
 	
 	}
 	
-	
+	/**
+	 * deletes single row from UIField table
+	 * @param uiFieldId
+	 * @param response
+	 * @return
+	 */
 	@RequestMapping(value = "/delete", method = RequestMethod.DELETE)	
 	public String deleteSampleDraftJSON(@RequestParam("id") Integer uiFieldId,HttpServletResponse response) {
 		
@@ -204,50 +219,54 @@ public class UiFieldController extends WaspController {
 	}
 
 
+	/**
+	 * updates single row from UIField table
+	 * 
+	 * @param uiFieldId
+	 * @param response
+	 * @return
+	 */
 	@RequestMapping(value = "/detail_rw/updateJSON.do", method = RequestMethod.POST)
-	public String updateDetailJSON(@RequestParam("id") Integer uiFieldId,UiField uiFieldForm, ModelMap m, HttpServletResponse response) {
+	public String updateDetailJSON(@RequestParam("id") Integer uiFieldId, UiField uiFieldForm, ModelMap m, HttpServletResponse response) {
 		try {
-		if (uiFieldId==0) {
-			
-			if (uiFieldService.exists(uiFieldForm.getLocale(), uiFieldForm.getArea(), uiFieldForm.getName(), uiFieldForm.getAttrName())) {
-				response.getWriter().println(messageService.getMessage("uiField.not_unique.error"));
-				return null;
-			}
-			
-			UiField uiFieldDb = this.uiFieldService.save(uiFieldForm);
-			
-			uiFieldId=uiFieldDb.getUiFieldId();
-		} else {
-			UiField uiFieldDb = this.uiFieldService.getById(uiFieldId);
-			uiFieldDb.setArea(uiFieldForm.getArea());
-			uiFieldDb.setAttrName(uiFieldForm.getAttrName());
-			uiFieldDb.setAttrValue(uiFieldForm.getAttrValue());
-			uiFieldDb.setLocale(uiFieldForm.getLocale());
-			uiFieldDb.setName(uiFieldForm.getName());
-			this.uiFieldService.merge(uiFieldDb);
-		}
+			if (uiFieldId == 0) {
 
-		
-		
-						
-			String newKey=uiFieldForm.getArea()+"."+uiFieldForm.getName()+"."+uiFieldForm.getAttrName();
-			
+				if (uiFieldService.exists(uiFieldForm.getLocale(), uiFieldForm.getArea(), uiFieldForm.getName(), uiFieldForm.getAttrName())) {
+					response.getWriter().println(messageService.getMessage("uiField.not_unique.error"));
+					return null;
+				}
+
+				UiField uiFieldDb = this.uiFieldService.save(uiFieldForm);
+
+				uiFieldId = uiFieldDb.getUiFieldId();
+			} else {
+				UiField uiFieldDb = this.uiFieldService.getById(uiFieldId);
+				uiFieldDb.setArea(uiFieldForm.getArea());
+				uiFieldDb.setAttrName(uiFieldForm.getAttrName());
+				uiFieldDb.setAttrValue(uiFieldForm.getAttrValue());
+				uiFieldDb.setLocale(uiFieldForm.getLocale());
+				uiFieldDb.setName(uiFieldForm.getName());
+				this.uiFieldService.merge(uiFieldDb);
+			}
+
+			String newKey = uiFieldForm.getArea() + "." + uiFieldForm.getName() + "." + uiFieldForm.getAttrName();
+
 			String lang = uiFieldForm.getLocale().substring(0, 2);
 			String cntry = uiFieldForm.getLocale().substring(3);
-			
+
 			Locale locale = new Locale(lang, cntry);
-				
-           ((WaspMessageSourceImpl)messageSource).addMessage(newKey, locale, uiFieldForm.getAttrValue());
-           
-			response.getWriter().println(messageService.getMessage("uiField."+(uiFieldId==0?"added":"updated")+".data"));
+
+			((WaspMessageSourceImpl) messageSource).addMessage(newKey, locale, uiFieldForm.getAttrValue());
+
+			response.getWriter().println(messageService.getMessage("uiField." + (uiFieldId == 0 ? "added" : "updated") + ".data"));
 			return null;
 		} catch (Throwable e) {
-			throw new IllegalStateException("Cant output success message ",e);
+			throw new IllegalStateException("Cant output success message ", e);
 		}
-	
-	    
+
 	}
 	
+	//START: utility functions to dump strings to files 
 	public static void appendToFile(final InputStream in, final File f)
 			throws IOException {
 		OutputStream os = outStream(f);
@@ -263,7 +282,11 @@ public class UiFieldController extends WaspController {
 	private static OutputStream outStream(final File f) throws IOException {
 		return new BufferedOutputStream(new FileOutputStream(f, true));
 	}
-
+	//END: utility functions to dump strings to files 
+	
+	/**
+	 * dumps content of UIField db table as SQL "insert" statements to a file.
+	 */
 	@RequestMapping(value = "/dump", method = RequestMethod.GET)	
 	public String dumpUiFieldTable(HttpServletResponse response) {
 		

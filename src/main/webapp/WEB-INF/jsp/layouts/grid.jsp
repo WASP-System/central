@@ -1,4 +1,5 @@
-<%@page contentType="text/html" pageEncoding="UTF-8"%> 
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+ <%--  Template for pages containing JQGrid table  --%> 
 <html>
 
 <head>
@@ -84,19 +85,19 @@ html, body {
 		  width:'auto',closeAfterEdit:true,closeOnEscape:true,afterSubmit:_afterSubmit,errorTextFormat:_errorTextFormat,beforeShowForm:_beforeShowEditForm,reloadAfterSubmit:true,recreateForm:true
   };
   
-  <%-- structure to define L&F of "add row" functionality. see JQGrid for parameter descriptions --%>
+  <%-- structure to define L&F of "add row" functionality. see JQGrid documentation at http://www.trirand.com/jqgridwiki/doku.php?id=wiki:jqgriddocs for parameter descriptions --%>
   var _addAttr={
 	serializeEditData: function(data){ return $.param($.extend({}, data, {id:0}));},//pass '0' on add instead of empty string
 	closeAfterAdd:true,closeOnEscape:true,errorTextFormat:_errorTextFormat,afterSubmit:_afterSubmit,beforeShowForm:_beforeShowAddForm,width:'auto',reloadAfterSubmit:true,recreateForm:true
   };
   
-  <%-- structure to define L&F of "delete row" functionality. see JQGrid for parameter descriptions --%>
+  <%-- structure to define L&F of "delete row" functionality. see JQGrid documentation at http://www.trirand.com/jqgridwiki/doku.php?id=wiki:jqgriddocs for parameter descriptions --%>
   var _delAttr={};
   
-  <%-- structure to define L&F of "search row" functionality. see JQGrid for parameter descriptions --%>
+  <%-- structure to define L&F of "search row" functionality. see JQGrid documentation at http://www.trirand.com/jqgridwiki/doku.php?id=wiki:jqgriddocs for parameter descriptions --%>
   var _searchAttr={drag:true,resize:true,modal:true,caption:'Lookup',closeOnEscape:true,sopt:['eq','ne'],multipleSearch: false, closeAfterSearch: true };
 
-  <%-- structure to define L&F of "navigator" functionality. see JQGrid for parameter descriptions --%>
+  <%-- structure to define L&F of "navigator" functionality. see JQGrid documentation at http://www.trirand.com/jqgridwiki/doku.php?id=wiki:jqgriddocs for parameter descriptions --%>
   var _navAttr={view:true,del:true,delfunc:_del_function};
   
   <%-- these objects will be populated by the wasp:field tags included via "grid-columns" tile --%>
@@ -167,7 +168,7 @@ html, body {
   <%-- list of column names --%>
   colNames.push('${_meta.property.label}');
 
-  <%-- list of column properties. see JQGrid for parameter descriptions --%>
+  <%-- list of column properties. see JQGrid documentation at http://www.trirand.com/jqgridwiki/doku.php?id=wiki:jqgriddocs for parameter descriptions --%>
   colModel.push(
 		{name:'${_meta.k}', width:80, edittype:edittype, align:'right',hidden:true,editable:true,editrules:editrules,formoptions:formoptions,editoptions:editoptions}
   );

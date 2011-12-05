@@ -18,7 +18,8 @@ import edu.yu.einstein.wasp.model.MetaAttribute;
 
 
 /*
- * implements validation of MetaBase children based on messages_en.properties file
+ * Implements validation of MetaBase children based on "constraint" properies read from uifield table
+ * 
  * @Author Sasha Levchuk
  */
 
@@ -29,16 +30,7 @@ public class MetaValidatorImpl implements MetaValidator {
 	protected List<Constraint> allowableConstraints = new ArrayList<Constraint>(Arrays.asList(Constraint.NotEmpty, Constraint.Regexp));
 	
 	protected Map<String, String> map=new HashMap<String, String>(); 
-	
-/*		
-	public MetaValidator(String... pairs)	{
-		if (pairs.length % 2!=0) throw new IllegalStateException("Number of params must be even");
-			
-		for(int i=0;i<pairs.length;i+=2) {
-			map.put(pairs[i],pairs[i+1]);
-		}
-	}
-*/
+
 
 	public void setValidateList(List <String> validateList) {
 		if (validateList.size() % 2!=0) throw new IllegalStateException("Number of params must be even");
