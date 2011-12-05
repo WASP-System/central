@@ -23,7 +23,7 @@ public interface ResourceDao extends WaspDao<Resource> {
 
   public Resource getResourceByResourceId (final int resourceId);
 
-  public Resource getResourceByName (final String name);
+  public Resource getResourceByIName (final String iName);
 
 
 }

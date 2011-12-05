@@ -67,18 +67,18 @@ public class ResourceDaoImpl extends WaspDaoImpl<Resource> implements edu.yu.ein
 
 
 	/**
-	 * getResourceByName(final String name)
+	 * getResourceByIName(final String iName)
 	 *
-	 * @param final String name
+	 * @param final String iName
 	 *
 	 * @return resource
 	 */
 
 	@SuppressWarnings("unchecked")
 	@Transactional
-	public Resource getResourceByName (final String name) {
+	public Resource getResourceByIName (final String iName) {
     		HashMap m = new HashMap();
-		m.put("name", name);
+		m.put("iName", iName);
 
 		List<Resource> results = (List<Resource>) this.findByMap((Map) m);
 
