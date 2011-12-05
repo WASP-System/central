@@ -6,6 +6,8 @@ import edu.yu.einstein.wasp.service.ResourceMetaService;
 import edu.yu.einstein.wasp.service.TypeResourceService;
 import edu.yu.einstein.wasp.service.UiFieldService;
 
+import edu.yu.einstein.wasp.service.impl.WaspMessageSourceImpl;
+
 
 import edu.yu.einstein.wasp.service.StateService;
 import edu.yu.einstein.wasp.model.*;
@@ -16,11 +18,14 @@ import java.util.Set;
 import java.util.List; 
 import java.util.Date; 
 import java.util.ArrayList; 
+import java.util.Locale; 
 
 import org.springframework.stereotype.Service;
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.*;
+
+import org.springframework.context.MessageSource;
 
 import org.springframework.util.StringUtils;
 
@@ -28,6 +33,9 @@ import util.spring.PostInitialize;
 
 @Transactional
 public class ResourceLoadService {
+
+  @Autowired
+  private MessageSource messageSource;
 
   @Autowired
   private ResourceService resourceService;
@@ -46,6 +54,9 @@ public class ResourceLoadService {
 
   private String platform; 
   public void setPlatform(String platform) { this.platform = platform; }
+
+  private String iname; 
+  public void setIname(String iname) {this.iname = iname; }
 
   private String name; 
   public void setName(String name) {this.name = name; }
@@ -76,12 +87,13 @@ public class ResourceLoadService {
 
     TypeResource typeResource = typeResourceService.getTypeResourceByIName(resourceType); 
 
-    resource = resourceService.getResourceByName(name); 
+    resource = resourceService.getResourceByIName(iname); 
 
     // inserts or update workflow
     if (resource.getResourceId() == 0) { 
       resource = new Resource();
 
+      resource.setIName(iname);
       resource.setName(name);
       resource.setPlatform(platform);
       resource.setTypeResourceId(typeResource.getTypeResourceId());
@@ -89,15 +101,18 @@ public class ResourceLoadService {
       resourceService.save(resource); 
 
       // refreshes
-      resource = resourceService.getResourceByName(name); 
+      resource = resourceService.getResourceByIName(iname); 
 
     } else {
+      resource.setName(name);
       resource.setPlatform(platform);
       resource.setTypeResourceId(typeResource.getTypeResourceId());
 
       resourceService.save(resource); 
     }
 
+
+/*
     // sync metas
     int lastPosition = 0;
     Map<String, ResourceMeta> oldResourceMetas  = new HashMap<String, ResourceMeta>();
@@ -142,7 +157,6 @@ public class ResourceLoadService {
     }
 
 
-
     lastPosition = 0;
     Map<String, ResourceLane> oldResourceLanes  = new HashMap<String, ResourceLane>();
     for (ResourceLane resourceCell: resource.getResourceLane()) {
@@ -175,12 +189,13 @@ public class ResourceLoadService {
     for (String resourceLaneKey : oldResourceLanes.keySet()) {
       ResourceLane resourceLane = oldResourceLanes.get(resourceLaneKey); 
 
-      /* DOES NOT REMOVE, id fk available.  use is_active instead?  
+      / * DOES NOT REMOVE, id fk available.  TODO: use isactive instead?  
       resourceLaneService.remove(resourceLane); 
       resourceLaneService.flush(resourceLane); 
-      */
+      * /
     }
 
+*/
 
 
     // UI fields
@@ -199,11 +214,19 @@ public class ResourceLoadService {
     }
 
     // sets up the new
-    for (UiField uiField: uiFields) {
-      // skips pageflow
-      if (uiField.getName().equals("pageflow")) { continue; }
-      uiFieldService.save(uiField); 
+    for (UiField f: uiFields) {
+      String key = f.getArea() + "." + f.getName() + "."
+          + f.getAttrName();
+      String lang = f.getLocale().substring(0, 2);
+      String cntry = f.getLocale().substring(3);
+
+      Locale locale = new Locale(lang, cntry);
+
+      ((WaspMessageSourceImpl) messageSource).addMessage(key, locale, f.getAttrValue());
+      uiFieldService.save(f); 
     }
+
+    edu.yu.einstein.wasp.dao.impl.DBResourceBundle.MESSAGE_SOURCE=(WaspMessageSourceImpl)messageSource; //save handle to messageSource for easy access
 
   }
 
