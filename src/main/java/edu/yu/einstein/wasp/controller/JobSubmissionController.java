@@ -1290,6 +1290,7 @@ public class JobSubmissionController extends WaspController {
 					
 					sampleDraftService.merge(samplDraft);
 								
+					//submit file for processing by Spring Batch / Spring Intgeration instance 
 					RestTemplate template = new RestTemplate();
 					try {
 						template.postForLocation(jobRunnerHost+"/bee/jobs/launchBeeJob.do?file={file}",String.class, dest.getAbsolutePath());
