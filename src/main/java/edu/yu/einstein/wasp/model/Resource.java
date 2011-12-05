@@ -91,11 +91,41 @@ public class Resource extends WaspModel {
 
 
 	/** 
+	 * iName
+	 *
+	 */
+	@Column(name="iname")
+	protected String iName;
+
+	/**
+	 * setIName(String iName)
+	 *
+	 * @param iName
+	 *
+	 */
+	
+	public void setIName (String iName) {
+		this.iName = iName;
+	}
+
+	/**
+	 * getIName()
+	 *
+	 * @return iName
+	 *
+	 */
+	public String getIName () {
+		return this.iName;
+	}
+
+
+
+
+	/** 
 	 * name
 	 *
 	 */
 	@Column(name="name")
-	@NotEmpty
 	protected String name;
 
 	/**
@@ -127,7 +157,6 @@ public class Resource extends WaspModel {
 	 *
 	 */
 	@Column(name="typeresourceid")
-	@Range(min=1)
 	protected int typeResourceId;
 
 	/**
@@ -313,6 +342,72 @@ public class Resource extends WaspModel {
 
 
 	/** 
+	 * jobResource
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="resourceid", insertable=false, updatable=false)
+	protected List<JobResource> jobResource;
+
+
+	/** 
+	 * getJobResource()
+	 *
+	 * @return jobResource
+	 *
+	 */
+	public List<JobResource> getJobResource() {
+		return this.jobResource;
+	}
+
+
+	/** 
+	 * setJobResource
+	 *
+	 * @param jobResource
+	 *
+	 */
+	public void setJobResource (List<JobResource> jobResource) {
+		this.jobResource = jobResource;
+	}
+
+
+
+	/** 
+	 * jobDraftresource
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="resourceid", insertable=false, updatable=false)
+	protected List<JobDraftresource> jobDraftresource;
+
+
+	/** 
+	 * getJobDraftresource()
+	 *
+	 * @return jobDraftresource
+	 *
+	 */
+	public List<JobDraftresource> getJobDraftresource() {
+		return this.jobDraftresource;
+	}
+
+
+	/** 
+	 * setJobDraftresource
+	 *
+	 * @param jobDraftresource
+	 *
+	 */
+	public void setJobDraftresource (List<JobDraftresource> jobDraftresource) {
+		this.jobDraftresource = jobDraftresource;
+	}
+
+
+
+	/** 
 	 * resourceBarcode
 	 *
 	 */
@@ -341,6 +436,39 @@ public class Resource extends WaspModel {
 	 */
 	public void setResourceBarcode (List<ResourceBarcode> resourceBarcode) {
 		this.resourceBarcode = resourceBarcode;
+	}
+
+
+
+	/** 
+	 * workflowresource
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="resourceid", insertable=false, updatable=false)
+	protected List<Workflowresource> workflowresource;
+
+
+	/** 
+	 * getWorkflowresource()
+	 *
+	 * @return workflowresource
+	 *
+	 */
+	public List<Workflowresource> getWorkflowresource() {
+		return this.workflowresource;
+	}
+
+
+	/** 
+	 * setWorkflowresource
+	 *
+	 * @param workflowresource
+	 *
+	 */
+	public void setWorkflowresource (List<Workflowresource> workflowresource) {
+		this.workflowresource = workflowresource;
 	}
 
 
