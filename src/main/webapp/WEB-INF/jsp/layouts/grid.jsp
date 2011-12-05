@@ -29,6 +29,8 @@ html, body {
 	
   <script src="/wasp/scripts/jquery/jquery-1.6.2.js" type="text/javascript"></script>
   <script src="/wasp/scripts/jquery/ajaxfileupload.js" type="text/javascript"></script>
+  
+   <%--  include locale-specific jqgrid file.  jqLang is set in UserLocaleInterceptor class --%> 
   <script src="/wasp/scripts/jqgrid/grid.locale-<%= ((HttpServletRequest)pageContext.getRequest()).getSession().getAttribute("jqLang") %>.js" type="text/javascript"></script>
   <script src="/wasp/scripts/jqgrid/jquery.jqGrid.min.js" type="text/javascript"></script>
   
