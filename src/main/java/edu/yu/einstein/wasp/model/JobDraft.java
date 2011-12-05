@@ -64,6 +64,7 @@ public class JobDraft extends WaspModel {
 	 *
 	 */
 	@Column(name="labid")
+//	@Range(min=1)
 	protected int labId;
 
 	/**
@@ -95,7 +96,7 @@ public class JobDraft extends WaspModel {
 	 *
 	 */
 	@Column(name="userid")
-	//@Range(min=1)
+	// @ Range(min=1)
 	protected int UserId;
 
 	/**
@@ -127,7 +128,7 @@ public class JobDraft extends WaspModel {
 	 *
 	 */
 	@Column(name="workflowid")
-	@Range(min=1)
+	// @ Range(min=1)
 	protected int workflowId;
 
 	/**
@@ -503,6 +504,39 @@ public class JobDraft extends WaspModel {
 
 
 	/** 
+	 * jobDraftresource
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="jobdraftid", insertable=false, updatable=false)
+	protected List<JobDraftresource> jobDraftresource;
+
+
+	/** 
+	 * getJobDraftresource()
+	 *
+	 * @return jobDraftresource
+	 *
+	 */
+	public List<JobDraftresource> getJobDraftresource() {
+		return this.jobDraftresource;
+	}
+
+
+	/** 
+	 * setJobDraftresource
+	 *
+	 * @param jobDraftresource
+	 *
+	 */
+	public void setJobDraftresource (List<JobDraftresource> jobDraftresource) {
+		this.jobDraftresource = jobDraftresource;
+	}
+
+
+
+	/** 
 	 * sampleDraft
 	 *
 	 */
@@ -532,6 +566,7 @@ public class JobDraft extends WaspModel {
 	public void setSampleDraft (List<SampleDraft> sampleDraft) {
 		this.sampleDraft = sampleDraft;
 	}
+
 
 
 	/** 
