@@ -47,6 +47,8 @@ public interface TaskService extends WaspService<Task> {
 
   public List<State> getJobCreatedStates();
 
+  public List<State> getQuoteJobStates();
+
   public List<State> getPiApprovedStates();
 
   public List<State> getDaApprovedStates();
