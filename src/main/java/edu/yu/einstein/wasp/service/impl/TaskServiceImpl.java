@@ -72,15 +72,19 @@ public class TaskServiceImpl extends WaspServiceImpl<Task> implements TaskServic
   }
 
   public List<State> getJobCreatedStates () {
-    return getStatesByTaskIName("jobCreated", "CREATED");
+    return getStatesByTaskIName("Start Job", "CREATED");
+  }
+
+  public List<State> getQuoteJobStates () {
+    return getStatesByTaskIName("Quote Job", "QUOTE");
   }
 
   public List<State> getPiApprovedStates () {
-    return getStatesByTaskIName("piApproved", "APPROVED");
+    return getStatesByTaskIName("PI Approval", "APPROVED");
   }
 
   public List<State> getDaApprovedStates () {
-    return getStatesByTaskIName("daApproved", "APPROVED");
+    return getStatesByTaskIName("DA Approval", "APPROVED");
   }
 
   public List<State> getSampleReceivedStates () {
