@@ -9,6 +9,7 @@
     </properties>
     <build>
         <plugins>
+       
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -51,8 +52,11 @@
                     <url>${tomcat-url}</url>
                 </configuration>
             </plugin>
-
-
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>2.1.1</version>
+            </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
@@ -66,28 +70,17 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <additionalClasspathElements>
-<!--
-                    <additionalClasspathElement>target/wasp-0.0.1-SNAPSHOT.war</additionalClasspathElement>
-                    <additionalClasspathElement>target/wasp-0.0.1-SNAPSHOT/WEB-INF/classes</additionalClasspathElement>
-                    <additionalClasspathElement>target/wasp-0.0.1-SNAPSHOT</additionalClasspathElement> -->
-
+                    <additionalClasspathElements>                    
+                    <additionalClasspathElement>C:/projects/fox/wasp/target/wasp-0.0.1-SNAPSHOT</additionalClasspathElement>
                     </additionalClasspathElements>
-
-                    <mainClass>edu.yu.einstein.wasp.batch.StartSpring</mainClass>
+                    <mainClass>edu.yu.einstein.wasp.batch.StartSpring</mainClass>                    
                     <!-- mainClass>org.springframework.batch.core.launch.support.CommandLineJobRunner</mainClass>
                     <arguments>
-                        <argument>classpath:/batch-context.xml</argument>
+                        <argument>classpath:/bee-context.xml</argument>
                         <argument>helloJob</argument>
-                        <argument>fileName=D:/fox/wasp/test5.txt</argument>     
+                        <argument>fileName=D:/fox/wasp/test5.txt</argument>                        
                     </arguments-->
                 </configuration>
-</plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <version>2.1.1</version>
             </plugin>
               
      

@@ -20,9 +20,21 @@
         "
   default-autowire="byName">
 
- 
-  <!-- <import resource="classpath:/WEB-INF/spring/security-app-context.xml"/> -->
-  <import resource="file:/home/ewah/wasp/target/wasp-0.0.1-SNAPSHOT/WEB-INF/spring/security-app-context.old.xml"/>
+   <!--  configure properties files -->
+    <bean id="propertyPlaceholderConfigurer"  
+    class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">  
+      <property name="locations">  
+        <list>  
+          <value>classpath:database.properties</value>  
+          <value>classpath:authentication.properties</value>
+          <value>classpath:email.properties</value>
+        </list>  
+      </property>  
+  </bean> 
+    
+  <import resource="file:C:/projects/fox/wasp/target/wasp-0.0.1-SNAPSHOT/WEB-INF/spring/security-app-context.xml"/>
+   
+  <!--  import resource="file:/home/ewah/wasp/target/wasp-0.0.1-SNAPSHOT/WEB-INF/spring/security-app-context.old.xml"/-->
 
   <bean id="messageSource" class="edu.yu.einstein.wasp.service.impl.WaspMessageSourceImpl" >
         <!-- property name="useCodeAsDefaultMessage" value="true"/-->
