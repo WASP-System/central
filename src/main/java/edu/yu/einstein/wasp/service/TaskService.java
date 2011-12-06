@@ -13,6 +13,7 @@ package edu.yu.einstein.wasp.service;
 
 import edu.yu.einstein.wasp.dao.TaskDao;
 import edu.yu.einstein.wasp.model.Task;
+import edu.yu.einstein.wasp.model.State;
 
 import java.util.List;
 import java.util.Map;
@@ -41,6 +42,16 @@ public interface TaskService extends WaspService<Task> {
   public Task getTaskByTaskId (final int taskId);
 
   public Task getTaskByIName (final String iName);
+
+  public List<State> getStatesByTaskIName (final String iName, final String status);
+
+  public List<State> getJobCreatedStates();
+
+  public List<State> getPiApprovedStates();
+
+  public List<State> getDaApprovedStates();
+
+  public List<State> getSampleReceivedStates();
 
 
 }

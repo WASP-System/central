@@ -24,7 +24,8 @@ public interface TaskDao extends WaspDao<Task> {
   public Task getTaskByTaskId (final int taskId);
 
   public Task getTaskByIName (final String iName);
-
+ 
+  public List<State> getStatesByTaskIName (final String iName, final String status);
 
 }
 
