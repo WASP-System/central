@@ -1027,7 +1027,7 @@ public class JobSubmissionController extends WaspController {
 
 		// something like this:
 		State state = new State(); 
-		Task jobCreateTask = taskService.getTaskByIName("jobCreated");
+		Task jobCreateTask = taskService.getTaskByIName("Start Job");
 		state.setTaskId(jobCreateTask.getTaskId());
 		state.setName(jobCreateTask.getName());
 		state.setStartts(new Date());
