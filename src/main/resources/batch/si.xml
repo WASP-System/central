@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+    xsi:schemaLocation=" http://www.springframework.org/schema/beans 
+  http://www.springframework.org/schema/beans/spring-beans-3.1.xsd     
+  http://www.springframework.org/schema/context  
+  http://www.springframework.org/schema/context/spring-context-3.1.xsd 
+  http://www.springframework.org/schema/mvc 
+  http://www.springframework.org/schema/mvc/spring-mvc-3.1.xsd  
+  http://www.springframework.org/schema/aop 
+  http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+  http://www.springframework.org/schema/tx
+  http://www.springframework.org/schema/tx/spring-tx-3.1.xsd
+  http://www.springframework.org/schema/integration
+  http://www.springframework.org/schema/integration/spring-integration-2.0.xsd
+  http://www.springframework.org/schema/integration/file
+  http://www.springframework.org/schema/integration/file/spring-integration-file-2.0.xsd"
+    xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:aop="http://www.springframework.org/schema/aop" xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:p="http://www.springframework.org/schema/p" xmlns:tx="http://www.springframework.org/schema/tx" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:si="http://www.springframework.org/schema/integration" xmlns:file="http://www.springframework.org/schema/integration/file" xmlns="http://www.springframework.org/schema/beans"
+    default-autowire="byName">
+    
+  <si:logging-channel-adapter id="logger" level="DEBUG"/>
+
+  <!-- default error channel --> 
+  <si:channel id="errorChannel">
+    <si:interceptors>
+      <si:wire-tap channel="logger"/>
+    </si:interceptors>
+  </si:channel>
+
+   <bean id="taskService" class="edu.yu.einstein.wasp.service.impl.TaskServiceImpl" />
+
+    <bean id="stateReader" class="edu.yu.einstein.wasp.batch.StateReader" scope="step">
+      <property name="stateId" value="#{jobParameters['state']}"/>
+    </bean>
+
+    <bean id="finalStateStep" class="org.springframework.batch.core.step.item.SimpleStepFactoryBean">
+      <property name="transactionManager" ref="transactionManager"/>
+      <property name="jobRepository" ref="jobRepository"/>
+      <property name="itemReader" ref="stateReader"/>
+      <property name="itemProcessor" ref="stateFinalProcessor"/>
+    </bean>
+
+
+
+</beans>

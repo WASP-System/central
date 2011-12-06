@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+    xsi:schemaLocation=" http://www.springframework.org/schema/beans 
+  http://www.springframework.org/schema/beans/spring-beans-3.1.xsd     
+  http://www.springframework.org/schema/context  
+  http://www.springframework.org/schema/context/spring-context-3.1.xsd 
+  http://www.springframework.org/schema/mvc 
+  http://www.springframework.org/schema/mvc/spring-mvc-3.1.xsd  
+  http://www.springframework.org/schema/aop 
+  http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+  http://www.springframework.org/schema/tx
+  http://www.springframework.org/schema/tx/spring-tx-3.1.xsd
+  http://www.springframework.org/schema/integration
+  http://www.springframework.org/schema/integration/spring-integration-2.0.xsd
+  http://www.springframework.org/schema/integration/file
+  http://www.springframework.org/schema/integration/file/spring-integration-file-2.0.xsd
+  http://www.springframework.org/schema/batch 
+  http://www.springframework.org/schema/batch/spring-batch-2.1.xsd
+  "
+    xmlns:mvc="http://www.springframework.org/schema/mvc" 
+    xmlns:aop="http://www.springframework.org/schema/aop" 
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:p="http://www.springframework.org/schema/p" 
+    xmlns:batch="http://www.springframework.org/schema/batch" 
+    xmlns:tx="http://www.springframework.org/schema/tx" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:si="http://www.springframework.org/schema/integration" 
+    xmlns:file="http://www.springframework.org/schema/integration/file" 
+    xmlns="http://www.springframework.org/schema/beans"
+    default-autowire="byName">
+
+  <!--
+  from si.xml 
+  - jobRegistry
+  - jobLauncher
+
+  - logger
+  - errorChannel
+  - taskService
+  - finalStateProcessor
+
+  -->
+  <!-- every 5 seconds call taskService.getJobCreatedStates() -->
+  <!-- taskService bean defined in si.xml  -->
+  <si:inbound-channel-adapter ref="taskService" method="getJobCreatedStates" channel="jobCreateRequestChannel">
+    <si:poller>
+      <si:interval-trigger interval="5000" />
+    </si:poller>
+  </si:inbound-channel-adapter>
+
+  <!-- intermediary for output from jobCreateRequestChannel: -->
+  <!-- calls StateJobLaunchingMessageHandler which calls batch:job 'jobCreated' (see below) -->	
+  <si:service-activator input-channel="jobCreateRequestChannel" output-channel="logger">
+    <bean class="edu.yu.einstein.wasp.batch.StateJobLaunchingMessageHandler" scope="prototype">
+       <constructor-arg ref="jobRegistry" />
+       <constructor-arg ref="jobLauncher" />
+       <constructor-arg type="java.lang.String"><value>jobCreated</value></constructor-arg>
+    </bean>
+  </si:service-activator>
+
+  <bean id="createPiApproveStateProcessor" class="edu.yu.einstein.wasp.batch.CreateJobStateProcessor">
+    <property name="targetTask" value="piApproved" />
+  </bean>
+
+  <bean id="createDaApproveStateProcessor" class="edu.yu.einstein.wasp.batch.CreateJobStateProcessor">
+    <property name="targetTask" value="daApproved" />
+  </bean>
+
+  <bean id="createPiApproveStateStep" class="org.springframework.batch.core.step.item.SimpleStepFactoryBean">
+    <property name="transactionManager" ref="transactionManager"/>
+    <property name="jobRepository" ref="jobRepository"/>
+    <property name="itemReader" ref="stateReader"/>
+    <property name="itemProcessor" ref="createPiApproveStateProcessor"/>
+  </bean>
+
+  <bean id="createDaApproveStateStep" class="org.springframework.batch.core.step.item.SimpleStepFactoryBean">
+    <property name="transactionManager" ref="transactionManager"/>
+    <property name="jobRepository" ref="jobRepository"/>
+    <property name="itemReader" ref="stateReader"/>
+    <property name="itemProcessor" ref="createDaApproveStateProcessor"/>
+  </bean>
+
+  <batch:job id="jobCreated">
+    <batch:step id="jobCreated1" parent="createPiApproveStateStep" next="jobCreated2" />
+    <batch:step id="jobCreated2" parent="createDaApproveStateStep" next="jobCreated3" />
+    <batch:step id="jobCreated3" parent="finalStateStep" />
+  </batch:job>
+
+
+</beans>
