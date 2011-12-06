@@ -49,40 +49,44 @@
   </si:inbound-channel-adapter>
 
   <!-- intermediary for output from jobCreateRequestChannel: -->
-  <!-- calls StateJobLaunchingMessageHandler which calls batch:job 'jobCreated' (see below) -->	
+  <!-- calls StateJobLaunchingMessageHandler which calls batch:job 'Start Job' (see below) -->	
   <si:service-activator input-channel="jobCreateRequestChannel" output-channel="logger">
     <bean class="edu.yu.einstein.wasp.batch.StateJobLaunchingMessageHandler" scope="prototype">
        <constructor-arg ref="jobRegistry" />
        <constructor-arg ref="jobLauncher" />
-       <constructor-arg type="java.lang.String"><value>jobCreated</value></constructor-arg>
+       <constructor-arg type="java.lang.String"><value>Start Job</value></constructor-arg>
     </bean>
   </si:service-activator>
 
-  <bean id="createPiApproveStateProcessor" class="edu.yu.einstein.wasp.batch.CreateJobStateProcessor">
-    <property name="targetTask" value="piApproved" />
+  <bean id="createQuoteJobStateProcessor" class="edu.yu.einstein.wasp.batch.CreateJobStateProcessor">
+    <property name="targetTask" value="Quote Job" />
   </bean>
 
-  <bean id="createDaApproveStateProcessor" class="edu.yu.einstein.wasp.batch.CreateJobStateProcessor">
-    <property name="targetTask" value="daApproved" />
+<!--
+  <bean id="createSampleReceiveStateProcessor" class="edu.yu.einstein.wasp.batch.CreateSampleRecieveProcessor">
+    <property name="targetTask" value="Receive Sample" />
   </bean>
+-->
 
-  <bean id="createPiApproveStateStep" class="org.springframework.batch.core.step.item.SimpleStepFactoryBean">
+  <bean id="createQuoteJobStateStep" class="org.springframework.batch.core.step.item.SimpleStepFactoryBean">
     <property name="transactionManager" ref="transactionManager"/>
     <property name="jobRepository" ref="jobRepository"/>
     <property name="itemReader" ref="stateReader"/>
-    <property name="itemProcessor" ref="createPiApproveStateProcessor"/>
+    <property name="itemProcessor" ref="createQuoteJobStateProcessor"/>
   </bean>
 
-  <bean id="createDaApproveStateStep" class="org.springframework.batch.core.step.item.SimpleStepFactoryBean">
+<!--
+  <bean id="createSampleReceiveStateStep" class="org.springframework.batch.core.step.item.SimpleStepFactoryBean">
     <property name="transactionManager" ref="transactionManager"/>
     <property name="jobRepository" ref="jobRepository"/>
     <property name="itemReader" ref="stateReader"/>
-    <property name="itemProcessor" ref="createDaApproveStateProcessor"/>
+    <property name="itemProcessor" ref="createSampleReceiveStateProcessor"/>
   </bean>
+-->
 
   <batch:job id="jobCreated">
-    <batch:step id="jobCreated1" parent="createPiApproveStateStep" next="jobCreated2" />
-    <batch:step id="jobCreated2" parent="createDaApproveStateStep" next="jobCreated3" />
+    <batch:step id="jobCreated1" parent="createQuoteJobStateStep" next="jobCreated3" />
+<!--    <batch:step id="jobCreated2" parent="createSampleReceiveStateStep" next="jobCreated3" /> -->
     <batch:step id="jobCreated3" parent="finalStateStep" />
   </batch:job>
 
