@@ -470,7 +470,7 @@ public class UserPendingController extends WaspController {
 			return false;
 		}
 		ConfirmEmailAuth confirmEmailAuth = confirmEmailAuthService.getConfirmEmailAuthByAuthcode(authCode);
-		if (email == null || email.isEmpty() || confirmEmailAuth.getUserpendingId() == 0) {
+		if (email == null || email.isEmpty() || confirmEmailAuth.getConfirmEmailAuthId() == 0) {
 			waspMessage("auth.confirmemail_bademail.error");
 			m.put("authcode", authCode);
 			return false;
@@ -601,6 +601,7 @@ public class UserPendingController extends WaspController {
 			waspMessage("auth.confirmemail_corruptemail.error");
 			return "auth/confirmemail/authcodeform"; 
 		}
+		if (! userPendingEmailValid(authCode, decodedEmail, m)) return "auth/confirmemail/authcodeform";
 		Map userPendingQueryMap = new HashMap();
 		userPendingQueryMap.put("email", decodedEmail);
 		userPendingQueryMap.put("status", "WAIT_EMAIL");
@@ -608,7 +609,6 @@ public class UserPendingController extends WaspController {
 			// email already confirmed probably accidently re-confirming
 			return "redirect:/auth/newuser/emailok.do";
 		}
-		if (! userPendingEmailValid(authCode, decodedEmail, m)) return "auth/confirmemail/authcodeform";
 		request.getSession().removeAttribute(Captcha.NAME); // ensures fresh capcha issued if required in this session
 		sendPendingUserConfRequestEmail(decodedEmail);
 		return "redirect:/auth/newuser/emailok.do";
@@ -637,6 +637,7 @@ public class UserPendingController extends WaspController {
 			  m.put("email", email);
 			  return "auth/confirmemail/authcodeform";
 		  }
+		  if (! userPendingEmailValid(authCode, email, m)) return "auth/confirmemail/authcodeform";
 		  Map userPendingQueryMap = new HashMap();
 		  userPendingQueryMap.put("email", email);
 		  userPendingQueryMap.put("status", "WAIT_EMAIL");
@@ -644,7 +645,6 @@ public class UserPendingController extends WaspController {
 			// email already confirmed probably accidently re-confirming
 			return "redirect:/auth/newuser/emailok.do";
 		  }
-		  if (! userPendingEmailValid(authCode, email, m)) return "auth/confirmemail/authcodeform";
 		  sendPendingUserConfRequestEmail(email);
 		  return "redirect:/auth/newuser/emailok.do";
 	  }
@@ -672,6 +672,7 @@ public class UserPendingController extends WaspController {
 			 waspMessage("auth.confirmemail_corruptemail.error");
 			 return "auth/confirmemail/authcodeform"; 
 		 }
+		 if (! userPendingEmailValid(authCode, decodedEmail, m)) return "auth/confirmemail/authcodeform";
 		 Map userPendingQueryMap = new HashMap();
 		 userPendingQueryMap.put("email", decodedEmail);
 		 userPendingQueryMap.put("status", "WAIT_EMAIL");
@@ -679,7 +680,6 @@ public class UserPendingController extends WaspController {
 			 // email already confirmed probably accidently re-confirming
 			 return "redirect:/auth/newpi/emailok.do";
 		 }	  
-		 if (! userPendingEmailValid(authCode, decodedEmail, m)) return "auth/confirmemail/authcodeform";
 		 sendPendingUserConfRequestEmail(decodedEmail);
 		 return "redirect:/auth/newpi/emailok.do";
 	}
@@ -706,6 +706,7 @@ public class UserPendingController extends WaspController {
 			m.put("email", email);
 			return "auth/confirmemail/authcodeform";
 		}
+		if (! userPendingEmailValid(authCode, email, m)) return "auth/confirmemail/authcodeform";
 		Map userPendingQueryMap = new HashMap();
 		userPendingQueryMap.put("email", email);
 		userPendingQueryMap.put("status", "WAIT_EMAIL");
@@ -713,7 +714,6 @@ public class UserPendingController extends WaspController {
 			// email already confirmed probably accidently re-confirming
 			return "redirect:/auth/newpi/emailok.do";
 		}	 
-		if (! userPendingEmailValid(authCode, email, m)) return "auth/confirmemail/authcodeform";
 		sendPendingUserConfRequestEmail(email);
 		return "redirect:/auth/newpi/emailok.do";
 	}
