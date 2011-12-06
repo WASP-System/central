@@ -16,6 +16,7 @@ package edu.yu.einstein.wasp.dao.impl;
 import java.util.List;
 import java.util.Locale;
 
+import util.spring.PostInitialize;
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceException;
@@ -57,7 +58,9 @@ public class DBResourceBundle extends JpaDaoSupport implements ApplicationContex
 		this.applicationContext=applicationContext;
 	}
 	
-	@PostConstruct
+
+	// PostInitialized... b/c Resource and Workflow need uifields set within them
+	@PostInitialize
 	public void init() {
 		
 		//apply latest updates from WEB-INF/uifield.update.sql file
