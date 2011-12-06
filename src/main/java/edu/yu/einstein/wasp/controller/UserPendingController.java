@@ -585,11 +585,15 @@ public class UserPendingController extends WaspController {
 	 * @return view
 	 * @throws MetadataException
 	 */
-	@RequestMapping(value="/confirmUserEmail", method=RequestMethod.GET)
+	  @RequestMapping(value="/confirmUserEmail", method=RequestMethod.GET)
 	  public String confirmUserEmailFromEmailLink(
-			  @RequestParam(value="authcode") String authCode,
-			  @RequestParam(value="email") String urlEncodedEmail,
+			  @RequestParam(value="authcode", required=false) String authCode,
+			  @RequestParam(value="email", required=false) String urlEncodedEmail,
 		      ModelMap m) throws MetadataException {
+		
+		if (authCode == null || authCode.isEmpty() || urlEncodedEmail == null || urlEncodedEmail.isEmpty()){
+			return "auth/confirmemail/authcodeform";
+		}
 		String decodedEmail;
 		try{
 			decodedEmail = URLDecoder.decode(urlEncodedEmail, "UTF-8");
@@ -633,6 +637,13 @@ public class UserPendingController extends WaspController {
 			  m.put("email", email);
 			  return "auth/confirmemail/authcodeform";
 		  }
+		  Map userPendingQueryMap = new HashMap();
+		  userPendingQueryMap.put("email", email);
+		  userPendingQueryMap.put("status", "WAIT_EMAIL");
+		  if (userPendingService.findByMap(userPendingQueryMap).isEmpty()){
+			// email already confirmed probably accidently re-confirming
+			return "redirect:/auth/newuser/emailok.do";
+		  }
 		  if (! userPendingEmailValid(authCode, email, m)) return "auth/confirmemail/authcodeform";
 		  sendPendingUserConfRequestEmail(email);
 		  return "redirect:/auth/newuser/emailok.do";
@@ -651,6 +662,9 @@ public class UserPendingController extends WaspController {
 			  @RequestParam(value="authcode") String authCode,
 			  @RequestParam(value="email") String urlEncodedEmail,
 		      ModelMap m) throws MetadataException {
+		 if (authCode == null || authCode.isEmpty() || urlEncodedEmail == null || urlEncodedEmail.isEmpty()){
+			return "auth/confirmemail/authcodeform";
+		 }
 		 String decodedEmail;
 		 try{
 			 decodedEmail = URLDecoder.decode(urlEncodedEmail, "UTF-8");
@@ -663,7 +677,7 @@ public class UserPendingController extends WaspController {
 		 userPendingQueryMap.put("status", "WAIT_EMAIL");
 		 if (userPendingService.findByMap(userPendingQueryMap).isEmpty()){
 			 // email already confirmed probably accidently re-confirming
-			 return "redirect:/auth/newuser/emailok.do";
+			 return "redirect:/auth/newpi/emailok.do";
 		 }	  
 		 if (! userPendingEmailValid(authCode, decodedEmail, m)) return "auth/confirmemail/authcodeform";
 		 sendPendingUserConfRequestEmail(decodedEmail);
@@ -692,7 +706,13 @@ public class UserPendingController extends WaspController {
 			m.put("email", email);
 			return "auth/confirmemail/authcodeform";
 		}
-
+		Map userPendingQueryMap = new HashMap();
+		userPendingQueryMap.put("email", email);
+		userPendingQueryMap.put("status", "WAIT_EMAIL");
+		if (userPendingService.findByMap(userPendingQueryMap).isEmpty()){
+			// email already confirmed probably accidently re-confirming
+			return "redirect:/auth/newpi/emailok.do";
+		}	 
 		if (! userPendingEmailValid(authCode, email, m)) return "auth/confirmemail/authcodeform";
 		sendPendingUserConfRequestEmail(email);
 		return "redirect:/auth/newpi/emailok.do";
