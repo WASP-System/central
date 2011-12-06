@@ -10,7 +10,7 @@
       <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver"/>
       <property name="javax.persistence.jdbc.user" value="wasp"/>
       <property name="javax.persistence.jdbc.password" value="waspV2"/>
-      <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost/wasp?characterEncoding=utf8&amp;useUnicode=true&amp;characterSetResults=utf8&amp;connectionCollation=utf8_general_ci"/>
+      <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost/wasp?zeroDateTimeBehavior=convertToNull&amp;characterEncoding=utf8&amp;useUnicode=true&amp;characterSetResults=utf8&amp;connectionCollation=utf8_general_ci"/>
       <property name="hibernate.hbm2ddl.auto" value="update" />
 
 <property name="hibernate.ejb.event.post-insert" value="org.hibernate.ejb.event.EJB3PostInsertEventListener,org.hibernate.envers.event.AuditEventListener" />
