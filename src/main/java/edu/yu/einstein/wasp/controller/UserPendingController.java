@@ -659,8 +659,8 @@ public class UserPendingController extends WaspController {
 	  */
 	 @RequestMapping(value="/confirmPIEmail", method=RequestMethod.GET)
 	 public String confirmPIEmailFromEmailLink(
-			  @RequestParam(value="authcode") String authCode,
-			  @RequestParam(value="email") String urlEncodedEmail,
+			  @RequestParam(value="authcode", required=false) String authCode,
+			  @RequestParam(value="email", required=false) String urlEncodedEmail,
 		      ModelMap m) throws MetadataException {
 		 if (authCode == null || authCode.isEmpty() || urlEncodedEmail == null || urlEncodedEmail.isEmpty()){
 			return "auth/confirmemail/authcodeform";
