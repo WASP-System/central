@@ -32,9 +32,9 @@
       </property>  
   </bean> 
     
-  <import resource="file:C:/projects/fox/wasp/target/wasp-0.0.1-SNAPSHOT/WEB-INF/spring/security-app-context.xml"/>
+  <!-- <import resource="file:C:/projects/fox/wasp/target/wasp-0.0.1-SNAPSHOT/WEB-INF/spring/security-app-context.xml"/> -->
    
-  <!--  import resource="file:/home/ewah/wasp/target/wasp-0.0.1-SNAPSHOT/WEB-INF/spring/security-app-context.old.xml"/-->
+  <import resource="file:/home/ewah/wasp/target/wasp-0.0.1-SNAPSHOT/WEB-INF/spring/security-app-context.old.xml"/>
 
   <bean id="messageSource" class="edu.yu.einstein.wasp.service.impl.WaspMessageSourceImpl" >
         <!-- property name="useCodeAsDefaultMessage" value="true"/-->
@@ -109,6 +109,7 @@
 
   </mvc:interceptors>
 
+  <!-- loads load scripts to update database -->
   <import resource="classpath*:wasp/*Load.xml" />
 
   <!-- Spring Integration/Batch config--> 
@@ -119,8 +120,15 @@
   <bean class="org.springframework.batch.core.scope.StepScope" />
 
   <import resource="batch/si.xml" />
+
+  <!-- loads all the batch -->
+  <import resource="classpath*:batch/*Batch.xml" />
+
+<!--  '*Batch' handles this
   <import resource="batch/jobCreatedBatch.xml" />
-  <import resource="batch/piApproveBatch.xml" />
+  <import resource="batch/quoteQuotedBatch.xml" />
+  <import resource="batch/piApprovedBatch.xml" />
+  <import resource="batch/daApprovedBatch.xml" /> -->
 
 
 <!--
