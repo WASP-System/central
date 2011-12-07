@@ -188,27 +188,27 @@ public class State extends WaspModel {
 	 *
 	 */
 	@Column(name="endts")
-	protected Date enDts;
+	protected Date endts;
 
 	/**
-	 * setEnDts(Date enDts)
+	 * setEnDts(Date endts)
 	 *
-	 * @param enDts
+	 * @param endts
 	 *
 	 */
 	
-	public void setEnDts (Date enDts) {
-		this.enDts = enDts;
+	public void setEndts (Date endts) {
+		this.endts = endts;
 	}
 
 	/**
-	 * getEnDts()
+	 * getEndts()
 	 *
-	 * @return enDts
+	 * @return endts
 	 *
 	 */
-	public Date getEnDts () {
-		return this.enDts;
+	public Date getEndts () {
+		return this.endts;
 	}
 
 
