@@ -76,7 +76,7 @@ public class TaskServiceImpl extends WaspServiceImpl<Task> implements TaskServic
   }
 
   public List<State> getQuoteJobStates () {
-    return getStatesByTaskIName("Quote Job", "QUOTE");
+    return getStatesByTaskIName("Quote Job", "QUOTED");
   }
 
   public List<State> getPiApprovedStates () {
@@ -88,7 +88,7 @@ public class TaskServiceImpl extends WaspServiceImpl<Task> implements TaskServic
   }
 
   public List<State> getSampleReceivedStates () {
-    return getStatesByTaskIName("sampleReceived", "RECEIVED");
+    return getStatesByTaskIName("Receive Sample", "RECEIVED");
   }
 
 }
