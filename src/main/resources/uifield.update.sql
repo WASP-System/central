@@ -57,6 +57,9 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','samples','label','Samples','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','jobs','label','Jobs','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','login_exists','error','Login name already exists in the database','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','email_changed_p1','label','Your email address has changed. An email has been sent to your new email address requesting confirmation. Please confirm by clicking the link in the email then <a href="../login.do"/>click here to login</a>','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','email_changed_p2','label','If you have not received an email confirmation of your new password within a reasonable time period and suspect your email address may have been mis-typed, you may reset your email address by clicking <a href="requestEmailChange.do">here</a>','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','email_change_confirmed','label','Your email address change has been confirmed. Please click to <a href="../login.do"/>Login</a>','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','login','label','Login','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','login','error','Login cannot be empty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','page','label','New User','1');
@@ -375,6 +378,11 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','confirmemail_authcode','label','Auth code','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','confirmemail_captcha','label','Captcha text','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','confirmemail','data','Submit','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','requestEmailChange_email','label','New Email Address','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','requestEmailChange_submit','label','Submit','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','requestEmailChange_bademail','error','email address is of incorrect format','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','requestEmailChange_captcha','error','Captcha text incorrect','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','requestEmailChange_badcredentials','error','Failed to authenticate with supplied login credentials','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','list_create','label','Create Department','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','list_department','label','Department Name','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','list','data','Submit','1');
@@ -646,6 +654,9 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','auth/newpi/form','label','New Principal Investigator','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','auth/newpi/institute','label','New Principal Investigator','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','auth/newpi/emailok','label','Email Confirmed','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','auth/confirmemail/emailupdateok','label','Email Update Confirmed','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','auth/confirmemail/requestEmailChange','label','Request to Change Email','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','auth/confirmemail/emailchanged','label','Confirm New Email Address','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','auth/newpi/created','label','Application Submitted','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','auth/newuser/form','label','New User','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','auth/newuser/emailok','label','Email Confirmed','1');

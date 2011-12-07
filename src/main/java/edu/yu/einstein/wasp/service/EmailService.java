@@ -18,6 +18,13 @@ import edu.yu.einstein.wasp.model.UserPending;
 @Service
 public interface EmailService  {
 	
+	/**
+	 * Sends an email message to a user requesting that they confirm their email address
+	 * 
+	 * @param user
+	 * @param authcode
+	 */
+	public void sendUserEmailConfirm(final User user, final String authcode);
 
 	/**
 	 * Sends an email message to a pending user requesting that they confirm their email address

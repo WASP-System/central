@@ -66,6 +66,15 @@
 	<definition name="auth/confirmemail/authcodeform" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/auth/confirmemail/authcodeform.jsp" />
 	</definition>
+	<definition name="auth/confirmemail/emailchanged" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/auth/confirmemail/emailchanged.jsp" />
+	</definition>
+	<definition name="auth/confirmemail/requestEmailChange" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/auth/confirmemail/requestEmailChange.jsp" />
+	</definition>
+	<definition name="auth/confirmemail/emailupdateok" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/auth/confirmemail/emailupdateok.jsp" />
+	</definition>
 	<definition name="dashboard" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/dashboard.jsp" />
 	</definition>
@@ -151,6 +160,9 @@
 	</definition>
 	<definition name="task/list" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/task/list.jsp" />
+	</definition>
+	<definition name="task/detail" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/task/detail.jsp" />
 	</definition>
 	<definition name="task/fmrequote/list" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/task/fmrequote/list.jsp" />

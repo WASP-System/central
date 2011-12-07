@@ -79,4 +79,14 @@ public class StringHelper {
 			userLogin = matchLoginRegex.group(1);
 		return userLogin;
 	}
+	
+	/**
+	 * Returns true if the supplied string is a valid email address format
+	 * @param s
+	 * @return true/false
+	 */
+	public static boolean isStringAValidEmailAddress(String s){
+		if (s == null || s.isEmpty()) return false;
+		return s.matches("^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$");
+	}
 }

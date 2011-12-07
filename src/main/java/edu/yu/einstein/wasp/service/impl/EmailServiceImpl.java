@@ -77,7 +77,12 @@ public class EmailServiceImpl implements EmailService {
 	private DepartmentService departmentService;
 
 
-	
+	/**
+	 * {@inheritDoc} 
+	 */
+	public void sendUserEmailConfirm(final User user, final String authcode) {
+		sendEmailConfirm(user, authcode, "emails/user_request_email_confirm");
+	}
 	
 	
 	/**
@@ -95,28 +100,38 @@ public class EmailServiceImpl implements EmailService {
 	}
 	
 	/**
+	 * Send confirmation email to user ({@link User}) providing an authorization code and using the velocity template specified
+	 * @param user
+	 * @param authcode
+	 * @param emailTemplate
+	 */
+	protected void sendEmailConfirm(final User user, final String authcode, final String template){
+		String urlEncodedEmail = "";
+		try{
+			urlEncodedEmail = URLEncoder.encode(user.getEmail(), "UTF-8");
+		} catch(UnsupportedEncodingException e){
+			throw new MailPreparationException(e);
+		}
+		Map model = new HashMap();
+		model.put("user", user);
+		model.put("authcode", authcode);
+		model.put("urlencodedemail", urlEncodedEmail);
+		prepareAndSend(user, template, model); 
+	}
+	
+	/**
 	 * Send confirmation email to pending user ({@link UserPending}) providing an authorization code and using the velocity template specified
 	 * @param userPending
 	 * @param authcode
 	 * @param emailTemplate
 	 */
-	protected void sendEmailConfirm(final UserPending userPending, final String authcode, final String template){
-		User pendinguser = new User();
-		pendinguser.setFirstName(userPending.getFirstName());
-		pendinguser.setLastName(userPending.getLastName());
-		pendinguser.setEmail(userPending.getEmail());
-		pendinguser.setLocale(userPending.getLocale());
-		String urlEncodedEmail = "";
-		try{
-			urlEncodedEmail = URLEncoder.encode(pendinguser.getEmail(), "UTF-8");
-		} catch(UnsupportedEncodingException e){
-			throw new MailPreparationException(e);
-		}
-		Map model = new HashMap();
-		model.put("pendinguser", pendinguser);
-		model.put("authcode", authcode);
-		model.put("urlencodedemail", urlEncodedEmail);
-		prepareAndSend(pendinguser, template, model); 
+	protected void sendEmailConfirm(final UserPending userPending, String authcode, String template){
+		User user = new User();
+		user.setFirstName(userPending.getFirstName());
+		user.setLastName(userPending.getLastName());
+		user.setEmail(userPending.getEmail());
+		user.setLocale(userPending.getLocale());
+		sendEmailConfirm(user, authcode, template);
 	}
 	
 	/**

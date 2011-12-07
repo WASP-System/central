@@ -11,9 +11,13 @@
 
 package edu.yu.einstein.wasp.service.impl;
 
+import edu.yu.einstein.wasp.service.ConfirmEmailAuthService;
+import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.service.UserService;
+import edu.yu.einstein.wasp.util.AuthCode;
 import edu.yu.einstein.wasp.dao.UserDao;
 import edu.yu.einstein.wasp.dao.WaspDao;
+import edu.yu.einstein.wasp.model.ConfirmEmailAuth;
 import edu.yu.einstein.wasp.model.User;
 
 import java.util.List;
@@ -27,8 +31,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserServiceImpl extends WaspServiceImpl<User> implements UserService {
-
-
+	
+  @Autowired
+  private ConfirmEmailAuthService confirmEmailAuthService;
+  
+  @Autowired
+  private EmailService emailService;
 	
   private UserDao userDao;
   @Autowired
@@ -82,6 +90,16 @@ public class UserServiceImpl extends WaspServiceImpl<User> implements UserServic
 		}
 		return login;
   }
+  
+  public void reconfirmEmailAction(final User user){
+		// a new email address must be confirmed
+		String authcode = AuthCode.create(20);
+		ConfirmEmailAuth confirmEmailAuth = confirmEmailAuthService.getConfirmEmailAuthByUserId(user.getUserId());
+		confirmEmailAuth.setAuthcode(authcode);
+		confirmEmailAuth.setUserId(user.getUserId());
+		confirmEmailAuthService.save(confirmEmailAuth);
+		emailService.sendUserEmailConfirm(user, authcode);
+	}
   
 }
 

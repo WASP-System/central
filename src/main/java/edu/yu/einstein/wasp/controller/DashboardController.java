@@ -68,7 +68,7 @@ public class DashboardController extends WaspController {
 				case jd: jobDraftList.add(jobDraftService.getJobDraftByJobDraftId(roleObjectId)); break;
 			}
 		}
-
+		m.addAttribute("me", authenticationService.getAuthenticatedUser());
 		m.addAttribute("departments", departmentList);
 		m.addAttribute("labs", labList);
 		m.addAttribute("jobs", jobList);

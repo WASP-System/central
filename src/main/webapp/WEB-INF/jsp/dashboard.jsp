@@ -1,5 +1,6 @@
 <%@ include file="/WEB-INF/jsp/include.jsp" %>
 <div><p><font color="red"><wasp:message /></font></p></div>
+<div><p>Welcome back ${me.firstName} ${me.lastName}</p></div>
 <div><a href="<c:url value="/user/me_ro.do"/>">My Profile</a></div>
 <sec:authorize access="not hasRole('ldap')">
 	<div><a href="<c:url value="/user/mypassword.do"/>">My Password</a></div>

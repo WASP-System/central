@@ -4,10 +4,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +23,7 @@ import edu.yu.einstein.wasp.service.UserPendingService;
 import edu.yu.einstein.wasp.service.UserService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
 
@@ -38,11 +42,27 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	@Autowired
 	private AuthenticationManager authenticationManager;
 	
+	@Autowired
+	HttpServletRequest request;
+	
 	@Override
 	public User getAuthenticatedUser() {
 		 Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		 User user = this.userService.getUserByLogin(authentication.getName());
 		 return user;
+	}
+	@Override
+	public boolean isAuthenticated(){
+		return (getAuthenticatedUser().getUserId() != 0);
+	}
+	
+	@Override
+	public void logoutUser(){
+		if (this.isAuthenticated()){
+			SecurityContextLogoutHandler logoutHandler = new SecurityContextLogoutHandler();
+			logoutHandler.setInvalidateHttpSession(true);
+			logoutHandler.logout(request, null, null);
+		}
 	}
 
 	@Override
@@ -95,6 +115,17 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	        Authentication request = new UsernamePasswordAuthenticationToken(name, password);
 	        Authentication result = authenticationManager.authenticate(request);
 	        SecurityContextHolder.getContext().setAuthentication(result);
+	    } catch(AuthenticationException e) {
+	        return false;
+	    }
+		return true;
+	}
+	
+	@Override
+	public boolean authenticates(String name, String password){
+		try {
+	        Authentication request = new UsernamePasswordAuthenticationToken(name, password);
+	        Authentication result = authenticationManager.authenticate(request);
 	    } catch(AuthenticationException e) {
 	        return false;
 	    }

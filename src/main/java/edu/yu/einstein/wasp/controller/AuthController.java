@@ -1,5 +1,11 @@
 package edu.yu.einstein.wasp.controller;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import nl.captcha.Captcha;
 
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -10,13 +16,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import edu.yu.einstein.wasp.exception.MetadataException;
+import edu.yu.einstein.wasp.model.ConfirmEmailAuth;
 import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.model.Userpasswordauth;
 
+import edu.yu.einstein.wasp.service.AuthenticationService;
+import edu.yu.einstein.wasp.service.ConfirmEmailAuthService;
+import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.service.UserpasswordauthService;
 import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.service.PasswordService;
 import edu.yu.einstein.wasp.util.AuthCode;
+import edu.yu.einstein.wasp.util.StringHelper;
 
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,11 +53,76 @@ public class AuthController extends WaspController {
   private PasswordService passwordService;
   
   @Autowired
+  private UserService userService;
+  
+  @Autowired
   private BeanValidator validator;
+  
+  @Autowired
+  private AuthenticationService authenticationService;
+  
+  @Autowired
+  private ConfirmEmailAuthService confirmEmailAuthService;
   
   @InitBinder
   protected void initBinder(WebDataBinder binder) {
     binder.setValidator(validator);
+  }
+  
+  @RequestMapping(value="/loginHandler", method=RequestMethod.GET)
+  public String loginHandler(ModelMap m){
+	  if (authenticationService.isAuthenticated()){
+		  User authUser = authenticationService.getAuthenticatedUser();
+		  ConfirmEmailAuth confirmEmailAuth = confirmEmailAuthService.getConfirmEmailAuthByUserId(authUser.getUserId());
+		  if (confirmEmailAuth.getConfirmEmailAuthId() != 0){
+			  // email awaiting confirmation for this user
+			  authenticationService.logoutUser();
+			  return "redirect:/auth/confirmemail/emailchanged.do";
+		  } else {
+			  return "redirect:/dashboard.do";
+		  }
+	  } 
+	  return "redirect:/auth/login.do";
+  }
+  
+  @RequestMapping(value="/confirmemail/requestEmailChange", method=RequestMethod.GET)
+  public String requestEmailChange(ModelMap m){
+	  return "auth/confirmemail/requestEmailChange";
+  }
+  
+  @RequestMapping(value="/confirmemail/requestEmailChange", method=RequestMethod.POST)
+  public String requestEmailChange(
+		  @RequestParam(value="loginName") String loginName,
+		  @RequestParam(value="password") String password,
+		  @RequestParam(value="email") String email,
+	  	  @RequestParam(value="captcha_text") String captchaText, ModelMap m){
+	  Captcha captcha = (Captcha) request.getSession().getAttribute(Captcha.NAME);
+	  if (captcha == null || (! captcha.isCorrect(captchaText)) ){
+		  waspMessage("auth.requestEmailChange_captcha.error");
+		  m.put("loginName", loginName);
+		  m.put("email", email);
+		  return "auth/confirmemail/requestEmailChange";
+	  }
+	  if (! StringHelper.isStringAValidEmailAddress(email)){
+		  waspMessage("auth.requestEmailChange_bademail.error");
+		  m.put("loginName", loginName);
+		  m.put("captcha_text", captchaText);
+		  return "auth/confirmemail/requestEmailChange";
+	  }
+	  if (!authenticationService.authenticates(loginName, password)){
+		  m.addAttribute("email", email);
+		  m.put("captcha_text", captchaText);
+		  waspMessage("auth.requestEmailChange_badcredentials.error");
+		  return "auth/confirmemail/requestEmailChange";
+	  }
+	  //update user with new email address
+	  User user = userService.getUserByLogin(loginName);
+	  user.setEmail(email);
+	  User userDb = userService.merge(user);
+	  
+	  // email user with new authcode
+	  userService.reconfirmEmailAction(userDb);
+	  return "redirect:/auth/confirmemail/emailchanged.do";
   }
 
     
@@ -187,6 +266,102 @@ public class AuthController extends WaspController {
 
     return "auth/resetpassword/ok";
   }
+  
+  /**
+	 * Validates a given email address and authCode.
+	 * @param authCode
+	 * @param email
+	 * @param m model(can be null)
+	 * @return is valid result (true / false)
+	 */
+  protected boolean userEmailValid(String authCode, String email, ModelMap m) {
+	if (authCode == null || authCode.isEmpty()) {
+		waspMessage("auth.confirmemail_badauthcode.error");
+		if (m != null) m.put("email", email);
+		return false;
+	}
+	ConfirmEmailAuth confirmEmailAuth = confirmEmailAuthService.getConfirmEmailAuthByAuthcode(authCode);
+	if (email == null || email.isEmpty() || confirmEmailAuth.getConfirmEmailAuthId() == 0) {
+		waspMessage("auth.confirmemail_bademail.error");
+		if (m != null) m.put("authcode", authCode);
+		return false;
+	}
+		  
+	User user = userService.getUserByUserId(confirmEmailAuth.getUserId());
+
+	if (! user.getEmail().equals(email)){
+		waspMessage("auth.confirmemail_wronguser.error");
+		return false;
+	}
+	return true;
+  }
+  
+  /**
+   * Processes a pending user email validation GET request (should be from clicking a link in an email) 
+   * @param authCode
+   * @param urlEncodedEmail
+   * @param m model
+   * @return view
+   */
+  @RequestMapping(value="/confirmNewUserEmail", method=RequestMethod.GET)
+  public String confirmNewUserEmailFromEmailLink(
+		  @RequestParam(value="authcode", required=false) String authCode,
+		  @RequestParam(value="email", required=false) String urlEncodedEmail,
+	      ModelMap m) {
+	if (authCode==null || authCode.isEmpty() || urlEncodedEmail==null || urlEncodedEmail.isEmpty()){
+		// return the authcodeform view
+		return "auth/confirmemail/authcodeform";
+	}
+	String decodedEmail;
+	try{
+		decodedEmail = URLDecoder.decode(urlEncodedEmail, "UTF-8");
+	} catch(UnsupportedEncodingException e){
+		waspMessage("auth.confirmemail_corruptemail.error");
+		return "redirect:/auth/confirmNewUserEmail.do"; // do this to clear GET parameters and forward to authcodeform view
+	}
+	if (! userEmailValid(authCode, decodedEmail, null)) return "redirect:/auth/confirmNewUserEmail.do"; // do this to clear GET parameters and forward to authcodeform view
+	// authcode and email match if we get here
+	// remove entry for current user in email auth table
+	ConfirmEmailAuth auth = confirmEmailAuthService.getConfirmEmailAuthByAuthcode(authCode);
+	confirmEmailAuthService.remove(auth);
+	return "redirect:/auth/confirmemail/emailupdateok.do";
+  }
+  
+  /**
+   * Processes pending principal investigator email validation POST request from a form view
+   * @param authCode
+   * @param email
+   * @param captchaText
+   * @param m model
+   * @return view
+   */
+  	@RequestMapping(value="/confirmNewUserEmail", method=RequestMethod.POST)
+	public String confirmNewUserEmailFromForm(
+			@RequestParam(value="authcode") String authCode,
+			@RequestParam(value="email") String email,
+			@RequestParam(value="captcha_text") String captchaText,
+			ModelMap m) {
+		Captcha captcha = (Captcha) request.getSession().getAttribute(Captcha.NAME);
+		if (captcha == null || (! captcha.isCorrect(captchaText)) ){
+			waspMessage("auth.confirmemail_captcha.error");
+			m.put("authcode", authCode);
+			m.put("email", email);
+			return "auth/confirmemail/authcodeform";
+		}
+		if (! userEmailValid(authCode, email, m)) return "auth/confirmemail/authcodeform";
+		Map userQueryMap = new HashMap();
+		userQueryMap.put("email", email);
+		User user = userService.getUserByEmail(email);
+		if (user.getUserId() == 0){
+			waspMessage("auth.confirmemail_bademail.error");
+			return "auth/confirmemail/authcodeform"; 
+		}
+		// authcode and email match if we get here
+		// remove entry for current user in email auth table
+		ConfirmEmailAuth auth = confirmEmailAuthService.getConfirmEmailAuthByAuthcode(authCode);
+		confirmEmailAuthService.remove(auth);
+		return "redirect:/auth/confirmemail/emailupdateok.do";
+	}
 
   @RequestMapping("/reauth")
   public String reauth(ModelMap m) {

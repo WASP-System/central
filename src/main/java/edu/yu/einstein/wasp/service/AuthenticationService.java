@@ -60,5 +60,24 @@ public interface AuthenticationService {
 	 */
 	boolean isLoginAlreadyInUse(String login, String email) throws LoginNameException;
 	
+	/**
+	 * Logs out currently logged in user
+	 */
+	void logoutUser();
+
+	/**
+	 * Is authenticated
+	 * @return boolean
+	 */
+	boolean isAuthenticated();
+
+	/**
+	 * Check if user authenticates but DO NOT set authentication context
+	 * @param name
+	 * @param password
+	 * @return
+	 */
+	boolean authenticates(String name, String password);
+	
 	
 }

@@ -16,21 +16,16 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.authentication.encoding.PasswordEncoder;
-import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
-import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
 
-import edu.yu.einstein.wasp.controller.validator.Constraint;
 import edu.yu.einstein.wasp.exception.LoginNameException;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Lab;
@@ -41,14 +36,19 @@ import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserMeta;
 import edu.yu.einstein.wasp.service.AuthenticationService;
+import edu.yu.einstein.wasp.service.ConfirmEmailAuthService;
+import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.PasswordService;
 import edu.yu.einstein.wasp.service.UserMetaService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
-/*
+
+
+/**
  * Controller to manage users
  * 
  */
+
 @Controller
 @Transactional
 @RequestMapping("/user")
@@ -65,12 +65,18 @@ public class UserController extends WaspController {
 	  
 	@Autowired
 	private AuthenticationService authenticationService;
+	
+	@Autowired
+	private EmailService emailService;
+	
+	@Autowired
+	private ConfirmEmailAuthService confirmEmailAuthService;
 
 	private final MetaHelper getMetaHelper() {
 		return new MetaHelper("user", UserMeta.class, request.getSession());
 	}
 	
-	/*
+	/**
 	 * Prepares page to display list of users
 	 * 
 	 * @Author Sasha Levchuk 
@@ -88,7 +94,7 @@ public class UserController extends WaspController {
 	}
 	
 	
-	/*
+	/**
 	 * Returns data to render a subgrid with user info
 	 * 
 	 * @Author Sasha Levchuk 
@@ -189,7 +195,7 @@ public class UserController extends WaspController {
 	}
 	
 	
-	/*
+	/**
 	 * Prepares page to display JQGrid table witk a list of users
 	 * 
 	 * @Author Sasha Levchuk 
@@ -272,7 +278,7 @@ public class UserController extends WaspController {
 	
 	}
 
-	/*
+	/**
 	 * Creates/Updates user
 	 * 
 	 * @Author Sasha Levchuk 
@@ -303,7 +309,8 @@ public class UserController extends WaspController {
 		List<UserMeta> userMetaList = getMetaHelper().getFromJsonForm(request, UserMeta.class);
 		
 		userForm.setUserMeta(userMetaList);
-		
+		userForm.setUserId(userId);
+		boolean myemailChanged = false;
 		if (adding) {
 			// set random password. We don't care what it is as new user will be prompted to
 			// set a new one via email.
@@ -316,12 +323,15 @@ public class UserController extends WaspController {
 			User userDb = this.userService.getById(userId);
 			userDb.setFirstName(userForm.getFirstName());
 			userDb.setLastName(userForm.getLastName());
+			if (!userDb.getEmail().equals(userForm.getEmail())){
+				userService.reconfirmEmailAction(userForm);
+				if (authenticationService.getAuthenticatedUser().getUserId() == userId) 
+					myemailChanged = true;
+			}
 			userDb.setEmail(userForm.getEmail());
 			userDb.setLocale(userForm.getLocale());
 			userDb.setIsActive(userForm.getIsActive());
 			userDb.setLastUpdTs(new Date());
-
-
 			this.userService.merge(userDb);
 		}
 
@@ -345,11 +355,13 @@ public class UserController extends WaspController {
 		userForm.setPassword( passwordService.encodePassword(userForm.getPassword()) );
 		
 		//waspMessage("user.updated.success");
-		
-		//emailService.sendNewPassword(userDb, "new pass");
-		
+		// if I'm the changed user log me out. I need to re-confirm my email and log in.
+		if (myemailChanged){
+			authenticationService.logoutUser();
+			return "redirect:/auth/confirmemail/emailchanged";
+		}
 		try {
-			response.getWriter().println(adding?messageService.getMessage("user.created_success.label"):messageService.getMessage("user.updated_success.label"));
+			response.getWriter().println(adding ? messageService.getMessage("user.created_success.label") : messageService.getMessage("user.updated_success.label"));
 			return null;
 		} catch (Throwable e) {
 			throw new IllegalStateException("Cant output success message ",e);
@@ -358,31 +370,27 @@ public class UserController extends WaspController {
 	    
 	}
 	
-	@RequestMapping(value = "/me_ro.do", method = RequestMethod.GET)
+	@RequestMapping(value = "/me_ro", method = RequestMethod.GET)
 	public String myDetail_RO(ModelMap m) {
 		User user = authenticationService.getAuthenticatedUser();		
 		return this.detailRO(user.getUserId(), m);
 	}
 	
-	@RequestMapping(value = "/me_rw.do", method = RequestMethod.GET)
+	@RequestMapping(value = "/me_rw", method = RequestMethod.GET)
 	public String myDetail(ModelMap m) {
 		User user = authenticationService.getAuthenticatedUser();		
 		return this.detailRW(user.getUserId(), m);
 	}
 	
-	@RequestMapping(value = "/me_rw.do", method = RequestMethod.POST)
+	@RequestMapping(value = "/me_rw", method = RequestMethod.POST)
 	public String updateDetail(@Valid User userForm, BindingResult result,
 			SessionStatus status, ModelMap m) {
 		User user = authenticationService.getAuthenticatedUser();		
 
-		String returnPath = updateDetail(user.getUserId(), userForm, result, status, m);
-		if (result.hasErrors()) {
-			return returnPath;
-		}
-		return "redirect:" + "/user/me_rw.do";
+		return updateDetail(user.getUserId(), userForm, result, status, m);
 	}
 	
-	/*
+	/**
 	 * Updates user
 	 * 
 	 * @Author Sasha Levchuk 
@@ -401,16 +409,19 @@ public class UserController extends WaspController {
 
 		userForm.setUserMeta(userMetaList);
 		getMetaHelper().validate(userMetaList, result);
-
+		userForm.setUserId(userId);
 		if (result.hasErrors()) {
-			
-			userForm.setUserId(userId);
 			prepareSelectListData(m);
 			waspMessage("user.updated.error");
 			return "user/detail_rw";
 		}
-
+		boolean isMyEmailChanged = false;
 		User userDb = this.userService.getById(userId);
+		if (!userDb.getEmail().equals(userForm.getEmail().trim())){
+			// email changed
+			userService.reconfirmEmailAction(userForm);
+			if (userId == authenticationService.getAuthenticatedUser().getUserId()) isMyEmailChanged = true;
+		}
 		userDb.setFirstName(userForm.getFirstName().trim());
 		userDb.setLastName(userForm.getLastName().trim());
 		//don't permit user to alter password from this form!
@@ -419,11 +430,12 @@ public class UserController extends WaspController {
 		//	String hashedPass = encoder.encodePassword(userForm.getPassword(), null);
 		//	userForm.setPassword(hashedPass);
 		//}
+		
 		userDb.setEmail(userForm.getEmail().trim());
 		userDb.setLocale(userForm.getLocale());
 
 		userDb.setLastUpdTs(new Date());
-
+		
 		this.userService.merge(userDb);
 
 		userMetaService.updateByUserId(userId, userMetaList);
@@ -433,8 +445,14 @@ public class UserController extends WaspController {
 		status.setComplete();
 
 		waspMessage("user.updated_success.label");
-		
-		return "redirect:" + userId + ".do";
+		if (isMyEmailChanged){
+			authenticationService.logoutUser();
+			return "redirect:/auth/confirmemail/emailchanged.do";
+		}
+		if (userId == authenticationService.getAuthenticatedUser().getUserId()){
+			return "redirect:/user/me_ro.do";
+		}
+		return "redirect:/user/detail_ro/" + userId + ".do";
 	}
 
 
@@ -500,7 +518,9 @@ public class UserController extends WaspController {
 		return "user/detail_rw";
 	}
 	
-	
+/*
+ * Should not need this. Only God can create user and this is done through the JGrid List create functionality
+ * 
 	@RequestMapping(value = "/create/form.do", method = RequestMethod.POST)
 	@PreAuthorize("hasRole('god')")
 	public String create(@Valid User userForm, BindingResult result,
@@ -563,7 +583,6 @@ public class UserController extends WaspController {
 		for (UserMeta um : userMetaList) {
 			um.setUserId(userDb.getUserId());
 		}
-		;
 
 		userMetaService.updateByUserId(userDb.getUserId(), userMetaList);
 
@@ -573,7 +592,8 @@ public class UserController extends WaspController {
 		
 		return "redirect:/user/detail_rw/" + userDb.getUserId() + ".do";
 	}
-
+*/
+	
 	@RequestMapping(value = "/detail_rw/{userId}.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('god')")
 	public String detailRW(@PathVariable("userId") Integer userId, ModelMap m) {		
@@ -584,6 +604,8 @@ public class UserController extends WaspController {
 	public String detailRO(@PathVariable("userId") Integer userId, ModelMap m) {
 		return detail(userId,m,false);
 	}
+	
+	
 	
 	private String detail(Integer userId, ModelMap m,boolean isRW) {
 

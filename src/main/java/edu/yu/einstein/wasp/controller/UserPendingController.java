@@ -460,19 +460,19 @@ public class UserPendingController extends WaspController {
 	 * Validates a given email address and authCode.
 	 * @param authCode
 	 * @param email
-	 * @param m
+	 * @param m model(can be null)
 	 * @return is valid result (true / false)
 	 */
 	protected boolean userPendingEmailValid(String authCode, String email, ModelMap m) {
 		if (authCode == null || authCode.isEmpty()) {
 			waspMessage("auth.confirmemail_badauthcode.error");
-			m.put("email", email);
+			if (m != null) m.put("email", email);
 			return false;
 		}
 		ConfirmEmailAuth confirmEmailAuth = confirmEmailAuthService.getConfirmEmailAuthByAuthcode(authCode);
 		if (email == null || email.isEmpty() || confirmEmailAuth.getConfirmEmailAuthId() == 0) {
 			waspMessage("auth.confirmemail_bademail.error");
-			m.put("authcode", authCode);
+			if (m != null) m.put("authcode", authCode);
 			return false;
 		}
 			  
@@ -592,6 +592,7 @@ public class UserPendingController extends WaspController {
 		      ModelMap m) throws MetadataException {
 		
 		if (authCode == null || authCode.isEmpty() || urlEncodedEmail == null || urlEncodedEmail.isEmpty()){
+			// get the authcodeform view
 			return "auth/confirmemail/authcodeform";
 		}
 		String decodedEmail;
@@ -599,9 +600,9 @@ public class UserPendingController extends WaspController {
 			decodedEmail = URLDecoder.decode(urlEncodedEmail, "UTF-8");
 		} catch(UnsupportedEncodingException e){
 			waspMessage("auth.confirmemail_corruptemail.error");
-			return "auth/confirmemail/authcodeform"; 
+			return "redirect:/auth/confirmUserEmail.do"; // do this to clear GET parameters and forward to authcodeform view
 		}
-		if (! userPendingEmailValid(authCode, decodedEmail, m)) return "auth/confirmemail/authcodeform";
+		if (! userPendingEmailValid(authCode, decodedEmail, null)) return "redirect:/auth/confirmUserEmail.do"; // do this to clear GET parameters and forward to authcodeform view
 		Map userPendingQueryMap = new HashMap();
 		userPendingQueryMap.put("email", decodedEmail);
 		userPendingQueryMap.put("status", "WAIT_EMAIL");
@@ -663,6 +664,7 @@ public class UserPendingController extends WaspController {
 			  @RequestParam(value="email", required=false) String urlEncodedEmail,
 		      ModelMap m) throws MetadataException {
 		 if (authCode == null || authCode.isEmpty() || urlEncodedEmail == null || urlEncodedEmail.isEmpty()){
+			// get the authcodeform view
 			return "auth/confirmemail/authcodeform";
 		 }
 		 String decodedEmail;
@@ -670,9 +672,9 @@ public class UserPendingController extends WaspController {
 			 decodedEmail = URLDecoder.decode(urlEncodedEmail, "UTF-8");
 		 } catch(UnsupportedEncodingException e){
 			 waspMessage("auth.confirmemail_corruptemail.error");
-			 return "auth/confirmemail/authcodeform"; 
+			 return "redirect:/auth/confirmPIEmail.do"; // do this to clear GET parameters and forward to authcodeform view
 		 }
-		 if (! userPendingEmailValid(authCode, decodedEmail, m)) return "auth/confirmemail/authcodeform";
+		 if (! userPendingEmailValid(authCode, decodedEmail, null)) return "redirect:/auth/confirmPIEmail.do"; // do this to clear GET parameters and forward to authcodeform view
 		 Map userPendingQueryMap = new HashMap();
 		 userPendingQueryMap.put("email", decodedEmail);
 		 userPendingQueryMap.put("status", "WAIT_EMAIL");

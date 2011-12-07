@@ -1,0 +1,5 @@
+WASP: confirm new email address request
+Dear ${user.firstName} ${user.lastName},
+
+click here to 
+<a href="http://localhost:8080/wasp/auth/confirmNewUserEmail.do?authcode=${authcode}&email=${urlencodedemail}">confirm your new email address</a>

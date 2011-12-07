@@ -140,7 +140,7 @@
 
   <welcome-file-list>
     <welcome-file>
-      index.jsp
+      /auth/loginHandler.do
     </welcome-file>
   </welcome-file-list>
 
