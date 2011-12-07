@@ -54,7 +54,7 @@
     <bean class="edu.yu.einstein.wasp.batch.StateJobLaunchingMessageHandler" scope="prototype">
        <constructor-arg ref="jobRegistry" />
        <constructor-arg ref="jobLauncher" />
-       <constructor-arg type="java.lang.String"><value>Start Job</value></constructor-arg>
+       <constructor-arg type="java.lang.String"><value>startJob</value></constructor-arg>
     </bean>
   </si:service-activator>
 
@@ -62,11 +62,9 @@
     <property name="targetTask" value="Quote Job" />
   </bean>
 
-<!--
-  <bean id="createSampleReceiveStateProcessor" class="edu.yu.einstein.wasp.batch.CreateSampleRecieveProcessor">
+  <bean id="createSampleReceiveStateProcessor" class="edu.yu.einstein.wasp.batch.CreateSampleReceiveProcessor">
     <property name="targetTask" value="Receive Sample" />
   </bean>
--->
 
   <bean id="createQuoteJobStateStep" class="org.springframework.batch.core.step.item.SimpleStepFactoryBean">
     <property name="transactionManager" ref="transactionManager"/>
@@ -75,19 +73,17 @@
     <property name="itemProcessor" ref="createQuoteJobStateProcessor"/>
   </bean>
 
-<!--
   <bean id="createSampleReceiveStateStep" class="org.springframework.batch.core.step.item.SimpleStepFactoryBean">
     <property name="transactionManager" ref="transactionManager"/>
     <property name="jobRepository" ref="jobRepository"/>
     <property name="itemReader" ref="stateReader"/>
     <property name="itemProcessor" ref="createSampleReceiveStateProcessor"/>
   </bean>
--->
 
-  <batch:job id="jobCreated">
-    <batch:step id="jobCreated1" parent="createQuoteJobStateStep" next="jobCreated3" />
-<!--    <batch:step id="jobCreated2" parent="createSampleReceiveStateStep" next="jobCreated3" /> -->
-    <batch:step id="jobCreated3" parent="finalStateStep" />
+  <batch:job id="startJob">
+    <batch:step id="startJob1" parent="createQuoteJobStateStep" next="startJob2" />
+    <batch:step id="startJob2" parent="createSampleReceiveStateStep" next="startJob3" /> 
+    <batch:step id="startJob3" parent="finalStateStep" />
   </batch:job>
 
 
