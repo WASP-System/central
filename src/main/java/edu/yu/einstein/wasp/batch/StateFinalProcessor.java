@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
+import java.util.Date;
 
 /**
  * for a given state
@@ -30,6 +31,7 @@ public class StateFinalProcessor implements ItemProcessor {
   public State process(Object stateId) throws Exception {
     State state = stateService.getStateByStateId(((Integer) stateId).intValue());
     state.setStatus("FINAL");
+    state.setEndts(new Date());
     stateService.save(state);
 
     return state;

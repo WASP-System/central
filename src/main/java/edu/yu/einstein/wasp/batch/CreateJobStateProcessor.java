@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
+import java.util.Date;
 
 /**
  * Created Job Processor
@@ -45,6 +46,8 @@ public class CreateJobStateProcessor implements ItemProcessor {
     
     State state = stateService.getStateByStateId(((Integer) stateId).intValue());
 
+System.out.println("\nCreating " + targetTask + " for " + stateId);
+
     List<Statejob> stateJobs = state.getStatejob();
 
     Task t = taskService.getTaskByIName(targetTask); 
@@ -53,6 +56,7 @@ public class CreateJobStateProcessor implements ItemProcessor {
     newState.setStatus(targetStatus);
     newState.setTaskId(t.getTaskId());
     newState.setName(t.getName());
+    newState.setStartts(new Date());
     State newStateDb = stateService.save(newState);
 
     for (Statejob sj: stateJobs) {
