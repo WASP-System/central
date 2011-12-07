@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+    xsi:schemaLocation=" http://www.springframework.org/schema/beans 
+  http://www.springframework.org/schema/beans/spring-beans-3.1.xsd     
+  http://www.springframework.org/schema/context  
+  http://www.springframework.org/schema/context/spring-context-3.1.xsd 
+  http://www.springframework.org/schema/mvc 
+  http://www.springframework.org/schema/mvc/spring-mvc-3.1.xsd  
+  http://www.springframework.org/schema/aop 
+  http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+  http://www.springframework.org/schema/tx
+  http://www.springframework.org/schema/tx/spring-tx-3.1.xsd
+  http://www.springframework.org/schema/integration
+  http://www.springframework.org/schema/integration/spring-integration-2.0.xsd
+  http://www.springframework.org/schema/integration/file
+  http://www.springframework.org/schema/integration/file/spring-integration-file-2.0.xsd
+  http://www.springframework.org/schema/batch 
+  http://www.springframework.org/schema/batch/spring-batch-2.1.xsd
+  "
+    xmlns:mvc="http://www.springframework.org/schema/mvc" 
+    xmlns:aop="http://www.springframework.org/schema/aop" 
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:p="http://www.springframework.org/schema/p" 
+    xmlns:batch="http://www.springframework.org/schema/batch" 
+    xmlns:tx="http://www.springframework.org/schema/tx" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:si="http://www.springframework.org/schema/integration" 
+    xmlns:file="http://www.springframework.org/schema/integration/file" 
+    xmlns="http://www.springframework.org/schema/beans"
+    default-autowire="byName">
+
+  <!--
+  from si.xml 
+  - jobRegistry
+  - jobLauncher
+
+  - logger
+  - errorChannel
+  - taskService
+  - finalStateProcessor
+
+  -->
+  <!-- every 5 seconds call taskService.getJobCreatedStates() -->
+  <!-- taskService bean defined in si.xml  -->
+  <si:inbound-channel-adapter ref="taskService" method="getDaApprovedStates" channel="daApprovedRequestChannel">
+    <si:poller>
+      <si:interval-trigger interval="5000" />
+    </si:poller>
+  </si:inbound-channel-adapter>
+
+  <!-- intermediary for output from jobCreateRequestChannel: -->
+  <!-- calls StateJobLaunchingMessageHandler which calls batch:job 'Start Job' (see below) -->	
+  <si:service-activator input-channel="daApprovedRequestChannel" output-channel="logger">
+    <bean class="edu.yu.einstein.wasp.batch.StateJobLaunchingMessageHandler" scope="prototype">
+       <constructor-arg ref="jobRegistry" />
+       <constructor-arg ref="jobLauncher" />
+       <constructor-arg type="java.lang.String"><value>daApproved</value></constructor-arg>
+    </bean>
+  </si:service-activator>
+
+  <bean id="createDaInvoiceJobProcessor" class="edu.yu.einstein.wasp.batch.PiApprovedStateProcessor">
+    <property name="otherTask" value="PI Approval" />
+    <property name="otherStatus" value="APPROVED" />
+    <property name="targetTask" value="Send Invoice" />
+  </bean>
+
+
+  <bean id="createDaInvoiceJobStateStep" class="org.springframework.batch.core.step.item.SimpleStepFactoryBean">
+    <property name="transactionManager" ref="transactionManager"/>
+    <property name="jobRepository" ref="jobRepository"/>
+    <property name="itemReader" ref="stateReader"/>
+    <property name="itemProcessor" ref="createDaInvoiceJobProcessor"/>
+  </bean>
+
+  <batch:job id="daApproved">
+    <batch:step id="daApproved1" parent="createDaInvoiceJobStateStep" />
+  </batch:job>
+
+
+</beans>
