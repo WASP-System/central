@@ -1,16 +1,12 @@
 package edu.yu.einstein.wasp.load;
 
 import edu.yu.einstein.wasp.service.WorkflowService;
-import edu.yu.einstein.wasp.service.UiFieldService;
 import edu.yu.einstein.wasp.service.SubtypeSampleService;
 import edu.yu.einstein.wasp.service.WorkflowsubtypesampleService;
 import edu.yu.einstein.wasp.service.WorkflowtyperesourceService;
 import edu.yu.einstein.wasp.service.TypeResourceService;
 import edu.yu.einstein.wasp.service.WorkflowMetaService;
 
-import edu.yu.einstein.wasp.service.impl.WaspMessageSourceImpl;
-
-import edu.yu.einstein.wasp.service.StateService;
 import edu.yu.einstein.wasp.model.*;
 
 import java.util.Locale; 
@@ -31,17 +27,27 @@ import org.springframework.util.StringUtils;
 
 import util.spring.PostInitialize;
 
+
+/**
+ * update/inserts db copy of subtype sample from bean definition
+ * takes in  properties
+ *   - iname / internalname
+ *   - name / label
+ *   - uifields (List<UiFields>)
+ *   - subtypesample (Set<SubtypeSample>)  allowable samples for workflow
+ *   - pageFlow (List<String>)
+ *   - meta (List<WorkflowMeta>)
+ *
+ */
+
 @Transactional
-public class WorkflowLoadService {
+public class WorkflowLoadService extends WaspLoadService {
 
   @Autowired
   private WorkflowService workflowService;
 
   @Autowired
   private WorkflowMetaService workflowMetaService;
-
-  @Autowired
-  private UiFieldService uiFieldService;
 
   @Autowired
   private SubtypeSampleService subtypeSampleService;
@@ -55,27 +61,11 @@ public class WorkflowLoadService {
   @Autowired
   TypeResourceService typeResourceService;
 
-  @Autowired
-  private MessageSource messageSource;
-
-
-  @Autowired
-  StateService stateService;
-
-  private String iname; 
-  public void setIname(String iname) { this.iname = iname; }
-
-  private String name; 
-  public void setName(String name) {this.name = name; }
-
   private List<String> pageFlowOrder; 
   public void setPageFlowOrder(List<String> pageFlowOrder) {this.pageFlowOrder = pageFlowOrder; }
 
   private List<String> dependencies; 
   public void setDependencies(List<String> dependencies) {this.dependencies = dependencies; }
-
-  private List<UiField> uiFields; 
-  public void setUiFields(List<UiField> uiFields) {this.uiFields = uiFields; }
 
   private Set<String> subtypeSamples;
   public void setSubtypeSamples(Set<String> subtypeSamples) {this.subtypeSamples = subtypeSamples; }
@@ -83,19 +73,13 @@ public class WorkflowLoadService {
   private List<WorkflowMeta> meta; 
   public void setMeta(List<WorkflowMeta> workflowMeta) {this.meta = workflowMeta; }
 
-  Workflow workflow;
-  public void setWorkflow(Workflow workflow) {this.workflow = workflow; }
-
-  public WorkflowLoadService (){};
-
   @Transactional
   @PostInitialize 
   public void postInitialize() {
     // skips component scanned  (if scanned in)
     if (iname == null) { return; }
 
-
-    workflow = workflowService.getWorkflowByIName(iname); 
+    Workflow workflow = workflowService.getWorkflowByIName(iname); 
 
     // inserts or update workflow
     if (workflow.getWorkflowId() == 0) { 
@@ -117,36 +101,8 @@ public class WorkflowLoadService {
       workflowService.save(workflow); 
     }
 
-
-    // UI fields
-    // this assumes truncate to start with, so clear everything out
-    // and use this.uiFields
-    // TODO: logic to do CRUD compares instead 
-    Map m = new HashMap();
-    m.put("locale", "en_US");
-    m.put("area", iname);
-    List<UiField> oldUiFields = uiFieldService.findByMap(m);
-    for (UiField uiField: oldUiFields) {
-      uiFieldService.remove(uiField); 
-      uiFieldService.flush(uiField); 
-    }
-
-    // sets up the new
-    for (UiField f: uiFields) {
-      // skips pageflow
-      if (f.getName().equals("pageflow")) { continue; }
-
-      String key = f.getArea() + "." + f.getName() + "."
-          + f.getAttrName();
-      String lang = f.getLocale().substring(0, 2);
-      String cntry = f.getLocale().substring(3);
-
-      Locale locale = new Locale(lang, cntry);
-
-      ((WaspMessageSourceImpl) messageSource).addMessage(key, locale, f.getAttrValue());
-
-      uiFieldService.save(f); 
-    }
+    // updates uiFields
+    updateUiFields();
 
 
     // sync metas
@@ -209,8 +165,7 @@ public class WorkflowLoadService {
 
      
     // allowable subtype samples
-    // - pickup existing
-    m = new HashMap();
+    Map m = new HashMap();
     m.put("workflowId", workflow.getWorkflowId());
     List<Workflowsubtypesample> oldWorkflowSubtypeSamples = workflow.getWorkflowsubtypesample();
 
@@ -250,23 +205,15 @@ public class WorkflowLoadService {
     }
 
     for (String dependency: dependencies) { 
-System.out.println("\n\n\nXXXX: " + dependency + "\n\n\n");
       TypeResource typeResource = typeResourceService.getTypeResourceByIName(dependency);
       Workflowtyperesource workflowtyperesource = new Workflowtyperesource(); 
 
       workflowtyperesource.setWorkflowId(workflow.getWorkflowId()); 
       workflowtyperesource.setTypeResourceId(typeResource.getTypeResourceId()); 
 
-System.out.println("\n\n\nX type worfkowid: " + workflowtyperesource.getWorkflowId() + "\n\n\n");
-System.out.println("\n\n\nX type workflowtyperesource: " + workflowtyperesource.getTypeResourceId() + "\n\n\n");
-
       workflowtyperesourceService.save(workflowtyperesource);
     }
 
-
-
-    System.out.println("\n\n\n\n\nZZZ hello worl "  + pageFlowString +  " \n\n\n\n\n");
   }
-
 }
 
