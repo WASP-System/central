@@ -3,7 +3,7 @@
 
 
 <h1>Run List</h1> 
-<a href="/wasp/user/create/form">.do">create</a>
+<a href="/wasp/user/create/form.do">create</a>
 
 <table cellpadding="0" cellspacing="0" border="0">
 <c:forEach items="${run}" var="r">

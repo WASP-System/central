@@ -685,6 +685,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','resource/detail_ro','label','Resource Detail','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','resource/detail_rw','label','Update Resource Detail','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','resource/create','label','Create New Resource','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','run/detail','label','Run Detail','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','jobsubmit/list','label','New Job','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','jobsubmit/create','label','New Job','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','jobsubmit/metaform','label','New Job','1');
@@ -776,6 +777,14 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','created_success','label','Resource created sucessfully.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','isActive','label','Active','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','resourceId','label','ResourceId','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','flow_cell_name','label','Flowcell','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','start_esf_staff','label','Start ESF Staff','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','start_datetime','label','Start Time','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','end_datetime','label','End Time','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','machine_name','label','Machine','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','path_to_data','label','Data Path','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','run_success','label','Success','1');
+
 
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sysrole','noUserSpecified','error','No user specified','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sysrole','userNonexistant','error','The user specified does not exist in the database','1');

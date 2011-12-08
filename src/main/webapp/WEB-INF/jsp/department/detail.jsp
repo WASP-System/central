@@ -43,13 +43,11 @@
     
 
     <h2><fmt:message key="department.detail_labs.label" /></h2>
-    <c:forEach items="${lab}" var="l">
-      <div>
-        <a href="/wasp/lab/detail_ro/<c:out value="${department.departmentId}" />/<c:out value="${l.labId}" />.do">
-        <c:out value="${l.name}" />
-        </a>
-      </div>
-    </c:forEach>
+    <table id="grid_id"></table> 
+	<div id="gridpager"></div>
+	<script>
+	$("#grid_id").jqGrid('setGridParam', { rowNum: 50,height: '300'}).trigger("reloadGrid");    
+	</script>
 
     <h2><fmt:message key="department.detail_pendinglabs.label" /></h2>
     <c:forEach items="${labpending}" var="lp">

@@ -1,23 +1,22 @@
-<%@ include file="/WEB-INF/jsp/include.jsp" %>
+<%@ include file="/WEB-INF/jsp/taglib.jsp"%>
 
-<html>
-  <head><title>WASP</title><head>
-  <body>
     <h1>
       <c:out value="${run.name}"/>
     </h1>
 
+<p>
+	<font color="blue"><wasp:message /> </font>
+</p>
+
     <div>
-      Resource: <a href="/resource/detail/<c:out value="${run.resourceId}"/>.do"><c:out value="${run.resource.name}"/></a>
+      Resource: <a href="/resource/detail_ro/<c:out value="${run.resourceId}"/>.do"><c:out value="${run.resource.name}"/></a>
     </div>
 
+<table>
 
-    <c:forEach items="${runmeta}" var="meta">
-      <p>
-      <span><c:out value="${meta.k}" /></span>
-      <span><c:out value="${meta.v}" /></span>
-      </p>
-    </c:forEach>
+	<c:set var="_area" value="run" scope="request" />
+	<c:set var="_metaList" value="${run.runMeta}" scope="request" />
+	<c:import url="/WEB-INF/jsp/meta_ro.jsp" />
 
     <p>
       Sample 

@@ -184,9 +184,14 @@ public class LabController extends WaspController {
 
 		try {
 			// String labs = mapper.writeValueAsString(labList);
-			jqgrid.put("page", "1");
-			jqgrid.put("records", labList.size() + "");
-			jqgrid.put("total", labList.size() + "");
+			int pageId = Integer.parseInt(request.getParameter("page"));		// index of page
+			int pageRowNum = Integer.parseInt(request.getParameter("rows"));	// number of rows in one page
+			int rowNum = labList.size();										// total number of rows
+			int pageNum = (rowNum + pageRowNum - 1) / pageRowNum;				// total number of pages
+			
+			jqgrid.put("page", pageId + "");
+			jqgrid.put("records", rowNum + "");
+			jqgrid.put("total", pageNum + "");
 
 			Map<String, String> userData = new HashMap<String, String>();
 			userData.put("page", "1");
@@ -205,7 +210,11 @@ public class LabController extends WaspController {
 				allUsers.put(user.getUserId(),	user.getFirstName() + " " + user.getLastName());
 			}
 
-			for (Lab lab : labList) {
+			int frId = pageRowNum * (pageId - 1);
+			int toId = pageRowNum * pageId;
+			toId = toId <= rowNum ? toId : rowNum;
+			List<Lab> labPage = labList.subList(frId, toId);
+			for (Lab lab : labPage) {
 
 				Map cell = new HashMap();
 				cell.put("id", lab.getLabId());

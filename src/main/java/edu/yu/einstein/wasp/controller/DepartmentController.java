@@ -1,5 +1,7 @@
 package edu.yu.einstein.wasp.controller;
 
+import org.apache.commons.lang.StringUtils;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -14,18 +16,25 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.transaction.annotation.*; 
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date; 
+import java.util.Iterator;
 import java.util.List; 
 import java.util.ArrayList; //added by Dubin
 import java.util.Map; 
 import java.util.HashMap; 
+import java.util.TreeMap;
+
+import javax.servlet.http.HttpServletResponse;
 
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.DepartmentService;
 import edu.yu.einstein.wasp.service.DepartmentUserService;
 import edu.yu.einstein.wasp.service.LabPendingService;
+import edu.yu.einstein.wasp.service.LabService;
 import edu.yu.einstein.wasp.service.UserService;//added by Dubin
+import edu.yu.einstein.wasp.taglib.JQFieldTag;
 //import edu.yu.einstein.wasp.service.impl.UserServiceImpl;//added by Dubin
 //import edu.yu.einstein.wasp.service.impl.DepartmentServiceImpl;//added by Dubin
 import edu.yu.einstein.wasp.model.*;
@@ -58,6 +67,9 @@ public class DepartmentController extends WaspController {
 
   @Autowired
   private AuthenticationService authenticationService;
+  
+  @Autowired
+  private LabService labService;
 
   
   //added by Dubin 9-29-11 for use in getNames
@@ -70,13 +82,18 @@ public class DepartmentController extends WaspController {
     return this.userService;
   }
   
-  
-  
   @Autowired
   private LabPendingService labPendingService;
   
   //private static final MetaAttribute.Area AREA = MetaAttribute.Area.labPending;
- 
+
+	protected void prepareSelectListData(ModelMap m) {
+		Map userQueryMap = new HashMap();
+		userQueryMap.put("isActive", 1);
+		m.addAttribute("pusers", userService.findByMap(userQueryMap));
+		super.prepareSelectListData(m);
+	}
+  
   @RequestMapping("/list")
   @PreAuthorize("hasRole('god') or hasRole('da-*')")
   public String list(ModelMap m) {
@@ -88,6 +105,11 @@ public class DepartmentController extends WaspController {
 
     return "department/list";
   }
+
+	private final MetaHelper getLabMetaHelper() {
+		return new MetaHelper("lab", LabMeta.class,
+				request.getSession());
+	}
 
   @RequestMapping(value="/detail/{departmentId}", method=RequestMethod.GET)
   @PreAuthorize("hasRole('god') or hasRole('da-' + #departmentId)")
@@ -107,13 +129,129 @@ public class DepartmentController extends WaspController {
 
     List<LabPending> labPendingList = labPendingService.findByMap(labPendingQueryMap);
 
-    m.addAttribute("department", department);
+    m.addAttribute("departmentId", departmentId);
+    m.addAttribute("departmentName", department.getName());
     m.addAttribute("departmentuser", departmentUserList);
     m.addAttribute("lab", labList);
     m.addAttribute("labpending", labPendingList);
 
+	m.addAttribute("_metaList",
+			getLabMetaHelper().getMasterList(MetaBase.class));
+	m.addAttribute(JQFieldTag.AREA_ATTR, getLabMetaHelper().getArea());
+
+	prepareSelectListData(m);
+
+	// List<Resource> resourceList = resourceService.findAll();
+	//
+	// m.addAttribute("resource", resourceList);
+
     return "department/detail";
   }
+
+	@RequestMapping(value = "/detail/{departmentId}/listLabJSON", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('god') or hasRole('da-' + #departmentId)")
+	public String getLabListJSON(HttpServletResponse response, @PathVariable("departmentId") Integer departmentId) {
+		// result
+		Map<String, Object> jqgrid = new HashMap<String, Object>();
+
+		Department department = this.getDepartmentService().getById(departmentId.intValue());
+		List<Lab> labList;
+
+		if (request.getParameter("_search") == null
+				|| StringUtils.isEmpty(request.getParameter("searchString"))) {
+			labList = department.getLab();
+		} else {
+			Map<String, String> m = new HashMap<String, String>();
+
+			m.put(request.getParameter("searchField"),
+					request.getParameter("searchString"));
+
+			labList = labService.findByMap(m);
+
+			if ("ne".equals(request.getParameter("searchOper"))) {
+				List<Lab> allLabs = new ArrayList<Lab>(
+						labService.findAll());
+				for (Iterator<Lab> it = labList.iterator(); it
+						.hasNext();) {
+					Lab excludeLab = it.next();
+					allLabs.remove(excludeLab);
+				}
+				labList = allLabs;
+			}
+		}
+
+		ObjectMapper mapper = new ObjectMapper();
+
+		Map<Integer, String> allDepts = new TreeMap<Integer, String>();
+		for (Department dept : (List<Department>) this.getDepartmentService().findAll()) {
+			allDepts.put(dept.getDepartmentId(), dept.getName());
+		}
+
+		Map<Integer, String> allUsers = new TreeMap<Integer, String>();
+		for (User user : (List<User>) userService.findAll()) {
+			allUsers.put(user.getUserId(),	user.getFirstName() + " " + user.getLastName());
+		}
+
+		try {
+			// String users = mapper.writeValueAsString(userList);
+			int pageId = Integer.parseInt(request.getParameter("page"));		// index of page
+			int pageRowNum = Integer.parseInt(request.getParameter("rows"));	// number of rows in one page
+			int rowNum = labList.size();										// total number of rows
+			int pageNum = (rowNum + pageRowNum - 1) / pageRowNum;				// total number of pages
+			
+			jqgrid.put("page", pageId + "");
+			jqgrid.put("records", rowNum + "");
+			jqgrid.put("total", pageNum + "");
+
+			Map<String, String> labData = new HashMap<String, String>();
+			//labData.put("page", "1");
+			labData.put("page", pageId + "");
+			labData.put("selId",
+					StringUtils.isEmpty(request.getParameter("selId")) ? ""
+							: request.getParameter("selId"));
+			jqgrid.put("labdata", labData);
+
+			List<Map> rows = new ArrayList<Map>();
+
+			int frId = pageRowNum * (pageId - 1);
+			int toId = pageRowNum * pageId;
+			toId = toId <= rowNum ? toId : rowNum;
+			List<Lab> labPage = labList.subList(frId, toId);
+			for (Lab lab : labPage) {
+				Map cell = new HashMap();
+				cell.put("id", lab.getLabId());
+
+				List<LabMeta> labMeta = getLabMetaHelper().syncWithMaster(lab.getLabMeta());
+
+				List<String> cellList = new ArrayList<String>(
+						Arrays.asList(new String[] {
+						lab.getName() ,
+						"<a href=/wasp/user/list.do?selId="
+							+ lab.getPrimaryUserId() + ">"
+							+ allUsers.get(lab.getPrimaryUserId())
+							+ "</a>",
+						allDepts.get(lab.getDepartmentId()),
+						lab.getIsActive() == 1 ? "yes" : "no" }));
+
+				for (LabMeta meta : labMeta) {
+					cellList.add(meta.getV());
+				}
+
+				cell.put("cell", cellList);
+
+				rows.add(cell);
+			}
+
+			jqgrid.put("rows", rows);
+
+			return outputJSON(jqgrid, response);
+
+		} catch (Throwable e) {
+			throw new IllegalStateException("Can't marshall to JSON "
+					+ labList, e);
+		}
+
+	}
 
   @RequestMapping(value="/create", method=RequestMethod.POST)
   @PreAuthorize("hasRole('god')")

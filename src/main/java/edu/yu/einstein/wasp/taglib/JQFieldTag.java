@@ -57,6 +57,8 @@ public class JQFieldTag extends BodyTagSupport {
 	//Name of the property mapped to the inner text of the 'option' tag
 	private String itemValue;
 	
+	//Whether to show the field's value as a hyperlink
+	private boolean showLink;
   
 	public void setItems(Object items) {
 		this.items = items;
@@ -88,7 +90,8 @@ public class JQFieldTag extends BodyTagSupport {
 		checkbox,
 		password,
 		hidden,
-		file
+		file,
+		link
 	}
 	
 	
@@ -105,6 +108,10 @@ public class JQFieldTag extends BodyTagSupport {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public void setShowLink(boolean sl) {
+		this.showLink = sl;
 	}
 
 	//get locale-specifi message
@@ -125,18 +132,15 @@ public class JQFieldTag extends BodyTagSupport {
 	}
 	
 	public int doStartTag() throws javax.servlet.jsp.JspException {
-		
 		if (object==null) {
 			String objectStr=(String)((HttpServletRequest)this.pageContext.getRequest()).getAttribute(AREA_ATTR);
 			if (objectStr==null) throw new JspException("either 'object' tag parameter or "+AREA_ATTR+" request attribute are required");
 			object=objectStr;
 		}
 
-		
 		String jsName=object+"_"+name;
 		
 		try {
-		
 			//get class of the "object"
 			Class clazz=null;
 			
@@ -155,7 +159,7 @@ public class JQFieldTag extends BodyTagSupport {
 				
 			}
 		
-			//check if the filed is "required" 
+			//check if the filed is "required"
 			boolean required=false;
 			
 			try {
@@ -164,14 +168,14 @@ public class JQFieldTag extends BodyTagSupport {
 				//let it slide - we'll allow fields that are not in the entity objects
 			}
 			
-				
+			
 			//get error message to display if constraint validation fails
 			String error="error:'"+getMessage(area+"."+name+".error","")+"',\n";
-								
+			
 			//get column label
 			String label=getMessage(area+"."+name+".label");
-				
-			//get suffix to show after field's input 
+			
+			//get suffix to show after field's input
 			String suffix=getMessage(area+"."+name+".suffix","");
 		
 			String editrules="{}";
@@ -186,85 +190,86 @@ public class JQFieldTag extends BodyTagSupport {
 			}
 			
 			//init js column definition 
-		String buf="var "+jsName+"={\n"+
-		 "name:'"+name+"',\n"+
-		 "label:'"+label+"',\n"+
-	     "required:"+required+",\n"+
-	     error+
-	     "jq:{\n"+
-		 		"	name:'"+name+"', \n"+
-		 		"	index:'"+name+"', \n"+
-				"	width:80, \n"+
-				"	align:'center',\n"+
-				"	sortable:true,\n"+				
-				"	sorttype:'text',\n"+		
-				"	editable:true,\n"+
-				"   editrules:"+editrules+",\n"+
-				"   formoptions:"+formoptions+",\n"+
-				"	editoptions:{size:20}\n"+
-				"}\n\n"+
-		 "};\n";
-	
-		//add type-specific parameters to field definition
-		if (type==Type.select) {
+			String buf="var "+jsName+"={\n"+
+			 "name:'"+name+"',\n"+
+			 "label:'"+label+"',\n"+
+		     "required:"+required+",\n"+
+		     error+
+		     "jq:{\n"+
+			 		"	name:'"+name+"', \n"+
+			 		"	index:'"+name+"', \n"+
+					"	width:80, \n"+
+					"	align:'left',\n"+
+					"	sortable:true,\n"+				
+					"	sorttype:'text',\n"+		
+					"	editable:true,\n"+
+					"   editrules:"+editrules+",\n"+
+					"   formoptions:"+formoptions+",\n"+
+					"	editoptions:{size:20}\n"+
+					"}\n\n"+
+			 "};\n";
+		
+			//add type-specific parameters to field definition
+			if (type==Type.select) {
+				
+				if (this.items==null) {
+					throw new JspTagException("'items' parameter is required when type is 'select'");
+				}
 			
-			if (this.items==null) {
-				throw new JspTagException("'items' parameter is required when type is 'select'");
-			}
-		
-			if (items instanceof Collection && (this.itemValue==null || this.itemLabel==null)) {
-				throw new JspTagException("'items','itemValue' and 'itemLabel' parameters are required when type is 'select' and 'items' is a collection");
-			}
-		
-			buf=buf+
-			jsName+".jq['edittype']='select';\n"+
-			jsName+".jq['editoptions']={value:{}};\n"+
-			jsName+".jq['search']=false;\n"+
-			jsName+".jq['editoptions']['value']="+getOptions()+";\n";
+				if (items instanceof Collection && (this.itemValue==null || this.itemLabel==null)) {
+					throw new JspTagException("'items','itemValue' and 'itemLabel' parameters are required when type is 'select' and 'items' is a collection");
+				}
 			
-		} else if (type==Type.password) { 
-			buf=buf+
-			jsName+".jq['edittype']='password';\n"+
-			jsName+".jq['hidden']=true;\n"+
-			jsName+".jq['search']=false;\n"+			
-			jsName+".jq['editrules']['edithidden']=true;\n";
-		} else if (type==Type.hidden) { 
-			buf=buf+
-			jsName+".jq['edittype']='hidden';\n"+
-			jsName+".jq['hidden']=true;\n"+
-			jsName+".jq['search']=false;\n"+
-			jsName+".jq['editrules']['edithidden']=false;\n";
-		} else if (type==Type.file) { 
-			buf=buf+
-			jsName+".jq['edittype']='file';\n"+
-			jsName+".jq['hidden']=false;\n"+
-			jsName+".jq['search']=false;\n"+
-			jsName+".jq['editoptions']['alt']='Select Sample File to upload';\n"+			
-			jsName+".jq['editrules']['edithidden']=true;\n";		
-			 
-		} else if (type==Type.checkbox) {
-			buf=buf+
-			jsName+".jq['edittype']='checkbox';\n"+   
-			jsName+".jq['editoptions']={value:'1:0'};\n"+ 
-			jsName+".jq['formatter']='checkbox';\n"+
-			jsName+".jq['formatoptions']={disabled : true};\n"+
-			jsName+".jq['align']='center';\n"+
-			jsName+".jq['search']=false;\n";
-		}
-		
-
-		buf=buf+
-		"\ncolNames.push("+jsName+".label);\n"+
-		"colModel.push("+jsName+".jq);\n"+
-		"colErrors.push("+jsName+".error);\n";
-		
-		this.pageContext.getOut().print(buf);
+				buf=buf+
+				jsName+".jq['edittype']='select';\n"+
+				jsName+".jq['editoptions']={value:{}};\n"+
+				jsName+".jq['search']=false;\n"+
+				jsName+".jq['editoptions']['value']="+getOptions()+";\n";
+				
+			} else if (type==Type.password) { 
+				buf=buf+
+				jsName+".jq['edittype']='password';\n"+
+				jsName+".jq['hidden']=true;\n"+
+				jsName+".jq['search']=false;\n"+			
+				jsName+".jq['editrules']['edithidden']=true;\n";
+			} else if (type==Type.hidden) { 
+				buf=buf+
+				jsName+".jq['edittype']='hidden';\n"+
+				jsName+".jq['hidden']=true;\n"+
+				jsName+".jq['search']=false;\n"+
+				jsName+".jq['editrules']['edithidden']=false;\n";
+			} else if (type==Type.file) { 
+				buf=buf+
+				jsName+".jq['edittype']='file';\n"+
+				jsName+".jq['hidden']=false;\n"+
+				jsName+".jq['search']=false;\n"+
+				jsName+".jq['editoptions']['alt']='Select Sample File to upload';\n"+			
+				jsName+".jq['editrules']['edithidden']=true;\n";		
+			} else if (type==Type.checkbox) {
+				buf=buf+
+				jsName+".jq['edittype']='checkbox';\n"+   
+				jsName+".jq['editoptions']={value:'1:0'};\n"+ 
+				jsName+".jq['formatter']='checkbox';\n"+
+				jsName+".jq['formatoptions']={disabled : true};\n"+
+				jsName+".jq['align']='center';\n"+
+				jsName+".jq['search']=false;\n";
+			}
 	
+			if (this.showLink) {
+				buf=buf+
+				jsName+".jq['formatter']='showlink';\n"+
+				jsName+".jq['formatoptions']={baseLinkUrl:'/wasp/"+area+"/list.do',idName:'selId'};\n";
+			}
+	
+			buf = buf + "\ncolNames.push("+jsName+".label);\n"+
+						"colModel.push("+jsName+".jq);\n"+
+						"colErrors.push("+jsName+".error);\n";
+			
+			this.pageContext.getOut().print(buf);
 		} catch (Throwable e) {
 			log.error("Cant build JS props",e);
 			throw new JspTagException(e.getMessage(),e);
 		}
-		
 		
 		return BodyTagSupport.EVAL_PAGE;
 	}
@@ -367,6 +372,26 @@ public class JQFieldTag extends BodyTagSupport {
 	   			   		
 	   		
 	   		return " "+object+"_"+name+".jq['editoptions']['value']="+json+";";
+	   		
+			/*
+			String jsName= "_"+name+"_list";
+			StringBuffer buf=new StringBuffer();
+			
+			buf.append("var="+jsName+"="+json+";\n");
+			
+			
+			buf.append(
+			"var _tmpArr=[];"+
+			"for(lKey in "+jsName+")\n"+
+			"  var opt="+jsName+"[lKey];\n"+
+			" _tmpArr.push({opt['+"+this.itemValue+"+']:opt['+"+this.itemLabel+"+']}\n"+
+			"}\n"
+			);
+			
+			buf.append( " "+name+".jq['editoptions']['value']=_tmpArr;");
+			
+	   		
+			return buf.toString();*/
 	   		
 	   		} catch (Throwable e) {
 	   			log.error("Cant convert "+items,e);

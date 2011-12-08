@@ -15,14 +15,10 @@
 <style>
 
 html, body { 
-
 	margin: 0;			/* Remove body margin/padding */
-
 	padding: 0;
-
 	overflow: hidden;	/* Remove scroll bars on browser window */	
-
-    font-size: 75%;
+    font-size: 100%;
 }
 
 </style>	
@@ -180,6 +176,7 @@ html, body {
 
 </c:forEach>
 
+_enableFilterToolbar=false;
 
 <%-- function to help with debugging --%>
 function odump(object, depth, max){
@@ -317,49 +314,53 @@ var navGrid=$("#grid_id").jqGrid({
   url:_url,
   editurl:_editurl,
   datatype: 'json',
-  recordtext: "{2} rows",  
+  //recordtext: "{2} rows",  
   mtype: 'GET',
-  colNames:colNames,
-  colModel : colModel,
+  colNames: colNames,
+  colModel: colModel,
   pager: '#gridpager',
-  rowNum:200,    
-      
+  rowNum: 30,
+  rowList: [10,20,30], 
   viewrecords: true,
-  gridview: true,
-  <tiles:insertAttribute name="subgrid-columns" />
-  autowidth: true,
+  gridview: false,
 
-  scroll: true,	
-  height: '640', 
+  <tiles:insertAttribute name="subgrid-columns" />	// subgrid columns will appear here
+
+  autowidth: true,
+  //scroll: false,		// scroll:true will disable the pager on page
+  height: '85%', 
   loadui: 'block',
-  scrollrows:true,
-  loadonce: false, 
-  sortable: false, 
+  scrollrows: false,
+  loadonce: false, // false to enable paging/sorting on client side
+  sortable: false, // true to enable sorting
   
   loadComplete: function(data) {//pre-select row if userdata.selId is defined
-	    
-	        
-	        var userdata = jQuery("#grid_id").getGridParam('userData');
-	        
-	        if (!userdata.selId) return;//no row to pre-select
-	        
-	        var curPage = jQuery("#grid_id").getGridParam('page'); 
-	        if (curPage !== userdata.page) {
-	            setTimeout(function(){
-	                jQuery("#grid_id").setGridParam(
-	                    { page: userdata.page }).trigger("reloadGrid");
-	                jQuery("#grid_id").setSelection (userdata.selId, true);
-	            },100);
-	        }
-	        else {
-	            jQuery("#grid_id").setSelection (userdata.selId, true);
-	        }
-	    
+    // data.userdata is the same as jQuery("#grid_id").getGridParam('userData');
+    var userdata = jQuery("#grid_id").getGridParam('userData');
+
+    if (!userdata.selId) return;//no row to pre-select
+      
+    var curPage = jQuery("#grid_id").getGridParam('page'); 
+    if (curPage !== userdata.page) {
+        setTimeout(function(){
+            jQuery("#grid_id").setGridParam({ page: userdata.page }).trigger("reloadGrid");
+            jQuery("#grid_id").setSelection (userdata.selId, true);
+        },100);
+    }
+    else {
+        jQuery("#grid_id").setSelection (userdata.selId, true);
+    }
   },
+  
+  onPaging : function(which_button) {
+	$("#grid_id").setGridParam({datatype:'json'});
+  },
+  
   ondblClickRow: function(rowid) {//enable "edit" on dblClick			
   	$("#grid_id").jqGrid('editGridRow',rowid,_editAttr);
- },
- <tiles:insertAttribute name="grid-customAttributes" /> //add custom attributes if any
+  },
+  
+  <tiles:insertAttribute name="grid-customAttributes" /> //add custom attributes if any
 }).navGrid('#gridpager',
 		  _navAttr, 
 		  _editAttr,   // edit
@@ -382,7 +383,6 @@ if (_enableFilterToolbar) {
 }
  
 createGrid();
-
 
 </script>
 </head>
