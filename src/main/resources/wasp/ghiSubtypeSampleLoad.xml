@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.1.xsd"
+    default-autowire="byName">
+
+  <bean class="edu.yu.einstein.wasp.model.UiField" id="ghiSubtypeSampleUiField">
+    <property name="locale" value="en_US" />
+    <property name="area" value="ghiSubtypeSample" />
+  </bean>
+
+  <bean id="ghiSubtypeSampleResource" class="edu.yu.einstein.wasp.load.SubtypeSampleLoadService">
+    <property name="iname" value="ghiSubtype" />
+    <property name="name" value="ghiSubtype" />
+    <property name="sampleType" value="dna" />
+    <property name="uiFields">
+      <list>
+        <bean parent="ghiSubtypeSampleUiField">
+          <property name="name" value="xyz" />
+          <property name="attrName" value="metaposition" />
+          <property name="attrValue" value="10" />
+        </bean>
+        <bean parent="ghiSubtypeSampleUiField">
+          <property name="name" value="xyz" />
+          <property name="attrName" value="label" />
+          <property name="attrValue" value="Xyz" />
+        </bean>
+      </list>
+    </property>
+
+  </bean>
+</beans>
