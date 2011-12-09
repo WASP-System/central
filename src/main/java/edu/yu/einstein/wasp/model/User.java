@@ -59,6 +59,7 @@ public class User extends WaspModel {
 
 
   @Column(name="email")
+  @NotEmpty
   @Email
   //@Pattern(regexp=".+@.+\\.[a-z]+")
   protected String email;

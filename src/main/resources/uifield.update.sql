@@ -138,7 +138,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','departmentId','error','Department cannot be empty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','departmentId','label','Department','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','departmentId','constraint','NotEmpty','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','departmentId','control','select:${department}:departmentId:name','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','departmentId','control','select:${departments}:departmentId:name','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','departmentId','metaposition','20','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','building_room','label','Building / Room','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','building_room','metaposition','30','1');
@@ -205,7 +205,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','lab','billing_departmentId','label','Billing Department','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','lab','billing_departmentId','constraint','NotEmpty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','lab','billing_departmentId','metaposition','60','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','lab','billing_departmentId','control','select:${department}:departmentId:name','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','lab','billing_departmentId','control','select:${departments}:departmentId:name','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','lab','billing_building_room','label','Room','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','lab','billing_building_room','metaposition','70','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','lab','billing_address','label','Billing Address','1');
@@ -283,7 +283,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','billing_departmentId','label','Billing Department','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','billing_departmentId','constraint','NotEmpty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','billing_departmentId','metaposition','60','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','billing_departmentId','control','select:${department}:departmentId:name','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','billing_departmentId','control','select:${departments}:departmentId:name','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','billing_building_room','label','Room','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','billing_building_room','metaposition','70','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','billing_address','label','Billing Address','1');
@@ -602,7 +602,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','building_room','constraint','NotEmpty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','building_room','error','Room cannot be empty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','locale','constraint','NotEmpty','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','departmentId','control','select:${department}:departmentId:name','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','departmentId','control','select:${departments}:departmentId:name','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','departmentId','constraint','NotEmpty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','departmentId','error','A department must be selected','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','emailconfirmed','label','Your email address is confirmed and your principal investigator has been emailed to request confirmation of your eligibility to join their lab. You are advised to contact them to request they do this if your account does not become activated in good time.','1');
