@@ -616,7 +616,13 @@ public class LabController extends WaspController {
 	public String updateDetail(@PathVariable("deptId") Integer deptId,
 			@PathVariable("labId") Integer labId, @Valid Lab labForm,
 			BindingResult result, SessionStatus status, ModelMap m) {
-
+		
+		// return read only version of page if cancel button pressed
+		String submitValue = (String) request.getParameter("submit");
+		if ( submitValue.equals(messageService.getMessage("labDetail.cancel.label")) ){
+			return "redirect:/lab/detail_ro/" + deptId + "/" + labId + ".do";
+		}
+		
 		List<LabMeta> labMetaList = getMetaHelper().getFromRequest(request,	LabMeta.class);
 
 		for (LabMeta meta : labMetaList) {
@@ -660,7 +666,13 @@ public class LabController extends WaspController {
 			@PathVariable("labPendingId") Integer labPendingId,
 			@Valid LabPending labPendingForm, BindingResult result,
 			SessionStatus status, ModelMap m) {
-
+		
+		// return read only version of page if cancel button pressed
+		String submitValue = (String) request.getParameter("submit");
+		if ( submitValue.equals(messageService.getMessage("labPending.cancel.label")) ){
+			return "redirect:/lab/pending/detail_ro/" + deptId + "/" + labPendingId + ".do";
+		}
+		
 		List<LabPendingMeta> labPendingMetaList = getLabPendingMetaHelper().getFromRequest(request, LabPendingMeta.class);
 
 		for (LabPendingMeta meta : labPendingMetaList) {

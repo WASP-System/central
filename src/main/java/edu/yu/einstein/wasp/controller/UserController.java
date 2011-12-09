@@ -400,7 +400,16 @@ public class UserController extends WaspController {
 	public String updateDetail(@PathVariable("userId") Integer userId,
 			@Valid User userForm, BindingResult result, SessionStatus status,
 			ModelMap m) {
-
+		
+		// return read only version of page if cancel button pressed
+		String submitValue = (String) request.getParameter("submit");
+		if ( submitValue.equals(messageService.getMessage("userDetail.cancel.label")) ){
+			if (userId == authenticationService.getAuthenticatedUser().getUserId()){
+				return "redirect:/user/me_ro.do";
+			}
+			return "redirect:/user/detail_ro/" + userId + ".do";
+		}
+		
 		List<UserMeta> userMetaList = getMetaHelper().getFromRequest(request, UserMeta.class);
 
 		for (UserMeta meta : userMetaList) {
