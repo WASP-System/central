@@ -15,7 +15,7 @@
   <h1>Super User Utils</h1>
   <div><a href="<c:url value="/user/list.do"/>">User Utils</a></div>
   <div><a href="<c:url value="/sysrole/list.do"/>">System Users</a></div>
-  <div><a href="<c:url value="/department/list.do"/>">Department Utils</a></div>
+ <!-- <div><a href="<c:url value="/department/list.do"/>">Department Utils</a></div> -->
   <div><a href="<c:url value="/lab/list.do"/>">- Lab Utils</a></div>
   <div><a href="<c:url value="/sample/list.do"/>">Sample Utils</a></div>
   <div><a href="<c:url value="/resource/list.do"/>">Resource Utils</a></div>
@@ -25,9 +25,22 @@
   </div>
 </sec:authorize>
 
-<sec:authorize access="hasRole('da-*')">
+<sec:authorize access="hasRole('da-*') or hasRole('god') or hasRole('ga')">
   <div>
   <h1>Department Admin</h1>
+
+<p><a href="<c:url value="/department/list.do"/>">Department Management</a>&nbsp;
+  <c:choose>
+   <c:when test='${departmentAdminPendingTasks == 0}'>(No Pending Departmental Tasks)
+   </c:when>
+   <c:otherwise>
+   <span style="color:red">
+   (<c:out value="${departmentAdminPendingTasks}" /> Pending Departmental Task<c:if test='${departmentAdminPendingTasks != 1}'>s</c:if>)
+   </span>
+   </c:otherwise>
+     </c:choose>
+</p>
+   
   <c:forEach items="${departments}" var="d">
     <div>
     <b><c:out value="${d.name}" /></b>

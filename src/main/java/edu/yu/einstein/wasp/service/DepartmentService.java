@@ -13,6 +13,8 @@ package edu.yu.einstein.wasp.service;
 
 import edu.yu.einstein.wasp.dao.DepartmentDao;
 import edu.yu.einstein.wasp.model.Department;
+import edu.yu.einstein.wasp.model.LabPending;
+import edu.yu.einstein.wasp.model.Job;
 
 import java.util.List;
 import java.util.Map;
@@ -42,6 +44,7 @@ public interface DepartmentService extends WaspService<Department> {
 
   public Department getDepartmentByName (final String name);
 
-
+  public int getDepartmentAdminPendingTasks();
+  public int getDepartmentAdminPendingTasks(List<LabPending> labsPendingDaApprovalList, List<Job> jobsPendingDaApprovalList);
 }
 

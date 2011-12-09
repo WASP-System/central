@@ -534,7 +534,9 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail','label','Department','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail_update_missingparam','error','Deaprtment name must be provided','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail_update_ok','label','Department has been updated','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail_missingparam','error','Name is missing','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail_missingparam','error','Administrator name is missing','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail_invalidDept','error','Specified department does Not exist','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail_adminAlreadyExists','error','Selected person is already an administrator for this department','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail_administrators','label','Administrators','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','mypassword_submit','label','Submit','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','uiField','not_unique','error','Property already exists','1');
@@ -595,8 +597,8 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail_missinglogin','error','Login is empty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail_usernotfound','error','User not found in database','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail_remove','label','Remove','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','create','label','Add New Department','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','list','label','List All Departments','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','create','label','Create New Department','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','list','label','List &amp; Manage Departments','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','building_room','constraint','NotEmpty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','building_room','error','Room cannot be empty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','locale','constraint','NotEmpty','1');

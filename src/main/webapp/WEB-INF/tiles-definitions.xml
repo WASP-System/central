@@ -114,6 +114,7 @@
 		<put-attribute name="body-content" value="/WEB-INF/jsp/user/mypassword.jsp" />
 	</definition>
 	<definition name="department/list" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/department/list.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/department/list.jsp" />
 	</definition>
 	<definition name="sample/list" extends="template-base">
@@ -170,17 +171,17 @@
 	<definition name="task/samplereceive/list" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/task/samplereceive/list.jsp" />
 	</definition>
-	<!-- <definition name="department/detail" extends="template-base">
+	 <!--<definition name="department/detail" extends="template-base">
 		<put-attribute name="head-js" value="/WEB-INF/jsp/department/detail.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/department/detail.jsp" />
 	</definition> -->
 	<definition name="department/detail" extends="template-grid">
 		<put-attribute name="area" value="department" />
 		<put-attribute name="grid-columns" value="/WEB-INF/jsp/department/grid_columns.jsp" />
-		<!-- <put-attribute name="subgrid-columns" value="/WEB-INF/jsp/department/subgrid_columns.jsp" /> -->
+		<!-- put-attribute name="subgrid-columns" value="/WEB-INF/jsp/department/subgrid_columns.jsp" /--> 
 		<put-attribute name="grid-customAttributes" value="/WEB-INF/jsp/department/grid_customAttributes.jsp" />
 		<put-attribute name="toolbar-buttons" value="/WEB-INF/jsp/department/toolbar_buttons.jsp" />
-		<put-attribute name="body-content" value="/WEB-INF/jsp/department/detail2.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/department/detail.jsp" />
 	</definition>
 	<definition name="sysrole/list" extends="template-base">
 		<put-attribute name="head-js" value="/WEB-INF/jsp/sysrole/list.js.jsp" />
@@ -220,6 +221,9 @@
 	</definition>
 	<definition name="lab/pendinguser/list" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/lab/pendinguser/list.jsp" />
+	</definition>
+	<definition name="department/dapendingtasks" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/department/dapendingtasks.jsp" />
 	</definition>
 
 	<definition name="user/list" extends="template-grid">

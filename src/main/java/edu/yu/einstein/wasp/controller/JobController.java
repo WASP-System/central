@@ -161,7 +161,11 @@ public class JobController extends WaspController {
     return "redirect:/job/detail/" + jobId + ".do";
   }
 
-
-
-
+  @RequestMapping(value = "/pending/detail_ro/{deptId}/{jobId}.do", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('da-' + #deptId)")
+	public String pendingDetailRO(@PathVariable("deptId") Integer deptId,
+			@PathVariable("jobId") Integer jobId, ModelMap m) {
+	  
+	  return "http://www.google.com";
+  }
 }

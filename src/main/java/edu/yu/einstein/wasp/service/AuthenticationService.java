@@ -36,6 +36,19 @@ public interface AuthenticationService {
 	 */
 	public boolean isAuthenticatedGuest();
 	
+	
+	/**
+	 * Returns true if User has the role of theRole. theRole can be "god", "da", etc.
+	 * @return
+	 */
+	public boolean hasRole(String theRole);
+	
+	/**
+	 * Returns true if User has role of god, else returns false
+	 * @return
+	 */
+	public boolean isGod();
+	
 	/**
 	 * Attempts to authenticate a user based on given credentials and returns true if user authenticates or false if not.
 	 * @param name

@@ -14,6 +14,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import edu.yu.einstein.wasp.controller.DashboardController.DashboardEntityRolename;
 import edu.yu.einstein.wasp.exception.LoginNameException;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserPending;
@@ -104,6 +105,28 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	public boolean isAuthenticatedGuest() {
 		for (String role: this.getRoles()){
 			if (role.equals("ag"))
+					return true;
+		}
+		return false;
+	}
+	
+	@Override
+	public boolean hasRole(String theRole) {
+		
+		for (String role: this.getRoles()) {
+			if(role.equals(theRole)){return true;}//in case theRole is something like da-*
+			String[] splitRole = role.split("-");//if no "-" is within role, then splitRole[0] contains entire original string
+			if(splitRole[0].equals(theRole)){
+				return true;
+			}	
+		}
+		return false;
+	}
+	
+	@Override
+	public boolean isGod() {
+		for (String role: this.getRoles()){
+			if (role.equals("god"))
 					return true;
 		}
 		return false;

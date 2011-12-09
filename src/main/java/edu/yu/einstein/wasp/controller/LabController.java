@@ -1133,7 +1133,7 @@ public class LabController extends WaspController {
 	 */
 
 	@RequestMapping(value = "/pending/{action}/{deptId}/{labPendingId}.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('god') or hasRole('da-' + #deptId)")
+	@PreAuthorize("hasRole('god') or hasRole('da-' + #deptId) or hasRole('ga-*')")
 	public String labPendingDetail(@PathVariable("deptId") Integer deptId,
 			@PathVariable("labPendingId") Integer labPendingId,
 			@PathVariable("action") String action, ModelMap m)
@@ -1141,24 +1141,28 @@ public class LabController extends WaspController {
 
 		if (!(action.equals("approve") || action.equals("reject"))) {
 			waspMessage("labPending.action.error");
-			return "redirect:/department/detail/" + deptId + ".do";
+			//return "redirect:/department/detail/" + deptId + ".do";
+			return "redirect:/department/dapendingtasklist.do";
 		}
 		LabPending labPending = labPendingService.getLabPendingByLabPendingId(labPendingId);
 		if (! labPending.getStatus().equals("PENDING") ) {
 			waspMessage("labPending.status_not_pending.error");
-			return "redirect:/department/detail/" + deptId + ".do";
+			//return "redirect:/department/detail/" + deptId + ".do";
+			return "redirect:/department/dapendingtasklist.do";
 		}
 		
 		if (labPending.getDepartmentId() != deptId) {
 			waspMessage("labPending.departmentid_mismatch.error");
-			return "redirect:/department/detail/" + deptId + ".do";
+			//return "redirect:/department/detail/" + deptId + ".do";
+			return "redirect:/department/dapendingtasklist.do";
 		}
 
 		if ("approve".equals(action)) {
 			Lab lab = createLabFromLabPending(labPending);
 			if (lab.getLabId() == 0){
 				waspMessage("labPending.could_not_create_lab.error");
-				return "redirect:/department/detail/" + deptId + ".do";
+				//return "redirect:/department/detail/" + deptId + ".do";
+				return "redirect:/department/dapendingtasklist.do";
 			}
 			emailService.sendPendingLabNotifyAccepted(lab);
 			waspMessage("labPending.approved.label");
@@ -1172,13 +1176,15 @@ public class LabController extends WaspController {
 				waspMessage("labPending.rejected.label");
 			} else if (labPending.getPrimaryUserId() == null){
 				waspMessage("labPending.could_not_create_lab.error");
-				return "redirect:/department/detail/" + deptId + ".do";
+				//return "redirect:/department/detail/" + deptId + ".do";
+				return "redirect:/department/dapendingtasklist.do";
 			}
 			emailService.sendPendingLabNotifyRejected(labPending);
 		}
 		labPending.setStatus(action);
 		labPendingService.save(labPending);
-		return "redirect:/department/detail/" + deptId + ".do";
+		//return "redirect:/department/detail/" + deptId + ".do";
+		return "redirect:/department/dapendingtasklist.do";
 	}
 	
 	/**
