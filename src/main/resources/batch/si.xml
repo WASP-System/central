@@ -28,19 +28,41 @@
     </si:interceptors>
   </si:channel>
 
-   <bean id="taskService" class="edu.yu.einstein.wasp.service.impl.TaskServiceImpl" />
+  <bean id="taskService" class="edu.yu.einstein.wasp.service.impl.TaskServiceImpl" />
 
-    <bean id="stateReader" class="edu.yu.einstein.wasp.batch.StateReader" scope="step">
-      <property name="stateId" value="#{jobParameters['state']}"/>
-    </bean>
+  <bean id="stateReader" class="edu.yu.einstein.wasp.batch.StateReader" scope="step">
+    <property name="stateId" value="#{jobParameters['state']}"/>
+  </bean>
 
-    <bean id="finalStateStep" class="org.springframework.batch.core.step.item.SimpleStepFactoryBean">
-      <property name="transactionManager" ref="transactionManager"/>
-      <property name="jobRepository" ref="jobRepository"/>
-      <property name="itemReader" ref="stateReader"/>
-      <property name="itemProcessor" ref="stateFinalProcessor"/>
-    </bean>
+  <bean id="emptyStateProcessor" class="edu.yu.einstein.wasp.batch.EmptyStateProcessor" />
 
+  <bean id="alwaysRetryPolicy" class="org.springframework.batch.retry.policy.AlwaysRetryPolicy" />
 
+  <bean id="fixedBackoffPolicy" class="org.springframework.batch.retry.backoff.FixedBackOffPolicy">
+    <property name="backOffPeriod" value="10000" />
+  </bean>
+
+  <bean id="parentStateStep" class="org.springframework.batch.core.step.item.FaultTolerantStepFactoryBean">
+    <property name="transactionManager" ref="transactionManager"/>
+    <property name="jobRepository" ref="jobRepository"/>
+    <property name="itemReader" ref="stateReader"/>
+    <property name="itemProcessor" ref="emptyStateProcessor"/>
+
+    <property name="retryableExceptionClasses">
+      <map>
+        <entry key="edu.yu.einstein.wasp.batch.RetryableException" value="true" />
+      </map>
+    </property>
+    <property name="retryPolicy" ref="alwaysRetryPolicy" />
+    <property name="backOffPolicy" ref="fixedBackoffPolicy" />
+  </bean>
+
+  <bean id="emptyStateStep" parent="parentStateStep" />
+
+  <bean id="finalStateStep" parent="parentStateStep">
+    <property name="itemProcessor">
+      <bean class="edu.yu.einstein.wasp.batch.StateFinalProcessor"/>
+    </property>
+  </bean>
 
 </beans>
