@@ -31,33 +31,27 @@
         </list>  
       </property>  
   </bean> 
-    
-  <!-- <import resource="file:C:/projects/fox/wasp/target/wasp-0.0.1-SNAPSHOT/WEB-INF/spring/security-app-context.xml"/> -->
-   
-  <import resource="file:/home/ewah/wasp/target/wasp-0.0.1-SNAPSHOT/WEB-INF/spring/security-app-context.old.xml"/>
 
   <bean id="messageSource" class="edu.yu.einstein.wasp.service.impl.WaspMessageSourceImpl" >
         <!-- property name="useCodeAsDefaultMessage" value="true"/-->
   </bean>
 
   <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
-    <property name="driverClassName"><value>com.mysql.jdbc.Driver</value></property>
-    <property name="url"><value>jdbc:mysql://localhost:3306/wasp</value></property>
-    <property name="username"><value>wasp</value></property>
-    <property name="password"><value>waspV2</value></property>
+    <property name="driverClassName"><value>${db.driver}</value></property>
+    <property name="url"><value>${db.url}</value></property>
+    <property name="username"><value>${db.username}</value></property>
+    <property name="password"><value>${db.password}</value></property>
   </bean>
 
-
-
- <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
-   <property name="persistenceUnitName" value="waspPU" />
-        <property name="dataSource" ref="dataSource" />
-        <property name="jpaVendorAdapter">
-            <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
-                <property name="database" value="MYSQL" />
-                <property name="showSql" value="true" />
-            </bean>
-        </property>   
+  <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+    <property name="persistenceUnitName" value="waspPU" />
+    <property name="dataSource" ref="dataSource" />
+    <property name="jpaVendorAdapter">
+      <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+        <property name="database" value="MYSQL" />
+        <property name="showSql" value="true" />
+      </bean>
+    </property>   
   </bean>
 
   <bean name="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
@@ -70,56 +64,43 @@
   <bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor" /> 
 
   
-    <context:component-scan base-package="util.spring" />
-    <context:component-scan base-package="edu.yu.einstein.wasp.dao.impl" />
-    <context:component-scan base-package="edu.yu.einstein.wasp.service.impl" /> 
-<!--    <context:component-scan base-package="edu.yu.einstein.wasp.batch" />
-    <context:component-scan base-package="edu.yu.einstein.wasp.load" /> --> 
-    <context:annotation-config/>
+  <context:component-scan base-package="util.spring" />
+  <context:component-scan base-package="edu.yu.einstein.wasp.dao.impl" />
+  <context:component-scan base-package="edu.yu.einstein.wasp.service.impl" /> 
+  <context:annotation-config/>
 
 
-   <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
-      <property name="host" value="localhost"/>
-      <property name="defaultEncoding" value="UTF-8" />
-      <property name="javaMailProperties">
-                <props>
-               <prop key="mail.smtp.from">ewah@ewah.com</prop>
-            </props>
-      </property>
-   </bean>
+  <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+    <property name="host" value="${email.host}"/>
+    <property name="defaultEncoding" value="${email.encoding}" />
+    <property name="javaMailProperties">
+      <props>
+        <prop key="mail.smtp.from">${email.smtp.from}</prop>
+      </props>
+    </property>
+  </bean>
 
-   <bean id="velocityEngine" class="org.springframework.ui.velocity.VelocityEngineFactoryBean">
-      <property name="velocityProperties">
-         <value>
-          resource.loader=class
-          class.resource.loader.class=org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
-         </value>
-      </property>
-   </bean>
+  <bean id="velocityEngine" class="org.springframework.ui.velocity.VelocityEngineFactoryBean">
+    <property name="velocityProperties">
+      <value>
+        resource.loader=class
+        class.resource.loader.class=org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
+      </value>
+    </property>
+  </bean>
 
-   <bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping" />
-   <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter" />
- 
   <!-- loads load scripts to update database -->
   <import resource="classpath*:wasp/*Load.xml" />
 
   <!-- Spring Integration/Batch config--> 
+    <bean class="org.springframework.batch.core.scope.StepScope" />
 
-  <import resource="batch/spring-integration-batch.xml" />
-
-  <bean class="org.springframework.batch.core.scope.StepScope" />
-
-  <import resource="batch/si.xml" />
-
-  <!-- loads all the batch -->
-<!--  <import resource="classpath*:batch/*Batch.xml" /> -->
-
-  <import resource="batch/jobCreatedBatch.xml" />
-<!--  '*Batch' handles this
-  <import resource="batch/quoteQuotedBatch.xml" />
-  <import resource="batch/piApprovedBatch.xml" />
-  <import resource="batch/daApprovedBatch.xml" /> -->
-
+    <!-- system level -->
+    <import resource="batch/spring-integration-batch.xml" />
+    <!-- deployment level -->
+    <import resource="batch/si.xml" />
+    <!-- loads all the plugable batch -->
+    <import resource="classpath*:batch/*Batch.xml" /> 
 
 <!--
   <import resource="import-poll-files-job.xml" /> -->
