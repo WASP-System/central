@@ -189,34 +189,51 @@
 <!-- /default steps --> 
 <!-- ****************** -->
 
-<bean id="asyncTaskExecutor" class="org.springframework.core.task.SimpleAsyncTaskExecutor" />
-
-
   <!-- ******************** -->
   <!-- default flow --> 
+  <batch:flow id="quoteFlow">
+     <batch:step id="quoteStep0" parent="createQuoteJobStateStep" next="quoteStep1" />
+     <batch:step id="quoteStep1" parent="waitForQuoteJobStateUpdated" />
+  </batch:flow>
+
+  <batch:flow id="piApprovalFlow">
+    <batch:step id="piApprovalStep0" parent="createPiApprovalStateStep" next="piApprovalStep1" />
+    <batch:step id="piApprovalStep1" parent="waitForPiApprovalStateUpdated" />
+  </batch:flow>
+
+  <batch:flow id="daApprovalFlow">
+    <batch:step id="daApprovalStep0" parent="createDaApprovalStateStep" next="daApprovalStep1" />
+    <batch:step id="daApprovalStep1" parent="waitForDaApprovalStateUpdated" />
+  </batch:flow>
+
+  <batch:flow id="invoiceFlow">
+    <batch:step id="invoiceStep0" parent="createSendInvoiceStateStep" next="invoiceStep1" />
+    <batch:step id="invoiceStep1" parent="doSendInvoiceStateStep" next="invoiceStep2" />
+    <batch:step id="invoiceStep2" parent="waitForSendInvoiceStateUpdated" />
+  </batch:flow>
+
+  <batch:flow id="finishJobFlow">
+    <batch:step id="finishJobStep" parent="finalStateStep" />
+  </batch:flow>
+
+  <!-- ****** -->
+
   <batch:job id="startJob" restartable="true">
-    <batch:step id="startJob0" parent="createSampleReceiveStateStep" next="startJob1" /> 
+    <batch:step id="startJob0" parent="createSampleReceiveStateStep" next="job.quoteFlow" /> 
 
-    <batch:step id="startJob1" parent="createQuoteJobStateStep" next="startJob3" />
-    <batch:step id="startJob3" parent="waitForQuoteJobStateUpdated" next="split1" />
+    <batch:flow id="job.quoteFlow" parent="quoteFlow" next="job.approvals" />
 
-    <batch:split id="split1" next="startJob9" task-executor="asyncTaskExecutor">
+    <batch:split id="job.approvals" next="job.invoiceFlow" task-executor="asyncTaskExecutor">
       <batch:flow>
-        <batch:step id="startJob4" parent="createPiApprovalStateStep" next="startJob6" />
-        <batch:step id="startJob6" parent="waitForPiApprovalStateUpdated" />
+        <batch:flow id="job.piApprovalFlow" parent="piApprovalFlow" />
       </batch:flow>
       <batch:flow>
-        <batch:step id="startJob5" parent="createDaApprovalStateStep" next="startJob7" />
-        <batch:step id="startJob7" parent="waitForDaApprovalStateUpdated" />
+        <batch:flow id="job.daApprovalFlow" parent="daApprovalFlow" />
       </batch:flow>
     </batch:split> 
 
-
-    <batch:step id="startJob9" parent="createSendInvoiceStateStep" next="startJob10" />
-    <batch:step id="startJob10" parent="doSendInvoiceStateStep" next="startJob11" />
-    <batch:step id="startJob11" parent="waitForSendInvoiceStateUpdated" next="startJob99" />
-
-    <batch:step id="startJob99" parent="finalStateStep" />
+    <batch:flow id="job.invoiceFlow" parent="invoiceFlow" next="job.finishStep" />
+    <batch:step id="job.finishStep" parent="finalStateStep" />
   </batch:job>
 
   <!-- /default flow --> 
