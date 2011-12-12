@@ -53,6 +53,7 @@ public class WorkflowPoller {
 
 
 		for (State state: allStates) {
+			if (state.getStatejob().isEmpty()) { continue; }
 			if (state.getStatus().equals("FINAL")) { continue; }
 
 			// should be the same so just get first, 
