@@ -42,7 +42,22 @@
   -->
   <!-- every 5 seconds call taskService.getJobCreatedStates() -->
   <!-- taskService bean defined in si.xml  -->
-  <si:inbound-channel-adapter ref="taskService" method="getJobCreatedStates" channel="jobCreateRequestChannel">
+<!--   <si:inbound-channel-adapter ref="taskService" method="getJobCreatedStates" channel="jobCreateRequestChannel">
+    <si:poller>
+      <si:interval-trigger interval="5000" />
+    </si:poller>
+  </si:inbound-channel-adapter> -->
+
+
+  <!--  -->
+
+  <bean id="workflowPoller" class="edu.yu.einstein.wasp.batch.WorkflowPoller" />
+  <bean id="startJobPoller" parent="workflowPoller">
+    <property name="workflowIName"  value="chipSeq"/>
+    <property name="taskIName" value="Start Job"/>
+  </bean> 
+
+  <si:inbound-channel-adapter ref="startJobPoller" method="getStates" channel="jobCreateRequestChannel">
     <si:poller>
       <si:interval-trigger interval="5000" />
     </si:poller>
@@ -58,33 +73,135 @@
     </bean>
   </si:service-activator>
 
-  <bean id="createQuoteJobStateProcessor" class="edu.yu.einstein.wasp.batch.CreateJobStateProcessor">
-    <property name="targetTask" value="Quote Job" />
+
+
+  <!-- creates a sample flow -->
+
+  <bean id="createSampleReceiveStateStep" parent="parentStateStep">
+    <property name="itemProcessor">
+      <bean class="edu.yu.einstein.wasp.batch.CreateSampleReceiveProcessor">
+        <property name="targetTask" value="Receive Sample" />
+      </bean>
+    </property>
   </bean>
 
-  <bean id="createSampleReceiveStateProcessor" class="edu.yu.einstein.wasp.batch.CreateSampleReceiveProcessor">
-    <property name="targetTask" value="Receive Sample" />
+  <!-- creates a quote -->
+
+  <bean id="createQuoteJobStateStep" parent="parentStateStep">
+    <property name="itemProcessor">
+      <bean class="edu.yu.einstein.wasp.batch.CreateJobStateProcessor">
+        <property name="targetTask" value="Quote Job" />
+      </bean>
+    </property>
   </bean>
 
-  <bean id="createQuoteJobStateStep" class="org.springframework.batch.core.step.item.SimpleStepFactoryBean">
-    <property name="transactionManager" ref="transactionManager"/>
-    <property name="jobRepository" ref="jobRepository"/>
-    <property name="itemReader" ref="stateReader"/>
-    <property name="itemProcessor" ref="createQuoteJobStateProcessor"/>
+  <!-- wait for quote -->
+
+  <bean id="waitForQuoteJobStateUpdated" parent="parentStateStep">
+    <property name="itemProcessor">
+      <bean class="edu.yu.einstein.wasp.batch.WaitForSiblingJobStateProcessor">
+        <property name="task" value="Quote Job" />
+        <property name="status" value="QUOTED" />
+        <property name="siblingTargetStatus" value="FINAL" />
+      </bean>
+    </property>
   </bean>
 
-  <bean id="createSampleReceiveStateStep" class="org.springframework.batch.core.step.item.SimpleStepFactoryBean">
-    <property name="transactionManager" ref="transactionManager"/>
-    <property name="jobRepository" ref="jobRepository"/>
-    <property name="itemReader" ref="stateReader"/>
-    <property name="itemProcessor" ref="createSampleReceiveStateProcessor"/>
+  <!-- creates da/pi approval -->
+  <bean id="createDaApprovalStateStep" parent="parentStateStep">
+    <property name="itemProcessor">
+      <bean class="edu.yu.einstein.wasp.batch.CreateJobStateProcessor">
+        <property name="targetTask" value="DA Approval" />
+      </bean>
+    </property>
   </bean>
+
+  <bean id="createPiApprovalStateStep" parent="parentStateStep">
+    <property name="itemProcessor">
+      <bean class="edu.yu.einstein.wasp.batch.CreateJobStateProcessor">
+        <property name="targetTask" value="PI Approval" />
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="waitForPiApprovalStateUpdated" parent="parentStateStep">
+    <property name="itemProcessor">
+      <bean class="edu.yu.einstein.wasp.batch.WaitForSiblingJobStateProcessor">
+        <property name="task" value="PI Approval" />
+        <property name="status" value="APPROVED" />
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="waitForDaApprovalStateUpdated" parent="parentStateStep">
+    <property name="itemProcessor">
+      <bean class="edu.yu.einstein.wasp.batch.WaitForSiblingJobStateProcessor">
+        <property name="task" value="DA Approval" />
+        <property name="status" value="APPROVED" />
+        <property name="siblingTargetStatus" value="FINAL" />
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="waitForPiApprovalStateUpdated2" parent="parentStateStep">
+    <property name="itemProcessor">
+      <bean class="edu.yu.einstein.wasp.batch.WaitForSiblingJobStateProcessor">
+        <property name="task" value="PI Approval" />
+        <property name="status" value="APPROVED" />
+        <property name="siblingTargetStatus" value="FINAL" />
+      </bean>
+    </property>
+  </bean>
+
+  <!-- creates send invoice -->
+  <bean id="createSendInvoiceStateStep" parent="parentStateStep">
+    <property name="itemProcessor">
+      <bean class="edu.yu.einstein.wasp.batch.CreateJobStateProcessor">
+        <property name="targetTask" value="Send Invoice" />
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="doSendInvoiceStateStep" parent="parentStateStep">
+    <property name="itemProcessor">
+      <bean class="edu.yu.einstein.wasp.batch.WaitForSiblingJobStateProcessor">
+        <property name="task" value="Send Invoice" />
+        <property name="status" value="CREATED" />
+        <property name="siblingTargetStatus" value="SENT" />
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="waitForSendInvoiceStateUpdated" parent="parentStateStep">
+    <property name="itemProcessor">
+      <bean class="edu.yu.einstein.wasp.batch.WaitForSiblingJobStateProcessor">
+        <property name="task" value="Send Invoice" />
+        <property name="status" value="SENT" />
+        <property name="siblingTargetStatus" value="FINAL" />
+      </bean>
+    </property>
+  </bean>
+
+  <!-- ******************** -->
 
   <batch:job id="startJob">
-    <batch:step id="startJob1" parent="createQuoteJobStateStep" next="startJob2" />
-    <batch:step id="startJob2" parent="createSampleReceiveStateStep" next="startJob3" /> 
-    <batch:step id="startJob3" parent="finalStateStep" />
-  </batch:job>
+    <batch:step id="startJob0" parent="createSampleReceiveStateStep" next="startJob1" /> 
 
+    <batch:step id="startJob1" parent="createQuoteJobStateStep" next="startJob3" />
+    <batch:step id="startJob3" parent="waitForQuoteJobStateUpdated" next="startJob4" />
+
+    <batch:step id="startJob4" parent="createPiApprovalStateStep" next="startJob5" />
+    <batch:step id="startJob5" parent="createDaApprovalStateStep" next="startJob6" />
+    <batch:step id="startJob6" parent="waitForPiApprovalStateUpdated" next="startJob7" />
+    <batch:step id="startJob7" parent="waitForDaApprovalStateUpdated" next="startJob8" />
+    <batch:step id="startJob8" parent="waitForPiApprovalStateUpdated2" next="startJob9" />
+
+
+    <batch:step id="startJob9" parent="createSendInvoiceStateStep" next="startJob10" />
+    <batch:step id="startJob10" parent="doSendInvoiceStateStep" next="startJob11" />
+    <batch:step id="startJob11" parent="waitForSendInvoiceStateUpdated" next="startJob99" />
+
+    <batch:step id="startJob99" parent="finalStateStep" />
+  </batch:job>
 
 </beans>
