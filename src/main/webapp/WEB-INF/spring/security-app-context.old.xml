@@ -1,0 +1,104 @@
+<!--
+OLD security policy using w/ spring bactch for now but depreciated.
+should merge w/ new security-app-context
+
+-->
+
+
+<beans:beans xsi:schemaLocation="http://www.springframework.org/schema/beans 
+      http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+      http://www.springframework.org/schema/security 
+      http://www.springframework.org/schema/security/spring-security-3.1.xsd"
+    xmlns="http://www.springframework.org/schema/security"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:beans="http://www.springframework.org/schema/beans"
+      >
+
+
+    <global-method-security pre-post-annotations="enabled" proxy-target-class="true" />
+
+    <http use-expressions="true">
+
+        <intercept-url pattern="/auth/**" access="permitAll" />
+        <intercept-url pattern="/stickyCaptchaImg.png" access="permitAll" />
+        <intercept-url pattern="/open/**" access="permitAll" />
+        <intercept-url pattern="/**" access="isAuthenticated()" />
+
+        <form-login login-page="/auth/login.do"
+           authentication-failure-url="/auth/login.do?error=1"
+           default-target-url="/dashboard.do"   
+           />
+        <logout />
+
+    </http>
+
+    <beans:bean id="userDetailsService" class="org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl">
+      <beans:property name="dataSource" ref="dataSource" />
+
+      <beans:property name="usersByUsernameQuery" value="SELECT login username, password, isactive enabled FROM user WHERE login = ?" />
+
+      <beans:property name="authoritiesByUsernameQuery" value="
+SELECT u.login username,
+  case ab.roleid
+    when 1 then
+      case r.domain
+        when 'system' then provr.rolename
+        when 'department' then concat(provr.rolename, '-', du.departmentid)
+        when 'lab' then concat(provr.rolename, '-', lu.labid)
+        when 'job' then concat(provr.rolename, '-', ju.jobid)
+        when 'jobdraft' then concat(provr.rolename, '-', jd.jobdraftid)
+        when 'user' then concat(provr.rolename, '-', us.userid)
+      end
+    when 2 then
+      concat(provr.rolename, '-*')
+      end authority
+FROM
+  user u
+  inner join role ab on (roleid in (1,2))
+  inner join role r on (1 = 1)
+  inner join roleset rs on (r.roleid = rs.parentroleid)
+  inner join role provr on (rs.childroleid = provr.roleid)
+  left outer join userrole ur
+    on (u.userid = ur.userid and r.roleid = ur.roleid)
+  left outer join departmentuser du
+    on (u.userid = du.userid)
+  left outer join labuser lu
+    on (u.userid = lu.userid and r.roleid = lu.roleid)
+  left outer join jobuser ju
+    on (u.userid = ju.userid and r.roleid = ju.roleid)
+  left outer join jobdraft jd
+    on (u.userid = jd.userid and status = 'PENDING')
+  left outer join user us 
+    on (u.userid = us.userid)
+where
+  u.login = ? and
+  case r.domain
+    when 'system' then ifnull(ur.userid, 0)
+    when 'department' then ifnull(du.userid, 0)
+    when 'lab' then ifnull(lu.userid, 0)
+    when 'job' then ifnull(ju.userid, 0)
+    when 'jobdraft' then ifnull(jd.userid, 0)
+    when 'user' then ifnull(us.userid, 0)
+  end
+group by 1, 2
+" />
+    </beans:bean>
+
+
+    <beans:bean id="daoAuthenticationProvider"  class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
+       <beans:property name="userDetailsService" ref="userDetailsService"/>
+    </beans:bean>
+
+    <authentication-manager>
+
+      <authentication-provider user-service-ref="userDetailsService">
+        <password-encoder hash="sha" />
+      </authentication-provider>
+
+      <!-- no password encoder to reauth -->
+      <authentication-provider user-service-ref="userDetailsService">
+      </authentication-provider>
+
+    </authentication-manager>
+
+</beans:beans>
