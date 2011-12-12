@@ -28,8 +28,15 @@
     </si:interceptors>
   </si:channel>
 
+  <!-- depreicated -->
   <bean id="taskService" class="edu.yu.einstein.wasp.service.impl.TaskServiceImpl" />
 
+
+  <!-- for <batch:split> an parallel action -->
+  <bean id="asyncTaskExecutor" class="org.springframework.core.task.SimpleAsyncTaskExecutor" />
+
+
+  <!-- Reads a state --> 
   <bean id="stateReader" class="edu.yu.einstein.wasp.batch.StateReader" scope="step">
     <property name="stateId" value="#{jobParameters['state']}"/>
   </bean>
@@ -42,12 +49,10 @@
     <property name="backOffPeriod" value="10000" />
   </bean>
 
-  <bean id="parentStateStep" class="org.springframework.batch.core.step.item.FaultTolerantStepFactoryBean">
+  <bean id="parentStateStep" abstract="true" class="org.springframework.batch.core.step.item.FaultTolerantStepFactoryBean">
     <property name="transactionManager" ref="transactionManager"/>
     <property name="jobRepository" ref="jobRepository"/>
     <property name="itemReader" ref="stateReader"/>
-    <property name="itemProcessor" ref="emptyStateProcessor"/>
-
     <property name="retryableExceptionClasses">
       <map>
         <entry key="edu.yu.einstein.wasp.batch.RetryableException" value="true" />
@@ -57,7 +62,9 @@
     <property name="backOffPolicy" ref="fixedBackoffPolicy" />
   </bean>
 
-  <bean id="emptyStateStep" parent="parentStateStep" />
+  <bean id="emptyStateStep" parent="parentStateStep"> 
+    <property name="itemProcessor" ref="emptyStateProcessor"/>
+  </bean>
 
   <bean id="finalStateStep" parent="parentStateStep">
     <property name="itemProcessor">
