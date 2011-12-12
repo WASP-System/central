@@ -52,6 +52,10 @@
   <!--  -->
 
   <bean id="workflowPoller" class="edu.yu.einstein.wasp.batch.WorkflowPoller" />
+
+<!-- ****************** -->
+<!-- chipseq service starter -->
+
   <bean id="startJobPoller" parent="workflowPoller">
     <property name="workflowIName"  value="chipSeq"/>
     <property name="taskIName" value="Start Job"/>
@@ -69,11 +73,18 @@
     <bean class="edu.yu.einstein.wasp.batch.StateJobLaunchingMessageHandler" scope="prototype">
        <constructor-arg ref="jobRegistry" />
        <constructor-arg ref="jobLauncher" />
+       <constructor-arg ref="jobRepository" />
        <constructor-arg type="java.lang.String"><value>startJob</value></constructor-arg>
     </bean>
   </si:service-activator>
 
 
+<!-- /chipseq service starter -->
+<!-- ****************** -->
+
+
+<!-- ****************** -->
+<!-- default steps ? -->
 
   <!-- creates a sample flow -->
 
@@ -182,8 +193,11 @@
     </property>
   </bean>
 
-  <!-- ******************** -->
+<!-- /default steps --> 
+<!-- ****************** -->
 
+  <!-- ******************** -->
+  <!-- default flow --> 
   <batch:job id="startJob">
     <batch:step id="startJob0" parent="createSampleReceiveStateStep" next="startJob1" /> 
 
@@ -203,5 +217,8 @@
 
     <batch:step id="startJob99" parent="finalStateStep" />
   </batch:job>
+
+  <!-- /default flow --> 
+  <!-- ********************* -->
 
 </beans>
