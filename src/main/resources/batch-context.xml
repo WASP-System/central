@@ -69,10 +69,11 @@
 
   <bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor" /> 
 
-   
+  
     <context:component-scan base-package="util.spring" />
     <context:component-scan base-package="edu.yu.einstein.wasp.dao.impl" />
-    <context:component-scan base-package="edu.yu.einstein.wasp.service.impl" /> <!--    <context:component-scan base-package="edu.yu.einstein.wasp.batch" />
+    <context:component-scan base-package="edu.yu.einstein.wasp.service.impl" /> 
+<!--    <context:component-scan base-package="edu.yu.einstein.wasp.batch" />
     <context:component-scan base-package="edu.yu.einstein.wasp.load" /> --> 
     <context:annotation-config/>
 
@@ -98,21 +99,11 @@
 
    <bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping" />
    <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter" />
-   
-   <mvc:annotation-driven />
-
-  <mvc:interceptors>
-    <bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor">
-        <property name="paramName"><value>setUserLocale</value></property>
-    </bean>
-
-  </mvc:interceptors>
-
+ 
   <!-- loads load scripts to update database -->
   <import resource="classpath*:wasp/*Load.xml" />
 
   <!-- Spring Integration/Batch config--> 
-
 
   <import resource="batch/spring-integration-batch.xml" />
 
