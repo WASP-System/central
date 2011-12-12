@@ -70,6 +70,12 @@ public class WaitForSiblingJobStateProcessor implements ItemProcessor {
 			if (! siblingStatejob.getState().getTask().getIName().equals(task)) {
 				continue; 
 			}
+
+			// "FINAL" status, means it has already been run
+			if (siblingStatejob.getState().getStatus().equals(siblingTargetStatus != null?siblingTargetStatus:"FINAL")) {
+				return state;
+			}
+
 			if (! siblingStatejob.getState().getStatus().equals(status)) {
 				continue; 
 			}
