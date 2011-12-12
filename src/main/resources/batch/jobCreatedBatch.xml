@@ -74,6 +74,7 @@
        <constructor-arg ref="jobRegistry" />
        <constructor-arg ref="jobLauncher" />
        <constructor-arg ref="jobRepository" />
+       <constructor-arg ref="jobOperator" />
        <constructor-arg type="java.lang.String"><value>startJob</value></constructor-arg>
     </bean>
   </si:service-activator>
@@ -109,6 +110,7 @@
   <!-- wait for quote -->
 
   <bean id="waitForQuoteJobStateUpdated" parent="parentStateStep">
+    <property name="allowStartIfComplete" value="true" />
     <property name="itemProcessor">
       <bean class="edu.yu.einstein.wasp.batch.WaitForSiblingJobStateProcessor">
         <property name="task" value="Quote Job" />
@@ -135,15 +137,6 @@
     </property>
   </bean>
 
-  <bean id="waitForPiApprovalStateUpdated" parent="parentStateStep">
-    <property name="itemProcessor">
-      <bean class="edu.yu.einstein.wasp.batch.WaitForSiblingJobStateProcessor">
-        <property name="task" value="PI Approval" />
-        <property name="status" value="APPROVED" />
-      </bean>
-    </property>
-  </bean>
-
   <bean id="waitForDaApprovalStateUpdated" parent="parentStateStep">
     <property name="itemProcessor">
       <bean class="edu.yu.einstein.wasp.batch.WaitForSiblingJobStateProcessor">
@@ -154,7 +147,7 @@
     </property>
   </bean>
 
-  <bean id="waitForPiApprovalStateUpdated2" parent="parentStateStep">
+  <bean id="waitForPiApprovalStateUpdated" parent="parentStateStep">
     <property name="itemProcessor">
       <bean class="edu.yu.einstein.wasp.batch.WaitForSiblingJobStateProcessor">
         <property name="task" value="PI Approval" />
@@ -196,19 +189,27 @@
 <!-- /default steps --> 
 <!-- ****************** -->
 
+<bean id="asyncTaskExecutor" class="org.springframework.core.task.SimpleAsyncTaskExecutor" />
+
+
   <!-- ******************** -->
   <!-- default flow --> 
-  <batch:job id="startJob">
+  <batch:job id="startJob" restartable="true">
     <batch:step id="startJob0" parent="createSampleReceiveStateStep" next="startJob1" /> 
 
     <batch:step id="startJob1" parent="createQuoteJobStateStep" next="startJob3" />
-    <batch:step id="startJob3" parent="waitForQuoteJobStateUpdated" next="startJob4" />
+    <batch:step id="startJob3" parent="waitForQuoteJobStateUpdated" next="split1" />
 
-    <batch:step id="startJob4" parent="createPiApprovalStateStep" next="startJob5" />
-    <batch:step id="startJob5" parent="createDaApprovalStateStep" next="startJob6" />
-    <batch:step id="startJob6" parent="waitForPiApprovalStateUpdated" next="startJob7" />
-    <batch:step id="startJob7" parent="waitForDaApprovalStateUpdated" next="startJob8" />
-    <batch:step id="startJob8" parent="waitForPiApprovalStateUpdated2" next="startJob9" />
+    <batch:split id="split1" next="startJob9" task-executor="asyncTaskExecutor">
+      <batch:flow>
+        <batch:step id="startJob4" parent="createPiApprovalStateStep" next="startJob6" />
+        <batch:step id="startJob6" parent="waitForPiApprovalStateUpdated" />
+      </batch:flow>
+      <batch:flow>
+        <batch:step id="startJob5" parent="createDaApprovalStateStep" next="startJob7" />
+        <batch:step id="startJob7" parent="waitForDaApprovalStateUpdated" />
+      </batch:flow>
+    </batch:split> 
 
 
     <batch:step id="startJob9" parent="createSendInvoiceStateStep" next="startJob10" />
