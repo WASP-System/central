@@ -72,9 +72,8 @@
    
     <context:component-scan base-package="util.spring" />
     <context:component-scan base-package="edu.yu.einstein.wasp.dao.impl" />
-    <context:component-scan base-package="edu.yu.einstein.wasp.service.impl" />
-    <context:component-scan base-package="edu.yu.einstein.wasp.batch" />    
-    <context:component-scan base-package="edu.yu.einstein.wasp.load" />    
+    <context:component-scan base-package="edu.yu.einstein.wasp.service.impl" /> <!--    <context:component-scan base-package="edu.yu.einstein.wasp.batch" />
+    <context:component-scan base-package="edu.yu.einstein.wasp.load" /> --> 
     <context:annotation-config/>
 
 
@@ -122,10 +121,10 @@
   <import resource="batch/si.xml" />
 
   <!-- loads all the batch -->
-  <import resource="classpath*:batch/*Batch.xml" />
+<!--  <import resource="classpath*:batch/*Batch.xml" /> -->
 
-<!--  '*Batch' handles this
   <import resource="batch/jobCreatedBatch.xml" />
+<!--  '*Batch' handles this
   <import resource="batch/quoteQuotedBatch.xml" />
   <import resource="batch/piApprovedBatch.xml" />
   <import resource="batch/daApprovedBatch.xml" /> -->
