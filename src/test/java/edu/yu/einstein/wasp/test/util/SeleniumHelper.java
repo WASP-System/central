@@ -80,7 +80,7 @@ public class SeleniumHelper {
 	   * @param sUserPass
 	   * @param driver
 	   */
-	  public static void loginAsDA(String sUserName, String sUserPass, WebDriver driver) {
+	  public static void login(String sUserName, String sUserPass, WebDriver driver) {
 		driver.get("http://localhost:8080/wasp/auth/login.do");
 		WebElement userName = driver.findElement(By.name("j_username"));
 	  	WebElement userPassword = driver.findElement(By.name("j_password"));
@@ -101,5 +101,24 @@ public class SeleniumHelper {
 	
 		  
 	  }
+	  
+	  public static boolean isElementPresent(WebDriver driver, String xpathLocator, Boolean displayCustomMessage, String customMessage) {
+	        try {
+	            
+	        	driver.findElement(By.xpath(xpathLocator));
+	        
+	        } catch (org.openqa.selenium.NoSuchElementException Ex) {
+	            if (displayCustomMessage) {
+	                if (!customMessage.equals("")) {
+	                    System.out.print(customMessage);
+	                }
+	            } else {
+	                System.out.println("Unable to locate Element: " + xpathLocator);
+	            }
+	            return false;
+	        }
+	        return true;
+	    }
+
 
 }

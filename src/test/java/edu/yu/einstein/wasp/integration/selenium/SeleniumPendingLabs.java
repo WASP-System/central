@@ -54,13 +54,15 @@ public class SeleniumPendingLabs extends SeleniumBaseTest{
   @Test (groups = "integration-tests",  dataProvider = "DP1")
   public void pendingLabApprove(String sUserName, String sUserPass, String sLab, String sUserEmail, String sApprovedUrl) throws Exception {   
 		
-	  SeleniumHelper.loginAsDA(sUserName, sUserPass, driver);	 
+	  SeleniumHelper.login(sUserName, sUserPass, driver);	 
 	  driver.get("http://localhost:8080/wasp/department/list.do");
-	  SeleniumHelper.verifyTextPresent("Internal - Default Department", driver);
 	  
-	  driver.findElement(By.xpath("//a[contains(.,'Internal - Default Department')]")).click();
+	  driver.findElement(By.xpath("//a[contains(@href, '/wasp/department/dapendingtasklist.do')]")).click();
+	  Assert.assertTrue(SeleniumHelper.verifyTextPresent(sLab, driver),"Lab "+ sLab +" not found");
 	  driver.findElement(By.xpath("//a[contains(.,'"+sLab+"')]")).click();
+	  Assert.assertTrue(driver.findElements(By.xpath("//a[contains(@href,'/wasp/lab/pending/approve/')]")).size() != 0, "Cannot locate APPROVE link");
 	  driver.findElement(By.xpath("//a[contains(@href,'/wasp/lab/pending/approve/')]")).click();
+	  Assert.assertTrue(SeleniumHelper.verifyTextPresent("New lab application sucessfully approved", driver));
       
       
   }
@@ -77,13 +79,16 @@ public class SeleniumPendingLabs extends SeleniumBaseTest{
   @Test  (groups = "integration-tests",  dataProvider = "DP2")
   public void pendingLabReject(String sUserName, String sUserPass, String sLab, String sUserEmail, String sRejectedUrl) throws Exception {
 	  
-	  SeleniumHelper.loginAsDA(sUserName, sUserPass, driver);	 
+	  SeleniumHelper.login(sUserName, sUserPass, driver);	 
 	  driver.get("http://localhost:8080/wasp/department/list.do");
 	  SeleniumHelper.verifyTextPresent("Internal - Default Department", driver);
 	  
 	  driver.findElement(By.xpath("//a[contains(.,'Internal - Default Department')]")).click();
+	  Assert.assertTrue(SeleniumHelper.verifyTextPresent(sLab, driver),"Lab "+ sLab +" not found");
 	  driver.findElement(By.xpath("//a[contains(.,'"+sLab+"')]")).click();
+	  Assert.assertTrue(driver.findElements(By.xpath("//a[contains(@href,'/wasp/lab/pending/reject/')]")).size() != 0, "Cannot locate REJECT link");
 	  driver.findElement(By.xpath("//a[contains(@href,'/wasp/lab/pending/reject/')]")).click();
+	  
   }
 
   

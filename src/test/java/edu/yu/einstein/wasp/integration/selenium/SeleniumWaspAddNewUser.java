@@ -1,11 +1,16 @@
 package edu.yu.einstein.wasp.integration.selenium;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
 import org.testng.annotations.Test;
 import org.testng.Assert;
 import org.testng.Reporter;
 import org.testng.annotations.*;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
 import edu.yu.einstein.wasp.test.util.SeleniumHelper;
 
@@ -75,19 +80,26 @@ public class SeleniumWaspAddNewUser extends SeleniumBaseTest {
     * @param confEmailOkUrl
     * @throws Exception
     */
-  	@Test (groups = "a", dataProvider = "DP2")
-	public void navigateNewUserForm(String fName, String lName, String email, String password, String locale, String primaryuserid, String title, String building_room, String address, String phone, String fax, String captcha, String url, String confEmailOkUrl ) throws Exception {  
+  	@Test (groups = "integration-tests", dataProvider = "DP2")
+	public void navigateNewUserForm(String sLogin, String fName, String lName, String email, String password, String locale, String primaryuserid, String title, String building_room, String address, String phone, String fax, String captcha, String sNewUserUrlCreated, String confEmailOkUrl ) throws Exception {  
   		sEmail = email;
   		sConfirmedEmailOkUrl = confEmailOkUrl;
-  		
+  		JavascriptExecutor js = (JavascriptExecutor) driver;
+  		  		Assert.assertNotNull(js, "JavascriptExecutor is null");
   		driver.get("http://localhost:8080/wasp/auth/login.do");
   	    Assert.assertEquals(SeleniumHelper.verifyTextPresent("New User", driver), true);
 		driver.findElement(By.linkText("New User")).click();
+		driver.findElement(By.id("login")).sendKeys(sLogin);
 		driver.findElement(By.id("firstName")).sendKeys(fName);
 		driver.findElement(By.id("lastName")).sendKeys(lName);
 		driver.findElement(By.id("email")).sendKeys(email);
 		driver.findElement(By.id("password")).sendKeys(password);
 		driver.findElement(By.name("password2")).sendKeys(password);
+		/*
+		WebElement element = driver.findElement(By.name("password2"));
+		Assert.assertNotNull(js.executeScript("return arguments[0].sendKeys("+password+");", element));
+		*/
+		
 		driver.findElement(By.name("locale")).sendKeys(locale);
 		driver.findElement(By.id("primaryuserid")).sendKeys(primaryuserid);
 		driver.findElement(By.id("title")).sendKeys(title);
@@ -115,25 +127,30 @@ public class SeleniumWaspAddNewUser extends SeleniumBaseTest {
     	 
     	//TO DO:
     	
-          //Assert.assertEquals(driver.findElement(By.tagName("h1")).getText(), sExpectedTxt);
+    	Assert.assertEquals(driver.getCurrentUrl(), sNewUserUrlCreated);
     }
-  	/*
-  	@Test (dependsOnGroups="a")
-  	public void confirmEmailAuth() {
-        driver.get("http://localhost:8080/wasp/auth/confirmemail/authcodeform.do");
-        driver.findElement(By.name("email")).sendKeys(sEmail);
-        submitLogin = driver.findElement(By.xpath("//input[@type='submit']"));
-    	if(submitLogin !=null){
-    		submitLogin.click();
-    		
-    	}
-    	else {
-    		Reporter.log("Element: " +submitLogin+ ", is not available on page - "
-                    + driver.getCurrentUrl());
-    	}
-    	Assert.assertEquals(driver.getCurrentUrl(), sConfirmedEmailOkUrl);
-    }
-    */
+  	
+  	@Test (groups="integration-tests")
+  	public void confirmEmailAuth() throws SQLException {
+  		Statement s = connection.createStatement();
+  		s.executeQuery("Select cea.authcode, up.email from confirmemailauth cea, userpending up where up.userpendingid=cea.userpendingid");
+  		ResultSet rs = s.getResultSet();
+  		
+  		while (rs.next ())  {
+  			String sAuthCode = rs.getString("authcode");
+  			String sEmail = rs.getString("email");
+  			
+  			driver.get("http://localhost:8080/wasp/auth/confirmUserEmail.do?authcode="+ sAuthCode+"&email="+sEmail);
+  	        
+  			//Assert.assertEquals(driver.getCurrentUrl(), "http://localhost:8080/wasp/auth/newpi/emailok.do");
+  			CharSequence csValue = "/wasp/auth/newuser/emailok.do";
+  			Assert.assertTrue(driver.getCurrentUrl().contains(csValue),"Confirm eamil URL= "+driver.getCurrentUrl()+"");
+  	    }
+  	    rs.close ();
+  	    s.close ();
+        
+  	}
+    
     @AfterClass
     public void tearDown(){
         //driver.close();

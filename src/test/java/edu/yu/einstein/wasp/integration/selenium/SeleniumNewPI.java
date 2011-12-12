@@ -2,11 +2,15 @@ package edu.yu.einstein.wasp.integration.selenium;
 
 import org.testng.annotations.Test;
 import org.testng.Assert;
-import org.testng.Reporter;
 import org.testng.annotations.*;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
 import edu.yu.einstein.wasp.test.util.SeleniumHelper;
 
 /**
@@ -22,6 +26,8 @@ public class SeleniumNewPI extends SeleniumBaseTest {
 	 *
 	 * 
 	 */
+	
+	String sEmail;
 	
 	/**
 	 * @BeforeClass has a groups() attribute as well, and it’s respected when you run group test suites. 
@@ -69,14 +75,15 @@ public class SeleniumNewPI extends SeleniumBaseTest {
      * @throws Exception
      */
   	@Test (groups = "integration-tests", dataProvider = "DP1")
-	public void navigateNewPIForm(String sUrl, String sFName, String sLName, String sEmail, String pwd, String locale, String sLab, String title, String sInst, String sDept, String building_room, String address, String sCity, String sState, String sCountry, String sZip, String sPhone, String sFax) throws Exception {  
-  		
+	public void navigateNewPIForm(String sUrl, String sLogin, String sFName, String sLName, String sEmail, String pwd, String locale, String sLab, String title, String sInst, String sDept, String building_room, String address, String sCity, String sState, String sCountry, String sZip, String sPhone, String sFax, String sNewUserPICreated) throws Exception {  
+  		Assert.assertNotNull(driver);
   		driver.get("http://localhost:8080/wasp/auth/login.do");
-		Assert.assertNotNull(driver.findElement(By.xpath("//a[contains(@href,'/wasp/auth/newpi/institute.do')]")), "New PI link does not exist");
+    	Assert.assertTrue(driver.findElements(By.xpath("//a[contains(@href,'/wasp/auth/newpi/institute.do')]")).size() != 0, "Cannot locate New PI link on login page");
 		driver.findElement(By.xpath("//a[contains(@href,'/wasp/auth/newpi/institute.do')]")).click();
 		Assert.assertEquals(driver.getCurrentUrl(), sUrl);
 		
 		//Select Institute
+    	Assert.assertTrue(driver.findElements(By.name("instituteSelect")).size() != 0, "Cannot locate 'Select Institute' drop-down");
 		driver.findElement(By.name("instituteSelect")).sendKeys(sInst);
  		//TO DO:  check for read-only attribute of 'other' input field.
 		
@@ -86,7 +93,8 @@ public class SeleniumNewPI extends SeleniumBaseTest {
 		
 		//Fill out New PI Form
 		Assert.assertEquals(driver.getCurrentUrl(), sUrl);
-		
+
+		driver.findElement(By.id("login")).sendKeys(sLogin);
 		driver.findElement(By.id("firstName")).sendKeys(sFName);
 		driver.findElement(By.id("lastName")).sendKeys(sLName);
 		driver.findElement(By.id("email")).sendKeys(sEmail);
@@ -108,21 +116,34 @@ public class SeleniumNewPI extends SeleniumBaseTest {
 		driver.findElement(By.id("fax")).sendKeys(sFax);
 		
 		//Submit New PI Form
-		Assert.assertNotNull(driver.findElement(By.xpath("//input[@type='submit']")));
+    	Assert.assertTrue(driver.findElements(By.xpath("//input[@type='submit']")).size() != 0, "Cannot locate Apply for Account submit button");
 		driver.findElement(By.xpath("//input[@type='submit']")).click();
-		Assert.assertEquals(driver.getCurrentUrl(), "http://localhost:8080/wasp/auth/newpi/created.do");
+		Assert.assertEquals(driver.getCurrentUrl(), sNewUserPICreated);
 				
      	
     }
-  	/*  TO DO:
-  	@Test (dependsOnGroups="a")
-  	public void confirmEmailAuth() {
-        driver.get("http://localhost:8080/wasp/auth/confirmemail/authcodeform.do");
-        driver.findElement(By.name("email")).sendKeys(sEmail);
-        submitLogin = driver.findElement(By.xpath("//input[@type='submit']"));
-    	Assert.assertNotNull(driver.findElement(By.xpath("//input[@type='submit']")));
-    }
-    */
+  
+  	@Test (groups="integration-tests")
+  	public void confirmEmailAuth() throws SQLException {
+  		Statement s = connection.createStatement();
+  		s.executeQuery("Select cea.authcode, up.email from confirmemailauth cea, userpending up where up.userpendingid=cea.userpendingid");
+  		ResultSet rs = s.getResultSet();
+  		
+  		while (rs.next ())  {
+  			String sAuthCode = rs.getString("authcode");
+  			String sEmail = rs.getString("email");
+  			
+  			driver.get("http://localhost:8080/wasp/auth/confirmPIEmail.do?authcode="+ sAuthCode+"&email="+sEmail);
+  	        
+  			//Assert.assertEquals(driver.getCurrentUrl(), "http://localhost:8080/wasp/auth/newpi/emailok.do");
+  			CharSequence csValue = "/wasp/auth/newpi/emailok.do";
+  			Assert.assertTrue(driver.getCurrentUrl().contains(csValue));
+  	    }
+  	    rs.close ();
+  	    s.close ();
+        
+  	}
+  
     @AfterClass
     public void tearDown(){
         //driver.close();
