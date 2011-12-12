@@ -17,7 +17,7 @@ public class RetryableException extends Exception {
 	public RetryableException(String s, Throwable t) {super(s, t);}
 	public RetryableException(Throwable t) {super(t);}
 
-	public void publicStackTrace() {}
-	public void publicStackTrace(PrintStream s) {}
-	public void publicStackTrace(PrintWriter w) {}
+	public void printStackTrace() {}
+	public void printStackTrace(PrintStream s) {}
+	public void printStackTrace(PrintWriter w) {}
 }
