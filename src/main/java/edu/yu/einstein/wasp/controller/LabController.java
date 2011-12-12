@@ -1104,7 +1104,7 @@ public class LabController extends WaspController {
 			return "redirect:/dashboard.do";
 		}
 		
-		if (userPending.getLabId() != labId) {
+		if (userPending.getLabId().intValue() != labId.intValue()) {
 			waspMessage("userPending.labid_mismatch.error");
 			return "redirect:/dashboard.do";
 		}
