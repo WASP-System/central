@@ -1,0 +1,44 @@
+<persistence xmlns="http://java.sun.com/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
+             version="2.0">
+  <persistence-unit name="waspPU">
+    <provider>org.hibernate.ejb.HibernatePersistence</provider>
+
+
+    <properties>
+      <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver"/>
+      <property name="javax.persistence.jdbc.user" value="wasp"/>
+      <property name="javax.persistence.jdbc.password" value="waspV2"/>
+      <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost/wasp?characterEncoding=utf8&amp;useUnicode=true&amp;characterSetResults=utf8&amp;connectionCollation=utf8_general_ci"/>
+      <property name="hibernate.hbm2ddl.auto" value="update" />
+
+<property name="hibernate.ejb.event.post-insert" value="org.hibernate.ejb.event.EJB3PostInsertEventListener,org.hibernate.envers.event.AuditEventListener" />
+<property name="hibernate.ejb.event.post-update" value="org.hibernate.ejb.event.EJB3PostUpdateEventListener,org.hibernate.envers.event.AuditEventListener" />
+<property name="hibernate.ejb.event.post-delete" value="org.hibernate.ejb.event.EJB3PostDeleteEventListener,org.hibernate.envers.event.AuditEventListener" />
+<property name="hibernate.ejb.event.pre-collection-update" value="org.hibernate.envers.event.AuditEventListener" />
+<property name="hibernate.ejb.event.pre-collection-remove" value="org.hibernate.envers.event.AuditEventListener" />
+<property name="hibernate.ejb.event.post-collection-recreate" value="org.hibernate.envers.event.AuditEventListener" />
+
+
+      
+      
+      <!--
+      <property name="hibernate.dialect" value="org.hibernate.dialect.MySQL5Dialect"/>
+      <property name="hibernate.max_fetch_depth" value="3"/>
+         -->
+    
+      <!-- cache configuration -->
+      <!--
+      <property name="hibernate.ejb.classcache.org.hibernate.ejb.test.Item" value="read-write"/>
+      <property name="hibernate.ejb.collectioncache.org.hibernate.ejb.test.Item.distributors" value="read-write, RegionName"/>
+         -->
+
+      <!-- alternatively to <class> and <property> declarations, you can use a regular hibernate.cfg.xml file -->
+
+      <!-- property name="hibernate.ejb.cfgfile" value="/org/hibernate/ejb/test/hibernate.cfg.xml"/ -->
+
+    </properties>
+  </persistence-unit>
+</persistence>          
+
