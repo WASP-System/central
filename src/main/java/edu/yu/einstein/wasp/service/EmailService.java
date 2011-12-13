@@ -126,7 +126,7 @@ public interface EmailService  {
 	 * @param user
 	 * @param authcode
 	 */
-	public void sendForgotPassword(User user, String authcode);
+	public void sendRequestNewPassword(User user, String authcode);
 
 }
 

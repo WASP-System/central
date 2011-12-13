@@ -9,6 +9,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','lastName','error','Last Name cannot be empty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','email','label','Email','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','email','error','Wrong email address format','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','email_exists','error','Email already exists in the database','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','locale','label','Locale','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','locale','error','Locale cannot be empty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','isActive','label','Active','1');
@@ -663,8 +664,8 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','auth/newuser/form','label','New User','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','auth/newuser/emailok','label','Email Confirmed','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','auth/newuser/created','label','Application Submitted','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','auth/resetpassword/authcodeform','label','Reset Password: Step 1','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','auth/resetpassword/form','label','Reset Password: Step 2','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','auth/resetpassword/authcodeform','label','Reset Password','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','auth/resetpassword/form','label','Reset Password','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','auth/resetpassword/ok','label','Password Was Reset','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','auth/confirmemail/authcodeform','label','Confirm Email Address','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','auth/resetpassword/request','label','Reset Password Request','1');

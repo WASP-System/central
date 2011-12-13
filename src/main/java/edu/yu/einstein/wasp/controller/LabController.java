@@ -399,10 +399,6 @@ public class LabController extends WaspController {
 			this.labService.merge(labDb);
 		}
 
-		for (LabMeta meta : labMetaList) {
-			meta.setLabId(labId);
-		}
-
 		labMetaService.updateByLabId(labId, labMetaList);
 
 		// MimeMessageHelper a;
@@ -439,10 +435,6 @@ public class LabController extends WaspController {
 			labPendingDb.setPrimaryUserId(labPendingForm.getPrimaryUserId());
 
 			this.labPendingService.merge(labPendingDb);
-		}
-
-		for (LabPendingMeta meta : labPendingMetaList) {
-			meta.setLabpendingId(labPendingId);
 		}
 
 		labPendingMetaService.updateByLabpendingId(labPendingId, labPendingMetaList);
@@ -598,10 +590,6 @@ public class LabController extends WaspController {
 		labForm.setLastUpdTs(new Date());
 
 		Lab labDb = this.labService.save(labForm);
-		for (LabMeta um : labMetaList) {
-			um.setLabId(labDb.getLabId());
-		}
-
 		labMetaService.updateByLabId(labDb.getLabId(), labMetaList);
 
 		status.setComplete();
@@ -861,11 +849,7 @@ public class LabController extends WaspController {
 				logger.debug("No match for labPendingMeta property with name '"	+ name + "' in labMeta properties");
 			}
 		}
-		for (LabMeta labMeta : (List<LabMeta>) labMetaHelper.getMetaList()) {
-			labMeta.setLabId(labDb.getLabId());
-			labMetaService.save(labMeta);
-		}
-
+		labMetaService.updateByLabId(labDb.getLabId(), (List<LabMeta>) labMetaHelper.getMetaList());
 		// set pi role
 		Role role = roleService.getRoleByRoleName("pi");
 
@@ -964,11 +948,7 @@ public class LabController extends WaspController {
 				throw new MetadataException("Metadata user / pi meta name mismatch", e);
 			}
 		}
-
-		for (UserMeta userMeta : (List<UserMeta>) userMetaHelper.getMetaList()) {
-			userMeta.setUserId(userId);
-			userMetaService.save(userMeta);
-		}
+		userMetaService.updateByUserId(userId, (List<UserMeta>) userMetaHelper.getMetaList());
 
 		// userDb doesn't have associated metadata so add it
 		userDb.setUserMeta((List<UserMeta>) userMetaHelper.getMetaList());
@@ -1275,10 +1255,7 @@ public class LabController extends WaspController {
 
 		LabPending labPendingDb = labPendingService.save(labPendingForm);
 
-		for (LabPendingMeta lpm : labPendingMetaList) {
-			lpm.setLabpendingId(labPendingDb.getLabPendingId());
-			labPendingMetaService.save(lpm);
-		}
+		labPendingMetaService.updateByLabpendingId(labPendingDb.getLabPendingId(), labPendingMetaList);
 
 		status.setComplete();
 

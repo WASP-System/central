@@ -220,11 +220,8 @@ public class UserPendingController extends WaspController {
 		userPendingForm.setFirstName(StringHelper.removeExtraSpacesAndCapFirstLetter(userPendingForm.getFirstName()));
 		userPendingForm.setLastName(StringHelper.removeExtraSpacesAndCapFirstLetter(userPendingForm.getLastName()));
 		UserPending userPendingDb = userPendingService.save(userPendingForm);
-
-		for (UserPendingMeta upm : userPendingMetaList) {
-			upm.setUserpendingId(userPendingDb.getUserPendingId());
-			userPendingMetaService.save(upm);
-		}
+		userPendingMetaService.updateByUserpendingId(userPendingDb.getUserPendingId(), userPendingMetaList);
+		
 		request.getSession().removeAttribute(Captcha.NAME); // ensures fresh capcha issued if required in this session
 		status.setComplete();
 		
@@ -433,9 +430,6 @@ public class UserPendingController extends WaspController {
 		userPendingForm.setLastName(StringHelper.removeExtraSpacesAndCapFirstLetter(userPendingForm.getLastName()));
 		UserPending userPendingDb = userPendingService.save(userPendingForm);
 		List<UserPendingMeta> userPendingMetaList = (List<UserPendingMeta>) metaHelper.getMetaList();
-		for (UserPendingMeta upm : userPendingMetaList) {
-			upm.setUserpendingId(userPendingDb.getUserPendingId());
-		}
 		userPendingMetaService.updateByUserpendingId(userPendingDb.getUserPendingId(), userPendingMetaList);
 		request.getSession().removeAttribute(Captcha.NAME); // ensures fresh capcha issued if required in this session
 		request.getSession().removeAttribute("visibilityElementMap"); // remove visibilityElementMap from the session
@@ -568,10 +562,7 @@ public class UserPendingController extends WaspController {
 				}
 			}
 		}
-		for (LabPendingMeta lpm : (List<LabPendingMeta>) labPendingMetaHelper.getMetaList()){
-			lpm.setLabpendingId(labPendingDb.getLabPendingId());
-			labPendingMetaService.save(lpm);
-		}
+		labPendingMetaService.updateByLabpendingId(labPendingDb.getLabPendingId(),  (List<LabPendingMeta>)labPendingMetaHelper.getMetaList() );
 
 		return labPendingDb;
 	}

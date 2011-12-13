@@ -35,13 +35,16 @@ import edu.yu.einstein.wasp.model.MetaHelper;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserMeta;
+import edu.yu.einstein.wasp.model.Userpasswordauth;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.ConfirmEmailAuthService;
 import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.PasswordService;
 import edu.yu.einstein.wasp.service.UserMetaService;
+import edu.yu.einstein.wasp.service.UserpasswordauthService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
+import edu.yu.einstein.wasp.util.AuthCode;
 
 
 /**
@@ -71,6 +74,9 @@ public class UserController extends WaspController {
 	
 	@Autowired
 	private ConfirmEmailAuthService confirmEmailAuthService;
+	
+	@Autowired
+	private UserpasswordauthService userpasswordauthService;
 
 	private final MetaHelper getMetaHelper() {
 		return new MetaHelper("user", UserMeta.class, request.getSession());
@@ -305,6 +311,16 @@ public class UserController extends WaspController {
 			
 			}
 		}
+		int emailOwnerUserId = userService.getUserByEmail(userForm.getEmail()).getUserId();
+		if (emailOwnerUserId != 0 && emailOwnerUserId != userId){
+			try{
+				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+				response.getWriter().println(messageService.getMessage("user.email_exists.error"));
+				return null;
+			} catch (Throwable e) {
+				throw new IllegalStateException("Cant output validation error "+messageService.getMessage("user.email_exists.error"),e);
+			}
+		}
 				
 		List<UserMeta> userMetaList = getMetaHelper().getFromJsonForm(request, UserMeta.class);
 		
@@ -319,6 +335,17 @@ public class UserController extends WaspController {
 			userForm.setIsActive(1);
 			User userDb = this.userService.save(userForm);
 			userId=userDb.getUserId();
+			userMetaService.updateByUserId(userId, userMetaList);
+			if (!authenticationService.isAuthenticationSetExternal()){
+				// for internal (WASP) authentication, request that new user resets password 
+				Userpasswordauth userpasswordauth = new Userpasswordauth();
+				userpasswordauth.setUserId(userId);
+				String authcode = AuthCode.create(20);
+				userpasswordauth.setAuthcode(authcode);
+				userpasswordauthService.merge(userpasswordauth); // merge handles both inserts and updates. Doesn't have problem with disconnected entities like persist does
+				// request user changes their password
+				emailService.sendRequestNewPassword(userDb, authcode); 
+			}
 		} else {
 			User userDb = this.userService.getById(userId);
 			userDb.setFirstName(userForm.getFirstName());
@@ -333,26 +360,8 @@ public class UserController extends WaspController {
 			userDb.setIsActive(userForm.getIsActive());
 			userDb.setLastUpdTs(new Date());
 			this.userService.merge(userDb);
+			userMetaService.updateByUserId(userId, userMetaList);
 		}
-
-
-		for (UserMeta meta : userMetaList) {
-			meta.setUserId(userId);
-		}
-
-		userMetaService.updateByUserId(userId, userMetaList);
-
-		/*
-		if (result.hasErrors()) {
-			prepareSelectListData(m);
-			waspMessage("user.created.error");
-			return "user/detail_rw";
-		}
-		*/
-
-		userForm.setLastUpdTs(new Date());
-
-		userForm.setPassword( passwordService.encodePassword(userForm.getPassword()) );
 		
 		//waspMessage("user.updated.success");
 		// if I'm the changed user log me out. I need to re-confirm my email and log in.
@@ -589,10 +598,6 @@ public class UserController extends WaspController {
 		
 		User userDb = this.userService.save(userForm);
 		
-		for (UserMeta um : userMetaList) {
-			um.setUserId(userDb.getUserId());
-		}
-
 		userMetaService.updateByUserId(userDb.getUserId(), userMetaList);
 
 		status.setComplete();

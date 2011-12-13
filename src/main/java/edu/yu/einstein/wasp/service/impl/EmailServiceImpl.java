@@ -310,11 +310,11 @@ public class EmailServiceImpl implements EmailService {
 	/**
 	 * {@inheritDoc}
 	 */
-	public void sendForgotPassword(final User user, final String authcode) {
+	public void sendRequestNewPassword(final User user, final String authcode) {
 		Map model = new HashMap();
 		model.put("user", user);
 		model.put("authcode", authcode);
-		prepareAndSend(user, "emails/forgot_password", model);
+		prepareAndSend(user, "emails/request_new_password", model);
 	}
 	
 	/**

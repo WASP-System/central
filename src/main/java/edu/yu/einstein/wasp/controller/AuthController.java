@@ -162,7 +162,7 @@ public class AuthController extends WaspController {
 	//userpasswordauth.setLastUpdTs(new Date());
 	//userpasswordauth.setLastUpdUser(user.getUserId());
 	userpasswordauthService.merge(userpasswordauth); // merge handles both inserts and updates. Doesn't have problem with disconnected entities like persist does
-	emailService.sendForgotPassword(user, authcode);
+	emailService.sendRequestNewPassword(user, authcode);
 	  
     return "auth/resetpassword/email";
   }
