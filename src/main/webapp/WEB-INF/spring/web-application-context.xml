@@ -129,11 +129,17 @@
 
   <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
     <property name="host" value="${email.host}"/>
-    <property name="defaultEncoding" value="${email.encoding}" />       
+    <property name="defaultEncoding" value="${email.encoding}" />   
+    <property name="username" value="${email.username}" />
+    <property name="password" value="${email.password}" />    
     <property name="javaMailProperties">
-      <props>
-        <prop key="mail.smtp.from">${email.smtp.from}</prop>      
-      </props>        
+    	<props>
+			<prop key="mail.smtp.from">${email.smtp.from}</prop>
+            <!-- Use SMTP-AUTH to authenticate to SMTP server -->
+            <prop key="mail.smtp.auth">${email.smtp.auth}</prop>
+            <!-- Use TLS to encrypt communication with SMTP server -->
+            <prop key="mail.smtp.starttls.enable">${email.smtp.tls}</prop>   
+		</props>         
     </property>
   </bean>
 
