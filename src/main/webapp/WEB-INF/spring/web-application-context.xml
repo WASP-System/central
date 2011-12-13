@@ -25,57 +25,39 @@
   xmlns="http://www.springframework.org/schema/beans"
   default-autowire="byName">
 
-	<!--  configure properties files -->
-	<bean id="propertyPlaceholderConfigurer"  
-	class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">  
-	  <property name="locations">  
-	    <list>  
-	      <value>classpath:database.properties</value>  
-	      <value>classpath:authentication.properties</value>
-	      <value>classpath:email.properties</value>
-	    </list>  
-	  </property>  
-	</bean>  
+<!--  configure properties files -->
+  <bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">  
+    <property name="locations">  
+      <list>  
+        <value>classpath:database.properties</value>  
+        <value>classpath:authentication.properties</value>
+        <value>classpath:email.properties</value>
+      </list>  
+    </property>  
+  </bean>  
 
   <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
     <property name="driverClassName"><value>${db.driver}</value></property>
-	<property name="url"><value>${db.url}</value></property>
-	<property name="username"><value>${db.username}</value></property>
-	<property name="password"><value>${db.password}</value></property>
+    <property name="url"><value>${db.url}</value></property>
+    <property name="username"><value>${db.username}</value></property>
+    <property name="password"><value>${db.password}</value></property>
   </bean>
 
 
-  <!--
-  <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
-    <property name="configLocation" value="/WEB-INF/ehcache.xml"/>
-  </bean>
-      
-  <bean id="userCacheBackend" class="org.springframework.cache.ehcache.EhCacheFactoryBean">
-    <property name="cacheManager" ref="cacheManager"/>
-    <property name="cacheName" value="userCache"/>
-  </bean>
-
-  <bean id="userCache" class="org.springframework.security.core.userdetails.cache.EhCacheBasedUserCache">
-    <property name="cache" ref="userCacheBackend"/>
-  </bean>
-  -->
-
-  
   <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
-   <property name="persistenceUnitName" value="waspPU" />
-        <property name="dataSource" ref="dataSource" />
-        <property name="jpaVendorAdapter">
-            <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
-                <property name="database" value="MYSQL" />
-                <property name="showSql" value="true" />
-            </bean>
-        </property>   
+    <property name="persistenceUnitName" value="waspPU" />
+    <property name="dataSource" ref="dataSource" />
+    <property name="jpaVendorAdapter">
+      <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+        <property name="database" value="MYSQL" />
+        <property name="showSql" value="true" />
+      </bean>
+    </property>   
   </bean>
 
   <bean name="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
     <property name="entityManagerFactory" ref="entityManagerFactory" />
   </bean>
-
 
   <bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor" /> 
         
@@ -145,15 +127,15 @@
   
 
 
-   <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
-      <property name="host" value="${email.host}"/>
-      <property name="defaultEncoding" value="${email.encoding}" />       
-      <property name="javaMailProperties">
-       		<props>
-               <prop key="mail.smtp.from">${email.smtp.from}</prop>      
-            </props>        
-      </property>
-   </bean>
+  <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+    <property name="host" value="${email.host}"/>
+    <property name="defaultEncoding" value="${email.encoding}" />       
+    <property name="javaMailProperties">
+      <props>
+        <prop key="mail.smtp.from">${email.smtp.from}</prop>      
+      </props>        
+    </property>
+  </bean>
 
 
    <bean id="velocityEngine" class="org.springframework.ui.velocity.VelocityEngineFactoryBean">
