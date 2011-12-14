@@ -15,7 +15,7 @@ import java.util.HashMap;
 
 /**
  * Workflow Poller
- * polls job db for task/workflowid combos that are not final
+ * polls job db for task/subtypesample combos that are not final
  *
  */
 
