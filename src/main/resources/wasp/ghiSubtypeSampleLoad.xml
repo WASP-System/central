@@ -12,8 +12,8 @@
   </bean>
 
   <bean id="ghiSubtypeSampleResource" class="edu.yu.einstein.wasp.load.SubtypeSampleLoadService">
-    <property name="iname" value="ghiSubtype" />
-    <property name="name" value="ghiSubtype" />
+    <property name="iname" value="ghiSubtypeSample" />
+    <property name="name" value="Ghi Dna Sample" />
     <property name="sampleType" value="dna" />
     <property name="uiFields">
       <list>
