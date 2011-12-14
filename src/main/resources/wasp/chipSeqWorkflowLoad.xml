@@ -42,7 +42,7 @@
       <set>
         <value>chipSeqdnaSample</value>
         <value>chipSeqlibrarySample</value>
-        <value>ghiSubtype</value>
+        <value>ghiSubtypeSample</value>
       </set>
     </property>
     <property name="uiFields">
