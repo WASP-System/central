@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+    xsi:schemaLocation=" http://www.springframework.org/schema/beans 
+  http://www.springframework.org/schema/beans/spring-beans-3.1.xsd     
+  http://www.springframework.org/schema/integration
+  http://www.springframework.org/schema/integration/spring-integration-2.0.xsd
+  http://www.springframework.org/schema/batch 
+  http://www.springframework.org/schema/batch/spring-batch-2.1.xsd
+  "
+    xmlns:p="http://www.springframework.org/schema/p" 
+    xmlns:batch="http://www.springframework.org/schema/batch" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:si="http://www.springframework.org/schema/integration" 
+    xmlns="http://www.springframework.org/schema/beans"
+    default-autowire="byName">
+
+  <bean abstract="true" id="workflowSamplePoller" class="edu.yu.einstein.wasp.batch.WorkflowSamplePoller" />
+
+  <bean id="chipSeqDnaSamplePoller" parent="workflowSamplePoller">
+    <property name="subtypeSampleIName" value="chipSeqdnaSample"/>
+    <property name="taskIName" value="Receive Sample"/>
+  </bean>
+
+  <si:inbound-channel-adapter ref="chipSeqDnaSamplePoller" method="getStates" channel="chipSeqDnaSampleChannel">
+    <si:poller>
+      <si:interval-trigger interval="5000" />
+    </si:poller>
+  </si:inbound-channel-adapter>
+
+  <si:service-activator input-channel="chipSeqDnaSampleChannel" output-channel="logger">
+    <bean class="edu.yu.einstein.wasp.batch.StateJobLaunchingMessageHandler" scope="prototype">
+       <constructor-arg ref="jobRegistry" />
+       <constructor-arg ref="jobLauncher" />
+       <constructor-arg ref="jobRepository" />
+       <constructor-arg ref="jobOperator" />
+       <constructor-arg type="java.lang.String"><value>chipSeqStartSample</value></constructor-arg>
+    </bean>
+  </si:service-activator>
+
+  <bean id="createLibrarySampleStateStep" parent="parentStateStep">
+    <property name="itemProcessor">
+      <bean class="edu.yu.einstein.wasp.batch.CreateSampleStateProcessor">
+        <property name="targetTask" value="Create Library" />
+      </bean>
+    </property>
+  </bean>
+
+
+  <batch:job id="chipSeqStartSample" restartable="true">
+    <batch:step id="chipSeqDna.startSample" parent="createLibrarySampleStateStep" />
+  </batch:job>
+
+</beans>
