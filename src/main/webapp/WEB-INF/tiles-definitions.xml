@@ -14,6 +14,7 @@
 	<definition name="template-grid" template="/WEB-INF/jsp/layouts/grid.jsp">
 		<put-attribute name="area" value="" />
 		<put-attribute name="grid-columns" value="" />
+		<put-attribute name="head-js" value="" />
 		<put-attribute name="subgrid-columns" value="" />
 		<put-attribute name="grid-customAttributes" value="" />
 		<put-attribute name="toolbar-buttons" value="" />

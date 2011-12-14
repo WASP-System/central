@@ -384,9 +384,10 @@ if (_enableFilterToolbar) {
  
 createGrid();
 
-<tiles:insertAttribute name="head-js" />
+
 
 </script>
+<tiles:insertAttribute name="head-js" />
 </head>
 <body>
 
