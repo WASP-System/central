@@ -17,7 +17,7 @@
   <bean abstract="true" id="workflowSamplePoller" class="edu.yu.einstein.wasp.batch.WorkflowSamplePoller" />
 
   <bean id="chipSeqDnaSamplePoller" parent="workflowSamplePoller">
-    <property name="subtypeSampleIName" value="chipSeqdnaSample"/>
+    <property name="subtypeSampleIName" value="chipseqDnaSample"/>
     <property name="taskIName" value="Receive Sample"/>
   </bean>
 
@@ -47,7 +47,9 @@
 
 
   <batch:job id="chipSeqStartSample" restartable="true">
-    <batch:step id="chipSeqDna.startSample" parent="createLibrarySampleStateStep" />
+    <batch:step id="chipSeqDna.startSample" parent="createLibrarySampleStateStep" next="chipSeqDna.finishFlow" />
+
+    <batch:flow id="chipSeqDna.finishFlow" parent="finishJobFlow" />
   </batch:job>
 
 </beans>
