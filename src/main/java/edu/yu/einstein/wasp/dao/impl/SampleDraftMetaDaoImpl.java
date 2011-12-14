@@ -143,7 +143,8 @@ public class SampleDraftMetaDaoImpl extends WaspDaoImpl<SampleDraftMeta> impleme
 					   "from \n"+
 					   "(select distinct f.area,f.name,convert(f.attrValue, signed) pos, st.subtypesampleid, st.name as subtypeName\n"+
 					   "from subtypesample st\n"+					   
-					   "join uifield f on st.iname = concat(f.area,'Sample')\n"+ 
+					   // "join uifield f on st.iname = concat(f.area,'Sample')\n"+ 
+					   "join uifield f on st.iname = f.area\n"+ 
 					   "and f.attrName='metaposition'\n"+
 					   "and f.locale='en_US'\n"+
 					   "where st.subtypesampleid in (\n"+
