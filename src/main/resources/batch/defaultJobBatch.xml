@@ -4,12 +4,6 @@
   http://www.springframework.org/schema/beans/spring-beans-3.1.xsd     
   http://www.springframework.org/schema/context  
   http://www.springframework.org/schema/context/spring-context-3.1.xsd 
-  http://www.springframework.org/schema/mvc 
-  http://www.springframework.org/schema/mvc/spring-mvc-3.1.xsd  
-  http://www.springframework.org/schema/aop 
-  http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
-  http://www.springframework.org/schema/tx
-  http://www.springframework.org/schema/tx/spring-tx-3.1.xsd
   http://www.springframework.org/schema/integration
   http://www.springframework.org/schema/integration/spring-integration-2.0.xsd
   http://www.springframework.org/schema/integration/file
@@ -17,12 +11,8 @@
   http://www.springframework.org/schema/batch 
   http://www.springframework.org/schema/batch/spring-batch-2.1.xsd
   "
-    xmlns:mvc="http://www.springframework.org/schema/mvc" 
-    xmlns:aop="http://www.springframework.org/schema/aop" 
     xmlns:context="http://www.springframework.org/schema/context"
-    xmlns:p="http://www.springframework.org/schema/p" 
     xmlns:batch="http://www.springframework.org/schema/batch" 
-    xmlns:tx="http://www.springframework.org/schema/tx" 
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:si="http://www.springframework.org/schema/integration" 
     xmlns:file="http://www.springframework.org/schema/integration/file" 
@@ -49,6 +39,8 @@
     <property name="workflowIName" value="xxxx"/>
     <property name="taskIName" value="Start Job"/>
   </bean> 
+
+<!--
   <si:inbound-channel-adapter ref="startJobPoller" method="getStates" channel="jobCreateRequestChannel">
     <si:poller>
       <si:interval-trigger interval="5000000" />
@@ -63,7 +55,7 @@
        <constructor-arg ref="jobOperator" />
        <constructor-arg type="java.lang.String"><value>startJob</value></constructor-arg>
     </bean>
-  </si:service-activator>
+  </si:service-activator> -->
 
 
 <!-- ****************** -->
