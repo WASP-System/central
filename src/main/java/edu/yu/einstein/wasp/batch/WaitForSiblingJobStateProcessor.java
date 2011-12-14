@@ -83,6 +83,7 @@ public class WaitForSiblingJobStateProcessor implements ItemProcessor {
 			if (siblingTargetStatus != null) {
 				State siblingState = stateService.findById(siblingStatejob.getStateId());
 				siblingState.setStatus(siblingTargetStatus);
+				siblingState.setEndts(new Date());
 				stateService.save(siblingState);
 			}
 
