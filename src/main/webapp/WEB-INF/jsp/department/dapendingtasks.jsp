@@ -24,7 +24,7 @@
     <c:otherwise> 
     <c:forEach items="${jobspendinglist}" var="jp">
       <div>
-      	<a href="/wasp/job/pending/detail_ro/<c:out value="${jp.lab.department.departmentId}" />/<c:out value="${jp.jobId}" />.do">
+      	<a href="/wasp/job/pending/detail_ro/<c:out value="${jp.lab.department.departmentId}" />/<c:out value="${jp.lab.labId}" />/<c:out value="${jp.jobId}" />.do">
       	Job <c:out value="${jp.jobId}" /></a> (Submitter: <c:out value="${jp.user.firstName} ${jp.user.lastName}" />; PI: <c:out value="${jp.lab.user.firstName} ${jp.lab.user.lastName}" /> [<c:out value="${jp.lab.department.name}" />])
       </div>
     </c:forEach>

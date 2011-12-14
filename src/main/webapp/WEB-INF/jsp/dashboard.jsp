@@ -35,7 +35,7 @@
    </c:when>
    <c:otherwise>
    <span style="color:red">
-   (<c:out value="${departmentAdminPendingTasks}" /> Pending Departmental Task<c:if test='${departmentAdminPendingTasks != 1}'>s</c:if>)
+   (<c:out value="${departmentAdminPendingTasks}" /> Pending Department Administrator Task<c:if test='${departmentAdminPendingTasks != 1}'>s</c:if>)
    </span>
    </c:otherwise>
      </c:choose>

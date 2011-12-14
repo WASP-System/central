@@ -19,7 +19,10 @@ import java.util.List;
 
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.JobUserService;
+import edu.yu.einstein.wasp.service.LabService;
 import edu.yu.einstein.wasp.service.RoleService;
+import edu.yu.einstein.wasp.service.TaskService;
+import edu.yu.einstein.wasp.service.StateService;
 import edu.yu.einstein.wasp.util.StringHelper;
 import edu.yu.einstein.wasp.model.*;
 import edu.yu.einstein.wasp.util.*;
@@ -56,6 +59,11 @@ public class JobController extends WaspController {
     return this.roleService;
   }
 
+  @Autowired
+  private TaskService taskService;
+  @Autowired
+  private StateService stateService;
+  
   @RequestMapping("/list")
   public String list(ModelMap m) {
     List <Job> jobList = this.getJobService().findAll();
@@ -161,11 +169,99 @@ public class JobController extends WaspController {
     return "redirect:/job/detail/" + jobId + ".do";
   }
 
-  @RequestMapping(value = "/pending/detail_ro/{deptId}/{jobId}.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('da-' + #deptId)")
-	public String pendingDetailRO(@PathVariable("deptId") Integer deptId,
+  @RequestMapping(value = "/pending/detail_ro/{deptId}/{labId}/{jobId}.do", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('da-' + #deptId) or hasRole('lm-' + #labId) or hasRole('pi-' + #labId)")
+	public String pendingDetailRO(@PathVariable("deptId") Integer deptId,@PathVariable("labId") Integer labId,
 			@PathVariable("jobId") Integer jobId, ModelMap m) {
 	  
-	  return "http://www.google.com";
+	  String now = (new Date()).toString();
+
+
+	    Job job = this.getJobService().getById(jobId);
+
+	    List<JobMeta> jobMetaList = job.getJobMeta();
+	    jobMetaList.size();
+
+	    List<JobSample> jobSampleList = job.getJobSample();
+	    jobSampleList.size();
+
+	    List<JobFile> jobFileList = job.getJobFile();
+	    jobFileList.size();
+
+	    List<JobUser> jobUserList = job.getJobUser();
+	    jobUserList.size();
+
+	    List<Statejob> stateJobList = job.getStatejob();
+	    stateJobList.size();
+
+	    m.addAttribute("now", now);
+	    m.addAttribute("job", job);
+	    m.addAttribute("jobmeta", jobMetaList);
+	    m.addAttribute("jobsample", jobSampleList);
+	    m.addAttribute("jobfile", jobFileList);
+	    m.addAttribute("jobuser", jobUserList);
+	    m.addAttribute("statejob", stateJobList);
+	   // m.addAttribute("actingasrole", actingAsRole);
+	    
+	    return "job/pendingjob/detail_ro";
   }
+  
+  @RequestMapping(value = "/pendinglmapproval/{action}/{labId}/{jobId}.do", method = RequestMethod.GET)
+  @PreAuthorize("hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('lm-' + #labId) or hasRole('pi-' + #labId)")
+	public String pendingLmApproval(@PathVariable("action") String action, @PathVariable("labId") Integer labId, @PathVariable("jobId") Integer jobId, ModelMap m) {
+	  
+	  pendingJobApproval(action, jobId, "LM");//could use PI instead of LM
+	  
+	  return "redirect:/dashboard.do";//probably want this to go elsewhere
+	}
+  
+  @RequestMapping(value = "/pendingdaapproval/{action}/{deptId}/{jobId}.do", method = RequestMethod.GET)
+  @PreAuthorize("hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('da-' + #deptId)")
+	public String pendingDaApproval(@PathVariable("action") String action, @PathVariable("deptId") Integer deptId, @PathVariable("jobId") Integer jobId, ModelMap m) {
+	  
+	  pendingJobApproval(action, jobId, "DA");//private method below
+	  return "redirect:/department/dapendingtasklist.do";		  
+	}
+ 
+  private void pendingJobApproval(String action, Integer jobId, String approver){
+	  //logger.debug("ROBERT DUBIN : ACTION: " + action);
+	  //logger.debug("ROBERT DUBIN : APPROVER: " + approver);
+	 // logger.debug("ROBERT DUBIN : Job ID: " + jobId);
+	  Task taskOfInterest;
+	  boolean updated = false;
+	  //confirm action is either approve or reject
+	  Job job = jobService.getJobByJobId(jobId);//confirm id > 0
+	  if("DA".equals(approver)){
+		  taskOfInterest = taskService.getTaskByIName("DA Approval");//confirm id > 0
+	  }
+	  else if("LM".equals(approver) || "PI".equals(approver)){
+		 taskOfInterest = taskService.getTaskByIName("PI Approval");//confirm id > 0
+	  }
+	  else{
+		  taskOfInterest = taskService.getTaskByIName("");//should never get here
+		  waspMessage("job.approval.error"); 
+		  return;
+	  }
+	  List<Statejob> statejobList = job.getStatejob();
+	  for(Statejob statejob : statejobList){
+		  State state = statejob.getState();
+		  if(taskOfInterest.getTaskId()==state.getTaskId()){
+			  if("approve".equals(action)){
+				  state.setStatus("APPROVED");
+				  stateService.save(state);
+				 // logger.debug("ROBERT DUBIN : State saved to approved for stateId: " + state.getStateId());
+				  updated = true; waspMessage("job.approval.approved"); break;
+			  }
+			  else if("reject".equals(action)){
+				  state.setStatus("REJECTED");
+				  stateService.save(state); 
+				 // logger.debug("ROBERT DUBIN : State saved to rejected for stateId: " + state.getStateId());
+				  updated = true; waspMessage("job.approval.rejected"); break;
+			  }			 
+		  }
+	  }
+	  
+	 // flow returns to calling method, either pendingDaApproval or pendingLmApproval
+  }
+
 }

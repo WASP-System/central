@@ -520,6 +520,7 @@ public class DepartmentController extends WaspController {
 		m.addAttribute("jobspendinglist", jobsPendingDaApprovalList);
 		m.addAttribute("sizelabspendinglist", labsPendingDaApprovalList.size());
 		m.addAttribute("sizejobspendinglist", jobsPendingDaApprovalList.size());
+		m.addAttribute("actingasrole", "da");
 		return "department/dapendingtasks";
     
   }

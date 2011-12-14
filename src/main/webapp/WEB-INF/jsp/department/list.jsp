@@ -19,10 +19,10 @@
 	<tr><td colspan="2" style="text-align:center">    
     	<b>
  		 <c:choose>
-   			<c:when test='${departmentAdminPendingTasks == 0}'>No Pending Departmental Tasks
+   			<c:when test='${departmentAdminPendingTasks == 0}'>No Pending Department Administrator Tasks
    			</c:when>
    			<c:otherwise>
-   			<a style="color:red" href="<c:url value="/department/dapendingtasklist.do"/>"><c:out value="${departmentAdminPendingTasks}" /> Pending Departmental Task<c:if test='${departmentAdminPendingTasks != 1}'>s</c:if></a>
+   			<a style="color:red" href="<c:url value="/department/dapendingtasklist.do"/>"><c:out value="${departmentAdminPendingTasks}" /> Pending Department Administrator Task<c:if test='${departmentAdminPendingTasks != 1}'>s</c:if></a>
    			</c:otherwise>
   		</c:choose>
   		</b> 

@@ -21,9 +21,11 @@ import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabPending;
 import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.Statejob;
+import edu.yu.einstein.wasp.model.Task;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.LabPendingService;
 import edu.yu.einstein.wasp.service.StateService;
+import edu.yu.einstein.wasp.service.TaskService;
 
 
 import java.util.ArrayList;
@@ -74,6 +76,8 @@ public class DepartmentServiceImpl extends WaspServiceImpl<Department> implement
 	  private StateService stateService;
 	 @Autowired
 	  private AuthenticationService authenticationService;
+	 @Autowired
+	  private TaskService taskService;
 
   public Department getDepartmentByDepartmentId (final int departmentId) {
     return this.getDepartmentDao().getDepartmentByDepartmentId(departmentId);
@@ -91,13 +95,17 @@ public class DepartmentServiceImpl extends WaspServiceImpl<Department> implement
   public int getDepartmentAdminPendingTasks(List<LabPending> labsPendingDaApprovalList, List<Job> jobsPendingDaApprovalList){
 
 	    Map themap = new HashMap();
+	    Task task = taskService.getTaskByIName("DA Approval");
+	    if(task.getTaskId()==0){//unexpectedly not found
+	    	//TODO: throw exception
+	    }
 	    
 	    if(authenticationService.isGod() || authenticationService.hasRole("ga")){
 	    	
 	    	themap.put("status", "PENDING"); 
 			labsPendingDaApprovalList.addAll(labPendingService.findByMap(themap));//returns a list
 	    	themap.clear();
-			themap.put("name", "DA Approval");
+			themap.put("taskId", task.getTaskId());
 			themap.put("status", "CREATED");
 			List<State> stateList = stateService.findByMap(themap);
 			for(State state : stateList){//stateList was created and filled above
@@ -125,7 +133,7 @@ public class DepartmentServiceImpl extends WaspServiceImpl<Department> implement
 	    	if(departmentIdList.size() > 0){
 	    		
 	    		themap.clear();
-    			themap.put("name", "DA Approval");
+    			themap.put("taskId", task.getTaskId());
     			themap.put("status", "CREATED");
     			List<State> stateList = stateService.findByMap(themap);//may need to be iterated over a few times
     			

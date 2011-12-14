@@ -725,6 +725,10 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','wasp','isAuthenticationExternal','data','FALSE','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','wasp','authentication','label','WASP','1');
 
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','approval','approved','Job has been approved','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','approval','rejected','Job has been rejected','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','approval','error','Error - Update Failed','1');
+
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) 
 values('en_US','sampleDnaToLibrary','Mouse','metaposition','10','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) 
