@@ -35,6 +35,9 @@ public class CreateSampleStateProcessor implements ItemProcessor {
   @Autowired
   StatesampleService statesampleService;
 
+  @Autowired
+  StatejobService statejobService;
+
   String targetTask; 
   public void setTargetTask(String targetTask) {
     this.targetTask = targetTask; 
@@ -49,6 +52,7 @@ public class CreateSampleStateProcessor implements ItemProcessor {
 System.out.println("\nCreating " + targetTask + " for " + stateId);
 
     List<Statesample> stateSamples = state.getStatesample();
+    List<Statejob> stateJobs = state.getStatejob();
 
     Task t = taskService.getTaskByIName(targetTask); 
 
@@ -65,6 +69,14 @@ System.out.println("\nCreating " + targetTask + " for " + stateId);
       newStateSample.setSampleId(ss.getSampleId());
 
       statesampleService.save(newStateSample);
+    }
+
+    for (Statejob sj: stateJobs) {
+      Statejob newStateJob = new Statejob(); 
+      newStateJob.setStateId(newStateDb.getStateId());
+      newStateJob.setJobId(sj.getJobId());
+      
+      statejobService.save(newStateJob);
     }
 
     return newState;
