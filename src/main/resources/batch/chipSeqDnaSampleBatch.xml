@@ -18,7 +18,7 @@
 
   <bean id="chipSeqDnaSamplePoller" parent="workflowSamplePoller">
     <property name="subtypeSampleIName" value="chipseqDnaSample"/>
-    <property name="taskIName" value="Receive Sample"/>
+    <property name="taskIName" value="sampleWrapTask"/>
   </bean>
 
   <si:inbound-channel-adapter ref="chipSeqDnaSamplePoller" method="getStates" channel="chipSeqDnaSampleChannel">
@@ -37,6 +37,35 @@
     </bean>
   </si:service-activator>
 
+  <bean id="receiveSampleStateStep" parent="parentStateStep">
+    <property name="itemProcessor">
+      <bean class="edu.yu.einstein.wasp.batch.CreateSampleStateProcessor">
+        <property name="targetTask" value="Receive Sample" />
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="waitForReceiveSampleStateUpdated" parent="parentStateStep">
+    <property name="allowStartIfComplete" value="true" />
+    <property name="itemProcessor">
+      <bean class="edu.yu.einstein.wasp.batch.WaitForSiblingSampleStateProcessor">
+        <property name="task" value="Receive Sample" />
+        <property name="status" value="RECEIVED" />
+        <property name="siblingTargetStatus" value="FINAL" />
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="waitForInvoiceJobStateUpdated" parent="parentStateStep">
+    <property name="allowStartIfComplete" value="true" />
+    <property name="itemProcessor">
+      <bean class="edu.yu.einstein.wasp.batch.WaitForSiblingJobStateProcessor">
+        <property name="task" value="Send Invoice" />
+        <property name="status" value="FINAL" />
+      </bean>
+    </property>
+  </bean>
+
   <bean id="createLibrarySampleStateStep" parent="parentStateStep">
     <property name="itemProcessor">
       <bean class="edu.yu.einstein.wasp.batch.CreateSampleStateProcessor">
@@ -45,9 +74,23 @@
     </property>
   </bean>
 
+  <bean id="waitForCreateLibraryStateUpdated" parent="parentStateStep">
+    <property name="allowStartIfComplete" value="true" />
+    <property name="itemProcessor">
+      <bean class="edu.yu.einstein.wasp.batch.WaitForSiblingSampleStateProcessor">
+        <property name="task" value="Create Library" />
+        <property name="status" value="MADE" />
+        <property name="siblingTargetStatus" value="FINAL" />
+      </bean>
+    </property>
+  </bean>
 
   <batch:job id="chipSeqStartSample" restartable="true">
-    <batch:step id="chipSeqDna.startSample" parent="createLibrarySampleStateStep" next="chipSeqDna.finishFlow" />
+    <batch:step id="chipSeqDna.receiveSample" parent="receiveSampleStateStep" next="chipSeqDna.waitForReceiveSample" />
+    <batch:step id="chipSeqDna.waitForReceiveSample" parent="waitForReceiveSampleStateUpdated" next="chipSeqDna.createLibrary" />
+
+    <batch:step id="chipSeqDna.createLibrary" parent="createLibrarySampleStateStep" next="chipSeqDna.waitForCreateLibrary" />
+    <batch:step id="chipSeqDna.waitForCreateLibrary" parent="waitForCreateLibraryStateUpdated" next="chipSeqDna.finishFlow" />
 
     <batch:flow id="chipSeqDna.finishFlow" parent="finishJobFlow" />
   </batch:job>
