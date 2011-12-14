@@ -511,7 +511,11 @@ public class JobSubmissionController extends WaspController {
 		jobDraft.setJobDraftMeta(metaHelper.syncWithMaster(jobDraft.getJobDraftMeta()));
 
 		//  TODO if ! resourceArea .. nextpage
-		//  TODO if ! count(meta) == 0 .. nextpage
+
+		// no metadata fields, skip page
+		if (jobDraft.getJobDraftMeta().size() == 0 ) {
+			return nextPage(jobDraft);
+		}
 
 		m.put("jobDraftDb", jobDraft);
 		m.put("jobDraft", jobDraft);
