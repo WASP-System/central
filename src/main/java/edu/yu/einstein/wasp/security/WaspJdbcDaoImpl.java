@@ -1,10 +1,6 @@
 package edu.yu.einstein.wasp.security;
 
-import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.log4j.Logger;
-import org.hibernate.tool.hbm2x.StringUtils;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl;
