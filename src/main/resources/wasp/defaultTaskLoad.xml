@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.1.xsd"
+    default-autowire="byName">
+
+  <bean id="jobWrapTask" class="edu.yu.einstein.wasp.load.TaskLoadService">
+    <property name="iname" value="jobWrapTask" />
+    <property name="name" value="Job Task" />
+    <property name="uiFields">
+      <list>
+      </list>
+    </property>
+  </bean>
+
+  <bean id="sampleWrapTask" class="edu.yu.einstein.wasp.load.TaskLoadService">
+    <property name="iname" value="sampleWrapTask" />
+    <property name="name" value="Sample Task" />
+    <property name="uiFields">
+      <list>
+      </list>
+    </property>
+  </bean>
+
+</beans>
