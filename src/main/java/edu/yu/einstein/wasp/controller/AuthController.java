@@ -121,7 +121,7 @@ public class AuthController extends WaspController {
 	  User userDb = userService.merge(user);
 	  
 	  // email user with new authcode
-	  userService.reconfirmEmailAction(userDb);
+	  emailService.sendUserEmailConfirm(userDb, confirmEmailAuthService.getNewAuthcodeForUser(userDb));
 	  return "redirect:/auth/confirmemail/emailchanged.do";
   }
 
@@ -155,14 +155,7 @@ public class AuthController extends WaspController {
 		  return "auth/resetpassword/request";
 	  }
 
-	Userpasswordauth userpasswordauth = new Userpasswordauth();
-	userpasswordauth.setUserId(user.getUserId());
-	String authcode = AuthCode.create(20);
-	userpasswordauth.setAuthcode(authcode);
-	//userpasswordauth.setLastUpdTs(new Date());
-	//userpasswordauth.setLastUpdUser(user.getUserId());
-	userpasswordauthService.merge(userpasswordauth); // merge handles both inserts and updates. Doesn't have problem with disconnected entities like persist does
-	emailService.sendRequestNewPassword(user, authcode);
+	  this.sendPasswordConfirmEmail(user);
 	  
     return "auth/resetpassword/email";
   }
@@ -297,6 +290,20 @@ public class AuthController extends WaspController {
   }
   
   /**
+   * Makes an entry in the userpasswordauth table and sends an email to email authcode to user
+   * @param user {@link User} object
+   */
+  protected void sendPasswordConfirmEmail(final User user){
+	  Userpasswordauth userpasswordauth = new Userpasswordauth();
+	  userpasswordauth.setUserId(user.getUserId());
+	  String authcode = AuthCode.create(20);
+	  userpasswordauth.setAuthcode(authcode);
+	  userpasswordauthService.merge(userpasswordauth); // merge handles both inserts and updates. Doesn't have problem with disconnected entities like persist does
+	  // request user changes their password
+	  emailService.sendRequestNewPassword(user, authcode);
+  }
+  
+  /**
    * Processes a pending user email validation GET request (should be from clicking a link in an email) 
    * @param authCode
    * @param urlEncodedEmail
@@ -307,8 +314,11 @@ public class AuthController extends WaspController {
   public String confirmNewUserEmailFromEmailLink(
 		  @RequestParam(value="authcode", required=false) String authCode,
 		  @RequestParam(value="email", required=false) String urlEncodedEmail,
+		  @RequestParam(value="isAdminCreated", required=false) Integer isAdminCreated,
 	      ModelMap m) {
-	if (authCode==null || authCode.isEmpty() || urlEncodedEmail==null || urlEncodedEmail.isEmpty()){
+    if (isAdminCreated == null) isAdminCreated = 0;
+	if ( (authCode==null || authCode.isEmpty()) && (urlEncodedEmail==null || urlEncodedEmail.isEmpty()) ){
+		m.addAttribute("isAdminCreated", isAdminCreated);
 		// return the authcodeform view
 		return "auth/confirmemail/authcodeform";
 	}
@@ -317,13 +327,21 @@ public class AuthController extends WaspController {
 		decodedEmail = URLDecoder.decode(urlEncodedEmail, "UTF-8");
 	} catch(UnsupportedEncodingException e){
 		waspMessage("auth.confirmemail_corruptemail.error");
+		m.addAttribute("isAdminCreated", isAdminCreated);
 		return "redirect:/auth/confirmNewUserEmail.do"; // do this to clear GET parameters and forward to authcodeform view
 	}
-	if (! userEmailValid(authCode, decodedEmail, null)) return "redirect:/auth/confirmNewUserEmail.do"; // do this to clear GET parameters and forward to authcodeform view
+	if (! userEmailValid(authCode, decodedEmail, null)){
+		m.addAttribute("isAdminCreated", isAdminCreated);
+		return "redirect:/auth/confirmNewUserEmail.do"; // do this to clear GET parameters and forward to authcodeform view
+	}
 	// authcode and email match if we get here
 	// remove entry for current user in email auth table
 	ConfirmEmailAuth auth = confirmEmailAuthService.getConfirmEmailAuthByAuthcode(authCode);
 	confirmEmailAuthService.remove(auth);
+	if (isAdminCreated != null && isAdminCreated == 1 && !authenticationService.isAuthenticationSetExternal()){
+		User user = userService.getUserByUserId(auth.getUserId());
+		this.sendPasswordConfirmEmail(user);
+	}
 	return "redirect:/auth/confirmemail/emailupdateok.do";
   }
   
@@ -340,26 +358,36 @@ public class AuthController extends WaspController {
 			@RequestParam(value="authcode") String authCode,
 			@RequestParam(value="email") String email,
 			@RequestParam(value="captcha_text") String captchaText,
+			@RequestParam(value="isAdminCreated") Integer isAdminCreated,
 			ModelMap m) {
+  		if (isAdminCreated == null) isAdminCreated = 0;
 		Captcha captcha = (Captcha) request.getSession().getAttribute(Captcha.NAME);
 		if (captcha == null || (! captcha.isCorrect(captchaText)) ){
 			waspMessage("auth.confirmemail_captcha.error");
-			m.put("authcode", authCode);
-			m.put("email", email);
+			m.addAttribute("authcode", authCode);
+			m.addAttribute("email", email);
+			m.addAttribute("isAdminCreated", isAdminCreated);
 			return "auth/confirmemail/authcodeform";
 		}
-		if (! userEmailValid(authCode, email, m)) return "auth/confirmemail/authcodeform";
+		if (! userEmailValid(authCode, email, m)){
+			m.addAttribute("isAdminCreated", isAdminCreated);
+			return "auth/confirmemail/authcodeform";
+		}
 		Map userQueryMap = new HashMap();
 		userQueryMap.put("email", email);
 		User user = userService.getUserByEmail(email);
 		if (user.getUserId() == 0){
 			waspMessage("auth.confirmemail_bademail.error");
+			m.addAttribute("isAdminCreated", isAdminCreated);
 			return "auth/confirmemail/authcodeform"; 
 		}
 		// authcode and email match if we get here
 		// remove entry for current user in email auth table
 		ConfirmEmailAuth auth = confirmEmailAuthService.getConfirmEmailAuthByAuthcode(authCode);
 		confirmEmailAuthService.remove(auth);
+		if (isAdminCreated == 1 && !authenticationService.isAuthenticationSetExternal()){
+			sendPasswordConfirmEmail(user);
+		}
 		return "redirect:/auth/confirmemail/emailupdateok.do";
 	}
 

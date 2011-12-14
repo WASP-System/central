@@ -12,9 +12,12 @@
 package edu.yu.einstein.wasp.service.impl;
 
 import edu.yu.einstein.wasp.service.ConfirmEmailAuthService;
+import edu.yu.einstein.wasp.util.AuthCode;
 import edu.yu.einstein.wasp.dao.ConfirmEmailAuthDao;
 import edu.yu.einstein.wasp.dao.WaspDao;
 import edu.yu.einstein.wasp.model.ConfirmEmailAuth;
+import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.model.UserPending;
 
 import java.util.List;
 import java.util.Map;
@@ -70,6 +73,24 @@ public class ConfirmEmailAuthServiceImpl extends WaspServiceImpl<ConfirmEmailAut
 
 	public ConfirmEmailAuth getConfirmEmailAuthByUserId(int userId) {
 		return this.getConfirmEmailAuthDao().getConfirmEmailAuthByUserId(userId);
+	}
+
+	public String getNewAuthcodeForUser(User user) {
+		String authcode = AuthCode.create(20);
+		ConfirmEmailAuth confirmEmailAuth = this.getConfirmEmailAuthByUserId(user.getUserId());
+		confirmEmailAuth.setAuthcode(authcode);
+		confirmEmailAuth.setUserId(user.getUserId());
+		this.save(confirmEmailAuth);
+		return authcode;
+	}
+	
+	public String getNewAuthcodeForUserPending(UserPending userpending) {
+		String authcode = AuthCode.create(20);
+		ConfirmEmailAuth confirmEmailAuth = this.getConfirmEmailAuthByUserpendingId(userpending.getUserPendingId());
+		confirmEmailAuth.setAuthcode(authcode);
+		confirmEmailAuth.setUserpendingId(userpending.getUserPendingId());
+		this.save(confirmEmailAuth);
+		return authcode;
 	}
         
 }

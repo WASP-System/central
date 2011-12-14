@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
 
 import edu.yu.einstein.wasp.exception.LoginNameException;
+import edu.yu.einstein.wasp.model.ConfirmEmailAuth;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabUser;
@@ -35,7 +36,6 @@ import edu.yu.einstein.wasp.model.MetaHelper;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserMeta;
-import edu.yu.einstein.wasp.model.Userpasswordauth;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.ConfirmEmailAuthService;
 import edu.yu.einstein.wasp.service.EmailService;
@@ -336,25 +336,21 @@ public class UserController extends WaspController {
 			User userDb = this.userService.save(userForm);
 			userId=userDb.getUserId();
 			userMetaService.updateByUserId(userId, userMetaList);
-			if (!authenticationService.isAuthenticationSetExternal()){
-				// for internal (WASP) authentication, request that new user resets password 
-				Userpasswordauth userpasswordauth = new Userpasswordauth();
-				userpasswordauth.setUserId(userId);
-				String authcode = AuthCode.create(20);
-				userpasswordauth.setAuthcode(authcode);
-				userpasswordauthService.merge(userpasswordauth); // merge handles both inserts and updates. Doesn't have problem with disconnected entities like persist does
-				// request user changes their password
-				emailService.sendRequestNewPassword(userDb, authcode); 
-			}
+			emailService.informUserAccountCreatedByAdmin(userDb, confirmEmailAuthService.getNewAuthcodeForUser(userDb));
 		} else {
 			User userDb = this.userService.getById(userId);
-			userDb.setFirstName(userForm.getFirstName());
-			userDb.setLastName(userForm.getLastName());
+			
 			if (!userDb.getEmail().equals(userForm.getEmail())){
-				userService.reconfirmEmailAction(userForm);
+				emailService.sendUserEmailConfirm(userForm, confirmEmailAuthService.getNewAuthcodeForUser(userForm));
 				if (authenticationService.getAuthenticatedUser().getUserId() == userId) 
 					myemailChanged = true;
 			}
+			if (!userDb.getLogin().equals(userForm.getLogin())){
+				emailService.informUserLoginChanged(userForm);
+			}
+			userDb.setLogin(userForm.getLogin());
+			userDb.setFirstName(userForm.getFirstName());
+			userDb.setLastName(userForm.getLastName());
 			userDb.setEmail(userForm.getEmail());
 			userDb.setLocale(userForm.getLocale());
 			userDb.setIsActive(userForm.getIsActive());
@@ -437,7 +433,7 @@ public class UserController extends WaspController {
 		User userDb = this.userService.getById(userId);
 		if (!userDb.getEmail().equals(userForm.getEmail().trim())){
 			// email changed
-			userService.reconfirmEmailAction(userForm);
+			emailService.sendUserEmailConfirm(userForm, confirmEmailAuthService.getNewAuthcodeForUser(userForm));
 			if (userId == authenticationService.getAuthenticatedUser().getUserId()) isMyEmailChanged = true;
 		}
 		userDb.setFirstName(userForm.getFirstName().trim());

@@ -128,5 +128,18 @@ public interface EmailService  {
 	 */
 	public void sendRequestNewPassword(User user, String authcode);
 
+	/**
+	 * Inform User that login name has been changed. Necessary if Admin changes user profile and login is updated.
+	 * @param user
+	 */
+	public void informUserLoginChanged(User user);
+
+	/**
+	 * Inform user than admin has created an account for them
+	 * @param user
+	 * @param authcode
+	 */
+	void informUserAccountCreatedByAdmin(User user, String authcode);
+
 }
 

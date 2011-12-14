@@ -1,0 +1,6 @@
+WASP: Login Name Change
+<p>Dear ${user.firstName} ${user.lastName},</p>
+
+<p>Please note that your login name has been changed by WASP administration. You must now login to WASP using the login name '${user.login}'</p>
+
+

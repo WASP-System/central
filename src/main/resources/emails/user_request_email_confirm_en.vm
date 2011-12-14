@@ -1,4 +1,4 @@
-WASP: confirm new email address request
+WASP: Confirm New Email Address Request
 Dear ${user.firstName} ${user.lastName},
 
 click here to 

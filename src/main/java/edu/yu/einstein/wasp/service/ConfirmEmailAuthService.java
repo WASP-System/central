@@ -13,6 +13,8 @@ package edu.yu.einstein.wasp.service;
 
 import edu.yu.einstein.wasp.dao.ConfirmEmailAuthDao;
 import edu.yu.einstein.wasp.model.ConfirmEmailAuth;
+import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.model.UserPending;
 
 import org.springframework.stereotype.Service;
 
@@ -42,6 +44,10 @@ public interface ConfirmEmailAuthService extends WaspService<ConfirmEmailAuth> {
     public ConfirmEmailAuth getConfirmEmailAuthByUserpendingId (final int userpendingId);
 	  
 	public ConfirmEmailAuth getConfirmEmailAuthByUserId (final int userId);
+	
+	public String getNewAuthcodeForUser(final User user);
+
+	public String getNewAuthcodeForUserPending(UserPending userpending);
 
 
 }

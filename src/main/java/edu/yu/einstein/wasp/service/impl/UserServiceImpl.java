@@ -90,16 +90,7 @@ public class UserServiceImpl extends WaspServiceImpl<User> implements UserServic
 		}
 		return login;
   }
-  
-  public void reconfirmEmailAction(final User user){
-		// a new email address must be confirmed
-		String authcode = AuthCode.create(20);
-		ConfirmEmailAuth confirmEmailAuth = confirmEmailAuthService.getConfirmEmailAuthByUserId(user.getUserId());
-		confirmEmailAuth.setAuthcode(authcode);
-		confirmEmailAuth.setUserId(user.getUserId());
-		confirmEmailAuthService.save(confirmEmailAuth);
-		emailService.sendUserEmailConfirm(user, authcode);
-	}
+
   
 }
 

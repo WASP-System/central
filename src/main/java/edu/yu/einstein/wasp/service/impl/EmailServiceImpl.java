@@ -318,6 +318,22 @@ public class EmailServiceImpl implements EmailService {
 	}
 	
 	/**
+	 * {@inheritDoc}
+	 */
+	public void informUserLoginChanged(User user) {
+		Map model = new HashMap();
+		model.put("user", user);
+		prepareAndSend(user, "emails/inform_login_changed", model);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public void informUserAccountCreatedByAdmin(final User user, final String authcode) {
+		sendEmailConfirm(user, authcode, "emails/user_created_by_admin");
+	}
+	
+	/**
 	 * Prepares a {@link MimeMessage} for the recipient {@link User} based on referenced Velocity template and associated model data then sends
 	 * the message using {@link JavaMailSender}
 	 * 
@@ -377,6 +393,8 @@ public class EmailServiceImpl implements EmailService {
 			throw new MailPreparationException("problem generating MimeMessage from Velocity template", e); 
 		}
 	}
+	
+	
 	   
 	/**
 	 * Returns the first line from the provided text to use as an email subject line
@@ -409,6 +427,7 @@ public class EmailServiceImpl implements EmailService {
 		return body;
 		
 	}
+
 
 
 	

@@ -230,12 +230,7 @@ public class UserPendingController extends WaspController {
 			return "redirect:/auth/newuser/emailok.do";
 		} else {
 			// email address not confirmed yet so request confirmation
-			String authcode = AuthCode.create(20);
-			ConfirmEmailAuth confirmEmailAuth = new ConfirmEmailAuth();
-			confirmEmailAuth.setAuthcode(authcode);
-			confirmEmailAuth.setUserpendingId(userPendingDb.getUserPendingId());
-			confirmEmailAuthService.save(confirmEmailAuth);
-			emailService.sendPendingUserEmailConfirm(userPendingForm, authcode);
+			emailService.sendPendingUserEmailConfirm(userPendingForm, confirmEmailAuthService.getNewAuthcodeForUserPending(userPendingForm));
 		}
 		return "redirect:/auth/newuser/created.do";
 	}
@@ -440,12 +435,7 @@ public class UserPendingController extends WaspController {
 			return "redirect:/auth/newpi/emailok.do";
 		} else {
 			// email address not confirmed yet so request confirmation
-			String authcode = AuthCode.create(20);
-			ConfirmEmailAuth confirmEmailAuth = new ConfirmEmailAuth();
-			confirmEmailAuth.setAuthcode(authcode);
-			confirmEmailAuth.setUserpendingId(userPendingDb.getUserPendingId());
-			confirmEmailAuthService.save(confirmEmailAuth);
-			emailService.sendPendingPIEmailConfirm(userPendingForm, authcode);
+			emailService.sendPendingPIEmailConfirm(userPendingForm, confirmEmailAuthService.getNewAuthcodeForUserPending(userPendingForm));
 		}
 		return "redirect:/auth/newpi/created.do";
 	}
@@ -582,7 +572,7 @@ public class UserPendingController extends WaspController {
 			  @RequestParam(value="email", required=false) String urlEncodedEmail,
 		      ModelMap m) throws MetadataException {
 		
-		if (authCode == null || authCode.isEmpty() || urlEncodedEmail == null || urlEncodedEmail.isEmpty()){
+		if ( (authCode == null || authCode.isEmpty()) && (urlEncodedEmail == null || urlEncodedEmail.isEmpty()) ){
 			// get the authcodeform view
 			return "auth/confirmemail/authcodeform";
 		}
@@ -593,7 +583,6 @@ public class UserPendingController extends WaspController {
 			waspMessage("auth.confirmemail_corruptemail.error");
 			return "redirect:/auth/confirmUserEmail.do"; // do this to clear GET parameters and forward to authcodeform view
 		}
-		if (! userPendingEmailValid(authCode, decodedEmail, null)) return "redirect:/auth/confirmUserEmail.do"; // do this to clear GET parameters and forward to authcodeform view
 		Map userPendingQueryMap = new HashMap();
 		userPendingQueryMap.put("email", decodedEmail);
 		userPendingQueryMap.put("status", "WAIT_EMAIL");
@@ -601,6 +590,7 @@ public class UserPendingController extends WaspController {
 			// email already confirmed probably accidently re-confirming
 			return "redirect:/auth/newuser/emailok.do";
 		}
+		if (! userPendingEmailValid(authCode, decodedEmail, null)) return "redirect:/auth/confirmUserEmail.do"; // do this to clear GET parameters and forward to authcodeform view
 		request.getSession().removeAttribute(Captcha.NAME); // ensures fresh capcha issued if required in this session
 		sendPendingUserConfRequestEmail(decodedEmail);
 		return "redirect:/auth/newuser/emailok.do";
@@ -629,7 +619,6 @@ public class UserPendingController extends WaspController {
 			  m.put("email", email);
 			  return "auth/confirmemail/authcodeform";
 		  }
-		  if (! userPendingEmailValid(authCode, email, m)) return "auth/confirmemail/authcodeform";
 		  Map userPendingQueryMap = new HashMap();
 		  userPendingQueryMap.put("email", email);
 		  userPendingQueryMap.put("status", "WAIT_EMAIL");
@@ -637,6 +626,7 @@ public class UserPendingController extends WaspController {
 			// email already confirmed probably accidently re-confirming
 			return "redirect:/auth/newuser/emailok.do";
 		  }
+		  if (! userPendingEmailValid(authCode, email, m)) return "auth/confirmemail/authcodeform";
 		  sendPendingUserConfRequestEmail(email);
 		  return "redirect:/auth/newuser/emailok.do";
 	  }
@@ -654,7 +644,7 @@ public class UserPendingController extends WaspController {
 			  @RequestParam(value="authcode", required=false) String authCode,
 			  @RequestParam(value="email", required=false) String urlEncodedEmail,
 		      ModelMap m) throws MetadataException {
-		 if (authCode == null || authCode.isEmpty() || urlEncodedEmail == null || urlEncodedEmail.isEmpty()){
+		 if ( (authCode == null || authCode.isEmpty()) && (urlEncodedEmail == null || urlEncodedEmail.isEmpty()) ){
 			// get the authcodeform view
 			return "auth/confirmemail/authcodeform";
 		 }
@@ -665,7 +655,6 @@ public class UserPendingController extends WaspController {
 			 waspMessage("auth.confirmemail_corruptemail.error");
 			 return "redirect:/auth/confirmPIEmail.do"; // do this to clear GET parameters and forward to authcodeform view
 		 }
-		 if (! userPendingEmailValid(authCode, decodedEmail, null)) return "redirect:/auth/confirmPIEmail.do"; // do this to clear GET parameters and forward to authcodeform view
 		 Map userPendingQueryMap = new HashMap();
 		 userPendingQueryMap.put("email", decodedEmail);
 		 userPendingQueryMap.put("status", "WAIT_EMAIL");
@@ -673,6 +662,7 @@ public class UserPendingController extends WaspController {
 			 // email already confirmed probably accidently re-confirming
 			 return "redirect:/auth/newpi/emailok.do";
 		 }	  
+		 if (! userPendingEmailValid(authCode, decodedEmail, null)) return "redirect:/auth/confirmPIEmail.do"; // do this to clear GET parameters and forward to authcodeform view
 		 sendPendingUserConfRequestEmail(decodedEmail);
 		 return "redirect:/auth/newpi/emailok.do";
 	}
@@ -699,7 +689,6 @@ public class UserPendingController extends WaspController {
 			m.put("email", email);
 			return "auth/confirmemail/authcodeform";
 		}
-		if (! userPendingEmailValid(authCode, email, m)) return "auth/confirmemail/authcodeform";
 		Map userPendingQueryMap = new HashMap();
 		userPendingQueryMap.put("email", email);
 		userPendingQueryMap.put("status", "WAIT_EMAIL");
@@ -707,6 +696,7 @@ public class UserPendingController extends WaspController {
 			// email already confirmed probably accidently re-confirming
 			return "redirect:/auth/newpi/emailok.do";
 		}	 
+		if (! userPendingEmailValid(authCode, email, m)) return "auth/confirmemail/authcodeform";
 		sendPendingUserConfRequestEmail(email);
 		return "redirect:/auth/newpi/emailok.do";
 	}
