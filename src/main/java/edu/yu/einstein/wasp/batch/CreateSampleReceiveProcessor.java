@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
+import java.util.Date;
 
 /**
  * Created Sample Receive Processor
@@ -60,6 +61,7 @@ public class CreateSampleReceiveProcessor implements ItemProcessor {
 				newState.setStatus(targetStatus);
 				newState.setTaskId(t.getTaskId());
 				newState.setName(t.getName());
+				newState.setStartts(new Date());
 				State newStateDb = stateService.save(newState);
 
 				Statejob newStateJob = new Statejob(); 
