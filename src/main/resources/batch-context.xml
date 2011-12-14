@@ -99,12 +99,9 @@
     <import resource="batch/spring-integration-batch.xml" />
     <!-- deployment level -->
     <import resource="batch/si.xml" />
+
     <!-- loads all the plugable batch -->
     <import resource="classpath*:batch/*Batch.xml" />
-<!--
-    <import resource="batch/defaultJobBatch.xml" /> 
-    <import resource="batch/chipSeqDnaSampleBatch.xml" /> 
--->
 
 <!--
   <import resource="import-poll-files-job.xml" /> -->
