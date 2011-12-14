@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 
 import org.apache.commons.lang.StringUtils;
@@ -77,27 +78,20 @@ public class UserDaoImpl extends WaspDaoImpl<User> implements edu.yu.einstein.wa
   }
   
  
-  
+/*  
   public boolean loginExists(final String login, final Integer excludeUserId) {
 
-	    return (Boolean)getJpaTemplate().execute(new JpaCallback() {
-
-	      public Boolean doInJpa(EntityManager em) throws PersistenceException {
-	    	  
-	    	if (excludeUserId==null) {
-	    		 List l = em.createNativeQuery("select 1 from user where login=:login").setParameter("login", login).getResultList();
-	    		 return !l.isEmpty();
-	    	}
-	    	
-	    	 List l = em.createNativeQuery("select 1 from user where login=:login and userId!=:userId")
-	    		 .setParameter("login", login)
-	    		 .setParameter("userId", excludeUserId)
-	    		 .getResultList();
-	    	 return !l.isEmpty();
-	    	}	      
-	    });
-	  }
-
-
+       	if (excludeUserId==null) {
+    		 List<User> l = entityManager.createNativeQuery("select 1 from user where login=:login").setParameter("login", login).getResultList();
+    		 return !l.isEmpty();
+    	}
+    	
+    	 List<User> l = entityManager.createNativeQuery("select 1 from user where login=:login and userId!=:userId")
+    		 .setParameter("login", login)
+    		 .setParameter("userId", excludeUserId)
+    		 .getResultList();
+    	 return !l.isEmpty();
+    	}	      
+*/
 }
 

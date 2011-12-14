@@ -102,19 +102,12 @@ public class UserPendingMetaDaoImpl extends WaspDaoImpl<UserPendingMeta> impleme
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByUserpendingId (final String area, final int userpendingId, final List<UserPendingMeta> metaList) {
+		entityManager.createNativeQuery("delete from userpendingmeta where userpendingId=:userpendingId and k like :area").setParameter("userpendingId", userpendingId).setParameter("area", area + ".%").executeUpdate();
 
-		getJpaTemplate().execute(new JpaCallback() {
-
-			public Object doInJpa(EntityManager em) throws PersistenceException {
-				em.createNativeQuery("delete from userpendingmeta where userpendingId=:userpendingId and k like :area").setParameter("userpendingId", userpendingId).setParameter("area", area + ".%").executeUpdate();
-
-				for (UserPendingMeta m:metaList) {
-					m.setUserpendingId(userpendingId);
-					em.persist(m);
-				}
-        			return null;
-			}
-		});
+		for (UserPendingMeta m:metaList) {
+			m.setUserpendingId(userpendingId);
+			entityManager.persist(m);
+		}
 	}
 
 
@@ -128,19 +121,12 @@ public class UserPendingMetaDaoImpl extends WaspDaoImpl<UserPendingMeta> impleme
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByUserpendingId (final int userpendingId, final List<UserPendingMeta> metaList) {
+		entityManager.createNativeQuery("delete from userpendingmeta where userpendingId=:userpendingId").setParameter("userpendingId", userpendingId).executeUpdate();
 
-		getJpaTemplate().execute(new JpaCallback() {
-
-			public Object doInJpa(EntityManager em) throws PersistenceException {
-				em.createNativeQuery("delete from userpendingmeta where userpendingId=:userpendingId").setParameter("userpendingId", userpendingId).executeUpdate();
-
-				for (UserPendingMeta m:metaList) {
-					m.setUserpendingId(userpendingId);
-					em.persist(m);
-				}
-        			return null;
-			}
-		});
+		for (UserPendingMeta m:metaList) {
+			m.setUserpendingId(userpendingId);
+			entityManager.persist(m);
+		}
 	}
 
 

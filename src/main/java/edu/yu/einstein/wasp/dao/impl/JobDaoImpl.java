@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 
 import org.springframework.orm.jpa.JpaCallback;
@@ -31,6 +32,7 @@ import edu.yu.einstein.wasp.model.Job;
 @Repository
 public class JobDaoImpl extends WaspDaoImpl<Job> implements edu.yu.einstein.wasp.dao.JobDao {
 
+	
 	/**
 	 * JobDaoImpl() Constructor
 	 *
@@ -92,50 +94,38 @@ public class JobDaoImpl extends WaspDaoImpl<Job> implements edu.yu.einstein.wasp
 	}
 
 	public Map<Integer,List<Job>> getJobSamplesByWorkflow(final int workflowId) {
-		
-		Map<Integer,List<Job>> res = (Map<Integer,List<Job>>)getJpaTemplate().execute(new JpaCallback() {
-
-			   public Object doInJpa(EntityManager em) throws PersistenceException {
-				   
-				   String sql=
-					   "SELECT ws.subtypesampleId, j.jobId, j.name\n"+
-					   "FROM job j\n"+
-					   "JOIN workflowsubtypesample ws ON ws.workflowId = j.workflowId\n"+
-					   "WHERE j.workflowId = :workflowId\n"+
-					   "ORDER BY j.lastupdts DESC , j.name ASC\n";
-				   
-				   Map<Integer,List<Job>> result=new LinkedHashMap<Integer,List<Job>>();
-				   
-				   List<Object[]> listObj=em.createNativeQuery(sql).setParameter("workflowId", workflowId).getResultList();
-				   for(Object[] o:listObj) {
-					   
-					   Integer subtypeSampleId=(Integer)o[0];
-					   Integer jobId=(Integer)o[1];
-					   String jobName=(String)o[2];
-					  
-					 					   
-					   
-					   List<Job> listByType =result.get(subtypeSampleId);
-					   if (listByType==null) {
-						   listByType=new ArrayList<Job>();	
-						   result.put(subtypeSampleId, listByType);
-					   }
-					   Job job = new Job();
-					   job.setJobId(jobId);
-					   job.setName(jobName);
-					   
-					   listByType.add(job);
-					 
-					   
-				   }
-				   return result;
+		   String sql=
+			   "SELECT ws.subtypesampleId, j.jobId, j.name\n"+
+			   "FROM job j\n"+
+			   "JOIN workflowsubtypesample ws ON ws.workflowId = j.workflowId\n"+
+			   "WHERE j.workflowId = :workflowId\n"+
+			   "ORDER BY j.lastupdts DESC , j.name ASC\n";
+		   
+		   Map<Integer,List<Job>> result=new LinkedHashMap<Integer,List<Job>>();
+		   
+		   List<Object[]> listObj=entityManager.createNativeQuery(sql).setParameter("workflowId", workflowId).getResultList();
+		   for(Object[] o:listObj) {
+			   
+			   Integer subtypeSampleId=(Integer)o[0];
+			   Integer jobId=(Integer)o[1];
+			   String jobName=(String)o[2];
+			  
+			 					   
+			   
+			   List<Job> listByType =result.get(subtypeSampleId);
+			   if (listByType==null) {
+				   listByType=new ArrayList<Job>();	
+				   result.put(subtypeSampleId, listByType);
 			   }
-
-			  });
-	
+			   Job job = new Job();
+			   job.setJobId(jobId);
+			   job.setName(jobName);
+			   
+			   listByType.add(job);
 			 
-		return res;
-		
+			   
+		   }
+		   return result;
 	}
 
 }

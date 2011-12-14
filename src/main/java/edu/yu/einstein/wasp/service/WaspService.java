@@ -9,14 +9,7 @@ public interface WaspService<E> {
 
  public WaspDao getWaspDao();
 
- public void setEntityManager(javax.persistence.EntityManager entityManager);
- public void setEntityManagerFactory(javax.persistence.EntityManagerFactory entityManagerFactory);
-
- public void setJpaTemplate(org.springframework.orm.jpa.JpaTemplate jpaTemplate);
-
-
-
- public void persist(E entity);
+  public void persist(E entity);
 
  public E save(E entity);
 

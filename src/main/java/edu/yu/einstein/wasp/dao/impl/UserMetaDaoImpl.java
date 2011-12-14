@@ -102,20 +102,13 @@ public class UserMetaDaoImpl extends WaspDaoImpl<UserMeta> implements edu.yu.ein
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByUserId (final String area, final int UserId, final List<UserMeta> metaList) {
+		entityManager.createNativeQuery("delete from usermeta where UserId=:UserId and k like :area").setParameter("UserId", UserId).setParameter("area", area + ".%").executeUpdate();
 
-		getJpaTemplate().execute(new JpaCallback() {
-
-			public Object doInJpa(EntityManager em) throws PersistenceException {
-				em.createNativeQuery("delete from usermeta where UserId=:UserId and k like :area").setParameter("UserId", UserId).setParameter("area", area + ".%").executeUpdate();
-
-				for (UserMeta m:metaList) {
-					m.setUserId(UserId);
-					em.persist(m);
-				}
-        			return null;
-			}
-		});
-	}
+		for (UserMeta m:metaList) {
+			m.setUserId(UserId);
+			entityManager.persist(m);
+		}
+ 	}
 
 
 	/**
@@ -128,19 +121,12 @@ public class UserMetaDaoImpl extends WaspDaoImpl<UserMeta> implements edu.yu.ein
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByUserId (final int UserId, final List<UserMeta> metaList) {
+		entityManager.createNativeQuery("delete from usermeta where UserId=:UserId").setParameter("UserId", UserId).executeUpdate();
 
-		getJpaTemplate().execute(new JpaCallback() {
-
-			public Object doInJpa(EntityManager em) throws PersistenceException {
-				em.createNativeQuery("delete from usermeta where UserId=:UserId").setParameter("UserId", UserId).executeUpdate();
-
-				for (UserMeta m:metaList) {
-					m.setUserId(UserId);
-					em.persist(m);
-				}
-        			return null;
-			}
-		});
+		for (UserMeta m:metaList) {
+			m.setUserId(UserId);
+			entityManager.persist(m);
+		}
 	}
 
 

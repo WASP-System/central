@@ -102,20 +102,13 @@ public class JobSampleMetaDaoImpl extends WaspDaoImpl<JobSampleMeta> implements 
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByJobsampleId (final String area, final int jobsampleId, final List<JobSampleMeta> metaList) {
+		entityManager.createNativeQuery("delete from jobsamplemeta where jobsampleId=:jobsampleId and k like :area").setParameter("jobsampleId", jobsampleId).setParameter("area", area + ".%").executeUpdate();
 
-		getJpaTemplate().execute(new JpaCallback() {
-
-			public Object doInJpa(EntityManager em) throws PersistenceException {
-				em.createNativeQuery("delete from jobsamplemeta where jobsampleId=:jobsampleId and k like :area").setParameter("jobsampleId", jobsampleId).setParameter("area", area + ".%").executeUpdate();
-
-				for (JobSampleMeta m:metaList) {
-					m.setJobsampleId(jobsampleId);
-					em.persist(m);
-				}
-        			return null;
-			}
-		});
-	}
+		for (JobSampleMeta m:metaList) {
+			m.setJobsampleId(jobsampleId);
+			entityManager.persist(m);
+		}
+ 	}
 
 
 	/**
@@ -128,20 +121,13 @@ public class JobSampleMetaDaoImpl extends WaspDaoImpl<JobSampleMeta> implements 
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByJobsampleId (final int jobsampleId, final List<JobSampleMeta> metaList) {
+		entityManager.createNativeQuery("delete from jobsamplemeta where jobsampleId=:jobsampleId").setParameter("jobsampleId", jobsampleId).executeUpdate();
 
-		getJpaTemplate().execute(new JpaCallback() {
-
-			public Object doInJpa(EntityManager em) throws PersistenceException {
-				em.createNativeQuery("delete from jobsamplemeta where jobsampleId=:jobsampleId").setParameter("jobsampleId", jobsampleId).executeUpdate();
-
-				for (JobSampleMeta m:metaList) {
-					m.setJobsampleId(jobsampleId);
-					em.persist(m);
-				}
-        			return null;
-			}
-		});
-	}
+		for (JobSampleMeta m:metaList) {
+			m.setJobsampleId(jobsampleId);
+			entityManager.persist(m);
+		}
+ 	}
 
 
 

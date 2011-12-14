@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
@@ -29,121 +30,81 @@ import org.springframework.stereotype.Repository;
 
 import edu.yu.einstein.wasp.model.Department;
 
-// @ Transactional
 @Repository
-public abstract class WaspDaoImpl<E extends Serializable> extends JpaDaoSupport implements edu.yu.einstein.wasp.dao.WaspDao<E> {
+public abstract class WaspDaoImpl<E extends Serializable> implements edu.yu.einstein.wasp.dao.WaspDao<E> {
  protected Class<E> entityClass;
 
  private static final Logger log = Logger.getLogger(WaspDaoImpl.class);
 
+ @PersistenceContext
+ protected EntityManager entityManager;
 
- @SuppressWarnings("unchecked")
- public WaspDaoImpl() {
-   // ParameterizedType genericSuperclass = (ParameterizedType) getClass().getGenericSuperclass();
-   // this.entityClass = (Class<E>) genericSuperclass.getActualTypeArguments()[0];
- }
-
- // @ Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
- public void persist(E entity) {
+ public void persist(final E entity) {
 	 
   setUpdateTs(entity);
   setEditorId(entity);
-  
-  getJpaTemplate().persist(entity);
+  entityManager.persist(entity);
  }
 
  
- // @ Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
  public E save(E entity) {
 	 
     setEditorId(entity);
     setUpdateTs(entity); 
     
-   if (getJpaTemplate().contains(entity)) {
-     getJpaTemplate().merge(entity);
+   if (entityManager.contains(entity)) {
+     entityManager.merge(entity);
    } else {
-     getJpaTemplate().persist(entity);
+     entityManager.persist(entity);
    }
    
    
-   getJpaTemplate().flush();
+   entityManager.flush();
    return entity;
  }
 
- // @ Transactional
  public void remove(E entity) {
-  getJpaTemplate().remove(entity);
+  entityManager.remove(entity);
  }
 
- // @ Transactional
  public E merge(E entity) {
 	 
   setUpdateTs(entity);
   setEditorId(entity);
 	 
-  return getJpaTemplate().merge(entity);
+  return entityManager.merge(entity);
  }
 
- // @ Transactional
  public void refresh(E entity) {
-  getJpaTemplate().refresh(entity);
+  entityManager.refresh(entity);
  }
  
 
- // @ Transactional
  public E findById(int id) {
-  return (E) getJpaTemplate().find(this.entityClass, id);
+  return (E) entityManager.find(this.entityClass, id);
  }
  public E getById(int id) {
-  return (E) getJpaTemplate().find(this.entityClass, id);
+  return (E) entityManager.find(this.entityClass, id);
  }
 
- // @ Transactional
  public E flush(E entity) {
-  getJpaTemplate().flush();
+  entityManager.flush();
   return entity;
  }
 
  @SuppressWarnings("unchecked")
- // @ Transactional
- public List findAll() {
-  Object res = getJpaTemplate().execute(new JpaCallback() {
-
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-    Query q = em.createQuery("SELECT h FROM "
-      + entityClass.getName() + " h");
-    return q.getResultList();
-   }
-
-  });
-
-  return (List) res;
+ public List<E> findAll() {
+	 return this.entityManager.createQuery( "FROM " + entityClass.getName() ).getResultList();
  }
 
- @SuppressWarnings("unchecked")
- // @ Transactional
  public Integer removeAll() {
-  return (Integer) getJpaTemplate().execute(new JpaCallback() {
-
-   public Object doInJpa(EntityManager em) throws PersistenceException {
-    Query q = em.createQuery("DELETE FROM " + entityClass.getName()
-      + " h");
-    return q.executeUpdate();
-   }
-
-  });
+	 return entityManager.createQuery("DELETE FROM " + entityClass.getName() + " h").executeUpdate();
  }
 
   @SuppressWarnings("unchecked")
-  // @ Transactional
-  public List findByMap(final Map m) {
-    Object res = getJpaTemplate().execute(new JpaCallback() {
-
-      public Object doInJpa(EntityManager em) throws PersistenceException {
-        boolean first = true;
-
-
-        String qString = "SELECT h FROM " + entityClass.getName() + " h";
+   public List<E> findByMap(final Map m) {
+	  boolean first = true;
+	  	String qString = "SELECT h FROM " + entityClass.getName() + " h";
         for (Object key: m.keySet()){
           if (! first) {
              qString += " and ";
@@ -155,26 +116,17 @@ public abstract class WaspDaoImpl<E extends Serializable> extends JpaDaoSupport 
           first = false;
         }
 
-        Query q = em.createQuery(qString);
+        Query q = entityManager.createQuery(qString);
 
         for (Object key: m.keySet()){
           q.setParameter(key.toString(), m.get(key));
         }
 
         return q.getResultList();
-      }
-    });
-
-    return (List) res;
   }
  
   @SuppressWarnings("unchecked")
-  // @ Transactional
-  public List findByMapDistinctOrderBy(final Map m, final List<String> distinctColumnNames, final List<String> orderByColumnNames, final String direction) {
-    Object res = getJpaTemplate().execute(new JpaCallback() {
-
-      public Object doInJpa(EntityManager em) throws PersistenceException {
-        
+   public List<E> findByMapDistinctOrderBy(final Map m, final List<String> distinctColumnNames, final List<String> orderByColumnNames, final String direction) {
     	boolean where = false;
     	boolean firstMap = true;
         boolean firstDistinct = true;
@@ -243,29 +195,20 @@ public abstract class WaspDaoImpl<E extends Serializable> extends JpaDaoSupport 
         }
         //logger.debug("ROBERT: " + qString);
         
-        Query q = em.createQuery(qString);
+        Query q = entityManager.createQuery(qString);
 
         for (Object key: m.keySet()){
           q.setParameter(key.toString(), m.get(key));
         }
 
         return q.getResultList();
-      }
-    });
+}
 
-    return (List) res;
-  }
   
   
   @SuppressWarnings("unchecked")
-  // @ Transactional
-  public List findDistinctOrderBy(final String distinctColumnName, final String orderByColumnName, final String direction) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-
-    public Object doInJpa(EntityManager em) throws PersistenceException {
-     //Query q = em.createQuery("SELECT h FROM " + entityClass.getName() + " h WHERE h." + distinctColumnName + " IN " +
-    //   		"(SELECT DISTINCT j." + distinctColumnName + " FROM " + entityClass.getName() + " j ) ORDER BY h." + orderByColumnName + " " + direction + "");
-    // return q.getResultList();
+  public List<E> findDistinctOrderBy(final String distinctColumnName, final String orderByColumnName, final String direction) {
+    
         String qString = "SELECT h FROM " + entityClass.getName() + " h";
         
         if(distinctColumnName != null && ! "".equals(distinctColumnName)){
@@ -279,22 +222,13 @@ public abstract class WaspDaoImpl<E extends Serializable> extends JpaDaoSupport 
        	 qString += " ORDER BY h." + orderByColumnName + " " + direction;
         }
         //logger.debug("ROBERT: " + qString);
-        Query q = em.createQuery(qString);
+        Query q = entityManager.createQuery(qString);
         return q.getResultList();    	
-    }
 
-   });
-
-   return (List) res;
   }
   
   @SuppressWarnings("unchecked")
-  // @ Transactional
   public List findAllOrderBy(final String orderByColumnName, final String direction) {
-   Object res = getJpaTemplate().execute(new JpaCallback() {
-
-    public Object doInJpa(EntityManager em) throws PersistenceException {
-     //Query q = em.createQuery("SELECT h FROM " + entityClass.getName() + " h ORDER BY h." + orderByColumnName + " " + direction + "");
      String qString = "SELECT h FROM " + entityClass.getName() + " h";
      if( ! "".equals(orderByColumnName) &&  "".equals(direction) ){
     	 qString += " ORDER BY h." + orderByColumnName;  
@@ -302,14 +236,8 @@ public abstract class WaspDaoImpl<E extends Serializable> extends JpaDaoSupport 
      else if( ! "".equals(orderByColumnName) && ! "".equals(direction) ){
     	 qString += " ORDER BY h." + orderByColumnName + " " + direction;
      }
-     //logger.debug("ROBERT: " + qString);
-     Query q = em.createQuery(qString);
+     Query q = entityManager.createQuery(qString);
      return q.getResultList();
-    }
-
-   });
-
-   return (List) res;
   }
   
   private void setEditorId(E entity) {
@@ -323,22 +251,12 @@ public abstract class WaspDaoImpl<E extends Serializable> extends JpaDaoSupport 
 				   
 				 final String login = u.getUsername();
 				 
-				 Integer userId = (Integer)getJpaTemplate().execute(new JpaCallback() {
-
-					   public Object doInJpa(EntityManager em) throws PersistenceException {
-						   
-					    Query q = em.createNativeQuery("select userId from user where login=:login").setParameter("login",login);
-					    
-					    return (Integer)q.getSingleResult();
-					   }
-
-					  });
-				 
-				 
-				  method.invoke(entity, new Object[]{userId});		
+				 Integer userId = (Integer)entityManager.createNativeQuery("select userId from user where login=:login").setParameter("login",login).getSingleResult();
+	
+				 method.invoke(entity, new Object[]{userId});		
 			 }
 		 } catch (Throwable e) {
-			 
+			 log.warn("setEditorId() threw exeption: " + e.getMessage()  );
 		 }
 	 }
 	 
@@ -350,7 +268,7 @@ public abstract class WaspDaoImpl<E extends Serializable> extends JpaDaoSupport 
 			   method.invoke(entity, new Object[]{new Date()});		
 			 }
 		 } catch (Throwable e) {
-			
+			 log.warn("setUpdateTs() threw exeption: " + e.getMessage()  );
 		 }
 	 }
 	 

@@ -33,16 +33,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 public interface WaspDao<E> {
 
- // from JPADaoSupport
- // public javax.persistence.EntityManager getEntityManager();
- public void setEntityManager(javax.persistence.EntityManager entityManager);
-
- // public javax.persistence.EntityManagerFactory getEntityManagerFactory();
- public void setEntityManagerFactory(javax.persistence.EntityManagerFactory entityManagerFactory);
-
- // public JpaTemplate getJpaTemplate(); 
- public void setJpaTemplate(JpaTemplate jpaTemplate); 
-
  public void persist(E entity);
 
  public E save(E entity);
@@ -56,10 +46,10 @@ public interface WaspDao<E> {
  public E findById(int id);
  public E getById(int id);
  public E flush(E entity);
- public List findAll();
+ public List<E> findAll();
  public Integer removeAll();
 
- public List findByMap(Map m);
+ public List<E> findByMap(Map m);
  
  
  /**
@@ -75,7 +65,7 @@ public interface WaspDao<E> {
   * 
   * 	example use: List<Department> departmentList = this.getDepartmentService().findDistinctOrderBy("name", "name", "ASC");
   */
- public List findDistinctOrderBy(final String distinctColumnName, final String orderByColumnName, final String direction);
+ public List<E> findDistinctOrderBy(final String distinctColumnName, final String orderByColumnName, final String direction);
  
  /**
   * Generates and executes simple SQL statement that includes
@@ -88,7 +78,7 @@ public interface WaspDao<E> {
   * 
   *    example use: List<Department> departmentList = this.getDepartmentService().findAllOrderBy("name", "ASC");
   */
- public List findAllOrderBy(final String orderByColumnName, final String direction);
+ public List<E> findAllOrderBy(final String orderByColumnName, final String direction);
  
  
  /**
@@ -115,7 +105,7 @@ public interface WaspDao<E> {
   *	String direction = "ASC";
   *	List<Department> departmentList = this.getDepartmentService().findByMapDistinctOrderBy(whereConstraints, distinctConstraints, orderConstraints, direction);
   */
- public List findByMapDistinctOrderBy(final Map m, final List<String> distinctColumnNames, final List<String> orderByColumnNames, final String direction);
+ public List<E> findByMapDistinctOrderBy(final Map m, final List<String> distinctColumnNames, final List<String> orderByColumnNames, final String direction);
 
 }
 

@@ -102,19 +102,12 @@ public class LabPendingMetaDaoImpl extends WaspDaoImpl<LabPendingMeta> implement
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByLabpendingId (final String area, final int labpendingId, final List<LabPendingMeta> metaList) {
+		entityManager.createNativeQuery("delete from labpendingmeta where labpendingId=:labpendingId and k like :area").setParameter("labpendingId", labpendingId).setParameter("area", area + ".%").executeUpdate();
 
-		getJpaTemplate().execute(new JpaCallback() {
-
-			public Object doInJpa(EntityManager em) throws PersistenceException {
-				em.createNativeQuery("delete from labpendingmeta where labpendingId=:labpendingId and k like :area").setParameter("labpendingId", labpendingId).setParameter("area", area + ".%").executeUpdate();
-
-				for (LabPendingMeta m:metaList) {
-					m.setLabpendingId(labpendingId);
-					em.persist(m);
-				}
-        			return null;
-			}
-		});
+		for (LabPendingMeta m:metaList) {
+			m.setLabpendingId(labpendingId);
+			entityManager.persist(m);
+		}
 	}
 
 
@@ -128,19 +121,12 @@ public class LabPendingMetaDaoImpl extends WaspDaoImpl<LabPendingMeta> implement
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByLabpendingId (final int labpendingId, final List<LabPendingMeta> metaList) {
+		entityManager.createNativeQuery("delete from labpendingmeta where labpendingId=:labpendingId").setParameter("labpendingId", labpendingId).executeUpdate();
 
-		getJpaTemplate().execute(new JpaCallback() {
-
-			public Object doInJpa(EntityManager em) throws PersistenceException {
-				em.createNativeQuery("delete from labpendingmeta where labpendingId=:labpendingId").setParameter("labpendingId", labpendingId).executeUpdate();
-
-				for (LabPendingMeta m:metaList) {
-					m.setLabpendingId(labpendingId);
-					em.persist(m);
-				}
-        			return null;
-			}
-		});
+		for (LabPendingMeta m:metaList) {
+			m.setLabpendingId(labpendingId);
+			entityManager.persist(m);
+		}
 	}
 
 

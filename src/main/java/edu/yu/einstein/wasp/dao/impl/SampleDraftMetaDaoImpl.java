@@ -109,20 +109,13 @@ public class SampleDraftMetaDaoImpl extends WaspDaoImpl<SampleDraftMeta> impleme
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateBySampledraftId (final int sampledraftId, final List<SampleDraftMeta> metaList) {
+		entityManager.createNativeQuery("delete from sampledraftmeta where sampledraftId=:sampledraftId").setParameter("sampledraftId", sampledraftId).executeUpdate();
 
-		getJpaTemplate().execute(new JpaCallback() {
-
-			public Object doInJpa(EntityManager em) throws PersistenceException {
-				em.createNativeQuery("delete from sampledraftmeta where sampledraftId=:sampledraftId").setParameter("sampledraftId", sampledraftId).executeUpdate();
-
-				for (SampleDraftMeta m:metaList) {
-					m.setSampledraftId(sampledraftId);
-					em.persist(m);
-				}
-        			return null;
-			}
-		});
-	}
+		for (SampleDraftMeta m:metaList) {
+			m.setSampledraftId(sampledraftId);
+			entityManager.persist(m);
+		}
+ 	}
 
 	/**
 	 * returns list of meta fields allowed for the given workflowId
@@ -132,86 +125,76 @@ public class SampleDraftMetaDaoImpl extends WaspDaoImpl<SampleDraftMeta> impleme
 	
 	public Map<SubtypeSample,List<SampleDraftMeta>> getAllowableMetaFields(final int workflowId) {
 		
-		Map<SubtypeSample,List<SampleDraftMeta>> res = (Map<SubtypeSample,List<SampleDraftMeta>>)getJpaTemplate().execute(new JpaCallback() {
+	   String sql=
+		   "select master.area,master.name,master.pos,label.attrValue as label,error.attrValue as error,\n"+ 
+		   "control.attrValue as control,suffix.attrValue as suffix,constr.attrValue as 'constraint',\n"+
+		   "master.subtypesampleid, master.subtypeName\n"+
+		   "from \n"+
+		   "(select distinct f.area,f.name,convert(f.attrValue, signed) pos, st.subtypesampleid, st.name as subtypeName\n"+
+		   "from subtypesample st\n"+					   
+		   // "join uifield f on st.iname = concat(f.area,'Sample')\n"+ 
+		   "join uifield f on st.iname = f.area\n"+ 
+		   "and f.attrName='metaposition'\n"+
+		   "and f.locale='en_US'\n"+
+		   "where st.subtypesampleid in (\n"+
+		   "select st.subtypesampleid\n"+
+		   "from workflowsubtypesample wst\n"+
+		   "join subtypesample st on st.subtypesampleid = wst.subtypesampleid\n"+
+		   "where wst.workflowid=:workflowid\n"+
+		   ")\n"+
+		   ") as master\n"+
+		   "left outer join uifield label on master.area=label.area and master.name=label.name and label.attrName='label'\n"+
+		   "left outer join uifield error on master.area=error.area and master.name=error.name and label.attrName='error'\n"+
+		   "left outer join uifield control on master.area=control.area and master.name=control.name and label.attrName='control'\n"+
+		   "left outer join uifield suffix on master.area=suffix.area and master.name=suffix.name and label.attrName='suffix'\n"+
+		   "left outer join uifield constr on master.area=constr.area and master.name=constr.name and label.attrName='constraint'\n"+
+		   "order by master.pos\n";
 
-			   public Object doInJpa(EntityManager em) throws PersistenceException {
-				   
-				   String sql=
-					   "select master.area,master.name,master.pos,label.attrValue as label,error.attrValue as error,\n"+ 
-					   "control.attrValue as control,suffix.attrValue as suffix,constr.attrValue as 'constraint',\n"+
-					   "master.subtypesampleid, master.subtypeName\n"+
-					   "from \n"+
-					   "(select distinct f.area,f.name,convert(f.attrValue, signed) pos, st.subtypesampleid, st.name as subtypeName\n"+
-					   "from subtypesample st\n"+					   
-					   // "join uifield f on st.iname = concat(f.area,'Sample')\n"+ 
-					   "join uifield f on st.iname = f.area\n"+ 
-					   "and f.attrName='metaposition'\n"+
-					   "and f.locale='en_US'\n"+
-					   "where st.subtypesampleid in (\n"+
-					   "select st.subtypesampleid\n"+
-					   "from workflowsubtypesample wst\n"+
-					   "join subtypesample st on st.subtypesampleid = wst.subtypesampleid\n"+
-					   "where wst.workflowid=:workflowid\n"+
-					   ")\n"+
-					   ") as master\n"+
-					   "left outer join uifield label on master.area=label.area and master.name=label.name and label.attrName='label'\n"+
-					   "left outer join uifield error on master.area=error.area and master.name=error.name and label.attrName='error'\n"+
-					   "left outer join uifield control on master.area=control.area and master.name=control.name and label.attrName='control'\n"+
-					   "left outer join uifield suffix on master.area=suffix.area and master.name=suffix.name and label.attrName='suffix'\n"+
-					   "left outer join uifield constr on master.area=constr.area and master.name=constr.name and label.attrName='constraint'\n"+
-					   "order by master.pos\n";
-
-				   
-				   Map<SubtypeSample,List<SampleDraftMeta>> result=new LinkedHashMap<SubtypeSample,List<SampleDraftMeta>>();
-				   
-				   List<Object[]> listObj=em.createNativeQuery(sql).setParameter("workflowid", workflowId).getResultList();
-				   for(Object[] o:listObj) {
-					   
-					   String area=(String)o[0];
-					   String name=(String)o[1];
-					   BigInteger position=(BigInteger)o[2];
-					   String label=(String)o[3];
-					   String error=(String)o[4];
-					   String control=(String)o[5];
-					   String suffix=(String)o[6];
-					   String constraint=(String)o[7];
-					   Integer subtypeSampleId=(Integer)o[8];
-					   String subtypeName=(String)o[9];
-					   
-					   SampleDraftMeta m = new SampleDraftMeta();
-					   
-					   m.setK(area+"."+name);
-					   
-					   MetaAttribute attr = new MetaAttribute();					   
-					   m.setProperty(attr);
-					   
-					   attr.setMetaposition(position==null?-1:position.intValue());					   
-					   attr.setLabel(label);
-					   attr.setError(error);
-					   attr.setControl(MetaUtil.getControl(control));
-					   attr.setSuffix(suffix);
-					   attr.setConstraint(constraint);
-					   
-					   SubtypeSample subtypeNew=new SubtypeSample();
-					   subtypeNew.setSubtypeSampleId(subtypeSampleId);
-					   subtypeNew.setName(subtypeName);
-					   
-					   List<SampleDraftMeta> list=result.get(subtypeNew);
-					   
-					   if (list==null) {
-						   list=new ArrayList<SampleDraftMeta>();
-						   result.put(subtypeNew, list);
-					   }
-					   
-					   list.add(m);
-				   }
-				   return result;
-			   }
-
-			  });
-	
-			 
-		return res;
+	   
+	   Map<SubtypeSample,List<SampleDraftMeta>> result=new LinkedHashMap<SubtypeSample,List<SampleDraftMeta>>();
+	   
+	   List<Object[]> listObj=entityManager.createNativeQuery(sql).setParameter("workflowid", workflowId).getResultList();
+	   for(Object[] o:listObj) {
+		   
+		   String area=(String)o[0];
+		   String name=(String)o[1];
+		   BigInteger position=(BigInteger)o[2];
+		   String label=(String)o[3];
+		   String error=(String)o[4];
+		   String control=(String)o[5];
+		   String suffix=(String)o[6];
+		   String constraint=(String)o[7];
+		   Integer subtypeSampleId=(Integer)o[8];
+		   String subtypeName=(String)o[9];
+		   
+		   SampleDraftMeta m = new SampleDraftMeta();
+		   
+		   m.setK(area+"."+name);
+		   
+		   MetaAttribute attr = new MetaAttribute();					   
+		   m.setProperty(attr);
+		   
+		   attr.setMetaposition(position==null?-1:position.intValue());					   
+		   attr.setLabel(label);
+		   attr.setError(error);
+		   attr.setControl(MetaUtil.getControl(control));
+		   attr.setSuffix(suffix);
+		   attr.setConstraint(constraint);
+		   
+		   SubtypeSample subtypeNew=new SubtypeSample();
+		   subtypeNew.setSubtypeSampleId(subtypeSampleId);
+		   subtypeNew.setName(subtypeName);
+		   
+		   List<SampleDraftMeta> list=result.get(subtypeNew);
+		   
+		   if (list==null) {
+			   list=new ArrayList<SampleDraftMeta>();
+			   result.put(subtypeNew, list);
+		   }
+		   
+		   list.add(m);
+	   }
+	   return result;
 	}
 
 }

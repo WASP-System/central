@@ -102,19 +102,12 @@ public class RunMetaDaoImpl extends WaspDaoImpl<RunMeta> implements edu.yu.einst
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByRunId (final String area, final int runId, final List<RunMeta> metaList) {
+		entityManager.createNativeQuery("delete from runmeta where runId=:runId and k like :area").setParameter("runId", runId).setParameter("area", area + ".%").executeUpdate();
 
-		getJpaTemplate().execute(new JpaCallback() {
-
-			public Object doInJpa(EntityManager em) throws PersistenceException {
-				em.createNativeQuery("delete from runmeta where runId=:runId and k like :area").setParameter("runId", runId).setParameter("area", area + ".%").executeUpdate();
-
-				for (RunMeta m:metaList) {
-					m.setRunId(runId);
-					em.persist(m);
-				}
-        			return null;
-			}
-		});
+		for (RunMeta m:metaList) {
+			m.setRunId(runId);
+			entityManager.persist(m);
+		}
 	}
 
 
@@ -128,20 +121,13 @@ public class RunMetaDaoImpl extends WaspDaoImpl<RunMeta> implements edu.yu.einst
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByRunId (final int runId, final List<RunMeta> metaList) {
+		entityManager.createNativeQuery("delete from runmeta where runId=:runId").setParameter("runId", runId).executeUpdate();
 
-		getJpaTemplate().execute(new JpaCallback() {
-
-			public Object doInJpa(EntityManager em) throws PersistenceException {
-				em.createNativeQuery("delete from runmeta where runId=:runId").setParameter("runId", runId).executeUpdate();
-
-				for (RunMeta m:metaList) {
-					m.setRunId(runId);
-					em.persist(m);
-				}
-        			return null;
-			}
-		});
-	}
+		for (RunMeta m:metaList) {
+			m.setRunId(runId);
+			entityManager.persist(m);
+		}
+ 	}
 
 
 

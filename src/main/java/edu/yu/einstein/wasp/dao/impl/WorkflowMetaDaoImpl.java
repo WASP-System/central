@@ -102,20 +102,13 @@ public class WorkflowMetaDaoImpl extends WaspDaoImpl<WorkflowMeta> implements ed
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByWorkflowId (final String area, final int workflowId, final List<WorkflowMeta> metaList) {
+		entityManager.createNativeQuery("delete from workflowmeta where workflowId=:workflowId and k like :area").setParameter("workflowId", workflowId).setParameter("area", area + ".%").executeUpdate();
 
-		getJpaTemplate().execute(new JpaCallback() {
-
-			public Object doInJpa(EntityManager em) throws PersistenceException {
-				em.createNativeQuery("delete from workflowmeta where workflowId=:workflowId and k like :area").setParameter("workflowId", workflowId).setParameter("area", area + ".%").executeUpdate();
-
-				for (WorkflowMeta m:metaList) {
-					m.setWorkflowId(workflowId);
-					em.persist(m);
-				}
-        			return null;
-			}
-		});
-	}
+		for (WorkflowMeta m:metaList) {
+			m.setWorkflowId(workflowId);
+			entityManager.persist(m);
+		}
+ 	}
 
 
 	/**
@@ -128,19 +121,12 @@ public class WorkflowMetaDaoImpl extends WaspDaoImpl<WorkflowMeta> implements ed
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByWorkflowId (final int workflowId, final List<WorkflowMeta> metaList) {
+		entityManager.createNativeQuery("delete from workflowmeta where workflowId=:workflowId").setParameter("workflowId", workflowId).executeUpdate();
 
-		getJpaTemplate().execute(new JpaCallback() {
-
-			public Object doInJpa(EntityManager em) throws PersistenceException {
-				em.createNativeQuery("delete from workflowmeta where workflowId=:workflowId").setParameter("workflowId", workflowId).executeUpdate();
-
-				for (WorkflowMeta m:metaList) {
-					m.setWorkflowId(workflowId);
-					em.persist(m);
-				}
-        			return null;
-			}
-		});
+		for (WorkflowMeta m:metaList) {
+			m.setWorkflowId(workflowId);
+			entityManager.persist(m);
+		}
 	}
 
 

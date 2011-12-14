@@ -32,46 +32,29 @@ public class UiFieldDaoImpl extends WaspDaoImpl<UiField> implements edu.yu.einst
 
   //returns list of unique areas
   public List<String> getUniqueAreas() {
-	  Object res = getJpaTemplate().execute(new JpaCallback() {
-
-	   public Object doInJpa(EntityManager em) throws PersistenceException {
-		   String sql="SELECT DISTINCT area FROM  uifield ORDER BY area";
-	    Query q = em.createNativeQuery(sql);
-	    return q.getResultList();
-	   }
-
-	  });
-
-	  return (List<String>) res;
-	 }
+	String sql="SELECT DISTINCT area FROM  uifield ORDER BY area";
+    return entityManager.createNativeQuery(sql).getResultList();
+  }
   
   //returns true if a combination of locale, area, name, attrName already exists
   public boolean exists(final String locale, final String area, final String name, final String attrName) {
-	  Object res = getJpaTemplate().execute(new JpaCallback() {
-
-		   public Object doInJpa(EntityManager em) throws PersistenceException {
-			   String sql=
-				   
-				   	"select 1 from uifield \n"+
-				   	"where locale=:locale\n"+
-				   	"and area=:area\n"+
-				   	"and name=:name\n"+
-				   	"and attrname=:attrname\n";
-				 
-		    Query q = em.createNativeQuery(sql)
-		    .setParameter("locale", locale)
-		    .setParameter("area", area)
-		    .setParameter("name", name)
-		    .setParameter("attrname", attrName);
-		    
-		    return q.getResultList();
-		   }
-
-		  });
-
-		  return !((List)res).isEmpty();
+	String sql=
+		   
+		   	"select 1 from uifield \n"+
+		   	"where locale=:locale\n"+
+		   	"and area=:area\n"+
+		   	"and name=:name\n"+
+		   	"and attrname=:attrname\n";
+		 
+    Query q = entityManager.createNativeQuery(sql)
+    .setParameter("locale", locale)
+    .setParameter("area", area)
+    .setParameter("name", name)
+    .setParameter("attrname", attrName);
+    
+    return q.getResultList().isEmpty();
 		  
-	 }
+  }
 
   //utility functions to format SQL insert queries 
   private void process(StringBuffer result,String value) {
@@ -99,38 +82,26 @@ public class UiFieldDaoImpl extends WaspDaoImpl<UiField> implements edu.yu.einst
   public String dumpUiFieldTable() {
 	  
 	  final List<UiField> all = super.findAll();
-	  
-	  Object res = getJpaTemplate().execute(new JpaCallback() {
-
-		   public Object doInJpa(EntityManager em) throws PersistenceException {
 			   
-				  StringBuffer result = new StringBuffer("truncate table uifield;\n");
-				  
-				  for(UiField f:all) {
-					  result.append("insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values(");
-					  process(result,f.getLocale());
-					  result.append(",");
-					  process(result,f.getArea());
-					  result.append(",");
-					  process(result,f.getName());
-					  result.append(",");
-					  process(result,f.getAttrName());
-					  result.append(",");
-					  process(result,f.getAttrValue());
-					  result.append(",");
-					  process(result,1+"");
-					  result.append(");\n");
-				  }
-	              
-				  
-				  return result+"";
-		   }
-	  });
-		
-	  return (String)res;
+	  StringBuffer result = new StringBuffer("truncate table uifield;\n");
+	  
+	  for(UiField f:all) {
+		  result.append("insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values(");
+		  process(result,f.getLocale());
+		  result.append(",");
+		  process(result,f.getArea());
+		  result.append(",");
+		  process(result,f.getName());
+		  result.append(",");
+		  process(result,f.getAttrName());
+		  result.append(",");
+		  process(result,f.getAttrValue());
+		  result.append(",");
+		  process(result,1+"");
+		  result.append(");\n");
 	  }
-		   
-	
-  
+
+	  return result+"";
+  }
 }
 

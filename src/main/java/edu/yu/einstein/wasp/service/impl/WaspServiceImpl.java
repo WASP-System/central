@@ -17,19 +17,7 @@ public abstract class WaspServiceImpl<E> implements WaspService<E> {
     return this.waspDao;
   } 
 
-  public void setEntityManager(javax.persistence.EntityManager entityManager) {
-    this.getWaspDao().setEntityManager(entityManager);
-  }
-
-  public void setEntityManagerFactory(javax.persistence.EntityManagerFactory entityManagerFactory) {
-    this.getWaspDao().setEntityManagerFactory(entityManagerFactory);
-  }
-
-  public void setJpaTemplate(org.springframework.orm.jpa.JpaTemplate jpaTemplate) {
-    this.getWaspDao().setJpaTemplate(jpaTemplate);
-  }
- 
- 
+  
   public void persist(E entity) {
     this.getWaspDao().persist(entity);
   }

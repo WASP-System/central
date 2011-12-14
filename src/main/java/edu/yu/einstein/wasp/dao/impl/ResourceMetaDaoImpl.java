@@ -102,20 +102,13 @@ public class ResourceMetaDaoImpl extends WaspDaoImpl<ResourceMeta> implements ed
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByResourceId (final String area, final int resourceId, final List<ResourceMeta> metaList) {
+		entityManager.createNativeQuery("delete from resourcemeta where resourceId=:resourceId and k like :area").setParameter("resourceId", resourceId).setParameter("area", area + ".%").executeUpdate();
 
-		getJpaTemplate().execute(new JpaCallback() {
-
-			public Object doInJpa(EntityManager em) throws PersistenceException {
-				em.createNativeQuery("delete from resourcemeta where resourceId=:resourceId and k like :area").setParameter("resourceId", resourceId).setParameter("area", area + ".%").executeUpdate();
-
-				for (ResourceMeta m:metaList) {
-					m.setResourceId(resourceId);
-					em.persist(m);
-				}
-        			return null;
-			}
-		});
-	}
+		for (ResourceMeta m:metaList) {
+			m.setResourceId(resourceId);
+			entityManager.persist(m);
+		}
+ 	}
 
 
 	/**
@@ -128,20 +121,13 @@ public class ResourceMetaDaoImpl extends WaspDaoImpl<ResourceMeta> implements ed
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByResourceId (final int resourceId, final List<ResourceMeta> metaList) {
+		entityManager.createNativeQuery("delete from resourcemeta where resourceId=:resourceId").setParameter("resourceId", resourceId).executeUpdate();
 
-		getJpaTemplate().execute(new JpaCallback() {
-
-			public Object doInJpa(EntityManager em) throws PersistenceException {
-				em.createNativeQuery("delete from resourcemeta where resourceId=:resourceId").setParameter("resourceId", resourceId).executeUpdate();
-
-				for (ResourceMeta m:metaList) {
-					m.setResourceId(resourceId);
-					em.persist(m);
-				}
-        			return null;
-			}
-		});
-	}
+		for (ResourceMeta m:metaList) {
+			m.setResourceId(resourceId);
+			entityManager.persist(m);
+		}
+ 	}
 
 
 
