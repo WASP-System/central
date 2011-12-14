@@ -85,7 +85,7 @@
     </property>
   </bean>
 
-  <batch:job id="chipSeqStartSample" restartable="true">
+  <batch:job id="chipSeqStartSample">
     <batch:step id="chipSeqDna.receiveSample" parent="receiveSampleStateStep" next="chipSeqDna.waitForReceiveSample" />
     <batch:step id="chipSeqDna.waitForReceiveSample" parent="waitForReceiveSampleStateUpdated" next="chipSeqDna.createLibrary" />
 
