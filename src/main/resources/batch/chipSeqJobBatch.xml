@@ -51,7 +51,7 @@
     </bean>
   </si:service-activator>
 
-  <batch:job id="chipSeqStartJob" restartable="true">
+  <batch:job id="chipSeqStartJob">
     <batch:step id="chipSeq.startJob0" parent="createSampleReceiveStateStep" next="chipSeq.approvals" /> 
 
     <batch:split id="chipSeq.approvals" next="chipSeq.invoiceFlow" task-executor="asyncTaskExecutor">
