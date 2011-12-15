@@ -27,16 +27,16 @@
         *
         */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int confirmEmailAuthId;
+	protected Integer confirmEmailAuthId;
         
         /**
-        * setConfirmEmailAuthId(int confirmEmailAuthId)
+        * setConfirmEmailAuthId(Integer confirmEmailAuthId)
         *
         * @param confirmEmailAuthId
         *
         */
         
-        public void setConfirmEmailAuthId (int confirmEmailAuthId) {
+        public void setConfirmEmailAuthId (Integer confirmEmailAuthId) {
             this.confirmEmailAuthId = confirmEmailAuthId;
         }
         
@@ -46,7 +46,7 @@
         * @return confirmEmailAuthId
         *
         */
-        public int getConfirmEmailAuthId () {
+        public Integer getConfirmEmailAuthId () {
             return this.confirmEmailAuthId;
         }
         
@@ -182,16 +182,16 @@
         *
         */
 	@Column(name="lastupduser")
-	protected int lastUpdUser;
+	protected Integer lastUpdUser;
         
         /**
-        * setLastUpdUser(int lastUpdUser)
+        * setLastUpdUser(Integer lastUpdUser)
         *
         * @param lastUpdUser
         *
         */
         
-        public void setLastUpdUser (int lastUpdUser) {
+        public void setLastUpdUser (Integer lastUpdUser) {
             this.lastUpdUser = lastUpdUser;
         }
         
@@ -201,7 +201,7 @@
         * @return lastUpdUser
         *
         */
-        public int getLastUpdUser () {
+        public Integer getLastUpdUser () {
             return this.lastUpdUser;
         }
         

@@ -75,7 +75,7 @@ public class ResourceLoadService extends WaspLoadService {
     Resource resource = resourceService.getResourceByIName(iname); 
 
     // inserts or update workflow
-    if (resource.getResourceId() == 0) { 
+    if (resource.getResourceId() == null) { 
       resource = new Resource();
 
       resource.setIName(iname);

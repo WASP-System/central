@@ -24,7 +24,7 @@ public final class UiField implements Serializable {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	protected int uiFieldId;
+	protected Integer uiFieldId;
 
 	@NotEmpty
 	private String area;
@@ -44,11 +44,11 @@ public final class UiField implements Serializable {
 
 	
 
-	public int getUiFieldId() {
+	public Integer getUiFieldId() {
 		return uiFieldId;
 	}
 
-	public void setUiFieldId(int uiFieldId) {
+	public void setUiFieldId(Integer uiFieldId) {
 		this.uiFieldId = uiFieldId;
 	}
 
@@ -95,11 +95,11 @@ public final class UiField implements Serializable {
 
 
 	  @Column(name="lastupduser")
-	  protected int lastUpdUser;
-	  public void setLastUpdUser (int lastUpdUser) {
+	  protected Integer lastUpdUser;
+	  public void setLastUpdUser (Integer lastUpdUser) {
 	    this.lastUpdUser = lastUpdUser;
 	  }
-	  public int getLastUpdUser () {
+	  public Integer getLastUpdUser () {
 	    return this.lastUpdUser;
 	  }
 
@@ -117,7 +117,7 @@ public final class UiField implements Serializable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + uiFieldId;
+		result = prime * result + uiFieldId.intValue();
 		return result;
 	}
 
@@ -130,7 +130,7 @@ public final class UiField implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		UiField other = (UiField) obj;
-		if (uiFieldId != other.uiFieldId)
+		if (uiFieldId.intValue() != other.uiFieldId.intValue())
 			return false;
 		return true;
 	}

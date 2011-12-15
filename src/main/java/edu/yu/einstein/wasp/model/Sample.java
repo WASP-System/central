@@ -33,16 +33,16 @@ public class Sample extends WaspModel {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int sampleId;
+	protected Integer sampleId;
 
 	/**
-	 * setSampleId(int sampleId)
+	 * setSampleId(Integer sampleId)
 	 *
 	 * @param sampleId
 	 *
 	 */
 	
-	public void setSampleId (int sampleId) {
+	public void setSampleId (Integer sampleId) {
 		this.sampleId = sampleId;
 	}
 
@@ -52,7 +52,7 @@ public class Sample extends WaspModel {
 	 * @return sampleId
 	 *
 	 */
-	public int getSampleId () {
+	public Integer getSampleId () {
 		return this.sampleId;
 	}
 
@@ -64,16 +64,16 @@ public class Sample extends WaspModel {
 	 *
 	 */
 	@Column(name="typesampleid")
-	protected int typeSampleId;
+	protected Integer typeSampleId;
 
 	/**
-	 * setTypeSampleId(int typeSampleId)
+	 * setTypeSampleId(Integer typeSampleId)
 	 *
 	 * @param typeSampleId
 	 *
 	 */
 	
-	public void setTypeSampleId (int typeSampleId) {
+	public void setTypeSampleId (Integer typeSampleId) {
 		this.typeSampleId = typeSampleId;
 	}
 
@@ -83,7 +83,7 @@ public class Sample extends WaspModel {
 	 * @return typeSampleId
 	 *
 	 */
-	public int getTypeSampleId () {
+	public Integer getTypeSampleId () {
 		return this.typeSampleId;
 	}
 
@@ -126,16 +126,16 @@ public class Sample extends WaspModel {
 	 *
 	 */
 	@Column(name="submitter_labid")
-	protected int submitterLabId;
+	protected Integer submitterLabId;
 
 	/**
-	 * setSubmitterLabId(int submitterLabId)
+	 * setSubmitterLabId(Integer submitterLabId)
 	 *
 	 * @param submitterLabId
 	 *
 	 */
 	
-	public void setSubmitterLabId (int submitterLabId) {
+	public void setSubmitterLabId (Integer submitterLabId) {
 		this.submitterLabId = submitterLabId;
 	}
 
@@ -145,7 +145,7 @@ public class Sample extends WaspModel {
 	 * @return submitterLabId
 	 *
 	 */
-	public int getSubmitterLabId () {
+	public Integer getSubmitterLabId () {
 		return this.submitterLabId;
 	}
 
@@ -157,16 +157,16 @@ public class Sample extends WaspModel {
 	 *
 	 */
 	@Column(name="submitter_userid")
-	protected int submitterUserId;
+	protected Integer submitterUserId;
 
 	/**
-	 * setSubmitterUserId(int submitterUserId)
+	 * setSubmitterUserId(Integer submitterUserId)
 	 *
 	 * @param submitterUserId
 	 *
 	 */
 	
-	public void setSubmitterUserId (int submitterUserId) {
+	public void setSubmitterUserId (Integer submitterUserId) {
 		this.submitterUserId = submitterUserId;
 	}
 
@@ -176,7 +176,7 @@ public class Sample extends WaspModel {
 	 * @return submitterUserId
 	 *
 	 */
-	public int getSubmitterUserId () {
+	public Integer getSubmitterUserId () {
 		return this.submitterUserId;
 	}
 
@@ -219,16 +219,16 @@ public class Sample extends WaspModel {
 	 *
 	 */
 	@Column(name="isreceived")
-	protected int isReceived;
+	protected Integer isReceived;
 
 	/**
-	 * setIsReceived(int isReceived)
+	 * setIsReceived(Integer isReceived)
 	 *
 	 * @param isReceived
 	 *
 	 */
 	
-	public void setIsReceived (int isReceived) {
+	public void setIsReceived (Integer isReceived) {
 		this.isReceived = isReceived;
 	}
 
@@ -238,7 +238,7 @@ public class Sample extends WaspModel {
 	 * @return isReceived
 	 *
 	 */
-	public int getIsReceived () {
+	public Integer getIsReceived () {
 		return this.isReceived;
 	}
 
@@ -374,16 +374,16 @@ public class Sample extends WaspModel {
 	 *
 	 */
 	@Column(name="isactive")
-	protected int isActive;
+	protected Integer isActive;
 
 	/**
-	 * setIsActive(int isActive)
+	 * setIsActive(Integer isActive)
 	 *
 	 * @param isActive
 	 *
 	 */
 	
-	public void setIsActive (int isActive) {
+	public void setIsActive (Integer isActive) {
 		this.isActive = isActive;
 	}
 
@@ -393,7 +393,7 @@ public class Sample extends WaspModel {
 	 * @return isActive
 	 *
 	 */
-	public int getIsActive () {
+	public Integer getIsActive () {
 		return this.isActive;
 	}
 
@@ -436,16 +436,16 @@ public class Sample extends WaspModel {
 	 *
 	 */
 	@Column(name="lastupduser")
-	protected int lastUpdUser;
+	protected Integer lastUpdUser;
 
 	/**
-	 * setLastUpdUser(int lastUpdUser)
+	 * setLastUpdUser(Integer lastUpdUser)
 	 *
 	 * @param lastUpdUser
 	 *
 	 */
 	
-	public void setLastUpdUser (int lastUpdUser) {
+	public void setLastUpdUser (Integer lastUpdUser) {
 		this.lastUpdUser = lastUpdUser;
 	}
 
@@ -455,7 +455,7 @@ public class Sample extends WaspModel {
 	 * @return lastUpdUser
 	 *
 	 */
-	public int getLastUpdUser () {
+	public Integer getLastUpdUser () {
 		return this.lastUpdUser;
 	}
 

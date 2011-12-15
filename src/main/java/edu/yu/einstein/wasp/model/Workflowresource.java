@@ -33,16 +33,16 @@ public class Workflowresource extends WaspModel {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int workflowresourceId;
+	protected Integer workflowresourceId;
 
 	/**
-	 * setWorkflowresourceId(int workflowresourceId)
+	 * setWorkflowresourceId(Integer workflowresourceId)
 	 *
 	 * @param workflowresourceId
 	 *
 	 */
 	
-	public void setWorkflowresourceId (int workflowresourceId) {
+	public void setWorkflowresourceId (Integer workflowresourceId) {
 		this.workflowresourceId = workflowresourceId;
 	}
 
@@ -52,7 +52,7 @@ public class Workflowresource extends WaspModel {
 	 * @return workflowresourceId
 	 *
 	 */
-	public int getWorkflowresourceId () {
+	public Integer getWorkflowresourceId () {
 		return this.workflowresourceId;
 	}
 
@@ -64,16 +64,16 @@ public class Workflowresource extends WaspModel {
 	 *
 	 */
 	@Column(name="workflowid")
-	protected int workflowId;
+	protected Integer workflowId;
 
 	/**
-	 * setWorkflowId(int workflowId)
+	 * setWorkflowId(Integer workflowId)
 	 *
 	 * @param workflowId
 	 *
 	 */
 	
-	public void setWorkflowId (int workflowId) {
+	public void setWorkflowId (Integer workflowId) {
 		this.workflowId = workflowId;
 	}
 
@@ -83,7 +83,7 @@ public class Workflowresource extends WaspModel {
 	 * @return workflowId
 	 *
 	 */
-	public int getWorkflowId () {
+	public Integer getWorkflowId () {
 		return this.workflowId;
 	}
 
@@ -95,16 +95,16 @@ public class Workflowresource extends WaspModel {
 	 *
 	 */
 	@Column(name="resourceid")
-	protected int resourceId;
+	protected Integer resourceId;
 
 	/**
-	 * setResourceId(int resourceId)
+	 * setResourceId(Integer resourceId)
 	 *
 	 * @param resourceId
 	 *
 	 */
 	
-	public void setResourceId (int resourceId) {
+	public void setResourceId (Integer resourceId) {
 		this.resourceId = resourceId;
 	}
 
@@ -114,7 +114,7 @@ public class Workflowresource extends WaspModel {
 	 * @return resourceId
 	 *
 	 */
-	public int getResourceId () {
+	public Integer getResourceId () {
 		return this.resourceId;
 	}
 

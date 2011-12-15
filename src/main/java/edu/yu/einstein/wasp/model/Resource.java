@@ -33,16 +33,16 @@ public class Resource extends WaspModel {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int resourceId;
+	protected Integer resourceId;
 
 	/**
-	 * setResourceId(int resourceId)
+	 * setResourceId(Integer resourceId)
 	 *
 	 * @param resourceId
 	 *
 	 */
 	
-	public void setResourceId (int resourceId) {
+	public void setResourceId (Integer resourceId) {
 		this.resourceId = resourceId;
 	}
 
@@ -52,7 +52,7 @@ public class Resource extends WaspModel {
 	 * @return resourceId
 	 *
 	 */
-	public int getResourceId () {
+	public Integer getResourceId () {
 		return this.resourceId;
 	}
 
@@ -160,16 +160,16 @@ public class Resource extends WaspModel {
 	 */
 	@Column(name="typeresourceid")
 	@Range(min=1)
-	protected int typeResourceId;
+	protected Integer typeResourceId;
 
 	/**
-	 * setTypeResourceId(int typeResourceId)
+	 * setTypeResourceId(Integer typeResourceId)
 	 *
 	 * @param typeResourceId
 	 *
 	 */
 	
-	public void setTypeResourceId (int typeResourceId) {
+	public void setTypeResourceId (Integer typeResourceId) {
 		this.typeResourceId = typeResourceId;
 	}
 
@@ -179,7 +179,7 @@ public class Resource extends WaspModel {
 	 * @return typeResourceId
 	 *
 	 */
-	public int getTypeResourceId () {
+	public Integer getTypeResourceId () {
 		return this.typeResourceId;
 	}
 
@@ -191,16 +191,16 @@ public class Resource extends WaspModel {
 	 *
 	 */
 	@Column(name="isactive")
-	protected int isActive;
+	protected Integer isActive;
 
 	/**
-	 * setIsActive(int isActive)
+	 * setIsActive(Integer isActive)
 	 *
 	 * @param isActive
 	 *
 	 */
 	
-	public void setIsActive (int isActive) {
+	public void setIsActive (Integer isActive) {
 		this.isActive = isActive;
 	}
 
@@ -210,7 +210,7 @@ public class Resource extends WaspModel {
 	 * @return isActive
 	 *
 	 */
-	public int getIsActive () {
+	public Integer getIsActive () {
 		return this.isActive;
 	}
 
@@ -253,16 +253,16 @@ public class Resource extends WaspModel {
 	 *
 	 */
 	@Column(name="lastupduser")
-	protected int lastUpdUser;
+	protected Integer lastUpdUser;
 
 	/**
-	 * setLastUpdUser(int lastUpdUser)
+	 * setLastUpdUser(Integer lastUpdUser)
 	 *
 	 * @param lastUpdUser
 	 *
 	 */
 	
-	public void setLastUpdUser (int lastUpdUser) {
+	public void setLastUpdUser (Integer lastUpdUser) {
 		this.lastUpdUser = lastUpdUser;
 	}
 
@@ -272,7 +272,7 @@ public class Resource extends WaspModel {
 	 * @return lastUpdUser
 	 *
 	 */
-	public int getLastUpdUser () {
+	public Integer getLastUpdUser () {
 		return this.lastUpdUser;
 	}
 

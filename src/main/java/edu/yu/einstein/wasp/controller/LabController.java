@@ -231,7 +231,7 @@ public class LabController extends WaspController {
 										+ "</a>",
 								allDepts.get(lab.getDepartmentId()),
 
-								lab.getIsActive() == 1 ? "yes" : "no" }));
+								lab.getIsActive().intValue() == 1 ? "yes" : "no" }));
 
 				for (LabMeta meta : labMeta) {
 					cellList.add(meta.getV());
@@ -311,7 +311,7 @@ public class LabController extends WaspController {
 			int j = 0;
 			for (LabUser user : users) {
 
-				text = user.getUserId() == 0 ? "No Users"
+				text = user.getUserId() == null ? "No Users"
 						: "<a href=/wasp/user/list.do?selId="
 								+ user.getUserId() + ">"
 								+ user.getUser().getFirstName() + " "
@@ -322,35 +322,35 @@ public class LabController extends WaspController {
 			i++;
 			j = 0;
 			for (Project project : projects) {
-				text = project.getProjectId() == 0 ? "No Projects" : project.getName();
+				text = project.getProjectId() == null ? "No Projects" : project.getName();
 				mtrx[j][i] = text;
 				j++;
 			}
 			i++;
 			j = 0;
 			for (Sample sample : samples) {
-				text = sample.getSampleId() == 0 ? "No Samples" : sample.getName();
+				text = sample.getSampleId() == null ? "No Samples" : sample.getName();
 				mtrx[j][i] = text;
 				j++;
 			}
 			i++;
 			j = 0;
 			for (AcctGrant acc : accGrants) {
-				text = acc.getGrantId() == 0 ? "No Acc Grants" : acc.getName();
+				text = acc.getGrantId() == null ? "No Acc Grants" : acc.getName();
 				mtrx[j][i] = text;
 				j++;
 			}
 			i++;
 			j = 0;
 			for (SampleLab sampleLab : sampleLabs) {
-				text = sampleLab.getLab().getLabId() == 0 ? "No Sample Labs" : sampleLab.getLab().getName();
+				text = sampleLab.getLab().getLabId() == null ? "No Sample Labs" : sampleLab.getLab().getName();
 				mtrx[j][i] = text;
 				j++;
 			}
 			i++;
 			j = 0;
 			for (Job job : jobs) {
-				text = job.getJobId() == 0 ? "No Jobs" : job.getName();
+				text = job.getJobId() == null ? "No Jobs" : job.getName();
 				mtrx[j][i] = text;
 				j++;
 			}
@@ -381,8 +381,8 @@ public class LabController extends WaspController {
 		List<LabMeta> labMetaList = getMetaHelper().getFromJsonForm(request, LabMeta.class);
 
 		labForm.setLabMeta(labMetaList);
-
-		if (labId == 0) {
+		
+		if (labId == null) {
 
 			labForm.setLastUpdTs(new Date());
 			labForm.setIsActive(1);
@@ -419,7 +419,7 @@ public class LabController extends WaspController {
 
 		labPendingForm.setLabPendingMeta(labPendingMetaList);
 
-		if (labPendingId == 0) {
+		if (labPendingId == null) {
 
 			labPendingForm.setLastUpdTs(new Date());
 			// labPendingForm.setIsActive(1);
@@ -496,11 +496,11 @@ public class LabController extends WaspController {
 	public String pendingDetailRO(@PathVariable("deptId") Integer deptId,
 			@PathVariable("labPendingId") Integer labPendingId, ModelMap m) {
 		LabPending labPending = this.labPendingService.getLabPendingByLabPendingId(labPendingId);
-		if (labPending.getLabPendingId() == 0) {// labpendingId doesn't exist
+		if (labPending.getLabPendingId() == null) {// labpendingId doesn't exist
 			waspMessage("labPending.labpendingid_notexist.error");
 			return "redirect:/dashboard.do";
 		}
-		if (deptId != labPending.getDepartmentId()) {
+		if (deptId.intValue() != labPending.getDepartmentId().intValue()) {
 			waspMessage("labPending.departmentid_mismatch.error");
 			return "redirect:/dashboard.do";
 		} else if (!labPending.getStatus().equalsIgnoreCase("PENDING")) {
@@ -726,7 +726,7 @@ public class LabController extends WaspController {
 		User pi = new User();
 		for(LabUser labUser : (List<LabUser>) lab.getLabUser() ){
 			User currentUser = userService.getUserByUserId(labUser.getUserId());
-			if (currentUser.getUserId() == lab.getPrimaryUserId()){
+			if (currentUser.getUserId().intValue() == lab.getPrimaryUserId().intValue()){
 				pi = currentUser;
 			} else if (labUser.getRole().getRoleName().equals("lm")){
 				labManagers.add(currentUser);
@@ -792,7 +792,7 @@ public class LabController extends WaspController {
 
 		// if i am the user, reauth
 		User me = authenticationService.getAuthenticatedUser();
-		if (me.getUserId() == userId) {
+		if (me.getUserId().intValue() == userId.intValue()) {
 			doReauth();
 		}
 
@@ -873,7 +873,7 @@ public class LabController extends WaspController {
 		// if i am the p.i. reauth
 		User me = authenticationService.getAuthenticatedUser();
 
-		if (me.getUserId() == user.getUserId()) {
+		if (me.getUserId().intValue() == user.getUserId().intValue()) {
 			doReauth();
 		}
 
@@ -975,7 +975,9 @@ public class LabController extends WaspController {
 			if (userPendingCurrent.getLabId() != null) {
 				// not a PI application request
 				LabUser labUserCurrent = labUserService.getLabUserByLabIdUserId(userPendingCurrent.getLabId(),	userDb.getUserId());
-				if (labUserCurrent.getLabUserId() > 0) {
+				//NV 12132011
+				//if (labUserCurrent.getLabUserId() > 0) {
+				if (labUserCurrent.getLabUserId() != null) {
 					// already registered as a user of the requested lab
 					continue;
 				}
@@ -1025,11 +1027,11 @@ public class LabController extends WaspController {
 			return "redirect:/dashboard.do";
 		}
 		LabUser labUserPending = labUserService.getLabUserByLabUserId(labUserId);
-		if (labUserPending.getLabId() != labId){
+		if (labUserPending.getLabId().intValue() != labId.intValue()){
 			waspMessage("labuser.labUserNotFoundInLab.error");
 			return "redirect:/dashboard.do";
 		}
-		if (labUserPending.getRoleId() != roleService.getRoleByRoleName("lp").getRoleId() ) {
+		if (labUserPending.getRoleId().intValue() != roleService.getRoleByRoleName("lp").getRoleId().intValue() ) {
 			waspMessage("userPending.status_not_pending.error");
 			return "redirect:/dashboard.do";
 		}
@@ -1143,7 +1145,7 @@ public class LabController extends WaspController {
 			return "redirect:/department/dapendingtasklist.do";
 		}
 		
-		if (labPending.getDepartmentId() != deptId) {
+		if (labPending.getDepartmentId().intValue() != deptId.intValue()) {
 			waspMessage("labPending.departmentid_mismatch.error");
 			//return "redirect:/department/detail/" + deptId + ".do";
 			return "redirect:/department/dapendingtasklist.do";
@@ -1151,7 +1153,7 @@ public class LabController extends WaspController {
 
 		if ("approve".equals(action)) {
 			Lab lab = createLabFromLabPending(labPending);
-			if (lab.getLabId() == 0){
+			if (lab.getLabId() == null){
 				waspMessage("labPending.could_not_create_lab.error");
 				//return "redirect:/department/detail/" + deptId + ".do";
 				return "redirect:/department/dapendingtasklist.do";
@@ -1201,7 +1203,7 @@ public class LabController extends WaspController {
 			if (departmentId != null && !departmentId.isEmpty()){
 				labPendingMetaHelper.setMetaValueByName("billing_departmentId",departmentId);
 				labPending.setDepartmentId(Integer.valueOf(departmentId));
-				String internalExternal = (deptService.findById( Integer.valueOf(departmentId) ).getIsInternal() == 1) ? "internal" : "external";
+				String internalExternal = (deptService.findById( Integer.valueOf(departmentId) ).getIsInternal().intValue() == 1) ? "internal" : "external";
 				labPendingMetaHelper.setMetaValueByName("internal_external_lab", internalExternal);
 			}
 			labPendingMetaHelper.setMetaValueByName("billing_institution", userMetaHelper.getMetaByName("institution").getV());
@@ -1284,13 +1286,13 @@ public class LabController extends WaspController {
 		}
 		
 		User primaryUser = userService.getUserByLogin(primaryUserLogin);
-		if (primaryUser.getUserId() == 0) {
+		if (primaryUser.getUserId() == null) {
 			waspMessage("labuser.request_primaryuser.error");
 			return "redirect:/lab/newrequest.do";
 		}
 
 		Lab lab = labService.getLabByPrimaryUserId(primaryUser.getUserId());
-		if (lab.getLabId() == 0) {
+		if (lab.getLabId() == null) {
 			waspMessage("labuser.request_primaryuser.error");
 			return "redirect:/lab/newrequest.do";
 		}
@@ -1299,7 +1301,7 @@ public class LabController extends WaspController {
 		User me = authenticationService.getAuthenticatedUser();
 		LabUser labUser = labUserService.getLabUserByLabIdUserId(lab.getLabId(), me.getUserId());
 
-		if (labUser.getLabUserId() != 0) {
+		if (labUser.getLabUserId() != null) {
 			ArrayList<String> alreadyPendingRoles = new ArrayList();
 			alreadyPendingRoles.add("lp");
 			if (alreadyPendingRoles.contains(labUser.getRole().getRoleName())) {

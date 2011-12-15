@@ -33,16 +33,16 @@ public class JobDraftMeta extends MetaBase {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int jobDraftMetaId;
+	protected Integer jobDraftMetaId;
 
 	/**
-	 * setJobDraftMetaId(int jobDraftMetaId)
+	 * setJobDraftMetaId(Integer jobDraftMetaId)
 	 *
 	 * @param jobDraftMetaId
 	 *
 	 */
 	
-	public void setJobDraftMetaId (int jobDraftMetaId) {
+	public void setJobDraftMetaId (Integer jobDraftMetaId) {
 		this.jobDraftMetaId = jobDraftMetaId;
 	}
 
@@ -52,7 +52,7 @@ public class JobDraftMeta extends MetaBase {
 	 * @return jobDraftMetaId
 	 *
 	 */
-	public int getJobDraftMetaId () {
+	public Integer getJobDraftMetaId () {
 		return this.jobDraftMetaId;
 	}
 
@@ -64,16 +64,16 @@ public class JobDraftMeta extends MetaBase {
 	 *
 	 */
 	@Column(name="jobdraftid")
-	protected int jobdraftId;
+	protected Integer jobdraftId;
 
 	/**
-	 * setJobdraftId(int jobdraftId)
+	 * setJobdraftId(Integer jobdraftId)
 	 *
 	 * @param jobdraftId
 	 *
 	 */
 	
-	public void setJobdraftId (int jobdraftId) {
+	public void setJobdraftId (Integer jobdraftId) {
 		this.jobdraftId = jobdraftId;
 	}
 
@@ -83,7 +83,7 @@ public class JobDraftMeta extends MetaBase {
 	 * @return jobdraftId
 	 *
 	 */
-	public int getJobdraftId () {
+	public Integer getJobdraftId () {
 		return this.jobdraftId;
 	}
 

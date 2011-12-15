@@ -33,16 +33,16 @@ public class RunMeta extends MetaBase {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int runMetaId;
+	protected Integer runMetaId;
 
 	/**
-	 * setRunMetaId(int runMetaId)
+	 * setRunMetaId(Integer runMetaId)
 	 *
 	 * @param runMetaId
 	 *
 	 */
 	
-	public void setRunMetaId (int runMetaId) {
+	public void setRunMetaId (Integer runMetaId) {
 		this.runMetaId = runMetaId;
 	}
 
@@ -52,7 +52,7 @@ public class RunMeta extends MetaBase {
 	 * @return runMetaId
 	 *
 	 */
-	public int getRunMetaId () {
+	public Integer getRunMetaId () {
 		return this.runMetaId;
 	}
 
@@ -64,16 +64,16 @@ public class RunMeta extends MetaBase {
 	 *
 	 */
 	@Column(name="runid")
-	protected int runId;
+	protected Integer runId;
 
 	/**
-	 * setRunId(int runId)
+	 * setRunId(Integer runId)
 	 *
 	 * @param runId
 	 *
 	 */
 	
-	public void setRunId (int runId) {
+	public void setRunId (Integer runId) {
 		this.runId = runId;
 	}
 
@@ -83,7 +83,7 @@ public class RunMeta extends MetaBase {
 	 * @return runId
 	 *
 	 */
-	public int getRunId () {
+	public Integer getRunId () {
 		return this.runId;
 	}
 

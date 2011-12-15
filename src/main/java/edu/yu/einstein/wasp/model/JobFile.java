@@ -33,16 +33,16 @@ public class JobFile extends WaspModel {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int jobFileId;
+	protected Integer jobFileId;
 
 	/**
-	 * setJobFileId(int jobFileId)
+	 * setJobFileId(Integer jobFileId)
 	 *
 	 * @param jobFileId
 	 *
 	 */
 	
-	public void setJobFileId (int jobFileId) {
+	public void setJobFileId (Integer jobFileId) {
 		this.jobFileId = jobFileId;
 	}
 
@@ -52,7 +52,7 @@ public class JobFile extends WaspModel {
 	 * @return jobFileId
 	 *
 	 */
-	public int getJobFileId () {
+	public Integer getJobFileId () {
 		return this.jobFileId;
 	}
 
@@ -64,16 +64,16 @@ public class JobFile extends WaspModel {
 	 *
 	 */
 	@Column(name="jobid")
-	protected int jobId;
+	protected Integer jobId;
 
 	/**
-	 * setJobId(int jobId)
+	 * setJobId(Integer jobId)
 	 *
 	 * @param jobId
 	 *
 	 */
 	
-	public void setJobId (int jobId) {
+	public void setJobId (Integer jobId) {
 		this.jobId = jobId;
 	}
 
@@ -83,7 +83,7 @@ public class JobFile extends WaspModel {
 	 * @return jobId
 	 *
 	 */
-	public int getJobId () {
+	public Integer getJobId () {
 		return this.jobId;
 	}
 
@@ -95,16 +95,16 @@ public class JobFile extends WaspModel {
 	 *
 	 */
 	@Column(name="fileid")
-	protected int fileId;
+	protected Integer fileId;
 
 	/**
-	 * setFileId(int fileId)
+	 * setFileId(Integer fileId)
 	 *
 	 * @param fileId
 	 *
 	 */
 	
-	public void setFileId (int fileId) {
+	public void setFileId (Integer fileId) {
 		this.fileId = fileId;
 	}
 
@@ -114,7 +114,7 @@ public class JobFile extends WaspModel {
 	 * @return fileId
 	 *
 	 */
-	public int getFileId () {
+	public Integer getFileId () {
 		return this.fileId;
 	}
 
@@ -219,16 +219,16 @@ public class JobFile extends WaspModel {
 	 *
 	 */
 	@Column(name="isactive")
-	protected int isActive;
+	protected Integer isActive;
 
 	/**
-	 * setIsActive(int isActive)
+	 * setIsActive(Integer isActive)
 	 *
 	 * @param isActive
 	 *
 	 */
 	
-	public void setIsActive (int isActive) {
+	public void setIsActive (Integer isActive) {
 		this.isActive = isActive;
 	}
 
@@ -238,7 +238,7 @@ public class JobFile extends WaspModel {
 	 * @return isActive
 	 *
 	 */
-	public int getIsActive () {
+	public Integer getIsActive () {
 		return this.isActive;
 	}
 
@@ -281,16 +281,16 @@ public class JobFile extends WaspModel {
 	 *
 	 */
 	@Column(name="lastupduser")
-	protected int lastUpdUser;
+	protected Integer lastUpdUser;
 
 	/**
-	 * setLastUpdUser(int lastUpdUser)
+	 * setLastUpdUser(Integer lastUpdUser)
 	 *
 	 * @param lastUpdUser
 	 *
 	 */
 	
-	public void setLastUpdUser (int lastUpdUser) {
+	public void setLastUpdUser (Integer lastUpdUser) {
 		this.lastUpdUser = lastUpdUser;
 	}
 
@@ -300,7 +300,7 @@ public class JobFile extends WaspModel {
 	 * @return lastUpdUser
 	 *
 	 */
-	public int getLastUpdUser () {
+	public Integer getLastUpdUser () {
 		return this.lastUpdUser;
 	}
 

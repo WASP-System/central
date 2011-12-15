@@ -33,16 +33,16 @@ public class DepartmentUser extends WaspModel {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int departmentUserId;
+	protected Integer departmentUserId;
 
 	/**
-	 * setDepartmentUserId(int departmentUserId)
+	 * setDepartmentUserId(Integer departmentUserId)
 	 *
 	 * @param departmentUserId
 	 *
 	 */
 	
-	public void setDepartmentUserId (int departmentUserId) {
+	public void setDepartmentUserId (Integer departmentUserId) {
 		this.departmentUserId = departmentUserId;
 	}
 
@@ -52,7 +52,7 @@ public class DepartmentUser extends WaspModel {
 	 * @return departmentUserId
 	 *
 	 */
-	public int getDepartmentUserId () {
+	public Integer getDepartmentUserId () {
 		return this.departmentUserId;
 	}
 
@@ -64,16 +64,16 @@ public class DepartmentUser extends WaspModel {
 	 *
 	 */
 	@Column(name="departmentid")
-	protected int departmentId;
+	protected Integer departmentId;
 
 	/**
-	 * setDepartmentId(int departmentId)
+	 * setDepartmentId(Integer departmentId)
 	 *
 	 * @param departmentId
 	 *
 	 */
 	
-	public void setDepartmentId (int departmentId) {
+	public void setDepartmentId (Integer departmentId) {
 		this.departmentId = departmentId;
 	}
 
@@ -83,7 +83,7 @@ public class DepartmentUser extends WaspModel {
 	 * @return departmentId
 	 *
 	 */
-	public int getDepartmentId () {
+	public Integer getDepartmentId () {
 		return this.departmentId;
 	}
 
@@ -95,16 +95,16 @@ public class DepartmentUser extends WaspModel {
 	 *
 	 */
 	@Column(name="userid")
-	protected int UserId;
+	protected Integer UserId;
 
 	/**
-	 * setUserId(int UserId)
+	 * setUserId(Integer UserId)
 	 *
 	 * @param UserId
 	 *
 	 */
 	
-	public void setUserId (int UserId) {
+	public void setUserId (Integer UserId) {
 		this.UserId = UserId;
 	}
 
@@ -114,7 +114,7 @@ public class DepartmentUser extends WaspModel {
 	 * @return UserId
 	 *
 	 */
-	public int getUserId () {
+	public Integer getUserId () {
 		return this.UserId;
 	}
 
@@ -157,16 +157,16 @@ public class DepartmentUser extends WaspModel {
 	 *
 	 */
 	@Column(name="lastupduser")
-	protected int lastUpdUser;
+	protected Integer lastUpdUser;
 
 	/**
-	 * setLastUpdUser(int lastUpdUser)
+	 * setLastUpdUser(Integer lastUpdUser)
 	 *
 	 * @param lastUpdUser
 	 *
 	 */
 	
-	public void setLastUpdUser (int lastUpdUser) {
+	public void setLastUpdUser (Integer lastUpdUser) {
 		this.lastUpdUser = lastUpdUser;
 	}
 
@@ -176,7 +176,7 @@ public class DepartmentUser extends WaspModel {
 	 * @return lastUpdUser
 	 *
 	 */
-	public int getLastUpdUser () {
+	public Integer getLastUpdUser () {
 		return this.lastUpdUser;
 	}
 

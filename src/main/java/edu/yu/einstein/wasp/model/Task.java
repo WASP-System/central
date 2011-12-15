@@ -33,16 +33,16 @@ public class Task extends WaspModel {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int taskId;
+	protected Integer taskId;
 
 	/**
-	 * setTaskId(int taskId)
+	 * setTaskId(Integer taskId)
 	 *
 	 * @param taskId
 	 *
 	 */
 	
-	public void setTaskId (int taskId) {
+	public void setTaskId (Integer taskId) {
 		this.taskId = taskId;
 	}
 
@@ -52,7 +52,7 @@ public class Task extends WaspModel {
 	 * @return taskId
 	 *
 	 */
-	public int getTaskId () {
+	public Integer getTaskId () {
 		return this.taskId;
 	}
 

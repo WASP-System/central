@@ -33,16 +33,16 @@ public class LabUser extends WaspModel {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int labUserId;
+	protected Integer labUserId;
 
 	/**
-	 * setLabUserId(int labUserId)
+	 * setLabUserId(Integer labUserId)
 	 *
 	 * @param labUserId
 	 *
 	 */
 	
-	public void setLabUserId (int labUserId) {
+	public void setLabUserId (Integer labUserId) {
 		this.labUserId = labUserId;
 	}
 
@@ -52,7 +52,7 @@ public class LabUser extends WaspModel {
 	 * @return labUserId
 	 *
 	 */
-	public int getLabUserId () {
+	public Integer getLabUserId () {
 		return this.labUserId;
 	}
 
@@ -64,16 +64,16 @@ public class LabUser extends WaspModel {
 	 *
 	 */
 	@Column(name="labid")
-	protected int labId;
+	protected Integer labId;
 
 	/**
-	 * setLabId(int labId)
+	 * setLabId(Integer labId)
 	 *
 	 * @param labId
 	 *
 	 */
 	
-	public void setLabId (int labId) {
+	public void setLabId (Integer labId) {
 		this.labId = labId;
 	}
 
@@ -83,7 +83,7 @@ public class LabUser extends WaspModel {
 	 * @return labId
 	 *
 	 */
-	public int getLabId () {
+	public Integer getLabId () {
 		return this.labId;
 	}
 
@@ -95,16 +95,16 @@ public class LabUser extends WaspModel {
 	 *
 	 */
 	@Column(name="userid")
-	protected int UserId;
+	protected Integer UserId;
 
 	/**
-	 * setUserId(int UserId)
+	 * setUserId(Integer UserId)
 	 *
 	 * @param UserId
 	 *
 	 */
 	
-	public void setUserId (int UserId) {
+	public void setUserId (Integer UserId) {
 		this.UserId = UserId;
 	}
 
@@ -114,7 +114,7 @@ public class LabUser extends WaspModel {
 	 * @return UserId
 	 *
 	 */
-	public int getUserId () {
+	public Integer getUserId () {
 		return this.UserId;
 	}
 
@@ -126,16 +126,16 @@ public class LabUser extends WaspModel {
 	 *
 	 */
 	@Column(name="roleid")
-	protected int roleId;
+	protected Integer roleId;
 
 	/**
-	 * setRoleId(int roleId)
+	 * setRoleId(Integer roleId)
 	 *
 	 * @param roleId
 	 *
 	 */
 	
-	public void setRoleId (int roleId) {
+	public void setRoleId (Integer roleId) {
 		this.roleId = roleId;
 	}
 
@@ -145,7 +145,7 @@ public class LabUser extends WaspModel {
 	 * @return roleId
 	 *
 	 */
-	public int getRoleId () {
+	public Integer getRoleId () {
 		return this.roleId;
 	}
 
@@ -188,16 +188,16 @@ public class LabUser extends WaspModel {
 	 *
 	 */
 	@Column(name="lastupduser")
-	protected int lastUpdUser;
+	protected Integer lastUpdUser;
 
 	/**
-	 * setLastUpdUser(int lastUpdUser)
+	 * setLastUpdUser(Integer lastUpdUser)
 	 *
 	 * @param lastUpdUser
 	 *
 	 */
 	
-	public void setLastUpdUser (int lastUpdUser) {
+	public void setLastUpdUser (Integer lastUpdUser) {
 		this.lastUpdUser = lastUpdUser;
 	}
 
@@ -207,7 +207,7 @@ public class LabUser extends WaspModel {
 	 * @return lastUpdUser
 	 *
 	 */
-	public int getLastUpdUser () {
+	public Integer getLastUpdUser () {
 		return this.lastUpdUser;
 	}
 

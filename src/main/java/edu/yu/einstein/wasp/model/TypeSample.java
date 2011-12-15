@@ -33,16 +33,16 @@ public class TypeSample extends WaspModel {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int typeSampleId;
+	protected Integer typeSampleId;
 
 	/**
-	 * setTypeSampleId(int typeSampleId)
+	 * setTypeSampleId(Integer typeSampleId)
 	 *
 	 * @param typeSampleId
 	 *
 	 */
 	
-	public void setTypeSampleId (int typeSampleId) {
+	public void setTypeSampleId (Integer typeSampleId) {
 		this.typeSampleId = typeSampleId;
 	}
 
@@ -52,7 +52,7 @@ public class TypeSample extends WaspModel {
 	 * @return typeSampleId
 	 *
 	 */
-	public int getTypeSampleId () {
+	public Integer getTypeSampleId () {
 		return this.typeSampleId;
 	}
 

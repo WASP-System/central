@@ -33,16 +33,16 @@ public class Roleset extends WaspModel {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int rolesetId;
+	protected Integer rolesetId;
 
 	/**
-	 * setRolesetId(int rolesetId)
+	 * setRolesetId(Integer rolesetId)
 	 *
 	 * @param rolesetId
 	 *
 	 */
 	
-	public void setRolesetId (int rolesetId) {
+	public void setRolesetId (Integer rolesetId) {
 		this.rolesetId = rolesetId;
 	}
 
@@ -52,7 +52,7 @@ public class Roleset extends WaspModel {
 	 * @return rolesetId
 	 *
 	 */
-	public int getRolesetId () {
+	public Integer getRolesetId () {
 		return this.rolesetId;
 	}
 
@@ -64,16 +64,16 @@ public class Roleset extends WaspModel {
 	 *
 	 */
 	@Column(name="parentroleid")
-	protected int parentroleId;
+	protected Integer parentroleId;
 
 	/**
-	 * setParentroleId(int parentroleId)
+	 * setParentroleId(Integer parentroleId)
 	 *
 	 * @param parentroleId
 	 *
 	 */
 	
-	public void setParentroleId (int parentroleId) {
+	public void setParentroleId (Integer parentroleId) {
 		this.parentroleId = parentroleId;
 	}
 
@@ -83,7 +83,7 @@ public class Roleset extends WaspModel {
 	 * @return parentroleId
 	 *
 	 */
-	public int getParentroleId () {
+	public Integer getParentroleId () {
 		return this.parentroleId;
 	}
 
@@ -95,16 +95,16 @@ public class Roleset extends WaspModel {
 	 *
 	 */
 	@Column(name="childroleid")
-	protected int childroleId;
+	protected Integer childroleId;
 
 	/**
-	 * setChildroleId(int childroleId)
+	 * setChildroleId(Integer childroleId)
 	 *
 	 * @param childroleId
 	 *
 	 */
 	
-	public void setChildroleId (int childroleId) {
+	public void setChildroleId (Integer childroleId) {
 		this.childroleId = childroleId;
 	}
 
@@ -114,7 +114,7 @@ public class Roleset extends WaspModel {
 	 * @return childroleId
 	 *
 	 */
-	public int getChildroleId () {
+	public Integer getChildroleId () {
 		return this.childroleId;
 	}
 

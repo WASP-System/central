@@ -70,7 +70,7 @@ public final class MetaAttribute implements Serializable {
 		
 		private Control control;
 
-		private int metaposition;
+		private Integer metaposition;
 
 		public void setFormVisibility(FormVisibility formVisibility){
 			this.formVisibility = formVisibility;
@@ -104,11 +104,11 @@ public final class MetaAttribute implements Serializable {
 			this.constraint = constraint;
 		}
 
-		public int getMetaposition() {
+		public Integer getMetaposition() {
 			return metaposition;
 		}
 
-		public void setMetaposition(int metaposition) {
+		public void setMetaposition(Integer metaposition) {
 			this.metaposition = metaposition;
 		}
 
@@ -452,13 +452,13 @@ public final class MetaAttribute implements Serializable {
 			list.add(new Country("RO", "ROMANIA"));
 			list.add(new Country("RU", "RUSSIAN FEDERATION"));
 			list.add(new Country("RW", "RWANDA"));
-			list.add(new Country("BL", "SAINT BARTHELEMY"));
-			list.add(new Country("SH", "SAINT HELENA"));
-			list.add(new Country("KN", "SAINT KITTS AND NEVIS"));
-			list.add(new Country("LC", "SAINT LUCIA"));
-			list.add(new Country("MF", "SAINT MARTIN"));
-			list.add(new Country("PM", "SAINT PIERRE"));
-			list.add(new Country("VC", "SAINT VINCENT"));
+			list.add(new Country("BL", "SAInteger BARTHELEMY"));
+			list.add(new Country("SH", "SAInteger HELENA"));
+			list.add(new Country("KN", "SAInteger KITTS AND NEVIS"));
+			list.add(new Country("LC", "SAInteger LUCIA"));
+			list.add(new Country("MF", "SAInteger MARTIN"));
+			list.add(new Country("PM", "SAInteger PIERRE"));
+			list.add(new Country("VC", "SAInteger VINCENT"));
 			list.add(new Country("WS", "SAMOA"));
 			list.add(new Country("SM", "SAN MARINO"));
 			list.add(new Country("ST", "SAO TOME"));
@@ -468,7 +468,7 @@ public final class MetaAttribute implements Serializable {
 			list.add(new Country("SC", "SEYCHELLES"));
 			list.add(new Country("SL", "SIERRA LEONE"));
 			list.add(new Country("SG", "SINGAPORE"));
-			list.add(new Country("SX", "SINT MAARTEN"));
+			list.add(new Country("SX", "SInteger MAARTEN"));
 			list.add(new Country("SK", "SLOVAKIA"));
 			list.add(new Country("SI", "SLOVENIA"));
 			list.add(new Country("SB", "SOLOMON"));

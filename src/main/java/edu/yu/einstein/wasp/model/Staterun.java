@@ -33,16 +33,16 @@ public class Staterun extends WaspModel {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int staterunId;
+	protected Integer staterunId;
 
 	/**
-	 * setStaterunId(int staterunId)
+	 * setStaterunId(Integer staterunId)
 	 *
 	 * @param staterunId
 	 *
 	 */
 	
-	public void setStaterunId (int staterunId) {
+	public void setStaterunId (Integer staterunId) {
 		this.staterunId = staterunId;
 	}
 
@@ -52,7 +52,7 @@ public class Staterun extends WaspModel {
 	 * @return staterunId
 	 *
 	 */
-	public int getStaterunId () {
+	public Integer getStaterunId () {
 		return this.staterunId;
 	}
 
@@ -64,16 +64,16 @@ public class Staterun extends WaspModel {
 	 *
 	 */
 	@Column(name="stateid")
-	protected int stateId;
+	protected Integer stateId;
 
 	/**
-	 * setStateId(int stateId)
+	 * setStateId(Integer stateId)
 	 *
 	 * @param stateId
 	 *
 	 */
 	
-	public void setStateId (int stateId) {
+	public void setStateId (Integer stateId) {
 		this.stateId = stateId;
 	}
 
@@ -83,7 +83,7 @@ public class Staterun extends WaspModel {
 	 * @return stateId
 	 *
 	 */
-	public int getStateId () {
+	public Integer getStateId () {
 		return this.stateId;
 	}
 
@@ -95,16 +95,16 @@ public class Staterun extends WaspModel {
 	 *
 	 */
 	@Column(name="runid")
-	protected int runId;
+	protected Integer runId;
 
 	/**
-	 * setRunId(int runId)
+	 * setRunId(Integer runId)
 	 *
 	 * @param runId
 	 *
 	 */
 	
-	public void setRunId (int runId) {
+	public void setRunId (Integer runId) {
 		this.runId = runId;
 	}
 
@@ -114,7 +114,7 @@ public class Staterun extends WaspModel {
 	 * @return runId
 	 *
 	 */
-	public int getRunId () {
+	public Integer getRunId () {
 		return this.runId;
 	}
 

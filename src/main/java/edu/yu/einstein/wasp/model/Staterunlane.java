@@ -33,16 +33,16 @@ public class Staterunlane extends WaspModel {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int staterunlaneId;
+	protected Integer staterunlaneId;
 
 	/**
-	 * setStaterunlaneId(int staterunlaneId)
+	 * setStaterunlaneId(Integer staterunlaneId)
 	 *
 	 * @param staterunlaneId
 	 *
 	 */
 	
-	public void setStaterunlaneId (int staterunlaneId) {
+	public void setStaterunlaneId (Integer staterunlaneId) {
 		this.staterunlaneId = staterunlaneId;
 	}
 
@@ -52,7 +52,7 @@ public class Staterunlane extends WaspModel {
 	 * @return staterunlaneId
 	 *
 	 */
-	public int getStaterunlaneId () {
+	public Integer getStaterunlaneId () {
 		return this.staterunlaneId;
 	}
 
@@ -64,16 +64,16 @@ public class Staterunlane extends WaspModel {
 	 *
 	 */
 	@Column(name="stateid")
-	protected int stateId;
+	protected Integer stateId;
 
 	/**
-	 * setStateId(int stateId)
+	 * setStateId(Integer stateId)
 	 *
 	 * @param stateId
 	 *
 	 */
 	
-	public void setStateId (int stateId) {
+	public void setStateId (Integer stateId) {
 		this.stateId = stateId;
 	}
 
@@ -83,7 +83,7 @@ public class Staterunlane extends WaspModel {
 	 * @return stateId
 	 *
 	 */
-	public int getStateId () {
+	public Integer getStateId () {
 		return this.stateId;
 	}
 
@@ -95,16 +95,16 @@ public class Staterunlane extends WaspModel {
 	 *
 	 */
 	@Column(name="runlaneid")
-	protected int runlaneId;
+	protected Integer runlaneId;
 
 	/**
-	 * setRunlaneId(int runlaneId)
+	 * setRunlaneId(Integer runlaneId)
 	 *
 	 * @param runlaneId
 	 *
 	 */
 	
-	public void setRunlaneId (int runlaneId) {
+	public void setRunlaneId (Integer runlaneId) {
 		this.runlaneId = runlaneId;
 	}
 
@@ -114,7 +114,7 @@ public class Staterunlane extends WaspModel {
 	 * @return runlaneId
 	 *
 	 */
-	public int getRunlaneId () {
+	public Integer getRunlaneId () {
 		return this.runlaneId;
 	}
 

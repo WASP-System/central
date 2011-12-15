@@ -33,16 +33,16 @@ public class LabMeta extends MetaBase {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int labMetaId;
+	protected Integer labMetaId;
 
 	/**
-	 * setLabMetaId(int labMetaId)
+	 * setLabMetaId(Integer labMetaId)
 	 *
 	 * @param labMetaId
 	 *
 	 */
 	
-	public void setLabMetaId (int labMetaId) {
+	public void setLabMetaId (Integer labMetaId) {
 		this.labMetaId = labMetaId;
 	}
 
@@ -52,7 +52,7 @@ public class LabMeta extends MetaBase {
 	 * @return labMetaId
 	 *
 	 */
-	public int getLabMetaId () {
+	public Integer getLabMetaId () {
 		return this.labMetaId;
 	}
 
@@ -64,16 +64,16 @@ public class LabMeta extends MetaBase {
 	 *
 	 */
 	@Column(name="labid")
-	protected int labId;
+	protected Integer labId;
 
 	/**
-	 * setLabId(int labId)
+	 * setLabId(Integer labId)
 	 *
 	 * @param labId
 	 *
 	 */
 	
-	public void setLabId (int labId) {
+	public void setLabId (Integer labId) {
 		this.labId = labId;
 	}
 
@@ -83,7 +83,7 @@ public class LabMeta extends MetaBase {
 	 * @return labId
 	 *
 	 */
-	public int getLabId () {
+	public Integer getLabId () {
 		return this.labId;
 	}
 

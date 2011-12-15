@@ -33,16 +33,16 @@ public class UserPending extends WaspModel {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int userPendingId;
+	protected Integer userPendingId;
 
 	/**
-	 * setUserPendingId(int userPendingId)
+	 * setUserPendingId(Integer userPendingId)
 	 *
 	 * @param userPendingId
 	 *
 	 */
 	
-	public void setUserPendingId (int userPendingId) {
+	public void setUserPendingId (Integer userPendingId) {
 		this.userPendingId = userPendingId;
 	}
 
@@ -52,7 +52,7 @@ public class UserPending extends WaspModel {
 	 * @return userPendingId
 	 *
 	 */
-	public int getUserPendingId () {
+	public Integer getUserPendingId () {
 		return this.userPendingId;
 	}
 
@@ -349,16 +349,16 @@ public class UserPending extends WaspModel {
 	 *
 	 */
 	@Column(name="lastupduser")
-	protected int lastUpdUser;
+	protected Integer lastUpdUser;
 
 	/**
-	 * setLastUpdUser(int lastUpdUser)
+	 * setLastUpdUser(Integer lastUpdUser)
 	 *
 	 * @param lastUpdUser
 	 *
 	 */
 	
-	public void setLastUpdUser (int lastUpdUser) {
+	public void setLastUpdUser (Integer lastUpdUser) {
 		this.lastUpdUser = lastUpdUser;
 	}
 
@@ -368,7 +368,7 @@ public class UserPending extends WaspModel {
 	 * @return lastUpdUser
 	 *
 	 */
-	public int getLastUpdUser () {
+	public Integer getLastUpdUser () {
 		return this.lastUpdUser;
 	}
 

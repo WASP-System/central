@@ -74,7 +74,7 @@ public class AuthController extends WaspController {
 	  if (authenticationService.isAuthenticated()){
 		  User authUser = authenticationService.getAuthenticatedUser();
 		  ConfirmEmailAuth confirmEmailAuth = confirmEmailAuthService.getConfirmEmailAuthByUserId(authUser.getUserId());
-		  if (confirmEmailAuth.getConfirmEmailAuthId() != 0){
+		  if (confirmEmailAuth.getConfirmEmailAuthId() != null){
 			  // email awaiting confirmation for this user
 			  authenticationService.logoutUser();
 			  return "redirect:/auth/confirmemail/emailchanged.do";
@@ -150,7 +150,7 @@ public class AuthController extends WaspController {
 		  return "auth/resetpassword/request";
 	  }
 	  
-	  if (user==null || user.getUserId()==0)  {
+	  if (user==null || user.getUserId() == null)  {
 		  waspMessage("auth.resetpasswordRequest_username.error");
 		  return "auth/resetpassword/request";
 	  }
@@ -169,7 +169,7 @@ public class AuthController extends WaspController {
 	  }
 		  
 	  Userpasswordauth userpasswordauth   = userpasswordauthService.getUserpasswordauthByAuthcode(authCode);
-	  if (userpasswordauth.getUserId() == 0){
+	  if (userpasswordauth.getUserId() == null){
 		  waspMessage("auth.resetpassword_badauthcode.error");
 		  return "auth/resetpassword/authcodeform";
 	  }
@@ -220,18 +220,18 @@ public class AuthController extends WaspController {
     Userpasswordauth userpasswordauth   = userpasswordauthService.getUserpasswordauthByAuthcode(authCode);
     User user = userService.getUserByLogin(username);
     
-    if (user.getUserId() == 0) {
+    if (user.getUserId() == null) {
         waspMessage("auth.resetpassword_username.error");
         m.put("authcode", authCode);
         return "auth/resetpassword/form";
      }
     
-    if (userpasswordauth.getUserId() == 0){
+    if (userpasswordauth.getUserId() == null){
     	waspMessage("auth.resetpassword_badauthcode.error");
     	return "auth/resetpassword/authcodeform";
     }
 
-    if (user.getUserId() != userpasswordauth.getUserId()) {
+    if (user.getUserId().intValue() != userpasswordauth.getUserId().intValue()) {
     	m.put("authcode", authCode);
     	waspMessage("auth.resetpassword_wronguser.error");
     	return "auth/resetpassword/authcodeform";
@@ -274,7 +274,7 @@ public class AuthController extends WaspController {
 		return false;
 	}
 	ConfirmEmailAuth confirmEmailAuth = confirmEmailAuthService.getConfirmEmailAuthByAuthcode(authCode);
-	if (email == null || email.isEmpty() || confirmEmailAuth.getConfirmEmailAuthId() == 0) {
+	if (email == null || email.isEmpty() || confirmEmailAuth.getConfirmEmailAuthId() == null) {
 		waspMessage("auth.confirmemail_bademail.error");
 		if (m != null) m.put("authcode", authCode);
 		return false;
@@ -376,7 +376,7 @@ public class AuthController extends WaspController {
 		Map userQueryMap = new HashMap();
 		userQueryMap.put("email", email);
 		User user = userService.getUserByEmail(email);
-		if (user.getUserId() == 0){
+		if (user.getUserId() == null){
 			waspMessage("auth.confirmemail_bademail.error");
 			m.addAttribute("isAdminCreated", isAdminCreated);
 			return "auth/confirmemail/authcodeform"; 

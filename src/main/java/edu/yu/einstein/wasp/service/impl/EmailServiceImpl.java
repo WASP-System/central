@@ -230,7 +230,7 @@ public class EmailServiceImpl implements EmailService {
 		// send email to PI and all lab managers in the requested lab
 		Map labManagerQueryMap = new HashMap();
 		for (Lab lab : primaryUser.getLab()){
-			if (lab.getPrimaryUserId() == primaryUser.getUserId()){
+			if (lab.getPrimaryUserId().intValue() == primaryUser.getUserId().intValue()){
 				labManagerQueryMap.put("labId", lab.getLabId());
 				model.put("lab", lab);
 				break;

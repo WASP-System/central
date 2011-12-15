@@ -33,16 +33,16 @@ public class File extends WaspModel {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int fileId;
+	protected Integer fileId;
 
 	/**
-	 * setFileId(int fileId)
+	 * setFileId(Integer fileId)
 	 *
 	 * @param fileId
 	 *
 	 */
 	
-	public void setFileId (int fileId) {
+	public void setFileId (Integer fileId) {
 		this.fileId = fileId;
 	}
 
@@ -52,7 +52,7 @@ public class File extends WaspModel {
 	 * @return fileId
 	 *
 	 */
-	public int getFileId () {
+	public Integer getFileId () {
 		return this.fileId;
 	}
 
@@ -126,16 +126,16 @@ public class File extends WaspModel {
 	 *
 	 */
 	@Column(name="sizek")
-	protected int sizek;
+	protected Integer sizek;
 
 	/**
-	 * setSizek(int sizek)
+	 * setSizek(Integer sizek)
 	 *
 	 * @param sizek
 	 *
 	 */
 	
-	public void setSizek (int sizek) {
+	public void setSizek (Integer sizek) {
 		this.sizek = sizek;
 	}
 
@@ -145,7 +145,7 @@ public class File extends WaspModel {
 	 * @return sizek
 	 *
 	 */
-	public int getSizek () {
+	public Integer getSizek () {
 		return this.sizek;
 	}
 
@@ -219,16 +219,16 @@ public class File extends WaspModel {
 	 *
 	 */
 	@Column(name="isarchived")
-	protected int isArchived;
+	protected Integer isArchived;
 
 	/**
-	 * setIsArchived(int isArchived)
+	 * setIsArchived(Integer isArchived)
 	 *
 	 * @param isArchived
 	 *
 	 */
 	
-	public void setIsArchived (int isArchived) {
+	public void setIsArchived (Integer isArchived) {
 		this.isArchived = isArchived;
 	}
 
@@ -238,7 +238,7 @@ public class File extends WaspModel {
 	 * @return isArchived
 	 *
 	 */
-	public int getIsArchived () {
+	public Integer getIsArchived () {
 		return this.isArchived;
 	}
 
@@ -250,16 +250,16 @@ public class File extends WaspModel {
 	 *
 	 */
 	@Column(name="isactive")
-	protected int isActive;
+	protected Integer isActive;
 
 	/**
-	 * setIsActive(int isActive)
+	 * setIsActive(Integer isActive)
 	 *
 	 * @param isActive
 	 *
 	 */
 	
-	public void setIsActive (int isActive) {
+	public void setIsActive (Integer isActive) {
 		this.isActive = isActive;
 	}
 
@@ -269,7 +269,7 @@ public class File extends WaspModel {
 	 * @return isActive
 	 *
 	 */
-	public int getIsActive () {
+	public Integer getIsActive () {
 		return this.isActive;
 	}
 
@@ -312,16 +312,16 @@ public class File extends WaspModel {
 	 *
 	 */
 	@Column(name="lastupduser")
-	protected int lastUpdUser;
+	protected Integer lastUpdUser;
 
 	/**
-	 * setLastUpdUser(int lastUpdUser)
+	 * setLastUpdUser(Integer lastUpdUser)
 	 *
 	 * @param lastUpdUser
 	 *
 	 */
 	
-	public void setLastUpdUser (int lastUpdUser) {
+	public void setLastUpdUser (Integer lastUpdUser) {
 		this.lastUpdUser = lastUpdUser;
 	}
 
@@ -331,7 +331,7 @@ public class File extends WaspModel {
 	 * @return lastUpdUser
 	 *
 	 */
-	public int getLastUpdUser () {
+	public Integer getLastUpdUser () {
 		return this.lastUpdUser;
 	}
 

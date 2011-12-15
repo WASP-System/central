@@ -33,16 +33,16 @@ public class Statesample extends WaspModel {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int statesampleId;
+	protected Integer statesampleId;
 
 	/**
-	 * setStatesampleId(int statesampleId)
+	 * setStatesampleId(Integer statesampleId)
 	 *
 	 * @param statesampleId
 	 *
 	 */
 	
-	public void setStatesampleId (int statesampleId) {
+	public void setStatesampleId (Integer statesampleId) {
 		this.statesampleId = statesampleId;
 	}
 
@@ -52,7 +52,7 @@ public class Statesample extends WaspModel {
 	 * @return statesampleId
 	 *
 	 */
-	public int getStatesampleId () {
+	public Integer getStatesampleId () {
 		return this.statesampleId;
 	}
 
@@ -64,16 +64,16 @@ public class Statesample extends WaspModel {
 	 *
 	 */
 	@Column(name="stateid")
-	protected int stateId;
+	protected Integer stateId;
 
 	/**
-	 * setStateId(int stateId)
+	 * setStateId(Integer stateId)
 	 *
 	 * @param stateId
 	 *
 	 */
 	
-	public void setStateId (int stateId) {
+	public void setStateId (Integer stateId) {
 		this.stateId = stateId;
 	}
 
@@ -83,7 +83,7 @@ public class Statesample extends WaspModel {
 	 * @return stateId
 	 *
 	 */
-	public int getStateId () {
+	public Integer getStateId () {
 		return this.stateId;
 	}
 
@@ -95,16 +95,16 @@ public class Statesample extends WaspModel {
 	 *
 	 */
 	@Column(name="sampleid")
-	protected int sampleId;
+	protected Integer sampleId;
 
 	/**
-	 * setSampleId(int sampleId)
+	 * setSampleId(Integer sampleId)
 	 *
 	 * @param sampleId
 	 *
 	 */
 	
-	public void setSampleId (int sampleId) {
+	public void setSampleId (Integer sampleId) {
 		this.sampleId = sampleId;
 	}
 
@@ -114,7 +114,7 @@ public class Statesample extends WaspModel {
 	 * @return sampleId
 	 *
 	 */
-	public int getSampleId () {
+	public Integer getSampleId () {
 		return this.sampleId;
 	}
 

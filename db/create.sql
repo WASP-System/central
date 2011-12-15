@@ -2,15 +2,15 @@
 -- META - for generic drop downs and such
 --
 create table meta (
-  metaid int(10) not null primary key auto_increment,
+  metaid int(10)  primary key auto_increment,
 
-  property varchar(250) not null, 
-  k varchar(250) not null, -- internal value?
-  v varchar(250) not null, -- external label?
-  position int(10) not null default 0,
+  property varchar(250) , 
+  k varchar(250) , -- internal value?
+  v varchar(250) , -- external label?
+  position int(10)  default 0,
 
-  lastupdts timestamp not null default current_timestamp,
-  lastupduser int(10) not null default 0,
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
 
   constraint unique index u_meta_p_k (property, k),
   constraint unique index u_meta_p_v (property, v)
@@ -22,19 +22,19 @@ create table meta (
 -- USER 
 --
 create table user (
-  userid int(10) not null primary key auto_increment,
+  userid int(10)  primary key auto_increment,
 
-  login varchar(250) not null, 
-  email varchar(250) not null, 
-  password varchar(250) not null, 
-  firstname varchar(250) not null, 
-  lastname varchar(250) not null, 
+  login varchar(250) , 
+  email varchar(250) , 
+  password varchar(250) , 
+  firstname varchar(250) , 
+  lastname varchar(250) , 
 
-  locale varchar(5) not null default 'en_US',
+  locale varchar(5)  default 'en_US',
 
-  isactive int(1) not null default 1,
-  lastupdts timestamp not null default current_timestamp,
-  lastupduser int(10) not null default 0, 
+  isactive int(1)  default 1,
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0, 
 
   constraint unique index u_user_login (login),
   constraint unique index u_user_email (email)
@@ -46,15 +46,15 @@ create table user (
 -- ( 1, 'admin', 'admin@localhost',  PASSWORD('waspV2'), 'Admin', '-', 1, now(), 1 );
 
 create table usermeta (
-  usermetaid int(10) not null primary key auto_increment,
-  userid int(10) not null,
+  usermetaid int(10)  primary key auto_increment,
+  userid int(10) ,
 
-  k varchar(250) not null, 
+  k varchar(250) , 
   v varchar(250), 
-  position int(10) not null default 0,
+  position int(10)  default 0,
 
-  lastupdts timestamp not null default current_timestamp,
-  lastupduser int(10) not null default 0,
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
 
   foreign key fk_usermeta_userid (userid) references user(userid),
   constraint unique index u_usermeta_k_uid (k, userid)
@@ -64,10 +64,10 @@ create table usermeta (
 -- forgot password
 --
 create table userpasswordauth (
-  userid int(10) not null primary key, 
-  authcode varchar(250) not null,
-  lastupdts timestamp not null default current_timestamp, 
-  lastupduser int(10) not null default 0,
+  userid int(10)  primary key, 
+  authcode varchar(250) ,
+  lastupdts timestamp  default current_timestamp, 
+  lastupduser int(10)  default 0,
 
   foreign key fk_userpasswordauth_userid (userid) references user(userid),
   constraint unique index u_userpasswordauth (authcode)
@@ -80,7 +80,7 @@ create table userpasswordauth (
 -- ROLE
 --
 create table role ( 
-  roleid int(10) not null primary key auto_increment, 
+  roleid int(10)  primary key auto_increment, 
   rolename varchar(250), 
   name varchar(250),
   domain varchar(20),
@@ -108,9 +108,9 @@ insert into role values
 
 
 create table roleset (
-  rolesetid int(10) not null primary key auto_increment, 
-  parentroleid int(10) not null,
-  childroleid int(10) not null,
+  rolesetid int(10)  primary key auto_increment, 
+  parentroleid int(10) ,
+  childroleid int(10) ,
   
   foreign key fk_roleset_prid (parentroleid) references role(roleid),
   foreign key fk_roleset_crid (childroleid) references role(roleid),
@@ -140,13 +140,13 @@ values
 -- USER.ROLE
 --
 create table userrole (
-  userroleid int(10) not null primary key auto_increment, 
+  userroleid int(10)  primary key auto_increment, 
 
-  userid int(10) not null, 
-  roleid int(10) not null, 
+  userid int(10) , 
+  roleid int(10) , 
 
-  lastupdts timestamp not null default current_timestamp,
-  lastupduser int(10) not null default 0,
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
 
   foreign key fk_userrole_rid (roleid) references role(roleid),
   foreign key fk_userrole_uid (userid) references user(userid),
@@ -161,13 +161,13 @@ create table userrole (
 -- DEPARTMENT
 --
 create table department (
-  departmentid int(10) not null primary key auto_increment,
-  name varchar(250) not null,
+  departmentid int(10)  primary key auto_increment,
+  name varchar(250) ,
 
-  isinternal int(1) not null default 1,
-  isactive int(1) not null default 1,
-  lastupdts timestamp not null default current_timestamp,
-  lastupduser int(10) not null default 0,
+  isinternal int(1)  default 1,
+  isactive int(1)  default 1,
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
 
   constraint unique index u_department_name (name)
 ) ENGINE=InnoDB charset=utf8;
@@ -180,13 +180,13 @@ insert into department values
 --   - presumably 'Department Admin'
 -- 
 create table departmentuser ( 
-  departmentuserid int(10) not null primary key auto_increment, 
+  departmentuserid int(10)  primary key auto_increment, 
 
-  departmentid int(10) not null, 
-  userid int(10) not null, 
+  departmentid int(10) , 
+  userid int(10) , 
 
-  lastupdts timestamp not null default current_timestamp,
-  lastupduser int(10) not null default 0,
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
 
   foreign key fk_departmentuser_uid (userid) references user(userid),
   foreign key fk_departmentuser_did (departmentid) references department(departmentid),
@@ -200,16 +200,16 @@ create table departmentuser (
 -- LAB 
 --
 create table lab ( 
-  labid int(10) not null primary key auto_increment,
+  labid int(10)  primary key auto_increment,
 
-  departmentid int(10) not null, 
-  name varchar(250) not null,
+  departmentid int(10) , 
+  name varchar(250) ,
 
-  primaryuserid int(10) not null, -- primary investigator?
+  primaryuserid int(10) , -- primary investigator?
 
-  isactive int(1) not null default 1,
-  lastupdts timestamp not null default current_timestamp,
-  lastupduser int(10) not null default 0,
+  isactive int(1)  default 1,
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
 
   foreign key fk_lab_did (departmentid) references department(departmentid),
   foreign key fk_lab_puid (primaryuserid) references user(userid)
@@ -222,15 +222,15 @@ create table lab (
 -- ( 1, 1, 'Default Lab',  1, 1, now(), 1 );
 
 create table labmeta (
-  labmetaid int(10) not null primary key auto_increment,
-  labid int(10) not null,
+  labmetaid int(10)  primary key auto_increment,
+  labid int(10) ,
 
-  k varchar(250) not null, 
+  k varchar(250) , 
   v varchar(250), 
-  position int(10) not null default 0,
+  position int(10)  default 0,
 
-  lastupdts timestamp not null default current_timestamp,
-  lastupduser int(10) not null default 0,
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
 
   foreign key fk_labmeta_labid (labid) references lab(labid),
   constraint unique index u_labmeta_k_lid (k, labid)
@@ -241,15 +241,15 @@ create table labmeta (
 --   - presumably 'Lab Member', 'Lab Manager' or 'Primary Investigator'
 -- 
 create table labuser ( 
-  labuserid int(10) not null primary key auto_increment, 
+  labuserid int(10)  primary key auto_increment, 
 
-  labid int(10) not null, 
-  userid int(10) not null, 
+  labid int(10) , 
+  userid int(10) , 
 
-  roleid int(10) not null, 
+  roleid int(10) , 
    
-  lastupdts timestamp not null default current_timestamp,
-  lastupduser int(10) not null default 0,
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
 
   foreign key fk_labuser_lid (labid) references lab(labid),
   foreign key fk_labuser_uid (userid) references user(userid),
@@ -262,20 +262,20 @@ create table labuser (
 -- pending user
 -- 
 create table userpending (
-  userpendingid int(10) not null primary key auto_increment,
+  userpendingid int(10)  primary key auto_increment,
 
-  email varchar(250) not null, 
-  password varchar(250) not null, 
-  login varchar(250) not null, 
-  firstname varchar(250) not null, 
-  lastname varchar(250) not null, 
-  locale varchar(5) not null default 'en_US',
+  email varchar(250) , 
+  password varchar(250) , 
+  login varchar(250) , 
+  firstname varchar(250) , 
+  lastname varchar(250) , 
+  locale varchar(5)  default 'en_US',
   labid int(10),
 
-  status varchar(10) not null default 'PENDING', -- PENDING, APPROVED, DECLINED
+  status varchar(10)  default 'PENDING', -- PENDING, APPROVED, DECLINED
 
-  lastupdts timestamp not null default current_timestamp, 
-  lastupduser int(10) not null default 0,
+  lastupdts timestamp  default current_timestamp, 
+  lastupduser int(10)  default 0,
 
   foreign key fk_userpending_lid (labid) references lab(labid),
 
@@ -283,33 +283,33 @@ create table userpending (
 ) ENGINE=InnoDB charset=utf8;
 
 create table userpendingmeta (
-  userpendingmetaid int(10) not null primary key auto_increment,
-  userpendingid int(10) not null,
+  userpendingmetaid int(10)  primary key auto_increment,
+  userpendingid int(10) ,
 
-  k varchar(250) not null, 
+  k varchar(250) , 
   v varchar(250), 
-  position int(10) not null default 0,
+  position int(10)  default 0,
 
-  lastupdts timestamp not null default current_timestamp,
-  lastupduser int(10) not null default 0,
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
 
   foreign key fk_userpendingmeta_userpendingid (userpendingid) references userpending(userpendingid),
   constraint unique index u_userpendingmeta_k_lid (k, userpendingid)
 ) ENGINE=InnoDB charset=utf8;
 
 create table labpending ( 
-  labpendingid int(10) not null primary key auto_increment,
+  labpendingid int(10)  primary key auto_increment,
 
-  departmentid int(10) not null, 
-  name varchar(250) not null,
+  departmentid int(10) , 
+  name varchar(250) ,
 
   primaryuserid int(10),
   userpendingid int(10),
 
-  status varchar(10) not null default 'PENDING', -- PENDING, APPROVED, DECLINED
+  status varchar(10)  default 'PENDING', -- PENDING, APPROVED, DECLINED
 
-  lastupdts timestamp not null default current_timestamp,
-  lastupduser int(10) not null default 0,
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
 
   foreign key fk_labpending_did (departmentid) references department(departmentid),
   foreign key fk_labpending_pruid (primaryuserid) references user(userid),
@@ -318,15 +318,15 @@ create table labpending (
 ) ENGINE=InnoDB charset=utf8;
 
 create table labpendingmeta (
-  labpendingmetaid int(10) not null primary key auto_increment,
-  labpendingid int(10) not null,
+  labpendingmetaid int(10)  primary key auto_increment,
+  labpendingid int(10) ,
 
-  k varchar(250) not null, 
+  k varchar(250) , 
   v varchar(250), 
-  position int(10) not null default 0,
+  position int(10)  default 0,
 
-  lastupdts timestamp not null default current_timestamp,
-  lastupduser int(10) not null default 0,
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
 
   foreign key fk_labpendingmeta_labpendingid (labpendingid) references labpending(labpendingid),
   constraint unique index u_labpendingmeta_k_lid (k, labpendingid)
@@ -337,12 +337,12 @@ create table labpendingmeta (
 -- confirm email
 --
 create table confirmemailauth (
-  confirmemailauthid  int(10) not null primary key auto_increment,
+  confirmemailauthid  int(10)  primary key auto_increment,
   userpendingid int(10),
   userid int(10),
-  authcode varchar(250) not null,
-  lastupdts timestamp not null default current_timestamp,
-  lastupduser int(10) not null default '0',
+  authcode varchar(250) ,
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default '0',
   foreign key fk_labpending_uid (userid) references user(userid),
   foreign key fk_labpending_peuid (userpendingid) references userpending(userpendingid),
   constraint unique index u_confirmemailauth (authcode)
@@ -353,10 +353,10 @@ create table confirmemailauth (
 -- type.RESOURCE
 -- 
 create table typeresource (
-  typeresourceid int(10) not null primary key auto_increment, 
+  typeresourceid int(10)  primary key auto_increment, 
 
-  iname varchar(250) not null,
-  name varchar(250) not null,
+  iname varchar(250) ,
+  name varchar(250) ,
 
   constraint unique index u_typeresource_iname (iname),
   constraint unique index u_typeresource_name (name)
@@ -370,17 +370,17 @@ insert into typeresource values (3, 'aligner', 'Aligner');
 -- RESOURCE
 -- 
 create table resource (
-  resourceid int(10) not null primary key auto_increment, 
+  resourceid int(10)  primary key auto_increment, 
 
-  platform varchar(250) not null,   -- another table?
-  iname varchar(250) not null,
-  name varchar(250) not null,
+  platform varchar(250) ,   -- another table?
+  iname varchar(250) ,
+  name varchar(250) ,
 
-  typeresourceid int(10) not null,
+  typeresourceid int(10) ,
 
-  isactive int(1) not null default 1,
-  lastupdts timestamp not null default current_timestamp,
-  lastupduser int(10) not null default 0,
+  isactive int(1)  default 1,
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
 
   foreign key fk_resource_trid (typeresourceid) references typeresource(typeresourceid),
   constraint unique index u_resource_name (iname)
@@ -397,15 +397,15 @@ values
 
 -- [join with meta?] 
 create table resourcemeta (
-  resourcemetaid int(10) not null primary key auto_increment,
-  resourceid int(10) not null,
+  resourcemetaid int(10)  primary key auto_increment,
+  resourceid int(10) ,
 
-  k varchar(250) not null, 
+  k varchar(250) , 
   v varchar(250), 
-  position int(10) not null default 0,
+  position int(10)  default 0,
 
-  lastupdts timestamp not null default current_timestamp,
-  lastupduser int(10) not null default 0,
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
 
   foreign key fk_resourcemeta_resourceid (resourceid) references resource(resourceid),
   constraint unique index u_resourcemeta_k_rid (k, resourceid)
@@ -416,13 +416,13 @@ create table resourcemeta (
 -- RESOURCE.USER 
 --   - presumably 'Facilities Tech', maybe w/ roleid
   -- create table resourceuser ( 
-  -- resourceuserid int(10) not null primary key auto_increment, 
+  -- resourceuserid int(10)  primary key auto_increment, 
   -- 
-  -- resourceid int(10) not null, 
-  -- userid int(10) not null, 
+  -- resourceid int(10) , 
+  -- userid int(10) , 
   -- 
-  -- lastupdts timestamp not null default current_timestamp,
-  -- lastupduser int(10) not null default 0,
+  -- lastupdts timestamp  default current_timestamp,
+  -- lastupduser int(10)  default 0,
   -- 
   -- foreign key fk_resourceuser_lid (resourceid) references resource(resourceid),
   -- foreign key fk_resourceuser_uid (userid) references user(userid),
@@ -436,30 +436,30 @@ create table resourcemeta (
 
 
 create table workflow (
-  workflowid int(10) not null primary key auto_increment, 
+  workflowid int(10)  primary key auto_increment, 
 
-  iname varchar(250) not null, 
-  name varchar(250) not null, 
-  createts datetime not null,
+  iname varchar(250) , 
+  name varchar(250) , 
+  createts datetime ,
 
-  isactive int(1) not null default 0,
-  lastupdts timestamp not null default current_timestamp,
-  lastupduser int(10) not null default 0,
+  isactive int(1)  default 0,
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
 
   constraint unique index u_workflow_iname (iname),
   constraint unique index u_workflow_name (name)
 ) ENGINE=InnoDB charset=utf8;
 
 create table workflowmeta (
-  workflowmetaid int(10) not null primary key auto_increment,
-  workflowid int(10) not null,
+  workflowmetaid int(10)  primary key auto_increment,
+  workflowid int(10) ,
 
-  k varchar(250) not null, 
+  k varchar(250) , 
   v varchar(250), 
-  position int(10) not null default 0,
+  position int(10)  default 0,
 
-  lastupdts timestamp not null default current_timestamp,
-  lastupduser int(10) not null default 0,
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
 
   foreign key fk_workflowmeta_workflowid (workflowid) references workflow(workflowid),
   constraint unique index u_workflowmeta_k_wid (k, workflowid)
@@ -469,21 +469,21 @@ create table workflowmeta (
 -- JOB
 --
 create table job (
-  jobid int(10) not null primary key auto_increment, 
+  jobid int(10)  primary key auto_increment, 
 
-  labid int(10) not null,
-  userid int(10) not null,  -- investigator
-  workflowid int(10) not null,  
+  labid int(10) ,
+  userid int(10) ,  -- investigator
+  workflowid int(10) ,  
 
-  name varchar(250) not null, 
+  name varchar(250) , 
    
-  createts datetime not null,
+  createts datetime ,
 
-  viewablebylab int(1) not null default 0,
+  viewablebylab int(1)  default 0,
 
-  isactive int(1) not null default 1,
-  lastupdts timestamp not null default current_timestamp,
-  lastupduser int(10) not null default 0,
+  isactive int(1)  default 1,
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
 
   foreign key fk_job_lid (labid) references lab(labid),
   foreign key fk_job_uid (userid) references user(userid),
@@ -494,15 +494,15 @@ create table job (
 
 
 create table jobmeta (
-  jobmetaid int(10) not null primary key auto_increment,
-  jobid int(10) not null,
+  jobmetaid int(10)  primary key auto_increment,
+  jobid int(10) ,
 
-  k varchar(250) not null, 
+  k varchar(250) , 
   v varchar(250), 
-  position int(10) not null default 0,
+  position int(10)  default 0,
 
-  lastupdts timestamp not null default current_timestamp,
-  lastupduser int(10) not null default 0,
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
 
   foreign key fk_jobmeta_jobid (jobid) references job(jobid),
 
@@ -515,15 +515,15 @@ create table jobmeta (
 -- 
 
 create table jobuser ( 
-  jobuserid int(10) not null primary key auto_increment, 
+  jobuserid int(10)  primary key auto_increment, 
 
-  jobid int(10) not null, 
-  userid int(10) not null, 
+  jobid int(10) , 
+  userid int(10) , 
 
-  roleid int(10) not null, 
+  roleid int(10) , 
    
-  lastupdts timestamp not null default current_timestamp,
-  lastupduser int(10) not null default 0,
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
 
   foreign key fk_jobuser_jid (jobid) references job(jobid),
   foreign key fk_jobuser_uid (userid) references user(userid),
@@ -533,12 +533,12 @@ create table jobuser (
 ) ENGINE=InnoDB charset=utf8;
 
 create table jobresource (
-  jobresourceid int(10) not null primary key auto_increment,
-  jobid int(10) not null,
-  resourceid int(10) not null,
+  jobresourceid int(10)  primary key auto_increment,
+  jobid int(10) ,
+  resourceid int(10) ,
 
-  lastupdts timestamp not null default current_timestamp,
-  lastupduser int(10) not null default 0,
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
 
   foreign key fk_jobresource_jdid (jobid) references job(jobid),
   foreign key fk_jobresource_rid (resourceid) references resource(resourceid),
@@ -550,20 +550,20 @@ create table jobresource (
 --
 
 create table jobdraft (
-  jobdraftid int(10) not null primary key auto_increment, 
+  jobdraftid int(10)  primary key auto_increment, 
 
-  labid int(10) not null,
-  userid int(10) not null,  -- investigator
-  workflowid int(10) not null,  
+  labid int(10) ,
+  userid int(10) ,  -- investigator
+  workflowid int(10) ,  
 
-  name varchar(250) not null, 
+  name varchar(250) , 
    
-  createts datetime not null,
+  createts datetime ,
   submittedjobid int(10),
 
-  status varchar(50) not null default 1,
-  lastupdts timestamp not null default current_timestamp,
-  lastupduser int(10) not null default 0,
+  status varchar(50)  default 1,
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
 
   foreign key fk_jobdraft_lid (labid) references lab(labid),
   foreign key fk_jobdraft_uid (userid) references user(userid),
@@ -574,15 +574,15 @@ create table jobdraft (
 
 
 create table jobdraftmeta (
-  jobdraftmetaid int(10) not null primary key auto_increment,
-  jobdraftid int(10) not null,
+  jobdraftmetaid int(10)  primary key auto_increment,
+  jobdraftid int(10) ,
 
-  k varchar(250) not null, 
+  k varchar(250) , 
   v varchar(250), 
-  position int(10) not null default 0,
+  position int(10)  default 0,
 
-  lastupdts timestamp not null default current_timestamp,
-  lastupduser int(10) not null default 0,
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
 
   foreign key fk_jobdraftmeta_jdid (jobdraftid) references jobdraft(jobdraftid),
 
@@ -590,12 +590,12 @@ create table jobdraftmeta (
 ) ENGINE=InnoDB charset=utf8;
 
 create table jobdraftresource (
-  jobdraftresourceid int(10) not null primary key auto_increment,
-  jobdraftid int(10) not null,
-  resourceid int(10) not null,
+  jobdraftresourceid int(10)  primary key auto_increment,
+  jobdraftid int(10) ,
+  resourceid int(10) ,
 
-  lastupdts timestamp not null default current_timestamp,
-  lastupduser int(10) not null default 0,
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
 
   foreign key fk_jobdraftresource_jdid (jobdraftid) references jobdraft(jobdraftid),
   foreign key fk_jobdraftresource_rid (resourceid) references resource(resourceid),
@@ -609,15 +609,15 @@ create table jobdraftresource (
 --  user job folders?
 
 create table project (
-  projectid int(10) not null primary key auto_increment, 
-  labid int(10) not null,
-  userid int(10) not null,
+  projectid int(10)  primary key auto_increment, 
+  labid int(10) ,
+  userid int(10) ,
  
-  name varchar(250) not null,
+  name varchar(250) ,
 
-  isactive int(1) not null default 1,
-  lastupdts timestamp not null default current_timestamp,
-  lastupduser int(10) not null default 0,
+  isactive int(1)  default 1,
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
 
   foreign key fk_project_lid (labid) references lab(labid),
 
@@ -630,23 +630,23 @@ create table project (
 --   - physical object tracker
 --
 create table barcode ( 
-  barcodeid int(10) not null primary key auto_increment, 
-  barcode varchar(250) not null, 
+  barcodeid int(10)  primary key auto_increment, 
+  barcode varchar(250) , 
 
   barcodefor varchar(250), -- enum sample/resource 
 
-  isactive int(1) not null default 1,
-  lastupdts timestamp not null default current_timestamp,
-  lastupduser int(10) not null default 0,
+  isactive int(1)  default 1,
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
 
   constraint unique index u_barcode_bc (barcode)
 ) ENGINE=InnoDB charset=utf8;
 
 create table resourcebarcode (
-  resourcebarcodeid int(10) not null primary key auto_increment, 
+  resourcebarcodeid int(10)  primary key auto_increment, 
 
-  resourceid int(10) not null, 
-  barcodeid int(10) not null, 
+  resourceid int(10) , 
+  barcodeid int(10) , 
 
   foreign key fk_resourcebarcode_rid (resourceid) references resource(resourceid),
   foreign key fk_resourcebarcode_bcid (barcodeid) references barcode(barcodeid),
@@ -659,19 +659,19 @@ create table resourcebarcode (
 --   mysql max out at 767 bytes for indexable length
 --
 create table file (
-  fileid int(10) not null primary key auto_increment,
+  fileid int(10)  primary key auto_increment,
 
-  filelocation varchar(2048) not null, 
-  contenttype varchar(250) not null, 
-  sizek int(10) not null,
-  md5hash varchar(250) not null,
+  filelocation varchar(2048) , 
+  contenttype varchar(250) , 
+  sizek int(10) ,
+  md5hash varchar(250) ,
   description varchar(250),
 
-  isarchived int(1) not null default 0,
-  isactive int(1) not null default 1,
+  isarchived int(1)  default 0,
+  isactive int(1)  default 1,
 
-  lastupdts timestamp not null default current_timestamp,
-  lastupduser int(10) not null default 0 
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0 
 
   -- constraint unique index u_file_flocation (filelocation)
 ) ENGINE=InnoDB charset=utf8;
@@ -682,7 +682,7 @@ create table file (
 --
 
 create table typesample (
-  typesampleid int(10) not null primary key auto_increment,
+  typesampleid int(10)  primary key auto_increment,
   iname varchar(250), 
   name varchar(250),
 
@@ -698,21 +698,21 @@ insert into typesample values
 (5, 'platformunit', 'Platform Unit');
 
 create table subtypesample (
-  subtypesampleid int(10) not null primary key auto_increment,
+  subtypesampleid int(10)  primary key auto_increment,
 
-  typesampleid int(10) not null,
+  typesampleid int(10) ,
 
-  iname varchar(50) not null, -- meta field prefix
-  name varchar(250) not null,
+  iname varchar(50) , -- meta field prefix
+  name varchar(250) ,
 
   constraint unique index u_subtypesample_iname (iname),
   foreign key fk_subtypesample_tsid (typesampleid) references typesample(typesampleid)
 ) ENGINE=InnoDB charset=utf8;
 
 create table workflowsubtypesample (
-  workflowsubtypesampleid int(10) not null primary key auto_increment,
-  workflowid int(10) not null,
-  subtypesampleid int(10) not null,
+  workflowsubtypesampleid int(10)  primary key auto_increment,
+  workflowid int(10) ,
+  subtypesampleid int(10) ,
  
   constraint unique index u_subtypesample_wid_stsid (workflowid, subtypesampleid),
 
@@ -723,9 +723,9 @@ create table workflowsubtypesample (
 
 
 create table workflowtyperesource (
-  workflowtyperesourceid int(10) not null primary key auto_increment, 
-  workflowid int(10) not null,
-  typeresourceid int(10) not null,
+  workflowtyperesourceid int(10)  primary key auto_increment, 
+  workflowid int(10) ,
+  typeresourceid int(10) ,
 
   constraint unique index u_workflowtyperesource_wid_trid (workflowid, typeresourceid),
 
@@ -734,9 +734,9 @@ create table workflowtyperesource (
 ) ENGINE=InnoDB charset=utf8;
 
 create table workflowresource (
-  workflowresourceid int(10) not null primary key auto_increment, 
-  workflowid int(10) not null,
-  resourceid int(10) not null,
+  workflowresourceid int(10)  primary key auto_increment, 
+  workflowid int(10) ,
+  resourceid int(10) ,
 
   constraint unique index u_workflowtyperesource_wid_rid (workflowid, resourceid),
 
@@ -747,25 +747,25 @@ create table workflowresource (
 
 
 create table sample (
-  sampleid int(10) not null primary key auto_increment,
+  sampleid int(10)  primary key auto_increment,
 
-  typesampleid int(10) not null,
+  typesampleid int(10) ,
   subtypesampleid int(10),
 
-  submitter_labid int(10) not null,
-  submitter_userid int(10) not null,
+  submitter_labid int(10) ,
+  submitter_userid int(10) ,
   submitter_jobid int(10) null,
 
-  isreceived int(1) not null default 0,
+  isreceived int(1)  default 0,
   receiver_userid int(10),
   receivedts datetime,
 
   name varchar(250),
   isgood int(1),
 
-  isactive int(1) not null default 1,
-  lastupdts timestamp not null default current_timestamp,
-  lastupduser int(10) not null default 0,
+  isactive int(1)  default 1,
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
 
   foreign key fk_sample_tsid (typesampleid) references typesample(typesampleid),
   foreign key fk_sample_stsid (subtypesampleid) references subtypesample(subtypesampleid),
@@ -775,15 +775,15 @@ create table sample (
 ) ENGINE=InnoDB charset=utf8;
 
 create table samplemeta (
-  samplemetaid int(10) not null primary key auto_increment,
-  sampleid int(10) not null,
+  samplemetaid int(10)  primary key auto_increment,
+  sampleid int(10) ,
 
-  k varchar(250) not null, 
+  k varchar(250) , 
   v varchar(250), 
-  position int(10) not null default 0,
+  position int(10)  default 0,
 
-  lastupdts timestamp not null default current_timestamp,
-  lastupduser int(10) not null default 0,
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
 
   foreign key fk_samplemeta_sampleid (sampleid) references sample(sampleid),
   constraint unique index u_samplemeta_k_sid (k, sampleid)
@@ -793,13 +793,13 @@ create table samplemeta (
 -- SAMPLE.SOURCE
 --   - if a sample has a parent, what is it. 
 create table samplesource (
-  samplesourceid int(10) not null primary key auto_increment, 
-  sampleid int(10) not null,
-  multiplexindex int(10) not null default 0,
-  source_sampleid int(10) not null,
+  samplesourceid int(10)  primary key auto_increment, 
+  sampleid int(10) ,
+  multiplexindex int(10)  default 0,
+  source_sampleid int(10) ,
 
-  lastupdts timestamp not null default current_timestamp,
-  lastupduser int(10) not null default 0,
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
 
   foreign key fk_samplesource_sid (sampleid) references sample(sampleid),
   foreign key fk_samplesource_ssid (source_sampleid) references sample(sampleid),
@@ -809,13 +809,13 @@ create table samplesource (
 
 -- SAMPLE.BARCODE 
 create table samplebarcode (
-  samplebarcode int(10) not null primary key auto_increment, 
+  samplebarcode int(10)  primary key auto_increment, 
  
-  sampleid int(10) not null, 
-  barcodeid int(10) not null, 
+  sampleid int(10) , 
+  barcodeid int(10) , 
  
-  lastupdts timestamp not null default current_timestamp,
-  lastupduser int(10) not null default 0,
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
 
   foreign key fk_samplebarcode_sid (sampleid) references sample(sampleid),
   foreign key fk_samplebarcode_bid (barcodeid) references barcode(barcodeid),
@@ -827,15 +827,15 @@ create table samplebarcode (
 -- SAMPLE.LAB
 --   - lab share?
 create table samplelab (
-  samplelabid int(10) not null primary key auto_increment, 
+  samplelabid int(10)  primary key auto_increment, 
   
-  sampleid int(10) not null,  
-  labid int(10) not null,
+  sampleid int(10) ,  
+  labid int(10) ,
 
-  isprimary int(1) not null default 0, 
+  isprimary int(1)  default 0, 
 
-  lastupdts timestamp not null default current_timestamp,
-  lastupduser int(10) not null default 0,
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
 
   foreign key fk_samplelab_sid (sampleid) references sample(sampleid),
   foreign key fk_samplelab_lid (labid) references lab(labid),
@@ -845,12 +845,12 @@ create table samplelab (
 
 
 create table sampledraft (
-  sampledraftid int(10) not null primary key auto_increment,
-  typesampleid int(10) not null,
-  subtypesampleid int(10) not null,
+  sampledraftid int(10)  primary key auto_increment,
+  typesampleid int(10) ,
+  subtypesampleid int(10) ,
 
-  labid int(10) not null,
-  userid int(10) not null,
+  labid int(10) ,
+  userid int(10) ,
   jobdraftid int(10) null,
 
   sourcesampleid int(10) null,
@@ -859,8 +859,8 @@ create table sampledraft (
   name varchar(250),
   status varchar(50), 
 
-  lastupdts timestamp not null default current_timestamp,
-  lastupduser int(10) not null default 0,
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
 
   foreign key fk_sampledraft_tsid (typesampleid) references typesample(typesampleid),
   foreign key fk_sampledraft_stsid (subtypesampleid) references subtypesample(subtypesampleid),
@@ -871,35 +871,35 @@ create table sampledraft (
 ) ENGINE=InnoDB charset=utf8;
 
 create table sampledraftmeta (
-  sampledraftmetaid int(10) not null primary key auto_increment,
-  sampledraftid int(10) not null,
+  sampledraftmetaid int(10)  primary key auto_increment,
+  sampledraftid int(10) ,
 
-  k varchar(250) not null, 
+  k varchar(250) , 
   v varchar(250), 
-  position int(10) not null default 0,
+  position int(10)  default 0,
 
-  lastupdts timestamp not null default current_timestamp,
-  lastupduser int(10) not null default 0,
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
 
   foreign key fk_sampledraftmeta_sdid (sampledraftid) references sampledraft(sampledraftid),
   constraint unique index u_sampledraftmeta_k_sid (k, sampledraftid)
 ) ENGINE=InnoDB charset=utf8;
 
 create table jobdraftcell (
-  jobdraftcellid int(10) not null primary key auto_increment,
-  jobdraftid int(10) not null,
-  cellindex int(10) not null,
+  jobdraftcellid int(10)  primary key auto_increment,
+  jobdraftid int(10) ,
+  cellindex int(10) ,
 
   foreign key fk_jobdraft_jid (jobdraftid) references jobdraft(jobdraftid),
   constraint unique index u_jobdraftcell_jdid_ci (jobdraftid, cellindex)
 );
 
 create table sampledraftcell (
-  sampledraftcellid int(10) not null primary key auto_increment,
-  sampledraftid int(10) not null,
-  jobdraftcellid int(10) not null,
+  sampledraftcellid int(10)  primary key auto_increment,
+  sampledraftid int(10) ,
+  jobdraftcellid int(10) ,
 
-  libraryindex int(10) not null, 
+  libraryindex int(10) , 
 
   foreign key fk_sampledraftcell_sdid (sampledraftid) references sampledraft(sampledraftid),
   foreign key fk_sampledraftcell_jdcid (jobdraftcellid) references jobdraftcell(jobdraftcellid),
@@ -916,12 +916,12 @@ create table sampledraftcell (
 -- JOB.SAMPLE
 --   - maps samples used and created to jobs
 create table jobsample ( 
-  jobsampleid int(10) not null primary key auto_increment, 
-  jobid int(10) not null, 
-  sampleid int(10) not null,
+  jobsampleid int(10)  primary key auto_increment, 
+  jobid int(10) , 
+  sampleid int(10) ,
 
-  lastupdts timestamp not null default current_timestamp,
-  lastupduser int(10) not null default 0,
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
 
   foreign key fk_jobsample_jid (jobid) references job(jobid),
   foreign key fk_jobsample_sid (sampleid) references sample(sampleid),
@@ -930,15 +930,15 @@ create table jobsample (
 ) ENGINE=InnoDB charset=utf8;
 
 create table jobsamplemeta (
-  jobsamplemetaid int(10) not null primary key auto_increment,
-  jobsampleid int(10) not null,
+  jobsamplemetaid int(10)  primary key auto_increment,
+  jobsampleid int(10) ,
 
-  k varchar(250) not null, 
+  k varchar(250) , 
   v varchar(250), 
-  position int(10) not null default 0,
+  position int(10)  default 0,
 
-  lastupdts timestamp not null default current_timestamp,
-  lastupduser int(10) not null default 0,
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
 
   foreign key fk_jobsamplemeta_jsid (jobsampleid) references jobsample(jobsampleid),
   constraint unique index u_jobsamplemeta_k_jsid (k, jobsampleid)
@@ -946,20 +946,20 @@ create table jobsamplemeta (
 
 
 create table jobcell (
-  jobcellid int(10) not null primary key auto_increment,
-  jobid int(10) not null,
-  cellindex int(10) not null,
+  jobcellid int(10)  primary key auto_increment,
+  jobid int(10) ,
+  cellindex int(10) ,
 
   foreign key fk_job_jid (jobid) references job(jobid),
   constraint unique index u_jobcell_jdid_ci (jobid, cellindex)
 );
 
 create table samplecell (
-  samplecellid int(10) not null primary key auto_increment,
-  sampleid int(10) not null,
-  jobcellid int(10) not null,
+  samplecellid int(10)  primary key auto_increment,
+  sampleid int(10) ,
+  jobcellid int(10) ,
 
-  libraryindex int(10) not null, 
+  libraryindex int(10) , 
 
   foreign key fk_samplecell_sdid (sampleid) references sample(sampleid),
   foreign key fk_samplecell_jdcid (jobcellid) references jobcell(jobcellid),
@@ -971,37 +971,37 @@ create table samplecell (
 -- ACCOUNTING TABLES
 --
 create table acct_workflowcost (
-  workflowid int(10) not null primary key,
-  basecost float(10,2) not null,
+  workflowid int(10)  primary key,
+  basecost float(10,2) ,
 
-  lastupdts timestamp not null default current_timestamp,
-  lastupduser int(10) not null default 0,
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
 
   foreign key fk_acct_workflowcost_wfid (workflowid) references job(workflowid)
 ) ENGINE=InnoDB charset=utf8;
 
 
 create table acct_quote (
-  quoteid int(10) not null primary key auto_increment,
-  jobid int(10) not null,
-  amount float(10,2) not null,
+  quoteid int(10)  primary key auto_increment,
+  jobid int(10) ,
+  amount float(10,2) ,
   userid int(10), -- quoter
   comment varchar(250),
 
-  isactive int(1) not null default 1,
-  lastupdts timestamp not null default current_timestamp,
-  lastupduser int(10) not null default 0,
+  isactive int(1)  default 1,
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
 
   foreign key fk_acct_quote_jid (jobid) references job(jobid),
   foreign key fk_acct_quote_uid (userid) references user(userid)
 ) ENGINE=InnoDB charset=utf8;
 
 create table acct_jobquotecurrent (
-  jobid int(10) not null primary key,
-  quoteid int(10) not null,
+  jobid int(10)  primary key,
+  quoteid int(10) ,
 
-  lastupdts timestamp not null default current_timestamp,
-  lastupduser int(10) not null default 0,
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
 
 
   foreign key fk_acct_jobquotecurrent_jid (jobid) references job(jobid),
@@ -1009,15 +1009,15 @@ create table acct_jobquotecurrent (
 ) ENGINE=InnoDB charset=utf8;
 
 create table acct_quoteuser (
-  quoteuserid int(10) not null primary key auto_increment, 
-  quoteid int(10) not null,
-  userid int(10) not null,
-  roleid int(10) not null, -- PI, DA, FM,  
-  isapproved int(1) not null,
+  quoteuserid int(10)  primary key auto_increment, 
+  quoteid int(10) ,
+  userid int(10) ,
+  roleid int(10) , -- PI, DA, FM,  
+  isapproved int(1) ,
   comment varchar(250),
 
-  lastupdts timestamp not null default current_timestamp,
-  lastupduser int(10) not null default 0,
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
 
 
   foreign key fk_acct_quote_jid (quoteid) references acct_quote(quoteid),
@@ -1027,14 +1027,14 @@ create table acct_quoteuser (
 
 
 create table acct_invoice (
-  invoiceid int(10) not null primary key auto_increment,
-  quoteid int(10) not null,
-  jobid int(10) not null, -- DENORMALIZED
-  amount float(10,2) not null,
+  invoiceid int(10)  primary key auto_increment,
+  quoteid int(10) ,
+  jobid int(10) , -- DENORMALIZED
+  amount float(10,2) ,
   comment varchar(250),
 
-  lastupdts timestamp not null default current_timestamp,
-  lastupduser int(10) not null default 0,
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
 
 
   foreign key fk_acct_invoice_qid (quoteid) references acct_quote(quoteid),
@@ -1042,14 +1042,14 @@ create table acct_invoice (
 ) ENGINE=InnoDB charset=utf8;
 
 create table acct_ledger (
-  ledgerid int(10) not null primary key auto_increment,
-  invoiceid int(10) not null,
-  jobid int(10) not null, -- DENORMALIZED
+  ledgerid int(10)  primary key auto_increment,
+  invoiceid int(10) ,
+  jobid int(10) , -- DENORMALIZED
   amount float(10,2),
   comment varchar(250),
 
-  lastupdts timestamp not null default current_timestamp,
-  lastupduser int(10) not null default 0,
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
 
 
   foreign key fk_acct_ledger_iid (invoiceid) references acct_invoice(invoiceid),
@@ -1057,27 +1057,27 @@ create table acct_ledger (
 ) ENGINE=InnoDB charset=utf8;
 
 create table acct_grant (
-  grantid int(10) not null primary key auto_increment,
-  labid int(10) not null,
-  name varchar(250) not null,
-  code varchar(250) not null,
+  grantid int(10)  primary key auto_increment,
+  labid int(10) ,
+  name varchar(250) ,
+  code varchar(250) ,
   expirationdt datetime,
 
-  isactive int(1) not null default 1,
-  lastupdts timestamp not null default current_timestamp,
-  lastupduser int(10) not null default 0,
+  isactive int(1)  default 1,
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
 
 
   foreign key fk_grant_lid (labid) references lab(labid)
 ) ENGINE=InnoDB charset=utf8;
 
 create table acct_grantjob (
-  jobid int(10) not null primary key auto_increment, 
-  grantid int(10) not null,
+  jobid int(10)  primary key auto_increment, 
+  grantid int(10) ,
 
-  isactive int(1) not null default 1,
-  lastupdts timestamp not null default current_timestamp,
-  lastupduser int(10) not null default 0,
+  isactive int(1)  default 1,
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
 
   foreign key fk_acct_ledgergrant_jid (jobid) references acct_ledger(jobid),
   foreign key fk_acct_ledgergrant_gid (grantid) references acct_grant(grantid)
@@ -1089,17 +1089,17 @@ create table acct_grantjob (
 -- JOB.FILE
 --
 create table jobfile ( 
-  jobfileid int(10) not null primary key auto_increment,
-  jobid int(10) not null, 
-  fileid int(10) not null, 
+  jobfileid int(10)  primary key auto_increment,
+  jobid int(10) , 
+  fileid int(10) , 
 
-  iname varchar(2048), -- not null
+  iname varchar(2048), -- 
   name varchar(250), 
   description varchar(2048), 
 
-  isactive int(1) not null default 1, 
-  lastupdts timestamp not null default current_timestamp,
-  lastupduser int(10) not null default 0,
+  isactive int(1)  default 1, 
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
 
   foreign key fk_jobfile_jid (jobid) references job(jobid),
   foreign key fk_jobfile_fid (fileid) references file(fileid) -- ,
@@ -1108,17 +1108,17 @@ create table jobfile (
 ) ENGINE=InnoDB charset=utf8;
 
 create table samplefile ( 
-  samplefileid int(10) not null primary key auto_increment,
-  sampleid int(10) not null, 
-  fileid int(10) not null, 
+  samplefileid int(10)  primary key auto_increment,
+  sampleid int(10) , 
+  fileid int(10) , 
 
-  iname varchar(2048), -- not null
+  iname varchar(2048), -- 
   name varchar(250), 
   description varchar(2048), 
 
-  isactive int(1) not null default 1, 
-  lastupdts timestamp not null default current_timestamp,
-  lastupduser int(10) not null default 0,
+  isactive int(1)  default 1, 
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
 
   foreign key fk_samplefile_sid (sampleid) references sample(sampleid),
   foreign key fk_samplefile_fid (fileid) references file(fileid) -- ,
@@ -1136,8 +1136,8 @@ create table samplefile (
 --
 
 create table resourcelane (
-  resourcelaneid int(10) not null primary key auto_increment,
-  resourceid int(10) not null,
+  resourcelaneid int(10)  primary key auto_increment,
+  resourceid int(10) ,
   iname varchar(250),
   name varchar(250),
 
@@ -1151,22 +1151,22 @@ create table resourcelane (
 --
 
 create table run (
-  runid int(10) not null primary key auto_increment,
+  runid int(10)  primary key auto_increment,
 
-  resourceid int(10) not null,
-  userid int(10) not null, -- facilities tech
+  resourceid int(10) ,
+  userid int(10) , -- facilities tech
 
-  name varchar(250) not null, 
-  sampleid int(10) not null, -- flowcell
+  name varchar(250) , 
+  sampleid int(10) , -- flowcell
 
   startts datetime, 
   endts datetime, 
 
   status varchar(250), -- ????
 
-  isactive int(1) not null default 1, 
-  lastupdts timestamp not null default current_timestamp,
-  lastupduser int(10) not null default 0,
+  isactive int(1)  default 1, 
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
 
   foreign key fk_run_rid (resourceid) references resource(resourceid),
   foreign key fk_run_sid (sampleid) references sample(sampleid),
@@ -1174,15 +1174,15 @@ create table run (
 ) ENGINE=InnoDB charset=utf8;
 
 create table runmeta (
-  runmetaid int(10) not null primary key auto_increment,
-  runid int(10) not null,
+  runmetaid int(10)  primary key auto_increment,
+  runid int(10) ,
 
-  k varchar(250) not null, 
+  k varchar(250) , 
   v varchar(250), 
-  position int(10) not null default 0,
+  position int(10)  default 0,
 
-  lastupdts timestamp not null default current_timestamp,
-  lastupduser int(10) not null default 0,
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
 
   foreign key fk_runmeta_runid (runid) references run(runid),
   constraint unique index u_runmeta_k_rid (k, runid)
@@ -1192,11 +1192,11 @@ create table runmeta (
 -- RUN.resourceLANE (LANE)
 --
 create table runlane (
-  runlaneid int(10) not null primary key auto_increment,
+  runlaneid int(10)  primary key auto_increment,
 
-  runid int(10) not null, 
-  resourcelaneid int(10) not null, -- lane 
-  sampleid int(10) not null, 
+  runid int(10) , 
+  resourcelaneid int(10) , -- lane 
+  sampleid int(10) , 
 
   foreign key fk_runlane_rid (runid) references run(runid),
   foreign key fk_runlane_lid (resourcelaneid) references resourcelane(resourcelaneid),
@@ -1211,17 +1211,17 @@ create table runlane (
 --
 
 create table runfile (
-  runlanefileid int(10) not null primary key auto_increment,
+  runlanefileid int(10)  primary key auto_increment,
 
-  runid int(10) not null,
-  fileid int(10) not null, 
+  runid int(10) ,
+  fileid int(10) , 
 
-  iname varchar(2048) not null, 
-  name varchar(250) not null, 
+  iname varchar(2048) , 
+  name varchar(250) , 
 
-  isactive int(1) not null default 1, 
-  lastupdts timestamp not null default current_timestamp,
-  lastupduser int(10) not null default 0,
+  isactive int(1)  default 1, 
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
 
   foreign key fk_rfile_rid (runid) references run(runid),
   foreign key fk_rfile_fid (fileid) references file(fileid),
@@ -1230,16 +1230,16 @@ create table runfile (
 ) ENGINE=InnoDB charset=utf8;
 
 create table runlanefile (
-  runlanefileid int(10) not null primary key auto_increment,
+  runlanefileid int(10)  primary key auto_increment,
 
-  runlaneid int(10) not null,
-  fileid int(10) not null, 
-  iname varchar(2048) not null, 
-  name varchar(250) not null, 
+  runlaneid int(10) ,
+  fileid int(10) , 
+  iname varchar(2048) , 
+  name varchar(250) , 
 
-  isactive int(1) not null default 1, 
-  lastupdts timestamp not null default current_timestamp,
-  lastupduser int(10) not null default 0,
+  isactive int(1)  default 1, 
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
 
   foreign key fk_rlfile_rlid (runlaneid) references runlane(runlaneid),
   foreign key fk_rlfile_fileid (fileid) references file(fileid),
@@ -1253,54 +1253,54 @@ create table runlanefile (
 -- TASK
 -- 
 create table task (
-  taskid int(10) not null primary key auto_increment,
+  taskid int(10)  primary key auto_increment,
 
-  iname varchar(250) not null,
-  name varchar(250) not null,
+  iname varchar(250) ,
+  name varchar(250) ,
   constraint unique index u_task_iname (iname)
 ) ENGINE=InnoDB charset=utf8;
 
 create table workflowtask (
-  workflowtaskid int(10) not null primary key auto_increment,
-  workflowid int(10) not null,
-  taskid int(10) not null,
+  workflowtaskid int(10)  primary key auto_increment,
+  workflowid int(10) ,
+  taskid int(10) ,
 
-  iname varchar(250) not null, -- can be multiple task, so this differenciates
-  name varchar(250) not null
+  iname varchar(250) , -- can be multiple task, so this differenciates
+  name varchar(250) 
 ) ENGINE=InnoDB charset=utf8;
 
 create table workflowtasksource (
-  workflowtasksourceid int(10) not null primary key auto_increment,
-  workflowtaskid int(10) not null,
-  sourceworkflowtaskid int(10) not null
+  workflowtasksourceid int(10)  primary key auto_increment,
+  workflowtaskid int(10) ,
+  sourceworkflowtaskid int(10) 
 ) ENGINE=InnoDB charset=utf8;
 
 create table state (
-  stateid int(10) not null primary key auto_increment,
+  stateid int(10)  primary key auto_increment,
 
-  taskid int(10) not null, 
-  name varchar(250) not null,
+  taskid int(10) , 
+  name varchar(250) ,
   status varchar(50), -- 
 
   startts datetime, 
   endts datetime, 
 
-  lastupdts timestamp not null default current_timestamp,
-  lastupduser int(10) not null default 0,
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
 
   foreign key fk_state_tid (taskid) references task(taskid)
 ) ENGINE=InnoDB charset=utf8;
 
 create table statemeta (
-  statemetaid int(10) not null primary key auto_increment,
-  stateid int(10) not null,
+  statemetaid int(10)  primary key auto_increment,
+  stateid int(10) ,
 
-  k varchar(250) not null,
+  k varchar(250) ,
   v varchar(250),
-  position int(10) not null default 0,
+  position int(10)  default 0,
 
-  lastupdts timestamp not null default current_timestamp,
-  lastupduser int(10) not null default 0,
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
 
   foreign key fk_statemeta_sid (stateid) references state(stateid),
   constraint unique index u_statemeta_k_pid (k, stateid)
@@ -1308,10 +1308,10 @@ create table statemeta (
 
 
 create table statejob (
-  statejobid int(10) not null primary key auto_increment, 
+  statejobid int(10)  primary key auto_increment, 
 
-  stateid int(10) not null, 
-  jobid int(10) not null, 
+  stateid int(10) , 
+  jobid int(10) , 
 
   foreign key fk_statejob_sid (stateid) references state(stateid),
   foreign key fk_statejob_jid (jobid) references job(jobid)
@@ -1319,20 +1319,20 @@ create table statejob (
 
 
 create table statesample (
-  statesampleid int(10) not null primary key auto_increment, 
+  statesampleid int(10)  primary key auto_increment, 
 
-  stateid int(10) not null, 
-  sampleid int(10) not null, 
+  stateid int(10) , 
+  sampleid int(10) , 
 
   foreign key fk_statesample_sid (stateid) references state(stateid),
   foreign key fk_statesample_sampleid (sampleid) references sample(sampleid)
 ) ENGINE=InnoDB charset=utf8;
 
 create table staterun (
-  staterunid int(10) not null primary key auto_increment, 
+  staterunid int(10)  primary key auto_increment, 
 
-  stateid int(10) not null, 
-  runid int(10) not null, 
+  stateid int(10) , 
+  runid int(10) , 
 
   foreign key fk_staterun_sid (stateid) references state(stateid),
   foreign key fk_staterun_rid (runid) references run(runid)
@@ -1342,10 +1342,10 @@ create table staterun (
 -- tie illumina runs back to real tasks
 --   [still unsure of this design]
 create table staterunlane (
-  staterunlaneid int(10) not null primary key auto_increment,
+  staterunlaneid int(10)  primary key auto_increment,
   
-  stateid int(10) not null,
-  runlaneid int(10) not null,
+  stateid int(10) ,
+  runlaneid int(10) ,
 
   foreign key fk_staterunlane_sid (stateid) references state(stateid),
   foreign key fk_staterunlane_rlid (runlaneid) references runlane(runlaneid)
@@ -1364,11 +1364,11 @@ SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 
 DROP TABLE IF EXISTS `uifield`;
 CREATE TABLE IF NOT EXISTS `uifield` (
-  `uifieldid` int(10) NOT NULL AUTO_INCREMENT,
-  `locale` varchar(5) NOT NULL,
-  `area` varchar(50) NOT NULL,
-  `name` varchar(50) NOT NULL,
-  `attrname` varchar(50) NOT NULL,
+  `uifieldid` int(10)  AUTO_INCREMENT,
+  `locale` varchar(5) ,
+  `area` varchar(50) ,
+  `name` varchar(50) ,
+  `attrname` varchar(50) ,
   `attrvalue` varchar(500) DEFAULT NULL,
   `lastupdts` datetime DEFAULT NULL,
   `lastupduser` int(11) DEFAULT NULL,

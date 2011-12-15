@@ -33,16 +33,16 @@ public class Userpasswordauth extends WaspModel {
 	 *
 	 */
 	@Id 
-	protected int UserId;
+	protected Integer UserId;
 
 	/**
-	 * setUserId(int UserId)
+	 * setUserId(Integer UserId)
 	 *
 	 * @param UserId
 	 *
 	 */
 	
-	public void setUserId (int UserId) {
+	public void setUserId (Integer UserId) {
 		this.UserId = UserId;
 	}
 
@@ -52,7 +52,7 @@ public class Userpasswordauth extends WaspModel {
 	 * @return UserId
 	 *
 	 */
-	public int getUserId () {
+	public Integer getUserId () {
 		return this.UserId;
 	}
 
@@ -126,16 +126,16 @@ public class Userpasswordauth extends WaspModel {
 	 *
 	 */
 	@Column(name="lastupduser")
-	protected int lastUpdUser;
+	protected Integer lastUpdUser;
 
 	/**
-	 * setLastUpdUser(int lastUpdUser)
+	 * setLastUpdUser(Integer lastUpdUser)
 	 *
 	 * @param lastUpdUser
 	 *
 	 */
 	
-	public void setLastUpdUser (int lastUpdUser) {
+	public void setLastUpdUser (Integer lastUpdUser) {
 		this.lastUpdUser = lastUpdUser;
 	}
 
@@ -145,7 +145,7 @@ public class Userpasswordauth extends WaspModel {
 	 * @return lastUpdUser
 	 *
 	 */
-	public int getLastUpdUser () {
+	public Integer getLastUpdUser () {
 		return this.lastUpdUser;
 	}
 

@@ -53,7 +53,7 @@ public final class MetaUtil {
 				
 				m.setProperty(p);
 				
-				int pos=-1;
+				Integer pos=-1;
 						    		
 				try {	    			
 					pos=Integer.parseInt(getValue(area,basename,"metaposition"));
@@ -191,8 +191,8 @@ public final class MetaUtil {
 			MetaBase f1=(MetaBase)o1;
 			MetaBase f2=(MetaBase)o2;
 
-			if (f1==null || f1.getProperty()==null || f1.getProperty().getMetaposition()==-1 ) return -1;
-			if (f2==null || f2.getProperty()==null || f2.getProperty().getMetaposition()==-1 ) return 1;
+			if (f1==null || f1.getProperty()==null || f1.getProperty().getMetaposition().intValue()==-1 ) return -1;
+			if (f2==null || f2.getProperty()==null || f2.getProperty().getMetaposition().intValue()==-1 ) return 1;
 			
 			
 			Integer p1=f1.getProperty().getMetaposition();

@@ -33,16 +33,16 @@ public class Workflowtasksource extends WaspModel {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int workflowtasksourceId;
+	protected Integer workflowtasksourceId;
 
 	/**
-	 * setWorkflowtasksourceId(int workflowtasksourceId)
+	 * setWorkflowtasksourceId(Integer workflowtasksourceId)
 	 *
 	 * @param workflowtasksourceId
 	 *
 	 */
 	
-	public void setWorkflowtasksourceId (int workflowtasksourceId) {
+	public void setWorkflowtasksourceId (Integer workflowtasksourceId) {
 		this.workflowtasksourceId = workflowtasksourceId;
 	}
 
@@ -52,7 +52,7 @@ public class Workflowtasksource extends WaspModel {
 	 * @return workflowtasksourceId
 	 *
 	 */
-	public int getWorkflowtasksourceId () {
+	public Integer getWorkflowtasksourceId () {
 		return this.workflowtasksourceId;
 	}
 
@@ -64,16 +64,16 @@ public class Workflowtasksource extends WaspModel {
 	 *
 	 */
 	@Column(name="workflowtaskid")
-	protected int workflowtaskId;
+	protected Integer workflowtaskId;
 
 	/**
-	 * setWorkflowtaskId(int workflowtaskId)
+	 * setWorkflowtaskId(Integer workflowtaskId)
 	 *
 	 * @param workflowtaskId
 	 *
 	 */
 	
-	public void setWorkflowtaskId (int workflowtaskId) {
+	public void setWorkflowtaskId (Integer workflowtaskId) {
 		this.workflowtaskId = workflowtaskId;
 	}
 
@@ -83,7 +83,7 @@ public class Workflowtasksource extends WaspModel {
 	 * @return workflowtaskId
 	 *
 	 */
-	public int getWorkflowtaskId () {
+	public Integer getWorkflowtaskId () {
 		return this.workflowtaskId;
 	}
 
@@ -95,16 +95,16 @@ public class Workflowtasksource extends WaspModel {
 	 *
 	 */
 	@Column(name="sourceworkflowtaskid")
-	protected int sourceworkflowtaskId;
+	protected Integer sourceworkflowtaskId;
 
 	/**
-	 * setSourceworkflowtaskId(int sourceworkflowtaskId)
+	 * setSourceworkflowtaskId(Integer sourceworkflowtaskId)
 	 *
 	 * @param sourceworkflowtaskId
 	 *
 	 */
 	
-	public void setSourceworkflowtaskId (int sourceworkflowtaskId) {
+	public void setSourceworkflowtaskId (Integer sourceworkflowtaskId) {
 		this.sourceworkflowtaskId = sourceworkflowtaskId;
 	}
 
@@ -114,7 +114,7 @@ public class Workflowtasksource extends WaspModel {
 	 * @return sourceworkflowtaskId
 	 *
 	 */
-	public int getSourceworkflowtaskId () {
+	public Integer getSourceworkflowtaskId () {
 		return this.sourceworkflowtaskId;
 	}
 

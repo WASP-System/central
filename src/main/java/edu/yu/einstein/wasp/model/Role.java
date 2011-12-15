@@ -33,16 +33,16 @@ public class Role extends WaspModel {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int roleId;
+	protected Integer roleId;
 
 	/**
-	 * setRoleId(int roleId)
+	 * setRoleId(Integer roleId)
 	 *
 	 * @param roleId
 	 *
 	 */
 	
-	public void setRoleId (int roleId) {
+	public void setRoleId (Integer roleId) {
 		this.roleId = roleId;
 	}
 
@@ -52,7 +52,7 @@ public class Role extends WaspModel {
 	 * @return roleId
 	 *
 	 */
-	public int getRoleId () {
+	public Integer getRoleId () {
 		return this.roleId;
 	}
 

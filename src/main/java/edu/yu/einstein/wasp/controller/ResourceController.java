@@ -136,7 +136,7 @@ public class ResourceController extends WaspController {
 								resource.getName(),
 								resource.getPlatform(),
 								resource.getTypeResource().getName(),
-								resource.getIsActive() == 1 ? "yes" : "no" }));
+								resource.getIsActive().intValue() == 1 ? "yes" : "no" }));
 
 				for (ResourceMeta meta : resourceMeta) {
 					cellList.add(meta.getV());
@@ -204,7 +204,7 @@ public class ResourceController extends WaspController {
 			int j = 0;
 			for (Run run : runs) {
 
-				text = run.getRunId() == 0 ? "No Runs"
+				text = run.getRunId() == null ? "No Runs"
 						: "<a href=/wasp/run/detail/" + run.getRunId() + ".do>"
 								+ run.getName() + "</a>";
 				mtrx[j] = text;

@@ -184,7 +184,10 @@ public class UserPendingController extends WaspController {
 		}
 		if (! result.hasFieldErrors("email")){
 			User user = userService.getUserByEmail(userPendingForm.getEmail());
-			if (user.getUserId() != 0 ){
+			//NV 12132011
+			//if (user.getUserId() != null ){
+			if (user.getUserId() != null ){
+
 				Errors errors=new BindException(result.getTarget(), userPendingMetaHelper.getParentArea());
 				errors.rejectValue("email", userPendingMetaHelper.getParentArea()+".email_exists.error", userPendingMetaHelper.getParentArea()+".email_exists.error (no message has been defined for this property)");
 				result.addAllErrors(errors);
@@ -193,11 +196,13 @@ public class UserPendingController extends WaspController {
 		
 		// validate captcha
 		Captcha captcha = (Captcha) request.getSession().getAttribute(Captcha.NAME);
+		/* NV
 		String captchaText = (String) request.getParameter("captcha");
+		/* NV
 		if (captcha == null || captchaText == null || captchaText.isEmpty() || (! captcha.isCorrect(captchaText)) ){
 			m.put("captchaError", messageService.getMessage(userPendingMetaHelper.getParentArea()+".captcha.error"));
 		}
-		
+		*/
 		if (result.hasErrors() || m.containsKey("captchaError")) {
 			userPendingForm.setUserPendingMeta((List<UserPendingMeta>) userPendingMetaHelper.getMetaList());
 			prepareSelectListData(m);
@@ -395,7 +400,10 @@ public class UserPendingController extends WaspController {
 		
 		if (! result.hasFieldErrors("email")){
 			User user = userService.getUserByEmail(userPendingForm.getEmail());
-			if (user.getUserId() != 0 ){
+
+			//NV 12132011
+			if (user.getUserId() != null){
+
 				Errors errors=new BindException(result.getTarget(), metaHelper.getParentArea());
 				errors.rejectValue("email", metaHelper.getParentArea()+".email_exists.error", metaHelper.getParentArea()+".email_exists.error (no message has been defined for this property)");
 				result.addAllErrors(errors);
@@ -404,11 +412,14 @@ public class UserPendingController extends WaspController {
 		
 		// validate captcha
 		Captcha captcha = (Captcha) request.getSession().getAttribute(Captcha.NAME);
+		
+		/* NV
 		String captchaText = (String) request.getParameter("captcha");
+		/* NV
 		if (captcha == null || captchaText == null || captchaText.isEmpty() || (! captcha.isCorrect(captchaText)) ){
 			m.put("captchaError", messageService.getMessage(metaHelper.getParentArea()+".captcha.error"));
 		}
-		
+		*/
 		if (result.hasErrors() || m.containsKey("captchaError")) {
 			userPendingForm.setUserPendingMeta((List<UserPendingMeta>) metaHelper.getMetaList());
 			prepareSelectListData(m, metaHelper);
@@ -454,7 +465,7 @@ public class UserPendingController extends WaspController {
 			return false;
 		}
 		ConfirmEmailAuth confirmEmailAuth = confirmEmailAuthService.getConfirmEmailAuthByAuthcode(authCode);
-		if (email == null || email.isEmpty() || confirmEmailAuth.getConfirmEmailAuthId() == 0) {
+		if (email == null || email.isEmpty() || confirmEmailAuth.getConfirmEmailAuthId() == null) {
 			waspMessage("auth.confirmemail_bademail.error");
 			if (m != null) m.put("authcode", authCode);
 			return false;
@@ -484,7 +495,7 @@ public class UserPendingController extends WaspController {
 		// consider email confirmed for ALL pending user and lab applications linked to this validated email address
 		for (UserPending up: userPendingList){
 			ConfirmEmailAuth auth = confirmEmailAuthService.getConfirmEmailAuthByUserpendingId(up.getUserPendingId());
-			if (auth.getConfirmEmailAuthId() != 0){
+			if (auth.getConfirmEmailAuthId() != null){
 				confirmEmailAuthService.remove(auth);
 			}
 			up.setStatus("PENDING");
@@ -541,7 +552,7 @@ public class UserPendingController extends WaspController {
 						} else if (sourceName.equals("departmentId")){
 							String internalExternal = (
 									departmentService.findById( Integer.valueOf( userPendingMetaHelper.getMetaByName(sourceName).getV() ) )
-											.getIsInternal() == 1) ? "internal" : "external";
+											.getIsInternal().intValue() == 1) ? "internal" : "external";
 							targetName = "internal_external_lab";
 							labPendingMetaHelper.setMetaValueByName(targetName, internalExternal);
 						}
@@ -613,12 +624,19 @@ public class UserPendingController extends WaspController {
 	        ModelMap m) throws MetadataException {
 		 
 		  Captcha captcha = (Captcha) request.getSession().getAttribute(Captcha.NAME);
+		  /* NV
 		  if (captcha == null || (! captcha.isCorrect(captchaText)) ){
 			  waspMessage("auth.confirmemail_captcha.error");
 			  m.put("authcode", authCode);
 			  m.put("email", email);
 			  return "auth/confirmemail/authcodeform";
 		  }
+<<<<<<< .mine
+		  */
+
+		  if (! userPendingEmailValid(authCode, email, m)) return "auth/confirmemail/authcodeform";
+
+
 		  Map userPendingQueryMap = new HashMap();
 		  userPendingQueryMap.put("email", email);
 		  userPendingQueryMap.put("status", "WAIT_EMAIL");
@@ -683,12 +701,18 @@ public class UserPendingController extends WaspController {
 			@RequestParam(value="captcha_text") String captchaText,
 			ModelMap m) throws MetadataException {
 		Captcha captcha = (Captcha) request.getSession().getAttribute(Captcha.NAME);
+		/* NV
+
 		if (captcha == null || (! captcha.isCorrect(captchaText)) ){
 			waspMessage("auth.confirmemail_captcha.error");
 			m.put("authcode", authCode);
 			m.put("email", email);
 			return "auth/confirmemail/authcodeform";
 		}
+		*/
+		if (! userPendingEmailValid(authCode, email, m)) return "auth/confirmemail/authcodeform";
+
+
 		Map userPendingQueryMap = new HashMap();
 		userPendingQueryMap.put("email", email);
 		userPendingQueryMap.put("status", "WAIT_EMAIL");

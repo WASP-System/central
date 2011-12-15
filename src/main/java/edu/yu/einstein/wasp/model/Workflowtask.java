@@ -33,16 +33,16 @@ public class Workflowtask extends WaspModel {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int workflowtaskId;
+	protected Integer workflowtaskId;
 
 	/**
-	 * setWorkflowtaskId(int workflowtaskId)
+	 * setWorkflowtaskId(Integer workflowtaskId)
 	 *
 	 * @param workflowtaskId
 	 *
 	 */
 	
-	public void setWorkflowtaskId (int workflowtaskId) {
+	public void setWorkflowtaskId (Integer workflowtaskId) {
 		this.workflowtaskId = workflowtaskId;
 	}
 
@@ -52,7 +52,7 @@ public class Workflowtask extends WaspModel {
 	 * @return workflowtaskId
 	 *
 	 */
-	public int getWorkflowtaskId () {
+	public Integer getWorkflowtaskId () {
 		return this.workflowtaskId;
 	}
 
@@ -64,16 +64,16 @@ public class Workflowtask extends WaspModel {
 	 *
 	 */
 	@Column(name="workflowid")
-	protected int workflowId;
+	protected Integer workflowId;
 
 	/**
-	 * setWorkflowId(int workflowId)
+	 * setWorkflowId(Integer workflowId)
 	 *
 	 * @param workflowId
 	 *
 	 */
 	
-	public void setWorkflowId (int workflowId) {
+	public void setWorkflowId (Integer workflowId) {
 		this.workflowId = workflowId;
 	}
 
@@ -83,7 +83,7 @@ public class Workflowtask extends WaspModel {
 	 * @return workflowId
 	 *
 	 */
-	public int getWorkflowId () {
+	public Integer getWorkflowId () {
 		return this.workflowId;
 	}
 
@@ -95,16 +95,16 @@ public class Workflowtask extends WaspModel {
 	 *
 	 */
 	@Column(name="taskid")
-	protected int taskId;
+	protected Integer taskId;
 
 	/**
-	 * setTaskId(int taskId)
+	 * setTaskId(Integer taskId)
 	 *
 	 * @param taskId
 	 *
 	 */
 	
-	public void setTaskId (int taskId) {
+	public void setTaskId (Integer taskId) {
 		this.taskId = taskId;
 	}
 
@@ -114,7 +114,7 @@ public class Workflowtask extends WaspModel {
 	 * @return taskId
 	 *
 	 */
-	public int getTaskId () {
+	public Integer getTaskId () {
 		return this.taskId;
 	}
 

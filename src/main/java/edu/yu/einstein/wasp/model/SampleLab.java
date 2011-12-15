@@ -33,16 +33,16 @@ public class SampleLab extends WaspModel {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int sampleLabId;
+	protected Integer sampleLabId;
 
 	/**
-	 * setSampleLabId(int sampleLabId)
+	 * setSampleLabId(Integer sampleLabId)
 	 *
 	 * @param sampleLabId
 	 *
 	 */
 	
-	public void setSampleLabId (int sampleLabId) {
+	public void setSampleLabId (Integer sampleLabId) {
 		this.sampleLabId = sampleLabId;
 	}
 
@@ -52,7 +52,7 @@ public class SampleLab extends WaspModel {
 	 * @return sampleLabId
 	 *
 	 */
-	public int getSampleLabId () {
+	public Integer getSampleLabId () {
 		return this.sampleLabId;
 	}
 
@@ -64,16 +64,16 @@ public class SampleLab extends WaspModel {
 	 *
 	 */
 	@Column(name="sampleid")
-	protected int sampleId;
+	protected Integer sampleId;
 
 	/**
-	 * setSampleId(int sampleId)
+	 * setSampleId(Integer sampleId)
 	 *
 	 * @param sampleId
 	 *
 	 */
 	
-	public void setSampleId (int sampleId) {
+	public void setSampleId (Integer sampleId) {
 		this.sampleId = sampleId;
 	}
 
@@ -83,7 +83,7 @@ public class SampleLab extends WaspModel {
 	 * @return sampleId
 	 *
 	 */
-	public int getSampleId () {
+	public Integer getSampleId () {
 		return this.sampleId;
 	}
 
@@ -95,16 +95,16 @@ public class SampleLab extends WaspModel {
 	 *
 	 */
 	@Column(name="labid")
-	protected int labId;
+	protected Integer labId;
 
 	/**
-	 * setLabId(int labId)
+	 * setLabId(Integer labId)
 	 *
 	 * @param labId
 	 *
 	 */
 	
-	public void setLabId (int labId) {
+	public void setLabId (Integer labId) {
 		this.labId = labId;
 	}
 
@@ -114,7 +114,7 @@ public class SampleLab extends WaspModel {
 	 * @return labId
 	 *
 	 */
-	public int getLabId () {
+	public Integer getLabId () {
 		return this.labId;
 	}
 
@@ -126,16 +126,16 @@ public class SampleLab extends WaspModel {
 	 *
 	 */
 	@Column(name="isprimary")
-	protected int isPrimary;
+	protected Integer isPrimary;
 
 	/**
-	 * setIsPrimary(int isPrimary)
+	 * setIsPrimary(Integer isPrimary)
 	 *
 	 * @param isPrimary
 	 *
 	 */
 	
-	public void setIsPrimary (int isPrimary) {
+	public void setIsPrimary (Integer isPrimary) {
 		this.isPrimary = isPrimary;
 	}
 
@@ -145,7 +145,7 @@ public class SampleLab extends WaspModel {
 	 * @return isPrimary
 	 *
 	 */
-	public int getIsPrimary () {
+	public Integer getIsPrimary () {
 		return this.isPrimary;
 	}
 
@@ -188,16 +188,16 @@ public class SampleLab extends WaspModel {
 	 *
 	 */
 	@Column(name="lastupduser")
-	protected int lastUpdUser;
+	protected Integer lastUpdUser;
 
 	/**
-	 * setLastUpdUser(int lastUpdUser)
+	 * setLastUpdUser(Integer lastUpdUser)
 	 *
 	 * @param lastUpdUser
 	 *
 	 */
 	
-	public void setLastUpdUser (int lastUpdUser) {
+	public void setLastUpdUser (Integer lastUpdUser) {
 		this.lastUpdUser = lastUpdUser;
 	}
 
@@ -207,7 +207,7 @@ public class SampleLab extends WaspModel {
 	 * @return lastUpdUser
 	 *
 	 */
-	public int getLastUpdUser () {
+	public Integer getLastUpdUser () {
 		return this.lastUpdUser;
 	}
 

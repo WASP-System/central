@@ -33,16 +33,16 @@ public class Workflowsubtypesample extends WaspModel {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int workflowsubtypesampleId;
+	protected Integer workflowsubtypesampleId;
 
 	/**
-	 * setWorkflowsubtypesampleId(int workflowsubtypesampleId)
+	 * setWorkflowsubtypesampleId(Integer workflowsubtypesampleId)
 	 *
 	 * @param workflowsubtypesampleId
 	 *
 	 */
 	
-	public void setWorkflowsubtypesampleId (int workflowsubtypesampleId) {
+	public void setWorkflowsubtypesampleId (Integer workflowsubtypesampleId) {
 		this.workflowsubtypesampleId = workflowsubtypesampleId;
 	}
 
@@ -52,7 +52,7 @@ public class Workflowsubtypesample extends WaspModel {
 	 * @return workflowsubtypesampleId
 	 *
 	 */
-	public int getWorkflowsubtypesampleId () {
+	public Integer getWorkflowsubtypesampleId () {
 		return this.workflowsubtypesampleId;
 	}
 
@@ -64,16 +64,16 @@ public class Workflowsubtypesample extends WaspModel {
 	 *
 	 */
 	@Column(name="workflowid")
-	protected int workflowId;
+	protected Integer workflowId;
 
 	/**
-	 * setWorkflowId(int workflowId)
+	 * setWorkflowId(Integer workflowId)
 	 *
 	 * @param workflowId
 	 *
 	 */
 	
-	public void setWorkflowId (int workflowId) {
+	public void setWorkflowId (Integer workflowId) {
 		this.workflowId = workflowId;
 	}
 
@@ -83,7 +83,7 @@ public class Workflowsubtypesample extends WaspModel {
 	 * @return workflowId
 	 *
 	 */
-	public int getWorkflowId () {
+	public Integer getWorkflowId () {
 		return this.workflowId;
 	}
 
@@ -95,16 +95,16 @@ public class Workflowsubtypesample extends WaspModel {
 	 *
 	 */
 	@Column(name="subtypesampleid")
-	protected int subtypeSampleId;
+	protected Integer subtypeSampleId;
 
 	/**
-	 * setSubtypeSampleId(int subtypeSampleId)
+	 * setSubtypeSampleId(Integer subtypeSampleId)
 	 *
 	 * @param subtypeSampleId
 	 *
 	 */
 	
-	public void setSubtypeSampleId (int subtypeSampleId) {
+	public void setSubtypeSampleId (Integer subtypeSampleId) {
 		this.subtypeSampleId = subtypeSampleId;
 	}
 
@@ -114,7 +114,7 @@ public class Workflowsubtypesample extends WaspModel {
 	 * @return subtypeSampleId
 	 *
 	 */
-	public int getSubtypeSampleId () {
+	public Integer getSubtypeSampleId () {
 		return this.subtypeSampleId;
 	}
 

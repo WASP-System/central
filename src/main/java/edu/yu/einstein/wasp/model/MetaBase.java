@@ -52,13 +52,13 @@ public class MetaBase extends WaspModel {
 	}
 
 	@Column(name = "position")
-	private int position;
+	private Integer position;
 
-	public void setPosition(int position) {
+	public void setPosition(Integer position) {
 		this.position = position;
 	}
 
-	public int getPosition() {
+	public Integer getPosition() {
 		return this.position;
 	}
 
@@ -74,13 +74,13 @@ public class MetaBase extends WaspModel {
 	}
 
 	@Column(name = "lastupduser")
-	private int lastUpdUser;
+	private Integer lastUpdUser;
 
-	public void setLastUpdUser(int lastUpdUser) {
+	public void setLastUpdUser(Integer lastUpdUser) {
 		this.lastUpdUser = lastUpdUser;
 	}
 
-	public int getLastUpdUser() {
+	public Integer getLastUpdUser() {
 		return this.lastUpdUser;
 	}
 

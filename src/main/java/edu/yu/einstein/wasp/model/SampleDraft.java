@@ -46,16 +46,16 @@ processed
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int sampleDraftId;
+	protected Integer sampleDraftId;
 
 	/**
-	 * setSampleDraftId(int sampleDraftId)
+	 * setSampleDraftId(Integer sampleDraftId)
 	 *
 	 * @param sampleDraftId
 	 *
 	 */
 	
-	public void setSampleDraftId (int sampleDraftId) {
+	public void setSampleDraftId (Integer sampleDraftId) {
 		this.sampleDraftId = sampleDraftId;
 	}
 
@@ -65,7 +65,7 @@ processed
 	 * @return sampleDraftId
 	 *
 	 */
-	public int getSampleDraftId () {
+	public Integer getSampleDraftId () {
 		return this.sampleDraftId;
 	}
 
@@ -77,16 +77,16 @@ processed
 	 *
 	 */
 	@Column(name="typesampleid")
-	protected int typeSampleId;
+	protected Integer typeSampleId;
 
 	/**
-	 * setTypeSampleId(int typeSampleId)
+	 * setTypeSampleId(Integer typeSampleId)
 	 *
 	 * @param typeSampleId
 	 *
 	 */
 	
-	public void setTypeSampleId (int typeSampleId) {
+	public void setTypeSampleId (Integer typeSampleId) {
 		this.typeSampleId = typeSampleId;
 	}
 
@@ -96,7 +96,7 @@ processed
 	 * @return typeSampleId
 	 *
 	 */
-	public int getTypeSampleId () {
+	public Integer getTypeSampleId () {
 		return this.typeSampleId;
 	}
 
@@ -108,16 +108,16 @@ processed
 	 *
 	 */
 	@Column(name="subtypesampleid")
-	protected int subtypeSampleId;
+	protected Integer subtypeSampleId;
 
 	/**
-	 * setSubtypeSampleId(int subtypeSampleId)
+	 * setSubtypeSampleId(Integer subtypeSampleId)
 	 *
 	 * @param subtypeSampleId
 	 *
 	 */
 	
-	public void setSubtypeSampleId (int subtypeSampleId) {
+	public void setSubtypeSampleId (Integer subtypeSampleId) {
 		this.subtypeSampleId = subtypeSampleId;
 	}
 
@@ -127,7 +127,7 @@ processed
 	 * @return subtypeSampleId
 	 *
 	 */
-	public int getSubtypeSampleId () {
+	public Integer getSubtypeSampleId () {
 		return this.subtypeSampleId;
 	}
 	
@@ -148,16 +148,16 @@ processed
 	 *
 	 */
 	@Column(name="labid")
-	protected int labId;
+	protected Integer labId;
 
 	/**
-	 * setLabId(int labId)
+	 * setLabId(Integer labId)
 	 *
 	 * @param labId
 	 *
 	 */
 	
-	public void setLabId (int labId) {
+	public void setLabId (Integer labId) {
 		this.labId = labId;
 	}
 
@@ -167,7 +167,7 @@ processed
 	 * @return labId
 	 *
 	 */
-	public int getLabId () {
+	public Integer getLabId () {
 		return this.labId;
 	}
 
@@ -179,16 +179,16 @@ processed
 	 *
 	 */
 	@Column(name="userid")
-	protected int UserId;
+	protected Integer UserId;
 
 	/**
-	 * setUserId(int UserId)
+	 * setUserId(Integer UserId)
 	 *
 	 * @param UserId
 	 *
 	 */
 	
-	public void setUserId (int UserId) {
+	public void setUserId (Integer UserId) {
 		this.UserId = UserId;
 	}
 
@@ -198,7 +198,7 @@ processed
 	 * @return UserId
 	 *
 	 */
-	public int getUserId () {
+	public Integer getUserId () {
 		return this.UserId;
 	}
 
@@ -366,16 +366,16 @@ processed
 	 *
 	 */
 	@Column(name="lastupduser")
-	protected int lastUpdUser;
+	protected Integer lastUpdUser;
 
 	/**
-	 * setLastUpdUser(int lastUpdUser)
+	 * setLastUpdUser(Integer lastUpdUser)
 	 *
 	 * @param lastUpdUser
 	 *
 	 */
 	
-	public void setLastUpdUser (int lastUpdUser) {
+	public void setLastUpdUser (Integer lastUpdUser) {
 		this.lastUpdUser = lastUpdUser;
 	}
 
@@ -385,7 +385,7 @@ processed
 	 * @return lastUpdUser
 	 *
 	 */
-	public int getLastUpdUser () {
+	public Integer getLastUpdUser () {
 		return this.lastUpdUser;
 	}
 

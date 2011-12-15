@@ -33,16 +33,16 @@ public class Project extends WaspModel {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int projectId;
+	protected Integer projectId;
 
 	/**
-	 * setProjectId(int projectId)
+	 * setProjectId(Integer projectId)
 	 *
 	 * @param projectId
 	 *
 	 */
 	
-	public void setProjectId (int projectId) {
+	public void setProjectId (Integer projectId) {
 		this.projectId = projectId;
 	}
 
@@ -52,7 +52,7 @@ public class Project extends WaspModel {
 	 * @return projectId
 	 *
 	 */
-	public int getProjectId () {
+	public Integer getProjectId () {
 		return this.projectId;
 	}
 
@@ -64,16 +64,16 @@ public class Project extends WaspModel {
 	 *
 	 */
 	@Column(name="labid")
-	protected int labId;
+	protected Integer labId;
 
 	/**
-	 * setLabId(int labId)
+	 * setLabId(Integer labId)
 	 *
 	 * @param labId
 	 *
 	 */
 	
-	public void setLabId (int labId) {
+	public void setLabId (Integer labId) {
 		this.labId = labId;
 	}
 
@@ -83,7 +83,7 @@ public class Project extends WaspModel {
 	 * @return labId
 	 *
 	 */
-	public int getLabId () {
+	public Integer getLabId () {
 		return this.labId;
 	}
 
@@ -95,16 +95,16 @@ public class Project extends WaspModel {
 	 *
 	 */
 	@Column(name="userid")
-	protected int UserId;
+	protected Integer UserId;
 
 	/**
-	 * setUserId(int UserId)
+	 * setUserId(Integer UserId)
 	 *
 	 * @param UserId
 	 *
 	 */
 	
-	public void setUserId (int UserId) {
+	public void setUserId (Integer UserId) {
 		this.UserId = UserId;
 	}
 
@@ -114,7 +114,7 @@ public class Project extends WaspModel {
 	 * @return UserId
 	 *
 	 */
-	public int getUserId () {
+	public Integer getUserId () {
 		return this.UserId;
 	}
 
@@ -157,16 +157,16 @@ public class Project extends WaspModel {
 	 *
 	 */
 	@Column(name="isactive")
-	protected int isActive;
+	protected Integer isActive;
 
 	/**
-	 * setIsActive(int isActive)
+	 * setIsActive(Integer isActive)
 	 *
 	 * @param isActive
 	 *
 	 */
 	
-	public void setIsActive (int isActive) {
+	public void setIsActive (Integer isActive) {
 		this.isActive = isActive;
 	}
 
@@ -176,7 +176,7 @@ public class Project extends WaspModel {
 	 * @return isActive
 	 *
 	 */
-	public int getIsActive () {
+	public Integer getIsActive () {
 		return this.isActive;
 	}
 
@@ -219,16 +219,16 @@ public class Project extends WaspModel {
 	 *
 	 */
 	@Column(name="lastupduser")
-	protected int lastUpdUser;
+	protected Integer lastUpdUser;
 
 	/**
-	 * setLastUpdUser(int lastUpdUser)
+	 * setLastUpdUser(Integer lastUpdUser)
 	 *
 	 * @param lastUpdUser
 	 *
 	 */
 	
-	public void setLastUpdUser (int lastUpdUser) {
+	public void setLastUpdUser (Integer lastUpdUser) {
 		this.lastUpdUser = lastUpdUser;
 	}
 
@@ -238,7 +238,7 @@ public class Project extends WaspModel {
 	 * @return lastUpdUser
 	 *
 	 */
-	public int getLastUpdUser () {
+	public Integer getLastUpdUser () {
 		return this.lastUpdUser;
 	}
 

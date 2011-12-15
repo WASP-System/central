@@ -43,11 +43,11 @@ public class UserPendingMetaValidatorImpl extends MetaValidatorImpl{
 		        	errorMessageKey = meta.getK() + "_notvalid.error";
 					defaultMessage = errorMessageKey+" (no message has been defined for this property)";
 					User primaryInvestigator = userService.getUserByLogin(meta.getV());
-					if (primaryInvestigator.getUserId() == 0 || primaryInvestigator.getIsActive() == 0){
+					if (primaryInvestigator.getUserId() == null || primaryInvestigator.getIsActive() == null){
 					  errors.rejectValue(errorFieldName, errorMessageKey, defaultMessage);
 					} else {
 						Lab lab = labService.getLabByPrimaryUserId(primaryInvestigator.getUserId());
-						if (lab.getLabId() == 0){
+						if (lab.getLabId() == null){
 							errors.rejectValue(errorFieldName, errorMessageKey, defaultMessage);
 						}
 					}

@@ -110,7 +110,7 @@ public class SystemRoleController extends WaspController {
 		String userLogin = StringHelper.getLoginFromFormattedNameAndLogin(userHook.trim());
 
 		User user = userService.getUserByLogin(userLogin);
-		if (user.getUserId() == 0){
+		if (user.getUserId() == null){
 			waspMessage("sysrole.userNonexistant.error");
 			return "redirect:/sysrole/list.do";
 		}
@@ -119,7 +119,7 @@ public class SystemRoleController extends WaspController {
 			return "redirect:/sysrole/list.do";
 		}
 		Role role= roleService.getRoleByRoleName(roleName);
-		if (role.getRoleId() == 0 || !role.getDomain().equals("system")){
+		if (role.getRoleId() == null || !role.getDomain().equals("system")){
 			waspMessage("sysrole.invalidRoleSpecified.error");
 			return "redirect:/sysrole/list.do";
 		}
@@ -138,7 +138,7 @@ public class SystemRoleController extends WaspController {
 
 		// if i am the user,  reauth
 		User me = authenticationService.getAuthenticatedUser();
-		if (me.getUserId() == user.getUserId()) {
+		if (me.getUserId().intValue() == user.getUserId().intValue()) {
 			doReauth();
 		}
 
@@ -165,7 +165,7 @@ public class SystemRoleController extends WaspController {
 			waspMessage("sysrole.noUserSpecified.error");
 			return "redirect:/sysrole/list.do";
 		}
-		if (userService.getUserByUserId(userId).getUserId() == 0){
+		if (userService.getUserByUserId(userId).getUserId() == null){
 			waspMessage("sysrole.userNonexistant.error");
 			return "redirect:/sysrole/list.do";
 		}
@@ -174,7 +174,7 @@ public class SystemRoleController extends WaspController {
 			return "redirect:/sysrole/list.do";
 		}
 		Role role= roleService.getRoleByRoleName(roleName);
-		if (role.getRoleId() == 0 || !role.getDomain().equals("system")){
+		if (role.getRoleId() == null || !role.getDomain().equals("system")){
 			waspMessage("sysrole.invalidRoleSpecified.error");
 			return "redirect:/sysrole/list.do";
 		}
@@ -188,7 +188,7 @@ public class SystemRoleController extends WaspController {
 		}
 		Userrole userrole = userroleService.getUserroleByUserIdRoleId(userId, role.getRoleId());
 		
-		if (userrole.getUserroleId() == 0){
+		if (userrole.getUserroleId() == null){
 			waspMessage("sysrole.wrongUserRoleCombination.error");
 			return "redirect:/sysrole/list.do";
 		}
@@ -196,7 +196,7 @@ public class SystemRoleController extends WaspController {
 		waspMessage("sysrole.success.label");
 		// if i am the user,  reauth
 		User me = authenticationService.getAuthenticatedUser();
-		if (me.getUserId() == userId) {
+		if (me.getUserId().intValue() == userId.intValue()) {
 			doReauth();
 			if (roleName.equals("god")){
 				return "redirect:/dashboard.do";

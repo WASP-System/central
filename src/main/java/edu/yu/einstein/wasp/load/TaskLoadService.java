@@ -53,7 +53,7 @@ public class TaskLoadService extends WaspLoadService {
     Task task = taskService.getTaskByIName(iname); 
 
     // inserts or update workflow
-    if (task.getTaskId() == 0) { 
+    if (task.getTaskId() == null) { 
       task = new Task();
 
       task.setIName(iname);

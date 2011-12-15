@@ -33,16 +33,16 @@ public class JobResource extends WaspModel {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int jobResourceId;
+	protected Integer jobResourceId;
 
 	/**
-	 * setJobResourceId(int jobResourceId)
+	 * setJobResourceId(Integer jobResourceId)
 	 *
 	 * @param jobResourceId
 	 *
 	 */
 	
-	public void setJobResourceId (int jobResourceId) {
+	public void setJobResourceId (Integer jobResourceId) {
 		this.jobResourceId = jobResourceId;
 	}
 
@@ -52,7 +52,7 @@ public class JobResource extends WaspModel {
 	 * @return jobResourceId
 	 *
 	 */
-	public int getJobResourceId () {
+	public Integer getJobResourceId () {
 		return this.jobResourceId;
 	}
 
@@ -64,16 +64,16 @@ public class JobResource extends WaspModel {
 	 *
 	 */
 	@Column(name="jobid")
-	protected int jobId;
+	protected Integer jobId;
 
 	/**
-	 * setJobId(int jobId)
+	 * setJobId(Integer jobId)
 	 *
 	 * @param jobId
 	 *
 	 */
 	
-	public void setJobId (int jobId) {
+	public void setJobId (Integer jobId) {
 		this.jobId = jobId;
 	}
 
@@ -83,7 +83,7 @@ public class JobResource extends WaspModel {
 	 * @return jobId
 	 *
 	 */
-	public int getJobId () {
+	public Integer getJobId () {
 		return this.jobId;
 	}
 
@@ -95,16 +95,16 @@ public class JobResource extends WaspModel {
 	 *
 	 */
 	@Column(name="resourceid")
-	protected int resourceId;
+	protected Integer resourceId;
 
 	/**
-	 * setResourceId(int resourceId)
+	 * setResourceId(Integer resourceId)
 	 *
 	 * @param resourceId
 	 *
 	 */
 	
-	public void setResourceId (int resourceId) {
+	public void setResourceId (Integer resourceId) {
 		this.resourceId = resourceId;
 	}
 
@@ -114,7 +114,7 @@ public class JobResource extends WaspModel {
 	 * @return resourceId
 	 *
 	 */
-	public int getResourceId () {
+	public Integer getResourceId () {
 		return this.resourceId;
 	}
 
@@ -157,16 +157,16 @@ public class JobResource extends WaspModel {
 	 *
 	 */
 	@Column(name="lastupduser")
-	protected int lastUpdUser;
+	protected Integer lastUpdUser;
 
 	/**
-	 * setLastUpdUser(int lastUpdUser)
+	 * setLastUpdUser(Integer lastUpdUser)
 	 *
 	 * @param lastUpdUser
 	 *
 	 */
 	
-	public void setLastUpdUser (int lastUpdUser) {
+	public void setLastUpdUser (Integer lastUpdUser) {
 		this.lastUpdUser = lastUpdUser;
 	}
 
@@ -176,7 +176,7 @@ public class JobResource extends WaspModel {
 	 * @return lastUpdUser
 	 *
 	 */
-	public int getLastUpdUser () {
+	public Integer getLastUpdUser () {
 		return this.lastUpdUser;
 	}
 

@@ -33,16 +33,16 @@ public class WorkflowMeta extends MetaBase {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int workflowMetaId;
+	protected Integer workflowMetaId;
 
 	/**
-	 * setWorkflowMetaId(int workflowMetaId)
+	 * setWorkflowMetaId(Integer workflowMetaId)
 	 *
 	 * @param workflowMetaId
 	 *
 	 */
 	
-	public void setWorkflowMetaId (int workflowMetaId) {
+	public void setWorkflowMetaId (Integer workflowMetaId) {
 		this.workflowMetaId = workflowMetaId;
 	}
 
@@ -52,7 +52,7 @@ public class WorkflowMeta extends MetaBase {
 	 * @return workflowMetaId
 	 *
 	 */
-	public int getWorkflowMetaId () {
+	public Integer getWorkflowMetaId () {
 		return this.workflowMetaId;
 	}
 
@@ -64,16 +64,16 @@ public class WorkflowMeta extends MetaBase {
 	 *
 	 */
 	@Column(name="workflowid")
-	protected int workflowId;
+	protected Integer workflowId;
 
 	/**
-	 * setWorkflowId(int workflowId)
+	 * setWorkflowId(Integer workflowId)
 	 *
 	 * @param workflowId
 	 *
 	 */
 	
-	public void setWorkflowId (int workflowId) {
+	public void setWorkflowId (Integer workflowId) {
 		this.workflowId = workflowId;
 	}
 
@@ -83,7 +83,7 @@ public class WorkflowMeta extends MetaBase {
 	 * @return workflowId
 	 *
 	 */
-	public int getWorkflowId () {
+	public Integer getWorkflowId () {
 		return this.workflowId;
 	}
 

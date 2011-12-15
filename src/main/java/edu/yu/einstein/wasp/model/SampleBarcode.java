@@ -33,16 +33,16 @@ public class SampleBarcode extends WaspModel {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int sampleBarcode;
+	protected Integer sampleBarcode;
 
 	/**
-	 * setSampleBarcode(int sampleBarcode)
+	 * setSampleBarcode(Integer sampleBarcode)
 	 *
 	 * @param sampleBarcode
 	 *
 	 */
 	
-	public void setSampleBarcode (int sampleBarcode) {
+	public void setSampleBarcode (Integer sampleBarcode) {
 		this.sampleBarcode = sampleBarcode;
 	}
 
@@ -52,7 +52,7 @@ public class SampleBarcode extends WaspModel {
 	 * @return sampleBarcode
 	 *
 	 */
-	public int getSampleBarcode () {
+	public Integer getSampleBarcode () {
 		return this.sampleBarcode;
 	}
 
@@ -64,16 +64,16 @@ public class SampleBarcode extends WaspModel {
 	 *
 	 */
 	@Column(name="sampleid")
-	protected int sampleId;
+	protected Integer sampleId;
 
 	/**
-	 * setSampleId(int sampleId)
+	 * setSampleId(Integer sampleId)
 	 *
 	 * @param sampleId
 	 *
 	 */
 	
-	public void setSampleId (int sampleId) {
+	public void setSampleId (Integer sampleId) {
 		this.sampleId = sampleId;
 	}
 
@@ -83,7 +83,7 @@ public class SampleBarcode extends WaspModel {
 	 * @return sampleId
 	 *
 	 */
-	public int getSampleId () {
+	public Integer getSampleId () {
 		return this.sampleId;
 	}
 
@@ -95,16 +95,16 @@ public class SampleBarcode extends WaspModel {
 	 *
 	 */
 	@Column(name="barcodeid")
-	protected int barcodeId;
+	protected Integer barcodeId;
 
 	/**
-	 * setBarcodeId(int barcodeId)
+	 * setBarcodeId(Integer barcodeId)
 	 *
 	 * @param barcodeId
 	 *
 	 */
 	
-	public void setBarcodeId (int barcodeId) {
+	public void setBarcodeId (Integer barcodeId) {
 		this.barcodeId = barcodeId;
 	}
 
@@ -114,7 +114,7 @@ public class SampleBarcode extends WaspModel {
 	 * @return barcodeId
 	 *
 	 */
-	public int getBarcodeId () {
+	public Integer getBarcodeId () {
 		return this.barcodeId;
 	}
 
@@ -157,16 +157,16 @@ public class SampleBarcode extends WaspModel {
 	 *
 	 */
 	@Column(name="lastupduser")
-	protected int lastUpdUser;
+	protected Integer lastUpdUser;
 
 	/**
-	 * setLastUpdUser(int lastUpdUser)
+	 * setLastUpdUser(Integer lastUpdUser)
 	 *
 	 * @param lastUpdUser
 	 *
 	 */
 	
-	public void setLastUpdUser (int lastUpdUser) {
+	public void setLastUpdUser (Integer lastUpdUser) {
 		this.lastUpdUser = lastUpdUser;
 	}
 
@@ -176,7 +176,7 @@ public class SampleBarcode extends WaspModel {
 	 * @return lastUpdUser
 	 *
 	 */
-	public int getLastUpdUser () {
+	public Integer getLastUpdUser () {
 		return this.lastUpdUser;
 	}
 

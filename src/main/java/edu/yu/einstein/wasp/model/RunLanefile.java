@@ -33,16 +33,16 @@ public class RunLanefile extends WaspModel {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int runLanefileId;
+	protected Integer runLanefileId;
 
 	/**
-	 * setRunLanefileId(int runLanefileId)
+	 * setRunLanefileId(Integer runLanefileId)
 	 *
 	 * @param runLanefileId
 	 *
 	 */
 	
-	public void setRunLanefileId (int runLanefileId) {
+	public void setRunLanefileId (Integer runLanefileId) {
 		this.runLanefileId = runLanefileId;
 	}
 
@@ -52,7 +52,7 @@ public class RunLanefile extends WaspModel {
 	 * @return runLanefileId
 	 *
 	 */
-	public int getRunLanefileId () {
+	public Integer getRunLanefileId () {
 		return this.runLanefileId;
 	}
 
@@ -64,16 +64,16 @@ public class RunLanefile extends WaspModel {
 	 *
 	 */
 	@Column(name="runlaneid")
-	protected int runlaneId;
+	protected Integer runlaneId;
 
 	/**
-	 * setRunlaneId(int runlaneId)
+	 * setRunlaneId(Integer runlaneId)
 	 *
 	 * @param runlaneId
 	 *
 	 */
 	
-	public void setRunlaneId (int runlaneId) {
+	public void setRunlaneId (Integer runlaneId) {
 		this.runlaneId = runlaneId;
 	}
 
@@ -83,7 +83,7 @@ public class RunLanefile extends WaspModel {
 	 * @return runlaneId
 	 *
 	 */
-	public int getRunlaneId () {
+	public Integer getRunlaneId () {
 		return this.runlaneId;
 	}
 
@@ -95,16 +95,16 @@ public class RunLanefile extends WaspModel {
 	 *
 	 */
 	@Column(name="fileid")
-	protected int fileId;
+	protected Integer fileId;
 
 	/**
-	 * setFileId(int fileId)
+	 * setFileId(Integer fileId)
 	 *
 	 * @param fileId
 	 *
 	 */
 	
-	public void setFileId (int fileId) {
+	public void setFileId (Integer fileId) {
 		this.fileId = fileId;
 	}
 
@@ -114,7 +114,7 @@ public class RunLanefile extends WaspModel {
 	 * @return fileId
 	 *
 	 */
-	public int getFileId () {
+	public Integer getFileId () {
 		return this.fileId;
 	}
 
@@ -188,16 +188,16 @@ public class RunLanefile extends WaspModel {
 	 *
 	 */
 	@Column(name="isactive")
-	protected int isActive;
+	protected Integer isActive;
 
 	/**
-	 * setIsActive(int isActive)
+	 * setIsActive(Integer isActive)
 	 *
 	 * @param isActive
 	 *
 	 */
 	
-	public void setIsActive (int isActive) {
+	public void setIsActive (Integer isActive) {
 		this.isActive = isActive;
 	}
 
@@ -207,7 +207,7 @@ public class RunLanefile extends WaspModel {
 	 * @return isActive
 	 *
 	 */
-	public int getIsActive () {
+	public Integer getIsActive () {
 		return this.isActive;
 	}
 
@@ -250,16 +250,16 @@ public class RunLanefile extends WaspModel {
 	 *
 	 */
 	@Column(name="lastupduser")
-	protected int lastUpdUser;
+	protected Integer lastUpdUser;
 
 	/**
-	 * setLastUpdUser(int lastUpdUser)
+	 * setLastUpdUser(Integer lastUpdUser)
 	 *
 	 * @param lastUpdUser
 	 *
 	 */
 	
-	public void setLastUpdUser (int lastUpdUser) {
+	public void setLastUpdUser (Integer lastUpdUser) {
 		this.lastUpdUser = lastUpdUser;
 	}
 
@@ -269,7 +269,7 @@ public class RunLanefile extends WaspModel {
 	 * @return lastUpdUser
 	 *
 	 */
-	public int getLastUpdUser () {
+	public Integer getLastUpdUser () {
 		return this.lastUpdUser;
 	}
 

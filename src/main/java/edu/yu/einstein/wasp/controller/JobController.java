@@ -116,13 +116,13 @@ public class JobController extends WaspController {
       ModelMap m) {
  
 	Job job = this.jobService.findById(jobId);
-	if(job.getJobId()==0 || job.getLabId() != labId){
+	if(job.getJobId() == null || job.getLabId().intValue() != labId.intValue()){
 		waspMessage("job.jobViewerUserRoleAdd.error1");//this job not found in database or the labId does not belong to this job
 	}
 	else{   
 		String extractedLogin = StringHelper.getLoginFromFormattedNameAndLogin(login);
 		User user = userService.getUserByLogin(extractedLogin);
-		if(user.getUserId()==0){
+		if(user.getUserId() == null){
 			waspMessage("job.jobViewerUserRoleAdd.error2");//user login name does not exist
 		}
 		else{

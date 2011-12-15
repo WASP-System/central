@@ -33,16 +33,16 @@ public class Job extends WaspModel {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int jobId;
+	protected Integer jobId;
 
 	/**
-	 * setJobId(int jobId)
+	 * setJobId(Integer jobId)
 	 *
 	 * @param jobId
 	 *
 	 */
 	
-	public void setJobId (int jobId) {
+	public void setJobId (Integer jobId) {
 		this.jobId = jobId;
 	}
 
@@ -52,7 +52,7 @@ public class Job extends WaspModel {
 	 * @return jobId
 	 *
 	 */
-	public int getJobId () {
+	public Integer getJobId () {
 		return this.jobId;
 	}
 
@@ -64,16 +64,16 @@ public class Job extends WaspModel {
 	 *
 	 */
 	@Column(name="labid")
-	protected int labId;
+	protected Integer labId;
 
 	/**
-	 * setLabId(int labId)
+	 * setLabId(Integer labId)
 	 *
 	 * @param labId
 	 *
 	 */
 	
-	public void setLabId (int labId) {
+	public void setLabId (Integer labId) {
 		this.labId = labId;
 	}
 
@@ -83,7 +83,7 @@ public class Job extends WaspModel {
 	 * @return labId
 	 *
 	 */
-	public int getLabId () {
+	public Integer getLabId () {
 		return this.labId;
 	}
 
@@ -95,16 +95,16 @@ public class Job extends WaspModel {
 	 *
 	 */
 	@Column(name="userid")
-	protected int UserId;
+	protected Integer UserId;
 
 	/**
-	 * setUserId(int UserId)
+	 * setUserId(Integer UserId)
 	 *
 	 * @param UserId
 	 *
 	 */
 	
-	public void setUserId (int UserId) {
+	public void setUserId (Integer UserId) {
 		this.UserId = UserId;
 	}
 
@@ -114,7 +114,7 @@ public class Job extends WaspModel {
 	 * @return UserId
 	 *
 	 */
-	public int getUserId () {
+	public Integer getUserId () {
 		return this.UserId;
 	}
 
@@ -126,16 +126,16 @@ public class Job extends WaspModel {
 	 *
 	 */
 	@Column(name="workflowid")
-	protected int workflowId;
+	protected Integer workflowId;
 
 	/**
-	 * setWorkflowId(int workflowId)
+	 * setWorkflowId(Integer workflowId)
 	 *
 	 * @param workflowId
 	 *
 	 */
 	
-	public void setWorkflowId (int workflowId) {
+	public void setWorkflowId (Integer workflowId) {
 		this.workflowId = workflowId;
 	}
 
@@ -145,7 +145,7 @@ public class Job extends WaspModel {
 	 * @return workflowId
 	 *
 	 */
-	public int getWorkflowId () {
+	public Integer getWorkflowId () {
 		return this.workflowId;
 	}
 
@@ -219,16 +219,16 @@ public class Job extends WaspModel {
 	 *
 	 */
 	@Column(name="viewablebylab")
-	protected int viewablebylab;
+	protected Integer viewablebylab;
 
 	/**
-	 * setViewablebylab(int viewablebylab)
+	 * setViewablebylab(Integer viewablebylab)
 	 *
 	 * @param viewablebylab
 	 *
 	 */
 	
-	public void setViewablebylab (int viewablebylab) {
+	public void setViewablebylab (Integer viewablebylab) {
 		this.viewablebylab = viewablebylab;
 	}
 
@@ -238,7 +238,7 @@ public class Job extends WaspModel {
 	 * @return viewablebylab
 	 *
 	 */
-	public int getViewablebylab () {
+	public Integer getViewablebylab () {
 		return this.viewablebylab;
 	}
 
@@ -250,16 +250,16 @@ public class Job extends WaspModel {
 	 *
 	 */
 	@Column(name="isactive")
-	protected int isActive;
+	protected Integer isActive;
 
 	/**
-	 * setIsActive(int isActive)
+	 * setIsActive(Integer isActive)
 	 *
 	 * @param isActive
 	 *
 	 */
 	
-	public void setIsActive (int isActive) {
+	public void setIsActive (Integer isActive) {
 		this.isActive = isActive;
 	}
 
@@ -269,7 +269,7 @@ public class Job extends WaspModel {
 	 * @return isActive
 	 *
 	 */
-	public int getIsActive () {
+	public Integer getIsActive () {
 		return this.isActive;
 	}
 
@@ -312,16 +312,16 @@ public class Job extends WaspModel {
 	 *
 	 */
 	@Column(name="lastupduser")
-	protected int lastUpdUser;
+	protected Integer lastUpdUser;
 
 	/**
-	 * setLastUpdUser(int lastUpdUser)
+	 * setLastUpdUser(Integer lastUpdUser)
 	 *
 	 * @param lastUpdUser
 	 *
 	 */
 	
-	public void setLastUpdUser (int lastUpdUser) {
+	public void setLastUpdUser (Integer lastUpdUser) {
 		this.lastUpdUser = lastUpdUser;
 	}
 
@@ -331,7 +331,7 @@ public class Job extends WaspModel {
 	 * @return lastUpdUser
 	 *
 	 */
-	public int getLastUpdUser () {
+	public Integer getLastUpdUser () {
 		return this.lastUpdUser;
 	}
 

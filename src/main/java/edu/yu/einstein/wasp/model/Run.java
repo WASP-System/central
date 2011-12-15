@@ -33,16 +33,16 @@ public class Run extends WaspModel {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int runId;
+	protected Integer runId;
 
 	/**
-	 * setRunId(int runId)
+	 * setRunId(Integer runId)
 	 *
 	 * @param runId
 	 *
 	 */
 	
-	public void setRunId (int runId) {
+	public void setRunId (Integer runId) {
 		this.runId = runId;
 	}
 
@@ -52,7 +52,7 @@ public class Run extends WaspModel {
 	 * @return runId
 	 *
 	 */
-	public int getRunId () {
+	public Integer getRunId () {
 		return this.runId;
 	}
 
@@ -64,16 +64,16 @@ public class Run extends WaspModel {
 	 *
 	 */
 	@Column(name="resourceid")
-	protected int resourceId;
+	protected Integer resourceId;
 
 	/**
-	 * setResourceId(int resourceId)
+	 * setResourceId(Integer resourceId)
 	 *
 	 * @param resourceId
 	 *
 	 */
 	
-	public void setResourceId (int resourceId) {
+	public void setResourceId (Integer resourceId) {
 		this.resourceId = resourceId;
 	}
 
@@ -83,7 +83,7 @@ public class Run extends WaspModel {
 	 * @return resourceId
 	 *
 	 */
-	public int getResourceId () {
+	public Integer getResourceId () {
 		return this.resourceId;
 	}
 
@@ -95,16 +95,16 @@ public class Run extends WaspModel {
 	 *
 	 */
 	@Column(name="userid")
-	protected int UserId;
+	protected Integer UserId;
 
 	/**
-	 * setUserId(int UserId)
+	 * setUserId(Integer UserId)
 	 *
 	 * @param UserId
 	 *
 	 */
 	
-	public void setUserId (int UserId) {
+	public void setUserId (Integer UserId) {
 		this.UserId = UserId;
 	}
 
@@ -114,7 +114,7 @@ public class Run extends WaspModel {
 	 * @return UserId
 	 *
 	 */
-	public int getUserId () {
+	public Integer getUserId () {
 		return this.UserId;
 	}
 
@@ -157,16 +157,16 @@ public class Run extends WaspModel {
 	 *
 	 */
 	@Column(name="sampleid")
-	protected int sampleId;
+	protected Integer sampleId;
 
 	/**
-	 * setSampleId(int sampleId)
+	 * setSampleId(Integer sampleId)
 	 *
 	 * @param sampleId
 	 *
 	 */
 	
-	public void setSampleId (int sampleId) {
+	public void setSampleId (Integer sampleId) {
 		this.sampleId = sampleId;
 	}
 
@@ -176,7 +176,7 @@ public class Run extends WaspModel {
 	 * @return sampleId
 	 *
 	 */
-	public int getSampleId () {
+	public Integer getSampleId () {
 		return this.sampleId;
 	}
 
@@ -281,16 +281,16 @@ public class Run extends WaspModel {
 	 *
 	 */
 	@Column(name="isactive")
-	protected int isActive;
+	protected Integer isActive;
 
 	/**
-	 * setIsActive(int isActive)
+	 * setIsActive(Integer isActive)
 	 *
 	 * @param isActive
 	 *
 	 */
 	
-	public void setIsActive (int isActive) {
+	public void setIsActive (Integer isActive) {
 		this.isActive = isActive;
 	}
 
@@ -300,7 +300,7 @@ public class Run extends WaspModel {
 	 * @return isActive
 	 *
 	 */
-	public int getIsActive () {
+	public Integer getIsActive () {
 		return this.isActive;
 	}
 
@@ -343,16 +343,16 @@ public class Run extends WaspModel {
 	 *
 	 */
 	@Column(name="lastupduser")
-	protected int lastUpdUser;
+	protected Integer lastUpdUser;
 
 	/**
-	 * setLastUpdUser(int lastUpdUser)
+	 * setLastUpdUser(Integer lastUpdUser)
 	 *
 	 * @param lastUpdUser
 	 *
 	 */
 	
-	public void setLastUpdUser (int lastUpdUser) {
+	public void setLastUpdUser (Integer lastUpdUser) {
 		this.lastUpdUser = lastUpdUser;
 	}
 
@@ -362,7 +362,7 @@ public class Run extends WaspModel {
 	 * @return lastUpdUser
 	 *
 	 */
-	public int getLastUpdUser () {
+	public Integer getLastUpdUser () {
 		return this.lastUpdUser;
 	}
 

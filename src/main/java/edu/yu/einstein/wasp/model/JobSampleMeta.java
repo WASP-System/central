@@ -33,16 +33,16 @@ public class JobSampleMeta extends MetaBase {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int jobSampleMetaId;
+	protected Integer jobSampleMetaId;
 
 	/**
-	 * setJobSampleMetaId(int jobSampleMetaId)
+	 * setJobSampleMetaId(Integer jobSampleMetaId)
 	 *
 	 * @param jobSampleMetaId
 	 *
 	 */
 	
-	public void setJobSampleMetaId (int jobSampleMetaId) {
+	public void setJobSampleMetaId (Integer jobSampleMetaId) {
 		this.jobSampleMetaId = jobSampleMetaId;
 	}
 
@@ -52,7 +52,7 @@ public class JobSampleMeta extends MetaBase {
 	 * @return jobSampleMetaId
 	 *
 	 */
-	public int getJobSampleMetaId () {
+	public Integer getJobSampleMetaId () {
 		return this.jobSampleMetaId;
 	}
 
@@ -64,16 +64,16 @@ public class JobSampleMeta extends MetaBase {
 	 *
 	 */
 	@Column(name="jobsampleid")
-	protected int jobsampleId;
+	protected Integer jobsampleId;
 
 	/**
-	 * setJobsampleId(int jobsampleId)
+	 * setJobsampleId(Integer jobsampleId)
 	 *
 	 * @param jobsampleId
 	 *
 	 */
 	
-	public void setJobsampleId (int jobsampleId) {
+	public void setJobsampleId (Integer jobsampleId) {
 		this.jobsampleId = jobsampleId;
 	}
 
@@ -83,7 +83,7 @@ public class JobSampleMeta extends MetaBase {
 	 * @return jobsampleId
 	 *
 	 */
-	public int getJobsampleId () {
+	public Integer getJobsampleId () {
 		return this.jobsampleId;
 	}
 

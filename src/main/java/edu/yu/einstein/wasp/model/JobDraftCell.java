@@ -33,16 +33,16 @@ public class JobDraftCell extends WaspModel {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int jobDraftCellId;
+	protected Integer jobDraftCellId;
 
 	/**
-	 * setJobDraftCellId(int jobDraftCellId)
+	 * setJobDraftCellId(Integer jobDraftCellId)
 	 *
 	 * @param jobDraftCellId
 	 *
 	 */
 	
-	public void setJobDraftCellId (int jobDraftCellId) {
+	public void setJobDraftCellId (Integer jobDraftCellId) {
 		this.jobDraftCellId = jobDraftCellId;
 	}
 
@@ -52,7 +52,7 @@ public class JobDraftCell extends WaspModel {
 	 * @return jobDraftCellId
 	 *
 	 */
-	public int getJobDraftCellId () {
+	public Integer getJobDraftCellId () {
 		return this.jobDraftCellId;
 	}
 
@@ -64,16 +64,16 @@ public class JobDraftCell extends WaspModel {
 	 *
 	 */
 	@Column(name="jobdraftid")
-	protected int jobdraftId;
+	protected Integer jobdraftId;
 
 	/**
-	 * setJobdraftId(int jobdraftId)
+	 * setJobdraftId(Integer jobdraftId)
 	 *
 	 * @param jobdraftId
 	 *
 	 */
 	
-	public void setJobdraftId (int jobdraftId) {
+	public void setJobdraftId (Integer jobdraftId) {
 		this.jobdraftId = jobdraftId;
 	}
 
@@ -83,7 +83,7 @@ public class JobDraftCell extends WaspModel {
 	 * @return jobdraftId
 	 *
 	 */
-	public int getJobdraftId () {
+	public Integer getJobdraftId () {
 		return this.jobdraftId;
 	}
 
@@ -95,16 +95,16 @@ public class JobDraftCell extends WaspModel {
 	 *
 	 */
 	@Column(name="cellindex")
-	protected int cellindex;
+	protected Integer cellindex;
 
 	/**
-	 * setCellindex(int cellindex)
+	 * setCellindex(Integer cellindex)
 	 *
 	 * @param cellindex
 	 *
 	 */
 	
-	public void setCellindex (int cellindex) {
+	public void setCellindex (Integer cellindex) {
 		this.cellindex = cellindex;
 	}
 
@@ -114,7 +114,7 @@ public class JobDraftCell extends WaspModel {
 	 * @return cellindex
 	 *
 	 */
-	public int getCellindex () {
+	public Integer getCellindex () {
 		return this.cellindex;
 	}
 

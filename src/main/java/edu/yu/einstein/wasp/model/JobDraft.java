@@ -33,16 +33,16 @@ public class JobDraft extends WaspModel {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int jobDraftId;
+	protected Integer jobDraftId;
 
 	/**
-	 * setJobDraftId(int jobDraftId)
+	 * setJobDraftId(Integer jobDraftId)
 	 *
 	 * @param jobDraftId
 	 *
 	 */
 	
-	public void setJobDraftId (int jobDraftId) {
+	public void setJobDraftId (Integer jobDraftId) {
 		this.jobDraftId = jobDraftId;
 	}
 
@@ -52,7 +52,7 @@ public class JobDraft extends WaspModel {
 	 * @return jobDraftId
 	 *
 	 */
-	public int getJobDraftId () {
+	public Integer getJobDraftId () {
 		return this.jobDraftId;
 	}
 
@@ -65,16 +65,16 @@ public class JobDraft extends WaspModel {
 	 */
 	@Column(name="labid")
 //	@Range(min=1)
-	protected int labId;
+	protected Integer labId;
 
 	/**
-	 * setLabId(int labId)
+	 * setLabId(Integer labId)
 	 *
 	 * @param labId
 	 *
 	 */
 	
-	public void setLabId (int labId) {
+	public void setLabId (Integer labId) {
 		this.labId = labId;
 	}
 
@@ -84,7 +84,7 @@ public class JobDraft extends WaspModel {
 	 * @return labId
 	 *
 	 */
-	public int getLabId () {
+	public Integer getLabId () {
 		return this.labId;
 	}
 
@@ -97,16 +97,16 @@ public class JobDraft extends WaspModel {
 	 */
 	@Column(name="userid")
 	// @ Range(min=1)
-	protected int UserId;
+	protected Integer UserId;
 
 	/**
-	 * setUserId(int UserId)
+	 * setUserId(Integer UserId)
 	 *
 	 * @param UserId
 	 *
 	 */
 	
-	public void setUserId (int UserId) {
+	public void setUserId (Integer UserId) {
 		this.UserId = UserId;
 	}
 
@@ -116,7 +116,7 @@ public class JobDraft extends WaspModel {
 	 * @return UserId
 	 *
 	 */
-	public int getUserId () {
+	public Integer getUserId () {
 		return this.UserId;
 	}
 
@@ -129,16 +129,16 @@ public class JobDraft extends WaspModel {
 	 */
 	@Column(name="workflowid")
 	// @ Range(min=1)
-	protected int workflowId;
+	protected Integer workflowId;
 
 	/**
-	 * setWorkflowId(int workflowId)
+	 * setWorkflowId(Integer workflowId)
 	 *
 	 * @param workflowId
 	 *
 	 */
 	
-	public void setWorkflowId (int workflowId) {
+	public void setWorkflowId (Integer workflowId) {
 		this.workflowId = workflowId;
 	}
 
@@ -148,7 +148,7 @@ public class JobDraft extends WaspModel {
 	 * @return workflowId
 	 *
 	 */
-	public int getWorkflowId () {
+	public Integer getWorkflowId () {
 		return this.workflowId;
 	}
 
@@ -316,16 +316,16 @@ public class JobDraft extends WaspModel {
 	 *
 	 */
 	@Column(name="lastupduser")
-	protected int lastUpdUser;
+	protected Integer lastUpdUser;
 
 	/**
-	 * setLastUpdUser(int lastUpdUser)
+	 * setLastUpdUser(Integer lastUpdUser)
 	 *
 	 * @param lastUpdUser
 	 *
 	 */
 	
-	public void setLastUpdUser (int lastUpdUser) {
+	public void setLastUpdUser (Integer lastUpdUser) {
 		this.lastUpdUser = lastUpdUser;
 	}
 
@@ -335,7 +335,7 @@ public class JobDraft extends WaspModel {
 	 * @return lastUpdUser
 	 *
 	 */
-	public int getLastUpdUser () {
+	public Integer getLastUpdUser () {
 		return this.lastUpdUser;
 	}
 

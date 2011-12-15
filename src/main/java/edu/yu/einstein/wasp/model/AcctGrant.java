@@ -33,16 +33,16 @@ public class AcctGrant extends WaspModel {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int grantId;
+	protected Integer grantId;
 
 	/**
-	 * setGrantId(int grantId)
+	 * setGrantId(Integer grantId)
 	 *
 	 * @param grantId
 	 *
 	 */
 	
-	public void setGrantId (int grantId) {
+	public void setGrantId (Integer grantId) {
 		this.grantId = grantId;
 	}
 
@@ -52,7 +52,7 @@ public class AcctGrant extends WaspModel {
 	 * @return grantId
 	 *
 	 */
-	public int getGrantId () {
+	public Integer getGrantId () {
 		return this.grantId;
 	}
 
@@ -64,16 +64,16 @@ public class AcctGrant extends WaspModel {
 	 *
 	 */
 	@Column(name="labid")
-	protected int labId;
+	protected Integer labId;
 
 	/**
-	 * setLabId(int labId)
+	 * setLabId(Integer labId)
 	 *
 	 * @param labId
 	 *
 	 */
 	
-	public void setLabId (int labId) {
+	public void setLabId (Integer labId) {
 		this.labId = labId;
 	}
 
@@ -83,7 +83,7 @@ public class AcctGrant extends WaspModel {
 	 * @return labId
 	 *
 	 */
-	public int getLabId () {
+	public Integer getLabId () {
 		return this.labId;
 	}
 
@@ -188,16 +188,16 @@ public class AcctGrant extends WaspModel {
 	 *
 	 */
 	@Column(name="isactive")
-	protected int isActive;
+	protected Integer isActive;
 
 	/**
-	 * setIsActive(int isActive)
+	 * setIsActive(Integer isActive)
 	 *
 	 * @param isActive
 	 *
 	 */
 	
-	public void setIsActive (int isActive) {
+	public void setIsActive (Integer isActive) {
 		this.isActive = isActive;
 	}
 
@@ -207,7 +207,7 @@ public class AcctGrant extends WaspModel {
 	 * @return isActive
 	 *
 	 */
-	public int getIsActive () {
+	public Integer getIsActive () {
 		return this.isActive;
 	}
 
@@ -250,16 +250,16 @@ public class AcctGrant extends WaspModel {
 	 *
 	 */
 	@Column(name="lastupduser")
-	protected int lastUpdUser;
+	protected Integer lastUpdUser;
 
 	/**
-	 * setLastUpdUser(int lastUpdUser)
+	 * setLastUpdUser(Integer lastUpdUser)
 	 *
 	 * @param lastUpdUser
 	 *
 	 */
 	
-	public void setLastUpdUser (int lastUpdUser) {
+	public void setLastUpdUser (Integer lastUpdUser) {
 		this.lastUpdUser = lastUpdUser;
 	}
 
@@ -269,7 +269,7 @@ public class AcctGrant extends WaspModel {
 	 * @return lastUpdUser
 	 *
 	 */
-	public int getLastUpdUser () {
+	public Integer getLastUpdUser () {
 		return this.lastUpdUser;
 	}
 

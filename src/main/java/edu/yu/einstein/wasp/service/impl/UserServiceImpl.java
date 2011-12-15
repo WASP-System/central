@@ -68,7 +68,7 @@ public class UserServiceImpl extends WaspServiceImpl<User> implements UserServic
   }*/
   
   public String getUniqueLoginName(final User user){
-	    if (user == null || user.getUserId() == 0){
+	    if (user == null || user.getUserId() == null){
 	    	return null;
 	    }
 	    String loginBase = user.getFirstName().substring(0, 1);

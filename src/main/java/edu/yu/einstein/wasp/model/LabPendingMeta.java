@@ -33,16 +33,16 @@ public class LabPendingMeta extends MetaBase {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int labPendingMetaId;
+	protected Integer labPendingMetaId;
 
 	/**
-	 * setLabPendingMetaId(int labPendingMetaId)
+	 * setLabPendingMetaId(Integer labPendingMetaId)
 	 *
 	 * @param labPendingMetaId
 	 *
 	 */
 	
-	public void setLabPendingMetaId (int labPendingMetaId) {
+	public void setLabPendingMetaId (Integer labPendingMetaId) {
 		this.labPendingMetaId = labPendingMetaId;
 	}
 
@@ -52,7 +52,7 @@ public class LabPendingMeta extends MetaBase {
 	 * @return labPendingMetaId
 	 *
 	 */
-	public int getLabPendingMetaId () {
+	public Integer getLabPendingMetaId () {
 		return this.labPendingMetaId;
 	}
 
@@ -64,16 +64,16 @@ public class LabPendingMeta extends MetaBase {
 	 *
 	 */
 	@Column(name="labpendingid")
-	protected int labpendingId;
+	protected Integer labpendingId;
 
 	/**
-	 * setLabpendingId(int labpendingId)
+	 * setLabpendingId(Integer labpendingId)
 	 *
 	 * @param labpendingId
 	 *
 	 */
 	
-	public void setLabpendingId (int labpendingId) {
+	public void setLabpendingId (Integer labpendingId) {
 		this.labpendingId = labpendingId;
 	}
 
@@ -83,7 +83,7 @@ public class LabPendingMeta extends MetaBase {
 	 * @return labpendingId
 	 *
 	 */
-	public int getLabpendingId () {
+	public Integer getLabpendingId () {
 		return this.labpendingId;
 	}
 

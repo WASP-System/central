@@ -33,16 +33,16 @@ public class JobDraftresource extends WaspModel {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int jobDraftresourceId;
+	protected Integer jobDraftresourceId;
 
 	/**
-	 * setJobDraftresourceId(int jobDraftresourceId)
+	 * setJobDraftresourceId(Integer jobDraftresourceId)
 	 *
 	 * @param jobDraftresourceId
 	 *
 	 */
 	
-	public void setJobDraftresourceId (int jobDraftresourceId) {
+	public void setJobDraftresourceId (Integer jobDraftresourceId) {
 		this.jobDraftresourceId = jobDraftresourceId;
 	}
 
@@ -52,7 +52,7 @@ public class JobDraftresource extends WaspModel {
 	 * @return jobDraftresourceId
 	 *
 	 */
-	public int getJobDraftresourceId () {
+	public Integer getJobDraftresourceId () {
 		return this.jobDraftresourceId;
 	}
 
@@ -64,16 +64,16 @@ public class JobDraftresource extends WaspModel {
 	 *
 	 */
 	@Column(name="jobdraftid")
-	protected int jobdraftId;
+	protected Integer jobdraftId;
 
 	/**
-	 * setJobdraftId(int jobdraftId)
+	 * setJobdraftId(Integer jobdraftId)
 	 *
 	 * @param jobdraftId
 	 *
 	 */
 	
-	public void setJobdraftId (int jobdraftId) {
+	public void setJobdraftId (Integer jobdraftId) {
 		this.jobdraftId = jobdraftId;
 	}
 
@@ -83,7 +83,7 @@ public class JobDraftresource extends WaspModel {
 	 * @return jobdraftId
 	 *
 	 */
-	public int getJobdraftId () {
+	public Integer getJobdraftId () {
 		return this.jobdraftId;
 	}
 
@@ -95,16 +95,16 @@ public class JobDraftresource extends WaspModel {
 	 *
 	 */
 	@Column(name="resourceid")
-	protected int resourceId;
+	protected Integer resourceId;
 
 	/**
-	 * setResourceId(int resourceId)
+	 * setResourceId(Integer resourceId)
 	 *
 	 * @param resourceId
 	 *
 	 */
 	
-	public void setResourceId (int resourceId) {
+	public void setResourceId (Integer resourceId) {
 		this.resourceId = resourceId;
 	}
 
@@ -114,7 +114,7 @@ public class JobDraftresource extends WaspModel {
 	 * @return resourceId
 	 *
 	 */
-	public int getResourceId () {
+	public Integer getResourceId () {
 		return this.resourceId;
 	}
 
@@ -157,16 +157,16 @@ public class JobDraftresource extends WaspModel {
 	 *
 	 */
 	@Column(name="lastupduser")
-	protected int lastUpdUser;
+	protected Integer lastUpdUser;
 
 	/**
-	 * setLastUpdUser(int lastUpdUser)
+	 * setLastUpdUser(Integer lastUpdUser)
 	 *
 	 * @param lastUpdUser
 	 *
 	 */
 	
-	public void setLastUpdUser (int lastUpdUser) {
+	public void setLastUpdUser (Integer lastUpdUser) {
 		this.lastUpdUser = lastUpdUser;
 	}
 
@@ -176,7 +176,7 @@ public class JobDraftresource extends WaspModel {
 	 * @return lastUpdUser
 	 *
 	 */
-	public int getLastUpdUser () {
+	public Integer getLastUpdUser () {
 		return this.lastUpdUser;
 	}
 

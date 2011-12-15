@@ -33,16 +33,16 @@ public class TypeResource extends WaspModel {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int typeResourceId;
+	protected Integer typeResourceId;
 
 	/**
-	 * setTypeResourceId(int typeResourceId)
+	 * setTypeResourceId(Integer typeResourceId)
 	 *
 	 * @param typeResourceId
 	 *
 	 */
 	
-	public void setTypeResourceId (int typeResourceId) {
+	public void setTypeResourceId (Integer typeResourceId) {
 		this.typeResourceId = typeResourceId;
 	}
 
@@ -52,7 +52,7 @@ public class TypeResource extends WaspModel {
 	 * @return typeResourceId
 	 *
 	 */
-	public int getTypeResourceId () {
+	public Integer getTypeResourceId () {
 		return this.typeResourceId;
 	}
 

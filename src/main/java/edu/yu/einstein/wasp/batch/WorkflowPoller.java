@@ -58,7 +58,7 @@ public class WorkflowPoller {
 
 			// should be the same so just get first, 
 			// TODO check for npe
-			if (state.getStatejob().get(0).getJob().getWorkflowId() != workflow.getWorkflowId()) {
+			if (state.getStatejob().get(0).getJob().getWorkflowId().intValue() != workflow.getWorkflowId().intValue()) {
 				continue;
 			}
 

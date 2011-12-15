@@ -33,16 +33,16 @@ public class StateMeta extends MetaBase {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int stateMetaId;
+	protected Integer stateMetaId;
 
 	/**
-	 * setStateMetaId(int stateMetaId)
+	 * setStateMetaId(Integer stateMetaId)
 	 *
 	 * @param stateMetaId
 	 *
 	 */
 	
-	public void setStateMetaId (int stateMetaId) {
+	public void setStateMetaId (Integer stateMetaId) {
 		this.stateMetaId = stateMetaId;
 	}
 
@@ -52,7 +52,7 @@ public class StateMeta extends MetaBase {
 	 * @return stateMetaId
 	 *
 	 */
-	public int getStateMetaId () {
+	public Integer getStateMetaId () {
 		return this.stateMetaId;
 	}
 
@@ -64,16 +64,16 @@ public class StateMeta extends MetaBase {
 	 *
 	 */
 	@Column(name="stateid")
-	protected int stateId;
+	protected Integer stateId;
 
 	/**
-	 * setStateId(int stateId)
+	 * setStateId(Integer stateId)
 	 *
 	 * @param stateId
 	 *
 	 */
 	
-	public void setStateId (int stateId) {
+	public void setStateId (Integer stateId) {
 		this.stateId = stateId;
 	}
 
@@ -83,7 +83,7 @@ public class StateMeta extends MetaBase {
 	 * @return stateId
 	 *
 	 */
-	public int getStateId () {
+	public Integer getStateId () {
 		return this.stateId;
 	}
 

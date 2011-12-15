@@ -33,16 +33,16 @@ public class JobSample extends WaspModel {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int jobSampleId;
+	protected Integer jobSampleId;
 
 	/**
-	 * setJobSampleId(int jobSampleId)
+	 * setJobSampleId(Integer jobSampleId)
 	 *
 	 * @param jobSampleId
 	 *
 	 */
 	
-	public void setJobSampleId (int jobSampleId) {
+	public void setJobSampleId (Integer jobSampleId) {
 		this.jobSampleId = jobSampleId;
 	}
 
@@ -52,7 +52,7 @@ public class JobSample extends WaspModel {
 	 * @return jobSampleId
 	 *
 	 */
-	public int getJobSampleId () {
+	public Integer getJobSampleId () {
 		return this.jobSampleId;
 	}
 
@@ -64,16 +64,16 @@ public class JobSample extends WaspModel {
 	 *
 	 */
 	@Column(name="jobid")
-	protected int jobId;
+	protected Integer jobId;
 
 	/**
-	 * setJobId(int jobId)
+	 * setJobId(Integer jobId)
 	 *
 	 * @param jobId
 	 *
 	 */
 	
-	public void setJobId (int jobId) {
+	public void setJobId (Integer jobId) {
 		this.jobId = jobId;
 	}
 
@@ -83,7 +83,7 @@ public class JobSample extends WaspModel {
 	 * @return jobId
 	 *
 	 */
-	public int getJobId () {
+	public Integer getJobId () {
 		return this.jobId;
 	}
 
@@ -95,16 +95,16 @@ public class JobSample extends WaspModel {
 	 *
 	 */
 	@Column(name="sampleid")
-	protected int sampleId;
+	protected Integer sampleId;
 
 	/**
-	 * setSampleId(int sampleId)
+	 * setSampleId(Integer sampleId)
 	 *
 	 * @param sampleId
 	 *
 	 */
 	
-	public void setSampleId (int sampleId) {
+	public void setSampleId (Integer sampleId) {
 		this.sampleId = sampleId;
 	}
 
@@ -114,7 +114,7 @@ public class JobSample extends WaspModel {
 	 * @return sampleId
 	 *
 	 */
-	public int getSampleId () {
+	public Integer getSampleId () {
 		return this.sampleId;
 	}
 
@@ -157,16 +157,16 @@ public class JobSample extends WaspModel {
 	 *
 	 */
 	@Column(name="lastupduser")
-	protected int lastUpdUser;
+	protected Integer lastUpdUser;
 
 	/**
-	 * setLastUpdUser(int lastUpdUser)
+	 * setLastUpdUser(Integer lastUpdUser)
 	 *
 	 * @param lastUpdUser
 	 *
 	 */
 	
-	public void setLastUpdUser (int lastUpdUser) {
+	public void setLastUpdUser (Integer lastUpdUser) {
 		this.lastUpdUser = lastUpdUser;
 	}
 
@@ -176,7 +176,7 @@ public class JobSample extends WaspModel {
 	 * @return lastUpdUser
 	 *
 	 */
-	public int getLastUpdUser () {
+	public Integer getLastUpdUser () {
 		return this.lastUpdUser;
 	}
 

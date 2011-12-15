@@ -65,7 +65,7 @@ public class SubtypeSampleLoadService extends WaspLoadService {
     SubtypeSample subtypeSample = subtypeSampleService.getSubtypeSampleByIName(iname); 
 
     // inserts or update workflow
-    if (subtypeSample.getSubtypeSampleId() == 0) { 
+    if (subtypeSample.getSubtypeSampleId() == null) { 
       subtypeSample = new SubtypeSample();
 
       subtypeSample.setIName(iname);

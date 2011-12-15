@@ -33,16 +33,16 @@ public class ResourceLane extends WaspModel {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int resourceLaneId;
+	protected Integer resourceLaneId;
 
 	/**
-	 * setResourceLaneId(int resourceLaneId)
+	 * setResourceLaneId(Integer resourceLaneId)
 	 *
 	 * @param resourceLaneId
 	 *
 	 */
 	
-	public void setResourceLaneId (int resourceLaneId) {
+	public void setResourceLaneId (Integer resourceLaneId) {
 		this.resourceLaneId = resourceLaneId;
 	}
 
@@ -52,7 +52,7 @@ public class ResourceLane extends WaspModel {
 	 * @return resourceLaneId
 	 *
 	 */
-	public int getResourceLaneId () {
+	public Integer getResourceLaneId () {
 		return this.resourceLaneId;
 	}
 
@@ -64,16 +64,16 @@ public class ResourceLane extends WaspModel {
 	 *
 	 */
 	@Column(name="resourceid")
-	protected int resourceId;
+	protected Integer resourceId;
 
 	/**
-	 * setResourceId(int resourceId)
+	 * setResourceId(Integer resourceId)
 	 *
 	 * @param resourceId
 	 *
 	 */
 	
-	public void setResourceId (int resourceId) {
+	public void setResourceId (Integer resourceId) {
 		this.resourceId = resourceId;
 	}
 
@@ -83,7 +83,7 @@ public class ResourceLane extends WaspModel {
 	 * @return resourceId
 	 *
 	 */
-	public int getResourceId () {
+	public Integer getResourceId () {
 		return this.resourceId;
 	}
 

@@ -36,16 +36,16 @@ public class SubtypeSample extends WaspModel {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int subtypeSampleId;
+	protected Integer subtypeSampleId;
 
 	/**
-	 * setSubtypeSampleId(int subtypeSampleId)
+	 * setSubtypeSampleId(Integer subtypeSampleId)
 	 *
 	 * @param subtypeSampleId
 	 *
 	 */
 	
-	public void setSubtypeSampleId (int subtypeSampleId) {
+	public void setSubtypeSampleId (Integer subtypeSampleId) {
 		this.subtypeSampleId = subtypeSampleId;
 	}
 
@@ -55,7 +55,7 @@ public class SubtypeSample extends WaspModel {
 	 * @return subtypeSampleId
 	 *
 	 */
-	public int getSubtypeSampleId () {
+	public Integer getSubtypeSampleId () {
 		return this.subtypeSampleId;
 	}
 
@@ -67,16 +67,16 @@ public class SubtypeSample extends WaspModel {
 	 *
 	 */
 	@Column(name="typesampleid")
-	protected int typeSampleId;
+	protected Integer typeSampleId;
 
 	/**
-	 * setTypeSampleId(int typeSampleId)
+	 * setTypeSampleId(Integer typeSampleId)
 	 *
 	 * @param typeSampleId
 	 *
 	 */
 	
-	public void setTypeSampleId (int typeSampleId) {
+	public void setTypeSampleId (Integer typeSampleId) {
 		this.typeSampleId = typeSampleId;
 	}
 
@@ -86,7 +86,7 @@ public class SubtypeSample extends WaspModel {
 	 * @return typeSampleId
 	 *
 	 */
-	public int getTypeSampleId () {
+	public Integer getTypeSampleId () {
 		return this.typeSampleId;
 	}
 
@@ -301,7 +301,7 @@ public class SubtypeSample extends WaspModel {
 		if (getClass() != obj.getClass())
 			return false;
 		SubtypeSample other = (SubtypeSample) obj;
-		if (subtypeSampleId != other.subtypeSampleId)
+		if (subtypeSampleId.intValue() != other.subtypeSampleId.intValue())
 			return false;
 		return true;
 	}

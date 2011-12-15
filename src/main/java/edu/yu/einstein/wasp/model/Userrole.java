@@ -33,16 +33,16 @@ public class Userrole extends WaspModel {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int userroleId;
+	protected Integer userroleId;
 
 	/**
-	 * setUserroleId(int userroleId)
+	 * setUserroleId(Integer userroleId)
 	 *
 	 * @param userroleId
 	 *
 	 */
 	
-	public void setUserroleId (int userroleId) {
+	public void setUserroleId (Integer userroleId) {
 		this.userroleId = userroleId;
 	}
 
@@ -52,7 +52,7 @@ public class Userrole extends WaspModel {
 	 * @return userroleId
 	 *
 	 */
-	public int getUserroleId () {
+	public Integer getUserroleId () {
 		return this.userroleId;
 	}
 
@@ -64,16 +64,16 @@ public class Userrole extends WaspModel {
 	 *
 	 */
 	@Column(name="userid")
-	protected int UserId;
+	protected Integer UserId;
 
 	/**
-	 * setUserId(int UserId)
+	 * setUserId(Integer UserId)
 	 *
 	 * @param UserId
 	 *
 	 */
 	
-	public void setUserId (int UserId) {
+	public void setUserId (Integer UserId) {
 		this.UserId = UserId;
 	}
 
@@ -83,7 +83,7 @@ public class Userrole extends WaspModel {
 	 * @return UserId
 	 *
 	 */
-	public int getUserId () {
+	public Integer getUserId () {
 		return this.UserId;
 	}
 
@@ -95,16 +95,16 @@ public class Userrole extends WaspModel {
 	 *
 	 */
 	@Column(name="roleid")
-	protected int roleId;
+	protected Integer roleId;
 
 	/**
-	 * setRoleId(int roleId)
+	 * setRoleId(Integer roleId)
 	 *
 	 * @param roleId
 	 *
 	 */
 	
-	public void setRoleId (int roleId) {
+	public void setRoleId (Integer roleId) {
 		this.roleId = roleId;
 	}
 
@@ -114,7 +114,7 @@ public class Userrole extends WaspModel {
 	 * @return roleId
 	 *
 	 */
-	public int getRoleId () {
+	public Integer getRoleId () {
 		return this.roleId;
 	}
 
@@ -157,16 +157,16 @@ public class Userrole extends WaspModel {
 	 *
 	 */
 	@Column(name="lastupduser")
-	protected int lastUpdUser;
+	protected Integer lastUpdUser;
 
 	/**
-	 * setLastUpdUser(int lastUpdUser)
+	 * setLastUpdUser(Integer lastUpdUser)
 	 *
 	 * @param lastUpdUser
 	 *
 	 */
 	
-	public void setLastUpdUser (int lastUpdUser) {
+	public void setLastUpdUser (Integer lastUpdUser) {
 		this.lastUpdUser = lastUpdUser;
 	}
 
@@ -176,7 +176,7 @@ public class Userrole extends WaspModel {
 	 * @return lastUpdUser
 	 *
 	 */
-	public int getLastUpdUser () {
+	public Integer getLastUpdUser () {
 		return this.lastUpdUser;
 	}
 

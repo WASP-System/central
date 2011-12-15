@@ -33,16 +33,16 @@ public class AcctJobquotecurrent extends WaspModel {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int jobId;
+	protected Integer jobId;
 
 	/**
-	 * setJobId(int jobId)
+	 * setJobId(Integer jobId)
 	 *
 	 * @param jobId
 	 *
 	 */
 	
-	public void setJobId (int jobId) {
+	public void setJobId (Integer jobId) {
 		this.jobId = jobId;
 	}
 
@@ -52,7 +52,7 @@ public class AcctJobquotecurrent extends WaspModel {
 	 * @return jobId
 	 *
 	 */
-	public int getJobId () {
+	public Integer getJobId () {
 		return this.jobId;
 	}
 
@@ -64,16 +64,16 @@ public class AcctJobquotecurrent extends WaspModel {
 	 *
 	 */
 	@Column(name="quoteid")
-	protected int quoteId;
+	protected Integer quoteId;
 
 	/**
-	 * setQuoteId(int quoteId)
+	 * setQuoteId(Integer quoteId)
 	 *
 	 * @param quoteId
 	 *
 	 */
 	
-	public void setQuoteId (int quoteId) {
+	public void setQuoteId (Integer quoteId) {
 		this.quoteId = quoteId;
 	}
 
@@ -83,7 +83,7 @@ public class AcctJobquotecurrent extends WaspModel {
 	 * @return quoteId
 	 *
 	 */
-	public int getQuoteId () {
+	public Integer getQuoteId () {
 		return this.quoteId;
 	}
 
@@ -126,16 +126,16 @@ public class AcctJobquotecurrent extends WaspModel {
 	 *
 	 */
 	@Column(name="lastupduser")
-	protected int lastUpdUser;
+	protected Integer lastUpdUser;
 
 	/**
-	 * setLastUpdUser(int lastUpdUser)
+	 * setLastUpdUser(Integer lastUpdUser)
 	 *
 	 * @param lastUpdUser
 	 *
 	 */
 	
-	public void setLastUpdUser (int lastUpdUser) {
+	public void setLastUpdUser (Integer lastUpdUser) {
 		this.lastUpdUser = lastUpdUser;
 	}
 
@@ -145,7 +145,7 @@ public class AcctJobquotecurrent extends WaspModel {
 	 * @return lastUpdUser
 	 *
 	 */
-	public int getLastUpdUser () {
+	public Integer getLastUpdUser () {
 		return this.lastUpdUser;
 	}
 

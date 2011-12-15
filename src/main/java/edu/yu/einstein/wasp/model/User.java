@@ -37,11 +37,11 @@ public class User extends WaspModel {
 	
 
   @Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-  protected int UserId;
-  public void setUserId (int UserId) {
+  protected Integer UserId;
+  public void setUserId (Integer UserId) {
     this.UserId = UserId;
   }
-  public int getUserId () {
+  public Integer getUserId () {
     return this.UserId;
   }
 
@@ -107,11 +107,11 @@ public class User extends WaspModel {
 
 
   @Column(name="isactive")
-  protected int isActive;
-  public void setIsActive (int isActive) {
+  protected Integer isActive;
+  public void setIsActive (Integer isActive) {
     this.isActive = isActive;
   }
-  public int getIsActive () {
+  public Integer getIsActive () {
     return this.isActive;
   }
 
@@ -127,11 +127,11 @@ public class User extends WaspModel {
 
 
   @Column(name="lastupduser")
-  protected int lastUpdUser;
-  public void setLastUpdUser (int lastUpdUser) {
+  protected Integer lastUpdUser;
+  public void setLastUpdUser (Integer lastUpdUser) {
     this.lastUpdUser = lastUpdUser;
   }
-  public int getLastUpdUser () {
+  public Integer getLastUpdUser () {
     return this.lastUpdUser;
   }
 
@@ -281,6 +281,7 @@ public class User extends WaspModel {
 public int hashCode() {
 	final int prime = 31;
 	int result = 1;
+	UserId = UserId == null ? 0 : UserId;
 	result = prime * result + UserId;
 	return result;
 }
@@ -293,7 +294,9 @@ public boolean equals(Object obj) {
 	if (getClass() != obj.getClass())
 		return false;
 	User other = (User) obj;
-	if (UserId != other.UserId)
+	//NV
+	//UserId = UserId == null ? 0 : UserId;
+	if (UserId.intValue() != other.UserId.intValue())
 		return false;
 	return true;
 }

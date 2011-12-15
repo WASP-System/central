@@ -33,16 +33,16 @@ public class ResourceMeta extends MetaBase {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int resourceMetaId;
+	protected Integer resourceMetaId;
 
 	/**
-	 * setResourceMetaId(int resourceMetaId)
+	 * setResourceMetaId(Integer resourceMetaId)
 	 *
 	 * @param resourceMetaId
 	 *
 	 */
 	
-	public void setResourceMetaId (int resourceMetaId) {
+	public void setResourceMetaId (Integer resourceMetaId) {
 		this.resourceMetaId = resourceMetaId;
 	}
 
@@ -52,7 +52,7 @@ public class ResourceMeta extends MetaBase {
 	 * @return resourceMetaId
 	 *
 	 */
-	public int getResourceMetaId () {
+	public Integer getResourceMetaId () {
 		return this.resourceMetaId;
 	}
 
@@ -64,16 +64,16 @@ public class ResourceMeta extends MetaBase {
 	 *
 	 */
 	@Column(name="resourceid")
-	protected int resourceId;
+	protected Integer resourceId;
 
 	/**
-	 * setResourceId(int resourceId)
+	 * setResourceId(Integer resourceId)
 	 *
 	 * @param resourceId
 	 *
 	 */
 	
-	public void setResourceId (int resourceId) {
+	public void setResourceId (Integer resourceId) {
 		this.resourceId = resourceId;
 	}
 
@@ -83,7 +83,7 @@ public class ResourceMeta extends MetaBase {
 	 * @return resourceId
 	 *
 	 */
-	public int getResourceId () {
+	public Integer getResourceId () {
 		return this.resourceId;
 	}
 

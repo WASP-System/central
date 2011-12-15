@@ -33,16 +33,16 @@ public class ResourceBarcode extends WaspModel {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int resourceBarcodeId;
+	protected Integer resourceBarcodeId;
 
 	/**
-	 * setResourceBarcodeId(int resourceBarcodeId)
+	 * setResourceBarcodeId(Integer resourceBarcodeId)
 	 *
 	 * @param resourceBarcodeId
 	 *
 	 */
 	
-	public void setResourceBarcodeId (int resourceBarcodeId) {
+	public void setResourceBarcodeId (Integer resourceBarcodeId) {
 		this.resourceBarcodeId = resourceBarcodeId;
 	}
 
@@ -52,7 +52,7 @@ public class ResourceBarcode extends WaspModel {
 	 * @return resourceBarcodeId
 	 *
 	 */
-	public int getResourceBarcodeId () {
+	public Integer getResourceBarcodeId () {
 		return this.resourceBarcodeId;
 	}
 
@@ -64,16 +64,16 @@ public class ResourceBarcode extends WaspModel {
 	 *
 	 */
 	@Column(name="resourceid")
-	protected int resourceId;
+	protected Integer resourceId;
 
 	/**
-	 * setResourceId(int resourceId)
+	 * setResourceId(Integer resourceId)
 	 *
 	 * @param resourceId
 	 *
 	 */
 	
-	public void setResourceId (int resourceId) {
+	public void setResourceId (Integer resourceId) {
 		this.resourceId = resourceId;
 	}
 
@@ -83,7 +83,7 @@ public class ResourceBarcode extends WaspModel {
 	 * @return resourceId
 	 *
 	 */
-	public int getResourceId () {
+	public Integer getResourceId () {
 		return this.resourceId;
 	}
 
@@ -95,16 +95,16 @@ public class ResourceBarcode extends WaspModel {
 	 *
 	 */
 	@Column(name="barcodeid")
-	protected int barcodeId;
+	protected Integer barcodeId;
 
 	/**
-	 * setBarcodeId(int barcodeId)
+	 * setBarcodeId(Integer barcodeId)
 	 *
 	 * @param barcodeId
 	 *
 	 */
 	
-	public void setBarcodeId (int barcodeId) {
+	public void setBarcodeId (Integer barcodeId) {
 		this.barcodeId = barcodeId;
 	}
 
@@ -114,7 +114,7 @@ public class ResourceBarcode extends WaspModel {
 	 * @return barcodeId
 	 *
 	 */
-	public int getBarcodeId () {
+	public Integer getBarcodeId () {
 		return this.barcodeId;
 	}
 

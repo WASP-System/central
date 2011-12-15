@@ -33,16 +33,16 @@ public class SampleDraftMeta extends MetaBase {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int sampleDraftMetaId;
+	protected Integer sampleDraftMetaId;
 
 	/**
-	 * setSampleDraftMetaId(int sampleDraftMetaId)
+	 * setSampleDraftMetaId(Integer sampleDraftMetaId)
 	 *
 	 * @param sampleDraftMetaId
 	 *
 	 */
 	
-	public void setSampleDraftMetaId (int sampleDraftMetaId) {
+	public void setSampleDraftMetaId (Integer sampleDraftMetaId) {
 		this.sampleDraftMetaId = sampleDraftMetaId;
 	}
 
@@ -52,7 +52,7 @@ public class SampleDraftMeta extends MetaBase {
 	 * @return sampleDraftMetaId
 	 *
 	 */
-	public int getSampleDraftMetaId () {
+	public Integer getSampleDraftMetaId () {
 		return this.sampleDraftMetaId;
 	}
 
@@ -64,16 +64,16 @@ public class SampleDraftMeta extends MetaBase {
 	 *
 	 */
 	@Column(name="sampledraftid")
-	protected int sampledraftId;
+	protected Integer sampledraftId;
 
 	/**
-	 * setSampledraftId(int sampledraftId)
+	 * setSampledraftId(Integer sampledraftId)
 	 *
 	 * @param sampledraftId
 	 *
 	 */
 	
-	public void setSampledraftId (int sampledraftId) {
+	public void setSampledraftId (Integer sampledraftId) {
 		this.sampledraftId = sampledraftId;
 	}
 
@@ -83,7 +83,7 @@ public class SampleDraftMeta extends MetaBase {
 	 * @return sampledraftId
 	 *
 	 */
-	public int getSampledraftId () {
+	public Integer getSampledraftId () {
 		return this.sampledraftId;
 	}
 

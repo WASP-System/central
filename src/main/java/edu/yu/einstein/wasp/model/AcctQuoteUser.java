@@ -33,16 +33,16 @@ public class AcctQuoteUser extends WaspModel {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int quoteUserId;
+	protected Integer quoteUserId;
 
 	/**
-	 * setQuoteUserId(int quoteUserId)
+	 * setQuoteUserId(Integer quoteUserId)
 	 *
 	 * @param quoteUserId
 	 *
 	 */
 	
-	public void setQuoteUserId (int quoteUserId) {
+	public void setQuoteUserId (Integer quoteUserId) {
 		this.quoteUserId = quoteUserId;
 	}
 
@@ -52,7 +52,7 @@ public class AcctQuoteUser extends WaspModel {
 	 * @return quoteUserId
 	 *
 	 */
-	public int getQuoteUserId () {
+	public Integer getQuoteUserId () {
 		return this.quoteUserId;
 	}
 
@@ -64,16 +64,16 @@ public class AcctQuoteUser extends WaspModel {
 	 *
 	 */
 	@Column(name="quoteid")
-	protected int quoteId;
+	protected Integer quoteId;
 
 	/**
-	 * setQuoteId(int quoteId)
+	 * setQuoteId(Integer quoteId)
 	 *
 	 * @param quoteId
 	 *
 	 */
 	
-	public void setQuoteId (int quoteId) {
+	public void setQuoteId (Integer quoteId) {
 		this.quoteId = quoteId;
 	}
 
@@ -83,7 +83,7 @@ public class AcctQuoteUser extends WaspModel {
 	 * @return quoteId
 	 *
 	 */
-	public int getQuoteId () {
+	public Integer getQuoteId () {
 		return this.quoteId;
 	}
 
@@ -95,16 +95,16 @@ public class AcctQuoteUser extends WaspModel {
 	 *
 	 */
 	@Column(name="userid")
-	protected int UserId;
+	protected Integer UserId;
 
 	/**
-	 * setUserId(int UserId)
+	 * setUserId(Integer UserId)
 	 *
 	 * @param UserId
 	 *
 	 */
 	
-	public void setUserId (int UserId) {
+	public void setUserId (Integer UserId) {
 		this.UserId = UserId;
 	}
 
@@ -114,7 +114,7 @@ public class AcctQuoteUser extends WaspModel {
 	 * @return UserId
 	 *
 	 */
-	public int getUserId () {
+	public Integer getUserId () {
 		return this.UserId;
 	}
 
@@ -126,16 +126,16 @@ public class AcctQuoteUser extends WaspModel {
 	 *
 	 */
 	@Column(name="roleid")
-	protected int roleId;
+	protected Integer roleId;
 
 	/**
-	 * setRoleId(int roleId)
+	 * setRoleId(Integer roleId)
 	 *
 	 * @param roleId
 	 *
 	 */
 	
-	public void setRoleId (int roleId) {
+	public void setRoleId (Integer roleId) {
 		this.roleId = roleId;
 	}
 
@@ -145,7 +145,7 @@ public class AcctQuoteUser extends WaspModel {
 	 * @return roleId
 	 *
 	 */
-	public int getRoleId () {
+	public Integer getRoleId () {
 		return this.roleId;
 	}
 
@@ -157,16 +157,16 @@ public class AcctQuoteUser extends WaspModel {
 	 *
 	 */
 	@Column(name="isapproved")
-	protected int isApproved;
+	protected Integer isApproved;
 
 	/**
-	 * setIsApproved(int isApproved)
+	 * setIsApproved(Integer isApproved)
 	 *
 	 * @param isApproved
 	 *
 	 */
 	
-	public void setIsApproved (int isApproved) {
+	public void setIsApproved (Integer isApproved) {
 		this.isApproved = isApproved;
 	}
 
@@ -176,7 +176,7 @@ public class AcctQuoteUser extends WaspModel {
 	 * @return isApproved
 	 *
 	 */
-	public int getIsApproved () {
+	public Integer getIsApproved () {
 		return this.isApproved;
 	}
 
@@ -250,16 +250,16 @@ public class AcctQuoteUser extends WaspModel {
 	 *
 	 */
 	@Column(name="lastupduser")
-	protected int lastUpdUser;
+	protected Integer lastUpdUser;
 
 	/**
-	 * setLastUpdUser(int lastUpdUser)
+	 * setLastUpdUser(Integer lastUpdUser)
 	 *
 	 * @param lastUpdUser
 	 *
 	 */
 	
-	public void setLastUpdUser (int lastUpdUser) {
+	public void setLastUpdUser (Integer lastUpdUser) {
 		this.lastUpdUser = lastUpdUser;
 	}
 
@@ -269,7 +269,7 @@ public class AcctQuoteUser extends WaspModel {
 	 * @return lastUpdUser
 	 *
 	 */
-	public int getLastUpdUser () {
+	public Integer getLastUpdUser () {
 		return this.lastUpdUser;
 	}
 

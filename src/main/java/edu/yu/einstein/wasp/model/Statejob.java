@@ -33,16 +33,16 @@ public class Statejob extends WaspModel {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int statejobId;
+	protected Integer statejobId;
 
 	/**
-	 * setStatejobId(int statejobId)
+	 * setStatejobId(Integer statejobId)
 	 *
 	 * @param statejobId
 	 *
 	 */
 	
-	public void setStatejobId (int statejobId) {
+	public void setStatejobId (Integer statejobId) {
 		this.statejobId = statejobId;
 	}
 
@@ -52,7 +52,7 @@ public class Statejob extends WaspModel {
 	 * @return statejobId
 	 *
 	 */
-	public int getStatejobId () {
+	public Integer getStatejobId () {
 		return this.statejobId;
 	}
 
@@ -64,16 +64,16 @@ public class Statejob extends WaspModel {
 	 *
 	 */
 	@Column(name="stateid")
-	protected int stateId;
+	protected Integer stateId;
 
 	/**
-	 * setStateId(int stateId)
+	 * setStateId(Integer stateId)
 	 *
 	 * @param stateId
 	 *
 	 */
 	
-	public void setStateId (int stateId) {
+	public void setStateId (Integer stateId) {
 		this.stateId = stateId;
 	}
 
@@ -83,7 +83,7 @@ public class Statejob extends WaspModel {
 	 * @return stateId
 	 *
 	 */
-	public int getStateId () {
+	public Integer getStateId () {
 		return this.stateId;
 	}
 
@@ -95,16 +95,16 @@ public class Statejob extends WaspModel {
 	 *
 	 */
 	@Column(name="jobid")
-	protected int jobId;
+	protected Integer jobId;
 
 	/**
-	 * setJobId(int jobId)
+	 * setJobId(Integer jobId)
 	 *
 	 * @param jobId
 	 *
 	 */
 	
-	public void setJobId (int jobId) {
+	public void setJobId (Integer jobId) {
 		this.jobId = jobId;
 	}
 
@@ -114,7 +114,7 @@ public class Statejob extends WaspModel {
 	 * @return jobId
 	 *
 	 */
-	public int getJobId () {
+	public Integer getJobId () {
 		return this.jobId;
 	}
 

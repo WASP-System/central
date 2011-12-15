@@ -25,11 +25,11 @@ import org.codehaus.jackson.annotate.JsonIgnore;
 @Table(name="meta")
 public class Meta extends WaspModel {
   @Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-  protected int metaId;
-  public void setMetaId (int metaId) {
+  protected Integer metaId;
+  public void setMetaId (Integer metaId) {
     this.metaId = metaId;
   }
-  public int getMetaId () {
+  public Integer getMetaId () {
     return this.metaId;
   }
 
@@ -64,12 +64,12 @@ public class Meta extends WaspModel {
   }
 
 
-  @Column(name="position")
-  protected int position;
-  public void setPosition (int position) {
+  @Column(name="position", columnDefinition= "default '0'")
+  protected Integer position;
+  public void setPosition (Integer position) {
     this.position = position;
   }
-  public int getPosition () {
+  public Integer getPosition () {
     return this.position;
   }
 
@@ -85,11 +85,11 @@ public class Meta extends WaspModel {
 
 
   @Column(name="lastupduser")
-  protected int lastUpdUser;
-  public void setLastUpdUser (int lastUpdUser) {
+  protected Integer lastUpdUser;
+  public void setLastUpdUser (Integer lastUpdUser) {
     this.lastUpdUser = lastUpdUser;
   }
-  public int getLastUpdUser () {
+  public Integer getLastUpdUser () {
     return this.lastUpdUser;
   }
 

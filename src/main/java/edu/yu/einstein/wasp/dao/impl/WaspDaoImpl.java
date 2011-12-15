@@ -242,28 +242,32 @@ public abstract class WaspDaoImpl<E extends Serializable> implements edu.yu.eins
   
   private void setEditorId(E entity) {
 		 try {
-			 Method method = entity.getClass().getMethod("setLastUpdUser", new Class[] {Integer.TYPE});
+			 Method method = entity.getClass().getMethod("setLastUpdUser", new Class[] {Integer.class});
 			 
 			 if (method!=null) {
+
 				 
-				 org.springframework.security.core.userdetails.User u=
-					 (org.springframework.security.core.userdetails.User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+				 //org.springframework.security.core.userdetails.User u=
+				 //	 (org.springframework.security.core.userdetails.User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 				   
-				 final String login = u.getUsername();
-				 
-				 Integer userId = (Integer)entityManager.createNativeQuery("select userId from user where login=:login").setParameter("login",login).getSingleResult();
-	
+				 final String login = (String) SecurityContextHolder.getContext().getAuthentication().getName();
+				 Integer userId = 0;
+				 if (!login.equals("anonymousUser")) {
+					 userId = (Integer)entityManager.createNativeQuery("select userId from user where login=:login").setParameter("login",login).getSingleResult();
+				 }	 
+
 				 method.invoke(entity, new Object[]{userId});		
+
 			 }
 		 } catch (Throwable e) {
 			 log.warn("setEditorId() threw exception: " + e.getMessage()  );
+
 		 }
 	 }
 	 
 	 private void setUpdateTs(E entity) {
 		 try {
 			 Method method = entity.getClass().getMethod("setLastUpdTs", new Class[] {Date.class});
-			 
 			 if (method!=null) {
 			   method.invoke(entity, new Object[]{new Date()});		
 			 }

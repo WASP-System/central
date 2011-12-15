@@ -33,16 +33,16 @@ public class Department extends WaspModel {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int departmentId;
+	protected Integer departmentId;
 
 	/**
-	 * setDepartmentId(int departmentId)
+	 * setDepartmentId(Integer departmentId)
 	 *
 	 * @param departmentId
 	 *
 	 */
 	
-	public void setDepartmentId (int departmentId) {
+	public void setDepartmentId (Integer departmentId) {
 		this.departmentId = departmentId;
 	}
 
@@ -52,7 +52,7 @@ public class Department extends WaspModel {
 	 * @return departmentId
 	 *
 	 */
-	public int getDepartmentId () {
+	public Integer getDepartmentId () {
 		return this.departmentId;
 	}
 
@@ -95,16 +95,16 @@ public class Department extends WaspModel {
 	 *
 	 */
 	@Column(name="isinternal")
-	protected int isInternal;
+	protected Integer isInternal;
 
 	/**
-	 * setIsInternal(int isInternal)
+	 * setIsInternal(Integer isInternal)
 	 *
 	 * @param isInternal
 	 *
 	 */
 	
-	public void setIsInternal (int isInternal) {
+	public void setIsInternal (Integer isInternal) {
 		this.isInternal = isInternal;
 	}
 
@@ -114,7 +114,7 @@ public class Department extends WaspModel {
 	 * @return isInternal
 	 *
 	 */
-	public int getIsInternal () {
+	public Integer getIsInternal () {
 		return this.isInternal;
 	}
 
@@ -126,16 +126,16 @@ public class Department extends WaspModel {
 	 *
 	 */
 	@Column(name="isactive")
-	protected int isActive;
+	protected Integer isActive;
 
 	/**
-	 * setIsActive(int isActive)
+	 * setIsActive(Integer isActive)
 	 *
 	 * @param isActive
 	 *
 	 */
 	
-	public void setIsActive (int isActive) {
+	public void setIsActive (Integer isActive) {
 		this.isActive = isActive;
 	}
 
@@ -145,7 +145,7 @@ public class Department extends WaspModel {
 	 * @return isActive
 	 *
 	 */
-	public int getIsActive () {
+	public Integer getIsActive () {
 		return this.isActive;
 	}
 
@@ -188,16 +188,16 @@ public class Department extends WaspModel {
 	 *
 	 */
 	@Column(name="lastupduser")
-	protected int lastUpdUser;
+	protected Integer lastUpdUser;
 
 	/**
-	 * setLastUpdUser(int lastUpdUser)
+	 * setLastUpdUser(Integer lastUpdUser)
 	 *
 	 * @param lastUpdUser
 	 *
 	 */
 	
-	public void setLastUpdUser (int lastUpdUser) {
+	public void setLastUpdUser (Integer lastUpdUser) {
 		this.lastUpdUser = lastUpdUser;
 	}
 
@@ -207,7 +207,7 @@ public class Department extends WaspModel {
 	 * @return lastUpdUser
 	 *
 	 */
-	public int getLastUpdUser () {
+	public Integer getLastUpdUser () {
 		return this.lastUpdUser;
 	}
 

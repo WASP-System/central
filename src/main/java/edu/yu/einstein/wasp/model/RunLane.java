@@ -33,16 +33,16 @@ public class RunLane extends WaspModel {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int runLaneId;
+	protected Integer runLaneId;
 
 	/**
-	 * setRunLaneId(int runLaneId)
+	 * setRunLaneId(Integer runLaneId)
 	 *
 	 * @param runLaneId
 	 *
 	 */
 	
-	public void setRunLaneId (int runLaneId) {
+	public void setRunLaneId (Integer runLaneId) {
 		this.runLaneId = runLaneId;
 	}
 
@@ -52,7 +52,7 @@ public class RunLane extends WaspModel {
 	 * @return runLaneId
 	 *
 	 */
-	public int getRunLaneId () {
+	public Integer getRunLaneId () {
 		return this.runLaneId;
 	}
 
@@ -64,16 +64,16 @@ public class RunLane extends WaspModel {
 	 *
 	 */
 	@Column(name="runid")
-	protected int runId;
+	protected Integer runId;
 
 	/**
-	 * setRunId(int runId)
+	 * setRunId(Integer runId)
 	 *
 	 * @param runId
 	 *
 	 */
 	
-	public void setRunId (int runId) {
+	public void setRunId (Integer runId) {
 		this.runId = runId;
 	}
 
@@ -83,7 +83,7 @@ public class RunLane extends WaspModel {
 	 * @return runId
 	 *
 	 */
-	public int getRunId () {
+	public Integer getRunId () {
 		return this.runId;
 	}
 
@@ -95,16 +95,16 @@ public class RunLane extends WaspModel {
 	 *
 	 */
 	@Column(name="resourcelaneid")
-	protected int resourcelaneId;
+	protected Integer resourcelaneId;
 
 	/**
-	 * setResourcelaneId(int resourcelaneId)
+	 * setResourcelaneId(Integer resourcelaneId)
 	 *
 	 * @param resourcelaneId
 	 *
 	 */
 	
-	public void setResourcelaneId (int resourcelaneId) {
+	public void setResourcelaneId (Integer resourcelaneId) {
 		this.resourcelaneId = resourcelaneId;
 	}
 
@@ -114,7 +114,7 @@ public class RunLane extends WaspModel {
 	 * @return resourcelaneId
 	 *
 	 */
-	public int getResourcelaneId () {
+	public Integer getResourcelaneId () {
 		return this.resourcelaneId;
 	}
 
@@ -126,16 +126,16 @@ public class RunLane extends WaspModel {
 	 *
 	 */
 	@Column(name="sampleid")
-	protected int sampleId;
+	protected Integer sampleId;
 
 	/**
-	 * setSampleId(int sampleId)
+	 * setSampleId(Integer sampleId)
 	 *
 	 * @param sampleId
 	 *
 	 */
 	
-	public void setSampleId (int sampleId) {
+	public void setSampleId (Integer sampleId) {
 		this.sampleId = sampleId;
 	}
 
@@ -145,7 +145,7 @@ public class RunLane extends WaspModel {
 	 * @return sampleId
 	 *
 	 */
-	public int getSampleId () {
+	public Integer getSampleId () {
 		return this.sampleId;
 	}
 

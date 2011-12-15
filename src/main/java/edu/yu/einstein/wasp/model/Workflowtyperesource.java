@@ -33,16 +33,16 @@ public class Workflowtyperesource extends WaspModel {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int workflowtyperesourceId;
+	protected Integer workflowtyperesourceId;
 
 	/**
-	 * setWorkflowtyperesourceId(int workflowtyperesourceId)
+	 * setWorkflowtyperesourceId(Integer workflowtyperesourceId)
 	 *
 	 * @param workflowtyperesourceId
 	 *
 	 */
 	
-	public void setWorkflowtyperesourceId (int workflowtyperesourceId) {
+	public void setWorkflowtyperesourceId (Integer workflowtyperesourceId) {
 		this.workflowtyperesourceId = workflowtyperesourceId;
 	}
 
@@ -52,7 +52,7 @@ public class Workflowtyperesource extends WaspModel {
 	 * @return workflowtyperesourceId
 	 *
 	 */
-	public int getWorkflowtyperesourceId () {
+	public Integer getWorkflowtyperesourceId () {
 		return this.workflowtyperesourceId;
 	}
 
@@ -64,16 +64,16 @@ public class Workflowtyperesource extends WaspModel {
 	 *
 	 */
 	@Column(name="workflowid")
-	protected int workflowId;
+	protected Integer workflowId;
 
 	/**
-	 * setWorkflowId(int workflowId)
+	 * setWorkflowId(Integer workflowId)
 	 *
 	 * @param workflowId
 	 *
 	 */
 	
-	public void setWorkflowId (int workflowId) {
+	public void setWorkflowId (Integer workflowId) {
 		this.workflowId = workflowId;
 	}
 
@@ -83,7 +83,7 @@ public class Workflowtyperesource extends WaspModel {
 	 * @return workflowId
 	 *
 	 */
-	public int getWorkflowId () {
+	public Integer getWorkflowId () {
 		return this.workflowId;
 	}
 
@@ -95,16 +95,16 @@ public class Workflowtyperesource extends WaspModel {
 	 *
 	 */
 	@Column(name="typeresourceid")
-	protected int typeResourceId;
+	protected Integer typeResourceId;
 
 	/**
-	 * setTypeResourceId(int typeResourceId)
+	 * setTypeResourceId(Integer typeResourceId)
 	 *
 	 * @param typeResourceId
 	 *
 	 */
 	
-	public void setTypeResourceId (int typeResourceId) {
+	public void setTypeResourceId (Integer typeResourceId) {
 		this.typeResourceId = typeResourceId;
 	}
 
@@ -114,7 +114,7 @@ public class Workflowtyperesource extends WaspModel {
 	 * @return typeResourceId
 	 *
 	 */
-	public int getTypeResourceId () {
+	public Integer getTypeResourceId () {
 		return this.typeResourceId;
 	}
 

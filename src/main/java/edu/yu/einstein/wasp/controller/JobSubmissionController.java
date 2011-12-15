@@ -329,7 +329,7 @@ public class JobSubmissionController extends WaspController {
 
 		// check if i am the drafter
 		User me = authenticationService.getAuthenticatedUser();
-		if (me.getUserId() != jobDraft.getUserId()) {
+		if (me.getUserId().intValue() != jobDraft.getUserId().intValue()) {
 			return "hello";
 		}
 
@@ -358,7 +358,7 @@ public class JobSubmissionController extends WaspController {
 
 		// check if i am the drafter
 		User me = authenticationService.getAuthenticatedUser();
-		if (me.getUserId() != jobDraftDb.getUserId()) {
+		if (me.getUserId().intValue() != jobDraftDb.getUserId().intValue()) {
 			return "hello";
 		}
 

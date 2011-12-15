@@ -54,7 +54,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	}
 	@Override
 	public boolean isAuthenticated(){
-		return (getAuthenticatedUser().getUserId() != 0);
+		return (getAuthenticatedUser().getUserId() != null);
 	}
 	
 	@Override
@@ -176,7 +176,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		if (!this.isLoginNameWellFormed(login)){
 			throw new LoginNameException();
 		}
-		if (userService.getUserByLogin(login).getUserId() != 0){
+
+		// NV 12132011
+		//if (userService.getUserByLogin(login).getUserId() != null){
+		if (userService.getUserByLogin(login).getUserId() != null){
+
 			return true;
 		} else {
 			Map loginQueryMap = new HashMap();

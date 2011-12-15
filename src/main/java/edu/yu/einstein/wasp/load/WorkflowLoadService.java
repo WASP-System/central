@@ -82,7 +82,7 @@ public class WorkflowLoadService extends WaspLoadService {
     Workflow workflow = workflowService.getWorkflowByIName(iname); 
 
     // inserts or update workflow
-    if (workflow.getWorkflowId() == 0) { 
+    if (workflow.getWorkflowId() == null) { 
       workflow = new Workflow();
 
       workflow.setIName(iname);
@@ -114,17 +114,18 @@ public class WorkflowLoadService extends WaspLoadService {
     for (WorkflowMeta workflowMeta: meta) {
 
       // incremental position numbers.
-      if ( workflowMeta.getPosition() == 0 ||
-           workflowMeta.getPosition() <= lastPosition
+    	
+      if ( workflowMeta.getPosition() == null ||
+           workflowMeta.getPosition().intValue() <= lastPosition
         )  {
         workflowMeta.setPosition(lastPosition +1);
       }
-      lastPosition = workflowMeta.getPosition();
+      lastPosition = workflowMeta.getPosition().intValue();
 
       if (oldWorkflowMetas.containsKey(workflowMeta.getK())) {
         WorkflowMeta old = oldWorkflowMetas.get(workflowMeta.getK());
         if ( old.getV().equals(workflowMeta.getV()) &&
-            old.getPosition() == workflowMeta.getPosition()) {
+            old.getPosition().intValue() == workflowMeta.getPosition().intValue()) {
           // the same
           continue;
         }

@@ -33,16 +33,16 @@ public class LabPending extends WaspModel {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int labPendingId;
+	protected Integer labPendingId;
 
 	/**
-	 * setLabPendingId(int labPendingId)
+	 * setLabPendingId(Integer labPendingId)
 	 *
 	 * @param labPendingId
 	 *
 	 */
 	
-	public void setLabPendingId (int labPendingId) {
+	public void setLabPendingId (Integer labPendingId) {
 		this.labPendingId = labPendingId;
 	}
 
@@ -52,7 +52,7 @@ public class LabPending extends WaspModel {
 	 * @return labPendingId
 	 *
 	 */
-	public int getLabPendingId () {
+	public Integer getLabPendingId () {
 		return this.labPendingId;
 	}
 
@@ -65,16 +65,16 @@ public class LabPending extends WaspModel {
 	 */
 	@Column(name="departmentid")
 	@Range(min=1)
-	protected int departmentId;
+	protected Integer departmentId;
 
 	/**
-	 * setDepartmentId(int departmentId)
+	 * setDepartmentId(Integer departmentId)
 	 *
 	 * @param departmentId
 	 *
 	 */
 	
-	public void setDepartmentId (int departmentId) {
+	public void setDepartmentId (Integer departmentId) {
 		this.departmentId = departmentId;
 	}
 
@@ -84,7 +84,7 @@ public class LabPending extends WaspModel {
 	 * @return departmentId
 	 *
 	 */
-	public int getDepartmentId () {
+	public Integer getDepartmentId () {
 		return this.departmentId;
 	}
 
@@ -253,16 +253,16 @@ public class LabPending extends WaspModel {
 	 *
 	 */
 	@Column(name="lastupduser")
-	protected int lastUpdUser;
+	protected Integer lastUpdUser;
 
 	/**
-	 * setLastUpdUser(int lastUpdUser)
+	 * setLastUpdUser(Integer lastUpdUser)
 	 *
 	 * @param lastUpdUser
 	 *
 	 */
 	
-	public void setLastUpdUser (int lastUpdUser) {
+	public void setLastUpdUser (Integer lastUpdUser) {
 		this.lastUpdUser = lastUpdUser;
 	}
 
@@ -272,7 +272,7 @@ public class LabPending extends WaspModel {
 	 * @return lastUpdUser
 	 *
 	 */
-	public int getLastUpdUser () {
+	public Integer getLastUpdUser () {
 		return this.lastUpdUser;
 	}
 

@@ -33,16 +33,16 @@ public class SampleCell extends WaspModel {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int sampleCellId;
+	protected Integer sampleCellId;
 
 	/**
-	 * setSampleCellId(int sampleCellId)
+	 * setSampleCellId(Integer sampleCellId)
 	 *
 	 * @param sampleCellId
 	 *
 	 */
 	
-	public void setSampleCellId (int sampleCellId) {
+	public void setSampleCellId (Integer sampleCellId) {
 		this.sampleCellId = sampleCellId;
 	}
 
@@ -52,7 +52,7 @@ public class SampleCell extends WaspModel {
 	 * @return sampleCellId
 	 *
 	 */
-	public int getSampleCellId () {
+	public Integer getSampleCellId () {
 		return this.sampleCellId;
 	}
 
@@ -64,16 +64,16 @@ public class SampleCell extends WaspModel {
 	 *
 	 */
 	@Column(name="sampleid")
-	protected int sampleId;
+	protected Integer sampleId;
 
 	/**
-	 * setSampleId(int sampleId)
+	 * setSampleId(Integer sampleId)
 	 *
 	 * @param sampleId
 	 *
 	 */
 	
-	public void setSampleId (int sampleId) {
+	public void setSampleId (Integer sampleId) {
 		this.sampleId = sampleId;
 	}
 
@@ -83,7 +83,7 @@ public class SampleCell extends WaspModel {
 	 * @return sampleId
 	 *
 	 */
-	public int getSampleId () {
+	public Integer getSampleId () {
 		return this.sampleId;
 	}
 
@@ -95,16 +95,16 @@ public class SampleCell extends WaspModel {
 	 *
 	 */
 	@Column(name="jobcellid")
-	protected int jobcellId;
+	protected Integer jobcellId;
 
 	/**
-	 * setJobcellId(int jobcellId)
+	 * setJobcellId(Integer jobcellId)
 	 *
 	 * @param jobcellId
 	 *
 	 */
 	
-	public void setJobcellId (int jobcellId) {
+	public void setJobcellId (Integer jobcellId) {
 		this.jobcellId = jobcellId;
 	}
 
@@ -114,7 +114,7 @@ public class SampleCell extends WaspModel {
 	 * @return jobcellId
 	 *
 	 */
-	public int getJobcellId () {
+	public Integer getJobcellId () {
 		return this.jobcellId;
 	}
 
@@ -126,16 +126,16 @@ public class SampleCell extends WaspModel {
 	 *
 	 */
 	@Column(name="libraryindex")
-	protected int libraryindex;
+	protected Integer libraryindex;
 
 	/**
-	 * setLibraryindex(int libraryindex)
+	 * setLibraryindex(Integer libraryindex)
 	 *
 	 * @param libraryindex
 	 *
 	 */
 	
-	public void setLibraryindex (int libraryindex) {
+	public void setLibraryindex (Integer libraryindex) {
 		this.libraryindex = libraryindex;
 	}
 
@@ -145,7 +145,7 @@ public class SampleCell extends WaspModel {
 	 * @return libraryindex
 	 *
 	 */
-	public int getLibraryindex () {
+	public Integer getLibraryindex () {
 		return this.libraryindex;
 	}
 

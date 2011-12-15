@@ -33,16 +33,16 @@ public class UserPendingMeta extends MetaBase {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int userPendingMetaId;
+	protected Integer userPendingMetaId;
 
 	/**
-	 * setUserPendingMetaId(int userPendingMetaId)
+	 * setUserPendingMetaId(Integer userPendingMetaId)
 	 *
 	 * @param userPendingMetaId
 	 *
 	 */
 	
-	public void setUserPendingMetaId (int userPendingMetaId) {
+	public void setUserPendingMetaId (Integer userPendingMetaId) {
 		this.userPendingMetaId = userPendingMetaId;
 	}
 
@@ -52,7 +52,7 @@ public class UserPendingMeta extends MetaBase {
 	 * @return userPendingMetaId
 	 *
 	 */
-	public int getUserPendingMetaId () {
+	public Integer getUserPendingMetaId () {
 		return this.userPendingMetaId;
 	}
 
@@ -64,16 +64,16 @@ public class UserPendingMeta extends MetaBase {
 	 *
 	 */
 	@Column(name="userpendingid")
-	protected int userpendingId;
+	protected Integer userpendingId;
 
 	/**
-	 * setUserpendingId(int userpendingId)
+	 * setUserpendingId(Integer userpendingId)
 	 *
 	 * @param userpendingId
 	 *
 	 */
 	
-	public void setUserpendingId (int userpendingId) {
+	public void setUserpendingId (Integer userpendingId) {
 		this.userpendingId = userpendingId;
 	}
 
@@ -83,7 +83,7 @@ public class UserPendingMeta extends MetaBase {
 	 * @return userpendingId
 	 *
 	 */
-	public int getUserpendingId () {
+	public Integer getUserpendingId () {
 		return this.userpendingId;
 	}
 

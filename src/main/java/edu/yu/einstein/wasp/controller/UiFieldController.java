@@ -229,7 +229,7 @@ public class UiFieldController extends WaspController {
 	@RequestMapping(value = "/detail_rw/updateJSON.do", method = RequestMethod.POST)
 	public String updateDetailJSON(@RequestParam("id") Integer uiFieldId, UiField uiFieldForm, ModelMap m, HttpServletResponse response) {
 		try {
-			if (uiFieldId == 0) {
+			if (uiFieldId == null) {
 
 				if (uiFieldService.exists(uiFieldForm.getLocale(), uiFieldForm.getArea(), uiFieldForm.getName(), uiFieldForm.getAttrName())) {
 					response.getWriter().println(messageService.getMessage("uiField.not_unique.error"));
@@ -258,7 +258,7 @@ public class UiFieldController extends WaspController {
 
 			((WaspMessageSourceImpl) messageSource).addMessage(newKey, locale, uiFieldForm.getAttrValue());
 
-			response.getWriter().println(messageService.getMessage("uiField." + (uiFieldId == 0 ? "added" : "updated") + ".data"));
+			response.getWriter().println(messageService.getMessage("uiField." + (uiFieldId == null ? "added" : "updated") + ".data"));
 			return null;
 		} catch (Throwable e) {
 			throw new IllegalStateException("Cant output success message ", e);

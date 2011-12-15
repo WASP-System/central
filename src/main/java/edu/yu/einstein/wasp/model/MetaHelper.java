@@ -205,14 +205,14 @@ public class MetaHelper {
 			String[] path=StringUtils.tokenizeToStringArray(k,".");
 			String name=path[1];
 
-			int pos=99;
+			Integer pos=99;
 			try {
 				pos = Integer.parseInt(bundleValue);
 			} catch (Exception e) {
 			}
 
 			// multiplied to account for dups
-			int keyPos = pos * 1000; 
+			Integer keyPos = pos * 1000; 
 			while (uniquePositions.containsKey(keyPos)) {
 				keyPos++;
 			}
@@ -469,7 +469,7 @@ public class MetaHelper {
 	}
 	
 	/**
-	 * Returns a list (List<String>) of metadata key / constraint pairs such that each key is followed by its corresponding
+	 * Returns a list (List<String>) of metadata key / constraInteger pairs such that each key is followed by its corresponding
 	 * constraint.
 	 * @param list
 	 * @return

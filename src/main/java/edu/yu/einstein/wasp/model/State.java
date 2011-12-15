@@ -33,16 +33,16 @@ public class State extends WaspModel {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int stateId;
+	protected Integer stateId;
 
 	/**
-	 * setStateId(int stateId)
+	 * setStateId(Integer stateId)
 	 *
 	 * @param stateId
 	 *
 	 */
 	
-	public void setStateId (int stateId) {
+	public void setStateId (Integer stateId) {
 		this.stateId = stateId;
 	}
 
@@ -52,7 +52,7 @@ public class State extends WaspModel {
 	 * @return stateId
 	 *
 	 */
-	public int getStateId () {
+	public Integer getStateId () {
 		return this.stateId;
 	}
 
@@ -64,16 +64,16 @@ public class State extends WaspModel {
 	 *
 	 */
 	@Column(name="taskid")
-	protected int taskId;
+	protected Integer taskId;
 
 	/**
-	 * setTaskId(int taskId)
+	 * setTaskId(Integer taskId)
 	 *
 	 * @param taskId
 	 *
 	 */
 	
-	public void setTaskId (int taskId) {
+	public void setTaskId (Integer taskId) {
 		this.taskId = taskId;
 	}
 
@@ -83,7 +83,7 @@ public class State extends WaspModel {
 	 * @return taskId
 	 *
 	 */
-	public int getTaskId () {
+	public Integer getTaskId () {
 		return this.taskId;
 	}
 
@@ -250,16 +250,16 @@ public class State extends WaspModel {
 	 *
 	 */
 	@Column(name="lastupduser")
-	protected int lastUpdUser;
+	protected Integer lastUpdUser;
 
 	/**
-	 * setLastUpdUser(int lastUpdUser)
+	 * setLastUpdUser(Integer lastUpdUser)
 	 *
 	 * @param lastUpdUser
 	 *
 	 */
 	
-	public void setLastUpdUser (int lastUpdUser) {
+	public void setLastUpdUser (Integer lastUpdUser) {
 		this.lastUpdUser = lastUpdUser;
 	}
 
@@ -269,7 +269,7 @@ public class State extends WaspModel {
 	 * @return lastUpdUser
 	 *
 	 */
-	public int getLastUpdUser () {
+	public Integer getLastUpdUser () {
 		return this.lastUpdUser;
 	}
 

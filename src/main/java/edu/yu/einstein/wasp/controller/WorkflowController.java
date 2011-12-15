@@ -129,7 +129,7 @@ public class WorkflowController extends WaspController {
 								new Integer(workflow.getWorkflowId())
 										.toString(), 
 								workflow.getName(),
-								workflow.getIsActive() == 1 ? "yes" : "no" }));
+								workflow.getIsActive().intValue() == 1 ? "yes" : "no" }));
 
 				for (WorkflowMeta meta : workflowMeta) {
 					cellList.add(meta.getV());
@@ -180,7 +180,7 @@ public class WorkflowController extends WaspController {
 			int i = 0;
 			int j = 0;
 			for (Job job: jobs) {
-				text = job.getJobId() == 0 ? "No Runs"
+				text = job.getJobId() == null ? "No Runs"
 						: "<a href=/wasp/job/detail/" + job.getJobId() + ".do>"
 								+ job.getName() + "</a>";
 				mtrx[j] = text;

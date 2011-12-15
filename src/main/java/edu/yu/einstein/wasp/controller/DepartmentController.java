@@ -262,7 +262,7 @@ public class DepartmentController extends WaspController {
 							+ allUsers.get(lab.getPrimaryUserId())
 							+ "</a>",
 						allDepts.get(lab.getDepartmentId()),
-						lab.getIsActive() == 1 ? "yes" : "no" }));
+						lab.getIsActive().intValue() == 1 ? "yes" : "no" }));
 
 				for (LabMeta meta : labMeta) {
 					cellList.add(meta.getV());
@@ -347,7 +347,7 @@ public class DepartmentController extends WaspController {
 		else{
 			//logger.debug("ROB trimmedLogin: " + trimmedLogin);
 			user = userService.getUserByLogin(login);
-			if(user.getUserId()==0){//user not found in database
+			if(user.getUserId() == null){//user not found in database
 				waspMessage("department.detail_usernotfound.error");
 			}
 			else{//since this is a new department (that we know does NOT exist, it cannot have any department administrators associated with it. so, no need here to check that this person is already associated with this department
@@ -370,7 +370,7 @@ public class DepartmentController extends WaspController {
 	
 		// if i am the user,  reauth
 		User me = authenticationService.getAuthenticatedUser();
-		if (me.getUserId() == user.getUserId()) {
+		if (me.getUserId().intValue() == user.getUserId().intValue()) {
 			doReauth();
 		}
 		
@@ -393,7 +393,7 @@ public class DepartmentController extends WaspController {
 
     // if i am the user,  reauth
     User me = authenticationService.getAuthenticatedUser();   
-    if (me.getUserId() == userId) {
+    if (me.getUserId().intValue() == userId.intValue()) {
       doReauth();
       //if a user is NOT god and the user is a da and removes him/herself from being a da, 
       //then they are NOT permitted to navigate back to /department/detail/" + departmentId + ".do";
@@ -403,6 +403,7 @@ public class DepartmentController extends WaspController {
       }      
     }
 
+    
     return "redirect:/department/detail/" + departmentId + ".do";
   }
 
@@ -415,7 +416,7 @@ public class DepartmentController extends WaspController {
 	  
 	//first, confirm that the departmentId is valid (although it is quite unlikely that this is going to be an invalid ID)
 	Department department = departmentService.getDepartmentByDepartmentId(departmentId);
-	if(department.getDepartmentId()==0){//id of 0 means this department does not exist in the database; this should not really occur
+	if(department.getDepartmentId() == null){//id of 0 means this department does not exist in the database; this should not really occur
 		waspMessage("department.detail_invalidDept.error");
 	}
 	else{//next deal with the adminName
@@ -441,13 +442,13 @@ public class DepartmentController extends WaspController {
 			}
 			else{
 				User user = userService.getUserByLogin(login);
-				if(user.getUserId()==0){//user not found in database
+				if(user.getUserId() == null){//user not found in database
 					waspMessage("department.detail_usernotfound.error");
 				}
 				else{
 					
 					DepartmentUser existingDepartmentUser = departmentUserService.getDepartmentUserByDepartmentIdUserId(departmentId, user.getUserId());
-					if(existingDepartmentUser.getDepartmentUserId() > 0 && existingDepartmentUser.getUser().getUserId() == user.getUserId()){//this person is already a departmentAdmin for this particular department
+					if(existingDepartmentUser.getDepartmentUserId() > 0 && existingDepartmentUser.getUser().getUserId().intValue() == user.getUserId().intValue()){//this person is already a departmentAdmin for this particular department
 						waspMessage("department.detail_adminAlreadyExists.error");
 					}
 					else{						
@@ -458,7 +459,7 @@ public class DepartmentController extends WaspController {
 						waspMessage("department.detail_ok.label");						
 						// if i am the user,  reauth
 						User me = authenticationService.getAuthenticatedUser();
-						if (me.getUserId() == user.getUserId()) {
+						if (me.getUserId().intValue() == user.getUserId().intValue()) {
 							doReauth();
 						}
 					}
@@ -492,7 +493,7 @@ public class DepartmentController extends WaspController {
 		  //is attempting to set one department name to another department's name (which is invalid)
 		  //These can be distinguished by departmentId
 		  Department otherDepartment = this.departmentService.getDepartmentByName(modifiedName);
-		  if(otherDepartment.getDepartmentId() > 0 && departmentBeingModified.getDepartmentId() != otherDepartment.getDepartmentId()){
+		  if(otherDepartment.getDepartmentId().intValue() > 0 && departmentBeingModified.getDepartmentId().intValue() != otherDepartment.getDepartmentId().intValue()){
 			  waspMessage("department.list_department_exists.error");//this name is taken
 		  }
 		  else{

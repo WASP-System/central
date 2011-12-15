@@ -33,16 +33,16 @@ public class SampleMeta extends MetaBase {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int sampleMetaId;
+	protected Integer sampleMetaId;
 
 	/**
-	 * setSampleMetaId(int sampleMetaId)
+	 * setSampleMetaId(Integer sampleMetaId)
 	 *
 	 * @param sampleMetaId
 	 *
 	 */
 	
-	public void setSampleMetaId (int sampleMetaId) {
+	public void setSampleMetaId (Integer sampleMetaId) {
 		this.sampleMetaId = sampleMetaId;
 	}
 
@@ -52,7 +52,7 @@ public class SampleMeta extends MetaBase {
 	 * @return sampleMetaId
 	 *
 	 */
-	public int getSampleMetaId () {
+	public Integer getSampleMetaId () {
 		return this.sampleMetaId;
 	}
 
@@ -64,16 +64,16 @@ public class SampleMeta extends MetaBase {
 	 *
 	 */
 	@Column(name="sampleid")
-	protected int sampleId;
+	protected Integer sampleId;
 
 	/**
-	 * setSampleId(int sampleId)
+	 * setSampleId(Integer sampleId)
 	 *
 	 * @param sampleId
 	 *
 	 */
 	
-	public void setSampleId (int sampleId) {
+	public void setSampleId (Integer sampleId) {
 		this.sampleId = sampleId;
 	}
 
@@ -83,7 +83,7 @@ public class SampleMeta extends MetaBase {
 	 * @return sampleId
 	 *
 	 */
-	public int getSampleId () {
+	public Integer getSampleId () {
 		return this.sampleId;
 	}
 

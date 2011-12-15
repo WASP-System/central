@@ -96,7 +96,8 @@ public class DepartmentServiceImpl extends WaspServiceImpl<Department> implement
 
 	    Map themap = new HashMap();
 	    Task task = taskService.getTaskByIName("DA Approval");
-	    if(task.getTaskId()==0){//unexpectedly not found
+
+	    if(task.getTaskId()==null){//unexpectedly not found
 	    	//TODO: throw exception
 	    }
 	    
@@ -146,7 +147,7 @@ public class DepartmentServiceImpl extends WaspServiceImpl<Department> implement
 	    			for( int i = 0; i < stateList.size(); i++){
 	    				List<Statejob> statejobList = stateList.get(i).getStatejob();
 	    				for(Statejob stateJob : statejobList){
-	    					if(stateJob.getJob().getLab().getDepartmentId() == departmentId){
+	    					if(stateJob.getJob().getLab().getDepartmentId().intValue() == departmentId){
 	    						jobsPendingDaApprovalList.add(stateJob.getJob());
 	    					}
 	    				}

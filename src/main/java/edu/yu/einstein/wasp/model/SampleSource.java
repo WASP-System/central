@@ -33,16 +33,16 @@ public class SampleSource extends WaspModel {
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected int sampleSourceId;
+	protected Integer sampleSourceId;
 
 	/**
-	 * setSampleSourceId(int sampleSourceId)
+	 * setSampleSourceId(Integer sampleSourceId)
 	 *
 	 * @param sampleSourceId
 	 *
 	 */
 	
-	public void setSampleSourceId (int sampleSourceId) {
+	public void setSampleSourceId (Integer sampleSourceId) {
 		this.sampleSourceId = sampleSourceId;
 	}
 
@@ -52,7 +52,7 @@ public class SampleSource extends WaspModel {
 	 * @return sampleSourceId
 	 *
 	 */
-	public int getSampleSourceId () {
+	public Integer getSampleSourceId () {
 		return this.sampleSourceId;
 	}
 
@@ -64,16 +64,16 @@ public class SampleSource extends WaspModel {
 	 *
 	 */
 	@Column(name="sampleid")
-	protected int sampleId;
+	protected Integer sampleId;
 
 	/**
-	 * setSampleId(int sampleId)
+	 * setSampleId(Integer sampleId)
 	 *
 	 * @param sampleId
 	 *
 	 */
 	
-	public void setSampleId (int sampleId) {
+	public void setSampleId (Integer sampleId) {
 		this.sampleId = sampleId;
 	}
 
@@ -83,7 +83,7 @@ public class SampleSource extends WaspModel {
 	 * @return sampleId
 	 *
 	 */
-	public int getSampleId () {
+	public Integer getSampleId () {
 		return this.sampleId;
 	}
 
@@ -95,16 +95,16 @@ public class SampleSource extends WaspModel {
 	 *
 	 */
 	@Column(name="multiplexindex")
-	protected int multiplexindex;
+	protected Integer multiplexindex;
 
 	/**
-	 * setMultiplexindex(int multiplexindex)
+	 * setMultiplexindex(Integer multiplexindex)
 	 *
 	 * @param multiplexindex
 	 *
 	 */
 	
-	public void setMultiplexindex (int multiplexindex) {
+	public void setMultiplexindex (Integer multiplexindex) {
 		this.multiplexindex = multiplexindex;
 	}
 
@@ -114,7 +114,7 @@ public class SampleSource extends WaspModel {
 	 * @return multiplexindex
 	 *
 	 */
-	public int getMultiplexindex () {
+	public Integer getMultiplexindex () {
 		return this.multiplexindex;
 	}
 
@@ -126,16 +126,16 @@ public class SampleSource extends WaspModel {
 	 *
 	 */
 	@Column(name="source_sampleid")
-	protected int sourceSampleId;
+	protected Integer sourceSampleId;
 
 	/**
-	 * setSourceSampleId(int sourceSampleId)
+	 * setSourceSampleId(Integer sourceSampleId)
 	 *
 	 * @param sourceSampleId
 	 *
 	 */
 	
-	public void setSourceSampleId (int sourceSampleId) {
+	public void setSourceSampleId (Integer sourceSampleId) {
 		this.sourceSampleId = sourceSampleId;
 	}
 
@@ -145,7 +145,7 @@ public class SampleSource extends WaspModel {
 	 * @return sourceSampleId
 	 *
 	 */
-	public int getSourceSampleId () {
+	public Integer getSourceSampleId () {
 		return this.sourceSampleId;
 	}
 
@@ -188,16 +188,16 @@ public class SampleSource extends WaspModel {
 	 *
 	 */
 	@Column(name="lastupduser")
-	protected int lastUpdUser;
+	protected Integer lastUpdUser;
 
 	/**
-	 * setLastUpdUser(int lastUpdUser)
+	 * setLastUpdUser(Integer lastUpdUser)
 	 *
 	 * @param lastUpdUser
 	 *
 	 */
 	
-	public void setLastUpdUser (int lastUpdUser) {
+	public void setLastUpdUser (Integer lastUpdUser) {
 		this.lastUpdUser = lastUpdUser;
 	}
 
@@ -207,7 +207,7 @@ public class SampleSource extends WaspModel {
 	 * @return lastUpdUser
 	 *
 	 */
-	public int getLastUpdUser () {
+	public Integer getLastUpdUser () {
 		return this.lastUpdUser;
 	}
 

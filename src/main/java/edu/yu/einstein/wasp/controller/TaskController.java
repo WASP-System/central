@@ -117,7 +117,7 @@ public class TaskController extends WaspController {
       List<Statejob> stateJob = state.getStatejob();
       int stateLabId = stateJob.get(0).getJob().getLabId(); 
 
-      if (stateLabId == labId) {
+      if (stateLabId == labId.intValue()) {
         states.add(state);
       }
     }
@@ -159,7 +159,7 @@ public class TaskController extends WaspController {
       List<Statejob> stateJob = state.getStatejob();
       int stateDeptId = stateJob.get(0).getJob().getLab().getDepartmentId(); 
 
-      if (stateDeptId == departmentId) {
+      if (stateDeptId == departmentId.intValue()) {
         states.add(state);
       }
     }

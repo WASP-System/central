@@ -246,7 +246,7 @@ public class PlatformUnitController extends WaspController {
 	/* ****************************** */
 
 	public Sample preparePlatformUnit(Sample sampleForm) {
-		if (sampleForm.getSampleId() == 0) {
+		if (sampleForm.getSampleId() == null) {
 			User me = authenticationService.getAuthenticatedUser();
 			sampleForm.setSubmitterUserId(me.getUserId());
 
@@ -313,7 +313,7 @@ public class PlatformUnitController extends WaspController {
 	public String updatePlatformUnit( Sample sampleForm ) {
 	
 		Sample sampleDb;
-		if (sampleForm.getSampleId() == 0) {
+		if (sampleForm.getSampleId() == null) {
 			sampleDb = sampleService.save(sampleForm);
 		} else {
 			sampleDb = sampleService.merge(sampleForm);
