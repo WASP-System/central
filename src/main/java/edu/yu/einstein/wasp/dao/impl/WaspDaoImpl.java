@@ -256,7 +256,7 @@ public abstract class WaspDaoImpl<E extends Serializable> implements edu.yu.eins
 				 method.invoke(entity, new Object[]{userId});		
 			 }
 		 } catch (Throwable e) {
-			 log.warn("setEditorId() threw exeption: " + e.getMessage()  );
+			 log.warn("setEditorId() threw exception: " + e.getMessage()  );
 		 }
 	 }
 	 
@@ -268,7 +268,7 @@ public abstract class WaspDaoImpl<E extends Serializable> implements edu.yu.eins
 			   method.invoke(entity, new Object[]{new Date()});		
 			 }
 		 } catch (Throwable e) {
-			 log.warn("setUpdateTs() threw exeption: " + e.getMessage()  );
+			 log.warn("setUpdateTs() threw exception: " + e.getMessage()  );
 		 }
 	 }
 	 
