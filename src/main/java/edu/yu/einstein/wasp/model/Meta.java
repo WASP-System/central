@@ -64,7 +64,7 @@ public class Meta extends WaspModel {
   }
 
 
-  @Column(name="position", columnDefinition= "default '0'")
+  @Column(name="position")
   protected Integer position;
   public void setPosition (Integer position) {
     this.position = position;
