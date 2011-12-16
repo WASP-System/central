@@ -42,6 +42,34 @@ public class SeleniumNewRequest extends SeleniumBaseTest {
 	      
 	      return(retObjArr);
 	  }
+	  @DataProvider(name = "DP3")
+	  public Object[][] createData3() throws Exception{
+	      Object[][] retObjArr=SeleniumHelper.getTableArray("WaspTestData.xls",
+	              "Test1", "approveAccessToLab");
+	      
+	      return(retObjArr);
+	  }
+	  @DataProvider(name = "DP4")
+	  public Object[][] createData4() throws Exception{
+	      Object[][] retObjArr=SeleniumHelper.getTableArray("WaspTestData.xls",
+	              "Test1", "approveCreateNewLabRequest");
+	      
+	      return(retObjArr);
+	  }
+	  @DataProvider(name = "DP5")
+	  public Object[][] createData5() throws Exception{
+	      Object[][] retObjArr=SeleniumHelper.getTableArray("WaspTestData.xls",
+	              "Test1", "rejecteAccessToLab");
+	      
+	      return(retObjArr);
+	  }
+	  @DataProvider(name = "DP6")
+	  public Object[][] createData6() throws Exception{
+	      Object[][] retObjArr=SeleniumHelper.getTableArray("WaspTestData.xls",
+	              "Test1", "rejectCreateNewLabRequest");
+	      
+	      return(retObjArr);
+	  }
 	  
 	  /**
 	   * 
@@ -73,7 +101,8 @@ public class SeleniumNewRequest extends SeleniumBaseTest {
 	  }
 	  
 	  @Test (groups = "integration-tests",  dataProvider = "DP2")
-	  public void createNewLabRequest(String sUserName, String sUserPass,String sLab, String sPhone, String sAddress, String sPhone2, String sUrl, String successUrl) throws Exception {   
+	  public void createNewLabRequest(String sUserName, String sUserPass,String sLab, String sPhone, 
+			  						  String sAddress, String sPhone2, String sUrl, String successUrl) throws Exception {   
 			
 		  SeleniumHelper.login(sUserName, sUserPass, driver);	 
 		  driver.get("http://localhost:8080/wasp/dashboard.do");
@@ -99,7 +128,70 @@ public class SeleniumNewRequest extends SeleniumBaseTest {
 		  Assert.assertEquals(driver.getCurrentUrl(), successUrl);
 	      
 	  }
+	  
+	  //TO DO:
+	  @Test (groups = "integration-tests",  dataProvider = "DP3")
+	  public void approveAccessToLab(String sUserName, String sUserPass, String sUserEmail) {
+		  
+		  SeleniumHelper.login(sUserName, sUserPass, driver);
+		  driver.findElement(By.xpath("//a[contains(.,'Pending User Approval')]")).click();
+		  
+	      Assert.assertNotNull(driver.findElement(By.linkText("APPROVE")), "'APPROVE' link does not exist");
+		  driver.findElement(By.xpath("//p[contains(.,'"+sUserEmail+"')]/a[contains(.,'APPROVE')]")).click();
+		  Assert.assertTrue(driver.findElements(By.xpath("//p[contains(.,'"+sUserEmail+"')]/a[contains(.,'APPROVE')]")).size() == 0, "Failed to approve request to access a lab");
+	  
+	  }
+	  
+	  //TO DO:
+	  @Test (groups = "integration-tests",  dataProvider = "DP4")
+	  public void approveCreateNewLabRequest (String sUserName, String sUserPass, String sLab) {
+		  
+		  SeleniumHelper.login(sUserName, sUserPass, driver);	 
+		  driver.get("http://localhost:8080/wasp/department/list.do");
+		  
+		  driver.findElement(By.xpath("//a[contains(@href, '/wasp/department/dapendingtasklist.do')]")).click();
+		  Assert.assertTrue(SeleniumHelper.verifyTextPresent(sLab, driver),"Lab "+ sLab +" not found");
+		  driver.findElement(By.xpath("//a[contains(.,'"+sLab+"')]")).click();
+		  Assert.assertTrue(driver.findElements(By.xpath("//a[contains(@href,'/wasp/lab/pending/approve/')]")).size() != 0, "Cannot locate APPROVE link");
+		  driver.findElement(By.xpath("//a[contains(@href,'/wasp/lab/pending/approve/')]")).click();
+		  //Assert.assertTrue(SeleniumHelper.verifyTextPresent("New lab application successfully approved", driver));
+		  Assert.assertTrue(driver.findElements(By.xpath("//a[contains(.,'"+sLab+"')]")).size() == 0, "Failed to approve create new lab request");
 
+	  }
+	  
+	//TO DO:
+	  @Test (groups = "integration-tests",  dataProvider = "DP5")
+	  public void rejecteAccessToLab(String sUserName, String sUserPass, String sUserEmail) {
+		  
+		  SeleniumHelper.login(sUserName, sUserPass, driver);
+		  driver.findElement(By.xpath("//a[contains(.,'Pending User Approval')]")).click();
+		  
+	      Assert.assertNotNull(driver.findElement(By.linkText("REJECT")), "'REJECT' link does not exist");
+		  driver.findElement(By.xpath("//p[contains(.,'"+sUserEmail+"')]/a[contains(.,'REJECT')]")).click();
+		  Assert.assertTrue(driver.findElements(By.xpath("//p[contains(.,'"+sUserEmail+"')]/a[contains(.,'REJECT')]")).size() == 0, "Failed to reject request to access a lab");
+		  
+		  
+	  }
+	  
+	  //TO DO:
+	  @Test (groups = "integration-tests",  dataProvider = "DP6")
+	  public void rejectCreateNewLabRequest (String sUserName, String sUserPass, String sLab) {
+		  
+		  SeleniumHelper.login(sUserName, sUserPass, driver);	 
+		  driver.get("http://localhost:8080/wasp/department/list.do");
+		  
+		  driver.findElement(By.xpath("//a[contains(@href, '/wasp/department/dapendingtasklist.do')]")).click();
+		  Assert.assertTrue(SeleniumHelper.verifyTextPresent(sLab, driver),"Lab "+ sLab +" not found");
+		  driver.findElement(By.xpath("//a[contains(.,'"+sLab+"')]")).click();
+		  Assert.assertTrue(driver.findElements(By.xpath("//a[contains(@href,'/wasp/lab/pending/reject/')]")).size() != 0, "Cannot locate Reject link");
+		  driver.findElement(By.xpath("//a[contains(@href,'/wasp/lab/pending/reject/')]")).click();
+		  Assert.assertTrue(driver.findElements(By.xpath("//a[contains(.,'"+sLab+"')]")).size() == 0, "Failed to reject create new lab request");
+		  
+		  
+		  
+	  }
+	  
+	  
 	  @AfterClass
 	  public void afterClass() {
 	  
