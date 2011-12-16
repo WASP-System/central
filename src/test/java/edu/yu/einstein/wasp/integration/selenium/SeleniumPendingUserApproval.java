@@ -49,7 +49,7 @@ public class SeleniumPendingUserApproval extends SeleniumBaseTest{
 	  
       Assert.assertNotNull(driver.findElement(By.linkText("APPROVE")), "'APPROVE' link does not exist");
 	  driver.findElement(By.xpath("//p[contains(.,'"+sUserEmail+"')]/a[contains(.,'APPROVE')]")).click();
-	  
+	  Assert.assertTrue(driver.findElements(By.xpath("//p[contains(.,'"+sUserEmail+"')]/a[contains(.,'APPROVE')]")).size() == 0, "Failed to approve a new user");
 
       
   }
@@ -61,9 +61,9 @@ public class SeleniumPendingUserApproval extends SeleniumBaseTest{
 	  Assert.assertNotNull(driver.findElement(By.linkText("REJECT")), "'REJECT' link does not exist");
 	  
       Assert.assertTrue(SeleniumHelper.verifyTextPresent(sUserEmail, driver),"User with "+ sUserEmail+" email not found");
-  
-	  driver.findElement(By.xpath("//p[contains(.,'"+sUserEmail+"')]/a[contains(.,'REJECT')]")).click();
-      //Assert.assertEquals(driver.getCurrentUrl(),sRejectedUrl);
+  	  driver.findElement(By.xpath("//p[contains(.,'"+sUserEmail+"')]/a[contains(.,'REJECT')]")).click();
+	  Assert.assertTrue(driver.findElements(By.xpath("//p[contains(.,'"+sUserEmail+"')]/a[contains(.,'REJECT')]")).size() == 0, "Failed to reject a new user");
+
   }
   
   
