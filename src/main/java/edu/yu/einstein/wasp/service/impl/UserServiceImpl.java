@@ -84,7 +84,7 @@ public class UserServiceImpl extends WaspServiceImpl<User> implements UserServic
 		loginBase = loginBase.replaceAll("[^\\w-]", "").toLowerCase();
 		String login = loginBase;
 		int c = 1;
-		while (this.getUserByLogin(login).getUserId() > 0) {
+		while (this.getUserByLogin(login).getUserId() != null) {
 			login = loginBase + c;
 			c++;
 		}
