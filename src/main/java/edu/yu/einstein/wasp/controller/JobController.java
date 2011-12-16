@@ -128,7 +128,7 @@ public class JobController extends WaspController {
 		else{
 			//check that login does not belong to the job submitter (or is not already a job-viewer)
 			JobUser jobUser = this.jobUserService.getJobUserByJobIdUserId(jobId, user.getUserId());
-			if(jobUser.getJobUserId() > 0){
+			if(jobUser.getJobUserId() != null){
 				if( "js".equals( jobUser.getRole().getRoleName() ) ){
 					waspMessage("job.jobViewerUserRoleAdd.error3");//user is submitter (and thus is, by default, a job-viewer)
 				}
