@@ -316,7 +316,8 @@ public class DepartmentController extends WaspController {
 		modifiedDepartmentName = StringHelper.removeExtraSpacesAndCapOnlyFirstLetterOfEachWord(departmentName);
 		
 		Department existingDepartment = this.departmentService.getDepartmentByName(modifiedDepartmentName);//is this name already being used as a department name (which is prohibited) 
-		if( existingDepartment.getDepartmentId() > 0 ){//the id will be 0 if empty department [ie.: department does not already exist]
+		//if(existingDepartment.getDepartmentId() > 0 ){//the id will be 0 if empty department [ie.: department does not already exist]
+		if(existingDepartment.getDepartmentId() != null){//if true, then the deparmnet already exists, so do let allow system to create department again
 			waspMessage("department.list_department_exists.error");
 		}
 		else{
@@ -448,7 +449,8 @@ public class DepartmentController extends WaspController {
 				else{
 					
 					DepartmentUser existingDepartmentUser = departmentUserService.getDepartmentUserByDepartmentIdUserId(departmentId, user.getUserId());
-					if(existingDepartmentUser.getDepartmentUserId() > 0 && existingDepartmentUser.getUser().getUserId().intValue() == user.getUserId().intValue()){//this person is already a departmentAdmin for this particular department
+					//if(existingDepartmentUser.getDepartmentUserId() > 0 && existingDepartmentUser.getUser().getUserId().intValue() == user.getUserId().intValue()){//this person is already a departmentAdmin for this particular department
+					if(existingDepartmentUser.getDepartmentUserId() != null && existingDepartmentUser.getUser().getUserId().intValue() == user.getUserId().intValue()){//this person is already a departmentAdmin for this particular department
 						waspMessage("department.detail_adminAlreadyExists.error");
 					}
 					else{						
