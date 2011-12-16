@@ -495,7 +495,7 @@ public class DepartmentController extends WaspController {
 		  //is attempting to set one department name to another department's name (which is invalid)
 		  //These can be distinguished by departmentId
 		  Department otherDepartment = this.departmentService.getDepartmentByName(modifiedName);
-		  if(otherDepartment.getDepartmentId().intValue() > 0 && departmentBeingModified.getDepartmentId().intValue() != otherDepartment.getDepartmentId().intValue()){
+		  if(otherDepartment.getDepartmentId() != null && departmentBeingModified.getDepartmentId().intValue() != otherDepartment.getDepartmentId().intValue()){
 			  waspMessage("department.list_department_exists.error");//this name is taken
 		  }
 		  else{
