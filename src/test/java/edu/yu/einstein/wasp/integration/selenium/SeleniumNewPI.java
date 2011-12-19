@@ -55,6 +55,7 @@ public class SeleniumNewPI extends SeleniumBaseTest {
     /**
      * 
      * @param sUrl
+     * @param sLogin
      * @param sFName
      * @param sLName
      * @param sEmail
@@ -72,10 +73,15 @@ public class SeleniumNewPI extends SeleniumBaseTest {
      * @param sZip
      * @param sPhone
      * @param sFax
+     * @param sNewUserPICreated
      * @throws Exception
      */
   	@Test (groups = "integration-tests", dataProvider = "DP1")
-	public void navigateNewPIForm(String sUrl, String sLogin, String sFName, String sLName, String sEmail, String pwd, String locale, String sLab, String title, String sInst, String sDept, String building_room, String address, String sCity, String sState, String sCountry, String sZip, String sPhone, String sFax, String sNewUserPICreated) throws Exception {  
+	public void navigateNewPIForm(String sUrl, String sLogin, String sFName, String sLName, 
+									String sEmail, String pwd, String locale, String sLab, 
+									String title, String sInst, String sDept, String building_room, 
+									String address, String sCity, String sState, String sCountry, 
+									String sZip, String sPhone, String sFax, String sNewUserPICreated) throws Exception {  
   		Assert.assertNotNull(driver);
   		driver.get("http://localhost:8080/wasp/auth/login.do");
     	Assert.assertTrue(driver.findElements(By.xpath("//a[contains(@href,'/wasp/auth/newpi/institute.do')]")).size() != 0, "Cannot locate New PI link on login page");
@@ -122,7 +128,10 @@ public class SeleniumNewPI extends SeleniumBaseTest {
 				
      	
     }
-  
+    /**
+     * 
+     * @throws SQLException
+     */
   	@Test (groups="integration-tests")
   	public void confirmEmailAuth() throws SQLException {
   		Statement s = connection.createStatement();
