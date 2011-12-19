@@ -75,9 +75,9 @@ public class SeleniumNewRequest extends SeleniumBaseTest {
 	   * 
 	   * @param sUserName
 	   * @param sUserPass
-	   * @param sLab
-	   * @param sUserEmail
-	   * @param sApprovedUrl
+	   * @param sPIName
+	   * @param sUrl
+	   * @param successUrl
 	   * @throws Exception
 	   */
 	  @Test (groups = "integration-tests",  dataProvider = "DP1")
@@ -100,6 +100,18 @@ public class SeleniumNewRequest extends SeleniumBaseTest {
 		  Assert.assertEquals(driver.getCurrentUrl(), successUrl);
 	  }
 	  
+	  /**
+	   * 
+	   * @param sUserName
+	   * @param sUserPass
+	   * @param sLab
+	   * @param sPhone
+	   * @param sAddress
+	   * @param sPhone2
+	   * @param sUrl
+	   * @param successUrl
+	   * @throws Exception
+	   */
 	  @Test (groups = "integration-tests",  dataProvider = "DP2")
 	  public void createNewLabRequest(String sUserName, String sUserPass,String sLab, String sPhone, 
 			  						  String sAddress, String sPhone2, String sUrl, String successUrl) throws Exception {   
@@ -129,7 +141,12 @@ public class SeleniumNewRequest extends SeleniumBaseTest {
 	      
 	  }
 	  
-	  //TO DO:
+	  /**
+	   * 
+	   * @param sUserName
+	   * @param sUserPass
+	   * @param sUserEmail
+	   */
 	  @Test (groups = "integration-tests",  dataProvider = "DP3")
 	  public void approveAccessToLab(String sUserName, String sUserPass, String sUserEmail) {
 		  
@@ -142,7 +159,12 @@ public class SeleniumNewRequest extends SeleniumBaseTest {
 	  
 	  }
 	  
-	  //TO DO:
+	  /**
+	   * 
+	   * @param sUserName
+	   * @param sUserPass
+	   * @param sLab
+	   */
 	  @Test (groups = "integration-tests",  dataProvider = "DP4")
 	  public void approveCreateNewLabRequest (String sUserName, String sUserPass, String sLab) {
 		  
@@ -159,7 +181,12 @@ public class SeleniumNewRequest extends SeleniumBaseTest {
 
 	  }
 	  
-	//TO DO:
+	  /**
+	   * 	
+	   * @param sUserName
+	   * @param sUserPass
+	   * @param sUserEmail
+	   */
 	  @Test (groups = "integration-tests",  dataProvider = "DP5")
 	  public void rejecteAccessToLab(String sUserName, String sUserPass, String sUserEmail) {
 		  
@@ -173,7 +200,12 @@ public class SeleniumNewRequest extends SeleniumBaseTest {
 		  
 	  }
 	  
-	  //TO DO:
+	  /**
+	   * 
+	   * @param sUserName
+	   * @param sUserPass
+	   * @param sLab
+	   */
 	  @Test (groups = "integration-tests",  dataProvider = "DP6")
 	  public void rejectCreateNewLabRequest (String sUserName, String sUserPass, String sLab) {
 		  
