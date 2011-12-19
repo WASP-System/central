@@ -81,7 +81,10 @@ public class SeleniumWaspAddNewUser extends SeleniumBaseTest {
     * @throws Exception
     */
   	@Test (groups = "integration-tests", dataProvider = "DP2")
-	public void navigateNewUserForm(String sLogin, String fName, String lName, String email, String password, String locale, String primaryuserid, String title, String building_room, String address, String phone, String fax, String captcha, String sNewUserUrlCreated, String confEmailOkUrl ) throws Exception {  
+	public void navigateNewUserForm(String sLogin, String fName, String lName, String email, 
+										String password, String locale, String primaryuserid, String title, 
+										String building_room, String address, String phone, String fax, 
+										String captcha, String sNewUserUrlCreated, String confEmailOkUrl ) throws Exception {  
   		sEmail = email;
   		sConfirmedEmailOkUrl = confEmailOkUrl;
   		JavascriptExecutor js = (JavascriptExecutor) driver;
