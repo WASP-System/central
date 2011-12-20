@@ -14,7 +14,7 @@
          <class name="edu.yu.einstein.wasp.integration.selenium.SeleniumBaseTest"/>
       </classes>
    </test>
- 
+<!--  
    <test name="WASP Regression Testing: Add New PI" preserve-order="true">
 		<classes>
          	<class name="edu.yu.einstein.wasp.integration.selenium.SeleniumNewPI">
@@ -51,7 +51,20 @@
       </classes>
    </test>
 
-
+<test name="WASP Regression Testing: New Request" preserve-order="true">
+			<classes>
+	         	<class name="edu.yu.einstein.wasp.integration.selenium.SeleniumNewRequest">
+	         	<methods>
+		         	<include name="requestAccessToLab"></include>	
+		         	<exclude name="createNewLabRequest"></exclude>
+		         	<include name="approveAccessToLab"></include>	
+		         	<exclude name="approveCreateNewLabRequest"></exclude>
+		         	<exclude name="rejectAccessToLab"></exclude>	
+		         	<exclude name="rejectCreateNewLabRequest"></exclude>
+	         	</methods>
+	         	</class>
+	      </classes>
+	</test>
     <test name="WASP Regression Testing: Pending User Approval" preserve-order="true">
 		<classes>
          	<class name="edu.yu.einstein.wasp.integration.selenium.SeleniumPendingUserApproval">
@@ -64,19 +77,20 @@
       </classes>
     </test>
 
-  <!--  
+		-->
 
-	<test name="WASP Regression Testing: New Request" preserve-order="true">
-			<classes>
-	         	<class name="edu.yu.einstein.wasp.integration.selenium.SeleniumNewRequest">
-	         	<methods>
-		         	<exclude name="requestAccessToLab"></exclude>	
-		         	<include name="createNewLabRequest"></include>
-	         	</methods>
-	         	</class>
-	      </classes>
-	</test>
+	 <test name="WASP Regression Testing: User Profile" preserve-order="true">
+		<classes>
+         	<class name="edu.yu.einstein.wasp.integration.selenium.SeleniumUserDetail">
+         	<methods>
+	         	<include name="myProfile"></include>
+	         	<include name="changePassword"></include>   
+	         	
+         	</methods>
+         	</class>
+      </classes>
+    </test>
+
 	
--->	
 
   </suite>
