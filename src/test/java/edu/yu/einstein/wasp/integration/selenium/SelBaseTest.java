@@ -1,6 +1,7 @@
 package edu.yu.einstein.wasp.integration.selenium;
 
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -10,6 +11,9 @@ import org.testng.annotations.*;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxProfile;
+import org.openqa.selenium.firefox.internal.ProfilesIni;
+import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 
@@ -23,8 +27,20 @@ public class SelBaseTest {
 	@BeforeSuite (groups="integration-tests")
     public void setUp() throws Exception {
 		
-		driver = new FirefoxDriver();
-		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+		final String firebugPath = "/Users/nvolnova/Documents/Firefox/firebug-1.8.4-fx.xpi";
+	    //FirefoxProfile profile = new FirefoxProfile();   
+		ProfilesIni allProfiles = new ProfilesIni();
+		FirefoxProfile profile = allProfiles.getProfile("default");
+
+	    //profile.addExtension(new File(firebugPath));
+	    //profile.setPreference("extensions.firebug.currentVersion", "1.8.1"); // Avoid startup screen
+
+	    // Add more if needed
+	    driver = new FirefoxDriver(profile);
+
+		
+		//driver = new FirefoxDriver();
+   		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
 		
 		try {
 		    // Load the JDBC driver
