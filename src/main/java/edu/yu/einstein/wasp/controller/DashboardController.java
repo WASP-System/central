@@ -49,6 +49,7 @@ public class DashboardController extends WaspController {
 		List<Lab> labList = new ArrayList<Lab>();
 		List<Job> jobList = new ArrayList<Job>();
 		List<JobDraft> jobDraftList = new ArrayList<JobDraft>();
+		HashMap labMap = new HashMap();
 		
 		int departmentAdminPendingTasks = 0;
 		
@@ -71,7 +72,7 @@ public class DashboardController extends WaspController {
 			// adds the role ojbect to the proper bucket
 			switch (entityRolename) {
 				////case da: /* departmentList.add(departmentService.getDepartmentByDepartmentId(roleObjectId)); break; */ 
-				case lu: labList.add(labService.getLabByLabId(roleObjectId)); break;
+				case lu: labList.add(labService.getLabByLabId(roleObjectId)); labMap.put(roleObjectId, labService.getLabManagerPendingTasks(roleObjectId));break;
 				case jv: jobList.add(jobService.getJobByJobId(roleObjectId)); break;
 				case jd: jobDraftList.add(jobDraftService.getJobDraftByJobDraftId(roleObjectId)); break;
 			}
@@ -82,7 +83,7 @@ public class DashboardController extends WaspController {
 		departmentAdminPendingTasks = departmentService.getDepartmentAdminPendingTasks();//number of da pending tasks (if god or ga, then department not considered)	
 		m.addAttribute("departmentAdminPendingTasks", departmentAdminPendingTasks);		
 		
-		m.addAttribute("labs", labList);
+		m.addAttribute("labs", labList); m.addAttribute("labmap", labMap);
 		m.addAttribute("jobs", jobList);
 		m.addAttribute("jobdrafts", jobDraftList);			
 

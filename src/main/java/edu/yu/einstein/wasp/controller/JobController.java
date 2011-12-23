@@ -212,7 +212,7 @@ public class JobController extends WaspController {
 	  
 	  pendingJobApproval(action, jobId, "LM");//could use PI instead of LM
 	  
-	  return "redirect:/dashboard.do";//probably want this to go elsewhere
+	  return "redirect:/lab/pendinglmapproval/list/" + labId + ".do";	
 	}
   
   @RequestMapping(value = "/pendingdaapproval/{action}/{deptId}/{jobId}.do", method = RequestMethod.GET)
@@ -249,7 +249,7 @@ public class JobController extends WaspController {
 			  if("approve".equals(action)){
 				  state.setStatus("APPROVED");
 				  stateService.save(state);
-				 // logger.debug("ROBERT DUBIN : State saved to approved for stateId: " + state.getStateId());
+				  //logger.debug("ROBERT DUBIN : State saved to approved for stateId: " + state.getStateId());
 				  updated = true; waspMessage("job.approval.approved"); break;
 			  }
 			  else if("reject".equals(action)){

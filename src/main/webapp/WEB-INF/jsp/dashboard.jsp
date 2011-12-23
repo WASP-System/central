@@ -69,7 +69,19 @@
     <sec:authorize access="hasRole('lm-${l.labId}' )">
       <div><a href="<c:url value="/lab/pendinguser/list/${l.labId}.do"/>">Pending User Approval</a></div>
       <div><a href="<c:url value="/lab/user_manager/${l.labId}.do"/>">User Manager</a></div>
-      <div><a href="<c:url value="/task/lmapproval/list/${l.labId}.do"/>">Jobs Pending Lab Manager Approval</a></div>
+      <!-- div><a href="<c:url value="/task/lmapproval/list/${l.labId}.do"/>">Pending Lab Manager Approval</a></div-->
+    <!--  <div><a href="<c:url value="/task/lmapproval/list/${l.labId}.do"/>">Tasks Pending PI/Lab Manager Approval</a> -->
+       <div><a href="<c:url value="/lab/pendinglmapproval/list/${l.labId}.do"/>">Tasks Pending PI/Lab Manager Approval</a> 
+    <c:choose>
+   <c:when test='${labmap.get(l.labId) == 0}'>(No Pending PI/Lab Manager Tasks)
+   </c:when>
+   <c:otherwise>
+   <span style="color:red">
+   (<c:out value="${labmap.get(l.labId)}" /> Pending PI/Lab Manager Task<c:if test='${labmap.get(l.labId) != 1}'>s</c:if>)
+   </span>
+   </c:otherwise>
+     </c:choose>
+    </div>
     </sec:authorize>
 
     </div>

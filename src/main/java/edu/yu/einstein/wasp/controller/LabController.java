@@ -30,6 +30,7 @@ import org.springframework.web.bind.support.SessionStatus;
 import edu.yu.einstein.wasp.model.AcctGrant;
 import edu.yu.einstein.wasp.model.Department;
 import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabMeta;
 import edu.yu.einstein.wasp.model.LabPending;
@@ -1343,4 +1344,27 @@ public class LabController extends WaspController {
 		m.addAttribute("departments", deptService.findAll());
 	}
 
+	@RequestMapping(value = "/pendinglmapproval/list/{labId}.do", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('god') or hasRole('lm-' + #labId) or hasRole('ga-*')")
+	public String tasksPendingLmApproval(@PathVariable("labId") Integer labId, ModelMap m){
+		
+		//Map jobMetaMap = new HashMap();
+		Lab lab = labService.getLabByLabId(labId);
+		List<UserPending> newUsersPendingLmApprovalList = new ArrayList<UserPending>();
+		List<LabUser> existingUsersPendingLmApprovalList = new ArrayList<LabUser>();
+		List<Job> jobsPendingLmApprovalList = new ArrayList<Job>();
+		labService.getLabManagerPendingTasks(labId, newUsersPendingLmApprovalList, existingUsersPendingLmApprovalList, jobsPendingLmApprovalList);
+		//for(Job job : jobsPendingLmApprovalList){
+		//	List<JobMeta> jobMetaList = job.getJobMeta();
+		//	jobMetaMap.put(job.getJobId(), jobMetaList);
+		//}
+		//m.addAttribute("jobmetamap", jobMetaMap);
+		m.addAttribute("lab", lab);
+		m.addAttribute("newuserspendinglist", newUsersPendingLmApprovalList); 
+		m.addAttribute("existinguserspendinglist", existingUsersPendingLmApprovalList); 
+		m.addAttribute("jobspendinglist", jobsPendingLmApprovalList); 
+		return "lab/pendinglmapproval/list";
+	}
+
+	
 }
