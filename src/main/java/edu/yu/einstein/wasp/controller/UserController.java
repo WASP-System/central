@@ -296,7 +296,9 @@ public class UserController extends WaspController {
 	@RequestMapping(value = "/detail_rw/updateJSON.do", method = RequestMethod.POST)
 	@PreAuthorize("hasRole('god') or User.login == principal.name")
 	public String updateDetailJSON(@RequestParam("id") Integer userId,User userForm, ModelMap m, HttpServletResponse response) {
-		boolean adding = (userId == null);
+		
+		userId = (userId == null)? 0:userId;
+		boolean adding = (userId == 0);
 		if (adding || !userService.getById(userId).getLogin().equals(userForm.getLogin())){
 			boolean loginExists = false;
 			try {
@@ -315,7 +317,8 @@ public class UserController extends WaspController {
 			
 			}
 		}
-		int emailOwnerUserId = userService.getUserByEmail(userForm.getEmail()).getUserId();
+		
+		int emailOwnerUserId = (userService.getUserByEmail(userForm.getEmail()).getUserId() == null)? 0:userService.getUserByEmail(userForm.getEmail()).getUserId();
 		if (emailOwnerUserId != 0 && emailOwnerUserId != userId){
 			try{
 				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -329,7 +332,9 @@ public class UserController extends WaspController {
 		List<UserMeta> userMetaList = getMetaHelper().getFromJsonForm(request, UserMeta.class);
 		
 		userForm.setUserMeta(userMetaList);
-		userForm.setUserId(userId);
+		//NV 12282011 - The code userForm.setUserId(userId) below throws exception: "detached entity passed to persist" when adding a new user. 
+		//				Do not set userId here - it is configured as a generated value, therefore, Hibernate expects userId to be null when EntityManager#persist is called.
+		//userForm.setUserId(userId);
 		boolean myemailChanged = false;
 		if (adding) {
 			// set random password. We don't care what it is as new user will be prompted to
@@ -410,6 +415,7 @@ public class UserController extends WaspController {
 			@Valid User userForm, BindingResult result, SessionStatus status,
 			ModelMap m) {
 		
+		userId = (userId == null)? 0:userId;
 		// return read only version of page if cancel button pressed
 		String submitValue = (String) request.getParameter("submit");
 		if ( submitValue.equals(messageService.getMessage("userDetail.cancel.label")) ){
