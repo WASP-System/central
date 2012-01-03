@@ -382,8 +382,8 @@ public class LabController extends WaspController {
 		List<LabMeta> labMetaList = getMetaHelper().getFromJsonForm(request, LabMeta.class);
 
 		labForm.setLabMeta(labMetaList);
-		
-		if (labId == null) {
+		labId = (labId == null)? 0:labId;
+		if (labId == 0) {
 
 			labForm.setLastUpdTs(new Date());
 			labForm.setIsActive(1);
@@ -419,8 +419,7 @@ public class LabController extends WaspController {
 		List<LabPendingMeta> labPendingMetaList = getLabPendingMetaHelper().getFromJsonForm(request, LabPendingMeta.class);
 
 		labPendingForm.setLabPendingMeta(labPendingMetaList);
-
-		if (labPendingId == null) {
+		if (labPendingId == null || labPendingId == 0) {
 
 			labPendingForm.setLastUpdTs(new Date());
 			// labPendingForm.setIsActive(1);
@@ -497,7 +496,7 @@ public class LabController extends WaspController {
 	public String pendingDetailRO(@PathVariable("deptId") Integer deptId,
 			@PathVariable("labPendingId") Integer labPendingId, ModelMap m) {
 		LabPending labPending = this.labPendingService.getLabPendingByLabPendingId(labPendingId);
-		if (labPending.getLabPendingId() == null) {// labpendingId doesn't exist
+		if (labPending.getLabPendingId() == null || labPending.getLabPendingId() == 0) {// labpendingId doesn't exist
 			waspMessage("labPending.labpendingid_notexist.error");
 			return "redirect:/dashboard.do";
 		}
@@ -1154,7 +1153,7 @@ public class LabController extends WaspController {
 
 		if ("approve".equals(action)) {
 			Lab lab = createLabFromLabPending(labPending);
-			if (lab.getLabId() == null){
+			if (lab.getLabId() == null || lab.getLabId() == 0){
 				waspMessage("labPending.could_not_create_lab.error");
 				//return "redirect:/department/detail/" + deptId + ".do";
 				return "redirect:/department/dapendingtasklist.do";
@@ -1287,13 +1286,13 @@ public class LabController extends WaspController {
 		}
 		
 		User primaryUser = userService.getUserByLogin(primaryUserLogin);
-		if (primaryUser.getUserId() == null) {
+		if (primaryUser.getUserId() == null || primaryUser.getUserId() == 0) {
 			waspMessage("labuser.request_primaryuser.error");
 			return "redirect:/lab/newrequest.do";
 		}
 
 		Lab lab = labService.getLabByPrimaryUserId(primaryUser.getUserId());
-		if (lab.getLabId() == null) {
+		if (lab.getLabId() == null || lab.getLabId() == 0) {
 			waspMessage("labuser.request_primaryuser.error");
 			return "redirect:/lab/newrequest.do";
 		}
