@@ -14,7 +14,6 @@
          <class name="edu.yu.einstein.wasp.integration.selenium.SelBaseTest"/>
       </classes>
    </test>
-<!--  
    <test name="WASP Regression Testing: Add New PI" preserve-order="true">
 		<classes>
          	<class name="edu.yu.einstein.wasp.integration.selenium.SelNewPI">
@@ -26,7 +25,6 @@
          	</class>
       </classes>
     </test>
-
 	<test name="WASP Regression Testing: Pending Lab Approve/Reject" preserve-order="true">
 			<classes>
 	         	<class name="edu.yu.einstein.wasp.integration.selenium.SelPendingLabs">
@@ -37,8 +35,6 @@
 	         	</class>
 	      </classes>
 	</test>
-
-	
 	<test name="WASP Regression Testing: Add New User" preserve-order="true">
 	<classes>
          <class name="edu.yu.einstein.wasp.integration.selenium.SelWaspAddNewUser">
@@ -50,8 +46,18 @@
 	     </class>
       </classes>
    </test>
-
-<test name="WASP Regression Testing: New Request" preserve-order="true">
+    <test name="WASP Regression Testing: Pending User Approval" preserve-order="true">
+		<classes>
+         	<class name="edu.yu.einstein.wasp.integration.selenium.SelPendingUserApproval">
+         	<methods>
+	         	<include name="pendingUserApprove"></include>  
+	         	<include name="pendingUserReject"></include>
+	         	
+         	</methods>
+         	</class>
+      </classes>
+    </test>
+   	<test name="WASP Regression Testing: New Request" preserve-order="true">
 			<classes>
 	         	<class name="edu.yu.einstein.wasp.integration.selenium.SelNewRequest">
 	         	<methods>
@@ -65,21 +71,7 @@
 	         	</class>
 	      </classes>
 	</test>
-    <test name="WASP Regression Testing: Pending User Approval" preserve-order="true">
-		<classes>
-         	<class name="edu.yu.einstein.wasp.integration.selenium.SelPendingUserApproval">
-         	<methods>
-	         	<include name="pendingUserApprove"></include>  
-	         	<exclude name="pendingUserReject"></exclude>
-	         	
-         	</methods>
-         	</class>
-      </classes>
-    </test>
-
-		-->
-
-	 <test name="WASP Regression Testing: User Profile" preserve-order="true">
+ 	<test name="WASP Regression Testing: User Profile" preserve-order="true">
 		<classes>
          	<class name="edu.yu.einstein.wasp.integration.selenium.SelUserDetail">
          	<methods>
@@ -90,7 +82,4 @@
          	</class>
       </classes>
     </test>
-
-	
-
   </suite>
