@@ -28,7 +28,7 @@ public class SelPendingUserApproval extends SelBaseTest{
   @DataProvider(name = "DP1")
   public Object[][] createData1() throws Exception{
       Object[][] retObjArr=SeleniumHelper.getTableArray("WaspTestData.xls",
-              "Test1", "pendingUserApprove");
+              "Test_001", "pendingUserApprove");
       
       return(retObjArr);
   }
@@ -36,13 +36,13 @@ public class SelPendingUserApproval extends SelBaseTest{
   @DataProvider(name = "DP2")
   public Object[][] createData2() throws Exception{
       Object[][] retObjArr=SeleniumHelper.getTableArray("WaspTestData.xls",
-              "Test1", "pendingUserReject");
+              "Test_001", "pendingUserReject");
       
       return(retObjArr);
   }
   
   @Test (groups = "integration-tests",  dataProvider = "DP1")
-  public void pendingUserApproval(String sUserName, String sUserPass, String sExpectedUrl, String sUserEmail, String sApprovedUrl) throws Exception {   
+  public void pendingUserApprove(String sUserName, String sUserPass, String sExpectedUrl, String sUserEmail, String sApprovedUrl) throws Exception {   
 		
 	  SeleniumHelper.login(sUserName, sUserPass, driver);
 	  driver.findElement(By.xpath("//a[contains(.,'Pending User Approval')]")).click();

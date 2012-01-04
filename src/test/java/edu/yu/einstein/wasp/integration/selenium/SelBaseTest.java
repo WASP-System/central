@@ -1,20 +1,18 @@
 package edu.yu.einstein.wasp.integration.selenium;
 
 
-import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.concurrent.TimeUnit;
 
-import org.testng.annotations.*;
-
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.firefox.internal.ProfilesIni;
-import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.annotations.AfterSuite;
+import org.testng.annotations.BeforeSuite;
 
 
 
@@ -27,10 +25,10 @@ public class SelBaseTest {
 	@BeforeSuite (groups="integration-tests")
     public void setUp() throws Exception {
 		
-		final String firebugPath = "/Users/nvolnova/Documents/Firefox/firebug-1.8.4-fx.xpi";
+		//final String firebugPath = "/Users/nvolnova/Documents/Firefox/firebug-1.8.4-fx.xpi";
 	    //FirefoxProfile profile = new FirefoxProfile();   
 		ProfilesIni allProfiles = new ProfilesIni();
-		FirefoxProfile profile = allProfiles.getProfile("default");
+		FirefoxProfile profile = allProfiles.getProfile("Selenium");
 
 	    //profile.addExtension(new File(firebugPath));
 	    //profile.setPreference("extensions.firebug.currentVersion", "1.8.1"); // Avoid startup screen
@@ -66,8 +64,8 @@ public class SelBaseTest {
 	
 	@AfterSuite (groups="integration-tests")
     public void tearDown() throws SQLException{
-        //driver.close();
-		connection.close();
+        connection.close();
+		//driver.close();
         
     } 
 	

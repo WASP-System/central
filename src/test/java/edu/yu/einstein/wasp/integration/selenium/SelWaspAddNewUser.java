@@ -4,14 +4,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import org.testng.annotations.Test;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 import org.testng.Assert;
 import org.testng.Reporter;
-import org.testng.annotations.*;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebElement;
 import edu.yu.einstein.wasp.test.util.SeleniumHelper;
 
 /**
@@ -28,10 +29,6 @@ public class SelWaspAddNewUser extends SelBaseTest {
 	 * 
 	 */
 	private WebElement submitLogin;
-	private String sEmail;
-	private String sConfirmedEmailOkUrl;
-	
-	
 	/**
 	 * @BeforeClass has a groups() attribute as well, and it’s respected when you run group test suites. 
 	 * If you want it to run before all methods, you need to use the alwaysRun = true:
@@ -50,7 +47,7 @@ public class SelWaspAddNewUser extends SelBaseTest {
     @DataProvider(name = "DP2")
     public Object[][] createData1() throws Exception{
         Object[][] retObjArr=SeleniumHelper.getTableArray("WaspTestData.xls",
-                "Test1", "addNewUser");
+                "Test_001", "addNewUser");
         /*
         System.out.println("Contents of retObjArr[0][0]" + retObjArr[0][0].toString());
         System.out.println("Contents of retObjArr[0][1]" + retObjArr[0][1].toString());
@@ -85,10 +82,7 @@ public class SelWaspAddNewUser extends SelBaseTest {
 										String password, String locale, String primaryuserid, String title, 
 										String building_room, String address, String phone, String fax, 
 										String captcha, String sNewUserUrlCreated, String confEmailOkUrl ) throws Exception {  
-  		sEmail = email;
-  		sConfirmedEmailOkUrl = confEmailOkUrl;
-  		//JavascriptExecutor js = (JavascriptExecutor) driver;
-  		//Assert.assertNotNull(js, "JavascriptExecutor is null");
+   		
   		driver.get("http://localhost:8080/wasp/auth/login.do");
   	    Assert.assertEquals(SeleniumHelper.verifyTextPresent("New User", driver), true);
 		driver.findElement(By.linkText("New User")).click();

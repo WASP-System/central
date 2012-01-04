@@ -1,14 +1,13 @@
 package edu.yu.einstein.wasp.integration.selenium;
 
 import org.openqa.selenium.By;
-import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.testng.Assert;
-import org.testng.annotations.Test;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
 
 import edu.yu.einstein.wasp.test.util.SeleniumHelper;
 
@@ -59,7 +58,7 @@ public class SelDepartmentMgmt extends SelBaseTest{
     @DataProvider(name = "DP1")
     public Object[][] createData1() throws Exception{
         Object[][] retObjArr=SeleniumHelper.getTableArray("WaspTestData.xls",
-                "Test1", "deptMgmt");
+                "Test_001", "createNewDept");
         return(retObjArr);
     }
   }

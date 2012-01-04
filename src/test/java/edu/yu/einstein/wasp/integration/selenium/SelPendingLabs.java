@@ -29,7 +29,7 @@ public class SelPendingLabs extends SelBaseTest{
   @DataProvider(name = "DP1")
   public Object[][] createData1() throws Exception{
       Object[][] retObjArr=SeleniumHelper.getTableArray("WaspTestData.xls",
-              "Test1", "pendingLabApprove");
+              "Test_001", "pendingLabApprove");
       
       return(retObjArr);
   }
@@ -37,7 +37,7 @@ public class SelPendingLabs extends SelBaseTest{
   @DataProvider(name = "DP2")
   public Object[][] createData2() throws Exception{
       Object[][] retObjArr=SeleniumHelper.getTableArray("WaspTestData.xls",
-              "Test1", "pendingLabReject");
+              "Test_001", "pendingLabReject");
       
       return(retObjArr);
   }
