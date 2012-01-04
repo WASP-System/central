@@ -17,10 +17,9 @@ import java.util.List;
 import java.util.Locale;
 
 import util.spring.PostInitialize;
-import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceException;
-import javax.persistence.Query;
+import javax.persistence.PersistenceContext;
+
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -31,16 +30,18 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.MessageSource;
 import org.springframework.core.io.Resource;
-import org.springframework.orm.jpa.JpaCallback;
-import org.springframework.orm.jpa.support.JpaDaoSupport;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.UiField;
 import edu.yu.einstein.wasp.service.impl.WaspMessageSourceImpl;
 
 @Repository
-public class DBResourceBundle extends JpaDaoSupport implements ApplicationContextAware{
+public class DBResourceBundle implements ApplicationContextAware{
 
+	@PersistenceContext
+	private EntityManager entityManager;
+	
 	@Autowired
 	private MessageSource messageSource;
 
@@ -61,6 +62,7 @@ public class DBResourceBundle extends JpaDaoSupport implements ApplicationContex
 
 	// PostInitialized... b/c Resource and Workflow need uifields set within them
 	@PostInitialize
+	@Transactional
 	public void init() {
 		
 		//apply latest updates from WEB-INF/uifield.update.sql file
@@ -73,39 +75,25 @@ public class DBResourceBundle extends JpaDaoSupport implements ApplicationContex
 			String sql = FileUtils.readFileToString(uifield.getFile());
 			
 			final String[] statements=sql.split(";\\s*\\n");
+							
+			for(String st:statements) {
+				st=StringUtils.trim(st);
+				
+				if (StringUtils.isEmpty(st)) continue;
+				
+				if (StringUtils.containsIgnoreCase(st, "insert")
+					|| StringUtils.containsIgnoreCase(st, "update")
+					|| StringUtils.containsIgnoreCase(st, "delete")
+					|| StringUtils.containsIgnoreCase(st, "truncate")
+				) {
+																				
+					log.info("Executing ["+st+"]");
 			
-			
-			getJpaTemplate().execute(new JpaCallback() {
-
-				public Object doInJpa(EntityManager em) throws PersistenceException {
-					
-					em.getTransaction().begin();
-					
-					for(String st:statements) {
-						st=StringUtils.trim(st);
-						
-						if (StringUtils.isEmpty(st)) continue;
-						
-						if (StringUtils.containsIgnoreCase(st, "insert")
-							|| StringUtils.containsIgnoreCase(st, "update")
-							|| StringUtils.containsIgnoreCase(st, "delete")
-							|| StringUtils.containsIgnoreCase(st, "truncate")
-						) {
-																						
-							log.info("Executing ["+st+"]");
-					
-							sqlCurrent.setLength(0);sqlCurrent.append(st);
-						
-							em.createNativeQuery(st).executeUpdate();
-						}
-					}
-					
-					em.getTransaction().commit();
-					
-	        		return null;
-	        			
+					sqlCurrent.setLength(0);sqlCurrent.append(st);
+				
+					entityManager.createNativeQuery(st).executeUpdate();
 				}
-			});
+			}
 			
 			log.info("Property table was initialized succesfully.");
 			
@@ -114,17 +102,9 @@ public class DBResourceBundle extends JpaDaoSupport implements ApplicationContex
 			throw new IllegalStateException("Cannot execute sq; statement ["+sqlCurrent+"]",e);
 		}
 		
-		Object res = getJpaTemplate().execute(new JpaCallback() {
-			
-			public Object doInJpa(EntityManager em) throws PersistenceException {
-				Query q = em.createQuery("SELECT h FROM "
-						+ UiField.class.getName() + " h");
-				return q.getResultList();
-			}
+		List<UiField> uiFieldList = entityManager.createQuery("SELECT h FROM "	+ UiField.class.getName() + " h").getResultList();
 
-		});
-
-		for (UiField f : ((List<UiField>) res)) {
+		for (UiField f : uiFieldList) {
 
 			String key = f.getArea() + "." + f.getName() + "."
 					+ f.getAttrName();
