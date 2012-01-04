@@ -20,7 +20,7 @@
 		</tr>
 		<tr>
 			<td><fmt:message key="labPending.primaryUserId.label" />:</td>
-			<td><c:out value="${puserFullName}" /></td>
+			<td><c:out value="${puserFullName}" /><form:hidden path="primaryUserId" /></td>
 			<td>&nbsp;</td>
 		</tr>
 		<tr>
