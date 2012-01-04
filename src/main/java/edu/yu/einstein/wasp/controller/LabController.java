@@ -382,8 +382,8 @@ public class LabController extends WaspController {
 		List<LabMeta> labMetaList = getMetaHelper().getFromJsonForm(request, LabMeta.class);
 
 		labForm.setLabMeta(labMetaList);
-		labId = (labId == null)? 0:labId;
-		if (labId == 0) {
+		
+		if (labId == null || labId == 0) {
 
 			labForm.setLastUpdTs(new Date());
 			labForm.setIsActive(1);
