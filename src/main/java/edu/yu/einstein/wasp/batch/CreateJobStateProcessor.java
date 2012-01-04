@@ -4,11 +4,6 @@ import edu.yu.einstein.wasp.model.*;
 import edu.yu.einstein.wasp.service.*;
 
 import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.support.transaction.FlushFailedException;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import org.springframework.stereotype.Component;
 
 import org.springframework.beans.factory.annotation.Autowired;
