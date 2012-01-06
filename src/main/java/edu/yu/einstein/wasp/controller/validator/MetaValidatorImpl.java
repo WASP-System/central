@@ -13,12 +13,15 @@ import org.apache.log4j.Logger;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
+
+import edu.yu.einstein.wasp.exception.MetaRangeException;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.MetaAttribute;
+import edu.yu.einstein.wasp.model.MetaHelper;
 
 
 /*
- * Implements validation of MetaBase children based on "constraint" properies read from uifield table
+ * Implements validation of MetaBase children based on "constraint" properties read from uifield table
  * 
  * @Author Sasha Levchuk
  */
@@ -29,28 +32,6 @@ public class MetaValidatorImpl implements MetaValidator {
 	
 	protected List<Constraint> allowableConstraints = new ArrayList<Constraint>(Arrays.asList(Constraint.NotEmpty, Constraint.RegExp));
 	
-	protected Map<String, String> map=new HashMap<String, String>(); 
-
-
-	public void setValidateList(List <String> validateList) {
-		if (validateList.size() % 2!=0) throw new IllegalStateException("Number of params must be even");
-
-		for(int i=0;i<validateList.size();i+=2) {
-			this.map.put(validateList.get(i),validateList.get(i+1));
-		}
-	}
-
-	public void validate(List<String> validateList, List<? extends MetaBase> list, BindingResult result, MetaAttribute.Area area) {
-		setValidateList(validateList);
-
-		validate(list, result, area.name(), area.name());
-	}
-
-	public void validate(List<String> validateList, List<? extends MetaBase> list, BindingResult result, String area) {
-		setValidateList(validateList);
-		validate(list, result, area, area);
-	}
-
 	public void validate(List<? extends MetaBase> list, BindingResult result, MetaAttribute.Area area) {
 		validate(list, result, area.name(), area.name());
 	}
@@ -69,34 +50,97 @@ public class MetaValidatorImpl implements MetaValidator {
 		for(int i=0;i<list.size();i++) {
 			MetaBase meta=list.get(i);
 			if (meta.getProperty().getFormVisibility().equals(MetaAttribute.FormVisibility.ignore)) continue;
-			String constraint=map.get(meta.getK());
-			if (constraint==null) continue;
-			
-			if (! allowableConstraints.contains(Constraint.valueOf(constraint)) ){
-				throw new IllegalStateException("Unknown constraint "+constraint+"|"+meta);
+			String constraint = meta.getProperty().getConstraint();
+			String regexp = "";
+			if (constraint != null && constraint.startsWith(Constraint.RegExp.name()+":")) {
+				regexp=constraint.substring(Constraint.RegExp.name().length()+1); 
+				constraint = Constraint.RegExp.name();
 			}
-
+			MetaAttribute.MetaType metaType = meta.getProperty().getMetaType();
+			String range = meta.getProperty().getRange();
+			
 			String errorFieldName = parentarea+"Meta["+i+"].k";
 			String errorMessageKey = meta.getK() + ".error";
 			String defaultMessage = errorMessageKey+" (no message has been defined for this property)";
-			
-			if (constraint.startsWith(Constraint.RegExp.name()+":")) {
-				//TODO: optimize for speed (pre-compile) if used outside of admin pages
-				String regexp=constraint.substring(Constraint.RegExp.name().length()+1); 
-				Pattern p = Pattern.compile(regexp);
-				Matcher m = p.matcher(meta.getV());
-				boolean b = m.matches();
-				if (!b) {
-					errors.rejectValue(errorFieldName, errorMessageKey, defaultMessage);
+			if (constraint != null){
+				if (! allowableConstraints.contains(Constraint.valueOf(constraint)) ){
+					throw new IllegalStateException("Unknown constraint "+constraint+"|"+meta);
 				}
-
-			} else if (constraint.equals(Constraint.NotEmpty.name())){
-				if (meta.getV()==null || meta.getV().isEmpty()) {
-					errors.rejectValue(errorFieldName, errorMessageKey, defaultMessage);
+				
+				if (constraint.equals(Constraint.RegExp.name())) {
+					//TODO: optimize for speed (pre-compile) if used outside of admin pages
+					Pattern p = Pattern.compile(regexp);
+					Matcher m = p.matcher(meta.getV());
+					boolean b = m.matches();
+					if (!b) {
+						errors.rejectValue(errorFieldName, errorMessageKey, defaultMessage);
+						continue;
+					}
+	
+				} else if (constraint.equals(Constraint.NotEmpty.name())){
+					if (meta.getV()==null || meta.getV().isEmpty()) {
+						errors.rejectValue(errorFieldName, errorMessageKey, defaultMessage);
+						continue;
+					}
+				}
+				else{
+					// constraint not processed in this class. Do nothing
 				}
 			}
-			else{
-				// constraint not processed in this class. Do nothing
+			if (!meta.getV().isEmpty()){
+				if (metaType == MetaAttribute.MetaType.INTEGER || metaType == MetaAttribute.MetaType.NUMBER){
+					// validate 
+					Pattern numberPattern = Pattern.compile("^-?[0-9]+\\.?[0-9]*$");
+					Pattern integerPattern = Pattern.compile("^-?[0-9]+$");
+					if (metaType == MetaAttribute.MetaType.INTEGER){
+						Matcher m = integerPattern.matcher(meta.getV());
+						if (!m.matches()){
+							errors.rejectValue(errorFieldName, "metadata.metaType.error", "metadata.metaType.error (no message has been defined for this property)");
+							continue;
+						}
+					} else{
+						Matcher m = numberPattern.matcher(meta.getV());
+						if (!m.matches()){
+							errors.rejectValue(errorFieldName, "metadata.metaType.error", "metadata.metaType.error (no message has been defined for this property)");
+							continue;
+						}
+					}
+				}
+				if (range != null && !range.isEmpty()){
+					float rangeMax = 0;
+					float rangeMin = 0;
+					float value = 0;
+					String[] rangeSplit = range.split(":");
+					try{
+						if (rangeSplit.length == 1){
+							rangeMax = Float.parseFloat(rangeSplit[0]);
+						} else if (rangeSplit.length > 1){
+							rangeMin = Float.parseFloat(rangeSplit[0]);
+							rangeMax = Float.parseFloat(rangeSplit[1]);
+						}
+					} catch(NumberFormatException e){
+						throw new MetaRangeException("Cannot parse range values for "+meta.getK()+".range to float", e);
+					}
+					try {
+						value = Float.parseFloat(meta.getV());
+					} catch(NumberFormatException e){
+						throw new MetaRangeException("Cannot parse value ("+meta.getV()+") for "+meta.getK()+" to float", e);
+					}
+					
+					if ((metaType == MetaAttribute.MetaType.INTEGER || metaType == MetaAttribute.MetaType.NUMBER) && value > rangeMax){
+						errors.rejectValue(errorFieldName, "metadata.rangeMax.error", "metadata.rangeMax.error (no message has been defined for this property)");
+						continue;
+					} else if (metaType == MetaAttribute.MetaType.STRING && meta.getV().length() > rangeMax){
+						errors.rejectValue(errorFieldName, "metadata.lengthMax.error",  "metadata.lengthMax.error (no message has been defined for this property)");
+						continue;
+					} else if ((metaType == MetaAttribute.MetaType.INTEGER || metaType == MetaAttribute.MetaType.NUMBER) && value < rangeMin){
+						errors.rejectValue(errorFieldName, "metadata.rangeMin.error",  "metadata.rangeMin.error (no message has been defined for this property)");
+						continue;
+					} else if (metaType == MetaAttribute.MetaType.STRING && meta.getV().length() < rangeMin){
+						errors.rejectValue(errorFieldName, "metadata.lengthMin.error",  "metadata.lengthMin.error (no message has been defined for this property)");
+						continue;
+					}
+				}
 			}
 		}
 		result.addAllErrors(errors);

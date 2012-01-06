@@ -14,12 +14,6 @@ import edu.yu.einstein.wasp.model.MetaBase;
 
 public interface MetaValidator {
 
-	public void setValidateList(List <String> validateList); 
-
-	public void validate(List<String> validateList, List<? extends MetaBase> list, BindingResult result, MetaAttribute.Area area);
-
-	public void validate(List<String> validateList, List<? extends MetaBase> list, BindingResult result, String area);
-
 	public void validate(List<? extends MetaBase> list, BindingResult result, MetaAttribute.Area area);
 
 	public void validate(List<? extends MetaBase> list, BindingResult result, String area);

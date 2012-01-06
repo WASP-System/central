@@ -30,7 +30,7 @@ public class UserPendingMetaValidatorImpl extends MetaValidatorImpl{
 		for(int i=0;i<list.size();i++) {
 			MetaBase meta=list.get(i);
 			if (meta.getProperty().getFormVisibility().equals(MetaAttribute.FormVisibility.ignore)) continue;
-			String constraint=map.get(meta.getK());
+			String constraint=meta.getProperty().getConstraint();
 			if (constraint==null) continue;
 			String errorFieldName = parentarea+"Meta["+i+"].k";
 			String errorMessageKey = meta.getK() + ".error";

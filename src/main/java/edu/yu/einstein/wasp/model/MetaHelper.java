@@ -395,8 +395,6 @@ public class MetaHelper {
 		} catch (Exception e) {
 			return null;
 		}
-		validator.setValidateList(getValidateList(list));
-
 		return validator;
 	}
 	
@@ -428,7 +426,6 @@ public class MetaHelper {
 	 * @param result
 	 */
 	public void validate(MetaValidator validator, List<? extends MetaBase> list, BindingResult result) {
-		validator.setValidateList(getValidateList(list));
 		validator.validate(list, result, area, parentArea);
 	}
 
@@ -439,7 +436,6 @@ public class MetaHelper {
 	 * @param result
 	 */
 	public void validate(MetaValidator validator, BindingResult result) {
-		validator.setValidateList(getValidateList(this.lastList));
 		validator.validate(this.lastList, result, area, parentArea);
 	}
 
@@ -470,40 +466,6 @@ public class MetaHelper {
 	public <T extends MetaValidator> void validate(Class<T> metaValidatorClazz, BindingResult result) {
 		getMetaValidator(this.lastList, metaValidatorClazz).validate(this.lastList, result, area, parentArea);
 	}
-	
-	/**
-	 * Returns a list (List<String>) of metadata key / constraint pairs such that each key is followed by its corresponding
-	 * constraint.
-	 * @param list
-	 * @return
-	 */
-	public List<String> getValidateList(List<? extends MetaBase> list){
-		List<String> validateList = new ArrayList<String>();
-		for (MetaBase meta : list) {
-			if (meta.getProperty() != null
-					&& meta.getProperty().getConstraint() != null) {
-				validateList.add(meta.getK());
-				validateList.add(meta.getProperty().getConstraint());
-			}
-		}
-		return validateList;
-	}
-	/*
-	public Map<String, Map<String, String> > getValidateMap(List<? extends MetaBase> list){
-		Map<String, Map<String, String> > validateMap = new HashMap<String, Map<String, String> >();
-		for (MetaBase meta : list) {
-			MetaAttribute metaAttribute = meta.getProperty();
-			if (metaAttribute != null) {
-				Map<String, String> metaMap = new HashMap<String, String>();
-				metaMap.put("constraint", metaAttribute.getConstraint());
-				metaMap.put("constraint", metaAttribute.getConstraint());
-				validateMap.put(meta.getK(),);
-				validateList.add(meta.getProperty().getConstraint());
-			}
-		}
-		return validateMap;
-	}
-	*/
 	
 	/**
 	 * Finds a {@link MetaBase} derived object by name in the last list generated
