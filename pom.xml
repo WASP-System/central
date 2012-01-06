@@ -9,6 +9,24 @@
     </properties>
     <build>
         <plugins>
+      		
+      		<plugin>
+        		<groupId>com.agilejava.docbkx</groupId>
+        		<artifactId>docbkx-maven-plugin</artifactId>
+        		<version>2.0.13</version>
+        		<executions>
+          			<execution>
+            			<goals>
+              				<goal>generate-html</goal>
+              				<goal>generate-pdf</goal>
+            			</goals>
+            			<phase>install</phase>
+        			</execution>
+		        </executions>
+        		<configuration>
+        		  <includes>wasp.xml</includes>
+		        </configuration>
+      		</plugin>
        
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -171,6 +189,11 @@
     	</profile>
     </profiles>
     <dependencies>
+    	<dependency>
+			<groupId>com.agilejava.docbkx</groupId>
+			<artifactId>docbkx-maven-plugin</artifactId>
+			<version>2.0.13</version>
+		</dependency>
      	<dependency>
    			<groupId>org.apache.maven.plugins</groupId>
    			<artifactId>maven-resources-plugin</artifactId>
@@ -750,6 +773,11 @@
 			<id>objenesis</id>
 			<name>objenesis</name>
 			<url>http://mvnrepository.com/artifact/org.objenesis/objenesis</url>
+		</repository>
+		<repository>
+			<id>docbkx-maven-plugin</id>
+			<name>Docbks DocBook</name>
+			<url>http://mvnrepository.com/artifact/com.agilejava.docbkx/docbkx-maven-plugin</url>
 		</repository>
 		
 	
