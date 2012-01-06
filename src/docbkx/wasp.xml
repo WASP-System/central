@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<book xmlns='http://docbook.org/ns/docbook'>
+  <title>WASP Users Guide</title>
+  <titleabbrev>WASP</titleabbrev>
+  <info>
+    <legalnotice><para>Distributed under the * license.</para></legalnotice>
+    <author><personname>
+      <firstname>Andrew</firstname><surname>McLellan</surname>
+    </personname></author>
+  </info>
+
+  <preface>
+    <title>Preface</title>
+    <para>
+        Massively parallel sequencing is massively parallel.
+    </para>
+  </preface>
+
+  <chapter>
+    <title>Requirements</title>
+    <para>
+        What you need to get started.
+    </para>
+  </chapter>
+  
+  <chapter>
+    <title>Installation</title>
+    <para>
+        What you need to get WASP/Imbus installed.
+    </para>
+  </chapter>
+
+  <appendix>
+    <title>Optional Appendix</title>
+    <para>
+        Appendixes are optional.
+    </para>
+  </appendix>
+</book>
