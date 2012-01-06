@@ -27,7 +27,7 @@ public class MetaValidatorImpl implements MetaValidator {
 
 	protected final Logger logger = Logger.getLogger(getClass());
 	
-	protected List<Constraint> allowableConstraints = new ArrayList<Constraint>(Arrays.asList(Constraint.NotEmpty, Constraint.Regexp));
+	protected List<Constraint> allowableConstraints = new ArrayList<Constraint>(Arrays.asList(Constraint.NotEmpty, Constraint.RegExp));
 	
 	protected Map<String, String> map=new HashMap<String, String>(); 
 
@@ -80,9 +80,9 @@ public class MetaValidatorImpl implements MetaValidator {
 			String errorMessageKey = meta.getK() + ".error";
 			String defaultMessage = errorMessageKey+" (no message has been defined for this property)";
 			
-			if (constraint.startsWith(Constraint.Regexp.name()+":")) {
+			if (constraint.startsWith(Constraint.RegExp.name()+":")) {
 				//TODO: optimize for speed (pre-compile) if used outside of admin pages
-				String regexp=constraint.substring(Constraint.Regexp.name().length()+1); 
+				String regexp=constraint.substring(Constraint.RegExp.name().length()+1); 
 				Pattern p = Pattern.compile(regexp);
 				Matcher m = p.matcher(meta.getV());
 				boolean b = m.matches();
