@@ -1,7 +1,6 @@
 truncate table uifield;
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','login','label','Login','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','login','error','Login cannot be empty','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','login','range','2:6','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','password','label','Password','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','password','error','Password cannot be empty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','firstName','label','First Name','1');
@@ -48,12 +47,9 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','zip','label','Zip','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','zip','error','Zip cannot be empty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','zip','metaposition','80','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','zip','type','INTEGER','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','zip','range','-2:1000','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','phone','label','Phone','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','phone','error','Phone cannot be empty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','phone','constraint','NotEmpty','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','phone','range','10','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','phone','metaposition','90','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','fax','label','Fax','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','fax','metaposition','100','1');
