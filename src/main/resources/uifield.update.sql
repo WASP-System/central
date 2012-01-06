@@ -1,6 +1,7 @@
 truncate table uifield;
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','login','label','Login','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','login','error','Login cannot be empty','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','login','range','2:6','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','password','label','Password','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','password','error','Password cannot be empty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','firstName','label','First Name','1');
@@ -46,11 +47,13 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','country','metaposition','70','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','zip','label','Zip','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','zip','error','Zip cannot be empty','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','zip','constraint','NotEmpty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','zip','metaposition','80','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','zip','type','INTEGER','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','zip','range','-2:1000','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','phone','label','Phone','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','phone','error','Phone cannot be empty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','phone','constraint','NotEmpty','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','phone','range','10','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','phone','metaposition','90','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','fax','label','Fax','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','fax','metaposition','100','1');
@@ -724,6 +727,11 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','wasp','default_select','label','-- select --','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','wasp','isAuthenticationExternal','data','FALSE','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','wasp','authentication','label','WASP','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','metadata','rangeMax','error','Value exceeds maximum permitted','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','metadata','rangeMin','error','Value less than minimum permitted','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','metadata','lengthMax','error','Length exceeds maximum permitted','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','metadata','lengthMin','error','Length less than minimum permitted','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','metadata','metaType','error','Value is not of expected type','1');
 
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','approval','approved','Job has been approved','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','approval','rejected','Job has been rejected','1');

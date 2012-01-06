@@ -7,6 +7,8 @@ import java.util.List;
 
 import javax.persistence.Transient;
 
+import org.apache.commons.lang.WordUtils;
+
 
 /**
  * Holds attributes for a *meta" object
@@ -50,6 +52,12 @@ public final class MetaAttribute implements Serializable {
 			userPending,
 
 		}
+		
+		public static enum MetaType {
+			INTEGER,
+			STRING, // default
+			NUMBER // float, double or int
+		}
 			
 		public static enum FormVisibility {
 			editable,
@@ -64,9 +72,12 @@ public final class MetaAttribute implements Serializable {
 		private String constraint;
 		
 		private String suffix;
+		
+		private String range;
+		
+		private MetaType metaType = MetaType.STRING;
 
 		private FormVisibility formVisibility;
-		
 		
 		private Control control;
 
@@ -99,7 +110,32 @@ public final class MetaAttribute implements Serializable {
 		public String getConstraint() {
 			return constraint;
 		}
-
+		
+		public void setRange(String range){
+			if (range == null){
+				this.range = null;
+			} else {
+				this.range = range;
+			}
+		}
+		
+		public String getRange(){
+			return range;
+		}
+		
+	
+		public void setMetaType(String metaType){
+			if (metaType != null && MetaType.valueOf(metaType.toUpperCase()) != null){
+				this.metaType = MetaType.valueOf(metaType);
+			} else {
+				this.metaType = MetaType.STRING;
+			}
+		}
+		
+		public MetaType getMetaType(){
+			return metaType;
+		}
+		
 		public void setConstraint(String constraint) {
 			this.constraint = constraint;
 		}

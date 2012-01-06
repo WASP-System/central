@@ -6,9 +6,7 @@
 
 <wasp:field name="lastName" type="text"/>
 
-<wasp:field name="email" type="text">
-#field.jq['editrules']={custom:true,custom_func:_validate_email};
-</wasp:field>
+<wasp:field name="email" type="text" />
 
 <wasp:field name="locale" type="select" items="${locales}" itemValue="key" itemLabel="value"/>
 

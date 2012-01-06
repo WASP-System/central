@@ -102,6 +102,9 @@ html, body {
   var colNames=[];  
   var colModel=[];  
   var colErrors=[];
+  var colConstraint=[];
+  var colMetaType=[];
+  var colRange=[];
   
   <%-- disable support for legacy API --%>
   $.jgrid.no_legacy_api = true;
@@ -125,11 +128,18 @@ html, body {
 	required='${_meta.property.constraint}'=='NotEmpty';
 
 	<%-- define rules to edit the field --%>
-	editrules={edithidden:true};
+	editrules={edithidden:true,custom:true,custom_func:_validate_basic};
 	formoptions={};
-	if(required){
-		formoptions={elmsuffix:'<font color=red>*</font>'};
+	
+	if ('${_meta.property.constraint}'.substring(0,6) == 'RegExp'){
+		editrules={edithidden:true,custom:true,custom_func:_validate_regexp};	
+	}
+	else if(required){
 		editrules={edithidden:true,custom:true,custom_func:_validate_required};	
+	}
+	
+	if (required){
+		formoptions={elmsuffix:'<font color=red>*</font>'};
 	}
 
 	editoptions={size:20};
@@ -173,6 +183,16 @@ html, body {
 	
   <%-- list of column validation errors --%>
   colErrors.push('${_meta.property.error}');
+  
+  <%-- list of column validation meta types --%>
+  colMetaType.push('${_meta.property.metaType}');
+  
+  <%-- list of column validation max ranges --%>
+  colRange.push('${_meta.property.range}');
+  
+  <%-- list of column constraints --%>
+  colConstraint.push('${_meta.property.constraint}');
+  
 
 </c:forEach>
 
@@ -259,20 +279,66 @@ function odump(object, depth, max){
 	  return [true,""];
   }
   
+  <%-- validates columns minimally based on any supplied metadata properties but only if there is some data to validate --%>
+  function _validate_basic(value, colname) {
+	 if (!value)  
+	     return [true,""];
+	 var colIndex=colNames.indexOf(colname);
+	 var numberRe = /^-?[0-9]+\.?[0-9]*$/;
+	 var integerRe = /^-?[0-9]+$/;
+	
+	if (colMetaType[colIndex] == "INTEGER") {
+		if  (!value.match(integerRe) ){
+			 var errMsg=colname+': ${_metaDataMessages.metaType} (INTEGER)';
+		     return [false,errMsg];
+		}
+		value = parseFloat(value);
+	}
+	else if (colMetaType[colIndex] == "NUMBER"){
+		if  (!value.match(numberRe) ){
+			 var errMsg=colname+': ${_metaDataMessages.metaType} (NUMBER)';
+		     return [false,errMsg];
+		}
+		value = parseFloat(value);
+	}
+	//document.write("<p> value=" + value + ", colname=" + colname + ", metaType=" + colMetaType[colIndex] + ", rangeMin=" + colRangeMin[colIndex] + ", rangeMax=" + colRangeMax[colIndex] + ", colIndex=" + colIndex + ", value.length=" + value.length +  "</p>"); 
+	if  (colRange[colIndex]){
+		 var rangeSplit = colRange[colIndex].split(':');
+		 var rangeMin = 0;
+		 var rangeMax = 0;
+		 if (!rangeSplit[1]){
+			 rangeMax = rangeSplit[0];
+		 } else {
+			 rangeMin = rangeSplit[0];
+			 rangeMax = rangeSplit[1];
+		 }
+		 if ((colMetaType[colIndex] == "NUMBER" || colMetaType[colIndex] == "INTEGER") && value > rangeMax){
+		 	var errMsg=colname+': ${_metaDataMessages.rangeMax} (' + rangeMax + ')';
+	     	return [false,errMsg];
+		 } else if (colMetaType[colIndex] == "STRING" && value.length > rangeMax){
+			 var errMsg=colname+': ${_metaDataMessages.lengthMax} (' + rangeMax + ')';
+		     return [false,errMsg];
+		 } else if ((colMetaType[colIndex] == "NUMBER" || colMetaType[colIndex] == "INTEGER") && value < rangeMin){
+		 	var errMsg=colname+': ${_metaDataMessages.rangeMin} (' + rangeMin + ')';
+	     	return [false,errMsg];
+		 } else if (colMetaType[colIndex] == "STRING" && value.length < rangeMin){
+			 var errMsg=colname+': ${_metaDataMessages.lengthMin} (' + rangeMin + ')';
+		     return [false,errMsg];
+		 }
+	 }
+	 return [true,""];
+  }
+  
   <%-- validates required columns --%>
   function _validate_required(value, colname) {
 	 
 	  
-	  if (value)  
-	     return [true,""];
-	  else { 
-		
+	  if (!value) {
 		 var errIdx=colNames.indexOf(colname);
-		
 		 var errMsg=colErrors[errIdx];
-		
 	     return [false,errMsg];
 	  }
+	  return _validate_basic(value, colname);
    }
   
   <%-- validates email columns --%>
@@ -280,15 +346,26 @@ function odump(object, depth, max){
 		 
 	  var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/; 		
 	  
-	  if (value && value.match(re))  
-	     return [true,""];
-	  else { 
-		
+	  if (!value || !value.match(re)) {
 		 var errIdx=colNames.indexOf(colname);
-		
 		 var errMsg=colErrors[errIdx];
-		
 	     return [false,errMsg];
+	  }
+	  return _validate_basic(value, colname);
+   }
+  
+  <%-- validates regular expression --%>
+  function _validate_regexp(value, colname) {
+	  var colIndex=colNames.indexOf(colname);
+	  var re = /^RegExp:(.+)$/;
+	  var match = re.exec(colConstraint[colIndex]);
+	  if (match[1]){
+		  var regExpExtracted = new RegExp(match[1]);
+		  if (!value.match(regExpExtracted)) {
+			 var errMsg=colErrors[colIndex];
+		     return [false,errMsg];
+		  }
+		  return _validate_basic(value, colname);
 	  }
    }
  

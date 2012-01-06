@@ -92,7 +92,8 @@ public class UserController extends WaspController {
 	public String list(ModelMap m) {
 		
 		m.addAttribute("_metaList", getMetaHelper().getMasterList(MetaBase.class));
-		m.addAttribute(JQFieldTag.AREA_ATTR, getMetaHelper().getArea());		
+		m.addAttribute(JQFieldTag.AREA_ATTR, getMetaHelper().getArea());
+		m.addAttribute("_metaDataMessages", MetaHelper.getMetadataMessages(request.getSession()));
 		
 		prepareSelectListData(m);
 	

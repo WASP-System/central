@@ -59,6 +59,8 @@ public class JQFieldTag extends BodyTagSupport {
 	
 	//Whether to show the field's value as a hyperlink
 	private boolean showLink;
+	
+	private Map metaMessages;
   
 	public void setItems(Object items) {
 		this.items = items;
@@ -114,7 +116,7 @@ public class JQFieldTag extends BodyTagSupport {
 		this.showLink = sl;
 	}
 
-	//get locale-specifi message
+	//get locale-specific message
 	private String getMessage(String key, String defaultMessage) {
 		String r=getMessage(key);
 		
@@ -168,10 +170,36 @@ public class JQFieldTag extends BodyTagSupport {
 				//let it slide - we'll allow fields that are not in the entity objects
 			}
 			
+			//check if field is an email address
+			boolean isEmail=false;
+			
+			try {
+				isEmail=clazz.getDeclaredField(name).getAnnotation(org.hibernate.validator.constraints.Email.class)==null?false:true;
+			} catch (NoSuchFieldException e) {
+				//let it slide - we'll allow fields that are not in the entity objects
+			}
+			
 			
 			//get error message to display if constraint validation fails
 			String error="error:'"+getMessage(area+"."+name+".error","")+"',\n";
 			
+			//get constraint if set
+			boolean isRegExp = false;
+			String constraintMessage = getMessage(area+"."+name+".constraint","");
+			String constraint="constraint:'"+constraintMessage+"',\n";
+			if (constraintMessage.equals("NotEmpty") ){
+				required = true;
+			} else if (constraintMessage.startsWith("RegExp:")){
+				isRegExp = true;
+			}
+			
+			//get metaType if set
+			String metaType="metaType:'"+getMessage(area+"."+name+".type","STRING")+"',\n";
+			
+			//get rangeMax if set
+			String range="range:'"+getMessage(area+"."+name+".range","")+"',\n";
+			
+
 			//get column label
 			String label=getMessage(area+"."+name+".label");
 			
@@ -189,12 +217,22 @@ public class JQFieldTag extends BodyTagSupport {
 				formoptions="{elmsuffix:'"+suffix+"'}";
 			}
 			
+			// override validation with email validation if isEmail == true
+			if (isEmail) {
+				editrules="{custom:true,custom_func:_validate_email}";
+			} 
+			// override validation with regular expression if 
+			if (isRegExp){
+				editrules="{custom:true,custom_func:_validate_regexp}";
+			}
+			
+			
 			//init js column definition 
 			String buf="var "+jsName+"={\n"+
 			 "name:'"+name+"',\n"+
 			 "label:'"+label+"',\n"+
 		     "required:"+required+",\n"+
-		     error+
+		     error + constraint + metaType + range +
 		     "jq:{\n"+
 			 		"	name:'"+name+"', \n"+
 			 		"	index:'"+name+"', \n"+
@@ -263,7 +301,10 @@ public class JQFieldTag extends BodyTagSupport {
 	
 			buf = buf + "\ncolNames.push("+jsName+".label);\n"+
 						"colModel.push("+jsName+".jq);\n"+
-						"colErrors.push("+jsName+".error);\n";
+						"colErrors.push("+jsName+".error);\n"+
+						"colConstraint.push("+jsName+".constraint);\n"+
+						"colMetaType.push("+jsName+".metaType);\n"+
+						"colRange.push("+jsName+".range);\n";
 			
 			this.pageContext.getOut().print(buf);
 		} catch (Throwable e) {

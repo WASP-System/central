@@ -193,21 +193,21 @@ public class MetaHelper {
 		Set<String> keys=DBResourceBundle.MESSAGE_SOURCE.getKeys(Locale.US);
 		for(String k: keys) {
 			
-			if (!k.startsWith(area +".")) continue;
+			if (!k.startsWith(area +".")) continue; // get ONLY keys for area we are dealing with
 		
-			String bundleValue = DBResourceBundle.MESSAGE_SOURCE.getMessage(k,null,locale);
+			String currentMessage = DBResourceBundle.MESSAGE_SOURCE.getMessage(k,null,locale);
 
 		
-			bundleResource.put(k, bundleValue);
+			bundleResource.put(k, currentMessage);
 
 			if (!k.endsWith(".metaposition")) continue;
 
-			String[] path=StringUtils.tokenizeToStringArray(k,".");
-			String name=path[1];
+			String[] path=StringUtils.tokenizeToStringArray(k,"."); // e.g. splits user.login.metaposition
+			String name=path[1]; // e.g. 'login' using above example
 
 			Integer pos=99;
 			try {
-				pos = Integer.parseInt(bundleValue);
+				pos = Integer.parseInt(currentMessage);
 			} catch (Exception e) {
 			}
 
@@ -217,10 +217,10 @@ public class MetaHelper {
 				keyPos++;
 			}
 
-			uniquePositions.put(keyPos, name);
+			uniquePositions.put(keyPos, name); // e.g. uniquePositions.put(5000, "login")
 		}
 
-		Set<Integer> positions = new TreeSet<Integer>(uniquePositions.keySet());
+		Set<Integer> positions = new TreeSet<Integer>(uniquePositions.keySet()); // creates set of automatically sorted meta positions
 
 		List<T> list = new ArrayList<T>();
 		for (Integer i: positions) {
@@ -235,9 +235,12 @@ public class MetaHelper {
 				obj.setProperty(p);
 
 				p.setMetaposition(i);
+				// in the following note that bundleResource.get() returns null if no mapped value
 				p.setLabel(bundleResource.get(qualifiedName + ".label"));
 				p.setConstraint(bundleResource.get(qualifiedName + ".constraint"));
 				p.setError(bundleResource.get(qualifiedName + ".error"));
+				p.setMetaType(bundleResource.get(qualifiedName + ".type"));
+				p.setRange(bundleResource.get(qualifiedName + ".range"));
 				if (visibility != null && visibility.containsKey(name)){
 					p.setFormVisibility(visibility.get(name));
 					if (visibility.get(name).equals(MetaAttribute.FormVisibility.ignore)){
@@ -469,7 +472,7 @@ public class MetaHelper {
 	}
 	
 	/**
-	 * Returns a list (List<String>) of metadata key / constraInteger pairs such that each key is followed by its corresponding
+	 * Returns a list (List<String>) of metadata key / constraint pairs such that each key is followed by its corresponding
 	 * constraint.
 	 * @param list
 	 * @return
@@ -485,7 +488,22 @@ public class MetaHelper {
 		}
 		return validateList;
 	}
-	
+	/*
+	public Map<String, Map<String, String> > getValidateMap(List<? extends MetaBase> list){
+		Map<String, Map<String, String> > validateMap = new HashMap<String, Map<String, String> >();
+		for (MetaBase meta : list) {
+			MetaAttribute metaAttribute = meta.getProperty();
+			if (metaAttribute != null) {
+				Map<String, String> metaMap = new HashMap<String, String>();
+				metaMap.put("constraint", metaAttribute.getConstraint());
+				metaMap.put("constraint", metaAttribute.getConstraint());
+				validateMap.put(meta.getK(),);
+				validateList.add(meta.getProperty().getConstraint());
+			}
+		}
+		return validateMap;
+	}
+	*/
 	
 	/**
 	 * Finds a {@link MetaBase} derived object by name in the last list generated
@@ -540,6 +558,23 @@ public class MetaHelper {
 		setMetaValueByName(name, value, this.lastList);
 	}
 	
-
+	/**
+	 * Gets list of metadata messages for locale of supplied HttpSession
+	 * @param session
+	 * @return Map of name : message pairs
+	 */
+	public static Map<String, String> getMetadataMessages(HttpSession session){
+		Set<String> keys=DBResourceBundle.MESSAGE_SOURCE.getKeys(Locale.US);
+		Locale locale=(Locale)session.getAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
+		Map<String, String> messageMap = new HashMap<String, String>();
+		for(String k: keys) {
+			if (!k.startsWith("metadata.")) continue; // get ONLY keys for area we are dealing with
+			String currentMessage = DBResourceBundle.MESSAGE_SOURCE.getMessage(k,null,locale);
+			String[] path=StringUtils.tokenizeToStringArray(k,"."); // e.g. splits user.login.metaposition
+			String name=path[1]; // e.g. 'login' using above example
+			messageMap.put(name, currentMessage);
+		}
+		return messageMap;
+	}
 	
 }
