@@ -117,6 +117,9 @@ public final class UiField implements Serializable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+
+// uiFieldId now Integer instead of in, so avoid npe
+if (uiFieldId == null) { return prime * result + 0; }
 		result = prime * result + uiFieldId.intValue();
 		return result;
 	}
