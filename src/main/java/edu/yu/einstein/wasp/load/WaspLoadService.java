@@ -24,6 +24,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.util.StringUtils;
 
 import util.spring.PostInitialize;
+import org.apache.log4j.Logger;
 
 
 /**
@@ -51,6 +52,8 @@ public abstract class WaspLoadService {
   protected List<UiField> uiFields; 
   public void setUiFields(List<UiField> uiFields) {this.uiFields = uiFields; }
 
+  protected static final Logger log = Logger.getLogger(WaspLoadService.class);
+
   public WaspLoadService (){};
 
 
@@ -77,6 +80,7 @@ public abstract class WaspLoadService {
   @Transactional
   public void updateUiFields(String area, List<UiField> uiFields) {
     // UI fields
+    /*
     // this assumes truncate to start with, so clear everything out
     // and use this.uiFields so 
     // TODO: logic to do CRUD compares instead
@@ -88,6 +92,7 @@ public abstract class WaspLoadService {
       uiFieldService.remove(uiField);
       uiFieldService.flush(uiField);
     }
+    */
 
     // sets up the new
     for (UiField f: uiFields) {
