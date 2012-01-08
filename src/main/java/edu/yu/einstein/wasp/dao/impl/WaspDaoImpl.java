@@ -250,14 +250,20 @@ public abstract class WaspDaoImpl<E extends Serializable> implements edu.yu.eins
 				 //org.springframework.security.core.userdetails.User u=
 				 //	 (org.springframework.security.core.userdetails.User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 				   
-				 final String login = (String) SecurityContextHolder.getContext().getAuthentication().getName();
-				 Integer userId = 0;
-				 if (!login.equals("anonymousUser")) {
-					 userId = (Integer)entityManager.createNativeQuery("select userId from user where login=:login").setParameter("login",login).getSingleResult();
-				 }	 
+				Integer userId = new Integer(0);
+				try {
+					final String login = (String) SecurityContextHolder.getContext().getAuthentication().getName();
+					if (!login.equals("anonymousUser")) {
+						Integer newUserId = (Integer)entityManager.createNativeQuery("select userId from user where login=:login").setParameter("login",login).getSingleResult();
+						if (newUserId != null) {
+							userId = newUserId;
+						}
+				 	}
+				} catch (Exception e) {
+					// empty catch in case login or userId can't be found. 
+				}
 
 				 method.invoke(entity, new Object[]{userId});		
-
 			 }
 		 } catch (Throwable e) {
 			 log.warn("setEditorId() threw exception: " + e.getMessage()  );
