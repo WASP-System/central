@@ -89,6 +89,7 @@ public class WorkflowLoadService extends WaspLoadService {
       workflow.setName(name);
       workflow.setIsActive(0);
       workflow.setCreatets(new Date());
+      workflow.setLastUpdUser(new Integer(0));
 
       workflowService.save(workflow); 
 
@@ -133,14 +134,19 @@ public class WorkflowLoadService extends WaspLoadService {
         old.setV(workflowMeta.getV());
         old.setPosition(workflowMeta.getPosition());
 
+log.warn("UPDATE? " + old);
         workflowMetaService.save(old);
+log.warn("UPDATE! " + old);
 
         oldWorkflowMetas.remove(old.getK());
         continue;
       }
 
       workflowMeta.setWorkflowId(workflow.getWorkflowId());
+      workflowMeta.setPosition(1);
+log.warn("INSERT? " + workflowMeta);
       workflowMetaService.save(workflowMeta);
+log.warn("INSERT! " + workflowMeta);
     }
 
     // delete the left overs
@@ -161,6 +167,7 @@ public class WorkflowLoadService extends WaspLoadService {
     pageFlowWorkflowMeta.setWorkflowId(workflow.getWorkflowId());
     pageFlowWorkflowMeta.setK("workflow.submitpageflow");
     pageFlowWorkflowMeta.setV(pageFlowString);
+    pageFlowWorkflowMeta.setPosition(0);
 
     workflowMetaService.save(pageFlowWorkflowMeta);
 
