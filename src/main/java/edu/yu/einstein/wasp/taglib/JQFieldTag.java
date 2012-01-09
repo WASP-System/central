@@ -58,8 +58,8 @@ public class JQFieldTag extends BodyTagSupport {
 	private String itemValue;
 	
 	//Whether to show the field's value as a hyperlink
-	private boolean showLink;
-	
+	private String showLink;
+  
 	private Map metaMessages;
   
 	public void setItems(Object items) {
@@ -112,7 +112,7 @@ public class JQFieldTag extends BodyTagSupport {
 		this.name = name;
 	}
 
-	public void setShowLink(boolean sl) {
+	public void setShowLink(String sl) {
 		this.showLink = sl;
 	}
 
@@ -161,7 +161,7 @@ public class JQFieldTag extends BodyTagSupport {
 				
 			}
 		
-			//check if the filed is "required"
+			//check if the field is "required"
 			boolean required=false;
 			
 			try {
@@ -258,53 +258,53 @@ public class JQFieldTag extends BodyTagSupport {
 					throw new JspTagException("'items','itemValue' and 'itemLabel' parameters are required when type is 'select' and 'items' is a collection");
 				}
 			
-				buf=buf+
-				jsName+".jq['edittype']='select';\n"+
-				jsName+".jq['editoptions']={value:{}};\n"+
-				jsName+".jq['search']=false;\n"+
-				jsName+".jq['editoptions']['value']="+getOptions()+";\n";
+				buf = buf + 
+					jsName + ".jq['edittype']='select';\n" +
+					jsName + ".jq['editoptions']={value:{}};\n" +
+					jsName + ".jq['search']=false;\n" +
+					jsName + ".jq['editoptions']['value']=" + getOptions() + ";\n";
 				
 			} else if (type==Type.password) { 
-				buf=buf+
-				jsName+".jq['edittype']='password';\n"+
-				jsName+".jq['hidden']=true;\n"+
-				jsName+".jq['search']=false;\n"+			
-				jsName+".jq['editrules']['edithidden']=true;\n";
+				buf = buf +
+					jsName + ".jq['edittype']='password';\n"+
+					jsName + ".jq['hidden']=true;\n" +
+					jsName + ".jq['search']=false;\n" +			
+					jsName + ".jq['editrules']['edithidden']=true;\n";
 			} else if (type==Type.hidden) { 
-				buf=buf+
-				jsName+".jq['edittype']='hidden';\n"+
-				jsName+".jq['hidden']=true;\n"+
-				jsName+".jq['search']=false;\n"+
-				jsName+".jq['editrules']['edithidden']=false;\n";
+				buf = buf + 
+					jsName + ".jq['edittype']='hidden';\n" + 
+					jsName + ".jq['hidden']=true;\n" + 
+					jsName + ".jq['search']=false;\n" + 
+					jsName + ".jq['editrules']['edithidden']=false;\n";
 			} else if (type==Type.file) { 
-				buf=buf+
-				jsName+".jq['edittype']='file';\n"+
-				jsName+".jq['hidden']=false;\n"+
-				jsName+".jq['search']=false;\n"+
-				jsName+".jq['editoptions']['alt']='Select Sample File to upload';\n"+			
-				jsName+".jq['editrules']['edithidden']=true;\n";		
+				buf = buf + 
+					jsName + ".jq['edittype']='file';\n" + 
+					jsName + ".jq['hidden']=false;\n" + 
+					jsName + ".jq['search']=false;\n" + 
+					jsName + ".jq['editoptions']['alt']='Select Sample File to upload';\n" + 
+					jsName + ".jq['editrules']['edithidden']=true;\n";
 			} else if (type==Type.checkbox) {
-				buf=buf+
-				jsName+".jq['edittype']='checkbox';\n"+   
-				jsName+".jq['editoptions']={value:'1:0'};\n"+ 
-				jsName+".jq['formatter']='checkbox';\n"+
-				jsName+".jq['formatoptions']={disabled : true};\n"+
-				jsName+".jq['align']='center';\n"+
-				jsName+".jq['search']=false;\n";
+				buf = buf + 
+					jsName + ".jq['edittype']='checkbox';\n" + 
+					jsName + ".jq['editoptions']={value:'1:0'};\n" + 
+					jsName + ".jq['formatter']='checkbox';\n" + 
+					jsName + ".jq['formatoptions']={disabled : true};\n" + 
+					jsName + ".jq['align']='center';\n" + 
+					jsName + ".jq['search']=false;\n";
 			}
 	
-			if (this.showLink) {
-				buf=buf+
-				jsName+".jq['formatter']='showlink';\n"+
-				jsName+".jq['formatoptions']={baseLinkUrl:'/wasp/"+area+"/list.do',idName:'selId'};\n";
+			if (this.showLink!=null  && this.showLink.equals("true")) {
+				buf = buf + 
+					jsName + ".jq['formatter']='showlink';\n" + 
+					jsName + ".jq['formatoptions']={baseLinkUrl:'/wasp/" + area + "/list.do',idName:'selId'};\n";
 			}
 	
-			buf = buf + "\ncolNames.push("+jsName+".label);\n"+
-						"colModel.push("+jsName+".jq);\n"+
-						"colErrors.push("+jsName+".error);\n"+
-						"colConstraint.push("+jsName+".constraint);\n"+
-						"colMetaType.push("+jsName+".metaType);\n"+
-						"colRange.push("+jsName+".range);\n";
+			buf = buf + "\ncolNames.push(" + jsName + ".label);\n" 
+				+ "colModel.push(" + jsName + ".jq);\n" 
+				+ "colErrors.push(" + jsName + ".error);\n"
+				+ "colConstraint.push(" + jsName + ".constraint);\n"
+				+ "colMetaType.push(" + jsName + ".metaType);\n"
+				+ "colRange.push(" + jsName + ".range);\n";
 			
 			this.pageContext.getOut().print(buf);
 		} catch (Throwable e) {

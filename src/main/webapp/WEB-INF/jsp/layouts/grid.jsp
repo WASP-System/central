@@ -17,7 +17,7 @@
 html, body { 
 	margin: 0;			/* Remove body margin/padding */
 	padding: 0;
-	overflow: hidden;	/* Remove scroll bars on browser window */	
+	/* overflow: hidden; */	/* Remove scroll bars on browser window */	
     font-size: 100%;
 }
 
@@ -138,7 +138,7 @@ html, body {
 		editrules={edithidden:true,custom:true,custom_func:_validate_required};	
 	}
 	
-	if (required){
+	if(required){
 		formoptions={elmsuffix:'<font color=red>*</font>'};
 	}
 
@@ -183,7 +183,7 @@ html, body {
 	
   <%-- list of column validation errors --%>
   colErrors.push('${_meta.property.error}');
-  
+
   <%-- list of column validation meta types --%>
   colMetaType.push('${_meta.property.metaType}');
   
@@ -228,56 +228,56 @@ function odump(object, depth, max){
     	}
   	}
   	return output;
-   }
+}
 
-  <%-- display message / fade it after 5 seconds. --%>
-  function waspFade(el, msg) {
-		
-	  $('#'+el).text(msg);
-	 
-	  setTimeout(function() {
-	  	  		
-	  	    	$('#'+el).fadeOut('slow',
+<%-- display message / fade it after 5 seconds. --%>
+function waspFade(el, msg) {
 
-	  			function() {
-	  			      	
-	  	    	    $('#'+el).text('');
-	  	    	
-	  	    	 	$('#'+el).show();
-	   				
-	  				});
-	  			},5000);
-	  			
-  }
-  
+    $('#'+el).text(msg);
+
+    setTimeout(function() {
+ 	  		
+ 	    $('#'+el).fadeOut('slow',
+
+ 			function() {
+ 			      	
+ 	    	    $('#'+el).text('');
+ 	    	
+ 	    	 	$('#'+el).show();
+  				
+ 			});
+ 	},5000);
+ 			
+}
+
  
-  <%-- displays AJAX protocol errors --%>
-  function waspHandleError4(xhr, xml, status, ex)  {
-     var error_msg = 'xhr:['+odump(xhr)+'] xml['+odump(xml)+'] status['+odump(status)+'] ex['+odump(ex)+']';               
-     window.parent.document.write(error_msg);
- }
+<%-- displays AJAX protocol errors --%>
+function waspHandleError4(xhr, xml, status, ex)  {
+    var error_msg = 'xhr:['+odump(xhr)+'] xml['+odump(xml)+'] status['+odump(status)+'] ex['+odump(ex)+']';               
+    window.parent.document.write(error_msg);
+}
 
 
- <%-- displays AJAX protocol errors --%>
- function waspHandleError3(xhr, xml, textStatus)  {
- 	 var error_msg = 'xhr:['+odump(xhr)+'] xml['+odump(xml)+'] status['+odump(status)+']';
- 	 window.parent.document.write(error_msg);
- }
+<%-- displays AJAX protocol errors --%>
+function waspHandleError3(xhr, xml, textStatus)  {
+	 var error_msg = 'xhr:['+odump(xhr)+'] xml['+odump(xml)+'] status['+odump(status)+']';
+	 window.parent.document.write(error_msg);
+}
 
    
- jQuery.ajaxSetup( {
-	  <%-- displays AJAX protocol errors --%>
- 	  error: function(XMLHttpRequest, textStatus, errorThrown) {
- 		  alert(textStatus+'|'+errorThrown);
- 	  },
- 	  async:false 
-   } 
-  );
+jQuery.ajaxSetup( {
+  <%-- displays AJAX protocol errors --%>
+  error: function(XMLHttpRequest, textStatus, errorThrown) {
+	  alert(textStatus+'|'+errorThrown);
+  },
+  async:false 
+ } 
+);
  
-  <%--  returns [true,""] array. usefull in various JQGrid callbacks --%>
-  function _noop(value, colname) {
-	  return [true,""];
-  }
+<%--  returns [true,""] array. usefull in various JQGrid callbacks --%>
+function _noop(value, colname) {
+	return [true,""];
+}
   
   <%-- validates columns minimally based on any supplied metadata properties but only if there is some data to validate --%>
   function _validate_basic(value, colname) {
@@ -329,139 +329,136 @@ function odump(object, depth, max){
 	 return [true,""];
   }
   
-  <%-- validates required columns --%>
-  function _validate_required(value, colname) {
-	 
-	  
-	  if (!value) {
-		 var errIdx=colNames.indexOf(colname);
-		 var errMsg=colErrors[errIdx];
-	     return [false,errMsg];
-	  }
-	  return _validate_basic(value, colname);
-   }
-  
-  <%-- validates email columns --%>
-  function _validate_email(value, colname) {
-		 
-	  var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/; 		
-	  
-	  if (!value || !value.match(re)) {
-		 var errIdx=colNames.indexOf(colname);
-		 var errMsg=colErrors[errIdx];
-	     return [false,errMsg];
-	  }
-	  return _validate_basic(value, colname);
-   }
-  
-  <%-- validates regular expression --%>
-  function _validate_regexp(value, colname) {
-	  var colIndex=colNames.indexOf(colname);
-	  var re = /^RegExp:(.+)$/;
-	  var match = re.exec(colConstraint[colIndex]);
-	  if (match[1]){
-		  var regExpExtracted = new RegExp(match[1]);
-		  if (!value.match(regExpExtracted)) {
-			 var errMsg=colErrors[colIndex];
-		     return [false,errMsg];
-		  }
-		  return _validate_basic(value, colname);
-	  }
-   }
- 
-  <%-- returns cell value. --%> 
-  function getCellValue(rowId, cellId) {
-	    var varName='#' + rowId + '_' + cellId;
-	   
-	    var cell = jQuery(varName);
-	    
-	    var val = cell.val();
-	   
-	    return val;
-  }
-  
- <%-- created main jqgrid object --%> 
- function createGrid() {
- 
-$(function(){
-		
-<%--  call to JQGrid API
-// see JQGrid documentation for parameter descriptions --%>
-var navGrid=$("#grid_id").jqGrid({
-  url:_url,
-  editurl:_editurl,
-  datatype: 'json',
-  //recordtext: "{2} rows",  
-  mtype: 'GET',
-  colNames: colNames,
-  colModel: colModel,
-  pager: '#gridpager',
-  rowNum: 30,
-  rowList: [10,20,30], 
-  viewrecords: true,
-  gridview: false,
+<%-- validates required columns --%>
+function _validate_required(value, colname) {
+	if (!value) {
+		var errIdx=colNames.indexOf(colname);
+		var errMsg=colErrors[errIdx];
+		return [false,errMsg];
+	}
 
-  <tiles:insertAttribute name="subgrid-columns" />	// subgrid columns will appear here
-
-  autowidth: true,
-  //scroll: false,		// scroll:true will disable the pager on page
-  height: '85%', 
-  loadui: 'block',
-  scrollrows: false,
-  loadonce: false, // false to enable paging/sorting on client side
-  sortable: false, // true to enable sorting
-  
-  loadComplete: function(data) {//pre-select row if userdata.selId is defined
-    // data.userdata is the same as jQuery("#grid_id").getGridParam('userData');
-    var userdata = jQuery("#grid_id").getGridParam('userData');
-
-    if (!userdata.selId) return;//no row to pre-select
-      
-    var curPage = jQuery("#grid_id").getGridParam('page'); 
-    if (curPage !== userdata.page) {
-        setTimeout(function(){
-            jQuery("#grid_id").setGridParam({ page: userdata.page }).trigger("reloadGrid");
-            jQuery("#grid_id").setSelection (userdata.selId, true);
-        },100);
-    }
-    else {
-        jQuery("#grid_id").setSelection (userdata.selId, true);
-    }
-  },
-  
-  onPaging : function(which_button) {
-	$("#grid_id").setGridParam({datatype:'json'});
-  },
-  
-  ondblClickRow: function(rowid) {//enable "edit" on dblClick			
-  	$("#grid_id").jqGrid('editGridRow',rowid,_editAttr);
-  },
-  
-  <tiles:insertAttribute name="grid-customAttributes" /> //add custom attributes if any
-}).navGrid('#gridpager',
-		  _navAttr, 
-		  _editAttr,   // edit
-		  _addAttr,    // add
-		  _delAttr,    // delete
-		  _searchAttr, // search
-		  _editAttr
-);
-
-<%-- add custom toolbar buttons if any --%>
-<tiles:insertAttribute name="toolbar-buttons" />
-
-<%-- add filter toolbar --%>
-if (_enableFilterToolbar) {
-	$('#grid_id').jqGrid('filterToolbar', { stringResult: true, searchOnEnter: false });
+	return _validate_basic(value, colname);
 }
 
-}); 
+<%-- validates email columns --%>
+function _validate_email(value, colname) {
+	var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/; 		
 
+	if (!value || !value.match(re)) {
+		var errIdx=colNames.indexOf(colname);
+		var errMsg=colErrors[errIdx];
+		return [false,errMsg];
+	}
+
+	return _validate_basic(value, colname);
+}
+
+<%-- validates regular expression --%>
+function _validate_regexp(value, colname) {
+	var colIndex=colNames.indexOf(colname);
+	var re = /^RegExp:(.+)$/;
+	var match = re.exec(colConstraint[colIndex]);
+	if (match[1]){
+		var regExpExtracted = new RegExp(match[1]);
+		if (!value.match(regExpExtracted)) {
+			var errMsg=colErrors[colIndex];
+			return [false,errMsg];
+		}
+		return _validate_basic(value, colname);
+	}
+}
+
+<%-- returns cell value. --%> 
+function getCellValue(rowId, cellId) {
+   var varName='#' + rowId + '_' + cellId;
+  
+   var cell = jQuery(varName);
+   
+   var val = cell.val();
+  
+   return val;
+}
+  
+<%-- created main jqgrid object --%> 
+function createGrid() {
+	$(function(){
+		<%--  call to JQGrid API
+		// see JQGrid documentation for parameter descriptions --%>
+		var navGrid=$("#grid_id").jqGrid({
+			url:_url,
+			editurl:_editurl,
+			datatype: 'json',
+			//recordtext: "{2} rows",  
+			mtype: 'GET',
+			colNames: colNames,
+			colModel: colModel,
+			pager: '#gridpager',
+			rowNum: 30,
+			rowList: [10,20,30], 
+			viewrecords: true,
+			gridview: false,
+			<tiles:insertAttribute name="subgrid-columns" />	// subgrid columns will appear here
+
+			autowidth: true,
+			//scroll: false,		// scroll:true will disable the pager on page
+			height: '85%', 
+			loadui: 'block',
+			scrollrows: false,
+			loadonce: false, // false to enable paging/sorting on client side
+			sortable: false, // true to enable sorting
+
+			loadComplete: function(data) {
+				//$("#grid_id").setGridParam({datatype:'local'});
+   
+				//pre-select row if userdata.selId is defined
+
+				// data.userdata is the same as jQuery("#grid_id").getGridParam('userData');
+				var userdata = jQuery("#grid_id").getGridParam('userData');
+				
+				if (!userdata.selId) return;//no row to pre-select
+				  
+				var curPage = jQuery("#grid_id").getGridParam('page'); 
+				//alert(curPage);
+				if (curPage != userdata.page) {
+				//if (curPage == 0) {
+				     setTimeout(function(){
+				        jQuery("#grid_id").setGridParam({ page: userdata.page }).trigger("reloadGrid");
+				        jQuery("#grid_id").setSelection (userdata.selId, true);
+				    },100);
+				}
+				else {
+				    jQuery("#grid_id").setSelection (userdata.selId, true);
+				}
+			},
+
+			onPaging : function(which_button) {
+				$("#grid_id").setGridParam({datatype:'json'});
+			},
+ 
+			ondblClickRow: function(rowid) {//enable "edit" on dblClick			
+				$("#grid_id").jqGrid('editGridRow',rowid,_editAttr);
+			},
+
+			<tiles:insertAttribute name="grid-customAttributes" /> //add custom attributes if any
+		}).navGrid('#gridpager',
+					_navAttr, 
+					_editAttr,   // edit
+					_addAttr,    // add
+					_delAttr,    // delete
+					_searchAttr, // search
+					_editAttr);
+
+		<%-- add custom toolbar buttons if any --%>
+		<tiles:insertAttribute name="toolbar-buttons" />
+
+		<%-- add filter toolbar --%>
+		if (_enableFilterToolbar) {
+			$('#grid_id').jqGrid('filterToolbar', { stringResult: true, searchOnEnter: false });
+		}
+	}); 
 }
  
 createGrid();
-
-
 
 </script>
 <tiles:insertAttribute name="head-js" />
