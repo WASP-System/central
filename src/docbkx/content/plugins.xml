@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter version="5.0" xmlns="http://docbook.org/ns/docbook"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         xmlns:ns5="http://www.w3.org/2000/svg"
+         xmlns:ns4="http://www.w3.org/1998/Math/MathML"
+         xmlns:ns3="http://www.w3.org/1999/xhtml"
+         xmlns:db="http://docbook.org/ns/docbook">
+	<title>Developing plugins</title>
+	<para>
+		Adding automated analyses to WASP.
+	</para>
+	<section>
+		<title>Data collection forms</title>
+		<para>Description of job sumbission form creation</para>
+		<example> ... </example>
+	</section>
+	<section>
+		<title>Automated analysis pipelines</title>
+		<para>Description of creation of tasks (applications) and pipelines.
+		</para>
+		<example>
+			<title>Task example</title>
+			this is a task.
+		</example>
+	</section>
+</chapter>
