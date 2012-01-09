@@ -1,40 +1,63 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<book version="5.0" xmlns="http://docbook.org/ns/docbook"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:db="http://docbook.org/ns/docbook" xml:lang="en">
 
-<book xmlns='http://docbook.org/ns/docbook'>
-  <title>WASP Users Guide</title>
-  <titleabbrev>WASP</titleabbrev>
-  <info>
-    <legalnotice><para>Distributed under the * license.</para></legalnotice>
-    <author><personname>
-      <firstname>Andrew</firstname><surname>McLellan</surname>
-    </personname></author>
-  </info>
+	<title>WASP Users Guide</title>
+	<titleabbrev>WASP</titleabbrev>
+	<info>
+		<legalnotice>
+			<para>Distributed under the * license.</para>
+		</legalnotice>
+		<authorgroup>
+			<author>
+				<personname>
+					<honorific>Dr</honorific>
+					<firstname>Andrew S.</firstname>
+					<surname>McLellan</surname>
+				</personname>
+				<affiliation>
+					<jobtitle>Associate</jobtitle>
+					<orgname>Albert Einstein College of Medicine</orgname>
+				</affiliation>
+			</author>
+			<author>
+				<personname>
+					<honorific>Dr</honorific>
+					<firstname>Robert</firstname>
+					<surname>Dubin</surname>
+				</personname>
+				<affiliation>
+					<jobtitle>Associate</jobtitle>
+					<orgname>Albert Einstein College of Medicine</orgname>
+				</affiliation>
+			</author>
+			<author>
+				<personname>
+					<firstname>Qiang (A.J.)</firstname>
+					<surname>Jing</surname>
+				</personname>
+				<affiliation>
+					<jobtitle>Associate</jobtitle>
+					<orgname>Albert Einstein College of Medicine</orgname>
+				</affiliation>
+			</author>
+		</authorgroup>
+	</info>
+	
+	<xi:include href="content/preface.xml"/>
+	
+	<xi:include href="content/requirements.xml"/>
 
-  <preface>
-    <title>Preface</title>
-    <para>
-        Massively parallel sequencing is massively parallel.
-    </para>
-  </preface>
+	<xi:include href="content/installation.xml"/>
+	
+	<xi:include href="content/begin.xml"/>
+	
+	<xi:include href="content/resources.xml"/>
+	
+	<xi:include href="content/plugins.xml"/>
+	
+	<xi:include href="content/appendix.xml"/>
 
-  <chapter>
-    <title>Requirements</title>
-    <para>
-        What you need to get started.
-    </para>
-  </chapter>
-  
-  <chapter>
-    <title>Installation</title>
-    <para>
-        What you need to get WASP/Imbus installed.
-    </para>
-  </chapter>
-
-  <appendix>
-    <title>Optional Appendix</title>
-    <para>
-        Appendixes are optional.
-    </para>
-  </appendix>
 </book>
