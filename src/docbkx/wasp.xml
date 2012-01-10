@@ -20,6 +20,7 @@
 				<affiliation>
 					<jobtitle>Associate</jobtitle>
 					<orgname>Albert Einstein College of Medicine</orgname>
+					<orgdiv>Department of Genetics</orgdiv>
 				</affiliation>
 			</author>
 			<author>
@@ -31,6 +32,7 @@
 				<affiliation>
 					<jobtitle>Associate</jobtitle>
 					<orgname>Albert Einstein College of Medicine</orgname>
+					<orgdiv>Department of Genetics</orgdiv>
 				</affiliation>
 			</author>
 			<author>
@@ -39,8 +41,9 @@
 					<surname>Jing</surname>
 				</personname>
 				<affiliation>
-					<jobtitle>Associate</jobtitle>
+					<jobtitle>Bioinformatics Analyst</jobtitle>
 					<orgname>Albert Einstein College of Medicine</orgname>
+					<orgdiv>Department of Genetics</orgdiv>
 				</affiliation>
 			</author>
 		</authorgroup>

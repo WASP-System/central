@@ -11,4 +11,31 @@
 	<para>
 		What you need to get WASP installed.
 	</para>
+	<section>
+		<title>Database configuration</title>
+		<para>WASP database tables are defined using SQL files in the MySQL dialect. These files should be loaded into a MySQL client to
+		create the database, users, tables and initial state information.</para>
+		<programlisting>$ mysql -uroot -p &lt; createdb.sql
+$ mysql -uroot -p wasp &lt; create.sql</programlisting>
+	</section>
+	<section>
+		<title>Apache Tomcat administration</title>
+		<para>Install Tomcat 7.0.</para>
+		<para>Configure Tomcat as a service.</para>
+		<para>Configure WASP specific resource directories.</para>
+		<para>Configure logging.</para>
+	</section>
+	<section>
+		<title>WASP applications directory</title>
+		<para>Configure and build applications.</para>
+		<para>Advanced instructions for building architecture-optimized versions of WASP dependencies.</para>
+	</section>
+	<section>
+		<title>WASP Metadata</title>
+		<para>Configure genomes directories.</para>
+	</section>
+	<section>
+		<title>Deploy WASP</title>
+		<para>Check out the latest version of WASP, build with Maven and deploy.</para>
+	</section>
 </chapter>
