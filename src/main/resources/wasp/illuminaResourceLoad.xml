@@ -14,9 +14,9 @@
     <property name="area" value="illuminaHwi" />
   </bean>
 
-  <bean id="illuminiaHwiEas438Resource" class="edu.yu.einstein.wasp.load.ResourceLoadService">
-    <property name="iname" value="illuminaHwi" />
-    <property name="name" value="Illumina .. HWI-EAS438" />
+  <bean id="illuminiaHiSeq2000" class="edu.yu.einstein.wasp.load.ResourceLoadService">
+    <property name="iname" value="illuminaHiSeq2000" />
+    <property name="name" value="Illumina HiSeq 2000" />
     <property name="resourceType" value="dna" />
     <property name="platform" value="Illumina" />
 
@@ -59,44 +59,57 @@
 
     <property name="meta">
       <list>
+
         <bean class="edu.yu.einstein.wasp.model.ResourceMeta">
-          <property name="k" value="resource.assay_platform" />
-          <property name="v" value="ILLUMINA" />
+          <property name="k" value="resource.allowableUiField.readlength" />
+          <property name="v" value="100;150" />
         </bean>
+
         <bean class="edu.yu.einstein.wasp.model.ResourceMeta">
-          <property name="k" value="resource.machine_type" />
-          <property name="v" value="GAIIx" />
-        </bean>
-        <bean class="edu.yu.einstein.wasp.model.ResourceMeta">
-          <property name="k" value="resource.decommission_date" />
-          <property name="v" value="2010-10-01" />
+          <property name="k" value="resource.allowableUiField.readType" />
+          <property name="v" value="single;paired" />
         </bean>
       </list>
+
     </property> 
 
     <property name="uiFields">
       <list>
         <bean parent="illuminiaUiField">
-          <property name="name" value="abc" />
+          <property name="name" value="readLength" />
           <property name="attrName" value="metaposition" />
           <property name="attrValue" value="10" />
         </bean>
         <bean parent="illuminiaUiField">
-          <property name="name" value="abc" />
+          <property name="name" value="readLength" />
           <property name="attrName" value="label" />
-          <property name="attrValue" value="Abc" />
+          <property name="attrValue" value="Read Length" />
+        </bean>
+        <bean parent="illuminiaUiField">
+          <property name="name" value="readLength" />
+          <property name="attrName" value="control" />
+          <property name="attrValue" value="select:a:a; b:b;" />
+<!--          <property name="attrValue" value="select:{workflowAssayAllowable.readlength}" /> -->
         </bean>
 
         <bean parent="illuminiaUiField">
-          <property name="name" value="def" />
+          <property name="name" value="readType" />
           <property name="attrName" value="metaposition" />
           <property name="attrValue" value="20" />
         </bean>
         <bean parent="illuminiaUiField">
-          <property name="name" value="def" />
+          <property name="name" value="readType" />
           <property name="attrName" value="label" />
-          <property name="attrValue" value="Def" />
+          <property name="attrValue" value="Read Type" />
         </bean>
+        <bean parent="illuminiaUiField">
+          <property name="name" value="readType" />
+          <property name="attrName" value="control" />
+          <property name="attrValue" value="select:a:a; b:b;" />
+<!--          <property name="attrValue" value="select:{workflowAssayAllowable.readType}" /> -->
+        </bean>
+
+
       </list>
     </property>
 
