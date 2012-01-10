@@ -37,14 +37,14 @@ public final class MetaUtil {
 		 * @param area
 		 * @param locale
 		 */
-		public static final <T> void setAttributesAndSort(List<T> list, MetaAttribute.Area area, Locale locale) {
+		public static final <T> void setAttributesAndSort(List<T> list, String area, Locale locale) {
 			 
 			 for(T t:list) {
 				 
 				 MetaBase m=(MetaBase)t;
 		
 				
-				String basename=m.getK().substring(area.name().length()+1);
+				String basename=m.getK().substring(area.length()+1);
 				
 				//some old key we dont know about 
 				if (getValue(area,basename,"metaposition")==null) continue;
@@ -154,9 +154,9 @@ public final class MetaUtil {
 	 * @param attribute
 	 * @return message
 	 */
-	private static String getValue(MetaAttribute.Area area, String name, String attribute) {
+	private static String getValue(String area, String name, String attribute) {
 			 
-			 return getMessage(area.name()+"."+name+"."+attribute,Locale.US);
+			 return getMessage(area+"."+name+"."+attribute,Locale.US);
 				 
 	 }
 	 
@@ -168,9 +168,9 @@ public final class MetaUtil {
 	 * @param locale
 	 * @return message
 	 */
-	 private static String getValue(MetaAttribute.Area area, String name, String attribute, Locale locale) {
+	 private static String getValue(String area, String name, String attribute, Locale locale) {
 		 
-		 return getMessage(area.name()+"."+name+"."+attribute,locale);
+		 return getMessage(area+"."+name+"."+attribute,locale);
 				 
 	 }
 		

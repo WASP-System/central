@@ -17,42 +17,7 @@ import org.apache.commons.lang.WordUtils;
  */
 public final class MetaAttribute implements Serializable {
 
-		//alphabetic order!
-		public static enum Area {
-			ampliconSeq,
-			cgh,
-			chipSeqdna,
-			chipSeqlibrary,
-			controlMicroarray,
-			controlSeq,
-			deNovoSeq,
-			digitalExpressionProfiling,
-			directionalRnaSeq,
-			geneExpressionSeq,
-			helpTag,
-			jobDraft,
-			lab,
-			labPending,
-			matePairSeq,
-			microarrayChip,
-			microarrayGeneExpression,
-			microarrayHelp,
-			mirnaSeq,
-			otherSeqDnaSamples,
-			otherSeqRnaSamples,
-			piPending,
-			platformunit,
-			resequencing,
-			rnaSeq,
-			sample,
-			sampleDraft,
-			seqCap,
-			uiField,
-			user,
-			userPending,
-
-		}
-		
+	
 		public static enum MetaType {
 			INTEGER,
 			STRING, // default

@@ -18,10 +18,6 @@ public class PasswordValidator{
 	@Autowired
 	private PasswordService passwordService;
 	
-	public void validate(BindingResult result, String password1, String password2, MetaAttribute.Area area, String passwordFieldName) {
-		validate(result, password1, password2, area.name(), passwordFieldName);
-	}
-	
 	public void validate(BindingResult result, String password1, String password2, String area, String passwordFieldName) {
 				    
 	    // validate password

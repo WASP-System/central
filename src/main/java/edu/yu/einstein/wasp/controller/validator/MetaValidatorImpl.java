@@ -32,18 +32,10 @@ public class MetaValidatorImpl implements MetaValidator {
 	
 	protected List<Constraint> allowableConstraints = new ArrayList<Constraint>(Arrays.asList(Constraint.NotEmpty, Constraint.RegExp));
 	
-	public void validate(List<? extends MetaBase> list, BindingResult result, MetaAttribute.Area area) {
-		validate(list, result, area.name(), area.name());
-	}
-
 	public void validate(List<? extends MetaBase> list, BindingResult result, String area) {
 		validate(list, result, area, area);
 	}
 
-	public void validate(List<? extends MetaBase> list, BindingResult result, MetaAttribute.Area area, MetaAttribute.Area parentArea) {
-		validate(list, result, area.name(), parentArea.name());
-	}
-	
 	public void validate(List<? extends MetaBase> list, BindingResult result, String area, String parentarea) {
 		Errors errors=new BindException(result.getTarget(), parentarea); 
 	

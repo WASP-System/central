@@ -37,7 +37,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import edu.yu.einstein.wasp.model.JQuerySearch;
-import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.UiField;
 import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.UiFieldService;
@@ -78,6 +77,8 @@ public class UiFieldController extends WaspController {
 	  ATTR_NAMES.put("suffix","Suffix");
 	  ATTR_NAMES.put("metaposition","Position");
 	  ATTR_NAMES.put("data","Area-specific data");
+	  ATTR_NAMES.put("type","Data Type (INTEGER, NUMBER, STRING)");
+	  ATTR_NAMES.put("range","Data Range (e.g. 10 or 0:10)");
 	  }
 	  
 	  //init read-only static structures used ti build dropdown lists
@@ -85,9 +86,6 @@ public class UiFieldController extends WaspController {
 	  static { 
 		  
 		  AREA_NAMES.put("","--select--");
-		  for (MetaAttribute.Area a : MetaAttribute.Area.values()) {
-			  AREA_NAMES.put(a.name(),a.name());
-		  }
 	  }
 
 	  /**
