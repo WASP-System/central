@@ -69,8 +69,10 @@ public class StateJobLaunchingMessageHandler {
 				jobToken = jobRepository.getLastJobExecution(this.jobName, builder.toJobParameters());
 
 				if (jobToken.isRunning()) {
-					jobOperator.restart(jobToken.getJobId());	
+					return null;
+//					jobOperator.restart(jobToken.getJobId());	
 				}
+				jobOperator.restart(jobToken.getJobId());	
 
 			} else {
 				jobToken = jobLauncher.run(job, builder.toJobParameters());
