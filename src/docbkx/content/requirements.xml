@@ -12,7 +12,7 @@
 		<title>Hardware dependencies</title>
 		<varlistentry>
 			<term>
-				<filename>Web Server</filename>
+				<application>Web Server</application>
 			</term>
 			<listitem>
 				<para>Physical or virtual server with the following requirements.
@@ -21,7 +21,7 @@
 		</varlistentry>
 		<varlistentry>
 			<term>
-				<filename>Cluster nodes</filename>
+				<application>Cluster nodes</application>
 			</term>
 			<listitem>
 				<para>Physical or virtual servers with the following requirements.
@@ -30,7 +30,7 @@
 		</varlistentry>
 		<varlistentry>
 			<term>
-				<filename>Filesystem</filename>
+				<application>Filesystem</application>
 			</term>
 			<listitem>
 				<para>Physical or virtual server with the following requirements.
@@ -44,17 +44,17 @@
 		<title>Software dependencies</title>
 		<varlistentry>
 			<term>
-				<filename>Linux</filename>
+				<application>Linux</application>
 			</term>
 			<listitem>
-				<para>Linux kernel version &gt;=2.6.x, we recommend Ubuntu, or
+				<para>Linux kernel version &gt;=2.6.x, we recommend Ubuntu or
 					CentOS, however any variant of Debian or RedHat should be adequate.
 				</para>
 			</listitem>
 		</varlistentry>
 		<varlistentry>
 			<term>
-				<filename>Scheduler</filename>
+				<application>Scheduler</application>
 			</term>
 			<listitem>
 				<para>Sun Grid Engine or PBS/torque.
@@ -63,7 +63,7 @@
 		</varlistentry>
 		<varlistentry>
 			<term>
-				<filename>Java</filename>
+				<application>Java</application>
 			</term>
 			<listitem>
 				<para>Java 1.6.</para>
@@ -71,7 +71,7 @@
 		</varlistentry>
 		<varlistentry>
 			<term>
-				<filename>Maven</filename>
+				<application>Maven</application>
 			</term>
 			<listitem>
 				<para>Maven version 3.</para>
@@ -79,7 +79,7 @@
 		</varlistentry>
 		<varlistentry>
 			<term>
-				<filename>Tomcat</filename>
+				<application>Tomcat</application>
 			</term>
 			<listitem>
 				<para>Apache Tomcat 7.0.</para>
@@ -87,7 +87,7 @@
 		</varlistentry>
 		<varlistentry>
 			<term>
-				<filename>MySQL</filename>
+				<application>MySQL</application>
 			</term>
 			<listitem>
 				<para>MySQL &gt;=5.0.</para>

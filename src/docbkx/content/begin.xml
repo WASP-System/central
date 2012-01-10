@@ -6,8 +6,20 @@
          xmlns:ns4="http://www.w3.org/1998/Math/MathML"
          xmlns:ns3="http://www.w3.org/1999/xhtml"
          xmlns:db="http://docbook.org/ns/docbook">
-	<title>Getting started</title>
+	<title>Concepts and procedures</title>
 	<para>
-		What you need to get productive.
+		Concepts and procedures for working with WASP.
 	</para>
+	<section>
+		<title>Work request submissions</title>
+		<para>Foo</para>
+	</section>
+	<section>
+		<title>Metadata</title>
+		<para>Bar</para>
+	</section>
+	<section>
+		<title>Analytical Pipelines</title>
+		<para>Baz</para>
+	</section>
 </chapter>
