@@ -49,6 +49,12 @@ public abstract class WaspLoadService {
   protected String name; 
   public void setName(String name) {this.name = name; }
 
+  protected String defaultUiArea;
+  public void setDefaultUiArea(String defaultUiArea) {this.defaultUiArea = defaultUiArea; }
+
+  protected List<UiField> baseUiFields; 
+  public void setBaseUiFields(List<UiField> uiFields) {this.baseUiFields = uiFields; }
+
   protected List<UiField> uiFields; 
   public void setUiFields(List<UiField> uiFields) {this.uiFields = uiFields; }
 
@@ -80,7 +86,6 @@ public abstract class WaspLoadService {
   @Transactional
   public void updateUiFields(String area, List<UiField> uiFields) {
     // UI fields
-    /*
     // this assumes truncate to start with, so clear everything out
     // and use this.uiFields so 
     // TODO: logic to do CRUD compares instead
@@ -92,7 +97,21 @@ public abstract class WaspLoadService {
       uiFieldService.remove(uiField);
       uiFieldService.flush(uiField);
     }
-    */
+
+    // sets up the base uifields new
+    if (baseUiFields != null) {
+    for (UiField f: baseUiFields) {
+      String key = defaultUiArea + "." + f.getName() + "."
+          + f.getAttrName();
+      String lang = f.getLocale().substring(0, 2);
+      String cntry = f.getLocale().substring(3);
+
+      Locale locale = new Locale(lang, cntry);
+
+      ((WaspMessageSourceImpl) messageSource).addMessage(key, locale, f.getAttrValue());
+      uiFieldService.save(f); 
+    }
+    }
 
     // sets up the new
     for (UiField f: uiFields) {
