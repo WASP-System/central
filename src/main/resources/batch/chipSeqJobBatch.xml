@@ -51,6 +51,31 @@
     </bean>
   </si:service-activator>
 
+
+  <bean id="createBoneShakerApprovalStateStep" parent="parentStateStep">
+    <property name="itemProcessor">
+      <bean class="edu.yu.einstein.wasp.batch.CreateJobStateProcessor">
+        <property name="targetTask" value="boneShakerApprovalTask" />
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="waitForBoneShakerApprovalStateUpdated" parent="parentStateStep">
+    <property name="itemProcessor">
+      <bean class="edu.yu.einstein.wasp.batch.WaitForSiblingJobStateProcessor">
+        <property name="task" value="boneShakerApprovalTask" />
+        <property name="status" value="APPROVED" />
+        <property name="siblingTargetStatus" value="FINAL" />
+      </bean>
+    </property>
+  </bean>
+
+  <batch:flow id="boneShakerApprovalFlow">
+    <batch:step id="boneShakerApprovalStep0" parent="createBoneShakerApprovalStateStep" next="boneShakerApprovalStep1" />
+    <batch:step id="boneShakerApprovalStep1" parent="waitForBoneShakerApprovalStateUpdated" />
+  </batch:flow>
+
+
   <batch:job id="chipSeqStartJob">
     <batch:step id="chipSeq.startJob0" parent="createSampleReceiveStateStep" next="chipSeq.approvals" /> 
 
@@ -64,9 +89,18 @@
       <batch:flow>
         <batch:flow id="chipSeq.daApprovalFlow" parent="daApprovalFlow" />
       </batch:flow>
+      <batch:flow>
+        <batch:flow id="chipSeq.boneShakerApprovalFlow" parent="boneShakerApprovalFlow" />
+      </batch:flow>
     </batch:split> 
 
-    <batch:flow id="chipSeq.invoiceFlow" parent="invoiceFlow" next="chipSeq.finishFlow" />
+    <!-- send and invoice -->
+    <batch:flow id="chipSeq.invoiceFlow" parent="invoiceFlow" next="chipSeq.samplesReceivedFlow" />
+
+    <!-- receive all the samples -->
+    <batch:flow id="chipSeq.samplesReceivedFlow" parent="allSamplesReceivedFlow" next="chipSeq.samplesFinalFlow" />
+    <batch:flow id="chipSeq.samplesFinalFlow" parent="allSamplesFinalFlow" next="chipSeq.finishFlow" />
+
     <batch:flow id="chipSeq.finishFlow" parent="finishJobFlow" />
   </batch:job>
 
