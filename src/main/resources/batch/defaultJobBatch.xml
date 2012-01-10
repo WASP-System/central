@@ -160,6 +160,48 @@
     </property>
   </bean>
 
+  <!-- all samples received -->
+  <bean id="createAllJobSamplesStateStep" parent="parentStateStep">
+    <property name="itemProcessor">
+      <bean class="edu.yu.einstein.wasp.batch.CreateJobStateProcessor">
+        <property name="targetTask" value="waitForAllJobSamples" />
+      </bean>
+    </property>
+  </bean>
+  <bean id="waitForAllJobSamplesStateUpdated" parent="parentStateStep">
+    <property name="itemProcessor">
+      <bean class="edu.yu.einstein.wasp.batch.WaitForJobSamplesStateProcessor">
+        <property name="jobTask" value="waitForAllJobSamples" />
+        <property name="jobStatus" value="CREATED" />
+        <property name="sampleTask" value="sampleWrapTask" />
+        <property name="sampleStatus" value="RECEIVED" />
+
+        <property name="targetJobStatus" value="FINAL" />
+        <property name="targetSampleStatus" value="READY" />
+      </bean>
+    </property>
+  </bean>
+
+  <!-- all samples final -->
+  <bean id="createAllJobSamplesFinalStateStep" parent="parentStateStep">
+    <property name="itemProcessor">
+      <bean class="edu.yu.einstein.wasp.batch.CreateJobStateProcessor">
+        <property name="targetTask" value="waitForAllJobSamplesFinal" />
+      </bean>
+    </property>
+  </bean>
+  <bean id="waitForAllJobSamplesFinalStateUpdated" parent="parentStateStep">
+    <property name="itemProcessor">
+      <bean class="edu.yu.einstein.wasp.batch.WaitForJobSamplesStateProcessor">
+        <property name="jobTask" value="waitForAllJobSamplesFinal" />
+        <property name="jobStatus" value="CREATED" />
+        <property name="sampleTask" value="sampleWrapTask" />
+        <property name="sampleStatus" value="FINAL" />
+
+        <property name="targetJobStatus" value="FINAL" />
+      </bean>
+    </property>
+  </bean>
 <!-- /default steps --> 
 <!-- ****************** -->
 
@@ -186,6 +228,17 @@
     <batch:step id="invoiceStep2" parent="waitForSendInvoiceStateUpdated" />
   </batch:flow>
 
+  <batch:flow id="allSamplesReceivedFlow">
+    <batch:step id="allSamplesReceivedStep0" parent="createAllJobSamplesStateStep" next="allSamplesReceivedStep1" />
+    <batch:step id="allSamplesReceivedStep1" parent="waitForAllJobSamplesStateUpdated" />
+  </batch:flow>
+
+  <batch:flow id="allSamplesFinalFlow">
+    <batch:step id="allSamplesFinalStep0" parent="createAllJobSamplesFinalStateStep" next="allSamplesFinalStep1" />
+    <batch:step id="allSamplesFinalStep1" parent="waitForAllJobSamplesFinalStateUpdated" />
+  </batch:flow>
+
+
   <batch:flow id="finishJobFlow">
     <batch:step id="finishJobStep" parent="finalStateStep" />
   </batch:flow>
@@ -206,7 +259,9 @@
       </batch:flow>
     </batch:split> 
 
-    <batch:flow id="job.invoiceFlow" parent="invoiceFlow" next="job.finishFlow" />
+    <batch:flow id="job.invoiceFlow" parent="invoiceFlow" next="job.sampleReceivedFlow" />
+    <batch:flow id="job.sampleReceivedFlow" parent="allSamplesReceivedFlow" next="job.sampleFinalFlow" />
+    <batch:flow id="job.sampleFinalFlow" parent="allSamplesFinalFlow" next="job.finishFlow" /> 
     <batch:flow id="job.finishFlow" parent="finishJobFlow" />
   </batch:job>
 
