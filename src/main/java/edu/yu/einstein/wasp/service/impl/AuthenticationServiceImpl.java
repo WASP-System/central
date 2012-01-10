@@ -39,11 +39,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	
 	@Autowired
 	private MessageService messageService;
-	
-	@Autowired
+
+// 	
+//	@Autowired
 	private AuthenticationManager authenticationManager;
-	
-	@Autowired
+
+// TODO: no autowire... so that i can run outside the tomcat container	
+//	@Autowired
 	HttpServletRequest request;
 	
 	@Override
