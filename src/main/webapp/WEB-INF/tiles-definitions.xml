@@ -286,5 +286,13 @@
 		<put-attribute name="body-content" value="/WEB-INF/jsp/workflow/detail_rw.jsp" />
 	</definition>
 
+	<definition name="hello" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/jobsubmit/chipseqform" />
+	</definition>
+
+	<definition name="jobsubmit/chipseqform" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/chipseqpair.jsp" />
+	</definition>
+
 </tiles-definitions>
 
