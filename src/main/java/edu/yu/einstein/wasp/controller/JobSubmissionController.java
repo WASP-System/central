@@ -105,100 +105,100 @@ import edu.yu.einstein.wasp.taglib.JQFieldTag;
 public class JobSubmissionController extends WaspController {
 
 	@Autowired
-	private JobDraftService jobDraftService;
+	protected JobDraftService jobDraftService;
 
 	@Autowired
-	private JobDraftMetaService jobDraftMetaService;
+	protected JobDraftMetaService jobDraftMetaService;
 
 	@Autowired
-	private JobDraftCellService jobDraftCellService;
+	protected JobDraftCellService jobDraftCellService;
 
 	@Autowired
-	private JobDraftresourceService jobDraftresourceService;
+	protected JobDraftresourceService jobDraftresourceService;
 
 	@Autowired
-	private JobResourceService jobResourceService;
+	protected JobResourceService jobResourceService;
 
 	@Autowired
-	private SampleDraftService sampleDraftService;
+	protected SampleDraftService sampleDraftService;
 
 	@Autowired
-	private SampleDraftMetaService sampleDraftMetaService;
+	protected SampleDraftMetaService sampleDraftMetaService;
 
 	@Autowired
-	private SampleDraftCellService sampleDraftCellService;
+	protected SampleDraftCellService sampleDraftCellService;
 
 
 	@Autowired
-	private JobService jobService;
+	protected JobService jobService;
 
 	@Autowired
-	private LabService labService;
+	protected LabService labService;
 
 	@Autowired
-	private JobUserService jobUserService;
+	protected JobUserService jobUserService;
 
 	@Autowired
-	private RoleService roleService;
+	protected RoleService roleService;
 
 	@Autowired
-	private ResourceService resourceService;
+	protected ResourceService resourceService;
 
 	@Autowired
-	private JobMetaService jobMetaService;
+	protected JobMetaService jobMetaService;
 
 	@Autowired
-	private SampleService sampleService;
+	protected SampleService sampleService;
 
 	@Autowired
-	private SampleMetaService sampleMetaService;
+	protected SampleMetaService sampleMetaService;
 
 	@Autowired
-	private SampleFileService sampleFileService;
+	protected SampleFileService sampleFileService;
 
 	@Autowired
-	private JobSampleService jobSampleService;
+	protected JobSampleService jobSampleService;
 	
 	@Autowired
-	private TypeSampleService typeSampleService;
+	protected TypeSampleService typeSampleService;
 
 	@Autowired
-	private StatejobService statejobService;
+	protected StatejobService statejobService;
 
 	@Autowired
-	private StateService stateService;
+	protected StateService stateService;
 
 	@Autowired
-	private TaskService taskService;
+	protected TaskService taskService;
 	
 	@Autowired
-	private SubtypeSampleService subTypeSampleService;
+	protected SubtypeSampleService subTypeSampleService;
 	
 	@Autowired
-	private WorkflowService workflowService;
+	protected WorkflowService workflowService;
 
 	@Autowired
-	private File sampleDir;
+	protected File sampleDir;
 	
 	@Autowired
-	private FileService fileService;
+	protected FileService fileService;
 
 	@Autowired
-	private JobCellService jobCellService;
+	protected JobCellService jobCellService;
 
 	@Autowired
-	private java.net.URI jobRunnerHost;
+	protected java.net.URI jobRunnerHost;
 	
 	@Autowired
-	private SampleCellService sampleCellService;
+	protected SampleCellService sampleCellService;
 	
 	@Autowired
-	private MessageService messageService;
+	protected MessageService messageService;
 	  
 	@Autowired
-	private AuthenticationService authenticationService;
+	protected AuthenticationService authenticationService;
 
-	private final MetaHelper getMetaHelper() {
+	protected final MetaHelper getMetaHelper() {
 		return new MetaHelper("jobDraft", JobDraftMeta.class, request.getSession());
 	}
 	
@@ -495,6 +495,9 @@ public class JobSubmissionController extends WaspController {
 			ModelMap m) {
 		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
 
+    List workflowTypeResources = jobDraft.getWorkflow().getWorkflowtyperesource();
+
+
 		String resourceArea = ""; 
 		String resourceName = ""; 
 		for (JobDraftresource jdr: jobDraft.getJobDraftresource()) {
@@ -517,6 +520,7 @@ public class JobSubmissionController extends WaspController {
 			return nextPage(jobDraft);
 		}
 
+		m.put("workflowTypeResources", workflowTypeResources);
 		m.put("jobDraftDb", jobDraft);
 		m.put("jobDraft", jobDraft);
 		m.put("name",  resourceName);
@@ -1211,7 +1215,7 @@ public class JobSubmissionController extends WaspController {
 	 * Renders URL to download draft file
 	 * @Author Sasha Levchuk
 	 */
-	private String getFileCell( edu.yu.einstein.wasp.model.File file) {
+	protected String getFileCell( edu.yu.einstein.wasp.model.File file) {
 		if (file==null) return "";
 		String fileName=file.getFilelocation();
 		if (fileName!=null && ( fileName.indexOf('/')>-1 || fileName.indexOf('\\')>-1)) {
