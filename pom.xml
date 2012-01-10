@@ -38,6 +38,7 @@
 		        </executions>
         		<configuration>
         		  <includes>wasp.xml</includes>
+        		  <xincludeSupported>true</xincludeSupported>
 		        </configuration>
       		</plugin>
        
