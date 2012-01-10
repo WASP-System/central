@@ -15,165 +15,134 @@
     <property name="iname" value="chipseqLibrarySample" />
     <property name="name" value="Chip Seq Library" />
     <property name="sampleType" value="dna" />
+<!--    <property name="defaultUiArea" value="chipseqLibrarySample" /> -->
+    <!-- TODO: baseUiField property -->
     <property name="uiFields">
       <list>
+        <!-- generics -->
+
         <bean parent="chipSeqLibrarySampleUiField">
-<property name="name" value="antibody" />
-<property name="attrName" value="constraint" />
-<property name="attrValue" value="NotEmpty" />
+          <property name="name" value="concentration" />
+          <property name="attrName" value="label" />
+          <property name="attrValue" value="Concentration" />
+        </bean>
+        <bean parent="chipSeqLibrarySampleUiField">
+          <property name="name" value="concentration" />
+          <property name="attrName" value="metaposition" />
+          <property name="attrValue" value="0" />
+        </bean>
+
+        <bean parent="chipSeqLibrarySampleUiField">
+          <property name="name" value="volume" />
+          <property name="attrName" value="label" />
+          <property name="attrValue" value="volume" />
+        </bean>
+        <bean parent="chipSeqLibrarySampleUiField">
+          <property name="name" value="volume" />
+          <property name="attrName" value="metaposition" />
+          <property name="attrValue" value="1" />
+        </bean>
+
+        <bean parent="chipSeqLibrarySampleUiField">
+          <property name="name" value="buffer" />
+          <property name="attrName" value="label" />
+          <property name="attrValue" value="buffer" />
+        </bean>
+        <bean parent="chipSeqLibrarySampleUiField">
+          <property name="name" value="buffer" />
+          <property name="attrName" value="metaposition" />
+          <property name="attrValue" value="20" />
+        </bean>
+        <bean parent="chipSeqLibrarySampleUiField">
+          <property name="name" value="buffer" />
+          <property name="attrName" value="control" />
+          <property name="attrValue" value="select:TE:TE;Water:Water" />
+        </bean>
+        <bean parent="chipSeqLibrarySampleUiField">
+          <property name="name" value="Species" />
+          <property name="attrName" value="label" />
+          <property name="attrValue" value="species" />
+        </bean>
+        <bean parent="chipSeqLibrarySampleUiField">
+          <property name="name" value="Species" />
+          <property name="attrName" value="metaposition" />
+          <property name="attrValue" value="30" />
+        </bean>
+        <bean parent="chipSeqLibrarySampleUiField">
+          <property name="name" value="Species" />
+          <property name="attrName" value="control" />
+          <!-- <property name="attrValue" value="select:{speciesBean}" /> -->
+          <property name="attrValue" value="select:a:a; b:b" />
+        </bean>
+
+        <bean parent="chipSeqDnaSampleUiField">
+          <property name="name" value="fragmentSize" />
+          <property name="attrName" value="label" />
+          <property name="attrValue" value="Average Fragmentation Size" />
+        </bean>
+        <bean parent="chipSeqDnaSampleUiField">
+          <property name="name" value="fragmentSize" />
+          <property name="attrName" value="metaposition" />
+          <property name="attrValue" value="100" />
+        </bean>
+
+
+        <bean parent="chipSeqDnaSampleUiField">
+          <property name="name" value="fragmentSizeSD" />
+          <property name="attrName" value="label" />
+          <property name="attrValue" value="Fragmentation Size Std. Dev." />
+        </bean>
+        <bean parent="chipSeqDnaSampleUiField">
+          <property name="name" value="fragmentSizeSD" />
+          <property name="attrName" value="metaposition" />
+          <property name="attrValue" value="110" />
+        </bean>
+
+        <bean parent="chipSeqDnaSampleUiField">
+          <property name="name" value="antibody" />
+          <property name="attrName" value="label" />
+          <property name="attrValue" value="Antibody" />
+        </bean>
+        <bean parent="chipSeqDnaSampleUiField">
+          <property name="name" value="antibody" />
+          <property name="attrName" value="metaposition" />
+          <property name="attrValue" value="120" />
+        </bean>
+
+
+        <bean parent="chipSeqLibrarySampleUiField">
+          <property name="name" value="adaptor5p" />
+          <property name="attrName" value="label" />
+          <property name="attrValue" value="5 Adaptor" />
+	</bean>
+        <bean parent="chipSeqLibrarySampleUiField">
+          <property name="name" value="adaptor5p" />
+          <property name="attrName" value="metaposition" />
+          <property name="attrValue" value="130" />
+	</bean>
+        <bean parent="chipSeqLibrarySampleUiField">
+          <property name="name" value="adaptor5p" />
+          <property name="attrName" value="control" />
+          <!-- <property name="attrValue" value="suggestselect:{platformBasedMEthod}" /> -->
+          <property name="attrValue" value="select:a:a;b:b;c:c;" />
 	</bean>
 
         <bean parent="chipSeqLibrarySampleUiField">
-<property name="name" value="antibody" />
-<property name="attrName" value="control" />
-<property name="attrValue" value="select:abc:abc;def:def;" />
+          <property name="name" value="adaptor3p" />
+          <property name="attrName" value="label" />
+          <property name="attrValue" value="3 Adaptor" />
 	</bean>
-
         <bean parent="chipSeqLibrarySampleUiField">
-<property name="name" value="antibody" />
-<property name="attrName" value="error" />
-<property name="attrValue" value="antibody cannot be empty" />
+          <property name="name" value="adaptor3p" />
+          <property name="attrName" value="metaposition" />
+          <property name="attrValue" value="140" />
 	</bean>
-
         <bean parent="chipSeqLibrarySampleUiField">
-<property name="name" value="antibody" />
-<property name="attrName" value="label" />
-<property name="attrValue" value="Anti Body" />
+          <property name="name" value="adaptor3p" />
+          <property name="attrName" value="control" />
+          <!-- <property name="attrValue" value="suggestselect:{platformBasedMethod}" /> -->
+          <property name="attrValue" value="select:x:x;y:y;z:z;" />
 	</bean>
-
-        <bean parent="chipSeqLibrarySampleUiField">
-<property name="name" value="antibody" />
-<property name="attrName" value="metaposition" />
-<property name="attrValue" value="130" />
-	</bean>
-
-        <bean parent="chipSeqLibrarySampleUiField">
-<property name="name" value="pcrprimers" />
-<property name="attrName" value="constraint" />
-<property name="attrValue" value="NotEmpty" />
-	</bean>
-
-        <bean parent="chipSeqLibrarySampleUiField">
-<property name="name" value="pcrprimers" />
-<property name="attrName" value="control" />
-<property name="attrValue" value="select:xyz:xyz" />
-	</bean>
-
-        <bean parent="chipSeqLibrarySampleUiField">
-<property name="name" value="pcrprimers" />
-<property name="attrName" value="error" />
-<property name="attrValue" value="pcrprimers cannot be empty" />
-	</bean>
-
-        <bean parent="chipSeqLibrarySampleUiField">
-<property name="name" value="pcrprimers" />
-<property name="attrName" value="label" />
-<property name="attrValue" value="PCR Primers" />
-	</bean>
-
-        <bean parent="chipSeqLibrarySampleUiField">
-<property name="name" value="pcrprimers" />
-<property name="attrName" value="metaposition" />
-<property name="attrValue" value="140" />
-	</bean>
-
-        <bean parent="chipSeqLibrarySampleUiField">
-<property name="name" value="platform" />
-<property name="attrName" value="constraint" />
-<property name="attrValue" value="NotEmpty" />
-	</bean>
-
-        <bean parent="chipSeqLibrarySampleUiField">
-<property name="name" value="platform" />
-<property name="attrName" value="control" />
-<property name="attrValue" value="select:HISeq2000:HISeq2000" />
-	</bean>
-
-        <bean parent="chipSeqLibrarySampleUiField">
-<property name="name" value="platform" />
-<property name="attrName" value="error" />
-<property name="attrValue" value="Platform cannot be empty" />
-	</bean>
-
-        <bean parent="chipSeqLibrarySampleUiField">
-<property name="name" value="platform" />
-<property name="attrName" value="label" />
-<property name="attrValue" value="Platform" />
-	</bean>
-
-        <bean parent="chipSeqLibrarySampleUiField">
-<property name="name" value="platform" />
-<property name="attrName" value="metaposition" />
-<property name="attrValue" value="100" />
-	</bean>
-
-        <bean parent="chipSeqLibrarySampleUiField">
-<property name="name" value="readlength" />
-<property name="attrName" value="constraint" />
-<property name="attrValue" value="NotEmpty" />
-	</bean>
-
-        <bean parent="chipSeqLibrarySampleUiField">
-<property name="name" value="readlength" />
-<property name="attrName" value="control" />
-<property name="attrValue" value="select:100:100 bp; 150: 150bp" />
-	</bean>
-
-        <bean parent="chipSeqLibrarySampleUiField">
-<property name="name" value="readlength" />
-<property name="attrName" value="error" />
-<property name="attrValue" value="readlength cannot be empty" />
-	</bean>
-
-        <bean parent="chipSeqLibrarySampleUiField">
-<property name="name" value="readlength" />
-<property name="attrName" value="label" />
-<property name="attrValue" value="Read Length" />
-	</bean>
-
-        <bean parent="chipSeqLibrarySampleUiField">
-<property name="name" value="readlength" />
-<property name="attrName" value="metaposition" />
-<property name="attrValue" value="110" />
-	</bean>
-
-        <bean parent="chipSeqLibrarySampleUiField">
-<property name="name" value="readtype" />
-<property name="attrName" value="constraint" />
-<property name="attrValue" value="NotEmpty" />
-	</bean>
-
-        <bean parent="chipSeqLibrarySampleUiField">
-<property name="name" value="readtype" />
-<property name="attrName" value="control" />
-<property name="attrValue" value="select:single:Single-End Read; pair:Pair-End Read" />
-	</bean>
-
-        <bean parent="chipSeqLibrarySampleUiField">
-<property name="name" value="readtype" />
-<property name="attrName" value="error" />
-<property name="attrValue" value="readtype cannot be empty" />
-	</bean>
-
-        <bean parent="chipSeqLibrarySampleUiField">
-<property name="name" value="readtype" />
-<property name="attrName" value="label" />
-<property name="attrValue" value="Read Type" />
-	</bean>
-
-        <bean parent="chipSeqLibrarySampleUiField">
-<property name="name" value="readtype" />
-<property name="attrName" value="metaposition" />
-<property name="attrValue" value="120" />
-	</bean>
-
-        <bean parent="chipSeqLibrarySampleUiField">
-<property name="name" value="samples" />
-<property name="attrName" value="data" />
-<property name="attrValue" value="samplefile;chipseqSample" />
-	</bean>
-
-
 
       </list>
     </property>
