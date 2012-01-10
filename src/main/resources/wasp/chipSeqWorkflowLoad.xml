@@ -20,11 +20,19 @@
     <property name="pageFlowOrder">
       <list>
 <value>/jobsubmit/modifymeta/{n}</value>
+<value>/jobsubmit/additionalmeta/chipSeqPage2/{n}</value>
 <value>/jobsubmit/resource/dna/{n}</value>
-<value>/jobsubmit/resource/aligner/{n}</value>
 <value>/jobsubmit/samples/{n}</value>
+
 <value>/jobsubmit/cells/{n}</value>
+<value>/jobsubmit/chipSeq/pair/{n}</value> 
 <value>/jobsubmit/verify/{n}</value>
+
+<value>/jobsubmit/resource/aligner/{n}</value>
+<value>/jobsubmit/resource/peakcaller/{n}</value>
+
+<value>/jobsubmit/verify/{n}</value>
+
 <value>/jobsubmit/submit/{n}</value>
 <!-- value>/chipSeq/jobsubmit/submit/{n}</value -->
 <value>/jobsubmit/ok</value>
@@ -35,6 +43,7 @@
       <list>
         <value>dna</value>
         <value>aligner</value>
+        <value>peakcaller</value>
       </list>
     </property>
 
@@ -48,30 +57,33 @@
     <property name="uiFields">
       <list>
         <bean parent="chipSeqUiField">
-          <property name="name" value="aligner" />
-          <property name="attrName" value="metapostion" />
+          <property name="name" value="chipseqMeta" />
+          <property name="attrName" value="metaposition" />
           <property name="attrValue" value="10" />
         </bean>
         <bean parent="chipSeqUiField">
-          <property name="name" value="aligner" />
+          <property name="name" value="chipseqMeta" />
           <property name="attrName" value="label" />
-          <property name="attrValue" value="Aligner" />
-        </bean>
-        <bean parent="chipSeqUiField">
-          <property name="name" value="aligner" />
-          <property name="attrName" value="control" />
-          <property name="attrValue" value="select:aligner1:aligner1;aligner2:aligner2" />
+          <property name="attrValue" value="Chip Seq" />
         </bean>
 
         <bean parent="chipSeqUiField">
-          <property name="name" value="other" />
-          <property name="attrName" value="metapostion" />
+          <property name="name" value="chipseqMetaA" />
+          <property name="attrName" value="metaposition" />
           <property name="attrValue" value="10" />
         </bean>
         <bean parent="chipSeqUiField">
-          <property name="name" value="other" />
+          <property name="name" value="chipseqMetaA" />
           <property name="attrName" value="label" />
-          <property name="attrValue" value="Other Workflow Field" />
+          <property name="attrValue" value="Chip Seq A" />
+        </bean>
+
+        <bean class="edu.yu.einstein.wasp.model.UiField">
+          <property name="locale" value="en_US" />
+          <property name="area" value="chipseqpage2" />
+          <property name="name" value="chipseqMeta" />
+          <property name="attrName" value="label" />
+          <property name="attrValue" value="Chip Seq" />
         </bean>
       </list>
     </property>
@@ -81,6 +93,10 @@
         <bean class="edu.yu.einstein.wasp.model.WorkflowMeta">
           <property name="k" value="metaA" /> 
           <property name="v" value="metaAValue" />
+        </bean>
+        <bean class="edu.yu.einstein.wasp.model.WorkflowMeta">
+          <property name="k" value="metaB" /> 
+          <property name="v" value="metaBValue" />
         </bean>
       </list>
     </property>
