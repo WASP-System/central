@@ -365,6 +365,7 @@ create table typeresource (
 insert into typeresource values (1, 'dna', 'DNA Sequencer'); 
 insert into typeresource values (2, 'amplicon', 'DNA Amplicon'); 
 insert into typeresource values (3, 'aligner', 'Aligner'); 
+insert into typeresource values (4, 'peekcaller', 'Peek Caller'); 
 
 --
 -- RESOURCE
@@ -1756,32 +1757,6 @@ INSERT INTO `uifield` (`uifieldid`, `locale`, `area`, `name`, `attrname`, `attrv
 (379, 'en_US', 'resequencing', 'workflow', 'label', 'LABEL:resequencing', NULL, 1),
 (380, 'en_US', 'rnaSeq', 'workflow', 'label', 'LABEL:rnaSeq', NULL, 1),
 (381, 'en_US', 'seqCap', 'workflow', 'label', 'LABEL:seqCap', NULL, 1),
-(383, 'en_US', 'chipSeq', 'samples', 'data', 'samplefile;chipseqSample', NULL, 1),
-(384, 'en_US', 'chipSeq', 'platform', 'label', 'Platform', NULL, 1),
-(385, 'en_US', 'chipSeq', 'platform', 'constraint', 'NotEmpty', NULL, 1),
-(386, 'en_US', 'chipSeq', 'platform', 'error', 'Platform cannot be empty', NULL, 1),
-(387, 'en_US', 'chipSeq', 'platform', 'control', 'select:HISeq2000:HISeq2000', NULL, 1),
-(388, 'en_US', 'chipSeq', 'platform', 'metaposition', '100', NULL, 1),
-(389, 'en_US', 'chipSeq', 'readlength', 'label', 'Read Length', NULL, 1),
-(390, 'en_US', 'chipSeq', 'readlength', 'constraint', 'NotEmpty', NULL, 1),
-(391, 'en_US', 'chipSeq', 'readlength', 'error', 'readlength cannot be empty', NULL, 1),
-(392, 'en_US', 'chipSeq', 'readlength', 'control', 'select:100:100 bp; 150: 150bp', NULL, 1),
-(393, 'en_US', 'chipSeq', 'readlength', 'metaposition', '110', NULL, 1),
-(394, 'en_US', 'chipSeq', 'readtype', 'label', 'Read Type', NULL, 1),
-(395, 'en_US', 'chipSeq', 'readtype', 'constraint', 'NotEmpty', NULL, 1),
-(396, 'en_US', 'chipSeq', 'readtype', 'error', 'readtype cannot be empty', NULL, 1),
-(397, 'en_US', 'chipSeq', 'readtype', 'control', 'select:single:Single-End Read; pair:Pair-End Read', NULL, 1),
-(398, 'en_US', 'chipSeq', 'readtype', 'metaposition', '120', NULL, 1),
-(399, 'en_US', 'chipSeq', 'antibody', 'label', 'Anti Body', NULL, 1),
-(400, 'en_US', 'chipSeq', 'antibody', 'constraint', 'NotEmpty', NULL, 1),
-(401, 'en_US', 'chipSeq', 'antibody', 'error', 'antibody cannot be empty', NULL, 1),
-(402, 'en_US', 'chipSeq', 'antibody', 'control', 'select:abc:abc;def:def;ghi:ghi', NULL, 1),
-(403, 'en_US', 'chipSeq', 'antibody', 'metaposition', '130', NULL, 1),
-(404, 'en_US', 'chipSeq', 'pcrprimers', 'label', 'PCR Primers', NULL, 1),
-(405, 'en_US', 'chipSeq', 'pcrprimers', 'constraint', 'NotEmpty', NULL, 1),
-(406, 'en_US', 'chipSeq', 'pcrprimers', 'error', 'pcrprimers cannot be empty', NULL, 1),
-(407, 'en_US', 'chipSeq', 'pcrprimers', 'control', 'select:xyz:xyz', NULL, 1),
-(408, 'en_US', 'chipSeq', 'pcrprimers', 'metaposition', '140', NULL, 1),
 (410, 'en_US', 'ampliconSeq', 'samples', 'data', 'samplefile;ampliconSample', NULL, 1),
 (411, 'en_US', 'ampliconSeq', 'platform', 'label', 'Platform', NULL, 1),
 (412, 'en_US', 'ampliconSeq', 'platform', 'constraint', 'NotEmpty', NULL, 1),
