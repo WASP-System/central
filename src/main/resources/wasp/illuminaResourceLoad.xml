@@ -11,7 +11,7 @@
 
   <bean class="edu.yu.einstein.wasp.model.UiField" id="illuminiaUiField">
     <property name="locale" value="en_US" />
-    <property name="area" value="illuminaHwi" />
+    <property name="area" value="illuminaHiSeq2000" />
   </bean>
 
   <bean id="illuminiaHiSeq2000" class="edu.yu.einstein.wasp.load.ResourceLoadService">
