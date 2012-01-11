@@ -49,9 +49,6 @@ public abstract class WaspLoadService {
   protected String name; 
   public void setName(String name) {this.name = name; }
 
-  protected String defaultUiArea;
-  public void setDefaultUiArea(String defaultUiArea) {this.defaultUiArea = defaultUiArea; }
-
   protected List<UiField> baseUiFields; 
   public void setBaseUiFields(List<UiField> uiFields) {this.baseUiFields = uiFields; }
 
@@ -101,7 +98,7 @@ public abstract class WaspLoadService {
     // sets up the base uifields new
     if (baseUiFields != null) {
     for (UiField f: baseUiFields) {
-      String key = defaultUiArea + "." + f.getName() + "."
+      String key = this.iname + "." + f.getName() + "."
           + f.getAttrName();
       String lang = f.getLocale().substring(0, 2);
       String cntry = f.getLocale().substring(3);

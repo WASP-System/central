@@ -108,9 +108,13 @@ public class WorkflowLoadService extends WaspLoadService {
     // sync metas
     int lastPosition = 0;
     Map<String, WorkflowMeta> oldWorkflowMetas  = new HashMap<String, WorkflowMeta>();
-    for (WorkflowMeta workflowMeta: workflow.getWorkflowMeta()) {
-      oldWorkflowMetas.put(workflowMeta.getK(), workflowMeta);
+
+    if (workflow != null && workflow.getWorkflowMeta() != null) {
+      for (WorkflowMeta workflowMeta: workflow.getWorkflowMeta()) {
+        oldWorkflowMetas.put(workflowMeta.getK(), workflowMeta);
+      }
     }
+
     for (WorkflowMeta workflowMeta: meta) {
 
       // incremental position numbers.
@@ -173,6 +177,7 @@ public class WorkflowLoadService extends WaspLoadService {
     List<Workflowsubtypesample> oldWorkflowSubtypeSamples = workflow.getWorkflowsubtypesample();
 
     // todo better logic so updates.
+    if (oldWorkflowSubtypeSamples != null) {
     for (Workflowsubtypesample Workflowsubtypesample: oldWorkflowSubtypeSamples) {
       String subtypeIName = Workflowsubtypesample.getSubtypeSample().getIName();
 
@@ -185,6 +190,7 @@ public class WorkflowLoadService extends WaspLoadService {
 
       // else remove from db
       workflowsubtypesampleService.remove(Workflowsubtypesample);
+    }
     }
 
     // the leftovers were not in the db so create
@@ -202,9 +208,11 @@ public class WorkflowLoadService extends WaspLoadService {
     // update dependencies
     // TODO: insert/update instead of delete insert
     List<Workflowtyperesource> oldWorkflowtyperesources = workflow.getWorkflowtyperesource();
-    for (Workflowtyperesource oldWorkflowtyperesource: oldWorkflowtyperesources) {
-      workflowtyperesourceService.remove(oldWorkflowtyperesource);
-      workflowtyperesourceService.flush(oldWorkflowtyperesource);
+    if (oldWorkflowtyperesources != null) {
+      for (Workflowtyperesource oldWorkflowtyperesource: oldWorkflowtyperesources) {
+        workflowtyperesourceService.remove(oldWorkflowtyperesource);
+        workflowtyperesourceService.flush(oldWorkflowtyperesource);
+      }
     }
 
     for (String dependency: dependencies) { 

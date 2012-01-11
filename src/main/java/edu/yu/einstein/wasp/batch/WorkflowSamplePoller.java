@@ -50,6 +50,8 @@ public class WorkflowSamplePoller {
 		List<State> rt = new ArrayList();
 		List<State> allStates = task.getState();
 
+		if (allStates == null) { return rt; }
+
 		for (State state: allStates) {
 			if (state.getStatesample().isEmpty()) { continue; }
 			if (state.getStatus().equals("FINAL")) { continue; }

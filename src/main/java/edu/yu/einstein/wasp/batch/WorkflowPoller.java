@@ -51,6 +51,7 @@ public class WorkflowPoller {
 
 		List<State> allStates = task.getState();
 
+                if (allStates == null) { return rt; }
 
 		for (State state: allStates) {
 			if (state.getStatejob().isEmpty()) { continue; }
