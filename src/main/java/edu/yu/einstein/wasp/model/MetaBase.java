@@ -52,7 +52,7 @@ public class MetaBase extends WaspModel {
 	}
 
 	@Column(name = "position")
-	private Integer position;
+	private Integer position = new Integer(0);
 
 	public void setPosition(Integer position) {
 		this.position = position;
