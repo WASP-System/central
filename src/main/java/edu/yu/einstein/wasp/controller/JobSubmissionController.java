@@ -419,20 +419,22 @@ public class JobSubmissionController extends WaspController {
 			ModelMap m) {
 		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
 
-    // make list of available resources
+		// make list of available resources
 		List<Workflowresource> allWorkflowResources = jobDraft.getWorkflow().getWorkflowresource();
 		List<Workflowresource> workflowResources = new ArrayList();
-    for (Workflowresource w: allWorkflowResources) {
-      if (! w.getResource().getTypeResource().getIName().equals(typeresourceiname)) { continue; }
-      workflowResources.add(w); 
-    }
+		for (Workflowresource w: allWorkflowResources) {
+			if (! w.getResource().getTypeResource().getIName().equals(typeresourceiname)) { continue; }
+			workflowResources.add(w); 
+		}
 
-    // get selected resource
+		// get selected resource
+		JobDraftresource jobDraftResource = null; 
 		String resourceArea = ""; 
 		String resourceName = ""; 
 		for (JobDraftresource jdr: jobDraft.getJobDraftresource()) {
 			if (! typeresourceiname.equals( jdr.getResource().getTypeResource().getIName())) { continue; }
 
+			jobDraftResource = jdr;
 			resourceArea = jdr.getResource().getIName(); 
 			resourceName = jdr.getResource().getName(); 
 		}
@@ -455,6 +457,7 @@ public class JobSubmissionController extends WaspController {
 		m.put("jobDraft", jobDraft);
 		m.put("name",	resourceName);
 		m.put("area", metaHelper.getArea());
+		m.put("jobDraftResource", jobDraftResource);
 		m.put("parentarea", metaHelper.getParentArea());
 
 		return "jobsubmit/resource";
@@ -472,15 +475,15 @@ public class JobSubmissionController extends WaspController {
 
 		m.put("bleh",	"bleh");
 
-    Map params = request.getParameterMap();
-    Integer changeResource = null;
-    try {
-      changeResource = (Integer) Integer.parseInt(((String[])params.get("changeResource"))[0]);
-    } catch (Exception e) {
-    }
+		Map params = request.getParameterMap();
+		Integer changeResource = null;
+		try {
+			changeResource = (Integer) Integer.parseInt(((String[])params.get("changeResource"))[0]);
+		} catch (Exception e) {
+		}
 
 		if (changeResource != null) {
-		  List<JobDraftresource> oldJdrs = jobDraft.getJobDraftresource();
+			List<JobDraftresource> oldJdrs = jobDraft.getJobDraftresource();
 			for (JobDraftresource jdr: oldJdrs) {
 				if (jdr.getResource().getTypeResource().getIName().equals(typeresourceiname))
 				jobDraftresourceService.remove(jdr);
@@ -641,6 +644,8 @@ public class JobSubmissionController extends WaspController {
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public String showSampleDraft(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
 	
+		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
+
 		//get list of meta fields that are 'allowed' for the given workflowId 
 		int workflowId=jobDraftService.findById(jobDraftId).getWorkflow().getWorkflowId();
 		Map<SubtypeSample,List<SampleDraftMeta>>allowedMetaFields=sampleDraftMetaService.getAllowableMetaFields(workflowId);
@@ -669,6 +674,7 @@ public class JobSubmissionController extends WaspController {
 		m.addAttribute(JQFieldTag.AREA_ATTR, "sampleDraft");		
 		prepareSelectListData(m);
 		m.addAttribute("jobdraftId",jobDraftId);
+		m.addAttribute("jobDraftDb",jobDraft);
 		m.addAttribute("uploadStartedMessage",messageService.getMessage("sampleDraft.fileupload_wait.data")); 
 		return "jobsubmit/sample";
 

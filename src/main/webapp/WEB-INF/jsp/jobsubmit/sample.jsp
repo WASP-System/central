@@ -4,17 +4,40 @@ Body of the "sample drafts" page
 @author: Sasha Levchuk
 --%>
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
-</br>
+<br />
+
+<font color="blue"><wasp:message /></font>
 <span style="color:blue;font-size:200%" id='statusMessage'></span>
 <span style="color:blue;font-size:200%" id='uploadStatus'></span>
 <span style="color:red;font-size:200%;" id='uploadError'></span>
 
-<a href="<c:url value="/jobsubmit/cells/${jobdraftId}.do" />">Cell Assignment</a>
-</br>
-</br>
+<h1>Create a Job -- Sample Submission</h1>
+
+<div class="jobsubmitinfobox">
+  <div class="jobsubmitinfo">
+    <span class="label">Job: </span>
+    <span class="value"><c:out value="${jobDraftDb.name}" /></span>
+  </div>
+  <div class="jobsubmitinfo">
+    <span class="label">Lab: </span>
+    <span class="value"><c:out value="${jobDraftDb.lab.name}" /></span>
+  <div>
+  <div class="jobsubmitinfo">
+    <span class="label">Workflow: </span>
+    <span class="value"><c:out value="${jobDraftDb.workflow.name}" /></span>
+  </div>
+</div>
+
+<div class="jobsubmitnav">
+  <a href="<c:url value="/jobsubmit/modify/${jobDraft.jobDraftId}.do"/>">modify</a>
+</div>
+
+<div class="instr">
+    sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. Maecenas nec odio et ante tincidunt tempus. Donec vitae sapien ut libero venenatis faucibus. Nullam
+</div>
+
 
 <script>
-
 //build structure to hold meta fields allowed for the current workflowId
 var _validMetaFields={};
 <c:forEach items="${_metaBySubtypeList}" var="_entry" varStatus="_substatus">
@@ -227,5 +250,9 @@ function populateSelect(el, items) {
 
 <table id="grid_id"></table> 
 <div id="gridpager"></div>
+
+<div class="bottomtxt">
+    sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. Maecenas nec odio et ante tincidunt tempus. Donec vitae sapien ut libero venenatis faucibus. Nullam
+</div>
 
 
