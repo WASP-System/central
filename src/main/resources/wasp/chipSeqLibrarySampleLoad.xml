@@ -75,35 +75,35 @@
           <property name="attrValue" value="select:a:a; b:b" />
         </bean>
 
-        <bean parent="chipSeqDnaSampleUiField">
+        <bean parent="chipSeqLibrarySampleUiField">
           <property name="name" value="fragmentSize" />
           <property name="attrName" value="label" />
           <property name="attrValue" value="Average Fragmentation Size" />
         </bean>
-        <bean parent="chipSeqDnaSampleUiField">
+        <bean parent="chipSeqLibrarySampleUiField">
           <property name="name" value="fragmentSize" />
           <property name="attrName" value="metaposition" />
           <property name="attrValue" value="100" />
         </bean>
 
 
-        <bean parent="chipSeqDnaSampleUiField">
+        <bean parent="chipSeqLibrarySampleUiField">
           <property name="name" value="fragmentSizeSD" />
           <property name="attrName" value="label" />
           <property name="attrValue" value="Fragmentation Size Std. Dev." />
         </bean>
-        <bean parent="chipSeqDnaSampleUiField">
+        <bean parent="chipSeqLibrarySampleUiField">
           <property name="name" value="fragmentSizeSD" />
           <property name="attrName" value="metaposition" />
           <property name="attrValue" value="110" />
         </bean>
 
-        <bean parent="chipSeqDnaSampleUiField">
+        <bean parent="chipSeqLibrarySampleUiField">
           <property name="name" value="antibody" />
           <property name="attrName" value="label" />
           <property name="attrValue" value="Antibody" />
         </bean>
-        <bean parent="chipSeqDnaSampleUiField">
+        <bean parent="chipSeqLibrarySampleUiField">
           <property name="name" value="antibody" />
           <property name="attrName" value="metaposition" />
           <property name="attrValue" value="120" />
