@@ -70,6 +70,12 @@
 	<definition name="auth/confirmemail/emailchanged" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/auth/confirmemail/emailchanged.jsp" />
 	</definition>
+	<definition name="auth/confirmemail/userloginchanged" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/auth/confirmemail/userloginchanged.jsp" />
+	</definition>
+	<definition name="auth/confirmemail/userloginandemailchanged" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/auth/confirmemail/userloginandemailchanged.jsp" />
+	</definition>
 	<definition name="auth/confirmemail/requestEmailChange" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/auth/confirmemail/requestEmailChange.jsp" />
 	</definition>
