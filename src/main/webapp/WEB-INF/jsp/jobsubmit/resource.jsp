@@ -13,19 +13,18 @@
     Workflow: <c:out value="${jobDraftDb.workflow.name}" />
     </div>
 
+
     <a href="<c:url value="/jobsubmit/modify/${jobDraft.jobDraftId}.do"/>">modify</a>
 
-    <form action="<c:url value="/jobsubmit/modify/${jobDraft.jobDraftId}.do"/>" method="POST">
-<c:set var="wtr" value="aligner"> 
+    <form method="POST">
 
-<select name="jobdraftresource">
-<c:forEach items="${jobDraft.workflow.workflowresource}" var="w">
-  <c:if test="${w.resource.typeResourceId == wtr.typeResource.typeResourceId}">
-    <option value="<c:out value="${w.resource.resourceId}" />">
-      <c:out value="${w.resource.platform}" />
-      <c:out value="${w.resource.name}" />
-    </option>
-  </c:if>
+<select name="changeResource" onchange="this.parentNode.submit()">
+<option></option>
+<c:forEach items="${workflowResources}" var="w">
+  <option value="<c:out value="${w.resource.resourceId}" />">
+    <c:out value="${w.resource.platform}" />
+    <c:out value="${w.resource.name}" />
+  </option>
 </c:forEach>
 </select>
 </form>
