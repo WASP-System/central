@@ -15,9 +15,11 @@
     <property name="locale" value="en_US" />
     <property name="area" value="genericUiField" />
   </bean> 
+
 <!--
-  <bean id="genericDnaSampleUiField">
-    <list>
+  <bean id="genericDnaSampleUiField" class="java.util.ArrayList">
+    <constructor-arg>
+      <list>
         <bean parent="chipSeqDnaSampleUiField">
           <property name="name" value="concentration" />
           <property name="attrName" value="label" />
@@ -72,8 +74,9 @@
           <!- - <property name="attrValue" value="select:{speciesBean}" /> - ->
           <property name="attrValue" value="select:a:a; b:b" />
         </bean>
-     </list>
-   </bean>
+      </list>
+    </constructor-arg>>
+  </bean>
 -->
 
 

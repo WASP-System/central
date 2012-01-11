@@ -14,8 +14,8 @@
   <bean id="chipSeqLibrarySubtypeSampleResource" class="edu.yu.einstein.wasp.load.SubtypeSampleLoadService">
     <property name="iname" value="chipseqLibrarySample" />
     <property name="name" value="Chip Seq Library" />
-    <property name="sampleType" value="dna" />
-<!--    <property name="defaultUiArea" value="chipseqLibrarySample" /> -->
+    <property name="sampleType" value="library" />
+
     <!-- TODO: baseUiField property -->
     <property name="uiFields">
       <list>
