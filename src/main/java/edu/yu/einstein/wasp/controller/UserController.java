@@ -27,7 +27,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
 
 import edu.yu.einstein.wasp.exception.LoginNameException;
-import edu.yu.einstein.wasp.model.ConfirmEmailAuth;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabUser;
@@ -44,7 +43,6 @@ import edu.yu.einstein.wasp.service.PasswordService;
 import edu.yu.einstein.wasp.service.UserMetaService;
 import edu.yu.einstein.wasp.service.UserpasswordauthService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
-import edu.yu.einstein.wasp.util.AuthCode;
 
 
 /**
@@ -297,7 +295,6 @@ public class UserController extends WaspController {
 	@RequestMapping(value = "/detail_rw/updateJSON.do", method = RequestMethod.POST)
 	@PreAuthorize("hasRole('god') or User.login == principal.name")
 	public String updateDetailJSON(@RequestParam("id") Integer userId,User userForm, ModelMap m, HttpServletResponse response) {
-		
 		userId = (userId == null)? 0:userId;
 		boolean adding = (userId == 0);
 		if (adding || !userService.getById(userId).getLogin().equals(userForm.getLogin())){
@@ -331,12 +328,15 @@ public class UserController extends WaspController {
 		}
 				
 		List<UserMeta> userMetaList = getMetaHelper().getFromJsonForm(request, UserMeta.class);
-		
 		userForm.setUserMeta(userMetaList);
 		//NV 12282011 - The code userForm.setUserId(userId) below throws exception: "detached entity passed to persist" when adding a new user. 
-		//				Do not set userId here - it is configured as a generated value, therefore, Hibernate expects userId to be null when EntityManager#persist is called.
+		//				Do not set userId for a new user here - it is configured as a generated value, therefore, Hibernate expects userId to be null when EntityManager#persist is called.
 		//userForm.setUserId(userId);
+		if (!adding) {
+			userForm.setUserId(userId);
+		}
 		boolean myemailChanged = false;
+
 		if (adding) {
 			// set random password. We don't care what it is as new user will be prompted to
 			// set a new one via email.
@@ -351,11 +351,27 @@ public class UserController extends WaspController {
 			User userDb = this.userService.getById(userId);
 			
 			if (!userDb.getEmail().equals(userForm.getEmail())){
+				//myemailChanged = true;
+				if (authenticationService.getAuthenticatedUser().getUserId().intValue() == userId.intValue()) {
+					try {
+						response.getWriter().println(messageService.getMessage("user.updated_fail.error"));
+						return null;
+					} catch (Throwable e) {
+						throw new IllegalStateException("Cant output success message ",e);
+					}
+				}
 				emailService.sendUserEmailConfirm(userForm, confirmEmailAuthService.getNewAuthcodeForUser(userForm));
-				if (authenticationService.getAuthenticatedUser().getUserId().intValue() == userId.intValue()) 
-					myemailChanged = true;
+
 			}
 			if (!userDb.getLogin().equals(userForm.getLogin())){
+				if (authenticationService.getAuthenticatedUser().getUserId().intValue() == userId.intValue()) {
+					try {
+						response.getWriter().println(messageService.getMessage("user.updated_fail.error"));
+						return null;
+					} catch (Throwable e) {
+						throw new IllegalStateException("Cant output success message ",e);
+					}
+				}
 				emailService.informUserLoginChanged(userForm);
 			}
 			userDb.setLogin(userForm.getLogin());
@@ -371,10 +387,12 @@ public class UserController extends WaspController {
 		
 		//waspMessage("user.updated.success");
 		// if I'm the changed user log me out. I need to re-confirm my email and log in.
+		/* do not allow 'God' to change email through user detail in JqGrid.
 		if (myemailChanged){
 			authenticationService.logoutUser();
 			return "redirect:/auth/confirmemail/emailchanged";
 		}
+		*/
 		try {
 			response.getWriter().println(adding ? messageService.getMessage("user.created_success.label") : messageService.getMessage("user.updated_success.label"));
 			return null;
