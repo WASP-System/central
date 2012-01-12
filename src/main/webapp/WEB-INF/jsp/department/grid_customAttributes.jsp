@@ -1,4 +1,5 @@
-//height: '300',
+height: 450,
+rowNum: 20,
 pager: '#gridpager',
 caption:  'Labs in ${departmentName}',
 sortable: true,

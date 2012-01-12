@@ -60,6 +60,9 @@ public class JQFieldTag extends BodyTagSupport {
 	//Whether to show the field's value as a hyperlink
 	private String showLink;
   
+	//Read-only field
+	private String readOnly;
+  
 	private Map metaMessages;
   
 	public void setItems(Object items) {
@@ -114,6 +117,10 @@ public class JQFieldTag extends BodyTagSupport {
 
 	public void setShowLink(String sl) {
 		this.showLink = sl;
+	}
+
+	public void setReadOnly(String ro) {
+		this.readOnly = ro;
 	}
 
 	//get locale-specific message
@@ -297,6 +304,11 @@ public class JQFieldTag extends BodyTagSupport {
 				buf = buf + 
 					jsName + ".jq['formatter']='showlink';\n" + 
 					jsName + ".jq['formatoptions']={baseLinkUrl:'/wasp/" + area + "/list.do',idName:'selId'};\n";
+			}
+	
+			if (this.readOnly!=null  && this.readOnly.equals("true")) {
+				buf = buf + 
+					jsName + ".jq['editable']=false;\n";
 			}
 	
 			buf = buf + "\ncolNames.push(" + jsName + ".label);\n" 

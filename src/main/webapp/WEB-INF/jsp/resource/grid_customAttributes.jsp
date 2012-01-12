@@ -1,4 +1,4 @@
-rowNum: 8,
-height: 400,
+height: 450,
+rowNum: 20,
 pager: '#gridpager',
-caption:"List of resources"
+caption:"List of Resources"
