@@ -11,8 +11,8 @@
 
   <c:set var="labelKey" value="${fn:replace(_meta.k, _myArea, _myCtxArea)}.label" />
 
-  <td><fmt:message key="${labelKey}"/>:</td>
-  <td>
+  <td class="label"><fmt:message key="${labelKey}"/>:</td>
+  <td class="value">
   <c:if test="${not empty _meta.property.control}">
   	<c:if test="${_meta.property.control.items != null}">  	
   		<c:set var="selectItems" scope="request" value="${requestScope[_meta.property.control.items]}"/>
