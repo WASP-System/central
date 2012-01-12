@@ -46,6 +46,7 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 		List<SampleDraft> samples=sampleDraftService.getSampleDraftByJobId(jobDraftId);
 
     // detect old paired samplestring
+		m.put("jobDraftDb", jobDraft);
 		m.put("jobDraft", jobDraft);
 		m.put("samples", samples);
 
