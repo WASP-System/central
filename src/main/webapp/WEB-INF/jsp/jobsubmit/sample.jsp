@@ -29,7 +29,9 @@ Body of the "sample drafts" page
 </div>
 
 <div class="jobsubmitnav">
-  <a href="<c:url value="/jobsubmit/modify/${jobDraft.jobDraftId}.do"/>">modify</a>
+  <a href="<c:url value="/jobsubmit/modify/${jobDraftDb.jobDraftId}.do"/>">modify</a>
+
+  <a href="<c:url value="/jobsubmit/cells/${jobDraftDb.jobDraftId}.do"/>">next</a>
 </div>
 
 <div class="instr">
