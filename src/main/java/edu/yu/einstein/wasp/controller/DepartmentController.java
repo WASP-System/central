@@ -256,7 +256,9 @@ public class DepartmentController extends WaspController {
 
 				List<String> cellList = new ArrayList<String>(
 						Arrays.asList(new String[] {
-						lab.getName() ,
+						"<a href=/wasp/lab/list.do?selId="
+						+ lab.getLabId() + ">"
+						+ lab.getName() + "</a>",
 						"<a href=/wasp/user/list.do?selId="
 							+ lab.getPrimaryUserId() + ">"
 							+ allUsers.get(lab.getPrimaryUserId())

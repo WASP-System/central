@@ -108,13 +108,17 @@ public class ResourceController extends WaspController {
 		ObjectMapper mapper = new ObjectMapper();
 
 		try {
-			// String users = mapper.writeValueAsString(userList);
-			jqgrid.put("page", "1");
-			jqgrid.put("records", resourceList.size() + "");
-			jqgrid.put("total", resourceList.size() + "");
+			int pageIndex = Integer.parseInt(request.getParameter("page"));		// index of page
+			int pageRowNum = Integer.parseInt(request.getParameter("rows"));	// number of rows in one page
+			int rowNum = resourceList.size();										// total number of rows
+			int pageNum = (rowNum + pageRowNum - 1) / pageRowNum;				// total number of pages
+			
+			jqgrid.put("records", rowNum + "");
+			jqgrid.put("total", pageNum + "");
+			jqgrid.put("page", pageIndex + "");
 
 			Map<String, String> resourceData = new HashMap<String, String>();
-			resourceData.put("page", "1");
+			resourceData.put("page", pageIndex + "");
 			resourceData.put("selId",
 					StringUtils.isEmpty(request.getParameter("selId")) ? ""
 							: request.getParameter("selId"));
@@ -122,7 +126,25 @@ public class ResourceController extends WaspController {
 
 			List<Map> rows = new ArrayList<Map>();
 
-			for (Resource resource : resourceList) {
+			int frId = pageRowNum * (pageIndex - 1);
+			int toId = pageRowNum * pageIndex;
+			toId = toId <= rowNum ? toId : rowNum;
+
+			/* if the selId is set, change the page index to the one contains the selId */
+			if(!StringUtils.isEmpty(request.getParameter("selId")))
+			{
+				int selId = Integer.parseInt(request.getParameter("selId"));
+				int selIndex = resourceList.indexOf(resourceService.findById(selId));
+				frId = selIndex;
+				toId = frId + 1;
+
+				jqgrid.put("records", "1");
+				jqgrid.put("total", "1");
+				jqgrid.put("page", "1");
+			}				
+
+			List<Resource> resourcePage = resourceList.subList(frId, toId);
+			for (Resource resource : resourcePage) {
 				Map cell = new HashMap();
 				cell.put("id", resource.getResourceId());
 

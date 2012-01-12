@@ -145,7 +145,7 @@ html, body {
 	editoptions={size:20};
  	edittype='text';
  	
-   <%-- poluate "select" inputs --%>	 
+   <%-- populate "select" inputs --%>	 
    <c:if test="${not empty _meta.property.control}">
        editoptions={size:20,value:{}};
        edittype='select';
@@ -269,7 +269,8 @@ function waspHandleError3(xhr, xml, textStatus)  {
 jQuery.ajaxSetup( {
   <%-- displays AJAX protocol errors --%>
   error: function(XMLHttpRequest, textStatus, errorThrown) {
-	  alert(textStatus+'|'+errorThrown);
+	  //alert(textStatus+'|'+errorThrown);
+	  console.log(textStatus+'|'+errorThrown);
   },
   async:false 
  } 

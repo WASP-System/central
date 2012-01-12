@@ -184,23 +184,6 @@ public class LabController extends WaspController {
 		ObjectMapper mapper = new ObjectMapper();
 
 		try {
-			// String labs = mapper.writeValueAsString(labList);
-			int pageId = Integer.parseInt(request.getParameter("page"));		// index of page
-			int pageRowNum = Integer.parseInt(request.getParameter("rows"));	// number of rows in one page
-			int rowNum = labList.size();										// total number of rows
-			int pageNum = (rowNum + pageRowNum - 1) / pageRowNum;				// total number of pages
-			
-			jqgrid.put("page", pageId + "");
-			jqgrid.put("records", rowNum + "");
-			jqgrid.put("total", pageNum + "");
-
-			Map<String, String> userData = new HashMap<String, String>();
-			userData.put("page", "1");
-			userData.put("selId", StringUtils.isEmpty(request.getParameter("selId")) ? "" : request.getParameter("selId"));
-			jqgrid.put("userdata", userData);
-
-			List<Map> rows = new ArrayList<Map>();
-
 			Map<Integer, String> allDepts = new TreeMap<Integer, String>();
 			for (Department dept : (List<Department>) deptService.findAll()) {
 				allDepts.put(dept.getDepartmentId(), dept.getName());
@@ -211,12 +194,42 @@ public class LabController extends WaspController {
 				allUsers.put(user.getUserId(),	user.getFirstName() + " " + user.getLastName());
 			}
 
-			int frId = pageRowNum * (pageId - 1);
-			int toId = pageRowNum * pageId;
+			// String labs = mapper.writeValueAsString(labList);
+			int pageIndex = Integer.parseInt(request.getParameter("page"));		// index of page
+			int pageRowNum = Integer.parseInt(request.getParameter("rows"));	// number of rows in one page
+			int rowNum = labList.size();										// total number of rows
+			int pageNum = (rowNum + pageRowNum - 1) / pageRowNum;				// total number of pages
+			
+			jqgrid.put("records", rowNum + "");
+			jqgrid.put("total", pageNum + "");
+			jqgrid.put("page", pageIndex + "");
+			
+			Map<String, String> userData = new HashMap<String, String>();
+			userData.put("page", pageIndex + "");
+			userData.put("selId", StringUtils.isEmpty(request.getParameter("selId")) ? "" : request.getParameter("selId"));
+			jqgrid.put("userdata", userData);
+
+			List<Map> rows = new ArrayList<Map>();
+
+			int frId = pageRowNum * (pageIndex - 1);
+			int toId = pageRowNum * pageIndex;
 			toId = toId <= rowNum ? toId : rowNum;
+
+			/* if the selId is set, change the page index to the one contains the selId */
+			if(!StringUtils.isEmpty(request.getParameter("selId")))
+			{
+				int selLabId = Integer.parseInt(request.getParameter("selId"));
+				int selLabIndex = labList.indexOf(labService.findById(selLabId));
+				frId = selLabIndex;
+				toId = frId + 1;
+
+				jqgrid.put("records", "1");
+				jqgrid.put("total", "1");
+				jqgrid.put("page", "1");
+			}				
+			
 			List<Lab> labPage = labList.subList(frId, toId);
 			for (Lab lab : labPage) {
-
 				Map cell = new HashMap();
 				cell.put("id", lab.getLabId());
 

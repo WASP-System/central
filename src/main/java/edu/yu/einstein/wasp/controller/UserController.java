@@ -238,26 +238,47 @@ public class UserController extends WaspController {
 		}
     	
 		 try {
+			int pageIndex = Integer.parseInt(request.getParameter("page"));		// index of page
+			int pageRowNum = Integer.parseInt(request.getParameter("rows"));	// number of rows in one page
+			int rowNum = userList.size();										// total number of rows
+			int pageNum = (rowNum + pageRowNum - 1) / pageRowNum;				// total number of pages
 			
-			 jqgrid.put("page","1");
-			 jqgrid.put("records",userList.size()+"");
-			 jqgrid.put("total",userList.size()+"");
+			jqgrid.put("records", rowNum + "");
+			jqgrid.put("total", pageNum + "");
+			jqgrid.put("page", pageIndex + "");
 			 
+			Map<String, String> userData=new HashMap<String, String>();
+			userData.put("page", pageIndex + "");
+			userData.put("selId",StringUtils.isEmpty(request.getParameter("selId"))?"":request.getParameter("selId"));
+			jqgrid.put("userdata",userData);
 			 
-			 Map<String, String> userData=new HashMap<String, String>();
-			 userData.put("page","1");
-			 userData.put("selId",StringUtils.isEmpty(request.getParameter("selId"))?"":request.getParameter("selId"));
-			 jqgrid.put("userdata",userData);
-			 
-			 List<Map> rows = new ArrayList<Map>();
-			 
-			 for (User user:userList) {
-				 Map cell = new HashMap();
-				 cell.put("id", user.getUserId());
+			List<Map> rows = new ArrayList<Map>();
+			
+			int frId = pageRowNum * (pageIndex - 1);
+			int toId = pageRowNum * pageIndex;
+			toId = toId <= rowNum ? toId : rowNum;
+
+			/* if the selId is set, change the page index to the one contains the selId */
+			if(!StringUtils.isEmpty(request.getParameter("selId")))
+			{
+				int selId = Integer.parseInt(request.getParameter("selId"));
+				int selIndex = userList.indexOf(userService.findById(selId));
+				frId = selIndex;
+				toId = frId + 1;
+
+				jqgrid.put("records", "1");
+				jqgrid.put("total", "1");
+				jqgrid.put("page", "1");
+			}				
+
+			List<User> userPage = userList.subList(frId, toId);
+			for (User user:userPage) {
+				Map cell = new HashMap();
+				cell.put("id", user.getUserId());
 				 
-				 List<UserMeta> userMeta=getMetaHelper().syncWithMaster(user.getUserMeta());
+				List<UserMeta> userMeta=getMetaHelper().syncWithMaster(user.getUserMeta());
 				 					
-				 List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
+				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 							user.getLogin(),
 							user.getFirstName(),
 							user.getLastName(),						
@@ -271,19 +292,19 @@ public class UserController extends WaspController {
 				}
 				
 				 
-				 cell.put("cell", cellList);
+				cell.put("cell", cellList);
 				 
-				 rows.add(cell);
-			 }
+				rows.add(cell);
+			}
 
 			 
-			 jqgrid.put("rows",rows);
+			jqgrid.put("rows",rows);
 			 
-			 return outputJSON(jqgrid, response); 	
+			return outputJSON(jqgrid, response); 	
 			 
-		 } catch (Throwable e) {
-			 throw new IllegalStateException("Can't marshall to JSON "+userList,e);
-		 }
+		} catch (Throwable e) {
+			throw new IllegalStateException("Can't marshall to JSON "+userList,e);
+		}
 	
 	}
 

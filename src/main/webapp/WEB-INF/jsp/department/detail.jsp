@@ -52,9 +52,9 @@
     <h2><fmt:message key="department.detail_labs.label" /></h2>
     <table id="grid_id"></table> 
 	<div id="gridpager"></div>
-	<script>
+	<!-- <script>
 	$("#grid_id").jqGrid('setGridParam', { rowNum: 50,height: '300'}).trigger("reloadGrid");    
-	</script>
+	</script> -->
 
    <!--   <h2><fmt:message key="department.detail_pendinglabs.label" /></h2>
     <c:forEach items="${labpending}" var="lp">

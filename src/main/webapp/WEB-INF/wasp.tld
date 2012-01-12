@@ -80,6 +80,14 @@
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
+		<attribute>
+            <!-- 
+			<description>determine whether the name of the control should be formatted as a hyperlink</description>
+            -->
+			<name>showLink</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
 	</tag>
 	<tag>
 		<description><![CDATA[

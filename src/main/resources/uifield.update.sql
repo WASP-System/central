@@ -629,6 +629,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','user/detail_rw','label','Update User Detail','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','user/detail_ro','label','User Detail','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','user/list','label','User List','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','lab/list','label','Lab List','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','lab/detail_ro','label','Lab Detail','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','lab/detail_rw','label','Update Lab Detail','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','lab/pending/detail_ro','label','Pending Lab Detail','1');
