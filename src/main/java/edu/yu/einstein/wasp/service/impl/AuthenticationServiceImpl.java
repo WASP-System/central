@@ -27,6 +27,9 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
 
 @Service
 public class AuthenticationServiceImpl implements AuthenticationService {
@@ -46,7 +49,18 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 // TODO: no autowire... so that i can run outside the tomcat container	
 //	@Autowired
-	HttpServletRequest request;
+//	HttpServletRequest request;
+
+	public HttpServletRequest getHttpServletRequest() {
+		try {
+			HttpServletRequest request =
+				((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+			return request;
+		} catch (Throwable e) {
+			// logger.warn("could not get HttpServletRequest");
+		}
+		return null;
+	}
 	
 	@Override
 	public User getAuthenticatedUser() {
@@ -64,7 +78,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		if (this.isAuthenticated()){
 			SecurityContextLogoutHandler logoutHandler = new SecurityContextLogoutHandler();
 			logoutHandler.setInvalidateHttpSession(true);
-			logoutHandler.logout(request, null, null);
+			logoutHandler.logout(getHttpServletRequest(), null, null);
 		}
 	}
 
@@ -137,8 +151,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	@Override
 	public boolean authenticate(String name, String password){
 		try {
-	        Authentication request = new UsernamePasswordAuthenticationToken(name, password);
-	        Authentication result = authenticationManager.authenticate(request);
+	        Authentication authRequest = new UsernamePasswordAuthenticationToken(name, password);
+	        Authentication result = authenticationManager.authenticate(authRequest);
 	        SecurityContextHolder.getContext().setAuthentication(result);
 	    } catch(AuthenticationException e) {
 	        return false;
@@ -149,8 +163,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	@Override
 	public boolean authenticates(String name, String password){
 		try {
-	        Authentication request = new UsernamePasswordAuthenticationToken(name, password);
-	        Authentication result = authenticationManager.authenticate(request);
+	        Authentication authRequest = new UsernamePasswordAuthenticationToken(name, password);
+	        Authentication result = authenticationManager.authenticate(authRequest);
 	    } catch(AuthenticationException e) {
 	        return false;
 	    }
