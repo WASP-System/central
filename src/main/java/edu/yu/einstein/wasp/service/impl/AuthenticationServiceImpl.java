@@ -44,14 +44,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	private MessageService messageService;
 
 // 	
-//	@Autowired
+	@Autowired
 	private AuthenticationManager authenticationManager;
 
 // TODO: no autowire... so that i can run outside the tomcat container	
 //	@Autowired
 //	HttpServletRequest request;
 
-	public HttpServletRequest getHttpServletRequest() {
+	protected HttpServletRequest getHttpServletRequest() {
 		try {
 			HttpServletRequest request =
 				((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
@@ -61,7 +61,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		}
 		return null;
 	}
-	
+
 	@Override
 	public User getAuthenticatedUser() {
 		 Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
