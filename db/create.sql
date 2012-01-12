@@ -456,7 +456,7 @@ create table workflowmeta (
   workflowid int(10) ,
 
   k varchar(250) , 
-  v varchar(250), 
+  v text,
   position int(10)  default 0,
 
   lastupdts timestamp  default current_timestamp,
@@ -1370,7 +1370,7 @@ CREATE TABLE IF NOT EXISTS `uifield` (
   `area` varchar(50) ,
   `name` varchar(50) ,
   `attrname` varchar(50) ,
-  `attrvalue` varchar(500) DEFAULT NULL,
+  `attrvalue` text DEFAULT NULL,
   `lastupdts` datetime DEFAULT NULL,
   `lastupduser` int(11) DEFAULT NULL,
   PRIMARY KEY (`uifieldid`),
