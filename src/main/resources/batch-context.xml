@@ -67,6 +67,8 @@
   <context:component-scan base-package="util.spring" />
   <context:component-scan base-package="edu.yu.einstein.wasp.dao.impl" />
   <context:component-scan base-package="edu.yu.einstein.wasp.service.impl" /> 
+  <context:component-scan base-package="edu.yu.einstein.wasp.load" />
+
   <context:annotation-config/>
 
 
@@ -88,6 +90,9 @@
       </value>
     </property>
   </bean>
+
+  <!-- for authenticationManager to autowire -->
+  <import resource="batch-security-context.xml" />
 
   <!-- loads load scripts to update database -->
   <import resource="classpath*:wasp/*Load.xml" />
