@@ -52,7 +52,7 @@ public class UiFieldDaoImpl extends WaspDaoImpl<UiField> implements edu.yu.einst
     .setParameter("name", name)
     .setParameter("attrname", attrName);
     
-    return q.getResultList().isEmpty();
+    return !q.getResultList().isEmpty();
 		  
   }
 

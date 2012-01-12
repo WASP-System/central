@@ -227,13 +227,15 @@ public class UiFieldController extends WaspController {
 	@RequestMapping(value = "/detail_rw/updateJSON.do", method = RequestMethod.POST)
 	public String updateDetailJSON(@RequestParam("id") Integer uiFieldId, UiField uiFieldForm, ModelMap m, HttpServletResponse response) {
 		try {
-			if (uiFieldId == null) {
+			if (uiFieldId == null || uiFieldId == 0 ) {
 
 				if (uiFieldService.exists(uiFieldForm.getLocale(), uiFieldForm.getArea(), uiFieldForm.getName(), uiFieldForm.getAttrName())) {
 					response.getWriter().println(messageService.getMessage("uiField.not_unique.error"));
 					return null;
 				}
 
+				uiFieldForm.setAttrValue(escapeSingleQuote(uiFieldForm.getAttrValue()));
+				
 				UiField uiFieldDb = this.uiFieldService.save(uiFieldForm);
 
 				uiFieldId = uiFieldDb.getUiFieldId();
@@ -241,7 +243,7 @@ public class UiFieldController extends WaspController {
 				UiField uiFieldDb = this.uiFieldService.getById(uiFieldId);
 				uiFieldDb.setArea(uiFieldForm.getArea());
 				uiFieldDb.setAttrName(uiFieldForm.getAttrName());
-				uiFieldDb.setAttrValue(uiFieldForm.getAttrValue());
+				uiFieldDb.setAttrValue(escapeSingleQuote(uiFieldForm.getAttrValue()));
 				uiFieldDb.setLocale(uiFieldForm.getLocale());
 				uiFieldDb.setName(uiFieldForm.getName());
 				this.uiFieldService.merge(uiFieldDb);
@@ -254,7 +256,7 @@ public class UiFieldController extends WaspController {
 
 			Locale locale = new Locale(lang, cntry);
 
-			((WaspMessageSourceImpl) messageSource).addMessage(newKey, locale, uiFieldForm.getAttrValue());
+			((WaspMessageSourceImpl) messageSource).addMessage(newKey, locale, escapeSingleQuote(uiFieldForm.getAttrValue()));
 
 			response.getWriter().println(messageService.getMessage("uiField." + (uiFieldId == null ? "added" : "updated") + ".data"));
 			return null;
@@ -264,6 +266,14 @@ public class UiFieldController extends WaspController {
 
 	}
 	
+	//single quotes are not allowed in attr values because they might break JavaScript code in other pages.
+	private String escapeSingleQuote(String in) {
+		if (in==null) return in;
+		
+		String result=in.replaceAll("'", "&#39;");
+		
+		return result;
+	}
 	//START: utility functions to dump strings to files 
 	public static void appendToFile(final InputStream in, final File f)
 			throws IOException {

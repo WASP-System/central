@@ -196,7 +196,8 @@ html, body {
 
 </c:forEach>
 
-_enableFilterToolbar=false;
+
+if (_url.indexOf('/uiField/')==-1) _enableFilterToolbar=false;//not sure who/why force _enableFilterToolbar to false. add an exception for uiField. Sasha 12.1.12
 
 <%-- function to help with debugging --%>
 function odump(object, depth, max){
