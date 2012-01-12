@@ -99,18 +99,6 @@ public class SelLabUtilsJqGrid extends SelBaseTest{
 		  
 	  }
 	  
-	  	/**
-		 * 
-		 * @return retObjArr
-		 * @throws Exception
-		 */
-		@DataProvider(name = "DP1")
-		public Object[][] createData1() throws Exception{
-		    Object[][] retObjArr=SeleniumHelper.getTableArray("WaspTestData.xls",
-		        "Test_001", "editLabJQuery");
-		    return(retObjArr);
-		}
-	  
 	  @BeforeMethod
 	  public void beforeMethod() {
 	  }
@@ -118,5 +106,17 @@ public class SelLabUtilsJqGrid extends SelBaseTest{
 	  @AfterMethod
 	  public void afterMethod() {
 	  }
+	  
+	  /**
+	  * 
+	  * @return retObjArr
+	  * @throws Exception
+	  */
+	 @DataProvider(name = "DP1")
+	 public Object[][] createData1() throws Exception{
+	     Object[][] retObjArr=SeleniumHelper.getTableArray("WaspTestData.xls",
+	         "Test_001", "editLabJQuery");
+	     return(retObjArr);
+	}
   }
 

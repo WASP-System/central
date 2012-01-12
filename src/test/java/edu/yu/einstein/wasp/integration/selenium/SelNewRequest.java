@@ -21,56 +21,7 @@ public class SelNewRequest extends SelBaseTest {
 	  public void beforeClass() {
 		  
 	  }
-	  
-	  /**
-	   * 
-	   * @return retObjArr
-	   * @throws Exception
-	   */
-	  @DataProvider(name = "DP1")
-	  public Object[][] createData1() throws Exception{
-	      Object[][] retObjArr=SeleniumHelper.getTableArray("WaspTestData.xls",
-	              "Test_001", "requestAccessToLab");
-	      
-	      return(retObjArr);
-	  }
-	  
-	  @DataProvider(name = "DP2")
-	  public Object[][] createData2() throws Exception{
-	      Object[][] retObjArr=SeleniumHelper.getTableArray("WaspTestData.xls",
-	              "Test_001", "createNewLabRequest");
-	      
-	      return(retObjArr);
-	  }
-	  @DataProvider(name = "DP3")
-	  public Object[][] createData3() throws Exception{
-	      Object[][] retObjArr=SeleniumHelper.getTableArray("WaspTestData.xls",
-	              "Test_001", "approveAccessToLab");
-	      
-	      return(retObjArr);
-	  }
-	  @DataProvider(name = "DP4")
-	  public Object[][] createData4() throws Exception{
-	      Object[][] retObjArr=SeleniumHelper.getTableArray("WaspTestData.xls",
-	              "Test_001", "approveCreateNewLabRequest");
-	      
-	      return(retObjArr);
-	  }
-	  @DataProvider(name = "DP5")
-	  public Object[][] createData5() throws Exception{
-	      Object[][] retObjArr=SeleniumHelper.getTableArray("WaspTestData.xls",
-	              "Test_001", "rejecteAccessToLab");
-	      
-	      return(retObjArr);
-	  }
-	  @DataProvider(name = "DP6")
-	  public Object[][] createData6() throws Exception{
-	      Object[][] retObjArr=SeleniumHelper.getTableArray("WaspTestData.xls",
-	              "Test_001", "rejectCreateNewLabRequest");
-	      
-	      return(retObjArr);
-	  }
-	  
+	  	  
 	  /**
 	   * 
 	   * @param sUserName
@@ -223,9 +174,58 @@ public class SelNewRequest extends SelBaseTest {
 		  
 	  }
 	  
-	  
 	  @AfterClass
 	  public void afterClass() {
 	  
 	  }
+	  
+	  /**
+	   * 
+	   * @return retObjArr
+	   * @throws Exception
+	   */
+	  @DataProvider(name = "DP1")
+	  public Object[][] createData1() throws Exception{
+	      Object[][] retObjArr=SeleniumHelper.getTableArray("WaspTestData.xls",
+	              "Test_001", "requestAccessToLab");
+	      
+	      return(retObjArr);
+	  }
+	  
+	  @DataProvider(name = "DP2")
+	  public Object[][] createData2() throws Exception{
+	      Object[][] retObjArr=SeleniumHelper.getTableArray("WaspTestData.xls",
+	              "Test_001", "createNewLabRequest");
+	      
+	      return(retObjArr);
+	  }
+	  @DataProvider(name = "DP3")
+	  public Object[][] createData3() throws Exception{
+	      Object[][] retObjArr=SeleniumHelper.getTableArray("WaspTestData.xls",
+	              "Test_001", "approveAccessToLab");
+	      
+	      return(retObjArr);
+	  }
+	  @DataProvider(name = "DP4")
+	  public Object[][] createData4() throws Exception{
+	      Object[][] retObjArr=SeleniumHelper.getTableArray("WaspTestData.xls",
+	              "Test_001", "approveCreateNewLabRequest");
+	      
+	      return(retObjArr);
+	  }
+	  @DataProvider(name = "DP5")
+	  public Object[][] createData5() throws Exception{
+	      Object[][] retObjArr=SeleniumHelper.getTableArray("WaspTestData.xls",
+	              "Test_001", "rejecteAccessToLab");
+	      
+	      return(retObjArr);
+	  }
+	  @DataProvider(name = "DP6")
+	  public Object[][] createData6() throws Exception{
+	      Object[][] retObjArr=SeleniumHelper.getTableArray("WaspTestData.xls",
+	              "Test_001", "rejectCreateNewLabRequest");
+	      
+	      return(retObjArr);
+	  }
+
 }

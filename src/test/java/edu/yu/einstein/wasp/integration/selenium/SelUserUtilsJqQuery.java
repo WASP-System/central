@@ -1,10 +1,10 @@
 package edu.yu.einstein.wasp.integration.selenium;
 
 import org.openqa.selenium.By;
-import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -12,23 +12,7 @@ import edu.yu.einstein.wasp.test.util.SeleniumHelper;
 
 
 public class SelUserUtilsJqQuery extends SelBaseTest {
-  
-  
-	/**
-	 * 
-	 * @return retObjArr
-	 * @throws Exception
-	 */
-	@DataProvider(name = "DP1")
-	public Object[][] createData1() throws Exception{
-	    Object[][] retObjArr=SeleniumHelper.getTableArray("WaspTestData.xls",
-	        "Test_001", "addNewUserJQuery");
-	    return(retObjArr);
-	}
-	  
-	
-	  //private SelUserUtilsJqGrid page;
-	  
+ 	  
 	  //TO DO:
 	  @Test (groups = "integration-tests",  dataProvider = "DP1")
 	  public void f(String sUserName, String sUserPass) {
@@ -72,10 +56,22 @@ public class SelUserUtilsJqQuery extends SelBaseTest {
 		  
 	  }
 	  
-	  	public void getValidationbyTextinput(WebElement FieldId, String Input) {
-	      FieldId.clear();
-	      FieldId.sendKeys(Input,Keys.TAB);
-	      Actions actions = new Actions(driver);
-	      actions.moveToElement(FieldId).perform();
-	  } 
+	   @AfterClass
+	   public void tearDown(){
+		   //driver.close();
+		     
+	   } 
+	  
+	  /**
+	   * 
+	   * @return retObjArr
+	   * @throws Exception
+	   */
+		@DataProvider(name = "DP1")
+		public Object[][] createData1() throws Exception{
+		    Object[][] retObjArr=SeleniumHelper.getTableArray("WaspTestData.xls",
+		        "Test_001", "addNewUserJQuery");
+		    return(retObjArr);
+		}
+	  
 }

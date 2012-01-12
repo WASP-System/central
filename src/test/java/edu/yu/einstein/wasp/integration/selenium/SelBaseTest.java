@@ -35,7 +35,7 @@ public class SelBaseTest {
 
 	    // Add more if needed
 	    driver = new FirefoxDriver(profile);
-
+	    
 		
 		//driver = new FirefoxDriver();
    		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);

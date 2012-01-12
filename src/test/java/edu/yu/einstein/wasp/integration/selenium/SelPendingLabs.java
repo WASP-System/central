@@ -23,27 +23,6 @@ public class SelPendingLabs extends SelBaseTest{
   
   /**
    * 
-   * @return retObjArr
-   * @throws Exception
-   */
-  @DataProvider(name = "DP1")
-  public Object[][] createData1() throws Exception{
-      Object[][] retObjArr=SeleniumHelper.getTableArray("WaspTestData.xls",
-              "Test_001", "pendingLabApprove");
-      
-      return(retObjArr);
-  }
-  
-  @DataProvider(name = "DP2")
-  public Object[][] createData2() throws Exception{
-      Object[][] retObjArr=SeleniumHelper.getTableArray("WaspTestData.xls",
-              "Test_001", "pendingLabReject");
-      
-      return(retObjArr);
-  }
-  
-  /**
-   * 
    * @param sUserName
    * @param sUserPass
    * @param sLab
@@ -66,6 +45,7 @@ public class SelPendingLabs extends SelBaseTest{
       
       
   }
+  
   
   /**
    *  	
@@ -95,5 +75,32 @@ public class SelPendingLabs extends SelBaseTest{
   @AfterClass
   public void afterClass() {
   }
+  
+  /**
+   * 
+   * @return
+   * @throws Exception
+   */
+  @DataProvider(name = "DP1")
+  public Object[][] createData1() throws Exception{
+      Object[][] retObjArr=SeleniumHelper.getTableArray("WaspTestData.xls",
+              "Test_001", "pendingLabApprove");
+      
+      return(retObjArr);
+  }
+  
+  /**
+   * 
+   * @return
+   * @throws Exception
+   */
+  @DataProvider(name = "DP2")
+  public Object[][] createData2() throws Exception{
+      Object[][] retObjArr=SeleniumHelper.getTableArray("WaspTestData.xls",
+              "Test_001", "pendingLabReject");
+      
+      return(retObjArr);
+  }
+  
 
 }

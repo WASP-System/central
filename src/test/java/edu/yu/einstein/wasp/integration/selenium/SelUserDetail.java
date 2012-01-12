@@ -21,19 +21,6 @@ public class SelUserDetail extends SelBaseTest {
 	  public void beforeClass() {
 		  
 	  }
-	  
-	  /**
-	   * 
-	   * @return retObjArr
-	   * @throws Exception
-	   */
-	  @DataProvider(name = "DP1")
-	  public Object[][] createData1() throws Exception{
-	      Object[][] retObjArr=SeleniumHelper.getTableArray("WaspTestData.xls",
-	              "Test_001", "userDetail");
-	      
-	      return(retObjArr);
-	  }
 	 	  
 	  /**
 	   * 
@@ -92,7 +79,7 @@ public class SelUserDetail extends SelBaseTest {
 		  
 	  }
 	  
-	  /**
+	   /**
 	   * 
 	   * @param sUserName
 	   * @param sUserPass
@@ -120,5 +107,18 @@ public class SelUserDetail extends SelBaseTest {
 	  @AfterClass
 	  public void afterClass() {
 	  
+	  }
+	  
+	  /**
+	   * 
+	   * @return retObjArr
+	   * @throws Exception
+	   */
+	  @DataProvider(name = "DP1")
+	  public Object[][] createData1() throws Exception{
+	      Object[][] retObjArr=SeleniumHelper.getTableArray("WaspTestData.xls",
+	              "Test_001", "userDetail");
+	      
+	      return(retObjArr);
 	  }
 }

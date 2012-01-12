@@ -19,7 +19,7 @@ import edu.yu.einstein.wasp.test.util.SeleniumHelper;
 public class SelNewPI extends SelBaseTest {
 		
 	/**
-	 * Simulates Wasp login by different users using WaspTestData.xls
+	 * Creates PIs using WaspTestData.xls
 	 *
 	 * 
 	 */
@@ -36,20 +36,7 @@ public class SelNewPI extends SelBaseTest {
 		
 	}
 
-    
-    /**
-     * 
-     * @return retObjArr
-     * @throws Exception
-     */
-    @DataProvider(name = "DP1")
-    public Object[][] createData1() throws Exception{
-        Object[][] retObjArr=SeleniumHelper.getTableArray("WaspTestData.xls",
-                "Test_001", "addNewPI");
-        return(retObjArr);
-    }
-     
-    /**
+	/**
      * 
      * @param sUrl
      * @param sLogin
@@ -125,36 +112,55 @@ public class SelNewPI extends SelBaseTest {
 				
      	
     }
+  	
+  	 @AfterClass
+     public void tearDown(){
+         //driver.close();
+         
+     } 
+  	
+  	/**
+     * 
+     * @return retObjArr
+     * @throws Exception
+     */
+    @DataProvider(name = "DP1")
+    public Object[][] createData1() throws Exception{
+        Object[][] retObjArr=SeleniumHelper.getTableArray("WaspTestData.xls",
+                "Test_001", "addNewPI");
+        return(retObjArr);
+    }
+    
     /**
      * 
      * @throws SQLException
      */
   	@Test (groups="integration-tests")
-  	public void confirmEmailAuth() throws SQLException {
-  		Statement s = connection.createStatement();
-  		s.executeQuery("Select cea.authcode, up.email from confirmemailauth cea, userpending up where up.userpendingid=cea.userpendingid");
-  		ResultSet rs = s.getResultSet();
+  	public void confirmEmailAuth() {
   		
-  		while (rs.next ())  {
-  			String sAuthCode = rs.getString("authcode");
-  			String sEmail = rs.getString("email");
-  			
-  			driver.get("http://localhost:8080/wasp/auth/confirmPIEmail.do?authcode="+ sAuthCode+"&email="+sEmail);
-  	        
-  			//Assert.assertEquals(driver.getCurrentUrl(), "http://localhost:8080/wasp/auth/newpi/emailok.do");
-  			CharSequence csValue = "/wasp/auth/newpi/emailok.do";
-  			Assert.assertTrue(driver.getCurrentUrl().contains(csValue));
-  	    }
-  	    rs.close ();
-  	    s.close ();
+  		try {
+	  		Statement s = connection.createStatement();
+	  		s.executeQuery("Select cea.authcode, up.email from confirmemailauth cea, userpending up where up.userpendingid=cea.userpendingid");
+	  		ResultSet rs = s.getResultSet();
+	  		
+	  		while (rs.next ())  {
+	  			String sAuthCode = rs.getString("authcode");
+	  			String sEmail = rs.getString("email");
+	  			
+	  			driver.get("http://localhost:8080/wasp/auth/confirmPIEmail.do?authcode="+ sAuthCode+"&email="+sEmail);
+	  	        
+	  			//Assert.assertEquals(driver.getCurrentUrl(), "http://localhost:8080/wasp/auth/newpi/emailok.do");
+	  			CharSequence csValue = "/wasp/auth/newpi/emailok.do";
+	  			Assert.assertTrue(driver.getCurrentUrl().contains(csValue));
+	  	    }
+	  	    rs.close ();
+	  	    s.close ();
+  		}
+  		catch (SQLException e){
+  		
+  		}
         
   	}
-  
-    @AfterClass
-    public void tearDown(){
-        //driver.close();
-        
-    } 
     	  
 }
 
