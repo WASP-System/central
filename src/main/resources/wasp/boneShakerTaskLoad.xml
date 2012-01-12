@@ -6,9 +6,14 @@
         http://www.springframework.org/schema/beans/spring-beans-3.1.xsd"
     default-autowire="byName">
 
+  <bean class="edu.yu.einstein.wasp.model.UiField" id="boneShakerApprovalUiField">
+    <property name="locale" value="en_US" />
+    <property name="area" value="boneShakerApprovalTask" />
+  </bean>
+
   <bean class="edu.yu.einstein.wasp.model.UiField" id="boneShakerUiField">
     <property name="locale" value="en_US" />
-    <property name="area" value="boneShaker" />
+    <property name="area" value="boneShakerTask" />
   </bean>
 
   <bean id="boneShakerApprovalTask" class="edu.yu.einstein.wasp.load.TaskLoadService">
@@ -16,7 +21,7 @@
     <property name="name" value="Bone Shaker Approval" />
     <property name="uiFields">
       <list>
-        <bean parent="boneShakerUiField">
+        <bean parent="boneShakerApprovalUiField">
           <property name="name" value="canWeShake" />
           <property name="attrName" value="metaposition" />
           <property name="attrValue" value="10" />

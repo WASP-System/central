@@ -71,13 +71,6 @@
           <property name="attrValue" value="Chip Seq A" />
         </bean>
 
-        <bean class="edu.yu.einstein.wasp.model.UiField">
-          <property name="locale" value="en_US" />
-          <property name="area" value="chipseqpage2" />
-          <property name="name" value="chipseqMeta" />
-          <property name="attrName" value="label" />
-          <property name="attrValue" value="Chip Seq" />
-        </bean>
       </list>
     </property>
 
