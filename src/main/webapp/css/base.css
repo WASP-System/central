@@ -1,0 +1,102 @@
+BODY	{
+	font-size: 13px;
+	font-family: Helevetica, "MS Trebuchet", sans-serif;
+	line-height: 16px;
+	width:960px;
+	margin:15px auto;
+	}
+
+H1	{
+	font-size: 1.6em;
+	margin-bottom: 20px;
+	}
+
+P	{
+	margin:0 0 20px 0;
+	}
+LABEL, TD.label	{font-weight: bold;}
+
+TD	{padding: 5px;}
+
+
+.right	{float: right;}
+
+#statusMessage	{
+	background: #f4f9fc;
+	border: 1px solid #8fc0e3;
+	color: #2971a5;
+	padding: 10px;
+	}
+	
+#statusUpload	{
+	background: #f8fff0;
+	border: 1px solid #bbee77;
+	color: #234600;
+	padding: 10px;
+	}
+
+#error	{
+	background: #fef5f1;
+	border: 1px solid #ed541d;
+	color: #8c2e0b;
+	padding: 10px;
+	}
+
+HEADER#pageHeader	{
+	margin-bottom: 20px;
+	}
+
+SECTION#jobDetails	{
+	background: #f7f7f7;
+	border: 1px solid #ddd;
+	color: #666;
+	margin: 20px 0;
+	padding: 10px;
+	}
+
+#jobDetails .info .item	{
+	border-bottom: 1px solid #e7e7e7;
+	padding: 4px;
+	}
+
+
+NAV#jobSubmit	{margin: 10px 0;}
+
+	
+INPUT[type="submit"],
+.button, 
+NAV#jobSubmit A,
+.fm-button	{
+	padding: 4px 8px;
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 12px;
+	font-weight: bold;
+	line-height: 1;
+	color: #444;
+	border: none;
+	text-shadow: 0 1px 1px rgba(255, 255, 255, 0.85);
+	background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#fff), to(#bbb));
+	background-image: -moz-linear-gradient(0% 100% 90deg, #bbb, #fff);
+	background-color: #E6E6E6;
+	-webkit-border-radius: 14px;
+	-moz-border-radius: 14px;
+	-o-border-radius: 14px;
+	border-radius: 14px;
+	-webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+	-moz-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+	margin-right: 10px;
+	text-decoration: none;
+	}
+
+
+/** POPUP WINDOWS **/
+
+.ui-widget-header	{padding: 4px 10px;}
+
+.EditTable	{
+	margin: 10px;
+	width: 95%;
+	}
+
+HR.ui-widget-content	{margin: 10px !important;}
