@@ -4,20 +4,7 @@
 
 <h1>Create a Job -- Cell Assignment </h1>
 
-<div class="jobsubmitinfobox">
-  <div class="jobsubmitinfo">
-    <span class="label">Job: </span>
-    <span class="value"><c:out value="${jobDraftDb.name}" /></span>
-  </div>
-  <div class="jobsubmitinfo">
-    <span class="label">Lab: </span>
-    <span class="value"><c:out value="${jobDraftDb.lab.name}" /></span>
-  <div>
-  <div class="jobsubmitinfo">
-    <span class="label">Workflow: </span>
-    <span class="value"><c:out value="${jobDraftDb.workflow.name}" /></span>
-  </div>
-</div>
+<%@ include file="/WEB-INF/jsp/jobsubmit/jobsubmitinfo.jsp" %>
 
 <div class="jobsubmitnav">
   <a href="<c:url value="/jobsubmit/modify/${jobDraft.jobDraftId}.do"/>">modify</a>

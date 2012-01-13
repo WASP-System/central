@@ -4,25 +4,7 @@
 
 <h1>Create a Job -- META</h1>
 
-
-<div class="jobsubmitinfobox">
-  <div class="jobsubmitinfo">
-    <span class="label">Job: </span>
-    <span class="value"><c:out value="${jobDraftDb.name}" /></span>
-  </div>
-  <div class="jobsubmitinfo">
-    <span class="label">Lab: </span>
-    <span class="value"><c:out value="${jobDraftDb.lab.name}" /></span>
-  <div>
-  <div class="jobsubmitinfo">
-    <span class="label">Workflow: </span>
-    <span class="value"><c:out value="${jobDraftDb.workflow.name}" /></span>
-  </div>
-</div>
-
-<div class="jobsubmitnav">
-  <a href="<c:url value="/jobsubmit/modify/${jobDraft.jobDraftId}.do"/>">modify</a>
-</div>
+<%@ include file="/WEB-INF/jsp/jobsubmit/jobsubmitinfo.jsp" %>
 
 <div class="instr">
 {Instructions} In publishing and graphic design, lorem ipsum[p][1] is placeholder text (filler text) commonly used to demonstrate the graphics elements of a document or visual presentation, such as font, typography, and layout. The lorem ipsum text is typically a section of a Latin text by Cicero with words altered, added and removed that make it nonsensical in meaning and not proper Latin.[1]

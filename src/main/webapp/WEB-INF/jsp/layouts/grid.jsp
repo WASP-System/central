@@ -1,28 +1,19 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
  <%--  Template for pages containing JQGrid table  --%> 
-<html>
-
+<%@ page import="edu.yu.einstein.wasp.dao.impl.DBResourceBundle" %>
+<%@ include file="/WEB-INF/jsp/taglib.jsp" %>
+<!DOCTYPE html>
+<html lang="en">
 <head>
- <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />  
- <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
- 
- <title> 	 	
-     <wasp:pageTitle/> 
- </title>
-  
-<link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/jquery/jquery-ui.css" />
-<link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/jquery/ui.jqgrid.css" />
-<style>
+  <meta charset="utf-8" />
+  <title>
+    <wasp:pageTitle/>
+  </title>
+  <link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/reset.css" />
+  <link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/base.css" />
+  <link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/jquery/jquery-ui.css" />
+  <link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/jquery/ui.jqgrid.css" />
 
-html, body { 
-	margin: 0;			/* Remove body margin/padding */
-	padding: 0;
-	/* overflow: hidden; */	/* Remove scroll bars on browser window */	
-    font-size: 100%;
-}
-
-</style>	
-	
   <script src="/wasp/scripts/jquery/jquery-1.6.2.js" type="text/javascript"></script>
   <script src="/wasp/scripts/jquery/ajaxfileupload.js" type="text/javascript"></script>
   
@@ -196,8 +187,7 @@ html, body {
 
 </c:forEach>
 
-
-if (_url.indexOf('/uiField/')==-1) _enableFilterToolbar=false;//not sure who/why force _enableFilterToolbar to false. add an exception for uiField. Sasha 12.1.12
+_enableFilterToolbar=false;
 
 <%-- function to help with debugging --%>
 function odump(object, depth, max){
@@ -468,9 +458,7 @@ createGrid();
 <body>
 
 <tiles:insertAttribute name="banner-content" />
-
 <tiles:insertAttribute name="body-content" />
-
 <tiles:insertAttribute name="footer-content" />
 
 </body>
