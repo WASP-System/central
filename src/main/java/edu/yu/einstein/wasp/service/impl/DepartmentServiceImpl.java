@@ -157,5 +157,17 @@ public class DepartmentServiceImpl extends WaspServiceImpl<Department> implement
 	    }
 		return labsPendingDaApprovalList.size() + jobsPendingDaApprovalList.size();//total number of tasksPendingDaApproval
   }
+  
+  public List<Department> getDepartmentsByName (final String name) {
+	  Department d=getDepartmentByName (name);
+	  
+	  List<Department> result = new ArrayList<Department>();
+	  
+	  if (d==null) return result;
+	  
+	  result.add(d);
+	  
+	  return result;
+  }
 }
 

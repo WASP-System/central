@@ -27,9 +27,12 @@
  <!-- See http://static.springsource.org/spring/docs/3.0.x/javadoc-api/org/springframework/web/servlet/view/tiles2/TilesConfigurer.html -->
  <!-- The actual tiles templates are in the tiles-definitions.xml -->
  <bean id="tilesConfigurer" class="org.springframework.web.servlet.view.tiles2.TilesConfigurer">
+ <!-- property name="tilesInitializer">
+    <bean class="org.springframework.web.servlet.view.tiles2.WaspTilesInitializer"/>
+ </property-->
   <property name="definitions">
    <list>
-    <value>/WEB-INF/tiles-definitions.xml</value>
+    <value>/WEB-INF/tiles/tiles-definitions.xml</value>
    </list>
   </property>
  </bean> 

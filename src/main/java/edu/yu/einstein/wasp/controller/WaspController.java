@@ -1,11 +1,14 @@
 package edu.yu.einstein.wasp.controller;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -20,6 +23,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
+
+import edu.yu.einstein.wasp.model.Department;
 import edu.yu.einstein.wasp.model.MetaAttribute.Country;
 import edu.yu.einstein.wasp.model.MetaAttribute.State;
 import edu.yu.einstein.wasp.service.DepartmentService;
@@ -43,8 +48,12 @@ public class WaspController {
 
   @Autowired
   private DepartmentService departmentService;
+    
+  public DepartmentService getDepartmentService() {
+	return departmentService;
+  }
   
-  @Autowired
+@Autowired
   private UserDetailsService userDetailsService;
 
   @Autowired
@@ -67,10 +76,23 @@ public class WaspController {
     m.addAttribute("countries", Country.getList());
     m.addAttribute("states", State.getList());
     m.addAttribute("locales", LOCALES);
-    m.addAttribute("departments", departmentService.findAll());
+    m.addAttribute("departments", strip(departmentService.findAll()));
+   
   }
 
-
+  private List<Department> strip(List<Department> in) {
+	  if (in==null) return null;
+	  
+	  List<Department> result=new ArrayList<Department>();
+	  for(Department d:in) {
+		  Department dep=new Department();
+		  dep.setDepartmentId(d.getDepartmentId());
+		  dep.setName(d.getName());
+		  result.add(dep);
+	  }
+	  return result;
+	  
+  }
 
   public void doReauth() {
     SecurityContext securityContext= SecurityContextHolder.getContext();

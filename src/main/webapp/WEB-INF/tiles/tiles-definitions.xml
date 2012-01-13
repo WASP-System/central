@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 2.0//EN"
+       "http://tiles.apache.org/dtds/tiles-config_2_0.dtd">
+<!-- Tiles definitions. Attention! Locale-specific page titles are stored under pageTitle.definition.label key in uifield database table. Sasha. -->
+<tiles-definitions>
+	<definition name="template-base" template="/WEB-INF/jsp/layouts/base.jsp">
+		<put-attribute name="head-js" value="" />
+		<put-attribute name="banner-content" value="/WEB-INF/jsp/sections/banner.jsp" />
+		<put-attribute name="body-content" value="" />
+		<put-attribute name="footer-content" value="/WEB-INF/jsp/sections/footer.jsp" />
+	</definition>
+
+	<definition name="template-grid" template="/WEB-INF/jsp/layouts/grid.jsp">
+		<put-attribute name="area" value="" />
+		<put-attribute name="grid-columns" value="" />
+		<put-attribute name="head-js" value="" />
+		<put-attribute name="subgrid-columns" value="" />
+		<put-attribute name="grid-customAttributes" value="" />
+		<put-attribute name="toolbar-buttons" value="" />
+		<put-attribute name="banner-content" value="/WEB-INF/jsp/sections/banner.jsp" />
+		<put-attribute name="body-content" value="" />
+		<put-attribute name="footer-content" value="/WEB-INF/jsp/sections/footer.jsp" />
+	</definition>
+
+	<definition name="auth/login" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/auth/login.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/auth/login.jsp" />
+	</definition>
+	<definition name="auth/resetpassword/email" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/auth/resetpassword/email.jsp" />
+	</definition>
+	<definition name="auth/resetpassword/request" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/auth/resetpassword/request.jsp" />
+	</definition>
+	<definition name="auth/newuser/form" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/auth/newuser/form.jsp" />
+	</definition>
+	<definition name="auth/newuser/emailok" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/auth/newuser/emailok.jsp" />
+	</definition>
+	<definition name="auth/newuser/created" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/auth/newuser/created.jsp" />
+	</definition>
+	<definition name="auth/newpi/institute" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/auth/newpi/institute.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/auth/newpi/institute.jsp" />
+	</definition>
+	<definition name="auth/newpi/form" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/auth/newpi/form.jsp" />
+	</definition>
+	<definition name="auth/newpi/emailok" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/auth/newpi/emailok.jsp" />
+	</definition>
+	<definition name="auth/newpi/created" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/auth/newpi/created.jsp" />
+	</definition>
+	<definition name="auth/resetpassword/authcodeform" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/auth/resetpassword/authcodeform.jsp" />
+	</definition>
+	<definition name="auth/resetpassword/form" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/auth/resetpassword/form.jsp" />
+	</definition>
+	<definition name="auth/resetpassword/ok" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/auth/resetpassword/ok.jsp" />
+	</definition>
+	<definition name="auth/confirmemail/authcodeform" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/auth/confirmemail/authcodeform.jsp" />
+	</definition>
+	<definition name="auth/confirmemail/emailchanged" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/auth/confirmemail/emailchanged.jsp" />
+	</definition>
+	<definition name="auth/confirmemail/userloginchanged" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/auth/confirmemail/userloginchanged.jsp" />
+	</definition>
+	<definition name="auth/confirmemail/userloginandemailchanged" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/auth/confirmemail/userloginandemailchanged.jsp" />
+	</definition>
+	<definition name="auth/confirmemail/requestEmailChange" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/auth/confirmemail/requestEmailChange.jsp" />
+	</definition>
+	<definition name="auth/confirmemail/emailupdateok" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/auth/confirmemail/emailupdateok.jsp" />
+	</definition>
+	<definition name="dashboard" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/dashboard.jsp" />
+	</definition>
+	<definition name="user/detail_rw" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/user/detail_rw.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/user/detail_rw.jsp" />
+	</definition>
+	<definition name="user/detail_ro" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/user/detail_ro.jsp" />
+	</definition>
+	<definition name="lab/detail_rw" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/lab/detail_rw.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/lab/detail_rw.jsp" />
+	</definition>
+	<definition name="lab/detail_ro" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/lab/detail_ro.jsp" />
+	</definition>
+	<definition name="lab/user_list" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/lab/user_list.jsp" />
+	</definition>
+	<definition name="lab/pending/detail_ro" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/lab/pendinglab/detail_ro.jsp" />
+	</definition>
+	<definition name="lab/pending/detail_rw" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/lab/pendinglab/detail_rw.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/lab/pendinglab/detail_rw.jsp" />
+	</definition>
+	<definition name="lab/user_manager" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/lab/user_manager.jsp" />
+	</definition>
+	<definition name="lab/newrequest" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/lab/newrequest.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/lab/newrequest.jsp" />
+	</definition>
+	<definition name="lab/pendinglmapproval/list" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/lab/pendinglmapproval/list.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/lab/pendinglmapproval/list.jsp" />
+	</definition>
+	<definition name="user/mypassword" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/user/mypassword.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/user/mypassword.jsp" />
+	</definition>
+	<definition name="department/list" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/department/list.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/department/list.jsp" />
+	</definition>
+	<definition name="sample/list" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/sample/list.jsp" />
+	</definition>
+	<definition name="sample/detail" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/sample/detail.jsp" />
+	</definition>
+
+	<definition name="sampleDnaToLibrary/detail" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/sampleDnaToLibrary/detail.jsp" />
+	</definition>
+	<definition name="sampleDnaToLibrary/addLibraryMeta" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/sampleDnaToLibrary/detail.jsp" />
+	</definition>
+	<definition name="sampleDnaToLibrary/signHere" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/sampleDnaToLibrary/signHere.jsp" />
+	</definition>
+	<definition name="sampleDnaToLibrary/ok" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/sampleDnaToLibrary/ok.jsp" />
+	</definition>
+
+	<definition name="resource/list" extends="template-grid">
+		<put-attribute name="area" value="resource" />
+		<put-attribute name="grid-columns" value="/WEB-INF/jsp/resource/grid_columns.jsp" />
+		<put-attribute name="subgrid-columns" value="/WEB-INF/jsp/resource/subgrid_columns.jsp" />
+        <put-attribute name="grid-customAttributes" value="/WEB-INF/jsp/resource/grid_customAttributes.jsp" />
+        <put-attribute name="body-content" value="/WEB-INF/jsp/resource/list.jsp" />
+	</definition>
+	<definition name="resource/detail_ro" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/resource/detail_ro.jsp" />
+	</definition>
+	<definition name="resource/detail_rw" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/resource/detail_rw.jsp" />
+	</definition>
+	<definition name="resource/create" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/resource/create.jsp" />
+	</definition>
+	<definition name="run/list" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/run/list.jsp" />
+	</definition>
+	<definition name="run/detail" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/run/detail.jsp" />
+	</definition>
+	<definition name="task/list" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/task/list.jsp" />
+	</definition>
+	<definition name="task/detail" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/task/detail.jsp" />
+	</definition>
+	<definition name="task/fmrequote/list" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/task/fmrequote/list.jsp" />
+	</definition>
+	<definition name="task/samplereceive/list" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/task/samplereceive/list.jsp" />
+	</definition>
+	 <!--<definition name="department/detail" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/department/detail.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/department/detail.jsp" />
+	</definition> -->
+	<definition name="department/detail" extends="template-grid">
+		<put-attribute name="area" value="department" />
+		<put-attribute name="grid-columns" value="/WEB-INF/jsp/department/grid_columns.jsp" />
+		<!-- put-attribute name="subgrid-columns" value="/WEB-INF/jsp/department/subgrid_columns.jsp" /--> 
+		<put-attribute name="grid-customAttributes" value="/WEB-INF/jsp/department/grid_customAttributes.jsp" />
+		<put-attribute name="toolbar-buttons" value="/WEB-INF/jsp/department/toolbar_buttons.jsp" />
+		<put-attribute name="head-js" value="/WEB-INF/jsp/department/detail.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/department/detail.jsp" />
+	</definition>
+	<definition name="sysrole/list" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/sysrole/list.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/sysrole/list.jsp" />
+	</definition>
+	<definition name="jobsubmit/list" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/jobsubmit/list.jsp" />
+	</definition>
+	<definition name="jobsubmit/create" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/jobsubmit/create.jsp" />
+	</definition>
+	<definition name="jobsubmit/metaform" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/jobsubmit/metaform.jsp" />
+	</definition>
+	<definition name="jobsubmit/resource" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/jobsubmit/resource.jsp" />
+	</definition>
+	<definition name="jobsubmit/cell" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/jobsubmit/cell.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/jobsubmit/cell.jsp" />
+	</definition>
+	<definition name="jobsubmit/verify" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/jobsubmit/verify.jsp" />
+	</definition>
+	<definition name="jobsubmit/ok" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/jobsubmit/ok.jsp" />
+	</definition>
+	<definition name="job/detail" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/job/detail.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/job/detail.jsp" />
+	</definition>
+	<definition name="job/pendingjob/detail_ro" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/job/pendingjob/detail_ro.jsp" />
+	</definition>
+	<definition name="facility/platformunit/detail_rw" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/facility/platformunit/detail_rw.jsp" />
+	</definition>
+	<definition name="facility/platformunit/ok" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/facility/platformunit/ok.jsp" />
+	</definition>
+	<definition name="lab/pendinguser/list" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/lab/pendinguser/list.jsp" />
+	</definition>
+	<definition name="department/dapendingtasks" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/department/dapendingtasks.jsp" />
+	</definition>
+
+	<definition name="user/list" extends="template-grid">
+		<put-attribute name="area" value="user" />
+		<put-attribute name="grid-columns" value="/WEB-INF/jsp/user/grid_columns.jsp" />
+		<put-attribute name="subgrid-columns" value="/WEB-INF/jsp/user/subgrid_columns.jsp" />
+		<put-attribute name="grid-customAttributes" value="/WEB-INF/jsp/user/grid_customAttributes.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/user/list.jsp" />
+	</definition>
+	<definition name="lab/list" extends="template-grid">
+		<put-attribute name="area" value="lab" />
+		<put-attribute name="grid-columns" value="/WEB-INF/jsp/lab/grid_columns.jsp" />
+		<put-attribute name="subgrid-columns" value="/WEB-INF/jsp/lab/subgrid_columns.jsp" />
+		<put-attribute name="grid-customAttributes" value="/WEB-INF/jsp/lab/grid_customAttributes.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/lab/list.jsp" />
+	</definition>
+	<definition name="uifield/list" extends="template-grid">
+		<put-attribute name="area" value="uiField" />
+		<put-attribute name="grid-columns" value="/WEB-INF/jsp/uiField/grid_columns.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/uiField/list.jsp" />
+	</definition>
+	<definition name="jobsubmit/sample" extends="template-grid">
+		<put-attribute name="area" value="sampleDraft" />
+		<put-attribute name="grid-columns" value="/WEB-INF/jsp/jobsubmit/sample_grid_columns.jsp" />
+		<put-attribute name="toolbar-buttons" value="/WEB-INF/jsp/jobsubmit/toolbar-buttons.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/jobsubmit/sample.jsp" />
+	</definition>
+	<definition name="facility/platformunit/list" extends="template-grid">
+		<put-attribute name="area" value="platformunit" />
+		<put-attribute name="grid-columns" value="/WEB-INF/jsp/facility/platformunit/sample_grid_columns.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/facility/platformunit/sample.jsp" />
+	</definition>
+	<definition name="task/fmpayment/list" extends="template-grid">
+		<put-attribute name="area" value="platformunit" />
+		<put-attribute name="grid-columns" value="/WEB-INF/jsp/task/fmpayment/payment_grid_columns.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/task/fmpayment/payment.jsp" />
+	</definition>
+
+
+
+	<definition name="workflow/list" extends="template-base">
+		<put-attribute name="area" value="workflow" />
+		<put-attribute name="grid-columns" value="/WEB-INF/jsp/workflow/grid_columns.jsp" />
+		<put-attribute name="subgrid-columns" value="/WEB-INF/jsp/workflow/subgrid_columns.jsp" />
+        	<put-attribute name="grid-customAttributes" value="/WEB-INF/jsp/workflow/grid_customAttributes.jsp" />
+	        <put-attribute name="body-content" value="/WEB-INF/jsp/workflow/list.jsp" />
+	</definition>
+	<definition name="workflow/detail_ro" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/workflow/detail_ro.jsp" />
+	</definition>
+	<definition name="workflow/detail_rw" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/workflow/detail_rw.jsp" />
+	</definition>
+
+	<definition name="hello" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/jobsubmit/chipseqform" />
+	</definition>
+
+	<definition name="jobsubmit/chipseqform" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/chipseqpair.jsp" />
+	</definition>
+
+</tiles-definitions>
+

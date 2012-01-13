@@ -135,13 +135,20 @@
 
 	editoptions={size:20};
  	edittype='text';
- 	
-   <%-- populate "select" inputs --%>	 
-   <c:if test="${not empty _meta.property.control}">
+
+   <%-- poluate "select" inputs --%>	 
+   <c:if test="${not empty _meta.property.control}"> 
        editoptions={size:20,value:{}};
        edittype='select';
-  		<c:if test="${_meta.property.control.items != null}">  	
-  			<c:set var="selectItems" scope="request" value="${requestScope[_meta.property.control.items]}"/>
+  		<c:if test="${_meta.property.control.items != null}"> 
+  		    <c:set var="dot" value="."/>
+  			<c:if test="${fn:indexOf(_meta.property.control.items,dot) > -1}">
+  				<c:set var="selectItems" scope="request" value="${_meta.property.control.items}"/>
+  			</c:if>
+  			<c:if test="${fn:indexOf(_meta.property.control.items,dot) == -1}">
+  				<c:set var="selectItems" scope="request" value="${requestScope[_meta.property.control.items]}"/>
+  			</c:if>
+  			
   			<c:set var="itemValue" scope="request">${_meta.property.control.itemValue}</c:set>
   			<c:set var="itemLabel" scope="request">${_meta.property.control.itemLabel}</c:set>   	
   		</c:if>
@@ -162,7 +169,7 @@
  			editoptions['value'][_value]=_label;
  		}
  		
-  </c:if>          
+  </c:if>     
  		
   <%-- list of column names --%>
   colNames.push('${_meta.property.label}');
