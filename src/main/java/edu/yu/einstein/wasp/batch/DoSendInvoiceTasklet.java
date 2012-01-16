@@ -13,12 +13,10 @@ import org.springframework.stereotype.Component;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.List;
-import java.util.Date;
-import java.util.Map;
-import java.util.HashMap;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.ExpressionParser;
 
-import util.spring.PostInitialize;
+import java.util.*;
 
 /**
  * DoSendInvoiceStateProcessor
@@ -45,18 +43,19 @@ public class DoSendInvoiceTasklet extends org.springframework.batch.core.step.ta
 	StatejobService statejobService;
 
 	List<String> params;
-	public void setParams(List<String> s) { 
-		this.params = s; 
-		this.setCommand(org.springframework.util.StringUtils.collectionToDelimitedString(params, " "));
+	public void setParams(List<String> params) { 
+		this.params = params; 
+
+		List<String> parsedParams = new ArrayList<String>();
+		ExpressionParser parser = new SpelExpressionParser();
+		for (String s: params) {
+			parsedParams.add((String) parser.parseExpression(s).getValue());
+		}
+
+		this.setCommand(org.springframework.util.StringUtils.collectionToDelimitedString(parsedParams, " "));
 	}
 	public List<String> getParams() { return this.params;}
 
-	// afterPropertySet to reassemble the properties
-	@PostInitialize
-	void postInitialize() {
-		this.setCommand(org.springframework.util.StringUtils.collectionToDelimitedString(params, " "));
-
-	}
 
 
 	public State process(Object stateId) throws Exception {
