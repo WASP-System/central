@@ -16,6 +16,7 @@
     <property name="area" value="genericUiField" />
   </bean> 
 
+
 <!--
   <bean id="genericDnaSampleUiField" class="java.util.ArrayList">
     <constructor-arg>
@@ -126,6 +127,15 @@
           <property name="name" value="antibody" />
           <property name="attrName" value="metaposition" />
           <property name="attrValue" value="120" />
+        </bean>
+      </list>
+    </property>
+
+    <property name="meta">
+      <list>
+        <bean class="edu.yu.einstein.wasp.model.SubtypeSampleMeta">
+          <property name="k" value="targetLibrarySubtype" />
+          <property name="v" value="chipSeqLibrarySample" />
         </bean>
       </list>
     </property>
