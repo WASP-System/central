@@ -710,6 +710,22 @@ create table subtypesample (
   foreign key fk_subtypesample_tsid (typesampleid) references typesample(typesampleid)
 ) ENGINE=InnoDB charset=utf8;
 
+create table subtypesamplemeta (
+  subtypesamplemetaid int(10)  primary key auto_increment,
+  subtypesampleid int(10) ,
+
+  k varchar(250) , 
+  v varchar(250), 
+  position int(10)  default 0,
+
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
+
+  foreign key fk_subtypesamplemeta_sampleid (subtypesampleid) references subtypesample(subtypesampleid),
+  constraint unique index u_subtypesamplemeta_k_sid (k, subtypesampleid)
+) ENGINE=InnoDB charset=utf8;
+
+
 create table workflowsubtypesample (
   workflowsubtypesampleid int(10)  primary key auto_increment,
   workflowid int(10) ,
