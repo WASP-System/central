@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <project name="WASP">
+	<publishDate position="right"/>
+	<version position="right"/>
+	
 	<skin>
 		<groupId>org.apache.maven.skins</groupId>
 	        <artifactId>maven-fluido-skin</artifactId>
