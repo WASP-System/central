@@ -22,6 +22,23 @@
   <div><a href="<c:url value="/run/list.do"/>">- Run Utils</a></div>
   <div><a href="<c:url value="/task/list.do"/>">Task Utils</a></div>
   <div><a href="<c:url value="/workflow/list.do"/>">Workflow Utils</a></div>
+  
+  
+  <!--  
+  <div>
+  <a href="<c:url value="/lab/allpendinglmapproval/list.do"/>">Lab Management</a>&nbsp;
+  <c:choose>
+   <c:when test='${allLabManagerPendingTasks == 0}'>(No Pending PI/Lab Manager Tasks)
+   </c:when>
+   <c:otherwise>
+   <span style="color:red">
+   (<c:out value="${allLabManagerPendingTasks}" /> Pending PI/Lab Manager Task<c:if test='${allLabManagerPendingTasks != 1}'>s</c:if>)
+   </span>
+   </c:otherwise>
+     </c:choose>
+  </div>
+  -->  
+  
   </div>
 </sec:authorize>
 
@@ -55,9 +72,27 @@
 
 
 
-<sec:authorize access="hasRole('lu-*')">
+<sec:authorize access="hasRole('lu-*') or hasRole('god') or hasRole('ga')">
   <div>
   <h1>Lab Utils</h1>
+  
+  <sec:authorize access="hasRole('god') or hasRole('ga')">
+  <div>
+  <a href="<c:url value="/lab/allpendinglmapproval/list.do"/>">All Labs Management</a>&nbsp;
+  <c:choose>
+   <c:when test='${allLabManagerPendingTasks == 0}'>(No Pending PI/Lab Manager Tasks)
+   </c:when>
+   <c:otherwise>
+   <span style="color:red">
+   (<c:out value="${allLabManagerPendingTasks}" /> Pending PI/Lab Manager Task<c:if test='${allLabManagerPendingTasks != 1}'>s</c:if>)
+   </span>
+   </c:otherwise>
+     </c:choose>
+  </div>
+  <br />
+  </sec:authorize>
+  
+  
   <c:forEach items="${labs}" var="l">
     <div>
     <b><c:out value="${l.name}" /></b>
@@ -67,7 +102,7 @@
 	<div><a href="<c:url value="/lab/user_list/${l.labId}.do"/>">Lab Members</a></div>
 	</sec:authorize>
     <sec:authorize access="hasRole('lm-${l.labId}' )">
-      <div><a href="<c:url value="/lab/pendinguser/list/${l.labId}.do"/>">Pending User Approval</a></div>
+  <!--     <div><a href="<c:url value="/lab/pendinguser/list/${l.labId}.do"/>">Pending User Approval</a></div> -->
       <div><a href="<c:url value="/lab/user_manager/${l.labId}.do"/>">User Manager</a></div>
       <!-- div><a href="<c:url value="/task/lmapproval/list/${l.labId}.do"/>">Pending Lab Manager Approval</a></div-->
     <!--  <div><a href="<c:url value="/task/lmapproval/list/${l.labId}.do"/>">Tasks Pending PI/Lab Manager Approval</a> -->

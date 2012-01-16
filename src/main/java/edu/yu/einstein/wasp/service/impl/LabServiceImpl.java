@@ -13,6 +13,7 @@ package edu.yu.einstein.wasp.service.impl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -29,9 +30,11 @@ import edu.yu.einstein.wasp.model.Statejob;
 import edu.yu.einstein.wasp.model.Task;
 import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.service.LabService;
+import edu.yu.einstein.wasp.service.LabUserService;
 import edu.yu.einstein.wasp.service.RoleService;
 import edu.yu.einstein.wasp.service.StateService;
 import edu.yu.einstein.wasp.service.TaskService;
+import edu.yu.einstein.wasp.service.UserPendingService;
 
 @Service
 public class LabServiceImpl extends WaspServiceImpl<Lab> implements LabService {
@@ -42,6 +45,10 @@ public class LabServiceImpl extends WaspServiceImpl<Lab> implements LabService {
 	  private StateService stateService;
 	 @Autowired
 	  private RoleService roleService;
+	 @Autowired
+	  private UserPendingService userPendingService;
+	 @Autowired
+	  private LabUserService labUserService;
 	/**
 	 * labDao;
 	 *
@@ -145,6 +152,52 @@ public int getLabManagerPendingTasks(int labId, List<UserPending> newUsersPendin
 	  return newUsersPendingLmApprovalList.size() + existingUsersPendingLmApprovalList.size() + jobsPendingLmApprovalList.size();
   }
 
+  public int getAllLabManagerPendingTasks(){
+	  List<UserPending> newUsersPendingLmApprovalList = new ArrayList<UserPending>();
+	  List<LabUser> existingUsersPendingLmApprovalList = new ArrayList<LabUser>();
+	  List<Job> jobsPendingLmApprovalList = new ArrayList<Job>();
+	  return getAllLabManagerPendingTasks(newUsersPendingLmApprovalList, existingUsersPendingLmApprovalList, jobsPendingLmApprovalList);
+  
+  }
+  public int getAllLabManagerPendingTasks(List<UserPending> newUsersPendingLmApprovalList, List<LabUser> existingUsersPendingLmApprovalList, List<Job> jobsPendingLmApprovalList){
+	  
+	  Map themap = new HashMap();
+	  themap.put("status", "PENDING");
+	  //themap.put("labId", "NOT NULL");//this won't work
+	  List<UserPending> tempNewUsersPendingLmApprovalList = userPendingService.findByMap(themap);
+	  //remove those with labId being NULL (as these are new PI's and will be dealt with at the DepartmentAdmin level (approving a new lab)
+	  for(Iterator<UserPending> iter = tempNewUsersPendingLmApprovalList.iterator(); iter.hasNext();){//must go through iterator if want to remove object, or else get exception (http://www.rgagnon.com/javadetails/java-0619.html)
+		  UserPending up = iter.next();
+		  if(up.getLabId() != null){ 
+			  newUsersPendingLmApprovalList.add(up);
+		  }
+	  }
+	  
+	  //2 pending existing users
+	  Role role = roleService.getRoleByName("Lab Member Pending");	  
+	  themap.clear();
+	  themap.put("roleId", role.getRoleId());
+	  List<LabUser> tempExistingUsersPendingLmApprovalList = labUserService.findByMap(themap);
+	  for(LabUser lu : tempExistingUsersPendingLmApprovalList){
+		  existingUsersPendingLmApprovalList.add(lu);
+	  }
+	  
+	  //3 jobs awaiting PI approval	  
+	  Task task = taskService.getTaskByIName("PI Approval");
+	  themap.clear();
+	  themap.put("taskId", task.getTaskId());
+	  themap.put("status", "CREATED");
+	  List<State> stateList = stateService.findByMap(themap);
+	  for( int i = 0; i < stateList.size(); i++){
+			List<Statejob> statejobList = stateList.get(i).getStatejob();
+			for(Statejob stateJob : statejobList){				
+				jobsPendingLmApprovalList.add(stateJob.getJob());
+			}
+		}
+	
+	  return newUsersPendingLmApprovalList.size() + existingUsersPendingLmApprovalList.size() + jobsPendingLmApprovalList.size();
+
+  }
   
 }
 

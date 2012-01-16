@@ -57,6 +57,7 @@ public class DashboardController extends WaspController {
 		HashMap labMap = new HashMap();
 		
 		int departmentAdminPendingTasks = 0;
+		int allLabManagerPendingTasks = 0;
 		
 		for (String role: authenticationService.getRoles()) {			
 			
@@ -90,8 +91,11 @@ public class DashboardController extends WaspController {
 		
 		m.addAttribute("labs", labList); m.addAttribute("labmap", labMap);
 		m.addAttribute("jobs", jobList);
-		m.addAttribute("jobdrafts", jobDraftList);			
-
+		m.addAttribute("jobdrafts", jobDraftList);	
+		if(authenticationService.isGod() || authenticationService.hasRole("ga")){
+			allLabManagerPendingTasks = labService.getAllLabManagerPendingTasks();
+		}
+		m.addAttribute("allLabManagerPendingTasks", allLabManagerPendingTasks);
 		return "dashboard";
 	}
 }

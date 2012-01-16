@@ -35,10 +35,11 @@
     <p>
     <a href="/wasp/lab/detail_ro/<c:out value="${lab.departmentId}"/>/<c:out value="${lab.labId}"/>.do"><fmt:message key="lab.detail.label" /></a> 
 	</p>
+	<!--
     <h2><fmt:message key="labuser.request.label"/></h2>
     <c:if test="${empty labuserpending}">
     	<p><fmt:message key="userPending.no_pending_users.label"/></p>
-    </c:if>
+    </c:if>  
     <c:forEach items="${userpending}" var="up">
       <p>
       <c:out value="${up.firstName}" />
@@ -57,4 +58,4 @@
         <a href="<c:url value="/lab/labuserpending/reject/${lab.labId}/${up.labUserId}.do"/>"><fmt:message key="userPending.action_reject.label"/></a>
       </p>
     </c:forEach>
-    
+    -->

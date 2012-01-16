@@ -209,6 +209,15 @@ public class JobController extends WaspController {
 	    return "job/pendingjob/detail_ro";
   }
   
+  @RequestMapping(value = "/allpendinglmapproval/{action}/{labId}/{jobId}.do", method = RequestMethod.GET)
+  @PreAuthorize("hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('lm-' + #labId) or hasRole('pi-' + #labId)")
+	public String allPendingLmApproval(@PathVariable("action") String action, @PathVariable("labId") Integer labId, @PathVariable("jobId") Integer jobId, ModelMap m) {
+	  
+	  pendingJobApproval(action, jobId, "LM");//could use PI instead of LM
+	  
+	  return "redirect:/lab/allpendinglmapproval/list.do";	
+	}
+  
   @RequestMapping(value = "/pendinglmapproval/{action}/{labId}/{jobId}.do", method = RequestMethod.GET)
   @PreAuthorize("hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('lm-' + #labId) or hasRole('pi-' + #labId)")
 	public String pendingLmApproval(@PathVariable("action") String action, @PathVariable("labId") Integer labId, @PathVariable("jobId") Integer jobId, ModelMap m) {
