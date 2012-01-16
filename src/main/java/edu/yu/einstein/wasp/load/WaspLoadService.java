@@ -120,6 +120,19 @@ public abstract class WaspLoadService {
       Locale locale = new Locale(lang, cntry);
 
       ((WaspMessageSourceImpl) messageSource).addMessage(key, locale, f.getAttrValue());
+
+      // deletes the old one if exists
+      Map oldM  = new HashMap();
+      oldM.put("locale", f.getLocale());
+      oldM.put("area", f.getArea());
+      oldM.put("name", f.getName());
+      oldM.put("attrName", f.getAttrName());
+      oldUiFields = uiFieldService.findByMap(oldM);
+      for (UiField oldF: oldUiFields) {
+        uiFieldService.remove(oldF); 
+        uiFieldService.flush(oldF); 
+      }
+
       uiFieldService.save(f); 
     }
 
