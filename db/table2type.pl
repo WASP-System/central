@@ -216,7 +216,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.stereotype.Repository;
-import org.springframework.orm.jpa.JpaCallback;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.$t->{'Table'};
@@ -444,19 +443,12 @@ $c
 	\@SuppressWarnings("unchecked")
 	\@Transactional
 	public void updateBy$Var (final String area, final int $var, final List<$t->{'Table'}> metaList) {
+		entityManager.createNativeQuery("delete from $table where $var=:$var and k like :area").setParameter("$var", $var).setParameter("area", area + ".%").executeUpdate();
 
-		getJpaTemplate().execute(new JpaCallback() {
-
-			public Object doInJpa(EntityManager em) throws PersistenceException {
-				em.createNativeQuery("delete from $table where $var=:$var and k like :area").setParameter("$var", $var).setParameter("area", area + ".%").executeUpdate();
-
-				for ($t->{'Table'} m:metaList) {
-					m.set$Var($var);
-					em.persist(m);
-				}
-        			return null;
-			}
-		});
+		for ($t->{'Table'} m:metaList) {
+			m.set$Var($var);
+			entityManager.persist(m);
+		}
 	}
 
 
@@ -470,19 +462,12 @@ $c
 	\@SuppressWarnings("unchecked")
 	\@Transactional
 	public void updateBy$Var (final int $var, final List<$t->{'Table'}> metaList) {
+		entityManager.createNativeQuery("delete from $table where $var=:$var").setParameter("$var", $var).executeUpdate();
 
-		getJpaTemplate().execute(new JpaCallback() {
-
-			public Object doInJpa(EntityManager em) throws PersistenceException {
-				em.createNativeQuery("delete from $table where $var=:$var").setParameter("$var", $var).executeUpdate();
-
-				for ($t->{'Table'} m:metaList) {
-					m.set$Var($var);
-					em.persist(m);
-				}
-        			return null;
-			}
-		});
+		for ($t->{'Table'} m:metaList) {
+			m.set$Var($var);
+			entityManager.persist(m);
+		}
 	}
 
 
