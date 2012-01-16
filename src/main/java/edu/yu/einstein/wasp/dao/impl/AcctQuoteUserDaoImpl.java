@@ -44,19 +44,20 @@ public class AcctQuoteUserDaoImpl extends WaspDaoImpl<AcctQuoteUser> implements 
 	 * @return acctQuoteUser
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public AcctQuoteUser getAcctQuoteUserByQuoteUserId (final int quoteUserId) {
     		HashMap m = new HashMap();
 		m.put("quoteUserId", quoteUserId);
 
-		List<AcctQuoteUser> results = (List<AcctQuoteUser>) this.findByMap((Map) m);
+		List<AcctQuoteUser> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			AcctQuoteUser rt = new AcctQuoteUser();
 			return rt;
 		}
-		return (AcctQuoteUser) results.get(0);
+		return results.get(0);
 	}
 
 

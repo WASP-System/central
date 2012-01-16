@@ -44,19 +44,20 @@ public class WorkflowtyperesourceDaoImpl extends WaspDaoImpl<Workflowtyperesourc
 	 * @return workflowtyperesource
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public Workflowtyperesource getWorkflowtyperesourceByWorkflowtyperesourceId (final int workflowtyperesourceId) {
     		HashMap m = new HashMap();
 		m.put("workflowtyperesourceId", workflowtyperesourceId);
 
-		List<Workflowtyperesource> results = (List<Workflowtyperesource>) this.findByMap((Map) m);
+		List<Workflowtyperesource> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			Workflowtyperesource rt = new Workflowtyperesource();
 			return rt;
 		}
-		return (Workflowtyperesource) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -69,6 +70,7 @@ public class WorkflowtyperesourceDaoImpl extends WaspDaoImpl<Workflowtyperesourc
 	 * @return workflowtyperesource
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public Workflowtyperesource getWorkflowtyperesourceByWorkflowIdTypeResourceId (final int workflowId, final int typeResourceId) {
@@ -76,13 +78,13 @@ public class WorkflowtyperesourceDaoImpl extends WaspDaoImpl<Workflowtyperesourc
 		m.put("workflowId", workflowId);
 		m.put("typeResourceId", typeResourceId);
 
-		List<Workflowtyperesource> results = (List<Workflowtyperesource>) this.findByMap((Map) m);
+		List<Workflowtyperesource> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			Workflowtyperesource rt = new Workflowtyperesource();
 			return rt;
 		}
-		return (Workflowtyperesource) results.get(0);
+		return results.get(0);
 	}
 
 

@@ -44,19 +44,20 @@ public class LabUserDaoImpl extends WaspDaoImpl<LabUser> implements edu.yu.einst
 	 * @return labUser
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public LabUser getLabUserByLabUserId (final int labUserId) {
     		HashMap m = new HashMap();
 		m.put("labUserId", labUserId);
 
-		List<LabUser> results = (List<LabUser>) this.findByMap((Map) m);
+		List<LabUser> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			LabUser rt = new LabUser();
 			return rt;
 		}
-		return (LabUser) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -69,6 +70,7 @@ public class LabUserDaoImpl extends WaspDaoImpl<LabUser> implements edu.yu.einst
 	 * @return labUser
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public LabUser getLabUserByLabIdUserId (final int labId, final int UserId) {
@@ -76,13 +78,13 @@ public class LabUserDaoImpl extends WaspDaoImpl<LabUser> implements edu.yu.einst
 		m.put("labId", labId);
 		m.put("UserId", UserId);
 
-		List<LabUser> results = (List<LabUser>) this.findByMap((Map) m);
+		List<LabUser> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			LabUser rt = new LabUser();
 			return rt;
 		}
-		return (LabUser) results.get(0);
+		return results.get(0);
 	}
 
 

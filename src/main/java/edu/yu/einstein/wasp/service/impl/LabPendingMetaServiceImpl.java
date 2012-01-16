@@ -35,6 +35,7 @@ public class LabPendingMetaServiceImpl extends WaspMetaServiceImpl<LabPendingMet
 	 * @param labPendingMetaDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setLabPendingMetaDao(LabPendingMetaDao labPendingMetaDao) {
 		this.labPendingMetaDao = labPendingMetaDao;
@@ -47,24 +48,29 @@ public class LabPendingMetaServiceImpl extends WaspMetaServiceImpl<LabPendingMet
 	 * @return labPendingMetaDao
 	 *
 	 */
+	@Override
 	public LabPendingMetaDao getLabPendingMetaDao() {
 		return this.labPendingMetaDao;
 	}
 
 
-  public LabPendingMeta getLabPendingMetaByLabPendingMetaId (final int labPendingMetaId) {
+  @Override
+public LabPendingMeta getLabPendingMetaByLabPendingMetaId (final int labPendingMetaId) {
     return this.getLabPendingMetaDao().getLabPendingMetaByLabPendingMetaId(labPendingMetaId);
   }
 
-  public LabPendingMeta getLabPendingMetaByKLabpendingId (final String k, final int labpendingId) {
+  @Override
+public LabPendingMeta getLabPendingMetaByKLabpendingId (final String k, final int labpendingId) {
     return this.getLabPendingMetaDao().getLabPendingMetaByKLabpendingId(k, labpendingId);
   }
 
-  public void updateByLabpendingId (final String area, final int labpendingId, final List<LabPendingMeta> metaList) {
+  @Override
+public void updateByLabpendingId (final String area, final int labpendingId, final List<LabPendingMeta> metaList) {
     this.getLabPendingMetaDao().updateByLabpendingId(area, labpendingId, metaList); 
   }
 
-  public void updateByLabpendingId (final int labpendingId, final List<LabPendingMeta> metaList) {
+  @Override
+public void updateByLabpendingId (final int labpendingId, final List<LabPendingMeta> metaList) {
     this.getLabPendingMetaDao().updateByLabpendingId(labpendingId, metaList); 
   }
 

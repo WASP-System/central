@@ -44,19 +44,20 @@ public class RunMetaDaoImpl extends WaspDaoImpl<RunMeta> implements edu.yu.einst
 	 * @return runMeta
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public RunMeta getRunMetaByRunMetaId (final int runMetaId) {
     		HashMap m = new HashMap();
 		m.put("runMetaId", runMetaId);
 
-		List<RunMeta> results = (List<RunMeta>) this.findByMap((Map) m);
+		List<RunMeta> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			RunMeta rt = new RunMeta();
 			return rt;
 		}
-		return (RunMeta) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -69,6 +70,7 @@ public class RunMetaDaoImpl extends WaspDaoImpl<RunMeta> implements edu.yu.einst
 	 * @return runMeta
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public RunMeta getRunMetaByKRunId (final String k, final int runId) {
@@ -76,13 +78,13 @@ public class RunMetaDaoImpl extends WaspDaoImpl<RunMeta> implements edu.yu.einst
 		m.put("k", k);
 		m.put("runId", runId);
 
-		List<RunMeta> results = (List<RunMeta>) this.findByMap((Map) m);
+		List<RunMeta> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			RunMeta rt = new RunMeta();
 			return rt;
 		}
-		return (RunMeta) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -94,6 +96,7 @@ public class RunMetaDaoImpl extends WaspDaoImpl<RunMeta> implements edu.yu.einst
 	 * @param metaList
 	 *
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByRunId (final String area, final int runId, final List<RunMeta> metaList) {
@@ -113,6 +116,7 @@ public class RunMetaDaoImpl extends WaspDaoImpl<RunMeta> implements edu.yu.einst
 	 * @param metaList
 	 *
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByRunId (final int runId, final List<RunMeta> metaList) {

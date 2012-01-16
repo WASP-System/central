@@ -54,6 +54,7 @@ public class ResourceController extends WaspController {
 				request.getSession());
 	}
 
+	@Override
 	protected void prepareSelectListData(ModelMap m) {
 		super.prepareSelectListData(m);
 

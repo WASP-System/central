@@ -44,19 +44,20 @@ public class UserMetaDaoImpl extends WaspDaoImpl<UserMeta> implements edu.yu.ein
 	 * @return userMeta
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public UserMeta getUserMetaByUserMetaId (final int userMetaId) {
     		HashMap m = new HashMap();
 		m.put("userMetaId", userMetaId);
 
-		List<UserMeta> results = (List<UserMeta>) this.findByMap((Map) m);
+		List<UserMeta> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			UserMeta rt = new UserMeta();
 			return rt;
 		}
-		return (UserMeta) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -69,6 +70,7 @@ public class UserMetaDaoImpl extends WaspDaoImpl<UserMeta> implements edu.yu.ein
 	 * @return userMeta
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public UserMeta getUserMetaByKUserId (final String k, final int UserId) {
@@ -76,13 +78,13 @@ public class UserMetaDaoImpl extends WaspDaoImpl<UserMeta> implements edu.yu.ein
 		m.put("k", k);
 		m.put("UserId", UserId);
 
-		List<UserMeta> results = (List<UserMeta>) this.findByMap((Map) m);
+		List<UserMeta> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			UserMeta rt = new UserMeta();
 			return rt;
 		}
-		return (UserMeta) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -94,6 +96,7 @@ public class UserMetaDaoImpl extends WaspDaoImpl<UserMeta> implements edu.yu.ein
 	 * @param metaList
 	 *
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByUserId (final String area, final int UserId, final List<UserMeta> metaList) {
@@ -113,6 +116,7 @@ public class UserMetaDaoImpl extends WaspDaoImpl<UserMeta> implements edu.yu.ein
 	 * @param metaList
 	 *
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByUserId (final int UserId, final List<UserMeta> metaList) {

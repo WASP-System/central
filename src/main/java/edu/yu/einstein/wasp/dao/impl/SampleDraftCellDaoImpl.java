@@ -44,19 +44,20 @@ public class SampleDraftCellDaoImpl extends WaspDaoImpl<SampleDraftCell> impleme
 	 * @return sampleDraftCell
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public SampleDraftCell getSampleDraftCellBySampleDraftCellId (final int sampleDraftCellId) {
     		HashMap m = new HashMap();
 		m.put("sampleDraftCellId", sampleDraftCellId);
 
-		List<SampleDraftCell> results = (List<SampleDraftCell>) this.findByMap((Map) m);
+		List<SampleDraftCell> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			SampleDraftCell rt = new SampleDraftCell();
 			return rt;
 		}
-		return (SampleDraftCell) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -69,6 +70,7 @@ public class SampleDraftCellDaoImpl extends WaspDaoImpl<SampleDraftCell> impleme
 	 * @return sampleDraftCell
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public SampleDraftCell getSampleDraftCellByJobdraftcellIdLibraryindex (final int jobdraftcellId, final int libraryindex) {
@@ -76,13 +78,13 @@ public class SampleDraftCellDaoImpl extends WaspDaoImpl<SampleDraftCell> impleme
 		m.put("jobdraftcellId", jobdraftcellId);
 		m.put("libraryindex", libraryindex);
 
-		List<SampleDraftCell> results = (List<SampleDraftCell>) this.findByMap((Map) m);
+		List<SampleDraftCell> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			SampleDraftCell rt = new SampleDraftCell();
 			return rt;
 		}
-		return (SampleDraftCell) results.get(0);
+		return results.get(0);
 	}
 
 

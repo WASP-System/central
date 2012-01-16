@@ -12,14 +12,16 @@ import edu.yu.einstein.wasp.service.PasswordService;
 @Service
 public class PasswordServiceImpl implements PasswordService {
 	
-  public String encodePassword(String s) {
+  @Override
+public String encodePassword(String s) {
     PasswordEncoder encoder = new ShaPasswordEncoder();
     String hashedPassword = encoder.encodePassword(s, null);
 
     return hashedPassword;
   }
 	
-  public boolean validatePassword(String s) {
+  @Override
+public boolean validatePassword(String s) {
 	  //http://www.the-art-of-web.com/javascript/validate-password/
 	  //see orange box on this web page
 	  //only letters and numbers, at least one number, at least one letter, and at least 8 characters
@@ -31,7 +33,8 @@ public class PasswordServiceImpl implements PasswordService {
 	  return s.matches("^(?=.*[0-9])(?=.*[a-zA-Z])[0-9a-zA-Z]{8,}$"); 	  
   }
   
-  public boolean matchPassword(String s1, String s2){
+  @Override
+public boolean matchPassword(String s1, String s2){
 	  if (s1 == null || s1.isEmpty() || s2 == null || s2.isEmpty()){
 		  // defensive: must have a value as well as match (do not want to try to match null or empty passwords)
 		  return false;
@@ -39,7 +42,8 @@ public class PasswordServiceImpl implements PasswordService {
 	  return s1.equals(s2);
   }
   
-  public String getRandomPassword(int length){
+  @Override
+public String getRandomPassword(int length){
 	  if (length < 5 || length > 50){
 			length = 10; //default 
 		}

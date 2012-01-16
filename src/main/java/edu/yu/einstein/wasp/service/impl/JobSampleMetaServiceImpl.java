@@ -35,6 +35,7 @@ public class JobSampleMetaServiceImpl extends WaspMetaServiceImpl<JobSampleMeta>
 	 * @param jobSampleMetaDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setJobSampleMetaDao(JobSampleMetaDao jobSampleMetaDao) {
 		this.jobSampleMetaDao = jobSampleMetaDao;
@@ -47,24 +48,29 @@ public class JobSampleMetaServiceImpl extends WaspMetaServiceImpl<JobSampleMeta>
 	 * @return jobSampleMetaDao
 	 *
 	 */
+	@Override
 	public JobSampleMetaDao getJobSampleMetaDao() {
 		return this.jobSampleMetaDao;
 	}
 
 
-  public JobSampleMeta getJobSampleMetaByJobSampleMetaId (final int jobSampleMetaId) {
+  @Override
+public JobSampleMeta getJobSampleMetaByJobSampleMetaId (final int jobSampleMetaId) {
     return this.getJobSampleMetaDao().getJobSampleMetaByJobSampleMetaId(jobSampleMetaId);
   }
 
-  public JobSampleMeta getJobSampleMetaByKJobsampleId (final String k, final int jobsampleId) {
+  @Override
+public JobSampleMeta getJobSampleMetaByKJobsampleId (final String k, final int jobsampleId) {
     return this.getJobSampleMetaDao().getJobSampleMetaByKJobsampleId(k, jobsampleId);
   }
 
-  public void updateByJobsampleId (final String area, final int jobsampleId, final List<JobSampleMeta> metaList) {
+  @Override
+public void updateByJobsampleId (final String area, final int jobsampleId, final List<JobSampleMeta> metaList) {
     this.getJobSampleMetaDao().updateByJobsampleId(area, jobsampleId, metaList); 
   }
 
-  public void updateByJobsampleId (final int jobsampleId, final List<JobSampleMeta> metaList) {
+  @Override
+public void updateByJobsampleId (final int jobsampleId, final List<JobSampleMeta> metaList) {
     this.getJobSampleMetaDao().updateByJobsampleId(jobsampleId, metaList); 
   }
 

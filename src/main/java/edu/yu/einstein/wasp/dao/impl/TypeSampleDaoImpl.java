@@ -44,19 +44,20 @@ public class TypeSampleDaoImpl extends WaspDaoImpl<TypeSample> implements edu.yu
 	 * @return typeSample
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public TypeSample getTypeSampleByTypeSampleId (final int typeSampleId) {
     		HashMap m = new HashMap();
 		m.put("typeSampleId", typeSampleId);
 
-		List<TypeSample> results = (List<TypeSample>) this.findByMap((Map) m);
+		List<TypeSample> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			TypeSample rt = new TypeSample();
 			return rt;
 		}
-		return (TypeSample) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -69,19 +70,20 @@ public class TypeSampleDaoImpl extends WaspDaoImpl<TypeSample> implements edu.yu
 	 * @return typeSample
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public TypeSample getTypeSampleByIName (final String iName) {
     		HashMap m = new HashMap();
 		m.put("iName", iName);
 
-		List<TypeSample> results = (List<TypeSample>) this.findByMap((Map) m);
+		List<TypeSample> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			TypeSample rt = new TypeSample();
 			return rt;
 		}
-		return (TypeSample) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -94,19 +96,20 @@ public class TypeSampleDaoImpl extends WaspDaoImpl<TypeSample> implements edu.yu
 	 * @return typeSample
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public TypeSample getTypeSampleByName (final String name) {
     		HashMap m = new HashMap();
 		m.put("name", name);
 
-		List<TypeSample> results = (List<TypeSample>) this.findByMap((Map) m);
+		List<TypeSample> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			TypeSample rt = new TypeSample();
 			return rt;
 		}
-		return (TypeSample) results.get(0);
+		return results.get(0);
 	}
 
 

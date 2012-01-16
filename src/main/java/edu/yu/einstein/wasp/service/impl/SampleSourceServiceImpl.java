@@ -33,6 +33,7 @@ public class SampleSourceServiceImpl extends WaspServiceImpl<SampleSource> imple
 	 * @param sampleSourceDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setSampleSourceDao(SampleSourceDao sampleSourceDao) {
 		this.sampleSourceDao = sampleSourceDao;
@@ -45,16 +46,19 @@ public class SampleSourceServiceImpl extends WaspServiceImpl<SampleSource> imple
 	 * @return sampleSourceDao
 	 *
 	 */
+	@Override
 	public SampleSourceDao getSampleSourceDao() {
 		return this.sampleSourceDao;
 	}
 
 
-  public SampleSource getSampleSourceBySampleSourceId (final int sampleSourceId) {
+  @Override
+public SampleSource getSampleSourceBySampleSourceId (final int sampleSourceId) {
     return this.getSampleSourceDao().getSampleSourceBySampleSourceId(sampleSourceId);
   }
 
-  public SampleSource getSampleSourceBySampleIdMultiplexindex (final int sampleId, final int multiplexindex) {
+  @Override
+public SampleSource getSampleSourceBySampleIdMultiplexindex (final int sampleId, final int multiplexindex) {
     return this.getSampleSourceDao().getSampleSourceBySampleIdMultiplexindex(sampleId, multiplexindex);
   }
 

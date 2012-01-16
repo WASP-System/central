@@ -33,6 +33,7 @@ public class RunServiceImpl extends WaspServiceImpl<Run> implements RunService {
 	 * @param runDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setRunDao(RunDao runDao) {
 		this.runDao = runDao;
@@ -45,12 +46,14 @@ public class RunServiceImpl extends WaspServiceImpl<Run> implements RunService {
 	 * @return runDao
 	 *
 	 */
+	@Override
 	public RunDao getRunDao() {
 		return this.runDao;
 	}
 
 
-  public Run getRunByRunId (final int runId) {
+  @Override
+public Run getRunByRunId (final int runId) {
     return this.getRunDao().getRunByRunId(runId);
   }
 

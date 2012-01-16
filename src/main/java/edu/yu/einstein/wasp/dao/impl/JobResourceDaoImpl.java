@@ -44,19 +44,20 @@ public class JobResourceDaoImpl extends WaspDaoImpl<JobResource> implements edu.
 	 * @return jobResource
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public JobResource getJobResourceByJobResourceId (final int jobResourceId) {
     		HashMap m = new HashMap();
 		m.put("jobResourceId", jobResourceId);
 
-		List<JobResource> results = (List<JobResource>) this.findByMap((Map) m);
+		List<JobResource> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			JobResource rt = new JobResource();
 			return rt;
 		}
-		return (JobResource) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -69,6 +70,7 @@ public class JobResourceDaoImpl extends WaspDaoImpl<JobResource> implements edu.
 	 * @return jobResource
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public JobResource getJobResourceByResourceIdJobId (final int resourceId, final int jobId) {
@@ -76,13 +78,13 @@ public class JobResourceDaoImpl extends WaspDaoImpl<JobResource> implements edu.
 		m.put("resourceId", resourceId);
 		m.put("jobId", jobId);
 
-		List<JobResource> results = (List<JobResource>) this.findByMap((Map) m);
+		List<JobResource> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			JobResource rt = new JobResource();
 			return rt;
 		}
-		return (JobResource) results.get(0);
+		return results.get(0);
 	}
 
 

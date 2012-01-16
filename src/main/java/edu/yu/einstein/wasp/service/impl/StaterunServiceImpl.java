@@ -33,6 +33,7 @@ public class StaterunServiceImpl extends WaspServiceImpl<Staterun> implements St
 	 * @param staterunDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setStaterunDao(StaterunDao staterunDao) {
 		this.staterunDao = staterunDao;
@@ -45,12 +46,14 @@ public class StaterunServiceImpl extends WaspServiceImpl<Staterun> implements St
 	 * @return staterunDao
 	 *
 	 */
+	@Override
 	public StaterunDao getStaterunDao() {
 		return this.staterunDao;
 	}
 
 
-  public Staterun getStaterunByStaterunId (final int staterunId) {
+  @Override
+public Staterun getStaterunByStaterunId (final int staterunId) {
     return this.getStaterunDao().getStaterunByStaterunId(staterunId);
   }
 

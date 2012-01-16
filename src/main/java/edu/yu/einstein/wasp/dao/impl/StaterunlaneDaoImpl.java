@@ -44,19 +44,20 @@ public class StaterunlaneDaoImpl extends WaspDaoImpl<Staterunlane> implements ed
 	 * @return staterunlane
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public Staterunlane getStaterunlaneByStaterunlaneId (final int staterunlaneId) {
     		HashMap m = new HashMap();
 		m.put("staterunlaneId", staterunlaneId);
 
-		List<Staterunlane> results = (List<Staterunlane>) this.findByMap((Map) m);
+		List<Staterunlane> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			Staterunlane rt = new Staterunlane();
 			return rt;
 		}
-		return (Staterunlane) results.get(0);
+		return results.get(0);
 	}
 
 

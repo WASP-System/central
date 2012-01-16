@@ -54,6 +54,7 @@ public class LabServiceImpl extends WaspServiceImpl<Lab> implements LabService {
 	 * @param labDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setLabDao(LabDao labDao) {
 		this.labDao = labDao;
@@ -66,30 +67,36 @@ public class LabServiceImpl extends WaspServiceImpl<Lab> implements LabService {
 	 * @return labDao
 	 *
 	 */
+	@Override
 	public LabDao getLabDao() {
 		return this.labDao;
 	}
 
 
-  public Lab getLabByLabId (final int labId) {
+  @Override
+public Lab getLabByLabId (final int labId) {
     return this.getLabDao().getLabByLabId(labId);
   }
 
-  public Lab getLabByName (final String name) {
+  @Override
+public Lab getLabByName (final String name) {
     return this.getLabDao().getLabByName(name);
   }
 
-  public Lab getLabByPrimaryUserId (final int primaryUserId) {
+  @Override
+public Lab getLabByPrimaryUserId (final int primaryUserId) {
     return this.getLabDao().getLabByPrimaryUserId(primaryUserId);
   }
 
-  public int getLabManagerPendingTasks(int labId){
+  @Override
+public int getLabManagerPendingTasks(int labId){
 	  List<UserPending> newUsersPendingLmApprovalList = new ArrayList<UserPending>();
 	  List<LabUser> existingUsersPendingLmApprovalList = new ArrayList<LabUser>();
 	  List<Job> jobsPendingLmApprovalList = new ArrayList<Job>();
 	  return getLabManagerPendingTasks(labId, newUsersPendingLmApprovalList, existingUsersPendingLmApprovalList, jobsPendingLmApprovalList);
   }
-  public int getLabManagerPendingTasks(int labId, List<UserPending> newUsersPendingLmApprovalList, List<LabUser> existingUsersPendingLmApprovalList, List<Job> jobsPendingLmApprovalList){
+  @Override
+public int getLabManagerPendingTasks(int labId, List<UserPending> newUsersPendingLmApprovalList, List<LabUser> existingUsersPendingLmApprovalList, List<Job> jobsPendingLmApprovalList){
 	  
 	  //three tasks awaiting Lab Manager or PI from lab where labid = labId
 	  //1. approve or reject new users that have applied to join a lab 
@@ -110,7 +117,7 @@ public class LabServiceImpl extends WaspServiceImpl<Lab> implements LabService {
 	  if(role.getRoleId()==null){
 		  //TODO: throw exception
 	  }
-		for (LabUser labUser: (List<LabUser>) lab.getLabUser()){
+		for (LabUser labUser: lab.getLabUser()){
 			if (labUser.getRole().getRoleName().equals(role.getRoleName())){
 				existingUsersPendingLmApprovalList.add(labUser);
 			}

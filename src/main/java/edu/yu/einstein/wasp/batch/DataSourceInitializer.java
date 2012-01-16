@@ -46,6 +46,7 @@ public class DataSourceInitializer implements InitializingBean, DisposableBean {
 		this.initialize = initialize;
 	}
 
+	@Override
 	public void destroy() throws Exception {
 		if (!initialized) {
 			return;
@@ -66,6 +67,7 @@ public class DataSourceInitializer implements InitializingBean, DisposableBean {
 		}
 	}
 
+	@Override
 	public void afterPropertiesSet() throws Exception {
 		Assert.notNull(dataSource);
         logger.info("Initializing with scripts: "+Arrays.asList(initScripts));
@@ -93,6 +95,7 @@ public class DataSourceInitializer implements InitializingBean, DisposableBean {
 		TransactionTemplate transactionTemplate = new TransactionTemplate(new DataSourceTransactionManager(dataSource));
 		transactionTemplate.execute(new TransactionCallback() {
 
+			@Override
 			@SuppressWarnings("unchecked")
 			public Object doInTransaction(TransactionStatus status) {
 				JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);

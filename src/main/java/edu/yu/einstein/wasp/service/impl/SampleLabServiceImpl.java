@@ -33,6 +33,7 @@ public class SampleLabServiceImpl extends WaspServiceImpl<SampleLab> implements 
 	 * @param sampleLabDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setSampleLabDao(SampleLabDao sampleLabDao) {
 		this.sampleLabDao = sampleLabDao;
@@ -45,16 +46,19 @@ public class SampleLabServiceImpl extends WaspServiceImpl<SampleLab> implements 
 	 * @return sampleLabDao
 	 *
 	 */
+	@Override
 	public SampleLabDao getSampleLabDao() {
 		return this.sampleLabDao;
 	}
 
 
-  public SampleLab getSampleLabBySampleLabId (final int sampleLabId) {
+  @Override
+public SampleLab getSampleLabBySampleLabId (final int sampleLabId) {
     return this.getSampleLabDao().getSampleLabBySampleLabId(sampleLabId);
   }
 
-  public SampleLab getSampleLabBySampleIdLabId (final int sampleId, final int labId) {
+  @Override
+public SampleLab getSampleLabBySampleIdLabId (final int sampleId, final int labId) {
     return this.getSampleLabDao().getSampleLabBySampleIdLabId(sampleId, labId);
   }
 

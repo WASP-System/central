@@ -44,19 +44,20 @@ public class JobDraftCellDaoImpl extends WaspDaoImpl<JobDraftCell> implements ed
 	 * @return jobDraftCell
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public JobDraftCell getJobDraftCellByJobDraftCellId (final int jobDraftCellId) {
     		HashMap m = new HashMap();
 		m.put("jobDraftCellId", jobDraftCellId);
 
-		List<JobDraftCell> results = (List<JobDraftCell>) this.findByMap((Map) m);
+		List<JobDraftCell> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			JobDraftCell rt = new JobDraftCell();
 			return rt;
 		}
-		return (JobDraftCell) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -69,6 +70,7 @@ public class JobDraftCellDaoImpl extends WaspDaoImpl<JobDraftCell> implements ed
 	 * @return jobDraftCell
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public JobDraftCell getJobDraftCellByJobdraftIdCellindex (final int jobdraftId, final int cellindex) {
@@ -76,13 +78,13 @@ public class JobDraftCellDaoImpl extends WaspDaoImpl<JobDraftCell> implements ed
 		m.put("jobdraftId", jobdraftId);
 		m.put("cellindex", cellindex);
 
-		List<JobDraftCell> results = (List<JobDraftCell>) this.findByMap((Map) m);
+		List<JobDraftCell> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			JobDraftCell rt = new JobDraftCell();
 			return rt;
 		}
-		return (JobDraftCell) results.get(0);
+		return results.get(0);
 	}
 
 

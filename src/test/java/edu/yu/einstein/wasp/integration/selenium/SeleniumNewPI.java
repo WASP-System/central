@@ -34,6 +34,7 @@ public class SeleniumNewPI extends SeleniumBaseTest {
 	 * If you want it to run before all methods, you need to use the alwaysRun = true:
 	 * @throws Exception
 	 */
+	@Override
 	@BeforeClass (alwaysRun = true)
     public void setUp() throws Exception {
 		
@@ -153,7 +154,8 @@ public class SeleniumNewPI extends SeleniumBaseTest {
         
   	}
   
-    @AfterClass
+    @Override
+	@AfterClass
     public void tearDown(){
         //driver.close();
         

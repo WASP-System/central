@@ -33,6 +33,7 @@ public class TypeResourceServiceImpl extends WaspServiceImpl<TypeResource> imple
 	 * @param typeResourceDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setTypeResourceDao(TypeResourceDao typeResourceDao) {
 		this.typeResourceDao = typeResourceDao;
@@ -45,20 +46,24 @@ public class TypeResourceServiceImpl extends WaspServiceImpl<TypeResource> imple
 	 * @return typeResourceDao
 	 *
 	 */
+	@Override
 	public TypeResourceDao getTypeResourceDao() {
 		return this.typeResourceDao;
 	}
 
 
-  public TypeResource getTypeResourceByTypeResourceId (final int typeResourceId) {
+  @Override
+public TypeResource getTypeResourceByTypeResourceId (final int typeResourceId) {
     return this.getTypeResourceDao().getTypeResourceByTypeResourceId(typeResourceId);
   }
 
-  public TypeResource getTypeResourceByIName (final String iName) {
+  @Override
+public TypeResource getTypeResourceByIName (final String iName) {
     return this.getTypeResourceDao().getTypeResourceByIName(iName);
   }
 
-  public TypeResource getTypeResourceByName (final String name) {
+  @Override
+public TypeResource getTypeResourceByName (final String name) {
     return this.getTypeResourceDao().getTypeResourceByName(name);
   }
 

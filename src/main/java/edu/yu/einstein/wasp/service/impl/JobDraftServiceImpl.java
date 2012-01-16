@@ -33,6 +33,7 @@ public class JobDraftServiceImpl extends WaspServiceImpl<JobDraft> implements Jo
 	 * @param jobDraftDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setJobDraftDao(JobDraftDao jobDraftDao) {
 		this.jobDraftDao = jobDraftDao;
@@ -45,12 +46,14 @@ public class JobDraftServiceImpl extends WaspServiceImpl<JobDraft> implements Jo
 	 * @return jobDraftDao
 	 *
 	 */
+	@Override
 	public JobDraftDao getJobDraftDao() {
 		return this.jobDraftDao;
 	}
 
 
-  public JobDraft getJobDraftByJobDraftId (final int jobDraftId) {
+  @Override
+public JobDraft getJobDraftByJobDraftId (final int jobDraftId) {
     return this.getJobDraftDao().getJobDraftByJobDraftId(jobDraftId);
   }
 

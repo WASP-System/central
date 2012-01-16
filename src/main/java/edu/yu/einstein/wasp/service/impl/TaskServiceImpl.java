@@ -36,6 +36,7 @@ public class TaskServiceImpl extends WaspServiceImpl<Task> implements TaskServic
 	 * @param taskDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setTaskDao(TaskDao taskDao) {
 		this.taskDao = taskDao;
@@ -48,41 +49,50 @@ public class TaskServiceImpl extends WaspServiceImpl<Task> implements TaskServic
 	 * @return taskDao
 	 *
 	 */
+	@Override
 	public TaskDao getTaskDao() {
 		return this.taskDao;
 	}
 
 
-  public Task getTaskByTaskId (final int taskId) {
+  @Override
+public Task getTaskByTaskId (final int taskId) {
     return this.getTaskDao().getTaskByTaskId(taskId);
   }
 
-  public Task getTaskByIName (final String iName) {
+  @Override
+public Task getTaskByIName (final String iName) {
     return this.getTaskDao().getTaskByIName(iName);
   }
 
 
-  public List<State> getStatesByTaskIName (final String iName, final String status) {
+  @Override
+public List<State> getStatesByTaskIName (final String iName, final String status) {
     return this.getTaskDao().getStatesByTaskIName(iName, status);
   }
 
-  public List<State> getJobCreatedStates () {
+  @Override
+public List<State> getJobCreatedStates () {
     return getStatesByTaskIName("Start Job", "CREATED");
   }
 
-  public List<State> getQuoteJobStates () {
+  @Override
+public List<State> getQuoteJobStates () {
     return getStatesByTaskIName("Quote Job", "QUOTED");
   }
 
-  public List<State> getPiApprovedStates () {
+  @Override
+public List<State> getPiApprovedStates () {
     return getStatesByTaskIName("PI Approval", "APPROVED");
   }
 
-  public List<State> getDaApprovedStates () {
+  @Override
+public List<State> getDaApprovedStates () {
     return getStatesByTaskIName("DA Approval", "APPROVED");
   }
 
-  public List<State> getSampleReceivedStates () {
+  @Override
+public List<State> getSampleReceivedStates () {
     return getStatesByTaskIName("Receive Sample", "RECEIVED");
   }
 

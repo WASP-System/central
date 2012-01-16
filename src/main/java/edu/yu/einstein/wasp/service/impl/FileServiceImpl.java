@@ -41,6 +41,7 @@ public class FileServiceImpl extends WaspServiceImpl<File> implements FileServic
 	 * @param fileDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setFileDao(FileDao fileDao) {
 		this.fileDao = fileDao;
@@ -53,17 +54,20 @@ public class FileServiceImpl extends WaspServiceImpl<File> implements FileServic
 	 * @return fileDao
 	 *
 	 */
+	@Override
 	public FileDao getFileDao() {
 		return this.fileDao;
 	}
 
 
-  public File getFileByFileId (final int fileId) {
+  @Override
+public File getFileByFileId (final int fileId) {
     return this.getFileDao().getFileByFileId(fileId);
   }
   
   //returns File object with contentType/md5hash and sizek fields populated.
-  public File getMetaInformation(String filePath) throws java.io.IOException {
+  @Override
+public File getMetaInformation(String filePath) throws java.io.IOException {
 	  	File file = new File();
 	  	file.setContenttype(getMimeType(filePath));
 	  	file.setMd5hash(getMD5(filePath));

@@ -44,19 +44,20 @@ public class MetaDaoImpl extends WaspDaoImpl<Meta> implements edu.yu.einstein.wa
 	 * @return meta
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public Meta getMetaByMetaId (final int metaId) {
     		HashMap m = new HashMap();
 		m.put("metaId", metaId);
 
-		List<Meta> results = (List<Meta>) this.findByMap((Map) m);
+		List<Meta> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			Meta rt = new Meta();
 			return rt;
 		}
-		return (Meta) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -69,6 +70,7 @@ public class MetaDaoImpl extends WaspDaoImpl<Meta> implements edu.yu.einstein.wa
 	 * @return meta
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public Meta getMetaByPropertyK (final String property, final String k) {
@@ -76,13 +78,13 @@ public class MetaDaoImpl extends WaspDaoImpl<Meta> implements edu.yu.einstein.wa
 		m.put("property", property);
 		m.put("k", k);
 
-		List<Meta> results = (List<Meta>) this.findByMap((Map) m);
+		List<Meta> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			Meta rt = new Meta();
 			return rt;
 		}
-		return (Meta) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -95,6 +97,7 @@ public class MetaDaoImpl extends WaspDaoImpl<Meta> implements edu.yu.einstein.wa
 	 * @return meta
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public Meta getMetaByPropertyV (final String property, final String v) {
@@ -102,13 +105,13 @@ public class MetaDaoImpl extends WaspDaoImpl<Meta> implements edu.yu.einstein.wa
 		m.put("property", property);
 		m.put("v", v);
 
-		List<Meta> results = (List<Meta>) this.findByMap((Map) m);
+		List<Meta> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			Meta rt = new Meta();
 			return rt;
 		}
-		return (Meta) results.get(0);
+		return results.get(0);
 	}
 
 

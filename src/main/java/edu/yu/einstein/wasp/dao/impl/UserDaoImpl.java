@@ -30,45 +30,48 @@ public class UserDaoImpl extends WaspDaoImpl<User> implements edu.yu.einstein.wa
     this.entityClass = User.class;
   }
 
-  @SuppressWarnings("unchecked")
+  @Override
+@SuppressWarnings("unchecked")
   @Transactional
   public User getUserByUserId (final int UserId) {
     HashMap m = new HashMap();
     m.put("UserId", UserId);
-    List<User> results = (List<User>) this.findByMap((Map) m);
+    List<User> results = this.findByMap(m);
     if (results.size() == 0) {
       User rt = new User();
       return rt;
     }
-    return (User) results.get(0);
+    return results.get(0);
   }
 
 
-  @SuppressWarnings("unchecked")
+  @Override
+@SuppressWarnings("unchecked")
   @Transactional
   public User getUserByLogin (final String login) {
     HashMap m = new HashMap();
     m.put("login", login);
-    List<User> results = (List<User>) this.findByMap((Map) m);
+    List<User> results = this.findByMap(m);
     if (results.size() == 0) {
       User rt = new User();
       return rt;
     }
-    return (User) results.get(0);
+    return results.get(0);
   }
 
 
-  @SuppressWarnings("unchecked")
+  @Override
+@SuppressWarnings("unchecked")
   @Transactional
   public User getUserByEmail (final String email) {
     HashMap m = new HashMap();
     m.put("email", email);
-    List<User> results = (List<User>) this.findByMap((Map) m);
+    List<User> results = this.findByMap(m);
     if (results.size() == 0) {
       User rt = new User();
       return rt;
     }
-    return (User) results.get(0);
+    return results.get(0);
   }
   
  

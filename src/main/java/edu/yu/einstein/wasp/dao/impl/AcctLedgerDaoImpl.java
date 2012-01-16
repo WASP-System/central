@@ -44,19 +44,20 @@ public class AcctLedgerDaoImpl extends WaspDaoImpl<AcctLedger> implements edu.yu
 	 * @return acctLedger
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public AcctLedger getAcctLedgerByLedgerId (final int ledgerId) {
     		HashMap m = new HashMap();
 		m.put("ledgerId", ledgerId);
 
-		List<AcctLedger> results = (List<AcctLedger>) this.findByMap((Map) m);
+		List<AcctLedger> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			AcctLedger rt = new AcctLedger();
 			return rt;
 		}
-		return (AcctLedger) results.get(0);
+		return results.get(0);
 	}
 
 

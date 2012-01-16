@@ -50,19 +50,20 @@ public class TaskDaoImpl extends WaspDaoImpl<Task> implements edu.yu.einstein.wa
 	 * @return task
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public Task getTaskByTaskId (final int taskId) {
     		HashMap m = new HashMap();
 		m.put("taskId", taskId);
 
-		List<Task> results = (List<Task>) this.findByMap((Map) m);
+		List<Task> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			Task rt = new Task();
 			return rt;
 		}
-		return (Task) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -75,21 +76,23 @@ public class TaskDaoImpl extends WaspDaoImpl<Task> implements edu.yu.einstein.wa
 	 * @return task
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public Task getTaskByIName (final String iName) {
     		HashMap m = new HashMap();
 		m.put("iName", iName);
 
-		List<Task> results = (List<Task>) this.findByMap((Map) m);
+		List<Task> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			Task rt = new Task();
 			return rt;
 		}
-		return (Task) results.get(0);
+		return results.get(0);
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public List<State> getStatesByTaskIName (final String iName, final String status) {

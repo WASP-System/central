@@ -44,19 +44,20 @@ public class SubtypeSampleMetaDaoImpl extends WaspDaoImpl<SubtypeSampleMeta> imp
 	 * @return subtypeSampleMeta
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public SubtypeSampleMeta getSubtypeSampleMetaBySubtypeSampleMetaId (final int subtypeSampleMetaId) {
     		HashMap m = new HashMap();
 		m.put("subtypeSampleMetaId", subtypeSampleMetaId);
 
-		List<SubtypeSampleMeta> results = (List<SubtypeSampleMeta>) this.findByMap((Map) m);
+		List<SubtypeSampleMeta> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			SubtypeSampleMeta rt = new SubtypeSampleMeta();
 			return rt;
 		}
-		return (SubtypeSampleMeta) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -69,6 +70,7 @@ public class SubtypeSampleMetaDaoImpl extends WaspDaoImpl<SubtypeSampleMeta> imp
 	 * @return subtypeSampleMeta
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public SubtypeSampleMeta getSubtypeSampleMetaByKSubtypeSampleId (final String k, final int subtypeSampleId) {
@@ -76,13 +78,13 @@ public class SubtypeSampleMetaDaoImpl extends WaspDaoImpl<SubtypeSampleMeta> imp
 		m.put("k", k);
 		m.put("subtypeSampleId", subtypeSampleId);
 
-		List<SubtypeSampleMeta> results = (List<SubtypeSampleMeta>) this.findByMap((Map) m);
+		List<SubtypeSampleMeta> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			SubtypeSampleMeta rt = new SubtypeSampleMeta();
 			return rt;
 		}
-		return (SubtypeSampleMeta) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -94,6 +96,7 @@ public class SubtypeSampleMetaDaoImpl extends WaspDaoImpl<SubtypeSampleMeta> imp
 	 * @param metaList
 	 *
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateBySubtypeSampleId (final String area, final int subtypeSampleId, final List<SubtypeSampleMeta> metaList) {
@@ -113,6 +116,7 @@ public class SubtypeSampleMetaDaoImpl extends WaspDaoImpl<SubtypeSampleMeta> imp
 	 * @param metaList
 	 *
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateBySubtypeSampleId (final int subtypeSampleId, final List<SubtypeSampleMeta> metaList) {
@@ -125,11 +129,12 @@ public class SubtypeSampleMetaDaoImpl extends WaspDaoImpl<SubtypeSampleMeta> imp
 	}
 
 
+	@Override
 	public List<SubtypeSampleMeta> getSubtypeSamplesMetaBySubtypeSampleId (final int subtypeSampleId) {
 		HashMap m = new HashMap();
 		m.put("subtypeSampleId", subtypeSampleId);
 
-		List<SubtypeSampleMeta> results = (List<SubtypeSampleMeta>) this.findByMap((Map) m);
+		List<SubtypeSampleMeta> results = this.findByMap(m);
 
 		return results;
 	}

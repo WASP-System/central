@@ -51,7 +51,8 @@ public class UserLocaleInterceptor extends HandlerInterceptorAdapter {
 	
     private static final Logger log = Logger.getLogger(UserLocaleInterceptor.class);
 	
-    public boolean preHandle(
+    @Override
+	public boolean preHandle(
             HttpServletRequest request,
             HttpServletResponse response,
             Object handler) throws Exception {
@@ -118,7 +119,7 @@ public class UserLocaleInterceptor extends HandlerInterceptorAdapter {
 	
 		List<UiField> res = uiFieldService.findAll();
 
-		for (UiField f : ((List<UiField>) res)) {
+		for (UiField f : res) {
 
 			if (f.getLocale()==null || f.getLocale().length()!=5) {
 				log.error("invalid locale, defaulting to US "+f);

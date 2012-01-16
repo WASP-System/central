@@ -33,6 +33,7 @@ public class JobDraftresourceServiceImpl extends WaspServiceImpl<JobDraftresourc
 	 * @param jobDraftresourceDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setJobDraftresourceDao(JobDraftresourceDao jobDraftresourceDao) {
 		this.jobDraftresourceDao = jobDraftresourceDao;
@@ -45,16 +46,19 @@ public class JobDraftresourceServiceImpl extends WaspServiceImpl<JobDraftresourc
 	 * @return jobDraftresourceDao
 	 *
 	 */
+	@Override
 	public JobDraftresourceDao getJobDraftresourceDao() {
 		return this.jobDraftresourceDao;
 	}
 
 
-  public JobDraftresource getJobDraftresourceByJobDraftresourceId (final int jobDraftresourceId) {
+  @Override
+public JobDraftresource getJobDraftresourceByJobDraftresourceId (final int jobDraftresourceId) {
     return this.getJobDraftresourceDao().getJobDraftresourceByJobDraftresourceId(jobDraftresourceId);
   }
 
-  public JobDraftresource getJobDraftresourceByResourceIdJobdraftId (final int resourceId, final int jobdraftId) {
+  @Override
+public JobDraftresource getJobDraftresourceByResourceIdJobdraftId (final int resourceId, final int jobdraftId) {
     return this.getJobDraftresourceDao().getJobDraftresourceByResourceIdJobdraftId(resourceId, jobdraftId);
   }
 

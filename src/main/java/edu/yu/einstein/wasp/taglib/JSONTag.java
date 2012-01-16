@@ -2,6 +2,7 @@ package edu.yu.einstein.wasp.taglib;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyTagSupport;
+import javax.servlet.jsp.tagext.Tag;
 
 import org.apache.commons.beanutils.MethodUtils;
 import org.apache.log4j.Logger;
@@ -28,6 +29,7 @@ public class JSONTag extends BodyTagSupport {
 
 
 
+	@Override
 	public int doStartTag() throws javax.servlet.jsp.JspException {
 
 		ObjectMapper mapper = new ObjectMapper();
@@ -83,7 +85,7 @@ public class JSONTag extends BodyTagSupport {
 		 }
 		 
 		
-		return BodyTagSupport.EVAL_PAGE;
+		return Tag.EVAL_PAGE;
 	}
 	
 }

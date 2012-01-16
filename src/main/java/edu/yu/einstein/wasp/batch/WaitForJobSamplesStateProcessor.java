@@ -63,6 +63,7 @@ public class WaitForJobSamplesStateProcessor implements ItemProcessor {
 		this.targetSampleStatus = targetSampleStatus; 
 	}
 
+	@Override
 	public State process(Object stateId) throws Exception {	
 		State state = stateService.getStateByStateId(((Integer) stateId).intValue());
 		// TODO npe check

@@ -35,6 +35,7 @@ public class ResourceMetaServiceImpl extends WaspMetaServiceImpl<ResourceMeta> i
 	 * @param resourceMetaDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setResourceMetaDao(ResourceMetaDao resourceMetaDao) {
 		this.resourceMetaDao = resourceMetaDao;
@@ -47,24 +48,29 @@ public class ResourceMetaServiceImpl extends WaspMetaServiceImpl<ResourceMeta> i
 	 * @return resourceMetaDao
 	 *
 	 */
+	@Override
 	public ResourceMetaDao getResourceMetaDao() {
 		return this.resourceMetaDao;
 	}
 
 
-  public ResourceMeta getResourceMetaByResourceMetaId (final int resourceMetaId) {
+  @Override
+public ResourceMeta getResourceMetaByResourceMetaId (final int resourceMetaId) {
     return this.getResourceMetaDao().getResourceMetaByResourceMetaId(resourceMetaId);
   }
 
-  public ResourceMeta getResourceMetaByKResourceId (final String k, final int resourceId) {
+  @Override
+public ResourceMeta getResourceMetaByKResourceId (final String k, final int resourceId) {
     return this.getResourceMetaDao().getResourceMetaByKResourceId(k, resourceId);
   }
 
-  public void updateByResourceId (final String area, final int resourceId, final List<ResourceMeta> metaList) {
+  @Override
+public void updateByResourceId (final String area, final int resourceId, final List<ResourceMeta> metaList) {
     this.getResourceMetaDao().updateByResourceId(area, resourceId, metaList); 
   }
 
-  public void updateByResourceId (final int resourceId, final List<ResourceMeta> metaList) {
+  @Override
+public void updateByResourceId (final int resourceId, final List<ResourceMeta> metaList) {
     this.getResourceMetaDao().updateByResourceId(resourceId, metaList); 
   }
 

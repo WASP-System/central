@@ -44,19 +44,20 @@ public class BarcodeDaoImpl extends WaspDaoImpl<Barcode> implements edu.yu.einst
 	 * @return barcode
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public Barcode getBarcodeByBarcodeId (final int barcodeId) {
     		HashMap m = new HashMap();
 		m.put("barcodeId", barcodeId);
 
-		List<Barcode> results = (List<Barcode>) this.findByMap((Map) m);
+		List<Barcode> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			Barcode rt = new Barcode();
 			return rt;
 		}
-		return (Barcode) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -69,19 +70,20 @@ public class BarcodeDaoImpl extends WaspDaoImpl<Barcode> implements edu.yu.einst
 	 * @return barcode
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public Barcode getBarcodeByBarcode (final String barcode) {
     		HashMap m = new HashMap();
 		m.put("barcode", barcode);
 
-		List<Barcode> results = (List<Barcode>) this.findByMap((Map) m);
+		List<Barcode> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			Barcode rt = new Barcode();
 			return rt;
 		}
-		return (Barcode) results.get(0);
+		return results.get(0);
 	}
 
 

@@ -23,7 +23,8 @@ public class MessageServiceImpl implements MessageService{
 	  @Autowired
 	  private MessageSource messageSource;
 
-	  public String getMessage(String key) {
+	  @Override
+	public String getMessage(String key) {
 		  String message=null;
 		  Logger logger = Logger.getLogger(getClass());
 		  try {
@@ -51,7 +52,8 @@ public class MessageServiceImpl implements MessageService{
 		  return message;
 	  }
 	  
-	  public String getMessage(String key, Locale locale) {
+	  @Override
+	public String getMessage(String key, Locale locale) {
 		  String message=null;
 		  Logger logger = Logger.getLogger(getClass());
 		  try{
@@ -62,7 +64,8 @@ public class MessageServiceImpl implements MessageService{
 		  return message;
 	  }
 	  
-	  public String getMetadataValue(String key){
+	  @Override
+	public String getMetadataValue(String key){
 		  return getMessage(key, Locale.US);
 	  }
 }

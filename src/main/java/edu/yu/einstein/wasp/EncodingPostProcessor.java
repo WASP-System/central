@@ -11,7 +11,8 @@ import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter;
 
 public class EncodingPostProcessor implements BeanPostProcessor {
-    public Object postProcessBeforeInitialization(Object bean, String name)
+    @Override
+	public Object postProcessBeforeInitialization(Object bean, String name)
             throws BeansException {
         if (bean instanceof AnnotationMethodHandlerAdapter) {
             HttpMessageConverter<?>[] convs = ((AnnotationMethodHandlerAdapter) bean).getMessageConverters();
@@ -26,7 +27,8 @@ public class EncodingPostProcessor implements BeanPostProcessor {
         return bean;
     }
 
-    public Object postProcessAfterInitialization(Object bean, String name)
+    @Override
+	public Object postProcessAfterInitialization(Object bean, String name)
             throws BeansException {
         return bean;
     }

@@ -44,19 +44,20 @@ public class LabPendingMetaDaoImpl extends WaspDaoImpl<LabPendingMeta> implement
 	 * @return labPendingMeta
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public LabPendingMeta getLabPendingMetaByLabPendingMetaId (final int labPendingMetaId) {
     		HashMap m = new HashMap();
 		m.put("labPendingMetaId", labPendingMetaId);
 
-		List<LabPendingMeta> results = (List<LabPendingMeta>) this.findByMap((Map) m);
+		List<LabPendingMeta> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			LabPendingMeta rt = new LabPendingMeta();
 			return rt;
 		}
-		return (LabPendingMeta) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -69,6 +70,7 @@ public class LabPendingMetaDaoImpl extends WaspDaoImpl<LabPendingMeta> implement
 	 * @return labPendingMeta
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public LabPendingMeta getLabPendingMetaByKLabpendingId (final String k, final int labpendingId) {
@@ -76,13 +78,13 @@ public class LabPendingMetaDaoImpl extends WaspDaoImpl<LabPendingMeta> implement
 		m.put("k", k);
 		m.put("labpendingId", labpendingId);
 
-		List<LabPendingMeta> results = (List<LabPendingMeta>) this.findByMap((Map) m);
+		List<LabPendingMeta> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			LabPendingMeta rt = new LabPendingMeta();
 			return rt;
 		}
-		return (LabPendingMeta) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -94,6 +96,7 @@ public class LabPendingMetaDaoImpl extends WaspDaoImpl<LabPendingMeta> implement
 	 * @param metaList
 	 *
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByLabpendingId (final String area, final int labpendingId, final List<LabPendingMeta> metaList) {
@@ -113,6 +116,7 @@ public class LabPendingMetaDaoImpl extends WaspDaoImpl<LabPendingMeta> implement
 	 * @param metaList
 	 *
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByLabpendingId (final int labpendingId, final List<LabPendingMeta> metaList) {

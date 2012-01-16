@@ -57,7 +57,8 @@ public class AuthController extends WaspController {
   @Autowired
   private ConfirmEmailAuthService confirmEmailAuthService;
   
-  @InitBinder
+  @Override
+@InitBinder
   protected void initBinder(WebDataBinder binder) {
     binder.setValidator(validator);
   }

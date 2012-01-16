@@ -33,6 +33,7 @@ public class StaterunlaneServiceImpl extends WaspServiceImpl<Staterunlane> imple
 	 * @param staterunlaneDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setStaterunlaneDao(StaterunlaneDao staterunlaneDao) {
 		this.staterunlaneDao = staterunlaneDao;
@@ -45,12 +46,14 @@ public class StaterunlaneServiceImpl extends WaspServiceImpl<Staterunlane> imple
 	 * @return staterunlaneDao
 	 *
 	 */
+	@Override
 	public StaterunlaneDao getStaterunlaneDao() {
 		return this.staterunlaneDao;
 	}
 
 
-  public Staterunlane getStaterunlaneByStaterunlaneId (final int staterunlaneId) {
+  @Override
+public Staterunlane getStaterunlaneByStaterunlaneId (final int staterunlaneId) {
     return this.getStaterunlaneDao().getStaterunlaneByStaterunlaneId(staterunlaneId);
   }
 

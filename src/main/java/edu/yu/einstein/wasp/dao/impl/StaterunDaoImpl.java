@@ -44,19 +44,20 @@ public class StaterunDaoImpl extends WaspDaoImpl<Staterun> implements edu.yu.ein
 	 * @return staterun
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public Staterun getStaterunByStaterunId (final int staterunId) {
     		HashMap m = new HashMap();
 		m.put("staterunId", staterunId);
 
-		List<Staterun> results = (List<Staterun>) this.findByMap((Map) m);
+		List<Staterun> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			Staterun rt = new Staterun();
 			return rt;
 		}
-		return (Staterun) results.get(0);
+		return results.get(0);
 	}
 
 

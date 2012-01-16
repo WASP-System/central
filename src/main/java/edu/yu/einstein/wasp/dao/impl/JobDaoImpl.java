@@ -47,19 +47,20 @@ public class JobDaoImpl extends WaspDaoImpl<Job> implements edu.yu.einstein.wasp
 	 * @return job
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public Job getJobByJobId (final int jobId) {
     		HashMap m = new HashMap();
 		m.put("jobId", jobId);
 
-		List<Job> results = (List<Job>) this.findByMap((Map) m);
+		List<Job> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			Job rt = new Job();
 			return rt;
 		}
-		return (Job) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -72,6 +73,7 @@ public class JobDaoImpl extends WaspDaoImpl<Job> implements edu.yu.einstein.wasp
 	 * @return job
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public Job getJobByNameLabId (final String name, final int labId) {
@@ -79,15 +81,16 @@ public class JobDaoImpl extends WaspDaoImpl<Job> implements edu.yu.einstein.wasp
 		m.put("name", name);
 		m.put("labId", labId);
 
-		List<Job> results = (List<Job>) this.findByMap((Map) m);
+		List<Job> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			Job rt = new Job();
 			return rt;
 		}
-		return (Job) results.get(0);
+		return results.get(0);
 	}
 
+	@Override
 	public Map<Integer,List<Job>> getJobSamplesByWorkflow(final int workflowId) {
 		   String sql=
 			   "SELECT ws.subtypesampleId, j.jobId, j.name\n"+

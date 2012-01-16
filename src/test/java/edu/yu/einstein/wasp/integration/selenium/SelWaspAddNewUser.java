@@ -34,6 +34,7 @@ public class SelWaspAddNewUser extends SelBaseTest {
 	 * If you want it to run before all methods, you need to use the alwaysRun = true:
 	 * @throws Exception
 	 */
+	@Override
 	@BeforeClass (alwaysRun = true)
     public void setUp() throws Exception {
 		
@@ -148,7 +149,8 @@ public class SelWaspAddNewUser extends SelBaseTest {
         
   	}
     
-    @AfterClass
+    @Override
+	@AfterClass
     public void tearDown(){
         //driver.close();
         

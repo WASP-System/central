@@ -56,7 +56,8 @@ public class SelUserUtilsJqQuery extends SelBaseTest {
 		  
 	  }
 	  
-	   @AfterClass
+	   @Override
+	@AfterClass
 	   public void tearDown(){
 		   //driver.close();
 		     

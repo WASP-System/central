@@ -14,6 +14,7 @@ public class BeeFileReader implements ItemReader<String> {
 	/**
 	 * @see org.springframework.batch.item.ItemReader#read()
 	 */
+	@Override
 	public String read() throws Exception {
 		
 		if (i<list.size()) {

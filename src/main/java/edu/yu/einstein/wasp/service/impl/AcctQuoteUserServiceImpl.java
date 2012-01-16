@@ -33,6 +33,7 @@ public class AcctQuoteUserServiceImpl extends WaspServiceImpl<AcctQuoteUser> imp
 	 * @param acctQuoteUserDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setAcctQuoteUserDao(AcctQuoteUserDao acctQuoteUserDao) {
 		this.acctQuoteUserDao = acctQuoteUserDao;
@@ -45,12 +46,14 @@ public class AcctQuoteUserServiceImpl extends WaspServiceImpl<AcctQuoteUser> imp
 	 * @return acctQuoteUserDao
 	 *
 	 */
+	@Override
 	public AcctQuoteUserDao getAcctQuoteUserDao() {
 		return this.acctQuoteUserDao;
 	}
 
 
-  public AcctQuoteUser getAcctQuoteUserByQuoteUserId (final int quoteUserId) {
+  @Override
+public AcctQuoteUser getAcctQuoteUserByQuoteUserId (final int quoteUserId) {
     return this.getAcctQuoteUserDao().getAcctQuoteUserByQuoteUserId(quoteUserId);
   }
 

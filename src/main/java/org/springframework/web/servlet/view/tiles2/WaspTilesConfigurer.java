@@ -220,6 +220,7 @@ public class WaspTilesConfigurer implements ServletContextAware, InitializingBea
 		CollectionUtils.mergePropertiesIntoMap(tilesProperties, this.tilesPropertyMap);
 	}
 
+	@Override
 	public void setServletContext(ServletContext servletContext) {
 		this.servletContext = servletContext;
 	}
@@ -231,6 +232,7 @@ public class WaspTilesConfigurer implements ServletContextAware, InitializingBea
 	 * @throws TilesException in case of setup failure
 	 * @see #createTilesInitializer()
 	 */
+	@Override
 	public void afterPropertiesSet() throws TilesException {
 		ServletContextAdapter adaptedContext = new ServletContextAdapter(new DelegatingServletConfig());
 		createTilesInitializer().initialize(new ServletTilesApplicationContext(adaptedContext));
@@ -249,6 +251,7 @@ public class WaspTilesConfigurer implements ServletContextAware, InitializingBea
 	 * Removes the TilesContainer from this web application.
 	 * @throws TilesException in case of cleanup failure
 	 */
+	@Override
 	public void destroy() throws TilesException {
 		ServletUtil.setContainer(this.servletContext, null);
 	}
@@ -261,18 +264,22 @@ public class WaspTilesConfigurer implements ServletContextAware, InitializingBea
 	 */
 	private class DelegatingServletConfig implements ServletConfig {
 
+		@Override
 		public String getServletName() {
 			return "TilesConfigurer";
 		}
 
+		@Override
 		public ServletContext getServletContext() {
 			return servletContext;
 		}
 
+		@Override
 		public String getInitParameter(String paramName) {
 			return tilesPropertyMap.getProperty(paramName);
 		}
 
+		@Override
 		public Enumeration getInitParameterNames() {
 			return tilesPropertyMap.keys();
 		}

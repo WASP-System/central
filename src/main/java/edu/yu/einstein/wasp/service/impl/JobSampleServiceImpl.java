@@ -33,6 +33,7 @@ public class JobSampleServiceImpl extends WaspServiceImpl<JobSample> implements 
 	 * @param jobSampleDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setJobSampleDao(JobSampleDao jobSampleDao) {
 		this.jobSampleDao = jobSampleDao;
@@ -45,16 +46,19 @@ public class JobSampleServiceImpl extends WaspServiceImpl<JobSample> implements 
 	 * @return jobSampleDao
 	 *
 	 */
+	@Override
 	public JobSampleDao getJobSampleDao() {
 		return this.jobSampleDao;
 	}
 
 
-  public JobSample getJobSampleByJobSampleId (final int jobSampleId) {
+  @Override
+public JobSample getJobSampleByJobSampleId (final int jobSampleId) {
     return this.getJobSampleDao().getJobSampleByJobSampleId(jobSampleId);
   }
 
-  public JobSample getJobSampleByJobIdSampleId (final int jobId, final int sampleId) {
+  @Override
+public JobSample getJobSampleByJobIdSampleId (final int jobId, final int sampleId) {
     return this.getJobSampleDao().getJobSampleByJobIdSampleId(jobId, sampleId);
   }
 

@@ -44,19 +44,20 @@ public class SubtypeSampleDaoImpl extends WaspDaoImpl<SubtypeSample> implements 
 	 * @return subtypeSample
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public SubtypeSample getSubtypeSampleBySubtypeSampleId (final int subtypeSampleId) {
     		HashMap m = new HashMap();
 		m.put("subtypeSampleId", subtypeSampleId);
 
-		List<SubtypeSample> results = (List<SubtypeSample>) this.findByMap((Map) m);
+		List<SubtypeSample> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			SubtypeSample rt = new SubtypeSample();
 			return rt;
 		}
-		return (SubtypeSample) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -69,19 +70,20 @@ public class SubtypeSampleDaoImpl extends WaspDaoImpl<SubtypeSample> implements 
 	 * @return subtypeSample
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public SubtypeSample getSubtypeSampleByIName (final String iName) {
     		HashMap m = new HashMap();
 		m.put("iName", iName);
 
-		List<SubtypeSample> results = (List<SubtypeSample>) this.findByMap((Map) m);
+		List<SubtypeSample> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			SubtypeSample rt = new SubtypeSample();
 			return rt;
 		}
-		return (SubtypeSample) results.get(0);
+		return results.get(0);
 	}
 
 

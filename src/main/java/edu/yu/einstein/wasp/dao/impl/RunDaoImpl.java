@@ -44,19 +44,20 @@ public class RunDaoImpl extends WaspDaoImpl<Run> implements edu.yu.einstein.wasp
 	 * @return run
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public Run getRunByRunId (final int runId) {
     		HashMap m = new HashMap();
 		m.put("runId", runId);
 
-		List<Run> results = (List<Run>) this.findByMap((Map) m);
+		List<Run> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			Run rt = new Run();
 			return rt;
 		}
-		return (Run) results.get(0);
+		return results.get(0);
 	}
 
 

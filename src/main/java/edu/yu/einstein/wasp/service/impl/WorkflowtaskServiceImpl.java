@@ -33,6 +33,7 @@ public class WorkflowtaskServiceImpl extends WaspServiceImpl<Workflowtask> imple
 	 * @param workflowtaskDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setWorkflowtaskDao(WorkflowtaskDao workflowtaskDao) {
 		this.workflowtaskDao = workflowtaskDao;
@@ -45,12 +46,14 @@ public class WorkflowtaskServiceImpl extends WaspServiceImpl<Workflowtask> imple
 	 * @return workflowtaskDao
 	 *
 	 */
+	@Override
 	public WorkflowtaskDao getWorkflowtaskDao() {
 		return this.workflowtaskDao;
 	}
 
 
-  public Workflowtask getWorkflowtaskByWorkflowtaskId (final int workflowtaskId) {
+  @Override
+public Workflowtask getWorkflowtaskByWorkflowtaskId (final int workflowtaskId) {
     return this.getWorkflowtaskDao().getWorkflowtaskByWorkflowtaskId(workflowtaskId);
   }
 

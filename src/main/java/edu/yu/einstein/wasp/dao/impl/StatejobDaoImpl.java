@@ -44,19 +44,20 @@ public class StatejobDaoImpl extends WaspDaoImpl<Statejob> implements edu.yu.ein
 	 * @return statejob
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public Statejob getStatejobByStatejobId (final int statejobId) {
     		HashMap m = new HashMap();
 		m.put("statejobId", statejobId);
 
-		List<Statejob> results = (List<Statejob>) this.findByMap((Map) m);
+		List<Statejob> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			Statejob rt = new Statejob();
 			return rt;
 		}
-		return (Statejob) results.get(0);
+		return results.get(0);
 	}
 
 

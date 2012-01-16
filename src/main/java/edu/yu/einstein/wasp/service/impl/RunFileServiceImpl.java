@@ -33,6 +33,7 @@ public class RunFileServiceImpl extends WaspServiceImpl<RunFile> implements RunF
 	 * @param runFileDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setRunFileDao(RunFileDao runFileDao) {
 		this.runFileDao = runFileDao;
@@ -45,16 +46,19 @@ public class RunFileServiceImpl extends WaspServiceImpl<RunFile> implements RunF
 	 * @return runFileDao
 	 *
 	 */
+	@Override
 	public RunFileDao getRunFileDao() {
 		return this.runFileDao;
 	}
 
 
-  public RunFile getRunFileByRunlanefileId (final int runlanefileId) {
+  @Override
+public RunFile getRunFileByRunlanefileId (final int runlanefileId) {
     return this.getRunFileDao().getRunFileByRunlanefileId(runlanefileId);
   }
 
-  public RunFile getRunFileByFileId (final int fileId) {
+  @Override
+public RunFile getRunFileByFileId (final int fileId) {
     return this.getRunFileDao().getRunFileByFileId(fileId);
   }
 

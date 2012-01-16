@@ -44,19 +44,20 @@ public class WorkflowDaoImpl extends WaspDaoImpl<Workflow> implements edu.yu.ein
 	 * @return workflow
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public Workflow getWorkflowByWorkflowId (final int workflowId) {
     		HashMap m = new HashMap();
 		m.put("workflowId", workflowId);
 
-		List<Workflow> results = (List<Workflow>) this.findByMap((Map) m);
+		List<Workflow> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			Workflow rt = new Workflow();
 			return rt;
 		}
-		return (Workflow) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -69,19 +70,20 @@ public class WorkflowDaoImpl extends WaspDaoImpl<Workflow> implements edu.yu.ein
 	 * @return workflow
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public Workflow getWorkflowByIName (final String iName) {
     		HashMap m = new HashMap();
 		m.put("iName", iName);
 
-		List<Workflow> results = (List<Workflow>) this.findByMap((Map) m);
+		List<Workflow> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			Workflow rt = new Workflow();
 			return rt;
 		}
-		return (Workflow) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -94,19 +96,20 @@ public class WorkflowDaoImpl extends WaspDaoImpl<Workflow> implements edu.yu.ein
 	 * @return workflow
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public Workflow getWorkflowByName (final String name) {
     		HashMap m = new HashMap();
 		m.put("name", name);
 
-		List<Workflow> results = (List<Workflow>) this.findByMap((Map) m);
+		List<Workflow> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			Workflow rt = new Workflow();
 			return rt;
 		}
-		return (Workflow) results.get(0);
+		return results.get(0);
 	}
 
 

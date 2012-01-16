@@ -33,6 +33,7 @@ public class ResourceLaneServiceImpl extends WaspServiceImpl<ResourceLane> imple
 	 * @param resourceLaneDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setResourceLaneDao(ResourceLaneDao resourceLaneDao) {
 		this.resourceLaneDao = resourceLaneDao;
@@ -45,20 +46,24 @@ public class ResourceLaneServiceImpl extends WaspServiceImpl<ResourceLane> imple
 	 * @return resourceLaneDao
 	 *
 	 */
+	@Override
 	public ResourceLaneDao getResourceLaneDao() {
 		return this.resourceLaneDao;
 	}
 
 
-  public ResourceLane getResourceLaneByResourceLaneId (final int resourceLaneId) {
+  @Override
+public ResourceLane getResourceLaneByResourceLaneId (final int resourceLaneId) {
     return this.getResourceLaneDao().getResourceLaneByResourceLaneId(resourceLaneId);
   }
 
-  public ResourceLane getResourceLaneByINameResourceId (final String iName, final int resourceId) {
+  @Override
+public ResourceLane getResourceLaneByINameResourceId (final String iName, final int resourceId) {
     return this.getResourceLaneDao().getResourceLaneByINameResourceId(iName, resourceId);
   }
 
-  public ResourceLane getResourceLaneByNameResourceId (final String name, final int resourceId) {
+  @Override
+public ResourceLane getResourceLaneByNameResourceId (final String name, final int resourceId) {
     return this.getResourceLaneDao().getResourceLaneByNameResourceId(name, resourceId);
   }
 

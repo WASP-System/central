@@ -44,19 +44,20 @@ public class LabMetaDaoImpl extends WaspDaoImpl<LabMeta> implements edu.yu.einst
 	 * @return labMeta
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public LabMeta getLabMetaByLabMetaId (final int labMetaId) {
     		HashMap m = new HashMap();
 		m.put("labMetaId", labMetaId);
 
-		List<LabMeta> results = (List<LabMeta>) this.findByMap((Map) m);
+		List<LabMeta> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			LabMeta rt = new LabMeta();
 			return rt;
 		}
-		return (LabMeta) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -69,6 +70,7 @@ public class LabMetaDaoImpl extends WaspDaoImpl<LabMeta> implements edu.yu.einst
 	 * @return labMeta
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public LabMeta getLabMetaByKLabId (final String k, final int labId) {
@@ -76,13 +78,13 @@ public class LabMetaDaoImpl extends WaspDaoImpl<LabMeta> implements edu.yu.einst
 		m.put("k", k);
 		m.put("labId", labId);
 
-		List<LabMeta> results = (List<LabMeta>) this.findByMap((Map) m);
+		List<LabMeta> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			LabMeta rt = new LabMeta();
 			return rt;
 		}
-		return (LabMeta) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -94,6 +96,7 @@ public class LabMetaDaoImpl extends WaspDaoImpl<LabMeta> implements edu.yu.einst
 	 * @param metaList
 	 *
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByLabId (final String area, final int labId, final List<LabMeta> metaList) {
@@ -113,6 +116,7 @@ public class LabMetaDaoImpl extends WaspDaoImpl<LabMeta> implements edu.yu.einst
 	 * @param metaList
 	 *
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByLabId (final int labId, final List<LabMeta> metaList) {

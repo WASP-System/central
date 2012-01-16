@@ -33,6 +33,7 @@ public class UserroleServiceImpl extends WaspServiceImpl<Userrole> implements Us
 	 * @param userroleDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setUserroleDao(UserroleDao userroleDao) {
 		this.userroleDao = userroleDao;
@@ -45,16 +46,19 @@ public class UserroleServiceImpl extends WaspServiceImpl<Userrole> implements Us
 	 * @return userroleDao
 	 *
 	 */
+	@Override
 	public UserroleDao getUserroleDao() {
 		return this.userroleDao;
 	}
 
 
-  public Userrole getUserroleByUserroleId (final int userroleId) {
+  @Override
+public Userrole getUserroleByUserroleId (final int userroleId) {
     return this.getUserroleDao().getUserroleByUserroleId(userroleId);
   }
 
-  public Userrole getUserroleByUserIdRoleId (final int UserId, final int roleId) {
+  @Override
+public Userrole getUserroleByUserIdRoleId (final int UserId, final int roleId) {
     return this.getUserroleDao().getUserroleByUserIdRoleId(UserId, roleId);
   }
 

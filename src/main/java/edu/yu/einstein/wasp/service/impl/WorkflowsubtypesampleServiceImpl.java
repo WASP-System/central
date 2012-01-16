@@ -33,6 +33,7 @@ public class WorkflowsubtypesampleServiceImpl extends WaspServiceImpl<Workflowsu
 	 * @param workflowsubtypesampleDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setWorkflowsubtypesampleDao(WorkflowsubtypesampleDao workflowsubtypesampleDao) {
 		this.workflowsubtypesampleDao = workflowsubtypesampleDao;
@@ -45,16 +46,19 @@ public class WorkflowsubtypesampleServiceImpl extends WaspServiceImpl<Workflowsu
 	 * @return workflowsubtypesampleDao
 	 *
 	 */
+	@Override
 	public WorkflowsubtypesampleDao getWorkflowsubtypesampleDao() {
 		return this.workflowsubtypesampleDao;
 	}
 
 
-  public Workflowsubtypesample getWorkflowsubtypesampleByWorkflowsubtypesampleId (final int workflowsubtypesampleId) {
+  @Override
+public Workflowsubtypesample getWorkflowsubtypesampleByWorkflowsubtypesampleId (final int workflowsubtypesampleId) {
     return this.getWorkflowsubtypesampleDao().getWorkflowsubtypesampleByWorkflowsubtypesampleId(workflowsubtypesampleId);
   }
 
-  public Workflowsubtypesample getWorkflowsubtypesampleByWorkflowIdSubtypeSampleId (final int workflowId, final int subtypeSampleId) {
+  @Override
+public Workflowsubtypesample getWorkflowsubtypesampleByWorkflowIdSubtypeSampleId (final int workflowId, final int subtypeSampleId) {
     return this.getWorkflowsubtypesampleDao().getWorkflowsubtypesampleByWorkflowIdSubtypeSampleId(workflowId, subtypeSampleId);
   }
 

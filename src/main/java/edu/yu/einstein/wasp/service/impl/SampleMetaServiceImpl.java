@@ -35,6 +35,7 @@ public class SampleMetaServiceImpl extends WaspMetaServiceImpl<SampleMeta> imple
 	 * @param sampleMetaDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setSampleMetaDao(SampleMetaDao sampleMetaDao) {
 		this.sampleMetaDao = sampleMetaDao;
@@ -47,28 +48,34 @@ public class SampleMetaServiceImpl extends WaspMetaServiceImpl<SampleMeta> imple
 	 * @return sampleMetaDao
 	 *
 	 */
+	@Override
 	public SampleMetaDao getSampleMetaDao() {
 		return this.sampleMetaDao;
 	}
 
 
-  public SampleMeta getSampleMetaBySampleMetaId (final int sampleMetaId) {
+  @Override
+public SampleMeta getSampleMetaBySampleMetaId (final int sampleMetaId) {
     return this.getSampleMetaDao().getSampleMetaBySampleMetaId(sampleMetaId);
   }
 
-  public SampleMeta getSampleMetaByKSampleId (final String k, final int sampleId) {
+  @Override
+public SampleMeta getSampleMetaByKSampleId (final String k, final int sampleId) {
     return this.getSampleMetaDao().getSampleMetaByKSampleId(k, sampleId);
   }
 
-  public void updateBySampleId (final String area, final int sampleId, final List<SampleMeta> metaList) {
+  @Override
+public void updateBySampleId (final String area, final int sampleId, final List<SampleMeta> metaList) {
     this.getSampleMetaDao().updateBySampleId(area, sampleId, metaList); 
   }
 
-  public void updateBySampleId (final int sampleId, final List<SampleMeta> metaList) {
+  @Override
+public void updateBySampleId (final int sampleId, final List<SampleMeta> metaList) {
     this.getSampleMetaDao().updateBySampleId(sampleId, metaList); 
   }
 
-  public  List<SampleMeta> getSamplesMetaBySampleId (final int sampleId) {
+  @Override
+public  List<SampleMeta> getSamplesMetaBySampleId (final int sampleId) {
     return getSampleMetaDao().getSamplesMetaBySampleId(sampleId);
   }
 

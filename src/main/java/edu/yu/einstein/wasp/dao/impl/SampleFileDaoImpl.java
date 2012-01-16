@@ -44,19 +44,20 @@ public class SampleFileDaoImpl extends WaspDaoImpl<SampleFile> implements edu.yu
 	 * @return sampleFile
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public SampleFile getSampleFileBySampleFileId (final int sampleFileId) {
     		HashMap m = new HashMap();
 		m.put("sampleFileId", sampleFileId);
 
-		List<SampleFile> results = (List<SampleFile>) this.findByMap((Map) m);
+		List<SampleFile> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			SampleFile rt = new SampleFile();
 			return rt;
 		}
-		return (SampleFile) results.get(0);
+		return results.get(0);
 	}
 
 

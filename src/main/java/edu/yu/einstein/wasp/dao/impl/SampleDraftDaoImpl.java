@@ -30,26 +30,28 @@ public class SampleDraftDaoImpl extends WaspDaoImpl<SampleDraft> implements edu.
     this.entityClass = SampleDraft.class;
   }
 
-  @SuppressWarnings("unchecked")
+  @Override
+@SuppressWarnings("unchecked")
   @Transactional
   public SampleDraft getSampleDraftBySampleDraftId (final int sampleDraftId) {
     HashMap m = new HashMap();
     m.put("sampleDraftId", sampleDraftId);
-    List<SampleDraft> results = (List<SampleDraft>) this.findByMap((Map) m);
+    List<SampleDraft> results = this.findByMap(m);
     if (results.size() == 0) {
       SampleDraft rt = new SampleDraft();
       return rt;
     }
-    return (SampleDraft) results.get(0);
+    return results.get(0);
   }
 
   
-  @SuppressWarnings("unchecked")
+  @Override
+@SuppressWarnings("unchecked")
   @Transactional
   public List<SampleDraft> getSampleDraftByJobId (final int jobdraftId) {
     HashMap m = new HashMap();
     m.put("jobdraftId", jobdraftId);
-   List<SampleDraft> results = (List<SampleDraft>) this.findByMap((Map) m);
+   List<SampleDraft> results = this.findByMap(m);
    return results;
   }
 

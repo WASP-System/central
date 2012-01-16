@@ -44,19 +44,20 @@ public class AcctGrantDaoImpl extends WaspDaoImpl<AcctGrant> implements edu.yu.e
 	 * @return acctGrant
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public AcctGrant getAcctGrantByGrantId (final int grantId) {
     		HashMap m = new HashMap();
 		m.put("grantId", grantId);
 
-		List<AcctGrant> results = (List<AcctGrant>) this.findByMap((Map) m);
+		List<AcctGrant> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			AcctGrant rt = new AcctGrant();
 			return rt;
 		}
-		return (AcctGrant) results.get(0);
+		return results.get(0);
 	}
 
 

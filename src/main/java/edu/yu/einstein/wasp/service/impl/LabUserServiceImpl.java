@@ -33,6 +33,7 @@ public class LabUserServiceImpl extends WaspServiceImpl<LabUser> implements LabU
 	 * @param labUserDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setLabUserDao(LabUserDao labUserDao) {
 		this.labUserDao = labUserDao;
@@ -45,16 +46,19 @@ public class LabUserServiceImpl extends WaspServiceImpl<LabUser> implements LabU
 	 * @return labUserDao
 	 *
 	 */
+	@Override
 	public LabUserDao getLabUserDao() {
 		return this.labUserDao;
 	}
 
 
-  public LabUser getLabUserByLabUserId (final int labUserId) {
+  @Override
+public LabUser getLabUserByLabUserId (final int labUserId) {
     return this.getLabUserDao().getLabUserByLabUserId(labUserId);
   }
 
-  public LabUser getLabUserByLabIdUserId (final int labId, final int UserId) {
+  @Override
+public LabUser getLabUserByLabIdUserId (final int labId, final int UserId) {
     return this.getLabUserDao().getLabUserByLabIdUserId(labId, UserId);
   }
 

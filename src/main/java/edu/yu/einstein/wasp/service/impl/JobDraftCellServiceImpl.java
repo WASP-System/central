@@ -33,6 +33,7 @@ public class JobDraftCellServiceImpl extends WaspServiceImpl<JobDraftCell> imple
 	 * @param jobDraftCellDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setJobDraftCellDao(JobDraftCellDao jobDraftCellDao) {
 		this.jobDraftCellDao = jobDraftCellDao;
@@ -45,16 +46,19 @@ public class JobDraftCellServiceImpl extends WaspServiceImpl<JobDraftCell> imple
 	 * @return jobDraftCellDao
 	 *
 	 */
+	@Override
 	public JobDraftCellDao getJobDraftCellDao() {
 		return this.jobDraftCellDao;
 	}
 
 
-  public JobDraftCell getJobDraftCellByJobDraftCellId (final int jobDraftCellId) {
+  @Override
+public JobDraftCell getJobDraftCellByJobDraftCellId (final int jobDraftCellId) {
     return this.getJobDraftCellDao().getJobDraftCellByJobDraftCellId(jobDraftCellId);
   }
 
-  public JobDraftCell getJobDraftCellByJobdraftIdCellindex (final int jobdraftId, final int cellindex) {
+  @Override
+public JobDraftCell getJobDraftCellByJobdraftIdCellindex (final int jobdraftId, final int cellindex) {
     return this.getJobDraftCellDao().getJobDraftCellByJobdraftIdCellindex(jobdraftId, cellindex);
   }
 

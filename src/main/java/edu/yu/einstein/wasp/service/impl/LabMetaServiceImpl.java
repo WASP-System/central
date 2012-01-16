@@ -35,6 +35,7 @@ public class LabMetaServiceImpl extends WaspMetaServiceImpl<LabMeta> implements 
 	 * @param labMetaDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setLabMetaDao(LabMetaDao labMetaDao) {
 		this.labMetaDao = labMetaDao;
@@ -47,24 +48,29 @@ public class LabMetaServiceImpl extends WaspMetaServiceImpl<LabMeta> implements 
 	 * @return labMetaDao
 	 *
 	 */
+	@Override
 	public LabMetaDao getLabMetaDao() {
 		return this.labMetaDao;
 	}
 
 
-  public LabMeta getLabMetaByLabMetaId (final int labMetaId) {
+  @Override
+public LabMeta getLabMetaByLabMetaId (final int labMetaId) {
     return this.getLabMetaDao().getLabMetaByLabMetaId(labMetaId);
   }
 
-  public LabMeta getLabMetaByKLabId (final String k, final int labId) {
+  @Override
+public LabMeta getLabMetaByKLabId (final String k, final int labId) {
     return this.getLabMetaDao().getLabMetaByKLabId(k, labId);
   }
 
-  public void updateByLabId (final String area, final int labId, final List<LabMeta> metaList) {
+  @Override
+public void updateByLabId (final String area, final int labId, final List<LabMeta> metaList) {
     this.getLabMetaDao().updateByLabId(area, labId, metaList); 
   }
 
-  public void updateByLabId (final int labId, final List<LabMeta> metaList) {
+  @Override
+public void updateByLabId (final int labId, final List<LabMeta> metaList) {
     this.getLabMetaDao().updateByLabId(labId, metaList); 
   }
 

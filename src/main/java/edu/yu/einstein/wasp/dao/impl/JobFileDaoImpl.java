@@ -44,19 +44,20 @@ public class JobFileDaoImpl extends WaspDaoImpl<JobFile> implements edu.yu.einst
 	 * @return jobFile
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public JobFile getJobFileByJobFileId (final int jobFileId) {
     		HashMap m = new HashMap();
 		m.put("jobFileId", jobFileId);
 
-		List<JobFile> results = (List<JobFile>) this.findByMap((Map) m);
+		List<JobFile> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			JobFile rt = new JobFile();
 			return rt;
 		}
-		return (JobFile) results.get(0);
+		return results.get(0);
 	}
 
 

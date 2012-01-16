@@ -33,6 +33,7 @@ public class SampleCellServiceImpl extends WaspServiceImpl<SampleCell> implement
 	 * @param sampleCellDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setSampleCellDao(SampleCellDao sampleCellDao) {
 		this.sampleCellDao = sampleCellDao;
@@ -45,16 +46,19 @@ public class SampleCellServiceImpl extends WaspServiceImpl<SampleCell> implement
 	 * @return sampleCellDao
 	 *
 	 */
+	@Override
 	public SampleCellDao getSampleCellDao() {
 		return this.sampleCellDao;
 	}
 
 
-  public SampleCell getSampleCellBySampleCellId (final int sampleCellId) {
+  @Override
+public SampleCell getSampleCellBySampleCellId (final int sampleCellId) {
     return this.getSampleCellDao().getSampleCellBySampleCellId(sampleCellId);
   }
 
-  public SampleCell getSampleCellByJobcellIdLibraryindex (final int jobcellId, final int libraryindex) {
+  @Override
+public SampleCell getSampleCellByJobcellIdLibraryindex (final int jobcellId, final int libraryindex) {
     return this.getSampleCellDao().getSampleCellByJobcellIdLibraryindex(jobcellId, libraryindex);
   }
 

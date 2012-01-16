@@ -44,19 +44,20 @@ public class UserPendingMetaDaoImpl extends WaspDaoImpl<UserPendingMeta> impleme
 	 * @return userPendingMeta
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public UserPendingMeta getUserPendingMetaByUserPendingMetaId (final int userPendingMetaId) {
     		HashMap m = new HashMap();
 		m.put("userPendingMetaId", userPendingMetaId);
 
-		List<UserPendingMeta> results = (List<UserPendingMeta>) this.findByMap((Map) m);
+		List<UserPendingMeta> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			UserPendingMeta rt = new UserPendingMeta();
 			return rt;
 		}
-		return (UserPendingMeta) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -69,6 +70,7 @@ public class UserPendingMetaDaoImpl extends WaspDaoImpl<UserPendingMeta> impleme
 	 * @return userPendingMeta
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public UserPendingMeta getUserPendingMetaByKUserpendingId (final String k, final int userpendingId) {
@@ -76,13 +78,13 @@ public class UserPendingMetaDaoImpl extends WaspDaoImpl<UserPendingMeta> impleme
 		m.put("k", k);
 		m.put("userpendingId", userpendingId);
 
-		List<UserPendingMeta> results = (List<UserPendingMeta>) this.findByMap((Map) m);
+		List<UserPendingMeta> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			UserPendingMeta rt = new UserPendingMeta();
 			return rt;
 		}
-		return (UserPendingMeta) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -94,6 +96,7 @@ public class UserPendingMetaDaoImpl extends WaspDaoImpl<UserPendingMeta> impleme
 	 * @param metaList
 	 *
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByUserpendingId (final String area, final int userpendingId, final List<UserPendingMeta> metaList) {
@@ -113,6 +116,7 @@ public class UserPendingMetaDaoImpl extends WaspDaoImpl<UserPendingMeta> impleme
 	 * @param metaList
 	 *
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByUserpendingId (final int userpendingId, final List<UserPendingMeta> metaList) {

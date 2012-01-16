@@ -44,19 +44,20 @@ public class JobMetaDaoImpl extends WaspDaoImpl<JobMeta> implements edu.yu.einst
 	 * @return jobMeta
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public JobMeta getJobMetaByJobMetaId (final int jobMetaId) {
     		HashMap m = new HashMap();
 		m.put("jobMetaId", jobMetaId);
 
-		List<JobMeta> results = (List<JobMeta>) this.findByMap((Map) m);
+		List<JobMeta> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			JobMeta rt = new JobMeta();
 			return rt;
 		}
-		return (JobMeta) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -69,6 +70,7 @@ public class JobMetaDaoImpl extends WaspDaoImpl<JobMeta> implements edu.yu.einst
 	 * @return jobMeta
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public JobMeta getJobMetaByKJobId (final String k, final int jobId) {
@@ -76,13 +78,13 @@ public class JobMetaDaoImpl extends WaspDaoImpl<JobMeta> implements edu.yu.einst
 		m.put("k", k);
 		m.put("jobId", jobId);
 
-		List<JobMeta> results = (List<JobMeta>) this.findByMap((Map) m);
+		List<JobMeta> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			JobMeta rt = new JobMeta();
 			return rt;
 		}
-		return (JobMeta) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -94,6 +96,7 @@ public class JobMetaDaoImpl extends WaspDaoImpl<JobMeta> implements edu.yu.einst
 	 * @param metaList
 	 *
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByJobId (final String area, final int jobId, final List<JobMeta> metaList) {
@@ -113,6 +116,7 @@ public class JobMetaDaoImpl extends WaspDaoImpl<JobMeta> implements edu.yu.einst
 	 * @param metaList
 	 *
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByJobId (final int jobId, final List<JobMeta> metaList) {

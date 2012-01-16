@@ -44,19 +44,20 @@ public class UserroleDaoImpl extends WaspDaoImpl<Userrole> implements edu.yu.ein
 	 * @return userrole
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public Userrole getUserroleByUserroleId (final int userroleId) {
     		HashMap m = new HashMap();
 		m.put("userroleId", userroleId);
 
-		List<Userrole> results = (List<Userrole>) this.findByMap((Map) m);
+		List<Userrole> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			Userrole rt = new Userrole();
 			return rt;
 		}
-		return (Userrole) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -69,6 +70,7 @@ public class UserroleDaoImpl extends WaspDaoImpl<Userrole> implements edu.yu.ein
 	 * @return userrole
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public Userrole getUserroleByUserIdRoleId (final int UserId, final int roleId) {
@@ -76,13 +78,13 @@ public class UserroleDaoImpl extends WaspDaoImpl<Userrole> implements edu.yu.ein
 		m.put("UserId", UserId);
 		m.put("roleId", roleId);
 
-		List<Userrole> results = (List<Userrole>) this.findByMap((Map) m);
+		List<Userrole> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			Userrole rt = new Userrole();
 			return rt;
 		}
-		return (Userrole) results.get(0);
+		return results.get(0);
 	}
 
 

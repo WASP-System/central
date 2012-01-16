@@ -33,6 +33,7 @@ public class RunLanefileServiceImpl extends WaspServiceImpl<RunLanefile> impleme
 	 * @param runLanefileDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setRunLanefileDao(RunLanefileDao runLanefileDao) {
 		this.runLanefileDao = runLanefileDao;
@@ -45,16 +46,19 @@ public class RunLanefileServiceImpl extends WaspServiceImpl<RunLanefile> impleme
 	 * @return runLanefileDao
 	 *
 	 */
+	@Override
 	public RunLanefileDao getRunLanefileDao() {
 		return this.runLanefileDao;
 	}
 
 
-  public RunLanefile getRunLanefileByRunLanefileId (final int runLanefileId) {
+  @Override
+public RunLanefile getRunLanefileByRunLanefileId (final int runLanefileId) {
     return this.getRunLanefileDao().getRunLanefileByRunLanefileId(runLanefileId);
   }
 
-  public RunLanefile getRunLanefileByFileId (final int fileId) {
+  @Override
+public RunLanefile getRunLanefileByFileId (final int fileId) {
     return this.getRunLanefileDao().getRunLanefileByFileId(fileId);
   }
 

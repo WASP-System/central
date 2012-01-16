@@ -17,16 +17,19 @@ public class BeanValidator implements org.springframework.validation.Validator, 
 	  
 	    private javax.validation.Validator validator;
 	 
-	    public void afterPropertiesSet() throws Exception {
+	    @Override
+		public void afterPropertiesSet() throws Exception {
 	        ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
 	        validator = validatorFactory.usingContext().getValidator();
 	    }
 	 
-	    public boolean supports(Class clazz) {
+	    @Override
+		public boolean supports(Class clazz) {
 	        return true;
 	    }
 	 
-	    public void validate(Object target, Errors errors) {
+	    @Override
+		public void validate(Object target, Errors errors) {
 		  
 	        Set<ConstraintViolation<Object>> constraintViolations = validator.validate(target);
 	        for (ConstraintViolation<Object> constraintViolation : constraintViolations) {

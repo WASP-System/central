@@ -60,7 +60,8 @@ public class DoSendInvoiceTasklet extends org.springframework.batch.core.step.ta
 
   // @ PostInitialize
 	// public void postInitialize() {
-  @Transactional
+  @Override
+@Transactional
 	public void beforeStep(StepExecution stepExecution) {
 System.out.println("\n\n\n\n\n\n\n\nTTTTTTTTTTTTTTTTTTTTTTTTTTTTT\n["+  stateService+ "]\n\n\n\n\n\n");
 		Map m = new HashMap(); 

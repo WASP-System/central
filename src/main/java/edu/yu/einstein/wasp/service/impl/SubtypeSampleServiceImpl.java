@@ -33,6 +33,7 @@ public class SubtypeSampleServiceImpl extends WaspServiceImpl<SubtypeSample> imp
 	 * @param subtypeSampleDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setSubtypeSampleDao(SubtypeSampleDao subtypeSampleDao) {
 		this.subtypeSampleDao = subtypeSampleDao;
@@ -45,16 +46,19 @@ public class SubtypeSampleServiceImpl extends WaspServiceImpl<SubtypeSample> imp
 	 * @return subtypeSampleDao
 	 *
 	 */
+	@Override
 	public SubtypeSampleDao getSubtypeSampleDao() {
 		return this.subtypeSampleDao;
 	}
 
 
-  public SubtypeSample getSubtypeSampleBySubtypeSampleId (final int subtypeSampleId) {
+  @Override
+public SubtypeSample getSubtypeSampleBySubtypeSampleId (final int subtypeSampleId) {
     return this.getSubtypeSampleDao().getSubtypeSampleBySubtypeSampleId(subtypeSampleId);
   }
 
-  public SubtypeSample getSubtypeSampleByIName (final String iName) {
+  @Override
+public SubtypeSample getSubtypeSampleByIName (final String iName) {
     return this.getSubtypeSampleDao().getSubtypeSampleByIName(iName);
   }
 

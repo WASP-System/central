@@ -45,7 +45,8 @@ public class CreateSampleStateProcessor implements ItemProcessor {
 
   String targetStatus = "CREATED"; 
 
-  public State process(Object stateId) throws Exception {
+  @Override
+public State process(Object stateId) throws Exception {
     
     State state = stateService.getStateByStateId(((Integer) stateId).intValue());
 

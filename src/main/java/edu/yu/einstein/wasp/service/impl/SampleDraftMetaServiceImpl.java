@@ -26,31 +26,37 @@ import edu.yu.einstein.wasp.service.SampleDraftMetaService;
 public class SampleDraftMetaServiceImpl extends WaspMetaServiceImpl<SampleDraftMeta> implements SampleDraftMetaService {
 
   private SampleDraftMetaDao sampleDraftMetaDao;
-  @Autowired
+  @Override
+@Autowired
   public void setSampleDraftMetaDao(SampleDraftMetaDao sampleDraftMetaDao) {
     this.sampleDraftMetaDao = sampleDraftMetaDao;
     this.setWaspDao(sampleDraftMetaDao);
   }
-  public SampleDraftMetaDao getSampleDraftMetaDao() {
+  @Override
+public SampleDraftMetaDao getSampleDraftMetaDao() {
     return this.sampleDraftMetaDao;
   }
 
   // **
 
   
-  public SampleDraftMeta getSampleDraftMetaBySampleDraftMetaId (final int sampleDraftMetaId) {
+  @Override
+public SampleDraftMeta getSampleDraftMetaBySampleDraftMetaId (final int sampleDraftMetaId) {
     return this.getSampleDraftMetaDao().getSampleDraftMetaBySampleDraftMetaId(sampleDraftMetaId);
   }
 
-  public SampleDraftMeta getSampleDraftMetaByKSampledraftId (final String k, final int sampledraftId) {
+  @Override
+public SampleDraftMeta getSampleDraftMetaByKSampledraftId (final String k, final int sampledraftId) {
     return this.getSampleDraftMetaDao().getSampleDraftMetaByKSampledraftId(k, sampledraftId);
   }
 
-  public void updateBySampledraftId (final int sampledraftId, final List<SampleDraftMeta> metaList) {
+  @Override
+public void updateBySampledraftId (final int sampledraftId, final List<SampleDraftMeta> metaList) {
     this.getSampleDraftMetaDao().updateBySampledraftId(sampledraftId, metaList); 
   }
   
-  public Map<SubtypeSample,List<SampleDraftMeta>> getAllowableMetaFields(int workflowId) {
+  @Override
+public Map<SubtypeSample,List<SampleDraftMeta>> getAllowableMetaFields(int workflowId) {
 	  return this.getSampleDraftMetaDao().getAllowableMetaFields(workflowId);	  
   }
   

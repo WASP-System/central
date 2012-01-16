@@ -44,19 +44,20 @@ public class WorkflowMetaDaoImpl extends WaspDaoImpl<WorkflowMeta> implements ed
 	 * @return workflowMeta
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public WorkflowMeta getWorkflowMetaByWorkflowMetaId (final int workflowMetaId) {
     		HashMap m = new HashMap();
 		m.put("workflowMetaId", workflowMetaId);
 
-		List<WorkflowMeta> results = (List<WorkflowMeta>) this.findByMap((Map) m);
+		List<WorkflowMeta> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			WorkflowMeta rt = new WorkflowMeta();
 			return rt;
 		}
-		return (WorkflowMeta) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -69,6 +70,7 @@ public class WorkflowMetaDaoImpl extends WaspDaoImpl<WorkflowMeta> implements ed
 	 * @return workflowMeta
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public WorkflowMeta getWorkflowMetaByKWorkflowId (final String k, final int workflowId) {
@@ -76,13 +78,13 @@ public class WorkflowMetaDaoImpl extends WaspDaoImpl<WorkflowMeta> implements ed
 		m.put("k", k);
 		m.put("workflowId", workflowId);
 
-		List<WorkflowMeta> results = (List<WorkflowMeta>) this.findByMap((Map) m);
+		List<WorkflowMeta> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			WorkflowMeta rt = new WorkflowMeta();
 			return rt;
 		}
-		return (WorkflowMeta) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -94,6 +96,7 @@ public class WorkflowMetaDaoImpl extends WaspDaoImpl<WorkflowMeta> implements ed
 	 * @param metaList
 	 *
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByWorkflowId (final String area, final int workflowId, final List<WorkflowMeta> metaList) {
@@ -113,6 +116,7 @@ public class WorkflowMetaDaoImpl extends WaspDaoImpl<WorkflowMeta> implements ed
 	 * @param metaList
 	 *
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByWorkflowId (final int workflowId, final List<WorkflowMeta> metaList) {

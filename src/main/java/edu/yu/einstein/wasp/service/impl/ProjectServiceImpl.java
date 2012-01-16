@@ -33,6 +33,7 @@ public class ProjectServiceImpl extends WaspServiceImpl<Project> implements Proj
 	 * @param projectDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setProjectDao(ProjectDao projectDao) {
 		this.projectDao = projectDao;
@@ -45,16 +46,19 @@ public class ProjectServiceImpl extends WaspServiceImpl<Project> implements Proj
 	 * @return projectDao
 	 *
 	 */
+	@Override
 	public ProjectDao getProjectDao() {
 		return this.projectDao;
 	}
 
 
-  public Project getProjectByProjectId (final int projectId) {
+  @Override
+public Project getProjectByProjectId (final int projectId) {
     return this.getProjectDao().getProjectByProjectId(projectId);
   }
 
-  public Project getProjectByNameLabId (final String name, final int labId) {
+  @Override
+public Project getProjectByNameLabId (final String name, final int labId) {
     return this.getProjectDao().getProjectByNameLabId(name, labId);
   }
 

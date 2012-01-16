@@ -35,6 +35,7 @@ public class UserPendingMetaServiceImpl extends WaspMetaServiceImpl<UserPendingM
 	 * @param userPendingMetaDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setUserPendingMetaDao(UserPendingMetaDao userPendingMetaDao) {
 		this.userPendingMetaDao = userPendingMetaDao;
@@ -47,24 +48,29 @@ public class UserPendingMetaServiceImpl extends WaspMetaServiceImpl<UserPendingM
 	 * @return userPendingMetaDao
 	 *
 	 */
+	@Override
 	public UserPendingMetaDao getUserPendingMetaDao() {
 		return this.userPendingMetaDao;
 	}
 
 
-  public UserPendingMeta getUserPendingMetaByUserPendingMetaId (final int userPendingMetaId) {
+  @Override
+public UserPendingMeta getUserPendingMetaByUserPendingMetaId (final int userPendingMetaId) {
     return this.getUserPendingMetaDao().getUserPendingMetaByUserPendingMetaId(userPendingMetaId);
   }
 
-  public UserPendingMeta getUserPendingMetaByKUserpendingId (final String k, final int userpendingId) {
+  @Override
+public UserPendingMeta getUserPendingMetaByKUserpendingId (final String k, final int userpendingId) {
     return this.getUserPendingMetaDao().getUserPendingMetaByKUserpendingId(k, userpendingId);
   }
 
-  public void updateByUserpendingId (final String area, final int userpendingId, final List<UserPendingMeta> metaList) {
+  @Override
+public void updateByUserpendingId (final String area, final int userpendingId, final List<UserPendingMeta> metaList) {
     this.getUserPendingMetaDao().updateByUserpendingId(area, userpendingId, metaList); 
   }
 
-  public void updateByUserpendingId (final int userpendingId, final List<UserPendingMeta> metaList) {
+  @Override
+public void updateByUserpendingId (final int userpendingId, final List<UserPendingMeta> metaList) {
     this.getUserPendingMetaDao().updateByUserpendingId(userpendingId, metaList); 
   }
 

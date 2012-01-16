@@ -50,6 +50,7 @@ public class SampleDraftMetaDaoImpl extends WaspDaoImpl<SampleDraftMeta> impleme
 	 * @return sampleDraftMeta
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public SampleDraftMeta getSampleDraftMetaBySampleDraftMetaId (final int sampleDraftMetaId) {
@@ -57,13 +58,13 @@ public class SampleDraftMetaDaoImpl extends WaspDaoImpl<SampleDraftMeta> impleme
     	HashMap m = new HashMap();
 		m.put("sampleDraftMetaId", sampleDraftMetaId);
 
-		List<SampleDraftMeta> results = (List<SampleDraftMeta>) this.findByMap((Map) m);
+		List<SampleDraftMeta> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			SampleDraftMeta rt = new SampleDraftMeta();
 			return rt;
 		}
-		return (SampleDraftMeta) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -76,6 +77,7 @@ public class SampleDraftMetaDaoImpl extends WaspDaoImpl<SampleDraftMeta> impleme
 	 * @return sampleDraftMeta
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public SampleDraftMeta getSampleDraftMetaByKSampledraftId (final String k, final int sampledraftId) {
@@ -84,13 +86,13 @@ public class SampleDraftMetaDaoImpl extends WaspDaoImpl<SampleDraftMeta> impleme
 		m.put("k", k);
 		m.put("sampledraftId", sampledraftId);
 
-		List<SampleDraftMeta> results = (List<SampleDraftMeta>) this.findByMap((Map) m);
+		List<SampleDraftMeta> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			SampleDraftMeta rt = new SampleDraftMeta();
 			return rt;
 		}
-		return (SampleDraftMeta) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -102,6 +104,7 @@ public class SampleDraftMetaDaoImpl extends WaspDaoImpl<SampleDraftMeta> impleme
 	 * @param metaList
 	 *
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateBySampledraftId (final int sampledraftId, final List<SampleDraftMeta> metaList) {
@@ -119,6 +122,7 @@ public class SampleDraftMetaDaoImpl extends WaspDaoImpl<SampleDraftMeta> impleme
 	 * @author Sasha Levchuk
 	 */
 	
+	@Override
 	public Map<SubtypeSample,List<SampleDraftMeta>> getAllowableMetaFields(final int workflowId) {
 		
 	   String sql=

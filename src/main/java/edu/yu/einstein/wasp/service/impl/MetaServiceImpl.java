@@ -33,6 +33,7 @@ public class MetaServiceImpl extends WaspMetaServiceImpl<Meta> implements MetaSe
 	 * @param metaDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setMetaDao(MetaDao metaDao) {
 		this.metaDao = metaDao;
@@ -45,20 +46,24 @@ public class MetaServiceImpl extends WaspMetaServiceImpl<Meta> implements MetaSe
 	 * @return metaDao
 	 *
 	 */
+	@Override
 	public MetaDao getMetaDao() {
 		return this.metaDao;
 	}
 
 
-  public Meta getMetaByMetaId (final int metaId) {
+  @Override
+public Meta getMetaByMetaId (final int metaId) {
     return this.getMetaDao().getMetaByMetaId(metaId);
   }
 
-  public Meta getMetaByPropertyK (final String property, final String k) {
+  @Override
+public Meta getMetaByPropertyK (final String property, final String k) {
     return this.getMetaDao().getMetaByPropertyK(property, k);
   }
 
-  public Meta getMetaByPropertyV (final String property, final String v) {
+  @Override
+public Meta getMetaByPropertyV (final String property, final String v) {
     return this.getMetaDao().getMetaByPropertyV(property, v);
   }
 

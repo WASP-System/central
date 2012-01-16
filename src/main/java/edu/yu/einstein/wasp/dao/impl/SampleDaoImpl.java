@@ -45,21 +45,23 @@ public class SampleDaoImpl extends WaspDaoImpl<Sample> implements edu.yu.einstei
 	 * @return sample
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public Sample getSampleBySampleId (final int sampleId) {
     		HashMap m = new HashMap();
 		m.put("sampleId", sampleId);
 
-		List<Sample> results = (List<Sample>) this.findByMap((Map) m);
+		List<Sample> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			Sample rt = new Sample();
 			return rt;
 		}
-		return (Sample) results.get(0);
+		return results.get(0);
 	}
 
+	@Override
 	public List<Sample> getSamplesByJobId (final int jobId) {
 		   String sql=
 			   "SELECT s.sampleId, s.name\n"+

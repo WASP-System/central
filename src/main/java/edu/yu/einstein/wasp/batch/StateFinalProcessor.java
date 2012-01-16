@@ -21,7 +21,8 @@ public class StateFinalProcessor implements ItemProcessor {
   @Autowired
   StateService stateService;
 
-  public State process(Object stateId) throws Exception {
+  @Override
+public State process(Object stateId) throws Exception {
     State state = stateService.getStateByStateId(((Integer) stateId).intValue());
     state.setStatus("FINAL");
     state.setEndts(new Date());

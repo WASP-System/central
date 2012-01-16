@@ -34,7 +34,8 @@ public abstract class WaspDaoImpl<E extends Serializable> implements edu.yu.eins
  @PersistenceContext
  protected EntityManager entityManager;
 
- public void persist(final E entity) {
+ @Override
+public void persist(final E entity) {
 	 
   setUpdateTs(entity);
   setEditorId(entity);
@@ -42,7 +43,8 @@ public abstract class WaspDaoImpl<E extends Serializable> implements edu.yu.eins
  }
 
  
- public E save(E entity) {
+ @Override
+public E save(E entity) {
 	 
     setEditorId(entity);
     setUpdateTs(entity); 
@@ -58,11 +60,13 @@ public abstract class WaspDaoImpl<E extends Serializable> implements edu.yu.eins
    return entity;
  }
 
- public void remove(E entity) {
+ @Override
+public void remove(E entity) {
   entityManager.remove(entity);
  }
 
- public E merge(E entity) {
+ @Override
+public E merge(E entity) {
 	 
   setUpdateTs(entity);
   setEditorId(entity);
@@ -70,33 +74,40 @@ public abstract class WaspDaoImpl<E extends Serializable> implements edu.yu.eins
   return entityManager.merge(entity);
  }
 
- public void refresh(E entity) {
+ @Override
+public void refresh(E entity) {
   entityManager.refresh(entity);
  }
  
 
- public E findById(int id) {
-  return (E) entityManager.find(this.entityClass, id);
+ @Override
+public E findById(int id) {
+  return entityManager.find(this.entityClass, id);
  }
- public E getById(int id) {
-  return (E) entityManager.find(this.entityClass, id);
+ @Override
+public E getById(int id) {
+  return entityManager.find(this.entityClass, id);
  }
 
- public E flush(E entity) {
+ @Override
+public E flush(E entity) {
   entityManager.flush();
   return entity;
  }
 
- @SuppressWarnings("unchecked")
+ @Override
+@SuppressWarnings("unchecked")
  public List<E> findAll() {
 	 return this.entityManager.createQuery( "FROM " + entityClass.getName() ).getResultList();
  }
 
- public Integer removeAll() {
+ @Override
+public Integer removeAll() {
 	 return entityManager.createQuery("DELETE FROM " + entityClass.getName() + " h").executeUpdate();
  }
 
-  @SuppressWarnings("unchecked")
+  @Override
+@SuppressWarnings("unchecked")
    public List<E> findByMap(final Map m) {
 	  boolean first = true;
 	  	String qString = "SELECT h FROM " + entityClass.getName() + " h";
@@ -120,7 +131,8 @@ public abstract class WaspDaoImpl<E extends Serializable> implements edu.yu.eins
         return q.getResultList();
   }
  
-  @SuppressWarnings("unchecked")
+  @Override
+@SuppressWarnings("unchecked")
    public List<E> findByMapDistinctOrderBy(final Map m, final List<String> distinctColumnNames, final List<String> orderByColumnNames, final String direction) {
     	boolean where = false;
     	boolean firstMap = true;
@@ -201,7 +213,8 @@ public abstract class WaspDaoImpl<E extends Serializable> implements edu.yu.eins
 
   
   
-  @SuppressWarnings("unchecked")
+  @Override
+@SuppressWarnings("unchecked")
   public List<E> findDistinctOrderBy(final String distinctColumnName, final String orderByColumnName, final String direction) {
     
         String qString = "SELECT h FROM " + entityClass.getName() + " h";
@@ -222,7 +235,8 @@ public abstract class WaspDaoImpl<E extends Serializable> implements edu.yu.eins
 
   }
   
-  @SuppressWarnings("unchecked")
+  @Override
+@SuppressWarnings("unchecked")
   public List findAllOrderBy(final String orderByColumnName, final String direction) {
      String qString = "SELECT h FROM " + entityClass.getName() + " h";
      if( ! "".equals(orderByColumnName) &&  "".equals(direction) ){
@@ -247,7 +261,7 @@ public abstract class WaspDaoImpl<E extends Serializable> implements edu.yu.eins
 				   
 				Integer userId = new Integer(0);
 				try {
-					final String login = (String) SecurityContextHolder.getContext().getAuthentication().getName();
+					final String login = SecurityContextHolder.getContext().getAuthentication().getName();
 					if (!login.equals("anonymousUser")) {
 						Integer newUserId = (Integer)entityManager.createNativeQuery("select userId from user where login=:login").setParameter("login",login).getSingleResult();
 						if (newUserId != null) {

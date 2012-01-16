@@ -33,6 +33,7 @@ public class StateServiceImpl extends WaspServiceImpl<State> implements StateSer
 	 * @param stateDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setStateDao(StateDao stateDao) {
 		this.stateDao = stateDao;
@@ -45,12 +46,14 @@ public class StateServiceImpl extends WaspServiceImpl<State> implements StateSer
 	 * @return stateDao
 	 *
 	 */
+	@Override
 	public StateDao getStateDao() {
 		return this.stateDao;
 	}
 
 
-  public State getStateByStateId (final int stateId) {
+  @Override
+public State getStateByStateId (final int stateId) {
     return this.getStateDao().getStateByStateId(stateId);
   }
 

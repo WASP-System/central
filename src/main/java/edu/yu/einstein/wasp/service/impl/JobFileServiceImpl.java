@@ -33,6 +33,7 @@ public class JobFileServiceImpl extends WaspServiceImpl<JobFile> implements JobF
 	 * @param jobFileDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setJobFileDao(JobFileDao jobFileDao) {
 		this.jobFileDao = jobFileDao;
@@ -45,12 +46,14 @@ public class JobFileServiceImpl extends WaspServiceImpl<JobFile> implements JobF
 	 * @return jobFileDao
 	 *
 	 */
+	@Override
 	public JobFileDao getJobFileDao() {
 		return this.jobFileDao;
 	}
 
 
-  public JobFile getJobFileByJobFileId (final int jobFileId) {
+  @Override
+public JobFile getJobFileByJobFileId (final int jobFileId) {
     return this.getJobFileDao().getJobFileByJobFileId(jobFileId);
   }
 

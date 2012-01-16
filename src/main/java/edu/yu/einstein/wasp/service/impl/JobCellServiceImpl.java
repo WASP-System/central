@@ -33,6 +33,7 @@ public class JobCellServiceImpl extends WaspServiceImpl<JobCell> implements JobC
 	 * @param jobCellDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setJobCellDao(JobCellDao jobCellDao) {
 		this.jobCellDao = jobCellDao;
@@ -45,16 +46,19 @@ public class JobCellServiceImpl extends WaspServiceImpl<JobCell> implements JobC
 	 * @return jobCellDao
 	 *
 	 */
+	@Override
 	public JobCellDao getJobCellDao() {
 		return this.jobCellDao;
 	}
 
 
-  public JobCell getJobCellByJobCellId (final int jobCellId) {
+  @Override
+public JobCell getJobCellByJobCellId (final int jobCellId) {
     return this.getJobCellDao().getJobCellByJobCellId(jobCellId);
   }
 
-  public JobCell getJobCellByJobIdCellindex (final int jobId, final int cellindex) {
+  @Override
+public JobCell getJobCellByJobIdCellindex (final int jobId, final int cellindex) {
     return this.getJobCellDao().getJobCellByJobIdCellindex(jobId, cellindex);
   }
 

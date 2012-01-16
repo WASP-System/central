@@ -44,19 +44,20 @@ public class StateDaoImpl extends WaspDaoImpl<State> implements edu.yu.einstein.
 	 * @return state
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public State getStateByStateId (final int stateId) {
     		HashMap m = new HashMap();
 		m.put("stateId", stateId);
 
-		List<State> results = (List<State>) this.findByMap((Map) m);
+		List<State> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			State rt = new State();
 			return rt;
 		}
-		return (State) results.get(0);
+		return results.get(0);
 	}
 
 

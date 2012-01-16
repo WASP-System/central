@@ -33,6 +33,7 @@ public class SampleBarcodeServiceImpl extends WaspServiceImpl<SampleBarcode> imp
 	 * @param sampleBarcodeDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setSampleBarcodeDao(SampleBarcodeDao sampleBarcodeDao) {
 		this.sampleBarcodeDao = sampleBarcodeDao;
@@ -45,20 +46,24 @@ public class SampleBarcodeServiceImpl extends WaspServiceImpl<SampleBarcode> imp
 	 * @return sampleBarcodeDao
 	 *
 	 */
+	@Override
 	public SampleBarcodeDao getSampleBarcodeDao() {
 		return this.sampleBarcodeDao;
 	}
 
 
-  public SampleBarcode getSampleBarcodeBySampleBarcode (final int sampleBarcode) {
+  @Override
+public SampleBarcode getSampleBarcodeBySampleBarcode (final int sampleBarcode) {
     return this.getSampleBarcodeDao().getSampleBarcodeBySampleBarcode(sampleBarcode);
   }
 
-  public SampleBarcode getSampleBarcodeBySampleId (final int sampleId) {
+  @Override
+public SampleBarcode getSampleBarcodeBySampleId (final int sampleId) {
     return this.getSampleBarcodeDao().getSampleBarcodeBySampleId(sampleId);
   }
 
-  public SampleBarcode getSampleBarcodeByBarcodeId (final int barcodeId) {
+  @Override
+public SampleBarcode getSampleBarcodeByBarcodeId (final int barcodeId) {
     return this.getSampleBarcodeDao().getSampleBarcodeByBarcodeId(barcodeId);
   }
 

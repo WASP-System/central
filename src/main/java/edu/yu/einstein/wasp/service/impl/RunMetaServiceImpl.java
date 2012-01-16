@@ -35,6 +35,7 @@ public class RunMetaServiceImpl extends WaspMetaServiceImpl<RunMeta> implements 
 	 * @param runMetaDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setRunMetaDao(RunMetaDao runMetaDao) {
 		this.runMetaDao = runMetaDao;
@@ -47,24 +48,29 @@ public class RunMetaServiceImpl extends WaspMetaServiceImpl<RunMeta> implements 
 	 * @return runMetaDao
 	 *
 	 */
+	@Override
 	public RunMetaDao getRunMetaDao() {
 		return this.runMetaDao;
 	}
 
 
-  public RunMeta getRunMetaByRunMetaId (final int runMetaId) {
+  @Override
+public RunMeta getRunMetaByRunMetaId (final int runMetaId) {
     return this.getRunMetaDao().getRunMetaByRunMetaId(runMetaId);
   }
 
-  public RunMeta getRunMetaByKRunId (final String k, final int runId) {
+  @Override
+public RunMeta getRunMetaByKRunId (final String k, final int runId) {
     return this.getRunMetaDao().getRunMetaByKRunId(k, runId);
   }
 
-  public void updateByRunId (final String area, final int runId, final List<RunMeta> metaList) {
+  @Override
+public void updateByRunId (final String area, final int runId, final List<RunMeta> metaList) {
     this.getRunMetaDao().updateByRunId(area, runId, metaList); 
   }
 
-  public void updateByRunId (final int runId, final List<RunMeta> metaList) {
+  @Override
+public void updateByRunId (final int runId, final List<RunMeta> metaList) {
     this.getRunMetaDao().updateByRunId(runId, metaList); 
   }
 

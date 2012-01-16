@@ -52,7 +52,8 @@ public class DepartmentController extends WaspController {
   public void setDepartmentService(DepartmentService departmentService) {
     this.departmentService = departmentService;
   }
-  public DepartmentService getDepartmentService() {
+  @Override
+public DepartmentService getDepartmentService() {
     return this.departmentService;
   }
 
@@ -89,6 +90,7 @@ public class DepartmentController extends WaspController {
   
   //private static final MetaAttribute.Area AREA = MetaAttribute.Area.labPending;
  
+	@Override
 	protected void prepareSelectListData(ModelMap m) {
 		Map userQueryMap = new HashMap();
 		userQueryMap.put("isActive", 1);

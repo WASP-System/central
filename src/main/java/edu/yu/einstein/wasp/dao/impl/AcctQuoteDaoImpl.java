@@ -44,19 +44,20 @@ public class AcctQuoteDaoImpl extends WaspDaoImpl<AcctQuote> implements edu.yu.e
 	 * @return acctQuote
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public AcctQuote getAcctQuoteByQuoteId (final int quoteId) {
     		HashMap m = new HashMap();
 		m.put("quoteId", quoteId);
 
-		List<AcctQuote> results = (List<AcctQuote>) this.findByMap((Map) m);
+		List<AcctQuote> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			AcctQuote rt = new AcctQuote();
 			return rt;
 		}
-		return (AcctQuote) results.get(0);
+		return results.get(0);
 	}
 
 

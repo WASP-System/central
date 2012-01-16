@@ -44,19 +44,20 @@ public class AcctGrantjobDaoImpl extends WaspDaoImpl<AcctGrantjob> implements ed
 	 * @return acctGrantjob
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public AcctGrantjob getAcctGrantjobByJobId (final int jobId) {
     		HashMap m = new HashMap();
 		m.put("jobId", jobId);
 
-		List<AcctGrantjob> results = (List<AcctGrantjob>) this.findByMap((Map) m);
+		List<AcctGrantjob> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			AcctGrantjob rt = new AcctGrantjob();
 			return rt;
 		}
-		return (AcctGrantjob) results.get(0);
+		return results.get(0);
 	}
 
 

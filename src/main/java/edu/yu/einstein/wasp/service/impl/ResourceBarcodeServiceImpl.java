@@ -33,6 +33,7 @@ public class ResourceBarcodeServiceImpl extends WaspServiceImpl<ResourceBarcode>
 	 * @param resourceBarcodeDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setResourceBarcodeDao(ResourceBarcodeDao resourceBarcodeDao) {
 		this.resourceBarcodeDao = resourceBarcodeDao;
@@ -45,20 +46,24 @@ public class ResourceBarcodeServiceImpl extends WaspServiceImpl<ResourceBarcode>
 	 * @return resourceBarcodeDao
 	 *
 	 */
+	@Override
 	public ResourceBarcodeDao getResourceBarcodeDao() {
 		return this.resourceBarcodeDao;
 	}
 
 
-  public ResourceBarcode getResourceBarcodeByResourceBarcodeId (final int resourceBarcodeId) {
+  @Override
+public ResourceBarcode getResourceBarcodeByResourceBarcodeId (final int resourceBarcodeId) {
     return this.getResourceBarcodeDao().getResourceBarcodeByResourceBarcodeId(resourceBarcodeId);
   }
 
-  public ResourceBarcode getResourceBarcodeByResourceId (final int resourceId) {
+  @Override
+public ResourceBarcode getResourceBarcodeByResourceId (final int resourceId) {
     return this.getResourceBarcodeDao().getResourceBarcodeByResourceId(resourceId);
   }
 
-  public ResourceBarcode getResourceBarcodeByBarcodeId (final int barcodeId) {
+  @Override
+public ResourceBarcode getResourceBarcodeByBarcodeId (final int barcodeId) {
     return this.getResourceBarcodeDao().getResourceBarcodeByBarcodeId(barcodeId);
   }
 

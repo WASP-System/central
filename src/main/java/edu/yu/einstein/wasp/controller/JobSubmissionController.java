@@ -535,7 +535,7 @@ public class JobSubmissionController extends WaspController {
 		Map params = request.getParameterMap();
 		Integer changeResource = null;
 		try {
-			changeResource = (Integer) Integer.parseInt(((String[])params.get("changeResource"))[0]);
+			changeResource = Integer.parseInt(((String[])params.get("changeResource"))[0]);
 		} catch (Exception e) {
 		}
 
@@ -1493,6 +1493,7 @@ public class JobSubmissionController extends WaspController {
 		}
 	}
 	
+	@Override
 	protected void prepareSelectListData(ModelMap m) {
 		super.prepareSelectListData(m);
 		m.addAttribute("subtypeSamples",subTypeSampleService.findAll());

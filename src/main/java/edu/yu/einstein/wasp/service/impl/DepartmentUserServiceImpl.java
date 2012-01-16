@@ -33,6 +33,7 @@ public class DepartmentUserServiceImpl extends WaspServiceImpl<DepartmentUser> i
 	 * @param departmentUserDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setDepartmentUserDao(DepartmentUserDao departmentUserDao) {
 		this.departmentUserDao = departmentUserDao;
@@ -45,16 +46,19 @@ public class DepartmentUserServiceImpl extends WaspServiceImpl<DepartmentUser> i
 	 * @return departmentUserDao
 	 *
 	 */
+	@Override
 	public DepartmentUserDao getDepartmentUserDao() {
 		return this.departmentUserDao;
 	}
 
 
-  public DepartmentUser getDepartmentUserByDepartmentUserId (final int departmentUserId) {
+  @Override
+public DepartmentUser getDepartmentUserByDepartmentUserId (final int departmentUserId) {
     return this.getDepartmentUserDao().getDepartmentUserByDepartmentUserId(departmentUserId);
   }
 
-  public DepartmentUser getDepartmentUserByDepartmentIdUserId (final int departmentId, final int UserId) {
+  @Override
+public DepartmentUser getDepartmentUserByDepartmentIdUserId (final int departmentId, final int UserId) {
     return this.getDepartmentUserDao().getDepartmentUserByDepartmentIdUserId(departmentId, UserId);
   }
 

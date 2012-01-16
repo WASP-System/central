@@ -44,19 +44,20 @@ public class SampleSourceDaoImpl extends WaspDaoImpl<SampleSource> implements ed
 	 * @return sampleSource
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public SampleSource getSampleSourceBySampleSourceId (final int sampleSourceId) {
     		HashMap m = new HashMap();
 		m.put("sampleSourceId", sampleSourceId);
 
-		List<SampleSource> results = (List<SampleSource>) this.findByMap((Map) m);
+		List<SampleSource> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			SampleSource rt = new SampleSource();
 			return rt;
 		}
-		return (SampleSource) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -69,6 +70,7 @@ public class SampleSourceDaoImpl extends WaspDaoImpl<SampleSource> implements ed
 	 * @return sampleSource
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public SampleSource getSampleSourceBySampleIdMultiplexindex (final int sampleId, final int multiplexindex) {
@@ -76,13 +78,13 @@ public class SampleSourceDaoImpl extends WaspDaoImpl<SampleSource> implements ed
 		m.put("sampleId", sampleId);
 		m.put("multiplexindex", multiplexindex);
 
-		List<SampleSource> results = (List<SampleSource>) this.findByMap((Map) m);
+		List<SampleSource> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			SampleSource rt = new SampleSource();
 			return rt;
 		}
-		return (SampleSource) results.get(0);
+		return results.get(0);
 	}
 
 

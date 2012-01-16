@@ -33,6 +33,7 @@ public class StatesampleServiceImpl extends WaspServiceImpl<Statesample> impleme
 	 * @param statesampleDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setStatesampleDao(StatesampleDao statesampleDao) {
 		this.statesampleDao = statesampleDao;
@@ -45,12 +46,14 @@ public class StatesampleServiceImpl extends WaspServiceImpl<Statesample> impleme
 	 * @return statesampleDao
 	 *
 	 */
+	@Override
 	public StatesampleDao getStatesampleDao() {
 		return this.statesampleDao;
 	}
 
 
-  public Statesample getStatesampleByStatesampleId (final int statesampleId) {
+  @Override
+public Statesample getStatesampleByStatesampleId (final int statesampleId) {
     return this.getStatesampleDao().getStatesampleByStatesampleId(statesampleId);
   }
 

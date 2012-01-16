@@ -36,6 +36,7 @@ public class JobServiceImpl extends WaspServiceImpl<Job> implements JobService {
 	 * @param jobDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setJobDao(JobDao jobDao) {
 		this.jobDao = jobDao;
@@ -48,20 +49,24 @@ public class JobServiceImpl extends WaspServiceImpl<Job> implements JobService {
 	 * @return jobDao
 	 *
 	 */
+	@Override
 	public JobDao getJobDao() {
 		return this.jobDao;
 	}
 
 
-  public Job getJobByJobId (final int jobId) {
+  @Override
+public Job getJobByJobId (final int jobId) {
     return this.getJobDao().getJobByJobId(jobId);
   }
 
-  public Job getJobByNameLabId (final String name, final int labId) {
+  @Override
+public Job getJobByNameLabId (final String name, final int labId) {
     return this.getJobDao().getJobByNameLabId(name, labId);
   }
 
-  public Map<Integer,List<Job>> getJobSamplesByWorkflow(final int workflowId) {
+  @Override
+public Map<Integer,List<Job>> getJobSamplesByWorkflow(final int workflowId) {
 	  return this.getJobDao().getJobSamplesByWorkflow(workflowId);
   }
 }

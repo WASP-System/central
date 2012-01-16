@@ -44,19 +44,20 @@ public class FileDaoImpl extends WaspDaoImpl<File> implements edu.yu.einstein.wa
 	 * @return file
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public File getFileByFileId (final int fileId) {
     		HashMap m = new HashMap();
 		m.put("fileId", fileId);
 
-		List<File> results = (List<File>) this.findByMap((Map) m);
+		List<File> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			File rt = new File();
 			return rt;
 		}
-		return (File) results.get(0);
+		return results.get(0);
 	}
 
 

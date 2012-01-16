@@ -35,6 +35,7 @@ public class StateMetaServiceImpl extends WaspMetaServiceImpl<StateMeta> impleme
 	 * @param stateMetaDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setStateMetaDao(StateMetaDao stateMetaDao) {
 		this.stateMetaDao = stateMetaDao;
@@ -47,24 +48,29 @@ public class StateMetaServiceImpl extends WaspMetaServiceImpl<StateMeta> impleme
 	 * @return stateMetaDao
 	 *
 	 */
+	@Override
 	public StateMetaDao getStateMetaDao() {
 		return this.stateMetaDao;
 	}
 
 
-  public StateMeta getStateMetaByStateMetaId (final int stateMetaId) {
+  @Override
+public StateMeta getStateMetaByStateMetaId (final int stateMetaId) {
     return this.getStateMetaDao().getStateMetaByStateMetaId(stateMetaId);
   }
 
-  public StateMeta getStateMetaByKStateId (final String k, final int stateId) {
+  @Override
+public StateMeta getStateMetaByKStateId (final String k, final int stateId) {
     return this.getStateMetaDao().getStateMetaByKStateId(k, stateId);
   }
 
-  public void updateByStateId (final String area, final int stateId, final List<StateMeta> metaList) {
+  @Override
+public void updateByStateId (final String area, final int stateId, final List<StateMeta> metaList) {
     this.getStateMetaDao().updateByStateId(area, stateId, metaList); 
   }
 
-  public void updateByStateId (final int stateId, final List<StateMeta> metaList) {
+  @Override
+public void updateByStateId (final int stateId, final List<StateMeta> metaList) {
     this.getStateMetaDao().updateByStateId(stateId, metaList); 
   }
 

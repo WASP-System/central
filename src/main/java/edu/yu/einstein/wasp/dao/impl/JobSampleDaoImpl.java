@@ -44,19 +44,20 @@ public class JobSampleDaoImpl extends WaspDaoImpl<JobSample> implements edu.yu.e
 	 * @return jobSample
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public JobSample getJobSampleByJobSampleId (final int jobSampleId) {
     		HashMap m = new HashMap();
 		m.put("jobSampleId", jobSampleId);
 
-		List<JobSample> results = (List<JobSample>) this.findByMap((Map) m);
+		List<JobSample> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			JobSample rt = new JobSample();
 			return rt;
 		}
-		return (JobSample) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -69,6 +70,7 @@ public class JobSampleDaoImpl extends WaspDaoImpl<JobSample> implements edu.yu.e
 	 * @return jobSample
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public JobSample getJobSampleByJobIdSampleId (final int jobId, final int sampleId) {
@@ -76,13 +78,13 @@ public class JobSampleDaoImpl extends WaspDaoImpl<JobSample> implements edu.yu.e
 		m.put("jobId", jobId);
 		m.put("sampleId", sampleId);
 
-		List<JobSample> results = (List<JobSample>) this.findByMap((Map) m);
+		List<JobSample> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			JobSample rt = new JobSample();
 			return rt;
 		}
-		return (JobSample) results.get(0);
+		return results.get(0);
 	}
 
 	

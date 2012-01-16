@@ -617,7 +617,7 @@ public class LabController extends WaspController {
 			BindingResult result, SessionStatus status, ModelMap m) {
 		
 		// return read only version of page if cancel button pressed
-		String submitValue = (String) request.getParameter("submit");
+		String submitValue = request.getParameter("submit");
 		if ( submitValue.equals(messageService.getMessage("labDetail.cancel.label")) ){
 			return "redirect:/lab/detail_ro/" + deptId + "/" + labId + ".do";
 		}
@@ -667,7 +667,7 @@ public class LabController extends WaspController {
 			SessionStatus status, ModelMap m) {
 		
 		// return read only version of page if cancel button pressed
-		String submitValue = (String) request.getParameter("submit");
+		String submitValue = request.getParameter("submit");
 		if ( submitValue.equals(messageService.getMessage("labPending.cancel.label")) ){
 			return "redirect:/lab/pending/detail_ro/" + deptId + "/" + labPendingId + ".do";
 		}
@@ -715,7 +715,7 @@ public class LabController extends WaspController {
 	public String userManager(@PathVariable("labId") Integer labId, ModelMap m) {
 		Lab lab = this.labService.getById(labId);
 		List<LabUser> labUsers = new ArrayList();
-		for (LabUser lu: (List<LabUser>) lab.getLabUser()){
+		for (LabUser lu: lab.getLabUser()){
 			if (!lu.getRole().getRoleName().equals("lp")){
 				labUsers.add(lu);
 			}
@@ -735,7 +735,7 @@ public class LabController extends WaspController {
 		List<User> labManagers = new ArrayList();
 		List<User> labMembers= new ArrayList();
 		User pi = new User();
-		for(LabUser labUser : (List<LabUser>) lab.getLabUser() ){
+		for(LabUser labUser : lab.getLabUser() ){
 			User currentUser = userService.getUserByUserId(labUser.getUserId());
 			if (currentUser.getUserId().intValue() == lab.getPrimaryUserId().intValue()){
 				pi = currentUser;
@@ -1346,6 +1346,7 @@ public class LabController extends WaspController {
 		return "redirect:/dashboard.do";
 	}
 
+	@Override
 	protected void prepareSelectListData(ModelMap m) {
 		Map userQueryMap = new HashMap();
 		userQueryMap.put("isActive", 1);

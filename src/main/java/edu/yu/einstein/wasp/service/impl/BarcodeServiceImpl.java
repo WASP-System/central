@@ -33,6 +33,7 @@ public class BarcodeServiceImpl extends WaspServiceImpl<Barcode> implements Barc
 	 * @param barcodeDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setBarcodeDao(BarcodeDao barcodeDao) {
 		this.barcodeDao = barcodeDao;
@@ -45,16 +46,19 @@ public class BarcodeServiceImpl extends WaspServiceImpl<Barcode> implements Barc
 	 * @return barcodeDao
 	 *
 	 */
+	@Override
 	public BarcodeDao getBarcodeDao() {
 		return this.barcodeDao;
 	}
 
 
-  public Barcode getBarcodeByBarcodeId (final int barcodeId) {
+  @Override
+public Barcode getBarcodeByBarcodeId (final int barcodeId) {
     return this.getBarcodeDao().getBarcodeByBarcodeId(barcodeId);
   }
 
-  public Barcode getBarcodeByBarcode (final String barcode) {
+  @Override
+public Barcode getBarcodeByBarcode (final String barcode) {
     return this.getBarcodeDao().getBarcodeByBarcode(barcode);
   }
 

@@ -2,6 +2,7 @@ package edu.yu.einstein.wasp.taglib;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyTagSupport;
+import javax.servlet.jsp.tagext.Tag;
 
 import org.apache.commons.beanutils.MethodUtils;
 import org.apache.log4j.Logger;
@@ -29,16 +30,17 @@ public class MetaSelectTag extends BodyTagSupport {
 	}
 
 
+	@Override
 	public int doStartTag() throws javax.servlet.jsp.JspException {
 
-		if (control==null) return BodyTagSupport.EVAL_PAGE;
+		if (control==null) return Tag.EVAL_PAGE;
 		
 		if (control.getItems()==null) {
 			
 			this.pageContext.getRequest().setAttribute("selectItems",control.getOptions());
 			this.pageContext.getRequest().setAttribute("itemValue","value");
 			this.pageContext.getRequest().setAttribute("itemLabel","label");
-			return BodyTagSupport.EVAL_PAGE;
+			return Tag.EVAL_PAGE;
 		}
 		
 		this.pageContext.getRequest().setAttribute("itemValue",control.getItemValue());
@@ -48,7 +50,7 @@ public class MetaSelectTag extends BodyTagSupport {
 		if (control.getItems().indexOf('.')==-1) {
 			this.pageContext.getRequest().setAttribute("selectItems",this.pageContext.getRequest().getAttribute(control.getItems()));
 			
-			return BodyTagSupport.EVAL_PAGE;
+			return Tag.EVAL_PAGE;
 		}
 		
 		 String str=control.getItems();
@@ -86,7 +88,7 @@ public class MetaSelectTag extends BodyTagSupport {
 		 }
 		 
 		
-		return BodyTagSupport.EVAL_PAGE;
+		return Tag.EVAL_PAGE;
 	}
 	
 }

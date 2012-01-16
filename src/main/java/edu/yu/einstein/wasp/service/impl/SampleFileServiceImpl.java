@@ -33,6 +33,7 @@ public class SampleFileServiceImpl extends WaspServiceImpl<SampleFile> implement
 	 * @param sampleFileDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setSampleFileDao(SampleFileDao sampleFileDao) {
 		this.sampleFileDao = sampleFileDao;
@@ -45,12 +46,14 @@ public class SampleFileServiceImpl extends WaspServiceImpl<SampleFile> implement
 	 * @return sampleFileDao
 	 *
 	 */
+	@Override
 	public SampleFileDao getSampleFileDao() {
 		return this.sampleFileDao;
 	}
 
 
-  public SampleFile getSampleFileBySampleFileId (final int sampleFileId) {
+  @Override
+public SampleFile getSampleFileBySampleFileId (final int sampleFileId) {
     return this.getSampleFileDao().getSampleFileBySampleFileId(sampleFileId);
   }
 

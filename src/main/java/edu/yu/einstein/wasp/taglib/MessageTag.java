@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.servlet.jsp.JspTagException;
 import javax.servlet.jsp.tagext.BodyTagSupport;
+import javax.servlet.jsp.tagext.Tag;
 
 import org.apache.log4j.Logger;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
@@ -38,15 +39,16 @@ public class MessageTag extends BodyTagSupport {
 		 session.setAttribute(FEEDBACK_SESSION_ATTRIBUTE_NAME,messageKeys);
 	}
 	
+	@Override
 	public int doStartTag() throws javax.servlet.jsp.JspException {
 	
 		HttpSession session=((HttpServletRequest)this.pageContext.getRequest()).getSession();
 		
-		if (session==null) return BodyTagSupport.SKIP_BODY;
+		if (session==null) return Tag.SKIP_BODY;
 		
 		List<String> messageKeys=(List<String>)session.getAttribute(FEEDBACK_SESSION_ATTRIBUTE_NAME);
 		
-		if (messageKeys==null || messageKeys.isEmpty()) return BodyTagSupport.SKIP_BODY;
+		if (messageKeys==null || messageKeys.isEmpty()) return Tag.SKIP_BODY;
 		
 		Locale locale=(Locale)session.getAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 		
@@ -75,7 +77,7 @@ public class MessageTag extends BodyTagSupport {
 		}
 		
 		
-		return BodyTagSupport.EVAL_PAGE;
+		return Tag.EVAL_PAGE;
 	}
 	
 }

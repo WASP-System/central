@@ -33,6 +33,7 @@ public class AcctInvoiceServiceImpl extends WaspServiceImpl<AcctInvoice> impleme
 	 * @param acctInvoiceDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setAcctInvoiceDao(AcctInvoiceDao acctInvoiceDao) {
 		this.acctInvoiceDao = acctInvoiceDao;
@@ -45,12 +46,14 @@ public class AcctInvoiceServiceImpl extends WaspServiceImpl<AcctInvoice> impleme
 	 * @return acctInvoiceDao
 	 *
 	 */
+	@Override
 	public AcctInvoiceDao getAcctInvoiceDao() {
 		return this.acctInvoiceDao;
 	}
 
 
-  public AcctInvoice getAcctInvoiceByInvoiceId (final int invoiceId) {
+  @Override
+public AcctInvoice getAcctInvoiceByInvoiceId (final int invoiceId) {
     return this.getAcctInvoiceDao().getAcctInvoiceByInvoiceId(invoiceId);
   }
 

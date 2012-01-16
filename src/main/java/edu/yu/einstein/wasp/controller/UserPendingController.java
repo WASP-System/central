@@ -183,7 +183,7 @@ public class UserPendingController extends WaspController {
 			}
 		}
 		if (!authenticationService.isAuthenticationSetExternal()){
-			passwordValidator.validate(result, userPendingForm.getPassword(), (String) request.getParameter("password2"), userPendingMetaHelper.getParentArea(), "password");
+			passwordValidator.validate(result, userPendingForm.getPassword(), request.getParameter("password2"), userPendingMetaHelper.getParentArea(), "password");
 		}
 		if (! result.hasFieldErrors("email")){
 			User user = userService.getUserByEmail(userPendingForm.getEmail());
@@ -200,7 +200,7 @@ public class UserPendingController extends WaspController {
 		// validate captcha
 		Captcha captcha = (Captcha) request.getSession().getAttribute(Captcha.NAME);
 		
-		String captchaText = (String) request.getParameter("captcha");
+		String captchaText = request.getParameter("captcha");
 		
 		if (captcha == null || captchaText == null || captchaText.isEmpty() || (! captcha.isCorrect(captchaText)) ){
 			m.put("captchaError", messageService.getMessage(userPendingMetaHelper.getParentArea()+".captcha.error"));
@@ -319,7 +319,7 @@ public class UserPendingController extends WaspController {
 			metaHelper.getMasterList(visibilityElementMap, UserPendingMeta.class);
 			Map departmentQueryMap = new HashMap();
 			departmentQueryMap.put("isInternal", 0);
-			List<Department> extDepartments = (List<Department>) departmentService.findByMap(departmentQueryMap);
+			List<Department> extDepartments = departmentService.findByMap(departmentQueryMap);
 			if (extDepartments.isEmpty() || extDepartments.size() >1 ){
 				throw new MetadataException("Either 0 or >1 external departments defined in the database. Should only be 1");
 			}
@@ -398,7 +398,7 @@ public class UserPendingController extends WaspController {
 			}
 		}
 		if (!authenticationService.isAuthenticationSetExternal()){
-			passwordValidator.validate(result, userPendingForm.getPassword(), (String) request.getParameter("password2"), metaHelper.getParentArea(), "password");
+			passwordValidator.validate(result, userPendingForm.getPassword(), request.getParameter("password2"), metaHelper.getParentArea(), "password");
 		}
 		
 		if (! result.hasFieldErrors("email")){
@@ -416,7 +416,7 @@ public class UserPendingController extends WaspController {
 		// validate captcha
 		Captcha captcha = (Captcha) request.getSession().getAttribute(Captcha.NAME);
 		
-		String captchaText = (String) request.getParameter("captcha");
+		String captchaText = request.getParameter("captcha");
 		
 		if (captcha == null || captchaText == null || captchaText.isEmpty() || (! captcha.isCorrect(captchaText)) ){
 			m.put("captchaError", messageService.getMessage(metaHelper.getParentArea()+".captcha.error"));

@@ -44,19 +44,20 @@ public class DepartmentUserDaoImpl extends WaspDaoImpl<DepartmentUser> implement
 	 * @return departmentUser
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public DepartmentUser getDepartmentUserByDepartmentUserId (final int departmentUserId) {
     		HashMap m = new HashMap();
 		m.put("departmentUserId", departmentUserId);
 
-		List<DepartmentUser> results = (List<DepartmentUser>) this.findByMap((Map) m);
+		List<DepartmentUser> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			DepartmentUser rt = new DepartmentUser();
 			return rt;
 		}
-		return (DepartmentUser) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -69,6 +70,7 @@ public class DepartmentUserDaoImpl extends WaspDaoImpl<DepartmentUser> implement
 	 * @return departmentUser
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public DepartmentUser getDepartmentUserByDepartmentIdUserId (final int departmentId, final int UserId) {
@@ -76,13 +78,13 @@ public class DepartmentUserDaoImpl extends WaspDaoImpl<DepartmentUser> implement
 		m.put("departmentId", departmentId);
 		m.put("UserId", UserId);
 
-		List<DepartmentUser> results = (List<DepartmentUser>) this.findByMap((Map) m);
+		List<DepartmentUser> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			DepartmentUser rt = new DepartmentUser();
 			return rt;
 		}
-		return (DepartmentUser) results.get(0);
+		return results.get(0);
 	}
 
 

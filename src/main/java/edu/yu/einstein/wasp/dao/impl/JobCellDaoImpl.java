@@ -44,19 +44,20 @@ public class JobCellDaoImpl extends WaspDaoImpl<JobCell> implements edu.yu.einst
 	 * @return jobCell
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public JobCell getJobCellByJobCellId (final int jobCellId) {
     		HashMap m = new HashMap();
 		m.put("jobCellId", jobCellId);
 
-		List<JobCell> results = (List<JobCell>) this.findByMap((Map) m);
+		List<JobCell> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			JobCell rt = new JobCell();
 			return rt;
 		}
-		return (JobCell) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -69,6 +70,7 @@ public class JobCellDaoImpl extends WaspDaoImpl<JobCell> implements edu.yu.einst
 	 * @return jobCell
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public JobCell getJobCellByJobIdCellindex (final int jobId, final int cellindex) {
@@ -76,13 +78,13 @@ public class JobCellDaoImpl extends WaspDaoImpl<JobCell> implements edu.yu.einst
 		m.put("jobId", jobId);
 		m.put("cellindex", cellindex);
 
-		List<JobCell> results = (List<JobCell>) this.findByMap((Map) m);
+		List<JobCell> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			JobCell rt = new JobCell();
 			return rt;
 		}
-		return (JobCell) results.get(0);
+		return results.get(0);
 	}
 
 

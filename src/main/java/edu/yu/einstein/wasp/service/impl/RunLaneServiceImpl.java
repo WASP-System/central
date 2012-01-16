@@ -33,6 +33,7 @@ public class RunLaneServiceImpl extends WaspServiceImpl<RunLane> implements RunL
 	 * @param runLaneDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setRunLaneDao(RunLaneDao runLaneDao) {
 		this.runLaneDao = runLaneDao;
@@ -45,20 +46,24 @@ public class RunLaneServiceImpl extends WaspServiceImpl<RunLane> implements RunL
 	 * @return runLaneDao
 	 *
 	 */
+	@Override
 	public RunLaneDao getRunLaneDao() {
 		return this.runLaneDao;
 	}
 
 
-  public RunLane getRunLaneByRunLaneId (final int runLaneId) {
+  @Override
+public RunLane getRunLaneByRunLaneId (final int runLaneId) {
     return this.getRunLaneDao().getRunLaneByRunLaneId(runLaneId);
   }
 
-  public RunLane getRunLaneByRunIdResourcelaneId (final int runId, final int resourcelaneId) {
+  @Override
+public RunLane getRunLaneByRunIdResourcelaneId (final int runId, final int resourcelaneId) {
     return this.getRunLaneDao().getRunLaneByRunIdResourcelaneId(runId, resourcelaneId);
   }
 
-  public RunLane getRunLaneBySampleIdRunId (final int sampleId, final int runId) {
+  @Override
+public RunLane getRunLaneBySampleIdRunId (final int sampleId, final int runId) {
     return this.getRunLaneDao().getRunLaneBySampleIdRunId(sampleId, runId);
   }
 

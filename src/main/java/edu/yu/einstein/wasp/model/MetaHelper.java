@@ -225,7 +225,7 @@ public class MetaHelper {
 		List<T> list = new ArrayList<T>();
 		for (Integer i: positions) {
 			try {
-				T obj = (T) clazz.newInstance();
+				T obj = clazz.newInstance();
 				String name = uniquePositions.get(i);
 				String qualifiedName = area + "." + name;
 

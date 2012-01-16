@@ -33,6 +33,7 @@ public class AcctLedgerServiceImpl extends WaspServiceImpl<AcctLedger> implement
 	 * @param acctLedgerDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setAcctLedgerDao(AcctLedgerDao acctLedgerDao) {
 		this.acctLedgerDao = acctLedgerDao;
@@ -45,12 +46,14 @@ public class AcctLedgerServiceImpl extends WaspServiceImpl<AcctLedger> implement
 	 * @return acctLedgerDao
 	 *
 	 */
+	@Override
 	public AcctLedgerDao getAcctLedgerDao() {
 		return this.acctLedgerDao;
 	}
 
 
-  public AcctLedger getAcctLedgerByLedgerId (final int ledgerId) {
+  @Override
+public AcctLedger getAcctLedgerByLedgerId (final int ledgerId) {
     return this.getAcctLedgerDao().getAcctLedgerByLedgerId(ledgerId);
   }
 

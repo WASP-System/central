@@ -33,6 +33,7 @@ public class AcctGrantServiceImpl extends WaspServiceImpl<AcctGrant> implements 
 	 * @param acctGrantDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setAcctGrantDao(AcctGrantDao acctGrantDao) {
 		this.acctGrantDao = acctGrantDao;
@@ -45,12 +46,14 @@ public class AcctGrantServiceImpl extends WaspServiceImpl<AcctGrant> implements 
 	 * @return acctGrantDao
 	 *
 	 */
+	@Override
 	public AcctGrantDao getAcctGrantDao() {
 		return this.acctGrantDao;
 	}
 
 
-  public AcctGrant getAcctGrantByGrantId (final int grantId) {
+  @Override
+public AcctGrant getAcctGrantByGrantId (final int grantId) {
     return this.getAcctGrantDao().getAcctGrantByGrantId(grantId);
   }
 

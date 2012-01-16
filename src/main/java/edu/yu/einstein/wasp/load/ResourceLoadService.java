@@ -55,7 +55,8 @@ public class ResourceLoadService extends WaspLoadService {
   private List<ResourceMeta> meta; 
   public void setMeta(List<ResourceMeta> meta) {this.meta = meta; }
 
-  @Transactional
+  @Override
+@Transactional
   @PostInitialize 
   public void postInitialize() {
     // skips component scanned  (if scanned in)

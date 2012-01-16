@@ -74,8 +74,8 @@ public class AutoCompleteController extends WaspController{
 	  @RequestMapping(value="/getInstitutesForDisplay", method=RequestMethod.GET)
 	  public @ResponseBody String getInstitutes(@RequestParam String instituteNameFragment) {
 		  	
-		  	List<MetaBase> list = (List<MetaBase>) userMetaService.findDistinctMetaOrderBy("user.institution" ,"ASC");
-		  	list.addAll((List<MetaBase>) userPendingMetaService.findDistinctMetaOrderBy("piPending.institution","ASC") );
+		  	List<MetaBase> list = userMetaService.findDistinctMetaOrderBy("user.institution" ,"ASC");
+		  	list.addAll(userPendingMetaService.findDistinctMetaOrderBy("piPending.institution","ASC") );
 		  	String jsonString = new String();
 	        jsonString = jsonString + "{\"source\": [";
 	        SortedSet<String> uniqueInstitutes = new TreeSet();

@@ -26,7 +26,8 @@ public class TaskLoadService extends WaspLoadService {
 
   public TaskLoadService (){};
 
-  @Transactional
+  @Override
+@Transactional
   @PostInitialize 
   public void postInitialize() {
     // skips component scanned  (if scanned in)

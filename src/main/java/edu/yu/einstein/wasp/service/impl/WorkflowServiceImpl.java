@@ -33,6 +33,7 @@ public class WorkflowServiceImpl extends WaspServiceImpl<Workflow> implements Wo
 	 * @param workflowDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setWorkflowDao(WorkflowDao workflowDao) {
 		this.workflowDao = workflowDao;
@@ -45,20 +46,24 @@ public class WorkflowServiceImpl extends WaspServiceImpl<Workflow> implements Wo
 	 * @return workflowDao
 	 *
 	 */
+	@Override
 	public WorkflowDao getWorkflowDao() {
 		return this.workflowDao;
 	}
 
 
-  public Workflow getWorkflowByWorkflowId (final int workflowId) {
+  @Override
+public Workflow getWorkflowByWorkflowId (final int workflowId) {
     return this.getWorkflowDao().getWorkflowByWorkflowId(workflowId);
   }
 
-  public Workflow getWorkflowByIName (final String iName) {
+  @Override
+public Workflow getWorkflowByIName (final String iName) {
     return this.getWorkflowDao().getWorkflowByIName(iName);
   }
 
-  public Workflow getWorkflowByName (final String name) {
+  @Override
+public Workflow getWorkflowByName (final String name) {
     return this.getWorkflowDao().getWorkflowByName(name);
   }
 

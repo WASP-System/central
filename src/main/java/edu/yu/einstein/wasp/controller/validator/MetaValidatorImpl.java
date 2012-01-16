@@ -28,10 +28,12 @@ public class MetaValidatorImpl implements MetaValidator {
 	
 	protected List<Constraint> allowableConstraints = new ArrayList<Constraint>(Arrays.asList(Constraint.NotEmpty, Constraint.RegExp));
 	
+	@Override
 	public void validate(List<? extends MetaBase> list, BindingResult result, String area) {
 		validate(list, result, area, area);
 	}
 
+	@Override
 	public void validate(List<? extends MetaBase> list, BindingResult result, String area, String parentarea) {
 		Errors errors=new BindException(result.getTarget(), parentarea); 
 	

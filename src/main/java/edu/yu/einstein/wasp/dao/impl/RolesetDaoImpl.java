@@ -44,19 +44,20 @@ public class RolesetDaoImpl extends WaspDaoImpl<Roleset> implements edu.yu.einst
 	 * @return roleset
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public Roleset getRolesetByRolesetId (final int rolesetId) {
     		HashMap m = new HashMap();
 		m.put("rolesetId", rolesetId);
 
-		List<Roleset> results = (List<Roleset>) this.findByMap((Map) m);
+		List<Roleset> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			Roleset rt = new Roleset();
 			return rt;
 		}
-		return (Roleset) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -69,6 +70,7 @@ public class RolesetDaoImpl extends WaspDaoImpl<Roleset> implements edu.yu.einst
 	 * @return roleset
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public Roleset getRolesetByParentroleIdChildroleId (final int parentroleId, final int childroleId) {
@@ -76,13 +78,13 @@ public class RolesetDaoImpl extends WaspDaoImpl<Roleset> implements edu.yu.einst
 		m.put("parentroleId", parentroleId);
 		m.put("childroleId", childroleId);
 
-		List<Roleset> results = (List<Roleset>) this.findByMap((Map) m);
+		List<Roleset> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			Roleset rt = new Roleset();
 			return rt;
 		}
-		return (Roleset) results.get(0);
+		return results.get(0);
 	}
 
 

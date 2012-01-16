@@ -2,6 +2,7 @@ package edu.yu.einstein.wasp.taglib;
 
 import javax.servlet.jsp.JspTagException;
 import javax.servlet.jsp.tagext.BodyTagSupport;
+import javax.servlet.jsp.tagext.Tag;
 
 /*
  * Builds jqGrid-compatible JavaScript to delete selected row on server side
@@ -18,12 +19,14 @@ public class JQDeleteTag extends BodyTagSupport {
 
 
 
+	@Override
 	public void release() {
 		url=null;
 	}
 	
 
 
+	@Override
 	public int doStartTag() throws javax.servlet.jsp.JspException {
 		
 		
@@ -49,7 +52,7 @@ public class JQDeleteTag extends BodyTagSupport {
 		}
 		
 		
-		return BodyTagSupport.EVAL_PAGE;
+		return Tag.EVAL_PAGE;
 	}
 	
 

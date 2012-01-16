@@ -44,19 +44,20 @@ public class WorkflowtasksourceDaoImpl extends WaspDaoImpl<Workflowtasksource> i
 	 * @return workflowtasksource
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public Workflowtasksource getWorkflowtasksourceByWorkflowtasksourceId (final int workflowtasksourceId) {
     		HashMap m = new HashMap();
 		m.put("workflowtasksourceId", workflowtasksourceId);
 
-		List<Workflowtasksource> results = (List<Workflowtasksource>) this.findByMap((Map) m);
+		List<Workflowtasksource> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			Workflowtasksource rt = new Workflowtasksource();
 			return rt;
 		}
-		return (Workflowtasksource) results.get(0);
+		return results.get(0);
 	}
 
 

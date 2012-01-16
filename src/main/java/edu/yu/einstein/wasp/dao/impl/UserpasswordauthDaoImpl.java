@@ -44,19 +44,20 @@ public class UserpasswordauthDaoImpl extends WaspDaoImpl<Userpasswordauth> imple
 	 * @return userpasswordauth
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public Userpasswordauth getUserpasswordauthByUserId (final int UserId) {
     		HashMap m = new HashMap();
 		m.put("UserId", UserId);
 
-		List<Userpasswordauth> results = (List<Userpasswordauth>) this.findByMap((Map) m);
+		List<Userpasswordauth> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			Userpasswordauth rt = new Userpasswordauth();
 			return rt;
 		}
-		return (Userpasswordauth) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -69,19 +70,20 @@ public class UserpasswordauthDaoImpl extends WaspDaoImpl<Userpasswordauth> imple
 	 * @return userpasswordauth
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public Userpasswordauth getUserpasswordauthByAuthcode (final String authcode) {
     		HashMap m = new HashMap();
 		m.put("authcode", authcode);
 
-		List<Userpasswordauth> results = (List<Userpasswordauth>) this.findByMap((Map) m);
+		List<Userpasswordauth> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			Userpasswordauth rt = new Userpasswordauth();
 			return rt;
 		}
-		return (Userpasswordauth) results.get(0);
+		return results.get(0);
 	}
 
 

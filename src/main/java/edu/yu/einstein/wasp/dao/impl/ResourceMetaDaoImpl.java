@@ -44,19 +44,20 @@ public class ResourceMetaDaoImpl extends WaspDaoImpl<ResourceMeta> implements ed
 	 * @return resourceMeta
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public ResourceMeta getResourceMetaByResourceMetaId (final int resourceMetaId) {
     		HashMap m = new HashMap();
 		m.put("resourceMetaId", resourceMetaId);
 
-		List<ResourceMeta> results = (List<ResourceMeta>) this.findByMap((Map) m);
+		List<ResourceMeta> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			ResourceMeta rt = new ResourceMeta();
 			return rt;
 		}
-		return (ResourceMeta) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -69,6 +70,7 @@ public class ResourceMetaDaoImpl extends WaspDaoImpl<ResourceMeta> implements ed
 	 * @return resourceMeta
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public ResourceMeta getResourceMetaByKResourceId (final String k, final int resourceId) {
@@ -76,13 +78,13 @@ public class ResourceMetaDaoImpl extends WaspDaoImpl<ResourceMeta> implements ed
 		m.put("k", k);
 		m.put("resourceId", resourceId);
 
-		List<ResourceMeta> results = (List<ResourceMeta>) this.findByMap((Map) m);
+		List<ResourceMeta> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			ResourceMeta rt = new ResourceMeta();
 			return rt;
 		}
-		return (ResourceMeta) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -94,6 +96,7 @@ public class ResourceMetaDaoImpl extends WaspDaoImpl<ResourceMeta> implements ed
 	 * @param metaList
 	 *
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByResourceId (final String area, final int resourceId, final List<ResourceMeta> metaList) {
@@ -113,6 +116,7 @@ public class ResourceMetaDaoImpl extends WaspDaoImpl<ResourceMeta> implements ed
 	 * @param metaList
 	 *
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByResourceId (final int resourceId, final List<ResourceMeta> metaList) {

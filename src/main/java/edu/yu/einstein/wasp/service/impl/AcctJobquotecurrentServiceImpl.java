@@ -33,6 +33,7 @@ public class AcctJobquotecurrentServiceImpl extends WaspServiceImpl<AcctJobquote
 	 * @param acctJobquotecurrentDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setAcctJobquotecurrentDao(AcctJobquotecurrentDao acctJobquotecurrentDao) {
 		this.acctJobquotecurrentDao = acctJobquotecurrentDao;
@@ -45,12 +46,14 @@ public class AcctJobquotecurrentServiceImpl extends WaspServiceImpl<AcctJobquote
 	 * @return acctJobquotecurrentDao
 	 *
 	 */
+	@Override
 	public AcctJobquotecurrentDao getAcctJobquotecurrentDao() {
 		return this.acctJobquotecurrentDao;
 	}
 
 
-  public AcctJobquotecurrent getAcctJobquotecurrentByJobId (final int jobId) {
+  @Override
+public AcctJobquotecurrent getAcctJobquotecurrentByJobId (final int jobId) {
     return this.getAcctJobquotecurrentDao().getAcctJobquotecurrentByJobId(jobId);
   }
 

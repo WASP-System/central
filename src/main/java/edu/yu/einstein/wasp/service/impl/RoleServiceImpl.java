@@ -33,6 +33,7 @@ public class RoleServiceImpl extends WaspServiceImpl<Role> implements RoleServic
 	 * @param roleDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setRoleDao(RoleDao roleDao) {
 		this.roleDao = roleDao;
@@ -45,20 +46,24 @@ public class RoleServiceImpl extends WaspServiceImpl<Role> implements RoleServic
 	 * @return roleDao
 	 *
 	 */
+	@Override
 	public RoleDao getRoleDao() {
 		return this.roleDao;
 	}
 
 
-  public Role getRoleByRoleId (final int roleId) {
+  @Override
+public Role getRoleByRoleId (final int roleId) {
     return this.getRoleDao().getRoleByRoleId(roleId);
   }
 
-  public Role getRoleByRoleName (final String roleName) {
+  @Override
+public Role getRoleByRoleName (final String roleName) {
     return this.getRoleDao().getRoleByRoleName(roleName);
   }
 
-  public Role getRoleByName (final String name) {
+  @Override
+public Role getRoleByName (final String name) {
     return this.getRoleDao().getRoleByName(name);
   }
 

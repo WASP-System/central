@@ -8,6 +8,7 @@ import javax.servlet.http.HttpSession;
 import javax.servlet.jsp.JspTagException;
 import javax.servlet.jsp.tagext.BodyContent;
 import javax.servlet.jsp.tagext.BodyTagSupport;
+import javax.servlet.jsp.tagext.Tag;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -24,12 +25,14 @@ public class PageTitleTag extends BodyTagSupport {
 	
 	private static final Logger log=Logger.getLogger(PageTitleTag.class);
 	
+	@Override
 	public int doStartTag() throws javax.servlet.jsp.JspException {
 	
-		return BodyTagSupport.EVAL_PAGE;
+		return Tag.EVAL_PAGE;
 	}
 	
 	
+	@Override
 	public int doEndTag() throws javax.servlet.jsp.JspException {
 		
 		HttpSession session=((HttpServletRequest)this.pageContext.getRequest()).getSession();

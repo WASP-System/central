@@ -35,6 +35,7 @@ public class UserMetaServiceImpl extends WaspMetaServiceImpl<UserMeta> implement
 	 * @param userMetaDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setUserMetaDao(UserMetaDao userMetaDao) {
 		this.userMetaDao = userMetaDao;
@@ -47,24 +48,29 @@ public class UserMetaServiceImpl extends WaspMetaServiceImpl<UserMeta> implement
 	 * @return userMetaDao
 	 *
 	 */
+	@Override
 	public UserMetaDao getUserMetaDao() {
 		return this.userMetaDao;
 	}
 
 
-  public UserMeta getUserMetaByUserMetaId (final int userMetaId) {
+  @Override
+public UserMeta getUserMetaByUserMetaId (final int userMetaId) {
     return this.getUserMetaDao().getUserMetaByUserMetaId(userMetaId);
   }
 
-  public UserMeta getUserMetaByKUserId (final String k, final int UserId) {
+  @Override
+public UserMeta getUserMetaByKUserId (final String k, final int UserId) {
     return this.getUserMetaDao().getUserMetaByKUserId(k, UserId);
   }
 
-  public void updateByUserId (final String area, final int UserId, final List<UserMeta> metaList) {
+  @Override
+public void updateByUserId (final String area, final int UserId, final List<UserMeta> metaList) {
     this.getUserMetaDao().updateByUserId(area, UserId, metaList); 
   }
 
-  public void updateByUserId (final int UserId, final List<UserMeta> metaList) {
+  @Override
+public void updateByUserId (final int UserId, final List<UserMeta> metaList) {
     this.getUserMetaDao().updateByUserId(UserId, metaList); 
   }
 

@@ -70,7 +70,8 @@ public class WorkflowLoadService extends WaspLoadService {
   private List<WorkflowMeta> meta; 
   public void setMeta(List<WorkflowMeta> workflowMeta) {this.meta = workflowMeta; }
 
-  @Transactional
+  @Override
+@Transactional
   @PostInitialize 
   public void postInitialize() {
     // skips component scanned  (if scanned in)

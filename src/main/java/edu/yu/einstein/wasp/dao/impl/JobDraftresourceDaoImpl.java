@@ -44,19 +44,20 @@ public class JobDraftresourceDaoImpl extends WaspDaoImpl<JobDraftresource> imple
 	 * @return jobDraftresource
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public JobDraftresource getJobDraftresourceByJobDraftresourceId (final int jobDraftresourceId) {
     		HashMap m = new HashMap();
 		m.put("jobDraftresourceId", jobDraftresourceId);
 
-		List<JobDraftresource> results = (List<JobDraftresource>) this.findByMap((Map) m);
+		List<JobDraftresource> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			JobDraftresource rt = new JobDraftresource();
 			return rt;
 		}
-		return (JobDraftresource) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -69,6 +70,7 @@ public class JobDraftresourceDaoImpl extends WaspDaoImpl<JobDraftresource> imple
 	 * @return jobDraftresource
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public JobDraftresource getJobDraftresourceByResourceIdJobdraftId (final int resourceId, final int jobdraftId) {
@@ -76,13 +78,13 @@ public class JobDraftresourceDaoImpl extends WaspDaoImpl<JobDraftresource> imple
 		m.put("resourceId", resourceId);
 		m.put("jobdraftId", jobdraftId);
 
-		List<JobDraftresource> results = (List<JobDraftresource>) this.findByMap((Map) m);
+		List<JobDraftresource> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			JobDraftresource rt = new JobDraftresource();
 			return rt;
 		}
-		return (JobDraftresource) results.get(0);
+		return results.get(0);
 	}
 
 

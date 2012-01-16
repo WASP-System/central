@@ -33,6 +33,7 @@ public class AcctGrantjobServiceImpl extends WaspServiceImpl<AcctGrantjob> imple
 	 * @param acctGrantjobDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setAcctGrantjobDao(AcctGrantjobDao acctGrantjobDao) {
 		this.acctGrantjobDao = acctGrantjobDao;
@@ -45,12 +46,14 @@ public class AcctGrantjobServiceImpl extends WaspServiceImpl<AcctGrantjob> imple
 	 * @return acctGrantjobDao
 	 *
 	 */
+	@Override
 	public AcctGrantjobDao getAcctGrantjobDao() {
 		return this.acctGrantjobDao;
 	}
 
 
-  public AcctGrantjob getAcctGrantjobByJobId (final int jobId) {
+  @Override
+public AcctGrantjob getAcctGrantjobByJobId (final int jobId) {
     return this.getAcctGrantjobDao().getAcctGrantjobByJobId(jobId);
   }
 

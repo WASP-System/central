@@ -33,6 +33,7 @@ public class ResourceServiceImpl extends WaspServiceImpl<Resource> implements Re
 	 * @param resourceDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setResourceDao(ResourceDao resourceDao) {
 		this.resourceDao = resourceDao;
@@ -45,16 +46,19 @@ public class ResourceServiceImpl extends WaspServiceImpl<Resource> implements Re
 	 * @return resourceDao
 	 *
 	 */
+	@Override
 	public ResourceDao getResourceDao() {
 		return this.resourceDao;
 	}
 
 
-  public Resource getResourceByResourceId (final int resourceId) {
+  @Override
+public Resource getResourceByResourceId (final int resourceId) {
     return this.getResourceDao().getResourceByResourceId(resourceId);
   }
 
-  public Resource getResourceByIName (final String iName) {
+  @Override
+public Resource getResourceByIName (final String iName) {
     return this.getResourceDao().getResourceByIName(iName);
   }
 

@@ -44,19 +44,20 @@ public class RoleDaoImpl extends WaspDaoImpl<Role> implements edu.yu.einstein.wa
 	 * @return role
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public Role getRoleByRoleId (final int roleId) {
     		HashMap m = new HashMap();
 		m.put("roleId", roleId);
 
-		List<Role> results = (List<Role>) this.findByMap((Map) m);
+		List<Role> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			Role rt = new Role();
 			return rt;
 		}
-		return (Role) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -69,19 +70,20 @@ public class RoleDaoImpl extends WaspDaoImpl<Role> implements edu.yu.einstein.wa
 	 * @return role
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public Role getRoleByRoleName (final String roleName) {
     		HashMap m = new HashMap();
 		m.put("roleName", roleName);
 
-		List<Role> results = (List<Role>) this.findByMap((Map) m);
+		List<Role> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			Role rt = new Role();
 			return rt;
 		}
-		return (Role) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -94,19 +96,20 @@ public class RoleDaoImpl extends WaspDaoImpl<Role> implements edu.yu.einstein.wa
 	 * @return role
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public Role getRoleByName (final String name) {
     		HashMap m = new HashMap();
 		m.put("name", name);
 
-		List<Role> results = (List<Role>) this.findByMap((Map) m);
+		List<Role> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			Role rt = new Role();
 			return rt;
 		}
-		return (Role) results.get(0);
+		return results.get(0);
 	}
 
 

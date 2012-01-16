@@ -44,19 +44,20 @@ public class StatesampleDaoImpl extends WaspDaoImpl<Statesample> implements edu.
 	 * @return statesample
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public Statesample getStatesampleByStatesampleId (final int statesampleId) {
     		HashMap m = new HashMap();
 		m.put("statesampleId", statesampleId);
 
-		List<Statesample> results = (List<Statesample>) this.findByMap((Map) m);
+		List<Statesample> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			Statesample rt = new Statesample();
 			return rt;
 		}
-		return (Statesample) results.get(0);
+		return results.get(0);
 	}
 
 

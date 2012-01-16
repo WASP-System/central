@@ -33,6 +33,7 @@ public class JobResourceServiceImpl extends WaspServiceImpl<JobResource> impleme
 	 * @param jobResourceDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setJobResourceDao(JobResourceDao jobResourceDao) {
 		this.jobResourceDao = jobResourceDao;
@@ -45,16 +46,19 @@ public class JobResourceServiceImpl extends WaspServiceImpl<JobResource> impleme
 	 * @return jobResourceDao
 	 *
 	 */
+	@Override
 	public JobResourceDao getJobResourceDao() {
 		return this.jobResourceDao;
 	}
 
 
-  public JobResource getJobResourceByJobResourceId (final int jobResourceId) {
+  @Override
+public JobResource getJobResourceByJobResourceId (final int jobResourceId) {
     return this.getJobResourceDao().getJobResourceByJobResourceId(jobResourceId);
   }
 
-  public JobResource getJobResourceByResourceIdJobId (final int resourceId, final int jobId) {
+  @Override
+public JobResource getJobResourceByResourceIdJobId (final int resourceId, final int jobId) {
     return this.getJobResourceDao().getJobResourceByResourceIdJobId(resourceId, jobId);
   }
 

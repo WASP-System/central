@@ -24,22 +24,26 @@ import edu.yu.einstein.wasp.service.SampleDraftService;
 public class SampleDraftServiceImpl extends WaspServiceImpl<SampleDraft> implements SampleDraftService {
 
   private SampleDraftDao sampleDraftDao;
-  @Autowired
+  @Override
+@Autowired
   public void setSampleDraftDao(SampleDraftDao sampleDraftDao) {
     this.sampleDraftDao = sampleDraftDao;
     this.setWaspDao(sampleDraftDao);
   }
-  public SampleDraftDao getSampleDraftDao() {
+  @Override
+public SampleDraftDao getSampleDraftDao() {
     return this.sampleDraftDao;
   }
 
   // **
   
-  public SampleDraft getSampleDraftBySampleDraftId (final int sampleDraftId) {
+  @Override
+public SampleDraft getSampleDraftBySampleDraftId (final int sampleDraftId) {
     return this.getSampleDraftDao().getSampleDraftBySampleDraftId(sampleDraftId);
   }
   
-  public List<SampleDraft> getSampleDraftByJobId (final int jobdraftId) {
+  @Override
+public List<SampleDraft> getSampleDraftByJobId (final int jobdraftId) {
 	  return this.getSampleDraftDao().getSampleDraftByJobId(jobdraftId);
   }
   

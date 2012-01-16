@@ -44,19 +44,20 @@ public class SampleCellDaoImpl extends WaspDaoImpl<SampleCell> implements edu.yu
 	 * @return sampleCell
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public SampleCell getSampleCellBySampleCellId (final int sampleCellId) {
     		HashMap m = new HashMap();
 		m.put("sampleCellId", sampleCellId);
 
-		List<SampleCell> results = (List<SampleCell>) this.findByMap((Map) m);
+		List<SampleCell> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			SampleCell rt = new SampleCell();
 			return rt;
 		}
-		return (SampleCell) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -69,6 +70,7 @@ public class SampleCellDaoImpl extends WaspDaoImpl<SampleCell> implements edu.yu
 	 * @return sampleCell
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public SampleCell getSampleCellByJobcellIdLibraryindex (final int jobcellId, final int libraryindex) {
@@ -76,13 +78,13 @@ public class SampleCellDaoImpl extends WaspDaoImpl<SampleCell> implements edu.yu
 		m.put("jobcellId", jobcellId);
 		m.put("libraryindex", libraryindex);
 
-		List<SampleCell> results = (List<SampleCell>) this.findByMap((Map) m);
+		List<SampleCell> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			SampleCell rt = new SampleCell();
 			return rt;
 		}
-		return (SampleCell) results.get(0);
+		return results.get(0);
 	}
 
 

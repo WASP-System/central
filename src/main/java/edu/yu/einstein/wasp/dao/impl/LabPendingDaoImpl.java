@@ -44,19 +44,20 @@ public class LabPendingDaoImpl extends WaspDaoImpl<LabPending> implements edu.yu
 	 * @return labPending
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public LabPending getLabPendingByLabPendingId (final int labPendingId) {
     		HashMap m = new HashMap();
 		m.put("labPendingId", labPendingId);
 
-		List<LabPending> results = (List<LabPending>) this.findByMap((Map) m);
+		List<LabPending> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			LabPending rt = new LabPending();
 			return rt;
 		}
-		return (LabPending) results.get(0);
+		return results.get(0);
 	}
 
 

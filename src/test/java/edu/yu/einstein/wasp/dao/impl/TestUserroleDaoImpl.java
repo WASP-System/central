@@ -65,7 +65,7 @@ public class TestUserroleDaoImpl {
 		
 		HashMap m = new HashMap();
 		m.put("userroleId", 1);
-		List<Userrole> results = (List<Userrole>) userroleDao.findByMap((Map) m);
+		List<Userrole> results = userroleDao.findByMap(m);
 		Userrole actual = results.get(0);
 		Role role = actual.getRole();
 			

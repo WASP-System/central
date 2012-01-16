@@ -44,19 +44,20 @@ public class AcctJobquotecurrentDaoImpl extends WaspDaoImpl<AcctJobquotecurrent>
 	 * @return acctJobquotecurrent
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public AcctJobquotecurrent getAcctJobquotecurrentByJobId (final int jobId) {
     		HashMap m = new HashMap();
 		m.put("jobId", jobId);
 
-		List<AcctJobquotecurrent> results = (List<AcctJobquotecurrent>) this.findByMap((Map) m);
+		List<AcctJobquotecurrent> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			AcctJobquotecurrent rt = new AcctJobquotecurrent();
 			return rt;
 		}
-		return (AcctJobquotecurrent) results.get(0);
+		return results.get(0);
 	}
 
 

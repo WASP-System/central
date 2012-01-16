@@ -47,6 +47,7 @@ public class DepartmentServiceImpl extends WaspServiceImpl<Department> implement
 	 * @param departmentDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setDepartmentDao(DepartmentDao departmentDao) {
 		this.departmentDao = departmentDao;
@@ -59,6 +60,7 @@ public class DepartmentServiceImpl extends WaspServiceImpl<Department> implement
 	 * @return departmentDao
 	 *
 	 */
+	@Override
 	public DepartmentDao getDepartmentDao() {
 		return this.departmentDao;
 	}
@@ -72,20 +74,24 @@ public class DepartmentServiceImpl extends WaspServiceImpl<Department> implement
 	 @Autowired
 	  private TaskService taskService;
 
-  public Department getDepartmentByDepartmentId (final int departmentId) {
+  @Override
+public Department getDepartmentByDepartmentId (final int departmentId) {
     return this.getDepartmentDao().getDepartmentByDepartmentId(departmentId);
   }
 
-  public Department getDepartmentByName (final String name) {
+  @Override
+public Department getDepartmentByName (final String name) {
     return this.getDepartmentDao().getDepartmentByName(name);
   }
 
-  public int getDepartmentAdminPendingTasks(){
+  @Override
+public int getDepartmentAdminPendingTasks(){
 	  List<LabPending> labsPendingDaApprovalList = new ArrayList<LabPending>();
 	  List<Job> jobsPendingDaApprovalList = new ArrayList<Job>();
 	  return getDepartmentAdminPendingTasks(labsPendingDaApprovalList, jobsPendingDaApprovalList);
   }
-  public int getDepartmentAdminPendingTasks(List<LabPending> labsPendingDaApprovalList, List<Job> jobsPendingDaApprovalList){
+  @Override
+public int getDepartmentAdminPendingTasks(List<LabPending> labsPendingDaApprovalList, List<Job> jobsPendingDaApprovalList){
 
 	    Map themap = new HashMap();
 	    Task task = taskService.getTaskByIName("DA Approval");
@@ -151,7 +157,8 @@ public class DepartmentServiceImpl extends WaspServiceImpl<Department> implement
 		return labsPendingDaApprovalList.size() + jobsPendingDaApprovalList.size();//total number of tasksPendingDaApproval
   }
   
-  public List<Department> getDepartmentsByName (final String name) {
+  @Override
+public List<Department> getDepartmentsByName (final String name) {
 	  Department d=getDepartmentByName (name);
 	  
 	  List<Department> result = new ArrayList<Department>();

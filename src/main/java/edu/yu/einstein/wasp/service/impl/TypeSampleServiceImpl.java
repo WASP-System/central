@@ -33,6 +33,7 @@ public class TypeSampleServiceImpl extends WaspServiceImpl<TypeSample> implement
 	 * @param typeSampleDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setTypeSampleDao(TypeSampleDao typeSampleDao) {
 		this.typeSampleDao = typeSampleDao;
@@ -45,20 +46,24 @@ public class TypeSampleServiceImpl extends WaspServiceImpl<TypeSample> implement
 	 * @return typeSampleDao
 	 *
 	 */
+	@Override
 	public TypeSampleDao getTypeSampleDao() {
 		return this.typeSampleDao;
 	}
 
 
-  public TypeSample getTypeSampleByTypeSampleId (final int typeSampleId) {
+  @Override
+public TypeSample getTypeSampleByTypeSampleId (final int typeSampleId) {
     return this.getTypeSampleDao().getTypeSampleByTypeSampleId(typeSampleId);
   }
 
-  public TypeSample getTypeSampleByIName (final String iName) {
+  @Override
+public TypeSample getTypeSampleByIName (final String iName) {
     return this.getTypeSampleDao().getTypeSampleByIName(iName);
   }
 
-  public TypeSample getTypeSampleByName (final String name) {
+  @Override
+public TypeSample getTypeSampleByName (final String name) {
     return this.getTypeSampleDao().getTypeSampleByName(name);
   }
 

@@ -44,19 +44,20 @@ public class SampleLabDaoImpl extends WaspDaoImpl<SampleLab> implements edu.yu.e
 	 * @return sampleLab
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public SampleLab getSampleLabBySampleLabId (final int sampleLabId) {
     		HashMap m = new HashMap();
 		m.put("sampleLabId", sampleLabId);
 
-		List<SampleLab> results = (List<SampleLab>) this.findByMap((Map) m);
+		List<SampleLab> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			SampleLab rt = new SampleLab();
 			return rt;
 		}
-		return (SampleLab) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -69,6 +70,7 @@ public class SampleLabDaoImpl extends WaspDaoImpl<SampleLab> implements edu.yu.e
 	 * @return sampleLab
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public SampleLab getSampleLabBySampleIdLabId (final int sampleId, final int labId) {
@@ -76,13 +78,13 @@ public class SampleLabDaoImpl extends WaspDaoImpl<SampleLab> implements edu.yu.e
 		m.put("sampleId", sampleId);
 		m.put("labId", labId);
 
-		List<SampleLab> results = (List<SampleLab>) this.findByMap((Map) m);
+		List<SampleLab> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			SampleLab rt = new SampleLab();
 			return rt;
 		}
-		return (SampleLab) results.get(0);
+		return results.get(0);
 	}
 
 

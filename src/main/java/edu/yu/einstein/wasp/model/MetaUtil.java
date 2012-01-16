@@ -79,7 +79,7 @@ public final class MetaUtil {
 		//WaspMessageSourceImpl
 		if (
 				!
-				((WaspMessageSourceImpl)DBResourceBundle.MESSAGE_SOURCE)
+				DBResourceBundle.MESSAGE_SOURCE
 				.contains(key, locale)
 			) return null;
 		
@@ -180,6 +180,7 @@ public final class MetaUtil {
 	}
 		 
 	private final static Comparator META_POSITION_COMPARATOR =  new Comparator() {
+		@Override
 		public int compare(Object o1, Object o2) {
 			
 			MetaBase f1=(MetaBase)o1;

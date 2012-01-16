@@ -36,7 +36,8 @@ public class ConfirmEmailAuthServiceImpl extends WaspServiceImpl<ConfirmEmailAut
     * @param confirmEmailAuthDao
     *
     */
-    @Autowired
+    @Override
+	@Autowired
     public void setConfirmEmailAuthDao(ConfirmEmailAuthDao confirmEmailAuthDao) {
         this.confirmEmailAuthDao = confirmEmailAuthDao;
         this.setWaspDao(confirmEmailAuthDao);
@@ -48,26 +49,32 @@ public class ConfirmEmailAuthServiceImpl extends WaspServiceImpl<ConfirmEmailAut
     * @return confirmEmailAuthDao
     *
     */
-    public ConfirmEmailAuthDao getConfirmEmailAuthDao() {
+    @Override
+	public ConfirmEmailAuthDao getConfirmEmailAuthDao() {
         return this.confirmEmailAuthDao;
     }
     
-    public ConfirmEmailAuth getConfirmEmailAuthByConfirmEmailAuthId (final int confirmEmailAuthId) {
+    @Override
+	public ConfirmEmailAuth getConfirmEmailAuthByConfirmEmailAuthId (final int confirmEmailAuthId) {
         return this.getConfirmEmailAuthDao().getConfirmEmailAuthByConfirmEmailAuthId(confirmEmailAuthId);
     }
     
-    public ConfirmEmailAuth getConfirmEmailAuthByAuthcode (final String authcode) {
+    @Override
+	public ConfirmEmailAuth getConfirmEmailAuthByAuthcode (final String authcode) {
         return this.getConfirmEmailAuthDao().getConfirmEmailAuthByAuthcode(authcode);
     }
 
+	@Override
 	public ConfirmEmailAuth getConfirmEmailAuthByUserpendingId(int userpendingId) {
 		return this.getConfirmEmailAuthDao().getConfirmEmailAuthByUserpendingId(userpendingId);
 	}
 
+	@Override
 	public ConfirmEmailAuth getConfirmEmailAuthByUserId(int userId) {
 		return this.getConfirmEmailAuthDao().getConfirmEmailAuthByUserId(userId);
 	}
 
+	@Override
 	public String getNewAuthcodeForUser(User user) {
 		String authcode = AuthCode.create(20);
 		ConfirmEmailAuth confirmEmailAuth = this.getConfirmEmailAuthByUserId(user.getUserId());
@@ -77,6 +84,7 @@ public class ConfirmEmailAuthServiceImpl extends WaspServiceImpl<ConfirmEmailAut
 		return authcode;
 	}
 	
+	@Override
 	public String getNewAuthcodeForUserPending(UserPending userpending) {
 		String authcode = AuthCode.create(20);
 		ConfirmEmailAuth confirmEmailAuth = this.getConfirmEmailAuthByUserpendingId(userpending.getUserPendingId());

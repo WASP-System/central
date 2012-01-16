@@ -44,19 +44,20 @@ public class RunLanefileDaoImpl extends WaspDaoImpl<RunLanefile> implements edu.
 	 * @return runLanefile
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public RunLanefile getRunLanefileByRunLanefileId (final int runLanefileId) {
     		HashMap m = new HashMap();
 		m.put("runLanefileId", runLanefileId);
 
-		List<RunLanefile> results = (List<RunLanefile>) this.findByMap((Map) m);
+		List<RunLanefile> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			RunLanefile rt = new RunLanefile();
 			return rt;
 		}
-		return (RunLanefile) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -69,19 +70,20 @@ public class RunLanefileDaoImpl extends WaspDaoImpl<RunLanefile> implements edu.
 	 * @return runLanefile
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public RunLanefile getRunLanefileByFileId (final int fileId) {
     		HashMap m = new HashMap();
 		m.put("fileId", fileId);
 
-		List<RunLanefile> results = (List<RunLanefile>) this.findByMap((Map) m);
+		List<RunLanefile> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			RunLanefile rt = new RunLanefile();
 			return rt;
 		}
-		return (RunLanefile) results.get(0);
+		return results.get(0);
 	}
 
 

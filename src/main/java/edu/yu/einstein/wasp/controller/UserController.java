@@ -457,7 +457,7 @@ public class UserController extends WaspController {
 		
 		userId = (userId == null)? 0:userId;
 		// return read only version of page if cancel button pressed
-		String submitValue = (String) request.getParameter("submit");
+		String submitValue = request.getParameter("submit");
 		if ( submitValue.equals(messageService.getMessage("userDetail.cancel.label")) ){
 			if (userId.intValue() == authenticationService.getAuthenticatedUser().getUserId().intValue()){
 				return "redirect:/user/me_ro.do";

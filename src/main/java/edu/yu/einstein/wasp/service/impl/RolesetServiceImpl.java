@@ -33,6 +33,7 @@ public class RolesetServiceImpl extends WaspServiceImpl<Roleset> implements Role
 	 * @param rolesetDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setRolesetDao(RolesetDao rolesetDao) {
 		this.rolesetDao = rolesetDao;
@@ -45,16 +46,19 @@ public class RolesetServiceImpl extends WaspServiceImpl<Roleset> implements Role
 	 * @return rolesetDao
 	 *
 	 */
+	@Override
 	public RolesetDao getRolesetDao() {
 		return this.rolesetDao;
 	}
 
 
-  public Roleset getRolesetByRolesetId (final int rolesetId) {
+  @Override
+public Roleset getRolesetByRolesetId (final int rolesetId) {
     return this.getRolesetDao().getRolesetByRolesetId(rolesetId);
   }
 
-  public Roleset getRolesetByParentroleIdChildroleId (final int parentroleId, final int childroleId) {
+  @Override
+public Roleset getRolesetByParentroleIdChildroleId (final int parentroleId, final int childroleId) {
     return this.getRolesetDao().getRolesetByParentroleIdChildroleId(parentroleId, childroleId);
   }
 

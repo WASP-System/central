@@ -30,15 +30,18 @@ public class UiFieldServiceImpl extends WaspServiceImpl<UiField> implements UiFi
 	    this.setWaspDao(dao);
 	  }
 	  
-	  public List<String> getUniqueAreas() {
+	  @Override
+	public List<String> getUniqueAreas() {
 		  return this.dao.getUniqueAreas();
 	  }
 	  
-	  public boolean exists(String locale, String area, String name, String attrName) {
+	  @Override
+	public boolean exists(String locale, String area, String name, String attrName) {
 		  return this.dao.exists(locale, area, name, attrName);
 	  }
 	
-	  public String dumpUiFieldTable() {
+	  @Override
+	public String dumpUiFieldTable() {
 		  return this.dao.dumpUiFieldTable();
 	  }
 	  

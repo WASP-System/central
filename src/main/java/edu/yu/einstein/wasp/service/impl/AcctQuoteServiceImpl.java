@@ -33,6 +33,7 @@ public class AcctQuoteServiceImpl extends WaspServiceImpl<AcctQuote> implements 
 	 * @param acctQuoteDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setAcctQuoteDao(AcctQuoteDao acctQuoteDao) {
 		this.acctQuoteDao = acctQuoteDao;
@@ -45,12 +46,14 @@ public class AcctQuoteServiceImpl extends WaspServiceImpl<AcctQuote> implements 
 	 * @return acctQuoteDao
 	 *
 	 */
+	@Override
 	public AcctQuoteDao getAcctQuoteDao() {
 		return this.acctQuoteDao;
 	}
 
 
-  public AcctQuote getAcctQuoteByQuoteId (final int quoteId) {
+  @Override
+public AcctQuote getAcctQuoteByQuoteId (final int quoteId) {
     return this.getAcctQuoteDao().getAcctQuoteByQuoteId(quoteId);
   }
 

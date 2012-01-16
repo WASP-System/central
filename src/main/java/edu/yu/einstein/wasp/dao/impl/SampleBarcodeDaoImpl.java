@@ -44,19 +44,20 @@ public class SampleBarcodeDaoImpl extends WaspDaoImpl<SampleBarcode> implements 
 	 * @return sampleBarcode
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public SampleBarcode getSampleBarcodeBySampleBarcode (final int sampleBarcode) {
     		HashMap m = new HashMap();
 		m.put("sampleBarcode", sampleBarcode);
 
-		List<SampleBarcode> results = (List<SampleBarcode>) this.findByMap((Map) m);
+		List<SampleBarcode> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			SampleBarcode rt = new SampleBarcode();
 			return rt;
 		}
-		return (SampleBarcode) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -69,19 +70,20 @@ public class SampleBarcodeDaoImpl extends WaspDaoImpl<SampleBarcode> implements 
 	 * @return sampleBarcode
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public SampleBarcode getSampleBarcodeBySampleId (final int sampleId) {
     		HashMap m = new HashMap();
 		m.put("sampleId", sampleId);
 
-		List<SampleBarcode> results = (List<SampleBarcode>) this.findByMap((Map) m);
+		List<SampleBarcode> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			SampleBarcode rt = new SampleBarcode();
 			return rt;
 		}
-		return (SampleBarcode) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -94,19 +96,20 @@ public class SampleBarcodeDaoImpl extends WaspDaoImpl<SampleBarcode> implements 
 	 * @return sampleBarcode
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public SampleBarcode getSampleBarcodeByBarcodeId (final int barcodeId) {
     		HashMap m = new HashMap();
 		m.put("barcodeId", barcodeId);
 
-		List<SampleBarcode> results = (List<SampleBarcode>) this.findByMap((Map) m);
+		List<SampleBarcode> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			SampleBarcode rt = new SampleBarcode();
 			return rt;
 		}
-		return (SampleBarcode) results.get(0);
+		return results.get(0);
 	}
 
 

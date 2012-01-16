@@ -17,7 +17,8 @@ public class LabPermissionEvaluator implements PermissionEvaluator {
     return true;
   }
 
-  public boolean hasPermission(Authentication authentication, Object domainObject, Object permission) {
+  @Override
+public boolean hasPermission(Authentication authentication, Object domainObject, Object permission) {
 
     logger.error(domainObject);
 
@@ -27,7 +28,8 @@ public class LabPermissionEvaluator implements PermissionEvaluator {
     return false;
   }
 
-  public boolean hasPermission(Authentication authentication, Serializable targetId, String targetType, Object permission) {
+  @Override
+public boolean hasPermission(Authentication authentication, Serializable targetId, String targetType, Object permission) {
     return true;
   }
 }

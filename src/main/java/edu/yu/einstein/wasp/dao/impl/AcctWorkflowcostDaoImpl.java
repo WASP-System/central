@@ -44,19 +44,20 @@ public class AcctWorkflowcostDaoImpl extends WaspDaoImpl<AcctWorkflowcost> imple
 	 * @return acctWorkflowcost
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public AcctWorkflowcost getAcctWorkflowcostByWorkflowId (final int workflowId) {
     		HashMap m = new HashMap();
 		m.put("workflowId", workflowId);
 
-		List<AcctWorkflowcost> results = (List<AcctWorkflowcost>) this.findByMap((Map) m);
+		List<AcctWorkflowcost> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			AcctWorkflowcost rt = new AcctWorkflowcost();
 			return rt;
 		}
-		return (AcctWorkflowcost) results.get(0);
+		return results.get(0);
 	}
 
 

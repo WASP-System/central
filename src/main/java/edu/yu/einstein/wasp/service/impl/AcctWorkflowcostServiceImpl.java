@@ -33,6 +33,7 @@ public class AcctWorkflowcostServiceImpl extends WaspServiceImpl<AcctWorkflowcos
 	 * @param acctWorkflowcostDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setAcctWorkflowcostDao(AcctWorkflowcostDao acctWorkflowcostDao) {
 		this.acctWorkflowcostDao = acctWorkflowcostDao;
@@ -45,12 +46,14 @@ public class AcctWorkflowcostServiceImpl extends WaspServiceImpl<AcctWorkflowcos
 	 * @return acctWorkflowcostDao
 	 *
 	 */
+	@Override
 	public AcctWorkflowcostDao getAcctWorkflowcostDao() {
 		return this.acctWorkflowcostDao;
 	}
 
 
-  public AcctWorkflowcost getAcctWorkflowcostByWorkflowId (final int workflowId) {
+  @Override
+public AcctWorkflowcost getAcctWorkflowcostByWorkflowId (final int workflowId) {
     return this.getAcctWorkflowcostDao().getAcctWorkflowcostByWorkflowId(workflowId);
   }
 

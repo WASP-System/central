@@ -44,19 +44,20 @@ public class StateMetaDaoImpl extends WaspDaoImpl<StateMeta> implements edu.yu.e
 	 * @return stateMeta
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public StateMeta getStateMetaByStateMetaId (final int stateMetaId) {
     		HashMap m = new HashMap();
 		m.put("stateMetaId", stateMetaId);
 
-		List<StateMeta> results = (List<StateMeta>) this.findByMap((Map) m);
+		List<StateMeta> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			StateMeta rt = new StateMeta();
 			return rt;
 		}
-		return (StateMeta) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -69,6 +70,7 @@ public class StateMetaDaoImpl extends WaspDaoImpl<StateMeta> implements edu.yu.e
 	 * @return stateMeta
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public StateMeta getStateMetaByKStateId (final String k, final int stateId) {
@@ -76,13 +78,13 @@ public class StateMetaDaoImpl extends WaspDaoImpl<StateMeta> implements edu.yu.e
 		m.put("k", k);
 		m.put("stateId", stateId);
 
-		List<StateMeta> results = (List<StateMeta>) this.findByMap((Map) m);
+		List<StateMeta> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			StateMeta rt = new StateMeta();
 			return rt;
 		}
-		return (StateMeta) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -94,6 +96,7 @@ public class StateMetaDaoImpl extends WaspDaoImpl<StateMeta> implements edu.yu.e
 	 * @param metaList
 	 *
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByStateId (final String area, final int stateId, final List<StateMeta> metaList) {
@@ -113,6 +116,7 @@ public class StateMetaDaoImpl extends WaspDaoImpl<StateMeta> implements edu.yu.e
 	 * @param metaList
 	 *
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByStateId (final int stateId, final List<StateMeta> metaList) {

@@ -14,6 +14,7 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
 import javax.servlet.jsp.tagext.BodyContent;
 import javax.servlet.jsp.tagext.BodyTagSupport;
+import javax.servlet.jsp.tagext.Tag;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang.WordUtils;
@@ -80,6 +81,7 @@ public class JQFieldTag extends BodyTagSupport {
 	}
 
 
+	@Override
 	public void release() {
 		name=null;
 		object=null;
@@ -140,6 +142,7 @@ public class JQFieldTag extends BodyTagSupport {
 		return DBResourceBundle.MESSAGE_SOURCE.getMessage(key, null, locale);
 	}
 	
+	@Override
 	public int doStartTag() throws javax.servlet.jsp.JspException {
 		if (object==null) {
 			String objectStr=(String)((HttpServletRequest)this.pageContext.getRequest()).getAttribute(AREA_ATTR);
@@ -324,10 +327,11 @@ public class JQFieldTag extends BodyTagSupport {
 			throw new JspTagException(e.getMessage(),e);
 		}
 		
-		return BodyTagSupport.EVAL_PAGE;
+		return Tag.EVAL_PAGE;
 	}
 	
 	//replace "#field" tokens in tag body with real name 
+	@Override
 	public int doEndTag() throws javax.servlet.jsp.JspException {
 		//append body of the tag
 		String body="";

@@ -33,6 +33,7 @@ public class LabPendingServiceImpl extends WaspServiceImpl<LabPending> implement
 	 * @param labPendingDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setLabPendingDao(LabPendingDao labPendingDao) {
 		this.labPendingDao = labPendingDao;
@@ -45,12 +46,14 @@ public class LabPendingServiceImpl extends WaspServiceImpl<LabPending> implement
 	 * @return labPendingDao
 	 *
 	 */
+	@Override
 	public LabPendingDao getLabPendingDao() {
 		return this.labPendingDao;
 	}
 
 
-  public LabPending getLabPendingByLabPendingId (final int labPendingId) {
+  @Override
+public LabPending getLabPendingByLabPendingId (final int labPendingId) {
     return this.getLabPendingDao().getLabPendingByLabPendingId(labPendingId);
   }
 

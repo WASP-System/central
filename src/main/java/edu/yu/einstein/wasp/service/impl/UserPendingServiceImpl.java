@@ -33,6 +33,7 @@ public class UserPendingServiceImpl extends WaspServiceImpl<UserPending> impleme
 	 * @param userPendingDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setUserPendingDao(UserPendingDao userPendingDao) {
 		this.userPendingDao = userPendingDao;
@@ -45,12 +46,14 @@ public class UserPendingServiceImpl extends WaspServiceImpl<UserPending> impleme
 	 * @return userPendingDao
 	 *
 	 */
+	@Override
 	public UserPendingDao getUserPendingDao() {
 		return this.userPendingDao;
 	}
 
 
-  public UserPending getUserPendingByUserPendingId (final int userPendingId) {
+  @Override
+public UserPending getUserPendingByUserPendingId (final int userPendingId) {
     return this.getUserPendingDao().getUserPendingByUserPendingId(userPendingId);
   }
 

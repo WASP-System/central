@@ -48,7 +48,8 @@ public class SubtypeSampleLoadService extends WaspLoadService {
   public void setMeta(List<SubtypeSampleMeta> subtypeSampleMeta) {this.meta = subtypeSampleMeta; }
 
 
-  @Transactional
+  @Override
+@Transactional
   @PostInitialize 
   public void postInitialize() {
     // skips component scanned  (if scanned in)

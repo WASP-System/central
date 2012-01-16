@@ -31,27 +31,32 @@ public class UserServiceImpl extends WaspServiceImpl<User> implements UserServic
   private EmailService emailService;
 	
   private UserDao userDao;
-  @Autowired
+  @Override
+@Autowired
   public void setUserDao(UserDao userDao) {
     this.userDao = userDao;
     this.setWaspDao(userDao);
   }
-  public UserDao getUserDao() {
+  @Override
+public UserDao getUserDao() {
     return this.userDao;
   }
 
   // **
 
   
-  public User getUserByUserId (final int UserId) {
+  @Override
+public User getUserByUserId (final int UserId) {
     return this.getUserDao().getUserByUserId(UserId);
   }
 
-  public User getUserByLogin (final String login) {
+  @Override
+public User getUserByLogin (final String login) {
     return this.getUserDao().getUserByLogin(login);
   }
 
-  public User getUserByEmail (final String email) {
+  @Override
+public User getUserByEmail (final String email) {
     return this.getUserDao().getUserByEmail(email);
   }
   
@@ -59,7 +64,8 @@ public class UserServiceImpl extends WaspServiceImpl<User> implements UserServic
 	  return  this.getUserDao().loginExists(login, excludeUserId);
   }*/
   
-  public String getUniqueLoginName(final User user){
+  @Override
+public String getUniqueLoginName(final User user){
 	    if (user == null || user.getUserId() == null){
 	    	return null;
 	    }

@@ -44,19 +44,20 @@ public class SampleMetaDaoImpl extends WaspDaoImpl<SampleMeta> implements edu.yu
 	 * @return sampleMeta
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public SampleMeta getSampleMetaBySampleMetaId (final int sampleMetaId) {
     		HashMap m = new HashMap();
 		m.put("sampleMetaId", sampleMetaId);
 
-		List<SampleMeta> results = (List<SampleMeta>) this.findByMap((Map) m);
+		List<SampleMeta> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			SampleMeta rt = new SampleMeta();
 			return rt;
 		}
-		return (SampleMeta) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -69,6 +70,7 @@ public class SampleMetaDaoImpl extends WaspDaoImpl<SampleMeta> implements edu.yu
 	 * @return sampleMeta
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public SampleMeta getSampleMetaByKSampleId (final String k, final int sampleId) {
@@ -76,13 +78,13 @@ public class SampleMetaDaoImpl extends WaspDaoImpl<SampleMeta> implements edu.yu
 		m.put("k", k);
 		m.put("sampleId", sampleId);
 
-		List<SampleMeta> results = (List<SampleMeta>) this.findByMap((Map) m);
+		List<SampleMeta> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			SampleMeta rt = new SampleMeta();
 			return rt;
 		}
-		return (SampleMeta) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -94,6 +96,7 @@ public class SampleMetaDaoImpl extends WaspDaoImpl<SampleMeta> implements edu.yu
 	 * @param metaList
 	 *
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateBySampleId (final String area, final int sampleId, final List<SampleMeta> metaList) {
@@ -113,6 +116,7 @@ public class SampleMetaDaoImpl extends WaspDaoImpl<SampleMeta> implements edu.yu
 	 * @param metaList
 	 *
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateBySampleId (final int sampleId, final List<SampleMeta> metaList) {
@@ -125,11 +129,12 @@ public class SampleMetaDaoImpl extends WaspDaoImpl<SampleMeta> implements edu.yu
 	}
 
 
+	@Override
 	public List<SampleMeta> getSamplesMetaBySampleId (final int sampleId) {
 		HashMap m = new HashMap();
 		m.put("sampleId", sampleId);
 
-		List<SampleMeta> results = (List<SampleMeta>) this.findByMap((Map) m);
+		List<SampleMeta> results = this.findByMap(m);
 
 		return results;
 	}

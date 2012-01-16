@@ -28,13 +28,15 @@ public class UiFieldDaoImpl extends WaspDaoImpl<UiField> implements edu.yu.einst
   }
 
   //returns list of unique areas
-  public List<String> getUniqueAreas() {
+  @Override
+public List<String> getUniqueAreas() {
 	String sql="SELECT DISTINCT area FROM  uifield ORDER BY area";
     return entityManager.createNativeQuery(sql).getResultList();
   }
   
   //returns true if a combination of locale, area, name, attrName already exists
-  public boolean exists(final String locale, final String area, final String name, final String attrName) {
+  @Override
+public boolean exists(final String locale, final String area, final String name, final String attrName) {
 	String sql=
 		   
 		   	"select 1 from uifield \n"+
@@ -76,7 +78,8 @@ public class UiFieldDaoImpl extends WaspDaoImpl<UiField> implements edu.yu.einst
   }
   
   //returns content of UIField table as a list of SQL insert statements 
-  public String dumpUiFieldTable() {
+  @Override
+public String dumpUiFieldTable() {
 	  
 	  final List<UiField> all = super.findAll();
 			   

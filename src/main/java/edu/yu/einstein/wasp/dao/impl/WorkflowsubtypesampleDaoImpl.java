@@ -44,19 +44,20 @@ public class WorkflowsubtypesampleDaoImpl extends WaspDaoImpl<Workflowsubtypesam
 	 * @return workflowsubtypesample
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public Workflowsubtypesample getWorkflowsubtypesampleByWorkflowsubtypesampleId (final int workflowsubtypesampleId) {
     		HashMap m = new HashMap();
 		m.put("workflowsubtypesampleId", workflowsubtypesampleId);
 
-		List<Workflowsubtypesample> results = (List<Workflowsubtypesample>) this.findByMap((Map) m);
+		List<Workflowsubtypesample> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			Workflowsubtypesample rt = new Workflowsubtypesample();
 			return rt;
 		}
-		return (Workflowsubtypesample) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -69,6 +70,7 @@ public class WorkflowsubtypesampleDaoImpl extends WaspDaoImpl<Workflowsubtypesam
 	 * @return workflowsubtypesample
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public Workflowsubtypesample getWorkflowsubtypesampleByWorkflowIdSubtypeSampleId (final int workflowId, final int subtypeSampleId) {
@@ -76,13 +78,13 @@ public class WorkflowsubtypesampleDaoImpl extends WaspDaoImpl<Workflowsubtypesam
 		m.put("workflowId", workflowId);
 		m.put("subtypeSampleId", subtypeSampleId);
 
-		List<Workflowsubtypesample> results = (List<Workflowsubtypesample>) this.findByMap((Map) m);
+		List<Workflowsubtypesample> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			Workflowsubtypesample rt = new Workflowsubtypesample();
 			return rt;
 		}
-		return (Workflowsubtypesample) results.get(0);
+		return results.get(0);
 	}
 
 

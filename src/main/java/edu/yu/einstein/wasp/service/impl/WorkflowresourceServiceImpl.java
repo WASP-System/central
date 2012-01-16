@@ -33,6 +33,7 @@ public class WorkflowresourceServiceImpl extends WaspServiceImpl<Workflowresourc
 	 * @param workflowresourceDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setWorkflowresourceDao(WorkflowresourceDao workflowresourceDao) {
 		this.workflowresourceDao = workflowresourceDao;
@@ -45,16 +46,19 @@ public class WorkflowresourceServiceImpl extends WaspServiceImpl<Workflowresourc
 	 * @return workflowresourceDao
 	 *
 	 */
+	@Override
 	public WorkflowresourceDao getWorkflowresourceDao() {
 		return this.workflowresourceDao;
 	}
 
 
-  public Workflowresource getWorkflowresourceByWorkflowresourceId (final int workflowresourceId) {
+  @Override
+public Workflowresource getWorkflowresourceByWorkflowresourceId (final int workflowresourceId) {
     return this.getWorkflowresourceDao().getWorkflowresourceByWorkflowresourceId(workflowresourceId);
   }
 
-  public Workflowresource getWorkflowresourceByWorkflowIdResourceId (final int workflowId, final int resourceId) {
+  @Override
+public Workflowresource getWorkflowresourceByWorkflowIdResourceId (final int workflowId, final int resourceId) {
     return this.getWorkflowresourceDao().getWorkflowresourceByWorkflowIdResourceId(workflowId, resourceId);
   }
 

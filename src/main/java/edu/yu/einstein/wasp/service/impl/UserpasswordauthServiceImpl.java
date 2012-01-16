@@ -33,6 +33,7 @@ public class UserpasswordauthServiceImpl extends WaspServiceImpl<Userpasswordaut
 	 * @param userpasswordauthDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setUserpasswordauthDao(UserpasswordauthDao userpasswordauthDao) {
 		this.userpasswordauthDao = userpasswordauthDao;
@@ -45,16 +46,19 @@ public class UserpasswordauthServiceImpl extends WaspServiceImpl<Userpasswordaut
 	 * @return userpasswordauthDao
 	 *
 	 */
+	@Override
 	public UserpasswordauthDao getUserpasswordauthDao() {
 		return this.userpasswordauthDao;
 	}
 
 
-  public Userpasswordauth getUserpasswordauthByUserId (final int UserId) {
+  @Override
+public Userpasswordauth getUserpasswordauthByUserId (final int UserId) {
     return this.getUserpasswordauthDao().getUserpasswordauthByUserId(UserId);
   }
 
-  public Userpasswordauth getUserpasswordauthByAuthcode (final String authcode) {
+  @Override
+public Userpasswordauth getUserpasswordauthByAuthcode (final String authcode) {
     return this.getUserpasswordauthDao().getUserpasswordauthByAuthcode(authcode);
   }
 

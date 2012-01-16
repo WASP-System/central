@@ -35,6 +35,7 @@ public class WorkflowMetaServiceImpl extends WaspMetaServiceImpl<WorkflowMeta> i
 	 * @param workflowMetaDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setWorkflowMetaDao(WorkflowMetaDao workflowMetaDao) {
 		this.workflowMetaDao = workflowMetaDao;
@@ -47,24 +48,29 @@ public class WorkflowMetaServiceImpl extends WaspMetaServiceImpl<WorkflowMeta> i
 	 * @return workflowMetaDao
 	 *
 	 */
+	@Override
 	public WorkflowMetaDao getWorkflowMetaDao() {
 		return this.workflowMetaDao;
 	}
 
 
-  public WorkflowMeta getWorkflowMetaByWorkflowMetaId (final int workflowMetaId) {
+  @Override
+public WorkflowMeta getWorkflowMetaByWorkflowMetaId (final int workflowMetaId) {
     return this.getWorkflowMetaDao().getWorkflowMetaByWorkflowMetaId(workflowMetaId);
   }
 
-  public WorkflowMeta getWorkflowMetaByKWorkflowId (final String k, final int workflowId) {
+  @Override
+public WorkflowMeta getWorkflowMetaByKWorkflowId (final String k, final int workflowId) {
     return this.getWorkflowMetaDao().getWorkflowMetaByKWorkflowId(k, workflowId);
   }
 
-  public void updateByWorkflowId (final String area, final int workflowId, final List<WorkflowMeta> metaList) {
+  @Override
+public void updateByWorkflowId (final String area, final int workflowId, final List<WorkflowMeta> metaList) {
     this.getWorkflowMetaDao().updateByWorkflowId(area, workflowId, metaList); 
   }
 
-  public void updateByWorkflowId (final int workflowId, final List<WorkflowMeta> metaList) {
+  @Override
+public void updateByWorkflowId (final int workflowId, final List<WorkflowMeta> metaList) {
     this.getWorkflowMetaDao().updateByWorkflowId(workflowId, metaList); 
   }
 

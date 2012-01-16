@@ -77,6 +77,7 @@ public class EmailServiceImpl implements EmailService {
 	/**
 	 * {@inheritDoc} 
 	 */
+	@Override
 	public void sendUserEmailConfirm(final User user, final String authcode) {
 		sendEmailConfirm(user, authcode, "emails/user_request_email_confirm");
 	}
@@ -85,6 +86,7 @@ public class EmailServiceImpl implements EmailService {
 	/**
 	 * {@inheritDoc} 
 	 */
+	@Override
 	public void sendPendingUserEmailConfirm(final UserPending userPending, final String authcode) {
 		sendEmailConfirm(userPending, authcode, "emails/pending_user_request_email_confirm");
 	}
@@ -92,6 +94,7 @@ public class EmailServiceImpl implements EmailService {
 	/**
 	 * {@inheritDoc} 
 	 */
+	@Override
 	public void sendPendingPIEmailConfirm(final UserPending userPending, final String authcode) {
 		sendEmailConfirm(userPending, authcode, "emails/pending_pi_request_email_confirm");
 	}
@@ -134,6 +137,7 @@ public class EmailServiceImpl implements EmailService {
 	/**
 	 * {@inheritDoc}  
 	 */
+	@Override
 	public void sendPendingUserNotifyAccepted(final User user, final Lab lab){
 		Map model = new HashMap();
 		model.put("user", user);
@@ -144,6 +148,7 @@ public class EmailServiceImpl implements EmailService {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void sendPendingUserNotifyRejected(final UserPending userPending, final Lab lab){
 		User pendinguser = new User();
 		pendinguser.setFirstName(userPending.getFirstName());
@@ -172,6 +177,7 @@ public class EmailServiceImpl implements EmailService {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void sendPendingLabNotifyAccepted(final Lab lab){
 		User primaryUser = userService.getUserByUserId(lab.getPrimaryUserId());
 		Map model = new HashMap();
@@ -184,6 +190,7 @@ public class EmailServiceImpl implements EmailService {
 	 * {@inheritDoc}
 	 * @throws MailPreparationException 
 	 */
+	@Override
 	public void sendPendingLabNotifyRejected(final LabPending labPending) throws MailPreparationException{
 		User user = new User();
 		if (labPending.getUserpendingId() != null ) {
@@ -211,6 +218,7 @@ public class EmailServiceImpl implements EmailService {
 	 * {@inheritDoc}
 	 * @throws MailPreparationException 
 	 */
+	@Override
 	public void sendPendingUserConfirmRequest(final UserPending userPending) throws MailPreparationException {
 		MetaHelper userPendingMetaHelper = new MetaHelper("userPending", UserPendingMeta.class, Locale.US);
 		userPendingMetaHelper.syncWithMaster(userPending.getUserPendingMeta());
@@ -251,6 +259,7 @@ public class EmailServiceImpl implements EmailService {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void sendPendingLabUserConfirmRequest(final LabUser labUser) {
 		Lab lab = labUser.getLab(); 
 		User pendingUser = labUser.getUser(); 
@@ -278,6 +287,7 @@ public class EmailServiceImpl implements EmailService {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void sendPendingPrincipalConfirmRequest(final LabPending labPending) {
 		User user;
 		if (labPending.getUserpendingId() != null){
@@ -307,6 +317,7 @@ public class EmailServiceImpl implements EmailService {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void sendRequestNewPassword(final User user, final String authcode) {
 		Map model = new HashMap();
 		model.put("user", user);
@@ -317,6 +328,7 @@ public class EmailServiceImpl implements EmailService {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void informUserLoginChanged(User user) {
 		Map model = new HashMap();
 		model.put("user", user);
@@ -326,6 +338,7 @@ public class EmailServiceImpl implements EmailService {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void informUserAccountCreatedByAdmin(final User user, final String authcode) {
 		sendEmailConfirm(user, authcode, "emails/user_created_by_admin");
 	}
@@ -340,6 +353,7 @@ public class EmailServiceImpl implements EmailService {
 	 */
 	protected void prepareAndSend(final User user, final String template, final Map model){
 		MimeMessagePreparator preparator = new MimeMessagePreparator() {
+			@Override
 			public void prepare(MimeMessage mimeMessage) throws MailPreparationException {
 				generateMessage(user, template, model, mimeMessage); 
 			}

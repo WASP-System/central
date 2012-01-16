@@ -35,6 +35,7 @@ public class SubtypeSampleMetaServiceImpl extends WaspMetaServiceImpl<SubtypeSam
 	 * @param subtypeSampleMetaDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setSubtypeSampleMetaDao(SubtypeSampleMetaDao subtypeSampleMetaDao) {
 		this.subtypeSampleMetaDao = subtypeSampleMetaDao;
@@ -47,28 +48,34 @@ public class SubtypeSampleMetaServiceImpl extends WaspMetaServiceImpl<SubtypeSam
 	 * @return subtypeSampleMetaDao
 	 *
 	 */
+	@Override
 	public SubtypeSampleMetaDao getSubtypeSampleMetaDao() {
 		return this.subtypeSampleMetaDao;
 	}
 
 
-  public SubtypeSampleMeta getSubtypeSampleMetaBySubtypeSampleMetaId (final int subtypeSampleMetaId) {
+  @Override
+public SubtypeSampleMeta getSubtypeSampleMetaBySubtypeSampleMetaId (final int subtypeSampleMetaId) {
     return this.getSubtypeSampleMetaDao().getSubtypeSampleMetaBySubtypeSampleMetaId(subtypeSampleMetaId);
   }
 
-  public SubtypeSampleMeta getSubtypeSampleMetaByKSubtypeSampleId (final String k, final int subtypeSampleId) {
+  @Override
+public SubtypeSampleMeta getSubtypeSampleMetaByKSubtypeSampleId (final String k, final int subtypeSampleId) {
     return this.getSubtypeSampleMetaDao().getSubtypeSampleMetaByKSubtypeSampleId(k, subtypeSampleId);
   }
 
-  public void updateBySubtypeSampleId (final String area, final int subtypeSampleId, final List<SubtypeSampleMeta> metaList) {
+  @Override
+public void updateBySubtypeSampleId (final String area, final int subtypeSampleId, final List<SubtypeSampleMeta> metaList) {
     this.getSubtypeSampleMetaDao().updateBySubtypeSampleId(area, subtypeSampleId, metaList); 
   }
 
-  public void updateBySubtypeSampleId (final int subtypeSampleId, final List<SubtypeSampleMeta> metaList) {
+  @Override
+public void updateBySubtypeSampleId (final int subtypeSampleId, final List<SubtypeSampleMeta> metaList) {
     this.getSubtypeSampleMetaDao().updateBySubtypeSampleId(subtypeSampleId, metaList); 
   }
 
-  public  List<SubtypeSampleMeta> getSubtypeSamplesMetaBySubtypeSampleId (final int subtypeSampleId) {
+  @Override
+public  List<SubtypeSampleMeta> getSubtypeSamplesMetaBySubtypeSampleId (final int subtypeSampleId) {
     return getSubtypeSampleMetaDao().getSubtypeSamplesMetaBySubtypeSampleId(subtypeSampleId);
   }
 
