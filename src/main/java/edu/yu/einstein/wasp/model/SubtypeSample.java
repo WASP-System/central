@@ -284,6 +284,38 @@ public class SubtypeSample extends WaspModel {
 		this.sampleDraft = sampleDraft;
 	}
 
+
+	/** 
+	 * subtypeSampleMeta
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="subtypesampleid", insertable=false, updatable=false)
+	protected List<SubtypeSampleMeta> subtypeSampleMeta;
+
+
+	/** 
+	 * getSubtypeSampleMeta()
+	 *
+	 * @return subtypeSampleMeta
+	 *
+	 */
+	public List<SubtypeSampleMeta> getSubtypeSampleMeta() {
+		return this.subtypeSampleMeta;
+	}
+
+
+	/** 
+	 * setSubtypeSampleMeta
+	 *
+	 * @param subtypeSampleMeta
+	 *
+	 */
+	public void setSubtypeSampleMeta (List<SubtypeSampleMeta> subtypeSampleMeta) {
+		this.subtypeSampleMeta = subtypeSampleMeta;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
