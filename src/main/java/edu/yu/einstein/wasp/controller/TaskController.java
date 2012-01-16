@@ -1,43 +1,38 @@
 package edu.yu.einstein.wasp.controller;
 
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.ModelMap;
-import org.springframework.validation.BindingResult;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+
+import org.apache.commons.lang.StringUtils;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.support.SessionStatus;
-import org.springframework.transaction.annotation.*; 
 
-
-import org.codehaus.jackson.map.ObjectMapper;
-
-import org.springframework.security.access.prepost.*;
-
-import java.util.Date; 
-import java.util.ArrayList; 
-import java.util.Arrays; 
-import java.util.List; 
-import java.util.HashMap; 
-import java.util.Map; 
-
-import org.apache.commons.lang.StringUtils;
-
+import edu.yu.einstein.wasp.model.MetaHelper;
+import edu.yu.einstein.wasp.model.State;
+import edu.yu.einstein.wasp.model.StateMeta;
+import edu.yu.einstein.wasp.model.Statejob;
+import edu.yu.einstein.wasp.model.Task;
 import edu.yu.einstein.wasp.service.MessageService;
-import edu.yu.einstein.wasp.service.TaskService;
-import edu.yu.einstein.wasp.service.StateService;
 import edu.yu.einstein.wasp.service.StateMetaService;
-import edu.yu.einstein.wasp.model.*;
+import edu.yu.einstein.wasp.service.StateService;
+import edu.yu.einstein.wasp.service.TaskService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
-
-
-import javax.validation.Valid;
-import javax.servlet.http.HttpServletResponse;
 
 @Controller
 @Transactional

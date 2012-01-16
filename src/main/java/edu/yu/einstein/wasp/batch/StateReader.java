@@ -1,14 +1,8 @@
 package edu.yu.einstein.wasp.batch;
 
-import edu.yu.einstein.wasp.model.*;
-import edu.yu.einstein.wasp.service.*;
-
-import org.springframework.batch.item.ItemReader;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.stereotype.Component;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.batch.item.ItemReader;
 
 
 // Generic State Reader, 

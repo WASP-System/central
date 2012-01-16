@@ -10,11 +10,8 @@ package edu.yu.einstein.wasp.dao.impl;
 
 import java.util.List;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
-import org.springframework.orm.jpa.JpaCallback;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 

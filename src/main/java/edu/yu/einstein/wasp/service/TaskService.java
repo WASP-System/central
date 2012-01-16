@@ -11,14 +11,13 @@
 
 package edu.yu.einstein.wasp.service;
 
-import edu.yu.einstein.wasp.dao.TaskDao;
-import edu.yu.einstein.wasp.model.Task;
-import edu.yu.einstein.wasp.model.State;
-
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.stereotype.Service;
+
+import edu.yu.einstein.wasp.dao.TaskDao;
+import edu.yu.einstein.wasp.model.State;
+import edu.yu.einstein.wasp.model.Task;
 
 @Service
 public interface TaskService extends WaspService<Task> {

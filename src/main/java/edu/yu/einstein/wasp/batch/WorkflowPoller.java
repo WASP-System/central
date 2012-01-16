@@ -1,17 +1,19 @@
 package edu.yu.einstein.wasp.batch;
 
 
-import edu.yu.einstein.wasp.model.*;
-import edu.yu.einstein.wasp.service.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList; 
-import java.util.List; 
-import java.util.Map; 
-import java.util.HashMap; 
+import edu.yu.einstein.wasp.model.State;
+import edu.yu.einstein.wasp.model.Task;
+import edu.yu.einstein.wasp.model.Workflow;
+import edu.yu.einstein.wasp.service.StateService;
+import edu.yu.einstein.wasp.service.TaskService;
+import edu.yu.einstein.wasp.service.WorkflowService;
 
 /**
  * Workflow Poller

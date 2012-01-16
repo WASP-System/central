@@ -1,9 +1,11 @@
 package edu.yu.einstein.wasp.controller.validator;
 
 import java.util.List;
+
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
+
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.MetaBase;

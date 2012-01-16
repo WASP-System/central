@@ -1,27 +1,21 @@
 package edu.yu.einstein.wasp.batch;
 
-import edu.yu.einstein.wasp.model.*;
-import edu.yu.einstein.wasp.service.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.support.transaction.FlushFailedException;
 import org.springframework.batch.core.StepExecution;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import org.springframework.stereotype.Component;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.*;
-
-import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
-
-import util.spring.PostInitialize;
+import edu.yu.einstein.wasp.model.State;
+import edu.yu.einstein.wasp.service.StateService;
+import edu.yu.einstein.wasp.service.StatejobService;
 
 /**
  * DoSendInvoiceStateProcessor

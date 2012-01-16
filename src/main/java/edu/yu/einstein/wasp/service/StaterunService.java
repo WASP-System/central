@@ -11,13 +11,10 @@
 
 package edu.yu.einstein.wasp.service;
 
+import org.springframework.stereotype.Service;
+
 import edu.yu.einstein.wasp.dao.StaterunDao;
 import edu.yu.einstein.wasp.model.Staterun;
-
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.stereotype.Service;
 
 @Service
 public interface StaterunService extends WaspService<Staterun> {

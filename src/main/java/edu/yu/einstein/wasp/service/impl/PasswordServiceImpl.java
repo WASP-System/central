@@ -1,17 +1,10 @@
 package edu.yu.einstein.wasp.service.impl;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
 import java.util.Random;
 
-import javax.mail.internet.MimeMessage;
-
-import org.springframework.stereotype.Service;
 import org.springframework.security.authentication.encoding.PasswordEncoder;
 import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
+import org.springframework.stereotype.Service;
 
 import edu.yu.einstein.wasp.service.PasswordService;
 

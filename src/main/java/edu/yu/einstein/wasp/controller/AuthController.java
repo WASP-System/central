@@ -3,39 +3,32 @@ package edu.yu.einstein.wasp.controller;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import nl.captcha.Captcha;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
-
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.model.ConfirmEmailAuth;
 import edu.yu.einstein.wasp.model.User;
-import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.model.Userpasswordauth;
-
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.ConfirmEmailAuthService;
-import edu.yu.einstein.wasp.service.UserService;
-import edu.yu.einstein.wasp.service.UserpasswordauthService;
 import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.service.PasswordService;
+import edu.yu.einstein.wasp.service.UserService;
+import edu.yu.einstein.wasp.service.UserpasswordauthService;
 import edu.yu.einstein.wasp.util.AuthCode;
 import edu.yu.einstein.wasp.util.StringHelper;
-
-import org.springframework.transaction.annotation.Transactional;
-
-import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
 
 
 @Controller

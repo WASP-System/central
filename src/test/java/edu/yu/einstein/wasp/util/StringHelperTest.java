@@ -1,9 +1,10 @@
 package edu.yu.einstein.wasp.util;
 
 
-import org.testng.annotations.Test;
 import org.testng.Assert;
-import org.testng.annotations.*;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 public class StringHelperTest {
 	

@@ -11,18 +11,15 @@
 
 package edu.yu.einstein.wasp.service;
 
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
 import edu.yu.einstein.wasp.dao.LabDao;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Lab;
-import edu.yu.einstein.wasp.model.LabPending;
-import edu.yu.einstein.wasp.model.UserPending;
-import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.LabUser;
-
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.stereotype.Service;
+import edu.yu.einstein.wasp.model.UserPending;
 
 @Service
 public interface LabService extends WaspService<Lab> {

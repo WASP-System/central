@@ -11,19 +11,12 @@
 
 package edu.yu.einstein.wasp.service.impl;
 
-import edu.yu.einstein.wasp.service.AcctQuoteUserService;
-import edu.yu.einstein.wasp.dao.AcctQuoteUserDao;
-import edu.yu.einstein.wasp.dao.WaspDao;
-import edu.yu.einstein.wasp.model.AcctQuoteUser;
-
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PostFilter;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Service;
+
+import edu.yu.einstein.wasp.dao.AcctQuoteUserDao;
+import edu.yu.einstein.wasp.model.AcctQuoteUser;
+import edu.yu.einstein.wasp.service.AcctQuoteUserService;
 
 @Service
 public class AcctQuoteUserServiceImpl extends WaspServiceImpl<AcctQuoteUser> implements AcctQuoteUserService {

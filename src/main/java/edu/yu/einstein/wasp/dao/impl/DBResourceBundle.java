@@ -16,10 +16,8 @@ package edu.yu.einstein.wasp.dao.impl;
 import java.util.List;
 import java.util.Locale;
 
-import util.spring.PostInitialize;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -33,6 +31,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import util.spring.PostInitialize;
 import edu.yu.einstein.wasp.model.UiField;
 import edu.yu.einstein.wasp.service.impl.WaspMessageSourceImpl;
 

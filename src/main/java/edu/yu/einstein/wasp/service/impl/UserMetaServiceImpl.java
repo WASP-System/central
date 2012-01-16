@@ -11,19 +11,14 @@
 
 package edu.yu.einstein.wasp.service.impl;
 
-import edu.yu.einstein.wasp.service.UserMetaService;
-import edu.yu.einstein.wasp.dao.UserMetaDao;
-import edu.yu.einstein.wasp.dao.WaspDao;
-import edu.yu.einstein.wasp.model.UserMeta;
-
 import java.util.List;
-import java.util.Map;
 
-import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PostFilter;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Service;
+
+import edu.yu.einstein.wasp.dao.UserMetaDao;
+import edu.yu.einstein.wasp.model.UserMeta;
+import edu.yu.einstein.wasp.service.UserMetaService;
 
 @Service
 public class UserMetaServiceImpl extends WaspMetaServiceImpl<UserMeta> implements UserMetaService {

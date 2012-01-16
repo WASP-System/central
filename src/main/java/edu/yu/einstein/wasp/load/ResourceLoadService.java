@@ -1,28 +1,19 @@
 package edu.yu.einstein.wasp.load;
 
-import edu.yu.einstein.wasp.service.ResourceService;
-import edu.yu.einstein.wasp.service.ResourceLaneService;
-import edu.yu.einstein.wasp.service.ResourceMetaService;
-import edu.yu.einstein.wasp.service.TypeResourceService;
+import java.util.List;
 
-import edu.yu.einstein.wasp.model.*;
-
-import java.util.Map; 
-import java.util.HashMap; 
-import java.util.Set; 
-import java.util.List; 
-import java.util.Date; 
-import java.util.ArrayList; 
-import java.util.Locale; 
-
-import org.springframework.stereotype.Service;
-import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.*;
-
-import org.springframework.util.StringUtils;
+import org.springframework.transaction.annotation.Transactional;
 
 import util.spring.PostInitialize;
+import edu.yu.einstein.wasp.model.Resource;
+import edu.yu.einstein.wasp.model.ResourceLane;
+import edu.yu.einstein.wasp.model.ResourceMeta;
+import edu.yu.einstein.wasp.model.TypeResource;
+import edu.yu.einstein.wasp.service.ResourceLaneService;
+import edu.yu.einstein.wasp.service.ResourceMetaService;
+import edu.yu.einstein.wasp.service.ResourceService;
+import edu.yu.einstein.wasp.service.TypeResourceService;
 
 
 /**

@@ -1,10 +1,10 @@
 package edu.yu.einstein.wasp.security;
 
 import java.io.Serializable;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.access.PermissionEvaluator;
 
 import org.apache.log4j.Logger;
+import org.springframework.security.access.PermissionEvaluator;
+import org.springframework.security.core.Authentication;
 
 
 public class LabPermissionEvaluator implements PermissionEvaluator {

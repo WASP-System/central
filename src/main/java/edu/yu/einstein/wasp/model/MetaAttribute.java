@@ -5,11 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-import javax.persistence.Transient;
-
-import org.apache.commons.lang.WordUtils;
-
-
 /**
  * Holds attributes for a *meta" object
  * @author  Sasha Levchuk

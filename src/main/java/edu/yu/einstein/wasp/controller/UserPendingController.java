@@ -7,8 +7,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.validation.Valid;
+
 import nl.captcha.Captcha;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,8 +23,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
+
 import edu.yu.einstein.wasp.controller.validator.PasswordValidator;
 import edu.yu.einstein.wasp.controller.validator.UserPendingMetaValidatorImpl;
+import edu.yu.einstein.wasp.exception.LoginNameException;
+import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.model.ConfirmEmailAuth;
 import edu.yu.einstein.wasp.model.Department;
 import edu.yu.einstein.wasp.model.Lab;
@@ -29,8 +35,6 @@ import edu.yu.einstein.wasp.model.LabPending;
 import edu.yu.einstein.wasp.model.LabPendingMeta;
 import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.MetaHelper;
-import edu.yu.einstein.wasp.exception.LoginNameException;
-import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.model.UserPendingMeta;
@@ -45,7 +49,6 @@ import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.PasswordService;
 import edu.yu.einstein.wasp.service.UserPendingMetaService;
 import edu.yu.einstein.wasp.service.UserPendingService;
-import edu.yu.einstein.wasp.util.AuthCode;
 import edu.yu.einstein.wasp.util.StringHelper;
 
 /**

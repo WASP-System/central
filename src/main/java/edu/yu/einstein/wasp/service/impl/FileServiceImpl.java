@@ -12,7 +12,6 @@
 package edu.yu.einstein.wasp.service.impl;
 
 import java.io.IOException;
-import java.util.Locale;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;

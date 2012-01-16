@@ -1,31 +1,34 @@
 package edu.yu.einstein.wasp.controller;
 
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.ModelMap;
-import org.springframework.validation.BindingResult;
+import java.util.Date;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.support.SessionStatus;
-import org.springframework.transaction.annotation.*; 
+import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.Date; 
-import java.util.List; 
-
+import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.JobFile;
+import edu.yu.einstein.wasp.model.JobMeta;
+import edu.yu.einstein.wasp.model.JobSample;
+import edu.yu.einstein.wasp.model.JobUser;
+import edu.yu.einstein.wasp.model.Role;
+import edu.yu.einstein.wasp.model.State;
+import edu.yu.einstein.wasp.model.Statejob;
+import edu.yu.einstein.wasp.model.Task;
+import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.JobUserService;
-import edu.yu.einstein.wasp.service.LabService;
 import edu.yu.einstein.wasp.service.RoleService;
-import edu.yu.einstein.wasp.service.TaskService;
 import edu.yu.einstein.wasp.service.StateService;
+import edu.yu.einstein.wasp.service.TaskService;
 import edu.yu.einstein.wasp.util.StringHelper;
-import edu.yu.einstein.wasp.model.*;
-import edu.yu.einstein.wasp.util.*;
 
 @Controller
 @Transactional

@@ -11,19 +11,12 @@
 
 package edu.yu.einstein.wasp.service.impl;
 
-import edu.yu.einstein.wasp.service.StaterunlaneService;
-import edu.yu.einstein.wasp.dao.StaterunlaneDao;
-import edu.yu.einstein.wasp.dao.WaspDao;
-import edu.yu.einstein.wasp.model.Staterunlane;
-
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PostFilter;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Service;
+
+import edu.yu.einstein.wasp.dao.StaterunlaneDao;
+import edu.yu.einstein.wasp.model.Staterunlane;
+import edu.yu.einstein.wasp.service.StaterunlaneService;
 
 @Service
 public class StaterunlaneServiceImpl extends WaspServiceImpl<Staterunlane> implements StaterunlaneService {

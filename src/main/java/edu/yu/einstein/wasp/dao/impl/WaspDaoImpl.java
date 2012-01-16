@@ -19,16 +19,11 @@ import java.util.Map;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
 import org.apache.log4j.Logger;
-import org.springframework.orm.jpa.JpaCallback;
-import org.springframework.orm.jpa.support.JpaDaoSupport;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Repository;
-
-import edu.yu.einstein.wasp.model.Department;
 
 @Repository
 public abstract class WaspDaoImpl<E extends Serializable> implements edu.yu.einstein.wasp.dao.WaspDao<E> {

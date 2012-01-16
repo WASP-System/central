@@ -11,13 +11,12 @@
 
 package edu.yu.einstein.wasp.service;
 
-import edu.yu.einstein.wasp.dao.StateMetaDao;
-import edu.yu.einstein.wasp.model.StateMeta;
-
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.stereotype.Service;
+
+import edu.yu.einstein.wasp.dao.StateMetaDao;
+import edu.yu.einstein.wasp.model.StateMeta;
 
 @Service
 public interface StateMetaService extends WaspMetaService<StateMeta> {

@@ -1,30 +1,19 @@
 package edu.yu.einstein.wasp.load;
 
-import edu.yu.einstein.wasp.service.UiFieldService;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
-import edu.yu.einstein.wasp.service.impl.WaspMessageSourceImpl;
-
-import edu.yu.einstein.wasp.model.*;
-
-import java.util.Map; 
-import java.util.HashMap; 
-import java.util.Set; 
-import java.util.List; 
-import java.util.Date; 
-import java.util.ArrayList; 
-import java.util.Locale; 
-
-import org.springframework.stereotype.Service;
-import org.springframework.stereotype.Component;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.*;
-
 import org.springframework.context.MessageSource;
-
-import org.springframework.util.StringUtils;
+import org.springframework.transaction.annotation.Transactional;
 
 import util.spring.PostInitialize;
-import org.apache.log4j.Logger;
+import edu.yu.einstein.wasp.model.UiField;
+import edu.yu.einstein.wasp.service.UiFieldService;
+import edu.yu.einstein.wasp.service.impl.WaspMessageSourceImpl;
 
 
 /**

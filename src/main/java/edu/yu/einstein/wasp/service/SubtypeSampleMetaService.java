@@ -11,13 +11,12 @@
 
 package edu.yu.einstein.wasp.service;
 
-import edu.yu.einstein.wasp.dao.SubtypeSampleMetaDao;
-import edu.yu.einstein.wasp.model.SubtypeSampleMeta;
-
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.stereotype.Service;
+
+import edu.yu.einstein.wasp.dao.SubtypeSampleMetaDao;
+import edu.yu.einstein.wasp.model.SubtypeSampleMeta;
 
 @Service
 public interface SubtypeSampleMetaService extends WaspMetaService<SubtypeSampleMeta> {

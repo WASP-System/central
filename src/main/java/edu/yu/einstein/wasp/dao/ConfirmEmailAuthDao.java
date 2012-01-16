@@ -10,7 +10,7 @@
 
 package edu.yu.einstein.wasp.dao;
 
-import edu.yu.einstein.wasp.model.*;
+import edu.yu.einstein.wasp.model.ConfirmEmailAuth;
 
 
 public interface ConfirmEmailAuthDao extends WaspDao<ConfirmEmailAuth> {

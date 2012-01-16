@@ -11,14 +11,16 @@
 
 package edu.yu.einstein.wasp.model;
 
-import org.hibernate.*;
+import java.util.Date;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
 import org.hibernate.envers.Audited;
-import org.hibernate.envers.NotAudited;
-
-import javax.persistence.*;
-import java.util.*;
-
-import org.codehaus.jackson.annotate.JsonIgnore;
 
 @Entity
 @Audited

@@ -5,8 +5,8 @@ import org.springframework.stereotype.Service;
 
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabPending;
-import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.LabUser;
+import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserPending;
 
 /**

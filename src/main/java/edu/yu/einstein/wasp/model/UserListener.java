@@ -1,6 +1,5 @@
 package edu.yu.einstein.wasp.model;
 
-import javax.persistence.*;
 
 public class UserListener {
 

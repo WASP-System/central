@@ -11,13 +11,12 @@
 
 package edu.yu.einstein.wasp.service;
 
-import edu.yu.einstein.wasp.dao.RunMetaDao;
-import edu.yu.einstein.wasp.model.RunMeta;
-
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.stereotype.Service;
+
+import edu.yu.einstein.wasp.dao.RunMetaDao;
+import edu.yu.einstein.wasp.model.RunMeta;
 
 @Service
 public interface RunMetaService extends WaspMetaService<RunMeta> {

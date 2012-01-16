@@ -1,28 +1,22 @@
 package edu.yu.einstein.wasp.batch;
 
-import java.io.File;
-import java.util.Map;
-import java.util.List;
-
-import edu.yu.einstein.wasp.model.State;
-
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.JobParametersInvalidException;
 import org.springframework.batch.core.configuration.JobRegistry;
-import org.springframework.batch.core.repository.JobRepository;
-import org.springframework.batch.core.launch.JobOperator;
-
 import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.batch.core.launch.NoSuchJobException;
+import org.springframework.batch.core.launch.NoSuchJobExecutionException;
 import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
 import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
+import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.repository.JobRestartException;
-import org.springframework.batch.core.launch.NoSuchJobExecutionException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import edu.yu.einstein.wasp.model.State;
 
 public class StateJobLaunchingMessageHandler {
   private final Log logger = LogFactory.getLog(getClass());

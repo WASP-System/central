@@ -2,10 +2,10 @@ package edu.yu.einstein.wasp.integration.selenium;
 
 import org.openqa.selenium.By;
 import org.testng.Assert;
-import org.testng.annotations.Test;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
 
 import edu.yu.einstein.wasp.test.util.SeleniumHelper;
 /**

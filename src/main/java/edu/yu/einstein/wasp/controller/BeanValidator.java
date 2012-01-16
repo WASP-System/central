@@ -10,12 +10,6 @@ import org.apache.commons.lang.WordUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
-/*
- * Utility class to make JSR-303 annotations work  
- * with Spring MVC validation
- * 
- * @Author Sasha Levchuk 
- */
 
 
 @Component

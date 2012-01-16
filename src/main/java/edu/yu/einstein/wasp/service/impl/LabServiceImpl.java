@@ -11,34 +11,27 @@
 
 package edu.yu.einstein.wasp.service.impl;
 
-import edu.yu.einstein.wasp.service.LabService;
-import edu.yu.einstein.wasp.service.TaskService;
-import edu.yu.einstein.wasp.service.StateService;
-import edu.yu.einstein.wasp.service.RoleService;
-import edu.yu.einstein.wasp.dao.LabDao;
-import edu.yu.einstein.wasp.dao.WaspDao;
-import edu.yu.einstein.wasp.model.Job;
-import edu.yu.einstein.wasp.model.Lab;
-import edu.yu.einstein.wasp.model.LabUser;
-import edu.yu.einstein.wasp.model.UserPending;
-import edu.yu.einstein.wasp.model.Task;
-import edu.yu.einstein.wasp.model.State;
-import edu.yu.einstein.wasp.model.Statejob;
-import edu.yu.einstein.wasp.model.User;
-import edu.yu.einstein.wasp.model.LabUser;
-import edu.yu.einstein.wasp.model.Role;
-
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PostFilter;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Service;
+
+import edu.yu.einstein.wasp.dao.LabDao;
+import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.Lab;
+import edu.yu.einstein.wasp.model.LabUser;
+import edu.yu.einstein.wasp.model.Role;
+import edu.yu.einstein.wasp.model.State;
+import edu.yu.einstein.wasp.model.Statejob;
+import edu.yu.einstein.wasp.model.Task;
+import edu.yu.einstein.wasp.model.UserPending;
+import edu.yu.einstein.wasp.service.LabService;
+import edu.yu.einstein.wasp.service.RoleService;
+import edu.yu.einstein.wasp.service.StateService;
+import edu.yu.einstein.wasp.service.TaskService;
 
 @Service
 public class LabServiceImpl extends WaspServiceImpl<Lab> implements LabService {

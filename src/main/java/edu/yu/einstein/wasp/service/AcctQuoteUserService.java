@@ -11,13 +11,10 @@
 
 package edu.yu.einstein.wasp.service;
 
+import org.springframework.stereotype.Service;
+
 import edu.yu.einstein.wasp.dao.AcctQuoteUserDao;
 import edu.yu.einstein.wasp.model.AcctQuoteUser;
-
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.stereotype.Service;
 
 @Service
 public interface AcctQuoteUserService extends WaspService<AcctQuoteUser> {

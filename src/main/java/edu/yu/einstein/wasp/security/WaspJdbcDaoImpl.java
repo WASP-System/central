@@ -1,6 +1,7 @@
 package edu.yu.einstein.wasp.security;
 
 import java.util.List;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl;

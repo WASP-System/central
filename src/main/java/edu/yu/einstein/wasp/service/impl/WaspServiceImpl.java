@@ -1,10 +1,10 @@
 package edu.yu.einstein.wasp.service.impl;
 
-import edu.yu.einstein.wasp.service.WaspService;
-import edu.yu.einstein.wasp.dao.WaspDao;
-
 import java.util.List;
 import java.util.Map;
+
+import edu.yu.einstein.wasp.dao.WaspDao;
+import edu.yu.einstein.wasp.service.WaspService;
 
 
 public abstract class WaspServiceImpl<E> implements WaspService<E> {

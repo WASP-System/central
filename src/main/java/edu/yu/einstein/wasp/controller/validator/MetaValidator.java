@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.validation.BindingResult;
 
-import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.MetaBase;
 
 /*

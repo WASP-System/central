@@ -1,6 +1,5 @@
 package edu.yu.einstein.wasp.batch; 
 
-import java.lang.Exception;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 

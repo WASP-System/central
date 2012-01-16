@@ -4,7 +4,6 @@ import java.util.Collection;
 
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl;
 import org.springframework.security.ldap.userdetails.LdapAuthoritiesPopulator;
 
 /**

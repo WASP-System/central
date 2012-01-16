@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,7 +23,6 @@ import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Userrole;
 import edu.yu.einstein.wasp.service.AuthenticationService;
-import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.service.RoleService;
 import edu.yu.einstein.wasp.service.UserroleService;
 import edu.yu.einstein.wasp.util.StringHelper;

@@ -11,23 +11,16 @@
 
 package edu.yu.einstein.wasp.dao.impl;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceException;
-import javax.persistence.Query;
-
-import java.util.List;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.springframework.orm.jpa.JpaCallback;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.yu.einstein.wasp.model.Task;
 import edu.yu.einstein.wasp.model.State;
-import edu.yu.einstein.wasp.service.impl.StateServiceImpl;
+import edu.yu.einstein.wasp.model.Task;
 import edu.yu.einstein.wasp.service.StateService;
 
 @SuppressWarnings("unchecked")

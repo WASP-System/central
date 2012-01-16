@@ -11,10 +11,9 @@ import javax.persistence.PersistenceContext;
 
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.testng.annotations.Test;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.AfterClass;
-
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 import org.unitils.database.annotations.Transactional;
 import org.unitils.database.util.TransactionMode;
 import org.unitils.dbunit.annotation.DataSet;

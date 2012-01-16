@@ -11,13 +11,12 @@
 
 package edu.yu.einstein.wasp.service;
 
-import edu.yu.einstein.wasp.dao.JobMetaDao;
-import edu.yu.einstein.wasp.model.JobMeta;
-
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.stereotype.Service;
+
+import edu.yu.einstein.wasp.dao.JobMetaDao;
+import edu.yu.einstein.wasp.model.JobMeta;
 
 @Service
 public interface JobMetaService extends WaspMetaService<JobMeta> {

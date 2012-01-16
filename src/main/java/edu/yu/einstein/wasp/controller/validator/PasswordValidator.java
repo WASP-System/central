@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
-import edu.yu.einstein.wasp.model.MetaAttribute;
+
 import edu.yu.einstein.wasp.service.PasswordService;
 
 

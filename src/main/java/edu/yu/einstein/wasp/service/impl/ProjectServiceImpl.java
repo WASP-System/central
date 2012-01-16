@@ -11,19 +11,12 @@
 
 package edu.yu.einstein.wasp.service.impl;
 
-import edu.yu.einstein.wasp.service.ProjectService;
-import edu.yu.einstein.wasp.dao.ProjectDao;
-import edu.yu.einstein.wasp.dao.WaspDao;
-import edu.yu.einstein.wasp.model.Project;
-
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PostFilter;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Service;
+
+import edu.yu.einstein.wasp.dao.ProjectDao;
+import edu.yu.einstein.wasp.model.Project;
+import edu.yu.einstein.wasp.service.ProjectService;
 
 @Service
 public class ProjectServiceImpl extends WaspServiceImpl<Project> implements ProjectService {

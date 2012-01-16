@@ -12,6 +12,7 @@
 package edu.yu.einstein.wasp.model;
 
 import java.io.Serializable;
+
 import org.apache.log4j.Logger;
 
 public abstract class WaspModel implements Serializable {

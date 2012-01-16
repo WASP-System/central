@@ -20,7 +20,6 @@ import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.context.MessageSource;
-import org.springframework.context.NoSuchMessageException;
 import org.springframework.context.support.AbstractMessageSource;
 import org.springframework.util.Assert;
 

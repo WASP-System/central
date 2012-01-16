@@ -11,13 +11,12 @@
 
 package edu.yu.einstein.wasp.service;
 
-import edu.yu.einstein.wasp.dao.UserMetaDao;
-import edu.yu.einstein.wasp.model.UserMeta;
-
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.stereotype.Service;
+
+import edu.yu.einstein.wasp.dao.UserMetaDao;
+import edu.yu.einstein.wasp.model.UserMeta;
 
 @Service
 public interface UserMetaService extends WaspMetaService<UserMeta> {
