@@ -75,11 +75,30 @@
     <batch:step id="boneShakerApprovalStep1" parent="waitForBoneShakerApprovalStateUpdated" />
   </batch:flow>
 
+  <bean class="edu.yu.einstein.wasp.batch.DoSendInvoiceTasklet" id="sendInvoiceTasklet" scope="step">
+    <property name="params">
+      <list>
+        <value>/tmp/abc.pl</value>
+        <value>goodbye</value>
+        <value>stateService.task.iName</value>
+        <value>#{jobParameters['state']}</value>
+        <value>goodbye</value>
+      </list>
+    </property>
+    <!-- 5 second timeout for the command to complete -->
+    <property name="timeout" value="5000" />
+  </bean>
 
-  <batch:job id="chipSeqStartJob">
-    <batch:step id="chipSeq.startJob0" parent="createSampleReceiveStateStep" next="chipSeq.approvals" /> 
+  <!-- <batch:job id="chipSeqStartJob">
+    <batch:step id="sendInvoiceTaskStep">
+      <batch:tasklet ref="sendInvoiceTasklet" />
+    </batch:step>
+  </batch:job> -->
 
-    <batch:split id="chipSeq.approvals" next="chipSeq.invoiceFlow" task-executor="asyncTaskExecutor">
+  <batch:job id="chipSeqStartJobReal">
+    <batch:step id="chipSeq.startJob0" parent="createSampleReceiveStateStep" next="chipSeq.approvals" />
+
+    <batch:split id="chipSeq.approvals" next="sendInvoiceTaskStep" task-executor="asyncTaskExecutor">
       <batch:flow>
         <batch:flow id="chipSeq.quoteFlow" parent="quoteFlow" />
       </batch:flow>
@@ -95,6 +114,9 @@
     </batch:split> 
 
     <!-- send and invoice -->
+    <batch:step id="sendInvoiceTaskStep" next="chipSeq.invoiceFlow" >
+      <batch:tasklet ref="sendInvoiceTasklet" />
+    </batch:step>
     <batch:flow id="chipSeq.invoiceFlow" parent="invoiceFlow" next="chipSeq.samplesReceivedFlow" />
 
     <!-- receive all the samples -->
