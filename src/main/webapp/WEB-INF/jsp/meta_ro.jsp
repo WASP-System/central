@@ -14,16 +14,8 @@
   <td class="label"><fmt:message key="${labelKey}"/>:</td>
   <td class="value">
   <c:if test="${not empty _meta.property.control}">
-  	<c:if test="${_meta.property.control.items != null}">  	
-  		<c:set var="selectItems" scope="request" value="${requestScope[_meta.property.control.items]}"/>
-  		<c:set var="itemValue" scope="request">${_meta.property.control.itemValue}</c:set>
-  		<c:set var="itemLabel" scope="request">${_meta.property.control.itemLabel}</c:set>   	
-  	</c:if>
- 	<c:if test="${_meta.property.control.items == null}">
- 		<c:set var="selectItems" scope="request" value="${_meta.property.control.options}" />
- 		<c:set var="itemValue" scope="request">value</c:set>
- 		<c:set var="itemLabel" scope="request">label</c:set>  	
- 	</c:if>
+		 <%-- this tag will define selectItems/itemValue/itemLabel request attributes --%>
+		 <wasp:metaSelect control="${_meta.property.control}"/>
   	 
   <c:forEach var="option" items="${selectItems}">
     	<c:if test="${option[itemValue] == _meta.v}"><c:out value="${option[itemLabel]}"/></c:if>

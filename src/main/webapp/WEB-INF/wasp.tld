@@ -126,4 +126,17 @@
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>		
 	</tag>
+    <tag>
+        <!-- 
+        <description>Converts java collection to string containing JSON array.</description>
+          -->
+        <name>metaSelect</name>
+        <tag-class>edu.yu.einstein.wasp.taglib.MetaSelectTag</tag-class>
+        <body-content>JSP</body-content>
+        <attribute>
+            <name>control</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>        
+    </tag>
 </taglib>

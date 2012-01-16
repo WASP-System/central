@@ -15,30 +15,21 @@
 			<td class="input">
 			<c:choose>
 				<c:when test="${not empty _meta.property.control}">
-					<c:choose>
-						<c:when test="${_meta.property.control.items != null}">		
-							<c:set var="selectItems" scope="request" value="${requestScope[_meta.property.control.items]}"/>
-							<c:set var="itemValue" scope="request">${_meta.property.control.itemValue}</c:set>
-							<c:set var="itemLabel" scope="request">${_meta.property.control.itemLabel}</c:set>	 	
-						</c:when>
-				 	<c:otherwise>
-				 		<c:set var="selectItems" scope="request" value="${_meta.property.control.options}" />
-				 		<c:set var="itemValue" scope="request">value</c:set>
-				 		<c:set var="itemLabel" scope="request">label</c:set>		
-				 	</c:otherwise>
-				</c:choose>
 				
-					<select name="${_area}Meta_${_meta.k}" id="${id}">
-									<c:if test= "${_meta.property.formVisibility != 'immutable'}">
-									<option value=''><fmt:message key="wasp.default_select.label"/></option>
-							</c:if>
-									<c:forEach var="option" items="${selectItems}">
-										<c:if test="${option[itemValue] == _meta.v || _meta.property.formVisibility != 'immutable'}">
-											<option value="${option[itemValue]}"<c:if test="${option[itemValue] == _meta.v}"> selected</c:if>>
-											<c:out value="${option[itemLabel]}"/></option>
-										</c:if>
-									</c:forEach>																									
-					</select>
+			    <%-- this tag will define selectItems/itemValue/itemLabel request attributes --%>
+			    <wasp:metaSelect control="${_meta.property.control}"/>
+       
+				<select name="${_area}Meta_${_meta.k}" id="${id}">
+					<c:if test= "${_meta.property.formVisibility != 'immutable'}">
+						<option value=''><fmt:message key="wasp.default_select.label"/></option>
+					</c:if>
+					<c:forEach var="option" items="${selectItems}">
+						<c:if test="${option[itemValue] == _meta.v || _meta.property.formVisibility != 'immutable'}">
+							<option value="${option[itemValue]}"<c:if test="${option[itemValue] == _meta.v}"> selected</c:if>>
+							<c:out value="${option[itemLabel]}"/></option>
+						</c:if>
+					</c:forEach>																									
+				</select>
 									 						
 				</c:when>
 				<c:otherwise>

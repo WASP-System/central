@@ -140,25 +140,11 @@
    <c:if test="${not empty _meta.property.control}"> 
        editoptions={size:20,value:{}};
        edittype='select';
-  		<c:if test="${_meta.property.control.items != null}"> 
-  		    <c:set var="dot" value="."/>
-  			<c:if test="${fn:indexOf(_meta.property.control.items,dot) > -1}">
-  				<c:set var="selectItems" scope="request" value="${_meta.property.control.items}"/>
-  			</c:if>
-  			<c:if test="${fn:indexOf(_meta.property.control.items,dot) == -1}">
-  				<c:set var="selectItems" scope="request" value="${requestScope[_meta.property.control.items]}"/>
-  			</c:if>
-  			
-  			<c:set var="itemValue" scope="request">${_meta.property.control.itemValue}</c:set>
-  			<c:set var="itemLabel" scope="request">${_meta.property.control.itemLabel}</c:set>   	
-  		</c:if>
- 		<c:if test="${_meta.property.control.items == null}">
-	  		<c:set var="selectItems" scope="request" value="${_meta.property.control.options}" />
- 			<c:set var="itemValue" scope="request">value</c:set>
- 			<c:set var="itemLabel" scope="request">label</c:set>  	
- 		</c:if>
-  	              
- 		selectItems=<wasp:json object="${selectItems}" />;
+       
+       <%-- this tag will define selectItems/itemValue/itemLabel request attributes --%>
+       <wasp:metaSelect control="${_meta.property.control}"/>
+                 
+ 	   selectItems=<wasp:json object="${selectItems}" />;
 
  		editoptions['value']['']=' --- select --- ';
  		for(sKey in selectItems) {
@@ -194,7 +180,7 @@
 
 </c:forEach>
 
-_enableFilterToolbar=false;
+if (_url.indexOf('/uiField/')==-1) _enableFilterToolbar=false;//not sure who/why force _enableFilterToolbar to false. add an exception for uiField. Sasha 12.1.12
 
 <%-- function to help with debugging --%>
 function odump(object, depth, max){

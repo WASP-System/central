@@ -77,6 +77,7 @@ public class WaspController {
     m.addAttribute("states", State.getList());
     m.addAttribute("locales", LOCALES);
     m.addAttribute("departments", strip(departmentService.findAll()));
+    //m.addAttribute("deptService", departmentService);
    
   }
 
