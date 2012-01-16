@@ -5,14 +5,14 @@
 
 <h1>Create a Job</h1>
 
-<div class="instr">
+<div class="instructions">
 {Instructions} In publishing and graphic design, lorem ipsum[p][1] is placeholder text (filler text) commonly used to demonstrate the graphics elements of a document or visual presentation, such as font, typography, and layout. The lorem ipsum text is typically a section of a Latin text by Cicero with words altered, added and removed that make it nonsensical in meaning and not proper Latin.[1]
 
 Even though "lorem ipsum" may arouse curiosity because of its resemblance to classical Latin, it is not intended to have meaning. Where text is comprehensible in a document, people tend to focus on the textual content rather than upon overall presentation, so publishers use lorem ipsum when displaying a typeface or design elements and page layout in order to direct the focus to the publication style and not the meaning of the text. In spite of its basis in Latin, use of lorem ipsum is often referred to as greeking, from the phrase "it's all Greek to me," which indicates that this is not meant to be readable text.[2]{/Instructions}
 </div>
 
 <form:form commandName="jobDraft">
-<table>
+<table class="data">
   <tr>
     <td class="label"><fmt:message key="jobDraft.name.label"/>:</td>
     <td class="input">

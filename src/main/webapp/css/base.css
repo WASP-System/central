@@ -94,16 +94,16 @@ NAV#jobSubmit A,
 	}
 
 
-TABLE.jobData	{
+TABLE.data	{
 	border: 1px solid #ccc;
 	margin: 10px 0;
 	}
 
-TABLE.jobData TD	{
+TABLE.data TD	{
 	border-bottom: 1px solid #ccc;
 	}
 
-TABLE.jobData TD.label	{
+TABLE.data TD.label	{
 	background: #f7f7f7;
 	border-right: 1px solid #ccc;
 	font-weight: bold;
