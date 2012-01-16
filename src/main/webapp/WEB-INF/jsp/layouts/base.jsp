@@ -33,6 +33,13 @@
       </nav>
     </header>
   </sec:authorize>
+  <sec:authorize access="! isAuthenticated()">
+    <header id="pageHeader">
+      <nav>
+        <a href="/wasp/"><img src="/wasp/css/wasp_logo.jpg" alt="WASP" width="154" height="107" /></a>
+      </nav>
+    </header>
+  </sec:authorize>
   <!-- /top -->
  
   <tiles:insertAttribute name="body-content" />
