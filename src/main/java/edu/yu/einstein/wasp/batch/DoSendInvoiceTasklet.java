@@ -5,6 +5,7 @@ import edu.yu.einstein.wasp.service.*;
 
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.support.transaction.FlushFailedException;
+import org.springframework.batch.core.StepExecution;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -12,11 +13,15 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Component;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.*;
 
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 import java.util.*;
+
+import util.spring.PostInitialize;
 
 /**
  * DoSendInvoiceStateProcessor
@@ -34,7 +39,8 @@ import java.util.*;
  */
 
 @Component
-public class DoSendInvoiceTasklet extends org.springframework.batch.core.step.tasklet.SystemCommandTasklet implements ItemProcessor {
+@Transactional
+public class DoSendInvoiceTasklet extends org.springframework.batch.core.step.tasklet.SystemCommandTasklet {
 
 	@Autowired
 	StateService stateService;
@@ -42,90 +48,43 @@ public class DoSendInvoiceTasklet extends org.springframework.batch.core.step.ta
 	@Autowired
 	StatejobService statejobService;
 
-	List<String> params;
+	protected Integer stateId;
+	public void setStateId(Integer stateId) {
+		this.stateId = stateId;
+	}
+	public Integer getStateId() {
+		return this.stateId;
+	}
+
+	protected List<String> params;
 	public void setParams(List<String> params) { 
 		this.params = params; 
+	  setCommand("/tmp/abc.pl WRONG COMMAND");
+  } 
+	public List<String> getParams() { return this.params;}
+
+
+  // @ PostInitialize
+	// public void postInitialize() {
+  @Transactional
+	public void beforeStep(StepExecution stepExecution) {
+System.out.println("\n\n\n\n\n\n\n\nTTTTTTTTTTTTTTTTTTTTTTTTTTTTT\n["+  stateService+ "]\n\n\n\n\n\n");
+		Map m = new HashMap(); 
+		State state = stateService.getStateByStateId(this.stateId.intValue());
+		m.put("state", state); 
+
+		StandardEvaluationContext context = new StandardEvaluationContext();
+		context.setVariable("m", m);
 
 		List<String> parsedParams = new ArrayList<String>();
 		ExpressionParser parser = new SpelExpressionParser();
-		for (String s: params) {
-			parsedParams.add((String) parser.parseExpression(s).getValue());
+		for (String s: this.params) {
+			parsedParams.add((String) parser.parseExpression(s).getValue(context));
 		}
 
 		this.setCommand(org.springframework.util.StringUtils.collectionToDelimitedString(parsedParams, " "));
 	}
-	public List<String> getParams() { return this.params;}
 
 
-
-	public State process(Object stateId) throws Exception {
-		
-		State state = stateService.getStateByStateId(((Integer) stateId).intValue());
-		return state;
-
-	}
-
-/*
-
-	String task; 
-	public void setTask(String task) {
-		this.task = task; 
-	}
-
-	String status; 
-	public void setStatus(String status) {
-		this.status = status; 
-	}
-
-	String siblingTargetStatus; 
-	public void setSiblingTargetStatus (String siblingTargetStatus) {
-		this.siblingTargetStatus = siblingTargetStatus; 
-	}
-
-
-	public State process(Object stateId) throws Exception {
-		
-		State state = stateService.getStateByStateId(((Integer) stateId).intValue());
-		List <Statejob> statejob = state.getStatejob();
-
-		// TODO npe check
-
-
-		Map m = new HashMap(); 
-		m.put("jobId", statejob.get(0).getJobId());
-		List <Statejob> siblingStatejobs = statejobService.findByMap(m);
-
-		for (Statejob siblingStatejob: siblingStatejobs) {
-			if (! siblingStatejob.getState().getTask().getIName().equals(task)) {
-				continue; 
-			}
-
-			// "FINAL" status, means it has already been run
-			if (siblingStatejob.getState().getStatus().equals(siblingTargetStatus != null?siblingTargetStatus:"FINAL")) {
-				return state;
-			}
-
-			if (! siblingStatejob.getState().getStatus().equals(status)) {
-				continue; 
-			}
-
-
-			if (siblingTargetStatus != null) {
-				State siblingState = stateService.findById(siblingStatejob.getStateId());
-				siblingState.setStatus(siblingTargetStatus);
-				siblingState.setEndts(new Date());
-				stateService.save(siblingState);
-			}
-
-
-			return state;
-		}
-
-
-		throw new RetryableException("No Task " + task + " yet, currently at " + status + ".");
-
-
-	}
-*/
 }
 
