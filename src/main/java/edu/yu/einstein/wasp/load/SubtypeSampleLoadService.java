@@ -2,6 +2,7 @@
 package edu.yu.einstein.wasp.load;
 
 import edu.yu.einstein.wasp.service.SubtypeSampleService;
+import edu.yu.einstein.wasp.service.SubtypeSampleMetaService;
 import edu.yu.einstein.wasp.service.TypeSampleService;
 import edu.yu.einstein.wasp.service.TypeResourceService;
 import edu.yu.einstein.wasp.service.UiFieldService;
@@ -49,10 +50,17 @@ public class SubtypeSampleLoadService extends WaspLoadService {
   @Autowired
   private TypeSampleService typeSampleService;
 
+  @Autowired
+  private SubtypeSampleMetaService subtypeSampleMetaService;
+
   private String sampleType; 
   public void setSampleType(String sampleType) {this.sampleType = sampleType; }
 
   public SubtypeSampleLoadService (){};
+
+  private List<SubtypeSampleMeta> meta;
+  public void setMeta(List<SubtypeSampleMeta> subtypeSampleMeta) {this.meta = subtypeSampleMeta; }
+
 
   @Transactional
   @PostInitialize 
@@ -64,8 +72,8 @@ public class SubtypeSampleLoadService extends WaspLoadService {
 
     SubtypeSample subtypeSample = subtypeSampleService.getSubtypeSampleByIName(iname); 
 
-    // inserts or update workflow
-    if (subtypeSample.getSubtypeSampleId() == null) { 
+    // inserts or update subtype
+    if (subtypeSample.getSubtypeSampleId() == null) {
       subtypeSample = new SubtypeSample();
 
       subtypeSample.setIName(iname);
@@ -86,6 +94,54 @@ public class SubtypeSampleLoadService extends WaspLoadService {
       subtypeSampleService.save(subtypeSample); 
     }
 
+    // sync metas
+    int lastPosition = 0;
+    Map<String, SubtypeSampleMeta> oldSubtypeSampleMetas  = new HashMap<String, SubtypeSampleMeta>();
+
+    if (subtypeSample != null && subtypeSample.getSubtypeSampleMeta() != null) {
+      for (SubtypeSampleMeta subtypeSampleMeta: subtypeSample.getSubtypeSampleMeta()) {
+        oldSubtypeSampleMetas.put(subtypeSampleMeta.getK(), subtypeSampleMeta);
+      }
+    }
+
+    if (meta != null) {
+      for (SubtypeSampleMeta subtypeSampleMeta: meta) {
+  
+        // incremental position numbers.
+  
+        if ( subtypeSampleMeta.getPosition() == null ||
+             subtypeSampleMeta.getPosition().intValue() <= lastPosition
+          )  {
+          subtypeSampleMeta.setPosition(lastPosition +1);
+        }
+        lastPosition = subtypeSampleMeta.getPosition().intValue();
+  
+        if (oldSubtypeSampleMetas.containsKey(subtypeSampleMeta.getK())) {
+          SubtypeSampleMeta old = oldSubtypeSampleMetas.get(subtypeSampleMeta.getK());
+          if ( old.getV().equals(subtypeSampleMeta.getV()) &&
+              old.getPosition().intValue() == subtypeSampleMeta.getPosition().intValue()) {
+              // the same
+              continue;
+          }
+          // different
+          old.setV(subtypeSampleMeta.getV());
+          old.setPosition(subtypeSampleMeta.getPosition());
+          oldSubtypeSampleMetas.remove(old.getK());
+          continue;
+        }
+
+        subtypeSampleMeta.setSubtypeSampleId(subtypeSample.getSubtypeSampleId());
+        subtypeSampleMeta.setPosition(1);
+        subtypeSampleMetaService.save(subtypeSampleMeta);
+      }
+    }
+
+    // delete the left overs
+    for (String subtypeSampleMetaKey : oldSubtypeSampleMetas.keySet()) {
+      SubtypeSampleMeta subtypeSampleMeta = oldSubtypeSampleMetas.get(subtypeSampleMetaKey);
+      subtypeSampleMetaService.remove(subtypeSampleMeta);
+      subtypeSampleMetaService.flush(subtypeSampleMeta);
+    }
 
     updateUiFields(iname, uiFields); 
 
