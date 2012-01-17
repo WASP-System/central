@@ -18,6 +18,7 @@ for x in main test; do
   for y in java resources; do
     for z in wasp-core wasp-web; do
       mkdir -p ${z}/src/${x}/${y}
+      svn add --parents ${z}/src/${x}/${y}
     done
   done
 done
@@ -25,30 +26,32 @@ done
 # wasp-site
 mkdir -p wasp-site/src
 svn add --parents wasp-site/src
-svn mv --parents src/docbkx wasp-site/src
-svn mv --parents src/site wasp-site/src
-
+find src/docbkx -type f -exec svn mv --parents {} wasp-site/{} \;
+find src/site -type f -exec svn mv --parents {} wasp-site/{} \;
 
 # wasp-core
 #
 # lets get this out of the way.  Why are these in here?
 
-svn mv --parents src/main/java/org wasp-core/src/main/java
-svn mv --parents src/main/java/util wasp-core/src/main/java
+find src/main/java/org -type f -exec svn mv --parents {} wasp-core/{} \;
+find src/main/java/util -type f -exec svn mv --parents {} wasp-core/{} \;
+find src/main/java/test -type f -exec svn mv --parents {} wasp-core/{} \;
 
 # move web classes and files
-svn mv --parents src/main/java/edu/yu/einstein/wasp/controller wasp-web/src/main/java/edu/yu/einstein/wasp
-svn mv --parents src/main/java/edu/yu/einstein/wasp/load wasp-web/src/main/java/edu/yu/einstein/wasp
-svn mv --parents src/main/java/edu/yu/einstein/wasp/taglib wasp-web/src/main/java/edu/yu/einstein/wasp
+find src/main/java/edu/yu/einstein/wasp/controller -type f -exec svn mv --parents {} wasp-web/{} \;
+find src/main/java/edu/yu/einstein/wasp/load -type f -exec svn mv --parents {} wasp-web/{} \;
+find src/main/java/edu/yu/einstein/wasp/taglib -type f -exec svn mv --parents {} wasp-web/{} \;
 
-svn mv --parents src/main/webapp wasp-web/src/main/webapp
-svn mv --parents src/test/config wasp-web/src/test/
+find src/main/webapp -type f -exec svn mv --parents {} wasp-web/{} \;
+find src/test/config -type f -exec svn mv --parents {} wasp-web/{} \;
 
 # move WAPS core classes
-svn mv --parents src/main/java/edu/yu/einstein/wasp/* wasp-core/src/main/java/edu/yu/einstein/wasp
+find src/main/java/edu/yu/einstein/wasp/ -type f -exec svn mv --parents {} wasp-core/{} \;
 
-svn mv --parents src/main/resources/* wasp-core/src/main/resources
-svn mv --parents src/test/resources/* wasp-core/src/test/resources
+find src/test/java/ -type f -exec svn mv --parents {} wasp-core/{} \;
+
+find src/main/resources -type f -exec svn mv --parents {} wasp-core/{} \;
+find src/test/resources -type f -exec svn mv --parents {} wasp-core/{} \;
 
 # poms
 cp split/pom-root.xml pom.xml
