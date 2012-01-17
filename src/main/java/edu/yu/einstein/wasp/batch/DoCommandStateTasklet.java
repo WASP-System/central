@@ -18,10 +18,10 @@ import edu.yu.einstein.wasp.service.StateService;
 import edu.yu.einstein.wasp.service.StatejobService;
 
 /**
- * DoSendInvoiceStateProcessor
+ * DoCommandStateProcessor
  * sends an invoice to proper party
  *
- * ** **  currently test to echo hello world via System.exec
+ * ** **	currently test to echo hello world via System.exec
  *
  * throws an retryable exception unless
  * a sibling state for that job has hit a status of property status 
@@ -34,7 +34,7 @@ import edu.yu.einstein.wasp.service.StatejobService;
 
 @Component
 @Transactional
-public class DoSendInvoiceTasklet extends org.springframework.batch.core.step.tasklet.SystemCommandTasklet {
+public class DoCommandStateTasklet extends org.springframework.batch.core.step.tasklet.SystemCommandTasklet {
 
 	@Autowired
 	StateService stateService;
@@ -42,6 +42,10 @@ public class DoSendInvoiceTasklet extends org.springframework.batch.core.step.ta
 	@Autowired
 	StatejobService statejobService;
 
+	/**
+	 * stateId key for stateService
+	 *
+	 */
 	protected Integer stateId;
 	public void setStateId(Integer stateId) {
 		this.stateId = stateId;
@@ -50,20 +54,32 @@ public class DoSendInvoiceTasklet extends org.springframework.batch.core.step.ta
 		return this.stateId;
 	}
 
+
+	/**
+	 *
+	 * list of command parameters to be evaluated
+         *
+	 * @params list of parameters
+	 *
+	 */
 	protected List<String> params;
 	public void setParams(List<String> params) { 
 		this.params = params; 
-	  setCommand("/tmp/abc.pl WRONG COMMAND");
-  } 
+		setCommand("/tmp/abc.pl WRONG COMMAND");
+	} 
 	public List<String> getParams() { return this.params;}
 
 
-  // @ PostInitialize
-	// public void postInitialize() {
-  @Override
-@Transactional
+	/**
+	 * beforeStep
+	 * compiles 'command' from evaluated params 
+	 * 
+	 * @param stepExecution
+	 *
+	 */
+	@Override
+	@Transactional
 	public void beforeStep(StepExecution stepExecution) {
-System.out.println("\n\n\n\n\n\n\n\nTTTTTTTTTTTTTTTTTTTTTTTTTTTTT\n["+  stateService+ "]\n\n\n\n\n\n");
 		Map m = new HashMap(); 
 		State state = stateService.getStateByStateId(this.stateId.intValue());
 		m.put("state", state); 
@@ -79,7 +95,6 @@ System.out.println("\n\n\n\n\n\n\n\nTTTTTTTTTTTTTTTTTTTTTTTTTTTTT\n["+  stateSer
 
 		this.setCommand(org.springframework.util.StringUtils.collectionToDelimitedString(parsedParams, " "));
 	}
-
 
 }
 
