@@ -81,8 +81,9 @@ public class MetaSelectTag extends BodyTagSupport {
 		 }
 		  
 		 try {				 
-			 Object result = MethodUtils.invokeExactMethod(bean, methodName, args);
+			 Object result = MethodUtils.invokeMethod(bean, methodName, args);			
 			 this.pageContext.getRequest().setAttribute("selectItems", result);
+			 
 		 } catch (Throwable e) {
 			 throw new IllegalStateException("Can't invoke method to get dropdown options beanName: "+beanName+",methodName: "+methodName+", argument:"+(args.length==0?"none":args[0]),e);
 		 }
