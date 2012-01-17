@@ -26,12 +26,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
 
+import edu.yu.einstein.wasp.controller.validator.MetaHelper;
 import edu.yu.einstein.wasp.exception.LoginNameException;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.MetaBase;
-import edu.yu.einstein.wasp.model.MetaHelper;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserMeta;

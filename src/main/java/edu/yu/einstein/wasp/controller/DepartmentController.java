@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import edu.yu.einstein.wasp.controller.DashboardController.DashboardEntityRolename;
+import edu.yu.einstein.wasp.controller.validator.MetaHelper;
 import edu.yu.einstein.wasp.model.Department;
 import edu.yu.einstein.wasp.model.DepartmentUser;
 import edu.yu.einstein.wasp.model.Job;
@@ -30,7 +31,6 @@ import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabMeta;
 import edu.yu.einstein.wasp.model.LabPending;
 import edu.yu.einstein.wasp.model.MetaBase;
-import edu.yu.einstein.wasp.model.MetaHelper;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.DepartmentService;

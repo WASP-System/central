@@ -24,8 +24,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
 
+import edu.yu.einstein.wasp.controller.validator.MetaHelper;
 import edu.yu.einstein.wasp.model.MetaBase;
-import edu.yu.einstein.wasp.model.MetaHelper;
 import edu.yu.einstein.wasp.model.Resource;
 import edu.yu.einstein.wasp.model.ResourceLane;
 import edu.yu.einstein.wasp.model.ResourceMeta;

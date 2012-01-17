@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import edu.yu.einstein.wasp.model.MetaHelper;
+import edu.yu.einstein.wasp.controller.validator.MetaHelper;
 import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.StateMeta;
 import edu.yu.einstein.wasp.model.Statejob;

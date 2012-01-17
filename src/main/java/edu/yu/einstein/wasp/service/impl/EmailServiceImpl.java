@@ -21,13 +21,13 @@ import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.velocity.VelocityEngineUtils;
 
+import edu.yu.einstein.wasp.controller.validator.MetaHelper;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.model.Department;
 import edu.yu.einstein.wasp.model.DepartmentUser;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabPending;
 import edu.yu.einstein.wasp.model.LabUser;
-import edu.yu.einstein.wasp.model.MetaHelper;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.model.UserPendingMeta;

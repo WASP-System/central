@@ -40,6 +40,7 @@ import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
+import edu.yu.einstein.wasp.controller.validator.MetaHelper;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobCell;
 import edu.yu.einstein.wasp.model.JobDraft;
@@ -52,7 +53,6 @@ import edu.yu.einstein.wasp.model.JobSample;
 import edu.yu.einstein.wasp.model.JobUser;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabUser;
-import edu.yu.einstein.wasp.model.MetaHelper;
 import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleCell;

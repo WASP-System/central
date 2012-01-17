@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.support.SessionStatus;
 
-import edu.yu.einstein.wasp.model.MetaHelper;
+import edu.yu.einstein.wasp.controller.validator.MetaHelper;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.service.SampleMetaService;

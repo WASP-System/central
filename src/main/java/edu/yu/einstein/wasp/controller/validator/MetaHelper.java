@@ -1,4 +1,4 @@
-package edu.yu.einstein.wasp.model;
+package edu.yu.einstein.wasp.controller.validator;
 
 
 import java.util.ArrayList;
@@ -17,10 +17,12 @@ import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
-import edu.yu.einstein.wasp.controller.validator.MetaValidator;
-import edu.yu.einstein.wasp.controller.validator.MetaValidatorImpl;
 import edu.yu.einstein.wasp.dao.impl.DBResourceBundle;
 import edu.yu.einstein.wasp.exception.MetadataException;
+import edu.yu.einstein.wasp.model.MetaAttribute;
+import edu.yu.einstein.wasp.model.MetaBase;
+import edu.yu.einstein.wasp.model.MetaUtil;
+import edu.yu.einstein.wasp.model.MetaAttribute.FormVisibility;
 
 
 /**

@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
 
+import edu.yu.einstein.wasp.controller.validator.MetaHelper;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.model.AcctGrant;
 import edu.yu.einstein.wasp.model.Department;
@@ -36,7 +37,6 @@ import edu.yu.einstein.wasp.model.LabPending;
 import edu.yu.einstein.wasp.model.LabPendingMeta;
 import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.MetaBase;
-import edu.yu.einstein.wasp.model.MetaHelper;
 import edu.yu.einstein.wasp.model.Project;
 import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.Sample;
