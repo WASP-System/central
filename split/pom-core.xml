@@ -17,6 +17,25 @@
 		<pluginManagement>
 			<plugins>
 				<plugin>
+					<groupId>com.agilejava.docbkx</groupId>
+					<artifactId>docbkx-maven-plugin</artifactId>
+					<version>2.0.13</version>
+					<executions>
+						<execution>
+							<goals>
+								<goal>generate-html</goal>
+								<goal>generate-pdf</goal>
+							</goals>
+							<phase>pre-site</phase>
+						</execution>
+					</executions>
+					<configuration>
+						<includes>wasp.xml</includes>
+						<xincludeSupported>true</xincludeSupported>
+						<generatedSourceDirectory>${project.build.directory}/xinclude</generatedSourceDirectory>
+					</configuration>
+				</plugin>
+				<plugin>
 					<artifactId>maven-surefire-plugin</artifactId>
 					<version>2.10</version>
 					<configuration>

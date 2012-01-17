@@ -24,10 +24,10 @@ for x in main test; do
 done
 
 # wasp-site
-mkdir -p wasp-site/src
-svn add --parents wasp-site/src
-find src/docbkx -type f -exec svn mv --parents {} wasp-site/{} \;
-find src/site -type f -exec svn mv --parents {} wasp-site/{} \;
+#mkdir -p wasp-site/src
+#svn add --parents wasp-site/src
+find src/docbkx -type f -exec svn mv --parents {} wasp-core/{} \;
+find src/site -type f -exec svn mv --parents {} wasp-core/{} \;
 
 # wasp-core
 #
@@ -55,6 +55,6 @@ find src/test/resources -type f -exec svn mv --parents {} wasp-core/{} \;
 
 # poms
 cp split/pom-root.xml pom.xml
-cp split/pom-site.xml wasp-site/pom.xml
+#cp split/pom-site.xml wasp-site/pom.xml
 cp split/pom-core.xml wasp-core/pom.xml
 cp split/pom-web.xml wasp-web/pom.xml
