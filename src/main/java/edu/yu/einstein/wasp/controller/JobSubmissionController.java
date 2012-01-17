@@ -40,65 +40,10 @@ import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
+import edu.yu.einstein.wasp.model.*;
+import edu.yu.einstein.wasp.service.*;
+
 import edu.yu.einstein.wasp.controller.validator.MetaHelper;
-import edu.yu.einstein.wasp.model.Job;
-import edu.yu.einstein.wasp.model.JobCell;
-import edu.yu.einstein.wasp.model.JobDraft;
-import edu.yu.einstein.wasp.model.JobDraftCell;
-import edu.yu.einstein.wasp.model.JobDraftMeta;
-import edu.yu.einstein.wasp.model.JobDraftresource;
-import edu.yu.einstein.wasp.model.JobMeta;
-import edu.yu.einstein.wasp.model.JobResource;
-import edu.yu.einstein.wasp.model.JobSample;
-import edu.yu.einstein.wasp.model.JobUser;
-import edu.yu.einstein.wasp.model.Lab;
-import edu.yu.einstein.wasp.model.LabUser;
-import edu.yu.einstein.wasp.model.Role;
-import edu.yu.einstein.wasp.model.Sample;
-import edu.yu.einstein.wasp.model.SampleCell;
-import edu.yu.einstein.wasp.model.SampleDraft;
-import edu.yu.einstein.wasp.model.SampleDraftCell;
-import edu.yu.einstein.wasp.model.SampleDraftMeta;
-import edu.yu.einstein.wasp.model.SampleFile;
-import edu.yu.einstein.wasp.model.SampleMeta;
-import edu.yu.einstein.wasp.model.State;
-import edu.yu.einstein.wasp.model.Statejob;
-import edu.yu.einstein.wasp.model.SubtypeSample;
-import edu.yu.einstein.wasp.model.Task;
-import edu.yu.einstein.wasp.model.User;
-import edu.yu.einstein.wasp.model.Workflow;
-import edu.yu.einstein.wasp.model.WorkflowMeta;
-import edu.yu.einstein.wasp.model.Workflowresource;
-import edu.yu.einstein.wasp.service.AuthenticationService;
-import edu.yu.einstein.wasp.service.FileService;
-import edu.yu.einstein.wasp.service.JobCellService;
-import edu.yu.einstein.wasp.service.JobDraftCellService;
-import edu.yu.einstein.wasp.service.JobDraftMetaService;
-import edu.yu.einstein.wasp.service.JobDraftService;
-import edu.yu.einstein.wasp.service.JobDraftresourceService;
-import edu.yu.einstein.wasp.service.JobMetaService;
-import edu.yu.einstein.wasp.service.JobResourceService;
-import edu.yu.einstein.wasp.service.JobSampleService;
-import edu.yu.einstein.wasp.service.JobService;
-import edu.yu.einstein.wasp.service.JobUserService;
-import edu.yu.einstein.wasp.service.LabService;
-import edu.yu.einstein.wasp.service.MessageService;
-import edu.yu.einstein.wasp.service.ResourceService;
-import edu.yu.einstein.wasp.service.RoleService;
-import edu.yu.einstein.wasp.service.SampleCellService;
-import edu.yu.einstein.wasp.service.SampleDraftCellService;
-import edu.yu.einstein.wasp.service.SampleDraftMetaService;
-import edu.yu.einstein.wasp.service.SampleDraftService;
-import edu.yu.einstein.wasp.service.SampleFileService;
-import edu.yu.einstein.wasp.service.SampleMetaService;
-import edu.yu.einstein.wasp.service.SampleService;
-import edu.yu.einstein.wasp.service.StateService;
-import edu.yu.einstein.wasp.service.StatejobService;
-import edu.yu.einstein.wasp.service.SubtypeSampleService;
-import edu.yu.einstein.wasp.service.TaskService;
-import edu.yu.einstein.wasp.service.TypeResourceService;
-import edu.yu.einstein.wasp.service.TypeSampleService;
-import edu.yu.einstein.wasp.service.WorkflowService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 
 @Controller
@@ -496,6 +441,27 @@ public class JobSubmissionController extends WaspController {
 			resourceName = jdr.getResource().getName(); 
 		}
 
+		// Resource Options loading
+		Map<String, List<MetaAttribute.Control.Option>> resourceOptions = new HashMap<String, List<MetaAttribute.Control.Option>>();
+
+		Map<String, String> resourceOptionMap= new HashMap(); 
+		resourceOptionMap.put("readLength", "r:r;s:s;t:t;");
+		resourceOptionMap.put("readType", "a:a;b:b;c:c;");
+
+		for (String key: resourceOptionMap.keySet()) {
+			List<MetaAttribute.Control.Option> options=new ArrayList<MetaAttribute.Control.Option>();
+			for(String el: org.springframework.util.StringUtils.tokenizeToStringArray(resourceOptionMap.get(key),";")) {
+				String [] pair=StringUtils.split(el,":");
+				MetaAttribute.Control.Option option = new MetaAttribute.Control.Option();
+				option.setValue(pair[0]);
+				option.setLabel(pair[1]);
+				options.add(option);
+			}
+			resourceOptions.put(key, options);
+		}
+
+
+
 		MetaHelper metaHelper = getMetaHelper();
 		metaHelper.setArea(resourceArea);
 
@@ -515,6 +481,7 @@ public class JobSubmissionController extends WaspController {
 		m.put("name",	resourceName);
 		m.put("area", metaHelper.getArea());
 		m.put("jobDraftResource", jobDraftResource);
+		m.put("resourceOptions", resourceOptions);
 		m.put("parentarea", metaHelper.getParentArea());
 
 		return "jobsubmit/resource";
@@ -539,6 +506,9 @@ public class JobSubmissionController extends WaspController {
 		} catch (Exception e) {
 		}
 
+		// The resource is changing
+		// set the resource and reload the page.
+		// todo: consider wiping out old meta values?
 		if (changeResource != null) {
 			List<JobDraftresource> oldJdrs = jobDraft.getJobDraftresource();
 			for (JobDraftresource jdr: oldJdrs) {
@@ -965,12 +935,15 @@ public class JobSubmissionController extends WaspController {
 		// added 10-20-11 by rob dubin: with job submission, add lab PI as job viewer ("jv")
 		//note: could use similar logic in loop to assign jv to all the lab members
 		Lab lab = labService.getLabByLabId(jobDb.getLabId());		
-		JobUser jobUser2 = new JobUser();		
-		jobUser2.setUserId(lab.getPrimaryUserId());//the lab PI
-		jobUser2.setJobId(jobDb.getJobId());
-		Role role2 = roleService.getRoleByRoleName("jv");
-		jobUser2.setRoleId(role2.getRoleId());
-		jobUserService.save(jobUser2);
+		// if the pi is different from the job user
+		if (jobUser.getUserId() != lab.getPrimaryUserId()) {
+			JobUser jobUser2 = new JobUser();		
+			jobUser2.setUserId(lab.getPrimaryUserId());//the lab PI
+			jobUser2.setJobId(jobDb.getJobId());
+			Role role2 = roleService.getRoleByRoleName("jv");
+			jobUser2.setRoleId(role2.getRoleId());
+			jobUserService.save(jobUser2);
+		}
 
 		// Job Cells (oldid, newobj)
 		Map<Integer,JobCell> jobDraftCellMap = new HashMap<Integer,JobCell>();
