@@ -255,28 +255,28 @@ public class SampleSource extends WaspModel {
 	@NotAudited
 	@ManyToOne
 	@JoinColumn(name="source_sampleid", insertable=false, updatable=false)
-	protected Sample sampleVia;
+	protected Sample sampleViaSource;
 
 	/**
-	 * setSampleVia (Sample sample)
+	 * setSampleViaSource (Sample sample)
 	 *
 	 * @param sample
 	 *
 	 */
-	public void setSampleVia (Sample sample) {
+	public void setSampleViaSource (Sample sample) {
 		this.sample = sample;
 		this.sourceSampleId = sample.sampleId;
 	}
 
 	/**
-	 * getSampleVia ()
+	 * getSampleViaSource ()
 	 *
 	 * @return sample
 	 *
 	 */
 	
-	public Sample getSampleVia () {
-		return this.sample;
+	public Sample getSampleViaSource () {
+		return this.sampleViaSource;
 	}
 
 
