@@ -16,7 +16,6 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 	<modules>
 		<module>wasp-core</module>
 		<module>wasp-web</module>
-		<module>wasp-site</module>
 	</modules>
 
 	<build>
