@@ -11,10 +11,13 @@ import org.springframework.util.StringUtils;
 import edu.yu.einstein.wasp.model.MetaAttribute;
 
 /*
- * Initializes request attributes selectItems,itemValue and itemLabel request attributes 
- * based on MetaAttribute.Control object
+ * Initializes request attributes selectItems,itemValue and itemLabel based on MetaAttribute.Control object.
+ * The purpose of this tag is: 
+ *    a) obtain list of object to render "option" HTML tags of "select" HTML tag and save the list under "selectItems" name in request attributes. 
+ *    b) obtain property name to call on each object in the list a) to get "option" HTML tag VALUE and save it under "itemValue" name in request attributes.
+ *    c) obtain property name to call on each object in the list a) to get "option" HTML tag LABEL and save it under "itemLabel" name in request attributes.
  * 
- * Used to build dropdown lists off meta field values.
+ * The tag is used to build dropdown lists off meta field values.
  * 
  * @Author Sasha Levchuk
  */
@@ -35,6 +38,7 @@ public class MetaSelectTag extends BodyTagSupport {
 
 		if (control==null) return Tag.EVAL_PAGE;
 		
+		//no items? then control.getOptions() must contain List of objects.
 		if (control.getItems()==null) {
 			
 			this.pageContext.getRequest().setAttribute("selectItems",control.getOptions());
@@ -46,13 +50,17 @@ public class MetaSelectTag extends BodyTagSupport {
 		this.pageContext.getRequest().setAttribute("itemValue",control.getItemValue());
 		this.pageContext.getRequest().setAttribute("itemLabel",control.getItemLabel());
 		
-		
+		//source definition does not contain a dot? then it's a request attribute name 
+		//there must be a list of objects under this name in request attributes
 		if (control.getItems().indexOf('.')==-1) {
 			this.pageContext.getRequest().setAttribute("selectItems",this.pageContext.getRequest().getAttribute(control.getItems()));
 			
 			return Tag.EVAL_PAGE;
 		}
 		
+		//if we are here - then source definition contains a dot.
+		//Which means it's a method call.
+		//lets call the method to get the list of objects.
 		 String str=control.getItems();
 		 if (str.indexOf(".")==-1 || str.indexOf("(")==-1 || str.indexOf(")")==-1) {
 			 throw new JspException(control.getItems()+" should match ${beanName} or ${beanName.method(param)} pattern");
