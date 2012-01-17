@@ -14,7 +14,7 @@
     <property name="area" value="illuminaHiSeq2000" />
   </bean>
 
-  <bean id="illuminiaHiSeq2000" class="edu.yu.einstein.wasp.load.ResourceLoadService">
+  <bean id="illuminaHiSeq2000" class="edu.yu.einstein.wasp.load.ResourceLoadService">
     <property name="iname" value="illuminaHiSeq2000" />
     <property name="name" value="Illumina HiSeq 2000" />
     <property name="resourceType" value="mps" />

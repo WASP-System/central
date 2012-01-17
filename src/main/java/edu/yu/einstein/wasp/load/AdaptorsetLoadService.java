@@ -1,37 +1,28 @@
 package edu.yu.einstein.wasp.load;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
+
+import util.spring.PostInitialize;
+import edu.yu.einstein.wasp.exception.NullResourceException;
+import edu.yu.einstein.wasp.model.Adaptor;
+import edu.yu.einstein.wasp.model.AdaptorMeta;
+import edu.yu.einstein.wasp.model.Adaptorset;
+import edu.yu.einstein.wasp.model.AdaptorsetMeta;
+import edu.yu.einstein.wasp.model.Adaptorsetresource;
+import edu.yu.einstein.wasp.model.Resource;
+import edu.yu.einstein.wasp.model.TypeSample;
 import edu.yu.einstein.wasp.service.AdaptorMetaService;
 import edu.yu.einstein.wasp.service.AdaptorService;
 import edu.yu.einstein.wasp.service.AdaptorsetMetaService;
 import edu.yu.einstein.wasp.service.AdaptorsetService;
 import edu.yu.einstein.wasp.service.AdaptorsetresourceService;
 import edu.yu.einstein.wasp.service.ResourceService;
-import edu.yu.einstein.wasp.service.ResourceLaneService;
-import edu.yu.einstein.wasp.service.ResourceMetaService;
-import edu.yu.einstein.wasp.service.TypeResourceService;
 import edu.yu.einstein.wasp.service.TypeSampleService;
-import edu.yu.einstein.wasp.exception.NullResourceException;
-import edu.yu.einstein.wasp.model.Adaptorset;
-import edu.yu.einstein.wasp.model.Adaptor;
-
-import edu.yu.einstein.wasp.model.*;
-
-import java.util.Map; 
-import java.util.HashMap; 
-import java.util.Set; 
-import java.util.List; 
-import java.util.Date; 
-import java.util.ArrayList; 
-import java.util.Locale; 
-
-import org.springframework.stereotype.Service;
-import org.springframework.stereotype.Component;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.*;
-
-import org.springframework.util.StringUtils;
-
-import util.spring.PostInitialize;
 
 
 /**
@@ -82,6 +73,7 @@ public class AdaptorsetLoadService extends WaspLoadService {
   public void setAdaptorList(List<Adaptor> adaptorList) {this.adaptorList = adaptorList; }
 
 
+  @Override
   @Transactional
   @PostInitialize 
   public void postInitialize() {

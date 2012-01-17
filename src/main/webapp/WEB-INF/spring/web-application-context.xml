@@ -191,7 +191,12 @@
     -->
 
   <!-- load --> 
-  <import resource="classpath*:wasp/*Load.xml" />
+  <import resource="classpath*:wasp/*UiFieldLoad.xml" />
+  <import resource="classpath*:wasp/*ResourceLoad.xml" />
+  <import resource="classpath*:wasp/*SubtypeSampleLoad.xml" />
+  <import resource="classpath*:wasp/*AdaptorsetLoad.xml" />
+  <import resource="classpath*:wasp/*TaskLoad.xml" />
+  <import resource="classpath*:wasp/*WorkflowLoad.xml" />
 
 </beans>
 
