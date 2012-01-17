@@ -11,17 +11,17 @@
 
 package edu.yu.einstein.wasp.model;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import java.util.Date;
+import java.util.List;
+
+import javax.persistence.*;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
+
+import org.hibernate.validator.constraints.*;
+
+import org.codehaus.jackson.annotate.JsonIgnore;
 
 @Entity
 @Audited
@@ -183,6 +183,39 @@ public class Workflowresource extends WaspModel {
 	public Workflow getWorkflow () {
 		return this.workflow;
 	}
+
+
+	/** 
+	 * workflowresourceMeta
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="workflowresourceid", insertable=false, updatable=false)
+	protected List<WorkflowresourceMeta> workflowresourceMeta;
+
+
+	/** 
+	 * getWorkflowresourceMeta()
+	 *
+	 * @return workflowresourceMeta
+	 *
+	 */
+	public List<WorkflowresourceMeta> getWorkflowresourceMeta() {
+		return this.workflowresourceMeta;
+	}
+
+
+	/** 
+	 * setWorkflowresourceMeta
+	 *
+	 * @param workflowresourceMeta
+	 *
+	 */
+	public void setWorkflowresourceMeta (List<WorkflowresourceMeta> workflowresourceMeta) {
+		this.workflowresourceMeta = workflowresourceMeta;
+	}
+
 
 
 }
