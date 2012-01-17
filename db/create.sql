@@ -757,11 +757,27 @@ create table workflowresource (
   workflowid int(10) ,
   resourceid int(10) ,
 
-  constraint unique index u_workflowtyperesource_wid_rid (workflowid, resourceid),
+  constraint unique index u_workflowresource_wid_rid (workflowid, resourceid),
 
-  foreign key fk_workflowtyperesource_rid (resourceid) references resource(resourceid),
-  foreign key fk_workflowtyperesource_wid (workflowid) references workflow(workflowid)
+  foreign key fk_workflowresource_rid (resourceid) references resource(resourceid),
+  foreign key fk_workflowresource_wid (workflowid) references workflow(workflowid)
 ) ENGINE=InnoDB charset=utf8;
+
+create table workflowresourcemeta (
+  workflowresourceoptionid int(10)  primary key auto_increment, 
+  workflowresourceid int(10) ,
+  k int(10),
+  v text,
+  position int(10)  default 0,
+
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
+
+  foreign key fk_wrometa_workflowresourceid (workflowresourceid) references workflowresource(workflowresourceid),
+
+  constraint unique index u_wro_wrid_k (workflowresourceid, k)
+) ENGINE=InnoDB charset=utf8;
+
 
 
 
