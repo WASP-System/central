@@ -89,7 +89,7 @@
   </bean-->
 
 <bean id="viewResolver" class="org.springframework.web.servlet.view.UrlBasedViewResolver">
-  <property name="viewClass" value="org.springframework.web.servlet.view.tiles2.WaspTilesView"/>
+  <property name="viewClass" value="edu.yu.einstein.wasp.servlet.view.tiles2.WaspTilesView"/>
 </bean>
 
 
