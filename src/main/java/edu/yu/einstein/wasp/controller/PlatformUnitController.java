@@ -26,14 +26,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
 
 import edu.yu.einstein.wasp.controller.validator.MetaHelper;
-import edu.yu.einstein.wasp.model.Sample;
-import edu.yu.einstein.wasp.model.SampleMeta;
-import edu.yu.einstein.wasp.model.TypeSample;
-import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.model.*;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.SampleMetaService;
 import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.service.WorkflowService;
+import edu.yu.einstein.wasp.service.JobService;
+import edu.yu.einstein.wasp.service.StateService;
 import edu.yu.einstein.wasp.service.TypeSampleService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 
@@ -46,7 +46,16 @@ public class PlatformUnitController extends WaspController {
 	private SampleService sampleService;
 
 	@Autowired
+	private JobService jobService;
+
+	@Autowired
+	private StateService stateService;
+
+	@Autowired
 	private SampleMetaService sampleMetaService;
+
+	@Autowired
+	private WorkflowService workflowService;
 
 	@Autowired
 	private TypeSampleService typeSampleService;
@@ -335,4 +344,34 @@ public class PlatformUnitController extends WaspController {
 		return "redirect:/facility/platformunit/ok";
 	}
 
+  /**
+   * assignmentForm
+   *
+   */
+	@RequestMapping(value="/assign.do", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('ft')")
+	public String assignmentForm(ModelMap m) {
+
+		// pickups FlowCells
+		// TODO: pickup typesampleid by iname
+		Integer typeSampleId	= new Integer(5);
+		
+		TypeSample typeSample = typeSampleService.getTypeSampleByTypeSampleId(5);
+		List<Sample> platformUnits = typeSample.getSample();
+		// TODO: limit by states
+
+
+		// picks up jobs
+		// FAKING IT HERE TOO
+		Workflow workflow = workflowService.getWorkflowByWorkflowId(1);
+		List<Job> jobs = workflow.getJob(); 
+		
+
+    m.put("platformunits", platformUnits); 
+    m.put("jobs", jobs); 
+    m.put("hello", "hello world"); 
+
+		return "facility/platformunit/assign"; 
+	}
+	
 }
