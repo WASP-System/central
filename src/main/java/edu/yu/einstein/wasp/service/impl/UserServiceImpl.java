@@ -27,8 +27,8 @@ public class UserServiceImpl extends WaspServiceImpl<User> implements UserServic
   @Autowired
   private ConfirmEmailAuthService confirmEmailAuthService;
   
-  @Autowired
-  private EmailService emailService;
+//  @Autowired
+//  private EmailService emailService;
 	
   private UserDao userDao;
   @Override
