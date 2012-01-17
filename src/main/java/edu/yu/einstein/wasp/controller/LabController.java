@@ -274,7 +274,7 @@ public class LabController extends WaspController {
 
 		List<LabUser> users = labDb.getLabUser();
 
-		List<Project> projects = labDb.getProject();
+/*		List<Project> projects = labDb.getProject();
 
 		List<Sample> samples = labDb.getSample();
 
@@ -307,19 +307,21 @@ public class LabController extends WaspController {
 
 			max = 1;
 		}
+*/
+		int max = users.size();
+		//String[][] mtrx = new String[max][6];
+		String [] mtrx = new String [max];
 
-		String[][] mtrx = new String[max][6];
-
-		ObjectMapper mapper = new ObjectMapper();
+//		ObjectMapper mapper = new ObjectMapper();
 
 		String text;
 		try {
 			// String labs = mapper.writeValueAsString(labList);
-			jqgrid.put("page", "1");
-			jqgrid.put("records", max + "");
-			jqgrid.put("total", max + "");
+//			jqgrid.put("page", "1");
+//			jqgrid.put("records", max + "");
+//			jqgrid.put("total", max + "");
 
-			int i = 0;
+//			int i = 0;
 			int j = 0;
 			for (LabUser user : users) {
 
@@ -328,10 +330,11 @@ public class LabController extends WaspController {
 								+ user.getUserId() + ">"
 								+ user.getUser().getFirstName() + " "
 								+ user.getUser().getLastName() + "</a>";
-				mtrx[j][i] = text;
+//				mtrx[j][i] = text;
+				mtrx[j] = text;
 				j++;
 			}
-			i++;
+/*			i++;
 			j = 0;
 			for (Project project : projects) {
 				text = project.getProjectId() == null ? "No Projects" : project.getName();
@@ -366,7 +369,7 @@ public class LabController extends WaspController {
 				mtrx[j][i] = text;
 				j++;
 			}
-
+*/
 			List<Map> rows = new ArrayList<Map>();
 
 			for (j = 0; j < max; j++) {
