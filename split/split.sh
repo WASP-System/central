@@ -23,11 +23,14 @@ for x in main test; do
   done
 done
 
+mkdir wasp-core/src/site
+mkdir wasp-web/src/site
+
 # wasp-site
 #mkdir -p wasp-site/src
 #svn add --parents wasp-site/src
-find src/docbkx -type f -exec svn mv --parents {} wasp-core/{} \;
-find src/site -type f -exec svn mv --parents {} wasp-core/{} \;
+#find src/docbkx -type f -exec svn mv --parents {} wasp-core/{} \;
+#find src/site -type f -exec svn mv --parents {} wasp-core/{} \;
 
 # wasp-core
 #

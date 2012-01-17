@@ -11,6 +11,7 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<site.basedir>${project.basedir}</site.basedir>
 	</properties>
 
 	<modules>
@@ -22,13 +23,57 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 		<pluginManagement>
 			<plugins>
 				<plugin>
+					<artifactId>maven-resources-plugin</artifactId>
+					<version>2.5</version>
+					<executions>
+						<execution>
+							<id>copy-sitedescriptor</id>
+							<!-- fetch site.xml before creating site documentation -->
+							<phase>pre-site</phase>
+							<goals>
+								<goal>copy-resources</goal>
+							</goals>
+							<configuration>
+								<outputDirectory>${basedir}/src/site/</outputDirectory>
+								<resources>
+									<resource>
+										<directory>${site.basedir}/src/site/</directory>
+										<includes>
+											<include>**/site.xml</include>
+										</includes>
+									</resource>
+								</resources>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
+					<groupId>com.agilejava.docbkx</groupId>
+					<artifactId>docbkx-maven-plugin</artifactId>
+					<version>2.0.13</version>
+					<executions>
+						<execution>
+							<goals>
+								<goal>generate-html</goal>
+								<goal>generate-pdf</goal>
+							</goals>
+							<phase>pre-site</phase>
+						</execution>
+					</executions>
+					<configuration>
+						<includes>wasp.xml</includes>
+						<xincludeSupported>true</xincludeSupported>
+						<generatedSourceDirectory>${project.build.directory}/xinclude</generatedSourceDirectory>
+					</configuration>
+				</plugin>
+				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
 					<version>2.3.2</version>
 					<configuration>
 						<source>1.6</source>
 						<target>1.6</target>
-						<encoding>UTF-8</encoding>
+						<encoding>${project.build.sourceEncoding}</encoding>
 					</configuration>
 				</plugin>
 				<plugin>
