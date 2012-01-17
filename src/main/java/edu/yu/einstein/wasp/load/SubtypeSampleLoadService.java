@@ -49,7 +49,7 @@ public class SubtypeSampleLoadService extends WaspLoadService {
 
 
   @Override
-@Transactional
+  @Transactional
   @PostInitialize 
   public void postInitialize() {
     // skips component scanned  (if scanned in)
@@ -73,12 +73,17 @@ public class SubtypeSampleLoadService extends WaspLoadService {
       subtypeSample = subtypeSampleService.getSubtypeSampleByIName(iname); 
 
     } else {
-
-      // TODO check if any data chance, if not don't update.
-      subtypeSample.setName(name);
-      subtypeSample.setTypeSampleId(typeSample.getTypeSampleId());
-
-      subtypeSampleService.save(subtypeSample); 
+      boolean changed = false;
+      if (!subtypeSample.getName().equals(name)){
+    	  subtypeSample.setName(name);
+    	  changed = true;
+      }
+      if (subtypeSample.getTypeSampleId().intValue() != typeSample.getTypeSampleId().intValue()){
+    	  subtypeSample.setTypeSampleId(typeSample.getTypeSampleId());
+    	  changed = true;
+      }
+      if (changed)
+    	  subtypeSampleService.save(subtypeSample); 
     }
 
     // sync metas
@@ -86,13 +91,13 @@ public class SubtypeSampleLoadService extends WaspLoadService {
     Map<String, SubtypeSampleMeta> oldSubtypeSampleMetas  = new HashMap<String, SubtypeSampleMeta>();
 
     if (subtypeSample != null && subtypeSample.getSubtypeSampleMeta() != null) {
-      for (SubtypeSampleMeta subtypeSampleMeta: subtypeSample.getSubtypeSampleMeta()) {
+      for (SubtypeSampleMeta subtypeSampleMeta: safeList(subtypeSample.getSubtypeSampleMeta())) {
         oldSubtypeSampleMetas.put(subtypeSampleMeta.getK(), subtypeSampleMeta);
       }
     }
 
     if (meta != null) {
-      for (SubtypeSampleMeta subtypeSampleMeta: meta) {
+      for (SubtypeSampleMeta subtypeSampleMeta: safeList(meta) ) {
   
         // incremental position numbers.
   
@@ -102,20 +107,24 @@ public class SubtypeSampleLoadService extends WaspLoadService {
           subtypeSampleMeta.setPosition(lastPosition +1);
         }
         lastPosition = subtypeSampleMeta.getPosition().intValue();
-  
+        
         if (oldSubtypeSampleMetas.containsKey(subtypeSampleMeta.getK())) {
-          SubtypeSampleMeta old = oldSubtypeSampleMetas.get(subtypeSampleMeta.getK());
-          if ( old.getV().equals(subtypeSampleMeta.getV()) &&
-              old.getPosition().intValue() == subtypeSampleMeta.getPosition().intValue()) {
-              // the same
-              continue;
+        	SubtypeSampleMeta old = oldSubtypeSampleMetas.get(subtypeSampleMeta.getK());
+            boolean changed = false;
+            if (!old.getV().equals(subtypeSampleMeta.getV())){
+            	old.setV(subtypeSampleMeta.getV());
+            	changed = true;
+            }
+            if (old.getPosition().intValue() != subtypeSampleMeta.getPosition()){
+            	old.setPosition(subtypeSampleMeta.getPosition());
+            	changed = true;
+            }
+            if (changed)
+            	subtypeSampleMetaService.save(old);
+
+            oldSubtypeSampleMetas.remove(old.getK()); // remove the meta from the old meta list as we're done with it
+            continue; 
           }
-          // different
-          old.setV(subtypeSampleMeta.getV());
-          old.setPosition(subtypeSampleMeta.getPosition());
-          oldSubtypeSampleMetas.remove(old.getK());
-          continue;
-        }
 
         subtypeSampleMeta.setSubtypeSampleId(subtypeSample.getSubtypeSampleId());
         subtypeSampleMeta.setPosition(1);
@@ -129,7 +138,6 @@ public class SubtypeSampleLoadService extends WaspLoadService {
       subtypeSampleMetaService.remove(subtypeSampleMeta);
       subtypeSampleMetaService.flush(subtypeSampleMeta);
     }
-
     updateUiFields(iname, uiFields); 
 
   }

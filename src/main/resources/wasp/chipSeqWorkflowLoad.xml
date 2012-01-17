@@ -34,7 +34,7 @@
 
     <property name="dependencies">
       <list>
-        <value>dna</value>
+        <value>mps</value>
         <value>aligner</value>
         <!-- <value>peakcaller</value> -->
       </list>
@@ -42,9 +42,8 @@
 
     <property name="subtypeSamples">
       <set>
-        <value>chipSeqdnaSample</value>
-        <value>chipSeqlibrarySample</value>
-        <value>ghiSubtypeSample</value>
+        <value>chipSeqDnaSample</value>
+        <value>chipSeqLibrarySample</value>
       </set>
     </property>
     <property name="uiFields">

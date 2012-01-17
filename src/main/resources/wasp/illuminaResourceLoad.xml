@@ -17,7 +17,7 @@
   <bean id="illuminiaHiSeq2000" class="edu.yu.einstein.wasp.load.ResourceLoadService">
     <property name="iname" value="illuminaHiSeq2000" />
     <property name="name" value="Illumina HiSeq 2000" />
-    <property name="resourceType" value="dna" />
+    <property name="resourceType" value="mps" />
     <property name="platform" value="Illumina" />
 
     <property name="cell">
@@ -112,6 +112,40 @@
 
       </list>
     </property>
+  </bean>
+    
+    
+  <bean id="adaptorsetLoad" class="edu.yu.einstein.wasp.load.AdaptorsetLoadService">
+  	<property name="iname" value="truseqIndexedDna" />
+  	<property name="name" value="TruSEQ INDEXED DNA" />
+  	<property name="typeSampleIName" value="dna" />
+  	<property name="compatibleResourcesByIName">
+  		<list>
+  			<bean class="java.lang.String">
+  				<constructor-arg type="String" value="illuminaHiSeq2000" />
+  			</bean>
+  		</list>
+  	</property>
+  	<property name="adaptorList">
+  		<list>
+  			<bean class="edu.yu.einstein.wasp.model.Adaptor">
+  				<property name="iName" value="illuminaTrueseqDnaIndexed1" />
+  				<property name="name" value="Illumina DNA Indexed adaptor 1" />
+  				<property name="sequence" value="AGATCGGAAGAGCGGTTCAGC" />
+  				<property name="barcodesequence" value="ATCACG" />
+  				<property name="barcodenumber" value="1" />
+  			</bean>
+  			<bean class="edu.yu.einstein.wasp.model.Adaptor">
+  				<property name="iName" value="illuminaTrueseqDnaIndexed2" />
+  				<property name="name" value="Illumina DNA Indexed adaptor 2" />
+  				<property name="sequence" value="AGATCGGAAGAGCGGTTCAGC" />
+  				<property name="barcodesequence" value="CGATGT" />
+  				<property name="barcodenumber" value="2" />
+  			</bean>
+  		</list>
+  	</property>
+  	
+    	
 
   </bean> 
 

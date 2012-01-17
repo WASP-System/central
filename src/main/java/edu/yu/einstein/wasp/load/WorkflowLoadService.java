@@ -11,6 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import util.spring.PostInitialize;
+import edu.yu.einstein.wasp.exception.NullSubtypeSampleException;
+import edu.yu.einstein.wasp.exception.NullTypeResourceException;
 import edu.yu.einstein.wasp.model.SubtypeSample;
 import edu.yu.einstein.wasp.model.TypeResource;
 import edu.yu.einstein.wasp.model.Workflow;
@@ -71,7 +73,7 @@ public class WorkflowLoadService extends WaspLoadService {
   public void setMeta(List<WorkflowMeta> workflowMeta) {this.meta = workflowMeta; }
 
   @Override
-@Transactional
+  @Transactional
   @PostInitialize 
   public void postInitialize() {
     // skips component scanned  (if scanned in)
@@ -85,7 +87,7 @@ public class WorkflowLoadService extends WaspLoadService {
 
       workflow.setIName(iname);
       workflow.setName(name);
-      workflow.setIsActive(0);
+      workflow.setIsActive(0); // only set to active when configured by admin
       workflow.setCreatets(new Date());
 
       workflowService.save(workflow); 
@@ -108,15 +110,16 @@ public class WorkflowLoadService extends WaspLoadService {
     Map<String, WorkflowMeta> oldWorkflowMetas  = new HashMap<String, WorkflowMeta>();
 
     if (workflow != null && workflow.getWorkflowMeta() != null) {
-      for (WorkflowMeta workflowMeta: workflow.getWorkflowMeta()) {
+      // workflow and associated meta already exists for provided iname
+      for (WorkflowMeta workflowMeta: safeList(workflow.getWorkflowMeta())) {
         oldWorkflowMetas.put(workflowMeta.getK(), workflowMeta);
       }
     }
 
-    for (WorkflowMeta workflowMeta: meta) {
-
-      // incremental position numbers.
+    for (WorkflowMeta workflowMeta: safeList(meta)) {
+      // loop through newly provided metadata
     	
+      // incremental position numbers.
       if ( workflowMeta.getPosition() == null ||
            workflowMeta.getPosition().intValue() <= lastPosition
         )  {
@@ -125,22 +128,24 @@ public class WorkflowLoadService extends WaspLoadService {
       lastPosition = workflowMeta.getPosition().intValue();
 
       if (oldWorkflowMetas.containsKey(workflowMeta.getK())) {
+    	// current meta key exists in db already
         WorkflowMeta old = oldWorkflowMetas.get(workflowMeta.getK());
-        if ( old.getV().equals(workflowMeta.getV()) &&
-            old.getPosition().intValue() == workflowMeta.getPosition().intValue()) {
-          // the same
-          continue;
+        boolean changed = false;
+        if (!old.getV().equals(workflowMeta.getV())){
+        	old.setV(workflowMeta.getV());
+        	changed = true;
         }
-        // different
-        old.setV(workflowMeta.getV());
-        old.setPosition(workflowMeta.getPosition());
+        if (old.getPosition().intValue() != workflowMeta.getPosition()){
+        	old.setPosition(workflowMeta.getPosition());
+        	changed = true;
+        }
+        if (changed)
+        	workflowMetaService.save(old);
 
-        workflowMetaService.save(old);
-
-        oldWorkflowMetas.remove(old.getK());
+        oldWorkflowMetas.remove(old.getK()); // remove this key from the old meta list as we're done with it
         continue;
       }
-
+      // current meta key does not exist in db already. Save this new metadata
       workflowMeta.setWorkflowId(workflow.getWorkflowId());
       workflowMeta.setPosition(1);
       workflowMetaService.save(workflowMeta);
@@ -176,29 +181,35 @@ public class WorkflowLoadService extends WaspLoadService {
 
     // todo better logic so updates.
     if (oldWorkflowSubtypeSamples != null) {
-    for (Workflowsubtypesample Workflowsubtypesample: oldWorkflowSubtypeSamples) {
-      String subtypeIName = Workflowsubtypesample.getSubtypeSample().getIName();
-
-      // already exists in set... 
-      // remove from set
-      if (subtypeSamples.contains(subtypeIName)) {
-        subtypeSamples.remove(subtypeIName);
-        continue;
-      }
-
-      // else remove from db
-      workflowsubtypesampleService.remove(Workflowsubtypesample);
-    }
+	    for (Workflowsubtypesample Workflowsubtypesample: oldWorkflowSubtypeSamples) {
+	      String subtypeIName = Workflowsubtypesample.getSubtypeSample().getIName();
+	
+	      // already exists in set... 
+	      // remove from set
+	      if (subtypeSamples.contains(subtypeIName)) {
+	        subtypeSamples.remove(subtypeIName);
+	        continue;
+	      }
+	
+	      // else remove from db
+	      workflowsubtypesampleService.remove(Workflowsubtypesample);
+	      workflowsubtypesampleService.flush(Workflowsubtypesample);
+	    }
     }
 
     // the leftovers were not in the db so create
-    for (String subtypeSampleIName: subtypeSamples) {
-      SubtypeSample subtypeSample = subtypeSampleService.getSubtypeSampleByIName(subtypeSampleIName);     
-      Workflowsubtypesample newWorkflowsubtypesample = new Workflowsubtypesample();
-      newWorkflowsubtypesample.setWorkflowId(workflow.getWorkflowId()); 
-      newWorkflowsubtypesample.setSubtypeSampleId(subtypeSample.getSubtypeSampleId());
-
-      workflowsubtypesampleService.save(newWorkflowsubtypesample);
+    for (String subtypeSampleIName: safeSet(subtypeSamples)) {
+      SubtypeSample subtypeSample = subtypeSampleService.getSubtypeSampleByIName(subtypeSampleIName);
+      if (subtypeSample.getSubtypeSampleId() != null){
+	      Workflowsubtypesample newWorkflowsubtypesample = new Workflowsubtypesample();
+	      newWorkflowsubtypesample.setWorkflowId(workflow.getWorkflowId()); 
+	      newWorkflowsubtypesample.setSubtypeSampleId(subtypeSample.getSubtypeSampleId());
+	
+	      workflowsubtypesampleService.save(newWorkflowsubtypesample);
+      } else {
+    	  // the specified subtypesample does not exist!!
+    	  throw new NullSubtypeSampleException();
+      }
     }
 
 
@@ -213,14 +224,19 @@ public class WorkflowLoadService extends WaspLoadService {
       }
     }
 
-    for (String dependency: dependencies) { 
+    for (String dependency: safeList(dependencies)) { 
       TypeResource typeResource = typeResourceService.getTypeResourceByIName(dependency);
-      Workflowtyperesource workflowtyperesource = new Workflowtyperesource(); 
-
-      workflowtyperesource.setWorkflowId(workflow.getWorkflowId()); 
-      workflowtyperesource.setTypeResourceId(typeResource.getTypeResourceId()); 
-
-      workflowtyperesourceService.save(workflowtyperesource);
+      if (typeResource.getTypeResourceId() != null){
+	      Workflowtyperesource workflowtyperesource = new Workflowtyperesource(); 
+	
+	      workflowtyperesource.setWorkflowId(workflow.getWorkflowId()); 
+	      workflowtyperesource.setTypeResourceId(typeResource.getTypeResourceId()); 
+	
+	      workflowtyperesourceService.save(workflowtyperesource);
+      } else {
+    	// the specified resourceType does not exist!!
+    	  throw new NullTypeResourceException();
+      }
     }
 
   }

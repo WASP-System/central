@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.1.xsd"
+    default-autowire="byName">
+
+  <bean class="edu.yu.einstein.wasp.model.UiField" id="genericDnaSampleUiField">
+    <property name="locale" value="en_US" />
+    <property name="area" value="genericDnaSample" />
+  </bean> 
+
+  <bean id="genericDnaUiFields" class="java.util.ArrayList">
+    <constructor-arg>
+      <list>
+        <bean parent="genericDnaSampleUiField">
+          <property name="name" value="concentration" />
+          <property name="attrName" value="label" />
+          <property name="attrValue" value="Concentration" />
+        </bean>
+        <bean parent="genericDnaSampleUiField">
+          <property name="name" value="concentration" />
+          <property name="attrName" value="metaposition" />
+          <property name="attrValue" value="0" />
+        </bean>
+
+        <bean parent="genericDnaSampleUiField">
+          <property name="name" value="volume" />
+          <property name="attrName" value="label" />
+          <property name="attrValue" value="volume" />
+        </bean>
+        <bean parent="genericDnaSampleUiField">
+          <property name="name" value="volume" />
+          <property name="attrName" value="metaposition" />
+          <property name="attrValue" value="1" />
+        </bean>
+
+        <bean parent="genericDnaSampleUiField">
+          <property name="name" value="buffer" />
+          <property name="attrName" value="label" />
+          <property name="attrValue" value="buffer" />
+        </bean>
+        <bean parent="genericDnaSampleUiField">
+          <property name="name" value="buffer" />
+          <property name="attrName" value="metaposition" />
+          <property name="attrValue" value="1" />
+        </bean>
+        <bean parent="genericDnaSampleUiField">
+          <property name="name" value="buffer" />
+          <property name="attrName" value="control" />
+          <property name="attrValue" value="select:TE:TE;Water:Water" />
+        </bean>
+
+        <bean parent="genericDnaSampleUiField">
+          <property name="name" value="Species" />
+          <property name="attrName" value="label" />
+          <property name="attrValue" value="species" />
+        </bean>
+        <bean parent="genericDnaSampleUiField">
+          <property name="name" value="Species" />
+          <property name="attrName" value="metaposition" />
+          <property name="attrValue" value="5" />
+        </bean>
+        <bean parent="genericDnaSampleUiField">
+          <property name="name" value="Species" />
+          <property name="attrName" value="control" />
+          <!-- <property name="attrValue" value="select:{speciesBean}" /> -->
+          <property name="attrValue" value="select:a:a; b:b" />
+        </bean>
+      </list>
+    </constructor-arg>
+  </bean>
+</beans>
+ 

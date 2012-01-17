@@ -1,9 +1,11 @@
 package edu.yu.einstein.wasp.load;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,21 +88,21 @@ public abstract class WaspLoadService {
 
     // sets up the base uifields new
     if (baseUiFields != null) {
-    for (UiField f: baseUiFields) {
-      String key = this.iname + "." + f.getName() + "."
-          + f.getAttrName();
-      String lang = f.getLocale().substring(0, 2);
-      String cntry = f.getLocale().substring(3);
-
-      Locale locale = new Locale(lang, cntry);
-
-      ((WaspMessageSourceImpl) messageSource).addMessage(key, locale, f.getAttrValue());
-      uiFieldService.save(f); 
-    }
+	    for (UiField f: safeList(baseUiFields)) {
+	      String key = this.iname + "." + f.getName() + "."
+	          + f.getAttrName();
+	      String lang = f.getLocale().substring(0, 2);
+	      String cntry = f.getLocale().substring(3);
+	
+	      Locale locale = new Locale(lang, cntry);
+	
+	      ((WaspMessageSourceImpl) messageSource).addMessage(key, locale, f.getAttrValue());
+	      uiFieldService.save(f); 
+	    }
     }
 
     // sets up the new
-    for (UiField f: uiFields) {
+    for (UiField f: safeList(uiFields)) {
       String key = f.getArea() + "." + f.getName() + "."
           + f.getAttrName();
       String lang = f.getLocale().substring(0, 2);
@@ -127,6 +129,14 @@ public abstract class WaspLoadService {
 
     edu.yu.einstein.wasp.dao.impl.DBResourceBundle.MESSAGE_SOURCE=(WaspMessageSourceImpl)messageSource; //save handle to messageSource for easy access
 
+  }
+  
+  protected <E> List<E> safeList(List<E> list){
+	  return (List<E>) (list == null ? Collections.EMPTY_LIST : list);
+  }
+  
+  protected <E> Set<E> safeSet(Set<E> set){
+	  return (Set<E>) (set == null ? Collections.EMPTY_SET : set);
   }
 
 }

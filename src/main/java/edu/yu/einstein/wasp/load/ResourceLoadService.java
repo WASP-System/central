@@ -1,11 +1,14 @@
 package edu.yu.einstein.wasp.load;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import util.spring.PostInitialize;
+import edu.yu.einstein.wasp.exception.NullTypeResourceException;
 import edu.yu.einstein.wasp.model.Resource;
 import edu.yu.einstein.wasp.model.ResourceLane;
 import edu.yu.einstein.wasp.model.ResourceMeta;
@@ -56,13 +59,16 @@ public class ResourceLoadService extends WaspLoadService {
   public void setMeta(List<ResourceMeta> meta) {this.meta = meta; }
 
   @Override
-@Transactional
+  @Transactional
   @PostInitialize 
   public void postInitialize() {
     // skips component scanned  (if scanned in)
     if (name == null) { return; }
 
     TypeResource typeResource = typeResourceService.getTypeResourceByIName(resourceType); 
+    if (typeResource == null){
+    	throw new NullTypeResourceException();
+    }
 
     Resource resource = resourceService.getResourceByIName(iname); 
 
@@ -81,22 +87,32 @@ public class ResourceLoadService extends WaspLoadService {
       resource = resourceService.getResourceByIName(iname); 
 
     } else {
-      resource.setName(name);
-      resource.setPlatform(platform);
-      resource.setTypeResourceId(typeResource.getTypeResourceId());
-
-      resourceService.save(resource); 
+      boolean changed = false;	
+      if (!resource.getName().equals(name)){
+    	  resource.setName(name);
+    	  changed = true;
+      }
+      if (!resource.getPlatform().equals(platform)){
+    	  resource.setPlatform(platform);
+    	  changed = true;
+      }
+      if (resource.getTypeResourceId().intValue() != typeResource.getTypeResourceId().intValue()){
+    	  resource.setTypeResourceId(typeResource.getTypeResourceId());
+    	  changed = true;
+      }
+      if (changed)
+    	  resourceService.save(resource); 
     }
 
 
-/*
+
     // sync metas
     int lastPosition = 0;
     Map<String, ResourceMeta> oldResourceMetas  = new HashMap<String, ResourceMeta>();
-    for (ResourceMeta resourceMeta: resource.getResourceMeta()) {
+    for (ResourceMeta resourceMeta: safeList(resource.getResourceMeta())) {
       oldResourceMetas.put(resourceMeta.getK(), resourceMeta);
     } 
-    for (ResourceMeta resourceMeta: meta) {
+    for (ResourceMeta resourceMeta: safeList(meta) ) {
 
       // incremental position numbers. 
       if ( resourceMeta.getPosition() == 0 ||
@@ -108,17 +124,19 @@ public class ResourceLoadService extends WaspLoadService {
 
       if (oldResourceMetas.containsKey(resourceMeta.getK())) {
         ResourceMeta old = oldResourceMetas.get(resourceMeta.getK());
-        if ( old.getV().equals(resourceMeta.getV()) && 
-            old.getPosition() == resourceMeta.getPosition()) {
-          // the same 
-          continue;
+        boolean changed = false;
+        if (!old.getV().equals(resourceMeta.getV())){
+        	old.setV(resourceMeta.getV());
+        	changed = true;
         }
-        // different
-        old.setV(resourceMeta.getV());
-        old.setPosition(resourceMeta.getPosition());
-        resourceMetaService.save(old);
+        if (old.getPosition().intValue() != resourceMeta.getPosition()){
+        	old.setPosition(resourceMeta.getPosition());
+        	changed = true;
+        }
+        if (changed)
+        	resourceMetaService.save(old);
 
-        oldResourceMetas.remove(old.getK());
+        oldResourceMetas.remove(old.getK()); // remove the meta from the old meta list as we're done with it
         continue; 
       }
 
@@ -136,43 +154,35 @@ public class ResourceLoadService extends WaspLoadService {
 
     lastPosition = 0;
     Map<String, ResourceLane> oldResourceLanes  = new HashMap<String, ResourceLane>();
-    for (ResourceLane resourceCell: resource.getResourceLane()) {
+    for (ResourceLane resourceCell: safeList(resource.getResourceLane())) {
       oldResourceLanes.put(resourceCell.getIName(), resourceCell);
     } 
-
-    for (ResourceLane resourceCell: cells) {
+    
+    // sync 
+    for (ResourceLane resourceCell: safeList(cells)) {
       if (oldResourceLanes.containsKey(resourceCell.getIName())) {
         ResourceLane old = oldResourceLanes.get(resourceCell.getIName()); 
 
-        if ( old.getIName().equals(resourceCell.getIName())) { 
-          // the same 
-          continue;
+        if (!old.getIName().equals(resourceCell.getIName())) { 	
+        	old.setName(resourceCell.getName());
+        	old.setIsActive(1);
+        	resourceLaneService.save(old);
         }
-
-        // different
-        old.setName(resourceCell.getName());
-        resourceLaneService.save(old);
-
         oldResourceLanes.remove(old.getIName());
         continue;
       }
 
       resourceCell.setResourceId(resource.getResourceId()); 
+      resourceCell.setIsActive(1);
       resourceLaneService.save(resourceCell); 
     }
 
 
-    // delete the left overs
+    // inactivate the left overs (cannot delete due to foreign key constraints
     for (String resourceLaneKey : oldResourceLanes.keySet()) {
       ResourceLane resourceLane = oldResourceLanes.get(resourceLaneKey); 
-
-      / * DOES NOT REMOVE, id fk available.  TODO: use isactive instead?  
-      resourceLaneService.remove(resourceLane); 
-      resourceLaneService.flush(resourceLane); 
-      * /
+      resourceLane.setIsActive(0); 
     }
-
-*/
 
     updateUiFields(iname, uiFields); 
   }
