@@ -13,7 +13,7 @@ import edu.yu.einstein.wasp.model.MetaAttribute;
 /*
  * Initializes request attributes selectItems,itemValue and itemLabel based on MetaAttribute.Control object.
  * The purpose of this tag is: 
- *    a) obtain list of object to render "option" HTML tags of "select" HTML tag and save the list under "selectItems" name in request attributes. 
+ *    a) obtain list of objects to render "option" HTML tags of "select" HTML tag and save the list under "selectItems" name in request attributes. 
  *    b) obtain property name to call on each object in the list a) to get "option" HTML tag VALUE and save it under "itemValue" name in request attributes.
  *    c) obtain property name to call on each object in the list a) to get "option" HTML tag LABEL and save it under "itemLabel" name in request attributes.
  * 
