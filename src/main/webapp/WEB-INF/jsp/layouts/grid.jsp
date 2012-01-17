@@ -6,16 +6,17 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>
-    <wasp:pageTitle/>
-  </title>
+ <title> 	 	
+     <wasp:pageTitle/> 
+ </title>
   <link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/reset.css" />
   <link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/base.css" />
-  <link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/jquery/jquery-ui.css" />
-  <link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/jquery/ui.jqgrid.css" />
+<link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/jquery/jquery-ui.css" />
+<link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/jquery/ui.jqgrid.css" />
 
   <script src="/wasp/scripts/jquery/jquery-1.6.2.js" type="text/javascript"></script>
   <script src="/wasp/scripts/jquery/ajaxfileupload.js" type="text/javascript"></script>
+  <script src="/wasp/scripts/jquery/jquery-ui-1.8.16.custom.min.js" type="text/javascript"></script> 
   
    <%--  include locale-specific jqgrid file.  jqLang is set in UserLocaleInterceptor class --%> 
   <script src="/wasp/scripts/jqgrid/grid.locale-<%= ((HttpServletRequest)pageContext.getRequest()).getSession().getAttribute("jqLang") %>.js" type="text/javascript"></script>
@@ -71,7 +72,7 @@
   
   <%--  structure to define L&F of "edit row" functionality --%> 
   var _editAttr={
-		  width:'auto',closeAfterEdit:true,closeOnEscape:true,afterSubmit:_afterSubmit,errorTextFormat:_errorTextFormat,beforeShowForm:_beforeShowEditForm,reloadAfterSubmit:true,recreateForm:true
+	width:'auto',closeAfterEdit:true,closeOnEscape:true,afterSubmit:_afterSubmit,errorTextFormat:_errorTextFormat,beforeShowForm:_beforeShowEditForm,reloadAfterSubmit:true,recreateForm:true
   };
   
   <%-- structure to define L&F of "add row" functionality. see JQGrid documentation at http://www.trirand.com/jqgridwiki/doku.php?id=wiki:jqgriddocs for parameter descriptions --%>
@@ -135,16 +136,16 @@
 
 	editoptions={size:20};
  	edittype='text';
-
-   <%-- poluate "select" inputs --%>	 
-   <c:if test="${not empty _meta.property.control}"> 
+ 	
+   <%-- populate "select" inputs --%>	 
+   <c:if test="${not empty _meta.property.control}">
        editoptions={size:20,value:{}};
        edittype='select';
-       
+  	              
        <%-- this tag will define selectItems/itemValue/itemLabel request attributes --%>
        <wasp:metaSelect control="${_meta.property.control}"/>
                  
- 	   selectItems=<wasp:json object="${selectItems}" />;
+ 		selectItems=<wasp:json object="${selectItems}" />;
 
  		editoptions['value']['']=' --- select --- ';
  		for(sKey in selectItems) {
@@ -156,7 +157,37 @@
  		}
  		
   </c:if>     
- 		
+  
+	<%-- add autocomplete function for the "institution" input fields --%>
+	if(_field_name.indexOf('institution') != -1){
+		editoptions = { 
+				dataInit: function(elm){
+					setTimeout(
+						function(){ 
+							$.getJSON("/wasp/autocomplete/getInstitutesForDisplay.do", 
+									{ instituteNameFragment: "" }, 
+									function(data) { 
+										jQuery(elm).autocomplete(data);
+									} );
+	                	}, 200);
+				}
+		};
+	}
+
+	<%-- add datepicker for the "date" input fields --%>
+	if(_field_name.indexOf('date') != -1){
+		editoptions = { 
+				dataInit: function(elm){
+					setTimeout(
+						function(){ 
+							jQuery(elm).datepicker({dateFormat:'yy-mm-dd'});
+							jQuery('.ui-datepicker').css({'font-size':'80%'}); 
+	                	}, 200);
+				}
+		};
+	}
+
+	
   <%-- list of column names --%>
   colNames.push('${_meta.property.label}');
 
@@ -179,6 +210,7 @@
   
 
 </c:forEach>
+
 
 if (_url.indexOf('/uiField/')==-1) _enableFilterToolbar=false;//not sure who/why force _enableFilterToolbar to false. add an exception for uiField. Sasha 12.1.12
 
@@ -378,7 +410,7 @@ function createGrid() {
 			colNames: colNames,
 			colModel: colModel,
 			pager: '#gridpager',
-			rowNum: 30,
+			rowNum: 20,
 			rowList: [10,20,30], 
 			viewrecords: true,
 			gridview: false,
@@ -386,11 +418,11 @@ function createGrid() {
 
 			autowidth: true,
 			//scroll: false,		// scroll:true will disable the pager on page
-			height: '85%', 
+			height: 'auto', 
 			loadui: 'block',
 			scrollrows: false,
 			loadonce: false, // false to enable paging/sorting on client side
-			sortable: false, // true to enable sorting
+			sortable: true, // true to enable sorting
 
 			loadComplete: function(data) {
 				//$("#grid_id").setGridParam({datatype:'local'});
@@ -423,6 +455,12 @@ function createGrid() {
 			ondblClickRow: function(rowid) {//enable "edit" on dblClick			
 				$("#grid_id").jqGrid('editGridRow',rowid,_editAttr);
 			},
+			
+			onSelectRow: function(rowId){ 
+				setTimeout(function(){
+					$("#grid_id").expandSubGridRow(rowId); 
+				},200);
+			},
 
 			<tiles:insertAttribute name="grid-customAttributes" /> //add custom attributes if any
 		}).navGrid('#gridpager',
@@ -451,7 +489,9 @@ createGrid();
 <body>
 
 <tiles:insertAttribute name="banner-content" />
+
 <tiles:insertAttribute name="body-content" />
+
 <tiles:insertAttribute name="footer-content" />
 
 </body>

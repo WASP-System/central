@@ -96,6 +96,14 @@
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
+		<attribute>
+            <!-- 
+			<description>Sortable field if set</description>
+            -->
+			<name>sortable</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
 	</tag>
 	<tag>
 		<description><![CDATA[

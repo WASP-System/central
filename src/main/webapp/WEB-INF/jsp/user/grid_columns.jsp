@@ -2,9 +2,9 @@
 
 <wasp:field name="login" type="text"/>
 
-<wasp:field name="firstName" type="text"/>
+<wasp:field name="firstName" type="text" sortable="true"/>
 
-<wasp:field name="lastName" type="text"/>
+<wasp:field name="lastName" type="text" sortable="true"/>
 
 <wasp:field name="email" type="text" />
 

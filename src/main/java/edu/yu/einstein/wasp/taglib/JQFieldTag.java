@@ -63,6 +63,9 @@ public class JQFieldTag extends BodyTagSupport {
   
 	//Read-only field
 	private String readOnly;
+	
+	//Sortable field
+	private String sortable;
   
 	private Map metaMessages;
   
@@ -123,6 +126,10 @@ public class JQFieldTag extends BodyTagSupport {
 
 	public void setReadOnly(String ro) {
 		this.readOnly = ro;
+	}
+	
+	public void setSortable(String st) {
+		this.sortable = st;
 	}
 
 	//get locale-specific message
@@ -248,7 +255,7 @@ public class JQFieldTag extends BodyTagSupport {
 			 		"	index:'"+name+"', \n"+
 					"	width:80, \n"+
 					"	align:'left',\n"+
-					"	sortable:true,\n"+				
+					"	sortable:false,\n"+				
 					"	sorttype:'text',\n"+		
 					"	editable:true,\n"+
 					"   editrules:"+editrules+",\n"+
@@ -312,6 +319,11 @@ public class JQFieldTag extends BodyTagSupport {
 			if (this.readOnly!=null  && this.readOnly.equals("true")) {
 				buf = buf + 
 					jsName + ".jq['editable']=false;\n";
+			}
+	
+			if (this.sortable!=null  && this.sortable.equals("true")) {
+				buf = buf + 
+					jsName + ".jq['sortable']=true;\n";
 			}
 	
 			buf = buf + "\ncolNames.push(" + jsName + ".label);\n" 

@@ -2,7 +2,10 @@ package edu.yu.einstein.wasp.controller;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -203,6 +206,17 @@ public class UserController extends WaspController {
 	
 	}
 	
+	class UserLastNameComparator implements Comparator <User> {
+		public int compare(User u1, User u2) {
+			return u1.getLastName().compareToIgnoreCase(u2.getLastName());
+		}
+	}
+	
+	class UserFirstNameComparator implements Comparator <User> {
+		public int compare(User u1, User u2) {
+			return u1.getFirstName().compareToIgnoreCase(u2.getFirstName());
+		}
+	}
 	
 	/**
 	 * Prepares page to display JQGrid table witk a list of users
@@ -236,7 +250,20 @@ public class UserController extends WaspController {
 				  userList=allUsers;
 			  }
 		}
-    	
+
+		String sord = request.getParameter("sord");
+		String sidx = request.getParameter("sidx");
+		if (!sord.isEmpty() && !sidx.isEmpty()) {
+			if (sidx.equals("firstName")) {
+				Collections.sort(userList, new UserFirstNameComparator());
+			} else if (sidx.equals("lastName")) {
+				Collections.sort(userList, new UserLastNameComparator());
+			}
+
+			if (sord.equals("desc"))
+				Collections.reverse(userList);
+		}
+		
 		 try {
 			int pageIndex = Integer.parseInt(request.getParameter("page"));		// index of page
 			int pageRowNum = Integer.parseInt(request.getParameter("rows"));	// number of rows in one page
