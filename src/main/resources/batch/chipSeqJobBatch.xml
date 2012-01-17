@@ -75,7 +75,7 @@
     <batch:step id="boneShakerApprovalStep1" parent="waitForBoneShakerApprovalStateUpdated" />
   </batch:flow>
 
-  <bean class="edu.yu.einstein.wasp.batch.DoSendInvoiceTasklet" id="sendInvoiceTasklet" scope="step">
+  <bean class="edu.yu.einstein.wasp.batch.DoCommandStateTasklet" id="sendInvoiceTasklet" scope="step">
     <property name="stateId">
       <value>#{jobParameters['state']}</value>
     </property>
@@ -97,14 +97,14 @@
   </bean>
 
 
-  <batch:job id="chipSeqStartJobTest">
+  <batch:job id="chipSeqStartJob">
     <batch:step id="sendInvoiceTaskStepTest">
       <batch:tasklet ref="sendInvoiceTasklet" />
     </batch:step>
   </batch:job>
 
 
-  <batch:job id="chipSeqStartJob">
+  <batch:job id="chipSeqStartJobReal">
     <batch:step id="chipSeq.startJob0" parent="createSampleReceiveStateStep" next="chipSeq.approvals" />
 
     <batch:split id="chipSeq.approvals" next="sendInvoiceTaskStep" task-executor="asyncTaskExecutor">
