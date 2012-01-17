@@ -1,4 +1,4 @@
-package edu.yu.einstein.wasp.servlet.view.tiles2;
+package org.springframework.web.servlet.view.tiles2;
 
 /**
  * Apache Tiles interceptor to make tile definition name available via request attributes
@@ -8,7 +8,6 @@ package edu.yu.einstein.wasp.servlet.view.tiles2;
 
 
 import org.springframework.web.servlet.view.UrlBasedViewResolver;
-import org.springframework.web.servlet.view.tiles2.TilesView;
 
 public class WaspTilesViewResolver extends UrlBasedViewResolver {
 

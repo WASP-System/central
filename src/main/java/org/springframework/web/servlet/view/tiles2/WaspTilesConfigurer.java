@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package edu.yu.einstein.wasp.servlet.view.tiles2;
+package org.springframework.web.servlet.view.tiles2;
 
 import java.io.IOException;
 import java.net.URL;
@@ -52,12 +52,6 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.ServletContextAware;
-import org.springframework.web.servlet.view.tiles2.SimpleSpringPreparerFactory;
-import org.springframework.web.servlet.view.tiles2.SpringBeanPreparerFactory;
-import org.springframework.web.servlet.view.tiles2.SpringLocaleResolver;
-import org.springframework.web.servlet.view.tiles2.TilesConfigurer;
-import org.springframework.web.servlet.view.tiles2.TilesView;
-import org.springframework.web.servlet.view.tiles2.TilesViewResolver;
 
 /**
  * Helper class to configure Tiles2 for the Spring Framework. See
@@ -79,7 +73,7 @@ import org.springframework.web.servlet.view.tiles2.TilesViewResolver;
  * <p>A typical TilesConfigurer bean definition looks as follows:
  *
  * <pre>
- * &lt;bean id="tilesConfigurer" class="edu.yu.einstein.wasp.servlet.view.tiles2.TilesConfigurer">
+ * &lt;bean id="tilesConfigurer" class="org.springframework.web.servlet.view.tiles2.TilesConfigurer">
  *   &lt;property name="definitions">
  *     &lt;list>
  *       &lt;value>/WEB-INF/defs/general.xml&lt;/value>
