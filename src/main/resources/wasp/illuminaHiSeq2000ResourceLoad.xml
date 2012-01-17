@@ -23,46 +23,45 @@
     <property name="cell">
       <list>
         <bean class="edu.yu.einstein.wasp.model.ResourceLane">
-          <property name="iName" value="HWI-EAS438 1" />
-          <property name="name" value="HWI-EAS438 1"  />
+          <property name="iName" value="lane1" />
+          <property name="name" value="lane 1"  />
+        </bean>
+       <bean class="edu.yu.einstein.wasp.model.ResourceLane">
+          <property name="iName" value="lane2" />
+          <property name="name" value="lane 2"  />
         </bean>
         <bean class="edu.yu.einstein.wasp.model.ResourceLane">
-          <property name="iName" value="HWI-EAS438 2" />
-          <property name="name" value="HWI-EAS438 2"  />
+          <property name="iName" value="lane3" />
+          <property name="name" value="lane 3"  />
         </bean>
         <bean class="edu.yu.einstein.wasp.model.ResourceLane">
-          <property name="iName" value="HWI-EAS438 3" />
-          <property name="name" value="HWI-EAS438 3"  />
+          <property name="iName" value="lane4" />
+          <property name="name" value="lane 4"  />
         </bean>
         <bean class="edu.yu.einstein.wasp.model.ResourceLane">
-          <property name="iName" value="HWI-EAS438 4" />
-          <property name="name" value="HWI-EAS438 4"  />
+          <property name="iName" value="lane5" />
+          <property name="name" value="lane 5"  />
         </bean>
         <bean class="edu.yu.einstein.wasp.model.ResourceLane">
-          <property name="iName" value="HWI-EAS438 5" />
-          <property name="name" value="HWI-EAS438 5"  />
+          <property name="iName" value="lane6" />
+          <property name="name" value="lane 6"  />
         </bean>
         <bean class="edu.yu.einstein.wasp.model.ResourceLane">
-          <property name="iName" value="HWI-EAS438 6" />
-          <property name="name" value="HWI-EAS438 6"  />
+          <property name="iName" value="lane7" />
+          <property name="name" value="lane 7"  />
         </bean>
         <bean class="edu.yu.einstein.wasp.model.ResourceLane">
-          <property name="iName" value="HWI-EAS438 7" />
-          <property name="name" value="HWI-EAS438 7"  />
-        </bean>
-        <bean class="edu.yu.einstein.wasp.model.ResourceLane">
-          <property name="iName" value="HWI-EAS438 8" />
-          <property name="name" value="HWI-EAS438 8"  />
+          <property name="iName" value="lane8" />
+          <property name="name" value="lane 8"  />
         </bean>
       </list>
     </property> 
 
     <property name="meta">
       <list>
-
         <bean class="edu.yu.einstein.wasp.model.ResourceMeta">
           <property name="k" value="resource.allowableUiField.readlength" />
-          <property name="v" value="100;150" />
+          <property name="v" value="50;75;100;150" />
         </bean>
 
         <bean class="edu.yu.einstein.wasp.model.ResourceMeta">
@@ -88,7 +87,7 @@
         <bean parent="illuminiaUiField">
           <property name="name" value="readLength" />
           <property name="attrName" value="control" />
-          <property name="attrValue" value="select:a:a; b:b;" />
+          <property name="attrValue" value="select:100:100;150:150;" />
 <!--          <property name="attrValue" value="select:{workflowAssayAllowable.readlength}" /> -->
         </bean>
 
@@ -105,48 +104,11 @@
         <bean parent="illuminiaUiField">
           <property name="name" value="readType" />
           <property name="attrName" value="control" />
-          <property name="attrValue" value="select:a:a; b:b;" />
+          <property name="attrValue" value="select:single:single;paired:paried;" />
 <!--          <property name="attrValue" value="select:{workflowAssayAllowable.readType}" /> -->
         </bean>
-
-
       </list>
     </property>
   </bean>
-    
-    
-  <bean id="adaptorsetLoad" class="edu.yu.einstein.wasp.load.AdaptorsetLoadService">
-  	<property name="iname" value="truseqIndexedDna" />
-  	<property name="name" value="TruSEQ INDEXED DNA" />
-  	<property name="typeSampleIName" value="dna" />
-  	<property name="compatibleResourcesByIName">
-  		<list>
-  			<bean class="java.lang.String">
-  				<constructor-arg type="String" value="illuminaHiSeq2000" />
-  			</bean>
-  		</list>
-  	</property>
-  	<property name="adaptorList">
-  		<list>
-  			<bean class="edu.yu.einstein.wasp.model.Adaptor">
-  				<property name="iName" value="illuminaTrueseqDnaIndexed1" />
-  				<property name="name" value="Illumina DNA Indexed adaptor 1" />
-  				<property name="sequence" value="AGATCGGAAGAGCGGTTCAGC" />
-  				<property name="barcodesequence" value="ATCACG" />
-  				<property name="barcodenumber" value="1" />
-  			</bean>
-  			<bean class="edu.yu.einstein.wasp.model.Adaptor">
-  				<property name="iName" value="illuminaTrueseqDnaIndexed2" />
-  				<property name="name" value="Illumina DNA Indexed adaptor 2" />
-  				<property name="sequence" value="AGATCGGAAGAGCGGTTCAGC" />
-  				<property name="barcodesequence" value="CGATGT" />
-  				<property name="barcodenumber" value="2" />
-  			</bean>
-  		</list>
-  	</property>
-  	
-    	
-
-  </bean> 
 
 </beans>

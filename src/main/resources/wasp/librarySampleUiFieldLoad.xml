@@ -22,7 +22,7 @@
         <bean parent="genericLibrarySampleUiField">
           <property name="name" value="concentration" />
           <property name="attrName" value="metaposition" />
-          <property name="attrValue" value="0" />
+          <property name="attrValue" value="10" />
         </bean>
         <bean parent="genericLibrarySampleUiField">
           <property name="name" value="volume" />
@@ -32,7 +32,7 @@
         <bean parent="genericLibrarySampleUiField">
           <property name="name" value="volume" />
           <property name="attrName" value="metaposition" />
-          <property name="attrValue" value="1" />
+          <property name="attrValue" value="20" />
         </bean>
         <bean parent="genericLibrarySampleUiField">
           <property name="name" value="buffer" />
@@ -42,12 +42,60 @@
         <bean parent="genericLibrarySampleUiField">
           <property name="name" value="buffer" />
           <property name="attrName" value="metaposition" />
-          <property name="attrValue" value="20" />
+          <property name="attrValue" value="30" />
         </bean>
         <bean parent="genericLibrarySampleUiField">
           <property name="name" value="buffer" />
           <property name="attrName" value="control" />
           <property name="attrValue" value="select:TE:TE;Water:Water" />
+        </bean>
+        <bean parent="genericLibrarySampleUiField">
+          <property name="name" value="adaptor" />
+          <property name="attrName" value="label" />
+          <property name="attrValue" value="Adaptorset" />
+        </bean>
+        <bean parent="genericLibrarySampleUiField">
+          <property name="name" value="adaptor" />
+          <property name="attrName" value="metaposition" />
+          <property name="attrValue" value="40" />
+        </bean>
+        <bean parent="genericLibrarySampleUiField">
+          <property name="name" value="adaptor" />
+          <property name="attrName" value="control" />
+          <property name="attrValue" value="select:truseqIndexedDna:TruSEQ INDEXED DNA" />
+          <!-- <property name="attrValue" value="select:${adaptorset}:code:name" /> -->
+        </bean>
+        <bean parent="genericLibrarySampleUiField">
+          <property name="name" value="adaptorindex" />
+          <property name="attrName" value="label" />
+          <property name="attrValue" value="Adaptor Index" />
+        </bean>
+        <bean parent="genericLibrarySampleUiField">
+          <property name="name" value="adaptorindex" />
+          <property name="attrName" value="metaposition" />
+          <property name="attrValue" value="50" />
+        </bean>
+        <bean parent="genericLibrarySampleUiField">
+          <property name="name" value="adaptorindex" />
+          <property name="attrName" value="control" />
+          <property name="attrValue" value="select:1:1;2:2;3:3;4:4;5:5;6:6;7:7;8:8" />
+          <!-- <property name="attrValue" value="select:${adaptorindex}:code:name" /> -->
+        </bean>
+        <bean parent="genericLibrarySampleUiField">
+          <property name="name" value="size" />
+          <property name="attrName" value="label" />
+          <property name="attrValue" value="Library Size" />
+        </bean>
+        <bean parent="genericLibrarySampleUiField">
+          <property name="name" value="size" />
+          <property name="attrName" value="metaposition" />
+          <property name="attrValue" value="60" />
+        </bean>
+        <bean parent="genericLibrarySampleUiField">
+          <property name="name" value="size" />
+          <property name="attrName" value="control" />
+          <property name="attrValue" value="select:1:1;2:2;3:3;4:4;5:5;6:6;7:7;8:8" />
+          <!-- <property name="attrValue" value="select:${adaptorindex}:code:name" /> -->
         </bean>
         <bean parent="genericLibrarySampleUiField">
           <property name="name" value="Species" />
@@ -57,13 +105,13 @@
         <bean parent="genericLibrarySampleUiField">
           <property name="name" value="Species" />
           <property name="attrName" value="metaposition" />
-          <property name="attrValue" value="30" />
+          <property name="attrValue" value="80" />
         </bean>
         <bean parent="genericLibrarySampleUiField">
           <property name="name" value="Species" />
           <property name="attrName" value="control" />
-          <!-- <property name="attrValue" value="select:{speciesBean}" /> -->
-          <property name="attrValue" value="select:a:a; b:b" />
+          <!-- <property name="attrValue" value="select:{speciesBean}:code:name" /> -->
+          <property name="attrValue" value="select:human:human;mouse:mouse;drosophila:drosophila;yeast:yeat;worm:worm" />
         </bean>
       </list>
     </constructor-arg>

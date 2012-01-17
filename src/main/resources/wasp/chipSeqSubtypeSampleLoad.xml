@@ -69,81 +69,12 @@
     <property name="area" value="chipseqLibrarySample" />
   </bean>
   
-  <bean id="chipSeqLibrarySpecificUiFields" class="java.util.ArrayList">
-  	<constructor-arg>
-  		<list>
-        <bean parent="chipSeqLibrarySampleUiField">
-          <property name="name" value="fragmentSize" />
-          <property name="attrName" value="label" />
-          <property name="attrValue" value="Average Fragmentation Size" />
-        </bean>
-        <bean parent="chipSeqLibrarySampleUiField">
-          <property name="name" value="fragmentSize" />
-          <property name="attrName" value="metaposition" />
-          <property name="attrValue" value="100" />
-        </bean>
-        <bean parent="chipSeqLibrarySampleUiField">
-          <property name="name" value="fragmentSizeSD" />
-          <property name="attrName" value="label" />
-          <property name="attrValue" value="Fragmentation Size Std. Dev." />
-        </bean>
-        <bean parent="chipSeqLibrarySampleUiField">
-          <property name="name" value="fragmentSizeSD" />
-          <property name="attrName" value="metaposition" />
-          <property name="attrValue" value="110" />
-        </bean>
-        <bean parent="chipSeqLibrarySampleUiField">
-          <property name="name" value="antibody" />
-          <property name="attrName" value="label" />
-          <property name="attrValue" value="Antibody" />
-        </bean>
-        <bean parent="chipSeqLibrarySampleUiField">
-          <property name="name" value="antibody" />
-          <property name="attrName" value="metaposition" />
-          <property name="attrValue" value="120" />
-        </bean>
-        <bean parent="chipSeqLibrarySampleUiField">
-          <property name="name" value="adaptor5p" />
-          <property name="attrName" value="label" />
-          <property name="attrValue" value="5 Adaptor" />
-		</bean>
-        <bean parent="chipSeqLibrarySampleUiField">
-          <property name="name" value="adaptor5p" />
-          <property name="attrName" value="metaposition" />
-          <property name="attrValue" value="130" />
-		</bean>
-        <bean parent="chipSeqLibrarySampleUiField">
-          <property name="name" value="adaptor5p" />
-          <property name="attrName" value="control" />
-          <!-- <property name="attrValue" value="suggestselect:{platformBasedMEthod}" /> -->
-          <property name="attrValue" value="select:a:a;b:b;c:c;" />
-		</bean>
-        <bean parent="chipSeqLibrarySampleUiField">
-          <property name="name" value="adaptor3p" />
-          <property name="attrName" value="label" />
-          <property name="attrValue" value="3 Adaptor" />
-		</bean>
-        <bean parent="chipSeqLibrarySampleUiField">
-          <property name="name" value="adaptor3p" />
-          <property name="attrName" value="metaposition" />
-          <property name="attrValue" value="140" />
-		</bean>
-        <bean parent="chipSeqLibrarySampleUiField">
-          <property name="name" value="adaptor3p" />
-          <property name="attrName" value="control" />
-          <!-- <property name="attrValue" value="suggestselect:{platformBasedMethod}" /> -->
-          <property name="attrValue" value="select:x:x;y:y;z:z;" />
-		</bean>
-      </list>
-  	</constructor-arg>
-  </bean>
-
+ 
   <bean id="chipSeqLibrarySubtypeSampleResource" class="edu.yu.einstein.wasp.load.SubtypeSampleLoadService">
     <property name="iname" value="chipseqLibrarySample" />
     <property name="name" value="ChIP-seq Library" />
     <property name="sampleType" value="library" />
     <property name="baseUiFields" ref="genericLibraryUiFields" />
-    <property name="uiFields" ref="chipSeqLibrarySpecificUiFields" />
   </bean>
   
 </beans>

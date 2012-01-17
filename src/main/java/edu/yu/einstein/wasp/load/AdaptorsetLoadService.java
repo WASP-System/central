@@ -91,8 +91,8 @@ public class AdaptorsetLoadService extends WaspLoadService {
     TypeSample typeSample = typeSampleService.getTypeSampleByIName(typeSampleIName);
 
     Adaptorset adaptorset = adaptorsetService.getAdaptorsetByIName(iname);
-
-     // inserts or update workflow
+    
+    // inserts or update workflow
     if (adaptorset.getAdaptorsetId() == null) { 
     	// new
     	adaptorset.setIName(iname);
@@ -157,8 +157,7 @@ public class AdaptorsetLoadService extends WaspLoadService {
       adaptorsetMetaService.save(adaptorsetMeta); 
     }
 
-    // delete the left overs
-    for (String adaptorsetMetaKey : oldAdaptorsetMetas.keySet()) {
+   for (String adaptorsetMetaKey : oldAdaptorsetMetas.keySet()) {
       AdaptorsetMeta adaptorsetMeta = oldAdaptorsetMetas.get(adaptorsetMetaKey); 
       adaptorsetMetaService.remove(adaptorsetMeta); 
       adaptorsetMetaService.flush(adaptorsetMeta); 
@@ -206,7 +205,7 @@ public class AdaptorsetLoadService extends WaspLoadService {
     for (Adaptor adaptor : safeList(adaptorList)){
     	String adaptorKey = adaptor.getIName();
     	if (oldAdaptors.containsKey(adaptorKey)){
-    		// exists
+    		// adaptor exists
     		Adaptor old = oldAdaptors.get(adaptorKey);
     		boolean changed = false;
     		if (!old.getName().equals(adaptor.getName())){
@@ -223,6 +222,14 @@ public class AdaptorsetLoadService extends WaspLoadService {
     		}
     		if (old.getBarcodenumber().intValue() != adaptor.getBarcodenumber().intValue()){
     			old.setBarcodenumber(adaptor.getBarcodenumber());
+    			changed = true;
+    		}
+    		if (old.getAdaptorsetId().intValue() != adaptor.getAdaptorsetId().intValue()){
+    			old.setAdaptorsetId(adaptor.getAdaptorsetId());
+    			changed = true;
+    		}
+    		if (old.getIsActive().intValue() != adaptor.getIsActive().intValue()){
+    			old.setIsActive(adaptor.getIsActive());
     			changed = true;
     		}
     		if (changed)
@@ -274,6 +281,22 @@ public class AdaptorsetLoadService extends WaspLoadService {
     	    	adaptorMetaService.remove(adaptorMeta); 
     	    	adaptorMetaService.flush(adaptorMeta); 
     	    }
+    	} else {
+    		// new adaptor
+    		adaptor.setAdaptorsetId(adaptorset.getAdaptorsetId());
+    		adaptor.setIsActive(1);
+    		adaptorService.save(adaptor);
+    		adaptor = adaptorService.getAdaptorByIName(iname); // refresh
+    		for (AdaptorMeta adaptorMeta: safeList(adaptor.getAdaptorMeta()) ) {
+    			adaptorMeta.setAdaptorId(adaptor.getAdaptorId()); 
+	    	    adaptorMetaService.save(adaptorMeta);
+    		}
+    	}
+    	// inactivate the leftovers
+    	for (String adaptorIName : oldAdaptors.keySet()){
+    		Adaptor adaptorToInactivate = adaptorService.getAdaptorByIName(adaptorIName);
+    		adaptorToInactivate.setIsActive(0);
+    		adaptorService.save(adaptorToInactivate);
     	}
     }
     	
