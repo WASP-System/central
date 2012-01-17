@@ -14,21 +14,21 @@
     <property name="area" value="chipSeq" />
   </bean>
 
-  <bean id="chipSeqWorkflow" class="edu.yu.einstein.wasp.load.WorkflowLoadService">
+  <bean id="chipSeqWorkflow" class="edu.yu.einstein.wasp.load.WorkflowLoadService" depends-on="chipSeqDnaSampleUiField,chipSeqLibrarySampleUiField">
     <property name="iname" value="chipSeq" />
     <property name="name" value="Chip Seq" />
     <property name="pageFlowOrder">
       <list>
-<value>/jobsubmit/modifymeta/{n}</value>
-<value>/jobsubmit/resource/dna/{n}</value>
-<value>/jobsubmit/samples/{n}</value>
-<value>/jobsubmit/cells/{n}</value>
-<value>/jobsubmit/chipSeq/pair/{n}</value> 
-<value>/jobsubmit/resource/aligner/{n}</value>
-<!-- <value>/jobsubmit/resource/peakcaller/{n}</value> -->
-<value>/jobsubmit/verify/{n}</value>
-<value>/jobsubmit/submit/{n}</value>
-<value>/jobsubmit/ok</value>
+		<value>/jobsubmit/modifymeta/{n}</value>
+		<value>/jobsubmit/resource/mps/{n}</value>
+		<value>/jobsubmit/samples/{n}</value>
+		<value>/jobsubmit/cells/{n}</value>
+		<value>/jobsubmit/chipSeq/pair/{n}</value> 
+		<value>/jobsubmit/resource/aligner/{n}</value>
+		<!-- <value>/jobsubmit/resource/peakcaller/{n}</value> -->
+		<value>/jobsubmit/verify/{n}</value>
+		<value>/jobsubmit/submit/{n}</value>
+		<value>/jobsubmit/ok</value>
       </list>
     </property>
 

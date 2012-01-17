@@ -15,13 +15,13 @@
   </bean>
    
     
-  <bean id="adaptorsetLoad" class="edu.yu.einstein.wasp.load.AdaptorsetLoadService">
+  <bean id="adaptorsetLoad" class="edu.yu.einstein.wasp.load.AdaptorsetLoadService" depends-on="illuminiaHiSeq2000">
   	<property name="iname" value="truseqIndexedDna" />
   	<property name="name" value="TruSEQ INDEXED DNA" />
   	<property name="typeSampleIName" value="dna" />
   	<property name="compatibleResourcesByIName">
   		<list>
-  			<bean class="java.lang.String">
+  			<bean class="java.lang.String" >
   				<constructor-arg type="String" value="illuminaHiSeq2000" />
   			</bean>
   		</list>

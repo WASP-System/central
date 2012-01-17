@@ -98,6 +98,7 @@ public class AdaptorsetLoadService extends WaspLoadService {
     	adaptorset.setIName(iname);
     	adaptorset.setName(name);
     	adaptorset.setTypeSample(typeSample);
+    	adaptorset.setIsActive(1);
 
     	adaptorsetService.save(adaptorset);
 
@@ -224,12 +225,8 @@ public class AdaptorsetLoadService extends WaspLoadService {
     			old.setBarcodenumber(adaptor.getBarcodenumber());
     			changed = true;
     		}
-    		if (old.getAdaptorsetId().intValue() != adaptor.getAdaptorsetId().intValue()){
-    			old.setAdaptorsetId(adaptor.getAdaptorsetId());
-    			changed = true;
-    		}
-    		if (old.getIsActive().intValue() != adaptor.getIsActive().intValue()){
-    			old.setIsActive(adaptor.getIsActive());
+    		if (old.getAdaptorsetId().intValue() != adaptorset.getAdaptorsetId().intValue()){
+    			old.setAdaptorsetId(adaptorset.getAdaptorsetId());
     			changed = true;
     		}
     		if (changed)

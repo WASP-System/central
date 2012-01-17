@@ -80,6 +80,7 @@ public class ResourceLoadService extends WaspLoadService {
       resource.setName(name);
       resource.setPlatform(platform);
       resource.setTypeResourceId(typeResource.getTypeResourceId());
+      resource.setIsActive(1);
 
       resourceService.save(resource); 
 
