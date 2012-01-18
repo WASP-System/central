@@ -873,6 +873,7 @@ public class JobSubmissionController extends WaspController {
 
 		List <SampleDraft> sampleDraftList = jobDraft.getSampleDraft();
 		m.put("sampleDraft", sampleDraftList);
+                m.put("pageFlowMap", getPageFlowMap(jobDraft));
 
 		return "jobsubmit/verify";
 	}
