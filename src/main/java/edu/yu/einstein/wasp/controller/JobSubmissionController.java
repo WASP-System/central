@@ -370,11 +370,9 @@ public class JobSubmissionController extends WaspController {
 
 		m.put("workflowiname", jobDraft.getWorkflow().getIName());
 		
-		String tilesDef="jobsubmit/metaform";
-	
-		setPageTitle(tilesDef,jobDraft.getWorkflow().getIName());
+		m.put("pageFlowMap", getPageFlowMap(jobDraft));
 		
-		return tilesDef;
+		return "jobsubmit/metaform";
 	}
 
 
@@ -413,11 +411,9 @@ public class JobSubmissionController extends WaspController {
 			m.put("area", metaHelper.getArea());
 			m.put("parentarea", metaHelper.getParentArea());
 
-			String tilesDef="jobsubmit/metaform";
-			
-			setPageTitle(tilesDef,jobDraft.getWorkflow().getIName());
-			
-			return tilesDef;
+	                m.put("pageFlowMap", getPageFlowMap(jobDraft));
+	
+			return "jobsubmit/metaform";
 		}
 
 		jobDraftMetaService.updateByJobdraftId(metaHelper.getArea(), jobDraftId, jobDraftMetaList);
@@ -496,11 +492,10 @@ public class JobSubmissionController extends WaspController {
 		m.put("resourceOptions", resourceOptions);
 		m.put("parentarea", metaHelper.getParentArea());
 
-		String tilesDef="jobsubmit/resource";
+                m.put("pageFlowMap", getPageFlowMap(jobDraft));
+
 		
-		setPageTitle(tilesDef+"/"+typeresourceiname,jobDraft.getWorkflow().getIName());
-		
-		return tilesDef;
+		return "jobsubmit/resource";
 	}
 
 	@RequestMapping(value="/resource/{typeresourceiname}/{jobDraftId}", method=RequestMethod.POST)
@@ -601,13 +596,10 @@ public class JobSubmissionController extends WaspController {
 		m.put("jobDraft", jobDraft);
 		m.put("area", metaHelper.getArea());
 		m.put("parentarea", metaHelper.getParentArea());
- 
-
-		String tilesDef="jobsubmit/aligner";
 		
-		setPageTitle(tilesDef,metaHelper.getArea());
+                m.put("pageFlowMap", getPageFlowMap(jobDraft));
 		
-		return tilesDef;
+		return "jobsubmit/aligner";
 	}
 
 	@RequestMapping(value="/additionalMeta/{meta}/{jobDraftId}", method=RequestMethod.POST)
@@ -647,11 +639,10 @@ public class JobSubmissionController extends WaspController {
 			m.put("area", metaHelper.getArea());
 			m.put("parentarea", metaHelper.getParentArea());
 
-			String tilesDef="jobsubmit/metaform";
 			
-			setPageTitle(tilesDef,metaHelper.getArea());
-			
-			return tilesDef;
+	                m.put("pageFlowMap", getPageFlowMap(jobDraft));
+	
+			return "jobsubmit/metaform";
 		}
 
 
@@ -729,14 +720,20 @@ public class JobSubmissionController extends WaspController {
 		m.addAttribute("jobDraftDb",jobDraft);
 		m.addAttribute("uploadStartedMessage",messageService.getMessage("sampleDraft.fileupload_wait.data"));
 		
-		String tilesDef="jobsubmit/sample";
 		
-		setPageTitle(tilesDef,jobDraft.getWorkflow().getIName());
-		
-		return tilesDef;
+                m.put("pageFlowMap", getPageFlowMap(jobDraft));
+	
+		return "jobsubmit/sample";
 		
 
 	}
+
+	@RequestMapping(value="/samples/{jobDraftId}", method=RequestMethod.POST)
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String submitSampleDraft(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
+		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
+		return nextPage(jobDraft);
+	};
 
 	@RequestMapping(value="/cells/{jobDraftId}.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
@@ -780,12 +777,9 @@ public class JobSubmissionController extends WaspController {
 		m.put("sampleDrafts", samples);
 		m.put("selectedSampleCell", selectedSampleCell);
 
-		
-		String tilesDef="jobsubmit/cell";
-		
-		setPageTitle(tilesDef,jobDraft.getWorkflow().getIName());
-		
-		return tilesDef;
+                m.put("pageFlowMap", getPageFlowMap(jobDraft));
+
+		return "jobsubmit/cell";
 		
 	}
 
@@ -1514,7 +1508,87 @@ public class JobSubmissionController extends WaspController {
 		
 	}
 
+	/**
+	 * getPageFlowMap
+	 * @param jobDraft - jobdraft (used to get workflow)
+	 *
+	 * requires request to stop user from going on future screens
+	 *
+	 * sets request attribute "forcePageTitle" to current page title
+	 * returns the pageflow map for nav bar
+	 *
+	 */
+
+	private Map getPageFlowMap(JobDraft jobDraft) {
+		String pageFlow = this.defaultPageFlow;
+
+		try {
+			List<WorkflowMeta> wfmList = jobDraft.getWorkflow().getWorkflowMeta();
+			for (WorkflowMeta wfm : wfmList) {
+				if (wfm.getK().equals("workflow.submitpageflow")) {
+					pageFlow = wfm.getV();
+					break;
+			}
+		}
+		} catch (Exception e) {
+		}
+
+		String context = request.getContextPath();
+		String uri = request.getRequestURI();
 	
+		// strips context, lead slash ("/"), spring mapping
+		String currentMapping = uri.replaceFirst(context, "").replaceFirst("\\.do.*$", "");
+
+
+		String pageFlowArray[] = pageFlow.split(";");
+		Map<String, String> rt = new TreeMap<String, String>();
+
+		int found = -1;
+		for (int i=0; i < pageFlowArray.length -1; i++) {
+			String page = pageFlowArray[i];
+			String mapPage = page.replaceAll("^/", "");
+			mapPage = mapPage.replaceAll("/\\{n\\}", "");
+
+
+			String expandPage = page.replaceAll("\\{n\\}", ""+jobDraft.getJobDraftId());
+			if (currentMapping.equals(expandPage)) {
+				request.setAttribute("forcePageTitle", getPageTitle(mapPage, jobDraft.getWorkflow().getIName()));
+				break;
+
+			}
+
+			rt.put(expandPage, getPageTitle(mapPage, jobDraft.getWorkflow().getIName())); 
+	
+		}
+
+		return rt; 
+	}
+
+	/**
+	 * getPageTitle gets page title for jobsubmission page corresponding to workflow
+	 * 
+	 * @param pageDef 
+	 * @parm workflowIname
+	 *
+	 * getPageTitle expect [workflowIName].[pageDef].label
+	 * where page is in w/o leading slash or jobDraftId
+	 *
+	 */
+	
+	private String getPageTitle(String pageDef, String workflowIName) {
+		Locale locale=(Locale)request.getSession().getAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
+		
+		String code=workflowIName+"."+pageDef+".label";
+			
+		String pageTitle=DBResourceBundle.MESSAGE_SOURCE.getMessage(code, null, locale);
+		
+		if (pageTitle!=null) {		
+			return pageTitle;
+		}
+		return pageDef;
+	}
+
+/*
 	private void setPageTitle(String tilesDef, String workflowIName) {
 		
 		Locale locale=(Locale)request.getSession().getAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
@@ -1527,4 +1601,5 @@ public class JobSubmissionController extends WaspController {
 			request.setAttribute("forcePageTitle", pageTitle);		
 		}
 	}
+*/
 }
