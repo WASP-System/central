@@ -439,8 +439,30 @@ public class PlatformUnitController extends WaspController {
 		sampleSourceService.save(newSampleSource);
 		
 
-		m.put("action", "posted"); 
-
 		return "redirect:/facility/platformunit/assign.do";
 	}	
+
+  /**
+   * assignmentRemove
+	 * 
+	 * @param sampleSourceId
+   *
+   */
+	@RequestMapping(value="/assignRemove.do", method=RequestMethod.POST)
+	@PreAuthorize("hasRole('ft')")
+	public String assignmentRemove(
+			@RequestParam("samplesourceid") int sampleSourceId,
+    ModelMap m) {
+
+		SampleSource sampleSource = sampleSourceService.getSampleSourceBySampleSourceId(sampleSourceId);
+
+		// TODO 
+		// - check existence
+		// - check that it is lib->lane link
+
+		sampleSourceService.remove(sampleSource);
+		sampleSourceService.flush(sampleSource);
+
+		return "redirect:/facility/platformunit/assign.do";
+  }
 }
