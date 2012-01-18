@@ -16,9 +16,9 @@
   </div>
 
   <nav id="jobSubmit">
-    <a href="<c:url value="/jobsubmit/modify/${jobDraftDb.jobDraftId}.do"/>">modify</a>
-    <a href="<c:url value="/jobsubmit/cells/${jobDraftDb.jobDraftId}.do"/>">next</a>
-[TODO make dynamic]
+    <c:forEach items="${pageFlowMap}" var="entry">
+      <a href="<c:url value="${entry.key}" />.do"><c:out value="${entry.value}"/></a>
+    </c:forEach>
   </nav>
 
 </section>
