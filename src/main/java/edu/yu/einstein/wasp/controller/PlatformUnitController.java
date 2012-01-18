@@ -6,6 +6,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -27,14 +29,7 @@ import org.springframework.web.bind.support.SessionStatus;
 
 import edu.yu.einstein.wasp.controller.validator.MetaHelper;
 import edu.yu.einstein.wasp.model.*;
-import edu.yu.einstein.wasp.service.AuthenticationService;
-import edu.yu.einstein.wasp.service.MessageService;
-import edu.yu.einstein.wasp.service.SampleMetaService;
-import edu.yu.einstein.wasp.service.SampleService;
-import edu.yu.einstein.wasp.service.WorkflowService;
-import edu.yu.einstein.wasp.service.JobService;
-import edu.yu.einstein.wasp.service.StateService;
-import edu.yu.einstein.wasp.service.TypeSampleService;
+import edu.yu.einstein.wasp.service.*;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 
 @Controller
@@ -53,6 +48,9 @@ public class PlatformUnitController extends WaspController {
 
 	@Autowired
 	private SampleMetaService sampleMetaService;
+
+	@Autowired
+	private SampleSourceService sampleSourceService;
 
 	@Autowired
 	private WorkflowService workflowService;
@@ -352,14 +350,11 @@ public class PlatformUnitController extends WaspController {
 	@PreAuthorize("hasRole('ft')")
 	public String assignmentForm(ModelMap m) {
 
-		// pickups FlowCells
-		// TODO: pickup typesampleid by iname
-		Integer typeSampleId	= new Integer(5);
-		
-		TypeSample typeSample = typeSampleService.getTypeSampleByTypeSampleId(5);
-		List<Sample> platformUnits = typeSample.getSample();
-		// TODO: limit by states
-
+		// pickups FlowCells limited by states
+		Map stateMap = new HashMap(); 
+		stateMap.put("taskId", 102); 	// TODO LOOKUP taskId
+		stateMap.put("status", "CREATED"); 
+		List<State> platformUnitStates = stateService.findByMap(stateMap);
 
 		// picks up jobs
 		// FAKING IT HERE TOO
@@ -367,11 +362,85 @@ public class PlatformUnitController extends WaspController {
 		List<Job> jobs = workflow.getJob(); 
 		
 
-    m.put("platformunits", platformUnits); 
-    m.put("jobs", jobs); 
-    m.put("hello", "hello world"); 
+		m.put("jobs", jobs); 
+		m.put("platformUnitStates", platformUnitStates); 
+		m.put("hello", "hello world"); 
 
 		return "facility/platformunit/assign"; 
 	}
-	
+
+  /**
+   * assignmentAdd
+	 * 
+	 * @param librarySampleId
+	 * @param laneSampleId
+   *
+   */
+	@RequestMapping(value="/assignAdd.do", method=RequestMethod.POST)
+	@PreAuthorize("hasRole('ft')")
+	public String assignmentAdd(
+			@RequestParam("librarysampleid") int librarySampleId,
+			@RequestParam("lanesampleid") int laneSampleId,
+    ModelMap m) {
+
+		String error = null;
+
+		Sample laneSample = sampleService.getSampleBySampleId(laneSampleId); 
+		Sample librarySample = sampleService.getSampleBySampleId(librarySampleId); 
+
+		if (laneSampleId == 0) {
+			error = "You must select a cell (not a platformunit)";
+		}
+
+		if (error == null && (laneSample == null || librarySample == null || laneSample.getSampleId() == null || librarySample.getSampleId() == null)) {
+			error = "Lane or Library does not Exist"; 
+		}
+
+		if (error == null && ! laneSample.getTypeSample().getIName().equals("lane")) {
+			error = "Lane Selected is not a Lane"; 
+		}
+
+		if (error == null && ! librarySample.getTypeSample().getIName().equals("library")) {
+			error = "Library Selected is not a Lane"; 
+		}
+
+
+		if (error != null) {
+			waspMessage("hello"); // use error
+
+			m.put("librarySelected", librarySampleId); 
+			m.put("error", error);
+			return assignmentForm(m);
+		}
+
+		// TODO
+		// ensure lane/flowcell is not locked
+		// ensure lanesample.meta.jobid is the either null or the samejob as librarysampleid
+		// ensure lanesample does not already have a adaptor of the same w/ the library
+
+		Set seenAdaptors = new HashSet(); 
+		Integer jobId = null;
+
+		int maxIndex = 0; 
+		List<SampleSource> siblingSampleSource = laneSample.getSampleSource(); 
+		if (siblingSampleSource != null) {
+			for (SampleSource ss: siblingSampleSource) {
+				if (ss.getMultiplexindex().intValue() > maxIndex) {
+					maxIndex = ss.getMultiplexindex().intValue(); 
+				}
+				jobId = ss.getSampleViaSource().getSubmitterJobId();
+			}
+		}
+		
+		SampleSource newSampleSource = new SampleSource(); 
+		newSampleSource.setSampleId(laneSampleId);
+		newSampleSource.setSourceSampleId(librarySampleId);
+		newSampleSource.setMultiplexindex(new Integer(maxIndex + 1));
+		sampleSourceService.save(newSampleSource);
+		
+
+		m.put("action", "posted"); 
+
+		return "redirect:/facility/platformunit/assign.do";
+	}	
 }
