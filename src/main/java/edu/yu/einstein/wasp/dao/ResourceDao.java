@@ -16,9 +16,11 @@ import edu.yu.einstein.wasp.model.Resource;
 
 public interface ResourceDao extends WaspDao<Resource> {
 
-  public Resource getResourceByResourceId (final int resourceId);
+  public Resource getResourceByResourceId (final Integer resourceId);
 
   public Resource getResourceByIName (final String iName);
+
+  public Resource getResourceByName (final String name);
 
 
 }

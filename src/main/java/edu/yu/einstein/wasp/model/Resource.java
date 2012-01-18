@@ -26,8 +26,6 @@ import javax.persistence.Table;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
-import org.hibernate.validator.constraints.NotEmpty;
-import org.hibernate.validator.constraints.Range;
 
 @Entity
 @Audited
@@ -66,31 +64,62 @@ public class Resource extends WaspModel {
 
 
 	/** 
-	 * platform
+	 * resourcecategoryId
 	 *
 	 */
-	@Column(name="platform")
-	protected String platform;
+	@Column(name="resourcecategoryid")
+	protected Integer resourcecategoryId;
 
 	/**
-	 * setPlatform(String platform)
+	 * setResourcecategoryId(Integer resourcecategoryId)
 	 *
-	 * @param platform
+	 * @param resourcecategoryId
 	 *
 	 */
 	
-	public void setPlatform (String platform) {
-		this.platform = platform;
+	public void setResourcecategoryId (Integer resourcecategoryId) {
+		this.resourcecategoryId = resourcecategoryId;
 	}
 
 	/**
-	 * getPlatform()
+	 * getResourcecategoryId()
 	 *
-	 * @return platform
+	 * @return resourcecategoryId
 	 *
 	 */
-	public String getPlatform () {
-		return this.platform;
+	public Integer getResourcecategoryId () {
+		return this.resourcecategoryId;
+	}
+
+
+
+
+	/** 
+	 * typeResourceId
+	 *
+	 */
+	@Column(name="typeresourceid")
+	protected Integer typeResourceId;
+
+	/**
+	 * setTypeResourceId(Integer typeResourceId)
+	 *
+	 * @param typeResourceId
+	 *
+	 */
+	
+	public void setTypeResourceId (Integer typeResourceId) {
+		this.typeResourceId = typeResourceId;
+	}
+
+	/**
+	 * getTypeResourceId()
+	 *
+	 * @return typeResourceId
+	 *
+	 */
+	public Integer getTypeResourceId () {
+		return this.typeResourceId;
 	}
 
 
@@ -101,7 +130,6 @@ public class Resource extends WaspModel {
 	 *
 	 */
 	@Column(name="iname")
-	@NotEmpty
 	protected String iName;
 
 	/**
@@ -133,7 +161,6 @@ public class Resource extends WaspModel {
 	 *
 	 */
 	@Column(name="name")
-	@NotEmpty
 	protected String name;
 
 	/**
@@ -155,38 +182,6 @@ public class Resource extends WaspModel {
 	 */
 	public String getName () {
 		return this.name;
-	}
-
-
-
-
-	/** 
-	 * typeResourceId
-	 *
-	 */
-	@Column(name="typeresourceid")
-	@Range(min=1)
-	protected Integer typeResourceId;
-
-	/**
-	 * setTypeResourceId(Integer typeResourceId)
-	 *
-	 * @param typeResourceId
-	 *
-	 */
-	
-	public void setTypeResourceId (Integer typeResourceId) {
-		this.typeResourceId = typeResourceId;
-	}
-
-	/**
-	 * getTypeResourceId()
-	 *
-	 * @return typeResourceId
-	 *
-	 */
-	public Integer getTypeResourceId () {
-		return this.typeResourceId;
 	}
 
 
@@ -314,6 +309,38 @@ public class Resource extends WaspModel {
 	
 	public TypeResource getTypeResource () {
 		return this.typeResource;
+	}
+
+
+	/**
+	 * resourceCategory
+	 *
+	 */
+	@NotAudited
+	@ManyToOne
+	@JoinColumn(name="resourcecategoryid", insertable=false, updatable=false)
+	protected ResourceCategory resourceCategory;
+
+	/**
+	 * setResourceCategory (ResourceCategory resourceCategory)
+	 *
+	 * @param resourceCategory
+	 *
+	 */
+	public void setResourceCategory (ResourceCategory resourceCategory) {
+		this.resourceCategory = resourceCategory;
+		this.resourcecategoryId = resourceCategory.resourceCategoryId;
+	}
+
+	/**
+	 * getResourceCategory ()
+	 *
+	 * @return resourceCategory
+	 *
+	 */
+	
+	public ResourceCategory getResourceCategory () {
+		return this.resourceCategory;
 	}
 
 
@@ -478,6 +505,39 @@ public class Resource extends WaspModel {
 	 */
 	public void setWorkflowresource (List<Workflowresource> workflowresource) {
 		this.workflowresource = workflowresource;
+	}
+
+
+
+	/** 
+	 * adaptorsetresourcecategory
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="resourcecategoryid", insertable=false, updatable=false)
+	protected List<AdaptorsetResourceCategory> adaptorsetresourcecategory;
+
+
+	/** 
+	 * getAdaptorsetResourceCategory()
+	 *
+	 * @return adaptorsetresourcecategory
+	 *
+	 */
+	public List<AdaptorsetResourceCategory> getAdaptorsetResourceCategory() {
+		return this.adaptorsetresourcecategory;
+	}
+
+
+	/** 
+	 * setAdaptorsetresource
+	 *
+	 * @param adaptorsetresource
+	 *
+	 */
+	public void setAdaptorsetResourceCategory (List<AdaptorsetResourceCategory> adaptorsetresourcecategory) {
+		this.adaptorsetresourcecategory = adaptorsetresourcecategory;
 	}
 
 

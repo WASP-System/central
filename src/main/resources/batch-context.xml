@@ -96,6 +96,7 @@
 
   <!-- loads load scripts to update database -->
   <import resource="classpath*:wasp/*UiFieldLoad.xml" />
+  <import resource="classpath*:wasp/*ResourceCategoryLoad.xml" />
   <import resource="classpath*:wasp/*ResourceLoad.xml" />
   <import resource="classpath*:wasp/*SubtypeSampleLoad.xml" />
   <import resource="classpath*:wasp/*AdaptorsetLoad.xml" />

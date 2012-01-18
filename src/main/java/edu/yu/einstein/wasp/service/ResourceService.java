@@ -35,9 +35,11 @@ public interface ResourceService extends WaspService<Resource> {
 	 */
 	public ResourceDao getResourceDao();
 
-  public Resource getResourceByResourceId (final int resourceId);
+  public Resource getResourceByResourceId (final Integer resourceId);
 
   public Resource getResourceByIName (final String iName);
+
+  public Resource getResourceByName (final String name);
 
 
 }

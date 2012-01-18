@@ -371,21 +371,46 @@ insert into typeresource values (5, 'sanger', 'Sanger DNA Sequencer');
 --
 -- RESOURCE
 -- 
-create table resource (
-  resourceid int(10)  primary key auto_increment, 
 
-  platform varchar(250) ,   -- another table?
+create table resourcecategory (
+  resourcecategoryid int(10)  primary key auto_increment, 
   iname varchar(250) ,
   name varchar(250) ,
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
+  constraint unique index u_resourcecategory_i(iname),
+  constraint unique index u_resourcecategory_n(name)
+) ENGINE=InnoDB charset=utf8;
 
-  typeresourceid int(10) ,
+create table resourcecategorymeta (
+  resourcecategorymetaid int(10)  primary key auto_increment,
+  resourcecategoryid int(10) ,
 
-  isactive int(1)  default 1,
+  k varchar(250) , 
+  v varchar(250), 
+  position int(10)  default 0,
+
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
 
+  foreign key fk_resourccategoryemeta_resourcecategoryid (resourcecategoryid) references resourcecategory(resourcecategoryid),
+  constraint unique index u_resourcecategorymeta_k_rid (k, resourcecategoryid)
+) ENGINE=InnoDB charset=utf8;
+
+
+create table resource (
+  resourceid int(10)  primary key auto_increment, 
+  resourcecategoryid int(10) , 
+  typeresourceid int(10) ,
+  iname varchar(250) ,
+  name varchar(250) ,
+  isactive int(1)  default 1,
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
   foreign key fk_resource_trid (typeresourceid) references typeresource(typeresourceid),
-  constraint unique index u_resource_name (iname)
+  foreign key fk_resource_rid (resourcecategoryid) references resourcecategory(resourcecategoryid),
+  constraint unique index u_resource_i(iname),
+  constraint unique index u_resource_n(name)
 ) ENGINE=InnoDB charset=utf8;
 
 
@@ -1192,16 +1217,14 @@ create table adaptorsetmeta (
   constraint unique index u_adaptorsetmeta_k_aid (k, adaptorsetid)
 ) ENGINE=InnoDB charset=utf8;
 
-create table adaptorsetresource (
-  adaptorsetresourceid int(10)  primary key auto_increment, 
+create table adaptorsetresourcecategory (
+  adaptorsetresourcecategoryid int(10)  primary key auto_increment, 
   adaptorsetid int(10) ,
-  resourceid int(10) ,
+  resourcecategoryid int(10) ,
 
-  constraint unique index u_adaptorsetresource_wid_rid (adaptorsetid, resourceid),
-
-  foreign key fk_adaptorsetresource_rid (resourceid) references resource(resourceid),
-  foreign key fk_adaptorsetresource_aid (adaptorsetid) references adaptorset(adaptorsetid),
-  constraint unique index u_adaptorsetresource_aid_rid (adaptorsetid, resourceid)
+  foreign key fk_adaptorsetresourcecategory_rid (resourcecategoryid) references resourcecategory(resourcecategoryid),
+  foreign key fk_adaptorsetresourcecategory_aid (adaptorsetid) references adaptorset(adaptorsetid),
+  constraint unique index u_adaptorsetresourcecategory_aid_rid (adaptorsetid, resourcecategoryid)
 ) ENGINE=InnoDB charset=utf8;
 
 create table adaptor(

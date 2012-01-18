@@ -17,13 +17,8 @@
   <bean id="defAlignerResource" class="edu.yu.einstein.wasp.load.ResourceLoadService">
     <property name="iname" value="defAligner" />
     <property name="name" value="Def aligner a" />
+    <property name="resourceCategory" value="software" />
     <property name="resourceType" value="aligner" />
-    <property name="platform" value="software" />
-
-    <property name="cell">
-      <list>
-      </list>
-    </property> 
 
     <property name="meta">
       <list>

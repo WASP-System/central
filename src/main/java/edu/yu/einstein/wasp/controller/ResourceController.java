@@ -159,7 +159,7 @@ public class ResourceController extends WaspController {
 								new Integer(resource.getResourceId())
 										.toString(), 
 								resource.getName(),
-								resource.getPlatform(),
+								resource.getResourceCategory().getName(),
 								resource.getTypeResource().getName(),
 								resource.getIsActive().intValue() == 1 ? "yes" : "no" }));
 
@@ -365,12 +365,12 @@ public class ResourceController extends WaspController {
 			}
 		}
 
-		for (ResourceMeta meta : resourceMetaList) {
+	/*	for (ResourceMeta meta : resourceMetaList) {
 			if (meta.getK().contains("assay_platform")) {
 				resourceForm.setPlatform(meta.getV());
 				break;
 			}
-		}
+		} */
 
 		resourceForm.setResourceMeta(resourceMetaList);
 		// resourceForm.setLastUpdTs(new Date());

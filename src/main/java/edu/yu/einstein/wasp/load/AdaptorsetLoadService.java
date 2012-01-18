@@ -8,20 +8,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import util.spring.PostInitialize;
-import edu.yu.einstein.wasp.exception.NullResourceException;
+import edu.yu.einstein.wasp.exception.NullResourceCategoryException;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.AdaptorMeta;
 import edu.yu.einstein.wasp.model.Adaptorset;
 import edu.yu.einstein.wasp.model.AdaptorsetMeta;
-import edu.yu.einstein.wasp.model.Adaptorsetresource;
-import edu.yu.einstein.wasp.model.Resource;
+import edu.yu.einstein.wasp.model.AdaptorsetResourceCategory;
+import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.TypeSample;
 import edu.yu.einstein.wasp.service.AdaptorMetaService;
 import edu.yu.einstein.wasp.service.AdaptorService;
 import edu.yu.einstein.wasp.service.AdaptorsetMetaService;
+import edu.yu.einstein.wasp.service.AdaptorsetResourceCategoryService;
 import edu.yu.einstein.wasp.service.AdaptorsetService;
-import edu.yu.einstein.wasp.service.AdaptorsetresourceService;
-import edu.yu.einstein.wasp.service.ResourceService;
+import edu.yu.einstein.wasp.service.ResourceCategoryService;
 import edu.yu.einstein.wasp.service.TypeSampleService;
 
 
@@ -39,8 +39,6 @@ import edu.yu.einstein.wasp.service.TypeSampleService;
 @Transactional
 public class AdaptorsetLoadService extends WaspLoadService {
 
-  @Autowired
-  private ResourceService resourceService;
 
   @Autowired
   private AdaptorService adaptorService;
@@ -55,7 +53,10 @@ public class AdaptorsetLoadService extends WaspLoadService {
   private AdaptorsetMetaService adaptorsetMetaService;
   
   @Autowired
-  private AdaptorsetresourceService adaptorsetresourceService;
+  private AdaptorsetResourceCategoryService adaptorsetResourceCategoryService;
+  
+  @Autowired
+  private ResourceCategoryService resourceCategoryService;
 
   @Autowired
   private TypeSampleService typeSampleService;
@@ -157,33 +158,33 @@ public class AdaptorsetLoadService extends WaspLoadService {
     }
 
     // sync adaptorsetResources
-    Map<String, Adaptorsetresource> oldAdaptorsetresources  = new HashMap<String, Adaptorsetresource>();
-    for (Adaptorsetresource adaptorsetresource: safeList(adaptorset.getAdaptorsetresource())) {
-    	oldAdaptorsetresources.put(adaptorsetresource.getResource().getIName(), adaptorsetresource);
+    Map<String, AdaptorsetResourceCategory> oldAdaptorsetResourceCats  = new HashMap<String, AdaptorsetResourceCategory>();
+    for (AdaptorsetResourceCategory adaptorsetResourceCat: safeList(adaptorset.getAdaptorsetResourceCategory())) {
+    	oldAdaptorsetResourceCats.put(adaptorsetResourceCat.getResourceCategory().getIName(), adaptorsetResourceCat);
     } 
     
     for (String resourceIName: safeList(compatibleResourcesByIName)) {
-    	if (oldAdaptorsetresources.containsKey(resourceIName)) {
-    		oldAdaptorsetresources.remove(resourceIName);
+    	if (oldAdaptorsetResourceCats.containsKey(resourceIName)) {
+    		oldAdaptorsetResourceCats.remove(resourceIName);
     		continue;
     	}
-    	Resource resource = resourceService.getResourceByIName(resourceIName);
-    	if (resource.getResourceId() != null){
-    		Adaptorsetresource adaptorsetresource = new Adaptorsetresource();
-    		adaptorsetresource.setResourceId(resource.getResourceId());
+    	ResourceCategory resourceCat = resourceCategoryService.getResourceCategoryByIName(resourceIName);
+    	if (resourceCat.getResourceCategoryId() != null){
+    		AdaptorsetResourceCategory adaptorsetresource = new AdaptorsetResourceCategory();
+    		adaptorsetresource.setResourcecategoryId(resourceCat.getResourceCategoryId());
     		adaptorsetresource.setAdaptorsetId(adaptorset.getAdaptorsetId());
-    		adaptorsetresourceService.save(adaptorsetresource);
-    		oldAdaptorsetresources.remove(resourceIName);
+    		adaptorsetResourceCategoryService.save(adaptorsetresource);
+    		oldAdaptorsetResourceCats.remove(resourceIName);
     	} else {
-    		throw new NullResourceException();
+    		throw new NullResourceCategoryException();
     	}
     }
 
     // remove the left overs
-    for (String adaptorsetKey : oldAdaptorsetresources.keySet()) {
-    	Resource resource = resourceService.getResourceByIName(adaptorsetKey);
-    	Adaptorsetresource adaptorsetResource = adaptorsetresourceService.getAdaptorsetresourceByAdaptorsetIdResourceId(adaptorset.getAdaptorsetId(), resource.getResourceId());
-    	adaptorsetresourceService.remove(adaptorsetResource);
+    for (String adaptorsetKey : oldAdaptorsetResourceCats.keySet()) {
+    	ResourceCategory resourceCat = resourceCategoryService.getResourceCategoryByIName(adaptorsetKey);
+    	AdaptorsetResourceCategory adaptorsetResource = adaptorsetResourceCategoryService.getAdaptorsetResourceCategoryByAdaptorsetIdResourcecategoryId(adaptorset.getAdaptorsetId(), resourceCat.getResourceCategoryId());
+    	adaptorsetResourceCategoryService.remove(adaptorsetResource);
     }
     
     // update adaptors

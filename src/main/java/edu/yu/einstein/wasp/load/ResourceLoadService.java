@@ -8,11 +8,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import util.spring.PostInitialize;
+import edu.yu.einstein.wasp.exception.NullResourceCategoryException;
 import edu.yu.einstein.wasp.exception.NullTypeResourceException;
 import edu.yu.einstein.wasp.model.Resource;
 import edu.yu.einstein.wasp.model.ResourceLane;
 import edu.yu.einstein.wasp.model.ResourceMeta;
 import edu.yu.einstein.wasp.model.TypeResource;
+import edu.yu.einstein.wasp.service.ResourceCategoryService;
 import edu.yu.einstein.wasp.service.ResourceLaneService;
 import edu.yu.einstein.wasp.service.ResourceMetaService;
 import edu.yu.einstein.wasp.service.ResourceService;
@@ -45,9 +47,12 @@ public class ResourceLoadService extends WaspLoadService {
 
   @Autowired
   private TypeResourceService typeResourceService;
+  
+  @Autowired
+  private ResourceCategoryService resourceCategoryService;
 
-  private String platform; 
-  public void setPlatform(String platform) { this.platform = platform; }
+  private String resourceCategoryIName; 
+  public void setResourceCategory(String resourceCategoryIName) { this.resourceCategoryIName = resourceCategoryIName; }
 
   private String resourceType; 
   public void setResourceType(String resourceType) {this.resourceType = resourceType; }
@@ -64,6 +69,11 @@ public class ResourceLoadService extends WaspLoadService {
   public void postInitialize() {
     // skips component scanned  (if scanned in)
     if (name == null) { return; }
+    
+    Integer resourceCategoryId = resourceCategoryService.getResourceCategoryByIName(resourceCategoryIName).getResourceCategoryId();
+    if (resourceCategoryId == null){
+    	throw new NullResourceCategoryException();
+    }
 
     TypeResource typeResource = typeResourceService.getTypeResourceByIName(resourceType); 
     if (typeResource == null){
@@ -78,7 +88,7 @@ public class ResourceLoadService extends WaspLoadService {
 
       resource.setIName(iname);
       resource.setName(name);
-      resource.setPlatform(platform);
+      resource.setResourcecategoryId(resourceCategoryId);
       resource.setTypeResourceId(typeResource.getTypeResourceId());
       resource.setIsActive(1);
 
@@ -93,8 +103,8 @@ public class ResourceLoadService extends WaspLoadService {
     	  resource.setName(name);
     	  changed = true;
       }
-      if (!resource.getPlatform().equals(platform)){
-    	  resource.setPlatform(platform);
+      if (resource.getResourcecategoryId().intValue() != resourceCategoryId.intValue()){
+    	  resource.setResourcecategoryId(resourceCategoryId);
     	  changed = true;
       }
       if (resource.getTypeResourceId().intValue() != typeResource.getTypeResourceId().intValue()){

@@ -37,9 +37,9 @@ public class ResourceDaoImpl extends WaspDaoImpl<Resource> implements edu.yu.ein
 
 
 	/**
-	 * getResourceByResourceId(final int resourceId)
+	 * getResourceByResourceId(final Integer resourceId)
 	 *
-	 * @param final int resourceId
+	 * @param final Integer resourceId
 	 *
 	 * @return resource
 	 */
@@ -47,7 +47,7 @@ public class ResourceDaoImpl extends WaspDaoImpl<Resource> implements edu.yu.ein
 	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
-	public Resource getResourceByResourceId (final int resourceId) {
+	public Resource getResourceByResourceId (final Integer resourceId) {
     		HashMap m = new HashMap();
 		m.put("resourceId", resourceId);
 
@@ -76,6 +76,32 @@ public class ResourceDaoImpl extends WaspDaoImpl<Resource> implements edu.yu.ein
 	public Resource getResourceByIName (final String iName) {
     		HashMap m = new HashMap();
 		m.put("iName", iName);
+
+		List<Resource> results = this.findByMap(m);
+
+		if (results.size() == 0) {
+			Resource rt = new Resource();
+			return rt;
+		}
+		return results.get(0);
+	}
+
+
+
+	/**
+	 * getResourceByName(final String name)
+	 *
+	 * @param final String name
+	 *
+	 * @return resource
+	 */
+
+	@Override
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public Resource getResourceByName (final String name) {
+    		HashMap m = new HashMap();
+		m.put("name", name);
 
 		List<Resource> results = this.findByMap(m);
 

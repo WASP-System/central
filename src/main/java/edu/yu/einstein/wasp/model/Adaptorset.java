@@ -252,34 +252,34 @@ public class Adaptorset extends WaspModel {
 
 
 	/** 
-	 * adaptorsetresource
+	 * adaptorsetresourcecategory
 	 *
 	 */
 	@NotAudited
 	@OneToMany
 	@JoinColumn(name="adaptorsetid", insertable=false, updatable=false)
-	protected List<Adaptorsetresource> adaptorsetresource;
+	protected List<AdaptorsetResourceCategory> adaptorsetresourcecategory;
 
 
 	/** 
-	 * getAdaptorsetresource()
+	 * getAdaptorsetResourcecategory()
 	 *
-	 * @return adaptorsetresource
+	 * @return adaptorsetresourcecategory
 	 *
 	 */
-	public List<Adaptorsetresource> getAdaptorsetresource() {
-		return this.adaptorsetresource;
+	public List<AdaptorsetResourceCategory> getAdaptorsetResourceCategory() {
+		return this.adaptorsetresourcecategory;
 	}
 
 
 	/** 
-	 * setAdaptorsetresource
+	 * setAdaptorsetResourcecategory
 	 *
-	 * @param adaptorsetresource
+	 * @param adaptorsetresourcecategory
 	 *
 	 */
-	public void setAdaptorsetresource (List<Adaptorsetresource> adaptorsetresource) {
-		this.adaptorsetresource = adaptorsetresource;
+	public void setAdaptorsetResourceCategory (List<AdaptorsetResourceCategory> adaptorsetresourcecategory) {
+		this.adaptorsetresourcecategory = adaptorsetresourcecategory;
 	}
 
 

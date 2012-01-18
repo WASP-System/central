@@ -49,43 +49,12 @@
     <property name="uiFields">
       <list>
         <bean parent="chipSeqUiField">
-          <property name="name" value="chipseqMeta" />
-          <property name="attrName" value="metaposition" />
-          <property name="attrValue" value="10" />
-        </bean>
-        <bean parent="chipSeqUiField">
-          <property name="name" value="chipseqMeta" />
+          <property name="name" value="workflow" />
           <property name="attrName" value="label" />
           <property name="attrValue" value="Chip Seq" />
         </bean>
-
-        <bean parent="chipSeqUiField">
-          <property name="name" value="chipseqMetaA" />
-          <property name="attrName" value="metaposition" />
-          <property name="attrValue" value="10" />
-        </bean>
-        <bean parent="chipSeqUiField">
-          <property name="name" value="chipseqMetaA" />
-          <property name="attrName" value="label" />
-          <property name="attrValue" value="Chip Seq A" />
-        </bean>
-
       </list>
     </property>
-
-    <property name="meta">
-      <list>
-        <bean class="edu.yu.einstein.wasp.model.WorkflowMeta">
-          <property name="k" value="metaA" /> 
-          <property name="v" value="metaAValue" />
-        </bean>
-        <bean class="edu.yu.einstein.wasp.model.WorkflowMeta">
-          <property name="k" value="metaB" /> 
-          <property name="v" value="metaBValue" />
-        </bean>
-      </list>
-    </property>
-
   </bean>
 
 </beans>

@@ -14,62 +14,27 @@
     <property name="area" value="illuminaHiSeq2000" />
   </bean>
 
-  <bean id="illuminaHiSeq2000" class="edu.yu.einstein.wasp.load.ResourceLoadService">
+  <bean id="illuminaHiSeq2000" class="edu.yu.einstein.wasp.load.ResourceCategoryLoadService">
     <property name="iname" value="illuminaHiSeq2000" />
     <property name="name" value="Illumina HiSeq 2000" />
-    <property name="resourceType" value="mps" />
-    <property name="platform" value="Illumina" />
-
-    <property name="cell">
-      <list>
-        <bean class="edu.yu.einstein.wasp.model.ResourceLane">
-          <property name="iName" value="lane1" />
-          <property name="name" value="lane 1"  />
-        </bean>
-       <bean class="edu.yu.einstein.wasp.model.ResourceLane">
-          <property name="iName" value="lane2" />
-          <property name="name" value="lane 2"  />
-        </bean>
-        <bean class="edu.yu.einstein.wasp.model.ResourceLane">
-          <property name="iName" value="lane3" />
-          <property name="name" value="lane 3"  />
-        </bean>
-        <bean class="edu.yu.einstein.wasp.model.ResourceLane">
-          <property name="iName" value="lane4" />
-          <property name="name" value="lane 4"  />
-        </bean>
-        <bean class="edu.yu.einstein.wasp.model.ResourceLane">
-          <property name="iName" value="lane5" />
-          <property name="name" value="lane 5"  />
-        </bean>
-        <bean class="edu.yu.einstein.wasp.model.ResourceLane">
-          <property name="iName" value="lane6" />
-          <property name="name" value="lane 6"  />
-        </bean>
-        <bean class="edu.yu.einstein.wasp.model.ResourceLane">
-          <property name="iName" value="lane7" />
-          <property name="name" value="lane 7"  />
-        </bean>
-        <bean class="edu.yu.einstein.wasp.model.ResourceLane">
-          <property name="iName" value="lane8" />
-          <property name="name" value="lane 8"  />
-        </bean>
-      </list>
-    </property> 
 
     <property name="meta">
       <list>
-        <bean class="edu.yu.einstein.wasp.model.ResourceMeta">
+        <bean class="edu.yu.einstein.wasp.model.ResourceCategoryMeta">
           <property name="k" value="resource.allowableUiField.readlength" />
           <property name="v" value="50;75;100;150" />
         </bean>
 
-        <bean class="edu.yu.einstein.wasp.model.ResourceMeta">
+        <bean class="edu.yu.einstein.wasp.model.ResourceCategoryMeta">
           <property name="k" value="resource.allowableUiField.readType" />
           <property name="v" value="single;paired" />
         </bean>
+        
+        <bean class="edu.yu.einstein.wasp.model.ResourceCategoryMeta">
+          <property name="k" value="resource.cell.max" />
+          <property name="v" value="8" />
+        </bean>
       </list>
-
     </property> 
 
     <property name="uiFields">

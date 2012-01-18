@@ -29,14 +29,14 @@
   	<property name="adaptorList">
   		<list>
   			<bean class="edu.yu.einstein.wasp.model.Adaptor">
-  				<property name="iName" value="illuminaTrueseqDnaIndexed1" />
+  				<property name="IName" value="illuminaTrueseqDnaIndexed1" />
   				<property name="name" value="Illumina DNA Indexed adaptor 1" />
   				<property name="sequence" value="AGATCGGAAGAGCGGTTCAGC" />
   				<property name="barcodesequence" value="ATCACG" />
   				<property name="barcodenumber" value="1" />
   			</bean>
   			<bean class="edu.yu.einstein.wasp.model.Adaptor">
-  				<property name="iName" value="illuminaTrueseqDnaIndexed2" />
+  				<property name="IName" value="illuminaTrueseqDnaIndexed2" />
   				<property name="name" value="Illumina DNA Indexed adaptor 2" />
   				<property name="sequence" value="AGATCGGAAGAGCGGTTCAGC" />
   				<property name="barcodesequence" value="CGATGT" />

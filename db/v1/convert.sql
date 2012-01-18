@@ -16340,106 +16340,57 @@ where
       labuser.labid = l.labid and 
       labuser.userid = l.primaryuserid
   );
+  
+  insert into resourcecategory
+    (resourcecategoryid, iname, name)
+    values
+    (1, 'software',  'Software');
+    
+    insert into resourcecategory
+    (resourcecategoryid, iname, name)
+    values
+    (2, 'illuminaGaIIx',  'Illumina GaIIx');
+    
+    insert into resourcecategory
+    (resourcecategoryid, iname, name)
+    values
+    (3, 'rocheFLX',  'Roche FLX');
 
     insert into resource
-    (resourceid, platform, iname, name, typeresourceid)
+    (resourceid, resourcecategoryid, iname, name, isactive, typeresourceid)
     values
-    (1, 'ROCHE', 'FLX07080405',  'FLX07080405', 1);
-  
-      insert into resourcemeta
-      (resourceid, k, v, position)
-      values
-      (1, 'resource.assay_platform', 'ROCHE', 0);
-    
-      insert into resourcemeta
-      (resourceid, k, v, position)
-      values
-      (1, 'resource.machine_type', 'FLX', 1);
+    (1, 2, 'FLX07080405',  'FLX07080405', 1, 1);
+
     
     insert into resource
-    (resourceid, platform, iname, name, typeresourceid)
+    (resourceid, resourcecategoryid, iname, name, isactive, typeresourceid)
     values
-    (2, 'ILLUMINA', 'HWI-EAS438',  'HWI-EAS438', 1);
+    (2, 3, 'HWI-EAS438',  'HWI-EAS438', 1, 1);
   
-      insert into resourcemeta
-      (resourceid, k, v, position)
-      values
-      (2, 'resource.assay_platform', 'ILLUMINA', 0);
-    
-      insert into resourcemeta
-      (resourceid, k, v, position)
-      values
-      (2, 'resource.machine_type', 'GAIIx', 1);
-    
-      insert into resourcemeta
-      (resourceid, k, v, position)
-      values
-      (2, 'resource.decommission_date', '2010-10-01', 2);
+         
+    insert into resource
+    (resourceid, resourcecategoryid, iname, name, isactive, typeresourceid)
+    values
+    (3, 3, 'HWUSI-EAS1669',  'HWUSI-EAS1669', 1, 1);
+  
+          
+    insert into resource
+    (resourceid, resourcecategoryid, iname, name, isactive, typeresourceid)
+    values
+    (4, 3, 'ILLUMINA-053F9F',  'ILLUMINA-053F9F', 1, 1);
+ 
     
     insert into resource
-    (resourceid, platform, iname, name, typeresourceid)
+    (resourceid, resourcecategoryid, iname, name, isactive, typeresourceid)
     values
-    (3, 'ILLUMINA', 'HWUSI-EAS1669',  'HWUSI-EAS1669', 1);
-  
-      insert into resourcemeta
-      (resourceid, k, v, position)
-      values
-      (3, 'resource.assay_platform', 'ILLUMINA', 0);
-    
-      insert into resourcemeta
-      (resourceid, k, v, position)
-      values
-      (3, 'resource.machine_type', 'GAIIx', 1);
-    
-      insert into resourcemeta
-      (resourceid, k, v, position)
-      values
-      (3, 'resource.decommission_date', '2010-10-01', 2);
+    (5, 3, 'SN395',  'SN395', 1, 1);
+ 
     
     insert into resource
-    (resourceid, platform, iname, name, typeresourceid)
+    (resourceid, resourcecategoryid, iname, name, isactive, typeresourceid)
     values
-    (4, 'ILLUMINA', 'ILLUMINA-053F9F',  'ILLUMINA-053F9F', 1);
+    (6, 3, 'SN844',  'SN844', 1, 1);
   
-      insert into resourcemeta
-      (resourceid, k, v, position)
-      values
-      (4, 'resource.assay_platform', 'ILLUMINA', 0);
-    
-      insert into resourcemeta
-      (resourceid, k, v, position)
-      values
-      (4, 'resource.machine_type', 'GAIIx', 1);
-    
-    insert into resource
-    (resourceid, platform, iname, name, typeresourceid)
-    values
-    (5, 'ILLUMINA', 'SN395',  'SN395', 1);
-  
-      insert into resourcemeta
-      (resourceid, k, v, position)
-      values
-      (5, 'resource.assay_platform', 'ILLUMINA', 0);
-    
-      insert into resourcemeta
-      (resourceid, k, v, position)
-      values
-      (5, 'resource.machine_type', 'HISEQ2000', 1);
-    
-    insert into resource
-    (resourceid, platform, iname, name, typeresourceid)
-    values
-    (6, 'ILLUMINA', 'SN844',  'SN844', 1);
-  
-      insert into resourcemeta
-      (resourceid, k, v, position)
-      values
-      (6, 'resource.assay_platform', 'ILLUMINA', 0);
-    
-      insert into resourcemeta
-      (resourceid, k, v, position)
-      values
-      (6, 'resource.machine_type', 'HISEQ2000', 1);
     
     insert into workflow
     (workflowid, iname, name, createts, isactive)

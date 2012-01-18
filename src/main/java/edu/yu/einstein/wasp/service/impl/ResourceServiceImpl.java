@@ -53,13 +53,18 @@ public class ResourceServiceImpl extends WaspServiceImpl<Resource> implements Re
 
 
   @Override
-public Resource getResourceByResourceId (final int resourceId) {
+public Resource getResourceByResourceId (final Integer resourceId) {
     return this.getResourceDao().getResourceByResourceId(resourceId);
   }
 
   @Override
 public Resource getResourceByIName (final String iName) {
     return this.getResourceDao().getResourceByIName(iName);
+  }
+
+  @Override
+public Resource getResourceByName (final String name) {
+    return this.getResourceDao().getResourceByName(name);
   }
 
 }
