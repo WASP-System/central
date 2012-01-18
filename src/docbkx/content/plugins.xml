@@ -95,9 +95,9 @@
   </dependencies>
   <repositories>
     <repository>
-      <id>private.waspsystem.org</id>
-      <name>WASP private repository</name>
-      <url>http://frankfurt.aecom.yu.edu/repository</url>
+      <id>dev.waspsystem.org</id>
+      <name>WASP repository</name>
+      <url>http://waspsystem.org/dev/repository</url>
     </repository>
   </repositories>
   <build>
