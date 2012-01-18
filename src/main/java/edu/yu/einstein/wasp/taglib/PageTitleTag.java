@@ -51,18 +51,22 @@ public class PageTitleTag extends BodyTagSupport {
 			}
 		} 
 		
-		String viewName=(String)pageContext.getRequest().getAttribute("waspViewName");
-		
-		if (viewName==null) throw new JspTagException("Cannot get tiles view name");
-		
-		Locale locale=(Locale)session.getAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
-		
-		String code="pageTitle."+viewName+".label";
+		String title=(String)((HttpServletRequest)this.pageContext.getRequest()).getAttribute("forcePageTitle");
+		if (title == null) {
+			String viewName=(String)pageContext.getRequest().getAttribute("waspViewName");
 			
-		String msg=DBResourceBundle.MESSAGE_SOURCE.getMessage(code, null, locale);
+			if (viewName==null) throw new JspTagException("Cannot get tiles view name");
+			
+			Locale locale=(Locale)session.getAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
+			
+			String code="pageTitle."+viewName+".label";
+				
+			title=DBResourceBundle.MESSAGE_SOURCE.getMessage(code, null, locale);
+		}
+		
 				
 		try {
-			this.pageContext.getOut().print( msg);
+			this.pageContext.getOut().print( title );
 		} catch (IOException e) {
 			throw new JspTagException(e.getMessage());
 		}

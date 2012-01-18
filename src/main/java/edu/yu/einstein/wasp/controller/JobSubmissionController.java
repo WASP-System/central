@@ -12,6 +12,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -39,11 +40,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
+import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import edu.yu.einstein.wasp.model.*;
 import edu.yu.einstein.wasp.service.*;
 
 import edu.yu.einstein.wasp.controller.validator.MetaHelper;
+import edu.yu.einstein.wasp.dao.impl.DBResourceBundle;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 
 @Controller
@@ -170,8 +173,7 @@ public class JobSubmissionController extends WaspController {
 
 		String context = request.getContextPath();
 		String uri = request.getRequestURI();
-		String path = request.getServletPath();
-
+	
 		// strips context, lead slash ("/"), spring mapping
 		String currentMapping = uri.replaceFirst(context, "").replaceFirst("\\.do.*$", "");
 
@@ -367,10 +369,16 @@ public class JobSubmissionController extends WaspController {
 		m.put("parentarea", metaHelper.getParentArea());
 
 		m.put("workflowiname", jobDraft.getWorkflow().getIName());
-
-		return "jobsubmit/metaform";
+		
+		String tilesDef="jobsubmit/metaform";
+	
+		setPageTitle(tilesDef,jobDraft.getWorkflow().getIName());
+		
+		return tilesDef;
 	}
 
+
+	
 	
 	@RequestMapping(value="/modifymeta/{jobDraftId}", method=RequestMethod.POST)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
@@ -405,7 +413,11 @@ public class JobSubmissionController extends WaspController {
 			m.put("area", metaHelper.getArea());
 			m.put("parentarea", metaHelper.getParentArea());
 
-			return "jobsubmit/metaform";
+			String tilesDef="jobsubmit/metaform";
+			
+			setPageTitle(tilesDef,jobDraft.getWorkflow().getIName());
+			
+			return tilesDef;
 		}
 
 		jobDraftMetaService.updateByJobdraftId(metaHelper.getArea(), jobDraftId, jobDraftMetaList);
@@ -484,7 +496,11 @@ public class JobSubmissionController extends WaspController {
 		m.put("resourceOptions", resourceOptions);
 		m.put("parentarea", metaHelper.getParentArea());
 
-		return "jobsubmit/resource";
+		String tilesDef="jobsubmit/resource";
+		
+		setPageTitle(tilesDef+"/"+typeresourceiname,jobDraft.getWorkflow().getIName());
+		
+		return tilesDef;
 	}
 
 	@RequestMapping(value="/resource/{typeresourceiname}/{jobDraftId}", method=RequestMethod.POST)
@@ -585,8 +601,13 @@ public class JobSubmissionController extends WaspController {
 		m.put("jobDraft", jobDraft);
 		m.put("area", metaHelper.getArea());
 		m.put("parentarea", metaHelper.getParentArea());
+ 
 
-		return "jobsubmit/aligner";
+		String tilesDef="jobsubmit/aligner";
+		
+		setPageTitle(tilesDef,metaHelper.getArea());
+		
+		return tilesDef;
 	}
 
 	@RequestMapping(value="/additionalMeta/{meta}/{jobDraftId}", method=RequestMethod.POST)
@@ -626,7 +647,11 @@ public class JobSubmissionController extends WaspController {
 			m.put("area", metaHelper.getArea());
 			m.put("parentarea", metaHelper.getParentArea());
 
-			return "jobsubmit/metaform";
+			String tilesDef="jobsubmit/metaform";
+			
+			setPageTitle(tilesDef,metaHelper.getArea());
+			
+			return tilesDef;
 		}
 
 
@@ -702,8 +727,14 @@ public class JobSubmissionController extends WaspController {
 		prepareSelectListData(m);
 		m.addAttribute("jobdraftId",jobDraftId);
 		m.addAttribute("jobDraftDb",jobDraft);
-		m.addAttribute("uploadStartedMessage",messageService.getMessage("sampleDraft.fileupload_wait.data")); 
-		return "jobsubmit/sample";
+		m.addAttribute("uploadStartedMessage",messageService.getMessage("sampleDraft.fileupload_wait.data"));
+		
+		String tilesDef="jobsubmit/sample";
+		
+		setPageTitle(tilesDef,jobDraft.getWorkflow().getIName());
+		
+		return tilesDef;
+		
 
 	}
 
@@ -749,8 +780,13 @@ public class JobSubmissionController extends WaspController {
 		m.put("sampleDrafts", samples);
 		m.put("selectedSampleCell", selectedSampleCell);
 
-	
-		return "jobsubmit/cell";
+		
+		String tilesDef="jobsubmit/cell";
+		
+		setPageTitle(tilesDef,jobDraft.getWorkflow().getIName());
+		
+		return tilesDef;
+		
 	}
 
 	@RequestMapping(value="/cells/{jobDraftId}.do", method=RequestMethod.POST)
@@ -1478,4 +1514,17 @@ public class JobSubmissionController extends WaspController {
 		
 	}
 
+	
+	private void setPageTitle(String tilesDef, String workflowIName) {
+		
+		Locale locale=(Locale)request.getSession().getAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
+		
+		String code=workflowIName+"."+tilesDef+".label";
+			
+		String pageTitle=DBResourceBundle.MESSAGE_SOURCE.getMessage(code, null, locale);
+		
+		if (pageTitle!=null) {		
+			request.setAttribute("forcePageTitle", pageTitle);		
+		}
+	}
 }
