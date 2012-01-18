@@ -2,6 +2,8 @@ package edu.yu.einstein.wasp.controller;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -23,6 +25,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import edu.yu.einstein.wasp.controller.DashboardController.DashboardEntityRolename;
+import edu.yu.einstein.wasp.controller.UserController.UserFirstNameComparator;
+import edu.yu.einstein.wasp.controller.UserController.UserLastNameComparator;
 import edu.yu.einstein.wasp.controller.validator.MetaHelper;
 import edu.yu.einstein.wasp.model.Department;
 import edu.yu.einstein.wasp.model.DepartmentUser;
@@ -180,6 +184,18 @@ public DepartmentService getDepartmentService() {
 
     return "department/detail";
   }
+	
+	class LabNameComparator implements Comparator <Lab> {
+		public int compare(Lab u1, Lab u2) {
+			return u1.getName().compareToIgnoreCase(u2.getName());
+		}
+	}
+	
+	class LabPUNameComparator implements Comparator <Lab> {
+		public int compare(Lab u1, Lab u2) {
+			return u1.getUser().getFirstName().compareToIgnoreCase(u2.getUser().getFirstName());
+		}
+	}
 
 	@RequestMapping(value = "/detail/{departmentId}/listLabJSON", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('god') or hasRole('da-' + #departmentId)")
@@ -225,6 +241,19 @@ public DepartmentService getDepartmentService() {
 			allUsers.put(user.getUserId(),	user.getFirstName() + " " + user.getLastName());
 		}
 
+		String sord = request.getParameter("sord");
+		String sidx = request.getParameter("sidx");
+		if (!sord.isEmpty() && !sidx.isEmpty()) {
+			if (sidx.equals("name")) {
+				Collections.sort(labList, new LabNameComparator());
+			} else if (sidx.equals("primaryUserId")) {
+				Collections.sort(labList, new LabPUNameComparator());
+			}
+
+			if (sord.equals("desc"))
+				Collections.reverse(labList);
+		}
+		
 		try {
 			// String users = mapper.writeValueAsString(userList);
 			int pageId = Integer.parseInt(request.getParameter("page"));		// index of page

@@ -2,9 +2,9 @@
 
 <%-- <wasp:field name="labId" type="text" /> --%>
 
-<wasp:field name="name" type="text" showLink="true" />
+<wasp:field name="name" type="text" showLink="true"  sortable="true"/>
 
-<wasp:field name="primaryUserId" type="select" items="${pusers}" itemValue="userId" itemLabel="firstName" readOnly="true" />
+<wasp:field name="primaryUserId" type="select" items="${pusers}" itemValue="userId" itemLabel="firstName" readOnly="true"  sortable="true"/>
 
 <wasp:field name="departmentId"  type="select" items="${departments}" itemValue="departmentId" itemLabel="name" />
 

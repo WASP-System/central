@@ -115,93 +115,42 @@ public class UserController extends WaspController {
 		
 		User userDb = this.userService.getById(userId);
 		
-		List<Lab> puLabs=userDb.getLab();
-		
 		List<LabUser> uLabs=userDb.getLabUser();
 		
-		List <Job> uJobs=userDb.getJob();
-		
-		List <Sample> uSamples=userDb.getSample();
-		
-		//get max lenth of the previous 4 lists
-		int max=Math.max(Math.max(puLabs.size(), uLabs.size()),Math.max(uJobs.size(),uSamples.size()));
-		
-		if (max==0) {
-			Lab lab=new Lab();
-		
-			puLabs.add(lab);
-			
-			LabUser lu=new LabUser();
-			lu.setLab(lab);
-			uLabs.add(lu);
-		
-			uJobs.add(new Job());
-			
-			uSamples.add(new Sample());
-			
-			max=1;
-		}
-		
-		String [][] mtrx = new String[max][4]	;
+		int rowNum = uLabs.size();
 		
 	 	ObjectMapper mapper = new ObjectMapper();
     	
-		 try {
-			 jqgrid.put("page","1");
-			 jqgrid.put("records",max+"");
-			 jqgrid.put("total",max+"");
-			 String text;
-			 int i=0; // column
-			 int j=0; // row
-			 for (Lab lab:puLabs) {
-				 text=lab.getLabId() == null?"No Labs":"<a href=/wasp/lab/list.do?selId="+lab.getLabId().intValue()+">"+lab.getName()+"</a>";
+		try {
+//			jqgrid.put("page","1");
+//			jqgrid.put("records",max+"");
+//			jqgrid.put("total",max+"");
 
-				 mtrx[j][i]=text;
-				 j++;
-			 }
-			 i=1;
-			 j=0;
-			 for (LabUser lab:uLabs) {		
-				 text=lab.getLab().getLabId() == null?"No Labs":"<a href=/wasp/lab/list.do?selId="+lab.getLab().getLabId().intValue()+">"+lab.getLab().getName()+"</a>";	
-
-				 mtrx[j][i]=text;
-				 j++;		 
-			 }		 
-			 i=2;
-			 j=0;
-			 for (Job job:uJobs) {				
-				 text=job.getJobId() == null?"No Jobs":job.getName();
-
-				 mtrx[j][i]=text;			 
-				 j++;				 
-			 }		 
-			 i=3;
-			 j=0;
-			 for (Sample sample:uSamples) {		
-				 text=sample.getSampleId() == null?"No Samples":sample.getName();
-
-				 mtrx[j][i]=text;
-				 j++;	 
-			 }
-
-			 List<Map> rows = new ArrayList<Map>();
-
-			 for(j=0;j<max;j++) {
+			List<Map> rows = new ArrayList<Map>();
+			for (LabUser uLab:uLabs) {
+				Map cell = new HashMap();
+				cell.put("id", uLab.getLabId());
+				 					
+				List<String> cellList = new ArrayList<String>(
+						Arrays.asList(
+								new String[] {
+										"<a href=/wasp/job/list.do?labId=" + uLab.getLabId().intValue() + ">" + 
+											uLab.getLab().getName() + "</a>"
+								}
+						)
+				);
 				 
-				 Map cell = new HashMap();
-				 rows.add(cell);
+				cell.put("cell", cellList);
 				 
-				 cell.put("id", j+"");
-				 List<String> cellList=Arrays.asList(mtrx[j]);
-				 cell.put("cell", cellList);		
-			 }
+				rows.add(cell);
+			}
 			 
 			jqgrid.put("rows",rows);
 			 
 			return outputJSON(jqgrid, response); 	
 			
 		 } catch (Throwable e) {
-			 throw new IllegalStateException("Can't marshall to JSON "+puLabs,e);
+			 throw new IllegalStateException("Can't marshall to JSON "+uLabs,e);
 		 }
 	
 	}

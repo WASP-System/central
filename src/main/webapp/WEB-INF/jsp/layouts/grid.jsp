@@ -458,7 +458,7 @@ function createGrid() {
 			
 			onSelectRow: function(rowId){ 
 				setTimeout(function(){
-					$("#grid_id").expandSubGridRow(rowId); 
+					$("#grid_id").toggleSubGridRow(rowId);
 				},200);
 			},
 
