@@ -1,25 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <chapter version="5.0" xmlns="http://docbook.org/ns/docbook"
-         xmlns:xlink="http://www.w3.org/1999/xlink"
-         xmlns:xi="http://www.w3.org/2001/XInclude"
-         xmlns:ns5="http://www.w3.org/2000/svg"
-         xmlns:ns4="http://www.w3.org/1998/Math/MathML"
-         xmlns:ns3="http://www.w3.org/1999/xhtml"
-         xmlns:db="http://docbook.org/ns/docbook">
-	<title>Concepts and procedures</title>
-	<para>
-		Concepts and procedures for working with WASP.
-	</para>
+	xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude"
+	xmlns:ns5="http://www.w3.org/2000/svg" xmlns:ns4="http://www.w3.org/1998/Math/MathML"
+	xmlns:ns3="http://www.w3.org/1999/xhtml" xmlns:db="http://docbook.org/ns/docbook">
+	<title>Core concepts</title>
+	<para>Concepts and procedures for working with WASP.</para>
 	<section>
-		<title>Work request submissions</title>
-		<para>Foo</para>
+		<title>State</title>
+		<para>State is a central concept to dealing with data in WASP. Every real
+			world event defined within WASP is assigned a state. WASP defines default
+			states, but developers can extend the state system to suit their requirements.
+			An event's state may simply be a record of progress through a well defined
+			series of events in a web-flow, or it can be used to manage interactions
+			bet	ween user submissions, human interaction events, and analytical
+			processing.
+		</para>
 	</section>
 	<section>
-		<title>Metadata</title>
-		<para>Bar</para>
+		<title>Web functionality</title>
+		<para>Description of XML definitions of web flows and implementation of custom 
+		controllers.  How to extend.</para>
+	</section>
+	<section>
+		<title>Metadata system</title>
+		<para>Description of the WASP key-value data collection system, enforcement via
+		code and how to extend it.  How to define resources and collect metadata.</para>
 	</section>
 	<section>
 		<title>Analytical Pipelines</title>
-		<para>Baz</para>
+		<para>Execution of analytical pipelines: trigger instrument specific pipelines (eg. 
+		Illumina/CASAVA), encapsulate existing tools as tasks (eg. MPS reference based aligners)
+		or define flows of tasks to generate analytical pipelines.</para>
 	</section>
 </chapter>
