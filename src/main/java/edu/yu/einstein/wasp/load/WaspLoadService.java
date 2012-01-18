@@ -82,6 +82,9 @@ public abstract class WaspLoadService {
 		m.put("area", area);
 		List<UiField> oldUiFields = uiFieldService.findByMap(m);
 		for (UiField uiField: oldUiFields) {
+			if (uiField.getName().indexOf("jobsubmit/")>-1) {
+				continue;//do NOT remove custom titles
+			}
 			uiFieldService.remove(uiField);
 			uiFieldService.flush(uiField);
 		}
