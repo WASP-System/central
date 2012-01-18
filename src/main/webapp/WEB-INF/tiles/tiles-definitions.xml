@@ -302,7 +302,7 @@
 	</definition>
 
 	<definition name="hello" extends="template-base">
-		<put-attribute name="body-content" value="/WEB-INF/jsp/jobsubmit/chipseqform" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/hello.jsp" />
 	</definition>
 
 	<definition name="jobsubmit/chipseqform" extends="template-base">
