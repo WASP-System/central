@@ -69,14 +69,32 @@ BODY {margin: 0; padding: 0;}
                     <c:if test="${schild.sample.typeSample.IName == 'lane'}">
                         <label>One Deep Lane</label>
                         <c:out value="${schild.sample.name}" />
-                            (-)
+<div>
+<a href="javascript:{}" onclick="showAssignForm(this)">(-)</a>
+<div style="display:none">
+  <form method="POST" action="<c:url value="/facility/platformunit/assignRemove.do" />">
+	
+  <input type="hidden" name="samplesourceid" value="<c:out value="${schild.sampleSourceId}" />">
+  <input type="submit" value="Remove">
+  </form>
+</div>
+</div>
                     </c:if>
                       <c:forEach items="${schild.sample.sampleSourceViaSourceSampleId}" var="schild2">
                         <c:if test="${schild2.sample.typeSample.IName == 'lane'}">
                           <div class="samplechild2">
                             <label>Two Deep</label>
                               <c:out value="${schild2.sample.name}" />
-                              (-)
+<div>
+<a href="javascript:{}" onclick="showAssignForm(this)">(-)</a>
+<div style="display:none">
+  <form method="POST" action="<c:url value="/facility/platformunit/assignRemove.do" />">
+	
+  <input type="hidden" name="samplesourceid" value="<c:out value="${schild.sampleSourceId}" />">
+  <input type="submit" value="Remove">
+  </form>
+</div>
+</div>
                           </div>
                         </c:if>
                       </c:forEach>
@@ -132,3 +150,5 @@ lanes.append($('<option></option>').val('<c:out value="0" />').html('<b><c:out v
   </c:forEach>
   </c:forEach>
 </script>
+
+<% /* TODO  javascript to read selected SampleId and scroll to it */ %>
