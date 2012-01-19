@@ -25,8 +25,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import edu.yu.einstein.wasp.controller.DashboardController.DashboardEntityRolename;
-import edu.yu.einstein.wasp.controller.UserController.UserFirstNameComparator;
-import edu.yu.einstein.wasp.controller.UserController.UserLastNameComparator;
 import edu.yu.einstein.wasp.controller.validator.MetaHelper;
 import edu.yu.einstein.wasp.model.Department;
 import edu.yu.einstein.wasp.model.DepartmentUser;
@@ -185,47 +183,33 @@ public DepartmentService getDepartmentService() {
     return "department/detail";
   }
 	
-	class LabNameComparator implements Comparator <Lab> {
-		public int compare(Lab u1, Lab u2) {
-			return u1.getName().compareToIgnoreCase(u2.getName());
-		}
-	}
-	
-	class LabPUNameComparator implements Comparator <Lab> {
-		public int compare(Lab u1, Lab u2) {
-			return u1.getUser().getFirstName().compareToIgnoreCase(u2.getUser().getFirstName());
-		}
-	}
-
 	@RequestMapping(value = "/detail/{departmentId}/listLabJSON", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('god') or hasRole('da-' + #departmentId)")
 	public String getLabListJSON(HttpServletResponse response, @PathVariable("departmentId") Integer departmentId) {
+
+		String sord = request.getParameter("sord");
+		String sidx = request.getParameter("sidx");
+
 		// result
 		Map<String, Object> jqgrid = new HashMap<String, Object>();
 
 		Department department = this.getDepartmentService().getById(departmentId.intValue());
-		List<Lab> labList;
+		List<Lab> labList = department.getLab();
 
-		if (request.getParameter("_search") == null
-				|| StringUtils.isEmpty(request.getParameter("searchString"))) {
-			labList = department.getLab();
-		} else {
+		if (request.getParameter("_search") != null
+				&& StringUtils.isNotEmpty(request.getParameter("searchString"))) {
+
 			Map<String, String> m = new HashMap<String, String>();
 
 			m.put(request.getParameter("searchField"),
 					request.getParameter("searchString"));
 
-			labList = labService.findByMap(m);
+			List<Lab> searchLabList = labService.findByMap(m);
 
 			if ("ne".equals(request.getParameter("searchOper"))) {
-				List<Lab> allLabs = new ArrayList<Lab>(
-						labService.findAll());
-				for (Iterator<Lab> it = labList.iterator(); it
-						.hasNext();) {
-					Lab excludeLab = it.next();
-					allLabs.remove(excludeLab);
-				}
-				labList = allLabs;
+				labList.removeAll(searchLabList);
+			} else {
+				labList.retainAll(searchLabList);
 			}
 		}
 
@@ -241,8 +225,19 @@ public DepartmentService getDepartmentService() {
 			allUsers.put(user.getUserId(),	user.getFirstName() + " " + user.getLastName());
 		}
 
-		String sord = request.getParameter("sord");
-		String sidx = request.getParameter("sidx");
+		/***** Sort lab list by lab name OR PI name *****/
+		class LabNameComparator implements Comparator<Lab> {
+			public int compare(Lab arg0, Lab arg1) {
+				return arg0.getName().compareToIgnoreCase(arg1.getName());
+			}
+		}
+
+		class LabPUNameComparator implements Comparator<Lab> {
+			public int compare(Lab arg0, Lab arg1) {
+				return arg0.getUser().getFirstName().compareToIgnoreCase(arg1.getUser().getFirstName());
+			}
+		}
+
 		if (!sord.isEmpty() && !sidx.isEmpty()) {
 			if (sidx.equals("name")) {
 				Collections.sort(labList, new LabNameComparator());
@@ -253,6 +248,7 @@ public DepartmentService getDepartmentService() {
 			if (sord.equals("desc"))
 				Collections.reverse(labList);
 		}
+		/***** Sorting ends here *****/
 		
 		try {
 			// String users = mapper.writeValueAsString(userList);

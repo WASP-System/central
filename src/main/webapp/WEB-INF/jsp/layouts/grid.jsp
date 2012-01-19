@@ -72,20 +72,48 @@
   
   <%--  structure to define L&F of "edit row" functionality --%> 
   var _editAttr={
-	width:'auto',closeAfterEdit:true,closeOnEscape:true,afterSubmit:_afterSubmit,errorTextFormat:_errorTextFormat,beforeShowForm:_beforeShowEditForm,reloadAfterSubmit:true,recreateForm:true
+	width:'auto',
+	closeAfterEdit:true,
+	closeOnEscape:true,
+	afterSubmit:_afterSubmit,
+	errorTextFormat:_errorTextFormat,
+	beforeShowForm:_beforeShowEditForm,
+	reloadAfterSubmit:true,
+	recreateForm:true
+  };
+  
+  <%--  structure to define L&F of "view row" functionality --%> 
+  var _viewAttr={
+	closeOnEscape:true
   };
   
   <%-- structure to define L&F of "add row" functionality. see JQGrid documentation at http://www.trirand.com/jqgridwiki/doku.php?id=wiki:jqgriddocs for parameter descriptions --%>
   var _addAttr={
 	serializeEditData: function(data){ return $.param($.extend({}, data, {id:0}));},//pass '0' on add instead of empty string
-	closeAfterAdd:true,closeOnEscape:true,errorTextFormat:_errorTextFormat,afterSubmit:_afterSubmit,beforeShowForm:_beforeShowAddForm,width:'auto',reloadAfterSubmit:true,recreateForm:true
+	closeAfterAdd:true,
+	closeOnEscape:true,
+	errorTextFormat:_errorTextFormat,
+	afterSubmit:_afterSubmit,
+	beforeShowForm:_beforeShowAddForm,
+	width:'auto',
+	reloadAfterSubmit:true,
+	recreateForm:true
   };
   
   <%-- structure to define L&F of "delete row" functionality. see JQGrid documentation at http://www.trirand.com/jqgridwiki/doku.php?id=wiki:jqgriddocs for parameter descriptions --%>
   var _delAttr={};
   
   <%-- structure to define L&F of "search row" functionality. see JQGrid documentation at http://www.trirand.com/jqgridwiki/doku.php?id=wiki:jqgriddocs for parameter descriptions --%>
-  var _searchAttr={drag:true,resize:true,modal:true,caption:'Lookup',closeOnEscape:true,sopt:['eq','ne'],multipleSearch: false, closeAfterSearch: true };
+  var _searchAttr={
+	drag:true,
+	resize:true,
+	modal:true,
+	caption:'Lookup',
+	closeOnEscape:true,
+	sopt:['eq','ne'],
+	multipleSearch: false, 
+	closeAfterSearch: true 
+  };
 
   <%-- structure to define L&F of "navigator" functionality. see JQGrid documentation at http://www.trirand.com/jqgridwiki/doku.php?id=wiki:jqgriddocs for parameter descriptions --%>
   var _navAttr={view:true,del:true,delfunc:_del_function};
@@ -469,7 +497,7 @@ function createGrid() {
 					_addAttr,    // add
 					_delAttr,    // delete
 					_searchAttr, // search
-					_editAttr);
+					_viewAttr);
 
 		<%-- add custom toolbar buttons if any --%>
 		<tiles:insertAttribute name="toolbar-buttons" />

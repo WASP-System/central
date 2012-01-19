@@ -2,6 +2,8 @@ package edu.yu.einstein.wasp.controller;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -154,13 +156,18 @@ public class LabController extends WaspController {
 	@RequestMapping(value = "/listJSON", method = RequestMethod.GET)
 	public String getListJSON(HttpServletResponse response) {
 
+		String sord = request.getParameter("sord");
+		String sidx = request.getParameter("sidx");
+
 		// result
 		Map<String, Object> jqgrid = new HashMap<String, Object>();
 
 		List<Lab> labList;
 
 		if (request.getParameter("_search") == null	|| StringUtils.isEmpty(request.getParameter("searchString"))) {
-			labList = this.labService.findAll();
+
+			labList = sidx.isEmpty() ? this.labService.findAll() : this.labService.findAllOrderBy(sidx, sord);
+		
 		} else {
 
 			Map<String, String> m = new HashMap<String, String>();
@@ -170,14 +177,28 @@ public class LabController extends WaspController {
 			labList = this.labService.findByMap(m);
 
 			if ("ne".equals(request.getParameter("searchOper"))) {
-				List<Lab> allLabs = new ArrayList<Lab>(this.labService.findAll());
-				for (Iterator<Lab> it = labList.iterator(); it.hasNext();) {
-					Lab excludeLab = it.next();
-					allLabs.remove(excludeLab);
-				}
+				List<Lab> allLabs = new ArrayList<Lab>(
+						sidx.isEmpty() ? this.labService.findAll() : this.labService.findAllOrderBy(sidx, sord));
+				
+				allLabs.removeAll(labList);
+
 				labList = allLabs;
 			}
 		}
+		
+		/***** Sort by PI name cannot be achieved by DB query "sort by" clause *****/
+		class LabPUNameComparator implements Comparator<Lab> {
+			public int compare(Lab arg0, Lab arg1) {
+				return arg0.getUser().getFirstName().compareToIgnoreCase(arg1.getUser().getFirstName());
+			}
+		}
+		
+		if (sidx.equals("primaryUserId")) {
+			Collections.sort(labList, new LabPUNameComparator());
+			if (sord.equals("desc"))
+				Collections.reverse(labList);
+		}
+		/***** Sort by PI name ends here *****/
 
 		ObjectMapper mapper = new ObjectMapper();
 

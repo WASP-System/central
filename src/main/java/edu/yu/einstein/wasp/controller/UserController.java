@@ -155,18 +155,6 @@ public class UserController extends WaspController {
 	
 	}
 	
-	class UserLastNameComparator implements Comparator <User> {
-		public int compare(User u1, User u2) {
-			return u1.getLastName().compareToIgnoreCase(u2.getLastName());
-		}
-	}
-	
-	class UserFirstNameComparator implements Comparator <User> {
-		public int compare(User u1, User u2) {
-			return u1.getFirstName().compareToIgnoreCase(u2.getFirstName());
-		}
-	}
-	
 	/**
 	 * Prepares page to display JQGrid table witk a list of users
 	 * 
@@ -175,15 +163,17 @@ public class UserController extends WaspController {
 	@RequestMapping(value="/listJSON", method=RequestMethod.GET)	
 	public String getListJSON(HttpServletResponse response) {
 	
+		String sord = request.getParameter("sord");
+		String sidx = request.getParameter("sidx");
+		
 		//result
 		Map <String, Object> jqgrid = new HashMap<String, Object>();
 		
 		List<User> userList;
 		
 		if (request.getParameter("_search")==null || StringUtils.isEmpty(request.getParameter("searchString"))) {
-			userList = this.userService.findAll();
+			userList = sidx.isEmpty() ? this.userService.findAll() : this.userService.findAllOrderBy(sidx, sord);
 		} else {
-			
 			  Map<String, String> m = new HashMap<String, String>();
 			  
 			  m.put(request.getParameter("searchField"), request.getParameter("searchString"));
@@ -191,7 +181,8 @@ public class UserController extends WaspController {
 			  userList = this.userService.findByMap(m);
 			  
 			  if ("ne".equals(request.getParameter("searchOper"))) {
-				  List<User> allUsers=new ArrayList<User>(this.userService.findAll());
+				  List<User> allUsers = new ArrayList<User> (
+						  sidx.isEmpty() ? this.userService.findAll() : this.userService.findAllOrderBy(sidx, sord) );
 				  for(Iterator<User> it=userList.iterator();it.hasNext();)  {
 					  User excludeUser=it.next();
 					  allUsers.remove(excludeUser);
@@ -200,20 +191,7 @@ public class UserController extends WaspController {
 			  }
 		}
 
-		String sord = request.getParameter("sord");
-		String sidx = request.getParameter("sidx");
-		if (!sord.isEmpty() && !sidx.isEmpty()) {
-			if (sidx.equals("firstName")) {
-				Collections.sort(userList, new UserFirstNameComparator());
-			} else if (sidx.equals("lastName")) {
-				Collections.sort(userList, new UserLastNameComparator());
-			}
-
-			if (sord.equals("desc"))
-				Collections.reverse(userList);
-		}
-		
-		 try {
+		try {
 			int pageIndex = Integer.parseInt(request.getParameter("page"));		// index of page
 			int pageRowNum = Integer.parseInt(request.getParameter("rows"));	// number of rows in one page
 			int rowNum = userList.size();										// total number of rows
