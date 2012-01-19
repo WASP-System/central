@@ -740,12 +740,12 @@ insert into typesample values
 (5, 2, 'platformunit', 'Platform Unit'),
 (6, 1, 'tissue', 'Tissue');
 
-create table typesamplecategoryresourcecategory (
-  typesamplecategoryresourcecategoryid int(10)  primary key auto_increment,
-  typesamplecategoryid int(10) ,
+create table typesampleresourcecategory (
+  typesampleresourcecategoryid int(10)  primary key auto_increment,
+  typesampleid int(10) ,
   resourcecategoryid int(10) ,
-  foreign key fk_typesamplecategoryresourcecategory_tscid (typesamplecategoryid) references typesamplecategory(typesamplecategoryid),
-  foreign key fk_typesamplecategoryresourcecategory_rcid (resourcecategoryid) references resourcecategory(resourcecategoryid)
+  foreign key fk_typesampleresourcecategory_tscid (typesampleid) references typesample(typesampleid),
+  foreign key fk_typesampleresourcecategory_rcid (resourcecategoryid) references resourcecategory(resourcecategoryid)
 ) ENGINE=InnoDB charset=utf8;
 
 

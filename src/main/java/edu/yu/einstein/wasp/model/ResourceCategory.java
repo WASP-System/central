@@ -253,34 +253,34 @@ public class ResourceCategory extends WaspModel {
 
 
 	/** 
-	 * typeSampleCategoryresourcecategory
+	 * typeSampleResourceCategory
 	 *
 	 */
 	@NotAudited
 	@OneToMany
 	@JoinColumn(name="resourcecategoryid", insertable=false, updatable=false)
-	protected List<TypeSampleCategoryResourceCategory> typeSamplecategoryresourcecategory;
+	protected List<TypeSampleResourceCategory> typeSampleResourceCategory;
 
 
 	/** 
-	 * getTypeSampleCategoryResourceCategory()
+	 * getTypeSampleresourcecategory()
 	 *
-	 * @return typeSamplecategoryresourcecategory
+	 * @return typeSampleResourceCategory
 	 *
 	 */
-	public List<TypeSampleCategoryResourceCategory> getTypeSampleCategoryResourceCategory() {
-		return this.typeSamplecategoryresourcecategory;
+	public List<TypeSampleResourceCategory> getTypeSampleResourceCategory() {
+		return this.typeSampleResourceCategory;
 	}
 
 
 	/** 
-	 * setTypeSampleCategoryResourceCategory
+	 * setTypeSampleresourcecategory
 	 *
-	 * @param typeSamplecategoryresourcecategory
+	 * @param typeSampleResourceCategory
 	 *
 	 */
-	public void setTypeSampleCategoryResourceCategory (List<TypeSampleCategoryResourceCategory> typeSamplecategoryresourcecategory) {
-		this.typeSamplecategoryresourcecategory = typeSamplecategoryresourcecategory;
+	public void setTypeSampleResourceCategory (List<TypeSampleResourceCategory> typeSampleResourceCategory) {
+		this.typeSampleResourceCategory = typeSampleResourceCategory;
 	}
 
 
