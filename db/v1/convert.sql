@@ -16349,12 +16349,12 @@ where
     insert into resourcecategory
     (resourcecategoryid, iname, name)
     values
-    (2, 'illuminaGaIIx',  'Illumina GaIIx');
+    (3, 'illuminaGaIIx',  'Illumina GaIIx');
     
     insert into resourcecategory
     (resourcecategoryid, iname, name)
     values
-    (3, 'rocheFLX',  'Roche FLX');
+    (2, 'rocheFLX',  'Roche FLX');
 
     insert into resource
     (resourceid, resourcecategoryid, iname, name, isactive, typeresourceid)
