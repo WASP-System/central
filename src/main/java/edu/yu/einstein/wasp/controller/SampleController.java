@@ -1,8 +1,17 @@
 package edu.yu.einstein.wasp.controller;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,19 +20,49 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import edu.yu.einstein.wasp.controller.validator.MetaHelper;
+import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobSample;
+import edu.yu.einstein.wasp.model.MetaBase;
+import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleFile;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
+import edu.yu.einstein.wasp.model.SubtypeSample;
+import edu.yu.einstein.wasp.model.TypeSample;
+import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.service.JobService;
+import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.service.SubtypeSampleService;
+import edu.yu.einstein.wasp.service.TypeSampleService;
+import edu.yu.einstein.wasp.service.UserService;
+import edu.yu.einstein.wasp.taglib.JQFieldTag;
 
 @Controller
 @Transactional
 @RequestMapping("/sample")
 public class SampleController extends WaspController {
 
+  
   private SampleService sampleService;
+  
+  @Autowired
+  private TypeSampleService	typeSampleService;
+  
+  @Autowired
+  private SubtypeSampleService	subtypeSampleService;
+  
+  @Autowired
+  private JobService jobService;
+  
+  @Autowired
+  private UserService userService;
+  
+  @Autowired
+  private RunService runService;
+  
   @Autowired
   public void setSampleService(SampleService sampleService) {
     this.sampleService = sampleService;
@@ -32,15 +71,33 @@ public class SampleController extends WaspController {
     return this.sampleService;
   }
 
+  @RequestMapping("/list")
+  public String list(ModelMap m) {
+    //List <Sample> sampleList = this.getSampleService().findAll();
+    
+    m.addAttribute("_metaList", getMetaHelper().getMasterList(MetaBase.class));
+	m.addAttribute(JQFieldTag.AREA_ATTR, getMetaHelper().getArea());
+	m.addAttribute("_metaDataMessages", MetaHelper.getMetadataMessages(request.getSession()));
+    
+    //m.addAttribute("sample", sampleList);
+	prepareSelectListData(m);
 
+
+    return "sample/list";
+  }
+
+  /*
   @RequestMapping("/list")
   public String list(ModelMap m) {
     List <Sample> sampleList = this.getSampleService().findAll();
+    
+   
     
     m.addAttribute("sample", sampleList);
 
     return "sample/list";
   }
+*/
 
   @RequestMapping(value="/detail/{strId}", method=RequestMethod.GET)
   public String detail(@PathVariable("strId") String strId, ModelMap m) {
@@ -80,6 +137,149 @@ public class SampleController extends WaspController {
 
     return "sample/detail";
   }
+
+  private final MetaHelper getMetaHelper() {
+		return new MetaHelper("sample", SampleMeta.class, request.getSession());
+  }
+	
+	/**
+	 * Prepares page to display JQGrid table witk a list of samples
+	 * 
+	 * @Author Natalia Volnova
+	 */
+  
+
+	@RequestMapping(value="/listJSON", method=RequestMethod.GET)	
+	public String getListJSON(HttpServletResponse response) {
+	
+		//result
+		Map <String, Object> jqgrid = new HashMap<String, Object>();
+		
+		List<Sample> sampleList;
+		
+		if (request.getParameter("_search")==null || StringUtils.isEmpty(request.getParameter("searchString"))) {
+			sampleList = this.getSampleService().findAll();
+		} else {
+			
+			  Map<String, String> m = new HashMap<String, String>();
+			  
+			  m.put(request.getParameter("searchField"), request.getParameter("searchString"));
+			  				  
+			  //sampleList = this.getSampleService.findByMap(m);
+			  sampleList = this.getSampleService().findByMap(m);
+			  
+			  if ("ne".equals(request.getParameter("searchOper"))) {
+				  List<Sample> allSamples=new ArrayList<Sample>(this.sampleService.findAll());
+				  for(Iterator<Sample> it=sampleList.iterator();it.hasNext();)  {
+					  Sample excludeSample=it.next();
+					  allSamples.remove(excludeSample);
+				  }
+				  sampleList=allSamples;
+			  }
+		}
+  	
+		 try {
+			 
+			 Map<Integer, String> allTypeSamples = new TreeMap<Integer, String>();
+				for (TypeSample typeSample : (List<TypeSample>) typeSampleService.findAll()) {
+					allTypeSamples.put(typeSample.getTypeSampleId(), typeSample.getName());
+			}
+			
+			Map<Integer, String> allSubTypeSamples = new TreeMap<Integer, String>();
+			for (SubtypeSample subtypeSample : (List<SubtypeSample>) subtypeSampleService.findAll()) {
+				allSubTypeSamples.put(subtypeSample.getSubtypeSampleId(), subtypeSample.getName());
+			}
+			
+			Map<Integer, String> allJobs = new TreeMap<Integer, String>();
+			for (Job job : (List<Job>) jobService.findAll()) {
+				allJobs.put(job.getJobId(), job.getName());
+			}
+							
+			Map<Integer, String> allUsers = new TreeMap<Integer, String>();
+			for (User user : (List<User>) userService.findAll()) {
+				allUsers.put(user.getUserId(),	user.getLastName() + ", " + user.getFirstName());
+			}
+			
+			Map<Integer, String> allRuns = new TreeMap<Integer, String>();
+			for (Run run : (List<Run>) runService.findAll()) {
+				allRuns.put(run.getSampleId(),	run.getName());
+			}
+			
+			
+			
+			
+						
+			int pageIndex = Integer.parseInt(request.getParameter("page"));		// index of page
+			int pageRowNum = Integer.parseInt(request.getParameter("rows"));	// number of rows in one page
+			int rowNum = sampleList.size();										// total number of rows
+			int pageNum = (rowNum + pageRowNum - 1) / pageRowNum;				// total number of pages
+			
+			jqgrid.put("records", rowNum + "");
+			jqgrid.put("total", pageNum + "");
+			jqgrid.put("page", pageIndex + "");
+			 
+			Map<String, String> sampleData=new HashMap<String, String>();
+			sampleData.put("page", pageIndex + "");
+			sampleData.put("selId",StringUtils.isEmpty(request.getParameter("selId"))?"":request.getParameter("selId"));
+			jqgrid.put("sampledata",sampleData);
+			 
+			List<Map> rows = new ArrayList<Map>();
+			
+			int frId = pageRowNum * (pageIndex - 1);
+			int toId = pageRowNum * pageIndex;
+			toId = toId <= rowNum ? toId : rowNum;
+
+			// if the selId is set, change the page index to the one contains the selId 
+			if(!StringUtils.isEmpty(request.getParameter("selId")))
+			{
+				int selId = Integer.parseInt(request.getParameter("selId"));
+				int selIndex = sampleList.indexOf(sampleService.findById(selId));
+				frId = selIndex;
+				toId = frId + 1;
+
+				jqgrid.put("records", "1");
+				jqgrid.put("total", "1");
+				jqgrid.put("page", "1");
+			}				
+
+			List<Sample> samplePage = sampleList.subList(frId, toId);
+			for (Sample sample:samplePage) {
+				Map cell = new HashMap();
+				cell.put("id", sample.getSampleId());
+				 
+				List<SampleMeta> sampleMeta=getMetaHelper().syncWithMaster(sample.getSampleMeta());
+				 					
+				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
+						sample.getName(),
+						(sample.getTypeSampleId() == null)? "": allTypeSamples.get(sample.getTypeSampleId()),
+						(sample.getSubtypeSampleId() == null)? "": allSubTypeSamples.get(sample.getSubtypeSampleId()),
+						(sample.getSubmitterJobId() == null)? "" : allJobs.get(sample.getSubmitterJobId()),
+						allUsers.get(sample.getSubmitterUserId()),
+						(sample.getIsActive() == 1)? "True":"False",
+						allRuns.get(sample.getSampleId())
+						
+				}));
+				 
+				for(SampleMeta meta:sampleMeta) {
+					cellList.add(meta.getV());
+				}
+				
+				 
+				cell.put("cell", cellList);
+				 
+				rows.add(cell);
+			}
+
+			 
+			jqgrid.put("rows",rows);
+			 
+			return outputJSON(jqgrid, response); 	
+			 
+		} catch (Throwable e) {
+			throw new IllegalStateException("Can't marshall to JSON "+sampleList,e);
+		}
+
+	}
 
 
 }

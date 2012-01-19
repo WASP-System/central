@@ -284,8 +284,12 @@
 		<put-attribute name="grid-columns" value="/WEB-INF/jsp/task/fmpayment/payment_grid_columns.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/task/fmpayment/payment.jsp" />
 	</definition>
-
-
+	<definition name="sample/list" extends="template-grid">
+		<put-attribute name="area" value="sample" />
+		<put-attribute name="grid-columns" value="/WEB-INF/jsp/sample/grid_columns.jsp" />
+		<put-attribute name="grid-customAttributes" value="/WEB-INF/jsp/sample/grid_customAttributes.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/sample/list.jsp" />
+	</definition>
 
 	<definition name="workflow/list" extends="template-base">
 		<put-attribute name="area" value="workflow" />
