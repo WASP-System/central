@@ -2,10 +2,12 @@ package edu.yu.einstein.wasp.controller;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Comparator;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -27,9 +29,11 @@ import edu.yu.einstein.wasp.controller.validator.MetaHelper;
 import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.StateMeta;
 import edu.yu.einstein.wasp.model.Statejob;
+import edu.yu.einstein.wasp.model.Statesample;
 import edu.yu.einstein.wasp.model.Task;
 import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.StateMetaService;
+import edu.yu.einstein.wasp.service.StatesampleService;
 import edu.yu.einstein.wasp.service.StateService;
 import edu.yu.einstein.wasp.service.TaskService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
@@ -63,6 +67,8 @@ public class TaskController extends WaspController {
   @Autowired
   private StateMetaService stateMetaService;
 
+  @Autowired
+  private StatesampleService stateSampleService;
 
   @RequestMapping("/list")
   public String list(ModelMap m) {
@@ -367,13 +373,23 @@ MetaHelper metaHelper = new MetaHelper("fmpayment", "state", StateMeta.class,req
   }
 
   @RequestMapping(value = "/samplereceive/list", method = RequestMethod.GET)
-  @PreAuthorize("hasRole('god') or hasRole('fm')")
+  @PreAuthorize("hasRole('god') or hasRole('fm') or hasRole('ft')")
   public String listSampleReceive(ModelMap m) {
 
     Task task = this.getTaskService().getTaskByIName("Receive Sample");
-    List<State> states = task.getState();
+    List<State> states_temp = task.getState();
 
+    List<State> states = new ArrayList<State>();
     // TODO filter by status
+    //TODO should really filter to restrict to jobs that are NOT completed (if some samples are never going to arrive, they'll always be listed)
+    for(State state : states_temp){
+    	if(state.getStatus().equals("WAITING")){
+    		states.add(state);
+    	}
+    }
+    //sort list states by jobId
+    Comparator<State> stateComparator = new OrderStatesByJobIdComparator();
+    Collections.sort(states, stateComparator);
     
     m.addAttribute("task", task);
     m.addAttribute("states", states);
@@ -382,22 +398,75 @@ MetaHelper metaHelper = new MetaHelper("fmpayment", "state", StateMeta.class,req
   }
 
   @RequestMapping(value = "/samplereceive/receive", method = RequestMethod.POST)
-  @PreAuthorize("hasRole('god') or hasRole('fm')")
+  @PreAuthorize("hasRole('god') or hasRole('fm') or hasRole('ft')")
   public String payment(
       @RequestParam("stateId") Integer stateId,
       @RequestParam("sampleId") Integer sampleId,
+      @RequestParam("receivedStatus") String receivedStatus,
       ModelMap m
     ) {
 
-    // TODO jobId belongs to stateId
-    // TODO check valid state
-    // TODO email LM/PI/DA/submitter
-    //   
-
-
-    // TODO add status message
-
-    return "redirect:/task/samplereceive/list.do";
+	  if(receivedStatus == null ||  receivedStatus.equals("")){
+		  waspMessage("task.samplereceive.error_receivedstatus_empty");
+	  }
+	  else if(!receivedStatus.equals("RECEIVED") && !receivedStatus.equals("NEVER COMING")){
+		  waspMessage("task.samplereceive.error_receivedstatus_invalid");
+	  }
+	  else{
+		  Map map = new HashMap();
+	  	  map.put("sampleId", sampleId);
+	  	  List<Statesample> statesamples = this.stateSampleService.findByMap(map);
+	  	  boolean valid = false;
+	  	  for(Statesample ss : statesamples){
+	  		  if(ss.getStateId().intValue() == stateId.intValue()){
+	  			  valid = true;
+	  			  break;
+	  		  }
+	  	  }
+	  	  if(!valid){
+	  		  waspMessage("task.samplereceive.error_state_sample_conflict");
+	  	  }
+	  	  else{
+	  		  State state = this.getStateService().getStateByStateId(stateId);
+	  		  Task task = this.getTaskService().getTaskByIName("Receive Sample");
+	  		  if(state.getTaskId().intValue() != task.getTaskId().intValue()){
+	  			  waspMessage("task.samplereceive.error_state_task_conflict");
+	  		  }
+	  		  else{
+	  			  state.setStatus(receivedStatus);  
+	  			  stateService.save(state);
+	  			  waspMessage("task.samplereceive.update_success");
+	  			  //email LM/PI/DA/submitter  //Not really necessary
+	  		  }
+	  	  }
+	  }
+	  return "redirect:/task/samplereceive/list.do";
   }
 
+  	public class OrderStatesByJobIdComparator implements Comparator<State> {
+		 
+  		@Override
+  		public int compare(State s1, State s2) {
+
+  			try{
+  			if(s1.getStatejob().get(0).getJobId().intValue() > s2.getStatejob().get(0).getJobId().intValue()){
+  				return 1;
+  			}
+  			else if(s1.getStatejob().get(0).getJobId().intValue() == s2.getStatejob().get(0).getJobId().intValue()){
+  				return 0;
+  			}
+  			else{
+  				return -1;
+  			}
+  			}
+  			catch(Exception e){
+  				System.out.println("1. My Comparator Exception: ");// + s1.getStatejob().get(0).getJobId().intValue() + "  and " + s2.getStatejob().get(0).getJobId().intValue());
+  				return 0;
+  			}
+  		}
+	}
+  
+  
+  
 }
+

@@ -184,6 +184,7 @@
 		<put-attribute name="body-content" value="/WEB-INF/jsp/task/fmrequote/list.jsp" />
 	</definition>
 	<definition name="task/samplereceive/list" extends="template-base">
+	    <put-attribute name="head-js" value="/WEB-INF/jsp/task/samplereceive/list.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/task/samplereceive/list.jsp" />
 	</definition>
 	 <!--<definition name="department/detail" extends="template-base">

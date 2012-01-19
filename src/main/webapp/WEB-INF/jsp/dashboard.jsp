@@ -1,4 +1,5 @@
 <%@ include file="/WEB-INF/jsp/include.jsp" %>
+<%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 <div><p><font color="red"><wasp:message /></font></p></div>
 <div><p>Welcome back ${me.firstName} ${me.lastName}</p></div>
 <div><a href="<c:url value="/user/me_ro.do"/>">My Profile</a></div>
@@ -7,7 +8,7 @@
 </sec:authorize>
 <div><a href="<c:url value="/auth/reauth.do"/>">Refresh Auth</a></div>
 <div><a href="<c:url value="/lab/newrequest.do"/>">Request Access to a Lab</a> (Note: requests subject to verification)</div>
-
+<br />
 
 
 <sec:authorize access="hasRole('god')">
@@ -42,6 +43,8 @@
   </div>
 </sec:authorize>
 
+<br />
+
 <sec:authorize access="hasRole('da-*') or hasRole('god') or hasRole('ga')">
   <div>
   <h1>Department Admin</h1>
@@ -68,6 +71,7 @@
     <div><a href="<c:url value="/task/daapproval/list/${departmentId}.do"/>">Pending Department Admin Job Approval</a></div>
   </c:forEach>
   </div>
+  <br />
 </sec:authorize>
 
 
@@ -125,6 +129,7 @@
   </div>
 </sec:authorize>
 
+<br />
 
 <sec:authorize access="hasRole('jv-*')">
   <div>
@@ -139,7 +144,11 @@
       </a>
     </div>
   </c:forEach>
+  </div>
+  <br />
 </sec:authorize>
+
+
 
 <sec:authorize access="hasRole('jd-*')">
   <div>
@@ -154,10 +163,18 @@
       </a>
     </div>
   </c:forEach>
+  </div>
+  <br />
 </sec:authorize>
+
+
+
 <sec:authorize access="hasRole('lu-*')">
   <a href="<c:url value="/jobsubmit/create.do" />">Submit a Job</a>
+<br /><br />
 </sec:authorize>
+
+
 
 <sec:authorize access="hasRole('fm')">
   <div>
@@ -165,14 +182,20 @@
   <div><a href="<c:url value="/task/fmrequote/list.do"/>">Requote Pending Jobs</a></div>
   <div><a href="<c:url value="/task/fmpayment/list.do"/>">Receive Payment for Jobs</a></div>
   </div>
+  <br />
 </sec:authorize>
 
-<sec:authorize access="hasRole('fm')">
+
+
+<sec:authorize access="hasRole('fm') or hasRole('ft')">
   <div>
   <h1>Incoming Sample Manager</h1>
   <div><a href="<c:url value="/task/samplereceive/list.do"/>">Sample Receiver</a></div>
   </div>
+  <br />
 </sec:authorize>
+
+
 
 <sec:authorize access="hasRole('ft')">
   <div>
@@ -181,6 +204,7 @@
   <div><a href="<c:url value="/facility/platformunit/create.do"/>">Create</a></div>
   <div><a href="<c:url value="/facility/platformunit/assign.do" />">Platform Unit assignment</a></div>
   </div>
+  <br />
 </sec:authorize>
 
 <hr>
