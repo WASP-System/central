@@ -26,12 +26,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import edu.yu.einstein.wasp.controller.validator.MetaHelper;
+import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.StateMeta;
 import edu.yu.einstein.wasp.model.Statejob;
 import edu.yu.einstein.wasp.model.Statesample;
 import edu.yu.einstein.wasp.model.Task;
+import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.MessageService;
+import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.StateMetaService;
 import edu.yu.einstein.wasp.service.StatesampleService;
 import edu.yu.einstein.wasp.service.StateService;
@@ -69,7 +73,13 @@ public class TaskController extends WaspController {
 
   @Autowired
   private StatesampleService stateSampleService;
-
+  
+  @Autowired
+  private SampleService sampleService;
+  
+  @Autowired
+  private AuthenticationService authenticationService;
+  
   @RequestMapping("/list")
   public String list(ModelMap m) {
     List <Task> taskList = this.getTaskService().findAll();
@@ -435,6 +445,11 @@ MetaHelper metaHelper = new MetaHelper("fmpayment", "state", StateMeta.class,req
 	  		  else{
 	  			  state.setStatus(receivedStatus);  
 	  			  stateService.save(state);
+	  			  Sample sample = this.sampleService.getSampleBySampleId(sampleId);
+	  			  sample.setIsReceived(1);
+	  			  sample.setReceiverUserId(authenticationService.getAuthenticatedUser().getUserId());	  			  
+	  			  sample.setReceiveDts(new Date());
+	  			  sampleService.save(sample);
 	  			  waspMessage("task.samplereceive.update_success");
 	  			  //email LM/PI/DA/submitter  //Not really necessary
 	  		  }
