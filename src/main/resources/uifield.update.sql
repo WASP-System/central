@@ -473,6 +473,12 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','enrich_primer_pair_id','metaposition','130','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','hello','error=Hello World','','','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sample','name','label','Name','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sample','type','label','Type','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sample','subtype','label','Subtype','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sample','job','label','Job','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sample','submitter','label','Submitter','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sample','isreceived','label','Is Received','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sample','runs','label','Runs','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sample','name','error','Name cannot be null','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','barcode','label','Barcode','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','barcode','constraint','NotEmpty','1');
@@ -657,6 +663,10 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','lab/newrequest','label','Request Access to Lab','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','jobsubmit/cell','label','Cells','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','sysrole/list','label','System User Management','1');
+
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','sample/list','label','Sample Utilities','1');
+
+
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','uiField','updated','data','Attribute Updated','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','captcha','error','Captcha text incorrect','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','captcha','label','Captcha text','1');
