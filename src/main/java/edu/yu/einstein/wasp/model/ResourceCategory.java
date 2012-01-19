@@ -252,4 +252,70 @@ public class ResourceCategory extends WaspModel {
 
 
 
+	/** 
+	 * typeSampleCategoryresourcecategory
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="resourcecategoryid", insertable=false, updatable=false)
+	protected List<TypeSampleCategoryResourceCategory> typeSamplecategoryresourcecategory;
+
+
+	/** 
+	 * getTypeSampleCategoryResourceCategory()
+	 *
+	 * @return typeSamplecategoryresourcecategory
+	 *
+	 */
+	public List<TypeSampleCategoryResourceCategory> getTypeSampleCategoryResourceCategory() {
+		return this.typeSamplecategoryresourcecategory;
+	}
+
+
+	/** 
+	 * setTypeSampleCategoryResourceCategory
+	 *
+	 * @param typeSamplecategoryresourcecategory
+	 *
+	 */
+	public void setTypeSampleCategoryResourceCategory (List<TypeSampleCategoryResourceCategory> typeSamplecategoryresourcecategory) {
+		this.typeSamplecategoryresourcecategory = typeSamplecategoryresourcecategory;
+	}
+
+
+
+	/** 
+	 * adaptorsetresourcecategory
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="resourcecategoryid", insertable=false, updatable=false)
+	protected List<AdaptorsetResourceCategory> adaptorsetresourcecategory;
+
+
+	/** 
+	 * getAdaptorsetResourceCategory()
+	 *
+	 * @return adaptorsetresourcecategory
+	 *
+	 */
+	public List<AdaptorsetResourceCategory> getAdaptorsetResourceCategory() {
+		return this.adaptorsetresourcecategory;
+	}
+
+
+	/** 
+	 * setAdaptorsetResourceCategory
+	 *
+	 * @param adaptorsetresourcecategory
+	 *
+	 */
+	public void setAdaptorsetResourceCategory (List<AdaptorsetResourceCategory> adaptorsetresourcecategory) {
+		this.adaptorsetresourcecategory = adaptorsetresourcecategory;
+	}
+
+
+
 }

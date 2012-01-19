@@ -708,22 +708,47 @@ create table file (
 -- SAMPLE
 --
 
-create table typesample (
-  typesampleid int(10)  primary key auto_increment,
+create table typesamplecategory (
+  typesamplecategoryid int(10)  primary key auto_increment,
   iname varchar(250), 
   name varchar(250),
 
+  constraint unique index u_typesamplecategory_iname (iname),
+  constraint unique index u_typesamplecategory_name (name)
+) ENGINE=InnoDB charset=utf8;
+
+insert into typesamplecategory values
+(1, 'biomaterial', 'Biomaterial'),
+(2, 'hardware', 'Hardware');
+
+
+create table typesample (
+  typesampleid int(10)  primary key auto_increment,
+  typesamplecategoryid int(10) ,
+  iname varchar(250), 
+  name varchar(250),
+  foreign key fk_typesample_tscid (typesamplecategoryid) references typesamplecategory(typesamplecategoryid),
   constraint unique index u_typesample_iname (iname),
   constraint unique index u_typesample_name (name)
 ) ENGINE=InnoDB charset=utf8;
 
 insert into typesample values
-(1, 'dna', 'DNA'), 
-(2, 'rna', 'RNA'), 
-(3, 'library', 'Library'),
-(4, 'lane', 'Lane'), 
-(5, 'platformunit', 'Platform Unit'),
-(6, 'tissue', 'Tissue');
+(1, 1, 'dna', 'DNA'), 
+(2, 1, 'rna', 'RNA'), 
+(3, 1, 'library', 'Library'),
+(4, 2, 'cell', 'Cell'), 
+(5, 2, 'platformunit', 'Platform Unit'),
+(6, 1, 'tissue', 'Tissue');
+
+create table typesamplecategoryresourcecategory (
+  typesamplecategoryresourcecategoryid int(10)  primary key auto_increment,
+  typesamplecategoryid int(10) ,
+  resourcecategoryid int(10) ,
+  foreign key fk_typesamplecategoryresourcecategory_tscid (typesamplecategoryid) references typesamplecategory(typesamplecategoryid),
+  foreign key fk_typesamplecategoryresourcecategory_rcid (resourcecategoryid) references resourcecategory(resourcecategoryid)
+) ENGINE=InnoDB charset=utf8;
+
+
 
 create table subtypesample (
   subtypesampleid int(10)  primary key auto_increment,
