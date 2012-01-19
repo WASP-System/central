@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -227,12 +226,14 @@ public DepartmentService getDepartmentService() {
 
 		/***** Sort lab list by lab name OR PI name *****/
 		class LabNameComparator implements Comparator<Lab> {
+			@Override
 			public int compare(Lab arg0, Lab arg1) {
 				return arg0.getName().compareToIgnoreCase(arg1.getName());
 			}
 		}
 
 		class LabPUNameComparator implements Comparator<Lab> {
+			@Override
 			public int compare(Lab arg0, Lab arg1) {
 				return arg0.getUser().getFirstName().compareToIgnoreCase(arg1.getUser().getFirstName());
 			}

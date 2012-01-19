@@ -11,19 +11,12 @@
 
 package edu.yu.einstein.wasp.service.impl;
 
-import edu.yu.einstein.wasp.service.WorkflowresourceMetaService;
-import edu.yu.einstein.wasp.dao.WorkflowresourceMetaDao;
-import edu.yu.einstein.wasp.dao.WaspDao;
-import edu.yu.einstein.wasp.model.WorkflowresourceMeta;
-
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PostFilter;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Service;
+
+import edu.yu.einstein.wasp.dao.WorkflowresourceMetaDao;
+import edu.yu.einstein.wasp.model.WorkflowresourceMeta;
+import edu.yu.einstein.wasp.service.WorkflowresourceMetaService;
 
 @Service
 public class WorkflowresourceMetaServiceImpl extends WaspServiceImpl<WorkflowresourceMeta> implements WorkflowresourceMetaService {
@@ -40,6 +33,7 @@ public class WorkflowresourceMetaServiceImpl extends WaspServiceImpl<Workflowres
 	 * @param workflowresourceMetaDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setWorkflowresourceMetaDao(WorkflowresourceMetaDao workflowresourceMetaDao) {
 		this.workflowresourceMetaDao = workflowresourceMetaDao;
@@ -52,16 +46,19 @@ public class WorkflowresourceMetaServiceImpl extends WaspServiceImpl<Workflowres
 	 * @return workflowresourceMetaDao
 	 *
 	 */
+	@Override
 	public WorkflowresourceMetaDao getWorkflowresourceMetaDao() {
 		return this.workflowresourceMetaDao;
 	}
 
 
-  public WorkflowresourceMeta getWorkflowresourceMetaByWorkflowresourceoptionId (final Integer workflowresourceoptionId) {
+  @Override
+public WorkflowresourceMeta getWorkflowresourceMetaByWorkflowresourceoptionId (final Integer workflowresourceoptionId) {
     return this.getWorkflowresourceMetaDao().getWorkflowresourceMetaByWorkflowresourceoptionId(workflowresourceoptionId);
   }
 
-  public WorkflowresourceMeta getWorkflowresourceMetaByWorkflowresourceIdK (final Integer workflowresourceId, final Integer k) {
+  @Override
+public WorkflowresourceMeta getWorkflowresourceMetaByWorkflowresourceIdK (final Integer workflowresourceId, final Integer k) {
     return this.getWorkflowresourceMetaDao().getWorkflowresourceMetaByWorkflowresourceIdK(workflowresourceId, k);
   }
 

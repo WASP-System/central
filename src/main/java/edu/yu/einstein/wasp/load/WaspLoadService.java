@@ -149,11 +149,11 @@ public abstract class WaspLoadService {
 	}
 	
 	protected <E> List<E> safeList(List<E> list){
-		return (List<E>) (list == null ? Collections.EMPTY_LIST : list);
+		return (list == null ? Collections.EMPTY_LIST : list);
 	}
 	
 	protected <E> Set<E> safeSet(Set<E> set){
-		return (Set<E>) (set == null ? Collections.EMPTY_SET : set);
+		return (set == null ? Collections.EMPTY_SET : set);
 	}
 
 }

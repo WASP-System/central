@@ -3,11 +3,11 @@ package edu.yu.einstein.wasp.controller;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Comparator;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -37,8 +37,8 @@ import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.StateMetaService;
-import edu.yu.einstein.wasp.service.StatesampleService;
 import edu.yu.einstein.wasp.service.StateService;
+import edu.yu.einstein.wasp.service.StatesampleService;
 import edu.yu.einstein.wasp.service.TaskService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 

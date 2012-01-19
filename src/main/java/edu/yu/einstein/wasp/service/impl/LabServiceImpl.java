@@ -152,14 +152,16 @@ public int getLabManagerPendingTasks(int labId, List<UserPending> newUsersPendin
 	  return newUsersPendingLmApprovalList.size() + existingUsersPendingLmApprovalList.size() + jobsPendingLmApprovalList.size();
   }
 
-  public int getAllLabManagerPendingTasks(){
+  @Override
+public int getAllLabManagerPendingTasks(){
 	  List<UserPending> newUsersPendingLmApprovalList = new ArrayList<UserPending>();
 	  List<LabUser> existingUsersPendingLmApprovalList = new ArrayList<LabUser>();
 	  List<Job> jobsPendingLmApprovalList = new ArrayList<Job>();
 	  return getAllLabManagerPendingTasks(newUsersPendingLmApprovalList, existingUsersPendingLmApprovalList, jobsPendingLmApprovalList);
   
   }
-  public int getAllLabManagerPendingTasks(List<UserPending> newUsersPendingLmApprovalList, List<LabUser> existingUsersPendingLmApprovalList, List<Job> jobsPendingLmApprovalList){
+  @Override
+public int getAllLabManagerPendingTasks(List<UserPending> newUsersPendingLmApprovalList, List<LabUser> existingUsersPendingLmApprovalList, List<Job> jobsPendingLmApprovalList){
 	  
 	  Map themap = new HashMap();
 	  themap.put("status", "PENDING");

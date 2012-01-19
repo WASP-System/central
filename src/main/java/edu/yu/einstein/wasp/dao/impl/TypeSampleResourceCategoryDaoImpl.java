@@ -13,7 +13,6 @@ package edu.yu.einstein.wasp.dao.impl;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -60,7 +59,55 @@ public class TypeSampleResourceCategoryDaoImpl extends WaspDaoImpl<TypeSampleRes
 		return results.get(0);
 	}
 
+	/**
+	 * getTypeSampleResourceCategoryByIName(final String iName)
+	 *
+	 * @param final String iName
+	 *
+	 * @return typeSampleResourceCategory
+	 */
 
+	@Override
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public TypeSampleResourceCategory getTypeSampleResourceCategoryByIName (final String iName) {
+    		HashMap m = new HashMap();
+		m.put("iName", iName);
+
+		List<TypeSampleResourceCategory> results = this.findByMap(m);
+
+		if (results.size() == 0) {
+			TypeSampleResourceCategory rt = new TypeSampleResourceCategory();
+			return rt;
+		}
+		return results.get(0);
+	}
+
+
+
+	/**
+	 * getTypeSampleResourceCategoryByName(final String name)
+	 *
+	 * @param final String name
+	 *
+	 * @return typeSampleResourceCategory
+	 */
+
+	@Override
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public TypeSampleResourceCategory getTypeSampleResourceCategoryByName (final String name) {
+    		HashMap m = new HashMap();
+		m.put("name", name);
+
+		List<TypeSampleResourceCategory> results = this.findByMap(m);
+
+		if (results.size() == 0) {
+			TypeSampleResourceCategory rt = new TypeSampleResourceCategory();
+			return rt;
+		}
+		return results.get(0);
+	}
 
 }
 

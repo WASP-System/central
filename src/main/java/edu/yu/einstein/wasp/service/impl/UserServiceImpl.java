@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 import edu.yu.einstein.wasp.dao.UserDao;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.service.ConfirmEmailAuthService;
-// import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.service.UserService;
 
 @Service

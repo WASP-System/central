@@ -11,12 +11,8 @@
 
 package edu.yu.einstein.wasp.dao.impl;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceException;
-import javax.persistence.Query;
-
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Repository;
@@ -48,19 +44,20 @@ public class WorkflowresourceDaoImpl extends WaspDaoImpl<Workflowresource> imple
 	 * @return workflowresource
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public Workflowresource getWorkflowresourceByWorkflowresourceId (final Integer workflowresourceId) {
     		HashMap m = new HashMap();
 		m.put("workflowresourceId", workflowresourceId);
 
-		List<Workflowresource> results = (List<Workflowresource>) this.findByMap((Map) m);
+		List<Workflowresource> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			Workflowresource rt = new Workflowresource();
 			return rt;
 		}
-		return (Workflowresource) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -73,6 +70,7 @@ public class WorkflowresourceDaoImpl extends WaspDaoImpl<Workflowresource> imple
 	 * @return workflowresource
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public Workflowresource getWorkflowresourceByWorkflowIdResourceId (final Integer workflowId, final Integer resourceId) {
@@ -80,13 +78,13 @@ public class WorkflowresourceDaoImpl extends WaspDaoImpl<Workflowresource> imple
 		m.put("workflowId", workflowId);
 		m.put("resourceId", resourceId);
 
-		List<Workflowresource> results = (List<Workflowresource>) this.findByMap((Map) m);
+		List<Workflowresource> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			Workflowresource rt = new Workflowresource();
 			return rt;
 		}
-		return (Workflowresource) results.get(0);
+		return results.get(0);
 	}
 
 

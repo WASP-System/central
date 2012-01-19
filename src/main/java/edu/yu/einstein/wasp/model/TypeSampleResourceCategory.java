@@ -118,6 +118,64 @@ public class TypeSampleResourceCategory extends WaspModel {
 		return this.resourcecategoryId;
 	}
 
+	/** 
+	 * iName
+	 *
+	 */
+	@Column(name="iname")
+	protected String iName;
+
+	/**
+	 * setIName(String iName)
+	 *
+	 * @param iName
+	 *
+	 */
+	
+	public void setIName (String iName) {
+		this.iName = iName;
+	}
+
+	/**
+	 * getIName()
+	 *
+	 * @return iName
+	 *
+	 */
+	public String getIName () {
+		return this.iName;
+	}
+
+
+
+
+	/** 
+	 * name
+	 *
+	 */
+	@Column(name="name")
+	protected String name;
+
+	/**
+	 * setName(String name)
+	 *
+	 * @param name
+	 *
+	 */
+	
+	public void setName (String name) {
+		this.name = name;
+	}
+
+	/**
+	 * getName()
+	 *
+	 * @return name
+	 *
+	 */
+	public String getName () {
+		return this.name;
+	}
 
 
 

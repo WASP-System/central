@@ -35,11 +35,11 @@ public interface TypeSampleCategoryService extends WaspService<TypeSampleCategor
 	 */
 	public TypeSampleCategoryDao getTypeSampleCategoryDao();
 
-  public TypeSampleCategory getTypeSampleCategoryByTypeSamplecategoryId (final Integer typeSamplecategoryId);
+	public TypeSampleCategory getTypeSampleCategoryByTypeSampleCategoryId (final Integer typeSamplecategoryId);
 
-  public TypeSampleCategory getTypeSampleCategoryByIName (final String iName);
+	public TypeSampleCategory getTypeSampleCategoryByIName (final String iName);
 
-  public TypeSampleCategory getTypeSampleCategoryByName (final String name);
+	public TypeSampleCategory getTypeSampleCategoryByName (final String name);
 
 
 }

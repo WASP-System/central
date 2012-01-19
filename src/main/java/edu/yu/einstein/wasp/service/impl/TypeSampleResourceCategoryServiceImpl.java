@@ -53,9 +53,18 @@ public class TypeSampleResourceCategoryServiceImpl extends WaspServiceImpl<TypeS
 
 
   @Override
-public TypeSampleResourceCategory getTypeSampleResourceCategoryByTypeSampleresourcecategoryId (final Integer typeSampleresourcecategoryId) {
+  public TypeSampleResourceCategory getTypeSampleResourceCategoryByTypeSampleResourceCategoryId (final Integer typeSampleresourcecategoryId) {
     return this.getTypeSampleResourceCategoryDao().getTypeSampleResourceCategoryByTypeSampleresourcecategoryId(typeSampleresourcecategoryId);
   }
-
+  
+  @Override
+  public TypeSampleResourceCategory getTypeSampleResourceCategoryByIName (final String iName){
+	  return this.getTypeSampleResourceCategoryDao().getTypeSampleResourceCategoryByIName(iName);
+  }
+  
+  @Override
+  public TypeSampleResourceCategory getTypeTypeSampleResourceCategoryByName (final String name){
+	  return this.getTypeSampleResourceCategoryDao().getTypeSampleResourceCategoryByName(name);
+  }
 }
 

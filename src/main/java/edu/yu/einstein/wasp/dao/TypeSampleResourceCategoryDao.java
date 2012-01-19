@@ -16,8 +16,11 @@ import edu.yu.einstein.wasp.model.TypeSampleResourceCategory;
 
 public interface TypeSampleResourceCategoryDao extends WaspDao<TypeSampleResourceCategory> {
 
-  public TypeSampleResourceCategory getTypeSampleResourceCategoryByTypeSampleresourcecategoryId (final Integer typeSampleresourcecategoryId);
+	public TypeSampleResourceCategory getTypeSampleResourceCategoryByTypeSampleresourcecategoryId (final Integer typeSampleresourcecategoryId);
 
+	public TypeSampleResourceCategory getTypeSampleResourceCategoryByIName (final String iName);
 
+	public TypeSampleResourceCategory getTypeSampleResourceCategoryByName (final String name);
+	
 }
 

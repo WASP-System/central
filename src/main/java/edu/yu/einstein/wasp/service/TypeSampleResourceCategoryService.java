@@ -35,7 +35,11 @@ public interface TypeSampleResourceCategoryService extends WaspService<TypeSampl
 	 */
 	public TypeSampleResourceCategoryDao getTypeSampleResourceCategoryDao();
 
-  public TypeSampleResourceCategory getTypeSampleResourceCategoryByTypeSampleresourcecategoryId (final Integer typeSampleresourcecategoryId);
+	public TypeSampleResourceCategory getTypeSampleResourceCategoryByTypeSampleResourceCategoryId (final Integer typeSampleresourcecategoryId);
+  
+	public TypeSampleResourceCategory getTypeSampleResourceCategoryByIName (final String iName);
+
+	public TypeSampleResourceCategory getTypeTypeSampleResourceCategoryByName (final String name);
 
 
 }

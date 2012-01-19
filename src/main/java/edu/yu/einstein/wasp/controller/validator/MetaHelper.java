@@ -22,7 +22,6 @@ import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.MetaUtil;
-import edu.yu.einstein.wasp.model.MetaAttribute.FormVisibility;
 
 
 /**

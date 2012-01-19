@@ -11,19 +11,12 @@
 
 package edu.yu.einstein.wasp.service.impl;
 
-import edu.yu.einstein.wasp.service.TypeSampleCategoryService;
-import edu.yu.einstein.wasp.dao.TypeSampleCategoryDao;
-import edu.yu.einstein.wasp.dao.WaspDao;
-import edu.yu.einstein.wasp.model.TypeSampleCategory;
-
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PostFilter;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Service;
+
+import edu.yu.einstein.wasp.dao.TypeSampleCategoryDao;
+import edu.yu.einstein.wasp.model.TypeSampleCategory;
+import edu.yu.einstein.wasp.service.TypeSampleCategoryService;
 
 @Service
 public class TypeSamplecategoryServiceImpl extends WaspServiceImpl<TypeSampleCategory> implements TypeSampleCategoryService {
@@ -40,6 +33,7 @@ public class TypeSamplecategoryServiceImpl extends WaspServiceImpl<TypeSampleCat
 	 * @param typeSampleCategoryDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setTypeSampleCategoryDao(TypeSampleCategoryDao typeSampleCategoryDao) {
 		this.typeSampleCategoryDao = typeSampleCategoryDao;
@@ -52,22 +46,27 @@ public class TypeSamplecategoryServiceImpl extends WaspServiceImpl<TypeSampleCat
 	 * @return typeSampleCategoryDao
 	 *
 	 */
+	@Override
 	public TypeSampleCategoryDao getTypeSampleCategoryDao() {
 		return this.typeSampleCategoryDao;
 	}
 
 
-  public TypeSampleCategory getTypeSampleCategoryByTypeSamplecategoryId (final Integer typeSamplecategoryId) {
+  @Override
+public TypeSampleCategory getTypeSampleCategoryByTypeSampleCategoryId (final Integer typeSamplecategoryId) {
     return this.getTypeSampleCategoryDao().getTypeSampleCategoryByTypeSamplecategoryId(typeSamplecategoryId);
   }
 
-  public TypeSampleCategory getTypeSampleCategoryByIName (final String iName) {
+  @Override
+public TypeSampleCategory getTypeSampleCategoryByIName (final String iName) {
     return this.getTypeSampleCategoryDao().getTypeSampleCategoryByIName(iName);
   }
 
-  public TypeSampleCategory getTypeSampleCategoryByName (final String name) {
+  @Override
+public TypeSampleCategory getTypeSampleCategoryByName (final String name) {
     return this.getTypeSampleCategoryDao().getTypeSampleCategoryByName(name);
   }
+
 
 }
 
