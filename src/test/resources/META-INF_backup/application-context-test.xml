@@ -29,9 +29,8 @@
 
     <tx:annotation-driven transaction-manager="transactionManager" />
 
-    <bean id="userroleDao" class="edu.yu.einstein.wasp.dao.impl.UserroleDaoImpl">
-           <property name="entityManagerFactory" ref="entityManagerFactory" />
-    </bean>
+    <bean id="userroleDao" class="edu.yu.einstein.wasp.dao.impl.UserroleDaoImpl" />
+
          
     <bean id="dataSource" class="org.unitils.database.UnitilsDataSourceFactoryBean" />
 </beans>
