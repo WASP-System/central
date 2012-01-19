@@ -31,7 +31,7 @@
       <list>  
         <value>classpath:database.properties</value>  
         <value>classpath:authentication.properties</value>
-        <value>classpath:email.properties</value>
+        <value>classpath:work_email.properties</value>
       </list>  
     </property>  
   </bean>  
