@@ -11,8 +11,13 @@
 
 package edu.yu.einstein.wasp.dao.impl;
 
-import java.util.HashMap;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceException;
+import javax.persistence.Query;
+
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,27 +41,26 @@ public class JobDraftDaoImpl extends WaspDaoImpl<JobDraft> implements edu.yu.ein
 
 
 	/**
-	 * getJobDraftByJobDraftId(final int jobDraftId)
+	 * getJobDraftByJobDraftId(final Integer jobDraftId)
 	 *
-	 * @param final int jobDraftId
+	 * @param final Integer jobDraftId
 	 *
 	 * @return jobDraft
 	 */
 
-	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
-	public JobDraft getJobDraftByJobDraftId (final int jobDraftId) {
+	public JobDraft getJobDraftByJobDraftId (final Integer jobDraftId) {
     		HashMap m = new HashMap();
 		m.put("jobDraftId", jobDraftId);
 
-		List<JobDraft> results = this.findByMap(m);
+		List<JobDraft> results = (List<JobDraft>) this.findByMap((Map) m);
 
 		if (results.size() == 0) {
 			JobDraft rt = new JobDraft();
 			return rt;
 		}
-		return results.get(0);
+		return (JobDraft) results.get(0);
 	}
 
 

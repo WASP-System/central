@@ -11,8 +11,13 @@
 
 package edu.yu.einstein.wasp.dao.impl;
 
-import java.util.HashMap;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceException;
+import javax.persistence.Query;
+
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,81 +41,78 @@ public class ResourceLaneDaoImpl extends WaspDaoImpl<ResourceLane> implements ed
 
 
 	/**
-	 * getResourceLaneByResourceLaneId(final int resourceLaneId)
+	 * getResourceLaneByResourceLaneId(final Integer resourceLaneId)
 	 *
-	 * @param final int resourceLaneId
+	 * @param final Integer resourceLaneId
 	 *
 	 * @return resourceLane
 	 */
 
-	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
-	public ResourceLane getResourceLaneByResourceLaneId (final int resourceLaneId) {
+	public ResourceLane getResourceLaneByResourceLaneId (final Integer resourceLaneId) {
     		HashMap m = new HashMap();
 		m.put("resourceLaneId", resourceLaneId);
 
-		List<ResourceLane> results = this.findByMap(m);
+		List<ResourceLane> results = (List<ResourceLane>) this.findByMap((Map) m);
 
 		if (results.size() == 0) {
 			ResourceLane rt = new ResourceLane();
 			return rt;
 		}
-		return results.get(0);
+		return (ResourceLane) results.get(0);
 	}
 
 
 
 	/**
-	 * getResourceLaneByINameResourceId(final String iName, final int resourceId)
+	 * getResourceLaneByINameResourceId(final String iName, final Integer resourceId)
 	 *
-	 * @param final String iName, final int resourceId
+	 * @param final String iName, final Integer resourceId
 	 *
 	 * @return resourceLane
 	 */
 
-	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
-	public ResourceLane getResourceLaneByINameResourceId (final String iName, final int resourceId) {
+	public ResourceLane getResourceLaneByINameResourceId (final String iName, final Integer resourceId) {
     		HashMap m = new HashMap();
 		m.put("iName", iName);
 		m.put("resourceId", resourceId);
 
-		List<ResourceLane> results = this.findByMap(m);
+		List<ResourceLane> results = (List<ResourceLane>) this.findByMap((Map) m);
 
 		if (results.size() == 0) {
 			ResourceLane rt = new ResourceLane();
 			return rt;
 		}
-		return results.get(0);
+		return (ResourceLane) results.get(0);
 	}
 
 
 
 	/**
-	 * getResourceLaneByNameResourceId(final String name, final int resourceId)
+	 * getResourceLaneByNameResourceId(final String name, final Integer resourceId)
 	 *
-	 * @param final String name, final int resourceId
+	 * @param final String name, final Integer resourceId
 	 *
 	 * @return resourceLane
 	 */
 
-	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
-	public ResourceLane getResourceLaneByNameResourceId (final String name, final int resourceId) {
+	public ResourceLane getResourceLaneByNameResourceId (final String name, final Integer resourceId) {
     		HashMap m = new HashMap();
 		m.put("name", name);
 		m.put("resourceId", resourceId);
 
-		List<ResourceLane> results = this.findByMap(m);
+		List<ResourceLane> results = (List<ResourceLane>) this.findByMap((Map) m);
 
 		if (results.size() == 0) {
 			ResourceLane rt = new ResourceLane();
 			return rt;
 		}
-		return results.get(0);
+		return (ResourceLane) results.get(0);
 	}
 
 

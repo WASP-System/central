@@ -11,8 +11,13 @@
 
 package edu.yu.einstein.wasp.dao.impl;
 
-import java.util.HashMap;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceException;
+import javax.persistence.Query;
+
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,20 +48,19 @@ public class ResourceCategoryMetaDaoImpl extends WaspDaoImpl<ResourceCategoryMet
 	 * @return resourceCategoryMeta
 	 */
 
-	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public ResourceCategoryMeta getResourceCategoryMetaByResourceCategoryMetaId (final Integer resourceCategoryMetaId) {
     		HashMap m = new HashMap();
 		m.put("resourceCategoryMetaId", resourceCategoryMetaId);
 
-		List<ResourceCategoryMeta> results = this.findByMap(m);
+		List<ResourceCategoryMeta> results = (List<ResourceCategoryMeta>) this.findByMap((Map) m);
 
 		if (results.size() == 0) {
 			ResourceCategoryMeta rt = new ResourceCategoryMeta();
 			return rt;
 		}
-		return results.get(0);
+		return (ResourceCategoryMeta) results.get(0);
 	}
 
 
@@ -69,7 +73,6 @@ public class ResourceCategoryMetaDaoImpl extends WaspDaoImpl<ResourceCategoryMet
 	 * @return resourceCategoryMeta
 	 */
 
-	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public ResourceCategoryMeta getResourceCategoryMetaByKResourcecategoryId (final String k, final Integer resourcecategoryId) {
@@ -77,13 +80,13 @@ public class ResourceCategoryMetaDaoImpl extends WaspDaoImpl<ResourceCategoryMet
 		m.put("k", k);
 		m.put("resourcecategoryId", resourcecategoryId);
 
-		List<ResourceCategoryMeta> results = this.findByMap(m);
+		List<ResourceCategoryMeta> results = (List<ResourceCategoryMeta>) this.findByMap((Map) m);
 
 		if (results.size() == 0) {
 			ResourceCategoryMeta rt = new ResourceCategoryMeta();
 			return rt;
 		}
-		return results.get(0);
+		return (ResourceCategoryMeta) results.get(0);
 	}
 
 
@@ -95,7 +98,6 @@ public class ResourceCategoryMetaDaoImpl extends WaspDaoImpl<ResourceCategoryMet
 	 * @param metaList
 	 *
 	 */
-	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByResourcecategoryId (final String area, final int resourcecategoryId, final List<ResourceCategoryMeta> metaList) {
@@ -115,7 +117,6 @@ public class ResourceCategoryMetaDaoImpl extends WaspDaoImpl<ResourceCategoryMet
 	 * @param metaList
 	 *
 	 */
-	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByResourcecategoryId (final int resourcecategoryId, final List<ResourceCategoryMeta> metaList) {

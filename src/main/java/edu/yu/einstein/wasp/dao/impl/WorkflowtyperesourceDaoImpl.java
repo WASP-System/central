@@ -11,8 +11,13 @@
 
 package edu.yu.einstein.wasp.dao.impl;
 
-import java.util.HashMap;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceException;
+import javax.persistence.Query;
+
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,54 +41,52 @@ public class WorkflowtyperesourceDaoImpl extends WaspDaoImpl<Workflowtyperesourc
 
 
 	/**
-	 * getWorkflowtyperesourceByWorkflowtyperesourceId(final int workflowtyperesourceId)
+	 * getWorkflowtyperesourceByWorkflowtyperesourceId(final Integer workflowtyperesourceId)
 	 *
-	 * @param final int workflowtyperesourceId
+	 * @param final Integer workflowtyperesourceId
 	 *
 	 * @return workflowtyperesource
 	 */
 
-	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
-	public Workflowtyperesource getWorkflowtyperesourceByWorkflowtyperesourceId (final int workflowtyperesourceId) {
+	public Workflowtyperesource getWorkflowtyperesourceByWorkflowtyperesourceId (final Integer workflowtyperesourceId) {
     		HashMap m = new HashMap();
 		m.put("workflowtyperesourceId", workflowtyperesourceId);
 
-		List<Workflowtyperesource> results = this.findByMap(m);
+		List<Workflowtyperesource> results = (List<Workflowtyperesource>) this.findByMap((Map) m);
 
 		if (results.size() == 0) {
 			Workflowtyperesource rt = new Workflowtyperesource();
 			return rt;
 		}
-		return results.get(0);
+		return (Workflowtyperesource) results.get(0);
 	}
 
 
 
 	/**
-	 * getWorkflowtyperesourceByWorkflowIdTypeResourceId(final int workflowId, final int typeResourceId)
+	 * getWorkflowtyperesourceByWorkflowIdTypeResourceId(final Integer workflowId, final Integer typeResourceId)
 	 *
-	 * @param final int workflowId, final int typeResourceId
+	 * @param final Integer workflowId, final Integer typeResourceId
 	 *
 	 * @return workflowtyperesource
 	 */
 
-	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
-	public Workflowtyperesource getWorkflowtyperesourceByWorkflowIdTypeResourceId (final int workflowId, final int typeResourceId) {
+	public Workflowtyperesource getWorkflowtyperesourceByWorkflowIdTypeResourceId (final Integer workflowId, final Integer typeResourceId) {
     		HashMap m = new HashMap();
 		m.put("workflowId", workflowId);
 		m.put("typeResourceId", typeResourceId);
 
-		List<Workflowtyperesource> results = this.findByMap(m);
+		List<Workflowtyperesource> results = (List<Workflowtyperesource>) this.findByMap((Map) m);
 
 		if (results.size() == 0) {
 			Workflowtyperesource rt = new Workflowtyperesource();
 			return rt;
 		}
-		return results.get(0);
+		return (Workflowtyperesource) results.get(0);
 	}
 
 

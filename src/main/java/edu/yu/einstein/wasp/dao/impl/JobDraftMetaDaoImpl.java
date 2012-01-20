@@ -11,8 +11,13 @@
 
 package edu.yu.einstein.wasp.dao.impl;
 
-import java.util.HashMap;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceException;
+import javax.persistence.Query;
+
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,54 +41,52 @@ public class JobDraftMetaDaoImpl extends WaspDaoImpl<JobDraftMeta> implements ed
 
 
 	/**
-	 * getJobDraftMetaByJobDraftMetaId(final int jobDraftMetaId)
+	 * getJobDraftMetaByJobDraftMetaId(final Integer jobDraftMetaId)
 	 *
-	 * @param final int jobDraftMetaId
+	 * @param final Integer jobDraftMetaId
 	 *
 	 * @return jobDraftMeta
 	 */
 
-	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
-	public JobDraftMeta getJobDraftMetaByJobDraftMetaId (final int jobDraftMetaId) {
+	public JobDraftMeta getJobDraftMetaByJobDraftMetaId (final Integer jobDraftMetaId) {
     		HashMap m = new HashMap();
 		m.put("jobDraftMetaId", jobDraftMetaId);
 
-		List<JobDraftMeta> results = this.findByMap(m);
+		List<JobDraftMeta> results = (List<JobDraftMeta>) this.findByMap((Map) m);
 
 		if (results.size() == 0) {
 			JobDraftMeta rt = new JobDraftMeta();
 			return rt;
 		}
-		return results.get(0);
+		return (JobDraftMeta) results.get(0);
 	}
 
 
 
 	/**
-	 * getJobDraftMetaByKJobdraftId(final String k, final int jobdraftId)
+	 * getJobDraftMetaByKJobdraftId(final String k, final Integer jobdraftId)
 	 *
-	 * @param final String k, final int jobdraftId
+	 * @param final String k, final Integer jobdraftId
 	 *
 	 * @return jobDraftMeta
 	 */
 
-	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
-	public JobDraftMeta getJobDraftMetaByKJobdraftId (final String k, final int jobdraftId) {
+	public JobDraftMeta getJobDraftMetaByKJobdraftId (final String k, final Integer jobdraftId) {
     		HashMap m = new HashMap();
 		m.put("k", k);
 		m.put("jobdraftId", jobdraftId);
 
-		List<JobDraftMeta> results = this.findByMap(m);
+		List<JobDraftMeta> results = (List<JobDraftMeta>) this.findByMap((Map) m);
 
 		if (results.size() == 0) {
 			JobDraftMeta rt = new JobDraftMeta();
 			return rt;
 		}
-		return results.get(0);
+		return (JobDraftMeta) results.get(0);
 	}
 
 
@@ -95,7 +98,6 @@ public class JobDraftMetaDaoImpl extends WaspDaoImpl<JobDraftMeta> implements ed
 	 * @param metaList
 	 *
 	 */
-	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByJobdraftId (final String area, final int jobdraftId, final List<JobDraftMeta> metaList) {
@@ -115,11 +117,9 @@ public class JobDraftMetaDaoImpl extends WaspDaoImpl<JobDraftMeta> implements ed
 	 * @param metaList
 	 *
 	 */
-	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByJobdraftId (final int jobdraftId, final List<JobDraftMeta> metaList) {
-
 		entityManager.createNativeQuery("delete from jobdraftmeta where jobdraftId=:jobdraftId").setParameter("jobdraftId", jobdraftId).executeUpdate();
 
 		for (JobDraftMeta m:metaList) {
@@ -127,6 +127,7 @@ public class JobDraftMetaDaoImpl extends WaspDaoImpl<JobDraftMeta> implements ed
 			entityManager.persist(m);
 		}
 	}
+
 
 
 }

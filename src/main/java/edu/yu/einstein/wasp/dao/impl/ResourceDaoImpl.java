@@ -11,8 +11,13 @@
 
 package edu.yu.einstein.wasp.dao.impl;
 
-import java.util.HashMap;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceException;
+import javax.persistence.Query;
+
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,20 +48,19 @@ public class ResourceDaoImpl extends WaspDaoImpl<Resource> implements edu.yu.ein
 	 * @return resource
 	 */
 
-	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public Resource getResourceByResourceId (final Integer resourceId) {
     		HashMap m = new HashMap();
 		m.put("resourceId", resourceId);
 
-		List<Resource> results = this.findByMap(m);
+		List<Resource> results = (List<Resource>) this.findByMap((Map) m);
 
 		if (results.size() == 0) {
 			Resource rt = new Resource();
 			return rt;
 		}
-		return results.get(0);
+		return (Resource) results.get(0);
 	}
 
 
@@ -69,20 +73,19 @@ public class ResourceDaoImpl extends WaspDaoImpl<Resource> implements edu.yu.ein
 	 * @return resource
 	 */
 
-	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public Resource getResourceByIName (final String iName) {
     		HashMap m = new HashMap();
 		m.put("iName", iName);
 
-		List<Resource> results = this.findByMap(m);
+		List<Resource> results = (List<Resource>) this.findByMap((Map) m);
 
 		if (results.size() == 0) {
 			Resource rt = new Resource();
 			return rt;
 		}
-		return results.get(0);
+		return (Resource) results.get(0);
 	}
 
 
@@ -95,20 +98,19 @@ public class ResourceDaoImpl extends WaspDaoImpl<Resource> implements edu.yu.ein
 	 * @return resource
 	 */
 
-	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public Resource getResourceByName (final String name) {
     		HashMap m = new HashMap();
 		m.put("name", name);
 
-		List<Resource> results = this.findByMap(m);
+		List<Resource> results = (List<Resource>) this.findByMap((Map) m);
 
 		if (results.size() == 0) {
 			Resource rt = new Resource();
 			return rt;
 		}
-		return results.get(0);
+		return (Resource) results.get(0);
 	}
 
 

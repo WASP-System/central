@@ -11,8 +11,13 @@
 
 package edu.yu.einstein.wasp.dao.impl;
 
-import java.util.HashMap;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceException;
+import javax.persistence.Query;
+
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,54 +41,52 @@ public class WorkflowMetaDaoImpl extends WaspDaoImpl<WorkflowMeta> implements ed
 
 
 	/**
-	 * getWorkflowMetaByWorkflowMetaId(final int workflowMetaId)
+	 * getWorkflowMetaByWorkflowMetaId(final Integer workflowMetaId)
 	 *
-	 * @param final int workflowMetaId
+	 * @param final Integer workflowMetaId
 	 *
 	 * @return workflowMeta
 	 */
 
-	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
-	public WorkflowMeta getWorkflowMetaByWorkflowMetaId (final int workflowMetaId) {
+	public WorkflowMeta getWorkflowMetaByWorkflowMetaId (final Integer workflowMetaId) {
     		HashMap m = new HashMap();
 		m.put("workflowMetaId", workflowMetaId);
 
-		List<WorkflowMeta> results = this.findByMap(m);
+		List<WorkflowMeta> results = (List<WorkflowMeta>) this.findByMap((Map) m);
 
 		if (results.size() == 0) {
 			WorkflowMeta rt = new WorkflowMeta();
 			return rt;
 		}
-		return results.get(0);
+		return (WorkflowMeta) results.get(0);
 	}
 
 
 
 	/**
-	 * getWorkflowMetaByKWorkflowId(final String k, final int workflowId)
+	 * getWorkflowMetaByKWorkflowId(final String k, final Integer workflowId)
 	 *
-	 * @param final String k, final int workflowId
+	 * @param final String k, final Integer workflowId
 	 *
 	 * @return workflowMeta
 	 */
 
-	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
-	public WorkflowMeta getWorkflowMetaByKWorkflowId (final String k, final int workflowId) {
+	public WorkflowMeta getWorkflowMetaByKWorkflowId (final String k, final Integer workflowId) {
     		HashMap m = new HashMap();
 		m.put("k", k);
 		m.put("workflowId", workflowId);
 
-		List<WorkflowMeta> results = this.findByMap(m);
+		List<WorkflowMeta> results = (List<WorkflowMeta>) this.findByMap((Map) m);
 
 		if (results.size() == 0) {
 			WorkflowMeta rt = new WorkflowMeta();
 			return rt;
 		}
-		return results.get(0);
+		return (WorkflowMeta) results.get(0);
 	}
 
 
@@ -95,7 +98,6 @@ public class WorkflowMetaDaoImpl extends WaspDaoImpl<WorkflowMeta> implements ed
 	 * @param metaList
 	 *
 	 */
-	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByWorkflowId (final String area, final int workflowId, final List<WorkflowMeta> metaList) {
@@ -105,7 +107,7 @@ public class WorkflowMetaDaoImpl extends WaspDaoImpl<WorkflowMeta> implements ed
 			m.setWorkflowId(workflowId);
 			entityManager.persist(m);
 		}
- 	}
+	}
 
 
 	/**
@@ -115,7 +117,6 @@ public class WorkflowMetaDaoImpl extends WaspDaoImpl<WorkflowMeta> implements ed
 	 * @param metaList
 	 *
 	 */
-	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByWorkflowId (final int workflowId, final List<WorkflowMeta> metaList) {

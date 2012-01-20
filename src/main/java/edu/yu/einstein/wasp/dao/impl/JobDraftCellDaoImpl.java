@@ -11,8 +11,13 @@
 
 package edu.yu.einstein.wasp.dao.impl;
 
-import java.util.HashMap;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceException;
+import javax.persistence.Query;
+
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,54 +41,52 @@ public class JobDraftCellDaoImpl extends WaspDaoImpl<JobDraftCell> implements ed
 
 
 	/**
-	 * getJobDraftCellByJobDraftCellId(final int jobDraftCellId)
+	 * getJobDraftCellByJobDraftCellId(final Integer jobDraftCellId)
 	 *
-	 * @param final int jobDraftCellId
+	 * @param final Integer jobDraftCellId
 	 *
 	 * @return jobDraftCell
 	 */
 
-	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
-	public JobDraftCell getJobDraftCellByJobDraftCellId (final int jobDraftCellId) {
+	public JobDraftCell getJobDraftCellByJobDraftCellId (final Integer jobDraftCellId) {
     		HashMap m = new HashMap();
 		m.put("jobDraftCellId", jobDraftCellId);
 
-		List<JobDraftCell> results = this.findByMap(m);
+		List<JobDraftCell> results = (List<JobDraftCell>) this.findByMap((Map) m);
 
 		if (results.size() == 0) {
 			JobDraftCell rt = new JobDraftCell();
 			return rt;
 		}
-		return results.get(0);
+		return (JobDraftCell) results.get(0);
 	}
 
 
 
 	/**
-	 * getJobDraftCellByJobdraftIdCellindex(final int jobdraftId, final int cellindex)
+	 * getJobDraftCellByJobdraftIdCellindex(final Integer jobdraftId, final Integer cellindex)
 	 *
-	 * @param final int jobdraftId, final int cellindex
+	 * @param final Integer jobdraftId, final Integer cellindex
 	 *
 	 * @return jobDraftCell
 	 */
 
-	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
-	public JobDraftCell getJobDraftCellByJobdraftIdCellindex (final int jobdraftId, final int cellindex) {
+	public JobDraftCell getJobDraftCellByJobdraftIdCellindex (final Integer jobdraftId, final Integer cellindex) {
     		HashMap m = new HashMap();
 		m.put("jobdraftId", jobdraftId);
 		m.put("cellindex", cellindex);
 
-		List<JobDraftCell> results = this.findByMap(m);
+		List<JobDraftCell> results = (List<JobDraftCell>) this.findByMap((Map) m);
 
 		if (results.size() == 0) {
 			JobDraftCell rt = new JobDraftCell();
 			return rt;
 		}
-		return results.get(0);
+		return (JobDraftCell) results.get(0);
 	}
 
 

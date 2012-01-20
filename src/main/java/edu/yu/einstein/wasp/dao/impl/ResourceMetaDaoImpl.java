@@ -11,8 +11,13 @@
 
 package edu.yu.einstein.wasp.dao.impl;
 
-import java.util.HashMap;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceException;
+import javax.persistence.Query;
+
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,54 +41,52 @@ public class ResourceMetaDaoImpl extends WaspDaoImpl<ResourceMeta> implements ed
 
 
 	/**
-	 * getResourceMetaByResourceMetaId(final int resourceMetaId)
+	 * getResourceMetaByResourceMetaId(final Integer resourceMetaId)
 	 *
-	 * @param final int resourceMetaId
+	 * @param final Integer resourceMetaId
 	 *
 	 * @return resourceMeta
 	 */
 
-	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
-	public ResourceMeta getResourceMetaByResourceMetaId (final int resourceMetaId) {
+	public ResourceMeta getResourceMetaByResourceMetaId (final Integer resourceMetaId) {
     		HashMap m = new HashMap();
 		m.put("resourceMetaId", resourceMetaId);
 
-		List<ResourceMeta> results = this.findByMap(m);
+		List<ResourceMeta> results = (List<ResourceMeta>) this.findByMap((Map) m);
 
 		if (results.size() == 0) {
 			ResourceMeta rt = new ResourceMeta();
 			return rt;
 		}
-		return results.get(0);
+		return (ResourceMeta) results.get(0);
 	}
 
 
 
 	/**
-	 * getResourceMetaByKResourceId(final String k, final int resourceId)
+	 * getResourceMetaByKResourceId(final String k, final Integer resourceId)
 	 *
-	 * @param final String k, final int resourceId
+	 * @param final String k, final Integer resourceId
 	 *
 	 * @return resourceMeta
 	 */
 
-	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
-	public ResourceMeta getResourceMetaByKResourceId (final String k, final int resourceId) {
+	public ResourceMeta getResourceMetaByKResourceId (final String k, final Integer resourceId) {
     		HashMap m = new HashMap();
 		m.put("k", k);
 		m.put("resourceId", resourceId);
 
-		List<ResourceMeta> results = this.findByMap(m);
+		List<ResourceMeta> results = (List<ResourceMeta>) this.findByMap((Map) m);
 
 		if (results.size() == 0) {
 			ResourceMeta rt = new ResourceMeta();
 			return rt;
 		}
-		return results.get(0);
+		return (ResourceMeta) results.get(0);
 	}
 
 
@@ -95,7 +98,6 @@ public class ResourceMetaDaoImpl extends WaspDaoImpl<ResourceMeta> implements ed
 	 * @param metaList
 	 *
 	 */
-	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByResourceId (final String area, final int resourceId, final List<ResourceMeta> metaList) {
@@ -105,7 +107,7 @@ public class ResourceMetaDaoImpl extends WaspDaoImpl<ResourceMeta> implements ed
 			m.setResourceId(resourceId);
 			entityManager.persist(m);
 		}
- 	}
+	}
 
 
 	/**
@@ -115,7 +117,6 @@ public class ResourceMetaDaoImpl extends WaspDaoImpl<ResourceMeta> implements ed
 	 * @param metaList
 	 *
 	 */
-	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByResourceId (final int resourceId, final List<ResourceMeta> metaList) {
@@ -125,7 +126,7 @@ public class ResourceMetaDaoImpl extends WaspDaoImpl<ResourceMeta> implements ed
 			m.setResourceId(resourceId);
 			entityManager.persist(m);
 		}
- 	}
+	}
 
 
 

@@ -65,6 +65,7 @@ public class DBResourceBundle implements ApplicationContextAware{
 	@Transactional
 	public void init() {
 		
+/*
 		//apply latest updates from WEB-INF/uifield.update.sql file
 		final StringBuffer sqlCurrent= new StringBuffer("");
 		
@@ -101,6 +102,7 @@ public class DBResourceBundle implements ApplicationContextAware{
 			log.error("Cannot execute sq; statement ["+sqlCurrent+"]",e);
 			throw new IllegalStateException("Cannot execute sq; statement ["+sqlCurrent+"]",e);
 		}
+*/
 		
 		List<UiField> uiFieldList = entityManager.createQuery("SELECT h FROM "	+ UiField.class.getName() + " h").getResultList();
 

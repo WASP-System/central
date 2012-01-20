@@ -11,16 +11,19 @@
 
 package edu.yu.einstein.wasp.dao;
 
+import javax.persistence.*;
 import java.util.List;
+import java.util.Map;
+import edu.yu.einstein.wasp.model.*;
 
-import edu.yu.einstein.wasp.model.WorkflowMeta;
+import org.springframework.stereotype.Repository;
 
 
 public interface WorkflowMetaDao extends WaspDao<WorkflowMeta> {
 
-  public WorkflowMeta getWorkflowMetaByWorkflowMetaId (final int workflowMetaId);
+  public WorkflowMeta getWorkflowMetaByWorkflowMetaId (final Integer workflowMetaId);
 
-  public WorkflowMeta getWorkflowMetaByKWorkflowId (final String k, final int workflowId);
+  public WorkflowMeta getWorkflowMetaByKWorkflowId (final String k, final Integer workflowId);
 
 
   public void updateByWorkflowId (final String area, final int workflowId, final List<WorkflowMeta> metaList);

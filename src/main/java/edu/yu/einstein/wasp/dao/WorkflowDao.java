@@ -11,12 +11,17 @@
 
 package edu.yu.einstein.wasp.dao;
 
-import edu.yu.einstein.wasp.model.Workflow;
+import javax.persistence.*;
+import java.util.List;
+import java.util.Map;
+import edu.yu.einstein.wasp.model.*;
+
+import org.springframework.stereotype.Repository;
 
 
 public interface WorkflowDao extends WaspDao<Workflow> {
 
-  public Workflow getWorkflowByWorkflowId (final int workflowId);
+  public Workflow getWorkflowByWorkflowId (final Integer workflowId);
 
   public Workflow getWorkflowByIName (final String iName);
 

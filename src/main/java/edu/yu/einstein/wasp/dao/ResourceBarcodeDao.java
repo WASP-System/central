@@ -11,16 +11,21 @@
 
 package edu.yu.einstein.wasp.dao;
 
-import edu.yu.einstein.wasp.model.ResourceBarcode;
+import javax.persistence.*;
+import java.util.List;
+import java.util.Map;
+import edu.yu.einstein.wasp.model.*;
+
+import org.springframework.stereotype.Repository;
 
 
 public interface ResourceBarcodeDao extends WaspDao<ResourceBarcode> {
 
-  public ResourceBarcode getResourceBarcodeByResourceBarcodeId (final int resourceBarcodeId);
+  public ResourceBarcode getResourceBarcodeByResourceBarcodeId (final Integer resourceBarcodeId);
 
-  public ResourceBarcode getResourceBarcodeByResourceId (final int resourceId);
+  public ResourceBarcode getResourceBarcodeByResourceId (final Integer resourceId);
 
-  public ResourceBarcode getResourceBarcodeByBarcodeId (final int barcodeId);
+  public ResourceBarcode getResourceBarcodeByBarcodeId (final Integer barcodeId);
 
 
 }

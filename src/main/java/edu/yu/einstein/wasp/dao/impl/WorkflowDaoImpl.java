@@ -11,8 +11,13 @@
 
 package edu.yu.einstein.wasp.dao.impl;
 
-import java.util.HashMap;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceException;
+import javax.persistence.Query;
+
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,27 +41,26 @@ public class WorkflowDaoImpl extends WaspDaoImpl<Workflow> implements edu.yu.ein
 
 
 	/**
-	 * getWorkflowByWorkflowId(final int workflowId)
+	 * getWorkflowByWorkflowId(final Integer workflowId)
 	 *
-	 * @param final int workflowId
+	 * @param final Integer workflowId
 	 *
 	 * @return workflow
 	 */
 
-	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
-	public Workflow getWorkflowByWorkflowId (final int workflowId) {
+	public Workflow getWorkflowByWorkflowId (final Integer workflowId) {
     		HashMap m = new HashMap();
 		m.put("workflowId", workflowId);
 
-		List<Workflow> results = this.findByMap(m);
+		List<Workflow> results = (List<Workflow>) this.findByMap((Map) m);
 
 		if (results.size() == 0) {
 			Workflow rt = new Workflow();
 			return rt;
 		}
-		return results.get(0);
+		return (Workflow) results.get(0);
 	}
 
 
@@ -69,20 +73,19 @@ public class WorkflowDaoImpl extends WaspDaoImpl<Workflow> implements edu.yu.ein
 	 * @return workflow
 	 */
 
-	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public Workflow getWorkflowByIName (final String iName) {
     		HashMap m = new HashMap();
 		m.put("iName", iName);
 
-		List<Workflow> results = this.findByMap(m);
+		List<Workflow> results = (List<Workflow>) this.findByMap((Map) m);
 
 		if (results.size() == 0) {
 			Workflow rt = new Workflow();
 			return rt;
 		}
-		return results.get(0);
+		return (Workflow) results.get(0);
 	}
 
 
@@ -95,20 +98,19 @@ public class WorkflowDaoImpl extends WaspDaoImpl<Workflow> implements edu.yu.ein
 	 * @return workflow
 	 */
 
-	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public Workflow getWorkflowByName (final String name) {
     		HashMap m = new HashMap();
 		m.put("name", name);
 
-		List<Workflow> results = this.findByMap(m);
+		List<Workflow> results = (List<Workflow>) this.findByMap((Map) m);
 
 		if (results.size() == 0) {
 			Workflow rt = new Workflow();
 			return rt;
 		}
-		return results.get(0);
+		return (Workflow) results.get(0);
 	}
 
 

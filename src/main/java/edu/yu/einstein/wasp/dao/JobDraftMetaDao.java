@@ -11,16 +11,19 @@
 
 package edu.yu.einstein.wasp.dao;
 
+import javax.persistence.*;
 import java.util.List;
+import java.util.Map;
+import edu.yu.einstein.wasp.model.*;
 
-import edu.yu.einstein.wasp.model.JobDraftMeta;
+import org.springframework.stereotype.Repository;
 
 
 public interface JobDraftMetaDao extends WaspDao<JobDraftMeta> {
 
-  public JobDraftMeta getJobDraftMetaByJobDraftMetaId (final int jobDraftMetaId);
+  public JobDraftMeta getJobDraftMetaByJobDraftMetaId (final Integer jobDraftMetaId);
 
-  public JobDraftMeta getJobDraftMetaByKJobdraftId (final String k, final int jobdraftId);
+  public JobDraftMeta getJobDraftMetaByKJobdraftId (final String k, final Integer jobdraftId);
 
 
   public void updateByJobdraftId (final String area, final int jobdraftId, final List<JobDraftMeta> metaList);

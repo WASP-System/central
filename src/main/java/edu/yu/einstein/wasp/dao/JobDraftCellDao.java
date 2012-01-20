@@ -11,14 +11,19 @@
 
 package edu.yu.einstein.wasp.dao;
 
-import edu.yu.einstein.wasp.model.JobDraftCell;
+import javax.persistence.*;
+import java.util.List;
+import java.util.Map;
+import edu.yu.einstein.wasp.model.*;
+
+import org.springframework.stereotype.Repository;
 
 
 public interface JobDraftCellDao extends WaspDao<JobDraftCell> {
 
-  public JobDraftCell getJobDraftCellByJobDraftCellId (final int jobDraftCellId);
+  public JobDraftCell getJobDraftCellByJobDraftCellId (final Integer jobDraftCellId);
 
-  public JobDraftCell getJobDraftCellByJobdraftIdCellindex (final int jobdraftId, final int cellindex);
+  public JobDraftCell getJobDraftCellByJobdraftIdCellindex (final Integer jobdraftId, final Integer cellindex);
 
 
 }

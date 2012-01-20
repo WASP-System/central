@@ -11,8 +11,13 @@
 
 package edu.yu.einstein.wasp.dao.impl;
 
-import java.util.HashMap;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceException;
+import javax.persistence.Query;
+
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,54 +41,52 @@ public class JobResourceDaoImpl extends WaspDaoImpl<JobResource> implements edu.
 
 
 	/**
-	 * getJobResourceByJobResourceId(final int jobResourceId)
+	 * getJobResourceByJobResourceId(final Integer jobResourceId)
 	 *
-	 * @param final int jobResourceId
+	 * @param final Integer jobResourceId
 	 *
 	 * @return jobResource
 	 */
 
-	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
-	public JobResource getJobResourceByJobResourceId (final int jobResourceId) {
+	public JobResource getJobResourceByJobResourceId (final Integer jobResourceId) {
     		HashMap m = new HashMap();
 		m.put("jobResourceId", jobResourceId);
 
-		List<JobResource> results = this.findByMap(m);
+		List<JobResource> results = (List<JobResource>) this.findByMap((Map) m);
 
 		if (results.size() == 0) {
 			JobResource rt = new JobResource();
 			return rt;
 		}
-		return results.get(0);
+		return (JobResource) results.get(0);
 	}
 
 
 
 	/**
-	 * getJobResourceByResourceIdJobId(final int resourceId, final int jobId)
+	 * getJobResourceByResourceIdJobId(final Integer resourceId, final Integer jobId)
 	 *
-	 * @param final int resourceId, final int jobId
+	 * @param final Integer resourceId, final Integer jobId
 	 *
 	 * @return jobResource
 	 */
 
-	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
-	public JobResource getJobResourceByResourceIdJobId (final int resourceId, final int jobId) {
+	public JobResource getJobResourceByResourceIdJobId (final Integer resourceId, final Integer jobId) {
     		HashMap m = new HashMap();
 		m.put("resourceId", resourceId);
 		m.put("jobId", jobId);
 
-		List<JobResource> results = this.findByMap(m);
+		List<JobResource> results = (List<JobResource>) this.findByMap((Map) m);
 
 		if (results.size() == 0) {
 			JobResource rt = new JobResource();
 			return rt;
 		}
-		return results.get(0);
+		return (JobResource) results.get(0);
 	}
 
 

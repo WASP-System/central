@@ -11,8 +11,13 @@
 
 package edu.yu.einstein.wasp.dao.impl;
 
-import java.util.HashMap;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceException;
+import javax.persistence.Query;
+
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,54 +41,52 @@ public class WorkflowsubtypesampleDaoImpl extends WaspDaoImpl<Workflowsubtypesam
 
 
 	/**
-	 * getWorkflowsubtypesampleByWorkflowsubtypesampleId(final int workflowsubtypesampleId)
+	 * getWorkflowsubtypesampleByWorkflowsubtypesampleId(final Integer workflowsubtypesampleId)
 	 *
-	 * @param final int workflowsubtypesampleId
+	 * @param final Integer workflowsubtypesampleId
 	 *
 	 * @return workflowsubtypesample
 	 */
 
-	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
-	public Workflowsubtypesample getWorkflowsubtypesampleByWorkflowsubtypesampleId (final int workflowsubtypesampleId) {
+	public Workflowsubtypesample getWorkflowsubtypesampleByWorkflowsubtypesampleId (final Integer workflowsubtypesampleId) {
     		HashMap m = new HashMap();
 		m.put("workflowsubtypesampleId", workflowsubtypesampleId);
 
-		List<Workflowsubtypesample> results = this.findByMap(m);
+		List<Workflowsubtypesample> results = (List<Workflowsubtypesample>) this.findByMap((Map) m);
 
 		if (results.size() == 0) {
 			Workflowsubtypesample rt = new Workflowsubtypesample();
 			return rt;
 		}
-		return results.get(0);
+		return (Workflowsubtypesample) results.get(0);
 	}
 
 
 
 	/**
-	 * getWorkflowsubtypesampleByWorkflowIdSubtypeSampleId(final int workflowId, final int subtypeSampleId)
+	 * getWorkflowsubtypesampleByWorkflowIdSubtypeSampleId(final Integer workflowId, final Integer subtypeSampleId)
 	 *
-	 * @param final int workflowId, final int subtypeSampleId
+	 * @param final Integer workflowId, final Integer subtypeSampleId
 	 *
 	 * @return workflowsubtypesample
 	 */
 
-	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
-	public Workflowsubtypesample getWorkflowsubtypesampleByWorkflowIdSubtypeSampleId (final int workflowId, final int subtypeSampleId) {
+	public Workflowsubtypesample getWorkflowsubtypesampleByWorkflowIdSubtypeSampleId (final Integer workflowId, final Integer subtypeSampleId) {
     		HashMap m = new HashMap();
 		m.put("workflowId", workflowId);
 		m.put("subtypeSampleId", subtypeSampleId);
 
-		List<Workflowsubtypesample> results = this.findByMap(m);
+		List<Workflowsubtypesample> results = (List<Workflowsubtypesample>) this.findByMap((Map) m);
 
 		if (results.size() == 0) {
 			Workflowsubtypesample rt = new Workflowsubtypesample();
 			return rt;
 		}
-		return results.get(0);
+		return (Workflowsubtypesample) results.get(0);
 	}
 
 
