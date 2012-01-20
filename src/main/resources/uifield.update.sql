@@ -1,4 +1,3 @@
-<<<<<<< .mine
 truncate table uifield;
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','login','label','Login','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','login','error','Login cannot be empty','1');
