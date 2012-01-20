@@ -106,7 +106,7 @@
 		</attribute>
 		<attribute>
             <!-- 
-			<description>Sortable field if set</description>
+			<description>Searchable field if set</description>
             -->
 			<name>searchable</name>
 			<required>false</required>
