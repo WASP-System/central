@@ -17,7 +17,7 @@
 
   <nav id="jobSubmit">
     <c:forEach items="${pageFlowMap}" var="entry">
-      <a href="<c:url value="${entry.key}" />.do"><c:out value="${entry.value}"/></a>
+      <a href="<c:url value="${entry[0]}" />.do"><c:out value="${entry[1]}"/></a>
     </c:forEach>
   </nav>
 
