@@ -100,11 +100,12 @@ insert into role values
 (8, 'lu', 'Lab Member', 'lab'), -- labuser, explicit
 (9, 'js', 'Job Submitter', 'job'),-- jobuser, explicit
 (10, 'jv', 'Job Viewer', 'job'), -- jobuser, explicit
-(11, 'god', 'God', 'system'),
+(11, 'su', 'Super user', 'system'),
 (12, 'lx', 'Lab Member Inactive', 'lab'), -- labuser, explicit
 (13, 'lp', 'Lab Member Pending', 'lab'), -- labuser, explicit
 (14, 'jd', 'Job Drafter', 'jobdraft'), -- labuser, explicit
-(15, 'u', 'User', 'user'); -- user, explicit
+(15, 'u', 'User', 'user'),
+(16, 'god', 'God', 'system');
 
 
 create table roleset (
@@ -135,7 +136,13 @@ values
 (11, 1),
 (11, 2),
 (11, 3),
-(11, 5);
+(11, 5),
+(11, 16),
+(16, 1),
+(16, 2),
+(16, 3),
+(16, 11),
+(16, 5);
 
 -- USER.ROLE
 --
@@ -374,10 +381,14 @@ insert into typeresource values (5, 'sanger', 'Sanger DNA Sequencer');
 
 create table resourcecategory (
   resourcecategoryid int(10)  primary key auto_increment, 
+  typeresourceid int(10) not null,
   iname varchar(250) ,
   name varchar(250) ,
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
+
+  foreign key fk_resourccategory_typeresourceid (typeresourceid) references typeresource(typeresourceid),
+
   constraint unique index u_resourcecategory_i(iname),
   constraint unique index u_resourcecategory_n(name)
 ) ENGINE=InnoDB charset=utf8;
@@ -414,15 +425,37 @@ create table resource (
 ) ENGINE=InnoDB charset=utf8;
 
 
--- TODO in ResourceLoad
--- insert into resource (resourceid, platform, iname, name, typeresourceid ) 
--- values
--- (10, 'software', 'abc', 'Abc Aligner', 3),
--- (11, 'software', 'def', 'Def Aligner', 3);
+create table software (
+  softwareid int(10)  primary key auto_increment, 
+  typeresourceid int(10) not null,
+  iname varchar(250) ,
+  name varchar(250) ,
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
+
+  foreign key fk_software_typeresourceid (typeresourceid) references typeresource(typeresourceid),
+
+  constraint unique index u_software_i(iname),
+  constraint unique index u_software_n(name)
+) ENGINE=InnoDB charset=utf8;
 
 
+create table softwaremeta (
+  softwaremetaid int(10)  primary key auto_increment,
+  softwareid int(10) ,
 
--- [join with meta?] 
+  k varchar(250), 
+  v varchar(250), 
+  position int(10)  default 0,
+
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
+
+  foreign key fk_softwaremeta_sid (softwareid) references software(softwareid),
+  constraint unique index u_softwaremeta_k_rid (k, softwareid)
+) ENGINE=InnoDB charset=utf8;
+
+
 create table resourcemeta (
   resourcemetaid int(10)  primary key auto_increment,
   resourceid int(10) ,
@@ -572,6 +605,32 @@ create table jobresource (
   constraint unique index u_jobresource_rid_jdid (resourceid, jobid)
 ) ENGINE=InnoDB charset=utf8;
 
+create table jobresourcecategory (
+  jobresourcecategoryid int(10)  primary key auto_increment,
+  jobid int(10) ,
+  resourcecategoryid int(10) ,
+
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
+
+  foreign key fk_jobresourcecategory_jdid (jobid) references job(jobid),
+  foreign key fk_jobresourcecategory_rid (resourcecategoryid) references resource(resourcecategoryid),
+  constraint unique index u_jobresource_rcid_jdid (resourcecategoryid, jobid)
+) ENGINE=InnoDB charset=utf8;
+
+create table jobsoftware (
+  jobsoftwareid int(10)  primary key auto_increment,
+  jobid int(10) ,
+  softwareid int(10) ,
+
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
+
+  foreign key fk_jobsoftware_jdid (jobid) references job(jobid),
+  foreign key fk_jobsoftware_sid (softwareid) references software(softwareid),
+  constraint unique index u_jobsoftware_rid_jdid (softwareid, jobid)
+) ENGINE=InnoDB charset=utf8;
+
 --
 -- job draft
 --
@@ -616,17 +675,30 @@ create table jobdraftmeta (
   constraint unique index u_jobdraftmeta_k_jdid (k, jobdraftid)
 ) ENGINE=InnoDB charset=utf8;
 
-create table jobdraftresource (
-  jobdraftresourceid int(10)  primary key auto_increment,
+create table jobdraftresourcecategory (
+  jobdraftresourcecategoryid int(10)  primary key auto_increment,
   jobdraftid int(10) ,
-  resourceid int(10) ,
+  resourcecategoryid int(10) ,
 
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
 
-  foreign key fk_jobdraftresource_jdid (jobdraftid) references jobdraft(jobdraftid),
-  foreign key fk_jobdraftresource_rid (resourceid) references resource(resourceid),
-  constraint unique index u_jobdraftresource_rid_jdid (resourceid, jobdraftid)
+  foreign key fk_jobdraftresourcecategory_jdid (jobdraftid) references jobdraft(jobdraftid),
+  foreign key fk_jobdraftresourcecategory_rcid (resourcecategoryid) references resourcecategory(resourcecategoryid),
+  constraint unique index u_jobdraftresourcecategory_rcid_jdid (resourcecategoryid, jobdraftid)
+) ENGINE=InnoDB charset=utf8;
+
+create table jobdraftsoftware (
+  jobdraftsoftwareid int(10)  primary key auto_increment,
+  jobdraftid int(10) ,
+  softwareid int(10) ,
+
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
+
+  foreign key fk_jobdraftsoftware_jdid (jobdraftid) references jobdraft(jobdraftid),
+  foreign key fk_jobdraftsoftware_sid (softwareid) references software(softwareid),
+  constraint unique index u_jobdraftsoftware_sid_jdid (softwareid, jobdraftid)
 ) ENGINE=InnoDB charset=utf8;
 
 -- ---------------------------------------------------
@@ -806,20 +878,20 @@ create table workflowtyperesource (
   foreign key fk_workflowtyperesource_wid (workflowid) references workflow(workflowid)
 ) ENGINE=InnoDB charset=utf8;
 
-create table workflowresource (
-  workflowresourceid int(10)  primary key auto_increment, 
+create table workflowresourcecategory (
+  workflowresourcecategoryid int(10)  primary key auto_increment, 
   workflowid int(10) ,
-  resourceid int(10) ,
+  resourcecategoryid int(10) ,
 
-  constraint unique index u_workflowresource_wid_rid (workflowid, resourceid),
+  constraint unique index u_workflowresource_wid_rcid (workflowid, resourcecategoryid),
 
-  foreign key fk_workflowresource_rid (resourceid) references resource(resourceid),
-  foreign key fk_workflowresource_wid (workflowid) references workflow(workflowid)
+  foreign key fk_workflowresourcecategory_rcid (resourcecategoryid) references resourcecategory(resourcecategoryid),
+  foreign key fk_workflowresourcecategory_wid (workflowid) references workflow(workflowid)
 ) ENGINE=InnoDB charset=utf8;
 
-create table workflowresourcemeta (
-  workflowresourcemetaid int(10)  primary key auto_increment, 
-  workflowresourceid int(10) ,
+create table workflowresourcecategorymeta (
+  workflowresourcecategorymetaid int(10)  primary key auto_increment, 
+  workflowresourcecategoryid int(10) ,
   k varchar(250) , 
   v text,
   position int(10)  default 0,
@@ -827,9 +899,35 @@ create table workflowresourcemeta (
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
 
-  foreign key fk_wrometa_workflowresourceid (workflowresourceid) references workflowresource(workflowresourceid),
+  foreign key fk_wrometa_workflowresourcecategoryid (workflowresourcecategoryid) references workflowresourcecategory(workflowresourcecategoryid),
 
-  constraint unique index u_wro_wrid_k (workflowresourceid, k)
+  constraint unique index u_wro_wrcid_k (workflowresourcecategoryid, k)
+) ENGINE=InnoDB charset=utf8;
+
+create table workflowsoftware (
+  workflowsoftwareid int(10)  primary key auto_increment, 
+  workflowid int(10) ,
+  softwareid int(10) ,
+
+  constraint unique index u_workflowsoftware_wid_sid (workflowid, softwareid),
+
+  foreign key fk_workflowsoftware_sid (softwareid) references software(softwareid),
+  foreign key fk_workflowsoftware_wid (workflowid) references workflow(workflowid)
+) ENGINE=InnoDB charset=utf8;
+
+create table workflowsoftwaremeta (
+  workflowsoftwaremetaid int(10)  primary key auto_increment, 
+  workflowsoftwareid int(10) ,
+  k varchar(250) , 
+  v text,
+  position int(10)  default 0,
+
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
+
+  foreign key fk_wrometa_workflowsoftwareid (workflowsoftwareid) references workflowsoftware(workflowsoftwareid),
+
+  constraint unique index u_wro_wrcid_k (workflowsoftwareid, k)
 ) ENGINE=InnoDB charset=utf8;
 
 
@@ -1348,7 +1446,7 @@ create table runmeta (
 ) ENGINE=InnoDB charset=utf8;
 
 --
--- RUN.resourceLANE (LANE)
+-- RUN.runLANE (LANE)
 --
 create table runlane (
   runlaneid int(10)  primary key auto_increment,
@@ -1566,13 +1664,6 @@ from workflow w
 join typesample t on t.typesampleid in (1, 3)
 join subtypesample st on concat(w.iname, t.iname, 'Sample') = st.iname;
 
--- insert into workflowresource(workflowid, resourceid)
--- values
--- (1, 10), (1, 11), (1, 2), (1, 3), (1, 4), (1, 5);
-
-
-drop TABLE if exists `wasp`.`task_mapping` ;
--- drop TABLE if exists `wasp`.`taskmapping` ;
 
 CREATE TABLE IF NOT EXISTS `taskmapping` (
   `taskmappingid` int(10) NOT NULL AUTO_INCREMENT,
