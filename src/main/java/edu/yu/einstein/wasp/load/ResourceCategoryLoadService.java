@@ -67,6 +67,7 @@ public class ResourceCategoryLoadService extends WaspLoadService {
 
       resourceCat.setIName(iname);
       resourceCat.setName(name);
+      resourceCat.setTypeResourceId(typeResource.getTypeResourceId());
       resourceCategoryService.save(resourceCat); 
 
       // refreshes
