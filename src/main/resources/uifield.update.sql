@@ -570,6 +570,14 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','departmentId','error','A department must be selected','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','emailconfirmed','label','Your email address is confirmed and your principal investigator has been emailed to request confirmation of your eligibility to join their lab. You are advised to contact them to request they do this if your account does not become activated in good time.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','subtypeSampleId','label','Subtype','1');
+
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','name','label','Name','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','name','constraint','NotEmpty','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','name','error','Name cannot be empty','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','submitter','label','Submitter','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','lab','label','Lab','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','isActive','label','Active','1');
+
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','contentTypeMap','etx','data','text/x-setext','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','contentTypeMap','me','data','application/x-troff-me','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','contentTypeMap','xbm','data','image/x-xbitmap','1');
@@ -615,6 +623,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','contentTypeMap','mv','data','video/x-sgi-movie','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','contentTypeMap','tsv','data','text/tab-separated-values','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','contentTypeMap','ppm','data','image/x-portable-pixmap','1');
+
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','auth/login','label','Login','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','auth/newpi/form','label','New Principal Investigator','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','auth/newpi/institute','label','New Principal Investigator','1');
@@ -665,6 +674,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','sysrole/list','label','System User Management','1');
 
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','sample/list','label','Sample Utilities','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','job/list','label','Job List','1');
 
 
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','uiField','updated','data','Attribute Updated','1');

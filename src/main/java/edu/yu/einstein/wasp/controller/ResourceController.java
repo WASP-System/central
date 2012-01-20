@@ -64,10 +64,11 @@ public class ResourceController extends WaspController {
 	@RequestMapping("/list")
 	@PreAuthorize("hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('fm')")
 	public String list(ModelMap m) {
-		m.addAttribute("_metaList",
-				getMetaHelperWebapp().getMasterList(MetaBase.class));
+		
+		m.addAttribute("_metaList", getMetaHelperWebapp().getMasterList(MetaBase.class));
 		m.addAttribute(JQFieldTag.AREA_ATTR, getMetaHelperWebapp().getArea());
-
+		m.addAttribute("_metaDataMessages", MetaHelperWebapp.getMetadataMessages(request.getSession()));
+		
 		prepareSelectListData(m);
 
 		// List<Resource> resourceList = resourceService.findAll();
