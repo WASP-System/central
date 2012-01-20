@@ -30,6 +30,7 @@ foreach my $block (split /\s*;\s*/, $fc) {
   next if ! $table;
   $_table = $table;
 
+
   $schema->{$_table} = {};
   $schema->{$_table}->{'_table'} = $_table;
 
@@ -42,6 +43,7 @@ foreach my $block (split /\s*;\s*/, $fc) {
   $table =~ s/(.)user$/$1User/;
   $table =~ s/(.)pendingmeta$/$1PendingMeta/;
   $table =~ s/(.)pending$/$1Pending/;
+  $table =~ s/(.)software$/$1Software/;
   $table =~ s/(.)meta/$1Meta/;
   $table =~ s/(.)draft/$1Draft/;
   $table =~ s/(.)cell/$1Cell/;
@@ -49,6 +51,7 @@ foreach my $block (split /\s*;\s*/, $fc) {
   $table =~ s/^job(.)/"job\U$1"/ie;
   $table =~ s/^project(.)/"project\U$1"/ie;
   $table =~ s/^sample(.)/"sample\U$1"/ie;
+  $table =~ s/^software(.)/"software\U$1"/ie;
   $table =~ s/^run(.)/"run\U$1"/ie;
   $table =~ s/^resource(.)/"resource\U$1"/ie;
   $table =~ s/^quote(.)/"quote\U$1"/ie;
@@ -57,8 +60,10 @@ foreach my $block (split /\s*;\s*/, $fc) {
   $schema->{$_table}->{'table'} = $table;
 
 
+
   $Table = $table;
   $Table =~ s/^(.)/"\U$1"/e; 
+
 
   $schema->{$_table}->{'Table'} = $Table;
   $schema->{$_table}->{'cols'} = {};
@@ -166,6 +171,7 @@ foreach my $block (split /\s*;\s*/, $fc) {
 
 foreach $table (sort keys %$schema) {
   next if ! $table;
+
   $t = $schema->{$table};
 
   $j_dao_interface = qq|
@@ -693,8 +699,6 @@ $j .= "public class $t->{'Table'} extends WaspModel {\n";
   $j .= qq|
 }
 |;
-
-
 
 
   open (OF, "> t/model/$t->{'Table'}.java");
