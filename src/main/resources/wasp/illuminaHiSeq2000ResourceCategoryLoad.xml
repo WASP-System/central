@@ -9,6 +9,16 @@
         http://www.springframework.org/schema/context/spring-context-3.1.xsd"
     default-autowire="byName">
 
+  <!-- todo move this to web-app-context.xml and batch-context.xml -->
+  <bean id="dollar" class="java.lang.String">
+    <constructor-arg><value>$</value></constructor-arg>
+  </bean>
+  <bean id="pound" class="java.lang.String">
+    <constructor-arg><value>#</value></constructor-arg>
+  </bean>
+  <!-- /todo move this to web-app-context.xml and batch-context.xml -->
+
+
   <bean class="edu.yu.einstein.wasp.model.UiField" id="illuminiaUiField">
     <property name="locale" value="en_US" />
     <property name="area" value="illuminaHiSeq2000" />
@@ -17,6 +27,7 @@
   <bean id="illuminaHiSeq2000" class="edu.yu.einstein.wasp.load.ResourceCategoryLoadService">
     <property name="iname" value="illuminaHiSeq2000" />
     <property name="name" value="Illumina HiSeq 2000" />
+    <property name="resourceType" value="mps" />
 
     <property name="meta">
       <list>
@@ -52,7 +63,7 @@
         <bean parent="illuminiaUiField">
           <property name="name" value="readLength" />
           <property name="attrName" value="control" />
-          <property name="attrValue" value="select:{resourceOptions.get(readlength)}:value:label" /> 
+          <property name="attrValue" value="select:#{dollar}{resourceOptions.get(readlength)}:value:label" /> 
         </bean>
 
         <bean parent="illuminiaUiField">
@@ -68,7 +79,7 @@
         <bean parent="illuminiaUiField">
           <property name="name" value="readType" />
           <property name="attrName" value="control" />
-          <property name="attrValue" value="select:{resourceOptions.get(readType)}:value:label" /> 
+          <property name="attrValue" value="select:#{dollar}{resourceOptions.get(readType)}:value:label" /> 
         </bean>
       </list>
     </property>
