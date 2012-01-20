@@ -11,12 +11,19 @@
 
 package edu.yu.einstein.wasp.service.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import edu.yu.einstein.wasp.dao.ResourceDao;
-import edu.yu.einstein.wasp.model.Resource;
 import edu.yu.einstein.wasp.service.ResourceService;
+import edu.yu.einstein.wasp.dao.ResourceDao;
+import edu.yu.einstein.wasp.dao.WaspDao;
+import edu.yu.einstein.wasp.model.Resource;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PostFilter;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ResourceServiceImpl extends WaspServiceImpl<Resource> implements ResourceService {
@@ -33,7 +40,6 @@ public class ResourceServiceImpl extends WaspServiceImpl<Resource> implements Re
 	 * @param resourceDao
 	 *
 	 */
-	@Override
 	@Autowired
 	public void setResourceDao(ResourceDao resourceDao) {
 		this.resourceDao = resourceDao;
@@ -46,24 +52,20 @@ public class ResourceServiceImpl extends WaspServiceImpl<Resource> implements Re
 	 * @return resourceDao
 	 *
 	 */
-	@Override
 	public ResourceDao getResourceDao() {
 		return this.resourceDao;
 	}
 
 
-  @Override
-public Resource getResourceByResourceId (final Integer resourceId) {
+  public Resource getResourceByResourceId (final Integer resourceId) {
     return this.getResourceDao().getResourceByResourceId(resourceId);
   }
 
-  @Override
-public Resource getResourceByIName (final String iName) {
+  public Resource getResourceByIName (final String iName) {
     return this.getResourceDao().getResourceByIName(iName);
   }
 
-  @Override
-public Resource getResourceByName (final String name) {
+  public Resource getResourceByName (final String name) {
     return this.getResourceDao().getResourceByName(name);
   }
 

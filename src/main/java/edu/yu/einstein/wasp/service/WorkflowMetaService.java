@@ -11,15 +11,16 @@
 
 package edu.yu.einstein.wasp.service;
 
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-
 import edu.yu.einstein.wasp.dao.WorkflowMetaDao;
 import edu.yu.einstein.wasp.model.WorkflowMeta;
 
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.stereotype.Service;
+
 @Service
-public interface WorkflowMetaService extends WaspMetaService<WorkflowMeta> {
+public interface WorkflowMetaService extends WaspService<WorkflowMeta> {
 
 	/**
 	 * setWorkflowMetaDao(WorkflowMetaDao workflowMetaDao)
@@ -37,9 +38,9 @@ public interface WorkflowMetaService extends WaspMetaService<WorkflowMeta> {
 	 */
 	public WorkflowMetaDao getWorkflowMetaDao();
 
-  public WorkflowMeta getWorkflowMetaByWorkflowMetaId (final int workflowMetaId);
+  public WorkflowMeta getWorkflowMetaByWorkflowMetaId (final Integer workflowMetaId);
 
-  public WorkflowMeta getWorkflowMetaByKWorkflowId (final String k, final int workflowId);
+  public WorkflowMeta getWorkflowMetaByKWorkflowId (final String k, final Integer workflowId);
 
 
   public void updateByWorkflowId (final String area, final int workflowId, final List<WorkflowMeta> metaList);

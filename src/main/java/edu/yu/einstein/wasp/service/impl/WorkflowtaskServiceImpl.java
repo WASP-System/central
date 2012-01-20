@@ -11,12 +11,19 @@
 
 package edu.yu.einstein.wasp.service.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import edu.yu.einstein.wasp.dao.WorkflowtaskDao;
-import edu.yu.einstein.wasp.model.Workflowtask;
 import edu.yu.einstein.wasp.service.WorkflowtaskService;
+import edu.yu.einstein.wasp.dao.WorkflowtaskDao;
+import edu.yu.einstein.wasp.dao.WaspDao;
+import edu.yu.einstein.wasp.model.Workflowtask;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PostFilter;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class WorkflowtaskServiceImpl extends WaspServiceImpl<Workflowtask> implements WorkflowtaskService {
@@ -33,7 +40,6 @@ public class WorkflowtaskServiceImpl extends WaspServiceImpl<Workflowtask> imple
 	 * @param workflowtaskDao
 	 *
 	 */
-	@Override
 	@Autowired
 	public void setWorkflowtaskDao(WorkflowtaskDao workflowtaskDao) {
 		this.workflowtaskDao = workflowtaskDao;
@@ -46,15 +52,17 @@ public class WorkflowtaskServiceImpl extends WaspServiceImpl<Workflowtask> imple
 	 * @return workflowtaskDao
 	 *
 	 */
-	@Override
 	public WorkflowtaskDao getWorkflowtaskDao() {
 		return this.workflowtaskDao;
 	}
 
 
-  @Override
-public Workflowtask getWorkflowtaskByWorkflowtaskId (final int workflowtaskId) {
+  public Workflowtask getWorkflowtaskByWorkflowtaskId (final Integer workflowtaskId) {
     return this.getWorkflowtaskDao().getWorkflowtaskByWorkflowtaskId(workflowtaskId);
+  }
+
+  public Workflowtask getWorkflowtaskByIName (final String iName) {
+    return this.getWorkflowtaskDao().getWorkflowtaskByIName(iName);
   }
 
 }

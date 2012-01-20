@@ -11,10 +11,13 @@
 
 package edu.yu.einstein.wasp.service;
 
-import org.springframework.stereotype.Service;
-
 import edu.yu.einstein.wasp.dao.JobDraftCellDao;
 import edu.yu.einstein.wasp.model.JobDraftCell;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.stereotype.Service;
 
 @Service
 public interface JobDraftCellService extends WaspService<JobDraftCell> {
@@ -35,9 +38,9 @@ public interface JobDraftCellService extends WaspService<JobDraftCell> {
 	 */
 	public JobDraftCellDao getJobDraftCellDao();
 
-  public JobDraftCell getJobDraftCellByJobDraftCellId (final int jobDraftCellId);
+  public JobDraftCell getJobDraftCellByJobDraftCellId (final Integer jobDraftCellId);
 
-  public JobDraftCell getJobDraftCellByJobdraftIdCellindex (final int jobdraftId, final int cellindex);
+  public JobDraftCell getJobDraftCellByJobdraftIdCellindex (final Integer jobdraftId, final Integer cellindex);
 
 
 }

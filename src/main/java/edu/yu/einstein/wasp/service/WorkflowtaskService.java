@@ -11,10 +11,13 @@
 
 package edu.yu.einstein.wasp.service;
 
-import org.springframework.stereotype.Service;
-
 import edu.yu.einstein.wasp.dao.WorkflowtaskDao;
 import edu.yu.einstein.wasp.model.Workflowtask;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.stereotype.Service;
 
 @Service
 public interface WorkflowtaskService extends WaspService<Workflowtask> {
@@ -35,7 +38,9 @@ public interface WorkflowtaskService extends WaspService<Workflowtask> {
 	 */
 	public WorkflowtaskDao getWorkflowtaskDao();
 
-  public Workflowtask getWorkflowtaskByWorkflowtaskId (final int workflowtaskId);
+  public Workflowtask getWorkflowtaskByWorkflowtaskId (final Integer workflowtaskId);
+
+  public Workflowtask getWorkflowtaskByIName (final String iName);
 
 
 }

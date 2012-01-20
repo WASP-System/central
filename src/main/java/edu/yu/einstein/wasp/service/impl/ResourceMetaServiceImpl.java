@@ -11,17 +11,22 @@
 
 package edu.yu.einstein.wasp.service.impl;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import edu.yu.einstein.wasp.dao.ResourceMetaDao;
-import edu.yu.einstein.wasp.model.ResourceMeta;
 import edu.yu.einstein.wasp.service.ResourceMetaService;
+import edu.yu.einstein.wasp.dao.ResourceMetaDao;
+import edu.yu.einstein.wasp.dao.WaspDao;
+import edu.yu.einstein.wasp.model.ResourceMeta;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PostFilter;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class ResourceMetaServiceImpl extends WaspMetaServiceImpl<ResourceMeta> implements ResourceMetaService {
+public class ResourceMetaServiceImpl extends WaspServiceImpl<ResourceMeta> implements ResourceMetaService {
 
 	/**
 	 * resourceMetaDao;
@@ -35,7 +40,6 @@ public class ResourceMetaServiceImpl extends WaspMetaServiceImpl<ResourceMeta> i
 	 * @param resourceMetaDao
 	 *
 	 */
-	@Override
 	@Autowired
 	public void setResourceMetaDao(ResourceMetaDao resourceMetaDao) {
 		this.resourceMetaDao = resourceMetaDao;
@@ -48,29 +52,24 @@ public class ResourceMetaServiceImpl extends WaspMetaServiceImpl<ResourceMeta> i
 	 * @return resourceMetaDao
 	 *
 	 */
-	@Override
 	public ResourceMetaDao getResourceMetaDao() {
 		return this.resourceMetaDao;
 	}
 
 
-  @Override
-public ResourceMeta getResourceMetaByResourceMetaId (final int resourceMetaId) {
+  public ResourceMeta getResourceMetaByResourceMetaId (final Integer resourceMetaId) {
     return this.getResourceMetaDao().getResourceMetaByResourceMetaId(resourceMetaId);
   }
 
-  @Override
-public ResourceMeta getResourceMetaByKResourceId (final String k, final int resourceId) {
+  public ResourceMeta getResourceMetaByKResourceId (final String k, final Integer resourceId) {
     return this.getResourceMetaDao().getResourceMetaByKResourceId(k, resourceId);
   }
 
-  @Override
-public void updateByResourceId (final String area, final int resourceId, final List<ResourceMeta> metaList) {
+  public void updateByResourceId (final String area, final int resourceId, final List<ResourceMeta> metaList) {
     this.getResourceMetaDao().updateByResourceId(area, resourceId, metaList); 
   }
 
-  @Override
-public void updateByResourceId (final int resourceId, final List<ResourceMeta> metaList) {
+  public void updateByResourceId (final int resourceId, final List<ResourceMeta> metaList) {
     this.getResourceMetaDao().updateByResourceId(resourceId, metaList); 
   }
 

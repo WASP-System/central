@@ -11,12 +11,19 @@
 
 package edu.yu.einstein.wasp.service.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import edu.yu.einstein.wasp.dao.AcctWorkflowcostDao;
-import edu.yu.einstein.wasp.model.AcctWorkflowcost;
 import edu.yu.einstein.wasp.service.AcctWorkflowcostService;
+import edu.yu.einstein.wasp.dao.AcctWorkflowcostDao;
+import edu.yu.einstein.wasp.dao.WaspDao;
+import edu.yu.einstein.wasp.model.AcctWorkflowcost;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PostFilter;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class AcctWorkflowcostServiceImpl extends WaspServiceImpl<AcctWorkflowcost> implements AcctWorkflowcostService {
@@ -33,7 +40,6 @@ public class AcctWorkflowcostServiceImpl extends WaspServiceImpl<AcctWorkflowcos
 	 * @param acctWorkflowcostDao
 	 *
 	 */
-	@Override
 	@Autowired
 	public void setAcctWorkflowcostDao(AcctWorkflowcostDao acctWorkflowcostDao) {
 		this.acctWorkflowcostDao = acctWorkflowcostDao;
@@ -46,14 +52,12 @@ public class AcctWorkflowcostServiceImpl extends WaspServiceImpl<AcctWorkflowcos
 	 * @return acctWorkflowcostDao
 	 *
 	 */
-	@Override
 	public AcctWorkflowcostDao getAcctWorkflowcostDao() {
 		return this.acctWorkflowcostDao;
 	}
 
 
-  @Override
-public AcctWorkflowcost getAcctWorkflowcostByWorkflowId (final int workflowId) {
+  public AcctWorkflowcost getAcctWorkflowcostByWorkflowId (final Integer workflowId) {
     return this.getAcctWorkflowcostDao().getAcctWorkflowcostByWorkflowId(workflowId);
   }
 

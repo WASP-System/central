@@ -11,12 +11,19 @@
 
 package edu.yu.einstein.wasp.service.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import edu.yu.einstein.wasp.dao.WorkflowtyperesourceDao;
-import edu.yu.einstein.wasp.model.Workflowtyperesource;
 import edu.yu.einstein.wasp.service.WorkflowtyperesourceService;
+import edu.yu.einstein.wasp.dao.WorkflowtyperesourceDao;
+import edu.yu.einstein.wasp.dao.WaspDao;
+import edu.yu.einstein.wasp.model.Workflowtyperesource;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PostFilter;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class WorkflowtyperesourceServiceImpl extends WaspServiceImpl<Workflowtyperesource> implements WorkflowtyperesourceService {
@@ -33,7 +40,6 @@ public class WorkflowtyperesourceServiceImpl extends WaspServiceImpl<Workflowtyp
 	 * @param workflowtyperesourceDao
 	 *
 	 */
-	@Override
 	@Autowired
 	public void setWorkflowtyperesourceDao(WorkflowtyperesourceDao workflowtyperesourceDao) {
 		this.workflowtyperesourceDao = workflowtyperesourceDao;
@@ -46,19 +52,16 @@ public class WorkflowtyperesourceServiceImpl extends WaspServiceImpl<Workflowtyp
 	 * @return workflowtyperesourceDao
 	 *
 	 */
-	@Override
 	public WorkflowtyperesourceDao getWorkflowtyperesourceDao() {
 		return this.workflowtyperesourceDao;
 	}
 
 
-  @Override
-public Workflowtyperesource getWorkflowtyperesourceByWorkflowtyperesourceId (final int workflowtyperesourceId) {
+  public Workflowtyperesource getWorkflowtyperesourceByWorkflowtyperesourceId (final Integer workflowtyperesourceId) {
     return this.getWorkflowtyperesourceDao().getWorkflowtyperesourceByWorkflowtyperesourceId(workflowtyperesourceId);
   }
 
-  @Override
-public Workflowtyperesource getWorkflowtyperesourceByWorkflowIdTypeResourceId (final int workflowId, final int typeResourceId) {
+  public Workflowtyperesource getWorkflowtyperesourceByWorkflowIdTypeResourceId (final Integer workflowId, final Integer typeResourceId) {
     return this.getWorkflowtyperesourceDao().getWorkflowtyperesourceByWorkflowIdTypeResourceId(workflowId, typeResourceId);
   }
 

@@ -11,10 +11,13 @@
 
 package edu.yu.einstein.wasp.service;
 
-import org.springframework.stereotype.Service;
-
 import edu.yu.einstein.wasp.dao.AcctWorkflowcostDao;
 import edu.yu.einstein.wasp.model.AcctWorkflowcost;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.stereotype.Service;
 
 @Service
 public interface AcctWorkflowcostService extends WaspService<AcctWorkflowcost> {
@@ -35,7 +38,7 @@ public interface AcctWorkflowcostService extends WaspService<AcctWorkflowcost> {
 	 */
 	public AcctWorkflowcostDao getAcctWorkflowcostDao();
 
-  public AcctWorkflowcost getAcctWorkflowcostByWorkflowId (final int workflowId);
+  public AcctWorkflowcost getAcctWorkflowcostByWorkflowId (final Integer workflowId);
 
 
 }

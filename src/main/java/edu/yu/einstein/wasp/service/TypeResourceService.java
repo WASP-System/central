@@ -11,10 +11,13 @@
 
 package edu.yu.einstein.wasp.service;
 
-import org.springframework.stereotype.Service;
-
 import edu.yu.einstein.wasp.dao.TypeResourceDao;
 import edu.yu.einstein.wasp.model.TypeResource;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.stereotype.Service;
 
 @Service
 public interface TypeResourceService extends WaspService<TypeResource> {
@@ -35,7 +38,7 @@ public interface TypeResourceService extends WaspService<TypeResource> {
 	 */
 	public TypeResourceDao getTypeResourceDao();
 
-  public TypeResource getTypeResourceByTypeResourceId (final int typeResourceId);
+  public TypeResource getTypeResourceByTypeResourceId (final Integer typeResourceId);
 
   public TypeResource getTypeResourceByIName (final String iName);
 

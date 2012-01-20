@@ -11,12 +11,19 @@
 
 package edu.yu.einstein.wasp.service.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import edu.yu.einstein.wasp.dao.ResourceCategoryDao;
-import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.service.ResourceCategoryService;
+import edu.yu.einstein.wasp.dao.ResourceCategoryDao;
+import edu.yu.einstein.wasp.dao.WaspDao;
+import edu.yu.einstein.wasp.model.ResourceCategory;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PostFilter;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ResourceCategoryServiceImpl extends WaspServiceImpl<ResourceCategory> implements ResourceCategoryService {
@@ -33,7 +40,6 @@ public class ResourceCategoryServiceImpl extends WaspServiceImpl<ResourceCategor
 	 * @param resourceCategoryDao
 	 *
 	 */
-	@Override
 	@Autowired
 	public void setResourceCategoryDao(ResourceCategoryDao resourceCategoryDao) {
 		this.resourceCategoryDao = resourceCategoryDao;
@@ -46,24 +52,20 @@ public class ResourceCategoryServiceImpl extends WaspServiceImpl<ResourceCategor
 	 * @return resourceCategoryDao
 	 *
 	 */
-	@Override
 	public ResourceCategoryDao getResourceCategoryDao() {
 		return this.resourceCategoryDao;
 	}
 
 
-  @Override
-public ResourceCategory getResourceCategoryByResourceCategoryId (final Integer resourceCategoryId) {
+  public ResourceCategory getResourceCategoryByResourceCategoryId (final Integer resourceCategoryId) {
     return this.getResourceCategoryDao().getResourceCategoryByResourceCategoryId(resourceCategoryId);
   }
 
-  @Override
-public ResourceCategory getResourceCategoryByIName (final String iName) {
+  public ResourceCategory getResourceCategoryByIName (final String iName) {
     return this.getResourceCategoryDao().getResourceCategoryByIName(iName);
   }
 
-  @Override
-public ResourceCategory getResourceCategoryByName (final String name) {
+  public ResourceCategory getResourceCategoryByName (final String name) {
     return this.getResourceCategoryDao().getResourceCategoryByName(name);
   }
 

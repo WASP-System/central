@@ -11,17 +11,22 @@
 
 package edu.yu.einstein.wasp.service.impl;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import edu.yu.einstein.wasp.dao.JobDraftMetaDao;
-import edu.yu.einstein.wasp.model.JobDraftMeta;
 import edu.yu.einstein.wasp.service.JobDraftMetaService;
+import edu.yu.einstein.wasp.dao.JobDraftMetaDao;
+import edu.yu.einstein.wasp.dao.WaspDao;
+import edu.yu.einstein.wasp.model.JobDraftMeta;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PostFilter;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class JobDraftMetaServiceImpl extends WaspMetaServiceImpl<JobDraftMeta> implements JobDraftMetaService {
+public class JobDraftMetaServiceImpl extends WaspServiceImpl<JobDraftMeta> implements JobDraftMetaService {
 
 	/**
 	 * jobDraftMetaDao;
@@ -35,7 +40,6 @@ public class JobDraftMetaServiceImpl extends WaspMetaServiceImpl<JobDraftMeta> i
 	 * @param jobDraftMetaDao
 	 *
 	 */
-	@Override
 	@Autowired
 	public void setJobDraftMetaDao(JobDraftMetaDao jobDraftMetaDao) {
 		this.jobDraftMetaDao = jobDraftMetaDao;
@@ -48,29 +52,24 @@ public class JobDraftMetaServiceImpl extends WaspMetaServiceImpl<JobDraftMeta> i
 	 * @return jobDraftMetaDao
 	 *
 	 */
-	@Override
 	public JobDraftMetaDao getJobDraftMetaDao() {
 		return this.jobDraftMetaDao;
 	}
 
 
-  @Override
-public JobDraftMeta getJobDraftMetaByJobDraftMetaId (final int jobDraftMetaId) {
+  public JobDraftMeta getJobDraftMetaByJobDraftMetaId (final Integer jobDraftMetaId) {
     return this.getJobDraftMetaDao().getJobDraftMetaByJobDraftMetaId(jobDraftMetaId);
   }
 
-  @Override
-public JobDraftMeta getJobDraftMetaByKJobdraftId (final String k, final int jobdraftId) {
+  public JobDraftMeta getJobDraftMetaByKJobdraftId (final String k, final Integer jobdraftId) {
     return this.getJobDraftMetaDao().getJobDraftMetaByKJobdraftId(k, jobdraftId);
   }
 
-  @Override
-public void updateByJobdraftId (final String area, final int jobdraftId, final List<JobDraftMeta> metaList) {
+  public void updateByJobdraftId (final String area, final int jobdraftId, final List<JobDraftMeta> metaList) {
     this.getJobDraftMetaDao().updateByJobdraftId(area, jobdraftId, metaList); 
   }
 
-  @Override
-public void updateByJobdraftId (final int jobdraftId, final List<JobDraftMeta> metaList) {
+  public void updateByJobdraftId (final int jobdraftId, final List<JobDraftMeta> metaList) {
     this.getJobDraftMetaDao().updateByJobdraftId(jobdraftId, metaList); 
   }
 
