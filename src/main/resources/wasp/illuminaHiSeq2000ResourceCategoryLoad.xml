@@ -52,8 +52,7 @@
         <bean parent="illuminiaUiField">
           <property name="name" value="readLength" />
           <property name="attrName" value="control" />
-          <property name="attrValue" value="select:100:100;150:150;" />
-<!--          <property name="attrValue" value="select:{workflowAssayAllowable.readlength}" /> -->
+          <property name="attrValue" value="select:{resourceOptions.get(readlength)}:value:label" /> 
         </bean>
 
         <bean parent="illuminiaUiField">
@@ -69,8 +68,7 @@
         <bean parent="illuminiaUiField">
           <property name="name" value="readType" />
           <property name="attrName" value="control" />
-          <property name="attrValue" value="select:single:single;paired:paried;" />
-<!--          <property name="attrValue" value="select:{workflowAssayAllowable.readType}" /> -->
+          <property name="attrValue" value="select:{resourceOptions.get(readType)}:value:label" /> 
         </bean>
       </list>
     </property>
