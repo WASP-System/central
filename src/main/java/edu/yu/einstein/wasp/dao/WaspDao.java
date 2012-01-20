@@ -35,6 +35,9 @@ public interface WaspDao<E> {
 
  public List<E> findByMap(Map m);
  
+ public List<E> findByMapExcept(Map m);
+ 
+ 
  
  /**
   * Generates and executes simple SQL statement that includes

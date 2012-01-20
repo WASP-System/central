@@ -130,6 +130,31 @@ public Integer removeAll() {
 
         return q.getResultList();
   }
+  
+@Override
+@SuppressWarnings("unchecked")
+   public List<E> findByMapExcept(final Map m) {
+	  boolean first = true;
+	  	String qString = "SELECT h FROM " + entityClass.getName() + " h";
+        for (Object key: m.keySet()){
+          if (! first) {
+             qString += " and ";
+          } else { 
+             qString += " WHERE ";
+          }
+
+          qString += "h." + key.toString() + " != :" + key.toString() + "\n";
+          first = false;
+        }
+
+        Query q = entityManager.createQuery(qString);
+
+        for (Object key: m.keySet()){
+          q.setParameter(key.toString(), m.get(key));
+        }
+
+        return q.getResultList();
+  }
  
   @Override
 @SuppressWarnings("unchecked")

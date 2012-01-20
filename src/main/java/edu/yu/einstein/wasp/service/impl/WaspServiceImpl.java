@@ -73,6 +73,11 @@ public Integer removeAll() {
 public List findByMap(Map m) {
     return this.getWaspDao().findByMap(m);
   }
+  
+  @Override
+  public List findByMapExcept(Map m) {
+      return this.getWaspDao().findByMapExcept(m);
+    }
 
   @Override
 public List findDistinctOrderBy(final String distinctColumnName, final String orderByColumnName, final String direction){

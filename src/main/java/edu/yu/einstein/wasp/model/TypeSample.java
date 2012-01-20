@@ -54,12 +54,34 @@ public class TypeSample extends WaspModel {
 	 * @return typeSampleId
 	 *
 	 */
+	
 	public Integer getTypeSampleId () {
 		return this.typeSampleId;
 	}
 
+	@Column (name="typesamplecategoryid")
+	protected String typeSampleCategoryId;
+	
+	
+	
+	/**
+	 * setTypeSampleCategoryId()
+	 * @param typeSampleCategoryId
+	 */
+	public void setTypeSampleCategoryId (String typeSampleCategoryId) {
+		this.typeSampleCategoryId = typeSampleCategoryId;
+	}
 
-
+	/**
+	 * getTypeSampleCategoryId ()
+	 * @return typeSampleCategoryId
+	 */
+	public String getTypeSampleCategoryId () {
+		return this.typeSampleCategoryId;
+	}
+	
+	
+	
 
 	/** 
 	 * iName

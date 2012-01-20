@@ -135,6 +135,8 @@ public class JQFieldTag extends BodyTagSupport {
 		this.sortable = st;
 	}
 	
+	
+	
 	public void setSearchable(String sb) {
 		this.searchable = sb;
 	}

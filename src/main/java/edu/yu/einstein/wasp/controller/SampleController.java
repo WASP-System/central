@@ -48,7 +48,6 @@ public class SampleController extends WaspController {
   
   private SampleService sampleService;
   
-  @Autowired
   private TypeSampleService	typeSampleService;
   
   @Autowired
@@ -69,6 +68,15 @@ public class SampleController extends WaspController {
   }
   public SampleService getSampleService() {
     return this.sampleService;
+  }
+  
+  @Autowired
+  public void setTypeSampleService(TypeSampleService typeSampleService) {
+	  this.typeSampleService = typeSampleService;
+}
+
+  public TypeSampleService getTypeSampleService() {
+	    return this.typeSampleService;
   }
 
   @RequestMapping("/list")
@@ -143,11 +151,27 @@ public class SampleController extends WaspController {
   }
 	
 	/**
-	 * Prepares page to display JQGrid table witk a list of samples
+	 * Prepares page to display JQGrid table with a list of samples
 	 * 
 	 * @Author Natalia Volnova
 	 */
-  
+  	private static List<Sample>  joinById (List <Sample> listOne, List <TypeSample> ListTwo) {
+  		
+  		List <Sample> finalList = new ArrayList <Sample> ();
+
+		for (Iterator <TypeSample> it=ListTwo.iterator(); it.hasNext();) {
+			TypeSample tempTypeSample = it.next();
+			for (Iterator <Sample> itSample=listOne.iterator(); itSample.hasNext();) {
+				Sample tempSample = itSample.next();
+				
+				if (tempSample.getTypeSampleId().intValue() == tempTypeSample.getTypeSampleId().intValue()) {
+					finalList.add(tempSample);
+				}
+			}
+		}
+  		
+  		return finalList;
+  	}
 
 	@RequestMapping(value="/listJSON", method=RequestMethod.GET)	
 	public String getListJSON(HttpServletResponse response) {
@@ -156,35 +180,52 @@ public class SampleController extends WaspController {
 		Map <String, Object> jqgrid = new HashMap<String, Object>();
 		
 		List<Sample> sampleList;
+		List <Sample> finalSampleList = new ArrayList <Sample> ();
+		
+		
+		List <TypeSample> typeSampleList = new ArrayList <TypeSample> ();
 		
 		if (request.getParameter("_search")==null || StringUtils.isEmpty(request.getParameter("searchString"))) {
-			sampleList = this.getSampleService().findAll();
+			Map<String, String> m = new HashMap<String, String>();
+			  
+			m.put("typeSampleCategoryId", "2");
+			 
+			sampleList = this.sampleService.findAll();
+			typeSampleList = this.getTypeSampleService().findByMapExcept(m);
+			
+			finalSampleList = joinById(sampleList, typeSampleList);
+
 		} else {
 			
 			  Map<String, String> m = new HashMap<String, String>();
 			  
 			  m.put(request.getParameter("searchField"), request.getParameter("searchString"));
 			  				  
-			  //sampleList = this.getSampleService.findByMap(m);
 			  sampleList = this.getSampleService().findByMap(m);
+			  typeSampleList = this.getTypeSampleService().findByMapExcept(m);
 			  
+			  finalSampleList = joinById(sampleList, typeSampleList);
+
 			  if ("ne".equals(request.getParameter("searchOper"))) {
 				  List<Sample> allSamples=new ArrayList<Sample>(this.sampleService.findAll());
-				  for(Iterator<Sample> it=sampleList.iterator();it.hasNext();)  {
+				  List<Sample> finalSampleListFindAll=new ArrayList<Sample>();
+				  
+				  finalSampleListFindAll = joinById(allSamples, typeSampleList);
+
+				  for(Iterator<Sample> it=finalSampleList.iterator();it.hasNext();)  {
 					  Sample excludeSample=it.next();
-					  allSamples.remove(excludeSample);
+					  finalSampleListFindAll.remove(excludeSample);
 				  }
-				  sampleList=allSamples;
+				  finalSampleList=finalSampleListFindAll;
 			  }
 		}
   	
 		 try {
 			 
-			 Map<Integer, String> allTypeSamples = new TreeMap<Integer, String>();
-				for (TypeSample typeSample : (List<TypeSample>) typeSampleService.findAll()) {
-					allTypeSamples.put(typeSample.getTypeSampleId(), typeSample.getName());
+			Map<Integer, String> allTypeSamples = new TreeMap<Integer, String>();
+			for (TypeSample typeSample : (List<TypeSample>) this.getTypeSampleService().findAll()) {
+				allTypeSamples.put(typeSample.getTypeSampleId(), typeSample.getName());
 			}
-			
 			Map<Integer, String> allSubTypeSamples = new TreeMap<Integer, String>();
 			for (SubtypeSample subtypeSample : (List<SubtypeSample>) subtypeSampleService.findAll()) {
 				allSubTypeSamples.put(subtypeSample.getSubtypeSampleId(), subtypeSample.getName());
@@ -205,13 +246,9 @@ public class SampleController extends WaspController {
 				allRuns.put(run.getSampleId(),	run.getName());
 			}
 			
-			
-			
-			
-						
 			int pageIndex = Integer.parseInt(request.getParameter("page"));		// index of page
 			int pageRowNum = Integer.parseInt(request.getParameter("rows"));	// number of rows in one page
-			int rowNum = sampleList.size();										// total number of rows
+			int rowNum = finalSampleList.size();								// total number of rows
 			int pageNum = (rowNum + pageRowNum - 1) / pageRowNum;				// total number of pages
 			
 			jqgrid.put("records", rowNum + "");
@@ -233,7 +270,7 @@ public class SampleController extends WaspController {
 			if(!StringUtils.isEmpty(request.getParameter("selId")))
 			{
 				int selId = Integer.parseInt(request.getParameter("selId"));
-				int selIndex = sampleList.indexOf(sampleService.findById(selId));
+				int selIndex = finalSampleList.indexOf(sampleService.findById(selId));
 				frId = selIndex;
 				toId = frId + 1;
 
@@ -242,8 +279,11 @@ public class SampleController extends WaspController {
 				jqgrid.put("page", "1");
 			}				
 
-			List<Sample> samplePage = sampleList.subList(frId, toId);
+			//List<Sample> samplePage = sampleList.subList(frId, toId);
+			//for (Sample sample:samplePage) {
+			List<Sample> samplePage = finalSampleList.subList(frId, toId);
 			for (Sample sample:samplePage) {
+			
 				Map cell = new HashMap();
 				cell.put("id", sample.getSampleId());
 				 
@@ -255,7 +295,7 @@ public class SampleController extends WaspController {
 						(sample.getSubtypeSampleId() == null)? "": allSubTypeSamples.get(sample.getSubtypeSampleId()),
 						(sample.getSubmitterJobId() == null)? "" : allJobs.get(sample.getSubmitterJobId()),
 						allUsers.get(sample.getSubmitterUserId()),
-						(sample.getIsActive() == 1)? "True":"False",
+						(sample.getIsActive() == 1)? "Yes":"No",
 						allRuns.get(sample.getSampleId())
 						
 				}));
