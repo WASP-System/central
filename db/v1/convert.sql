@@ -16342,19 +16342,19 @@ where
   );
   
   insert into resourcecategory
-    (resourcecategoryid, iname, name)
+    (resourcecategoryid, typeresourceid, iname, name)
     values
-    (1, 'software',  'Software');
+    (1, 1, 'software',  'Software');
     
     insert into resourcecategory
-    (resourcecategoryid, iname, name)
+    (resourcecategoryid, typeresourceid, iname, name)
     values
-    (3, 'illuminaGaIIx',  'Illumina GaIIx');
+    (3, 1, 'illuminaGaIIx',  'Illumina GaIIx');
     
     insert into resourcecategory
-    (resourcecategoryid, iname, name)
+    (resourcecategoryid, typeresourceid, iname, name)
     values
-    (2, 'rocheFLX',  'Roche FLX');
+    (2, 1, 'rocheFLX',  'Roche FLX');
 
     insert into resource
     (resourceid, resourcecategoryid, iname, name, isactive, typeresourceid)
