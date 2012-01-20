@@ -63,10 +63,16 @@ public class JobSubmissionController extends WaspController {
 	protected JobDraftCellService jobDraftCellService;
 
 	@Autowired
-	protected JobDraftresourceService jobDraftresourceService;
+	protected JobDraftresourcecategoryService jobDraftresourcecategoryService;
 
 	@Autowired
-	protected JobResourceService jobResourceService;
+	protected JobDraftSoftwareService jobDraftSoftwareService;
+
+	@Autowired
+	protected JobResourcecategoryService jobResourcecategoryService;
+
+	@Autowired
+	protected JobSoftwareService jobSoftwareService;
 
 	@Autowired
 	protected SampleDraftService sampleDraftService;
@@ -92,6 +98,12 @@ public class JobSubmissionController extends WaspController {
 
 	@Autowired
 	protected ResourceService resourceService;
+
+	@Autowired
+	protected ResourceCategoryService resourceCategoryService;
+
+	@Autowired
+	protected SoftwareService softwareService;
 
 	@Autowired
 	protected TypeResourceService typeResourceService;
@@ -130,7 +142,10 @@ public class JobSubmissionController extends WaspController {
 	protected WorkflowService workflowService;
 
 	@Autowired
-	protected WorkflowresourceService workflowresourceService;
+	protected WorkflowresourcecategoryService workflowresourcecategoryService;
+
+	@Autowired
+	protected WorkflowSoftwareService workflowSoftwareService;
 
 	@Autowired
 	protected File sampleDir;
@@ -362,7 +377,7 @@ public class JobSubmissionController extends WaspController {
 		metaHelperWebapp.setArea(jobDraft.getWorkflow().getIName());
 
 		jobDraft.setJobDraftMeta(metaHelperWebapp.getMasterList(JobDraftMeta.class));
-		// jobDraft.setJobDraftMeta(metaHelper.syncWithMaster(jobDraft.getJobDraftMeta()));
+		// jobDraft.setJobDraftMeta(metaHelperWebapp.syncWithMaster(jobDraft.getJobDraftMeta()));
 
 
 		m.put("jobDraftDb", jobDraft);
@@ -432,33 +447,31 @@ public class JobSubmissionController extends WaspController {
 		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
 
 		// make list of available resources
-		List<Workflowresource> allWorkflowResources = jobDraft.getWorkflow().getWorkflowresource();
-		List<Workflowresource> workflowResources = new ArrayList();
-		for (Workflowresource w: allWorkflowResources) {
-			if (! w.getResource().getTypeResource().getIName().equals(typeresourceiname)) { continue; }
-			workflowResources.add(w); 
+		List<Workflowresourcecategory> allWorkflowResourceCategories = jobDraft.getWorkflow().getWorkflowresourcecategory();
+		List<Workflowresourcecategory> workflowResourceCategories = new ArrayList();
+		for (Workflowresourcecategory w: allWorkflowResourceCategories) {
+			if (! w.getResourceCategory().getTypeResource().getIName().equals(typeresourceiname)) { continue; }
+			workflowResourceCategories.add(w); 
 		}
 
 		// get selected resource
-		JobDraftresource jobDraftResource = null; 
-		String resourceArea = ""; 
-		String resourceName = ""; 
+		JobDraftresourcecategory jobDraftResourceCategory = null; 
 		String resourceCategoryArea = ""; 
-		for (JobDraftresource jdr: jobDraft.getJobDraftresource()) {
-			if (! typeresourceiname.equals( jdr.getResource().getTypeResource().getIName())) { continue; }
+		String resourceCategoryName = ""; 
+		for (JobDraftresourcecategory jdrc: jobDraft.getJobDraftresourcecategory()) {
+			if (! typeresourceiname.equals( jdrc.getResourceCategory().getTypeResource().getIName())) { continue; }
 
-			jobDraftResource = jdr;
-			resourceArea = jdr.getResource().getIName(); 
-			resourceName = jdr.getResource().getName(); 
-			resourceCategoryArea = jdr.getResource().getResourceCategory().getIName();
+			jobDraftResourceCategory = jdrc;
+			resourceCategoryArea = jdrc.getResourceCategory().getIName(); 
+			resourceCategoryName = jdrc.getResourceCategory().getName(); 
 		}
 
 		// Resource Options loading
 		Map<String, List<MetaAttribute.Control.Option>> resourceOptions = new HashMap<String, List<MetaAttribute.Control.Option>>();
 
-		if (jobDraftResource != null) {
-		Workflowresource workflowresource = workflowresourceService.getWorkflowresourceByWorkflowIdResourceId(jobDraft.getWorkflow().getWorkflowId(), jobDraftResource.getResourceId());
-		for (WorkflowresourceMeta wrm: workflowresource.getWorkflowresourceMeta()) {
+		if (jobDraftResourceCategory != null) {
+		Workflowresourcecategory workflowresourcecategory = workflowresourcecategoryService.getWorkflowresourcecategoryByWorkflowIdResourcecategoryId(jobDraft.getWorkflow().getWorkflowId(), jobDraftResourceCategory.getResourcecategoryId());
+		for (WorkflowresourcecategoryMeta wrm: workflowresourcecategory.getWorkflowresourcecategoryMeta()) {
 			String key = wrm.getK(); 
 
 //			if (! key.matches("^.*allowableUiField\\.")) { continue; }
@@ -476,30 +489,21 @@ public class JobSubmissionController extends WaspController {
 		}
 
 
-
-
 		MetaHelperWebapp metaHelperWebapp = getMetaHelperWebapp();
-		metaHelperWebapp.setArea(resourceArea);
+		metaHelperWebapp.setArea(resourceCategoryArea);
 
-		// jobDraft.setJobDraftMeta(metaHelper.getMasterList(JobDraftMeta.class));
+		// jobDraft.setJobDraftMeta(metaHelperWebapp.getMasterList(JobDraftMeta.class));
 		jobDraft.setJobDraftMeta(metaHelperWebapp.syncWithMaster(jobDraft.getJobDraftMeta()));
 
-		// no metadata fields try the category?
-		if ( jobDraft.getJobDraftMeta() == null || jobDraft.getJobDraftMeta().size() == 0 ) {
-			metaHelperWebapp.setArea(resourceCategoryArea);
-			jobDraft.setJobDraftMeta(metaHelperWebapp.syncWithMaster(jobDraft.getJobDraftMeta()));
-
-		}
-
-		m.put("workflowResources", workflowResources);
+		m.put("workflowResourceCategories", workflowResourceCategories);
 		m.put("jobDraftDb", jobDraft);
 		m.put("jobDraft", jobDraft);
-		m.put("name", resourceName);
+		m.put("name", resourceCategoryName);
 		m.put("area", metaHelperWebapp.getArea());
-		m.put("jobDraftResource", jobDraftResource);
+		m.put("jobDraftResourceCategory", jobDraftResourceCategory);
 		m.put("resourceOptions", resourceOptions);
 		m.put("parentarea", metaHelperWebapp.getParentArea());
-                m.put("pageFlowMap", getPageFlowMap(jobDraft));
+		m.put("pageFlowMap", getPageFlowMap(jobDraft));
 		
 		return "jobsubmit/resource";
 	}
@@ -514,8 +518,6 @@ public class JobSubmissionController extends WaspController {
 			ModelMap m) {
 		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
 
-		m.put("bleh",	"bleh");
-
 		Map params = request.getParameterMap();
 		Integer changeResource = null;
 		try {
@@ -527,46 +529,38 @@ public class JobSubmissionController extends WaspController {
 		// set the resource and reload the page.
 		// todo: consider wiping out old meta values?
 		if (changeResource != null) {
-			List<JobDraftresource> oldJdrs = jobDraft.getJobDraftresource();
-			for (JobDraftresource jdr: oldJdrs) {
-				if (jdr.getResource().getTypeResource().getIName().equals(typeresourceiname))
-				jobDraftresourceService.remove(jdr);
-				jobDraftresourceService.flush(jdr);
+			List<JobDraftresourcecategory> oldJdrs = jobDraft.getJobDraftresourcecategory();
+			for (JobDraftresourcecategory jdr: oldJdrs) {
+				if (jdr.getResourceCategory().getTypeResource().getIName().equals(typeresourceiname))
+				jobDraftresourcecategoryService.remove(jdr);
+				jobDraftresourcecategoryService.flush(jdr);
 			}
 
-			JobDraftresource newJdr = new JobDraftresource();
+			JobDraftresourcecategory newJdr = new JobDraftresourcecategory();
 			newJdr.setJobdraftId(jobDraftId);
-			newJdr.setResourceId(changeResource);
-			jobDraftresourceService.save(newJdr);
+			newJdr.setResourcecategoryId(changeResource);
+			jobDraftresourcecategoryService.save(newJdr);
 
 			return "redirect:/jobsubmit/resource/" + typeresourceiname + "/" + jobDraftId + ".do";
 		}
 
 
 		// get selected resource
-		JobDraftresource jobDraftResource = null; 
-		String resourceArea = ""; 
-		String resourceName = ""; 
+		JobDraftresourcecategory jobDraftResourcecategory = null; 
 		String resourceCategoryArea = ""; 
-		for (JobDraftresource jdr: jobDraft.getJobDraftresource()) {
-			if (! typeresourceiname.equals( jdr.getResource().getTypeResource().getIName())) { continue; }
+		String resourceCategoryName = ""; 
+		for (JobDraftresourcecategory jdr: jobDraft.getJobDraftresourcecategory()) {
+			if (! typeresourceiname.equals( jdr.getResourceCategory().getTypeResource().getIName())) { continue; }
 
-			jobDraftResource = jdr;
-			resourceArea = jdr.getResource().getIName(); 
-			resourceName = jdr.getResource().getName(); 
-			resourceCategoryArea = jdr.getResource().getResourceCategory().getIName();
+			jobDraftResourcecategory = jdr;
+			resourceCategoryArea = jdr.getResourceCategory().getIName();
+			resourceCategoryName = jdr.getResourceCategory().getName(); 
 		}
 
 		MetaHelperWebapp metaHelperWebapp = getMetaHelperWebapp();
-		metaHelperWebapp.setArea(resourceArea);
+		metaHelperWebapp.setArea(resourceCategoryArea);
 
 		List<JobDraftMeta> jobDraftMetaList = metaHelperWebapp.getFromRequest(request, JobDraftMeta.class);
-
-		// no metadata fields try the category?
-		if ( jobDraftMetaList == null || jobDraftMetaList.size() == 0 ) {
-			metaHelperWebapp.setArea(resourceCategoryArea);
-			jobDraftMetaList = metaHelperWebapp.getFromRequest(request, JobDraftMeta.class);
-		}
 
 		jobDraftForm.setJobDraftMeta(jobDraftMetaList);
 		metaHelperWebapp.validate(jobDraftMetaList, result);
@@ -582,6 +576,152 @@ public class JobSubmissionController extends WaspController {
 
 		return nextPage(jobDraft);
 	}
+
+
+  /**
+   * show software form
+   */
+
+	@RequestMapping(value="/software/{typeresourceiname}/{jobDraftId}", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String showSoftwareForm(
+			@PathVariable("typeresourceiname") String typeresourceiname, 
+			@PathVariable("jobDraftId") Integer jobDraftId, 
+			ModelMap m) {
+		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
+
+		// make list of available resources
+		List<WorkflowSoftware> allWorkflowSoftwares = jobDraft.getWorkflow().getWorkflowSoftware();
+		List<WorkflowSoftware> workflowSoftwares = new ArrayList();
+		for (WorkflowSoftware w: allWorkflowSoftwares) {
+			if (! w.getSoftware().getTypeResource().getIName().equals(typeresourceiname)) { continue; }
+			workflowSoftwares.add(w); 
+		}
+
+		// get selected resource
+		JobDraftSoftware jobDraftSoftware = null; 
+		String softwareArea = ""; 
+		String softwareName = ""; 
+		for (JobDraftSoftware jdrc: jobDraft.getJobDraftSoftware()) {
+			if (! typeresourceiname.equals( jdrc.getSoftware().getTypeResource().getIName())) { continue; }
+
+			jobDraftSoftware = jdrc;
+			softwareArea = jdrc.getSoftware().getIName(); 
+			softwareName = jdrc.getSoftware().getName(); 
+		}
+
+		// Resource Options loading
+		Map<String, List<MetaAttribute.Control.Option>> resourceOptions = new HashMap<String, List<MetaAttribute.Control.Option>>();
+
+		if (jobDraftSoftware != null) {
+		WorkflowSoftware workflowSoftware = workflowSoftwareService.getWorkflowSoftwareByWorkflowIdSoftwareId(jobDraft.getWorkflow().getWorkflowId(), jobDraftSoftware.getSoftwareId());
+		for (WorkflowsoftwareMeta wrm: workflowSoftware.getWorkflowsoftwareMeta()) {
+			String key = wrm.getK(); 
+
+//			if (! key.matches("^.*allowableUiField\\.")) { continue; }
+			key = key.replaceAll("^.*allowableUiField\\.", "");
+			List<MetaAttribute.Control.Option> options=new ArrayList<MetaAttribute.Control.Option>();
+			for(String el: org.springframework.util.StringUtils.tokenizeToStringArray(wrm.getV(),";")) {
+				String [] pair=StringUtils.split(el,":");
+				MetaAttribute.Control.Option option = new MetaAttribute.Control.Option();
+				option.setValue(pair[0]);
+				option.setLabel(pair[1]);
+				options.add(option);
+			}
+			resourceOptions.put(key, options);
+		}
+		}
+
+
+		MetaHelperWebapp metaHelperWebapp = getMetaHelperWebapp();
+		metaHelperWebapp.setArea(softwareArea);
+
+		// jobDraft.setJobDraftMeta(metaHelperWebapp.getMasterList(JobDraftMeta.class));
+		jobDraft.setJobDraftMeta(metaHelperWebapp.syncWithMaster(jobDraft.getJobDraftMeta()));
+
+		m.put("workflowSoftwares", workflowSoftwares);
+		m.put("jobDraftDb", jobDraft);
+		m.put("jobDraft", jobDraft);
+		m.put("name", softwareName);
+		m.put("area", metaHelperWebapp.getArea());
+		m.put("jobDraftSoftware", jobDraftSoftware);
+		m.put("resourceOptions", resourceOptions);
+		m.put("parentarea", metaHelperWebapp.getParentArea());
+		m.put("pageFlowMap", getPageFlowMap(jobDraft));
+		
+		return "jobsubmit/software";
+	}
+
+	@RequestMapping(value="/software/{typeresourceiname}/{jobDraftId}", method=RequestMethod.POST)
+	public String modifySoftwareMeta (
+			@PathVariable String typeresourceiname,
+			@PathVariable Integer jobDraftId,
+			@Valid JobDraft jobDraftForm,
+			BindingResult result,
+			SessionStatus status,
+			ModelMap m) {
+		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
+
+		Map params = request.getParameterMap();
+		Integer changeResource = null;
+		try {
+			changeResource = Integer.parseInt(((String[])params.get("changeResource"))[0]);
+		} catch (Exception e) {
+		}
+
+		// The resource is changing
+		// set the resource and reload the page.
+		// todo: consider wiping out old meta values?
+		if (changeResource != null) {
+			List<JobDraftSoftware> oldJdrs = jobDraft.getJobDraftSoftware();
+			for (JobDraftSoftware jdr: oldJdrs) {
+				if (jdr.getSoftware().getTypeResource().getIName().equals(typeresourceiname))
+				jobDraftSoftwareService.remove(jdr);
+				jobDraftSoftwareService.flush(jdr);
+			}
+
+			JobDraftSoftware newJdr = new JobDraftSoftware();
+			newJdr.setJobdraftId(jobDraftId);
+			newJdr.setSoftwareId(changeResource);
+			jobDraftSoftwareService.save(newJdr);
+
+			return "redirect:/jobsubmit/software/" + typeresourceiname + "/" + jobDraftId + ".do";
+		}
+
+
+		// get selected resource
+		JobDraftSoftware jobDraftSoftware = null; 
+		String softwareArea = ""; 
+		String softwareName = ""; 
+		for (JobDraftSoftware jdr: jobDraft.getJobDraftSoftware()) {
+			if (! typeresourceiname.equals( jdr.getSoftware().getTypeResource().getIName())) { continue; }
+
+			jobDraftSoftware = jdr;
+			softwareArea = jdr.getSoftware().getIName();
+			softwareName = jdr.getSoftware().getName(); 
+		}
+
+		MetaHelperWebapp metaHelperWebapp = getMetaHelperWebapp();
+		metaHelperWebapp.setArea(softwareArea);
+
+		List<JobDraftMeta> jobDraftMetaList = metaHelperWebapp.getFromRequest(request, JobDraftMeta.class);
+
+		jobDraftForm.setJobDraftMeta(jobDraftMetaList);
+		metaHelperWebapp.validate(jobDraftMetaList, result);
+
+		if (result.hasErrors()) {
+			waspMessage("hello.error");
+
+			return showResourceMetaForm(typeresourceiname, jobDraftId, m);
+		}
+
+
+		jobDraftMetaService.updateByJobdraftId(metaHelperWebapp.getArea(), jobDraftId, jobDraftMetaList);
+
+		return nextPage(jobDraft);
+	}
+
+
 
 
 
@@ -963,13 +1103,24 @@ public class JobSubmissionController extends WaspController {
 			jobMetaService.save(jobMeta); 
 		}
 
-		for (JobDraftresource jdr: jobDraft.getJobDraftresource()) {
-			JobResource jobResource = new JobResource();
-			jobResource.setJobId(jobDb.getJobId());
-			jobResource.setResourceId(jdr.getResourceId());
+		// save the software selected
+		for (JobDraftSoftware jdr: jobDraft.getJobDraftSoftware()) {
+			JobSoftware jobSoftware = new JobSoftware();
+			jobSoftware.setJobId(jobDb.getJobId());
+			jobSoftware.setSoftwareId(jdr.getSoftwareId());
 
-			jobResourceService.save(jobResource); 
+			jobSoftwareService.save(jobSoftware); 
 		}
+
+		// save the resource category selected
+		for (JobDraftresourcecategory jdr: jobDraft.getJobDraftresourcecategory()) {
+			JobResourcecategory jobResourceCategory = new JobResourcecategory();
+			jobResourceCategory.setJobId(jobDb.getJobId());
+			jobResourceCategory.setResourcecategoryId(jdr.getResourcecategoryId());
+
+			jobResourcecategoryService.save(jobResourceCategory); 
+		}
+
 
 		// Creates the JobUser Permission
 		JobUser jobUser = new JobUser(); 
