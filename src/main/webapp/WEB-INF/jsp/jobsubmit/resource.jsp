@@ -13,9 +13,9 @@
 <form method="POST" class="resourcelistform">
 <select name="changeResource" onchange="this.parentNode.submit()">
   <option></option>
-<c:forEach items="${workflowResources}" var="w">
-  <option value="<c:out value="${w.resource.resourceId}" />" <c:if test="${w.resource.resourceId == jobDraftResource.resource.resourceId}"> SELECTED</c:if>>
-    <c:out value="${w.resource.name}" />
+<c:forEach items="${workflowResourceCategories}" var="w">
+  <option value="<c:out value="${w.resourceCategory.resourceCategoryId}" />" <c:if test="${w.resourceCategory.resourceCategoryId == jobDraftResourceCategory.resourceCategory.resourceCategoryId}"> SELECTED</c:if>>
+    <c:out value="${w.resourceCategory.name}" />
   </option>
 </c:forEach>
 </select>
