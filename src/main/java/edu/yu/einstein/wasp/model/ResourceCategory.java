@@ -343,41 +343,6 @@ public class ResourceCategory extends WaspModel {
 		this.jobDraftresourcecategory = jobDraftresourcecategory;
 	}
 
-
-
-	/** 
-	 * typeSampleresourcecategory
-	 *
-	 */
-	@NotAudited
-	@OneToMany
-	@JoinColumn(name="resourcecategoryid", insertable=false, updatable=false)
-	protected List<TypeSampleresourcecategory> typeSampleresourcecategory;
-
-
-	/** 
-	 * getTypeSampleresourcecategory()
-	 *
-	 * @return typeSampleresourcecategory
-	 *
-	 */
-	public List<TypeSampleresourcecategory> getTypeSampleresourcecategory() {
-		return this.typeSampleresourcecategory;
-	}
-
-
-	/** 
-	 * setTypeSampleresourcecategory
-	 *
-	 * @param typeSampleresourcecategory
-	 *
-	 */
-	public void setTypeSampleresourcecategory (List<TypeSampleresourcecategory> typeSampleresourcecategory) {
-		this.typeSampleresourcecategory = typeSampleresourcecategory;
-	}
-
-
-
 	/** 
 	 * workflowresourcecategory
 	 *
