@@ -66,6 +66,9 @@ public class JQFieldTag extends BodyTagSupport {
 	
 	//Sortable field
 	private String sortable;
+	
+	//Searchable field
+	private String searchable;
   
 	private Map metaMessages;
   
@@ -130,6 +133,10 @@ public class JQFieldTag extends BodyTagSupport {
 	
 	public void setSortable(String st) {
 		this.sortable = st;
+	}
+	
+	public void setSearchable(String sb) {
+		this.searchable = sb;
 	}
 
 	//get locale-specific message
@@ -324,6 +331,11 @@ public class JQFieldTag extends BodyTagSupport {
 			if (this.sortable!=null  && this.sortable.equals("true")) {
 				buf = buf + 
 					jsName + ".jq['sortable']=true;\n";
+			}
+	
+			if (this.searchable!=null  && this.searchable.equals("false")) {
+				buf = buf + 
+					jsName + ".jq['search']=false;\n";
 			}
 	
 			buf = buf + "\ncolNames.push(" + jsName + ".label);\n" 
