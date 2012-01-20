@@ -24,8 +24,8 @@
 		<value>/jobsubmit/samples/{n}</value>
 		<value>/jobsubmit/cells/{n}</value>
 		<value>/jobsubmit/chipSeq/pair/{n}</value> 
-		<value>/jobsubmit/resource/aligner/{n}</value>
-		<!-- <value>/jobsubmit/resource/peakcaller/{n}</value> -->
+		<value>/jobsubmit/software/aligner/{n}</value>
+		<!-- <value>/jobsubmit/software/peakcaller/{n}</value> -->
 		<value>/jobsubmit/verify/{n}</value>
 		<value>/jobsubmit/submit/{n}</value>
 		<value>/jobsubmit/ok</value>
