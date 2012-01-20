@@ -818,9 +818,9 @@ create table workflowresource (
 ) ENGINE=InnoDB charset=utf8;
 
 create table workflowresourcemeta (
-  workflowresourceoptionid int(10)  primary key auto_increment, 
+  workflowresourcemetaid int(10)  primary key auto_increment, 
   workflowresourceid int(10) ,
-  k int(10),
+  k varchar(250) , 
   v text,
   position int(10)  default 0,
 
@@ -831,7 +831,6 @@ create table workflowresourcemeta (
 
   constraint unique index u_wro_wrid_k (workflowresourceid, k)
 ) ENGINE=InnoDB charset=utf8;
-
 
 
 
