@@ -15,9 +15,7 @@
   <option></option>
 <c:forEach items="${workflowResources}" var="w">
   <option value="<c:out value="${w.resource.resourceId}" />" <c:if test="${w.resource.resourceId == jobDraftResource.resource.resourceId}"> SELECTED</c:if>>
-    <c:out value="${w.resource.platform}" />
     <c:out value="${w.resource.name}" />
-    <c:out value="${w.resource.resourceId}" />
   </option>
 </c:forEach>
 </select>
