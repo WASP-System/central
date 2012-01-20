@@ -14,15 +14,14 @@
     <property name="area" value="bowtieAligner" />
   </bean>
 
-  <bean id="bowtieAlignerResource" class="edu.yu.einstein.wasp.load.ResourceLoadService">
+  <bean id="bowtieAlignerSoftware" class="edu.yu.einstein.wasp.load.SoftwareLoadService">
     <property name="iname" value="bowtieAlignerV0.12.7" />
     <property name="name" value="Bowtie Aligner" />
-    <property name="resourceCategory" value="software" />
     <property name="resourceType" value="aligner" />
 
     <property name="meta">
       <list>
-        <bean class="edu.yu.einstein.wasp.model.ResourceMeta">
+        <bean class="edu.yu.einstein.wasp.model.SoftwareMeta">
           <property name="k" value="bowtieAligner.version" />
           <property name="v" value="0.12.7" />
         </bean>

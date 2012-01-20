@@ -14,15 +14,14 @@
     <property name="area" value="macsPeakcaller" />
   </bean>
 
-  <bean id="macsPeakcallerResource" class="edu.yu.einstein.wasp.load.ResourceLoadService">
+  <bean id="macsPeakcallerSoftware" class="edu.yu.einstein.wasp.load.SoftwareLoadService">
     <property name="iname" value="macsPeakcallerV4.1" />
     <property name="name" value="MACS Peakcaller" />
-    <property name="resourceCategory" value="software" />
     <property name="resourceType" value="peakcaller" />
 
     <property name="meta">
       <list>
-        <bean class="edu.yu.einstein.wasp.model.ResourceMeta">
+        <bean class="edu.yu.einstein.wasp.model.SoftwareMeta">
           <property name="k" value="macsPeakcaller.version" />
           <property name="v" value="4.1" />
         </bean>
