@@ -11,14 +11,17 @@
 
 package edu.yu.einstein.wasp.model;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import java.util.Date;
+import java.util.List;
+
+import javax.persistence.*;
 
 import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
+
+import org.hibernate.validator.constraints.*;
+
+import org.codehaus.jackson.annotate.JsonIgnore;
 
 @Entity
 @Audited
@@ -177,6 +180,136 @@ public class Workflowtask extends WaspModel {
 		return this.name;
 	}
 
+
+
+
+	/**
+	 * workflow
+	 *
+	 */
+	@NotAudited
+	@ManyToOne
+	@JoinColumn(name="workflowid", insertable=false, updatable=false)
+	protected Workflow workflow;
+
+	/**
+	 * setWorkflow (Workflow workflow)
+	 *
+	 * @param workflow
+	 *
+	 */
+	public void setWorkflow (Workflow workflow) {
+		this.workflow = workflow;
+		this.workflowId = workflow.workflowId;
+	}
+
+	/**
+	 * getWorkflow ()
+	 *
+	 * @return workflow
+	 *
+	 */
+	
+	public Workflow getWorkflow () {
+		return this.workflow;
+	}
+
+
+	/**
+	 * task
+	 *
+	 */
+	@NotAudited
+	@ManyToOne
+	@JoinColumn(name="taskid", insertable=false, updatable=false)
+	protected Task task;
+
+	/**
+	 * setTask (Task task)
+	 *
+	 * @param task
+	 *
+	 */
+	public void setTask (Task task) {
+		this.task = task;
+		this.taskId = task.taskId;
+	}
+
+	/**
+	 * getTask ()
+	 *
+	 * @return task
+	 *
+	 */
+	
+	public Task getTask () {
+		return this.task;
+	}
+
+
+	/** 
+	 * workflowtasksource
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="workflowtaskid", insertable=false, updatable=false)
+	protected List<Workflowtasksource> workflowtasksource;
+
+
+	/** 
+	 * getWorkflowtasksource()
+	 *
+	 * @return workflowtasksource
+	 *
+	 */
+	public List<Workflowtasksource> getWorkflowtasksource() {
+		return this.workflowtasksource;
+	}
+
+
+	/** 
+	 * setWorkflowtasksource
+	 *
+	 * @param workflowtasksource
+	 *
+	 */
+	public void setWorkflowtasksource (List<Workflowtasksource> workflowtasksource) {
+		this.workflowtasksource = workflowtasksource;
+	}
+
+
+
+	/** 
+	 * workflowtasksourceViaSourceworkflowtaskId
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="sourceworkflowtaskid", insertable=false, updatable=false)
+	protected List<Workflowtasksource> workflowtasksourceViaSourceworkflowtaskId;
+
+
+	/** 
+	 * getWorkflowtasksourceViaSourceworkflowtaskId()
+	 *
+	 * @return workflowtasksourceViaSourceworkflowtaskId
+	 *
+	 */
+	public List<Workflowtasksource> getWorkflowtasksourceViaSourceworkflowtaskId() {
+		return this.workflowtasksourceViaSourceworkflowtaskId;
+	}
+
+
+	/** 
+	 * setWorkflowtasksourceViaSourceworkflowtaskId
+	 *
+	 * @param workflowtasksource
+	 *
+	 */
+	public void setWorkflowtasksourceViaSourceworkflowtaskId (List<Workflowtasksource> workflowtasksource) {
+		this.workflowtasksourceViaSourceworkflowtaskId = workflowtasksource;
+	}
 
 
 

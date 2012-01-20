@@ -14,17 +14,14 @@ package edu.yu.einstein.wasp.model;
 import java.util.Date;
 import java.util.List;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
+
+import org.hibernate.validator.constraints.*;
+
+import org.codehaus.jackson.annotate.JsonIgnore;
 
 @Entity
 @Audited
@@ -414,34 +411,100 @@ public class Workflow extends WaspModel {
 
 
 	/** 
-	 * workflowresource
+	 * workflowresourcecategory
 	 *
 	 */
 	@NotAudited
 	@OneToMany
 	@JoinColumn(name="workflowid", insertable=false, updatable=false)
-	protected List<Workflowresource> workflowresource;
+	protected List<Workflowresourcecategory> workflowresourcecategory;
 
 
 	/** 
-	 * getWorkflowresource()
+	 * getWorkflowresourcecategory()
 	 *
-	 * @return workflowresource
+	 * @return workflowresourcecategory
 	 *
 	 */
-	public List<Workflowresource> getWorkflowresource() {
-		return this.workflowresource;
+	public List<Workflowresourcecategory> getWorkflowresourcecategory() {
+		return this.workflowresourcecategory;
 	}
 
 
 	/** 
-	 * setWorkflowresource
+	 * setWorkflowresourcecategory
 	 *
-	 * @param workflowresource
+	 * @param workflowresourcecategory
 	 *
 	 */
-	public void setWorkflowresource (List<Workflowresource> workflowresource) {
-		this.workflowresource = workflowresource;
+	public void setWorkflowresourcecategory (List<Workflowresourcecategory> workflowresourcecategory) {
+		this.workflowresourcecategory = workflowresourcecategory;
+	}
+
+
+
+	/** 
+	 * workflowSoftware
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="workflowid", insertable=false, updatable=false)
+	protected List<WorkflowSoftware> workflowSoftware;
+
+
+	/** 
+	 * getWorkflowSoftware()
+	 *
+	 * @return workflowSoftware
+	 *
+	 */
+	public List<WorkflowSoftware> getWorkflowSoftware() {
+		return this.workflowSoftware;
+	}
+
+
+	/** 
+	 * setWorkflowSoftware
+	 *
+	 * @param workflowSoftware
+	 *
+	 */
+	public void setWorkflowSoftware (List<WorkflowSoftware> workflowSoftware) {
+		this.workflowSoftware = workflowSoftware;
+	}
+
+
+
+	/** 
+	 * workflowtask
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="workflowid", insertable=false, updatable=false)
+	protected List<Workflowtask> workflowtask;
+
+
+	/** 
+	 * getWorkflowtask()
+	 *
+	 * @return workflowtask
+	 *
+	 */
+	public List<Workflowtask> getWorkflowtask() {
+		return this.workflowtask;
+	}
+
+
+	/** 
+	 * setWorkflowtask
+	 *
+	 * @param workflowtask
+	 *
+	 */
+	public void setWorkflowtask (List<Workflowtask> workflowtask) {
+		this.workflowtask = workflowtask;
 	}
 
 

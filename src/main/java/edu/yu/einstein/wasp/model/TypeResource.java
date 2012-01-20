@@ -11,19 +11,17 @@
 
 package edu.yu.einstein.wasp.model;
 
+import java.util.Date;
 import java.util.List;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
+
+import org.hibernate.validator.constraints.*;
+
+import org.codehaus.jackson.annotate.JsonIgnore;
 
 @Entity
 @Audited
@@ -124,6 +122,39 @@ public class TypeResource extends WaspModel {
 
 
 	/** 
+	 * resourceCategory
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="typeresourceid", insertable=false, updatable=false)
+	protected List<ResourceCategory> resourceCategory;
+
+
+	/** 
+	 * getResourceCategory()
+	 *
+	 * @return resourceCategory
+	 *
+	 */
+	public List<ResourceCategory> getResourceCategory() {
+		return this.resourceCategory;
+	}
+
+
+	/** 
+	 * setResourceCategory
+	 *
+	 * @param resourceCategory
+	 *
+	 */
+	public void setResourceCategory (List<ResourceCategory> resourceCategory) {
+		this.resourceCategory = resourceCategory;
+	}
+
+
+
+	/** 
 	 * resource
 	 *
 	 */
@@ -152,6 +183,39 @@ public class TypeResource extends WaspModel {
 	 */
 	public void setResource (List<Resource> resource) {
 		this.resource = resource;
+	}
+
+
+
+	/** 
+	 * software
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="typeresourceid", insertable=false, updatable=false)
+	protected List<Software> software;
+
+
+	/** 
+	 * getSoftware()
+	 *
+	 * @return software
+	 *
+	 */
+	public List<Software> getSoftware() {
+		return this.software;
+	}
+
+
+	/** 
+	 * setSoftware
+	 *
+	 * @param software
+	 *
+	 */
+	public void setSoftware (List<Software> software) {
+		this.software = software;
 	}
 
 

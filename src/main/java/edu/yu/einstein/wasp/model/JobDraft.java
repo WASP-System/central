@@ -14,19 +14,14 @@ package edu.yu.einstein.wasp.model;
 import java.util.Date;
 import java.util.List;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
-import org.hibernate.validator.constraints.NotEmpty;
+
+import org.hibernate.validator.constraints.*;
+
+import org.codehaus.jackson.annotate.JsonIgnore;
 
 @Entity
 @Audited
@@ -69,7 +64,6 @@ public class JobDraft extends WaspModel {
 	 *
 	 */
 	@Column(name="labid")
-//	@Range(min=1)
 	protected Integer labId;
 
 	/**
@@ -101,7 +95,6 @@ public class JobDraft extends WaspModel {
 	 *
 	 */
 	@Column(name="userid")
-	// @ Range(min=1)
 	protected Integer UserId;
 
 	/**
@@ -133,7 +126,6 @@ public class JobDraft extends WaspModel {
 	 *
 	 */
 	@Column(name="workflowid")
-	// @ Range(min=1)
 	protected Integer workflowId;
 
 	/**
@@ -165,7 +157,6 @@ public class JobDraft extends WaspModel {
 	 *
 	 */
 	@Column(name="name")
-	@NotEmpty
 	protected String name;
 
 	/**
@@ -509,34 +500,67 @@ public class JobDraft extends WaspModel {
 
 
 	/** 
-	 * jobDraftresource
+	 * jobDraftresourcecategory
 	 *
 	 */
 	@NotAudited
 	@OneToMany
 	@JoinColumn(name="jobdraftid", insertable=false, updatable=false)
-	protected List<JobDraftresource> jobDraftresource;
+	protected List<JobDraftresourcecategory> jobDraftresourcecategory;
 
 
 	/** 
-	 * getJobDraftresource()
+	 * getJobDraftresourcecategory()
 	 *
-	 * @return jobDraftresource
+	 * @return jobDraftresourcecategory
 	 *
 	 */
-	public List<JobDraftresource> getJobDraftresource() {
-		return this.jobDraftresource;
+	public List<JobDraftresourcecategory> getJobDraftresourcecategory() {
+		return this.jobDraftresourcecategory;
 	}
 
 
 	/** 
-	 * setJobDraftresource
+	 * setJobDraftresourcecategory
 	 *
-	 * @param jobDraftresource
+	 * @param jobDraftresourcecategory
 	 *
 	 */
-	public void setJobDraftresource (List<JobDraftresource> jobDraftresource) {
-		this.jobDraftresource = jobDraftresource;
+	public void setJobDraftresourcecategory (List<JobDraftresourcecategory> jobDraftresourcecategory) {
+		this.jobDraftresourcecategory = jobDraftresourcecategory;
+	}
+
+
+
+	/** 
+	 * jobDraftSoftware
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="jobdraftid", insertable=false, updatable=false)
+	protected List<JobDraftSoftware> jobDraftSoftware;
+
+
+	/** 
+	 * getJobDraftSoftware()
+	 *
+	 * @return jobDraftSoftware
+	 *
+	 */
+	public List<JobDraftSoftware> getJobDraftSoftware() {
+		return this.jobDraftSoftware;
+	}
+
+
+	/** 
+	 * setJobDraftSoftware
+	 *
+	 * @param jobDraftSoftware
+	 *
+	 */
+	public void setJobDraftSoftware (List<JobDraftSoftware> jobDraftSoftware) {
+		this.jobDraftSoftware = jobDraftSoftware;
 	}
 
 

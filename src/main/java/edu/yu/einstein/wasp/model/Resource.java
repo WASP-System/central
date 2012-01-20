@@ -14,18 +14,14 @@ package edu.yu.einstein.wasp.model;
 import java.util.Date;
 import java.util.List;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
+
+import org.hibernate.validator.constraints.*;
+
+import org.codehaus.jackson.annotate.JsonIgnore;
 
 @Entity
 @Audited
@@ -411,34 +407,34 @@ public class Resource extends WaspModel {
 
 
 	/** 
-	 * jobDraftresource
+	 * jobResourcecategory
 	 *
 	 */
 	@NotAudited
 	@OneToMany
-	@JoinColumn(name="resourceid", insertable=false, updatable=false)
-	protected List<JobDraftresource> jobDraftresource;
+	@JoinColumn(name="resourcecategoryid", insertable=false, updatable=false)
+	protected List<JobResourcecategory> jobResourcecategory;
 
 
 	/** 
-	 * getJobDraftresource()
+	 * getJobResourcecategory()
 	 *
-	 * @return jobDraftresource
+	 * @return jobResourcecategory
 	 *
 	 */
-	public List<JobDraftresource> getJobDraftresource() {
-		return this.jobDraftresource;
+	public List<JobResourcecategory> getJobResourcecategory() {
+		return this.jobResourcecategory;
 	}
 
 
 	/** 
-	 * setJobDraftresource
+	 * setJobResourcecategory
 	 *
-	 * @param jobDraftresource
+	 * @param jobResourcecategory
 	 *
 	 */
-	public void setJobDraftresource (List<JobDraftresource> jobDraftresource) {
-		this.jobDraftresource = jobDraftresource;
+	public void setJobResourcecategory (List<JobResourcecategory> jobResourcecategory) {
+		this.jobResourcecategory = jobResourcecategory;
 	}
 
 
@@ -472,72 +468,6 @@ public class Resource extends WaspModel {
 	 */
 	public void setResourceBarcode (List<ResourceBarcode> resourceBarcode) {
 		this.resourceBarcode = resourceBarcode;
-	}
-
-
-
-	/** 
-	 * workflowresource
-	 *
-	 */
-	@NotAudited
-	@OneToMany
-	@JoinColumn(name="resourceid", insertable=false, updatable=false)
-	protected List<Workflowresource> workflowresource;
-
-
-	/** 
-	 * getWorkflowresource()
-	 *
-	 * @return workflowresource
-	 *
-	 */
-	public List<Workflowresource> getWorkflowresource() {
-		return this.workflowresource;
-	}
-
-
-	/** 
-	 * setWorkflowresource
-	 *
-	 * @param workflowresource
-	 *
-	 */
-	public void setWorkflowresource (List<Workflowresource> workflowresource) {
-		this.workflowresource = workflowresource;
-	}
-
-
-
-	/** 
-	 * adaptorsetresourcecategory
-	 *
-	 */
-	@NotAudited
-	@OneToMany
-	@JoinColumn(name="resourcecategoryid", insertable=false, updatable=false)
-	protected List<AdaptorsetResourceCategory> adaptorsetresourcecategory;
-
-
-	/** 
-	 * getAdaptorsetResourceCategory()
-	 *
-	 * @return adaptorsetresourcecategory
-	 *
-	 */
-	public List<AdaptorsetResourceCategory> getAdaptorsetResourceCategory() {
-		return this.adaptorsetresourcecategory;
-	}
-
-
-	/** 
-	 * setAdaptorsetresource
-	 *
-	 * @param adaptorsetresource
-	 *
-	 */
-	public void setAdaptorsetResourceCategory (List<AdaptorsetResourceCategory> adaptorsetresourcecategory) {
-		this.adaptorsetresourcecategory = adaptorsetresourcecategory;
 	}
 
 

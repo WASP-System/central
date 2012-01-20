@@ -11,14 +11,17 @@
 
 package edu.yu.einstein.wasp.model;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import java.util.Date;
+import java.util.List;
+
+import javax.persistence.*;
 
 import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
+
+import org.hibernate.validator.constraints.*;
+
+import org.codehaus.jackson.annotate.JsonIgnore;
 
 @Entity
 @Audited
@@ -116,6 +119,70 @@ public class Workflowtasksource extends WaspModel {
 	}
 
 
+
+
+	/**
+	 * workflowtask
+	 *
+	 */
+	@NotAudited
+	@ManyToOne
+	@JoinColumn(name="workflowtaskid", insertable=false, updatable=false)
+	protected Workflowtask workflowtask;
+
+	/**
+	 * setWorkflowtask (Workflowtask workflowtask)
+	 *
+	 * @param workflowtask
+	 *
+	 */
+	public void setWorkflowtask (Workflowtask workflowtask) {
+		this.workflowtask = workflowtask;
+		this.workflowtaskId = workflowtask.workflowtaskId;
+	}
+
+	/**
+	 * getWorkflowtask ()
+	 *
+	 * @return workflowtask
+	 *
+	 */
+	
+	public Workflowtask getWorkflowtask () {
+		return this.workflowtask;
+	}
+
+
+	/**
+	 * workflowtaskVia
+	 *
+	 */
+	@NotAudited
+	@ManyToOne
+	@JoinColumn(name="sourceworkflowtaskid", insertable=false, updatable=false)
+	protected Workflowtask workflowtaskVia;
+
+	/**
+	 * setWorkflowtaskVia (Workflowtask workflowtask)
+	 *
+	 * @param workflowtask
+	 *
+	 */
+	public void setWorkflowtaskVia (Workflowtask workflowtask) {
+		this.workflowtask = workflowtask;
+		this.sourceworkflowtaskId = workflowtask.workflowtaskId;
+	}
+
+	/**
+	 * getWorkflowtaskVia ()
+	 *
+	 * @return workflowtask
+	 *
+	 */
+	
+	public Workflowtask getWorkflowtaskVia () {
+		return this.workflowtask;
+	}
 
 
 }

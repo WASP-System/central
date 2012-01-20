@@ -11,20 +11,17 @@
 
 package edu.yu.einstein.wasp.model;
 
+import java.util.Date;
 import java.util.List;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
+
+import org.hibernate.validator.constraints.*;
+
+import org.codehaus.jackson.annotate.JsonIgnore;
 
 @Entity
 @Audited
@@ -155,6 +152,37 @@ public class ResourceLane extends WaspModel {
 
 
 
+	/** 
+	 * isActive
+	 *
+	 */
+	@Column(name="isactive")
+	protected Integer isActive;
+
+	/**
+	 * setIsActive(Integer isActive)
+	 *
+	 * @param isActive
+	 *
+	 */
+	
+	public void setIsActive (Integer isActive) {
+		this.isActive = isActive;
+	}
+
+	/**
+	 * getIsActive()
+	 *
+	 * @return isActive
+	 *
+	 */
+	public Integer getIsActive () {
+		return this.isActive;
+	}
+
+
+
+
 	/**
 	 * resource
 	 *
@@ -218,32 +246,6 @@ public class ResourceLane extends WaspModel {
 		this.runLane = runLane;
 	}
 
-	/** 
-	 * isActive
-	 *
-	 */
-	@Column(name="isactive")
-	protected Integer isActive;
 
-	/**
-	 * setIsActive(Integer isActive)
-	 *
-	 * @param isActive
-	 *
-	 */
-	
-	public void setIsActive (Integer isActive) {
-		this.isActive = isActive;
-	}
-
-	/**
-	 * getIsActive()
-	 *
-	 * @return isActive
-	 *
-	 */
-	public Integer getIsActive () {
-		return this.isActive;
-	}
 
 }
