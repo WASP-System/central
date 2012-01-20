@@ -11,10 +11,13 @@
 
 package edu.yu.einstein.wasp.service;
 
-import org.springframework.stereotype.Service;
-
 import edu.yu.einstein.wasp.dao.WorkflowresourceMetaDao;
 import edu.yu.einstein.wasp.model.WorkflowresourceMeta;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.stereotype.Service;
 
 @Service
 public interface WorkflowresourceMetaService extends WaspService<WorkflowresourceMeta> {
@@ -35,9 +38,9 @@ public interface WorkflowresourceMetaService extends WaspService<Workflowresourc
 	 */
 	public WorkflowresourceMetaDao getWorkflowresourceMetaDao();
 
-  public WorkflowresourceMeta getWorkflowresourceMetaByWorkflowresourceoptionId (final Integer workflowresourceoptionId);
+  public WorkflowresourceMeta getWorkflowresourceMetaByWorkflowresourceMetaId (final Integer workflowresourceMetaId);
 
-  public WorkflowresourceMeta getWorkflowresourceMetaByWorkflowresourceIdK (final Integer workflowresourceId, final Integer k);
+  public WorkflowresourceMeta getWorkflowresourceMetaByWorkflowresourceIdK (final Integer workflowresourceId, final String k);
 
 
 }

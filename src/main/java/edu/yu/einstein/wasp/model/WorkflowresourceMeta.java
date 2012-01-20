@@ -11,17 +11,17 @@
 
 package edu.yu.einstein.wasp.model;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import java.util.Date;
+import java.util.List;
+
+import javax.persistence.*;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
+
+import org.hibernate.validator.constraints.*;
+
+import org.codehaus.jackson.annotate.JsonIgnore;
 
 @Entity
 @Audited
@@ -29,31 +29,31 @@ import org.hibernate.envers.NotAudited;
 public class WorkflowresourceMeta extends MetaBase {
 
 	/** 
-	 * workflowresourceoptionId
+	 * workflowresourceMetaId
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer workflowresourceoptionId;
+	protected Integer workflowresourceMetaId;
 
 	/**
-	 * setWorkflowresourceoptionId(Integer workflowresourceoptionId)
+	 * setWorkflowresourceMetaId(Integer workflowresourceMetaId)
 	 *
-	 * @param workflowresourceoptionId
+	 * @param workflowresourceMetaId
 	 *
 	 */
 	
-	public void setWorkflowresourceoptionId (Integer workflowresourceoptionId) {
-		this.workflowresourceoptionId = workflowresourceoptionId;
+	public void setWorkflowresourceMetaId (Integer workflowresourceMetaId) {
+		this.workflowresourceMetaId = workflowresourceMetaId;
 	}
 
 	/**
-	 * getWorkflowresourceoptionId()
+	 * getWorkflowresourceMetaId()
 	 *
-	 * @return workflowresourceoptionId
+	 * @return workflowresourceMetaId
 	 *
 	 */
-	public Integer getWorkflowresourceoptionId () {
-		return this.workflowresourceoptionId;
+	public Integer getWorkflowresourceMetaId () {
+		return this.workflowresourceMetaId;
 	}
 
 
