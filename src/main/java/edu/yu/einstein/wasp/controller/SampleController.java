@@ -2,6 +2,8 @@ package edu.yu.einstein.wasp.controller;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobSample;
+import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
@@ -185,17 +188,23 @@ public class SampleController extends WaspController {
 		
 		List <TypeSample> typeSampleList = new ArrayList <TypeSample> ();
 		
+		String sord = request.getParameter("sord");
+		String sidx = request.getParameter("sidx");
+		
 		if (request.getParameter("_search")==null || StringUtils.isEmpty(request.getParameter("searchString"))) {
+			sampleList = sidx.isEmpty() ? this.sampleService.findAll() : this.sampleService.findAllOrderBy(sidx, sord);
+			System.out.println("sidx="+sidx+", sord="+sord);
+			
 			Map<String, String> m = new HashMap<String, String>();
 			  
 			m.put("typeSampleCategoryId", "2");
 			 
-			sampleList = this.sampleService.findAll();
+			//sampleList = this.sampleService.findAll();
 			typeSampleList = this.getTypeSampleService().findByMapExcept(m);
 			
 			finalSampleList = joinById(sampleList, typeSampleList);
 
-		} else {
+		 }else {
 			
 			  Map<String, String> m = new HashMap<String, String>();
 			  
@@ -207,7 +216,7 @@ public class SampleController extends WaspController {
 			  finalSampleList = joinById(sampleList, typeSampleList);
 
 			  if ("ne".equals(request.getParameter("searchOper"))) {
-				  List<Sample> allSamples=new ArrayList<Sample>(this.sampleService.findAll());
+				  List<Sample> allSamples=new ArrayList<Sample>(sidx.isEmpty() ? this.sampleService.findAll() : this.sampleService.findAllOrderBy(sidx, sord));
 				  List<Sample> finalSampleListFindAll=new ArrayList<Sample>();
 				  
 				  finalSampleListFindAll = joinById(allSamples, typeSampleList);
@@ -218,7 +227,7 @@ public class SampleController extends WaspController {
 				  }
 				  finalSampleList=finalSampleListFindAll;
 			  }
-		}
+		 }
   	
 		 try {
 			 
@@ -260,6 +269,20 @@ public class SampleController extends WaspController {
 			sampleData.put("selId",StringUtils.isEmpty(request.getParameter("selId"))?"":request.getParameter("selId"));
 			jqgrid.put("sampledata",sampleData);
 			 
+			/***** Begin Sort by User name *****/
+			class SampleSubmitterNameComparator implements Comparator<Sample> {
+				public int compare(Sample arg0, Sample arg1) {
+					return arg0.getUser().getLastName().compareToIgnoreCase(arg1.getUser().getLastName());
+				}
+			}
+			
+			if (sidx.equals("submitterUserId")) {
+				Collections.sort(finalSampleList, new SampleSubmitterNameComparator());
+				if (sord.equals("desc"))
+					Collections.reverse(finalSampleList);
+			}
+			/***** End Sort by User name *****/
+			
 			List<Map> rows = new ArrayList<Map>();
 			
 			int frId = pageRowNum * (pageIndex - 1);
