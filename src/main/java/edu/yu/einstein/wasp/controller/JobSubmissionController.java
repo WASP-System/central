@@ -42,7 +42,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
-import edu.yu.einstein.wasp.controller.validator.MetaHelper;
+import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.dao.impl.DBResourceBundle;
 import edu.yu.einstein.wasp.model.*;
 import edu.yu.einstein.wasp.service.*;
@@ -153,8 +153,8 @@ public class JobSubmissionController extends WaspController {
 	@Autowired
 	protected AuthenticationService authenticationService;
 
-	protected final MetaHelper getMetaHelper() {
-		return new MetaHelper("jobDraft", JobDraftMeta.class, request.getSession());
+	protected final MetaHelperWebapp getMetaHelperWebapp() {
+		return new MetaHelperWebapp("jobDraft", JobDraftMeta.class, request.getSession());
 	}
 	
 	final public String defaultPageFlow = "/jobsubmit/modifymeta/{n};/jobsubmit/samples/{n};/jobsubmit/cells/{n};/jobsubmit/verify/{n};/jobsubmit/submit/{n};/jobsubmit/ok";
@@ -358,17 +358,17 @@ public class JobSubmissionController extends WaspController {
 		 
 		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
 
-		MetaHelper metaHelper = getMetaHelper();
-		metaHelper.setArea(jobDraft.getWorkflow().getIName());
+		MetaHelperWebapp metaHelperWebapp = getMetaHelperWebapp();
+		metaHelperWebapp.setArea(jobDraft.getWorkflow().getIName());
 
-		jobDraft.setJobDraftMeta(metaHelper.getMasterList(JobDraftMeta.class));
+		jobDraft.setJobDraftMeta(metaHelperWebapp.getMasterList(JobDraftMeta.class));
 		// jobDraft.setJobDraftMeta(metaHelper.syncWithMaster(jobDraft.getJobDraftMeta()));
 
 
 		m.put("jobDraftDb", jobDraft);
 		m.put("jobDraft", jobDraft);
-		m.put("area", metaHelper.getArea());
-		m.put("parentarea", metaHelper.getParentArea());
+		m.put("area", metaHelperWebapp.getArea());
+		m.put("parentarea", metaHelperWebapp.getParentArea());
 
 		m.put("workflowiname", jobDraft.getWorkflow().getIName());
 		
@@ -396,29 +396,29 @@ public class JobSubmissionController extends WaspController {
 		jobDraftForm.setLabId(jobDraft.getLabId());
 		jobDraftForm.setWorkflowId(jobDraft.getWorkflowId());
 
-		MetaHelper metaHelper = getMetaHelper();
+		MetaHelperWebapp metaHelperWebapp = getMetaHelperWebapp();
 		
-		metaHelper.setArea(jobDraft.getWorkflow().getIName());
+		metaHelperWebapp.setArea(jobDraft.getWorkflow().getIName());
 
-		List<JobDraftMeta> jobDraftMetaList = metaHelper.getFromRequest(request, JobDraftMeta.class);
+		List<JobDraftMeta> jobDraftMetaList = metaHelperWebapp.getFromRequest(request, JobDraftMeta.class);
 
 		jobDraftForm.setJobDraftMeta(jobDraftMetaList);
 
-		metaHelper.validate(jobDraftMetaList, result);
+		metaHelperWebapp.validate(jobDraftMetaList, result);
 
 		if (result.hasErrors()) {
 			waspMessage("hello.error");
 
 			m.put("jobDraftDb", jobDraft);
-			m.put("area", metaHelper.getArea());
-			m.put("parentarea", metaHelper.getParentArea());
+			m.put("area", metaHelperWebapp.getArea());
+			m.put("parentarea", metaHelperWebapp.getParentArea());
 
 	                m.put("pageFlowMap", getPageFlowMap(jobDraft));
 	
 			return "jobsubmit/metaform";
 		}
 
-		jobDraftMetaService.updateByJobdraftId(metaHelper.getArea(), jobDraftId, jobDraftMetaList);
+		jobDraftMetaService.updateByJobdraftId(metaHelperWebapp.getArea(), jobDraftId, jobDraftMetaList);
 
 		return nextPage(jobDraft);
 	}
@@ -478,16 +478,16 @@ public class JobSubmissionController extends WaspController {
 
 
 
-		MetaHelper metaHelper = getMetaHelper();
-		metaHelper.setArea(resourceArea);
+		MetaHelperWebapp metaHelperWebapp = getMetaHelperWebapp();
+		metaHelperWebapp.setArea(resourceArea);
 
 		// jobDraft.setJobDraftMeta(metaHelper.getMasterList(JobDraftMeta.class));
-		jobDraft.setJobDraftMeta(metaHelper.syncWithMaster(jobDraft.getJobDraftMeta()));
+		jobDraft.setJobDraftMeta(metaHelperWebapp.syncWithMaster(jobDraft.getJobDraftMeta()));
 
 		// no metadata fields try the category?
 		if ( jobDraft.getJobDraftMeta() == null || jobDraft.getJobDraftMeta().size() == 0 ) {
-			metaHelper.setArea(resourceCategoryArea);
-			jobDraft.setJobDraftMeta(metaHelper.syncWithMaster(jobDraft.getJobDraftMeta()));
+			metaHelperWebapp.setArea(resourceCategoryArea);
+			jobDraft.setJobDraftMeta(metaHelperWebapp.syncWithMaster(jobDraft.getJobDraftMeta()));
 
 		}
 
@@ -495,10 +495,10 @@ public class JobSubmissionController extends WaspController {
 		m.put("jobDraftDb", jobDraft);
 		m.put("jobDraft", jobDraft);
 		m.put("name", resourceName);
-		m.put("area", metaHelper.getArea());
+		m.put("area", metaHelperWebapp.getArea());
 		m.put("jobDraftResource", jobDraftResource);
 		m.put("resourceOptions", resourceOptions);
-		m.put("parentarea", metaHelper.getParentArea());
+		m.put("parentarea", metaHelperWebapp.getParentArea());
                 m.put("pageFlowMap", getPageFlowMap(jobDraft));
 		
 		return "jobsubmit/resource";
@@ -557,19 +557,19 @@ public class JobSubmissionController extends WaspController {
 			resourceCategoryArea = jdr.getResource().getResourceCategory().getIName();
 		}
 
-		MetaHelper metaHelper = getMetaHelper();
-		metaHelper.setArea(resourceArea);
+		MetaHelperWebapp metaHelperWebapp = getMetaHelperWebapp();
+		metaHelperWebapp.setArea(resourceArea);
 
-		List<JobDraftMeta> jobDraftMetaList = metaHelper.getFromRequest(request, JobDraftMeta.class);
+		List<JobDraftMeta> jobDraftMetaList = metaHelperWebapp.getFromRequest(request, JobDraftMeta.class);
 
 		// no metadata fields try the category?
 		if ( jobDraftMetaList == null || jobDraftMetaList.size() == 0 ) {
-			metaHelper.setArea(resourceCategoryArea);
-			jobDraftMetaList = metaHelper.getFromRequest(request, JobDraftMeta.class);
+			metaHelperWebapp.setArea(resourceCategoryArea);
+			jobDraftMetaList = metaHelperWebapp.getFromRequest(request, JobDraftMeta.class);
 		}
 
 		jobDraftForm.setJobDraftMeta(jobDraftMetaList);
-		metaHelper.validate(jobDraftMetaList, result);
+		metaHelperWebapp.validate(jobDraftMetaList, result);
 
 		if (result.hasErrors()) {
 			waspMessage("hello.error");
@@ -578,7 +578,7 @@ public class JobSubmissionController extends WaspController {
 		}
 
 
-		jobDraftMetaService.updateByJobdraftId(metaHelper.getArea(), jobDraftId, jobDraftMetaList);
+		jobDraftMetaService.updateByJobdraftId(metaHelperWebapp.getArea(), jobDraftId, jobDraftMetaList);
 
 		return nextPage(jobDraft);
 	}
@@ -590,28 +590,28 @@ public class JobSubmissionController extends WaspController {
 	public String showAdditionalMetaForm(@PathVariable("meta") String additionalMetaArea, @PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
 		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
 
-		MetaHelper workflowMetaHelper = getMetaHelper();
-		workflowMetaHelper.setArea(jobDraft.getWorkflow().getIName());
+		MetaHelperWebapp workflowMetaHelperWebapp = getMetaHelperWebapp();
+		workflowMetaHelperWebapp.setArea(jobDraft.getWorkflow().getIName());
 
-		List<JobDraftMeta> jobDraftMeta = workflowMetaHelper.syncWithMaster(jobDraft.getJobDraftMeta()); 
+		List<JobDraftMeta> jobDraftMeta = workflowMetaHelperWebapp.syncWithMaster(jobDraft.getJobDraftMeta()); 
 
 		JobDraftMeta alignerJdm = new JobDraftMeta();
 		String alignerArea = "";
 		for (JobDraftMeta jdm: jobDraftMeta) {
-			if (! jdm.getK().equals(workflowMetaHelper.getArea() + "." + additionalMetaArea)) { continue; }
+			if (! jdm.getK().equals(workflowMetaHelperWebapp.getArea() + "." + additionalMetaArea)) { continue; }
 			alignerArea = jdm.getV();
 			alignerJdm = jdm;
 		}
 
-		MetaHelper metaHelper = getMetaHelper();
-		metaHelper.setArea(alignerArea);
-		jobDraft.setJobDraftMeta(metaHelper.syncWithMaster(jobDraft.getJobDraftMeta()));
+		MetaHelperWebapp metaHelperWebapp = getMetaHelperWebapp();
+		metaHelperWebapp.setArea(alignerArea);
+		jobDraft.setJobDraftMeta(metaHelperWebapp.syncWithMaster(jobDraft.getJobDraftMeta()));
 
 
 		m.put("jobDraftDb", jobDraft);
 		m.put("jobDraft", jobDraft);
-		m.put("area", metaHelper.getArea());
-		m.put("parentarea", metaHelper.getParentArea());
+		m.put("area", metaHelperWebapp.getArea());
+		m.put("parentarea", metaHelperWebapp.getParentArea());
 		
                 m.put("pageFlowMap", getPageFlowMap(jobDraft));
 		
@@ -629,31 +629,31 @@ public class JobSubmissionController extends WaspController {
 			ModelMap m) {
 		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
 
-		MetaHelper workflowMetaHelper = getMetaHelper();
-		workflowMetaHelper.setArea(jobDraft.getWorkflow().getIName());
+		MetaHelperWebapp workflowMetaHelperWebapp = getMetaHelperWebapp();
+		workflowMetaHelperWebapp.setArea(jobDraft.getWorkflow().getIName());
 
-		List<JobDraftMeta> jobDraftMeta = workflowMetaHelper.syncWithMaster(jobDraft.getJobDraftMeta()); 
+		List<JobDraftMeta> jobDraftMeta = workflowMetaHelperWebapp.syncWithMaster(jobDraft.getJobDraftMeta()); 
 
 		JobDraftMeta ametaJdm = new JobDraftMeta();
 		String ametaArea = "";
 		for (JobDraftMeta jdm: jobDraftMeta) {
-			if (! jdm.getK().equals(workflowMetaHelper.getArea() + "." + additionalMetaArea)) { continue; }
+			if (! jdm.getK().equals(workflowMetaHelperWebapp.getArea() + "." + additionalMetaArea)) { continue; }
 			ametaArea = jdm.getV();
 			ametaJdm = jdm;
 		}
 
-		MetaHelper metaHelper = getMetaHelper();
-		metaHelper.setArea(ametaArea);
-		List<JobDraftMeta> jobDraftMetaList = metaHelper.getFromRequest(request, JobDraftMeta.class);
+		MetaHelperWebapp metaHelperWebapp = getMetaHelperWebapp();
+		metaHelperWebapp.setArea(ametaArea);
+		List<JobDraftMeta> jobDraftMetaList = metaHelperWebapp.getFromRequest(request, JobDraftMeta.class);
 
 		jobDraftForm.setJobDraftMeta(jobDraftMetaList);
-		metaHelper.validate(jobDraftMetaList, result);
+		metaHelperWebapp.validate(jobDraftMetaList, result);
 
 		if (result.hasErrors()) {
 			waspMessage("hello.error");
 			m.put("jobDraftDb", jobDraft);
-			m.put("area", metaHelper.getArea());
-			m.put("parentarea", metaHelper.getParentArea());
+			m.put("area", metaHelperWebapp.getArea());
+			m.put("parentarea", metaHelperWebapp.getParentArea());
 
 			
 	                m.put("pageFlowMap", getPageFlowMap(jobDraft));
@@ -668,7 +668,7 @@ public class JobSubmissionController extends WaspController {
 
 		}
 
-		jobDraftMetaService.updateByJobdraftId(metaHelper.getArea(), jobDraftId, jobDraftMetaList);
+		jobDraftMetaService.updateByJobdraftId(metaHelperWebapp.getArea(), jobDraftId, jobDraftMetaList);
 
 		return nextPage(jobDraft);
 
@@ -781,14 +781,14 @@ public class JobSubmissionController extends WaspController {
 
 		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
 
-		getMetaHelper().setArea(jobDraft.getWorkflow().getIName());
+		getMetaHelperWebapp().setArea(jobDraft.getWorkflow().getIName());
 
-		jobDraft.setJobDraftMeta(getMetaHelper().getMasterList(JobDraftMeta.class));
+		jobDraft.setJobDraftMeta(getMetaHelperWebapp().getMasterList(JobDraftMeta.class));
 
 		m.put("jobDraftDb", jobDraft);
 		m.put("jobDraft", jobDraft);
-		m.put("area", getMetaHelper().getArea());
-		m.put("parentarea", getMetaHelper().getParentArea());
+		m.put("area", getMetaHelperWebapp().getArea());
+		m.put("parentarea", getMetaHelperWebapp().getParentArea());
 
 		m.put("sampleDrafts", samples);
 		m.put("selectedSampleCell", selectedSampleCell);
@@ -934,7 +934,7 @@ public class JobSubmissionController extends WaspController {
 		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
 
 		
-		getMetaHelper().setArea(jobDraft.getWorkflow().getIName());
+		getMetaHelperWebapp().setArea(jobDraft.getWorkflow().getIName());
 
 		// no sync w/ master
 		// jobDraft.setJobDraftMeta(getMetaHelper().syncWithMaster(jobDraft.getJobDraftMeta()));
@@ -1137,9 +1137,9 @@ public class JobSubmissionController extends WaspController {
 				Map cell = new HashMap();
 				cell.put("id", draft.getSampleDraftId());
 			
-				MetaHelper sampleMetaHelper = new MetaHelper("sampleDraft", SampleDraftMeta.class, request.getSession());
+				MetaHelperWebapp sampleMetaHelperWebapp = new MetaHelperWebapp("sampleDraft", SampleDraftMeta.class, request.getSession());
 								
-				List<SampleDraftMeta> draftMeta=sampleMetaHelper.syncWithMaster(draft.getSampleDraftMeta(),new ArrayList<SampleDraftMeta>(allowedMetaFields));
+				List<SampleDraftMeta> draftMeta=sampleMetaHelperWebapp.syncWithMaster(draft.getSampleDraftMeta(),new ArrayList<SampleDraftMeta>(allowedMetaFields));
 				
 				String fileCell=getFileCell(draft.getFile());
 				
@@ -1402,9 +1402,9 @@ public class JobSubmissionController extends WaspController {
 
 		String area=subtype.getIName().substring(0,subtype.getIName().length()-"Sample".length());//chop Sample suffix
 		
-		MetaHelper sampleMetaHelper = new MetaHelper(area,SampleDraftMeta.class, request.getSession());
+		MetaHelperWebapp sampleMetaHelperWebapp = new MetaHelperWebapp(area,SampleDraftMeta.class, request.getSession());
 		
-		List<SampleDraftMeta> sampleDraftMetaList = sampleMetaHelper.getFromJsonForm(request, SampleDraftMeta.class);
+		List<SampleDraftMeta> sampleDraftMetaList = sampleMetaHelperWebapp.getFromJsonForm(request, SampleDraftMeta.class);
 
 		sampleDraftForm.setSampleDraftMeta(sampleDraftMetaList);
 		

@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
 
-import edu.yu.einstein.wasp.controller.validator.MetaHelper;
+import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.model.Department;
 import edu.yu.einstein.wasp.model.Job;
@@ -108,21 +108,21 @@ public class LabController extends WaspController {
 	
 
 	/**
-	 * get a @{link MetaHelper} instance for working with LabMeta metadata
+	 * get a @{link MetaHelperWebapp} instance for working with LabMeta metadata
 	 * 
 	 * @return
 	 */
-	private final MetaHelper getMetaHelper() {
-		return new MetaHelper("lab", LabMeta.class, request.getSession());
+	private final MetaHelperWebapp getMetaHelperWebapp() {
+		return new MetaHelperWebapp("lab", LabMeta.class, request.getSession());
 	}
 
 	/**
-	 * get a @{link MetaHelper} instance for working with labPending metadata
+	 * get a @{link MetaHelperWebapp} instance for working with labPending metadata
 	 * 
 	 * @return
 	 */
-	private final MetaHelper getLabPendingMetaHelper() {
-		return new MetaHelper("labPending", LabPendingMeta.class,request.getSession());
+	private final MetaHelperWebapp getLabPendingMetaHelperWebapp() {
+		return new MetaHelperWebapp("labPending", LabPendingMeta.class,request.getSession());
 	}
 
 	/**
@@ -135,8 +135,8 @@ public class LabController extends WaspController {
 	@PreAuthorize("hasRole('god')")
 	public String list(ModelMap m) {
 
-		m.addAttribute("_metaList",	getMetaHelper().getMasterList(MetaBase.class));
-		m.addAttribute(JQFieldTag.AREA_ATTR, getMetaHelper().getArea());
+		m.addAttribute("_metaList",	getMetaHelperWebapp().getMasterList(MetaBase.class));
+		m.addAttribute(JQFieldTag.AREA_ATTR, getMetaHelperWebapp().getArea());
 
 		prepareSelectListData(m);
 
@@ -248,7 +248,7 @@ public class LabController extends WaspController {
 				Map cell = new HashMap();
 				cell.put("id", lab.getLabId());
 
-				List<LabMeta> labMeta = getMetaHelper().syncWithMaster(
+				List<LabMeta> labMeta = getMetaHelperWebapp().syncWithMaster(
 						lab.getLabMeta());
 
 				List<String> cellList = new ArrayList<String>(
@@ -410,7 +410,7 @@ public class LabController extends WaspController {
 	public String updateDetailJSON(@RequestParam("id") Integer labId,
 			Lab labForm, ModelMap m, HttpServletResponse response) {
 
-		List<LabMeta> labMetaList = getMetaHelper().getFromJsonForm(request, LabMeta.class);
+		List<LabMeta> labMetaList = getMetaHelperWebapp().getFromJsonForm(request, LabMeta.class);
 
 		labForm.setLabMeta(labMetaList);
 		
@@ -447,7 +447,7 @@ public class LabController extends WaspController {
 	public String updatePendingDetailJSON(
 			@RequestParam("id") Integer labPendingId, LabPending labPendingForm, ModelMap m, HttpServletResponse response) {
 
-		List<LabPendingMeta> labPendingMetaList = getLabPendingMetaHelper().getFromJsonForm(request, LabPendingMeta.class);
+		List<LabPendingMeta> labPendingMetaList = getLabPendingMetaHelperWebapp().getFromJsonForm(request, LabPendingMeta.class);
 
 		labPendingForm.setLabPendingMeta(labPendingMetaList);
 		if (labPendingId == null || labPendingId == 0) {
@@ -496,7 +496,7 @@ public class LabController extends WaspController {
 
 		Lab lab = this.labService.getById(labId);
 
-		lab.setLabMeta(getMetaHelper().syncWithMaster(lab.getLabMeta()));
+		lab.setLabMeta(getMetaHelperWebapp().syncWithMaster(lab.getLabMeta()));
 
 		List<LabUser> labUserList = lab.getLabUser();
 		labUserList.size();
@@ -571,7 +571,7 @@ public class LabController extends WaspController {
 
 		LabPending labPending = this.labPendingService.getById(labPendingId);
 
-		labPending.setLabPendingMeta(getLabPendingMetaHelper().syncWithMaster(
+		labPending.setLabPendingMeta(getLabPendingMetaHelperWebapp().syncWithMaster(
 				labPending.getLabPendingMeta()));
 
 		// List<LabUser> labUserList = labPending.getLabUser();
@@ -592,7 +592,7 @@ public class LabController extends WaspController {
 	public String showEmptyForm(ModelMap m) {
 
 		Lab lab = new Lab();
-		lab.setLabMeta(getMetaHelper().getMasterList(LabMeta.class));
+		lab.setLabMeta(getMetaHelperWebapp().getMasterList(LabMeta.class));
 
 		m.addAttribute("lab", lab);
 
@@ -608,8 +608,8 @@ public class LabController extends WaspController {
 
 		// read properties from form
 
-		List<LabMeta> labMetaList = getMetaHelper().getFromRequest(request,	LabMeta.class);
-		getMetaHelper().validate(labMetaList, result);
+		List<LabMeta> labMetaList = getMetaHelperWebapp().getFromRequest(request,	LabMeta.class);
+		getMetaHelperWebapp().validate(labMetaList, result);
 
 		labForm.setLabMeta(labMetaList);
 
@@ -642,7 +642,7 @@ public class LabController extends WaspController {
 			return "redirect:/lab/detail_ro/" + deptId + "/" + labId + ".do";
 		}
 		
-		List<LabMeta> labMetaList = getMetaHelper().getFromRequest(request,	LabMeta.class);
+		List<LabMeta> labMetaList = getMetaHelperWebapp().getFromRequest(request,	LabMeta.class);
 
 		for (LabMeta meta : labMetaList) {
 			meta.setLabId(labId);
@@ -650,7 +650,7 @@ public class LabController extends WaspController {
 
 		labForm.setLabMeta(labMetaList);
 
-		getMetaHelper().validate(labMetaList, result);
+		getMetaHelperWebapp().validate(labMetaList, result);
 
 		if (result.hasErrors()) {
 			prepareSelectListData(m);
@@ -692,7 +692,7 @@ public class LabController extends WaspController {
 			return "redirect:/lab/pending/detail_ro/" + deptId + "/" + labPendingId + ".do";
 		}
 		
-		List<LabPendingMeta> labPendingMetaList = getLabPendingMetaHelper().getFromRequest(request, LabPendingMeta.class);
+		List<LabPendingMeta> labPendingMetaList = getLabPendingMetaHelperWebapp().getFromRequest(request, LabPendingMeta.class);
 
 		for (LabPendingMeta meta : labPendingMetaList) {
 			meta.setLabpendingId(labPendingId);
@@ -700,7 +700,7 @@ public class LabController extends WaspController {
 
 		labPendingForm.setLabPendingMeta(labPendingMetaList);
 
-		getLabPendingMetaHelper().validate(labPendingMetaList, result);
+		getLabPendingMetaHelperWebapp().validate(labPendingMetaList, result);
 
 		if (result.hasErrors()) {
 			waspMessage("labPending.updated.error");
@@ -865,22 +865,22 @@ public class LabController extends WaspController {
 		Lab labDb = labService.save(lab);
 
 		// copies meta data from labPendingMeta to labMeta.
-		MetaHelper labMetaHelper = new MetaHelper("lab", LabMeta.class,	request.getSession());
-		labMetaHelper.getMasterList(LabMeta.class);
-		MetaHelper labPendingMetaHelper = new MetaHelper("labPending", LabPendingMeta.class, request.getSession());
-		List<LabPendingMeta> labPendingMetaList = labPendingMetaHelper.syncWithMaster(labPending.getLabPendingMeta());
+		MetaHelperWebapp labMetaHelperWebapp = new MetaHelperWebapp("lab", LabMeta.class,	request.getSession());
+		labMetaHelperWebapp.getMasterList(LabMeta.class);
+		MetaHelperWebapp labPendingMetaHelperWebapp = new MetaHelperWebapp("labPending", LabPendingMeta.class, request.getSession());
+		List<LabPendingMeta> labPendingMetaList = labPendingMetaHelperWebapp.syncWithMaster(labPending.getLabPendingMeta());
 
 		for (LabPendingMeta lpm : labPendingMetaList) {
 			// get name from prefix by removing area
 			String name = lpm.getK().replaceAll("^.*?\\.", "");
 			try {
-				labMetaHelper.setMetaValueByName(name, lpm.getV());
+				labMetaHelperWebapp.setMetaValueByName(name, lpm.getV());
 			} catch (MetadataException e) {
 				// no match for 'name' in labMeta
 				logger.debug("No match for labPendingMeta property with name '"	+ name + "' in labMeta properties");
 			}
 		}
-		labMetaService.updateByLabId(labDb.getLabId(), (List<LabMeta>) labMetaHelper.getMetaList());
+		labMetaService.updateByLabId(labDb.getLabId(), (List<LabMeta>) labMetaHelperWebapp.getMetaList());
 		// set pi role
 		Role role = roleService.getRoleByRoleName("pi");
 
@@ -938,19 +938,19 @@ public class LabController extends WaspController {
 		 * userPendingMetaService.getUserPendingMetaByUserPendingId
 		 * (userPending.getUserPendingId()); copies meta data
 		 */
-		MetaHelper userMetaHelper = new MetaHelper("user", UserMeta.class, request.getSession());
-		userMetaHelper.getMasterList(UserMeta.class);
-		MetaHelper userPendingMetaHelper = new MetaHelper("userPending",
+		MetaHelperWebapp userMetaHelperWebapp = new MetaHelperWebapp("user", UserMeta.class, request.getSession());
+		userMetaHelperWebapp.getMasterList(UserMeta.class);
+		MetaHelperWebapp userPendingMetaHelperWebapp = new MetaHelperWebapp("userPending",
 				UserPendingMeta.class, request.getSession());
 		if (isPiPending)
-			userPendingMetaHelper.setArea("piPending");
-		List<UserPendingMeta> userPendingMetaList = userPendingMetaHelper.syncWithMaster(userPending.getUserPendingMeta());
+			userPendingMetaHelperWebapp.setArea("piPending");
+		List<UserPendingMeta> userPendingMetaList = userPendingMetaHelperWebapp.syncWithMaster(userPending.getUserPendingMeta());
 
 		for (UserPendingMeta upm : userPendingMetaList) {
 			// convert prefix
 			String name = upm.getK().replaceAll("^.*?\\.", "");
 			try {
-				userMetaHelper.setMetaValueByName(name, upm.getV());
+				userMetaHelperWebapp.setMetaValueByName(name, upm.getV());
 			} catch (MetadataException e) {
 				// no match for 'name' in userMeta data
 				logger.debug("No match for userPendingMeta property with name '" + name + "' in userMeta properties");
@@ -963,26 +963,26 @@ public class LabController extends WaspController {
 			 * not a PI application request create a metahelper object to work
 			 * with metadata for PI.
 			 */
-			String piUserLogin = userPendingMetaHelper.getMetaByName("primaryuserid").getV();
-			MetaHelper piMetaHelper = new MetaHelper("user", UserMeta.class, request.getSession());
-			piMetaHelper.syncWithMaster(userService.getUserByLogin(piUserLogin).getUserMeta()); // get PI meta from database and sync with
+			String piUserLogin = userPendingMetaHelperWebapp.getMetaByName("primaryuserid").getV();
+			MetaHelperWebapp piMetaHelperWebapp = new MetaHelperWebapp("user", UserMeta.class, request.getSession());
+			piMetaHelperWebapp.syncWithMaster(userService.getUserByLogin(piUserLogin).getUserMeta()); // get PI meta from database and sync with
 										// current properties
 			try {
-				userMetaHelper.setMetaValueByName("institution", piMetaHelper.getMetaByName("institution").getV());
-				userMetaHelper.setMetaValueByName("departmentId", piMetaHelper.getMetaByName("departmentId").getV());
-				userMetaHelper.setMetaValueByName("state", piMetaHelper.getMetaByName("state").getV());
-				userMetaHelper.setMetaValueByName("city", piMetaHelper.getMetaByName("city").getV());
-				userMetaHelper.setMetaValueByName("country", piMetaHelper.getMetaByName("country").getV());
-				userMetaHelper.setMetaValueByName("zip", piMetaHelper.getMetaByName("zip").getV());
+				userMetaHelperWebapp.setMetaValueByName("institution", piMetaHelperWebapp.getMetaByName("institution").getV());
+				userMetaHelperWebapp.setMetaValueByName("departmentId", piMetaHelperWebapp.getMetaByName("departmentId").getV());
+				userMetaHelperWebapp.setMetaValueByName("state", piMetaHelperWebapp.getMetaByName("state").getV());
+				userMetaHelperWebapp.setMetaValueByName("city", piMetaHelperWebapp.getMetaByName("city").getV());
+				userMetaHelperWebapp.setMetaValueByName("country", piMetaHelperWebapp.getMetaByName("country").getV());
+				userMetaHelperWebapp.setMetaValueByName("zip", piMetaHelperWebapp.getMetaByName("zip").getV());
 			} catch (MetadataException e) {
 				// should never get here because of sync
 				throw new MetadataException("Metadata user / pi meta name mismatch", e);
 			}
 		}
-		userMetaService.updateByUserId(userId, (List<UserMeta>) userMetaHelper.getMetaList());
+		userMetaService.updateByUserId(userId, (List<UserMeta>) userMetaHelperWebapp.getMetaList());
 
 		// userDb doesn't have associated metadata so add it
-		userDb.setUserMeta((List<UserMeta>) userMetaHelper.getMetaList());
+		userDb.setUserMeta((List<UserMeta>) userMetaHelperWebapp.getMetaList());
 
 		/*
 		 * Set status of any other applications from user with the same email
@@ -1221,35 +1221,35 @@ public class LabController extends WaspController {
 	 */
 	@RequestMapping(value = "/newrequest", method = RequestMethod.GET)
 	public String showRequestForm(ModelMap m) throws MetadataException {
-		MetaHelper labPendingMetaHelper = new MetaHelper("labPending",	LabPendingMeta.class, request.getSession());
-		labPendingMetaHelper.getMasterList(LabPendingMeta.class);
-		MetaHelper userMetaHelper = new MetaHelper("user", UserMeta.class, request.getSession());
+		MetaHelperWebapp labPendingMetaHelperWebapp = new MetaHelperWebapp("labPending",	LabPendingMeta.class, request.getSession());
+		labPendingMetaHelperWebapp.getMasterList(LabPendingMeta.class);
+		MetaHelperWebapp userMetaHelperWebapp = new MetaHelperWebapp("user", UserMeta.class, request.getSession());
 
 		// Pre-populate some metadata from user's current information
 		User me = authenticationService.getAuthenticatedUser();
-		userMetaHelper.syncWithMaster(me.getUserMeta()); // get user meta from database and sync with current properties
+		userMetaHelperWebapp.syncWithMaster(me.getUserMeta()); // get user meta from database and sync with current properties
 		LabPending labPending = new LabPending();
 		try {
-			String departmentId = userMetaHelper.getMetaByName("departmentId").getV();
+			String departmentId = userMetaHelperWebapp.getMetaByName("departmentId").getV();
 			if (departmentId != null && !departmentId.isEmpty()){
-				labPendingMetaHelper.setMetaValueByName("billing_departmentId",departmentId);
+				labPendingMetaHelperWebapp.setMetaValueByName("billing_departmentId",departmentId);
 				labPending.setDepartmentId(Integer.valueOf(departmentId));
 				String internalExternal = (deptService.findById( Integer.valueOf(departmentId) ).getIsInternal().intValue() == 1) ? "internal" : "external";
-				labPendingMetaHelper.setMetaValueByName("internal_external_lab", internalExternal);
+				labPendingMetaHelperWebapp.setMetaValueByName("internal_external_lab", internalExternal);
 			}
-			labPendingMetaHelper.setMetaValueByName("billing_institution", userMetaHelper.getMetaByName("institution").getV());
-			labPendingMetaHelper.setMetaValueByName("billing_state", userMetaHelper.getMetaByName("state").getV());
-			labPendingMetaHelper.setMetaValueByName("billing_city", userMetaHelper.getMetaByName("city").getV());
-			labPendingMetaHelper.setMetaValueByName("billing_country", userMetaHelper.getMetaByName("country").getV());
-			labPendingMetaHelper.setMetaValueByName("billing_zip", userMetaHelper.getMetaByName("zip").getV());
-			labPendingMetaHelper.setMetaValueByName("billing_contact", me.getFirstName() + " " + me.getLastName());
+			labPendingMetaHelperWebapp.setMetaValueByName("billing_institution", userMetaHelperWebapp.getMetaByName("institution").getV());
+			labPendingMetaHelperWebapp.setMetaValueByName("billing_state", userMetaHelperWebapp.getMetaByName("state").getV());
+			labPendingMetaHelperWebapp.setMetaValueByName("billing_city", userMetaHelperWebapp.getMetaByName("city").getV());
+			labPendingMetaHelperWebapp.setMetaValueByName("billing_country", userMetaHelperWebapp.getMetaByName("country").getV());
+			labPendingMetaHelperWebapp.setMetaValueByName("billing_zip", userMetaHelperWebapp.getMetaByName("zip").getV());
+			labPendingMetaHelperWebapp.setMetaValueByName("billing_contact", me.getFirstName() + " " + me.getLastName());
 			
 		} catch (MetadataException e) {
 			// report meta problem
 			logger.warn("Meta data mismatch when pre-populating labMeta data from userMeta (" + e.getMessage() + ")");
 		}
 		
-		labPending.setLabPendingMeta( (List<LabPendingMeta>) labPendingMetaHelper.getMetaList());
+		labPending.setLabPendingMeta( (List<LabPendingMeta>) labPendingMetaHelperWebapp.getMetaList());
 		m.addAttribute("labPending", labPending);
 		prepareSelectListData(m);
 
@@ -1268,10 +1268,10 @@ public class LabController extends WaspController {
 	@RequestMapping(value = "/newrequest", method = RequestMethod.POST)
 	public String createNewLabPending(@Valid LabPending labPendingForm,	BindingResult result, SessionStatus status, ModelMap m) {
 		
-		MetaHelper pendingMetaHelper = new MetaHelper("labPending",LabPendingMeta.class, request.getSession());
+		MetaHelperWebapp pendingMetaHelperWebapp = new MetaHelperWebapp("labPending",LabPendingMeta.class, request.getSession());
 
-		List<LabPendingMeta> labPendingMetaList = pendingMetaHelper.getFromRequest(request, LabPendingMeta.class);
-		pendingMetaHelper.validate(labPendingMetaList, result);
+		List<LabPendingMeta> labPendingMetaList = pendingMetaHelperWebapp.getFromRequest(request, LabPendingMeta.class);
+		pendingMetaHelperWebapp.validate(labPendingMetaList, result);
 
 		User me = authenticationService.getAuthenticatedUser();
 

@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import edu.yu.einstein.wasp.controller.validator.MetaHelper;
+import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobSample;
 import edu.yu.einstein.wasp.model.MetaBase;
@@ -75,9 +75,9 @@ public class SampleController extends WaspController {
   public String list(ModelMap m) {
     //List <Sample> sampleList = this.getSampleService().findAll();
     
-    m.addAttribute("_metaList", getMetaHelper().getMasterList(MetaBase.class));
-	m.addAttribute(JQFieldTag.AREA_ATTR, getMetaHelper().getArea());
-	m.addAttribute("_metaDataMessages", MetaHelper.getMetadataMessages(request.getSession()));
+    m.addAttribute("_metaList", getMetaHelperWebapp().getMasterList(MetaBase.class));
+	m.addAttribute(JQFieldTag.AREA_ATTR, getMetaHelperWebapp().getArea());
+	m.addAttribute("_metaDataMessages", MetaHelperWebapp.getMetadataMessages(request.getSession()));
     
     //m.addAttribute("sample", sampleList);
 	prepareSelectListData(m);
@@ -138,8 +138,8 @@ public class SampleController extends WaspController {
     return "sample/detail";
   }
 
-  private final MetaHelper getMetaHelper() {
-		return new MetaHelper("sample", SampleMeta.class, request.getSession());
+  private final MetaHelperWebapp getMetaHelperWebapp() {
+		return new MetaHelperWebapp("sample", SampleMeta.class, request.getSession());
   }
 	
 	/**
@@ -247,7 +247,7 @@ public class SampleController extends WaspController {
 				Map cell = new HashMap();
 				cell.put("id", sample.getSampleId());
 				 
-				List<SampleMeta> sampleMeta=getMetaHelper().syncWithMaster(sample.getSampleMeta());
+				List<SampleMeta> sampleMeta=getMetaHelperWebapp().syncWithMaster(sample.getSampleMeta());
 				 					
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 						sample.getName(),

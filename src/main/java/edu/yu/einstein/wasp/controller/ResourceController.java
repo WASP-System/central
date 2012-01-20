@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
 
-import edu.yu.einstein.wasp.controller.validator.MetaHelper;
+import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.Resource;
 import edu.yu.einstein.wasp.model.ResourceLane;
@@ -49,8 +49,8 @@ public class ResourceController extends WaspController {
 	@Autowired
 	private TypeResourceService typeResourceService;
 
-	private final MetaHelper getMetaHelper() {
-		return new MetaHelper("resource", ResourceMeta.class,
+	private final MetaHelperWebapp getMetaHelperWebapp() {
+		return new MetaHelperWebapp("resource", ResourceMeta.class,
 				request.getSession());
 	}
 
@@ -65,8 +65,8 @@ public class ResourceController extends WaspController {
 	@PreAuthorize("hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('fm')")
 	public String list(ModelMap m) {
 		m.addAttribute("_metaList",
-				getMetaHelper().getMasterList(MetaBase.class));
-		m.addAttribute(JQFieldTag.AREA_ATTR, getMetaHelper().getArea());
+				getMetaHelperWebapp().getMasterList(MetaBase.class));
+		m.addAttribute(JQFieldTag.AREA_ATTR, getMetaHelperWebapp().getArea());
 
 		prepareSelectListData(m);
 
@@ -151,7 +151,7 @@ public class ResourceController extends WaspController {
 				Map cell = new HashMap();
 				cell.put("id", resource.getResourceId());
 
-				List<ResourceMeta> resourceMeta = getMetaHelper()
+				List<ResourceMeta> resourceMeta = getMetaHelperWebapp()
 						.syncWithMaster(resource.getResourceMeta());
 
 				List<String> cellList = new ArrayList<String>(
@@ -277,7 +277,7 @@ public class ResourceController extends WaspController {
 	private String detail(Integer resourceId, ModelMap m, boolean isRW) {
 		Resource resource = resourceService.getById(resourceId);
 
-		resource.setResourceMeta(getMetaHelper().syncWithMaster(
+		resource.setResourceMeta(getMetaHelperWebapp().syncWithMaster(
 				resource.getResourceMeta()));
 
 		// List<ResourceMeta> resourceMetaList = resource.getResourceMeta();
@@ -320,7 +320,7 @@ public class ResourceController extends WaspController {
 
 		Resource resource = new Resource();
 
-		resource.setResourceMeta(getMetaHelper().getMasterList(
+		resource.setResourceMeta(getMetaHelperWebapp().getMasterList(
 				ResourceMeta.class));
 
 		m.put("resource", resource);
@@ -346,10 +346,10 @@ public class ResourceController extends WaspController {
 			newResource = false;
 		}
 
-		List<ResourceMeta> resourceMetaList = getMetaHelper().getFromRequest(
+		List<ResourceMeta> resourceMetaList = getMetaHelperWebapp().getFromRequest(
 				request, ResourceMeta.class);
 
-		getMetaHelper().validate(resourceMetaList, result);
+		getMetaHelperWebapp().validate(resourceMetaList, result);
 
 		if (result.hasErrors()) {
 			resourceForm.setResourceMeta(resourceMetaList);

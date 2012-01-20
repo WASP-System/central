@@ -16,7 +16,7 @@ import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.MetaBase;
 
 
-/*
+/**
  * Implements validation of MetaBase children based on "constraint" properties read from uifield table
  * 
  * @Author Sasha Levchuk

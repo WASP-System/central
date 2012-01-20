@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-3.1.xsd"
+    default-autowire="byName">
+
+  <bean class="edu.yu.einstein.wasp.model.UiField" id="bowtieAlignerUiField">
+    <property name="locale" value="en_US" />
+    <property name="area" value="bowtieAligner" />
+  </bean>
+
+  <bean id="bowtieAlignerResource" class="edu.yu.einstein.wasp.load.ResourceLoadService">
+    <property name="iname" value="bowtieAlignerV0.12.7" />
+    <property name="name" value="Bowtie Aligner" />
+    <property name="resourceCategory" value="software" />
+    <property name="resourceType" value="aligner" />
+
+    <property name="meta">
+      <list>
+        <bean class="edu.yu.einstein.wasp.model.ResourceMeta">
+          <property name="k" value="bowtieAligner.version" />
+          <property name="v" value="0.12.7" />
+        </bean>
+      </list>
+    </property> 
+
+    <property name="uiFields">
+      <list>
+        <bean parent="bowtieAlignerUiField">
+          <property name="name" value="mismatches" />
+          <property name="attrName" value="metaposition" />
+          <property name="attrValue" value="10" />
+        </bean>
+        <bean parent="bowtieAlignerUiField">
+          <property name="name" value="mismatches" />
+          <property name="attrName" value="label" />
+          <property name="attrValue" value="Number of mismatches (0-3)" />
+        </bean>
+        <bean parent="bowtieAlignerUiField">
+          <property name="name" value="mismatches" />
+          <property name="attrName" value="type" />
+          <property name="attrValue" value="INTEGER" />
+        </bean>
+        <bean parent="bowtieAlignerUiField">
+          <property name="name" value="mismatches" />
+          <property name="attrName" value="range" />
+          <property name="attrValue" value="0:3" />
+        </bean>
+        
+        <bean parent="bowtieAlignerUiField">
+          <property name="name" value="seedLength" />
+          <property name="attrName" value="metaposition" />
+          <property name="attrValue" value="20" />
+        </bean>
+        <bean parent="bowtieAlignerUiField">
+          <property name="name" value="seedLength" />
+          <property name="attrName" value="label" />
+          <property name="attrValue" value="Seed Length" />
+        </bean>
+        <bean parent="bowtieAlignerUiField">
+          <property name="name" value="seedLength" />
+          <property name="attrName" value="type" />
+          <property name="attrValue" value="NUMBER" />
+        </bean>
+        <bean parent="bowtieAlignerUiField">
+          <property name="name" value="seedLength" />
+          <property name="attrName" value="range" />
+          <property name="attrValue" value="5:1000" />
+        </bean>
+        <bean parent="bowtieAlignerUiField">
+          <property name="name" value="seedLength" />
+          <property name="attrName" value="default" />
+          <property name="attrValue" value="32" />
+        </bean>
+        
+        <bean parent="bowtieAlignerUiField">
+          <property name="name" value="reportAlignmentNum" />
+          <property name="attrName" value="metaposition" />
+          <property name="attrValue" value="30" />
+        </bean>
+        <bean parent="bowtieAlignerUiField">
+          <property name="name" value="reportAlignmentNum" />
+          <property name="attrName" value="label" />
+          <property name="attrValue" value="Number of Alignments to Report" />
+        </bean>
+        <bean parent="bowtieAlignerUiField">
+          <property name="name" value="reportAlignmentNum" />
+          <property name="attrName" value="type" />
+          <property name="attrValue" value="INTEGER" />
+        </bean>
+        <bean parent="bowtieAlignerUiField">
+          <property name="name" value="reportAlignmentNum" />
+          <property name="attrName" value="default" />
+          <property name="attrValue" value="1" />
+        </bean>
+        
+        <bean parent="bowtieAlignerUiField">
+          <property name="name" value="discardThreshold" />
+          <property name="attrName" value="metaposition" />
+          <property name="attrValue" value="40" />
+        </bean>
+        <bean parent="bowtieAlignerUiField">
+          <property name="name" value="discardThreshold" />
+          <property name="attrName" value="label" />
+          <property name="attrValue" value="Discard if more than how many alignments?" />
+        </bean>
+        <bean parent="bowtieAlignerUiField">
+          <property name="name" value="discardThreshold" />
+          <property name="attrName" value="type" />
+          <property name="attrValue" value="INTEGER" />
+        </bean>
+        
+        <bean parent="bowtieAlignerUiField">
+          <property name="name" value="isBest" />
+          <property name="attrName" value="metaposition" />
+          <property name="attrValue" value="50" />
+        </bean>
+        <bean parent="bowtieAlignerUiField">
+          <property name="name" value="isBest" />
+          <property name="attrName" value="label" />
+          <property name="attrValue" value="report only best alignments?" />
+        </bean>
+        <bean parent="bowtieAlignerUiField">
+          <property name="name" value="isBest" />
+          <property name="attrName" value="control" />
+          <property name="attrValue" value="select:yes:yes;no;no" />
+        </bean>     
+      </list>
+    </property>
+
+  </bean> 
+
+</beans>

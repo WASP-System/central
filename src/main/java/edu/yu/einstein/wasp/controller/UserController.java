@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
 
-import edu.yu.einstein.wasp.controller.validator.MetaHelper;
+import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.exception.LoginNameException;
 import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.MetaBase;
@@ -73,8 +73,8 @@ public class UserController extends WaspController {
 	@Autowired
 	private UserpasswordauthService userpasswordauthService;
 
-	private final MetaHelper getMetaHelper() {
-		return new MetaHelper("user", UserMeta.class, request.getSession());
+	private final MetaHelperWebapp getMetaHelperWebapp() {
+		return new MetaHelperWebapp("user", UserMeta.class, request.getSession());
 	}
 	
 	/**
@@ -86,9 +86,9 @@ public class UserController extends WaspController {
 	@PreAuthorize("hasRole('god')")
 	public String list(ModelMap m) {
 		
-		m.addAttribute("_metaList", getMetaHelper().getMasterList(MetaBase.class));
-		m.addAttribute(JQFieldTag.AREA_ATTR, getMetaHelper().getArea());
-		m.addAttribute("_metaDataMessages", MetaHelper.getMetadataMessages(request.getSession()));
+		m.addAttribute("_metaList", getMetaHelperWebapp().getMasterList(MetaBase.class));
+		m.addAttribute(JQFieldTag.AREA_ATTR, getMetaHelperWebapp().getArea());
+		m.addAttribute("_metaDataMessages", MetaHelperWebapp.getMetadataMessages(request.getSession()));
 		
 		prepareSelectListData(m);
 	
@@ -224,7 +224,7 @@ public class UserController extends WaspController {
 				Map cell = new HashMap();
 				cell.put("id", user.getUserId());
 				 
-				List<UserMeta> userMeta=getMetaHelper().syncWithMaster(user.getUserMeta());
+				List<UserMeta> userMeta=getMetaHelperWebapp().syncWithMaster(user.getUserMeta());
 				 					
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 							user.getLogin(),
@@ -296,7 +296,7 @@ public class UserController extends WaspController {
 			}
 		}
 				
-		List<UserMeta> userMetaList = getMetaHelper().getFromJsonForm(request, UserMeta.class);
+		List<UserMeta> userMetaList = getMetaHelperWebapp().getFromJsonForm(request, UserMeta.class);
 		userForm.setUserMeta(userMetaList);
 		//NV 12282011 - The code userForm.setUserId(userId) below throws exception: "detached entity passed to persist" when adding a new user. 
 		//				Do not set userId for a new user here - it is configured as a generated value, therefore, Hibernate expects userId to be null when EntityManager#persist is called.
@@ -413,14 +413,14 @@ public class UserController extends WaspController {
 			return "redirect:/user/detail_ro/" + userId + ".do";
 		}
 		
-		List<UserMeta> userMetaList = getMetaHelper().getFromRequest(request, UserMeta.class);
+		List<UserMeta> userMetaList = getMetaHelperWebapp().getFromRequest(request, UserMeta.class);
 
 		for (UserMeta meta : userMetaList) {
 			meta.setUserId(userId);
 		}
 
 		userForm.setUserMeta(userMetaList);
-		getMetaHelper().validate(userMetaList, result);
+		getMetaHelperWebapp().validate(userMetaList, result);
 		userForm.setUserId(userId);
 		if (result.hasErrors()) {
 			prepareSelectListData(m);
@@ -521,7 +521,7 @@ public class UserController extends WaspController {
 	
 		User user = new User();
 
-		user.setUserMeta(getMetaHelper().getMasterList(UserMeta.class));
+		user.setUserMeta(getMetaHelperWebapp().getMasterList(UserMeta.class));
 		
 		m.addAttribute("user", user);
 		
@@ -619,7 +619,7 @@ public class UserController extends WaspController {
 
 		User user = this.userService.getById(userId);
 
-		user.setUserMeta(getMetaHelper().syncWithMaster(user.getUserMeta()));
+		user.setUserMeta(getMetaHelperWebapp().syncWithMaster(user.getUserMeta()));
 		
 		m.addAttribute("user", user);
 		

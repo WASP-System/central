@@ -42,6 +42,20 @@
   				<property name="barcodesequence" value="CGATGT" />
   				<property name="barcodenumber" value="2" />
   			</bean>
+  			<bean class="edu.yu.einstein.wasp.model.Adaptor">
+  				<property name="IName" value="illuminaTrueseqDnaIndexed3" />
+  				<property name="name" value="Illumina DNA Indexed adaptor 3" />
+  				<property name="sequence" value="AGATCGGAAGAGCGGTTCAGC" />
+  				<property name="barcodesequence" value="TTAGGC" />
+  				<property name="barcodenumber" value="3" />
+  			</bean>
+  			<bean class="edu.yu.einstein.wasp.model.Adaptor">
+  				<property name="IName" value="illuminaTrueseqDnaIndexed4" />
+  				<property name="name" value="Illumina DNA Indexed adaptor 4" />
+  				<property name="sequence" value="AGATCGGAAGAGCGGTTCAGC" />
+  				<property name="barcodesequence" value="TGACCA" />
+  				<property name="barcodenumber" value="4" />
+  			</bean>
   		</list>
   	</property>
   </bean> 

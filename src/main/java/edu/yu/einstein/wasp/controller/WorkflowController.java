@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
 
-import edu.yu.einstein.wasp.controller.validator.MetaHelper;
+import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.Workflow;
@@ -44,8 +44,8 @@ public class WorkflowController extends WaspController {
 	@Autowired
 	private WorkflowMetaService workflowMetaService;
 
-	private final MetaHelper getMetaHelper() {
-		return new MetaHelper("workflow", WorkflowMeta.class,
+	private final MetaHelperWebapp getMetaHelperWebapp() {
+		return new MetaHelperWebapp("workflow", WorkflowMeta.class,
 				request.getSession());
 	}
 
@@ -58,8 +58,8 @@ public class WorkflowController extends WaspController {
 	@PreAuthorize("hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('fm')")
 	public String list(ModelMap m) {
 		m.addAttribute("_metaList",
-				getMetaHelper().getMasterList(MetaBase.class));
-		m.addAttribute(JQFieldTag.AREA_ATTR, getMetaHelper().getArea());
+				getMetaHelperWebapp().getMasterList(MetaBase.class));
+		m.addAttribute(JQFieldTag.AREA_ATTR, getMetaHelperWebapp().getArea());
 
 		prepareSelectListData(m);
 
@@ -122,7 +122,7 @@ public class WorkflowController extends WaspController {
 				Map cell = new HashMap();
 				cell.put("id", workflow.getWorkflowId());
 
-				List<WorkflowMeta> workflowMeta = getMetaHelper()
+				List<WorkflowMeta> workflowMeta = getMetaHelperWebapp()
 						.syncWithMaster(workflow.getWorkflowMeta());
 
 				List<String> cellList = new ArrayList<String>(
@@ -228,7 +228,7 @@ public class WorkflowController extends WaspController {
 	private String detail(Integer workflowId, ModelMap m, boolean isRW) {
 		Workflow workflow = workflowService.getById(workflowId);
 
-		workflow.setWorkflowMeta(getMetaHelper().syncWithMaster(
+		workflow.setWorkflowMeta(getMetaHelperWebapp().syncWithMaster(
 				workflow.getWorkflowMeta()));
 
 		List<Job> jobList = workflow.getJob();
@@ -262,7 +262,7 @@ public class WorkflowController extends WaspController {
 
 		Workflow workflow = new Workflow();
 
-		workflow.setWorkflowMeta(getMetaHelper().getMasterList(
+		workflow.setWorkflowMeta(getMetaHelperWebapp().getMasterList(
 				WorkflowMeta.class));
 
 		m.put("workflow", workflow);
@@ -288,10 +288,10 @@ public class WorkflowController extends WaspController {
 			newWorkflow = false;
 		}
 
-		List<WorkflowMeta> workflowMetaList = getMetaHelper().getFromRequest(
+		List<WorkflowMeta> workflowMetaList = getMetaHelperWebapp().getFromRequest(
 				request, WorkflowMeta.class);
 
-		getMetaHelper().validate(workflowMetaList, result);
+		getMetaHelperWebapp().validate(workflowMetaList, result);
 
 		if (result.hasErrors()) {
 			workflowForm.setWorkflowMeta(workflowMetaList);

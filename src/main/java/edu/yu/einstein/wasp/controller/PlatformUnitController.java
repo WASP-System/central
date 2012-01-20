@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
 
-import edu.yu.einstein.wasp.controller.validator.MetaHelper;
+import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
@@ -79,14 +79,14 @@ public class PlatformUnitController extends WaspController {
 	@Autowired
 	private AuthenticationService authenticationService;
 	
-	private final MetaHelper getMetaHelper() {
-		return new MetaHelper("platformunit",  "sample",SampleMeta.class, request.getSession());
+	private final MetaHelperWebapp getMetaHelperWebapp() {
+		return new MetaHelperWebapp("platformunit",  "sample",SampleMeta.class, request.getSession());
 	}
 
 	@RequestMapping(value="/list.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('ft')")
 	public String showListShell(ModelMap m) {
-		m.addAttribute("_metaList", getMetaHelper().getMasterList(SampleMeta.class));
+		m.addAttribute("_metaList", getMetaHelperWebapp().getMasterList(SampleMeta.class));
 		m.addAttribute(JQFieldTag.AREA_ATTR, "platformunit");
 
 		return "facility/platformunit/list";
@@ -144,7 +144,7 @@ public class PlatformUnitController extends WaspController {
 				Map cell = new HashMap();
 				cell.put("id", sample.getSampleId());
 
-				List<SampleMeta> sampleMetaList=getMetaHelper().syncWithMaster(sample.getSampleMeta());
+				List<SampleMeta> sampleMetaList=getMetaHelperWebapp().syncWithMaster(sample.getSampleMeta());
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 					sample.getName(),
 				}));
@@ -178,7 +178,7 @@ public class PlatformUnitController extends WaspController {
 			ModelMap m, 
 			HttpServletResponse response) {
 
-		List<SampleMeta> sampleMetaList = getMetaHelper().getFromJsonForm(request, SampleMeta.class);
+		List<SampleMeta> sampleMetaList = getMetaHelperWebapp().getFromJsonForm(request, SampleMeta.class);
 		sampleForm.setSampleMeta(sampleMetaList);
 		sampleForm.setSampleId(sampleId);
 
@@ -203,7 +203,7 @@ public class PlatformUnitController extends WaspController {
 
 		Sample sample = new Sample();
 
-		sample.setSampleMeta(getMetaHelper().getMasterList(SampleMeta.class));
+		sample.setSampleMeta(getMetaHelperWebapp().getMasterList(SampleMeta.class));
 
 		m.put("sample", sample);
 
@@ -230,7 +230,7 @@ public class PlatformUnitController extends WaspController {
 			 ModelMap m) {
 		Sample sample = sampleService.getSampleBySampleId(sampleId);
 
-		sample.setSampleMeta(getMetaHelper().syncWithMaster(sample.getSampleMeta()));
+		sample.setSampleMeta(getMetaHelperWebapp().syncWithMaster(sample.getSampleMeta()));
 
 		m.put("sample", sample);
 
@@ -244,7 +244,7 @@ public class PlatformUnitController extends WaspController {
 			 ModelMap m) {
 		Sample sample = sampleService.getSampleBySampleId(sampleId);
 
-		sample.setSampleMeta(getMetaHelper().syncWithMaster(sample.getSampleMeta()));
+		sample.setSampleMeta(getMetaHelperWebapp().syncWithMaster(sample.getSampleMeta()));
 
 		m.put("sample", sample);
 
@@ -308,9 +308,9 @@ public class PlatformUnitController extends WaspController {
 		SessionStatus status,
 		ModelMap m) {
 
-		List<SampleMeta> sampleMetaList = getMetaHelper().getFromRequest(request, SampleMeta.class);
+		List<SampleMeta> sampleMetaList = getMetaHelperWebapp().getFromRequest(request, SampleMeta.class);
 
-		getMetaHelper().validate(sampleMetaList, result);
+		getMetaHelperWebapp().validate(sampleMetaList, result);
 
 		if (result.hasErrors()) {
 			// TODO REAL ERROR

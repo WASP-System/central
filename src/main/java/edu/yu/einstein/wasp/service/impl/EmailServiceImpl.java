@@ -1,4 +1,4 @@
-package edu.yu.einstein.wasp.controller.service.impl;
+package edu.yu.einstein.wasp.service.impl;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -21,7 +21,6 @@ import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.velocity.VelocityEngineUtils;
 
-import edu.yu.einstein.wasp.controller.validator.MetaHelper;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.model.Department;
 import edu.yu.einstein.wasp.model.DepartmentUser;
@@ -37,6 +36,7 @@ import edu.yu.einstein.wasp.service.LabUserService;
 import edu.yu.einstein.wasp.service.RoleService;
 import edu.yu.einstein.wasp.service.UserPendingService;
 import edu.yu.einstein.wasp.service.UserService;
+import edu.yu.einstein.wasp.util.MetaHelper;
 
 
 /**

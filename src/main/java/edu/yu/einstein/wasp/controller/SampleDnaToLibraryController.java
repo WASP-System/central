@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.support.SessionStatus;
 
-import edu.yu.einstein.wasp.controller.validator.MetaHelper;
+import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.service.SampleMetaService;
@@ -37,8 +37,8 @@ public class SampleDnaToLibraryController extends WaspController {
   @Autowired
   private SampleMetaService sampleMetaService;
 
-  private final MetaHelper getMetaHelper() {
-    return new MetaHelper("sample", SampleMeta.class, request.getSession());
+  private final MetaHelperWebapp getMetaHelperWebapp() {
+    return new MetaHelperWebapp("sample", SampleMeta.class, request.getSession());
   }
 
 
@@ -94,20 +94,20 @@ public class SampleDnaToLibraryController extends WaspController {
   public String detail(@PathVariable("sampleId") Integer sampleId, ModelMap m) {
     Sample sample = sampleService.getSampleBySampleId(sampleId); 
 
-    MetaHelper metaHelper = getMetaHelper();
-    List<SampleMeta> coreSampleMeta = metaHelper.syncWithMaster(sample.getSampleMeta());
+    MetaHelperWebapp metaHelperWebapp = getMetaHelperWebapp();
+    List<SampleMeta> coreSampleMeta = metaHelperWebapp.syncWithMaster(sample.getSampleMeta());
 
-    metaHelper.setArea("sampleDnaToLibrary");
+    metaHelperWebapp.setArea("sampleDnaToLibrary");
 
-    List<SampleMeta> sampleDnaLToLibrarySampleMeta = metaHelper.syncWithMaster(sample.getSampleMeta());
+    List<SampleMeta> sampleDnaLToLibrarySampleMeta = metaHelperWebapp.syncWithMaster(sample.getSampleMeta());
     
     m.put("sample", sample); 
     m.put("sampleId", sampleId); 
     m.put("coreMeta", coreSampleMeta); 
     m.put("sampleDnaToLibSampleMeta", sampleDnaLToLibrarySampleMeta); 
 
-    m.put("area", metaHelper.getArea());
-    m.put("parentarea", metaHelper.getParentArea());
+    m.put("area", metaHelperWebapp.getArea());
+    m.put("parentarea", metaHelperWebapp.getParentArea());
   
     return "sampleDnaToLibrary/detail";
   }
@@ -117,20 +117,20 @@ public class SampleDnaToLibraryController extends WaspController {
   public String addLibraryMetaForm(@PathVariable("sampleId") Integer sampleId, ModelMap m) {
     Sample sample = sampleService.getSampleBySampleId(sampleId); 
 
-    MetaHelper metaHelper = getMetaHelper();
-    List<SampleMeta> coreSampleMeta = metaHelper.syncWithMaster(sample.getSampleMeta());
+    MetaHelperWebapp metaHelperWebapp = getMetaHelperWebapp();
+    List<SampleMeta> coreSampleMeta = metaHelperWebapp.syncWithMaster(sample.getSampleMeta());
 
-    metaHelper.setArea("sampleDnaToLibraryAddLibraryMeta");
+    metaHelperWebapp.setArea("sampleDnaToLibraryAddLibraryMeta");
 
-    List<SampleMeta> sampleDnaLToLibrarySampleMeta = metaHelper.syncWithMaster(sample.getSampleMeta());
+    List<SampleMeta> sampleDnaLToLibrarySampleMeta = metaHelperWebapp.syncWithMaster(sample.getSampleMeta());
     
     m.put("sample", sample); 
     m.put("sampleId", sampleId); 
     m.put("coreMeta", coreSampleMeta); 
     m.put("sampleDnaToLibSampleMeta", sampleDnaLToLibrarySampleMeta); 
 
-    m.put("area", metaHelper.getArea());
-    m.put("parentarea", metaHelper.getParentArea());
+    m.put("area", metaHelperWebapp.getArea());
+    m.put("parentarea", metaHelperWebapp.getParentArea());
   
     return "sampleDnaToLibrary/addLibraryMeta";
   }
@@ -169,21 +169,21 @@ public class SampleDnaToLibraryController extends WaspController {
      ) {
      Sample sample = sampleService.getSampleBySampleId(sampleId);
 
-     MetaHelper metaHelper = getMetaHelper();
-     metaHelper.setArea(area);
+     MetaHelperWebapp metaHelperWebapp = getMetaHelperWebapp();
+     metaHelperWebapp.setArea(area);
 
-     List<SampleMeta> sampleMetaList = metaHelper.getFromRequest(request, SampleMeta.class);
+     List<SampleMeta> sampleMetaList = metaHelperWebapp.getFromRequest(request, SampleMeta.class);
 
      sampleForm.setSampleMeta(sampleMetaList);
-     metaHelper.validate(sampleMetaList, result);
+     metaHelperWebapp.validate(sampleMetaList, result);
 
      if (result.hasErrors()) {
         waspMessage("hello.error");
 
-        metaHelper = getMetaHelper();
-        List<SampleMeta> coreSampleMeta = metaHelper.syncWithMaster(sample.getSampleMeta());
+        metaHelperWebapp = getMetaHelperWebapp();
+        List<SampleMeta> coreSampleMeta = metaHelperWebapp.syncWithMaster(sample.getSampleMeta());
 
-        metaHelper.setArea(area);
+        metaHelperWebapp.setArea(area);
     
         List<SampleMeta> sampleDnaLToLibrarySampleMeta = sampleMetaList;
     
@@ -192,13 +192,13 @@ public class SampleDnaToLibraryController extends WaspController {
         m.put("coreMeta", coreSampleMeta); 
         m.put("sampleDnaToLibSampleMeta", sampleDnaLToLibrarySampleMeta); 
 
-        m.put("area", metaHelper.getArea());
-        m.put("parentarea", metaHelper.getParentArea());
+        m.put("area", metaHelperWebapp.getArea());
+        m.put("parentarea", metaHelperWebapp.getParentArea());
   
         return returnPageDef;
      }
  
-     sampleMetaService.updateBySampleId(metaHelper.getArea(), sampleId, sampleMetaList);
+     sampleMetaService.updateBySampleId(metaHelperWebapp.getArea(), sampleId, sampleMetaList);
 
      return nextPage(sample);
   } 

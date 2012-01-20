@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import edu.yu.einstein.wasp.controller.DashboardController.DashboardEntityRolename;
-import edu.yu.einstein.wasp.controller.validator.MetaHelper;
+import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.model.Department;
 import edu.yu.einstein.wasp.model.DepartmentUser;
 import edu.yu.einstein.wasp.model.Job;
@@ -139,8 +139,8 @@ public DepartmentService getDepartmentService() {
     return "department/list";
   }
   
-	private final MetaHelper getLabMetaHelper() {
-		return new MetaHelper("lab", LabMeta.class,
+	private final MetaHelperWebapp getLabMetaHelperWebapp() {
+		return new MetaHelperWebapp("lab", LabMeta.class,
 				request.getSession());
 	}
 	
@@ -170,8 +170,8 @@ public DepartmentService getDepartmentService() {
     m.addAttribute("labpending", labPendingList);
 
 	m.addAttribute("_metaList",
-			getLabMetaHelper().getMasterList(MetaBase.class));
-	m.addAttribute(JQFieldTag.AREA_ATTR, getLabMetaHelper().getArea());
+			getLabMetaHelperWebapp().getMasterList(MetaBase.class));
+	m.addAttribute(JQFieldTag.AREA_ATTR, getLabMetaHelperWebapp().getArea());
 
 	prepareSelectListData(m);
 
@@ -280,7 +280,7 @@ public DepartmentService getDepartmentService() {
 				Map cell = new HashMap();
 				cell.put("id", lab.getLabId());
 
-				List<LabMeta> labMeta = getLabMetaHelper().syncWithMaster(lab.getLabMeta());
+				List<LabMeta> labMeta = getLabMetaHelperWebapp().syncWithMaster(lab.getLabMeta());
 
 				List<String> cellList = new ArrayList<String>(
 						Arrays.asList(new String[] {

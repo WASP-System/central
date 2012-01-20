@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-3.1.xsd"
+    default-autowire="byName">
+
+  <bean class="edu.yu.einstein.wasp.model.UiField" id="macsPeakcallerUiField">
+    <property name="locale" value="en_US" />
+    <property name="area" value="macsPeakcaller" />
+  </bean>
+
+  <bean id="macsPeakcallerResource" class="edu.yu.einstein.wasp.load.ResourceLoadService">
+    <property name="iname" value="macsPeakcallerV4.1" />
+    <property name="name" value="MACS Peakcaller" />
+    <property name="resourceCategory" value="software" />
+    <property name="resourceType" value="peakcaller" />
+
+    <property name="meta">
+      <list>
+        <bean class="edu.yu.einstein.wasp.model.ResourceMeta">
+          <property name="k" value="macsPeakcaller.version" />
+          <property name="v" value="4.1" />
+        </bean>
+      </list>
+    </property> 
+
+    <property name="uiFields">
+      <list>
+        <bean parent="macsPeakcallerUiField">
+          <property name="name" value="pValueCutoff" />
+          <property name="attrName" value="metaposition" />
+          <property name="attrValue" value="10" />
+        </bean>
+        <bean parent="macsPeakcallerUiField">
+          <property name="name" value="pValueCutoff" />
+          <property name="attrName" value="label" />
+          <property name="attrValue" value="p Value Cutoff" />
+        </bean>
+        <bean parent="macsPeakcallerUiField">
+          <property name="name" value="pValueCutoff" />
+          <property name="attrName" value="default" />
+          <property name="attrValue" value="1.0e+5" />
+        </bean>
+        <bean parent="macsPeakcallerUiField">
+          <property name="name" value="pValueCutoff" />
+          <property name="attrName" value="type" />
+          <property name="attrValue" value="NUMBER" />
+        </bean>
+        
+        <bean parent="macsPeakcallerUiField">
+          <property name="name" value="bandwidth" />
+          <property name="attrName" value="metaposition" />
+          <property name="attrValue" value="20" />
+        </bean>
+        <bean parent="macsPeakcallerUiField">
+          <property name="name" value="bandwidth" />
+          <property name="attrName" value="label" />
+          <property name="attrValue" value="Bandwidth" />
+        </bean>
+        <bean parent="macsPeakcallerUiField">
+          <property name="name" value="bandwidth" />
+          <property name="attrName" value="type" />
+          <property name="attrValue" value="NUMBER" />
+        </bean>
+        <bean parent="macsPeakcallerUiField">
+          <property name="name" value="bandwidth" />
+          <property name="attrName" value="range" />
+          <property name="attrValue" value="0:5000" />
+        </bean>
+        <bean parent="macsPeakcallerUiField">
+          <property name="name" value="bandwidth" />
+          <property name="attrName" value="default" />
+          <property name="attrValue" value="300" />
+        </bean>
+        
+        <bean parent="macsPeakcallerUiField">
+          <property name="name" value="genomeSize" />
+          <property name="attrName" value="metaposition" />
+          <property name="attrValue" value="30" />
+        </bean>
+        <bean parent="macsPeakcallerUiField">
+          <property name="name" value="genomeSize" />
+          <property name="attrName" value="label" />
+          <property name="attrValue" value="Effective Genome Size" />
+        </bean>
+        <bean parent="macsPeakcallerUiField">
+          <property name="name" value="genomeSize" />
+          <property name="attrName" value="default" />
+          <property name="attrValue" value="1.0e+9" />
+        </bean>
+        <bean parent="macsPeakcallerUiField">
+          <property name="name" value="genomeSize" />
+          <property name="attrName" value="type" />
+          <property name="attrValue" value="NUMBER" />
+        </bean>
+        
+        <bean parent="macsPeakcallerUiField">
+          <property name="name" value="genomeSize" />
+          <property name="attrName" value="metaposition" />
+          <property name="attrValue" value="30" />
+        </bean>
+        <bean parent="macsPeakcallerUiField">
+          <property name="name" value="genomeSize" />
+          <property name="attrName" value="label" />
+          <property name="attrValue" value="Bandwidth" />
+        </bean>
+        <bean parent="macsPeakcallerUiField">
+          <property name="name" value="genomeSize" />
+          <property name="attrName" value="range" />
+          <property name="attrValue" value="0:5000" />
+        </bean>
+        
+        <bean parent="macsPeakcallerUiField">
+          <property name="name" value="genomeSize" />
+          <property name="attrName" value="metaposition" />
+          <property name="attrValue" value="30" />
+        </bean>
+        <bean parent="macsPeakcallerUiField">
+          <property name="name" value="genomeSize" />
+          <property name="attrName" value="label" />
+          <property name="attrValue" value="Bandwidth" />
+        </bean>
+        <bean parent="macsPeakcallerUiField">
+          <property name="name" value="genomeSize" />
+          <property name="attrName" value="range" />
+          <property name="attrValue" value="0:5000" />
+        </bean>
+        
+        <bean parent="macsPeakcallerUiField">
+          <property name="name" value="keepDup" />
+          <property name="attrName" value="metaposition" />
+          <property name="attrValue" value="30" />
+        </bean>
+        <bean parent="macsPeakcallerUiField">
+          <property name="name" value="keepDup" />
+          <property name="attrName" value="label" />
+          <property name="attrValue" value="Keep Duplicates?" />
+        </bean>
+        <bean parent="macsPeakcallerUiField">
+          <property name="name" value="keepDup" />
+          <property name="attrName" value="control" />
+          <property name="attrValue" value="select:yes:yes;no:no" />
+        </bean>
+        <bean parent="macsPeakcallerUiField">
+          <property name="name" value="keepDup" />
+          <property name="attrName" value="default" />
+          <property name="attrValue" value="no" />
+        </bean>
+
+        
+      </list>
+    </property>
+
+  </bean> 
+
+</beans>

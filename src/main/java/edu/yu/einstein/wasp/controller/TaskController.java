@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import edu.yu.einstein.wasp.controller.validator.MetaHelper;
+import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.StateMeta;
@@ -239,9 +239,9 @@ public class TaskController extends WaspController {
   @PreAuthorize("hasRole('god') or hasRole('fm')")
   public String showJqPaymentListShell(ModelMap m) {
 	
-		MetaHelper metaHelper = new MetaHelper("fmpayment", "state", StateMeta.class, request.getSession());
+		MetaHelperWebapp metaHelperWebapp = new MetaHelperWebapp("fmpayment", "state", StateMeta.class, request.getSession());
 
-    m.addAttribute("_metaList", metaHelper.getMasterList(StateMeta.class));
+    m.addAttribute("_metaList", metaHelperWebapp.getMasterList(StateMeta.class));
     m.addAttribute(JQFieldTag.AREA_ATTR, "fmpayment");
 
     return "task/fmpayment/list";
@@ -250,7 +250,7 @@ public class TaskController extends WaspController {
 	@RequestMapping(value="/fmpayment/listJson.do", method=RequestMethod.GET)
 	public @ResponseBody String getListJson() {
 
-		MetaHelper metaHelper = new MetaHelper("fmpayment", "state", StateMeta.class,request.getSession());
+		MetaHelperWebapp metaHelperWebapp = new MetaHelperWebapp("fmpayment", "state", StateMeta.class,request.getSession());
 
 		List<State> stateList;
 
@@ -284,7 +284,7 @@ public class TaskController extends WaspController {
 				state.getStatus()
 			}));
 
-			List<StateMeta> stateMetaList=metaHelper.syncWithMaster(state.getStateMeta());
+			List<StateMeta> stateMetaList=metaHelperWebapp.syncWithMaster(state.getStateMeta());
       for(StateMeta meta:stateMetaList) {
 				cellList.add(meta.getV());
 			}
@@ -314,11 +314,11 @@ public class TaskController extends WaspController {
                         ModelMap m,
                         HttpServletResponse response) {
 		
-MetaHelper metaHelper = new MetaHelper("fmpayment", "state", StateMeta.class,request.getSession());
+MetaHelperWebapp metaHelperWebapp = new MetaHelperWebapp("fmpayment", "state", StateMeta.class,request.getSession());
 
 								State stateDb = stateService.getStateByStateId(stateId);
 
-                List<StateMeta> stateMetaList = metaHelper.getFromJsonForm(request, StateMeta.class);
+                List<StateMeta> stateMetaList = metaHelperWebapp.getFromJsonForm(request, StateMeta.class);
                 stateForm.setStateMeta(stateMetaList);
                 stateForm.setStateId(stateId);
                 stateForm.setTaskId(stateDb.getTaskId());
