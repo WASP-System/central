@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import edu.yu.einstein.wasp.dao.TaskDao;
 import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.Task;
+import edu.yu.einstein.wasp.model.TaskMapping;
 import edu.yu.einstein.wasp.service.TaskService;
 
 @Service
@@ -54,7 +55,10 @@ public class TaskServiceImpl extends WaspServiceImpl<Task> implements TaskServic
 		return this.taskDao;
 	}
 
-
+	public List<TaskMapping> getTaskMappings() {
+		return this.taskDao.getTaskMappings();
+	}
+	
   @Override
 public Task getTaskByTaskId (final int taskId) {
     return this.getTaskDao().getTaskByTaskId(taskId);

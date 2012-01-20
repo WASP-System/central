@@ -11,6 +11,7 @@
 
 package edu.yu.einstein.wasp.dao.impl;
 
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.Task;
+import edu.yu.einstein.wasp.model.TaskMapping;
 import edu.yu.einstein.wasp.service.StateService;
 
 @SuppressWarnings("unchecked")
@@ -105,6 +107,33 @@ public class TaskDaoImpl extends WaspDaoImpl<Task> implements edu.yu.einstein.wa
 		return rt;
 	}
 
+	public List<TaskMapping> getTaskMappings() {
+		List<TaskMapping> list=entityManager.createQuery("select t from TaskMapping t").getResultList();
+		
+		Map<Integer,TaskMapping> map = new HashMap<Integer,TaskMapping>();
+		
+		for(TaskMapping m:list) {
+			 map.put(m.getTaskMappingId(),m);	
+		}
+		
+		String sql=
+			"select tm.task_mapping_id,count(s.stateid)\n"+
+			"from task_mapping tm\n"+
+			"join task t on tm.taskid\n"+
+			"join state s on s.taskid=t.taskid\n"+
+			"and s.status=tm.status\n"+
+			"where tm.show_in_dashboard=1\n"+
+			"group by t.name,tm.status\n"+
+			"having count(s.stateid)>0\n";
+		
+		List<Object[]> counts=(List<Object[]>)entityManager.createNativeQuery(sql).getResultList();
+		for(Object[] o:counts) {
+			TaskMapping tm=map.get(o[0]);
+			if (tm!=null) tm.setStateCount(((BigInteger)o[1]).intValue());
+		}
+		
+		return list;
+	}
 
 
 }

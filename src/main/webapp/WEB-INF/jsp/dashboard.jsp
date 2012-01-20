@@ -211,25 +211,17 @@
 
 <div>
 <h1>Systems Admin Utils</h1>
-<div>[View Task]</div>
-<div>- [View Job Task]</div>
-<div>- [View Job Task]</div>
-<div>- [View Job Task]</div>
-<div>- [View Job Task]</div>
-<div>- [View Job Task]</div>
-<div>[View Task]</div>
-<div>- [View Job Task]</div>
-<div>- [View Job Task]</div>
-<div>- [View Job Task]</div>
-<div>- [View Job Task]</div>
-<div>[View Task]</div>
-<div>- [View Job Task]</div>
-<div>- [View Job Task]</div>
-<div>[View Task]</div>
-<div>- [View Job Task]</div>
-<div>- [View Job Task]</div>
-<div>- [View Job Task]</div>
-<div>- [View Job Task]</div>
+<div>
+<b>Tasks:</b>
+<br>
+<div>
+<c:forEach items="${tasks}" var="task"> 	
+    <sec:authorize access="${task.permission}">
+    	<div><a href="<c:url value="${task.listMap}"/>">${task.task.name}</a>  (${task.stateCount})</div>
+  	</sec:authorize>    
+</c:forEach>
+
+<hr>
 </div>
 
 

@@ -19,7 +19,7 @@ import edu.yu.einstein.wasp.service.JobDraftService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.LabPendingService;
 import edu.yu.einstein.wasp.service.LabService;
-
+import edu.yu.einstein.wasp.service.TaskService;
 
 @Controller
 @Transactional
@@ -36,17 +36,22 @@ public class DashboardController extends WaspController {
 
 	@Autowired
 	private JobDraftService jobDraftService;
-	  
-	  @Autowired
-	  private AuthenticationService authenticationService;
-	  
-	  @Autowired
-	  private LabPendingService labPendingService;
+
+	@Autowired
+	private AuthenticationService authenticationService;
+
+	@Autowired
+	private LabPendingService labPendingService;
+	
+	@Autowired
+	private TaskService taskService;
 
 	// list of baserolenames (da-department admin, lu- labuser ...)
-	//   see role table
+	// see role table
 	// higher level roles such as 'lm' or 'js' are used on the view
-	public static enum DashboardEntityRolename {da, lu, jv, jd};
+	public static enum DashboardEntityRolename {
+		da, lu, jv, jd
+	};
 
 	@RequestMapping("/dashboard")
 	public String list(ModelMap m) {
@@ -58,6 +63,7 @@ public class DashboardController extends WaspController {
 		
 		int departmentAdminPendingTasks = 0;
 		int allLabManagerPendingTasks = 0;
+
 		
 		for (String role: authenticationService.getRoles()) {			
 			
@@ -74,6 +80,7 @@ public class DashboardController extends WaspController {
 			} catch (Exception e)	{
 				continue;
 			}
+			
 
 			// adds the role ojbect to the proper bucket
 			switch (entityRolename) {
@@ -96,6 +103,9 @@ public class DashboardController extends WaspController {
 			allLabManagerPendingTasks = labService.getAllLabManagerPendingTasks();
 		}
 		m.addAttribute("allLabManagerPendingTasks", allLabManagerPendingTasks);
+		
+		m.addAttribute("tasks",taskService.getTaskMappings());
+		
 		return "dashboard";
 	}
 }

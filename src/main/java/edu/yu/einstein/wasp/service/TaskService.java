@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import edu.yu.einstein.wasp.dao.TaskDao;
 import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.Task;
+import edu.yu.einstein.wasp.model.TaskMapping;
 
 @Service
 public interface TaskService extends WaspService<Task> {
@@ -54,6 +55,6 @@ public interface TaskService extends WaspService<Task> {
 
   public List<State> getSampleReceivedStates();
 
-
+  List<TaskMapping> getTaskMappings();
 }
 

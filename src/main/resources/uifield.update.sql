@@ -756,6 +756,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeq','jobsubmit/modifymeta','label','ModifyChipSeq Metadata','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeq','jobsubmit/resource/dna','label','DNA Sequencer Options','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeq','jobsubmit/resource/mps','label','MPS Sequencer Options','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeq','jobsubmit/resource/aligner','label','DNA Aligner Options','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeq','jobsubmit/samples','label','DNA Sequencer Samples','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeq','jobsubmit/cells','label','DNA Sequencer Cells','1');

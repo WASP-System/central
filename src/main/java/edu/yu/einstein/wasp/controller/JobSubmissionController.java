@@ -1599,11 +1599,18 @@ public class JobSubmissionController extends WaspController {
 		
 		String code=workflowIName+"."+pageDef+".label";
 			
+		try {	
+		
 		String pageTitle=DBResourceBundle.MESSAGE_SOURCE.getMessage(code, null, locale);
 		
 		if (pageTitle!=null) {		
 			return pageTitle;
 		}
+		
+		} catch (Throwable e) {
+			//log.error("Cant get page title from uifield "+tilesDef+"|"+workflowIName+". Falling back to default page name ",e);
+		}
+		
 		return pageDef;
 	}
 

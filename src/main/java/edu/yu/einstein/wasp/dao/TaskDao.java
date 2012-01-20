@@ -15,6 +15,7 @@ import java.util.List;
 
 import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.Task;
+import edu.yu.einstein.wasp.model.TaskMapping;
 
 
 public interface TaskDao extends WaspDao<Task> {
@@ -25,5 +26,7 @@ public interface TaskDao extends WaspDao<Task> {
  
   public List<State> getStatesByTaskIName (final String iName, final String status);
 
+  List<TaskMapping> getTaskMappings();
+  
 }
 
