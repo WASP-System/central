@@ -11617,3 +11617,10 @@ UNLOCK TABLES;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+
+insert into taskmapping (taskid ,status,listmap,detailmap,permission,dashboardsortorder )
+SELECT DISTINCT t.taskid, s.status,  '/path/to/list',  '/path/to/detail',  'hasRole(''ft-*'')', 1
+FROM task t
+JOIN state s ON t.taskid = s.taskid;
+
