@@ -247,34 +247,34 @@ public class Software extends WaspModel {
 
 
 	/** 
-	 * sampleMeta
+	 * softwareMeta
 	 *
 	 */
 	@NotAudited
 	@OneToMany
 	@JoinColumn(name="softwareid", insertable=false, updatable=false)
-	protected List<SampleMeta> sampleMeta;
+	protected List<SoftwareMeta> softwareMeta;
 
 
 	/** 
-	 * getSampleMeta()
+	 * getSoftwareMeta()
 	 *
-	 * @return sampleMeta
+	 * @return softwareMeta
 	 *
 	 */
-	public List<SampleMeta> getSampleMeta() {
-		return this.sampleMeta;
+	public List<SoftwareMeta> getSoftwareMeta() {
+		return this.softwareMeta;
 	}
 
 
 	/** 
-	 * setSampleMeta
+	 * setSoftwareMeta
 	 *
-	 * @param sampleMeta
+	 * @param softwareMeta
 	 *
 	 */
-	public void setSampleMeta (List<SampleMeta> sampleMeta) {
-		this.sampleMeta = sampleMeta;
+	public void setSoftwareMeta (List<SoftwareMeta> softwareMeta) {
+		this.softwareMeta = softwareMeta;
 	}
 
 
