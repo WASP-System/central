@@ -53,7 +53,18 @@
           <property name="attrName" value="label" />
           <property name="attrValue" value="Chip Seq" />
         </bean>
-      </list>
+        <bean parent="chipSeqUiField">
+          <property name="name" value="jobsubmit/modifymeta" />
+          <property name="attrName" value="label" />
+          <property name="attrValue" value="Chip Seq Modify Meta PageTitle" />
+        </bean>
+        <bean parent="chipSeqUiField">
+          <property name="name" value="jobsubmit/resource/mps" />
+          <property name="attrName" value="label" />
+          <property name="attrValue" value="Chip Seq MPS selector PageTitle" />
+        </bean>
+     </list>
+
     </property>
   </bean>
 
