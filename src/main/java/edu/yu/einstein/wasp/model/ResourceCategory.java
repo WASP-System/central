@@ -377,34 +377,34 @@ public class ResourceCategory extends WaspModel {
 
 
 	/** 
-	 * adaptorsetresourcecategory
+	 * adaptorsetResourceCategory
 	 *
 	 */
 	@NotAudited
 	@OneToMany
 	@JoinColumn(name="resourcecategoryid", insertable=false, updatable=false)
-	protected List<Adaptorsetresourcecategory> adaptorsetresourcecategory;
+	protected List<AdaptorsetResourceCategory> adaptorsetResourceCategory;
 
 
 	/** 
-	 * getAdaptorsetresourcecategory()
+	 * getAdaptorsetResourceCategory()
 	 *
-	 * @return adaptorsetresourcecategory
+	 * @return adaptorsetResourceCategory
 	 *
 	 */
-	public List<Adaptorsetresourcecategory> getAdaptorsetresourcecategory() {
-		return this.adaptorsetresourcecategory;
+	public List<AdaptorsetResourceCategory> getAdaptorsetResourceCategory() {
+		return this.adaptorsetResourceCategory;
 	}
 
 
 	/** 
-	 * setAdaptorsetresourcecategory
+	 * setAdaptorsetResourceCategory
 	 *
-	 * @param adaptorsetresourcecategory
+	 * @param adaptorsetResourceCategory
 	 *
 	 */
-	public void setAdaptorsetresourcecategory (List<Adaptorsetresourcecategory> adaptorsetresourcecategory) {
-		this.adaptorsetresourcecategory = adaptorsetresourcecategory;
+	public void setAdaptorsetResourceCategory (List<AdaptorsetResourceCategory> adaptorsetResourceCategory) {
+		this.adaptorsetResourceCategory = adaptorsetResourceCategory;
 	}
 
 
