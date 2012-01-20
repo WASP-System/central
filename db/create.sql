@@ -1571,26 +1571,27 @@ join subtypesample st on concat(w.iname, t.iname, 'Sample') = st.iname;
 -- (1, 10), (1, 11), (1, 2), (1, 3), (1, 4), (1, 5);
 
 
+drop TABLE if exists `wasp`.`task_mapping` ;
+-- drop TABLE if exists `wasp`.`taskmapping` ;
 
-CREATE TABLE IF NOT EXISTS `task_mapping` (
-  `task_mapping_id` int(10) NOT NULL AUTO_INCREMENT,
+CREATE TABLE IF NOT EXISTS `taskmapping` (
+  `taskmappingid` int(10) NOT NULL AUTO_INCREMENT,
   `taskid` int(10) NOT NULL,
   `status` varchar(50) NOT NULL,
-  `list_map` varchar(255) DEFAULT NULL,
-  `detail_map` varchar(255) DEFAULT NULL,
+  `listmap` varchar(255) DEFAULT NULL,
+  `detailmap` varchar(255) DEFAULT NULL,
   `permission` varchar(50) NOT NULL,
-  `show_in_dashboard` tinyint(1) NOT NULL DEFAULT '1',
-  PRIMARY KEY (`task_mapping_id`),
+  `dashboardsortorder` int(10) NULL,
+  PRIMARY KEY (`taskmappingid`),
   UNIQUE KEY `taskid` (`taskid`,`status`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=5 ;
+
+ALTER TABLE `taskmapping`
+  ADD CONSTRAINT `fk_tm_taskid` FOREIGN KEY (`taskid`) REFERENCES `task` (`taskid`);
 
 
-ALTER TABLE `task_mapping`
-  ADD CONSTRAINT `tmp_ibfk_1` FOREIGN KEY (`taskid`) REFERENCES `task` (`taskid`);
-
-
-insert into task_mapping (taskid ,status,list_map,detail_map,permission,show_in_dashboard )
-SELECT DISTINCT t.taskid, s.status,  '/path/to/list',  '/path/to/detail',  'hasRole(''lu'')', 1
+insert into taskmapping (taskid ,status,listmap,detailmap,permission,dashboardsortorder )
+SELECT DISTINCT t.taskid, s.status,  '/path/to/list',  '/path/to/detail',  'hasRole(''lu'')', t.taskid
 FROM task t
 JOIN state s ON t.taskid = s.taskid
 

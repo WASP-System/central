@@ -56,5 +56,7 @@ public interface TaskService extends WaspService<Task> {
   public List<State> getSampleReceivedStates();
 
   List<TaskMapping> getTaskMappings();
+  
+  List<State> getStatesByTaskMappingRule(Task task, String status);
 }
 

@@ -26,11 +26,11 @@ import org.hibernate.envers.NotAudited;
 
 @Entity
 @Audited
-@Table(name="task_mapping")
+@Table(name="taskmapping")
 public class TaskMapping extends WaspModel {
 
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	@Column(name="task_mapping_id")
+	@Column(name="taskmappingid")
 	private Integer taskMappingId;
 	
 	@Column(name="taskid")
@@ -39,20 +39,17 @@ public class TaskMapping extends WaspModel {
 	@Column(name="status")
 	private String status;
 	
-	
-
-
-	@Column(name="list_map")
+	@Column(name="listmap")
 	private String listMap;
 	
-	@Column(name="detail_map")
+	@Column(name="detailmap")
 	private String detailMap;
 
 	@Column(name="permission")
 	private String permission;
 	
-	@Column(name="show_in_dashboard")
-	private boolean showInDashboard;
+	@Column(name="dashboardsortorder")
+	private Integer dashboardSortOrder;
 
 	@Transient
 	private Integer stateCount;
@@ -84,16 +81,6 @@ public class TaskMapping extends WaspModel {
 		return this.task;
 	}
 	
-	
-	public Integer getStateCount() {
-		return stateCount;
-	}
-
-	
-	public void setStateCount(Integer stateCount) {
-		this.stateCount = stateCount;
-	}
-
 	public Integer getTaskMappingId() {
 		return taskMappingId;
 	}
@@ -108,6 +95,14 @@ public class TaskMapping extends WaspModel {
 
 	public void setTaskId(Integer taskId) {
 		this.taskId = taskId;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
 	}
 
 	public String getListMap() {
@@ -134,23 +129,21 @@ public class TaskMapping extends WaspModel {
 		this.permission = permission;
 	}
 
-	public boolean isShowInDashboard() {
-		return showInDashboard;
+	public Integer getDashboardSortOrder() {
+		return dashboardSortOrder;
 	}
 
-	public void setShowInDashboard(boolean showInDashboard) {
-		this.showInDashboard = showInDashboard;
+	public void setDashboardSortOrder(Integer dashboardSortOrder) {
+		this.dashboardSortOrder = dashboardSortOrder;
 	}
 
-	public String getStatus() {
-		return status;
+	public Integer getStateCount() {
+		return stateCount;
 	}
 
-
-	public void setStatus(String status) {
-		this.status = status;
+	public void setStateCount(Integer stateCount) {
+		this.stateCount = stateCount;
 	}
-	
 
 	@Override
 	public int hashCode() {
@@ -159,7 +152,6 @@ public class TaskMapping extends WaspModel {
 		result = prime * result + ((taskMappingId == null) ? 0 : taskMappingId.hashCode());
 		return result;
 	}
-
 
 	@Override
 	public boolean equals(Object obj) {
@@ -177,7 +169,8 @@ public class TaskMapping extends WaspModel {
 			return false;
 		return true;
 	}
-
-		
+	
+	
+			
 	
 }

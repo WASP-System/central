@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.Lab;
+import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.DepartmentService;
 import edu.yu.einstein.wasp.service.JobDraftService;
@@ -64,6 +65,10 @@ public class DashboardController extends WaspController {
 		int departmentAdminPendingTasks = 0;
 		int allLabManagerPendingTasks = 0;
 
+		
+		
+		//List<State> states=taskService.getStatesByTaskMappingRule(taskService.findById(1), "CREATED");
+		
 		
 		for (String role: authenticationService.getRoles()) {			
 			

@@ -117,12 +117,12 @@ public class TaskDaoImpl extends WaspDaoImpl<Task> implements edu.yu.einstein.wa
 		}
 		
 		String sql=
-			"select tm.task_mapping_id,count(s.stateid)\n"+
-			"from task_mapping tm\n"+
+			"select tm.taskmappingid,count(s.stateid)\n"+
+			"from taskmapping tm\n"+
 			"join task t on tm.taskid\n"+
 			"join state s on s.taskid=t.taskid\n"+
 			"and s.status=tm.status\n"+
-			"where tm.show_in_dashboard=1\n"+
+			"where tm.dashboardsortorder is not null\n"+
 			"group by t.name,tm.status\n"+
 			"having count(s.stateid)>0\n";
 		
