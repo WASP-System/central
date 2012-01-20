@@ -27,6 +27,7 @@ public interface WaspService<E> {
  public Integer removeAll();
 
  public List findByMap(Map m);
+
  public List findByMapExcept(Map m);
 
  public List findDistinctOrderBy(final String distinctColumnName, final String direction);
