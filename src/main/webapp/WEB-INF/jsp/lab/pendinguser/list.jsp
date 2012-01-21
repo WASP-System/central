@@ -8,7 +8,7 @@
 </c:if>
 <c:forEach items="${userpending}" var="l">
 <!-- sec:authorize access="
-     hasRole('god') or
+     hasRole('su') or
      hasRole('lm-' + ${l.labId})
    "-->
         <p>

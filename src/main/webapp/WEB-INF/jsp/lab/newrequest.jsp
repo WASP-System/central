@@ -1,30 +1,33 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
 <p><font color="red"><wasp:message /></font></p>
+
+
 <h1><fmt:message key="pageTitle.lab/newrequest.label" /></h1>
-  <p><fmt:message key="labuser.labUserNote.label" /></p>
+  <div class="instructions"><fmt:message key="labuser.labUserNote.label" /></div>
   <form name="f" action="<c:url value='/lab/request.do'/>" method="POST">
-  <table><tr>
-    <td><fmt:message key="labuser.request_primaryuser.label" />: </td>
-    <td><input type='text' name='primaryUserLogin' value=''/></td>
+  <table class="data"><tr>
+    <td class="label"><fmt:message key="labuser.request_primaryuser.label" />: </td>
+    <td class="input"><input type='text' name='primaryUserLogin' value=''/></td>
   </tr></table>
-  <input type="submit" value="<fmt:message key="labuser.request_submit.label" />" />
+  <div class="submit">
+    <input type="submit" value="<fmt:message key="labuser.request_submit.label" />" />
+  </div>
   </form>
 
-  <table>
 
   <h1><fmt:message key="labPending.createNewLab.label" /></h1>
-  <p><fmt:message key="labPending.newPiNote.label" /></p>
+  <div class="instructions"><fmt:message key="labPending.newPiNote.label" /></div>
   <form:form commandName="labPending">
-    <table>
+    <table class="data">
       <tr>
-        <td><fmt:message key="labPending.name.label" />:</td>
-        <td><form:input path="name" /></td>
-        <td><form:errors path="name" /></td>
+        <td class="label"><fmt:message key="labPending.name.label" />:</td>
+        <td class="input"><form:input path="name" /></td>
+        <td class="error"><form:errors path="name" /></td>
       </tr>
       <tr>
-              <td><fmt:message key="labPending.departmentId.label"/>:</td>
-              <td>
+              <td class="label"><fmt:message key="labPending.departmentId.label"/>:</td>
+              <td class="input">
               <select name="departmentId">
                 <option value='-1'><fmt:message key="wasp.default_select.label"/></option>
                 <c:forEach var="dept" items="${departments}">
@@ -32,17 +35,17 @@
                 </c:forEach>
               </select>
               </td>
-              <td><form:errors path="departmentId" /></td>
+              <td class="error"><form:errors path="departmentId" /></td>
 	</tr>
 
     <c:set var="_area" value = "labPending" scope="request"/>
     <c:set var="_metaList" value = "${labPending.labPendingMeta}" scope="request" />
     <c:import url="/WEB-INF/jsp/meta_rw.jsp"/>
-    <tr>
-      <td colspan="2" align=right>
+    </table>
+
+    <div class="submit">
       <input type="submit" value="<fmt:message key="labPending.newLabSubmit.label"/>" />
-      </td>
-    </tr>
+    </div>
 
   </table>
   </form:form>

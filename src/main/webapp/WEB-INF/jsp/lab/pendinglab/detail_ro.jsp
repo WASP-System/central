@@ -31,7 +31,7 @@
 			scope="request" />
 		<c:import url="/WEB-INF/jsp/meta_ro.jsp" />
 		<sec:authorize
-			access="hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('da-*')">
+			access="hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('da-*')">
 			<tr>
 				<td><a
 					href="<c:url value="/lab/pending/detail_rw/${labPending.departmentId}/${labPending.labPendingId}.do" />">Edit</a>

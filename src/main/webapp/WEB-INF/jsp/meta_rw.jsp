@@ -11,7 +11,7 @@
 		<c:set var="id" value="${fn:substringAfter(_meta.k,'.')}" />
 
 		<tr>
-			<td class="label"><fmt:message key="${labelKey}"/>:</td>
+			<td class="label"><fmt:message key="${labelKey}"/></td>
 			<td class="input">
 			<c:choose>
 				<c:when test="${not empty _meta.property.control}">

@@ -4,7 +4,7 @@
 <table cellpadding="0" cellspacing="0" border="0">
 	<c:forEach items="${lab}" var="l">
 		<!-- sec:authorize access="
-     hasRole('god') or
+     hasRole('su') or
      hasRole('da-' + ${l.departmentId})
    "-->
 		<tr>

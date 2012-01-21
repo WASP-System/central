@@ -1,10 +1,9 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
+  <font color="red"><wasp:message /></font> 
+  <h1><fmt:message key="pageTitle.auth/newuser/form.label" /></h1>
 
-  <head> 
-  <body>
-    
-    <h1><fmt:message key="pageTitle.auth/newuser/form.label" /></h1>
-    <font color="red"><wasp:message /></font> 
+  <div class="instructions"> <%@ include file="/WEB-INF/jsp/lorem.jsp" %> </div>
+
     <form:form commandName="userPending">
       <table class="data">
       	<tr>
@@ -67,13 +66,10 @@
           	<td class="input"><input type="text" name="captcha" /></td>
           	<td class="error">${captchaError}</td>
           </tr>
-          <tr>
-              <td>&nbsp;</td>
-              <td colspan="2" align=left>
-                  <input type="submit" value="<fmt:message key='userPending.submit.label'/>" /> 
-              </td>
-          </tr>
 
        </table>
+       <div class="submit">
+         <input type="submit" value="<fmt:message key='userPending.submit.label'/>" /> 
+       </div>
     </form:form>
 
