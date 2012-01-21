@@ -62,7 +62,7 @@ public class SystemRoleController extends WaspController {
 	 * @return view 
 	 */
 	@RequestMapping(value="/list", method=RequestMethod.GET)
-	@PreAuthorize("hasRole('god')")
+	@PreAuthorize("hasRole('su')")
 	public String listSystemUser(ModelMap m) {
 
 		Map roleQueryMap = new HashMap();
@@ -94,7 +94,7 @@ public class SystemRoleController extends WaspController {
 	 * @return view
 	 */
 	@RequestMapping(value="/add", method=RequestMethod.POST)
-	@PreAuthorize("hasRole('god')")
+	@PreAuthorize("hasRole('su')")
 	public String addSystemUser(
 			@RequestParam("userHook") String userHook,
 			@RequestParam("roleName") String roleName,
@@ -152,7 +152,7 @@ public class SystemRoleController extends WaspController {
 	 * @return view
 	 */
 	@RequestMapping(value="/remove/{userId}/{roleName}", method=RequestMethod.GET)
-	@PreAuthorize("hasRole('god')")
+	@PreAuthorize("hasRole('su')")
 	public String removeSystemUser(
 			@PathVariable("userId") Integer userId,
 			@PathVariable("roleName") String roleName,
@@ -195,7 +195,7 @@ public class SystemRoleController extends WaspController {
 		User me = authenticationService.getAuthenticatedUser();
 		if (me.getUserId().intValue() == userId.intValue()) {
 			doReauth();
-			if (roleName.equals("god")){
+			if (roleName.equals("su")){
 				return "redirect:/dashboard.do";
 			}
 		}
