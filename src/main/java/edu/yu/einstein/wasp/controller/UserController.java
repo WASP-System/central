@@ -83,7 +83,7 @@ public class UserController extends WaspController {
 	 * @Author Sasha Levchuk 
 	 */
 	@RequestMapping("/list")
-	@PreAuthorize("hasRole('god')")
+	@PreAuthorize("hasRole('su')")
 	public String list(ModelMap m) {
 		
 		m.addAttribute("_metaList", getMetaHelperWebapp().getMasterList(MetaBase.class));
@@ -102,7 +102,7 @@ public class UserController extends WaspController {
 	 * @Author Sasha Levchuk 
 	 */
 	@RequestMapping(value = "/subgridJSON.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('god') or User.login == principal.name")
+	@PreAuthorize("hasRole('su') or User.login == principal.name")
 	public String subgridJSON(@RequestParam("id") Integer userId,ModelMap m, HttpServletResponse response) {
 				
 		Map <String, Object> jqgrid = new HashMap<String, Object>();
@@ -264,7 +264,7 @@ public class UserController extends WaspController {
 	 * @Author Sasha Levchuk 
 	 */	
 	@RequestMapping(value = "/detail_rw/updateJSON.do", method = RequestMethod.POST)
-	@PreAuthorize("hasRole('god') or User.login == principal.name")
+	@PreAuthorize("hasRole('su') or User.login == principal.name")
 	public String updateDetailJSON(@RequestParam("id") Integer userId,User userForm, ModelMap m, HttpServletResponse response) {
 		userId = (userId == null)? 0:userId;
 		boolean adding = (userId == 0);
@@ -400,7 +400,7 @@ public class UserController extends WaspController {
 	 * @Author Sasha Levchuk 
 	 */
 	@RequestMapping(value = "/detail_rw/{userId}.do", method = RequestMethod.POST)
-	@PreAuthorize("hasRole('god')")
+	@PreAuthorize("hasRole('su')")
 	public String updateDetail(@PathVariable("userId") Integer userId,
 			@Valid User userForm, BindingResult result, SessionStatus status,
 			ModelMap m) {
@@ -518,7 +518,7 @@ public class UserController extends WaspController {
 	}
 
 	@RequestMapping(value = "/create/form.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('god')")
+	@PreAuthorize("hasRole('su')")
 	public String showEmptyForm(ModelMap m) {
 	
 		User user = new User();
@@ -536,7 +536,7 @@ public class UserController extends WaspController {
  * Should not need this. Only God can create user and this is done through the JGrid List create functionality
  * 
 	@RequestMapping(value = "/create/form.do", method = RequestMethod.POST)
-	@PreAuthorize("hasRole('god')")
+	@PreAuthorize("hasRole('su')")
 	public String create(@Valid User userForm, BindingResult result,
 			SessionStatus status, ModelMap m) {
 
@@ -605,7 +605,7 @@ public class UserController extends WaspController {
 */
 	
 	@RequestMapping(value = "/detail_rw/{userId}.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('god')")
+	@PreAuthorize("hasRole('su')")
 	public String detailRW(@PathVariable("userId") Integer userId, ModelMap m) {		
 		return detail(userId,m,true);
 	}
