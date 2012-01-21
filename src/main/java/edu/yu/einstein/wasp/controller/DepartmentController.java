@@ -100,7 +100,7 @@ public DepartmentService getDepartmentService() {
 	}
   
   @RequestMapping("/list")
-  @PreAuthorize("hasRole('god') or hasRole('da-*') or hasRole('ga-*')")
+  @PreAuthorize("hasRole('su') or hasRole('da-*') or hasRole('ga-*')")
   public String list(ModelMap m) {
 	  
 	List<Department> departmentList; 
@@ -134,7 +134,7 @@ public DepartmentService getDepartmentService() {
 		}
 	}
 	m.addAttribute("department", departmentList);
-	departmentAdminPendingTasks = departmentService.getDepartmentAdminPendingTasks();//number of da pending tasks (if god or ga, then department not considered)	
+	departmentAdminPendingTasks = departmentService.getDepartmentAdminPendingTasks();//number of da pending tasks (if su or ga, then department not considered)	
 	m.addAttribute("departmentAdminPendingTasks", departmentAdminPendingTasks);
     return "department/list";
   }
@@ -145,7 +145,7 @@ public DepartmentService getDepartmentService() {
 	}
 	
   @RequestMapping(value="/detail/{departmentId}", method=RequestMethod.GET)
-  @PreAuthorize("hasRole('god') or hasRole('ga-*') or hasRole('da-' + #departmentId)")
+  @PreAuthorize("hasRole('su') or hasRole('ga-*') or hasRole('da-' + #departmentId)")
   public String detail(@PathVariable("departmentId") Integer departmentId, ModelMap m) {
 
     Department department = this.getDepartmentService().getById(departmentId.intValue());
@@ -183,7 +183,7 @@ public DepartmentService getDepartmentService() {
   }
 	
 	@RequestMapping(value = "/detail/{departmentId}/listLabJSON", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('god') or hasRole('da-' + #departmentId)")
+	@PreAuthorize("hasRole('su') or hasRole('da-' + #departmentId)")
 	public String getLabListJSON(HttpServletResponse response, @PathVariable("departmentId") Integer departmentId) {
 
 		String sord = request.getParameter("sord");
@@ -322,7 +322,7 @@ public DepartmentService getDepartmentService() {
    * @return
    */
   @RequestMapping(value="/create", method=RequestMethod.POST)
-  @PreAuthorize("hasRole('god')")
+  @PreAuthorize("hasRole('su')")
   public String createDepartment(@RequestParam("departmentName") String departmentName, 
 		  						@RequestParam("adminName") String adminName, 
 		  						ModelMap m) {
@@ -410,7 +410,7 @@ public DepartmentService getDepartmentService() {
   }
 
   @RequestMapping(value="/user/roleRemove/{departmentId}/{userId}", method=RequestMethod.GET)
-  @PreAuthorize("hasRole('god') or hasRole('da-' + #departmentId)")
+  @PreAuthorize("hasRole('su') or hasRole('da-' + #departmentId)")
   public String departmentUserRoleRemove (
     @PathVariable("departmentId") Integer departmentId, 
     @PathVariable("userId") Integer userId, 
@@ -424,10 +424,10 @@ public DepartmentService getDepartmentService() {
     User me = authenticationService.getAuthenticatedUser();   
     if (me.getUserId().intValue() == userId.intValue()) {
       doReauth();
-      //if a user is NOT god and the user is a da and removes him/herself from being a da, 
+      //if a user is NOT su and the user is a da and removes him/herself from being a da, 
       //then they are NOT permitted to navigate back to /department/detail/" + departmentId + ".do";
       //Instead send them back to dashboard
-      if(!request.isUserInRole("god")){
+      if(!request.isUserInRole("su")){
     	  return "redirect:/dashboard.do";
       }      
     }
@@ -437,7 +437,7 @@ public DepartmentService getDepartmentService() {
   }
 
   @RequestMapping(value="/user/roleAdd", method=RequestMethod.POST)
-  @PreAuthorize("hasRole('god') or hasRole('da-' + #departmentId)")
+  @PreAuthorize("hasRole('su') or hasRole('da-' + #departmentId)")
   public String departmentUserRoleAdd (
     @RequestParam("departmentId") Integer departmentId,
     @RequestParam("adminName") String adminName,
@@ -501,7 +501,7 @@ public DepartmentService getDepartmentService() {
   }
 
   @RequestMapping(value="/updateDepartment", method=RequestMethod.POST)
-  @PreAuthorize("hasRole('god')")
+  @PreAuthorize("hasRole('su')")
   public String updateDepartment (
     @RequestParam("departmentId") Integer departmentId,
     @RequestParam("name") String name,
@@ -537,7 +537,7 @@ public DepartmentService getDepartmentService() {
   }
 
   @RequestMapping(value="/dapendingtasklist", method=RequestMethod.GET)
-  @PreAuthorize("hasRole('god') or hasRole('da-*') or hasRole('ga-*')")
+  @PreAuthorize("hasRole('su') or hasRole('da-*') or hasRole('ga-*')")
   public String departmentAdminPendingTaskList (ModelMap m) {
 	  
 	    List<LabPending> labsPendingDaApprovalList = new ArrayList<LabPending>();
