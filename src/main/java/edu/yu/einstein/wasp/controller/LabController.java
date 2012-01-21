@@ -132,7 +132,7 @@ public class LabController extends WaspController {
 	 * @return
 	 */
 	@RequestMapping("/list")
-	@PreAuthorize("hasRole('god')")
+	@PreAuthorize("hasRole('su')")
 	public String list(ModelMap m) {
 
 		m.addAttribute("_metaList",	getMetaHelperWebapp().getMasterList(MetaBase.class));
@@ -482,13 +482,13 @@ public class LabController extends WaspController {
 	}
 
 	@RequestMapping(value = "/detail_rw/{deptId}/{labId}.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('da-' + #deptId) or hasRole('lu-' + #labId)")
+	@PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('da-' + #deptId) or hasRole('lu-' + #labId)")
 	public String detailRW(@PathVariable("deptId") Integer deptId, @PathVariable("labId") Integer labId, ModelMap m) {
 		return detail(labId, m, true);
 	}
 
 	@RequestMapping(value = "/detail_ro/{deptId}/{labId}.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('da-' + #deptId) or hasRole('lu-' + #labId)")
+	@PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('da-' + #deptId) or hasRole('lu-' + #labId)")
 	public String detailRO(@PathVariable("deptId") Integer deptId, @PathVariable("labId") Integer labId, ModelMap m) {
 		return detail(labId, m, false);
 	}
@@ -517,14 +517,14 @@ public class LabController extends WaspController {
 	}
 
 	@RequestMapping(value = "/pending/detail_rw/{deptId}/{labPendingId}.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('da-' + #deptId)")
+	@PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('da-' + #deptId)")
 	public String pendingDetailRW(@PathVariable("deptId") Integer deptId,
 			@PathVariable("labPendingId") Integer labPendingId, ModelMap m) {
 		return pendingDetail(labPendingId, m, true);
 	}
 
 	@RequestMapping(value = "/pending/detail_ro/{deptId}/{labPendingId}.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('da-' + #deptId)")
+	@PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('da-' + #deptId)")
 	public String pendingDetailRO(@PathVariable("deptId") Integer deptId,
 			@PathVariable("labPendingId") Integer labPendingId, ModelMap m) {
 		LabPending labPending = this.labPendingService.getLabPendingByLabPendingId(labPendingId);
@@ -589,7 +589,7 @@ public class LabController extends WaspController {
 	}
 
 	@RequestMapping(value = "/create/form.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('god')")
+	@PreAuthorize("hasRole('su')")
 	public String showEmptyForm(ModelMap m) {
 
 		Lab lab = new Lab();
@@ -603,7 +603,7 @@ public class LabController extends WaspController {
 	}
 
 	@RequestMapping(value = "/create/form.do", method = RequestMethod.POST)
-	@PreAuthorize("hasRole('god')")
+	@PreAuthorize("hasRole('su')")
 	public String create(@Valid Lab labForm, BindingResult result,
 			SessionStatus status, ModelMap m) {
 
@@ -632,7 +632,7 @@ public class LabController extends WaspController {
 	}
 
 	@RequestMapping(value = "/detail_rw/{deptId}/{labId}.do", method = RequestMethod.POST)
-	@PreAuthorize("hasRole('god') or hasRole('da-' + #deptId) or hasRole('lm-' + #labId)")
+	@PreAuthorize("hasRole('su') or hasRole('da-' + #deptId) or hasRole('lm-' + #labId)")
 	public String updateDetail(@PathVariable("deptId") Integer deptId,
 			@PathVariable("labId") Integer labId, @Valid Lab labForm,
 			BindingResult result, SessionStatus status, ModelMap m) {
@@ -681,7 +681,7 @@ public class LabController extends WaspController {
 	}
 
 	@RequestMapping(value = "/pending/detail_rw/{deptId}/{labPendingId}.do", method = RequestMethod.POST)
-	@PreAuthorize("hasRole('god') or hasRole('da-' + #deptId) or hasRole('lm-' + #labPendingId)")
+	@PreAuthorize("hasRole('su') or hasRole('da-' + #deptId) or hasRole('lm-' + #labPendingId)")
 	public String updatePendingDetail(@PathVariable("deptId") Integer deptId,
 			@PathVariable("labPendingId") Integer labPendingId,
 			@Valid LabPending labPendingForm, BindingResult result,
@@ -732,7 +732,7 @@ public class LabController extends WaspController {
 	}
 
 	@RequestMapping(value = "/user_manager/{labId}.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('god') or hasRole('lu-' + #labId)")
+	@PreAuthorize("hasRole('su') or hasRole('lu-' + #labId)")
 	public String userManager(@PathVariable("labId") Integer labId, ModelMap m) {
 		Lab lab = this.labService.getById(labId);
 		List<LabUser> labUsers = new ArrayList();
@@ -750,7 +750,7 @@ public class LabController extends WaspController {
 	}
 	
 	@RequestMapping(value = "/user_list/{labId}.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('god') or hasRole('lu-' + #labId)")
+	@PreAuthorize("hasRole('su') or hasRole('lu-' + #labId)")
 	public String userList(@PathVariable("labId") Integer labId, ModelMap m) {
 		Lab lab = this.labService.getById(labId);
 		List<User> labManagers = new ArrayList();
@@ -774,7 +774,7 @@ public class LabController extends WaspController {
 	}
 
 	@RequestMapping(value = "/pendinguser/list/{labId}.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('god') or hasRole('lu-' + #labId)")
+	@PreAuthorize("hasRole('su') or hasRole('lu-' + #labId)")
 	public String pendingUserList(@PathVariable("labId") Integer labId,	ModelMap m) {
 		Lab lab = this.labService.getById(labId);
 
@@ -796,7 +796,7 @@ public class LabController extends WaspController {
 	}
 
 	@RequestMapping(value = "/user/role/{labId}/{userId}/{roleName}.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('god') or hasRole('lm-' + #labId)")
+	@PreAuthorize("hasRole('su') or hasRole('lm-' + #labId)")
 	public String userDetail(@PathVariable("labId") Integer labId,
 			@PathVariable("userId") Integer userId,
 			@PathVariable("roleName") String roleName, ModelMap m) {
@@ -1050,7 +1050,7 @@ public class LabController extends WaspController {
 	 * @return
 	 */
 	@RequestMapping(value = "/labuserpending/{action}/{labId}/{labUserId}.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('god') or hasRole('lm-' + #labId)")
+	@PreAuthorize("hasRole('su') or hasRole('lm-' + #labId)")
 	public String labUserPendingDetail(@PathVariable("labId") Integer labId,
 									   @PathVariable("labUserId") Integer labUserId,
 									   @PathVariable("action") String action, ModelMap m){
@@ -1101,7 +1101,7 @@ public class LabController extends WaspController {
 	 * @throws MetadataException
 	 */
 	@RequestMapping(value = "/userpending/{action}/{labId}/{userPendingId}.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('god') or hasRole('lm-' + #labId)")
+	@PreAuthorize("hasRole('su') or hasRole('lm-' + #labId)")
 	public String userPendingDetail(@PathVariable("labId") Integer labId,
 			@PathVariable("userPendingId") Integer userPendingId,
 			@PathVariable("action") String action, ModelMap m)
@@ -1159,7 +1159,7 @@ public class LabController extends WaspController {
 	 */
 
 	@RequestMapping(value = "/pending/{action}/{deptId}/{labPendingId}.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('god') or hasRole('da-' + #deptId) or hasRole('ga-*')")
+	@PreAuthorize("hasRole('su') or hasRole('da-' + #deptId) or hasRole('ga-*')")
 	public String labPendingDetail(@PathVariable("deptId") Integer deptId,
 			@PathVariable("labPendingId") Integer labPendingId,
 			@PathVariable("action") String action, ModelMap m)
@@ -1377,7 +1377,7 @@ public class LabController extends WaspController {
 	}
 
 	@RequestMapping(value = "/pendinglmapproval/list/{labId}.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('god') or hasRole('lm-' + #labId) or hasRole('ga-*')")
+	@PreAuthorize("hasRole('su') or hasRole('lm-' + #labId) or hasRole('ga-*')")
 	public String tasksPendingLmApproval(@PathVariable("labId") Integer labId, ModelMap m){
 		
 		//Map jobMetaMap = new HashMap();
@@ -1399,7 +1399,7 @@ public class LabController extends WaspController {
 	}
 
 	@RequestMapping(value = "/allpendinglmapproval/list.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('god') or hasRole('lm-' + #labId) or hasRole('ga-*')")
+	@PreAuthorize("hasRole('su') or hasRole('lm-' + #labId) or hasRole('ga-*')")
 	public String allTasksPendingLmApproval(ModelMap m){
 		
 		List<UserPending> newUsersPendingLmApprovalList = new ArrayList<UserPending>();
