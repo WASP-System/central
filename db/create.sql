@@ -558,7 +558,7 @@ create table jobmeta (
   jobid int(10) ,
 
   k varchar(250) , 
-  v varchar(250), 
+  v text,
   position int(10)  default 0,
 
   lastupdts timestamp  default current_timestamp,
@@ -614,7 +614,7 @@ create table jobresourcecategory (
   lastupduser int(10)  default 0,
 
   foreign key fk_jobresourcecategory_jdid (jobid) references job(jobid),
-  foreign key fk_jobresourcecategory_rid (resourcecategoryid) references resource(resourcecategoryid),
+  foreign key fk_jobresourcecategory_rid (resourcecategoryid) references resourcecategory(resourcecategoryid),
   constraint unique index u_jobresource_rcid_jdid (resourcecategoryid, jobid)
 ) ENGINE=InnoDB charset=utf8;
 
