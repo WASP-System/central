@@ -11,7 +11,7 @@
 <br />
 
 
-<sec:authorize access="hasRole('god')">
+<sec:authorize access="hasRole('su')">
   <div>
   <h1>Super User Utils</h1>
   <div><a href="<c:url value="/user/list.do"/>">User Utils</a></div>
@@ -45,7 +45,7 @@
 
 <br />
 
-<sec:authorize access="hasRole('da-*') or hasRole('god') or hasRole('ga')">
+<sec:authorize access="hasRole('da-*') or hasRole('su') or hasRole('ga')">
   <div>
   <h1>Department Admin</h1>
 
@@ -76,11 +76,11 @@
 
 
 
-<sec:authorize access="hasRole('lu-*') or hasRole('god') or hasRole('ga')">
+<sec:authorize access="hasRole('lu-*') or hasRole('su') or hasRole('ga')">
   <div>
   <h1>Lab Utils</h1>
   
-  <sec:authorize access="hasRole('god') or hasRole('ga')">
+  <sec:authorize access="hasRole('su') or hasRole('ga')">
   <div>
   <a href="<c:url value="/lab/allpendinglmapproval/list.do"/>">All Labs Management</a>&nbsp;
   <c:choose>
