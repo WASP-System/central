@@ -113,7 +113,7 @@ public class TaskController extends WaspController {
   }
 
   @RequestMapping(value = "/lmapproval/list/{labId}.do", method = RequestMethod.GET)
-  @PreAuthorize("hasRole('god') or hasRole('lm-' + #labId)")
+  @PreAuthorize("hasRole('su') or hasRole('lm-' + #labId)")
   public String listLabManagerApproval(@PathVariable("labId") Integer labId, ModelMap m) {
 
     Task task = this.getTaskService().getTaskByIName("PI Approval");
@@ -140,7 +140,7 @@ public class TaskController extends WaspController {
   }
 
   @RequestMapping(value = "/lmapproval/{labId}/{stateId}/{newStatus}.do", method = RequestMethod.GET)
-  @PreAuthorize("hasRole('god') or hasRole('lm-' + #labId)")
+  @PreAuthorize("hasRole('su') or hasRole('lm-' + #labId)")
   public String changeLabStateStatus ( @PathVariable("labId") Integer labId, @PathVariable("stateId") Integer stateId, @PathVariable("newStatus") String newStatus, ModelMap m) {
 
     // TODO CHECK STATUS
@@ -155,7 +155,7 @@ public class TaskController extends WaspController {
   }
 
   @RequestMapping("/daapproval/list/{departmentId}")
-  @PreAuthorize("hasRole('god') or hasRole('da-' + #departmentId)")
+  @PreAuthorize("hasRole('su') or hasRole('da-' + #departmentId)")
   public String listDepartementAdminApproval(@PathVariable("departmentId") Integer departmentId, ModelMap m) {
 
     Task task = this.getTaskService().getTaskByIName("DA Approval");
@@ -182,7 +182,7 @@ public class TaskController extends WaspController {
   }
 
   @RequestMapping(value = "/daapproval/{departmentId}/{stateId}/{newStatus}.do", method = RequestMethod.GET)
-  @PreAuthorize("hasRole('god') or hasRole('da-' + #departmentId)")
+  @PreAuthorize("hasRole('su') or hasRole('da-' + #departmentId)")
   public String changeDepartmentStateStatus ( @PathVariable("departmentId") Integer departmentId, @PathVariable("stateId") Integer stateId, @PathVariable("newStatus") String newStatus, ModelMap m) {
 
     // TODO CHECK STATUS
@@ -197,7 +197,7 @@ public class TaskController extends WaspController {
   }
 
   @RequestMapping(value = "/fmrequote/list", method = RequestMethod.GET)
-  @PreAuthorize("hasRole('god') or hasRole('fm')")
+  @PreAuthorize("hasRole('su') or hasRole('fm')")
   public String listRequote(ModelMap m) {
 
     Task task = this.getTaskService().getTaskByIName("Requote");
@@ -212,7 +212,7 @@ public class TaskController extends WaspController {
   }
 
   @RequestMapping(value = "/fmrequote/requote", method = RequestMethod.GET)
-  @PreAuthorize("hasRole('god') or hasRole('fm')")
+  @PreAuthorize("hasRole('su') or hasRole('fm')")
   public String requote(
       @RequestParam("stateId") Integer stateId,
       @RequestParam("jobId") Integer jobId,
@@ -236,7 +236,7 @@ public class TaskController extends WaspController {
   }
 
   @RequestMapping(value = "/fmpayment/list", method = RequestMethod.GET)
-  @PreAuthorize("hasRole('god') or hasRole('fm')")
+  @PreAuthorize("hasRole('su') or hasRole('fm')")
   public String showJqPaymentListShell(ModelMap m) {
 	
 		MetaHelperWebapp metaHelperWebapp = new MetaHelperWebapp("fmpayment", "state", StateMeta.class, request.getSession());
@@ -345,7 +345,7 @@ MetaHelperWebapp metaHelperWebapp = new MetaHelperWebapp("fmpayment", "state", S
 
 
   @RequestMapping(value = "/fmpayment/oldlist", method = RequestMethod.GET)
-  @PreAuthorize("hasRole('god') or hasRole('fm')")
+  @PreAuthorize("hasRole('su') or hasRole('fm')")
   public String listPayment(ModelMap m) {
 
     Task task = this.getTaskService().getTaskByIName("Receive Payment");
@@ -362,7 +362,7 @@ MetaHelperWebapp metaHelperWebapp = new MetaHelperWebapp("fmpayment", "state", S
   }
 
   @RequestMapping(value = "/fmpayment/payment", method = RequestMethod.POST)
-  @PreAuthorize("hasRole('god') or hasRole('fm')")
+  @PreAuthorize("hasRole('su') or hasRole('fm')")
   public String payment(
       @RequestParam("stateId") Integer stateId,
       @RequestParam("jobId") Integer jobId,
@@ -383,7 +383,7 @@ MetaHelperWebapp metaHelperWebapp = new MetaHelperWebapp("fmpayment", "state", S
   }
 
   @RequestMapping(value = "/samplereceive/list", method = RequestMethod.GET)
-  @PreAuthorize("hasRole('god') or hasRole('fm') or hasRole('ft')")
+  @PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('ft')")
   public String listSampleReceive(ModelMap m) {
 
     Task task = this.getTaskService().getTaskByIName("Receive Sample");
@@ -408,7 +408,7 @@ MetaHelperWebapp metaHelperWebapp = new MetaHelperWebapp("fmpayment", "state", S
   }
 
   @RequestMapping(value = "/samplereceive/receive", method = RequestMethod.POST)
-  @PreAuthorize("hasRole('god') or hasRole('fm') or hasRole('ft')")
+  @PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('ft')")
   public String payment(
       @RequestParam("stateId") Integer stateId,
       @RequestParam("sampleId") Integer sampleId,
