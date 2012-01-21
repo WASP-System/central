@@ -17,7 +17,7 @@
       </br>
     </c:forEach>
 
-   <sec:authorize access="hasRole('da-*') or hasRole('god') or hasRole('ga-*')">
+   <sec:authorize access="hasRole('da-*') or hasRole('su') or hasRole('ga-*')">
     </br>
     <a href="/wasp/job/pendingdaapproval/approve/<c:out value="${job.lab.department.departmentId}" />/<c:out value="${job.jobId}" />.do">Approve</a>
 	| 

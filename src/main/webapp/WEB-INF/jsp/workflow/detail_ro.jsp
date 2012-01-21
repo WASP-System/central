@@ -35,7 +35,7 @@ Resources:
 	<c:import url="/WEB-INF/jsp/meta_ro.jsp" />
 
 	<sec:authorize
-		access="hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('fm')">
+		access="hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('fm')">
 		<tr>
 			<td><a
 				href="<c:url value="/workflow/detail_rw/${workflow.workflowId}.do" />">Edit</a>
