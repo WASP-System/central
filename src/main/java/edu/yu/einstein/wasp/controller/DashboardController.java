@@ -98,7 +98,7 @@ public class DashboardController extends WaspController {
 		m.addAttribute("me", authenticationService.getAuthenticatedUser());
 		
 		//m.addAttribute("departments", departmentList);  //no longer needed
-		departmentAdminPendingTasks = departmentService.getDepartmentAdminPendingTasks();//number of da pending tasks (if god or ga, then department not considered)	
+		departmentAdminPendingTasks = departmentService.getDepartmentAdminPendingTasks();//number of da pending tasks (if su or ga, then department not considered)	
 		m.addAttribute("departmentAdminPendingTasks", departmentAdminPendingTasks);		
 		
 		m.addAttribute("labs", labList); m.addAttribute("labmap", labMap);
