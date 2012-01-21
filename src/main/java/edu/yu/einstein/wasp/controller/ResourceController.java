@@ -62,7 +62,7 @@ public class ResourceController extends WaspController {
 	}
 
 	@RequestMapping("/list")
-	@PreAuthorize("hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('fm')")
+	@PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('fm')")
 	public String list(ModelMap m) {
 		
 		m.addAttribute("_metaList", getMetaHelperWebapp().getMasterList(MetaBase.class));
@@ -79,7 +79,7 @@ public class ResourceController extends WaspController {
 	}
 
 	@RequestMapping(value = "/listJSON", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('fm')")
+	@PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('fm')")
 	public String getListJSON(HttpServletResponse response) {
 		// result
 		Map<String, Object> jqgrid = new HashMap<String, Object>();
@@ -185,7 +185,7 @@ public class ResourceController extends WaspController {
 	}
 
 	@RequestMapping(value = "/subgridJSON.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('fm')")
+	@PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('fm')")
 	public String subgridJSON(@RequestParam("id") Integer resourceId,
 			ModelMap m, HttpServletResponse response) {
 
@@ -262,14 +262,14 @@ public class ResourceController extends WaspController {
 	}
 
 	@RequestMapping(value = "/detail_rw/{resourceId}.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('fm')")
+	@PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('fm')")
 	public String detailRW(@PathVariable("resourceId") Integer resourceId,
 			ModelMap m) {
 		return detail(resourceId, m, true);
 	}
 
 	@RequestMapping(value = "/detail_ro/{resourceId}.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('fm')")
+	@PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('fm')")
 	public String detailRO(@PathVariable("resourceId") Integer resourceId,
 			ModelMap m) {
 		return detail(resourceId, m, false);
@@ -306,7 +306,7 @@ public class ResourceController extends WaspController {
 	}
 
 	@RequestMapping(value = "/detail_rw/{resourceId}.do", method = RequestMethod.POST)
-	@PreAuthorize("hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('fm')")
+	@PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('fm')")
 	public String updateResource(
 			@PathVariable("resourceId") Integer resourceId,
 			@Valid Resource resourceForm, BindingResult result,
@@ -316,7 +316,7 @@ public class ResourceController extends WaspController {
 	}
 
 	@RequestMapping(value = "/create.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('fm')")
+	@PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('fm')")
 	public String showCreateForm(ModelMap m) {
 
 		Resource resource = new Resource();
@@ -332,7 +332,7 @@ public class ResourceController extends WaspController {
 	}
 
 	@RequestMapping(value = "/create.do", method = RequestMethod.POST)
-	@PreAuthorize("hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('fm')")
+	@PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('fm')")
 	public String createResource(@Valid Resource resourceForm,
 			BindingResult result, SessionStatus status, ModelMap m) {
 		return validateAndUpdateResource(-1, resourceForm, result, status, m);
