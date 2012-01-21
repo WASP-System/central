@@ -55,7 +55,7 @@ public class WorkflowController extends WaspController {
 //	}
 
 	@RequestMapping("/list")
-	@PreAuthorize("hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('fm')")
+	@PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('fm')")
 	public String list(ModelMap m) {
 		m.addAttribute("_metaList",
 				getMetaHelperWebapp().getMasterList(MetaBase.class));
@@ -71,7 +71,7 @@ public class WorkflowController extends WaspController {
 	}
 
 	@RequestMapping(value = "/listJSON", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('fm')")
+	@PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('fm')")
 	public String getListJSON(HttpServletResponse response) {
 		// result
 		Map<String, Object> jqgrid = new HashMap<String, Object>();
@@ -153,7 +153,7 @@ public class WorkflowController extends WaspController {
 	}
 
 	@RequestMapping(value = "/subgridJSON.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('fm')")
+	@PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('fm')")
 	public String subgridJSON(@RequestParam("id") Integer workflowId,
 			ModelMap m, HttpServletResponse response) {
 
@@ -212,14 +212,14 @@ public class WorkflowController extends WaspController {
 	}
 
 	@RequestMapping(value = "/detail_rw/{workflowId}.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('fm')")
+	@PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('fm')")
 	public String detailRW(@PathVariable("workflowId") Integer workflowId,
 			ModelMap m) {
 		return detail(workflowId, m, true);
 	}
 
 	@RequestMapping(value = "/detail_ro/{workflowId}.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('fm')")
+	@PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('fm')")
 	public String detailRO(@PathVariable("workflowId") Integer workflowId,
 			ModelMap m) {
 		return detail(workflowId, m, false);
@@ -247,7 +247,7 @@ public class WorkflowController extends WaspController {
 	}
 
 	@RequestMapping(value = "/detail_rw/{workflowId}.do", method = RequestMethod.POST)
-	@PreAuthorize("hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('fm')")
+	@PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('fm')")
 	public String updateWorkflow (
 			@PathVariable("workflowId") Integer workflowId,
 			@Valid Workflow workflowForm, BindingResult result,
@@ -257,7 +257,7 @@ public class WorkflowController extends WaspController {
 	}
 
 	@RequestMapping(value = "/create.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('fm')")
+	@PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('fm')")
 	public String showCreateForm(ModelMap m) {
 
 		Workflow workflow = new Workflow();
@@ -273,7 +273,7 @@ public class WorkflowController extends WaspController {
 	}
 
 	@RequestMapping(value = "/create.do", method = RequestMethod.POST)
-	@PreAuthorize("hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('fm')")
+	@PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('fm')")
 	public String createWorkflow(@Valid Workflow workflowForm,
 			BindingResult result, SessionStatus status, ModelMap m) {
 		return validateAndUpdateWorkflow(-1, workflowForm, result, status, m);
