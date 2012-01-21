@@ -1,0 +1,4 @@
+<%@ include file="/WEB-INF/jsp/taglib.jsp" %>
+
+
+Now a natural question is why it took so long for anyone to find a moon in our own solar system. The answer is that it is partly a matter of where astronomers point their instruments and partly a matter of what their instruments are designed to detect, and partly its just Pluto. Mostly its where they point their instruments. In the words of the astronomer Clark Chapman: Most people think that astronomers get out at night in observatories and scan the skies. Thats not true. Almost all the telescopes we have in the world are designed to peer at very tiny little pieces of the sky way off in the distance to see a quasar or hunt for black holes or look at a distant galaxy. The only real network of telescopes that scans the skies has been designed and built by the military.
