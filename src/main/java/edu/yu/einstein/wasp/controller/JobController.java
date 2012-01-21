@@ -244,7 +244,7 @@ public class JobController extends WaspController {
 
 
   @RequestMapping(value="/user/roleAdd", method=RequestMethod.POST)
-  @PreAuthorize("hasRole('god') or hasRole('lm-' + #labId) or hasRole('js-' + #jobId)")
+  @PreAuthorize("hasRole('su') or hasRole('lm-' + #labId) or hasRole('js-' + #jobId)")
   public String jobViewerUserRoleAdd (
       @RequestParam("labId") Integer labId,
       @RequestParam("jobId") Integer jobId,
@@ -288,7 +288,7 @@ public class JobController extends WaspController {
 
 
   @RequestMapping(value="/user/roleRemove/{labId}/{jobId}/{userId}", method=RequestMethod.GET)
-  @PreAuthorize("hasRole('god') or hasRole('lm-' + #labId)")
+  @PreAuthorize("hasRole('su') or hasRole('lm-' + #labId)")
   public String departmentUserRoleRemove (
       @PathVariable("labId") Integer labId,
       @PathVariable("jobId") Integer jobId,
@@ -306,7 +306,7 @@ public class JobController extends WaspController {
   }
 
   @RequestMapping(value = "/pending/detail_ro/{deptId}/{labId}/{jobId}.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('da-' + #deptId) or hasRole('lm-' + #labId) or hasRole('pi-' + #labId)")
+	@PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('da-' + #deptId) or hasRole('lm-' + #labId) or hasRole('pi-' + #labId)")
 	public String pendingDetailRO(@PathVariable("deptId") Integer deptId,@PathVariable("labId") Integer labId,
 			@PathVariable("jobId") Integer jobId, ModelMap m) {
 	  
@@ -343,7 +343,7 @@ public class JobController extends WaspController {
   }
   
   @RequestMapping(value = "/allpendinglmapproval/{action}/{labId}/{jobId}.do", method = RequestMethod.GET)
-  @PreAuthorize("hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('lm-' + #labId) or hasRole('pi-' + #labId)")
+  @PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('lm-' + #labId) or hasRole('pi-' + #labId)")
 	public String allPendingLmApproval(@PathVariable("action") String action, @PathVariable("labId") Integer labId, @PathVariable("jobId") Integer jobId, ModelMap m) {
 	  
 	  pendingJobApproval(action, jobId, "LM");//could use PI instead of LM
@@ -352,7 +352,7 @@ public class JobController extends WaspController {
 	}
   
   @RequestMapping(value = "/pendinglmapproval/{action}/{labId}/{jobId}.do", method = RequestMethod.GET)
-  @PreAuthorize("hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('lm-' + #labId) or hasRole('pi-' + #labId)")
+  @PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('lm-' + #labId) or hasRole('pi-' + #labId)")
 	public String pendingLmApproval(@PathVariable("action") String action, @PathVariable("labId") Integer labId, @PathVariable("jobId") Integer jobId, ModelMap m) {
 	  
 	  pendingJobApproval(action, jobId, "LM");//could use PI instead of LM
@@ -361,7 +361,7 @@ public class JobController extends WaspController {
 	}
   
   @RequestMapping(value = "/pendingdaapproval/{action}/{deptId}/{jobId}.do", method = RequestMethod.GET)
-  @PreAuthorize("hasRole('god') or hasRole('sa') or hasRole('ga') or hasRole('da-' + #deptId)")
+  @PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('da-' + #deptId)")
 	public String pendingDaApproval(@PathVariable("action") String action, @PathVariable("deptId") Integer deptId, @PathVariable("jobId") Integer jobId, ModelMap m) {
 	  
 	  pendingJobApproval(action, jobId, "DA");//private method below
