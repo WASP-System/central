@@ -16,7 +16,16 @@ import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteExcep
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.repository.JobRestartException;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.batch.core.explore.JobExplorer;
+import java.util.Date;
+import org.springframework.batch.core.BatchStatus;
+
 import edu.yu.einstein.wasp.model.State;
+
+import java.util.HashSet; 
+import java.util.Set; 
+
 
 public class StateJobLaunchingMessageHandler {
   private final Log logger = LogFactory.getLog(getClass());
@@ -25,8 +34,13 @@ public class StateJobLaunchingMessageHandler {
 	private final JobLauncher jobLauncher;
 	private final JobRepository jobRepository;
 	private final JobOperator jobOperator;
-
 	private final String jobName;
+
+	@Autowired
+	private JobExplorer jobExplorer; 
+
+	private Set<Integer> seenStateSet = new HashSet<Integer>();
+
 
 	/**
 	 * Handle job launching request for spring batch from SI
@@ -50,33 +64,90 @@ public class StateJobLaunchingMessageHandler {
 			JobParametersInvalidException, NoSuchJobException, NoSuchJobExecutionException, org.springframework.batch.core.launch.JobExecutionNotRunningException {
 
 		if (state == null)	{ return null; }
+
+System.out.println("\n\n\n\n" + "AAAA launch called\n"); 
 		
 		Job job = jobRegistry.getJob(this.jobName);
 		JobParametersBuilder builder = new JobParametersBuilder();
 		builder.addString("state", ""+ state.getStateId());
+System.out.println("job " + job + " state " + state.getStateId() + "\n\n"); 
 		
 		try {
 			JobExecution jobToken=null;
 
 			if (jobRepository.isJobInstanceExists(this.jobName, builder.toJobParameters())) {
 
+System.out.println("EXISTS\n");
+
 				jobToken = jobRepository.getLastJobExecution(this.jobName, builder.toJobParameters());
 
-				if (jobToken.isRunning()) {
+				if (seenStateSet.contains(state.getStateId())) { 
+System.out.println("   - SEEN\n");
+					// already running internally?
 					return null;
-//					jobOperator.restart(jobToken.getJobId());	
 				}
-				jobOperator.restart(jobToken.getJobId());	
+
+				if (jobToken.isStopping()) {
+System.out.println(" * STOPPING\n");
+					resetStaleJob(jobToken);
+				} 
+				// failed
+				if (jobToken.getStatus() == BatchStatus.FAILED) {
+					resetStaleJob(jobToken);
+				}
+				if (jobToken.getStatus() == BatchStatus.STARTED) {
+					resetStaleJob(jobToken);
+				}
+
+				/*
+				if (jobToken.isRunning()) {
+					jobOperator.restart(jobToken.getJobId());
+					return jobToken;
+				}
+				*/
+
+System.out.println("  - Other " + jobToken.getJobId() + " " + jobToken.getStatus() + "\n");
+System.out.println("   " + jobToken.getAllFailureExceptions().size());
+
+				jobOperator.restart(jobToken.getJobId());
 
 			} else {
 				jobToken = jobLauncher.run(job, builder.toJobParameters());
+
 			}
 
+			seenStateSet.add(state.getStateId());
 			return jobToken;
+
 		} catch (JobInstanceAlreadyCompleteException e) {
-			
 		}
 		
 	  return null;	
 	}
+
+	public boolean resetStaleJob(JobExecution jobExecution) {
+		if (jobExecution == null) {
+			return false;
+		}
+	
+		final BatchStatus status = jobExecution.getStatus();
+
+		if (status.equals(BatchStatus.COMPLETED)) {
+			return false;
+		}
+/*
+		if (status.equals(BatchStatus.STARTED)) {
+			return false;
+		}
+*/
+	
+		jobExecution.setStatus(BatchStatus.STOPPED);
+		jobExecution.setEndTime(new Date());
+		jobRepository.update(jobExecution);
+	
+		return true;
+	}
+
+
+
 }
