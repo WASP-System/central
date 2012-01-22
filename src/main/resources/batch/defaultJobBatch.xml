@@ -35,10 +35,12 @@
 
   <bean id="workflowPoller" class="edu.yu.einstein.wasp.batch.WorkflowPoller" />
 
+<!--
   <bean id="startJobPoller" parent="workflowPoller">
     <property name="workflowIName" value="xxxx"/>
     <property name="taskIName" value="Start Job"/>
   </bean> 
+-->
 
 <!--
   <si:inbound-channel-adapter ref="startJobPoller" method="getStates" channel="jobCreateRequestChannel">
