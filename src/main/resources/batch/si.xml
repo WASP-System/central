@@ -25,10 +25,6 @@
   <bean id="taskService" class="edu.yu.einstein.wasp.service.impl.TaskServiceImpl" />
 
 
-  <!-- for <batch:split> an parallel action -->
-  <bean id="asyncTaskExecutor" class="org.springframework.core.task.SimpleAsyncTaskExecutor" />
-
-
   <!-- Reads a state --> 
   <bean id="stateReader" class="edu.yu.einstein.wasp.batch.StateReader" scope="step">
     <property name="stateId" value="#{jobParameters['state']}"/>
