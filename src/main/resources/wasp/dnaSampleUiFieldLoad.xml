@@ -22,7 +22,22 @@
         <bean parent="genericDnaSampleUiField">
           <property name="name" value="concentration" />
           <property name="attrName" value="metaposition" />
-          <property name="attrValue" value="0" />
+          <property name="attrValue" value="10" />
+        </bean>
+        <bean parent="genericDnaSampleUiField">
+          <property name="name" value="concentration" />
+          <property name="attrName" value="constraint" />
+          <property name="attrValue" value="NotEmpty" />
+        </bean>
+        <bean parent="genericDnaSampleUiField">
+          <property name="name" value="concentration" />
+          <property name="attrName" value="error" />
+          <property name="attrValue" value="You must provice a concentration" />
+        </bean>
+        <bean parent="genericDnaSampleUiField">
+          <property name="name" value="concentration" />
+          <property name="attrName" value="type" />
+          <property name="attrValue" value="NUMBER" />
         </bean>
 
         <bean parent="genericDnaSampleUiField">
@@ -33,7 +48,12 @@
         <bean parent="genericDnaSampleUiField">
           <property name="name" value="volume" />
           <property name="attrName" value="metaposition" />
-          <property name="attrValue" value="1" />
+          <property name="attrValue" value="20" />
+        </bean>
+        <bean parent="genericDnaSampleUiField">
+          <property name="name" value="volume" />
+          <property name="attrName" value="constraint" />
+          <property name="attrValue" value="NotEmpty" />
         </bean>
 
         <bean parent="genericDnaSampleUiField">
@@ -44,29 +64,49 @@
         <bean parent="genericDnaSampleUiField">
           <property name="name" value="buffer" />
           <property name="attrName" value="metaposition" />
-          <property name="attrValue" value="1" />
+          <property name="attrValue" value="30" />
         </bean>
         <bean parent="genericDnaSampleUiField">
           <property name="name" value="buffer" />
           <property name="attrName" value="control" />
           <property name="attrValue" value="select:TE:TE;Water:Water" />
         </bean>
+        <bean parent="genericDnaSampleUiField">
+          <property name="name" value="buffer" />
+          <property name="attrName" value="constraint" />
+          <property name="attrValue" value="NotEmpty" />
+        </bean>
+        <bean parent="genericDnaSampleUiField">
+          <property name="name" value="buffer" />
+          <property name="attrName" value="error" />
+          <property name="attrValue" value="You must select a buffer type" />
+        </bean>
 
         <bean parent="genericDnaSampleUiField">
-          <property name="name" value="Species" />
+          <property name="name" value="species" />
           <property name="attrName" value="label" />
-          <property name="attrValue" value="species" />
+          <property name="attrValue" value="Species" />
         </bean>
         <bean parent="genericDnaSampleUiField">
-          <property name="name" value="Species" />
+          <property name="name" value="species" />
           <property name="attrName" value="metaposition" />
-          <property name="attrValue" value="5" />
+          <property name="attrValue" value="40" />
         </bean>
         <bean parent="genericDnaSampleUiField">
-          <property name="name" value="Species" />
+          <property name="name" value="species" />
           <property name="attrName" value="control" />
           <!-- <property name="attrValue" value="select:{speciesBean}" /> -->
           <property name="attrValue" value="select:a:a; b:b" />
+        </bean>
+        <bean parent="genericDnaSampleUiField">
+          <property name="name" value="species" />
+          <property name="attrName" value="constraint" />
+          <property name="attrValue" value="NotEmpty" />
+        </bean>
+        <bean parent="genericDnaSampleUiField">
+          <property name="name" value="species" />
+          <property name="attrName" value="error" />
+          <property name="attrValue" value="You must select a species" />
         </bean>
       </list>
     </constructor-arg>

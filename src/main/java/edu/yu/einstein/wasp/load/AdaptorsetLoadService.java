@@ -290,7 +290,7 @@ public class AdaptorsetLoadService extends WaspLoadService {
     	}
     }
     	
-    updateUiFields(iname, uiFields); 
+    updateUiFields(); 
   }
 }
 

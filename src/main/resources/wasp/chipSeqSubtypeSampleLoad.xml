@@ -29,6 +29,22 @@
 	          <property name="attrValue" value="100" />
 	        </bean>
 	        <bean parent="chipSeqDnaSampleUiField">
+	          <property name="name" value="fragmentSize" />
+	          <property name="attrName" value="constraint" />
+	          <property name="attrValue" value="NotEmpty" />
+	        </bean>
+	         <bean parent="chipSeqDnaSampleUiField">
+	          <property name="name" value="fragmentSize" />
+	          <property name="attrName" value="error" />
+	          <property name="attrValue" value="You must provide a constraint" />
+	        </bean>
+	        <bean parent="chipSeqDnaSampleUiField">
+	          <property name="name" value="fragmentSize" />
+	          <property name="attrName" value="type" />
+	          <property name="attrValue" value="NUMBER" />
+	        </bean>
+	        
+	        <bean parent="chipSeqDnaSampleUiField">
 	          <property name="name" value="fragmentSizeSD" />
 	          <property name="attrName" value="label" />
 	          <property name="attrValue" value="Fragmentation Size Std. Dev." />
@@ -38,6 +54,22 @@
 	          <property name="attrName" value="metaposition" />
 	          <property name="attrValue" value="110" />
 	        </bean>
+	        <bean parent="chipSeqDnaSampleUiField">
+	          <property name="name" value="fragmentSizeSD" />
+	          <property name="attrName" value="constraint" />
+	          <property name="attrValue" value="NotEmpty" />
+	        </bean>
+	        <bean parent="chipSeqDnaSampleUiField">
+	          <property name="name" value="fragmentSizeSD" />
+	          <property name="attrName" value="type" />
+	          <property name="attrValue" value="NUMBER" />
+	        </bean>
+	        <bean parent="chipSeqDnaSampleUiField">
+	          <property name="name" value="fragmentSizeSD" />
+	          <property name="attrName" value="error" />
+	          <property name="attrValue" value="You must provide a standard deviation" />
+	        </bean>
+	        
 	        <bean parent="chipSeqDnaSampleUiField">
 	          <property name="name" value="antibody" />
 	          <property name="attrName" value="label" />
@@ -56,6 +88,7 @@
   <bean id="chipSeqDnaSubtypeSampleResource" class="edu.yu.einstein.wasp.load.SubtypeSampleLoadService">
   	<property name="iname" value="chipseqDnaSample" />
     <property name="name" value="ChIP-seq DNA" />
+    <property name="area" value="chipseqDnaSample" />
     <property name="sampleType" value="dna" />
     <property name="baseUiFields" ref="genericDnaUiFields" />
     <property name="uiFields" ref="chipSeqDnaSpecificUiFields" />
@@ -71,8 +104,10 @@
   
  
   <bean id="chipSeqLibrarySubtypeSampleResource" class="edu.yu.einstein.wasp.load.SubtypeSampleLoadService">
+  	<constructor-arg ref="chipSeqDnaSubtypeSampleResource" />
     <property name="iname" value="chipseqLibrarySample" />
     <property name="name" value="ChIP-seq Library" />
+    <property name="area" value="chipseqLibrarySample" />
     <property name="sampleType" value="library" />
     <property name="baseUiFields" ref="genericLibraryUiFields" />
   </bean>

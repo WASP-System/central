@@ -130,7 +130,7 @@ public class ResourceCategoryLoadService extends WaspLoadService {
       resourceCategoryMetaService.flush(resourceCatMeta); 
     }
 
-    updateUiFields(iname, uiFields); 
+    updateUiFields(); 
   }
 }
 

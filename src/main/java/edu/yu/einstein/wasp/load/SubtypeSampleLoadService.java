@@ -42,11 +42,15 @@ public class SubtypeSampleLoadService extends WaspLoadService {
   private String sampleType; 
   public void setSampleType(String sampleType) {this.sampleType = sampleType; }
 
-  public SubtypeSampleLoadService (){};
-
   private List<SubtypeSampleMeta> meta;
   public void setMeta(List<SubtypeSampleMeta> subtypeSampleMeta) {this.meta = subtypeSampleMeta; }
 
+  
+  public SubtypeSampleLoadService(){}
+  
+  public SubtypeSampleLoadService(SubtypeSampleLoadService inheritFromLoadService){
+	  super(inheritFromLoadService);
+  }
 
   @Override
   @Transactional
@@ -138,7 +142,7 @@ public class SubtypeSampleLoadService extends WaspLoadService {
       subtypeSampleMetaService.remove(subtypeSampleMeta);
       subtypeSampleMetaService.flush(subtypeSampleMeta);
     }
-    updateUiFields(iname, uiFields); 
+    updateUiFields(); 
 
   }
 

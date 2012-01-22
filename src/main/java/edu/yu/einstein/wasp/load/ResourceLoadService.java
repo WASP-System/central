@@ -195,7 +195,7 @@ public class ResourceLoadService extends WaspLoadService {
       resourceLane.setIsActive(0); 
     }
 
-    updateUiFields(iname, uiFields); 
+    updateUiFields(); 
   }
 }
 

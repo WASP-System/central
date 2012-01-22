@@ -27,6 +27,7 @@
   <bean id="illuminaHiSeq2000" class="edu.yu.einstein.wasp.load.ResourceCategoryLoadService">
     <property name="iname" value="illuminaHiSeq2000" />
     <property name="name" value="Illumina HiSeq 2000" />
+    <property name="area" value="illuminaHiSeq2000" />
     <property name="resourceType" value="mps" />
 
     <property name="meta">

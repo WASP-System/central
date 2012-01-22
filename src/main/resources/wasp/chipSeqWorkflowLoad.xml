@@ -36,7 +36,7 @@
       <list>
         <value>mps</value>
         <value>aligner</value>
-        <!-- <value>peakcaller</value> -->
+        <value>peakcaller</value>
       </list>
     </property>
 
@@ -56,15 +56,30 @@
         <bean parent="chipSeqUiField">
           <property name="name" value="jobsubmit/modifymeta" />
           <property name="attrName" value="label" />
-          <property name="attrValue" value="Chip Seq Modify Meta PageTitle" />
+          <property name="attrValue" value="ModifyChipSeq Metadata" />
         </bean>
         <bean parent="chipSeqUiField">
           <property name="name" value="jobsubmit/resource/mps" />
           <property name="attrName" value="label" />
-          <property name="attrValue" value="Chip Seq MPS selector PageTitle" />
+          <property name="attrValue" value="MPS Sequencer Options" />
+        </bean>
+        <bean parent="chipSeqUiField">
+          <property name="name" value="aligner" />
+          <property name="attrName" value="label" />
+          <property name="attrValue" value="Chip Seq aligner Options" />
+        </bean>
+        <bean parent="chipSeqUiField">
+          <property name="name" value="jobsubmit/resource/samples" />
+          <property name="attrName" value="label" />
+          <property name="attrValue" value="DNA Sequencer Samples" />
+        </bean>
+        <bean parent="chipSeqUiField">
+          <property name="name" value="jobsubmit/resource/cells" />
+          <property name="attrName" value="label" />
+          <property name="attrValue" value="DNA Sequencer Cells" />
         </bean>
      </list>
-
+ 
     </property>
   </bean>
 

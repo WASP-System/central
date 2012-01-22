@@ -18,7 +18,7 @@
     <property name="iname" value="macsPeakcallerV4.1" />
     <property name="name" value="MACS Peakcaller" />
     <property name="resourceType" value="peakcaller" />
-
+	<property name="area" value="macsPeakcaller" />
     <property name="meta">
       <list>
         <bean class="edu.yu.einstein.wasp.model.SoftwareMeta">
@@ -99,41 +99,9 @@
         </bean>
         
         <bean parent="macsPeakcallerUiField">
-          <property name="name" value="genomeSize" />
-          <property name="attrName" value="metaposition" />
-          <property name="attrValue" value="30" />
-        </bean>
-        <bean parent="macsPeakcallerUiField">
-          <property name="name" value="genomeSize" />
-          <property name="attrName" value="label" />
-          <property name="attrValue" value="Bandwidth" />
-        </bean>
-        <bean parent="macsPeakcallerUiField">
-          <property name="name" value="genomeSize" />
-          <property name="attrName" value="range" />
-          <property name="attrValue" value="0:5000" />
-        </bean>
-        
-        <bean parent="macsPeakcallerUiField">
-          <property name="name" value="genomeSize" />
-          <property name="attrName" value="metaposition" />
-          <property name="attrValue" value="30" />
-        </bean>
-        <bean parent="macsPeakcallerUiField">
-          <property name="name" value="genomeSize" />
-          <property name="attrName" value="label" />
-          <property name="attrValue" value="Bandwidth" />
-        </bean>
-        <bean parent="macsPeakcallerUiField">
-          <property name="name" value="genomeSize" />
-          <property name="attrName" value="range" />
-          <property name="attrValue" value="0:5000" />
-        </bean>
-        
-        <bean parent="macsPeakcallerUiField">
           <property name="name" value="keepDup" />
           <property name="attrName" value="metaposition" />
-          <property name="attrValue" value="30" />
+          <property name="attrValue" value="40" />
         </bean>
         <bean parent="macsPeakcallerUiField">
           <property name="name" value="keepDup" />

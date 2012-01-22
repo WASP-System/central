@@ -16340,11 +16340,6 @@ where
       labuser.labid = l.labid and 
       labuser.userid = l.primaryuserid
   );
-  
-  insert into resourcecategory
-    (resourcecategoryid, typeresourceid, iname, name)
-    values
-    (1, 1, 'software',  'Software');
     
     insert into resourcecategory
     (resourcecategoryid, typeresourceid, iname, name)

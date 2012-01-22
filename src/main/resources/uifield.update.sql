@@ -761,15 +761,6 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','approval','approved','Job has been approved','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','approval','rejected','Job has been rejected','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','approval','error','Error - Update Failed','1');
-
-
-
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeq','jobsubmit/modifymeta','label','ModifyChipSeq Metadata','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeq','jobsubmit/resource/dna','label','DNA Sequencer Options','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeq','jobsubmit/resource/mps','label','MPS Sequencer Options','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeq','jobsubmit/resource/aligner','label','DNA Aligner Options','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeq','jobsubmit/samples','label','DNA Sequencer Samples','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','chipSeq','jobsubmit/cells','label','DNA Sequencer Cells','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','task','samplereceive','error_state_sample_conflict','Error - StateId and SampleId Mismatch','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','task','samplereceive','error_state_task_conflict','Error - StateId and TaskId Mismatch','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','task','samplereceive','update_success','Update completed successfully','1');

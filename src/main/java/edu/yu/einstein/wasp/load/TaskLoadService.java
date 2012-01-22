@@ -56,7 +56,7 @@ public class TaskLoadService extends WaspLoadService {
     }
 
 
-    updateUiFields(iname, uiFields); 
+    updateUiFields(); 
 
   }
 

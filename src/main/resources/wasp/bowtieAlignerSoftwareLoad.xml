@@ -17,6 +17,7 @@
   <bean id="bowtieAlignerSoftware" class="edu.yu.einstein.wasp.load.SoftwareLoadService">
     <property name="iname" value="bowtieAlignerV0.12.7" />
     <property name="name" value="Bowtie Aligner" />
+    <property name="area" value="bowtieAligner" />
     <property name="resourceType" value="aligner" />
 
     <property name="meta">

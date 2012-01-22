@@ -130,7 +130,7 @@ public class SoftwareLoadService extends WaspLoadService {
       softwareMetaService.flush(softwareMeta); 
     }
 
-    updateUiFields(iname, uiFields); 
+    updateUiFields(); 
   }
 }
 
