@@ -46,7 +46,8 @@ public class WorkflowPoller {
  
 	@Transactional
 	public List<State> getStates() {
-		Workflow workflow = workflowService.getWorkflowByIName(workflowIName); 
+		Workflow workflow = workflowService.getWorkflowByIName(workflowIName);
+
 		Task task = taskService.getTaskByIName(taskIName); 
 
 		List<State> rt = new ArrayList();
@@ -54,6 +55,7 @@ public class WorkflowPoller {
 		List<State> allStates = task.getState();
 
                 if (allStates == null) { return rt; }
+                if (workflow.getWorkflowId() == null) { return rt; }
 
 		for (State state: allStates) {
 			if (state.getStatejob().isEmpty()) { continue; }
@@ -61,7 +63,11 @@ public class WorkflowPoller {
 
 			// should be the same so just get first, 
 			// TODO check for npe
+			try {
 			if (state.getStatejob().get(0).getJob().getWorkflowId().intValue() != workflow.getWorkflowId().intValue()) {
+				continue;
+			}
+			} catch (Exception e) {
 				continue;
 			}
 
