@@ -14,6 +14,7 @@
     xmlns="http://www.springframework.org/schema/beans"
     default-autowire="byName">
 
+<!--
   <bean abstract="true" id="workflowSamplePoller" class="edu.yu.einstein.wasp.batch.WorkflowSamplePoller" />
 
   <bean id="chipSeqDnaSamplePoller" parent="workflowSamplePoller">
@@ -23,7 +24,7 @@
 
   <si:inbound-channel-adapter ref="chipSeqDnaSamplePoller" method="getStates" channel="chipSeqDnaSampleChannel">
     <si:poller>
-      <si:interval-trigger interval="5000" />
+      <si:interval-trigger interval="20000" />
     </si:poller>
   </si:inbound-channel-adapter>
 
@@ -94,5 +95,6 @@
 
     <batch:flow id="chipSeqDna.finishFlow" parent="finishJobFlow" />
   </batch:job>
+-->
 
 </beans>
