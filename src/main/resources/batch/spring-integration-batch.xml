@@ -14,7 +14,8 @@
   http://www.springframework.org/schema/integration/spring-integration-2.0.xsd
   http://www.springframework.org/schema/integration/file
   http://www.springframework.org/schema/integration/file/spring-integration-file-2.0.xsd
-  http://www.springframework.org/schema/integration/http http://www.springframework.org/schema/integration/http/spring-integration-http-2.0.xsd"
+  http://www.springframework.org/schema/integration/http http://www.springframework.org/schema/integration/http/spring-integration-http-2.0.xsd
+http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.0.xsd"
     xmlns:mvc="http://www.springframework.org/schema/mvc" 
     xmlns:aop="http://www.springframework.org/schema/aop" 
     xmlns:context="http://www.springframework.org/schema/context"
@@ -25,6 +26,7 @@
     xmlns:file="http://www.springframework.org/schema/integration/file"
     xmlns:http="http://www.springframework.org/schema/integration/http" 
     xmlns="http://www.springframework.org/schema/beans"
+    xmlns:task="http://www.springframework.org/schema/task"
     default-autowire="byName">
 
     <bean id="jobRepository" class="org.springframework.batch.core.repository.support.JobRepositoryFactoryBean">
@@ -33,13 +35,23 @@
         <property name="isolationLevelForCreate" value="ISOLATION_DEFAULT" />
     </bean>
 
-    <bean id="pooledTaskExecutor" class="org.springframework.core.task.SimpleAsyncTaskExecutor">
+    <bean id="simpleTaskExecutor" class="org.springframework.core.task.SimpleAsyncTaskExecutor">
         <property name="concurrencyLimit" value="100" />
     </bean>
 
+    <task:executor id="pooledTaskExecutor" pool-size="90-95" queue-capacity="6" />
+<bean id="te" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+<property name="corePoolSize" value="5" />
+<property name="maxPoolSize" value="5" />
+</bean>
+
+  <!-- for <batch:split> an parallel action -->
+  <bean id="asyncTaskExecutor" class="org.springframework.core.task.SimpleAsyncTaskExecutor" />
+
+
     <bean id="jobLauncher" class="org.springframework.batch.core.launch.support.SimpleJobLauncher">
       <property name="jobRepository" ref="jobRepository" />
-      <property name="taskExecutor" ref="pooledTaskExecutor" />
+      <property name="taskExecutor" ref="asyncTaskExecutor" />
     </bean>
 
     <bean id="jobRegistry" class="org.springframework.batch.core.configuration.support.MapJobRegistry" />
