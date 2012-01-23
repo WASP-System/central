@@ -867,4 +867,105 @@ public class Job extends WaspModel {
 
 
 
+
+
+        /**
+         * jobResource
+         *
+         */
+        @NotAudited
+        @OneToMany
+        @JoinColumn(name="jobid", insertable=false, updatable=false)
+        protected List<JobResource> jobResource;
+
+
+        /**
+         * getJobResource()
+         *
+         * @return jobResource
+         *
+         */
+        public List<JobResource> getJobResource() {
+                return this.jobResource;
+        }
+
+
+
+        /**
+         * setJobResource
+         *
+         * @param jobResource
+         *
+         */
+        public void setJobResource (List<JobResource> jobResource) {
+                this.jobResource = jobResource;
+        }
+
+
+
+        /**
+         * jobResourcecategory
+         *
+         */
+        @NotAudited
+        @OneToMany
+        @JoinColumn(name="jobid", insertable=false, updatable=false)
+        protected List<JobResourcecategory> jobResourcecategory;
+
+        /**
+         * getJobResourcecategory()
+         *
+         * @return jobResourcecategory
+         *
+         */
+        public List<JobResourcecategory> getJobResourcecategory() {
+                return this.jobResourcecategory;
+        }
+
+
+        /**
+         * setJobResourcecategory
+         *
+         * @param jobResourcecategory
+         *
+         */
+        public void setJobResourcecategory (List<JobResourcecategory> jobResourcecategory) {
+                this.jobResourcecategory = jobResourcecategory;
+        }
+
+        /**
+         * jobSoftware
+         *
+         */
+        @NotAudited
+        @OneToMany
+        @JoinColumn(name="jobid", insertable=false, updatable=false)
+        protected List<JobSoftware> jobSoftware;
+
+
+        /**
+         * getJobSoftware()
+         *
+         * @return jobSoftware
+         *
+         */
+        public List<JobSoftware> getJobSoftware() {
+                return this.jobSoftware;
+        }
+
+
+
+        /**
+         * setJobSoftware
+         *
+         * @param jobSoftware
+         *
+         */
+        public void setJobSoftware (List<JobSoftware> jobSoftware) {
+                this.jobSoftware = jobSoftware;
+        }
+
+
+
+
 }
