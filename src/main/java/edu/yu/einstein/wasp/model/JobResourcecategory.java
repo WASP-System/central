@@ -216,34 +216,34 @@ public class JobResourcecategory extends WaspModel {
 
 
 	/**
-	 * resource
+	 * resourceCategory
 	 *
 	 */
 	@NotAudited
 	@ManyToOne
 	@JoinColumn(name="resourcecategoryid", insertable=false, updatable=false)
-	protected Resource resource;
+	protected ResourceCategory resourceCategory;
 
 	/**
-	 * setResource (Resource resource)
+	 * setResourceCategory (ResourceCategory resourceCategory)
 	 *
-	 * @param resource
+	 * @param resourceCategory
 	 *
 	 */
-	public void setResource (Resource resource) {
-		this.resource = resource;
-		this.resourcecategoryId = resource.resourcecategoryId;
+	public void setResourceCategory (ResourceCategory resourceCategory) {
+		this.resourceCategory = resourceCategory;
+		this.resourcecategoryId = resourceCategory.getResourceCategoryId();
 	}
 
 	/**
-	 * getResource ()
+	 * getResourceCategory ()
 	 *
-	 * @return resource
+	 * @return resourceCategory
 	 *
 	 */
 	
-	public Resource getResource () {
-		return this.resource;
+	public ResourceCategory getResourceCategory () {
+		return this.resourceCategory;
 	}
 
 
