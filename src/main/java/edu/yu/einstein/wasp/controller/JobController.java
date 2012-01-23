@@ -22,23 +22,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
-import edu.yu.einstein.wasp.model.Job;
-import edu.yu.einstein.wasp.model.JobFile;
-import edu.yu.einstein.wasp.model.JobMeta;
-import edu.yu.einstein.wasp.model.JobSample;
-import edu.yu.einstein.wasp.model.JobUser;
-import edu.yu.einstein.wasp.model.MetaBase;
-import edu.yu.einstein.wasp.model.Role;
-import edu.yu.einstein.wasp.model.State;
-import edu.yu.einstein.wasp.model.Statejob;
-import edu.yu.einstein.wasp.model.Task;
-import edu.yu.einstein.wasp.model.User;
-import edu.yu.einstein.wasp.model.UserMeta;
-import edu.yu.einstein.wasp.service.JobService;
-import edu.yu.einstein.wasp.service.JobUserService;
-import edu.yu.einstein.wasp.service.RoleService;
-import edu.yu.einstein.wasp.service.StateService;
-import edu.yu.einstein.wasp.service.TaskService;
+import edu.yu.einstein.wasp.model.*;
+import edu.yu.einstein.wasp.service.*;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 import edu.yu.einstein.wasp.util.StringHelper;
 
@@ -84,6 +69,8 @@ public class JobController extends WaspController {
 	private TaskService		taskService;
 	@Autowired
 	private StateService	stateService;
+	@Autowired
+	private WorkflowresourcecategoryService workflowresourcecategoryService;
 
 	private final MetaHelperWebapp getMetaHelperWebapp() {
 		return new MetaHelperWebapp("job", JobMeta.class, request.getSession());
@@ -409,4 +396,81 @@ public class JobController extends WaspController {
 	 // flow returns to calling method, either pendingDaApproval or pendingLmApproval
   }
 
+
+
+	/**
+	 * show job/resource data and meta information to be modified.
+	 */
+	@RequestMapping(value = "/meta/{jobId}.do", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('su') or hasRole('fm')") 
+	public String showJobMetaForm(
+		@PathVariable("jobId") Integer jobId, 
+			ModelMap m) {
+		Job job = jobService.getJobByJobId(jobId);
+
+		MetaHelperWebapp metaHelperWebapp = getMetaHelperWebapp();
+
+		Map<ResourceCategory, List<JobMeta>> resourceMap = new HashMap<ResourceCategory, List<JobMeta>>();
+		Map<ResourceCategory, Map<String, List<MetaAttribute.Control.Option>>> resourceOptionsMap = new HashMap<ResourceCategory, Map<String, List<MetaAttribute.Control.Option>>>();
+
+
+
+		for (JobResourcecategory jobResourceCategory: job.getJobResourcecategory()) {
+		  ResourceCategory resourceCategory = jobResourceCategory.getResourceCategory(); 
+			metaHelperWebapp.setArea(resourceCategory.getIName());
+			List<JobMeta> jobResourceCategoryMetas = metaHelperWebapp.syncWithMaster(job.getJobMeta());
+
+
+			resourceMap.put(resourceCategory, jobResourceCategoryMetas); 
+
+			Map<String, List<MetaAttribute.Control.Option>> resourceOptions = new HashMap<String, List<MetaAttribute.Control.Option>>();
+
+			if (resourceCategory != null) {
+				Workflowresourcecategory workflowresourcecategory = workflowresourcecategoryService.getWorkflowresourcecategoryByWorkflowIdResourcecategoryId(job.getWorkflow().getWorkflowId(), resourceCategory.getResourceCategoryId());
+
+				for (WorkflowresourcecategoryMeta wrm: workflowresourcecategory.getWorkflowresourcecategoryMeta()) {
+					String key = wrm.getK();
+
+//				if (! key.matches("^.*allowableUiField\\.")) { continue; }
+					key = key.replaceAll("^.*allowableUiField\\.", "");
+					List<MetaAttribute.Control.Option> options=new ArrayList<MetaAttribute.Control.Option>();
+					for(String el: org.springframework.util.StringUtils.tokenizeToStringArray(wrm.getV(),";")) {
+						String [] pair=StringUtils.split(el,":");
+						MetaAttribute.Control.Option option = new MetaAttribute.Control.Option();
+						option.setValue(pair[0]);
+						option.setLabel(pair[1]);
+						options.add(option);
+					}
+					resourceOptions.put(key, options);
+				}
+				resourceOptionsMap.put(resourceCategory, resourceOptions);
+			}
+		}
+
+
+
+		Map<Software, List<JobMeta>> softwareMap = new HashMap<Software, List<JobMeta>>();
+		for (JobSoftware jobSoftware: job.getJobSoftware()) {
+		  Software software = jobSoftware.getSoftware(); 
+			metaHelperWebapp.setArea(software.getIName());
+			List<JobMeta> jobSoftwareMetas = metaHelperWebapp.syncWithMaster(job.getJobMeta());
+
+			softwareMap.put(software, jobSoftwareMetas); 
+		}
+
+	
+		metaHelperWebapp.setArea(job.getWorkflow().getIName());
+		List<JobMeta> baseMetas = metaHelperWebapp.syncWithMaster(job.getJobMeta());
+
+
+		m.put("job", job); 
+		m.put("baseMetas", baseMetas); 
+		m.put("resourceMap", resourceMap); 
+		m.put("resourceOptionsMap", resourceOptionsMap); 
+		m.put("softwareMap", softwareMap); 
+
+		m.put("metaHelper", metaHelperWebapp); 
+
+		return "job/metaform_rw";
+	}
 }
