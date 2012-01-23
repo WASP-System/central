@@ -324,5 +324,9 @@
 		<put-attribute name="body-content" value="/WEB-INF/jsp/chipseqpair.jsp" />
 	</definition>
 
+	<definition name="job/metaform_rw" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/job/meta_rw.jsp" />
+	</definition>
+
 </tiles-definitions>
 
