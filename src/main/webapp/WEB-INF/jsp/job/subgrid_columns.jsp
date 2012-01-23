@@ -1,8 +1,8 @@
 subGrid: true,
-subGridUrl:'/wasp/user/subgridJSON.do',
+subGridUrl:'/wasp/job/subgridJSON.do',
 subGridModel: [ 
                 {
-                name  : ['View user\'s jobs in these labs'],
+                name  : ['Sample Name'],
                 width : ['auto'],
                 align : ['center']                
                 }

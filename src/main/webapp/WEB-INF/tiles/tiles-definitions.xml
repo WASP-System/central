@@ -263,7 +263,7 @@
 	<definition name="job/list" extends="template-grid">
 		<put-attribute name="area" value="job" />
 		<put-attribute name="grid-columns" value="/WEB-INF/jsp/job/grid_columns.jsp" />
-		<!-- <put-attribute name="subgrid-columns" value="/WEB-INF/jsp/job/subgrid_columns.jsp" /> -->
+		<put-attribute name="subgrid-columns" value="/WEB-INF/jsp/job/subgrid_columns.jsp" />
 		<put-attribute name="grid-customAttributes" value="/WEB-INF/jsp/job/grid_customAttributes.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/job/list.jsp" />
 	</definition>

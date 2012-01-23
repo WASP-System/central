@@ -11,6 +11,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -71,6 +72,8 @@ public class JobController extends WaspController {
 	private StateService	stateService;
 	@Autowired
 	private WorkflowresourcecategoryService workflowresourcecategoryService;
+	@Autowired
+	private TypeSampleCategoryService tscService;
 
 	private final MetaHelperWebapp getMetaHelperWebapp() {
 		return new MetaHelperWebapp("job", JobMeta.class, request.getSession());
@@ -195,40 +198,87 @@ public class JobController extends WaspController {
 		}
 	
 	}
+
+	@RequestMapping(value = "/subgridJSON.do", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('su') or User.login == principal.name")
+	public String subgridJSON(@RequestParam("id") Integer jobId,ModelMap m, HttpServletResponse response) {
+				
+		Map <String, Object> jqgrid = new HashMap<String, Object>();
+		
+		Job job = this.jobService.getById(jobId);
+		
+		List<JobSample> jobSampleList = job.getJobSample();
+		
+	 	ObjectMapper mapper = new ObjectMapper();
+	 	
+		try {
+			List<Map> rows = new ArrayList<Map>();
+			for (JobSample jobSample:jobSampleList) {
+				// Only show the "biomaterial" type of samples within the job
+				if (tscService.getTypeSampleCategoryByTypeSampleCategoryId(
+						Integer.parseInt(jobSample.getSample().getTypeSample().getTypeSampleCategoryId()))
+						.getIName().equals("biomaterial"))
+				{
+					Map cell = new HashMap();
+					cell.put("id", jobSample.getSampleId());
+					 					
+					List<String> cellList = new ArrayList<String>(
+							Arrays.asList(
+									new String[] {
+											"<a href=/wasp/sample/list.do?selId=" 
+											+ jobSample.getSampleId().intValue() + ">" + 
+												jobSample.getSample().getName() + "</a>"
+									}
+							)
+					);
+					 
+					cell.put("cell", cellList);
+					 
+					rows.add(cell);
+				}
+			}
+			 
+			jqgrid.put("rows",rows);
+			 
+			return outputJSON(jqgrid, response); 	
+			
+		 } catch (Throwable e) {
+			 throw new IllegalStateException("Can't marshall to JSON " + jobSampleList, e);
+		 }
 	
-  @RequestMapping(value="/detail/{jobId}", method=RequestMethod.GET)
-  public String detail(@PathVariable("jobId") Integer jobId, ModelMap m) {
-    String now = (new Date()).toString();
+	}
+	
+	@RequestMapping(value = "/detail/{jobId}", method = RequestMethod.GET)
+	public String detail(@PathVariable("jobId") Integer jobId, ModelMap m) {
+		String now = (new Date()).toString();
 
+		Job job = this.getJobService().getById(jobId);
 
-    Job job = this.getJobService().getById(jobId);
+		List<JobMeta> jobMetaList = job.getJobMeta();
+		jobMetaList.size();
 
-    List<JobMeta> jobMetaList = job.getJobMeta();
-    jobMetaList.size();
+		List<JobSample> jobSampleList = job.getJobSample();
+		jobSampleList.size();
 
-    List<JobSample> jobSampleList = job.getJobSample();
-    jobSampleList.size();
+		List<JobFile> jobFileList = job.getJobFile();
+		jobFileList.size();
 
-    List<JobFile> jobFileList = job.getJobFile();
-    jobFileList.size();
+		List<JobUser> jobUserList = job.getJobUser();
+		jobUserList.size();
 
-    List<JobUser> jobUserList = job.getJobUser();
-    jobUserList.size();
+		List<Statejob> stateJobList = job.getStatejob();
+		stateJobList.size();
 
-    List<Statejob> stateJobList = job.getStatejob();
-    stateJobList.size();
+		m.addAttribute("now", now);
+		m.addAttribute("job", job);
+		m.addAttribute("jobmeta", jobMetaList);
+		m.addAttribute("jobsample", jobSampleList);
+		m.addAttribute("jobfile", jobFileList);
+		m.addAttribute("jobuser", jobUserList);
+		m.addAttribute("statejob", stateJobList);
 
-    m.addAttribute("now", now);
-    m.addAttribute("job", job);
-    m.addAttribute("jobmeta", jobMetaList);
-    m.addAttribute("jobsample", jobSampleList);
-    m.addAttribute("jobfile", jobFileList);
-    m.addAttribute("jobuser", jobUserList);
-    m.addAttribute("statejob", stateJobList);
- 
-    return "job/detail";
-  }
-
+		return "job/detail";
+	}
 
   @RequestMapping(value="/user/roleAdd", method=RequestMethod.POST)
   @PreAuthorize("hasRole('su') or hasRole('lm-' + #labId) or hasRole('js-' + #jobId)")
