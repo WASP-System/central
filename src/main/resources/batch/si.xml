@@ -36,7 +36,7 @@
   <!-- Retry Policies -->
   <bean id="alwaysRetryPolicy" class="org.springframework.batch.retry.policy.AlwaysRetryPolicy" />
   <bean id="fixedBackoffPolicy" class="org.springframework.batch.retry.backoff.FixedBackOffPolicy">
-    <property name="backOffPeriod" value="10000" />
+    <property name="backOffPeriod" value="20000" />
   </bean>
 
   <!-- Parent of all the steps -->
