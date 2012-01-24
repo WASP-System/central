@@ -1,5 +1,4 @@
 
-
 /**
  *
  * Task.java 
@@ -12,19 +11,17 @@
 
 package edu.yu.einstein.wasp.model;
 
+import java.util.Date;
 import java.util.List;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
+
+import org.hibernate.validator.constraints.*;
+
+import org.codehaus.jackson.annotate.JsonIgnore;
 
 @Entity
 @Audited
@@ -125,6 +122,39 @@ public class Task extends WaspModel {
 
 
 	/** 
+	 * workflowtask
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="taskid", insertable=false, updatable=false)
+	protected List<Workflowtask> workflowtask;
+
+
+	/** 
+	 * getWorkflowtask()
+	 *
+	 * @return workflowtask
+	 *
+	 */
+	public List<Workflowtask> getWorkflowtask() {
+		return this.workflowtask;
+	}
+
+
+	/** 
+	 * setWorkflowtask
+	 *
+	 * @param workflowtask
+	 *
+	 */
+	public void setWorkflowtask (List<Workflowtask> workflowtask) {
+		this.workflowtask = workflowtask;
+	}
+
+
+
+	/** 
 	 * state
 	 *
 	 */
@@ -153,6 +183,39 @@ public class Task extends WaspModel {
 	 */
 	public void setState (List<State> state) {
 		this.state = state;
+	}
+
+
+
+	/** 
+	 * taskMapping
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="taskid", insertable=false, updatable=false)
+	protected List<TaskMapping> taskMapping;
+
+
+	/** 
+	 * getTaskMapping()
+	 *
+	 * @return taskMapping
+	 *
+	 */
+	public List<TaskMapping> getTaskMapping() {
+		return this.taskMapping;
+	}
+
+
+	/** 
+	 * setTaskMapping
+	 *
+	 * @param taskMapping
+	 *
+	 */
+	public void setTaskMapping (List<TaskMapping> taskMapping) {
+		this.taskMapping = taskMapping;
 	}
 
 
