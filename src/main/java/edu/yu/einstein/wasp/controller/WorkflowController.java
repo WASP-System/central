@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.HashSet;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -25,12 +27,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
 
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
-import edu.yu.einstein.wasp.model.Job;
-import edu.yu.einstein.wasp.model.MetaBase;
-import edu.yu.einstein.wasp.model.Workflow;
-import edu.yu.einstein.wasp.model.WorkflowMeta;
-import edu.yu.einstein.wasp.service.WorkflowMetaService;
-import edu.yu.einstein.wasp.service.WorkflowService;
+import edu.yu.einstein.wasp.model.*;
+import edu.yu.einstein.wasp.service.*;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 
 @Controller
@@ -43,6 +41,16 @@ public class WorkflowController extends WaspController {
 
 	@Autowired
 	private WorkflowMetaService workflowMetaService;
+
+	@Autowired
+	private ResourceCategoryService resourceCategoryService;
+	@Autowired
+	private WorkflowresourcecategoryService workflowResourceCategoryService;
+
+	@Autowired
+	private SoftwareService softwareService;
+	@Autowired
+	private WorkflowSoftwareService workflowSoftwareService;
 
 	private final MetaHelperWebapp getMetaHelperWebapp() {
 		return new MetaHelperWebapp("workflow", WorkflowMeta.class,
@@ -336,4 +344,71 @@ public class WorkflowController extends WaspController {
 		return "redirect:/workflow/detail_ro/" + workflowId + ".do";
 	}
 
+
+	/**
+	 * Assigns software to workflow
+	 *
+	 *
+	 */ 
+
+	@RequestMapping(value = "/software/{workflowId}.do", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('su') or hasRole('fm')")
+	public String showSoftwareForm(
+			@PathVariable("workflowId") Integer workflowId,
+			ModelMap m) {
+
+		Workflow workflow = workflowService.getWorkflowByWorkflowId(workflowId); 
+
+// gets all workflow resources
+List<Workflowtyperesource> workflowTypeResources = workflow.getWorkflowtyperesource();
+
+Map<Workflowtyperesource, String> workflowTypeResourceMap = new HashMap<Workflowtyperesource, String>();
+
+for (Workflowtyperesource wtr: workflowTypeResources) {
+        TypeResource tr = wtr.getTypeResource();  //ED209
+
+        workflowTypeResourceMap.put(wtr, "hello");
+}
+
+// cheating just using workflowIname,uifieldId as key
+Map<String, Set<String>> workflowResourceOptions = new HashMap<String, Set<String>>();
+
+for (Workflowresourcecategory wrc: workflowResourceCategorys) {
+  workflowResourceCategoryMap.put(wrc.getResourceCategory().getIName(), wrc);     for (WorkflowresourcecategoryMeta wrcm: wrc.getWorkflowresourcecategoryMeta()) {                                                                                  if (wrcm.getK().matches(".*\\.allowableUiField\\..*")) {
+      String optionName = wrc.getResourceCategory().getIName() + ";" + 
+          wrcm.getK().replaceAll(".*\\.allowableUiField\\.", "");                
+      String[] os = wrcm.getV().split(";");                                           Set<String> options = new HashSet();
+
+      for (int i=0; i < os.length; i++) {
+        options.add(os[i]);
+      }
+      workflowResourceOptions.put(optionName, options);
+    }
+  }
+}
+
+List<WorkflowSoftware> workflowSoftwares = workflow.getWorkflowSoftware();
+Map<String, Workflowsoftware> workflowSoftwareMap = new HashMap<String, WorkflowSoftware>();
+
+for (WorkflowSoftware wrc: workflowSoftwares) {
+  workflowSoftwareMap.put(wrc.getsoftware().getIName(), wrc);
+}
+
+
+		m.put("resourceCategoryService", resourceCategoryService);
+		m.put("workflowResourceCategoryService", workflowResourceCategoryService);
+		m.put("softwareService", softwareService);
+		m.put("workflowSoftwareService", workflowSoftwareService);
+
+		m.put("workflowId", workflowId);
+		m.put("workflow", workflow);
+
+		m.put("workflowTypeResourceMap", workflowTypeResourceMap);
+		m.put("workflowResourceCategoryMap", workflowResourceCategoryMap);
+		m.put("workflowResourceOptions", workflowResourceOptions);
+
+		m.put("workflowSoftwareMap", workflowSoftwareMap);
+
+		return "hello";
+	}
 }
