@@ -1665,20 +1665,18 @@ join typesample t on t.typesampleid in (1, 3)
 join subtypesample st on concat(w.iname, t.iname, 'Sample') = st.iname;
 
 
-CREATE TABLE IF NOT EXISTS `taskmapping` (
-  `taskmappingid` int(10) NOT NULL AUTO_INCREMENT,
-  `taskid` int(10) NOT NULL,
-  `status` varchar(50) NOT NULL,
-  `listmap` varchar(255) DEFAULT NULL,
-  `detailmap` varchar(255) DEFAULT NULL,
-  `permission` varchar(50) NOT NULL,
-  `dashboardsortorder` int(10) NULL,
-  PRIMARY KEY (`taskmappingid`),
-  UNIQUE KEY `taskid` (`taskid`,`status`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=5 ;
+create table taskmapping (
+  taskmappingid int(10) primary key not null auto_increment,
+  taskid int(10) not null,
+  status varchar(50) not null,
+  listmap varchar(255) default null,
+  detailmap varchar(255) default null,
+  permission varchar(50) not null,
+  dashboardsortorder int(10),
 
-ALTER TABLE `taskmapping`
-  ADD CONSTRAINT `fk_tm_taskid` FOREIGN KEY (`taskid`) REFERENCES `task` (`taskid`);
+  foreign key fk_taskmapping_tid (taskid) references task(taskid),
+  constraint unique index u_taskmapping_t_s (taskid, status)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=5 ;
 
 
 insert into taskmapping (taskid ,status,listmap,detailmap,permission,dashboardsortorder )
