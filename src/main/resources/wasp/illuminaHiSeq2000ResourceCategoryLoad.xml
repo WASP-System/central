@@ -34,12 +34,12 @@
       <list>
         <bean class="edu.yu.einstein.wasp.model.ResourceCategoryMeta">
           <property name="k" value="resource.allowableUiField.readlength" />
-          <property name="v" value="50;75;100;150" />
+          <property name="v" value="50:50;75:75;100:100;150:150" />
         </bean>
 
         <bean class="edu.yu.einstein.wasp.model.ResourceCategoryMeta">
           <property name="k" value="resource.allowableUiField.readType" />
-          <property name="v" value="single;paired" />
+          <property name="v" value="single:single;paired:paired" />
         </bean>
         
         <bean class="edu.yu.einstein.wasp.model.ResourceCategoryMeta">
