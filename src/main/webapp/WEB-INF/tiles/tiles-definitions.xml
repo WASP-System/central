@@ -315,6 +315,9 @@
 	<definition name="workflow/detail_rw" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/workflow/detail_rw.jsp" />
 	</definition>
+	<definition name="workflow/software/form" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/workflow/software/form.jsp" />
+	</definition>
 
 	<definition name="hello" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/hello.jsp" />
