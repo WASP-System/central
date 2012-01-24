@@ -508,8 +508,9 @@ public class WorkflowController extends WaspController {
 			workflowResourceCategoryService.save(workflowResourceCategory);
 	
 			int count = 0; 	// counter for position
-	
-			for (String metaKey : rcRcmMap.get(rc.getIName()))	{
+
+			if (rcRcmMap.containsKey(rc.getIName())) {	
+			for (String metaKey : rcRcmMap.get(rc.getIName())) {
 				count++; 
 				WorkflowresourcecategoryMeta wrcm = new WorkflowresourcecategoryMeta();
 				wrcm.setWorkflowresourcecategoryId(workflowResourceCategory.getWorkflowresourcecategoryId());
@@ -518,6 +519,7 @@ public class WorkflowController extends WaspController {
 				wrcm.setPosition(count); 
 
 				workflowResourceCategoryMetaService.save(wrcm);
+			}
 			}
 		}
 		}
