@@ -359,6 +359,8 @@ public class WorkflowController extends WaspController {
 
 		Workflow workflow = workflowService.getWorkflowByWorkflowId(workflowId); 
 
+/*
+
 // gets all workflow resources
 List<Workflowtyperesource> workflowTypeResources = workflow.getWorkflowtyperesource();
 
@@ -393,6 +395,12 @@ Map<String, Workflowsoftware> workflowSoftwareMap = new HashMap<String, Workflow
 for (WorkflowSoftware wrc: workflowSoftwares) {
   workflowSoftwareMap.put(wrc.getsoftware().getIName(), wrc);
 }
+		m.put("workflowTypeResourceMap", workflowTypeResourceMap);
+		m.put("workflowResourceCategoryMap", workflowResourceCategoryMap);
+		m.put("workflowResourceOptions", workflowResourceOptions);
+
+		m.put("workflowSoftwareMap", workflowSoftwareMap);
+*/
 
 
 		m.put("resourceCategoryService", resourceCategoryService);
@@ -403,11 +411,6 @@ for (WorkflowSoftware wrc: workflowSoftwares) {
 		m.put("workflowId", workflowId);
 		m.put("workflow", workflow);
 
-		m.put("workflowTypeResourceMap", workflowTypeResourceMap);
-		m.put("workflowResourceCategoryMap", workflowResourceCategoryMap);
-		m.put("workflowResourceOptions", workflowResourceOptions);
-
-		m.put("workflowSoftwareMap", workflowSoftwareMap);
 
 		return "hello";
 	}
