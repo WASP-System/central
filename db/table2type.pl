@@ -43,6 +43,7 @@ foreach my $block (split /\s*;\s*/, $fc) {
   $table =~ s/(.)user$/$1User/;
   $table =~ s/(.)pendingmeta$/$1PendingMeta/;
   $table =~ s/(.)pending$/$1Pending/;
+  $table =~ s/(.)mapping$/$1Mapping/;
   $table =~ s/(.)software$/$1Software/;
   $table =~ s/(.)meta/$1Meta/;
   $table =~ s/(.)draft/$1Draft/;
