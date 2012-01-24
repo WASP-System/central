@@ -7,58 +7,114 @@ import util.spring.PostInitialize;
 import edu.yu.einstein.wasp.model.Task;
 import edu.yu.einstein.wasp.service.TaskService;
 
+import java.util.List; 
+import java.util.ArrayList; 
+import java.util.Map; 
+import java.util.HashMap; 
+import java.util.Set; 
+import java.util.HashSet; 
+
+import edu.yu.einstein.wasp.model.TaskMapping;
+import edu.yu.einstein.wasp.service.TaskMappingService;
+
 
 /**
  * update/inserts db copy of task from bean definition
- * takes in  properties
- *   - iname
- *   - name
- *   - uifields (List<UiFields)
+ * takes in	properties
+ *	 - iname
+ *	 - name
+ *	 - uifields (List<UiFields)
  *
  */
 
 @Transactional
 public class TaskLoadService extends WaspLoadService {
 
-  @Autowired
-  private TaskService taskService;
+	@Autowired
+	private TaskService taskService;
 
+	@Autowired
+	private TaskMappingService taskMappingService;
 
-  public TaskLoadService (){};
+	public TaskLoadService (){};
 
-  @Override
-@Transactional
-  @PostInitialize 
-  public void postInitialize() {
-    // skips component scanned  (if scanned in)
-    if (name == null) { return; }
+	private List<TaskMapping> taskMapping;
+	public void setTaskMapping(List<TaskMapping> taskMapping) {
+		this.taskMapping = taskMapping; 
+	}
 
-    Task task = taskService.getTaskByIName(iname); 
+	@Override
+	@Transactional
+	@PostInitialize 
+	public void postInitialize() {
+		// skips component scanned	(if scanned in)
+		if (name == null) { return; }
 
-    // inserts or update workflow
-    if (task.getTaskId() == null) { 
-      task = new Task();
+		logger.info("task loader started for  " + iname);
 
-      task.setIName(iname);
-      task.setName(name);
+		Task task = taskService.getTaskByIName(iname); 
 
-      taskService.save(task); 
+		// inserts or update workflow
+		if (task.getTaskId() == null) { 
+			task = new Task();
 
-      // refreshes
-      task = taskService.getTaskByIName(iname); 
+			task.setIName(iname);
+			task.setName(name);
 
-    } else {
+			taskService.save(task); 
 
-      // TODO check if any data chance, if not don't update.
-      task.setName(name);
+			// refreshes
+			task = taskService.getTaskByIName(iname); 
 
-      taskService.save(task); 
-    }
+		} else {
 
+			// TODO check if any data chance, if not don't update.
+			task.setName(name);
 
-    updateUiFields(); 
+			taskService.save(task); 
+		}
 
-  }
+		// no taskmapping in property
+		if (taskMapping == null) { taskMapping = new ArrayList<TaskMapping>(); }
 
+		List<TaskMapping> dbTaskMapping = task.getTaskMapping();
+
+		Set<String> seenStatus = new HashSet(); 
+
+		// adds to seen
+		for (TaskMapping tm: taskMapping) {
+			seenStatus.add(tm.getStatus());
+		}
+
+		// hard removal, todo make a set of status and check that
+		for (TaskMapping tm: dbTaskMapping) {
+			if (seenStatus.contains(tm.getStatus())) {
+				taskMappingService.remove(tm);
+				taskMappingService.flush(tm);
+			}
+		}
+
+		for (TaskMapping tm: taskMapping) {
+			TaskMapping dbTm = taskMappingService.getTaskMappingByTaskIdStatus(task.getTaskId(), tm.getStatus()); 
+
+			if (dbTm.getTaskMappingId() != null) {
+				// update
+				dbTm.setPermission(tm.getPermission()); 
+				dbTm.setListMap(tm.getListMap()); 
+				dbTm.setDetailMap(tm.getDetailMap()); 
+				taskMappingService.save(dbTm);
+
+			} else {
+				// insert
+				tm.setTaskId(task.getTaskId());
+				taskMappingService.save(tm);
+
+			}
+
+		}
+
+		updateUiFields(); 
+
+	}
 }
 
