@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobSample;
-import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
@@ -39,6 +38,7 @@ import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.SubtypeSampleService;
+import edu.yu.einstein.wasp.service.TypeSampleCategoryService;
 import edu.yu.einstein.wasp.service.TypeSampleService;
 import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
@@ -55,6 +55,9 @@ public class SampleController extends WaspController {
   
   @Autowired
   private SubtypeSampleService	subtypeSampleService;
+  
+  @Autowired
+  private TypeSampleCategoryService	typeSampleCategoryService;
   
   @Autowired
   private JobService jobService;
@@ -154,7 +157,7 @@ public class SampleController extends WaspController {
   }
 	
 	/**
-	 * Prepares page to display JQGrid table with a list of samples
+	 * Prepares page to display JQGrid table with a list of samples filtered by typeSampleCategory
 	 * 
 	 * @Author Natalia Volnova
 	 */
@@ -175,6 +178,12 @@ public class SampleController extends WaspController {
   		
   		return finalList;
   	}
+  	
+  	/**
+  	 * 
+  	 * @param response
+  	 * @return
+  	 */
 
 	@RequestMapping(value="/listJSON", method=RequestMethod.GET)	
 	public String getListJSON(HttpServletResponse response) {
@@ -182,54 +191,36 @@ public class SampleController extends WaspController {
 		//result
 		Map <String, Object> jqgrid = new HashMap<String, Object>();
 		
-		List<Sample> sampleList;
-		List <Sample> finalSampleList = new ArrayList <Sample> ();
+		Map<String, String> m = new HashMap<String, String>();
 		
-		
-		List <TypeSample> typeSampleList = new ArrayList <TypeSample> ();
+		List<Sample> sampleList = new ArrayList <Sample>();
 		
 		String sord = request.getParameter("sord");
 		String sidx = request.getParameter("sidx");
 		
 		if (request.getParameter("_search")==null || StringUtils.isEmpty(request.getParameter("searchString"))) {
 			sampleList = sidx.isEmpty() ? this.sampleService.findAll() : this.sampleService.findAllOrderBy(sidx, sord);
-			System.out.println("sidx="+sidx+", sord="+sord);
-			
-			Map<String, String> m = new HashMap<String, String>();
-			  
-			m.put("typeSampleCategoryId", "2");
+		}
+		else {
 			 
-			//sampleList = this.sampleService.findAll();
-			typeSampleList = this.getTypeSampleService().findByMapExcept(m);
-			
-			finalSampleList = joinById(sampleList, typeSampleList);
-
-		 }else {
-			
-			  Map<String, String> m = new HashMap<String, String>();
-			  
 			  m.put(request.getParameter("searchField"), request.getParameter("searchString"));
-			  				  
-			  sampleList = this.getSampleService().findByMap(m);
-			  typeSampleList = this.getTypeSampleService().findByMapExcept(m);
 			  
-			  finalSampleList = joinById(sampleList, typeSampleList);
-
+			  sampleList = this.getSampleService().findByMap(m);
+								
 			  if ("ne".equals(request.getParameter("searchOper"))) {
 				  List<Sample> allSamples=new ArrayList<Sample>(sidx.isEmpty() ? this.sampleService.findAll() : this.sampleService.findAllOrderBy(sidx, sord));
-				  List<Sample> finalSampleListFindAll=new ArrayList<Sample>();
-				  
-				  finalSampleListFindAll = joinById(allSamples, typeSampleList);
-
-				  for(Iterator<Sample> it=finalSampleList.iterator();it.hasNext();)  {
+				 
+				  for(Iterator<Sample> it=sampleList.iterator();it.hasNext();)  {
 					  Sample excludeSample=it.next();
-					  finalSampleListFindAll.remove(excludeSample);
+					  allSamples.remove(excludeSample);
 				  }
-				  finalSampleList=finalSampleListFindAll;
+				  sampleList=allSamples;
+				  
 			  }
-		 }
   	
-		 try {
+		 }
+		
+		try {
 			 
 			Map<Integer, String> allTypeSamples = new TreeMap<Integer, String>();
 			for (TypeSample typeSample : (List<TypeSample>) this.getTypeSampleService().findAll()) {
@@ -254,10 +245,21 @@ public class SampleController extends WaspController {
 			for (Run run : (List<Run>) runService.findAll()) {
 				allRuns.put(run.getSampleId(),	run.getName());
 			}
+
+			List<Sample> bioSampleList = new ArrayList<Sample>();
+			for(Sample sample:sampleList) {
+				if (typeSampleCategoryService.getTypeSampleCategoryByTypeSampleCategoryId(
+						Integer.parseInt(sample.getTypeSample().getTypeSampleCategoryId())).getIName().equals("biomaterial"))
+				{
+					System.out.println("type sample category id: " + sample.getTypeSample().getTypeSampleCategoryId());
+					bioSampleList.add(sample);
+				}
+			}
+			sampleList = bioSampleList;
 			
 			int pageIndex = Integer.parseInt(request.getParameter("page"));		// index of page
 			int pageRowNum = Integer.parseInt(request.getParameter("rows"));	// number of rows in one page
-			int rowNum = finalSampleList.size();								// total number of rows
+			int rowNum = sampleList.size();								// total number of rows
 			int pageNum = (rowNum + pageRowNum - 1) / pageRowNum;				// total number of pages
 			
 			jqgrid.put("records", rowNum + "");
@@ -277,9 +279,9 @@ public class SampleController extends WaspController {
 			}
 			
 			if (sidx.equals("submitterUserId")) {
-				Collections.sort(finalSampleList, new SampleSubmitterNameComparator());
+				Collections.sort(sampleList, new SampleSubmitterNameComparator());
 				if (sord.equals("desc"))
-					Collections.reverse(finalSampleList);
+					Collections.reverse(sampleList);
 			}
 			/***** End Sort by User name *****/
 			
@@ -293,7 +295,7 @@ public class SampleController extends WaspController {
 			if(!StringUtils.isEmpty(request.getParameter("selId")))
 			{
 				int selId = Integer.parseInt(request.getParameter("selId"));
-				int selIndex = finalSampleList.indexOf(sampleService.findById(selId));
+				int selIndex = sampleList.indexOf(sampleService.findById(selId));
 				frId = selIndex;
 				toId = frId + 1;
 
@@ -304,38 +306,44 @@ public class SampleController extends WaspController {
 
 			//List<Sample> samplePage = sampleList.subList(frId, toId);
 			//for (Sample sample:samplePage) {
-			List<Sample> samplePage = finalSampleList.subList(frId, toId);
+			List<Sample> samplePage = sampleList.subList(frId, toId);
 			for (Sample sample:samplePage) {
-			
-				Map cell = new HashMap();
-				cell.put("id", sample.getSampleId());
-				 
-				List<SampleMeta> sampleMeta=getMetaHelperWebapp().syncWithMaster(sample.getSampleMeta());
-				 					
-				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
-						sample.getName(),
-						(sample.getTypeSampleId() == null)? "": allTypeSamples.get(sample.getTypeSampleId()),
-						(sample.getSubtypeSampleId() == null)? "": allSubTypeSamples.get(sample.getSubtypeSampleId()),
-						(sample.getSubmitterJobId() == null)? "" : allJobs.get(sample.getSubmitterJobId()),
-						allUsers.get(sample.getSubmitterUserId()),
-						(sample.getIsActive() == 1)? "Yes":"No",
-						allRuns.get(sample.getSampleId())
+				if(typeSampleCategoryService.getTypeSampleCategoryByTypeSampleCategoryId(
 						
-				}));
+						Integer.parseInt(sample.getTypeSample().getTypeSampleCategoryId())).getIName().equals("biomaterial")) {
+					
+					Map cell = new HashMap();
+					cell.put("id", sample.getSampleId());
+					 
+					List<SampleMeta> sampleMeta=getMetaHelperWebapp().syncWithMaster(sample.getSampleMeta());
+					 					
+					List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
+							sample.getName(),
+							(sample.getTypeSampleId() == null)? "": allTypeSamples.get(sample.getTypeSampleId()),
+							(sample.getSubtypeSampleId() == null)? "": allSubTypeSamples.get(sample.getSubtypeSampleId()),
+							(sample.getSubmitterJobId() == null)? "" : allJobs.get(sample.getSubmitterJobId()),
+							allUsers.get(sample.getSubmitterUserId()),
+							(sample.getIsActive() == 1)? "Yes":"No",
+							allRuns.get(sample.getSampleId())
+							
+					}));
 				 
-				for(SampleMeta meta:sampleMeta) {
-					cellList.add(meta.getV());
-				}
 				
+					for(SampleMeta meta:sampleMeta) {
+						cellList.add(meta.getV());
+					}
 				 
-				cell.put("cell", cellList);
-				 
-				rows.add(cell);
-			}
+					cell.put("cell", cellList);
+					 
+					rows.add(cell);
+				
+			
 
 			 
-			jqgrid.put("rows",rows);
-			 
+					jqgrid.put("rows",rows);
+				
+				}
+			} 
 			return outputJSON(jqgrid, response); 	
 			 
 		} catch (Throwable e) {
@@ -344,5 +352,4 @@ public class SampleController extends WaspController {
 
 	}
 
-
-}
+	}
