@@ -92,25 +92,39 @@ public class PlatformUnitController extends WaspController {
 		return "facility/platformunit/list";
 	}
 
-	@RequestMapping(value="/listJson.do", method=RequestMethod.GET)
-	public @ResponseBody String getListJson() {
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value="/listJSON.do", method=RequestMethod.GET)
+	public @ResponseBody
+	String getListJson() {
 
-		Map <String, Object> jqgrid = new HashMap<String, Object>();
+		String sord = request.getParameter("sord");
+		String sidx = request.getParameter("sidx");
+
+		Map<String, Object> jqgrid = new HashMap<String, Object>();
 
 		List<Sample> sampleList;
 
-		Map sampleListBaseQueryMap = new HashMap();
-		sampleListBaseQueryMap.put("typeSampleId", 5);
+		// First, search for typesampleid which its iname is "platform unit"
+		Map<String, String> typeSampleQueryMap = new HashMap<String, String>();
+		typeSampleQueryMap.put("iName", "platformunit");
+		List<TypeSample> typeSampleList = typeSampleService.findByMap(typeSampleQueryMap);
+		if (typeSampleList.size() == 0)
+			return "'Platform Unit' sample type is not defined!";
+		// Then, use the typesampleid to pull all platformunits from the sample
+		// table
+		Map<String, Object> sampleListBaseQueryMap = new HashMap<String, Object>();
+		sampleListBaseQueryMap.put("typeSampleId", typeSampleList.get(0).getTypeSampleId());
 
-		if (request.getParameter("_search")==null || request.getParameter("_search").equals("false") || StringUtils.isEmpty(request.getParameter("searchString"))) {
+		if (request.getParameter("_search") == null 
+				|| request.getParameter("_search").equals("false") 
+				|| StringUtils.isEmpty(request.getParameter("searchString"))) {
 			sampleList = sampleService.findByMap(sampleListBaseQueryMap);
 
 		} else {
 
 			sampleListBaseQueryMap.put(request.getParameter("searchField"), request.getParameter("searchString"));
-	
-			sampleList = this.sampleService.findByMap(sampleListBaseQueryMap);
 
+			sampleList = this.sampleService.findByMap(sampleListBaseQueryMap);
 
 			if ("ne".equals(request.getParameter("searchOper"))) {
 				Map allSampleListBaseQueryMap = new HashMap();
@@ -120,58 +134,77 @@ public class PlatformUnitController extends WaspController {
 				for (Sample excludeSample : allSampleList) {
 					allSampleList.remove(excludeSample);
 				}
-				sampleList=allSampleList;
+				sampleList = allSampleList;
 			}
-
 		}
 
+	try {
 		ObjectMapper mapper = new ObjectMapper();
 
-		jqgrid.put("page","1");
-		jqgrid.put("records", sampleList.size()+"");
-		jqgrid.put("total", sampleList.size()+"");
+		int pageIndex = Integer.parseInt(request.getParameter("page")); // index of page
+		int pageRowNum = Integer.parseInt(request.getParameter("rows")); // number of rows in one page
+		int rowNum = sampleList.size(); // total number of rows
+		int pageNum = (rowNum + pageRowNum - 1) / pageRowNum; // total number of pages
 
-			Map<String, String> sampleData=new HashMap<String, String>();
+		jqgrid.put("records", rowNum + "");
+		jqgrid.put("total", pageNum + "");
+		jqgrid.put("page", pageIndex + "");
 
-			sampleData.put("page","1");
-			sampleData.put("selId",StringUtils.isEmpty(request.getParameter("selId"))?"":request.getParameter("selId"));
-			jqgrid.put("sampledata",sampleData);
-			
+		Map<String, String> sampleData = new HashMap<String, String>();
 
-			List<Map> rows = new ArrayList<Map>();
+		sampleData.put("page", pageIndex + "");
+		sampleData.put("selId", StringUtils.isEmpty(request.getParameter("selId")) ? "" : request.getParameter("selId"));
+		jqgrid.put("sampledata", sampleData);
 
-			for (Sample sample: sampleList) {
-				Map cell = new HashMap();
-				cell.put("id", sample.getSampleId());
+		List<Map> rows = new ArrayList<Map>();
 
-				List<SampleMeta> sampleMetaList=getMetaHelperWebapp().syncWithMaster(sample.getSampleMeta());
-				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
-					sample.getName(),
-				}));
+		int frId = pageRowNum * (pageIndex - 1);
+		int toId = pageRowNum * pageIndex;
+		toId = toId <= rowNum ? toId : rowNum;
 
-				for(SampleMeta meta:sampleMetaList) {
-					cellList.add(meta.getV());
-				}
+		/*
+		 * if the selId is set, change the page index to the one contains
+		 * the selId
+		 */
+		if (!StringUtils.isEmpty(request.getParameter("selId"))) {
+			int selId = Integer.parseInt(request.getParameter("selId"));
+			int selIndex = sampleList.indexOf(userService.findById(selId));
+			frId = selIndex;
+			toId = frId + 1;
 
-				cell.put("cell", cellList);
+			jqgrid.put("records", "1");
+			jqgrid.put("total", "1");
+			jqgrid.put("page", "1");
+		}
 
-				rows.add(cell);
+		List<Sample> samplePage = sampleList.subList(frId, toId);
+		for (Sample sample : samplePage) {
+			Map cell = new HashMap();
+			cell.put("id", sample.getSampleId());
+
+			List<SampleMeta> sampleMetaList = getMetaHelperWebapp().syncWithMaster(sample.getSampleMeta());
+			List<String> cellList = new ArrayList<String>(Arrays.asList(new String[] { sample.getName(), sample.getUser().getFirstName() }));
+
+			for (SampleMeta meta : sampleMetaList) {
+				cellList.add(meta.getV());
 			}
 
-			jqgrid.put("rows",rows);
+			cell.put("cell", cellList);
 
-		try {
-			String json=mapper.writeValueAsString(jqgrid);
-			return json;
+			rows.add(cell);
+		}
 
+		jqgrid.put("rows", rows);
 
-		} catch (Exception e) {
-			throw new IllegalStateException("Can't marshall to JSON "+sampleList,e);
+		String json = mapper.writeValueAsString(jqgrid);
+		return json;
 
+	} catch (Exception e) {
+			throw new IllegalStateException("Can't marshall to JSON " + sampleList, e);
 		}
 	}
 
-	@RequestMapping(value="/updateJson.do", method=RequestMethod.POST)
+	@RequestMapping(value="/updateJSON.do", method=RequestMethod.POST)
 	public String updateJson(
 			@RequestParam("id") Integer sampleId,
 			@Valid Sample sampleForm, 

@@ -185,43 +185,40 @@ public class SampleController extends WaspController {
   	 * @return
   	 */
 
-	@RequestMapping(value="/listJSON", method=RequestMethod.GET)	
+	@RequestMapping(value = "/listJSON", method = RequestMethod.GET)
 	public String getListJSON(HttpServletResponse response) {
-	
-		//result
-		Map <String, Object> jqgrid = new HashMap<String, Object>();
-		
+
+		// result
+		Map<String, Object> jqgrid = new HashMap<String, Object>();
+
 		Map<String, String> m = new HashMap<String, String>();
-		
-		List<Sample> sampleList = new ArrayList <Sample>();
-		
+
+		List<Sample> sampleList = new ArrayList<Sample>();
+
 		String sord = request.getParameter("sord");
 		String sidx = request.getParameter("sidx");
-		
-		if (request.getParameter("_search")==null || StringUtils.isEmpty(request.getParameter("searchString"))) {
+
+		if (request.getParameter("_search") == null || StringUtils.isEmpty(request.getParameter("searchString"))) {
 			sampleList = sidx.isEmpty() ? this.sampleService.findAll() : this.sampleService.findAllOrderBy(sidx, sord);
+		} else {
+
+			m.put(request.getParameter("searchField"), request.getParameter("searchString"));
+
+			sampleList = this.getSampleService().findByMap(m);
+
+			if ("ne".equals(request.getParameter("searchOper"))) {
+				List<Sample> allSamples = new ArrayList<Sample>(sidx.isEmpty() ? this.sampleService.findAll() : this.sampleService.findAllOrderBy(sidx, sord));
+
+				for (Iterator<Sample> it = sampleList.iterator(); it.hasNext();) {
+					Sample excludeSample = it.next();
+					allSamples.remove(excludeSample);
+				}
+				sampleList = allSamples;
+			}
 		}
-		else {
-			 
-			  m.put(request.getParameter("searchField"), request.getParameter("searchString"));
-			  
-			  sampleList = this.getSampleService().findByMap(m);
-								
-			  if ("ne".equals(request.getParameter("searchOper"))) {
-				  List<Sample> allSamples=new ArrayList<Sample>(sidx.isEmpty() ? this.sampleService.findAll() : this.sampleService.findAllOrderBy(sidx, sord));
-				 
-				  for(Iterator<Sample> it=sampleList.iterator();it.hasNext();)  {
-					  Sample excludeSample=it.next();
-					  allSamples.remove(excludeSample);
-				  }
-				  sampleList=allSamples;
-				  
-			  }
-  	
-		 }
-		
+
 		try {
-			 
+
 			Map<Integer, String> allTypeSamples = new TreeMap<Integer, String>();
 			for (TypeSample typeSample : (List<TypeSample>) this.getTypeSampleService().findAll()) {
 				allTypeSamples.put(typeSample.getTypeSampleId(), typeSample.getName());
@@ -230,33 +227,30 @@ public class SampleController extends WaspController {
 			for (SubtypeSample subtypeSample : (List<SubtypeSample>) subtypeSampleService.findAll()) {
 				allSubTypeSamples.put(subtypeSample.getSubtypeSampleId(), subtypeSample.getName());
 			}
-			
+
 			Map<Integer, String> allJobs = new TreeMap<Integer, String>();
 			for (Job job : (List<Job>) jobService.findAll()) {
 				allJobs.put(job.getJobId(), job.getName());
 			}
-							
+
 			Map<Integer, String> allUsers = new TreeMap<Integer, String>();
 			for (User user : (List<User>) userService.findAll()) {
-				allUsers.put(user.getUserId(),	user.getLastName() + ", " + user.getFirstName());
-			}
-			
-			Map<Integer, String> allRuns = new TreeMap<Integer, String>();
-			for (Run run : (List<Run>) runService.findAll()) {
-				allRuns.put(run.getSampleId(),	run.getName());
+				allUsers.put(user.getUserId(), user.getLastName() + ", " + user.getFirstName());
 			}
 
-			List<Sample> bioSampleList = new ArrayList<Sample>();
-			for(Sample sample:sampleList) {
-				if (typeSampleCategoryService.getTypeSampleCategoryByTypeSampleCategoryId(
-						Integer.parseInt(sample.getTypeSample().getTypeSampleCategoryId())).getIName().equals("biomaterial"))
-				{
+			Map<Integer, String> allRuns = new TreeMap<Integer, String>();
+			for (Run run : (List<Run>) runService.findAll()) {
+				allRuns.put(run.getSampleId(), run.getName());
+			}
+
+			// Remove all samples whose typesamplecategory is not "biomaterial"
+			for (Sample sample : sampleList) {
+				if (!sample.getTypeSample().getTypeSampleCategory().getIName().equals("biomaterial")) {
 					System.out.println("type sample category id: " + sample.getTypeSample().getTypeSampleCategoryId());
-					bioSampleList.add(sample);
+					sampleList.remove(sample);
 				}
 			}
-			sampleList = bioSampleList;
-			
+
 			int pageIndex = Integer.parseInt(request.getParameter("page"));		// index of page
 			int pageRowNum = Integer.parseInt(request.getParameter("rows"));	// number of rows in one page
 			int rowNum = sampleList.size();								// total number of rows
@@ -265,11 +259,11 @@ public class SampleController extends WaspController {
 			jqgrid.put("records", rowNum + "");
 			jqgrid.put("total", pageNum + "");
 			jqgrid.put("page", pageIndex + "");
-			 
-			Map<String, String> sampleData=new HashMap<String, String>();
+
+			Map<String, String> sampleData = new HashMap<String, String>();
 			sampleData.put("page", pageIndex + "");
-			sampleData.put("selId",StringUtils.isEmpty(request.getParameter("selId"))?"":request.getParameter("selId"));
-			jqgrid.put("sampledata",sampleData);
+			sampleData.put("selId", StringUtils.isEmpty(request.getParameter("selId")) ? "" : request.getParameter("selId"));
+			jqgrid.put("sampledata", sampleData);
 			 
 			/***** Begin Sort by User name *****/
 			class SampleSubmitterNameComparator implements Comparator<Sample> {
@@ -277,23 +271,22 @@ public class SampleController extends WaspController {
 					return arg0.getUser().getLastName().compareToIgnoreCase(arg1.getUser().getLastName());
 				}
 			}
-			
+
 			if (sidx.equals("submitterUserId")) {
 				Collections.sort(sampleList, new SampleSubmitterNameComparator());
 				if (sord.equals("desc"))
 					Collections.reverse(sampleList);
 			}
 			/***** End Sort by User name *****/
-			
+
 			List<Map> rows = new ArrayList<Map>();
-			
+
 			int frId = pageRowNum * (pageIndex - 1);
 			int toId = pageRowNum * pageIndex;
 			toId = toId <= rowNum ? toId : rowNum;
 
 			// if the selId is set, change the page index to the one contains the selId 
-			if(!StringUtils.isEmpty(request.getParameter("selId")))
-			{
+			if (!StringUtils.isEmpty(request.getParameter("selId"))) {
 				int selId = Integer.parseInt(request.getParameter("selId"));
 				int selIndex = sampleList.indexOf(sampleService.findById(selId));
 				frId = selIndex;
@@ -302,54 +295,44 @@ public class SampleController extends WaspController {
 				jqgrid.put("records", "1");
 				jqgrid.put("total", "1");
 				jqgrid.put("page", "1");
-			}				
+			}
 
 			//List<Sample> samplePage = sampleList.subList(frId, toId);
 			//for (Sample sample:samplePage) {
 			List<Sample> samplePage = sampleList.subList(frId, toId);
-			for (Sample sample:samplePage) {
-				if(typeSampleCategoryService.getTypeSampleCategoryByTypeSampleCategoryId(
-						
-						Integer.parseInt(sample.getTypeSample().getTypeSampleCategoryId())).getIName().equals("biomaterial")) {
-					
-					Map cell = new HashMap();
-					cell.put("id", sample.getSampleId());
-					 
-					List<SampleMeta> sampleMeta=getMetaHelperWebapp().syncWithMaster(sample.getSampleMeta());
-					 					
-					List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
-							sample.getName(),
-							(sample.getTypeSampleId() == null)? "": allTypeSamples.get(sample.getTypeSampleId()),
-							(sample.getSubtypeSampleId() == null)? "": allSubTypeSamples.get(sample.getSubtypeSampleId()),
-							(sample.getSubmitterJobId() == null)? "" : allJobs.get(sample.getSubmitterJobId()),
-							allUsers.get(sample.getSubmitterUserId()),
-							(sample.getIsActive() == 1)? "Yes":"No",
-							allRuns.get(sample.getSampleId())
-							
-					}));
-				 
-				
-					for(SampleMeta meta:sampleMeta) {
-						cellList.add(meta.getV());
-					}
-				 
-					cell.put("cell", cellList);
-					 
-					rows.add(cell);
-				
-			
+			for (Sample sample : samplePage) {
 
-			 
-					jqgrid.put("rows",rows);
-				
+				Map cell = new HashMap();
+				cell.put("id", sample.getSampleId());
+
+				List<SampleMeta> sampleMeta = getMetaHelperWebapp().syncWithMaster(sample.getSampleMeta());
+
+				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
+						sample.getName(),
+						(sample.getTypeSampleId() == null)? "": allTypeSamples.get(sample.getTypeSampleId()),
+						(sample.getSubtypeSampleId() == null)? "": allSubTypeSamples.get(sample.getSubtypeSampleId()),
+						(sample.getSubmitterJobId() == null)? "" : allJobs.get(sample.getSubmitterJobId()),
+						allUsers.get(sample.getSubmitterUserId()),
+						(sample.getIsActive() == 1)? "Yes":"No",
+						allRuns.get(sample.getSampleId())
+				}));
+
+				for (SampleMeta meta : sampleMeta) {
+					cellList.add(meta.getV());
 				}
-			} 
-			return outputJSON(jqgrid, response); 	
-			 
+
+				cell.put("cell", cellList);
+
+				rows.add(cell);
+
+				jqgrid.put("rows", rows);
+
+			}
+			return outputJSON(jqgrid, response);
+
 		} catch (Throwable e) {
-			throw new IllegalStateException("Can't marshall to JSON "+sampleList,e);
+			throw new IllegalStateException("Can't marshall to JSON " + sampleList, e);
 		}
-
 	}
 
-	}
+}

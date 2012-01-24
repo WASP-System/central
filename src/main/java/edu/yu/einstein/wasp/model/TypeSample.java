@@ -11,19 +11,17 @@
 
 package edu.yu.einstein.wasp.model;
 
+import java.util.Date;
 import java.util.List;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
+
+import org.hibernate.validator.constraints.*;
+
+import org.codehaus.jackson.annotate.JsonIgnore;
 
 @Entity
 @Audited
@@ -54,34 +52,43 @@ public class TypeSample extends WaspModel {
 	 * @return typeSampleId
 	 *
 	 */
-	
 	public Integer getTypeSampleId () {
 		return this.typeSampleId;
 	}
 
-	@Column (name="typesamplecategoryid")
-	protected String typeSampleCategoryId;
-	
-	
-	
-	/**
-	 * setTypeSampleCategoryId()
-	 * @param typeSampleCategoryId
+
+
+
+	/** 
+	 * typeSamplecategoryId
+	 *
 	 */
-	public void setTypeSampleCategoryId (String typeSampleCategoryId) {
+	@Column(name="typesamplecategoryid")
+	protected Integer typeSampleCategoryId;
+
+	/**
+	 * setTypeSamplecategoryId(Integer typeSamplecategoryId)
+	 *
+	 * @param typeSamplecategoryId
+	 *
+	 */
+	
+	public void setTypeSampleCategoryId (Integer typeSampleCategoryId) {
 		this.typeSampleCategoryId = typeSampleCategoryId;
 	}
 
 	/**
-	 * getTypeSampleCategoryId ()
-	 * @return typeSampleCategoryId
+	 * getTypeSamplecategoryId()
+	 *
+	 * @return typeSamplecategoryId
+	 *
 	 */
-	public String getTypeSampleCategoryId () {
+	public Integer getTypeSampleCategoryId () {
 		return this.typeSampleCategoryId;
 	}
-	
-	
-	
+
+
+
 
 	/** 
 	 * iName
@@ -142,6 +149,71 @@ public class TypeSample extends WaspModel {
 		return this.name;
 	}
 
+
+
+
+	/**
+	 * typeSamplecategory
+	 *
+	 */
+	@NotAudited
+	@ManyToOne
+	@JoinColumn(name="typesamplecategoryid", insertable=false, updatable=false)
+	protected TypeSampleCategory typeSampleCategory;
+
+	/**
+	 * setTypeSamplecategory (TypeSamplecategory typeSampleCategory)
+	 *
+	 * @param typeSampleCategory
+	 *
+	 */
+	public void setTypeSampleCategory (TypeSampleCategory typeSampleCategory) {
+		this.typeSampleCategory = typeSampleCategory;
+		this.typeSampleCategoryId = typeSampleCategory.typeSamplecategoryId;
+	}
+
+	/**
+	 * getTypeSampleCategory ()
+	 *
+	 * @return typeSampleCategory
+	 *
+	 */
+	
+	public TypeSampleCategory getTypeSampleCategory () {
+		return this.typeSampleCategory;
+	}
+
+
+	/** 
+	 * typeSampleresourcecategory
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="typesampleid", insertable=false, updatable=false)
+	protected List<TypeSampleResourceCategory> typeSampleResourceCategory;
+
+
+	/** 
+	 * getTypeSampleresourcecategory()
+	 *
+	 * @return typeSampleresourcecategory
+	 *
+	 */
+	public List<TypeSampleResourceCategory> getTypeSampleResourceCategory() {
+		return this.typeSampleResourceCategory;
+	}
+
+
+	/** 
+	 * setTypeSampleresourcecategory
+	 *
+	 * @param typeSampleresourcecategory
+	 *
+	 */
+	public void setTypeSampleresourcecategory (List<TypeSampleResourceCategory> typeSampleResourceCategory) {
+		this.typeSampleResourceCategory = typeSampleResourceCategory;
+	}
 
 
 
@@ -240,6 +312,39 @@ public class TypeSample extends WaspModel {
 	 */
 	public void setSampleDraft (List<SampleDraft> sampleDraft) {
 		this.sampleDraft = sampleDraft;
+	}
+
+
+
+	/** 
+	 * adaptorset
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="typesampleid", insertable=false, updatable=false)
+	protected List<Adaptorset> adaptorset;
+
+
+	/** 
+	 * getAdaptorset()
+	 *
+	 * @return adaptorset
+	 *
+	 */
+	public List<Adaptorset> getAdaptorset() {
+		return this.adaptorset;
+	}
+
+
+	/** 
+	 * setAdaptorset
+	 *
+	 * @param adaptorset
+	 *
+	 */
+	public void setAdaptorset (List<Adaptorset> adaptorset) {
+		this.adaptorset = adaptorset;
 	}
 
 

@@ -1,10 +1,10 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
 <wasp:field name="name"  type="text"/>
+<wasp:field name="submitter" type="text"/>
 
-
-_url='/wasp/facility/platformunit/listJson.do?selId=${param.selId}';
-_editurl='/wasp/facility/platformunit/updateJson.do';
+_url='/wasp/facility/platformunit/listJSON.do?selId=${param.selId}';
+_editurl='/wasp/facility/platformunit/updateJSON.do';
 _navAttr.search=false;
 
 /*

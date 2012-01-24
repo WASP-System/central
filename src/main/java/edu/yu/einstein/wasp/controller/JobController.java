@@ -72,8 +72,6 @@ public class JobController extends WaspController {
 	private StateService	stateService;
 	@Autowired
 	private WorkflowresourcecategoryService workflowresourcecategoryService;
-	@Autowired
-	private TypeSampleCategoryService tscService;
 
 	private final MetaHelperWebapp getMetaHelperWebapp() {
 		return new MetaHelperWebapp("job", JobMeta.class, request.getSession());
@@ -215,9 +213,7 @@ public class JobController extends WaspController {
 			List<Map> rows = new ArrayList<Map>();
 			for (JobSample jobSample:jobSampleList) {
 				// Only show the "biomaterial" type of samples within the job
-				if (tscService.getTypeSampleCategoryByTypeSampleCategoryId(
-						Integer.parseInt(jobSample.getSample().getTypeSample().getTypeSampleCategoryId()))
-						.getIName().equals("biomaterial"))
+				if (jobSample.getSample().getTypeSample().getTypeSampleCategory().getIName().equals("biomaterial"))
 				{
 					Map cell = new HashMap();
 					cell.put("id", jobSample.getSampleId());

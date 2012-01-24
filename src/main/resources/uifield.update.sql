@@ -480,6 +480,8 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sample','isreceived','label','Is Received','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sample','runs','label','Runs','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sample','name','error','Name cannot be null','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','name','label','Name','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','name','error','Name cannot be empty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','barcode','label','Barcode','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','barcode','constraint','NotEmpty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','barcode','error','Barcode cannot be empty','1');
@@ -675,7 +677,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','sample/list','label','Sample Utilities','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','job/list','label','Job List','1');
-
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','facility/platformunit/list','label','Platform Unit List','1');
 
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','uiField','updated','data','Attribute Updated','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','captcha','error','Captcha text incorrect','1');
