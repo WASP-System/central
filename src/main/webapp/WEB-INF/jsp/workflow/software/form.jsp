@@ -1,13 +1,8 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
-<%@ page import="edu.yu.einstein.wasp.model.*" %>
-<%@ page import="edu.yu.einstein.wasp.service.*" %>
-
 <hr>
 
 <h1><c:out value="${workflow.name}" /> Resources Assignments</h1>
-
-YYYY XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 <form:form method="POST">
 	<c:forEach items="${workflowTypeResourceMap}" var="workflowTypeResource">
