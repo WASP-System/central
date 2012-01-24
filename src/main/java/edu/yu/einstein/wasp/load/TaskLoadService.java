@@ -81,6 +81,7 @@ public class TaskLoadService extends WaspLoadService {
 
 		Set<String> seenStatus = new HashSet(); 
 
+		try { // TODO RWALLY FIX
 		// adds to seen
 		for (TaskMapping tm: taskMapping) {
 			seenStatus.add(tm.getStatus());
@@ -111,6 +112,8 @@ public class TaskLoadService extends WaspLoadService {
 
 			}
 
+		}
+		} catch (Exception e) { 
 		}
 
 		updateUiFields(); 
