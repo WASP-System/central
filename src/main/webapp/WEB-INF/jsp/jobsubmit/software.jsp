@@ -22,9 +22,9 @@
 </form>
 
 <form:form command="jobDraft">
-  <input type="hidden" name="name" value="<c:out value="${jobDraftDb.name}"/>">
-  <input type="hidden" name="workflowId" value="<c:out value="${jobDraftDb.workflowId}"/>">
-  <input type="hidden" name="labId" value="<c:out value="${jobDraftDb.labId}"/>">
+  <input type="hidden" name="name" value="<c:out value="${jobDraft.name}"/>">
+  <input type="hidden" name="workflowId" value="<c:out value="${jobDraft.workflowId}"/>">
+  <input type="hidden" name="labId" value="<c:out value="${jobDraft.labId}"/>">
   <c:set var="_area" value = "${parentarea}" scope="request"/>
   <c:set var="_metaArea" value = "${area}" scope="request"/>
   <c:set var="_metaList" value = "${jobDraft.jobDraftMeta}" scope="request" />

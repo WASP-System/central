@@ -396,6 +396,8 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','list_ok','label','New department has been created','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','name','label','Job Name','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','name','error','Job Name Must Not Be Empty','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','name_exists','error','Job name chosen already exists','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','changeResource','error','You must select a job resource','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','labId','label','Lab','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','labId','error','Lab Must Not Be Empty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','workflowId','label','Assay Workflow','1');
@@ -769,3 +771,6 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','task','samplereceive','title_label','Incoming Sample Manager','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','task','samplereceive','error_receivedstatus_empty','Update Failed: Please select Received or Never Coming','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','task','samplereceive','error_receivedstatus_invalid','Update Failed: Action Invalid','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','user_incorrect','error','You are not authorized to edit this jobdraft','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','not_pending','error','This jobdraft has already been submitted','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','form','error','Please address errors on this page','1');

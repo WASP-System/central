@@ -66,6 +66,16 @@
           <property name="attrName" value="control" />
           <property name="attrValue" value="select:#{dollar}{resourceOptions.get(readlength)}:value:label" /> 
         </bean>
+        <bean parent="illuminiaUiField">
+          <property name="name" value="readLength" />
+          <property name="attrName" value="constraint" />
+          <property name="attrValue" value="NotEmpty" />
+        </bean>
+        <bean parent="illuminiaUiField">
+          <property name="name" value="readLength" />
+          <property name="attrName" value="error" />
+          <property name="attrValue" value="You must choose a read length" />
+        </bean>
 
         <bean parent="illuminiaUiField">
           <property name="name" value="readType" />
@@ -81,6 +91,16 @@
           <property name="name" value="readType" />
           <property name="attrName" value="control" />
           <property name="attrValue" value="select:#{dollar}{resourceOptions.get(readType)}:value:label" /> 
+        </bean>
+        <bean parent="illuminiaUiField">
+          <property name="name" value="readType" />
+          <property name="attrName" value="constraint" />
+          <property name="attrValue" value="NotEmpty" />
+        </bean>
+        <bean parent="illuminiaUiField">
+          <property name="name" value="readType" />
+          <property name="attrName" value="error" />
+          <property name="attrValue" value="You must choose a read type" />
         </bean>
       </list>
     </property>

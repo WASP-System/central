@@ -15,6 +15,7 @@ import java.util.Date;
 import java.util.List;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
@@ -63,6 +64,7 @@ public class JobDraft extends WaspModel {
 	 * labId
 	 *
 	 */
+	@NotNull
 	@Column(name="labid")
 	protected Integer labId;
 
@@ -125,6 +127,7 @@ public class JobDraft extends WaspModel {
 	 * workflowId
 	 *
 	 */
+	@NotNull
 	@Column(name="workflowid")
 	protected Integer workflowId;
 
@@ -156,6 +159,7 @@ public class JobDraft extends WaspModel {
 	 * name
 	 *
 	 */
+	@NotEmpty
 	@Column(name="name")
 	protected String name;
 

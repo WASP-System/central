@@ -10,21 +10,21 @@
 </div>
 
 <form method="POST" class="resourcelistform">
+
 <select name="changeResource" onchange="this.parentNode.submit()">
-  <option></option>
+  <option value="-1">-- select --</option>
 <c:forEach items="${workflowResourceCategories}" var="w">
   <option value="<c:out value="${w.resourceCategory.resourceCategoryId}" />" <c:if test="${w.resourceCategory.resourceCategoryId == jobDraftResourceCategory.resourceCategory.resourceCategoryId}"> SELECTED</c:if>>
     <c:out value="${w.resourceCategory.name}" />
   </option>
 </c:forEach>
 </select>
-</div>
 </form>
 
 <form:form command="jobDraft">
-  <input type="hidden" name="name" value="<c:out value="${jobDraftDb.name}"/>">
-  <input type="hidden" name="workflowId" value="<c:out value="${jobDraftDb.workflowId}"/>">
-  <input type="hidden" name="labId" value="<c:out value="${jobDraftDb.labId}"/>">
+  <input type="hidden" name="name" value="<c:out value="${jobDraft.name}"/>">
+  <input type="hidden" name="workflowId" value="<c:out value="${jobDraft.workflowId}"/>">
+  <input type="hidden" name="labId" value="<c:out value="${jobDraft.labId}"/>">
   <c:set var="_area" value = "${parentarea}" scope="request"/>
   <c:set var="_metaArea" value = "${area}" scope="request"/>
   <c:set var="_metaList" value = "${jobDraft.jobDraftMeta}" scope="request" />
