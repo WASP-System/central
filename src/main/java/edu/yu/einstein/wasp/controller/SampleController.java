@@ -157,7 +157,7 @@ public class SampleController extends WaspController {
   }
 	
 	/**
-	 * Prepares page to display JQGrid table with a list of samples filtered by typeSampleCategory
+	 * Prepares page to display JQGrid table with a list of samples where TypeSampleCategory.iName="biomaterial"
 	 * 
 	 * @Author Natalia Volnova
 	 */
@@ -212,6 +212,7 @@ public class SampleController extends WaspController {
 				for (Iterator<Sample> it = sampleList.iterator(); it.hasNext();) {
 					Sample excludeSample = it.next();
 					allSamples.remove(excludeSample);
+				
 				}
 				sampleList = allSamples;
 			}
@@ -244,16 +245,18 @@ public class SampleController extends WaspController {
 			}
 
 			// Remove all samples whose typesamplecategory is not "biomaterial"
+			List<Sample> sampleListFiltered = new ArrayList<Sample> ();
 			for (Sample sample : sampleList) {
-				if (!sample.getTypeSample().getTypeSampleCategory().getIName().equals("biomaterial")) {
-					System.out.println("type sample category id: " + sample.getTypeSample().getTypeSampleCategoryId());
-					sampleList.remove(sample);
+				if (sample.getTypeSample().getTypeSampleCategory().getIName().equals("biomaterial")) {
+					sampleListFiltered.add(sample);
+				
 				}
 			}
-
+			sampleList = sampleListFiltered;
+			
 			int pageIndex = Integer.parseInt(request.getParameter("page"));		// index of page
 			int pageRowNum = Integer.parseInt(request.getParameter("rows"));	// number of rows in one page
-			int rowNum = sampleList.size();								// total number of rows
+			int rowNum = sampleList.size();										// total number of rows
 			int pageNum = (rowNum + pageRowNum - 1) / pageRowNum;				// total number of pages
 			
 			jqgrid.put("records", rowNum + "");
