@@ -41,6 +41,17 @@ public class StateJobLaunchingMessageHandler {
 	@Autowired
 	private JobExplorer jobExplorer; 
 
+
+	/**
+	 * this is a set to determine what this context has seen
+	 * seen assumptions made
+	 * - the launcher has seen this job, so it is going fine
+	 * within spring batch, so don't sweat it.
+	 *
+	 * not seen assumes that the task is not running
+	 * 	further tests on the system will determine if that is
+	 * 	true or not
+	 */
 	private Set<Integer> seenStateSet = new HashSet<Integer>();
 
 
@@ -124,72 +135,16 @@ public class StateJobLaunchingMessageHandler {
 		return;
 	}
 
-/*
-	public JobExecution launch(State state) throws JobExecutionAlreadyRunningException, JobRestartException, JobInstanceAlreadyCompleteException,
-			JobParametersInvalidException, NoSuchJobException, NoSuchJobExecutionException, org.springframework.batch.core.launch.JobExecutionNotRunningException {
 
-		if (state == null)	{ return null; }
-
-System.out.println("\n\n\n\n" + "AAAA launch called\n"); 
-		
-		Job job = jobRegistry.getJob(this.jobName);
-		JobParametersBuilder builder = new JobParametersBuilder();
-		builder.addString("state", ""+ state.getStateId());
-System.out.println("job " + job + " state " + state.getStateId() + "\n\n"); 
-		
-		try {
-			JobExecution jobToken=null;
-
-			if (jobRepository.isJobInstanceExists(this.jobName, param)) {
-
-System.out.println("EXISTS\n");
-
-
-				if (seenStateSet.contains(state.getStateId())) { 
-System.out.println("   - SEEN\n");
-					// already running internally?
-					return null;
-				}
-
-				if (jobToken.isStopping()) {
-System.out.println(" * STOPPING\n");
-					resetStaleJob(jobToken);
-				} 
-				// failed
-				if (jobToken.getStatus() == BatchStatus.FAILED) {
-					resetStaleJob(jobToken);
-				}
-				if (jobToken.getStatus() == BatchStatus.STARTED) {
-					resetStaleJob(jobToken);
-				}
-
-				/ *
-				if (jobToken.isRunning()) {
-					jobOperator.restart(jobToken.getJobId());
-					return jobToken;
-				}
-				* /
-
-System.out.println("  - Other " + jobToken.getJobId() + " " + jobToken.getStatus() + "\n");
-System.out.println("   " + jobToken.getAllFailureExceptions().size());
-
-				jobOperator.restart(jobToken.getJobId());
-
-			} else {
-				jobToken = jobLauncher.run(job, builder.toJobParameters());
-
-			}
-
-			seenStateSet.add(state.getStateId());
-			return jobToken;
-
-		} catch (JobInstanceAlreadyCompleteException e) {
-		}
-		
-	  return null;	
-	}
-*/
-
+	/**
+	 * resetStaleJobs
+	 * for a job execution set it to a stopped state so it has
+	 * a chance of being reexecuted
+	 *
+	 * @param JobExecution - job to be cleaned
+	 * @return clean up succeeded?
+	 *
+	 */
 	public boolean resetStaleJob(JobExecution jobExecution) {
 		if (jobExecution == null) {
 			return false;
@@ -197,6 +152,7 @@ System.out.println("   " + jobToken.getAllFailureExceptions().size());
 	
 		final BatchStatus status = jobExecution.getStatus();
 
+		// if it is already complete don't reset it
 		if (status.equals(BatchStatus.COMPLETED)) {
 			return false;
 		}
