@@ -632,12 +632,18 @@ public class JobSubmissionController extends WaspController {
 		List<JobDraftMeta> jobDraftMetaList = metaHelperWebapp.getFromRequest(request, JobDraftMeta.class);
 
 		jobDraftForm.setJobDraftMeta(jobDraftMetaList);
-		metaHelperWebapp.validate(jobDraftMetaList, result);
+		metaHelperWebapp.validate(result);
 		
 		
 		if (result.hasErrors()) {
 			waspMessage("jobDraft.form.error");
-			showResourceMetaForm(typeresourceiname, jobDraftId, m);
+		/*	for (org.springframework.validation.ObjectError e: result.getAllErrors()){
+				for (String code: e.getCodes())
+					logger.debug("ANDY:"+code);
+			} */
+			String returnPage = showResourceMetaForm(typeresourceiname, jobDraftId, m);
+			//logger.debug("ANDY: "+returnPage);
+			return returnPage;
 		}
 
 
