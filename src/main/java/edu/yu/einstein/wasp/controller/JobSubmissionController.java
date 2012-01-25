@@ -44,6 +44,8 @@ import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.dao.impl.DBResourceBundle;
+import edu.yu.einstein.wasp.exception.NullResourceException;
+import edu.yu.einstein.wasp.exception.NullTypeResourceException;
 import edu.yu.einstein.wasp.model.*;
 import edu.yu.einstein.wasp.service.*;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
@@ -277,17 +279,54 @@ public class JobSubmissionController extends WaspController {
 			ModelMap m) {
 
 		User me = authenticationService.getAuthenticatedUser();
-
+		
+		Errors errors = new BindException(result.getTarget(), "jobDraft");
+		if (jobDraftForm.getLabId() == null || jobDraftForm.getLabId().intValue() < 1){
+			errors.rejectValue("labId", "jobDraft.labId.error", "jobDraft.labId.error (no message has been defined for this property");
+		}
+		
+		Map<String, String> jobDraftQuery = new HashMap<String, String>();
+		String name = jobDraftForm.getName();
+		if (name != null && !name.isEmpty()){
+			// check we don't already have a job with this name
+			jobDraftQuery.put("name", name);
+			if (!jobDraftService.findByMap(jobDraftQuery).isEmpty()){
+				errors.rejectValue("name", "jobDraft.name_exists.error", "jobDraft.name_exists.error (no message has been defined for this property");
+			}
+		}
+		
+		result.addAllErrors(errors);
+		if (result.hasErrors()) {
+			waspMessage("jobDraft.form.error");
+			generateCreateForm(m);
+			return "jobsubmit/create";
+		}
+		
 		jobDraftForm.setUserId(me.getUserId());
 		jobDraftForm.setStatus("PENDING");
 		jobDraftForm.setCreatets(new Date());
-
-		String rt = doModify(jobDraftForm, result, status, m); 
+		JobDraft jobDraftDb = jobDraftService.save(jobDraftForm); 
 
 		// Adds the jobdraft to authorized list
  		doReauth();
 
-		return rt;
+		return nextPage(jobDraftDb);
+	}
+	
+	private boolean isJobDraftEditable(JobDraft jobDraftDb){
+		// check if i am the drafter
+		User me = authenticationService.getAuthenticatedUser();
+		if (me.getUserId().intValue() != jobDraftDb.getUserId().intValue()) {
+			waspMessage("jobDraft.user_incorrect.error");
+			return false;
+		}
+		
+		// check that the status is PENDING
+		if (! jobDraftDb.getStatus().equals("PENDING")) {
+			waspMessage("jobDraft.not_pending.error");
+			return false;
+		}
+		return true;
 	}
 
 	@RequestMapping(value="/modify/{jobDraftId}.do", method=RequestMethod.GET)
@@ -296,22 +335,15 @@ public class JobSubmissionController extends WaspController {
 	
 		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
 
-		// check if i am the drafter
-		User me = authenticationService.getAuthenticatedUser();
-		if (me.getUserId().intValue() != jobDraft.getUserId().intValue()) {
-			return "hello";
-		}
-
-		// check that the status is PENDING
-		if (! jobDraft.getStatus().equals("PENDING")) {
-			return "hello";
-		}
+		if (! isJobDraftEditable(jobDraft))
+			return "redirect:/dashboard.do";
 
 		generateCreateForm(m);
 		m.put("jobDraft", jobDraft);
 
 		return "jobsubmit/create";
 	}
+
 
 
 	@RequestMapping(value="/modify/{jobDraftId}.do", method=RequestMethod.POST)
@@ -323,25 +355,40 @@ public class JobSubmissionController extends WaspController {
 			SessionStatus status,
 			ModelMap m) {
 
-		JobDraft jobDraftDb = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
+		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
 
-		// check if i am the drafter
-		User me = authenticationService.getAuthenticatedUser();
-		if (me.getUserId().intValue() != jobDraftDb.getUserId().intValue()) {
-			return "hello";
+		if (! isJobDraftEditable(jobDraft))
+			return "redirect:/dashboard.do";
+		
+		Errors errors = new BindException(result.getTarget(), "jobDraft");
+		
+		Map<String, String> jobDraftQuery = new HashMap<String, String>();
+		String name = jobDraftForm.getName();
+		if (name != null && !name.isEmpty() && !name.equals(jobDraft.getName())){
+			// check we don't already have a job with this name
+			jobDraftQuery.put("name", name);
+			if (!jobDraftService.findByMap(jobDraftQuery).isEmpty()){
+				errors.rejectValue("name", "jobDraft.name_exists.error", "jobDraft.name_exists.error (no message has been defined for this property");
+			}
+		}
+		
+		if (jobDraftForm.getLabId() == null || jobDraftForm.getLabId().intValue() < 1){
+			errors.rejectValue("labId", "jobDraft.labId.error", "jobDraft.labId.error (no message has been defined for this property");
+		}
+		result.addAllErrors(errors);
+		if (result.hasErrors()) {
+			waspMessage("jobDraft.form.error");
+			generateCreateForm(m);
+			return "jobsubmit/create";
 		}
 
-		if (! jobDraftDb.getStatus().equals("PENDING")) {
-			return "hello";
-		}
+		jobDraft.setName(jobDraftForm.getName());
+		jobDraft.setWorkflowId(jobDraftForm.getWorkflowId());
+		jobDraft.setLabId(jobDraftForm.getLabId());
 
-		jobDraftDb.setName(jobDraftForm.getName());
-		jobDraftDb.setWorkflowId(jobDraftForm.getWorkflowId());
-		jobDraftDb.setLabId(jobDraftForm.getLabId());
+		JobDraft jobDraftDb = jobDraftService.save(jobDraft); 
 
-
-		// TODO CHECK PERMS IT IS MY JOB
-		return doModify(jobDraftDb, result, status, m); 
+		return nextPage(jobDraftDb);
 	}
 
 	public String doModify (
@@ -351,12 +398,15 @@ public class JobSubmissionController extends WaspController {
 			ModelMap m) {
 
 		// TODO CHECK ACCESS OF LABUSER
-
+		
 		Errors errors = new BindException(result.getTarget(), "jobDraft");
+		if (jobDraftForm.getLabId() == null || jobDraftForm.getLabId().intValue() < 1){
+			errors.rejectValue("labId", "jobDraft.labId.error", "jobDraft.labId.error (no message has been defined for this property");
+		}
 		result.addAllErrors(errors);
-
+		
 		if (result.hasErrors()) {
-			waspMessage("hello.error");
+			waspMessage("jobDraft.form.error");
 			generateCreateForm(m);
 			return "jobsubmit/create";
 		}
@@ -372,20 +422,27 @@ public class JobSubmissionController extends WaspController {
 	public String showModifyMetaForm(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
 		 
 		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
+		
+		if (! isJobDraftEditable(jobDraft))
+			return "redirect:/dashboard.do";
 
 		MetaHelperWebapp metaHelperWebapp = getMetaHelperWebapp();
 		metaHelperWebapp.setArea(jobDraft.getWorkflow().getIName());
-
-		jobDraft.setJobDraftMeta(metaHelperWebapp.getMasterList(JobDraftMeta.class));
+		List<JobDraftMeta> jobDraftMeta = metaHelperWebapp.getMasterList(JobDraftMeta.class);
+		if (jobDraftMeta.isEmpty()){
+			// no metadata to capture
+			return nextPage(jobDraft);
+		}
+			
+		jobDraft.setJobDraftMeta(jobDraftMeta);
 		// jobDraft.setJobDraftMeta(metaHelperWebapp.syncWithMaster(jobDraft.getJobDraftMeta()));
 
 
-		m.put("jobDraftDb", jobDraft);
 		m.put("jobDraft", jobDraft);
 		m.put("area", metaHelperWebapp.getArea());
 		m.put("parentarea", metaHelperWebapp.getParentArea());
 
-		m.put("workflowiname", jobDraft.getWorkflow().getIName());
+		//m.put("workflowiname", jobDraft.getWorkflow().getIName());
 		
 		m.put("pageFlowMap", getPageFlowMap(jobDraft));
 		
@@ -405,6 +462,9 @@ public class JobSubmissionController extends WaspController {
 			ModelMap m) {
 
 		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
+		
+		if (! isJobDraftEditable(jobDraft))
+			return "redirect:/dashboard.do";
 
 		jobDraftForm.setJobDraftId(jobDraftId);
 		jobDraftForm.setUserId(jobDraft.getUserId());
@@ -422,13 +482,12 @@ public class JobSubmissionController extends WaspController {
 		metaHelperWebapp.validate(jobDraftMetaList, result);
 
 		if (result.hasErrors()) {
-			waspMessage("hello.error");
+			waspMessage("jobDraft.form.error");
 
-			m.put("jobDraftDb", jobDraft);
+			m.put("jobDraft", jobDraft);
 			m.put("area", metaHelperWebapp.getArea());
 			m.put("parentarea", metaHelperWebapp.getParentArea());
-
-	                m.put("pageFlowMap", getPageFlowMap(jobDraft));
+	        m.put("pageFlowMap", getPageFlowMap(jobDraft));
 	
 			return "jobsubmit/metaform";
 		}
@@ -445,6 +504,11 @@ public class JobSubmissionController extends WaspController {
 			@PathVariable("jobDraftId") Integer jobDraftId, 
 			ModelMap m) {
 		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
+		if (! isJobDraftEditable(jobDraft))
+			return "redirect:/dashboard.do";
+		if (typeResourceService.getTypeResourceByIName(typeresourceiname).getTypeResourceId() == null){
+			throw new NullTypeResourceException("No resource type with name '"+typeresourceiname+"'");
+		}
 
 		// make list of available resources
 		List<Workflowresourcecategory> allWorkflowResourceCategories = jobDraft.getWorkflow().getWorkflowresourcecategory();
@@ -470,22 +534,22 @@ public class JobSubmissionController extends WaspController {
 		Map<String, List<MetaAttribute.Control.Option>> resourceOptions = new HashMap<String, List<MetaAttribute.Control.Option>>();
 
 		if (jobDraftResourceCategory != null) {
-		Workflowresourcecategory workflowresourcecategory = workflowresourcecategoryService.getWorkflowresourcecategoryByWorkflowIdResourcecategoryId(jobDraft.getWorkflow().getWorkflowId(), jobDraftResourceCategory.getResourcecategoryId());
-		for (WorkflowresourcecategoryMeta wrm: workflowresourcecategory.getWorkflowresourcecategoryMeta()) {
-			String key = wrm.getK(); 
-
-//			if (! key.matches("^.*allowableUiField\\.")) { continue; }
-			key = key.replaceAll("^.*allowableUiField\\.", "");
-			List<MetaAttribute.Control.Option> options=new ArrayList<MetaAttribute.Control.Option>();
-			for(String el: org.springframework.util.StringUtils.tokenizeToStringArray(wrm.getV(),";")) {
-				String [] pair=StringUtils.split(el,":");
-				MetaAttribute.Control.Option option = new MetaAttribute.Control.Option();
-				option.setValue(pair[0]);
-				option.setLabel(pair[1]);
-				options.add(option);
+			Workflowresourcecategory workflowresourcecategory = workflowresourcecategoryService.getWorkflowresourcecategoryByWorkflowIdResourcecategoryId(jobDraft.getWorkflow().getWorkflowId(), jobDraftResourceCategory.getResourcecategoryId());
+			for (WorkflowresourcecategoryMeta wrm: workflowresourcecategory.getWorkflowresourcecategoryMeta()) {
+				String key = wrm.getK(); 
+	
+	//			if (! key.matches("^.*allowableUiField\\.")) { continue; }
+				key = key.replaceAll("^.*allowableUiField\\.", "");
+				List<MetaAttribute.Control.Option> options=new ArrayList<MetaAttribute.Control.Option>();
+				for(String el: org.springframework.util.StringUtils.tokenizeToStringArray(wrm.getV(),";")) {
+					String [] pair=StringUtils.split(el,":");
+					MetaAttribute.Control.Option option = new MetaAttribute.Control.Option();
+					option.setValue(pair[0]);
+					option.setLabel(pair[1]);
+					options.add(option);
+				}
+				resourceOptions.put(key, options);
 			}
-			resourceOptions.put(key, options);
-		}
 		}
 
 
@@ -496,7 +560,6 @@ public class JobSubmissionController extends WaspController {
 		jobDraft.setJobDraftMeta(metaHelperWebapp.syncWithMaster(jobDraft.getJobDraftMeta()));
 
 		m.put("workflowResourceCategories", workflowResourceCategories);
-		m.put("jobDraftDb", jobDraft);
 		m.put("jobDraft", jobDraft);
 		m.put("name", resourceCategoryName);
 		m.put("area", metaHelperWebapp.getArea());
@@ -517,7 +580,11 @@ public class JobSubmissionController extends WaspController {
 			SessionStatus status,
 			ModelMap m) {
 		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
-
+		if (! isJobDraftEditable(jobDraft))
+			return "redirect:/dashboard.do";
+		if (typeResourceService.getTypeResourceByIName(typeresourceiname).getTypeResourceId() == null){
+			throw new NullTypeResourceException("No resource type with name '"+typeresourceiname+"'");
+		}
 		Map params = request.getParameterMap();
 		Integer changeResource = null;
 		try {
@@ -528,14 +595,16 @@ public class JobSubmissionController extends WaspController {
 		// The resource is changing
 		// set the resource and reload the page.
 		// todo: consider wiping out old meta values?
-		if (changeResource != null) {
+		if (changeResource != null){
 			List<JobDraftresourcecategory> oldJdrs = jobDraft.getJobDraftresourcecategory();
 			for (JobDraftresourcecategory jdr: oldJdrs) {
-				if (jdr.getResourceCategory().getTypeResource().getIName().equals(typeresourceiname))
-				jobDraftresourcecategoryService.remove(jdr);
-				jobDraftresourcecategoryService.flush(jdr);
+				if (jdr.getResourceCategory().getTypeResource().getIName().equals(typeresourceiname)){
+					jobDraftresourcecategoryService.remove(jdr);
+					jobDraftresourcecategoryService.flush(jdr);
+				}
 			}
-
+			if (changeResource.intValue() == -1) // nothing selected
+				return "redirect:/jobsubmit/resource/" + typeresourceiname + "/" + jobDraftId + ".do";
 			JobDraftresourcecategory newJdr = new JobDraftresourcecategory();
 			newJdr.setJobdraftId(jobDraftId);
 			newJdr.setResourcecategoryId(changeResource);
@@ -546,17 +615,17 @@ public class JobSubmissionController extends WaspController {
 
 
 		// get selected resource
-		JobDraftresourcecategory jobDraftResourcecategory = null; 
 		String resourceCategoryArea = ""; 
-		String resourceCategoryName = ""; 
 		for (JobDraftresourcecategory jdr: jobDraft.getJobDraftresourcecategory()) {
 			if (! typeresourceiname.equals( jdr.getResourceCategory().getTypeResource().getIName())) { continue; }
-
-			jobDraftResourcecategory = jdr;
 			resourceCategoryArea = jdr.getResourceCategory().getIName();
-			resourceCategoryName = jdr.getResourceCategory().getName(); 
 		}
-
+		
+		if (resourceCategoryArea.isEmpty()){
+			waspMessage("jobDraft.changeResource.error");
+			return "redirect:/jobsubmit/resource/" + typeresourceiname + "/" + jobDraftId + ".do";
+		}
+		
 		MetaHelperWebapp metaHelperWebapp = getMetaHelperWebapp();
 		metaHelperWebapp.setArea(resourceCategoryArea);
 
@@ -564,9 +633,10 @@ public class JobSubmissionController extends WaspController {
 
 		jobDraftForm.setJobDraftMeta(jobDraftMetaList);
 		metaHelperWebapp.validate(jobDraftMetaList, result);
-
+		
+		
 		if (result.hasErrors()) {
-			waspMessage("hello.error");
+			waspMessage("jobDraft.form.error");
 
 			return showResourceMetaForm(typeresourceiname, jobDraftId, m);
 		}
@@ -589,7 +659,11 @@ public class JobSubmissionController extends WaspController {
 			@PathVariable("jobDraftId") Integer jobDraftId, 
 			ModelMap m) {
 		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
-
+		if (! isJobDraftEditable(jobDraft))
+			return "redirect:/dashboard.do";
+		if (typeResourceService.getTypeResourceByIName(typeresourceiname).getTypeResourceId() == null){
+			throw new NullTypeResourceException("No resource type with name '"+typeresourceiname+"'");
+		}
 		// make list of available resources
 		List<WorkflowSoftware> allWorkflowSoftwares = jobDraft.getWorkflow().getWorkflowSoftware();
 		List<WorkflowSoftware> workflowSoftwares = new ArrayList();
@@ -614,22 +688,22 @@ public class JobSubmissionController extends WaspController {
 		Map<String, List<MetaAttribute.Control.Option>> resourceOptions = new HashMap<String, List<MetaAttribute.Control.Option>>();
 
 		if (jobDraftSoftware != null) {
-		WorkflowSoftware workflowSoftware = workflowSoftwareService.getWorkflowSoftwareByWorkflowIdSoftwareId(jobDraft.getWorkflow().getWorkflowId(), jobDraftSoftware.getSoftwareId());
-		for (WorkflowsoftwareMeta wrm: workflowSoftware.getWorkflowsoftwareMeta()) {
-			String key = wrm.getK(); 
-
-//			if (! key.matches("^.*allowableUiField\\.")) { continue; }
-			key = key.replaceAll("^.*allowableUiField\\.", "");
-			List<MetaAttribute.Control.Option> options=new ArrayList<MetaAttribute.Control.Option>();
-			for(String el: org.springframework.util.StringUtils.tokenizeToStringArray(wrm.getV(),";")) {
-				String [] pair=StringUtils.split(el,":");
-				MetaAttribute.Control.Option option = new MetaAttribute.Control.Option();
-				option.setValue(pair[0]);
-				option.setLabel(pair[1]);
-				options.add(option);
+			WorkflowSoftware workflowSoftware = workflowSoftwareService.getWorkflowSoftwareByWorkflowIdSoftwareId(jobDraft.getWorkflow().getWorkflowId(), jobDraftSoftware.getSoftwareId());
+			for (WorkflowsoftwareMeta wrm: workflowSoftware.getWorkflowsoftwareMeta()) {
+				String key = wrm.getK(); 
+	
+	//			if (! key.matches("^.*allowableUiField\\.")) { continue; }
+				key = key.replaceAll("^.*allowableUiField\\.", "");
+				List<MetaAttribute.Control.Option> options=new ArrayList<MetaAttribute.Control.Option>();
+				for(String el: org.springframework.util.StringUtils.tokenizeToStringArray(wrm.getV(),";")) {
+					String [] pair=StringUtils.split(el,":");
+					MetaAttribute.Control.Option option = new MetaAttribute.Control.Option();
+					option.setValue(pair[0]);
+					option.setLabel(pair[1]);
+					options.add(option);
+				}
+				resourceOptions.put(key, options);
 			}
-			resourceOptions.put(key, options);
-		}
 		}
 
 
@@ -640,7 +714,6 @@ public class JobSubmissionController extends WaspController {
 		jobDraft.setJobDraftMeta(metaHelperWebapp.syncWithMaster(jobDraft.getJobDraftMeta()));
 
 		m.put("workflowSoftwares", workflowSoftwares);
-		m.put("jobDraftDb", jobDraft);
 		m.put("jobDraft", jobDraft);
 		m.put("name", softwareName);
 		m.put("area", metaHelperWebapp.getArea());
@@ -661,7 +734,12 @@ public class JobSubmissionController extends WaspController {
 			SessionStatus status,
 			ModelMap m) {
 		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
-
+		if (! isJobDraftEditable(jobDraft))
+			return "redirect:/dashboard.do";
+		if (typeResourceService.getTypeResourceByIName(typeresourceiname).getTypeResourceId() == null){
+			throw new NullTypeResourceException("No resource type with name '"+typeresourceiname+"'");
+		}
+		
 		Map params = request.getParameterMap();
 		Integer changeResource = null;
 		try {
@@ -710,9 +788,9 @@ public class JobSubmissionController extends WaspController {
 		metaHelperWebapp.validate(jobDraftMetaList, result);
 
 		if (result.hasErrors()) {
-			waspMessage("hello.error");
-
-			return showResourceMetaForm(typeresourceiname, jobDraftId, m);
+			logger.debug("ANDY:"+result.toString());
+			waspMessage("jobDraft.form.error");
+			return "jobsubmit/software/" + typeresourceiname + "/" + jobDraftId;
 		}
 
 
@@ -722,53 +800,13 @@ public class JobSubmissionController extends WaspController {
 	}
 
 
-
-
-
 	@RequestMapping(value="/additionalMeta/{meta}/{jobDraftId}", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public String showAdditionalMetaForm(@PathVariable("meta") String additionalMetaArea, @PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
 		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
-
-		MetaHelperWebapp workflowMetaHelperWebapp = getMetaHelperWebapp();
-		workflowMetaHelperWebapp.setArea(jobDraft.getWorkflow().getIName());
-
-		List<JobDraftMeta> jobDraftMeta = workflowMetaHelperWebapp.syncWithMaster(jobDraft.getJobDraftMeta()); 
-
-		JobDraftMeta alignerJdm = new JobDraftMeta();
-		String alignerArea = "";
-		for (JobDraftMeta jdm: jobDraftMeta) {
-			if (! jdm.getK().equals(workflowMetaHelperWebapp.getArea() + "." + additionalMetaArea)) { continue; }
-			alignerArea = jdm.getV();
-			alignerJdm = jdm;
-		}
-
-		MetaHelperWebapp metaHelperWebapp = getMetaHelperWebapp();
-		metaHelperWebapp.setArea(alignerArea);
-		jobDraft.setJobDraftMeta(metaHelperWebapp.syncWithMaster(jobDraft.getJobDraftMeta()));
-
-
-		m.put("jobDraftDb", jobDraft);
-		m.put("jobDraft", jobDraft);
-		m.put("area", metaHelperWebapp.getArea());
-		m.put("parentarea", metaHelperWebapp.getParentArea());
+		if (! isJobDraftEditable(jobDraft))
+			return "redirect:/dashboard.do";
 		
-                m.put("pageFlowMap", getPageFlowMap(jobDraft));
-		
-		return "jobsubmit/aligner";
-	}
-
-	@RequestMapping(value="/additionalMeta/{meta}/{jobDraftId}", method=RequestMethod.POST)
-	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
-	public String modifyAdditionalMeta (
-			@PathVariable String additionalMetaArea,
-			@PathVariable Integer jobDraftId,
-			@Valid JobDraft jobDraftForm,
-			BindingResult result,
-			SessionStatus status,
-			ModelMap m) {
-		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
-
 		MetaHelperWebapp workflowMetaHelperWebapp = getMetaHelperWebapp();
 		workflowMetaHelperWebapp.setArea(jobDraft.getWorkflow().getIName());
 
@@ -781,6 +819,53 @@ public class JobSubmissionController extends WaspController {
 			ametaArea = jdm.getV();
 			ametaJdm = jdm;
 		}
+		if (ametaArea.isEmpty()){
+			// no additional meta found with supplied meta area
+			return nextPage(jobDraft);
+		}
+
+		MetaHelperWebapp metaHelperWebapp = getMetaHelperWebapp();
+		metaHelperWebapp.setArea(ametaArea);
+		jobDraft.setJobDraftMeta(metaHelperWebapp.syncWithMaster(jobDraft.getJobDraftMeta()));
+
+
+		m.put("jobDraft", jobDraft);
+		m.put("area", metaHelperWebapp.getArea());
+		m.put("parentarea", metaHelperWebapp.getParentArea());
+		
+                //m.put("pageFlowMap", getPageFlowMap(jobDraft));
+		
+		return "jobsubmit/metaform";
+	}
+
+	@RequestMapping(value="/additionalMeta/{meta}/{jobDraftId}", method=RequestMethod.POST)
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String modifyAdditionalMeta (
+			@PathVariable String additionalMetaArea,
+			@PathVariable Integer jobDraftId,
+			@Valid JobDraft jobDraftForm,
+			BindingResult result,
+			SessionStatus status,
+			ModelMap m) {
+		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
+		if (! isJobDraftEditable(jobDraft))
+			return "redirect:/dashboard.do";
+		MetaHelperWebapp workflowMetaHelperWebapp = getMetaHelperWebapp();
+		workflowMetaHelperWebapp.setArea(jobDraft.getWorkflow().getIName());
+
+		List<JobDraftMeta> jobDraftMeta = workflowMetaHelperWebapp.syncWithMaster(jobDraft.getJobDraftMeta()); 
+
+		JobDraftMeta ametaJdm = new JobDraftMeta();
+		String ametaArea = "";
+		for (JobDraftMeta jdm: jobDraftMeta) {
+			if (! jdm.getK().equals(workflowMetaHelperWebapp.getArea() + "." + additionalMetaArea)) { continue; }
+			ametaArea = jdm.getV();
+			ametaJdm = jdm;
+		}
+		if (ametaArea.isEmpty()){
+			// no additional meta found with supplied meta area
+			return nextPage(jobDraft);
+		}
 
 		MetaHelperWebapp metaHelperWebapp = getMetaHelperWebapp();
 		metaHelperWebapp.setArea(ametaArea);
@@ -790,22 +875,19 @@ public class JobSubmissionController extends WaspController {
 		metaHelperWebapp.validate(jobDraftMetaList, result);
 
 		if (result.hasErrors()) {
-			waspMessage("hello.error");
-			m.put("jobDraftDb", jobDraft);
+			waspMessage("jobDraft.form.error");
+			m.put("jobDraft", jobDraft);
 			m.put("area", metaHelperWebapp.getArea());
 			m.put("parentarea", metaHelperWebapp.getParentArea());
-
-			
-	                m.put("pageFlowMap", getPageFlowMap(jobDraft));
+			m.put("pageFlowMap", getPageFlowMap(jobDraft));
 	
 			return "jobsubmit/metaform";
 		}
 
 
-		// removes old aligners
-		for (edu.yu.einstein.wasp.model.MetaAttribute.Control.Option opt: ametaJdm.getProperty().getControl().getOptions()) {
+		// sync meta data in DB (e.g.removes old aligners)
+		for (MetaAttribute.Control.Option opt: ametaJdm.getProperty().getControl().getOptions()) {
 			jobDraftMetaService.updateByJobdraftId(opt.getValue(), jobDraftId, new ArrayList());
-
 		}
 
 		jobDraftMetaService.updateByJobdraftId(metaHelperWebapp.getArea(), jobDraftId, jobDraftMetaList);
@@ -844,7 +926,8 @@ public class JobSubmissionController extends WaspController {
 	public String showSampleDraft(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
 	
 		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
-
+		if (! isJobDraftEditable(jobDraft))
+			return "redirect:/dashboard.do";
 		//get list of meta fields that are 'allowed' for the given workflowId 
 		int workflowId=jobDraftService.findById(jobDraftId).getWorkflow().getWorkflowId();
 		Map<SubtypeSample,List<SampleDraftMeta>>allowedMetaFields=sampleDraftMetaService.getAllowableMetaFields(workflowId);
@@ -873,11 +956,9 @@ public class JobSubmissionController extends WaspController {
 		m.addAttribute(JQFieldTag.AREA_ATTR, "sampleDraft");		
 		prepareSelectListData(m);
 		m.addAttribute("jobdraftId",jobDraftId);
-		m.addAttribute("jobDraftDb",jobDraft);
+		//m.addAttribute("jobDraftDb",jobDraft);
 		m.addAttribute("uploadStartedMessage",messageService.getMessage("sampleDraft.fileupload_wait.data"));
-		
-		
-                m.put("pageFlowMap", getPageFlowMap(jobDraft));
+		m.put("pageFlowMap", getPageFlowMap(jobDraft));
 	
 		return "jobsubmit/sample";
 		
@@ -888,17 +969,24 @@ public class JobSubmissionController extends WaspController {
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public String submitSampleDraft(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
 		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
+		if (! isJobDraftEditable(jobDraft))
+			return "redirect:/dashboard.do";
 		return nextPage(jobDraft);
 	};
 
 	@RequestMapping(value="/cells/{jobDraftId}.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public String showSampleCellDraft(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
+		
+		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
+		if (! isJobDraftEditable(jobDraft))
+			return "redirect:/dashboard.do";
+		
 		List<SampleDraft> samples=sampleDraftService.getSampleDraftByJobId(jobDraftId);
 
 		Set<String> selectedSampleCell = new HashSet<String>();
-		Map<Integer, Integer> cellMap = new HashMap<Integer, Integer>();
-		int cellindexCount = 0;
+		//Map<Integer, Integer> cellMap = new HashMap<Integer, Integer>();
+		//int cellindexCount = 0;
 
 		for (SampleDraft sd: samples) {
  			for (SampleDraftCell sdc: sd.getSampleDraftCell()) {
@@ -919,21 +1007,19 @@ public class JobSubmissionController extends WaspController {
 		}
 
 
-		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
-
+		
 		getMetaHelperWebapp().setArea(jobDraft.getWorkflow().getIName());
 
 		jobDraft.setJobDraftMeta(getMetaHelperWebapp().getMasterList(JobDraftMeta.class));
 
-		m.put("jobDraftDb", jobDraft);
 		m.put("jobDraft", jobDraft);
-		m.put("area", getMetaHelperWebapp().getArea());
-		m.put("parentarea", getMetaHelperWebapp().getParentArea());
+		//m.put("area", getMetaHelperWebapp().getArea());
+		//m.put("parentarea", getMetaHelperWebapp().getParentArea());
 
 		m.put("sampleDrafts", samples);
 		m.put("selectedSampleCell", selectedSampleCell);
 
-                m.put("pageFlowMap", getPageFlowMap(jobDraft));
+        m.put("pageFlowMap", getPageFlowMap(jobDraft));
 
 		return "jobsubmit/cell";
 		
@@ -946,7 +1032,11 @@ public class JobSubmissionController extends WaspController {
 			ModelMap m) {
 
 		//	Removes Old Entries, premature?
-		List<JobDraftCell> oldJobDraftCells = jobDraftService.getJobDraftByJobDraftId(jobDraftId).getJobDraftCell();
+		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
+		if (! isJobDraftEditable(jobDraft))
+			return "redirect:/dashboard.do";
+		
+		List<JobDraftCell> oldJobDraftCells = jobDraft.getJobDraftCell();
 
 		for (JobDraftCell jdc: oldJobDraftCells) {
 			List<SampleDraftCell> oldSampleDraftCells = jdc.getSampleDraftCell();
@@ -1016,20 +1106,20 @@ public class JobSubmissionController extends WaspController {
 			}
 		}
 
-		JobDraft jobDraftDb = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
-		return nextPage(jobDraftDb);
+		return nextPage(jobDraft);
 	}
 
 	@RequestMapping(value="/verify/{jobDraftId}.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public String showJobDraft(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
 		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
-
+		if (! isJobDraftEditable(jobDraft))
+			return "redirect:/dashboard.do";
 		m.put("jobDraft", jobDraft);
 
 		List <SampleDraft> sampleDraftList = jobDraft.getSampleDraft();
 		m.put("sampleDraft", sampleDraftList);
-                m.put("pageFlowMap", getPageFlowMap(jobDraft));
+        m.put("pageFlowMap", getPageFlowMap(jobDraft));
 
 		return "jobsubmit/verify";
 	}
@@ -1038,7 +1128,8 @@ public class JobSubmissionController extends WaspController {
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public String verifyJob(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
 		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
-
+		if (! isJobDraftEditable(jobDraft))
+			return "redirect:/dashboard.do";
 
 		// TODO ClassLoader for validateJobDraft 
 
@@ -1072,7 +1163,8 @@ public class JobSubmissionController extends WaspController {
 		User me = authenticationService.getAuthenticatedUser();
 
 		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
-
+		if (! isJobDraftEditable(jobDraft))
+			return "redirect:/dashboard.do";
 		
 		getMetaHelperWebapp().setArea(jobDraft.getWorkflow().getIName());
 
