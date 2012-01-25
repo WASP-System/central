@@ -81,7 +81,6 @@ public class TaskLoadService extends WaspLoadService {
 
 		Set<String> seenStatus = new HashSet(); 
 
-		try { // TODO RWALLY FIX
 		// adds to seen
 		if (taskMapping != null) {
 		for (TaskMapping tm: taskMapping) {
