@@ -58,5 +58,7 @@ public interface TaskService extends WaspService<Task> {
   List<TaskMapping> getTaskMappings();
   
   List<State> getStatesByTaskMappingRule(Task task, String status);
+  
+  List<State> filterStatesByStatusAndPermission(List<State> states, String status,  String permsission);
 }
 

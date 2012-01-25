@@ -14,6 +14,7 @@ import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.State;
+import edu.yu.einstein.wasp.model.TaskMapping;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.DepartmentService;
 import edu.yu.einstein.wasp.service.JobDraftService;
@@ -109,7 +110,19 @@ public class DashboardController extends WaspController {
 		}
 		m.addAttribute("allLabManagerPendingTasks", allLabManagerPendingTasks);
 		
-		m.addAttribute("tasks",taskService.getTaskMappings());
+		List<TaskMapping> taskMappingsAll=taskService.getTaskMappings();
+		List<TaskMapping> taskMappings= new ArrayList<TaskMapping>();
+		
+		for(TaskMapping tm:taskMappingsAll) {
+			List<State> states=taskService.filterStatesByStatusAndPermission(tm.getTask().getState(),tm.getStatus(), tm.getPermission());
+		
+			if (states!=null && !states.isEmpty()) {
+				tm.setStateCount(states.size());
+				taskMappings.add(tm);
+			}
+		}
+		
+		m.addAttribute("tasks",taskMappings);
 		
 		return "dashboard";
 	}

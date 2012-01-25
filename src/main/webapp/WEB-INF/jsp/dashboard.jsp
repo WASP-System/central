@@ -216,11 +216,9 @@
 <br>
 <div>
 <c:forEach items="${tasks}" var="task"> 	
-    <c:if test="${task.stateCount > 0}">
-    <sec:authorize access="${task.permission}">
-    	<div><a href="<c:url value="${task.listMap}"/>">${task.task.name}/${task.status}</a>  (${task.stateCount})</div>
-  	</sec:authorize>    
-    </c:if>
+  
+ <div><a href="<c:url value="${task.listMap}"/>">${task.task.name}/${task.status}</a>  (${task.stateCount})</div>
+  
 </c:forEach>
 
 <hr>
