@@ -110,9 +110,10 @@ public class DashboardController extends WaspController {
 		}
 		m.addAttribute("allLabManagerPendingTasks", allLabManagerPendingTasks);
 		
-		List<TaskMapping> taskMappingsAll=taskService.getTaskMappings();
 		List<TaskMapping> taskMappings= new ArrayList<TaskMapping>();
-		
+	
+/* commenting out to reduce load	
+		List<TaskMapping> taskMappingsAll=taskService.getTaskMappings();
 		for(TaskMapping tm:taskMappingsAll) {
 			List<State> states=taskService.filterStatesByStatusAndPermission(tm.getTask().getState(),tm.getStatus(), tm.getPermission());
 		
@@ -121,6 +122,7 @@ public class DashboardController extends WaspController {
 				taskMappings.add(tm);
 			}
 		}
+*/
 		
 		m.addAttribute("tasks",taskMappings);
 		
