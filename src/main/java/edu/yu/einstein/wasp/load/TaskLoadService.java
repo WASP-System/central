@@ -83,18 +83,23 @@ public class TaskLoadService extends WaspLoadService {
 
 		try { // TODO RWALLY FIX
 		// adds to seen
+		if (taskMapping != null) {
 		for (TaskMapping tm: taskMapping) {
 			seenStatus.add(tm.getStatus());
 		}
+		}
 
 		// hard removal, todo make a set of status and check that
+		if (dbTaskMapping != null) {
 		for (TaskMapping tm: dbTaskMapping) {
 			if (seenStatus.contains(tm.getStatus())) {
 				taskMappingService.remove(tm);
 				taskMappingService.flush(tm);
 			}
 		}
+		}
 
+		if (taskMapping != null) {
 		for (TaskMapping tm: taskMapping) {
 			TaskMapping dbTm = taskMappingService.getTaskMappingByTaskIdStatus(task.getTaskId(), tm.getStatus()); 
 
@@ -113,7 +118,6 @@ public class TaskLoadService extends WaspLoadService {
 			}
 
 		}
-		} catch (Exception e) { 
 		}
 
 		updateUiFields(); 
