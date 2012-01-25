@@ -247,21 +247,26 @@
 
   <!-- ****** -->
 
-  <batch:job id="startJob" restartable="true">
-    <batch:step id="startJob0" parent="createSampleReceiveStateStep" next="job.quoteFlow" /> 
 
-    <batch:flow id="job.quoteFlow" parent="quoteFlow" next="job.approvals" />
+  <batch:flow id="wasp.job.defaultAdminFlow">
+    <batch:step id="wasp.job.defaultAdminFlow0" parent="createSampleReceiveStateStep" next="wasp.job.defaultAdminFlow.quoteFlow" /> 
 
-    <batch:split id="job.approvals" next="job.invoiceFlow" task-executor="asyncTaskExecutor">
+    <batch:flow id="wasp.job.defaultAdminFlow.quoteFlow" parent="quoteFlow" next="wasp.job.defaultAdminFlow.approvals" />
+
+    <batch:split id="wasp.job.defaultAdminFlow.approvals" next="wasp.job.defaultAdminFlow.invoiceFlow" task-executor="asyncTaskExecutor">
       <batch:flow>
-        <batch:flow id="job.piApprovalFlow" parent="piApprovalFlow" />
+        <batch:flow id="wasp.job.defaultAdminFlow.piApprovalFlow" parent="piApprovalFlow" />
       </batch:flow>
       <batch:flow>
-        <batch:flow id="job.daApprovalFlow" parent="daApprovalFlow" />
+        <batch:flow id="wasp.job.defaultAdminFlow.daApprovalFlow" parent="daApprovalFlow" />
       </batch:flow>
     </batch:split> 
 
-    <batch:flow id="job.invoiceFlow" parent="invoiceFlow" next="job.sampleReceivedFlow" />
+    <batch:flow id="wasp.job.defaultAdminFlow.invoiceFlow" parent="invoiceFlow" />
+  </batch:flow>
+
+  <batch:job id="startJob" restartable="true">
+    <batch:flow id="job.adminFlow" parent="wasp.job.defaultAdminFlow" next="job.sampleReceivedFlow" />
     <batch:flow id="job.sampleReceivedFlow" parent="allSamplesReceivedFlow" next="job.sampleFinalFlow" />
     <batch:flow id="job.sampleFinalFlow" parent="allSamplesFinalFlow" next="job.finishFlow" /> 
     <batch:flow id="job.finishFlow" parent="finishJobFlow" />
