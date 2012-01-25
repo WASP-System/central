@@ -104,7 +104,6 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
   
     <!--WARNING:UNCOMMENT this if running  the app for the first time.it will create batch utility tables-->
 <!--
--->
     <bean id="dataSourceInitializer" class="edu.yu.einstein.wasp.batch.DataSourceInitializer">
         <property name="dataSource" ref="dataSource" />
         <property name="initialize" value="true" />
@@ -115,4 +114,5 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
             </list>
         </property>
     </bean>
+-->
 </beans>
