@@ -637,8 +637,7 @@ public class JobSubmissionController extends WaspController {
 		
 		if (result.hasErrors()) {
 			waspMessage("jobDraft.form.error");
-
-			return showResourceMetaForm(typeresourceiname, jobDraftId, m);
+			showResourceMetaForm(typeresourceiname, jobDraftId, m);
 		}
 
 
@@ -788,9 +787,9 @@ public class JobSubmissionController extends WaspController {
 		metaHelperWebapp.validate(jobDraftMetaList, result);
 
 		if (result.hasErrors()) {
-			logger.debug("ANDY:"+result.toString());
 			waspMessage("jobDraft.form.error");
-			return "jobsubmit/software/" + typeresourceiname + "/" + jobDraftId;
+
+			return showResourceMetaForm(typeresourceiname, jobDraftId, m);
 		}
 
 

@@ -218,7 +218,36 @@ public class SubtypeSample extends WaspModel {
 		this.workflowsubtypesample = workflowsubtypesample;
 	}
 
+	/** 
+	 * subtypeSampleResourceCategory
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="subtypesampleid", insertable=false, updatable=false)
+	protected List<SubtypeSampleResourceCategory> subtypeSampleResourceCategory;
 
+
+	/** 
+	 * getSubtypeSampleResourceCategory()
+	 *
+	 * @return subtypeSampleResourceCategory
+	 *
+	 */
+	public List<SubtypeSampleResourceCategory> getSubtypeSampleResourceCategory() {
+		return this.subtypeSampleResourceCategory;
+	}
+
+
+	/** 
+	 * setSubtypeSampleResourceCategory
+	 *
+	 * @param subtypeSampleResourceCategory
+	 *
+	 */
+	public void setSubtypeSampleResourceCategory (List<SubtypeSampleResourceCategory> subtypeSampleResourceCategory) {
+		this.subtypeSampleResourceCategory = subtypeSampleResourceCategory;
+	}
 
 	/** 
 	 * sample

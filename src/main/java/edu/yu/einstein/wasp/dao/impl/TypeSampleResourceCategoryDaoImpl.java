@@ -46,9 +46,9 @@ public class TypeSampleResourceCategoryDaoImpl extends WaspDaoImpl<TypeSampleRes
 	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
-	public TypeSampleResourceCategory getTypeSampleResourceCategoryByTypeSampleresourcecategoryId (final Integer typeSampleresourcecategoryId) {
+	public TypeSampleResourceCategory getTypeSampleResourceCategoryByTypeSampleResourceCategoryId (final Integer typeSampleResourceCategoryId) {
     		HashMap m = new HashMap();
-		m.put("typeSampleresourcecategoryId", typeSampleresourcecategoryId);
+		m.put("typeSampleresourcecategoryId", typeSampleResourceCategoryId);
 
 		List<TypeSampleResourceCategory> results = this.findByMap(m);
 

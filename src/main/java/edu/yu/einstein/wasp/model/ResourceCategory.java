@@ -407,6 +407,38 @@ public class ResourceCategory extends WaspModel {
 		this.adaptorsetResourceCategory = adaptorsetResourceCategory;
 	}
 
+	
+	/** 
+	 * subtypeSampleResourceCategory
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="resourcecategoryid", insertable=false, updatable=false)
+	protected List<SubtypeSampleResourceCategory> subtypeSampleResourceCategory;
+
+
+	/** 
+	 * getSubtypeSampleResourceCategory()
+	 *
+	 * @return subtypeSampleResourceCategory
+	 *
+	 */
+	public List<SubtypeSampleResourceCategory> getSubtypeSampleResourceCategory() {
+		return this.subtypeSampleResourceCategory;
+	}
+
+
+	/** 
+	 * setSubtypeSampleResourceCategory
+	 *
+	 * @param subtypeSampleResourceCategory
+	 *
+	 */
+	public void setSubtypeSampleResourceCategory (List<SubtypeSampleResourceCategory> subtypeSampleResourceCategory) {
+		this.subtypeSampleResourceCategory = subtypeSampleResourceCategory;
+	}
+
 
 
 }

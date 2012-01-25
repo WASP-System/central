@@ -853,6 +853,17 @@ create table subtypesamplemeta (
   constraint unique index u_subtypesamplemeta_k_sid (k, subtypesampleid)
 ) ENGINE=InnoDB charset=utf8;
 
+create table subtypesampleresourcecategory (
+  subtypesampleresourcecategoryid int(10)  primary key auto_increment,
+  subtypesampleid int(10) ,
+  resourcecategoryid int(10) ,
+  iname varchar(250), 
+  name varchar(250),
+  foreign key fk_subtypesampleresourcecategory_stscid (subtypesampleid) references subtypesample(subtypesampleid),
+  foreign key fk_subtypesampleresourcecategory_rcid (resourcecategoryid) references resourcecategory(resourcecategoryid),
+  constraint unique index u_subtypesampleresourcecategory_iname (iname),
+  constraint unique index u_subtypesampleresourcecategory_name (name)
+) ENGINE=InnoDB charset=utf8;
 
 create table workflowsubtypesample (
   workflowsubtypesampleid int(10)  primary key auto_increment,
