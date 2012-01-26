@@ -184,37 +184,6 @@ public class TypeSample extends WaspModel {
 	}
 
 
-	/** 
-	 * typeSampleresourcecategory
-	 *
-	 */
-	@NotAudited
-	@OneToMany
-	@JoinColumn(name="typesampleid", insertable=false, updatable=false)
-	protected List<TypeSampleResourceCategory> typeSampleResourceCategory;
-
-
-	/** 
-	 * getTypeSampleresourcecategory()
-	 *
-	 * @return typeSampleresourcecategory
-	 *
-	 */
-	public List<TypeSampleResourceCategory> getTypeSampleResourceCategory() {
-		return this.typeSampleResourceCategory;
-	}
-
-
-	/** 
-	 * setTypeSampleresourcecategory
-	 *
-	 * @param typeSampleresourcecategory
-	 *
-	 */
-	public void setTypeSampleresourcecategory (List<TypeSampleResourceCategory> typeSampleResourceCategory) {
-		this.typeSampleResourceCategory = typeSampleResourceCategory;
-	}
-
 
 
 	/** 

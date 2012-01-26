@@ -812,18 +812,6 @@ insert into typesample values
 (5, 2, 'platformunit', 'Platform Unit'),
 (6, 1, 'tissue', 'Tissue');
 
-create table typesampleresourcecategory (
-  typesampleresourcecategoryid int(10)  primary key auto_increment,
-  typesampleid int(10) ,
-  resourcecategoryid int(10) ,
-  iname varchar(250), 
-  name varchar(250),
-  foreign key fk_typesampleresourcecategory_tscid (typesampleid) references typesample(typesampleid),
-  foreign key fk_typesampleresourcecategory_rcid (resourcecategoryid) references resourcecategory(resourcecategoryid),
-  constraint unique index u_typesampleresourcecategory_iname (iname),
-  constraint unique index u_typesampleresourcecategory_name (name)
-) ENGINE=InnoDB charset=utf8;
-
 
 
 create table subtypesample (
