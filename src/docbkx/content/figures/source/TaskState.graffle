@@ -219,7 +219,7 @@
 		</dict>
 		<dict>
 			<key>Bounds</key>
-			<string>{{236.09613, 48.453251}, {129, 17}}</string>
+			<string>{{228.84177, 75.289078}, {129, 17}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>FitText</key>
@@ -808,8 +808,8 @@
 			<integer>160</integer>
 			<key>Points</key>
 			<array>
-				<string>{523.80792, 100.17874}</string>
-				<string>{425, 138}</string>
+				<string>{520.51477, 86.238106}</string>
+				<string>{421, 111.00006}</string>
 				<string>{322.85406, 262.57999}</string>
 			</array>
 			<key>Style</key>
@@ -1016,9 +1016,8 @@
 			<array>
 				<string>{156, 284.00003}</string>
 				<string>{201.25, 247}</string>
-				<string>{230, 86}</string>
-				<string>{366, 77}</string>
-				<string>{411, 147.00003}</string>
+				<string>{231.5, 109}</string>
+				<string>{380, 108.00012}</string>
 				<string>{487, 202.00003}</string>
 			</array>
 			<key>Style</key>
@@ -2041,7 +2040,7 @@
 		</dict>
 	</array>
 	<key>ModificationDate</key>
-	<string>2012-01-26 16:03:40 +0000</string>
+	<string>2012-01-26 17:12:47 +0000</string>
 	<key>Modifier</key>
 	<string>R. Brent Calder</string>
 	<key>NotesVisible</key>
@@ -2114,7 +2113,7 @@
 		<key>DrawerWidth</key>
 		<real>209</real>
 		<key>Frame</key>
-		<string>{{246, 62}, {988, 1021}}</string>
+		<string>{{248, 91}, {988, 1021}}</string>
 		<key>ShowRuler</key>
 		<true/>
 		<key>VisibleRegion</key>
