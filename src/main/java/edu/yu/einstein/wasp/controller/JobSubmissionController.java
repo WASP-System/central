@@ -642,6 +642,10 @@ public class JobSubmissionController extends WaspController {
 					logger.debug("ANDY:"+code);
 			} */
 			String returnPage = showResourceMetaForm(typeresourceiname, jobDraftId, m);
+			for (org.springframework.validation.ObjectError e: result.getAllErrors()){
+				for (String code: e.getCodes())
+					logger.debug("ANDY:"+code);
+			} 
 			//logger.debug("ANDY: "+returnPage);
 			return returnPage;
 		}

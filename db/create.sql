@@ -991,6 +991,21 @@ create table samplesource (
   constraint unique index u_samplesource_sid (sampleid, multiplexindex)
 ) ENGINE=InnoDB charset=utf8;
 
+create table samplesourcemeta (
+  samplesourcemetaid int(10)  primary key auto_increment,
+  samplesourceid int(10) ,
+
+  k varchar(250) , 
+  v varchar(250), 
+  position int(10)  default 0,
+
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
+
+  foreign key fk_samplesourcemeta_sampleid (samplesourceid) references samplesource(samplesourceid),
+  constraint unique index u_samplesourcemeta_k_sid (k, samplesourceid)
+) ENGINE=InnoDB charset=utf8;
+
 -- SAMPLE.BARCODE 
 create table samplebarcode (
   samplebarcode int(10)  primary key auto_increment, 
