@@ -9,10 +9,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import util.spring.PostInitialize;
+import edu.yu.einstein.wasp.exception.NullResourceCategoryException;
+import edu.yu.einstein.wasp.model.AdaptorsetResourceCategory;
+import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.SubtypeSample;
 import edu.yu.einstein.wasp.model.SubtypeSampleMeta;
+import edu.yu.einstein.wasp.model.SubtypeSampleResourceCategory;
 import edu.yu.einstein.wasp.model.TypeSample;
+import edu.yu.einstein.wasp.service.ResourceCategoryService;
 import edu.yu.einstein.wasp.service.SubtypeSampleMetaService;
+import edu.yu.einstein.wasp.service.SubtypeSampleResourceCategoryService;
 import edu.yu.einstein.wasp.service.SubtypeSampleService;
 import edu.yu.einstein.wasp.service.TypeSampleService;
 
@@ -38,12 +44,21 @@ public class SubtypeSampleLoadService extends WaspLoadService {
 
   @Autowired
   private SubtypeSampleMetaService subtypeSampleMetaService;
+  
+  @Autowired
+  private ResourceCategoryService resourceCategoryService;
+  
+  @Autowired
+  private SubtypeSampleResourceCategoryService subtypeSampleResourceCategoryService;
 
   private String sampleType; 
   public void setSampleType(String sampleType) {this.sampleType = sampleType; }
 
   private List<SubtypeSampleMeta> meta;
   public void setMeta(List<SubtypeSampleMeta> subtypeSampleMeta) {this.meta = subtypeSampleMeta; }
+  
+  private List<String> compatibleResourcesByIName; 
+  public void setCompatibleResourcesByIName(List<String> compatibleResourcesByIName) {this.compatibleResourcesByIName = compatibleResourcesByIName; }
 
   
   public SubtypeSampleLoadService(){}
@@ -142,6 +157,37 @@ public class SubtypeSampleLoadService extends WaspLoadService {
       subtypeSampleMetaService.remove(subtypeSampleMeta);
       subtypeSampleMetaService.flush(subtypeSampleMeta);
     }
+    
+    // sync subtypeSampleResourceCategories
+    Map<String, SubtypeSampleResourceCategory> oldSubtypeSampleResourceCats  = new HashMap<String, SubtypeSampleResourceCategory>();
+    for (SubtypeSampleResourceCategory subtypeSampleResourceCat: safeList(subtypeSample.getSubtypeSampleResourceCategory())) {
+    	oldSubtypeSampleResourceCats.put(subtypeSampleResourceCat.getResourceCategory().getIName(), subtypeSampleResourceCat);
+    } 
+    
+    for (String resourceIName: safeList(compatibleResourcesByIName)) {
+    	if (oldSubtypeSampleResourceCats.containsKey(resourceIName)) {
+    		oldSubtypeSampleResourceCats.remove(resourceIName);
+    		continue;
+    	}
+    	ResourceCategory resourceCat = resourceCategoryService.getResourceCategoryByIName(resourceIName);
+    	if (resourceCat.getResourceCategoryId() != null){
+    		SubtypeSampleResourceCategory subtypeSampleResourceCategory = new SubtypeSampleResourceCategory();
+    		subtypeSampleResourceCategory.setResourcecategoryId(resourceCat.getResourceCategoryId());
+    		subtypeSampleResourceCategory.setSubtypeSampleId(subtypeSample.getSubtypeSampleId());
+    		subtypeSampleResourceCategoryService.save(subtypeSampleResourceCategory);
+    		oldSubtypeSampleResourceCats.remove(resourceIName);
+    	} else {
+    		throw new NullResourceCategoryException();
+    	}
+    }
+    
+    // remove the left overs
+    for (String adaptorsetKey : oldSubtypeSampleResourceCats.keySet()) {
+    	ResourceCategory resourceCat = resourceCategoryService.getResourceCategoryByIName(adaptorsetKey);
+    	SubtypeSampleResourceCategory ssrc = subtypeSampleResourceCategoryService.getSubtypeSampleResourceCategoryBySubtypeSampleIdResourceCategoryId(subtypeSample.getSubtypeSampleId(), resourceCat.getResourceCategoryId());
+    	subtypeSampleResourceCategoryService.remove(ssrc);
+    }
+    
     updateUiFields(); 
 
   }

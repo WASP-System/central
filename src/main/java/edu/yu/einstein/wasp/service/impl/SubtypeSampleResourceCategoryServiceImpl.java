@@ -58,13 +58,8 @@ public class SubtypeSampleResourceCategoryServiceImpl extends WaspServiceImpl<Su
   }
   
   @Override
-  public SubtypeSampleResourceCategory getSubtypeSampleResourceCategoryByIName (final String iName){
-	  return this.getSubtypeSampleResourceCategoryDao().getSubtypeSampleResourceCategoryByIName(iName);
-  }
-  
-  @Override
-  public SubtypeSampleResourceCategory getTypeSubtypeSampleResourceCategoryByName (final String name){
-	  return this.getSubtypeSampleResourceCategoryDao().getSubtypeSampleResourceCategoryByName(name);
+  public SubtypeSampleResourceCategory getSubtypeSampleResourceCategoryBySubtypeSampleIdResourceCategoryId(final Integer subtypeSampleId, final Integer resourceCategoryId){
+	  return this.getSubtypeSampleResourceCategoryDao().getSubtypeSampleResourceCategoryBySubtypeSampleIdResourceCategoryId(subtypeSampleId, resourceCategoryId);
   }
 }
 

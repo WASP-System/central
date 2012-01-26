@@ -40,13 +40,8 @@
         <bean class="edu.yu.einstein.wasp.model.ResourceCategoryMeta">
           <property name="k" value="resource.allowableUiField.readType" />
           <property name="v" value="single:single;paired:paired" />
-        </bean>
-        
-        <bean class="edu.yu.einstein.wasp.model.ResourceCategoryMeta">
-          <property name="k" value="resource.cell.max" />
-          <property name="v" value="8" />
-        </bean>
-      </list>
+        </bean>       
+       </list>
     </property> 
 
     <property name="uiFields">

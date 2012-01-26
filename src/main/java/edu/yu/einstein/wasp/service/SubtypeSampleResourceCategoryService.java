@@ -37,9 +37,7 @@ public interface SubtypeSampleResourceCategoryService extends WaspService<Subtyp
 
 	public SubtypeSampleResourceCategory getSubtypeSampleResourceCategoryBySubtypeSampleResourceCategoryId (final Integer subtypeSampleResourceCategoryId);
   
-	public SubtypeSampleResourceCategory getSubtypeSampleResourceCategoryByIName (final String iName);
-
-	public SubtypeSampleResourceCategory getTypeSubtypeSampleResourceCategoryByName (final String name);
+	public SubtypeSampleResourceCategory getSubtypeSampleResourceCategoryBySubtypeSampleIdResourceCategoryId(final Integer subtypeSampleId, final Integer resourceCategoryId);
 
 
 }

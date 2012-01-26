@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.1.xsd"
+    default-autowire="byName">
+   
+  <!-- ChIP-seq DNA sample --> 
+   
+  <bean class="edu.yu.einstein.wasp.model.UiField" id="illuminaFlowcellV3">
+    <property name="locale" value="en_US" />
+    <property name="area" value="illuminaFlowcellV3" />
+  </bean>
+  
+
+  <bean id="illuminaFlowcellV3UiFields" class="edu.yu.einstein.wasp.load.SubtypeSampleLoadService">
+  	<property name="iname" value="illuminaFlowcellV3" />
+    <property name="name" value="Illumina Flow Cell Version 3" />
+    <property name="area" value="illuminaFlowcellV3" />
+    <property name="sampleType" value="platformunit" />
+    <property name="compatibleResourcesByIName">
+  		<list>
+  			<bean class="java.lang.String" depends-on="illuminaHiSeq2000">
+  				<constructor-arg type="String" value="illuminaHiSeq2000" />
+  			</bean>
+  		</list>
+  	</property>
+  	
+  	 <property name="meta">
+      <list>
+        <bean class="edu.yu.einstein.wasp.model.SubtypeSampleMeta">
+          <property name="k" value="illuminaFlowcellV3.lanes" />
+          <property name="v" value="8" />
+        </bean>
+        <bean class="edu.yu.einstein.wasp.model.SubtypeSampleMeta">
+          <property name="k" value="illuminaFlowcellV3.cellName" />
+          <property name="v" value="Lane" />
+        </bean>
+        <bean class="edu.yu.einstein.wasp.model.SubtypeSampleMeta">
+          <property name="k" value="illuminaFlowcellV3.platformunitName" />
+          <property name="v" value="Flowcell" />
+        </bean>
+      </list>
+    </property> 
+  	
+  </bean>
+  
+</beans>

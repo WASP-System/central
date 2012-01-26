@@ -59,20 +59,13 @@ public class SubtypeSampleResourceCategoryDaoImpl extends WaspDaoImpl<SubtypeSam
 		return results.get(0);
 	}
 
-	/**
-	 * getSubtypeSampleResourceCategoryByIName(final String iName)
-	 *
-	 * @param final String iName
-	 *
-	 * @return typeSampleResourceCategory
-	 */
-
 	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
-	public SubtypeSampleResourceCategory getSubtypeSampleResourceCategoryByIName (final String iName) {
-    		HashMap m = new HashMap();
-		m.put("iName", iName);
+	public SubtypeSampleResourceCategory getSubtypeSampleResourceCategoryBySubtypeSampleIdResourceCategoryId(final Integer subtypeSampleId, final Integer resourceCategoryId){
+		HashMap m = new HashMap();
+		m.put("subtypeSampleId", subtypeSampleId);
+		m.put("resourcecategoryId", resourceCategoryId);
 
 		List<SubtypeSampleResourceCategory> results = this.findByMap(m);
 
@@ -82,32 +75,4 @@ public class SubtypeSampleResourceCategoryDaoImpl extends WaspDaoImpl<SubtypeSam
 		}
 		return results.get(0);
 	}
-
-
-
-	/**
-	 * getSubtypeSampleResourceCategoryByName(final String name)
-	 *
-	 * @param final String name
-	 *
-	 * @return typeSampleResourceCategory
-	 */
-
-	@Override
-	@SuppressWarnings("unchecked")
-	@Transactional
-	public SubtypeSampleResourceCategory getSubtypeSampleResourceCategoryByName (final String name) {
-    		HashMap m = new HashMap();
-		m.put("name", name);
-
-		List<SubtypeSampleResourceCategory> results = this.findByMap(m);
-
-		if (results.size() == 0) {
-			SubtypeSampleResourceCategory rt = new SubtypeSampleResourceCategory();
-			return rt;
-		}
-		return results.get(0);
-	}
-
 }
-

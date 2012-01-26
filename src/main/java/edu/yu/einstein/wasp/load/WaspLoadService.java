@@ -180,7 +180,7 @@ public abstract class WaspLoadService {
 			uiFieldService.remove(uiField);
 			uiFieldService.flush(uiField);
 		}
-		runningMaxMetaPosition = -10;
+		runningMaxMetaPosition = 0;
 		if (sourceLoadService != null){
 			processUiFieldsAndSave(sourceLoadService.getBaseUiFields(), area);
 			processUiFieldsAndSave(sourceLoadService.getUiFields(), area);

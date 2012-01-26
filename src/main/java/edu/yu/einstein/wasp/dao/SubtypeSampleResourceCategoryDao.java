@@ -17,10 +17,8 @@ import edu.yu.einstein.wasp.model.SubtypeSampleResourceCategory;
 public interface SubtypeSampleResourceCategoryDao extends WaspDao<SubtypeSampleResourceCategory> {
 
 	public SubtypeSampleResourceCategory getSubtypeSampleResourceCategoryBySubtypeSampleResourceCategoryId (final Integer subtypeSampleResourCecategoryId);
-
-	public SubtypeSampleResourceCategory getSubtypeSampleResourceCategoryByIName (final String iName);
-
-	public SubtypeSampleResourceCategory getSubtypeSampleResourceCategoryByName (final String name);
+	
+	public SubtypeSampleResourceCategory getSubtypeSampleResourceCategoryBySubtypeSampleIdResourceCategoryId (final Integer subtypeSampleId, final Integer resourceCategoryId);
 	
 }
 
