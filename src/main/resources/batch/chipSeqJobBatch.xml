@@ -39,6 +39,9 @@
     </si:poller>
   </si:inbound-channel-adapter>
 
+
+
+
   <!-- intermediary for output from jobCreateRequestChannel: -->
   <!-- calls StateJobLaunchingMessageHandler which calls batch:job 'Start Job' (see below) -->	
   <si:service-activator input-channel="chipSeqJobCreateRequestChannel" output-channel="logger">
@@ -107,7 +110,7 @@
   <batch:job id="chipSeqStartJob" restartable="true">
     <batch:step id="chipSeq.startJob0" parent="createSampleReceiveStateStep" next="chipSeq.approvals" />
 
-    <batch:split id="chipSeq.approvals" next="sendInvoiceTaskStep" task-executor="asyncTaskExecutor">
+    <batch:split id="chipSeq.approvals" next="chipSeq.invoiceFlow" task-executor="asyncTaskExecutor">
       <batch:flow>
         <batch:flow id="chipSeq.quoteFlow" parent="quoteFlow" />
       </batch:flow>
@@ -123,9 +126,9 @@
     </batch:split> 
 
     <!-- send and invoice -->
-    <batch:step id="sendInvoiceTaskStep" next="chipSeq.invoiceFlow" >
+    <!-- <batch:step id="sendInvoiceTaskStep" next="chipSeq.invoiceFlow" >
       <batch:tasklet ref="sendInvoiceTasklet" />
-    </batch:step>
+    </batch:step> -->
     <batch:flow id="chipSeq.invoiceFlow" parent="invoiceFlow" next="chipSeq.samplesReceivedFlow" />
 
     <!-- receive all the samples -->

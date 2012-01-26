@@ -70,7 +70,7 @@
 
   <bean id="createSampleReceiveStateStep" parent="parentStateStep">
     <property name="itemProcessor">
-      <bean class="edu.yu.einstein.wasp.batch.CreateSampleReceiveProcessor">
+      <bean class="edu.yu.einstein.wasp.batch.CreateSampleStatesFromJobSampleProcessor">
         <property name="targetTask" value="sampleWrapTask" />
       </bean>
     </property>
