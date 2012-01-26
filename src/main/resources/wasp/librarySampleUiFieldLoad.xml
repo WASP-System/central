@@ -16,51 +16,51 @@
       <list>      
         <bean parent="genericLibrarySampleUiField">
           <property name="name" value="adaptor" />
-          <property name="attrName" value="label" />
+          <property name="attrName" value="#{waspUiFieldAttrname['label']}" />
           <property name="attrValue" value="Adaptorset" />
         </bean>
         <bean parent="genericLibrarySampleUiField">
           <property name="name" value="adaptor" />
-          <property name="attrName" value="metaposition" />
+          <property name="attrName" value="#{waspUiFieldAttrname['metaposition']}" />
           <property name="attrValue" value="40" />
         </bean>
         <bean parent="genericLibrarySampleUiField">
           <property name="name" value="adaptor" />
-          <property name="attrName" value="control" />
+          <property name="attrName" value="#{waspUiFieldAttrname['control']}" />
           <property name="attrValue" value="select:truseqIndexedDna:TruSEQ INDEXED DNA" />
           <!-- <property name="attrValue" value="select:${adaptorset}:code:name" /> -->
         </bean>
         
         <bean parent="genericLibrarySampleUiField">
           <property name="name" value="adaptorindex" />
-          <property name="attrName" value="label" />
+          <property name="attrName" value="#{waspUiFieldAttrname['label']}" />
           <property name="attrValue" value="Adaptor Index" />
         </bean>
         <bean parent="genericLibrarySampleUiField">
           <property name="name" value="adaptorindex" />
-          <property name="attrName" value="metaposition" />
+          <property name="attrName" value="#{waspUiFieldAttrname['metaposition']}" />
           <property name="attrValue" value="50" />
         </bean>
         <bean parent="genericLibrarySampleUiField">
           <property name="name" value="adaptorindex" />
-          <property name="attrName" value="control" />
+          <property name="attrName" value="#{waspUiFieldAttrname['control']}" />
           <property name="attrValue" value="select:1:1;2:2;3:3;4:4;5:5;6:6;7:7;8:8" />
           <!-- <property name="attrValue" value="select:${adaptorindex}:code:name" /> -->
         </bean>
         
         <bean parent="genericLibrarySampleUiField">
           <property name="name" value="size" />
-          <property name="attrName" value="label" />
+          <property name="attrName" value="#{waspUiFieldAttrname['label']}" />
           <property name="attrValue" value="Library Size" />
         </bean>
         <bean parent="genericLibrarySampleUiField">
           <property name="name" value="size" />
-          <property name="attrName" value="metaposition" />
+          <property name="attrName" value="#{waspUiFieldAttrname['metaposition']}" />
           <property name="attrValue" value="60" />
         </bean>
         <bean parent="genericLibrarySampleUiField">
           <property name="name" value="size" />
-          <property name="attrName" value="control" />
+          <property name="attrName" value="#{waspUiFieldAttrname['control']}" />
           <property name="attrValue" value="select:1:1;2:2;3:3;4:4;5:5;6:6;7:7;8:8" />
           <!-- <property name="attrValue" value="select:${adaptorindex}:code:name" /> -->
         </bean>

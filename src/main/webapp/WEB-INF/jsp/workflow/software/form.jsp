@@ -7,8 +7,7 @@
 <form:form method="POST">
 	<c:forEach items="${workflowTypeResourceMap}" var="workflowTypeResource">
 		<section style="margin-bottom:20px">
-		<h2><c:out value="${workflowTypeResource.typeResource.IName}" /> /
-			<c:out value="${workflowTypeResource.typeResource.name}" /></h2>
+		<h2><c:out value="${workflowTypeResource.typeResource.name}" /></h2>
 			<c:forEach items="${workflowTypeResource.typeResource.resourceCategory}" var="rc">
 
 				<c:set var="wrc" value="" />
@@ -19,7 +18,7 @@
 
 				<div style="margin-bottom:20px;">
 					<input type="checkbox" name="resourceCategory" value="<c:out value="${rc.IName}" />" <c:if test="${!empty wrc}">CHECKED</c:if>>
-					<c:out value="${rc.IName}" /> <c:out value="${rc.name}" />
+					<c:out value="${rc.name}" />
 					<div style="margin-left:20px;">
 						<c:forEach items="${rc.resourceCategoryMeta}" var="rcm">
 							<c:if test="${fn:contains(rcm.k, '.allowableUiField.')}">
@@ -56,7 +55,7 @@ CHECKED
 
 				<div style="margin-bottom:20px;">
 					<input type="checkbox" name="software" value="<c:out value="${rc.IName}" />" <c:if test="${!empty wrc}">CHECKED</c:if>>
-					<c:out value="${rc.IName}" /> <c:out value="${rc.name}" />
+					<c:out value="${rc.name}" />
 					<div style="margin-left:20px;">
 						<c:forEach items="${rc.softwareMeta}" var="rcm">
 							<c:if test="${fn:contains(rcm.k, '.allowableUiField.')}">

@@ -774,3 +774,8 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','user_incorrect','error','You are not authorized to edit this jobdraft','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','not_pending','error','This jobdraft has already been submitted','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','form','error','Please address errors on this page','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','workflow','listname','label','List of Workflows','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','workflow','workflowId','label','Workflow Id','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','workflow','isActive','label','Is Active?','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','workflow','configure','label','Resources and Software','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','workflow','name','label','Workflow Name','1');

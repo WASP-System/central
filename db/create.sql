@@ -811,6 +811,9 @@ insert into typesample values
 (4, 2, 'cell', 'Cell'), 
 (5, 2, 'platformunit', 'Platform Unit'),
 (6, 1, 'tissue', 'Tissue');
+(7, 1, 'protein', 'Protein');
+(8, 1, 'cellPrimary', 'Primary Cell');
+(9, 1, 'cellLine', 'Cell Line');
 
 
 

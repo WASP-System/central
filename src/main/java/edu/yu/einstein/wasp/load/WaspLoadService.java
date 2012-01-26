@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import util.spring.PostInitialize;
 import edu.yu.einstein.wasp.model.UiField;
@@ -40,14 +41,15 @@ public abstract class WaspLoadService {
 	protected UiFieldService uiFieldService;
 
 	protected String iname; 
-	public void setIname(String iname) {this.iname = iname; }
-	public String getIname(){return iname;}
-
+	
 	protected String name; 
 	public void setName(String name) {this.name = name; }
 	
 	protected String area;
-	public void setArea(String area){this.area = area;}
+	public void setArea(String area){
+		this.area = StringUtils.replace(area, ".", "_"); 
+		this.iname = area;
+	}
 
 	protected List<UiField> baseUiFields; 
 	
@@ -154,12 +156,7 @@ public abstract class WaspLoadService {
 
 	@Transactional
 	public void updateUiFields() {
-		if (area == null){
-			updateUiFields(this.iname);
-		} else {
-			updateUiFields(this.area);
-		}
-			
+		updateUiFields(this.area);	
 	}
 	
 	

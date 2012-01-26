@@ -5,3 +5,5 @@
 <wasp:field name="name" type="text" />
 
 <wasp:field name="isActive"  type="checkbox" />
+
+<wasp:field name="configure" type="text" />

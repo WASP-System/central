@@ -93,6 +93,9 @@
 
   <!-- for authenticationManager to autowire -->
   <import resource="batch-security-context.xml" />
+  
+  <!-- load constant string value definitions -->
+  <import resource="static-values-definition.xml" />
 
   <!-- loads load scripts to update database -->
   <import resource="classpath*:wasp/*UiFieldLoad.xml" />

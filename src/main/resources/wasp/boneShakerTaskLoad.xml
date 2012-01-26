@@ -17,18 +17,18 @@
   </bean>
 
   <bean id="boneShakerApprovalTask" class="edu.yu.einstein.wasp.load.TaskLoadService">
-    <property name="iname" value="boneShakerApprovalTask" />
+    <property name="area" value="boneShakerApprovalTask" />
     <property name="name" value="Bone Shaker Approval" />
     <property name="uiFields">
       <list>
         <bean parent="boneShakerApprovalUiField">
           <property name="name" value="canWeShake" />
-          <property name="attrName" value="metaposition" />
+          <property name="attrName" value="#waspUiFieldAttrname['metaposition']}" />
           <property name="attrValue" value="10" />
         </bean>
         <bean parent="boneShakerUiField">
           <property name="name" value="canWeShake" />
-          <property name="attrName" value="label" />
+          <property name="attrName" value="#waspUiFieldAttrname['label']}" />
           <property name="attrValue" value="Can We Shake?" />
         </bean>
       </list>
@@ -36,18 +36,18 @@
 
   </bean>
   <bean id="boneShakerTask" class="edu.yu.einstein.wasp.load.TaskLoadService">
-    <property name="iname" value="boneShakerTask" />
+    <property name="area" value="boneShakerTask" />
     <property name="name" value="Bone Shaker Task" />
     <property name="uiFields">
       <list>
         <bean parent="boneShakerUiField">
           <property name="name" value="ricther" />
-          <property name="attrName" value="metaposition" />
+          <property name="attrName" value="#waspUiFieldAttrname['metaposition']}" />
           <property name="attrValue" value="10" />
         </bean>
         <bean parent="boneShakerUiField">
           <property name="name" value="ricther" />
-          <property name="attrName" value="label" />
+          <property name="attrName" value="#waspUiFieldAttrname['label']}" />
           <property name="attrValue" value="Ricther Scale" />
         </bean>
       </list>

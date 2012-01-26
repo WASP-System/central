@@ -31,7 +31,7 @@
       <list>  
         <value>classpath:database.properties</value>  
         <value>classpath:authentication.properties</value>
-        <value>classpath:email.properties</value>
+        <value>classpath:work_email.properties</value>
       </list>  
     </property>  
   </bean>  
@@ -189,6 +189,9 @@
   <import resource="bee-job-filepoller.xml" />
   <import resource="bee-job-fileproccessor.xml" />
     -->
+    
+  <!-- load constant string value definitions -->
+  <import resource="static-values-definition.xml" />
 
   <!-- load --> 
   <import resource="classpath*:wasp/*UiFieldLoad.xml" />

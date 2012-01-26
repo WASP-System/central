@@ -8,14 +8,18 @@
         http://www.springframework.org/schema/context
         http://www.springframework.org/schema/context/spring-context-3.1.xsd"
     default-autowire="byName">
+    
+  <bean id="chipSeqWorkflowArea" class="java.lang.String">
+  	<constructor-arg><value>chipSeq</value></constructor-arg>
+  </bean>
 
   <bean class="edu.yu.einstein.wasp.model.UiField" id="chipSeqUiField">
     <property name="locale" value="en_US" />
-    <property name="area" value="chipSeq" />
+    <property name="area" value="#{chipSeqWorkflowArea}" />
   </bean>
 
   <bean id="chipSeqWorkflow" class="edu.yu.einstein.wasp.load.WorkflowLoadService" depends-on="chipSeqDnaSampleUiField,chipSeqLibrarySampleUiField">
-    <property name="iname" value="chipSeq" />
+    <property name="area" value="#{chipSeqWorkflowArea}" />
     <property name="name" value="Chip Seq" />
     <property name="pageFlowOrder">
       <list>
@@ -50,32 +54,32 @@
       <list>
         <bean parent="chipSeqUiField">
           <property name="name" value="workflow" />
-          <property name="attrName" value="label" />
+          <property name="attrName" value="#waspUiFieldAttrname['label']}" />
           <property name="attrValue" value="Chip Seq" />
         </bean>
         <bean parent="chipSeqUiField">
           <property name="name" value="jobsubmit/modifymeta" />
-          <property name="attrName" value="label" />
+          <property name="attrName" value="#waspUiFieldAttrname['label']}" />
           <property name="attrValue" value="ModifyChipSeq Metadata" />
         </bean>
         <bean parent="chipSeqUiField">
           <property name="name" value="jobsubmit/resource/mps" />
-          <property name="attrName" value="label" />
+          <property name="attrName" value="#waspUiFieldAttrname['label']}" />
           <property name="attrValue" value="MPS Sequencer Options" />
         </bean>
         <bean parent="chipSeqUiField">
           <property name="name" value="aligner" />
-          <property name="attrName" value="label" />
+          <property name="attrName" value="#waspUiFieldAttrname['label']}" />
           <property name="attrValue" value="Chip Seq aligner Options" />
         </bean>
         <bean parent="chipSeqUiField">
           <property name="name" value="jobsubmit/resource/samples" />
-          <property name="attrName" value="label" />
+          <property name="attrName" value="#waspUiFieldAttrname['label']}" />
           <property name="attrValue" value="DNA Sequencer Samples" />
         </bean>
         <bean parent="chipSeqUiField">
           <property name="name" value="jobsubmit/resource/cells" />
-          <property name="attrName" value="label" />
+          <property name="attrName" value="#waspUiFieldAttrname['label']}" />
           <property name="attrValue" value="DNA Sequencer Cells" />
         </bean>
      </list>

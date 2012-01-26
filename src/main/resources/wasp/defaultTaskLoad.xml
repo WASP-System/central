@@ -7,7 +7,7 @@
     default-autowire="byName">
 
   <bean id="jobWrapTask" class="edu.yu.einstein.wasp.load.TaskLoadService">
-    <property name="iname" value="jobWrapTask" />
+    <property name="area" value="jobWrapTask" />
     <property name="name" value="Job Task" />
     <property name="uiFields">
       <list>
@@ -16,7 +16,7 @@
   </bean>
 
   <bean id="sampleWrapTask" class="edu.yu.einstein.wasp.load.TaskLoadService">
-    <property name="iname" value="sampleWrapTask" />
+    <property name="area" value="sampleWrapTask" />
     <property name="name" value="Sample Task" />
     <property name="uiFields">
       <list>
@@ -25,7 +25,7 @@
   </bean>
 
   <bean id="waitForAllJobSamples" class="edu.yu.einstein.wasp.load.TaskLoadService">
-    <property name="iname" value="waitForAllJobSamples" />
+    <property name="area" value="waitForAllJobSamples" />
     <property name="name" value="Wait for All Job Sample Task" />
     <property name="uiFields">
       <list>
