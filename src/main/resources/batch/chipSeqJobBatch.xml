@@ -35,7 +35,7 @@
   </bean> 
   <si:inbound-channel-adapter ref="chipSeqStartJobPoller" method="getStates" channel="chipSeqJobCreateRequestChannel">
     <si:poller>
-      <si:interval-trigger interval="20000" />
+      <si:interval-trigger interval="2000" />
     </si:poller>
   </si:inbound-channel-adapter>
 

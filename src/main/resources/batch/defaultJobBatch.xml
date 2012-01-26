@@ -43,9 +43,12 @@
 -->
 
 <!--
+  /** remove java comments when deploying
+    this is what a baseline poller should look like **/
+  
   <si:inbound-channel-adapter ref="startJobPoller" method="getStates" channel="jobCreateRequestChannel">
     <si:poller>
-      <si:interval-trigger interval="5000000" />
+      <si:interval-trigger interval="5000" /> /** how often it should poll */
     </si:poller>
   </si:inbound-channel-adapter>
 
@@ -55,7 +58,7 @@
        <constructor-arg ref="jobLauncher" />
        <constructor-arg ref="jobRepository" />
        <constructor-arg ref="jobOperator" />
-       <constructor-arg type="java.lang.String"><value>startJob</value></constructor-arg>
+       <constructor-arg type="java.lang.String"><value>startJob</value></constructor-arg> /** the spring batch job that it should start **/
     </bean>
   </si:service-activator> -->
 
@@ -195,7 +198,7 @@
   <bean id="waitForAllJobSamplesFinalStateUpdated" parent="parentStateStep">
     <property name="itemProcessor">
       <bean class="edu.yu.einstein.wasp.batch.WaitForJobSamplesStateProcessor">
-        <property name="jobTask" value="waitForAllJobSamplesFinal" />
+        <property name="jobTask" value="waitForAllJobSamples" />
         <property name="jobStatus" value="CREATED" />
         <property name="sampleTask" value="sampleWrapTask" />
         <property name="sampleStatus" value="FINAL" />

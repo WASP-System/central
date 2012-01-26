@@ -22,9 +22,7 @@
   </bean>
 
   <si:inbound-channel-adapter ref="chipSeqDnaSamplePoller" method="getStates" channel="chipSeqDnaSampleChannel">
-    <si:poller>
-      <si:interval-trigger interval="20000" />
-    </si:poller>
+    <si:poller fixed-rate="2000"/>
   </si:inbound-channel-adapter>
 
   <si:service-activator input-channel="chipSeqDnaSampleChannel" output-channel="logger">
@@ -37,6 +35,26 @@
     </bean>
   </si:service-activator>
 
+  <bean id="chipSeqLibrarySamplePoller" parent="workflowSamplePoller">
+    <property name="subtypeSampleIName" value="chipseqLibrarySample"/>
+    <property name="taskIName" value="sampleWrapTask"/>
+  </bean>
+
+  <si:inbound-channel-adapter ref="chipSeqLibrarySamplePoller" method="getStates" channel="chipSeqLibrarySampleChannel">
+    <si:poller fixed-rate="5000"/>
+  </si:inbound-channel-adapter>
+
+  <si:service-activator input-channel="chipSeqLibrarySampleChannel" output-channel="logger">
+    <bean class="edu.yu.einstein.wasp.batch.StateJobLaunchingMessageHandler" scope="prototype">
+       <constructor-arg ref="jobRegistry" />
+       <constructor-arg ref="jobLauncher" />
+       <constructor-arg ref="jobRepository" />
+       <constructor-arg ref="jobOperator" />
+       <constructor-arg type="java.lang.String"><value>chipSeqLibrary.workflow</value></constructor-arg>
+    </bean>
+  </si:service-activator>
+
+
 
   <!-- sampleReceived -->
 
@@ -48,9 +66,10 @@
     </property>
   </bean>
 
+       <!-- /** todo rewrite to look for statesample.sample.isReceived also **/ -->
   <bean id="wasp.sample.receiveSampleWaitStateStep" parent="parentStateStep">
     <property name="itemProcessor">
-      <bean class="edu.yu.einstein.wasp.batch.WaitForSiblingJobStateProcessor">
+      <bean class="edu.yu.einstein.wasp.batch.WaitForSiblingSampleStateProcessor">
         <property name="task" value="Receive Sample" />
         <property name="status" value="RECEIVED" />
         <property name="siblingTargetStatus" value="FINAL" />
@@ -65,6 +84,23 @@
 
   <!-- /sampleReceived -->
 
+  <!-- waitForParentJobInvoiceSent -->
+  <bean id="wasp.sample.waitForParentJobInvoiceSentStep" parent="parentStateStep">
+    <property name="itemProcessor">
+      <bean class="edu.yu.einstein.wasp.batch.WaitForParentJobStateProcessor">
+        <property name="task" value="Send Invoice" />
+        <property name="status" value="FINAL" />
+      </bean>
+    </property>
+  </bean>
+
+  <batch:flow id="wasp.sample.waitForJobInvoiceSent">
+    <batch:step id="wasp.sample.waitForJobInvoiceSent0" parent="wasp.sample.waitForParentJobInvoiceSentStep" />
+  </batch:flow>
+
+  <!-- /waitForParentJobInvoiceSent -->
+
+
   <!-- createLibrary -->
   <bean id="wasp.sample.createLibraryStateStep" parent="parentStateStep">
     <property name="itemProcessor">
@@ -75,7 +111,7 @@
   </bean>
                                                                                   <bean id="wasp.sample.createLibraryWaitStateStep" parent="parentStateStep">
     <property name="itemProcessor">
-      <bean class="edu.yu.einstein.wasp.batch.WaitForSiblingJobStateProcessor">
+      <bean class="edu.yu.einstein.wasp.batch.WaitForSiblingSampleStateProcessor">
         <property name="task" value="Create Library" />
         <property name="status" value="MADE" />
         <property name="siblingTargetStatus" value="FINAL" />
@@ -90,30 +126,106 @@
 
   <!-- /createLibrary -->
 
+  <!-- linkLibrary -->
+  <bean id="wasp.sample.linkLibraryStateStep" parent="parentStateStep">
+    <property name="itemProcessor">
+      <bean class="edu.yu.einstein.wasp.batch.LinkLibrarySampleStateProcessor">
+        <property name="targetTask" value="sampleWrapTask" />
+        <property name="targetStatus" value="CREATED" />
+      </bean>
+    </property>
+  </bean>
+
+  <batch:flow id="wasp.sample.linkLibrary">
+    <batch:step id="wasp.sample.linkLibrary0" parent="wasp.sample.linkLibraryStateStep" />
+  </batch:flow> 
+  <!-- /linkLibrary -->
+
+  <!-- libraryPlatformUnitAssign -->
+  <bean id="wasp.sample.libraryPlatformUnitAssignStateStep" parent="parentStateStep">
+    <property name="itemProcessor">
+      <bean class="edu.yu.einstein.wasp.batch.CreateSampleStateProcessor">
+        <property name="targetTask" value="assignLibraryToPlatformUnit" />
+      </bean>
+    </property>
+  </bean>
+                                                                                  <bean id="wasp.sample.libraryPlatformUnitAssignWaitStateStep" parent="parentStateStep">
+    <property name="itemProcessor">
+      <bean class="edu.yu.einstein.wasp.batch.WaitForSiblingSampleStateProcessor">
+        <property name="task" value="assignLibraryToPlatformUnit" />
+        <property name="status" value="ASSIGNED" />
+        <property name="siblingTargetStatus" value="FINAL" />
+      </bean>
+    </property>
+  </bean>
+
+  <batch:flow id="wasp.sample.libraryPlatformUnitAssign">
+    <batch:step id="wasp.sample.libraryPlatformUnitAssign0" parent="wasp.sample.libraryPlatformUnitAssignStateStep" next="wasp.sample.libraryPlatformUnitAssign1" />
+    <batch:step id="wasp.sample.libraryPlatformUnitAssign1" parent="wasp.sample.libraryPlatformUnitAssignWaitStateStep" />
+  </batch:flow> 
+
+  <!-- /libraryPlatformUnitAssign -->
+
+  <!-- getResults -->
+  <bean id="wasp.sample.getResultsStateStep" parent="parentStateStep">
+    <property name="itemProcessor">
+      <bean class="edu.yu.einstein.wasp.batch.CreateSampleStateProcessor">
+        <property name="targetTask" value="Create Library" />
+      </bean>
+    </property>
+  </bean>
+                                                                                  <bean id="wasp.sample.getResultsWaitStateStep" parent="parentStateStep">
+    <property name="itemProcessor">
+      <bean class="edu.yu.einstein.wasp.batch.WaitForSiblingSampleStateProcessor">
+        <property name="task" value="getSampleResults" />
+        <property name="status" value="OK" />
+        <property name="siblingTargetStatus" value="FINAL" />
+      </bean>
+    </property>
+  </bean>
+
+  <batch:flow id="wasp.sample.getResults">
+    <batch:step id="wasp.sample.getResults0" parent="wasp.sample.getResultsStateStep" next="wasp.sample.getResults1" />
+    <batch:step id="wasp.sample.getResults1" parent="wasp.sample.getResultsWaitStateStep" />
+  </batch:flow> 
+
+  <!-- /getResults -->
+
+
+
+
+
+
+
+
   <!-- default mps dna flow-->
   <batch:flow id="wasp.sample.defaultMpsDnaFlow">
     <batch:flow id="wasp.sample.defaultMpsDnaFlow0" parent="wasp.sample.sampleReceived" next="wasp.sample.defaultMpsDnaFlow1" />
-    <batch:flow id="wasp.sample.defaultMpsDnaFlow1" parent="wasp.sample.createLibrary" /> 
-<!-- wait for job approval -->
-<!-- generate library -->
-<!-- wait for platformunit assignment / SKIP -->
-<!-- wait for run / SKIP -->
-<!-- wait for file -->
-<!-- run QC -->
+    <batch:flow id="wasp.sample.defaultMpsDnaFlow1" parent="wasp.sample.waitForJobInvoiceSent" next="wasp.sample.defaultMpsDnaFlow2" /> 
+    <batch:flow id="wasp.sample.defaultMpsDnaFlow2" parent="wasp.sample.createLibrary" next="wasp.sample.defaultMpsDnaFlow3" /> 
+    <batch:flow id="wasp.sample.defaultMpsDnaFlow3" parent="wasp.sample.linkLibrary" /> 
+
   </batch:flow>
   <!-- /default mps dna flow-->
 
   <!-- default mps library flow-->
   <batch:flow id="wasp.sample.defaultMpsLibraryFlow">
-    <batch:flow id="wasp.sample.defaultMpsLibraryFlow0" parent="wasp.sample.sampleReceived" />
+    <batch:flow id="wasp.sample.defaultMpsLibraryFlow0" parent="wasp.sample.sampleReceived" next="wasp.sample.defaultMpsLibraryFlow1"/>
+    <batch:flow id="wasp.sample.defaultMpsLibraryFlow1" parent="wasp.sample.waitForJobInvoiceSent" next="wasp.sample.defaultMpsLibraryFlow2" /> 
+    <batch:flow id="wasp.sample.defaultMpsLibraryFlow2" parent="wasp.sample.libraryPlatformUnitAssign" next="wasp.sample.defaultMpsLibraryFlow3" /> 
+    <batch:flow id="wasp.sample.defaultMpsLibraryFlow3" parent="wasp.sample.getResults" />
   </batch:flow>
   <!-- /default mps library flow-->
 
+
   <batch:job id="chipSeqDna.workflow">
-    <batch:flow id="chipSeq.defaultMpsDnaFlow" parent="wasp.sample.defaultMpsDnaFlow" />
+    <batch:flow id="chipSeqDna.defaultMpsDnaFlow" parent="wasp.sample.defaultMpsDnaFlow" next="chipSeqDna.finishFlow" />
+    <batch:flow id="chipSeqDna.finishFlow" parent="finishJobFlow" />
+
   </batch:job>
 
   <batch:job id="chipSeqLibrary.workflow">
-    <batch:flow id="chipSeq.defaultMpsLibraryFlow" parent="wasp.sample.defaultMpsLibraryFlow" />
+    <batch:flow id="chipSeqLibrary.defaultMpsLibraryFlow" parent="wasp.sample.defaultMpsLibraryFlow" next="chipSeqLibrary.finishFlow" />
+    <batch:flow id="chipSeqLibrary.finishFlow" parent="finishJobFlow" />
   </batch:job>
 </beans>
