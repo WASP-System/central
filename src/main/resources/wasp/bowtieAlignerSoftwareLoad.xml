@@ -36,101 +36,101 @@
       <list>
         <bean parent="bowtieAlignerUiField">
           <property name="name" value="mismatches" />
-          <property name="attrName" value="#waspUiFieldAttrname['metaposition']}" />
+          <property name="attrName" value="#{waspUiFieldAttrname['metaposition']}" />
           <property name="attrValue" value="10" />
         </bean>
         <bean parent="bowtieAlignerUiField">
           <property name="name" value="mismatches" />
-          <property name="attrName" value="#waspUiFieldAttrname['label']}" />
+          <property name="attrName" value="#{waspUiFieldAttrname['label']}" />
           <property name="attrValue" value="Number of mismatches (0-3)" />
         </bean>
         <bean parent="bowtieAlignerUiField">
           <property name="name" value="mismatches" />
-          <property name="attrName" value="#waspUiFieldAttrname['type']}" />
+          <property name="attrName" value="#{waspUiFieldAttrname['type']}" />
           <property name="attrValue" value="INTEGER" />
         </bean>
         <bean parent="bowtieAlignerUiField">
           <property name="name" value="mismatches" />
-          <property name="attrName" value="#waspUiFieldAttrname['range']}" />
+          <property name="attrName" value="#{waspUiFieldAttrname['range']}" />
           <property name="attrValue" value="0:3" />
         </bean>
         
         <bean parent="bowtieAlignerUiField">
           <property name="name" value="seedLength" />
-          <property name="attrName" value="#waspUiFieldAttrname['metaposition']}" />
+          <property name="attrName" value="#{waspUiFieldAttrname['metaposition']}" />
           <property name="attrValue" value="20" />
         </bean>
         <bean parent="bowtieAlignerUiField">
           <property name="name" value="seedLength" />
-          <property name="attrName" value="#waspUiFieldAttrname['label']}" />
+          <property name="attrName" value="#{waspUiFieldAttrname['label']}" />
           <property name="attrValue" value="Seed Length" />
         </bean>
         <bean parent="bowtieAlignerUiField">
           <property name="name" value="seedLength" />
-          <property name="attrName" value="#waspUiFieldAttrname['type']}" />
+          <property name="attrName" value="#{waspUiFieldAttrname['type']}" />
           <property name="attrValue" value="NUMBER" />
         </bean>
         <bean parent="bowtieAlignerUiField">
           <property name="name" value="seedLength" />
-          <property name="attrName" value="#waspUiFieldAttrname['range']}" />
+          <property name="attrName" value="#{waspUiFieldAttrname['range']}" />
           <property name="attrValue" value="5:1000" />
         </bean>
         <bean parent="bowtieAlignerUiField">
           <property name="name" value="seedLength" />
-          <property name="attrName" value="#waspUiFieldAttrname['default']}" />
+          <property name="attrName" value="#{waspUiFieldAttrname['default']}" />
           <property name="attrValue" value="32" />
         </bean>
         
         <bean parent="bowtieAlignerUiField">
           <property name="name" value="reportAlignmentNum" />
-          <property name="attrName" value="#waspUiFieldAttrname['metaposition']}" />
+          <property name="attrName" value="#{waspUiFieldAttrname['metaposition']}" />
           <property name="attrValue" value="30" />
         </bean>
         <bean parent="bowtieAlignerUiField">
           <property name="name" value="reportAlignmentNum" />
-          <property name="attrName" value="#waspUiFieldAttrname['label']}" />
+          <property name="attrName" value="#{waspUiFieldAttrname['label']}" />
           <property name="attrValue" value="Number of Alignments to Report" />
         </bean>
         <bean parent="bowtieAlignerUiField">
           <property name="name" value="reportAlignmentNum" />
-          <property name="attrName" value="#waspUiFieldAttrname['type']}" />
+          <property name="attrName" value="#{waspUiFieldAttrname['type']}" />
           <property name="attrValue" value="INTEGER" />
         </bean>
         <bean parent="bowtieAlignerUiField">
           <property name="name" value="reportAlignmentNum" />
-          <property name="attrName" value="#waspUiFieldAttrname['default']}" />
+          <property name="attrName" value="#{waspUiFieldAttrname['default']}" />
           <property name="attrValue" value="1" />
         </bean>
         
         <bean parent="bowtieAlignerUiField">
           <property name="name" value="discardThreshold" />
-          <property name="attrName" value="#waspUiFieldAttrname['metaposition']}" />
+          <property name="attrName" value="#{waspUiFieldAttrname['metaposition']}" />
           <property name="attrValue" value="40" />
         </bean>
         <bean parent="bowtieAlignerUiField">
           <property name="name" value="discardThreshold" />
-          <property name="attrName" value="#waspUiFieldAttrname['label']}" />
+          <property name="attrName" value="#{waspUiFieldAttrname['label']}" />
           <property name="attrValue" value="Discard if more than how many alignments?" />
         </bean>
         <bean parent="bowtieAlignerUiField">
           <property name="name" value="discardThreshold" />
-          <property name="attrName" value="#waspUiFieldAttrname['type']}" />
+          <property name="attrName" value="#{waspUiFieldAttrname['type']}" />
           <property name="attrValue" value="INTEGER" />
         </bean>
         
         <bean parent="bowtieAlignerUiField">
           <property name="name" value="isBest" />
-          <property name="attrName" value="#waspUiFieldAttrname['metaposition']}" />
+          <property name="attrName" value="#{waspUiFieldAttrname['metaposition']}" />
           <property name="attrValue" value="50" />
         </bean>
         <bean parent="bowtieAlignerUiField">
           <property name="name" value="isBest" />
-          <property name="attrName" value="#waspUiFieldAttrname['label']}" />
+          <property name="attrName" value="#{waspUiFieldAttrname['label']}" />
           <property name="attrValue" value="report only best alignments?" />
         </bean>
         <bean parent="bowtieAlignerUiField">
           <property name="name" value="isBest" />
-          <property name="attrName" value="#waspUiFieldAttrname['control']}" />
+          <property name="attrName" value="#{waspUiFieldAttrname['control']}" />
           <property name="attrValue" value="select:yes:yes;no;no" />
         </bean>     
       </list>

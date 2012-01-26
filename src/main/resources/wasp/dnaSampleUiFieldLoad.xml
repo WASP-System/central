@@ -11,105 +11,105 @@
     <property name="area" value="genericDnaSample" />
   </bean> 
 
-  <bean id="genericDnaUiFields" class="java.util.ArrayList">
-    <constructor-arg>
-      <list>
+  <bean id="genericDnaUiFields" class="org.springframework.beans.factory.config.ListFactoryBean">
+    <property name="sourceList">
+      <list value-type="edu.yu.einstein.wasp.model.UiField">
         <bean parent="genericDnaSampleUiField">
           <property name="name" value="concentration" />
-          <property name="attrName" value="#waspUiFieldAttrname['label']}" />
+          <property name="attrName" value="#{waspUiFieldAttrname['label']}" />
           <property name="attrValue" value="Concentration" />
         </bean>
         <bean parent="genericDnaSampleUiField">
           <property name="name" value="concentration" />
-          <property name="attrName" value="#waspUiFieldAttrname['metaposition']}" />
+          <property name="attrName" value="#{waspUiFieldAttrname['metaposition']}" />
           <property name="attrValue" value="10" />
         </bean>
         <bean parent="genericDnaSampleUiField">
           <property name="name" value="concentration" />
-          <property name="attrName" value="#waspUiFieldAttrname['constraint']}" />
+          <property name="attrName" value="#{waspUiFieldAttrname['constraint']}" />
           <property name="attrValue" value="NotEmpty" />
         </bean>
         <bean parent="genericDnaSampleUiField">
           <property name="name" value="concentration" />
-          <property name="attrName" value="#waspUiFieldAttrname['error']}" />
+          <property name="attrName" value="#{waspUiFieldAttrname['error']}" />
           <property name="attrValue" value="You must provice a concentration" />
         </bean>
         <bean parent="genericDnaSampleUiField">
           <property name="name" value="concentration" />
-          <property name="attrName" value="#waspUiFieldAttrname['type']}" />
+          <property name="attrName" value="#{waspUiFieldAttrname['type']}" />
           <property name="attrValue" value="NUMBER" />
         </bean>
 
         <bean parent="genericDnaSampleUiField">
           <property name="name" value="volume" />
-          <property name="attrName" value="#waspUiFieldAttrname['label']}" />
+          <property name="attrName" value="#{waspUiFieldAttrname['label']}" />
           <property name="attrValue" value="volume" />
         </bean>
         <bean parent="genericDnaSampleUiField">
           <property name="name" value="volume" />
-          <property name="attrName" value="#waspUiFieldAttrname['metaposition']}" />
+          <property name="attrName" value="#{waspUiFieldAttrname['metaposition']}" />
           <property name="attrValue" value="20" />
         </bean>
         <bean parent="genericDnaSampleUiField">
           <property name="name" value="volume" />
-          <property name="attrName" value="#waspUiFieldAttrname['constraint']}" />
+          <property name="attrName" value="#{waspUiFieldAttrname['constraint']}" />
           <property name="attrValue" value="NotEmpty" />
         </bean>
 
         <bean parent="genericDnaSampleUiField">
           <property name="name" value="buffer" />
-          <property name="attrName" value="#waspUiFieldAttrname['label']}" />
+          <property name="attrName" value="#{waspUiFieldAttrname['label']}" />
           <property name="attrValue" value="buffer" />
         </bean>
         <bean parent="genericDnaSampleUiField">
           <property name="name" value="buffer" />
-          <property name="attrName" value="#waspUiFieldAttrname['metaposition']}" />
+          <property name="attrName" value="#{waspUiFieldAttrname['metaposition']}" />
           <property name="attrValue" value="30" />
         </bean>
         <bean parent="genericDnaSampleUiField">
           <property name="name" value="buffer" />
-          <property name="attrName" value="#waspUiFieldAttrname['control']}" />
+          <property name="attrName" value="#{waspUiFieldAttrname['control']}" />
           <property name="attrValue" value="select:TE:TE;Water:Water" />
         </bean>
         <bean parent="genericDnaSampleUiField">
           <property name="name" value="buffer" />
-          <property name="attrName" value="#waspUiFieldAttrname['constraint']}" />
+          <property name="attrName" value="#{waspUiFieldAttrname['constraint']}" />
           <property name="attrValue" value="NotEmpty" />
         </bean>
         <bean parent="genericDnaSampleUiField">
           <property name="name" value="buffer" />
-          <property name="attrName" value="#waspUiFieldAttrname['error']}" />
+          <property name="attrName" value="#{waspUiFieldAttrname['error']}" />
           <property name="attrValue" value="You must select a buffer type" />
         </bean>
 
         <bean parent="genericDnaSampleUiField">
           <property name="name" value="species" />
-          <property name="attrName" value="#waspUiFieldAttrname['label']}" />
+          <property name="attrName" value="#{waspUiFieldAttrname['label']}" />
           <property name="attrValue" value="Species" />
         </bean>
         <bean parent="genericDnaSampleUiField">
           <property name="name" value="species" />
-          <property name="attrName" value="#waspUiFieldAttrname['metaposition']}" />
+          <property name="attrName" value="#{waspUiFieldAttrname['metaposition']}" />
           <property name="attrValue" value="40" />
         </bean>
         <bean parent="genericDnaSampleUiField">
           <property name="name" value="species" />
-          <property name="attrName" value="#waspUiFieldAttrname['control']}" />
+          <property name="attrName" value="#{waspUiFieldAttrname['control']}" />
           <!-- <property name="attrValue" value="select:{speciesBean}" /> -->
           <property name="attrValue" value="select:a:a; b:b" />
         </bean>
         <bean parent="genericDnaSampleUiField">
           <property name="name" value="species" />
-          <property name="attrName" value="#waspUiFieldAttrname['constraint']}" />
+          <property name="attrName" value="#{waspUiFieldAttrname['constraint']}" />
           <property name="attrValue" value="NotEmpty" />
         </bean>
         <bean parent="genericDnaSampleUiField">
           <property name="name" value="species" />
-          <property name="attrName" value="#waspUiFieldAttrname['error']}" />
+          <property name="attrName" value="#{waspUiFieldAttrname['error']}" />
           <property name="attrValue" value="You must select a species" />
         </bean>
       </list>
-    </constructor-arg>
+    </property>
   </bean>
 </beans>
  

@@ -23,12 +23,12 @@
       <list>
         <bean parent="boneShakerApprovalUiField">
           <property name="name" value="canWeShake" />
-          <property name="attrName" value="#waspUiFieldAttrname['metaposition']}" />
+          <property name="attrName" value="#{waspUiFieldAttrname['metaposition']}" />
           <property name="attrValue" value="10" />
         </bean>
         <bean parent="boneShakerUiField">
           <property name="name" value="canWeShake" />
-          <property name="attrName" value="#waspUiFieldAttrname['label']}" />
+          <property name="attrName" value="#{waspUiFieldAttrname['label']}" />
           <property name="attrValue" value="Can We Shake?" />
         </bean>
       </list>
@@ -42,12 +42,12 @@
       <list>
         <bean parent="boneShakerUiField">
           <property name="name" value="ricther" />
-          <property name="attrName" value="#waspUiFieldAttrname['metaposition']}" />
+          <property name="attrName" value="#{waspUiFieldAttrname['metaposition']}" />
           <property name="attrValue" value="10" />
         </bean>
         <bean parent="boneShakerUiField">
           <property name="name" value="ricther" />
-          <property name="attrName" value="#waspUiFieldAttrname['label']}" />
+          <property name="attrName" value="#{waspUiFieldAttrname['label']}" />
           <property name="attrValue" value="Ricther Scale" />
         </bean>
       </list>

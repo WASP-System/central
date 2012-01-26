@@ -54,32 +54,32 @@
       <list>
         <bean parent="chipSeqUiField">
           <property name="name" value="workflow" />
-          <property name="attrName" value="#waspUiFieldAttrname['label']}" />
+          <property name="attrName" value="#{waspUiFieldAttrname['label']}" />
           <property name="attrValue" value="Chip Seq" />
         </bean>
         <bean parent="chipSeqUiField">
           <property name="name" value="jobsubmit/modifymeta" />
-          <property name="attrName" value="#waspUiFieldAttrname['label']}" />
+          <property name="attrName" value="#{waspUiFieldAttrname['label']}" />
           <property name="attrValue" value="ModifyChipSeq Metadata" />
         </bean>
         <bean parent="chipSeqUiField">
           <property name="name" value="jobsubmit/resource/mps" />
-          <property name="attrName" value="#waspUiFieldAttrname['label']}" />
+          <property name="attrName" value="#{waspUiFieldAttrname['label']}" />
           <property name="attrValue" value="MPS Sequencer Options" />
         </bean>
         <bean parent="chipSeqUiField">
           <property name="name" value="aligner" />
-          <property name="attrName" value="#waspUiFieldAttrname['label']}" />
+          <property name="attrName" value="#{waspUiFieldAttrname['label']}" />
           <property name="attrValue" value="Chip Seq aligner Options" />
         </bean>
         <bean parent="chipSeqUiField">
           <property name="name" value="jobsubmit/resource/samples" />
-          <property name="attrName" value="#waspUiFieldAttrname['label']}" />
+          <property name="attrName" value="#{waspUiFieldAttrname['label']}" />
           <property name="attrValue" value="DNA Sequencer Samples" />
         </bean>
         <bean parent="chipSeqUiField">
           <property name="name" value="jobsubmit/resource/cells" />
-          <property name="attrName" value="#waspUiFieldAttrname['label']}" />
+          <property name="attrName" value="#{waspUiFieldAttrname['label']}" />
           <property name="attrValue" value="DNA Sequencer Cells" />
         </bean>
      </list>

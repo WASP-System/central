@@ -46,22 +46,22 @@
         </bean>
         <bean parent="illuminiaUiField">
           <property name="name" value="readLength" />
-          <property name="attrName" value="#waspUiFieldAttrname['label']}" />
+          <property name="attrName" value="#{waspUiFieldAttrname['label']}" />
           <property name="attrValue" value="Read Length" />
         </bean>
         <bean parent="illuminiaUiField">
           <property name="name" value="readLength" />
-          <property name="attrName" value="#waspUiFieldAttrname['control']}" />
+          <property name="attrName" value="#{waspUiFieldAttrname['control']}" />
           <property name="attrValue" value="select:#{dollar}{resourceOptions.get(readlength)}:value:label" /> 
         </bean>
         <bean parent="illuminiaUiField">
           <property name="name" value="readLength" />
-          <property name="attrName" value="#waspUiFieldAttrname['constraint']}" />
+          <property name="attrName" value="#{waspUiFieldAttrname['constraint']}" />
           <property name="attrValue" value="NotEmpty" />
         </bean>
         <bean parent="illuminiaUiField">
           <property name="name" value="readLength" />
-          <property name="attrName" value="#waspUiFieldAttrname['error']}" />
+          <property name="attrName" value="#{waspUiFieldAttrname['error']}" />
           <property name="attrValue" value="You must choose a read length" />
         </bean>
 
@@ -72,22 +72,22 @@
         </bean>
         <bean parent="illuminiaUiField">
           <property name="name" value="readType" />
-          <property name="attrName" value="#waspUiFieldAttrname['label']}" />
+          <property name="attrName" value="#{waspUiFieldAttrname['label']}" />
           <property name="attrValue" value="Read Type" />
         </bean>
         <bean parent="illuminiaUiField">
           <property name="name" value="readType" />
-          <property name="attrName" value="#waspUiFieldAttrname['control']}" />
+          <property name="attrName" value="#{waspUiFieldAttrname['control']}" />
           <property name="attrValue" value="select:#{dollar}{resourceOptions.get(readType)}:value:label" /> 
         </bean>
         <bean parent="illuminiaUiField">
           <property name="name" value="readType" />
-          <property name="attrName" value="#waspUiFieldAttrname['constraint']}" />
+          <property name="attrName" value="#{waspUiFieldAttrname['constraint']}" />
           <property name="attrValue" value="NotEmpty" />
         </bean>
         <bean parent="illuminiaUiField">
           <property name="name" value="readType" />
-          <property name="attrName" value="#waspUiFieldAttrname['error']}" />
+          <property name="attrName" value="#{waspUiFieldAttrname['error']}" />
           <property name="attrValue" value="You must choose a read type" />
         </bean>
       </list>

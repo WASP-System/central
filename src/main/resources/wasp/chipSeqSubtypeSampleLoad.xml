@@ -20,64 +20,64 @@
 	        <!-- chipSeq Specific -->
 	        <bean parent="chipSeqDnaSampleUiField">
 	          <property name="name" value="fragmentSize" />
-	          <property name="attrName" value="#waspUiFieldAttrname['label']}" />
+	          <property name="attrName" value="#{waspUiFieldAttrname['label']}" />
 	          <property name="attrValue" value="Average Fragmentation Size" />
 	        </bean>
 	        <bean parent="chipSeqDnaSampleUiField">
 	          <property name="name" value="fragmentSize" />
-	          <property name="attrName" value="#waspUiFieldAttrname['metaposition']}" />
+	          <property name="attrName" value="#{waspUiFieldAttrname['metaposition']}" />
 	          <property name="attrValue" value="100" />
 	        </bean>
 	        <bean parent="chipSeqDnaSampleUiField">
 	          <property name="name" value="fragmentSize" />
-	          <property name="attrName" value="#waspUiFieldAttrname['constraint']}" />
+	          <property name="attrName" value="#{waspUiFieldAttrname['constraint']}" />
 	          <property name="attrValue" value="NotEmpty" />
 	        </bean>
 	         <bean parent="chipSeqDnaSampleUiField">
 	          <property name="name" value="fragmentSize" />
-	          <property name="attrName" value="#waspUiFieldAttrname['error']}" />
+	          <property name="attrName" value="#{waspUiFieldAttrname['error']}" />
 	          <property name="attrValue" value="You must provide a constraint" />
 	        </bean>
 	        <bean parent="chipSeqDnaSampleUiField">
 	          <property name="name" value="fragmentSize" />
-	          <property name="attrName" value="#waspUiFieldAttrname['type']}" />
+	          <property name="attrName" value="#{waspUiFieldAttrname['type']}" />
 	          <property name="attrValue" value="NUMBER" />
 	        </bean>
 	        
 	        <bean parent="chipSeqDnaSampleUiField">
 	          <property name="name" value="fragmentSizeSD" />
-	          <property name="attrName" value="#waspUiFieldAttrname['label']}" />
+	          <property name="attrName" value="#{waspUiFieldAttrname['label']}" />
 	          <property name="attrValue" value="Fragmentation Size Std. Dev." />
 	        </bean>
 	        <bean parent="chipSeqDnaSampleUiField">
 	          <property name="name" value="fragmentSizeSD" />
-	          <property name="attrName" value="#waspUiFieldAttrname['metaposition']}" />
+	          <property name="attrName" value="#{waspUiFieldAttrname['metaposition']}" />
 	          <property name="attrValue" value="110" />
 	        </bean>
 	        <bean parent="chipSeqDnaSampleUiField">
 	          <property name="name" value="fragmentSizeSD" />
-	          <property name="attrName" value="#waspUiFieldAttrname['constraint']}" />
+	          <property name="attrName" value="#{waspUiFieldAttrname['constraint']}" />
 	          <property name="attrValue" value="NotEmpty" />
 	        </bean>
 	        <bean parent="chipSeqDnaSampleUiField">
 	          <property name="name" value="fragmentSizeSD" />
-	          <property name="attrName" value="#waspUiFieldAttrname['type']}" />
+	          <property name="attrName" value="#{waspUiFieldAttrname['type']}" />
 	          <property name="attrValue" value="NUMBER" />
 	        </bean>
 	        <bean parent="chipSeqDnaSampleUiField">
 	          <property name="name" value="fragmentSizeSD" />
-	          <property name="attrName" value="#waspUiFieldAttrname['error']}" />
+	          <property name="attrName" value="#{waspUiFieldAttrname['error']}" />
 	          <property name="attrValue" value="You must provide a standard deviation" />
 	        </bean>
 	        
 	        <bean parent="chipSeqDnaSampleUiField">
 	          <property name="name" value="antibody" />
-	          <property name="attrName" value="#waspUiFieldAttrname['label']}" />
+	          <property name="attrName" value="#{waspUiFieldAttrname['label']}" />
 	          <property name="attrValue" value="Antibody" />
 	        </bean>
 	        <bean parent="chipSeqDnaSampleUiField">
 	          <property name="name" value="antibody" />
-	          <property name="attrName" value="#waspUiFieldAttrname['metaposition']}" />
+	          <property name="attrName" value="#{waspUiFieldAttrname['metaposition']}" />
 	          <property name="attrValue" value="120" />
 	        </bean>
 	      </list>

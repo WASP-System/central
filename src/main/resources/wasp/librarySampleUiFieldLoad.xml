@@ -11,9 +11,9 @@
     <property name="area" value="genericLibrarySample" />
   </bean> 
 
-  <bean id="genericLibraryUiFields" class="java.util.ArrayList">
-    <constructor-arg>
-      <list>      
+  <bean id="genericLibraryUiFields" class="org.springframework.beans.factory.config.ListFactoryBean">
+    <property name="sourceList">
+      <list value-type="edu.yu.einstein.wasp.model.UiField">   
         <bean parent="genericLibrarySampleUiField">
           <property name="name" value="adaptor" />
           <property name="attrName" value="#{waspUiFieldAttrname['label']}" />
@@ -65,7 +65,7 @@
           <!-- <property name="attrValue" value="select:${adaptorindex}:code:name" /> -->
         </bean>
       </list>
-    </constructor-arg>
+    </property>
   </bean>
 </beans>
  
