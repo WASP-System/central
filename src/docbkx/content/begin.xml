@@ -6,6 +6,17 @@
 	<title>Core concepts</title>
 	<para>Concepts and procedures for working with WASP.</para>
 	<section>
+		<title>Data Model</title>
+		<para>The WASP data model is managed with the object-relational mapping tool 
+		<ulink url="http://hibernate.org"><citetitle>Hibernate</citetitle></ulink>.
+		Model classes are defined in the package <code>edu.yu.einstein.wasp.model</code>
+		of the <code>wasp-core</code> module. Consult the 
+		<ulink url="http://waspsystem.org/dev/site/apidocs/index.html">
+		<citetitle>JavaDoc</citetitle></ulink> for detailed information regarding the WASP
+		data model.
+		</para>
+	</section>
+	<section>
 		<title>State</title>
 		<para>State is a central concept to dealing with data in WASP. Every real
 			world event defined within WASP is assigned a state. WASP defines default
@@ -15,6 +26,7 @@
 			bet	ween user submissions, human interaction events, and analytical
 			processing.
 		</para>
+		<para>WASP maintains state information using the </para>
 	</section>
 	<section>
 		<title>Web functionality</title>

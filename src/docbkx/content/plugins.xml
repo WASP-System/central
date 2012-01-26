@@ -7,17 +7,12 @@
 	<para>
 		The preferred development environment for WASP plugins is the
 		<ulink url="http://www.springsource.com/developer/sts">
-			<citetitle>SpringSource Tool Suite (STS).</citetitle>
-		</ulink>
-		STS is
-		an Eclipse IDE framework that is optimized for development of
-		Java/Spring
-		Framework projects with good support for Maven, WASP's
-		project management tool.
-		In order to streamline plug-in development,
-		developers can download
-		the
-		WASP Project Template Plug-in from the WASP
+			<citetitle>SpringSource Tool Suite (STS)</citetitle>
+		</ulink>.
+		STS is an Eclipse IDE framework that is optimized for development of
+		Java/Spring Framework projects with good support for Maven, WASP's
+		project management tool. In order to streamline plug-in development,
+		developers can download the WASP Project Template Plug-in from the WASP
 		development site.
 	</para>
 	<blockquote>
