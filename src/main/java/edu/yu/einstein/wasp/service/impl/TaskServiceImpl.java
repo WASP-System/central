@@ -171,7 +171,7 @@ public List<State> getDaApprovedStates () {
   // returns states that
   // a) are in the given status
   // b) are accessible by current user according to the given permission   
-  public List<State> filterStatesByStatusAndPermission(List<State> states, String status,  String permsission)  {
+  public List<State> filterStatesByStatusAndPermission(List<State> states, String status,  String permission)  {
 	  
 	  List<State> candidates = new ArrayList<State>();
 	  
@@ -184,23 +184,33 @@ public List<State> getDaApprovedStates () {
 	  
 	  if (candidates.isEmpty()) return candidates;
 	  
-	  List<State> result = new ArrayList<State>();
+	  List<State> result = new ArrayList<State>();	  
+	  
+      if (permission.indexOf('#') == -1) {//no '#' means static permission. no needs to call "expand" function.   
+			try {
+				return SecurityUtil.isAuthorized(permission) ? candidates : result;
+			} catch (Throwable e) {
+				throw new IllegalStateException("Cant authorize access " + permission, e);
+			}
+	  }
+	  
+	 
 	   // let's just stick to jobId -> stateJob.jobId, labId->stateJob.job.labId,  departmentId stateJob.job.lab.departmentId
 		  		  
 	  for(Iterator<State> it=candidates.iterator();it.hasNext();) {
 		  State state=it.next();
-			  String perm = expand(permsission, state);
+			  String perm = expand(permission, state);
 			  try {
 			  if (SecurityUtil.isAuthorized(perm)) {//check if user can see this state
 				  result.add(state); 				//yes, he can! add it to result 
 				  it.remove();						//and remove from the list of candidates
 			  }
 			  } catch (Throwable e) {
-				  throw new IllegalStateException("Cant authorize access "+perm+"|"+permsission,e);
+				  throw new IllegalStateException("Cant authorize access "+perm+"|"+permission,e);
 			  }
-	 }
+	  }
 		  
-		return result;
+	  return result;
   }
 		  
 	  

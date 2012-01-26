@@ -3,10 +3,6 @@ package util.spring;
 import java.io.IOException;
 import java.util.Map;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.context.ApplicationContext;
@@ -22,8 +18,16 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
+/*
+ * Static bridges to spring Security methods.
+ * 
+ *  @Author Sasha Levchuk
+ * 
+ */
+
 public class SecurityUtil {
 
+	//returns true if currently logged in user has the specified permission	
 	public static boolean isAuthorized(String permsission) throws IOException {
 
 		if (SecurityContextHolder.getContext().getAuthentication() == null) {
