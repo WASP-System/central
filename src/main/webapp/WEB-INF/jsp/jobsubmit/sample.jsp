@@ -150,11 +150,18 @@ $.jgrid.extend ({editGridRow : function(rowid, p){
      					    var theTag = v.tagName;                					   
      					    var theElement = $(v);
      					    
+     					   if (typeof(theElement.attr('id')) == 'undefined' || theElement.attr('id') == null) {
+     						  //alert('undef id for '+v.tagName);   
+     						  return;
+     					   } 
+     					    
      					    if (theElement.attr('id').indexOf('.')==-1) return;//not a meta field
      					    
      					    var curVarName=theElement.attr('id').split(".")[1];
+     					    
      					    currentVars[curVarName]=theElement;
-     					    theElement.val('');
+     					  
+     					    theElement.val('');	
      					    theElement.attr('disabled','disabled');
      					    
      					    $('#cloned').val('Yes');
@@ -172,7 +179,9 @@ $.jgrid.extend ({editGridRow : function(rowid, p){
                 				 
                 				 var curEl=currentVars[histVarName];
                 				
-                				 if (curEl) {
+                				 if (curEl) {      
+                					 //alert("setting value of element "+$('#chipseqLibrarySample'+histVarName).attr('id')+" to  "+name);
+                					 //$('#chipseqLibrarySample'+histVarName).val(name);    
                 					 curEl.val(name);           					    	
                 				 }                			 
                 		    })
