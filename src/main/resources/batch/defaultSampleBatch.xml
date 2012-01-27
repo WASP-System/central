@@ -172,7 +172,7 @@
   <bean id="wasp.sample.getResultsStateStep" parent="parentStateStep">
     <property name="itemProcessor">
       <bean class="edu.yu.einstein.wasp.batch.CreateSampleStateProcessor">
-        <property name="targetTask" value="Create Library" />
+        <property name="targetTask" value="getSampleResults" />
       </bean>
     </property>
   </bean>
