@@ -18,15 +18,43 @@
 	</section>
 	<section>
 		<title>State</title>
-		<para>State is a central concept to dealing with data in WASP. Every real
-			world event defined within WASP is assigned a state. WASP defines default
-			states, but developers can extend the state system to suit their requirements.
-			An event's state may simply be a record of progress through a well defined
-			series of events in a web-flow, or it can be used to manage interactions
-			bet	ween user submissions, human interaction events, and analytical
-			processing.
+		<para>State is a central concept to dealing with data processing in WASP. 
+		State is managed by a split mechanism within WASP.  The first is a state semaphore system
+		that is handled through persistence using the WASP <code>State</code> class.  WASP developers
+		define <db:code>Task</db:code>s that represent human intervention tasks that are managed by
+		<code>State</code>s. A depiction of state transition for the overall Job task is presented in
+		<xref linkend="jobTaskState" xrefstyle="select: label" />.  In this example, upon creation of a WASP Job, a corresponding
+		<code>Task</code> is created in the database and it is assigned a <code>State</code> value indicating
+		that the process is running (running of the process is managed by Spring Batch). 
+		The processing pipeline proceeds through its steps and changes the <code>State</code> to completed 
+		after completion of work. WASP task states are defined by the <code>BatchStatus</code> <code>enum</code>.
+		The intention is to use these states for all tasks; however, states are persisted through <code>Enum</code>s
+		allowing developers can create their own states to manage custom <code>Task</code>s 
+		when it becomes necessary.  
 		</para>
-		<para>WASP maintains state information using the </para>
+		<figure id="jobTaskState">
+			<title>State transitions for a WASP Job Task</title>
+			<!-- <graphic fileref="figures/JobTaskState.eps" scale="40" /> -->
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="figures/JobTaskState.png" width="3in" />
+				</imageobject>
+			</mediaobject>
+		</figure>
+		<para>
+		All processes defined within WASP are implemented as <ulink url="http://www.springsource.org/spring-batch">
+		<citetitle>Spring Batch</citetitle></ulink> job flows.  <xref linkend="taskState" xrefstyle="select: label" /> presents an
+		example state diagram where the state of a Spring Batch flow is determined by the <code>State</code> of
+		a WASP <code>Task</code> designed to manage human interaction realted to the flow.
+		</para>
+		<figure id="taskState">
+			<title>State transitions for a WASP task to monitor approval of a job by a principal investigator</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="figures/TaskState.png" width="5.5in" />
+				</imageobject>
+			</mediaobject>
+		</figure>
 	</section>
 	<section>
 		<title>Web functionality</title>

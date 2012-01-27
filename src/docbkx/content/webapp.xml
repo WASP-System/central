@@ -6,8 +6,8 @@
          xmlns:ns4="http://www.w3.org/1998/Math/MathML"
          xmlns:ns3="http://www.w3.org/1999/xhtml"
          xmlns:db="http://docbook.org/ns/docbook">
-	<title>Managing resources</title>
+	<title>Working with the web layer</title>
 	<para>
-		Loaders, metadata, adding software, sequencers.  Configuring external metadata (genomes, annotations).
+		Security, submission, inames, areas, side-effects of loading.
 	</para>
 </chapter>

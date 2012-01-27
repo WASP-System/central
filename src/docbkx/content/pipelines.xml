@@ -8,6 +8,6 @@
          xmlns:db="http://docbook.org/ns/docbook">
 	<title>Managing resources</title>
 	<para>
-		Loaders, metadata, adding software, sequencers.  Configuring external metadata (genomes, annotations).
+		Developing spring web flows for analytical pipelines.
 	</para>
 </chapter>
