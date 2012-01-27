@@ -14,18 +14,14 @@ package edu.yu.einstein.wasp.model;
 import java.util.Date;
 import java.util.List;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
+
+import org.hibernate.validator.constraints.*;
+
+import org.codehaus.jackson.annotate.JsonIgnore;
 
 @Entity
 @Audited
@@ -89,6 +85,68 @@ public class Run extends WaspModel {
 	 */
 	public Integer getResourceId () {
 		return this.resourceId;
+	}
+
+
+
+
+	/** 
+	 * resourceCategoryId
+	 *
+	 */
+	@Column(name="resourceCategoryid")
+	protected Integer resourceCategoryId;
+
+	/**
+	 * setResourceCategoryId(Integer resourceCategoryId)
+	 *
+	 * @param resourceCategoryId
+	 *
+	 */
+	
+	public void setResourceCategoryId (Integer resourceCategoryId) {
+		this.resourceCategoryId = resourceCategoryId;
+	}
+
+	/**
+	 * getResourceCategoryId()
+	 *
+	 * @return resourceCategoryId
+	 *
+	 */
+	public Integer getResourceCategoryId () {
+		return this.resourceCategoryId;
+	}
+
+
+
+
+	/** 
+	 * softwareId
+	 *
+	 */
+	@Column(name="softwareid")
+	protected Integer softwareId;
+
+	/**
+	 * setSoftwareId(Integer softwareId)
+	 *
+	 * @param softwareId
+	 *
+	 */
+	
+	public void setSoftwareId (Integer softwareId) {
+		this.softwareId = softwareId;
+	}
+
+	/**
+	 * getSoftwareId()
+	 *
+	 * @return softwareId
+	 *
+	 */
+	public Integer getSoftwareId () {
+		return this.softwareId;
 	}
 
 
@@ -402,6 +460,70 @@ public class Run extends WaspModel {
 	
 	public Resource getResource () {
 		return this.resource;
+	}
+
+
+	/**
+	 * resourceCategory
+	 *
+	 */
+	@NotAudited
+	@ManyToOne
+	@JoinColumn(name="resourceCategoryid", insertable=false, updatable=false)
+	protected ResourceCategory resourceCategory;
+
+	/**
+	 * setResourceCategory (ResourceCategory resourceCategory)
+	 *
+	 * @param resourceCategory
+	 *
+	 */
+	public void setResourceCategory (ResourceCategory resourceCategory) {
+		this.resourceCategory = resourceCategory;
+		this.resourceCategoryId = resourceCategory.resourceCategoryId;
+	}
+
+	/**
+	 * getResourceCategory ()
+	 *
+	 * @return resourceCategory
+	 *
+	 */
+	
+	public ResourceCategory getResourceCategory () {
+		return this.resourceCategory;
+	}
+
+
+	/**
+	 * software
+	 *
+	 */
+	@NotAudited
+	@ManyToOne
+	@JoinColumn(name="softwareid", insertable=false, updatable=false)
+	protected Software software;
+
+	/**
+	 * setSoftware (Software software)
+	 *
+	 * @param software
+	 *
+	 */
+	public void setSoftware (Software software) {
+		this.software = software;
+		this.softwareId = software.softwareId;
+	}
+
+	/**
+	 * getSoftware ()
+	 *
+	 * @return software
+	 *
+	 */
+	
+	public Software getSoftware () {
+		return this.software;
 	}
 
 
