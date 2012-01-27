@@ -168,8 +168,12 @@
 	<definition name="resource/create" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/resource/create.jsp" />
 	</definition>
-	<definition name="run/list" extends="template-base">
-		<put-attribute name="body-content" value="/WEB-INF/jsp/run/list.jsp" />
+	<definition name="run/list" extends="template-grid">
+		<put-attribute name="area" value="run" />
+		<put-attribute name="grid-columns" value="/WEB-INF/jsp/run/grid_columns.jsp" />
+		<!-- <put-attribute name="subgrid-columns" value="/WEB-INF/jsp/run/subgrid_columns.jsp" /> -->
+        <put-attribute name="grid-customAttributes" value="/WEB-INF/jsp/run/grid_customAttributes.jsp" />
+        <put-attribute name="body-content" value="/WEB-INF/jsp/run/list.jsp" />
 	</definition>
 	<definition name="run/detail" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/run/detail.jsp" />
