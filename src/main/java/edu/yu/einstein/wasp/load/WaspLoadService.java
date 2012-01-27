@@ -41,6 +41,7 @@ public abstract class WaspLoadService {
 	protected UiFieldService uiFieldService;
 
 	protected String iname; 
+	public void setIName(String iname) {this.iname = iname; }
 	
 	protected String name; 
 	public void setName(String name) {this.name = name; }
