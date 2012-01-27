@@ -144,10 +144,10 @@ public class SampleDraftMetaDaoImpl extends WaspDaoImpl<SampleDraftMeta> impleme
 		   ")\n"+
 		   ") as master\n"+
 		   "left outer join uifield label on master.area=label.area and master.name=label.name and label.attrName='label'\n"+
-		   "left outer join uifield error on master.area=error.area and master.name=error.name and label.attrName='error'\n"+
-		   "left outer join uifield control on master.area=control.area and master.name=control.name and label.attrName='control'\n"+
-		   "left outer join uifield suffix on master.area=suffix.area and master.name=suffix.name and label.attrName='suffix'\n"+
-		   "left outer join uifield constr on master.area=constr.area and master.name=constr.name and label.attrName='constraint'\n"+
+		   "left outer join uifield error on master.area=error.area and master.name=error.name and error.attrName='error'\n"+
+		   "left outer join uifield control on master.area=control.area and master.name=control.name and control.attrName='control'\n"+
+		   "left outer join uifield suffix on master.area=suffix.area and master.name=suffix.name and suffix.attrName='suffix'\n"+
+		   "left outer join uifield constr on master.area=constr.area and master.name=constr.name and constr.attrName='constraint'\n"+
 		   "order by master.pos\n";
 
 	   
