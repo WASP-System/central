@@ -810,9 +810,9 @@ insert into typesample values
 (3, 1, 'library', 'Library'),
 (4, 2, 'cell', 'Cell'), 
 (5, 2, 'platformunit', 'Platform Unit'),
-(6, 1, 'tissue', 'Tissue');
-(7, 1, 'protein', 'Protein');
-(8, 1, 'cellPrimary', 'Primary Cell');
+(6, 1, 'tissue', 'Tissue'),
+(7, 1, 'protein', 'Protein'),
+(8, 1, 'cellPrimary', 'Primary Cell'),
 (9, 1, 'cellLine', 'Cell Line');
 
 
@@ -1424,6 +1424,8 @@ create table run (
   runid int(10)  primary key auto_increment,
 
   resourceid int(10) ,
+  resourcecategoryid int(10) ,
+  softwareid  int(10) ,
   userid int(10) , -- facilities tech
 
   name varchar(250) , 
@@ -1439,6 +1441,8 @@ create table run (
   lastupduser int(10)  default 0,
 
   foreign key fk_run_rid (resourceid) references resource(resourceid),
+  foreign key fk_run_rcid (resourcecategoryid) references resourcecategory(resourcecategoryid),
+  foreign key fk_run_swid (softwareid) references software(softwareid),
   foreign key fk_run_sid (sampleid) references sample(sampleid),
   foreign key fk_run_userid (userid) references user(userid)
 ) ENGINE=InnoDB charset=utf8;
@@ -1551,9 +1555,9 @@ create table workflowtasksource (
 ) ENGINE=InnoDB charset=utf8;
 
 create table state (
-  stateid int(10)  primary key auto_increment,
+  stateid int(10) not null primary key auto_increment,
 
-  taskid int(10) , 
+  taskid int(10) not null, 
   name varchar(250) ,
   status varchar(50), -- 
 
