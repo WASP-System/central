@@ -13,7 +13,7 @@
 
   <bean id="daApprovalTask" class="edu.yu.einstein.wasp.load.TaskLoadService">
 
-    <property name="iname" value="DA Approval" />
+    <property name="iName" value="DA Approval" />
     <property name="name" value="DA Approval XXX" />
     <property name="uiFields">
       <list>

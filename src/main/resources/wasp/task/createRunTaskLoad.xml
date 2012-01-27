@@ -6,15 +6,14 @@
         http://www.springframework.org/schema/beans/spring-beans-3.1.xsd"
     default-autowire="byName">
 
-  <bean class="edu.yu.einstein.wasp.model.UiField" id="createLibrarySampleTaskUiField">
+  <bean class="edu.yu.einstein.wasp.model.UiField" id="createRunTaskUiField">
     <property name="locale" value="en_US" />
-    <property name="area" value="createLibrarySampleTask" />
+    <property name="area" value="createRunTask" />
   </bean>
 
-  <bean id="createLibrarySampleTask" class="edu.yu.einstein.wasp.load.TaskLoadService">
-
-    <property name="iName" value="Create Library" />
-    <property name="name" value="Create Library" />
+  <bean id="createRunTask" class="edu.yu.einstein.wasp.load.TaskLoadService">
+    <property name="iName" value="createRunTask" />
+    <property name="name" value="Create Run" />
     <property name="uiFields">
       <list>
         <bean parent="taskStartJobUiField">
@@ -24,7 +23,6 @@
         </bean>
       </list>
     </property>
-
     <property name="taskMapping">
       <list>
         <bean class="edu.yu.einstein.wasp.model.TaskMapping">
@@ -39,3 +37,7 @@
 
   </bean>
 </beans>
+
+
+
+

@@ -13,7 +13,7 @@
 
   <bean id="quoteJobTask" class="edu.yu.einstein.wasp.load.TaskLoadService">
 
-    <property name="iname" value="Quote Job" />
+    <property name="iName" value="Quote Job" />
     <property name="name" value="Quote Job" />
     <property name="uiFields">
       <list>

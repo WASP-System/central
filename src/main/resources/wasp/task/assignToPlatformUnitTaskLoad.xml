@@ -13,7 +13,7 @@
 
   <bean id="assignLibraryToPlatformUnitTask" class="edu.yu.einstein.wasp.load.TaskLoadService">
 
-    <property name="iname" value="assignLibraryToPlatformUnit" />
+    <property name="iName" value="assignLibraryToPlatformUnit" />
     <property name="name" value="Assign Library To Platform Unit" />
     <property name="uiFields">
       <list>

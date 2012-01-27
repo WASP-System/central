@@ -13,7 +13,7 @@
 
   <bean id="startJobTask" class="edu.yu.einstein.wasp.load.TaskLoadService">
 
-    <property name="iname" value="Start Job" />
+    <property name="iName" value="Start Job" />
     <property name="name" value="Start Job" />
     <property name="uiFields">
       <list>

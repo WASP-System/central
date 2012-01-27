@@ -13,7 +13,7 @@
 
   <bean id="sendInvoiceTask" class="edu.yu.einstein.wasp.load.TaskLoadService">
 
-    <property name="iname" value="Send Invoice" />
+    <property name="iName" value="Send Invoice" />
     <property name="name" value="Send Invoice" />
     <property name="uiFields">
       <list>

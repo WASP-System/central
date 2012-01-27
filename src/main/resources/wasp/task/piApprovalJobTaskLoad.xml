@@ -13,7 +13,7 @@
 
   <bean id="piApprovalTask" class="edu.yu.einstein.wasp.load.TaskLoadService">
 
-    <property name="iname" value="PI Approval" />
+    <property name="iName" value="PI Approval" />
     <property name="name" value="PI Approval" />
     <property name="uiFields">
       <list>

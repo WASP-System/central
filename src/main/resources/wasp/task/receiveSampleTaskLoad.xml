@@ -13,7 +13,7 @@
 
   <bean id="receiveSampleTask" class="edu.yu.einstein.wasp.load.TaskLoadService">
 
-    <property name="iname" value="Receive Sample" />
+    <property name="iName" value="Receive Sample" />
     <property name="name" value="Receive Sample" />
     <property name="uiFields">
       <list>
