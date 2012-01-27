@@ -191,7 +191,7 @@
     -->
     
   <!-- load constant string value definitions -->
-  <import resource="static-values-definition.xml" />
+  <import resource="classpath*:static-values-definition.xml" />
 
   <!-- load --> 
   <import resource="classpath*:wasp/*UiFieldLoad.xml" />
