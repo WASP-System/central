@@ -38,9 +38,9 @@
     </bean>
   </si:service-activator> 
 
-  <bean class="edu.yu.einstein.wasp.batch.DoCommandStateTasklet" id="abcFileTasklet" scope="step">
-    <property name="stateId">
-      <value>#{jobParameters['state']}</value>
+  <bean class="edu.yu.einstein.wasp.batch.DoCommandFileTasklet" id="abcFileTasklet" scope="step">
+    <property name="filename">
+      <value>#{jobParameters['filename']}</value>
     </property>
     <property name="params">
       <list>
