@@ -86,12 +86,12 @@ public class FileLaunchingMessageHandler {
 
 		for (String filename: files) {
 
-			logger.info("Launch Called with Job " + job + " File " + filename + ""); 
+			logger.info("Launch Called with Job " + job + " Filename " + filename + ""); 
 
 			JobExecution jobToken=null;
 
 			JobParametersBuilder builder = new JobParametersBuilder();
-			builder.addString("file", ""+ filename);
+			builder.addString("filename", ""+ filename);
 
 			JobParameters params = builder.toJobParameters();
 
