@@ -33,7 +33,7 @@
   <!-- every 5 seconds call taskService.getJobCreatedStates() -->
   <!-- taskService bean defined in si.xml  -->
 
-  <bean id="workflowPoller" class="edu.yu.einstein.wasp.batch.WorkflowPoller" />
+  <bean id="workflowPoller" class="edu.yu.einstein.wasp.batch.poller.WorkflowPoller" />
 
 <!--
   <bean id="startJobPoller" parent="workflowPoller">

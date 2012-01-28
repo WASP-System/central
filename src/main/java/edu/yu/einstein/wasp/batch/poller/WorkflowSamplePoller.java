@@ -1,4 +1,4 @@
-package edu.yu.einstein.wasp.batch;
+package edu.yu.einstein.wasp.batch.poller;
 
 
 import java.util.ArrayList;

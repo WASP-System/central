@@ -14,7 +14,7 @@
     xmlns="http://www.springframework.org/schema/beans"
     default-autowire="byName">
 
-  <bean abstract="true" id="workflowSamplePoller" class="edu.yu.einstein.wasp.batch.WorkflowSamplePoller" />
+  <bean abstract="true" id="workflowSamplePoller" class="edu.yu.einstein.wasp.batch.poller.WorkflowSamplePoller" />
 
   <!-- ************************************************ used as template
   <bean id="defaultDnaSamplePoller" parent="workflowSamplePoller">
