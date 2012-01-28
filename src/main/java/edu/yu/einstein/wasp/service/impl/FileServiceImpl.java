@@ -101,6 +101,10 @@ public File getMetaInformation(String filePath) throws java.io.IOException {
 		java.io.File file = new java.io.File(filePath);
 		return (int)file.length()/1024;
 	}
+
+	public File getFileByFilelocation (final String filelocation) {
+		return this.getFileDao().getFileByFilelocation(filelocation);
+	}
 	
 }
 

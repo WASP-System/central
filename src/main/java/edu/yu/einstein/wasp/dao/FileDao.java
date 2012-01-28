@@ -11,12 +11,19 @@
 
 package edu.yu.einstein.wasp.dao;
 
-import edu.yu.einstein.wasp.model.File;
+import javax.persistence.*;
+import java.util.List;
+import java.util.Map;
+import edu.yu.einstein.wasp.model.*;
+
+import org.springframework.stereotype.Repository;
 
 
 public interface FileDao extends WaspDao<File> {
 
-  public File getFileByFileId (final int fileId);
+  public File getFileByFileId (final Integer fileId);
+
+  public File getFileByFilelocation (final String filelocation);
 
 
 }

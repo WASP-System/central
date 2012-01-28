@@ -40,5 +40,7 @@ public interface FileService extends WaspService<File> {
     //returns File object with contentType/md5hash and sizek fields populated.
     File getMetaInformation(String filePath) throws java.io.IOException;
 
+	public File getFileByFilelocation (final String filelocation);
+
 }
 
