@@ -19,6 +19,7 @@
 
   <file:inbound-channel-adapter id="files" 
         directory="/tmp/t" 
+        filename-regex="file.*"
         prevent-duplicates="true"
         channel="fileInputChannel"> 
     <si:poller>
@@ -55,9 +56,33 @@
     <property name="timeout" value="5000" />
   </bean>
 
+
+  <bean id="illuminaRegisterFileStep" parent="parentFileStep">
+    <property name="itemProcessor">
+      <bean class="edu.yu.einstein.wasp.batch.RegisterFileProcessor">
+        <!-- WORKING -->
+        <!-- <property name="filenameRegex" value=".*/file\..*\.txt$" /> -->
+        <!-- WORKING -->
+        <!-- <property name="filenameRegex" value=".*/file\.\d*\.txt$" /> -->
+        <!-- WORKING? -->
+        <property name="filenameRegex" value=".*/file\.(\d*)\.(\d*)\.(\d*)\.txt$" />
+
+        <property name="matchList">
+          <list>
+            <value>jobId</value> 
+            <value>runId</value> 
+            <value>sampleId</value>  
+          </list>
+        </property>
+      </bean>
+    </property>
+  </bean>
+  
+
   
   <batch:job id="fileJob" restartable="true">
-    <batch:step id="abcFileTaskStep">
+    <batch:step id="fileJob0" parent="illuminaRegisterFileStep" next="fileJob1" />
+    <batch:step id="fileJob1">
       <batch:tasklet ref="abcFileTasklet" />
     </batch:step> 
 
