@@ -30,6 +30,10 @@
     <property name="stateId" value="#{jobParameters['state']}"/>
   </bean>
 
+  <bean id="filenameReader" class="edu.yu.einstein.wasp.batch.FilenameReader" scope="step">
+    <property name="filename" value="#{jobParameters['filename']}"/>
+  </bean>
+
   <!-- Placeholder Processor --> 
   <bean id="emptyStateProcessor" class="edu.yu.einstein.wasp.batch.EmptyStateProcessor" />
 
@@ -51,6 +55,10 @@
     </property>
     <property name="retryPolicy" ref="alwaysRetryPolicy" />
     <property name="backOffPolicy" ref="fixedBackoffPolicy" />
+  </bean>
+
+  <bean id="parentFileStep" abstract="true" parent="parentStateStep">
+    <property name="itemReader" ref="filenameReader"/>
   </bean>
 
   <!-- Placeholder empty state -->
