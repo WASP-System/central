@@ -6,6 +6,10 @@
 
 <wasp:field name="typeResourceId" type="select" items="${typeResources}" itemValue="typeResourceId" itemLabel="name" />
 
-<wasp:field name="isActive"  type="checkbox" />
+<wasp:field name="isActive" type="checkbox" editable="false"/>
 
-<wasp:field name="barcodeId" type="hidden" />
+<wasp:field name="resourceBarcodeId" type="text" hidden="true" editHidden="true"/>
+
+
+
+

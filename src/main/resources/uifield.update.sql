@@ -719,7 +719,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','machine_type','metaposition','30','1');
 
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','resourceBarcodeId','label','Barcode','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','resourceBarcodeId','metaposition','35','1');
+
 
 
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','commission_date','label','Commission Date','1');

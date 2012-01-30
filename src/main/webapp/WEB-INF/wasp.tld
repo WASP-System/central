@@ -106,6 +106,30 @@
 		</attribute>
 		<attribute>
             <!-- 
+			<description>editable field if set</description>
+            -->
+			<name>editHidden</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+            <!-- 
+			<description>hidden field if set</description>
+            -->
+			<name>hidden</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+            <!-- 
+			<description>not editable field if set</description>
+            -->
+			<name>editable</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+            <!-- 
 			<description>Searchable field if set</description>
             -->
 			<name>searchable</name>

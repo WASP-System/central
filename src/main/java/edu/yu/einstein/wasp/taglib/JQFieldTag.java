@@ -67,6 +67,15 @@ public class JQFieldTag extends BodyTagSupport {
 	//Sortable field
 	private String sortable;
 	
+	//editable field
+	private String editHidden;
+	
+	//hidden field
+		private String hidden;
+	
+	//Sortable field
+	private String editable;
+	
 	//Searchable field
 	private String searchable;
   
@@ -135,7 +144,16 @@ public class JQFieldTag extends BodyTagSupport {
 		this.sortable = st;
 	}
 	
-	
+	public void setEditHidden(String eh) {
+		this.editHidden = eh;
+	}
+	public void setHidden(String hd) {
+		this.hidden = hd;
+	}
+
+	public void setEditable(String ed) {
+		this.editable = ed;
+	}
 	
 	public void setSearchable(String sb) {
 		this.searchable = sb;
@@ -264,7 +282,9 @@ public class JQFieldTag extends BodyTagSupport {
 			 		"	index:'"+name+"', \n"+
 					"	width:80, \n"+
 					"	align:'left',\n"+
-					"	sortable:false,\n"+				
+					"	sortable:false,\n"+	
+					"	editHidden:false,\n"+	
+					"	hidden:false,\n"+
 					"	sorttype:'text',\n"+		
 					"	editable:true,\n"+
 					"   editrules:"+editrules+",\n"+
@@ -333,6 +353,20 @@ public class JQFieldTag extends BodyTagSupport {
 			if (this.sortable!=null  && this.sortable.equals("true")) {
 				buf = buf + 
 					jsName + ".jq['sortable']=true;\n";
+			}
+			
+			if (this.editHidden!=null  && this.editHidden.equals("true")) {
+				buf = buf + 
+					jsName + ".jq['editrules']['edithidden']=true;\n";
+			}
+			
+			if (this.hidden!=null  && this.hidden.equals("true")) {
+				buf = buf + 
+					jsName + ".jq['hidden']=true;\n";
+			}
+			if (this.editable!=null  && this.editable.equals("false")) {
+				buf = buf + 
+					jsName + ".jq['editable']=false;\n";
 			}
 	
 			if (this.searchable!=null  && this.searchable.equals("false")) {

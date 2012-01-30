@@ -255,10 +255,12 @@ public class ResourceController extends WaspController {
 
 		resourceForm.setResourceMeta(resourceMetaList);
 		
+		
 		if (resourceId == null || resourceId == 0) {
 			
 			
 			resourceForm.setResourcecategoryId(Integer.parseInt(request.getParameter("resourceCategoryId")));
+			/*
 			if (resourceForm.getResourceBarcode() == null){
 				List<ResourceBarcode> rbList = new ArrayList<ResourceBarcode>();
 				
@@ -267,9 +269,9 @@ public class ResourceController extends WaspController {
 				List<ResourceBarcode> rbList = new ArrayList<ResourceBarcode> (resourceForm.getResourceBarcode());
 			}
 			
+			*/
 			
-			
-			System.out.println("barcode="+request.getParameter("resourceBarcodeId"));
+			System.out.println("barcode="+request.getParameter("resource.resourceBarcodeId"));
 
 			resourceForm.setLastUpdTs(new Date());
 			resourceForm.setIsActive(1);
