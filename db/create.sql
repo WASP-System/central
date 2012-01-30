@@ -1560,6 +1560,7 @@ create table state (
   taskid int(10) not null, 
   name varchar(250) ,
   status varchar(50), -- 
+  source_stateid int(10) ,
 
   startts datetime, 
   endts datetime, 
@@ -1567,7 +1568,8 @@ create table state (
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
 
-  foreign key fk_state_tid (taskid) references task(taskid)
+  foreign key fk_state_tid (taskid) references task(taskid),
+  foreign key fk_state_ssid (source_stateid) references state(stateid)
 ) ENGINE=InnoDB charset=utf8;
 
 create table statemeta (
