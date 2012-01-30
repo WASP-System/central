@@ -134,6 +134,7 @@ foreach my $block (split /\s*;\s*/, $fc) {
       $var =~ s/userid$/UserId/;
       $var =~ s/id$/Id/;
       $var =~ s/dts$/Dts/;
+      $var =~ s/endts$/endts/i;
       $var =~ s/(.)name$/$1Name/;
       $var =~ s/^is(.)/"is\U$1"/e;
       $var =~ s/^type(.)/"type\U$1"/e;
