@@ -14,18 +14,14 @@ package edu.yu.einstein.wasp.model;
 import java.util.Date;
 import java.util.List;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
+
+import org.hibernate.validator.constraints.*;
+
+import org.codehaus.jackson.annotate.JsonIgnore;
 
 @Entity
 @Audited
@@ -157,6 +153,37 @@ public class State extends WaspModel {
 
 
 	/** 
+	 * sourceStateId
+	 *
+	 */
+	@Column(name="source_stateid")
+	protected Integer sourceStateId;
+
+	/**
+	 * setSourceStateId(Integer sourceStateId)
+	 *
+	 * @param sourceStateId
+	 *
+	 */
+	
+	public void setSourceStateId (Integer sourceStateId) {
+		this.sourceStateId = sourceStateId;
+	}
+
+	/**
+	 * getSourceStateId()
+	 *
+	 * @return sourceStateId
+	 *
+	 */
+	public Integer getSourceStateId () {
+		return this.sourceStateId;
+	}
+
+
+
+
+	/** 
 	 * startts
 	 *
 	 */
@@ -188,14 +215,14 @@ public class State extends WaspModel {
 
 
 	/** 
-	 * enDts
+	 * endts
 	 *
 	 */
 	@Column(name="endts")
 	protected Date endts;
 
 	/**
-	 * setEnDts(Date endts)
+	 * setEndts(Date endts)
 	 *
 	 * @param endts
 	 *
@@ -310,6 +337,71 @@ public class State extends WaspModel {
 	public Task getTask () {
 		return this.task;
 	}
+
+
+	/**
+	 * state
+	 *
+	 */
+	@NotAudited
+	@ManyToOne
+	@JoinColumn(name="source_stateid", insertable=false, updatable=false)
+	protected State state;
+
+	/**
+	 * setState (State state)
+	 *
+	 * @param state
+	 *
+	 */
+	public void setState (State state) {
+		this.state = state;
+		this.sourceStateId = state.stateId;
+	}
+
+	/**
+	 * getState ()
+	 *
+	 * @return state
+	 *
+	 */
+	
+	public State getState () {
+		return this.state;
+	}
+
+
+	/** 
+	 * stateViaSourceStateId
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="source_stateid", insertable=false, updatable=false)
+	protected List<State> stateViaSourceStateId;
+
+
+	/** 
+	 * getStateViaSourceStateId()
+	 *
+	 * @return stateViaSourceStateId
+	 *
+	 */
+	public List<State> getStateViaSourceStateId() {
+		return this.stateViaSourceStateId;
+	}
+
+
+	/** 
+	 * setStateViaSourceStateId
+	 *
+	 * @param stateViaSourceStateId
+	 *
+	 */
+	public void setStateViaSourceStateId (List<State> stateViaSourceStateId) {
+		this.stateViaSourceStateId = stateViaSourceStateId;
+	}
+
 
 
 	/** 
