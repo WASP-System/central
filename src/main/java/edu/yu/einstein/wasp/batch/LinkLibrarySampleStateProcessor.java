@@ -78,6 +78,12 @@ public class LinkLibrarySampleStateProcessor implements ItemProcessor {
 				newState.setStatus(targetStatus);
 				newState.setTaskId(t.getTaskId());
 				newState.setName(t.getName());
+
+				// not the sample's stateId but the job's
+				// newState.setSourceStateId((Integer) stateId);
+
+				newState.setSourceStateId(state.getSourceStateId());
+
 				newState.setStartts(new Date());
 				State newStateDb = stateService.save(newState);
 
@@ -91,12 +97,12 @@ public class LinkLibrarySampleStateProcessor implements ItemProcessor {
 				}
 
 				// links the state to the library
-      	Statesample newStateSample = new Statesample();
-	      newStateSample.setStateId(newStateDb.getStateId());
-	      newStateSample.setSampleId(librarySample.getSampleId());
+			      	Statesample newStateSample = new Statesample();
+				newStateSample.setStateId(newStateDb.getStateId());
+				newStateSample.setSampleId(librarySample.getSampleId());
 				statesampleService.save(newStateSample);
 			}
-    }
+		}
 
 
 		return state;

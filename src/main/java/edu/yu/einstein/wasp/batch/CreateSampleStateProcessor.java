@@ -10,10 +10,12 @@ import org.springframework.stereotype.Component;
 import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.Statejob;
 import edu.yu.einstein.wasp.model.Statesample;
+import edu.yu.einstein.wasp.model.Staterun;
 import edu.yu.einstein.wasp.model.Task;
 import edu.yu.einstein.wasp.service.StateService;
 import edu.yu.einstein.wasp.service.StatejobService;
 import edu.yu.einstein.wasp.service.StatesampleService;
+import edu.yu.einstein.wasp.service.StaterunService;
 import edu.yu.einstein.wasp.service.TaskService;
 
 /**
@@ -38,6 +40,9 @@ public class CreateSampleStateProcessor implements ItemProcessor {
   @Autowired
   StatejobService statejobService;
 
+  @Autowired
+  StaterunService staterunService;
+
   String targetTask; 
   public void setTargetTask(String targetTask) {
     this.targetTask = targetTask; 
@@ -54,6 +59,7 @@ System.out.println("\nCreating " + targetTask + " for " + stateId);
 
     List<Statesample> stateSamples = state.getStatesample();
     List<Statejob> stateJobs = state.getStatejob();
+    List<Staterun> stateRuns = state.getStaterun();
 
     Task t = taskService.getTaskByIName(targetTask); 
 
@@ -61,6 +67,7 @@ System.out.println("\nCreating " + targetTask + " for " + stateId);
     newState.setStatus(targetStatus);
     newState.setTaskId(t.getTaskId());
     newState.setName(t.getName() + " " + stateId);
+    newState.setSourceStateId((Integer) stateId);
     newState.setStartts(new Date());
     State newStateDb = stateService.save(newState);
 
@@ -78,6 +85,14 @@ System.out.println("\nCreating " + targetTask + " for " + stateId);
       newStateJob.setJobId(sj.getJobId());
       
       statejobService.save(newStateJob);
+    }
+
+    for (Staterun sr: stateRuns) {
+      Staterun newStateRun = new Staterun(); 
+      newStateRun.setStateId(newStateDb.getStateId());
+      newStateRun.setRunId(sr.getRunId());
+      
+      staterunService.save(newStateRun);
     }
 
     return newState;

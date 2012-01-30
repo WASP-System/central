@@ -60,6 +60,7 @@ public class CreateSampleStatesFromJobSampleProcessor implements ItemProcessor {
         State newState = new State();
         newState.setStatus(targetStatus);
         newState.setTaskId(t.getTaskId());
+	newState.setSourceStateId((Integer) stateId);
         newState.setName(t.getName());
         newState.setStartts(new Date());
         State newStateDb = stateService.save(newState);

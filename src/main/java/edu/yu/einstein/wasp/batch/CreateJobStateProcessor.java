@@ -55,6 +55,7 @@ System.out.println("\nCreating " + targetTask + " for " + stateId);
     newState.setStatus(targetStatus);
     newState.setTaskId(t.getTaskId());
     newState.setName(t.getName());
+    newState.setSourceStateId((Integer) stateId);
     newState.setStartts(new Date());
     State newStateDb = stateService.save(newState);
 
