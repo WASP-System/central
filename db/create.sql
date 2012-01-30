@@ -435,8 +435,7 @@ create table software (
 
   foreign key fk_software_typeresourceid (typeresourceid) references typeresource(typeresourceid),
 
-  constraint unique index u_software_i(iname),
-  constraint unique index u_software_n(name)
+  constraint unique index u_software_i(iname)
 ) ENGINE=InnoDB charset=utf8;
 
 
