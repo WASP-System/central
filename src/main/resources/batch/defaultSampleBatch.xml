@@ -169,27 +169,18 @@
   <!-- /libraryPlatformUnitAssign -->
 
   <!-- getResults -->
-  <bean id="wasp.sample.getResultsStateStep" parent="parentStateStep">
+                                                                                  <bean id="wasp.sample.getResultsFileStep" parent="parentStateStep">
     <property name="itemProcessor">
-      <bean class="edu.yu.einstein.wasp.batch.CreateSampleStateProcessor">
-        <property name="targetTask" value="getSampleResults" />
-      </bean>
-    </property>
-  </bean>
-                                                                                  <bean id="wasp.sample.getResultsWaitStateStep" parent="parentStateStep">
-    <property name="itemProcessor">
-      <bean class="edu.yu.einstein.wasp.batch.WaitForSiblingSampleStateProcessor">
-        <property name="task" value="getSampleResults" />
-        <property name="status" value="OK" />
-        <property name="siblingTargetStatus" value="FINAL" />
+      <bean class="edu.yu.einstein.wasp.batch.WaitForSampleFileProcessor">
+        <property name="filenameRegex" value=".*\.completed.txt" />
       </bean>
     </property>
   </bean>
 
   <batch:flow id="wasp.sample.getResults">
-    <batch:step id="wasp.sample.getResults0" parent="wasp.sample.getResultsStateStep" next="wasp.sample.getResults1" />
-    <batch:step id="wasp.sample.getResults1" parent="wasp.sample.getResultsWaitStateStep" />
+    <batch:step id="wasp.sample.getResults0" parent="wasp.sample.getResultsFileStep" />
   </batch:flow> 
+
 
   <!-- /getResults -->
 

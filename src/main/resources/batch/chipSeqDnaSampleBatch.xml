@@ -43,7 +43,7 @@
   </si:inbound-channel-adapter>
 
   <si:service-activator input-channel="chipSeqLibrarySampleChannel" output-channel="logger">
-    <bean class="edu.yu.einstein.wasp.batch.StateJobLaunchingMessageHandler" scope="prototype">
+    <bean class="edu.yu.einstein.wasp.batch.launcher.StateJobLaunchingMessageHandler" scope="prototype">
        <constructor-arg ref="jobRegistry" />
        <constructor-arg ref="jobLauncher" />
        <constructor-arg ref="jobRepository" />
