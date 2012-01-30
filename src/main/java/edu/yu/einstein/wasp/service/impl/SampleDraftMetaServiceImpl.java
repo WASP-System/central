@@ -55,6 +55,9 @@ public void updateBySampledraftId (final int sampledraftId, final List<SampleDra
     this.getSampleDraftMetaDao().updateBySampledraftId(sampledraftId, metaList); 
   }
   
+  /**
+   * {@inheritDoc}
+   */
   @Override
 public Map<SubtypeSample,List<SampleDraftMeta>> getAllowableMetaFields(int workflowId) {
 	  return this.getSampleDraftMetaDao().getAllowableMetaFields(workflowId);	  

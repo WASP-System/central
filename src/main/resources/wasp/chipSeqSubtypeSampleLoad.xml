@@ -89,7 +89,7 @@
   	<property name="name" value="ChIP-seq DNA" />
     <property name="area" value="chipseqDnaSample" />
     <property name="sampleType" value="#{waspSampleType['dna']}" />
-    <property name="baseUiFields" ref="genericDnaUiFields" />
+    <property name="baseUiFields" ref="genericBiomoleculeUiFields" />
     <property name="uiFields" ref="chipSeqDnaSpecificUiFields" />
   </bean>
 
@@ -104,7 +104,7 @@
  
   <bean id="chipSeqLibrarySubtypeSampleResource" class="edu.yu.einstein.wasp.load.SubtypeSampleLoadService">
   	<constructor-arg ref="chipSeqDnaSubtypeSampleResource" />
-     <property name="name" value="ChIP-seq Library" />
+    <property name="name" value="ChIP-seq Library" />
     <property name="area" value="chipseqLibrarySample" />
     <property name="sampleType" value="#{waspSampleType['library']}" />
     <property name="baseUiFields" ref="genericLibraryUiFields" />

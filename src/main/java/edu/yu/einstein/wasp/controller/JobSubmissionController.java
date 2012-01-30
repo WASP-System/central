@@ -906,25 +906,6 @@ public class JobSubmissionController extends WaspController {
 	}
 
 
-	@RequestMapping(value="/aligner/{jobDraftId}", method=RequestMethod.GET)
-	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
-	public String showAlignerForm(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
-		return showAdditionalMetaForm("aligner", jobDraftId, m); 
-	}
-
-
-	@RequestMapping(value="/aligner/{jobDraftId}", method=RequestMethod.POST)
-	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
-	public String modifyAligner(
-			@PathVariable Integer jobDraftId,
-			@Valid JobDraft jobDraftForm,
-			BindingResult result,
-			SessionStatus status,
-			ModelMap m) {
-		return modifyAdditionalMeta("aligner", jobDraftId, jobDraftForm, result, status, m); 
-	}
-
-
 	/*
 	 * Prepares page to manage sample drafts
 	 * 
@@ -945,10 +926,11 @@ public class JobSubmissionController extends WaspController {
 		
 		for(List<SampleDraftMeta> metaList:allowedMetaFields.values()) {
 			allowedMetaFieldsSet.addAll(metaList);
+			logger.debug("ANDY:"+metaList.get(0).getK()+"="+metaList.get(0).getV());
 		}
 		
-		m.addAttribute("_metaList", allowedMetaFieldsSet);
-		m.addAttribute("_metaBySubtypeList", allowedMetaFields);
+		m.addAttribute("_metaList", allowedMetaFieldsSet); // all field metadata for all sybtypes associated with this workflow combined
+		m.addAttribute("_metaBySubtypeList", allowedMetaFields); // all sample subtypes associated with this workflow and field metadata
 		
 		
 		Map<Integer,Map<Integer,String>> jobsBySampleSubtype=new LinkedHashMap<Integer,Map<Integer,String>>();
@@ -965,7 +947,7 @@ public class JobSubmissionController extends WaspController {
 		m.addAttribute(JQFieldTag.AREA_ATTR, "sampleDraft");		
 		prepareSelectListData(m);
 		m.addAttribute("jobdraftId",jobDraftId);
-		//m.addAttribute("jobDraftDb",jobDraft);
+		m.addAttribute("jobDraft",jobDraft);
 		m.addAttribute("uploadStartedMessage",messageService.getMessage("sampleDraft.fileupload_wait.data"));
 		m.put("pageFlowMap", getPageFlowMap(jobDraft));
 	
@@ -1067,7 +1049,7 @@ public class JobSubmissionController extends WaspController {
 		} catch (Exception e) {
 		}
 
-		List<String> checkedList = new ArrayList<String>();
+		//List<String> checkedList = new ArrayList<String>();
 
 		int cellindex = 0;
 
@@ -1108,7 +1090,7 @@ public class JobSubmissionController extends WaspController {
 				sampleDraftCell.setSampledraftId(sd.getSampleDraftId());
 				sampleDraftCell.setLibraryindex(libraryindex);
 
-				SampleDraftCell sampleDraftCellDb = sampleDraftCellService.save(sampleDraftCell);
+				sampleDraftCellService.save(sampleDraftCell);
 
 				// checkedList.add("sdc_" + sd.getSampleDraftId() + "_" + i + " " + cellindex + " " + libraryindex);
 

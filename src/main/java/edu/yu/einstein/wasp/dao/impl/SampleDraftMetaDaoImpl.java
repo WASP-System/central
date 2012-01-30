@@ -117,11 +117,8 @@ public class SampleDraftMetaDaoImpl extends WaspDaoImpl<SampleDraftMeta> impleme
  	}
 
 	/**
-	 * returns list of meta fields allowed for the given workflowId
-	 * 
-	 * @author Sasha Levchuk
+	 * {@inheritDoc}
 	 */
-	
 	@Override
 	public Map<SubtypeSample,List<SampleDraftMeta>> getAllowableMetaFields(final int workflowId) {
 		

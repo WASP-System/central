@@ -26,16 +26,16 @@ Body of the "sample drafts" page
 //build structure to hold meta fields allowed for the current workflowId
 var _validMetaFields={};
 <c:forEach items="${_metaBySubtypeList}" var="_entry" varStatus="_substatus">
-<c:set var="_subtype" value="${_entry.key}"/>
-<c:set var="_validMetaFields" value="${_entry.value}"/>
+	<c:set var="_subtype" value="${_entry.key}"/>
+	<c:set var="_validMetaFields" value="${_entry.value}"/>
 
-_validMetaFields.subtypeSampleId_${_subtype.subtypeSampleId}=[];
+	_validMetaFields.subtypeSampleId_${_subtype.subtypeSampleId}=[];
 
-<c:forEach items="${_validMetaFields}" var="_validMeta">
+	<c:forEach items="${_validMetaFields}" var="_validMeta">
 
-_validMetaFields.subtypeSampleId_${_subtype.subtypeSampleId}.push('${_validMeta.k}');
+		_validMetaFields.subtypeSampleId_${_subtype.subtypeSampleId}.push('${_validMeta.k}');
 
-</c:forEach>
+	</c:forEach>
 </c:forEach>
 
 //build structure to hold list of samples by subtype
@@ -103,6 +103,11 @@ $.jgrid.extend ({editGridRow : function(rowid, p){
                 			$(jqName, form).hide();
                 		}                 	
 					}
+               		
+               		// disable status and clonedoption
+					(document.getElementById(form[0].id).status).disabled="disabled";
+					(document.getElementById(form[0].id).cloned).disabled="disabled";
+                	
                 	
                 
                		//implement dynamic population of sub-selects
@@ -209,7 +214,6 @@ function enableAllFields() {
 	$('#name').attr('disabled',null);
 	$('#name').val('');
 	
-	$('#cloned').attr('disabled',null);
 	$('#cloned').val('No');
 	
 	$.each($("input, select"), function(i,v) {

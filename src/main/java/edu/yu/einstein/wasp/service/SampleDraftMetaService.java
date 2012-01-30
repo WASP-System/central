@@ -32,6 +32,11 @@ public interface SampleDraftMetaService extends WaspMetaService<SampleDraftMeta>
 
   public void updateBySampledraftId (final int sampledraftId, final List<SampleDraftMeta> metaList);
 
+  /**
+   * Returns a Map of subtypeSamples and associated field metadata (i.e. that with a metaposition) associated with the provided workflow
+   * @param workflowId
+   * @return Map< {@link SubtypeSample}, List<{@link SampleDraftMeta}> >
+   */
   Map<SubtypeSample,List<SampleDraftMeta>> getAllowableMetaFields(int workflowId);
   
  
