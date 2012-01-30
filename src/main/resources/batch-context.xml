@@ -103,8 +103,8 @@
   <import resource="classpath*:wasp/*SoftwareLoad.xml" />
   <import resource="classpath*:wasp/*SubtypeSampleLoad.xml" />
   <import resource="classpath*:wasp/*AdaptorsetLoad.xml" />
-  <import resource="classpath*:wasp/**/*TaskLoad.xml" />
   <import resource="classpath*:wasp/*WorkflowLoad.xml" />
+  <import resource="classpath*:wasp/**/*TaskLoad.xml" />
 
   <!-- Spring Integration/Batch config--> 
     <bean class="org.springframework.batch.core.scope.StepScope" />
@@ -115,12 +115,8 @@
     <import resource="batch/si.xml" />
 
     <!-- loads all the plugable batch -->
-    <import resource="classpath*:batch/*Batch.xml" />
+    <import resource="classpath*:batch/**/*Batch.xml" /> 
 
-<!--
-  <import resource="import-poll-files-job.xml" /> -->
-
-  <!--  <import resource="bee-job-filepoller.xml" /> -->
   <!-- Spring Integration/Batch config: END -->
  
 <!-- 
