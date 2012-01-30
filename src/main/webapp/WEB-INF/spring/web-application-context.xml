@@ -199,7 +199,7 @@
   <import resource="classpath*:wasp/*SoftwareLoad.xml" />
   <import resource="classpath*:wasp/*SubtypeSampleLoad.xml" />
   <import resource="classpath*:wasp/*AdaptorsetLoad.xml" />
-  <import resource="classpath*:wasp/*TaskLoad.xml" />
+  <import resource="classpath*:wasp/**/*TaskLoad.xml" />
   <import resource="classpath*:wasp/*WorkflowLoad.xml" />
 
 </beans>
