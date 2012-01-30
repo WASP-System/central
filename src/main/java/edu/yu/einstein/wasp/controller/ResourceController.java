@@ -2,10 +2,12 @@ package edu.yu.einstein.wasp.controller;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -25,11 +27,23 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
 
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
+import edu.yu.einstein.wasp.exception.LoginNameException;
+import edu.yu.einstein.wasp.model.Lab;
+import edu.yu.einstein.wasp.model.LabMeta;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.Resource;
+import edu.yu.einstein.wasp.model.ResourceBarcode;
+import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.ResourceLane;
 import edu.yu.einstein.wasp.model.ResourceMeta;
 import edu.yu.einstein.wasp.model.Run;
+import edu.yu.einstein.wasp.model.TypeResource;
+import edu.yu.einstein.wasp.model.TypeSample;
+import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.model.UserMeta;
+import edu.yu.einstein.wasp.service.MessageService;
+import edu.yu.einstein.wasp.service.ResourceBarcodeService;
+import edu.yu.einstein.wasp.service.ResourceCategoryService;
 import edu.yu.einstein.wasp.service.ResourceMetaService;
 import edu.yu.einstein.wasp.service.ResourceService;
 import edu.yu.einstein.wasp.service.TypeResourceService;
@@ -48,6 +62,15 @@ public class ResourceController extends WaspController {
 
 	@Autowired
 	private TypeResourceService typeResourceService;
+	
+	@Autowired
+	private ResourceCategoryService resourceCategoryService;
+	
+	@Autowired
+	private ResourceBarcodeService resourceBarcodeService;
+	
+	@Autowired
+	private MessageService messageService;
 
 	private final MetaHelperWebapp getMetaHelperWebapp() {
 		return new MetaHelperWebapp("resource", ResourceMeta.class,
@@ -57,8 +80,33 @@ public class ResourceController extends WaspController {
 	@Override
 	protected void prepareSelectListData(ModelMap m) {
 		super.prepareSelectListData(m);
-
-		m.addAttribute("typeResources", typeResourceService.findAll());
+		
+		//m.addAttribute("typeResources", typeResourceService.findAll());
+		
+		
+		List <TypeResource> typeResourceList = new ArrayList <TypeResource> (typeResourceService.findAll());
+		//When adding a new record in Resources JqGrid, it displays  all Type Resources that are NOT "aligner" or "peakcaller"
+		for (Iterator<TypeResource> it = typeResourceList.iterator(); it.hasNext();) {
+			TypeResource tr = it.next();
+			if (tr.getIName().equals("aligner") || tr.getIName().equals("peakcaller")) {
+				it.remove();
+			}
+		}
+		m.addAttribute("typeResources", typeResourceList);
+		
+		List <ResourceCategory> resourceCategory = new ArrayList <ResourceCategory> (resourceCategoryService.findAll());
+		/*
+		for (Iterator<ResourceCategory> it = resourceCategory.iterator(); it.hasNext();) {
+			ResourceCategory rc = it.next();
+			if (rc.getIName().equals("aligner") || rc.getIName().equals("peakcaller")) {
+				it.remove();
+			}
+		}
+		*/
+		m.addAttribute("categoryResources", resourceCategory);
+		
+		
+		
 	}
 
 	@RequestMapping("/list")
@@ -112,6 +160,16 @@ public class ResourceController extends WaspController {
 		ObjectMapper mapper = new ObjectMapper();
 
 		try {
+			
+			Map<Integer, String> allResourceBarcode = new TreeMap<Integer, String>();
+			for (ResourceBarcode resourceBarcode : (List<ResourceBarcode>) this.resourceBarcodeService.findAll()) {
+				if (resourceBarcode != null) {
+					
+					
+					allResourceBarcode.put(resourceBarcode.getResourceBarcodeId(), resourceBarcode.getBarcodeId().toString());
+				}
+			}
+			
 			int pageIndex = Integer.parseInt(request.getParameter("page"));		// index of page
 			int pageRowNum = Integer.parseInt(request.getParameter("rows"));	// number of rows in one page
 			int rowNum = resourceList.size();										// total number of rows
@@ -157,12 +215,11 @@ public class ResourceController extends WaspController {
 
 				List<String> cellList = new ArrayList<String>(
 						Arrays.asList(new String[] {
-								new Integer(resource.getResourceId())
-										.toString(), 
 								resource.getName(),
 								resource.getResourceCategory().getName(),
-								resource.getTypeResource().getName(),
-								resource.getIsActive().intValue() == 1 ? "yes" : "no" }));
+								resource.getTypeResource().getName(), 
+								resource.getIsActive().intValue() == 1 ? "yes" : "no", //}));
+								allResourceBarcode.get(resource.getResourceId())}));
 
 				for (ResourceMeta meta : resourceMeta) {
 					cellList.add(meta.getV());
@@ -183,6 +240,64 @@ public class ResourceController extends WaspController {
 		}
 
 	}
+	
+	/**
+	 * Creates/Updates user
+	 * 
+	 * @Author Sasha Levchuk 
+	 */	
+	@RequestMapping(value = "/detail_rw/updateJSON.do", method = RequestMethod.POST)
+	@PreAuthorize("hasRole('su') or User.login == principal.name")
+	public String updateDetailJSON(@RequestParam("id") Integer resourceId,
+			Resource resourceForm, ModelMap m, HttpServletResponse response) {
+
+		List<ResourceMeta> resourceMetaList = getMetaHelperWebapp().getFromJsonForm(request, ResourceMeta.class);
+
+		resourceForm.setResourceMeta(resourceMetaList);
+		
+		if (resourceId == null || resourceId == 0) {
+			
+			
+			resourceForm.setResourcecategoryId(Integer.parseInt(request.getParameter("resourceCategoryId")));
+			if (resourceForm.getResourceBarcode() == null){
+				List<ResourceBarcode> rbList = new ArrayList<ResourceBarcode>();
+				
+			}
+			else {
+				List<ResourceBarcode> rbList = new ArrayList<ResourceBarcode> (resourceForm.getResourceBarcode());
+			}
+			
+			
+			
+			System.out.println("barcode="+request.getParameter("resourceBarcodeId"));
+
+			resourceForm.setLastUpdTs(new Date());
+			resourceForm.setIsActive(1);
+
+			Resource resourceDb = this.resourceService.save(resourceForm);
+
+			resourceId = resourceDb.getResourceId();
+		} else {
+			Resource resourceDb = this.resourceService.getById(resourceId);
+			resourceDb.setName(resourceForm.getName());
+			resourceDb.setResourcecategoryId(resourceForm.getResourcecategoryId());
+			resourceDb.setTypeResourceId(resourceForm.getTypeResourceId());
+			resourceDb.setIsActive(resourceForm.getIsActive());
+			this.resourceService.merge(resourceDb);
+		}
+
+		resourceMetaService.updateByResourceId(resourceId, resourceMetaList);
+
+		// MimeMessageHelper a;
+
+		try {
+			response.getWriter().println(messageService.getMessage("resource.updated_success.label"));
+			return null;
+		} catch (Throwable e) {
+			throw new IllegalStateException("Cant output success message ", e);
+		}
+	}
+
 
 	@RequestMapping(value = "/subgridJSON.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('fm')")
@@ -260,7 +375,7 @@ public class ResourceController extends WaspController {
 		}
 
 	}
-
+	
 	@RequestMapping(value = "/detail_rw/{resourceId}.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('fm')")
 	public String detailRW(@PathVariable("resourceId") Integer resourceId,
@@ -277,7 +392,7 @@ public class ResourceController extends WaspController {
 
 	private String detail(Integer resourceId, ModelMap m, boolean isRW) {
 		Resource resource = resourceService.getById(resourceId);
-
+		System.out.println("in detail");
 		resource.setResourceMeta(getMetaHelperWebapp().syncWithMaster(
 				resource.getResourceMeta()));
 

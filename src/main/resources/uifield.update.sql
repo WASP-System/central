@@ -704,18 +704,26 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labuser','inactive','label','Inactive','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','name','label','Name','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','name','error','Resource name cannot be empty','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','name','constraint','NotEmpty','1');
+
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','resourceCategoryId','label','Resource Category','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','resourceCategoryId','error','Must select category of resource','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','resourceCategoryId','constraint','NotEmpty','1');
+
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','typeResourceId','label','Resource Type','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','typeResourceId','error','Must select type of resource','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','assay_platform','label','Assay Platform','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','assay_platform','error','Must select assay platform','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','assay_platform','control','select:ROCHE:ROCHE;ILLUMINA:ILLUMINA','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','assay_platform','constraint','NotEmpty','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','assay_platform','metaposition','20','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','typeResourceId','error','Must select assay platform','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','typeResourceId','constraint','NotEmpty','1');
+
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','machine_type','label','Machine Type','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','machine_type','error','Must select machine type','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','machine_type','constraint','NotEmpty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','machine_type','control','select:FLX:FLX;GAIIx:GAIIx;HISEQ2000:HISEQ2000','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','machine_type','metaposition','30','1');
+
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','resourceBarcodeId','label','Barcode','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','resourceBarcodeId','metaposition','35','1');
+
+
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','commission_date','label','Commission Date','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','commission_date','error','Commission date cannot be empty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','commission_date','constraint','NotEmpty','1');
@@ -730,7 +738,9 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','updated_success','label','Resource updated sucessfully.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','created_success','label','Resource created sucessfully.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','isActive','label','Active','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','resourceId','label','ResourceId','1');
+
+
+
 
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','name','label','Name','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','name','constraint','NotEmpty','1');

@@ -76,7 +76,7 @@ public class Resource extends WaspModel {
 	public void setResourcecategoryId (Integer resourcecategoryId) {
 		this.resourcecategoryId = resourcecategoryId;
 	}
-
+	
 	/**
 	 * getResourcecategoryId()
 	 *
@@ -86,9 +86,6 @@ public class Resource extends WaspModel {
 	public Integer getResourcecategoryId () {
 		return this.resourcecategoryId;
 	}
-
-
-
 
 	/** 
 	 * typeResourceId
