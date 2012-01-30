@@ -35,6 +35,11 @@ insert into workflowsoftware
 values
 (2, 1, 2);
 
+insert into resource
+values
+(1, 1, 1, 'illuminia1', 'illuminia #1', 1, now(), null);
+
+
 -- --
 -- make a test job
 insert into job
@@ -43,9 +48,12 @@ values
 
 insert into sample
 values
-(1, 1, 1, 1, 1, 1, 1, null, null, 'dna A', 1, 1, now(), null);
+(1, 1, 2, 1, 1, 1, 1, null, null, 'dna A', 1, 1, now(), null);
 
 insert into jobsample values (1, 1, 1, now(), 1);
+
+insert into jobsoftware values (1, 1, 1, now(), null);
+insert into jobsoftware values (2, 1, 2, now(), null);
 
 insert into state
 select 1, taskid, name, 'CREATED', null, now(), null, now(), 1 from task where iname = 'Start Job';
@@ -54,7 +62,7 @@ insert into statejob values (1, 1, 1);
 
 
 -- --
--- another job 
+-- another job
 -- assumes 1 is chipseqdna
 insert into job
 values
@@ -87,7 +95,7 @@ update state set status = "RECEIVED" where name like '%Receiv%' and status != 'F
 -- simulates library creation (for dna A)
 insert into sample
 values
-(3, 3, 2, 1, 1, 1, 1, 1, now(), 'library A', 1, 1, now(), null);
+(3, 3, 3, 1, 1, 1, 1, 1, now(), 'library A', 1, 1, now(), null);
 
 insert into samplesource
 (sampleid, source_sampleid, multiplexindex, lastupduser, lastupdts)
@@ -107,7 +115,7 @@ update state set status = "RECEIVED" where name like '%Receiv%' and status != 'F
 -- simulates flowcell creation
 insert into sample
 values
-(14, 5, 3, null, 1, null, 1, 1, now(), 'flowcell A', 1, 1, now(), null);
+(14, 5, 1, null, 1, null, 1, 1, now(), 'flowcell A', 1, 1, now(), null);
 insert into sample
 values
 (15, 4, null, null, 1, null, 1, 1, now(), 'flowcell lane A/1', 1, 1, now(), null),
@@ -126,10 +134,10 @@ select s1.sampleid, s2.sampleid, s2.sampleid-14, 1, now()
 from sample s1, sample s2
 where s1.sampleid = 14 and s2.sampleid in (15,16,17,18,19,20,21,22);
 
-        -- 4, sampleWrapTask
+        -- 15, sampleWrapTask
 insert into state
 values
-(1010, 4, 'Sample Flowcell Task', 'CREATED', 11, now(), null, now(), 1);
+(1010, 15, 'Sample Task (Flowcell)', 'CREATED', 11, now(), null, now(), 1);
 insert into statesample
 (stateid, sampleid)
 values
@@ -152,26 +160,26 @@ insert into samplesource
 values
 (16, 2);
 
---- snap3.sql
-
+ -- assign both on library side and flowcell side
 update state set status = "ASSIGNED" where name like '%Assign Library%' and status != 'FINAL';
+
+--- snap4.sql
+
 
 
 
 -- --
--- simulate start amplicon run
-insert into resource
-values
-(1, 1, 1, 'illuminia1', 'illuminia #1', 1, now(), null);
+-- simpulte start illumina run
 
-insert into run 
+insert into run
 values
-(1, 1, 1, null, 1, 'Run lola run', 14, now(), null, 'SHRUG', 1, now(), 1);
+(1, 1, 1, null, 1, 'Run lola run', 14, now(), null, null, 1, now(), 1);
 
-    -- should source from p.u.
+  -- should source from p.u.
+  -- 16 run task wrap
 insert into state
 values
-(2010, 5, 'Run Task', 'CREATED', 1010, now(), null, now(), 1);
+(2010, 16, 'Run Task', 'CREATED', 1010, now(), null, now(), 1);
 insert into statesample
 (stateid, sampleid)
 values
@@ -181,6 +189,7 @@ insert into staterun
 values
 (2010, 1);
 
+update state set status = "PLACED" where name like '%Place Ampli%' and status != 'FINAL';
 
 -- --
 -- simulate get run results
@@ -188,20 +197,12 @@ values
 -- b:/home/echeng/ed/t> touch file.1.1.3.completed.txt
 
 
-update state set status = "APPROVED" where name like '%Qc Appr%';
-
-
--- --
-
--- --
--- simpulte start illumina run
-
--- --
--- simulate get illumina results
-
 -- --
 -- simulate illumina qc screen ok
 
--- --
--- simulate
+update state set status = "APPROVED" where name like '%Qc Appr%';
+
+
+
+
 
