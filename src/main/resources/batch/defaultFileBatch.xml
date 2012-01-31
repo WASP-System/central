@@ -19,7 +19,7 @@
 
   <!-- most effective if filename-regex matches registerfile.filnameRegex -->
   <file:inbound-channel-adapter id="files" 
-        directory="/ed/t" 
+        directory="/tmp/t" 
         filename-regex="file.*txt"
         prevent-duplicates="true"
         channel="fileInputChannel"> 
@@ -46,7 +46,7 @@
     </property>
     <property name="params">
       <list>
-        <value>'/ed/tmp/abc.pl'</value>
+        <value>'/tmp/abc.pl'</value>
         <value>'goodbye'</value>
         <value>'#{jobParameters['filename']}'</value>
         <value>'goodbye'</value>
@@ -77,10 +77,10 @@
 
   
   <batch:job id="fileJob" restartable="true">
-    <batch:step id="fileJob0" parent="illuminaRegisterFileStep" />
-<!--    <batch:step id="fileJob1">
+    <batch:step id="fileJob0" parent="illuminaRegisterFileStep" next="fileJob1" />
+    <batch:step id="fileJob1">
       <batch:tasklet ref="abcFileTasklet" />
-    </batch:step>  -->
+    </batch:step> 
 
   </batch:job>
 
