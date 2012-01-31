@@ -20,7 +20,7 @@
 
 
   /** most effective if filename-regex matches registerfile.filnameRegex **/
-  <file:inbound-channel-adapter id="wasp.file.files" 
+  <file:inbound-channel-adapter id="wasp.file.Files" 
         directory="/tmp/t" 
         filename-regex="file.*txt"
         prevent-duplicates="true"
@@ -31,19 +31,19 @@
   </file:inbound-channel-adapter>
 
 
-  <si:service-activator input-channel="wasp.file.inputChannel" output-channel="logger">
+  <si:service-activator input-channel="wasp.file.InputChannel" output-channel="logger">
     <bean class="edu.yu.einstein.wasp.batch.launcher.FileLaunchingMessageHandler" scope="prototype">
         <constructor-arg ref="jobRegistry" />
         <constructor-arg ref="jobLauncher" />
         <constructor-arg ref="jobRepository" />
         <constructor-arg ref="jobOperator" />
        
-        <constructor-arg type="java.lang.String"><value>fileJob</value></constructor-arg> 
+        <constructor-arg type="java.lang.String"><value>wasp.file.Job</value></constructor-arg> 
     </bean>
   </si:service-activator> 
 
   /** sample exec on file **/
-  <bean class="edu.yu.einstein.wasp.batch.DoCommandFileTasklet" id="abcFileTasklet" scope="step">
+  <bean class="edu.yu.einstein.wasp.batch.DoCommandFileTasklet" id="wasp.file.AbcFileTasklet" scope="step">
     <property name="filename">
       <value>#{jobParameters['filename']}</value>
     </property>
@@ -61,7 +61,7 @@
   </bean>
 
 
-  <bean id="wasp.file.registerFileStep" parent="parentFileStep">
+  <bean id="wasp.file.RegisterFileStep" parent="parentFileStep">
     <property name="itemProcessor">
       <bean class="edu.yu.einstein.wasp.batch.RegisterFileProcessor">
         <property name="filenameRegex" value=".*file\.(\d*)\.(\d*)\.(\d*).*\.txt$" />
@@ -79,10 +79,10 @@
   
 
   
-  <batch:job id="default.file.Job" restartable="true">
-    <batch:step id="default.file.Job0" parent="wasp.file.RegisterFileStep" next="default.file.Job1" />
-    <batch:step id="default.file.Job1">
-      <batch:tasklet ref="abcFileTasklet" />
+  <batch:job id="wasp.file.Job" restartable="true">
+    <batch:step id="wasp.file.Job0" parent="wasp.file.RegisterFileStep" next="wasp.file.Job1" />
+    <batch:step id="wasp.file.Job1">
+      <batch:tasklet ref="wasp.file.AbcFileTasklet" />
     </batch:step> 
   </batch:job>
 
