@@ -14,44 +14,44 @@
     xmlns="http://www.springframework.org/schema/beans"
     default-autowire="byName">
 
-  <bean abstract="true" id="workflowSamplePoller" class="edu.yu.einstein.wasp.batch.poller.WorkflowSamplePoller" />
+  <bean abstract="true" id="wasp.sample.Poller" class="edu.yu.einstein.wasp.batch.poller.WorkflowSamplePoller" />
 
   <!-- ************************************************ used as template
-  <bean id="defaultDnaSamplePoller" parent="workflowSamplePoller">
+  <bean id="waspDna.sample.Poller" parent="wasp.sample.Poller">
     <property name="subtypeSampleIName" value="defaultDnaSample"/>
     <property name="taskIName" value="sampleWrapTask"/>
   </bean>
 
-  <si:inbound-channel-adapter ref="defaultDnaSamplePoller" method="getStates" channel="defaultDnaSampleChannel">
-    <si:poller fixed-rate="2000"/>
+  <si:inbound-channel-adapter ref="waspDna.sample.Poller" method="getStates" channel="waspDna.sample.Channel">
+    <si:poller fixed-rate="120000"/>
   </si:inbound-channel-adapter>
 
-  <si:service-activator input-channel="defaultDnaSampleChannel" output-channel="logger">
+  <si:service-activator input-channel="waspDna.sample.Channel" output-channel="logger">
     <bean class="edu.yu.einstein.wasp.batch.launcher.StateJobLaunchingMessageHandler" scope="prototype">
        <constructor-arg ref="jobRegistry" />
        <constructor-arg ref="jobLauncher" />
        <constructor-arg ref="jobRepository" />
        <constructor-arg ref="jobOperator" />
-       <constructor-arg type="java.lang.String"><value>defaultDna.workflow</value></constructor-arg>
+       <constructor-arg type="java.lang.String"><value>waspDna.sample.Job</value></constructor-arg>
     </bean>
   </si:service-activator>
 
-  <bean id="defaultLibrarySamplePoller" parent="workflowSamplePoller">
+  <bean id="waspLibrary.sample.Poller" parent="workflowSamplePoller">
     <property name="subtypeSampleIName" value="defaultLibrarySample"/>
     <property name="taskIName" value="sampleWrapTask"/>
   </bean>
 
-  <si:inbound-channel-adapter ref="defaultLibrarySamplePoller" method="getStates" channel="defaultLibrarySampleChannel">
-    <si:poller fixed-rate="5000"/>
+  <si:inbound-channel-adapter ref="waspLibrary.sample.Poller" method="getStates" channel="waspLibrary.sample.Channel">
+    <si:poller fixed-rate="120000"/>
   </si:inbound-channel-adapter>
 
-  <si:service-activator input-channel="defaultLibrarySampleChannel" output-channel="logger">
+  <si:service-activator input-channel="waspLibrary.sample.Channel" output-channel="logger">
     <bean class="edu.yu.einstein.wasp.batch.StateJobLaunchingMessageHandler" scope="prototype">
        <constructor-arg ref="jobRegistry" />
        <constructor-arg ref="jobLauncher" />
        <constructor-arg ref="jobRepository" />
        <constructor-arg ref="jobOperator" />
-       <constructor-arg type="java.lang.String"><value>defaultLibrary.workflow</value></constructor-arg>
+       <constructor-arg type="java.lang.String"><value>waspLibrary.sample.Job</value></constructor-arg>
     </bean>
   </si:service-activator>
 
@@ -60,7 +60,7 @@
 
   <!-- sampleReceived -->
 
-  <bean id="wasp.sample.receiveSampleStateStep" parent="parentStateStep">
+  <bean id="wasp.sample.ReceiveStateStep" parent="parentStateStep">
     <property name="itemProcessor">
       <bean class="edu.yu.einstein.wasp.batch.CreateSampleStateProcessor">
         <property name="targetTask" value="Receive Sample" />
@@ -69,7 +69,7 @@
   </bean>
 
        <!-- /** todo rewrite to look for statesample.sample.isReceived also **/ -->
-  <bean id="wasp.sample.receiveSampleWaitStateStep" parent="parentStateStep">
+  <bean id="wasp.sample.ReceiveWaitStateStep" parent="parentStateStep">
     <property name="itemProcessor">
       <bean class="edu.yu.einstein.wasp.batch.WaitForSiblingSampleStateProcessor">
         <property name="task" value="Receive Sample" />
@@ -79,15 +79,15 @@
     </property>
   </bean>
 
-  <batch:flow id="wasp.sample.sampleReceived">
-    <batch:step id="wasp.sample.sampleReceived0" parent="wasp.sample.receiveSampleStateStep" next="wasp.sample.sampleReceived1" />
-    <batch:step id="wasp.sample.sampleReceived1" parent="wasp.sample.receiveSampleWaitStateStep" />
+  <batch:flow id="wasp.sample.ReceiveFlow">
+    <batch:step id="wasp.sample.ReceiveFlow0" parent="wasp.sample.ReceiveStateStep" next="wasp.sample.ReceiveFlow1" />
+    <batch:step id="wasp.sample.ReceiveFlow1" parent="wasp.sample.ReceiveWaitStateStep" />
   </batch:flow>
 
   <!-- /sampleReceived -->
 
   <!-- waitForParentJobInvoiceSent -->
-  <bean id="wasp.sample.waitForParentJobInvoiceSentStep" parent="parentStateStep">
+  <bean id="wasp.sample.WaitForParentJobInvoiceSentStep" parent="parentStateStep">
     <property name="itemProcessor">
       <bean class="edu.yu.einstein.wasp.batch.WaitForParentJobStateProcessor">
         <property name="task" value="Send Invoice" />
@@ -96,22 +96,22 @@
     </property>
   </bean>
 
-  <batch:flow id="wasp.sample.waitForJobInvoiceSent">
-    <batch:step id="wasp.sample.waitForJobInvoiceSent0" parent="wasp.sample.waitForParentJobInvoiceSentStep" />
+  <batch:flow id="wasp.sample.WaitForJobInvoiceSentFlow">
+    <batch:step id="wasp.sample.WaitForJobInvoiceSentFlow0" parent="wasp.sample.WaitForParentJobInvoiceSentStep" />
   </batch:flow>
 
   <!-- /waitForParentJobInvoiceSent -->
 
 
   <!-- createLibrary -->
-  <bean id="wasp.sample.createLibraryStateStep" parent="parentStateStep">
+  <bean id="wasp.sample.CreateLibraryStateStep" parent="parentStateStep">
     <property name="itemProcessor">
       <bean class="edu.yu.einstein.wasp.batch.CreateSampleStateProcessor">
         <property name="targetTask" value="Create Library" />
       </bean>
     </property>
   </bean>
-                                                                                  <bean id="wasp.sample.createLibraryWaitStateStep" parent="parentStateStep">
+                                                                                  <bean id="wasp.sample.CreateLibraryWaitStateStep" parent="parentStateStep">
     <property name="itemProcessor">
       <bean class="edu.yu.einstein.wasp.batch.WaitForSiblingSampleStateProcessor">
         <property name="task" value="Create Library" />
@@ -121,15 +121,15 @@
     </property>
   </bean>
 
-  <batch:flow id="wasp.sample.createLibrary">
-    <batch:step id="wasp.sample.createLibrary0" parent="wasp.sample.createLibraryStateStep" next="wasp.sample.createLibrary1" />
-    <batch:step id="wasp.sample.createLibrary1" parent="wasp.sample.createLibraryWaitStateStep" />
+  <batch:flow id="wasp.sample.CreateLibraryFlow">
+    <batch:step id="wasp.sample.CreateLibraryFlow0" parent="wasp.sample.CreateLibraryStateStep" next="wasp.sample.CreateLibraryFlow1" />
+    <batch:step id="wasp.sample.CreateLibraryFlow1" parent="wasp.sample.CreateLibraryWaitStateStep" />
   </batch:flow> 
 
   <!-- /createLibrary -->
 
   <!-- linkLibrary -->
-  <bean id="wasp.sample.linkLibraryStateStep" parent="parentStateStep">
+  <bean id="wasp.sample.LinkLibraryStateStep" parent="parentStateStep">
     <property name="itemProcessor">
       <bean class="edu.yu.einstein.wasp.batch.LinkLibrarySampleStateProcessor">
         <property name="targetTask" value="sampleWrapTask" />
@@ -138,20 +138,20 @@
     </property>
   </bean>
 
-  <batch:flow id="wasp.sample.linkLibrary">
-    <batch:step id="wasp.sample.linkLibrary0" parent="wasp.sample.linkLibraryStateStep" />
+  <batch:flow id="wasp.sample.LinkLibraryFlow">
+    <batch:step id="wasp.sample.LinkLibraryFlow0" parent="wasp.sample.LinkLibraryStateStep" />
   </batch:flow> 
   <!-- /linkLibrary -->
 
   <!-- libraryPlatformUnitAssign -->
-  <bean id="wasp.sample.libraryPlatformUnitAssignStateStep" parent="parentStateStep">
+  <bean id="wasp.sample.LibraryPlatformUnitAssignStateStep" parent="parentStateStep">
     <property name="itemProcessor">
       <bean class="edu.yu.einstein.wasp.batch.CreateSampleStateProcessor">
         <property name="targetTask" value="assignLibraryToPlatformUnit" />
       </bean>
     </property>
   </bean>
-                                                                                  <bean id="wasp.sample.libraryPlatformUnitAssignWaitStateStep" parent="parentStateStep">
+                                                                                  <bean id="wasp.sample.LibraryPlatformUnitAssignWaitStateStep" parent="parentStateStep">
     <property name="itemProcessor">
       <bean class="edu.yu.einstein.wasp.batch.WaitForSiblingSampleStateProcessor">
         <property name="task" value="assignLibraryToPlatformUnit" />
@@ -161,30 +161,16 @@
     </property>
   </bean>
 
-  <batch:flow id="wasp.sample.libraryPlatformUnitAssign">
-    <batch:step id="wasp.sample.libraryPlatformUnitAssign0" parent="wasp.sample.libraryPlatformUnitAssignStateStep" next="wasp.sample.libraryPlatformUnitAssign1" />
-    <batch:step id="wasp.sample.libraryPlatformUnitAssign1" parent="wasp.sample.libraryPlatformUnitAssignWaitStateStep" />
+  <batch:flow id="wasp.sample.LibraryPlatformUnitAssignFlow">
+    <batch:step id="wasp.sample.LibraryPlatformUnitAssignFlow0" parent="wasp.sample.LibraryPlatformUnitAssignStateStep" next="wasp.sample.LibraryPlatformUnitAssignFlow1" />
+    <batch:step id="wasp.sample.LibraryPlatformUnitAssignFlow1" parent="wasp.sample.LibraryPlatformUnitAssignWaitStateStep" />
   </batch:flow> 
 
   <!-- /libraryPlatformUnitAssign -->
 
-  <!-- waitForChildrenFinal -->
-  <bean id="wasp.waitForChildrenFinalStep" parent="parentStateStep">
-    <property name="itemProcessor">
-      <bean class="edu.yu.einstein.wasp.batch.WaitForChildrenStateFinalProcessor" />
-    </property>
-  </bean>
-
-  <batch:flow id="wasp.waitForChildrenFinal">
-    <batch:step id="wasp.waitForChildrenFinal0" parent="wasp.waitForChildrenFinalStep" />
-  </batch:flow>
-
-  <!-- /waitForChildrenFinal -->
-
-
 
   <!-- getResults -->
-                                                                                  <bean id="wasp.sample.getResultsFileStep" parent="parentStateStep">
+                                                                                  <bean id="wasp.sample.GetResultsFileStep" parent="parentStateStep">
     <property name="itemProcessor">
       <bean class="edu.yu.einstein.wasp.batch.WaitForSampleFileProcessor">
         <property name="filenameRegex" value=".*\.completed.txt" />
@@ -192,8 +178,8 @@
     </property>
   </bean>
 
-  <batch:flow id="wasp.sample.getResults">
-    <batch:step id="wasp.sample.getResults0" parent="wasp.sample.getResultsFileStep" />
+  <batch:flow id="wasp.sample.GetResultsFlow">
+    <batch:step id="wasp.sample.GetResultsFlow0" parent="wasp.sample.GetResultsFileStep" />
   </batch:flow> 
 
 
@@ -201,7 +187,7 @@
 
   <!-- aligner -->
 
-  <bean id="createRunAlignerStateStep" parent="parentStateStep">
+  <bean id="wasp.sample.AlignerRunStateStep" parent="parentStateStep">
     <property name="itemProcessor">
       <bean class="edu.yu.einstein.wasp.batch.CreateSoftwareRunProcessor">
         <property name="softwareIName" value="aligner" />
@@ -209,15 +195,15 @@
     </property>
   </bean>
 
-  <batch:flow id="wasp.aligner.run">
-    <batch:step id="wasp.aligner.run0" parent="createRunAlignerStateStep" next="wasp.aligner.run1" />
-    <batch:step id="wasp.aligner.run1" parent="wasp.waitForChildrenFinalStep" />
+  <batch:flow id="wasp.sample.AlignerRunFlow">
+    <batch:step id="wasp.sample.AlignerRunFlow0" parent="wasp.sample.AlignerRunStateStep" next="wasp.sample.AlignerRunFlow1" />
+    <batch:step id="wasp.sample.AlignerRunFlow1" parent="wasp.default.WaitForChildrenFinalStep" />
   </batch:flow>
 
   <!-- /aligner -->
 
   <!-- peakcaller  -->
-  <bean id="createRunPeakcallerStateStep" parent="parentStateStep">
+  <bean id="wasp.sample.PeakcallerRunStateStep" parent="parentStateStep">
     <property name="itemProcessor">
       <bean class="edu.yu.einstein.wasp.batch.CreateSoftwareRunProcessor">
         <property name="softwareIName" value="peakcaller" />
@@ -225,9 +211,9 @@
     </property>
   </bean>
 
-  <batch:flow id="wasp.peakcaller.run">
-    <batch:step id="wasp.peakcaller.run0" parent="createRunPeakcallerStateStep" next="wasp.peakcaller.run1" />
-    <batch:step id="wasp.peakcaller.run1" parent="wasp.waitForChildrenFinalStep" />
+  <batch:flow id="wasp.sample.PeakcallerRunFlow">
+    <batch:step id="wasp.sample.PeakcallerRunFlow0" parent="wasp.sample.PeakcallerRunStateStep" next="wasp.sample.PeakcallerRunFlow1" />
+    <batch:step id="wasp.sample.PeakcallerRunFlow1" parent="wasp.default.WaitForChildrenFinalStep" />
   </batch:flow>
 
   <!-- peakcaller  -->
@@ -237,22 +223,22 @@
 
 
   <!-- default mps dna flow-->
-  <batch:flow id="wasp.sample.defaultMpsDnaFlow">
-    <batch:flow id="wasp.sample.defaultMpsDnaFlow0" parent="wasp.sample.sampleReceived" next="wasp.sample.defaultMpsDnaFlow1" />
-    <batch:flow id="wasp.sample.defaultMpsDnaFlow1" parent="wasp.sample.waitForJobInvoiceSent" next="wasp.sample.defaultMpsDnaFlow2" /> 
-    <batch:flow id="wasp.sample.defaultMpsDnaFlow2" parent="wasp.sample.createLibrary" next="wasp.sample.defaultMpsDnaFlow3" /> 
-    <batch:flow id="wasp.sample.defaultMpsDnaFlow3" parent="wasp.sample.linkLibrary" /> 
+  <batch:flow id="wasp.sample.DefaultMpsDnaFlow">
+    <batch:flow id="wasp.sample.DefaultMpsDnaFlow0" parent="wasp.sample.ReceiveFlow" next="wasp.sample.DefaultMpsDnaFlow1" />
+    <batch:flow id="wasp.sample.DefaultMpsDnaFlow1" parent="wasp.sample.WaitForJobInvoiceSentFlow" next="wasp.sample.DefaultMpsDnaFlow2" /> 
+    <batch:flow id="wasp.sample.DefaultMpsDnaFlow2" parent="wasp.sample.CreateLibraryFlow" next="wasp.sample.DefaultMpsDnaFlow3" /> 
+    <batch:flow id="wasp.sample.DefaultMpsDnaFlow3" parent="wasp.sample.LinkLibraryFlow" /> 
 
   </batch:flow>
   <!-- /default mps dna flow-->
 
   <!-- default mps library flow-->
-  <batch:flow id="wasp.sample.defaultMpsLibraryFlow">
-    <batch:flow id="wasp.sample.defaultMpsLibraryFlow0" parent="wasp.sample.sampleReceived" next="wasp.sample.defaultMpsLibraryFlow1"/>
-    <batch:flow id="wasp.sample.defaultMpsLibraryFlow1" parent="wasp.sample.waitForJobInvoiceSent" next="wasp.sample.defaultMpsLibraryFlow2" /> 
-    <batch:flow id="wasp.sample.defaultMpsLibraryFlow2" parent="wasp.sample.libraryPlatformUnitAssign" next="wasp.sample.defaultMpsLibraryFlow3" /> 
-    <batch:flow id="wasp.sample.defaultMpsLibraryFlow3" parent="wasp.waitForChildrenFinal" next="wasp.sample.defaultMpsLibraryFlow4" />
-    <batch:flow id="wasp.sample.defaultMpsLibraryFlow4" parent="wasp.sample.getResults" />
+  <batch:flow id="wasp.sample.DefaultMpsLibraryFlow">
+    <batch:flow id="wasp.sample.DefaultMpsLibraryFlow0" parent="wasp.sample.ReceiveFlow" next="wasp.sample.DefaultMpsLibraryFlow1"/>
+    <batch:flow id="wasp.sample.DefaultMpsLibraryFlow1" parent="wasp.sample.WaitForJobInvoiceSentFlow" next="wasp.sample.DefaultMpsLibraryFlow2" /> 
+    <batch:flow id="wasp.sample.DefaultMpsLibraryFlow2" parent="wasp.sample.LibraryPlatformUnitAssignFlow" next="wasp.sample.DefaultMpsLibraryFlow3" /> 
+    <batch:flow id="wasp.sample.DefaultMpsLibraryFlow3" parent="wasp.default.WaitForChildrenFinalFlow" next="wasp.sample.DefaultMpsLibraryFlow4" />
+    <batch:flow id="wasp.sample.DefaultMpsLibraryFlow4" parent="wasp.sample.GetResultsFlow" />
   </batch:flow>
   <!-- /default mps library flow-->
 

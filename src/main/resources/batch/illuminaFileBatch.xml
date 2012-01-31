@@ -16,61 +16,40 @@
     xmlns="http://www.springframework.org/schema/beans"
     default-autowire="byName">
 
-  <!-- THIS FILE IS BLANK, BUT USED AS A TEMPLATE 
 
-
-  /** most effective if filename-regex matches registerfile.filnameRegex **/
-  <file:inbound-channel-adapter id="wasp.file.files" 
+  <!-- most effective if filename-regex matches registerfile.filnameRegex -->
+  <file:inbound-channel-adapter id="illumina.file.Files" 
         directory="/tmp/t" 
         filename-regex="file.*txt"
         prevent-duplicates="true"
-        channel="wasp.file.InputChannel"> 
+        channel="illumina.file.InputChannel"> 
     <si:poller>
       <si:interval-trigger interval="20000" />
     </si:poller>
   </file:inbound-channel-adapter>
 
 
-  <si:service-activator input-channel="wasp.file.inputChannel" output-channel="logger">
+  <si:service-activator input-channel="illumina.file.InputChannel" output-channel="logger">
     <bean class="edu.yu.einstein.wasp.batch.launcher.FileLaunchingMessageHandler" scope="prototype">
         <constructor-arg ref="jobRegistry" />
         <constructor-arg ref="jobLauncher" />
         <constructor-arg ref="jobRepository" />
         <constructor-arg ref="jobOperator" />
        
-        <constructor-arg type="java.lang.String"><value>fileJob</value></constructor-arg> 
+        <constructor-arg type="java.lang.String"><value>illumnia.file.Job</value></constructor-arg> 
     </bean>
   </si:service-activator> 
 
-  /** sample exec on file **/
-  <bean class="edu.yu.einstein.wasp.batch.DoCommandFileTasklet" id="abcFileTasklet" scope="step">
-    <property name="filename">
-      <value>#{jobParameters['filename']}</value>
-    </property>
-    <property name="params">
-      <list>
-        <value>'/tmp/abc.pl'</value>
-        <value>'goodbye'</value>
-        <value>'#{jobParameters['filename']}'</value>
-        <value>'goodbye'</value>
-      </list>
-    </property>
 
-    /* second timeout for the command to complete */
-    <property name="timeout" value="5000" />
-  </bean>
-
-
-  <bean id="wasp.file.registerFileStep" parent="parentFileStep">
+  <bean id="illumina.file.RegisterFileStep" parent="parentFileStep">
     <property name="itemProcessor">
       <bean class="edu.yu.einstein.wasp.batch.RegisterFileProcessor">
-        <property name="filenameRegex" value=".*file\.(\d*)\.(\d*)\.(\d*).*\.txt$" />
+        <property name="filenameRegex" value=".*file\.(\d*)\.(\d*).*\.txt$" />
 
         <property name="matchList">
           <list>
-            <value>jobId</value>  /* regex match to $1 */
-            <value>runId</value>  /* regex match to $2 */
-            <value>sampleId</value>   /* regex match to $3 */
+            <value>runId</value> 
+            <value>sampleId</value>  
           </list>
         </property>
       </bean>
@@ -78,15 +57,10 @@
   </bean>
   
 
-  
-  <batch:job id="default.file.Job" restartable="true">
-    <batch:step id="default.file.Job0" parent="wasp.file.RegisterFileStep" next="default.file.Job1" />
-    <batch:step id="default.file.Job1">
-      <batch:tasklet ref="abcFileTasklet" />
-    </batch:step> 
+  <batch:job id="illumina.file.Job" restartable="true">
+    <batch:step id="illumina.file.Job0" parent="illumina.file.RegisterFileStep" />
   </batch:job>
 
-  -->
 
 </beans>
 

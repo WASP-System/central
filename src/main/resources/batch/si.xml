@@ -66,11 +66,4 @@
     <property name="itemProcessor" ref="emptyStateProcessor"/>
   </bean>
 
-  <!-- Set current state to "FINAL" -->
-  <bean id="finalStateStep" parent="parentStateStep">
-    <property name="itemProcessor">
-      <bean class="edu.yu.einstein.wasp.batch.StateFinalProcessor"/>
-    </property>
-  </bean>
-
 </beans>

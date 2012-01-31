@@ -14,39 +14,28 @@
     xmlns="http://www.springframework.org/schema/beans"
     default-autowire="byName">
 
-  <bean abstract="true" id="wasp.run.ResourceCategoryPoller" class="edu.yu.einstein.wasp.batch.poller.WorkflowResourceCategoryRunPoller" />
-
-
-  <!-- /** TEMPLATE **/
-
-  /** everything below can be used a template **/
-  /** everything below can be used a template **/
-  /** everything below can be used a template **/
-
-
-  <bean id="wasp.run.Poller" parent="wasp.run.ResourceCategoryPoller">
+  <bean id="illumina.run.Poller" parent="wasp.run.ResourceCategoryPoller">
     <property name="resourceCategoryIName" value="illuminaHiSeq2000"/>
     <property name="taskIName" value="runWrapTask"/>
   </bean>
 
-  <si:inbound-channel-adapter ref="wasp.run.ResourceCategoryPoller" method="getStates" channel="wasp.run.Channel">
+  <si:inbound-channel-adapter ref="illumina.run.Poller" method="getStates" channel="illumina.run.Channel">
     <si:poller fixed-rate="2000"/>
   </si:inbound-channel-adapter>
 
-  <si:service-activator input-channel="wasp.run.Channel" output-channel="logger">
+  <si:service-activator input-channel="illumina.run.Channel" output-channel="logger">
     <bean class="edu.yu.einstein.wasp.batch.launcher.StateJobLaunchingMessageHandler" scope="prototype">
        <constructor-arg ref="jobRegistry" />
        <constructor-arg ref="jobLauncher" />
        <constructor-arg ref="jobRepository" />
        <constructor-arg ref="jobOperator" />
-       <constructor-arg type="java.lang.String"><value>wasp.run.Job</value></constructor-arg>
+       <constructor-arg type="java.lang.String"><value>illumina.run.Job</value></constructor-arg>
     </bean>
   </si:service-activator>
 
 
-
-  /* GetResults */
-                                                                                  <bean id="wasp.run.GetResultsStep" parent="parentStateStep">
+  <!-- GetResults -->
+                                                                                  <bean id="illumina.run.GetResultsStep" parent="parentStateStep">
     <property name="itemProcessor">
       <bean class="edu.yu.einstein.wasp.batch.WaitForRunFileProcessor">
         <property name="filenameRegex" value=".*\.completed.txt" />
@@ -54,15 +43,15 @@
     </property>
   </bean>
 
-  <batch:flow id="wasp.run.GetResultsFlow">
-    <batch:step id="wasp.run.GetResultsFlow0" parent="wasp.run.GetResultsStep" />
+  <batch:flow id="illumina.run.GetResultsFlow">
+    <batch:step id="illumina.run.GetResultsFlow0" parent="illumina.run.GetResultsStep" />
   </batch:flow> 
 
 
-  /* /GetResults */
+  <!-- /GetResults -->
 
-  /* qcRun */
-  <bean id="wasp.run.CreateQcApprovalStateStep" parent="parentStateStep">
+  <!-- qcRun -->
+  <bean id="illumina.run.CreateQcApprovalStateStep" parent="parentStateStep">
     <property name="itemProcessor">
       <bean class="edu.yu.einstein.wasp.batch.CreateSampleStateProcessor">
         <property name="targetTask" value="runQcApproval" />
@@ -70,7 +59,7 @@
     </property>
   </bean>
 
-  <bean id="wasp.run.WaitForQcApprovalStateStep" parent="parentStateStep">
+  <bean id="illumina.run.WaitForQcApprovalStateStep" parent="parentStateStep">
     <property name="itemProcessor">
       <bean class="edu.yu.einstein.wasp.batch.WaitForSiblingRunStateProcessor">
         <property name="task" value="runQcApproval" />
@@ -80,31 +69,30 @@
     </property>
   </bean>
 
-  <batch:flow id="wasp.run.QcApprovalFlow">
-    <batch:step id="wasp.run.QcApprovalStep0" parent="wasp.run.CreateQcApprovalStateStep" next="wasp.run.QcApprovalStep1" />
-    <batch:step id="wasp.run.QcApprovalStep1" parent="wasp.run.WaitForQcApprovalStateStep" />
+  <batch:flow id="illumina.run.QcApprovalFlow">
+    <batch:step id="illumina.run.QcApprovalStep0" parent="illumina.run.CreateQcApprovalStateStep" next="illumina.run.QcApprovalStep1" />
+    <batch:step id="illumina.run.QcApprovalStep1" parent="illumina.run.WaitForQcApprovalStateStep" />
   </batch:flow>
 
-  /* /qcRun */
+  <!-- /qcRun -->
 
 
-  /* default run flow */
-  <batch:flow id="wasp.run.Flow">
-    <batch:flow id="wasp.run.Flow0" parent="wasp.run.GetResultsFlow" next="wasp.run.Flow1" />
-    <batch:flow id="wasp.run.Flow1" parent="wasp.run.QcApprovalFlow" />
+  <!-- default run flow-->
+  <batch:flow id="illumina.run.Flow">
+    <batch:flow id="illumina.run.Flow0" parent="illumina.run.GetResultsFlow" next="illumina.run.Flow1" />
+    <batch:flow id="illumina.run.Flow1" parent="illumina.run.QcApprovalFlow" />
   </batch:flow>
-  /* default run flow */
+  <!-- /default mps dna flow-->
 
-  /* default run job flow */
-  <batch:job id="wasp.run.Job">
-    <batch:flow id="wasp.run.Job0" parent="wasp.run.Flow" next="wasp.run.Job1" />
+  <!-- default run job flow-->
+  <batch:job id="illumina.run.Job">
+    <batch:flow id="illumina.run.Job0" parent="illumina.run.Flow" next="illumina.run.Job1" />
 
-    <batch:flow id="wasp.run.Job1" parent="wasp.default.FinalFlow" />
+    <batch:flow id="illumina.run.Job1" parent="wasp.default.FinalFlow" />
   </batch:job>
-  /* default run job flow */
+  <!-- default run job flow-->
 
 
-  ******************************************************* -->
 
 
 </beans>

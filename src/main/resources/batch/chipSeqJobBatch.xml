@@ -29,11 +29,11 @@
     xmlns="http://www.springframework.org/schema/beans"
     default-autowire="byName">
 
-  <bean id="chipSeqStartJobPoller" parent="workflowPoller">
+  <bean id="chipSeq.job.Poller" parent="wasp.job.Poller">
     <property name="workflowIName"  value="chipSeq"/>
     <property name="taskIName" value="Start Job"/>
   </bean> 
-  <si:inbound-channel-adapter ref="chipSeqStartJobPoller" method="getStates" channel="chipSeqJobCreateRequestChannel">
+  <si:inbound-channel-adapter ref="chipSeq.job.Poller" method="getStates" channel="chipSeq.job.Channel">
     <si:poller>
       <si:interval-trigger interval="10000" />
     </si:poller>
@@ -44,18 +44,18 @@
 
   <!-- intermediary for output from jobCreateRequestChannel: -->
   <!-- calls StateJobLaunchingMessageHandler which calls batch:job 'Start Job' (see below) -->	
-  <si:service-activator input-channel="chipSeqJobCreateRequestChannel" output-channel="logger">
+  <si:service-activator input-channel="chipSeq.job.Channel" output-channel="logger">
     <bean class="edu.yu.einstein.wasp.batch.launcher.StateJobLaunchingMessageHandler" scope="prototype">
        <constructor-arg ref="jobRegistry" />
        <constructor-arg ref="jobLauncher" />
        <constructor-arg ref="jobRepository" />
        <constructor-arg ref="jobOperator" />
-       <constructor-arg type="java.lang.String"><value>chipSeqStartJob</value></constructor-arg>
+       <constructor-arg type="java.lang.String"><value>chipSeq.job.Job</value></constructor-arg>
     </bean>
   </si:service-activator>
 
 
-  <bean id="createBoneShakerApprovalStateStep" parent="parentStateStep">
+  <bean id="chipSeq.job.BoneShakerApprovalStateStep" parent="parentStateStep">
     <property name="itemProcessor">
       <bean class="edu.yu.einstein.wasp.batch.CreateJobStateProcessor">
         <property name="targetTask" value="boneShakerApprovalTask" />
@@ -63,7 +63,7 @@
     </property>
   </bean>
 
-  <bean id="waitForBoneShakerApprovalStateUpdated" parent="parentStateStep">
+  <bean id="chipSeq.job.WaitForBoneShakerApprovalStep" parent="parentStateStep">
     <property name="itemProcessor">
       <bean class="edu.yu.einstein.wasp.batch.WaitForSiblingJobStateProcessor">
         <property name="task" value="boneShakerApprovalTask" />
@@ -73,12 +73,12 @@
     </property>
   </bean>
 
-  <batch:flow id="boneShakerApprovalFlow">
-    <batch:step id="boneShakerApprovalStep0" parent="createBoneShakerApprovalStateStep" next="boneShakerApprovalStep1" />
-    <batch:step id="boneShakerApprovalStep1" parent="waitForBoneShakerApprovalStateUpdated" />
+  <batch:flow id="chipSeq.job.BoneShakerApprovalFlow">
+    <batch:step id="chipSeq.job.BoneShakerApprovalFlow0" parent="chipSeq.job.BoneShakerApprovalStateStep" next="chipSeq.job.BoneShakerApprovalFlow1" />
+    <batch:step id="chipSeq.job.BoneShakerApprovalFlow1" parent="chipSeq.job.WaitForBoneShakerApprovalStep" />
   </batch:flow>
 
-  <bean class="edu.yu.einstein.wasp.batch.DoCommandStateTasklet" id="sendInvoiceTasklet" scope="step">
+  <bean class="edu.yu.einstein.wasp.batch.DoCommandStateTasklet" id="chipSeq.job.SendInvoiceTasklet" scope="step">
     <property name="stateId">
       <value>#{jobParameters['state']}</value>
     </property>
@@ -100,45 +100,45 @@
   </bean>
 
 
-  <batch:job id="chipSeqStartJobTest">
-    <batch:step id="sendInvoiceTaskStepTest">
-      <batch:tasklet ref="sendInvoiceTasklet" />
+  <batch:job id="chipSeq.job.JobTest">
+    <batch:step id="chipSeq.job.SendInvoiceTaskStep">
+      <batch:tasklet ref="chipSeq.job.SendInvoiceTasklet" />
     </batch:step>
   </batch:job>
 
 
 
 
-  <batch:job id="chipSeqStartJob" restartable="true">
-    <batch:step id="chipSeq.startJob0" parent="createSampleReceiveStateStep" next="chipSeq.approvals" />
+  <batch:job id="chipSeq.job.Job" restartable="true">
+    <batch:flow id="chipSeq.job.Job0" parent="wasp.job.CreateSampleFlow" next="chipSeq.job.Job1" />
 
-    <batch:split id="chipSeq.approvals" next="chipSeq.invoiceFlow" task-executor="asyncTaskExecutor">
+    <batch:split id="chipSeq.job.Job1" next="chipSeq.job.Job2" task-executor="asyncTaskExecutor">
       <batch:flow>
-        <batch:flow id="chipSeq.quoteFlow" parent="quoteFlow" />
+        <batch:flow id="chipSeq.job.Job1.quoteFlow" parent="wasp.job.QuoteFlow" />
       </batch:flow>
       <batch:flow>
-        <batch:flow id="chipSeq.piApprovalFlow" parent="piApprovalFlow" />
+        <batch:flow id="chipSeq.job.Job1.piApprovalFlow" parent="wasp.job.PiApprovalFlow" />
       </batch:flow>
       <batch:flow>
-        <batch:flow id="chipSeq.daApprovalFlow" parent="daApprovalFlow" />
+        <batch:flow id="chipSeq.job.Job1.daApprovalFlow" parent="wasp.job.DaApprovalFlow" />
       </batch:flow>
       <batch:flow>
-        <batch:flow id="chipSeq.boneShakerApprovalFlow" parent="boneShakerApprovalFlow" />
+        <batch:flow id="chipSeq.job.Job1.BoneShakerApprovalFlow" parent="chipSeq.job.BoneShakerApprovalFlow" />
       </batch:flow>
     </batch:split> 
 
     <!-- send and invoice -->
-    <!-- <batch:step id="sendInvoiceTaskStep" next="chipSeq.invoiceFlow" >
-      <batch:tasklet ref="sendInvoiceTasklet" />
+    <!-- <batch:step id="SendInvoiceTaskStep" next="chipSeq.invoiceFlow" >
+      <batch:tasklet ref="SendInvoiceTasklet" />
     </batch:step> -->
-    <batch:flow id="chipSeq.invoiceFlow" parent="invoiceFlow" next="chipSeq.waitForChildren" />
+    <batch:flow id="chipSeq.job.Job2" parent="wasp.job.SendInvoiceFlow" next="chipSeq.job.Job3" />
 
     <!-- receive all the samples -->
-    <batch:flow id="chipSeq.waitForChildren" parent="wasp.waitForChildrenFinal" next="chipSeq.finishFlow" />
+    <batch:flow id="chipSeq.job.Job3" parent="wasp.default.WaitForChildrenFinalFlow" next="chipSeq.job.Job4" />
 
     <!-- send to analysis -->
 
-    <batch:flow id="chipSeq.finishFlow" parent="finishJobFlow" />
+    <batch:flow id="chipSeq.job.Job4" parent="wasp.default.FinalFlow" />
   </batch:job>
 
 </beans>

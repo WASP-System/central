@@ -33,12 +33,12 @@
   <!-- every 5 seconds call taskService.getJobCreatedStates() -->
   <!-- taskService bean defined in si.xml  -->
 
-  <bean id="workflowPoller" class="edu.yu.einstein.wasp.batch.poller.WorkflowPoller" />
+  <bean abstract="true" id="wasp.job.Poller" class="edu.yu.einstein.wasp.batch.poller.WorkflowPoller" />
 
 <!--
   <bean id="startJobPoller" parent="workflowPoller">
     <property name="workflowIName" value="xxxx"/>
-    <property name="taskIName" value="Start Job"/>
+    <property name="taskIName" value="wasp.job.Job"/>
   </bean> 
 -->
 
@@ -68,7 +68,7 @@
 
   <!-- creates a sample flow -->
 
-  <bean id="createSampleReceiveStateStep" parent="parentStateStep">
+  <bean id="wasp.job.CreateSampleStateStep" parent="parentStateStep">
     <property name="itemProcessor">
       <bean class="edu.yu.einstein.wasp.batch.CreateSampleStatesFromJobSampleProcessor">
         <property name="targetTask" value="sampleWrapTask" />
@@ -76,9 +76,15 @@
     </property>
   </bean>
 
-  <!-- creates a quote -->
+  <batch:flow id="wasp.job.CreateSampleFlow">
+    <batch:step id="wasp.job.CreateSampleFlow0" parent="wasp.job.CreateSampleStateStep" />
+  </batch:flow>
 
-  <bean id="createQuoteJobStateStep" parent="parentStateStep">
+
+
+  <!-- quote -->
+
+  <bean id="wasp.job.QuoteStateStep" parent="parentStateStep">
     <property name="itemProcessor">
       <bean class="edu.yu.einstein.wasp.batch.CreateJobStateProcessor">
         <property name="targetTask" value="Quote Job" />
@@ -86,9 +92,7 @@
     </property>
   </bean>
 
-  <!-- wait for quote -->
-
-  <bean id="waitForQuoteJobStateUpdated" parent="parentStateStep">
+  <bean id="wasp.job.WaitForQuoteStep" parent="parentStateStep">
     <property name="allowStartIfComplete" value="true" />
     <property name="itemProcessor">
       <bean class="edu.yu.einstein.wasp.batch.WaitForSiblingJobStateProcessor">
@@ -99,8 +103,15 @@
     </property>
   </bean>
 
+  <batch:flow id="wasp.job.QuoteFlow">
+     <batch:step id="wasp.job.QuoteFlow0" parent="wasp.job.QuoteStateStep" next="wasp.job.QuoteFlow1" />
+     <batch:step id="wasp.job.QuoteFlow1" parent="wasp.job.WaitForQuoteStep" />
+  </batch:flow>
+
+  <!-- /quote -->
+
   <!-- creates da/pi approval -->
-  <bean id="createDaApprovalStateStep" parent="parentStateStep">
+  <bean id="wasp.job.DaApprovalStateStep" parent="parentStateStep">
     <property name="itemProcessor">
       <bean class="edu.yu.einstein.wasp.batch.CreateJobStateProcessor">
         <property name="targetTask" value="DA Approval" />
@@ -108,7 +119,7 @@
     </property>
   </bean>
 
-  <bean id="createPiApprovalStateStep" parent="parentStateStep">
+  <bean id="wasp.job.PiApprovalStateStep" parent="parentStateStep">
     <property name="itemProcessor">
       <bean class="edu.yu.einstein.wasp.batch.CreateJobStateProcessor">
         <property name="targetTask" value="PI Approval" />
@@ -116,7 +127,7 @@
     </property>
   </bean>
 
-  <bean id="waitForDaApprovalStateUpdated" parent="parentStateStep">
+  <bean id="wasp.job.WaitForDaApprovalStep" parent="parentStateStep">
     <property name="itemProcessor">
       <bean class="edu.yu.einstein.wasp.batch.WaitForSiblingJobStateProcessor">
         <property name="task" value="DA Approval" />
@@ -126,7 +137,7 @@
     </property>
   </bean>
 
-  <bean id="waitForPiApprovalStateUpdated" parent="parentStateStep">
+  <bean id="wasp.job.WaitForPiApprovalStep" parent="parentStateStep">
     <property name="itemProcessor">
       <bean class="edu.yu.einstein.wasp.batch.WaitForSiblingJobStateProcessor">
         <property name="task" value="PI Approval" />
@@ -136,8 +147,19 @@
     </property>
   </bean>
 
+  <batch:flow id="wasp.job.PiApprovalFlow">
+    <batch:step id="wasp.job.PiApprovalFlow0" parent="wasp.job.PiApprovalStateStep" next="wasp.job.PiApprovalFlow1" />
+    <batch:step id="wasp.job.PiApprovalFlow1" parent="wasp.job.WaitForPiApprovalStep" />
+  </batch:flow>
+
+  <batch:flow id="wasp.job.DaApprovalFlow">
+    <batch:step id="wasp.job.DaApprovalFlow0" parent="wasp.job.DaApprovalStateStep" next="wasp.job.DaApprovalFlow1" />
+    <batch:step id="wasp.job.DaApprovalFlow1" parent="wasp.job.WaitForDaApprovalStep" />
+  </batch:flow>
+
+
   <!-- creates send invoice -->
-  <bean id="createSendInvoiceStateStep" parent="parentStateStep">
+  <bean id="wasp.job.SendInvoiceStateStep" parent="parentStateStep">
     <property name="itemProcessor">
       <bean class="edu.yu.einstein.wasp.batch.CreateJobStateProcessor">
         <property name="targetTask" value="Send Invoice" />
@@ -145,7 +167,7 @@
     </property>
   </bean>
 
-  <bean id="doSendInvoiceStateStep" parent="parentStateStep">
+  <bean id="wasp.job.DoSendInvoiceStep" parent="parentStateStep">
     <property name="itemProcessor">
       <bean class="edu.yu.einstein.wasp.batch.WaitForSiblingJobStateProcessor">
         <property name="task" value="Send Invoice" />
@@ -155,7 +177,7 @@
     </property>
   </bean>
 
-  <bean id="waitForSendInvoiceStateUpdated" parent="parentStateStep">
+  <bean id="wasp.job.WaitForSendInvoiceStep" parent="parentStateStep">
     <property name="itemProcessor">
       <bean class="edu.yu.einstein.wasp.batch.WaitForSiblingJobStateProcessor">
         <property name="task" value="Send Invoice" />
@@ -165,114 +187,38 @@
     </property>
   </bean>
 
-  <!-- all samples received -->
-  <bean id="createAllJobSamplesStateStep" parent="parentStateStep">
-    <property name="itemProcessor">
-      <bean class="edu.yu.einstein.wasp.batch.CreateJobStateProcessor">
-        <property name="targetTask" value="waitForAllJobSamples" />
-      </bean>
-    </property>
-  </bean>
-  <bean id="waitForAllJobSamplesStateUpdated" parent="parentStateStep">
-    <property name="itemProcessor">
-      <bean class="edu.yu.einstein.wasp.batch.WaitForJobSamplesStateProcessor">
-        <property name="jobTask" value="waitForAllJobSamples" />
-        <property name="jobStatus" value="CREATED" />
-        <property name="sampleTask" value="sampleWrapTask" />
-        <property name="sampleStatus" value="RECEIVED" />
-
-        <property name="targetJobStatus" value="FINAL" />
-        <property name="targetSampleStatus" value="READY" />
-      </bean>
-    </property>
-  </bean>
-
-  <!-- all samples final -->
-  <bean id="createAllJobSamplesFinalStateStep" parent="parentStateStep">
-    <property name="itemProcessor">
-      <bean class="edu.yu.einstein.wasp.batch.CreateJobStateProcessor">
-        <property name="targetTask" value="waitForAllJobSamplesFinal" />
-      </bean>
-    </property>
-  </bean>
-  <bean id="waitForAllJobSamplesFinalStateUpdated" parent="parentStateStep">
-    <property name="itemProcessor">
-      <bean class="edu.yu.einstein.wasp.batch.WaitForJobSamplesStateProcessor">
-        <property name="jobTask" value="waitForAllJobSamples" />
-        <property name="jobStatus" value="CREATED" />
-        <property name="sampleTask" value="sampleWrapTask" />
-        <property name="sampleStatus" value="FINAL" />
-
-        <property name="targetJobStatus" value="FINAL" />
-      </bean>
-    </property>
-  </bean>
-<!-- /default steps --> 
-<!-- ****************** -->
-
-  <!-- ******************** -->
-  <!-- default flow --> 
-  <batch:flow id="quoteFlow">
-     <batch:step id="quoteStep0" parent="createQuoteJobStateStep" next="quoteStep1" />
-     <batch:step id="quoteStep1" parent="waitForQuoteJobStateUpdated" />
+  <batch:flow id="wasp.job.SendInvoiceFlow">
+    <batch:step id="wasp.job.SendInvoiceFlow0" parent="wasp.job.SendInvoiceStateStep" next="wasp.job.SendInvoiceFlow1" />
+    <batch:step id="wasp.job.SendInvoiceFlow1" parent="wasp.job.DoSendInvoiceStep" next="wasp.job.SendInvoiceFlow2" />
+    <batch:step id="wasp.job.SendInvoiceFlow2" parent="wasp.job.WaitForSendInvoiceStep" />
   </batch:flow>
 
-  <batch:flow id="piApprovalFlow">
-    <batch:step id="piApprovalStep0" parent="createPiApprovalStateStep" next="piApprovalStep1" />
-    <batch:step id="piApprovalStep1" parent="waitForPiApprovalStateUpdated" />
-  </batch:flow>
+  <!-- *** FLOWS OF FLOWS *** -->
 
-  <batch:flow id="daApprovalFlow">
-    <batch:step id="daApprovalStep0" parent="createDaApprovalStateStep" next="daApprovalStep1" />
-    <batch:step id="daApprovalStep1" parent="waitForDaApprovalStateUpdated" />
-  </batch:flow>
+  <batch:flow id="wasp.job.DefaultAdminFlow">
+    <batch:flow id="wasp.job.DefaultAdminFlow0" parent="wasp.job.CreateSampleFlow" next="wasp.job.DefaultAdminFlow1" /> 
 
-  <batch:flow id="invoiceFlow">
-    <batch:step id="invoiceStep0" parent="createSendInvoiceStateStep" next="invoiceStep1" />
-    <batch:step id="invoiceStep1" parent="doSendInvoiceStateStep" next="invoiceStep2" />
-    <batch:step id="invoiceStep2" parent="waitForSendInvoiceStateUpdated" />
-  </batch:flow>
+    <batch:flow id="wasp.job.DefaultAdminFlow1" parent="wasp.job.QuoteFlow" next="wasp.job.DefaultAdminFlow2" />
 
-  <batch:flow id="allSamplesReceivedFlow">
-    <batch:step id="allSamplesReceivedStep0" parent="createAllJobSamplesStateStep" next="allSamplesReceivedStep1" />
-    <batch:step id="allSamplesReceivedStep1" parent="waitForAllJobSamplesStateUpdated" />
-  </batch:flow>
-
-  <batch:flow id="allSamplesFinalFlow">
-    <batch:step id="allSamplesFinalStep0" parent="createAllJobSamplesFinalStateStep" next="allSamplesFinalStep1" />
-    <batch:step id="allSamplesFinalStep1" parent="waitForAllJobSamplesFinalStateUpdated" />
-  </batch:flow>
-
-
-  <batch:flow id="finishJobFlow">
-    <batch:step id="finishJobStep" parent="finalStateStep" />
-  </batch:flow>
-
-  <!-- ****** -->
-
-
-  <batch:flow id="wasp.job.defaultAdminFlow">
-    <batch:step id="wasp.job.defaultAdminFlow0" parent="createSampleReceiveStateStep" next="wasp.job.defaultAdminFlow.quoteFlow" /> 
-
-    <batch:flow id="wasp.job.defaultAdminFlow.quoteFlow" parent="quoteFlow" next="wasp.job.defaultAdminFlow.approvals" />
-
-    <batch:split id="wasp.job.defaultAdminFlow.approvals" next="wasp.job.defaultAdminFlow.invoiceFlow" task-executor="asyncTaskExecutor">
+    <batch:split id="wasp.job.DefaultAdminFlow2" next="wasp.job.DefaultAdminFlow3" task-executor="asyncTaskExecutor">
       <batch:flow>
-        <batch:flow id="wasp.job.defaultAdminFlow.piApprovalFlow" parent="piApprovalFlow" />
+        <batch:flow id="wasp.job.DefaultAdminFlow2.PiApprovalFlow" parent="wasp.job.PiApprovalFlow" />
       </batch:flow>
       <batch:flow>
-        <batch:flow id="wasp.job.defaultAdminFlow.daApprovalFlow" parent="daApprovalFlow" />
+        <batch:flow id="wasp.job.DefaultAdminFlow2.DaApprovalFlow" parent="wasp.job.DaApprovalFlow" />
       </batch:flow>
     </batch:split> 
 
-    <batch:flow id="wasp.job.defaultAdminFlow.invoiceFlow" parent="invoiceFlow" />
+    <batch:flow id="wasp.job.DefaultAdminFlow3" parent="wasp.job.SendInvoiceFlow" />
   </batch:flow>
 
-  <batch:job id="startJob" restartable="true">
-    <batch:flow id="job.adminFlow" parent="wasp.job.defaultAdminFlow" next="job.waitForChildren" />
-    <batch:flow id="job.waitForChildren" parent="wasp.waitForChildrenFinal" next="job.finishFlow" />
+  <!-- *** FLOWS OF FLOWS *** -->
 
-    <batch:flow id="job.finishFlow" parent="finishJobFlow" />
+  <batch:job id="wasp.job.Job" restartable="true">
+    <batch:flow id="wasp.job.Job0" parent="wasp.job.DefaultAdminFlow" next="wasp.job.Job1" />
+    <batch:flow id="wasp.job.Job1" parent="wasp.default.WaitForChildrenFinalFlow" next="wasp.job.Job2" />
+
+    <batch:flow id="wasp.job.Job2" parent="wasp.default.FinalFlow" />
   </batch:job>
 
 
