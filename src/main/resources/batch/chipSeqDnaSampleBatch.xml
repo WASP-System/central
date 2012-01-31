@@ -20,7 +20,7 @@
   </bean>
 
   <si:inbound-channel-adapter ref="chipSeqDnaSamplePoller" method="getStates" channel="chipSeqDnaSampleChannel">
-    <si:poller fixed-rate="2000"/>
+    <si:poller fixed-rate="10000"/>
   </si:inbound-channel-adapter>
 
   <si:service-activator input-channel="chipSeqDnaSampleChannel" output-channel="logger">
@@ -39,7 +39,7 @@
   </bean>
 
   <si:inbound-channel-adapter ref="chipSeqLibrarySamplePoller" method="getStates" channel="chipSeqLibrarySampleChannel">
-    <si:poller fixed-rate="5000"/>
+    <si:poller fixed-rate="10000"/>
   </si:inbound-channel-adapter>
 
   <si:service-activator input-channel="chipSeqLibrarySampleChannel" output-channel="logger">
@@ -56,11 +56,19 @@
   <batch:job id="chipSeqDna.workflow">
     <batch:flow id="chipSeqDna.defaultMpsDnaFlow" parent="wasp.sample.defaultMpsDnaFlow" next="chipSeqDna.finishFlow" />
     <batch:flow id="chipSeqDna.finishFlow" parent="finishJobFlow" />
-
   </batch:job>
 
   <batch:job id="chipSeqLibrary.workflow">
-    <batch:flow id="chipSeqLibrary.defaultMpsLibraryFlow" parent="wasp.sample.defaultMpsLibraryFlow" next="chipSeqLibrary.finishFlow" />
+    <batch:flow id="chipSeqLibrary.defaultMpsLibraryFlow" parent="wasp.sample.defaultMpsLibraryFlow" next="chipSeqLibrary.aligner" />
+
+    <!-- send to aligner -->
+    <batch:flow id="chipSeqLibrary.aligner" parent="wasp.aligner.run" next="chipSeqLibrary.peakcaller" />
+
+    <!-- send to aligner -->
+    <batch:flow id="chipSeqLibrary.peakcaller" parent="wasp.peakcaller.run" next="chipSeqLibrary.finishFlow" />
+
+    <!-- send to analysis -->
+
     <batch:flow id="chipSeqLibrary.finishFlow" parent="finishJobFlow" />
   </batch:job>
 </beans>
