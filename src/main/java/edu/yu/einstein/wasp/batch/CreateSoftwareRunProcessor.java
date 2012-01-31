@@ -89,7 +89,7 @@ public class CreateSoftwareRunProcessor implements ItemProcessor {
 		newState.setTaskId(task.getTaskId());
 		newState.setStatus(targetStatus);
 		newState.setName(sample.getName() + " " + software.getIName() + " " + task.getName());
-		newState.setSourceStateId(stateId);
+		newState.setSourceStateId(state.stateId);
 		stateService.save(newState); 
 
 		Staterun newStaterun = new Staterun();
