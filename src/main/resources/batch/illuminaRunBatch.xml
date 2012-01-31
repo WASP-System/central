@@ -14,13 +14,13 @@
     xmlns="http://www.springframework.org/schema/beans"
     default-autowire="byName">
 
-  <bean id="illumina.run.Poller" parent="wasp.run.ResourceCategoryPoller">
-    <property name="resourceCategoryIName" value="illuminaHiSeq2000"/>
+  <bean id="illumina.run.Poller" parent="wasp.run.ResourceCategoryPoller" >
+    <property name="resourceCategoryIName" value="illuminaHiSeq2000" />
     <property name="taskIName" value="runWrapTask"/>
   </bean>
 
   <si:inbound-channel-adapter ref="illumina.run.Poller" method="getStates" channel="illumina.run.Channel">
-    <si:poller fixed-rate="2000"/>
+    <si:poller fixed-rate="10000"/>
   </si:inbound-channel-adapter>
 
   <si:service-activator input-channel="illumina.run.Channel" output-channel="logger">
