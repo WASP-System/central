@@ -18,7 +18,7 @@
     <property name="area" value="#{chipSeqWorkflowArea}" />
   </bean>
 
-  <bean id="chipSeqWorkflow" class="edu.yu.einstein.wasp.load.WorkflowLoadService" depends-on="chipSeqDnaSampleUiField,chipSeqLibrarySampleUiField">
+  <bean id="chipSeqWorkflow" class="edu.yu.einstein.wasp.load.WorkflowLoadService" depends-on="chipSeqDnaSubtypeSampleResource,chipSeqLibrarySubtypeSampleResource">
     <property name="area" value="#{chipSeqWorkflowArea}" />
     <property name="name" value="Chip Seq" />
     <property name="pageFlowOrder">

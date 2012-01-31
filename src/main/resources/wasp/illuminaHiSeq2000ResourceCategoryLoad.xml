@@ -13,9 +13,9 @@
   	<constructor-arg><value>illuminaHiSeq2000</value></constructor-arg>
   </bean>
 
-  <bean class="edu.yu.einstein.wasp.model.UiField" id="illuminiaUiField">
-    <property name="locale" value="en_US" />
-    <property name="area" value="#{illuminaHiSeq2000Area}" />
+  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="illuminaUiFieldWrapper">
+    <property name="baseLocale" value="en_US" />
+    <property name="baseArea" value="#{illuminaHiSeq2000Area}" />
   </bean>
 
   <bean id="illuminaHiSeq2000" class="edu.yu.einstein.wasp.load.ResourceCategoryLoadService">
@@ -37,58 +37,24 @@
        </list>
     </property> 
 
-    <property name="uiFields">
+    <property name="uiFieldsFromWrapper">
       <list>
-        <bean parent="illuminiaUiField">
-          <property name="name" value="readLength" />
-          <property name="attrName" value="#{waspUiFieldAttrname['metaposition']}" />
-          <property name="attrValue" value="10" />
-        </bean>
-        <bean parent="illuminiaUiField">
-          <property name="name" value="readLength" />
-          <property name="attrName" value="#{waspUiFieldAttrname['label']}" />
-          <property name="attrValue" value="Read Length" />
-        </bean>
-        <bean parent="illuminiaUiField">
-          <property name="name" value="readLength" />
-          <property name="attrName" value="#{waspUiFieldAttrname['control']}" />
-          <property name="attrValue" value="select:#{dollar}{resourceOptions.get(readlength)}:value:label" /> 
-        </bean>
-        <bean parent="illuminiaUiField">
-          <property name="name" value="readLength" />
-          <property name="attrName" value="#{waspUiFieldAttrname['constraint']}" />
-          <property name="attrValue" value="NotEmpty" />
-        </bean>
-        <bean parent="illuminiaUiField">
-          <property name="name" value="readLength" />
-          <property name="attrName" value="#{waspUiFieldAttrname['error']}" />
-          <property name="attrValue" value="You must choose a read length" />
+        <bean parent="illuminaUiFieldWrapper">
+          <property name="baseName" value="readLength" />
+          <property name="metaposition" value="10" />
+          <property name="label" value="Read Length" />
+          <property name="control" value="select:#{dollar}{resourceOptions.get(readlength)}:value:label" /> 
+          <property name="constraint" value="NotEmpty" />
+          <property name="error" value="You must choose a read length" />
         </bean>
 
-        <bean parent="illuminiaUiField">
-          <property name="name" value="readType" />
-          <property name="attrName" value="#{waspUiFieldAttrname['metaposition']}" />
-          <property name="attrValue" value="20" />
-        </bean>
-        <bean parent="illuminiaUiField">
-          <property name="name" value="readType" />
-          <property name="attrName" value="#{waspUiFieldAttrname['label']}" />
-          <property name="attrValue" value="Read Type" />
-        </bean>
-        <bean parent="illuminiaUiField">
-          <property name="name" value="readType" />
-          <property name="attrName" value="#{waspUiFieldAttrname['control']}" />
-          <property name="attrValue" value="select:#{dollar}{resourceOptions.get(readType)}:value:label" /> 
-        </bean>
-        <bean parent="illuminiaUiField">
-          <property name="name" value="readType" />
-          <property name="attrName" value="#{waspUiFieldAttrname['constraint']}" />
-          <property name="attrValue" value="NotEmpty" />
-        </bean>
-        <bean parent="illuminiaUiField">
-          <property name="name" value="readType" />
-          <property name="attrName" value="#{waspUiFieldAttrname['error']}" />
-          <property name="attrValue" value="You must choose a read type" />
+        <bean parent="illuminaUiFieldWrapper">
+          <property name="baseName" value="readType" />
+          <property name="metaposition" value="20" />
+          <property name="label" value="Read Type" />
+          <property name="control" value="select:#{dollar}{resourceOptions.get(readType)}:value:label" /> 
+          <property name="constraint" value="NotEmpty" />
+          <property name="error" value="You must choose a read type" />
         </bean>
       </list>
     </property>

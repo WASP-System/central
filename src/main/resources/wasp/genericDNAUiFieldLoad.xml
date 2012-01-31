@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.1.xsd"
+    default-autowire="byName">
+
+  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="genericDNAUiFieldWrapper">
+    <property name="baseLocale" value="en_US" />
+    <property name="baseArea" value="genericDna" />
+  </bean> 
+
+  <bean id="genericDNAUiFields" class="org.springframework.beans.factory.config.ListFactoryBean">
+    <property name="sourceList">
+      <list value-type="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper">
+        <bean parent="genericDNAUiFieldWrapper">
+          <property name="baseName" value="concentration" />
+          <property name="label" value="Concentration" />
+          <property name="metaposition" value="10" />
+          <property name="constraint" value="NotEmpty" />
+          <property name="error" value="You must provide a concentration" />
+          <property name="type" value="NUMBER" />
+        </bean>
+        
+        <bean parent="genericDNAUiFieldWrapper">
+          <property name="baseName" value="volume" />
+          <property name="label" value="volume" />
+          <property name="metaposition" value="20" />
+          <property name="constraint" value="NotEmpty" />
+          <property name="error" value="You must provide a volume" />
+       	  <property name="type" value="NUMBER" />
+        </bean>
+
+        <bean parent="genericDNAUiFieldWrapper">
+          <property name="baseName" value="buffer" />
+          <property name="label" value="buffer" />
+          <property name="metaposition" value="30" />
+          <property name="control" value="select:TE:TE;Water:Water" />
+          <property name="constraint" value="NotEmpty" />
+          <property name="error" value="You must select a buffer type" />
+        </bean>
+        
+        <bean parent="genericDNAUiFieldWrapper">
+          <property name="baseName" value="A260_280" />
+          <property name="label" value="A260/280" />
+          <property name="metaposition" value="40" />
+          <property name="constraint" value="NotEmpty" />
+          <property name="error" value="You must provide an A260/280 reading" />
+       	  <property name="type" value="NUMBER" />
+        </bean>
+        
+        <bean parent="genericDNAUiFieldWrapper">
+          <property name="baseName" value="A260_230" />
+          <property name="label" value="A260/230" />
+          <property name="metaposition" value="50" />
+          <property name="constraint" value="NotEmpty" />
+          <property name="error" value="You must provide an A260/230 reading" />
+       	  <property name="type" value="NUMBER" />
+        </bean>
+
+      </list>
+    </property>
+  </bean>
+</beans>
+ 

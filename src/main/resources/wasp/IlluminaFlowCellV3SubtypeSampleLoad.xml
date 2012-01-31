@@ -10,9 +10,9 @@
   	<constructor-arg><value>illuminaFlowcellV3</value></constructor-arg>
   </bean>
    
-  <bean class="edu.yu.einstein.wasp.model.UiField" id="illuminaFlowcellV3UiField">
-    <property name="locale" value="en_US" />
-    <property name="area" value="#{illuminaFlowcellV3UiFieldArea}" />
+  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="illuminaFlowcellV3UiFieldWrapper">
+    <property name="baseLocale" value="en_US" />
+    <property name="baseArea" value="#{illuminaFlowcellV3UiFieldArea}" />
   </bean>
   
    
@@ -29,17 +29,15 @@
   		</list>
   	</property>
   	
-  	<property name="uiFields">
+  	<property name="uiFieldsFromWrapper">
   		<list>
-	  		<bean parent="illuminaFlowcellV3UiField">
-	          <property name="name" value="#{waspPlatformUnit['cellName']}" />
-	          <property name="attrName" value="#{waspUiFieldAttrname['label']}" />
-	          <property name="attrValue" value="Lane" />
+	  		<bean parent="illuminaFlowcellV3UiFieldWrapper">
+	          <property name="baseName" value="#{waspPlatformUnit['cellName']}" />
+	          <property name="label" value="Lane" />
 	        </bean>
-	        <bean parent="illuminaFlowcellV3UiField">
-	          <property name="name" value="#{waspPlatformUnit['platformUnitName']}" />
-	          <property name="attrName" value="#{waspUiFieldAttrname['label']}" />
-	          <property name="attrValue" value="Flow Cell" />
+	        <bean parent="illuminaFlowcellV3UiFieldWrapper">
+	          <property name="baseName" value="#{waspPlatformUnit['platformUnitName']}" />
+	          <property name="label" value="Flow Cell" />
 	        </bean>
         </list>
   	</property>

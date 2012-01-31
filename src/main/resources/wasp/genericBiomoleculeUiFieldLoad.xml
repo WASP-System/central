@@ -6,106 +6,22 @@
         http://www.springframework.org/schema/beans/spring-beans-3.1.xsd"
     default-autowire="byName">
 
-  <bean class="edu.yu.einstein.wasp.model.UiField" id="genericBiomoleculeUiField">
-    <property name="locale" value="en_US" />
-    <property name="area" value="genericBiomolecule" />
+  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="genericBiomoleculeUiFieldWrapper">
+    <property name="baseLocale" value="en_US" />
+    <property name="baseArea" value="genericBiomolecule" />
   </bean> 
 
   <bean id="genericBiomoleculeUiFields" class="org.springframework.beans.factory.config.ListFactoryBean">
     <property name="sourceList">
-      <list value-type="edu.yu.einstein.wasp.model.UiField">
-        <bean parent="genericBiomoleculeUiField">
-          <property name="name" value="concentration" />
-          <property name="attrName" value="#{waspUiFieldAttrname['label']}" />
-          <property name="attrValue" value="Concentration" />
-        </bean>
-        <bean parent="genericBiomoleculeUiField">
-          <property name="name" value="concentration" />
-          <property name="attrName" value="#{waspUiFieldAttrname['metaposition']}" />
-          <property name="attrValue" value="10" />
-        </bean>
-        <bean parent="genericBiomoleculeUiField">
-          <property name="name" value="concentration" />
-          <property name="attrName" value="#{waspUiFieldAttrname['constraint']}" />
-          <property name="attrValue" value="NotEmpty" />
-        </bean>
-        <bean parent="genericBiomoleculeUiField">
-          <property name="name" value="concentration" />
-          <property name="attrName" value="#{waspUiFieldAttrname['error']}" />
-          <property name="attrValue" value="You must provice a concentration" />
-        </bean>
-        <bean parent="genericBiomoleculeUiField">
-          <property name="name" value="concentration" />
-          <property name="attrName" value="#{waspUiFieldAttrname['type']}" />
-          <property name="attrValue" value="NUMBER" />
-        </bean>
-        <bean parent="genericBiomoleculeUiField">
-          <property name="name" value="volume" />
-          <property name="attrName" value="#{waspUiFieldAttrname['label']}" />
-          <property name="attrValue" value="volume" />
-        </bean>
-        <bean parent="genericBiomoleculeUiField">
-          <property name="name" value="volume" />
-          <property name="attrName" value="#{waspUiFieldAttrname['metaposition']}" />
-          <property name="attrValue" value="20" />
-        </bean>
-        <bean parent="genericBiomoleculeUiField">
-          <property name="name" value="volume" />
-          <property name="attrName" value="#{waspUiFieldAttrname['constraint']}" />
-          <property name="attrValue" value="NotEmpty" />
-        </bean>
-
-        <bean parent="genericBiomoleculeUiField">
-          <property name="name" value="buffer" />
-          <property name="attrName" value="#{waspUiFieldAttrname['label']}" />
-          <property name="attrValue" value="buffer" />
-        </bean>
-        <bean parent="genericBiomoleculeUiField">
-          <property name="name" value="buffer" />
-          <property name="attrName" value="#{waspUiFieldAttrname['metaposition']}" />
-          <property name="attrValue" value="30" />
-        </bean>
-        <bean parent="genericBiomoleculeUiField">
-          <property name="name" value="buffer" />
-          <property name="attrName" value="#{waspUiFieldAttrname['control']}" />
-          <property name="attrValue" value="select:TE:TE;Water:Water" />
-        </bean>
-        <bean parent="genericBiomoleculeUiField">
-          <property name="name" value="buffer" />
-          <property name="attrName" value="#{waspUiFieldAttrname['constraint']}" />
-          <property name="attrValue" value="NotEmpty" />
-        </bean>
-        <bean parent="genericBiomoleculeUiField">
-          <property name="name" value="buffer" />
-          <property name="attrName" value="#{waspUiFieldAttrname['error']}" />
-          <property name="attrValue" value="You must select a buffer type" />
-        </bean>
-
-        <bean parent="genericBiomoleculeUiField">
-          <property name="name" value="species" />
-          <property name="attrName" value="#{waspUiFieldAttrname['label']}" />
-          <property name="attrValue" value="Species" />
-        </bean>
-        <bean parent="genericBiomoleculeUiField">
-          <property name="name" value="species" />
-          <property name="attrName" value="#{waspUiFieldAttrname['metaposition']}" />
-          <property name="attrValue" value="40" />
-        </bean>
-        <bean parent="genericBiomoleculeUiField">
-          <property name="name" value="species" />
-          <property name="attrName" value="#{waspUiFieldAttrname['control']}" />
-          <!-- <property name="attrValue" value="select:{speciesBean}" /> -->
-          <property name="attrValue" value="select:a:a; b:b" />
-        </bean>
-        <bean parent="genericBiomoleculeUiField">
-          <property name="name" value="species" />
-          <property name="attrName" value="#{waspUiFieldAttrname['constraint']}" />
-          <property name="attrValue" value="NotEmpty" />
-        </bean>
-        <bean parent="genericBiomoleculeUiField">
-          <property name="name" value="species" />
-          <property name="attrName" value="#{waspUiFieldAttrname['error']}" />
-          <property name="attrValue" value="You must select a species" />
+      <list value-type="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper">
+        <bean parent="genericBiomoleculeUiFieldWrapper">
+          <property name="baseName" value="species" />
+          <property name="label" value="Species" />
+          <property name="metaposition" value="10" />
+          <property name="control" value="select:Human:Human;Mouse:Mouse" />
+         <!-- TODO: <property name="control" value="select:Human:Human;Mouse:Mouse" /> -->
+          <property name="constraint" value="NotEmpty" />
+          <property name="error" value="You must select a species" />
         </bean>
       </list>
     </property>

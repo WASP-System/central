@@ -823,6 +823,7 @@ create table subtypesample (
 
   iname varchar(50) , -- meta field prefix
   name varchar(250) ,
+  arealist varchar(250),
 
   constraint unique index u_subtypesample_iname (iname),
   foreign key fk_subtypesample_tsid (typesampleid) references typesample(typesampleid)

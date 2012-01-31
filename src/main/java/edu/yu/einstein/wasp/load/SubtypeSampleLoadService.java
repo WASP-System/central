@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -77,14 +78,15 @@ public class SubtypeSampleLoadService extends WaspLoadService {
     TypeSample typeSample = typeSampleService.getTypeSampleByIName(sampleType); 
 
     SubtypeSample subtypeSample = subtypeSampleService.getSubtypeSampleByIName(iname); 
-
-    // inserts or update subtype
+    String areaList = StringUtils.join(getAreaListFromUiFields(this.uiFields), ",");
+    // inserts or update subtypeSample
     if (subtypeSample.getSubtypeSampleId() == null) {
       subtypeSample = new SubtypeSample();
 
       subtypeSample.setIName(iname);
       subtypeSample.setName(name);
       subtypeSample.setTypeSampleId(typeSample.getTypeSampleId());
+      subtypeSample.setAreaList(areaList);
 
       subtypeSampleService.save(subtypeSample); 
 
@@ -101,7 +103,13 @@ public class SubtypeSampleLoadService extends WaspLoadService {
     	  subtypeSample.setTypeSampleId(typeSample.getTypeSampleId());
     	  changed = true;
       }
+      if (!subtypeSample.getAreaList().equals(areaList)){
+    	  logger.debug("ANDY:  '"+subtypeSample.getAreaList()+"' != '"+areaList);
+    	  subtypeSample.setAreaList(areaList);
+    	  changed = true;
+      }
       if (changed)
+    	  logger.debug("ANDY: saving: "+subtypeSample.toString());
     	  subtypeSampleService.save(subtypeSample); 
     }
 

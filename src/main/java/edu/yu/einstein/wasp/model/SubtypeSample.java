@@ -11,6 +11,7 @@
 
 package edu.yu.einstein.wasp.model;
 
+import java.lang.reflect.Array;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -152,7 +153,47 @@ public class SubtypeSample extends WaspModel {
 		return this.name;
 	}
 
+	/** 
+	 * arealist
+	 *
+	 */
+	@Column(name="arealist")
+	protected String arealist;
 
+	/**
+	 * setAreaList(String name)
+	 *
+	 * @param arealist
+	 *
+	 */
+	
+	public void setAreaList (String arealist) {
+		this.arealist = arealist;
+	}
+
+	/**
+	 * getAreaList()
+	 *
+	 * @return arealist
+	 *
+	 */
+	public String getAreaList () {
+		return this.arealist;
+	}
+
+	/**
+	 * getComponentMetaAreas()
+	 * @return
+	 */
+	public String[] getComponentMetaAreas(){
+		if (this.arealist == null || this.arealist.equals(""))
+			return new String[0];
+		String[] splitList = this.arealist.split(",");
+		for (String s: splitList){
+			s = s.trim();
+		}
+		return splitList;
+	}
 
 
 	/**
@@ -371,7 +412,7 @@ public class SubtypeSample extends WaspModel {
 	public String toString() {
 		return "SubtypeSample [subtypeSampleId=" + subtypeSampleId
 				+ ", typeSampleId=" + typeSampleId + ", iName=" + iName
-				+ ", name=" + name + "]";
+				+ ", name=" + name + ", arealist=" + arealist + "]";
 	}
 
 

@@ -12,6 +12,8 @@ import javax.persistence.Table;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
+import edu.yu.einstein.wasp.exception.UiFieldParseException;
+
 /*
  * Holds definition of user input field
  * @Author Sasha Levchuk
@@ -110,6 +112,49 @@ public final class UiField implements Serializable {
 			this.name = name;
 		}
 
+	/**
+	 * Sets uiFields from String e.g. en_US.myArea.myName.myAttribute=myValue
+	 * @param uiFieldsAsString
+	 */
+	public void setUiFieldString(String uiFieldsAsString){
+		String[] keyValuePairs = uiFieldsAsString.split("=");
+		if (keyValuePairs.length < 1){
+			throw new UiFieldParseException();
+		} else if (keyValuePairs.length == 1){
+			this.attrValue = "";
+		}
+		this.attrValue = keyValuePairs[1].trim();
+		
+		String[] keyComponents = keyValuePairs[0].trim().split(".");
+		if (keyComponents.length != 4){
+			throw new UiFieldParseException();
+		}
+		this.locale = keyComponents[0];
+		this.area = keyComponents[1];
+		this.name = keyComponents[2];
+		this.attrName = keyComponents[3];
+	}
+	
+	/**
+	 * Sets uiFields from String (assuming area and locale pre-defined e.g.myName.myAttribute=myValue)
+	 * @param uiFieldsAsString
+	 */
+	public void setUiFieldShortString(String uiFieldsAsString){
+		String[] keyValuePairs = uiFieldsAsString.split("=");
+		if (keyValuePairs.length < 1){
+			throw new UiFieldParseException();
+		} else if (keyValuePairs.length == 1){
+			this.attrValue = "";
+		}
+		this.attrValue = keyValuePairs[1].trim();
+		
+		String[] keyComponents = keyValuePairs[0].trim().split(".");
+		if (keyComponents.length != 2){
+			throw new UiFieldParseException();
+		}
+		this.name = keyComponents[0];
+		this.attrName = keyComponents[1];
+	}
 	  
 	@Override
 	public int hashCode() {
