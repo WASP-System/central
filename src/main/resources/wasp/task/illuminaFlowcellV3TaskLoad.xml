@@ -6,13 +6,9 @@
         http://www.springframework.org/schema/beans/spring-beans-3.1.xsd"
     default-autowire="byName">
 
-  <bean id="placeAmpliconTask" class="edu.yu.einstein.wasp.load.TaskLoadService">
-    <property name="iName" value="placeAmplicon" />
-    <property name="name" value="Place Amplicon" />
+  <bean id="placeIlluminaTask" class="edu.yu.einstein.wasp.load.TaskLoadService">
+    <property name="iName" value="placeIllumina" />
+    <property name="name" value="Place Illumina" />
   </bean>
 
-  <bean id="returnAmpliconTask" class="edu.yu.einstein.wasp.load.TaskLoadService">
-    <property name="iName" value="returnAmplicon" />
-    <property name="name" value="Return from Amplicon" />
-  </bean>
 </beans>
