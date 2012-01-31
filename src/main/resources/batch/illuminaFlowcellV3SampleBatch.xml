@@ -43,7 +43,7 @@
     </property>
   </bean>
 
-  <bean id="illuminaFlowcellV3Sample.placeAmpliconWaitStateStep" parent="parentStateStep">
+  <bean id="illuminaFlowcellV3Sample.placeAmpliconPlacedStateStep" parent="parentStateStep">
     <property name="itemProcessor">
       <bean class="edu.yu.einstein.wasp.batch.WaitForSiblingSampleStateProcessor">
         <property name="task" value="placeAmplicon" />
@@ -55,40 +55,13 @@
 
   <batch:flow id="illuminaFlowcellV3Sample.placeAmplicon">
     <batch:step id="illuminaFlowcellV3Sample.placeAmplicon0" parent="illuminaFlowcellV3Sample.placeAmpliconStateStep" next="illuminaFlowcellV3Sample.placeAmplicon1" />
-    <batch:step id="illuminaFlowcellV3Sample.placeAmplicon1" parent="illuminaFlowcellV3Sample.placeAmpliconWaitStateStep" />
+    <batch:step id="illuminaFlowcellV3Sample.placeAmplicon1" parent="illuminaFlowcellV3Sample.placeAmpliconPlacedStateStep"  next="illuminaFlowcellV3Sample.placeAmplicon2" />
+
+    <!-- proceed when child run is done --> 
+    <batch:step id="illuminaFlowcellV3Sample.placeAmplicon2" parent="wasp.waitForChildrenFinalStep" />
   </batch:flow>
 
   <!-- placeAmplicon -->
-
-
-  <!-- returnAmplicon -->
-  <bean id="illuminaFlowcellV3Sample.returnAmpliconStateStep" parent="parentStateStep">
-    <property name="itemProcessor">
-      <bean class="edu.yu.einstein.wasp.batch.CreateSampleStateProcessor">
-        <property name="targetTask" value="returnAmplicon" />
-      </bean>
-    </property>
-  </bean>
-
-  <bean id="illuminaFlowcellV3Sample.returnAmpliconWaitStateStep" parent="parentStateStep">
-    <property name="itemProcessor">
-      <bean class="edu.yu.einstein.wasp.batch.WaitForSiblingSampleStateProcessor">
-        <property name="task" value="returnAmplicon" />
-        <property name="status" value="OK" />
-        <property name="siblingTargetStatus" value="FINAL" />
-      </bean>
-    </property>
-  </bean>
-
-  <batch:flow id="illuminaFlowcellV3Sample.returnAmplicon">
-    <batch:step id="illuminaFlowcellV3Sample.returnAmplicon0" parent="illuminaFlowcellV3Sample.returnAmpliconStateStep" next="illuminaFlowcellV3Sample.returnAmplicon1" />
-    <batch:step id="illuminaFlowcellV3Sample.returnAmplicon1" parent="illuminaFlowcellV3Sample.returnAmpliconWaitStateStep" />
-  </batch:flow>
-
-  <!-- returnAmplicon -->
-
-
-
 
 
 
@@ -96,21 +69,18 @@
     <batch:flow id="illuminaFlowcellV3Sample0" parent="wasp.sample.sampleReceived" next="illuminaFlowcellV3Sample1" />
     <batch:flow id="illuminaFlowcellV3Sample1" parent="wasp.sample.libraryPlatformUnitAssign" next="illuminaFlowcellV3Sample2" />
 
-    <batch:flow id="illuminaFlowcellV3Sample2" parent="illuminaFlowcellV3Sample.placeAmplicon" next="illuminaFlowcellV3Sample3" />
-    <batch:flow id="illuminaFlowcellV3Sample3" parent="illuminaFlowcellV3Sample.returnAmplicon" next="illuminaFlowcellV3Sample4" />
+
 
     <!-- send to amplicon -->
     <!-- send to sequencer -->
-    <!-- wait for results -->
-    <!-- send to qc -->
+
+    <batch:flow id="illuminaFlowcellV3Sample2" parent="illuminaFlowcellV3Sample.placeAmplicon" next="illuminaFlowcellV3Sample3" />
+
 
     <!-- dispatch files to libraries -->
     <!-- update library status -->
 
-    <batch:flow id="illuminaFlowcellV3Sample4" parent="finishJobFlow" />
-
-
-    <!-- <batch:flow id="illuminaFlowcellV3Sample.finishFlow" parent="finishJobFlow" /> -->
+    <batch:flow id="illuminaFlowcellV3Sample3" parent="finishJobFlow" />
   </batch:job>
 
 </beans>
