@@ -269,9 +269,9 @@
   </batch:flow>
 
   <batch:job id="startJob" restartable="true">
-    <batch:flow id="job.adminFlow" parent="wasp.job.defaultAdminFlow" next="job.sampleReceivedFlow" />
-    <batch:flow id="job.sampleReceivedFlow" parent="allSamplesReceivedFlow" next="job.sampleFinalFlow" />
-    <batch:flow id="job.sampleFinalFlow" parent="allSamplesFinalFlow" next="job.finishFlow" /> 
+    <batch:flow id="job.adminFlow" parent="wasp.job.defaultAdminFlow" next="job.waitForChildren" />
+    <batch:flow id="job.waitForChildren" parent="wasp.waitForChildrenFinal" next="job.finishFlow" />
+
     <batch:flow id="job.finishFlow" parent="finishJobFlow" />
   </batch:job>
 
