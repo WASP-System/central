@@ -168,6 +168,21 @@
 
   <!-- /libraryPlatformUnitAssign -->
 
+  <!-- waitForChildrenFinal -->
+  <bean id="wasp.waitForChildrenFinalStep" parent="parentStateStep">
+    <property name="itemProcessor">
+      <bean class="edu.yu.einstein.wasp.batch.WaitForChildrenStateFinalProcessor" />
+    </property>
+  </bean>
+
+  <batch:flow id="wasp.waitForChildrenFinal">
+    <batch:step id="wasp.waitForChildrenFinal0" parent="wasp.waitForChildrenFinalStep" />
+  </batch:flow>
+
+  <!-- /waitForChildrenFinal -->
+
+
+
   <!-- getResults -->
                                                                                   <bean id="wasp.sample.getResultsFileStep" parent="parentStateStep">
     <property name="itemProcessor">
@@ -184,10 +199,40 @@
 
   <!-- /getResults -->
 
+  <!-- aligner -->
 
+  <bean id="createRunAlignerStateStep" parent="parentStateStep">
+    <property name="itemProcessor">
+      <bean class="edu.yu.einstein.wasp.batch.CreateSoftwareRunProcessor">
+        <property name="softwareIName" value="aligner" />
+      </bean>
+    </property>
+  </bean>
 
+  <batch:flow id="wasp.aligner.run">
+    <batch:step id="wasp.aligner.run0" parent="createRunAlignerStateStep" next="wasp.aligner.run1" />
+    <batch:step id="wasp.aligner.run1" parent="wasp.waitForChildrenFinalStep" />
+  </batch:flow>
 
+  <!-- /aligner -->
 
+  <!-- peakcaller  -->
+  <bean id="createRunPeakcallerStateStep" parent="parentStateStep">
+    <property name="itemProcessor">
+      <bean class="edu.yu.einstein.wasp.batch.CreateSoftwareRunProcessor">
+        <property name="softwareIName" value="peakcaller" />
+      </bean>
+    </property>
+  </bean>
+
+  <batch:flow id="wasp.peakcaller.run">
+    <batch:step id="wasp.peakcaller.run0" parent="createRunPeakcallerStateStep" next="wasp.peakcaller.run1" />
+    <batch:step id="wasp.peakcaller.run1" parent="wasp.waitForChildrenFinalStep" />
+  </batch:flow>
+
+  <!-- peakcaller  -->
+
+  <!-- ******************************************** -->
 
 
 
@@ -206,7 +251,8 @@
     <batch:flow id="wasp.sample.defaultMpsLibraryFlow0" parent="wasp.sample.sampleReceived" next="wasp.sample.defaultMpsLibraryFlow1"/>
     <batch:flow id="wasp.sample.defaultMpsLibraryFlow1" parent="wasp.sample.waitForJobInvoiceSent" next="wasp.sample.defaultMpsLibraryFlow2" /> 
     <batch:flow id="wasp.sample.defaultMpsLibraryFlow2" parent="wasp.sample.libraryPlatformUnitAssign" next="wasp.sample.defaultMpsLibraryFlow3" /> 
-    <batch:flow id="wasp.sample.defaultMpsLibraryFlow3" parent="wasp.sample.getResults" />
+    <batch:flow id="wasp.sample.defaultMpsLibraryFlow3" parent="wasp.waitForChildrenFinal" next="wasp.sample.defaultMpsLibraryFlow4" />
+    <batch:flow id="wasp.sample.defaultMpsLibraryFlow4" parent="wasp.sample.getResults" />
   </batch:flow>
   <!-- /default mps library flow-->
 
