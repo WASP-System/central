@@ -20,7 +20,7 @@
   </bean>
 
   <si:inbound-channel-adapter ref="illuminaFlowcellV3.sample.Poller" method="getStates" channel="illuminaFlowcellV3.sample.Channel">
-    <si:poller fixed-rate="2000"/>
+    <si:poller fixed-rate="20000"/>
   </si:inbound-channel-adapter>
 
   <si:service-activator input-channel="illuminaFlowcellV3.sample.Channel" output-channel="logger">
@@ -38,7 +38,7 @@
   <bean id="illuminaFlowcellV3.sample.PlaceIlluminaStateStep" parent="parentStateStep">
     <property name="itemProcessor">
       <bean class="edu.yu.einstein.wasp.batch.CreateSampleStateProcessor">
-        <property name="targetTask" value="PlaceIllumina" />
+        <property name="targetTask" value="placeIllumina" />
       </bean>
     </property>
   </bean>
@@ -46,7 +46,7 @@
   <bean id="illuminaFlowcellV3.sample.PlaceIlluminaPlacedStateStep" parent="parentStateStep">
     <property name="itemProcessor">
       <bean class="edu.yu.einstein.wasp.batch.WaitForSiblingSampleStateProcessor">
-        <property name="task" value="PlaceIllumina" />
+        <property name="task" value="placeIllumina" />
         <property name="status" value="PLACED" />
         <property name="siblingTargetStatus" value="FINAL" />
       </bean>
@@ -61,7 +61,23 @@
     <batch:step id="illuminaFlowcellV3.sample.PlaceIlluminaStep2" parent="wasp.default.WaitForChildrenFinalStep" />
   </batch:flow>
 
-  <!-- PlaceIllumina -->
+  <!-- /PlaceIllumina -->
+
+  <!-- GetResults -->
+
+  <bean id="illuminaFlowcellV3.sample.GetResultsStep" parent="parentStateStep">
+    <property name="itemProcessor">
+      <bean class="edu.yu.einstein.wasp.batch.WaitForSampleFileProcessor">
+        <property name="filenameRegex" value=".*\.completed.txt" />
+      </bean>
+    </property>
+  </bean>
+
+  <batch:flow id="illuminaFlowcellV3.sample.GetResultsFlow">
+    <batch:step id="illuminaFlowcellV3.sample.GetResultsFlow0" parent="illuminaFlowcellV3.sample.GetResultsStep" />
+  </batch:flow>
+
+  <!-- /getResults -->
 
 
 
@@ -73,10 +89,12 @@
 
     <batch:flow id="illuminaFlowcellV3.sample.Job2" parent="illuminaFlowcellV3.sample.PlaceIlluminaFlow" next="illuminaFlowcellV3.sample.Job3" />
 
+    <batch:flow id="illuminaFlowcellV3.sample.Job3" parent="illuminaFlowcellV3.sample.GetResultsFlow" next="illuminaFlowcellV3.sample.Job4" />
+
 
     <!-- update library status -->
 
-    <batch:flow id="illuminaFlowcellV3.sample.Job3" parent="wasp.default.FinalFlow" />
+    <batch:flow id="illuminaFlowcellV3.sample.Job4" parent="wasp.default.FinalFlow" />
   </batch:job>
 
 </beans>
