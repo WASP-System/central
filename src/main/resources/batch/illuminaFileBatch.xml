@@ -36,7 +36,7 @@
         <constructor-arg ref="jobRepository" />
         <constructor-arg ref="jobOperator" />
        
-        <constructor-arg type="java.lang.String"><value>illumnia.file.Job</value></constructor-arg> 
+        <constructor-arg type="java.lang.String"><value>illumina.file.Job</value></constructor-arg> 
     </bean>
   </si:service-activator> 
 
