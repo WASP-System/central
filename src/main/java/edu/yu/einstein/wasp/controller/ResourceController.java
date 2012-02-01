@@ -2,6 +2,8 @@ package edu.yu.einstein.wasp.controller;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -27,9 +29,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
 
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
-import edu.yu.einstein.wasp.exception.LoginNameException;
-import edu.yu.einstein.wasp.model.Lab;
-import edu.yu.einstein.wasp.model.LabMeta;
+import edu.yu.einstein.wasp.model.Barcode;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.Resource;
 import edu.yu.einstein.wasp.model.ResourceBarcode;
@@ -37,10 +37,9 @@ import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.ResourceLane;
 import edu.yu.einstein.wasp.model.ResourceMeta;
 import edu.yu.einstein.wasp.model.Run;
+import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.TypeResource;
-import edu.yu.einstein.wasp.model.TypeSample;
-import edu.yu.einstein.wasp.model.User;
-import edu.yu.einstein.wasp.model.UserMeta;
+import edu.yu.einstein.wasp.service.BarcodeService;
 import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.ResourceBarcodeService;
 import edu.yu.einstein.wasp.service.ResourceCategoryService;
@@ -70,6 +69,9 @@ public class ResourceController extends WaspController {
 	private ResourceBarcodeService resourceBarcodeService;
 	
 	@Autowired
+	private BarcodeService barcodeService;
+	
+	@Autowired
 	private MessageService messageService;
 
 	private final MetaHelperWebapp getMetaHelperWebapp() {
@@ -80,11 +82,9 @@ public class ResourceController extends WaspController {
 	@Override
 	protected void prepareSelectListData(ModelMap m) {
 		super.prepareSelectListData(m);
-		
-		//m.addAttribute("typeResources", typeResourceService.findAll());
-		
-		
+
 		List <TypeResource> typeResourceList = new ArrayList <TypeResource> (typeResourceService.findAll());
+		
 		//When adding a new record in Resources JqGrid, it displays  all Type Resources that are NOT "aligner" or "peakcaller"
 		for (Iterator<TypeResource> it = typeResourceList.iterator(); it.hasNext();) {
 			TypeResource tr = it.next();
@@ -95,18 +95,8 @@ public class ResourceController extends WaspController {
 		m.addAttribute("typeResources", typeResourceList);
 		
 		List <ResourceCategory> resourceCategory = new ArrayList <ResourceCategory> (resourceCategoryService.findAll());
-		/*
-		for (Iterator<ResourceCategory> it = resourceCategory.iterator(); it.hasNext();) {
-			ResourceCategory rc = it.next();
-			if (rc.getIName().equals("aligner") || rc.getIName().equals("peakcaller")) {
-				it.remove();
-			}
-		}
-		*/
 		m.addAttribute("categoryResources", resourceCategory);
-		
-		
-		
+
 	}
 
 	@RequestMapping("/list")
@@ -119,10 +109,6 @@ public class ResourceController extends WaspController {
 		
 		prepareSelectListData(m);
 
-		// List<Resource> resourceList = resourceService.findAll();
-		//
-		// m.addAttribute("resource", resourceList);
-
 		return "resource/list";
 	}
 
@@ -133,10 +119,15 @@ public class ResourceController extends WaspController {
 		Map<String, Object> jqgrid = new HashMap<String, Object>();
 
 		List<Resource> resourceList;
+		
+		String sord = request.getParameter("sord");
+		String sidx = request.getParameter("sidx");
 
 		if (request.getParameter("_search") == null
 				|| StringUtils.isEmpty(request.getParameter("searchString"))) {
-			resourceList = resourceService.findAll();
+			resourceList = sidx.isEmpty() ? this.resourceService.findAll() : this.resourceService.findAllOrderBy(sidx, sord);
+
+			//resourceList = resourceService.findAll();
 		} else {
 			Map<String, String> m = new HashMap<String, String>();
 
@@ -146,8 +137,9 @@ public class ResourceController extends WaspController {
 			resourceList = resourceService.findByMap(m);
 
 			if ("ne".equals(request.getParameter("searchOper"))) {
-				List<Resource> allResources = new ArrayList<Resource>(
-						resourceService.findAll());
+				//List<Resource> allResources = new ArrayList<Resource>(resourceService.findAll());
+				List<Resource> allResources = new ArrayList<Resource>(sidx.isEmpty() ? this.resourceService.findAll() : this.resourceService.findAllOrderBy(sidx, sord));
+
 				for (Iterator<Resource> it = resourceList.iterator(); it
 						.hasNext();) {
 					Resource excludeResource = it.next();
@@ -161,12 +153,19 @@ public class ResourceController extends WaspController {
 
 		try {
 			
-			Map<Integer, String> allResourceBarcode = new TreeMap<Integer, String>();
+			Map<Integer, Integer> allResourceBarcode = new TreeMap<Integer, Integer>();
 			for (ResourceBarcode resourceBarcode : (List<ResourceBarcode>) this.resourceBarcodeService.findAll()) {
 				if (resourceBarcode != null) {
 					
+					allResourceBarcode.put(resourceBarcode.getResourceId(), resourceBarcode.getBarcodeId());
+				}
+			}
+			
+			Map<Integer, String> allBarcode = new TreeMap<Integer, String>();
+			for (Barcode barcode : (List<Barcode>) this.barcodeService.findAll()) {
+				if (barcode != null) {
 					
-					allResourceBarcode.put(resourceBarcode.getResourceBarcodeId(), resourceBarcode.getBarcodeId().toString());
+					allBarcode.put(barcode.getBarcodeId(), barcode.getBarcode());
 				}
 			}
 			
@@ -185,6 +184,21 @@ public class ResourceController extends WaspController {
 					StringUtils.isEmpty(request.getParameter("selId")) ? ""
 							: request.getParameter("selId"));
 			jqgrid.put("resourcedata", resourceData);
+			
+			
+			/***** Begin Sort by Resource name *****/
+			class ResourceNameComparator implements Comparator<Resource> {
+				public int compare(Resource arg0, Resource arg1) {
+					return arg0.getName().compareToIgnoreCase(arg1.getName());
+				}
+			}
+
+			if (sidx.equals("name")) {
+				Collections.sort(resourceList, new ResourceNameComparator());
+				if (sord.equals("desc"))
+					Collections.reverse(resourceList);
+			}
+			/***** End Sort by User name *****/
 
 			List<Map> rows = new ArrayList<Map>();
 
@@ -219,7 +233,7 @@ public class ResourceController extends WaspController {
 								resource.getResourceCategory().getName(),
 								resource.getTypeResource().getName(), 
 								resource.getIsActive().intValue() == 1 ? "yes" : "no", //}));
-								allResourceBarcode.get(resource.getResourceId())}));
+								allResourceBarcode.get(resource.getResourceId())==null? "" : allBarcode.get(allResourceBarcode.get(resource.getResourceId()))}));
 
 				for (ResourceMeta meta : resourceMeta) {
 					cellList.add(meta.getV());
@@ -251,46 +265,89 @@ public class ResourceController extends WaspController {
 	public String updateDetailJSON(@RequestParam("id") Integer resourceId,
 			Resource resourceForm, ModelMap m, HttpServletResponse response) {
 
+		
+
 		List<ResourceMeta> resourceMetaList = getMetaHelperWebapp().getFromJsonForm(request, ResourceMeta.class);
 
 		resourceForm.setResourceMeta(resourceMetaList);
-		
-		
+			
 		if (resourceId == null || resourceId == 0) {
 			
-			
-			resourceForm.setResourcecategoryId(Integer.parseInt(request.getParameter("resourceCategoryId")));
-			/*
-			if (resourceForm.getResourceBarcode() == null){
-				List<ResourceBarcode> rbList = new ArrayList<ResourceBarcode>();
+			//check if Resource Name already exists
+			if(this.resourceService.getResourceByName(resourceForm.getName()).getName() != null) {
+				System.out.println("name="+this.resourceService.getResourceByName(resourceForm.getName()).getName());
+				try{
+					response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+					response.getWriter().println(messageService.getMessage("resource.resource_exists.error"));
+					return null;
+				} catch (Throwable e) {
+					throw new IllegalStateException("Cant output validation error "+messageService.getMessage("resource.resource_exists.error"),e);
+				}
 				
 			}
-			else {
-				List<ResourceBarcode> rbList = new ArrayList<ResourceBarcode> (resourceForm.getResourceBarcode());
+			
+			//check if barcode already exists in Db
+			if(this.barcodeService.getBarcodeByBarcode(request.getParameter("barcode")).getBarcode() != null && 
+					this.barcodeService.getBarcodeByBarcode(request.getParameter("barcode")).getBarcode().length() != 0) {
+				try{
+					response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+					response.getWriter().println(messageService.getMessage("resource.barcode_exists.error"));
+					return null;
+				} catch (Throwable e) {
+					throw new IllegalStateException("Cant output validation error "+messageService.getMessage("resource.barcode_exists.error"),e);
+				}
+				
 			}
-			
-			*/
-			
-			System.out.println("barcode="+request.getParameter("resource.resourceBarcodeId"));
-
+			resourceForm.setResourcecategoryId(Integer.parseInt(request.getParameter("resourceCategoryId")));
+			resourceForm.setIName(resourceForm.getName());
 			resourceForm.setLastUpdTs(new Date());
-			resourceForm.setIsActive(1);
+			
+			if(request.getParameter("resource.decommission_date") == null || request.getParameter("resource.decommission_date").length() == 0){
+				resourceForm.setIsActive(1);
+			}
+			else {
+				resourceForm.setIsActive(0);
+			}
+	
+			ResourceBarcode resourceBarcode = new ResourceBarcode();
+			Barcode barcode = new Barcode();
+			
+			barcode.setBarcode(request.getParameter("barcode")==null? "" : request.getParameter("barcode"));
+			resourceBarcode.setBarcode(barcode);
+			
+			Barcode barcodeDB = this.barcodeService.save(barcode);
+			resourceBarcode.setBarcodeId(barcodeDB.getBarcodeId());
 
 			Resource resourceDb = this.resourceService.save(resourceForm);
-
 			resourceId = resourceDb.getResourceId();
+			
+			resourceBarcode.setResourceId(resourceId);
+			this.resourceBarcodeService.save(resourceBarcode);
+			
 		} else {
+			
 			Resource resourceDb = this.resourceService.getById(resourceId);
+			ResourceBarcode resourceBarcodeDB = this.resourceBarcodeService.getResourceBarcodeByResourceId(resourceId);
+			
+			if(request.getParameter("resource.decommission_date") == null || request.getParameter("resource.decommission_date").length() == 0){
+				resourceDb.setIsActive(1);
+			}
+			else {
+				resourceDb.setIsActive(0);
+			}
+			
 			resourceDb.setName(resourceForm.getName());
-			resourceDb.setResourcecategoryId(resourceForm.getResourcecategoryId());
+			resourceDb.setResourcecategoryId(Integer.parseInt(request.getParameter("resourceCategoryId")));
 			resourceDb.setTypeResourceId(resourceForm.getTypeResourceId());
-			resourceDb.setIsActive(resourceForm.getIsActive());
+			resourceDb.setIName(resourceForm.getName());
+
+			resourceBarcodeDB.getBarcode().setBarcode(request.getParameter("barcode")==null? "" : request.getParameter("barcode"));
+			
+			this.resourceBarcodeService.merge(resourceBarcodeDB);
 			this.resourceService.merge(resourceDb);
 		}
 
 		resourceMetaService.updateByResourceId(resourceId, resourceMetaList);
-
-		// MimeMessageHelper a;
 
 		try {
 			response.getWriter().println(messageService.getMessage("resource.updated_success.label"));

@@ -268,7 +268,7 @@ public class SampleController extends WaspController {
 			sampleData.put("selId", StringUtils.isEmpty(request.getParameter("selId")) ? "" : request.getParameter("selId"));
 			jqgrid.put("sampledata", sampleData);
 			 
-			/***** Begin Sort by User name *****/
+			/***** Begin Sort by User last name *****/
 			class SampleSubmitterNameComparator implements Comparator<Sample> {
 				public int compare(Sample arg0, Sample arg1) {
 					return arg0.getUser().getLastName().compareToIgnoreCase(arg1.getUser().getLastName());
@@ -280,7 +280,7 @@ public class SampleController extends WaspController {
 				if (sord.equals("desc"))
 					Collections.reverse(sampleList);
 			}
-			/***** End Sort by User name *****/
+			/***** End Sort by User last name *****/
 
 			List<Map> rows = new ArrayList<Map>();
 

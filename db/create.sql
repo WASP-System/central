@@ -735,9 +735,8 @@ create table barcode (
 
   isactive int(1)  default 1,
   lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
+  lastupduser int(10)  default 0
 
-  constraint unique index u_barcode_bc (barcode)
 ) ENGINE=InnoDB charset=utf8;
 
 create table resourcebarcode (
