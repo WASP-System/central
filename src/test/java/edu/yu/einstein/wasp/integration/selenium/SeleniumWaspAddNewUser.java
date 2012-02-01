@@ -30,10 +30,6 @@ public class SeleniumWaspAddNewUser extends SeleniumBaseTest {
 	 * 
 	 */
 	private WebElement submitLogin;
-	private String sEmail;
-	private String sConfirmedEmailOkUrl;
-	
-	
 	/**
 	 * @BeforeClass has a groups() attribute as well, and it’s respected when you run group test suites. 
 	 * If you want it to run before all methods, you need to use the alwaysRun = true:
@@ -88,8 +84,6 @@ public class SeleniumWaspAddNewUser extends SeleniumBaseTest {
 										String password, String locale, String primaryuserid, String title, 
 										String building_room, String address, String phone, String fax, 
 										String captcha, String sNewUserUrlCreated, String confEmailOkUrl ) throws Exception {  
-  		sEmail = email;
-  		sConfirmedEmailOkUrl = confEmailOkUrl;
   		JavascriptExecutor js = (JavascriptExecutor) driver;
   		  		Assert.assertNotNull(js, "JavascriptExecutor is null");
   		driver.get("http://localhost:8080/wasp/auth/login.do");
