@@ -41,7 +41,6 @@ public class WaitForSampleFileProcessor implements ItemProcessor {
 
 		for (SampleFile sampleFile : state.getStatesample().get(0).getSample().getSampleFile()) {
 
-			System.out.println("YYYYY" + sampleFile.getFile().getFilelocation() + "\n");
 
 			if (sampleFile.getFile().getFilelocation().matches(filenameRegex)) {
 				return state;
