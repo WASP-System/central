@@ -27,7 +27,7 @@
 		<code>Task</code> is created in the database and it is assigned a <code>State</code> value indicating
 		that the process is running (running of the process is managed by Spring Batch). 
 		The processing pipeline proceeds through its steps and changes the <code>State</code> to completed 
-		after completion of work. WASP task states are defined by the <code>BatchStatus</code> <code>enum</code>.
+		after completion of work. WASP task states are defined by the <code>TaskStatus</code> <code>enum</code>.
 		The intention is to use these states for all tasks; however, states are persisted through <code>Enum</code>s
 		allowing developers can create their own states to manage custom <code>Task</code>s 
 		when it becomes necessary.  
@@ -45,7 +45,7 @@
 		All processes defined within WASP are implemented as <ulink url="http://www.springsource.org/spring-batch">
 		<citetitle>Spring Batch</citetitle></ulink> job flows.  <xref linkend="taskState" xrefstyle="select: label" /> presents an
 		example state diagram where the state of a Spring Batch flow is determined by the <code>State</code> of
-		a WASP <code>Task</code> designed to manage human interaction realted to the flow.
+		a WASP <code>Task</code> designed to manage human interaction related to the flow.  
 		</para>
 		<figure id="taskState">
 			<title>State transitions for a WASP task to monitor approval of a job by a principal investigator</title>
@@ -55,6 +55,15 @@
 				</imageobject>
 			</mediaobject>
 		</figure>
+		<para>Standard Spring Batch flows are distributed with the system as plugins, and define the standard behavior 
+		of the application.  These flows can be configured for a local instance or even completely replaced.  Any
+		logic that is particular to a particular institution can be configured by adding custom flow steps.  For example,
+		the standard web application defines the act of manually approving an invistigator's request by a departmental 
+		administrator who checks to see that the investigator has sufficient funds in the grant used to place an order.
+		This step can be removed and replaced with code that requests funds from an institutional accounting system,
+		encumbers the funds, and automatically approves the job.  This new functionality may then be overridden in
+		the web application where tasks can be approved by users with sufficient privileges.
+		</para>
 	</section>
 	<section>
 		<title>Web functionality</title>

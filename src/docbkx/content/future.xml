@@ -26,55 +26,17 @@
 	</section>
 	<section>
 		<title>WASP remote execution</title>
-		<para>Partition WASP job flows out to other wasp instances.
+		<para>Partition WASP job flows out to grid resources.
 		</para>
 
 		<para>
 			<orderedlist numeration="arabic">
 				<listitem>
-					<para>Message comes from untrusted source and is discarded.</para>
+					<para>Data transfer via GridFTP.</para>
 				</listitem>
 				<listitem>
-					<para>Message comes from trusted source, but is discarded because
-						the proper security
-						credentials are not presented.
+					<para>Remote job execution using jGlobus/GRAM5.
 					</para>
-				</listitem>
-				<listitem>
-					<para>Message is accepted, but handshake fails due to mismatch
-						between available resources (eg. reference)
-						genomes, software versions).
-					</para>
-				</listitem>
-				<listitem>
-					<para>
-						Successful handshake, server responds that it can offer
-						<emphasis>n</emphasis>
-						computational units.
-					</para>
-				</listitem>
-				<listitem>
-					<para>Client creates partition strategy and partitions data among
-						willing server instances.</para>
-				</listitem>
-				<listitem>
-					<para>Server obtains partition strategy and obtains subset of data
-						based on it.</para>
-				</listitem>
-				<listitem>
-					<para>Servers that are unable to obtain respond that the step has
-						failed.</para>
-				</listitem>
-				<listitem>
-					<para>Successfully obtained data sets are locally submitted to the
-						grid.</para>
-				</listitem>
-				<listitem>
-					<para>Results are summarized and a strategy for obtaining results are returned to the client
-					with result, success.</para>
-				</listitem>
-				<listitem>
-					<para>Client aggregates results.</para>
 				</listitem>
 			</orderedlist>
 		</para>

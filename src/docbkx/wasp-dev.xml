@@ -59,7 +59,13 @@
 	
 	<xi:include href="content/resources.xml"/>
 	
+	<xi:include href="content/webapp.xml"/>
+	
+	<xi:include href="content/pipelines.xml"/>
+	
 	<xi:include href="content/plugins.xml"/>
+	
+	<xi:include href="content/future.xml"/>
 	
 	<xi:include href="content/appendix.xml"/>
 
