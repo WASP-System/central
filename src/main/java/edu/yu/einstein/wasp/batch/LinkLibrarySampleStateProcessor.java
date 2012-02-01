@@ -1,24 +1,22 @@
 package edu.yu.einstein.wasp.batch;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import edu.yu.einstein.wasp.model.Task;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.Statejob;
 import edu.yu.einstein.wasp.model.Statesample;
-import edu.yu.einstein.wasp.service.TaskService;
+import edu.yu.einstein.wasp.model.Task;
 import edu.yu.einstein.wasp.service.StateService;
 import edu.yu.einstein.wasp.service.StatejobService;
 import edu.yu.einstein.wasp.service.StatesampleService;
+import edu.yu.einstein.wasp.service.TaskService;
 
 /**
  * LinkLibrarySampleStateProcessor

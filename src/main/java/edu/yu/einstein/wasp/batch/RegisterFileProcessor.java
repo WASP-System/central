@@ -1,27 +1,23 @@
 package edu.yu.einstein.wasp.batch;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import edu.yu.einstein.wasp.model.File;
 import edu.yu.einstein.wasp.model.JobFile;
-import edu.yu.einstein.wasp.model.SampleFile;
 import edu.yu.einstein.wasp.model.RunFile;
-import edu.yu.einstein.wasp.model.State;
-
+import edu.yu.einstein.wasp.model.SampleFile;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobFileService;
-import edu.yu.einstein.wasp.service.SampleFileService;
 import edu.yu.einstein.wasp.service.RunFileService;
+import edu.yu.einstein.wasp.service.SampleFileService;
 import edu.yu.einstein.wasp.service.StateService;
-
-import java.util.List;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
 
 /**
  * RegisterFileProcessor

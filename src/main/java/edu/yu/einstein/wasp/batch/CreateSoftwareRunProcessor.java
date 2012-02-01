@@ -7,8 +7,23 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import edu.yu.einstein.wasp.model.*;
-import edu.yu.einstein.wasp.service.*;
+import edu.yu.einstein.wasp.model.JobSoftware;
+import edu.yu.einstein.wasp.model.Run;
+import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.Software;
+import edu.yu.einstein.wasp.model.State;
+import edu.yu.einstein.wasp.model.Statejob;
+import edu.yu.einstein.wasp.model.Staterun;
+import edu.yu.einstein.wasp.model.Statesample;
+import edu.yu.einstein.wasp.model.Task;
+import edu.yu.einstein.wasp.service.RunService;
+import edu.yu.einstein.wasp.service.SoftwareService;
+import edu.yu.einstein.wasp.service.StateService;
+import edu.yu.einstein.wasp.service.StatejobService;
+import edu.yu.einstein.wasp.service.StaterunService;
+import edu.yu.einstein.wasp.service.StatesampleService;
+import edu.yu.einstein.wasp.service.TaskService;
+
 
 /**
  * Create Software Run Processor

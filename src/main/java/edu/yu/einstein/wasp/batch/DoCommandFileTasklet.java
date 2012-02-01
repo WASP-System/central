@@ -13,7 +13,6 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.File;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.StateService;

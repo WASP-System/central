@@ -9,13 +9,13 @@ import org.springframework.stereotype.Component;
 
 import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.Statejob;
-import edu.yu.einstein.wasp.model.Statesample;
 import edu.yu.einstein.wasp.model.Staterun;
+import edu.yu.einstein.wasp.model.Statesample;
 import edu.yu.einstein.wasp.model.Task;
 import edu.yu.einstein.wasp.service.StateService;
 import edu.yu.einstein.wasp.service.StatejobService;
-import edu.yu.einstein.wasp.service.StatesampleService;
 import edu.yu.einstein.wasp.service.StaterunService;
+import edu.yu.einstein.wasp.service.StatesampleService;
 import edu.yu.einstein.wasp.service.TaskService;
 
 /**
