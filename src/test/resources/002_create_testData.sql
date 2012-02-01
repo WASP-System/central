@@ -100,7 +100,7 @@ insert into role values
 (8, 'lu', 'Lab Member', 'lab'), -- labuser, explicit
 (9, 'js', 'Job Submitter', 'job'),-- jobuser, explicit
 (10, 'jv', 'Job Viewer', 'job'), -- jobuser, explicit
-(11, 'god', 'God', 'system'),
+(11, 'su', 'Super User', 'system'),
 (12, 'lx', 'Lab Member Inactive', 'lab'), -- labuser, explicit
 (13, 'lp', 'Lab Member Pending', 'lab'), -- labuser, explicit
 (14, 'jd', 'Job Drafter', 'jobdraft'), -- labuser, explicit

@@ -100,7 +100,7 @@ public int getDepartmentAdminPendingTasks(List<LabPending> labsPendingDaApproval
 	    	//TODO: throw exception
 	    }
 	    
-	    if(authenticationService.isGod() || authenticationService.hasRole("ga")){
+	    if(authenticationService.isSuperUser() || authenticationService.hasRole("ga")){
 	    	
 	    	themap.put("status", "PENDING"); 
 			labsPendingDaApprovalList.addAll(labPendingService.findByMap(themap));//returns a list

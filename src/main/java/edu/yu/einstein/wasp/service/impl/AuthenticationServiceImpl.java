@@ -136,9 +136,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	}
 	
 	@Override
-	public boolean isGod() {
+	public boolean isSuperUser() {
 		for (String role: this.getRoles()){
-			if (role.equals("god"))
+			if (role.equals("su"))
 					return true;
 		}
 		return false;

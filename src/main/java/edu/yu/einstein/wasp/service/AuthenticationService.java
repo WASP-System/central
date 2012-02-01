@@ -38,16 +38,16 @@ public interface AuthenticationService {
 	
 	
 	/**
-	 * Returns true if User has the role of theRole. theRole can be "god", "da", etc.
+	 * Returns true if User has the role of theRole. theRole can be "su", "da", etc.
 	 * @return
 	 */
 	public boolean hasRole(String theRole);
 	
 	/**
-	 * Returns true if User has role of god, else returns false
+	 * Returns true if User has role of su, else returns false
 	 * @return
 	 */
-	public boolean isGod();
+	public boolean isSuperUser();
 	
 	/**
 	 * Attempts to authenticate a user based on given credentials and returns true if user authenticates or false if not.

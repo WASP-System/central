@@ -105,7 +105,7 @@ public class DashboardController extends WaspController {
 		m.addAttribute("labs", labList); m.addAttribute("labmap", labMap);
 		m.addAttribute("jobs", jobList);
 		m.addAttribute("jobdrafts", jobDraftList);	
-		if(authenticationService.isGod() || authenticationService.hasRole("ga")){
+		if(authenticationService.isSuperUser() || authenticationService.hasRole("ga")){
 			allLabManagerPendingTasks = labService.getAllLabManagerPendingTasks();
 		}
 		m.addAttribute("allLabManagerPendingTasks", allLabManagerPendingTasks);

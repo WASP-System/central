@@ -106,7 +106,7 @@ public DepartmentService getDepartmentService() {
 	List<Department> departmentList; 
 	int departmentAdminPendingTasks = 0;
 	
-	if(authenticationService.isGod() || authenticationService.hasRole("ga")){  
+	if(authenticationService.isSuperUser() || authenticationService.hasRole("ga")){  
 		departmentList = this.getDepartmentService().findAllOrderBy("name", "ASC");
 	}
 	else{

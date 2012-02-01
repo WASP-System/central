@@ -72,7 +72,7 @@ public class TestUserroleDaoImpl {
 		//ReflectionAssert.assertLenientEquals(expected,actual); //  ReflectionComparatorMode.LENIENT_ORDER - ignoring the order of elements
 		
 		//example
-		ReflectionAssert.assertLenientEquals("rolename","god", role.getRoleName());
+		ReflectionAssert.assertLenientEquals("rolename","su", role.getRoleName());
 		
     }
 	

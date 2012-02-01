@@ -100,12 +100,11 @@ insert into role values
 (8, 'lu', 'Lab Member', 'lab'), -- labuser, explicit
 (9, 'js', 'Job Submitter', 'job'),-- jobuser, explicit
 (10, 'jv', 'Job Viewer', 'job'), -- jobuser, explicit
-(11, 'su', 'Super user', 'system'),
+(11, 'su', 'Super User', 'system'),
 (12, 'lx', 'Lab Member Inactive', 'lab'), -- labuser, explicit
 (13, 'lp', 'Lab Member Pending', 'lab'), -- labuser, explicit
 (14, 'jd', 'Job Drafter', 'jobdraft'), -- labuser, explicit
-(15, 'u', 'User', 'user'),
-(16, 'god', 'God', 'system');
+(15, 'u', 'User', 'user');
 
 
 create table roleset (
@@ -136,13 +135,8 @@ values
 (11, 1),
 (11, 2),
 (11, 3),
-(11, 5),
-(11, 16),
-(16, 1),
-(16, 2),
-(16, 3),
-(16, 11),
-(16, 5);
+(11, 5);
+
 
 -- USER.ROLE
 --

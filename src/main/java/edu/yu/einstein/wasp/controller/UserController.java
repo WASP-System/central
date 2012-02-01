@@ -358,7 +358,7 @@ public class UserController extends WaspController {
 		
 		//waspMessage("user.updated.success");
 		// if I'm the changed user log me out. I need to re-confirm my email and log in.
-		/* do not allow 'God' to change email through user detail in JqGrid.
+		/* do not allow 'SuperUser' to change email through user detail in JqGrid.
 		if (myemailChanged){
 			authenticationService.logoutUser();
 			return "redirect:/auth/confirmemail/emailchanged";
@@ -533,7 +533,7 @@ public class UserController extends WaspController {
 	}
 	
 /*
- * Should not need this. Only God can create user and this is done through the JGrid List create functionality
+ * Should not need this. Only SuperUser can create user and this is done through the JGrid List create functionality
  * 
 	@RequestMapping(value = "/create/form.do", method = RequestMethod.POST)
 	@PreAuthorize("hasRole('su')")
