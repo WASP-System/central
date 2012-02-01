@@ -90,6 +90,30 @@
 		</attribute>
 		<attribute>
             <!-- 
+			<description>used with 'showLink' property, the hyperlink will be constructed as <baseLinkURL>?<idName>=<idValue> </description>
+            -->
+			<name>baseLinkURL</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+            <!-- 
+			<description>used with 'showLink' property, the hyperlink will be constructed as <baseLinkURL>?<idName>=<idValue> </description>
+            -->
+			<name>idName</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+            <!-- 
+			<description>used with 'showLink' property, <idValue> is the value on the column with index <idCol> </description>
+            -->
+			<name>idCol</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+            <!-- 
 			<description>Read-only field if set</description>
             -->
 			<name>readOnly</name>

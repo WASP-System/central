@@ -58,9 +58,13 @@ public class JQFieldTag extends BodyTagSupport {
 	//Name of the property mapped to the inner text of the 'option' tag
 	private String itemValue;
 	
-	//Whether to show the field's value as a hyperlink
+	// Whether to show the field's value as a hyperlink in such format: {baseLinkURL}?{idName}={rowid}
+	// By default, baseLinkURL = '/wasp/{area}/list.do' , idName = 'selId'
 	private String showLink;
-  
+	private String baseLinkURL;
+	private String idName;
+	private String idCol;
+
 	//Read-only field
 	private String readOnly;
 	
@@ -134,6 +138,18 @@ public class JQFieldTag extends BodyTagSupport {
 
 	public void setShowLink(String sl) {
 		this.showLink = sl;
+	}
+
+	public void setBaseLinkURL(String bu) {
+		this.baseLinkURL = bu;
+	}
+	
+	public void setIdName(String in) {
+		this.idName = in;
+	}
+
+	public void setIdCol(String ic) {
+		this.idCol = ic;
 	}
 
 	public void setReadOnly(String ro) {
@@ -340,9 +356,20 @@ public class JQFieldTag extends BodyTagSupport {
 			}
 	
 			if (this.showLink!=null  && this.showLink.equals("true")) {
+				// Set baseLinkURL and idName as default if they are not presented
+				if (this.baseLinkURL==null || this.baseLinkURL.isEmpty())
+					this.baseLinkURL = "/wasp/" + area + "/list.do";
+				if (this.idName==null || this.idName.isEmpty())
+					this.idName = "selId";
+				if (this.idCol==null || this.idCol.isEmpty())
+					this.idCol = "-1";
+				
 				buf = buf + 
-					jsName + ".jq['formatter']='showlink';\n" + 
-					jsName + ".jq['formatoptions']={baseLinkUrl:'/wasp/" + area + "/list.do',idName:'selId'};\n";
+					jsName + ".jq['formatter']='linkFormatter';\n" + 
+					jsName + ".jq['formatoptions']={baseLinkUrl:'" + this.baseLinkURL 
+												+ "',idName:'" + this.idName 
+												+ "',idCol:'" + this.idCol 
+												+ "'};\n";
 			}
 	
 			if (this.readOnly!=null  && this.readOnly.equals("true")) {

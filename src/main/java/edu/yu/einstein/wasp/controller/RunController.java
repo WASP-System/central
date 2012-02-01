@@ -150,7 +150,9 @@ public class RunController extends WaspController {
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 							run.getName(),
 							run.getResource().getName(),
+							run.getResourceId().toString(),
 							run.getSample().getName(),
+							run.getSampleId().toString(),
 							user.getFirstName() + " " + user.getLastName(),
 							run.getIsActive().intValue()==1?"yes":"no"
 				}));

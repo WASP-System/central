@@ -47,50 +47,53 @@ import edu.yu.einstein.wasp.util.StringHelper;
 @RequestMapping("/department")
 public class DepartmentController extends WaspController {
 
-  private DepartmentService departmentService;
-  
-  @Autowired
-  public void setDepartmentService(DepartmentService departmentService) {
-    this.departmentService = departmentService;
-  }
-  @Override
-public DepartmentService getDepartmentService() {
-    return this.departmentService;
-  }
+	private DepartmentService	departmentService;
 
-  private DepartmentUserService departmentUserService;
-  
-  @Autowired
-  public void setDepartmentUserService(DepartmentUserService departmentUserService) {
-    this.departmentUserService = departmentUserService;
-  }
-  public DepartmentUserService getDepartmentUserService() {
-    return this.departmentUserService;
-  }
+	@Autowired
+	public void setDepartmentService(DepartmentService departmentService) {
+		this.departmentService = departmentService;
+	}
 
-  @Autowired
-  private AuthenticationService authenticationService;
+	@Override
+	public DepartmentService getDepartmentService() {
+		return this.departmentService;
+	}
 
-  @Autowired
-  private LabService labService;
-  
-  //added by Dubin 9-29-11 for use in getNames
-  private UserService userService;
-  @Autowired
-  public void setUserService(UserService userService) {
-    this.userService = userService;
-  }
-  public UserService getUserService() {
-    return this.userService;
-  }
-  
-  
-  
-  @Autowired
-  private LabPendingService labPendingService;
-  
-  //private static final MetaAttribute.Area AREA = MetaAttribute.Area.labPending;
- 
+	private DepartmentUserService	departmentUserService;
+
+	@Autowired
+	public void setDepartmentUserService(DepartmentUserService departmentUserService) {
+		this.departmentUserService = departmentUserService;
+	}
+
+	public DepartmentUserService getDepartmentUserService() {
+		return this.departmentUserService;
+	}
+
+	@Autowired
+	private AuthenticationService	authenticationService;
+
+	@Autowired
+	private LabService				labService;
+
+	// added by Dubin 9-29-11 for use in getNames
+	private UserService				userService;
+
+	@Autowired
+	public void setUserService(UserService userService) {
+		this.userService = userService;
+	}
+
+	public UserService getUserService() {
+		return this.userService;
+	}
+
+	@Autowired
+	private LabPendingService	labPendingService;
+
+	// private static final MetaAttribute.Area AREA =
+	// MetaAttribute.Area.labPending;
+
 	@Override
 	protected void prepareSelectListData(ModelMap m) {
 		Map userQueryMap = new HashMap();
@@ -98,90 +101,93 @@ public DepartmentService getDepartmentService() {
 		m.addAttribute("pusers", userService.findByMap(userQueryMap));
 		super.prepareSelectListData(m);
 	}
-  
-  @RequestMapping("/list")
-  @PreAuthorize("hasRole('su') or hasRole('da-*') or hasRole('ga-*')")
-  public String list(ModelMap m) {
-	  
-	List<Department> departmentList; 
-	int departmentAdminPendingTasks = 0;
-	
-	if(authenticationService.isSuperUser() || authenticationService.hasRole("ga")){  
-		departmentList = this.getDepartmentService().findAllOrderBy("name", "ASC");
-	}
-	else{
-		departmentList = new ArrayList<Department>();
-		for (String role: authenticationService.getRoles()) {			
-			
-			String[] splitRole = role.split("-");
-			if (splitRole.length != 2) { continue; }
-			if (splitRole[1].equals("*")) { continue; }
-		
-			DashboardEntityRolename entityRolename; 
-			int roleObjectId = 0;
 
-			try { 
-				entityRolename = DashboardEntityRolename.valueOf(splitRole[0]);
-				roleObjectId = Integer.parseInt(splitRole[1]);
-			} catch (Exception e)	{
-				continue;
+	@RequestMapping("/list")
+	@PreAuthorize("hasRole('su') or hasRole('da-*') or hasRole('ga-*')")
+	public String list(ModelMap m) {
+
+		List<Department> departmentList;
+		int departmentAdminPendingTasks = 0;
+
+		if (authenticationService.isSuperUser() || authenticationService.hasRole("ga")) {
+			departmentList = this.getDepartmentService().findAllOrderBy("name", "ASC");
+		} else {
+			departmentList = new ArrayList<Department>();
+			for (String role : authenticationService.getRoles()) {
+
+				String[] splitRole = role.split("-");
+				if (splitRole.length != 2) {
+					continue;
+				}
+				if (splitRole[1].equals("*")) {
+					continue;
+				}
+
+				DashboardEntityRolename entityRolename;
+				int roleObjectId = 0;
+
+				try {
+					entityRolename = DashboardEntityRolename.valueOf(splitRole[0]);
+					roleObjectId = Integer.parseInt(splitRole[1]);
+				} catch (Exception e) {
+					continue;
+				}
+
+				// adds the role object to the proper bucket
+				switch (entityRolename) {
+				case da:
+					departmentList.add(departmentService.getDepartmentByDepartmentId(roleObjectId));
+					break;
+				}
 			}
-
-			// adds the role object to the proper bucket
-			switch (entityRolename) {
-				case da: departmentList.add(departmentService.getDepartmentByDepartmentId(roleObjectId)); break;		
-			}	
 		}
+		m.addAttribute("department", departmentList);
+		departmentAdminPendingTasks = departmentService.getDepartmentAdminPendingTasks();// number of da pending tasks (if su or ga, then department not considered)
+		m.addAttribute("departmentAdminPendingTasks", departmentAdminPendingTasks);
+		return "department/list";
 	}
-	m.addAttribute("department", departmentList);
-	departmentAdminPendingTasks = departmentService.getDepartmentAdminPendingTasks();//number of da pending tasks (if su or ga, then department not considered)	
-	m.addAttribute("departmentAdminPendingTasks", departmentAdminPendingTasks);
-    return "department/list";
-  }
-  
+
 	private final MetaHelperWebapp getLabMetaHelperWebapp() {
-		return new MetaHelperWebapp("lab", LabMeta.class,
-				request.getSession());
+		return new MetaHelperWebapp("lab", LabMeta.class, request.getSession());
 	}
-	
-  @RequestMapping(value="/detail/{departmentId}", method=RequestMethod.GET)
-  @PreAuthorize("hasRole('su') or hasRole('ga-*') or hasRole('da-' + #departmentId)")
-  public String detail(@PathVariable("departmentId") Integer departmentId, ModelMap m) {
 
-    Department department = this.getDepartmentService().getById(departmentId.intValue());
+	@RequestMapping(value = "/detail/{departmentId}", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('su') or hasRole('ga-*') or hasRole('da-' + #departmentId)")
+	public String detail(@PathVariable("departmentId") Integer departmentId, ModelMap m) {
 
-    List<Lab> labList = department.getLab();
-    labList.size();
+		Department department = this.getDepartmentService().getById(departmentId.intValue());
 
-    List<DepartmentUser> departmentUserList = department.getDepartmentUser();
-    departmentUserList.size();
+		List<Lab> labList = department.getLab();
+		labList.size();
 
-    Map labPendingQueryMap = new HashMap();
-    labPendingQueryMap.put("status", "PENDING");
-    labPendingQueryMap.put("departmentId", departmentId);
+		List<DepartmentUser> departmentUserList = department.getDepartmentUser();
+		departmentUserList.size();
 
-    List<LabPending> labPendingList = labPendingService.findByMap(labPendingQueryMap);
+		Map labPendingQueryMap = new HashMap();
+		labPendingQueryMap.put("status", "PENDING");
+		labPendingQueryMap.put("departmentId", departmentId);
 
-   m.addAttribute("departmentId", departmentId);
-    m.addAttribute("departmentName", department.getName());
-    m.addAttribute("department", department);
-    m.addAttribute("departmentuser", departmentUserList);
-    m.addAttribute("lab", labList);
-    m.addAttribute("labpending", labPendingList);
+		List<LabPending> labPendingList = labPendingService.findByMap(labPendingQueryMap);
 
-	m.addAttribute("_metaList",
-			getLabMetaHelperWebapp().getMasterList(MetaBase.class));
-	m.addAttribute(JQFieldTag.AREA_ATTR, getLabMetaHelperWebapp().getArea());
+		m.addAttribute("departmentId", departmentId);
+		m.addAttribute("departmentName", department.getName());
+		m.addAttribute("department", department);
+		m.addAttribute("departmentuser", departmentUserList);
+		m.addAttribute("lab", labList);
+		m.addAttribute("labpending", labPendingList);
 
-	prepareSelectListData(m);
+		m.addAttribute("_metaList", getLabMetaHelperWebapp().getMasterList(MetaBase.class));
+		m.addAttribute(JQFieldTag.AREA_ATTR, getLabMetaHelperWebapp().getArea());
 
-	// List<Resource> resourceList = resourceService.findAll();
-	//
-	// m.addAttribute("resource", resourceList);
+		prepareSelectListData(m);
 
-    return "department/detail";
-  }
-	
+		// List<Resource> resourceList = resourceService.findAll();
+		//
+		// m.addAttribute("resource", resourceList);
+
+		return "department/detail";
+	}
+
 	@RequestMapping(value = "/detail/{departmentId}/listLabJSON", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('da-' + #departmentId)")
 	public String getLabListJSON(HttpServletResponse response, @PathVariable("departmentId") Integer departmentId) {
@@ -195,13 +201,11 @@ public DepartmentService getDepartmentService() {
 		Department department = this.getDepartmentService().getById(departmentId.intValue());
 		List<Lab> labList = department.getLab();
 
-		if (request.getParameter("_search") != null
-				&& StringUtils.isNotEmpty(request.getParameter("searchString"))) {
+		if (request.getParameter("_search") != null && StringUtils.isNotEmpty(request.getParameter("searchString"))) {
 
 			Map<String, String> m = new HashMap<String, String>();
 
-			m.put(request.getParameter("searchField"),
-					request.getParameter("searchString"));
+			m.put(request.getParameter("searchField"), request.getParameter("searchString"));
 
 			List<Lab> searchLabList = labService.findByMap(m);
 
@@ -213,16 +217,6 @@ public DepartmentService getDepartmentService() {
 		}
 
 		ObjectMapper mapper = new ObjectMapper();
-
-		Map<Integer, String> allDepts = new TreeMap<Integer, String>();
-		for (Department dept : (List<Department>) this.getDepartmentService().findAll()) {
-			allDepts.put(dept.getDepartmentId(), dept.getName());
-		}
-
-		Map<Integer, String> allUsers = new TreeMap<Integer, String>();
-		for (User user : (List<User>) userService.findAll()) {
-			allUsers.put(user.getUserId(),	user.getFirstName() + " " + user.getLastName());
-		}
 
 		/***** Sort lab list by lab name OR PI name *****/
 		class LabNameComparator implements Comparator<Lab> {
@@ -250,24 +244,22 @@ public DepartmentService getDepartmentService() {
 				Collections.reverse(labList);
 		}
 		/***** Sorting ends here *****/
-		
+
 		try {
 			// String users = mapper.writeValueAsString(userList);
-			int pageId = Integer.parseInt(request.getParameter("page"));		// index of page
-			int pageRowNum = Integer.parseInt(request.getParameter("rows"));	// number of rows in one page
-			int rowNum = labList.size();										// total number of rows
-			int pageNum = (rowNum + pageRowNum - 1) / pageRowNum;				// total number of pages
-			
+			int pageId = Integer.parseInt(request.getParameter("page")); // index of page
+			int pageRowNum = Integer.parseInt(request.getParameter("rows")); // number of rows in one page
+			int rowNum = labList.size(); // total number of rows
+			int pageNum = (rowNum + pageRowNum - 1) / pageRowNum; // total number of pages
+
 			jqgrid.put("page", pageId + "");
 			jqgrid.put("records", rowNum + "");
 			jqgrid.put("total", pageNum + "");
 
 			Map<String, String> labData = new HashMap<String, String>();
-			//labData.put("page", "1");
+			// labData.put("page", "1");
 			labData.put("page", pageId + "");
-			labData.put("selId",
-					StringUtils.isEmpty(request.getParameter("selId")) ? ""
-							: request.getParameter("selId"));
+			labData.put("selId", StringUtils.isEmpty(request.getParameter("selId")) ? "" : request.getParameter("selId"));
 			jqgrid.put("labdata", labData);
 
 			List<Map> rows = new ArrayList<Map>();
@@ -282,15 +274,8 @@ public DepartmentService getDepartmentService() {
 
 				List<LabMeta> labMeta = getLabMetaHelperWebapp().syncWithMaster(lab.getLabMeta());
 
-				List<String> cellList = new ArrayList<String>(
-						Arrays.asList(new String[] {
-						lab.getName(),
-						"<a href=/wasp/user/list.do?selId="
-							+ lab.getPrimaryUserId() + ">"
-							+ allUsers.get(lab.getPrimaryUserId())
-							+ "</a>",
-						allDepts.get(lab.getDepartmentId()),
-						lab.getIsActive().intValue() == 1 ? "yes" : "no" }));
+				List<String> cellList = new ArrayList<String>(Arrays.asList(new String[] { lab.getName(), lab.getUser().getNameFstLst(), lab.getPrimaryUserId().toString(),
+						lab.getDepartment().getName(), lab.getIsActive().intValue() == 1 ? "yes" : "no" }));
 
 				for (LabMeta meta : labMeta) {
 					cellList.add(meta.getV());
@@ -306,254 +291,234 @@ public DepartmentService getDepartmentService() {
 			return outputJSON(jqgrid, response);
 
 		} catch (Throwable e) {
-			throw new IllegalStateException("Can't marshall to JSON "
-					+ labList, e);
+			throw new IllegalStateException("Can't marshall to JSON " + labList, e);
 		}
 
 	}
-	
-  /**
-   * Create a new department and assign a department administrator
-   * --Ensure that the new department has not yet been created
-   * --Ensure that the new administrator already exists within the system
-   * @param departmentName
-   * @param adminName
-   * @param m
-   * @return
-   */
-  @RequestMapping(value="/create", method=RequestMethod.POST)
-  @PreAuthorize("hasRole('su')")
-  public String createDepartment(@RequestParam("departmentName") String departmentName, 
-		  						@RequestParam("adminName") String adminName, 
-		  						ModelMap m) {
-	    
-	boolean departmentNameIsOK = false;
-	boolean adminNameIsOK = false;
-	String modifiedDepartmentName = "";
-	Department department = new Department();
-	User user = new User();
-	
-	//check that the department name is ok and has not yet been created
-    if( "".equals(departmentName.trim()) ){
-		waspMessage("department.list_missingparam.error");
-	} 
-    else if(departmentName.toLowerCase().indexOf("external") != -1){//prevent any department from being named %external%
+
+	/**
+	 * Create a new department and assign a department administrator --Ensure
+	 * that the new department has not yet been created --Ensure that the new
+	 * administrator already exists within the system
+	 * 
+	 * @param departmentName
+	 * @param adminName
+	 * @param m
+	 * @return
+	 */
+	@RequestMapping(value = "/create", method = RequestMethod.POST)
+	@PreAuthorize("hasRole('su')")
+	public String createDepartment(@RequestParam("departmentName") String departmentName, @RequestParam("adminName") String adminName, ModelMap m) {
+
+		boolean departmentNameIsOK = false;
+		boolean adminNameIsOK = false;
+		String modifiedDepartmentName = "";
+		Department department = new Department();
+		User user = new User();
+
+		// check that the department name is ok and has not yet been created
+		if ("".equals(departmentName.trim())) {
+			waspMessage("department.list_missingparam.error");
+		} else if (departmentName.toLowerCase().indexOf("external") != -1) {// prevent any department from being named %external%
 			waspMessage("department.list_invalid.error");
-	}
-	else{
-		modifiedDepartmentName = StringHelper.removeExtraSpacesAndCapOnlyFirstLetterOfEachWord(departmentName);
-		
-		Department existingDepartment = this.departmentService.getDepartmentByName(modifiedDepartmentName);//is this name already being used as a department name (which is prohibited) 
-		//if(existingDepartment.getDepartmentId() > 0 ){//the id will be 0 if empty department [ie.: department does not already exist]
-		if(existingDepartment.getDepartmentId() != null){//if true, then the deparmnet already exists, so do let allow system to create department again
-			waspMessage("department.list_department_exists.error");
-		}
-		else{
-			departmentNameIsOK = true;
-		}
-	}
+		} else {
+			modifiedDepartmentName = StringHelper.removeExtraSpacesAndCapOnlyFirstLetterOfEachWord(departmentName);
 
-    //adminName will be in the format: John Greally (JGreally)
-	//the login is JGreally
-	//so, must parse adminName to get unique login
-	String trimmedAdminName = adminName.trim();
-	int startIndex = trimmedAdminName.indexOf("(");
-	int endIndex = trimmedAdminName.indexOf(")");
-	
-	if( "".equals(trimmedAdminName) ){
-		waspMessage("department.detail_missingparam.error");
-	}
-	else if(startIndex == -1 || endIndex == -1 || startIndex > endIndex){
-		//ToDo: add new message about unable to discern login
-		waspMessage("department.detail_formatting.error");
-	}
-	else{
-		String login = trimmedAdminName.substring(startIndex+1, endIndex);
-		String trimmedLogin = login.trim();
-		if("".equals(trimmedLogin)){
-			waspMessage("department.detail_missinglogin.error");
-		}
-		else{
-			//logger.debug("ROB trimmedLogin: " + trimmedLogin);
-			user = userService.getUserByLogin(login);
-			if(user.getUserId() == null){//user not found in database
-				waspMessage("department.detail_usernotfound.error");
+			Department existingDepartment = this.departmentService.getDepartmentByName(modifiedDepartmentName);// is this name already being used as a department name (which is prohibited)
+			if (existingDepartment.getDepartmentId() != null) {
+			// if true, then the department already exists, so do let allow system to create department again
+				waspMessage("department.list_department_exists.error");
+			} else {
+				departmentNameIsOK = true;
 			}
-			else{//since this is a new department (that we know does NOT exist, it cannot have any department administrators associated with it. so, no need here to check that this person is already associated with this department
-				adminNameIsOK = true;
-			}
-		}	
-	}
-    
-    if(departmentNameIsOK && adminNameIsOK){//if all is OK, create new department and add new administrator
-		department.setName(modifiedDepartmentName); 
-		department.setIsActive(1);
-		department.setIsInternal(1);
-		department = departmentService.save(department);
-		
-		DepartmentUser departmentUser = new DepartmentUser(); 
-		departmentUser.setDepartmentId(department.getDepartmentId()); 
-		departmentUser.setUserId(user.getUserId()); 
-		departmentUserService.save(departmentUser);
-		////waspMessage("department.detail_ok.label");
-	
-		// if i am the user,  reauth
-		User me = authenticationService.getAuthenticatedUser();
-		if (me.getUserId().intValue() == user.getUserId().intValue()) {
-			doReauth();
 		}
-		
-		waspMessage("department.list_ok.label");
-    }
-    
-    return "redirect:/department/list.do";
-  }
 
-  @RequestMapping(value="/user/roleRemove/{departmentId}/{userId}", method=RequestMethod.GET)
-  @PreAuthorize("hasRole('su') or hasRole('da-' + #departmentId)")
-  public String departmentUserRoleRemove (
-    @PathVariable("departmentId") Integer departmentId, 
-    @PathVariable("userId") Integer userId, 
-    ModelMap m) {
-
-    DepartmentUser departmentUser = departmentUserService.getDepartmentUserByDepartmentIdUserId(departmentId, userId);
-
-    departmentUserService.remove(departmentUser);
-
-    // if i am the user,  reauth
-    User me = authenticationService.getAuthenticatedUser();   
-    if (me.getUserId().intValue() == userId.intValue()) {
-      doReauth();
-      //if a user is NOT su and the user is a da and removes him/herself from being a da, 
-      //then they are NOT permitted to navigate back to /department/detail/" + departmentId + ".do";
-      //Instead send them back to dashboard
-      if(!request.isUserInRole("su")){
-    	  return "redirect:/dashboard.do";
-      }      
-    }
-
-    
-    return "redirect:/department/detail/" + departmentId + ".do";
-  }
-
-  @RequestMapping(value="/user/roleAdd", method=RequestMethod.POST)
-  @PreAuthorize("hasRole('su') or hasRole('da-' + #departmentId)")
-  public String departmentUserRoleAdd (
-    @RequestParam("departmentId") Integer departmentId,
-    @RequestParam("adminName") String adminName,
-    ModelMap m) {
-	  
-	//first, confirm that the departmentId is valid (although it is quite unlikely that this is going to be an invalid ID)
-	Department department = departmentService.getDepartmentByDepartmentId(departmentId);
-	if(department.getDepartmentId() == null){//id of 0 means this department does not exist in the database; this should not really occur
-		waspMessage("department.detail_invalidDept.error");
-	}
-	else{//next deal with the adminName
-		//adminName will be in the format: John Greally (JGreally), and if it's not in this format, then terminate
-		//the login is JGreally
-		//so, must parse adminName to get unique login
+		// adminName will be in the format: John Greally (JGreally)
+		// the login is JGreally
+		// so, must parse adminName to get unique login
 		String trimmedAdminName = adminName.trim();
 		int startIndex = trimmedAdminName.indexOf("(");
 		int endIndex = trimmedAdminName.indexOf(")");
-		
-		if( "".equals(trimmedAdminName) ){
+
+		if ("".equals(trimmedAdminName)) {
 			waspMessage("department.detail_missingparam.error");
-		}
-		else if(startIndex == -1 || endIndex == -1 || startIndex > endIndex){
+		} else if (startIndex == -1 || endIndex == -1 || startIndex > endIndex) {
+			// ToDo: add new message about unable to discern login
 			waspMessage("department.detail_formatting.error");
-		}
-		else{
-			
-			String login = trimmedAdminName.substring(startIndex+1, endIndex);
+		} else {
+			String login = trimmedAdminName.substring(startIndex + 1, endIndex);
 			String trimmedLogin = login.trim();
-			if("".equals(trimmedLogin)){
+			if ("".equals(trimmedLogin)) {
 				waspMessage("department.detail_missinglogin.error");
-			}
-			else{
-				User user = userService.getUserByLogin(login);
-				if(user.getUserId() == null){//user not found in database
+			} else {
+				// logger.debug("ROB trimmedLogin: " + trimmedLogin);
+				user = userService.getUserByLogin(login);
+				if (user.getUserId() == null) {// user not found in database
 					waspMessage("department.detail_usernotfound.error");
+				} else {
+					// since this is a new department (that we know does NOT
+					// exist, it cannot have any department administrators
+					// associated with it. so, no need here to check that
+					// this person is already associated with this
+					// department
+					adminNameIsOK = true;
 				}
-				else{
-					
-					DepartmentUser existingDepartmentUser = departmentUserService.getDepartmentUserByDepartmentIdUserId(departmentId, user.getUserId());
-					//if(existingDepartmentUser.getDepartmentUserId() > 0 && existingDepartmentUser.getUser().getUserId().intValue() == user.getUserId().intValue()){//this person is already a departmentAdmin for this particular department
-					if(existingDepartmentUser.getDepartmentUserId() != null && existingDepartmentUser.getUser().getUserId().intValue() == user.getUserId().intValue()){//this person is already a departmentAdmin for this particular department
-						waspMessage("department.detail_adminAlreadyExists.error");
-					}
-					else{						
-						DepartmentUser departmentUser = new DepartmentUser(); 
-						departmentUser.setDepartmentId(departmentId); 
-						departmentUser.setUserId(user.getUserId()); 
-						departmentUserService.save(departmentUser);
-						waspMessage("department.detail_ok.label");						
-						// if i am the user,  reauth
-						User me = authenticationService.getAuthenticatedUser();
-						if (me.getUserId().intValue() == user.getUserId().intValue()) {
-							doReauth();
+			}
+		}
+
+		if (departmentNameIsOK && adminNameIsOK) {
+			// if all is OK, create new department and add new administrator
+			department.setName(modifiedDepartmentName);
+			department.setIsActive(1);
+			department.setIsInternal(1);
+			department = departmentService.save(department);
+
+			DepartmentUser departmentUser = new DepartmentUser();
+			departmentUser.setDepartmentId(department.getDepartmentId());
+			departmentUser.setUserId(user.getUserId());
+			departmentUserService.save(departmentUser);
+			// //waspMessage("department.detail_ok.label");
+
+			// if i am the user, reauth
+			User me = authenticationService.getAuthenticatedUser();
+			if (me.getUserId().intValue() == user.getUserId().intValue()) {
+				doReauth();
+			}
+
+			waspMessage("department.list_ok.label");
+		}
+
+		return "redirect:/department/list.do";
+	}
+
+	@RequestMapping(value = "/user/roleRemove/{departmentId}/{userId}", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('su') or hasRole('da-' + #departmentId)")
+	public String departmentUserRoleRemove(@PathVariable("departmentId") Integer departmentId, @PathVariable("userId") Integer userId, ModelMap m) {
+
+		DepartmentUser departmentUser = departmentUserService.getDepartmentUserByDepartmentIdUserId(departmentId, userId);
+
+		departmentUserService.remove(departmentUser);
+
+		// if i am the user, reauth
+		User me = authenticationService.getAuthenticatedUser();
+		if (me.getUserId().intValue() == userId.intValue()) {
+			doReauth();
+			// if a user is NOT su and the user is a da and removes him/herself
+			// from being a da, then they are NOT permitted to navigate back to
+			// /department/detail/" + departmentId + ".do";
+			// Instead send them back to dashboard
+			if (!request.isUserInRole("su")) {
+				return "redirect:/dashboard.do";
+			}
+		}
+
+		return "redirect:/department/detail/" + departmentId + ".do";
+	}
+
+	@RequestMapping(value = "/user/roleAdd", method = RequestMethod.POST)
+	@PreAuthorize("hasRole('su') or hasRole('da-' + #departmentId)")
+	public String departmentUserRoleAdd(@RequestParam("departmentId") Integer departmentId, @RequestParam("adminName") String adminName, ModelMap m) {
+
+		// first, confirm that the departmentId is valid (although it is quite
+		// unlikely that this is going to be an invalid ID)
+		Department department = departmentService.getDepartmentByDepartmentId(departmentId);
+		if (department.getDepartmentId() == null) {
+			// id of 0 means this department does not exist in the database; this should not really occur
+			waspMessage("department.detail_invalidDept.error");
+		} else {
+			// next deal with the adminName adminName will be in the format: John Greally (JGreally), and
+			// if it's not in this format, then terminate the login is JGreally so, must parse adminName to get unique login
+			String trimmedAdminName = adminName.trim();
+			int startIndex = trimmedAdminName.indexOf("(");
+			int endIndex = trimmedAdminName.indexOf(")");
+
+			if ("".equals(trimmedAdminName)) {
+				waspMessage("department.detail_missingparam.error");
+			} else if (startIndex == -1 || endIndex == -1 || startIndex > endIndex) {
+				waspMessage("department.detail_formatting.error");
+			} else {
+
+				String login = trimmedAdminName.substring(startIndex + 1, endIndex);
+				String trimmedLogin = login.trim();
+				if ("".equals(trimmedLogin)) {
+					waspMessage("department.detail_missinglogin.error");
+				} else {
+					User user = userService.getUserByLogin(login);
+					if (user.getUserId() == null) {// user not found in database
+						waspMessage("department.detail_usernotfound.error");
+					} else {
+
+						DepartmentUser existingDepartmentUser = departmentUserService.getDepartmentUserByDepartmentIdUserId(departmentId, user.getUserId());
+						if (existingDepartmentUser.getDepartmentUserId() != null && existingDepartmentUser.getUser().getUserId().intValue() == user.getUserId().intValue()) {
+							// this person is already a departmentAdmin for this particular department
+							waspMessage("department.detail_adminAlreadyExists.error");
+						} else {
+							DepartmentUser departmentUser = new DepartmentUser();
+							departmentUser.setDepartmentId(departmentId);
+							departmentUser.setUserId(user.getUserId());
+							departmentUserService.save(departmentUser);
+							waspMessage("department.detail_ok.label");
+							// if i am the user, reauth
+							User me = authenticationService.getAuthenticatedUser();
+							if (me.getUserId().intValue() == user.getUserId().intValue()) {
+								doReauth();
+							}
 						}
 					}
 				}
-			}	
+			}
 		}
+		return "redirect:/department/detail/" + departmentId + ".do";
 	}
-    return "redirect:/department/detail/" + departmentId + ".do";
-  }
 
-  @RequestMapping(value="/updateDepartment", method=RequestMethod.POST)
-  @PreAuthorize("hasRole('su')")
-  public String updateDepartment (
-    @RequestParam("departmentId") Integer departmentId,
-    @RequestParam("name") String name,
-    @RequestParam("isActive") Integer isActive, 
-    ModelMap m) {
+	@RequestMapping(value = "/updateDepartment", method = RequestMethod.POST)
+	@PreAuthorize("hasRole('su')")
+	public String updateDepartment(@RequestParam("departmentId") Integer departmentId, @RequestParam("name") String name, @RequestParam("isActive") Integer isActive, ModelMap m) {
 
-	  if( "".equals(name) ){
-			waspMessage("department.detail_update_missingparam.error");//must add to list
-	  }
-	  else if(name.toLowerCase().indexOf("external") != -1){//prevent any department from being re-named %external%
+		if ("".equals(name)) {
+			waspMessage("department.detail_update_missingparam.error");// must add to list
+		} else if (name.toLowerCase().indexOf("external") != -1) {// prevent any department from being re-named %external%
 			waspMessage("department.list_invalid.error");
-	  }
-	  else{
-		   String modifiedName = StringHelper.removeExtraSpacesAndCapOnlyFirstLetterOfEachWord(name);
+		} else {
+			String modifiedName = StringHelper.removeExtraSpacesAndCapOnlyFirstLetterOfEachWord(name);
 
-		  Department departmentBeingModified = this.departmentService.getDepartmentByDepartmentId(departmentId);
-		  //modifiedName can be the (unchanged) name of the department being modified (which is valid)
-		  //or it can also be the case that the user
-		  //is attempting to set one department name to another department's name (which is invalid)
-		  //These can be distinguished by departmentId
-		  Department otherDepartment = this.departmentService.getDepartmentByName(modifiedName);
-		  if(otherDepartment.getDepartmentId() != null && departmentBeingModified.getDepartmentId().intValue() != otherDepartment.getDepartmentId().intValue()){
-			  waspMessage("department.list_department_exists.error");//this name is taken
-		  }
-		  else{
-			departmentBeingModified.setName(modifiedName);
-			departmentBeingModified.setIsActive(isActive);
-		  	this.departmentService.save(departmentBeingModified);
-		  	waspMessage("department.detail_update_ok.label");
-		  }
-	  }
-      return "redirect:/department/detail/" + departmentId + ".do";
-  }
+			Department departmentBeingModified = this.departmentService.getDepartmentByDepartmentId(departmentId);
+			// modifiedName can be the (unchanged) name of the department being
+			// modified (which is valid) or it can also be the case that the user
+			// is attempting to set one department name to another department's
+			// name (which is invalid)
+			// These can be distinguished by departmentId
+			Department otherDepartment = this.departmentService.getDepartmentByName(modifiedName);
+			if (otherDepartment.getDepartmentId() != null && departmentBeingModified.getDepartmentId().intValue() != otherDepartment.getDepartmentId().intValue()) {
+				waspMessage("department.list_department_exists.error");// this name is taken
+			} else {
+				departmentBeingModified.setName(modifiedName);
+				departmentBeingModified.setIsActive(isActive);
+				this.departmentService.save(departmentBeingModified);
+				waspMessage("department.detail_update_ok.label");
+			}
+		}
+		return "redirect:/department/detail/" + departmentId + ".do";
+	}
 
-  @RequestMapping(value="/dapendingtasklist", method=RequestMethod.GET)
-  @PreAuthorize("hasRole('su') or hasRole('da-*') or hasRole('ga-*')")
-  public String departmentAdminPendingTaskList (ModelMap m) {
-	  
-	    List<LabPending> labsPendingDaApprovalList = new ArrayList<LabPending>();
+	@RequestMapping(value = "/dapendingtasklist", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('su') or hasRole('da-*') or hasRole('ga-*')")
+	public String departmentAdminPendingTaskList(ModelMap m) {
+
+		List<LabPending> labsPendingDaApprovalList = new ArrayList<LabPending>();
 		List<Job> jobsPendingDaApprovalList = new ArrayList<Job>();
 
-		departmentService.getDepartmentAdminPendingTasks(labsPendingDaApprovalList,jobsPendingDaApprovalList);
-		//logger.debug("ROB : total number of labs pending: " + labsPendingDaApprovalList.size());
-		//logger.debug("ROB : total number of jobs pending: " + jobsPendingDaApprovalList.size());
-		//logger.debug("ROB : count of tasks: " + count);
+		departmentService.getDepartmentAdminPendingTasks(labsPendingDaApprovalList, jobsPendingDaApprovalList);
+		// logger.debug("ROB : total number of labs pending: " + labsPendingDaApprovalList.size());
+		// logger.debug("ROB : total number of jobs pending: " + jobsPendingDaApprovalList.size());
+		// logger.debug("ROB : count of tasks: " + count);
 		m.addAttribute("labspendinglist", labsPendingDaApprovalList);
 		m.addAttribute("jobspendinglist", jobsPendingDaApprovalList);
 		m.addAttribute("sizelabspendinglist", labsPendingDaApprovalList.size());
 		m.addAttribute("sizejobspendinglist", jobsPendingDaApprovalList.size());
 		m.addAttribute("actingasrole", "da");
 		return "department/dapendingtasks";
-    
-  }
-    
+
+	}
+
 }
