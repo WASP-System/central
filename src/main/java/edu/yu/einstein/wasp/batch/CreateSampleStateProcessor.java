@@ -55,8 +55,6 @@ public State process(Object stateId) throws Exception {
     
     State state = stateService.getStateByStateId(((Integer) stateId).intValue());
 
-System.out.println("\nCreating " + targetTask + " for " + stateId);
-
     List<Statesample> stateSamples = state.getStatesample();
     List<Statejob> stateJobs = state.getStatejob();
     List<Staterun> stateRuns = state.getStaterun();
@@ -66,7 +64,7 @@ System.out.println("\nCreating " + targetTask + " for " + stateId);
     State newState = new State();
     newState.setStatus(targetStatus);
     newState.setTaskId(t.getTaskId());
-    newState.setName(t.getName() + " " + stateId);
+    newState.setName(t.getName());
     newState.setSourceStateId((Integer) stateId);
     newState.setStartts(new Date());
     State newStateDb = stateService.save(newState);
