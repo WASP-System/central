@@ -9,9 +9,3 @@
 <wasp:field name="isActive" type="checkbox" editable="false"/>
 
 <wasp:field name="barcode" type="text" hidden="true" editHidden="true"/>
-
-
-
-
-
-
