@@ -23,6 +23,11 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
+/**
+ * RegisterFileProcessor
+ * Processer to listen for existance of file on file system
+ * then matches it the approriate entity
+ */
 
 @Component
 public class RegisterFileProcessor implements ItemProcessor {
@@ -67,28 +72,21 @@ public class RegisterFileProcessor implements ItemProcessor {
 	public Object process(Object filenameObj) throws Exception {
 		String filename = (String) filenameObj;
 
-		System.out.println("\n\n\n\n\n\n\n yyy " + filename + "\n");
-		System.out.println("\n zzz " + filenameRegex + "\n");
-
 		Pattern p = Pattern.compile(filenameRegex); 
 		Matcher m = p.matcher(filename);
 
 		if (! m.matches()) {
-		System.out.println("\n doesnt match " + filenameRegex + "\n");
 			throw new Exception("doesnt match"); 
 		}
 
 		File file = fileService.getMetaInformation(filename);
 		fileService.save(file);
 
+		// registers files w/ respective entities
 		for (int i = 0; i < matchList.length; i++) {
-		System.out.println("\n i " + i + "\n");
 			String matchKey = matchList[i];
 
-			System.out.println("\n\n\n[" + matchKey + "]\n");
 			if ("jobId".equals(matchKey)) {
-
-		System.out.println("\n" + i + "JobId " + m.group(i+1) + "\n");
 				Integer jobId = Integer.parseInt(m.group(i+1));
 				JobFile newJobFile = new JobFile();
 				newJobFile.setJobId(jobId); 
@@ -98,7 +96,6 @@ public class RegisterFileProcessor implements ItemProcessor {
 				continue;
 			}
 			if ("sampleId".equals(matchKey)) {
-		System.out.println("\n" + i + "sampleId  " + m.group(i+1) + "\n");
 				Integer sampleId = Integer.parseInt(m.group(i+1));
 				SampleFile newSampleFile = new SampleFile();
 				newSampleFile.setSampleId(sampleId); 
@@ -107,7 +104,6 @@ public class RegisterFileProcessor implements ItemProcessor {
 				continue;
 			}
 			if ("runId".equals(matchKey)) {
-		System.out.println("\n" + i + "runId  " + m.group(i+1) + "\n");
 				Integer runId = Integer.parseInt(m.group(i+1));
 				RunFile newRunFile = new RunFile();
 				newRunFile.setRunId(runId); 
