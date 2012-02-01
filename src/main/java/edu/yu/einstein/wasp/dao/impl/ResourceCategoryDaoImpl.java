@@ -11,12 +11,8 @@
 
 package edu.yu.einstein.wasp.dao.impl;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceException;
-import javax.persistence.Query;
-
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Repository;
@@ -48,19 +44,20 @@ public class ResourceCategoryDaoImpl extends WaspDaoImpl<ResourceCategory> imple
 	 * @return resourceCategory
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public ResourceCategory getResourceCategoryByResourceCategoryId (final Integer resourceCategoryId) {
     		HashMap m = new HashMap();
 		m.put("resourceCategoryId", resourceCategoryId);
 
-		List<ResourceCategory> results = (List<ResourceCategory>) this.findByMap((Map) m);
+		List<ResourceCategory> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			ResourceCategory rt = new ResourceCategory();
 			return rt;
 		}
-		return (ResourceCategory) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -73,19 +70,20 @@ public class ResourceCategoryDaoImpl extends WaspDaoImpl<ResourceCategory> imple
 	 * @return resourceCategory
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public ResourceCategory getResourceCategoryByIName (final String iName) {
     		HashMap m = new HashMap();
 		m.put("iName", iName);
 
-		List<ResourceCategory> results = (List<ResourceCategory>) this.findByMap((Map) m);
+		List<ResourceCategory> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			ResourceCategory rt = new ResourceCategory();
 			return rt;
 		}
-		return (ResourceCategory) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -98,19 +96,20 @@ public class ResourceCategoryDaoImpl extends WaspDaoImpl<ResourceCategory> imple
 	 * @return resourceCategory
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public ResourceCategory getResourceCategoryByName (final String name) {
     		HashMap m = new HashMap();
 		m.put("name", name);
 
-		List<ResourceCategory> results = (List<ResourceCategory>) this.findByMap((Map) m);
+		List<ResourceCategory> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			ResourceCategory rt = new ResourceCategory();
 			return rt;
 		}
-		return (ResourceCategory) results.get(0);
+		return results.get(0);
 	}
 
 

@@ -22,9 +22,32 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
-import edu.yu.einstein.wasp.model.*;
-import edu.yu.einstein.wasp.service.*;
+import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.JobFile;
+import edu.yu.einstein.wasp.model.JobMeta;
+import edu.yu.einstein.wasp.model.JobResourcecategory;
+import edu.yu.einstein.wasp.model.JobSample;
+import edu.yu.einstein.wasp.model.JobSoftware;
+import edu.yu.einstein.wasp.model.JobUser;
+import edu.yu.einstein.wasp.model.MetaAttribute;
+import edu.yu.einstein.wasp.model.MetaBase;
+import edu.yu.einstein.wasp.model.ResourceCategory;
+import edu.yu.einstein.wasp.model.Role;
+import edu.yu.einstein.wasp.model.Software;
+import edu.yu.einstein.wasp.model.State;
+import edu.yu.einstein.wasp.model.Statejob;
+import edu.yu.einstein.wasp.model.Task;
+import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.model.Workflowresourcecategory;
+import edu.yu.einstein.wasp.model.WorkflowresourcecategoryMeta;
+import edu.yu.einstein.wasp.service.JobService;
+import edu.yu.einstein.wasp.service.JobUserService;
+import edu.yu.einstein.wasp.service.RoleService;
+import edu.yu.einstein.wasp.service.StateService;
+import edu.yu.einstein.wasp.service.TaskService;
+import edu.yu.einstein.wasp.service.WorkflowresourcecategoryService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
+import edu.yu.einstein.wasp.util.MetaHelper;
 import edu.yu.einstein.wasp.util.StringHelper;
 
 @Controller
@@ -84,7 +107,7 @@ public class JobController extends WaspController {
 
 		m.addAttribute("_metaList",	getMetaHelperWebapp().getMasterList(MetaBase.class));
 		m.addAttribute(JQFieldTag.AREA_ATTR, getMetaHelperWebapp().getArea());
-		m.addAttribute("_metaDataMessages", MetaHelperWebapp.getMetadataMessages(request.getSession()));
+		m.addAttribute("_metaDataMessages", MetaHelper.getMetadataMessages(request.getSession()));
 
 		prepareSelectListData(m);
 

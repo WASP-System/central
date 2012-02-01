@@ -11,12 +11,8 @@
 
 package edu.yu.einstein.wasp.dao.impl;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceException;
-import javax.persistence.Query;
-
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Repository;
@@ -48,19 +44,20 @@ public class StateDaoImpl extends WaspDaoImpl<State> implements edu.yu.einstein.
 	 * @return state
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public State getStateByStateId (final int stateId) {
     		HashMap m = new HashMap();
 		m.put("stateId", stateId);
 
-		List<State> results = (List<State>) this.findByMap((Map) m);
+		List<State> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			State rt = new State();
 			return rt;
 		}
-		return (State) results.get(0);
+		return results.get(0);
 	}
 
 

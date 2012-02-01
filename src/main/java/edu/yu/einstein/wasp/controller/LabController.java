@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -58,6 +57,7 @@ import edu.yu.einstein.wasp.service.UserMetaService;
 import edu.yu.einstein.wasp.service.UserPendingMetaService;
 import edu.yu.einstein.wasp.service.UserPendingService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
+import edu.yu.einstein.wasp.util.MetaHelper;
 
 @Controller
 @Transactional
@@ -137,7 +137,7 @@ public class LabController extends WaspController {
 
 		m.addAttribute("_metaList",	getMetaHelperWebapp().getMasterList(MetaBase.class));
 		m.addAttribute(JQFieldTag.AREA_ATTR, getMetaHelperWebapp().getArea());
-		m.addAttribute("_metaDataMessages", MetaHelperWebapp.getMetadataMessages(request.getSession()));
+		m.addAttribute("_metaDataMessages", MetaHelper.getMetadataMessages(request.getSession()));
 
 		prepareSelectListData(m);
 
@@ -185,6 +185,7 @@ public class LabController extends WaspController {
 		
 		/***** Sort by PI name cannot be achieved by DB query "sort by" clause *****/
 		class LabPUNameComparator implements Comparator<Lab> {
+			@Override
 			public int compare(Lab arg0, Lab arg1) {
 				return arg0.getUser().getFirstName().compareToIgnoreCase(arg1.getUser().getFirstName());
 			}

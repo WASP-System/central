@@ -11,12 +11,8 @@
 
 package edu.yu.einstein.wasp.dao.impl;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceException;
-import javax.persistence.Query;
-
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Repository;
@@ -48,19 +44,20 @@ public class ResourceLaneDaoImpl extends WaspDaoImpl<ResourceLane> implements ed
 	 * @return resourceLane
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public ResourceLane getResourceLaneByResourceLaneId (final Integer resourceLaneId) {
     		HashMap m = new HashMap();
 		m.put("resourceLaneId", resourceLaneId);
 
-		List<ResourceLane> results = (List<ResourceLane>) this.findByMap((Map) m);
+		List<ResourceLane> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			ResourceLane rt = new ResourceLane();
 			return rt;
 		}
-		return (ResourceLane) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -73,6 +70,7 @@ public class ResourceLaneDaoImpl extends WaspDaoImpl<ResourceLane> implements ed
 	 * @return resourceLane
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public ResourceLane getResourceLaneByINameResourceId (final String iName, final Integer resourceId) {
@@ -80,13 +78,13 @@ public class ResourceLaneDaoImpl extends WaspDaoImpl<ResourceLane> implements ed
 		m.put("iName", iName);
 		m.put("resourceId", resourceId);
 
-		List<ResourceLane> results = (List<ResourceLane>) this.findByMap((Map) m);
+		List<ResourceLane> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			ResourceLane rt = new ResourceLane();
 			return rt;
 		}
-		return (ResourceLane) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -99,6 +97,7 @@ public class ResourceLaneDaoImpl extends WaspDaoImpl<ResourceLane> implements ed
 	 * @return resourceLane
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public ResourceLane getResourceLaneByNameResourceId (final String name, final Integer resourceId) {
@@ -106,13 +105,13 @@ public class ResourceLaneDaoImpl extends WaspDaoImpl<ResourceLane> implements ed
 		m.put("name", name);
 		m.put("resourceId", resourceId);
 
-		List<ResourceLane> results = (List<ResourceLane>) this.findByMap((Map) m);
+		List<ResourceLane> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			ResourceLane rt = new ResourceLane();
 			return rt;
 		}
-		return (ResourceLane) results.get(0);
+		return results.get(0);
 	}
 
 

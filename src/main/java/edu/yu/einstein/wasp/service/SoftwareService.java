@@ -11,13 +11,10 @@
 
 package edu.yu.einstein.wasp.service;
 
+import org.springframework.stereotype.Service;
+
 import edu.yu.einstein.wasp.dao.SoftwareDao;
 import edu.yu.einstein.wasp.model.Software;
-
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.stereotype.Service;
 
 @Service
 public interface SoftwareService extends WaspService<Software> {

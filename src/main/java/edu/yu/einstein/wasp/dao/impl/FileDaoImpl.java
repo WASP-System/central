@@ -11,12 +11,8 @@
 
 package edu.yu.einstein.wasp.dao.impl;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceException;
-import javax.persistence.Query;
-
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Repository;
@@ -48,19 +44,20 @@ public class FileDaoImpl extends WaspDaoImpl<File> implements edu.yu.einstein.wa
 	 * @return file
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public File getFileByFileId (final Integer fileId) {
     		HashMap m = new HashMap();
 		m.put("fileId", fileId);
 
-		List<File> results = (List<File>) this.findByMap((Map) m);
+		List<File> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			File rt = new File();
 			return rt;
 		}
-		return (File) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -73,19 +70,20 @@ public class FileDaoImpl extends WaspDaoImpl<File> implements edu.yu.einstein.wa
 	 * @return file
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public File getFileByFilelocation (final String filelocation) {
     		HashMap m = new HashMap();
 		m.put("filelocation", filelocation);
 
-		List<File> results = (List<File>) this.findByMap((Map) m);
+		List<File> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			File rt = new File();
 			return rt;
 		}
-		return (File) results.get(0);
+		return results.get(0);
 	}
 
 

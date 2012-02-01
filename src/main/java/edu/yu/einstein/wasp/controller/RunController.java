@@ -19,10 +19,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
-import edu.yu.einstein.wasp.model.*;
-import edu.yu.einstein.wasp.service.*;
+import edu.yu.einstein.wasp.model.MetaBase;
+import edu.yu.einstein.wasp.model.Run;
+import edu.yu.einstein.wasp.model.RunFile;
+import edu.yu.einstein.wasp.model.RunLane;
+import edu.yu.einstein.wasp.model.RunLanefile;
+import edu.yu.einstein.wasp.model.RunMeta;
+import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.service.RunLaneService;
+import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
-import edu.yu.einstein.wasp.util.StringHelper;
+import edu.yu.einstein.wasp.util.MetaHelper;
 
 @Controller
 @Transactional
@@ -63,7 +70,7 @@ public class RunController extends WaspController {
 
 		m.addAttribute("_metaList",	getMetaHelperWebapp().getMasterList(MetaBase.class));
 		m.addAttribute(JQFieldTag.AREA_ATTR, getMetaHelperWebapp().getArea());
-		m.addAttribute("_metaDataMessages", MetaHelperWebapp.getMetadataMessages(request.getSession()));
+		m.addAttribute("_metaDataMessages", MetaHelper.getMetadataMessages(request.getSession()));
 
 		prepareSelectListData(m);
 

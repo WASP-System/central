@@ -11,12 +11,8 @@
 
 package edu.yu.einstein.wasp.dao.impl;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceException;
-import javax.persistence.Query;
-
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Repository;
@@ -48,19 +44,20 @@ public class WorkflowsoftwareMetaDaoImpl extends WaspDaoImpl<WorkflowsoftwareMet
 	 * @return workflowsoftwareMeta
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public WorkflowsoftwareMeta getWorkflowsoftwareMetaByWorkflowsoftwareMetaId (final Integer workflowsoftwareMetaId) {
     		HashMap m = new HashMap();
 		m.put("workflowsoftwareMetaId", workflowsoftwareMetaId);
 
-		List<WorkflowsoftwareMeta> results = (List<WorkflowsoftwareMeta>) this.findByMap((Map) m);
+		List<WorkflowsoftwareMeta> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			WorkflowsoftwareMeta rt = new WorkflowsoftwareMeta();
 			return rt;
 		}
-		return (WorkflowsoftwareMeta) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -73,6 +70,7 @@ public class WorkflowsoftwareMetaDaoImpl extends WaspDaoImpl<WorkflowsoftwareMet
 	 * @return workflowsoftwareMeta
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public WorkflowsoftwareMeta getWorkflowsoftwareMetaByWorkflowsoftwareIdK (final Integer workflowsoftwareId, final String k) {
@@ -80,13 +78,13 @@ public class WorkflowsoftwareMetaDaoImpl extends WaspDaoImpl<WorkflowsoftwareMet
 		m.put("workflowsoftwareId", workflowsoftwareId);
 		m.put("k", k);
 
-		List<WorkflowsoftwareMeta> results = (List<WorkflowsoftwareMeta>) this.findByMap((Map) m);
+		List<WorkflowsoftwareMeta> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			WorkflowsoftwareMeta rt = new WorkflowsoftwareMeta();
 			return rt;
 		}
-		return (WorkflowsoftwareMeta) results.get(0);
+		return results.get(0);
 	}
 
 

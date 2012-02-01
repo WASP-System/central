@@ -107,6 +107,7 @@ public class TaskDaoImpl extends WaspDaoImpl<Task> implements edu.yu.einstein.wa
 		return rt;
 	}
 
+	@Override
 	public List<TaskMapping> getTaskMappings() {
 		List<TaskMapping> list=entityManager.createQuery("select t from TaskMapping t").getResultList();
 		
@@ -126,7 +127,7 @@ public class TaskDaoImpl extends WaspDaoImpl<Task> implements edu.yu.einstein.wa
 			"group by t.name,tm.status\n"+
 			"having count(s.stateid)>0\n";
 		
-		List<Object[]> counts=(List<Object[]>)entityManager.createNativeQuery(sql).getResultList();
+		List<Object[]> counts=entityManager.createNativeQuery(sql).getResultList();
 		for(Object[] o:counts) {
 			TaskMapping tm=map.get(o[0]);
 			if (tm!=null) tm.setStateCount(((BigInteger)o[1]).intValue());

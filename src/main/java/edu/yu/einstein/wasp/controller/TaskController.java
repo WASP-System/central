@@ -32,7 +32,6 @@ import edu.yu.einstein.wasp.model.StateMeta;
 import edu.yu.einstein.wasp.model.Statejob;
 import edu.yu.einstein.wasp.model.Statesample;
 import edu.yu.einstein.wasp.model.Task;
-import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.SampleService;

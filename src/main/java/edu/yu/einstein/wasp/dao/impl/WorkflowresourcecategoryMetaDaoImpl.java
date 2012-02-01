@@ -11,12 +11,8 @@
 
 package edu.yu.einstein.wasp.dao.impl;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceException;
-import javax.persistence.Query;
-
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Repository;
@@ -48,19 +44,20 @@ public class WorkflowresourcecategoryMetaDaoImpl extends WaspDaoImpl<Workflowres
 	 * @return workflowresourcecategoryMeta
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public WorkflowresourcecategoryMeta getWorkflowresourcecategoryMetaByWorkflowresourcecategoryMetaId (final Integer workflowresourcecategoryMetaId) {
     		HashMap m = new HashMap();
 		m.put("workflowresourcecategoryMetaId", workflowresourcecategoryMetaId);
 
-		List<WorkflowresourcecategoryMeta> results = (List<WorkflowresourcecategoryMeta>) this.findByMap((Map) m);
+		List<WorkflowresourcecategoryMeta> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			WorkflowresourcecategoryMeta rt = new WorkflowresourcecategoryMeta();
 			return rt;
 		}
-		return (WorkflowresourcecategoryMeta) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -73,6 +70,7 @@ public class WorkflowresourcecategoryMetaDaoImpl extends WaspDaoImpl<Workflowres
 	 * @return workflowresourcecategoryMeta
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public WorkflowresourcecategoryMeta getWorkflowresourcecategoryMetaByWorkflowresourcecategoryIdK (final Integer workflowresourcecategoryId, final String k) {
@@ -80,13 +78,13 @@ public class WorkflowresourcecategoryMetaDaoImpl extends WaspDaoImpl<Workflowres
 		m.put("workflowresourcecategoryId", workflowresourcecategoryId);
 		m.put("k", k);
 
-		List<WorkflowresourcecategoryMeta> results = (List<WorkflowresourcecategoryMeta>) this.findByMap((Map) m);
+		List<WorkflowresourcecategoryMeta> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			WorkflowresourcecategoryMeta rt = new WorkflowresourcecategoryMeta();
 			return rt;
 		}
-		return (WorkflowresourcecategoryMeta) results.get(0);
+		return results.get(0);
 	}
 
 

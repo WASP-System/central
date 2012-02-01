@@ -11,19 +11,12 @@
 
 package edu.yu.einstein.wasp.service.impl;
 
-import edu.yu.einstein.wasp.service.SoftwareService;
-import edu.yu.einstein.wasp.dao.SoftwareDao;
-import edu.yu.einstein.wasp.dao.WaspDao;
-import edu.yu.einstein.wasp.model.Software;
-
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PostFilter;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Service;
+
+import edu.yu.einstein.wasp.dao.SoftwareDao;
+import edu.yu.einstein.wasp.model.Software;
+import edu.yu.einstein.wasp.service.SoftwareService;
 
 @Service
 public class SoftwareServiceImpl extends WaspServiceImpl<Software> implements SoftwareService {
@@ -40,6 +33,7 @@ public class SoftwareServiceImpl extends WaspServiceImpl<Software> implements So
 	 * @param softwareDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setSoftwareDao(SoftwareDao softwareDao) {
 		this.softwareDao = softwareDao;
@@ -52,20 +46,24 @@ public class SoftwareServiceImpl extends WaspServiceImpl<Software> implements So
 	 * @return softwareDao
 	 *
 	 */
+	@Override
 	public SoftwareDao getSoftwareDao() {
 		return this.softwareDao;
 	}
 
 
-  public Software getSoftwareBySoftwareId (final Integer softwareId) {
+  @Override
+public Software getSoftwareBySoftwareId (final Integer softwareId) {
     return this.getSoftwareDao().getSoftwareBySoftwareId(softwareId);
   }
 
-  public Software getSoftwareByIName (final String iName) {
+  @Override
+public Software getSoftwareByIName (final String iName) {
     return this.getSoftwareDao().getSoftwareByIName(iName);
   }
 
-  public Software getSoftwareByName (final String name) {
+  @Override
+public Software getSoftwareByName (final String name) {
     return this.getSoftwareDao().getSoftwareByName(name);
   }
 

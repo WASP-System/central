@@ -1,21 +1,18 @@
 package edu.yu.einstein.wasp.load;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import util.spring.PostInitialize;
 import edu.yu.einstein.wasp.model.Task;
-import edu.yu.einstein.wasp.service.TaskService;
-
-import java.util.List; 
-import java.util.ArrayList; 
-import java.util.Map; 
-import java.util.HashMap; 
-import java.util.Set; 
-import java.util.HashSet; 
-
 import edu.yu.einstein.wasp.model.TaskMapping;
 import edu.yu.einstein.wasp.service.TaskMappingService;
+import edu.yu.einstein.wasp.service.TaskService;
 
 
 /**

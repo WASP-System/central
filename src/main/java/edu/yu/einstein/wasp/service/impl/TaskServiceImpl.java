@@ -122,7 +122,8 @@ public List<State> getDaApprovedStates () {
   //returns list of states for the task in given status.
   //consults taskmapping table to see if currently logged in user is authorized to see them
   //only states that pass authorization are returned,. 
-  public List<State> getStatesByTaskMappingRule(Task task, String status)  {
+  @Override
+public List<State> getStatesByTaskMappingRule(Task task, String status)  {
 	  
 	  List<State> candidates = new ArrayList<State>();
 	  
@@ -171,7 +172,8 @@ public List<State> getDaApprovedStates () {
   // returns states that
   // a) are in the given status
   // b) are accessible by current user according to the given permission   
-  public List<State> filterStatesByStatusAndPermission(List<State> states, String status,  String permission)  {
+  @Override
+public List<State> filterStatesByStatusAndPermission(List<State> states, String status,  String permission)  {
 	  
 	  List<State> candidates = new ArrayList<State>();
 	  
@@ -216,7 +218,8 @@ public List<State> getDaApprovedStates () {
 	  
 	  
 
-  public List<TaskMapping> getTaskMappings() {
+  @Override
+public List<TaskMapping> getTaskMappings() {
 		return this.taskDao.getTaskMappings();
   }
 }

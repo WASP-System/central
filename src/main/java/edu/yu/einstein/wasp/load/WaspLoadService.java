@@ -20,8 +20,6 @@ import edu.yu.einstein.wasp.model.UiField;
 import edu.yu.einstein.wasp.service.UiFieldService;
 import edu.yu.einstein.wasp.service.impl.WaspMessageSourceImpl;
 
-import org.apache.log4j.Logger;
-
 
 /**
  * base clase for all the wasp loaders

@@ -11,12 +11,8 @@
 
 package edu.yu.einstein.wasp.dao.impl;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceException;
-import javax.persistence.Query;
-
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Repository;
@@ -48,19 +44,20 @@ public class JobResourcecategoryDaoImpl extends WaspDaoImpl<JobResourcecategory>
 	 * @return jobResourcecategory
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public JobResourcecategory getJobResourcecategoryByJobResourcecategoryId (final Integer jobResourcecategoryId) {
     		HashMap m = new HashMap();
 		m.put("jobResourcecategoryId", jobResourcecategoryId);
 
-		List<JobResourcecategory> results = (List<JobResourcecategory>) this.findByMap((Map) m);
+		List<JobResourcecategory> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			JobResourcecategory rt = new JobResourcecategory();
 			return rt;
 		}
-		return (JobResourcecategory) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -73,6 +70,7 @@ public class JobResourcecategoryDaoImpl extends WaspDaoImpl<JobResourcecategory>
 	 * @return jobResourcecategory
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public JobResourcecategory getJobResourcecategoryByResourcecategoryIdJobId (final Integer resourcecategoryId, final Integer jobId) {
@@ -80,13 +78,13 @@ public class JobResourcecategoryDaoImpl extends WaspDaoImpl<JobResourcecategory>
 		m.put("resourcecategoryId", resourcecategoryId);
 		m.put("jobId", jobId);
 
-		List<JobResourcecategory> results = (List<JobResourcecategory>) this.findByMap((Map) m);
+		List<JobResourcecategory> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			JobResourcecategory rt = new JobResourcecategory();
 			return rt;
 		}
-		return (JobResourcecategory) results.get(0);
+		return results.get(0);
 	}
 
 

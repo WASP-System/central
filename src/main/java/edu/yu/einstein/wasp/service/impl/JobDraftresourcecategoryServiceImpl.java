@@ -11,19 +11,12 @@
 
 package edu.yu.einstein.wasp.service.impl;
 
-import edu.yu.einstein.wasp.service.JobDraftresourcecategoryService;
-import edu.yu.einstein.wasp.dao.JobDraftresourcecategoryDao;
-import edu.yu.einstein.wasp.dao.WaspDao;
-import edu.yu.einstein.wasp.model.JobDraftresourcecategory;
-
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PostFilter;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Service;
+
+import edu.yu.einstein.wasp.dao.JobDraftresourcecategoryDao;
+import edu.yu.einstein.wasp.model.JobDraftresourcecategory;
+import edu.yu.einstein.wasp.service.JobDraftresourcecategoryService;
 
 @Service
 public class JobDraftresourcecategoryServiceImpl extends WaspServiceImpl<JobDraftresourcecategory> implements JobDraftresourcecategoryService {
@@ -40,6 +33,7 @@ public class JobDraftresourcecategoryServiceImpl extends WaspServiceImpl<JobDraf
 	 * @param jobDraftresourcecategoryDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setJobDraftresourcecategoryDao(JobDraftresourcecategoryDao jobDraftresourcecategoryDao) {
 		this.jobDraftresourcecategoryDao = jobDraftresourcecategoryDao;
@@ -52,16 +46,19 @@ public class JobDraftresourcecategoryServiceImpl extends WaspServiceImpl<JobDraf
 	 * @return jobDraftresourcecategoryDao
 	 *
 	 */
+	@Override
 	public JobDraftresourcecategoryDao getJobDraftresourcecategoryDao() {
 		return this.jobDraftresourcecategoryDao;
 	}
 
 
-  public JobDraftresourcecategory getJobDraftresourcecategoryByJobDraftresourcecategoryId (final Integer jobDraftresourcecategoryId) {
+  @Override
+public JobDraftresourcecategory getJobDraftresourcecategoryByJobDraftresourcecategoryId (final Integer jobDraftresourcecategoryId) {
     return this.getJobDraftresourcecategoryDao().getJobDraftresourcecategoryByJobDraftresourcecategoryId(jobDraftresourcecategoryId);
   }
 
-  public JobDraftresourcecategory getJobDraftresourcecategoryByResourcecategoryIdJobdraftId (final Integer resourcecategoryId, final Integer jobdraftId) {
+  @Override
+public JobDraftresourcecategory getJobDraftresourcecategoryByResourcecategoryIdJobdraftId (final Integer resourcecategoryId, final Integer jobdraftId) {
     return this.getJobDraftresourcecategoryDao().getJobDraftresourcecategoryByResourcecategoryIdJobdraftId(resourcecategoryId, jobdraftId);
   }
 

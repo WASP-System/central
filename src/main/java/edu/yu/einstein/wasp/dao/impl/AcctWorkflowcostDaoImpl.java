@@ -11,12 +11,8 @@
 
 package edu.yu.einstein.wasp.dao.impl;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceException;
-import javax.persistence.Query;
-
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Repository;
@@ -48,19 +44,20 @@ public class AcctWorkflowcostDaoImpl extends WaspDaoImpl<AcctWorkflowcost> imple
 	 * @return acctWorkflowcost
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public AcctWorkflowcost getAcctWorkflowcostByWorkflowId (final Integer workflowId) {
     		HashMap m = new HashMap();
 		m.put("workflowId", workflowId);
 
-		List<AcctWorkflowcost> results = (List<AcctWorkflowcost>) this.findByMap((Map) m);
+		List<AcctWorkflowcost> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			AcctWorkflowcost rt = new AcctWorkflowcost();
 			return rt;
 		}
-		return (AcctWorkflowcost) results.get(0);
+		return results.get(0);
 	}
 
 

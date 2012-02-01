@@ -11,12 +11,8 @@
 
 package edu.yu.einstein.wasp.dao.impl;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceException;
-import javax.persistence.Query;
-
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Repository;
@@ -48,19 +44,20 @@ public class JobDraftresourcecategoryDaoImpl extends WaspDaoImpl<JobDraftresourc
 	 * @return jobDraftresourcecategory
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public JobDraftresourcecategory getJobDraftresourcecategoryByJobDraftresourcecategoryId (final Integer jobDraftresourcecategoryId) {
     		HashMap m = new HashMap();
 		m.put("jobDraftresourcecategoryId", jobDraftresourcecategoryId);
 
-		List<JobDraftresourcecategory> results = (List<JobDraftresourcecategory>) this.findByMap((Map) m);
+		List<JobDraftresourcecategory> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			JobDraftresourcecategory rt = new JobDraftresourcecategory();
 			return rt;
 		}
-		return (JobDraftresourcecategory) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -73,6 +70,7 @@ public class JobDraftresourcecategoryDaoImpl extends WaspDaoImpl<JobDraftresourc
 	 * @return jobDraftresourcecategory
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public JobDraftresourcecategory getJobDraftresourcecategoryByResourcecategoryIdJobdraftId (final Integer resourcecategoryId, final Integer jobdraftId) {
@@ -80,13 +78,13 @@ public class JobDraftresourcecategoryDaoImpl extends WaspDaoImpl<JobDraftresourc
 		m.put("resourcecategoryId", resourcecategoryId);
 		m.put("jobdraftId", jobdraftId);
 
-		List<JobDraftresourcecategory> results = (List<JobDraftresourcecategory>) this.findByMap((Map) m);
+		List<JobDraftresourcecategory> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			JobDraftresourcecategory rt = new JobDraftresourcecategory();
 			return rt;
 		}
-		return (JobDraftresourcecategory) results.get(0);
+		return results.get(0);
 	}
 
 

@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import util.spring.PostInitialize;
 import edu.yu.einstein.wasp.exception.NullResourceCategoryException;
-import edu.yu.einstein.wasp.model.AdaptorsetResourceCategory;
 import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.SubtypeSample;
 import edu.yu.einstein.wasp.model.SubtypeSampleMeta;

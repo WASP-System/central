@@ -11,19 +11,12 @@
 
 package edu.yu.einstein.wasp.service.impl;
 
-import edu.yu.einstein.wasp.service.ResourceBarcodeService;
-import edu.yu.einstein.wasp.dao.ResourceBarcodeDao;
-import edu.yu.einstein.wasp.dao.WaspDao;
-import edu.yu.einstein.wasp.model.ResourceBarcode;
-
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PostFilter;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Service;
+
+import edu.yu.einstein.wasp.dao.ResourceBarcodeDao;
+import edu.yu.einstein.wasp.model.ResourceBarcode;
+import edu.yu.einstein.wasp.service.ResourceBarcodeService;
 
 @Service
 public class ResourceBarcodeServiceImpl extends WaspServiceImpl<ResourceBarcode> implements ResourceBarcodeService {
@@ -40,6 +33,7 @@ public class ResourceBarcodeServiceImpl extends WaspServiceImpl<ResourceBarcode>
 	 * @param resourceBarcodeDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setResourceBarcodeDao(ResourceBarcodeDao resourceBarcodeDao) {
 		this.resourceBarcodeDao = resourceBarcodeDao;
@@ -52,20 +46,24 @@ public class ResourceBarcodeServiceImpl extends WaspServiceImpl<ResourceBarcode>
 	 * @return resourceBarcodeDao
 	 *
 	 */
+	@Override
 	public ResourceBarcodeDao getResourceBarcodeDao() {
 		return this.resourceBarcodeDao;
 	}
 
 
-  public ResourceBarcode getResourceBarcodeByResourceBarcodeId (final Integer resourceBarcodeId) {
+  @Override
+public ResourceBarcode getResourceBarcodeByResourceBarcodeId (final Integer resourceBarcodeId) {
     return this.getResourceBarcodeDao().getResourceBarcodeByResourceBarcodeId(resourceBarcodeId);
   }
 
-  public ResourceBarcode getResourceBarcodeByResourceId (final Integer resourceId) {
+  @Override
+public ResourceBarcode getResourceBarcodeByResourceId (final Integer resourceId) {
     return this.getResourceBarcodeDao().getResourceBarcodeByResourceId(resourceId);
   }
 
-  public ResourceBarcode getResourceBarcodeByBarcodeId (final Integer barcodeId) {
+  @Override
+public ResourceBarcode getResourceBarcodeByBarcodeId (final Integer barcodeId) {
     return this.getResourceBarcodeDao().getResourceBarcodeByBarcodeId(barcodeId);
   }
 

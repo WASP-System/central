@@ -11,12 +11,8 @@
 
 package edu.yu.einstein.wasp.dao.impl;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceException;
-import javax.persistence.Query;
-
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Repository;
@@ -48,19 +44,20 @@ public class SoftwareMetaDaoImpl extends WaspDaoImpl<SoftwareMeta> implements ed
 	 * @return softwareMeta
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public SoftwareMeta getSoftwareMetaBySoftwareMetaId (final Integer softwareMetaId) {
     		HashMap m = new HashMap();
 		m.put("softwareMetaId", softwareMetaId);
 
-		List<SoftwareMeta> results = (List<SoftwareMeta>) this.findByMap((Map) m);
+		List<SoftwareMeta> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			SoftwareMeta rt = new SoftwareMeta();
 			return rt;
 		}
-		return (SoftwareMeta) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -73,6 +70,7 @@ public class SoftwareMetaDaoImpl extends WaspDaoImpl<SoftwareMeta> implements ed
 	 * @return softwareMeta
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public SoftwareMeta getSoftwareMetaByKSoftwareId (final String k, final Integer softwareId) {
@@ -80,13 +78,13 @@ public class SoftwareMetaDaoImpl extends WaspDaoImpl<SoftwareMeta> implements ed
 		m.put("k", k);
 		m.put("softwareId", softwareId);
 
-		List<SoftwareMeta> results = (List<SoftwareMeta>) this.findByMap((Map) m);
+		List<SoftwareMeta> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			SoftwareMeta rt = new SoftwareMeta();
 			return rt;
 		}
-		return (SoftwareMeta) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -98,6 +96,7 @@ public class SoftwareMetaDaoImpl extends WaspDaoImpl<SoftwareMeta> implements ed
 	 * @param metaList
 	 *
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateBySoftwareId (final String area, final int softwareId, final List<SoftwareMeta> metaList) {
@@ -117,6 +116,7 @@ public class SoftwareMetaDaoImpl extends WaspDaoImpl<SoftwareMeta> implements ed
 	 * @param metaList
 	 *
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateBySoftwareId (final int softwareId, final List<SoftwareMeta> metaList) {

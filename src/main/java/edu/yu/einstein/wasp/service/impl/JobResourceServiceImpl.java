@@ -11,19 +11,12 @@
 
 package edu.yu.einstein.wasp.service.impl;
 
-import edu.yu.einstein.wasp.service.JobResourceService;
-import edu.yu.einstein.wasp.dao.JobResourceDao;
-import edu.yu.einstein.wasp.dao.WaspDao;
-import edu.yu.einstein.wasp.model.JobResource;
-
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PostFilter;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Service;
+
+import edu.yu.einstein.wasp.dao.JobResourceDao;
+import edu.yu.einstein.wasp.model.JobResource;
+import edu.yu.einstein.wasp.service.JobResourceService;
 
 @Service
 public class JobResourceServiceImpl extends WaspServiceImpl<JobResource> implements JobResourceService {
@@ -40,6 +33,7 @@ public class JobResourceServiceImpl extends WaspServiceImpl<JobResource> impleme
 	 * @param jobResourceDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setJobResourceDao(JobResourceDao jobResourceDao) {
 		this.jobResourceDao = jobResourceDao;
@@ -52,16 +46,19 @@ public class JobResourceServiceImpl extends WaspServiceImpl<JobResource> impleme
 	 * @return jobResourceDao
 	 *
 	 */
+	@Override
 	public JobResourceDao getJobResourceDao() {
 		return this.jobResourceDao;
 	}
 
 
-  public JobResource getJobResourceByJobResourceId (final Integer jobResourceId) {
+  @Override
+public JobResource getJobResourceByJobResourceId (final Integer jobResourceId) {
     return this.getJobResourceDao().getJobResourceByJobResourceId(jobResourceId);
   }
 
-  public JobResource getJobResourceByResourceIdJobId (final Integer resourceId, final Integer jobId) {
+  @Override
+public JobResource getJobResourceByResourceIdJobId (final Integer resourceId, final Integer jobId) {
     return this.getJobResourceDao().getJobResourceByResourceIdJobId(resourceId, jobId);
   }
 

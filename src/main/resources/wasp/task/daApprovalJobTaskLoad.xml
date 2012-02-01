@@ -30,7 +30,7 @@
           <property name="status" value="CREATED" />
           <property name="listMap" value="/department/dapendingtasklist.do" />
           <property name="detailMap" value="/def.do" />
-          <property name="permission" value="hasRole('su')" />
+          <property name="permission" value="hasRole('lm-#labId')" />
           <property name="dashboardSortOrder" value="1" />
         </bean>
       </list>

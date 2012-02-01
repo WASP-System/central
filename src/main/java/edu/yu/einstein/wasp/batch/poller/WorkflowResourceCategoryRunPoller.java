@@ -8,11 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.ResourceCategory;
+import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.Task;
-import edu.yu.einstein.wasp.service.StateService;
 import edu.yu.einstein.wasp.service.ResourceCategoryService;
+import edu.yu.einstein.wasp.service.StateService;
 import edu.yu.einstein.wasp.service.TaskService;
 
 /**

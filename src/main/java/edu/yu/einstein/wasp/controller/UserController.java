@@ -40,6 +40,7 @@ import edu.yu.einstein.wasp.service.PasswordService;
 import edu.yu.einstein.wasp.service.UserMetaService;
 import edu.yu.einstein.wasp.service.UserpasswordauthService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
+import edu.yu.einstein.wasp.util.MetaHelper;
 
 
 /**
@@ -88,7 +89,7 @@ public class UserController extends WaspController {
 		
 		m.addAttribute("_metaList", getMetaHelperWebapp().getMasterList(MetaBase.class));
 		m.addAttribute(JQFieldTag.AREA_ATTR, getMetaHelperWebapp().getArea());
-		m.addAttribute("_metaDataMessages", MetaHelperWebapp.getMetadataMessages(request.getSession()));
+		m.addAttribute("_metaDataMessages", MetaHelper.getMetadataMessages(request.getSession()));
 		
 		prepareSelectListData(m);
 	

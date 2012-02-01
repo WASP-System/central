@@ -11,19 +11,12 @@
 
 package edu.yu.einstein.wasp.service.impl;
 
-import edu.yu.einstein.wasp.service.WorkflowsubtypesampleService;
-import edu.yu.einstein.wasp.dao.WorkflowsubtypesampleDao;
-import edu.yu.einstein.wasp.dao.WaspDao;
-import edu.yu.einstein.wasp.model.Workflowsubtypesample;
-
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PostFilter;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Service;
+
+import edu.yu.einstein.wasp.dao.WorkflowsubtypesampleDao;
+import edu.yu.einstein.wasp.model.Workflowsubtypesample;
+import edu.yu.einstein.wasp.service.WorkflowsubtypesampleService;
 
 @Service
 public class WorkflowsubtypesampleServiceImpl extends WaspServiceImpl<Workflowsubtypesample> implements WorkflowsubtypesampleService {
@@ -40,6 +33,7 @@ public class WorkflowsubtypesampleServiceImpl extends WaspServiceImpl<Workflowsu
 	 * @param workflowsubtypesampleDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setWorkflowsubtypesampleDao(WorkflowsubtypesampleDao workflowsubtypesampleDao) {
 		this.workflowsubtypesampleDao = workflowsubtypesampleDao;
@@ -52,16 +46,19 @@ public class WorkflowsubtypesampleServiceImpl extends WaspServiceImpl<Workflowsu
 	 * @return workflowsubtypesampleDao
 	 *
 	 */
+	@Override
 	public WorkflowsubtypesampleDao getWorkflowsubtypesampleDao() {
 		return this.workflowsubtypesampleDao;
 	}
 
 
-  public Workflowsubtypesample getWorkflowsubtypesampleByWorkflowsubtypesampleId (final Integer workflowsubtypesampleId) {
+  @Override
+public Workflowsubtypesample getWorkflowsubtypesampleByWorkflowsubtypesampleId (final Integer workflowsubtypesampleId) {
     return this.getWorkflowsubtypesampleDao().getWorkflowsubtypesampleByWorkflowsubtypesampleId(workflowsubtypesampleId);
   }
 
-  public Workflowsubtypesample getWorkflowsubtypesampleByWorkflowIdSubtypeSampleId (final Integer workflowId, final Integer subtypeSampleId) {
+  @Override
+public Workflowsubtypesample getWorkflowsubtypesampleByWorkflowIdSubtypeSampleId (final Integer workflowId, final Integer subtypeSampleId) {
     return this.getWorkflowsubtypesampleDao().getWorkflowsubtypesampleByWorkflowIdSubtypeSampleId(workflowId, subtypeSampleId);
   }
 

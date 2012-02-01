@@ -11,12 +11,8 @@
 
 package edu.yu.einstein.wasp.dao.impl;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceException;
-import javax.persistence.Query;
-
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Repository;
@@ -48,19 +44,20 @@ public class JobSoftwareDaoImpl extends WaspDaoImpl<JobSoftware> implements edu.
 	 * @return jobSoftware
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public JobSoftware getJobSoftwareByJobSoftwareId (final Integer jobSoftwareId) {
     		HashMap m = new HashMap();
 		m.put("jobSoftwareId", jobSoftwareId);
 
-		List<JobSoftware> results = (List<JobSoftware>) this.findByMap((Map) m);
+		List<JobSoftware> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			JobSoftware rt = new JobSoftware();
 			return rt;
 		}
-		return (JobSoftware) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -73,6 +70,7 @@ public class JobSoftwareDaoImpl extends WaspDaoImpl<JobSoftware> implements edu.
 	 * @return jobSoftware
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public JobSoftware getJobSoftwareBySoftwareIdJobId (final Integer softwareId, final Integer jobId) {
@@ -80,13 +78,13 @@ public class JobSoftwareDaoImpl extends WaspDaoImpl<JobSoftware> implements edu.
 		m.put("softwareId", softwareId);
 		m.put("jobId", jobId);
 
-		List<JobSoftware> results = (List<JobSoftware>) this.findByMap((Map) m);
+		List<JobSoftware> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			JobSoftware rt = new JobSoftware();
 			return rt;
 		}
-		return (JobSoftware) results.get(0);
+		return results.get(0);
 	}
 
 

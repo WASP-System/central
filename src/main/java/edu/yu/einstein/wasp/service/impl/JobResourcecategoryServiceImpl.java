@@ -11,19 +11,12 @@
 
 package edu.yu.einstein.wasp.service.impl;
 
-import edu.yu.einstein.wasp.service.JobResourcecategoryService;
-import edu.yu.einstein.wasp.dao.JobResourcecategoryDao;
-import edu.yu.einstein.wasp.dao.WaspDao;
-import edu.yu.einstein.wasp.model.JobResourcecategory;
-
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PostFilter;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Service;
+
+import edu.yu.einstein.wasp.dao.JobResourcecategoryDao;
+import edu.yu.einstein.wasp.model.JobResourcecategory;
+import edu.yu.einstein.wasp.service.JobResourcecategoryService;
 
 @Service
 public class JobResourcecategoryServiceImpl extends WaspServiceImpl<JobResourcecategory> implements JobResourcecategoryService {
@@ -40,6 +33,7 @@ public class JobResourcecategoryServiceImpl extends WaspServiceImpl<JobResourcec
 	 * @param jobResourcecategoryDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setJobResourcecategoryDao(JobResourcecategoryDao jobResourcecategoryDao) {
 		this.jobResourcecategoryDao = jobResourcecategoryDao;
@@ -52,16 +46,19 @@ public class JobResourcecategoryServiceImpl extends WaspServiceImpl<JobResourcec
 	 * @return jobResourcecategoryDao
 	 *
 	 */
+	@Override
 	public JobResourcecategoryDao getJobResourcecategoryDao() {
 		return this.jobResourcecategoryDao;
 	}
 
 
-  public JobResourcecategory getJobResourcecategoryByJobResourcecategoryId (final Integer jobResourcecategoryId) {
+  @Override
+public JobResourcecategory getJobResourcecategoryByJobResourcecategoryId (final Integer jobResourcecategoryId) {
     return this.getJobResourcecategoryDao().getJobResourcecategoryByJobResourcecategoryId(jobResourcecategoryId);
   }
 
-  public JobResourcecategory getJobResourcecategoryByResourcecategoryIdJobId (final Integer resourcecategoryId, final Integer jobId) {
+  @Override
+public JobResourcecategory getJobResourcecategoryByResourcecategoryIdJobId (final Integer resourcecategoryId, final Integer jobId) {
     return this.getJobResourcecategoryDao().getJobResourcecategoryByResourcecategoryIdJobId(resourcecategoryId, jobId);
   }
 

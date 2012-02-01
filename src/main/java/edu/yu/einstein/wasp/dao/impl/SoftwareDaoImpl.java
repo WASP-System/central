@@ -11,12 +11,8 @@
 
 package edu.yu.einstein.wasp.dao.impl;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceException;
-import javax.persistence.Query;
-
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Repository;
@@ -48,19 +44,20 @@ public class SoftwareDaoImpl extends WaspDaoImpl<Software> implements edu.yu.ein
 	 * @return software
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public Software getSoftwareBySoftwareId (final Integer softwareId) {
     		HashMap m = new HashMap();
 		m.put("softwareId", softwareId);
 
-		List<Software> results = (List<Software>) this.findByMap((Map) m);
+		List<Software> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			Software rt = new Software();
 			return rt;
 		}
-		return (Software) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -73,19 +70,20 @@ public class SoftwareDaoImpl extends WaspDaoImpl<Software> implements edu.yu.ein
 	 * @return software
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public Software getSoftwareByIName (final String iName) {
     		HashMap m = new HashMap();
 		m.put("iName", iName);
 
-		List<Software> results = (List<Software>) this.findByMap((Map) m);
+		List<Software> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			Software rt = new Software();
 			return rt;
 		}
-		return (Software) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -98,19 +96,20 @@ public class SoftwareDaoImpl extends WaspDaoImpl<Software> implements edu.yu.ein
 	 * @return software
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public Software getSoftwareByName (final String name) {
     		HashMap m = new HashMap();
 		m.put("name", name);
 
-		List<Software> results = (List<Software>) this.findByMap((Map) m);
+		List<Software> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			Software rt = new Software();
 			return rt;
 		}
-		return (Software) results.get(0);
+		return results.get(0);
 	}
 
 

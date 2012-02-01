@@ -11,19 +11,12 @@
 
 package edu.yu.einstein.wasp.service.impl;
 
-import edu.yu.einstein.wasp.service.JobDraftSoftwareService;
-import edu.yu.einstein.wasp.dao.JobDraftSoftwareDao;
-import edu.yu.einstein.wasp.dao.WaspDao;
-import edu.yu.einstein.wasp.model.JobDraftSoftware;
-
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PostFilter;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Service;
+
+import edu.yu.einstein.wasp.dao.JobDraftSoftwareDao;
+import edu.yu.einstein.wasp.model.JobDraftSoftware;
+import edu.yu.einstein.wasp.service.JobDraftSoftwareService;
 
 @Service
 public class JobDraftSoftwareServiceImpl extends WaspServiceImpl<JobDraftSoftware> implements JobDraftSoftwareService {
@@ -40,6 +33,7 @@ public class JobDraftSoftwareServiceImpl extends WaspServiceImpl<JobDraftSoftwar
 	 * @param jobDraftSoftwareDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setJobDraftSoftwareDao(JobDraftSoftwareDao jobDraftSoftwareDao) {
 		this.jobDraftSoftwareDao = jobDraftSoftwareDao;
@@ -52,16 +46,19 @@ public class JobDraftSoftwareServiceImpl extends WaspServiceImpl<JobDraftSoftwar
 	 * @return jobDraftSoftwareDao
 	 *
 	 */
+	@Override
 	public JobDraftSoftwareDao getJobDraftSoftwareDao() {
 		return this.jobDraftSoftwareDao;
 	}
 
 
-  public JobDraftSoftware getJobDraftSoftwareByJobDraftSoftwareId (final Integer jobDraftSoftwareId) {
+  @Override
+public JobDraftSoftware getJobDraftSoftwareByJobDraftSoftwareId (final Integer jobDraftSoftwareId) {
     return this.getJobDraftSoftwareDao().getJobDraftSoftwareByJobDraftSoftwareId(jobDraftSoftwareId);
   }
 
-  public JobDraftSoftware getJobDraftSoftwareBySoftwareIdJobdraftId (final Integer softwareId, final Integer jobdraftId) {
+  @Override
+public JobDraftSoftware getJobDraftSoftwareBySoftwareIdJobdraftId (final Integer softwareId, final Integer jobdraftId) {
     return this.getJobDraftSoftwareDao().getJobDraftSoftwareBySoftwareIdJobdraftId(softwareId, jobdraftId);
   }
 

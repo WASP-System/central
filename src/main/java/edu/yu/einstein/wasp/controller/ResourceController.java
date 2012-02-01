@@ -37,7 +37,6 @@ import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.ResourceLane;
 import edu.yu.einstein.wasp.model.ResourceMeta;
 import edu.yu.einstein.wasp.model.Run;
-import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.TypeResource;
 import edu.yu.einstein.wasp.service.BarcodeService;
 import edu.yu.einstein.wasp.service.MessageService;
@@ -47,6 +46,7 @@ import edu.yu.einstein.wasp.service.ResourceMetaService;
 import edu.yu.einstein.wasp.service.ResourceService;
 import edu.yu.einstein.wasp.service.TypeResourceService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
+import edu.yu.einstein.wasp.util.MetaHelper;
 
 @Controller
 @Transactional
@@ -105,7 +105,7 @@ public class ResourceController extends WaspController {
 		
 		m.addAttribute("_metaList", getMetaHelperWebapp().getMasterList(MetaBase.class));
 		m.addAttribute(JQFieldTag.AREA_ATTR, getMetaHelperWebapp().getArea());
-		m.addAttribute("_metaDataMessages", MetaHelperWebapp.getMetadataMessages(request.getSession()));
+		m.addAttribute("_metaDataMessages", MetaHelper.getMetadataMessages(request.getSession()));
 		
 		prepareSelectListData(m);
 
@@ -188,6 +188,7 @@ public class ResourceController extends WaspController {
 			
 			/***** Begin Sort by Resource name *****/
 			class ResourceNameComparator implements Comparator<Resource> {
+				@Override
 				public int compare(Resource arg0, Resource arg1) {
 					return arg0.getName().compareToIgnoreCase(arg1.getName());
 				}

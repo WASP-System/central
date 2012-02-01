@@ -11,19 +11,12 @@
 
 package edu.yu.einstein.wasp.service.impl;
 
-import edu.yu.einstein.wasp.service.TypeResourceService;
-import edu.yu.einstein.wasp.dao.TypeResourceDao;
-import edu.yu.einstein.wasp.dao.WaspDao;
-import edu.yu.einstein.wasp.model.TypeResource;
-
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PostFilter;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Service;
+
+import edu.yu.einstein.wasp.dao.TypeResourceDao;
+import edu.yu.einstein.wasp.model.TypeResource;
+import edu.yu.einstein.wasp.service.TypeResourceService;
 
 @Service
 public class TypeResourceServiceImpl extends WaspServiceImpl<TypeResource> implements TypeResourceService {
@@ -40,6 +33,7 @@ public class TypeResourceServiceImpl extends WaspServiceImpl<TypeResource> imple
 	 * @param typeResourceDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setTypeResourceDao(TypeResourceDao typeResourceDao) {
 		this.typeResourceDao = typeResourceDao;
@@ -52,20 +46,24 @@ public class TypeResourceServiceImpl extends WaspServiceImpl<TypeResource> imple
 	 * @return typeResourceDao
 	 *
 	 */
+	@Override
 	public TypeResourceDao getTypeResourceDao() {
 		return this.typeResourceDao;
 	}
 
 
-  public TypeResource getTypeResourceByTypeResourceId (final Integer typeResourceId) {
+  @Override
+public TypeResource getTypeResourceByTypeResourceId (final Integer typeResourceId) {
     return this.getTypeResourceDao().getTypeResourceByTypeResourceId(typeResourceId);
   }
 
-  public TypeResource getTypeResourceByIName (final String iName) {
+  @Override
+public TypeResource getTypeResourceByIName (final String iName) {
     return this.getTypeResourceDao().getTypeResourceByIName(iName);
   }
 
-  public TypeResource getTypeResourceByName (final String name) {
+  @Override
+public TypeResource getTypeResourceByName (final String name) {
     return this.getTypeResourceDao().getTypeResourceByName(name);
   }
 

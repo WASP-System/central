@@ -11,19 +11,12 @@
 
 package edu.yu.einstein.wasp.service.impl;
 
-import edu.yu.einstein.wasp.service.JobSoftwareService;
-import edu.yu.einstein.wasp.dao.JobSoftwareDao;
-import edu.yu.einstein.wasp.dao.WaspDao;
-import edu.yu.einstein.wasp.model.JobSoftware;
-
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PostFilter;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Service;
+
+import edu.yu.einstein.wasp.dao.JobSoftwareDao;
+import edu.yu.einstein.wasp.model.JobSoftware;
+import edu.yu.einstein.wasp.service.JobSoftwareService;
 
 @Service
 public class JobSoftwareServiceImpl extends WaspServiceImpl<JobSoftware> implements JobSoftwareService {
@@ -40,6 +33,7 @@ public class JobSoftwareServiceImpl extends WaspServiceImpl<JobSoftware> impleme
 	 * @param jobSoftwareDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setJobSoftwareDao(JobSoftwareDao jobSoftwareDao) {
 		this.jobSoftwareDao = jobSoftwareDao;
@@ -52,16 +46,19 @@ public class JobSoftwareServiceImpl extends WaspServiceImpl<JobSoftware> impleme
 	 * @return jobSoftwareDao
 	 *
 	 */
+	@Override
 	public JobSoftwareDao getJobSoftwareDao() {
 		return this.jobSoftwareDao;
 	}
 
 
-  public JobSoftware getJobSoftwareByJobSoftwareId (final Integer jobSoftwareId) {
+  @Override
+public JobSoftware getJobSoftwareByJobSoftwareId (final Integer jobSoftwareId) {
     return this.getJobSoftwareDao().getJobSoftwareByJobSoftwareId(jobSoftwareId);
   }
 
-  public JobSoftware getJobSoftwareBySoftwareIdJobId (final Integer softwareId, final Integer jobId) {
+  @Override
+public JobSoftware getJobSoftwareBySoftwareIdJobId (final Integer softwareId, final Integer jobId) {
     return this.getJobSoftwareDao().getJobSoftwareBySoftwareIdJobId(softwareId, jobId);
   }
 

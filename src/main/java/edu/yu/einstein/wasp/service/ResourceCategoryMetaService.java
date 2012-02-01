@@ -11,13 +11,12 @@
 
 package edu.yu.einstein.wasp.service;
 
-import edu.yu.einstein.wasp.dao.ResourceCategoryMetaDao;
-import edu.yu.einstein.wasp.model.ResourceCategoryMeta;
-
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.stereotype.Service;
+
+import edu.yu.einstein.wasp.dao.ResourceCategoryMetaDao;
+import edu.yu.einstein.wasp.model.ResourceCategoryMeta;
 
 @Service
 public interface ResourceCategoryMetaService extends WaspService<ResourceCategoryMeta> {

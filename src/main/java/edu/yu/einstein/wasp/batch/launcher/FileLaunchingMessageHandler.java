@@ -1,13 +1,20 @@
 package edu.yu.einstein.wasp.batch.launcher;
 
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.JobParametersInvalidException;
 import org.springframework.batch.core.configuration.JobRegistry;
+import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.batch.core.launch.NoSuchJobException;
@@ -16,18 +23,7 @@ import org.springframework.batch.core.repository.JobExecutionAlreadyRunningExcep
 import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.repository.JobRestartException;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.batch.core.explore.JobExplorer;
-import java.util.Date;
-import org.springframework.batch.core.BatchStatus;
-
-import java.util.List;
-import edu.yu.einstein.wasp.model.File;
-import edu.yu.einstein.wasp.model.State;
-
-import java.util.HashSet; 
-import java.util.Set; 
 
 
 public class FileLaunchingMessageHandler {

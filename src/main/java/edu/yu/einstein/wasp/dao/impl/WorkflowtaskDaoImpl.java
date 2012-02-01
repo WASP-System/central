@@ -11,12 +11,8 @@
 
 package edu.yu.einstein.wasp.dao.impl;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceException;
-import javax.persistence.Query;
-
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Repository;
@@ -48,19 +44,20 @@ public class WorkflowtaskDaoImpl extends WaspDaoImpl<Workflowtask> implements ed
 	 * @return workflowtask
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public Workflowtask getWorkflowtaskByWorkflowtaskId (final Integer workflowtaskId) {
     		HashMap m = new HashMap();
 		m.put("workflowtaskId", workflowtaskId);
 
-		List<Workflowtask> results = (List<Workflowtask>) this.findByMap((Map) m);
+		List<Workflowtask> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			Workflowtask rt = new Workflowtask();
 			return rt;
 		}
-		return (Workflowtask) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -73,19 +70,20 @@ public class WorkflowtaskDaoImpl extends WaspDaoImpl<Workflowtask> implements ed
 	 * @return workflowtask
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public Workflowtask getWorkflowtaskByIName (final String iName) {
     		HashMap m = new HashMap();
 		m.put("iName", iName);
 
-		List<Workflowtask> results = (List<Workflowtask>) this.findByMap((Map) m);
+		List<Workflowtask> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			Workflowtask rt = new Workflowtask();
 			return rt;
 		}
-		return (Workflowtask) results.get(0);
+		return results.get(0);
 	}
 
 

@@ -11,12 +11,8 @@
 
 package edu.yu.einstein.wasp.dao.impl;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceException;
-import javax.persistence.Query;
-
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Repository;
@@ -48,19 +44,20 @@ public class WorkflowresourcecategoryDaoImpl extends WaspDaoImpl<Workflowresourc
 	 * @return workflowresourcecategory
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public Workflowresourcecategory getWorkflowresourcecategoryByWorkflowresourcecategoryId (final Integer workflowresourcecategoryId) {
     		HashMap m = new HashMap();
 		m.put("workflowresourcecategoryId", workflowresourcecategoryId);
 
-		List<Workflowresourcecategory> results = (List<Workflowresourcecategory>) this.findByMap((Map) m);
+		List<Workflowresourcecategory> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			Workflowresourcecategory rt = new Workflowresourcecategory();
 			return rt;
 		}
-		return (Workflowresourcecategory) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -73,6 +70,7 @@ public class WorkflowresourcecategoryDaoImpl extends WaspDaoImpl<Workflowresourc
 	 * @return workflowresourcecategory
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public Workflowresourcecategory getWorkflowresourcecategoryByWorkflowIdResourcecategoryId (final Integer workflowId, final Integer resourcecategoryId) {
@@ -80,13 +78,13 @@ public class WorkflowresourcecategoryDaoImpl extends WaspDaoImpl<Workflowresourc
 		m.put("workflowId", workflowId);
 		m.put("resourcecategoryId", resourcecategoryId);
 
-		List<Workflowresourcecategory> results = (List<Workflowresourcecategory>) this.findByMap((Map) m);
+		List<Workflowresourcecategory> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			Workflowresourcecategory rt = new Workflowresourcecategory();
 			return rt;
 		}
-		return (Workflowresourcecategory) results.get(0);
+		return results.get(0);
 	}
 
 

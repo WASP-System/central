@@ -11,12 +11,8 @@
 
 package edu.yu.einstein.wasp.dao.impl;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceException;
-import javax.persistence.Query;
-
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Repository;
@@ -48,19 +44,20 @@ public class TaskMappingDaoImpl extends WaspDaoImpl<TaskMapping> implements edu.
 	 * @return taskMapping
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public TaskMapping getTaskMappingByTaskMappingId (final int taskMappingId) {
     		HashMap m = new HashMap();
 		m.put("taskMappingId", taskMappingId);
 
-		List<TaskMapping> results = (List<TaskMapping>) this.findByMap((Map) m);
+		List<TaskMapping> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			TaskMapping rt = new TaskMapping();
 			return rt;
 		}
-		return (TaskMapping) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -73,6 +70,7 @@ public class TaskMappingDaoImpl extends WaspDaoImpl<TaskMapping> implements edu.
 	 * @return taskMapping
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public TaskMapping getTaskMappingByTaskIdStatus (final int taskId, final String status) {
@@ -80,13 +78,13 @@ public class TaskMappingDaoImpl extends WaspDaoImpl<TaskMapping> implements edu.
 		m.put("taskId", taskId);
 		m.put("status", status);
 
-		List<TaskMapping> results = (List<TaskMapping>) this.findByMap((Map) m);
+		List<TaskMapping> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			TaskMapping rt = new TaskMapping();
 			return rt;
 		}
-		return (TaskMapping) results.get(0);
+		return results.get(0);
 	}
 
 

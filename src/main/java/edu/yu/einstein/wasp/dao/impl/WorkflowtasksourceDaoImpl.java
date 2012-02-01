@@ -11,12 +11,8 @@
 
 package edu.yu.einstein.wasp.dao.impl;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceException;
-import javax.persistence.Query;
-
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Repository;
@@ -48,19 +44,20 @@ public class WorkflowtasksourceDaoImpl extends WaspDaoImpl<Workflowtasksource> i
 	 * @return workflowtasksource
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public Workflowtasksource getWorkflowtasksourceByWorkflowtasksourceId (final Integer workflowtasksourceId) {
     		HashMap m = new HashMap();
 		m.put("workflowtasksourceId", workflowtasksourceId);
 
-		List<Workflowtasksource> results = (List<Workflowtasksource>) this.findByMap((Map) m);
+		List<Workflowtasksource> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			Workflowtasksource rt = new Workflowtasksource();
 			return rt;
 		}
-		return (Workflowtasksource) results.get(0);
+		return results.get(0);
 	}
 
 

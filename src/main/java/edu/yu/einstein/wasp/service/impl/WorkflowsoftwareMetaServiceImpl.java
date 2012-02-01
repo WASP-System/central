@@ -11,19 +11,12 @@
 
 package edu.yu.einstein.wasp.service.impl;
 
-import edu.yu.einstein.wasp.service.WorkflowsoftwareMetaService;
-import edu.yu.einstein.wasp.dao.WorkflowsoftwareMetaDao;
-import edu.yu.einstein.wasp.dao.WaspDao;
-import edu.yu.einstein.wasp.model.WorkflowsoftwareMeta;
-
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PostFilter;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Service;
+
+import edu.yu.einstein.wasp.dao.WorkflowsoftwareMetaDao;
+import edu.yu.einstein.wasp.model.WorkflowsoftwareMeta;
+import edu.yu.einstein.wasp.service.WorkflowsoftwareMetaService;
 
 @Service
 public class WorkflowsoftwareMetaServiceImpl extends WaspServiceImpl<WorkflowsoftwareMeta> implements WorkflowsoftwareMetaService {
@@ -40,6 +33,7 @@ public class WorkflowsoftwareMetaServiceImpl extends WaspServiceImpl<Workflowsof
 	 * @param workflowsoftwareMetaDao
 	 *
 	 */
+	@Override
 	@Autowired
 	public void setWorkflowsoftwareMetaDao(WorkflowsoftwareMetaDao workflowsoftwareMetaDao) {
 		this.workflowsoftwareMetaDao = workflowsoftwareMetaDao;
@@ -52,16 +46,19 @@ public class WorkflowsoftwareMetaServiceImpl extends WaspServiceImpl<Workflowsof
 	 * @return workflowsoftwareMetaDao
 	 *
 	 */
+	@Override
 	public WorkflowsoftwareMetaDao getWorkflowsoftwareMetaDao() {
 		return this.workflowsoftwareMetaDao;
 	}
 
 
-  public WorkflowsoftwareMeta getWorkflowsoftwareMetaByWorkflowsoftwareMetaId (final Integer workflowsoftwareMetaId) {
+  @Override
+public WorkflowsoftwareMeta getWorkflowsoftwareMetaByWorkflowsoftwareMetaId (final Integer workflowsoftwareMetaId) {
     return this.getWorkflowsoftwareMetaDao().getWorkflowsoftwareMetaByWorkflowsoftwareMetaId(workflowsoftwareMetaId);
   }
 
-  public WorkflowsoftwareMeta getWorkflowsoftwareMetaByWorkflowsoftwareIdK (final Integer workflowsoftwareId, final String k) {
+  @Override
+public WorkflowsoftwareMeta getWorkflowsoftwareMetaByWorkflowsoftwareIdK (final Integer workflowsoftwareId, final String k) {
     return this.getWorkflowsoftwareMetaDao().getWorkflowsoftwareMetaByWorkflowsoftwareIdK(workflowsoftwareId, k);
   }
 

@@ -11,7 +11,6 @@
 
 package edu.yu.einstein.wasp.model;
 
-import java.lang.reflect.Array;
 import java.util.List;
 
 import javax.persistence.Column;

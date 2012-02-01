@@ -42,6 +42,7 @@ import edu.yu.einstein.wasp.service.TypeSampleCategoryService;
 import edu.yu.einstein.wasp.service.TypeSampleService;
 import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
+import edu.yu.einstein.wasp.util.MetaHelper;
 
 @Controller
 @Transactional
@@ -91,7 +92,7 @@ public class SampleController extends WaspController {
     
     m.addAttribute("_metaList", getMetaHelperWebapp().getMasterList(MetaBase.class));
 	m.addAttribute(JQFieldTag.AREA_ATTR, getMetaHelperWebapp().getArea());
-	m.addAttribute("_metaDataMessages", MetaHelperWebapp.getMetadataMessages(request.getSession()));
+	m.addAttribute("_metaDataMessages", MetaHelper.getMetadataMessages(request.getSession()));
     
     //m.addAttribute("sample", sampleList);
 	prepareSelectListData(m);
@@ -270,6 +271,7 @@ public class SampleController extends WaspController {
 			 
 			/***** Begin Sort by User last name *****/
 			class SampleSubmitterNameComparator implements Comparator<Sample> {
+				@Override
 				public int compare(Sample arg0, Sample arg1) {
 					return arg0.getUser().getLastName().compareToIgnoreCase(arg1.getUser().getLastName());
 				}

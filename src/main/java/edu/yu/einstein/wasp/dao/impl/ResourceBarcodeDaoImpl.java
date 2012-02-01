@@ -11,12 +11,8 @@
 
 package edu.yu.einstein.wasp.dao.impl;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceException;
-import javax.persistence.Query;
-
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Repository;
@@ -48,19 +44,20 @@ public class ResourceBarcodeDaoImpl extends WaspDaoImpl<ResourceBarcode> impleme
 	 * @return resourceBarcode
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public ResourceBarcode getResourceBarcodeByResourceBarcodeId (final Integer resourceBarcodeId) {
     		HashMap m = new HashMap();
 		m.put("resourceBarcodeId", resourceBarcodeId);
 
-		List<ResourceBarcode> results = (List<ResourceBarcode>) this.findByMap((Map) m);
+		List<ResourceBarcode> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			ResourceBarcode rt = new ResourceBarcode();
 			return rt;
 		}
-		return (ResourceBarcode) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -73,19 +70,20 @@ public class ResourceBarcodeDaoImpl extends WaspDaoImpl<ResourceBarcode> impleme
 	 * @return resourceBarcode
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public ResourceBarcode getResourceBarcodeByResourceId (final Integer resourceId) {
     		HashMap m = new HashMap();
 		m.put("resourceId", resourceId);
 
-		List<ResourceBarcode> results = (List<ResourceBarcode>) this.findByMap((Map) m);
+		List<ResourceBarcode> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			ResourceBarcode rt = new ResourceBarcode();
 			return rt;
 		}
-		return (ResourceBarcode) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -98,19 +96,20 @@ public class ResourceBarcodeDaoImpl extends WaspDaoImpl<ResourceBarcode> impleme
 	 * @return resourceBarcode
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public ResourceBarcode getResourceBarcodeByBarcodeId (final Integer barcodeId) {
     		HashMap m = new HashMap();
 		m.put("barcodeId", barcodeId);
 
-		List<ResourceBarcode> results = (List<ResourceBarcode>) this.findByMap((Map) m);
+		List<ResourceBarcode> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			ResourceBarcode rt = new ResourceBarcode();
 			return rt;
 		}
-		return (ResourceBarcode) results.get(0);
+		return results.get(0);
 	}
 
 
