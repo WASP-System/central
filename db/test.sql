@@ -77,6 +77,8 @@ select 100, taskid, name, 'CREATED', null, now(), null, now(), 1 from task where
 insert into statejob values (100, 100, 2);
 
 
+-- BREAK POINT --
+
 -- --
 -- simulate pi/da/boneshaker approval
 update state set status = "APPROVED" where name like '%Appr%';
@@ -90,6 +92,8 @@ update state set status = "QUOTED" where name like '%Quote%';
 -- simulate sample received  (should set isreceived flag and play w/ that
 update state set status = "RECEIVED" where name like '%Receiv%' and status != 'FINAL';
 
+
+-- BREAK POINT --
 
 -- --
 -- simulates library creation (for dna A)
@@ -106,6 +110,8 @@ insert into jobsample values (4, 1, 3, now(), 1);
 
 update state set status = "MADE" where name like '%Create Library%' and status != 'FINAL';
 
+
+-- BREAK POINT --
 
 -- --
 -- rereceive library?
@@ -134,14 +140,16 @@ select s1.sampleid, s2.sampleid, s2.sampleid-14, 1, now()
 from sample s1, sample s2
 where s1.sampleid = 14 and s2.sampleid in (15,16,17,18,19,20,21,22);
 
-        -- 15, sampleWrapTask
+        -- 14, sampleWrapTask\
 insert into state
 values
-(1010, 15, 'Sample Task (Flowcell)', 'CREATED', 11, now(), null, now(), 1);
+(1010, 14, 'Sample Task (Flowcell)', 'CREATED', null, now(), null, now(), 1);
 insert into statesample
 (stateid, sampleid)
 values
 (1010, 14);
+
+-- BREAK POINT --
 
 -- --
 -- receive flowcell?
@@ -163,6 +171,8 @@ values
  -- assign both on library side and flowcell side
 update state set status = "ASSIGNED" where name like '%Assign Library%' and status != 'FINAL';
 
+
+-- BREAK POINT --
 --- snap4.sql
 
 
@@ -175,11 +185,11 @@ insert into run
 values
 (1, 1, 1, null, 1, 'Run lola run', 14, now(), null, null, 1, now(), 1);
 
-  -- should source from p.u.
-  -- 16 run task wrap
+  -- should source from p.u. sample task wrap
+  -- 15 run task wrap
 insert into state
 values
-(2010, 16, 'Run Task', 'CREATED', 1010, now(), null, now(), 1);
+(2010, 15, 'Run Task', 'CREATED', 1010, now(), null, now(), 1);
 insert into statesample
 (stateid, sampleid)
 values
@@ -189,13 +199,16 @@ insert into staterun
 values
 (2010, 1);
 
-update state set status = "PLACED" where name like '%Place Ampli%' and status != 'FINAL';
+update state set status = "PLACED" where name like '%Place Illum%' and status != 'FINAL';
+
+-- BREAK POINT --
 
 -- --
 -- simulate get run results
 
--- b:/home/echeng/ed/t> touch file.1.1.3.completed.txt
+-- b:/home/echeng/ed/t> touch file.1.14.completed.txt
 
+-- BREAK POINT --
 
 -- --
 -- simulate illumina qc screen ok
@@ -203,6 +216,21 @@ update state set status = "PLACED" where name like '%Place Ampli%' and status !=
 update state set status = "APPROVED" where name like '%Qc Appr%';
 
 
+-- BREAK POINT --
+-- assumes a process after QC Approved breaks these up
+insert into file 
+values
+(100, '/sampleLib/abc.txt', 'text/plain', 1, 'a', null, 0, 1, now(), null); 
+insert into samplefile
+values
+(100, 3, 100, '/sampleLib/abc.txt', 'abc.txt', null, 1, now(), 0); 
 
+
+insert into file 
+values
+(101, '/sampleLib/completed.txt', 'text/plain', 1, 'a', null, 0, 1, now(), null); 
+insert into samplefile
+values
+(101, 3, 101, '/sampleLib/completed.txt', 'completed.txt', null, 1, now(), 0); 
 
 
