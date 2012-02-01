@@ -174,7 +174,7 @@
  
  <!-- root of the dir structure to store sample draft files upload via "manage sample draft" admin screen  -->  
 <bean id="sampleDir" class="java.io.File">
-    <constructor-arg index="0" value="C:\apps\tomcat70eintstein\temp" />
+    <constructor-arg index="0" value="$CATALINA_HOME/temp" />
 </bean>
 
 <!-- endpoint to submit draft files for processing -->
