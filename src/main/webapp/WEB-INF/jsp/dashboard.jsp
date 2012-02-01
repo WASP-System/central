@@ -200,8 +200,7 @@
 <sec:authorize access="hasRole('ft')">
   <div>
   <h1>Platform Unit</h1>
-  <div><a href="<c:url value="/facility/platformunit/list.do"/>">List</a></div>
-  <div><a href="<c:url value="/facility/platformunit/create.do"/>">Create</a></div>
+  <div><a href="<c:url value="/facility/platformunit/list.do"/>">List / Create</a></div>
   <div><a href="<c:url value="/facility/platformunit/assign.do" />">Platform Unit assignment</a></div>
   </div>
   <br />
@@ -209,37 +208,18 @@
 
 <hr>
 
-<div>
-<h1>Systems Admin Utils</h1>
-<div>
-<b>Tasks:</b>
-<br>
+
+<h1>Task List</h1>
 <div>
 <c:forEach items="${tasks}" var="task"> 	
   
  <div><a href="<c:url value="${task.listMap}"/>">${task.task.name}/${task.status}</a>  (${task.stateCount})</div>
   
 </c:forEach>
-
+</div>
 <hr>
-</div>
 
 
-<div>
-<h1>Facility Tech Utils</h1>
-<h2>[Resource 1]</h2>
-<div>[Custom Task 1]</div>
-<div>- [Jobs Waiting]</div>
-<div>- [Jobs Waiting]</div>
-<div>- [Jobs Waiting]</div>
-<div>- [Jobs Waiting]</div>
-<div>- [Jobs Waiting]</div>
-<div>- [Jobs Waiting]</div>
-<div>[Custom Task 2]</div>
-<div>- [Jobs Waiting]</div>
-<div>- [Jobs Waiting]</div>
-<div>- [Jobs Waiting]</div>
-</div>
 
 
 

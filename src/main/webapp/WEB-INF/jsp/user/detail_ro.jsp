@@ -50,33 +50,6 @@
 	   </sec:authorize>
 	</table>
 
-	<table class="data list">
-         <tr><td colspan=2 align=left></br><b><fmt:message key="userDetail.lab_users.label" /></b></td></tr>
-         <c:forEach items="${user.labUser}" var="ul">
-    	  <tr>
-            <td class="label"><a href="/wasp/lab/detail_ro/<c:out value="${ul.lab.departmentId}" />/<c:out value="${ul.lab.labId}" />.do"><c:out value="${ul.lab.name}" /></a></td>
-            <td class="value"><span><c:out value="${ul.role.name}" /></span></td>
-          </tr>
-        </c:forEach>
-	</table>
-          
-	<table class="data list">
-	 <tr><td></br><b><fmt:message key="userDetail.samples.label" /></b></td></tr>
-         <c:forEach items="${user.sample}" var="sample">
-    	  <tr>
-            <td class="value"><a href="/wasp/sample/detail/<c:out value="${sample.sampleId}" />.do"><c:out value="${sample.name}" /></a></td>           
-          </tr>
-        </c:forEach>
-	</table>
-
-	<table class="data list">
-         <tr><td></br><b><fmt:message key="userDetail.jobs.label" /></b></td></tr>
-         <c:forEach items="${user.job}" var="job">
-    	  <tr>
-            <td class="value"><a href="/wasp/job/detail/<c:out value="${job.jobId}" />.do"><c:out value="${job.name}" /></a></td>           
-          </tr>
-        </c:forEach>  
-        </table>
   
     <div class="bottomtxt">
        <%@ include file="/WEB-INF/jsp/lorem.jsp" %>

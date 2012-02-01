@@ -57,36 +57,4 @@
 	</table>
     </form:form>
 
-
- 
-<c:if  test="${user.userId > 0}">
-	<table class="data list">
-         <tr><td colspan=2 align=left></br><b><fmt:message key="user.labusers.label" /></b></td></tr>
-         <c:forEach items="${user.labUser}" var="ul">
-    	  <tr>
-            <td><a href="/wasp/lab/detail_ro/<c:out value="${ul.lab.departmentId}" />/<c:out value="${ul.lab.labId}" />.do"><c:out value="${ul.lab.name}" /></a></td>
-            <td><span><c:out value="${ul.role.name}" /></span></td>
-          </tr>
-        </c:forEach>
-          
-</table>
-	<table class="data list">
-		 <tr><td colspan=2 align=right></br><b><fmt:message key="user.samples.label" /></b></td></tr>
-         <c:forEach items="${user.sample}" var="sample">
-    	  <tr>
-            <td><a href="/wasp/sample/detail/<c:out value="${sample.sampleId}" />.do"><c:out value="${sample.name}" /></a></td>           
-          </tr>
-        </c:forEach>
-
-</table>
-	<table class="data list">
-		
-         <tr><td colspan=2 align=left></br><b><fmt:message key="user.jobs.label" /></b></td></tr>
-         <c:forEach items="${user.job}" var="job">
-    	  <tr>
-            <td><a href="/wasp/job/detail/<c:out value="${job.jobId}" />.do"><c:out value="${job.name}" /></a></td>           
-          </tr>
-        </c:forEach>  
-     </table>
-     </c:if>
   

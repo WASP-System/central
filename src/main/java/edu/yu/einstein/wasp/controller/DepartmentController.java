@@ -336,33 +336,21 @@ public class DepartmentController extends WaspController {
 		// adminName will be in the format: John Greally (JGreally)
 		// the login is JGreally
 		// so, must parse adminName to get unique login
-		String trimmedAdminName = adminName.trim();
-		int startIndex = trimmedAdminName.indexOf("(");
-		int endIndex = trimmedAdminName.indexOf(")");
 
-		if ("".equals(trimmedAdminName)) {
-			waspMessage("department.detail_missingparam.error");
-		} else if (startIndex == -1 || endIndex == -1 || startIndex > endIndex) {
-			// ToDo: add new message about unable to discern login
-			waspMessage("department.detail_formatting.error");
+		String login = StringHelper.getLoginFromFormattedNameAndLogin(adminName.trim());
+		if ("".equals(login)) {
+			waspMessage("department.detail_missinglogin.error");
 		} else {
-			String login = trimmedAdminName.substring(startIndex + 1, endIndex);
-			String trimmedLogin = login.trim();
-			if ("".equals(trimmedLogin)) {
-				waspMessage("department.detail_missinglogin.error");
+			user = userService.getUserByLogin(login);
+			if (user.getUserId() == null) {// user not found in database
+				waspMessage("department.detail_usernotfound.error");
 			} else {
-				// logger.debug("ROB trimmedLogin: " + trimmedLogin);
-				user = userService.getUserByLogin(login);
-				if (user.getUserId() == null) {// user not found in database
-					waspMessage("department.detail_usernotfound.error");
-				} else {
-					// since this is a new department (that we know does NOT
-					// exist, it cannot have any department administrators
-					// associated with it. so, no need here to check that
-					// this person is already associated with this
-					// department
-					adminNameIsOK = true;
-				}
+				// since this is a new department (that we know does NOT
+				// exist, it cannot have any department administrators
+				// associated with it. so, no need here to check that
+				// this person is already associated with this
+				// department
+				adminNameIsOK = true;
 			}
 		}
 
@@ -426,43 +414,30 @@ public class DepartmentController extends WaspController {
 			// id of 0 means this department does not exist in the database; this should not really occur
 			waspMessage("department.detail_invalidDept.error");
 		} else {
-			// next deal with the adminName adminName will be in the format: John Greally (JGreally), and
-			// if it's not in this format, then terminate the login is JGreally so, must parse adminName to get unique login
-			String trimmedAdminName = adminName.trim();
-			int startIndex = trimmedAdminName.indexOf("(");
-			int endIndex = trimmedAdminName.indexOf(")");
-
-			if ("".equals(trimmedAdminName)) {
-				waspMessage("department.detail_missingparam.error");
-			} else if (startIndex == -1 || endIndex == -1 || startIndex > endIndex) {
-				waspMessage("department.detail_formatting.error");
+			
+			String login = StringHelper.getLoginFromFormattedNameAndLogin(adminName.trim());
+			if ("".equals(login)) {
+				waspMessage("department.detail_missinglogin.error");
 			} else {
-
-				String login = trimmedAdminName.substring(startIndex + 1, endIndex);
-				String trimmedLogin = login.trim();
-				if ("".equals(trimmedLogin)) {
-					waspMessage("department.detail_missinglogin.error");
+				User user = userService.getUserByLogin(login);
+				if (user.getUserId() == null) {// user not found in database
+					waspMessage("department.detail_usernotfound.error");
 				} else {
-					User user = userService.getUserByLogin(login);
-					if (user.getUserId() == null) {// user not found in database
-						waspMessage("department.detail_usernotfound.error");
-					} else {
 
-						DepartmentUser existingDepartmentUser = departmentUserService.getDepartmentUserByDepartmentIdUserId(departmentId, user.getUserId());
-						if (existingDepartmentUser.getDepartmentUserId() != null && existingDepartmentUser.getUser().getUserId().intValue() == user.getUserId().intValue()) {
-							// this person is already a departmentAdmin for this particular department
-							waspMessage("department.detail_adminAlreadyExists.error");
-						} else {
-							DepartmentUser departmentUser = new DepartmentUser();
-							departmentUser.setDepartmentId(departmentId);
-							departmentUser.setUserId(user.getUserId());
-							departmentUserService.save(departmentUser);
-							waspMessage("department.detail_ok.label");
-							// if i am the user, reauth
-							User me = authenticationService.getAuthenticatedUser();
-							if (me.getUserId().intValue() == user.getUserId().intValue()) {
-								doReauth();
-							}
+					DepartmentUser existingDepartmentUser = departmentUserService.getDepartmentUserByDepartmentIdUserId(departmentId, user.getUserId());
+					if (existingDepartmentUser.getDepartmentUserId() != null && existingDepartmentUser.getUser().getUserId().intValue() == user.getUserId().intValue()) {
+						// this person is already a departmentAdmin for this particular department
+						waspMessage("department.detail_adminAlreadyExists.error");
+					} else {
+						DepartmentUser departmentUser = new DepartmentUser();
+						departmentUser.setDepartmentId(departmentId);
+						departmentUser.setUserId(user.getUserId());
+						departmentUserService.save(departmentUser);
+						waspMessage("department.detail_ok.label");
+						// if i am the user, reauth
+						User me = authenticationService.getAuthenticatedUser();
+						if (me.getUserId().intValue() == user.getUserId().intValue()) {
+							doReauth();
 						}
 					}
 				}

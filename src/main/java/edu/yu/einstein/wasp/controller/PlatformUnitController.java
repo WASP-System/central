@@ -228,34 +228,6 @@ public class PlatformUnitController extends WaspController {
 	}
 
 
-
-
-	@RequestMapping(value="/create.do", method=RequestMethod.GET)
-	@PreAuthorize("hasRole('ft')")
-	public String showCreateForm(ModelMap m) {
-
-		Sample sample = new Sample();
-
-		sample.setSampleMeta(getMetaHelperWebapp().getMasterList(SampleMeta.class));
-
-		m.put("sample", sample);
-
-		return "facility/platformunit/detail_rw";
-	}
-
-	@RequestMapping(value="/create.do", method=RequestMethod.POST)
-	@PreAuthorize("hasRole('ft')")
-	public String createPlatformUnit(
-		@Valid Sample sampleForm,
-		BindingResult result,
-		SessionStatus status,
-		ModelMap m) {
-
-		preparePlatformUnit(sampleForm);
-
-		return validateAndUpdatePlatformUnit(sampleForm, result, status, m);
-	}
-
 	@RequestMapping(value="/view/{sampleId}.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('ft')")
 	public String viewPlatformUnit(
