@@ -50,11 +50,18 @@
 		// where 
 		// success is a boolean value if true the process continues, if false a error message appear and all other processing is stoped.  --%>
 		var _afterSubmit = function(response, data) {
-	
 			waspFade('statusMessage',response.responseText);
 		
 			return [true,''];     
 		}
+		
+		var _beforeCheckValues = function(data){
+			_colNameValidatedIndexes = [];
+			return data;
+		}
+		
+		<%-- stores list of col names already validated with last index encountered (in case of multiple identical colnames - remember some may be hidden and so legit) --%>
+		var _colNameValidatedIndexes = new Array();
 	
 		<%-- toggles on/off filter toolbar at the top --%>
 		var _enableFilterToolbar=false;
@@ -71,6 +78,7 @@
 			closeAfterEdit:true,
 			closeOnEscape:true,
 			afterSubmit:_afterSubmit,
+			beforeCheckValues:_beforeCheckValues,
 			errorTextFormat:_errorTextFormat,
 			beforeShowForm:_beforeShowEditForm,
 			reloadAfterSubmit:true,
@@ -89,6 +97,7 @@
 			closeOnEscape:true,
 			errorTextFormat:_errorTextFormat,
 			afterSubmit:_afterSubmit,
+			beforeCheckValues:_beforeCheckValues,
 			beforeShowForm:_beforeShowAddForm,
 			width:'auto',
 			reloadAfterSubmit:true,
@@ -212,7 +221,7 @@
 		
 			
 			<%-- list of column names --%>
-			colNames.push('${_meta.k}');
+			colNames.push('${_meta.property.label}');
 		
 			<%-- list of column properties. see JQGrid documentation at http://www.trirand.com/jqgridwiki/doku.php?id=wiki:jqgriddocs for parameter descriptions --%>
 			colModel.push(
@@ -336,10 +345,12 @@
 		}
 	  
 		<%-- validates columns minimally based on any supplied metadata properties but only if there is some data to validate --%>
-		function _validate_basic(value, colname) {
+		function _validate_basic(value, colname, colIndex ) {
 			if (!value)  
 				return [true,""];
-			var colIndex=colNames.indexOf(colname);
+			if (colIndex == undefined){
+				colIndex=_get_next_colname_index(colname);
+			}
 			var numberRe = /^-?[0-9]+\.?[0-9]*$/;
 			var integerRe = /^-?[0-9]+$/;
 		
@@ -388,7 +399,7 @@
 		<%-- validates required columns --%>
 		function _validate_required(value, colname) {
 			//alert("colname: "+colname);
-			var errIdx=colNames.indexOf(colname);
+			var errIdx=_get_next_colname_index(colname);
 			if (_is_element_hidden(errIdx)){
 				return [true,""];
 			}
@@ -397,12 +408,12 @@
 				return [false,errMsg];
 			}
 		
-			return _validate_basic(value, colname);
+			return _validate_basic(value, colname, errIdx);
 		}
 	
 		<%-- validates email columns --%>
 		function _validate_email(value, colname) {
-			var errIdx=colNames.indexOf(colname);
+			var errIdx=_get_next_colname_index(colname);
 			if (_is_element_hidden(errIdx)){
 				return [true,""];
 			}
@@ -413,12 +424,12 @@
 				return [false,errMsg];
 			}
 		
-			return _validate_basic(value, colname);
+			return _validate_basic(value, colname, errIdx);
 		}
 	
 		<%-- validates regular expression --%>
 		function _validate_regexp(value, colname) {
-			var colIndex=colNames.indexOf(colname);
+			var colIndex=_get_next_colname_index(colname);
 			var re = /^RegExp:(.+)$/;
 			var match = re.exec(colConstraint[colIndex]);
 			if (match[1]){
@@ -427,7 +438,7 @@
 					var errMsg=colErrors[colIndex];
 					return [false,errMsg];
 				}
-				return _validate_basic(value, colname);
+				return _validate_basic(value, colname, colIndex);
 			}
 		}
 		
@@ -441,6 +452,24 @@
 				}              		
 			}   
 			return false;
+		}
+		
+		function _get_next_colname_index(colname){
+			if (_colNameValidatedIndexes[colname] != undefined){
+				var index = colNames.indexOf(colname, _colNameValidatedIndexes[colname] + 1);
+				if (index != -1){
+					_colNameValidatedIndexes[colname] = index;
+				}
+				//alert(colname+"="+ (_colNameValidatedIndexes[colname] + 1) +":"+index);
+				return index;
+			} else {
+				index = colNames.indexOf(colname);
+				if (index != -1){
+					_colNameValidatedIndexes[colname] = index;
+				}
+				//alert(colname+"="+ (_colNameValidatedIndexes[colname] + 1) +":"+index);
+				return index;
+			}
 		}
 	
 		<%-- returns cell value. --%> 
