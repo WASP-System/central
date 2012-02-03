@@ -787,3 +787,23 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','workflow','isActive','label','Is Active?','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','workflow','configure','label','Resources and Software','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','workflow','name','label','Workflow Name','1');
+
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','pmoleAddedInvalidValue','error','Action Failed. Value for pmol is NOT valid','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','jobIdInvalidValue','error','Action Failed. Value for jobId is NOT valid','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','cellNotSelectedInvalidValue','error','Action Failed. Select a cell (not a platform unit)','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','laneOrLibraryInvalidValue','error','Action Failed. Lane or library does not exist','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','laneIsNotLaneInvalidValue','error','Action Failed. Lane Selected is not a Lane','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','libraryIsNotLibraryInvalidValue','error','Action Failed. Library Selected is not a Library','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','flowcellRecordNotFound','error','Action Failed. Flowcell record not found','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','adaptorIdError','error','Action Failed. Problem identifying adaptor on library being added.','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','taskFlowcellAddLibraryNotFound','error','Action Failed. Task Flowcell/Add Library To Lane not found','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','flowcellStateError','error','Action Failed. Flowcell state not compatible with adding libraries','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','adaptorNotFoundError','error','Action Failed. No adaptor found on selected library','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','barcodeNotFoundError','error','Action Failed. No barcode found on selected library','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','libLackBarcodeFlowcellHasLibErr','error','Action Failed. The library you want to add contains no barcode AND the flowcell selected already contains other libraries.','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','adaptorsOnLibrariesError','error','Action Failed. Unable to identify adaptors on every library that is already on the flow cell.','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','barcodeMissingOnFlowcellError','error','Action Failed. Barcode on selected library is missing.','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','libWithNoneOnLaneError','error','Action Failed. Lane already contains a library without a multiplex barcode sequence.','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','barcodeAlreadyOnFlowcellError','error','Action Failed. Barcode on selected library already on flowcell.','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','libAdded','success','Update Complete. Library added to flowcell.','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','TESTING','success','TESTING.','1');

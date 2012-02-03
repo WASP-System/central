@@ -151,7 +151,10 @@
 	<definition name="sampleDnaToLibrary/ok" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/sampleDnaToLibrary/ok.jsp" />
 	</definition>
-
+	<definition name="sampleDnaToLibrary/listJobSamples" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/sampleDnaToLibrary/listJobSamples.jsp" />
+	</definition>
+	
 	<definition name="resource/list" extends="template-grid">
 		<put-attribute name="area" value="resource" />
 		<put-attribute name="grid-columns" value="/WEB-INF/jsp/resource/grid_columns.jsp" />
@@ -248,6 +251,9 @@
 	</definition>
 	<definition name="facility/platformunit/assign" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/facility/platformunit/assignform.jsp" />
+	</definition>
+	<definition name="facility/platformunit/limitPriorToAssign" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/facility/platformunit/limitPriorToAssignForm.jsp" />
 	</definition>
 	<definition name="lab/pendinguser/list" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/lab/pendinguser/list.jsp" />

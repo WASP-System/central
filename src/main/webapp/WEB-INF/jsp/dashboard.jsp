@@ -191,6 +191,12 @@
   <div>
   <h1>Incoming Sample Manager</h1>
   <div><a href="<c:url value="/task/samplereceive/list.do"/>">Sample Receiver</a></div>
+  
+  <div><a href="<c:url value="/sampleDnaToLibrary/listJobSamples/10006.do"/>">List Samples for Job 10006</a></div>
+  <div><a href="<c:url value="/sampleDnaToLibrary/listJobSamples/10001.do"/>">List Samples for Job 10001</a></div>
+  <div><a href="<c:url value="/sampleDnaToLibrary/listJobSamples/10100.do"/>">List Samples for Job 10100</a></div>
+  <div><a href="<c:url value="/sampleDnaToLibrary/listJobSamples/10216.do"/>">List Samples for New Job 10216</a></div>
+  
   </div>
   <br />
 </sec:authorize>
@@ -202,6 +208,7 @@
   <h1>Platform Unit</h1>
   <div><a href="<c:url value="/facility/platformunit/list.do"/>">List / Create</a></div>
   <div><a href="<c:url value="/facility/platformunit/assign.do" />">Platform Unit assignment</a></div>
+  <div><a href="<c:url value="/facility/platformunit/limitPriorToAssign.do" />">Platform Unit assignment</a></div>
   </div>
   <br />
 </sec:authorize>

@@ -18,9 +18,9 @@ BODY {margin: 0; padding: 0;}
 </style>
 
 <font color="blue"><wasp:message /></font>
-[<c:out value="${error}" />]
+<br /> <!--   [<c:out value="${error}" />] -->
 
-
+<h1>Assigning Libraries For A Run On: <c:out value="${machineName}" /> </h1>
 <div class="assignmentContent">
 <div class="sampleSide">
   <c:forEach items="${jobs}" var="j">
@@ -39,11 +39,19 @@ BODY {margin: 0; padding: 0;}
                   <c:out value="${sc.sample.name}"/>
                   <c:out value="${sc.sample.typeSample.name}"/>
                   <c:if test="${sc.sample.typeSample.IName == 'library'}">
+                  <c:forEach items="${sc.sample.sampleMeta}" var="sm">
+                   <c:if test="${fn:substringAfter(sm.k, '.library.') == 'adaptorid'}">
+                    <div><label>Adaptor</label> <c:out value="${adaptors[sm.v]}"/></div>
+                    </c:if> 
+                  </c:forEach>  
 <div>
 <a href="javascript:{}" onclick="showAssignForm(this)">(+)</a>
 <div style="display:none">
 <form method="POST" action="<c:url value="/facility/platformunit/assignAdd.do" />">
-  <input type="hidden" name="librarysampleid" value="${sc.sample.sampleId}"> 
+  <input type="hidden" name="librarysampleid" value="${sc.sample.sampleId}">
+  <input type="hidden" name="jobid" value="${j.jobId}">
+  <input type="hidden" name="resourceCategoryId" value="${resourceCategoryId}"> 
+  pmole: <input type="text" size="5" maxlength="5" name="pmolAdded"><br>
   <select class="selectLane" name="lanesampleid"></select>
   <input type="submit" value="assign">
 </form>
@@ -59,7 +67,10 @@ BODY {margin: 0; padding: 0;}
 <a href="javascript:{}" onclick="showAssignForm(this)">(+)</a>
 <div style="display:none">
 <form method="POST" action="<c:url value="/facility/platformunit/assignAdd.do" />">
-  <input type="hidden" name="librarysampleid" value="${schild.sample.sampleId}"> 
+  <input type="hidden" name="librarysampleid" value="${schild.sample.sampleId}">
+  <input type="hidden" name="jobid" value="${j.jobId}"> 
+  <input type="hidden" name="resourceCategoryId" value="${resourceCategoryId}"> 
+ pmole: <input type="text" size="5" maxlength="5" name="pmolAdded"><br>
   <select class="selectLane" name="lanesampleid"></select>
   <input type="submit" value="assign">
 </form>
@@ -124,7 +135,20 @@ BODY {margin: 0; padding: 0;}
 
            <c:forEach items="${puparent.sampleViaSource.sampleSource}" var="lib">
              <div class="library">
-               <label>Library</label><c:out value="${lib.sampleViaSource.name}" /> 
+               <label>Library</label><c:out value="${lib.sampleViaSource.name}" />
+               
+               
+               <c:if test="${lib.sampleViaSource.typeSample.IName == 'library'}">
+                  <c:forEach items="${lib.sampleViaSource.sampleMeta}" var="sm">
+                   <c:if test="${fn:substringAfter(sm.k, '.library.') == 'adaptorid'}">
+                    <div><label>Adaptor</label> <c:out value="${adaptors[sm.v]}"/></div>
+                    </c:if> 
+                  </c:forEach> 
+               </c:if>
+               
+               
+               
+                
              </div>
            </c:forEach>
          </div>
