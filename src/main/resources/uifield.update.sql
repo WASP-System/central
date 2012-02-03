@@ -713,7 +713,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','machine_type','label','Machine Type','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','machine_type','error','Must select machine type','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','machine_type','constraint','NotEmpty','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','machine_type','control','select:FLX:FLX;GAIIx:GAIIx;HISEQ2000:HISEQ2000','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','machine_type','control','select:rocheFLX:FLX;illuminaGaIIx:GAIIx;illuminaHiSeq2000:HISEQ2000','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','machine_type','metaposition','30','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','barcode','label','Barcode','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','barcode_exists','error','Barcode already exists in the database','1');
@@ -731,9 +731,6 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','updated_success','label','Resource updated sucessfully.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','created_success','label','Resource created sucessfully.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','isActive','label','Active','1');
-
-
-
 
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','name','label','Name','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','name','constraint','NotEmpty','1');

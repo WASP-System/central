@@ -45,11 +45,19 @@ public class SeleniumHelper {
 	    String[][] tabArray=null;
 	    try{
 	        Workbook workbook = Workbook.getWorkbook(new File(xlFilePath));
-	        
+	        if (workbook == null) System.out.println("workbook is null");
+
 	        Sheet sheet = workbook.getSheet(sheetName);
+	        if (sheet == null) System.out.println("sheet is null");
+
+	        System.out.println("sheet name="+sheetName);
 	        int startRow,startCol, endRow, endCol,ci,cj;
+	        System.out.println("table name="+tableName);
 	        Cell tableStart=sheet.findCell(tableName);
+	        System.out.println("tableStart="+tableStart+"\n table name"+tableName);
 	        startRow=tableStart.getRow();
+	        System.out.println("got row start");
+
 	        startCol=tableStart.getColumn();
 	
 	        Cell tableEnd= sheet.findCell(tableName, startCol+1,startRow+1, 100, 64000,  false);                               

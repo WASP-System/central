@@ -71,13 +71,13 @@ public class JQFieldTag extends BodyTagSupport {
 	//Sortable field
 	private String sortable;
 	
-	//editable field
+	//editable hidden field
 	private String editHidden;
 	
 	//hidden field
-		private String hidden;
+	private String hidden;
 	
-	//Sortable field
+	//editable field
 	private String editable;
 	
 	//Searchable field

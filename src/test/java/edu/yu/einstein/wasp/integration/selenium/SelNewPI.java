@@ -132,7 +132,7 @@ public class SelNewPI extends SelBaseTest {
     @DataProvider(name = "DP1")
     public Object[][] createData1() throws Exception{
         Object[][] retObjArr=SeleniumHelper.getTableArray("WaspTestData.xls",
-                "Test_001", "addNewPI");
+                "Test", "addNewPI");
         return(retObjArr);
     }
     

@@ -274,7 +274,7 @@ public class ResourceController extends WaspController {
 			
 		if (resourceId == null || resourceId == 0) {
 			
-			//check if Resource Name already exists
+			//check if Resource Name already exists in db; if 'true', do not allow to proceed.
 			if(this.resourceService.getResourceByName(resourceForm.getName()).getName() != null) {
 				System.out.println("name="+this.resourceService.getResourceByName(resourceForm.getName()).getName());
 				try{
@@ -287,7 +287,7 @@ public class ResourceController extends WaspController {
 				
 			}
 			
-			//check if barcode already exists in Db
+			//check if barcode already exists in Db; if 'true', do not allow to proceed.
 			if(this.barcodeService.getBarcodeByBarcode(request.getParameter("barcode")).getBarcode() != null && 
 					this.barcodeService.getBarcodeByBarcode(request.getParameter("barcode")).getBarcode().length() != 0) {
 				try{
@@ -299,7 +299,18 @@ public class ResourceController extends WaspController {
 				}
 				
 			}
-			resourceForm.setResourcecategoryId(Integer.parseInt(request.getParameter("resourceCategoryId")));
+			
+			
+			//resourceForm.setResourcecategoryId(Integer.parseInt(request.getParameter("resourceCategoryId")));
+			
+			ResourceCategory resourceCategory = this.resourceCategoryService.getResourceCategoryByIName(request.getParameter("resource.machine_type"));
+			Integer resourceCategoryId =resourceCategory.getResourceCategoryId();
+			Integer typeResourceId = resourceCategory.getTypeResourceId();
+
+			resourceForm.setResourcecategoryId(resourceCategoryId);
+			resourceForm.setTypeResourceId(typeResourceId);
+
+			
 			resourceForm.setIName(resourceForm.getName());
 			resourceForm.setLastUpdTs(new Date());
 			
@@ -309,7 +320,9 @@ public class ResourceController extends WaspController {
 			else {
 				resourceForm.setIsActive(0);
 			}
-	
+			
+			
+			
 			ResourceBarcode resourceBarcode = new ResourceBarcode();
 			Barcode barcode = new Barcode();
 			
@@ -321,6 +334,8 @@ public class ResourceController extends WaspController {
 
 			Resource resourceDb = this.resourceService.save(resourceForm);
 			resourceId = resourceDb.getResourceId();
+			
+
 			
 			resourceBarcode.setResourceId(resourceId);
 			this.resourceBarcodeService.save(resourceBarcode);
@@ -338,8 +353,8 @@ public class ResourceController extends WaspController {
 			}
 			
 			resourceDb.setName(resourceForm.getName());
-			resourceDb.setResourcecategoryId(Integer.parseInt(request.getParameter("resourceCategoryId")));
-			resourceDb.setTypeResourceId(resourceForm.getTypeResourceId());
+			//resourceDb.setResourcecategoryId(Integer.parseInt(request.getParameter("resourceCategoryId")));
+			//resourceDb.setTypeResourceId(resourceForm.getTypeResourceId());
 			resourceDb.setIName(resourceForm.getName());
 
 			resourceBarcodeDB.getBarcode().setBarcode(request.getParameter("barcode")==null? "" : request.getParameter("barcode"));
