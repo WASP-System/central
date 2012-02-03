@@ -23,7 +23,7 @@
 	          <property name="label" value="Average Fragmentation Size" />
 	          <property name="metaposition" value="10" />
 	          <property name="constraint" value="NotEmpty" />
-	          <property name="error" value="You must provide a constraint" />
+	          <property name="error" value="You must provide a fragmentSize" />
 	          <property name="type" value="NUMBER" />
 	        </bean>
 	        

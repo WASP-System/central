@@ -26,7 +26,7 @@
         
         <bean parent="genericLibraryUiField">
           <property name="baseName" value="volume" />
-          <property name="label" value="volume" />
+          <property name="label" value="Volume" />
           <property name="metaposition" value="20" />
           <property name="constraint" value="NotEmpty" />
           <property name="error" value="You must provide a volume" />
@@ -35,7 +35,7 @@
 
         <bean parent="genericLibraryUiField">
           <property name="baseName" value="buffer" />
-          <property name="label" value="buffer" />
+          <property name="label" value="Buffer" />
           <property name="metaposition" value="30" />
           <property name="control" value="select:TE:TE;Water:Water" />
           <property name="constraint" value="NotEmpty" />
