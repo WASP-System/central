@@ -387,7 +387,7 @@
 	
 		<%-- validates required columns --%>
 		function _validate_required(value, colname) {
-			alert("colname: "+colname);
+			//alert("colname: "+colname);
 			var errIdx=colNames.indexOf(colname);
 			if (_is_element_hidden(errIdx)){
 				return [true,""];
@@ -435,7 +435,7 @@
 			var k = colModel[index].name;
 			if (k.indexOf('.')!=-1){ // not static field
 				var jqName='#tr_'+k.replace(".","\\.");
-				alert(jqName +' : '+ $(jqName).is(':hidden'));
+				//alert(jqName +' : '+ $(jqName).is(':hidden'));
 				if ($(jqName).is(':hidden')){
 					return true;
 				}              		
