@@ -988,13 +988,18 @@ public class JobSubmissionController extends WaspController {
 		//get list of meta fields that are 'allowed' for the given workflowId 
 		int workflowId=jobDraftService.findById(jobDraftId).getWorkflow().getWorkflowId();
 		Map<SubtypeSample,List<SampleDraftMeta>>allowedMetaFields=sampleDraftMetaService.getAllowableMetaFields(workflowId);
+				
+		Map<String,SampleDraftMeta> allowedMetaFieldsMap = new LinkedHashMap<String,SampleDraftMeta>();
 		
-		Set<SampleDraftMeta> allowedMetaFieldsSet = new LinkedHashSet<SampleDraftMeta>(); 
-		
-		for(List<SampleDraftMeta> metaList:allowedMetaFields.values()) {
-			allowedMetaFieldsSet.addAll(metaList);
-			logger.debug("ANDY:"+metaList.get(0).getK()+"="+metaList.get(0).getV());
+		for(SubtypeSample key: allowedMetaFields.keySet()){
+			for (SampleDraftMeta subTypeMeta : allowedMetaFields.get(key)){
+				if (!allowedMetaFieldsMap.containsKey(subTypeMeta.getK())){
+					allowedMetaFieldsMap.put(subTypeMeta.getK(), subTypeMeta);
+				}
+			}
 		}
+		Set<SampleDraftMeta> allowedMetaFieldsSet = new LinkedHashSet<SampleDraftMeta>();
+		allowedMetaFieldsSet.addAll(allowedMetaFieldsMap.values());
 		
 		m.addAttribute("_metaList", allowedMetaFieldsSet); // all field metadata for all sybtypes associated with this workflow combined
 		m.addAttribute("_metaBySubtypeList", allowedMetaFields); // all sample subtypes associated with this workflow and field metadata
@@ -1011,7 +1016,7 @@ public class JobSubmissionController extends WaspController {
 		m.addAttribute("_jobsBySampleSubtype",jobsBySampleSubtype);
 		
 
-		m.addAttribute(JQFieldTag.AREA_ATTR, "sampleDraft");		
+		m.addAttribute(JQFieldTag.AREA_ATTR, "sampleDraft");	
 		prepareSelectListData(m);
 		m.addAttribute("jobdraftId",jobDraftId);
 		m.addAttribute("jobDraft",jobDraft);
@@ -1030,7 +1035,7 @@ public class JobSubmissionController extends WaspController {
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
 		return nextPage(jobDraft);
-	};
+	}
 
 	@RequestMapping(value="/cells/{jobDraftId}.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")

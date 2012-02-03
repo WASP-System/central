@@ -212,7 +212,7 @@
 		
 			
 			<%-- list of column names --%>
-			colNames.push('${_meta.property.label}');
+			colNames.push('${_meta.k}');
 		
 			<%-- list of column properties. see JQGrid documentation at http://www.trirand.com/jqgridwiki/doku.php?id=wiki:jqgriddocs for parameter descriptions --%>
 			colModel.push(
@@ -387,8 +387,12 @@
 	
 		<%-- validates required columns --%>
 		function _validate_required(value, colname) {
+			alert("colname: "+colname);
+			var errIdx=colNames.indexOf(colname);
+			if (_is_element_hidden(errIdx)){
+				return [true,""];
+			}
 			if (!value) {
-				var errIdx=colNames.indexOf(colname);
 				var errMsg=colErrors[errIdx];
 				return [false,errMsg];
 			}
@@ -398,10 +402,13 @@
 	
 		<%-- validates email columns --%>
 		function _validate_email(value, colname) {
+			var errIdx=colNames.indexOf(colname);
+			if (_is_element_hidden(errIdx)){
+				return [true,""];
+			}
 			var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/; 		
 		
 			if (!value || !value.match(re)) {
-				var errIdx=colNames.indexOf(colname);
 				var errMsg=colErrors[errIdx];
 				return [false,errMsg];
 			}
@@ -422,6 +429,18 @@
 				}
 				return _validate_basic(value, colname);
 			}
+		}
+		
+		function _is_element_hidden(index){
+			var k = colModel[index].name;
+			if (k.indexOf('.')!=-1){ // not static field
+				var jqName='#tr_'+k.replace(".","\\.");
+				alert(jqName +' : '+ $(jqName).is(':hidden'));
+				if ($(jqName).is(':hidden')){
+					return true;
+				}              		
+			}   
+			return false;
 		}
 	
 		<%-- returns cell value. --%> 

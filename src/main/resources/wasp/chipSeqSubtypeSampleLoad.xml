@@ -77,6 +77,7 @@
     <property name="uiFieldGroupsFromWrapper">
     	<list>
     		<ref bean="genericBiomoleculeUiFields" />
+    		<ref bean="chipSeqDnaSpecificUiFields" />
     		<ref bean="genericLibraryUiFields" />
     	</list>
     </property>

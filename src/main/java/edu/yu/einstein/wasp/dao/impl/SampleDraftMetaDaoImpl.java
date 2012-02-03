@@ -125,12 +125,17 @@ public class SampleDraftMetaDaoImpl extends WaspDaoImpl<SampleDraftMeta> impleme
 	   String sql=
 		   "select master.area,master.name,master.pos,label.attrValue as label,error.attrValue as error,\n"+ 
 		   "control.attrValue as control,suffix.attrValue as suffix,constr.attrValue as 'constraint',\n"+
-		   "master.subtypesampleid, master.subtypeName\n"+
+		   "master.subtypesampleid, master.subtypeName, master.arealist\n"+
 		   "from \n"+
-		   "(select distinct f.area,f.name,convert(f.attrValue, signed) pos, st.subtypesampleid, st.name as subtypeName\n"+
+		   "(select distinct f.area,f.name,convert(f.attrValue, signed) pos, st.subtypesampleid, st.name as subtypeName, st.arealist as arealist\n"+
 		   "from subtypesample st\n"+					   
 		   // "join uifield f on st.iname = concat(f.area,'Sample')\n"+ 
-		   "join uifield f on st.iname = f.area\n"+ 
+		   //"join uifield f on st.iname = f.area\n"+ 
+		   "join uifield f on  (\n"+
+		   "st.arealist regexp concat('^\\s*' , f.area , '\\s*$') or\n"+
+		   "st.arealist regexp concat('^\\s*' , f.area , '\\s*,') or\n"+
+		   "st.arealist regexp concat(',\\s*' , f.area , '\\s*,') or\n"+
+		   "st.arealist regexp concat(',\\s*' , f.area , '\\s*$') )\n"+
 		   "and f.attrName='metaposition'\n"+
 		   "and f.locale='en_US'\n"+
 		   "where st.subtypesampleid in (\n"+
@@ -145,11 +150,11 @@ public class SampleDraftMetaDaoImpl extends WaspDaoImpl<SampleDraftMeta> impleme
 		   "left outer join uifield control on master.area=control.area and master.name=control.name and control.attrName='control'\n"+
 		   "left outer join uifield suffix on master.area=suffix.area and master.name=suffix.name and suffix.attrName='suffix'\n"+
 		   "left outer join uifield constr on master.area=constr.area and master.name=constr.name and constr.attrName='constraint'\n"+
-		   "order by master.pos\n";
+		   "order by master.subtypeSampleId,master.area,master.pos;\n";
 
 	   
 	   Map<SubtypeSample,List<SampleDraftMeta>> result=new LinkedHashMap<SubtypeSample,List<SampleDraftMeta>>();
-	   
+	   Map<SubtypeSample, Map<String,List<SampleDraftMeta>> > tmp = new LinkedHashMap<SubtypeSample, Map<String,List<SampleDraftMeta>> >();
 	   List<Object[]> listObj=entityManager.createNativeQuery(sql).setParameter("workflowid", workflowId).getResultList();
 	   for(Object[] o:listObj) {
 		   
@@ -163,6 +168,7 @@ public class SampleDraftMetaDaoImpl extends WaspDaoImpl<SampleDraftMeta> impleme
 		   String constraint=(String)o[7];
 		   Integer subtypeSampleId=(Integer)o[8];
 		   String subtypeName=(String)o[9];
+		   String areaList=(String)o[10];
 		   
 		   SampleDraftMeta m = new SampleDraftMeta();
 		   
@@ -181,15 +187,27 @@ public class SampleDraftMetaDaoImpl extends WaspDaoImpl<SampleDraftMeta> impleme
 		   SubtypeSample subtypeNew=new SubtypeSample();
 		   subtypeNew.setSubtypeSampleId(subtypeSampleId);
 		   subtypeNew.setName(subtypeName);
+		   subtypeNew.setAreaList(areaList);
 		   
-		   List<SampleDraftMeta> list=result.get(subtypeNew);
 		   
-		   if (list==null) {
-			   list=new ArrayList<SampleDraftMeta>();
-			   result.put(subtypeNew, list);
+		   Map<String,List<SampleDraftMeta>> areaMap = tmp.get(subtypeNew);   
+		   if (areaMap == null){
+			   // subtype not in the list yet so put it there with a blank list
+			   areaMap = new LinkedHashMap<String,List<SampleDraftMeta>>();
+			   for (String componentArea: subtypeNew.getComponentMetaAreas()){
+				   areaMap.put(componentArea, new ArrayList<SampleDraftMeta>());
+			   }
+			   tmp.put(subtypeNew, areaMap);
 		   }
-		   
-		   list.add(m);
+		   areaMap.get(area).add(m);
+	   }
+	   for (SubtypeSample st : tmp.keySet()){
+		   Map<String,List<SampleDraftMeta>> areaMap = tmp.get(st);
+		   if (!result.containsKey(st))
+			   result.put(st, new ArrayList<SampleDraftMeta>());
+		   for (String componentArea : areaMap.keySet()){
+			   result.get(st).addAll(areaMap.get(componentArea));
+		   }
 	   }
 	   return result;
 	}

@@ -99,7 +99,6 @@ $.jgrid.extend ({editGridRow : function(rowid, p){
                 		if ($.inArray(k, _myValidMetaFields) == -1) {//element is not valid for given subtype
                 			
                 			var jqName='#tr_'+k.replace(".","\\.");
-                			
                 			$(jqName, form).hide();
                 		}                 	
 					}

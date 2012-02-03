@@ -43,6 +43,7 @@
   			<entry key="platformUnitName" value="platformUnitName" />
   			<entry key="cellName" value="cellName" />
   			<entry key="maxCellNumber" value="maxCellNumber" />
+  			<entry key="multiplicationFactor" value="multiplicationFactor" />
   		</map>
   	</property>
   </bean>

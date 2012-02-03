@@ -48,6 +48,10 @@
           <property name="k" value="#{illuminaFlowcellV3UiFieldArea}.#{waspPlatformUnit['maxCellNumber']}" />
           <property name="v" value="8" />
         </bean>
+        <bean class="edu.yu.einstein.wasp.model.SubtypeSampleMeta">
+          <property name="k" value="#{illuminaFlowcellV3UiFieldArea}.#{waspPlatformUnit['multiplicationFactor']}" />
+          <property name="v" value="1" />
+        </bean>
        </list>
     </property> 
   	
