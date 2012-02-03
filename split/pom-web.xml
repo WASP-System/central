@@ -437,7 +437,6 @@
 			</dependency>
 	</dependencies>
 	<build>
-		<finalName>simple-webapp</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
