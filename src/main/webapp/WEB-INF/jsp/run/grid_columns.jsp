@@ -12,3 +12,4 @@
 
 <wasp:field name="isActive"  type="checkbox" />
   
+_navAttr={edit:false,view:true,add:false,del:false};

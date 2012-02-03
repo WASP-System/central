@@ -168,7 +168,7 @@ public class PlatformUnitController extends WaspController {
 		 */
 		if (!StringUtils.isEmpty(request.getParameter("selId"))) {
 			int selId = Integer.parseInt(request.getParameter("selId"));
-			int selIndex = sampleList.indexOf(userService.findById(selId));
+			int selIndex = sampleList.indexOf(sampleService.findById(selId));
 			frId = selIndex;
 			toId = frId + 1;
 
