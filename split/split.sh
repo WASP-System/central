@@ -61,3 +61,5 @@ cp split/pom-root.xml pom.xml
 #cp split/pom-site.xml wasp-site/pom.xml
 cp split/pom-core.xml wasp-core/pom.xml
 cp split/pom-web.xml wasp-web/pom.xml
+svn add wasp-web/pom.xml
+svn add wasp-core/pom.xml
