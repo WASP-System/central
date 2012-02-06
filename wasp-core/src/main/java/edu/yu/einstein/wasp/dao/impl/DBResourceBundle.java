@@ -13,6 +13,10 @@
 
 package edu.yu.einstein.wasp.dao.impl;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Locale;
 
@@ -70,9 +74,26 @@ public class DBResourceBundle implements ApplicationContextAware{
 		
 		try {
 			
-			Resource uifield = this.applicationContext.getResource("classpath:uifield.update.sql");
+			//TODO: should this really be hard-coded?
+			Resource uifield = this.applicationContext.getResource("classpath:/uifield.update.sql");
 			
-			String sql = FileUtils.readFileToString(uifield.getFile());
+			String sql = "";
+			
+			try {
+				InputStream is = uifield.getInputStream();
+				BufferedReader br = new BufferedReader(
+						new InputStreamReader(is));
+
+				String line;
+				while ((line = br.readLine()) != null) {
+					sql += line + System.getProperty("line.separator");
+				}
+				br.close();
+
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		 
 			
 			final String[] statements=sql.split(";\\s*\\n");
 							
