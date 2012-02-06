@@ -1705,18 +1705,17 @@ public class JobSubmissionController extends WaspController {
 
 			this.sampleDraftService.merge(sampleDraftDb);
 		}
-
-		String area=subtype.getIName().substring(0,subtype.getIName().length()-"Sample".length());//chop Sample suffix
 		
-		MetaHelperWebapp sampleMetaHelperWebapp = new MetaHelperWebapp(area,SampleDraftMeta.class, request.getSession());
+		List<SampleDraftMeta> sampleDraftMetaList = new ArrayList<SampleDraftMeta>();
 		
-		List<SampleDraftMeta> sampleDraftMetaList = sampleMetaHelperWebapp.getFromJsonForm(request, SampleDraftMeta.class);
-
+		for (String area: subtype.getComponentMetaAreas()){
+			MetaHelperWebapp sampleMetaHelperWebapp = new MetaHelperWebapp(area,SampleDraftMeta.class, request.getSession());
+			sampleDraftMetaList.addAll(sampleMetaHelperWebapp.getFromJsonForm(request, SampleDraftMeta.class));
+		}
 		sampleDraftForm.setSampleDraftMeta(sampleDraftMetaList);
 		
-		for (Iterator<SampleDraftMeta> it=sampleDraftMetaList.iterator();it.hasNext();) {
-			SampleDraftMeta meta = it.next();
-			if (StringUtils.isEmpty(meta.getV())) it.remove();//remove blank entries
+		for (SampleDraftMeta meta : sampleDraftMetaList) {
+			if (StringUtils.isEmpty(meta.getV())) sampleDraftMetaList.remove(meta);//remove blank entries
 			else meta.setSampledraftId(sampleDraftId);
 		}
 
