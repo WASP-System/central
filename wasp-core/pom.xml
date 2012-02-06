@@ -29,7 +29,10 @@
 						</execution>
 					</executions>
 					<configuration>
-						<mainClass>edu.yu.einstein.wasp.batch.StartSpring</mainClass>
+						<executable>java</executable>
+  						<longClasspath>true</longClasspath>
+  						<commandlineArgs>-classpath src/main/resources</commandlineArgs>
+  						<mainClass>edu.yu.einstein.wasp.batch.StartSpring</mainClass>
 					</configuration>
 				</plugin>
 				<plugin>
