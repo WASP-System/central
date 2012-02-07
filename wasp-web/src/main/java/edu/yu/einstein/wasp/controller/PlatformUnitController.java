@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -30,10 +31,13 @@ import org.springframework.web.bind.support.SessionStatus;
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Adaptorset;
+import edu.yu.einstein.wasp.model.Barcode;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
+import edu.yu.einstein.wasp.model.ResourceBarcode;
 import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.SampleBarcode;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.SampleSourceMeta;
@@ -47,15 +51,18 @@ import edu.yu.einstein.wasp.model.Workflow;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.AdaptorsetService;
 import edu.yu.einstein.wasp.service.AdaptorService;
+import edu.yu.einstein.wasp.service.BarcodeService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.ResourceCategoryService;
+import edu.yu.einstein.wasp.service.SampleBarcodeService;
 import edu.yu.einstein.wasp.service.SampleMetaService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.SampleSourceService;
 import edu.yu.einstein.wasp.service.SampleSourceMetaService;
 import edu.yu.einstein.wasp.service.StateService;
 import edu.yu.einstein.wasp.service.StatesampleService;
+import edu.yu.einstein.wasp.service.SubtypeSampleService;
 import edu.yu.einstein.wasp.service.TaskService;
 import edu.yu.einstein.wasp.service.TypeSampleService;
 import edu.yu.einstein.wasp.service.TypeResourceService;
@@ -110,6 +117,14 @@ public class PlatformUnitController extends WaspController {
 	private TypeResourceService typeResourceService;
 
 	@Autowired
+	private SampleBarcodeService sampleBarcodeService;
+	
+	@Autowired
+	private BarcodeService barcodeService;
+
+
+	
+	@Autowired
 	private MessageService messageService;
 	  
 	@Autowired
@@ -123,9 +138,18 @@ public class PlatformUnitController extends WaspController {
 	@PreAuthorize("hasRole('ft')")
 	public String showListShell(ModelMap m) {
 		m.addAttribute("_metaList", getMetaHelperWebapp().getMasterList(SampleMeta.class));
-		m.addAttribute(JQFieldTag.AREA_ATTR, "allplatformunit");
+		m.addAttribute(JQFieldTag.AREA_ATTR, "platformunit");
 
 		return "facility/platformunit/list";
+	}
+	
+	@RequestMapping(value="/instance/list.do", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('ft')")
+	public String showPlatformunitInstanceListShell(ModelMap m) {
+		m.addAttribute("_metaList", getMetaHelperWebapp().getMasterList(SampleMeta.class));
+		m.addAttribute(JQFieldTag.AREA_ATTR, "platformunitInstance");
+
+		return "facility/platformunit/instance/list";
 	}
 
 	@SuppressWarnings("unchecked")
@@ -219,7 +243,12 @@ public class PlatformUnitController extends WaspController {
 			cell.put("id", sample.getSampleId());
 
 			List<SampleMeta> sampleMetaList = getMetaHelperWebapp().syncWithMaster(sample.getSampleMeta());
-			List<String> cellList = new ArrayList<String>(Arrays.asList(new String[] { sample.getName(), sample.getUser().getFirstName() }));
+			
+			List<String> cellList = new ArrayList<String>(
+					Arrays.asList(
+							new String[] { 
+									"<a href=/wasp/facility/platformunit/instance/list.do?selId="+sample.getSampleId()+">" + 
+											sample.getName() + "</a>" }));
 
 			for (SampleMeta meta : sampleMetaList) {
 				cellList.add(meta.getV());
@@ -240,9 +269,144 @@ public class PlatformUnitController extends WaspController {
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value="/instance/listJSON.do", method=RequestMethod.GET)
+	public @ResponseBody
+	String getPlatformInstanceListJson() {
+
+		String sord = request.getParameter("sord");
+		String sidx = request.getParameter("sidx");
+
+		Map<String, Object> jqgrid = new HashMap<String, Object>();
+
+		List<Sample> sampleList;
+
+		// First, search for typesampleid which its iname is "platform unit"
+		Map<String, String> typeSampleQueryMap = new HashMap<String, String>();
+		typeSampleQueryMap.put("iName", "platformunit");
+		List<TypeSample> typeSampleList = typeSampleService.findByMap(typeSampleQueryMap);
+		if (typeSampleList.size() == 0)
+			return "'Platform Unit' sample type is not defined!";
+		// Then, use the typesampleid to pull all platformunits from the sample
+		// table
+		Map<String, Object> sampleListBaseQueryMap = new HashMap<String, Object>();
+		sampleListBaseQueryMap.put("typeSampleId", typeSampleList.get(0).getTypeSampleId());
+
+		if (request.getParameter("_search") == null 
+				|| request.getParameter("_search").equals("false") 
+				|| StringUtils.isEmpty(request.getParameter("searchString"))) {
+			sampleList = sampleService.findByMap(sampleListBaseQueryMap);
+
+		} else {
+
+			sampleListBaseQueryMap.put(request.getParameter("searchField"), request.getParameter("searchString"));
+
+			sampleList = this.sampleService.findByMap(sampleListBaseQueryMap);
+
+			if ("ne".equals(request.getParameter("searchOper"))) {
+				Map allSampleListBaseQueryMap = new HashMap();
+				allSampleListBaseQueryMap.put("typeSampleId", 5);
+
+				List<Sample> allSampleList = sampleService.findByMap(allSampleListBaseQueryMap);
+				for (Sample excludeSample : allSampleList) {
+					allSampleList.remove(excludeSample);
+				}
+				sampleList = allSampleList;
+			}
+		}
+
+	try {
+		ObjectMapper mapper = new ObjectMapper();
+		
+		Map<Integer, Integer> allSampleBarcode = new TreeMap<Integer, Integer>();
+		for (SampleBarcode sampleBarcode : (List<SampleBarcode>) this.sampleBarcodeService.findAll()) {
+			if (sampleBarcode != null) {
+				
+				allSampleBarcode.put(sampleBarcode.getSampleId(), sampleBarcode.getBarcodeId());
+			}
+		}
+		
+		Map<Integer, String> allBarcode = new TreeMap<Integer, String>();
+		for (Barcode barcode : (List<Barcode>) this.barcodeService.findAll()) {
+			if (barcode != null) {
+				
+				allBarcode.put(barcode.getBarcodeId(), barcode.getBarcode());
+			}
+		}
+
+		int pageIndex = Integer.parseInt(request.getParameter("page")); // index of page
+		int pageRowNum = Integer.parseInt(request.getParameter("rows")); // number of rows in one page
+		int rowNum = sampleList.size(); // total number of rows
+		int pageNum = (rowNum + pageRowNum - 1) / pageRowNum; // total number of pages
+
+		jqgrid.put("records", rowNum + "");
+		jqgrid.put("total", pageNum + "");
+		jqgrid.put("page", pageIndex + "");
+
+		Map<String, String> sampleData = new HashMap<String, String>();
+
+		sampleData.put("page", pageIndex + "");
+		sampleData.put("selId", StringUtils.isEmpty(request.getParameter("selId")) ? "" : request.getParameter("selId"));
+		jqgrid.put("sampledata", sampleData);
+
+		List<Map> rows = new ArrayList<Map>();
+
+		int frId = pageRowNum * (pageIndex - 1);
+		int toId = pageRowNum * pageIndex;
+		toId = toId <= rowNum ? toId : rowNum;
+
+		/*
+		 * if the selId is set, change the page index to the one contains
+		 * the selId
+		 */
+		if (!StringUtils.isEmpty(request.getParameter("selId"))) {
+			int selId = Integer.parseInt(request.getParameter("selId"));
+			int selIndex = sampleList.indexOf(sampleService.findById(selId));
+			frId = selIndex;
+			toId = frId + 1;
+
+			jqgrid.put("records", "1");
+			jqgrid.put("total", "1");
+			jqgrid.put("page", "1");
+		}
+
+		List<Sample> samplePage = sampleList.subList(frId, toId);
+		for (Sample sample : samplePage) {
+			Map cell = new HashMap();
+			cell.put("id", sample.getSampleId());
+
+			List<SampleMeta> sampleMetaList = getMetaHelperWebapp().syncWithMaster(sample.getSampleMeta());
+			
+			List<String> cellList = new ArrayList<String>(
+					Arrays.asList(
+							new String[] { 
+										sample.getName(),
+										sample.getSubtypeSample()==null?"": sample.getSubtypeSample().getName(), 
+										sample.getUser().getFirstName()+" "+sample.getUser().getLastName(),
+										allSampleBarcode.get(sample.getSampleId())==null? "" : allBarcode.get(allSampleBarcode.get(sample.getSampleId()))}));
+
+			for (SampleMeta meta : sampleMetaList) {
+				cellList.add(meta.getV());
+			}
+
+			cell.put("cell", cellList);
+
+			rows.add(cell);
+		}
+
+		jqgrid.put("rows", rows);
+
+		String json = mapper.writeValueAsString(jqgrid);
+		return json;
+
+	} catch (Exception e) {
+			throw new IllegalStateException("Can't marshall to JSON " + sampleList, e);
+		}
+	}
+
 	
 
-	@RequestMapping(value="/updateJSON.do", method=RequestMethod.POST)
+	@RequestMapping(value="/instance/updateJSON.do", method=RequestMethod.POST)
 	public String updateJson(
 			@RequestParam("id") Integer sampleId,
 			@Valid Sample sampleForm, 

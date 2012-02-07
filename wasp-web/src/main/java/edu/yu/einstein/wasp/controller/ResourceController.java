@@ -199,7 +199,7 @@ public class ResourceController extends WaspController {
 				if (sord.equals("desc"))
 					Collections.reverse(resourceList);
 			}
-			/***** End Sort by User name *****/
+			/***** End Sort by Resource name *****/
 
 			List<Map> rows = new ArrayList<Map>();
 
