@@ -43,6 +43,7 @@ import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.SampleSourceMeta;
 import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.Statesample;
+import edu.yu.einstein.wasp.model.SubtypeSampleResourceCategory;
 import edu.yu.einstein.wasp.model.Task;
 import edu.yu.einstein.wasp.model.TypeSample;
 import edu.yu.einstein.wasp.model.TypeResource;
@@ -62,7 +63,11 @@ import edu.yu.einstein.wasp.service.SampleSourceService;
 import edu.yu.einstein.wasp.service.SampleSourceMetaService;
 import edu.yu.einstein.wasp.service.StateService;
 import edu.yu.einstein.wasp.service.StatesampleService;
+
+import edu.yu.einstein.wasp.service.SubtypeSampleResourceCategoryService;
+
 import edu.yu.einstein.wasp.service.SubtypeSampleService;
+
 import edu.yu.einstein.wasp.service.TaskService;
 import edu.yu.einstein.wasp.service.TypeSampleService;
 import edu.yu.einstein.wasp.service.TypeResourceService;
@@ -103,6 +108,9 @@ public class PlatformUnitController extends WaspController {
 
 	@Autowired
 	private StatesampleService stateSampleService;
+
+	@Autowired
+	private SubtypeSampleResourceCategoryService subtypeSampleResourceCategoryService;
 
 	@Autowired
 	private TaskService taskService;
@@ -572,12 +580,14 @@ public class PlatformUnitController extends WaspController {
 	public String limitPriorToAssignmentForm(ModelMap m) {
 		
 		TypeResource typeResource = typeResourceService.getTypeResourceByIName("mps");
-		if(typeResource.getTypeResourceId()==0){
-			//TODO throw exception
-		}
+		//if(typeResource.getTypeResourceId()==0){
+			//waspMessage("platformunit.resourceCategoryNotFound.error");
+			//return "redirect:/dashboard.do";
+		//}
 		Map filterForResourceCategory = new HashMap();
 		filterForResourceCategory.put("typeResourceId", typeResource.getTypeResourceId());
 		List<ResourceCategory> resourceCategories = resourceCategoryService.findByMap(filterForResourceCategory);
+		
 		m.put("resourceCategories", resourceCategories);
 		return "facility/platformunit/limitPriorToAssign"; 
 	}	
@@ -593,10 +603,14 @@ public class PlatformUnitController extends WaspController {
 	public String assignmentForm(@RequestParam("resourceCategoryId") Integer resourceCategoryId, 
 			ModelMap m) {
 
+		if(resourceCategoryId.intValue()==0){//no machine type selected by user through the drop-down box
+			waspMessage("platformunit.resourceCategoryNotSelected.error");
+			return "redirect:/facility/platformunit/limitPriorToAssign.do";
+		}
 		ResourceCategory resourceCategory = resourceCategoryService.getResourceCategoryByResourceCategoryId(resourceCategoryId);
-		
-		if(resourceCategory.getResourceCategoryId() == 0){
-			//TODO throw exception and get out of here
+		if(resourceCategory.getResourceCategoryId() == 0){//machine type not found in database
+			waspMessage("platformunit.resourceCategoryInvalidValue.error");
+			return "redirect:/facility/platformunit/limitPriorToAssign.do";
 		}
 		
 		
@@ -610,7 +624,26 @@ public class PlatformUnitController extends WaspController {
 		}
 		stateMap.put("taskId", task.getTaskId()); 	
 		stateMap.put("status", "CREATED"); 
-		List<State> platformUnitStates = stateService.findByMap(stateMap);
+		List<State> temp_platformUnitStates = stateService.findByMap(stateMap);
+		List<State> platformUnitStates = new ArrayList<State>();//for the filtered states (but would really just need a filtered list of flow cells)
+		
+		List<Sample> flowCells = new ArrayList<Sample>();
+		
+		Map stsrcMap = new HashMap();//get the ids for the types of flow cells that go on the selected machine
+		stsrcMap.put("resourcecategoryId", resourceCategory.getResourceCategoryId()); 
+		List<SubtypeSampleResourceCategory> stsrcList = subtypeSampleResourceCategoryService.findByMap(stsrcMap);
+		//subtypeSampleResourceCategoryService.g
+		for(State s : temp_platformUnitStates){
+			List<Statesample> ssList = s.getStatesample();
+			for(Statesample ss : ssList){
+				for(SubtypeSampleResourceCategory stsrc : stsrcList){
+					if(stsrc.getSubtypeSampleId().intValue() == ss.getSample().getSubtypeSampleId().intValue()){
+						platformUnitStates.add(s);//consider really just taking the flowcell sample, which is done next line
+						flowCells.add(ss.getSample());
+					}
+				}
+			}
+		}
 
 		// picks up jobs
 		// FAKING IT HERE TOO
@@ -634,6 +667,8 @@ public class PlatformUnitController extends WaspController {
 		Job aJob = jobService.getJobByJobId(10091);
 		tempJobs.add(aJob);
 		aJob = jobService.getJobByJobId(10001);
+		tempJobs.add(aJob);
+		aJob = jobService.getJobByJobId(10215);
 		tempJobs.add(aJob);
 		
 		for(Job job : tempJobs){
@@ -680,6 +715,7 @@ public class PlatformUnitController extends WaspController {
 		m.put("platformUnitStates", platformUnitStates); 
 		m.put("hello", "hello world"); 
 		m.put("adaptors", adaptors);
+		m.put("flowCells", flowCells);
 		
 		return "facility/platformunit/assign"; 
 	}
@@ -963,7 +999,7 @@ public class PlatformUnitController extends WaspController {
 		newSampleSourceMeta2.setPosition(new Integer(1));
 		sampleSourceMetaService.save(newSampleSourceMeta2);
 		
-		waspMessage("platformunit.LibAdded.success");
+		waspMessage("platformunit.libAdded.success");
 		//return assignmentForm(resourceCategoryId.intValue(), m);//with this way, the page is not updated, so the newly added library does NOT appear on the left side of the page
 		return "redirect:/facility/platformunit/assign.do?resourceCategoryId=" + resourceCategoryId.intValue();//with this way, the page is updated but map is not passed, so SUCCESS is not displayed
 	}	

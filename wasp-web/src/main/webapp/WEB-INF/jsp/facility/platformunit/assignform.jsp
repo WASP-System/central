@@ -13,16 +13,17 @@ function showAssignForm(e) {
 DIV {margin-left: 10px; }
 BODY {margin: 0; padding: 0;}
 .assignmentContent {width:900px; height: 400px; }
-.sampleSide {float:left; width:465; height: 100%; overflow: auto}
-.platformUnitSide {float:left; wldth:465px; height:100%; overflow: auto};
+.sampleSide {float:left; width:400px; height: 100%; overflow: auto}
+.platformUnitSide {float:left; wldth:450px; height:100%; overflow: auto};
 </style>
 
 <font color="blue"><wasp:message /></font>
 <br /> <!--   [<c:out value="${error}" />] -->
-
-<h1>Assigning Libraries For A Run On: <c:out value="${machineName}" /> </h1>
+<h1>Assigning Libraries For A Run On: <c:out value="${machineName}" /></h1>
 <div class="assignmentContent">
 <div class="sampleSide">
+ <c:choose>
+ <c:when test='${fn:length(jobs) > "0"}'>
   <c:forEach items="${jobs}" var="j">
     <div class="job">
       <label>Job</label>
@@ -126,8 +127,15 @@ BODY {margin: 0; padding: 0;}
       </c:forEach>
     </div>
   </c:forEach>
+ </c:when>
+ <c:otherwise>
+ No Libraries Waiting For <c:out value="${machineName}" />
+ </c:otherwise>
+ </c:choose> 
 </div>
 
+
+<!-- 
 <div class="platformUnitSide">
   <c:forEach items="${platformUnitStates}" var="state">
   <c:forEach items="${state.statesample}" var="stateSample">
@@ -165,21 +173,64 @@ BODY {margin: 0; padding: 0;}
   </c:forEach>
   </c:forEach>
 </div>
+ -->
 
+
+<div class="platformUnitSide">
+<c:choose>
+ <c:when test='${fn:length(flowCells) > "0"}'>
+  <c:forEach items="${flowCells}" var="pu">
+    <div class="platformunit">
+      <label>PU</label>
+      <c:out value="${pu.name}" /> 
+      <c:forEach items="${pu.sampleSource}" var="puparent">
+         <div class="cell">
+           <label>Cells</label>
+           <c:out value="${puparent.sampleSourceId}" /> 
+           <c:out value="${puparent.sampleViaSource.name}" /> 
+
+           <c:forEach items="${puparent.sampleViaSource.sampleSource}" var="lib">
+             <div class="library">
+               <label>Library</label> <c:out value="${lib.sampleViaSource.name}" />
+               
+               
+               <c:if test="${lib.sampleViaSource.typeSample.IName == 'library'}">
+                  <c:forEach items="${lib.sampleViaSource.sampleMeta}" var="sm">
+                   <c:if test="${fn:substringAfter(sm.k, '.library.') == 'adaptorid'}">
+                    <div><label>Adaptor</label> <c:out value="${adaptors[sm.v]}"/></div>
+                    </c:if> 
+                  </c:forEach> 
+               </c:if>
+               
+               
+               
+                
+             </div>
+           </c:forEach>
+         </div>
+      </c:forEach>
+    </div>
+  </c:forEach>
+  </c:when>
+  <c:otherwise>
+  No FlowCells Waiting For <c:out value="${machineName}" />
+ </c:otherwise>
+ </c:choose> 
+</div>
+
+ 
+ 
 <div style="clear:both" />
 </div><!-- /assignmentContent -->
 
 
 <script>
   var lanes = $(".selectLane");
-  <c:forEach items="${platformUnitStates}" var="state">
-  <c:forEach items="${state.statesample}" var="stateSample">
-    <c:set var="pu" value="${stateSample.sample}" />
-lanes.append($('<option></option>').val('<c:out value="0" />').html('<b><c:out value="${pu.name}" /></b>'));
+    <c:forEach items="${flowCells}" var="pu">
+	lanes.append($('<option></option>').val('<c:out value="0" />').html('<b><c:out value="${pu.name}" /></b>'));
       <c:forEach items="${pu.sampleSource}" var="puparent">
          lanes.append($('<option></option>').val('<c:out value="${puparent.sampleViaSource.sampleId}" />').html(' - <c:out value="${puparent.sampleViaSource.name}" />'));
       </c:forEach>
-  </c:forEach>
   </c:forEach>
 </script>
 

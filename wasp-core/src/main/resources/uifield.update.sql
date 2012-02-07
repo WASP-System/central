@@ -830,4 +830,6 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','barcodeAlreadyOnFlowcellError','error','Action Failed. Barcode on selected library already on flowcell.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','libAdded','success','Update Complete. Library added to flowcell.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','TESTING','success','TESTING.','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','resourceCategoryInvalidValue','error','Resource Not Found','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','resourceCategoryNotSelected','error','Select A Valid Resource','1');
 
