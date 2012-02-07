@@ -1,8 +1,11 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
-<wasp:field name="name"  type="text"showLink="true" baseLinkURL="/wasp/platformunit/list.do" idCol="1"/>
+<wasp:field name="name"  type="text" />
 
-_navAttr={edit:false,view:true,add:false,del:false};
+_url='/wasp/facility/platformunit/listJSON.do?selId=${param.selId}';
+
+
+_navAttr={edit:false,view:true,add:true,del:false};
 
 _navAttr.search=false;
 
