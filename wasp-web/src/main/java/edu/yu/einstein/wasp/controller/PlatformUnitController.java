@@ -123,7 +123,7 @@ public class PlatformUnitController extends WaspController {
 	@PreAuthorize("hasRole('ft')")
 	public String showListShell(ModelMap m) {
 		m.addAttribute("_metaList", getMetaHelperWebapp().getMasterList(SampleMeta.class));
-		m.addAttribute(JQFieldTag.AREA_ATTR, "platformunit");
+		m.addAttribute(JQFieldTag.AREA_ATTR, "allplatformunit");
 
 		return "facility/platformunit/list";
 	}
@@ -239,6 +239,8 @@ public class PlatformUnitController extends WaspController {
 			throw new IllegalStateException("Can't marshall to JSON " + sampleList, e);
 		}
 	}
+	
+	
 
 	@RequestMapping(value="/updateJSON.do", method=RequestMethod.POST)
 	public String updateJson(
