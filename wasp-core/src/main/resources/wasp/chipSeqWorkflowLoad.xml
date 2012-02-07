@@ -12,11 +12,12 @@
   <bean id="chipSeqWorkflowArea" class="java.lang.String">
   	<constructor-arg><value>chipSeq</value></constructor-arg>
   </bean>
-
-  <bean class="edu.yu.einstein.wasp.model.UiField" id="chipSeqUiField">
-    <property name="locale" value="en_US" />
-    <property name="area" value="#{chipSeqWorkflowArea}" />
+  
+  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="chipSeqUiFieldWrapper">
+    <property name="baseLocale" value="en_US" />
+    <property name="baseArea" value="#{chipSeqWorkflowArea}" />
   </bean>
+
 
   <bean id="chipSeqWorkflow" class="edu.yu.einstein.wasp.load.WorkflowLoadService" depends-on="chipSeqDnaSubtypeSampleResource,chipSeqLibrarySubtypeSampleResource">
     <property name="area" value="#{chipSeqWorkflowArea}" />
@@ -50,37 +51,44 @@
         <value>chipSeqLibrarySample</value>
       </set>
     </property>
-    <property name="uiFields">
+    
+    <property name="uiFieldsFromWrapper">
       <list>
-        <bean parent="chipSeqUiField">
-          <property name="name" value="workflow" />
-          <property name="attrName" value="#{waspUiFieldAttrname['label']}" />
-          <property name="attrValue" value="Chip Seq" />
+        <bean parent="chipSeqUiFieldWrapper">
+          <property name="baseName" value="workflow" />
+          <property name="label" value="Chip Seq" />
         </bean>
-        <bean parent="chipSeqUiField">
-          <property name="name" value="jobsubmit/modifymeta" />
-          <property name="attrName" value="#{waspUiFieldAttrname['label']}" />
-          <property name="attrValue" value="ModifyChipSeq Metadata" />
+        <bean parent="chipSeqUiFieldWrapper">
+          <property name="baseName" value="jobsubmit/modifymeta" />
+          <property name="label" value="ModifyChipSeq Metadata" />
         </bean>
-        <bean parent="chipSeqUiField">
-          <property name="name" value="jobsubmit/resource/mps" />
-          <property name="attrName" value="#{waspUiFieldAttrname['label']}" />
-          <property name="attrValue" value="MPS Sequencer Options" />
+        <bean parent="chipSeqUiFieldWrapper">
+          <property name="baseName" value="jobsubmit/resource/mps" />
+          <property name="label" value="MPS Sequencer Options" />
         </bean>
-        <bean parent="chipSeqUiField">
-          <property name="name" value="aligner" />
-          <property name="attrName" value="#{waspUiFieldAttrname['label']}" />
-          <property name="attrValue" value="Chip Seq aligner Options" />
+        <bean parent="chipSeqUiFieldWrapper">
+          <property name="baseName" value="jobsubmit/samples" />
+          <property name="label" value="Samples" />
         </bean>
-        <bean parent="chipSeqUiField">
-          <property name="name" value="jobsubmit/resource/samples" />
-          <property name="attrName" value="#{waspUiFieldAttrname['label']}" />
-          <property name="attrValue" value="DNA Sequencer Samples" />
+        <bean parent="chipSeqUiFieldWrapper">
+          <property name="baseName" value="jobsubmit/cells" />
+          <property name="label" value="DNA Sequencer Cells" />
         </bean>
-        <bean parent="chipSeqUiField">
-          <property name="name" value="jobsubmit/resource/cells" />
-          <property name="attrName" value="#{waspUiFieldAttrname['label']}" />
-          <property name="attrValue" value="DNA Sequencer Cells" />
+        <bean parent="chipSeqUiFieldWrapper">
+          <property name="baseName" value="jobsubmit/chipSeq/pair" />
+          <property name="label" value="IP vs Input Pairings" />
+        </bean>
+        <bean parent="chipSeqUiFieldWrapper">
+          <property name="baseName" value="jobsubmit/software/aligner" />
+          <property name="label" value="Aligner Selection" />
+        </bean>
+        <bean parent="chipSeqUiFieldWrapper">
+          <property name="baseName" value="jobsubmit/software/peakcaller" />
+          <property name="label" value="Peak Calling Software Selection" />
+        </bean>
+        <bean parent="chipSeqUiFieldWrapper">
+          <property name="baseName" value="jobsubmit/verify" />
+          <property name="label" value="Verify Submission" />
         </bean>
      </list>
  

@@ -8,7 +8,7 @@
 	<c:set var="_validMetaFields" value="${_entry.value}"/>
 	navGrid.navButtonAdd("#gridpager",{
 	       caption:"${_subtype.name}",   
-	       title: "Add Sample of '${_subtype.name}' subtype",
+	       title: "<fmt:message key="jobDraft.subtype_select.label"/> '${_subtype.name}'",
 	       onClickButton: function(){                  
 	
 	           var  _myAddAttr = jQuery.extend({subtypeSampleId:${_subtype.subtypeSampleId}}, _addAttr);

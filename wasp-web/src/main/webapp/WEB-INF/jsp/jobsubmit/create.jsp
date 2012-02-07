@@ -1,12 +1,12 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
 
-<font color="blue"><wasp:message /></font>
+<font color="red"><wasp:message /></font>
 
-<h1>Create a Job</h1>
+<h1><fmt:message key="jobDraft.create.label" /></h1>
 
 <div class="instructions">
-<fmt:message key="jobDraft.instructions.label"/>
+<fmt:message key="jobDraft.create_instructions.label"/>
 </div>
 
 <form:form commandName="jobDraft">
@@ -45,13 +45,10 @@
   </table>
 
   <div class="submit">
-    <input type="submit">
+    <input type="submit" value="<fmt:message key="jobDraft.submit.label"/>">
   </div>
 
   </form:form>
 
-  <div class="bottomtxt">
- 	<fmt:message key="jobDraft.page_footer.label"/>
- </div>
 
 

@@ -509,9 +509,6 @@ public class JobSubmissionController extends WaspController {
 		m.put("jobDraft", jobDraft);
 		m.put("area", metaHelperWebapp.getArea());
 		m.put("parentarea", metaHelperWebapp.getParentArea());
-
-		//m.put("workflowiname", jobDraft.getWorkflow().getIName());
-		
 		m.put("pageFlowMap", getPageFlowMap(jobDraft));
 		
 		return "jobsubmit/metaform";
@@ -910,7 +907,7 @@ public class JobSubmissionController extends WaspController {
 		m.put("area", metaHelperWebapp.getArea());
 		m.put("parentarea", metaHelperWebapp.getParentArea());
 		
-                //m.put("pageFlowMap", getPageFlowMap(jobDraft));
+        m.put("pageFlowMap", getPageFlowMap(jobDraft));
 		
 		return "jobsubmit/metaform";
 	}

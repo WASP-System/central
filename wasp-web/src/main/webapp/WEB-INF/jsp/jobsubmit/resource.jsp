@@ -1,18 +1,18 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 <font color="blue"><wasp:message /></font>
 
-<h1>Create a Job -- <c:out value="${workflowResources[0].resource.typeResource.name}" /></h1>
+<h1><fmt:message key="jobDraft.create.label"/> -- <c:out value="${workflowResourceCategories.get(0).getResourceCategory().getTypeResource().getName()}" /></h1>
 
 <%@ include file="/WEB-INF/jsp/jobsubmit/jobsubmitinfo.jsp" %>
 
 <div class="instructions">
-    sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. Maecenas nec odio et ante tincidunt tempus. Donec vitae sapien ut libero venenatis faucibus. Nullam
+   <fmt:message key="jobDraft.resource_instructions.label"/>
 </div>
 
 <form method="POST" class="resourcelistform">
 
 <select name="changeResource" onchange="this.parentNode.submit()">
-  <option value="-1">-- select --</option>
+  <option value="-1"><fmt:message key="wasp.default_select.label"/></option>
 <c:forEach items="${workflowResourceCategories}" var="w">
   <option value="<c:out value="${w.resourceCategory.resourceCategoryId}" />" <c:if test="${w.resourceCategory.resourceCategoryId == jobDraftResourceCategory.resourceCategory.resourceCategoryId}"> SELECTED</c:if>>
     <c:out value="${w.resourceCategory.name}" />
@@ -33,12 +33,9 @@
   </table>
 
 <div class="submit">
-  <input type="submit" value="Save Changes" />
+  <input type="submit" value="<fmt:message key="jobDraft.submit.label" />" />
 </div>
 
 </form:form>
 
-<div class="bottomtxt">
-    sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. Maecenas nec odio et ante tincidunt tempus. Donec vitae sapien ut libero venenatis faucibus. Nullam
-</div>
 
