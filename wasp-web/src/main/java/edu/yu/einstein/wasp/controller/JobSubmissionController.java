@@ -116,6 +116,7 @@ import edu.yu.einstein.wasp.service.WorkflowService;
 import edu.yu.einstein.wasp.service.WorkflowSoftwareService;
 import edu.yu.einstein.wasp.service.WorkflowresourcecategoryService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
+import edu.yu.einstein.wasp.util.MetaHelper;
 
 @Controller
 @Transactional
@@ -1021,6 +1022,7 @@ public class JobSubmissionController extends WaspController {
 		m.addAttribute("jobdraftId",jobDraftId);
 		m.addAttribute("jobDraft",jobDraft);
 		m.addAttribute("uploadStartedMessage",messageService.getMessage("sampleDraft.fileupload_wait.data"));
+		m.addAttribute("_metaDataMessages", MetaHelper.getMetadataMessages(request.getSession()));
 		m.put("pageFlowMap", getPageFlowMap(jobDraft));
 	
 		return "jobsubmit/sample";
@@ -1714,8 +1716,9 @@ public class JobSubmissionController extends WaspController {
 		}
 		sampleDraftForm.setSampleDraftMeta(sampleDraftMetaList);
 		
-		for (SampleDraftMeta meta : sampleDraftMetaList) {
-			if (StringUtils.isEmpty(meta.getV())) sampleDraftMetaList.remove(meta);//remove blank entries
+		for (Iterator<SampleDraftMeta> it=sampleDraftMetaList.iterator();it.hasNext();) {
+			SampleDraftMeta meta = it.next();
+			if (StringUtils.isEmpty(meta.getV())) it.remove();//remove blank entries
 			else meta.setSampledraftId(sampleDraftId);
 		}
 

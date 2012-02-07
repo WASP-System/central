@@ -125,12 +125,12 @@ public class SampleDraftMetaDaoImpl extends WaspDaoImpl<SampleDraftMeta> impleme
 	   String sql=
 		   "select master.area,master.name,master.pos,label.attrValue as label,error.attrValue as error,\n"+ 
 		   "control.attrValue as control,suffix.attrValue as suffix,constr.attrValue as 'constraint',\n"+
+		   "type.attrValue as `type`,\n"+
+		   "range.attrValue as `range`,\n"+
 		   "master.subtypesampleid, master.subtypeName, master.arealist\n"+
 		   "from \n"+
 		   "(select distinct f.area,f.name,convert(f.attrValue, signed) pos, st.subtypesampleid, st.name as subtypeName, st.arealist as arealist\n"+
 		   "from subtypesample st\n"+					   
-		   // "join uifield f on st.iname = concat(f.area,'Sample')\n"+ 
-		   //"join uifield f on st.iname = f.area\n"+ 
 		   "join uifield f on  (\n"+
 		   "st.arealist regexp concat('^\\s*' , f.area , '\\s*$') or\n"+
 		   "st.arealist regexp concat('^\\s*' , f.area , '\\s*,') or\n"+
@@ -150,6 +150,8 @@ public class SampleDraftMetaDaoImpl extends WaspDaoImpl<SampleDraftMeta> impleme
 		   "left outer join uifield control on master.area=control.area and master.name=control.name and control.attrName='control'\n"+
 		   "left outer join uifield suffix on master.area=suffix.area and master.name=suffix.name and suffix.attrName='suffix'\n"+
 		   "left outer join uifield constr on master.area=constr.area and master.name=constr.name and constr.attrName='constraint'\n"+
+		   "left outer join uifield `type` on master.area=type.area and master.name=type.name and type.attrName='type'\n"+
+		   "left outer join uifield `range` on master.area=range.area and master.name=range.name and range.attrName='range'\n"+
 		   "order by master.subtypeSampleId,master.area,master.pos;\n";
 
 	   
@@ -166,9 +168,11 @@ public class SampleDraftMetaDaoImpl extends WaspDaoImpl<SampleDraftMeta> impleme
 		   String control=(String)o[5];
 		   String suffix=(String)o[6];
 		   String constraint=(String)o[7];
-		   Integer subtypeSampleId=(Integer)o[8];
-		   String subtypeName=(String)o[9];
-		   String areaList=(String)o[10];
+		   String metaType=(String)o[8];
+		   String range=(String)o[9];
+		   Integer subtypeSampleId=(Integer)o[10];
+		   String subtypeName=(String)o[11];
+		   String areaList=(String)o[12];
 		   
 		   SampleDraftMeta m = new SampleDraftMeta();
 		   
@@ -183,6 +187,8 @@ public class SampleDraftMetaDaoImpl extends WaspDaoImpl<SampleDraftMeta> impleme
 		   attr.setControl(MetaUtil.getControl(control));
 		   attr.setSuffix(suffix);
 		   attr.setConstraint(constraint);
+		   attr.setMetaType(metaType);
+		   attr.setRange(range);
 		   
 		   SubtypeSample subtypeNew=new SubtypeSample();
 		   subtypeNew.setSubtypeSampleId(subtypeSampleId);
