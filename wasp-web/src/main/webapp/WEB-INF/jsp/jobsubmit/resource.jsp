@@ -1,5 +1,5 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
-<font color="blue"><wasp:message /></font>
+<font color="red"><wasp:message /></font>
 
 <h1><fmt:message key="jobDraft.create.label"/> -- <c:out value="${workflowResourceCategories.get(0).getResourceCategory().getTypeResource().getName()}" /></h1>
 

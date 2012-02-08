@@ -10,10 +10,10 @@
 
 
   <script>
-var maxColumns = 10; 
+var maxColumns = 15; 
 
 function adjustcolumns(c) {
-  for (var i = 0; i < maxColumns; i++) {
+  for (var i = 0; i <= maxColumns; i++) {
     var display = "table-cell";
     if (i >  c) {
       display = "none"

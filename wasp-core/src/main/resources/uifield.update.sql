@@ -783,6 +783,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','task','samplereceive','error_receivedstatus_invalid','Update Failed: Action Invalid','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','user_incorrect','error','You are not authorized to edit this jobdraft','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','not_pending','error','This jobdraft has already been submitted','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','jobDraft_null','error','This jobdraft identifier does not return a valid job draft','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','form','error','Please address errors on this page','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','numberofcells','label','Select number of sequencing cells required','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','sample','label','Sample','1');
@@ -801,7 +802,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','meta_instructions','label','Please provide the metadata requested below.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','resource_instructions','label','Please select from the platforms available for this assay workflow. If there are options available for the platform and assay workflow, you will be prompted to choose those applicable to your experimental design.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','sample_instructions','label','Please add details for each of your samples. Choose from the sample sub-types available by clicking the appropriate link on the bottom bar of the table below. You can enter information about new samples or select from previously submitted samples.','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','cell_instructions','label','Please choose the number of cells you wish to order and then indicate which samples you wish to combine (multiplex) in the same sequencing cell','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','cell_instructions','label','Please choose the number of sequencing cells you wish to order and then indicate which samples you wish to combine (multiplex) in the same cell','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','subtype_select','label','Add samples of subtype','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','create','label','Create A Job','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','page_footer','label','','1');

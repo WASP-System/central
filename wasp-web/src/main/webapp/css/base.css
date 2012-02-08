@@ -102,7 +102,14 @@ TABLE.data	{
 	}
 
 TABLE.data TD	{
+	background: #ffffff;
 	border-bottom: 1px solid #ccc;
+	vertical-align: middle;
+	}
+	
+TABLE.data TD.noBorder	{
+	background: #ffffff;
+	border-bottom: 0px;
 	}
 
 TABLE.data TD.label	{
@@ -110,11 +117,22 @@ TABLE.data TD.label	{
 	border-right: 1px solid #ccc;
 	font-weight: bold;
 	}
+	
+TABLE.data TD.input	{
+	background: #ffffff;
+	border-right: 1px solid #ccc;
+	text-align: center;
+	}
 
 .samples	{
 	font-size: 120%;
 	padding: 20px 5px;
 	}
+
+DIV.greyback {
+	background: #f0f0f0;
+	padding: 20px 5px;
+}
 
 .instructions	{
 	text-shadow: 0 1px 1px rgba(255, 255, 255, 0.85);

@@ -381,16 +381,27 @@ public class JobSubmissionController extends WaspController {
 		return nextPage(jobDraftDb);
 	}
 	
-	private boolean isJobDraftEditable(JobDraft jobDraftDb){
+	/**
+	 * Returns true if the current logged in user is the job drafter, the jobDraft status is pending
+	 * and the jobDraft object is not null and has a not-null jobDraftId
+	 * @param jobDraft
+	 * @return boolean
+	 */
+	protected boolean isJobDraftEditable(JobDraft jobDraft){
+		if (jobDraft == null || jobDraft.getJobDraftId() == null){
+			waspMessage("jobDraft.jobDraft_null.error");
+			return false;
+		}
+		
 		// check if i am the drafter
 		User me = authenticationService.getAuthenticatedUser();
-		if (me.getUserId().intValue() != jobDraftDb.getUserId().intValue()) {
+		if (me.getUserId().intValue() != jobDraft.getUserId().intValue()) {
 			waspMessage("jobDraft.user_incorrect.error");
 			return false;
 		}
 		
 		// check that the status is PENDING
-		if (! jobDraftDb.getStatus().equals("PENDING")) {
+		if (! jobDraft.getStatus().equals("PENDING")) {
 			waspMessage("jobDraft.not_pending.error");
 			return false;
 		}

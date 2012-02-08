@@ -90,6 +90,18 @@
           <property name="baseName" value="jobsubmit/verify" />
           <property name="label" value="Verify Submission" />
         </bean>
+        <bean parent="chipSeqUiFieldWrapper">
+          <property name="baseName" value="pairing_instructions" />
+          <property name="label" value="Please select test vs control for all samples to be analyzed in pairs after sequencing." />
+        </bean>
+        <bean parent="chipSeqUiFieldWrapper">
+          <property name="baseName" value="test" />
+          <property name="label" value="Test" />
+        </bean>
+        <bean parent="chipSeqUiFieldWrapper">
+          <property name="baseName" value="control" />
+          <property name="label" value="Control" />
+        </bean>
      </list>
  
     </property>
