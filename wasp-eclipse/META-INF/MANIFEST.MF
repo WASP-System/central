@@ -1,0 +1,23 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: edu.yu.einstein.wasp.eclipse;singleton:=true
+Bundle-Name: %Bundle-Name
+Bundle-Vendor: %Bundle-Vendor
+Bundle-Version: 0.1.0.qualifier
+Bundle-Localization: plugin
+Bundle-Activator: edu.yu.einstein.wasp.eclipse.Activator
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: org.apache.maven.model,
+ org.codehaus.plexus.util.xml,
+ org.eclipse.core.resources,
+ org.eclipse.jdt.core,
+ org.eclipse.jdt.internal.ui.util,
+ org.eclipse.m2e.core,
+ org.eclipse.m2e.core.project
+Export-Package: edu.yu.einstein.wasp.eclipse,
+ edu.yu.einstein.wasp.eclipse.internal;x-internal:=true,
+ edu.yu.einstein.wasp.eclipse.internal.wizards;x-internal:=true
+
