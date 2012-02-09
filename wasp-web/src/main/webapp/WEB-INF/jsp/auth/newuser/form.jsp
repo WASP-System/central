@@ -19,13 +19,13 @@
 	    <c:if test="${isAuthenticationExternal == (1==1)}">
 	    	<input type="hidden" name="password2" value="" />
         </c:if>
-        <c:if test="${isAuthenticationExternal != (1==1)}">   
-	        <tr>
-	        	<td class="label"><fmt:message key="userPending.password2.label"/>:</td>
-	        	<td class="input""><input type="password" name="password2" /><span class="requiredField">*</span></td>
-	        	<td>&nbsp;</td>
-	        </tr>     	   
-		</c:if>
+       <c:if test="${isAuthenticationExternal != (1==1)}">   
+      <tr>
+		<td class="label"><fmt:message key="userPending.password2.label"/>:</td>
+	        <td class="input"><input type="password" name="password2" /><span class="requiredField">*</span></td>
+		<td class="error">&nbsp;</td>
+      </tr>     	   
+      </c:if>
         <tr>
           <td class="label"><fmt:message key="userPending.firstName.label" />:</td>
           <td class="input"><form:input path="firstName" /><span class="requiredField">*</span></td>
