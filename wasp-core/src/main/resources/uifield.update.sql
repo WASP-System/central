@@ -63,6 +63,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','userlogin_changed_p1','label','Your login has changed. Please <a href="../login.do"/>click here to login</a>','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','userloginandemail_changed_p1','label','Your login and email address has changed. An email has been sent to your new email address requesting confirmation. Please confirm by clicking the link in the email then <a href="../login.do"/>click here to login</a>','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','userloginandemail_changed_p2','label','If you have not received an email, requesting confirmation, within a reasonable time period and suspect your email address may have been mis-typed, you may reset your email address by clicking <a href="requestEmailChange.do">here</a>','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','user_list','label','List of Users','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','login','label','Login','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','login','error','Login cannot be empty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','page','label','New User','1');
@@ -472,16 +473,15 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sample','name','error','Name cannot be null','1');
 
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','name','label','Name','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','subtype_list','label','Name','1');
 
 
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','name','label','Name','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','name','constraint','NotEmpty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','name','error','Name cannot be empty','1');
-
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','subtype','label','Subtype','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','subtype','constraint','NotEmpty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','subtype','error','Subtype cannot be empty','1');
-
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','submitter','label','Submitter','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','submitter','constraint','NotEmpty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','submitter','error','Submitter cannot be empty','1');
@@ -499,6 +499,12 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','lanecount','error','Lane Count cannot be empty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','lanecount','control','select:1:1;8:8','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','lanecount','metaposition','70','1');
+
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','updated_success','label','Platformunit updated sucessfully.','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','created_success','label','Platformunit created sucessfully.','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','updated','error','Platformunit was NOT updated. Please fill in required fields.','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','created','error','Platformunit was NOT created. Please fill in required fields.','1');
+
 
 
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','fmpayment','amount','label','Amount','1');

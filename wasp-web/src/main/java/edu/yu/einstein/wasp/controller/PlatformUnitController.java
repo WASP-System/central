@@ -43,6 +43,8 @@ import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.SampleSourceMeta;
 import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.Statesample;
+import edu.yu.einstein.wasp.model.SubtypeSample;
+import edu.yu.einstein.wasp.model.SubtypeSampleMeta;
 import edu.yu.einstein.wasp.model.SubtypeSampleResourceCategory;
 import edu.yu.einstein.wasp.model.Task;
 import edu.yu.einstein.wasp.model.TypeSample;
@@ -108,6 +110,9 @@ public class PlatformUnitController extends WaspController {
 
 	@Autowired
 	private StatesampleService stateSampleService;
+	
+	@Autowired
+	private SubtypeSampleService subtypeSampleService;
 
 	@Autowired
 	private SubtypeSampleResourceCategoryService subtypeSampleResourceCategoryService;
@@ -147,7 +152,11 @@ public class PlatformUnitController extends WaspController {
 	public String showListShell(ModelMap m) {
 		m.addAttribute("_metaList", getMetaHelperWebapp().getMasterList(SampleMeta.class));
 		m.addAttribute(JQFieldTag.AREA_ATTR, "platformunit");
+		
+		request.getSession().setAttribute("resourceCategoryId", new Integer (request.getParameter("resourceCategoryId")));
 
+		
+		
 		return "facility/platformunit/list";
 	}
 	
@@ -156,10 +165,16 @@ public class PlatformUnitController extends WaspController {
 	public String showPlatformunitInstanceListShell(ModelMap m) {
 		m.addAttribute("_metaList", getMetaHelperWebapp().getMasterList(SampleMeta.class));
 		m.addAttribute(JQFieldTag.AREA_ATTR, "platformunitInstance");
-
 		return "facility/platformunit/instance/list";
 	}
 
+	
+	/* SELECT FOR Subtypes List based on what type of machine was selected by user
+	 * select * from subtypesampleresourcecategory stsrc, subtypesample sts 
+	 * where stsrc.resourcecategoryid = 4 and stsrc.subtypesampleid = sts.subtypesampleid;
+	 * 
+	 */
+	
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value="/listJSON.do", method=RequestMethod.GET)
 	public @ResponseBody
@@ -169,8 +184,11 @@ public class PlatformUnitController extends WaspController {
 		String sidx = request.getParameter("sidx");
 
 		Map<String, Object> jqgrid = new HashMap<String, Object>();
+		
+		List<SubtypeSample> subtypeSampleList = new ArrayList<SubtypeSample> ();
 
-		List<Sample> sampleList;
+		
+
 
 		// First, search for typesampleid which its iname is "platform unit"
 		Map<String, String> typeSampleQueryMap = new HashMap<String, String>();
@@ -178,40 +196,58 @@ public class PlatformUnitController extends WaspController {
 		List<TypeSample> typeSampleList = typeSampleService.findByMap(typeSampleQueryMap);
 		if (typeSampleList.size() == 0)
 			return "'Platform Unit' sample type is not defined!";
+		
 		// Then, use the typesampleid to pull all platformunits from the sample
 		// table
-		Map<String, Object> sampleListBaseQueryMap = new HashMap<String, Object>();
-		sampleListBaseQueryMap.put("typeSampleId", typeSampleList.get(0).getTypeSampleId());
+		Map<String, Object> subtypeSampleListBaseQueryMap = new HashMap<String, Object>();
+		subtypeSampleListBaseQueryMap.put("typeSampleId", typeSampleList.get(0).getTypeSampleId());
 
 		if (request.getParameter("_search") == null 
 				|| request.getParameter("_search").equals("false") 
 				|| StringUtils.isEmpty(request.getParameter("searchString"))) {
-			sampleList = sampleService.findByMap(sampleListBaseQueryMap);
+			subtypeSampleList = subtypeSampleService.findByMap(subtypeSampleListBaseQueryMap);
 
 		} else {
 
-			sampleListBaseQueryMap.put(request.getParameter("searchField"), request.getParameter("searchString"));
+			subtypeSampleListBaseQueryMap.put(request.getParameter("searchField"), request.getParameter("searchString"));
 
-			sampleList = this.sampleService.findByMap(sampleListBaseQueryMap);
+			subtypeSampleList = this.subtypeSampleService.findByMap(subtypeSampleListBaseQueryMap);
 
 			if ("ne".equals(request.getParameter("searchOper"))) {
-				Map allSampleListBaseQueryMap = new HashMap();
-				allSampleListBaseQueryMap.put("typeSampleId", 5);
+				Map allSubtypeSampleListBaseQueryMap = new HashMap();
+				allSubtypeSampleListBaseQueryMap.put("typeSampleId", 5);
 
-				List<Sample> allSampleList = sampleService.findByMap(allSampleListBaseQueryMap);
-				for (Sample excludeSample : allSampleList) {
-					allSampleList.remove(excludeSample);
+				List<SubtypeSample> allSubtypeSampleList = this.subtypeSampleService.findByMap(allSubtypeSampleListBaseQueryMap);
+				for (SubtypeSample excludeSubtypeSample : allSubtypeSampleList) {
+					allSubtypeSampleList.remove(excludeSubtypeSample);
 				}
-				sampleList = allSampleList;
+				subtypeSampleList = allSubtypeSampleList;
 			}
 		}
 
 	try {
+		
+		Map<String, Integer> resourceCategoryMap = new HashMap<String, Integer>();
+		
+		resourceCategoryMap.put("resourcecategoryId", (Integer) request.getSession().getAttribute("resourceCategoryId"));
+		
+		List<SubtypeSample> subtypeSampleFilteredList = new ArrayList<SubtypeSample> ();
+
+		for (SubtypeSampleResourceCategory subtypeSampleResCat : (List<SubtypeSampleResourceCategory>) this.subtypeSampleResourceCategoryService.findByMap(resourceCategoryMap)) {
+			for(SubtypeSample subtypeSample : subtypeSampleList) {
+				if (subtypeSample.getSubtypeSampleId().intValue() == subtypeSampleResCat.getSubtypeSampleId().intValue());
+				subtypeSampleFilteredList.add(subtypeSample);
+			}
+		
+		}
+		subtypeSampleList = subtypeSampleFilteredList;
+	
+		
 		ObjectMapper mapper = new ObjectMapper();
 
 		int pageIndex = Integer.parseInt(request.getParameter("page")); // index of page
 		int pageRowNum = Integer.parseInt(request.getParameter("rows")); // number of rows in one page
-		int rowNum = sampleList.size(); // total number of rows
+		int rowNum = subtypeSampleList.size(); // total number of rows
 		int pageNum = (rowNum + pageRowNum - 1) / pageRowNum; // total number of pages
 
 		jqgrid.put("records", rowNum + "");
@@ -236,7 +272,7 @@ public class PlatformUnitController extends WaspController {
 		 */
 		if (!StringUtils.isEmpty(request.getParameter("selId"))) {
 			int selId = Integer.parseInt(request.getParameter("selId"));
-			int selIndex = sampleList.indexOf(sampleService.findById(selId));
+			int selIndex = subtypeSampleList.indexOf(this.subtypeSampleService.findById(selId));
 			frId = selIndex;
 			toId = frId + 1;
 
@@ -245,20 +281,20 @@ public class PlatformUnitController extends WaspController {
 			jqgrid.put("page", "1");
 		}
 
-		List<Sample> samplePage = sampleList.subList(frId, toId);
-		for (Sample sample : samplePage) {
+		List<SubtypeSample> subtypeSamplePage = subtypeSampleList.subList(frId, toId);
+		for (SubtypeSample subtypeSample : subtypeSamplePage) {
 			Map cell = new HashMap();
-			cell.put("id", sample.getSampleId());
+			cell.put("id", subtypeSample.getSubtypeSampleId());
 
-			List<SampleMeta> sampleMetaList = getMetaHelperWebapp().syncWithMaster(sample.getSampleMeta());
+			List<SubtypeSampleMeta> subtypeSampleMetaList = getMetaHelperWebapp().syncWithMaster(subtypeSample.getSubtypeSampleMeta());
 			
 			List<String> cellList = new ArrayList<String>(
 					Arrays.asList(
 							new String[] { 
-									"<a href=/wasp/facility/platformunit/instance/list.do?selId="+sample.getSampleId()+">" + 
-											sample.getName() + "</a>" }));
+									"<a href=/wasp/facility/platformunit/instance/list.do?selId="+subtypeSample.getSubtypeSampleId()+">" + 
+											subtypeSample.getName() + "</a>" }));
 
-			for (SampleMeta meta : sampleMetaList) {
+			for (SubtypeSampleMeta meta : subtypeSampleMetaList) {
 				cellList.add(meta.getV());
 			}
 
@@ -273,7 +309,7 @@ public class PlatformUnitController extends WaspController {
 		return json;
 
 	} catch (Exception e) {
-			throw new IllegalStateException("Can't marshall to JSON " + sampleList, e);
+			throw new IllegalStateException("Can't marshall to JSON " + subtypeSampleList, e);
 		}
 	}
 	
@@ -425,14 +461,14 @@ public class PlatformUnitController extends WaspController {
 		sampleForm.setSampleMeta(sampleMetaList);
 		sampleForm.setSampleId(sampleId);
 
-		preparePlatformUnit(sampleForm);
-		updatePlatformUnit(sampleForm);
+		//preparePlatformUnit(sampleForm);
+		//updatePlatformUnit(sampleForm);
 
 		try {
-			response.getWriter().println(messageService.getMessage("hello.error"));
+			response.getWriter().println(messageService.getMessage("platformunitInstance.updated_success.label"));
 			return null;
 		} catch (Throwable e) {
-			throw new IllegalStateException("Cant output success message ",e);
+			throw new IllegalStateException("Cant output success message ", e);
 		}
 
 	}

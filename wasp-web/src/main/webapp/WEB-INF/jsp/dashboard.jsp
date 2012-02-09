@@ -206,7 +206,8 @@
 <sec:authorize access="hasRole('ft')">
   <div>
   <h1>Platform Unit</h1>
-  <div><a href="<c:url value="/facility/platformunit/list.do"/>">List / Create</a></div>
+  <!--  <div><a href="<c:url value="/facility/platformunit/list.do"/>">List / Create</a></div> -->
+  <div><a href="<c:url value="/facility/platformunit/limitPriorToAssign.do" />">List / Create</a></div>
   <div><a href="<c:url value="/facility/platformunit/assign.do" />">Platform Unit assignment</a></div>
   <div><a href="<c:url value="/facility/platformunit/limitPriorToAssign.do" />">Platform Unit assignment</a></div>
   </div>
