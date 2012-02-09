@@ -19,6 +19,8 @@ LABEL, TD.label, TH.label {font-weight: bold;}
 TD	{padding: 5px;}
 
 
+
+
 .right	{float: right;}
 
 #statusMessage	{
@@ -106,6 +108,11 @@ TABLE.data TD	{
 	border-bottom: 1px solid #ccc;
 	vertical-align: middle;
 	}
+
+Table TD.error{
+	color: #ff0000;
+	border: 0px;
+}
 	
 TABLE.data TD.noBorder	{
 	background: #ffffff;
@@ -128,6 +135,8 @@ TABLE.data TD.input-centered	{
 	border-right: 1px solid #ccc;
 	text-align: center;
 	}
+
+
 
 .samples	{
 	font-size: 120%;

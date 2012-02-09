@@ -109,6 +109,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','status_not_pending','error','Pending user is already approved or rejected','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','no_pending_users','label','There are currently no pending users awaiting approval','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','external_authentication','error','Authentication Failed (Login Name or Password incorrect)','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','form_instructions','label','Please fill out the form below, making sure to complete all required fields marked with an asterisk','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','login','label','Login','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','login','error','Login cannot be empty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','password','label','Password','1');
@@ -125,6 +126,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','email','error','Wrong email address format','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','email_exists','error','Email already exists in the database','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','locale','label','Locale','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','locale','constraint','NotEmpty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','locale','error','Locale cannot be empty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','labName','label','Lab Name','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','labName','error','Lab Name cannot be empty','1');
@@ -175,10 +177,12 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','select_institute_message','label','Please select your institute or choose "other"','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','select_institute_submit','label','Submit','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','select_institute','label','Institute','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','other_institute','label','If ''Other'' Please specify','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','select_institute_other','label','Other','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','specify_other_institute','label','If ''Other'' Please specify','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','internal_institute_list','data','Einstein;Montifiore','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','institute_not_selected','error','You must select an institute','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','institute_multi_select','error','You cannot select more than one institute','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','form_instructions','label','Please fill out the form below, making sure to complete all required fields marked with an asterisk','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','lab','name','label','Lab Name','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','lab','name','error','Lab Name cannot be empty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','lab','primaryUserId','label','Primary User','1');
