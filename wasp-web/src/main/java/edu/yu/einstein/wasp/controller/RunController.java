@@ -160,8 +160,7 @@ public class RunController extends WaspController {
 							run.getResourceId().toString(),
 							run.getSample().getName(),
 							run.getSampleId().toString(),
-							user.getFirstName() + " " + user.getLastName(),
-							run.getIsActive().intValue()==1?"yes":"no"
+							user.getFirstName() + " " + user.getLastName()
 				}));
 				 
 				for (RunMeta meta:runMeta) {

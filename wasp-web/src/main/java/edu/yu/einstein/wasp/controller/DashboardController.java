@@ -88,7 +88,7 @@ public class DashboardController extends WaspController {
 			}
 			
 
-			// adds the role ojbect to the proper bucket
+			// adds the role object to the proper bucket
 			switch (entityRolename) {
 				////case da: /* departmentList.add(departmentService.getDepartmentByDepartmentId(roleObjectId)); break; */ 
 				case lu: labList.add(labService.getLabByLabId(roleObjectId)); labMap.put(roleObjectId, labService.getLabManagerPendingTasks(roleObjectId));break;
@@ -102,7 +102,8 @@ public class DashboardController extends WaspController {
 		departmentAdminPendingTasks = departmentService.getDepartmentAdminPendingTasks();//number of da pending tasks (if su or ga, then department not considered)	
 		m.addAttribute("departmentAdminPendingTasks", departmentAdminPendingTasks);		
 		
-		m.addAttribute("labs", labList); m.addAttribute("labmap", labMap);
+		m.addAttribute("labs", labList);
+		m.addAttribute("labmap", labMap);
 		m.addAttribute("jobs", jobList);
 		m.addAttribute("jobdrafts", jobDraftList);	
 		if(authenticationService.isSuperUser() || authenticationService.hasRole("ga")){

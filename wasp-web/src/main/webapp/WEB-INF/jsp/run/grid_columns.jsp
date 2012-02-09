@@ -10,6 +10,4 @@
 
 <wasp:field name="start_esf_staff" type="text"/>
 
-<wasp:field name="isActive"  type="checkbox" />
-  
 _navAttr={edit:false,view:true,add:false,del:false};
