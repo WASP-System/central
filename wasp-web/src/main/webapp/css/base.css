@@ -121,6 +121,11 @@ TABLE.data TD.label	{
 TABLE.data TD.input	{
 	background: #ffffff;
 	border-right: 1px solid #ccc;
+	}
+	
+TABLE.data TD.input-centered	{
+	background: #ffffff;
+	border-right: 1px solid #ccc;
 	text-align: center;
 	}
 
@@ -132,6 +137,20 @@ TABLE.data TD.input	{
 DIV.greyback {
 	background: #f0f0f0;
 	padding: 20px 5px;
+}
+
+DIV.waspMessage {
+	color:#FF0000;
+	font-size: 120%;
+	background: #FFE6E6;
+	border: 1px solid #990000;
+	padding: 5px 5px 5px 5px;
+	margin: 10px 0px 20px 0px;
+}
+
+SPAN.requiredField{
+	color: #FF0000;
+	margin: 10px;
 }
 
 .instructions	{

@@ -360,6 +360,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','resetpassword_new_mismatch','error','The two entries for your NEW password are NOT identical','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','resetpassword_new_invalid','error','New password must be at least 8 characters, containing only letters and numbers, with at least one letter and number','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','resetpassword_instructions','label','New Password Requirements:<br />At least 8 characters in length<br />Only letters & numbers permitted (no spaces, etc)<br />At least one letter and one number<br />','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','resetpassword_start_instructions','label','To reset your password you must first supply your WASP username below. You will then be sent an email to your confirmed email address with further instructions','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','resetpasswordok_title','label','Reset Password: Complete','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','resetpasswordok','label','Your password has been reset. Please click to <a href="../login.do"/>Login</a>','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','mypassword_instructions','label','New Password Requirements:<br />At least 8 characters in length<br />Only letters & numbers permitted (no spaces, etc)<br />At least one letter and one number<br />','1');
@@ -795,11 +796,13 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','sample','label','Sample','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','cell','label','Cell','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','submit','label','Save Changes','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','noSamples','error','You must create entries for at least one sample','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','next','label','Next','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','name','label','Job Name','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','name','error','Job Name Must Not Be Empty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','name_exists','error','Job name chosen already exists','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','changeResource','error','You must select a job resource','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','changeSoftwareResource','error','You must select a software resource','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','labId','label','Lab','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','labId','error','Lab Must Not Be Empty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','workflowId','label','Assay Workflow','1');
@@ -807,6 +810,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','create_instructions','label','To create a job, please provide a name, select the lab from which you are submitting and choose the assay workflow most suited to your experiment.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','meta_instructions','label','Please provide the metadata requested below.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','resource_instructions','label','Please select from the platforms available for this assay workflow. If there are options available for the platform and assay workflow, you will be prompted to choose those applicable to your experimental design.','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','software_instructions','label','Please select from the software options available for this assay workflow. If there are settable parameters, you will be prompted to choose those applicable to your experimental design or you may leave the pre-populated default values.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','sample_instructions','label','Please add details for each of your samples. Choose from the sample sub-types available by clicking the appropriate link on the bottom bar of the table below. You can enter information about new samples or select from previously submitted samples.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','cell_instructions','label','Please choose the number of sequencing cells you wish to order and then indicate which samples you wish to combine (multiplex) in the same cell','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','subtype_select','label','Add samples of subtype','1');

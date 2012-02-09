@@ -31,10 +31,10 @@
 			<c:forEach var="sTest" items="${samples}" varStatus="statusTest">
 				<c:choose>
 					<c:when test="${statusControl.count == statusTest.count }" >
-						<td class="input" >&nbsp;</td>
+						<td class="input-centered" >&nbsp;</td>
 					</c:when>
 					<c:otherwise>
-						<td name="rowcolumn_${statusControl.count}_${statusTest.count}" class="input" >
+						<td name="rowcolumn_${statusControl.count}_${statusTest.count}" class="input-centered" >
 					      <c:set var="key" value="testVsControl_${sTest.sampleDraftId}_${sControl.sampleDraftId}" />
 					      <c:set var="checked" value="" />
 					      <c:if test="${fn:contains(selectedSamplePairs, key)}">

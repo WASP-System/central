@@ -29,7 +29,7 @@
 	<tr>
 	<td class="label"><fmt:message key="jobDraft.sample.label" /></td>
 	  <c:forEach var="i" begin="1" end="15">
-	    <td name="column_${i}" class="input" style="display:none">
+	    <td name="column_${i}" class="input-centered" style="display:none">
 	      <fmt:message key="jobDraft.cell.label" /> <c:out value="${i}" />
 	    </td>
 	  </c:forEach>
@@ -40,7 +40,7 @@
 	<tr class="row">
 	<td class="label"><c:out value="${sd.name}" /></td>
 	  <c:forEach var="i" begin="1" end="15">
-	    <td name="column_${i}" class="input" style="display:none">
+	    <td name="column_${i}" class="input-centered" style="display:none">
 	      <!-- ${sd.sampleDraftId}_${i} -->
 	      <c:set var="key" value="${sd.sampleDraftId}_${i}" />
 	      <c:set var="checked" value="" />

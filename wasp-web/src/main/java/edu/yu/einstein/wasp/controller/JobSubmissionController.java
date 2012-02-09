@@ -747,7 +747,7 @@ public class JobSubmissionController extends WaspController {
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
 		if (typeResourceService.getTypeResourceByIName(typeresourceiname).getTypeResourceId() == null){
-			throw new NullTypeResourceException("No resource type with name '"+typeresourceiname+"'");
+			throw new NullTypeResourceException("No software resource with name '"+typeresourceiname+"'");
 		}
 		// make list of available resources
 		List<WorkflowSoftware> allWorkflowSoftwares = jobDraft.getWorkflow().getWorkflowSoftware();
@@ -822,7 +822,7 @@ public class JobSubmissionController extends WaspController {
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
 		if (typeResourceService.getTypeResourceByIName(typeresourceiname).getTypeResourceId() == null){
-			throw new NullTypeResourceException("No resource type with name '"+typeresourceiname+"'");
+			throw new NullTypeResourceException("No software resource with name '"+typeresourceiname+"'");
 		}
 		
 		Map params = request.getParameterMap();
@@ -842,7 +842,8 @@ public class JobSubmissionController extends WaspController {
 				jobDraftSoftwareService.remove(jdr);
 				jobDraftSoftwareService.flush(jdr);
 			}
-
+			if (changeResource.intValue() == -1) // nothing selected
+				return "redirect:/jobsubmit/software/" + typeresourceiname + "/" + jobDraftId + ".do";
 			JobDraftSoftware newJdr = new JobDraftSoftware();
 			newJdr.setJobdraftId(jobDraftId);
 			newJdr.setSoftwareId(changeResource);
@@ -850,7 +851,6 @@ public class JobSubmissionController extends WaspController {
 
 			return "redirect:/jobsubmit/software/" + typeresourceiname + "/" + jobDraftId + ".do";
 		}
-
 
 		// get selected resource
 		JobDraftSoftware jobDraftSoftware = null; 
@@ -863,21 +863,35 @@ public class JobSubmissionController extends WaspController {
 			softwareArea = jdr.getSoftware().getIName();
 			softwareName = jdr.getSoftware().getName(); 
 		}
-
+		
+		if (softwareArea.isEmpty()){
+			waspMessage("jobDraft.changeSoftwareResource.error");
+			return "redirect:/jobsubmit/software/" + typeresourceiname + "/" + jobDraftId + ".do";
+		}
+		
 		MetaHelperWebapp metaHelperWebapp = getMetaHelperWebapp();
 		metaHelperWebapp.setArea(softwareArea);
 
 		List<JobDraftMeta> jobDraftMetaList = metaHelperWebapp.getFromRequest(request, JobDraftMeta.class);
 
 		jobDraftForm.setJobDraftMeta(jobDraftMetaList);
-		metaHelperWebapp.validate(jobDraftMetaList, result);
-
+		metaHelperWebapp.validate(result);
+		
+		
 		if (result.hasErrors()) {
 			waspMessage("jobDraft.form.error");
-
-			return showResourceMetaForm(typeresourceiname, jobDraftId, m);
+		/*	for (org.springframework.validation.ObjectError e: result.getAllErrors()){
+				for (String code: e.getCodes())
+					logger.debug("ANDY:"+code);
+			} */
+			String returnPage = showSoftwareForm(typeresourceiname, jobDraftId, m);
+			for (org.springframework.validation.ObjectError e: result.getAllErrors()){
+				for (String code: e.getCodes())
+					logger.debug("ANDY:"+code);
+			} 
+			//logger.debug("ANDY: "+returnPage);
+			return returnPage;
 		}
-
 
 		jobDraftMetaService.updateByJobdraftId(metaHelperWebapp.getArea(), jobDraftId, jobDraftMetaList);
 
@@ -1044,6 +1058,10 @@ public class JobSubmissionController extends WaspController {
 		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
+		if (jobDraft.getSampleDraft().isEmpty()){
+			waspMessage("jobDraft.noSamples.error");
+			return showSampleDraft(jobDraftId, m); 
+		}
 		return nextPage(jobDraft);
 	}
 

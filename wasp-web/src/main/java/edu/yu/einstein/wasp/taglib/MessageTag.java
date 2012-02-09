@@ -60,7 +60,7 @@ public class MessageTag extends BodyTagSupport {
 
 		for(String key:messageKeys) {
 			try {
-				String message=DBResourceBundle.MESSAGE_SOURCE.getMessage(key, null,Locale.US);
+				String message="<div class='waspMessage'>" + DBResourceBundle.MESSAGE_SOURCE.getMessage(key, null,Locale.US) + "</div>";
 				if (buf.length()>0) buf.append("</br>\n");
 				buf.append(message);
 			} catch (Throwable e) {

@@ -40,6 +40,7 @@
            <property name="label" value="Number of mismatches (0-3)" />
            <property name="type" value="INTEGER" />
            <property name="range" value="0:3" />
+           <property name="constraint" value="NotEmpty" />
         </bean>
         
         <bean parent="bowtieAlignerUiFieldWrapper">
@@ -49,6 +50,7 @@
           <property name="type" value="NUMBER" />
           <property name="range" value="5:1000" />
           <property name="default" value="32" />
+          <property name="constraint" value="NotEmpty" />
         </bean>
         
         <bean parent="bowtieAlignerUiFieldWrapper">
@@ -57,6 +59,7 @@
           <property name="label" value="Number of Alignments to Report" />
           <property name="type" value="INTEGER" />
           <property name="default" value="1" />
+          <property name="constraint" value="NotEmpty" />
         </bean>
         
         <bean parent="bowtieAlignerUiFieldWrapper">
@@ -64,13 +67,15 @@
           <property name="metaposition" value="40" />
           <property name="label" value="Discard if more than how many alignments?" />
           <property name="type" value="INTEGER" />
+          <property name="constraint" value="NotEmpty" />
         </bean>
         
         <bean parent="bowtieAlignerUiFieldWrapper">
           <property name="baseName" value="isBest" />
           <property name="metaposition" value="50" />
           <property name="label" value="report only best alignments?" />
-          <property name="control" value="select:yes:yes;no;no" />
+          <property name="control" value="select:yes:yes;no:no" />
+          <property name="constraint" value="NotEmpty" />
         </bean>     
       </list>
     </property>
