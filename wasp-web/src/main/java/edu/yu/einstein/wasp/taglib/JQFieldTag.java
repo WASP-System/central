@@ -272,7 +272,7 @@ public class JQFieldTag extends BodyTagSupport {
 			//display red star if the field is required
 			if (required) {
 				editrules="{custom:true,custom_func:_validate_required}";
-				formoptions="{elmsuffix:'"+suffix+"<font color=red>*</font>'}";
+				formoptions="{elmsuffix:'"+suffix+"<span class=\"requiredField\">*</span>'}";
 			} else {
 				formoptions="{elmsuffix:'"+suffix+"'}";
 			}

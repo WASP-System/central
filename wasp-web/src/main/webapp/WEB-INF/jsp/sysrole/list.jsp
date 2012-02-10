@@ -1,17 +1,17 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
-<wasp:message /></div>
+<wasp:message />
 <h1><fmt:message key="pageTitle.sysrole/list.label" /></h1>
 
 <div class="instructions">
   <fmt:message key="sysrole.list_current.label" />
 </div>
 
-<table class="data tab-data">
+<table class="data">
 <tr>
-  	<th class="label">Name (Login Name)</th>
-  	<th class="label">Role</th>
-  	<th class="label">Action</th>
+  	<td class="label-centered">Name (Login Name)</td>
+  	<td class="label-centered">Role</td>
+  	<td class="label-centered">Action</td>
 </tr>
 
   <c:forEach items="${userRoleMap}" var="rs">
@@ -19,12 +19,11 @@
 	  	<tr>
 		    <td class="value"><c:out value="${rs.key}" /></td>
 		    <td class="value"><c:out value="${r.role.name}" /></td>
-		    <td class="action"><a href="<c:url value="/sysrole/remove/${r.userId}/${r.role.roleName}.do" />">Remove Role</a></td>
+		    <td class="submit value-centered"><a href="<c:url value="/sysrole/remove/${r.userId}/${r.role.roleName}.do" />">Remove Role</a></td>
 	    </tr>
 	  </c:forEach>
 	</c:forEach>
   </table>
-</div>
 
 <div>
 

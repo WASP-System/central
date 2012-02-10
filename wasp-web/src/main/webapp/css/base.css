@@ -73,6 +73,7 @@ INPUT[type="submit"],
 .button, 
 NAV#jobSubmit A,
 DIV.submit A,
+TD.submit A,
 .fm-button	{
 	padding: 4px 8px;
 	font-family: Helvetica, Arial, sans-serif;
@@ -109,7 +110,7 @@ TABLE.data TD	{
 	vertical-align: middle;
 	}
 
-Table TD.error{
+TABLE TD.error{
 	color: #ff0000;
 	border: 0px;
 }
@@ -124,6 +125,13 @@ TABLE.data TD.label	{
 	border-right: 1px solid #ccc;
 	font-weight: bold;
 	}
+
+TABLE.data TD.label-centered	{
+	background: #f7f7f7;
+	border-right: 1px solid #ccc;
+	font-weight: bold;
+	text-align: center;
+	}
 	
 TABLE.data TD.input	{
 	background: #ffffff;
@@ -135,6 +143,19 @@ TABLE.data TD.input-centered	{
 	border-right: 1px solid #ccc;
 	text-align: center;
 	}
+
+TABLE.data TD.value {
+	background: #ffffff;
+	border-right: 1px solid #ccc;
+	}
+	
+TABLE.data TD.value-centered {
+	background: #ffffff;
+	border-right: 1px solid #ccc;
+	text-align: center;
+	}
+	
+	
 
 
 

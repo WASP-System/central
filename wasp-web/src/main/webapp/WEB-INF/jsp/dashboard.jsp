@@ -44,9 +44,6 @@
 			<a href="<c:url value="/run/list.do"/>">- Run Utils</a>
 		</div>
 		<div>
-			<a href="<c:url value="/task/list.do"/>">Task Utils</a>
-		</div>
-		<div>
 			<a href="<c:url value="/workflow/list.do"/>">Workflow Utils</a>
 		</div>
 	</div>
@@ -148,8 +145,8 @@
 
 <sec:authorize access="hasRole('jv-*')">
 	<div>
-		<h1><a href="<c:url value="/job/list.do?userId=${me.getUserId()}"/>">Viewable Jobs (<c:out value="${jobs.size()}" />)</a></h1>
-		
+		<h1>Job Utils</h1>
+		<a href="<c:url value="/job/list.do?userId=${me.getUserId()}"/>">Viewable Jobs (<c:out value="${jobs.size()}" />)</a>
 		<%-- <c:forEach items="${jobs}" var="j">
 			<c:set var="jobId" value="${j.jobId}" />
 
