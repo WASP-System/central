@@ -17,17 +17,17 @@
           </tr> 	   	
           <tr>
               <td class="label"><fmt:message key="user.firstName.label" /></td>
-              <td class="input"><form:input path="firstName" /></td>
+              <td class="input"><form:input path="firstName" /><span class="requiredField">*</span></td>
               <td class="error"><form:errors path="firstName" /></td>
           </tr>
           <tr>
               <td class="label"><fmt:message key="user.lastName.label"/></td>
-              <td class="input"><form:input path="lastName" /></td>
+              <td class="input"><form:input path="lastName" /><span class="requiredField">*</span></td>
               <td class="error"><form:errors path="lastName" /></td>
           </tr>
           <tr>
               <td class="label"><fmt:message key="user.email.label"/></td>
-              <td class="input"><form:input path="email" /></td>
+              <td class="input"><form:input path="email" /><span class="requiredField">*</span></td>
               <td class="error"><form:errors path="email" /></td>
           </tr>         
           <tr>
@@ -40,7 +40,7 @@
                     <c:set var="localeLabel" value="${localeEntry.value}"/>        
                     <option value=${localeValue} <c:if test="${user.locale == localeValue}">selected</c:if>>${localeLabel}</option>                           
                 </c:forEach>
-              </select>
+              </select><span class="requiredField">*</span>
               </td>
               <td class="error"><form:errors path="locale" /></td>
           </tr>
