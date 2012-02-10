@@ -26,9 +26,8 @@ BODY {margin: 0; padding: 0;}
  <c:when test='${fn:length(jobs) > "0"}'>
   <c:forEach items="${jobs}" var="j">
     <div class="job">
-      <label>Job</label>
-      <c:out value="${j.name}" /> 
-      <c:out value="${j.workflow.name}" /> 
+      <label>Job <c:out value="${j.jobId}" /></label>
+      <c:out value="${j.name}" /> [Analysis: <c:out value="${j.workflow.name}" />] 
       <c:forEach items="${j.jobCell}" var="jc">
         <div class="jobcell">
           Job Cell: <c:out value="${jc.cellindex}" /> 
@@ -36,96 +35,101 @@ BODY {margin: 0; padding: 0;}
             <div class="samplecell">
               Sample Cell: <c:out value="${sc.libraryindex}" /> 
                <div class="sample">
-                  <label>Sample</label>
+                
+                        <c:choose>
+                         <c:when test="${sc.sample.typeSample.IName == 'library'}">
+                  			<label>User-submitted Library </label>
+                		</c:when>
+                		<c:otherwise>
+                			<label>User-submitted <c:out value="${sc.sample.typeSample.name}"/> </label>
+                		</c:otherwise>
+                		</c:choose>
                   <c:out value="${sc.sample.name}"/>
-                  <c:out value="${sc.sample.typeSample.name}"/>
+                  [<c:out value="${sc.sample.typeSample.name}"/>]
                   <c:if test="${sc.sample.typeSample.IName == 'library'}">
-                  <c:forEach items="${sc.sample.sampleMeta}" var="sm">
-                   <c:if test="${fn:substringAfter(sm.k, '.library.') == 'adaptorid'}">
-                    <div><label>Adaptor</label> <c:out value="${adaptors[sm.v]}"/></div>
-                    </c:if> 
-                  </c:forEach>  
-<div>
-<a href="javascript:{}" onclick="showAssignForm(this)">(+)</a>
-<div style="display:none">
-<form method="POST" action="<c:url value="/facility/platformunit/assignAdd.do" />">
-  <input type="hidden" name="librarysampleid" value="${sc.sample.sampleId}">
-  <input type="hidden" name="jobid" value="${j.jobId}">
-  <input type="hidden" name="resourceCategoryId" value="${resourceCategoryId}"> 
-  pmole: <input type="text" size="5" maxlength="5" name="pmolAdded"><br>
-  <select class="selectLane" name="lanesampleid"></select>
-  <input type="submit" value="assign">
-</form>
-</div>
-</div>
+                  	<c:forEach items="${sc.sample.sampleMeta}" var="sm">
+                   		<c:if test="${fn:substringAfter(sm.k, '.library.') == 'adaptorid'}">
+                    		<div><label>Adaptor</label> <c:out value="${adaptors[sm.v]}"/></div>
+                    	</c:if> 
+                   </c:forEach>  
+				   <div>
+					<a href="javascript:{}" onclick="showAssignForm(this)">(+)</a>
+					<div style="display:none">
+					<form method="POST" action="<c:url value="/facility/platformunit/assignAdd.do" />">
+  						<input type="hidden" name="librarysampleid" value="${sc.sample.sampleId}">
+  						<input type="hidden" name="jobid" value="${j.jobId}">
+  						<input type="hidden" name="resourceCategoryId" value="${resourceCategoryId}"> 
+  							pmole: <input type="text" size="5" maxlength="5" name="pmolAdded"><br>
+  						<select class="selectLane" name="lanesampleid"></select>
+  						<input type="submit" value="assign">
+					</form>
+					</div>
+				  </div>
                   </c:if>
                   
-                  
-                  
-                  
-          <!--          <c:forEach items="${sc.sample.sampleSourceViaSourceSampleId}" var="schild">
+                  <c:forEach items="${sc.sample.sampleSourceViaSourceSampleId}" var="schild">
                     <div class="samplechild">
                     <c:if test="${schild.sample.typeSample.IName == 'library'}">
-                        <label>One Deep Libray</label>
+                        <label>Facility-generated Library</label>
                         <c:out value="${schild.sample.name}" />
-<div>
-<a href="javascript:{}" onclick="showAssignForm(this)">(+)</a>
-<div style="display:none">
-<form method="POST" action="<c:url value="/facility/platformunit/assignAdd.do" />">
-  <input type="hidden" name="librarysampleid" value="${schild.sample.sampleId}">
-  <input type="hidden" name="jobid" value="${j.jobId}"> 
-  <input type="hidden" name="resourceCategoryId" value="${resourceCategoryId}"> 
- pmole: <input type="text" size="5" maxlength="5" name="pmolAdded"><br>
-  <select class="selectLane" name="lanesampleid"></select>
-  <input type="submit" value="assign">
-</form>
-</div>
-</div>
+                        [<c:out value="${schild.sample.typeSample.name}"/>]
+                       <c:forEach items="${schild.sample.sampleMeta}" var="sm">
+                   		  <c:if test="${fn:substringAfter(sm.k, '.library.') == 'adaptorid'}">
+                    		<div><label>Adaptor</label> <c:out value="${adaptors[sm.v]}"/></div>
+                    	  </c:if> 
+                  		</c:forEach> 
+        				<div>
+							<a href="javascript:{}" onclick="showAssignForm(this)">(+)</a>
+							<div style="display:none">
+							<form method="POST" action="<c:url value="/facility/platformunit/assignAdd.do" />">
+  								<input type="hidden" name="librarysampleid" value="${schild.sample.sampleId}">
+  								<input type="hidden" name="jobid" value="${j.jobId}"> 
+  								<input type="hidden" name="resourceCategoryId" value="${resourceCategoryId}"> 
+ 								pmole: <input type="text" size="5" maxlength="5" name="pmolAdded"><br>
+  								<select class="selectLane" name="lanesampleid"></select>
+  								<input type="submit" value="assign">
+							</form>
+							</div>
+						</div>
                     </c:if>
                     <c:if test="${schild.sample.typeSample.IName == 'lane'}">
                         <label>One Deep Lane</label>
                         <c:out value="${schild.sample.name}" />
-<div>
-<a href="javascript:{}" onclick="showAssignForm(this)">(-)</a>
-<div style="display:none">
-  <form method="POST" action="<c:url value="/facility/platformunit/assignRemove.do" />">
-	
-  <input type="hidden" name="samplesourceid" value="<c:out value="${schild.sampleSourceId}" />">
-  <input type="submit" value="Remove">
-  </form>
-</div>
-</div>
+						<div>
+						<a href="javascript:{}" onclick="showAssignForm(this)">(-)</a>
+							<div style="display:none">
+  							<form method="POST" action="<c:url value="/facility/platformunit/assignRemove.do" />">
+						  		<input type="hidden" name="samplesourceid" value="<c:out value="${schild.sampleSourceId}" />">
+  								<input type="submit" value="Remove">
+  							</form>
+							</div>
+						</div>
                     </c:if>
                       <c:forEach items="${schild.sample.sampleSourceViaSourceSampleId}" var="schild2">
                         <c:if test="${schild2.sample.typeSample.IName == 'lane'}">
                           <div class="samplechild2">
                             <label>Two Deep</label>
                               <c:out value="${schild2.sample.name}" />
-<div>
-<a href="javascript:{}" onclick="showAssignForm(this)">(-)</a>
-<div style="display:none">
-  <form method="POST" action="<c:url value="/facility/platformunit/assignRemove.do" />">
-	
-  <input type="hidden" name="samplesourceid" value="<c:out value="${schild.sampleSourceId}" />">
-  <input type="submit" value="Remove">
-  </form>
-</div>
-</div>
+								<div>
+								<a href="javascript:{}" onclick="showAssignForm(this)">(-)</a>
+									<div style="display:none">
+  									<form method="POST" action="<c:url value="/facility/platformunit/assignRemove.do" />">
+										<input type="hidden" name="samplesourceid" value="<c:out value="${schild.sampleSourceId}" />">
+  										<input type="submit" value="Remove">
+  									</form>
+									</div>
+								</div>
                           </div>
                         </c:if>
                       </c:forEach>
                     </div>
-                  </c:forEach>  -->
-                  
-                  
-                  
-                  
+                  </c:forEach>                    
                </div>
             </div>
           </c:forEach>
         </div>
       </c:forEach>
-    </div>
+    </div><br />
   </c:forEach>
  </c:when>
  <c:otherwise>
@@ -181,11 +185,11 @@ BODY {margin: 0; padding: 0;}
  <c:when test='${fn:length(flowCells) > "0"}'>
   <c:forEach items="${flowCells}" var="pu">
     <div class="platformunit">
-      <label>PU</label>
+      <label>Flow Cell</label>
       <c:out value="${pu.name}" /> 
       <c:forEach items="${pu.sampleSource}" var="puparent">
          <div class="cell">
-           <label>Cells</label>
+           <label>Lane</label>
            <c:out value="${puparent.sampleSourceId}" /> 
            <c:out value="${puparent.sampleViaSource.name}" /> 
 
@@ -201,15 +205,11 @@ BODY {margin: 0; padding: 0;}
                     </c:if> 
                   </c:forEach> 
                </c:if>
-               
-               
-               
-                
              </div>
            </c:forEach>
          </div>
       </c:forEach>
-    </div>
+    </div><br />
   </c:forEach>
   </c:when>
   <c:otherwise>

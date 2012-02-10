@@ -684,8 +684,12 @@ public class PlatformUnitController extends WaspController {
 		// picks up jobs
 		// FAKING IT HERE TOO
 		//What is really needed is to get all jobs which have a task of libraryWaitingForPlatformUnit
-/*		Workflow workflow = workflowService.getWorkflowByWorkflowId(1);
+		Workflow workflow = workflowService.getWorkflowByWorkflowId(1);
 		List<Job> tempJobs = workflow.getJob(); 
+		
+		Job aJob = jobService.getJobByJobId(10215);//add this
+		tempJobs.add(aJob);
+		
 		List<Job> jobs = new ArrayList<Job>();
 		for(Job job : tempJobs){
 			List<JobResourcecategory> jrcList = job.getJobResourcecategory();
@@ -696,9 +700,9 @@ public class PlatformUnitController extends WaspController {
 				}
 			}
 		}
-*/
-		//fake even more for the moment
-		List<Job> tempJobs = new ArrayList<Job>();
+
+		//fake even more for the moment, but basically, when a job is completed, it shouldn't appear on this list
+/*		List<Job> tempJobs = new ArrayList<Job>();
 		List<Job> jobs = new ArrayList<Job>();
 		Job aJob = jobService.getJobByJobId(10091);
 		tempJobs.add(aJob);
@@ -716,7 +720,7 @@ public class PlatformUnitController extends WaspController {
 				}
 			}
 		}
-		
+*/		
 		//map of adaptors for display
 		Map adaptors = new HashMap();
 		List<Adaptorset> adaptorsetList = adaptorsetService.findAll();

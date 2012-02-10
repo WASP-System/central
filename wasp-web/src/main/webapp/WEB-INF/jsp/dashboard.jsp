@@ -235,7 +235,7 @@
 			<a href="<c:url value="/facility/platformunit/limitPriorToAssign.do" />">List / Create</a>
 		</div>
 		<div>
-			<a href="<c:url value="/facility/platformunit/assign.do" />">Platform Unit assignment</a>
+			<a href="<c:url value="/facility/platformunit/assign.do" />">Platform Unit assignment (must remove this)</a>
 		</div>
 		<div>
 			<a href="<c:url value="/facility/platformunit/limitPriorToAssign.do" />">Platform Unit assignment</a>
