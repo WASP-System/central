@@ -36,6 +36,9 @@
 						<input name="${_area}Meta_${_meta.k}" id="${id}" value="${_meta.v}" <c:if test= "${_meta.property.formVisibility == 'immutable'}"> readonly="readonly"</c:if>/>
 				</c:otherwise>
 			</c:choose>
+			<c:if test="${not empty _meta.property.constraint}">
+			<span class="requiredField">*</span>
+			</c:if>
 			</td>		
 		
 			<td class="error"><form:errors path="${_area}Meta[${status.index}].k" /> </td>					 
