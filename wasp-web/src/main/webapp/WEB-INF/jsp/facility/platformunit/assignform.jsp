@@ -17,7 +17,7 @@ BODY {margin: 0; padding: 0;}
 .platformUnitSide {float:left; wldth:450px; height:100%; overflow: auto};
 </style>
 
-<font color="blue"><wasp:message /></font>
+<wasp:message />
 <br /> <!--   [<c:out value="${error}" />] -->
 <h1>Assigning Libraries For A Run On: <c:out value="${machineName}" /></h1>
 <div class="assignmentContent">

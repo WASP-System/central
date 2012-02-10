@@ -1,5 +1,5 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp"%>
-
+<wasp:message />
 <h1>
 	<c:out value="${workflow.name}" />
 </h1>
@@ -14,9 +14,7 @@ isActive:
 	<c:out value="${workflow.isActive}" />
 </p>
 
-<p>
-	<font color="blue"><wasp:message /> </font>
-</p>
+
 
 Resources:
     <c:forEach items="${workflow.workflowresource}" var="r">

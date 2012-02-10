@@ -1,13 +1,8 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp"%>
 
 <c:if test="${not empty param.error}">
-	<p>
-		<font color="red"> <fmt:message key="auth.login_failed.error" />
-			<!-- 	<br/><br/>
-        <fmt:message key="auth.login_reason.label" />: 
-        <c:out value="${SPRING_SECURITY_LAST_EXCEPTION.message}" />. -->
-		</font>
-	</p>
+	<fmt:message key="auth.login_failed.error" />
+
 </c:if>
 
 <h1>

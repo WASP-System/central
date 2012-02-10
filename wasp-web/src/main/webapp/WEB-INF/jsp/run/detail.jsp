@@ -1,12 +1,12 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp"%>
-
+	<wasp:message />
     <h1>
       <c:out value="${run.name}"/>
     </h1>
 
-<p>
-	<font color="blue"><wasp:message /> </font>
-</p>
+
+	
+
 
     <div>
       Resource: <a href="/resource/detail_ro/<c:out value="${run.resourceId}"/>.do"><c:out value="${run.resource.name}"/></a>

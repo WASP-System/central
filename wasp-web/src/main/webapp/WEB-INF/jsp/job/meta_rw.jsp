@@ -10,7 +10,7 @@
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.List" %>
 
-<font color="blue"><wasp:message /></font>
+<wasp:message />
 
 <c:if test="${baseMetas.size()> 0}" >
 <section>

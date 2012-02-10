@@ -1,5 +1,5 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
-<font color="blue"><wasp:message /></font><br />
+<wasp:message /><br />
 <c:choose>
  <c:when test='${fn:length(resourceCategories) > "0"}'>
 <form method="GET" action="<c:url value="/facility/platformunit/list.do" />">

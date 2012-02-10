@@ -1,6 +1,6 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
-<font color="blue"><wasp:message /></font>
+<wasp:message />
 
 <form:form commandName="sample">
 

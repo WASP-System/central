@@ -1,6 +1,6 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 <br /><br />
-      <font color="red"><wasp:message /></font>
+      <wasp:message />
       <sec:authorize access="hasRole('da-*') or hasRole('su') or hasRole('ga-*')">
     <h2><fmt:message key="department.detail_pendinglabs.label" /></h2>
     <c:choose>

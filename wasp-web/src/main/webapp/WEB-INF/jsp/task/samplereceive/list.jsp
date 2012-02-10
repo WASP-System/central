@@ -1,7 +1,7 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
 <h1><fmt:message key="task.samplereceive.title_label" /></h1>
- <font color="red"><wasp:message /></font><br />
+ <wasp:message /><br />
 <table cellpadding="1" cellspacing="1" border="2">
 <!-- <a href="/wasp/task/detail/<c:out value="${task.taskId}" />.do"><c:out value="${task.name}" /></a>  -->
 

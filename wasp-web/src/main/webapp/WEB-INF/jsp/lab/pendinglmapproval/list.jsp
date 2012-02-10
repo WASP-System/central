@@ -1,6 +1,6 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 <br /><br />
-      <font color="red"><wasp:message /></font>
+      <wasp:message />
       <sec:authorize access="hasRole('lm-${lab.labId}') or hasRole('su') or hasRole('ga-*')"> 
       
       <h2>PI/Lab Manager Pending Tasks (Lab: <c:out value="${lab.name}" />)</h2>
@@ -47,7 +47,7 @@
 
 <c:set var="counter" scope="page" value="1"/>
 
-      <font color="red"><wasp:message /></font>
+      <wasp:message />
       <sec:authorize access="hasRole('lm-${lab.labId}') or hasRole('su') or hasRole('ga-*')"> 
       
       <h2>PI/Lab Manager Pending Tasks</h2>
@@ -122,7 +122,7 @@
   <br />
 
   
-      <font color="red"><wasp:message /></font>
+      <wasp:message />
       <sec:authorize access="hasRole('lm-${lab.labId}') or hasRole('su') or hasRole('ga-*')"> 
       
       <h2>PI/Lab Manager Pending Tasks</h2>
@@ -209,7 +209,7 @@
   
    
  <br />
-      <font color="red"><wasp:message /></font>
+      <wasp:message />
       <sec:authorize access="hasRole('lm-${lab.labId}') or hasRole('su') or hasRole('ga-*')"> 
       <!-- hasRole('lm-${lab.labId}') -->
       <h2>PI/Lab Manager Pending Tasks</h2>

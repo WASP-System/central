@@ -1,12 +1,9 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp"%>
-
+<wasp:message />
 <h1>
 	<c:out value="${resource.name}" />
 </h1>
 
-<p>
-	<font color="blue"><wasp:message /> </font>
-</p>
 
 <table>
 	<tr>

@@ -1,7 +1,6 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp"%>
 <p>
-	<font color="blue"><wasp:message />
-	</font>
+	<wasp:message />
 </p>
 <form:form commandName="labPending">
 	<table>

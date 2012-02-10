@@ -1,5 +1,5 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
-<font color="red"><wasp:message /></font>
+<wasp:message />
 <h1><c:out value="${department.name}"/></h1>
 	
 <sec:authorize access="hasRole('su')">

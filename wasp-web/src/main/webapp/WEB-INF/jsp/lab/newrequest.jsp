@@ -1,6 +1,6 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
-<p><font color="red"><wasp:message /></font></p>
+<p><wasp:message /></p>
 
 
 <h1><fmt:message key="pageTitle.lab/newrequest.label" /></h1>

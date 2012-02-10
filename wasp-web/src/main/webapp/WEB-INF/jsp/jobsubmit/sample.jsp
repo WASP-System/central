@@ -8,7 +8,7 @@ Body of the "sample drafts" page
 
 <h1><fmt:message key="jobDraft.create.label"/> -- <fmt:message key="${jobDraft.getWorkflow().getIName()}.jobsubmit/samples.label"/></h1>
 
-<span id="waspMessage"><font color="red"><wasp:message /></font></span>
+<span id="waspMessage"><wasp:message /></span>
 <span id="statusMessage"></span>
 <span id="statusUpload"></span>
 <span id="uploadError"></span>

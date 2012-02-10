@@ -163,7 +163,7 @@
 			}
 			
 			if(required){
-				formoptions={elmsuffix:'<font color=red>*</font>'};
+				formoptions={elmsuffix:'<span class="requiredField">*</span>'};
 			}
 		
 			editoptions={size:20};

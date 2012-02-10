@@ -1,10 +1,8 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp"%>
-
+<wasp:message /> 
 <h1>Update Resource Details</h1>
 
-<p>
-	<font color="red"><wasp:message /> </font>
-</p>
+
 
 <form:form commandName="resource">
 

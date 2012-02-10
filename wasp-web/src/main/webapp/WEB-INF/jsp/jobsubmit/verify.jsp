@@ -1,6 +1,6 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
-<font color="blue"><wasp:message /></font>
+<wasp:message />
 
 <h1>Create a Job -- Verify</h1>
 

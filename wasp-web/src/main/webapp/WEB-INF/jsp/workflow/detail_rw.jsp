@@ -1,10 +1,7 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp"%>
-
+<wasp:message />
 <h1>Update Workflow Details</h1>
 
-<p>
-	<font color="red"><wasp:message /> </font>
-</p>
 
 <form:form commandName="workflow">
 

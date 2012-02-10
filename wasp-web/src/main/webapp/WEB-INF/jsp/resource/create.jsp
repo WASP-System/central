@@ -1,10 +1,6 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp"%>
-
-<h1>Create a New Resource</h1>
-
-<p>
-	<font color="red"><wasp:message /> </font>
-</p>
+<wasp:message />
+<h1><fmt:message key="pageTitle.resource/create.label" /></h1>
 
 <form:form commandName="resource">
 
