@@ -255,7 +255,7 @@
 	<definition name="facility/platformunit/limitPriorToAssign" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/facility/platformunit/limitPriorToAssignForm.jsp" />
 	</definition>
-	<definition name="facility/platformunit/limitPriorToAssign" extends="template-base">
+	<definition name="facility/platformunit/limitPriorToPlatformUnitAssign" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/facility/platformunit/limitPriorToPlatformUnitListForm.jsp" />
 	</definition>
 	<definition name="lab/pendinguser/list" extends="template-base">
