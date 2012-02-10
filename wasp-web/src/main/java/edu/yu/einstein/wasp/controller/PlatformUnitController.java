@@ -57,6 +57,7 @@ import edu.yu.einstein.wasp.service.AdaptorsetService;
 import edu.yu.einstein.wasp.service.AdaptorService;
 import edu.yu.einstein.wasp.service.BarcodeService;
 import edu.yu.einstein.wasp.service.JobService;
+import edu.yu.einstein.wasp.service.JobResourcecategoryService;
 import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.ResourceCategoryService;
 import edu.yu.einstein.wasp.service.SampleBarcodeService;
@@ -93,7 +94,10 @@ public class PlatformUnitController extends WaspController {
 
 	@Autowired
 	private JobService jobService;
-
+	
+	@Autowired
+	private JobResourcecategoryService jobResourcecategoryService;
+	
 	@Autowired
 	private ResourceCategoryService resourceCategoryService;
 
@@ -701,7 +705,8 @@ public class PlatformUnitController extends WaspController {
 	 */
 	@RequestMapping(value="/limitPriorToAssign.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('ft')")
-	public String limitPriorToAssignmentForm(ModelMap m) {
+	public String limitPriorToAssignmentForm(@RequestParam("resourceCategoryId") Integer resourceCategoryId,
+			ModelMap m) {
 		
 		TypeResource typeResource = typeResourceService.getTypeResourceByIName("mps");
 		//if(typeResource.getTypeResourceId()==0){
@@ -712,7 +717,21 @@ public class PlatformUnitController extends WaspController {
 		filterForResourceCategory.put("typeResourceId", typeResource.getTypeResourceId());
 		List<ResourceCategory> resourceCategories = resourceCategoryService.findByMap(filterForResourceCategory);
 		
+		List<Job> tempJobList = jobService.findAll();
+		List<Job> jobList = new ArrayList();
+		for(Job job : tempJobList){
+			List<JobResourcecategory> jobResourceCategoryList = job.getJobResourcecategory();
+			for(JobResourcecategory jrc : jobResourceCategoryList){
+				if(jrc.getResourcecategoryId().intValue()==resourceCategoryId.intValue()){
+					//TODO must really now filter jobs to include only those that have libraries that are ready to go onto a flow cell
+					jobList.add(job);
+				}
+			}
+		}
+		
+		m.put("resourceCategoryId", resourceCategoryId);
 		m.put("resourceCategories", resourceCategories);
+		m.put("jobList", jobList);
 		return "facility/platformunit/limitPriorToAssign"; 
 	}
 	
@@ -744,22 +763,21 @@ public class PlatformUnitController extends WaspController {
    */
 	@RequestMapping(value="/assign.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('ft')")
-	public String assignmentForm(@RequestParam("resourceCategoryId") Integer resourceCategoryId, 
+	public String assignmentForm(@RequestParam("resourceCategoryId") Integer resourceCategoryId,
+			@RequestParam("jobId") Integer jobId,
 			ModelMap m) {
 
-		if(resourceCategoryId.intValue()==0){//no machine type selected by user through the drop-down box
-			waspMessage("platformunit.resourceCategoryNotSelected.error");
-			return "redirect:/facility/platformunit/limitPriorToAssign.do";
+		if(jobId.intValue()==0){//no job selected by user through the drop-down box
+			waspMessage("platformunit.jobIdNotSelected.error");
+			return "redirect:/facility/platformunit/limitPriorToAssign.do?resourceCategoryId=0";
 		}
 		ResourceCategory resourceCategory = resourceCategoryService.getResourceCategoryByResourceCategoryId(resourceCategoryId);
 		if(resourceCategory.getResourceCategoryId() == 0){//machine type not found in database
 			waspMessage("platformunit.resourceCategoryInvalidValue.error");
-			return "redirect:/facility/platformunit/limitPriorToAssign.do";
+			return "redirect:/facility/platformunit/limitPriorToAssign.do?resourceCategoryId=0";
 		}
-		
-		
-		// pickups FlowCells limited by states
-		//TODO We really need to filter to display only those flow cells that are compatible with the selected machine resourceCategoryId
+				
+		// pickups FlowCells limited by states and filter to get only those compatible with the selected machine resourceCategoryId
 		Map stateMap = new HashMap(); 
 		Task task = taskService.getTaskByIName("Flowcell/Add Library To Lane");
 		if(task.getTaskId() == 0){
@@ -790,6 +808,28 @@ public class PlatformUnitController extends WaspController {
 		}
 
 		// picks up jobs
+		
+		List<Job> jobs = new ArrayList<Job>();
+		
+		if(jobId.intValue() > 0){//get the single job selected from the dropdown box
+			Job job = jobService.getJobByJobId(jobId);
+			if(job.getJobId().intValue()==0){
+				waspMessage("platformunit.jobNotFound.error");
+				return "redirect:/facility/platformunit/limitPriorToAssign.do?resourceCategoryId=" + resourceCategoryId;
+			}
+			else{
+				jobs.add(job);
+			}
+		}
+		else if(jobId.intValue()==-1){//asking for list of all available jobs that meet the resourceCategoryId criteria
+			Map map = new HashMap();
+			map.put("resourcecategoryId", resourceCategoryId);
+			List<JobResourcecategory> jrcList = jobResourcecategoryService.findByMap(map);
+			for(JobResourcecategory jrc : jrcList){
+				jobs.add(jrc.getJob());//TODO must confirm that these jobs have libraries that are ready to go onto a flow cell
+			}			
+		}
+		/*
 		// FAKING IT HERE TOO
 		//What is really needed is to get all jobs which have a task of libraryWaitingForPlatformUnit
 		Workflow workflow = workflowService.getWorkflowByWorkflowId(1);
@@ -798,7 +838,7 @@ public class PlatformUnitController extends WaspController {
 		Job aJob = jobService.getJobByJobId(10215);//add this
 		tempJobs.add(aJob);
 		
-		List<Job> jobs = new ArrayList<Job>();
+		
 		for(Job job : tempJobs){
 			List<JobResourcecategory> jrcList = job.getJobResourcecategory();
 			for(JobResourcecategory jrc : jrcList){
@@ -810,7 +850,7 @@ public class PlatformUnitController extends WaspController {
 		}
 
 		//fake even more for the moment, but basically, when a job is completed, it shouldn't appear on this list
-/*		List<Job> tempJobs = new ArrayList<Job>();
+		List<Job> tempJobs = new ArrayList<Job>();
 		List<Job> jobs = new ArrayList<Job>();
 		Job aJob = jobService.getJobByJobId(10091);
 		tempJobs.add(aJob);
@@ -829,33 +869,24 @@ public class PlatformUnitController extends WaspController {
 			}
 		}
 */		
-		//map of adaptors for display
+		//map of adaptors for display; this really needs to be a part of the library sample
 		Map adaptors = new HashMap();
 		List<Adaptorset> adaptorsetList = adaptorsetService.findAll();
-		//logger.debug("ROB: adaptorsetList.size = " + adaptorsetList.size());
 		for(Adaptorset as : adaptorsetList){
 			String adaptorsetname = new String(as.getName());
-			//logger.debug("ROB: adaptorsetname = " + adaptorsetname);
 			List<Adaptor> adaptorList = as.getAdaptor();
-			//logger.debug("ROB: adaptorList.size = " + adaptorList.size());
 			for(Adaptor adaptor : adaptorList){
 				if( "".equals(adaptor.getBarcodesequence()) ){
 					adaptors.put(adaptor.getAdaptorId().toString(), adaptorsetname);
 				}
 				else{
-					//logger.debug("ROB: barcodesequence = " + adaptor.getBarcodesequence());
 					adaptors.put(adaptor.getAdaptorId().toString(), adaptorsetname + " (" + adaptor.getBarcodesequence() + ")");
 				}
 			}
 		}
-		//logger.debug("ROB: adaptors.size = " + adaptors.size());
-		//logger.debug("ROB: Begin");
-		for (Object key: adaptors.keySet()){
-			//logger.debug("ROB: key="+key.toString() + ", value="+ adaptors.get(key));
+		for (Object key: adaptors.keySet()){//why?
+			;
 		 }
-		//logger.debug("ROB: End");
-		
-		
 		
 		m.put("machineName", resourceCategory.getName());
 		m.put("resourceCategoryId", resourceCategoryId);
