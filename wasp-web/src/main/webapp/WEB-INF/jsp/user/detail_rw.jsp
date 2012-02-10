@@ -4,9 +4,6 @@
 
     <h1><fmt:message key="pageTitle.user/detail_rw.label" /></h1>
 
-    <div class="instructions">
-      <%@ include file="/WEB-INF/jsp/lorem.jsp" %>
-    </div>
 
     <form:form commandName="user">
      <table class="data">

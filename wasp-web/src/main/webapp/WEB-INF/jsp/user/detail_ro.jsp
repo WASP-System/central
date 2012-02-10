@@ -3,9 +3,6 @@
 
     <h1><fmt:message key="pageTitle.user/detail_ro.label" /></h1>
 
-    <div class="instructions">
-       <%@ include file="/WEB-INF/jsp/lorem.jsp" %>
-    </div>
 
      <table class="data">
      	  <tr>
@@ -42,15 +39,13 @@
           <tr><td class="action"><a href="/wasp/user/detail_rw/${user.userId}.do"><fmt:message key="userDetail.edit_as_other.label" /></a>
           </sec:authorize>	
 	  <sec:authorize access="hasRole('u-${user.userId}')">
-	  	  <tr><td colspan="2" align=left><a href="/wasp/user/me_rw.do"><fmt:message key="userDetail.edit.label" /></a>
+	  	  <tr><td colspan="2" align=left><div class="submit"><a href="/wasp/user/me_rw.do"><fmt:message key="userDetail.edit.label" /></a>
 		  <sec:authorize access="not hasRole('ldap')">      		   		
 	          &nbsp;&nbsp;<a href="<c:url value="/user/mypassword.do"/>"><fmt:message key="userDetail.change_password.label" /></a>
 	      </sec:authorize>	
-	      </td></tr>
+	     </div> </td></tr>
 	   </sec:authorize>
 	</table>
 
   
-    <div class="bottomtxt">
-       <%@ include file="/WEB-INF/jsp/lorem.jsp" %>
-    </div>
+ 
