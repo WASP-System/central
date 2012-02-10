@@ -272,11 +272,10 @@ public class ResourceController extends WaspController {
 
 		resourceForm.setResourceMeta(resourceMetaList);
 			
-		if (resourceId == null || resourceId == 0) {
+		if (resourceId == null || resourceId.intValue() == 0) {
 			
 			//check if Resource Name already exists in db; if 'true', do not allow to proceed.
 			if(this.resourceService.getResourceByName(resourceForm.getName()).getName() != null) {
-				System.out.println("name="+this.resourceService.getResourceByName(resourceForm.getName()).getName());
 				try{
 					response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 					response.getWriter().println(messageService.getMessage("resource.resource_exists.error"));
@@ -300,9 +299,6 @@ public class ResourceController extends WaspController {
 				
 			}
 			
-			
-			//resourceForm.setResourcecategoryId(Integer.parseInt(request.getParameter("resourceCategoryId")));
-			
 			ResourceCategory resourceCategory = this.resourceCategoryService.getResourceCategoryByIName(request.getParameter("resource.machine_type"));
 			Integer resourceCategoryId =resourceCategory.getResourceCategoryId();
 			Integer typeResourceId = resourceCategory.getTypeResourceId();
@@ -321,8 +317,6 @@ public class ResourceController extends WaspController {
 				resourceForm.setIsActive(0);
 			}
 			
-			
-			
 			ResourceBarcode resourceBarcode = new ResourceBarcode();
 			Barcode barcode = new Barcode();
 			
@@ -334,8 +328,6 @@ public class ResourceController extends WaspController {
 
 			Resource resourceDb = this.resourceService.save(resourceForm);
 			resourceId = resourceDb.getResourceId();
-			
-
 			
 			resourceBarcode.setResourceId(resourceId);
 			this.resourceBarcodeService.save(resourceBarcode);

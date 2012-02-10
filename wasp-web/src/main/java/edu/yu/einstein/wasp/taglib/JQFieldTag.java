@@ -354,6 +354,7 @@ public class JQFieldTag extends BodyTagSupport {
 					jsName + ".jq['align']='center';\n" + 
 					jsName + ".jq['search']=false;\n";
 			}
+			
 	
 			if (this.showLink!=null  && this.showLink.equals("true")) {
 				// Set baseLinkURL and idName as default if they are not presented

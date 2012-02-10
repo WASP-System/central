@@ -97,6 +97,7 @@ public List findAllOrderBy(final String orderByColumnName, final String directio
   @Override
 public List findByMapDistinctOrderBy(final Map m, final List<String> distinctColumnNames, final List<String> orderByColumnNames, final String direction) {
 	  return this.getWaspDao().findByMapDistinctOrderBy(m, distinctColumnNames, orderByColumnNames, direction);
-  }	  
+  }	
+  
 }
 

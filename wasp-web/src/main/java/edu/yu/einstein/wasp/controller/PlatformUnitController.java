@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -154,8 +155,6 @@ public class PlatformUnitController extends WaspController {
 		m.addAttribute(JQFieldTag.AREA_ATTR, "platformunit");
 		
 		request.getSession().setAttribute("resourceCategoryId", new Integer (request.getParameter("resourceCategoryId")));
-
-		
 		
 		return "facility/platformunit/list";
 	}
@@ -165,7 +164,34 @@ public class PlatformUnitController extends WaspController {
 	public String showPlatformunitInstanceListShell(ModelMap m) {
 		m.addAttribute("_metaList", getMetaHelperWebapp().getMasterList(SampleMeta.class));
 		m.addAttribute(JQFieldTag.AREA_ATTR, "platformunitInstance");
+		
+		request.getSession().setAttribute("subtypeSampleId", new Integer (request.getParameter("subtypeSampleId")));
+		request.getSession().setAttribute("typeSampleId", new Integer (request.getParameter("typeSampleId")));
+		
+		//this.subtypeSampleService.getSubtypeSampleBySubtypeSampleId(new Integer(request.getParameter("subtypeSampleId")));
+		//m.addAttribute("subtypeSampleId", request.getParameter("subtypeSampleId"));
+
+
 		return "facility/platformunit/instance/list";
+	}
+	@Override
+	protected void prepareSelectListData(ModelMap m) {
+		super.prepareSelectListData(m);
+
+		List <TypeResource> typeResourceList = new ArrayList <TypeResource> (typeResourceService.findAll());
+		
+		//When adding a new record in Resources JqGrid, it displays  all Type Resources that are NOT "aligner" or "peakcaller"
+		for (Iterator<TypeResource> it = typeResourceList.iterator(); it.hasNext();) {
+			TypeResource tr = it.next();
+			if (tr.getIName().equals("aligner") || tr.getIName().equals("peakcaller")) {
+				it.remove();
+			}
+		}
+		m.addAttribute("typeResources", typeResourceList);
+		
+		List <ResourceCategory> resourceCategory = new ArrayList <ResourceCategory> (resourceCategoryService.findAll());
+		m.addAttribute("categoryResources", resourceCategory);
+
 	}
 
 	
@@ -187,9 +213,6 @@ public class PlatformUnitController extends WaspController {
 		
 		List<SubtypeSample> subtypeSampleList = new ArrayList<SubtypeSample> ();
 
-		
-
-
 		// First, search for typesampleid which its iname is "platform unit"
 		Map<String, String> typeSampleQueryMap = new HashMap<String, String>();
 		typeSampleQueryMap.put("iName", "platformunit");
@@ -201,23 +224,31 @@ public class PlatformUnitController extends WaspController {
 		// table
 		Map<String, Object> subtypeSampleListBaseQueryMap = new HashMap<String, Object>();
 		subtypeSampleListBaseQueryMap.put("typeSampleId", typeSampleList.get(0).getTypeSampleId());
+		
+		Map<String, Object> searchParamMap = new HashMap<String, Object>();
+
+		List<String> orderConstraints = new ArrayList<String>();
+		orderConstraints.add("name");
 
 		if (request.getParameter("_search") == null 
 				|| request.getParameter("_search").equals("false") 
 				|| StringUtils.isEmpty(request.getParameter("searchString"))) {
-			subtypeSampleList = subtypeSampleService.findByMap(subtypeSampleListBaseQueryMap);
+
+			subtypeSampleList = sidx.isEmpty() ? subtypeSampleService.findByMap(subtypeSampleListBaseQueryMap) : this.subtypeSampleService.findByMapDistinctOrderBy(subtypeSampleListBaseQueryMap, null, orderConstraints, sord);
+
 
 		} else {
 
-			subtypeSampleListBaseQueryMap.put(request.getParameter("searchField"), request.getParameter("searchString"));
+			searchParamMap.put(request.getParameter("searchField"), request.getParameter("searchString"));
 
-			subtypeSampleList = this.subtypeSampleService.findByMap(subtypeSampleListBaseQueryMap);
+			subtypeSampleList = this.subtypeSampleService.findByMap(searchParamMap);
 
 			if ("ne".equals(request.getParameter("searchOper"))) {
 				Map allSubtypeSampleListBaseQueryMap = new HashMap();
 				allSubtypeSampleListBaseQueryMap.put("typeSampleId", 5);
+				
+				List<SubtypeSample> allSubtypeSampleList = new ArrayList<SubtypeSample>(sidx.isEmpty() ?  this.sampleService.findByMap(allSubtypeSampleListBaseQueryMap) : this.sampleService.findByMapDistinctOrderBy(allSubtypeSampleListBaseQueryMap, null, orderConstraints, sord));
 
-				List<SubtypeSample> allSubtypeSampleList = this.subtypeSampleService.findByMap(allSubtypeSampleListBaseQueryMap);
 				for (SubtypeSample excludeSubtypeSample : allSubtypeSampleList) {
 					allSubtypeSampleList.remove(excludeSubtypeSample);
 				}
@@ -285,13 +316,15 @@ public class PlatformUnitController extends WaspController {
 		for (SubtypeSample subtypeSample : subtypeSamplePage) {
 			Map cell = new HashMap();
 			cell.put("id", subtypeSample.getSubtypeSampleId());
+			cell.put("subtypeSampleId", subtypeSample.getSubtypeSampleId());
+
 
 			List<SubtypeSampleMeta> subtypeSampleMetaList = getMetaHelperWebapp().syncWithMaster(subtypeSample.getSubtypeSampleMeta());
 			
 			List<String> cellList = new ArrayList<String>(
 					Arrays.asList(
 							new String[] { 
-									"<a href=/wasp/facility/platformunit/instance/list.do?selId="+subtypeSample.getSubtypeSampleId()+">" + 
+									"<a href=/wasp/facility/platformunit/instance/list.do?subtypeSampleId="+subtypeSample.getSubtypeSampleId()+"&typeSampleId="+subtypeSample.getTypeSampleId()+">" + 
 											subtypeSample.getName() + "</a>" }));
 
 			for (SubtypeSampleMeta meta : subtypeSampleMetaList) {
@@ -325,37 +358,32 @@ public class PlatformUnitController extends WaspController {
 
 		List<Sample> sampleList;
 
-		// First, search for typesampleid which its iname is "platform unit"
-		Map<String, String> typeSampleQueryMap = new HashMap<String, String>();
-		typeSampleQueryMap.put("iName", "platformunit");
-		List<TypeSample> typeSampleList = typeSampleService.findByMap(typeSampleQueryMap);
-		if (typeSampleList.size() == 0)
-			return "'Platform Unit' sample type is not defined!";
-		// Then, use the typesampleid to pull all platformunits from the sample
-		// table
-		Map<String, Object> sampleListBaseQueryMap = new HashMap<String, Object>();
-		sampleListBaseQueryMap.put("typeSampleId", typeSampleList.get(0).getTypeSampleId());
+		Map<String, Integer> sampleListBaseQueryMap = new HashMap<String, Integer>();
+		Map<String, String> searchParamMap = new HashMap<String, String>();
 
-		if (request.getParameter("_search") == null 
-				|| request.getParameter("_search").equals("false") 
-				|| StringUtils.isEmpty(request.getParameter("searchString"))) {
-			sampleList = sampleService.findByMap(sampleListBaseQueryMap);
+		sampleListBaseQueryMap.put("subtypeSampleId", (Integer) request.getSession().getAttribute("subtypeSampleId"));
+		sampleListBaseQueryMap.put("typeSampleId", (Integer) request.getSession().getAttribute("typeSampleId"));
 
+		List<String> orderConstraints = new ArrayList<String>();
+		orderConstraints.add("name");
+
+		if (request.getParameter("_search") == null || StringUtils.isEmpty(request.getParameter("searchString"))) {
+			sampleList = sidx.isEmpty() ? this.sampleService.findByMap(sampleListBaseQueryMap) : this.sampleService.findByMapDistinctOrderBy(sampleListBaseQueryMap, null, orderConstraints, sord);
 		} else {
 
-			sampleListBaseQueryMap.put(request.getParameter("searchField"), request.getParameter("searchString"));
+			searchParamMap.put(request.getParameter("searchField"), request.getParameter("searchString"));
 
-			sampleList = this.sampleService.findByMap(sampleListBaseQueryMap);
+			sampleList = this.sampleService.findByMap(searchParamMap);
 
 			if ("ne".equals(request.getParameter("searchOper"))) {
-				Map allSampleListBaseQueryMap = new HashMap();
-				allSampleListBaseQueryMap.put("typeSampleId", 5);
+				List<Sample> allSamples = new ArrayList<Sample>(sidx.isEmpty() ?  this.sampleService.findByMap(sampleListBaseQueryMap) : this.sampleService.findByMapDistinctOrderBy(sampleListBaseQueryMap, null, orderConstraints, sord));
 
-				List<Sample> allSampleList = sampleService.findByMap(allSampleListBaseQueryMap);
-				for (Sample excludeSample : allSampleList) {
-					allSampleList.remove(excludeSample);
+				for (Iterator<Sample> it = sampleList.iterator(); it.hasNext();) {
+					Sample excludeSample = it.next();
+					allSamples.remove(excludeSample);
+				
 				}
-				sampleList = allSampleList;
+				sampleList = allSamples;
 			}
 		}
 
@@ -453,22 +481,48 @@ public class PlatformUnitController extends WaspController {
 	@RequestMapping(value="/instance/updateJSON.do", method=RequestMethod.POST)
 	public String updateJson(
 			@RequestParam("id") Integer sampleId,
+			//@RequestParam("subtypeSampleId") Integer subtypeSampleId, 
 			@Valid Sample sampleForm, 
 			ModelMap m, 
 			HttpServletResponse response) {
 
 		List<SampleMeta> sampleMetaList = getMetaHelperWebapp().getFromJsonForm(request, SampleMeta.class);
 		sampleForm.setSampleMeta(sampleMetaList);
-		sampleForm.setSampleId(sampleId);
+		//sampleForm.setSampleId(sampleId); //do not set id here.  It will throw the "detached entity exception" when calling persist() on this object.
+		
+		//check if barcode already exists in Db; if 'true', do not allow to proceed.
+		if(this.barcodeService.getBarcodeByBarcode(request.getParameter("barcode")).getBarcode() != null && 
+				this.barcodeService.getBarcodeByBarcode(request.getParameter("barcode")).getBarcode().length() != 0) {
+			try{
+				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+				response.getWriter().println(messageService.getMessage("platformunitInstance.barcode_exists.error"));
+				return null;
+			} catch (Throwable e) {
+				throw new IllegalStateException("Cant output validation error "+messageService.getMessage("platformunitInstance.barcode_exists.error"),e);
+			}
+			
+		}
+		sampleForm.setSubtypeSampleId((Integer) (request.getSession().getAttribute("subtypeSampleId")));
+		
+		SampleBarcode sampleBarcode = new SampleBarcode();
+		Barcode barcode = new Barcode();
+		
+		barcode.setBarcode(request.getParameter("barcode")==null? "" : request.getParameter("barcode"));
+		sampleBarcode.setBarcode(barcode);
+		
+		Barcode barcodeDB = this.barcodeService.save(barcode);//save new barcode
+		sampleBarcode.setBarcodeId(barcodeDB.getBarcodeId()); // set new barcodeId in samplebarcode
 
-		//preparePlatformUnit(sampleForm);
-		//updatePlatformUnit(sampleForm);
+		preparePlatformUnit(sampleForm);
+		updatePlatformUnitInstance(sampleForm, sampleBarcode);
+		
+		
 
 		try {
 			response.getWriter().println(messageService.getMessage("platformunitInstance.updated_success.label"));
 			return null;
 		} catch (Throwable e) {
-			throw new IllegalStateException("Cant output success message ", e);
+			throw new IllegalStateException("Cannot output success message ", e);
 		}
 
 	}
@@ -583,13 +637,47 @@ public class PlatformUnitController extends WaspController {
 
 
 	// TODO move to service?
-	public String updatePlatformUnit( Sample sampleForm ) {
+	public String updatePlatformUnit( Sample sampleForm) {
 	
 		Sample sampleDb;
-		if (sampleForm.getSampleId() == null) {
+		if (sampleForm.getSampleId() == null || sampleForm.getSampleId().intValue() == 0) {
 			sampleDb = sampleService.save(sampleForm);
 		} else {
 			sampleDb = sampleService.merge(sampleForm);
+		}
+
+		sampleMetaService.updateBySampleId(sampleDb.getSampleId(), sampleForm.getSampleMeta());
+
+		/// TODO depending on how many *.resourceId is set, create sample lanes
+		/// query resourceServices.getLaneCount(resourceId)
+
+		/// TODO depending on how many *.lanecount is set, create sample lanes
+		// int xxx = somefunction(getLaneCount());
+		// for (int i = 0; i < xxxx; i++) {
+		//	 Sample lane = new Sample()
+		// }
+
+
+		//	return "facility/platformunit/ok";
+		return "redirect:/facility/platformunit/ok";
+	}
+	
+	public String updatePlatformUnitInstance( Sample sampleForm, SampleBarcode sampleBarcode ) {
+	
+		Sample sampleDb;
+		if (sampleForm.getSampleId() == null || sampleForm.getSampleId().intValue() == 0) {
+			sampleDb = sampleService.save(sampleForm);
+			
+			sampleBarcode.setSampleId(sampleDb.getSampleId());
+			this.sampleBarcodeService.save(sampleBarcode);
+		
+		} else {
+			sampleDb = sampleService.merge(sampleForm);
+			
+			SampleBarcode sampleBarcodeDB = this.sampleBarcodeService.getSampleBarcodeBySampleId(sampleForm.getSampleId());
+			sampleBarcodeDB.getBarcode().setBarcode(request.getParameter("barcode")==null? "" : request.getParameter("barcode"));
+			this.sampleBarcodeService.merge(sampleBarcodeDB);
+
 		}
 
 		sampleMetaService.updateBySampleId(sampleDb.getSampleId(), sampleForm.getSampleMeta());
@@ -626,7 +714,27 @@ public class PlatformUnitController extends WaspController {
 		
 		m.put("resourceCategories", resourceCategories);
 		return "facility/platformunit/limitPriorToAssign"; 
-	}	
+	}
+	
+	/**
+	 * limitPriorToPlatformUnitAssignment
+	 */
+	@RequestMapping(value="/limitPriorToPlatformUnitAssign.do", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('ft')")
+	public String limitPriorToPlatformUnitAssignForm(ModelMap m) {
+		
+		TypeResource typeResource = typeResourceService.getTypeResourceByIName("mps");
+		//if(typeResource.getTypeResourceId()==0){
+			//waspMessage("platformunit.resourceCategoryNotFound.error");
+			//return "redirect:/dashboard.do";
+		//}
+		Map filterForResourceCategory = new HashMap();
+		filterForResourceCategory.put("typeResourceId", typeResource.getTypeResourceId());
+		List<ResourceCategory> resourceCategories = resourceCategoryService.findByMap(filterForResourceCategory);
+		
+		m.put("resourceCategories", resourceCategories);
+		return "facility/platformunit/limitPriorToPlatformUnitAssign"; 
+	}
 	
 	
 	

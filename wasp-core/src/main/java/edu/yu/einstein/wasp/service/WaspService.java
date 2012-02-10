@@ -34,4 +34,5 @@ public interface WaspService<E> {
  public List findDistinctOrderBy(final String distinctColumnName, final String orderByColumnName, final String direction);
  public List findAllOrderBy(final String orderByColumnName, final String direction);
  public List findByMapDistinctOrderBy(final Map m, final List<String> distinctColumnNames, final List<String> orderByColumnNames, final String direction);
+
 } 

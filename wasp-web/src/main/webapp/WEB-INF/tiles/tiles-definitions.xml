@@ -298,15 +298,12 @@
 		<put-attribute name="toolbar-buttons" value="/WEB-INF/jsp/jobsubmit/toolbar-buttons.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/jobsubmit/sample.jsp" />
 	</definition>
-	
 	<definition name="facility/platformunit/list" extends="template-grid">
 		<put-attribute name="area" value="platformunit" />
 		<put-attribute name="grid-columns" value="/WEB-INF/jsp/facility/platformunit/allplatformunit_grid_columns.jsp" />
 		<put-attribute name="grid-customAttributes" value="/WEB-INF/jsp/facility/platformunit/allplatformunit_grid_customAttributes.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/facility/platformunit/sample.jsp" />
 	</definition>
-
-
 	<definition name="facility/platformunit/instance/list" extends="template-grid">
 		<put-attribute name="area" value="platformunitInstance" />
 		<put-attribute name="grid-columns" value="/WEB-INF/jsp/facility/platformunit/platformunitInstance_grid_columns.jsp" />
