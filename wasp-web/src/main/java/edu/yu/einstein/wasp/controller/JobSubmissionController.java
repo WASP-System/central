@@ -60,6 +60,7 @@ import edu.yu.einstein.wasp.model.JobUser;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.MetaAttribute;
+import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleCell;
@@ -289,17 +290,117 @@ public class JobSubmissionController extends WaspController {
 	@RequestMapping(value="/list", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('lu-*')")
 	public String list(ModelMap m) {
-		User me = authenticationService.getAuthenticatedUser();
 
-		Map jobDraftQueryMap = new HashMap();
-		jobDraftQueryMap.put("UserId", me.getUserId());
-		jobDraftQueryMap.put("status", "PENDING");
-
-		List<JobDraft> jobDraftList = jobDraftService.findByMap(jobDraftQueryMap);
-
-		m.put("jobdrafts", jobDraftList); 
+		m.addAttribute("_metaList",	getMetaHelperWebapp().getMasterList(MetaBase.class));
+		m.addAttribute(JQFieldTag.AREA_ATTR, getMetaHelperWebapp().getArea());
+		m.addAttribute("_metaDataMessages", MetaHelper.getMetadataMessages(request.getSession()));
 
 		return "jobsubmit/list";
+	}
+
+	@RequestMapping(value="/listJSON", method=RequestMethod.GET)	
+	public String getListJSON(HttpServletResponse response) {
+		
+		String search = request.getParameter("_search");
+		String searchStr = request.getParameter("searchString");
+	
+		String sord = request.getParameter("sord");
+		String sidx = request.getParameter("sidx");
+		
+		String userId = request.getParameter("userId");
+		String labId = request.getParameter("labId");
+		
+		//result
+		Map <String, Object> jqgrid = new HashMap<String, Object>();
+		
+		List<JobDraft> jobDraftList;
+		
+		if (!search.equals("true")	&& userId.isEmpty()	&& labId.isEmpty()) {
+			jobDraftList = sidx.isEmpty() ? this.jobDraftService.findAll() : this.jobDraftService.findAllOrderBy(sidx, sord);
+		} else {
+			  Map m = new HashMap();
+			  
+			  if (search.equals("true") && !searchStr.isEmpty())
+				  m.put(request.getParameter("searchField"), request.getParameter("searchString"));
+			  
+			  if (!userId.isEmpty())
+				  m.put("UserId", Integer.parseInt(userId));
+			  
+			  if (!labId.isEmpty())
+				  m.put("labId", Integer.parseInt(labId));
+			  				  
+			  jobDraftList = this.jobDraftService.findByMap(m);
+		}
+
+		try {
+			int pageIndex = Integer.parseInt(request.getParameter("page"));		// index of page
+			int pageRowNum = Integer.parseInt(request.getParameter("rows"));	// number of rows in one page
+			int rowNum = jobDraftList.size();										// total number of rows
+			int pageNum = (rowNum + pageRowNum - 1) / pageRowNum;				// total number of pages
+			
+			jqgrid.put("records", rowNum + "");
+			jqgrid.put("total", pageNum + "");
+			jqgrid.put("page", pageIndex + "");
+			 
+			Map<String, String> userData=new HashMap<String, String>();
+			userData.put("page", pageIndex + "");
+			userData.put("selId",StringUtils.isEmpty(request.getParameter("selId"))?"":request.getParameter("selId"));
+			jqgrid.put("userdata",userData);
+			 
+			List<Map> rows = new ArrayList<Map>();
+			
+			int frId = pageRowNum * (pageIndex - 1);
+			int toId = pageRowNum * pageIndex;
+			toId = toId <= rowNum ? toId : rowNum;
+
+			/* if the selId is set, change the page index to the one contains the selId */
+			if(!StringUtils.isEmpty(request.getParameter("selId")))
+			{
+				int selId = Integer.parseInt(request.getParameter("selId"));
+				int selIndex = jobDraftList.indexOf(jobService.findById(selId));
+				frId = selIndex;
+				toId = frId + 1;
+
+				jqgrid.put("records", "1");
+				jqgrid.put("total", "1");
+				jqgrid.put("page", "1");
+			}				
+
+			List<JobDraft> itemPage = jobDraftList.subList(frId, toId);
+			for (JobDraft item : itemPage) {
+				Map cell = new HashMap();
+				cell.put("id", item.getJobDraftId());
+				 
+				List<JobDraftMeta> itemMeta = getMetaHelperWebapp().syncWithMaster(item.getJobDraftMeta());
+				
+				User user = userService.getById(item.getUserId());
+				 					
+				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
+							item.getName(),
+							user.getNameFstLst(),
+							item.getLab().getName(),
+							item.getStatus()
+				}));
+				 
+				for (JobDraftMeta meta:itemMeta) {
+					cellList.add(meta.getV());
+				}
+				
+				 
+				cell.put("cell", cellList);
+				 
+				rows.add(cell);
+			}
+
+			 
+			jqgrid.put("rows",rows);
+			 
+			return outputJSON(jqgrid, response); 	
+			 
+		} catch (Throwable e) {
+			throw new IllegalStateException("Can't marshall to JSON " + jobDraftList,e);
+		}
+	
 	}
 
 	protected void generateCreateForm(ModelMap m) {

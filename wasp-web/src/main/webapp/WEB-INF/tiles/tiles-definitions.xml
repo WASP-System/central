@@ -211,7 +211,13 @@
 		<put-attribute name="head-js" value="/WEB-INF/jsp/sysrole/list.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/sysrole/list.jsp" />
 	</definition>
-	<definition name="jobsubmit/list" extends="template-base">
+	<!-- <definition name="jobsubmit/list" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/jobsubmit/list.jsp" />
+	</definition> -->
+	<definition name="jobsubmit/list" extends="template-grid">
+		<put-attribute name="area" value="jobsubmit" />
+		<put-attribute name="grid-columns" value="/WEB-INF/jsp/jobsubmit/grid_columns.jsp" />
+		<put-attribute name="grid-customAttributes" value="/WEB-INF/jsp/jobsubmit/grid_customAttributes.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/jobsubmit/list.jsp" />
 	</definition>
 	<definition name="jobsubmit/create" extends="template-base">

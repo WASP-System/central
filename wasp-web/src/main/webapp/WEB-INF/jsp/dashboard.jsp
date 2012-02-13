@@ -143,25 +143,26 @@
 
 <br />
 
-<sec:authorize access="hasRole('jv-*')">
-	<div>
-		<h1>Job Utils</h1>
-		<a href="<c:url value="/job/list.do?userId=${me.getUserId()}"/>">Viewable Jobs (<c:out value="${jobs.size()}" />)</a>
-		<%-- <c:forEach items="${jobs}" var="j">
-			<c:set var="jobId" value="${j.jobId}" />
 
-			<div>
-				<b><c:out value="${j.lab.name}" />&nbsp;[<c:out value="${j.user.login}" />]</b> - <a href="<c:url value="/job/detail/${jobId}.do"/>"> <b><c:out value="${j.name}" />
-				</b> </a>
-			</div>
-		</c:forEach> --%>
-	</div>
-	<br />
-</sec:authorize>
+<div>
+	<h1>Job Utils</h1>
+	<sec:authorize access="hasRole('jv-*')">
+		<div>
+			<a href="<c:url value="/job/list.do?userId=${me.getUserId()}"/>">Viewable Jobs (<c:out value="${jobs.size()}" />)</a>
+		</div>
+	</sec:authorize>
+	<sec:authorize access="hasRole('jv-*')">
+		<div>
+			<a href="<c:url value="/jobsubmit/list.do?userId=${me.getUserId()}"/>">Drafted Jobs (<c:out value="${jobdrafts.size()}" />)</a>
+		</div>
+	</sec:authorize>
+</div>
+<br />
 
 
 
-<sec:authorize access="hasRole('jd-*')">
+
+<%-- <sec:authorize access="hasRole('jd-*')">
 	<div>
 		<h1>Drafted Jobs</h1>
 		<c:forEach items="${jobdrafts}" var="j">
@@ -175,7 +176,7 @@
 	</div>
 	<br />
 </sec:authorize>
-
+ --%>
 
 
 <sec:authorize access="hasRole('lu-*')">

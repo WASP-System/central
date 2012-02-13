@@ -132,7 +132,7 @@ public class JobController extends WaspController {
 		List<Job> jobList;
 		
 		if (!search.equals("true")	&& userId.isEmpty()	&& labId.isEmpty()) {
-			jobList = sidx.isEmpty() ? this.jobService.findAll() : this.userService.findAllOrderBy(sidx, sord);
+			jobList = sidx.isEmpty() ? this.jobService.findAll() : this.jobService.findAllOrderBy(sidx, sord);
 		} else {
 			  Map m = new HashMap();
 			  
