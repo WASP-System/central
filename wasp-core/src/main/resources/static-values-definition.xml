@@ -70,7 +70,8 @@
   <bean id="waspSoftware" class="org.springframework.beans.factory.config.MapFactoryBean">
   	<property name="sourceMap">
   		<map key-type="java.lang.String" value-type="java.lang.String">
-  			<entry key="version" value="version" />
+  			<entry key="currentVersion" value="currentVersion" />
+  			<entry key="priorVersions" value="priorVersions" />
   		</map>
   	</property>
   </bean>

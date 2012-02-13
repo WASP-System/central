@@ -10,7 +10,7 @@
     default-autowire="byName">
     
   <bean id="macsPeakcallerArea" class="java.lang.String">
-  	<constructor-arg><value>macsPeakcallerV4_1</value></constructor-arg>
+  	<constructor-arg><value>macsPeakcaller</value></constructor-arg>
   </bean>
 
   <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="macsPeakcallerUiFieldWrapper">
@@ -22,13 +22,16 @@
     <property name="name" value="MACS Peakcaller" />
     <property name="resourceType" value="peakcaller" />
 	<property name="area" value="#{macsPeakcallerArea}" />
-    <property name="meta">
-      <list>
-        <bean class="edu.yu.einstein.wasp.model.SoftwareMeta">
-          <property name="k" value="#{macsPeakcallerArea}.#{waspSoftware['version']}" />
-          <property name="v" value="4.1" />
-        </bean>
-      </list>
+    <property name="metaFromWrapper">
+       <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
+         <property name="area" value="#{macsPeakcallerArea}" />
+          <property name="metaList">
+         	<list>
+         		<value>#{waspSoftware['currentVersion']}=4.1</value>
+         		<value>#{waspSoftware['priorVersions']}=</value>
+         	</list>
+       	 </property>
+       </bean>
     </property> 
 
     <property name="uiFieldsFromWrapper">

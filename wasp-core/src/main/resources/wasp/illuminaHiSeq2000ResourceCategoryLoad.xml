@@ -22,19 +22,16 @@
     <property name="name" value="Illumina HiSeq 2000" />
     <property name="area" value="#{illuminaHiSeq2000Area}" />
     <property name="resourceType" value="mps" />
-
-    <property name="meta">
-      <list>
-        <bean class="edu.yu.einstein.wasp.model.ResourceCategoryMeta">
-          <property name="k" value="resource.allowableUiField.readlength" />
-          <property name="v" value="50:50;75:75;100:100;150:150" />
-        </bean>
-
-        <bean class="edu.yu.einstein.wasp.model.ResourceCategoryMeta">
-          <property name="k" value="resource.allowableUiField.readType" />
-          <property name="v" value="single:single;paired:paired" />
-        </bean>       
-       </list>
+	 <property name="metaFromWrapper">
+       <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
+         <property name="area" value="resource" />
+         <property name="metaList">
+         	<list>
+         		<value>allowableUiField.readlength=50:50;75:75;100:100;150:150</value>
+         		<value>allowableUiField.readType=single:single;paired:paired</value>
+         	</list>
+         </property>
+       </bean>
     </property> 
 
     <property name="uiFieldsFromWrapper">

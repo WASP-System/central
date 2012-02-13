@@ -46,6 +46,10 @@ public class SoftwareLoadService extends WaspLoadService {
 
   private List<SoftwareMeta> meta; 
   public void setMeta(List<SoftwareMeta> meta) {this.meta = meta; }
+  
+  public void setMetaFromWrapper(MetaLoadWrapper metaLoadWrapper){
+	  meta = metaLoadWrapper.getMeta(SoftwareMeta.class);
+  }
 
   @Override
   @Transactional

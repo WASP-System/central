@@ -66,6 +66,10 @@ public class AdaptorsetLoadService extends WaspLoadService {
   
   private List<AdaptorsetMeta>  meta;
   public void setMeta(List<AdaptorsetMeta> meta){ this.meta = meta; }
+  
+  public void setMetaFromWrapper(MetaLoadWrapper metaLoadWrapper){
+	  meta = metaLoadWrapper.getMeta(AdaptorsetMeta.class);
+  }
 
   private List<String> compatibleResourcesByIName; 
   public void setCompatibleResourcesByIName(List<String> compatibleResourcesByIName) {this.compatibleResourcesByIName = compatibleResourcesByIName; }

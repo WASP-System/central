@@ -41,18 +41,16 @@
 	        </bean>
         </list>
   	</property>
-  	
-  	<property name="meta">
-      <list>
-        <bean class="edu.yu.einstein.wasp.model.SubtypeSampleMeta">
-          <property name="k" value="#{illuminaFlowcellV3UiFieldArea}.#{waspPlatformUnit['maxCellNumber']}" />
-          <property name="v" value="8" />
-        </bean>
-        <bean class="edu.yu.einstein.wasp.model.SubtypeSampleMeta">
-          <property name="k" value="#{illuminaFlowcellV3UiFieldArea}.#{waspPlatformUnit['multiplicationFactor']}" />
-          <property name="v" value="1" />
-        </bean>
-       </list>
+  	<property name="metaFromWrapper">
+       <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
+         <property name="area" value="#{illuminaFlowcellV3UiFieldArea}" />
+         <property name="metaList">
+         	<list>
+         		<value>#{waspPlatformUnit['maxCellNumber']}=8</value>
+         		<value>#{waspPlatformUnit['multiplicationFactor']}=1</value>
+         	</list>
+         </property>
+       </bean>
     </property> 
   	
   </bean>

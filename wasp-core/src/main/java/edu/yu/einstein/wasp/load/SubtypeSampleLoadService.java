@@ -57,6 +57,10 @@ public class SubtypeSampleLoadService extends WaspLoadService {
   private List<SubtypeSampleMeta> meta;
   public void setMeta(List<SubtypeSampleMeta> subtypeSampleMeta) {this.meta = subtypeSampleMeta; }
   
+  public void setMetaFromWrapper(MetaLoadWrapper metaLoadWrapper){
+	  meta = metaLoadWrapper.getMeta(SubtypeSampleMeta.class);
+  }
+  
   private List<String> compatibleResourcesByIName; 
   public void setCompatibleResourcesByIName(List<String> compatibleResourcesByIName) {this.compatibleResourcesByIName = compatibleResourcesByIName; }
 

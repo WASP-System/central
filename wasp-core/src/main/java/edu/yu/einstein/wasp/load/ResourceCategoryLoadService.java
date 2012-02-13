@@ -46,6 +46,10 @@ public class ResourceCategoryLoadService extends WaspLoadService {
 
   private List<ResourceCategoryMeta> meta; 
   public void setMeta(List<ResourceCategoryMeta> meta) {this.meta = meta; }
+  
+  public void setMetaFromWrapper(MetaLoadWrapper metaLoadWrapper){
+	  meta = metaLoadWrapper.getMeta(ResourceCategoryMeta.class);
+  }
 
   @Override
   @Transactional
