@@ -49,7 +49,7 @@ public class WorkflowPoller {
 
 		Task task = taskService.getTaskByIName(taskIName); 
 
-		List<State> rt = new ArrayList();
+		List<State> rt = new ArrayList<State>();
 
 		List<State> allStates = task.getState();
 
