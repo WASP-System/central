@@ -30,7 +30,7 @@
 							<c:if test="${fn:contains(rcm.k, '.allowableUiField.')}">
 								<div>
 									<c:set var="optionName" value="" />
-									<c:if test="${! empty wrc &amp;&amp; wrc != ''}">
+									<c:if test="${! empty wrc && wrc != ''}">
 
 										<c:set var="optionName"
 											value="${wrc.resourceCategory.IName};${fn:substringAfter(rcm.k, '.allowableUiField.')}" />
