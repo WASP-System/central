@@ -421,9 +421,7 @@ public class JobSubmissionController extends WaspController {
 
 
 		// filter active
-		Map workflowQueryMap = new HashMap();
-		m.put("isActive", 1);
-		List <Workflow> workflowList = workflowService.findByMap(workflowQueryMap);
+		List <Workflow> workflowList = workflowService.getActiveWorkflows();
 
 		m.put("labs", labList); 
 		m.put("workflows", workflowList); 

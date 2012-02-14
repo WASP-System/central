@@ -51,9 +51,7 @@ public class AutoCompleteController extends WaspController{
 	   */
 	  @RequestMapping(value="/getUserNamesAndLoginForDisplay", method=RequestMethod.GET)
 	  public @ResponseBody String getNames(@RequestParam String adminNameFragment) {
-	         Map activeUserQueryMap = new HashMap();
-	         activeUserQueryMap.put("isActive", 1);
-	         List<User> userList = userService.findByMap(activeUserQueryMap);
+	         List<User> userList = userService.getActiveUsers();
 	         String jsonString = new String();
 	         jsonString = jsonString + "{\"source\": [";
 	         for (User u : userList){

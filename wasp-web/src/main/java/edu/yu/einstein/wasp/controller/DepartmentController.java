@@ -96,9 +96,7 @@ public class DepartmentController extends WaspController {
 
 	@Override
 	protected void prepareSelectListData(ModelMap m) {
-		Map userQueryMap = new HashMap();
-		userQueryMap.put("isActive", 1);
-		m.addAttribute("pusers", userService.findByMap(userQueryMap));
+		m.addAttribute("pusers", userService.getActiveUsers());
 		super.prepareSelectListData(m);
 	}
 
