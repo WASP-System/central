@@ -35,6 +35,7 @@ import edu.yu.einstein.wasp.model.Adaptorset;
 import edu.yu.einstein.wasp.model.Barcode;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
+import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.ResourceBarcode;
 import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.Sample;
@@ -67,6 +68,7 @@ import edu.yu.einstein.wasp.service.SampleSourceService;
 import edu.yu.einstein.wasp.service.SampleSourceMetaService;
 import edu.yu.einstein.wasp.service.StateService;
 import edu.yu.einstein.wasp.service.StatesampleService;
+import edu.yu.einstein.wasp.service.SubtypeSampleMetaService;
 
 import edu.yu.einstein.wasp.service.SubtypeSampleResourceCategoryService;
 
@@ -77,6 +79,7 @@ import edu.yu.einstein.wasp.service.TypeSampleService;
 import edu.yu.einstein.wasp.service.TypeResourceService;
 import edu.yu.einstein.wasp.service.WorkflowService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
+import edu.yu.einstein.wasp.util.MetaHelper;
 
 @Controller
 @Transactional
@@ -133,6 +136,10 @@ public class PlatformUnitController extends WaspController {
 
 	@Autowired
 	private TypeResourceService typeResourceService;
+	
+	@Autowired
+	private SubtypeSampleMetaService subtypeSampleMetaService;
+
 
 	@Autowired
 	private SampleBarcodeService sampleBarcodeService;
@@ -151,6 +158,10 @@ public class PlatformUnitController extends WaspController {
 	private final MetaHelperWebapp getMetaHelperWebapp() {
 		return new MetaHelperWebapp("platformunit",  "sample",SampleMeta.class, request.getSession());
 	}
+	
+	private final MetaHelperWebapp getMetaHelperWebappPlatformUnitInstance() {
+		return new MetaHelperWebapp("platformunitInstance",  "sample",SampleMeta.class, request.getSession());
+	}
 
 	@RequestMapping(value="/list.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('ft')")
@@ -166,15 +177,13 @@ public class PlatformUnitController extends WaspController {
 	@RequestMapping(value="/instance/list.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('ft')")
 	public String showPlatformunitInstanceListShell(ModelMap m) {
-		m.addAttribute("_metaList", getMetaHelperWebapp().getMasterList(SampleMeta.class));
+		m.addAttribute("_metaList", getMetaHelperWebappPlatformUnitInstance().getMasterList(SampleMeta.class));
 		m.addAttribute(JQFieldTag.AREA_ATTR, "platformunitInstance");
+		m.addAttribute("_metaDataMessages", MetaHelper.getMetadataMessages(request.getSession()));
 		
 		request.getSession().setAttribute("subtypeSampleId", new Integer (request.getParameter("subtypeSampleId")));
 		request.getSession().setAttribute("typeSampleId", new Integer (request.getParameter("typeSampleId")));
-		
-		//this.subtypeSampleService.getSubtypeSampleBySubtypeSampleId(new Integer(request.getParameter("subtypeSampleId")));
-		//m.addAttribute("subtypeSampleId", request.getParameter("subtypeSampleId"));
-
+		prepareSelectListData(m);
 
 		return "facility/platformunit/instance/list";
 	}
@@ -191,10 +200,50 @@ public class PlatformUnitController extends WaspController {
 				it.remove();
 			}
 		}
+		
 		m.addAttribute("typeResources", typeResourceList);
 		
 		List <ResourceCategory> resourceCategory = new ArrayList <ResourceCategory> (resourceCategoryService.findAll());
 		m.addAttribute("categoryResources", resourceCategory);
+		
+		/* Begin Lane Count calculations  */
+		
+		Map<String, Integer> subtypeSampleMetaMap = new HashMap<String, Integer>();
+		subtypeSampleMetaMap.put("subtypeSampleId", (Integer) request.getSession().getAttribute("subtypeSampleId"));
+		List <SubtypeSampleMeta> subtypeSampleMetaList = new ArrayList <SubtypeSampleMeta> (this.subtypeSampleMetaService.findByMap(subtypeSampleMetaMap));
+		
+		Integer maxCellNum = null;
+		Integer multFactor = null;
+		Map<Integer, String> laneOptionsMap = new HashMap<Integer, String>();
+		
+		for (SubtypeSampleMeta subtypeSampleMeta : subtypeSampleMetaList) {
+			if (subtypeSampleMeta.getK().matches(".*\\.maxCellNumber")) {
+				maxCellNum = new Integer(subtypeSampleMeta.getV());
+			}
+			else if (subtypeSampleMeta.getK().matches(".*\\.multiplicationFactor")) {
+				multFactor = new Integer(subtypeSampleMeta.getV());
+			}
+		}
+		
+		if (multFactor == null || multFactor.intValue() <= 1) {
+			
+			laneOptionsMap.put(new Integer(1), "1");
+			laneOptionsMap.put(maxCellNum, maxCellNum.toString());
+			
+		}
+		else {
+			laneOptionsMap.put(new Integer(1), "1");
+			
+			for (int i=1; i <= (maxCellNum.intValue()/multFactor); i++) {
+				
+				Integer cellNum = new Integer(multFactor.intValue() * i);
+				laneOptionsMap.put(cellNum, cellNum.toString());
+			}
+		}
+
+		m.addAttribute("lanes", laneOptionsMap);
+		
+		/* End Lane Count calculations  */
 
 	}
 
@@ -485,7 +534,6 @@ public class PlatformUnitController extends WaspController {
 	@RequestMapping(value="/instance/updateJSON.do", method=RequestMethod.POST)
 	public String updateJson(
 			@RequestParam("id") Integer sampleId,
-			//@RequestParam("subtypeSampleId") Integer subtypeSampleId, 
 			@Valid Sample sampleForm, 
 			ModelMap m, 
 			HttpServletResponse response) {
@@ -512,6 +560,8 @@ public class PlatformUnitController extends WaspController {
 		Barcode barcode = new Barcode();
 		
 		barcode.setBarcode(request.getParameter("barcode")==null? "" : request.getParameter("barcode"));
+		barcode.setIsActive(new Integer(1));
+
 		sampleBarcode.setBarcode(barcode);
 		
 		Barcode barcodeDB = this.barcodeService.save(barcode);//save new barcode
@@ -519,8 +569,6 @@ public class PlatformUnitController extends WaspController {
 
 		preparePlatformUnit(sampleForm);
 		updatePlatformUnitInstance(sampleForm, sampleBarcode);
-		
-		
 
 		try {
 			response.getWriter().println(messageService.getMessage("platformunitInstance.updated_success.label"));
@@ -610,6 +658,45 @@ public class PlatformUnitController extends WaspController {
 		}
 		return sampleForm;
 	}
+	
+	public String createCell(Sample sampleForm) {
+		
+		Integer typeSampleId = typeSampleService.getTypeSampleByIName("cell").getTypeSampleId();
+		Integer laneNumber = Integer.getInteger(request.getParameter("platformunitInstance.lane"));
+		
+		laneNumber = 2;
+		
+		for (int i = 0; i < laneNumber.intValue(); i++) {
+			 Sample sampleDb = null;
+			 Sample cell = new Sample();
+			 cell.setSubmitterUserId(sampleForm.getSubmitterUserId());
+			 cell.setName(sampleForm.getName()+"/"+(i+1));
+			 cell.setTypeSampleId(typeSampleId);
+			 cell.setIsActive(1);
+			 sampleDb = this.sampleService.save(cell);
+			 
+			 SampleSource sampleSource = new SampleSource();
+			 sampleSource.setSampleId(sampleDb.getSampleId());
+			 sampleSource.setSourceSampleId(sampleForm.getSampleId());
+			 this.sampleSourceService.save(sampleSource);
+  			 //Is this required?
+			 //sampleMetaService.updateBySampleId(sampleDb.getSampleId(), sampleForm.getSampleMeta());
+			 
+		 }
+
+
+		//	return "facility/platformunit/ok";
+		return "redirect:/facility/platformunit/ok";
+	}
+	
+	//TO DO:
+	int getLaneCount() {
+		
+		int lane = 0;
+		
+		return lane;
+	}
+	
 
 	public String validateAndUpdatePlatformUnit(
 		Sample sampleForm,
@@ -686,17 +773,8 @@ public class PlatformUnitController extends WaspController {
 
 		sampleMetaService.updateBySampleId(sampleDb.getSampleId(), sampleForm.getSampleMeta());
 
-		/// TODO depending on how many *.resourceId is set, create sample lanes
-		/// query resourceServices.getLaneCount(resourceId)
-
-		/// TODO depending on how many *.lanecount is set, create sample lanes
-		// int xxx = somefunction(getLaneCount());
-		// for (int i = 0; i < xxxx; i++) {
-		//	 Sample lane = new Sample()
-		// }
-
-
-		//	return "facility/platformunit/ok";
+		createCell(sampleDb);
+		
 		return "redirect:/facility/platformunit/ok";
 	}
 
