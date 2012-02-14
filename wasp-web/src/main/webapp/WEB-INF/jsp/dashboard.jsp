@@ -142,51 +142,35 @@
 </sec:authorize>
 
 <br />
-
-
 <div>
+
+<sec:authorize access="hasRole('jv-*') or hasRole('su') or hasRole('ga') or hasRole('lu-*')">
 	<h1>Job Utils</h1>
 	<sec:authorize access="hasRole('jv-*')">
-		<div>
-			<a href="<c:url value="/job/list.do?userId=${me.getUserId()}"/>">Viewable Jobs (<c:out value="${jobs.size()}" />)</a>
-		</div>
-	</sec:authorize>
-	<sec:authorize access="hasRole('jv-*')">
-		<div>
-			<a href="<c:url value="/jobsubmit/list.do?userId=${me.getUserId()}"/>">Drafted Jobs (<c:out value="${jobdrafts.size()}" />)</a>
-		</div>
-	</sec:authorize>
-</div>
-<br />
-
-
-
-
-<%-- <sec:authorize access="hasRole('jd-*')">
 	<div>
-		<h1>Drafted Jobs</h1>
-		<c:forEach items="${jobdrafts}" var="j">
-			<c:set var="jobDraftId" value="${j.jobDraftId}" />
-
-			<div>
-				<b><c:out value="${j.lab.name}" />&nbsp;[<c:out value="${j.user.login}" />]</b> - <a href="<c:url value="/jobsubmit/verify/${jobDraftId}.do"/>"> <b><c:out value="${j.name}" />
-				</b> </a>
-			</div>
-		</c:forEach>
+		<a href="<c:url value="/job/list.do?userId=${me.getUserId()}"/>">Viewable Jobs (<c:out value="${jobViewableCount}" />)</a>
 	</div>
-	<br />
-</sec:authorize>
- --%>
 
+	<div>
+		<a href="<c:url value="/jobsubmit/list.do?userId=${me.getUserId()}"/>">Drafted Jobs (<c:out value="${jobDraftCount}" />)</a>
+	</div>
+	</sec:authorize>
+	<sec:authorize access="hasRole('su') or hasRole('ga')">
+	<div>
+		<a href="<c:url value="/job/list.do"/>">View All Jobs (<c:out value="${jobsAllCount}" />)</a>
+	</div>
+	</sec:authorize>
+
+</sec:authorize>
+<br />
 
 <sec:authorize access="hasRole('lu-*')">
 	<a href="<c:url value="/jobsubmit/create.do" />">Submit a Job</a>
 	<br />
-	<br />
 </sec:authorize>
+</div>
 
-
-
+<br />
 <sec:authorize access="hasRole('fm')">
 	<div>
 		<h1>Facility Manager Utils</h1>

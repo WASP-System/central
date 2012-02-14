@@ -52,15 +52,16 @@ public class DashboardController extends WaspController {
 	// see role table
 	// higher level roles such as 'lm' or 'js' are used on the view
 	public static enum DashboardEntityRolename {
-		da, lu, jv, jd
+		da, lu, jv, jd, su, ga
 	};
 
 	@RequestMapping("/dashboard")
 	public String list(ModelMap m) {
 		//List<Department> departmentList = new ArrayList<Department>();
 		List<Lab> labList = new ArrayList<Lab>();
-		List<Job> jobList = new ArrayList<Job>();
-		List<JobDraft> jobDraftList = new ArrayList<JobDraft>();
+		int jobViewableCount = 0;
+		int jobsAllCount = 0;
+		int jobDraftCount = 0;
 		HashMap labMap = new HashMap();
 		
 		int departmentAdminPendingTasks = 0;
@@ -92,9 +93,12 @@ public class DashboardController extends WaspController {
 			switch (entityRolename) {
 				////case da: /* departmentList.add(departmentService.getDepartmentByDepartmentId(roleObjectId)); break; */ 
 				case lu: labList.add(labService.getLabByLabId(roleObjectId)); labMap.put(roleObjectId, labService.getLabManagerPendingTasks(roleObjectId));break;
-				case jv: jobList.add(jobService.getJobByJobId(roleObjectId)); break;
-				case jd: jobDraftList.add(jobDraftService.getJobDraftByJobDraftId(roleObjectId)); break;
+				case jv: jobViewableCount++; break;
+				case jd: jobDraftCount++; break;
 			}
+		}
+		if (authenticationService.hasRole("su") || authenticationService.hasRole("ga")){
+			jobsAllCount = jobService.findAll().size();
 		}
 		m.addAttribute("me", authenticationService.getAuthenticatedUser());
 		
@@ -104,8 +108,9 @@ public class DashboardController extends WaspController {
 		
 		m.addAttribute("labs", labList);
 		m.addAttribute("labmap", labMap);
-		m.addAttribute("jobs", jobList);
-		m.addAttribute("jobdrafts", jobDraftList);	
+		m.addAttribute("jobViewableCount", jobViewableCount);
+		m.addAttribute("jobsAllCount", jobsAllCount);
+		m.addAttribute("jobDraftCount", jobDraftCount);	
 		if(authenticationService.isSuperUser() || authenticationService.hasRole("ga")){
 			allLabManagerPendingTasks = labService.getAllLabManagerPendingTasks();
 		}
