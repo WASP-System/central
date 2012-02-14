@@ -568,7 +568,8 @@ public class PlatformUnitController extends WaspController {
 		sampleBarcode.setBarcodeId(barcodeDB.getBarcodeId()); // set new barcodeId in samplebarcode
 
 		preparePlatformUnit(sampleForm);
-		updatePlatformUnitInstance(sampleForm, sampleBarcode);
+		Integer laneCount = new Integer(request.getParameter("lanecount"));
+		updatePlatformUnitInstance(sampleForm, sampleBarcode, laneCount);
 
 		try {
 			response.getWriter().println(messageService.getMessage("platformunitInstance.updated_success.label"));
@@ -659,12 +660,9 @@ public class PlatformUnitController extends WaspController {
 		return sampleForm;
 	}
 	
-	public String createCell(Sample sampleForm) {
+	public String createCell(Sample sampleForm, Integer laneNumber) {
 		
 		Integer typeSampleId = typeSampleService.getTypeSampleByIName("cell").getTypeSampleId();
-		Integer laneNumber = Integer.getInteger(request.getParameter("platformunitInstance.lane"));
-		
-		laneNumber = 2;
 		
 		for (int i = 0; i < laneNumber.intValue(); i++) {
 			 Sample sampleDb = null;
@@ -753,7 +751,7 @@ public class PlatformUnitController extends WaspController {
 		return "redirect:/facility/platformunit/ok";
 	}
 	
-	public String updatePlatformUnitInstance( Sample sampleForm, SampleBarcode sampleBarcode ) {
+	public String updatePlatformUnitInstance( Sample sampleForm, SampleBarcode sampleBarcode, Integer laneCount) {
 	
 		Sample sampleDb;
 		if (sampleForm.getSampleId() == null || sampleForm.getSampleId().intValue() == 0) {
@@ -773,7 +771,7 @@ public class PlatformUnitController extends WaspController {
 
 		sampleMetaService.updateBySampleId(sampleDb.getSampleId(), sampleForm.getSampleMeta());
 
-		createCell(sampleDb);
+		createCell(sampleDb, laneCount);
 		
 		return "redirect:/facility/platformunit/ok";
 	}
