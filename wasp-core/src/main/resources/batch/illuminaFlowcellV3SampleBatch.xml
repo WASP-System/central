@@ -47,8 +47,8 @@
     <property name="itemProcessor">
       <bean class="edu.yu.einstein.wasp.batch.WaitForSiblingSampleStateProcessor">
         <property name="task" value="placeIllumina" />
-        <property name="status" value="PLACED" />
-        <property name="siblingTargetStatus" value="FINAL" />
+        <property name="status" value="COMPLETED" />
+        <property name="siblingTargetStatus" value="FINALIZED" />
       </bean>
     </property>
   </bean>

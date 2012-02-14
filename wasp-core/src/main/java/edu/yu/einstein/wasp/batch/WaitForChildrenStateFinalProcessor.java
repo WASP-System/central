@@ -30,7 +30,7 @@ public class WaitForChildrenStateFinalProcessor implements ItemProcessor {
 		// TODO npe check
 		List<State> childrenState = state.getStateViaSourceStateId();
 		for (State childState: childrenState) {
-			if (! childState.getStatus().equals("FINAL")) {
+			if (! childState.getStatus().equals(TaskStatus.FINALIZED.toString())) {
 				throw new RetryableException("sub tasks not done yet" + childState.getStateId() + " " + childState.getName());
 			}
 		}

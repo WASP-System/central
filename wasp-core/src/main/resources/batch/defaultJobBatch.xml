@@ -97,8 +97,8 @@
     <property name="itemProcessor">
       <bean class="edu.yu.einstein.wasp.batch.WaitForSiblingJobStateProcessor">
         <property name="task" value="Quote Job" />
-        <property name="status" value="QUOTED" />
-        <property name="siblingTargetStatus" value="FINAL" />
+        <property name="status" value="COMPLETED" />
+        <property name="siblingTargetStatus" value="FINALIZED" />
       </bean>
     </property>
   </bean>
@@ -131,8 +131,8 @@
     <property name="itemProcessor">
       <bean class="edu.yu.einstein.wasp.batch.WaitForSiblingJobStateProcessor">
         <property name="task" value="DA Approval" />
-        <property name="status" value="APPROVED" />
-        <property name="siblingTargetStatus" value="FINAL" />
+        <property name="status" value="COMPLETED" />
+        <property name="siblingTargetStatus" value="FINALIZED" />
       </bean>
     </property>
   </bean>
@@ -141,8 +141,8 @@
     <property name="itemProcessor">
       <bean class="edu.yu.einstein.wasp.batch.WaitForSiblingJobStateProcessor">
         <property name="task" value="PI Approval" />
-        <property name="status" value="APPROVED" />
-        <property name="siblingTargetStatus" value="FINAL" />
+        <property name="status" value="COMPLETED" />
+        <property name="siblingTargetStatus" value="FINALIZED" />
       </bean>
     </property>
   </bean>
@@ -172,7 +172,7 @@
       <bean class="edu.yu.einstein.wasp.batch.WaitForSiblingJobStateProcessor">
         <property name="task" value="Send Invoice" />
         <property name="status" value="CREATED" />
-        <property name="siblingTargetStatus" value="SENT" />
+        <property name="siblingTargetStatus" value="COMPLETED" />
       </bean>
     </property>
   </bean>
@@ -181,8 +181,8 @@
     <property name="itemProcessor">
       <bean class="edu.yu.einstein.wasp.batch.WaitForSiblingJobStateProcessor">
         <property name="task" value="Send Invoice" />
-        <property name="status" value="SENT" />
-        <property name="siblingTargetStatus" value="FINAL" />
+        <property name="status" value="COMPLETED" />
+        <property name="siblingTargetStatus" value="FINALIZED" />
       </bean>
     </property>
   </bean>

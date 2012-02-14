@@ -73,8 +73,8 @@
     <property name="itemProcessor">
       <bean class="edu.yu.einstein.wasp.batch.WaitForSiblingSampleStateProcessor">
         <property name="task" value="Receive Sample" />
-        <property name="status" value="RECEIVED" />
-        <property name="siblingTargetStatus" value="FINAL" />
+        <property name="status" value="COMPLETED" />
+        <property name="siblingTargetStatus" value="FINALIZED" />
       </bean>
     </property>
   </bean>
@@ -91,7 +91,7 @@
     <property name="itemProcessor">
       <bean class="edu.yu.einstein.wasp.batch.WaitForParentJobStateProcessor">
         <property name="task" value="Send Invoice" />
-        <property name="status" value="FINAL" />
+        <property name="status" value="FINALIZED" />
       </bean>
     </property>
   </bean>
@@ -111,12 +111,13 @@
       </bean>
     </property>
   </bean>
-                                                                                  <bean id="wasp.sample.CreateLibraryWaitStateStep" parent="parentStateStep">
+
+  <bean id="wasp.sample.CreateLibraryWaitStateStep" parent="parentStateStep">
     <property name="itemProcessor">
       <bean class="edu.yu.einstein.wasp.batch.WaitForSiblingSampleStateProcessor">
         <property name="task" value="Create Library" />
-        <property name="status" value="MADE" />
-        <property name="siblingTargetStatus" value="FINAL" />
+        <property name="status" value="COMPLETED" />
+        <property name="siblingTargetStatus" value="FINALIZED" />
       </bean>
     </property>
   </bean>
@@ -155,8 +156,8 @@
     <property name="itemProcessor">
       <bean class="edu.yu.einstein.wasp.batch.WaitForSiblingSampleStateProcessor">
         <property name="task" value="assignLibraryToPlatformUnit" />
-        <property name="status" value="ASSIGNED" />
-        <property name="siblingTargetStatus" value="FINAL" />
+        <property name="status" value="COMPLETED" />
+        <property name="siblingTargetStatus" value="FINALIZED" />
       </bean>
     </property>
   </bean>

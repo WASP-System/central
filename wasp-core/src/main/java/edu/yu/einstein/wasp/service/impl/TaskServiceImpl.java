@@ -83,22 +83,22 @@ public List<State> getJobCreatedStates () {
 
   @Override
 public List<State> getQuoteJobStates () {
-    return getStatesByTaskIName("Quote Job", "QUOTED");
+    return getStatesByTaskIName("Quote Job", "COMPLETED");
   }
 
   @Override
 public List<State> getPiApprovedStates () {
-    return getStatesByTaskIName("PI Approval", "APPROVED");
+    return getStatesByTaskIName("PI Approval", "COMPLETED");
   }
 
   @Override
 public List<State> getDaApprovedStates () {
-    return getStatesByTaskIName("DA Approval", "APPROVED");
+    return getStatesByTaskIName("DA Approval", "COMPLETED");
   }
 
   @Override
   public List<State> getSampleReceivedStates () {
-    return getStatesByTaskIName("Receive Sample", "RECEIVED");
+    return getStatesByTaskIName("Receive Sample", "COMPLETED");
   }
   
   private String expand(String perm, State state) {

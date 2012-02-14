@@ -54,30 +54,6 @@
     </bean>
   </si:service-activator>
 
-
-  <bean id="chipSeq.job.BoneShakerApprovalStateStep" parent="parentStateStep">
-    <property name="itemProcessor">
-      <bean class="edu.yu.einstein.wasp.batch.CreateJobStateProcessor">
-        <property name="targetTask" value="boneShakerApprovalTask" />
-      </bean>
-    </property>
-  </bean>
-
-  <bean id="chipSeq.job.WaitForBoneShakerApprovalStep" parent="parentStateStep">
-    <property name="itemProcessor">
-      <bean class="edu.yu.einstein.wasp.batch.WaitForSiblingJobStateProcessor">
-        <property name="task" value="boneShakerApprovalTask" />
-        <property name="status" value="APPROVED" />
-        <property name="siblingTargetStatus" value="FINAL" />
-      </bean>
-    </property>
-  </bean>
-
-  <batch:flow id="chipSeq.job.BoneShakerApprovalFlow">
-    <batch:step id="chipSeq.job.BoneShakerApprovalFlow0" parent="chipSeq.job.BoneShakerApprovalStateStep" next="chipSeq.job.BoneShakerApprovalFlow1" />
-    <batch:step id="chipSeq.job.BoneShakerApprovalFlow1" parent="chipSeq.job.WaitForBoneShakerApprovalStep" />
-  </batch:flow>
-
   <bean class="edu.yu.einstein.wasp.batch.DoCommandStateTasklet" id="chipSeq.job.SendInvoiceTasklet" scope="step">
     <property name="stateId">
       <value>#{jobParameters['state']}</value>
@@ -121,9 +97,6 @@
       </batch:flow>
       <batch:flow>
         <batch:flow id="chipSeq.job.Job1.daApprovalFlow" parent="wasp.job.DaApprovalFlow" />
-      </batch:flow>
-      <batch:flow>
-        <batch:flow id="chipSeq.job.Job1.BoneShakerApprovalFlow" parent="chipSeq.job.BoneShakerApprovalFlow" />
       </batch:flow>
     </batch:split> 
 

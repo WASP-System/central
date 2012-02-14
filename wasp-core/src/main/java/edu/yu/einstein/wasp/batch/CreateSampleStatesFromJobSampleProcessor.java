@@ -45,7 +45,7 @@ public class CreateSampleStatesFromJobSampleProcessor implements ItemProcessor {
     this.targetTask = targetTask; 
   }
 
-  String targetStatus = "CREATED"; 
+  TaskStatus targetStatus = TaskStatus.CREATED;
 
   @Override
   public State process(Object stateId) throws Exception {
@@ -58,7 +58,7 @@ public class CreateSampleStatesFromJobSampleProcessor implements ItemProcessor {
     for (Statejob sj: stateJobs) {
       for (JobSample js: sj.getJob().getJobSample()) {
         State newState = new State();
-        newState.setStatus(targetStatus);
+        newState.setStatus(targetStatus.toString());
         newState.setTaskId(t.getTaskId());
 	newState.setSourceStateId((Integer) stateId);
         newState.setName(t.getName());

@@ -38,7 +38,7 @@ public class CreateJobStateProcessor implements ItemProcessor {
     this.targetTask = targetTask; 
   }
 
-  String targetStatus = "CREATED"; 
+  TaskStatus targetStatus = TaskStatus.CREATED;
 
   @Override
 public State process(Object stateId) throws Exception {
@@ -52,7 +52,7 @@ System.out.println("\nCreating " + targetTask + " for " + stateId);
     Task t = taskService.getTaskByIName(targetTask); 
 
     State newState = new State();
-    newState.setStatus(targetStatus);
+    newState.setStatus(targetStatus.toString());
     newState.setTaskId(t.getTaskId());
     newState.setName(t.getName());
     newState.setSourceStateId((Integer) stateId);

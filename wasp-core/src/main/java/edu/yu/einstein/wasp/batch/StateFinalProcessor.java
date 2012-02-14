@@ -24,7 +24,7 @@ public class StateFinalProcessor implements ItemProcessor {
   @Override
 public State process(Object stateId) throws Exception {
     State state = stateService.getStateByStateId(((Integer) stateId).intValue());
-    state.setStatus("FINAL");
+    state.setStatus(TaskStatus.FINALIZED.toString());
     state.setEndts(new Date());
     stateService.save(state);
 

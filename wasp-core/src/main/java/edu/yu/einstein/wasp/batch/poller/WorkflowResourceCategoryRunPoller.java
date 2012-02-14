@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.yu.einstein.wasp.batch.TaskStatus;
 import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.Task;
@@ -56,7 +57,7 @@ public class WorkflowResourceCategoryRunPoller {
 
 		for (State state: allStates) {
 			if (state.getStaterun().isEmpty()) { continue; }
-			if (state.getStatus().equals("FINAL")) { continue; }
+			if (state.getStatus().equals(TaskStatus.FINALIZED.toString())) { continue; }
 
 			// should be the same so just get first, 
 			// TODO check for npe

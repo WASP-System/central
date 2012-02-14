@@ -59,7 +59,7 @@ public class CreateSoftwareRunProcessor implements ItemProcessor {
 	SoftwareService softwareService;
 
 	protected final String targetTask = "runWrapTask"; 
-	protected final String targetStatus = "CREATED"; 
+	protected final TaskStatus targetStatus = TaskStatus.CREATED; 
 
 	protected String softwareIName; 
 	public void setSoftwareIName(String s) { this.softwareIName = s; }
@@ -102,7 +102,7 @@ public class CreateSoftwareRunProcessor implements ItemProcessor {
 		// Makes the state and supporting tables
 		State newState = new State(); 
 		newState.setTaskId(task.getTaskId());
-		newState.setStatus(targetStatus);
+		newState.setStatus(targetStatus.toString());
 		newState.setName(sample.getName() + " " + software.getIName() + " " + task.getName());
 		newState.setSourceStateId(state.getStateId());
 		stateService.save(newState); 

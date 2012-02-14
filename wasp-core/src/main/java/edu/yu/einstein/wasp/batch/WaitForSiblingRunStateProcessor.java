@@ -68,8 +68,8 @@ public class WaitForSiblingRunStateProcessor implements ItemProcessor {
 				continue; 
 			}
 
-			// "FINAL" status, means it has already been run
-			if (siblingStaterun.getState().getStatus().equals(siblingTargetStatus != null?siblingTargetStatus:"FINAL")) {
+			// TaskStatus.FINALIZED status, means it has already been run
+			if (siblingStaterun.getState().getStatus().equals(siblingTargetStatus != null?siblingTargetStatus:TaskStatus.FINALIZED.toString())) {
 				return state;
 			}
 

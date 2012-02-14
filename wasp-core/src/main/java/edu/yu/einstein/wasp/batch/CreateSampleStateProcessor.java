@@ -48,7 +48,7 @@ public class CreateSampleStateProcessor implements ItemProcessor {
     this.targetTask = targetTask; 
   }
 
-  String targetStatus = "CREATED"; 
+  TaskStatus targetStatus = TaskStatus.CREATED; 
 
   @Override
 public State process(Object stateId) throws Exception {
@@ -62,7 +62,7 @@ public State process(Object stateId) throws Exception {
     Task t = taskService.getTaskByIName(targetTask); 
 
     State newState = new State();
-    newState.setStatus(targetStatus);
+    newState.setStatus(targetStatus.toString());
     newState.setTaskId(t.getTaskId());
     newState.setName(t.getName());
     newState.setSourceStateId((Integer) stateId);

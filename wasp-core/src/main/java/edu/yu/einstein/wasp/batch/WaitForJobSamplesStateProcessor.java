@@ -86,8 +86,8 @@ public class WaitForJobSamplesStateProcessor implements ItemProcessor {
 				continue; 
 			}
 
-			// "FINAL" status, means it has already been run
-			if (! siblingStatejob.getState().getStatus().equals(sampleStatus != null?sampleStatus:"FINAL")) {
+			// TaskStatus.FINALIZED status, means it has already been run
+			if (! siblingStatejob.getState().getStatus().equals(sampleStatus != null?sampleStatus:TaskStatus.FINALIZED.toString())) {
 				foundOther = true;
 				continue;
 			}

@@ -75,7 +75,7 @@
       <bean class="edu.yu.einstein.wasp.batch.WaitForSiblingRunStateProcessor">
         <property name="task" value="runQcApproval" />
         <property name="status" value="APPROVED" />
-        <property name="siblingTargetStatus" value="FINAL" />
+        <property name="siblingTargetStatus" value="FINALIZED" />
       </bean>
     </property>
   </bean>
