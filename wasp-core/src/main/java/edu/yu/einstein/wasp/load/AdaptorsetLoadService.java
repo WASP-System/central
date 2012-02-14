@@ -216,39 +216,43 @@ public class AdaptorsetLoadService extends WaspLoadService {
     	oldAdaptors.put(adaptor.getIName(), adaptor);
     }
     
-    for (Adaptor adaptor : safeList(adaptorList)){
-    	String adaptorKey = adaptor.getIName();
-    	if (oldAdaptors.containsKey(adaptorKey)){
+    for (Adaptor adaptorIn : safeList(adaptorList)){
+    	String adaptorKey = adaptorIn.getIName();
+    	// we should try and get an existing adaptor using the iName and use that 
+    	// as it is possible the adaptor set may have changed (i.e. don't use the oldAdaptors objects 
+    	// obtained using the current adaptorset ID.
+    	Adaptor adaptor = adaptorService.getAdaptorByIName(adaptorKey);
+    	if (adaptor.getAdaptorId() != null){
     		// adaptor exists
-    		Adaptor old = oldAdaptors.get(adaptorKey);
     		boolean changed = false;
-    		if (!old.getName().equals(adaptor.getName())){
-    			old.setName(adaptor.getName());
+    		if (!adaptor.getName().equals(adaptorIn.getName())){
+    			adaptor.setName(adaptorIn.getName());
     			changed = true;
     		}
-    		if (!old.getSequence().equals(adaptor.getSequence())){
-    			old.setSequence(adaptor.getSequence());
+    		if (!adaptor.getSequence().equals(adaptorIn.getSequence())){
+    			adaptor.setSequence(adaptorIn.getSequence());
     			changed = true;
     		}
-    		if (!old.getBarcodesequence().equals(adaptor.getBarcodesequence())){
-    			old.setBarcodesequence(adaptor.getBarcodesequence());
+    		if (!adaptor.getBarcodesequence().equals(adaptorIn.getBarcodesequence())){
+    			adaptor.setBarcodesequence(adaptorIn.getBarcodesequence());
     			changed = true;
     		}
-    		if (old.getBarcodenumber().intValue() != adaptor.getBarcodenumber().intValue()){
-    			old.setBarcodenumber(adaptor.getBarcodenumber());
+    		if (adaptor.getBarcodenumber().intValue() != adaptorIn.getBarcodenumber().intValue()){
+    			adaptor.setBarcodenumber(adaptorIn.getBarcodenumber());
     			changed = true;
     		}
-    		if (old.getAdaptorsetId().intValue() != adaptorset.getAdaptorsetId().intValue()){
-    			old.setAdaptorsetId(adaptorset.getAdaptorsetId());
+    		if (adaptor.getAdaptorsetId().intValue() != adaptorset.getAdaptorsetId().intValue()){
+    			adaptor.setAdaptorsetId(adaptorset.getAdaptorsetId());
     			changed = true;
     		}
-    		if (old.getIsActive().intValue() != isActive.intValue()){
-    			old.setIsActive(isActive.intValue());
-    	    	  changed = true;
-    	      }
+    		if (adaptor.getIsActive().intValue() != isActive.intValue()){
+    			adaptor.setIsActive(isActive.intValue());
+    	    	changed = true;
+    	    }
     		if (changed)
-    			adaptorService.save(old);
-    		oldAdaptors.remove(adaptor.getIName());
+    			adaptorService.save(adaptor);
+    		if (oldAdaptors.containsKey(adaptorKey))
+    			oldAdaptors.remove(adaptor.getIName());
     		
     		lastPosition = 0;
     	    Map<String, AdaptorMeta> oldAdaptorMetas  = new HashMap<String, AdaptorMeta>();
@@ -297,8 +301,11 @@ public class AdaptorsetLoadService extends WaspLoadService {
     	    }
     	} else {
     		// new adaptor
+    		adaptor = adaptorIn;
     		adaptor.setAdaptorsetId(adaptorset.getAdaptorsetId());
     		adaptor.setIsActive(isActive);
+    		adaptor.setIName(adaptorIn.getIName());
+    		adaptor.setName(adaptorIn.getName());
     		adaptorService.save(adaptor);
     		adaptor = adaptorService.getAdaptorByIName(iname); // refresh
     		for (AdaptorMeta adaptorMeta: safeList(adaptor.getAdaptorMeta()) ) {
@@ -306,13 +313,13 @@ public class AdaptorsetLoadService extends WaspLoadService {
 	    	    adaptorMetaService.save(adaptorMeta);
     		}
     	}
-    	// inactivate the leftovers
-    	for (String adaptorIName : oldAdaptors.keySet()){
-    		Adaptor adaptorToInactivate = adaptorService.getAdaptorByIName(adaptorIName);
-    		adaptorToInactivate.setIsActive(0);
-    		adaptorService.save(adaptorToInactivate);
-    	}
     }
+    // inactivate the leftover adaptors
+	for (String adaptorIName : oldAdaptors.keySet()){
+		Adaptor adaptorToInactivate = adaptorService.getAdaptorByIName(adaptorIName);
+		adaptorToInactivate.setIsActive(0);
+		adaptorService.save(adaptorToInactivate);
+	}
     	
     updateUiFields(); 
   }
