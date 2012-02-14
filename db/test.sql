@@ -81,16 +81,16 @@ insert into statejob values (100, 100, 2);
 
 -- --
 -- simulate pi/da/boneshaker approval
-update state set status = "APPROVED" where name like '%Appr%';
+update state set status = "COMPLETED" where name like '%Appr%';
 
 
 -- --
 -- simulate quote job
-update state set status = "QUOTED" where name like '%Quote%';
+update state set status = "COMPLETED" where name like '%Quote%';
 
 -- --
 -- simulate sample received  (should set isreceived flag and play w/ that
-update state set status = "RECEIVED" where name like '%Receiv%' and status != 'FINAL';
+update state set status = "COMPLETED" where name like '%Receiv%' and status != 'FINALIZED';
 
 
 -- BREAK POINT --
@@ -108,14 +108,14 @@ values
 
 insert into jobsample values (4, 1, 3, now(), 1);
 
-update state set status = "MADE" where name like '%Create Library%' and status != 'FINAL';
+update state set status = "COMPLETED" where name like '%Create Library%' and status != 'FINALIZED';
 
 
 -- BREAK POINT --
 
 -- --
 -- rereceive library?
-update state set status = "RECEIVED" where name like '%Receiv%' and status != 'FINAL';
+update state set status = "COMPLETED" where name like '%Receiv%' and status != 'FINALIZED';
 
 -- --
 -- simulates flowcell creation
@@ -153,7 +153,7 @@ values
 
 -- --
 -- receive flowcell?
-update state set status = "RECEIVED" where name like '%Receiv%' and status != 'FINAL';
+update state set status = "COMPLETED" where name like '%Receiv%' and status != 'FINALIZED';
 
 
 -- --
@@ -169,7 +169,7 @@ values
 (16, 2);
 
  -- assign both on library side and flowcell side
-update state set status = "ASSIGNED" where name like '%Assign Library%' and status != 'FINAL';
+update state set status = "COMPLETED" where name like '%Assign Library%' and status != 'FINALIZED';
 
 
 -- BREAK POINT --
@@ -199,7 +199,7 @@ insert into staterun
 values
 (2010, 1);
 
-update state set status = "PLACED" where name like '%Place Illum%' and status != 'FINAL';
+update state set status = "COMPLETED" where name like '%Place Illum%' and status != 'FINALIZED';
 
 -- BREAK POINT --
 
@@ -213,7 +213,7 @@ update state set status = "PLACED" where name like '%Place Illum%' and status !=
 -- --
 -- simulate illumina qc screen ok
 
-update state set status = "APPROVED" where name like '%Qc Appr%';
+update state set status = "COMPLETED" where name like '%Qc Appr%';
 
 
 -- BREAK POINT --
