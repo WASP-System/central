@@ -11,6 +11,7 @@
 
 package edu.yu.einstein.wasp.service.impl;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import edu.yu.einstein.wasp.dao.JobDao;
 import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.service.JobService;
 
 @Service
@@ -68,6 +70,13 @@ public Job getJobByNameLabId (final String name, final int labId) {
   @Override
 public Map<Integer,List<Job>> getJobSamplesByWorkflow(final int workflowId) {
 	  return this.getJobDao().getJobSamplesByWorkflow(workflowId);
+  }
+  
+  @Override
+  public List<Job> getActiveJobs(){
+	  Map queryMap = new HashMap();
+	  queryMap.put("isActive", 1);
+	  return this.findByMap(queryMap);
   }
 }
 

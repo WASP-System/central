@@ -11,6 +11,8 @@
 
 package edu.yu.einstein.wasp.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import edu.yu.einstein.wasp.dao.UserDao;
@@ -31,6 +33,8 @@ public interface UserService extends WaspService<User> {
  // boolean loginExists(final String login, final Integer excludeUserId);
   
   public String getUniqueLoginName(final User user);
+
+  public List<User> getActiveUsers();
 
 }
 

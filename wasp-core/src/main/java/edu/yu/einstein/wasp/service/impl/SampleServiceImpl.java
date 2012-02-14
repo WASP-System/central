@@ -11,12 +11,15 @@
 
 package edu.yu.einstein.wasp.service.impl;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import edu.yu.einstein.wasp.dao.SampleDao;
+import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.service.SampleService;
 
@@ -62,6 +65,13 @@ public Sample getSampleBySampleId (final int sampleId) {
   @Override
 public List<Sample> getSamplesByJobId (final int jobId) {
 	  return this.getSampleDao().getSamplesByJobId(jobId);
+  }
+  
+  @Override
+  public List<Sample> getActiveSamples(){
+	  Map queryMap = new HashMap();
+	  queryMap.put("isActive", 1);
+	  return this.findByMap(queryMap);
   }
 }
 

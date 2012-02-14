@@ -11,6 +11,8 @@
 
 package edu.yu.einstein.wasp.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import edu.yu.einstein.wasp.dao.SubtypeSampleDao;
@@ -38,6 +40,8 @@ public interface SubtypeSampleService extends WaspService<SubtypeSample> {
   public SubtypeSample getSubtypeSampleBySubtypeSampleId (final int subtypeSampleId);
 
   public SubtypeSample getSubtypeSampleByIName (final String iName);
+
+  public List<SubtypeSample> getActiveSubtypeSamples();
 
 
 }

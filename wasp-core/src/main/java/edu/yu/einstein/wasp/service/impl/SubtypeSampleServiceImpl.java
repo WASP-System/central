@@ -11,10 +11,15 @@
 
 package edu.yu.einstein.wasp.service.impl;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import edu.yu.einstein.wasp.dao.SubtypeSampleDao;
+import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.model.SubtypeSample;
 import edu.yu.einstein.wasp.service.SubtypeSampleService;
 
@@ -60,6 +65,13 @@ public SubtypeSample getSubtypeSampleBySubtypeSampleId (final int subtypeSampleI
   @Override
 public SubtypeSample getSubtypeSampleByIName (final String iName) {
     return this.getSubtypeSampleDao().getSubtypeSampleByIName(iName);
+  }
+  
+  @Override
+  public List<SubtypeSample> getActiveSubtypeSamples(){
+	  Map queryMap = new HashMap();
+	  queryMap.put("isActive", 1);
+	  return this.findByMap(queryMap);
   }
 
 }

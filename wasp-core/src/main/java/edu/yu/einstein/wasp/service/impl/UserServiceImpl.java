@@ -11,12 +11,17 @@
 
 package edu.yu.einstein.wasp.service.impl;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import edu.yu.einstein.wasp.dao.UserDao;
 import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.model.Workflow;
 import edu.yu.einstein.wasp.service.ConfirmEmailAuthService;
 import edu.yu.einstein.wasp.service.UserService;
 
@@ -86,6 +91,13 @@ public String getUniqueLoginName(final User user){
 			c++;
 		}
 		return login;
+  }
+  
+  @Override
+  public List<User> getActiveUsers(){
+	  Map queryMap = new HashMap();
+	  queryMap.put("isActive", 1);
+	  return this.findByMap(queryMap);
   }
 
   

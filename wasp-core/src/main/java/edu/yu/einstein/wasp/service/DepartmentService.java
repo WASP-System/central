@@ -47,5 +47,7 @@ public interface DepartmentService extends WaspService<Department> {
 
   public int getDepartmentAdminPendingTasks();
   public int getDepartmentAdminPendingTasks(List<LabPending> labsPendingDaApprovalList, List<Job> jobsPendingDaApprovalList);
+
+  public List<Department> getActiveDepartments();
 }
 

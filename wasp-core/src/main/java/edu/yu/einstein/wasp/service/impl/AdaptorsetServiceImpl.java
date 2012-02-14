@@ -11,11 +11,16 @@
 
 package edu.yu.einstein.wasp.service.impl;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import edu.yu.einstein.wasp.dao.AdaptorsetDao;
 import edu.yu.einstein.wasp.model.Adaptorset;
+import edu.yu.einstein.wasp.model.SubtypeSample;
 import edu.yu.einstein.wasp.service.AdaptorsetService;
 
 @Service
@@ -65,6 +70,13 @@ public class AdaptorsetServiceImpl extends WaspServiceImpl<Adaptorset> implement
   @Override
   public Adaptorset getAdaptorsetByName (final String name) {
     return this.getAdaptorsetDao().getAdaptorsetByName(name);
+  }
+  
+  @Override
+  public List<Adaptorset> getActiveAdaptorsets(){
+	  Map queryMap = new HashMap();
+	  queryMap.put("isActive", 1);
+	  return this.findByMap(queryMap);
   }
 
 }

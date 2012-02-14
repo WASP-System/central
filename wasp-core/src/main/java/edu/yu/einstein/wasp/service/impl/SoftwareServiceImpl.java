@@ -11,10 +11,15 @@
 
 package edu.yu.einstein.wasp.service.impl;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import edu.yu.einstein.wasp.dao.SoftwareDao;
+import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.service.SoftwareService;
 
@@ -65,6 +70,13 @@ public Software getSoftwareByIName (final String iName) {
   @Override
 public Software getSoftwareByName (final String name) {
     return this.getSoftwareDao().getSoftwareByName(name);
+  }
+  
+  @Override
+  public List<Software> getActiveSoftware(){
+	  Map queryMap = new HashMap();
+	  queryMap.put("isActive", 1);
+	  return this.findByMap(queryMap);
   }
 
 }

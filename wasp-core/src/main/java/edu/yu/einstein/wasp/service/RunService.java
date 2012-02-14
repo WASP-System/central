@@ -11,6 +11,8 @@
 
 package edu.yu.einstein.wasp.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import edu.yu.einstein.wasp.dao.RunDao;
@@ -36,6 +38,8 @@ public interface RunService extends WaspService<Run> {
 	public RunDao getRunDao();
 
   public Run getRunByRunId (final int runId);
+
+  public List<Run> getActiveRuns();
 
 
 }

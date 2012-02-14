@@ -50,6 +50,8 @@ public interface LabService extends WaspService<Lab> {
   public int getLabManagerPendingTasks(int labId, List<UserPending> newUsersPendingLmApprovalList, List<LabUser> existingUsersPendingLmApprovalList, List<Job> jobsPendingLmApprovalList);
   public int getAllLabManagerPendingTasks();
   public int getAllLabManagerPendingTasks(List<UserPending> newUsersPendingLmApprovalList, List<LabUser> existingUsersPendingLmApprovalList, List<Job> jobsPendingLmApprovalList);
+
+  public List<Lab> getActiveLabs();
   
 
 

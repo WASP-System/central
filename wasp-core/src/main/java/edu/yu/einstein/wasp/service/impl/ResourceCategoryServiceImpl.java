@@ -11,11 +11,16 @@
 
 package edu.yu.einstein.wasp.service.impl;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import edu.yu.einstein.wasp.dao.ResourceCategoryDao;
 import edu.yu.einstein.wasp.model.ResourceCategory;
+import edu.yu.einstein.wasp.model.Workflow;
 import edu.yu.einstein.wasp.service.ResourceCategoryService;
 
 @Service
@@ -65,6 +70,13 @@ public ResourceCategory getResourceCategoryByIName (final String iName) {
   @Override
 public ResourceCategory getResourceCategoryByName (final String name) {
     return this.getResourceCategoryDao().getResourceCategoryByName(name);
+  }
+  
+  @Override
+  public List<ResourceCategory> getActiveResourceCategories(){
+	  Map queryMap = new HashMap();
+	  queryMap.put("isActive", 1);
+	  return this.findByMap(queryMap);
   }
 
 }

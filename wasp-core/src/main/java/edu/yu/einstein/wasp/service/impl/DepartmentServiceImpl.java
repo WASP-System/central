@@ -26,6 +26,7 @@ import edu.yu.einstein.wasp.model.LabPending;
 import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.Statejob;
 import edu.yu.einstein.wasp.model.Task;
+import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.DepartmentService;
 import edu.yu.einstein.wasp.service.LabPendingService;
@@ -168,6 +169,13 @@ public List<Department> getDepartmentsByName (final String name) {
 	  result.add(d);
 	  
 	  return result;
+  }
+  
+  @Override
+  public List<Department> getActiveDepartments(){
+	  Map queryMap = new HashMap();
+	  queryMap.put("isActive", 1);
+	  return this.findByMap(queryMap);
   }
 }
 

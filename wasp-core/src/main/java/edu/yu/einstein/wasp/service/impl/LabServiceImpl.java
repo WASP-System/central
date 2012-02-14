@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import edu.yu.einstein.wasp.dao.LabDao;
+import edu.yu.einstein.wasp.model.Department;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabUser;
@@ -199,6 +200,13 @@ public int getAllLabManagerPendingTasks(List<UserPending> newUsersPendingLmAppro
 	
 	  return newUsersPendingLmApprovalList.size() + existingUsersPendingLmApprovalList.size() + jobsPendingLmApprovalList.size();
 
+  }
+  
+  @Override
+  public List<Lab> getActiveLabs(){
+	  Map queryMap = new HashMap();
+	  queryMap.put("isActive", 1);
+	  return this.findByMap(queryMap);
   }
   
 }

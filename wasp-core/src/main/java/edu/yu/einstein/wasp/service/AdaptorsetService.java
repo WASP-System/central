@@ -11,6 +11,8 @@
 
 package edu.yu.einstein.wasp.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import edu.yu.einstein.wasp.dao.AdaptorsetDao;
@@ -40,6 +42,8 @@ public interface AdaptorsetService extends WaspService<Adaptorset> {
   public Adaptorset getAdaptorsetByIName (final String iName);
 
   public Adaptorset getAdaptorsetByName (final String name);
+
+  public List<Adaptorset> getActiveAdaptorsets();
 
 
 }

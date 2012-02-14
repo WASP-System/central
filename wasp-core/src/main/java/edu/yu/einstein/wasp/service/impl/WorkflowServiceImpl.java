@@ -11,6 +11,10 @@
 
 package edu.yu.einstein.wasp.service.impl;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -65,6 +69,13 @@ public Workflow getWorkflowByIName (final String iName) {
   @Override
 public Workflow getWorkflowByName (final String name) {
     return this.getWorkflowDao().getWorkflowByName(name);
+  }
+  
+  @Override
+  public List<Workflow> getActiveWorkflows(){
+	  Map workflowQueryMap = new HashMap();
+	  workflowQueryMap.put("isActive", 1);
+	  return this.findByMap(workflowQueryMap);
   }
 
 }

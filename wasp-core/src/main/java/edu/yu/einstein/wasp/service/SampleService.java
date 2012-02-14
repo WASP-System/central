@@ -39,7 +39,9 @@ public interface SampleService extends WaspService<Sample> {
 
   public Sample getSampleBySampleId (final int sampleId);
   
-  List<Sample> getSamplesByJobId (final int jobId);
+  public List<Sample> getSamplesByJobId (final int jobId);
+
+  public List<Sample> getActiveSamples();
 
 }
 

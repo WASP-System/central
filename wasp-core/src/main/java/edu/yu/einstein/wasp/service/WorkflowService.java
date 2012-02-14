@@ -11,6 +11,8 @@
 
 package edu.yu.einstein.wasp.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import edu.yu.einstein.wasp.dao.WorkflowDao;
@@ -40,7 +42,8 @@ public interface WorkflowService extends WaspService<Workflow> {
   public Workflow getWorkflowByIName (final String iName);
 
   public Workflow getWorkflowByName (final String name);
-
+  
+  public List<Workflow> getActiveWorkflows();
 
 }
 

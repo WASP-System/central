@@ -11,6 +11,8 @@
 
 package edu.yu.einstein.wasp.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import edu.yu.einstein.wasp.dao.ResourceCategoryDao;
@@ -40,6 +42,8 @@ public interface ResourceCategoryService extends WaspService<ResourceCategory> {
   public ResourceCategory getResourceCategoryByIName (final String iName);
 
   public ResourceCategory getResourceCategoryByName (final String name);
+
+  public List<ResourceCategory> getActiveResourceCategories();
 
 
 }

@@ -43,5 +43,7 @@ public interface JobService extends WaspService<Job> {
   public Job getJobByNameLabId (final String name, final int labId);
 
   Map<Integer,List<Job>> getJobSamplesByWorkflow(final int workflowId);
+
+  public List<Job> getActiveJobs();
 }
 

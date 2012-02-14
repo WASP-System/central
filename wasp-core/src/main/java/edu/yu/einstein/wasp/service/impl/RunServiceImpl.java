@@ -11,10 +11,15 @@
 
 package edu.yu.einstein.wasp.service.impl;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import edu.yu.einstein.wasp.dao.RunDao;
+import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.service.RunService;
 
@@ -53,8 +58,15 @@ public class RunServiceImpl extends WaspServiceImpl<Run> implements RunService {
 
 
   @Override
-public Run getRunByRunId (final int runId) {
+  public Run getRunByRunId (final int runId) {
     return this.getRunDao().getRunByRunId(runId);
+  }
+  
+  @Override
+  public List<Run> getActiveRuns(){
+	  Map queryMap = new HashMap();
+	  queryMap.put("isActive", 1);
+	  return this.findByMap(queryMap);
   }
 
 }

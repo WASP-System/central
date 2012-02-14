@@ -11,6 +11,8 @@
 
 package edu.yu.einstein.wasp.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import edu.yu.einstein.wasp.dao.SoftwareDao;
@@ -40,6 +42,8 @@ public interface SoftwareService extends WaspService<Software> {
   public Software getSoftwareByIName (final String iName);
 
   public Software getSoftwareByName (final String name);
+
+  public List<Software> getActiveSoftware();
 
 
 }
