@@ -418,7 +418,7 @@ MetaHelperWebapp metaHelperWebapp = new MetaHelperWebapp("fmpayment", "state", S
 	  if(receivedStatus == null ||  receivedStatus.equals("")){
 		  waspMessage("task.samplereceive.error_receivedstatus_empty");
 	  }
-	  else if(!receivedStatus.equals("RECEIVED") && !receivedStatus.equals("NEVER COMING")){
+	  else if(!receivedStatus.equals("COMPLETED") && !receivedStatus.equals("ABANDONED")){
 		  waspMessage("task.samplereceive.error_receivedstatus_invalid");
 	  }
 	  else{

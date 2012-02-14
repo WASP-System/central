@@ -37,7 +37,7 @@
 	<td style='text-align:center'><form action="<c:url value="/task/samplereceive/receive.do"/>" method="POST" onsubmit="return validate(this);">
  		<input type="hidden" name="stateId" value="${s.stateId}">
  		<input type="hidden" name="sampleId" value="${ss.sampleId}"> 
- 		<input type="radio" id = "receivedStatus" name = "receivedStatus" value = "RECEIVED">Received&nbsp;<input type="radio" id = "receivedStatus" name = "receivedStatus" value = "NEVER COMING">Never Coming &nbsp;<input type="submit" value="Submit">
+ 		<input type="radio" id = "receivedStatus" name = "receivedStatus" value = "COMPLETED">Received&nbsp;<input type="radio" id = "receivedStatus" name = "receivedStatus" value = "ABANDONED">Never Coming &nbsp;<input type="submit" value="Submit">
 		
 		</form>
 	</td>
