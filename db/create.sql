@@ -378,6 +378,7 @@ create table resourcecategory (
   typeresourceid int(10) not null,
   iname varchar(250) ,
   name varchar(250) ,
+  isactive int(1)  default 1,
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
 
@@ -424,6 +425,7 @@ create table software (
   typeresourceid int(10) not null,
   iname varchar(250) ,
   name varchar(250) ,
+  isactive int(1)  default 1,
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
 
@@ -816,6 +818,7 @@ create table subtypesample (
 
   iname varchar(50) , -- meta field prefix
   name varchar(250) ,
+  isactive int(1)  default 1,
   arealist varchar(250),
 
   constraint unique index u_subtypesample_iname (iname),

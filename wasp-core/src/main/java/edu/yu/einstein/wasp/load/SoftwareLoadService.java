@@ -50,6 +50,16 @@ public class SoftwareLoadService extends WaspLoadService {
   public void setMetaFromWrapper(MetaLoadWrapper metaLoadWrapper){
 	  meta = metaLoadWrapper.getMeta(SoftwareMeta.class);
   }
+  
+  private Integer isActive;
+  
+  public Integer getIsActive() {
+	return isActive;
+  }
+	
+  public void setIsActive(Integer isActive) {
+	this.isActive = isActive;
+  }
 
   @Override
   @Transactional
@@ -64,13 +74,17 @@ public class SoftwareLoadService extends WaspLoadService {
     }
 
     Software software = softwareService.getSoftwareByIName(iname);
-
+    
+    if (isActive == null)
+  	  isActive = 1;
+    
     // inserts or update workflow
     if (software.getSoftwareId() == null) { 
       software = new Software();
 
       software.setIName(iname);
       software.setName(name);
+      software.setIsActive(isActive.intValue());
       software.setTypeResourceId(typeResource.getTypeResourceId());
       softwareService.save(software); 
 
@@ -81,6 +95,10 @@ public class SoftwareLoadService extends WaspLoadService {
       boolean changed = false;	
       if (!software.getName().equals(name)){
     	  software.setName(name);
+    	  changed = true;
+      }
+      if (software.getIsActive().intValue() != isActive.intValue()){
+    	  software.setIsActive(isActive.intValue());
     	  changed = true;
       }
       if (changed)

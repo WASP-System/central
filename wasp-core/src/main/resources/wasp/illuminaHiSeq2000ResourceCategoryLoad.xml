@@ -24,7 +24,7 @@
     <property name="resourceType" value="mps" />
 	 <property name="metaFromWrapper">
        <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
-         <property name="area" value="resource" />
+         <property name="area" value="#{illuminaHiSeq2000Area}" />
          <property name="metaList">
          	<list>
          		<value>allowableUiField.readlength=50:50;75:75;100:100;150:150</value>

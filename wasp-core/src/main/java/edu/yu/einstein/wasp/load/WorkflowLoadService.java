@@ -1,5 +1,6 @@
 package edu.yu.einstein.wasp.load;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -13,16 +14,22 @@ import org.springframework.util.StringUtils;
 import util.spring.PostInitialize;
 import edu.yu.einstein.wasp.exception.NullSubtypeSampleException;
 import edu.yu.einstein.wasp.exception.NullTypeResourceException;
+import edu.yu.einstein.wasp.model.ResourceCategory;
+import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.model.SubtypeSample;
 import edu.yu.einstein.wasp.model.TypeResource;
 import edu.yu.einstein.wasp.model.Workflow;
 import edu.yu.einstein.wasp.model.WorkflowMeta;
 import edu.yu.einstein.wasp.model.Workflowsubtypesample;
 import edu.yu.einstein.wasp.model.Workflowtyperesource;
+import edu.yu.einstein.wasp.service.ResourceCategoryService;
+import edu.yu.einstein.wasp.service.SoftwareService;
 import edu.yu.einstein.wasp.service.SubtypeSampleService;
 import edu.yu.einstein.wasp.service.TypeResourceService;
 import edu.yu.einstein.wasp.service.WorkflowMetaService;
 import edu.yu.einstein.wasp.service.WorkflowService;
+import edu.yu.einstein.wasp.service.WorkflowSoftwareService;
+import edu.yu.einstein.wasp.service.WorkflowresourcecategoryService;
 import edu.yu.einstein.wasp.service.WorkflowsubtypesampleService;
 import edu.yu.einstein.wasp.service.WorkflowtyperesourceService;
 
@@ -50,6 +57,18 @@ public class WorkflowLoadService extends WaspLoadService {
 
   @Autowired
   private SubtypeSampleService subtypeSampleService;
+  
+  @Autowired
+  private SoftwareService softwareService;
+  
+  @Autowired
+  private ResourceCategoryService resourceCategoryService;
+  
+  @Autowired
+  private WorkflowresourcecategoryService workflowResourceCategoryService;
+  
+  @Autowired
+  private WorkflowSoftwareService workflowSoftwareService;
 
   @Autowired
   private WorkflowsubtypesampleService workflowsubtypesampleService;
@@ -71,6 +90,16 @@ public class WorkflowLoadService extends WaspLoadService {
 
   private List<WorkflowMeta> meta; 
   public void setMeta(List<WorkflowMeta> workflowMeta) {this.meta = workflowMeta; }
+  
+  private Integer isActive;
+  
+  public Integer getIsActive() {
+	return isActive;
+  }
+	
+  public void setIsActive(Integer isActive) {
+	this.isActive = isActive;
+  }
 
   @Override
   @Transactional
@@ -78,8 +107,71 @@ public class WorkflowLoadService extends WaspLoadService {
   public void postInitialize() {
     // skips component scanned  (if scanned in)
     if (iname == null) { return; }
-
+    if (isActive == null)
+  	  isActive = 1;
     Workflow workflow = workflowService.getWorkflowByIName(iname); 
+    
+    // update dependencies
+    Map<String,Workflowtyperesource> oldWorkflowTypeResources = new HashMap<String, Workflowtyperesource>();
+    for (Workflowtyperesource old : safeList(workflow.getWorkflowtyperesource()) ){
+	   oldWorkflowTypeResources.put(old.getWorkflowtyperesourceId().toString(), old);
+    }
+    List<Integer> typeResourceIdList = new ArrayList<Integer>();
+    for (String dependency: safeList(dependencies)) { 
+      Integer typeResourceId = typeResourceService.getTypeResourceByIName(dependency).getTypeResourceId();
+      if (typeResourceId == null){
+    	// the specified resourceType does not exist!!
+    	  throw new NullTypeResourceException();
+      }
+      
+      Workflowtyperesource workflowtyperesource = workflowtyperesourceService.getWorkflowtyperesourceByWorkflowIdTypeResourceId(workflow.getWorkflowId(), typeResourceId);
+	  if (workflowtyperesource.getWorkflowtyperesourceId() == null){
+		  // doesn't exist so create and save
+	      workflowtyperesource.setWorkflowId(workflow.getWorkflowId()); 
+	      workflowtyperesource.setTypeResourceId(typeResourceId); 
+	      workflowtyperesourceService.save(workflowtyperesource);
+	  } else {
+		  // already exists
+		  oldWorkflowTypeResources.remove(workflowtyperesource.getWorkflowtyperesourceId().toString());
+	  } 
+    }
+    // remove old no longer used dependencies
+    for (String key : oldWorkflowTypeResources.keySet()){
+  	  workflowtyperesourceService.remove(oldWorkflowTypeResources.get(key));
+  	  workflowtyperesourceService.flush(oldWorkflowTypeResources.get(key));
+    } 
+    
+    for (Integer typeResourceId : typeResourceIdList){
+    	// loop through all the dependencies and see if an active version (software or resourceCategory) is defined for each one.
+    	// If any are not defined or defined but not active then we must make the workflow inactive until these associations have
+    	// been made using the workflow resource/software configuration form
+    	typeResourceIdList.add(typeResourceId);
+        Map<String, Integer> dependencyQueryMap = new HashMap<String, Integer>();
+        dependencyQueryMap.put("typeresourceid", typeResourceId);
+        dependencyQueryMap.put("isactive", 1);
+        Boolean isActiveDependencyMatch = false; 
+        for (Software dependency : (List<Software>) softwareService.findByMap(dependencyQueryMap)){
+      	  if (workflowSoftwareService.getWorkflowSoftwareByWorkflowIdSoftwareId(workflow.getWorkflowId(), dependency.getSoftwareId()).getWorkflowSoftwareId() != null){
+      		isActiveDependencyMatch = true;
+      		break;
+      	  }
+        }
+        if (isActiveDependencyMatch)
+        	continue;
+        for (ResourceCategory dependency : (List<ResourceCategory>) resourceCategoryService.findByMap(dependencyQueryMap)){
+        	  if (workflowResourceCategoryService
+        			  .getWorkflowresourcecategoryByWorkflowIdResourcecategoryId(workflow.getWorkflowId(), dependency.getResourceCategoryId())
+        			  .getResourcecategoryId() != null){
+        		  isActiveDependencyMatch = true;
+        		  break;
+        	  }
+        }
+        if (!isActiveDependencyMatch){
+        	isActive = 0;
+        	break;
+        }
+    }
+    
 
     // inserts or update workflow
     if (workflow.getWorkflowId() == null) { 
@@ -87,7 +179,7 @@ public class WorkflowLoadService extends WaspLoadService {
 
       workflow.setIName(iname);
       workflow.setName(name);
-      workflow.setIsActive(0); // only set to active when configured by admin
+      workflow.setIsActive(isActive); // only set to active when all dependencies configured by admin
       workflow.setCreatets(new Date());
 
       workflowService.save(workflow); 
@@ -96,9 +188,17 @@ public class WorkflowLoadService extends WaspLoadService {
       workflow = workflowService.getWorkflowByIName(iname); 
 
     } else {
-      workflow.setName(name);
-
-      workflowService.save(workflow); 
+    	boolean changed = false;	
+        if (!workflow.getName().equals(name)){
+        	workflow.setName(name);
+      	  	changed = true;
+        }
+        if (workflow.getIsActive().intValue() != isActive.intValue()){
+        	workflow.setIsActive(isActive.intValue());
+      	  	changed = true;
+        }
+        if (changed)
+      	  workflowService.save(workflow); 
     }
 
     // updates uiFields
@@ -209,33 +309,6 @@ public class WorkflowLoadService extends WaspLoadService {
       } else {
     	  // the specified subtypesample does not exist!!
     	  throw new NullSubtypeSampleException();
-      }
-    }
-
-
-
-    // update dependencies
-    // TODO: insert/update instead of delete insert
-    List<Workflowtyperesource> oldWorkflowtyperesources = workflow.getWorkflowtyperesource();
-    if (oldWorkflowtyperesources != null) {
-      for (Workflowtyperesource oldWorkflowtyperesource: oldWorkflowtyperesources) {
-        workflowtyperesourceService.remove(oldWorkflowtyperesource);
-        workflowtyperesourceService.flush(oldWorkflowtyperesource);
-      }
-    }
-
-    for (String dependency: safeList(dependencies)) { 
-      TypeResource typeResource = typeResourceService.getTypeResourceByIName(dependency);
-      if (typeResource.getTypeResourceId() != null){
-	      Workflowtyperesource workflowtyperesource = new Workflowtyperesource(); 
-	
-	      workflowtyperesource.setWorkflowId(workflow.getWorkflowId()); 
-	      workflowtyperesource.setTypeResourceId(typeResource.getTypeResourceId()); 
-	
-	      workflowtyperesourceService.save(workflowtyperesource);
-      } else {
-    	// the specified resourceType does not exist!!
-    	  throw new NullTypeResourceException();
       }
     }
 

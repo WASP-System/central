@@ -152,6 +152,34 @@ public class SubtypeSample extends WaspModel {
 	public String getName () {
 		return this.name;
 	}
+	
+	/** 
+	 * isActive
+	 *
+	 */
+	@Column(name="isactive")
+	protected Integer isActive;
+
+	/**
+	 * setIsActive(Integer isActive)
+	 *
+	 * @param isActive
+	 *
+	 */
+	
+	public void setIsActive (Integer isActive) {
+		this.isActive = isActive;
+	}
+
+	/**
+	 * getIsActive()
+	 *
+	 * @return isActive
+	 *
+	 */
+	public Integer getIsActive () {
+		return this.isActive;
+	}
 
 	/** 
 	 * arealist

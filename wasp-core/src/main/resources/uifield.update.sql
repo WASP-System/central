@@ -1,4 +1,8 @@
 truncate table uifield;
+update software set isactive=0;
+update resourcecategory set isactive=0;
+update subtypesample set isactive=0;
+update workflow set isactive=0;
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','login','label','Login','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','login','error','Login cannot be empty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','password','label','Password','1');

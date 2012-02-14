@@ -77,6 +77,15 @@ public class AdaptorsetLoadService extends WaspLoadService {
   private List<Adaptor> adaptorList; 
   public void setAdaptorList(List<Adaptor> adaptorList) {this.adaptorList = adaptorList; }
 
+  private Integer isActive;
+  
+  public Integer getIsActive() {
+	return isActive;
+  }
+	
+  public void setIsActive(Integer isActive) {
+	this.isActive = isActive;
+  }
 
   @Override
   @Transactional
@@ -89,13 +98,16 @@ public class AdaptorsetLoadService extends WaspLoadService {
 
     Adaptorset adaptorset = adaptorsetService.getAdaptorsetByIName(iname);
     
+    if (isActive == null)
+    	  isActive = 1;
+    
     // inserts or update workflow
     if (adaptorset.getAdaptorsetId() == null) { 
     	// new
     	adaptorset.setIName(iname);
     	adaptorset.setName(name);
     	adaptorset.setTypeSample(typeSample);
-    	adaptorset.setIsActive(1);
+    	adaptorset.setIsActive(isActive.intValue());
 
     	adaptorsetService.save(adaptorset);
 
@@ -110,6 +122,10 @@ public class AdaptorsetLoadService extends WaspLoadService {
       }
       if (!adaptorset.getTypeSample().equals(typeSample)){
     	  adaptorset.setTypeSample(typeSample);
+    	  changed = true;
+      }
+      if (adaptorset.getIsActive().intValue() != isActive.intValue()){
+    	  adaptorset.setIsActive(isActive.intValue());
     	  changed = true;
       }
       
@@ -226,6 +242,10 @@ public class AdaptorsetLoadService extends WaspLoadService {
     			old.setAdaptorsetId(adaptorset.getAdaptorsetId());
     			changed = true;
     		}
+    		if (old.getIsActive().intValue() != isActive.intValue()){
+    			old.setIsActive(isActive.intValue());
+    	    	  changed = true;
+    	      }
     		if (changed)
     			adaptorService.save(old);
     		oldAdaptors.remove(adaptor.getIName());
@@ -278,7 +298,7 @@ public class AdaptorsetLoadService extends WaspLoadService {
     	} else {
     		// new adaptor
     		adaptor.setAdaptorsetId(adaptorset.getAdaptorsetId());
-    		adaptor.setIsActive(1);
+    		adaptor.setIsActive(isActive);
     		adaptorService.save(adaptor);
     		adaptor = adaptorService.getAdaptorByIName(iname); // refresh
     		for (AdaptorMeta adaptorMeta: safeList(adaptor.getAdaptorMeta()) ) {

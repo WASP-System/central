@@ -61,6 +61,16 @@ public class SubtypeSampleLoadService extends WaspLoadService {
 	  meta = metaLoadWrapper.getMeta(SubtypeSampleMeta.class);
   }
   
+  private Integer isActive;
+  
+  public Integer getIsActive() {
+	return isActive;
+  }
+	
+  public void setIsActive(Integer isActive) {
+	this.isActive = isActive;
+  }
+  
   private List<String> compatibleResourcesByIName; 
   public void setCompatibleResourcesByIName(List<String> compatibleResourcesByIName) {this.compatibleResourcesByIName = compatibleResourcesByIName; }
 
@@ -80,6 +90,9 @@ public class SubtypeSampleLoadService extends WaspLoadService {
 
     TypeSample typeSample = typeSampleService.getTypeSampleByIName(sampleType); 
 
+    if (isActive == null)
+  	  isActive = 1;
+    
     SubtypeSample subtypeSample = subtypeSampleService.getSubtypeSampleByIName(iname); 
     String areaList = StringUtils.join(getAreaListFromUiFields(this.uiFields), ",");
     // inserts or update subtypeSample
@@ -88,6 +101,7 @@ public class SubtypeSampleLoadService extends WaspLoadService {
 
       subtypeSample.setIName(iname);
       subtypeSample.setName(name);
+      subtypeSample.setIsActive(isActive.intValue());
       subtypeSample.setTypeSampleId(typeSample.getTypeSampleId());
       subtypeSample.setAreaList(areaList);
 
@@ -109,6 +123,10 @@ public class SubtypeSampleLoadService extends WaspLoadService {
       if (!subtypeSample.getAreaList().equals(areaList)){
     	  logger.debug("ANDY:  '"+subtypeSample.getAreaList()+"' != '"+areaList);
     	  subtypeSample.setAreaList(areaList);
+    	  changed = true;
+      }
+      if (subtypeSample.getIsActive().intValue() != isActive.intValue()){
+    	  subtypeSample.setIsActive(isActive.intValue());
     	  changed = true;
       }
       if (changed)

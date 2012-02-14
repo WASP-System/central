@@ -50,8 +50,18 @@ public class ResourceCategoryLoadService extends WaspLoadService {
   public void setMetaFromWrapper(MetaLoadWrapper metaLoadWrapper){
 	  meta = metaLoadWrapper.getMeta(ResourceCategoryMeta.class);
   }
+  
+  private Integer isActive;
+  
+  public Integer getIsActive() {
+	return isActive;
+  }
+	
+  public void setIsActive(Integer isActive) {
+	this.isActive = isActive;
+  }
 
-  @Override
+@Override
   @Transactional
   @PostInitialize 
   public void postInitialize() {
@@ -64,6 +74,9 @@ public class ResourceCategoryLoadService extends WaspLoadService {
     }
 
     ResourceCategory resourceCat = resourceCategoryService.getResourceCategoryByIName(iname);
+    
+    if (isActive == null)
+    	  isActive = 1;
 
     // inserts or update workflow
     if (resourceCat.getResourceCategoryId() == null) { 
@@ -71,6 +84,7 @@ public class ResourceCategoryLoadService extends WaspLoadService {
 
       resourceCat.setIName(iname);
       resourceCat.setName(name);
+      resourceCat.setIsActive(isActive.intValue());
       resourceCat.setTypeResourceId(typeResource.getTypeResourceId());
       resourceCategoryService.save(resourceCat); 
 
@@ -81,6 +95,10 @@ public class ResourceCategoryLoadService extends WaspLoadService {
       boolean changed = false;	
       if (!resourceCat.getName().equals(name)){
     	  resourceCat.setName(name);
+    	  changed = true;
+      }
+      if (resourceCat.getIsActive().intValue() != isActive.intValue()){
+    	  resourceCat.setIsActive(isActive.intValue());
     	  changed = true;
       }
       if (changed)
