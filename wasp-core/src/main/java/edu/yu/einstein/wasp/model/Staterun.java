@@ -26,7 +26,7 @@ import org.hibernate.envers.NotAudited;
 @Entity
 @Audited
 @Table(name="staterun")
-public class Staterun extends WaspModel {
+public class Staterun extends WaspModel implements StateEntity {
 
 	/** 
 	 * staterunId
