@@ -18,67 +18,65 @@ import edu.yu.einstein.wasp.service.StatesampleService;
 import edu.yu.einstein.wasp.service.TaskService;
 
 /**
- * Created State Processor
- * for each sample in jobsample for the state.statejob
- * simply creates a new State with targetTask and copies
- * the original stated from state Sample and creates a state sample out of it.
+ * Created State Processor for each sample in jobsample for the state.statejob
+ * simply creates a new State with targetTask and copies the original stated
+ * from state Sample and creates a state sample out of it.
  * 
  */
-
 @Component
-public class CreateSampleStatesFromJobSampleProcessor implements ItemProcessor {
+public class CreateSampleStatesFromJobSampleProcessor implements ItemProcessor<Integer,State> {
 
-  @Autowired
-  StateService stateService;
+	@Autowired
+	StateService stateService;
 
-  @Autowired
-  TaskService taskService;
+	@Autowired
+	TaskService taskService;
 
-  @Autowired
-  StatesampleService statesampleService;
+	@Autowired
+	StatesampleService statesampleService;
 
-  @Autowired
-  StatejobService statejobService;
+	@Autowired
+	StatejobService statejobService;
 
-  String targetTask; 
-  public void setTargetTask(String targetTask) {
-    this.targetTask = targetTask; 
-  }
+	String targetTask;
 
-  TaskStatus targetStatus = TaskStatus.CREATED;
+	public void setTargetTask(String targetTask) {
+		this.targetTask = targetTask;
+	}
 
-  @Override
-  public State process(Object stateId) throws Exception {
-    
-    State state = stateService.getStateByStateId(((Integer) stateId).intValue());
-    List<Statejob> stateJobs = state.getStatejob();
+	TaskStatus targetStatus = TaskStatus.CREATED;
 
-    Task t = taskService.getTaskByIName(targetTask); 
+	@Override
+	public State process(Integer stateId) throws Exception {
 
-    for (Statejob sj: stateJobs) {
-      for (JobSample js: sj.getJob().getJobSample()) {
-        State newState = new State();
-        newState.setStatus(targetStatus.toString());
-        newState.setTaskId(t.getTaskId());
-	newState.setSourceStateId((Integer) stateId);
-        newState.setName(t.getName());
-        newState.setStartts(new Date());
-        State newStateDb = stateService.save(newState);
+		State state = stateService.getStateByStateId(stateId.intValue());
+		List<Statejob> stateJobs = state.getStatejob();
 
-        Statejob newStateJob = new Statejob(); 
-        newStateJob.setStateId(newStateDb.getStateId());
-        newStateJob.setJobId(sj.getJobId());
-      
-        statejobService.save(newStateJob);
-        Statesample newStateSample = new Statesample(); 
-        newStateSample.setStateId(newStateDb.getStateId());
-        newStateSample.setSampleId(js.getSampleId());
+		Task t = taskService.getTaskByIName(targetTask);
 
-        statesampleService.save(newStateSample);
-      }
-    }
+		for (Statejob sj : stateJobs) {
+			for (JobSample js : sj.getJob().getJobSample()) {
+				State newState = new State();
+				newState.setStatus(targetStatus.toString());
+				newState.setTaskId(t.getTaskId());
+				newState.setSourceStateId((Integer) stateId);
+				newState.setName(t.getName());
+				newState.setStartts(new Date());
+				State newStateDb = stateService.save(newState);
 
-    return state;
-  }
+				Statejob newStateJob = new Statejob();
+				newStateJob.setStateId(newStateDb.getStateId());
+				newStateJob.setJobId(sj.getJobId());
+
+				statejobService.save(newStateJob);
+				Statesample newStateSample = new Statesample();
+				newStateSample.setStateId(newStateDb.getStateId());
+				newStateSample.setSampleId(js.getSampleId());
+
+				statesampleService.save(newStateSample);
+			}
+		}
+
+		return state;
+	}
 }
-
