@@ -17,7 +17,7 @@ import org.apache.tools.ant.DirectoryScanner;
  */
 
 public class WaspTomcatClassLoader extends WebappClassLoader {
-	final String BASEDIR = "/tmp/waspPlugin";
+	final String BASEDIR = "waspPlugins";
 
 	public WaspTomcatClassLoader(ClassLoader parent) {
 		super(parent);
