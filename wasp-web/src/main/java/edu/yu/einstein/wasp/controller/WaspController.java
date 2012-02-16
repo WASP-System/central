@@ -60,7 +60,7 @@ public class WaspController {
   protected UserService userService;
 
   @Autowired
-  HttpServletRequest request;
+  protected HttpServletRequest request;
 
   @Autowired
   private BeanValidator validator;
