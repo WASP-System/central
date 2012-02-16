@@ -7,7 +7,7 @@
 
 _url='/wasp/facility/platformunit/instance/listJSON.do';
 
-_navAttr={edit:true,view:true,add:true,del:false};
+_navAttr={edit:false,view:true,add:true,del:false};
 
 _navAttr.search=true;
 
