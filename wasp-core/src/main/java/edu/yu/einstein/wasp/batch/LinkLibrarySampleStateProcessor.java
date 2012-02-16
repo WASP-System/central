@@ -13,10 +13,12 @@ import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.Statejob;
 import edu.yu.einstein.wasp.model.Statesample;
 import edu.yu.einstein.wasp.model.Task;
+import edu.yu.einstein.wasp.model.JobSample;
 import edu.yu.einstein.wasp.service.StateService;
 import edu.yu.einstein.wasp.service.StatejobService;
 import edu.yu.einstein.wasp.service.StatesampleService;
 import edu.yu.einstein.wasp.service.TaskService;
+import edu.yu.einstein.wasp.service.JobSampleService;
 
 /**
  * LinkLibrarySampleStateProcessor
@@ -40,6 +42,9 @@ public class LinkLibrarySampleStateProcessor implements ItemProcessor {
 
 	@Autowired
 	StatejobService statejobService;
+
+	@Autowired
+	JobSampleService jobSampleService;
 
 	@Autowired
 	TaskService taskService;
@@ -92,13 +97,22 @@ public class LinkLibrarySampleStateProcessor implements ItemProcessor {
 					newStateJob.setStateId(newStateDb.getStateId());
 					newStateJob.setJobId(sj.getJobId());
 					statejobService.save(newStateJob);
+
+					// links job to the library via new jobsample
+					JobSample newJobSample = new JobSample();
+					newJobSample.setJobId(sj.getJobId());
+					newJobSample.setSampleId(librarySample.getSampleId());
+					jobSampleService.save(newJobSample);
+
 				}
 
 				// links the state to the library
-			      	Statesample newStateSample = new Statesample();
+				Statesample newStateSample = new Statesample();
 				newStateSample.setStateId(newStateDb.getStateId());
 				newStateSample.setSampleId(librarySample.getSampleId());
 				statesampleService.save(newStateSample);
+
+
 			}
 		}
 
