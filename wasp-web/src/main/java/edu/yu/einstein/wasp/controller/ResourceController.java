@@ -94,8 +94,13 @@ public class ResourceController extends WaspController {
 		}
 		m.addAttribute("typeResources", typeResourceList);
 		
-		List <ResourceCategory> resourceCategory = new ArrayList <ResourceCategory> (resourceCategoryService.findAll());
-		m.addAttribute("categoryResources", resourceCategory);
+		//List <ResourceCategory> resourceCategoryList = new ArrayList <ResourceCategory> (resourceCategoryService.findAll());
+//		for (ResourceCategory rc : resourceCategoryList) {
+//			if (rc.getIsActive().intValue() == 0 && !rc.getName().contains("_INACTIVE")) {
+//				rc.setName(rc.getName() + "_INACTIVE");
+//			}
+//		}
+		m.addAttribute("categoryResources", resourceCategoryService.getActiveResourceCategories());
 
 	}
 
@@ -232,6 +237,7 @@ public class ResourceController extends WaspController {
 						Arrays.asList(new String[] {
 								resource.getName(),
 								resource.getResourceCategory().getName(),
+								"",
 								resource.getTypeResource().getName(), 
 								resource.getIsActive().intValue() == 1 ? "yes" : "no", //}));
 								allResourceBarcode.get(resource.getResourceId())==null? "" : allBarcode.get(allResourceBarcode.get(resource.getResourceId()))}));
@@ -250,8 +256,7 @@ public class ResourceController extends WaspController {
 			return outputJSON(jqgrid, response);
 
 		} catch (Throwable e) {
-			throw new IllegalStateException("Can't marshall to JSON "
-					+ resourceList, e);
+			throw new IllegalStateException("Can't marshall to JSON " + resourceList, e);
 		}
 
 	}
@@ -264,8 +269,7 @@ public class ResourceController extends WaspController {
 	@RequestMapping(value = "/detail_rw/updateJSON.do", method = RequestMethod.POST)
 	@PreAuthorize("hasRole('su') or User.login == principal.name")
 	public String updateDetailJSON(@RequestParam("id") Integer resourceId,
-
-		Resource resourceForm, ModelMap m, HttpServletResponse response) {
+			Resource resourceForm, ModelMap m, HttpServletResponse response) {
 
 		List<ResourceMeta> resourceMetaList = getMetaHelperWebapp().getFromJsonForm(request, ResourceMeta.class);
 
@@ -298,13 +302,12 @@ public class ResourceController extends WaspController {
 				
 			}
 			
-			ResourceCategory resourceCategory = this.resourceCategoryService.getResourceCategoryByIName(request.getParameter("resource.machine_type"));
+			ResourceCategory resourceCategory = this.resourceCategoryService.getResourceCategoryByResourceCategoryId(new Integer(request.getParameter("resourceCategoryId")));
 			Integer resourceCategoryId =resourceCategory.getResourceCategoryId();
 			Integer typeResourceId = resourceCategory.getTypeResourceId();
 
 			resourceForm.setResourcecategoryId(resourceCategoryId);
 			resourceForm.setTypeResourceId(typeResourceId);
-
 			
 			resourceForm.setIName(resourceForm.getName());
 			resourceForm.setLastUpdTs(new Date());
@@ -347,9 +350,8 @@ public class ResourceController extends WaspController {
 			//resourceDb.setResourcecategoryId(Integer.parseInt(request.getParameter("resourceCategoryId")));
 			//resourceDb.setTypeResourceId(resourceForm.getTypeResourceId());
 			resourceDb.setIName(resourceForm.getName());
-			
+
 			if (resourceBarcodeDB.getBarcode() == null) {
-				
 				ResourceBarcode resourceBarcode = new ResourceBarcode();
 				Barcode barcode = new Barcode();
 				
@@ -362,12 +364,9 @@ public class ResourceController extends WaspController {
 			
 				resourceBarcode.setResourceId(resourceId);
 				this.resourceBarcodeService.save(resourceBarcode);
-				
-			}
-			else {
+			} else {
 				resourceBarcodeDB.getBarcode().setBarcode(request.getParameter("barcode")==null? "" : request.getParameter("barcode"));
 				this.resourceBarcodeService.merge(resourceBarcodeDB);
-
 			}
 			
 			this.resourceService.merge(resourceDb);

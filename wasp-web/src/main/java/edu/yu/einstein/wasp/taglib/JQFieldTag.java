@@ -383,7 +383,7 @@ public class JQFieldTag extends BodyTagSupport {
 	
 			if (this.readOnly!=null  && this.readOnly.equals("true")) {
 				buf = buf + 
-					jsName + ".jq['editable']=false;\n";
+					jsName + ".jq['editoptions']['dataInit'] = function(elm){setTimeout(disableControl(this.id), 200);};\n";
 			}
 			if (this.editReadOnly!=null  && this.editReadOnly.equals("true")) {
 				buf = buf + 

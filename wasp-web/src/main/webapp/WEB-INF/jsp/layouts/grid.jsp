@@ -26,11 +26,13 @@
 
 		<%-- fires before showing the form with the new data after user clicked "add" button; receives as Parameter the id of the constructed form. --%>  
 		var _beforeShowAddForm = function(formId) {
-		}
+		};
 		
 		<%-- fires before showing the form with the new data after user clicked "edit" button; receives as Parameter the id of the constructed form. --%>
 		var _beforeShowEditForm = function(formId) {
-		}
+		};
+		var _afterShowEditForm = function(formId) {
+		};
 		
 		<%--  replaces the build in del function to prevent row deletion. Parameter passed to this function is the id of the edited row --%>
 		 var _del_function = function (id) {
@@ -42,7 +44,7 @@
 		// To this event is passed response from the server. The event should return single message (not array), which then is displayed to the user. --%> 
 		var _errorTextFormat = function(response) {
 			return response.responseText;
-		}
+		};
 		
 		<%--  fires after response has been received from server. used to display status from server 
 		// Receives as parameters the data returned from the request and an array of the posted values of type id=value1,value2. 
@@ -53,12 +55,12 @@
 			waspFade('statusMessage',response.responseText);
 		
 			return [true,''];     
-		}
+		};
 		
 		var _beforeCheckValues = function(data){
 			_colNameValidatedIndexes = [];
 			return data;
-		}
+		};
 		
 		<%-- stores list of col names already validated with last index encountered (in case of multiple identical colnames - remember some may be hidden and so legit) --%>
 		var _colNameValidatedIndexes = new Array();
@@ -81,6 +83,7 @@
 			beforeCheckValues:_beforeCheckValues,
 			errorTextFormat:_errorTextFormat,
 			beforeShowForm:_beforeShowEditForm,
+			afterShowForm:_afterShowEditForm,
 			reloadAfterSubmit:true,
 			recreateForm:true
 		};
@@ -267,7 +270,8 @@
 			}
 		});
 		/* define custom formatter ends here*/
-	
+		
+
 		if (_url.indexOf('/uiField/')==-1) 
 			_enableFilterToolbar=false;//not sure who/why force _enableFilterToolbar to false. add an exception for uiField. Sasha 12.1.12
 	
