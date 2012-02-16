@@ -264,9 +264,8 @@ public class ResourceController extends WaspController {
 	@RequestMapping(value = "/detail_rw/updateJSON.do", method = RequestMethod.POST)
 	@PreAuthorize("hasRole('su') or User.login == principal.name")
 	public String updateDetailJSON(@RequestParam("id") Integer resourceId,
-			Resource resourceForm, ModelMap m, HttpServletResponse response) {
 
-		
+		Resource resourceForm, ModelMap m, HttpServletResponse response) {
 
 		List<ResourceMeta> resourceMetaList = getMetaHelperWebapp().getFromJsonForm(request, ResourceMeta.class);
 
@@ -348,10 +347,29 @@ public class ResourceController extends WaspController {
 			//resourceDb.setResourcecategoryId(Integer.parseInt(request.getParameter("resourceCategoryId")));
 			//resourceDb.setTypeResourceId(resourceForm.getTypeResourceId());
 			resourceDb.setIName(resourceForm.getName());
-
-			resourceBarcodeDB.getBarcode().setBarcode(request.getParameter("barcode")==null? "" : request.getParameter("barcode"));
 			
-			this.resourceBarcodeService.merge(resourceBarcodeDB);
+			if (resourceBarcodeDB.getBarcode() == null) {
+				
+				ResourceBarcode resourceBarcode = new ResourceBarcode();
+				Barcode barcode = new Barcode();
+				
+				barcode.setBarcode(request.getParameter("barcode")==null? "" : request.getParameter("barcode"));
+				barcode.setIsActive(1);
+				resourceBarcode.setBarcode(barcode);
+				
+				Barcode barcodeDB = this.barcodeService.save(barcode);
+				resourceBarcode.setBarcodeId(barcodeDB.getBarcodeId());
+			
+				resourceBarcode.setResourceId(resourceId);
+				this.resourceBarcodeService.save(resourceBarcode);
+				
+			}
+			else {
+				resourceBarcodeDB.getBarcode().setBarcode(request.getParameter("barcode")==null? "" : request.getParameter("barcode"));
+				this.resourceBarcodeService.merge(resourceBarcodeDB);
+
+			}
+			
 			this.resourceService.merge(resourceDb);
 		}
 

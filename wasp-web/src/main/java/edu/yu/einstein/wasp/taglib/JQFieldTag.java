@@ -361,11 +361,6 @@ public class JQFieldTag extends BodyTagSupport {
 					jsName + ".jq['align']='center';\n" + 
 					jsName + ".jq['search']=false;\n";
 				
-			}else if (type==Type.text) {
-				buf = buf + 
-						jsName + ".jq['edittype']='text';\n" + 
-						jsName + ".jq['editoptions']={value:''};\n";
-						
 			}
 			
 	
