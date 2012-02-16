@@ -73,8 +73,12 @@
     <property name="itemProcessor">
       <bean class="edu.yu.einstein.wasp.batch.WaitForSiblingSampleStateProcessor">
         <property name="task" value="Receive Sample" />
-        <property name="status" value="COMPLETED" />
-        <property name="siblingTargetStatus" value="FINALIZED" />
+        <property name="statusMap">
+          <map>
+            <entry key="UNRECEIVABLE" value="XXX" />
+            <entry key="COMPLETED" value="FINALIZED" />
+          </map>
+        </property>
       </bean>
     </property>
   </bean>
