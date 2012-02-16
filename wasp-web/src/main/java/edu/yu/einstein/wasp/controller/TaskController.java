@@ -444,11 +444,19 @@ MetaHelperWebapp metaHelperWebapp = new MetaHelperWebapp("fmpayment", "state", S
 	  		  else{
 	  			  state.setStatus(receivedStatus);  
 	  			  stateService.save(state);
+	  			  /*
 	  			  Sample sample = this.sampleService.getSampleBySampleId(sampleId);
-	  			  sample.setIsReceived(1);
+	  			  
+	  			  if(receivedStatus.equals("RECEIVED")){
+	  				  sample.setIsReceived(1);
+	  			  }
+	  			  else if(receivedStatus.equals("NEVER COMING")){
+	  				sample.setIsReceived(2);
+	  			  }
 	  			  sample.setReceiverUserId(authenticationService.getAuthenticatedUser().getUserId());	  			  
 	  			  sample.setReceiveDts(new Date());
 	  			  sampleService.save(sample);
+	  			  */
 	  			  waspMessage("task.samplereceive.update_success");
 	  			  //email LM/PI/DA/submitter  //Not really necessary
 	  		  }

@@ -58,7 +58,8 @@ BODY {margin: 0; padding: 0;}
 					<form method="POST" action="<c:url value="/facility/platformunit/assignAdd.do" />">
   						<input type="hidden" name="librarysampleid" value="${sc.sample.sampleId}">
   						<input type="hidden" name="jobid" value="${j.jobId}">
-  						<input type="hidden" name="resourceCategoryId" value="${resourceCategoryId}"> 
+  						<input type="hidden" name="resourceCategoryId" value="${resourceCategoryId}">
+  						<input type="hidden" name="jobsToWorkWith" value="${jobsToWorkWith}"> 
   							pmole: <input type="text" size="5" maxlength="5" name="pmolAdded"><br>
   						<select class="selectLane" name="lanesampleid"></select>
   						<input type="submit" value="assign">
@@ -85,6 +86,7 @@ BODY {margin: 0; padding: 0;}
   								<input type="hidden" name="librarysampleid" value="${schild.sample.sampleId}">
   								<input type="hidden" name="jobid" value="${j.jobId}"> 
   								<input type="hidden" name="resourceCategoryId" value="${resourceCategoryId}"> 
+  								<input type="hidden" name="jobsToWorkWith" value="${jobsToWorkWith}"> 
  								pmole: <input type="text" size="5" maxlength="5" name="pmolAdded"><br>
   								<select class="selectLane" name="lanesampleid"></select>
   								<input type="submit" value="assign">
@@ -202,6 +204,7 @@ BODY {margin: 0; padding: 0;}
                   <c:forEach items="${lib.sampleViaSource.sampleMeta}" var="sm">
                    <c:if test="${fn:substringAfter(sm.k, '.library.') == 'adaptorid'}">
                     <div><label>Adaptor</label> <c:out value="${adaptors[sm.v]}"/></div>
+                    <div><a href="<c:url value="/facility/platformunit/assignRemove.do?samplesourceid=${lib.sampleSourceId}&resourceCategoryId=${resourceCategoryId}&jobsToWorkWith=${jobsToWorkWith}"/>">Remove From Lane</a></div>
                     </c:if> 
                   </c:forEach> 
                </c:if>

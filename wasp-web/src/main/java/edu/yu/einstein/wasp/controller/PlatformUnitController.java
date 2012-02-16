@@ -36,7 +36,11 @@ import edu.yu.einstein.wasp.model.Adaptorset;
 import edu.yu.einstein.wasp.model.Barcode;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
+
+import edu.yu.einstein.wasp.model.JobSample;
+
 import edu.yu.einstein.wasp.model.MetaBase;
+
 import edu.yu.einstein.wasp.model.ResourceBarcode;
 import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.Sample;
@@ -45,6 +49,7 @@ import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.SampleSourceMeta;
 import edu.yu.einstein.wasp.model.State;
+import edu.yu.einstein.wasp.model.Statejob;
 import edu.yu.einstein.wasp.model.Statesample;
 import edu.yu.einstein.wasp.model.SubtypeSample;
 import edu.yu.einstein.wasp.model.SubtypeSampleMeta;
@@ -59,6 +64,7 @@ import edu.yu.einstein.wasp.service.AdaptorsetService;
 import edu.yu.einstein.wasp.service.AdaptorService;
 import edu.yu.einstein.wasp.service.BarcodeService;
 import edu.yu.einstein.wasp.service.JobService;
+import edu.yu.einstein.wasp.service.JobSampleService;
 import edu.yu.einstein.wasp.service.JobResourcecategoryService;
 import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.ResourceCategoryService;
@@ -68,6 +74,7 @@ import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.SampleSourceService;
 import edu.yu.einstein.wasp.service.SampleSourceMetaService;
 import edu.yu.einstein.wasp.service.StateService;
+import edu.yu.einstein.wasp.service.StatejobService;
 import edu.yu.einstein.wasp.service.StatesampleService;
 import edu.yu.einstein.wasp.service.SubtypeSampleMetaService;
 
@@ -98,7 +105,10 @@ public class PlatformUnitController extends WaspController {
 
 	@Autowired
 	private JobService jobService;
-	
+
+	@Autowired
+	private JobSampleService jobSampleService;
+
 	@Autowired
 	private JobResourcecategoryService jobResourcecategoryService;
 	
@@ -824,26 +834,42 @@ public class PlatformUnitController extends WaspController {
 			ModelMap m) {
 		
 		TypeResource typeResource = typeResourceService.getTypeResourceByIName("mps");
-		//if(typeResource.getTypeResourceId()==0){
-			//waspMessage("platformunit.resourceCategoryNotFound.error");
-			//return "redirect:/dashboard.do";
-		//}
+		if(typeResource == null || typeResource.getTypeResourceId()==null || typeResource.getTypeResourceId().intValue()==0){
+			waspMessage("platformunit.typeResourceNotFound.error");
+			return "redirect:/dashboard.do"; 
+		}
 		Map filterForResourceCategory = new HashMap();
 		filterForResourceCategory.put("typeResourceId", typeResource.getTypeResourceId());
 		List<ResourceCategory> resourceCategories = resourceCategoryService.findByMap(filterForResourceCategory);
 		
-		List<Job> tempJobList = jobService.findAll();
+		//get list of jobs with following: 
+		//	1. select states from state where task 106 Assign Library To Platform Unit and status CREATED
+		//	2. select those states from statejob to get those jobs
+		//	3. filter jobs to include only those requesting specific sequencing machine (resourceCategoryId) 
+		
+		Task task = taskService.getTaskByIName("assignLibraryToPlatformUnit");
+		if(task==null || task.getTaskId()==null || task.getTaskId().intValue()==0){
+			waspMessage("platformunit.taskNotFound.error");
+			return "redirect:/dashboard.do"; 
+		}
+		Map filterForState = new HashMap();
+		filterForState.put("taskId", task.getTaskId());
+		filterForState.put("status", "CREATED");
+		List<State> states = stateService.findByMap(filterForState);
 		List<Job> jobList = new ArrayList();
-		for(Job job : tempJobList){
-			List<JobResourcecategory> jobResourceCategoryList = job.getJobResourcecategory();
-			for(JobResourcecategory jrc : jobResourceCategoryList){
-				if(jrc.getResourcecategoryId().intValue()==resourceCategoryId.intValue()){
-					//TODO must really now filter jobs to include only those that have libraries that are ready to go onto a flow cell
-					jobList.add(job);
-				}
+		for(State state : states){
+			Job job = state.getStatejob().get(0).getJob();//should be one
+			JobResourcecategory jrc = jobResourcecategoryService.getJobResourcecategoryByResourcecategoryIdJobId(resourceCategoryId, job.getJobId());
+			if(jrc!=null && jrc.getJobResourcecategoryId()!=null && jrc.getJobResourcecategoryId().intValue() != 0){
+				jobList.add(state.getStatejob().get(0).getJob());
 			}
 		}
-		
+		/*
+		if(jobList.size()==0){
+			int v = 10216;
+			jobList.add(jobService.getJobByJobId(v));
+		}
+		*/
 		m.put("resourceCategoryId", resourceCategoryId);
 		m.put("resourceCategories", resourceCategories);
 		m.put("jobList", jobList);
@@ -879,10 +905,10 @@ public class PlatformUnitController extends WaspController {
 	@RequestMapping(value="/assign.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('ft')")
 	public String assignmentForm(@RequestParam("resourceCategoryId") Integer resourceCategoryId,
-			@RequestParam("jobId") Integer jobId,
+			@RequestParam("jobsToWorkWith") Integer jobsToWorkWith,//this will be a single jobId or it will be 0 [error] or -1 [indicating find all jobs that are not complete and have libraries to go onto flow cells]
 			ModelMap m) {
 
-		if(jobId.intValue()==0){//no job selected by user through the drop-down box
+		if(jobsToWorkWith.intValue()==0){//no job selected by user through the drop-down box
 			waspMessage("platformunit.jobIdNotSelected.error");
 			return "redirect:/facility/platformunit/limitPriorToAssign.do?resourceCategoryId=0";
 		}
@@ -892,11 +918,11 @@ public class PlatformUnitController extends WaspController {
 			return "redirect:/facility/platformunit/limitPriorToAssign.do?resourceCategoryId=0";
 		}
 				
-		// pickups FlowCells limited by states and filter to get only those compatible with the selected machine resourceCategoryId
+		// pickup FlowCells limited by states and filter to get only those compatible with the selected machine resourceCategoryId
 		Map stateMap = new HashMap(); 
 		Task task = taskService.getTaskByIName("Flowcell/Add Library To Lane");
-		if(task.getTaskId() == 0){
-			//TODO error message and return to dashboard 
+		if(task == null || task.getTaskId() == null){
+			waspMessage("platformunit.taskNotFound.error");
 			return "redirect:/dashboard.do";
 		}
 		stateMap.put("taskId", task.getTaskId()); 	
@@ -909,7 +935,6 @@ public class PlatformUnitController extends WaspController {
 		Map stsrcMap = new HashMap();//get the ids for the types of flow cells that go on the selected machine
 		stsrcMap.put("resourcecategoryId", resourceCategory.getResourceCategoryId()); 
 		List<SubtypeSampleResourceCategory> stsrcList = subtypeSampleResourceCategoryService.findByMap(stsrcMap);
-		//subtypeSampleResourceCategoryService.g
 		for(State s : temp_platformUnitStates){
 			List<Statesample> ssList = s.getStatesample();
 			for(Statesample ss : ssList){
@@ -926,64 +951,43 @@ public class PlatformUnitController extends WaspController {
 		
 		List<Job> jobs = new ArrayList<Job>();
 		
-		if(jobId.intValue() > 0){//get the single job selected from the dropdown box
-			Job job = jobService.getJobByJobId(jobId);
-			if(job.getJobId().intValue()==0){
+		Task task2 = taskService.getTaskByIName("assignLibraryToPlatformUnit");
+		if(task2==null || task2.getTaskId()==null || task2.getTaskId().intValue()==0){
+			waspMessage("platformunit.taskNotFound.error");
+			return "redirect:/facility/platformunit/limitPriorToAssign.do?resourceCategoryId=" + resourceCategoryId;
+		}
+		Map filterForState = new HashMap();
+		filterForState.put("taskId", task2.getTaskId());
+		filterForState.put("status", "CREATED");
+		List<State> states = stateService.findByMap(filterForState);
+		
+		if(jobsToWorkWith.intValue() > 0){//get the single job selected from the dropdown box; so parameter jobsToWorkWith has a value > 0, representing a single jobId; confirm it meets state and resourceCategory criteria
+			Job job = jobService.getJobByJobId(jobsToWorkWith);
+			if(job==null || job.getJobId()==null || job.getJobId().intValue()==0){
 				waspMessage("platformunit.jobNotFound.error");
 				return "redirect:/facility/platformunit/limitPriorToAssign.do?resourceCategoryId=" + resourceCategoryId;
 			}
-			else{
-				jobs.add(job);
-			}
-		}
-		else if(jobId.intValue()==-1){//asking for list of all available jobs that meet the resourceCategoryId criteria
-			Map map = new HashMap();
-			map.put("resourcecategoryId", resourceCategoryId);
-			List<JobResourcecategory> jrcList = jobResourcecategoryService.findByMap(map);
-			for(JobResourcecategory jrc : jrcList){
-				jobs.add(jrc.getJob());//TODO must confirm that these jobs have libraries that are ready to go onto a flow cell
-			}			
-		}
-		/*
-		// FAKING IT HERE TOO
-		//What is really needed is to get all jobs which have a task of libraryWaitingForPlatformUnit
-		Workflow workflow = workflowService.getWorkflowByWorkflowId(1);
-		List<Job> tempJobs = workflow.getJob(); 
-		
-		Job aJob = jobService.getJobByJobId(10215);//add this
-		tempJobs.add(aJob);
-		
-		
-		for(Job job : tempJobs){
-			List<JobResourcecategory> jrcList = job.getJobResourcecategory();
-			for(JobResourcecategory jrc : jrcList){
-				if(jrc.getResourcecategoryId().intValue() == resourceCategoryId.intValue()){
-					jobs.add(job);
-					break;
+			for(State state : states){
+				Job job2 = state.getStatejob().get(0).getJob();//should be one
+				if(job2.getJobId().intValue()==job.getJobId().intValue()){
+					JobResourcecategory jrc = jobResourcecategoryService.getJobResourcecategoryByResourcecategoryIdJobId(resourceCategoryId, job2.getJobId());
+					if(jrc!=null && jrc.getJobResourcecategoryId()!=null && jrc.getJobResourcecategoryId().intValue() != 0){
+						jobs.add(state.getStatejob().get(0).getJob());
+					}
 				}
 			}
 		}
+		else if(jobsToWorkWith.intValue()==-1){//asking for list of all available jobs that meet the resourceCategoryId and state criteria; so parameter jobsToWorkWith has a value > -1 which means it's asking for all available jobs that meet state and resourceCategory criteria
 
-		//fake even more for the moment, but basically, when a job is completed, it shouldn't appear on this list
-		List<Job> tempJobs = new ArrayList<Job>();
-		List<Job> jobs = new ArrayList<Job>();
-		Job aJob = jobService.getJobByJobId(10091);
-		tempJobs.add(aJob);
-		aJob = jobService.getJobByJobId(10001);
-		tempJobs.add(aJob);
-		aJob = jobService.getJobByJobId(10215);
-		tempJobs.add(aJob);
-		
-		for(Job job : tempJobs){
-			List<JobResourcecategory> jrcList = job.getJobResourcecategory();
-			for(JobResourcecategory jrc : jrcList){
-				if(jrc.getResourcecategoryId().intValue() == resourceCategoryId.intValue()){
-					jobs.add(job);
-					break;
+			for(State state : states){
+				Job job = state.getStatejob().get(0).getJob();//should be one
+				JobResourcecategory jrc = jobResourcecategoryService.getJobResourcecategoryByResourcecategoryIdJobId(resourceCategoryId, job.getJobId());
+				if(jrc!=null && jrc.getJobResourcecategoryId()!=null && jrc.getJobResourcecategoryId().intValue() != 0){
+					jobs.add(state.getStatejob().get(0).getJob());
 				}
 			}
 		}
-*/		
+	
 		//map of adaptors for display; this really needs to be a part of the library sample
 		Map adaptors = new HashMap();
 		List<Adaptorset> adaptorsetList = adaptorsetService.findAll();
@@ -999,10 +1003,8 @@ public class PlatformUnitController extends WaspController {
 				}
 			}
 		}
-		for (Object key: adaptors.keySet()){//why?
-			;
-		 }
-		
+				
+		m.put("jobsToWorkWith", jobsToWorkWith);
 		m.put("machineName", resourceCategory.getName());
 		m.put("resourceCategoryId", resourceCategoryId);
 		m.put("jobs", jobs); 
@@ -1024,253 +1026,197 @@ public class PlatformUnitController extends WaspController {
 	@RequestMapping(value="/assignAdd.do", method=RequestMethod.POST)
 	@PreAuthorize("hasRole('ft')")
 	public String assignmentAdd(
-			@RequestParam("librarysampleid") int librarySampleId,
-			@RequestParam("lanesampleid") int laneSampleId,
+			@RequestParam("librarysampleid") Integer librarySampleId,
+			@RequestParam("lanesampleid") Integer laneSampleId,
 			@RequestParam("jobid") Integer jobId,
 			@RequestParam(value="pmolAdded", required=false) String pmolAdded,
 			@RequestParam("resourceCategoryId") Integer resourceCategoryId,
+			@RequestParam("jobsToWorkWith") Integer jobsToWorkWith,
     ModelMap m) {
-
-		String error = null;
 
 		Job job = jobService.getJobByJobId(jobId);
 		Sample laneSample = sampleService.getSampleBySampleId(laneSampleId); 
 		Sample librarySample = sampleService.getSampleBySampleId(librarySampleId); 
+		JobSample jobSample = jobSampleService.getJobSampleByJobIdSampleId(jobId, librarySampleId);//confirm library is really part of this jobId
 
-		if (job.getJobId().intValue() == 0) {
-			waspMessage("platformunit.jobIdInvalidValue.error");
-			return "redirect:/facility/platformunit/assign.do?resourceCategoryId=" + resourceCategoryId.intValue();
-		}
+		String return_value = "redirect:/facility/platformunit/assign.do?resourceCategoryId=" + resourceCategoryId.intValue() + "&jobsToWorkWith=" + jobsToWorkWith.intValue();
+		boolean error = false;
 		
-		if (laneSampleId == 0) {
-			waspMessage("platformunit.cellNotSelectedInvalidValue.error");
-			return "redirect:/facility/platformunit/assign.do?resourceCategoryId=" + resourceCategoryId.intValue();
+		if (jobId == null || jobId == 0 || job == null || job.getJobId() == null) {
+			error = true; waspMessage("platformunit.jobIdNotFound.error"); 
 		}
-
-		if (laneSample == null || librarySample == null || laneSample.getSampleId() == null || librarySample.getSampleId() == null){
-			waspMessage("platformunit.laneOrLibraryInvalidValue.error");
-			return "redirect:/facility/platformunit/assign.do?resourceCategoryId=" + resourceCategoryId.intValue();
+		else if(laneSampleId == null || laneSampleId == 0){//user selected a flowcell from dropdown box (parameter laneSampleId == 0); we should actually prevent this with javascript
+			error = true; waspMessage("platformunit.laneIsFlowCell.error");
 		}
-
-		if ( ! laneSample.getTypeSample().getIName().equals("cell")) { 
-			waspMessage("platformunit.laneIsNotLaneInvalidValue.error");
-			return "redirect:/facility/platformunit/assign.do?resourceCategoryId=" + resourceCategoryId.intValue();
+		else if (laneSample == null || laneSample.getSampleId() == null) {
+			error = true; waspMessage("platformunit.laneIdNotFound.error"); 
 		}
-		
-		if ( ! librarySample.getTypeSample().getIName().equals("library")) {
-			waspMessage("platformunit.libraryIsNotLibraryInvalidValue.error");	
-			return "redirect:/facility/platformunit/assign.do?resourceCategoryId=" + resourceCategoryId.intValue();
+		else if (librarySampleId == null || librarySampleId == 0 || librarySample == null || librarySample.getSampleId() == null) {
+			error = true; waspMessage("platformunit.libraryIdNotFound.error");
 		}
-		
-		if ("".equals(pmolAdded)) {
-			waspMessage("platformunit.pmoleAddedInvalidValue.error");	
-			return "redirect:/facility/platformunit/assign.do?resourceCategoryId=" + resourceCategoryId.intValue();
+		else if ( ! librarySample.getTypeSample().getIName().equals("library")) {
+			error = true; waspMessage("platformunit.libraryIsNotLibrary.error");	
 		}
-		
-		Integer pmolAddedInteger;
-		try{
-			pmolAddedInteger = new Integer(Integer.parseInt(pmolAdded));
-			if(pmolAddedInteger.intValue() <= 0){
-				waspMessage("platformunit.pmoleAddedInvalidValue.error");
-				return "redirect:/facility/platformunit/assign.do?resourceCategoryId=" + resourceCategoryId.intValue();
+		else if ( ! laneSample.getTypeSample().getIName().equals("cell")) { 
+			error = true; waspMessage("platformunit.laneIsNotLane.error");
+		}
+		else if(jobSample.getJobSampleId()==null){//confirm library is really part of this jobId
+			error = true; waspMessage("platformunit.libraryJobMismatch.error");	
+		}
+		else if ("".equals(pmolAdded)) {
+			error = true; waspMessage("platformunit.pmoleAddedInvalidValue.error");	
+		}
+		else{
+			Integer pmolAddedInteger;
+			try{
+				pmolAddedInteger = new Integer(Integer.parseInt(pmolAdded));
+				if(pmolAddedInteger.intValue() <= 0){
+					error = true; waspMessage("platformunit.pmoleAddedInvalidValue.error");
+				}
 			}
+			catch(Exception e){
+				error = true; waspMessage("platformunit.pmoleAddedInvalidValue.error");
+			}
+		}		
+
+		if(error){
+			return return_value;
 		}
-		catch(Exception e){
-			waspMessage("platformunit.pmoleAddedInvalidValue.error");
-			return "redirect:/facility/platformunit/assign.do?resourceCategoryId=" + resourceCategoryId.intValue();
-		}
-				
-/*		if (error != null) {
-			//waspMessage("hello"); // use error
-			m.put("librarySelected", librarySampleId); 
-			m.put("error", error);
-			return assignmentForm(resourceCategoryId.intValue(), m);
-		}
-*/				
-		// ensure lane/flowcell is not locked
-		//a blocked flowcell: one where it's task (102) of Flowcell/Add Library To Lane is FINAL
-		//a blocked lane: something w/ a task of "Flowcell/Add Library" not at the "CREATED" state 
-		//(such as the minor case in case that while the page was worked on someone else put the flow cell into a machine or canceled the flowcell)
-		//At the end of the day, simply ensure that the flowcell exists and has a task of Flowcell/Add Library To Lane and a status of CREATED
+						
+		// ensure flowcell in the "CREATED" state 
+		
 		boolean flowCellIsAvailable = false;
 		List<SampleSource> parentSampleSources = laneSample.getSampleSourceViaSourceSampleId();//should be one
-		//error = "num flow cells is " + parentSampleSources.size();
-		if(parentSampleSources.size()==0){
-			waspMessage("platformunit.flowcellRecordNotFound.error");
-			return "redirect:/facility/platformunit/assign.do?resourceCategoryId=" + resourceCategoryId.intValue();
+		if(parentSampleSources == null || parentSampleSources.size()!=1){
+			error=true; waspMessage("platformunit.flowcellNotFoundNotUnique.error");
 		}
-		Sample flowCell = parentSampleSources.get(0).getSample();
-		if( ! "platformunit".equals(flowCell.getTypeSample().getIName()) ){
-			waspMessage("platformunit.flowcellRecordNotFound.error");
-			return "redirect:/facility/platformunit/assign.do?resourceCategoryId=" + resourceCategoryId.intValue();
-		}
-		Map stateMap = new HashMap(); 
-		Task task = taskService.getTaskByIName("Flowcell/Add Library To Lane");
-		if(task.getTaskId() == 0){
-			waspMessage("platformunit.taskFlowcellAddLibraryNotFound.error");
-			return "redirect:/facility/platformunit/assign.do?resourceCategoryId=" + resourceCategoryId.intValue();
-		}
-		stateMap.put("taskId", task.getTaskId()); 	
-		stateMap.put("status", "CREATED"); 
-		List<State> platformUnitStates = stateService.findByMap(stateMap);
-		for(State s : platformUnitStates){
-			if(flowCellIsAvailable){break;}
-			List<Statesample> stateSampleFlowCells = s.getStatesample();
-			for(Statesample stateSampleFlowCell : stateSampleFlowCells){
-				if(stateSampleFlowCell.getSampleId().intValue() == flowCell.getSampleId().intValue()){
-					flowCellIsAvailable = true;
-					break;
-				}
+		else{
+			Sample flowCell = parentSampleSources.get(0).getSample();
+			if( ! "platformunit".equals(flowCell.getTypeSample().getIName()) ){
+				error=true; waspMessage("platformunit.flowcellNotFoundNotUnique.error");
 			}
-		}
-		if(!flowCellIsAvailable){
-			waspMessage("platformunit.flowcellStateError.error");
-			return "redirect:/facility/platformunit/assign.do?resourceCategoryId=" + resourceCategoryId.intValue();
-		}
-		
-		// TODO ensure lanesample.meta.jobid is the either null or the samejob as librarysampleid
-		//Mt Sinai does not want this restriction implemented(but Einstein does, so must write it later
-		
-		//(1) identify the barcode sequence on the library being added. If problem then terminate. Also identify the barcode of the libraries already on the flowcell; if problem terminate.
-		//(2) if the library being added has a barcode that is NONE, ensure that the lane does not contain other libraries before adding the library to the lane. (if the lane does contain other libraries, then terminate)
-		//(3) if the library being added has a bardcode that is something other than NONE (meaning a real barcode sequence): ensure that the lane does NOT contain any other library with that identical barcode. (if the lane does contain a library with the sampe barcode, then terminate)
-		//(4) if the flowcell already has a library with a barcode of NONE, then the selected library may NOT be added
-	
-		//case 1: identify the barcode for the library being added
-		List<SampleMeta> sampleMetaList = librarySample.getSampleMeta();//should be only one flow cell 
-		Adaptor adaptorOnLibraryBeingAdded = null;
-		//int counter = 1;
-		//logger.debug("ROB: 0");
-		for(SampleMeta sm : sampleMetaList){//sift through the metadata for this sample, looking for sample.library.adaptorid
-			//logger.debug("ROB: " + counter++);
-			//logger.debug("ROB: " + counter++ + "  sm.getK() =  " + sm.getK());
-			//int index = sm.getK().lastIndexOf(".");
-			//logger.debug("ROB: " + counter++ + "  sm.getK().lastIndexOf(.) = " + index);
-			if("adaptorid".equals(sm.getK().substring(sm.getK().lastIndexOf(".") + 1))){
-				//logger.debug("ROB: " + counter++);
-				try{//creating new Integer()
-					adaptorOnLibraryBeingAdded = adaptorService.getAdaptorByAdaptorId(new Integer(sm.getV()));//should really make sure this doesn't throw exception
-					break;//better only be one entry
-				}
-				catch(Exception e){
-					waspMessage("platformunit.adaptorIdError.error");
-					return "redirect:/facility/platformunit/assign.do?resourceCategoryId=" + resourceCategoryId.intValue();
-				}
-			}
-		}
-		
-		if(adaptorOnLibraryBeingAdded == null){
-			waspMessage("platformunit.adaptorNotFoundError.error");
-			return "redirect:/facility/platformunit/assign.do?resourceCategoryId=" + resourceCategoryId.intValue();
-		}
-		if(adaptorOnLibraryBeingAdded.getBarcodesequence()==null || "".equals(adaptorOnLibraryBeingAdded.getBarcodesequence())){
-			waspMessage("platformunit.barcodeNotFoundError.error");
-			return "redirect:/facility/platformunit/assign.do?resourceCategoryId=" + resourceCategoryId.intValue();
-		}
-		String barcodeOnLibBeingAdded = new String(adaptorOnLibraryBeingAdded.getBarcodesequence());
-		
-		//Set seenAdaptors = new HashSet(); //doesn't seem to be used
-		//Integer jobId = null; //doesn't seem to be used
-
-		int counter = 1;
-		logger.debug("0 ROB : 0");
-		int maxIndex = 0; 
-		List<SampleSource> siblingSampleSource = laneSample.getSampleSource(); //these are the libraries already on the flowcell
-		List<Adaptor> adaptorsAlreadyOnFlowCell  = new ArrayList<Adaptor>();
-		
-		if(siblingSampleSource != null && siblingSampleSource.size() > 0 && "NONE".equals(barcodeOnLibBeingAdded) ){//case 2: the library being added has barcode NONE AND the lane to which user wants to add it already contains one or more libraries, then not permitted
-			waspMessage("platformunit.libLackBarcodeFlowcellHasLibErr.error");
-			return "redirect:/facility/platformunit/assign.do?resourceCategoryId=" + resourceCategoryId.intValue();
-		}
-		
-		logger.debug("1 ROB : " + counter++);
-		if (siblingSampleSource != null) {//siblingSampleSource is list of samplesource objects that harbor libraries on this cell (lane) through source_sampleid
-			//logger.debug("2  ROB : " + counter++);
-			for (SampleSource ss: siblingSampleSource) {
-				
-				//TODO HERE IS THE CODE TO MAKE SURE THAT EACH LIBRARY ON A LANE IS FROM THE SAME JOB. 
-				//REMEMBER THAT THIS RULE MAY NOT BE WANTED BY Mt. Sinai 
-				//THIS WILL FAIL IMMEDIATELY (now) since jobId is not yet on existing records of libraries on flow cells.
-			/*	SampleSourceMeta record = sampleSourceMetaService.getSampleSourceMetaByKSampleSourceId("jobId", ss.getSampleSourceId());
-				if(record.getV() != null && record.getV() != "" && record.getV().equals(jobId.toString()) ){
-					error = "Lanes must contain samples from the same job. Unable to add library to this lane.";
-					m.put("librarySelected", librarySampleId); 
-					m.put("error", error);
-					return assignmentForm(resourceCategoryId.intValue(), m);//must fix this fix
-				}
-				*/
-				
-				logger.debug("3 ROB : " + counter++);
-				//the source_sampleid of the each samplesource object will be the sampleid of the libraries on this cell (lane)
-				Sample libraryAlreadyOnLane = ss.getSampleViaSource();
-				logger.debug("4 ROB : " + counter++);
-				logger.debug("4.5 ROB : " + counter++ + " sample name = " + libraryAlreadyOnLane.getName());
-
-				List<SampleMeta> libraryAlreadyOnLaneMetaList = libraryAlreadyOnLane.getSampleMeta();
-				logger.debug("5 ROB : " + counter++);
-				for(SampleMeta sm : libraryAlreadyOnLaneMetaList){
-					logger.debug("6 ROB : " + counter++ + " sampleid = " + sm.getSampleId() + " sampleMetaId = " + sm.getSampleMetaId());
-					logger.debug("6 ROB : " + counter++ + " sampleid = " + sm.getSampleId() + " sampleMetaId = " + sm.getSampleMetaId());
-					if( sm.getK() != null && "adaptorid".equals(sm.getK().substring(sm.getK().lastIndexOf(".") + 1)) ){
-						logger.debug("7 TRUE they equal ROB : " + counter++);
-						Adaptor libraryAdaptorAlreadyOnFlowCell;
-						try{
-							libraryAdaptorAlreadyOnFlowCell = adaptorService.getAdaptorByAdaptorId(new Integer(sm.getV()));
-						}
-						catch(Exception e){
-							waspMessage("platformunit.adaptorIdError.error");
-							return "redirect:/facility/platformunit/assign.do?resourceCategoryId=" + resourceCategoryId.intValue();
-						}
-						adaptorsAlreadyOnFlowCell.add(libraryAdaptorAlreadyOnFlowCell);
-						/*
-						if(libraryAdaptorAlreadyOnFlowCell.getBarcodesequence()==null || "".equals(libraryAdaptorAlreadyOnFlowCell.getBarcodesequence())){
-							error = "The Library on this flow cell has an Adaptor with no barcode. Therefore, you may not add another library to this lane.";
-						}else if(libraryAdaptorAlreadyOnFlowCell.getAdaptorId().intValue() == adaptorOnLibraryBeingAdded.getAdaptorId().intValue()){
-							error = "A Library on this flow cell carries the identical Adaptor as the library you wish to add. Operation Denied.";
-						}
-						else if(libraryAdaptorAlreadyOnFlowCell.getBarcodesequence().equals(adaptorOnLibraryBeingAdded.getBarcodesequence())){
-							error = "A library on this flow cell carries the same index barcode as the library you wish to add. Operation Denied.";
-						}
-						*/
+			else{
+				Map stateSampleMap = new HashMap(); 
+				stateSampleMap.put("sampleId", flowCell.getSampleId());
+				List<Statesample> stateSampleList = stateSampleService.findByMap(stateSampleMap);
+				for(Statesample stateSample : stateSampleList){
+					if(stateSample.getState().getTask().getIName().equals("Flowcell/Add Library To Lane")){
+						flowCellIsAvailable=true;
+						break;
 					}
 				}
+				if(!flowCellIsAvailable){
+					error=true; waspMessage("platformunit.flowcellStateError.error");
+				}
+			}
+		}
+		if(error){
+			return return_value;
+		}
+	
+		//(1) identify the barcode sequence on the library being added. If problem then terminate. 
+		//(2) if the library being added has a barcode that is NONE, and the lane contains ANY OTHER LIBRARY, then terminate. 
+		//(3) identify barcode of libraries already on lane; if problem, terminate. Should also get their jobIds.
+		//(4) if the lane already has a library with a barcode of NONE, then terminate
+		//(5) if the library being added has a bardcode that is something other than NONE (meaning a real barcode sequence) AND if a library already on the lane has that same barcode, then terminate. 
+		//(6) do we want to maintain only a single jobId for a lane???
+		
+		//case 1: identify the adaptor barcode for the library being added; it's barcode is either NONE (no multiplexing) or has some more interesting barcode sequence (for multiplexing, such as AACTG)
+		Adaptor adaptorOnLibraryBeingAdded = null;
+		SampleMeta sampleMeta = sampleMetaService.getSampleMetaByKSampleId("sample.library.adaptorid", librarySampleId);
+		if(sampleMeta==null || sampleMeta.getSampleMetaId()==null){
+			error=true; waspMessage("platformunit.adaptorNotFound.error");
+		}
+		else{
+			try{
+				adaptorOnLibraryBeingAdded = adaptorService.getAdaptorByAdaptorId(new Integer(sampleMeta.getV()));
+				if(adaptorOnLibraryBeingAdded==null || adaptorOnLibraryBeingAdded.getAdaptorId()==null){
+					error=true; waspMessage("platformunit.adaptorNotFound.error");
+				}
+				else if( adaptorOnLibraryBeingAdded.getBarcodesequence()==null || "".equals(adaptorOnLibraryBeingAdded.getBarcodesequence()) ){
+					error=true; waspMessage("platformunit.adaptorBarcodeNotFound.error");
+				}
+			}
+			catch(Exception e){
+				error=true; waspMessage("platformunit.adaptorNotFound.error");
+			}
+		}
+		if(error){
+			return return_value;
+		}
+		
+		int maxIndex = 0; 
+		List<SampleSource> siblingSampleSource = laneSample.getSampleSource(); //Samplesource objects that have this lane's sampleId as samplesource.sampleId
+		String barcodeOnLibBeingAdded = new String(adaptorOnLibraryBeingAdded.getBarcodesequence());
+
+		//case 2: dispense with this easy check 
+		if( "NONE".equals(barcodeOnLibBeingAdded) && siblingSampleSource != null && siblingSampleSource.size() > 0  ){//case 2: the library being added has a barcode of "NONE" AND the lane to which user wants to add this library already contains one or more libraries (such action is prohibited)
+			waspMessage("platformunit.libNoneLaneOthers.error");
+			return return_value;
+		}
+		
+		//cases 3, 4, 5, 6 
+		if (siblingSampleSource != null) {//siblingSampleSource is list of samplesource objects that harbor libraries on this cell (lane) through source_sampleid
+		
+			for (SampleSource ss: siblingSampleSource) {
 				
-				if (ss.getMultiplexindex().intValue() > maxIndex) {
+				if (ss.getMultiplexindex().intValue() > maxIndex) {//housekeeping; will be needed for the INSERT into samplesource (at end of method)
 					maxIndex = ss.getMultiplexindex().intValue(); 
 				}
-				//THIS IS NOT GOOD. This job_id would not take into account samples that are on multiple jobs.
-				//what exactly is this next line for?
-				//jobId = ss.getSampleViaSource().getSubmitterJobId();//useful only if one job per lane (may not always be the case).
-			}
+				
+				Sample libraryAlreadyOnLane = ss.getSampleViaSource();//this is a library already on the selected lane
+				if( ! libraryAlreadyOnLane.getTypeSample().getIName().equals("library") ){//confirm it's a library
+					error=true; waspMessage("platformunit.libOnLaneNotLib.error");
+				}
+				else{					
+					SampleMeta sampleMeta2 = sampleMetaService.getSampleMetaByKSampleId("sample.library.adaptorid", libraryAlreadyOnLane.getSampleId());
+					if(sampleMeta2==null || sampleMeta2.getSampleMetaId()==null){
+						error=true; waspMessage("platformunit.adaptorOnLaneNotFound.error");
+					}
+					else{
+						try{
+							Adaptor adaptorOnLane = adaptorService.getAdaptorByAdaptorId(new Integer(sampleMeta2.getV()));
+							if(adaptorOnLane==null || adaptorOnLane.getAdaptorId()==null){
+								error=true; waspMessage("platformunit.adaptorOnLaneNotFound.error");
+							}
+							else if( adaptorOnLane.getBarcodesequence()==null || "".equals(adaptorOnLane.getBarcodesequence()) ){
+								error=true; waspMessage("platformunit.adaptorBarcodeOnLaneNotFound.error");
+							}
+							else if( "NONE".equals(adaptorOnLane.getBarcodesequence()) ){//case 4
+								error=true; waspMessage("platformunit.libWithNoneOnLane.error");
+							}
+							else if(adaptorOnLane.getBarcodesequence().equals(barcodeOnLibBeingAdded)){//case 5, lib already on lane with same barcode as library user wants to add to the lane
+								error=true;  waspMessage("platformunit.barcodeAlreadyOnLane.error");
+							}
+							else{//case 6
+								JobSample jobSample2 = jobSampleService.getJobSampleByJobIdSampleId(jobId, libraryAlreadyOnLane.getSampleId());//confirm library is really part of this jobId
+								if(jobSample2 == null || jobSample2.getJobSampleId()==null){//this library, already on the lane, is from a different job
+									;//for now do nothing
+									//If Einstein, then terminate (lane restricted to libraries from single job) 
+									//error=true;  waspMessage("platformunit.libJobClash.error");
+									//if SloanKettering, then do nothing (what's the flag)
+								}
+							}
+						}
+						catch(Exception e){
+							error=true; waspMessage("platformunit.adaptorOnLaneNotFound.error");//exception from new Integer();
+						}
+					}					
+				}
+				if(error){
+					return return_value;
+				}	
+			}	
 		}
 		
-		if(siblingSampleSource != null && siblingSampleSource.size() != adaptorsAlreadyOnFlowCell.size()){//a library is missing a valid barcode
-			waspMessage("platformunit.adaptorsOnLibrariesError.error");
-			return "redirect:/facility/platformunit/assign.do?resourceCategoryId=" + resourceCategoryId.intValue();
-		}
-		
-		for(Adaptor adaptor : adaptorsAlreadyOnFlowCell){
-			if(adaptor.getBarcodesequence()==null || "".equals(adaptor.getBarcodesequence())){//case 1; adaaptors on libraries already on flowcell
-				waspMessage("platformunit.barcodeMissingOnFlowcellError.error");
-				return "redirect:/facility/platformunit/assign.do?resourceCategoryId=" + resourceCategoryId.intValue();
-			}
-			else if("NONE".equals(adaptor.getBarcodesequence())){//case 4, library on lane without a multiplex barcode sequece
-				waspMessage("platformunit.libWithNoneOnLaneError.error");
-				return "redirect:/facility/platformunit/assign.do?resourceCategoryId=" + resourceCategoryId.intValue();
-			}
-			else if(adaptor.getBarcodesequence().equals(barcodeOnLibBeingAdded)){//case 3, lib on lane with same barcode
-				waspMessage("platformunit.barcodeAlreadyOnFlowcellError.error");
-				return "redirect:/facility/platformunit/assign.do?resourceCategoryId=" + resourceCategoryId.intValue();
-			}			
-		}
-		
-		//REMOVE THIS
-/*		waspMessage("platformunit.TESTING.success");
+		//MUST REMOVE THIS
+/*****	waspMessage("platformunit.TESTING.success");
 		//return assignmentForm(resourceCategoryId.intValue(), m);//with this way, the page is not updated, so the newly added library does NOT appear on the left side of the page
 		if(1==1){
-			return "redirect:/facility/platformunit/assign.do?resourceCategoryId=" + resourceCategoryId.intValue();//with this way, the page is updated but map is not passed, so SUCCESS is not displayed
+			logger.debug("123 ROBERT : success");
+			return "redirect:/facility/platformunit/assign.do?resourceCategoryId=" + resourceCategoryId.intValue() + "&jobsToWorkWith=" + jobsToWorkWith.intValue();
 		}
-*/
+*****/
 		
 		SampleSource newSampleSource = new SampleSource(); 
 		newSampleSource.setSampleId(laneSampleId);
@@ -1281,21 +1227,18 @@ public class PlatformUnitController extends WaspController {
 		newSampleSourceMeta.setSampleSourceId(newSampleSource.getSampleSourceId());
 		newSampleSourceMeta.setK("pmoleAdded");
 		newSampleSourceMeta.setV(pmolAdded.toString());
-		//newSampleSourceMeta.setK("jobId");
-		//newSampleSourceMeta.setV(jobId.toString());
 		newSampleSourceMeta.setPosition(new Integer(0));
 		sampleSourceMetaService.save(newSampleSourceMeta);
 		
 		SampleSourceMeta newSampleSourceMeta2 = new SampleSourceMeta();
 		newSampleSourceMeta2.setSampleSourceId(newSampleSource.getSampleSourceId());
-		newSampleSourceMeta2.setK("jobId");
+		newSampleSourceMeta2.setK("jobId");//Ed says we donot need this here
 		newSampleSourceMeta2.setV(jobId.toString());
 		newSampleSourceMeta2.setPosition(new Integer(1));
 		sampleSourceMetaService.save(newSampleSourceMeta2);
 		
 		waspMessage("platformunit.libAdded.success");
-		//return assignmentForm(resourceCategoryId.intValue(), m);//with this way, the page is not updated, so the newly added library does NOT appear on the left side of the page
-		return "redirect:/facility/platformunit/assign.do?resourceCategoryId=" + resourceCategoryId.intValue();//with this way, the page is updated but map is not passed, so SUCCESS is not displayed
+		return return_value;
 	}	
 
   /**
@@ -1304,21 +1247,36 @@ public class PlatformUnitController extends WaspController {
 	 * @param sampleSourceId
    *
    */
-	@RequestMapping(value="/assignRemove.do", method=RequestMethod.POST)
+	@RequestMapping(value="/assignRemove.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('ft')")
 	public String assignmentRemove(
 			@RequestParam("samplesourceid") int sampleSourceId,
+			@RequestParam("resourceCategoryId") Integer resourceCategoryId,
+			@RequestParam("jobsToWorkWith") Integer jobsToWorkWith,
     ModelMap m) {
 
-		SampleSource sampleSource = sampleSourceService.getSampleSourceBySampleSourceId(sampleSourceId);
-
-		// TODO 
-		// - check existence
-		// - check that it is lib->lane link
-
+		SampleSource sampleSource = sampleSourceService.getSampleSourceBySampleSourceId(sampleSourceId);//this samplesource should represent a cell->lib link, where sampleid is the cell and source-sampleid is the library 
+		if(sampleSource.getSampleSourceId()==0){//check for existence
+			waspMessage("platformunit.sampleSourceNotExist.error");
+			return "redirect:/facility/platformunit/assign.do?resourceCategoryId=" + resourceCategoryId.intValue() + "&jobsToWorkWith=" + jobsToWorkWith.intValue();
+		}
+		//check that this represents a cell->lib link
+		Sample putativeLibrary = sampleSource.getSampleViaSource();
+		Sample putativeCell = sampleSource.getSample();
+		if( ! putativeLibrary.getTypeSample().getIName().equals("library") || ! putativeCell.getTypeSample().getIName().equals("cell") ){
+			waspMessage("platformunit.samplesourceTypeError.error");
+			return "redirect:/facility/platformunit/assign.do?resourceCategoryId=" + resourceCategoryId.intValue() + "&jobsToWorkWith=" + jobsToWorkWith.intValue();//with this way, the page is updated but map is not passed, so SUCCESS is not displayed
+		}
+		//delete the metadata 
+		List<SampleSourceMeta> sampleSourceMetaList = sampleSourceMetaService.getSampleSourceMetaBySampleSourceId(sampleSource.getSampleSourceId());
+		for(SampleSourceMeta ssm : sampleSourceMetaList){
+			sampleSourceMetaService.remove(ssm);
+			sampleSourceMetaService.flush(ssm);
+		}
 		sampleSourceService.remove(sampleSource);
 		sampleSourceService.flush(sampleSource);
 
-		return "redirect:/facility/platformunit/assign.do";
+		waspMessage("platformunit.libraryRemoved.success");
+		return "redirect:/facility/platformunit/assign.do?resourceCategoryId=" + resourceCategoryId.intValue() + "&jobsToWorkWith=" + jobsToWorkWith.intValue();//with this way, the page is updated but map is not passed, so SUCCESS is not displayed
   }
 }

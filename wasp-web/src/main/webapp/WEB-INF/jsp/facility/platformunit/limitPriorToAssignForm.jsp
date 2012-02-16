@@ -20,7 +20,7 @@
 <tr><td>Choose A Job</td><td>
 <form method="GET" action="<c:url value="/facility/platformunit/assign.do" />">
 <input type="hidden" name="resourceCategoryId" value="<c:out value="${resourceCategoryId}" />" />
-<select name="jobId" size="1">
+<select name="jobsToWorkWith" size="1">
 	<option value="0">--SELECT A JOB--
 	<c:if test='${fn:length(jobList) > "1"}'>
 		<option value="<c:out value="-1" />"><c:out value="All Available Jobs" /> 
@@ -30,7 +30,7 @@
 	</c:forEach>
  </select>
  <br /><br />
- <c:if test='${fn:length(jobList) > "1"}'> 
+ <c:if test='${fn:length(jobList) > "0"}'> 
   <input type="submit" value="Submit">  
  </c:if>
 </form> 

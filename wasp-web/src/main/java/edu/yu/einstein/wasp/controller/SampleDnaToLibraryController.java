@@ -2,6 +2,13 @@ package edu.yu.einstein.wasp.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 import javax.validation.Valid;
 
@@ -18,11 +25,14 @@ import org.springframework.web.bind.support.SessionStatus;
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobSample;
+import edu.yu.einstein.wasp.model.JobCell;
 import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.SampleCell;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.service.SampleMetaService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.JobService;
+import edu.yu.einstein.wasp.service.JobCellService;
 
 @Controller
 @Transactional
@@ -40,6 +50,8 @@ public class SampleDnaToLibraryController extends WaspController {
 
   @Autowired
   private SampleMetaService sampleMetaService;
+  @Autowired
+  private JobCellService jobCellService;
   @Autowired
   private JobService jobService;
 
@@ -212,21 +224,45 @@ public class SampleDnaToLibraryController extends WaspController {
   @RequestMapping(value="/listJobSamples/{jobId}", method=RequestMethod.GET)
   public String listJobSamples(@PathVariable("jobId") Integer jobId, ModelMap m) {
     
-	  Integer jobIdAsInteger = new Integer(jobId);
-	  List<Sample> userSuppliedSampleList = new ArrayList<Sample>();
+	  Job job = jobService.getJobByJobId(jobId);
+	  if(job==null || job.getJobId()==null || job.getJobId().intValue()==0){
+		  //TODO waspMessage and return
+	  }
+	  Set<Sample> sampleSet = new HashSet<Sample>();//use this to store a set of unique samples submitted by the user for a specific job
+	  Map filterJobCell = new HashMap();
+	  filterJobCell.put("jobId", job.getJobId());
+	  List<JobCell> jobCells = jobCellService.findByMap(filterJobCell);
+	  for(JobCell jobCell : jobCells){
+		  List<SampleCell> sampleCells = jobCell.getSampleCell();
+		  for(SampleCell sampleCell : sampleCells){
+			   sampleSet.add(sampleCell.getSample());
+		  }
+	  }
+	  
+	  List<Sample> userSuppliedMacromoleculeList = new ArrayList<Sample>();
 	  List<Sample> userSuppliedLibraryList = new ArrayList<Sample>();
-	  Job job = jobService.getJobByJobId(jobIdAsInteger);
+	  for(Sample sample : sampleSet){
+		  if(sample.getTypeSample().getTypeSampleId()==1 || sample.getTypeSample().getTypeSampleId()==2){
+			  userSuppliedMacromoleculeList.add(sample);
+		  }
+		  else if(sample.getTypeSample().getTypeSampleId()==3){
+			  userSuppliedLibraryList.add(sample);
+		  }
+	  }
+	
+	  /*
 	  Integer jobSubmitterId = job.getUserId();
 	  for(JobSample jobSample : job.getJobSample()){
 		  if(jobSample.getSample().getTypeSample().getTypeSampleId()==1 || jobSample.getSample().getTypeSample().getTypeSampleId()==2){
-			  userSuppliedSampleList.add(jobSample.getSample());
+			  userSuppliedMacromoleculeList.add(jobSample.getSample());
 		  }
-		  else if(jobSample.getSample().getTypeSample().getTypeSampleId()==3 && jobSubmitterId == jobSample.getSample().getSubmitterUserId()){
+		  else if(jobSample.getSample().getTypeSample().getTypeSampleId()==3){
 			  userSuppliedLibraryList.add(jobSample.getSample());
 		  }
 	  }
+	  */
 	  m.addAttribute("job", job);
-	  m.addAttribute("userSuppliedSampleList", userSuppliedSampleList);
+	  m.addAttribute("userSuppliedMacromoleculeList", userSuppliedMacromoleculeList);
 	  m.addAttribute("userSuppliedLibraryList", userSuppliedLibraryList);
 	  //m.put("libraries", libraries);
 
