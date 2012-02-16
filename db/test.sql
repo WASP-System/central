@@ -106,7 +106,8 @@ insert into samplesource
 values
 (3, 1, 1, 1, now());
 
-insert into jobsample values (4, 1, 3, now(), 1);
+--link library to... takes care of this
+-- insert into jobsample values (4, 1, 3, now(), 1);
 
 update state set status = "COMPLETED" where name like '%Create Library%' and status != 'FINALIZED';
 
