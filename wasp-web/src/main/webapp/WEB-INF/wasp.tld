@@ -122,6 +122,14 @@
 		</attribute>
 		<attribute>
             <!-- 
+			<description>Read-only field in edit view if set</description>
+            -->
+			<name>editReadOnly</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+            <!-- 
 			<description>Sortable field if set</description>
             -->
 			<name>sortable</name>

@@ -68,6 +68,9 @@ public class JQFieldTag extends BodyTagSupport {
 	//Read-only field
 	private String readOnly;
 	
+	//Read-only field
+	private String editReadOnly;
+	
 	//Sortable field
 	private String sortable;
 	
@@ -162,6 +165,10 @@ public class JQFieldTag extends BodyTagSupport {
 	
 	public void setEditHidden(String eh) {
 		this.editHidden = eh;
+	}
+
+	public void setEditReadOnly(String eh) {
+		this.editReadOnly = eh;
 	}
 	public void setHidden(String hd) {
 		this.hidden = hd;
@@ -353,6 +360,12 @@ public class JQFieldTag extends BodyTagSupport {
 					jsName + ".jq['formatoptions']={disabled : true};\n" + 
 					jsName + ".jq['align']='center';\n" + 
 					jsName + ".jq['search']=false;\n";
+				
+			}else if (type==Type.text) {
+				buf = buf + 
+						jsName + ".jq['edittype']='text';\n" + 
+						jsName + ".jq['editoptions']={value:''};\n";
+						
 			}
 			
 	
@@ -377,6 +390,11 @@ public class JQFieldTag extends BodyTagSupport {
 				buf = buf + 
 					jsName + ".jq['editable']=false;\n";
 			}
+			if (this.editReadOnly!=null  && this.editReadOnly.equals("true")) {
+				buf = buf + 
+					jsName + ".jq['editoptions']['readonly']='readonly';\n";
+			}
+	
 	
 			if (this.sortable!=null  && this.sortable.equals("true")) {
 				buf = buf + 

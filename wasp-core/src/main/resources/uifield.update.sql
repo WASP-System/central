@@ -508,6 +508,10 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','lanecount','constraint','NotEmpty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','lanecount','error','Lane Count cannot be empty','1');
 
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','lanecount','control','select:${lanes}:laneCount:label','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','lanecount','metaposition','60','1');
+
+
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','updated_success','label','Platformunit updated sucessfully.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','created_success','label','Platformunit created sucessfully.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','updated','error','Platformunit was NOT updated. Please fill in required fields.','1');

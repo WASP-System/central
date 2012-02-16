@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
 
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
+import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Adaptorset;
 import edu.yu.einstein.wasp.model.Barcode;
@@ -214,7 +215,9 @@ public class PlatformUnitController extends WaspController {
 		
 		Integer maxCellNum = null;
 		Integer multFactor = null;
-		Map<Integer, String> laneOptionsMap = new HashMap<Integer, String>();
+		class LaneOptions {public Integer laneCount; public String label; public LaneOptions(Integer lc, String l){this.laneCount=lc;this.label=l;}}
+		List <LaneOptions> laneOptionsMap = new ArrayList <LaneOptions> ();
+		//Map<Integer, String> laneOptionsMap = new HashMap<Integer, String>();
 		
 		for (SubtypeSampleMeta subtypeSampleMeta : subtypeSampleMetaList) {
 			if (subtypeSampleMeta.getK().matches(".*\\.maxCellNumber")) {
@@ -227,17 +230,21 @@ public class PlatformUnitController extends WaspController {
 		
 		if (multFactor == null || multFactor.intValue() <= 1) {
 			
-			laneOptionsMap.put(new Integer(1), "1");
-			laneOptionsMap.put(maxCellNum, maxCellNum.toString());
+			//laneOptionsMap.put(new Integer(1), "1");
+			//laneOptionsMap.put(maxCellNum, maxCellNum.toString());
+			laneOptionsMap.add(new LaneOptions(new Integer(1), "1"));
+			laneOptionsMap.add(new LaneOptions(maxCellNum, maxCellNum.toString()));
 			
 		}
 		else {
-			laneOptionsMap.put(new Integer(1), "1");
+			//laneOptionsMap.put(new Integer(1), "1");
+			laneOptionsMap.add(new LaneOptions(new Integer(1), "1"));
 			
 			for (int i=1; i <= (maxCellNum.intValue()/multFactor); i++) {
 				
 				Integer cellNum = new Integer(multFactor.intValue() * i);
-				laneOptionsMap.put(cellNum, cellNum.toString());
+				//laneOptionsMap.put(cellNum, cellNum.toString());
+				laneOptionsMap.add(new LaneOptions(cellNum, cellNum.toString()));
 			}
 		}
 
@@ -458,6 +465,8 @@ public class PlatformUnitController extends WaspController {
 				allBarcode.put(barcode.getBarcodeId(), barcode.getBarcode());
 			}
 		}
+		
+		
 
 		int pageIndex = Integer.parseInt(request.getParameter("page")); // index of page
 		int pageRowNum = Integer.parseInt(request.getParameter("rows")); // number of rows in one page
@@ -568,7 +577,7 @@ public class PlatformUnitController extends WaspController {
 		sampleBarcode.setBarcodeId(barcodeDB.getBarcodeId()); // set new barcodeId in samplebarcode
 
 		preparePlatformUnit(sampleForm);
-		Integer laneCount = new Integer(request.getParameter("lanecount"));
+		Integer laneCount = new Integer(request.getParameter("platformunitInstance.lanecount"));
 		updatePlatformUnitInstance(sampleForm, sampleBarcode, laneCount);
 
 		try {
@@ -639,6 +648,8 @@ public class PlatformUnitController extends WaspController {
 			sampleForm.setReceiveDts(new Date());
 			sampleForm.setIsReceived(1);
 			sampleForm.setIsActive(1);
+			sampleForm.setIsGood(1);
+			
 		} else {
 			Sample sampleDb =	sampleService.getSampleBySampleId(sampleForm.getSampleId());
 
@@ -667,34 +678,29 @@ public class PlatformUnitController extends WaspController {
 		for (int i = 0; i < laneNumber.intValue(); i++) {
 			 Sample sampleDb = null;
 			 Sample cell = new Sample();
+			 cell.setSubmitterLabId(sampleForm.getSubmitterLabId());
 			 cell.setSubmitterUserId(sampleForm.getSubmitterUserId());
 			 cell.setName(sampleForm.getName()+"/"+(i+1));
 			 cell.setTypeSampleId(typeSampleId);
+			 cell.setIsGood(1);
 			 cell.setIsActive(1);
+			 cell.setIsReceived(1);
+			 cell.setReceiverUserId(sampleForm.getSubmitterUserId());
+			 cell.setReceiveDts(new Date());
 			 sampleDb = this.sampleService.save(cell);
 			 
 			 SampleSource sampleSource = new SampleSource();
-			 sampleSource.setSampleId(sampleDb.getSampleId());
-			 sampleSource.setSourceSampleId(sampleForm.getSampleId());
+			 sampleSource.setSampleId(sampleForm.getSampleId());
+			 sampleSource.setSourceSampleId(sampleDb.getSampleId());
+			 sampleSource.setMultiplexindex(i+1);
 			 this.sampleSourceService.save(sampleSource);
   			 //Is this required?
-			 //sampleMetaService.updateBySampleId(sampleDb.getSampleId(), sampleForm.getSampleMeta());
+			 //sampleMetaService.updateBySampleId(sampleForm.getSampleId(), sampleForm.getSampleMeta());
 			 
 		 }
-
-
 		//	return "facility/platformunit/ok";
 		return "redirect:/facility/platformunit/ok";
 	}
-	
-	//TO DO:
-	int getLaneCount() {
-		
-		int lane = 0;
-		
-		return lane;
-	}
-	
 
 	public String validateAndUpdatePlatformUnit(
 		Sample sampleForm,
@@ -768,12 +774,45 @@ public class PlatformUnitController extends WaspController {
 			this.sampleBarcodeService.merge(sampleBarcodeDB);
 
 		}
+		
+		List<SampleMeta> mySampleMeta = sampleDb.getSampleMeta();
+		MetaHelperWebapp sampleMetaHelper = getMetaHelperWebappPlatformUnitInstance();
+		List<SampleMeta> normalizedSampleMeta = sampleMetaHelper.syncWithMaster(mySampleMeta);
+		try {
+			sampleMetaHelper.setMetaValueByName("lanecount", laneCount.toString(), normalizedSampleMeta);
+		} catch (MetadataException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} // set a value for a member of the list by name
+		sampleMetaService.updateBySampleId(sampleDb.getSampleId(), normalizedSampleMeta); // now we get the list and persist it
 
-		sampleMetaService.updateBySampleId(sampleDb.getSampleId(), sampleForm.getSampleMeta());
-
+		//create cells based on number of lanes selected by the user
 		createCell(sampleDb, laneCount);
 		
+		createState(sampleDb);
+		
+		
 		return "redirect:/facility/platformunit/ok";
+	}
+	
+	public void createState(Sample sampleDb) {
+		
+		Map<String, String> taskQueryMap = new HashMap<String, String>();
+		taskQueryMap.put("iName", "sampleWrapTask");
+
+		List <Task> task = new ArrayList <Task> (this.taskService.findByMap(taskQueryMap));
+		State state = new State();
+		state.setTaskId(task.get(0).getTaskId());
+		state.setName("Platform Unit");
+		state.setStatus("CREATED");
+		state.setLastUpdTs(new Date());
+		State stateDb = this.stateService.save(state);
+		
+		Statesample stateSample = new Statesample();
+		stateSample.setSampleId(sampleDb.getSampleId());
+		stateSample.setStateId(stateDb.getStateId());
+		this.stateSampleService.save(stateSample);
+		
 	}
 
 	/**
