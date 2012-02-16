@@ -5,8 +5,6 @@
   http://www.springframework.org/schema/context/spring-context-3.1.xsd 
   http://www.springframework.org/schema/mvc 
   http://www.springframework.org/schema/mvc/spring-mvc-3.1.xsd  
-  http://www.springframework.org/schema/aop 
-  http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
   http://www.springframework.org/schema/tx
   http://www.springframework.org/schema/tx/spring-tx-3.1.xsd
   http://www.springframework.org/schema/integration
@@ -15,7 +13,6 @@
   http://www.springframework.org/schema/integration/file/spring-integration-file-2.0.xsd"
    
   xmlns:mvc="http://www.springframework.org/schema/mvc"  
-  xmlns:aop="http://www.springframework.org/schema/aop" 
   xmlns:context="http://www.springframework.org/schema/context" 
   xmlns:p="http://www.springframework.org/schema/p" 
   xmlns:tx="http://www.springframework.org/schema/tx"
@@ -80,18 +77,6 @@
 
 
   <mvc:annotation-driven /> 
-
-  <!-- bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">  
-    <property name="viewClass" value="org.springframework.web.servlet.view.JstlView" />
-    <property name="prefix" value="/WEB-INF/jsp/" />
-    <property name="suffix" value=".jsp" />
-    <property name="contentType" value="text/html;charset=UTF-8" />           
-  </bean-->
-
-<bean id="viewResolver" class="org.springframework.web.servlet.view.UrlBasedViewResolver">
-  <property name="viewClass" value="org.springframework.web.servlet.view.tiles2.WaspTilesView"/>
-</bean>
-
 
   <!-- locale -->
   <mvc:interceptors>
@@ -186,21 +171,29 @@
   <!-- Spring Integration/Batch config-->
   <!-- 
   <import resource="spring-integration-batch.xml" />
-  <import resource="bee-job-filepoller.xml" />
-  <import resource="bee-job-fileproccessor.xml" />
     -->
     
   <!-- load constant string value definitions -->
   <import resource="classpath*:static-values-definition.xml" />
 
-  <!-- load --> 
-  <import resource="classpath*:wasp/*UiFieldLoad.xml" />
-  <import resource="classpath*:wasp/*ResourceCategoryLoad.xml" />
-  <import resource="classpath*:wasp/*SoftwareLoad.xml" />
-  <import resource="classpath*:wasp/*SubtypeSampleLoad.xml" />
-  <import resource="classpath*:wasp/*AdaptorsetLoad.xml" />
+  <!-- spring plugin definitions -->
+  <import resource="classpath*:META-INF/**/waspPlugin*.xml" />
+
+  <!-- load into db tables--> 
+  <import resource="classpath*:wasp/**/*UiFieldLoad.xml" />
+  <import resource="classpath*:wasp/**/*ResourceCategoryLoad.xml" />
+  <import resource="classpath*:wasp/**/*SoftwareLoad.xml" />
+  <import resource="classpath*:wasp/**/*SubtypeSampleLoad.xml" />
+  <import resource="classpath*:wasp/**/*AdaptorsetLoad.xml" />
   <import resource="classpath*:wasp/**/*TaskLoad.xml" />
-  <import resource="classpath*:wasp/*WorkflowLoad.xml" />
+  <import resource="classpath*:wasp/**/*WorkflowLoad.xml" />
+
+
+  <!-- extracts plugin's precompiled jsp files --> 
+  <bean id="jspSupport" class="edu.yu.einstein.wasp.tiles.WaspJspPluginSupport">
+    <constructor-arg index="0" value="WEB-INF/jsp"/>
+    <constructor-arg index="1" value="**/*.*"/>
+  </bean>
 
 </beans>
 
