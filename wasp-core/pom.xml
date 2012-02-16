@@ -10,10 +10,33 @@
 
 	<artifactId>wasp-core</artifactId>
 	<packaging>jar</packaging>
-
 	<name>WASP core API</name>
 
 	<build>
+          <resources>
+            <resource>
+             <targetPath>WEB-INF</targetPath>
+             <filtering>true</filtering>
+             <directory>src/main/webapp/WEB-INF</directory>
+            </resource>
+            <resource>
+             <targetPath>.</targetPath>
+             <filtering>true</filtering>
+             <directory>src/main/resources</directory>
+            </resource>
+           </resources>
+
+		<plugins>
+
+   
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>2.1.1</version>
+
+   		</plugin>
+		</plugins>
+
 		<pluginManagement>
 			<plugins>
 				<plugin>
@@ -30,9 +53,9 @@
 					</executions>
 					<configuration>
 						<executable>java</executable>
-  						<longClasspath>true</longClasspath>
-  						<commandlineArgs>-classpath src/main/resources</commandlineArgs>
-  						<mainClass>edu.yu.einstein.wasp.batch.StartSpring</mainClass>
+						<longClasspath>true</longClasspath>
+						<commandlineArgs>-classpath src/main/resources</commandlineArgs>
+						<mainClass>edu.yu.einstein.wasp.batch.StartSpring</mainClass>
 					</configuration>
 				</plugin>
 				<plugin>
@@ -320,6 +343,7 @@
 				<groupId>org.springframework.security</groupId>
 				<artifactId>spring-security-web</artifactId>
 			</dependency>
+<!-- not including 
 			<dependency>
 				<groupId>taglibs</groupId>
 				<artifactId>standard</artifactId>
@@ -356,6 +380,7 @@
 				<groupId>org.apache.tiles</groupId>
 				<artifactId>tiles-template</artifactId>
 			</dependency>
+/not including  -->
 			<dependency>
 				<groupId>javax.validation</groupId>
 				<artifactId>validation-api</artifactId>
@@ -368,10 +393,12 @@
 				<groupId>javax.servlet</groupId>
 				<artifactId>javax.servlet-api</artifactId>
 			</dependency>
+<!--
 			<dependency>
 				<groupId>org.gatein.captcha</groupId>
 				<artifactId>simplecaptcha</artifactId>
 			</dependency>
+-->
 			<dependency>
 				<groupId>commons-fileupload</groupId>
 				<artifactId>commons-fileupload</artifactId>
