@@ -23,6 +23,14 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 		<pluginManagement>
 			<plugins>
 				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-war-plugin</artifactId>
+					<configuration>
+						<!-- <webXml>${basedir}/WEB-INF/jspweb.xml</webXml> -->
+						<webXml>${basedir}/src/main/webapp/WEB-INF/web.xml</webXml>
+					</configuration>
+				</plugin>
+				<plugin>
 					<artifactId>maven-resources-plugin</artifactId>
 					<version>2.5</version>
 					<executions>
