@@ -1,4 +1,3 @@
-
 /**
  *
  * ResourceCategoryServiceImpl.java 
@@ -28,15 +27,15 @@ public class ResourceCategoryServiceImpl extends WaspServiceImpl<ResourceCategor
 
 	/**
 	 * resourceCategoryDao;
-	 *
+	 * 
 	 */
-	private ResourceCategoryDao resourceCategoryDao;
+	private ResourceCategoryDao	resourceCategoryDao;
 
 	/**
 	 * setResourceCategoryDao(ResourceCategoryDao resourceCategoryDao)
-	 *
+	 * 
 	 * @param resourceCategoryDao
-	 *
+	 * 
 	 */
 	@Override
 	@Autowired
@@ -47,37 +46,35 @@ public class ResourceCategoryServiceImpl extends WaspServiceImpl<ResourceCategor
 
 	/**
 	 * getResourceCategoryDao();
-	 *
+	 * 
 	 * @return resourceCategoryDao
-	 *
+	 * 
 	 */
 	@Override
 	public ResourceCategoryDao getResourceCategoryDao() {
 		return this.resourceCategoryDao;
 	}
 
+	@Override
+	public ResourceCategory getResourceCategoryByResourceCategoryId(final Integer resourceCategoryId) {
+		return this.getResourceCategoryDao().getResourceCategoryByResourceCategoryId(resourceCategoryId);
+	}
 
-  @Override
-public ResourceCategory getResourceCategoryByResourceCategoryId (final Integer resourceCategoryId) {
-    return this.getResourceCategoryDao().getResourceCategoryByResourceCategoryId(resourceCategoryId);
-  }
+	@Override
+	public ResourceCategory getResourceCategoryByIName(final String iName) {
+		return this.getResourceCategoryDao().getResourceCategoryByIName(iName);
+	}
 
-  @Override
-public ResourceCategory getResourceCategoryByIName (final String iName) {
-    return this.getResourceCategoryDao().getResourceCategoryByIName(iName);
-  }
+	@Override
+	public ResourceCategory getResourceCategoryByName(final String name) {
+		return this.getResourceCategoryDao().getResourceCategoryByName(name);
+	}
 
-  @Override
-public ResourceCategory getResourceCategoryByName (final String name) {
-    return this.getResourceCategoryDao().getResourceCategoryByName(name);
-  }
-  
-  @Override
-  public List<ResourceCategory> getActiveResourceCategories(){
-	  Map queryMap = new HashMap();
-	  queryMap.put("isActive", 1);
-	  return this.findByMap(queryMap);
-  }
+	@Override
+	public List<ResourceCategory> getActiveResourceCategories() {
+		Map queryMap = new HashMap();
+		queryMap.put("isActive", 1);
+		return this.findByMap(queryMap);
+	}
 
 }
-

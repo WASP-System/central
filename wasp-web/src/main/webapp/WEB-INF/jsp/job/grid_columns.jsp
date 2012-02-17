@@ -10,3 +10,5 @@
   
 
 _url='/wasp/job/listJSON.do?selId=${param.selId}&userId=${param.userId}&labId=${param.labId}';
+
+_navAttr={edit:false,view:true,add:false,del:false};

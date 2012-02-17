@@ -696,6 +696,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','uifield/list','label','Properties','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','lab/newrequest','label','Request Access to Lab','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','jobsubmit/cell','label','Cells','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','jobsubmit/ok','label','Success','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','sysrole/list','label','System User Management','1');
 
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','sample/list','label','Sample Utilities','1');
@@ -807,9 +808,10 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','next','label','Next','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','name','label','Job Name','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','name','error','Job Name Must Not Be Empty','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','submitter','label','Submitter','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','lab','label','Lab','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','status','label','Status','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','submitter','label','Submitted By','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','lab','label','Submitted From','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','last_modify_user','label','Last Modified By','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','last_modify_date','label','Last Modified On','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','name_exists','error','Job name chosen already exists','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','changeResource','error','You must select a job resource','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','changeSoftwareResource','error','You must select a software resource','1');

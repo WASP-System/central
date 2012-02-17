@@ -316,7 +316,7 @@ public class JobSubmissionController extends WaspController {
 		List<JobDraft> jobDraftList;
 		
 		if (!search.equals("true")	&& userId.isEmpty()	&& labId.isEmpty()) {
-			jobDraftList = sidx.isEmpty() ? this.jobDraftService.findAll() : this.jobDraftService.findAllOrderBy(sidx, sord);
+			jobDraftList = sidx.isEmpty() ? this.jobDraftService.getPendingJobDrafts() : this.jobDraftService.getPendingJobDraftsOrderBy(sidx, sord);
 		} else {
 			  Map m = new HashMap();
 			  
@@ -328,7 +328,8 @@ public class JobSubmissionController extends WaspController {
 			  
 			  if (!labId.isEmpty())
 				  m.put("labId", Integer.parseInt(labId));
-			  				  
+			  
+			  m.put("status", "PENDING");
 			  jobDraftList = this.jobDraftService.findByMap(m);
 		}
 
@@ -376,16 +377,16 @@ public class JobSubmissionController extends WaspController {
 				User user = userService.getById(item.getUserId());
 				 					
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
-							item.getName(),
+							"<a href='/wasp/jobsubmit/modify/"+item.getJobDraftId()+".do'>"+item.getName()+"</a>",
 							user.getNameFstLst(),
 							item.getLab().getName(),
-							item.getStatus()
+							this.userService.getUserByUserId(item.getLastUpdUser()).getNameFstLst(),
+							item.getLastUpdTs().toString()
 				}));
 				 
 				for (JobDraftMeta meta:itemMeta) {
 					cellList.add(meta.getV());
 				}
-				
 				 
 				cell.put("cell", cellList);
 				 

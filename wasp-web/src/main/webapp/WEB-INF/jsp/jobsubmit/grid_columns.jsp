@@ -6,6 +6,10 @@
 
 <wasp:field name="lab" type="text" sortable="true"/>
 
-<wasp:field name="status"  type="text" sortable="true" editable="false" />
+<wasp:field name="last_modify_user"  type="text" />
+
+<wasp:field name="last_modify_date"  type="text" />
   
 _url='/wasp/jobsubmit/listJSON.do?selId=${param.selId}&userId=${param.userId}&labId=${param.labId}';
+
+_navAttr={edit:false,view:true,add:false,del:false};
