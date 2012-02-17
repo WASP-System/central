@@ -231,6 +231,7 @@ public class UserController extends WaspController {
 				 					
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 							user.getLogin(),
+							user.getPassword(),
 							user.getFirstName(),
 							user.getLastName(),						
 							user.getEmail(),

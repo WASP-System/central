@@ -101,19 +101,6 @@ public class SampleController extends WaspController {
     return "sample/list";
   }
 
-  /*
-  @RequestMapping("/list")
-  public String list(ModelMap m) {
-    List <Sample> sampleList = this.getSampleService().findAll();
-    
-   
-    
-    m.addAttribute("sample", sampleList);
-
-    return "sample/list";
-  }
-*/
-
   @RequestMapping(value="/detail/{strId}", method=RequestMethod.GET)
   public String detail(@PathVariable("strId") String strId, ModelMap m) {
     String now = (new Date()).toString();
@@ -198,25 +185,42 @@ public class SampleController extends WaspController {
 
 		String sord = request.getParameter("sord");
 		String sidx = request.getParameter("sidx");
+		String search = request.getParameter("_search");
+		String searchField = request.getParameter("searchField");
+		String searchString = request.getParameter("searchString");
+		String selId = request.getParameter("selId");
 
-		if (request.getParameter("_search") == null || StringUtils.isEmpty(request.getParameter("searchString"))) {
-			sampleList = sidx.isEmpty() ? this.sampleService.findAll() : this.sampleService.findAllOrderBy(sidx, sord);
-		} else {
+		if (!StringUtils.isEmpty(selId)) {
 
-			m.put(request.getParameter("searchField"), request.getParameter("searchString"));
+			sampleList.add(this.sampleService.getSampleBySampleId(Integer.parseInt(selId)));
+		
+		} else if (!StringUtils.isEmpty(search) && !StringUtils.isEmpty(searchField) && !StringUtils.isEmpty(searchString) ) {
+		
+			m.put(searchField, searchString);
 
-			sampleList = this.getSampleService().findByMap(m);
+			if (sidx.isEmpty()) {
+				sampleList = this.getSampleService().findByMap(m);
+			} else {
+				List<String> sidxList =  new ArrayList<String>();
+				sidxList.add(sidx);
+				sampleList = this.getSampleService().findByMapDistinctOrderBy(m, null, sidxList, sord);
+			}
 
 			if ("ne".equals(request.getParameter("searchOper"))) {
-				List<Sample> allSamples = new ArrayList<Sample>(sidx.isEmpty() ? this.sampleService.findAll() : this.sampleService.findAllOrderBy(sidx, sord));
+				List<Sample> allSamples = new ArrayList<Sample>(sidx.isEmpty() ? 
+						this.sampleService.findAll() : this.sampleService.findAllOrderBy(sidx, sord));
 
 				for (Iterator<Sample> it = sampleList.iterator(); it.hasNext();) {
 					Sample excludeSample = it.next();
 					allSamples.remove(excludeSample);
-				
+
 				}
 				sampleList = allSamples;
 			}
+			
+		} else {
+			
+			sampleList = sidx.isEmpty() ? this.sampleService.findAll() : this.sampleService.findAllOrderBy(sidx, sord);
 		}
 
 		try {
@@ -266,7 +270,7 @@ public class SampleController extends WaspController {
 
 			Map<String, String> sampleData = new HashMap<String, String>();
 			sampleData.put("page", pageIndex + "");
-			sampleData.put("selId", StringUtils.isEmpty(request.getParameter("selId")) ? "" : request.getParameter("selId"));
+			sampleData.put("selId", StringUtils.isEmpty(selId) ? "" : selId);
 			jqgrid.put("sampledata", sampleData);
 			 
 			/***** Begin Sort by User last name *****/
@@ -291,16 +295,16 @@ public class SampleController extends WaspController {
 			toId = toId <= rowNum ? toId : rowNum;
 
 			// if the selId is set, change the page index to the one contains the selId 
-			if (!StringUtils.isEmpty(request.getParameter("selId"))) {
-				int selId = Integer.parseInt(request.getParameter("selId"));
-				int selIndex = sampleList.indexOf(sampleService.findById(selId));
-				frId = selIndex;
-				toId = frId + 1;
-
-				jqgrid.put("records", "1");
-				jqgrid.put("total", "1");
-				jqgrid.put("page", "1");
-			}
+//			if (!StringUtils.isEmpty(request.getParameter("selId"))) {
+//				int selId = Integer.parseInt(request.getParameter("selId"));
+//				int selIndex = sampleList.indexOf(sampleService.findById(selId));
+//				frId = selIndex;
+//				toId = frId + 1;
+//
+//				jqgrid.put("records", "1");
+//				jqgrid.put("total", "1");
+//				jqgrid.put("page", "1");
+//			}
 
 			//List<Sample> samplePage = sampleList.subList(frId, toId);
 			//for (Sample sample:samplePage) {
