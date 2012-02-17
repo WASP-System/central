@@ -6,9 +6,13 @@
 Tomcat's context.xml 
 
 ensure 'wasp-tomcat-classloader....jar' is loaded into ${catalina.home}/lib
+it also needs a copy of 'ant.jar'
 
 -->
 
+<!--
 <Context path="/wasp">
 <Loader loaderClass="edu.yu.einstein.wasp.classloader.WaspTomcatClassLoader" delegate="true" />
 </Context>
+
+-->
