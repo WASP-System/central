@@ -351,6 +351,7 @@ public class ResourceController extends WaspController {
 			//resourceDb.setTypeResourceId(resourceForm.getTypeResourceId());
 			resourceDb.setIName(resourceForm.getName());
 
+			System.out.println("resourceBarcodeDB="+resourceBarcodeDB);
 			if (resourceBarcodeDB.getBarcode() == null) {
 				ResourceBarcode resourceBarcode = new ResourceBarcode();
 				Barcode barcode = new Barcode();

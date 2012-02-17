@@ -215,7 +215,7 @@ public class JQFieldTag extends BodyTagSupport {
 			
 			String area=object;
 			
-			if(area.equals("platformunit") || area.equals("platformunitInstance")) clazz=Sample.class;			
+			if(area.equals("platformunit") || area.equals("platformunitInstance") || area.equals("platformunitById")) clazz=Sample.class;			
 			else if(area.equals("fmpayment")) clazz=State.class;
 			else {
 				try {

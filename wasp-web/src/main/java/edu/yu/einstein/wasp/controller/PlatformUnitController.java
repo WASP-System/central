@@ -2,13 +2,13 @@ package edu.yu.einstein.wasp.controller;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletResponse;
@@ -36,11 +36,8 @@ import edu.yu.einstein.wasp.model.Adaptorset;
 import edu.yu.einstein.wasp.model.Barcode;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
-
 import edu.yu.einstein.wasp.model.JobSample;
-
 import edu.yu.einstein.wasp.model.MetaBase;
-
 import edu.yu.einstein.wasp.model.ResourceBarcode;
 import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.Sample;
@@ -49,43 +46,36 @@ import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.SampleSourceMeta;
 import edu.yu.einstein.wasp.model.State;
-import edu.yu.einstein.wasp.model.Statejob;
 import edu.yu.einstein.wasp.model.Statesample;
 import edu.yu.einstein.wasp.model.SubtypeSample;
 import edu.yu.einstein.wasp.model.SubtypeSampleMeta;
 import edu.yu.einstein.wasp.model.SubtypeSampleResourceCategory;
 import edu.yu.einstein.wasp.model.Task;
-import edu.yu.einstein.wasp.model.TypeSample;
 import edu.yu.einstein.wasp.model.TypeResource;
+import edu.yu.einstein.wasp.model.TypeSample;
 import edu.yu.einstein.wasp.model.User;
-import edu.yu.einstein.wasp.model.Workflow;
-import edu.yu.einstein.wasp.service.AuthenticationService;
-import edu.yu.einstein.wasp.service.AdaptorsetService;
 import edu.yu.einstein.wasp.service.AdaptorService;
+import edu.yu.einstein.wasp.service.AdaptorsetService;
+import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.BarcodeService;
-import edu.yu.einstein.wasp.service.JobService;
-import edu.yu.einstein.wasp.service.JobSampleService;
 import edu.yu.einstein.wasp.service.JobResourcecategoryService;
+import edu.yu.einstein.wasp.service.JobSampleService;
+import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.ResourceCategoryService;
 import edu.yu.einstein.wasp.service.SampleBarcodeService;
 import edu.yu.einstein.wasp.service.SampleMetaService;
 import edu.yu.einstein.wasp.service.SampleService;
-import edu.yu.einstein.wasp.service.SampleSourceService;
 import edu.yu.einstein.wasp.service.SampleSourceMetaService;
+import edu.yu.einstein.wasp.service.SampleSourceService;
 import edu.yu.einstein.wasp.service.StateService;
-import edu.yu.einstein.wasp.service.StatejobService;
 import edu.yu.einstein.wasp.service.StatesampleService;
 import edu.yu.einstein.wasp.service.SubtypeSampleMetaService;
-
 import edu.yu.einstein.wasp.service.SubtypeSampleResourceCategoryService;
-
 import edu.yu.einstein.wasp.service.SubtypeSampleService;
-
 import edu.yu.einstein.wasp.service.TaskService;
-import edu.yu.einstein.wasp.service.TypeSampleService;
 import edu.yu.einstein.wasp.service.TypeResourceService;
-import edu.yu.einstein.wasp.service.WorkflowService;
+import edu.yu.einstein.wasp.service.TypeSampleService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 import edu.yu.einstein.wasp.util.MetaHelper;
 
@@ -99,7 +89,7 @@ public class PlatformUnitController extends WaspController {
 
 	@Autowired
 	private AdaptorService adaptorService;
-
+	
 	@Autowired
 	private SampleService sampleService;
 
@@ -140,9 +130,6 @@ public class PlatformUnitController extends WaspController {
 	private TaskService taskService;
 
 	@Autowired
-	private WorkflowService workflowService;
-
-	@Autowired
 	private TypeSampleService typeSampleService;
 
 	@Autowired
@@ -157,8 +144,6 @@ public class PlatformUnitController extends WaspController {
 	
 	@Autowired
 	private BarcodeService barcodeService;
-
-
 	
 	@Autowired
 	private MessageService messageService;
@@ -173,18 +158,156 @@ public class PlatformUnitController extends WaspController {
 	private final MetaHelperWebapp getMetaHelperWebappPlatformUnitInstance() {
 		return new MetaHelperWebapp("platformunitInstance",  "sample",SampleMeta.class, request.getSession());
 	}
+	
+	@RequestMapping(value="/selid/list", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('ft')")
+	public String showSelectedSampleListShell(ModelMap m) {
+		m.addAttribute("_metaList", getMetaHelperWebapp().getMasterList(SampleMeta.class));
+		m.addAttribute(JQFieldTag.AREA_ATTR, "platformunitById");
+		m.addAttribute("_metaDataMessages", MetaHelper.getMetadataMessages(request.getSession()));
+		request.getSession().setAttribute("selId", request.getParameter("selId"));
+
+
+		return "facility/platformunit/selid/list";
+	}
+
 
 	@RequestMapping(value="/list.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('ft')")
 	public String showListShell(ModelMap m) {
 		m.addAttribute("_metaList", getMetaHelperWebapp().getMasterList(SampleMeta.class));
 		m.addAttribute(JQFieldTag.AREA_ATTR, "platformunit");
+		m.addAttribute("_metaDataMessages", MetaHelper.getMetadataMessages(request.getSession()));
 		
 		request.getSession().setAttribute("resourceCategoryId", new Integer (request.getParameter("resourceCategoryId")));
 		
 		return "facility/platformunit/list";
 	}
 	
+	/**
+	 * View platform unit by selId parameter
+	 * 
+	 * @param response
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value="/selid/listJSON", method=RequestMethod.GET)
+	public @ResponseBody
+	String getPlatformUnitBySelIdListJson(HttpServletResponse response) {
+
+		System.out.println("selId="+request.getParameter("searchString"));
+		
+		String sord = request.getParameter("sord");
+		String sidx = request.getParameter("sidx");
+
+		Map<String, Object> jqgrid = new HashMap<String, Object>();
+
+		List<Sample> sampleList;
+
+		// First, search for typesampleid which its iname is "platform unit"
+		Map<String, String> typeSampleQueryMap = new HashMap<String, String>();
+		typeSampleQueryMap.put("iName", "platformunit");
+		List<TypeSample> typeSampleList = typeSampleService.findByMap(typeSampleQueryMap);
+		if (typeSampleList.size() == 0)
+			return "'Platform Unit' sample type is not defined!";
+		// Then, use the typesampleid to pull all platformunits from the sample
+		// table
+		Map<String, Object> sampleListBaseQueryMap = new HashMap<String, Object>();
+		sampleListBaseQueryMap.put("typeSampleId", typeSampleList.get(0).getTypeSampleId());
+
+		if (request.getParameter("_search") == null 
+				|| request.getParameter("_search").equals("false") 
+				|| StringUtils.isEmpty(request.getParameter("searchString"))) {
+			sampleList = sampleService.findByMap(sampleListBaseQueryMap);
+
+		} else {
+
+			sampleListBaseQueryMap.put(request.getParameter("searchField"), request.getParameter("searchString"));
+
+			sampleList = this.sampleService.findByMap(sampleListBaseQueryMap);
+
+			if ("ne".equals(request.getParameter("searchOper"))) {
+				Map allSampleListBaseQueryMap = new HashMap();
+				allSampleListBaseQueryMap.put("typeSampleId", 5);
+
+				List<Sample> allSampleList = sampleService.findByMap(allSampleListBaseQueryMap);
+				for (Sample excludeSample : allSampleList) {
+					allSampleList.remove(excludeSample);
+				}
+				sampleList = allSampleList;
+			}
+		}
+
+	try {
+		ObjectMapper mapper = new ObjectMapper();
+		
+		String selIdParam = request.getSession().getAttribute("selId").toString();
+
+		int pageIndex = Integer.parseInt(request.getParameter("page")); // index of page
+		int pageRowNum = Integer.parseInt(request.getParameter("rows")); // number of rows in one page
+		int rowNum = sampleList.size(); // total number of rows
+		int pageNum = (rowNum + pageRowNum - 1) / pageRowNum; // total number of pages
+
+		jqgrid.put("records", rowNum + "");
+		jqgrid.put("total", pageNum + "");
+		jqgrid.put("page", pageIndex + "");
+
+		Map<String, String> sampleData = new HashMap<String, String>();
+
+		sampleData.put("page", pageIndex + "");
+		//sampleData.put("selId", StringUtils.isEmpty(request.getParameter("selId")) ? "" : request.getParameter("selId"));
+		sampleData.put("selId", StringUtils.isEmpty(selIdParam) ? "" : selIdParam);
+
+		jqgrid.put("sampledata", sampleData);
+
+		List<Map> rows = new ArrayList<Map>();
+
+		int frId = pageRowNum * (pageIndex - 1);
+		int toId = pageRowNum * pageIndex;
+		toId = toId <= rowNum ? toId : rowNum;
+
+		/*
+		 * if the selId is set, change the page index to the one contains
+		 * the selId
+		 */
+		if (!StringUtils.isEmpty(selIdParam)) {
+			int selId = Integer.parseInt(selIdParam);
+			int selIndex = sampleList.indexOf(sampleService.findById(selId));
+			frId = selIndex;
+			toId = frId + 1;
+
+			jqgrid.put("records", "1");
+			jqgrid.put("total", "1");
+			jqgrid.put("page", "1");
+		}
+
+		List<Sample> samplePage = sampleList.subList(frId, toId);
+		for (Sample sample : samplePage) {
+			Map cell = new HashMap();
+			cell.put("id", sample.getSampleId());
+
+			List<SampleMeta> sampleMetaList = getMetaHelperWebapp().syncWithMaster(sample.getSampleMeta());
+			List<String> cellList = new ArrayList<String>(Arrays.asList(new String[] { sample.getName(), sample.getUser().getFirstName() }));
+
+			for (SampleMeta meta : sampleMetaList) {
+				cellList.add(meta.getV());
+			}
+
+			cell.put("cell", cellList);
+
+			rows.add(cell);
+		}
+
+		jqgrid.put("rows", rows);
+
+		String json = mapper.writeValueAsString(jqgrid);
+		return json;
+
+	} catch (Exception e) {
+			throw new IllegalStateException("Can't marshall to JSON " + sampleList, e);
+		}
+	}
+
 	@RequestMapping(value="/instance/list.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('ft')")
 	public String showPlatformunitInstanceListShell(ModelMap m) {
@@ -202,22 +325,7 @@ public class PlatformUnitController extends WaspController {
 	protected void prepareSelectListData(ModelMap m) {
 		super.prepareSelectListData(m);
 
-		List <TypeResource> typeResourceList = new ArrayList <TypeResource> (typeResourceService.findAll());
-		
-		//When adding a new record in Resources JqGrid, it displays  all Type Resources that are NOT "aligner" or "peakcaller"
-		for (Iterator<TypeResource> it = typeResourceList.iterator(); it.hasNext();) {
-			TypeResource tr = it.next();
-			if (tr.getIName().equals("aligner") || tr.getIName().equals("peakcaller")) {
-				it.remove();
-			}
-		}
-		
-		m.addAttribute("typeResources", typeResourceList);
-		
-		List <ResourceCategory> resourceCategory = new ArrayList <ResourceCategory> (resourceCategoryService.findAll());
-		m.addAttribute("categoryResources", resourceCategory);
-		
-		/* Begin Lane Count calculations  */
+		/**** Begin Lane Count calculations  ****/
 		
 		Map<String, Integer> subtypeSampleMetaMap = new HashMap<String, Integer>();
 		subtypeSampleMetaMap.put("subtypeSampleId", (Integer) request.getSession().getAttribute("subtypeSampleId"));
@@ -225,7 +333,9 @@ public class PlatformUnitController extends WaspController {
 		
 		Integer maxCellNum = null;
 		Integer multFactor = null;
+		
 		class LaneOptions {public Integer laneCount; public String label; public LaneOptions(Integer lc, String l){this.laneCount=lc;this.label=l;}}
+		
 		List <LaneOptions> laneOptionsMap = new ArrayList <LaneOptions> ();
 		//Map<Integer, String> laneOptionsMap = new HashMap<Integer, String>();
 		
@@ -237,14 +347,12 @@ public class PlatformUnitController extends WaspController {
 				multFactor = new Integer(subtypeSampleMeta.getV());
 			}
 		}
-		
 		if (multFactor == null || multFactor.intValue() <= 1) {
 			
 			//laneOptionsMap.put(new Integer(1), "1");
 			//laneOptionsMap.put(maxCellNum, maxCellNum.toString());
 			laneOptionsMap.add(new LaneOptions(new Integer(1), "1"));
 			laneOptionsMap.add(new LaneOptions(maxCellNum, maxCellNum.toString()));
-			
 		}
 		else {
 			//laneOptionsMap.put(new Integer(1), "1");
@@ -257,20 +365,26 @@ public class PlatformUnitController extends WaspController {
 				laneOptionsMap.add(new LaneOptions(cellNum, cellNum.toString()));
 			}
 		}
-
 		m.addAttribute("lanes", laneOptionsMap);
 		
-		/* End Lane Count calculations  */
+		/**** End Lane Count calculations  ****/
 
 	}
 
 	
 	/* SELECT FOR Subtypes List based on what type of machine was selected by user
-	 * select * from subtypesampleresourcecategory stsrc, subtypesample sts 
+	 * example: select * from subtypesampleresourcecategory stsrc, subtypesample sts 
 	 * where stsrc.resourcecategoryid = 4 and stsrc.subtypesampleid = sts.subtypesampleid;
 	 * 
 	 */
 	
+	
+	/**
+	 * Displays a list of SubtypeSamples (e.g. illuminaFlowcellV3) based on the machine_type/resourcecategory (e.g. Illumina HiSeq 2000) 
+	 * selected by the user.
+	 * 
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value="/listJSON.do", method=RequestMethod.GET)
 	public @ResponseBody
@@ -342,7 +456,6 @@ public class PlatformUnitController extends WaspController {
 		
 		}
 		subtypeSampleList = subtypeSampleFilteredList;
-	
 		
 		ObjectMapper mapper = new ObjectMapper();
 
@@ -416,6 +529,11 @@ public class PlatformUnitController extends WaspController {
 		}
 	}
 	
+	/**
+	 * Displays Platform Unit list filtered by subtypeSampleId
+	 * 
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value="/instance/listJSON.do", method=RequestMethod.GET)
 	public @ResponseBody
@@ -475,8 +593,6 @@ public class PlatformUnitController extends WaspController {
 				allBarcode.put(barcode.getBarcodeId(), barcode.getBarcode());
 			}
 		}
-		
-		
 
 		int pageIndex = Integer.parseInt(request.getParameter("page")); // index of page
 		int pageRowNum = Integer.parseInt(request.getParameter("rows")); // number of rows in one page
@@ -492,6 +608,20 @@ public class PlatformUnitController extends WaspController {
 		sampleData.put("page", pageIndex + "");
 		sampleData.put("selId", StringUtils.isEmpty(request.getParameter("selId")) ? "" : request.getParameter("selId"));
 		jqgrid.put("sampledata", sampleData);
+		
+		/***** Begin Sort by name *****/
+		class PlatformUnitNameComparator implements Comparator<Sample> {
+			@Override
+			public int compare(Sample arg0, Sample arg1) {
+				return arg0.getName().compareToIgnoreCase(arg1.getName());
+			}
+		}
+		if (sidx.equals("name")) {
+			Collections.sort(sampleList, new PlatformUnitNameComparator());
+			if (sord.equals("desc"))
+				Collections.reverse(sampleList);
+		}
+		/***** End Sort by name *****/
 
 		List<Map> rows = new ArrayList<Map>();
 
@@ -548,9 +678,7 @@ public class PlatformUnitController extends WaspController {
 		}
 	}
 
-	
-
-	@RequestMapping(value="/instance/updateJSON.do", method=RequestMethod.POST)
+	@RequestMapping(value="/instance/updateJSON", method=RequestMethod.POST)
 	public String updateJson(
 			@RequestParam("id") Integer sampleId,
 			@Valid Sample sampleForm, 
@@ -642,8 +770,12 @@ public class PlatformUnitController extends WaspController {
 		return validateAndUpdatePlatformUnit(sampleForm, result, status, m);
 	}
 
-	/* ****************************** */
 
+	/**
+	 * 
+	 * @param sampleForm
+	 * @return
+	 */
 	public Sample preparePlatformUnit(Sample sampleForm) {
 		if (sampleForm.getSampleId() == null) {
 			User me = authenticationService.getAuthenticatedUser();
@@ -681,6 +813,14 @@ public class PlatformUnitController extends WaspController {
 		return sampleForm;
 	}
 	
+
+	/**
+	 * Creates cells based on number of lanes selected by the user 
+	 * 
+	 * @param sampleForm
+	 * @param laneNumber
+	 * @return
+	 */
 	public String createCell(Sample sampleForm, Integer laneNumber) {
 		
 		Integer typeSampleId = typeSampleService.getTypeSampleByIName("cell").getTypeSampleId();
@@ -704,11 +844,8 @@ public class PlatformUnitController extends WaspController {
 			 sampleSource.setSourceSampleId(sampleDb.getSampleId());
 			 sampleSource.setMultiplexindex(i+1);
 			 this.sampleSourceService.save(sampleSource);
-  			 //Is this required?
-			 //sampleMetaService.updateBySampleId(sampleForm.getSampleId(), sampleForm.getSampleMeta());
-			 
+ 			 
 		 }
-		//	return "facility/platformunit/ok";
 		return "redirect:/facility/platformunit/ok";
 	}
 
@@ -753,20 +890,16 @@ public class PlatformUnitController extends WaspController {
 
 		sampleMetaService.updateBySampleId(sampleDb.getSampleId(), sampleForm.getSampleMeta());
 
-		/// TODO depending on how many *.resourceId is set, create sample lanes
-		/// query resourceServices.getLaneCount(resourceId)
-
-		/// TODO depending on how many *.lanecount is set, create sample lanes
-		// int xxx = somefunction(getLaneCount());
-		// for (int i = 0; i < xxxx; i++) {
-		//	 Sample lane = new Sample()
-		// }
-
-
-		//	return "facility/platformunit/ok";
 		return "redirect:/facility/platformunit/ok";
 	}
 	
+	/**
+	 * 
+	 * @param sampleForm
+	 * @param sampleBarcode
+	 * @param laneCount
+	 * @return
+	 */
 	public String updatePlatformUnitInstance( Sample sampleForm, SampleBarcode sampleBarcode, Integer laneCount) {
 	
 		Sample sampleDb;
@@ -779,9 +912,27 @@ public class PlatformUnitController extends WaspController {
 		} else {
 			sampleDb = sampleService.merge(sampleForm);
 			
-			SampleBarcode sampleBarcodeDB = this.sampleBarcodeService.getSampleBarcodeBySampleId(sampleForm.getSampleId());
-			sampleBarcodeDB.getBarcode().setBarcode(request.getParameter("barcode")==null? "" : request.getParameter("barcode"));
-			this.sampleBarcodeService.merge(sampleBarcodeDB);
+			SampleBarcode sampleBarcodeDb = this.sampleBarcodeService.getSampleBarcodeBySampleId(sampleForm.getSampleId());
+			
+			if (sampleBarcodeDb.getBarcode() == null) {
+				ResourceBarcode resourceBarcode = new ResourceBarcode();
+				Barcode barcode = new Barcode();
+				
+				barcode.setBarcode(request.getParameter("barcode")==null? "" : request.getParameter("barcode"));
+				barcode.setIsActive(1);
+				sampleBarcode.setBarcode(barcode);
+				
+				Barcode barcodeDb = this.barcodeService.save(barcode);
+				sampleBarcode.setBarcodeId(barcodeDb.getBarcodeId());
+			
+				sampleBarcode.setSampleId(sampleForm.getSampleId());
+				this.sampleBarcodeService.save(sampleBarcode);
+				
+			}
+			else { 
+				sampleBarcodeDb.getBarcode().setBarcode(request.getParameter("barcode")==null? "" : request.getParameter("barcode"));
+				this.sampleBarcodeService.merge(sampleBarcodeDb);
+			}
 
 		}
 		
@@ -796,7 +947,6 @@ public class PlatformUnitController extends WaspController {
 		} // set a value for a member of the list by name
 		sampleMetaService.updateBySampleId(sampleDb.getSampleId(), normalizedSampleMeta); // now we get the list and persist it
 
-		//create cells based on number of lanes selected by the user
 		createCell(sampleDb, laneCount);
 		
 		createState(sampleDb);
@@ -805,6 +955,12 @@ public class PlatformUnitController extends WaspController {
 		return "redirect:/facility/platformunit/ok";
 	}
 	
+	/**
+	 * Inserts a record in State table and Sets state name to  "Platform Unit" and state status to "CREATED" 
+	 * Also inserts a new record in Samplestate table
+	 * 
+	 * @param sampleDb
+	 */
 	public void createState(Sample sampleDb) {
 		
 		Map<String, String> taskQueryMap = new HashMap<String, String>();
