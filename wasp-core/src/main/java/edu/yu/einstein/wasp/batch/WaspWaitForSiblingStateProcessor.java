@@ -1,5 +1,8 @@
 package edu.yu.einstein.wasp.batch;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -19,6 +22,11 @@ import edu.yu.einstein.wasp.service.StateService;
 
 import org.springframework.beans.factory.InitializingBean;
 
+
+import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+
 /**
  * Wait for State
  * throws an retryable exception unless
@@ -31,8 +39,10 @@ import org.springframework.beans.factory.InitializingBean;
  */
 
 @Component
-public class WaspWaitForSiblingStateProcessor<E extends StateEntity> implements ItemProcessor, InitializingBean { 
+public abstract class WaspWaitForSiblingStateProcessor<E extends StateEntity> implements ItemProcessor, InitializingBean { 
 // , ItemProcessListener<State, String> {
+
+	private static final Log log = LogFactory.getLog(WaspWaitForSiblingStateProcessor.class);
 
 	@Autowired
 	protected StateService stateService;
@@ -45,6 +55,11 @@ public class WaspWaitForSiblingStateProcessor<E extends StateEntity> implements 
 	protected Map<String, String> statusMap;
 	public void setStatusMap(Map<String, String> statusMap) {
 		this.statusMap = statusMap; 
+	}
+
+	protected Map<String, String> spelMap;
+	public void setSpelMap(Map<String, String> spelMap) {
+		this.spelMap = spelMap; 
 	}
 
 	String status; 
@@ -80,25 +95,53 @@ public class WaspWaitForSiblingStateProcessor<E extends StateEntity> implements 
 				continue; 
 			}
 
+			siblingTargetStatus = null;
 
-			// sibling of the right task, but not in the status map
-			if (! statusMap.containsKey(siblingStateEntity.getState().getStatus())) {
-				continue; 
+			Map m = new HashMap();
+			// State siblingState =  siblingStateEntity.getState();
+			State siblingState = stateService.findById(siblingStateEntity.getStateId());
+			// m.put("state", siblingState);
+
+			StandardEvaluationContext context = new StandardEvaluationContext();
+			context.setVariable("state", siblingState);
+
+			ExpressionParser parser = new SpelExpressionParser();
+
+			if (spelMap != null) {
+				for (String spel: spelMap.keySet()) {
+					try {
+						Boolean b = (Boolean) parser.parseExpression(spel).getValue(context);
+						if (! b) { continue; }
+						siblingTargetStatus = spelMap.get(spel);
+
+
+					} catch (Exception e) {
+						log.info("Spel Exeption" + spel + " / " + e);
+						continue;
+					}
+				}
 			}
 
-			siblingTargetStatus = statusMap.get(siblingStateEntity.getState().getStatus());
 
-//		if (siblingTargetStatus != null) {
-				State siblingState = stateService.findById(siblingStateEntity.getStateId());
+			// sibling of the right task, but not in the status map
+			if (siblingTargetStatus == null) {
+				if (! statusMap.containsKey(siblingStateEntity.getState().getStatus())) {
+					continue; 
+				}
+
+				siblingTargetStatus = statusMap.get(siblingStateEntity.getState().getStatus());
+			}
+
+			if (siblingTargetStatus != null) {
 				siblingState.setStatus(siblingTargetStatus);
 				siblingState.setEndts(new Date());
 				stateService.save(siblingState);
 
-//			this.stepExecution.setExitStatus(new ExitStatus(siblingTargetStatus)); 
-//		}
+//				this.stepExecution.setExitStatus(new ExitStatus(siblingTargetStatus)); 
+				return siblingTargetStatus;
+			}
 
 
-			return siblingTargetStatus;
 		}
 
 
