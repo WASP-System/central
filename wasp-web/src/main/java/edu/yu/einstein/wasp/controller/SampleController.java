@@ -179,8 +179,6 @@ public class SampleController extends WaspController {
 		// result
 		Map<String, Object> jqgrid = new HashMap<String, Object>();
 
-		Map<String, String> m = new HashMap<String, String>();
-
 		List<Sample> sampleList = new ArrayList<Sample>();
 
 		String sord = request.getParameter("sord");
@@ -196,14 +194,16 @@ public class SampleController extends WaspController {
 		
 		} else if (!StringUtils.isEmpty(search) && !StringUtils.isEmpty(searchField) && !StringUtils.isEmpty(searchString) ) {
 		
+			Map<String, String> m = new HashMap<String, String>();
+
 			m.put(searchField, searchString);
 
 			if (sidx.isEmpty()) {
-				sampleList = this.getSampleService().findByMap(m);
+				sampleList = this.sampleService.findByMap(m);
 			} else {
 				List<String> sidxList =  new ArrayList<String>();
 				sidxList.add(sidx);
-				sampleList = this.getSampleService().findByMapDistinctOrderBy(m, null, sidxList, sord);
+				sampleList = this.sampleService.findByMapDistinctOrderBy(m, null, sidxList, sord);
 			}
 
 			if ("ne".equals(request.getParameter("searchOper"))) {

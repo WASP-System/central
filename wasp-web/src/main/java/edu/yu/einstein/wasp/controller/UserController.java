@@ -30,6 +30,7 @@ import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.exception.LoginNameException;
 import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.MetaBase;
+import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserMeta;
 import edu.yu.einstein.wasp.service.AuthenticationService;
@@ -162,30 +163,49 @@ public class UserController extends WaspController {
 	
 		String sord = request.getParameter("sord");
 		String sidx = request.getParameter("sidx");
+		String search = request.getParameter("_search");
+		String searchField = request.getParameter("searchField");
+		String searchString = request.getParameter("searchString");
+		String selId = request.getParameter("selId");
 		
 		//result
 		Map <String, Object> jqgrid = new HashMap<String, Object>();
 		
-		List<User> userList;
+		List<User> userList = new ArrayList<User>();
 		
-		if (request.getParameter("_search")==null || StringUtils.isEmpty(request.getParameter("searchString"))) {
-			userList = sidx.isEmpty() ? this.userService.findAll() : this.userService.findAllOrderBy(sidx, sord);
+		if (!StringUtils.isEmpty(selId)) {
+
+			userList.add(this.userService.getUserByUserId(Integer.parseInt(selId)));
+		
+		} else if (!StringUtils.isEmpty(search) && !StringUtils.isEmpty(searchField) && !StringUtils.isEmpty(searchString) ) {
+		
+			Map<String, String> m = new HashMap<String, String>();
+
+			m.put(searchField, searchString);
+
+			if (sidx.isEmpty()) {
+				userList = this.userService.findByMap(m);
+			} else {
+				List<String> sidxList =  new ArrayList<String>();
+				sidxList.add(sidx);
+				userList = this.userService.findByMapDistinctOrderBy(m, null, sidxList, sord);
+			}
+
+			if ("ne".equals(request.getParameter("searchOper"))) {
+				List<User> all = new ArrayList<User>(sidx.isEmpty() ? 
+						this.userService.findAll() : this.userService.findAllOrderBy(sidx, sord));
+
+				for (Iterator<User> it = userList.iterator(); it.hasNext();) {
+					User exclude = it.next();
+					all.remove(exclude);
+
+				}
+				userList = all;
+			}
+			
 		} else {
-			  Map<String, String> m = new HashMap<String, String>();
-			  
-			  m.put(request.getParameter("searchField"), request.getParameter("searchString"));
-			  				  
-			  userList = this.userService.findByMap(m);
-			  
-			  if ("ne".equals(request.getParameter("searchOper"))) {
-				  List<User> allUsers = new ArrayList<User> (
-						  sidx.isEmpty() ? this.userService.findAll() : this.userService.findAllOrderBy(sidx, sord) );
-				  for(Iterator<User> it=userList.iterator();it.hasNext();)  {
-					  User excludeUser=it.next();
-					  allUsers.remove(excludeUser);
-				  }
-				  userList=allUsers;
-			  }
+			
+			userList = sidx.isEmpty() ? this.userService.findAll() : this.userService.findAllOrderBy(sidx, sord);
 		}
 
 		try {
@@ -210,17 +230,17 @@ public class UserController extends WaspController {
 			toId = toId <= rowNum ? toId : rowNum;
 
 			/* if the selId is set, change the page index to the one contains the selId */
-			if(!StringUtils.isEmpty(request.getParameter("selId")))
-			{
-				int selId = Integer.parseInt(request.getParameter("selId"));
-				int selIndex = userList.indexOf(userService.findById(selId));
-				frId = selIndex;
-				toId = frId + 1;
-
-				jqgrid.put("records", "1");
-				jqgrid.put("total", "1");
-				jqgrid.put("page", "1");
-			}				
+//			if(!StringUtils.isEmpty(request.getParameter("selId")))
+//			{
+//				int selId = Integer.parseInt(request.getParameter("selId"));
+//				int selIndex = userList.indexOf(userService.findById(selId));
+//				frId = selIndex;
+//				toId = frId + 1;
+//
+//				jqgrid.put("records", "1");
+//				jqgrid.put("total", "1");
+//				jqgrid.put("page", "1");
+//			}				
 
 			List<User> userPage = userList.subList(frId, toId);
 			for (User user:userPage) {

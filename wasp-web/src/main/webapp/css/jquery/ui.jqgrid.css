@@ -114,7 +114,7 @@ tr.ui-search-toolbar select {margin: 1px 0px 0px 0px}
 .fm-button-icon-left .ui-icon { right: auto; left: .2em; margin-left: 0; position: absolute; top: 50%; margin-top: -8px; }
 .fm-button-icon-right .ui-icon { left: auto; right: .2em; margin-left: 0; position: absolute; top: 50%; margin-top: -8px;}
 #nData, #pData { float: left; margin:3px;padding: 0; width: 15px; }
-/* End Eorm edit */
+/* End Form edit */
 /*.ui-jqgrid .edit-cell {}*/
 .ui-jqgrid .selected-row, div.ui-jqgrid .selected-row td {font-style : normal;border-left: 0px none;}
 /* Tree Grid */
