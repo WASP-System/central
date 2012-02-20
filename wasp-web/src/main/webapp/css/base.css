@@ -29,22 +29,22 @@ TD	{padding: 5px;}
 .right	{float: right;}
 
 #statusMessage	{
-	background: #f4f9fc;
-	border: 1px solid #8fc0e3;
+	/*background: #f4f9fc;
+	border: 1px solid #8fc0e3;*/
 	color: #2971a5;
 	padding: 10px;
 	}
 	
 #statusUpload	{
-	background: #f8fff0;
-	border: 1px solid #bbee77;
+	/*background: #f8fff0;
+	border: 1px solid #bbee77;*/
 	color: #234600;
 	padding: 10px;
 	}
 
 #error	{
-	background: #fef5f1;
-	border: 1px solid #ed541d;
+	/*background: #fef5f1;
+	border: 1px solid #ed541d;*/
 	color: #8c2e0b;
 	padding: 10px;
 	}
