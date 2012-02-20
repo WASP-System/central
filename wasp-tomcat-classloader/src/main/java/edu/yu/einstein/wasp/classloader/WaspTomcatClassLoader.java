@@ -14,9 +14,12 @@ import org.apache.tools.ant.DirectoryScanner;
  * Scans a BASEDIR directory for jars and adds into the
  * webappclassloader
  *
+ * BASEDIR is set to ${catalina.base}/waspPlugins
+ *
  */
 
 public class WaspTomcatClassLoader extends WebappClassLoader {
+	
 	final String BASEDIR = "waspPlugins";
 
 	public WaspTomcatClassLoader(ClassLoader parent) {
@@ -31,6 +34,7 @@ public class WaspTomcatClassLoader extends WebappClassLoader {
 
 	private void addCustomRepositoryOrLocation() {
 
+		// finds all jars in within the directory tree
 		DirectoryScanner scanner = new DirectoryScanner();
 		scanner.setIncludes(new String[]{"**/*.jar"});
 		scanner.setBasedir(BASEDIR);
@@ -38,8 +42,7 @@ public class WaspTomcatClassLoader extends WebappClassLoader {
 		scanner.scan();
 		String[] stringURLs = scanner.getIncludedFiles();
 
-		// Lets assume that you have put yours jars ar C:/customlocation/my_jar.jar
-		// String[] stringURLs = new String[] { "C:/customlocation/my_jar.jar" };
+
 		URL[] urls = new URL[stringURLs.length];
 
 		for (int n = 0; n < stringURLs.length; n++) {
@@ -51,7 +54,7 @@ public class WaspTomcatClassLoader extends WebappClassLoader {
 				e.printStackTrace();
 			}
 
-			// this will tell MyLoader to look for the jars at the new locations also.
+			// this will tell wasp to look for the jars at the new locations also.
 
 			addURL(urls[n]);
 		}
