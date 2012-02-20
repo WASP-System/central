@@ -34,8 +34,11 @@ import edu.yu.einstein.wasp.model.WorkflowMeta;
 import edu.yu.einstein.wasp.model.WorkflowSoftware;
 import edu.yu.einstein.wasp.model.Workflowresourcecategory;
 import edu.yu.einstein.wasp.model.WorkflowresourcecategoryMeta;
+import edu.yu.einstein.wasp.model.WorkflowsoftwareMeta;
 import edu.yu.einstein.wasp.model.Workflowtyperesource;
+import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.ResourceCategoryService;
+import edu.yu.einstein.wasp.service.SoftwareMetaService;
 import edu.yu.einstein.wasp.service.SoftwareService;
 import edu.yu.einstein.wasp.service.WorkflowService;
 import edu.yu.einstein.wasp.service.WorkflowSoftwareService;
@@ -54,10 +57,13 @@ public class WorkflowController extends WaspController {
 	@Autowired
 	private ResourceCategoryService resourceCategoryService;
 	@Autowired
+	private SoftwareMetaService softwareMetaService;
+	@Autowired
 	private WorkflowresourcecategoryService workflowResourceCategoryService;
 	@Autowired
 	private WorkflowresourcecategoryMetaService workflowResourceCategoryMetaService;
-
+	@Autowired
+	private MessageService messageService;
 	@Autowired
 	private SoftwareService softwareService;
 	@Autowired
@@ -142,7 +148,7 @@ public class WorkflowController extends WaspController {
 										.toString(), 
 								workflow.getName(),
 								workflow.getIsActive().intValue() == 1 ? "yes" : "no",
-								"<a href=/wasp/workflow/software/"+workflow.getWorkflowId().toString()+".do >configure</a>"}));
+								"<a href=/wasp/workflow/resource/"+workflow.getWorkflowId().toString()+".do >configure</a>"}));
 
 				for (WorkflowMeta meta : workflowMeta) {
 					cellList.add(meta.getV());
@@ -175,7 +181,7 @@ public class WorkflowController extends WaspController {
 	 *
 	 */ 
 
-	@RequestMapping(value = "/software/{workflowId}.do", method = RequestMethod.GET)
+	@RequestMapping(value = "/resource/{workflowId}.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('fm')")
 	public String showSoftwareForm(
 			@PathVariable("workflowId") Integer workflowId,
@@ -185,53 +191,87 @@ public class WorkflowController extends WaspController {
 
 		// gets all workflow resources
 		List<Workflowtyperesource> workflowTypeResources = workflow.getWorkflowtyperesource();
-		List<Workflowtyperesource> workflowTypeResourceMap = new ArrayList<Workflowtyperesource>();
 
-		for (Workflowtyperesource wtr: workflowTypeResources) {
-			TypeResource tr = wtr.getTypeResource();  //ED209
-			workflowTypeResourceMap.add(wtr);
-		}
-
-		List<Workflowresourcecategory> workflowResourceCategorys = workflow.getWorkflowresourcecategory();
+		List<Workflowresourcecategory> workflowResourceCategories = workflow.getWorkflowresourcecategory();
 		Map<String, Workflowresourcecategory> workflowResourceCategoryMap = new HashMap<String, Workflowresourcecategory>();
 
-		// stores the reource options
+		// stores the resource options
 		// cheating just using workflowIname,uifieldId as key
 		Map<String, Set<String>> workflowResourceOptions = new HashMap<String, Set<String>>();
-		for (Workflowresourcecategory wrc: workflowResourceCategorys) {
+		for (Workflowresourcecategory wrc: workflowResourceCategories) {
+			if (wrc.getResourceCategory().getIsActive() == 0){
+				continue;
+			}
 			workflowResourceCategoryMap.put(wrc.getResourceCategory().getIName(), wrc);
 			for (WorkflowresourcecategoryMeta wrcm: wrc.getWorkflowresourcecategoryMeta()) {
 				if (wrcm.getK().matches(".*\\.allowableUiField\\..*")) {
 					String optionName = wrc.getResourceCategory().getIName() + ";" + 
 							wrcm.getK().replaceAll(".*\\.allowableUiField\\.", "");
-					String[] os = wrcm.getV().split(";");
 					Set<String> options = new HashSet();
-
-					for (int i=0; i < os.length; i++) {
-						options.add(os[i]);
+					for (String option : wrcm.getV().split(";")){
+						options.add(option);
 					}
 					workflowResourceOptions.put(optionName, options);
 				}
 			}
 		}
+		
+		// gets names and versions of all software 
+		Map<String, String> workflowSoftwareVersionedNameMap = new HashMap<String, String>();
+		for(Workflowtyperesource wtr : workflowTypeResources){
+			for (Software s : wtr.getTypeResource().getSoftware()){
+				if (s.getIsActive().intValue() == 0){
+					continue;
+				}
+				String area = s.getIName();
+				String version = softwareMetaService.getSoftwareMetaByKSoftwareId(area+".currentVersion", s.getSoftwareId()).getV();
+				version = (version == null) ? "" : version; 
+				workflowSoftwareVersionedNameMap.put(area, s.getName() + " (version: " + version +")");
+			}
+		}
+		
+		// loads software mapping
+		List<WorkflowSoftware> workflowSoftwares = workflow.getWorkflowSoftware();
+		Map<String, WorkflowSoftware> workflowSoftwareMap = new HashMap<String, WorkflowSoftware>();
+		
 
-	// loads software mapping
-	List<WorkflowSoftware> workflowSoftwares = workflow.getWorkflowSoftware();
-	Map<String, WorkflowSoftware> workflowSoftwareMap = new HashMap<String, WorkflowSoftware>();
-	for (WorkflowSoftware wrc: workflowSoftwares) {
-		workflowSoftwareMap.put(wrc.getSoftware().getIName(), wrc);
-	}
+		// stores the resource options
+		// cheating just using workflowIname,uifieldId as key
+		Map<String, Set<String>> workflowSoftwareOptions = new HashMap<String, Set<String>>();
+		for (WorkflowSoftware ws: workflowSoftwares) {
+			if (ws.getSoftware().getIsActive().intValue() == 0){
+				continue;
+			}
+			String area = ws.getSoftware().getIName();
+			String version = softwareMetaService.getSoftwareMetaByKSoftwareId(area+".currentVersion", ws.getSoftware().getSoftwareId()).getV();
+			version = (version == null) ? "" : version; 
+			workflowSoftwareMap.put(area, ws);
+			
+			for (WorkflowsoftwareMeta wsm: ws.getWorkflowsoftwareMeta()) {
+				if (wsm.getK().matches(".*\\.allowableUiField\\..*")) {
+					String optionName = ws.getSoftware().getIName() + ";" + 
+							wsm.getK().replaceAll(".*\\.allowableUiField\\.", "");
+					Set<String> options = new HashSet();
+					for (String option : wsm.getV().split(";")){
+						options.add(option);
+					}
+					workflowSoftwareOptions.put(optionName, options);
+				}
+			}
+		}
 
 		m.put("workflowId", workflowId);
 		m.put("workflow", workflow);
-
-		m.put("workflowTypeResourceMap", workflowTypeResourceMap);
+		m.put("workflowTypeResourceMap", workflowTypeResources);
+		
 		m.put("workflowResourceCategoryMap", workflowResourceCategoryMap);
 		m.put("workflowResourceOptions", workflowResourceOptions);
 
 		m.put("workflowSoftwareMap", workflowSoftwareMap);
+		m.put("workflowSoftwareOptions", workflowSoftwareOptions);
+		m.put("workflowSoftwareVersionedNameMap", workflowSoftwareVersionedNameMap);
 
-		return "workflow/software/form";
+		return "workflow/resource/form";
 	}
 	
 /**
@@ -240,7 +280,7 @@ public class WorkflowController extends WaspController {
 	 *
 	 */ 
 
-	@RequestMapping(value = "/software/{workflowId}.do", method = RequestMethod.POST)
+	@RequestMapping(value = "/resource/{workflowId}.do", method = RequestMethod.POST)
 	@PreAuthorize("hasRole('su') or hasRole('fm')")
 	public String updateSoftware(
 			@PathVariable("workflowId") Integer workflowId,
@@ -250,7 +290,11 @@ public class WorkflowController extends WaspController {
 			@RequestParam(value="software", required=false) String[] softwareParams,
 
 			ModelMap m) {
-
+		// return to list if cancel button pressed
+		String submitValue = request.getParameter("submit");
+		if ( submitValue.equals(messageService.getMessage("workflow.cancel.label")) ){
+			return "redirect:/workflow/list.do"; 
+		}
 		Workflow workflow = workflowService.getWorkflowByWorkflowId(workflowId); 
 		m.put("workflowId", workflowId);
 		m.put("workflow", workflow);
@@ -264,14 +308,14 @@ public class WorkflowController extends WaspController {
 	
 		// puts software back in
 		if (softwareParams != null) {
-		for (int i=0; i< softwareParams.length; i++) {
-			WorkflowSoftware workflowSoftware = new WorkflowSoftware();
-	
-			Software s = softwareService.getSoftwareByIName(softwareParams[i]);
-			workflowSoftware.setWorkflowId(workflowId);
-			workflowSoftware.setSoftwareId(s.getSoftwareId());
-			workflowSoftwareService.save(workflowSoftware);
-		}
+			for (int i=0; i< softwareParams.length; i++) {
+				WorkflowSoftware workflowSoftware = new WorkflowSoftware();
+		
+				Software s = softwareService.getSoftwareByIName(softwareParams[i]);
+				workflowSoftware.setWorkflowId(workflowId);
+				workflowSoftware.setSoftwareId(s.getSoftwareId());
+				workflowSoftwareService.save(workflowSoftware);
+			}
 		}
 
 		// removes all the resource categories and meta
@@ -291,62 +335,62 @@ public class WorkflowController extends WaspController {
 		// maps meta to options
 		Map<String, String> rcmOptionMap = new HashMap<String, String>();
 		if (resourceCategoryOptionParams != null) {
-		for (int i=0; i < resourceCategoryOptionParams.length; i++) {
-			String[] tokenized = resourceCategoryOptionParams[i].split(";");
-			String rc = tokenized[0];
-			String name = tokenized[1].replaceAll(".*\\.allowableUiField\\.", "");
-			String option = tokenized[2];
-		
-			String key = rc + ".allowableUiField." + name;
-			String value = option + ";";
-		
-			if (rcRcmMap.containsKey(rc)) {
-				if (! rcRcmMap.get(rc).contains(key)) {
-					rcRcmMap.get(rc).add(key);
+			for (int i=0; i < resourceCategoryOptionParams.length; i++) {
+				String[] tokenized = resourceCategoryOptionParams[i].split(";");
+				String rc = tokenized[0];
+				String name = tokenized[1].replaceAll(".*\\.allowableUiField\\.", "");
+				String option = tokenized[2];
+			
+				String key = rc + ".allowableUiField." + name;
+				String value = option + ";";
+			
+				if (rcRcmMap.containsKey(rc)) {
+					if (! rcRcmMap.get(rc).contains(key)) {
+						rcRcmMap.get(rc).add(key);
+					}
+				} else {
+					Set<String> meta = new HashSet();
+					meta.add(key);
+					rcRcmMap.put(rc, meta);
 				}
-			} else {
-				Set<String> meta = new HashSet();
-				meta.add(key);
-				rcRcmMap.put(rc, meta);
+	
+				if (rcmOptionMap.containsKey(key)) {
+					rcmOptionMap.put(key, rcmOptionMap.get(key) + value);
+				} else {
+					rcmOptionMap.put(key, value);
+				}
 			}
-
-			if (rcmOptionMap.containsKey(key)) {
-				rcmOptionMap.put(key, rcmOptionMap.get(key) + value);
-			} else {
-				rcmOptionMap.put(key, value);
-			}
-		}
 		}
 
 		// puts resource categories back in
 		if (resourceCategoryParams != null) {
-		for (int i=0; i< resourceCategoryParams.length; i++) {
-			Workflowresourcecategory workflowResourceCategory = new Workflowresourcecategory();
+			for (int i=0; i< resourceCategoryParams.length; i++) {
+				Workflowresourcecategory workflowResourceCategory = new Workflowresourcecategory();
+			
+				ResourceCategory rc = resourceCategoryService.getResourceCategoryByIName(resourceCategoryParams[i]);
+			
+				workflowResourceCategory.setWorkflowId(workflowId);
+				workflowResourceCategory.setResourcecategoryId(rc.getResourceCategoryId());
+				workflowResourceCategoryService.save(workflowResourceCategory);
 		
-			ResourceCategory rc = resourceCategoryService.getResourceCategoryByIName(resourceCategoryParams[i]);
-		
-			workflowResourceCategory.setWorkflowId(workflowId);
-			workflowResourceCategory.setResourcecategoryId(rc.getResourceCategoryId());
-			workflowResourceCategoryService.save(workflowResourceCategory);
+				int count = 0; 	// counter for position
 	
-			int count = 0; 	// counter for position
-
-			if (rcRcmMap.containsKey(rc.getIName())) {	
-			for (String metaKey : rcRcmMap.get(rc.getIName())) {
-				count++; 
-				WorkflowresourcecategoryMeta wrcm = new WorkflowresourcecategoryMeta();
-				wrcm.setWorkflowresourcecategoryId(workflowResourceCategory.getWorkflowresourcecategoryId());
-				wrcm.setK(metaKey);
-				wrcm.setV(rcmOptionMap.get(metaKey));
-				wrcm.setPosition(count); 
-
-				workflowResourceCategoryMetaService.save(wrcm);
-			}
+				if (rcRcmMap.containsKey(rc.getIName())) {	
+					for (String metaKey : rcRcmMap.get(rc.getIName())) {
+						count++; 
+						WorkflowresourcecategoryMeta wrcm = new WorkflowresourcecategoryMeta();
+						wrcm.setWorkflowresourcecategoryId(workflowResourceCategory.getWorkflowresourcecategoryId());
+						wrcm.setK(metaKey);
+						wrcm.setV(rcmOptionMap.get(metaKey));
+						wrcm.setPosition(count); 
+		
+						workflowResourceCategoryMetaService.save(wrcm);
+					}
+				}
 			}
 		}
-		}
 
-		return "redirect:/workflow/software/" + workflowId + ".do"; 
+		return "redirect:/workflow/list.do"; 
 	}
 
 

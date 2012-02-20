@@ -404,7 +404,7 @@ public class JobSubmissionController extends WaspController {
 	
 	}
 
-	protected void generateCreateForm(ModelMap m) {
+	protected String generateCreateForm(ModelMap m) {
 		User me = authenticationService.getAuthenticatedUser();
 
 		List <LabUser> labUserAllRoleList = me.getLabUser();
@@ -419,23 +419,27 @@ public class JobSubmissionController extends WaspController {
 				labList.add(lu.getLab());
 			}
 		}
+		if (labList.isEmpty()){
+			waspMessage("jobDraft.no_lab.error");
+			return "redirect:/dashboard.do";
+		}
 
-
-		// filter active
 		List <Workflow> workflowList = workflowService.getActiveWorkflows();
-
+		if (workflowList.isEmpty()){
+			waspMessage("jobDraft.no_workflows.error");
+			return "redirect:/dashboard.do";
+		}
+		
 		m.put("labs", labList); 
 		m.put("workflows", workflowList); 
+		return "jobsubmit/create";
 	}
 
 	@RequestMapping(value="/create.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('lu-*')")
 	public String showCreateForm(ModelMap m) {
-
-		generateCreateForm(m);
 		m.put("jobDraft", new JobDraft()); 
-
-		return "jobsubmit/create";
+		return generateCreateForm(m);
 	}
 
 	@RequestMapping(value="/create.do", method=RequestMethod.POST)
@@ -466,8 +470,7 @@ public class JobSubmissionController extends WaspController {
 		result.addAllErrors(errors);
 		if (result.hasErrors()) {
 			waspMessage("jobDraft.form.error");
-			generateCreateForm(m);
-			return "jobsubmit/create";
+			return generateCreateForm(m);
 		}
 		
 		jobDraftForm.setUserId(me.getUserId());
@@ -517,10 +520,8 @@ public class JobSubmissionController extends WaspController {
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
 
-		generateCreateForm(m);
 		m.put("jobDraft", jobDraft);
-
-		return "jobsubmit/create";
+		return generateCreateForm(m);
 	}
 
 
@@ -557,8 +558,8 @@ public class JobSubmissionController extends WaspController {
 		result.addAllErrors(errors);
 		if (result.hasErrors()) {
 			waspMessage("jobDraft.form.error");
-			generateCreateForm(m);
-			return "jobsubmit/create";
+			m.put("jobDraft", jobDraftForm);
+			return generateCreateForm(m);
 		}
 
 		jobDraft.setName(jobDraftForm.getName());
@@ -586,8 +587,8 @@ public class JobSubmissionController extends WaspController {
 		
 		if (result.hasErrors()) {
 			waspMessage("jobDraft.form.error");
-			generateCreateForm(m);
-			return "jobsubmit/create";
+			m.put("jobDraft", jobDraftForm);
+			return generateCreateForm(m);
 		}
 
 		JobDraft jobDraftDb = jobDraftService.save(jobDraftForm); 

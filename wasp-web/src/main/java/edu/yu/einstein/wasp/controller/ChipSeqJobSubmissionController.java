@@ -45,6 +45,9 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 
 
 		List<SampleDraft> samples=sampleDraftService.getSampleDraftByJobId(jobDraftId);
+		if (samples.size() < 2){
+			return nextPage(jobDraft);
+		}
 		Set<String> selectedSamplePairs = new HashSet<String>();
 		String samplePairsKey = jobDraft.getWorkflow().getIName()+".samplePairsTvsC";
 		JobDraftMeta samplePairsTvsC = jobDraftMetaService.getJobDraftMetaByKJobdraftId(samplePairsKey, jobDraftId);

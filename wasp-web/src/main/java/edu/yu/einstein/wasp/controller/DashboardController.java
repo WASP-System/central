@@ -97,9 +97,7 @@ public class DashboardController extends WaspController {
 				case jd: jobDraftCount++; break;
 			}
 		}
-		if (authenticationService.hasRole("su") || authenticationService.hasRole("ga")){
-			jobsAllCount = jobService.findAll().size();
-		}
+		jobsAllCount = jobService.findAll().size();
 		m.addAttribute("me", authenticationService.getAuthenticatedUser());
 		
 		//m.addAttribute("departments", departmentList);  //no longer needed

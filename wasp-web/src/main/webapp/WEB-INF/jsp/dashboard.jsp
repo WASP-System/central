@@ -144,18 +144,18 @@
 <br />
 <div>
 
-<sec:authorize access="hasRole('jv-*') or hasRole('su') or hasRole('ga') or hasRole('lu-*')">
+<sec:authorize access="hasRole('jv-*') or hasRole('su') or hasRole('ga') or hasRole('lu-*') or hasRole('fm') or hasRole('ft')">
 	<h1>Job Utils</h1>
 	<sec:authorize access="hasRole('jv-*')">
 	<div>
-		<a href="<c:url value="/job/list.do?userId=${me.getUserId()}"/>">Viewable Jobs (<c:out value="${jobViewableCount}" />)</a>
+		<a href="<c:url value="/job/list.do?userId=${me.getUserId()}"/>">My Viewable Jobs (<c:out value="${jobViewableCount}" />)</a>
 	</div>
 
 	<div>
 		<a href="<c:url value="/jobsubmit/list.do?userId=${me.getUserId()}"/>">Drafted Jobs (<c:out value="${jobDraftCount}" />)</a>
 	</div>
 	</sec:authorize>
-	<sec:authorize access="hasRole('su') or hasRole('ga')">
+	<sec:authorize access="hasRole('su') or hasRole('ga') or hasRole('fm') or hasRole('ft')">
 	<div>
 		<a href="<c:url value="/job/list.do"/>">View All Jobs (<c:out value="${jobsAllCount}" />)</a>
 	</div>
