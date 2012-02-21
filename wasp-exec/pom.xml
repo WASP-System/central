@@ -10,7 +10,7 @@
 
 	<artifactId>wasp-exec</artifactId>
 	<packaging>jar</packaging>
-	<name>WASP batch app </name>
+	<name>WASP standalone batch app</name>
 
 	<build>
     <plugins>
