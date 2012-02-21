@@ -1,0 +1,1 @@
+java -cp "target/*:/home/ewah/j/apache-tomcat-7.0.14/waspPlugins/*" edu.yu.einstein.wasp.batch.StartSpring
