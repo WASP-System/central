@@ -45,7 +45,7 @@
 	</div>
 </sec:authorize>
 
-<c:if test="${departmentuser}.size() > 0 ">		
+<c:if test="${departmentuser.size() > 0}">		
 <h1><fmt:message key="department.detail_existingadmin.label" /></h1>
 <table class="data tab-data">
 <c:forEach items="${departmentuser}" var="u">
@@ -55,13 +55,14 @@
 		<c:out value="${u.user.lastName}" />
 	</td>
 	<sec:authorize access="hasRole('su')">
-		<td class="action">
-			<c:if test="${departmentuser.size() > 1}">
+	 <c:if test="${departmentuser.size() > 1}"> <!-- cannot delete the department admin if there is only a single department admin -->
+		<td class="action">			
 				<a href="/wasp/department/user/roleRemove/<c:out value="${department.departmentId}" />/<c:out value="${u.user.userId}" />.do">
 					<fmt:message key="department.detail_remove.label" />
 				</a>
-			</c:if>
-		</sec:authorize>
+		</td>
+	 </c:if>
+	</sec:authorize>
 	</tr>
 </c:forEach>
 <table>

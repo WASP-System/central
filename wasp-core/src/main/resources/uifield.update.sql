@@ -871,4 +871,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','sampleSourceNotExist','error','Action Failed: Selected Library Not Found','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','samplesourceTypeError','error','Action Failed: Selected samplesource missing cell or library','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','libraryRemoved','success','Selected Library Removed From Flowcell','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','lmpendingtask','title','label','PI/Lab Manager Pending Tasks','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','lmpendingtask','subtitle1','label','Pending Users','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','lmpendingtask','subtitle2','label','Pending Jobs','1');
 
