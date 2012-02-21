@@ -53,8 +53,8 @@
     <property name="uiFieldGroupsFromWrapper">
     	<list>
     		<ref bean="genericBiomoleculeUiFields" /> 
-<!--    		<ref bean="genericDNAUiFields" /> -->
-<!--    		<ref bean="chipSeqDnaSpecificUiFields" /> -->
+    		<ref bean="genericDNAUiFields" />
+   		<ref bean="chipSeqDnaSpecificUiFields" />
     	</list>
     </property>
     
@@ -77,8 +77,8 @@
     <property name="uiFieldGroupsFromWrapper">
     	<list>
     		<ref bean="genericBiomoleculeUiFields" /> 
-<!--    		<ref bean="chipSeqDnaSpecificUiFields" />
-    		<ref bean="genericLibraryUiFields" />  -->
+    		<ref bean="chipSeqDnaSpecificUiFields" />
+    		<ref bean="genericLibraryUiFields" /> 
     	</list>
     </property>
   </bean>
