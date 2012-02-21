@@ -81,7 +81,7 @@
 
         <property name="statusMap">
           <map>
-            <entry key="UNRECEIVABLE" value="XXX" />
+            <entry key="ABANDONED" value="ABANDONED" />
             <entry key="COMPLETED" value="FINALIZED" />
           </map>
         </property>
