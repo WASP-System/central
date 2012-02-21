@@ -67,6 +67,8 @@
 	
 	<xi:include href="content/future.xml"/>
 	
-	<xi:include href="content/appendix.xml"/>
+	<xi:include href="content/glossary.xml"/>
+
+	<xi:include href="content/tasks.xml"/>
 
 </book>
