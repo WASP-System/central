@@ -1,26 +1,31 @@
 package edu.yu.einstein.wasp.classloader;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.loader.WebappClassLoader;
 
-import org.apache.tools.ant.DirectoryScanner;
+import org.apache.catalina.startup.Bootstrap;
 
 /**
  * WaspTomcatClassLoader
  *
  * Scans a BASEDIR directory for jars and adds into the
- * webappclassloader
+ * webappclassloader.
+ * 
  *
- * BASEDIR is set to ${catalina.base}/waspPlugins
+ * BASEDIR is set to ${catalina.home}/waspPlugins
+ * 
+ * this will NOT scan recursively
  *
  */
 
 public class WaspTomcatClassLoader extends WebappClassLoader {
 	
 	final String BASEDIR = "waspPlugins";
+	final String JAREXTENSION = "jar";
 
 	public WaspTomcatClassLoader(ClassLoader parent) {
 		super(parent);
@@ -28,37 +33,62 @@ public class WaspTomcatClassLoader extends WebappClassLoader {
 
 	public void start() throws LifecycleException {
 		System.out.println("WaspClassLoader.start()");
-		addCustomRepositoryOrLocation();
+		addCustomRepositoryOrLocation(Bootstrap.getCatalinaHome() + "/" + BASEDIR);
 		super.start();
 	}
 
-	private void addCustomRepositoryOrLocation() {
+	private void addCustomRepositoryOrLocation(String directory) throws LifecycleException {
 
-		// finds all jars in within the directory tree
-		DirectoryScanner scanner = new DirectoryScanner();
-		scanner.setIncludes(new String[]{"**/*.jar"});
-		scanner.setBasedir(BASEDIR);
-		scanner.setCaseSensitive(false);
-		scanner.scan();
-		String[] stringURLs = scanner.getIncludedFiles();
+		File dir = new File(directory);
 
+		// filter to only allow for .jar files
+		FilenameFilter filter = new FilenameFilter() {  
+			public boolean accept(File dir, String name) {  
+				return name.endsWith("." + JAREXTENSION);  
+			}  
+		};  
 
-		URL[] urls = new URL[stringURLs.length];
+		String[] children = dir.list(filter);  
+		if (children == null) {  
+			// Either dir does not exist or is not a directory  
 
-		for (int n = 0; n < stringURLs.length; n++) {
+			// throw exception
+			System.out.println("Wasp Loader Could not find directory " + directory);
+
+			throw new LifecycleException(directory + " not found");
+		} 
+
+		for (int n=0; n<children.length; n++) {  
+			// Get filename of file or directory  
+			String filename = children[n];  
 
 			try {
-				urls[n] = new File(BASEDIR + "/" + stringURLs[n]).toURL();
-				System.out.println("WaspClassLoader.adding plugin url " + urls[n]);
+				URL jarUrl = new File(directory + "/" + filename).toURL();
+				System.out.println("** WaspClassLoader.adding plugin url " + jarUrl);
+				addURL(jarUrl);
+
 			} catch (MalformedURLException e) {
 				e.printStackTrace();
 			}
 
-			// this will tell wasp to look for the jars at the new locations also.
+		}  
 
-			addURL(urls[n]);
-		}
+		/** chance there to recurse through directory, but needs to tag seen jars
 
+		 ** BELOW UNTESTED
+			FilenameFilter dirFilter = new FileFilter() {  
+				public boolean accept(File file) {
+					return file.isDirectory(); 
+				}  
+			};  
+			String[] childrenDirs = dir.list(dirFilter);  
+			if (childrenDirs != null) {
+				for (int n=0; n<childDirs.length; n++) {  
+					addCustomRepositoryOrLocation(childDirs[n]);
+				}			
+			}
+
+		**/
 	}
 
 
