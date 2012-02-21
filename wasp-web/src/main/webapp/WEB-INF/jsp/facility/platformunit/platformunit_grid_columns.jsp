@@ -7,5 +7,5 @@ _url='/wasp/facility/platformunit/selid/listJSON.do';
 
 _navAttr={edit:false,view:true,add:false,del:false};
 
-_navAttr.search=true;
+_navAttr.search=false;
 
