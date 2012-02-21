@@ -217,7 +217,7 @@
   <div>
   <h1>Platform Unit</h1>
   <!--  <div><a href="<c:url value="/facility/platformunit/list.do"/>">List / Create</a></div> -->
-  <div><a href="<c:url value="/facility/platformunit/limitPriorToPlatformUnitAssign.do" />">List / Create</a></div>
+  <div><a href="<c:url value="/facility/platformunit/limitPriorToPlatUnitAssign.do" />">List / Create</a></div>
   <div><a href="<c:url value="/facility/platformunit/assign.do" />">Platform Unit assignment (must remove this)</a></div>
   <div><a href="<c:url value="/facility/platformunit/limitPriorToAssign.do?resourceCategoryId=0" />">Platform Unit assignment</a></div>
   </div>

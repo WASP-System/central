@@ -165,8 +165,6 @@ public class PlatformUnitController extends WaspController {
 		m.addAttribute("_metaList", getMetaHelperWebapp().getMasterList(SampleMeta.class));
 		m.addAttribute(JQFieldTag.AREA_ATTR, "platformunitById");
 		m.addAttribute("_metaDataMessages", MetaHelper.getMetadataMessages(request.getSession()));
-		request.getSession().setAttribute("selId", request.getParameter("selId"));
-
 
 		return "facility/platformunit/selid/list";
 	}
@@ -179,7 +177,7 @@ public class PlatformUnitController extends WaspController {
 		m.addAttribute(JQFieldTag.AREA_ATTR, "platformunit");
 		m.addAttribute("_metaDataMessages", MetaHelper.getMetadataMessages(request.getSession()));
 		
-		request.getSession().setAttribute("resourceCategoryId", new Integer (request.getParameter("resourceCategoryId")));
+		//request.getSession().setAttribute("resourceCategoryId", new Integer (request.getParameter("resourceCategoryId")));
 		
 		return "facility/platformunit/list";
 	}
@@ -241,8 +239,6 @@ public class PlatformUnitController extends WaspController {
 	try {
 		ObjectMapper mapper = new ObjectMapper();
 		
-		String selIdParam = request.getSession().getAttribute("selId").toString();
-
 		int pageIndex = Integer.parseInt(request.getParameter("page")); // index of page
 		int pageRowNum = Integer.parseInt(request.getParameter("rows")); // number of rows in one page
 		int rowNum = sampleList.size(); // total number of rows
@@ -255,9 +251,7 @@ public class PlatformUnitController extends WaspController {
 		Map<String, String> sampleData = new HashMap<String, String>();
 
 		sampleData.put("page", pageIndex + "");
-		//sampleData.put("selId", StringUtils.isEmpty(request.getParameter("selId")) ? "" : request.getParameter("selId"));
-		sampleData.put("selId", StringUtils.isEmpty(selIdParam) ? "" : selIdParam);
-
+		sampleData.put("selId", StringUtils.isEmpty(request.getParameter("selId")) ? "" : request.getParameter("selId"));
 		jqgrid.put("sampledata", sampleData);
 
 		List<Map> rows = new ArrayList<Map>();
@@ -270,9 +264,9 @@ public class PlatformUnitController extends WaspController {
 		 * if the selId is set, change the page index to the one contains
 		 * the selId
 		 */
-		if (!StringUtils.isEmpty(selIdParam)) {
-			int selId = Integer.parseInt(selIdParam);
-			int selIndex = sampleList.indexOf(sampleService.findById(selId));
+		if (!StringUtils.isEmpty(request.getParameter("selId"))) {
+			int selId = Integer.parseInt(request.getParameter("selId"));
+			int selIndex = sampleList.indexOf(this.sampleService.findById(selId));
 			frId = selIndex;
 			toId = frId + 1;
 
@@ -315,8 +309,8 @@ public class PlatformUnitController extends WaspController {
 		m.addAttribute(JQFieldTag.AREA_ATTR, "platformunitInstance");
 		m.addAttribute("_metaDataMessages", MetaHelper.getMetadataMessages(request.getSession()));
 		
-		request.getSession().setAttribute("subtypeSampleId", new Integer (request.getParameter("subtypeSampleId")));
-		request.getSession().setAttribute("typeSampleId", new Integer (request.getParameter("typeSampleId")));
+		//request.getSession().setAttribute("subtypeSampleId", new Integer (request.getParameter("subtypeSampleId")));
+		//request.getSession().setAttribute("typeSampleId", new Integer (request.getParameter("typeSampleId")));
 		prepareSelectListData(m);
 
 		return "facility/platformunit/instance/list";
@@ -328,7 +322,9 @@ public class PlatformUnitController extends WaspController {
 		/**** Begin Lane Count calculations  ****/
 		
 		Map<String, Integer> subtypeSampleMetaMap = new HashMap<String, Integer>();
-		subtypeSampleMetaMap.put("subtypeSampleId", (Integer) request.getSession().getAttribute("subtypeSampleId"));
+		//subtypeSampleMetaMap.put("subtypeSampleId", (Integer) request.getSession().getAttribute("subtypeSampleId"));
+		subtypeSampleMetaMap.put("subtypeSampleId", new Integer(request.getParameter("subtypeSampleId")));
+
 		List <SubtypeSampleMeta> subtypeSampleMetaList = new ArrayList <SubtypeSampleMeta> (this.subtypeSampleMetaService.findByMap(subtypeSampleMetaMap));
 		
 		Integer maxCellNum = null;
@@ -444,8 +440,9 @@ public class PlatformUnitController extends WaspController {
 		
 		Map<String, Integer> resourceCategoryMap = new HashMap<String, Integer>();
 		
-		resourceCategoryMap.put("resourcecategoryId", (Integer) request.getSession().getAttribute("resourceCategoryId"));
-		
+		//resourceCategoryMap.put("resourcecategoryId", (Integer) request.getSession().getAttribute("resourceCategoryId"));
+		resourceCategoryMap.put("resourcecategoryId", new Integer(request.getParameter("resourceCategoryId")));
+
 		List<SubtypeSample> subtypeSampleFilteredList = new ArrayList<SubtypeSample> ();
 
 		for (SubtypeSampleResourceCategory subtypeSampleResCat : (List<SubtypeSampleResourceCategory>) this.subtypeSampleResourceCategoryService.findByMap(resourceCategoryMap)) {
@@ -549,9 +546,12 @@ public class PlatformUnitController extends WaspController {
 		Map<String, Integer> sampleListBaseQueryMap = new HashMap<String, Integer>();
 		Map<String, String> searchParamMap = new HashMap<String, String>();
 
-		sampleListBaseQueryMap.put("subtypeSampleId", (Integer) request.getSession().getAttribute("subtypeSampleId"));
-		sampleListBaseQueryMap.put("typeSampleId", (Integer) request.getSession().getAttribute("typeSampleId"));
+		//sampleListBaseQueryMap.put("subtypeSampleId", (Integer) request.getSession().getAttribute("subtypeSampleId"));
+		//sampleListBaseQueryMap.put("typeSampleId", (Integer) request.getSession().getAttribute("typeSampleId"));
+		sampleListBaseQueryMap.put("subtypeSampleId", new Integer(request.getParameter("subtypeSampleId")));
+		sampleListBaseQueryMap.put("typeSampleId", new Integer(request.getParameter("typeSampleId")));
 
+		
 		List<String> orderConstraints = new ArrayList<String>();
 		orderConstraints.add("name");
 
@@ -701,8 +701,9 @@ public class PlatformUnitController extends WaspController {
 			}
 			
 		}
-		sampleForm.setSubtypeSampleId((Integer) (request.getSession().getAttribute("subtypeSampleId")));
-		
+		//sampleForm.setSubtypeSampleId((Integer) (request.getSession().getAttribute("subtypeSampleId")));
+		sampleForm.setSubtypeSampleId(new Integer(request.getParameter("subtypeSampleId")));
+
 		SampleBarcode sampleBarcode = new SampleBarcode();
 		Barcode barcode = new Barcode();
 		
@@ -1035,9 +1036,9 @@ public class PlatformUnitController extends WaspController {
 	/**
 	 * limitPriorToPlatformUnitAssignment
 	 */
-	@RequestMapping(value="/limitPriorToPlatformUnitAssign.do", method=RequestMethod.GET)
+	@RequestMapping(value="/limitPriorToPlatUnitAssign.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('ft')")
-	public String limitPriorToPlatformUnitAssignForm(ModelMap m) {
+	public String limitPriorToPlatUnitAssignForm(ModelMap m) {
 		
 		TypeResource typeResource = typeResourceService.getTypeResourceByIName("mps");
 		//if(typeResource.getTypeResourceId()==0){
@@ -1049,7 +1050,7 @@ public class PlatformUnitController extends WaspController {
 		List<ResourceCategory> resourceCategories = resourceCategoryService.findByMap(filterForResourceCategory);
 		
 		m.put("resourceCategories", resourceCategories);
-		return "facility/platformunit/limitPriorToPlatformUnitAssign"; 
+		return "facility/platformunit/limitPriorToPlatUnitAssign"; 
 	}
 	
 	
