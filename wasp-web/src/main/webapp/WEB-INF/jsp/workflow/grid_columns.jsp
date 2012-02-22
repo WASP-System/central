@@ -6,6 +6,8 @@
 
 <wasp:field name="isActive"  type="checkbox" />
 
-<wasp:field name="configure" type="text" />
+<wasp:field name="configure" type="text" showLink="true" baseLinkURL="/wasp/workflow/resource/configure.do" >
+	#field.jq.editrules.edithidden=true;
+</wasp:field>
 
 _navAttr={edit:false,view:true,add:false,del:false};

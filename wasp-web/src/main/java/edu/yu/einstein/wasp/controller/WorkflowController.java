@@ -148,7 +148,7 @@ public class WorkflowController extends WaspController {
 										.toString(), 
 								workflow.getName(),
 								workflow.getIsActive().intValue() == 1 ? "yes" : "no",
-								"<a href=/wasp/workflow/resource/"+workflow.getWorkflowId().toString()+".do >configure</a>"}));
+								"configure"}));
 
 				for (WorkflowMeta meta : workflowMeta) {
 					cellList.add(meta.getV());
@@ -181,10 +181,10 @@ public class WorkflowController extends WaspController {
 	 *
 	 */ 
 
-	@RequestMapping(value = "/resource/{workflowId}.do", method = RequestMethod.GET)
+	@RequestMapping(value = "/resource/configure", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('fm')")
 	public String showSoftwareForm(
-			@PathVariable("workflowId") Integer workflowId,
+			@RequestParam("selId") Integer workflowId,
 			ModelMap m) {
 
 		Workflow workflow = workflowService.getWorkflowByWorkflowId(workflowId); 
@@ -271,7 +271,7 @@ public class WorkflowController extends WaspController {
 		m.put("workflowSoftwareOptions", workflowSoftwareOptions);
 		m.put("workflowSoftwareVersionedNameMap", workflowSoftwareVersionedNameMap);
 
-		return "workflow/resource/form";
+		return "workflow/resource/configure";
 	}
 	
 /**
@@ -280,11 +280,10 @@ public class WorkflowController extends WaspController {
 	 *
 	 */ 
 
-	@RequestMapping(value = "/resource/{workflowId}.do", method = RequestMethod.POST)
+	@RequestMapping(value = "/resource/configure", method = RequestMethod.POST)
 	@PreAuthorize("hasRole('su') or hasRole('fm')")
 	public String updateSoftware(
-			@PathVariable("workflowId") Integer workflowId,
-
+			@RequestParam("workflowId") Integer workflowId,
 			@RequestParam(value="resourceCategory", required=false) String[] resourceCategoryParams,
 			@RequestParam(value="resourceCategoryOption", required=false) String[] resourceCategoryOptionParams,
 			@RequestParam(value="software", required=false) String[] softwareParams,

@@ -6,6 +6,7 @@
 </h1>
 
 <form:form method="POST">
+	<input type="hidden" name="workflowId" value="<c:out value="${workflowId}" />" />
 	<c:forEach items="${workflowTypeResourceMap}"
 		var="workflowTypeResource">
 		<section style="margin-bottom: 20px">
