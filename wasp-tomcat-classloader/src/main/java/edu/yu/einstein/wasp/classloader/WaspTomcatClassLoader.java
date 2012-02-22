@@ -63,7 +63,7 @@ public class WaspTomcatClassLoader extends WebappClassLoader {
 			String filename = children[n];  
 
 			try {
-				URL jarUrl = new File(directory + "/" + filename).toURL();
+				URL jarUrl = new File(directory + "/" + filename).toURI().toURL();
 				System.out.println("** WaspClassLoader.adding plugin url " + jarUrl);
 				addURL(jarUrl);
 
