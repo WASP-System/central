@@ -1,0 +1,367 @@
+INTRODUCTION
+
+---
+
+REQUIREMENTS
+* MySQL database
+* Java 1.6 or higher  
+* Tomcat Web Container
+* Network File System
+ - the most basic communication is accomplished through file drop off and pollers, there is added ease
+
+---
+
+INSTALLATION
+
+* Creation of Database
+  > mysql -u root < db/createdb.sql
+* Creation of Schema
+  > mysql -u root < db/create.sql
+* Creation of Initial Dataset
+  > mysql -u root < db/init.sql
+  - this script only creates a single superuser user called super
+* Tomcat Build
+  > cp wasp-web/target/wasp-web-0.1.0-SNAPSHOT.war ${catalina.home}/webapps/wasp.war
+* Setting up Plugin Directory
+  > mkdir ${catalina.home}/waspPlugins
+  > cp wasp-tomcat-classloader/target/wasp-tomcat-classloader-0.1.0-SNAPSHOT.jar ${catalina.home}/lib
+
+  (to disable the plugin in directory, remove 'webapps/wasp/META-INF/context.xml' and restart)
+
+* Starting up
+  > ${catalina.home}/bin/startup.sh
+
+* Initial Signin
+  > http://host:port/wasp/
+  > user/password: admin/abc123
+
+* Adding plugins
+  > cp Plugin/ChipSeq/target/WASP-ChipSeq-0.0.1-SNAPSHOT.jar ${catalina.home}/waspPlugins
+
+---
+
+CORE PACKAGES UTILIZED
+* JPA/Hibernate
+* Spring Core
+* Spring MVC
+  - spring mvc acts as the directory
+* Spring Security
+  - spring security acts as the security layer for the website
+* JSTL
+  - jstl is used to render jsp pages
+* JQGrid
+* Velocity
+  - velocity is used to render outgoing emails
+* Spring Integration/Batch 
+  - spring integration and spring batch combine as the polling and workflow engine
+
+
+---
+
+WASP PACKAGES
+* wasp-core 
+  - contains all the models, services, and dao
+  - includes configuration for databases, db auditing 
+  - includes spring integration/batch  
+* wasp-web
+  - contains everything pertaining to the web
+  - controllers w/ request mappings
+  - jsp pages
+  - taglib
+  - tiles definition 
+  - spring security definitions
+ 
+* wasp-exec
+  - used to run the spring integration/batch backend
+  - a project that includes wasp-core
+  - it builds into a executable jar file with all dependencies
+  - [todo? move the spring integration/batch code into here]
+  
+* wasp-tomcat-class
+  - a single class that acts a classloader for tomcat
+
+* Plugins
+  - see plugin section 
+
+---
+
+BASE ENTITIES IN THE DATABASE
+
+* Overlying concepts
+  + Base entities will generally have the following fields
+    - id, (named baseentityid), an unique internal identifier for the entity
+    - iname, a unique human 'readable' identifier for the entity for setup
+    - name, an actual human readable label for the identity
+    - isactive, a status of whether is active or not
+    - lastupdts, when the entity was last updated
+    - lastupduser, and by whom
+  + Most base entities will have supporting meta table
+    - these are name baseentitymeta
+    - meta tables are stored as key/value pairs
+    - keys are name spaced with areas.
+      >  userid | k | v
+      >  1 | user.title | Doctor
+      >  1 | user.institution | Einstein
+      >  1 | user.department | Genetics
+    - more than one area can exist for a base entity 
+
+* UI Fields
+  + UI Fields a label generation
+    - across the web all labels are internationalized as 
+      > <fmt:message key="auth.login_user.label" />
+    the key is read as  
+      > locale | area | name       | attrname | attrvalue 
+      > en_US  | auth | login_user | label    | User      
+
+  + UI Fields as form generation
+    - forms can be generated with ui fields if a control is included
+      > locale | area | name            | attrname   | attrvalue 
+      > en_US  | lab  | billing_address | label      | Billing Address
+      > en_US  | lab  | billing_address | error      | Billing Address cannot be empty
+      > en_US  | lab  | billing_address | constraint | NotEmpty
+
+    - Constraint are defined in wasp-web/.../controller/validator/Constraint
+    - they include include
+      . NotEmpty
+      . RegExp, a Regular Expression 
+      . isValidPiId, [todo add desc]
+    - in addition a "control" can be added into attrname
+      . static drop down of pairs
+        > en_US  | genericLibrary       | adaptorindex          | control  | select:1:1;2:2;3:3;4:4;5:5;6:6;7:7;8:8
+      . dynamic drop down from bean 
+        > en_US  | labPending           | billing_departmentId  | control  | select:${departments}:departmentId:name
+      . dynamic drop down from bean method
+        > en_US  | illuminaHiSeq2000    | readType              | control  | select:${resourceOptions.get(readType)}:value:label 
+  + generally user inputed UI Fields will be stored in meta tables
+    - the key will become uiFieldArea.uiFieldName 
+  
+
+* Users
+  > user
+  + Core information record include
+    - login, an internal wasp login
+    - email, the email where the user will receive notifications
+    - password
+    - firstname and lastname
+    - locale, the language and i8n format the user prefers to see messages
+  + Additional information is stored in the meta table 
+
+  + Users who forget their passwords are supported by the 'userpasswordauth' and the 'confirmemailauth' tables
+  + Unverified users are stored in the 'userpending' table
+
+* Labs
+  > lab
+  + Labs group together users
+  + Core information stored include
+    - primaryuser, the primary user for that lab
+  + Additional information is stored in the meta table 
+  + Users belonging to lab exist in the 'labuser' table
+    - a role is included in the labuser table
+      . lab member
+      . lab manager, a user given additional equivalent responsibilities of the primary user
+      . primary user, a de-normalized duplication of the parent table
+  + a User may belong to one or more labs.
+  + Unverified labs are stored in the 'userpending' table
+
+* Departments
+  > department
+  + Departments group together labs
+  + Core information include:
+    - isinternal, a flag whether the entity is internal or external
+  + Labs belong to the Department are stored within the 'lab' table
+    - a lab can belong to must belong to one and only one department. 
+  + Department Admins are stored in the 'departmentuser' table.
+
+* Resource and Software
+  > typeresource, resourcecategory, resource, software
+  + Resources are specific permanent manifestations
+    - eg. the 'coffee machine on the 4th floor by the window'
+  + Resources must be of a type defined in 'typeresource'
+    - currently valid are 
+      . mps - massively parallel sequencers
+  + Resources must be of type defined in 'resourcecategory' [todo, subtyperesource?]
+    - these are loaded within plugins
+    - [todo, resourcecategory include a listing of area for meta data it is associated with  ?]
+  + Software conceptually mirrors Resources
+    - software are virtual, but permanent manifestation 
+      . eg. "Tetris for the gameboy"
+    - software must be of a type defined in 'typeresource'
+      . eg. "puzzlegame"
+    - there is no resourcecategory for software
+    - these are loaded within plugins
+
+* Samples
+  + Samples are temporary physical manifestations
+  + They must be of a type defined in 'typesample' 
+    - typesample are major categorizations.
+    - currently defined are
+      . dna 
+      . rna
+      . library - a prepared dna sequence with resource specific adaptors
+      . platformunit - the physical slide which goes into a resource
+      . cell - logistic separation of a platform unit
+      . tissue
+      . protein
+      . cellPrimary
+      . cellLine
+  + They may be of a subtype defined in 'subtypesample'
+    - subtypesample are specific categorization that will relate to a workflow or resource
+    - these are loaded within plugins 
+    - subtypesample include a listing of area for meta data it is associated with 
+  + Samples may relate to other samples with 'samplesource' 
+    - in general
+      . a tissue is the source of a dna or rna
+      . a dna and rna the source of a library
+      . a library is the source of a cell 
+      . a cell is the source of a platformunit
+
+* Job 
+  > job, jobuser(perm), jobresourcecategory, jobresource, jobsoftware
+  + Job essentially are groupings of samples
+  + these samples are expected to go through a series of resources and software
+  + a Job belong to Lab, 'jobid'
+  + a Job has a submitter, 'userid'
+  + additional viewers can be defined in 'jobuser'
+    - the job submitter is included in this table as well
+  + job submitters can define one or more resource category they want 'jobresourcecategory'
+  + job submitters can define one or more software they want 'jobsoftware'
+  + facility techs can define one or more resources that were(will be) used 'jobresource'
+
+* Workflow
+  + is a grouping of tasks and work need to be done
+  + jobs have workflows
+    > workflow
+    - only job workflows have entities in the db
+    - job based workflows include a dependencies
+      . typeresource in the table 'workflowtyperesource'
+      . subtypesampletypes in the table 'workflowsubtypesample'
+    - the facility manager must fulfill some dependencies for jobs to submit 
+      . resourcecategory in the table 'workfloresourcecategory'
+      . software in the table 'workflowsoftware'
+      . these may have metadata attached to them to help control options on the job submission pages 
+    - job workflow also are encapsulated in a spring batch configuration 
+      . these may include approval, accounting, etc. 
+      . ie. !! 
+  + samples have workflows
+    - sample workflow are encapsulated in a spring batch configuration 
+      . ie. !!
+      . these may include sample receiving, sample prep, analysis
+  + resoruces have workflow 
+    - sample workflow are encapsulated in a spring batch configuration 
+      . ie. !!
+      . these may include actual runs
+
+* Jobs Sample and Cell Assignment
+jobsample, jobcell, samplecell 
+
+* Job and Sample Draft
+  > jobdraft, sampledraft, jobdraftcell, jobdraftresourcecatetory, jobdraftsample, sampledraftcell
+  + Drafts mirroring the job and sample tables 
+
+* Run
+
+* Roles and Permissions
+  role, roleset
+
+* Tasks, Task Mapping and States
+  task
+
+
+* File 
+  file
+
+
+* Database Creation Conv.
+ + tables are belong to Engine InnoDb
+   - this allows for foreign key constrainst and transactions
+   > ENGINE=InnoDb
+ + tables are in the UTF-8 Character set 
+   - this allows for easier internationalization
+   > charset=utf8
+
+* Database Naming Conv.
+ + tables are name as tables
+ + primary keys are 'tableid'
+ + unique index are 'u_table_col1' or 'u_table_col1_col2'
+ + nonuniuqe index are 'i_table_col1' or 'i_table_col1_col2'
+ + foreign key constraints are 'fk_table_col1'
+ + link tables will always have a unique id for 
+   - eg. tablep and tableq
+     > create table tableptableq (
+     >  tableptableqid int(10) primary key, 
+     >  tablepid int(10) not null,
+     >  tableqid int(10) not null,
+     >  iname varchar(250) not null, 
+     >  foreign key fk_tableptableq_pid (tablepid) references tablep(tablepid),
+     >  foreign key fk_tableqtableq_qid (tableqid) references tableq(tableqid),
+     >  unique index fk_tableqtableq_iname (iname),
+     >  unique index fk_tableqtableq_pid_qid (tablepid, tableqid)
+     > );
+  
+* JPA and Hibernate
+  + assumes thing transactional
+
+* Entity Generation 
+  + a perl script was used to generate base classes for models, services and daos 
+  + db/table2type.pl reads create.sql and generate classes within the 't' sub directory
+  + services add in find'Table'By'UniqColumn'() method
+    - an new entity is created if the entity cannot be found
+      [ check for null tableid ]
+  + models add getter methods
+    - unique foreign keys are return a single entity
+    - non unique foreign keys are return a list of entities
+    - null is returned when joins do not match anything [todo, change to empty list?]
+  + special conditions are made to allow meta data tables to inherit from the MetaBase
+     
+
+* Audit Tables
+  + Audit Tables are created automatically
+  + Table updates through JPA
+  + in wasp-core/src/main/resources/META-INF/persistence.xml
+    > <property name="hibernate.ejb.event.post-insert" value="org.hibernate.ejb.event.
+    > EJB3PostInsertEventListener,org.hibernate.envers.event.AuditEventListener" />
+    > <property name="hibernate.ejb.event.post-update" value="org.hibernate.ejb.event.EJB3PostUpdateEventListener,org.hibernate.envers.event.AuditEventListener" />
+    > <property name="hibernate.ejb.event.post-delete" value="org.hibernate.ejb.event.EJB3PostDeleteEventListener,org.hibernate.envers.event.AuditEventListener" />
+    > <property name="hibernate.ejb.event.pre-collection-update" value="org.hibernate.envers.event.AuditEventListener" />
+    > <property name="hibernate.ejb.event.pre-collection-remove" value="org.hibernate.envers.event.AuditEventListener" />
+    > <property name="hibernate.ejb.event.post-collection-recreate" value="org.hibernate.envers.event.AuditEventListener" />
+  + Updates not through hibernate (eg. directly via mysql client) are not audited.
+
+
+  
+* Lastupdts and Lastupduser 
+  + lastupdts and lastupd user are setup to automatically populate 
+  + setUpdateTs and setEditorId methods in WaspDaoImpl is used
+  + they are called from WaspDaoImpl's persist, save, and merge method
+  
+
+
+
+PLUGIN INSTALLATION 
+
+
+TYPE LOADING
+* UI Fields
+* Workflow
+* Subtype Sample
+* Software
+* Resource Category
+
+
+TASK MAPPING 
+* wasp/**/*Task.xml will load a task into the database
+* Dashboard Integration and Task Mapping Table 
+
+
+REQUEST MAPPING
+* Job Submission
+  + extend from controller/
+* Task Fullfillment
+* spring context xml config
+
+SPRING BATCH AND INTEGRATION
+* wasp/*Batch.xml will load a task into the database
+
+
+PLUGIN CONFIGURATION 
+* Workflow -> Resource Category
