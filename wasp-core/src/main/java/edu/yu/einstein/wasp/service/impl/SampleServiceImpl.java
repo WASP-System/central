@@ -58,12 +58,12 @@ public class SampleServiceImpl extends WaspServiceImpl<Sample> implements Sample
 
 
   @Override
-public Sample getSampleBySampleId (final int sampleId) {
+  public Sample getSampleBySampleId (final int sampleId) {
     return this.getSampleDao().getSampleBySampleId(sampleId);
   }
 
   @Override
-public List<Sample> getSamplesByJobId (final int jobId) {
+  public List<Sample> getSamplesByJobId (final int jobId) {
 	  return this.getSampleDao().getSamplesByJobId(jobId);
   }
   
@@ -73,5 +73,11 @@ public List<Sample> getSamplesByJobId (final int jobId) {
 	  queryMap.put("isActive", 1);
 	  return this.findByMap(queryMap);
   }
+  
+  @Override
+  public Sample getSampleByName (final String name) {
+    return this.getSampleDao().getSampleByName(name);
+  }
+
 }
 

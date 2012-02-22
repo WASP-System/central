@@ -100,7 +100,7 @@ public class ResourceDaoImpl extends WaspDaoImpl<Resource> implements edu.yu.ein
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public Resource getResourceByName (final String name) {
-    		HashMap m = new HashMap();
+    	HashMap m = new HashMap();
 		m.put("name", name);
 
 		List<Resource> results = this.findByMap(m);

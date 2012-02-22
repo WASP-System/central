@@ -22,6 +22,7 @@ public interface SampleDao extends WaspDao<Sample> {
   
   List<Sample> getSamplesByJobId (final int jobId);
 
+  Sample getSampleByName(final String name);
 
 }
 

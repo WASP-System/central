@@ -43,5 +43,7 @@ public interface SampleService extends WaspService<Sample> {
 
   public List<Sample> getActiveSamples();
 
+  public Sample getSampleByName(final String name);
+
 }
 

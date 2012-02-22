@@ -221,16 +221,17 @@
 						}
 				};
 			}
-		
 			
-			<%-- list of column names --%>
+			
+		
+		<%-- list of column names --%>
 			colNames.push('${_meta.property.label}');
 		
 			<%-- list of column properties. see JQGrid documentation at http://www.trirand.com/jqgridwiki/doku.php?id=wiki:jqgriddocs for parameter descriptions --%>
 			colModel.push(
-			{name:'${_meta.k}', width:80, edittype:edittype, align:'right',hidden:true,editable:true,editrules:editrules,formoptions:formoptions,editoptions:editoptions}
+				{name:'${_meta.k}', width:80, edittype:edittype, align:'right',hidden:true,editable:true,editrules:editrules,formoptions:formoptions,editoptions:editoptions}
 			);
-			
+
 			<%-- list of column validation errors --%>
 			colErrors.push('${_meta.property.error}');
 			

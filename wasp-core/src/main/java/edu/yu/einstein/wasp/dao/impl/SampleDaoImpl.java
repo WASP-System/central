@@ -18,6 +18,7 @@ import java.util.List;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.yu.einstein.wasp.model.Resource;
 import edu.yu.einstein.wasp.model.Sample;
 
 @SuppressWarnings("unchecked")
@@ -87,6 +88,21 @@ public class SampleDaoImpl extends WaspDaoImpl<Sample> implements edu.yu.einstei
 			   
 		   } 
 		   return result;
+	}
+
+
+	@Override
+	public Sample getSampleByName(String name) {
+		HashMap m = new HashMap();
+		m.put("name", name);
+
+		List<Sample> results = this.findByMap(m);
+
+		if (results.size() == 0) {
+			Sample rt = new Sample();
+			return rt;
+		}
+		return results.get(0);
 	}
 }
 
