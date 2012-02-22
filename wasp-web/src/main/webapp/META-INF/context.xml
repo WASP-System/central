@@ -12,7 +12,7 @@ it also needs a copy of 'ant.jar'
 
 
 <Context path="/wasp">
-<!-- <Loader loaderClass="edu.yu.einstein.wasp.classloader.WaspTomcatClassLoader" delegate="true" /> -->
+<Loader loaderClass="edu.yu.einstein.wasp.classloader.WaspTomcatClassLoader" delegate="true" /> 
 </Context>
 
 
