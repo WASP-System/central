@@ -21,6 +21,7 @@ _editAttr['afterShowForm'] = function(formId) {
 // hide resource category text field on the add form, keep the dropdown list with only active resouceCategory in it
 _addAttr['afterShowForm'] = function(formId) {
 	$('#tr_machineType', formId).hide();
+	$('#tr_resource\\.decommission_date').hide();
 };
 
   

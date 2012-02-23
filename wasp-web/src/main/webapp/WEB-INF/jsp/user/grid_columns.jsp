@@ -2,7 +2,7 @@
 
 <wasp:field name="login" type="text"/>
 
-<wasp:field name="password" type="password" hidden="true" editHidden="true" />
+<%-- <wasp:field name="password" type="password" hidden="true" editHidden="true" /> --%>
 
 <wasp:field name="firstName" type="text" sortable="true"/>
 
