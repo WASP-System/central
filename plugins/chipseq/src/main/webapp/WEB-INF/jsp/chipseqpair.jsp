@@ -6,7 +6,6 @@
 
 <%@ include file="/WEB-INF/jsp/jobsubmit/jobsubmitinfo.jsp" %>
 
-<h1><font color="red">[DEBUG: FROM PLUGIN!]</font></h1>
 
 <div class="instructions">
    <fmt:message key="${workflowIName}.pairing_instructions.label"/>
