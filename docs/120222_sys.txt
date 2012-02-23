@@ -80,7 +80,7 @@ WASP PACKAGES
 * wasp-tomcat-class
   - a single class that acts a classloader for tomcat
 
-* Plugins
+* wasp-plugins
   - see plugin section 
 
 ---
@@ -252,20 +252,35 @@ BASE ENTITIES IN THE DATABASE
       . these may include actual runs
 
 * Jobs Sample and Cell Assignment
-jobsample, jobcell, samplecell 
+  > jobsample, jobcell, samplecell 
 
 * Job and Sample Draft
   > jobdraft, sampledraft, jobdraftcell, jobdraftresourcecatetory, jobdraftsample, sampledraftcell
   + Drafts mirroring the job and sample tables 
 
 * Run
+  > run 
+  + Runs when a resource or software meet a sample. 
+  + the facility tech in charge is stored
 
 * Roles and Permissions
-  role, roleset
+  > role, roleset
 
 * Tasks, Task Mapping and States
-  task
+  > task, taskmapping
+  + Task 
+    - Tasks are steps that require human intervention (or human notification).
 
+  + Task Mapping provides integration between the dashboard page and list of task
+    - for a given 'task' and 'status' a link to the request mapping will show up
+    - permissions can be added to limit who can fulfill that task
+    - permissions are in spel spring security
+    - #labId, #departmentId, #jobId are shortcuts for statejob.job.lab.departmentid, state.statejob.job.labid and state.statejob.job.jobid
+    - example of permissions
+      > "hasRole('su')";
+      > "hasRole('ft')";
+      > "hasRole('su') or hasRole('lm-#labId')"
+    - within taskService, getStatesByTaskIName gives a list of states in the system that fulfill the task, status, permission combination
 
 * File 
   file
@@ -326,42 +341,118 @@ jobsample, jobcell, samplecell
     > <property name="hibernate.ejb.event.pre-collection-remove" value="org.hibernate.envers.event.AuditEventListener" />
     > <property name="hibernate.ejb.event.post-collection-recreate" value="org.hibernate.envers.event.AuditEventListener" />
   + Updates not through hibernate (eg. directly via mysql client) are not audited.
-
-
   
 * Lastupdts and Lastupduser 
   + lastupdts and lastupd user are setup to automatically populate 
   + setUpdateTs and setEditorId methods in WaspDaoImpl is used
   + they are called from WaspDaoImpl's persist, save, and merge method
-  
+ 
+
+METADATA TIE IN  
+
+
+JQGRID
 
 
 
 PLUGIN INSTALLATION 
 
-
 TYPE LOADING
 * UI Fields
+  + Ui Fields are truncated and then reupdated with entries from a sql file upon startup.
+  + the sql file lives in 'wasp-core/src/main/resources/uifield.update.sql'
 * Workflow
+  > 'wasp/**/*WorkflowLoad.xml'
+  + populates 'workflow'
+  + property 'area', populates 'iname' field and denotes uifields area
+  + property 'name', populates 'name'
+  + property 'pageFlowOrder', populates 'uifield'
+    - this is the pageflow order of requestmappings for job submission 
+    - {n} is a variable replaced by jobDraftId
+  + property 'dependencies', populates 'workflowtyperesource'
+    - these will be used to set software and resource categories for the site
+  + property 'subtypeSamples', populates 'workflowsubtypesample'
+    - these are a list of allowable subtypesamples to be submitted
+  + property 'uiFieldFromWrapper'
+    - these are a list of uifields in the wrapper format [details on wrapper format]
+
+
 * Subtype Sample
+  > wasp/**/*Sample.xml 
+  + populates 'subtypsample'
+  + Samples are either dna/rna/libraries related to job workflows or platform units related to resource categories
+  + property 'area', populates 'iname' field and denotes uifields area
+  + property 'name', populates 'name'
+  + property 'metaList', populates samplemeta
+    - these include resource options
+  + property 'uiFieldFromWrapper'
+    - these are a list of uifields in the wrapper format [details on wrapper format]
+
 * Software
+  > wasp/**/*Software.xml
+  + populates 'software'
+  + property 'area', populates 'iname' field and denotes uifields area
+  + property 'name', populates 'name'
+  + property 'metaList', populates samplemeta
+
 * Resource Category
+  > wasp/**/*ResourceCategory.xml
+  + populates 'resourcecategory'
+  + property 'area', populates 'iname' field and denotes uifields area
+  + property 'name', populates 'name'
+  + property 'metaList', populates samplemeta
+    - these include resource options
+
+WORKFLOW/RESOURCE CONFIGURATION
+  > requestmapping 'workflow/software' 
+  + facility managers can assign software, resourcecategorys and options available to dependent typresource
 
 
 TASK MAPPING 
 * wasp/**/*Task.xml will load a task into the database
-* Dashboard Integration and Task Mapping Table 
+  > wasp/**/*Task.xml
+  + populates 'task' table
+  + property 'iname', populates 'iname' field and denotes uifields area
+  + property 'name', populates 'name'
+  + property 'taskmapping', populates 'taskmapping table
 
 
 REQUEST MAPPING
+* Spring context xml config
+  > resources/META-INF/spring/waspPlugin*.xml
+  + Supplumental spring configuration
+  + should include component Scan for its own controllers
 * Job Submission
-  + extend from controller/
-* Task Fullfillment
-* spring context xml config
+  + extend from 'JobSubmissionController'
+  + should return nextPage() upon page update completion
+* Dashboard Integration and Task Mapping Table 
+  + the dashboard fetchs items in the task mapping table to generate a list of tasks for that user
+    - these task are filtered by permission
+* Task Fulfillment Controllers should extend WaspController
+  + each custom task is responsible for
+    - maintaining it's own data
+    - jsp page display
+    - returning the user to the main wasp page
+* Tiles definition 
+  > resources/META-INF/tiles/tiles-*.xml
+  + the view page must be registered by the tiles definition file 
+    - each plugin i
+* JSP
+  + wasp plugins expects their jsp pages in webapp/WEB-INF/jsp/
+    - [naming conventions should go to 'webapp/WEB-INF/jsp/wasp-plugin/namespace/page.jsp']
 
 SPRING BATCH AND INTEGRATION
 * wasp/*Batch.xml will load a task into the database
 
 
-PLUGIN CONFIGURATION 
-* Workflow -> Resource Category
+* Pollers
+  + Database Pollers
+  + File Pollers
+
+* Steps
+  + Create State
+  + Wait for state
+
+* Flows 
+
+
