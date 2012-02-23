@@ -496,6 +496,8 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','name','label','Name','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','name','constraint','NotEmpty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','name','error','Name cannot be empty','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','name_exists','error','Name already exists in the database','1');
+
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','subtype','label','Subtype','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','subtype','constraint','NotEmpty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','subtype','error','Subtype cannot be empty','1');
@@ -507,14 +509,13 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','comment','label','Comment','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','comment','error','Comment','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','comment','metaposition','20','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','version','label','Version','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','version','error','VErsioN','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','version','metaposition','10','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','lanecount','label','Lane Count','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','lanecount','constraint','NotEmpty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','lanecount','error','Lane Count cannot be empty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','lanecount','control','select:${lanes}:laneCount:label','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','lanecount','metaposition','60','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','lanecount_empty','error','Please select a number of lanes','1');
+
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','lanecountForEditBox','label','Lane Count','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','updated_success','label','Platformunit updated sucessfully.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','created_success','label','Platformunit created sucessfully.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','updated','error','Platformunit was NOT updated. Please fill in required fields.','1');
@@ -726,6 +727,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','lab','detail','label','Lab Details','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labuser','active','label','Active','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labuser','inactive','label','Inactive','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','resource_list','label','List of Resources','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','name','label','Name','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','name','error','Resource name cannot be empty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','name','constraint','NotEmpty','1');

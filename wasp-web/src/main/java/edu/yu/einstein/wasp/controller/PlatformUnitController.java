@@ -37,8 +37,6 @@ import edu.yu.einstein.wasp.model.Barcode;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
 import edu.yu.einstein.wasp.model.JobSample;
-import edu.yu.einstein.wasp.model.MetaBase;
-import edu.yu.einstein.wasp.model.ResourceBarcode;
 import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleBarcode;
@@ -192,7 +190,7 @@ public class PlatformUnitController extends WaspController {
 	@RequestMapping(value="/selid/listJSON", method=RequestMethod.GET)
 	public @ResponseBody
 	String getPlatformUnitBySelIdListJson(HttpServletResponse response) {
-
+		
 		String sord = request.getParameter("sord");
 		String sidx = request.getParameter("sidx");
 
@@ -544,8 +542,6 @@ public class PlatformUnitController extends WaspController {
 		Map<String, Integer> sampleListBaseQueryMap = new HashMap<String, Integer>();
 		Map<String, String> searchParamMap = new HashMap<String, String>();
 
-		//sampleListBaseQueryMap.put("subtypeSampleId", (Integer) request.getSession().getAttribute("subtypeSampleId"));
-		//sampleListBaseQueryMap.put("typeSampleId", (Integer) request.getSession().getAttribute("typeSampleId"));
 		sampleListBaseQueryMap.put("subtypeSampleId", new Integer(request.getParameter("subtypeSampleId")));
 		sampleListBaseQueryMap.put("typeSampleId", new Integer(request.getParameter("typeSampleId")));
 
@@ -687,40 +683,54 @@ public class PlatformUnitController extends WaspController {
 		List<SampleMeta> sampleMetaList = getMetaHelperWebapp().getFromJsonForm(request, SampleMeta.class);
 		sampleForm.setSampleMeta(sampleMetaList);
 		//sampleForm.setSampleId(sampleId); //do not set id here.  It will throw the "detached entity exception" when calling persist() on this object.
-		
-		//check if barcode already exists in Db; if 'true', do not allow to proceed.
-		if(this.barcodeService.getBarcodeByBarcode(request.getParameter("barcode")).getBarcode() != null && 
-				this.barcodeService.getBarcodeByBarcode(request.getParameter("barcode")).getBarcode().length() != 0) {
-			try{
-				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-				response.getWriter().println(messageService.getMessage("platformunitInstance.barcode_exists.error"));
-				return null;
-			} catch (Throwable e) {
-				throw new IllegalStateException("Cant output validation error "+messageService.getMessage("platformunitInstance.barcode_exists.error"),e);
+		if (sampleId == null || sampleId == 0) {
+			
+			logger.debug("sampleId is null="+sampleId);
+			//check if barcode already exists in Db; if 'true', do not allow to proceed.
+			if(this.barcodeService.getBarcodeByBarcode(request.getParameter("barcode")).getBarcode() != null && 
+					this.barcodeService.getBarcodeByBarcode(request.getParameter("barcode")).getBarcode().length() != 0) {
+				try{
+					response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+					response.getWriter().println(messageService.getMessage("platformunitInstance.barcode_exists.error"));
+					return null;
+				} catch (Throwable e) {
+					throw new IllegalStateException("Cant output validation error "+messageService.getMessage("platformunitInstance.barcode_exists.error"),e);
+				}
+				
 			}
 			
-		}
-		
-		//check if Sample Name already exists in db; if 'true', do not allow to proceed.
-		if(this.sampleService.getSampleByName(request.getParameter("name")).getName() != null) {
-			
-			try{
-				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-				response.getWriter().println(messageService.getMessage("platformunitInstance.name_exists.error"));
-				return null;
-			} catch (Throwable e) {
-				throw new IllegalStateException("Cant output validation error "+messageService.getMessage("platformunitInstance.name_exists.error"),e);
+			//check if Sample Name already exists in db; if 'true', do not allow to proceed.
+			if(this.sampleService.getSampleByName(request.getParameter("name")).getName() != null) {
+				
+				try{
+					response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+					response.getWriter().println(messageService.getMessage("platformunitInstance.name_exists.error"));
+					return null;
+				} catch (Throwable e) {
+					throw new IllegalStateException("Cant output validation error "+messageService.getMessage("platformunitInstance.name_exists.error"),e);
+				}
+				
 			}
 			
+			if(request.getParameter("platformunitInstance.lanecount") == null || request.getParameter("platformunitInstance.lanecount").equals("")) {
+				
+				try{
+					response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+					response.getWriter().println(messageService.getMessage("platformunitInstance.lanecount_empty.error"));
+					return null;
+				} catch (Throwable e) {
+					throw new IllegalStateException("Cant output validation error "+messageService.getMessage("platformunitInstance.lanecount_empty.error"),e);
+				}
+			}
 		}
-		//sampleForm.setSubtypeSampleId((Integer) (request.getSession().getAttribute("subtypeSampleId")));
 		sampleForm.setSubtypeSampleId(new Integer(request.getParameter("subtypeSampleId")));
 
-		preparePlatformUnit(sampleForm);
-		Integer laneCount = new Integer(request.getParameter("platformunitInstance.lanecount"));
-		//Integer laneCountEdit = new Integer(request.getParameter("lanecount"));
-
-		updatePlatformUnitInstance(sampleForm, laneCount);
+		preparePlatformUnit(sampleForm, sampleId);
+		logger.debug("platformunitInstance.lanecount="+request.getParameter("platformunitInstance.lanecount"));
+		logger.debug("lanecount="+request.getParameter("lanecountForEditBox"));
+		Integer laneCount = new Integer(request.getParameter("platformunitInstance.lanecount")==null || request.getParameter("platformunitInstance.lanecount").equals("")?request.getParameter("lanecountForEditBox"):request.getParameter("platformunitInstance.lanecount"));
+		updatePlatformUnitInstance(sampleForm, laneCount, sampleId);
+		
 
 		try {
 			response.getWriter().println(messageService.getMessage("platformunitInstance.updated_success.label"));
@@ -769,7 +779,7 @@ public class PlatformUnitController extends WaspController {
 		SessionStatus status,
 		ModelMap m) {
 
-		preparePlatformUnit(sampleForm);
+		preparePlatformUnit(sampleForm, sampleId);
 
 		return validateAndUpdatePlatformUnit(sampleForm, result, status, m);
 	}
@@ -780,14 +790,13 @@ public class PlatformUnitController extends WaspController {
 	 * @param sampleForm
 	 * @return
 	 */
-	public Sample preparePlatformUnit(Sample sampleForm) {
-		if (sampleForm.getSampleId() == null) {
+	public Sample preparePlatformUnit(Sample sampleForm, Integer sampleId) {
+		if (sampleId == null || sampleId.intValue() == 0) {
 			User me = authenticationService.getAuthenticatedUser();
 			sampleForm.setSubmitterUserId(me.getUserId());
 
 			TypeSample typeSample = typeSampleService.getTypeSampleByIName("platformunit");
 			sampleForm.setTypeSampleId(typeSample.getTypeSampleId());
-
 			sampleForm.setSubmitterLabId(1);
 	
 			sampleForm.setReceiverUserId(sampleForm.getSubmitterUserId());
@@ -797,9 +806,9 @@ public class PlatformUnitController extends WaspController {
 			sampleForm.setIsGood(1);
 			
 		} else {
-			Sample sampleDb =	sampleService.getSampleBySampleId(sampleForm.getSampleId());
+			Sample sampleDb =	sampleService.getSampleBySampleId(sampleId);
 			
-			SampleBarcode resourceBarcodeDB = this.sampleBarcodeService.getSampleBarcodeBySampleId(sampleForm.getSampleId());
+			//SampleBarcode resourceBarcodeDB = this.sampleBarcodeService.getSampleBarcodeBySampleId(sampleForm.getSampleId());
 
 
 			// TODO do compares that i am the same sample as sampleform, and not new
@@ -816,6 +825,7 @@ public class PlatformUnitController extends WaspController {
 			sampleForm.setReceiveDts(sampleDb.getReceiveDts());
 			sampleForm.setIsReceived(sampleDb.getIsReceived());
 			sampleForm.setIsActive(sampleDb.getIsActive());
+			sampleForm.setSampleId(sampleId);
 		}
 		return sampleForm;
 	}
@@ -828,13 +838,16 @@ public class PlatformUnitController extends WaspController {
 	 * @param laneNumber
 	 * @return
 	 */
-	public String createCell(Sample sampleForm, Integer laneNumber) {
+	public String createCell(Sample sampleForm, Integer laneNumber, Integer sampleId) {
 		
 		Integer typeSampleId = typeSampleService.getTypeSampleByIName("cell").getTypeSampleId();
-		if (sampleForm.getSampleId() == null || sampleForm.getSampleId().intValue() == 0) {
+		
+		
+		 Sample sampleDb = null;
+
+		if (sampleId == null || sampleId.intValue() == 0) {
 
 			for (int i = 0; i < laneNumber.intValue(); i++) {
-				 Sample sampleDb = null;
 				 Sample cell = new Sample();
 				 cell.setSubmitterLabId(sampleForm.getSubmitterLabId());
 				 cell.setSubmitterUserId(sampleForm.getSubmitterUserId());
@@ -857,29 +870,24 @@ public class PlatformUnitController extends WaspController {
 		}
 		else {
 		
-			//SampleSource sampleSourceDb = this.sampleSourceService.getSampleSourceBySampleId(sampleForm.getSampleId());
-			for (int i = 0; i < laneNumber.intValue(); i++) {
-				 Sample sampleDb = null;
-				 Sample cell = new Sample();
-				 cell.setSubmitterLabId(sampleForm.getSubmitterLabId());
-				 cell.setSubmitterUserId(sampleForm.getSubmitterUserId());
-				 cell.setName(sampleForm.getName()+"/"+(i+1));
-				 cell.setTypeSampleId(typeSampleId);
-				 cell.setIsGood(1);
-				 cell.setIsActive(1);
-				 cell.setIsReceived(1);
-				 cell.setReceiverUserId(sampleForm.getSubmitterUserId());
-				 cell.setReceiveDts(new Date());
-				 sampleDb = this.sampleService.save(cell);
-				 
-				 SampleSource sampleSource = new SampleSource();
-				 sampleSource.setSampleId(sampleForm.getSampleId());
-				 sampleSource.setSourceSampleId(sampleDb.getSampleId());
-				 sampleSource.setMultiplexindex(i+1);
-				 this.sampleSourceService.save(sampleSource);
-	 			 
-			 }
+			//SampleSource sampleSourceDb = this.sampleSourceService.getSampleSourceBySampleSourceId(sampleForm.getSampleId());
 			
+			Map<String, Integer> sampleSourceMap = new HashMap<String, Integer>();
+			Map<String, Integer> sampleMap = new HashMap<String, Integer>();
+
+			sampleSourceMap.put("sampleId", sampleForm.getSampleId());
+			List <SampleSource> sampleSourceList= this.sampleSourceService.findByMap(sampleSourceMap);
+			
+			
+			for (SampleSource sampleSource : sampleSourceList) {
+
+				Sample cell = this.sampleService.findById(sampleSource.getSourceSampleId());
+				for (int i = 0; i < laneNumber.intValue(); i++) {
+					 cell.setName(sampleForm.getName()+"/"+(i+1));
+					 this.sampleService.merge(cell);
+
+				}
+			}
 			
 			
 		}
@@ -937,10 +945,10 @@ public class PlatformUnitController extends WaspController {
 	 * @param laneCount
 	 * @return
 	 */
-	public String updatePlatformUnitInstance( Sample sampleForm, Integer laneCount) {
+	public String updatePlatformUnitInstance( Sample sampleForm, Integer laneCount, Integer sampleId) {
 	
 		Sample sampleDb;
-		if (sampleForm.getSampleId() == null || sampleForm.getSampleId().intValue() == 0) {
+		if (sampleId == null || sampleId.intValue() == 0) {
 			
 			sampleDb = sampleService.save(sampleForm);
 			
@@ -962,7 +970,7 @@ public class PlatformUnitController extends WaspController {
 		} else {
 			sampleDb = sampleService.merge(sampleForm);
 			
-			SampleBarcode sampleBarcodeDb = this.sampleBarcodeService.getSampleBarcodeBySampleId(sampleForm.getSampleId());
+			SampleBarcode sampleBarcodeDb = this.sampleBarcodeService.getSampleBarcodeBySampleId(sampleId);
 			
 			/* */
 			if (sampleBarcodeDb == null || sampleBarcodeDb.getBarcode() == null) {
@@ -998,7 +1006,7 @@ public class PlatformUnitController extends WaspController {
 		} // set a value for a member of the list by name
 		sampleMetaService.updateBySampleId(sampleDb.getSampleId(), normalizedSampleMeta); // now we get the list and persist it
 
-		//createCell(sampleDb, laneCount);
+		createCell(sampleDb, laneCount, sampleId);
 		
 		createState(sampleForm, sampleDb);
 		
