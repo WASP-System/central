@@ -193,8 +193,6 @@ public class PlatformUnitController extends WaspController {
 	public @ResponseBody
 	String getPlatformUnitBySelIdListJson(HttpServletResponse response) {
 
-		System.out.println("selId="+request.getParameter("searchString"));
-		
 		String sord = request.getParameter("sord");
 		String sidx = request.getParameter("sidx");
 
@@ -704,7 +702,6 @@ public class PlatformUnitController extends WaspController {
 		}
 		
 		//check if Sample Name already exists in db; if 'true', do not allow to proceed.
-		System.out.println("getParameter(name)="+request.getParameter("name"));
 		if(this.sampleService.getSampleByName(request.getParameter("name")).getName() != null) {
 			
 			try{

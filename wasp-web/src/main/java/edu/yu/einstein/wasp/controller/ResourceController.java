@@ -476,7 +476,6 @@ public class ResourceController extends WaspController {
 
 	private String detail(Integer resourceId, ModelMap m, boolean isRW) {
 		Resource resource = resourceService.getById(resourceId);
-		System.out.println("in detail");
 		resource.setResourceMeta(getMetaHelperWebapp().syncWithMaster(
 				resource.getResourceMeta()));
 

@@ -152,8 +152,8 @@ public Integer removeAll() {
         for (Object key: m.keySet()){
           q.setParameter(key.toString(), m.get(key));
         }
-        System.out.println("qString="+q.toString());
-
+        log.debug("qString="+q.toString());
+   
         return q.getResultList();
   }
  
