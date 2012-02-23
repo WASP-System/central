@@ -76,7 +76,7 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
 	
-	    Map<String,Object> params = request.getParameterMap();
+	    Map<String,String[]> params = request.getParameterMap();
 	
 	    JobDraft jobDraftDb = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
 	    List<SampleDraft> samples =  jobDraftDb.getSampleDraft();
