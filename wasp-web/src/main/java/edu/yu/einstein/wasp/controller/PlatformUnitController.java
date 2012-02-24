@@ -167,15 +167,12 @@ public class PlatformUnitController extends WaspController {
 		return "facility/platformunit/selid/list";
 	}
 
-
 	@RequestMapping(value="/list.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('ft')")
 	public String showListShell(ModelMap m) {
 		m.addAttribute("_metaList", getMetaHelperWebapp().getMasterList(SampleMeta.class));
 		m.addAttribute(JQFieldTag.AREA_ATTR, "platformunit");
 		m.addAttribute("_metaDataMessages", MetaHelper.getMetadataMessages(request.getSession()));
-		
-		//request.getSession().setAttribute("resourceCategoryId", new Integer (request.getParameter("resourceCategoryId")));
 		
 		return "facility/platformunit/list";
 	}
@@ -305,8 +302,6 @@ public class PlatformUnitController extends WaspController {
 		m.addAttribute(JQFieldTag.AREA_ATTR, "platformunitInstance");
 		m.addAttribute("_metaDataMessages", MetaHelper.getMetadataMessages(request.getSession()));
 		
-		//request.getSession().setAttribute("subtypeSampleId", new Integer (request.getParameter("subtypeSampleId")));
-		//request.getSession().setAttribute("typeSampleId", new Integer (request.getParameter("typeSampleId")));
 		prepareSelectListData(m);
 
 		return "facility/platformunit/instance/list";
@@ -318,7 +313,6 @@ public class PlatformUnitController extends WaspController {
 		/**** Begin Lane Count calculations  ****/
 		
 		Map<String, Integer> subtypeSampleMetaMap = new HashMap<String, Integer>();
-		//subtypeSampleMetaMap.put("subtypeSampleId", (Integer) request.getSession().getAttribute("subtypeSampleId"));
 		subtypeSampleMetaMap.put("subtypeSampleId", new Integer(request.getParameter("subtypeSampleId")));
 
 		List <SubtypeSampleMeta> subtypeSampleMetaList = new ArrayList <SubtypeSampleMeta> (this.subtypeSampleMetaService.findByMap(subtypeSampleMetaMap));
@@ -329,7 +323,6 @@ public class PlatformUnitController extends WaspController {
 		class LaneOptions {public Integer laneCount; public String label; public LaneOptions(Integer lc, String l){this.laneCount=lc;this.label=l;}}
 		
 		List <LaneOptions> laneOptionsMap = new ArrayList <LaneOptions> ();
-		//Map<Integer, String> laneOptionsMap = new HashMap<Integer, String>();
 		
 		for (SubtypeSampleMeta subtypeSampleMeta : subtypeSampleMetaList) {
 			if (subtypeSampleMeta.getK().matches(".*\\.maxCellNumber")) {
@@ -340,20 +333,13 @@ public class PlatformUnitController extends WaspController {
 			}
 		}
 		if (multFactor == null || multFactor.intValue() <= 1) {
-			
-			//laneOptionsMap.put(new Integer(1), "1");
-			//laneOptionsMap.put(maxCellNum, maxCellNum.toString());
-			laneOptionsMap.add(new LaneOptions(new Integer(1), "1"));
 			laneOptionsMap.add(new LaneOptions(maxCellNum, maxCellNum.toString()));
 		}
 		else {
-			//laneOptionsMap.put(new Integer(1), "1");
-			laneOptionsMap.add(new LaneOptions(new Integer(1), "1"));
-			
-			for (int i=1; i <= (maxCellNum.intValue()/multFactor); i++) {
-				
-				Integer cellNum = new Integer(multFactor.intValue() * i);
-				//laneOptionsMap.put(cellNum, cellNum.toString());
+			laneOptionsMap.add(new LaneOptions(maxCellNum, maxCellNum.toString()));
+			Integer cellNum = maxCellNum;
+			for (int i=1; i < (maxCellNum.intValue()/multFactor); i++) {
+				cellNum = new Integer(cellNum/multFactor.intValue());
 				laneOptionsMap.add(new LaneOptions(cellNum, cellNum.toString()));
 			}
 		}
@@ -711,7 +697,6 @@ public class PlatformUnitController extends WaspController {
 				}
 				
 			}
-			
 			if(request.getParameter("platformunitInstance.lanecount") == null || request.getParameter("platformunitInstance.lanecount").equals("")) {
 				
 				try{
@@ -724,13 +709,9 @@ public class PlatformUnitController extends WaspController {
 			}
 		}
 		sampleForm.setSubtypeSampleId(new Integer(request.getParameter("subtypeSampleId")));
-
 		preparePlatformUnit(sampleForm, sampleId);
-		logger.debug("platformunitInstance.lanecount="+request.getParameter("platformunitInstance.lanecount"));
-		logger.debug("lanecount="+request.getParameter("lanecountForEditBox"));
 		Integer laneCount = new Integer(request.getParameter("platformunitInstance.lanecount")==null || request.getParameter("platformunitInstance.lanecount").equals("")?request.getParameter("lanecountForEditBox"):request.getParameter("platformunitInstance.lanecount"));
 		updatePlatformUnitInstance(sampleForm, laneCount, sampleId);
-		
 
 		try {
 			response.getWriter().println(messageService.getMessage("platformunitInstance.updated_success.label"));
@@ -740,7 +721,6 @@ public class PlatformUnitController extends WaspController {
 		}
 
 	}
-
 
 	@RequestMapping(value="/view/{sampleId}.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('ft')")
@@ -838,12 +818,10 @@ public class PlatformUnitController extends WaspController {
 	 * @param laneNumber
 	 * @return
 	 */
-	public String createCell(Sample sampleForm, Integer laneNumber, Integer sampleId) {
+	public String createUpdateCell(Sample sampleForm, Integer laneNumber, Integer sampleId) {
 		
 		Integer typeSampleId = typeSampleService.getTypeSampleByIName("cell").getTypeSampleId();
-		
-		
-		 Sample sampleDb = null;
+        Sample sampleDb = null;
 
 		if (sampleId == null || sampleId.intValue() == 0) {
 
@@ -869,26 +847,22 @@ public class PlatformUnitController extends WaspController {
 			 }
 		}
 		else {
-		
-			//SampleSource sampleSourceDb = this.sampleSourceService.getSampleSourceBySampleSourceId(sampleForm.getSampleId());
 			
 			Map<String, Integer> sampleSourceMap = new HashMap<String, Integer>();
 			Map<String, Integer> sampleMap = new HashMap<String, Integer>();
 
 			sampleSourceMap.put("sampleId", sampleForm.getSampleId());
 			List <SampleSource> sampleSourceList= this.sampleSourceService.findByMap(sampleSourceMap);
-			
-			
-			for (SampleSource sampleSource : sampleSourceList) {
-
-				Sample cell = this.sampleService.findById(sampleSource.getSourceSampleId());
-				for (int i = 0; i < laneNumber.intValue(); i++) {
-					 cell.setName(sampleForm.getName()+"/"+(i+1));
-					 this.sampleService.merge(cell);
-
-				}
+			/** If the user changed the sample name, update all corresponding cells names **/
+			for (Iterator<SampleSource> it = sampleSourceList.iterator(); it.hasNext();) {
+				SampleSource tr = it.next();
+				Sample cell = this.sampleService.findById(tr.getSourceSampleId());
+				String cellName = cell.getName();
+				String subString = cellName.substring(cellName.lastIndexOf("/"), cellName.length());
+				cell.setName(sampleForm.getName().concat(subString));
+				this.sampleService.merge(cell);
+								
 			}
-			
 			
 		}
 		return "redirect:/facility/platformunit/ok";
@@ -963,7 +937,6 @@ public class PlatformUnitController extends WaspController {
 			Barcode barcodeDB = this.barcodeService.save(barcode);//save new barcode
 			sampleBarcode.setBarcodeId(barcodeDB.getBarcodeId()); // set new barcodeId in samplebarcode
 
-
 			sampleBarcode.setSampleId(sampleDb.getSampleId());
 			this.sampleBarcodeService.save(sampleBarcode);
 		
@@ -971,8 +944,7 @@ public class PlatformUnitController extends WaspController {
 			sampleDb = sampleService.merge(sampleForm);
 			
 			SampleBarcode sampleBarcodeDb = this.sampleBarcodeService.getSampleBarcodeBySampleId(sampleId);
-			
-			/* */
+
 			if (sampleBarcodeDb == null || sampleBarcodeDb.getBarcode() == null) {
 				SampleBarcode sampleBarcode = new SampleBarcode();
 				Barcode barcode = new Barcode();
@@ -1006,10 +978,8 @@ public class PlatformUnitController extends WaspController {
 		} // set a value for a member of the list by name
 		sampleMetaService.updateBySampleId(sampleDb.getSampleId(), normalizedSampleMeta); // now we get the list and persist it
 
-		createCell(sampleDb, laneCount, sampleId);
-		
+		createUpdateCell(sampleDb, laneCount, sampleId);
 		createState(sampleForm, sampleDb);
-		
 		
 		return "redirect:/facility/platformunit/ok";
 	}

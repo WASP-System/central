@@ -10,5 +10,5 @@ addurl: '/wasp/facility/platformunit/instance/updateJSON.do?selId=${param.selId}
 
 
 ondblClickRow: function(rowid) {
-	$("#grid_id").jqGrid('viewGridRow',rowid,_viewAttr);
+	$("#grid_id").jqGrid('editGridRow',rowid,_editAttr);
 }
