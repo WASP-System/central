@@ -338,7 +338,7 @@ public class PlatformUnitController extends WaspController {
 		else {
 			laneOptionsMap.add(new LaneOptions(maxCellNum, maxCellNum.toString()));
 			Integer cellNum = maxCellNum;
-			for (int i=1; i < (maxCellNum.intValue()/multFactor); i++) {
+			while (cellNum >= multFactor){
 				cellNum = new Integer(cellNum/multFactor.intValue());
 				laneOptionsMap.add(new LaneOptions(cellNum, cellNum.toString()));
 			}
