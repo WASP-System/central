@@ -1,1 +1,5 @@
-java -cp "target/*:/home/ewah/j/apache-tomcat-7.0.14/waspPlugins/*" edu.yu.einstein.wasp.batch.StartSpring
+Running using this method requires that wasp-core be properly deployed into the maven repository,
+and that all plugins are compiled and deployed to $CATALINA_HOME/waspPlugins.
+
+java -cp "$CATALINA_HOME/waspPlugins/*" -jar target/wasp-exec-0.1.0-SNAPSHOT.jar
+
