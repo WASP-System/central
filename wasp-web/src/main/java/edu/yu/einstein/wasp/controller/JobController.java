@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.JobCell;
 import edu.yu.einstein.wasp.model.JobFile;
 import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
@@ -33,14 +36,18 @@ import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.Role;
+import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.SampleCell;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.Statejob;
+import edu.yu.einstein.wasp.model.Statesample;
 import edu.yu.einstein.wasp.model.Task;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Workflowresourcecategory;
 import edu.yu.einstein.wasp.model.WorkflowresourcecategoryMeta;
 import edu.yu.einstein.wasp.service.JobService;
+import edu.yu.einstein.wasp.service.JobCellService;
 import edu.yu.einstein.wasp.service.JobUserService;
 import edu.yu.einstein.wasp.service.RoleService;
 import edu.yu.einstein.wasp.service.StateService;
@@ -94,6 +101,8 @@ public class JobController extends WaspController {
 	private StateService	stateService;
 	@Autowired
 	private WorkflowresourcecategoryService workflowresourcecategoryService;
+	@Autowired
+	private JobCellService jobCellService;
 
 	private final MetaHelperWebapp getMetaHelperWebapp() {
 		return new MetaHelperWebapp("job", JobMeta.class, request.getSession());
@@ -220,40 +229,65 @@ public class JobController extends WaspController {
 	}
 
 	@RequestMapping(value = "/subgridJSON.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('su') or User.login == principal.name")
+	@PreAuthorize("hasRole('su') or hasRole('jv-' + #jobId)")
 	public String subgridJSON(@RequestParam("id") Integer jobId,ModelMap m, HttpServletResponse response) {
 				
 		Map <String, Object> jqgrid = new HashMap<String, Object>();
 		
 		Job job = this.jobService.getById(jobId);
 		
-		List<JobSample> jobSampleList = job.getJobSample();
-		
-	 	ObjectMapper mapper = new ObjectMapper();
-	 	
+		//List<JobSample> jobSampleList = job.getJobSample();//don't do it this way; dubin 2-23-12		
+	 	//ObjectMapper mapper = new ObjectMapper();//doesn't appear to be used
+
+		//For a list of the macromolecule and library samples initially submitted to a job, pull from table jobcell and exclude duplicates
+		//Note that table jobsample is not appropriate, as it will eventually contain records for libraries made by the facility 
+		Set<Sample> samples = new HashSet<Sample>();//used to store set of unique samples submitted by the user for a specific job
+		Map filter = new HashMap();
+		filter.put("jobId", job.getJobId());
+		List<JobCell> jobCells = jobCellService.findByMap(filter);
+		for(JobCell jobCell : jobCells){
+			List<SampleCell> sampleCells = jobCell.getSampleCell();
+			for(SampleCell sampleCell : sampleCells){
+				samples.add(sampleCell.getSample());
+			}
+		}
+		  
 		try {
 			List<Map> rows = new ArrayList<Map>();
-			for (JobSample jobSample:jobSampleList) {
-				// Only show the "biomaterial" type of samples within the job
-				if (jobSample.getSample().getTypeSample().getTypeSampleCategory().getIName().equals("biomaterial"))
-				{
-					Map cell = new HashMap();
-					cell.put("id", jobSample.getSampleId());
+			for (Sample sample:samples) {
+				String sampleReceived = "";
+				List<Statesample> statesamples = sample.getStatesample();
+				for(Statesample ss : statesamples){
+					if(ss.getState().getTask().getIName().equals("Receive Sample")){
+						if(ss.getState().getStatus().equals("CREATED")){
+							sampleReceived = "AWAITING";
+						}
+						else if(ss.getState().getStatus().equals("RECEIVED") || ss.getState().getStatus().equals("FINALIZED")){
+							sampleReceived = "RECEIVED";
+						}
+						else if(ss.getState().getStatus().equals("ABANDONED")){
+							sampleReceived = "WITHDRAWN";
+						}
+					}
+				}	
+				Map cell = new HashMap();
+				cell.put("id", sample.getSampleId());
 					 					
-					List<String> cellList = new ArrayList<String>(
-							Arrays.asList(
-									new String[] {
-											"<a href=/wasp/sample/list.do?selId=" 
-											+ jobSample.getSampleId().intValue() + ">" + 
-												jobSample.getSample().getName() + "</a>"
-									}
-							)
-					);
+				List<String> cellList = new ArrayList<String>(
+						Arrays.asList(
+								new String[] {
+										"<a href=/wasp/sample/list.do?selId=" 
+										+ sample.getSampleId().intValue() + ">" + 
+										sample.getName() + "</a>",
+										sample.getTypeSample().getName(),
+										sample.getSubtypeSample().getName(),
+										sampleReceived
+								}
+						)
+				);
 					 
-					cell.put("cell", cellList);
-					 
-					rows.add(cell);
-				}
+				cell.put("cell", cellList);
+				rows.add(cell);
 			}
 			 
 			jqgrid.put("rows",rows);
@@ -261,7 +295,7 @@ public class JobController extends WaspController {
 			return outputJSON(jqgrid, response); 	
 			
 		 } catch (Throwable e) {
-			 throw new IllegalStateException("Can't marshall to JSON " + jobSampleList, e);
+			 throw new IllegalStateException("Can't marshall to JSON " + samples, e);
 		 }
 	
 	}

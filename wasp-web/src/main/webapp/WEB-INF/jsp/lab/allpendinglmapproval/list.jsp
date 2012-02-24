@@ -1,4 +1,5 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
+<!--
 <br /><br />
       <wasp:message />
       <sec:authorize access="hasRole('su')"> 
@@ -32,11 +33,11 @@
       <div>
       Job J<c:out value="${job.jobId}" />: <c:out value="${job.name}" /> (Submitter: <c:out value="${job.user.firstName} ${job.user.lastName}" />) [Lab: <c:out value="${job.lab.name}" />] <a href="<c:url value="/job/allpendinglmapproval/approve/${job.lab.labId}/${job.jobId}.do"/>">APPROVE</a> <a href="<c:url value="/job/allpendinglmapproval/reject/${job.lab.labId}/${job.jobId}.do"/>">REJECT</a>     
       </div>
-      <!--  
+        
       <c:forEach items="${job.jobMeta}" var="meta">     
-      <c:out value="${meta.k}" />:&nbsp;<c:out value="${meta.v}" />
+      <c:set var="optionName" value="${meta.k}.label" /><fmt:message key="${optionName}" />:&nbsp;<c:out value="${meta.v}" />
       <br />
-    </c:forEach>-->      
+    </c:forEach>     
     </c:forEach> 
     </c:otherwise>
     </c:choose>
@@ -66,7 +67,7 @@
       
       <div id='robdiv<c:out value='${counter}' />' style="display:none">       
       <c:forEach items="${up.userPendingMeta}" var="meta">        
-       <c:out value="${meta.k}" />:&nbsp;<c:out value="${meta.v}" /><br />      
+       <c:set var="optionName" value="${meta.k}.label" /><fmt:message key="${optionName}" />:&nbsp;<c:out value="${meta.v}" /><br />      
       </c:forEach>       
       <br /><br />
       </div>      
@@ -83,7 +84,7 @@
       
        <div id='robdiv<c:out value='${counter}' />' style="display:none">       
       <c:forEach items="${lu.user.userMeta}" var="meta">        
-       <c:out value="${meta.k}" />:&nbsp;<c:out value="${meta.v}" /><br />      
+       <c:set var="optionName" value="${meta.k}.label" /><fmt:message key="${optionName}" />:&nbsp;<c:out value="${meta.v}" /><br />      
       </c:forEach>       
       <br /><br />
       </div>      
@@ -106,7 +107,7 @@
        
        <div id='robdiv<c:out value='${counter}' />' style="display:none">  
       <c:forEach items="${job.jobMeta}" var="meta">     
-      <c:out value="${meta.k}" />:&nbsp;<c:out value="${meta.v}" /><br />
+      <c:set var="optionName" value="${meta.k}.label" /><fmt:message key="${optionName}" />:&nbsp;<c:out value="${meta.v}" /><br />
       </c:forEach>
       <br /><br />
       </div>
@@ -122,7 +123,7 @@
   <br />
 
 
-<!--  
+  
       <wasp:message />
       <sec:authorize access="hasRole('su')"> 
       
@@ -148,7 +149,7 @@
             
       <c:forEach items="${up.userPendingMeta}" var="meta"> 
             
-       <c:out value="${meta.k}" />:&nbsp;<c:out value="${meta.v}" /><br />     
+       <c:set var="optionName" value="${meta.k}.label" /><fmt:message key="${optionName}" />:&nbsp;<c:out value="${meta.v}" /><br />     
       </c:forEach>       
       <br /><br />
       
@@ -168,7 +169,7 @@
       <tr><td colspan = '4'>
        <div id='robdiv<c:out value='${counter}' />' style="display:none">       
       <c:forEach items="${lu.user.userMeta}" var="meta">        
-       <c:out value="${meta.k}" />:&nbsp;<c:out value="${meta.v}" /><br />      
+       <c:set var="optionName" value="${meta.k}.label" /><fmt:message key="${optionName}" />:&nbsp;<c:out value="${meta.v}" /><br />      
       </c:forEach>       
       <br /><br />
       </div>      
@@ -196,7 +197,7 @@
        <div id='robdiv<c:out value='${counter}' />' style="display:none">
          
       <c:forEach items="${job.jobMeta}" var="meta">     
-      <c:out value="${meta.k}" />:&nbsp;<c:out value="${meta.v}" /><br />
+      <c:set var="optionName" value="${meta.k}.label" /><fmt:message key="${optionName}" />:&nbsp;<c:out value="${meta.v}" /><br />
       </c:forEach>
       <br /><br />
       </div>
@@ -214,8 +215,9 @@
       <wasp:message />
       <sec:authorize access="hasRole('su')"> 
       <!-- hasRole('lm-${lab.labId}') -->
-      <h2>PI/Lab Manager Pending Tasks</h2>
-      <h3>Pending Users</h3>
+      <h2><fmt:message key="lmpendingtask.title.label" /></h2>
+ 	<h3><fmt:message key="lmpendingtask.subtitle1.label" /></h3>
+ 
       
 <div id="accordion">
       
@@ -232,7 +234,7 @@
       
       <c:forEach items="${up.userPendingMeta}" var="meta"> 
         
-      <c:out value="${meta.k}" />:&nbsp;<c:out value="${meta.v}" /><br />
+      <c:set var="optionName" value="${meta.k}.label" /><fmt:message key="${optionName}" />:&nbsp;<c:out value="${meta.v}" /><br />
       
       </c:forEach>  
       
@@ -250,7 +252,7 @@
       
       <c:forEach items="${lu.user.userMeta}" var="meta"> 
          
-      <c:out value="${meta.k}" />:&nbsp;<c:out value="${meta.v}" /><br />
+      <c:set var="optionName" value="${meta.k}.label" /><fmt:message key="${optionName}" />:&nbsp;<c:out value="${meta.v}" /><br />
       
       </c:forEach>
       <br />  <a href="<c:url value="/lab/labuserpending/approve/${lu.lab.labId}/${lu.labUserId}.do"/>">APPROVE</a> <a href="<c:url value="/lab/labuserpending/reject/${lu.lab.labId}/${lu.labUserId}.do"/>">REJECT</a>
@@ -262,8 +264,8 @@
     </c:choose>
 
  </div>   
-        
-      <h3>Pending Jobs</h3>
+     <br />   
+      <h3><fmt:message key="lmpendingtask.subtitle2.label" /></h3>
 <div id="accordion2">
         <c:choose>
     <c:when test="${jobspendinglist.size()==0}">
@@ -276,7 +278,7 @@
       
       <div>
       <c:forEach items="${job.jobMeta}" var="meta">     
-      <c:out value="${meta.k}" />:&nbsp;<c:out value="${meta.v}" /><br />
+      <c:set var="optionName" value="${meta.k}.label" /><fmt:message key="${optionName}" />:&nbsp;<c:out value="${meta.v}" /><br />
     </c:forEach>
       <br /> <a href="<c:url value="/job/allpendinglmapproval/approve/${job.lab.labId}/${job.jobId}.do"/>">APPROVE</a> <a href="<c:url value="/job/allpendinglmapproval/reject/${job.lab.labId}/${job.jobId}.do"/>">REJECT</a>     
       </div>

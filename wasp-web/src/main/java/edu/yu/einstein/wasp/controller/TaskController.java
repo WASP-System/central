@@ -392,7 +392,7 @@ MetaHelperWebapp metaHelperWebapp = new MetaHelperWebapp("fmpayment", "state", S
     // TODO filter by status
     //TODO should really filter to restrict to jobs that are NOT completed (if some samples are never going to arrive, they'll always be listed)
     for(State state : states_temp){
-    	if(state.getStatus().equals("WAITING")){
+    	if(state.getStatus().equals("CREATED")){
     		states.add(state);
     	}
     }

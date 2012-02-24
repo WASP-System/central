@@ -195,17 +195,24 @@
 			<a href="<c:url value="/task/samplereceive/list.do"/>">Sample Receiver</a>
 		</div>
 
+		
 		<div>
-			<a href="<c:url value="/sampleDnaToLibrary/listJobSamples/10006.do"/>">List Samples for Job 10006</a>
+			<a href="<c:url value="/sampleDnaToLibrary/listJobSamples/2.do"/>">List Samples for Job 2</a>
 		</div>
 		<div>
-			<a href="<c:url value="/sampleDnaToLibrary/listJobSamples/10001.do"/>">List Samples for Job 10001</a>
+			<a href="<c:url value="/sampleDnaToLibrary/listJobSamples/3.do"/>">List Samples for Job 3</a>
 		</div>
 		<div>
-			<a href="<c:url value="/sampleDnaToLibrary/listJobSamples/10100.do"/>">List Samples for Job 10100</a>
+			<a href="<c:url value="/sampleDnaToLibrary/listJobSamples/4.do"/>">List Samples for New Job 4</a>
 		</div>
 		<div>
-			<a href="<c:url value="/sampleDnaToLibrary/listJobSamples/10216.do"/>">List Samples for New Job 10216</a>
+			<a href="<c:url value="/sampleDnaToLibrary/listJobSamples/5.do"/>">List Samples for New Job 5</a>
+		</div>
+		<div>
+			<a href="<c:url value="/sampleDnaToLibrary/listJobSamples/6.do"/>">List Samples for Job 6</a>
+		</div>
+		<div>
+			<a href="<c:url value="/sampleDnaToLibrary/listJobSamples/7.do"/>">List Samples for Job 7</a>
 		</div>
 
 	</div>

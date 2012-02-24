@@ -16,7 +16,8 @@
     </c:forEach>
     </c:otherwise>
     </c:choose>
-    <h2>Pending Jobs</h2>
+    <br />
+    <h2><fmt:message key="department.detail_pendingjobs.label" /></h2>
      <c:choose>
     <c:when test="${sizejobspendinglist==0}">
     <div>None</div>    
