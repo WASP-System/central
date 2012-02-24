@@ -72,7 +72,7 @@
 			                    <resource>
 			                    	<!--   must specify catalina.home when running maven e.g. mvn -Dcatalina.home=/Library/Tomcat/Home install   -->
 	             					<!--  in Eclipse (first time only), right click on project ->  Run As -> Run Configurations... then add -Dcatalina.home=/Library/Tomcat/Home install to goals  -->
-			                        <targetPath>${catalina.home}</targetPath>
+			                        <targetPath>${catalina.home}/lib</targetPath>
 			                        <directory>${project.build.directory}</directory>
 			                        <includes>
 			                            <include>${project.artifactId}-${project.version}.jar</include>
