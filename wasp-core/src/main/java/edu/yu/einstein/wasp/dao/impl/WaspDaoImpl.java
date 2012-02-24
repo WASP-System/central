@@ -301,8 +301,7 @@ public Integer removeAll() {
 				 method.invoke(entity, new Object[]{userId});		
 			 }
 		 } catch (Throwable e) {
-			 log.warn("setEditorId() threw exception: " + e.getMessage()  );
-
+			 // no such method setLastUpdUser in class E
 		 }
 	 }
 	 
@@ -313,7 +312,7 @@ public Integer removeAll() {
 			   method.invoke(entity, new Object[]{new Date()});		
 			 }
 		 } catch (Throwable e) {
-			 log.warn("setUpdateTs() threw exception: " + e.getMessage()  );
+			// no such method setLastUpdTs in class E
 		 }
 	 }
 	 

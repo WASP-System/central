@@ -16,8 +16,11 @@
   </div>
 
   <nav id="jobSubmit">
-    <c:forEach items="${pageFlowMap}" var="entry">
+    <c:forEach items="${pageFlowMap}" var="entry" varStatus="status">
       <a href="<c:url value="${entry[0]}" />.do"><c:out value="${entry[1]}"/></a>
+      <c:if test="${status.last != (1==1)}" >
+ 		<c:out value=">" /> 
+      </c:if> 
     </c:forEach>
   </nav>
 

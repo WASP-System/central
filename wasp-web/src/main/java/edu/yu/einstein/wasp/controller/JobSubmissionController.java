@@ -1971,7 +1971,7 @@ public class JobSubmissionController extends WaspController {
 	 *
 	 */
 
-	private List getPageFlowMap(JobDraft jobDraft) {
+	protected List getPageFlowMap(JobDraft jobDraft) {
 		String pageFlow = this.defaultPageFlow;
 
 		try {
