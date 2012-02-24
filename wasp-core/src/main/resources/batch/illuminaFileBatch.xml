@@ -19,13 +19,11 @@
 
   <!-- most effective if filename-regex matches registerfile.filnameRegex -->
   <file:inbound-channel-adapter id="illumina.file.Files" 
-        directory="/tmp/t" 
+        directory="/tmp/t"  
         filename-regex="file.*txt"
         prevent-duplicates="true"
         channel="illumina.file.InputChannel"> 
-    <si:poller>
-      <si:interval-trigger interval="20000" />
-    </si:poller>
+    <si:poller fixed-delay="20000" />
   </file:inbound-channel-adapter>
 
 
