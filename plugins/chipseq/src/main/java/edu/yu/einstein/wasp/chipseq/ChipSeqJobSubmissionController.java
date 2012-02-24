@@ -64,7 +64,7 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 		m.put("jobDraft", jobDraft);
 		m.put("samples", samples);
 		m.put("selectedSamplePairs", selectedSamplePairs);
-
+		m.put("pageFlowMap", getPageFlowMap(jobDraft));
 		return "jobsubmit/chipseqform";
 	}
 
