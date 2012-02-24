@@ -47,9 +47,7 @@
     this is what a baseline poller should look like **/
   
   <si:inbound-channel-adapter ref="startJobPoller" method="getStates" channel="jobCreateRequestChannel">
-    <si:poller>
-      <si:interval-trigger interval="5000" /> /** how often it should poll */
-    </si:poller>
+    <si:poller fixed-delay="5000" /> /** how often it should poll */
   </si:inbound-channel-adapter>
 
   <si:service-activator input-channel="jobCreateRequestChannel" output-channel="logger">
