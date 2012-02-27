@@ -35,6 +35,8 @@ public final class MetaAttribute implements Serializable {
 		
 		private String range;
 		
+		private String defaultVal;
+		
 		private MetaType metaType = MetaType.STRING;
 
 		private FormVisibility formVisibility;
@@ -81,6 +83,14 @@ public final class MetaAttribute implements Serializable {
 		
 		public String getRange(){
 			return range;
+		}
+		
+		public String getDefaultVal() {
+			return defaultVal;
+		}
+
+		public void setDefaultVal(String defaultVal) {			
+			this.defaultVal = defaultVal;
 		}
 		
 	

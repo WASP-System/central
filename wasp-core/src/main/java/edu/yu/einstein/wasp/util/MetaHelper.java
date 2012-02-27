@@ -215,6 +215,7 @@ public class MetaHelper {
 				p.setError(bundleResource.get(qualifiedName + ".error"));
 				p.setMetaType(bundleResource.get(qualifiedName + ".type"));
 				p.setRange(bundleResource.get(qualifiedName + ".range"));
+				p.setDefaultVal(bundleResource.get(qualifiedName + ".default"));
 				if (visibility != null && visibility.containsKey(name)){
 					p.setFormVisibility(visibility.get(name));
 					if (visibility.get(name).equals(MetaAttribute.FormVisibility.ignore)){

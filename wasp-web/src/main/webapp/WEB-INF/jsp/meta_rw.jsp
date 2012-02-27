@@ -33,7 +33,11 @@
 									 						
 				</c:when>
 				<c:otherwise>
-						<input name="${_area}Meta_${_meta.k}" id="${id}" value="${_meta.v}" <c:if test= "${_meta.property.formVisibility == 'immutable'}"> readonly="readonly"</c:if>/>
+					<c:set var="inputVal" value="${_meta.v}" />
+					<c:if test="${(empty inputVal) &&  (not empty _meta.property.defaultVal)}">
+						<c:set var="inputVal" value="${_meta.property.defaultVal}" />
+					</c:if>
+					<input name="${_area}Meta_${_meta.k}" id="${id}"  value="${inputVal}" <c:if test= "${_meta.property.formVisibility == 'immutable'}"> readonly="readonly"</c:if>/>
 				</c:otherwise>
 			</c:choose>
 			<c:if test="${not empty _meta.property.constraint}">
