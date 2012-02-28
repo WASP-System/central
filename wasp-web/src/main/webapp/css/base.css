@@ -23,7 +23,15 @@ LABEL, TD.label, TH.label {font-weight: bold;}
 
 TD	{padding: 5px;}
 
+a {
+	color: #444;
+	text-decoration: none;
+}
 
+a:hover{
+	color: #aa0000;
+	text-decoration: underline;
+}
 
 
 .right	{float: right;}
@@ -81,7 +89,7 @@ NAV#jobSubmit	{
 	border: none;
 	text-shadow: 0 1px 1px rgba(255, 255, 255, 0.85);
 	margin-top: 10px;
-	margin-leftt: 10px;
+	margin-left: 10px;
 	margin-right: 10px;
 	margin-bottom: 10px;
 	
@@ -94,8 +102,23 @@ NAV#jobSubmit	a{
 
 NAV#jobSubmit	a:hover{
 	color: #aa0000;
-	text-decoration: none;
+	text-decoration: underline;
 }
+
+.navTabs li{
+	padding-top: 10px;
+	margin-left: 10px;
+	padding-right: 10px;
+	padding-bottom: 10px;
+	list-style-image: url(/wasp/css/waspBullet.png);
+	
+}
+
+.navTabs b{
+	font-weight: bold;
+}
+
+
 
 	
 INPUT[type="submit"],

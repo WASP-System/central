@@ -83,6 +83,7 @@
 		<put-attribute name="body-content" value="/WEB-INF/jsp/auth/confirmemail/emailupdateok.jsp" />
 	</definition>
 	<definition name="dashboard" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/dashboard.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/dashboard.jsp" />
 	</definition>
 	<definition name="user/detail_rw" extends="template-base">
