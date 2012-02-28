@@ -290,12 +290,12 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 			<dependency>
 				<groupId>org.hibernate</groupId>
 				<artifactId>hibernate-core</artifactId>
-				<version>4.0.1.Final</version>
+				<version>3.6.8.Final</version>
 			</dependency>
 			<dependency>
 				<groupId>org.hibernate</groupId>
 				<artifactId>hibernate-envers</artifactId>
-				<version>4.0.1.Final</version>
+				<version>3.6.8.Final</version>
 			</dependency>
 			<dependency>
 				<groupId>org.codehaus.jackson</groupId>
