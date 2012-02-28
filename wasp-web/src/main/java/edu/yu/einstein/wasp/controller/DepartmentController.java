@@ -305,7 +305,7 @@ public class DepartmentController extends WaspController {
 	 * @return
 	 */
 	@RequestMapping(value = "/create", method = RequestMethod.POST)
-	@PreAuthorize("hasRole('su')")
+	@PreAuthorize("hasRole('su') or hasRole('ga')")
 	public String createDepartment(@RequestParam("departmentName") String departmentName, @RequestParam("adminName") String adminName, ModelMap m) {
 
 		boolean departmentNameIsOK = false;
