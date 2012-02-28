@@ -805,6 +805,7 @@ public class PlatformUnitController extends WaspController {
 			sampleForm.setReceiveDts(sampleDb.getReceiveDts());
 			sampleForm.setIsReceived(sampleDb.getIsReceived());
 			sampleForm.setIsActive(sampleDb.getIsActive());
+			sampleForm.setIsGood(1);
 			sampleForm.setSampleId(sampleId);
 		}
 		return sampleForm;
