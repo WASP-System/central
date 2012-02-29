@@ -155,6 +155,21 @@
 	<definition name="sampleDnaToLibrary/listJobSamples" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/sampleDnaToLibrary/listJobSamples.jsp" />
 	</definition>
+	<definition name="sampleDnaToLibrary/updateLibrary" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/sampleDnaToLibrary/updateLibrary.jsp" />
+	</definition>
+	<definition name="sampleDnaToLibrary/createLibrary" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/sampleDnaToLibrary/createLibrary.jsp" />
+	</definition>
+
+	<definition name="sampleDnaToLibrary/sampledetail_rw" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/sampleDnaToLibrary/sampledetail_rw.jsp" />
+	</definition>
+	<definition name="sampleDnaToLibrary/sampledetail_ro" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/sampleDnaToLibrary/sampledetail_ro.jsp" />
+	</definition>
+
+
 	
 	<definition name="resource/list" extends="template-grid">
 		<put-attribute name="area" value="resource" />
