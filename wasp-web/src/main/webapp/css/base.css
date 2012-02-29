@@ -114,13 +114,15 @@ NAV#jobSubmit	a:hover{
 	
 }
 
-.navTabs b{
-	font-weight: bold;
-}
 
 .navTabs a:hover{
 	color: #aa0000;
 	text-decoration: underline;;
+}
+
+div#tabs h2, b{
+	color: #472400;
+	font-weight: bold;
 }
 
 .taskAlert{
