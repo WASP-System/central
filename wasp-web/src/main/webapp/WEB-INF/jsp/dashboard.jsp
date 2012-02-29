@@ -6,17 +6,17 @@
 </div>
 <div id="tabs">
 	<ul>
-		<li><a href="#tabs-home">Home</a></li>
+		<li><a href="#tabs-home">My Account</a></li>
 		<sec:authorize access="hasRole('su')">
 			<li><a href="#tabs-suUtils">Superuser Utils</a></li>
 		</sec:authorize>
 		<sec:authorize
 			access="hasRole('da-*') or hasRole('su') or hasRole('ga')">
-			<li><a href="#tabs-daAdmin">Department Admin</a></li>
+			<li><a href="#tabs-daAdmin">Dept Admin (<span class="taskAlert"><c:out value="${departmentAdminPendingTasks}" /> tasks</span>)</a></li>
 		</sec:authorize>
 		<sec:authorize
-			access="hasRole('lu-*') or hasRole('su') or hasRole('ga')">
-			<li><a href="#tabs-labUtils">Lab Utils</a></li>
+			access="hasRole('lu-*') or hasRole('su') or hasRole('ga')"> 
+			<li><a href="#tabs-labUtils">Lab Utils (<span class="taskAlert"><c:out value="${allLabManagerPendingTasks}" /> tasks</span>)</a></li>
 		</sec:authorize>
 		<sec:authorize
 			access="hasRole('jv-*') or hasRole('jd-*') or hasRole('su') or hasRole('ga') or hasRole('lu-*') or hasRole('fm') or hasRole('ft')">
@@ -25,7 +25,7 @@
 		<sec:authorize access="hasRole('fm')">
 			<li><a href="#tabs-facilityUtils">Facility Utils</a></li>
 		</sec:authorize>
-		<li><a href="#tabs-taskList">Task List (<c:out value="${fn:length(tasks)}" /> tasks)</a></li>
+		<li><a href="#tabs-taskList">Tasks (<span class="taskAlert"><c:out value="${fn:length(tasks)}" /></span>)</a></li>
 	</ul>
 	<div id="tabs-home">
 		<ul class="navTabs">
@@ -84,7 +84,7 @@
 					<c:choose>
 						<c:when test='${departmentAdminPendingTasks == 0}'>(No Pending Departmental Tasks)</c:when>
 						<c:otherwise>
-							<span style="color: red"> (<c:out value="${departmentAdminPendingTasks}" /> Pending Department Administrator Task<c:if
+							<span class="taskAlert"> (<c:out value="${departmentAdminPendingTasks}" /> Pending Department Administrator Task<c:if
 									test='${departmentAdminPendingTasks != 1}'>s</c:if>)
 							</span>
 						</c:otherwise>
@@ -118,7 +118,7 @@
 						<c:choose>
 							<c:when test='${allLabManagerPendingTasks == 0}'>(No Pending PI/Lab Manager Tasks)</c:when>
 							<c:otherwise>
-								<span style="color: red"> (<c:out value="${allLabManagerPendingTasks}" /> Pending PI/Lab Manager Task<c:if test='${allLabManagerPendingTasks != 1}'>s</c:if>)
+								<span class="taskAlert"> (<c:out value="${allLabManagerPendingTasks}" /> Pending PI/Lab Manager Task<c:if test='${allLabManagerPendingTasks != 1}'>s</c:if>)
 								</span>
 							</c:otherwise>
 						</c:choose>
@@ -149,7 +149,7 @@
 								<c:choose>
 									<c:when test='${labmap.get(l.labId) == 0}'>(No Pending PI/Lab Manager Tasks)</c:when>
 									<c:otherwise>
-										<span style="color: red"> (<c:out value="${labmap.get(l.labId)}" /> Pending PI/Lab Manager Task<c:if test='${labmap.get(l.labId) != 1}'>s</c:if>)
+										<span class="taskAlert"> (<c:out value="${labmap.get(l.labId)}" /> Pending PI/Lab Manager Task<c:if test='${labmap.get(l.labId) != 1}'>s</c:if>)
 										</span>
 									</c:otherwise>
 								</c:choose>
