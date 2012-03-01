@@ -1,5 +1,8 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 <wasp:message />  <br />
+<title><fmt:message key="pageTitle.sampleDnaToLibrary/listJobSamples.label"/></title>
+<h1><fmt:message key="sampleDnaToLibrary.listJobSamples.title_label" /></h1>
+
 <table class="data">
 <tr><td class="label">Job ID</td><td class="value">J<c:out value="${job.jobId}" /></td></tr>
 <tr><td class="label">Job Name</td><td class="value"><c:out value="${job.name}" /></td></tr>

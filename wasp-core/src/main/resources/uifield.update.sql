@@ -520,6 +520,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','created_success','label','Platformunit created sucessfully.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','updated','error','Platformunit was NOT updated. Please fill in required fields.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','created','error','Platformunit was NOT created. Please fill in required fields.','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','fmpayment','name','label','Receive Payment for Jobs','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','fmpayment','amount','label','Amount','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','fmpayment','amount','constraint','NotEmpty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','fmpayment','amount','metaposition','10','1');
@@ -706,6 +707,15 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','facility/platformunit/list','label','Platform Unit List','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','facility/platformunit/instance/list','label','Platform Unit Instance List','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','facility/platformunit/limitPriorToPlatUnitAssign','label','Machine Type Assignment','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','lab/allpendinglmapproval/list','label','PI/Lab Manager Pending Tasks','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','lab/pendinglmapproval/list','label','PI/Lab Manager Pending Tasks','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','task/fmrequote/list','label','Requote Pending Jobs','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','task/detail','label','Requote Pending Jobs','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','task/samplereceive/list','label','Incoming Sample Manager','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','task/fmpayment/list','label','Receive Payment for Jobs','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','department/dapendingtasks','label','Department Administrator Pending Tasks','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','sampleDnaToLibrary/listJobSamples','label','Sample DNA to Library List','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDnaToLibrary','listJobSamples','title_label','Job Samples List','1');
 
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','uiField','updated','data','Attribute Updated','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','captcha','error','Captcha text incorrect','1');
@@ -872,13 +882,10 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','sampleSourceNotExist','error','Action Failed: Selected Library Not Found','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','samplesourceTypeError','error','Action Failed: Selected samplesource missing cell or library','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','libraryRemoved','success','Selected Library Removed From Flowcell','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','lab/allpendinglmapproval/list','label','PI/Lab Manager Pending Tasks','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','lab/pendinglmapproval/list','label','PI/Lab Manager Pending Tasks','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','lmpendingtask','title','label','PI/Lab Manager Pending Tasks','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','lmpendingtask','subtitle1','label','Pending Users','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','lmpendingtask','subtitle2','label','Pending Jobs','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail_pendingjobs','label','Pending Jobs','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','department/dapendingtasks','label','Department Administrator Pending Tasks','1');
 
 
 

@@ -1,6 +1,8 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
-<h1>List List</h1>
+<title><fmt:message key="pageTitle.task/detail.label"/></title>
+
+<h1>List</h1>
 <table cellpadding="0" cellspacing="0" border="0">
 <c:forEach items="${task}" var="t">
 <div>

@@ -2,7 +2,7 @@
 
 
 
-<h1>List List</h1>
+<h1>List</h1>
 <table cellpadding="0" cellspacing="0" border="0">
 <a href="/wasp/task/detail/<c:out value="${task.taskId}" />.do"><c:out value="${task.name}" /></a>
 

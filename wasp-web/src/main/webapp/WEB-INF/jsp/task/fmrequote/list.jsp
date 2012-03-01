@@ -1,6 +1,6 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
-
+<title><fmt:message key="pageTitle.task/fmrequote/list.label"/></title>
 <h1>List List</h1>
 <table cellpadding="0" cellspacing="0" border="0">
 <a href="/wasp/task/detail/<c:out value="${task.taskId}" />.do"><c:out value="${task.name}" /></a>
