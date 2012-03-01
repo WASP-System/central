@@ -389,15 +389,58 @@ public class SampleDnaToLibraryController extends WaspController {
 	  return "sampleDnaToLibrary/updateLibrary";
   }
   
-  @RequestMapping(value = "/createLibrary/{sampleId}", method = RequestMethod.GET)//here, sampleId represents a macromolecule (genomic DNA or RNA) submitted to facility for conversion to a library
+  @RequestMapping(value = "/createLibraryFromMacro", method = RequestMethod.GET)//here, macromolSampleId represents a macromolecule (genomic DNA or RNA) submitted to facility for conversion to a library
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
-	public String createLibrary(@PathVariable("sampleId") Integer sampleId,
+	public String createLibrary(@RequestParam("macromolSampleId") Integer macromolSampleId,
 			@RequestParam("adaptorsetId") Integer adaptorsetId,
 			@RequestParam("jobId") Integer jobId,
-		/*	@Valid User userForm, BindingResult result, SessionStatus status, */
 			ModelMap m) {
 	  
-	  Job job = jobService.getJobByJobId(jobId);
+		if( jobId == 0 || jobId == null ){
+			//need error
+			return "redirect:/dashboard.do";
+		}
+		else if (macromolSampleId == 0 || macromolSampleId == null || adaptorsetId == 0 || adaptorsetId == null){	//waspMessage("user.updated.error");
+			//need error
+			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
+		}
+	  
+  		Job job = jobService.getJobByJobId(jobId);
+  		if(job.getJobId()==null || job.getJobId().intValue()==0){//not found in database
+			//waspMessage("user.updated.error");
+			return "redirect:/dashboard.do";
+		}
+  		Sample macromoleculeSample = sampleService.getSampleBySampleId(macromolSampleId);
+		if(macromoleculeSample.getSampleId()==null || macromoleculeSample.getSampleId().intValue()==0){//not found in database
+			//waspMessage("user.updated.error");
+			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
+		}
+		
+		m.put("macromoleculeSample", macromoleculeSample);
+		m.put("job", job);
+		  
+		//now let's work on the library
+		Sample library = new Sample();
+	  
+		MetaHelperWebapp sampleMetaHelper = getMetaHelperWebapp(); //new MetaHelperWebapp("sample", SampleMeta.class, request.getSession());
+		sampleMetaHelper.setArea("genericLibrary");	//I suppose there could be an assay-specific set of metadat, but for now leave this	  
+		library.setSampleMeta(sampleMetaHelper.getMasterList(SampleMeta.class));
+		  
+		m.put("library", library); 
+		
+		//Adaptorset adaptorsetList = adaptorsetService.
+		Adaptorset selectedAdaptorset = adaptorsetService.getAdaptorsetByAdaptorsetId(adaptorsetId);
+		m.put("selectedAdaptorset", selectedAdaptorset);
+		List<Adaptorset> otherAdaptorsets = adaptorsetService.findAll();//should really filter this by the machine requested
+		otherAdaptorsets.remove(selectedAdaptorset);//remove this one
+		m.put("otherAdaptorsets", otherAdaptorsets); 
+		
+		
+		return "sampleDnaToLibrary/createLibrary";
+		
+		
+  		/*
+  		
 	  String workflowINameLowerCase = job.getWorkflow().getIName().toLowerCase();//at this time, it should be chipseq
 	  List<SubtypeSample> subtypeSampleList = subtypeSampleService.findAll();
 	  int subtypeSampleIdForLib = 0;
@@ -435,7 +478,9 @@ public class SampleDnaToLibraryController extends WaspController {
 	  m.put("jobId", jobId);
 	  
 	  //return "redirect:/dashboard.do";
-	  return "sampleDnaToLibrary/createLibrary";
+	   
+	   */
+	  //return "sampleDnaToLibrary/createLibrary";
   	}
  
   @RequestMapping(value = "/sampledetail_ro/{jobId}/{sampleId}", method = RequestMethod.GET)//sampleId represents a macromolecule (genomic DNA or RNA) , but that could change as this evolves
@@ -456,23 +501,23 @@ public class SampleDnaToLibraryController extends WaspController {
 	  
 		if( jobId == 0 || jobId == null || sampleId == 0 || sampleId == null){
 			waspMessage("user.updated.error");
-			return "redirect:/sampleDnaToLibrary/sampledetail_rw/" + jobId + "/" + sampleId + ".do";
+			return "redirect:/dashboard.do";
 		}
 		else if ( request.getParameter("submit").equals("Cancel") ){//equals(messageService.getMessage("userDetail.cancel.label")
 			return "redirect:/sampleDnaToLibrary/sampledetail_ro/" + jobId + "/" + sampleId + ".do";
 		}
 		
-		Sample sampleToSave = sampleService.getSampleBySampleId(sampleId);
-		if(sampleToSave.getSampleId().intValue()==0){//not found in database
-			waspMessage("user.updated.error");
-			return "redirect:/sampleDnaToLibrary/sampledetail_rw/" + jobId + "/" + sampleId + ".do";
-		}
 		Job jobForThisSample = jobService.getJobByJobId(jobId);
-		if(jobForThisSample.getJobId().intValue()==0){//not found in database
+		if(jobForThisSample.getJobId()==null || jobForThisSample.getJobId().intValue()==0){//not found in database
 			waspMessage("user.updated.error");
-			return "redirect:/sampleDnaToLibrary/sampledetail_rw/" + jobId + "/" + sampleId + ".do";
+			return "redirect:/dashboard.do";
 		}
-		
+		Sample sampleToSave = sampleService.getSampleBySampleId(sampleId);
+		if(sampleToSave.getSampleId()==null || sampleToSave.getSampleId().intValue()==0){//not found in database
+			waspMessage("user.updated.error");
+			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
+		}
+	
 		//confirm sampleForm.name is not empty
 		String newSampleName = sampleForm.getName().trim();
 		if("".equals(newSampleName)){
@@ -579,7 +624,7 @@ public class SampleDnaToLibraryController extends WaspController {
 	  
 	  m.put("job", job);
 	  m.put("sample", sample); 
-	  m.put("areaList", areaList);
+	  m.put("areaList", areaList);//appears that this is really not used in the jsp.
 	  
 	  return isRW?"sampleDnaToLibrary/sampledetail_rw":"sampleDnaToLibrary/sampledetail_ro";
 	  //return "redirect:/dashboard.do";

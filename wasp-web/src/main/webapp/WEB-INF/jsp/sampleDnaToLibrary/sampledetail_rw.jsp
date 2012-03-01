@@ -19,6 +19,7 @@
       <td class="input"><form:input path="name" /><span class="requiredField">*</span></td>
       <td class="error"><form:errors path="name" /></td>
      </tr>
+     <tr><td class="label">Sample Type</td><td class="value"><c:out value="${sample.typeSample.name}" /></td><td>&nbsp;</td></tr>
      <c:set var="_area" value = "sample" scope="request"/>
 	 <c:set var="_metaList" value = "${sample.sampleMeta}" scope="request" />		
      <c:import url="/WEB-INF/jsp/meta_rw.jsp"/>

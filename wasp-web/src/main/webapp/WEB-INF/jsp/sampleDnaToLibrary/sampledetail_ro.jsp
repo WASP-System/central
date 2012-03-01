@@ -12,6 +12,7 @@
 <br />
 <table class="data">
   	<tr><td class="label">Sample Name</td><td class="value"><c:out value="${sample.name}" /></td></tr>
+  	<tr><td class="label">Sample Type</td><td class="value"><c:out value="${sample.typeSample.name}" /></td></tr>
      <c:set var="_area" value = "sample" scope="request"/>
 	 <c:set var="_metaList" value = "${sample.sampleMeta}" scope="request" />		
      <c:import url="/WEB-INF/jsp/meta_ro.jsp"/>
