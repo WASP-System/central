@@ -217,7 +217,8 @@
  <br />
  <wasp:message />
  <sec:authorize access="hasRole('lm-${lab.labId}') or hasRole('su') or hasRole('ga-*')"> 
- <h2><fmt:message key="lmpendingtask.title.label" /></h2>
+ <title><fmt:message key="pageTitle.lab/pendinglmapproval/list.label"/></title>
+  <h2><fmt:message key="lmpendingtask.title.label" /></h2>
  <h3><fmt:message key="lmpendingtask.subtitle1.label" /></h3>
       
 <div id="accordion">
