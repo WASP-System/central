@@ -842,7 +842,6 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','workflow','name','label','Workflow Name','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','workflow','submit','label','Save Choices','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','workflow','cancel','label','Cancel','1');
-
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','jobResourceCategoryMismatch','error','Job and resource unexpectedly do not match','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','taskNotFound','error','Task unexpectedly not found','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','typeResourceNotFound','error','Type Resource unexpectedly not found','1');
@@ -873,7 +872,12 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','sampleSourceNotExist','error','Action Failed: Selected Library Not Found','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','samplesourceTypeError','error','Action Failed: Selected samplesource missing cell or library','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','libraryRemoved','success','Selected Library Removed From Flowcell','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','lab/allpendinglmapproval/list','label','PI/Lab Manager Pending Tasks','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','lmpendingtask','title','label','PI/Lab Manager Pending Tasks','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','lmpendingtask','subtitle1','label','Pending Users','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','lmpendingtask','subtitle2','label','Pending Jobs','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail_pendingjobs','label','Pending Jobs','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','department/dapendingtasks','label','Department Administrator Pending Tasks','1');
+
+
+

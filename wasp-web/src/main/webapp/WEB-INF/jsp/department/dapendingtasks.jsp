@@ -2,7 +2,9 @@
 <br /><br />
       <wasp:message />
       <sec:authorize access="hasRole('da-*') or hasRole('su') or hasRole('ga-*')">
-    <h2><fmt:message key="department.detail_pendinglabs.label" /></h2>
+      <title><fmt:message key="pageTitle.department/dapendingtasks.label"/></title>
+
+     <h2><fmt:message key="department.detail_pendinglabs.label" /></h2>
     <c:choose>
     <c:when test="${sizelabspendinglist==0}">
     <div>None</div>    

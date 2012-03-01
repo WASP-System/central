@@ -1,4 +1,7 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
+
+
+
 <!--
 <br /><br />
       <wasp:message />
@@ -215,6 +218,7 @@
       <wasp:message />
       <sec:authorize access="hasRole('su')"> 
       <!-- hasRole('lm-${lab.labId}') -->
+      <title><fmt:message key="pageTitle.lab/allpendinglmapproval/list.label"/></title>
       <h2><fmt:message key="lmpendingtask.title.label" /></h2>
  	<h3><fmt:message key="lmpendingtask.subtitle1.label" /></h3>
  

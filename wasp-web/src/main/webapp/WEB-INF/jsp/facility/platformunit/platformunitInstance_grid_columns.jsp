@@ -23,3 +23,10 @@ _addAttr['afterShowForm'] = function(formId) {
 };
 
 
+// hide lanecount text field on the add form and show a lanecount dropdown list
+_viewAttr['afterShowForm'] = function(formId) {
+	$('#platformunitInstance\\.lanecount', formId).hide();
+};
+
+
+
