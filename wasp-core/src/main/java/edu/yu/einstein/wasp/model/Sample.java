@@ -26,6 +26,7 @@ import javax.persistence.Table;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
+import org.hibernate.validator.constraints.NotEmpty;
 
 @Entity
 @Audited
@@ -316,6 +317,7 @@ public class Sample extends WaspModel {
 	 *
 	 */
 	@Column(name="name")
+	@NotEmpty
 	protected String name;
 
 	/**
