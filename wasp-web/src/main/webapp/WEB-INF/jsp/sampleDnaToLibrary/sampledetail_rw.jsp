@@ -12,14 +12,14 @@
 <br />
 <form:form commandName="sample">
   <input type='hidden' name='jobId' value='<c:out value="${job.jobId}" />'/>
-
+  <input type='hidden' name='typeSampleId' value='<c:out value="${sample.typeSampleId}" />'/>	
 <table class="data">
   	 <tr>
       <td class="label">Sample Name</td>
       <td class="input"><form:input path="name" /><span class="requiredField">*</span></td>
       <td class="error"><form:errors path="name" /></td>
      </tr>
-     <tr><td class="label">Sample Type</td><td class="value"><c:out value="${sample.typeSample.name}" /></td><td>&nbsp;</td></tr>
+     <tr><td class="label">Sample Type</td><td class="input"><c:out value="${sample.typeSample.name}" /></td><td class="error"><form:errors path="" /></td></tr>
      <c:set var="_area" value = "sample" scope="request"/>
 	 <c:set var="_metaList" value = "${sample.sampleMeta}" scope="request" />		
      <c:import url="/WEB-INF/jsp/meta_rw.jsp"/>

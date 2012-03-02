@@ -30,7 +30,8 @@
 
 <form:form commandName="library">
  <input type='hidden' name='jobId' value='<c:out value="${job.jobId}" />'/>
- <input type='hidden' name='macromoleculeSampleId' value='<c:out value="${macromoleculeSample.sampleId}" />'/>
+ <input type='hidden' name='macromolSampleId' value='<c:out value="${macromoleculeSample.sampleId}" />'/>
+ <input type='hidden' name='adaptorsetId' value='<c:out value="${selectedAdaptorset.adaptorsetId}" />'/>
  
 <table class="data">
   	<tr><td class="label">Primary Sample Name</td><td colspan="2" class="value"><c:out value="${macromoleculeSample.name}" /></td></tr>

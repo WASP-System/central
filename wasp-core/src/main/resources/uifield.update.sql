@@ -887,5 +887,9 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','lmpendingtask','subtitle2','label','Pending Jobs','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail_pendingjobs','label','Pending Jobs','1');
 
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDetail','updated','error','Sample NOT updated. Fill in required fields or cancel to restore.','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDetail','updated','nameClashError','Sample NOT updated. Name provided already used by another sample in this job. Provide another or cancel to restore!','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDetail','updated','unexpectedError','Sample NOT updated. Unexpected error!','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDetail','updated','success','Sample updated.','1');
 
 
