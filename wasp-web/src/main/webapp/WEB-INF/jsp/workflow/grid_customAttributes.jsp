@@ -2,5 +2,8 @@
 rowNum: 8,
 height: 400,
 pager: '#gridpager',
-caption:"<fmt:message key='workflow.listname.label' />"
+caption:"<fmt:message key='workflow.listname.label' />",
 
+ondblClickRow: function(rowid) {
+	$("#grid_id").jqGrid('viewGridRow',rowid,_viewAttr);
+},

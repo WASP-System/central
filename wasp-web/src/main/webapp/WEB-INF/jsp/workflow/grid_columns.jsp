@@ -11,3 +11,4 @@
 </wasp:field>
 
 _navAttr={edit:false,view:true,add:false,del:false};
+
