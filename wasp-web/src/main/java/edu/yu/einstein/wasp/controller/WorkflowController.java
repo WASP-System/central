@@ -2,6 +2,8 @@ package edu.yu.einstein.wasp.controller;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -27,6 +29,7 @@ import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.ResourceCategory;
+import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.model.TypeResource;
 import edu.yu.einstein.wasp.model.Workflow;
@@ -90,6 +93,8 @@ public class WorkflowController extends WaspController {
 	@RequestMapping(value = "/listJSON", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('fm')")
 	public String getListJSON(HttpServletResponse response) {
+		String selId = request.getParameter("selId");
+
 		// result
 		Map<String, Object> jqgrid = new HashMap<String, Object>();
 
@@ -121,21 +126,30 @@ public class WorkflowController extends WaspController {
 		ObjectMapper mapper = new ObjectMapper();
 
 		try {
-			// String users = mapper.writeValueAsString(userList);
-			jqgrid.put("page", "1");
-			jqgrid.put("records", workflowList.size() + "");
-			jqgrid.put("total", workflowList.size() + "");
+			
+			int pageIndex = Integer.parseInt(request.getParameter("page"));		// index of page
+			int pageRowNum = Integer.parseInt(request.getParameter("rows"));	// number of rows in one page
+			int rowNum = workflowList.size();									// total number of rows
+			int pageNum = (rowNum + pageRowNum - 1) / pageRowNum;				// total number of pages
+			
+			jqgrid.put("records", rowNum + "");
+			jqgrid.put("total", pageNum + "");
+			jqgrid.put("page", pageIndex + "");
 
 			Map<String, String> workflowData = new HashMap<String, String>();
-			workflowData.put("page", "1");
-			workflowData.put("selId",
-					StringUtils.isEmpty(request.getParameter("selId")) ? ""
-							: request.getParameter("selId"));
+			workflowData.put("page", pageIndex + "");
+			workflowData.put("selId", StringUtils.isEmpty(selId) ? "" : selId);
 			jqgrid.put("workflowdata", workflowData);
-
+			 
 			List<Map> rows = new ArrayList<Map>();
 
-			for (Workflow workflow: workflowList) {
+			int frId = pageRowNum * (pageIndex - 1);
+			int toId = pageRowNum * pageIndex;
+			toId = toId <= rowNum ? toId : rowNum;
+			
+			List<Workflow> workflowPage = workflowList.subList(frId, toId);
+
+			for (Workflow workflow: workflowPage) {
 				Map cell = new HashMap();
 				cell.put("id", workflow.getWorkflowId());
 
