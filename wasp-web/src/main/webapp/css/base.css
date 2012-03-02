@@ -161,6 +161,14 @@ TD.submit A,
 	text-decoration: none;
 	}
 
+INPUT[type="submit"]:hover,
+a.button:hover, 
+DIV.submit a:hover,
+TD.submit a:hover  {
+	color: #aa0000;
+	text-decoration: none;
+}
+
 
 TABLE.data	{
 	border: 1px solid #ccc;
