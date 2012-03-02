@@ -12,3 +12,4 @@
 
 _navAttr={edit:false,view:true,add:false,del:false};
 
+_viewAttr={width:600};
