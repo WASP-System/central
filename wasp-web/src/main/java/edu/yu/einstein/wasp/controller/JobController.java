@@ -2,9 +2,12 @@ package edu.yu.einstein.wasp.controller;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -171,6 +174,38 @@ public class JobController extends WaspController {
 			userData.put("page", pageIndex + "");
 			userData.put("selId",StringUtils.isEmpty(request.getParameter("selId"))?"":request.getParameter("selId"));
 			jqgrid.put("userdata",userData);
+			
+			/***** Begin Sort by Job name *****/
+			class JobNameComparator implements Comparator<Job> {
+				@Override
+				public int compare(Job arg0, Job arg1) {
+					return arg0.getName().compareToIgnoreCase(arg1.getName());
+				}
+			}
+
+			if (sidx.equals("name")) {
+				Collections.sort(jobList, new JobNameComparator());
+				if (sord.equals("desc"))
+					Collections.reverse(jobList);
+			}
+			/***** End Sort by Job name *****/
+			
+			/***** Begin Sort by User last name *****/
+			class JobSubmitterLastNameComparator implements Comparator<Job> {
+				@Override
+				public int compare(Job arg0, Job arg1) {
+					return arg0.getUser().getLastName().compareToIgnoreCase(arg1.getUser().getLastName());
+				}
+			}
+
+			if (sidx.equals("UserId")) {
+				Collections.sort(jobList, new JobSubmitterLastNameComparator());
+				if (sord.equals("desc"))
+					Collections.reverse(jobList);
+			}
+			/***** End Sort by User last name *****/
+			
+
 			 
 			List<Map> rows = new ArrayList<Map>();
 			

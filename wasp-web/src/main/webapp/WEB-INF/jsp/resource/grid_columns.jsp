@@ -2,7 +2,7 @@
 
 <wasp:field name="name" type="text" sortable="true"/>
 
-<wasp:field name="machineType" type="text"/>
+<wasp:field name="machineType" type="text" searchable="false"/>
 
 <wasp:field name="resourceCategoryId" type="select" items="${categoryResources}" itemValue="resourceCategoryId" itemLabel="name" hidden="true" editHidden="true"/>
 

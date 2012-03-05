@@ -597,10 +597,11 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','emailconfirmed','label','Your email address is confirmed and your principal investigator has been emailed to request confirmation of your eligibility to join their lab. You are advised to contact them to request they do this if your account does not become activated in good time.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','subtypeSampleId','label','Subtype','1');
 
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','job_list','label','List of Jobs','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','name','label','Name','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','name','constraint','NotEmpty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','name','error','Name cannot be empty','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','submitter','label','Submitter','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','UserId','label','Submitter','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','lab','label','Lab','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','isActive','label','Active','1');
 
