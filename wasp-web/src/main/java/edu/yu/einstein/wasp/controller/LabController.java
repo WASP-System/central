@@ -201,16 +201,6 @@ public class LabController extends WaspController {
 		ObjectMapper mapper = new ObjectMapper();
 
 		try {
-			Map<Integer, String> allDepts = new TreeMap<Integer, String>();
-			for (Department dept : (List<Department>) deptService.findAll()) {
-				allDepts.put(dept.getDepartmentId(), dept.getName());
-			}
-
-			Map<Integer, String> allUsers = new TreeMap<Integer, String>();
-			for (User user : (List<User>) userService.findAll()) {
-				allUsers.put(user.getUserId(),	user.getFirstName() + " " + user.getLastName());
-			}
-
 			// String labs = mapper.writeValueAsString(labList);
 			int pageIndex = Integer.parseInt(request.getParameter("page"));		// index of page
 			int pageRowNum = Integer.parseInt(request.getParameter("rows"));	// number of rows in one page
@@ -256,11 +246,9 @@ public class LabController extends WaspController {
 				List<String> cellList = new ArrayList<String>(
 						Arrays.asList(new String[] {
 								lab.getName(),
-								"<a href=/wasp/user/list.do?selId="
-										+ lab.getPrimaryUserId() + ">"
-										+ allUsers.get(lab.getPrimaryUserId())
-										+ "</a>",
-								allDepts.get(lab.getDepartmentId()),
+								this.userService.getUserByUserId(lab.getPrimaryUserId()).getNameFstLst(),
+								lab.getPrimaryUserId().toString(),
+								lab.getDepartment().getName(),
 
 								lab.getIsActive().intValue() == 1 ? "yes" : "no" }));
 
