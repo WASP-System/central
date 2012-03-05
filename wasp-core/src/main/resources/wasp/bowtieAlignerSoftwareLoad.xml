@@ -45,6 +45,7 @@
            <property name="range" value="0:3" />
            <property name="default" value="2" />
            <property name="constraint" value="NotEmpty" />
+           <property name="error" value="A value for number of mismatches must be specified" />
         </bean>
         
         <bean parent="bowtieAlignerUiFieldWrapper">
@@ -55,6 +56,7 @@
           <property name="range" value="5:1000" />
           <property name="default" value="32" />
           <property name="constraint" value="NotEmpty" />
+          <property name="error" value="A value for seed length must be specified" />
         </bean>
         
         <bean parent="bowtieAlignerUiFieldWrapper">
@@ -64,6 +66,7 @@
           <property name="type" value="INTEGER" />
           <property name="default" value="1" />
           <property name="constraint" value="NotEmpty" />
+          <property name="error" value="A value for number of alignments must be specified" />
         </bean>
         
         <bean parent="bowtieAlignerUiFieldWrapper">
@@ -73,6 +76,7 @@
           <property name="type" value="INTEGER" />
           <property name="default" value="1" />
           <property name="constraint" value="NotEmpty" />
+          <property name="error" value="A value for the discard threshold must be specified" />
         </bean>
         
         <bean parent="bowtieAlignerUiFieldWrapper">
@@ -82,6 +86,7 @@
           <property name="control" value="select:yes:yes;no:no" />
           <property name="default" value="yes" />
           <property name="constraint" value="NotEmpty" />
+          <property name="error" value="A value must be selected" />
         </bean>     
       </list>
     </property>

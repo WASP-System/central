@@ -74,6 +74,7 @@ public class MetaHelperWebapp extends MetaHelper {
 		Map params = request.getParameterMap();
 		for (T obj: list) {
 			String requestKey = parentArea + "Meta" + "_" + obj.getK();
+			logger.debug("getFromRequest(): looking for '" + requestKey + "' in request parameters");
 			if (! params.containsKey(requestKey)) { continue; }
 			try {
 				obj.setV(((String[])params.get(requestKey))[0]);

@@ -21,7 +21,7 @@
 </select>
 </form>
 
-<form:form command="jobDraft">
+<form:form commandName="jobDraft">
   <input type="hidden" name="name" value="<c:out value="${jobDraft.name}"/>">
   <input type="hidden" name="workflowId" value="<c:out value="${jobDraft.workflowId}"/>">
   <input type="hidden" name="labId" value="<c:out value="${jobDraft.labId}"/>">

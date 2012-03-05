@@ -166,8 +166,8 @@ public class MetaHelper {
 
 		Set<String> keys=DBResourceBundle.MESSAGE_SOURCE.getKeys(Locale.US);
 		for(String k: keys) {
-			
 			if (!k.startsWith(area +".")) continue; // get ONLY keys for area we are dealing with
+
 		
 			String currentMessage = DBResourceBundle.MESSAGE_SOURCE.getMessage(k,null,locale);
 
@@ -226,7 +226,7 @@ public class MetaHelper {
 				}
 
 				p.setControl(MetaUtil.getControl(qualifiedName + ".control", locale));
-
+				logger.debug("getMasterList() adding '" + qualifiedName + "' to list");
 				list.add(obj);
 			} catch (Exception e) {
 			}

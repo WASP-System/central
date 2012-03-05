@@ -472,7 +472,7 @@ public class UserController extends WaspController {
 
 		userDb.setLastUpdTs(new Date());
 		
-		this.userService.merge(userDb);
+		//this.userService.merge(userDb);
 
 		userMetaService.updateByUserId(userId, userMetaList);
 

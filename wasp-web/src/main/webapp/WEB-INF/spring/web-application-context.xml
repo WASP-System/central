@@ -32,6 +32,7 @@
     <property name="url"><value>${db.url}</value></property>
     <property name="username"><value>${db.username}</value></property>
     <property name="password"><value>${db.password}</value></property>
+    <property name="defaultAutoCommit"><value>false</value></property>
   </bean>
 
 

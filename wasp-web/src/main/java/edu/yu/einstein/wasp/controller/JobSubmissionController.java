@@ -673,13 +673,17 @@ public class JobSubmissionController extends WaspController {
 
 		return nextPage(jobDraft);
 	}
-
+	
 	@RequestMapping(value="/resource/{typeresourceiname}/{jobDraftId}", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public String showResourceMetaForm(
 			@PathVariable("typeresourceiname") String typeresourceiname, 
 			@PathVariable("jobDraftId") Integer jobDraftId, 
 			ModelMap m) {
+		return showResourceMetaForm(typeresourceiname, jobDraftId, null, m);
+	}
+	
+	public String showResourceMetaForm(String typeresourceiname, Integer jobDraftId, JobDraft jobDraftForm, ModelMap m){
 		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
@@ -732,12 +736,14 @@ public class JobSubmissionController extends WaspController {
 
 		MetaHelperWebapp metaHelperWebapp = getMetaHelperWebapp();
 		metaHelperWebapp.setArea(resourceCategoryArea);
-
-		// jobDraft.setJobDraftMeta(metaHelperWebapp.getMasterList(JobDraftMeta.class));
-		jobDraft.setJobDraftMeta(metaHelperWebapp.syncWithMaster(jobDraft.getJobDraftMeta()));
+		
+		if (jobDraftForm == null){
+			jobDraftForm = jobDraft; // shallow copy
+			jobDraftForm.setJobDraftMeta(metaHelperWebapp.syncWithMaster(jobDraft.getJobDraftMeta()));
+		}
 
 		m.put("workflowResourceCategories", workflowResourceCategories);
-		m.put("jobDraft", jobDraft);
+		m.put("jobDraft", jobDraftForm);
 		m.put("name", resourceCategoryName);
 		m.put("area", metaHelperWebapp.getArea());
 		m.put("jobDraftResourceCategory", jobDraftResourceCategory);
@@ -807,24 +813,19 @@ public class JobSubmissionController extends WaspController {
 		metaHelperWebapp.setArea(resourceCategoryArea);
 
 		List<JobDraftMeta> jobDraftMetaList = metaHelperWebapp.getFromRequest(request, JobDraftMeta.class);
-
-		jobDraftForm.setJobDraftMeta(jobDraftMetaList);
-		metaHelperWebapp.validate(result);
+		for (JobDraftMeta jdm: jobDraftMetaList){
+			logger.debug("ANDY: adding the following meta to jobDraftForm: " + jdm.getK());
+		}
 		
+		metaHelperWebapp.validate(result);
+		jobDraftForm.setJobDraftMeta(jobDraftMetaList);
 		
 		if (result.hasErrors()) {
 			waspMessage("jobDraft.form.error");
-		/*	for (org.springframework.validation.ObjectError e: result.getAllErrors()){
-				for (String code: e.getCodes())
-					logger.debug("ANDY:"+code);
-			} */
-			String returnPage = showResourceMetaForm(typeresourceiname, jobDraftId, m);
-			for (org.springframework.validation.ObjectError e: result.getAllErrors()){
-				for (String code: e.getCodes())
-					logger.debug("ANDY:"+code);
-			} 
-			//logger.debug("ANDY: "+returnPage);
-			return returnPage;
+			jobDraftForm.setName(jobDraft.getName());
+			jobDraftForm.setWorkflowId(jobDraft.getWorkflowId());
+			jobDraftForm.setLabId(jobDraft.getLabId());
+			return showResourceMetaForm(typeresourceiname, jobDraftId, jobDraftForm, m);
 		}
 
 
@@ -837,13 +838,8 @@ public class JobSubmissionController extends WaspController {
   /**
    * show software form
    */
-
-	@RequestMapping(value="/software/{typeresourceiname}/{jobDraftId}", method=RequestMethod.GET)
-	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
-	public String showSoftwareForm(
-			@PathVariable("typeresourceiname") String typeresourceiname, 
-			@PathVariable("jobDraftId") Integer jobDraftId, 
-			ModelMap m) {
+	
+	public String showSoftwareForm(String typeresourceiname, Integer jobDraftId, JobDraft jobDraftForm, ModelMap m) {
 		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
@@ -896,11 +892,13 @@ public class JobSubmissionController extends WaspController {
 		MetaHelperWebapp metaHelperWebapp = getMetaHelperWebapp();
 		metaHelperWebapp.setArea(softwareArea);
 
-		// jobDraft.setJobDraftMeta(metaHelperWebapp.getMasterList(JobDraftMeta.class));
-		jobDraft.setJobDraftMeta(metaHelperWebapp.syncWithMaster(jobDraft.getJobDraftMeta()));
+		if (jobDraftForm == null){
+			jobDraftForm = jobDraft; // shallow copy
+			jobDraftForm.setJobDraftMeta(metaHelperWebapp.syncWithMaster(jobDraft.getJobDraftMeta()));
+		}
 
 		m.put("workflowSoftwares", workflowSoftwares);
-		m.put("jobDraft", jobDraft);
+		m.put("jobDraft", jobDraftForm);
 		m.put("name", softwareName);
 		m.put("area", metaHelperWebapp.getArea());
 		m.put("jobDraftSoftware", jobDraftSoftware);
@@ -909,6 +907,17 @@ public class JobSubmissionController extends WaspController {
 		m.put("pageFlowMap", getPageFlowMap(jobDraft));
 		
 		return "jobsubmit/software";
+	}
+	
+	
+
+	@RequestMapping(value="/software/{typeresourceiname}/{jobDraftId}", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String showSoftwareForm(
+			@PathVariable("typeresourceiname") String typeresourceiname, 
+			@PathVariable("jobDraftId") Integer jobDraftId, 
+			ModelMap m) {
+		return showSoftwareForm(typeresourceiname, jobDraftId, null ,m);
 	}
 
 	@RequestMapping(value="/software/{typeresourceiname}/{jobDraftId}", method=RequestMethod.POST)
@@ -954,15 +963,10 @@ public class JobSubmissionController extends WaspController {
 		}
 
 		// get selected resource
-		JobDraftSoftware jobDraftSoftware = null; 
 		String softwareArea = ""; 
-		String softwareName = ""; 
-		for (JobDraftSoftware jdr: jobDraft.getJobDraftSoftware()) {
-			if (! typeresourceiname.equals( jdr.getSoftware().getTypeResource().getIName())) { continue; }
-
-			jobDraftSoftware = jdr;
-			softwareArea = jdr.getSoftware().getIName();
-			softwareName = jdr.getSoftware().getName(); 
+		for (JobDraftSoftware jobDraftSoftware: jobDraft.getJobDraftSoftware()) {
+			if (! typeresourceiname.equals( jobDraftSoftware.getSoftware().getTypeResource().getIName())) { continue; }
+			softwareArea = jobDraftSoftware.getSoftware().getIName();
 		}
 		
 		if (softwareArea.isEmpty()){
@@ -974,23 +978,17 @@ public class JobSubmissionController extends WaspController {
 		metaHelperWebapp.setArea(softwareArea);
 
 		List<JobDraftMeta> jobDraftMetaList = metaHelperWebapp.getFromRequest(request, JobDraftMeta.class);
-
 		jobDraftForm.setJobDraftMeta(jobDraftMetaList);
 		metaHelperWebapp.validate(result);
 		
 		
+		
 		if (result.hasErrors()) {
+			jobDraftForm.setName(jobDraft.getName());
+			jobDraftForm.setWorkflowId(jobDraft.getWorkflowId());
+			jobDraftForm.setLabId(jobDraft.getLabId());
 			waspMessage("jobDraft.form.error");
-		/*	for (org.springframework.validation.ObjectError e: result.getAllErrors()){
-				for (String code: e.getCodes())
-					logger.debug("ANDY:"+code);
-			} */
-			String returnPage = showSoftwareForm(typeresourceiname, jobDraftId, m);
-			for (org.springframework.validation.ObjectError e: result.getAllErrors()){
-				for (String code: e.getCodes())
-					logger.debug("ANDY:"+code);
-			} 
-			//logger.debug("ANDY: "+returnPage);
+			String returnPage = showSoftwareForm(typeresourceiname, jobDraftId, jobDraftForm, m); 
 			return returnPage;
 		}
 
