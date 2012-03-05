@@ -194,6 +194,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','institute_not_selected','error','You must select an institute','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','institute_multi_select','error','You cannot select more than one institute','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','form_instructions','label','Please fill out the form below, making sure to complete all required fields marked with an asterisk','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','lab','lab_list','label','List of Labs','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','lab','name','label','Lab Name','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','lab','name','error','Lab Name cannot be empty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','lab','primaryUserId','label','Primary User','1');
