@@ -36,7 +36,7 @@
 		<c:set var="_metaList" value = "${user.userMeta}" scope="request" />		
         <c:import url="/WEB-INF/jsp/meta_ro.jsp"/>
 	  <sec:authorize access="hasRole('su') and ! hasRole('u-${user.userId}')">      		   		
-          <tr><td class="action"><a href="/wasp/user/detail_rw/${user.userId}.do"><fmt:message key="userDetail.edit_as_other.label" /></a>
+          <tr><td class="action"><div class="submit"><a href="/wasp/user/detail_rw/${user.userId}.do"><fmt:message key="userDetail.edit_as_other.label" /></a></div>
           </sec:authorize>	
 	  <sec:authorize access="hasRole('u-${user.userId}')">
 	  	  <tr><td colspan="2" align=left><div class="submit"><a href="/wasp/user/me_rw.do"><fmt:message key="userDetail.edit.label" /></a>
