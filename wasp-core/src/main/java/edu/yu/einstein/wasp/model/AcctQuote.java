@@ -441,6 +441,37 @@ public class AcctQuote extends WaspModel {
 		this.acctInvoice = acctInvoice;
 	}
 
+	
+	/** 
+	 * acctQuoteMeta
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="quoteid", insertable=false, updatable=false)
+	protected List<AcctQuoteMeta> acctQuoteMeta;
+
+
+	/** 
+	 * getAcctQuoteMeta()
+	 *
+	 * @return acctQuoteMeta
+	 *
+	 */
+	public List<AcctQuoteMeta> getAcctQuoteMeta() {
+		return this.acctQuoteMeta;
+	}
+
+
+	/** 
+	 * setAcctQuoteMeta
+	 *
+	 * @param acctQuoteMeta
+	 *
+	 */
+	public void setAcctQuoteMeta (List<AcctQuoteMeta> acctQuoteMeta) {
+		this.acctQuoteMeta = acctQuoteMeta;
+	}
 
 
 }

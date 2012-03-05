@@ -1191,6 +1191,23 @@ create table acct_quote (
   foreign key fk_acct_quote_uid (userid) references user(userid)
 ) ENGINE=InnoDB charset=utf8;
 
+
+create table acct_quotemeta (
+  quotemetaid int(10)  primary key auto_increment,
+  quoteid int(10) ,
+
+  k varchar(250) , 
+  v varchar(250), 
+  position int(10)  default 0,
+
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
+
+  foreign key fk_quotemeta_qid (quoteid) references acct_quote(quoteid),
+  constraint unique index u_quotemeta_k_qid (k, quoteid)
+) ENGINE=InnoDB charset=utf8;
+
+
 create table acct_jobquotecurrent (
   jobid int(10)  primary key,
   quoteid int(10) ,
