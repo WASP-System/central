@@ -1,8 +1,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>edu.yu.einstein.wasp</groupId>
-  <artifactId>WASP-ChipSeq</artifactId>
+  <artifactId>wasp-chipseq</artifactId>
   <version>0.0.1-SNAPSHOT</version>
+
   <dependencies>
     <dependency>
       <groupId>edu.yu.einstein.wasp</groupId>
@@ -103,5 +104,22 @@
 		    </executions>
 		</plugin>
     </plugins>
+    <extensions>
+    	<extension>
+    		<groupId>org.apache.maven.wagon</groupId>
+    		<artifactId>wagon-ssh-external</artifactId>
+    		<version>2.2</version>
+    	</extension>
+    	</extensions>
   </build>
+
+  <distributionManagement>
+  	<repository>
+  		<id>private.waspsystem.org</id>
+  		<name>Private WASP Repository</name>
+  		<url>scpexe://wasp@frankfurt.aecom.yu.edu/var/www_default/repository/</url>
+  	</repository>
+  </distributionManagement>
+
+
 </project>
