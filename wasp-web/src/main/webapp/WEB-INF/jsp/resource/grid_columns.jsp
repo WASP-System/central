@@ -12,6 +12,8 @@
 
 <wasp:field name="barcode" type="text" hidden="true" editHidden="true"/>
 
+_navAttr={view:true,del:true,delfunc:_del_function_resource};
+
 // hide the resourceCategory dropdown list on the edit form
 _editAttr['afterShowForm'] = function(formId) {
 	$('#machineType').attr('disabled', 'disabled');
@@ -23,6 +25,8 @@ _addAttr['afterShowForm'] = function(formId) {
 	$('#tr_machineType', formId).hide();
 	$('#tr_resource\\.decommission_date').hide();
 };
+
+
 
   
 
