@@ -8,10 +8,81 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 	<packaging>pom</packaging>
 	<version>0.1.0-SNAPSHOT</version>
 	<name>WASP system root project</name>
-
+	
+	<description>Wiki-based automated sequence processor</description>
+	<url>http://waspsystem.org</url>
+	<issueManagement>
+		<system>JIRA</system>
+		<url>http://wasp.einstein.yu.edu/jira</url>
+	</issueManagement>
+	<ciManagement>
+		<system>bamboo</system>
+		<url>http://barcelona.einstein.yu.edu</url>
+	</ciManagement>
+	<scm>
+		<developerConnection>
+			scm:svn:https://frankfurt.aecom.yu.edu/svn/genetics/waspSwarm/trunk
+		</developerConnection>
+		<url>https://wasp.einstein.yu.edu/fisheye</url>
+	</scm>
+	<inceptionYear>2011</inceptionYear>
+	<developers>
+		<developer>
+			<id>asmclellan</id>
+			<name>Andrew McLellan</name>
+			<email>andrew.mclellan@einstein.yu.edu</email>
+			<organization>Albert Einstein College of Medicine</organization>
+			<organizationUrl>http://einstein.yu.edu</organizationUrl>
+			<roles>
+				<role>Project Leader</role>
+				<role>Developer</role>
+			</roles>
+		</developer>
+		<developer>
+			<id>rdubin</id>
+			<name>Robert Dubin</name>
+			<email>robert.dubin@einstein.yu.edu</email>
+			<organization>Albert Einstein College of Medicine</organization>
+			<organizationUrl>http://einstein.yu.edu</organizationUrl>
+			<roles>
+				<role>Developer</role>
+			</roles>
+		</developer>
+		<developer>
+			<id>qjing</id>
+			<name>AJ Jing</name>
+			<email>qiang.jing@einstein.yu.edu</email>
+			<organization>Albert Einstein College of Medicine</organization>
+			<organizationUrl>http://einstein.yu.edu</organizationUrl>
+			<roles>
+				<role>Developer</role>
+			</roles>
+		</developer>
+	</developers>
+	<contributors>
+		<contributor>
+			<name>John Greally</name>
+		</contributor>
+	</contributors>
+	<organization>
+		<name>Albert Einstein College of Medicine</name>
+		<url>http://einstein.yu.edu</url>
+	</organization>
+	<!-- 
+	<licenses>
+		<license>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+	 -->
+	
+	
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<site.basedir>${project.basedir}</site.basedir>
+		<module.version>0.1.0-SNAPSHOT</module.version>
 	</properties>
 
 	<modules>
@@ -24,7 +95,7 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 		<pluginManagement>
 			<plugins>
 				 <plugin>
-				        <groupId>org.apache.tomcat.maven</groupId>
+				    <groupId>org.apache.tomcat.maven</groupId>
 					<artifactId>tomcat6-maven-plugin</artifactId>
 					<version>2.0-SNAPSHOT</version>
 				</plugin>
@@ -190,6 +261,16 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<dependencyManagement>
 		<dependencies>
+			<dependency>
+				<groupId>edu.yu.einstein.wasp</groupId>
+				<artifactId>wasp-core</artifactId>
+				<version>${module.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>edu.yu.einstein.wasp</groupId>
+				<artifactId>wasp-web</artifactId>
+				<version>${module.version}</version>
+			</dependency>
 			<dependency>
 				<groupId>org.aspectj</groupId>
 				<artifactId>aspectjrt</artifactId>
