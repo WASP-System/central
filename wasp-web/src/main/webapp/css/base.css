@@ -33,14 +33,14 @@ label, td.label, th.label {font-weight: bold;}
 
 
 
-a, td.CaptionTD a, td.DataTD, tr.ui-widget-content td a{
+a, td.CaptionTD a, td.DataTD a, tr.ui-widget-content td a{
 	color: #801A00;
 	text-decoration: none;
 }
 
 
 
-a:hover , td.CaptionTD a:hover, td.DataTD a:hover, tr.ui-widget-content td a:hover{
+a:hover, td.CaptionTD a:hover, td.DataTD a:hover, tr.ui-widget-content td a:hover{
 	color: #aa0000;
 	text-decoration: underline;
 }
