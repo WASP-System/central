@@ -9,7 +9,7 @@
 
 
     <div>
-      Resource: <a href="/resource/detail_ro/<c:out value="${run.resourceId}"/>.do"><c:out value="${run.resource.name}"/></a>
+      Resource: <a href="/wasp/resource/list.do?selId=<c:out value="${run.resourceId}"/>"><c:out value="${run.resource.name}"/></a>
     </div>
 
 <table>
