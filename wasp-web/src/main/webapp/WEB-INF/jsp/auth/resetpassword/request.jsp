@@ -14,11 +14,11 @@
 	method="POST">
 	<table class="EditTable ui-widget ui-widget-content">
 		<tr class="FormData">
-			<td class="CaptionTD"><fmt:message key="auth.resetpasswordRequest_user.label" /></td>
+			<td class="CaptionTD"><fmt:message key="auth.resetpasswordRequest_user.label" />:</td>
 			<td class="DataTD"><input class="FormElement ui-widget-content ui-corner-all" type='text' name='username' value='<c:out value="${username}" default="" />' /><span class="requiredField">*</span></td>
 		</tr>
 		<tr class="FormData">
-			<td class="CaptionTD"><fmt:message	key="auth.resetpasswordRequest_captcha.label" /></td>
+			<td class="CaptionTD"><fmt:message	key="auth.resetpasswordRequest_captcha.label" />:</td>
 			<td class="DataTD"><img src="<c:url value='/stickyCaptchaImg.png'/>" alt="Captchca Image" /><br />
 			<input class="FormElement ui-widget-content ui-corner-all" type='text' name='captcha_text' value='' /><span	class="requiredField">*</span></td>
 		</tr>
