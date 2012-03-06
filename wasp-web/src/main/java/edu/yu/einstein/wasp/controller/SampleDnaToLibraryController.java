@@ -35,6 +35,8 @@ import edu.yu.einstein.wasp.model.Adaptorset;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobSample;
 import edu.yu.einstein.wasp.model.JobCell;
+import edu.yu.einstein.wasp.model.JobMeta;
+import edu.yu.einstein.wasp.model.JobResourcecategory;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleCell;
 import edu.yu.einstein.wasp.model.SampleMeta;
@@ -270,10 +272,35 @@ public class SampleDnaToLibraryController extends WaspController {
   @RequestMapping(value="/listJobSamples/{jobId}", method=RequestMethod.GET)
   public String listJobSamples(@PathVariable("jobId") Integer jobId, ModelMap m) {
     
+	  if(jobId == null || jobId == 0){
+		  waspMessage("sampleDetail.updated.unexpectedError");
+		  return "redirect:/dashboard.do";		  
+	  }
 	  Job job = jobService.getJobByJobId(jobId);
 	  if(job==null || job.getJobId()==null || job.getJobId().intValue()==0){
-		  //TODO waspMessage and return
+		  waspMessage("sampleDetail.updated.unexpectedError");
+		  return "redirect:/dashboard.do";
 	  }
+	  
+	  Map<String, String> extraJobDetailsMap = new HashMap<String, String>();
+	  //get some additional job info:
+	  List<JobResourcecategory> jobResourceCategoryList = job.getJobResourcecategory();
+	  for(JobResourcecategory jrc : jobResourceCategoryList){
+		  if(jrc.getResourceCategory().getTypeResource().getIName().equals("mps")){
+			  extraJobDetailsMap.put("resource", jrc.getResourceCategory().getName());
+			  break;
+		  }
+	  }
+	  for(JobMeta jobMeta : job.getJobMeta()){
+		  if(jobMeta.getK().indexOf("readLength") != -1){
+			  extraJobDetailsMap.put("readLength", jobMeta.getV());
+		  }
+		  if(jobMeta.getK().indexOf("readType") != -1){
+			  extraJobDetailsMap.put("readType", jobMeta.getV());
+		  }
+	  }
+	  
+	  
 	  //For a list of the samples initially submitted to a job, pull from table jobcell and exclude duplicates
 	  //(table jobsample is not appropriate, as it will contain libraries made by the facility from submitted macromolecules
 	  Set<Sample> samples = new HashSet<Sample>();//use this to store a set of unique samples submitted by the user for a specific job; use treeset as it is ordered (by what I don't know)
@@ -328,7 +355,6 @@ public class SampleDnaToLibraryController extends WaspController {
 		  }
 		  userSampleList.add(sample);
 		  receivedList.add(sampleReceived);
-		  if(numberLibrariesForThisSample==0){numberLibrariesForThisSample++;}//cannot be zero ??well perhaps it can
 		  librariesPerSampleList.add(new Integer(numberLibrariesForThisSample));
 	  }
 	
@@ -350,6 +376,7 @@ public class SampleDnaToLibraryController extends WaspController {
 		  }
 	  }
 	  */
+	  m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);
 	  m.addAttribute("adaptorsets", adaptorsetList);
 	  m.addAttribute("adaptors", adaptorList);
 	  m.addAttribute("samples", userSampleList);
@@ -637,6 +664,88 @@ public class SampleDnaToLibraryController extends WaspController {
 	  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 
 	}
+  
+ 
+  
+  
+  @RequestMapping(value = "/librarydetail_ro/{jobId}/{libraryId}", method = RequestMethod.GET)//sampleId represents an existing library (at this moment both user supplied or facility created)
+	@PreAuthorize("hasRole('su') or hasRole('ft')")
+	public String libraryDetailRO(@PathVariable("jobId") Integer jobId, @PathVariable("libraryId") Integer libraryId, ModelMap m) {
+	  return libraryDetail(jobId, libraryId, m, false);
+  }
+  @RequestMapping(value = "/librarydetail_rw/{jobId}/{libraryId}", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('su') or hasRole('ft')")
+	public String libraryDetailRW(@PathVariable("jobId") Integer jobId, @PathVariable("libraryId") Integer libraryId, ModelMap m) {
+	  return libraryDetail(jobId, libraryId, m, true);
+  }
+  
+  public String libraryDetail(Integer jobId, Integer libraryId, ModelMap m, boolean isRW){
+
+	    if( jobId == 0 || jobId == null ){
+			waspMessage("sampleDetail.updated.unexpectedError");System.out.println("ROB: error 1");
+			return "redirect:/dashboard.do";
+		}
+		else if (libraryId == 0 || libraryId == null){	
+			waspMessage("sampleDetail.updated.unexpectedError");System.out.println("ROB: error 2");
+			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
+		}
+	  
+  		Job job = jobService.getJobByJobId(jobId);
+  		if(job.getJobId()==null || job.getJobId().intValue()==0){//not found in database
+  			waspMessage("sampleDetail.updated.unexpectedError");System.out.println("ROB: error 3");
+			return "redirect:/dashboard.do";
+		}
+  		TypeSample typeSampleLibrary = typeSampleService.getTypeSampleByIName("library");
+  		Sample library = sampleService.getSampleBySampleId(libraryId);
+  		if(library.getSampleId()==null || library.getSampleId().intValue()==0 || ! "library".equals(library.getTypeSample().getIName())){//not found in database or not a library
+  			waspMessage("sampleDetail.updated.unexpectedError");System.out.println("ROB: error 4");
+  			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
+		}
+  		//pull out adaptor
+  		Adaptor adaptor = null;
+  		List<SampleMeta> libraryMetaList = library.getSampleMeta();
+  		for(SampleMeta libraryMeta : libraryMetaList){
+  			if(libraryMeta.getK().indexOf("adaptorindex") > -1){
+  				adaptor = adaptorService.getAdaptorByAdaptorId(new Integer(libraryMeta.getV()));
+  			}
+  		}
+  		
+  		
+  		//is library user-submitted or facility-generated?
+  		boolean libraryIsUserSubmitted = false;
+  		Sample parentMacromolecule = null;//if this remains null then this library is user-generated 
+  		List<SampleSource> sampleSource = library.getSampleSource();//if library is facility-generated, there should be one row; if user-submitted library then no rows 
+  		if(sampleSource.size() > 1 || sampleSource.size() < 0){
+  			waspMessage("sampleDetail.updated.unexpectedError");System.out.println("ROB: error 5");
+  			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
+  		}
+  		else if(sampleSource.size() == 1){//facility generated library
+  			System.out.println("ROB: there is one sampleSource");
+  			parentMacromolecule = sampleSource.get(0).getSampleViaSource(); 
+  			System.out.println("ROB: there is one sampleSource with name/id of " + parentMacromolecule.getName() + " / " + parentMacromolecule.getSampleId().intValue());
+  			if(parentMacromolecule.getSampleId()==null || parentMacromolecule.getSampleId()==0){
+  	  			waspMessage("sampleDetail.updated.unexpectedError");System.out.println("ROB: error 6");
+  	  			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
+  			}
+  		}
+  		
+  		//confirm these two objects exist and part of same job
+		JobSample jobSample = jobSampleService.getJobSampleByJobIdSampleId(jobId, libraryId);
+		if(jobSample.getJobSampleId()== null || jobSample.getJobSampleId().intValue()==0){
+			waspMessage("sampleDetail.updated.unexpectedError");
+			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
+		}
+
+		m.put("job", job);
+		m.put("parentMacromolecule", parentMacromolecule);
+		m.put("library", library);
+		m.put("adaptor", adaptor);
+		
+		return isRW? "sampleDnaToLibrary/librarydetail_rw":"sampleDnaToLibrary/librarydetail_ro";
+  }
+  
+  
+  
   
   
   

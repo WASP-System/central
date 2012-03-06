@@ -168,6 +168,12 @@
 	<definition name="sampleDnaToLibrary/sampledetail_ro" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/sampleDnaToLibrary/sampledetail_ro.jsp" />
 	</definition>
+	<definition name="sampleDnaToLibrary/librarydetail_ro" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/sampleDnaToLibrary/librarydetail_ro.jsp" />
+	</definition>
+	<definition name="sampleDnaToLibrary/librarydetail_rw" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/sampleDnaToLibrary/librarydetail_rw.jsp" />
+	</definition>
 
 
 	

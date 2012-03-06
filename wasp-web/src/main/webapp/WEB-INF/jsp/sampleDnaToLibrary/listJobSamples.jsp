@@ -10,6 +10,8 @@
 <tr class="FormData"><td class="CaptionTD">PI:</td><td class="DataTD"><c:out value="${job.lab.user.firstName}" /> <c:out value="${job.lab.user.lastName}" /></td></tr>
 <tr class="FormData"><td class="CaptionTD">Submitted:</td><td class="DataTD"><fmt:formatDate value="${job.createts}" type="date" /></td></tr>
 <tr class="FormData"><td class="CaptionTD">Workflow:</td><td class="DataTD"><c:out value="${job.workflow.name}" /></td></tr>
+<tr><td class="label">Resource</td><td class="value"><c:out value='${extraJobDetailsMap["resource"]}' /><br />Read Length: <c:out value='${extraJobDetailsMap["readLength"]}' /><br />Read Type: <c:out value='${extraJobDetailsMap["readType"]}' /></td></tr>
+
 </table>
 <br />
 <hr />
@@ -22,9 +24,9 @@
 
 <c:choose>
 <c:when test='${sample.typeSample.IName=="library"}'>
-	<td class="value-centered" >N/A <c:out value="${librariespersample[counter.index]}"/></td>
+	<td class="value-centered" >N/A <br />DEBUG: Libraries/sample: <c:out value="${librariespersample[counter.index]}"/></td>
 	<td class="value-centered">
-		Name: <a href="<c:url value="/sampleDnaToLibrary/updateLibrary/${sample.sampleId}.do" />"><c:out value="${sample.name}" /></a><br />
+		Name: <a href="<c:url value="/sampleDnaToLibrary/librarydetail_ro/${job.jobId}/${sample.sampleId}.do" />"><c:out value="${sample.name}" /></a><br />
 		<c:forEach items="${sample.sampleMeta}" var="sm">
         	<c:if test="${fn:substringAfter(sm.k, 'Library.') == 'adaptorindex'}">
             	Adaptor: <c:out value="${adaptors.get(sm.v).adaptorset.name}"/><br />
@@ -81,7 +83,7 @@
 					<hr />
 				</c:if>
 				<c:set var="i" value="${i + 1}" scope="page" />		
-				Name: <c:out value="${lib.name}" /><br />
+				Name: <a href="<c:url value="/sampleDnaToLibrary/librarydetail_ro/${job.jobId}/${lib.sampleId}.do" />"><c:out value="${lib.name}" /></a><br />
 				<c:forEach items="${lib.sampleMeta}" var="sm">
         			<c:if test="${fn:substringAfter(sm.k, 'Library.') == 'adaptorindex'}">
             			Adaptor: <c:out value="${adaptors.get(sm.v).adaptorset.name}"/><br />
