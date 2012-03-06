@@ -13,13 +13,13 @@
 	method="POST" onsubmit='return validate();'>
 	<table class="EditTable ui-widget ui-widget-content">
 		<tr class="FormData">
-			<td class="CaptionTD"><fmt:message key="auth.login_user.label" /></td>
+			<td class="CaptionTD"><fmt:message key="auth.login_user.label" />:</td>
 			<td class="DataTD"><input class="FormElement ui-widget-content ui-corner-all" type='text' name='j_username'
 				value='<c:if test="${not empty param.error}"><c:out value="${SPRING_SECURITY_LAST_EXCEPTION.authentication.principal}"/></c:if>' /></td>
 		</tr>
 
 		<tr class="FormData">
-			<td class="CaptionTD"><fmt:message key="auth.login_password.label" /></td>
+			<td class="CaptionTD"><fmt:message key="auth.login_password.label" />:</td>
 			<td class="DataTD"><input class="FormElement ui-widget-content ui-corner-all" type='password' name='j_password' /></td>
 		</tr>
 	</table>

@@ -3,15 +3,15 @@
   <div class="info">
     <div class="item">
       <label>Job: </label>
-      <span class="value"><c:out value="${jobDraft.name}" /></span>
+      <span class="DataTD"><c:out value="${jobDraft.name}" /></span>
     </div>
     <div class="item">
       <label>Lab: </label>
-      <span class="value"><c:out value="${jobDraft.lab.name}" /></span>
+      <span class="DataTD"><c:out value="${jobDraft.lab.name}" /></span>
     </div>
     <div class="item">
       <label>Workflow: </label>
-      <span class="value"><c:out value="${jobDraft.workflow.name}" /></span>
+      <span class="DataTD"><c:out value="${jobDraft.workflow.name}" /></span>
     </div>
   </div>
 

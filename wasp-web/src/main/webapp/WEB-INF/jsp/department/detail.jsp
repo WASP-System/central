@@ -10,7 +10,7 @@
 
 		<table class="EditTable ui-widget ui-widget-content">
 		<tr class="FormData">
-		<td class="CaptionTD"><fmt:message key="department.detail_update.label" /></td>
+		<td class="CaptionTD"><fmt:message key="department.detail_update.label" />:</td>
 		<td class="DataTD"><input class="FormElement ui-widget-content ui-corner-all" type="text" name='name' value="<c:out value="${department.name}"></c:out>"></td>
 		</tr>
 		<tr class="FormData">
@@ -34,7 +34,7 @@
 		<table class="EditTable ui-widget ui-widget-content"> 
 			<tr class="FormData">
 			<td class="CaptionTD"><fmt:message key="department.detail_administrator_name.label" /> /
-			<fmt:message key="department.detail_createadmin.label" /></td><td>&nbsp;</td>
+			<fmt:message key="department.detail_createadmin.label" />:</td><td>&nbsp;</td>
 			<td class="DataTD"><input class="FormElement ui-widget-content ui-corner-all" id="adminName" name='adminName' value='' /></td>
 			</tr>
 		</table>				

@@ -6,17 +6,17 @@
 
     <table class="EditTable ui-widget ui-widget-content">
       <tr class="FormData">
-        <td class="CaptionTD"><fmt:message key="lab.name.label" /></td>
+        <td class="CaptionTD"><fmt:message key="lab.name.label" />:</td>
         <td class="DataTD">${lab.name}</td>              
       </tr>
       <tr class="FormData">
-        <td class="CaptionTD"><fmt:message key="lab.primaryUserId.label"/></td>
+        <td class="CaptionTD"><fmt:message key="lab.primaryUserId.label"/>:</td>
         <td class="DataTD">
         <c:out value="${puserFullName}"/>
         </td>             
       </tr>
       <tr class="FormData">
-        <td class="CaptionTD"><fmt:message key="lab.departmentId.label"/></td>
+        <td class="CaptionTD"><fmt:message key="lab.departmentId.label"/>:</td>
         <td class="DataTD"><c:out value="${lab.department.name}"/></td>
     </tr>
           <c:set var="_area" value = "lab" scope="request"/>	

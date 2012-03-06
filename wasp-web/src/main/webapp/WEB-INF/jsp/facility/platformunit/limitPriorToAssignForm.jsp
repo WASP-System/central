@@ -2,7 +2,7 @@
 <wasp:message /><br />
 <table class="EditTable ui-widget ui-widget-content">
 <tr class="FormData">
-	<td class="CaptionTD">Choose A Machine</td>
+	<td class="CaptionTD">Choose A Machine:</td>
 	<td  class="DataTD">
 		<form method="GET" action="<c:url value="/facility/platformunit/limitPriorToAssign.do" />">
 			<select class="FormElement ui-widget-content ui-corner-all" name="resourceCategoryId" size="1" onchange="this.parentNode.submit()">
@@ -21,7 +21,7 @@
 
 <c:if test='${resourceCategoryId > "0"}'>
 <tr class="FormData">
-	<td class="CaptionTD">Choose A Job</td>
+	<td class="CaptionTD">Choose A Job:</td>
 	<td class="DataTD">
 	<form method="GET" action="<c:url value="/facility/platformunit/assign.do" />">
 		<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="resourceCategoryId" value="<c:out value="${resourceCategoryId}" />" />

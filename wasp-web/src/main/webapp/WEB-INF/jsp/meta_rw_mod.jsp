@@ -11,7 +11,7 @@
 		<c:set var="id" value="${fn:substringAfter(_meta.k,'.')}" />
 
 		<tr class="FormData">
-			<td class="CaptionTD"><fmt:message key="${labelKey}"/></td>
+			<td class="CaptionTD"><fmt:message key="${labelKey}"/>:</td>
 			<td class="DataTD">
 			<c:choose>
 			

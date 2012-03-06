@@ -6,23 +6,23 @@
 
      <table class="EditTable ui-widget ui-widget-content">
      	  <tr class="FormData">
-              <td class="CaptionTD"><fmt:message key="wasp.authentication.label" /> <fmt:message key="user.login.label" /></td>
+              <td class="CaptionTD"><fmt:message key="wasp.authentication.label" /> <fmt:message key="user.login.label" />:</td>
               <td class="DataTD">${user.login}</td>            
           </tr>          	
           <tr class="FormData">
-              <td class="CaptionTD"><fmt:message key="user.firstName.label" /></td>
+              <td class="CaptionTD"><fmt:message key="user.firstName.label" />:</td>
               <td class="DataTD">${user.firstName}</td>              
           </tr>
           <tr class="FormData">
-              <td class="CaptionTD"><fmt:message key="user.lastName.label"/></td>
+              <td class="CaptionTD"><fmt:message key="user.lastName.label"/>:</td>
               <td class="DataTD">${user.lastName}</td>
           </tr>
           <tr class="FormData">
-              <td class="CaptionTD"><fmt:message key="user.email.label"/></td>
+              <td class="CaptionTD"><fmt:message key="user.email.label"/>:</td>
               <td class="DataTD">${user.email}</td>
           </tr>         
           <tr class="FormData">
-              <td class="CaptionTD"><fmt:message key="user.locale.label"/></td>
+              <td class="CaptionTD"><fmt:message key="user.locale.label"/>:</td>
               <td class="DataTD">                              
               <c:forEach var="localeEntry" items="${locales}">
                 <c:set var="localeValue" value="${localeEntry.key}"/>
