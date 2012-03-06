@@ -40,6 +40,12 @@
 			return false;
 		};	
 		
+		<%--  replaces the build in del function to prevent row deletion. Parameter passed to this function is the id of the edited row --%>
+		 var _del_function_resource = function (id) {
+			alert("Record cannot be deleted. Instead, use the 'edit' button and set 'Decommission Date' to mark the '"+$("#grid_id").getRowData(id).name+"' record as inactive.");
+			return false;
+		};
+		
 		<%--  The event  fire when error occurs from the ajax call and can be used for better formatting of the error messages. 
 		// To this event is passed response from the server. The event should return single message (not array), which then is displayed to the user. --%> 
 		var _errorTextFormat = function(response) {
