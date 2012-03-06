@@ -8,13 +8,13 @@
 
 
 <form name="f" action="<c:url value='/auth/resetpassword/form.do'/>" method="GET">
-	<table>
-		<tr>
-			<td><fmt:message key="auth.resetpassword_authcode.label" />:</td>
-			<td><input type='text' name='authcode' value='' /><span class="requiredField">*</span></td>
+	<table class="EditTable ui-widget ui-widget-content">
+		<tr class="FormData">
+			<td class="label"><fmt:message key="auth.resetpassword_authcode.label" />:</td>
+			<td class="DataTD"><input class="FormElement ui-widget-content ui-corner-all" type='text' name='authcode' value='' /><span class="requiredField">*</span></td>
 		</tr>
-		<tr>
-			<td colspan='2'><input name="submit" type="submit" value='<fmt:message key="auth.resetpassword_submit.label" />' /></td>
+		<tr class="FormData">
+			<td colspan='2' class="submitBottom"><input class="FormElement ui-widget-content ui-corner-all" name="submit" type="submit" value='<fmt:message key="auth.resetpassword_submit.label" />' /></td>
 		</tr>
 	</table>
 </form>

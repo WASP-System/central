@@ -3,22 +3,22 @@
 <title><fmt:message key="pageTitle.sampleDnaToLibrary/listJobSamples.label"/></title>
 <h1><fmt:message key="sampleDnaToLibrary.listJobSamples.title_label" /></h1>
 
-<table class="data">
-<tr><td class="label">Job ID</td><td class="value">J<c:out value="${job.jobId}" /></td></tr>
-<tr><td class="label">Job Name</td><td class="value"><c:out value="${job.name}" /></td></tr>
-<tr><td class="label">Submitter</td><td class="value"><c:out value="${job.user.firstName}" /> <c:out value="${job.user.lastName}" /></td></tr>
-<tr><td class="label">PI</td><td class="value"><c:out value="${job.lab.user.firstName}" /> <c:out value="${job.lab.user.lastName}" /></td></tr>
-<tr><td class="label">Submitted</td><td class="value"><fmt:formatDate value="${job.createts}" type="date" /></td></tr>
-<tr><td class="label">Workflow</td><td class="value"><c:out value="${job.workflow.name}" /></td></tr>
+<table class="EditTable ui-widget ui-widget-content">
+<tr class="FormData"><td class="CaptionTD">Job ID</td><td class="DataTD">J<c:out value="${job.jobId}" /></td></tr>
+<tr class="FormData"><td class="CaptionTD">Job Name</td><td class="DataTD"><c:out value="${job.name}" /></td></tr>
+<tr class="FormData"><td class="CaptionTD">Submitter</td><td class="DataTD"><c:out value="${job.user.firstName}" /> <c:out value="${job.user.lastName}" /></td></tr>
+<tr class="FormData"><td class="CaptionTD">PI</td><td class="DataTD"><c:out value="${job.lab.user.firstName}" /> <c:out value="${job.lab.user.lastName}" /></td></tr>
+<tr class="FormData"><td class="CaptionTD">Submitted</td><td class="DataTD"><fmt:formatDate value="${job.createts}" type="date" /></td></tr>
+<tr class="FormData"><td class="CaptionTD">Workflow</td><td class="DataTD"><c:out value="${job.workflow.name}" /></td></tr>
 </table>
 <br />
 <hr />
 <br />
-<table class="data">
-<tr><td class="label-centered">Initial Macromolecule</td><td class="label-centered">Libraries</td></tr>
+<table class="EditTable ui-widget ui-widget-content">
+<tr class="FormData"><td class="label-centered">Initial Macromolecule</td><td class="label-centered">Libraries</td></tr>
 
 <c:forEach items="${samples}" var="sample" varStatus="counter">
-<tr>
+<tr class="FormData">
 
 <c:choose>
 <c:when test='${sample.typeSample.IName=="library"}'>
@@ -33,7 +33,7 @@
         </c:forEach> 
 		<c:choose>
 			<c:when test='${received[counter.index]=="RECEIVED"}'>			
-				<input type="button" value="Add To FlowCell" />
+				<input class="FormElement ui-widget-content ui-corner-all" type="button" value="Add To FlowCell" />
 		 	 </c:when>
 		 	 <c:otherwise>
 		 	 	Status: <c:out value="${received[counter.index]}" />
@@ -57,10 +57,10 @@
 	  	
 	  	
 	  		<form method="GET" action="<c:url value="/sampleDnaToLibrary/createLibraryFromMacro.do" />">
-	  		<input type='hidden' name='jobId' value='<c:out value="${job.jobId}" />'/>
-	  		<input type='hidden' name='macromolSampleId' value='<c:out value="${sample.sampleId}" />'/>
+	  		<input class="FormElement ui-widget-content ui-corner-all" type='hidden' name='jobId' value='<c:out value="${job.jobId}" />'/>
+	  		<input class="FormElement ui-widget-content ui-corner-all" type='hidden' name='macromolSampleId' value='<c:out value="${sample.sampleId}" />'/>
 	  		
-				<select name="adaptorsetId" size="1" onchange="if(this.options[selectedIndex].value != 0){this.parentNode.submit();}">
+				<select class="FormElement ui-widget-content ui-corner-all" name="adaptorsetId" size="1" onchange="if(this.options[selectedIndex].value != 0){this.parentNode.submit();}">
 				<option value="0">--ADAPTORS FOR NEW LIBRARY--
 				<c:forEach items="${adaptorsets}" var="adaptorset">
 					<option value="<c:out value="${adaptorset.adaptorsetId}" />" ><c:out value="${adaptorset.name}" /> 

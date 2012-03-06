@@ -2,24 +2,24 @@
 <p>
 	<wasp:message />
 </p>
-<form:form commandName="labPending">
-	<table>
-		<tr>
+<form:form  cssClass="FormGrid" commandName="labPending">
+	<table class="EditTable ui-widget ui-widget-content">
+		<tr class="FormData">
 			<td colspan=2 align=left>
 			<b>Pending Lab Details:</b>
 			</td>
 		</tr>
-		<tr>
-			<td><fmt:message key="labPending.name.label" />:</td>
-			<td>${labPending.name}</td>
+		<tr class="FormData">
+			<td class="CaptionTD"><fmt:message key="labPending.name.label" />:</td>
+			<td class="DataTD">${labPending.name}</td>
 		</tr>
-		<tr>
-			<td><fmt:message key="labPending.primaryUserId.label" />:</td>
-			<td><c:out value="${puserFullName}" /></td>
+		<tr class="FormData">
+			<td class="CaptionTD"><fmt:message key="labPending.primaryUserId.label" />:</td>
+			<td class="DataTD"><c:out value="${puserFullName}" /></td>
 		</tr>
-		<tr>
-			<td><fmt:message key="labPending.departmentId.label" />:</td>
-			<td><c:forEach var="dept" items="${departments}">
+		<tr class="FormData">
+			<td class="CaptionTD"><fmt:message key="labPending.departmentId.label" />:</td>
+			<td class="DataTD"><c:forEach var="dept" items="${departments}">
 					<c:if test="${dept.departmentId == labPending.departmentId}">
 						<c:out value="${dept.name}" />
 					</c:if>
@@ -31,7 +31,7 @@
 		<c:import url="/WEB-INF/jsp/meta_ro.jsp" />
 		<sec:authorize
 			access="hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('da-*')">
-			<tr>
+			<tr class="FormData">
 				<td><a
 					href="<c:url value="/lab/pending/detail_rw/${labPending.departmentId}/${labPending.labPendingId}.do" />">Edit</a>
 					| <a

@@ -20,7 +20,7 @@
   <c:set var="_metaList" value = "${baseMetas}" scope="request" />
 
   <form:form>
-  <table class="data">
+  <table class="EditTable ui-widget ui-widget-content">
     <c:import url="/WEB-INF/jsp/meta_rw.jsp"/>
   </table>
   </form:form>
@@ -41,7 +41,7 @@
     <c:set var="resourceOptions" value = "${resourceOptionsMap[entry.key]}" scope="request" />
 
     <form:form>
-    <table class="data">
+    <table class="EditTable ui-widget ui-widget-content">
       <c:import url="/WEB-INF/jsp/meta_rw.jsp"/>
     </table>
     </form:form>
@@ -63,7 +63,7 @@
     <c:set var="_metaList" value = "${jobMetas}" scope="request" />
 
     <form:form>
-    <table class="data">
+    <table class="EditTable ui-widget ui-widget-content">
       <c:import url="/WEB-INF/jsp/meta_rw.jsp"/>
     </table>
     </form:form>

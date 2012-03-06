@@ -12,10 +12,11 @@
 
 <form command="jobDraft" method="POST">
 <div class= "greyback">
-	<table>
-	<tr><td>
+	<table class="EditTable ui-widget ui-widget-content">
+	<tr class="FormData">
+	<td  class="CaptionTD">
 	<fmt:message key="jobDraft.numberofcells.label" />
-	<select id="jobcells" name="jobcells" onchange="adjustcolumns(this.options[this.selectedIndex].innerHTML)">
+	<select class="FormElement ui-widget-content ui-corner-all" id="jobcells" name="jobcells" onchange="adjustcolumns(this.options[this.selectedIndex].innerHTML)">
 	  <c:forEach var="i" begin="1" end="15">
 	    <c:set var="selected" value="" />
 	    <c:if test="${i == fn:length(jobDraft.jobDraftCell)}">
@@ -24,10 +25,10 @@
 	    <option ${selected} value="${i}"><c:out value="${i}" /></option>
 	  </c:forEach>
 	</select>
-	</td></tr><tr><td align="center">
+	</td></tr><tr class="FormData"><td align="center">
 	<table id="cells" class="data">
-	<tr>
-	<td class="label"><fmt:message key="jobDraft.sample.label" /></td>
+	<tr class="FormData">
+	<td class="CaptionTD"><fmt:message key="jobDraft.sample.label" /></td>
 	  <c:forEach var="i" begin="1" end="15">
 	    <td name="column_${i}" class="input-centered" style="display:none">
 	      <fmt:message key="jobDraft.cell.label" /> <c:out value="${i}" />
@@ -38,7 +39,7 @@
 	<c:forEach items="${sampleDrafts}" var="sd">
 	
 	<tr class="row">
-	<td class="label"><c:out value="${sd.name}" /></td>
+	<td class="CaptionTD"><c:out value="${sd.name}" /></td>
 	  <c:forEach var="i" begin="1" end="15">
 	    <td name="column_${i}" class="input-centered" style="display:none">
 	      <!-- ${sd.sampleDraftId}_${i} -->
@@ -47,7 +48,7 @@
 	      <c:if test="${fn:contains(selectedSampleCell, key)}">
 	        <c:set var="checked" value="CHECKED" />
 	      </c:if>
-	      <input type="checkbox" value="1" ${checked} name="sdc_${sd.sampleDraftId}_${i}">
+	      <input class="FormElement ui-widget-content ui-corner-all" type="checkbox" value="1" ${checked} name="sdc_${sd.sampleDraftId}_${i}">
 	    </td>
 	  </c:forEach>
 	</tr>
@@ -57,7 +58,7 @@
 </div>
 <br />
 <div class="submit">
-  <input type="submit" value="<fmt:message key="jobDraft.submit.label" />" />
+  <input class="FormElement ui-widget-content ui-corner-all" type="submit" value="<fmt:message key="jobDraft.submit.label" />" />
 </div>
 
 </form>

@@ -4,26 +4,26 @@
     <h1><fmt:message key="pageTitle.user/detail_ro.label" /></h1>
 
 
-     <table class="data">
-     	  <tr>
-              <td class="label"><fmt:message key="wasp.authentication.label" /> <fmt:message key="user.login.label" /></td>
-              <td class="value">${user.login}</td>            
+     <table class="EditTable ui-widget ui-widget-content">
+     	  <tr class="FormData">
+              <td class="CaptionTD"><fmt:message key="wasp.authentication.label" /> <fmt:message key="user.login.label" /></td>
+              <td class="DataTD">${user.login}</td>            
           </tr>          	
-          <tr>
-              <td class="label"><fmt:message key="user.firstName.label" /></td>
-              <td class="value">${user.firstName}</td>              
+          <tr class="FormData">
+              <td class="CaptionTD"><fmt:message key="user.firstName.label" /></td>
+              <td class="DataTD">${user.firstName}</td>              
           </tr>
-          <tr>
-              <td class="label"><fmt:message key="user.lastName.label"/></td>
-              <td class="value">${user.lastName}</td>
+          <tr class="FormData">
+              <td class="CaptionTD"><fmt:message key="user.lastName.label"/></td>
+              <td class="DataTD">${user.lastName}</td>
           </tr>
-          <tr>
-              <td class="label"><fmt:message key="user.email.label"/></td>
-              <td class="value">${user.email}</td>
+          <tr class="FormData">
+              <td class="CaptionTD"><fmt:message key="user.email.label"/></td>
+              <td class="DataTD">${user.email}</td>
           </tr>         
-          <tr>
-              <td class="label"><fmt:message key="user.locale.label"/></td>
-              <td class="value">                              
+          <tr class="FormData">
+              <td class="CaptionTD"><fmt:message key="user.locale.label"/></td>
+              <td class="DataTD">                              
               <c:forEach var="localeEntry" items="${locales}">
                 <c:set var="localeValue" value="${localeEntry.key}"/>
                 <c:set var="localeLabel" value="${localeEntry.value}"/>               
@@ -36,14 +36,14 @@
 		<c:set var="_metaList" value = "${user.userMeta}" scope="request" />		
         <c:import url="/WEB-INF/jsp/meta_ro.jsp"/>
 	  <sec:authorize access="hasRole('su') and ! hasRole('u-${user.userId}')">      		   		
-          <tr><td class="action"><div class="submit"><a href="/wasp/user/detail_rw/${user.userId}.do"><fmt:message key="userDetail.edit_as_other.label" /></a></div>
+          <tr class="FormData"><td class="submitBottom"><div class="submit"><a href="/wasp/user/detail_rw/${user.userId}.do"><fmt:message key="userDetail.edit_as_other.label" /></a></div>
           </sec:authorize>	
 	  <sec:authorize access="hasRole('u-${user.userId}')">
-	  	  <tr><td colspan="2" align=left><div class="submit"><a href="/wasp/user/me_rw.do"><fmt:message key="userDetail.edit.label" /></a>
+	  	  <tr class="FormData"><td colspan="2" align=left class="submitBottom submit"><a href="/wasp/user/me_rw.do"><fmt:message key="userDetail.edit.label" /></a>
 		  <sec:authorize access="not hasRole('ldap')">      		   		
 	          &nbsp;&nbsp;<a href="<c:url value="/user/mypassword.do"/>"><fmt:message key="userDetail.change_password.label" /></a>
 	      </sec:authorize>	
-	     </div> </td></tr>
+	     </td></tr>
 	   </sec:authorize>
 	</table>
 

@@ -14,10 +14,10 @@
         <c:out value="${s.status}" />
         <c:if test="${s.status == 'RUNNING'}">
           <form action="<c:url value="/task/fmrequote/requote.do"/>" method="POST">
-            <input type="stateId" value="${s.stateId}">
-            <input type="jobId" value="${sj.jobId}">
-            <input type="amount" value="">
-            <input type="submit">
+            <input class="FormElement ui-widget-content ui-corner-all" type="stateId" value="${s.stateId}">
+            <input class="FormElement ui-widget-content ui-corner-all" type="jobId" value="${sj.jobId}">
+            <input class="FormElement ui-widget-content ui-corner-all" type="amount" value="">
+            <input class="FormElement ui-widget-content ui-corner-all" type="submit">
           </form>
         </c:if>
       </c:forEach>

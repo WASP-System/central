@@ -10,16 +10,16 @@
 		<c:set var="labelKey" value="${fn:replace(_meta.k, _myArea, _myCtxArea)}.label" />
 		<c:set var="id" value="${fn:substringAfter(_meta.k,'.')}" />
 
-		<tr>
-			<td class="label"><fmt:message key="${labelKey}"/></td>
-			<td class="input">
+		<tr class="FormData">
+			<td class="CaptionTD"><fmt:message key="${labelKey}"/>:</td>
+			<td class="DataTD">
 			<c:choose>
 				<c:when test="${not empty _meta.property.control}">
 				
 			    <%-- this tag will define selectItems/itemValue/itemLabel request attributes --%>
 			    <wasp:metaSelect control="${_meta.property.control}"/>
        
-				<select name="${_area}Meta_${_meta.k}" id="${id}">
+				<select class="FormElement ui-widget-content ui-corner-all" name="${_area}Meta_${_meta.k}" id="${id}" class="FormElement ui-widget-content ui-corner-all">
 					<c:if test= "${_meta.property.formVisibility != 'immutable'}">
 						<option value=''><fmt:message key="wasp.default_select.label"/></option>
 					</c:if>
@@ -37,7 +37,7 @@
 					<c:if test="${(empty inputVal) &&  (not empty _meta.property.defaultVal)}">
 						<c:set var="inputVal" value="${_meta.property.defaultVal}" />
 					</c:if>
-					<input name="${_area}Meta_${_meta.k}" id="${id}"  value="${inputVal}" <c:if test= "${_meta.property.formVisibility == 'immutable'}"> readonly="readonly"</c:if>/>
+					<input class="FormElement ui-widget-content ui-corner-all" name="${_area}Meta_${_meta.k}" id="${id}"  value="${inputVal}" <c:if test= "${_meta.property.formVisibility == 'immutable'}"> readonly="readonly"</c:if> class="FormElement ui-widget-content ui-corner-all" />
 				</c:otherwise>
 			</c:choose>
 			<c:if test="${not empty _meta.property.constraint}">
@@ -45,7 +45,7 @@
 			</c:if>
 			</td>		
 		
-			<td class="error"><form:errors path="${_area}Meta[${status.index}].k" /> </td>					 
+			<td class="CaptionTD error"><form:errors path="${_area}Meta[${status.index}].k" /> </td>					 
 		</tr>	
 	</c:if>			 
 </c:forEach>

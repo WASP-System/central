@@ -2,20 +2,20 @@
 <wasp:message />
 <h1><fmt:message key="pageTitle.resource/create.label" /></h1>
 
-<form:form commandName="resource">
+<form:form  cssClass="FormGrid" commandName="resource">
 
-	<table>
-		<tr>
-			<td><fmt:message key="resource.name.label" />:</td>
-			<td><form:input path="name" />
+	<table class="EditTable ui-widget ui-widget-content">
+		<tr class="FormData">
+			<td class="CaptionTD"><fmt:message key="resource.name.label" />:</td>
+			<td class="DataTD"><form:input cssClass="FormElement ui-widget-content ui-corner-all" path="name" />
 			</td>
-			<td><form:errors path="name" />
+			<td class="CaptionTD error"><form:errors path="name" />
 			</td>
 		</tr>
 
-		<tr>
-			<td><fmt:message key="resource.typeResourceId.label" />:</td>
-			<td><select name=typeResourceId>
+		<tr class="FormData">
+			<td class="CaptionTD"><fmt:message key="resource.typeResourceId.label" />:</td>
+			<td class="DataTD"><select class="FormElement ui-widget-content ui-corner-all" name=typeResourceId>
 					<option value='-1'>
 						<fmt:message key="wasp.default_select.label" />
 					</option>
@@ -25,7 +25,7 @@
 						</option>
 					</c:forEach>
 			</select></td>
-			<td><form:errors path="typeResourceId" />
+			<td class="CaptionTD error"><form:errors path="typeResourceId" />
 			</td>
 		</tr>
 
@@ -34,12 +34,12 @@
 			scope="request" />
 		<c:import url="/WEB-INF/jsp/meta_rw.jsp" />
 
-		<tr>
-			<td colspan="2" align=right>
+		<tr class="FormData">
+			<td colspan="2" align=right class="submitBottom">
 				<button type="button" onclick="javascript:history.go(-1)">
 					<fmt:message key="resource.cancel.label" />
 				</button>
-				<input type="submit" value="<fmt:message key="resource.save.label" />" />
+				<input class="FormElement ui-widget-content ui-corner-all" type="submit" value="<fmt:message key="resource.save.label" />" />
 			</td>
 		</tr>
 	</table>

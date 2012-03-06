@@ -7,18 +7,18 @@
   <fmt:message key="sysrole.list_current.label" />
 </div>
 
-<table class="data">
-<tr>
-  	<td class="label-centered">Name (Login Name)</td>
-  	<td class="label-centered">Role</td>
-  	<td class="label-centered">Action</td>
+<table class="EditTable ui-widget ui-widget-content">
+<tr class="FormData">
+  	<td class="CaptionTD label-centered">Name (Login Name)</td>
+  	<td class="CaptionTD label-centered">Role</td>
+  	<td class="CaptionTD label-centered">Action</td>
 </tr>
 
   <c:forEach items="${userRoleMap}" var="rs">
 	  <c:forEach items="${rs.value}" var="r">
-	  	<tr>
-		    <td class="value"><c:out value="${rs.key}" /></td>
-		    <td class="value"><c:out value="${r.role.name}" /></td>
+	  	<tr class="FormData">
+		    <td class="DataTD"><c:out value="${rs.key}" /></td>
+		    <td class="DataTD"><c:out value="${r.role.name}" /></td>
 		    <td class="submit value-centered"><a href="<c:url value="/sysrole/remove/${r.userId}/${r.role.roleName}.do" />">Remove Role</a></td>
 	    </tr>
 	  </c:forEach>
@@ -33,10 +33,10 @@
 </div>
 
   <form method="POST" action="<c:url value="/sysrole/add.do"/>" onsubmit='return validate();'>
-  <table class="data">
-    <tr>
-    	<td class="label"><fmt:message key="sysrole.list_sysuser_role.label" />: </td>
-    	<td class="input"><select name="roleName">
+  <table class="EditTable ui-widget ui-widget-content">
+    <tr class="FormData">
+    	<td class="CaptionTD"><fmt:message key="sysrole.list_sysuser_role.label" />: </td>
+    	<td class="DataTD"><select class="FormElement ui-widget-content ui-corner-all" name="roleName">
 		    <option value="" SELECTED><fmt:message key="wasp.default_select.label"/></option>
 		    <c:forEach items="${role}" var="r">
 		      <option value="<c:out value="${r.roleName}"/>">
@@ -46,14 +46,14 @@
 		    </select>
 		</td>
     </tr>
-    <tr>
-	    <td class="label"><fmt:message key="sysrole.list_sysuser_name.label" />: </td>
-	    <td class="input"><input type="text" id="userHook" name="userHook" /></td>
+    <tr class="FormData">
+	    <td class="CaptionTD"><fmt:message key="sysrole.list_sysuser_name.label" />: </td>
+	    <td class="CaptionTD"><input class="FormElement ui-widget-content ui-corner-all" type="text" id="userHook" name="userHook" /></td>
     </tr>
  
   </table>
   <div class="submit">
-    <input type="submit" value="<fmt:message key="sysrole.list_submit.label" />" />
+    <input class="FormElement ui-widget-content ui-corner-all" type="submit" value="<fmt:message key="sysrole.list_submit.label" />" />
   </div>
 </form>
 

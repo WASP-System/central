@@ -3,8 +3,8 @@
     <p><wasp:message /></p>
     <h1><fmt:message key="pageTitle.lab/user_manager.label"/></h1>
 	<h2><fmt:message key="labuser.current.label"/></h2>
-	<table class="data">
-		<tr>
+	<table class="EditTable ui-widget ui-widget-content">
+		<tr class="FormData">
 		  	<td class="label-centered">Name (Login Name)</td>
 		  	<td class="label-centered">Name</td>
 		  	<td class="label-centered">Email</td>
@@ -13,20 +13,20 @@
 		  	<td class="label-centered">Actions</td>
 		</tr>
 	    <c:forEach items="${labuser}" var="ul">
-	      <tr>
-	      <td class="value"><a href="/wasp/user/detail_ro/<c:out value="${ul.user.userId}" />.do"><c:out value="${ul.user.login}" /></a></td>
-	      <td class="value">
+	      <tr class="FormData">
+	      <td class="DataTD"><a href="/wasp/user/detail_ro/<c:out value="${ul.user.userId}" />.do"><c:out value="${ul.user.login}" /></a></td>
+	      <td class="DataTD">
 	        <c:out value="${ul.user.firstName}" />
 	        <c:out value="${ul.user.lastName}" />
 	      </td>
-	      <td class="value"><c:out value="${ul.user.email}" /></td>
-	      <td class="value">
+	      <td class="DataTD"><c:out value="${ul.user.email}" /></td>
+	      <td class="DataTD">
 	        <c:if test="${ul.user.isActive == 1}" > <fmt:message key="labuser.active.label"/> 
 	        </c:if>
 	        <c:if test="${ul.user.isActive == 0}" > <fmt:message key="labuser.inactive.label"/>
 	        </c:if>
 	       </td>
-	      <td class="value"><c:out value="${ul.role.name}" /></td>
+	      <td class="DataTD"><c:out value="${ul.role.name}" /></td>
 		  <td class="submit value">
 		      <c:if test="${ul.role.roleName == 'lx'}">
 		        <a href="<c:url value="/lab/user/role/${lab.labId}/${ul.user.userId}/lu.do"/>"><fmt:message key="labuser.status_activate.label"/></a>

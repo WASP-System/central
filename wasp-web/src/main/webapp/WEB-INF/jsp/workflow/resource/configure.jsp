@@ -5,8 +5,8 @@
 	<c:out value="${workflow.name}" /> <fmt:message key="workflow.configure.label"/>
 </h1>
 
-<form:form method="POST">
-	<input type="hidden" name="workflowId" value="<c:out value="${workflowId}" />" />
+<form:form  cssClass="FormGrid" method="POST">
+	<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="workflowId" value="<c:out value="${workflowId}" />" />
 	<c:forEach items="${workflowTypeResourceMap}"
 		var="workflowTypeResource">
 		<section style="margin-bottom: 20px">
@@ -22,7 +22,7 @@
 					</c:if>
 	
 					<div style="margin-bottom: 20px;">
-						<input type="checkbox" name="resourceCategory"	value='<c:out value="${rc.IName}" />'
+						<input class="FormElement ui-widget-content ui-corner-all" type="checkbox" name="resourceCategory"	value='<c:out value="${rc.IName}" />'
 							<c:if test="${!empty wrc}">CHECKED</c:if>>
 						<c:out value="${rc.name}" />
 						<div style="margin-left: 20px;">
@@ -40,7 +40,7 @@
 											value="${fn:substringAfter(rcm.k, '.allowableUiField.')}" />
 										<c:forEach items="${fn:split(rcm.v,';')}" var="option">
 											<div style="margin-left: 10px">
-												<input type="checkbox" name="resourceCategoryOption" value='<c:out value="${rc.IName};${rcm.k};${option}" />'
+												<input class="FormElement ui-widget-content ui-corner-all" type="checkbox" name="resourceCategoryOption" value='<c:out value="${rc.IName};${rcm.k};${option}" />'
 													<c:if test="${workflowResourceOptions[optionName].contains(option)}" >
 	CHECKED
 													</c:if>>
@@ -65,7 +65,7 @@
 					</c:if>
 	
 					<div style="margin-bottom: 20px;">
-						<input type="checkbox" name="software"	value='<c:out value="${software.IName}" />'
+						<input class="FormElement ui-widget-content ui-corner-all" type="checkbox" name="software"	value='<c:out value="${software.IName}" />'
 							<c:if test="${!empty ws}">CHECKED</c:if>>
 						<c:out value="${workflowSoftwareVersionedNameMap[software.IName]}" />
 						<div style="margin-left: 20px;">
@@ -76,7 +76,7 @@
 										<c:set var="optionName"	value="${ws.resourceCategory.IName};${fn:substringAfter(sm.k, '.allowableUiField.')}" />
 										<c:forEach items="${fn:split(sm.v,';')}" var="option">
 											<div style="margin-left: 10px">
-												<input type="checkbox" name="resourceCategoryOption" value='<c:out value="${software.IName};${sm.k};${option}" />'
+												<input class="FormElement ui-widget-content ui-corner-all" type="checkbox" name="resourceCategoryOption" value='<c:out value="${software.IName};${sm.k};${option}" />'
 													<c:if test="${workflowResourceOptions[optionName].contains(option)}" >
 	CHECKED
 													</c:if>>
@@ -94,8 +94,8 @@
 		</section>
 	</c:forEach>
 	<div class="submit">
-		<input type="submit" name="submit" value="<fmt:message key="workflow.submit.label" />" />
-		<input type="submit" name="submit" value="<fmt:message key="workflow.cancel.label" />">
+		<input class="FormElement ui-widget-content ui-corner-all" type="submit" name="submit" value="<fmt:message key="workflow.submit.label" />" />
+		<input class="FormElement ui-widget-content ui-corner-all" type="submit" name="submit" value="<fmt:message key="workflow.cancel.label" />">
 	</div>
 </form:form>
 

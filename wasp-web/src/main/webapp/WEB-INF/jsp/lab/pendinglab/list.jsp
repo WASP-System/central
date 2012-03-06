@@ -7,8 +7,8 @@
      hasRole('su') or
      hasRole('da-' + ${l.departmentId})
    "-->
-		<tr>
-			<td>
+		<tr class="FormData">
+			<td class="DataTD">
 				<a href="/wasp/lab/detail/<c:out value="${l.labId}" />.do">
 				<c:out value="${l.name}" />
 			</a></td>

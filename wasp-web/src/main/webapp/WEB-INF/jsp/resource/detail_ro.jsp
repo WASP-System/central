@@ -5,10 +5,10 @@
 </h1>
 
 
-<table>
-	<tr>
-		<td><fmt:message key="resource.typeResourceId.label" />:</td>
-		<td><c:forEach var="type" items="${typeResources}">
+<table class="EditTable ui-widget ui-widget-content">
+	<tr class="FormData">
+		<td class="CaptionTD"><fmt:message key="resource.typeResourceId.label" />:</td>
+		<td class="DataTD"><c:forEach var="type" items="${typeResources}">
 				<c:if test="${type.typeResourceId == resource.typeResourceId}">
 					<c:out value="${type.name}" />
 				</c:if>
@@ -21,8 +21,8 @@
 
 	<sec:authorize
 		access="hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('fm')">
-		<tr>
-			<td><a
+		<tr class="FormData">
+			<td class="submit"><a
 				href="<c:url value="/resource/detail_rw/${resource.resourceId}.do" />">Edit</a>
 			</td>
 		</tr>

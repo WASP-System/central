@@ -247,7 +247,7 @@ function populateSelect(el, items) {
 <div id="gridpager"></div>
 
 <form method="POST">
-<input type="submit" value="<fmt:message key="jobDraft.next.label"/>">
+<input class="FormElement ui-widget-content ui-corner-all" type="submit" value="<fmt:message key="jobDraft.next.label"/>">
 </form>
 
 

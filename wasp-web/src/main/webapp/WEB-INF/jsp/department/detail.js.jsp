@@ -1,5 +1,5 @@
 
-<link rel="stylesheet" type="text/css" href="/wasp/css/jquery/jquery-ui.css"/>
+
 <script type="text/javascript" src="/wasp/scripts/jquery/jquery-ui-1.8.18.custom.min.js"></script> 
 
 

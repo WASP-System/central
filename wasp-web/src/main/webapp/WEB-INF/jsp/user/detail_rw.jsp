@@ -3,35 +3,33 @@
     <wasp:message />  
 
     <h1><fmt:message key="pageTitle.user/detail_rw.label" /></h1>
-
-
-    <form:form commandName="user">
-     <table class="data">
-     	   <tr>
-              <td class="label"><fmt:message key="wasp.authentication.label" /> <fmt:message key="user.login.label" /></td>
-              <td class="input"><form:input path="login"  readonly="true" /></td>
-              <td class="error"><form:errors path="login"/></td>
+    <form:form  commandName="user" cssClass="FormGrid">
+     <table class="EditTable ui-widget ui-widget-content">
+     	   <tr class="FormData">
+              <td class="CaptionTD"><fmt:message key="wasp.authentication.label" /> <fmt:message key="user.login.label" /></td>
+              <td class="DataTD"><form:input path="login"  readonly="true" cssClass="FormElement ui-widget-content ui-corner-all" /></td>
+              <td class="CaptionTD error"><form:errors path="login"/></td>
           </tr> 	   	
-          <tr>
-              <td class="label"><fmt:message key="user.firstName.label" /></td>
-              <td class="input"><form:input path="firstName" /><span class="requiredField">*</span></td>
-              <td class="error"><form:errors path="firstName" /></td>
+          <tr class="FormData">
+              <td class="CaptionTD"><fmt:message key="user.firstName.label" /></td>
+              <td class="DataTD"><form:input path="firstName" cssClass="FormElement ui-widget-content ui-corner-all"/><span class="requiredField">*</span></td>
+              <td class="CaptionTD error"><form:errors path="firstName" /></td>
           </tr>
-          <tr>
-              <td class="label"><fmt:message key="user.lastName.label"/></td>
-              <td class="input"><form:input path="lastName" /><span class="requiredField">*</span></td>
-              <td class="error"><form:errors path="lastName" /></td>
+          <tr class="FormData">
+              <td class="CaptionTD"><fmt:message key="user.lastName.label"/></td>
+              <td class="DataTD"><form:input path="lastName" cssClass="FormElement ui-widget-content ui-corner-all"/><span class="requiredField">*</span></td>
+              <td class="CaptionTD error"><form:errors path="lastName" /></td>
           </tr>
-          <tr>
-              <td class="label"><fmt:message key="user.email.label"/></td>
-              <td class="input"><form:input path="email" /><span class="requiredField">*</span></td>
-              <td class="error"><form:errors path="email" /></td>
+          <tr class="FormData">
+              <td class="CaptionTD"><fmt:message key="user.email.label"/></td>
+              <td class="DataTD"><form:input path="email" cssClass="FormElement ui-widget-content ui-corner-all"/><span class="requiredField">*</span></td>
+              <td class="CaptionTD error"><form:errors path="email" /></td>
           </tr>         
-          <tr>
-              <td class="label"><fmt:message key="user.locale.label"/></td>
-              <td class="input">
-              <select name=locale>
-                <option value=''><fmt:message key="wasp.default_select.label"/></option>
+          <tr class="FormData">
+              <td class="CaptionTD"><fmt:message key="user.locale.label"/></td>
+              <td class="DataTD">
+              <select name="locale" class="FormElement ui-widget-content ui-corner-all">
+                <option value=''><fmt:message key="wasp.default_select.label"  /></option>
                  <c:forEach var="localeEntry" items="${locales}">
                     <c:set var="localeValue" value="${localeEntry.key}"/>
                     <c:set var="localeLabel" value="${localeEntry.value}"/>        
@@ -39,17 +37,16 @@
                 </c:forEach>
               </select><span class="requiredField">*</span>
               </td>
-              <td class="error"><form:errors path="locale" /></td>
+              <td class="CaptionTD error"><form:errors path="locale" /></td>
           </tr>
           <c:set var="_area" value = "user" scope="request"/>	
 		  <c:set var="_metaList" value = "${user.userMeta}" scope="request" />		
           <c:import url="/WEB-INF/jsp/meta_rw.jsp"/>
-          <tr>
-              <td colspan="2" align="left" class="submit">
+          <tr class="FormData">
+              <td colspan="3" align="left" class="submitBottom">
               	  <input type="submit" name="submit" value="<fmt:message key="userDetail.cancel.label" />" />
                   <input type="submit" name="submit" value="<fmt:message key="userDetail.save.label" />" />
               </td>
-              <td>&nbsp;</td>
           </tr>
 	</table>
     </form:form>

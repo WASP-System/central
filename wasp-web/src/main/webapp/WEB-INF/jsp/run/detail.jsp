@@ -12,7 +12,7 @@
       Resource: <a href="/wasp/resource/list.do?selId=<c:out value="${run.resourceId}"/>"><c:out value="${run.resource.name}"/></a>
     </div>
 
-<table>
+<table class="EditTable ui-widget ui-widget-content">
 
 	<c:set var="_area" value="run" scope="request" />
 	<c:set var="_metaList" value="${run.runMeta}" scope="request" />

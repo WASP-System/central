@@ -63,7 +63,7 @@
     <c:otherwise>    
     <c:forEach items="${newuserspendinglist}" var="up">
       <div>
-      <c:out value="${up.firstName} ${up.lastName}" /> (<c:out value="${up.email}" />) [Lab: <c:out value="${up.lab.name}" />] <input type="button" id="robbutton<c:out value='${counter}' />" onclick = "show_data(<c:out value='${counter}' />);" value="show" /> <a href="<c:url value="/lab/userpending/approve/${up.lab.labId}/${up.userPendingId}.do"/>">APPROVE</a> <a href="<c:url value="/lab/userpending/reject/${up.lab.labId}/${up.userPendingId}.do"/>">REJECT</a>     
+      <c:out value="${up.firstName} ${up.lastName}" /> (<c:out value="${up.email}" />) [Lab: <c:out value="${up.lab.name}" />] <input class="FormElement ui-widget-content ui-corner-all" type="button" id="robbutton<c:out value='${counter}' />" onclick = "show_data(<c:out value='${counter}' />);" value="show" /> <a href="<c:url value="/lab/userpending/approve/${up.lab.labId}/${up.userPendingId}.do"/>">APPROVE</a> <a href="<c:url value="/lab/userpending/reject/${up.lab.labId}/${up.userPendingId}.do"/>">REJECT</a>     
       </div>
       
       
@@ -81,7 +81,7 @@
     </c:forEach>
      <c:forEach items="${existinguserspendinglist}" var="lu">
       <div>
-      <c:out value="${lu.user.firstName} ${lu.user.lastName}" /> (<c:out value="${lu.user.email}" />) [Lab: <c:out value="${lu.lab.name}" />] <input type="button" id="robbutton<c:out value='${counter}' />" onclick = "show_data(<c:out value='${counter}' />);" value="show" /> <a href="<c:url value="/lab/labuserpending/approve/${lu.lab.labId}/${lu.labUserId}.do"/>">APPROVE</a> <a href="<c:url value="/lab/labuserpending/reject/${lu.lab.labId}/${lu.labUserId}.do"/>">REJECT</a>
+      <c:out value="${lu.user.firstName} ${lu.user.lastName}" /> (<c:out value="${lu.user.email}" />) [Lab: <c:out value="${lu.lab.name}" />] <input class="FormElement ui-widget-content ui-corner-all" type="button" id="robbutton<c:out value='${counter}' />" onclick = "show_data(<c:out value='${counter}' />);" value="show" /> <a href="<c:url value="/lab/labuserpending/approve/${lu.lab.labId}/${lu.labUserId}.do"/>">APPROVE</a> <a href="<c:url value="/lab/labuserpending/reject/${lu.lab.labId}/${lu.labUserId}.do"/>">REJECT</a>
       </div>
       
       
@@ -105,7 +105,7 @@
     <c:otherwise>    
     <c:forEach items="${jobspendinglist}" var="job">
       <div>
-      Job J<c:out value="${job.jobId}" />: <c:out value="${job.name}" /> (Submitter: <c:out value="${job.user.firstName} ${job.user.lastName}" />) [Lab: <c:out value="${job.lab.name}" />] <input type="button" id="robbutton<c:out value='${counter}' />" onclick = "show_data(<c:out value='${counter}' />);" value="show" />  <a href="<c:url value="/job/allpendinglmapproval/approve/${job.lab.labId}/${job.jobId}.do"/>">APPROVE</a> <a href="<c:url value="/job/allpendinglmapproval/reject/${job.lab.labId}/${job.jobId}.do"/>">REJECT</a>     
+      Job J<c:out value="${job.jobId}" />: <c:out value="${job.name}" /> (Submitter: <c:out value="${job.user.firstName} ${job.user.lastName}" />) [Lab: <c:out value="${job.lab.name}" />] <input class="FormElement ui-widget-content ui-corner-all" type="button" id="robbutton<c:out value='${counter}' />" onclick = "show_data(<c:out value='${counter}' />);" value="show" />  <a href="<c:url value="/job/allpendinglmapproval/approve/${job.lab.labId}/${job.jobId}.do"/>">APPROVE</a> <a href="<c:url value="/job/allpendinglmapproval/reject/${job.lab.labId}/${job.jobId}.do"/>">REJECT</a>     
       </div>
        
        <div id='robdiv<c:out value='${counter}' />' style="display:none">  
@@ -138,16 +138,16 @@
     </c:when>
     <c:otherwise>    
     
-    <table>
+    <table class="EditTable ui-widget ui-widget-content">
     <c:forEach items="${newuserspendinglist}" var="up">
    
-     <tr><td>
+     <tr class="FormData"><td>
       <div>
       <c:out value="${up.firstName} ${up.lastName}" /> (<c:out value="${up.email}" />) </td><td> <button id="robbutton<c:out value='${counter}' />">show</button></td><td> <a href="<c:url value="/lab/userpending/approve/${lab.labId}/${up.userPendingId}.do"/>">APPROVE</a></td><td> <a href="<c:url value="/lab/userpending/reject/${lab.labId}/${up.userPendingId}.do"/>">REJECT</a>   
        </div> 
      </td></tr>  
       
-      <tr><td colspan = '4'>
+      <tr class="FormData"><td colspan = '4'>
       <div id='robdiv<c:out value='${counter}' />' style="display:none"> 
             
       <c:forEach items="${up.userPendingMeta}" var="meta"> 
@@ -165,11 +165,11 @@
     
     
      <c:forEach items="${existinguserspendinglist}" var="lu">
-    <tr><td>  <div>
+    <tr class="FormData"><td>  <div>
       <c:out value="${lu.user.firstName} ${lu.user.lastName}" /> (<c:out value="${lu.user.email}" />) </td><td> <button id="robbutton<c:out value='${counter}' />">show</button></td><td> <a href="<c:url value="/lab/labuserpending/approve/${lab.labId}/${lu.labUserId}.do"/>">APPROVE</a> </td><td> <a href="<c:url value="/lab/labuserpending/reject/${lab.labId}/${lu.labUserId}.do"/>">REJECT</a> 
       </div>
     </td></tr>  
-      <tr><td colspan = '4'>
+      <tr class="FormData"><td colspan = '4'>
        <div id='robdiv<c:out value='${counter}' />' style="display:none">       
       <c:forEach items="${lu.user.userMeta}" var="meta">        
        <c:set var="optionName" value="${meta.k}.label" /><fmt:message key="${optionName}" />:&nbsp;<c:out value="${meta.v}" /><br />      
@@ -189,14 +189,14 @@
     <div>None</div>    
     </c:when>
     <c:otherwise> 
-    <table>   
+    <table class="EditTable ui-widget ui-widget-content">   
     <c:forEach items="${jobspendinglist}" var="job">
-    <tr><td>
+    <tr class="FormData"><td>
       <div>
       Job J<c:out value="${job.jobId}" />: <c:out value="${job.name}" /> (Submitter: <c:out value="${job.user.firstName} ${job.user.lastName}" />) </td><td> <button id="robbutton<c:out value='${counter}' />">show</button> <a href="<c:url value="/job/pendinglmapproval/approve/${lab.labId}/${job.jobId}.do"/>">APPROVE</a> <a href="<c:url value="/job/pendinglmapproval/reject/${lab.labId}/${job.jobId}.do"/>">REJECT</a> 
       </div>
      </td></tr>  
-     <tr><td colspan = '2'>
+     <tr class="FormData"><td colspan = '2'>
        <div id='robdiv<c:out value='${counter}' />' style="display:none">
          
       <c:forEach items="${job.jobMeta}" var="meta">     

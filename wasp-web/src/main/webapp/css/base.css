@@ -1,4 +1,4 @@
-BODY	{
+body	{
 	font-size: 13px;
 	font-family: Helevetica, "MS Trebuchet", sans-serif;
 	line-height: 16px;
@@ -6,29 +6,41 @@ BODY	{
 	margin:15px auto;
 	}
 
-H1	{
+h1	{
 	font-size: 1.6em;
 	margin-bottom: 20px;
+	margin-top: 20px;
 	}
 	
-H2	{
+h2	{
 	font-size: 1.2em;
 	margin-bottom: 20px;
+	margin-top: 20px;
 	}
 
-P	{
+p	{
 	margin:0 0 20px 0;
 	}
-LABEL, TD.label, TH.label {font-weight: bold;}
+	
+td {
+	padding: 2px 10px 0 10px;
+	width 100%;
+}
 
-TD	{padding: 5px;}
+label, td.label, th.label {font-weight: bold;}
 
-a {
+
+
+
+
+a, td.CaptionTD a, td.DataTD, tr.ui-widget-content td a{
 	color: #801A00;
 	text-decoration: none;
 }
 
-a:hover{
+
+
+a:hover , td.CaptionTD a:hover, td.DataTD a:hover, tr.ui-widget-content td a:hover{
 	color: #aa0000;
 	text-decoration: underline;
 }
@@ -57,11 +69,11 @@ a:hover{
 	padding: 10px;
 	}
 
-HEADER#pageHeader	{
+header#pageHeader	{
 	margin-bottom: 20px;
 	}
 
-SECTION#jobDetails	{
+section#jobDetails	{
 	-webkit-border-radius: 10px;
 	-moz-border-radius: 10px;
 	-o-border-radius: 10px;
@@ -79,7 +91,7 @@ SECTION#jobDetails	{
 	}
 
 
-NAV#jobSubmit	{
+nav#jobSubmit	{
 	margin: 10px 0;
 	font-family: Helvetica, Arial, sans-serif;
 	font-size: 12px;
@@ -95,12 +107,12 @@ NAV#jobSubmit	{
 	
 }
 
-NAV#jobSubmit	a{
+nav#jobSubmit	a{
 	color: #444;
 	text-decoration: none;
 }
 
-NAV#jobSubmit	a:hover{
+nav#jobSubmit	a:hover{
 	color: #aa0000;
 	text-decoration: underline;
 }
@@ -114,6 +126,10 @@ NAV#jobSubmit	a:hover{
 	
 }
 
+.navTabs a {
+	color: #801A00;
+	text-decoration: none;
+}
 
 .navTabs a:hover{
 	color: #aa0000;
@@ -132,10 +148,10 @@ div#tabs h2, b{
 
 
 	
-INPUT[type="submit"],
+input[type="submit"],
 .button, 
-DIV.submit A,
-TD.submit A,
+div.submit A,
+td.submit A,
 .fm-button	{
 	padding: 4px 8px;
 	font-family: Helvetica, Arial, sans-serif;
@@ -148,10 +164,10 @@ TD.submit A,
 	background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#fff), to(#bbb));
 	background-image: -moz-linear-gradient(0% 100% 90deg, #bbb, #fff);
 	background-color: #E6E6E6;
-	-webkit-border-radius: 10px;
-	-moz-border-radius: 10px;
-	-o-border-radius: 10px;
-	border-radius: 10px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	-o-border-radius: 5px;
+	border-radius: 5px;
 	-webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 	-moz-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
@@ -161,73 +177,62 @@ TD.submit A,
 	text-decoration: none;
 	}
 
-INPUT[type="submit"]:hover,
+input[type="submit"]:hover,
 a.button:hover, 
-DIV.submit a:hover,
-TD.submit a:hover  {
+div.submit a:hover,
+td.submit a:hover  {
 	color: #aa0000;
 	text-decoration: none;
 }
 
 
-TABLE.data	{
-	border: 1px solid #ccc;
-	margin: 10px 0;
-	}
 
-TABLE.data TD	{
-	background: #ffffff;
-	border-bottom: 1px solid #ccc;
-	vertical-align: middle;
-	}
-
-TABLE TD.error{
+td.error{
 	color: #ff0000;
 	border: 0px;
 }
-	
-TABLE.data TD.noBorder	{
-	background: #ffffff;
-	border-bottom: 0px;
-	}
 
-TABLE.data TD.label	{
-	background: #f7f7f7;
-	border-right: 1px solid #ccc;
+td.CaptionTD{
 	font-weight: bold;
-	}
+	padding: 5px;
+}
 
-TABLE.data TD.label-centered	{
-	background: #f7f7f7;
-	border-right: 1px solid #ccc;
-	font-weight: bold;
+td.DataTD{
+	padding: 5px;
+}
+
+
+
+td.submitBottom {
+	border-top: 1px solid;
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+	
+
+td.label-centered	{
 	text-align: center;
 	}
 	
-TABLE.data TD.input	{
+td.input	{
 	background: #ffffff;
 	border-right: 1px solid #ccc;
-	}
+}
 	
-TABLE.data TD.input-centered	{
-	background: #ffffff;
-	border-right: 1px solid #ccc;
-	text-align: center;
-	}
-
-TABLE.data TD.value {
-	background: #ffffff;
-	border-right: 1px solid #ccc;
-	}
-	
-TABLE.data TD.value-centered {
+td.input-centered	{
 	background: #ffffff;
 	border-right: 1px solid #ccc;
 	text-align: center;
-	}
-	
-	
+}
 
+
+	
+td.value-centered {
+	text-align: center;
+}
+	
+	
+td.FormElement {padding: 1px;}
 
 
 .samples	{
@@ -235,12 +240,12 @@ TABLE.data TD.value-centered {
 	padding: 20px 5px;
 	}
 
-DIV.greyback {
+div.greyback {
 	background: #f0f0f0;
 	padding: 20px 5px;
 }
 
-DIV.waspMessage {
+div.waspMessage {
 	color:#FF0000;
 	font-size: 120%;
 	background: #FFE6E6;
@@ -249,7 +254,7 @@ DIV.waspMessage {
 	margin: 10px 0px 20px 0px;
 }
 
-SPAN.requiredField{
+span.requiredField{
 	color: #FF0000;
 	margin: 10px;
 }
@@ -264,12 +269,12 @@ SPAN.requiredField{
 	-o-border-radius: 10px;
 	border-radius: 10px;
 	line-height: 16px;
-	margin: 10px 0;
+	margin: 10px 0 10px;
 	padding: 10px;
 	}
 
 /** POPUP WINDOWS **/
-
+/*
 .ui-widget-header	{padding: 4px 10px;}
 
 .EditTable	{
@@ -277,4 +282,4 @@ SPAN.requiredField{
 	width: 95%;
 	}
 
-HR.ui-widget-content	{margin: 10px !important;}
+hr.ui-widget-content	{margin: 10px !important;}*/

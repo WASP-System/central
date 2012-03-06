@@ -16,7 +16,7 @@
 <c:set var="_metaArea" value = "${area}" scope="request"/>
 <c:set var="_metaList" value = "${jobDraft.jobDraftMeta}" scope="request" />
 
-<table class="data">
+<table class="EditTable ui-widget ui-widget-content">
   <c:import url="/WEB-INF/jsp/meta_ro.jsp"/>
 </table>
 
@@ -49,7 +49,7 @@
 
 <form method="POST">
   <div class="submit">
-    <input type="submit" value="Save Changes" />
+    <input class="FormElement ui-widget-content ui-corner-all" type="submit" value="Save Changes" />
   </div>
 </form>
 

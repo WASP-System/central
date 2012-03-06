@@ -12,19 +12,19 @@
 
 <form name="f" action="<c:url value='/auth/resetpassword/request.do'/>"
 	method="POST">
-	<table class="data">
-		<tr>
-			<td class="label"><fmt:message key="auth.resetpasswordRequest_user.label" /></td>
-			<td class="input"><input type='text' name='username' value='<c:out value="${username}" default="" />' /><span class="requiredField">*</span></td>
+	<table class="EditTable ui-widget ui-widget-content">
+		<tr class="FormData">
+			<td class="CaptionTD"><fmt:message key="auth.resetpasswordRequest_user.label" /></td>
+			<td class="DataTD"><input class="FormElement ui-widget-content ui-corner-all" type='text' name='username' value='<c:out value="${username}" default="" />' /><span class="requiredField">*</span></td>
 		</tr>
-		<tr>
-			<td class="label"><fmt:message	key="auth.resetpasswordRequest_captcha.label" /></td>
-			<td class="input"><img src="<c:url value='/stickyCaptchaImg.png'/>" alt="Captchca Image" /><br />
-			<input type='text' name='captcha_text' value='' /><span	class="requiredField">*</span></td>
+		<tr class="FormData">
+			<td class="CaptionTD"><fmt:message	key="auth.resetpasswordRequest_captcha.label" /></td>
+			<td class="DataTD"><img src="<c:url value='/stickyCaptchaImg.png'/>" alt="Captchca Image" /><br />
+			<input class="FormElement ui-widget-content ui-corner-all" type='text' name='captcha_text' value='' /><span	class="requiredField">*</span></td>
 		</tr>
 	</table>
 	<div>
-		<input name="submit" type="submit" value='<fmt:message key="auth.resetpasswordRequest_submit.label" />' />
+		<input class="FormElement ui-widget-content ui-corner-all" name="submit" type="submit" value='<fmt:message key="auth.resetpasswordRequest_submit.label" />' />
 	</div>
 </form>
 

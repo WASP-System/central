@@ -15,10 +15,10 @@
         <c:out value="${s.status}" />
         <c:if test="${s.status == 'WAITING'}">
           <form action="<c:url value="/task/fmpayment/payment.do"/>" method="POST">
-            <input type="hidden" name="stateId" value="${s.stateId}">
-            <input type="hidden" name="jobId" value="${sj.jobId}">
-            <input name="amount" value="">
-            <input type="submit" value="Payment Received">
+            <input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="stateId" value="${s.stateId}">
+            <input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="jobId" value="${sj.jobId}">
+            <input class="FormElement ui-widget-content ui-corner-all" name="amount" value="">
+            <input class="FormElement ui-widget-content ui-corner-all" type="submit" value="Payment Received">
           </form>
         </c:if>
       </c:forEach>

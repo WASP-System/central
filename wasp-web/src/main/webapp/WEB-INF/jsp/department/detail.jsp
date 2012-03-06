@@ -6,20 +6,20 @@
   <div>
 		<div class="instructions"> <%@ include file="/WEB-INF/jsp/lorem.jsp" %> </div>
   <form name="update_form" action = "<c:url value='/department/updateDepartment.do'/>" method="POST" onsubmit="return validate('updateDept');">
-		<input type='hidden' name='departmentId' value='<c:out value="${department.departmentId}" />'/>
+		<input class="FormElement ui-widget-content ui-corner-all" type='hidden' name='departmentId' value='<c:out value="${department.departmentId}" />'/>
 
-		<table>
-		<tr>
-		<td class="label">Update Department</td>
-		<td class="input"><input type="text" name='name' value="<c:out value="${department.name}"></c:out>"></td>
+		<table class="EditTable ui-widget ui-widget-content">
+		<tr class="FormData">
+		<td class="CaptionTD"><fmt:message key="department.detail_update.label" /></td>
+		<td class="DataTD"><input class="FormElement ui-widget-content ui-corner-all" type="text" name='name' value="<c:out value="${department.name}"></c:out>"></td>
 		</tr>
-		<tr>
-			<td>&nbsp;</td>
-			<td><input type="radio" name="isActive" <c:out value="${department.isActive==1?'CHECKED':''}" /> value="1">Active &nbsp; <input type="radio" name="isActive" <c:out value="${department.isActive==0?'CHECKED':''}" />	value="0">Inactive</td>
-		<tr>
+		<tr class="FormData">
+			<td class="DataTD">&nbsp;</td>
+			<td class="DataTD"><input class="FormElement ui-widget-content ui-corner-all" type="radio" name="isActive" <c:out value="${department.isActive==1?'CHECKED':''}" /> value="1">Active &nbsp; <input class="FormElement ui-widget-content ui-corner-all" type="radio" name="isActive" <c:out value="${department.isActive==0?'CHECKED':''}" />	value="0">Inactive</td>
+		<tr class="FormData">
 		</table>
 		<div class="submit">
-			<input type="submit" value="<fmt:message key="department.detail_submit.label" />" /> 
+			<input class="FormElement ui-widget-content ui-corner-all" type="submit" value="<fmt:message key="department.detail_submit.label" />" /> 
 		</div>
   </form>
   </div>
@@ -29,17 +29,17 @@
 		<div class="instructions"> <%@ include file="/WEB-INF/jsp/lorem.jsp" %> </div>
 		
 		<form name="f" action="<c:url value='/department/user/roleAdd.do'/>" method="POST" onsubmit="return validate('createAdmin');">
-		<input type='hidden' name='departmentId' value='<c:out value="${department.departmentId}" />'/>
+		<input class="FormElement ui-widget-content ui-corner-all" type='hidden' name='departmentId' value='<c:out value="${department.departmentId}" />'/>
 			
-		<table class="data"> 
-			<tr>
-			<td class="label"><fmt:message key="department.detail_administrator_name.label" /> /
+		<table class="EditTable ui-widget ui-widget-content"> 
+			<tr class="FormData">
+			<td class="CaptionTD"><fmt:message key="department.detail_administrator_name.label" /> /
 			<fmt:message key="department.detail_createadmin.label" /></td><td>&nbsp;</td>
-			<td class="input"><input id="adminName" name='adminName' value='' /></td>
+			<td class="DataTD"><input class="FormElement ui-widget-content ui-corner-all" id="adminName" name='adminName' value='' /></td>
 			</tr>
 		</table>				
 		<div class="submit">	
-			<input type="submit" value="<fmt:message key="department.detail_submit.label" />" /> 
+			<input class="FormElement ui-widget-content ui-corner-all" type="submit" value="<fmt:message key="department.detail_submit.label" />" /> 
 		</div>	
 		</form>
 	</div>
@@ -47,25 +47,25 @@
 
 <c:if test="${departmentuser.size() > 0}">		
 <h1><fmt:message key="department.detail_existingadmin.label" /></h1>
-<table class="data tab-data">
+<table class="EditTable ui-widget ui-widget-content">
 <c:forEach items="${departmentuser}" var="u">
-	<tr>
-	<td class="value">
+	<tr class="FormData">
+	<td class="DataTD">
 		<c:out value="${u.user.firstName}" />
 		<c:out value="${u.user.lastName}" />
 	</td>
 	<sec:authorize access="hasRole('su')">
 	 <c:if test="${departmentuser.size() > 1}"> <!-- cannot delete the department admin if there is only a single department admin -->
-		<td class="action">			
-				<a href="/wasp/department/user/roleRemove/<c:out value="${department.departmentId}" />/<c:out value="${u.user.userId}" />.do">
-					<fmt:message key="department.detail_remove.label" />
-				</a>
+		<td class="submit">			
+			<a href="/wasp/department/user/roleRemove/<c:out value="${department.departmentId}" />/<c:out value="${u.user.userId}" />.do">
+				<fmt:message key="department.detail_remove.label" />
+			</a>
 		</td>
 	 </c:if>
 	</sec:authorize>
 	</tr>
 </c:forEach>
-<table>
+</table>
 </c:if>
 
 		

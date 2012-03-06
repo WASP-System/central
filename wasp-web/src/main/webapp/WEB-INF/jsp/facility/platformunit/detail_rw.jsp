@@ -2,12 +2,13 @@
 
 <wasp:message />
 
-<form:form commandName="sample">
+<form:form  cssClass="FormGrid" commandName="sample">
 
-  <table><tr>
-    <td><fmt:message key="sample.name.label" />:</td>
-    <td><form:input path="name" /></td>
-    <td><form:errors path="name"/></td>
+  <table class="EditTable ui-widget ui-widget-content">
+  	<tr class="FormData">
+    	<td class="CaptionTD"><fmt:message key="sample.name.label" />:</td>
+    	<td class="DataTD"><form:input cssClass="FormElement ui-widget-content ui-corner-all" path="name" /></td>
+    	<td class="CaptionTD error"><form:errors path="name"/></td>
     </tr>
 
 
@@ -19,5 +20,5 @@
 
   </table>
 
-  <input type="submit">
+  <input class="FormElement ui-widget-content ui-corner-all" type="submit">
 </form:form>

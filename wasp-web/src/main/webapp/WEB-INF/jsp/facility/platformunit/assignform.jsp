@@ -56,13 +56,13 @@ BODY {margin: 0; padding: 0;}
 					<a href="javascript:{}" onclick="showAssignForm(this)">(+)</a>
 					<div style="display:none">
 					<form method="POST" action="<c:url value="/facility/platformunit/assignAdd.do" />">
-  						<input type="hidden" name="librarysampleid" value="${sc.sample.sampleId}">
-  						<input type="hidden" name="jobid" value="${j.jobId}">
-  						<input type="hidden" name="resourceCategoryId" value="${resourceCategoryId}">
-  						<input type="hidden" name="jobsToWorkWith" value="${jobsToWorkWith}"> 
-  							pmole: <input type="text" size="5" maxlength="5" name="pmolAdded"><br>
-  						<select class="selectLane" name="lanesampleid"></select>
-  						<input type="submit" value="assign">
+  						<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="librarysampleid" value="${sc.sample.sampleId}">
+  						<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="jobid" value="${j.jobId}">
+  						<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="resourceCategoryId" value="${resourceCategoryId}">
+  						<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="jobsToWorkWith" value="${jobsToWorkWith}"> 
+  							pmole: <input class="FormElement ui-widget-content ui-corner-all" type="text" size="5" maxlength="5" name="pmolAdded"><br>
+  						<select class="FormElement ui-widget-content ui-corner-all" class="selectLane" name="lanesampleid"></select>
+  						<input class="FormElement ui-widget-content ui-corner-all" type="submit" value="assign">
 					</form>
 					</div>
 				  </div>
@@ -83,13 +83,13 @@ BODY {margin: 0; padding: 0;}
 							<a href="javascript:{}" onclick="showAssignForm(this)">(+)</a>
 							<div style="display:none">
 							<form method="POST" action="<c:url value="/facility/platformunit/assignAdd.do" />">
-  								<input type="hidden" name="librarysampleid" value="${schild.sample.sampleId}">
-  								<input type="hidden" name="jobid" value="${j.jobId}"> 
-  								<input type="hidden" name="resourceCategoryId" value="${resourceCategoryId}"> 
-  								<input type="hidden" name="jobsToWorkWith" value="${jobsToWorkWith}"> 
- 								pmole: <input type="text" size="5" maxlength="5" name="pmolAdded"><br>
-  								<select class="selectLane" name="lanesampleid"></select>
-  								<input type="submit" value="assign">
+  								<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="librarysampleid" value="${schild.sample.sampleId}">
+  								<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="jobid" value="${j.jobId}"> 
+  								<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="resourceCategoryId" value="${resourceCategoryId}"> 
+  								<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="jobsToWorkWith" value="${jobsToWorkWith}"> 
+ 								pmole: <input class="FormElement ui-widget-content ui-corner-all" type="text" size="5" maxlength="5" name="pmolAdded"><br>
+  								<select class="FormElement ui-widget-content ui-corner-all" class="selectLane" name="lanesampleid"></select>
+  								<input class="FormElement ui-widget-content ui-corner-all" type="submit" value="assign">
 							</form>
 							</div>
 						</div>
@@ -101,8 +101,8 @@ BODY {margin: 0; padding: 0;}
 						<a href="javascript:{}" onclick="showAssignForm(this)">(-)</a>
 							<div style="display:none">
   							<form method="POST" action="<c:url value="/facility/platformunit/assignRemove.do" />">
-						  		<input type="hidden" name="samplesourceid" value="<c:out value="${schild.sampleSourceId}" />">
-  								<input type="submit" value="Remove">
+						  		<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="samplesourceid" value="<c:out value="${schild.sampleSourceId}" />">
+  								<input class="FormElement ui-widget-content ui-corner-all" type="submit" value="Remove">
   							</form>
 							</div>
 						</div>
@@ -116,8 +116,8 @@ BODY {margin: 0; padding: 0;}
 								<a href="javascript:{}" onclick="showAssignForm(this)">(-)</a>
 									<div style="display:none">
   									<form method="POST" action="<c:url value="/facility/platformunit/assignRemove.do" />">
-										<input type="hidden" name="samplesourceid" value="<c:out value="${schild.sampleSourceId}" />">
-  										<input type="submit" value="Remove">
+										<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="samplesourceid" value="<c:out value="${schild.sampleSourceId}" />">
+  										<input class="FormElement ui-widget-content ui-corner-all" type="submit" value="Remove">
   									</form>
 									</div>
 								</div>

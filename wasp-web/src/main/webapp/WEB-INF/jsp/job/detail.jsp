@@ -40,10 +40,10 @@
     <wasp:message />
     <form name="f" action="<c:url value='/job/user/roleAdd.do'/>" method="POST" onsubmit="return validate();" >
       Login Name:
-      <input type='hidden' name='labId' value='<c:out value="${job.lab.labId}" />'/>
-      <input type='hidden' name='jobId' value='<c:out value="${job.jobId}" />'/>
-      <input type='text' id='login' name='login' value=''/>
-      <input type="submit" value="Add Job Viewer" />
+      <input class="FormElement ui-widget-content ui-corner-all" type='hidden' name='labId' value='<c:out value="${job.lab.labId}" />'/>
+      <input class="FormElement ui-widget-content ui-corner-all" type='hidden' name='jobId' value='<c:out value="${job.jobId}" />'/>
+      <input class="FormElement ui-widget-content ui-corner-all" type='text' id='login' name='login' value=''/>
+      <input class="FormElement ui-widget-content ui-corner-all" type="submit" value="Add Job Viewer" />
     </form>
 	</sec:authorize>	
 

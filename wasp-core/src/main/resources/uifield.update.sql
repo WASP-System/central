@@ -576,6 +576,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userDetail','samples','label','Samples','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userDetail','jobs','label','Jobs','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail_createadmin','label','Create Administrator','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail_update','label','Update Department','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail_submit','label','Submit','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail_email','label','Administrator''s Email','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail_existingadmin','label','Current Administrators','1');
