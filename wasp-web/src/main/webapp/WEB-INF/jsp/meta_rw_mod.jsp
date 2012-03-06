@@ -15,11 +15,10 @@
 			<td class="input">
 			<c:choose>
 			
-				<c:when test="${fn:substringAfter(_meta.k,'.')=='adaptor'}">
-				
-				<input type='hidden' name="${_area}Meta_${_meta.k}" id="${id}" value="<c:out value='${selectedAdaptorset.IName}' />"/>
-					<c:out value="${selectedAdaptorset.name}"></c:out>		
-				
+				<c:when test="${fn:substringAfter(_meta.k,'.')=='adaptor'}"> 				
+					<select name="${_area}Meta_${_meta.k}" id="${id}" size="1">
+						<option value="<c:out value='${selectedAdaptorset.IName}' />" ><c:out value="${selectedAdaptorset.name}" /> 
+					</select>									
 				</c:when>
 				
 				<c:when test="${fn:substringAfter(_meta.k,'.')=='adaptorindex'}">
@@ -27,7 +26,7 @@
 					<select name="${_area}Meta_${_meta.k}" id="${id}" size="1">
 						<option value="0">--SELECT ADAPTOR--
 						<c:forEach items="${selectedAdaptorset.adaptor}" var="adaptor">
-							<option value="<c:out value="${adaptor.adaptorId}" />" >Index: <c:out value="${adaptor.barcodenumber}" /> [<c:out value="${adaptor.barcodesequence}" />] 
+							<option value="<c:out value="${adaptor.adaptorId}" />"   <c:if test="${adaptor.adaptorId == _meta.v}"> selected</c:if>    >Index: <c:out value="${adaptor.barcodenumber}" /> [<c:out value="${adaptor.barcodesequence}" />] 
 						</c:forEach>
 					</select>		
 				

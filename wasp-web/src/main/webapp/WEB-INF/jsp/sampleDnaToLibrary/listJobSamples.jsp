@@ -22,7 +22,7 @@
 
 <c:choose>
 <c:when test='${sample.typeSample.IName=="library"}'>
-	<td class="value-centered">N/A</td>
+	<td class="value-centered" >N/A <c:out value="${librariespersample[counter.index]}"/></td>
 	<td class="value-centered">
 		Name: <a href="<c:url value="/sampleDnaToLibrary/updateLibrary/${sample.sampleId}.do" />"><c:out value="${sample.name}" /></a><br />
 		<c:forEach items="${sample.sampleMeta}" var="sm">
@@ -42,7 +42,7 @@
 	</td>
 </c:when>
 <c:when test='${sample.typeSample.IName=="dna" || sample.typeSample.IName=="rna"}'>
-	<td class="value-centered">Name: <a href="<c:url value="/sampleDnaToLibrary/sampledetail_ro/${job.jobId}/${sample.sampleId}.do" />"><c:out value="${sample.name}" /></a><br />
+	<td class="value-centered">Name: <a href="<c:url value="/sampleDnaToLibrary/sampledetail_ro/${job.jobId}/${sample.sampleId}.do" />"><c:out value="${sample.name}" /></a><br />DEBUG: Libraries/sample: <c:out value="${librariespersample[counter.index]}"/><br />
 	  Molecule: <c:out value="${sample.typeSample.name}" /><br /> 
 	  <c:forEach items="${sample.sampleMeta}" var="sm">
         	<c:if test="${fn:substringAfter(sm.k, 'Biomolecule.') == 'species'}">
@@ -73,7 +73,24 @@
 	 	 </c:otherwise>
 	  </c:choose>					  
 	</td>
-	<td>lib placeholder</td>
+	<td class="value-centered">
+		<c:set var="i" value="0" scope="page" /> 
+		<c:forEach items="${sample.sampleSourceViaSourceSampleId}" var="samplesource">
+			<c:set var="lib" value="${samplesource.sample}"/> 
+				<c:if test="${i > 0}">
+					<hr />
+				</c:if>
+				<c:set var="i" value="${i + 1}" scope="page" />		
+				Name: <c:out value="${lib.name}" /><br />
+				<c:forEach items="${lib.sampleMeta}" var="sm">
+        			<c:if test="${fn:substringAfter(sm.k, 'Library.') == 'adaptorindex'}">
+            			Adaptor: <c:out value="${adaptors.get(sm.v).adaptorset.name}"/><br />
+            			Index <c:out value="${adaptors.get(sm.v).barcodenumber}"/>: <c:out value="${adaptors.get(sm.v).barcodesequence}"/><br />
+            		</c:if> 
+		        </c:forEach> 
+		
+		</c:forEach>
+	</td>
 	
 </c:when>
 </c:choose>
