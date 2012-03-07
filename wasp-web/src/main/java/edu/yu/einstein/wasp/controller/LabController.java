@@ -191,7 +191,7 @@ public class LabController extends WaspController {
 			}
 		}
 		
-		if (sidx.equals("primaryUserId")) {
+		if (sidx.equals("primaryUser")) {
 			Collections.sort(labList, new LabPUNameComparator());
 			if (sord.equals("desc"))
 				Collections.reverse(labList);

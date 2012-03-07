@@ -6,7 +6,7 @@
 
 <wasp:field name="lab" type="text" sortable="true" searchable="false"/>
 
-<wasp:field name="isActive"  type="checkbox" />
+<wasp:field name="submission_date"  type="text" />
   
 
 _url='/wasp/job/listJSON.do?selId=${param.selId}&userId=${param.userId}&labId=${param.labId}';

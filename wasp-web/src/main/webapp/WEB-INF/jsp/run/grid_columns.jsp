@@ -10,4 +10,4 @@
 
 <wasp:field name="start_esf_staff" type="text"/>
 
-_navAttr={edit:false,view:true,add:false,del:false};
+_navAttr={edit:false,view:true,add:true,del:false};

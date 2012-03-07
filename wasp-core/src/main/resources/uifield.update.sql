@@ -604,9 +604,9 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','name','label','Name','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','name','constraint','NotEmpty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','name','error','Name cannot be empty','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','UserId','label','Submitter','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','lab','label','Lab','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','isActive','label','Active','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','UserId','label','Submitted By','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','lab','label','Submitted From','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','submission_date','label','Submitted On','1');
 
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','contentTypeMap','etx','data','text/x-setext','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','contentTypeMap','me','data','application/x-troff-me','1');
@@ -689,7 +689,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','user/mypassword','label','Change Password','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','department/list','label','Department List','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','department/detail','label','Department Detail','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','resource/list','label','Resource List','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','resource/list','label','Machine List','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','resource/detail_ro','label','Resource Detail','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','resource/detail_rw','label','Update Resource Detail','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','resource/create','label','Create New Resource','1');
@@ -720,7 +720,6 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','department/dapendingtasks','label','Department Administrator Pending Tasks','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','sampleDnaToLibrary/listJobSamples','label','Sample DNA to Library List','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDnaToLibrary','listJobSamples','title_label','Job Samples List','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','acctquote/list','label','List of Job Quotes','1');
 
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','uiField','updated','data','Attribute Updated','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','captcha','error','Captcha text incorrect','1');
@@ -742,7 +741,9 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','lab','detail','label','Lab Details','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labuser','active','label','Active','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labuser','inactive','label','Inactive','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','resource_list','label','List of Resources','1');
+
+
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','resource_list','label','List of Machines','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','name','label','Name','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','name','error','Resource name cannot be empty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','name','constraint','NotEmpty','1');
@@ -771,6 +772,8 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','created_success','label','Resource created sucessfully.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','isActive','label','Active','1');
 
+
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','run_list','label','List of Runs','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','name','label','Name','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','name','constraint','NotEmpty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','name','error','Run name cannot be empty','1');
@@ -782,6 +785,8 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','path_to_data','label','Data Path','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','run_success','label','Success','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','isActive','label','Active','1');
+
+
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sysrole','noUserSpecified','error','No user specified','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sysrole','userNonexistant','error','The user specified does not exist in the database','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sysrole','noRoleSpecified','error','No role specified','1');
@@ -858,11 +863,21 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','workflow','submit','label','Save Choices','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','workflow','cancel','label','Cancel','1');
 
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','acctquote/list','label','List of Job Quotes','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','acctQuote','acctquote_list','label','List of Job Quotes','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','acctQuote','name','label','Job Name','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','acctQuote','amount','label','Amount','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','acctQuote','submitter','label','Submitted By','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','acctQuote','lab','label','Submitted From','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','acctQuote','submission_date','label','Submitted On','1');
+
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','job2quote/list','label','List of Jobs to Quote','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job2quote','job2quote_list','label','List of Jobs to Quote','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job2quote','name','label','Job Name','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job2quote','amount','label','Quote Amount','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job2quote','submitter','label','Submitted By','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job2quote','lab','label','Submitted From','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job2quote','submission_date','label','Submitted On','1');
 
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','jobResourceCategoryMismatch','error','Job and resource unexpectedly do not match','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','taskNotFound','error','Task unexpectedly not found','1');

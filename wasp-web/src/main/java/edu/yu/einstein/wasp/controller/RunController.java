@@ -95,7 +95,10 @@ public class RunController extends WaspController {
 		List<Run> runList;
 		
 		if (!search.equals("true")	&& resourceId.isEmpty()	&& sampleId.isEmpty()) {
-			runList = sidx.isEmpty() ? this.runService.findAll() : this.userService.findAllOrderBy(sidx, sord);
+			if ("resourceName".equals(sidx))
+				sidx = "resource.name";
+
+			runList = sidx.isEmpty() ? this.runService.findAll() : this.runService.findAllOrderBy(sidx, sord);
 		} else {
 			  Map m = new HashMap();
 			  

@@ -453,7 +453,6 @@ public class Run extends WaspModel {
 	public void setResource (Resource resource) {
 		this.resource = resource;
 		this.resourceId = resource.resourceId;
-		this.resourceName = resource.name;
 	}
 
 	/**
@@ -468,35 +467,6 @@ public class Run extends WaspModel {
 	}
 
 
-	
-	/**
-	 * resourceName
-	 *
-	 */
-	@NotAudited
-	protected String resourceName;
-
-	/**
-	 * setResourceNmae (String resourceName)
-	 *
-	 * @param resourceName
-	 *
-	 */
-	public void setResourceName (String resourceName) {
-		this.resourceName = resourceName;
-	}
-
-	/**
-	 * getResourceName ()
-	 *
-	 * @return resourceName
-	 *
-	 */
-	
-	public String getResourceName () {
-		return this.resourceName;
-	}
-	
 	/**
 	 * resourceCategory
 	 *

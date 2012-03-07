@@ -239,7 +239,7 @@ public class JobController extends WaspController {
 							job.getName(),
 							user.getFirstName() + " " + user.getLastName(),
 							job.getLab().getName(),
-							job.getIsActive().intValue()==1?"yes":"no"
+							job.getLastUpdTs().toString()
 				}));
 				 
 				for (JobMeta meta:jobMeta) {
