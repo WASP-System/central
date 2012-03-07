@@ -556,10 +556,10 @@ public class ResourceController extends WaspController {
 			prepareSelectListData(m);
 
 			if (newResource) {
-				waspMessage("resource.created.error");
+				waspErrorMessage("resource.created.error");
 				return "resource/create";
 			} else {
-				waspMessage("resource.updated.error");
+				waspErrorMessage("resource.updated.error");
 				return "resource/detail_rw";
 			}
 		}

@@ -1,6 +1,6 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
-<wasp:message />
+
 
 <h1><fmt:message key="pageTitle.user/mypassword.label" /></h1>
 <sec:authorize access="not hasRole('ldap')">

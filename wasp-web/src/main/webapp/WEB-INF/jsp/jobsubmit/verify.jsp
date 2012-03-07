@@ -1,6 +1,6 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
-<wasp:message />
+
 
 <h1>Create a Job -- Verify</h1>
 

@@ -1,5 +1,5 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
-    <wasp:message />  
+      
  TESTING
 <br /><br /><br />
   <h1><fmt:message key="pageTitle.user/detail_rw.label" /></h1>

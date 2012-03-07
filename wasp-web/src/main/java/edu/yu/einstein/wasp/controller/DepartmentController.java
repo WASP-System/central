@@ -316,16 +316,16 @@ public class DepartmentController extends WaspController {
 
 		// check that the department name is ok and has not yet been created
 		if ("".equals(departmentName.trim())) {
-			waspMessage("department.list_missingparam.error");
+			waspErrorMessage("department.list_missingparam.error");
 		} else if (departmentName.toLowerCase().indexOf("external") != -1) {// prevent any department from being named %external%
-			waspMessage("department.list_invalid.error");
+			waspErrorMessage("department.list_invalid.error");
 		} else {
 			modifiedDepartmentName = StringHelper.removeExtraSpacesAndCapOnlyFirstLetterOfEachWord(departmentName);
 
 			Department existingDepartment = this.departmentService.getDepartmentByName(modifiedDepartmentName);// is this name already being used as a department name (which is prohibited)
 			if (existingDepartment.getDepartmentId() != null) {
 			// if true, then the department already exists, so do let allow system to create department again
-				waspMessage("department.list_department_exists.error");
+				waspErrorMessage("department.list_department_exists.error");
 			} else {
 				departmentNameIsOK = true;
 			}
@@ -337,11 +337,11 @@ public class DepartmentController extends WaspController {
 
 		String login = StringHelper.getLoginFromFormattedNameAndLogin(adminName.trim());
 		if ("".equals(login)) {
-			waspMessage("department.detail_missinglogin.error");
+			waspErrorMessage("department.detail_missinglogin.error");
 		} else {
 			user = userService.getUserByLogin(login);
 			if (user.getUserId() == null) {// user not found in database
-				waspMessage("department.detail_usernotfound.error");
+				waspErrorMessage("department.detail_usernotfound.error");
 			} else {
 				// since this is a new department (that we know does NOT
 				// exist, it cannot have any department administrators
@@ -410,22 +410,22 @@ public class DepartmentController extends WaspController {
 		Department department = departmentService.getDepartmentByDepartmentId(departmentId);
 		if (department.getDepartmentId() == null) {
 			// id of 0 means this department does not exist in the database; this should not really occur
-			waspMessage("department.detail_invalidDept.error");
+			waspErrorMessage("department.detail_invalidDept.error");
 		} else {
 			
 			String login = StringHelper.getLoginFromFormattedNameAndLogin(adminName.trim());
 			if ("".equals(login)) {
-				waspMessage("department.detail_missinglogin.error");
+				waspErrorMessage("department.detail_missinglogin.error");
 			} else {
 				User user = userService.getUserByLogin(login);
 				if (user.getUserId() == null) {// user not found in database
-					waspMessage("department.detail_usernotfound.error");
+					waspErrorMessage("department.detail_usernotfound.error");
 				} else {
 
 					DepartmentUser existingDepartmentUser = departmentUserService.getDepartmentUserByDepartmentIdUserId(departmentId, user.getUserId());
 					if (existingDepartmentUser.getDepartmentUserId() != null && existingDepartmentUser.getUser().getUserId().intValue() == user.getUserId().intValue()) {
 						// this person is already a departmentAdmin for this particular department
-						waspMessage("department.detail_adminAlreadyExists.error");
+						waspErrorMessage("department.detail_adminAlreadyExists.error");
 					} else {
 						DepartmentUser departmentUser = new DepartmentUser();
 						departmentUser.setDepartmentId(departmentId);
@@ -449,9 +449,9 @@ public class DepartmentController extends WaspController {
 	public String updateDepartment(@RequestParam("departmentId") Integer departmentId, @RequestParam("name") String name, @RequestParam("isActive") Integer isActive, ModelMap m) {
 
 		if ("".equals(name)) {
-			waspMessage("department.detail_update_missingparam.error");// must add to list
+			waspErrorMessage("department.detail_update_missingparam.error");// must add to list
 		} else if (name.toLowerCase().indexOf("external") != -1) {// prevent any department from being re-named %external%
-			waspMessage("department.list_invalid.error");
+			waspErrorMessage("department.list_invalid.error");
 		} else {
 			String modifiedName = StringHelper.removeExtraSpacesAndCapOnlyFirstLetterOfEachWord(name);
 
@@ -463,7 +463,7 @@ public class DepartmentController extends WaspController {
 			// These can be distinguished by departmentId
 			Department otherDepartment = this.departmentService.getDepartmentByName(modifiedName);
 			if (otherDepartment.getDepartmentId() != null && departmentBeingModified.getDepartmentId().intValue() != otherDepartment.getDepartmentId().intValue()) {
-				waspMessage("department.list_department_exists.error");// this name is taken
+				waspErrorMessage("department.list_department_exists.error");// this name is taken
 			} else {
 				departmentBeingModified.setName(modifiedName);
 				departmentBeingModified.setIsActive(isActive);

@@ -19,6 +19,14 @@
 	</tag>
 	<tag>
 		<description><![CDATA[
+            <p>Displays localized error messages using list of keys stored in session under name "_feedback"</p>
+        ]]></description>
+		<name>errorMessage</name>
+		<tag-class>edu.yu.einstein.wasp.taglib.ErrorMessageTag</tag-class>
+		<body-content>JSP</body-content>
+	</tag>
+	<tag>
+		<description><![CDATA[
             <p>Converts apache tiles mapping to page title string.</p>
         ]]></description>
 		<name>pageTitle</name>

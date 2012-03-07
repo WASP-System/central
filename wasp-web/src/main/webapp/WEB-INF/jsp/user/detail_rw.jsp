@@ -1,6 +1,6 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
     
-    <wasp:message />  
+      
 
     <h1><fmt:message key="pageTitle.user/detail_rw.label" /></h1>
     <form:form  commandName="user" cssClass="FormGrid">

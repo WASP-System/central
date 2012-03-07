@@ -377,23 +377,23 @@ public class JobController extends WaspController {
  
 	Job job = this.jobService.findById(jobId);
 	if(job.getJobId() == null || job.getLabId().intValue() != labId.intValue()){
-		waspMessage("job.jobViewerUserRoleAdd.error1");//this job not found in database or the labId does not belong to this job
+		waspErrorMessage("job.jobViewerUserRoleAdd.error1");//this job not found in database or the labId does not belong to this job
 	}
 	else{   
 		String extractedLogin = StringHelper.getLoginFromFormattedNameAndLogin(login);
 		User user = userService.getUserByLogin(extractedLogin);
 		if(user.getUserId() == null){
-			waspMessage("job.jobViewerUserRoleAdd.error2");//user login name does not exist
+			waspErrorMessage("job.jobViewerUserRoleAdd.error2");//user login name does not exist
 		}
 		else{
 			//check that login does not belong to the job submitter (or is not already a job-viewer)
 			JobUser jobUser = this.jobUserService.getJobUserByJobIdUserId(jobId, user.getUserId());
 			if(jobUser.getJobUserId() != null){
 				if( "js".equals( jobUser.getRole().getRoleName() ) ){
-					waspMessage("job.jobViewerUserRoleAdd.error3");//user is submitter (and thus is, by default, a job-viewer)
+					waspErrorMessage("job.jobViewerUserRoleAdd.error3");//user is submitter (and thus is, by default, a job-viewer)
 				}
 				else if( "jv".equals( jobUser.getRole().getRoleName() ) ){
-					waspMessage("job.jobViewerUserRoleAdd.error4");//user is already a job-viewer
+					waspErrorMessage("job.jobViewerUserRoleAdd.error4");//user is already a job-viewer
 				}
 			}
 			else{
@@ -508,7 +508,7 @@ public class JobController extends WaspController {
 	  }
 	  else{
 		  taskOfInterest = taskService.getTaskByIName("");//should never get here
-		  waspMessage("job.approval.error"); 
+		  waspErrorMessage("job.approval.error"); 
 		  return;
 	  }
 	  List<Statejob> statejobList = job.getStatejob();

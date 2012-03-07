@@ -1,5 +1,5 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
-<wasp:message />
+
 
 <sec:authorize access="hasRole('su') or hasRole('ga-*')">
 	<div>

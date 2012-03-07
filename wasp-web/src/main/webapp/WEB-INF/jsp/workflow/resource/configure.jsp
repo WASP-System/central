@@ -1,6 +1,6 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp"%>
 
-<wasp:message />
+
 <h1>
 	<c:out value="${workflow.name}" /> <fmt:message key="workflow.configure.label"/>
 </h1>

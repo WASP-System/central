@@ -881,7 +881,7 @@ public class PlatformUnitController extends WaspController {
 
 		if (result.hasErrors()) {
 			// TODO REAL ERROR
-			waspMessage("hello.error");
+			waspErrorMessage("hello.error");
 
 			sampleForm.setSampleMeta(sampleMetaList);
 			m.put("sample", sampleForm);
@@ -1037,7 +1037,7 @@ public class PlatformUnitController extends WaspController {
 		
 		TypeResource typeResource = typeResourceService.getTypeResourceByIName("mps");
 		if(typeResource == null || typeResource.getTypeResourceId()==null || typeResource.getTypeResourceId().intValue()==0){
-			waspMessage("platformunit.typeResourceNotFound.error");
+			waspErrorMessage("platformunit.typeResourceNotFound.error");
 			return "redirect:/dashboard.do"; 
 		}
 		Map filterForResourceCategory = new HashMap();
@@ -1051,7 +1051,7 @@ public class PlatformUnitController extends WaspController {
 		
 		Task task = taskService.getTaskByIName("assignLibraryToPlatformUnit");
 		if(task==null || task.getTaskId()==null || task.getTaskId().intValue()==0){
-			waspMessage("platformunit.taskNotFound.error");
+			waspErrorMessage("platformunit.taskNotFound.error");
 			return "redirect:/dashboard.do"; 
 		}
 		Map filterForState = new HashMap();
@@ -1087,7 +1087,7 @@ public class PlatformUnitController extends WaspController {
 		
 		TypeResource typeResource = typeResourceService.getTypeResourceByIName("mps");
 		//if(typeResource.getTypeResourceId()==0){
-			//waspMessage("platformunit.resourceCategoryNotFound.error");
+			//waspErrorMessage("platformunit.resourceCategoryNotFound.error");
 			//return "redirect:/dashboard.do";
 		//}
 		Map filterForResourceCategory = new HashMap();
@@ -1111,12 +1111,12 @@ public class PlatformUnitController extends WaspController {
 			ModelMap m) {
 
 		if(jobsToWorkWith.intValue()==0){//no job selected by user through the drop-down box
-			waspMessage("platformunit.jobIdNotSelected.error");
+			waspErrorMessage("platformunit.jobIdNotSelected.error");
 			return "redirect:/facility/platformunit/limitPriorToAssign.do?resourceCategoryId=0";
 		}
 		ResourceCategory resourceCategory = resourceCategoryService.getResourceCategoryByResourceCategoryId(resourceCategoryId);
 		if(resourceCategory.getResourceCategoryId() == 0){//machine type not found in database
-			waspMessage("platformunit.resourceCategoryInvalidValue.error");
+			waspErrorMessage("platformunit.resourceCategoryInvalidValue.error");
 			return "redirect:/facility/platformunit/limitPriorToAssign.do?resourceCategoryId=0";
 		}
 				
@@ -1124,7 +1124,7 @@ public class PlatformUnitController extends WaspController {
 		Map stateMap = new HashMap(); 
 		Task task = taskService.getTaskByIName("Flowcell/Add Library To Lane");
 		if(task == null || task.getTaskId() == null){
-			waspMessage("platformunit.taskNotFound.error");
+			waspErrorMessage("platformunit.taskNotFound.error");
 			return "redirect:/dashboard.do";
 		}
 		stateMap.put("taskId", task.getTaskId()); 	
@@ -1155,7 +1155,7 @@ public class PlatformUnitController extends WaspController {
 		
 		Task task2 = taskService.getTaskByIName("assignLibraryToPlatformUnit");
 		if(task2==null || task2.getTaskId()==null || task2.getTaskId().intValue()==0){
-			waspMessage("platformunit.taskNotFound.error");
+			waspErrorMessage("platformunit.taskNotFound.error");
 			return "redirect:/facility/platformunit/limitPriorToAssign.do?resourceCategoryId=" + resourceCategoryId;
 		}
 		Map filterForState = new HashMap();
@@ -1166,7 +1166,7 @@ public class PlatformUnitController extends WaspController {
 		if(jobsToWorkWith.intValue() > 0){//get the single job selected from the dropdown box; so parameter jobsToWorkWith has a value > 0, representing a single jobId; confirm it meets state and resourceCategory criteria
 			Job job = jobService.getJobByJobId(jobsToWorkWith);
 			if(job==null || job.getJobId()==null || job.getJobId().intValue()==0){
-				waspMessage("platformunit.jobNotFound.error");
+				waspErrorMessage("platformunit.jobNotFound.error");
 				return "redirect:/facility/platformunit/limitPriorToAssign.do?resourceCategoryId=" + resourceCategoryId;
 			}
 			for(State state : states){
@@ -1245,39 +1245,39 @@ public class PlatformUnitController extends WaspController {
 		boolean error = false;
 		
 		if (jobId == null || jobId == 0 || job == null || job.getJobId() == null) {
-			error = true; waspMessage("platformunit.jobIdNotFound.error"); 
+			error = true; waspErrorMessage("platformunit.jobIdNotFound.error"); 
 		}
 		else if(laneSampleId == null || laneSampleId == 0){//user selected a flowcell from dropdown box (parameter laneSampleId == 0); we should actually prevent this with javascript
-			error = true; waspMessage("platformunit.laneIsFlowCell.error");
+			error = true; waspErrorMessage("platformunit.laneIsFlowCell.error");
 		}
 		else if (laneSample == null || laneSample.getSampleId() == null) {
-			error = true; waspMessage("platformunit.laneIdNotFound.error"); 
+			error = true; waspErrorMessage("platformunit.laneIdNotFound.error"); 
 		}
 		else if (librarySampleId == null || librarySampleId == 0 || librarySample == null || librarySample.getSampleId() == null) {
-			error = true; waspMessage("platformunit.libraryIdNotFound.error");
+			error = true; waspErrorMessage("platformunit.libraryIdNotFound.error");
 		}
 		else if ( ! librarySample.getTypeSample().getIName().equals("library")) {
-			error = true; waspMessage("platformunit.libraryIsNotLibrary.error");	
+			error = true; waspErrorMessage("platformunit.libraryIsNotLibrary.error");	
 		}
 		else if ( ! laneSample.getTypeSample().getIName().equals("cell")) { 
-			error = true; waspMessage("platformunit.laneIsNotLane.error");
+			error = true; waspErrorMessage("platformunit.laneIsNotLane.error");
 		}
 		else if(jobSample.getJobSampleId()==null){//confirm library is really part of this jobId
-			error = true; waspMessage("platformunit.libraryJobMismatch.error");	
+			error = true; waspErrorMessage("platformunit.libraryJobMismatch.error");	
 		}
 		else if ("".equals(pmolAdded)) {
-			error = true; waspMessage("platformunit.pmoleAddedInvalidValue.error");	
+			error = true; waspErrorMessage("platformunit.pmoleAddedInvalidValue.error");	
 		}
 		else{
 			Integer pmolAddedInteger;
 			try{
 				pmolAddedInteger = new Integer(Integer.parseInt(pmolAdded));
 				if(pmolAddedInteger.intValue() <= 0){
-					error = true; waspMessage("platformunit.pmoleAddedInvalidValue.error");
+					error = true; waspErrorMessage("platformunit.pmoleAddedInvalidValue.error");
 				}
 			}
 			catch(Exception e){
-				error = true; waspMessage("platformunit.pmoleAddedInvalidValue.error");
+				error = true; waspErrorMessage("platformunit.pmoleAddedInvalidValue.error");
 			}
 		}		
 
@@ -1290,12 +1290,12 @@ public class PlatformUnitController extends WaspController {
 		boolean flowCellIsAvailable = false;
 		List<SampleSource> parentSampleSources = laneSample.getSampleSourceViaSourceSampleId();//should be one
 		if(parentSampleSources == null || parentSampleSources.size()!=1){
-			error=true; waspMessage("platformunit.flowcellNotFoundNotUnique.error");
+			error=true; waspErrorMessage("platformunit.flowcellNotFoundNotUnique.error");
 		}
 		else{
 			Sample flowCell = parentSampleSources.get(0).getSample();
 			if( ! "platformunit".equals(flowCell.getTypeSample().getIName()) ){
-				error=true; waspMessage("platformunit.flowcellNotFoundNotUnique.error");
+				error=true; waspErrorMessage("platformunit.flowcellNotFoundNotUnique.error");
 			}
 			else{
 				Map stateSampleMap = new HashMap(); 
@@ -1308,7 +1308,7 @@ public class PlatformUnitController extends WaspController {
 					}
 				}
 				if(!flowCellIsAvailable){
-					error=true; waspMessage("platformunit.flowcellStateError.error");
+					error=true; waspErrorMessage("platformunit.flowcellStateError.error");
 				}
 			}
 		}
@@ -1327,20 +1327,20 @@ public class PlatformUnitController extends WaspController {
 		Adaptor adaptorOnLibraryBeingAdded = null;
 		SampleMeta sampleMeta = sampleMetaService.getSampleMetaByKSampleId("sample.library.adaptorid", librarySampleId);
 		if(sampleMeta==null || sampleMeta.getSampleMetaId()==null){
-			error=true; waspMessage("platformunit.adaptorNotFound.error");
+			error=true; waspErrorMessage("platformunit.adaptorNotFound.error");
 		}
 		else{
 			try{
 				adaptorOnLibraryBeingAdded = adaptorService.getAdaptorByAdaptorId(new Integer(sampleMeta.getV()));
 				if(adaptorOnLibraryBeingAdded==null || adaptorOnLibraryBeingAdded.getAdaptorId()==null){
-					error=true; waspMessage("platformunit.adaptorNotFound.error");
+					error=true; waspErrorMessage("platformunit.adaptorNotFound.error");
 				}
 				else if( adaptorOnLibraryBeingAdded.getBarcodesequence()==null || "".equals(adaptorOnLibraryBeingAdded.getBarcodesequence()) ){
-					error=true; waspMessage("platformunit.adaptorBarcodeNotFound.error");
+					error=true; waspErrorMessage("platformunit.adaptorBarcodeNotFound.error");
 				}
 			}
 			catch(Exception e){
-				error=true; waspMessage("platformunit.adaptorNotFound.error");
+				error=true; waspErrorMessage("platformunit.adaptorNotFound.error");
 			}
 		}
 		if(error){
@@ -1353,7 +1353,7 @@ public class PlatformUnitController extends WaspController {
 
 		//case 2: dispense with this easy check 
 		if( "NONE".equals(barcodeOnLibBeingAdded) && siblingSampleSource != null && siblingSampleSource.size() > 0  ){//case 2: the library being added has a barcode of "NONE" AND the lane to which user wants to add this library already contains one or more libraries (such action is prohibited)
-			waspMessage("platformunit.libNoneLaneOthers.error");
+			waspErrorMessage("platformunit.libNoneLaneOthers.error");
 			return return_value;
 		}
 		
@@ -1368,40 +1368,40 @@ public class PlatformUnitController extends WaspController {
 				
 				Sample libraryAlreadyOnLane = ss.getSampleViaSource();//this is a library already on the selected lane
 				if( ! libraryAlreadyOnLane.getTypeSample().getIName().equals("library") ){//confirm it's a library
-					error=true; waspMessage("platformunit.libOnLaneNotLib.error");
+					error=true; waspErrorMessage("platformunit.libOnLaneNotLib.error");
 				}
 				else{					
 					SampleMeta sampleMeta2 = sampleMetaService.getSampleMetaByKSampleId("sample.library.adaptorid", libraryAlreadyOnLane.getSampleId());
 					if(sampleMeta2==null || sampleMeta2.getSampleMetaId()==null){
-						error=true; waspMessage("platformunit.adaptorOnLaneNotFound.error");
+						error=true; waspErrorMessage("platformunit.adaptorOnLaneNotFound.error");
 					}
 					else{
 						try{
 							Adaptor adaptorOnLane = adaptorService.getAdaptorByAdaptorId(new Integer(sampleMeta2.getV()));
 							if(adaptorOnLane==null || adaptorOnLane.getAdaptorId()==null){
-								error=true; waspMessage("platformunit.adaptorOnLaneNotFound.error");
+								error=true; waspErrorMessage("platformunit.adaptorOnLaneNotFound.error");
 							}
 							else if( adaptorOnLane.getBarcodesequence()==null || "".equals(adaptorOnLane.getBarcodesequence()) ){
-								error=true; waspMessage("platformunit.adaptorBarcodeOnLaneNotFound.error");
+								error=true; waspErrorMessage("platformunit.adaptorBarcodeOnLaneNotFound.error");
 							}
 							else if( "NONE".equals(adaptorOnLane.getBarcodesequence()) ){//case 4
-								error=true; waspMessage("platformunit.libWithNoneOnLane.error");
+								error=true; waspErrorMessage("platformunit.libWithNoneOnLane.error");
 							}
 							else if(adaptorOnLane.getBarcodesequence().equals(barcodeOnLibBeingAdded)){//case 5, lib already on lane with same barcode as library user wants to add to the lane
-								error=true;  waspMessage("platformunit.barcodeAlreadyOnLane.error");
+								error=true;  waspErrorMessage("platformunit.barcodeAlreadyOnLane.error");
 							}
 							else{//case 6
 								JobSample jobSample2 = jobSampleService.getJobSampleByJobIdSampleId(jobId, libraryAlreadyOnLane.getSampleId());//confirm library is really part of this jobId
 								if(jobSample2 == null || jobSample2.getJobSampleId()==null){//this library, already on the lane, is from a different job
 									;//for now do nothing
 									//If Einstein, then terminate (lane restricted to libraries from single job) 
-									//error=true;  waspMessage("platformunit.libJobClash.error");
+									//error=true;  waspErrorMessage("platformunit.libJobClash.error");
 									//if SloanKettering, then do nothing (what's the flag)
 								}
 							}
 						}
 						catch(Exception e){
-							error=true; waspMessage("platformunit.adaptorOnLaneNotFound.error");//exception from new Integer();
+							error=true; waspErrorMessage("platformunit.adaptorOnLaneNotFound.error");//exception from new Integer();
 						}
 					}					
 				}
@@ -1459,14 +1459,14 @@ public class PlatformUnitController extends WaspController {
 
 		SampleSource sampleSource = sampleSourceService.getSampleSourceBySampleSourceId(sampleSourceId);//this samplesource should represent a cell->lib link, where sampleid is the cell and source-sampleid is the library 
 		if(sampleSource.getSampleSourceId()==0){//check for existence
-			waspMessage("platformunit.sampleSourceNotExist.error");
+			waspErrorMessage("platformunit.sampleSourceNotExist.error");
 			return "redirect:/facility/platformunit/assign.do?resourceCategoryId=" + resourceCategoryId.intValue() + "&jobsToWorkWith=" + jobsToWorkWith.intValue();
 		}
 		//check that this represents a cell->lib link
 		Sample putativeLibrary = sampleSource.getSampleViaSource();
 		Sample putativeCell = sampleSource.getSample();
 		if( ! putativeLibrary.getTypeSample().getIName().equals("library") || ! putativeCell.getTypeSample().getIName().equals("cell") ){
-			waspMessage("platformunit.samplesourceTypeError.error");
+			waspErrorMessage("platformunit.samplesourceTypeError.error");
 			return "redirect:/facility/platformunit/assign.do?resourceCategoryId=" + resourceCategoryId.intValue() + "&jobsToWorkWith=" + jobsToWorkWith.intValue();//with this way, the page is updated but map is not passed, so SUCCESS is not displayed
 		}
 		//delete the metadata 
@@ -1478,7 +1478,7 @@ public class PlatformUnitController extends WaspController {
 		sampleSourceService.remove(sampleSource);
 		sampleSourceService.flush(sampleSource);
 
-		waspMessage("platformunit.libraryRemoved.success");
+		waspErrorMessage("platformunit.libraryRemoved.success");
 		return "redirect:/facility/platformunit/assign.do?resourceCategoryId=" + resourceCategoryId.intValue() + "&jobsToWorkWith=" + jobsToWorkWith.intValue();//with this way, the page is updated but map is not passed, so SUCCESS is not displayed
   }
 }

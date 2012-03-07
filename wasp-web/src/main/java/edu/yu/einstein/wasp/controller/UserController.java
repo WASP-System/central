@@ -448,7 +448,7 @@ public class UserController extends WaspController {
 		userForm.setUserId(userId);
 		if (result.hasErrors()) {
 			prepareSelectListData(m);
-			waspMessage("user.updated.error");
+			waspErrorMessage("user.updated.error");
 			return "user/detail_rw";
 		}
 		boolean isMyEmailChanged = false;
@@ -508,7 +508,7 @@ public class UserController extends WaspController {
 			newpassword1 == null || "".equals(newpassword1) ||
 			newpassword2 == null || "".equals(newpassword2)  ) 
 		{
-				waspMessage("user.mypassword_missingparam.error");
+				waspErrorMessage("user.mypassword_missingparam.error");
 				return "user/mypassword";
 		}
 		
@@ -517,19 +517,19 @@ public class UserController extends WaspController {
 		String oldPasswordAsHash = passwordService.encodePassword(oldpassword);//oldpassword is from the form, so must hash it for comparison
 		  
 		if(!passwordService.matchPassword(currentPasswordAsHash, oldPasswordAsHash)){
-			waspMessage("user.mypassword_cur_mismatch.error");
+			waspErrorMessage("user.mypassword_cur_mismatch.error");
 			return "user/mypassword";
 		}
 		else if(!passwordService.matchPassword(newpassword1, newpassword2)){
-			waspMessage("user.mypassword_new_mismatch.error");
+			waspErrorMessage("user.mypassword_new_mismatch.error");
 		    return "user/mypassword";
 		}
 		else if(passwordService.matchPassword(oldpassword, newpassword1)){//make sure old and new passwords differ
-			waspMessage("user.mypassword_nodiff.error");
+			waspErrorMessage("user.mypassword_nodiff.error");
 		    return "user/mypassword";
 		}
 		else if(!passwordService.validatePassword(newpassword1)){//at least 8 char, at least one letter; at least one number
-			waspMessage("user.mypassword_new_invalid.error");
+			waspErrorMessage("user.mypassword_new_invalid.error");
 		    return "user/mypassword";
 		}
 		  
@@ -601,7 +601,7 @@ public class UserController extends WaspController {
 		
 		if (result.hasErrors()) {
 			prepareSelectListData(m);
-			waspMessage("user.created.error");
+			waspErrorMessage("user.created.error");
 			return "user/detail_rw";
 		}
 

@@ -1,5 +1,5 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
-  <p><wasp:message /></p>
+  <p></p>
 
 	<h1>[Lab Details/] ${lab.name}</h1>
 	<div class="instructions"> <%@ include file="/WEB-INF/jsp/lorem.jsp" %> </div>

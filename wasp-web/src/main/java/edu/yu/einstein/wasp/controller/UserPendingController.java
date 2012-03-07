@@ -210,7 +210,7 @@ public class UserPendingController extends WaspController {
 			userPendingForm.setUserPendingMeta((List<UserPendingMeta>) userPendingMetaHelperWebapp.getMetaList());
 			prepareSelectListData(m);
 			m.put("isAuthenticationExternal", authenticationService.isAuthenticationSetExternal());
-			waspMessage("user.created.error");
+			waspErrorMessage("user.created.error");
 			return "auth/newuser/form";
 		}
 		
@@ -295,11 +295,11 @@ public class UserPendingController extends WaspController {
 		Collections.addAll(instituteList,internalInstituteList.split(";")); 
 		m.addAttribute("instituteList", instituteList);
 		if ( (instituteSelect == null || instituteSelect.equals("other") || instituteSelect.isEmpty()) && (instituteOther == null || instituteOther.isEmpty()) ){
-			waspMessage("piPending.institute_not_selected.error");
+			waspErrorMessage("piPending.institute_not_selected.error");
 			return "auth/newpi/institute";
 		}
 		if ( instituteSelect != null && !instituteSelect.equals("other")  && !instituteSelect.isEmpty() && instituteOther != null && !instituteOther.isEmpty() ){
-			waspMessage("piPending.institute_multi_select.error");
+			waspErrorMessage("piPending.institute_multi_select.error");
 			return "auth/newpi/institute";
 		}
 		
@@ -426,7 +426,7 @@ public class UserPendingController extends WaspController {
 			userPendingForm.setUserPendingMeta((List<UserPendingMeta>) metaHelperWebapp.getMetaList());
 			prepareSelectListData(m, metaHelperWebapp);
 			m.put("isAuthenticationExternal", authenticationService.isAuthenticationSetExternal());
-			waspMessage("user.created.error");
+			waspErrorMessage("user.created.error");
 			
 			return "auth/newpi/form";
 		}
@@ -462,13 +462,13 @@ public class UserPendingController extends WaspController {
 	 */
 	protected boolean userPendingEmailValid(String authCode, String email, ModelMap m) {
 		if (authCode == null || authCode.isEmpty()) {
-			waspMessage("auth.confirmemail_badauthcode.error");
+			waspErrorMessage("auth.confirmemail_badauthcode.error");
 			if (m != null) m.put("email", email);
 			return false;
 		}
 		ConfirmEmailAuth confirmEmailAuth = confirmEmailAuthService.getConfirmEmailAuthByAuthcode(authCode);
 		if (email == null || email.isEmpty() || confirmEmailAuth.getConfirmEmailAuthId() == null) {
-			waspMessage("auth.confirmemail_bademail.error");
+			waspErrorMessage("auth.confirmemail_bademail.error");
 			if (m != null) m.put("authcode", authCode);
 			return false;
 		}
@@ -476,7 +476,7 @@ public class UserPendingController extends WaspController {
 		UserPending userPending = userPendingService.getUserPendingByUserPendingId(confirmEmailAuth.getUserpendingId());
 
 		if (! userPending.getEmail().equals(email)){
-			waspMessage("auth.confirmemail_wronguser.error");
+			waspErrorMessage("auth.confirmemail_wronguser.error");
 			return false;
 		}
 		return true;
@@ -593,7 +593,7 @@ public class UserPendingController extends WaspController {
 		try{
 			decodedEmail = URLDecoder.decode(urlEncodedEmail, "UTF-8");
 		} catch(UnsupportedEncodingException e){
-			waspMessage("auth.confirmemail_corruptemail.error");
+			waspErrorMessage("auth.confirmemail_corruptemail.error");
 			return "redirect:/auth/confirmUserEmail.do"; // do this to clear GET parameters and forward to authcodeform view
 		}
 		Map userPendingQueryMap = new HashMap();
@@ -628,7 +628,7 @@ public class UserPendingController extends WaspController {
 		  Captcha captcha = (Captcha) request.getSession().getAttribute(Captcha.NAME);
 		  
 		  if (captcha == null || (! captcha.isCorrect(captchaText)) ){
-			  waspMessage("auth.confirmemail_captcha.error");
+			  waspErrorMessage("auth.confirmemail_captcha.error");
 			  m.put("authcode", authCode);
 			  m.put("email", email);
 			  return "auth/confirmemail/authcodeform";
@@ -670,7 +670,7 @@ public class UserPendingController extends WaspController {
 		 try{
 			 decodedEmail = URLDecoder.decode(urlEncodedEmail, "UTF-8");
 		 } catch(UnsupportedEncodingException e){
-			 waspMessage("auth.confirmemail_corruptemail.error");
+			 waspErrorMessage("auth.confirmemail_corruptemail.error");
 			 return "redirect:/auth/confirmPIEmail.do"; // do this to clear GET parameters and forward to authcodeform view
 		 }
 		 Map userPendingQueryMap = new HashMap();
@@ -703,7 +703,7 @@ public class UserPendingController extends WaspController {
 		Captcha captcha = (Captcha) request.getSession().getAttribute(Captcha.NAME);
 
 		if (captcha == null || (! captcha.isCorrect(captchaText)) ){
-			waspMessage("auth.confirmemail_captcha.error");
+			waspErrorMessage("auth.confirmemail_captcha.error");
 			m.put("authcode", authCode);
 			m.put("email", email);
 			return "auth/confirmemail/authcodeform";

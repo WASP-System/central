@@ -14,7 +14,22 @@
   <link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/reset.css" />
   <link rel="stylesheet" type="text/css" href="/wasp/css/jquery/jquery-ui.css"/>
   <link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/base.css" />
+  <script type="text/javascript" src="/wasp/scripts/jquery/jquery-1.7.1.js"></script>
   <script>
+  	function waspFade(el, msg) {
+		if (msg != null && msg != ""){
+			$('#'+el).text(msg);
+		}
+		setTimeout(function() {
+			$('#'+el).fadeOut('slow',
+				function() {
+					// after fadeout do the following
+					$('#'+el).show();
+					$('#'+el).css('opacity', '0');
+				});
+		},5000);
+	}
+  
     var waspOnLoad=function() {
       // re-define the waspOnLoad var 
       // in head-js if you need custom body 
@@ -24,7 +39,7 @@
   <tiles:insertAttribute name="head-js" />
 </head>
 
-<body onload='waspOnLoad();'>
+<body onload='waspOnLoad();waspFade("waspErrorMessage");waspFade("waspMessage");'>
   <!-- top -->
   <sec:authorize access="isAuthenticated()">
     <header id="pageHeader">
@@ -41,9 +56,13 @@
       </nav>
     </header>
   </sec:authorize>
+  <wasp:errorMessage />
+  <wasp:message />
   <!-- /top -->
  
   <tiles:insertAttribute name="body-content" />
 </body>
 </html>
+
+
 

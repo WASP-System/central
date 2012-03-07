@@ -1,6 +1,6 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
-<wasp:message />
+
 
 <form:form  cssClass="FormGrid" commandName="sample">
 

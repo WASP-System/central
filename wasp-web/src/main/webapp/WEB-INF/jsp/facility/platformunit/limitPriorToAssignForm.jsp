@@ -1,5 +1,5 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
-<wasp:message /><br />
+<br />
 <table class="EditTable ui-widget ui-widget-content">
 <tr class="FormData">
 	<td class="CaptionTD">Choose A Machine:</td>

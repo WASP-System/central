@@ -273,12 +273,12 @@ public class SampleDnaToLibraryController extends WaspController {
   public String listJobSamples(@PathVariable("jobId") Integer jobId, ModelMap m) {
     
 	  if(jobId == null || jobId == 0){
-		  waspMessage("sampleDetail.updated.unexpectedError");
+		  waspErrorMessage("sampleDetail.updated.unexpectedError");
 		  return "redirect:/dashboard.do";		  
 	  }
 	  Job job = jobService.getJobByJobId(jobId);
 	  if(job==null || job.getJobId()==null || job.getJobId().intValue()==0){
-		  waspMessage("sampleDetail.updated.unexpectedError");
+		  waspErrorMessage("sampleDetail.updated.unexpectedError");
 		  return "redirect:/dashboard.do";
 	  }
 	  
@@ -446,28 +446,28 @@ public class SampleDnaToLibraryController extends WaspController {
 			ModelMap m) {
 	  
 	    if( jobId == 0 || jobId == null ){
-			waspMessage("sampleDetail.updated.unexpectedError");
+			waspErrorMessage("sampleDetail.updated.unexpectedError");
 			return "redirect:/dashboard.do";
 		}
-		else if (macromolSampleId == 0 || macromolSampleId == null || adaptorsetId == 0 || adaptorsetId == null){	//waspMessage("user.updated.error");
-			waspMessage("sampleDetail.updated.unexpectedError");
+		else if (macromolSampleId == 0 || macromolSampleId == null || adaptorsetId == 0 || adaptorsetId == null){	//waspErrorMessage("user.updated.error");
+			waspErrorMessage("sampleDetail.updated.unexpectedError");
 			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 		}
 	  
   		Job job = jobService.getJobByJobId(jobId);
   		if(job.getJobId()==null || job.getJobId().intValue()==0){//not found in database
-  			waspMessage("sampleDetail.updated.unexpectedError");
+  			waspErrorMessage("sampleDetail.updated.unexpectedError");
 			return "redirect:/dashboard.do";
 		}
   		Sample macromoleculeSample = sampleService.getSampleBySampleId(macromolSampleId);
 		if(macromoleculeSample.getSampleId()==null || macromoleculeSample.getSampleId().intValue()==0){//not found in database
-			waspMessage("sampleDetail.updated.unexpectedError");
+			waspErrorMessage("sampleDetail.updated.unexpectedError");
 			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 		}
 		//confirm these two objects exist and part of same job
 		JobSample jobSample = jobSampleService.getJobSampleByJobIdSampleId(jobId, macromolSampleId);
 		if(jobSample.getJobSampleId()== null || jobSample.getJobSampleId().intValue()==0){
-			waspMessage("sampleDetail.updated.unexpectedError");
+			waspErrorMessage("sampleDetail.updated.unexpectedError");
 			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 		}
 
@@ -509,13 +509,13 @@ public class SampleDnaToLibraryController extends WaspController {
 			ModelMap m) {
 	  
 	  if( jobId == 0 || jobId == null || macromolSampleId == 0 || macromolSampleId == null ){
-		  waspMessage("sampleDetail.updated.unexpectedError");
+		  waspErrorMessage("sampleDetail.updated.unexpectedError");
 		  return "redirect:/dashboard.do";
 	  }
 	  
 	  Job jobForThisSample = jobService.getJobByJobId(jobId);
 	  if(jobForThisSample.getJobId()==null || jobForThisSample.getJobId().intValue()==0){//not found in database
-		  waspMessage("sampleDetail.updated.unexpectedError");
+		  waspErrorMessage("sampleDetail.updated.unexpectedError");
 		  return "redirect:/dashboard.do";
 	  }
 	  
@@ -525,13 +525,13 @@ public class SampleDnaToLibraryController extends WaspController {
 
 	  Sample parentMacromolecule = sampleService.getSampleBySampleId(macromolSampleId);
 	  if(parentMacromolecule.getSampleId()==null || parentMacromolecule.getSampleId().intValue()==0){//not found in database
-		  waspMessage("sampleDetail.updated.unexpectedError");
+		  waspErrorMessage("sampleDetail.updated.unexpectedError");
 		  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 	  }
 	  //confirm the job and the macromoleculeSample are part of same job
 	  JobSample jobSample = jobSampleService.getJobSampleByJobIdSampleId(jobId, macromolSampleId);
 	  if(jobSample.getJobSampleId()== null || jobSample.getJobSampleId().intValue()==0){
-		  waspMessage("sampleDetail.updated.unexpectedError");
+		  waspErrorMessage("sampleDetail.updated.unexpectedError");
 		  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 	  }
 
@@ -567,10 +567,10 @@ public class SampleDnaToLibraryController extends WaspController {
 		  prepareSelectListData(m);//doubt that this is required here; really only needed for meta relating to country or state
 		  
 		  if(nameClash){
-			  waspMessage("sampleDetail.updated.nameClashError");
+			  waspErrorMessage("sampleDetail.updated.nameClashError");
 		  }
 		  else{
-			  waspMessage("sampleDetail.updated.error");
+			  waspErrorMessage("sampleDetail.updated.error");
 		  }
 		  
 		  Adaptorset selectedAdaptorset = adaptorsetService.getAdaptorsetByAdaptorsetId(adaptorsetId);
@@ -606,7 +606,7 @@ public class SampleDnaToLibraryController extends WaspController {
 	  }
 	  if(newLibrary.getSubtypeSample() == null || newLibrary.getSubtypeSample().getSubtypeSampleId()==0){//no match found in database
 		  //error
-		  waspMessage("sampleDetail.updated.unexpectedError");
+		  waspErrorMessage("sampleDetail.updated.unexpectedError");
 		  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 	  }
 	  newLibrary.setSubmitterLabId(parentMacromolecule.getSubmitterLabId());//needed??	  
@@ -682,23 +682,23 @@ public class SampleDnaToLibraryController extends WaspController {
   public String libraryDetail(Integer jobId, Integer libraryId, ModelMap m, boolean isRW){
 
 	    if( jobId == 0 || jobId == null ){
-			waspMessage("sampleDetail.updated.unexpectedError");System.out.println("ROB: error 1");
+			waspErrorMessage("sampleDetail.updated.unexpectedError");System.out.println("ROB: error 1");
 			return "redirect:/dashboard.do";
 		}
 		else if (libraryId == 0 || libraryId == null){	
-			waspMessage("sampleDetail.updated.unexpectedError");System.out.println("ROB: error 2");
+			waspErrorMessage("sampleDetail.updated.unexpectedError");System.out.println("ROB: error 2");
 			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 		}
 	  
   		Job job = jobService.getJobByJobId(jobId);
   		if(job.getJobId()==null || job.getJobId().intValue()==0){//not found in database
-  			waspMessage("sampleDetail.updated.unexpectedError");System.out.println("ROB: error 3");
+  			waspErrorMessage("sampleDetail.updated.unexpectedError");System.out.println("ROB: error 3");
 			return "redirect:/dashboard.do";
 		}
   		TypeSample typeSampleLibrary = typeSampleService.getTypeSampleByIName("library");
   		Sample library = sampleService.getSampleBySampleId(libraryId);
   		if(library.getSampleId()==null || library.getSampleId().intValue()==0 || ! "library".equals(library.getTypeSample().getIName())){//not found in database or not a library
-  			waspMessage("sampleDetail.updated.unexpectedError");System.out.println("ROB: error 4");
+  			waspErrorMessage("sampleDetail.updated.unexpectedError");System.out.println("ROB: error 4");
   			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 		}
   		//pull out adaptor
@@ -716,7 +716,7 @@ public class SampleDnaToLibraryController extends WaspController {
   		Sample parentMacromolecule = null;//if this remains null then this library is user-generated 
   		List<SampleSource> sampleSource = library.getSampleSource();//if library is facility-generated, there should be one row; if user-submitted library then no rows 
   		if(sampleSource.size() > 1 || sampleSource.size() < 0){
-  			waspMessage("sampleDetail.updated.unexpectedError");System.out.println("ROB: error 5");
+  			waspErrorMessage("sampleDetail.updated.unexpectedError");System.out.println("ROB: error 5");
   			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
   		}
   		else if(sampleSource.size() == 1){//facility generated library
@@ -724,7 +724,7 @@ public class SampleDnaToLibraryController extends WaspController {
   			parentMacromolecule = sampleSource.get(0).getSampleViaSource(); 
   			System.out.println("ROB: there is one sampleSource with name/id of " + parentMacromolecule.getName() + " / " + parentMacromolecule.getSampleId().intValue());
   			if(parentMacromolecule.getSampleId()==null || parentMacromolecule.getSampleId()==0){
-  	  			waspMessage("sampleDetail.updated.unexpectedError");System.out.println("ROB: error 6");
+  	  			waspErrorMessage("sampleDetail.updated.unexpectedError");System.out.println("ROB: error 6");
   	  			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
   			}
   		}
@@ -732,7 +732,7 @@ public class SampleDnaToLibraryController extends WaspController {
   		//confirm these two objects exist and part of same job
 		JobSample jobSample = jobSampleService.getJobSampleByJobIdSampleId(jobId, libraryId);
 		if(jobSample.getJobSampleId()== null || jobSample.getJobSampleId().intValue()==0){
-			waspMessage("sampleDetail.updated.unexpectedError");
+			waspErrorMessage("sampleDetail.updated.unexpectedError");
 			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 		}
 
@@ -766,26 +766,26 @@ public class SampleDnaToLibraryController extends WaspController {
   public String sampleDetail(Integer jobId, Integer sampleId, ModelMap m, boolean isRW){
 	  
 	  if( jobId == 0 || jobId == null || sampleId == 0 || sampleId == null){
-		  waspMessage("sampleDetail.updated.unexpectedError");
+		  waspErrorMessage("sampleDetail.updated.unexpectedError");
 		  return "redirect:/dashboard.do";
 	  }
 	  
 	  Job job = jobService.getJobByJobId(jobId);
 	  if(job.getJobId()==null || job.getJobId().intValue()==0){//not found in database
-		  waspMessage("sampleDetail.updated.unexpectedError");
+		  waspErrorMessage("sampleDetail.updated.unexpectedError");
 		  return "redirect:/dashboard.do";
 	  }
 	  
 	  Sample sample= sampleService.getSampleBySampleId(sampleId);
 	  if(sample.getSampleId()==null || sample.getSampleId().intValue()==0){//not found in database
-		  waspMessage("sampleDetail.updated.unexpectedError");
+		  waspErrorMessage("sampleDetail.updated.unexpectedError");
 		  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 	  }
 	  
 	  //confirm these two objects exist and part of same job
 	  JobSample jobSample = jobSampleService.getJobSampleByJobIdSampleId(jobId, sampleId);
 	  if(jobSample.getJobSampleId()== null || jobSample.getJobSampleId().intValue()==0){
-		  waspMessage("sampleDetail.updated.unexpectedError");
+		  waspErrorMessage("sampleDetail.updated.unexpectedError");
 		  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 	  }
 	  
@@ -824,13 +824,13 @@ public class SampleDnaToLibraryController extends WaspController {
 								SessionStatus status, ModelMap m) throws MetadataException {
 		  
 	  if( jobId == 0 || jobId == null || sampleId == 0 || sampleId == null){
-		  waspMessage("sampleDetail.updated.unexpectedError");
+		  waspErrorMessage("sampleDetail.updated.unexpectedError");
 		  return "redirect:/dashboard.do";
 	  }
 		
 	  Job jobForThisSample = jobService.getJobByJobId(jobId);
 	  if(jobForThisSample.getJobId()==null || jobForThisSample.getJobId().intValue()==0){//not found in database
-		  waspMessage("sampleDetail.updated.unexpectedError");
+		  waspErrorMessage("sampleDetail.updated.unexpectedError");
 		  return "redirect:/dashboard.do";
 	  }
 	  
@@ -841,14 +841,14 @@ public class SampleDnaToLibraryController extends WaspController {
 		  
 	  Sample sampleToSave = sampleService.getSampleBySampleId(sampleId); 
 	  if(sampleToSave.getSampleId()==null || sampleToSave.getSampleId().intValue()==0){//not found in database
-		  waspMessage("sampleDetail.updated.unexpectedError");
+		  waspErrorMessage("sampleDetail.updated.unexpectedError");
 		  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 	  }
 	
 	  //confirm macromoleculeSample is actually part of this job
 	  JobSample jobSample = jobSampleService.getJobSampleByJobIdSampleId(jobId, sampleId);
 	  if(jobSample.getJobSampleId()== null || jobSample.getJobSampleId().intValue()==0){
-		  waspMessage("sampleDetail.updated.unexpectedError");
+		  waspErrorMessage("sampleDetail.updated.unexpectedError");
 		  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 	  } 
 	  
@@ -903,10 +903,10 @@ public class SampleDnaToLibraryController extends WaspController {
 		  prepareSelectListData(m);//doubt that this is required here; really only needed for meta relating to country or state
 		  
 		  if(nameClash){
-			  waspMessage("sampleDetail.updated.nameClashError");
+			  waspErrorMessage("sampleDetail.updated.nameClashError");
 		  }
 		  else{
-			  waspMessage("sampleDetail.updated.error");
+			  waspErrorMessage("sampleDetail.updated.error");
 		  }
 		  m.put("job", jobForThisSample);
 		  sampleForm.setSampleId(sampleId);

@@ -37,7 +37,7 @@
     </c:forEach>
     
     <sec:authorize access="hasRole('su') or hasRole('lm-${job.lab.labId}') or hasRole('js-${job.jobId}')">
-    <wasp:message />
+    
     <form name="f" action="<c:url value='/job/user/roleAdd.do'/>" method="POST" onsubmit="return validate();" >
       Login Name:
       <input class="FormElement ui-widget-content ui-corner-all" type='hidden' name='labId' value='<c:out value="${job.lab.labId}" />'/>

@@ -310,7 +310,6 @@
 		<put-attribute name="grid-columns" value="/WEB-INF/jsp/user/grid_columns.jsp" />
 		<put-attribute name="subgrid-columns" value="/WEB-INF/jsp/user/subgrid_columns.jsp" />
 		<put-attribute name="grid-customAttributes" value="/WEB-INF/jsp/user/grid_customAttributes.jsp" />
-		<put-attribute name="head-js" value="/WEB-INF/jsp/user/head_js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/user/list.jsp" />
 	</definition>
 	<definition name="job/list" extends="template-grid">

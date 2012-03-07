@@ -29,6 +29,7 @@ import edu.yu.einstein.wasp.model.MetaAttribute.Country;
 import edu.yu.einstein.wasp.model.MetaAttribute.State;
 import edu.yu.einstein.wasp.service.DepartmentService;
 import edu.yu.einstein.wasp.service.UserService;
+import edu.yu.einstein.wasp.taglib.ErrorMessageTag;
 import edu.yu.einstein.wasp.taglib.MessageTag;
 
 @Controller
@@ -110,6 +111,10 @@ public class WaspController {
 
   public void waspMessage(String propertyString)   {
     MessageTag.addMessage(request.getSession(), propertyString);
+  }
+  
+  public void waspErrorMessage(String propertyString)   {
+	    ErrorMessageTag.addMessage(request.getSession(), propertyString);
   }
 
   protected String outputJSON(Map jqgridMap, HttpServletResponse response) throws JsonMappingException, IOException {

@@ -1,6 +1,6 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp"%>
 <p>
-	<wasp:message />
+	
 </p>
 <form:form  cssClass="FormGrid" commandName="labPending">
 	<table class="EditTable ui-widget ui-widget-content">

@@ -416,10 +416,10 @@ MetaHelperWebapp metaHelperWebapp = new MetaHelperWebapp("fmpayment", "state", S
     ) {
 
 	  if(receivedStatus == null ||  receivedStatus.equals("")){
-		  waspMessage("task.samplereceive.error_receivedstatus_empty");
+		  waspErrorMessage("task.samplereceive.error_receivedstatus_empty");
 	  }
 	  else if(!receivedStatus.equals("COMPLETED") && !receivedStatus.equals("ABANDONED")){
-		  waspMessage("task.samplereceive.error_receivedstatus_invalid");
+		  waspErrorMessage("task.samplereceive.error_receivedstatus_invalid");
 	  }
 	  else{
 		  Map map = new HashMap();
@@ -433,13 +433,13 @@ MetaHelperWebapp metaHelperWebapp = new MetaHelperWebapp("fmpayment", "state", S
 	  		  }
 	  	  }
 	  	  if(!valid){
-	  		  waspMessage("task.samplereceive.error_state_sample_conflict");
+	  		  waspErrorMessage("task.samplereceive.error_state_sample_conflict");
 	  	  }
 	  	  else{
 	  		  State state = this.getStateService().getStateByStateId(stateId);
 	  		  Task task = this.getTaskService().getTaskByIName("Receive Sample");
 	  		  if(state.getTaskId().intValue() != task.getTaskId().intValue()){
-	  			  waspMessage("task.samplereceive.error_state_task_conflict");
+	  			  waspErrorMessage("task.samplereceive.error_state_task_conflict");
 	  		  }
 	  		  else{
 	  			  state.setStatus(receivedStatus);  

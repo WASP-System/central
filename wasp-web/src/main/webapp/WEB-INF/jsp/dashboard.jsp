@@ -1,6 +1,6 @@
 <%@ include file="/WEB-INF/jsp/include.jsp"%>
 <%@ include file="/WEB-INF/jsp/taglib.jsp"%>
-<wasp:message />
+
 <div>
 	<h1>Dashboard - ${me.firstName} ${me.lastName}</h1>
 </div>

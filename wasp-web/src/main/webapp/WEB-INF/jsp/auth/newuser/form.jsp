@@ -1,5 +1,5 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
-  <wasp:message />
+  
   <h1><fmt:message key="pageTitle.auth/newuser/form.label" /></h1>
 
   <div class="instructions"> <fmt:message key="piPending.form_instructions.label" /></div>

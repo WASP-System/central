@@ -1,6 +1,6 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
-    <p><wasp:message /></p>
+    <p></p>
     <h1><fmt:message key="pageTitle.lab/user_manager.label"/></h1>
 	<h2><fmt:message key="labuser.current.label"/></h2>
 	<table class="EditTable ui-widget ui-widget-content">

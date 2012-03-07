@@ -101,30 +101,30 @@ public class SystemRoleController extends WaspController {
 			ModelMap m) {
 
 		if (userHook == null || userHook.isEmpty()){
-			waspMessage("sysrole.noUserSpecified.error");
+			waspErrorMessage("sysrole.noUserSpecified.error");
 			return "redirect:/sysrole/list.do";
 		}
 		String userLogin = StringHelper.getLoginFromFormattedNameAndLogin(userHook.trim());
 
 		User user = userService.getUserByLogin(userLogin);
 		if (user.getUserId() == null){
-			waspMessage("sysrole.userNonexistant.error");
+			waspErrorMessage("sysrole.userNonexistant.error");
 			return "redirect:/sysrole/list.do";
 		}
 		if (roleName == null || roleName.isEmpty()){
-			waspMessage("sysrole.noRoleSpecified.error");
+			waspErrorMessage("sysrole.noRoleSpecified.error");
 			return "redirect:/sysrole/list.do";
 		}
 		Role role= roleService.getRoleByRoleName(roleName);
 		if (role.getRoleId() == null || !role.getDomain().equals("system")){
-			waspMessage("sysrole.invalidRoleSpecified.error");
+			waspErrorMessage("sysrole.invalidRoleSpecified.error");
 			return "redirect:/sysrole/list.do";
 		}
 		Map userroleQueryMap = new HashMap();
 		userroleQueryMap.put("UserId", user.getUserId());
 		userroleQueryMap.put("roleId", role.getRoleId());
 		if (!userroleService.findByMap(userroleQueryMap).isEmpty()){
-			waspMessage("sysrole.userRoleExists.error");
+			waspErrorMessage("sysrole.userRoleExists.error");
 			return "redirect:/sysrole/list.do";
 		}
 		Userrole userrole = new Userrole();
@@ -159,20 +159,20 @@ public class SystemRoleController extends WaspController {
 			ModelMap m) {
 
 		if (userId == null){
-			waspMessage("sysrole.noUserSpecified.error");
+			waspErrorMessage("sysrole.noUserSpecified.error");
 			return "redirect:/sysrole/list.do";
 		}
 		if (userService.getUserByUserId(userId).getUserId() == null){
-			waspMessage("sysrole.userNonexistant.error");
+			waspErrorMessage("sysrole.userNonexistant.error");
 			return "redirect:/sysrole/list.do";
 		}
 		if (roleName == null || roleName.isEmpty()){
-			waspMessage("sysrole.noRoleSpecified.error");
+			waspErrorMessage("sysrole.noRoleSpecified.error");
 			return "redirect:/sysrole/list.do";
 		}
 		Role role= roleService.getRoleByRoleName(roleName);
 		if (role.getRoleId() == null || !role.getDomain().equals("system")){
-			waspMessage("sysrole.invalidRoleSpecified.error");
+			waspErrorMessage("sysrole.invalidRoleSpecified.error");
 			return "redirect:/sysrole/list.do";
 		}
 		// ensure we do not remove the only userrole entry for the chosen role
@@ -180,13 +180,13 @@ public class SystemRoleController extends WaspController {
 		Map roleIdQuery = new HashMap();
 		roleIdQuery.put("roleId", role.getRoleId());
 		if (userroleService.findByMap(roleIdQuery).size() == 1){
-			waspMessage("sysrole.onlyUserWithRole.error");
+			waspErrorMessage("sysrole.onlyUserWithRole.error");
 			return "redirect:/sysrole/list.do";
 		}
 		Userrole userrole = userroleService.getUserroleByUserIdRoleId(userId, role.getRoleId());
 		
 		if (userrole.getUserroleId() == null){
-			waspMessage("sysrole.wrongUserRoleCombination.error");
+			waspErrorMessage("sysrole.wrongUserRoleCombination.error");
 			return "redirect:/sysrole/list.do";
 		}
 		userroleService.remove(userrole);

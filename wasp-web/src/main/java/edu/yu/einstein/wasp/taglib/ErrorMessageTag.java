@@ -21,11 +21,11 @@ import edu.yu.einstein.wasp.dao.impl.DBResourceBundle;
  * 
  * @Author Sasha Levchuk
  */
-public class MessageTag extends BodyTagSupport {
+public class ErrorMessageTag extends BodyTagSupport {
 	
-	Logger log=Logger.getLogger(MessageTag.class);
+	Logger log=Logger.getLogger(ErrorMessageTag.class);
 	
-	public static final String FEEDBACK_SESSION_ATTRIBUTE_NAME="_feedback";
+	public static final String FEEDBACK_SESSION_ATTRIBUTE_NAME="_feedbackError";
 	
 	public static final void addMessage(HttpSession session,String key) {
 		
@@ -57,7 +57,7 @@ public class MessageTag extends BodyTagSupport {
 	
 		
 		StringBuffer buf=new StringBuffer("");
-		buf.append("<div id='waspMessage' class='waspMessage'><ul>\n");
+		buf.append("<div id='waspErrorMessage' class='waspErrorMessage'><ul>\n");
 		for(String key:messageKeys) {
 			try {
 				String message="<li>"+DBResourceBundle.MESSAGE_SOURCE.getMessage(key, null,Locale.US) + "</li>\n";

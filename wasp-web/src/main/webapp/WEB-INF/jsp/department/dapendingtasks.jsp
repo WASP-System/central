@@ -1,6 +1,6 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 <br /><br />
-      <wasp:message />
+      
       <sec:authorize access="hasRole('da-*') or hasRole('su') or hasRole('ga-*')">
       <title><fmt:message key="pageTitle.department/dapendingtasks.label"/></title>
 

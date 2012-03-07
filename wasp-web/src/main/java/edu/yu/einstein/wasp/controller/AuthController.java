@@ -92,13 +92,13 @@ public class AuthController extends WaspController {
 	  	  @RequestParam(value="captcha_text") String captchaText, ModelMap m){
 	  Captcha captcha = (Captcha) request.getSession().getAttribute(Captcha.NAME);
 	  if (captcha == null || (! captcha.isCorrect(captchaText)) ){
-		  waspMessage("auth.requestEmailChange_captcha.error");
+		  waspErrorMessage("auth.requestEmailChange_captcha.error");
 		  m.put("loginName", loginName);
 		  m.put("email", email);
 		  return "auth/confirmemail/requestEmailChange";
 	  }
 	  if (! StringHelper.isStringAValidEmailAddress(email)){
-		  waspMessage("auth.requestEmailChange_bademail.error");
+		  waspErrorMessage("auth.requestEmailChange_bademail.error");
 		  m.put("loginName", loginName);
 		  m.put("captcha_text", captchaText);
 		  return "auth/confirmemail/requestEmailChange";
@@ -106,7 +106,7 @@ public class AuthController extends WaspController {
 	  if (!authenticationService.authenticates(loginName, password)){
 		  m.addAttribute("email", email);
 		  m.put("captcha_text", captchaText);
-		  waspMessage("auth.requestEmailChange_badcredentials.error");
+		  waspErrorMessage("auth.requestEmailChange_badcredentials.error");
 		  return "auth/confirmemail/requestEmailChange";
 	  }
 	  //update user with new email address
@@ -133,19 +133,19 @@ public class AuthController extends WaspController {
 	  
 	  if (username == null || captchaText == null || username.equals("") || captchaText.equals(""))
 	  {
-		  waspMessage("auth.resetpasswordRequest_missingparam.error");
+		  waspErrorMessage("auth.resetpasswordRequest_missingparam.error");
 		  m.put("username", username);
 		  return "auth/resetpassword/request";
 	  }
 	  
 	  if (captcha == null || (! captcha.isCorrect(captchaText)) ){
-		  waspMessage("auth.resetpasswordRequest_captcha.error");
+		  waspErrorMessage("auth.resetpasswordRequest_captcha.error");
 		  m.put("username", username);
 		  return "auth/resetpassword/request";
 	  }
 	  
 	  if (user==null || user.getUserId() == null)  {
-		  waspMessage("auth.resetpasswordRequest_username.error");
+		  waspErrorMessage("auth.resetpasswordRequest_username.error");
 		  return "auth/resetpassword/request";
 	  }
 
@@ -164,7 +164,7 @@ public class AuthController extends WaspController {
 		  
 	  Userpasswordauth userpasswordauth   = userpasswordauthService.getUserpasswordauthByAuthcode(authCode);
 	  if (userpasswordauth.getUserId() == null){
-		  waspMessage("auth.resetpassword_badauthcode.error");
+		  waspErrorMessage("auth.resetpassword_badauthcode.error");
 		  return "auth/resetpassword/authcodeform";
 	  }
 
@@ -184,7 +184,7 @@ public class AuthController extends WaspController {
         ModelMap m) {
 	
 	  if (authCode == null || authCode.equals("")) {
-	    	waspMessage("auth.resetpassword_noauthcode.error");
+	    	waspErrorMessage("auth.resetpassword_noauthcode.error");
 	    	return "auth/resetpassword/authcodeform";
 	  }
 	  
@@ -196,7 +196,7 @@ public class AuthController extends WaspController {
 			 captchaText.equals("") || 
 			 password1.equals("") || 
 			 password2.equals("") ){
-	    	waspMessage("auth.resetpassword_missingparam.error");
+	    	waspErrorMessage("auth.resetpassword_missingparam.error");
 	        m.put("authcode", authCode);
 	        m.put("username", username);
 	        return "auth/resetpassword/form";
@@ -205,7 +205,7 @@ public class AuthController extends WaspController {
 	 Captcha captcha = (Captcha) request.getSession().getAttribute(Captcha.NAME);
 	 
 	if (captcha == null || (! captcha.isCorrect(captchaText)) ){
-		waspMessage("auth.resetpassword_captcha.error");
+		waspErrorMessage("auth.resetpassword_captcha.error");
 		m.put("authcode", authCode);
 	    m.put("username", username);
 	    return "auth/resetpassword/form";
@@ -215,31 +215,31 @@ public class AuthController extends WaspController {
     User user = userService.getUserByLogin(username);
     
     if (user.getUserId() == null) {
-        waspMessage("auth.resetpassword_username.error");
+        waspErrorMessage("auth.resetpassword_username.error");
         m.put("authcode", authCode);
         return "auth/resetpassword/form";
      }
     
     if (userpasswordauth.getUserId() == null){
-    	waspMessage("auth.resetpassword_badauthcode.error");
+    	waspErrorMessage("auth.resetpassword_badauthcode.error");
     	return "auth/resetpassword/authcodeform";
     }
 
     if (user.getUserId().intValue() != userpasswordauth.getUserId().intValue()) {
     	m.put("authcode", authCode);
-    	waspMessage("auth.resetpassword_wronguser.error");
+    	waspErrorMessage("auth.resetpassword_wronguser.error");
     	return "auth/resetpassword/authcodeform";
     }
     
     if (! passwordService.matchPassword(password1, password2)){
-    	waspMessage("auth.resetpassword_new_mismatch.error");
+    	waspErrorMessage("auth.resetpassword_new_mismatch.error");
     	m.put("authcode", authCode);
     	m.put("username", username);
     	return "auth/resetpassword/form";
     }
     
     if (! passwordService.validatePassword(password1)){
-    	 waspMessage("auth.resetpassword_new_invalid.error");
+    	 waspErrorMessage("auth.resetpassword_new_invalid.error");
          m.put("authcode", authCode);
          m.put("username", username);
          return "auth/resetpassword/form";
@@ -263,13 +263,13 @@ public class AuthController extends WaspController {
 	 */
   protected boolean userEmailValid(String authCode, String email, ModelMap m) {
 	if (authCode == null || authCode.isEmpty()) {
-		waspMessage("auth.confirmemail_badauthcode.error");
+		waspErrorMessage("auth.confirmemail_badauthcode.error");
 		if (m != null) m.put("email", email);
 		return false;
 	}
 	ConfirmEmailAuth confirmEmailAuth = confirmEmailAuthService.getConfirmEmailAuthByAuthcode(authCode);
 	if (email == null || email.isEmpty() || confirmEmailAuth.getConfirmEmailAuthId() == null) {
-		waspMessage("auth.confirmemail_bademail.error");
+		waspErrorMessage("auth.confirmemail_bademail.error");
 		if (m != null) m.put("authcode", authCode);
 		return false;
 	}
@@ -277,7 +277,7 @@ public class AuthController extends WaspController {
 	User user = userService.getUserByUserId(confirmEmailAuth.getUserId());
 
 	if (! user.getEmail().equals(email)){
-		waspMessage("auth.confirmemail_wronguser.error");
+		waspErrorMessage("auth.confirmemail_wronguser.error");
 		return false;
 	}
 	return true;
@@ -320,7 +320,7 @@ public class AuthController extends WaspController {
 	try{
 		decodedEmail = URLDecoder.decode(urlEncodedEmail, "UTF-8");
 	} catch(UnsupportedEncodingException e){
-		waspMessage("auth.confirmemail_corruptemail.error");
+		waspErrorMessage("auth.confirmemail_corruptemail.error");
 		m.addAttribute("isAdminCreated", isAdminCreated);
 		return "redirect:/auth/confirmNewUserEmail.do"; // do this to clear GET parameters and forward to authcodeform view
 	}
@@ -357,7 +357,7 @@ public class AuthController extends WaspController {
   		if (isAdminCreated == null) isAdminCreated = 0;
 		Captcha captcha = (Captcha) request.getSession().getAttribute(Captcha.NAME);
 		if (captcha == null || (! captcha.isCorrect(captchaText)) ){
-			waspMessage("auth.confirmemail_captcha.error");
+			waspErrorMessage("auth.confirmemail_captcha.error");
 			m.addAttribute("authcode", authCode);
 			m.addAttribute("email", email);
 			m.addAttribute("isAdminCreated", isAdminCreated);
@@ -371,7 +371,7 @@ public class AuthController extends WaspController {
 		userQueryMap.put("email", email);
 		User user = userService.getUserByEmail(email);
 		if (user.getUserId() == null){
-			waspMessage("auth.confirmemail_bademail.error");
+			waspErrorMessage("auth.confirmemail_bademail.error");
 			m.addAttribute("isAdminCreated", isAdminCreated);
 			return "auth/confirmemail/authcodeform"; 
 		}

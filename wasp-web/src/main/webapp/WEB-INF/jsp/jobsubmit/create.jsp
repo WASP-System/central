@@ -1,7 +1,7 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
 
-<wasp:message />
+
 
 <h1><fmt:message key="jobDraft.create.label" /></h1>
 

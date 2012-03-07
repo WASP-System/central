@@ -518,14 +518,14 @@ public class LabController extends WaspController {
 			@PathVariable("labPendingId") Integer labPendingId, ModelMap m) {
 		LabPending labPending = this.labPendingService.getLabPendingByLabPendingId(labPendingId);
 		if (labPending.getLabPendingId() == null || labPending.getLabPendingId() == 0) {// labpendingId doesn't exist
-			waspMessage("labPending.labpendingid_notexist.error");
+			waspErrorMessage("labPending.labpendingid_notexist.error");
 			return "redirect:/dashboard.do";
 		}
 		if (deptId.intValue() != labPending.getDepartmentId().intValue()) {
-			waspMessage("labPending.departmentid_mismatch.error");
+			waspErrorMessage("labPending.departmentid_mismatch.error");
 			return "redirect:/dashboard.do";
 		} else if (!labPending.getStatus().equalsIgnoreCase("PENDING")) {
-			waspMessage("labPending.status_mismatch.error");
+			waspErrorMessage("labPending.status_mismatch.error");
 			return "redirect:/dashboard.do";
 		} else {
 			return pendingDetail(labPendingId, m, false);
@@ -604,7 +604,7 @@ public class LabController extends WaspController {
 		labForm.setLabMeta(labMetaList);
 
 		if (result.hasErrors()) {
-			waspMessage("lab.created.error");
+			waspErrorMessage("lab.created.error");
 			return "lab/detail_rw";
 		}
 
@@ -644,7 +644,7 @@ public class LabController extends WaspController {
 
 		if (result.hasErrors()) {
 			prepareSelectListData(m);
-			waspMessage("lab.updated.error");
+			waspErrorMessage("lab.updated.error");
 			return "lab/detail_rw";
 		}
 
@@ -693,7 +693,7 @@ public class LabController extends WaspController {
 		getLabPendingMetaHelperWebapp().validate(labPendingMetaList, result);
 
 		if (result.hasErrors()) {
-			waspMessage("labPending.updated.error");
+			waspErrorMessage("labPending.updated.error");
 			prepareSelectListData(m);
 			m.addAttribute("puserFullName",	getPiFullNameFromLabPendingId(labPendingId));
 			return "lab/pending/detail_rw";
@@ -797,7 +797,7 @@ public class LabController extends WaspController {
 			// TODO CONFIRM ROLE WAS "LP"
 			labUserService.remove(labUser);
 
-			waspMessage("hello.error");
+			waspErrorMessage("hello.error");
 			return "redirect:/lab/user_manager/" + labId + ".do";
 		}
 
@@ -817,7 +817,7 @@ public class LabController extends WaspController {
 			doReauth();
 		}
 
-		waspMessage("hello.error");
+		waspErrorMessage("hello.error");
 		return "redirect:/lab/user_manager/" + labId + ".do";
 	}
 
@@ -1044,16 +1044,16 @@ public class LabController extends WaspController {
 									   @PathVariable("labUserId") Integer labUserId,
 									   @PathVariable("action") String action, ModelMap m){
 		if (!(action.equals("approve") || action.equals("reject"))) {
-			waspMessage("userPending.action.error");
+			waspErrorMessage("userPending.action.error");
 			return "redirect:/dashboard.do";
 		}
 		LabUser labUserPending = labUserService.getLabUserByLabUserId(labUserId);
 		if (labUserPending.getLabId().intValue() != labId.intValue()){
-			waspMessage("labuser.labUserNotFoundInLab.error");
+			waspErrorMessage("labuser.labUserNotFoundInLab.error");
 			return "redirect:/dashboard.do";
 		}
 		if (labUserPending.getRoleId().intValue() != roleService.getRoleByRoleName("lp").getRoleId().intValue() ) {
-			waspMessage("userPending.status_not_pending.error");
+			waspErrorMessage("userPending.status_not_pending.error");
 			return "redirect:/dashboard.do";
 		}
 
@@ -1097,18 +1097,18 @@ public class LabController extends WaspController {
 			throws MetadataException {
 
 		if (!(action.equals("approve") || action.equals("reject"))) {
-			waspMessage("userPending.action.error");
+			waspErrorMessage("userPending.action.error");
 			return "redirect:/dashboard.do";
 		}
 
 		UserPending userPending = userPendingService.getUserPendingByUserPendingId(userPendingId);
 		if (! userPending.getStatus().equals("PENDING") ) {
-			waspMessage("userPending.status_not_pending.error");
+			waspErrorMessage("userPending.status_not_pending.error");
 			return "redirect:/dashboard.do";
 		}
 		
 		if (userPending.getLabId().intValue() != labId.intValue()) {
-			waspMessage("userPending.labid_mismatch.error");
+			waspErrorMessage("userPending.labid_mismatch.error");
 			return "redirect:/dashboard.do";
 		}
 		User user;
@@ -1155,19 +1155,19 @@ public class LabController extends WaspController {
 			throws MetadataException {
 
 		if (!(action.equals("approve") || action.equals("reject"))) {
-			waspMessage("labPending.action.error");
+			waspErrorMessage("labPending.action.error");
 			//return "redirect:/department/detail/" + deptId + ".do";
 			return "redirect:/department/dapendingtasklist.do";
 		}
 		LabPending labPending = labPendingService.getLabPendingByLabPendingId(labPendingId);
 		if (! labPending.getStatus().equals("PENDING") ) {
-			waspMessage("labPending.status_not_pending.error");
+			waspErrorMessage("labPending.status_not_pending.error");
 			//return "redirect:/department/detail/" + deptId + ".do";
 			return "redirect:/department/dapendingtasklist.do";
 		}
 		
 		if (labPending.getDepartmentId().intValue() != deptId.intValue()) {
-			waspMessage("labPending.departmentid_mismatch.error");
+			waspErrorMessage("labPending.departmentid_mismatch.error");
 			//return "redirect:/department/detail/" + deptId + ".do";
 			return "redirect:/department/dapendingtasklist.do";
 		}
@@ -1175,7 +1175,7 @@ public class LabController extends WaspController {
 		if ("approve".equals(action)) {
 			Lab lab = createLabFromLabPending(labPending);
 			if (lab.getLabId() == null || lab.getLabId() == 0){
-				waspMessage("labPending.could_not_create_lab.error");
+				waspErrorMessage("labPending.could_not_create_lab.error");
 				//return "redirect:/department/detail/" + deptId + ".do";
 				return "redirect:/department/dapendingtasklist.do";
 			}
@@ -1190,7 +1190,7 @@ public class LabController extends WaspController {
 				userPendingService.save(userPending);
 				waspMessage("labPending.rejected.label");
 			} else if (labPending.getPrimaryUserId() == null){
-				waspMessage("labPending.could_not_create_lab.error");
+				waspErrorMessage("labPending.could_not_create_lab.error");
 				//return "redirect:/department/detail/" + deptId + ".do";
 				return "redirect:/department/dapendingtasklist.do";
 			}
@@ -1271,7 +1271,7 @@ public class LabController extends WaspController {
 		if (result.hasErrors()) {
 			labPendingForm.setLabPendingMeta(labPendingMetaList);
 			prepareSelectListData(m);
-			waspMessage("user.created.error");
+			waspErrorMessage("user.created.error");
 
 			return "lab/newrequest";
 		}
@@ -1302,19 +1302,19 @@ public class LabController extends WaspController {
 		
 		// check existence of primaryUser/lab
 		if (primaryUserLogin == null || primaryUserLogin.isEmpty()){
-			waspMessage("labuser.request_primaryuser.error");
+			waspErrorMessage("labuser.request_primaryuser.error");
 			return "redirect:/lab/newrequest.do";
 		}
 		
 		User primaryUser = userService.getUserByLogin(primaryUserLogin);
 		if (primaryUser.getUserId() == null || primaryUser.getUserId() == 0) {
-			waspMessage("labuser.request_primaryuser.error");
+			waspErrorMessage("labuser.request_primaryuser.error");
 			return "redirect:/lab/newrequest.do";
 		}
 
 		Lab lab = labService.getLabByPrimaryUserId(primaryUser.getUserId());
 		if (lab.getLabId() == null || lab.getLabId() == 0) {
-			waspMessage("labuser.request_primaryuser.error");
+			waspErrorMessage("labuser.request_primaryuser.error");
 			return "redirect:/lab/newrequest.do";
 		}
 
@@ -1326,7 +1326,7 @@ public class LabController extends WaspController {
 			ArrayList<String> alreadyPendingRoles = new ArrayList();
 			alreadyPendingRoles.add("lp");
 			if (alreadyPendingRoles.contains(labUser.getRole().getRoleName())) {
-				waspMessage("labuser.request_alreadypending.error");
+				waspErrorMessage("labuser.request_alreadypending.error");
 				return "redirect:/lab/newrequest.do";
 			}
 			
@@ -1335,7 +1335,7 @@ public class LabController extends WaspController {
 			alreadyAccessRoles.add("lm");
 			alreadyAccessRoles.add("lu");
 			if (alreadyAccessRoles.contains(labUser.getRole().getRoleName())) {
-				waspMessage("labuser.request_alreadyaccess.error");
+				waspErrorMessage("labuser.request_alreadyaccess.error");
 				return "redirect:/lab/newrequest.do";
 			}
 		}

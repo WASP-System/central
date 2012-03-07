@@ -420,13 +420,13 @@ public class JobSubmissionController extends WaspController {
 			}
 		}
 		if (labList.isEmpty()){
-			waspMessage("jobDraft.no_lab.error");
+			waspErrorMessage("jobDraft.no_lab.error");
 			return "redirect:/dashboard.do";
 		}
 
 		List <Workflow> workflowList = workflowService.getActiveWorkflows();
 		if (workflowList.isEmpty()){
-			waspMessage("jobDraft.no_workflows.error");
+			waspErrorMessage("jobDraft.no_workflows.error");
 			return "redirect:/dashboard.do";
 		}
 		
@@ -469,7 +469,7 @@ public class JobSubmissionController extends WaspController {
 		
 		result.addAllErrors(errors);
 		if (result.hasErrors()) {
-			waspMessage("jobDraft.form.error");
+			waspErrorMessage("jobDraft.form.error");
 			return generateCreateForm(m);
 		}
 		
@@ -492,20 +492,20 @@ public class JobSubmissionController extends WaspController {
 	 */
 	protected boolean isJobDraftEditable(JobDraft jobDraft){
 		if (jobDraft == null || jobDraft.getJobDraftId() == null){
-			waspMessage("jobDraft.jobDraft_null.error");
+			waspErrorMessage("jobDraft.jobDraft_null.error");
 			return false;
 		}
 		
 		// check if i am the drafter
 		User me = authenticationService.getAuthenticatedUser();
 		if (me.getUserId().intValue() != jobDraft.getUserId().intValue()) {
-			waspMessage("jobDraft.user_incorrect.error");
+			waspErrorMessage("jobDraft.user_incorrect.error");
 			return false;
 		}
 		
 		// check that the status is PENDING
 		if (! jobDraft.getStatus().equals("PENDING")) {
-			waspMessage("jobDraft.not_pending.error");
+			waspErrorMessage("jobDraft.not_pending.error");
 			return false;
 		}
 		return true;
@@ -557,7 +557,7 @@ public class JobSubmissionController extends WaspController {
 		}
 		result.addAllErrors(errors);
 		if (result.hasErrors()) {
-			waspMessage("jobDraft.form.error");
+			waspErrorMessage("jobDraft.form.error");
 			m.put("jobDraft", jobDraftForm);
 			return generateCreateForm(m);
 		}
@@ -586,7 +586,7 @@ public class JobSubmissionController extends WaspController {
 		result.addAllErrors(errors);
 		
 		if (result.hasErrors()) {
-			waspMessage("jobDraft.form.error");
+			waspErrorMessage("jobDraft.form.error");
 			m.put("jobDraft", jobDraftForm);
 			return generateCreateForm(m);
 		}
@@ -659,7 +659,7 @@ public class JobSubmissionController extends WaspController {
 		metaHelperWebapp.validate(jobDraftMetaList, result);
 
 		if (result.hasErrors()) {
-			waspMessage("jobDraft.form.error");
+			waspErrorMessage("jobDraft.form.error");
 
 			m.put("jobDraft", jobDraft);
 			m.put("area", metaHelperWebapp.getArea());
@@ -805,7 +805,7 @@ public class JobSubmissionController extends WaspController {
 		}
 		
 		if (resourceCategoryArea.isEmpty()){
-			waspMessage("jobDraft.changeResource.error");
+			waspErrorMessage("jobDraft.changeResource.error");
 			return "redirect:/jobsubmit/resource/" + typeresourceiname + "/" + jobDraftId + ".do";
 		}
 		
@@ -821,7 +821,7 @@ public class JobSubmissionController extends WaspController {
 		jobDraftForm.setJobDraftMeta(jobDraftMetaList);
 		
 		if (result.hasErrors()) {
-			waspMessage("jobDraft.form.error");
+			waspErrorMessage("jobDraft.form.error");
 			jobDraftForm.setName(jobDraft.getName());
 			jobDraftForm.setWorkflowId(jobDraft.getWorkflowId());
 			jobDraftForm.setLabId(jobDraft.getLabId());
@@ -970,7 +970,7 @@ public class JobSubmissionController extends WaspController {
 		}
 		
 		if (softwareArea.isEmpty()){
-			waspMessage("jobDraft.changeSoftwareResource.error");
+			waspErrorMessage("jobDraft.changeSoftwareResource.error");
 			return "redirect:/jobsubmit/software/" + typeresourceiname + "/" + jobDraftId + ".do";
 		}
 		
@@ -987,7 +987,7 @@ public class JobSubmissionController extends WaspController {
 			jobDraftForm.setName(jobDraft.getName());
 			jobDraftForm.setWorkflowId(jobDraft.getWorkflowId());
 			jobDraftForm.setLabId(jobDraft.getLabId());
-			waspMessage("jobDraft.form.error");
+			waspErrorMessage("jobDraft.form.error");
 			String returnPage = showSoftwareForm(typeresourceiname, jobDraftId, jobDraftForm, m); 
 			return returnPage;
 		}
@@ -1073,7 +1073,7 @@ public class JobSubmissionController extends WaspController {
 		metaHelperWebapp.validate(jobDraftMetaList, result);
 
 		if (result.hasErrors()) {
-			waspMessage("jobDraft.form.error");
+			waspErrorMessage("jobDraft.form.error");
 			m.put("jobDraft", jobDraft);
 			m.put("area", metaHelperWebapp.getArea());
 			m.put("parentarea", metaHelperWebapp.getParentArea());
@@ -1158,7 +1158,7 @@ public class JobSubmissionController extends WaspController {
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
 		if (jobDraft.getSampleDraft().isEmpty()){
-			waspMessage("jobDraft.noSamples.error");
+			waspErrorMessage("jobDraft.noSamples.error");
 			return showSampleDraft(jobDraftId, m); 
 		}
 		return nextPage(jobDraft);

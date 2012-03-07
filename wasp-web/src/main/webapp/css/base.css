@@ -246,6 +246,20 @@ div.greyback {
 }
 
 div.waspMessage {
+	color:#248F24;
+	font-size: 120%;
+	background: #F0FFF0;
+	border: 1px solid #1A661A;
+	padding: 5px 5px 5px 5px;
+	margin: 10px 0px 20px 0px;
+}
+
+div.waspMessage ul, div.waspErrorMessage ul{
+	list-style-type: circle;
+	margin-left: 20px;
+}
+
+div.waspErrorMessage {
 	color:#FF0000;
 	font-size: 120%;
 	background: #FFE6E6;

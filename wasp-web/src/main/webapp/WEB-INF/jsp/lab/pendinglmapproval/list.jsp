@@ -4,7 +4,7 @@
 <!--  
 
 
-      <wasp:message />
+      
       <sec:authorize access="hasRole('lm-${lab.labId}') or hasRole('su') or hasRole('ga-*')"> 
       
       <h2>PI/Lab Manager Pending Tasks (Lab: <c:out value="${lab.name}" />)</h2>
@@ -51,7 +51,7 @@
 
 <c:set var="counter" scope="page" value="1"/>
 
-      <wasp:message />
+      
       <sec:authorize access="hasRole('lm-${lab.labId}') or hasRole('su') or hasRole('ga-*')"> 
       
       <h2>PI/Lab Manager Pending Tasks</h2>
@@ -126,7 +126,7 @@
   <br />
 
   
-      <wasp:message />
+      
       <sec:authorize access="hasRole('lm-${lab.labId}') or hasRole('su') or hasRole('ga-*')"> 
       
       <h2>PI/Lab Manager Pending Tasks</h2>
@@ -215,7 +215,7 @@
 -->  
    
  <br />
- <wasp:message />
+ 
  <sec:authorize access="hasRole('lm-${lab.labId}') or hasRole('su') or hasRole('ga-*')"> 
  <title><fmt:message key="pageTitle.lab/pendinglmapproval/list.label"/></title>
   <h2><fmt:message key="lmpendingtask.title.label" /></h2>
