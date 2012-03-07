@@ -3,11 +3,6 @@
     <h1>
       <c:out value="${run.name}"/>
     </h1>
-
-
-	
-
-
     <div>
       Resource: <a href="/wasp/resource/list.do?selId=<c:out value="${run.resourceId}"/>"><c:out value="${run.resource.name}"/></a>
     </div>
@@ -30,7 +25,7 @@
     <c:forEach items="${runlane}" var="rl">
       <div>
       -- Samples:
-      <a href="/wasp/sample/detail/<c:out value="${rl.sampleId}"/>.do">
+      <a href="/wasp /sample/detail/<c:out value="${rl.sampleId}"/>.do">
         <c:out value="${rl.sample.name}"/>
       </a>
       -- ResourceLanes:

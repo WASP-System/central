@@ -778,7 +778,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','start_esf_staff','label','Start ESF Staff','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','start_datetime','label','Start Time','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','end_datetime','label','End Time','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','machine_name','label','Machine','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','resourceName','label','Machine','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','path_to_data','label','Data Path','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','run_success','label','Success','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','isActive','label','Active','1');
