@@ -1,0 +1,87 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+
+<suite name="SelWaspTest" verbose="10">
+   <!-- 
+   <test name="WASP Regression Testing: Login Page" preserve-order="true">
+      <classes>
+         <class name="edu.yu.einstein.wasp.integration.selenium.SelTestWaspLogin"/>
+      </classes>
+   </test>
+ 
+	-->
+   <test name="WASP Regression Testing: Base Test Class" preserve-order="true">
+	<classes>
+         <class name="edu.yu.einstein.wasp.integration.selenium.SelBaseTest"/>
+      </classes>
+   </test>
+   <test name="WASP Regression Testing: Add New PI" preserve-order="true">
+		<classes>
+         	<class name="edu.yu.einstein.wasp.integration.selenium.SelNewPI">
+         	<methods>
+         			<include name="navigateNewPIForm"></include>
+		         	<include name="confirmEmailAuth"></include>	
+		         	
+	        </methods>
+         	</class>
+      </classes>
+    </test>
+	<test name="WASP Regression Testing: Pending Lab Approve/Reject" preserve-order="true">
+			<classes>
+	         	<class name="edu.yu.einstein.wasp.integration.selenium.SelPendingLabs">
+	         	<methods>
+		         	<include name="pendingLabApprove"></include>	
+		         	<exclude name="pendingLabReject"></exclude>
+	         	</methods>
+	         	</class>
+	      </classes>
+	</test>
+	<test name="WASP Regression Testing: Add New User" preserve-order="true">
+	<classes>
+         <class name="edu.yu.einstein.wasp.integration.selenium.SelAddNewUser">
+         <methods>
+         			<include name="navigateNewUserForm"></include>
+		         	<include name="confirmEmailAuth"></include>	
+		         	
+	        </methods>
+	     </class>
+      </classes>
+   </test>
+    <test name="WASP Regression Testing: Pending User Approval" preserve-order="true">
+		<classes>
+         	<class name="edu.yu.einstein.wasp.integration.selenium.SelPendingUserApproval">
+         	<methods>
+	         	<include name="pendingUserApprove"></include>  
+	         	<include name="pendingUserReject"></include>
+	         	
+         	</methods>
+         	</class>
+      </classes>
+    </test>
+ 
+   	<test name="WASP Regression Testing: New Request" preserve-order="true">
+			<classes>
+	         	<class name="edu.yu.einstein.wasp.integration.selenium.SelNewRequest">
+	         	<methods>
+		         	<include name="requestAccessToLab"></include>	
+		         	<exclude name="createNewLabRequest"></exclude>
+		         	<include name="approveAccessToLab"></include>	
+		         	<exclude name="approveCreateNewLabRequest"></exclude>
+		         	<exclude name="rejectAccessToLab"></exclude>	
+		         	<exclude name="rejectCreateNewLabRequest"></exclude>
+	         	</methods>
+	         	</class>
+	      </classes>
+	</test>
+
+ 	<test name="WASP Regression Testing: User Profile" preserve-order="true">
+		<classes>
+         	<class name="edu.yu.einstein.wasp.integration.selenium.SelUserDetail">
+         	<methods>
+	         	<include name="myProfile"></include>
+	         	<include name="changePassword"></include>   
+	         	
+         	</methods>
+         	</class>
+      </classes>
+    </test>
+  </suite>
