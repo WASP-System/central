@@ -617,29 +617,24 @@ public class SampleDnaToLibraryController extends WaspController {
   			waspErrorMessage("sampleDetail.updated.unexpectedError");System.out.println("ROB: error 3");
 			return "redirect:/dashboard.do";
 		}
+  		Map<String, String> extraJobDetailsMap = getExtraJobDetails(job);
+  		m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);
+
   		TypeSample typeSampleLibrary = typeSampleService.getTypeSampleByIName("library");
   		Sample library = sampleService.getSampleBySampleId(libraryId);
   		if(library.getSampleId()==null || library.getSampleId().intValue()==0 || ! "library".equals(library.getTypeSample().getIName())){//not found in database or not a library
   			waspErrorMessage("sampleDetail.updated.unexpectedError");System.out.println("ROB: error 4");
   			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 		}
-  		//pull out adaptor
-  		Adaptor adaptor = null;
-  		MetaHelperWebapp sampleMetaHelper = getMetaHelperWebapp(); //new MetaHelperWebapp("sample", SampleMeta.class, request.getSession());
-  		sampleMetaHelper.setArea("genericLibrary");
-  		sampleMetaHelper.syncWithMaster(library.getSampleMeta());
-  		library.setSampleMeta((List<SampleMeta>)sampleMetaHelper.getMetaList()); // synchronized with uifields
-  		try{
-  			adaptor = adaptorService.getAdaptorByAdaptorId(Integer.valueOf( sampleMetaHelper.getMetaByName("adaptor").getV()) );
-  		} catch(MetadataException e){
-  			logger.warn("Cannot get metadata for'adaptor' : " + e.getMessage());
-  		} catch(NumberFormatException e){
-  			logger.warn("Cannot convert to numeric value for metadata for'adaptor' " + e.getMessage());
-  		}
   		
-  		
+  		//confirm these two objects exist and part of same job
+		JobSample jobSample = jobSampleService.getJobSampleByJobIdSampleId(jobId, libraryId);
+		if(jobSample.getJobSampleId()== null || jobSample.getJobSampleId().intValue()==0){
+			waspErrorMessage("sampleDetail.updated.unexpectedError");
+			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
+		}
+	
   		//is library user-submitted or facility-generated?
-  		boolean libraryIsUserSubmitted = false;
   		Sample parentMacromolecule = null;//if this remains null then this library is user-generated 
   		List<SampleSource> sampleSource = library.getSampleSource();//if library is facility-generated, there should be one row; if user-submitted library then no rows 
   		if(sampleSource.size() > 1 || sampleSource.size() < 0){
@@ -656,21 +651,93 @@ public class SampleDnaToLibraryController extends WaspController {
   			}
   		}
   		
-  		//confirm these two objects exist and part of same job
-		JobSample jobSample = jobSampleService.getJobSampleByJobIdSampleId(jobId, libraryId);
-		if(jobSample.getJobSampleId()== null || jobSample.getJobSampleId().intValue()==0){
-			waspErrorMessage("sampleDetail.updated.unexpectedError");
-			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
+  		List<String> areaList = new ArrayList<String>();
+  		Workflow workflow = job.getWorkflow();
+  		List<Workflowsubtypesample> wfssList = workflow.getWorkflowsubtypesample();
+  		for(Workflowsubtypesample wfss: wfssList){
+  			if(wfss.getSubtypeSample().getTypeSampleId().intValue() == library.getTypeSampleId().intValue()){
+  				String[] items = wfss.getSubtypeSample().getAreaList().split(",");
+  				for(String item : items){
+				  areaList.add(item);
+  				}			  
+  			}
+  		}
+	  
+  		List<SampleMeta> sampleMeta = library.getSampleMeta();
+  		MetaHelperWebapp sampleMetaHelper = getMetaHelperWebapp(); //new MetaHelperWebapp("sample", SampleMeta.class, request.getSession());
+  		List<SampleMeta> normalizedSampleMeta = new ArrayList<SampleMeta>();
+  		for(String area : areaList){
+  			if( ( parentMacromolecule == null ) || ( parentMacromolecule != null && area.equals("genericLibrary") ) ){
+  				sampleMetaHelper.setArea(area);
+  				normalizedSampleMeta.addAll(sampleMetaHelper.syncWithMaster(sampleMeta));
+  			}
+  		}
+  		library.setSampleMeta(normalizedSampleMeta);
+	  	
+		Adaptorset selectedAdaptorset = adaptorsetService.getAdaptorsetByAdaptorsetId(1);
+		m.put("adaptorsets", adaptorsetService.findAll()); // required for adaptorsets metadata control element (select:${adaptorsets}:adaptorsetId:name)
+		m.put("adaptors", selectedAdaptorset.getAdaptor()); // required for adaptors metadata control element (select:${adaptors}:adaptorId:barcodenumber)
+		List<Adaptorset> otherAdaptorsets = adaptorsetService.findAll();//should really filter this by the machine requested
+		otherAdaptorsets.remove(selectedAdaptorset);//remove this one
+		if(isRW){
+			m.put("otherAdaptorsets", otherAdaptorsets); 
 		}
-		Adaptorset selectedAdaptorset = adaptorsetService.getAdaptorsetByAdaptorsetId(adaptor.getAdaptorsetId());
+		
+		
+		
+		
+		/*HELPHELP HELP HELP
+		//prepare empty library
+		///////////Sample library = new Sample();
+		Map visibilityElementMap = new HashMap(); // specify meta elements that are to be made immutable or hidden in here
+		visibilityElementMap.put("adaptorset", MetaAttribute.FormVisibility.immutable); // adaptor is a list control but we just want to display its value
+		MetaHelperWebapp sampleMetaHelper = getMetaHelperWebapp(); //new MetaHelperWebapp("sample", SampleMeta.class, request.getSession());
+		sampleMetaHelper.setArea("genericLibrary");	//only should need this, as we're creating a new library from a DNA or RNA at the facility, but I suppose there could be an assay-specific set of metadat, but for now leave this	  
+		sampleMetaHelper.getMasterList(visibilityElementMap, SampleMeta.class); // pass in visibilityElementMap here to apply our specifications
+		try {
+			sampleMetaHelper.setMetaValueByName("adaptorset", selectedAdaptorset.getAdaptorsetId().toString());
+		} catch (MetadataException e) {
+			logger.warn("Cannot set value on 'adaptorset': " + e.getMessage() );
+		}
+		library.setSampleMeta((List<SampleMeta>) sampleMetaHelper.getMetaList());
+	*/
+	  
+	  
+	  
+	  
+  		/*
+  		//pull out adaptor
+  		Adaptor adaptor = null;
+  		MetaHelperWebapp sampleMetaHelper = getMetaHelperWebapp(); //new MetaHelperWebapp("sample", SampleMeta.class, request.getSession());
+  		sampleMetaHelper.setArea("genericLibrary");
+  		sampleMetaHelper.syncWithMaster(library.getSampleMeta());
+  		library.setSampleMeta((List<SampleMeta>)sampleMetaHelper.getMetaList()); // synchronized with uifields
+  		try{
+  			adaptor = adaptorService.getAdaptorByAdaptorId(Integer.valueOf( sampleMetaHelper.getMetaByName("adaptor").getV()) );
+  		} catch(MetadataException e){
+  			logger.warn("Cannot get metadata for'adaptor' : " + e.getMessage());
+  		} catch(NumberFormatException e){
+  			logger.warn("Cannot convert to numeric value for metadata for'adaptor' " + e.getMessage());
+  		}
+  		*/	
+
+  		
+	
+		
+		
+		
+
+		
+		
+		//Adaptorset selectedAdaptorset = adaptorsetService.getAdaptorsetByAdaptorsetId(adaptor.getAdaptorsetId());
 		m.put("adaptorsets", adaptorsetService.findAll()); // required for adaptorsets metadata control element (select:${adaptorsets}:adaptorsetId:name)
 		m.put("adaptors", selectedAdaptorset.getAdaptor()); // required for adaptors metadata control element (select:${adaptors}:adaptorId:barcodenumber)
 		m.put("job", job);
 		m.put("parentMacromolecule", parentMacromolecule);
 		m.put("library", library);
-		m.put("adaptor", adaptor);
+		//m.put("adaptor", adaptor);
 		
-		return isRW? "sampleDnaToLibrary/librarydetail_rw":"sampleDnaToLibrary/librarydetail_ro";
+		return isRW?"sampleDnaToLibrary/librarydetail_rw":"sampleDnaToLibrary/librarydetail_ro";
   }
   
   

@@ -8,52 +8,33 @@
 <tr class="FormData"><td class="CaptionTD">PI:</td><td class="DataTD"><c:out value="${job.lab.user.firstName}" /> <c:out value="${job.lab.user.lastName}" /></td></tr>
 <tr class="FormData"><td class="CaptionTD">Submitted:</td><td class="DataTD"><fmt:formatDate value="${job.createts}" type="date" /></td></tr>
 <tr class="FormData"><td class="CaptionTD">Workflow:</td><td class="DataTD"><c:out value="${job.workflow.name}" /></td></tr>
-
-<!-- 
-<c:if test="${otherAdaptorsets.size() > 0}">
-	<tr><td colspan="2">
-		<form method="GET" action="<c:url value="/sampleDnaToLibrary/createLibraryFromMacro.do" />">
-	  		<input type='hidden' name='jobId' value='<c:out value="${job.jobId}" />'/>
-	  		<input type='hidden' name='macromolSampleId' value='<c:out value="${macromoleculeSample.sampleId}" />'/>
-	  		
-				<select name="adaptorsetId" size="1" onchange="if(this.options[selectedIndex].value != 0){this.parentNode.submit();}">
-				<option value="0">--SELECT NEW ADAPTOR SET--
-				<c:forEach items="${otherAdaptorsets}" var="adaptorset">
-					<option value="<c:out value="${adaptorset.adaptorsetId}" />" ><c:out value="${adaptorset.name}" /> 
-				</c:forEach>
-				</select>
-			
-		</form>
-	</td></tr>
-</c:if>
- -->
+<c:forEach items='${extraJobDetailsMap}' var="detail">
+	<tr class="FormData"><td class="CaptionTD">  <c:out value='${detail.key}' />   </td><td class="DataTD"> <c:out value='${detail.value}' /> </td></tr>
+</c:forEach>
 </table>
-
 <br /> 
 
-<table class="data">
+
+<table class="EditTable ui-widget ui-widget-content">
 <c:if test="${parentMacromolecule != null && parentMacromolecule.sampleId > 0}">
-  	<tr><td class="label">Primary Sample Name</td><td colspan="1" class="value"><c:out value="${parentMacromolecule.name}" /></td></tr>
-  	<tr><td class="label">Primary Sample Type</td><td colspan="1" class="value"><c:out value="${parentMacromolecule.typeSample.name}" /></td></tr>
+  	<tr class="FormData"><td class="CaptionTD">Primary Sample Name: </td><td class="DataTD"><c:out value="${parentMacromolecule.name}" /></td></tr>
+  	<tr class="FormData"><td class="CaptionTD">Primary Sample Type: </td><td class="DataTD"><c:out value="${parentMacromolecule.typeSample.name}" /></td></tr>
     <c:forEach items="${parentMacromolecule.sampleMeta}" var="msm">
     	<c:if test="${fn:substringAfter(msm.k, 'Biomolecule.') == 'species'}">
-            <tr><td class="label">Primary Sample Species</td><td colspan="1" class="value"><c:out value="${msm.v}"/></td></tr>
+            <tr class="FormData"><td class="CaptionTD">Primary Sample Species: </td><td class="DataTD"><c:out value="${msm.v}"/></td></tr>
         </c:if> 
     </c:forEach> 
 </c:if>
-   	<tr><td colspan="2" class="label-centered">LIBRARY DETAILS</td></tr>
+   	<tr class="FormData"><td colspan="2" class="label-centered">LIBRARY DETAILS</td></tr>
   
-  	 <tr>
-      <td class="label">Library Name</td>
-      <td class="input"><c:out value="${library.name}" /></td>
-     </tr>
-     <tr><td class="label">Sample Type</td><td class="input">Library</td></tr>
+  	 <tr class="FormData"><td class="CaptionTD">Library Name: </td><td class="DataTD"><c:out value="${library.name}" /></td></tr>
+     <tr class="FormData"><td class="CaptionTD">Sample Type: </td><td class="DataTD">Library</td></tr>
           <c:set var="_area" value = "library" scope="request"/>
 	 <c:set var="_metaList" value = "${library.sampleMeta}" scope="request" />		
      <c:import url="/WEB-INF/jsp/meta_ro.jsp" />
-    <tr><td colspan="2" class="value"><a href="<c:url value="/sampleDnaToLibrary/listJobSamples/${job.jobId}.do"/>">Cancel</a>&nbsp;
+    <tr class="FormData"><td colspan="2" class="DataTD"><a href="<c:url value="/sampleDnaToLibrary/listJobSamples/${job.jobId}.do"/>">Cancel</a>&nbsp;
 	<sec:authorize access="hasRole('su') or hasRole('ft')"> 
-	  <a href="<c:url value="/sampleDnaToLibrary/librarydetail_rw/${job.jobId}/${library.sampleId}.do" />">Edit</a>
+	  <a href="<c:url value="/sampleDnaToLibrary/librarydetail_rw/${job.jobId}/${library.sampleId}.do"/>">Edit</a>
 	 </sec:authorize>	
 	 </td></tr>
 </table>

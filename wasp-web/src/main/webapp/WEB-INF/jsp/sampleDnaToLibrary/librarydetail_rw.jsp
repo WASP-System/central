@@ -8,15 +8,16 @@
 <tr class="FormData"><td class="CaptionTD">PI:</td><td class="DataTD"><c:out value="${job.lab.user.firstName}" /> <c:out value="${job.lab.user.lastName}" /></td></tr>
 <tr class="FormData"><td class="CaptionTD">Submitted:</td><td class="DataTD"><fmt:formatDate value="${job.createts}" type="date" /></td></tr>
 <tr class="FormData"><td class="CaptionTD">Workflow:</td><td class="DataTD"><c:out value="${job.workflow.name}" /></td></tr>
-
-<!-- 
-<c:if test="${otherAdaptorsets.size() > 0}">
-	<tr><td colspan="2">
+<c:forEach items='${extraJobDetailsMap}' var="detail">
+	<tr class="FormData"><td class="CaptionTD">  <c:out value='${detail.key}' />   </td><td class="DataTD"> <c:out value='${detail.value}' /> </td></tr>
+</c:forEach>
+<c:if test="${otherAdaptorsets != null && otherAdaptorsets.size() > 0}">
+	<tr class="FormData"><td colspan="2">
 		<form method="GET" action="<c:url value="/sampleDnaToLibrary/createLibraryFromMacro.do" />">
-	  		<input type='hidden' name='jobId' value='<c:out value="${job.jobId}" />'/>
-	  		<input type='hidden' name='macromolSampleId' value='<c:out value="${macromoleculeSample.sampleId}" />'/>
+	  		<input class="FormElement ui-widget-content ui-corner-all" type='hidden' name='jobId' value='<c:out value="${job.jobId}" />'/>
+	  		<input class="FormElement ui-widget-content ui-corner-all" type='hidden' name='macromolSampleId' value='<c:out value="${macromoleculeSample.sampleId}" />'/>
 	  		
-				<select name="adaptorsetId" size="1" onchange="if(this.options[selectedIndex].value != 0){this.parentNode.submit();}">
+				<select class="FormElement ui-widget-content ui-corner-all" name="adaptorsetId" size="1" onchange="if(this.options[selectedIndex].value != 0){this.parentNode.submit();}">
 				<option value="0">--SELECT NEW ADAPTOR SET--
 				<c:forEach items="${otherAdaptorsets}" var="adaptorset">
 					<option value="<c:out value="${adaptorset.adaptorsetId}" />" ><c:out value="${adaptorset.name}" /> 
@@ -26,9 +27,7 @@
 		</form>
 	</td></tr>
 </c:if>
- -->
 </table>
-
 <br /> 
 
 <form:form  cssClass="FormGrid" commandName="library">
@@ -58,7 +57,7 @@
      <tr class="FormData"><td class="CaptionTD">Sample Type:</td><td class="DataTD">Library</td><td>&nbsp;</td></tr>
      <c:set var="_area" value = "sample" scope="request"/>
 	 <c:set var="_metaList" value = "${library.sampleMeta}" scope="request" />		
-     <c:import url="/WEB-INF/jsp/sampleDnaToLibrary/meta_rw_mod.jsp"/>
+     <c:import url="/WEB-INF/jsp/meta_rw.jsp"/>
      <sec:authorize access="hasRole('su') or hasRole('ft')">
     <tr class="FormData">
               <td colspan="3" align="left" class="submitBottom">
