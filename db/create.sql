@@ -779,8 +779,7 @@ create table typesamplecategory (
   iname varchar(250), 
   name varchar(250),
 
-  constraint unique index u_typesamplecategory_iname (iname),
-  constraint unique index u_typesamplecategory_name (name)
+  constraint unique index u_typesamplecategory_iname (iname)
 ) ENGINE=InnoDB charset=utf8;
 
 insert into typesamplecategory values
@@ -808,6 +807,7 @@ insert into typesample values
 (7, 1, 'protein', 'Protein'),
 (8, 1, 'cellPrimary', 'Primary Cell'),
 (9, 1, 'cellLine', 'Cell Line');
+(10, 1, 'facilityLibrary', 'Library'),
 
 
 
