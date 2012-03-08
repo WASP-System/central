@@ -136,11 +136,19 @@ public class MetaHelper {
 	
 	/**
 	 * Get the last generated list of metadata. 
-	 * Must call getMasterList(), getFromRequest(), getFromJsonForm() or syncWithMaster() on this object first or will return null.
+	 * Must call setMetaList(), getMasterList(), getFromRequest(), getFromJsonForm() or syncWithMaster() on this object first or will return null.
 	 * @return
 	 */
 	public List<? extends MetaBase> getMetaList(){
 		return this.lastList;
+	}
+	
+	/**
+	 * Sets the meta list stored in metaHelper and updates properties according to master list for relevant 
+	 * @param list
+	 */
+	public void setMetaList(List<? extends MetaBase> list){
+		this.lastList = list;
 	}
 	
 	/**
@@ -290,6 +298,31 @@ public class MetaHelper {
 		for (T meta : list) {
 			if (meta.getK().equals(area + "." + name) ) {
 				return meta;
+			}
+		} 
+		throw new MetadataException("Cannot find metadata with name: "+name);
+	}
+	
+	/**
+	 * Finds a {@link MetaBase} derived object by name in the last list generated and returns its value
+	 * @param name
+	 * @return {@link MetaBase} or null if not found 
+	 * @throws MetadataException
+	 */
+	public  String getMetaValueByName(String name) throws MetadataException{
+		return getMetaByName(name, this.lastList).getV();
+	}
+	
+	/**
+	 * Finds a {@link MetaBase} derived object by name in the provided list and returns its value
+	 * @param name
+	 * @return {@link MetaBase} derived object or null if not found 
+	 * @throws MetadataException 
+	 */
+	public <T extends MetaBase> String getMetaValueByName(String name, List<T> list) throws MetadataException{
+		for (T meta : list) {
+			if (meta.getK().equals(area + "." + name) ) {
+				return meta.getV();
 			}
 		} 
 		throw new MetadataException("Cannot find metadata with name: "+name);
