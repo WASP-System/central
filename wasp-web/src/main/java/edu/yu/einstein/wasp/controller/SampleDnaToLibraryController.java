@@ -496,7 +496,7 @@ public class SampleDnaToLibraryController extends WaspController {
 			logger.warn("Cannot set value on 'adaptorset': " + e.getMessage() );
 		}
 		library.setSampleMeta((List<SampleMeta>) sampleMetaHelper.getMetaList());
-		m.put("library", library); 	
+		m.put("sample", library); 	
 		
 		return "sampleDnaToLibrary/createLibrary";
 
@@ -595,7 +595,7 @@ public class SampleDnaToLibraryController extends WaspController {
 		  m.put("job", jobForThisSample);
 		  libraryForm.setName(newLibraryName);
 		  libraryForm.setSampleMeta(sampleMetaListFromForm);
-		  m.put("library", libraryForm); 		  
+		  m.put("sample", libraryForm); 		  
 
 		  return "sampleDnaToLibrary/createLibrary";
 	  }
