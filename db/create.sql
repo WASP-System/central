@@ -805,8 +805,8 @@ insert into typesample values
 (6, 1, 'tissue', 'Tissue'),
 (7, 1, 'protein', 'Protein'),
 (8, 1, 'cellPrimary', 'Primary Cell'),
-(9, 1, 'cellLine', 'Cell Line');
-(10, 1, 'facilityLibrary', 'Library'),
+(9, 1, 'cellLine', 'Cell Line'),
+(10, 1, 'facilityLibrary', 'Library');
 
 
 
