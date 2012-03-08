@@ -28,7 +28,7 @@
 
 <br /> 
 
-<form:form  cssClass="FormGrid" commandName="library">
+<form:form  cssClass="FormGrid" commandName="sample">
  <input class="FormElement ui-widget-content ui-corner-all" type='hidden' name='jobId' value='<c:out value="${job.jobId}" />'/>
  <input class="FormElement ui-widget-content ui-corner-all" type='hidden' name='macromolSampleId' value='<c:out value="${macromoleculeSample.sampleId}" />'/>
  <input class="FormElement ui-widget-content ui-corner-all" type='hidden' name='adaptorsetId' value='<c:out value="${adaptorsets.get(0).adaptorsetId}" />'/>
