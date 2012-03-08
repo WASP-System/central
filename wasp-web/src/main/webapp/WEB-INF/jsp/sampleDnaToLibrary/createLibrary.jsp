@@ -31,7 +31,7 @@
 <form:form  cssClass="FormGrid" commandName="library">
  <input class="FormElement ui-widget-content ui-corner-all" type='hidden' name='jobId' value='<c:out value="${job.jobId}" />'/>
  <input class="FormElement ui-widget-content ui-corner-all" type='hidden' name='macromolSampleId' value='<c:out value="${macromoleculeSample.sampleId}" />'/>
- <input class="FormElement ui-widget-content ui-corner-all" type='hidden' name='adaptorsetId' value='<c:out value="${selectedAdaptorset.adaptorsetId}" />'/>
+ <input class="FormElement ui-widget-content ui-corner-all" type='hidden' name='adaptorsetId' value='<c:out value="${adaptorsets.get(0).adaptorsetId}" />'/>
  
 <table class="EditTable ui-widget ui-widget-content">
   	<tr class="FormData"><td class="CaptionTD">Primary Sample Name:</td><td colspan="2" class="DataTD"><c:out value="${macromoleculeSample.name}" /></td></tr>
@@ -51,7 +51,7 @@
      <tr class="FormData"><td class="CaptionTD">Sample Type:</td><td class="DataTD">Library</td><td>&nbsp;</td></tr>
      <c:set var="_area" value = "sample" scope="request"/>
 	 <c:set var="_metaList" value = "${library.sampleMeta}" scope="request" />		
-     <c:import url="/WEB-INF/jsp/sampleDnaToLibrary/meta_rw_mod.jsp"/>
+     <c:import url="/WEB-INF/jsp/meta_rw.jsp" />
      <sec:authorize access="hasRole('su') or hasRole('ft')">
     <tr class="FormData">
               <td colspan="3" align="left" class="submitBottom">

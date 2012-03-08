@@ -18,14 +18,13 @@
 				
 			    <%-- this tag will define selectItems/itemValue/itemLabel request attributes --%>
 			    <wasp:metaSelect control="${_meta.property.control}"/>
-       
-				<select class="FormElement ui-widget-content ui-corner-all" name="${_area}Meta_${_meta.k}" id="${id}" class="FormElement ui-widget-content ui-corner-all">
-					<c:if test= "${_meta.property.formVisibility != 'immutable'}">
+       			<select class="FormElement ui-widget-content ui-corner-all" name="${_area}Meta_${_meta.k}" id="${id}" class="FormElement ui-widget-content ui-corner-all">
+					<c:if test= "${fn:length(selectItems) > 1 && _meta.property.formVisibility != 'immutable'}">
 						<option value=''><fmt:message key="wasp.default_select.label"/></option>
 					</c:if>
 					<c:forEach var="option" items="${selectItems}">
-						<c:if test="${option[itemValue] == _meta.v || _meta.property.formVisibility != 'immutable'}">
-							<option value="${option[itemValue]}"<c:if test="${option[itemValue] == _meta.v}"> selected</c:if>>
+						<c:if test="${fn:length(selectItems) == 1 || option[itemValue] == _meta.v || _meta.property.formVisibility != 'immutable'}">
+							<option value="${option[itemValue]}"<c:if test="${fn:length(selectItems) == 1 || option[itemValue] == _meta.v}"> selected</c:if>>
 							<c:out value="${option[itemLabel]}"/></option>
 						</c:if>
 					</c:forEach>																									

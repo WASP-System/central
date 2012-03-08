@@ -43,20 +43,21 @@
         </bean>
       
         <bean parent="genericLibraryUiField">
-          <property name="baseName" value="adaptor" />
-          <property name="label" value="Adaptorset" />
+          <property name="baseName" value="adaptorset" />
+          <property name="label" value="Adaptor Set" />
           <property name="metaposition" value="40" />
-          <property name="control" value="select:truseqIndexedDna:TruSEQ INDEXED DNA" />
-          <!-- TODO:<property name="control" value="select:${adaptorset}:code:name" /> -->
+          <property name="control" value="select:#{dollar}{adaptorsets}:adaptorsetId:name" />
+          <property name="constraint" value="NotEmpty" />
+          <property name="error" value="You must choose an adaptor set" />
         </bean>
         
         <bean parent="genericLibraryUiField">
-          <property name="baseName" value="adaptorindex" />
-          <property name="label" value="Adaptor Index" />
+          <property name="baseName" value="adaptor" />
+          <property name="label" value="Adaptor" />
           <property name="metaposition" value="50" />
-          <property name="control" value="select:1:1;2:2;3:3;4:4;5:5;6:6;7:7;8:8" />
+          <property name="control" value="select:#{dollar}{adaptors}:adaptorId:name" />
           <property name="constraint" value="NotEmpty" />
-          <!-- <TODO: property name="control" value="select:${adaptorindex}:code:name" /> -->
+          <property name="error" value="You must choose an adaptor" />
         </bean>
         
         <bean parent="genericLibraryUiField">

@@ -34,28 +34,28 @@
   		<list>
   			<bean class="edu.yu.einstein.wasp.model.Adaptor">
   				<property name="IName" value="illuminaTrueseqDnaIndexed1" />
-  				<property name="name" value="Illumina DNA Indexed adaptor 1" />
+  				<property name="name" value="TrueSeq Adaptor, Index 1" />
   				<property name="sequence" value="AGATCGGAAGAGCGGTTCAGC" />
   				<property name="barcodesequence" value="ATCACG" />
   				<property name="barcodenumber" value="1" />
   			</bean>
   			<bean class="edu.yu.einstein.wasp.model.Adaptor">
   				<property name="IName" value="illuminaTrueseqDnaIndexed2" />
-  				<property name="name" value="Illumina DNA Indexed adaptor 2" />
+  				<property name="name" value="TrueSeq Adaptor, Index 2" />
   				<property name="sequence" value="AGATCGGAAGAGCGGTTCAGC" />
   				<property name="barcodesequence" value="CGATGT" />
   				<property name="barcodenumber" value="2" />
   			</bean>
   			<bean class="edu.yu.einstein.wasp.model.Adaptor">
   				<property name="IName" value="illuminaTrueseqDnaIndexed3" />
-  				<property name="name" value="Illumina DNA Indexed adaptor 3" />
+  				<property name="name" value="TrueSeq Adaptor, Index 3" />
   				<property name="sequence" value="AGATCGGAAGAGCGGTTCAGC" />
   				<property name="barcodesequence" value="TTAGGC" />
   				<property name="barcodenumber" value="3" />
   			</bean>
   			<bean class="edu.yu.einstein.wasp.model.Adaptor">
   				<property name="IName" value="illuminaTrueseqDnaIndexed4" />
-  				<property name="name" value="Illumina DNA Indexed adaptor 4" />
+  				<property name="name" value="TrueSeq Adaptor, Index 4" />
   				<property name="sequence" value="AGATCGGAAGAGCGGTTCAGC" />
   				<property name="barcodesequence" value="TGACCA" />
   				<property name="barcodenumber" value="4" />

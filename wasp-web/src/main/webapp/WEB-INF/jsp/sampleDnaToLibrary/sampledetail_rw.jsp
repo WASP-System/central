@@ -22,7 +22,7 @@
      <tr class="FormData"><td class="CaptionTD">Sample Type:</td><td class="DataTD"><c:out value="${sample.typeSample.name}" /></td><td class="CaptionTD error"><form:errors path="" /></td></tr>
      <c:set var="_area" value = "sample" scope="request"/>
 	 <c:set var="_metaList" value = "${sample.sampleMeta}" scope="request" />		
-     <c:import url="/WEB-INF/jsp/meta_rw.jsp"/>
+     <c:import url="/WEB-INF/jsp/meta_rw.jsp" />
      <sec:authorize access="hasRole('su') or hasRole('ft')">
     <tr class="FormData">
         <td colspan="3" align="left" class="submitBottom">

@@ -49,7 +49,7 @@
      <tr><td class="label">Sample Type</td><td class="input">Library</td></tr>
           <c:set var="_area" value = "library" scope="request"/>
 	 <c:set var="_metaList" value = "${library.sampleMeta}" scope="request" />		
-     <c:import url="/WEB-INF/jsp/sampleDnaToLibrary/meta_ro_mod.jsp"/>
+     <c:import url="/WEB-INF/jsp/meta_ro.jsp" />
     <tr><td colspan="2" class="value"><a href="<c:url value="/sampleDnaToLibrary/listJobSamples/${job.jobId}.do"/>">Cancel</a>&nbsp;
 	<sec:authorize access="hasRole('su') or hasRole('ft')"> 
 	  <a href="<c:url value="/sampleDnaToLibrary/librarydetail_rw/${job.jobId}/${library.sampleId}.do" />">Edit</a>

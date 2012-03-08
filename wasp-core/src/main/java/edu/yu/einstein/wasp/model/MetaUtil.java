@@ -91,7 +91,7 @@ public final class MetaUtil {
 	/**
 	 * Creates and returns a {@link Control} object by parsing supplied message (controlStr).
 	 * In controlStr a select box is represented as either
-	 * 1) select:${beanName}:itemValue:itemLabel or
+	 * 1) select:${beanName}:beanAttributeNameForItemValue:beanAttributeNameForItemLabel (e.g. ${user}:userId:lastName) or
 	 * 2) select:item1Value:item1Label;item2Value:item2Label etc
 	 * @param controlStr
 	 * @return @{link Control} (null if controlStr equals null)

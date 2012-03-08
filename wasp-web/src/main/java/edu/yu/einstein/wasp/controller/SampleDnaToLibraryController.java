@@ -37,6 +37,7 @@ import edu.yu.einstein.wasp.model.JobSample;
 import edu.yu.einstein.wasp.model.JobCell;
 import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
+import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleCell;
 import edu.yu.einstein.wasp.model.SampleMeta;
@@ -167,6 +168,7 @@ public class SampleDnaToLibraryController extends WaspController {
 
     List<SampleMeta> sampleDnaLToLibrarySampleMeta = metaHelperWebapp.syncWithMaster(sample.getSampleMeta());
     
+   
     m.put("sample", sample); 
     m.put("sampleId", sampleId); 
     m.put("coreMeta", coreSampleMeta); 
@@ -475,18 +477,25 @@ public class SampleDnaToLibraryController extends WaspController {
 		m.put("job", job);
 
 		Adaptorset selectedAdaptorset = adaptorsetService.getAdaptorsetByAdaptorsetId(adaptorsetId);
-		m.put("selectedAdaptorset", selectedAdaptorset);
+		m.put("adaptorsets", adaptorsetService.findAll()); // required for adaptorsets metadata control element (select:${adaptorsets}:adaptorsetId:name)
+		m.put("adaptors", selectedAdaptorset.getAdaptor()); // required for adaptors metadata control element (select:${adaptors}:adaptorId:barcodenumber)
 		List<Adaptorset> otherAdaptorsets = adaptorsetService.findAll();//should really filter this by the machine requested
 		otherAdaptorsets.remove(selectedAdaptorset);//remove this one
 		m.put("otherAdaptorsets", otherAdaptorsets); 
 		  
 		//prepare empty library
 		Sample library = new Sample();
-	  
+		Map visibilityElementMap = new HashMap(); // specify meta elements that are to be made immutable or hidden in here
+		visibilityElementMap.put("adaptorset", MetaAttribute.FormVisibility.immutable); // adaptor is a list control but we just want to display its value
 		MetaHelperWebapp sampleMetaHelper = getMetaHelperWebapp(); //new MetaHelperWebapp("sample", SampleMeta.class, request.getSession());
 		sampleMetaHelper.setArea("genericLibrary");	//only should need this, as we're creating a new library from a DNA or RNA at the facility, but I suppose there could be an assay-specific set of metadat, but for now leave this	  
-		library.setSampleMeta(sampleMetaHelper.getMasterList(SampleMeta.class));
-		  
+		sampleMetaHelper.getMasterList(visibilityElementMap, SampleMeta.class); // pass in visibilityElementMap here to apply our specifications
+		try {
+			sampleMetaHelper.setMetaValueByName("adaptorset", selectedAdaptorset.getAdaptorsetId().toString());
+		} catch (MetadataException e) {
+			logger.warn("Cannot set value on 'adaptorset': " + e.getMessage() );
+		}
+		library.setSampleMeta((List<SampleMeta>) sampleMetaHelper.getMetaList());
 		m.put("library", library); 	
 		
 		return "sampleDnaToLibrary/createLibrary";
@@ -553,11 +562,12 @@ public class SampleDnaToLibraryController extends WaspController {
 			  break;
 		  }
 	  }
-
+	  Map visibilityElementMap = new HashMap(); // specify meta elements that are to be made immutable or hidden in here
+	  visibilityElementMap.put("adaptorset", MetaAttribute.FormVisibility.immutable); // adaptor is a list control but we just want to display its value
 	  MetaHelperWebapp sampleMetaHelper = getMetaHelperWebapp(); //new MetaHelperWebapp("sample", SampleMeta.class, request.getSession());
 	  List<SampleMeta> sampleMetaListFromForm = new ArrayList<SampleMeta>();
 	  sampleMetaHelper.setArea("genericLibrary");
-	  sampleMetaListFromForm.addAll(sampleMetaHelper.getFromRequest(request, SampleMeta.class));
+	  sampleMetaListFromForm.addAll(sampleMetaHelper.getFromRequest(request, visibilityElementMap, SampleMeta.class));
 	  
 	  //check of errors in the metadat
 	  getMetaHelperWebapp().validate(sampleMetaListFromForm, result);
@@ -573,8 +583,10 @@ public class SampleDnaToLibraryController extends WaspController {
 			  waspErrorMessage("sampleDetail.updated.error");
 		  }
 		  
+		  
 		  Adaptorset selectedAdaptorset = adaptorsetService.getAdaptorsetByAdaptorsetId(adaptorsetId);
-		  m.put("selectedAdaptorset", selectedAdaptorset);
+		  m.put("adaptorsets", adaptorsetService.findAll()); // required for adaptorsets metadata control element (select:${adaptorsets}:adaptorsetId:name)
+		  m.put("adaptors", selectedAdaptorset.getAdaptor()); // required for adaptors metadata control element (select:${adaptors}:adaptorId:barcodenumber)
 		  List<Adaptorset> otherAdaptorsets = adaptorsetService.findAll();//should really filter this by the machine requested
 		  otherAdaptorsets.remove(selectedAdaptorset);//remove this one
 		  m.put("otherAdaptorsets", otherAdaptorsets); 
@@ -703,11 +715,16 @@ public class SampleDnaToLibraryController extends WaspController {
 		}
   		//pull out adaptor
   		Adaptor adaptor = null;
-  		List<SampleMeta> libraryMetaList = library.getSampleMeta();
-  		for(SampleMeta libraryMeta : libraryMetaList){
-  			if(libraryMeta.getK().indexOf("adaptorindex") > -1){
-  				adaptor = adaptorService.getAdaptorByAdaptorId(new Integer(libraryMeta.getV()));
-  			}
+  		MetaHelperWebapp sampleMetaHelper = getMetaHelperWebapp(); //new MetaHelperWebapp("sample", SampleMeta.class, request.getSession());
+  		sampleMetaHelper.setArea("genericLibrary");
+  		sampleMetaHelper.syncWithMaster(library.getSampleMeta());
+  		library.setSampleMeta((List<SampleMeta>)sampleMetaHelper.getMetaList()); // synchronized with uifields
+  		try{
+  			adaptor = adaptorService.getAdaptorByAdaptorId(Integer.valueOf( sampleMetaHelper.getMetaByName("adaptor").getV()) );
+  		} catch(MetadataException e){
+  			logger.warn("Cannot get metadata for'adaptor' : " + e.getMessage());
+  		} catch(NumberFormatException e){
+  			logger.warn("Cannot convert to numeric value for metadata for'adaptor' " + e.getMessage());
   		}
   		
   		
@@ -735,7 +752,9 @@ public class SampleDnaToLibraryController extends WaspController {
 			waspErrorMessage("sampleDetail.updated.unexpectedError");
 			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 		}
-
+		Adaptorset selectedAdaptorset = adaptorsetService.getAdaptorsetByAdaptorsetId(adaptor.getAdaptorsetId());
+		m.put("adaptorsets", adaptorsetService.findAll()); // required for adaptorsets metadata control element (select:${adaptorsets}:adaptorsetId:name)
+		m.put("adaptors", selectedAdaptorset.getAdaptor()); // required for adaptors metadata control element (select:${adaptors}:adaptorId:barcodenumber)
 		m.put("job", job);
 		m.put("parentMacromolecule", parentMacromolecule);
 		m.put("library", library);
