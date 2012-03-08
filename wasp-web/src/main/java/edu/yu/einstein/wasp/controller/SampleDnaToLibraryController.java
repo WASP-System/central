@@ -1,8 +1,11 @@
 package edu.yu.einstein.wasp.controller;
 
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.HashMap;
@@ -21,7 +24,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -32,6 +37,7 @@ import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Adaptorset;
+import edu.yu.einstein.wasp.model.AdaptorsetResourceCategory;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobSample;
 import edu.yu.einstein.wasp.model.JobCell;
@@ -53,6 +59,7 @@ import edu.yu.einstein.wasp.model.Workflow;
 import edu.yu.einstein.wasp.model.Workflowsubtypesample;
 import edu.yu.einstein.wasp.service.AdaptorService;
 import edu.yu.einstein.wasp.service.AdaptorsetService;
+import edu.yu.einstein.wasp.service.AdaptorsetResourceCategoryService;
 import edu.yu.einstein.wasp.service.SampleMetaService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.SampleSourceService;
@@ -89,6 +96,8 @@ public class SampleDnaToLibraryController extends WaspController {
   private AdaptorService adaptorService;
   @Autowired
   private AdaptorsetService adaptorsetService;
+  @Autowired
+  private AdaptorsetResourceCategoryService adaptorsetResourcecategoryService;
   @Autowired
   private TypeSampleService typeSampleService;
   @Autowired
@@ -283,48 +292,27 @@ public class SampleDnaToLibraryController extends WaspController {
 		  waspErrorMessage("sampleDetail.updated.unexpectedError");
 		  return "redirect:/dashboard.do";
 	  }
-	  
-	  Map<String, String> extraJobDetailsMap = new HashMap<String, String>();
-	  //get some additional job info:
-	  List<JobResourcecategory> jobResourceCategoryList = job.getJobResourcecategory();
-	  for(JobResourcecategory jrc : jobResourceCategoryList){
-		  if(jrc.getResourceCategory().getTypeResource().getIName().equals("mps")){
-			  extraJobDetailsMap.put("resource", jrc.getResourceCategory().getName());
-			  break;
-		  }
+	  m.addAttribute("job", job);
+
+	  Map<String, String> extraJobDetailsMap = getExtraJobDetails(job);
+	  m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);
+
+	  List<Adaptor> allAdaptors = adaptorService.findAll();
+	  Map adaptorList = new HashMap();
+	  for(Adaptor adaptor : allAdaptors){
+		  adaptorList.put(adaptor.getAdaptorId().toString(), adaptor);
 	  }
-	  for(JobMeta jobMeta : job.getJobMeta()){
-		  if(jobMeta.getK().indexOf("readLength") != -1){
-			  extraJobDetailsMap.put("readLength", jobMeta.getV());
-		  }
-		  if(jobMeta.getK().indexOf("readType") != -1){
-			  extraJobDetailsMap.put("readType", jobMeta.getV());
-		  }
-	  }
+	  m.addAttribute("adaptors", adaptorList);
+	  List<Adaptorset> adaptorsetList = adaptorsetService.findAll();
+	  m.addAttribute("adaptorsets", adaptorsetList);
+  
+	  //submittedSamples include all samples (both macromolecules and libraries) that were submitted by user
+	  //it DOES NOT include facility-generated libraries
+	  List<Sample> submittedSamples = getSubmittedSamples(job); 
 	  
-	  
-	  //For a list of the samples initially submitted to a job, pull from table jobcell and exclude duplicates
-	  //(table jobsample is not appropriate, as it will contain libraries made by the facility from submitted macromolecules
-	  Set<Sample> samples = new HashSet<Sample>();//use this to store a set of unique samples submitted by the user for a specific job; use treeset as it is ordered (by what I don't know)
-	  Map filterJobCell = new HashMap();
-	  filterJobCell.put("jobId", job.getJobId());
-	  List<JobCell> jobCells = jobCellService.findByMap(filterJobCell);
-	  for(JobCell jobCell : jobCells){
-		  List<SampleCell> sampleCells = jobCell.getSampleCell();
-		  for(SampleCell sampleCell : sampleCells){
-			   samples.add(sampleCell.getSample());
-		  }
-	  }
-	  
-	  List<Sample> userSampleList = new ArrayList<Sample>();
 	  List<String> receivedList = new ArrayList<String>();
-	  List<Integer> librariesPerSampleList = new ArrayList<Integer>();
-	  
-	  List<Sample> userSuppliedMacromoleculeList = new ArrayList<Sample>();
-	  List<Sample> userSuppliedLibraryList = new ArrayList<Sample>();
-	  List<String> sampleMacroReceivedList = new ArrayList<String>();
-	  List<String> sampleLibReceivedList = new ArrayList<String>();
-	  for(Sample sample : samples){
+	  List<Integer> librariesPerSampleList = new ArrayList<Integer>();//will be used for rowspan on jsp
+	  for(Sample sample : submittedSamples){
 		  
 		  String sampleReceived = "";
 		  int numberLibrariesForThisSample = 0;
@@ -342,105 +330,26 @@ public class SampleDnaToLibraryController extends WaspController {
 				}
 			}
 	  	  }
-		  		  
+		  receivedList.add(sampleReceived);
+		  
 		  if(sample.getTypeSample().getIName().equals("rna") || sample.getTypeSample().getIName().equals("dna")){
-			userSuppliedMacromoleculeList.add(sample);
-			sampleMacroReceivedList.add(sampleReceived);
-			//are there any libraries for this sample?
-			List<SampleSource> librariesForThisSample = sample.getSampleSourceViaSourceSampleId();
-			numberLibrariesForThisSample = librariesForThisSample.size();
+			  List<SampleSource> librariesForThisSample = sample.getSampleSourceViaSourceSampleId();//how many facility-generated libraries for this macromolecule sample
+			  numberLibrariesForThisSample = librariesForThisSample.size();
 		  }
 		  else if(sample.getTypeSample().getIName().equals("library")){
-			  userSuppliedLibraryList.add(sample);
-			  sampleLibReceivedList.add(sampleReceived);
-			  numberLibrariesForThisSample++;
-		  }
-		  userSampleList.add(sample);
-		  receivedList.add(sampleReceived);
+			  numberLibrariesForThisSample++;//must be one
+		  }		  
 		  librariesPerSampleList.add(new Integer(numberLibrariesForThisSample));
 	  }
-	
-	  List<Adaptor> allAdaptors = adaptorService.findAll();
-	  Map adaptorList = new HashMap();
-	  for(Adaptor adaptor : allAdaptors){
-		  adaptorList.put(adaptor.getAdaptorId().toString(), adaptor);
-	  }
-	  List<Adaptorset> adaptorsetList = adaptorsetService.findAll();
-	  
-	  /*
-	  Integer jobSubmitterId = job.getUserId();
-	  for(JobSample jobSample : job.getJobSample()){
-		  if(jobSample.getSample().getTypeSample().getTypeSampleId()==1 || jobSample.getSample().getTypeSample().getTypeSampleId()==2){
-			  userSuppliedMacromoleculeList.add(jobSample.getSample());
-		  }
-		  else if(jobSample.getSample().getTypeSample().getTypeSampleId()==3){
-			  userSuppliedLibraryList.add(jobSample.getSample());
-		  }
-	  }
-	  */
-	  m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);
-	  m.addAttribute("adaptorsets", adaptorsetList);
-	  m.addAttribute("adaptors", adaptorList);
-	  m.addAttribute("samples", userSampleList);
+	 
+	  m.addAttribute("samplesSubmitted", submittedSamples);
 	  m.addAttribute("received", receivedList);
 	  m.addAttribute("librariespersample", librariesPerSampleList);
-	  
-	  m.addAttribute("sampleMacroReceivedList", sampleMacroReceivedList);
-	  m.addAttribute("sampleLibReceivedList", sampleLibReceivedList);
-	  m.addAttribute("job", job);
-	  m.addAttribute("userSuppliedMacromoleculeList", userSuppliedMacromoleculeList);
-	  m.addAttribute("userSuppliedLibraryList", userSuppliedLibraryList);
-	  //m.put("libraries", libraries);
 
-	  /*
-	  Sample sample = sampleService.getSampleBySampleId(sampleId); 
-
-    MetaHelper metaHelper = getMetaHelper();
-    List<SampleMeta> coreSampleMeta = metaHelper.syncWithMaster(sample.getSampleMeta());
-
-    metaHelper.setArea("sampleDnaToLibrary");
-
-    List<SampleMeta> sampleDnaLToLibrarySampleMeta = metaHelper.syncWithMaster(sample.getSampleMeta());
-    
-    m.put("sample", sample); 
-    m.put("sampleId", sampleId); 
-    m.put("coreMeta", coreSampleMeta); 
-    m.put("sampleDnaToLibSampleMeta", sampleDnaLToLibrarySampleMeta); 
-
-    m.put("area", metaHelper.getArea());
-    m.put("parentarea", metaHelper.getParentArea());
-  */
-
-    return "sampleDnaToLibrary/listJobSamples";
+	  return "sampleDnaToLibrary/listJobSamples";
   }
 
-  @RequestMapping(value = "/updateLibrary/{sampleId}", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('su') or hasRole('ft')")
-	public String updateLibrary(@PathVariable("sampleId") Integer sampleId,
-		/*	@Valid User userForm, BindingResult result, SessionStatus status, */
-			ModelMap m) {
-	  
-	  Sample sample= sampleService.getSampleBySampleId(sampleId);
-	  List<SampleMeta> sampleMeta = sample.getSampleMeta();//mySample.getMetaList();
-	  MetaHelperWebapp sampleMetaHelper = getMetaHelperWebapp(); //new MetaHelperWebapp("sample", SampleMeta.class, request.getSession());
-	  sampleMetaHelper.setArea("genericLibrary");
-	  List<SampleMeta> normalizedSampleMeta = sampleMetaHelper.syncWithMaster(sampleMeta);
-	  
-	  sampleMetaHelper.setArea("genericBiomolecule");
-	  normalizedSampleMeta.addAll(sampleMetaHelper.syncWithMaster(sampleMeta));
-	  
-	  
-	  sample.setSampleMeta(normalizedSampleMeta);
-	  
-	  
-	  
-	  m.put("sample", sample); 
-	  
-	  //return "redirect:/dashboard.do";
-	  return "sampleDnaToLibrary/updateLibrary";
-  }
-  
-  @RequestMapping(value = "/createLibraryFromMacro", method = RequestMethod.GET)//here, macromolSampleId represents a macromolecule (genomic DNA or RNA) submitted to facility for conversion to a library
+   @RequestMapping(value = "/createLibraryFromMacro", method = RequestMethod.GET)//here, macromolSampleId represents a macromolecule (genomic DNA or RNA) submitted to facility for conversion to a library
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public String createLibrary(@RequestParam("macromolSampleId") Integer macromolSampleId,
 			@RequestParam("adaptorsetId") Integer adaptorsetId,//this is the selectedAdaptorSet's Id
@@ -461,6 +370,9 @@ public class SampleDnaToLibraryController extends WaspController {
   			waspErrorMessage("sampleDetail.updated.unexpectedError");
 			return "redirect:/dashboard.do";
 		}
+  		Map<String, String> extraJobDetailsMap = getExtraJobDetails(job);
+  		m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);
+
   		Sample macromoleculeSample = sampleService.getSampleBySampleId(macromolSampleId);
 		if(macromoleculeSample.getSampleId()==null || macromoleculeSample.getSampleId().intValue()==0){//not found in database
 			waspErrorMessage("sampleDetail.updated.unexpectedError");
@@ -503,31 +415,28 @@ public class SampleDnaToLibraryController extends WaspController {
   	}
  
   
-  
-  
-  
-  
-  
   @RequestMapping(value = "/createLibraryFromMacro", method = RequestMethod.POST)//here, macromolSampleId represents a macromolecule (genomic DNA or RNA) submitted to facility for conversion to a library
-	@PreAuthorize("hasRole('su') or hasRole('ft')")
-	public String createLibrary(@RequestParam("macromolSampleId") Integer macromolSampleId,
-			@RequestParam("adaptorsetId") Integer adaptorsetId,//this is the selectedAdaptorSet's Id
-			@RequestParam("jobId") Integer jobId, 
-			@Valid Sample libraryForm, BindingResult result, 
-			SessionStatus status, 
-			ModelMap m) {
-	  
+  @PreAuthorize("hasRole('su') or hasRole('ft')")
+  public String createLibrary(@RequestParam("macromolSampleId") Integer macromolSampleId,
+		  @RequestParam("adaptorsetId") Integer adaptorsetId,//this is the selectedAdaptorSet's Id
+		  @RequestParam("jobId") Integer jobId, 
+		  @Valid Sample libraryForm, BindingResult result, 
+		  SessionStatus status, 
+		  ModelMap m) {
+
 	  if( jobId == 0 || jobId == null || macromolSampleId == 0 || macromolSampleId == null ){
 		  waspErrorMessage("sampleDetail.updated.unexpectedError");
 		  return "redirect:/dashboard.do";
 	  }
-	  
+
 	  Job jobForThisSample = jobService.getJobByJobId(jobId);
 	  if(jobForThisSample.getJobId()==null || jobForThisSample.getJobId().intValue()==0){//not found in database
 		  waspErrorMessage("sampleDetail.updated.unexpectedError");
 		  return "redirect:/dashboard.do";
 	  }
-	  
+	  Map<String, String> extraJobDetailsMap = getExtraJobDetails(jobForThisSample);
+	  m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);
+
 	  if ( request.getParameter("submit").equals("Cancel") ){//equals(messageService.getMessage("userDetail.cancel.label")
 		  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 	  }
@@ -544,46 +453,39 @@ public class SampleDnaToLibraryController extends WaspController {
 		  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 	  }
 
-	  boolean nameEmpty = false;
-	  boolean nameClash = false;
-		
 	  String newLibraryName = libraryForm.getName().trim();//from the form
-	  //confirm sample.name (new library's name) not empty 
-	  if("".equals(newLibraryName)){
-		  nameEmpty = true;
-	  }
-	  //confirm that this new library's name is different from all other sample.name in this job
-	  //this could probably be an else to previous if
-	  List<Sample> samplesInThisJob = jobForThisSample.getSample();
-	  for(Sample eachSampleInThisJob : samplesInThisJob){
-		  if( newLibraryName.equals(eachSampleInThisJob.getName()) ){
-			  nameClash = true;
-			  newLibraryName = "";
-			  break;
-		  }
-	  }
 	  Map visibilityElementMap = new HashMap(); // specify meta elements that are to be made immutable or hidden in here
 	  visibilityElementMap.put("adaptorset", MetaAttribute.FormVisibility.immutable); // adaptor is a list control but we just want to display its value
 	  MetaHelperWebapp sampleMetaHelper = getMetaHelperWebapp(); //new MetaHelperWebapp("sample", SampleMeta.class, request.getSession());
 	  List<SampleMeta> sampleMetaListFromForm = new ArrayList<SampleMeta>();
 	  sampleMetaHelper.setArea("genericLibrary");
 	  sampleMetaListFromForm.addAll(sampleMetaHelper.getFromRequest(request, visibilityElementMap, SampleMeta.class));
-	  
+	  //confirm that this new library's name is different from all other sample.name in this job
+	  //this could probably be an else to previous if
+	  List<Sample> samplesInThisJob = jobForThisSample.getSample();
+	  for(Sample eachSampleInThisJob : samplesInThisJob){
+		  if( newLibraryName.equals(eachSampleInThisJob.getName()) ){
+			  // adding an error to 'result object' linked to the 'name' field as the name chosen already exists
+			  Errors errors=new BindException(result.getTarget(), sampleMetaHelper.getParentArea());
+			  // reject value on the 'name' field with the message defined in sampleDetail.updated.nameClashError
+			  // usage: errors.rejectValue(field, errorString, default errorString)
+			  errors.rejectValue("name", "sampleDetail.updated.nameClashError", "sampleDetail.updated.nameClashError (no message has been defined for this property)");
+			  result.addAllErrors(errors);
+			  break;
+		  }
+	  }
+
+
 	  //check of errors in the metadat
 	  getMetaHelperWebapp().validate(sampleMetaListFromForm, result);
-		
-	  if (result.hasErrors() || nameEmpty || nameClash ) {
-		  
+
+	  if (result.hasErrors()) {
+
 		  prepareSelectListData(m);//doubt that this is required here; really only needed for meta relating to country or state
-		  
-		  if(nameClash){
-			  waspErrorMessage("sampleDetail.updated.nameClashError");
-		  }
-		  else{
-			  waspErrorMessage("sampleDetail.updated.error");
-		  }
-		  
-		  
+
+
+		  waspErrorMessage("sampleDetail.updated.error");
+
 		  Adaptorset selectedAdaptorset = adaptorsetService.getAdaptorsetByAdaptorsetId(adaptorsetId);
 		  m.put("adaptorsets", adaptorsetService.findAll()); // required for adaptorsets metadata control element (select:${adaptorsets}:adaptorsetId:name)
 		  m.put("adaptors", selectedAdaptorset.getAdaptor()); // required for adaptors metadata control element (select:${adaptors}:adaptorId:barcodenumber)
@@ -593,16 +495,16 @@ public class SampleDnaToLibraryController extends WaspController {
 
 		  m.put("macromoleculeSample", parentMacromolecule);
 		  m.put("job", jobForThisSample);
-		  libraryForm.setName(newLibraryName);
 		  libraryForm.setSampleMeta(sampleMetaListFromForm);
-		  m.put("sample", libraryForm); 		  
+		  m.put("sample", libraryForm); 
+
 
 		  return "sampleDnaToLibrary/createLibrary";
 	  }
 
 	  //all OK so create/save new library
 	  Sample newLibrary = new Sample();
-	  newLibrary.setName(newLibraryName);	
+	  newLibrary.setName(newLibraryName);
 	  //newLibrary.setSampleMeta(sampleMetaListFromForm);//this will not be saved simply by saving newLibrary; use sampleMetaService.updateBySampleId below
 	  TypeSample typeSample = typeSampleService.getTypeSampleByIName("library");
 	  newLibrary.setTypeSample(typeSample);
@@ -621,26 +523,29 @@ public class SampleDnaToLibraryController extends WaspController {
 		  waspErrorMessage("sampleDetail.updated.unexpectedError");
 		  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 	  }
-	  newLibrary.setSubmitterLabId(parentMacromolecule.getSubmitterLabId());//needed??	  
-	  newLibrary.setSubmitterUserId(parentMacromolecule.getSubmitterUserId());//needed??	  
-	  newLibrary.setSubmitterJobId(parentMacromolecule.getSubmitterJobId());//needed??	
+	  newLibrary.setSubmitterLabId(parentMacromolecule.getSubmitterLabId());//needed??
+
+	  newLibrary.setSubmitterUserId(parentMacromolecule.getSubmitterUserId());//needed??
+
+	  newLibrary.setSubmitterJobId(parentMacromolecule.getSubmitterJobId());//needed??
 	  newLibrary.setIsActive(new Integer(1));
-	  newLibrary.setLastUpdTs(new Date());	  
+	  newLibrary.setLastUpdTs(new Date());
+
 	  newLibrary = sampleService.save(newLibrary);
-	  
+
 	  sampleMetaService.updateBySampleId(newLibrary.getSampleId(), sampleMetaListFromForm);
-	  
+
 	  //add entry to jobsample table to link new library to job
 	  JobSample newJobSample = new JobSample();
 	  newJobSample.setJob(jobForThisSample);
 	  newJobSample.setSample(newLibrary);
 	  newJobSample = jobSampleService.save(newJobSample);
-	  
+
 	  //add entry to sample source to link new library to the macromolecule from which it was derived
 	  SampleSource sampleSource = new SampleSource();
 	  sampleSource.setSample(newLibrary);
 	  sampleSource.setSampleViaSource(parentMacromolecule);
-	  
+
 	  //find max samplesource.multiplexindex for this macromolecule
 	  int maxindex = 0;
 	  Map filterMap2 = new HashMap();
@@ -653,9 +558,9 @@ public class SampleDnaToLibraryController extends WaspController {
 	  }
 	  maxindex++;
 	  sampleSource.setMultiplexindex(new Integer(maxindex));
-	  sampleSource.setLastUpdTs(new Date());	
+	  sampleSource.setLastUpdTs(new Date());
 	  sampleSource = sampleSourceService.save(sampleSource);
-	  
+
 	  //TODO record state change
 	  Task task = taskService.getTaskByIName("Create Library");
 	  Map filterMap3 = new HashMap();
@@ -670,12 +575,17 @@ public class SampleDnaToLibraryController extends WaspController {
 			  }
 		  }
 	  }
-	  
-	  
+
+
 	  waspMessage("libraryCreated.created.success");
 	  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 
-	}
+  } 
+  
+  
+  
+  
+ 
   
  
   
@@ -794,7 +704,9 @@ public class SampleDnaToLibraryController extends WaspController {
 		  waspErrorMessage("sampleDetail.updated.unexpectedError");
 		  return "redirect:/dashboard.do";
 	  }
-	  
+	  Map<String, String> extraJobDetailsMap = getExtraJobDetails(job);
+	  m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);
+
 	  Sample sample= sampleService.getSampleBySampleId(sampleId);
 	  if(sample.getSampleId()==null || sample.getSampleId().intValue()==0){//not found in database
 		  waspErrorMessage("sampleDetail.updated.unexpectedError");
@@ -831,11 +743,10 @@ public class SampleDnaToLibraryController extends WaspController {
 	  
 	  m.put("job", job);
 	  m.put("sample", sample); 
-	  //m.put("areaList", areaList);//appears that this is really not used in the jsp.
 	  
 	  return isRW?"sampleDnaToLibrary/sampledetail_rw":"sampleDnaToLibrary/sampledetail_ro";
-	  //return "redirect:/dashboard.do";
   }
+  
   @RequestMapping(value = "/sampledetail_rw/{jobId}/{sampleId}", method = RequestMethod.POST)//sampleId represents a macromolecule (genomic DNA or RNA) , but that could change as this evolves
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public String updateSampleDetailRW(@PathVariable("jobId") Integer jobId, @PathVariable("sampleId") Integer sampleId, @RequestParam("typeSampleId") Integer typeSampleId, 
@@ -852,7 +763,9 @@ public class SampleDnaToLibraryController extends WaspController {
 		  waspErrorMessage("sampleDetail.updated.unexpectedError");
 		  return "redirect:/dashboard.do";
 	  }
-	  
+	  Map<String, String> extraJobDetailsMap = getExtraJobDetails(jobForThisSample);
+	  m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);
+
 	  if ( request.getParameter("submit").equals("Cancel") ){//equals(messageService.getMessage("userDetail.cancel.label")
 		  //return "redirect:/sampleDnaToLibrary/sampledetail_ro/" + jobId + "/" + sampleId + ".do";
 		  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
@@ -870,29 +783,7 @@ public class SampleDnaToLibraryController extends WaspController {
 		  waspErrorMessage("sampleDetail.updated.unexpectedError");
 		  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 	  } 
-	  
-	  boolean nameEmpty = false;
-	  boolean nameClash = false;
-		
-	  String newSampleName = sampleForm.getName().trim();//from the form
-	  //confirm sample.name not empty 
-	  if("".equals(newSampleName)){
-		  nameEmpty = true;
-	  }
-	  //confirm that, if a new sample.name was supplied on the form, it is different from all other sample.name in this job
-	  if( ! newSampleName.equals(sampleToSave.getName().trim() ) ){//name was changed
-		  List<Sample> samplesInThisJob = jobForThisSample.getSample();
-		  for(Sample eachSampleInThisJob : samplesInThisJob){
-			  if(eachSampleInThisJob.getSampleId().intValue() != sampleId.intValue()){
-				  if( newSampleName.equals(eachSampleInThisJob.getName()) ){
-					  nameClash = true;
-					  newSampleName = "";
-					  break;
-				  }
-			  }
-		  }
-	  }
-		
+	  		
 	  //get list of metadata areas for a sample of this job's workflow; it's in subtypesample.arealist (example: genericBiomolecule,chipseqDna,genericLibrary)
 	  //likely candidate for a method somewhere
 	  List<String> areaList = new ArrayList<String>();
@@ -905,8 +796,7 @@ public class SampleDnaToLibraryController extends WaspController {
 				  areaList.add(item);
 			  }			  
 		  }
-	  }
-		  
+	  }		  
 	  MetaHelperWebapp sampleMetaHelper = getMetaHelperWebapp(); //new MetaHelperWebapp("sample", SampleMeta.class, request.getSession());
 	  List<SampleMeta> sampleMetaListFromForm = new ArrayList<SampleMeta>();
 	  for(String area : areaList){
@@ -914,19 +804,33 @@ public class SampleDnaToLibraryController extends WaspController {
 		  sampleMetaListFromForm.addAll(sampleMetaHelper.getFromRequest(request, SampleMeta.class));
 	  }
 
+	  String newSampleName = sampleForm.getName().trim();//from the form
+	  //confirm that, if a new sample.name was supplied on the form, it is different from all other sample.name in this job
+	  if( ! newSampleName.equals(sampleToSave.getName().trim() ) ){//name was changed
+		  List<Sample> samplesInThisJob = jobForThisSample.getSample();
+		  for(Sample eachSampleInThisJob : samplesInThisJob){
+			  if(eachSampleInThisJob.getSampleId().intValue() != sampleId.intValue()){
+				  if( newSampleName.equals(eachSampleInThisJob.getName()) ){
+					  // adding an error to 'result object' linked to the 'name' field as the name chosen already exists
+					  Errors errors=new BindException(result.getTarget(), sampleMetaHelper.getParentArea());
+					  // reject value on the 'name' field with the message defined in sampleDetail.updated.nameClashError
+					  // usage: errors.rejectValue(field, errorString, default errorString)
+					  errors.rejectValue("name", "sampleDetail.updated.nameClashError", "sampleDetail.updated.nameClashError (no message has been defined for this property)");
+					  result.addAllErrors(errors);
+					  break;
+				  }
+			  }
+		  }
+	  }
+	  
 	  //check of errors in the metadat 
 	  getMetaHelperWebapp().validate(sampleMetaListFromForm, result);
 		
-	  if (result.hasErrors() || nameEmpty || nameClash ) {
+	  if (result.hasErrors()) {
 		  
 		  prepareSelectListData(m);//doubt that this is required here; really only needed for meta relating to country or state
+		  waspErrorMessage("sampleDetail.updated.error");
 		  
-		  if(nameClash){
-			  waspErrorMessage("sampleDetail.updated.nameClashError");
-		  }
-		  else{
-			  waspErrorMessage("sampleDetail.updated.error");
-		  }
 		  m.put("job", jobForThisSample);
 		  sampleForm.setSampleId(sampleId);
 		  sampleForm.setName(newSampleName);
@@ -936,28 +840,6 @@ public class SampleDnaToLibraryController extends WaspController {
 		  return "sampleDnaToLibrary/sampledetail_rw";
 	  }
 
-	  //workup the metafields (don't need this explicit method; just use this.sampleMetaService.updateBySampleId(sampleId, sampleMetaListFromForm); below
-/*	  for (SampleMeta metaFromForm : sampleMetaListFromForm) {
-		  //first, check to see if this metafield on the form is already a metafield in the sample
-		  boolean foundIt = false;
-		  for(SampleMeta metaFromSample : sampleToSave.getSampleMeta()){
-			  if(metaFromForm.getK().equals(metaFromSample.getK())){
-				  foundIt = true;
-				  if( ! metaFromForm.getV().equals(metaFromSample.getV()) ){//if the v value has changed, then update it's new value in the sample object
-						metaFromSample.setV(metaFromForm.getV());//however if a new metafield is on the form, it won't be added back to the sample
-				  }
-			  }
-		  }
-		  if( ( ! foundIt ) && ( ! "".equals(metaFromForm.getV()) ) ){//if this is a new metafield that is on the form and not in the sample and the user has provided a value, then add it
-			  SampleMeta metaToAdd = new SampleMeta();
-			  metaToAdd.setSampleId(sampleId);
-			  metaToAdd.setK(metaFromForm.getK());
-			  metaToAdd.setV(metaFromForm.getV());
-			  metaToAdd = sampleMetaService.save(metaToAdd);
-			  sampleToSave.getSampleMeta().add(metaToAdd);//don't believe this line is actually required
-		  }
-	  }
-*/
 	  sampleToSave.setName(newSampleName);
 	  sampleToSave.setLastUpdTs(new Date());
 	  
@@ -970,4 +852,70 @@ public class SampleDnaToLibraryController extends WaspController {
   }
   
   
+  private Map<String, String> getExtraJobDetails(Job job){
+	  
+	  Map<String, String> extraJobDetailsMap = new HashMap<String, String>();
+
+	  List<JobResourcecategory> jobResourceCategoryList = job.getJobResourcecategory();
+	  for(JobResourcecategory jrc : jobResourceCategoryList){
+		  if(jrc.getResourceCategory().getTypeResource().getIName().equals("mps")){
+			  extraJobDetailsMap.put("Machine", jrc.getResourceCategory().getName());
+			  break;
+		  }
+	  }
+	  /* did not work
+	  MetaHelperWebapp jobMetaHelper = new MetaHelperWebapp("job", JobMeta.class, request.getSession());
+	  try{
+		  extraJobDetailsMap.put("Read Length",jobMetaHelper.getMetaValueByName("readLength", job.getJobMeta()));
+		  extraJobDetailsMap.put("Read Type",jobMetaHelper.getMetaValueByName("readType", job.getJobMeta()).toUpperCase());
+	  } catch(MetadataException e){
+			logger.warn("Cannot get metadata for readLength or readType : " + e.getMessage());
+	  }
+	  */
+	  for(JobMeta jobMeta : job.getJobMeta()){
+		  if(jobMeta.getK().indexOf("readLength") != -1){
+			  extraJobDetailsMap.put("Read Length", jobMeta.getV());
+		  }
+		  if(jobMeta.getK().indexOf("readType") != -1){
+			  extraJobDetailsMap.put("Read Type", jobMeta.getV().toUpperCase());
+		  }
+	  }
+	  
+	  return extraJobDetailsMap;	  
+  }
+  
+  private List<Sample> getSubmittedSamples(Job job){
+	  
+	  //For a list of the samples initially submitted to a job, pull from table jobcell
+	  //exclude duplicates by using a set
+	  //transfer to list and order by sample name
+	  //Note that table jobsample is not appropriate as it will contain libraries made by the facility (from submitted macromolecules)
+	  Set<Sample> samplesSet = new HashSet<Sample>();//use this to store a set of unique samples submitted by the user for a specific job; use treeset as it is ordered (by what I don't know)
+	  Map filterJobCell = new HashMap();
+	  filterJobCell.put("jobId", job.getJobId());
+	  List<JobCell> jobCells = jobCellService.findByMap(filterJobCell);
+	  for(JobCell jobCell : jobCells){
+		  List<SampleCell> sampleCells = jobCell.getSampleCell();
+		  for(SampleCell sampleCell : sampleCells){
+			   samplesSet.add(sampleCell.getSample());
+		  }
+	  }	  
+	  List<Sample> submittedSamples = new ArrayList<Sample>();//need list in order to sort (sets do not sort)
+	  for(Sample sample : samplesSet){
+		  submittedSamples.add(sample);
+	  }
+	  Collections.sort(submittedSamples, new SampleNameComparator());//for class SampleNameComparator, see end of this file
+	  
+	  return submittedSamples;
+	  
+  }
+  
 }
+
+class SampleNameComparator implements Comparator<Sample> {
+    @Override
+    public int compare(Sample arg0, Sample arg1) {
+        return arg0.getName().compareToIgnoreCase(arg1.getName());
+    }
+}
+

@@ -2,24 +2,14 @@
   <br />
 <title><fmt:message key="pageTitle.sampleDnaToLibrary/listJobSamples.label"/></title>
 <h1><fmt:message key="sampleDnaToLibrary.listJobSamples.title_label" /></h1>
-
-<table class="EditTable ui-widget ui-widget-content">
-<tr class="FormData"><td class="CaptionTD">Job ID:</td><td class="DataTD">J<c:out value="${job.jobId}" /></td></tr>
-<tr class="FormData"><td class="CaptionTD">Job Name:</td><td class="DataTD"><c:out value="${job.name}" /></td></tr>
-<tr class="FormData"><td class="CaptionTD">Submitter:</td><td class="DataTD"><c:out value="${job.user.firstName}" /> <c:out value="${job.user.lastName}" /></td></tr>
-<tr class="FormData"><td class="CaptionTD">PI:</td><td class="DataTD"><c:out value="${job.lab.user.firstName}" /> <c:out value="${job.lab.user.lastName}" /></td></tr>
-<tr class="FormData"><td class="CaptionTD">Submitted:</td><td class="DataTD"><fmt:formatDate value="${job.createts}" type="date" /></td></tr>
-<tr class="FormData"><td class="CaptionTD">Workflow:</td><td class="DataTD"><c:out value="${job.workflow.name}" /></td></tr>
-<tr><td class="label">Resource</td><td class="value"><c:out value='${extraJobDetailsMap["resource"]}' /><br />Read Length: <c:out value='${extraJobDetailsMap["readLength"]}' /><br />Read Type: <c:out value='${extraJobDetailsMap["readType"]}' /></td></tr>
-
-</table>
+<c:import url="/WEB-INF/jsp/sampleDnaToLibrary/jobdetail_for_import.jsp" />
 <br />
 <hr />
 <br />
 <table class="EditTable ui-widget ui-widget-content">
 <tr class="FormData"><td class="label-centered">Initial Macromolecule</td><td class="label-centered">Libraries</td></tr>
 
-<c:forEach items="${samples}" var="sample" varStatus="counter">
+<c:forEach items="${samplesSubmitted}" var="sample" varStatus="counter">
 <tr class="FormData">
 
 <c:choose>
