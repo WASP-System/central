@@ -2,7 +2,7 @@
 
 <wasp:field name="workflowId" type="text" searchable="false"/>
 
-<wasp:field name="name" type="text" />
+<wasp:field name="name" type="text" sortable="true" />
 
 <wasp:field name="isActive"  type="checkbox" />
 

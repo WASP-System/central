@@ -93,7 +93,10 @@ public class WorkflowController extends WaspController {
 	@RequestMapping(value = "/listJSON", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('fm')")
 	public String getListJSON(HttpServletResponse response) {
+		
 		String selId = request.getParameter("selId");
+		String sord = request.getParameter("sord");
+		String sidx = request.getParameter("sidx");
 
 		// result
 		Map<String, Object> jqgrid = new HashMap<String, Object>();
@@ -141,6 +144,21 @@ public class WorkflowController extends WaspController {
 			workflowData.put("selId", StringUtils.isEmpty(selId) ? "" : selId);
 			jqgrid.put("workflowdata", workflowData);
 			 
+			/***** Begin Sort by Workflow Name *****/
+			class WorkflowNameComparator implements Comparator<Workflow> {
+				@Override
+				public int compare(Workflow arg0, Workflow arg1) {
+					return arg0.getName().compareToIgnoreCase(arg1.getName());
+				}
+			}
+			if (sidx.equals("name")) {
+				Collections.sort(workflowList, new WorkflowNameComparator());
+				if (sord.equals("desc"))
+					Collections.reverse(workflowList);
+			}
+			/***** End Sort by Workflow Name *****/
+			
+			
 			List<Map> rows = new ArrayList<Map>();
 
 			int frId = pageRowNum * (pageIndex - 1);
