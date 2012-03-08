@@ -793,8 +793,7 @@ create table typesample (
   iname varchar(250), 
   name varchar(250),
   foreign key fk_typesample_tscid (typesamplecategoryid) references typesamplecategory(typesamplecategoryid),
-  constraint unique index u_typesample_iname (iname),
-  constraint unique index u_typesample_name (name)
+  constraint unique index u_typesample_iname (iname)
 ) ENGINE=InnoDB charset=utf8;
 
 insert into typesample values
