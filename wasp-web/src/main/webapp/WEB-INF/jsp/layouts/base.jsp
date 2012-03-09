@@ -24,6 +24,7 @@
 			$('#'+el).fadeOut('slow',
 				function() {
 					// after fadeout do the following
+					$('#'+el).text('');
 					$('#'+el).show();
 					$('#'+el).css('opacity', '0');
 				});
@@ -40,26 +41,8 @@
 </head>
 
 <body onload='waspOnLoad();waspFade("waspErrorMessage");waspFade("waspMessage");'>
-  <!-- top -->
-  <sec:authorize access="isAuthenticated()">
-    <header id="pageHeader">
-      <nav>
-        <a href="/wasp/j_spring_security_logout" class="button right">Logout</a>
-        <a href="/wasp/dashboard.do"><img src="/wasp/css/wasp_logo.jpg" alt="WASP" width="154" height="107" /></a>
-      </nav>
-    </header>
-  </sec:authorize>
-  <sec:authorize access="! isAuthenticated()">
-    <header id="pageHeader">
-      <nav>
-        <a href="/wasp/"><img src="/wasp/css/wasp_logo.jpg" alt="WASP" width="154" height="107" /></a>
-      </nav>
-    </header>
-  </sec:authorize>
-  <wasp:errorMessage />
-  <wasp:message />
-  <!-- /top -->
- 
+  <tiles:insertAttribute name="banner-content" />
+  
   <tiles:insertAttribute name="body-content" />
 </body>
 </html>

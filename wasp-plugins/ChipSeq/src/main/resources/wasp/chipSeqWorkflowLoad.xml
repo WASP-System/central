@@ -49,6 +49,7 @@
       <set>
         <value>chipSeqDnaSample</value>
         <value>chipSeqLibrarySample</value>
+        <value>chipSeqFacilityLibrarySample</value>
       </set>
     </property>
     

@@ -50,7 +50,7 @@ _uploadAfterSubmit=function(response, data)  {
 			var sampleDraftId=resp.split('|')[0];
 			var serverResponse=resp.split('|')[1];
 
-			waspFade('statusMessage',serverResponse);
+			waspFade('waspMessage',serverResponse);
 
 			<%-- return if there was no file to upload --%>
 			if (!lastForm) return [true,''];		

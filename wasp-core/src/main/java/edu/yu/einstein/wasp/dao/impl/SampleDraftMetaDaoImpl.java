@@ -18,6 +18,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,12 +26,16 @@ import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.MetaUtil;
 import edu.yu.einstein.wasp.model.SampleDraftMeta;
 import edu.yu.einstein.wasp.model.SubtypeSample;
+import edu.yu.einstein.wasp.service.SubtypeSampleService;
 
 @SuppressWarnings("unchecked")
 @Transactional
 @Repository
 public class SampleDraftMetaDaoImpl extends WaspDaoImpl<SampleDraftMeta> implements edu.yu.einstein.wasp.dao.SampleDraftMetaDao {
 
+	
+	@Autowired
+	private SubtypeSampleService subtypeSampleService;
 	/**
 	 * SampleDraftMetaDaoImpl() Constructor
 	 *
@@ -158,6 +163,7 @@ public class SampleDraftMetaDaoImpl extends WaspDaoImpl<SampleDraftMeta> impleme
 	   Map<SubtypeSample,List<SampleDraftMeta>> result=new LinkedHashMap<SubtypeSample,List<SampleDraftMeta>>();
 	   Map<SubtypeSample, Map<String,List<SampleDraftMeta>> > tmp = new LinkedHashMap<SubtypeSample, Map<String,List<SampleDraftMeta>> >();
 	   List<Object[]> listObj=entityManager.createNativeQuery(sql).setParameter("workflowid", workflowId).getResultList();
+	   List<SubtypeSample> loggedInUserAccessibleSubtypeSamples = subtypeSampleService.getWorkflowSubtypeSamplesByLoggedInUserRoles(workflowId);
 	   for(Object[] o:listObj) {
 		   
 		   String area=(String)o[0];
@@ -173,7 +179,14 @@ public class SampleDraftMetaDaoImpl extends WaspDaoImpl<SampleDraftMeta> impleme
 		   Integer subtypeSampleId=(Integer)o[10];
 		   String subtypeName=(String)o[11];
 		   String areaList=(String)o[12];
-		   
+		   boolean subtypeSampleAllowed = false;
+		   for (SubtypeSample sts: loggedInUserAccessibleSubtypeSamples){
+			   if (sts.getSubtypeSampleId().equals(subtypeSampleId)){
+				   subtypeSampleAllowed = true;
+				   break;
+			   }
+		   }
+		   if (!subtypeSampleAllowed) continue;
 		   SampleDraftMeta m = new SampleDraftMeta();
 		   
 		   m.setK(area+"."+name);

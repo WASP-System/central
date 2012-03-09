@@ -11,17 +11,29 @@
 
 package edu.yu.einstein.wasp.service.impl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import edu.yu.einstein.wasp.dao.SubtypeSampleDao;
+import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.model.SubtypeSample;
+import edu.yu.einstein.wasp.model.SubtypeSampleMeta;
+import edu.yu.einstein.wasp.model.TypeSample;
+import edu.yu.einstein.wasp.model.Workflow;
+import edu.yu.einstein.wasp.model.Workflowsubtypesample;
+import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.SubtypeSampleService;
+import edu.yu.einstein.wasp.service.TypeSampleService;
+import edu.yu.einstein.wasp.service.WorkflowService;
+import edu.yu.einstein.wasp.util.MetaHelper;
 
 @Service
 public class SubtypeSampleServiceImpl extends WaspServiceImpl<SubtypeSample> implements SubtypeSampleService {
@@ -31,7 +43,12 @@ public class SubtypeSampleServiceImpl extends WaspServiceImpl<SubtypeSample> imp
 	 *
 	 */
 	private SubtypeSampleDao subtypeSampleDao;
-
+	
+	@Autowired
+	private WorkflowService workflowService;
+	
+	@Autowired
+	private AuthenticationService authenticationService;
 	/**
 	 * setSubtypeSampleDao(SubtypeSampleDao subtypeSampleDao)
 	 *
@@ -72,6 +89,45 @@ public SubtypeSample getSubtypeSampleByIName (final String iName) {
 	  Map queryMap = new HashMap();
 	  queryMap.put("isActive", 1);
 	  return this.findByMap(queryMap);
+  }
+  
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public List<SubtypeSample> getWorkflowSubtypeSamplesByLoggedInUserRoles(Integer workflowId){
+	  return getWorkflowSubtypeSamplesByLoggedInUserRoles(workflowId, null);
+  }
+  
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public List<SubtypeSample> getWorkflowSubtypeSamplesByLoggedInUserRoles(Integer workflowId, String typeSampleIName){
+	  List<SubtypeSample> subtypeSamples = new ArrayList<SubtypeSample>();
+	  for (Workflowsubtypesample wfsts: workflowService.getWorkflowByWorkflowId(workflowId).getWorkflowsubtypesample() ){
+		  SubtypeSample sts = wfsts.getSubtypeSample();
+		  if (typeSampleIName == null || typeSampleIName.equals(sts.getTypeSample().getIName())){
+			  String[] includedRoles = new String[]{};
+			  String[] excludedRoles = new String[]{};
+			  MetaHelper metahelper = new MetaHelper("subtypeSample", SubtypeSampleMeta.class, Locale.US);
+			  metahelper.setArea(sts.getIName());
+			  try{
+				  includedRoles = metahelper.getMetaValueByName("includeRoles",sts.getSubtypeSampleMeta()).split(",");
+			  } catch(MetadataException e){
+				  // "includeRoles" meta not present
+			  }
+			  try{
+				  excludedRoles = metahelper.getMetaValueByName("excludeRoles",sts.getSubtypeSampleMeta()).split(",");
+			  } catch(MetadataException e){
+				  // "excludeRoles" meta not present
+			  }
+			  if (authenticationService.hasRoleInRoleArray(includedRoles) && !authenticationService.hasRoleInRoleArray(excludedRoles)){
+				  subtypeSamples.add(sts);
+			  }
+		  }
+	  }
+	  return subtypeSamples;
   }
 
 }

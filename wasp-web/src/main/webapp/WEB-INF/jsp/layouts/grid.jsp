@@ -58,7 +58,7 @@
 		// where 
 		// success is a boolean value if true the process continues, if false a error message appear and all other processing is stoped.  --%>
 		var _afterSubmit = function(response, data) {
-			waspFade('statusMessage',response.responseText);
+			waspFade('waspMessage',response.responseText);
 		
 			return [true,''];     
 		};
@@ -315,12 +315,17 @@
 	
 		<%-- display message / fade it after 5 seconds. --%>
 		function waspFade(el, msg) {
-			$('#'+el).text(msg);
+			if (msg != null && msg != ""){
+				$('#'+el).text(msg);
+				$('#'+el).css('opacity', '100');
+			}
 			setTimeout(function() {
 				$('#'+el).fadeOut('slow',
 					function() {
+						// after fadeout do the following
 						$('#'+el).text('');
 						$('#'+el).show();
+						$('#'+el).css('opacity', '0');
 					});
 			},5000);
 		}
@@ -582,12 +587,12 @@
 		createGrid();
 	
 	</script>
-	
 	<tiles:insertAttribute name="head-js" />
+	
 </head>
 
 
-<body>
+<body onload='waspFade("waspErrorMessage");waspFade("waspMessage");'>
 
 	<tiles:insertAttribute name="banner-content" />
 	

@@ -91,6 +91,13 @@ public interface AuthenticationService {
 	 * @return
 	 */
 	boolean authenticates(String name, String password);
+
+	/**
+	 * Returns true if User has ANY of the roles in RoleArray. theRole can be "su", "da", etc.
+	 * @param roleArray
+	 * @return
+	 */
+	boolean hasRoleInRoleArray(String[] roleArray);
 	
 	
 }

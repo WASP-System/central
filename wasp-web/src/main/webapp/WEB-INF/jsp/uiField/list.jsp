@@ -1,6 +1,5 @@
 </br>
 <a style="color:blue;font-size:150%;" href="dump.do">dump uifield table</a>
-<span style="color:blue;font-size:200%" id='statusMessage'></span>
 <table id="grid_id"></table> 
 <div id="gridpager"></div>
 <div class="footnote"><p>

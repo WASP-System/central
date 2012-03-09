@@ -136,6 +136,20 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	}
 	
 	@Override
+	public boolean hasRoleInRoleArray(String[] roleArray) {
+		for (String testRole: roleArray){
+			for (String myrole: this.getRoles()) {
+				if(myrole.equals(testRole)){return true;}//in case theRole is something like da-*
+				String[] splitRole = myrole.split("-");//if no "-" is within role, then splitRole[0] contains entire original string
+				if(splitRole[0].equals(testRole)){
+					return true;
+				}	
+			}
+		}
+		return false;
+	}
+	
+	@Override
 	public boolean isSuperUser() {
 		for (String role: this.getRoles()){
 			if (role.equals("su"))
