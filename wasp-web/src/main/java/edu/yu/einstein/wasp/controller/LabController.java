@@ -1358,11 +1358,10 @@ public class LabController extends WaspController {
 
 	@Override
 	protected void prepareSelectListData(ModelMap m) {
-		Map userQueryMap = new HashMap();
-		userQueryMap.put("isActive", 1);
-		m.addAttribute("pusers", userService.findByMap(userQueryMap));
 		super.prepareSelectListData(m);
-		m.addAttribute("departments", deptService.findAll());
+
+		m.addAttribute("pusers", userService.getActiveUsers());
+		//m.addAttribute("departments", deptService.findAll());
 	}
 
 	@RequestMapping(value = "/pendinglmapproval/list/{labId}.do", method = RequestMethod.GET)

@@ -85,6 +85,9 @@ public class JQFieldTag extends BodyTagSupport {
 	
 	//Searchable field
 	private String searchable;
+	
+	//Default select field
+	private String defaultSelect;
   
 	private Map metaMessages;
   
@@ -182,6 +185,10 @@ public class JQFieldTag extends BodyTagSupport {
 		this.searchable = sb;
 	}
 
+	public void setDefaultSelect(String ds) {
+		this.defaultSelect = ds;
+	}
+	
 	//get locale-specific message
 	private String getMessage(String key, String defaultMessage) {
 		String r=getMessage(key);
@@ -326,12 +333,17 @@ public class JQFieldTag extends BodyTagSupport {
 				if (items instanceof Collection && (this.itemValue==null || this.itemLabel==null)) {
 					throw new JspTagException("'items','itemValue' and 'itemLabel' parameters are required when type is 'select' and 'items' is a collection");
 				}
+				
+				String optionStr = getOptions();
+				if ("true".equals(this.defaultSelect)) {
+					optionStr = "{\"-1\":\"" + getMessage("wasp.default_select.label") + "\"," + optionStr.substring(1);
+				}
 			
 				buf = buf + 
 					jsName + ".jq['edittype']='select';\n" +
 					jsName + ".jq['editoptions']={value:{}};\n" +
 					jsName + ".jq['search']=false;\n" +
-					jsName + ".jq['editoptions']['value']=" + getOptions() + ";\n";
+					jsName + ".jq['editoptions']['value']=" + optionStr + ";\n";
 				
 			} else if (type==Type.password) { 
 				buf = buf +
@@ -364,7 +376,7 @@ public class JQFieldTag extends BodyTagSupport {
 			}
 			
 	
-			if (this.showLink!=null  && this.showLink.equals("true")) {
+			if ("true".equals(this.showLink)) {
 				// Set baseLinkURL and idName as default if they are not presented
 				if (this.baseLinkURL==null || this.baseLinkURL.isEmpty())
 					this.baseLinkURL = "/wasp/" + area + "/list.do";
@@ -381,36 +393,36 @@ public class JQFieldTag extends BodyTagSupport {
 												+ "'};\n";
 			}
 	
-//			if (this.readOnly!=null  && this.readOnly.equals("true")) {
+//			if ("true".equals(this.readOnly)) {
 //				buf = buf + 
 //					jsName + ".jq['editoptions']['dataInit'] = function(elm){setTimeout(disableControl(this.id), 200);};\n";
 //			}
-			if (this.editReadOnly!=null  && this.editReadOnly.equals("true")) {
+			if ("true".equals(this.editReadOnly)) {
 				buf = buf + 
 					jsName + ".jq['editoptions']['readonly']='readonly';\n";
 			}
 	
 	
-			if (this.sortable!=null  && this.sortable.equals("true")) {
+			if ("true".equals(this.sortable)) {
 				buf = buf + 
 					jsName + ".jq['sortable']=true;\n";
 			}
 			
-			if (this.editHidden!=null  && this.editHidden.equals("true")) {
+			if ("true".equals(this.editHidden)) {
 				buf = buf + 
 					jsName + ".jq['editrules']['edithidden']=true;\n";
 			}
 			
-			if (this.hidden!=null  && this.hidden.equals("true")) {
+			if ("true".equals(this.hidden)) {
 				buf = buf + 
 					jsName + ".jq['hidden']=true;\n";
 			}
-			if (this.editable!=null  && this.editable.equals("false")) {
+			if ("false".equals(this.editable)) {
 				buf = buf + 
 					jsName + ".jq['editable']=false;\n";
 			}
 	
-			if (this.searchable!=null  && this.searchable.equals("false")) {
+			if ("false".equals(this.searchable)) {
 				buf = buf + 
 					jsName + ".jq['search']=false;\n";
 			}

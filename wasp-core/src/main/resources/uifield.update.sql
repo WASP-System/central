@@ -779,14 +779,21 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','name','label','Name','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','name','constraint','NotEmpty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','name','error','Run name cannot be empty','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','run_exists','error','Run name already exists in the database','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','flow_cell_name','label','Flowcell','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','start_esf_staff','label','Start ESF Staff','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','start_datetime','label','Start Time','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','end_datetime','label','End Time','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','sampleId','label','Flowcell','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','start_esf_staff','label','Started By','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','start_datetime','label','Started On','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','start_datetime','metaposition','40','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','end_datetime','label','Finished On','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','end_datetime','metaposition','50','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','resourceName','label','Machine','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','resourceId','label','Machine','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','path_to_data','label','Data Path','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','run_success','label','Success','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','isActive','label','Active','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','updated_success','label','Run updated sucessfully.','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','created_success','label','Run created sucessfully.','1');
 
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sysrole','list_add_role','label','Use the form below to add system roles to existing WASP users','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sysrole','noUserSpecified','error','No user specified','1');

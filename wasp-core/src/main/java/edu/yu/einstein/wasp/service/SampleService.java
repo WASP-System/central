@@ -1,4 +1,3 @@
-
 /**
  *
  * SampleService.java 
@@ -23,27 +22,28 @@ public interface SampleService extends WaspService<Sample> {
 
 	/**
 	 * setSampleDao(SampleDao sampleDao)
-	 *
+	 * 
 	 * @param sampleDao
-	 *
+	 * 
 	 */
 	public void setSampleDao(SampleDao sampleDao);
 
 	/**
 	 * getSampleDao();
-	 *
+	 * 
 	 * @return sampleDao
-	 *
+	 * 
 	 */
 	public SampleDao getSampleDao();
 
-  public Sample getSampleBySampleId (final int sampleId);
-  
-  public List<Sample> getSamplesByJobId (final int jobId);
+	public Sample getSampleBySampleId(final int sampleId);
 
-  public List<Sample> getActiveSamples();
+	public List<Sample> getSamplesByJobId(final int jobId);
 
-  public Sample getSampleByName(final String name);
+	public List<Sample> getActiveSamples();
+
+	public Sample getSampleByName(final String name);
+
+	List<Sample> findAllPlatformUntis();
 
 }
-

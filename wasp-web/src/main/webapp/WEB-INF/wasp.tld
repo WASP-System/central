@@ -176,6 +176,14 @@
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
+		<attribute>
+            <!-- 
+			<description>Searchable field if set</description>
+            -->
+			<name>defaultSelect</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
 	</tag>
 	<tag>
 		<description><![CDATA[
