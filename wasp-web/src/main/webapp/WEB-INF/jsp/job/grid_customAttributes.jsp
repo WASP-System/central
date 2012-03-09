@@ -6,3 +6,5 @@ ondblClickRow: function(rowid) {
 	$("#grid_id").jqGrid('viewGridRow',rowid,_viewAttr);
 },
 
+
+

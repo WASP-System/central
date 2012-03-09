@@ -670,8 +670,6 @@ public class PlatformUnitController extends WaspController {
 		sampleForm.setSampleMeta(sampleMetaList);
 		//sampleForm.setSampleId(sampleId); //do not set id here.  It will throw the "detached entity exception" when calling persist() on this object.
 		if (sampleId == null || sampleId == 0) {
-			
-			logger.debug("sampleId is null="+sampleId);
 			//check if barcode already exists in Db; if 'true', do not allow to proceed.
 			if(this.barcodeService.getBarcodeByBarcode(request.getParameter("barcode")).getBarcode() != null && 
 					this.barcodeService.getBarcodeByBarcode(request.getParameter("barcode")).getBarcode().length() != 0) {

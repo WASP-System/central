@@ -83,9 +83,9 @@ public class SelPendingLabs extends SelBaseTest{
    */
   @DataProvider(name = "DP1")
   public Object[][] createData1() throws Exception{
-      Object[][] retObjArr=SeleniumHelper.getTableArray("WaspTestData.xls",
+      Object[][] retObjArr = SeleniumHelper.getTableArray("WaspTestData.xls",
               "Test_001", "pendingLabApprove");
-      
+      Assert.assertNotNull(retObjArr, "object is null");
       return(retObjArr);
   }
   

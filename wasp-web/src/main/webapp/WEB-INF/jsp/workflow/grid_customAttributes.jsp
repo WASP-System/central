@@ -7,7 +7,3 @@ caption:"<fmt:message key='workflow.listname.label' />",
 ondblClickRow: function(rowid) {
 	$("#grid_id").jqGrid('viewGridRow',rowid,_viewAttr);
 },
-
-_viewAttr: {
-			width: 400
-},
