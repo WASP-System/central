@@ -817,7 +817,7 @@ public class LabController extends WaspController {
 			doReauth();
 		}
 
-		waspErrorMessage("hello.error");
+		waspMessage("labuser.role_change_request.label");
 		return "redirect:/lab/user_manager/" + labId + ".do";
 	}
 

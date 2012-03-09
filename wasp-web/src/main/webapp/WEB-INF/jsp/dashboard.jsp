@@ -61,6 +61,15 @@
 					<a href='<c:url value="/lab/list.do"/>'>Lab Utils</a>
 				</li>
 				<li>
+					<a href='<c:url value="/sample/list.do"/>'>Sample Utils</a>
+				</li>
+				<li>
+					<a href='<c:url value="/resource/list.do"/>'>Resource Utils</a>
+				</li>
+				<li>
+					<a href='<c:url value="/run/list.do"/>'>Run Utils</a>
+				</li>
+				<li>
 					<a href='<c:url value="/workflow/list.do"/>'>Workflow Utils</a>
 				</li>
 			</ul>
@@ -200,28 +209,27 @@
 			<h2>Sample Utils</h2>
 			<ul class="navTabs">
 				<li>
-					<a href='<c:url value="/sample/list.do"/>'>List of All Samples</a>
-				</li>
-				<li>
 					<a href='<c:url value="/task/samplereceive/list.do"/>'>Sample Receiver</a>
 				</li>
+		
+		
 				<li>
-					<a href='<c:url value="/sampleDnaToLibrary/listJobSamples/2.do"/>'>List	of Samples for Job 2</a>
+					<a href='<c:url value="/sampleDnaToLibrary/listJobSamples/10216.do"/>'>List	Samples for Job 10216</a>
 				</li>
 				<li>
-					<a href='<c:url value="/sampleDnaToLibrary/listJobSamples/3.do"/>'>List of Samples for Job 3</a>
+					<a href='<c:url value="/sampleDnaToLibrary/listJobSamples/10217.do"/>'>List Samples for Job 10217</a>
 				</li>
 				<li>
-					<a href='<c:url value="/sampleDnaToLibrary/listJobSamples/4.do"/>'>List of Samples for New Job 4</a>
+					<a href='<c:url value="/sampleDnaToLibrary/listJobSamples/4.do"/>'>List Samples for New Job 4</a>
 				</li>
 				<li>
-					<a href='<c:url value="/sampleDnaToLibrary/listJobSamples/5.do"/>'>List	of Samples for New Job 5</a>
+					<a href='<c:url value="/sampleDnaToLibrary/listJobSamples/5.do"/>'>List	Samples for New Job 5</a>
 				</li>
 				<li>
-					<a href='<c:url value="/sampleDnaToLibrary/listJobSamples/6.do"/>'>List	of Samples for Job 6</a>
+					<a href='<c:url value="/sampleDnaToLibrary/listJobSamples/6.do"/>'>List	Samples for Job 6</a>
 				</li>
 				<li>
-					<a href='<c:url value="/sampleDnaToLibrary/listJobSamples/7.do"/>'>List	of Samples for Job 7</a>
+					<a href='<c:url value="/sampleDnaToLibrary/listJobSamples/7.do"/>'>List	Samples for Job 7</a>
 				</li>
 			</ul>
 			<br />
@@ -229,23 +237,13 @@
 			<ul class="navTabs">
 				<li>
 					<a
-						href='<c:url value="/facility/platformunit/limitPriorToPlatUnitAssign.do" />'>List of Platform Units</a>
+						href='<c:url value="/facility/platformunit/limitPriorToPlatUnitAssign.do" />'>List / Create</a>
 				</li>
 				<li>
 					<a href='<c:url value="/facility/platformunit/assign.do" />'>Platform Unit assignment (must remove this)</a>
 				</li>
 				<li>
 					<a href='<c:url value="/facility/platformunit/limitPriorToAssign.do?resourceCategoryId=0" />'>Platform Unit assignment</a>
-				</li>
-			</ul>
-			<br />
-			<h2>Misc Utils</h2>
-			<ul class="navTabs">
-				<li>
-					<a href='<c:url value="/resource/list.do"/>'>List of All Machines</a>
-				</li>
-				<li>
-					<a href='<c:url value="/run/list.do"/>'>List of All Runs</a>
 				</li>
 			</ul>
 		</div>

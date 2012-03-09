@@ -270,6 +270,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labuser','request_primaryuser','label','Primary Investigator','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labuser','request_primaryuser','error','Invalid Primary User','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labuser','request_submit','label','Request Access','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labuser','role_change_request','label','Roles updated succesfully','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labuser','request_success','label','Your request for access has been submitted.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labuser','request_alreadypending','error','You are already a pending user for the requested lab.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labuser','request_alreadyaccess','error','You are currently a member of the requested lab.','1');
@@ -356,6 +357,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','login_anchor_newuser','label','New User','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','login_anchor_newpi','label','New PI','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','login_anchor_about','label','About','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','login_instructions','label','Please login to WASP using your username and password. If you have forgotton your password, or are currently unregistered and wish to create an account please select from the links below.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','resetpasswordRequest_user','label','Username','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','resetpasswordRequest','data','Submit','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','resetpasswordRequest_missingparam','error','Please provide values for all fields','1');
@@ -786,7 +788,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','run_success','label','Success','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','isActive','label','Active','1');
 
-
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sysrole','list_add_role','label','Use the form below to add system roles to existing WASP users','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sysrole','noUserSpecified','error','No user specified','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sysrole','userNonexistant','error','The user specified does not exist in the database','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sysrole','noRoleSpecified','error','No role specified','1');
@@ -913,6 +915,10 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','lmpendingtask','subtitle1','label','Pending Users','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','lmpendingtask','subtitle2','label','Pending Jobs','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail_pendingjobs','label','Pending Jobs','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail_update_instructions','label','Use the following form to change the status of a department between Active and Inactive','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail_update_admin','label','Type in the name of an existing WASP user to make them an administrator of this department','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','create_instructions','label','A new department can be created by adding its name and an administrator in the form below. More administrators can be added later if desired.','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','list_instructions','label','The current departments registered in the system is listed below. Please click on a department name to view / edit its details.','1');
 
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDetail','updated','error','Sample NOT updated. Fill in required fields or cancel to restore.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDetail','updated','nameClashError','Sample NOT updated. Name provided already used by another sample in this job. Provide another or cancel to restore!','1');

@@ -26,10 +26,10 @@
   </table>
 
 <div>
-
+<br />
 <h1><fmt:message key="sysrole.list_create.label" /></h1>
 <div class="instructions">
-  <%@ include file="/WEB-INF/jsp/lorem.jsp" %>
+  <fmt:message key="sysrole.list_add_role.label" />
 </div>
 
   <form method="POST" action="<c:url value="/sysrole/add.do"/>" onsubmit='return validate();'>

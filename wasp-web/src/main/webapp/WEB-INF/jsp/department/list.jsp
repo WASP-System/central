@@ -5,7 +5,7 @@
 	<div>
 		<h1><fmt:message key="department.create.label" /></h1>
 		<div class="instructions">
-			<%@ include file="/WEB-INF/jsp/lorem.jsp" %>
+			<fmt:message key="department.create_instructions.label" />
 		</div>
 
 		<form name="f" action="<c:url value='/department/create.do'/>" method="POST" onsubmit='return validate();'>
@@ -24,7 +24,7 @@
 <div>
 <h1><fmt:message key="department.list.label" /></h1>
 <div class="instructions">
-  <%@ include file="/WEB-INF/jsp/lorem.jsp" %>
+  <fmt:message key="department.list_instructions.label" />
 </div>
 
 <div class="action">

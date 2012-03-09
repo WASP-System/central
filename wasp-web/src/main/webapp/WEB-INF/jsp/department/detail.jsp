@@ -4,19 +4,19 @@
 	
 <sec:authorize access="hasRole('su')">
   <div>
-		<div class="instructions"> <%@ include file="/WEB-INF/jsp/lorem.jsp" %> </div>
+		<div class="instructions"><fmt:message key="department.detail_update_instructions.label" /></div>
   <form name="update_form" action = "<c:url value='/department/updateDepartment.do'/>" method="POST" onsubmit="return validate('updateDept');">
 		<input class="FormElement ui-widget-content ui-corner-all" type='hidden' name='departmentId' value='<c:out value="${department.departmentId}" />'/>
 
 		<table class="EditTable ui-widget ui-widget-content">
-		<tr class="FormData">
-		<td class="CaptionTD"><fmt:message key="department.detail_update.label" />:</td>
-		<td class="DataTD"><input class="FormElement ui-widget-content ui-corner-all" type="text" name='name' value="<c:out value="${department.name}"></c:out>"></td>
-		</tr>
-		<tr class="FormData">
-			<td class="DataTD">&nbsp;</td>
-			<td class="DataTD"><input class="FormElement ui-widget-content ui-corner-all" type="radio" name="isActive" <c:out value="${department.isActive==1?'CHECKED':''}" /> value="1">Active &nbsp; <input class="FormElement ui-widget-content ui-corner-all" type="radio" name="isActive" <c:out value="${department.isActive==0?'CHECKED':''}" />	value="0">Inactive</td>
-		<tr class="FormData">
+			<tr class="FormData">
+				<td class="CaptionTD"><fmt:message key="department.detail_update.label" />:</td>
+				<td class="DataTD"><input class="FormElement ui-widget-content ui-corner-all" type="text" name='name' value="<c:out value="${department.name}"></c:out>"></td>
+			</tr>
+			<tr class="FormData">
+				<td class="DataTD">&nbsp;</td>
+				<td class="DataTD"><input class="FormElement ui-widget-content ui-corner-all" type="radio" name="isActive" <c:out value="${department.isActive==1?'CHECKED':''}" /> value="1">Active &nbsp; <input class="FormElement ui-widget-content ui-corner-all" type="radio" name="isActive" <c:out value="${department.isActive==0?'CHECKED':''}" />	value="0">Inactive</td>
+			</tr>
 		</table>
 		<div class="submit">
 			<input class="FormElement ui-widget-content ui-corner-all" type="submit" value="<fmt:message key="department.detail_submit.label" />" /> 
@@ -26,7 +26,7 @@
 
   <div>		
 		<h1><fmt:message key="department.detail_administrators.label" /></h1>
-		<div class="instructions"> <%@ include file="/WEB-INF/jsp/lorem.jsp" %> </div>
+		<div class="instructions"><fmt:message key="department.detail_update_admin.label" /></div>
 		
 		<form name="f" action="<c:url value='/department/user/roleAdd.do'/>" method="POST" onsubmit="return validate('createAdmin');">
 		<input class="FormElement ui-widget-content ui-corner-all" type='hidden' name='departmentId' value='<c:out value="${department.departmentId}" />'/>

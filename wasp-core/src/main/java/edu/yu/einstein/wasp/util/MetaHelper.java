@@ -255,6 +255,15 @@ public class MetaHelper {
 		return syncWithMaster(dbList, (List<T>) getMasterList(clazz));
 	}
 	
+	/**
+	 * Updates "dbList" so it only contains fields found in "properties" file and apply visibility options
+	 * @param dbList
+	 * @return
+	 */
+	public final <T extends MetaBase> List<T> syncWithMaster(List<T> dbList, Map<String, MetaAttribute.FormVisibility> visibility) {
+		return syncWithMaster(dbList, (List<T>) getMasterList(visibility, clazz));
+	}
+	
 	
 	/**
 	 * Updates "currentList" so it only contains fields found in "properties" file

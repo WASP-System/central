@@ -673,7 +673,7 @@ public class SampleDnaToLibraryController extends WaspController {
   			}
   		}
   		library.setSampleMeta(normalizedSampleMeta);
-	  	
+/* HELP	  	
 		Adaptorset selectedAdaptorset = adaptorsetService.getAdaptorsetByAdaptorsetId(1);
 		m.put("adaptorsets", adaptorsetService.findAll()); // required for adaptorsets metadata control element (select:${adaptorsets}:adaptorsetId:name)
 		m.put("adaptors", selectedAdaptorset.getAdaptor()); // required for adaptors metadata control element (select:${adaptors}:adaptorId:barcodenumber)
@@ -683,29 +683,18 @@ public class SampleDnaToLibraryController extends WaspController {
 			m.put("otherAdaptorsets", otherAdaptorsets); 
 		}
 		
-		
-		
-		
-		/*HELPHELP HELP HELP
-		//prepare empty library
-		///////////Sample library = new Sample();
 		Map visibilityElementMap = new HashMap(); // specify meta elements that are to be made immutable or hidden in here
 		visibilityElementMap.put("adaptorset", MetaAttribute.FormVisibility.immutable); // adaptor is a list control but we just want to display its value
-		MetaHelperWebapp sampleMetaHelper = getMetaHelperWebapp(); //new MetaHelperWebapp("sample", SampleMeta.class, request.getSession());
 		sampleMetaHelper.setArea("genericLibrary");	//only should need this, as we're creating a new library from a DNA or RNA at the facility, but I suppose there could be an assay-specific set of metadat, but for now leave this	  
-		sampleMetaHelper.getMasterList(visibilityElementMap, SampleMeta.class); // pass in visibilityElementMap here to apply our specifications
+		sampleMetaHelper.syncWithMaster(library.getSampleMeta(), visibilityElementMap); // pass in visibilityElementMap here to apply our specifications
 		try {
 			sampleMetaHelper.setMetaValueByName("adaptorset", selectedAdaptorset.getAdaptorsetId().toString());
 		} catch (MetadataException e) {
 			logger.warn("Cannot set value on 'adaptorset': " + e.getMessage() );
 		}
 		library.setSampleMeta((List<SampleMeta>) sampleMetaHelper.getMetaList());
-	*/
-	  
-	  
-	  
-	  
-  		/*
+	
+
   		//pull out adaptor
   		Adaptor adaptor = null;
   		MetaHelperWebapp sampleMetaHelper = getMetaHelperWebapp(); //new MetaHelperWebapp("sample", SampleMeta.class, request.getSession());
@@ -719,7 +708,7 @@ public class SampleDnaToLibraryController extends WaspController {
   		} catch(NumberFormatException e){
   			logger.warn("Cannot convert to numeric value for metadata for'adaptor' " + e.getMessage());
   		}
-  		*/	
+  		
 
   		
 	
@@ -734,9 +723,9 @@ public class SampleDnaToLibraryController extends WaspController {
 		m.put("adaptors", selectedAdaptorset.getAdaptor()); // required for adaptors metadata control element (select:${adaptors}:adaptorId:barcodenumber)
 		m.put("job", job);
 		m.put("parentMacromolecule", parentMacromolecule);
-		m.put("library", library);
+		m.put("sample", library);
 		//m.put("adaptor", adaptor);
-		
+		*/
 		return isRW?"sampleDnaToLibrary/librarydetail_rw":"sampleDnaToLibrary/librarydetail_ro";
   }
   

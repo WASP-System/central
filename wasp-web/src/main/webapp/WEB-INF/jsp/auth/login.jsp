@@ -9,6 +9,10 @@
 	<fmt:message key="pageTitle.auth/login.label" />
 </h1>
 
+<div class="instructions">
+	<fmt:message key="auth.login_instructions.label" />
+</div>
+
 <form name="f" action="<c:url value='/j_spring_security_check'/>"
 	method="POST" onsubmit='return validate();'>
 	<table class="EditTable ui-widget ui-widget-content">
@@ -38,6 +42,4 @@
 	<a href="/wasp/static/about.do"><fmt:message key="auth.login_anchor_about.label" /></a>
 </nav>
 
-<div class="instructions">
-	<%@ include file="/WEB-INF/jsp/lorem.jsp"%>
-</div>
+
