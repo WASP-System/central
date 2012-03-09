@@ -483,6 +483,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','antibody_id','metaposition','120','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','enrich_primer_pair_id','metaposition','130','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','hello','error=Hello World','','','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sample','sample_list','label','List of Samples','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sample','name','label','Name','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sample','type','label','Type','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sample','subtype','label','Subtype','1');
