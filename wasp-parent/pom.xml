@@ -95,6 +95,7 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 		<module>../wasp-core</module>
 		<module>../wasp-tomcat-classloader</module>
 		<module>../wasp-web</module>
+		<module>../wasp-doc</module>
 	</modules>
 
 	<build>
