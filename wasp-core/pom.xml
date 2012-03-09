@@ -11,6 +11,7 @@
 
 	<groupId>edu.yu.einstein.wasp</groupId>
 	<artifactId>wasp-core</artifactId>
+	<version>0.1.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>WASP core API</name>
 
