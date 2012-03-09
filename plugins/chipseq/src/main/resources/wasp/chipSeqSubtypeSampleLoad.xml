@@ -57,6 +57,16 @@
    		<ref bean="chipSeqDnaSpecificUiFields" />
     	</list>
     </property>
+    <property name="metaFromWrapper">
+       <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
+         <property name="area" value="chipseqDnaSample" />
+         <property name="metaList">
+         	<list>        		
+         		<value>#{waspSubtypeSample['includeRoles']}=#{waspRole['ft']},#{waspRole['lu']}</value>
+         	</list>
+         </property>
+       </bean>
+    </property>
     
   </bean>
 
@@ -81,6 +91,38 @@
     		<ref bean="genericLibraryUiFields" /> 
     	</list>
     </property>
+    <property name="metaFromWrapper">
+       <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
+         <property name="area" value="chipseqLibrarySample" />
+         <property name="metaList">
+         	<list>        		
+         		<value>#{waspSubtypeSample['includeRoles']}=#{waspRole['lu']}</value>
+         	</list>
+         </property>
+       </bean>
+    </property>
+  </bean>
+  
+  <bean id="chipSeqFacilityLibrarySubtypeSampleResource" class="edu.yu.einstein.wasp.load.SubtypeSampleLoadService">
+  	<constructor-arg ref="chipSeqDnaSubtypeSampleResource" />
+    <property name="name" value="ChIP-seq Facility Library" />
+    <property name="area" value="chipseqFacilityLibrarySample" />
+    <property name="sampleType" value="#{waspSampleType['library']}" />
+    <property name="uiFieldGroupsFromWrapper">
+    	<list>
+    		<ref bean="genericLibraryUiFields" /> 
+    	</list>
+    </property>
+    <property name="metaFromWrapper">
+       <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
+         <property name="area" value="chipseqFacilityLibrarySample" />
+         <property name="metaList">
+         	<list>        		
+         		<value>#{waspSubtypeSample['includeRoles']}=#{waspRole['ft']}</value>
+         	</list>
+         </property>
+       </bean>
+    </property> 
   </bean>
   
 </beans>
