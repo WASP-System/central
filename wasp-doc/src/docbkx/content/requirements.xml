@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter version="5.0" xmlns="http://docbook.org/ns/docbook"
+	xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude"
+	xmlns:ns5="http://www.w3.org/2000/svg" xmlns:ns4="http://www.w3.org/1998/Math/MathML"
+	xmlns:ns3="http://www.w3.org/1999/xhtml" xmlns:db="http://docbook.org/ns/docbook">
+
+	<title>Requirements</title>
+	<para>
+		What you need to get started.
+	</para>
+	<variablelist>
+		<title>Hardware dependencies</title>
+		<varlistentry>
+			<term>
+				<application>Web Server</application>
+			</term>
+			<listitem>
+				<para>Physical or virtual server with the following requirements.
+				</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>
+				<application>Cluster nodes</application>
+			</term>
+			<listitem>
+				<para>Physical or virtual servers with the following requirements.
+				</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>
+				<application>Filesystem</application>
+			</term>
+			<listitem>
+				<para>Physical or virtual server with the following requirements.
+				</para>
+			</listitem>
+		</varlistentry>
+	</variablelist>
+	<para>Detailed description of server requirements.</para>
+	<para>Detailed description of filesystem requirements.</para>
+	<variablelist>
+		<title>Software dependencies</title>
+		<varlistentry>
+			<term>
+				<application>Linux</application>
+			</term>
+			<listitem>
+				<para>Linux kernel version &gt;=2.6.x, we recommend Ubuntu or
+					CentOS, however any variant of Debian or RedHat should be adequate.
+				</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>
+				<application>Scheduler</application>
+			</term>
+			<listitem>
+				<para>Sun Grid Engine or PBS/torque.
+				</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>
+				<application>Java</application>
+			</term>
+			<listitem>
+				<para>Java 1.6.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>
+				<application>Maven</application>
+			</term>
+			<listitem>
+				<para>Maven version 3.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>
+				<application>Tomcat</application>
+			</term>
+			<listitem>
+				<para>Apache Tomcat 7.0.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>
+				<application>MySQL</application>
+			</term>
+			<listitem>
+				<para>MySQL &gt;=5.0.</para>
+			</listitem>
+		</varlistentry>
+	</variablelist>
+	<para>Detailed description of operating system requirements and scheduler.</para>
+	<para>Detailed description of dependencies, where necessary.</para>
+</chapter>

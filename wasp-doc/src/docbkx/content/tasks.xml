@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<appendix version="5.0" xmlns="http://docbook.org/ns/docbook"
+	xmlns:xlink="http://www.w3.org/1999/xlink"
+	xmlns:xi="http://www.w3.org/2001/XInclude"
+	xmlns:ns5="http://www.w3.org/2000/svg"
+	xmlns:ns4="http://www.w3.org/1998/Math/MathML"
+	xmlns:ns3="http://www.w3.org/1999/xhtml"
+	xmlns:db="http://docbook.org/ns/docbook">
+
+	<title>Tasks</title>
+	<para>
+		Description of WASP tasks.  WASP Tasks are semaphores between the web application, human interaction (HI) steps,
+		and the batch processor.
+	</para>
+
+	<variablelist>
+		<title>WASP core tasks</title>
+		<varlistentry>
+			<term>Start Job</term>
+			<listitem>
+				<task>
+					<tasksummary>
+						<para>
+							This is the only <code>State</code> that is explicitly created by the web application.
+							This <code>Task</code> indicates to the batch system that a job has been correctly 
+							submitted and is ready for processing.
+						</para>
+					</tasksummary>
+					<taskprerequisites>
+						<para>
+							None.
+						</para>
+					</taskprerequisites>
+					<procedure>
+						<step>
+							Create a <code>State</code> with a <code>Task</code> of type "Start Job" and a status
+							of <code>TaskStatus.CREATED</code>.  Start Job <code>State</code>s do not have a 
+							parent State.
+						</step>
+						<step>
+							The batch processor polls for states of this type and will execute the
+							back-end processing based on collected metadata.
+						</step>
+					</procedure>
+				</task>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>Quote Job</term>
+			<listitem>
+				<task>
+					<tasksummary>
+						<para>
+							Created to indicate the progress of sending of the initial quote for a <code>Job</code>
+							request.
+						</para>
+					</tasksummary>
+					<taskprerequisites>
+						<para>
+							Requires a running batch Job.
+						</para>
+					</taskprerequisites>
+					<procedure>
+						<step>
+							Create a <code>State</code> with a <code>Task</code> of type "Quote Job" and a status
+							of <code>TaskStatus.CREATED</code>.  
+						</step>
+						<step>
+							When the quote has been confirmed as sent, the
+							web/business layer changes the status to <code>TaskStatus.COMPLETED</code>.  
+						</step>
+						<step>
+							The batch processor will advance the state to <code>TaskStatus.FINALIZED</code> and proceed
+							with flow processing.
+						</step>
+					</procedure>
+				</task>
+			</listitem>
+		</varlistentry>
+	</variablelist>
+
+</appendix>
+
+

@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter version="5.0" xmlns="http://docbook.org/ns/docbook"
+	xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude"
+	xmlns:ns5="http://www.w3.org/2000/svg" xmlns:ns4="http://www.w3.org/1998/Math/MathML"
+	xmlns:ns3="http://www.w3.org/1999/xhtml" xmlns:db="http://docbook.org/ns/docbook">
+	<title>Developing plugins</title>
+	<para>
+		The preferred development environment for WASP plugins is the
+		<ulink url="http://www.springsource.com/developer/sts">
+			<citetitle>SpringSource Tool Suite (STS)</citetitle>
+		</ulink>.
+		STS is an Eclipse IDE framework that is optimized for development of
+		Java/Spring Framework projects with good support for Maven, WASP's
+		project management tool. In order to streamline plug-in development,
+		developers can download the WASP Project Template Plug-in from the WASP
+		development site.
+	</para>
+	<blockquote>
+		<para>
+			<link>http://waspsystem.org/dev/updates/</link>
+		</para>
+	</blockquote>
+	<para>Install
+		the WASP Project Template Plug-in by selecting Help &gt;
+		Install&#xA0;new&#xA0;software... and enter the URL into the selection
+		box (
+		<xref linkend="update" />
+		).
+	</para>
+	<figure id="update">
+		<title>Installing the WASP Project Template Plug-in</title>
+		<graphic fileref="figures/update.jpg" scale="40"></graphic>
+	</figure>
+	<para>
+		After installation of the plugin, you can choose to create a new project
+		based on the WASP template. The wizard asks for a project name, namespace,
+		and the project types you would like the develop. The project name is 
+		interpreted as both the WASP plugin name and the Maven artifactId. The 
+		namespace (a Java-style fully qualified name) is used to ensure that 
+		plug-ins do not conflict and is used to define the Maven artifact groupId. 
+		The project is pre-populated with example definitions of all requested 
+		plug-in types, configures the project for WASP and sets up Maven and 
+		Spring dependencies. A simple <code>mvn install</code> generates a 
+		deployable WASP plug-in.
+	</para>
+	<para>There are three basic plug-in categories defined in WASP.
+	</para>
+	<variablelist>
+		<varlistentry>
+			<term>Web layer</term>
+			<listitem>
+				<para>Plug-ins developed for the web layer include web-flows for
+				defining data collection forms for job submission and LIMS functionality,
+				and controllers for interacting with the data model.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>Resources/metadata</term>
+			<listitem>
+				<para>Plug-ins for populating the data model with information about
+				laboratory resources and additional metadata.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>Pipelines/data processing</term>
+			<listitem>
+				<para>Plug-ins for encapsulate existing software packages as tasks and/or
+				define flows of tasks to generate analytical pipelines.</para>
+			</listitem>
+		</varlistentry>
+	</variablelist>
+	<section>
+		<title>Maven Configuration</title>
+		<para>Default maven configuration</para>
+		<programlisting language="xml"><![CDATA[
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+	http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.waspsystem</groupId>
+  <artifactId>WASP-waspplugin</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <dependencies>
+    <dependency>
+      <groupId>edu.yu.einstein.wasp</groupId>
+      <artifactId>wasp-core</artifactId>
+      <version>0.1.0-SNAPSHOT</version>
+    </dependency>
+  </dependencies>
+  <repositories>
+    <repository>
+      <id>dev.waspsystem.org</id>
+      <name>WASP repository</name>
+      <url>http://waspsystem.org/dev/repository</url>
+    </repository>
+  </repositories>
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>2.3.2</version>
+        <configuration>
+          <source>1.6</source>
+          <target>1.6</target>
+          <encoding>UTF-8</encoding>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>]]>
+		</programlisting>
+	</section>
+	<section>
+		<title>Data collection forms</title>
+		<para>Description of job sumbission form creation</para>
+		<example> ... </example>
+	</section>
+	<section>
+		<title>Automated analysis pipelines</title>
+		<para>Description of creation of tasks (applications) and pipelines.
+		</para>
+		<example>
+			<title>Task example</title>
+			this is a task.
+		</example>
+	</section>
+</chapter>

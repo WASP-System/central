@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter version="5.0" xmlns="http://docbook.org/ns/docbook"
+	xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude"
+	xmlns:ns5="http://www.w3.org/2000/svg" xmlns:ns4="http://www.w3.org/1998/Math/MathML"
+	xmlns:ns3="http://www.w3.org/1999/xhtml" xmlns:db="http://docbook.org/ns/docbook">
+	<title>Core concepts</title>
+	<para>Concepts and procedures for working with WASP.</para>
+	<section>
+		<title>Data Model</title>
+		<para>The WASP data model is managed with the object-relational mapping tool 
+		<ulink url="http://hibernate.org"><citetitle>Hibernate</citetitle></ulink>.
+		Model classes are defined in the package <code>edu.yu.einstein.wasp.model</code>
+		of the <code>wasp-core</code> module. Consult the 
+		<ulink url="http://waspsystem.org/dev/site/apidocs/index.html">
+		<citetitle>JavaDoc</citetitle></ulink> for detailed information regarding the WASP
+		data model.
+		</para>
+	</section>
+	<section>
+		<title>State</title>
+		<para>State is a central concept to dealing with data processing in WASP. 
+		State is managed by a split mechanism within WASP.  The first is a state semaphore system
+		that is handled through persistence using the WASP <code>State</code> class.  WASP developers
+		define <db:code>Task</db:code>s that represent human intervention tasks that are managed by
+		<code>State</code>s. A depiction of state transition for the overall Job task is presented in
+		<xref linkend="jobTaskState" xrefstyle="select: label" />.  In this example, upon creation of a WASP Job, a corresponding
+		<code>Task</code> is created in the database and it is assigned a <code>State</code> value indicating
+		that the process is running (running of the process is managed by Spring Batch). 
+		The processing pipeline proceeds through its steps and changes the <code>State</code> to completed 
+		after completion of work. WASP task states are defined by the <code>TaskStatus</code> <code>enum</code>.
+		The intention is to use these states for all tasks; however, states are persisted through <code>Enum</code>s
+		allowing developers can create their own states to manage custom <code>Task</code>s 
+		when it becomes necessary.  
+		</para>
+		<figure id="jobTaskState">
+			<title>State transitions for a WASP Job Task</title>
+			<!-- <graphic fileref="figures/JobTaskState.eps" scale="40" /> -->
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="figures/JobTaskState.png" width="3in" />
+				</imageobject>
+			</mediaobject>
+		</figure>
+		<para>
+		All processes defined within WASP are implemented as <ulink url="http://www.springsource.org/spring-batch">
+		<citetitle>Spring Batch</citetitle></ulink> job flows.  <xref linkend="taskState" xrefstyle="select: label" /> presents an
+		example state diagram where the state of a Spring Batch flow is determined by the <code>State</code> of
+		a WASP <code>Task</code> designed to manage human interaction related to the flow.  
+		</para>
+		<figure id="taskState">
+			<title>State transitions for a WASP task to monitor approval of a job by a principal investigator</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="figures/TaskState.png" width="5.5in" />
+				</imageobject>
+			</mediaobject>
+		</figure>
+		<para>Standard Spring Batch flows are distributed with the system as plugins, and define the standard behavior 
+		of the application.  These flows can be configured for a local instance or even completely replaced.  Any
+		logic that is particular to a particular institution can be configured by adding custom flow steps.  For example,
+		the standard web application defines the act of manually approving an invistigator's request by a departmental 
+		administrator who checks to see that the investigator has sufficient funds in the grant used to place an order.
+		This step can be removed and replaced with code that requests funds from an institutional accounting system,
+		encumbers the funds, and automatically approves the job.  This new functionality may then be overridden in
+		the web application where tasks can be approved by users with sufficient privileges.
+		</para>
+	</section>
+	<section>
+		<title>Web functionality</title>
+		<para>Description of XML definitions of web flows and implementation of custom 
+		controllers.  How to extend.</para>
+	</section>
+	<section>
+		<title>Metadata system</title>
+		<para>Description of the WASP key-value data collection system, enforcement via
+		code and how to extend it.  How to define resources and collect metadata.</para>
+	</section>
+	<section>
+		<title>Analytical Pipelines</title>
+		<para>Execution of analytical pipelines: trigger instrument specific pipelines (eg. 
+		Illumina/CASAVA), encapsulate existing tools as tasks (eg. MPS reference based aligners)
+		or define flows of tasks to generate analytical pipelines.</para>
+	</section>
+</chapter>

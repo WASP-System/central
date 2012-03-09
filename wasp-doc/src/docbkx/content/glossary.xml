@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<appendix version="5.0" xmlns="http://docbook.org/ns/docbook"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         xmlns:ns5="http://www.w3.org/2000/svg"
+         xmlns:ns4="http://www.w3.org/1998/Math/MathML"
+         xmlns:ns3="http://www.w3.org/1999/xhtml"
+         xmlns:db="http://docbook.org/ns/docbook">
+	<title>Glossaries</title>
+	<para>
+		Glossaries of WASP terms.
+	</para>
+	<glossary>
+		<title>Metadata Glossary</title>
+		<para>Registry of WASP metadata.</para>
+		<glossdiv><title>Library</title>
+			<glossentry id="fragmentSize">
+				<glossterm>library.fragmentSize</glossterm>
+		 		<acronym>fragmentSize</acronym>
+		  		<glossdef>
+		    			<para>Mean fragment size of a library, as recorded by the sequencing facility.</para>
+		      			<glossseealso otherterm="fragmentSizeSD">library.fragmentSizeDS</glossseealso>
+				</glossdef>
+			</glossentry>
+			<glossentry id="fragmentSize.emperical">
+				<glossterm>library.fragmentSize.emperical</glossterm>
+		 		<acronym>fragmentSizeSD.emperical</acronym>
+		  		<glossdef>
+		    			<para>Standard deviation of fragment size of a library, as determined from alignment to a reference.</para>
+				</glossdef>
+			</glossentry>
+			<glossentry id="fragmentSizeSD">
+				<glossterm>library.fragmentSizeSD</glossterm>
+		 		<acronym>fragmentSizeSD</acronym>
+		  		<glossdef>
+		    			<para>Standard deviation of fragment size of a library, as recorded by the sequencing facility.</para>
+				</glossdef>
+			</glossentry>
+			<glossentry id="fragmentSizeSD.emperical">
+				<glossterm>library.fragmentSizeSD.emperical</glossterm>
+		 		<acronym>fragmentSizeSD.emperical</acronym>
+		  		<glossdef>
+		    			<para>Standard deviation of fragment size of a library, as determined from alignment to a reference.</para>
+				</glossdef>
+			</glossentry>
+		</glossdiv>
+	</glossary>
+</appendix>

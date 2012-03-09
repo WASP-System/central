@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter version="5.0" xmlns="http://docbook.org/ns/docbook"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         xmlns:ns5="http://www.w3.org/2000/svg"
+         xmlns:ns4="http://www.w3.org/1998/Math/MathML"
+         xmlns:ns3="http://www.w3.org/1999/xhtml"
+         xmlns:db="http://docbook.org/ns/docbook">
+
+	<title>Installation</title>
+	<para>
+		What you need to get WASP installed.
+	</para>
+	<section>
+		<title>Database configuration</title>
+		<para>WASP database tables are defined using SQL files in the MySQL dialect. These files should be loaded into a MySQL client to
+		create the database, users, tables and initial state information.</para>
+		<programlisting>$ mysql -uroot -p &lt; createdb.sql
+$ mysql -uroot -p wasp &lt; create.sql
+$ mysql -uroot -p wasp &lt; spring_batch_init.sql</programlisting>
+	</section>
+	<section>
+		<title>Apache Tomcat administration</title>
+		<para>Install Tomcat 7.0.</para>
+		<para>Configure Tomcat as a service.</para>
+		<para>Configure WASP specific resource directories.  WASP expects the presence of 
+		the <code>$CATALINA_HOME/waspPlugins</code> folder.  This is where all plugins,
+		including application configuration plugins reside.</para>
+		<para>Configure logging.</para>
+	</section>
+	<section>
+		<title>WASP applications directory</title>
+		<para>Configure and build applications.  In order to install WASP from source, check out the latest version
+		of the code and preform the following steps to build and install:</para>
+		<para>Build the main projects</para>
+		<programlisting>$ cd wasp
+$ mvn -Dcatalina.home=$CATALINA_HOME clean install</programlisting>
+		<para>Edit database properties in the configuration project and compile and install all plugin projects</para>
+		<programlisting>$ cd wasp-plugins/wasp-config
+$ vi database.properties
+$ mvn -Dcatalina.home=$CATALINA_HOME clean install
+$ cd ../ChipSeq
+$ mvn -Dcatalina.home=$CATALINA_HOME clean install</programlisting>
+		<para>Compile the batch application</para>
+		<programlisting>$ cd ../../wasp-exec
+$ mvn -Dcatalina.home=$CATALINA_HOME clean install</programlisting>
+		<para>The <code>wasp-exec</code> README file has instructions on starting the wasp backend application.  The
+		wasp-web application can be deployed to the Tomcat application server by copying the WAR file or using the
+		maven tomcat7:deploy goal.</para>
+	</section>
+	<section>
+		<title>WASP Metadata</title>
+		<para>Configure genomes directories.</para>
+	</section>
+	<section>
+		<title>Deploy WASP</title>
+		<para>Check out the latest version of WASP, build with Maven and deploy.</para>
+	</section>
+</chapter>

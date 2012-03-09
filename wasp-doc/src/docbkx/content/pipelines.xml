@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter version="5.0" xmlns="http://docbook.org/ns/docbook"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         xmlns:ns5="http://www.w3.org/2000/svg"
+         xmlns:ns4="http://www.w3.org/1998/Math/MathML"
+         xmlns:ns3="http://www.w3.org/1999/xhtml"
+         xmlns:db="http://docbook.org/ns/docbook">
+	<title>Managing resources</title>
+	<para>WASP is designed to be flexible in that data processing flows can incorporate steps from other flows,
+	providing sequencing facilities to tune processing and analysis to their liking and actual environment.  The
+	standard processing flows are distributed as a guideline; however they may be modified as necessary to meet
+	individual needs.
+	</para>
+	<section>
+		<title>Overview of the standard flows</title>
+		<para>The basic design of a massively parallel sequencing flow is presented in 
+		<xref linkend="sequencingFlow" xrefstyle="select: label" />.</para>
+		<figure id="sequencingFlow">
+			<title>Overview of hierarchy of flows to complete a MPS analysis</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="figures/SequencingFlow.png" width="5.5in" />
+				</imageobject>
+			</mediaobject>
+		</figure>
+		<para>The diagram is intended to give an overview of the complexity of tracking all of the steps from
+		submission of a job through to sequencing and analysis of the samples.  This complexity is lessened
+		for the developer by maintaining a modular system of flows, where a master job processing flow can be 
+		configured to run using flows specific for machines, assays, and user selected analysis requirements.  
+		</para>
+		<para>WASP flows are abstracted away from eachother where ever it is possible to increase modularity.  
+		For example, sequencing flows are abstracted away from analysis flows, so that generic analysis steps
+		can be created to work on a common file type (for example FASTQ sequencing output).  Since most reference
+		based aligners deal with the FASTQ format, new aligner classes can easily be developed and added to 
+		existing pipelines, but does not preclude a particular implementation from going back and getting 
+		data at another level (e.g. colorspace) since files are tracked with appropriate metadata and 
+		are associated at the sample level. 
+		</para>
+	</section>
+</chapter>
