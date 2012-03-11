@@ -22,6 +22,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 
@@ -139,6 +140,7 @@ public class TypeResource extends WaspModel {
 	 * @return resourceCategory
 	 *
 	 */
+	@JsonIgnore
 	public List<ResourceCategory> getResourceCategory() {
 		return this.resourceCategory;
 	}
@@ -172,6 +174,7 @@ public class TypeResource extends WaspModel {
 	 * @return resource
 	 *
 	 */
+	@JsonIgnore
 	public List<Resource> getResource() {
 		return this.resource;
 	}
@@ -205,6 +208,7 @@ public class TypeResource extends WaspModel {
 	 * @return software
 	 *
 	 */
+	@JsonIgnore
 	public List<Software> getSoftware() {
 		return this.software;
 	}
@@ -238,6 +242,7 @@ public class TypeResource extends WaspModel {
 	 * @return workflowtyperesource
 	 *
 	 */
+	@JsonIgnore
 	public List<Workflowtyperesource> getWorkflowtyperesource() {
 		return this.workflowtyperesource;
 	}

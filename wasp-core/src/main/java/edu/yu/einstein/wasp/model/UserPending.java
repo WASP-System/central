@@ -24,6 +24,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 import org.hibernate.validator.constraints.Email;
@@ -429,6 +430,7 @@ public class UserPending extends WaspModel {
 	 * @return userPendingMeta
 	 *
 	 */
+	@JsonIgnore
 	public List<UserPendingMeta> getUserPendingMeta() {
 		return this.userPendingMeta;
 	}
@@ -462,6 +464,7 @@ public class UserPending extends WaspModel {
 	 * @return labPending
 	 *
 	 */
+	@JsonIgnore
 	public List<LabPending> getLabPending() {
 		return this.labPending;
 	}

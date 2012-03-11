@@ -25,6 +25,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -491,6 +492,7 @@ public class JobDraft extends WaspModel {
 	 * @return jobDraftMeta
 	 *
 	 */
+	@JsonIgnore
 	public List<JobDraftMeta> getJobDraftMeta() {
 		return this.jobDraftMeta;
 	}
@@ -524,6 +526,7 @@ public class JobDraft extends WaspModel {
 	 * @return jobDraftresourcecategory
 	 *
 	 */
+	@JsonIgnore
 	public List<JobDraftresourcecategory> getJobDraftresourcecategory() {
 		return this.jobDraftresourcecategory;
 	}
@@ -557,6 +560,7 @@ public class JobDraft extends WaspModel {
 	 * @return jobDraftSoftware
 	 *
 	 */
+	@JsonIgnore
 	public List<JobDraftSoftware> getJobDraftSoftware() {
 		return this.jobDraftSoftware;
 	}
@@ -590,6 +594,7 @@ public class JobDraft extends WaspModel {
 	 * @return sampleDraft
 	 *
 	 */
+	@JsonIgnore
 	public List<SampleDraft> getSampleDraft() {
 		return this.sampleDraft;
 	}
@@ -623,6 +628,7 @@ public class JobDraft extends WaspModel {
 	 * @return jobDraftCell
 	 *
 	 */
+	@JsonIgnore
 	public List<JobDraftCell> getJobDraftCell() {
 		return this.jobDraftCell;
 	}

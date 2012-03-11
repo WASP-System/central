@@ -24,6 +24,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 
@@ -329,6 +330,7 @@ public class AcctLedger extends WaspModel {
 	 * @return acctGrantjob
 	 *
 	 */
+	@JsonIgnore
 	public List<AcctGrantjob> getAcctGrantjob() {
 		return this.acctGrantjob;
 	}

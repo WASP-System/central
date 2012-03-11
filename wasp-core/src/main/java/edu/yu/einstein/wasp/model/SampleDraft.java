@@ -25,6 +25,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -600,6 +601,7 @@ processed
 	 * @return sampleDraftMeta
 	 *
 	 */
+	@JsonIgnore
 	public List<SampleDraftMeta> getSampleDraftMeta() {
 		return this.sampleDraftMeta;
 	}
@@ -631,6 +633,7 @@ processed
 	* @return sampleDraftCell
 	*
 	*/
+	@JsonIgnore
 	public List<SampleDraftCell> getSampleDraftCell() {
 		return this.sampleDraftCell;
 	}

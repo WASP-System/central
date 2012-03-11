@@ -24,6 +24,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -644,6 +645,7 @@ public class Sample extends WaspModel {
 	 * @return sampleMeta
 	 *
 	 */
+	@JsonIgnore
 	public List<SampleMeta> getSampleMeta() {
 		return this.sampleMeta;
 	}
@@ -677,6 +679,7 @@ public class Sample extends WaspModel {
 	 * @return sampleSource
 	 *
 	 */
+	@JsonIgnore
 	public List<SampleSource> getSampleSource() {
 		return this.sampleSource;
 	}
@@ -710,6 +713,7 @@ public class Sample extends WaspModel {
 	 * @return sampleSourceViaSourceSampleId
 	 *
 	 */
+	@JsonIgnore
 	public List<SampleSource> getSampleSourceViaSourceSampleId() {
 		return this.sampleSourceViaSourceSampleId;
 	}
@@ -743,6 +747,7 @@ public class Sample extends WaspModel {
 	 * @return sampleBarcode
 	 *
 	 */
+	@JsonIgnore
 	public List<SampleBarcode> getSampleBarcode() {
 		return this.sampleBarcode;
 	}
@@ -776,6 +781,7 @@ public class Sample extends WaspModel {
 	 * @return sampleLab
 	 *
 	 */
+	@JsonIgnore
 	public List<SampleLab> getSampleLab() {
 		return this.sampleLab;
 	}
@@ -809,6 +815,7 @@ public class Sample extends WaspModel {
 	 * @return jobSample
 	 *
 	 */
+	@JsonIgnore
 	public List<JobSample> getJobSample() {
 		return this.jobSample;
 	}
@@ -842,6 +849,7 @@ public class Sample extends WaspModel {
 	 * @return sampleCell
 	 *
 	 */
+	@JsonIgnore
 	public List<SampleCell> getSampleCell() {
 		return this.sampleCell;
 	}
@@ -875,6 +883,7 @@ public class Sample extends WaspModel {
 	 * @return sampleFile
 	 *
 	 */
+	@JsonIgnore
 	public List<SampleFile> getSampleFile() {
 		return this.sampleFile;
 	}
@@ -908,6 +917,7 @@ public class Sample extends WaspModel {
 	 * @return run
 	 *
 	 */
+	@JsonIgnore
 	public List<Run> getRun() {
 		return this.run;
 	}
@@ -941,6 +951,7 @@ public class Sample extends WaspModel {
 	 * @return runLane
 	 *
 	 */
+	@JsonIgnore
 	public List<RunLane> getRunLane() {
 		return this.runLane;
 	}
@@ -974,6 +985,7 @@ public class Sample extends WaspModel {
 	 * @return statesample
 	 *
 	 */
+	@JsonIgnore
 	public List<Statesample> getStatesample() {
 		return this.statesample;
 	}

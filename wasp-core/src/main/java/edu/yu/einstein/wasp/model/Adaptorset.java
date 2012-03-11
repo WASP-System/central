@@ -23,6 +23,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 
@@ -234,6 +235,7 @@ public class Adaptorset extends WaspModel {
 	 * @return adaptorsetMeta
 	 *
 	 */
+	@JsonIgnore
 	public List<AdaptorsetMeta> getAdaptorsetMeta() {
 		return this.adaptorsetMeta;
 	}
@@ -267,6 +269,7 @@ public class Adaptorset extends WaspModel {
 	 * @return adaptorsetresourcecategory
 	 *
 	 */
+	@JsonIgnore
 	public List<AdaptorsetResourceCategory> getAdaptorsetResourceCategory() {
 		return this.adaptorsetresourcecategory;
 	}
@@ -300,6 +303,7 @@ public class Adaptorset extends WaspModel {
 	 * @return adaptor
 	 *
 	 */
+	@JsonIgnore
 	public List<Adaptor> getAdaptor() {
 		return this.adaptor;
 	}

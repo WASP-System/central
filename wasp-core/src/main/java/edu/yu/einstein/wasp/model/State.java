@@ -24,6 +24,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 
@@ -391,6 +392,7 @@ public class State extends WaspModel {
 	 * @return stateViaSourceStateId
 	 *
 	 */
+	@JsonIgnore
 	public List<State> getStateViaSourceStateId() {
 		return this.stateViaSourceStateId;
 	}
@@ -424,6 +426,7 @@ public class State extends WaspModel {
 	 * @return stateMeta
 	 *
 	 */
+	@JsonIgnore
 	public List<StateMeta> getStateMeta() {
 		return this.stateMeta;
 	}
@@ -457,6 +460,7 @@ public class State extends WaspModel {
 	 * @return statejob
 	 *
 	 */
+	@JsonIgnore
 	public List<Statejob> getStatejob() {
 		return this.statejob;
 	}
@@ -490,6 +494,7 @@ public class State extends WaspModel {
 	 * @return statesample
 	 *
 	 */
+	@JsonIgnore
 	public List<Statesample> getStatesample() {
 		return this.statesample;
 	}
@@ -523,6 +528,7 @@ public class State extends WaspModel {
 	 * @return staterun
 	 *
 	 */
+	@JsonIgnore
 	public List<Staterun> getStaterun() {
 		return this.staterun;
 	}
@@ -556,6 +562,7 @@ public class State extends WaspModel {
 	 * @return staterunlane
 	 *
 	 */
+	@JsonIgnore
 	public List<Staterunlane> getStaterunlane() {
 		return this.staterunlane;
 	}

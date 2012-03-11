@@ -23,6 +23,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 
@@ -357,6 +358,7 @@ public class File extends WaspModel {
 	 * @return sampleDraft
 	 *
 	 */
+	@JsonIgnore
 	public List<SampleDraft> getSampleDraft() {
 		return this.sampleDraft;
 	}
@@ -390,6 +392,7 @@ public class File extends WaspModel {
 	 * @return jobFile
 	 *
 	 */
+	@JsonIgnore
 	public List<JobFile> getJobFile() {
 		return this.jobFile;
 	}
@@ -423,6 +426,7 @@ public class File extends WaspModel {
 	 * @return sampleFile
 	 *
 	 */
+	@JsonIgnore
 	public List<SampleFile> getSampleFile() {
 		return this.sampleFile;
 	}
@@ -456,6 +460,7 @@ public class File extends WaspModel {
 	 * @return runFile
 	 *
 	 */
+	@JsonIgnore
 	public List<RunFile> getRunFile() {
 		return this.runFile;
 	}
@@ -489,6 +494,7 @@ public class File extends WaspModel {
 	 * @return runLanefile
 	 *
 	 */
+	@JsonIgnore
 	public List<RunLanefile> getRunLanefile() {
 		return this.runLanefile;
 	}

@@ -24,6 +24,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 
@@ -293,6 +294,7 @@ public class ResourceCategory extends WaspModel {
 	 * @return resourceCategoryMeta
 	 *
 	 */
+	@JsonIgnore
 	public List<ResourceCategoryMeta> getResourceCategoryMeta() {
 		return this.resourceCategoryMeta;
 	}
@@ -326,6 +328,7 @@ public class ResourceCategory extends WaspModel {
 	 * @return resource
 	 *
 	 */
+	@JsonIgnore
 	public List<Resource> getResource() {
 		return this.resource;
 	}
@@ -359,6 +362,7 @@ public class ResourceCategory extends WaspModel {
 	 * @return jobDraftresourcecategory
 	 *
 	 */
+	@JsonIgnore
 	public List<JobDraftresourcecategory> getJobDraftresourcecategory() {
 		return this.jobDraftresourcecategory;
 	}
@@ -390,6 +394,7 @@ public class ResourceCategory extends WaspModel {
 	 * @return workflowresourcecategory
 	 *
 	 */
+	@JsonIgnore
 	public List<Workflowresourcecategory> getWorkflowresourcecategory() {
 		return this.workflowresourcecategory;
 	}
@@ -423,6 +428,7 @@ public class ResourceCategory extends WaspModel {
 	 * @return adaptorsetResourceCategory
 	 *
 	 */
+	@JsonIgnore
 	public List<AdaptorsetResourceCategory> getAdaptorsetResourceCategory() {
 		return this.adaptorsetResourceCategory;
 	}
@@ -455,6 +461,7 @@ public class ResourceCategory extends WaspModel {
 	 * @return subtypeSampleResourceCategory
 	 *
 	 */
+	@JsonIgnore
 	public List<SubtypeSampleResourceCategory> getSubtypeSampleResourceCategory() {
 		return this.subtypeSampleResourceCategory;
 	}

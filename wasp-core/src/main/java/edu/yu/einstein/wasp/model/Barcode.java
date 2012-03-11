@@ -23,6 +23,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 
@@ -233,6 +234,7 @@ public class Barcode extends WaspModel {
 	 * @return resourceBarcode
 	 *
 	 */
+	@JsonIgnore
 	public List<ResourceBarcode> getResourceBarcode() {
 		return this.resourceBarcode;
 	}
@@ -266,6 +268,7 @@ public class Barcode extends WaspModel {
 	 * @return sampleBarcode
 	 *
 	 */
+	@JsonIgnore
 	public List<SampleBarcode> getSampleBarcode() {
 		return this.sampleBarcode;
 	}

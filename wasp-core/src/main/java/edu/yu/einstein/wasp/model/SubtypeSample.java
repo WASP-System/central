@@ -24,6 +24,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 
@@ -272,6 +273,7 @@ public class SubtypeSample extends WaspModel {
 	 * @return workflowsubtypesample
 	 *
 	 */
+	@JsonIgnore
 	public List<Workflowsubtypesample> getWorkflowsubtypesample() {
 		return this.workflowsubtypesample;
 	}
@@ -303,6 +305,7 @@ public class SubtypeSample extends WaspModel {
 	 * @return subtypeSampleResourceCategory
 	 *
 	 */
+	@JsonIgnore
 	public List<SubtypeSampleResourceCategory> getSubtypeSampleResourceCategory() {
 		return this.subtypeSampleResourceCategory;
 	}
@@ -334,6 +337,7 @@ public class SubtypeSample extends WaspModel {
 	 * @return sample
 	 *
 	 */
+	@JsonIgnore
 	public List<Sample> getSample() {
 		return this.sample;
 	}
@@ -367,6 +371,7 @@ public class SubtypeSample extends WaspModel {
 	 * @return sampleDraft
 	 *
 	 */
+	@JsonIgnore
 	public List<SampleDraft> getSampleDraft() {
 		return this.sampleDraft;
 	}
@@ -399,6 +404,7 @@ public class SubtypeSample extends WaspModel {
 	 * @return subtypeSampleMeta
 	 *
 	 */
+	@JsonIgnore
 	public List<SubtypeSampleMeta> getSubtypeSampleMeta() {
 		return this.subtypeSampleMeta;
 	}

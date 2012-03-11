@@ -22,6 +22,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 
@@ -139,6 +140,7 @@ public class Task extends WaspModel {
 	 * @return workflowtask
 	 *
 	 */
+	@JsonIgnore
 	public List<Workflowtask> getWorkflowtask() {
 		return this.workflowtask;
 	}
@@ -172,6 +174,7 @@ public class Task extends WaspModel {
 	 * @return state
 	 *
 	 */
+	@JsonIgnore
 	public List<State> getState() {
 		return this.state;
 	}
@@ -205,6 +208,7 @@ public class Task extends WaspModel {
 	 * @return taskMapping
 	 *
 	 */
+	@JsonIgnore
 	public List<TaskMapping> getTaskMapping() {
 		return this.taskMapping;
 	}

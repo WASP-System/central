@@ -22,6 +22,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 
@@ -139,7 +140,7 @@ public class TypeSampleCategory extends WaspModel {
 	 * @return typeSample
 	 *
 	 */
-	
+	@JsonIgnore
 	public List<TypeSample> getTypeSample() {
 		return this.typeSample;
 	}

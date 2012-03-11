@@ -24,6 +24,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 
@@ -360,6 +361,7 @@ public class AcctQuote extends WaspModel {
 	 * @return acctJobquotecurrent
 	 *
 	 */
+	@JsonIgnore
 	public List<AcctJobquotecurrent> getAcctJobquotecurrent() {
 		return this.acctJobquotecurrent;
 	}
@@ -393,6 +395,7 @@ public class AcctQuote extends WaspModel {
 	 * @return acctQuoteUser
 	 *
 	 */
+	@JsonIgnore
 	public List<AcctQuoteUser> getAcctQuoteUser() {
 		return this.acctQuoteUser;
 	}
@@ -426,6 +429,7 @@ public class AcctQuote extends WaspModel {
 	 * @return acctInvoice
 	 *
 	 */
+	@JsonIgnore
 	public List<AcctInvoice> getAcctInvoice() {
 		return this.acctInvoice;
 	}
@@ -458,6 +462,7 @@ public class AcctQuote extends WaspModel {
 	 * @return acctQuoteMeta
 	 *
 	 */
+	@JsonIgnore
 	public List<AcctQuoteMeta> getAcctQuoteMeta() {
 		return this.acctQuoteMeta;
 	}

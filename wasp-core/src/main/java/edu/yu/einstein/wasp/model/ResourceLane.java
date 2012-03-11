@@ -23,6 +23,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 
@@ -234,6 +235,7 @@ public class ResourceLane extends WaspModel {
 	 * @return runLane
 	 *
 	 */
+	@JsonIgnore
 	public List<RunLane> getRunLane() {
 		return this.runLane;
 	}

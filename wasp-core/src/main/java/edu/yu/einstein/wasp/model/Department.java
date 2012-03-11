@@ -268,6 +268,7 @@ public class Department extends WaspModel {
 	 * @return lab
 	 *
 	 */
+	@JsonIgnore
 	public List<Lab> getLab() {
 		return this.lab;
 	}

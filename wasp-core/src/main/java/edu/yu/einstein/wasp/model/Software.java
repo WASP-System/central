@@ -24,6 +24,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 
@@ -293,6 +294,7 @@ public class Software extends WaspModel {
 	 * @return softwareMeta
 	 *
 	 */
+	@JsonIgnore
 	public List<SoftwareMeta> getSoftwareMeta() {
 		return this.softwareMeta;
 	}
@@ -326,6 +328,7 @@ public class Software extends WaspModel {
 	 * @return jobSoftware
 	 *
 	 */
+	@JsonIgnore
 	public List<JobSoftware> getJobSoftware() {
 		return this.jobSoftware;
 	}
@@ -359,6 +362,7 @@ public class Software extends WaspModel {
 	 * @return jobDraftSoftware
 	 *
 	 */
+	@JsonIgnore
 	public List<JobDraftSoftware> getJobDraftSoftware() {
 		return this.jobDraftSoftware;
 	}
@@ -392,6 +396,7 @@ public class Software extends WaspModel {
 	 * @return workflowSoftware
 	 *
 	 */
+	@JsonIgnore
 	public List<WorkflowSoftware> getWorkflowSoftware() {
 		return this.workflowSoftware;
 	}

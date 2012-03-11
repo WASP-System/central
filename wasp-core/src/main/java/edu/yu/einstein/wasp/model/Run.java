@@ -24,6 +24,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 
@@ -611,6 +612,7 @@ public class Run extends WaspModel {
 	 * @return runMeta
 	 *
 	 */
+	@JsonIgnore
 	public List<RunMeta> getRunMeta() {
 		return this.runMeta;
 	}
@@ -644,6 +646,7 @@ public class Run extends WaspModel {
 	 * @return runLane
 	 *
 	 */
+	@JsonIgnore
 	public List<RunLane> getRunLane() {
 		return this.runLane;
 	}
@@ -677,6 +680,7 @@ public class Run extends WaspModel {
 	 * @return runFile
 	 *
 	 */
+	@JsonIgnore
 	public List<RunFile> getRunFile() {
 		return this.runFile;
 	}
@@ -710,6 +714,7 @@ public class Run extends WaspModel {
 	 * @return staterun
 	 *
 	 */
+	@JsonIgnore
 	public List<Staterun> getStaterun() {
 		return this.staterun;
 	}

@@ -23,6 +23,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 
@@ -267,6 +268,7 @@ public class RunLane extends WaspModel {
 	 * @return runLanefile
 	 *
 	 */
+	@JsonIgnore
 	public List<RunLanefile> getRunLanefile() {
 		return this.runLanefile;
 	}
@@ -300,6 +302,7 @@ public class RunLane extends WaspModel {
 	 * @return staterunlane
 	 *
 	 */
+	@JsonIgnore
 	public List<Staterunlane> getStaterunlane() {
 		return this.staterunlane;
 	}

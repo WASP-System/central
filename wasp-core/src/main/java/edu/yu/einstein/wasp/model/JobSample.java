@@ -24,6 +24,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 
@@ -267,6 +268,7 @@ public class JobSample extends WaspModel {
 	 * @return jobSampleMeta
 	 *
 	 */
+	@JsonIgnore
 	public List<JobSampleMeta> getJobSampleMeta() {
 		return this.jobSampleMeta;
 	}

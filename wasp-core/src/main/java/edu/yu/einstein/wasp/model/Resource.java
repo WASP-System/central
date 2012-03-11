@@ -24,6 +24,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 
@@ -357,6 +358,7 @@ public class Resource extends WaspModel {
 	 * @return resourceMeta
 	 *
 	 */
+	@JsonIgnore
 	public List<ResourceMeta> getResourceMeta() {
 		return this.resourceMeta;
 	}
@@ -390,6 +392,7 @@ public class Resource extends WaspModel {
 	 * @return jobResource
 	 *
 	 */
+	@JsonIgnore
 	public List<JobResource> getJobResource() {
 		return this.jobResource;
 	}
@@ -423,6 +426,7 @@ public class Resource extends WaspModel {
 	 * @return jobResourcecategory
 	 *
 	 */
+	@JsonIgnore
 	public List<JobResourcecategory> getJobResourcecategory() {
 		return this.jobResourcecategory;
 	}
@@ -456,6 +460,7 @@ public class Resource extends WaspModel {
 	 * @return resourceBarcode
 	 *
 	 */
+	@JsonIgnore
 	public List<ResourceBarcode> getResourceBarcode() {
 		return this.resourceBarcode;
 	}
@@ -489,6 +494,7 @@ public class Resource extends WaspModel {
 	 * @return resourceLane
 	 *
 	 */
+	@JsonIgnore
 	public List<ResourceLane> getResourceLane() {
 		return this.resourceLane;
 	}
@@ -522,6 +528,7 @@ public class Resource extends WaspModel {
 	 * @return run
 	 *
 	 */
+	@JsonIgnore
 	public List<Run> getRun() {
 		return this.run;
 	}

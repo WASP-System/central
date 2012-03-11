@@ -24,6 +24,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 
@@ -329,6 +330,7 @@ public class AcctInvoice extends WaspModel {
 	 * @return acctLedger
 	 *
 	 */
+	@JsonIgnore
 	public List<AcctLedger> getAcctLedger() {
 		return this.acctLedger;
 	}

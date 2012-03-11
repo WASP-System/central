@@ -24,6 +24,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 
@@ -454,6 +455,7 @@ public class Job extends WaspModel {
 	 * @return jobMeta
 	 *
 	 */
+	@JsonIgnore
 	public List<JobMeta> getJobMeta() {
 		return this.jobMeta;
 	}
@@ -487,6 +489,7 @@ public class Job extends WaspModel {
 	 * @return jobUser
 	 *
 	 */
+	@JsonIgnore
 	public List<JobUser> getJobUser() {
 		return this.jobUser;
 	}
@@ -520,6 +523,7 @@ public class Job extends WaspModel {
 	 * @return jobDraft
 	 *
 	 */
+	@JsonIgnore
 	public List<JobDraft> getJobDraft() {
 		return this.jobDraft;
 	}
@@ -553,6 +557,7 @@ public class Job extends WaspModel {
 	 * @return sample
 	 *
 	 */
+	@JsonIgnore
 	public List<Sample> getSample() {
 		return this.sample;
 	}
@@ -586,6 +591,7 @@ public class Job extends WaspModel {
 	 * @return jobSample
 	 *
 	 */
+	@JsonIgnore
 	public List<JobSample> getJobSample() {
 		return this.jobSample;
 	}
@@ -619,6 +625,7 @@ public class Job extends WaspModel {
 	 * @return jobCell
 	 *
 	 */
+	@JsonIgnore
 	public List<JobCell> getJobCell() {
 		return this.jobCell;
 	}
@@ -652,6 +659,7 @@ public class Job extends WaspModel {
 	 * @return acctWorkflowcost
 	 *
 	 */
+	@JsonIgnore
 	public List<AcctWorkflowcost> getAcctWorkflowcost() {
 		return this.acctWorkflowcost;
 	}
@@ -685,6 +693,7 @@ public class Job extends WaspModel {
 	 * @return acctQuote
 	 *
 	 */
+	@JsonIgnore
 	public List<AcctQuote> getAcctQuote() {
 		return this.acctQuote;
 	}
@@ -718,6 +727,7 @@ public class Job extends WaspModel {
 	 * @return acctJobquotecurrent
 	 *
 	 */
+	@JsonIgnore
 	public List<AcctJobquotecurrent> getAcctJobquotecurrent() {
 		return this.acctJobquotecurrent;
 	}
@@ -751,6 +761,7 @@ public class Job extends WaspModel {
 	 * @return acctInvoice
 	 *
 	 */
+	@JsonIgnore
 	public List<AcctInvoice> getAcctInvoice() {
 		return this.acctInvoice;
 	}
@@ -784,6 +795,7 @@ public class Job extends WaspModel {
 	 * @return acctLedger
 	 *
 	 */
+	@JsonIgnore
 	public List<AcctLedger> getAcctLedger() {
 		return this.acctLedger;
 	}
@@ -817,6 +829,7 @@ public class Job extends WaspModel {
 	 * @return jobFile
 	 *
 	 */
+	@JsonIgnore
 	public List<JobFile> getJobFile() {
 		return this.jobFile;
 	}
@@ -850,6 +863,7 @@ public class Job extends WaspModel {
 	 * @return statejob
 	 *
 	 */
+	@JsonIgnore
 	public List<Statejob> getStatejob() {
 		return this.statejob;
 	}
@@ -885,6 +899,7 @@ public class Job extends WaspModel {
          * @return jobResource
          *
          */
+        @JsonIgnore
         public List<JobResource> getJobResource() {
                 return this.jobResource;
         }
@@ -918,6 +933,7 @@ public class Job extends WaspModel {
          * @return jobResourcecategory
          *
          */
+        @JsonIgnore
         public List<JobResourcecategory> getJobResourcecategory() {
                 return this.jobResourcecategory;
         }
@@ -949,6 +965,7 @@ public class Job extends WaspModel {
          * @return jobSoftware
          *
          */
+        @JsonIgnore
         public List<JobSoftware> getJobSoftware() {
                 return this.jobSoftware;
         }

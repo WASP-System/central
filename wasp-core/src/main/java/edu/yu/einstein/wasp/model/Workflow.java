@@ -23,6 +23,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 
@@ -264,6 +265,7 @@ public class Workflow extends WaspModel {
 	 * @return workflowMeta
 	 *
 	 */
+	@JsonIgnore
 	public List<WorkflowMeta> getWorkflowMeta() {
 		return this.workflowMeta;
 	}
@@ -297,6 +299,7 @@ public class Workflow extends WaspModel {
 	 * @return job
 	 *
 	 */
+	@JsonIgnore
 	public List<Job> getJob() {
 		return this.job;
 	}
@@ -330,6 +333,7 @@ public class Workflow extends WaspModel {
 	 * @return jobDraft
 	 *
 	 */
+	@JsonIgnore
 	public List<JobDraft> getJobDraft() {
 		return this.jobDraft;
 	}
@@ -363,6 +367,7 @@ public class Workflow extends WaspModel {
 	 * @return workflowsubtypesample
 	 *
 	 */
+	@JsonIgnore
 	public List<Workflowsubtypesample> getWorkflowsubtypesample() {
 		return this.workflowsubtypesample;
 	}
@@ -396,6 +401,7 @@ public class Workflow extends WaspModel {
 	 * @return workflowtyperesource
 	 *
 	 */
+	@JsonIgnore
 	public List<Workflowtyperesource> getWorkflowtyperesource() {
 		return this.workflowtyperesource;
 	}
@@ -429,6 +435,7 @@ public class Workflow extends WaspModel {
 	 * @return workflowresourcecategory
 	 *
 	 */
+	@JsonIgnore
 	public List<Workflowresourcecategory> getWorkflowresourcecategory() {
 		return this.workflowresourcecategory;
 	}
@@ -462,6 +469,7 @@ public class Workflow extends WaspModel {
 	 * @return workflowSoftware
 	 *
 	 */
+	@JsonIgnore
 	public List<WorkflowSoftware> getWorkflowSoftware() {
 		return this.workflowSoftware;
 	}
@@ -495,6 +503,7 @@ public class Workflow extends WaspModel {
 	 * @return workflowtask
 	 *
 	 */
+	@JsonIgnore
 	public List<Workflowtask> getWorkflowtask() {
 		return this.workflowtask;
 	}

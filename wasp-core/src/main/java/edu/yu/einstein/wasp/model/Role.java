@@ -22,6 +22,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 
@@ -170,6 +171,7 @@ public class Role extends WaspModel {
 	 * @return roleset
 	 *
 	 */
+	@JsonIgnore
 	public List<Roleset> getRoleset() {
 		return this.roleset;
 	}
@@ -203,6 +205,7 @@ public class Role extends WaspModel {
 	 * @return rolesetViaChildroleId
 	 *
 	 */
+	@JsonIgnore
 	public List<Roleset> getRolesetViaChildroleId() {
 		return this.rolesetViaChildroleId;
 	}
@@ -236,6 +239,7 @@ public class Role extends WaspModel {
 	 * @return userrole
 	 *
 	 */
+	@JsonIgnore
 	public List<Userrole> getUserrole() {
 		return this.userrole;
 	}
@@ -269,6 +273,7 @@ public class Role extends WaspModel {
 	 * @return labUser
 	 *
 	 */
+	@JsonIgnore
 	public List<LabUser> getLabUser() {
 		return this.labUser;
 	}
@@ -302,6 +307,7 @@ public class Role extends WaspModel {
 	 * @return jobUser
 	 *
 	 */
+	@JsonIgnore
 	public List<JobUser> getJobUser() {
 		return this.jobUser;
 	}
@@ -335,6 +341,7 @@ public class Role extends WaspModel {
 	 * @return acctQuoteUser
 	 *
 	 */
+	@JsonIgnore
 	public List<AcctQuoteUser> getAcctQuoteUser() {
 		return this.acctQuoteUser;
 	}

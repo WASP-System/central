@@ -23,6 +23,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 
@@ -205,6 +206,7 @@ public class TypeSample extends WaspModel {
 	 * @return subtypeSample
 	 *
 	 */
+	@JsonIgnore
 	public List<SubtypeSample> getSubtypeSample() {
 		return this.subtypeSample;
 	}
@@ -238,6 +240,7 @@ public class TypeSample extends WaspModel {
 	 * @return sample
 	 *
 	 */
+	@JsonIgnore
 	public List<Sample> getSample() {
 		return this.sample;
 	}
@@ -271,6 +274,7 @@ public class TypeSample extends WaspModel {
 	 * @return sampleDraft
 	 *
 	 */
+	@JsonIgnore
 	public List<SampleDraft> getSampleDraft() {
 		return this.sampleDraft;
 	}
@@ -304,6 +308,7 @@ public class TypeSample extends WaspModel {
 	 * @return adaptorset
 	 *
 	 */
+	@JsonIgnore
 	public List<Adaptorset> getAdaptorset() {
 		return this.adaptorset;
 	}

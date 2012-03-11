@@ -23,6 +23,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 
@@ -204,6 +205,7 @@ public class WorkflowSoftware extends WaspModel {
 	 * @return workflowsoftwareMeta
 	 *
 	 */
+	@JsonIgnore
 	public List<WorkflowsoftwareMeta> getWorkflowsoftwareMeta() {
 		return this.workflowsoftwareMeta;
 	}

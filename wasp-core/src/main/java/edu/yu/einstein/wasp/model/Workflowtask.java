@@ -23,6 +23,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 
@@ -266,6 +267,7 @@ public class Workflowtask extends WaspModel {
 	 * @return workflowtasksource
 	 *
 	 */
+	@JsonIgnore
 	public List<Workflowtasksource> getWorkflowtasksource() {
 		return this.workflowtasksource;
 	}
@@ -299,6 +301,7 @@ public class Workflowtask extends WaspModel {
 	 * @return workflowtasksourceViaSourceworkflowtaskId
 	 *
 	 */
+	@JsonIgnore
 	public List<Workflowtasksource> getWorkflowtasksourceViaSourceworkflowtaskId() {
 		return this.workflowtasksourceViaSourceworkflowtaskId;
 	}
