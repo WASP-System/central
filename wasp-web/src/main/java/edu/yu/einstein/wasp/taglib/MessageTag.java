@@ -47,8 +47,7 @@ public class MessageTag extends BodyTagSupport {
 		if (session==null) return Tag.SKIP_BODY;
 		
 		List<String> messageKeys=(List<String>)session.getAttribute(FEEDBACK_SESSION_ATTRIBUTE_NAME);
-		
-		if (messageKeys==null || messageKeys.isEmpty()) return Tag.SKIP_BODY;
+	
 		
 		Locale locale=(Locale)session.getAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 		
@@ -57,16 +56,20 @@ public class MessageTag extends BodyTagSupport {
 	
 		
 		StringBuffer buf=new StringBuffer("");
-		buf.append("<div id='waspMessage' class='waspMessage'><ul>\n");
-		for(String key:messageKeys) {
-			try {
-				String message="<li>"+DBResourceBundle.MESSAGE_SOURCE.getMessage(key, null,Locale.US) + "</li>\n";
-				buf.append(message);
-			} catch (Throwable e) {
-				log.error("Cant get message by key "+key,e);
+		buf.append("<div id='waspMessage' class='waspMessage'>");
+		if (messageKeys!=null && !messageKeys.isEmpty()){
+			buf.append("<ul>\n");
+			for(String key:messageKeys) {
+				try {
+					String message="<li>"+DBResourceBundle.MESSAGE_SOURCE.getMessage(key, null,Locale.US) + "</li>\n";
+					buf.append(message);
+				} catch (Throwable e) {
+					log.error("Cant get message by key "+key,e);
+				}
 			}
+			buf.append("</ul>\n");
 		}
-		buf.append("</ul></div>\n");
+		buf.append("</div>\n");
 		
 		session.removeAttribute(FEEDBACK_SESSION_ATTRIBUTE_NAME);
 		

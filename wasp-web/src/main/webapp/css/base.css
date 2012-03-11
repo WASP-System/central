@@ -252,6 +252,7 @@ div.waspMessage {
 	border: 1px solid #1A661A;
 	padding: 5px 5px 5px 5px;
 	margin: 10px 0px 20px 0px;
+	display:none;
 }
 
 div.waspMessage ul, div.waspErrorMessage ul{
@@ -266,6 +267,7 @@ div.waspErrorMessage {
 	border: 1px solid #990000;
 	padding: 5px 5px 5px 5px;
 	margin: 10px 0px 20px 0px;
+	display:none;
 }
 
 span.requiredField{

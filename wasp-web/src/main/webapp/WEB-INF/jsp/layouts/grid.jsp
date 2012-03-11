@@ -316,18 +316,20 @@
 		<%-- display message / fade it after 5 seconds. --%>
 		function waspFade(el, msg) {
 			if (msg != null && msg != ""){
-				$('#'+el).text(msg);
-				$('#'+el).css('opacity', '100');
+				$('#'+el).html(msg);
 			}
-			setTimeout(function() {
-				$('#'+el).fadeOut('slow',
-					function() {
-						// after fadeout do the following
-						$('#'+el).text('');
-						$('#'+el).show();
-						$('#'+el).css('opacity', '0');
-					});
-			},5000);
+			if ($('#'+el).html() == ''){
+				$('#'+el).hide();
+			} else {
+				$('#'+el).show();
+				setTimeout(function() {
+					$('#'+el).fadeOut('slow',
+						function() {
+							// after fadeout do the following
+							$('#'+el).html('');
+						});
+				},5000);
+			}
 		}
 	
 	 
