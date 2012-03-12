@@ -109,6 +109,7 @@
 
   <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
     <property name="host" value="${email.host}"/>
+    <property name="port" value="${email.port}"/>
     <property name="defaultEncoding" value="${email.encoding}" />   
     <property name="username" value="${email.username}" />
     <property name="password" value="${email.password}" />    
