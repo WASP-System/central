@@ -832,6 +832,11 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 			<url>http://repo1.maven.org/maven2</url>
 		</repository>
 		<repository>
+			<id>mvnsearch</id>
+			<name>MVNsearch</name>
+			<url>http://www.mvnsearch.org/maven2</url>
+		</repository>
+		<repository>
 			<id>simplecaptcha</id>
 			<name>Simple Captcha Repository</name>
 			<url>http://maven.glassfish.org/content/repositories/glassfish-group</url>
