@@ -587,18 +587,6 @@ create table jobuser (
   constraint unique index u_jobuser_jid_uid (jobid, userid)
 ) ENGINE=InnoDB charset=utf8;
 
-create table jobresource (
-  jobresourceid int(10)  primary key auto_increment,
-  jobid int(10) ,
-  resourceid int(10) ,
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_jobresource_jdid (jobid) references job(jobid),
-  foreign key fk_jobresource_rid (resourceid) references resource(resourceid),
-  constraint unique index u_jobresource_rid_jdid (resourceid, jobid)
-) ENGINE=InnoDB charset=utf8;
 
 create table jobresourcecategory (
   jobresourcecategoryid int(10)  primary key auto_increment,
@@ -608,9 +596,9 @@ create table jobresourcecategory (
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
 
-  foreign key fk_jobresourcecategory_jdid (jobid) references job(jobid),
-  foreign key fk_jobresourcecategory_rid (resourcecategoryid) references resourcecategory(resourcecategoryid),
-  constraint unique index u_jobresource_rcid_jdid (resourcecategoryid, jobid)
+  foreign key fk_jobresourcecategory_jid (jobid) references job(jobid),
+  foreign key fk_jobresourcecategory_rcid (resourcecategoryid) references resourcecategory(resourcecategoryid),
+  constraint unique index u_jobresourcecategory_rcid_jid (resourcecategoryid, jobid)
 ) ENGINE=InnoDB charset=utf8;
 
 create table jobsoftware (
