@@ -589,7 +589,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail_emailnotfound','error','Email not found','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail_ok','label','New Administrator Created','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail_formatting','error','Formatting Error','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail_missinglogin','error','Login is empty','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail_missinglogin','error','No new administrator username provided','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail_usernotfound','error','User not found in database','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail_remove','label','Remove','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','create','label','Create New Department','1');
