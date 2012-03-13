@@ -234,7 +234,7 @@
       			<c:forEach items="${up.userPendingMeta}" var="meta"> 
         			<c:set var="optionName" value="${meta.k}.label" /><fmt:message key="${optionName}" />:&nbsp;<c:out value="${meta.v}" /><br />
        			</c:forEach>  
-      			<br /><div class="submit"><a href="<c:url value="/lab/userpending/approve/${lab.labId}/${up.userPendingId}.do"/>">APPROVE</a></div> <div class="submit"><a href="<c:url value="/lab/userpending/reject/${lab.labId}/${up.userPendingId}.do"/>">REJECT</a></div>   
+      			<br /><div class="submit"><a href="<c:url value="/lab/userpending/approve/${lab.labId}/${up.userPendingId}.do"/>">APPROVE</a> <a href="<c:url value="/lab/userpending/reject/${lab.labId}/${up.userPendingId}.do"/>">REJECT</a></div>   
       		</div> 
       </c:forEach>
       <c:forEach items="${existinguserspendinglist}" var="lu">
@@ -243,7 +243,7 @@
       			<c:forEach items="${lu.user.userMeta}" var="meta"> 
             		<c:set var="optionName" value="${meta.k}.label" /><fmt:message key="${optionName}" />:&nbsp;<c:out value="${meta.v}" /><br />
       			</c:forEach>
-      			<br /> <div class="submit"><a href="<c:url value="/lab/labuserpending/approve/${lab.labId}/${lu.labUserId}.do"/>">APPROVE</a></div> <div class="submit"><a href="<c:url value="/lab/labuserpending/reject/${lab.labId}/${lu.labUserId}.do"/>">REJECT</a></div>
+      			<br /> <div class="submit"><a href="<c:url value="/lab/labuserpending/approve/${lab.labId}/${lu.labUserId}.do"/>">APPROVE</a> <a href="<c:url value="/lab/labuserpending/reject/${lab.labId}/${lu.labUserId}.do"/>">REJECT</a></div>
       		</div>     
 	  </c:forEach>  
 	  </div> 
@@ -265,7 +265,7 @@
       			<c:forEach items="${job.jobMeta}" var="meta">     
      				<c:set var="optionName" value="${meta.k}.label" /><fmt:message key="${optionName}" />:&nbsp;<c:out value="${meta.v}" /><br />
     			</c:forEach>
-      			<br /> <div class="submit"><a href="<c:url value="/job/pendinglmapproval/approve/${lab.labId}/${job.jobId}.do"/>">APPROVE</a></div> <div class="submit"><a href="<c:url value="/job/pendinglmapproval/reject/${lab.labId}/${job.jobId}.do"/>">REJECT</a></div>     
+      			<br /> <div class="submit"><a href="<c:url value="/job/pendinglmapproval/approve/${lab.labId}/${job.jobId}.do"/>">APPROVE</a> <a href="<c:url value="/job/pendinglmapproval/reject/${lab.labId}/${job.jobId}.do"/>">REJECT</a></div>     
       		</div>
       	</c:forEach> 
     	</div>
