@@ -1,146 +1,155 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<web-app version="2.4"
-         xmlns="http://java.sun.com/xml/ns/j2ee"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee 
-         http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd" >
+<web-app version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee 
+         http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
 
 
-  <filter>
-    <filter-name>openEntityManagerInViewFilter</filter-name>
-    <filter-class>org.springframework.orm.jpa.support.OpenEntityManagerInViewFilter</filter-class>
-      <init-param>
-        <param-name>entityManagerFactoryBeanName</param-name>
-        <!-- <param-value>entityManagerFactory</param-value> -->
-        <param-value>entityManagerFactory</param-value>
-      </init-param>
+	<filter>
+		<filter-name>openEntityManagerInViewFilter</filter-name>
+		<filter-class>org.springframework.orm.jpa.support.OpenEntityManagerInViewFilter</filter-class>
+		<init-param>
+			<param-name>entityManagerFactoryBeanName</param-name>
+			<!-- <param-value>entityManagerFactory</param-value> -->
+			<param-value>entityManagerFactory</param-value>
+		</init-param>
 
-<!--    <init-param>
-      <param-name>singleSession</param-name>
-      <param-value>true</param-value>
-    </init-param>
-    <init-param>  
-      <param-name>flushMode</param-name>  
-      <param-value>AUTO</param-value>  
-    </init-param> -->
-  </filter>
+		<!-- <init-param> <param-name>singleSession</param-name> <param-value>true</param-value> 
+			</init-param> <init-param> <param-name>flushMode</param-name> <param-value>AUTO</param-value> 
+			</init-param> -->
+	</filter>
 
-  <filter-mapping>
-    <filter-name>openEntityManagerInViewFilter</filter-name>
-      <url-pattern>/*</url-pattern>
-  </filter-mapping>
+	<filter-mapping>
+		<filter-name>openEntityManagerInViewFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
 
-  <context-param>
-    <param-name>log4jConfigLocation</param-name>
-    <param-value>/WEB-INF/log4j.properties</param-value>
-  </context-param>
+	<context-param>
+		<param-name>log4jConfigLocation</param-name>
+		<param-value>/WEB-INF/log4j.properties</param-value>
+	</context-param>
 
-  <context-param>
-    <param-name>log4jExposeWebAppRoot</param-name>
-    <param-value>false</param-value>
-  </context-param>
+	<context-param>
+		<param-name>log4jExposeWebAppRoot</param-name>
+		<param-value>false</param-value>
+	</context-param>
 
 
-  <context-param>
-    <param-name>contextConfigLocation</param-name>
-    <param-value>
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>
       /WEB-INF/spring/web-application-context.xml
       /WEB-INF/spring/security-app-context.xml
     </param-value>
-  </context-param>
+	</context-param>
 
-  <filter>
-    <filter-name>springSecurityFilterChain</filter-name>
-    <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
-  </filter>
+	<filter>
+		<filter-name>springSecurityFilterChain</filter-name>
+		<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+	</filter>
 
-  <filter-mapping>
-    <filter-name>springSecurityFilterChain</filter-name>
-    <url-pattern>/*</url-pattern>
-  </filter-mapping>
- 
-  <listener>
-    <listener-class>
-       org.springframework.web.util.Log4jConfigListener
-    </listener-class>
-  </listener>
+	<filter-mapping>
+		<filter-name>springSecurityFilterChain</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
 
-  <listener>
-    <listener-class>
-      org.springframework.web.context.ContextLoaderListener
-    </listener-class>
-  </listener>
+	<listener>
+		<listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
+	</listener>
 
-  <filter>  
-     <filter-name>encodingFilter</filter-name>  
-     <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>  
-     <init-param>  
-        <param-name>encoding</param-name>  
-        <param-value>UTF-8</param-value>  
-     </init-param>  
-     <init-param>  
-        <param-name>forceEncoding</param-name>  
-        <param-value>true</param-value>  
-     </init-param>  
-  </filter>  
-  <filter-mapping>  
-     <filter-name>encodingFilter</filter-name>  
-     <url-pattern>/*</url-pattern>  
-</filter-mapping> 
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
 
-<!--
-  <filter>
-    <filter-name>encoding-filter</filter-name>
-    <filter-class>
-      org.springframework.web.filter.CharacterEncodingFilter
-    </filter-class>
-    <init-param>
-      <param-name>encoding</param-name>
-      <param-value>UTF-8</param-value>
-    </init-param>
-  </filter>
+	<filter>
+		<filter-name>encodingFilter</filter-name>
+		<filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+		<init-param>
+			<param-name>encoding</param-name>
+			<param-value>UTF-8</param-value>
+		</init-param>
+		<init-param>
+			<param-name>forceEncoding</param-name>
+			<param-value>true</param-value>
+		</init-param>
+	</filter>
+	<filter-mapping>
+		<filter-name>encodingFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
 
-  <filter-mapping>
-    <filter-name>encoding-filter</filter-name>
-    <url-pattern>/*</url-pattern>
-  </filter-mapping>
--->
+	<!-- <filter> <filter-name>encoding-filter</filter-name> <filter-class> 
+		org.springframework.web.filter.CharacterEncodingFilter </filter-class> <init-param> 
+		<param-name>encoding</param-name> <param-value>UTF-8</param-value> </init-param> 
+		</filter> <filter-mapping> <filter-name>encoding-filter</filter-name> <url-pattern>/*</url-pattern> 
+		</filter-mapping> -->
 
-  <servlet>
-    <servlet-name>wasp</servlet-name>
-    <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
-    <load-on-startup>1</load-on-startup>
-  </servlet>
+	<servlet>
+		<servlet-name>wasp</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
 
-  <servlet-mapping>
-    <servlet-name>wasp</servlet-name>
-    <url-pattern>*.do</url-pattern>
-  </servlet-mapping>
-  
-  <servlet>
-        <servlet-name>StickyCaptcha</servlet-name>
-        <servlet-class>nl.captcha.servlet.StickyCaptchaServlet</servlet-class>
-        <!-- The width and height params are optional; if unspecified they default to 200 and 50 respectively. -->
-        <init-param>
-            <param-name>width</param-name>
-            <param-value>150</param-value>
-        </init-param>
-        <init-param>
-            <param-name>height</param-name>
-            <param-value>50</param-value>
-        </init-param>
-    </servlet>
+	<servlet-mapping>
+		<servlet-name>wasp</servlet-name>
+		<url-pattern>*.do</url-pattern>
+	</servlet-mapping>	
 
-    <servlet-mapping>
-        <servlet-name>StickyCaptcha</servlet-name>
-        <url-pattern>/stickyCaptchaImg.png</url-pattern>
-    </servlet-mapping>
+	<filter>
+		<filter-name>shallowEtagHeaderFilter</filter-name>
+		<filter-class>org.springframework.web.filter.ShallowEtagHeaderFilter</filter-class>
+	</filter>
+	<filter>
+		<filter-name>hiddenHttpMethodFilter</filter-name>
+		<filter-class>org.springframework.web.filter.HiddenHttpMethodFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>shallowEtagHeaderFilter</filter-name>
+		<url-pattern>/batchAdmin/*</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>hiddenHttpMethodFilter</filter-name>
+		<url-pattern>/batchAdmin/*</url-pattern>
+	</filter-mapping>
 
-  <welcome-file-list>
-    <welcome-file>
-      /auth/loginHandler.do
-    </welcome-file>
-  </welcome-file-list>
+	<servlet>
+		<servlet-name>Spring Batch Admin Servlet</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		<init-param>
+			<param-name>contextConfigLocation</param-name>
+			<param-value>classpath*:/org/springframework/batch/admin/web/resources/webapp-config.xml,classpath*:/org/springframework/batch/admin/web/resources/servlet-config.xml</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>Spring Batch Admin Servlet</servlet-name>
+		<url-pattern>/batchAdmin/*</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>StickyCaptcha</servlet-name>
+		<servlet-class>nl.captcha.servlet.StickyCaptchaServlet</servlet-class>
+		<!-- The width and height params are optional; if unspecified they default 
+			to 200 and 50 respectively. -->
+		<init-param>
+			<param-name>width</param-name>
+			<param-value>150</param-value>
+		</init-param>
+		<init-param>
+			<param-name>height</param-name>
+			<param-value>50</param-value>
+		</init-param>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>StickyCaptcha</servlet-name>
+		<url-pattern>/stickyCaptchaImg.png</url-pattern>
+	</servlet-mapping>
+
+	<welcome-file-list>
+		<welcome-file>/auth/loginHandler.do</welcome-file>
+	</welcome-file-list>
 
 </web-app>
