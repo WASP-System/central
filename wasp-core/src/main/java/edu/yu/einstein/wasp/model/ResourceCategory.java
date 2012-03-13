@@ -311,41 +311,6 @@ public class ResourceCategory extends WaspModel {
 	}
 
 
-
-	/** 
-	 * resource
-	 *
-	 */
-	@NotAudited
-	@OneToMany
-	@JoinColumn(name="resourcecategoryid", insertable=false, updatable=false)
-	protected List<Resource> resource;
-
-
-	/** 
-	 * getResource()
-	 *
-	 * @return resource
-	 *
-	 */
-	@JsonIgnore
-	public List<Resource> getResource() {
-		return this.resource;
-	}
-
-
-	/** 
-	 * setResource
-	 *
-	 * @param resource
-	 *
-	 */
-	public void setResource (List<Resource> resource) {
-		this.resource = resource;
-	}
-
-
-
 	/** 
 	 * jobDraftresourcecategory
 	 *

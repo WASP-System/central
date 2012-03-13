@@ -881,43 +881,6 @@ public class Job extends WaspModel {
 
 
 
-
-
-        /**
-         * jobResource
-         *
-         */
-        @NotAudited
-        @OneToMany
-        @JoinColumn(name="jobid", insertable=false, updatable=false)
-        protected List<JobResource> jobResource;
-
-
-        /**
-         * getJobResource()
-         *
-         * @return jobResource
-         *
-         */
-        @JsonIgnore
-        public List<JobResource> getJobResource() {
-                return this.jobResource;
-        }
-
-
-
-        /**
-         * setJobResource
-         *
-         * @param jobResource
-         *
-         */
-        public void setJobResource (List<JobResource> jobResource) {
-                this.jobResource = jobResource;
-        }
-
-
-
         /**
          * jobResourcecategory
          *
