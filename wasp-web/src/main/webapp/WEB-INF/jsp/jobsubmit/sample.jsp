@@ -107,8 +107,11 @@ $.jgrid.extend ({editGridRow : function(rowid, p){
                 	
                 	
                 
-               		//implement dynamic population of sub-selects
+					//implement dynamic population of sub-selects
                 	var _jobs4Subtype=_jobsBySampleSubtype[subtypeSampleId];
+    				if (_jobs4Subtype != null){
+                		populateSelect($('#jobId').get(0), _jobs4Subtype);
+    				}
     				
                 	populateSelect($('#jobId').get(0), _jobs4Subtype);
                 	
