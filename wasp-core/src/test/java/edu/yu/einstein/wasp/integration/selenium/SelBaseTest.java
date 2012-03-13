@@ -28,7 +28,7 @@ public class SelBaseTest {
 		//final String firebugPath = "/Users/nvolnova/Documents/Firefox/firebug-1.8.4-fx.xpi";
 	    //FirefoxProfile profile = new FirefoxProfile();   
 		ProfilesIni allProfiles = new ProfilesIni();
-		FirefoxProfile profile = allProfiles.getProfile("Selenium");
+		FirefoxProfile profile = allProfiles.getProfile("default");
 
 	    //profile.addExtension(new File(firebugPath));
 	    //profile.setPreference("extensions.firebug.currentVersion", "1.8.1"); // Avoid startup screen

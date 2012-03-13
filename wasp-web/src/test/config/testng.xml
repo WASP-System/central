@@ -35,6 +35,7 @@
 	         	</class>
 	      </classes>
 	</test>
+	<!-- 
 	<test name="WASP Regression Testing: Add New User" preserve-order="true">
 	<classes>
          <class name="edu.yu.einstein.wasp.integration.selenium.SelAddNewUser">
@@ -84,4 +85,5 @@
          	</class>
       </classes>
     </test>
+    -->
   </suite>

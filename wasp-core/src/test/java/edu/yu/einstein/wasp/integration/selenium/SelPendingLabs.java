@@ -1,6 +1,7 @@
 package edu.yu.einstein.wasp.integration.selenium;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -34,15 +35,24 @@ public class SelPendingLabs extends SelBaseTest{
   public void pendingLabApprove(String sUserName, String sUserPass, String sLab, String sUserEmail, String sApprovedUrl) throws Exception {   
 		
 	  SeleniumHelper.login(sUserName, sUserPass, driver);	 
-	  driver.get("http://localhost:8080/wasp/department/list.do");
+	  Assert.assertNotNull(driver.findElement(By.xpath("//a[contains(@href,'#tabs-daAdmin')]")), "Unable to locate 'Dept Admin' tab.");
+	  driver.findElement(By.xpath("//a[contains(@href, '#tabs-daAdmin')]")).click();
+	  Assert.assertNotNull(driver.findElement(By.xpath("//a[contains(@href,'/wasp/department/list.do')]")), "Unable to locate 'Department Management' link.");
+	  WebElement element = driver.findElement(By.xpath("//a[contains(@href,'/wasp/department/list.do')]"));
+	  if (!element.isDisplayed())  driver.findElement(By.xpath("//a[contains(@href, '#tabs-daAdmin')]")).click();
+
+	  driver.findElement(By.xpath("//a[contains(@href, '/wasp/department/list.do')]")).click();
+	  Assert.assertEquals(driver.getCurrentUrl(),"http://localhost:8080/wasp/department/list.do");
 	  
+	  Assert.assertNotNull(driver.findElement(By.xpath("//a[contains(@href,'/wasp/department/dapendingtasklist.do')]")), "Unable to locate 'Pending Department Admin Tasks' link.");
 	  driver.findElement(By.xpath("//a[contains(@href, '/wasp/department/dapendingtasklist.do')]")).click();
+	  
 	  Assert.assertTrue(SeleniumHelper.verifyTextPresent(sLab, driver),"Lab "+ sLab +" not found");
 	  driver.findElement(By.xpath("//a[contains(.,'"+sLab+"')]")).click();
+
 	  Assert.assertTrue(driver.findElements(By.xpath("//a[contains(@href,'/wasp/lab/pending/approve/')]")).size() != 0, "Cannot locate APPROVE link");
 	  driver.findElement(By.xpath("//a[contains(@href,'/wasp/lab/pending/approve/')]")).click();
-	  Assert.assertTrue(SeleniumHelper.verifyTextPresent("New lab application sucessfully approved", driver));
-      
+	  //Assert.assertTrue(SeleniumHelper.verifyTextPresent("New lab application successfully approved", driver));
       
   }
   
@@ -60,10 +70,19 @@ public class SelPendingLabs extends SelBaseTest{
   public void pendingLabReject(String sUserName, String sUserPass, String sLab, String sUserEmail, String sRejectedUrl) throws Exception {
 	  
 	  SeleniumHelper.login(sUserName, sUserPass, driver);	 
-	  driver.get("http://localhost:8080/wasp/department/list.do");
-	  SeleniumHelper.verifyTextPresent("Internal - Default Department", driver);
+	  Assert.assertNotNull(driver.findElement(By.xpath("//a[contains(@href,'#tabs-daAdmin')]")), "Unable to locate 'Dept Admin' tab.");
+	  driver.findElement(By.xpath("//a[contains(@href, '#tabs-daAdmin')]")).click();
+	  Assert.assertNotNull(driver.findElement(By.xpath("//a[contains(@href,'/wasp/department/list.do')]")), "Unable to locate 'Department Management' link.");
+	  WebElement element = driver.findElement(By.xpath("//a[contains(@href,'/wasp/department/list.do')]"));
 	  
-	  driver.findElement(By.xpath("//a[contains(.,'Internal - Default Department')]")).click();
+	  if (!element.isDisplayed())  driver.findElement(By.xpath("//a[contains(@href, '#tabs-daAdmin')]")).click();
+
+	  driver.findElement(By.xpath("//a[contains(@href, '/wasp/department/list.do')]")).click();
+	  Assert.assertEquals(driver.getCurrentUrl(),"http://localhost:8080/wasp/department/list.do");
+	  
+	  Assert.assertNotNull(driver.findElement(By.xpath("//a[contains(@href,'/wasp/department/dapendingtasklist.do')]")), "Unable to locate 'Pending Department Admin Tasks' link.");
+	  driver.findElement(By.xpath("//a[contains(@href, '/wasp/department/dapendingtasklist.do')]")).click();
+	  
 	  Assert.assertTrue(SeleniumHelper.verifyTextPresent(sLab, driver),"Lab "+ sLab +" not found");
 	  driver.findElement(By.xpath("//a[contains(.,'"+sLab+"')]")).click();
 	  Assert.assertTrue(driver.findElements(By.xpath("//a[contains(@href,'/wasp/lab/pending/reject/')]")).size() != 0, "Cannot locate REJECT link");

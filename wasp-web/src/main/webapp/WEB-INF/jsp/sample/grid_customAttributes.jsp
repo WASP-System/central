@@ -8,9 +8,11 @@ height: 450,
 sortable: true,
 sortname: name,
 sortorder: "desc",
-caption:"List of Samples",
+
 
 ondblClickRow: function(rowid) {		
-				$("#grid_id").jqGrid('viewGridRow',rowid, _editAttr);
+				$("#grid_id").jqGrid('viewGridRow',rowid, _viewAttr);
 			},
+			
+			
 

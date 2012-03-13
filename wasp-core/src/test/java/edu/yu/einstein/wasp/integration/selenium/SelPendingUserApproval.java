@@ -26,23 +26,23 @@ public class SelPendingUserApproval extends SelBaseTest{
 	  SeleniumHelper.login(sUserName, sUserPass, driver);
 	  //driver.findElement(By.xpath("//a[contains(.,'#tabs-labUtils')]")).click();
 	  
-	  Assert.assertNotNull(driver.findElement(By.xpath("//a[contains(.,'pendinglmapproval')]")), "There is no pending lab manager approval link.");
-	  driver.findElement(By.xpath("//a[contains(.,'#pendinglmapproval')]")).click();
-/*
+	  Assert.assertNotNull(driver.findElement(By.xpath("//a[contains(@href,'#tabs-labUtils')]")), "Unable to locate 'Lab Utils' tab.");
+	  driver.findElement(By.xpath("//a[contains(@href,'#tabs-labUtils')]")).click();
+
       Assert.assertNotNull(driver.findElement(By.linkText("APPROVE")), "'APPROVE' link does not exist");
 	  driver.findElement(By.xpath("//p[contains(.,'"+sUserEmail+"')]/a[contains(.,'APPROVE')]")).click();
 	  Assert.assertTrue(driver.findElements(By.xpath("//p[contains(.,'"+sUserEmail+"')]/a[contains(.,'APPROVE')]")).size() == 0, "Failed to approve a new user");
-*/
       
   }
   
   @Test  (groups = "integration-tests",  dataProvider = "DP2")
   public void pendingUserReject(String sUserName, String sUserPass, String sExpectedUrl, String sUserEmail, String sRejectedUrl) throws Exception { 
 	  SeleniumHelper.login(sUserName, sUserPass, driver);	 
-	  driver.findElement(By.xpath("//a[contains(.,'Pending User Approval')]")).click();
-	  Assert.assertNotNull(driver.findElement(By.linkText("REJECT")), "'REJECT' link does not exist");
-	  
-      Assert.assertTrue(SeleniumHelper.verifyTextPresent(sUserEmail, driver),"User with "+ sUserEmail+" email not found");
+	  Assert.assertNotNull(driver.findElement(By.xpath("//a[contains(@href,'#tabs-labUtils')]")), "Unable to locate 'Lab Utils' tab.");
+	  driver.findElement(By.xpath("//a[contains(@href,'#tabs-labUtils')]")).click();
+
+      Assert.assertNotNull(driver.findElement(By.linkText("REJECT")), "'REJECT' link does not exist");
+
   	  driver.findElement(By.xpath("//p[contains(.,'"+sUserEmail+"')]/a[contains(.,'REJECT')]")).click();
 	  Assert.assertTrue(driver.findElements(By.xpath("//p[contains(.,'"+sUserEmail+"')]/a[contains(.,'REJECT')]")).size() == 0, "Failed to reject a new user");
 

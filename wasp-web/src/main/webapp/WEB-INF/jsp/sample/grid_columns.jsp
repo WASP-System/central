@@ -15,6 +15,7 @@
 <wasp:field name="runs" type="text" searchable="false"/>
 
 _navAttr={edit:false,view:true,add:false,del:false};
+_viewAttr={width:600};
 
 
   
