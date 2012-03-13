@@ -1042,37 +1042,41 @@ public class PlatformUnitController extends WaspController {
 		filterForResourceCategory.put("typeResourceId", typeResource.getTypeResourceId());
 		List<ResourceCategory> resourceCategories = resourceCategoryService.findByMap(filterForResourceCategory);
 		
-		//get list of jobs with following: 
-		//	1. select states from state where task 106 Assign Library To Platform Unit and status CREATED
-		//	2. select those states from statejob to get those jobs
-		//	3. filter jobs to include only those requesting specific sequencing machine (resourceCategoryId) 
-		
-		Task task = taskService.getTaskByIName("assignLibraryToPlatformUnit");
-		if(task==null || task.getTaskId()==null || task.getTaskId().intValue()==0){
-			waspErrorMessage("platformunit.taskNotFound.error");
-			return "redirect:/dashboard.do"; 
-		}
-		Map filterForState = new HashMap();
-		filterForState.put("taskId", task.getTaskId());
-		filterForState.put("status", "CREATED");
-		List<State> states = stateService.findByMap(filterForState);
-		List<Job> jobList = new ArrayList();
-		for(State state : states){
-			Job job = state.getStatejob().get(0).getJob();//should be one
-			JobResourcecategory jrc = jobResourcecategoryService.getJobResourcecategoryByResourcecategoryIdJobId(resourceCategoryId, job.getJobId());
-			if(jrc!=null && jrc.getJobResourcecategoryId()!=null && jrc.getJobResourcecategoryId().intValue() != 0){
-				jobList.add(state.getStatejob().get(0).getJob());
-			}
-		}
-		/*
-		if(jobList.size()==0){
-			int v = 10216;
-			jobList.add(jobService.getJobByJobId(v));
-		}
-		*/
 		m.put("resourceCategoryId", resourceCategoryId);
 		m.put("resourceCategories", resourceCategories);
-		m.put("jobList", jobList);
+
+		if(resourceCategoryId.intValue() > 0){
+			//get list of jobs with following: 
+			//	1. select states from state where task 106 (now it's 5) Assign Library To Platform Unit and status CREATED
+			//	2. select those states from statejob to get those jobs
+			//	3. filter jobs to include only those requesting specific sequencing machine (resourceCategoryId) 
+		
+			Task task = taskService.getTaskByIName("assignLibraryToPlatformUnit");
+			if(task==null || task.getTaskId()==null || task.getTaskId().intValue()==0){
+				waspErrorMessage("platformunit.taskNotFound.error");
+				return "redirect:/dashboard.do"; 
+			}
+			Map filterForState = new HashMap();
+			filterForState.put("taskId", task.getTaskId());
+			filterForState.put("status", "CREATED");
+			List<State> states = stateService.findByMap(filterForState);
+			List<Job> jobList = new ArrayList();
+			for(State state : states){
+				Job job = state.getStatejob().get(0).getJob();//should be one
+				JobResourcecategory jrc = jobResourcecategoryService.getJobResourcecategoryByResourcecategoryIdJobId(resourceCategoryId, job.getJobId());
+				if(jrc!=null && jrc.getJobResourcecategoryId()!=null && jrc.getJobResourcecategoryId().intValue() != 0){
+					jobList.add(state.getStatejob().get(0).getJob());
+				}
+			}
+		
+			//if(jobList.size()==0){
+			//	int v = 10216;
+			//	jobList.add(jobService.getJobByJobId(v));
+			//}
+		
+			m.put("jobList", jobList);
+		}
+		
 		return "facility/platformunit/limitPriorToAssign"; 
 	}
 	

@@ -31,7 +31,7 @@
 				<option value="<c:out value="-1" />"><c:out value="All Available Jobs" /> 
 			</c:if>
 			<c:forEach items="${jobList}" var="j">
-				<option value="<c:out value="${j.jobId}" />"><c:out value="${j.jobId}" /> 
+				<option value="<c:out value="${j.jobId}" />">Job J<c:out value="${j.jobId}" /> 
 			</c:forEach>
 		 </select>
 		 <br /><br />
