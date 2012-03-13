@@ -249,7 +249,7 @@
 	  </div> 
  	</c:otherwise>
 </c:choose>  
- </br >  
+ <br />  
 
 <c:choose>
     <c:when test="${jobspendinglist.size()==0}">
@@ -262,9 +262,28 @@
 		<c:forEach items="${jobspendinglist}" var="job">
       		<h4><a href="#">Job <c:out value="${job.jobId}" />: <c:out value="${job.name}" /> (Submitter: <c:out value="${job.user.firstName} ${job.user.lastName}" />)</a></h4><!-- a href="<c:url value="/job/pendinglmapproval/approve/${lab.labId}/${job.jobId}.do"/>">APPROVE</a> <a href="<c:url value="/job/pendinglmapproval/reject/${lab.labId}/${job.jobId}.do"/>">REJECT</a-->     
       		<div>
+      			Resource: 
+      			<c:forEach items="${job.jobResourcecategory}" var="jrc">
+      				<c:out value="${jrc.resourceCategory.name}" />&nbsp;
+      			</c:forEach>
+      			<br />
       			<c:forEach items="${job.jobMeta}" var="meta">     
-     				<c:set var="optionName" value="${meta.k}.label" /><fmt:message key="${optionName}" />:&nbsp;<c:out value="${meta.v}" /><br />
+     				<c:set var="optionName" value="${meta.k}.label" />
+     				 <c:if test="${fn:substringAfter(meta.k, '.') == 'readLength' || fn:substringAfter(meta.k, '.') == 'readType'}">
+     					<fmt:message key="${optionName}" />:&nbsp;<c:out value="${meta.v}" /><br />
+     				</c:if>
     			</c:forEach>
+    			Workflow: <c:out value="${job.workflow.name}" /><br />
+    			Sample(s):<br />	
+    			<c:forEach items="${job.sample}" var="sample">
+      				--<c:out value="${sample.name}" /> (<c:out value="${sample.typeSample.name}" /> 
+      				<c:forEach items="${sample.sampleMeta}" var="samplemeta"> 
+      					<c:if test="${fn:substringAfter(samplemeta.k, '.') == 'species'}">
+     						; <c:out value="${samplemeta.v}" />)
+     					</c:if>
+     				</c:forEach>
+     				<br />
+      			</c:forEach>    			
       			<br /> <div class="submit"><a href="<c:url value="/job/pendinglmapproval/approve/${lab.labId}/${job.jobId}.do"/>">APPROVE</a> <a href="<c:url value="/job/pendinglmapproval/reject/${lab.labId}/${job.jobId}.do"/>">REJECT</a></div>     
       		</div>
       	</c:forEach> 
