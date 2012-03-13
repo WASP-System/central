@@ -107,13 +107,11 @@ $.jgrid.extend ({editGridRow : function(rowid, p){
                 	
                 	
                 
-					//implement dynamic population of sub-selects
+               		//implement dynamic population of sub-selects
                 	var _jobs4Subtype=_jobsBySampleSubtype[subtypeSampleId];
     				if (_jobs4Subtype != null){
                 		populateSelect($('#jobId').get(0), _jobs4Subtype);
     				}
-    				
-                	populateSelect($('#jobId').get(0), _jobs4Subtype);
                 	
                 	$('#jobId').change(function () {      
                 		var _val=$("#jobId option:selected").val();
@@ -137,6 +135,29 @@ $.jgrid.extend ({editGridRow : function(rowid, p){
                 		   $("#sourceSampleId").html(options);
                 		                    	                		    
                       });
+                	/* TODO: enable dynamic adaptorset /adaptor selection
+                	 $('adaptorset').change(function () {      
+                		alert("hello");
+                   		var _val=$("genericLibrary.adaptorset option:selected").val();
+                   		
+                   		if (!_val) {
+                   			$('genericLibrary.adaptor').children().remove().end();                 		            
+                   			return;
+                   		}
+                   		                		      				    
+                   		 var options = '<option value=""><fmt:message key="wasp.default_select.label" /></option>';
+               			 
+                   		 $.getJSON("/wasp/jobsubmit/adaptorsByAdaptorsetId.do",{adaptorsetId: _val, ajax: 'true'}, function(data, textStatus, jqXHR){
+                   		
+                   			 $.each(data, function (index, name) {                				    
+                   				 options += '<option value="' + index + '">' + name + '</option>';
+                   			  });
+                   			                 			  
+                   		   })
+                   		   
+                   		   $("genericLibrary.adaptor").html(options);
+                   		                    	                		    
+                         }); */
                 	
                 	$('#sourceSampleId').change(function () {      
                 		var _val=$("#sourceSampleId option:selected").val();
