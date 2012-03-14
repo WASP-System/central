@@ -1,6 +1,7 @@
 package edu.yu.einstein.wasp.integration.selenium;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -24,14 +25,21 @@ public class SelPendingUserApproval extends SelBaseTest{
   public void pendingUserApprove(String sUserName, String sUserPass, String sExpectedUrl, String sUserEmail, String sApprovedUrl) throws Exception {   
 		
 	  SeleniumHelper.login(sUserName, sUserPass, driver);
-	  //driver.findElement(By.xpath("//a[contains(.,'#tabs-labUtils')]")).click();
 	  
 	  Assert.assertNotNull(driver.findElement(By.xpath("//a[contains(@href,'#tabs-labUtils')]")), "Unable to locate 'Lab Utils' tab.");
 	  driver.findElement(By.xpath("//a[contains(@href,'#tabs-labUtils')]")).click();
 
-      Assert.assertNotNull(driver.findElement(By.linkText("APPROVE")), "'APPROVE' link does not exist");
-	  driver.findElement(By.xpath("//p[contains(.,'"+sUserEmail+"')]/a[contains(.,'APPROVE')]")).click();
-	  Assert.assertTrue(driver.findElements(By.xpath("//p[contains(.,'"+sUserEmail+"')]/a[contains(.,'APPROVE')]")).size() == 0, "Failed to approve a new user");
+	  WebElement element = driver.findElement(By.xpath("//a[contains(@href,'/wasp/lab/pendinglmapproval/')]"));
+	  if (!element.isDisplayed())  driver.findElement(By.xpath("//a[contains(@href, '#tabs-labUtils')]")).click();
+
+	  driver.findElement(By.xpath("//a[contains(@href,'/wasp/lab/pendinglmapproval/')]")).click();
+	  Assert.assertNotNull(driver.findElement(By.xpath("//a[contains(.,'"+sUserEmail+"')]")), "");
+	  driver.findElement(By.xpath("//a[contains(.,'"+sUserEmail+"')]")).click();
+	  
+	  Assert.assertNotNull(driver.findElement(By.xpath("//a[contains(.,'"+sUserEmail+"')]/div/div/")), "");
+	  Assert.assertNotNull(driver.findElement(By.xpath("//h4/a[contains(.,'"+sUserEmail+"')]/div/div/a[contains(text(),'APPROVE')]")));
+	  driver.findElement(By.xpath("///a[contains(text(),'APPROVE')]")).click();
+	  //Assert.assertTrue(driver.findElements(By.xpath("//div[contains(.,'"+sUserEmail+"')]/a[contains(.,'APPROVE')]")).size() == 0, "Failed to approve a new user");
       
   }
   
@@ -41,10 +49,13 @@ public class SelPendingUserApproval extends SelBaseTest{
 	  Assert.assertNotNull(driver.findElement(By.xpath("//a[contains(@href,'#tabs-labUtils')]")), "Unable to locate 'Lab Utils' tab.");
 	  driver.findElement(By.xpath("//a[contains(@href,'#tabs-labUtils')]")).click();
 
-      Assert.assertNotNull(driver.findElement(By.linkText("REJECT")), "'REJECT' link does not exist");
+	  Assert.assertNotNull(driver.findElement(By.xpath("//div[contains(.,'"+sUserEmail+"')]/a[contains(.,'REJECT')]")));
+     
+      WebElement element = driver.findElement(By.xpath("//a[contains(@href,'#tabs-labUtils')]"));
+	  if (!element.isDisplayed())  driver.findElement(By.xpath("//a[contains(@href, '#tabs-labUtils')]")).click();
 
-  	  driver.findElement(By.xpath("//p[contains(.,'"+sUserEmail+"')]/a[contains(.,'REJECT')]")).click();
-	  Assert.assertTrue(driver.findElements(By.xpath("//p[contains(.,'"+sUserEmail+"')]/a[contains(.,'REJECT')]")).size() == 0, "Failed to reject a new user");
+  	  driver.findElement(By.xpath("//div[contains(.,'"+sUserName+"')]/a[contains(.,'REJECT')]")).click();
+	  Assert.assertTrue(driver.findElements(By.xpath("//div[contains(.,'"+sUserEmail+"')]/a[contains(.,'REJECT')]")).size() == 0, "Failed to reject a new user");
 
   }
   

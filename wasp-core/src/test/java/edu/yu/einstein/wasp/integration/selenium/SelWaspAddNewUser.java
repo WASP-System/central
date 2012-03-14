@@ -49,14 +49,6 @@ public class SelWaspAddNewUser extends SelBaseTest {
     public Object[][] createData1() throws Exception{
         Object[][] retObjArr=SeleniumHelper.getTableArray("WaspTestData.xls",
                 "Test_001", "addNewUser");
-        /*
-        System.out.println("Contents of retObjArr[0][0]" + retObjArr[0][0].toString());
-        System.out.println("Contents of retObjArr[0][1]" + retObjArr[0][1].toString());
-        System.out.println("Contents of retObjArr[0][2]" + retObjArr[0][2].toString());
-        System.out.println("Contents of retObjArr[1][0]" + retObjArr[1][0].toString());
-        System.out.println("Contents of retObjArr[1][1]" + retObjArr[1][1].toString());
-        System.out.println("Contents of retObjArr[1][2]" + retObjArr[1][2].toString());
-        */
         return(retObjArr);
     }
     
