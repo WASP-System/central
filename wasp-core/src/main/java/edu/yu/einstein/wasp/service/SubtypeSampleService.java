@@ -49,7 +49,7 @@ public interface SubtypeSampleService extends WaspService<SubtypeSample> {
    * @param workflowId
    * @return List<{@link SubtypeSample}>
    */
-  public List<SubtypeSample> getWorkflowSubtypeSamplesByLoggedInUserRoles(Integer workflowId);
+  public List<SubtypeSample> getSubtypeSamplesForWorkflowByLoggedInUserRoles(Integer workflowId);
 
   /**
    * Gets a list of {@link SubtypeSample} objects associated with given workflowId and typeSampleId which are specified as viewable
@@ -57,7 +57,27 @@ public interface SubtypeSampleService extends WaspService<SubtypeSample> {
    * @param workflowId
    * @return List<{@link SubtypeSample}>
    */
-  public List<SubtypeSample> getWorkflowSubtypeSamplesByLoggedInUserRoles(Integer workflowId, String typeSampleIName);
+  public List<SubtypeSample> getSubtypeSamplesForWorkflowByLoggedInUserRoles(Integer workflowId, String typeSampleIName);
+
+
+  /**
+   * Gets a list of {@link SubtypeSample} objects associated with given workflowId and typeSampleId which are specified as viewable
+   * to the users with given roles (role dependent)
+   * @param workflowId
+   * @param roles
+   * @param typeSampleIName
+   * @return
+   */
+  public List<SubtypeSample> getSubtypeSamplesForWorkflowByRole(Integer workflowId,	String[] roles, String typeSampleIName);
+
+  /**
+   * Gets a list of {@link SubtypeSample} objects associated with given workflowId which are specified as viewable
+   * to the users with given roles (role dependent)
+   * @param workflowId
+   * @param roles
+   * @return
+   */
+  public List<SubtypeSample> getSubtypeSamplesForWorkflowByRole(Integer workflowId,	String[] roles);
 
 
 }

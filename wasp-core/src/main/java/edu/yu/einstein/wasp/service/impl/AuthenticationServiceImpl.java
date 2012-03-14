@@ -136,9 +136,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	}
 	
 	@Override
-	public boolean hasRoleInRoleArray(String[] roleArray) {
-		for (String testRole: roleArray){
-			for (String myrole: this.getRoles()) {
+	public boolean hasRoleInRoleArray(String[] rolesToCompare, String[] rolesBaseline) {
+		for (String testRole: rolesToCompare){
+			for (String myrole: rolesBaseline) {
 				if(myrole.equals(testRole)){return true;}//in case theRole is something like da-*
 				String[] splitRole = myrole.split("-");//if no "-" is within role, then splitRole[0] contains entire original string
 				if(splitRole[0].equals(testRole)){
@@ -147,6 +147,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 			}
 		}
 		return false;
+	}
+	
+	@Override
+	public boolean hasRoleInRoleArray(String[] rolesToCompare) {
+		// baseline to logged in user
+		return hasRoleInRoleArray(rolesToCompare, this.getRoles());
 	}
 	
 	@Override

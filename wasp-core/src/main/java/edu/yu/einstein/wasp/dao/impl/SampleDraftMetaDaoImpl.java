@@ -163,7 +163,7 @@ public class SampleDraftMetaDaoImpl extends WaspDaoImpl<SampleDraftMeta> impleme
 	   Map<SubtypeSample,List<SampleDraftMeta>> result=new LinkedHashMap<SubtypeSample,List<SampleDraftMeta>>();
 	   Map<SubtypeSample, Map<String,List<SampleDraftMeta>> > tmp = new LinkedHashMap<SubtypeSample, Map<String,List<SampleDraftMeta>> >();
 	   List<Object[]> listObj=entityManager.createNativeQuery(sql).setParameter("workflowid", workflowId).getResultList();
-	   List<SubtypeSample> loggedInUserAccessibleSubtypeSamples = subtypeSampleService.getWorkflowSubtypeSamplesByLoggedInUserRoles(workflowId);
+	   List<SubtypeSample> loggedInUserAccessibleSubtypeSamples = subtypeSampleService.getSubtypeSamplesForWorkflowByLoggedInUserRoles(workflowId);
 	   for(Object[] o:listObj) {
 		   
 		   String area=(String)o[0];

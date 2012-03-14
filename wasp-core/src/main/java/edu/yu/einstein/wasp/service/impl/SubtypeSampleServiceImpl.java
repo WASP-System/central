@@ -95,15 +95,31 @@ public SubtypeSample getSubtypeSampleByIName (final String iName) {
    * {@inheritDoc}
    */
   @Override
-  public List<SubtypeSample> getWorkflowSubtypeSamplesByLoggedInUserRoles(Integer workflowId){
-	  return getWorkflowSubtypeSamplesByLoggedInUserRoles(workflowId, null);
+  public List<SubtypeSample> getSubtypeSamplesForWorkflowByLoggedInUserRoles(Integer workflowId){
+	  return getSubtypeSamplesForWorkflowByRole(workflowId, authenticationService.getRoles(), null);
   }
   
   /**
    * {@inheritDoc}
    */
   @Override
-  public List<SubtypeSample> getWorkflowSubtypeSamplesByLoggedInUserRoles(Integer workflowId, String typeSampleIName){
+  public List<SubtypeSample> getSubtypeSamplesForWorkflowByLoggedInUserRoles(Integer workflowId, String typeSampleIName){
+	  return getSubtypeSamplesForWorkflowByRole(workflowId, authenticationService.getRoles(), typeSampleIName);
+  }
+  
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public List<SubtypeSample> getSubtypeSamplesForWorkflowByRole(Integer workflowId, String[] roles){
+	  return getSubtypeSamplesForWorkflowByRole(workflowId, roles, null);
+  }
+  
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public List<SubtypeSample> getSubtypeSamplesForWorkflowByRole(Integer workflowId, String[] roles, String typeSampleIName){
 	  List<SubtypeSample> subtypeSamples = new ArrayList<SubtypeSample>();
 	  for (Workflowsubtypesample wfsts: workflowService.getWorkflowByWorkflowId(workflowId).getWorkflowsubtypesample() ){
 		  SubtypeSample sts = wfsts.getSubtypeSample();
@@ -122,13 +138,14 @@ public SubtypeSample getSubtypeSampleByIName (final String iName) {
 			  } catch(MetadataException e){
 				  // "excludeRoles" meta not present
 			  }
-			  if (authenticationService.hasRoleInRoleArray(includedRoles) && !authenticationService.hasRoleInRoleArray(excludedRoles)){
+			  if (authenticationService.hasRoleInRoleArray(includedRoles, roles) && !authenticationService.hasRoleInRoleArray(excludedRoles, roles)){
 				  subtypeSamples.add(sts);
 			  }
 		  }
 	  }
 	  return subtypeSamples;
   }
+  
 
 }
 
