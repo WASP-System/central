@@ -66,6 +66,7 @@ import edu.yu.einstein.wasp.service.SampleSourceService;
 import edu.yu.einstein.wasp.service.StatesampleService;
 import edu.yu.einstein.wasp.service.StateService;
 import edu.yu.einstein.wasp.service.SubtypeSampleService;
+import edu.yu.einstein.wasp.service.WorkflowsubtypesampleService;
 import edu.yu.einstein.wasp.service.TypeSampleService;
 import edu.yu.einstein.wasp.service.TaskService;
 import edu.yu.einstein.wasp.service.JobService;
@@ -102,6 +103,8 @@ public class SampleDnaToLibraryController extends WaspController {
   private TypeSampleService typeSampleService;
   @Autowired
   private SubtypeSampleService subtypeSampleService;
+  @Autowired
+  private WorkflowsubtypesampleService workflowSubtypesampleService;
   @Autowired
   private JobSampleService jobSampleService;
   @Autowired
@@ -607,7 +610,7 @@ public class SampleDnaToLibraryController extends WaspController {
 			waspErrorMessage("sampleDetail.updated.unexpectedError");System.out.println("ROB: error 1");
 			return "redirect:/dashboard.do";
 		}
-		else if (libraryId == 0 || libraryId == null){	
+		if (libraryId == 0 || libraryId == null){	
 			waspErrorMessage("sampleDetail.updated.unexpectedError");System.out.println("ROB: error 2");
 			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 		}
@@ -620,7 +623,6 @@ public class SampleDnaToLibraryController extends WaspController {
   		Map<String, String> extraJobDetailsMap = getExtraJobDetails(job);
   		m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);
 
-  		TypeSample typeSampleLibrary = typeSampleService.getTypeSampleByIName("library");
   		Sample library = sampleService.getSampleBySampleId(libraryId);
   		if(library.getSampleId()==null || library.getSampleId().intValue()==0 || ! "library".equals(library.getTypeSample().getIName())){//not found in database or not a library
   			waspErrorMessage("sampleDetail.updated.unexpectedError");System.out.println("ROB: error 4");
@@ -633,99 +635,58 @@ public class SampleDnaToLibraryController extends WaspController {
 			waspErrorMessage("sampleDetail.updated.unexpectedError");
 			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 		}
-	
-  		//is library user-submitted or facility-generated?
-  		Sample parentMacromolecule = null;//if this remains null then this library is user-generated 
-  		List<SampleSource> sampleSource = library.getSampleSource();//if library is facility-generated, there should be one row; if user-submitted library then no rows 
-  		if(sampleSource.size() > 1 || sampleSource.size() < 0){
-  			waspErrorMessage("sampleDetail.updated.unexpectedError");System.out.println("ROB: error 5");
-  			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
-  		}
-  		else if(sampleSource.size() == 1){//facility generated library
-  			System.out.println("ROB: there is one sampleSource");
-  			parentMacromolecule = sampleSource.get(0).getSampleViaSource(); 
-  			System.out.println("ROB: there is one sampleSource with name/id of " + parentMacromolecule.getName() + " / " + parentMacromolecule.getSampleId().intValue());
-  			if(parentMacromolecule.getSampleId()==null || parentMacromolecule.getSampleId()==0){
-  	  			waspErrorMessage("sampleDetail.updated.unexpectedError");System.out.println("ROB: error 6");
-  	  			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
-  			}
-  		}
-  		
-  		List<String> areaList = new ArrayList<String>();
-  		Workflow workflow = job.getWorkflow();
-  		List<Workflowsubtypesample> wfssList = workflow.getWorkflowsubtypesample();
-  		for(Workflowsubtypesample wfss: wfssList){
-  			if(wfss.getSubtypeSample().getTypeSampleId().intValue() == library.getTypeSampleId().intValue()){
-  				String[] items = wfss.getSubtypeSample().getAreaList().split(",");
-  				for(String item : items){
-				  areaList.add(item);
-  				}			  
-  			}
-  		}
+		
+		// get the library subtype for this workflow as the job-viewer sees it
+		String[] roles = {"lu"};
+		List<SubtypeSample> librarySubtypeSamples = subtypeSampleService.getSubtypeSamplesForWorkflowByRole(job.getWorkflow().getWorkflowId(), roles, "library");
+		if(librarySubtypeSamples.isEmpty()){
+			waspErrorMessage("sampleDetail.updated.unexpectedError");
+			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do"; // no workflowsubtype sample
+		}
+		SubtypeSample librarySubtypeSample = librarySubtypeSamples.get(0); // should be one
+		Workflowsubtypesample wfss = workflowSubtypesampleService.getWorkflowsubtypesampleByWorkflowIdSubtypeSampleId(
+				job.getWorkflow().getWorkflowId(),
+				library.getSubtypeSampleId());
+		
 	  
   		List<SampleMeta> sampleMeta = library.getSampleMeta();
   		MetaHelperWebapp sampleMetaHelper = getMetaHelperWebapp(); //new MetaHelperWebapp("sample", SampleMeta.class, request.getSession());
   		List<SampleMeta> normalizedSampleMeta = new ArrayList<SampleMeta>();
-  		for(String area : areaList){
-  			if( ( parentMacromolecule == null ) || ( parentMacromolecule != null && area.equals("genericLibrary") ) ){
-  				sampleMetaHelper.setArea(area);
-  				normalizedSampleMeta.addAll(sampleMetaHelper.syncWithMaster(sampleMeta));
+  		List<String> subtypeSampleComponentAreas = librarySubtypeSample.getComponentMetaAreas();
+  		for(String area : subtypeSampleComponentAreas){
+  			sampleMetaHelper.setArea(area);
+  			Map visibilityElementMap = new HashMap(); // specify meta elements that are to be made immutable or hidden in here
+  			if (area.equals("genericLibrary")){
+  				visibilityElementMap.put("adaptorset", MetaAttribute.FormVisibility.immutable); // adaptor is a list control but we just want to display its value
   			}
+  			normalizedSampleMeta.addAll(sampleMetaHelper.syncWithMaster(sampleMeta, visibilityElementMap));
   		}
   		library.setSampleMeta(normalizedSampleMeta);
-/* HELP	  	
-		Adaptorset selectedAdaptorset = adaptorsetService.getAdaptorsetByAdaptorsetId(1);
+  	
+		Adaptorset selectedAdaptorset = null;
+		Adaptor adaptor = null;
+		sampleMetaHelper.setArea("genericLibrary");	//only should need this, as we're creating a new library from a DNA or RNA at the facility, but I suppose there could be an assay-specific set of metadat, but for now leave this	  
+		try{
+  			adaptor = adaptorService.getAdaptorByAdaptorId(Integer.valueOf( sampleMetaHelper.getMetaValueByName("adaptor",normalizedSampleMeta)) );
+  			selectedAdaptorset = adaptorsetService.getAdaptorsetByAdaptorsetId(Integer.valueOf( sampleMetaHelper.getMetaValueByName("adaptorset",normalizedSampleMeta)) );
+  		} catch(MetadataException e){
+  			logger.warn("Cannot get metadata : " + e.getMessage());
+  		} catch(NumberFormatException e){
+  			logger.warn("Cannot convert to numeric value for metadata " + e.getMessage());
+  		}
+		
 		m.put("adaptorsets", adaptorsetService.findAll()); // required for adaptorsets metadata control element (select:${adaptorsets}:adaptorsetId:name)
 		m.put("adaptors", selectedAdaptorset.getAdaptor()); // required for adaptors metadata control element (select:${adaptors}:adaptorId:barcodenumber)
 		List<Adaptorset> otherAdaptorsets = adaptorsetService.findAll();//should really filter this by the machine requested
 		otherAdaptorsets.remove(selectedAdaptorset);//remove this one
 		if(isRW){
-			m.put("otherAdaptorsets", otherAdaptorsets); 
-		}
-		
-		Map visibilityElementMap = new HashMap(); // specify meta elements that are to be made immutable or hidden in here
-		visibilityElementMap.put("adaptorset", MetaAttribute.FormVisibility.immutable); // adaptor is a list control but we just want to display its value
-		sampleMetaHelper.setArea("genericLibrary");	//only should need this, as we're creating a new library from a DNA or RNA at the facility, but I suppose there could be an assay-specific set of metadat, but for now leave this	  
-		sampleMetaHelper.syncWithMaster(library.getSampleMeta(), visibilityElementMap); // pass in visibilityElementMap here to apply our specifications
-		try {
-			sampleMetaHelper.setMetaValueByName("adaptorset", selectedAdaptorset.getAdaptorsetId().toString());
-		} catch (MetadataException e) {
-			logger.warn("Cannot set value on 'adaptorset': " + e.getMessage() );
-		}
-		library.setSampleMeta((List<SampleMeta>) sampleMetaHelper.getMetaList());
-	
-
-  		//pull out adaptor
-  		Adaptor adaptor = null;
-  		MetaHelperWebapp sampleMetaHelper = getMetaHelperWebapp(); //new MetaHelperWebapp("sample", SampleMeta.class, request.getSession());
-  		sampleMetaHelper.setArea("genericLibrary");
-  		sampleMetaHelper.syncWithMaster(library.getSampleMeta());
-  		library.setSampleMeta((List<SampleMeta>)sampleMetaHelper.getMetaList()); // synchronized with uifields
-  		try{
-  			adaptor = adaptorService.getAdaptorByAdaptorId(Integer.valueOf( sampleMetaHelper.getMetaByName("adaptor").getV()) );
-  		} catch(MetadataException e){
-  			logger.warn("Cannot get metadata for'adaptor' : " + e.getMessage());
-  		} catch(NumberFormatException e){
-  			logger.warn("Cannot convert to numeric value for metadata for'adaptor' " + e.getMessage());
-  		}
-  		
-
-  		
-	
-		
-		
-		
-
-		
-		
-		//Adaptorset selectedAdaptorset = adaptorsetService.getAdaptorsetByAdaptorsetId(adaptor.getAdaptorsetId());
-		m.put("adaptorsets", adaptorsetService.findAll()); // required for adaptorsets metadata control element (select:${adaptorsets}:adaptorsetId:name)
-		m.put("adaptors", selectedAdaptorset.getAdaptor()); // required for adaptors metadata control element (select:${adaptors}:adaptorId:barcodenumber)
+			m.put("otherAdaptorsets", otherAdaptorsets);
+		} 
 		m.put("job", job);
-		m.put("parentMacromolecule", parentMacromolecule);
 		m.put("sample", library);
-		//m.put("adaptor", adaptor);
-		*/
+		m.put("adaptor", adaptor);
+		m.put("componentAreas", subtypeSampleComponentAreas);
+	
 		return isRW?"sampleDnaToLibrary/librarydetail_rw":"sampleDnaToLibrary/librarydetail_ro";
   }
   

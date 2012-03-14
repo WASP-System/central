@@ -45,6 +45,8 @@ import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.dao.impl.DBResourceBundle;
 import edu.yu.einstein.wasp.exception.NullTypeResourceException;
+import edu.yu.einstein.wasp.model.Adaptor;
+import edu.yu.einstein.wasp.model.Adaptorset;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobCell;
 import edu.yu.einstein.wasp.model.JobDraft;
@@ -80,6 +82,8 @@ import edu.yu.einstein.wasp.model.WorkflowSoftware;
 import edu.yu.einstein.wasp.model.Workflowresourcecategory;
 import edu.yu.einstein.wasp.model.WorkflowresourcecategoryMeta;
 import edu.yu.einstein.wasp.model.WorkflowsoftwareMeta;
+import edu.yu.einstein.wasp.service.AdaptorService;
+import edu.yu.einstein.wasp.service.AdaptorsetService;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobCellService;
@@ -217,6 +221,12 @@ public class JobSubmissionController extends WaspController {
 
 	@Autowired
 	protected WorkflowSoftwareService workflowSoftwareService;
+	
+	@Autowired
+	protected AdaptorsetService adaptorsetService;
+	
+	@Autowired
+	protected AdaptorService adaptorService;
 
 	@Autowired
 	protected File sampleDir;
@@ -1136,15 +1146,16 @@ public class JobSubmissionController extends WaspController {
 			}		
 		}
 		m.addAttribute("_jobsBySampleSubtype",jobsBySampleSubtype);
-		
-
 		m.addAttribute(JQFieldTag.AREA_ATTR, "sampleDraft");	
 		prepareSelectListData(m);
 		m.addAttribute("jobdraftId",jobDraftId);
 		m.addAttribute("jobDraft",jobDraft);
 		m.addAttribute("uploadStartedMessage",messageService.getMessage("sampleDraft.fileupload_wait.data"));
 		m.addAttribute("_metaDataMessages", MetaHelper.getMetadataMessages(request.getSession()));
-		m.put("pageFlowMap", getPageFlowMap(jobDraft));
+		m.addAttribute("pageFlowMap", getPageFlowMap(jobDraft));
+		m.addAttribute("adaptorsets", adaptorsetService.findAll()); // required for adaptorsets metadata control element (select:${adaptorsets}:adaptorsetId:name)
+		m.addAttribute("adaptors",new ArrayList<Adaptor>()); // required for adaptors metadata control element (select:${adaptors}:adaptorId:barcodenumber)
+		
 	
 		return "jobsubmit/sample";
 		
@@ -1416,7 +1427,7 @@ public class JobSubmissionController extends WaspController {
 		//note: could use similar logic in loop to assign jv to all the lab members
 		Lab lab = labService.getLabByLabId(jobDb.getLabId());		
 		// if the pi is different from the job user
-		if (jobUser.getUserId() != lab.getPrimaryUserId()) {
+		if (jobUser.getUserId().intValue() != lab.getPrimaryUserId().intValue()) {
 			JobUser jobUser2 = new JobUser();		
 			jobUser2.setUserId(lab.getPrimaryUserId());//the lab PI
 			jobUser2.setJobId(jobDb.getJobId());
@@ -1625,6 +1636,29 @@ public class JobSubmissionController extends WaspController {
 			
 		} catch (Throwable e) {
 			throw new IllegalStateException("Can't marshall to JSON "+samplesMap,e);
+		}
+	}
+	
+	/*
+	 * Returns adaptors by adaptorsetID 
+	 * 
+	 * @Author asmclellan
+	 */	
+	@RequestMapping(value="/adaptorsByAdaptorsetId", method=RequestMethod.GET)	
+	public String adaptorsByAdaptorId(@RequestParam("adaptorsetId") Integer adaptorsetId, HttpServletResponse response) {
+	
+		//result
+		Map <Integer, String> adaptorsMap = new LinkedHashMap<Integer, String>();
+		for(Adaptor adaptor:adaptorsetService.getAdaptorsetByAdaptorsetId(adaptorsetId).getAdaptor()) {
+			adaptorsMap.put(adaptor.getAdaptorId(), adaptor.getName());
+		}
+
+		try {
+			
+			return outputJSON(adaptorsMap, response); 	
+			
+		} catch (Throwable e) {
+			throw new IllegalStateException("Can't marshall to JSON "+adaptorsMap,e);
 		}
 	}
 	
