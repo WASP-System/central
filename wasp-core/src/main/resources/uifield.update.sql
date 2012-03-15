@@ -115,8 +115,8 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','phone','metaposition','90','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','fax','label','Fax','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','fax','metaposition','100','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','approved','label','User account application sucessfully approved','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','rejected','label','User account application sucessfully rejected','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','approved','label','User account application successfully approved','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','rejected','label','User account application successfully rejected','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','status_not_pending','error','Pending user is already approved or rejected','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','no_pending_users','label','There are currently no pending users awaiting approval','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','external_authentication','error','Authentication Failed (Login Name or Password incorrect)','1');
@@ -336,7 +336,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','updated','error','Pending Lab was NOT updated. Please fill in required fields.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','created','error','Pending Lab was NOT created. Please fill in required fields.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','status_not_pending','error','Pending lab is already approved or rejected','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','updated_success','label','Pending Lab updated sucessfully.','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','updated_success','label','Pending Lab updated successfully.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','action','error','Invalid action. Must be approve or reject only','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','departmentid_mismatch','error','Deparment id mismatch with lab-pending id','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','status_mismatch','error','Status must be pending with lab-pending id','1');
@@ -344,8 +344,8 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','save','label','Save Changes','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','cancel','label','Cancel','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','heading','label','Pending Lab Details:','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','approved','label','New lab application sucessfully approved','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','rejected','label','New lab application sucessfully rejected','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','approved','label','New lab application successfully approved','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','rejected','label','New lab application successfully rejected','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','labPending','could_not_create_lab','error','Failed to process new lab request','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','auth_login_validate','error','Please provide your user login name AND password.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','auth','login_failed','error','Your login attempt was not successful. Try again.','1');
@@ -521,8 +521,8 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','lanecount_empty','error','Please select a number of lanes','1');
 
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','lanecountForEditBox','label','Lane Count','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','updated_success','label','Platformunit updated sucessfully.','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','created_success','label','Platformunit created sucessfully.','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','updated_success','label','Platformunit updated successfully.','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','created_success','label','Platformunit created successfully.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','updated','error','Platformunit was NOT updated. Please fill in required fields.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunitInstance','created','error','Platformunit was NOT created. Please fill in required fields.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','fmpayment','name','label','Receive Payment for Jobs','1');
@@ -771,8 +771,8 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','cancel','label','Cancel','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','updated','error','Resource was NOT updated. Please fill in required fields.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','created','error','Resource was NOT created. Please fill in required fields.','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','updated_success','label','Resource updated sucessfully.','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','created_success','label','Resource created sucessfully.','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','updated_success','label','Resource updated successfully.','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','created_success','label','Resource created successfully.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','isActive','label','Active','1');
 
 
@@ -793,8 +793,8 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','path_to_data','label','Data Path','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','run_success','label','Success','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','isActive','label','Active','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','updated_success','label','Run updated sucessfully.','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','created_success','label','Run created sucessfully.','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','updated_success','label','Run updated successfully.','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','created_success','label','Run created successfully.','1');
 
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sysrole','list_add_role','label','Use the form below to add system roles to existing WASP users','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sysrole','noUserSpecified','error','No user specified','1');
