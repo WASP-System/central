@@ -103,7 +103,7 @@ public class SampleSourceDaoImpl extends WaspDaoImpl<SampleSource> implements ed
 			Sample rt = new Sample();
 			return rt;
 		}
-		return results.get(0).getSample();
+		return results.get(0).getSampleViaSource();
 	}
 	
 	/**
@@ -117,7 +117,7 @@ public class SampleSourceDaoImpl extends WaspDaoImpl<SampleSource> implements ed
 		m.put("source_sampleId", parentSampleId);
 		List<Sample> derivedSamples = new ArrayList<Sample>();
 		for(SampleSource sampleSource: (List<SampleSource>) this.findByMap(m)){
-			derivedSamples.add(sampleSource.getSampleViaSource());
+			derivedSamples.add(sampleSource.getSample());
 		}
 		return derivedSamples;
 	}
