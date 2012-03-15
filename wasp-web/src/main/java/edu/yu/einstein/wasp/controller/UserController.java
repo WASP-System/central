@@ -27,19 +27,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
 
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
+import edu.yu.einstein.wasp.dao.ConfirmEmailAuthDao;
+import edu.yu.einstein.wasp.dao.UserMetaDao;
 import edu.yu.einstein.wasp.exception.LoginNameException;
 import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.MetaBase;
-import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserMeta;
 import edu.yu.einstein.wasp.service.AuthenticationService;
-import edu.yu.einstein.wasp.service.ConfirmEmailAuthService;
 import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.service.MessageService;
-import edu.yu.einstein.wasp.service.PasswordService;
-import edu.yu.einstein.wasp.service.UserMetaService;
-import edu.yu.einstein.wasp.service.UserpasswordauthService;
+import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 import edu.yu.einstein.wasp.util.MetaHelper;
 
@@ -55,11 +53,8 @@ import edu.yu.einstein.wasp.util.MetaHelper;
 public class UserController extends WaspController {
 
 	@Autowired
-	private UserMetaService userMetaService;
-	
-	@Autowired
-	private PasswordService passwordService;
-	
+	private UserMetaDao userMetaDao;
+
 	@Autowired
 	private MessageService messageService;
 	  
@@ -69,11 +64,12 @@ public class UserController extends WaspController {
 	@Autowired
 	private EmailService emailService;
 	
-	@Autowired
-	private ConfirmEmailAuthService confirmEmailAuthService;
 	
 	@Autowired
-	private UserpasswordauthService userpasswordauthService;
+	private UserService userService;
+	
+	@Autowired
+	private ConfirmEmailAuthDao confirmEmailAuthDao;
 
 	private final MetaHelperWebapp getMetaHelperWebapp() {
 		return new MetaHelperWebapp("user", UserMeta.class, request.getSession());
@@ -109,7 +105,7 @@ public class UserController extends WaspController {
 				
 		Map <String, Object> jqgrid = new HashMap<String, Object>();
 		
-		User userDb = this.userService.getById(userId);
+		User userDb = this.userDao.getById(userId);
 		
 		List<LabUser> uLabs=userDb.getLabUser();
 		
@@ -175,7 +171,7 @@ public class UserController extends WaspController {
 		
 		if (!StringUtils.isEmpty(selId)) {
 
-			userList.add(this.userService.getUserByUserId(Integer.parseInt(selId)));
+			userList.add(this.userDao.getUserByUserId(Integer.parseInt(selId)));
 		
 		} else if (!StringUtils.isEmpty(search) && !StringUtils.isEmpty(searchField) && !StringUtils.isEmpty(searchString) ) {
 		
@@ -184,16 +180,16 @@ public class UserController extends WaspController {
 			m.put(searchField, searchString);
 
 			if (sidx.isEmpty()) {
-				userList = this.userService.findByMap(m);
+				userList = this.userDao.findByMap(m);
 			} else {
 				List<String> sidxList =  new ArrayList<String>();
 				sidxList.add(sidx);
-				userList = this.userService.findByMapDistinctOrderBy(m, null, sidxList, sord);
+				userList = this.userDao.findByMapDistinctOrderBy(m, null, sidxList, sord);
 			}
 
 			if ("ne".equals(request.getParameter("searchOper"))) {
 				List<User> all = new ArrayList<User>(sidx.isEmpty() ? 
-						this.userService.findAll() : this.userService.findAllOrderBy(sidx, sord));
+						this.userDao.findAll() : this.userDao.findAllOrderBy(sidx, sord));
 
 				for (Iterator<User> it = userList.iterator(); it.hasNext();) {
 					User exclude = it.next();
@@ -205,7 +201,7 @@ public class UserController extends WaspController {
 			
 		} else {
 			
-			userList = sidx.isEmpty() ? this.userService.findAll() : this.userService.findAllOrderBy(sidx, sord);
+			userList = sidx.isEmpty() ? this.userDao.findAll() : this.userDao.findAllOrderBy(sidx, sord);
 		}
 
 		try {
@@ -233,7 +229,7 @@ public class UserController extends WaspController {
 //			if(!StringUtils.isEmpty(request.getParameter("selId")))
 //			{
 //				int selId = Integer.parseInt(request.getParameter("selId"));
-//				int selIndex = userList.indexOf(userService.findById(selId));
+//				int selIndex = userList.indexOf(userDao.findById(selId));
 //				frId = selIndex;
 //				toId = frId + 1;
 //
@@ -290,7 +286,7 @@ public class UserController extends WaspController {
 	public String updateDetailJSON(@RequestParam("id") Integer userId,User userForm, ModelMap m, HttpServletResponse response) {
 		userId = (userId == null)? 0:userId;
 		boolean adding = (userId == 0);
-		if (adding || !userService.getById(userId).getLogin().equals(userForm.getLogin())){
+		if (adding || !userDao.getById(userId).getLogin().equals(userForm.getLogin())){
 			boolean loginExists = false;
 			try {
 				loginExists = authenticationService.isLoginAlreadyInUse(userForm.getLogin(), userForm.getEmail());
@@ -309,7 +305,7 @@ public class UserController extends WaspController {
 			}
 		}
 		
-		int emailOwnerUserId = (userService.getUserByEmail(userForm.getEmail()).getUserId() == null)? 0:userService.getUserByEmail(userForm.getEmail()).getUserId();
+		int emailOwnerUserId = (userDao.getUserByEmail(userForm.getEmail()).getUserId() == null)? 0:userDao.getUserByEmail(userForm.getEmail()).getUserId();
 		if (emailOwnerUserId != 0 && emailOwnerUserId != userId){
 			try{
 				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -333,15 +329,15 @@ public class UserController extends WaspController {
 		if (adding) {
 			// set random password. We don't care what it is as new user will be prompted to
 			// set a new one via email.
-			userForm.setPassword(passwordService.encodePassword(passwordService.getRandomPassword(10))); 
+			userForm.setPassword(authenticationService.encodePassword(authenticationService.getRandomPassword(10))); 
 			userForm.setLastUpdTs(new Date());
 			userForm.setIsActive(1);
-			User userDb = this.userService.save(userForm);
+			User userDb = this.userDao.save(userForm);
 			userId=userDb.getUserId();
-			userMetaService.updateByUserId(userId, userMetaList);
-			emailService.informUserAccountCreatedByAdmin(userDb, confirmEmailAuthService.getNewAuthcodeForUser(userDb));
+			userMetaDao.updateByUserId(userId, userMetaList);
+			emailService.informUserAccountCreatedByAdmin(userDb, userService.getNewAuthcodeForUser(userDb));
 		} else {
-			User userDb = this.userService.getById(userId);
+			User userDb = this.userDao.getById(userId);
 			
 			if (!userDb.getEmail().equals(userForm.getEmail())){
 				//myemailChanged = true;
@@ -353,7 +349,7 @@ public class UserController extends WaspController {
 						throw new IllegalStateException("Cant output success message ",e);
 					}
 				}
-				emailService.sendUserEmailConfirm(userForm, confirmEmailAuthService.getNewAuthcodeForUser(userForm));
+				emailService.sendUserEmailConfirm(userForm, userService.getNewAuthcodeForUser(userForm));
 
 			}
 			if (!userDb.getLogin().equals(userForm.getLogin())){
@@ -374,8 +370,8 @@ public class UserController extends WaspController {
 			userDb.setLocale(userForm.getLocale());
 			userDb.setIsActive(userForm.getIsActive());
 			userDb.setLastUpdTs(new Date());
-			this.userService.merge(userDb);
-			userMetaService.updateByUserId(userId, userMetaList);
+			this.userDao.merge(userDb);
+			userMetaDao.updateByUserId(userId, userMetaList);
 		}
 		
 		//waspMessage("user.updated.success");
@@ -452,10 +448,10 @@ public class UserController extends WaspController {
 			return "user/detail_rw";
 		}
 		boolean isMyEmailChanged = false;
-		User userDb = this.userService.getById(userId);
+		User userDb = this.userDao.getById(userId);
 		if (!userDb.getEmail().equals(userForm.getEmail().trim())){
 			// email changed
-			emailService.sendUserEmailConfirm(userForm, confirmEmailAuthService.getNewAuthcodeForUser(userForm));
+			emailService.sendUserEmailConfirm(userForm, userService.getNewAuthcodeForUser(userForm));
 			if (userId.intValue() == authenticationService.getAuthenticatedUser().getUserId().intValue()) isMyEmailChanged = true;
 		}
 		userDb.setFirstName(userForm.getFirstName().trim());
@@ -472,9 +468,9 @@ public class UserController extends WaspController {
 
 		userDb.setLastUpdTs(new Date());
 		
-		//this.userService.merge(userDb);
+		//this.userDao.merge(userDb);
 
-		userMetaService.updateByUserId(userId, userMetaList);
+		userMetaDao.updateByUserId(userId, userMetaList);
 
 		MimeMessageHelper a;
 		
@@ -514,27 +510,27 @@ public class UserController extends WaspController {
 		
 		User user = authenticationService.getAuthenticatedUser();
 		String currentPasswordAsHash = user.getPassword();//this is from database and is hashed
-		String oldPasswordAsHash = passwordService.encodePassword(oldpassword);//oldpassword is from the form, so must hash it for comparison
+		String oldPasswordAsHash = authenticationService.encodePassword(oldpassword);//oldpassword is from the form, so must hash it for comparison
 		  
-		if(!passwordService.matchPassword(currentPasswordAsHash, oldPasswordAsHash)){
+		if(!authenticationService.matchPassword(currentPasswordAsHash, oldPasswordAsHash)){
 			waspErrorMessage("user.mypassword_cur_mismatch.error");
 			return "user/mypassword";
 		}
-		else if(!passwordService.matchPassword(newpassword1, newpassword2)){
+		else if(!authenticationService.matchPassword(newpassword1, newpassword2)){
 			waspErrorMessage("user.mypassword_new_mismatch.error");
 		    return "user/mypassword";
 		}
-		else if(passwordService.matchPassword(oldpassword, newpassword1)){//make sure old and new passwords differ
+		else if(authenticationService.matchPassword(oldpassword, newpassword1)){//make sure old and new passwords differ
 			waspErrorMessage("user.mypassword_nodiff.error");
 		    return "user/mypassword";
 		}
-		else if(!passwordService.validatePassword(newpassword1)){//at least 8 char, at least one letter; at least one number
+		else if(!authenticationService.validatePassword(newpassword1)){//at least 8 char, at least one letter; at least one number
 			waspErrorMessage("user.mypassword_new_invalid.error");
 		    return "user/mypassword";
 		}
 		  
-		user.setPassword( passwordService.encodePassword(newpassword1) ); 
-		userService.merge(user);
+		user.setPassword( authenticationService.encodePassword(newpassword1) ); 
+		userDao.merge(user);
 		waspMessage("user.mypassword_ok.label");	
 		return "redirect:/dashboard.do";		 
 	}
@@ -571,7 +567,7 @@ public class UserController extends WaspController {
 		if (userForm.getLogin() == null || userForm.getLogin().isEmpty()) {
 			errors.rejectValue("login", "user.login.error");
 		} else {
-			User user = userService.getUserByLogin(userForm.getLogin());
+			User user = userDao.getUserByLogin(userForm.getLogin());
 			if (user != null && user.getLogin() != null) {
 				errors.rejectValue("login", "user.login.exists_error");
 			}
@@ -614,9 +610,9 @@ public class UserController extends WaspController {
 		
 		userForm.setIsActive(1);
 		
-		User userDb = this.userService.save(userForm);
+		User userDb = this.userDao.save(userForm);
 		
-		userMetaService.updateByUserId(userDb.getUserId(), userMetaList);
+		userMetaDao.updateByUserId(userDb.getUserId(), userMetaList);
 
 		status.setComplete();
 
@@ -641,7 +637,7 @@ public class UserController extends WaspController {
 	
 	private String detail(Integer userId, ModelMap m,boolean isRW) {
 
-		User user = this.userService.getById(userId);
+		User user = this.userDao.getById(userId);
 
 		user.setUserMeta(getMetaHelperWebapp().syncWithMaster(user.getUserMeta()));
 		

@@ -14,11 +14,11 @@ package edu.yu.einstein.wasp.dao.impl;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.yu.einstein.wasp.model.Resource;
 import edu.yu.einstein.wasp.model.Sample;
 
 @SuppressWarnings("unchecked")
@@ -103,6 +103,22 @@ public class SampleDaoImpl extends WaspDaoImpl<Sample> implements edu.yu.einstei
 			return rt;
 		}
 		return results.get(0);
+	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Override
+	public List<Sample> findAllPlatformUnits() {
+		Map queryMap = new HashMap();
+		queryMap.put("typeSample.iName", "platformunit");
+//		queryMap.put("typeSample.typeSampleId", 5);
+		return this.findByMap(queryMap);
+	}
+	
+	@Override
+	public List<Sample> getActiveSamples() {
+		Map queryMap = new HashMap();
+		queryMap.put("isActive", 1);
+		return this.findByMap(queryMap);
 	}
 }
 

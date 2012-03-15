@@ -7,6 +7,13 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import edu.yu.einstein.wasp.dao.RunDao;
+import edu.yu.einstein.wasp.dao.SoftwareDao;
+import edu.yu.einstein.wasp.dao.StateDao;
+import edu.yu.einstein.wasp.dao.StatejobDao;
+import edu.yu.einstein.wasp.dao.StaterunDao;
+import edu.yu.einstein.wasp.dao.StatesampleDao;
+import edu.yu.einstein.wasp.dao.TaskDao;
 import edu.yu.einstein.wasp.model.JobSoftware;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
@@ -16,13 +23,6 @@ import edu.yu.einstein.wasp.model.Statejob;
 import edu.yu.einstein.wasp.model.Staterun;
 import edu.yu.einstein.wasp.model.Statesample;
 import edu.yu.einstein.wasp.model.Task;
-import edu.yu.einstein.wasp.service.RunService;
-import edu.yu.einstein.wasp.service.SoftwareService;
-import edu.yu.einstein.wasp.service.StateService;
-import edu.yu.einstein.wasp.service.StatejobService;
-import edu.yu.einstein.wasp.service.StaterunService;
-import edu.yu.einstein.wasp.service.StatesampleService;
-import edu.yu.einstein.wasp.service.TaskService;
 
 
 /**
@@ -40,23 +40,23 @@ import edu.yu.einstein.wasp.service.TaskService;
 public class CreateSoftwareRunProcessor implements ItemProcessor {
 
 	@Autowired
-	StateService stateService;
+	StateDao stateDao;
 
 	@Autowired
-	TaskService taskService;
+	TaskDao taskDao;
 
 	@Autowired
-	StatejobService statejobService;
+	StatejobDao statejobDao;
 	@Autowired
-	StatesampleService statesampleService;
+	StatesampleDao statesampleDao;
 	@Autowired
-	StaterunService staterunService;
+	StaterunDao staterunDao;
 
 	@Autowired
-	RunService runService;
+	RunDao runDao;
 
 	@Autowired
-	SoftwareService softwareService;
+	SoftwareDao softwareDao;
 
 	protected final String targetTask = "runWrapTask"; 
 	protected final TaskStatus targetStatus = TaskStatus.CREATED; 
@@ -68,7 +68,7 @@ public class CreateSoftwareRunProcessor implements ItemProcessor {
 	public State process(Object stateId) throws Exception {
 
 		
-		State state = stateService.getStateByStateId(((Integer) stateId).intValue());
+		State state = stateDao.getStateByStateId(((Integer) stateId).intValue());
 
 		List <JobSoftware> jobSoftwares = state.getStatejob().get(0).getJob().getJobSoftware();
 
@@ -84,7 +84,7 @@ public class CreateSoftwareRunProcessor implements ItemProcessor {
 			throw new Exception("could not find software");
 		}
 
-		Task task = taskService.getTaskByIName(targetTask);
+		Task task = taskDao.getTaskByIName(targetTask);
 
 		Sample sample = state.getStatesample().get(0).getSample(); 
 
@@ -96,7 +96,7 @@ public class CreateSoftwareRunProcessor implements ItemProcessor {
 		run.setStartts(new Date());
 		run.setIsActive(1);
 
-		runService.save(run); 
+		runDao.save(run); 
 
 
 		// Makes the state and supporting tables
@@ -105,22 +105,22 @@ public class CreateSoftwareRunProcessor implements ItemProcessor {
 		newState.setStatus(targetStatus.toString());
 		newState.setName(sample.getName() + " " + software.getIName() + " " + task.getName());
 		newState.setSourceStateId(state.getStateId());
-		stateService.save(newState); 
+		stateDao.save(newState); 
 
 		Staterun newStaterun = new Staterun();
 		newStaterun.setStateId(newState.getStateId());
 		newStaterun.setRunId(run.getRunId());
-		staterunService.save(newStaterun);
+		staterunDao.save(newStaterun);
 
 		Statesample newStatesample = new Statesample();
 		newStatesample.setStateId(newState.getStateId());
 		newStatesample.setSampleId(run.getSampleId());
-		statesampleService.save(newStatesample);
+		statesampleDao.save(newStatesample);
 
 		Statejob newStatejob = new Statejob();
 		newStatejob.setStateId(newState.getStateId());
 		newStatejob.setJobId(state.getStatejob().get(0).getJobId());
-		statejobService.save(newStatejob);
+		statejobDao.save(newStatejob);
 
 		return newState;
 	}

@@ -10,17 +10,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import util.spring.PostInitialize;
+import edu.yu.einstein.wasp.dao.ResourceCategoryDao;
+import edu.yu.einstein.wasp.dao.SubtypeSampleDao;
+import edu.yu.einstein.wasp.dao.SubtypeSampleMetaDao;
+import edu.yu.einstein.wasp.dao.SubtypeSampleResourceCategoryDao;
+import edu.yu.einstein.wasp.dao.TypeSampleDao;
 import edu.yu.einstein.wasp.exception.NullResourceCategoryException;
 import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.SubtypeSample;
 import edu.yu.einstein.wasp.model.SubtypeSampleMeta;
 import edu.yu.einstein.wasp.model.SubtypeSampleResourceCategory;
 import edu.yu.einstein.wasp.model.TypeSample;
-import edu.yu.einstein.wasp.service.ResourceCategoryService;
-import edu.yu.einstein.wasp.service.SubtypeSampleMetaService;
-import edu.yu.einstein.wasp.service.SubtypeSampleResourceCategoryService;
-import edu.yu.einstein.wasp.service.SubtypeSampleService;
-import edu.yu.einstein.wasp.service.TypeSampleService;
 
 
 /**
@@ -37,19 +37,19 @@ import edu.yu.einstein.wasp.service.TypeSampleService;
 public class SubtypeSampleLoadService extends WaspLoadService {
 
   @Autowired
-  private SubtypeSampleService subtypeSampleService;
+  private SubtypeSampleDao subtypeSampleDao;
 
   @Autowired
-  private TypeSampleService typeSampleService;
+  private TypeSampleDao typeSampleDao;
 
   @Autowired
-  private SubtypeSampleMetaService subtypeSampleMetaService;
+  private SubtypeSampleMetaDao subtypeSampleMetaDao;
   
   @Autowired
-  private ResourceCategoryService resourceCategoryService;
+  private ResourceCategoryDao resourceCategoryDao;
   
   @Autowired
-  private SubtypeSampleResourceCategoryService subtypeSampleResourceCategoryService;
+  private SubtypeSampleResourceCategoryDao subtypeSampleResourceCategoryDao;
 
   private String sampleType; 
   public void setSampleType(String sampleType) {this.sampleType = sampleType; }
@@ -88,12 +88,12 @@ public class SubtypeSampleLoadService extends WaspLoadService {
     // skips component scanned  (if scanned in)
     if (name == null) { return; }
 
-    TypeSample typeSample = typeSampleService.getTypeSampleByIName(sampleType); 
+    TypeSample typeSample = typeSampleDao.getTypeSampleByIName(sampleType); 
 
     if (isActive == null)
   	  isActive = 1;
     
-    SubtypeSample subtypeSample = subtypeSampleService.getSubtypeSampleByIName(iname); 
+    SubtypeSample subtypeSample = subtypeSampleDao.getSubtypeSampleByIName(iname); 
     String areaList = StringUtils.join(getAreaListFromUiFields(this.uiFields), ",");
     // inserts or update subtypeSample
     if (subtypeSample.getSubtypeSampleId() == null) {
@@ -105,10 +105,10 @@ public class SubtypeSampleLoadService extends WaspLoadService {
       subtypeSample.setTypeSampleId(typeSample.getTypeSampleId());
       subtypeSample.setAreaList(areaList);
 
-      subtypeSampleService.save(subtypeSample); 
+      subtypeSampleDao.save(subtypeSample); 
 
       // refreshes
-      subtypeSample = subtypeSampleService.getSubtypeSampleByIName(iname); 
+      subtypeSample = subtypeSampleDao.getSubtypeSampleByIName(iname); 
 
     } else {
       boolean changed = false;
@@ -131,7 +131,7 @@ public class SubtypeSampleLoadService extends WaspLoadService {
       }
       if (changed)
     	  logger.debug("ANDY: saving: "+subtypeSample.toString());
-    	  subtypeSampleService.save(subtypeSample); 
+    	  subtypeSampleDao.save(subtypeSample); 
     }
 
     // sync metas
@@ -168,7 +168,7 @@ public class SubtypeSampleLoadService extends WaspLoadService {
             	changed = true;
             }
             if (changed)
-            	subtypeSampleMetaService.save(old);
+            	subtypeSampleMetaDao.save(old);
 
             oldSubtypeSampleMetas.remove(old.getK()); // remove the meta from the old meta list as we're done with it
             continue; 
@@ -176,15 +176,15 @@ public class SubtypeSampleLoadService extends WaspLoadService {
 
         subtypeSampleMeta.setSubtypeSampleId(subtypeSample.getSubtypeSampleId());
         subtypeSampleMeta.setPosition(1);
-        subtypeSampleMetaService.save(subtypeSampleMeta);
+        subtypeSampleMetaDao.save(subtypeSampleMeta);
       }
     }
 
     // delete the left overs
     for (String subtypeSampleMetaKey : oldSubtypeSampleMetas.keySet()) {
       SubtypeSampleMeta subtypeSampleMeta = oldSubtypeSampleMetas.get(subtypeSampleMetaKey);
-      subtypeSampleMetaService.remove(subtypeSampleMeta);
-      subtypeSampleMetaService.flush(subtypeSampleMeta);
+      subtypeSampleMetaDao.remove(subtypeSampleMeta);
+      subtypeSampleMetaDao.flush(subtypeSampleMeta);
     }
     
     // sync subtypeSampleResourceCategories
@@ -198,12 +198,12 @@ public class SubtypeSampleLoadService extends WaspLoadService {
     		oldSubtypeSampleResourceCats.remove(resourceIName);
     		continue;
     	}
-    	ResourceCategory resourceCat = resourceCategoryService.getResourceCategoryByIName(resourceIName);
+    	ResourceCategory resourceCat = resourceCategoryDao.getResourceCategoryByIName(resourceIName);
     	if (resourceCat.getResourceCategoryId() != null){
     		SubtypeSampleResourceCategory subtypeSampleResourceCategory = new SubtypeSampleResourceCategory();
     		subtypeSampleResourceCategory.setResourcecategoryId(resourceCat.getResourceCategoryId());
     		subtypeSampleResourceCategory.setSubtypeSampleId(subtypeSample.getSubtypeSampleId());
-    		subtypeSampleResourceCategoryService.save(subtypeSampleResourceCategory);
+    		subtypeSampleResourceCategoryDao.save(subtypeSampleResourceCategory);
     		oldSubtypeSampleResourceCats.remove(resourceIName);
     	} else {
     		throw new NullResourceCategoryException();
@@ -212,9 +212,9 @@ public class SubtypeSampleLoadService extends WaspLoadService {
     
     // remove the left overs
     for (String adaptorsetKey : oldSubtypeSampleResourceCats.keySet()) {
-    	ResourceCategory resourceCat = resourceCategoryService.getResourceCategoryByIName(adaptorsetKey);
-    	SubtypeSampleResourceCategory ssrc = subtypeSampleResourceCategoryService.getSubtypeSampleResourceCategoryBySubtypeSampleIdResourceCategoryId(subtypeSample.getSubtypeSampleId(), resourceCat.getResourceCategoryId());
-    	subtypeSampleResourceCategoryService.remove(ssrc);
+    	ResourceCategory resourceCat = resourceCategoryDao.getResourceCategoryByIName(adaptorsetKey);
+    	SubtypeSampleResourceCategory ssrc = subtypeSampleResourceCategoryDao.getSubtypeSampleResourceCategoryBySubtypeSampleIdResourceCategoryId(subtypeSample.getSubtypeSampleId(), resourceCat.getResourceCategoryId());
+    	subtypeSampleResourceCategoryDao.remove(ssrc);
     }
     
     updateUiFields(); 

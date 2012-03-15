@@ -18,11 +18,15 @@ import edu.yu.einstein.wasp.model.Sample;
 
 public interface SampleDao extends WaspDao<Sample> {
 
-  Sample getSampleBySampleId (final int sampleId);
+	public Sample getSampleBySampleId (final int sampleId);
   
-  List<Sample> getSamplesByJobId (final int jobId);
+	public List<Sample> getSamplesByJobId (final int jobId);
 
-  Sample getSampleByName(final String name);
+	public Sample getSampleByName(final String name);
+
+	public List<Sample> findAllPlatformUnits();
+
+	public List<Sample> getActiveSamples();
 
 }
 

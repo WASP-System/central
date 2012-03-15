@@ -7,7 +7,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -25,6 +24,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import edu.yu.einstein.wasp.controller.DashboardController.DashboardEntityRolename;
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
+import edu.yu.einstein.wasp.dao.DepartmentDao;
+import edu.yu.einstein.wasp.dao.DepartmentUserDao;
+import edu.yu.einstein.wasp.dao.LabDao;
+import edu.yu.einstein.wasp.dao.LabPendingDao;
+import edu.yu.einstein.wasp.dao.UserDao;
 import edu.yu.einstein.wasp.model.Department;
 import edu.yu.einstein.wasp.model.DepartmentUser;
 import edu.yu.einstein.wasp.model.Job;
@@ -34,11 +38,7 @@ import edu.yu.einstein.wasp.model.LabPending;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.service.AuthenticationService;
-import edu.yu.einstein.wasp.service.DepartmentService;
-import edu.yu.einstein.wasp.service.DepartmentUserService;
-import edu.yu.einstein.wasp.service.LabPendingService;
-import edu.yu.einstein.wasp.service.LabService;
-import edu.yu.einstein.wasp.service.UserService;
+import edu.yu.einstein.wasp.service.TaskService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 import edu.yu.einstein.wasp.util.StringHelper;
 
@@ -47,56 +47,59 @@ import edu.yu.einstein.wasp.util.StringHelper;
 @RequestMapping("/department")
 public class DepartmentController extends WaspController {
 
-	private DepartmentService	departmentService;
+	private DepartmentDao departmentDao;
 
 	@Autowired
-	public void setDepartmentService(DepartmentService departmentService) {
-		this.departmentService = departmentService;
+	public void setDepartmentDao(DepartmentDao departmentDao) {
+		this.departmentDao = departmentDao;
 	}
 
 	@Override
-	public DepartmentService getDepartmentService() {
-		return this.departmentService;
+	public DepartmentDao getDepartmentDao() {
+		return this.departmentDao;
 	}
 
-	private DepartmentUserService	departmentUserService;
+	private DepartmentUserDao departmentUserDao;
 
 	@Autowired
-	public void setDepartmentUserService(DepartmentUserService departmentUserService) {
-		this.departmentUserService = departmentUserService;
+	public void setDepartmentUserDao(DepartmentUserDao departmentUserDao) {
+		this.departmentUserDao = departmentUserDao;
 	}
 
-	public DepartmentUserService getDepartmentUserService() {
-		return this.departmentUserService;
+	public DepartmentUserDao getDepartmentUserDao() {
+		return this.departmentUserDao;
 	}
 
 	@Autowired
-	private AuthenticationService	authenticationService;
+	private AuthenticationService authenticationService;
 
 	@Autowired
-	private LabService				labService;
+	private LabDao labDao;
 
 	// added by Dubin 9-29-11 for use in getNames
-	private UserService				userService;
+	private UserDao userDao;
 
 	@Autowired
-	public void setUserService(UserService userService) {
-		this.userService = userService;
+	public void setUserDao(UserDao userDao) {
+		this.userDao = userDao;
 	}
 
-	public UserService getUserService() {
-		return this.userService;
+	public UserDao getUserDao() {
+		return this.userDao;
 	}
 
 	@Autowired
-	private LabPendingService	labPendingService;
+	private LabPendingDao labPendingDao;
+	
+	@Autowired
+	private TaskService taskService;
 
 	// private static final MetaAttribute.Area AREA =
 	// MetaAttribute.Area.labPending;
 
 	@Override
 	protected void prepareSelectListData(ModelMap m) {
-		m.addAttribute("pusers", userService.getActiveUsers());
+		m.addAttribute("pusers", userDao.getActiveUsers());
 		super.prepareSelectListData(m);
 	}
 
@@ -108,7 +111,7 @@ public class DepartmentController extends WaspController {
 		int departmentAdminPendingTasks = 0;
 
 		if (authenticationService.isSuperUser() || authenticationService.hasRole("ga")) {
-			departmentList = this.getDepartmentService().findAllOrderBy("name", "ASC");
+			departmentList = this.getDepartmentDao().findAllOrderBy("name", "ASC");
 		} else {
 			departmentList = new ArrayList<Department>();
 			for (String role : authenticationService.getRoles()) {
@@ -134,13 +137,13 @@ public class DepartmentController extends WaspController {
 				// adds the role object to the proper bucket
 				switch (entityRolename) {
 				case da:
-					departmentList.add(departmentService.getDepartmentByDepartmentId(roleObjectId));
+					departmentList.add(departmentDao.getDepartmentByDepartmentId(roleObjectId));
 					break;
 				}
 			}
 		}
 		m.addAttribute("department", departmentList);
-		departmentAdminPendingTasks = departmentService.getDepartmentAdminPendingTasks();// number of da pending tasks (if su or ga, then department not considered)
+		departmentAdminPendingTasks = taskService.getDepartmentAdminPendingTasks();// number of da pending tasks (if su or ga, then department not considered)
 		m.addAttribute("departmentAdminPendingTasks", departmentAdminPendingTasks);
 		return "department/list";
 	}
@@ -153,7 +156,7 @@ public class DepartmentController extends WaspController {
 	@PreAuthorize("hasRole('su') or hasRole('ga-*') or hasRole('da-' + #departmentId)")
 	public String detail(@PathVariable("departmentId") Integer departmentId, ModelMap m) {
 
-		Department department = this.getDepartmentService().getById(departmentId.intValue());
+		Department department = this.getDepartmentDao().getById(departmentId.intValue());
 
 		List<Lab> labList = department.getLab();
 		labList.size();
@@ -165,7 +168,7 @@ public class DepartmentController extends WaspController {
 		labPendingQueryMap.put("status", "PENDING");
 		labPendingQueryMap.put("departmentId", departmentId);
 
-		List<LabPending> labPendingList = labPendingService.findByMap(labPendingQueryMap);
+		List<LabPending> labPendingList = labPendingDao.findByMap(labPendingQueryMap);
 
 		m.addAttribute("departmentId", departmentId);
 		m.addAttribute("departmentName", department.getName());
@@ -179,7 +182,7 @@ public class DepartmentController extends WaspController {
 
 		prepareSelectListData(m);
 
-		// List<Resource> resourceList = resourceService.findAll();
+		// List<Resource> resourceList = resourceDao.findAll();
 		//
 		// m.addAttribute("resource", resourceList);
 
@@ -196,7 +199,7 @@ public class DepartmentController extends WaspController {
 		// result
 		Map<String, Object> jqgrid = new HashMap<String, Object>();
 
-		Department department = this.getDepartmentService().getById(departmentId.intValue());
+		Department department = this.getDepartmentDao().getById(departmentId.intValue());
 		List<Lab> labList = department.getLab();
 
 		if (request.getParameter("_search") != null && StringUtils.isNotEmpty(request.getParameter("searchString"))) {
@@ -205,7 +208,7 @@ public class DepartmentController extends WaspController {
 
 			m.put(request.getParameter("searchField"), request.getParameter("searchString"));
 
-			List<Lab> searchLabList = labService.findByMap(m);
+			List<Lab> searchLabList = labDao.findByMap(m);
 
 			if ("ne".equals(request.getParameter("searchOper"))) {
 				labList.removeAll(searchLabList);
@@ -322,7 +325,7 @@ public class DepartmentController extends WaspController {
 		} else {
 			modifiedDepartmentName = StringHelper.removeExtraSpacesAndCapOnlyFirstLetterOfEachWord(departmentName);
 
-			Department existingDepartment = this.departmentService.getDepartmentByName(modifiedDepartmentName);// is this name already being used as a department name (which is prohibited)
+			Department existingDepartment = this.departmentDao.getDepartmentByName(modifiedDepartmentName);// is this name already being used as a department name (which is prohibited)
 			if (existingDepartment.getDepartmentId() != null) {
 			// if true, then the department already exists, so do let allow system to create department again
 				waspErrorMessage("department.list_department_exists.error");
@@ -339,7 +342,7 @@ public class DepartmentController extends WaspController {
 		if ("".equals(login)) {
 			waspErrorMessage("department.detail_missinglogin.error");
 		} else {
-			user = userService.getUserByLogin(login);
+			user = userDao.getUserByLogin(login);
 			if (user.getUserId() == null) {// user not found in database
 				waspErrorMessage("department.detail_usernotfound.error");
 			} else {
@@ -357,12 +360,12 @@ public class DepartmentController extends WaspController {
 			department.setName(modifiedDepartmentName);
 			department.setIsActive(1);
 			department.setIsInternal(1);
-			department = departmentService.save(department);
+			department = departmentDao.save(department);
 
 			DepartmentUser departmentUser = new DepartmentUser();
 			departmentUser.setDepartmentId(department.getDepartmentId());
 			departmentUser.setUserId(user.getUserId());
-			departmentUserService.save(departmentUser);
+			departmentUserDao.save(departmentUser);
 			// //waspMessage("department.detail_ok.label");
 
 			// if i am the user, reauth
@@ -381,9 +384,9 @@ public class DepartmentController extends WaspController {
 	@PreAuthorize("hasRole('su') or hasRole('da-' + #departmentId)")
 	public String departmentUserRoleRemove(@PathVariable("departmentId") Integer departmentId, @PathVariable("userId") Integer userId, ModelMap m) {
 
-		DepartmentUser departmentUser = departmentUserService.getDepartmentUserByDepartmentIdUserId(departmentId, userId);
+		DepartmentUser departmentUser = departmentUserDao.getDepartmentUserByDepartmentIdUserId(departmentId, userId);
 
-		departmentUserService.remove(departmentUser);
+		departmentUserDao.remove(departmentUser);
 
 		// if i am the user, reauth
 		User me = authenticationService.getAuthenticatedUser();
@@ -407,7 +410,7 @@ public class DepartmentController extends WaspController {
 
 		// first, confirm that the departmentId is valid (although it is quite
 		// unlikely that this is going to be an invalid ID)
-		Department department = departmentService.getDepartmentByDepartmentId(departmentId);
+		Department department = departmentDao.getDepartmentByDepartmentId(departmentId);
 		if (department.getDepartmentId() == null) {
 			// id of 0 means this department does not exist in the database; this should not really occur
 			waspErrorMessage("department.detail_invalidDept.error");
@@ -417,12 +420,12 @@ public class DepartmentController extends WaspController {
 			if ("".equals(login)) {
 				waspErrorMessage("department.detail_missinglogin.error");
 			} else {
-				User user = userService.getUserByLogin(login);
+				User user = userDao.getUserByLogin(login);
 				if (user.getUserId() == null) {// user not found in database
 					waspErrorMessage("department.detail_usernotfound.error");
 				} else {
 
-					DepartmentUser existingDepartmentUser = departmentUserService.getDepartmentUserByDepartmentIdUserId(departmentId, user.getUserId());
+					DepartmentUser existingDepartmentUser = departmentUserDao.getDepartmentUserByDepartmentIdUserId(departmentId, user.getUserId());
 					if (existingDepartmentUser.getDepartmentUserId() != null && existingDepartmentUser.getUser().getUserId().intValue() == user.getUserId().intValue()) {
 						// this person is already a departmentAdmin for this particular department
 						waspErrorMessage("department.detail_adminAlreadyExists.error");
@@ -430,7 +433,7 @@ public class DepartmentController extends WaspController {
 						DepartmentUser departmentUser = new DepartmentUser();
 						departmentUser.setDepartmentId(departmentId);
 						departmentUser.setUserId(user.getUserId());
-						departmentUserService.save(departmentUser);
+						departmentUserDao.save(departmentUser);
 						waspMessage("department.detail_ok.label");
 						// if i am the user, reauth
 						User me = authenticationService.getAuthenticatedUser();
@@ -455,19 +458,19 @@ public class DepartmentController extends WaspController {
 		} else {
 			String modifiedName = StringHelper.removeExtraSpacesAndCapOnlyFirstLetterOfEachWord(name);
 
-			Department departmentBeingModified = this.departmentService.getDepartmentByDepartmentId(departmentId);
+			Department departmentBeingModified = this.departmentDao.getDepartmentByDepartmentId(departmentId);
 			// modifiedName can be the (unchanged) name of the department being
 			// modified (which is valid) or it can also be the case that the user
 			// is attempting to set one department name to another department's
 			// name (which is invalid)
 			// These can be distinguished by departmentId
-			Department otherDepartment = this.departmentService.getDepartmentByName(modifiedName);
+			Department otherDepartment = this.departmentDao.getDepartmentByName(modifiedName);
 			if (otherDepartment.getDepartmentId() != null && departmentBeingModified.getDepartmentId().intValue() != otherDepartment.getDepartmentId().intValue()) {
 				waspErrorMessage("department.list_department_exists.error");// this name is taken
 			} else {
 				departmentBeingModified.setName(modifiedName);
 				departmentBeingModified.setIsActive(isActive);
-				this.departmentService.save(departmentBeingModified);
+				this.departmentDao.save(departmentBeingModified);
 				waspMessage("department.detail_update_ok.label");
 			}
 		}
@@ -481,7 +484,7 @@ public class DepartmentController extends WaspController {
 		List<LabPending> labsPendingDaApprovalList = new ArrayList<LabPending>();
 		List<Job> jobsPendingDaApprovalList = new ArrayList<Job>();
 
-		departmentService.getDepartmentAdminPendingTasks(labsPendingDaApprovalList, jobsPendingDaApprovalList);
+		taskService.getDepartmentAdminPendingTasks(labsPendingDaApprovalList, jobsPendingDaApprovalList);
 		// logger.debug("ROB : total number of labs pending: " + labsPendingDaApprovalList.size());
 		// logger.debug("ROB : total number of jobs pending: " + jobsPendingDaApprovalList.size());
 		// logger.debug("ROB : count of tasks: " + count);

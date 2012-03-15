@@ -14,7 +14,7 @@ import edu.yu.einstein.wasp.dao.AcctGrantDao;
 import edu.yu.einstein.wasp.model.AcctGrant;
 
 public class TestAcctGrantServiceImpl {
-	
+/*	
 	private AcctGrantServiceImpl acctGrantServiceImpl = new AcctGrantServiceImpl();
 	private AcctGrantDao mockAcctGrantDao;
 	
@@ -45,5 +45,5 @@ public class TestAcctGrantServiceImpl {
 		
 		//fail("Not yet implemented");
 	}
-
+*/
 }

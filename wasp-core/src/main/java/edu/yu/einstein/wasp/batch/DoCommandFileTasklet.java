@@ -13,10 +13,10 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.yu.einstein.wasp.dao.FileDao;
+import edu.yu.einstein.wasp.dao.StateDao;
+import edu.yu.einstein.wasp.dao.StatejobDao;
 import edu.yu.einstein.wasp.model.File;
-import edu.yu.einstein.wasp.service.FileService;
-import edu.yu.einstein.wasp.service.StateService;
-import edu.yu.einstein.wasp.service.StatejobService;
 
 /**
  * DoCommandStateProcessor
@@ -38,16 +38,16 @@ import edu.yu.einstein.wasp.service.StatejobService;
 public class DoCommandFileTasklet extends org.springframework.batch.core.step.tasklet.SystemCommandTasklet {
 
 	@Autowired
-	StateService stateService;
+	StateDao stateDao;
 
 	@Autowired
-	FileService fileService;
+	FileDao fileDao;
 
 	@Autowired
-	StatejobService statejobService;
+	StatejobDao statejobDao;
 
 	/**
-	 * filename key for stateService
+	 * filename key for stateDao
 	 *
 	 */
 	protected String filename;
@@ -85,7 +85,7 @@ public class DoCommandFileTasklet extends org.springframework.batch.core.step.ta
 	@Transactional
 	public void beforeStep(StepExecution stepExecution) {
 		Map m = new HashMap(); 
-		File file = fileService.getFileByFilelocation(filename);
+		File file = fileDao.getFileByFilelocation(filename);
 		m.put("file", file); 
 
 		m.put("filename", filename); 

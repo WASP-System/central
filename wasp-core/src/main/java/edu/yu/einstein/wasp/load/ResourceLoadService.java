@@ -8,17 +8,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import util.spring.PostInitialize;
+import edu.yu.einstein.wasp.dao.ResourceCategoryDao;
+import edu.yu.einstein.wasp.dao.ResourceDao;
+import edu.yu.einstein.wasp.dao.ResourceLaneDao;
+import edu.yu.einstein.wasp.dao.ResourceMetaDao;
+import edu.yu.einstein.wasp.dao.TypeResourceDao;
 import edu.yu.einstein.wasp.exception.NullResourceCategoryException;
 import edu.yu.einstein.wasp.exception.NullTypeResourceException;
 import edu.yu.einstein.wasp.model.Resource;
 import edu.yu.einstein.wasp.model.ResourceLane;
 import edu.yu.einstein.wasp.model.ResourceMeta;
 import edu.yu.einstein.wasp.model.TypeResource;
-import edu.yu.einstein.wasp.service.ResourceCategoryService;
-import edu.yu.einstein.wasp.service.ResourceLaneService;
-import edu.yu.einstein.wasp.service.ResourceMetaService;
-import edu.yu.einstein.wasp.service.ResourceService;
-import edu.yu.einstein.wasp.service.TypeResourceService;
 
 
 /**
@@ -37,19 +37,19 @@ import edu.yu.einstein.wasp.service.TypeResourceService;
 public class ResourceLoadService extends WaspLoadService {
 
   @Autowired
-  private ResourceService resourceService;
+  private ResourceDao resourceDao;
 
   @Autowired
-  private ResourceLaneService resourceLaneService;
+  private ResourceLaneDao resourceLaneDao;
 
   @Autowired
-  private ResourceMetaService resourceMetaService;
+  private ResourceMetaDao resourceMetaDao;
 
   @Autowired
-  private TypeResourceService typeResourceService;
+  private TypeResourceDao typeResourceDao;
   
   @Autowired
-  private ResourceCategoryService resourceCategoryService;
+  private ResourceCategoryDao resourceCategoryDao;
 
   private String resourceCategoryIName; 
   public void setResourceCategory(String resourceCategoryIName) { this.resourceCategoryIName = resourceCategoryIName; }
@@ -74,17 +74,17 @@ public class ResourceLoadService extends WaspLoadService {
     // skips component scanned  (if scanned in)
     if (name == null) { return; }
     
-    Integer resourceCategoryId = resourceCategoryService.getResourceCategoryByIName(resourceCategoryIName).getResourceCategoryId();
+    Integer resourceCategoryId = resourceCategoryDao.getResourceCategoryByIName(resourceCategoryIName).getResourceCategoryId();
     if (resourceCategoryId == null){
     	throw new NullResourceCategoryException();
     }
 
-    TypeResource typeResource = typeResourceService.getTypeResourceByIName(resourceType); 
+    TypeResource typeResource = typeResourceDao.getTypeResourceByIName(resourceType); 
     if (typeResource == null){
     	throw new NullTypeResourceException();
     }
 
-    Resource resource = resourceService.getResourceByIName(iname); 
+    Resource resource = resourceDao.getResourceByIName(iname); 
 
     // inserts or update workflow
     if (resource.getResourceId() == null) { 
@@ -96,10 +96,10 @@ public class ResourceLoadService extends WaspLoadService {
       resource.setTypeResourceId(typeResource.getTypeResourceId());
       resource.setIsActive(1);
 
-      resourceService.save(resource); 
+      resourceDao.save(resource); 
 
       // refreshes
-      resource = resourceService.getResourceByIName(iname); 
+      resource = resourceDao.getResourceByIName(iname); 
 
     } else {
       boolean changed = false;	
@@ -116,7 +116,7 @@ public class ResourceLoadService extends WaspLoadService {
     	  changed = true;
       }
       if (changed)
-    	  resourceService.save(resource); 
+    	  resourceDao.save(resource); 
     }
 
 
@@ -149,21 +149,21 @@ public class ResourceLoadService extends WaspLoadService {
         	changed = true;
         }
         if (changed)
-        	resourceMetaService.save(old);
+        	resourceMetaDao.save(old);
 
         oldResourceMetas.remove(old.getK()); // remove the meta from the old meta list as we're done with it
         continue; 
       }
 
       resourceMeta.setResourceId(resource.getResourceId()); 
-      resourceMetaService.save(resourceMeta); 
+      resourceMetaDao.save(resourceMeta); 
     }
 
     // delete the left overs
     for (String resourceMetaKey : oldResourceMetas.keySet()) {
       ResourceMeta resourceMeta = oldResourceMetas.get(resourceMetaKey); 
-      resourceMetaService.remove(resourceMeta); 
-      resourceMetaService.flush(resourceMeta); 
+      resourceMetaDao.remove(resourceMeta); 
+      resourceMetaDao.flush(resourceMeta); 
     }
 
 
@@ -181,7 +181,7 @@ public class ResourceLoadService extends WaspLoadService {
         if (!old.getIName().equals(resourceCell.getIName())) { 	
         	old.setName(resourceCell.getName());
         	old.setIsActive(1);
-        	resourceLaneService.save(old);
+        	resourceLaneDao.save(old);
         }
         oldResourceLanes.remove(old.getIName());
         continue;
@@ -189,7 +189,7 @@ public class ResourceLoadService extends WaspLoadService {
 
       resourceCell.setResourceId(resource.getResourceId()); 
       resourceCell.setIsActive(1);
-      resourceLaneService.save(resourceCell); 
+      resourceLaneDao.save(resourceCell); 
     }
 
 

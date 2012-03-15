@@ -9,15 +9,15 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import edu.yu.einstein.wasp.dao.JobFileDao;
+import edu.yu.einstein.wasp.dao.RunFileDao;
+import edu.yu.einstein.wasp.dao.SampleFileDao;
+import edu.yu.einstein.wasp.dao.StateDao;
 import edu.yu.einstein.wasp.model.File;
 import edu.yu.einstein.wasp.model.JobFile;
 import edu.yu.einstein.wasp.model.RunFile;
 import edu.yu.einstein.wasp.model.SampleFile;
 import edu.yu.einstein.wasp.service.FileService;
-import edu.yu.einstein.wasp.service.JobFileService;
-import edu.yu.einstein.wasp.service.RunFileService;
-import edu.yu.einstein.wasp.service.SampleFileService;
-import edu.yu.einstein.wasp.service.StateService;
 
 /**
  * RegisterFileProcessor
@@ -34,16 +34,16 @@ public class RegisterFileProcessor implements ItemProcessor {
 	FileService fileService;
 
 	@Autowired
-	JobFileService jobFileService;
+	JobFileDao jobFileDao;
 
 	@Autowired
-	SampleFileService sampleFileService;
+	SampleFileDao sampleFileDao;
 
 	@Autowired
-	RunFileService runFileService;
+	RunFileDao runFileDao;
 
 	@Autowired
-	StateService stateService;
+	StateDao stateDao;
 
 	/**
 	 * fileRegex
@@ -76,7 +76,7 @@ public class RegisterFileProcessor implements ItemProcessor {
 		}
 
 		File file = fileService.getMetaInformation(filename);
-		fileService.save(file);
+		fileService.getFileDao().save(file);
 
 		// registers files w/ respective entities
 		for (int i = 0; i < matchList.length; i++) {
@@ -87,7 +87,7 @@ public class RegisterFileProcessor implements ItemProcessor {
 				JobFile newJobFile = new JobFile();
 				newJobFile.setJobId(jobId); 
 				newJobFile.setFileId(file.getFileId()); 
-				jobFileService.save(newJobFile);
+				jobFileDao.save(newJobFile);
 
 				continue;
 			}
@@ -96,7 +96,7 @@ public class RegisterFileProcessor implements ItemProcessor {
 				SampleFile newSampleFile = new SampleFile();
 				newSampleFile.setSampleId(sampleId); 
 				newSampleFile.setFileId(file.getFileId()); 
-				sampleFileService.save(newSampleFile);
+				sampleFileDao.save(newSampleFile);
 				continue;
 			}
 			if ("runId".equals(matchKey)) {
@@ -104,7 +104,7 @@ public class RegisterFileProcessor implements ItemProcessor {
 				RunFile newRunFile = new RunFile();
 				newRunFile.setRunId(runId); 
 				newRunFile.setFileId(file.getFileId()); 
-				runFileService.save(newRunFile);
+				runFileDao.save(newRunFile);
 				continue;
 			}
 		}

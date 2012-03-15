@@ -19,12 +19,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import edu.yu.einstein.wasp.dao.RoleDao;
+import edu.yu.einstein.wasp.dao.UserroleDao;
 import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Userrole;
 import edu.yu.einstein.wasp.service.AuthenticationService;
-import edu.yu.einstein.wasp.service.RoleService;
-import edu.yu.einstein.wasp.service.UserroleService;
 import edu.yu.einstein.wasp.util.StringHelper;
 
 /**
@@ -39,10 +39,10 @@ public class SystemRoleController extends WaspController {
 
 
 	@Autowired
-	private RoleService roleService;
+	private RoleDao roleDao;
 
 	@Autowired
-	private UserroleService userroleService;
+	private UserroleDao userroleDao;
 
 	@Autowired
 	private BeanValidator validator;
@@ -67,10 +67,10 @@ public class SystemRoleController extends WaspController {
 
 		Map roleQueryMap = new HashMap();
 		roleQueryMap.put("domain", "system");
-		List<Role> systemRoleList = roleService.findByMap(roleQueryMap);
+		List<Role> systemRoleList = roleDao.findByMap(roleQueryMap);
 
 		SortedMap userRoleMap = new TreeMap();
-		for (Userrole ur : (List<Userrole>) userroleService.findAll()){
+		for (Userrole ur : userroleDao.findAll()){
 			if (systemRoleList.contains(ur.getRole())){
 				// current userrole user has a systems role
 				String nameKey = ur.getUser().getLastName() + ", " + ur.getUser().getFirstName() + " (" + ur.getUser().getLogin() + ")";
@@ -106,7 +106,7 @@ public class SystemRoleController extends WaspController {
 		}
 		String userLogin = StringHelper.getLoginFromFormattedNameAndLogin(userHook.trim());
 
-		User user = userService.getUserByLogin(userLogin);
+		User user = userDao.getUserByLogin(userLogin);
 		if (user.getUserId() == null){
 			waspErrorMessage("sysrole.userNonexistant.error");
 			return "redirect:/sysrole/list.do";
@@ -115,7 +115,7 @@ public class SystemRoleController extends WaspController {
 			waspErrorMessage("sysrole.noRoleSpecified.error");
 			return "redirect:/sysrole/list.do";
 		}
-		Role role= roleService.getRoleByRoleName(roleName);
+		Role role= roleDao.getRoleByRoleName(roleName);
 		if (role.getRoleId() == null || !role.getDomain().equals("system")){
 			waspErrorMessage("sysrole.invalidRoleSpecified.error");
 			return "redirect:/sysrole/list.do";
@@ -123,14 +123,14 @@ public class SystemRoleController extends WaspController {
 		Map userroleQueryMap = new HashMap();
 		userroleQueryMap.put("UserId", user.getUserId());
 		userroleQueryMap.put("roleId", role.getRoleId());
-		if (!userroleService.findByMap(userroleQueryMap).isEmpty()){
+		if (!userroleDao.findByMap(userroleQueryMap).isEmpty()){
 			waspErrorMessage("sysrole.userRoleExists.error");
 			return "redirect:/sysrole/list.do";
 		}
 		Userrole userrole = new Userrole();
 		userrole.setUserId(user.getUserId());
 		userrole.setRoleId(role.getRoleId());
-		userroleService.save(userrole);
+		userroleDao.save(userrole);
 
 
 		// if i am the user,  reauth
@@ -162,7 +162,7 @@ public class SystemRoleController extends WaspController {
 			waspErrorMessage("sysrole.noUserSpecified.error");
 			return "redirect:/sysrole/list.do";
 		}
-		if (userService.getUserByUserId(userId).getUserId() == null){
+		if (userDao.getUserByUserId(userId).getUserId() == null){
 			waspErrorMessage("sysrole.userNonexistant.error");
 			return "redirect:/sysrole/list.do";
 		}
@@ -170,7 +170,7 @@ public class SystemRoleController extends WaspController {
 			waspErrorMessage("sysrole.noRoleSpecified.error");
 			return "redirect:/sysrole/list.do";
 		}
-		Role role= roleService.getRoleByRoleName(roleName);
+		Role role= roleDao.getRoleByRoleName(roleName);
 		if (role.getRoleId() == null || !role.getDomain().equals("system")){
 			waspErrorMessage("sysrole.invalidRoleSpecified.error");
 			return "redirect:/sysrole/list.do";
@@ -179,17 +179,17 @@ public class SystemRoleController extends WaspController {
 		// must have at least one user granted each system role.
 		Map roleIdQuery = new HashMap();
 		roleIdQuery.put("roleId", role.getRoleId());
-		if (userroleService.findByMap(roleIdQuery).size() == 1){
+		if (userroleDao.findByMap(roleIdQuery).size() == 1){
 			waspErrorMessage("sysrole.onlyUserWithRole.error");
 			return "redirect:/sysrole/list.do";
 		}
-		Userrole userrole = userroleService.getUserroleByUserIdRoleId(userId, role.getRoleId());
+		Userrole userrole = userroleDao.getUserroleByUserIdRoleId(userId, role.getRoleId());
 		
 		if (userrole.getUserroleId() == null){
 			waspErrorMessage("sysrole.wrongUserRoleCombination.error");
 			return "redirect:/sysrole/list.do";
 		}
-		userroleService.remove(userrole);
+		userroleDao.remove(userrole);
 		waspMessage("sysrole.success.label");
 		// if i am the user,  reauth
 		User me = authenticationService.getAuthenticatedUser();

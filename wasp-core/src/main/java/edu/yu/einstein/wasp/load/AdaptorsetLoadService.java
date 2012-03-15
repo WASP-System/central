@@ -8,6 +8,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import util.spring.PostInitialize;
+import edu.yu.einstein.wasp.dao.AdaptorDao;
+import edu.yu.einstein.wasp.dao.AdaptorMetaDao;
+import edu.yu.einstein.wasp.dao.AdaptorsetDao;
+import edu.yu.einstein.wasp.dao.AdaptorsetMetaDao;
+import edu.yu.einstein.wasp.dao.AdaptorsetResourceCategoryDao;
+import edu.yu.einstein.wasp.dao.ResourceCategoryDao;
+import edu.yu.einstein.wasp.dao.TypeSampleDao;
 import edu.yu.einstein.wasp.exception.NullResourceCategoryException;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.AdaptorMeta;
@@ -16,13 +23,6 @@ import edu.yu.einstein.wasp.model.AdaptorsetMeta;
 import edu.yu.einstein.wasp.model.AdaptorsetResourceCategory;
 import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.TypeSample;
-import edu.yu.einstein.wasp.service.AdaptorMetaService;
-import edu.yu.einstein.wasp.service.AdaptorService;
-import edu.yu.einstein.wasp.service.AdaptorsetMetaService;
-import edu.yu.einstein.wasp.service.AdaptorsetResourceCategoryService;
-import edu.yu.einstein.wasp.service.AdaptorsetService;
-import edu.yu.einstein.wasp.service.ResourceCategoryService;
-import edu.yu.einstein.wasp.service.TypeSampleService;
 
 
 /**
@@ -41,25 +41,25 @@ public class AdaptorsetLoadService extends WaspLoadService {
 
 
   @Autowired
-  private AdaptorService adaptorService;
+  private AdaptorDao adaptorDao;
   
   @Autowired
-  private AdaptorMetaService adaptorMetaService;
+  private AdaptorMetaDao adaptorMetaDao;
   
   @Autowired
-  private AdaptorsetService adaptorsetService;
+  private AdaptorsetDao adaptorsetDao;
   
   @Autowired
-  private AdaptorsetMetaService adaptorsetMetaService;
+  private AdaptorsetMetaDao adaptorsetMetaDao;
   
   @Autowired
-  private AdaptorsetResourceCategoryService adaptorsetResourceCategoryService;
+  private AdaptorsetResourceCategoryDao adaptorsetResourceCategoryDao;
   
   @Autowired
-  private ResourceCategoryService resourceCategoryService;
+  private ResourceCategoryDao resourceCategoryDao;
 
   @Autowired
-  private TypeSampleService typeSampleService;
+  private TypeSampleDao typeSampleDao;
  
   private String typeSampleIName;
   public void setTypeSampleIName(String typeSampleIName){ this.typeSampleIName = typeSampleIName; }
@@ -94,9 +94,9 @@ public class AdaptorsetLoadService extends WaspLoadService {
     // skips component scanned  (if scanned in)
     if (name == null) { return; }
     
-    TypeSample typeSample = typeSampleService.getTypeSampleByIName(typeSampleIName);
+    TypeSample typeSample = typeSampleDao.getTypeSampleByIName(typeSampleIName);
 
-    Adaptorset adaptorset = adaptorsetService.getAdaptorsetByIName(iname);
+    Adaptorset adaptorset = adaptorsetDao.getAdaptorsetByIName(iname);
     
     if (isActive == null)
     	  isActive = 1;
@@ -109,10 +109,10 @@ public class AdaptorsetLoadService extends WaspLoadService {
     	adaptorset.setTypeSample(typeSample);
     	adaptorset.setIsActive(isActive.intValue());
 
-    	adaptorsetService.save(adaptorset);
+    	adaptorsetDao.save(adaptorset);
 
     	// refreshes
-    	adaptorset = adaptorsetService.getAdaptorsetByIName(iname); 
+    	adaptorset = adaptorsetDao.getAdaptorsetByIName(iname); 
 
     } else {
       boolean changed = false;	
@@ -130,7 +130,7 @@ public class AdaptorsetLoadService extends WaspLoadService {
       }
       
       if (changed)
-    	  adaptorsetService.save(adaptorset);
+    	  adaptorsetDao.save(adaptorset);
     }
 
     // sync metas
@@ -161,20 +161,20 @@ public class AdaptorsetLoadService extends WaspLoadService {
         	changed = true;
         }
         if (changed)
-        	adaptorsetMetaService.save(old);
+        	adaptorsetMetaDao.save(old);
 
         oldAdaptorsetMetas.remove(old.getK()); // remove the meta from the old meta list as we're done with it
         continue;
       }
 
       adaptorsetMeta.setAdaptorsetId(adaptorset.getAdaptorsetId()); 
-      adaptorsetMetaService.save(adaptorsetMeta); 
+      adaptorsetMetaDao.save(adaptorsetMeta); 
     }
 
    for (String adaptorsetMetaKey : oldAdaptorsetMetas.keySet()) {
       AdaptorsetMeta adaptorsetMeta = oldAdaptorsetMetas.get(adaptorsetMetaKey); 
-      adaptorsetMetaService.remove(adaptorsetMeta); 
-      adaptorsetMetaService.flush(adaptorsetMeta); 
+      adaptorsetMetaDao.remove(adaptorsetMeta); 
+      adaptorsetMetaDao.flush(adaptorsetMeta); 
     }
 
     // sync adaptorsetResources
@@ -188,12 +188,12 @@ public class AdaptorsetLoadService extends WaspLoadService {
     		oldAdaptorsetResourceCats.remove(resourceIName);
     		continue;
     	}
-    	ResourceCategory resourceCat = resourceCategoryService.getResourceCategoryByIName(resourceIName);
+    	ResourceCategory resourceCat = resourceCategoryDao.getResourceCategoryByIName(resourceIName);
     	if (resourceCat.getResourceCategoryId() != null){
     		AdaptorsetResourceCategory adaptorsetresource = new AdaptorsetResourceCategory();
     		adaptorsetresource.setResourcecategoryId(resourceCat.getResourceCategoryId());
     		adaptorsetresource.setAdaptorsetId(adaptorset.getAdaptorsetId());
-    		adaptorsetResourceCategoryService.save(adaptorsetresource);
+    		adaptorsetResourceCategoryDao.save(adaptorsetresource);
     		oldAdaptorsetResourceCats.remove(resourceIName);
     	} else {
     		throw new NullResourceCategoryException();
@@ -202,15 +202,15 @@ public class AdaptorsetLoadService extends WaspLoadService {
 
     // remove the left overs
     for (String adaptorsetKey : oldAdaptorsetResourceCats.keySet()) {
-    	ResourceCategory resourceCat = resourceCategoryService.getResourceCategoryByIName(adaptorsetKey);
-    	AdaptorsetResourceCategory adaptorsetResource = adaptorsetResourceCategoryService.getAdaptorsetResourceCategoryByAdaptorsetIdResourcecategoryId(adaptorset.getAdaptorsetId(), resourceCat.getResourceCategoryId());
-    	adaptorsetResourceCategoryService.remove(adaptorsetResource);
+    	ResourceCategory resourceCat = resourceCategoryDao.getResourceCategoryByIName(adaptorsetKey);
+    	AdaptorsetResourceCategory adaptorsetResource = adaptorsetResourceCategoryDao.getAdaptorsetResourceCategoryByAdaptorsetIdResourcecategoryId(adaptorset.getAdaptorsetId(), resourceCat.getResourceCategoryId());
+    	adaptorsetResourceCategoryDao.remove(adaptorsetResource);
     }
     
     // update adaptors
     Map<String, Integer> adaptorSearchMap = new HashMap<String, Integer>();
     adaptorSearchMap.put("adaptorsetId", adaptorset.getAdaptorsetId());
-    List<Adaptor> adaptorsInAdaptorset = adaptorService.findByMap(adaptorSearchMap);
+    List<Adaptor> adaptorsInAdaptorset = adaptorDao.findByMap(adaptorSearchMap);
     Map<String, Adaptor> oldAdaptors = new HashMap<String, Adaptor>();
     for (Adaptor adaptor : adaptorsInAdaptorset){
     	oldAdaptors.put(adaptor.getIName(), adaptor);
@@ -221,7 +221,7 @@ public class AdaptorsetLoadService extends WaspLoadService {
     	// we should try and get an existing adaptor using the iName and use that 
     	// as it is possible the adaptor set may have changed (i.e. don't use the oldAdaptors objects 
     	// obtained using the current adaptorset ID.
-    	Adaptor adaptor = adaptorService.getAdaptorByIName(adaptorKey);
+    	Adaptor adaptor = adaptorDao.getAdaptorByIName(adaptorKey);
     	if (adaptor.getAdaptorId() != null){
     		// adaptor exists
     		boolean changed = false;
@@ -250,7 +250,7 @@ public class AdaptorsetLoadService extends WaspLoadService {
     	    	changed = true;
     	    }
     		if (changed)
-    			adaptorService.save(adaptor);
+    			adaptorDao.save(adaptor);
     		if (oldAdaptors.containsKey(adaptorKey))
     			oldAdaptors.remove(adaptor.getIName());
     		
@@ -283,21 +283,21 @@ public class AdaptorsetLoadService extends WaspLoadService {
 	    	        	metaChanged = true;
 	    	        }
 	    	        if (metaChanged)
-	    	        	adaptorMetaService.save(oldMeta);
+	    	        	adaptorMetaDao.save(oldMeta);
 	
 	    	        oldAdaptorMetas.remove(oldMeta.getK()); // remove the meta from the old meta list as we're done with it
 	    	        continue; 
 	    	    }
 	    	    // is new metadata
 	    	    adaptorMeta.setAdaptorId(adaptor.getAdaptorId()); 
-	    	    adaptorMetaService.save(adaptorMeta); 
+	    	    adaptorMetaDao.save(adaptorMeta); 
     	    }
 
     	    // delete the left overs
     	    for (String adaptorMetaKey : oldAdaptorMetas.keySet()) {
     	    	AdaptorMeta adaptorMeta = oldAdaptorMetas.get(adaptorMetaKey); 
-    	    	adaptorMetaService.remove(adaptorMeta); 
-    	    	adaptorMetaService.flush(adaptorMeta); 
+    	    	adaptorMetaDao.remove(adaptorMeta); 
+    	    	adaptorMetaDao.flush(adaptorMeta); 
     	    }
     	} else {
     		// new adaptor
@@ -306,19 +306,19 @@ public class AdaptorsetLoadService extends WaspLoadService {
     		adaptor.setIsActive(isActive);
     		adaptor.setIName(adaptorIn.getIName());
     		adaptor.setName(adaptorIn.getName());
-    		adaptorService.save(adaptor);
-    		adaptor = adaptorService.getAdaptorByIName(iname); // refresh
+    		adaptorDao.save(adaptor);
+    		adaptor = adaptorDao.getAdaptorByIName(iname); // refresh
     		for (AdaptorMeta adaptorMeta: safeList(adaptor.getAdaptorMeta()) ) {
     			adaptorMeta.setAdaptorId(adaptor.getAdaptorId()); 
-	    	    adaptorMetaService.save(adaptorMeta);
+	    	    adaptorMetaDao.save(adaptorMeta);
     		}
     	}
     }
     // inactivate the leftover adaptors
 	for (String adaptorIName : oldAdaptors.keySet()){
-		Adaptor adaptorToInactivate = adaptorService.getAdaptorByIName(adaptorIName);
+		Adaptor adaptorToInactivate = adaptorDao.getAdaptorByIName(adaptorIName);
 		adaptorToInactivate.setIsActive(0);
-		adaptorService.save(adaptorToInactivate);
+		adaptorDao.save(adaptorToInactivate);
 	}
     	
     updateUiFields(); 

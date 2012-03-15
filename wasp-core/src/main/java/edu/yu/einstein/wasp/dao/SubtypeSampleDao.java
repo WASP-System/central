@@ -11,6 +11,8 @@
 
 package edu.yu.einstein.wasp.dao;
 
+import java.util.List;
+
 import edu.yu.einstein.wasp.model.SubtypeSample;
 
 
@@ -20,6 +22,6 @@ public interface SubtypeSampleDao extends WaspDao<SubtypeSample> {
 
   public SubtypeSample getSubtypeSampleByIName (final String iName);
 
-
+  public List<SubtypeSample> getActiveSubtypeSamples();
 }
 

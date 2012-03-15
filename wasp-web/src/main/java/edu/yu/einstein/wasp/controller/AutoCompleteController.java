@@ -3,9 +3,7 @@
  */
 package edu.yu.einstein.wasp.controller;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -17,11 +15,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import edu.yu.einstein.wasp.dao.UserDao;
+import edu.yu.einstein.wasp.dao.UserPendingMetaDao;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.User;
-import edu.yu.einstein.wasp.service.UserMetaService;
-import edu.yu.einstein.wasp.service.UserPendingMetaService;
-import edu.yu.einstein.wasp.service.UserService;
 
 /**
  * Methods for handling json responses for JQuery auto-complete on input boxes
@@ -35,13 +32,11 @@ import edu.yu.einstein.wasp.service.UserService;
 public class AutoCompleteController extends WaspController{
 	  
 	@Autowired
-	private UserService userService;
+	private UserDao userDao;
+	
 	
 	@Autowired
-	private UserMetaService userMetaService;
-	
-	@Autowired
-	private UserPendingMetaService userPendingMetaService;
+	private UserPendingMetaDao userPendingDao;
 	
 	/**
 	   * Obtains a json message containing list of all current users where each entry in the list looks something like "Peter Piper (PPiper)"
@@ -51,7 +46,7 @@ public class AutoCompleteController extends WaspController{
 	   */
 	  @RequestMapping(value="/getUserNamesAndLoginForDisplay", method=RequestMethod.GET)
 	  public @ResponseBody String getNames(@RequestParam String adminNameFragment) {
-	         List<User> userList = userService.getActiveUsers();
+	         List<User> userList = userDao.getActiveUsers();
 	         String jsonString = new String();
 	         jsonString = jsonString + "{\"source\": [";
 	         for (User u : userList){
@@ -72,8 +67,8 @@ public class AutoCompleteController extends WaspController{
 	  @RequestMapping(value="/getInstitutesForDisplay", method=RequestMethod.GET)
 	  public @ResponseBody String getInstitutes(@RequestParam String instituteNameFragment) {
 		  	
-		  	List<MetaBase> list = userMetaService.findDistinctMetaOrderBy("user.institution" ,"ASC");
-		  	list.addAll(userPendingMetaService.findDistinctMetaOrderBy("piPending.institution","ASC") );
+		  	List<MetaBase> list = userDao.findDistinctMetaOrderBy("user.institution" ,"ASC");
+		  	list.addAll(userPendingDao.findDistinctMetaOrderBy("piPending.institution","ASC") );
 		  	String jsonString = new String();
 	        jsonString = jsonString + "{\"source\": [";
 	        SortedSet<String> uniqueInstitutes = new TreeSet();

@@ -13,6 +13,7 @@ package edu.yu.einstein.wasp.dao.impl;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -59,7 +60,13 @@ public class RunDaoImpl extends WaspDaoImpl<Run> implements edu.yu.einstein.wasp
 		return results.get(0);
 	}
 
-
+	  
+	  @Override
+	  public List<Run> getActiveRuns(){
+		  Map queryMap = new HashMap();
+		  queryMap.put("isActive", 1);
+		  return this.findByMap(queryMap);
+	  }
 
 }
 

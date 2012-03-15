@@ -11,12 +11,8 @@
 
 package edu.yu.einstein.wasp.dao.impl;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceException;
-import javax.persistence.Query;
-
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Repository;
@@ -48,19 +44,20 @@ public class AcctQuoteMetaDaoImpl extends WaspDaoImpl<AcctQuoteMeta> implements 
 	 * @return acctQuoteMeta
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public AcctQuoteMeta getAcctQuoteMetaByQuotemetaId (final Integer quotemetaId) {
     		HashMap m = new HashMap();
 		m.put("quotemetaId", quotemetaId);
 
-		List<AcctQuoteMeta> results = (List<AcctQuoteMeta>) this.findByMap((Map) m);
+		List<AcctQuoteMeta> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			AcctQuoteMeta rt = new AcctQuoteMeta();
 			return rt;
 		}
-		return (AcctQuoteMeta) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -73,6 +70,7 @@ public class AcctQuoteMetaDaoImpl extends WaspDaoImpl<AcctQuoteMeta> implements 
 	 * @return acctQuoteMeta
 	 */
 
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public AcctQuoteMeta getAcctQuoteMetaByKQuoteId (final String k, final Integer quoteId) {
@@ -80,13 +78,13 @@ public class AcctQuoteMetaDaoImpl extends WaspDaoImpl<AcctQuoteMeta> implements 
 		m.put("k", k);
 		m.put("quoteId", quoteId);
 
-		List<AcctQuoteMeta> results = (List<AcctQuoteMeta>) this.findByMap((Map) m);
+		List<AcctQuoteMeta> results = this.findByMap(m);
 
 		if (results.size() == 0) {
 			AcctQuoteMeta rt = new AcctQuoteMeta();
 			return rt;
 		}
-		return (AcctQuoteMeta) results.get(0);
+		return results.get(0);
 	}
 
 
@@ -98,6 +96,7 @@ public class AcctQuoteMetaDaoImpl extends WaspDaoImpl<AcctQuoteMeta> implements 
 	 * @param metaList
 	 *
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByQuoteId (final String area, final int quoteId, final List<AcctQuoteMeta> metaList) {
@@ -117,6 +116,7 @@ public class AcctQuoteMetaDaoImpl extends WaspDaoImpl<AcctQuoteMeta> implements 
 	 * @param metaList
 	 *
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByQuoteId (final int quoteId, final List<AcctQuoteMeta> metaList) {

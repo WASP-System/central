@@ -43,10 +43,45 @@ import org.springframework.web.multipart.commons.CommonsMultipartFile;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
+import edu.yu.einstein.wasp.dao.AdaptorDao;
+import edu.yu.einstein.wasp.dao.AdaptorsetDao;
+import edu.yu.einstein.wasp.dao.FileDao;
+import edu.yu.einstein.wasp.dao.JobCellDao;
+import edu.yu.einstein.wasp.dao.JobDao;
+import edu.yu.einstein.wasp.dao.JobDraftCellDao;
+import edu.yu.einstein.wasp.dao.JobDraftDao;
+import edu.yu.einstein.wasp.dao.JobDraftMetaDao;
+import edu.yu.einstein.wasp.dao.JobDraftSoftwareDao;
+import edu.yu.einstein.wasp.dao.JobDraftresourcecategoryDao;
+import edu.yu.einstein.wasp.dao.JobMetaDao;
+import edu.yu.einstein.wasp.dao.JobResourcecategoryDao;
+import edu.yu.einstein.wasp.dao.JobSampleDao;
+import edu.yu.einstein.wasp.dao.JobSoftwareDao;
+import edu.yu.einstein.wasp.dao.JobUserDao;
+import edu.yu.einstein.wasp.dao.LabDao;
+import edu.yu.einstein.wasp.dao.ResourceCategoryDao;
+import edu.yu.einstein.wasp.dao.ResourceDao;
+import edu.yu.einstein.wasp.dao.RoleDao;
+import edu.yu.einstein.wasp.dao.SampleCellDao;
+import edu.yu.einstein.wasp.dao.SampleDao;
+import edu.yu.einstein.wasp.dao.SampleDraftCellDao;
+import edu.yu.einstein.wasp.dao.SampleDraftDao;
+import edu.yu.einstein.wasp.dao.SampleDraftMetaDao;
+import edu.yu.einstein.wasp.dao.SampleFileDao;
+import edu.yu.einstein.wasp.dao.SampleMetaDao;
+import edu.yu.einstein.wasp.dao.SoftwareDao;
+import edu.yu.einstein.wasp.dao.StateDao;
+import edu.yu.einstein.wasp.dao.StatejobDao;
+import edu.yu.einstein.wasp.dao.SubtypeSampleDao;
+import edu.yu.einstein.wasp.dao.TaskDao;
+import edu.yu.einstein.wasp.dao.TypeResourceDao;
+import edu.yu.einstein.wasp.dao.TypeSampleDao;
+import edu.yu.einstein.wasp.dao.WorkflowDao;
+import edu.yu.einstein.wasp.dao.WorkflowSoftwareDao;
+import edu.yu.einstein.wasp.dao.WorkflowresourcecategoryDao;
 import edu.yu.einstein.wasp.dao.impl.DBResourceBundle;
 import edu.yu.einstein.wasp.exception.NullTypeResourceException;
 import edu.yu.einstein.wasp.model.Adaptor;
-import edu.yu.einstein.wasp.model.Adaptorset;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobCell;
 import edu.yu.einstein.wasp.model.JobDraft;
@@ -82,44 +117,8 @@ import edu.yu.einstein.wasp.model.WorkflowSoftware;
 import edu.yu.einstein.wasp.model.Workflowresourcecategory;
 import edu.yu.einstein.wasp.model.WorkflowresourcecategoryMeta;
 import edu.yu.einstein.wasp.model.WorkflowsoftwareMeta;
-import edu.yu.einstein.wasp.service.AdaptorService;
-import edu.yu.einstein.wasp.service.AdaptorsetService;
 import edu.yu.einstein.wasp.service.AuthenticationService;
-import edu.yu.einstein.wasp.service.FileService;
-import edu.yu.einstein.wasp.service.JobCellService;
-import edu.yu.einstein.wasp.service.JobDraftCellService;
-import edu.yu.einstein.wasp.service.JobDraftMetaService;
-import edu.yu.einstein.wasp.service.JobDraftService;
-import edu.yu.einstein.wasp.service.JobDraftSoftwareService;
-import edu.yu.einstein.wasp.service.JobDraftresourcecategoryService;
-import edu.yu.einstein.wasp.service.JobMetaService;
-import edu.yu.einstein.wasp.service.JobResourcecategoryService;
-import edu.yu.einstein.wasp.service.JobSampleService;
-import edu.yu.einstein.wasp.service.JobService;
-import edu.yu.einstein.wasp.service.JobSoftwareService;
-import edu.yu.einstein.wasp.service.JobUserService;
-import edu.yu.einstein.wasp.service.LabService;
 import edu.yu.einstein.wasp.service.MessageService;
-import edu.yu.einstein.wasp.service.ResourceCategoryService;
-import edu.yu.einstein.wasp.service.ResourceService;
-import edu.yu.einstein.wasp.service.RoleService;
-import edu.yu.einstein.wasp.service.SampleCellService;
-import edu.yu.einstein.wasp.service.SampleDraftCellService;
-import edu.yu.einstein.wasp.service.SampleDraftMetaService;
-import edu.yu.einstein.wasp.service.SampleDraftService;
-import edu.yu.einstein.wasp.service.SampleFileService;
-import edu.yu.einstein.wasp.service.SampleMetaService;
-import edu.yu.einstein.wasp.service.SampleService;
-import edu.yu.einstein.wasp.service.SoftwareService;
-import edu.yu.einstein.wasp.service.StateService;
-import edu.yu.einstein.wasp.service.StatejobService;
-import edu.yu.einstein.wasp.service.SubtypeSampleService;
-import edu.yu.einstein.wasp.service.TaskService;
-import edu.yu.einstein.wasp.service.TypeResourceService;
-import edu.yu.einstein.wasp.service.TypeSampleService;
-import edu.yu.einstein.wasp.service.WorkflowService;
-import edu.yu.einstein.wasp.service.WorkflowSoftwareService;
-import edu.yu.einstein.wasp.service.WorkflowresourcecategoryService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 import edu.yu.einstein.wasp.util.MetaHelper;
 
@@ -129,119 +128,119 @@ import edu.yu.einstein.wasp.util.MetaHelper;
 public class JobSubmissionController extends WaspController {
 
 	@Autowired
-	protected JobDraftService jobDraftService;
+	protected JobDraftDao jobDraftDao;
 
 	@Autowired
-	protected JobDraftMetaService jobDraftMetaService;
+	protected JobDraftMetaDao jobDraftMetaDao;
 
 	@Autowired
-	protected JobDraftCellService jobDraftCellService;
+	protected JobDraftCellDao jobDraftCellDao;
 
 	@Autowired
-	protected JobDraftresourcecategoryService jobDraftresourcecategoryService;
+	protected JobDraftresourcecategoryDao jobDraftresourcecategoryDao;
 
 	@Autowired
-	protected JobDraftSoftwareService jobDraftSoftwareService;
+	protected JobDraftSoftwareDao jobDraftSoftwareDao;
 
 	@Autowired
-	protected JobResourcecategoryService jobResourcecategoryService;
+	protected JobResourcecategoryDao jobResourcecategoryDao;
 
 	@Autowired
-	protected JobSoftwareService jobSoftwareService;
+	protected JobSoftwareDao jobSoftwareDao;
 
 	@Autowired
-	protected SampleDraftService sampleDraftService;
+	protected SampleDraftDao sampleDraftDao;
 
 	@Autowired
-	protected SampleDraftMetaService sampleDraftMetaService;
+	protected SampleDraftMetaDao sampleDraftMetaDao;
 
 	@Autowired
-	protected SampleDraftCellService sampleDraftCellService;
+	protected SampleDraftCellDao sampleDraftCellDao;
 
 
 	@Autowired
-	protected JobService jobService;
+	protected JobDao jobDao;
 
 	@Autowired
-	protected LabService labService;
+	protected LabDao labDao;
 
 	@Autowired
-	protected JobUserService jobUserService;
+	protected JobUserDao jobUserDao;
 
 	@Autowired
-	protected RoleService roleService;
+	protected RoleDao roleDao;
 
 	@Autowired
-	protected ResourceService resourceService;
+	protected ResourceDao resourceDao;
 
 	@Autowired
-	protected ResourceCategoryService resourceCategoryService;
+	protected ResourceCategoryDao resourceCategoryDao;
 
 	@Autowired
-	protected SoftwareService softwareService;
+	protected SoftwareDao softwareDao;
 
 	@Autowired
-	protected TypeResourceService typeResourceService;
+	protected TypeResourceDao typeResourceDao;
 
 	@Autowired
-	protected JobMetaService jobMetaService;
+	protected JobMetaDao jobMetaDao;
 
 	@Autowired
-	protected SampleService sampleService;
+	protected SampleDao sampleDao;
 
 	@Autowired
-	protected SampleMetaService sampleMetaService;
+	protected SampleMetaDao sampleMetaDao;
 
 	@Autowired
-	protected SampleFileService sampleFileService;
+	protected SampleFileDao sampleFileDao;
 
 	@Autowired
-	protected JobSampleService jobSampleService;
+	protected JobSampleDao jobSampleDao;
 	
 	@Autowired
-	protected TypeSampleService typeSampleService;
+	protected TypeSampleDao typeSampleDao;
 
 	@Autowired
-	protected StatejobService statejobService;
+	protected StatejobDao statejobDao;
 
 	@Autowired
-	protected StateService stateService;
+	protected StateDao stateDao;
 
 	@Autowired
-	protected TaskService taskService;
+	protected TaskDao taskDao;
 	
 	@Autowired
-	protected SubtypeSampleService subTypeSampleService;
+	protected SubtypeSampleDao subTypeSampleDao;
 	
 	@Autowired
-	protected WorkflowService workflowService;
+	protected WorkflowDao workflowDao;
 
 	@Autowired
-	protected WorkflowresourcecategoryService workflowresourcecategoryService;
+	protected WorkflowresourcecategoryDao workflowresourcecategoryDao;
 
 	@Autowired
-	protected WorkflowSoftwareService workflowSoftwareService;
+	protected WorkflowSoftwareDao workflowSoftwareDao;
 	
 	@Autowired
-	protected AdaptorsetService adaptorsetService;
+	protected AdaptorsetDao adaptorsetDao;
 	
 	@Autowired
-	protected AdaptorService adaptorService;
+	protected AdaptorDao adaptorDao;
 
 	@Autowired
 	protected File sampleDir;
 	
 	@Autowired
-	protected FileService fileService;
+	protected FileDao fileDao;
 
 	@Autowired
-	protected JobCellService jobCellService;
+	protected JobCellDao jobCellDao;
 
 	@Autowired
 	protected java.net.URI jobRunnerHost;
 	
 	@Autowired
-	protected SampleCellService sampleCellService;
+	protected SampleCellDao sampleCellDao;
 	
 	@Autowired
 	protected MessageService messageService;
@@ -326,7 +325,7 @@ public class JobSubmissionController extends WaspController {
 		List<JobDraft> jobDraftList;
 		
 		if (!search.equals("true")	&& userId.isEmpty()	&& labId.isEmpty()) {
-			jobDraftList = sidx.isEmpty() ? this.jobDraftService.getPendingJobDrafts() : this.jobDraftService.getPendingJobDraftsOrderBy(sidx, sord);
+			jobDraftList = sidx.isEmpty() ? this.jobDraftDao.getPendingJobDrafts() : this.jobDraftDao.getPendingJobDraftsOrderBy(sidx, sord);
 		} else {
 			  Map m = new HashMap();
 			  
@@ -340,7 +339,7 @@ public class JobSubmissionController extends WaspController {
 				  m.put("labId", Integer.parseInt(labId));
 			  
 			  m.put("status", "PENDING");
-			  jobDraftList = this.jobDraftService.findByMap(m);
+			  jobDraftList = this.jobDraftDao.findByMap(m);
 		}
 
 		try {
@@ -368,7 +367,7 @@ public class JobSubmissionController extends WaspController {
 			if(!StringUtils.isEmpty(request.getParameter("selId")))
 			{
 				int selId = Integer.parseInt(request.getParameter("selId"));
-				int selIndex = jobDraftList.indexOf(jobService.findById(selId));
+				int selIndex = jobDraftList.indexOf(jobDao.findById(selId));
 				frId = selIndex;
 				toId = frId + 1;
 
@@ -384,13 +383,13 @@ public class JobSubmissionController extends WaspController {
 				 
 				List<JobDraftMeta> itemMeta = getMetaHelperWebapp().syncWithMaster(item.getJobDraftMeta());
 				
-				User user = userService.getById(item.getUserId());
+				User user = userDao.getById(item.getUserId());
 				 					
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 							"<a href='/wasp/jobsubmit/modify/"+item.getJobDraftId()+".do'>"+item.getName()+"</a>",
 							user.getNameFstLst(),
 							item.getLab().getName(),
-							this.userService.getUserByUserId(item.getLastUpdUser()).getNameFstLst(),
+							this.userDao.getUserByUserId(item.getLastUpdUser()).getNameFstLst(),
 							item.getLastUpdTs().toString()
 				}));
 				 
@@ -434,7 +433,7 @@ public class JobSubmissionController extends WaspController {
 			return "redirect:/dashboard.do";
 		}
 
-		List <Workflow> workflowList = workflowService.getActiveWorkflows();
+		List <Workflow> workflowList = workflowDao.getActiveWorkflows();
 		if (workflowList.isEmpty()){
 			waspErrorMessage("jobDraft.no_workflows.error");
 			return "redirect:/dashboard.do";
@@ -472,7 +471,7 @@ public class JobSubmissionController extends WaspController {
 		if (name != null && !name.isEmpty()){
 			// check we don't already have a job with this name
 			jobDraftQuery.put("name", name);
-			if (!jobDraftService.findByMap(jobDraftQuery).isEmpty()){
+			if (!jobDraftDao.findByMap(jobDraftQuery).isEmpty()){
 				errors.rejectValue("name", "jobDraft.name_exists.error", "jobDraft.name_exists.error (no message has been defined for this property");
 			}
 		}
@@ -486,7 +485,7 @@ public class JobSubmissionController extends WaspController {
 		jobDraftForm.setUserId(me.getUserId());
 		jobDraftForm.setStatus("PENDING");
 		jobDraftForm.setCreatets(new Date());
-		JobDraft jobDraftDb = jobDraftService.save(jobDraftForm); 
+		JobDraft jobDraftDb = jobDraftDao.save(jobDraftForm); 
 
 		// Adds the jobdraft to authorized list
  		doReauth();
@@ -525,7 +524,7 @@ public class JobSubmissionController extends WaspController {
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public String modify(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
 	
-		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
 
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
@@ -545,7 +544,7 @@ public class JobSubmissionController extends WaspController {
 			SessionStatus status,
 			ModelMap m) {
 
-		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
 
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
@@ -557,7 +556,7 @@ public class JobSubmissionController extends WaspController {
 		if (name != null && !name.isEmpty() && !name.equals(jobDraft.getName())){
 			// check we don't already have a job with this name
 			jobDraftQuery.put("name", name);
-			if (!jobDraftService.findByMap(jobDraftQuery).isEmpty()){
+			if (!jobDraftDao.findByMap(jobDraftQuery).isEmpty()){
 				errors.rejectValue("name", "jobDraft.name_exists.error", "jobDraft.name_exists.error (no message has been defined for this property");
 			}
 		}
@@ -576,7 +575,7 @@ public class JobSubmissionController extends WaspController {
 		jobDraft.setWorkflowId(jobDraftForm.getWorkflowId());
 		jobDraft.setLabId(jobDraftForm.getLabId());
 
-		JobDraft jobDraftDb = jobDraftService.save(jobDraft); 
+		JobDraft jobDraftDb = jobDraftDao.save(jobDraft); 
 
 		return nextPage(jobDraftDb);
 	}
@@ -601,7 +600,7 @@ public class JobSubmissionController extends WaspController {
 			return generateCreateForm(m);
 		}
 
-		JobDraft jobDraftDb = jobDraftService.save(jobDraftForm); 
+		JobDraft jobDraftDb = jobDraftDao.save(jobDraftForm); 
 
 		return nextPage(jobDraftDb);
 	}
@@ -611,7 +610,7 @@ public class JobSubmissionController extends WaspController {
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)") 
 	public String showModifyMetaForm(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
 		 
-		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
 		
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
@@ -648,7 +647,7 @@ public class JobSubmissionController extends WaspController {
 			SessionStatus status,
 			ModelMap m) {
 
-		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
 		
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
@@ -679,7 +678,7 @@ public class JobSubmissionController extends WaspController {
 			return "jobsubmit/metaform";
 		}
 
-		jobDraftMetaService.updateByJobdraftId(metaHelperWebapp.getArea(), jobDraftId, jobDraftMetaList);
+		jobDraftMetaDao.updateByJobdraftId(metaHelperWebapp.getArea(), jobDraftId, jobDraftMetaList);
 
 		return nextPage(jobDraft);
 	}
@@ -694,10 +693,10 @@ public class JobSubmissionController extends WaspController {
 	}
 	
 	public String showResourceMetaForm(String typeresourceiname, Integer jobDraftId, JobDraft jobDraftForm, ModelMap m){
-		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
-		if (typeResourceService.getTypeResourceByIName(typeresourceiname).getTypeResourceId() == null){
+		if (typeResourceDao.getTypeResourceByIName(typeresourceiname).getTypeResourceId() == null){
 			throw new NullTypeResourceException("No resource type with name '"+typeresourceiname+"'");
 		}
 
@@ -725,7 +724,7 @@ public class JobSubmissionController extends WaspController {
 		Map<String, List<MetaAttribute.Control.Option>> resourceOptions = new HashMap<String, List<MetaAttribute.Control.Option>>();
 
 		if (jobDraftResourceCategory != null) {
-			Workflowresourcecategory workflowresourcecategory = workflowresourcecategoryService.getWorkflowresourcecategoryByWorkflowIdResourcecategoryId(jobDraft.getWorkflow().getWorkflowId(), jobDraftResourceCategory.getResourcecategoryId());
+			Workflowresourcecategory workflowresourcecategory = workflowresourcecategoryDao.getWorkflowresourcecategoryByWorkflowIdResourcecategoryId(jobDraft.getWorkflow().getWorkflowId(), jobDraftResourceCategory.getResourcecategoryId());
 			for (WorkflowresourcecategoryMeta wrm: workflowresourcecategory.getWorkflowresourcecategoryMeta()) {
 				String key = wrm.getK(); 
 	
@@ -772,10 +771,10 @@ public class JobSubmissionController extends WaspController {
 			BindingResult result,
 			SessionStatus status,
 			ModelMap m) {
-		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
-		if (typeResourceService.getTypeResourceByIName(typeresourceiname).getTypeResourceId() == null){
+		if (typeResourceDao.getTypeResourceByIName(typeresourceiname).getTypeResourceId() == null){
 			throw new NullTypeResourceException("No resource type with name '"+typeresourceiname+"'");
 		}
 		Map params = request.getParameterMap();
@@ -792,8 +791,8 @@ public class JobSubmissionController extends WaspController {
 			List<JobDraftresourcecategory> oldJdrs = jobDraft.getJobDraftresourcecategory();
 			for (JobDraftresourcecategory jdr: oldJdrs) {
 				if (jdr.getResourceCategory().getTypeResource().getIName().equals(typeresourceiname)){
-					jobDraftresourcecategoryService.remove(jdr);
-					jobDraftresourcecategoryService.flush(jdr);
+					jobDraftresourcecategoryDao.remove(jdr);
+					jobDraftresourcecategoryDao.flush(jdr);
 				}
 			}
 			if (changeResource.intValue() == -1) // nothing selected
@@ -801,7 +800,7 @@ public class JobSubmissionController extends WaspController {
 			JobDraftresourcecategory newJdr = new JobDraftresourcecategory();
 			newJdr.setJobdraftId(jobDraftId);
 			newJdr.setResourcecategoryId(changeResource);
-			jobDraftresourcecategoryService.save(newJdr);
+			jobDraftresourcecategoryDao.save(newJdr);
 
 			return "redirect:/jobsubmit/resource/" + typeresourceiname + "/" + jobDraftId + ".do";
 		}
@@ -839,7 +838,7 @@ public class JobSubmissionController extends WaspController {
 		}
 
 
-		jobDraftMetaService.updateByJobdraftId(metaHelperWebapp.getArea(), jobDraftId, jobDraftMetaList);
+		jobDraftMetaDao.updateByJobdraftId(metaHelperWebapp.getArea(), jobDraftId, jobDraftMetaList);
 
 		return nextPage(jobDraft);
 	}
@@ -850,10 +849,10 @@ public class JobSubmissionController extends WaspController {
    */
 	
 	public String showSoftwareForm(String typeresourceiname, Integer jobDraftId, JobDraft jobDraftForm, ModelMap m) {
-		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
-		if (typeResourceService.getTypeResourceByIName(typeresourceiname).getTypeResourceId() == null){
+		if (typeResourceDao.getTypeResourceByIName(typeresourceiname).getTypeResourceId() == null){
 			throw new NullTypeResourceException("No software resource with name '"+typeresourceiname+"'");
 		}
 		// make list of available resources
@@ -880,7 +879,7 @@ public class JobSubmissionController extends WaspController {
 		Map<String, List<MetaAttribute.Control.Option>> resourceOptions = new HashMap<String, List<MetaAttribute.Control.Option>>();
 
 		if (jobDraftSoftware != null) {
-			WorkflowSoftware workflowSoftware = workflowSoftwareService.getWorkflowSoftwareByWorkflowIdSoftwareId(jobDraft.getWorkflow().getWorkflowId(), jobDraftSoftware.getSoftwareId());
+			WorkflowSoftware workflowSoftware = workflowSoftwareDao.getWorkflowSoftwareByWorkflowIdSoftwareId(jobDraft.getWorkflow().getWorkflowId(), jobDraftSoftware.getSoftwareId());
 			for (WorkflowsoftwareMeta wrm: workflowSoftware.getWorkflowsoftwareMeta()) {
 				String key = wrm.getK(); 
 	
@@ -938,10 +937,10 @@ public class JobSubmissionController extends WaspController {
 			BindingResult result,
 			SessionStatus status,
 			ModelMap m) {
-		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
-		if (typeResourceService.getTypeResourceByIName(typeresourceiname).getTypeResourceId() == null){
+		if (typeResourceDao.getTypeResourceByIName(typeresourceiname).getTypeResourceId() == null){
 			throw new NullTypeResourceException("No software resource with name '"+typeresourceiname+"'");
 		}
 		
@@ -959,15 +958,15 @@ public class JobSubmissionController extends WaspController {
 			List<JobDraftSoftware> oldJdrs = jobDraft.getJobDraftSoftware();
 			for (JobDraftSoftware jdr: oldJdrs) {
 				if (jdr.getSoftware().getTypeResource().getIName().equals(typeresourceiname))
-				jobDraftSoftwareService.remove(jdr);
-				jobDraftSoftwareService.flush(jdr);
+				jobDraftSoftwareDao.remove(jdr);
+				jobDraftSoftwareDao.flush(jdr);
 			}
 			if (changeResource.intValue() == -1) // nothing selected
 				return "redirect:/jobsubmit/software/" + typeresourceiname + "/" + jobDraftId + ".do";
 			JobDraftSoftware newJdr = new JobDraftSoftware();
 			newJdr.setJobdraftId(jobDraftId);
 			newJdr.setSoftwareId(changeResource);
-			jobDraftSoftwareService.save(newJdr);
+			jobDraftSoftwareDao.save(newJdr);
 
 			return "redirect:/jobsubmit/software/" + typeresourceiname + "/" + jobDraftId + ".do";
 		}
@@ -1002,7 +1001,7 @@ public class JobSubmissionController extends WaspController {
 			return returnPage;
 		}
 
-		jobDraftMetaService.updateByJobdraftId(metaHelperWebapp.getArea(), jobDraftId, jobDraftMetaList);
+		jobDraftMetaDao.updateByJobdraftId(metaHelperWebapp.getArea(), jobDraftId, jobDraftMetaList);
 
 		return nextPage(jobDraft);
 	}
@@ -1011,7 +1010,7 @@ public class JobSubmissionController extends WaspController {
 	@RequestMapping(value="/additionalMeta/{meta}/{jobDraftId}", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public String showAdditionalMetaForm(@PathVariable("meta") String additionalMetaArea, @PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
-		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
 		
@@ -1055,7 +1054,7 @@ public class JobSubmissionController extends WaspController {
 			BindingResult result,
 			SessionStatus status,
 			ModelMap m) {
-		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
 		MetaHelperWebapp workflowMetaHelperWebapp = getMetaHelperWebapp();
@@ -1095,10 +1094,10 @@ public class JobSubmissionController extends WaspController {
 
 		// sync meta data in DB (e.g.removes old aligners)
 		for (MetaAttribute.Control.Option opt: ametaJdm.getProperty().getControl().getOptions()) {
-			jobDraftMetaService.updateByJobdraftId(opt.getValue(), jobDraftId, new ArrayList());
+			jobDraftMetaDao.updateByJobdraftId(opt.getValue(), jobDraftId, new ArrayList());
 		}
 
-		jobDraftMetaService.updateByJobdraftId(metaHelperWebapp.getArea(), jobDraftId, jobDraftMetaList);
+		jobDraftMetaDao.updateByJobdraftId(metaHelperWebapp.getArea(), jobDraftId, jobDraftMetaList);
 
 		return nextPage(jobDraft);
 
@@ -1114,12 +1113,12 @@ public class JobSubmissionController extends WaspController {
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public String showSampleDraft(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
 	
-		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
 		//get list of meta fields that are 'allowed' for the given workflowId 
-		int workflowId=jobDraftService.findById(jobDraftId).getWorkflow().getWorkflowId();
-		Map<SubtypeSample,List<SampleDraftMeta>>allowedMetaFields=sampleDraftMetaService.getAllowableMetaFields(workflowId);
+		int workflowId=jobDraftDao.findById(jobDraftId).getWorkflow().getWorkflowId();
+		Map<SubtypeSample,List<SampleDraftMeta>>allowedMetaFields=sampleDraftMetaDao.getAllowableMetaFields(workflowId);
 				
 		Map<String,SampleDraftMeta> allowedMetaFieldsMap = new LinkedHashMap<String,SampleDraftMeta>();
 		
@@ -1138,7 +1137,7 @@ public class JobSubmissionController extends WaspController {
 		
 		
 		Map<Integer,Map<Integer,String>> jobsBySampleSubtype=new LinkedHashMap<Integer,Map<Integer,String>>();
-		for(Map.Entry<Integer, List<Job>> e:jobService.getJobSamplesByWorkflow(workflowId).entrySet()) {
+		for(Map.Entry<Integer, List<Job>> e:jobDao.getJobSamplesByWorkflow(workflowId).entrySet()) {
 			Map<Integer,String> jm = new LinkedHashMap<Integer,String>();
 			jobsBySampleSubtype.put(e.getKey(),jm);
 			for(Job j:e.getValue()) {
@@ -1153,7 +1152,7 @@ public class JobSubmissionController extends WaspController {
 		m.addAttribute("uploadStartedMessage",messageService.getMessage("sampleDraft.fileupload_wait.data"));
 		m.addAttribute("_metaDataMessages", MetaHelper.getMetadataMessages(request.getSession()));
 		m.addAttribute("pageFlowMap", getPageFlowMap(jobDraft));
-		m.addAttribute("adaptorsets", adaptorsetService.findAll()); // required for adaptorsets metadata control element (select:${adaptorsets}:adaptorsetId:name)
+		m.addAttribute("adaptorsets", adaptorsetDao.findAll()); // required for adaptorsets metadata control element (select:${adaptorsets}:adaptorsetId:name)
 		m.addAttribute("adaptors",new ArrayList<Adaptor>()); // required for adaptors metadata control element (select:${adaptors}:adaptorId:barcodenumber)
 		
 	
@@ -1165,7 +1164,7 @@ public class JobSubmissionController extends WaspController {
 	@RequestMapping(value="/samples/{jobDraftId}", method=RequestMethod.POST)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public String submitSampleDraft(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
-		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
 		if (jobDraft.getSampleDraft().isEmpty()){
@@ -1179,11 +1178,11 @@ public class JobSubmissionController extends WaspController {
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public String showSampleCellDraft(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
 		
-		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
 		
-		List<SampleDraft> samples=sampleDraftService.getSampleDraftByJobId(jobDraftId);
+		List<SampleDraft> samples=sampleDraftDao.getSampleDraftByJobId(jobDraftId);
 
 		Set<String> selectedSampleCell = new HashSet<String>();
 		//Map<Integer, Integer> cellMap = new HashMap<Integer, Integer>();
@@ -1233,7 +1232,7 @@ public class JobSubmissionController extends WaspController {
 			ModelMap m) {
 
 		//	Removes Old Entries, premature?
-		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
 		
@@ -1242,15 +1241,15 @@ public class JobSubmissionController extends WaspController {
 		for (JobDraftCell jdc: oldJobDraftCells) {
 			List<SampleDraftCell> oldSampleDraftCells = jdc.getSampleDraftCell();
 			for (SampleDraftCell sdc: oldSampleDraftCells) {
-				sampleDraftCellService.remove(sdc);
-				sampleDraftCellService.flush(sdc);
+				sampleDraftCellDao.remove(sdc);
+				sampleDraftCellDao.flush(sdc);
 			}
-			jobDraftCellService.remove(jdc);
-			jobDraftCellService.flush(jdc);
+			jobDraftCellDao.remove(jdc);
+			jobDraftCellDao.flush(jdc);
 		}
 
 
-		List<SampleDraft> samples=sampleDraftService.getSampleDraftByJobId(jobDraftId);
+		List<SampleDraft> samples=sampleDraftDao.getSampleDraftByJobId(jobDraftId);
 
 		Map params = request.getParameterMap();
 		int maxColumns = 10;
@@ -1286,10 +1285,10 @@ public class JobSubmissionController extends WaspController {
 					cellfound = true;
 					cellindex++;
 
-					JobDraftCell jobDraftCellDb = jobDraftCellService.save(thisJobDraftCell);
+					JobDraftCell jobDraftCellDb = jobDraftCellDao.save(thisJobDraftCell);
 					thisJobDraftCell = jobDraftCellDb;
 
-					jobDraftCellService.flush(thisJobDraftCell);
+					jobDraftCellDao.flush(thisJobDraftCell);
 				}
 
 				libraryindex++;
@@ -1300,7 +1299,7 @@ public class JobSubmissionController extends WaspController {
 				sampleDraftCell.setSampledraftId(sd.getSampleDraftId());
 				sampleDraftCell.setLibraryindex(libraryindex);
 
-				sampleDraftCellService.save(sampleDraftCell);
+				sampleDraftCellDao.save(sampleDraftCell);
 
 				// checkedList.add("sdc_" + sd.getSampleDraftId() + "_" + i + " " + cellindex + " " + libraryindex);
 
@@ -1313,7 +1312,7 @@ public class JobSubmissionController extends WaspController {
 	@RequestMapping(value="/verify/{jobDraftId}.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public String showJobDraft(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
-		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
 		m.put("jobDraft", jobDraft);
@@ -1328,7 +1327,7 @@ public class JobSubmissionController extends WaspController {
 	@RequestMapping(value="/verify/{jobDraftId}.do", method=RequestMethod.POST)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public String verifyJob(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
-		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
 
@@ -1363,7 +1362,7 @@ public class JobSubmissionController extends WaspController {
 	public String submitJob(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
 		User me = authenticationService.getAuthenticatedUser();
 
-		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
 		
@@ -1384,7 +1383,7 @@ public class JobSubmissionController extends WaspController {
 
 		job.setViewablebylab(0); // Todo: get from lab? // really not being used yet
 
-		Job jobDb = jobService.save(job); 
+		Job jobDb = jobDao.save(job); 
 
 		// Saves the metadata
 		for (JobDraftMeta jdm: jobDraft.getJobDraftMeta()) {
@@ -1393,7 +1392,7 @@ public class JobSubmissionController extends WaspController {
 			jobMeta.setK(jdm.getK());
 			jobMeta.setV(jdm.getV());
 
-			jobMetaService.save(jobMeta); 
+			jobMetaDao.save(jobMeta); 
 		}
 
 		// save the software selected
@@ -1402,7 +1401,7 @@ public class JobSubmissionController extends WaspController {
 			jobSoftware.setJobId(jobDb.getJobId());
 			jobSoftware.setSoftwareId(jdr.getSoftwareId());
 
-			jobSoftwareService.save(jobSoftware); 
+			jobSoftwareDao.save(jobSoftware); 
 		}
 
 		// save the resource category selected
@@ -1411,7 +1410,7 @@ public class JobSubmissionController extends WaspController {
 			jobResourceCategory.setJobId(jobDb.getJobId());
 			jobResourceCategory.setResourcecategoryId(jdr.getResourcecategoryId());
 
-			jobResourcecategoryService.save(jobResourceCategory); 
+			jobResourcecategoryDao.save(jobResourceCategory); 
 		}
 
 
@@ -1419,21 +1418,21 @@ public class JobSubmissionController extends WaspController {
 		JobUser jobUser = new JobUser(); 
 		jobUser.setUserId(me.getUserId());
 		jobUser.setJobId(jobDb.getJobId());
-		Role role = roleService.getRoleByRoleName("js");
+		Role role = roleDao.getRoleByRoleName("js");
 		jobUser.setRoleId(role.getRoleId());
-		jobUserService.save(jobUser);
+		jobUserDao.save(jobUser);
 		
 		// added 10-20-11 by rob dubin: with job submission, add lab PI as job viewer ("jv")
 		//note: could use similar logic in loop to assign jv to all the lab members
-		Lab lab = labService.getLabByLabId(jobDb.getLabId());		
+		Lab lab = labDao.getLabByLabId(jobDb.getLabId());		
 		// if the pi is different from the job user
 		if (jobUser.getUserId().intValue() != lab.getPrimaryUserId().intValue()) {
 			JobUser jobUser2 = new JobUser();		
 			jobUser2.setUserId(lab.getPrimaryUserId());//the lab PI
 			jobUser2.setJobId(jobDb.getJobId());
-			Role role2 = roleService.getRoleByRoleName("jv");
+			Role role2 = roleDao.getRoleByRoleName("jv");
 			jobUser2.setRoleId(role2.getRoleId());
-			jobUserService.save(jobUser2);
+			jobUserDao.save(jobUser2);
 		}
 
 		// Job Cells (oldid, newobj)
@@ -1444,7 +1443,7 @@ public class JobSubmissionController extends WaspController {
 			jobCell.setJobId(jobDb.getJobId());
 			jobCell.setCellindex(jdc.getCellindex());
 
-			JobCell jobCellDb =	jobCellService.save(jobCell);	
+			JobCell jobCellDb =	jobCellDao.save(jobCell);	
 
 			jobDraftCellMap.put(jdc.getJobDraftCellId(), jobCellDb);
 		}
@@ -1455,7 +1454,7 @@ public class JobSubmissionController extends WaspController {
 			Sample sampleDb;
 
 			if (sd.getSourceSampleId() != null) {
-				sampleDb = sampleService.getSampleBySampleId(sd.getSourceSampleId());
+				sampleDb = sampleDao.getSampleBySampleId(sd.getSourceSampleId());
 			} else { 
 
 				Sample sample = new Sample();
@@ -1468,7 +1467,7 @@ public class JobSubmissionController extends WaspController {
 				sample.setIsReceived(0);
 				sample.setIsActive(1);
 	
-				sampleDb = sampleService.save(sample); 
+				sampleDb = sampleDao.save(sample); 
 	
 				// sample file
 				if (sd.getFileId() != null) {
@@ -1480,7 +1479,7 @@ public class JobSubmissionController extends WaspController {
 	
 					// TODO ADD NAME AND INAME
 	
-					sampleFileService.save(sampleFile);
+					sampleFileDao.save(sampleFile);
 				}
 	
 				// Sample Draft Meta Data
@@ -1492,7 +1491,7 @@ public class JobSubmissionController extends WaspController {
 					sampleMeta.setV(sdm.getV());	
 					sampleMeta.setPosition(sdm.getPosition());	
 	
-					SampleMeta sampleMetaDb = sampleMetaService.save(sampleMeta); 
+					SampleMeta sampleMetaDb = sampleMetaDao.save(sampleMeta); 
 				}
 			}
 
@@ -1501,7 +1500,7 @@ public class JobSubmissionController extends WaspController {
 			jobSample.setJobId(jobDb.getJobId());
 			jobSample.setSampleId(sampleDb.getSampleId());
 
-			jobSampleService.save(jobSample);
+			jobSampleDao.save(jobSample);
 
 			for (SampleDraftCell sdc: sd.getSampleDraftCell()) {
 				SampleCell sampleCell = new SampleCell();
@@ -1509,29 +1508,29 @@ public class JobSubmissionController extends WaspController {
 				sampleCell.setJobcellId(jobDraftCellMap.get(sdc.getJobdraftcellId()).getJobCellId());
 				sampleCell.setLibraryindex(sdc.getLibraryindex());
 
-				SampleCell sampleCellDb = sampleCellService.save(sampleCell);
+				SampleCell sampleCellDb = sampleCellDao.save(sampleCell);
 			}
 		}
 
 		// something like this:
 		State state = new State(); 
 
-		Task jobCreateTask = taskService.getTaskByIName("Start Job");
+		Task jobCreateTask = taskDao.getTaskByIName("Start Job");
 		state.setTaskId(jobCreateTask.getTaskId());
 		state.setName(jobCreateTask.getName());
 		state.setStartts(new Date());
 		state.setStatus("CREATED"); 
-		stateService.save(state);
+		stateDao.save(state);
 		
 		Statejob statejob = new Statejob();
 		statejob.setStateId(state.getStateId());
 		statejob.setJobId(job.getJobId());
-		statejobService.save(statejob);
+		statejobDao.save(statejob);
 
 		// update the jobdraft
 		jobDraft.setStatus("SUBMITTED");
 		jobDraft.setSubmittedjobId(jobDb.getJobId());
-		jobDraftService.save(jobDraft); 
+		jobDraftDao.save(jobDraft); 
 
 		// Adds new Job to Authorized List
 		doReauth();
@@ -1551,9 +1550,9 @@ public class JobSubmissionController extends WaspController {
 		//result
 		Map <String, Object> jqgrid = new HashMap<String, Object>();
 		
-		List<SampleDraft> drafts=sampleDraftService.getSampleDraftByJobId(jobdraftId);
+		List<SampleDraft> drafts=sampleDraftDao.getSampleDraftByJobId(jobdraftId);
 		
-		int workflowId=jobDraftService.findById(jobdraftId).getWorkflow().getWorkflowId();
+		int workflowId=jobDraftDao.findById(jobdraftId).getWorkflow().getWorkflowId();
 		
 		ObjectMapper mapper = new ObjectMapper();
 
@@ -1567,13 +1566,13 @@ public class JobSubmissionController extends WaspController {
 			List<Map> rows = new ArrayList<Map>();
 			
 			Map<Integer, String> allSampleSubTypes=new TreeMap<Integer, String>();
-			for(SubtypeSample type:(List<SubtypeSample>)subTypeSampleService.findAll()) {
+			for(SubtypeSample type:subTypeSampleDao.findAll()) {
 				allSampleSubTypes.put(type.getSubtypeSampleId(),type.getName());
 			}
 			
 			Set<SampleDraftMeta> allowedMetaFields=new LinkedHashSet<SampleDraftMeta>();
 			
-			for(List<SampleDraftMeta> metaList:sampleDraftMetaService.getAllowableMetaFields(workflowId).values()) {
+			for(List<SampleDraftMeta> metaList:sampleDraftMetaDao.getAllowableMetaFields(workflowId).values()) {
 				allowedMetaFields.addAll(metaList);
 			}
 			
@@ -1626,7 +1625,7 @@ public class JobSubmissionController extends WaspController {
 	
 		//result
 		Map <Integer, String> samplesMap = new LinkedHashMap<Integer, String>();
-		for(Sample sample:sampleService.getSamplesByJobId(jobId)) {
+		for(Sample sample:sampleDao.getSamplesByJobId(jobId)) {
 			samplesMap.put(sample.getSampleId(), sample.getName());
 		}
 
@@ -1649,7 +1648,7 @@ public class JobSubmissionController extends WaspController {
 	
 		//result
 		Map <Integer, String> adaptorsMap = new LinkedHashMap<Integer, String>();
-		for(Adaptor adaptor:adaptorsetService.getAdaptorsetByAdaptorsetId(adaptorsetId).getAdaptor()) {
+		for(Adaptor adaptor:adaptorsetDao.getAdaptorsetByAdaptorsetId(adaptorsetId).getAdaptor()) {
 			adaptorsMap.put(adaptor.getAdaptorId(), adaptor.getName());
 		}
 
@@ -1672,7 +1671,7 @@ public class JobSubmissionController extends WaspController {
 	@RequestMapping(value = "/getOldSample", method = RequestMethod.GET)
 	public String getOldSample(@RequestParam("id") Integer sampleDraftId, HttpServletResponse response) {
 
-		SampleDraft samplDraft = sampleDraftService.findById(sampleDraftId);
+		SampleDraft samplDraft = sampleDraftDao.findById(sampleDraftId);
 
 		try {
 			
@@ -1700,7 +1699,7 @@ public class JobSubmissionController extends WaspController {
 	
 		//result
 		Map <String, String> metaMap = new LinkedHashMap<String, String>();
-		for(SampleMeta meta:sampleMetaService.getSamplesMetaBySampleId(sampleId)) {
+		for(SampleMeta meta:sampleMetaDao.getSamplesMetaBySampleId(sampleId)) {
 			metaMap.put(meta.getK(), meta.getV());
 		}
 
@@ -1761,11 +1760,11 @@ public class JobSubmissionController extends WaspController {
 					
 					CommonsMultipartFile fileData=sampleDraftForm.getFileData();
 					
-					SampleDraft samplDraft=sampleDraftService.findById(sampleDraftId);
+					SampleDraft samplDraft=sampleDraftDao.findById(sampleDraftId);
 					
 					Lab lab=samplDraft.getLab();
 					
-					User piUser=userService.getById(lab.getPrimaryUserId());
+					User piUser=userDao.getById(lab.getPrimaryUserId());
 					
 					final String login = 
 					((org.springframework.security.core.userdetails.User)
@@ -1796,11 +1795,11 @@ public class JobSubmissionController extends WaspController {
 					file.setMd5hash("xxx");
 					file.setSizek((int)(fileData.getSize()/1024));
 										
-					fileService.persist(file);
+					fileDao.persist(file);
 					
 					samplDraft.setFileId(file.getFileId());
 					
-					sampleDraftService.merge(samplDraft);
+					sampleDraftDao.merge(samplDraft);
 								
 					//submit file for processing by Spring Batch / Spring Intgeration instance 
 					RestTemplate template = new RestTemplate();
@@ -1839,24 +1838,24 @@ public class JobSubmissionController extends WaspController {
 		boolean adding = sampleDraftId == 0;
 
 		// get from jobdraft table
-		JobDraft jd = jobDraftService.findById(sampleDraftForm.getJobdraftId());
+		JobDraft jd = jobDraftDao.findById(sampleDraftForm.getJobdraftId());
 		sampleDraftForm.setUserId(jd.getUserId());
 		sampleDraftForm.setLabId(jd.getLabId());
 		
-		SubtypeSample subtype=subTypeSampleService.findById(sampleDraftForm.getSubtypeSampleId());
+		SubtypeSample subtype=subTypeSampleDao.findById(sampleDraftForm.getSubtypeSampleId());
 		
 		if (adding) {
 						
 			int typeSampleId=subtype.getTypeSample().getTypeSampleId();
 			sampleDraftForm.setTypeSampleId(typeSampleId);
 			
-			SampleDraft sampleDraftDb = this.sampleDraftService
+			SampleDraft sampleDraftDb = this.sampleDraftDao
 					.save(sampleDraftForm);
 			
 			sampleDraftId = sampleDraftDb.getSampleDraftId();
 		} else {
 
-			SampleDraft sampleDraftDb = this.sampleDraftService
+			SampleDraft sampleDraftDb = this.sampleDraftDao
 					.getById(sampleDraftId);
 
 			sampleDraftDb.setName(sampleDraftForm.getName());
@@ -1864,7 +1863,7 @@ public class JobSubmissionController extends WaspController {
 			sampleDraftDb.setSubtypeSampleId(sampleDraftForm.getSubtypeSampleId());
 			sampleDraftDb.setSourceSampleId(sampleDraftForm.getSourceSampleId());
 
-			this.sampleDraftService.merge(sampleDraftDb);
+			this.sampleDraftDao.merge(sampleDraftDb);
 		}
 		
 		List<SampleDraftMeta> sampleDraftMetaList = new ArrayList<SampleDraftMeta>();
@@ -1881,7 +1880,7 @@ public class JobSubmissionController extends WaspController {
 			else meta.setSampledraftId(sampleDraftId);
 		}
 
-		sampleDraftMetaService.updateBySampledraftId(sampleDraftId,
+		sampleDraftMetaDao.updateBySampledraftId(sampleDraftId,
 				sampleDraftMetaList);
 
 		try {
@@ -1906,8 +1905,8 @@ public class JobSubmissionController extends WaspController {
 	@RequestMapping(value = "/deleteSampleDraftJSON", method = RequestMethod.DELETE)	
 	public String deleteSampleDraftJSON(@RequestParam("id") Integer sampleDraftId,HttpServletResponse response) {
 
-		sampleDraftMetaService.updateBySampledraftId(sampleDraftId, new ArrayList<SampleDraftMeta>());
-		this.sampleDraftService.remove(sampleDraftService.findById(sampleDraftId));
+		sampleDraftMetaDao.updateBySampledraftId(sampleDraftId, new ArrayList<SampleDraftMeta>());
+		this.sampleDraftDao.remove(sampleDraftDao.findById(sampleDraftId));
 		
 		try {
 			response.getWriter().println(messageService.getMessage("sampleDraft.removed.data"));
@@ -1927,7 +1926,7 @@ public class JobSubmissionController extends WaspController {
 		
 		int FILEBUFFERSIZE=1000000;//megabyte
 		
-		edu.yu.einstein.wasp.model.File file=fileService.findById(fileId);
+		edu.yu.einstein.wasp.model.File file=fileDao.findById(fileId);
 		
 		if (file==null) {
 				String html="<html>\n"+
@@ -1983,7 +1982,7 @@ public class JobSubmissionController extends WaspController {
 	@Override
 	protected void prepareSelectListData(ModelMap m) {
 		super.prepareSelectListData(m);
-		m.addAttribute("subtypeSamples",subTypeSampleService.findAll());
+		m.addAttribute("subtypeSamples",subTypeSampleDao.findAll());
 		Map<String, String> statuses=new TreeMap<String, String>();
 		for(SampleDraft.Status status:SampleDraft.Status.values()) {
 			statuses.put(status.name(), status.name());

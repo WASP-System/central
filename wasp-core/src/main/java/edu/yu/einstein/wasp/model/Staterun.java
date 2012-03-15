@@ -73,6 +73,7 @@ public class Staterun extends WaspModel implements StateEntity {
 	 *
 	 */
 	
+	@Override
 	public void setStateId (Integer stateId) {
 		this.stateId = stateId;
 	}
@@ -83,6 +84,7 @@ public class Staterun extends WaspModel implements StateEntity {
 	 * @return stateId
 	 *
 	 */
+	@Override
 	public Integer getStateId () {
 		return this.stateId;
 	}
@@ -136,6 +138,7 @@ public class Staterun extends WaspModel implements StateEntity {
 	 * @param state
 	 *
 	 */
+	@Override
 	public void setState (State state) {
 		this.state = state;
 		this.stateId = state.stateId;
@@ -148,6 +151,7 @@ public class Staterun extends WaspModel implements StateEntity {
 	 *
 	 */
 	
+	@Override
 	public State getState () {
 		return this.state;
 	}

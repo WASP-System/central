@@ -112,7 +112,12 @@ public class WorkflowDaoImpl extends WaspDaoImpl<Workflow> implements edu.yu.ein
 		return results.get(0);
 	}
 
-
+	  @Override
+	  public List<Workflow> getActiveWorkflows(){
+		  Map workflowQueryMap = new HashMap();
+		  workflowQueryMap.put("isActive", 1);
+		  return this.findByMap(workflowQueryMap);
+	  }
 
 }
 

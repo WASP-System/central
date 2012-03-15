@@ -7,18 +7,18 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import edu.yu.einstein.wasp.dao.JobSampleDao;
+import edu.yu.einstein.wasp.dao.StateDao;
+import edu.yu.einstein.wasp.dao.StatejobDao;
+import edu.yu.einstein.wasp.dao.StatesampleDao;
+import edu.yu.einstein.wasp.dao.TaskDao;
+import edu.yu.einstein.wasp.model.JobSample;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.Statejob;
 import edu.yu.einstein.wasp.model.Statesample;
 import edu.yu.einstein.wasp.model.Task;
-import edu.yu.einstein.wasp.model.JobSample;
-import edu.yu.einstein.wasp.service.StateService;
-import edu.yu.einstein.wasp.service.StatejobService;
-import edu.yu.einstein.wasp.service.StatesampleService;
-import edu.yu.einstein.wasp.service.TaskService;
-import edu.yu.einstein.wasp.service.JobSampleService;
 
 /**
  * LinkLibrarySampleStateProcessor
@@ -35,19 +35,19 @@ import edu.yu.einstein.wasp.service.JobSampleService;
 public class LinkLibrarySampleStateProcessor implements ItemProcessor {
 
 	@Autowired
-	StateService stateService;
+	StateDao stateDao;
 
 	@Autowired
-	StatesampleService statesampleService;
+	StatesampleDao statesampleDao;
 
 	@Autowired
-	StatejobService statejobService;
+	StatejobDao statejobDao;
 
 	@Autowired
-	JobSampleService jobSampleService;
+	JobSampleDao jobSampleDao;
 
 	@Autowired
-	TaskService taskService;
+	TaskDao taskDao;
 
 	protected String targetTask; 
 	public void setTargetTask(String targetTask) {
@@ -62,11 +62,11 @@ public class LinkLibrarySampleStateProcessor implements ItemProcessor {
 	@Override
 	public State process(Object stateId) throws Exception {
 		
-		State state = stateService.getStateByStateId(((Integer) stateId).intValue());
+		State state = stateDao.getStateByStateId(((Integer) stateId).intValue());
 		List<Statesample> stateSamples = state.getStatesample();
 		List<Statejob> stateJobs = state.getStatejob();
 
-		Task t = taskService.getTaskByIName(targetTask);
+		Task t = taskDao.getTaskByIName(targetTask);
 
 		// should be only one, but looping for good measure
 		for (Statesample ss: stateSamples) {
@@ -88,7 +88,7 @@ public class LinkLibrarySampleStateProcessor implements ItemProcessor {
 				newState.setSourceStateId(state.getSourceStateId());
 
 				newState.setStartts(new Date());
-				State newStateDb = stateService.save(newState);
+				State newStateDb = stateDao.save(newState);
 
 				// links the state to the job
 				// should be only one, but looping for good measure
@@ -96,13 +96,13 @@ public class LinkLibrarySampleStateProcessor implements ItemProcessor {
 					Statejob newStateJob = new Statejob();
 					newStateJob.setStateId(newStateDb.getStateId());
 					newStateJob.setJobId(sj.getJobId());
-					statejobService.save(newStateJob);
+					statejobDao.save(newStateJob);
 
 					// links job to the library via new jobsample
 					JobSample newJobSample = new JobSample();
 					newJobSample.setJobId(sj.getJobId());
 					newJobSample.setSampleId(librarySample.getSampleId());
-					jobSampleService.save(newJobSample);
+					jobSampleDao.save(newJobSample);
 
 				}
 
@@ -110,7 +110,7 @@ public class LinkLibrarySampleStateProcessor implements ItemProcessor {
 				Statesample newStateSample = new Statesample();
 				newStateSample.setStateId(newStateDb.getStateId());
 				newStateSample.setSampleId(librarySample.getSampleId());
-				statesampleService.save(newStateSample);
+				statesampleDao.save(newStateSample);
 
 
 			}

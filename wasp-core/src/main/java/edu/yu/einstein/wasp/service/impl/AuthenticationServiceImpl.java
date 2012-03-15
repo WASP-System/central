@@ -3,12 +3,15 @@ package edu.yu.einstein.wasp.service.impl;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.encoding.PasswordEncoder;
+import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
@@ -18,23 +21,23 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import edu.yu.einstein.wasp.dao.UserDao;
+import edu.yu.einstein.wasp.dao.UserPendingDao;
 import edu.yu.einstein.wasp.exception.LoginNameException;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.MessageService;
-import edu.yu.einstein.wasp.service.UserPendingService;
-import edu.yu.einstein.wasp.service.UserService;
 
 
 @Service
 public class AuthenticationServiceImpl implements AuthenticationService {
 
 	@Autowired
-	private UserService userService;
+	private UserDao userDao;
 	
 	@Autowired
-	private UserPendingService userPendingService;
+	private UserPendingDao userPendingDao;
 	
 	@Autowired
 	private MessageService messageService;
@@ -61,7 +64,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	@Override
 	public User getAuthenticatedUser() {
 		 Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		 User user = this.userService.getUserByLogin(authentication.getName());
+		 User user = this.userDao.getUserByLogin(authentication.getName());
 		 return user;
 	}
 	@Override
@@ -211,13 +214,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 		// NV 12132011
 		//if (userService.getUserByLogin(login).getUserId() != null){
-		if (userService.getUserByLogin(login).getUserId() != null){
+		if (userDao.getUserByLogin(login).getUserId() != null){
 
 			return true;
 		} else {
 			Map loginQueryMap = new HashMap();
 			loginQueryMap.put("login", login);
-			for (UserPending up : (List<UserPending>) userPendingService.findByMap(loginQueryMap)){
+			for (UserPending up : userPendingDao.findByMap(loginQueryMap)){
 				if ( (up.getStatus().equals("WAIT_EMAIL") || up.getStatus().equals("PENDING")) && !up.getEmail().equals(email) ){
 					return true; // login name already chosen by someone with different email address
 				}
@@ -225,4 +228,59 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		}
 		return false;
 	}
+	
+	  @Override
+	  public String encodePassword(String s) {
+	      PasswordEncoder encoder = new ShaPasswordEncoder();
+	      String hashedPassword = encoder.encodePassword(s, null);
+
+	      return hashedPassword;
+	    }
+	  	
+	    @Override
+	  public boolean validatePassword(String s) {
+	  	  //http://www.the-art-of-web.com/javascript/validate-password/
+	  	  //see orange box on this web page
+	  	  //only letters and numbers, at least one number, at least one letter, and at least 8 characters
+	  	  //I replaced the \w with [0-9a-zA-Z]
+	  	  if (s == null || s.isEmpty()){
+	  		  // defensive: not valid if not set
+	  		  return false;
+	  	  }
+	  	  return s.matches("^(?=.*[0-9])(?=.*[a-zA-Z])[0-9a-zA-Z]{8,}$"); 	  
+	    }
+	    
+	    @Override
+	  public boolean matchPassword(String s1, String s2){
+	  	  if (s1 == null || s1.isEmpty() || s2 == null || s2.isEmpty()){
+	  		  // defensive: must have a value as well as match (do not want to try to match null or empty passwords)
+	  		  return false;
+	  	  }
+	  	  return s1.equals(s2);
+	    }
+	    
+	    @Override
+	  public String getRandomPassword(int length){
+	  	  if (length < 5 || length > 50){
+	  			length = 10; //default 
+	  		}
+	  		String password = new String();
+	  		Random random = new Random();
+	  		for (int i=0; i < length; i++){
+	  			int ascii = 0;
+	  				switch(random.nextInt(3)){
+	  		  		case 0:
+	  		  			ascii = 48 + random.nextInt(10); // 0-9
+	  		  		break;
+	  		  		case 1:
+	  		  			ascii = 65 + random.nextInt(26); // A-Z 
+	  		  		break;
+	  		  		case 2:
+	  		  			ascii = 97 + random.nextInt(26); // a-z
+	  		  		break;	
+	  			}
+	  				password = password.concat(String.valueOf( (char)ascii ));  
+	  		}
+	  		return password;
+	    }
 }

@@ -13,7 +13,9 @@ package edu.yu.einstein.wasp.dao.impl;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -303,6 +305,15 @@ public abstract class WaspDaoImpl<E extends Serializable> implements edu.yu.eins
 		} catch (Throwable e) {
 			// no such method setLastUpdTs in class E
 		}
+	}
+	
+	@Override
+	public List findDistinctMetaOrderBy(final String metaKeyName, final String direction){
+		Map metaQueryMap = new HashMap();
+		metaQueryMap.put("k", metaKeyName);
+	  	List<String> orderByList = new ArrayList();
+	  	orderByList.add("v");
+		return this.findByMapDistinctOrderBy(metaQueryMap, orderByList, orderByList, direction); 
 	}
 
 }

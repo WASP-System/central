@@ -36,10 +36,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import edu.yu.einstein.wasp.dao.UiFieldDao;
 import edu.yu.einstein.wasp.model.JQuerySearch;
 import edu.yu.einstein.wasp.model.UiField;
 import edu.yu.einstein.wasp.service.MessageService;
-import edu.yu.einstein.wasp.service.UiFieldService;
 import edu.yu.einstein.wasp.service.impl.WaspMessageSourceImpl;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 
@@ -51,7 +51,7 @@ public class UiFieldController extends WaspController {
 	Logger log=Logger.getLogger(UiFieldController.class);
 	
 	@Autowired
-	private UiFieldService uiFieldService;
+	private UiFieldDao uiFieldDao;
 
 	@Autowired
 	private MessageSource messageSource;
@@ -102,7 +102,7 @@ public class UiFieldController extends WaspController {
 		
 		areas.putAll(AREA_NAMES);
 		
-		for(String area:uiFieldService.getUniqueAreas()) {
+		for(String area:uiFieldDao.getUniqueAreas()) {
 			areas.put(area,area);
 		}
 		
@@ -141,14 +141,14 @@ public class UiFieldController extends WaspController {
 					m.put(rule.field, rule.data);
 				}
 								
-				uiFieldList = this.uiFieldService.findByMap(m);
+				uiFieldList = this.uiFieldDao.findByMap(m);
 				
 			} catch (Throwable e) {
 				log.error("cant read search params "+request.getParameter("filters"),e);
-				uiFieldList=uiFieldService.findAll();
+				uiFieldList=uiFieldDao.findAll();
 			}
 		} else {
-			uiFieldList=uiFieldService.findAll();
+			uiFieldList=uiFieldDao.findAll();
 		}
 		
 		
@@ -206,7 +206,7 @@ public class UiFieldController extends WaspController {
 	@RequestMapping(value = "/delete", method = RequestMethod.DELETE)	
 	public String deleteSampleDraftJSON(@RequestParam("id") Integer uiFieldId,HttpServletResponse response) {
 		
-		this.uiFieldService.remove(uiFieldService.findById(uiFieldId));
+		this.uiFieldDao.remove(uiFieldDao.findById(uiFieldId));
 		
 		try {
 			response.getWriter().println(messageService.getMessage("uiField.removed.data"));
@@ -229,24 +229,24 @@ public class UiFieldController extends WaspController {
 		try {
 			if (uiFieldId == null || uiFieldId == 0 ) {
 
-				if (uiFieldService.exists(uiFieldForm.getLocale(), uiFieldForm.getArea(), uiFieldForm.getName(), uiFieldForm.getAttrName())) {
+				if (uiFieldDao.exists(uiFieldForm.getLocale(), uiFieldForm.getArea(), uiFieldForm.getName(), uiFieldForm.getAttrName())) {
 					response.getWriter().println(messageService.getMessage("uiField.not_unique.error"));
 					return null;
 				}
 
 				uiFieldForm.setAttrValue(escapeSingleQuote(uiFieldForm.getAttrValue()));
 				
-				UiField uiFieldDb = this.uiFieldService.save(uiFieldForm);
+				UiField uiFieldDb = this.uiFieldDao.save(uiFieldForm);
 
 				uiFieldId = uiFieldDb.getUiFieldId();
 			} else {
-				UiField uiFieldDb = this.uiFieldService.getById(uiFieldId);
+				UiField uiFieldDb = this.uiFieldDao.getById(uiFieldId);
 				uiFieldDb.setArea(uiFieldForm.getArea());
 				uiFieldDb.setAttrName(uiFieldForm.getAttrName());
 				uiFieldDb.setAttrValue(escapeSingleQuote(uiFieldForm.getAttrValue()));
 				uiFieldDb.setLocale(uiFieldForm.getLocale());
 				uiFieldDb.setName(uiFieldForm.getName());
-				this.uiFieldService.merge(uiFieldDb);
+				this.uiFieldDao.merge(uiFieldDb);
 			}
 
 			String newKey = uiFieldForm.getArea() + "." + uiFieldForm.getName() + "." + uiFieldForm.getAttrName();
@@ -300,7 +300,7 @@ public class UiFieldController extends WaspController {
 		
 		
 		try {
-			String sql=this.uiFieldService.dumpUiFieldTable();
+			String sql=this.uiFieldDao.dumpUiFieldTable();
 			String mimeType = "application/octet-stream";
 			response.setContentType(mimeType);
 			response.setContentLength( sql.getBytes("UTF-8").length);

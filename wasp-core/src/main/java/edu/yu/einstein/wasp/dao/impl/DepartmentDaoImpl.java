@@ -13,6 +13,7 @@ package edu.yu.einstein.wasp.dao.impl;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -85,7 +86,12 @@ public class DepartmentDaoImpl extends WaspDaoImpl<Department> implements edu.yu
 		return results.get(0);
 	}
 
-
+	 @Override
+	  public List<Department> getActiveDepartments(){
+		  Map queryMap = new HashMap();
+		  queryMap.put("isActive", 1);
+		  return this.findByMap(queryMap);
+	  }
 
 }
 

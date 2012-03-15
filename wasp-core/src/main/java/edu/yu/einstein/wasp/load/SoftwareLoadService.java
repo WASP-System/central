@@ -8,13 +8,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import util.spring.PostInitialize;
+import edu.yu.einstein.wasp.dao.SoftwareDao;
+import edu.yu.einstein.wasp.dao.SoftwareMetaDao;
+import edu.yu.einstein.wasp.dao.TypeResourceDao;
 import edu.yu.einstein.wasp.exception.NullTypeResourceException;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.model.SoftwareMeta;
 import edu.yu.einstein.wasp.model.TypeResource;
-import edu.yu.einstein.wasp.service.SoftwareMetaService;
-import edu.yu.einstein.wasp.service.SoftwareService;
-import edu.yu.einstein.wasp.service.TypeResourceService;
 
 
 /**
@@ -33,13 +33,13 @@ import edu.yu.einstein.wasp.service.TypeResourceService;
 public class SoftwareLoadService extends WaspLoadService {
 
   @Autowired
-  private SoftwareService softwareService;
+  private SoftwareDao softwareDao;
 
   @Autowired
-  private SoftwareMetaService softwareMetaService;
+  private SoftwareMetaDao softwareMetaDao;
 
   @Autowired
-  private TypeResourceService typeResourceService;
+  private TypeResourceDao typeResourceDao;
 
   private String resourceType; 
   public void setResourceType(String resourceType) {this.resourceType = resourceType; }
@@ -68,12 +68,12 @@ public class SoftwareLoadService extends WaspLoadService {
     // skips component scanned  (if scanned in)
     if (name == null) { return; }
 
-    TypeResource typeResource = typeResourceService.getTypeResourceByIName(resourceType); 
+    TypeResource typeResource = typeResourceDao.getTypeResourceByIName(resourceType); 
     if (typeResource == null){
     	throw new NullTypeResourceException();
     }
 
-    Software software = softwareService.getSoftwareByIName(iname);
+    Software software = softwareDao.getSoftwareByIName(iname);
     
     if (isActive == null)
   	  isActive = 1;
@@ -86,10 +86,10 @@ public class SoftwareLoadService extends WaspLoadService {
       software.setName(name);
       software.setIsActive(isActive.intValue());
       software.setTypeResourceId(typeResource.getTypeResourceId());
-      softwareService.save(software); 
+      softwareDao.save(software); 
 
       // refreshes
-      software = softwareService.getSoftwareByIName(iname); 
+      software = softwareDao.getSoftwareByIName(iname); 
 
     } else {
       boolean changed = false;	
@@ -102,7 +102,7 @@ public class SoftwareLoadService extends WaspLoadService {
     	  changed = true;
       }
       if (changed)
-    	  softwareService.save(software); 
+    	  softwareDao.save(software); 
     }
 
 
@@ -135,21 +135,21 @@ public class SoftwareLoadService extends WaspLoadService {
         	changed = true;
         }
         if (changed)
-        	softwareMetaService.save(old);
+        	softwareMetaDao.save(old);
 
         oldSoftwareMetas.remove(old.getK()); // remove the meta from the old meta list as we're done with it
         continue; 
       }
 
       softwareMeta.setSoftwareId(software.getSoftwareId()); 
-      softwareMetaService.save(softwareMeta); 
+      softwareMetaDao.save(softwareMeta); 
     }
 
     // delete the left overs
     for (String softwareMetaKey : oldSoftwareMetas.keySet()) {
       SoftwareMeta softwareMeta = oldSoftwareMetas.get(softwareMetaKey); 
-      softwareMetaService.remove(softwareMeta); 
-      softwareMetaService.flush(softwareMeta); 
+      softwareMetaDao.remove(softwareMeta); 
+      softwareMetaDao.flush(softwareMeta); 
     }
 
     updateUiFields(); 

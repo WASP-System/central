@@ -8,20 +8,20 @@
 			<fmt:message key="department.create_instructions.label" />
 		</div>
 
-		<form name="f" action="<c:url value='/department/create.do'/>" method="POST" onsubmit='return validate();'>
+		<form name="f" action="<c:url value='/department/create.do'/>" method="POST" >
 			<table class="EditTable ui-widget ui-widget-content">
 				<tr class="FormData"><td class="CaptionTD"><fmt:message key="department.list_department.label" />:</td><td class="DataTD"><input class="FormElement ui-widget-content ui-corner-all" type='text' name='departmentName' value=''/></td></tr>
 				<tr class="FormData"><td class="CaptionTD"><fmt:message key="department.detail_administrator_name.label" />:</td><td class="DataTD"><input class="FormElement ui-widget-content ui-corner-all" id="adminName" name='adminName' value='' /></td></tr>
 		 
 				</table>
 				<div class="submit">
-					<input class="FormElement ui-widget-content ui-corner-all" type="submit" value="<fmt:message key="department.list.data" />" /></td></tr>
+					<input class="FormElement ui-widget-content ui-corner-all" type="submit" value="<fmt:message key="department.list.data" />" />
  				</div>
 			</form>
 	</div>
 </sec:authorize>
 
-<div>
+
 <h1><fmt:message key="department.list.label" /></h1>
 <div class="instructions">
   <fmt:message key="department.list_instructions.label" />

@@ -11,6 +11,8 @@
 
 package edu.yu.einstein.wasp.dao;
 
+import java.util.List;
+
 import edu.yu.einstein.wasp.model.User;
 
 
@@ -21,8 +23,10 @@ public interface UserDao extends WaspDao<User> {
   public User getUserByLogin (final String login);
 
   public User getUserByEmail (final String email);
+
+  public List<User> getActiveUsers();
   
- // boolean loginExists(final String login, final Integer excludeUserId);
+ 
 
 }
 

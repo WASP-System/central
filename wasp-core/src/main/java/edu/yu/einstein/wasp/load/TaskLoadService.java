@@ -9,10 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import util.spring.PostInitialize;
+import edu.yu.einstein.wasp.dao.TaskDao;
+import edu.yu.einstein.wasp.dao.TaskMappingDao;
 import edu.yu.einstein.wasp.model.Task;
 import edu.yu.einstein.wasp.model.TaskMapping;
-import edu.yu.einstein.wasp.service.TaskMappingService;
-import edu.yu.einstein.wasp.service.TaskService;
 
 
 /**
@@ -28,10 +28,10 @@ import edu.yu.einstein.wasp.service.TaskService;
 public class TaskLoadService extends WaspLoadService {
 
 	@Autowired
-	private TaskService taskService;
+	private TaskDao taskDao;
 
 	@Autowired
-	private TaskMappingService taskMappingService;
+	private TaskMappingDao taskMappingDao;
 
 	public TaskLoadService (){};
 
@@ -49,7 +49,7 @@ public class TaskLoadService extends WaspLoadService {
 
 		logger.info("task loader started for  " + iname);
 
-		Task task = taskService.getTaskByIName(iname); 
+		Task task = taskDao.getTaskByIName(iname); 
 
 		// inserts or update workflow
 		if (task.getTaskId() == null) { 
@@ -58,17 +58,17 @@ public class TaskLoadService extends WaspLoadService {
 			task.setIName(iname);
 			task.setName(name);
 
-			taskService.save(task); 
+			taskDao.save(task); 
 
 			// refreshes
-			task = taskService.getTaskByIName(iname); 
+			task = taskDao.getTaskByIName(iname); 
 
 		} else {
 
 			// TODO check if any data chance, if not don't update.
 			task.setName(name);
 
-			taskService.save(task); 
+			taskDao.save(task); 
 		}
 
 		// no taskmapping in property
@@ -89,27 +89,27 @@ public class TaskLoadService extends WaspLoadService {
 		if (dbTaskMapping != null) {
 		for (TaskMapping tm: dbTaskMapping) {
 			if (seenStatus.contains(tm.getStatus())) {
-				taskMappingService.remove(tm);
-				taskMappingService.flush(tm);
+				taskMappingDao.remove(tm);
+				taskMappingDao.flush(tm);
 			}
 		}
 		}
 
 		if (taskMapping != null) {
 		for (TaskMapping tm: taskMapping) {
-			TaskMapping dbTm = taskMappingService.getTaskMappingByTaskIdStatus(task.getTaskId(), tm.getStatus()); 
+			TaskMapping dbTm = taskMappingDao.getTaskMappingByTaskIdStatus(task.getTaskId(), tm.getStatus()); 
 
 			if (dbTm.getTaskMappingId() != null) {
 				// update
 				dbTm.setPermission(tm.getPermission()); 
 				dbTm.setListMap(tm.getListMap()); 
 				dbTm.setDetailMap(tm.getDetailMap()); 
-				taskMappingService.save(dbTm);
+				taskMappingDao.save(dbTm);
 
 			} else {
 				// insert
 				tm.setTaskId(task.getTaskId());
-				taskMappingService.save(tm);
+				taskMappingDao.save(tm);
 
 			}
 

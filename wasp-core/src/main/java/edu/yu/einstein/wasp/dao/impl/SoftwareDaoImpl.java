@@ -111,7 +111,14 @@ public class SoftwareDaoImpl extends WaspDaoImpl<Software> implements edu.yu.ein
 		}
 		return results.get(0);
 	}
-
+	
+	  
+	  @Override
+	  public List<Software> getActiveSoftware(){
+		  Map queryMap = new HashMap();
+		  queryMap.put("isActive", 1);
+		  return this.findByMap(queryMap);
+	  }
 
 
 }

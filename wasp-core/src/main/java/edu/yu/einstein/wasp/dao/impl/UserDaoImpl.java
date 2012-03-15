@@ -13,6 +13,7 @@ package edu.yu.einstein.wasp.dao.impl;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -74,20 +75,11 @@ public class UserDaoImpl extends WaspDaoImpl<User> implements edu.yu.einstein.wa
   }
   
  
-/*  
-  public boolean loginExists(final String login, final Integer excludeUserId) {
-
-       	if (excludeUserId==null) {
-    		 List<User> l = entityManager.createNativeQuery("select 1 from user where login=:login").setParameter("login", login).getResultList();
-    		 return !l.isEmpty();
-    	}
-    	
-    	 List<User> l = entityManager.createNativeQuery("select 1 from user where login=:login and userId!=:userId")
-    		 .setParameter("login", login)
-    		 .setParameter("userId", excludeUserId)
-    		 .getResultList();
-    	 return !l.isEmpty();
-    	}	      
-*/
+  @Override
+  public List<User> getActiveUsers(){
+	  Map queryMap = new HashMap();
+	  queryMap.put("isActive", 1);
+	  return this.findByMap(queryMap);
+  }
 }
 

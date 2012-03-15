@@ -27,6 +27,13 @@ import org.springframework.web.bind.support.SessionStatus;
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.controller.validator.PasswordValidator;
 import edu.yu.einstein.wasp.controller.validator.UserPendingMetaValidatorImpl;
+import edu.yu.einstein.wasp.dao.ConfirmEmailAuthDao;
+import edu.yu.einstein.wasp.dao.DepartmentDao;
+import edu.yu.einstein.wasp.dao.LabDao;
+import edu.yu.einstein.wasp.dao.LabPendingDao;
+import edu.yu.einstein.wasp.dao.LabPendingMetaDao;
+import edu.yu.einstein.wasp.dao.UserPendingDao;
+import edu.yu.einstein.wasp.dao.UserPendingMetaDao;
 import edu.yu.einstein.wasp.exception.LoginNameException;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.model.ConfirmEmailAuth;
@@ -39,16 +46,9 @@ import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.model.UserPendingMeta;
 import edu.yu.einstein.wasp.service.AuthenticationService;
-import edu.yu.einstein.wasp.service.ConfirmEmailAuthService;
-import edu.yu.einstein.wasp.service.DepartmentService;
 import edu.yu.einstein.wasp.service.EmailService;
-import edu.yu.einstein.wasp.service.LabPendingMetaService;
-import edu.yu.einstein.wasp.service.LabPendingService;
-import edu.yu.einstein.wasp.service.LabService;
 import edu.yu.einstein.wasp.service.MessageService;
-import edu.yu.einstein.wasp.service.PasswordService;
-import edu.yu.einstein.wasp.service.UserPendingMetaService;
-import edu.yu.einstein.wasp.service.UserPendingService;
+import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.util.StringHelper;
 
 /**
@@ -62,33 +62,32 @@ import edu.yu.einstein.wasp.util.StringHelper;
 public class UserPendingController extends WaspController {
 
 	@Autowired
-	private UserPendingService userPendingService;
+	private UserPendingDao userPendingDao;
 
 	@Autowired
-	private UserPendingMetaService userPendingMetaService;
+	private UserPendingMetaDao userPendingMetaDao;
 
 	@Autowired
-	private ConfirmEmailAuthService confirmEmailAuthService;
+	private ConfirmEmailAuthDao confirmEmailAuthDao;
 	
 	@Autowired
-	private LabService labService;
+	private LabDao labDao;
 
 	@Autowired
-	private LabPendingService labPendingService;
+	private LabPendingDao labPendingDao;
 	
 	@Autowired
-	private LabPendingMetaService labPendingMetaService;
+	private LabPendingMetaDao labPendingMetaDao;
 
 	@Autowired
-	private DepartmentService departmentService;
+	private DepartmentDao departmentDao;
 
 	@Autowired
 	private EmailService emailService;
-
-	@Autowired
-	private PasswordService passwordService;
-
 	
+	@Autowired
+	private UserService userService;
+
 	@Autowired
 	private PasswordValidator passwordValidator;
 	
@@ -148,7 +147,7 @@ public class UserPendingController extends WaspController {
 		
 		MetaHelperWebapp userPendingMetaHelperWebapp = getMetaHelperWebapp();
 		userPendingMetaHelperWebapp.getFromRequest(request, UserPendingMeta.class);
-		userPendingMetaHelperWebapp.validate(new UserPendingMetaValidatorImpl(userService, labService), result);
+		userPendingMetaHelperWebapp.validate(new UserPendingMetaValidatorImpl(userDao, labDao), result);
 		if (! result.hasFieldErrors("login")){
 			if (authenticationService.isAuthenticationSetExternal()){
 				if (! authenticationService.authenticate(userPendingForm.getLogin(), userPendingForm.getPassword())){
@@ -186,7 +185,7 @@ public class UserPendingController extends WaspController {
 			passwordValidator.validate(result, userPendingForm.getPassword(), request.getParameter("password2"), userPendingMetaHelperWebapp.getParentArea(), "password");
 		}
 		if (! result.hasFieldErrors("email")){
-			User user = userService.getUserByEmail(userPendingForm.getEmail());
+			User user = userDao.getUserByEmail(userPendingForm.getEmail());
 			//NV 12132011
 			//if (user.getUserId() != null ){
 			if (user.getUserId() != null ){
@@ -217,18 +216,18 @@ public class UserPendingController extends WaspController {
 		// form passes validation so finalize and persist userPending data and metadata		
 		String piUserLogin = userPendingMetaHelperWebapp.getMetaByName("primaryuserid").getV();	
 		
-		Lab lab = labService.getLabByPrimaryUserId(userService.getUserByLogin(piUserLogin).getUserId());
+		Lab lab = labDao.getLabByPrimaryUserId(userDao.getUserByLogin(piUserLogin).getUserId());
 		userPendingForm.setLabId(lab.getLabId());
 		userPendingForm.setStatus("WAIT_EMAIL"); // set to WAIT_EMAIL even if isEmailApproved == true or sendPendingUserConfRequestEmail() won't work properly
 				
-		userPendingForm.setPassword( passwordService.encodePassword(userPendingForm.getPassword()) ); 
+		userPendingForm.setPassword( authenticationService.encodePassword(userPendingForm.getPassword()) ); 
 				
 		List<UserPendingMeta> userPendingMetaList = (List<UserPendingMeta>) userPendingMetaHelperWebapp.getMetaList();
 		userPendingForm.setUserPendingMeta(userPendingMetaList);
 		userPendingForm.setFirstName(StringHelper.removeExtraSpacesAndCapFirstLetter(userPendingForm.getFirstName()));
 		userPendingForm.setLastName(StringHelper.removeExtraSpacesAndCapFirstLetter(userPendingForm.getLastName()));
-		UserPending userPendingDb = userPendingService.save(userPendingForm);
-		userPendingMetaService.updateByUserpendingId(userPendingDb.getUserPendingId(), userPendingMetaList);
+		UserPending userPendingDb = userPendingDao.save(userPendingForm);
+		userPendingMetaDao.updateByUserpendingId(userPendingDb.getUserPendingId(), userPendingMetaList);
 		
 		request.getSession().removeAttribute(Captcha.NAME); // ensures fresh capcha issued if required in this session
 		status.setComplete();
@@ -238,7 +237,7 @@ public class UserPendingController extends WaspController {
 			return "redirect:/auth/newuser/emailok.do";
 		} else {
 			// email address not confirmed yet so request confirmation
-			emailService.sendPendingUserEmailConfirm(userPendingForm, confirmEmailAuthService.getNewAuthcodeForUserPending(userPendingForm));
+			emailService.sendPendingUserEmailConfirm(userPendingForm, userService.getNewAuthcodeForUserPending(userPendingForm));
 		}
 		return "redirect:/auth/newuser/created.do";
 	}
@@ -252,7 +251,7 @@ public class UserPendingController extends WaspController {
 		// see if pending user has already confirmed their email
 		Map confirmedEmailQueryMap = new HashMap();
 		confirmedEmailQueryMap.put("email", email);
-		for (UserPending up: (List<UserPending>) userPendingService.findByMap(confirmedEmailQueryMap)){
+		for (UserPending up: userPendingDao.findByMap(confirmedEmailQueryMap)){
 			// if any userPending instances with same email are not in state WAIT_EMAIL we assume the email address
 			// is already confirmed
 			if (!up.getStatus().equals("WAIT_EMAIL")){
@@ -319,7 +318,7 @@ public class UserPendingController extends WaspController {
 			metaHelperWebapp.getMasterList(visibilityElementMap, UserPendingMeta.class);
 			Map departmentQueryMap = new HashMap();
 			departmentQueryMap.put("isInternal", 0);
-			List<Department> extDepartments = departmentService.findByMap(departmentQueryMap);
+			List<Department> extDepartments = departmentDao.findByMap(departmentQueryMap);
 			if (extDepartments.isEmpty() || extDepartments.size() >1 ){
 				throw new MetadataException("Either 0 or >1 external departments defined in the database. Should only be 1");
 			}
@@ -402,7 +401,7 @@ public class UserPendingController extends WaspController {
 		}
 		
 		if (! result.hasFieldErrors("email")){
-			User user = userService.getUserByEmail(userPendingForm.getEmail());
+			User user = userDao.getUserByEmail(userPendingForm.getEmail());
 
 			//NV 12132011
 			if (user.getUserId() != null){
@@ -433,12 +432,12 @@ public class UserPendingController extends WaspController {
 
 		userPendingForm.setStatus("WAIT_EMAIL");
 
-		userPendingForm.setPassword( passwordService.encodePassword(userPendingForm.getPassword()) ); 
+		userPendingForm.setPassword( authenticationService.encodePassword(userPendingForm.getPassword()) ); 
 		userPendingForm.setFirstName(StringHelper.removeExtraSpacesAndCapFirstLetter(userPendingForm.getFirstName()));
 		userPendingForm.setLastName(StringHelper.removeExtraSpacesAndCapFirstLetter(userPendingForm.getLastName()));
-		UserPending userPendingDb = userPendingService.save(userPendingForm);
+		UserPending userPendingDb = userPendingDao.save(userPendingForm);
 		List<UserPendingMeta> userPendingMetaList = (List<UserPendingMeta>) metaHelperWebapp.getMetaList();
-		userPendingMetaService.updateByUserpendingId(userPendingDb.getUserPendingId(), userPendingMetaList);
+		userPendingMetaDao.updateByUserpendingId(userPendingDb.getUserPendingId(), userPendingMetaList);
 		request.getSession().removeAttribute(Captcha.NAME); // ensures fresh capcha issued if required in this session
 		request.getSession().removeAttribute("visibilityElementMap"); // remove visibilityElementMap from the session
 		status.setComplete();
@@ -448,7 +447,7 @@ public class UserPendingController extends WaspController {
 			return "redirect:/auth/newpi/emailok.do";
 		} else {
 			// email address not confirmed yet so request confirmation
-			emailService.sendPendingPIEmailConfirm(userPendingForm, confirmEmailAuthService.getNewAuthcodeForUserPending(userPendingForm));
+			emailService.sendPendingPIEmailConfirm(userPendingForm, userService.getNewAuthcodeForUserPending(userPendingForm));
 		}
 		return "redirect:/auth/newpi/created.do";
 	}
@@ -466,14 +465,14 @@ public class UserPendingController extends WaspController {
 			if (m != null) m.put("email", email);
 			return false;
 		}
-		ConfirmEmailAuth confirmEmailAuth = confirmEmailAuthService.getConfirmEmailAuthByAuthcode(authCode);
+		ConfirmEmailAuth confirmEmailAuth = confirmEmailAuthDao.getConfirmEmailAuthByAuthcode(authCode);
 		if (email == null || email.isEmpty() || confirmEmailAuth.getConfirmEmailAuthId() == null) {
 			waspErrorMessage("auth.confirmemail_bademail.error");
 			if (m != null) m.put("authcode", authCode);
 			return false;
 		}
 			  
-		UserPending userPending = userPendingService.getUserPendingByUserPendingId(confirmEmailAuth.getUserpendingId());
+		UserPending userPending = userPendingDao.getUserPendingByUserPendingId(confirmEmailAuth.getUserpendingId());
 
 		if (! userPending.getEmail().equals(email)){
 			waspErrorMessage("auth.confirmemail_wronguser.error");
@@ -493,15 +492,15 @@ public class UserPendingController extends WaspController {
 		Map userPendingQueryMap = new HashMap();
 		userPendingQueryMap.put("email", email);
 		userPendingQueryMap.put("status", "WAIT_EMAIL");
-		List<UserPending> userPendingList = userPendingService.findByMap(userPendingQueryMap);
+		List<UserPending> userPendingList = userPendingDao.findByMap(userPendingQueryMap);
 		// consider email confirmed for ALL pending user and lab applications linked to this validated email address
 		for (UserPending up: userPendingList){
-			ConfirmEmailAuth auth = confirmEmailAuthService.getConfirmEmailAuthByUserpendingId(up.getUserPendingId());
+			ConfirmEmailAuth auth = confirmEmailAuthDao.getConfirmEmailAuthByUserpendingId(up.getUserPendingId());
 			if (auth.getConfirmEmailAuthId() != null){
-				confirmEmailAuthService.remove(auth);
+				confirmEmailAuthDao.remove(auth);
 			}
 			up.setStatus("PENDING");
-			userPendingService.save(up);
+			userPendingDao.save(up);
 			if (up.getLabId() == null){
 				// email DA that a new pi is pending
 				emailService.sendPendingPrincipalConfirmRequest(getNewLabPending(up));
@@ -529,7 +528,7 @@ public class UserPendingController extends WaspController {
 		labPending.setDepartmentId(departmentId);
 		String labName = userPendingMetaHelperWebapp.getMetaByName("labName").getV();
 		labPending.setName(labName);
-		LabPending labPendingDb = labPendingService.save(labPending);
+		LabPending labPendingDb = labPendingDao.save(labPending);
 		// copies address meta data from PI userMeta to labMeta as billing address info. 
 		MetaHelperWebapp labPendingMetaHelperWebapp = new MetaHelperWebapp("labPending", LabPendingMeta.class, request.getSession());
 		List<LabPendingMeta> labPendingMetaList = labPendingMetaHelperWebapp.getMasterList(LabPendingMeta.class);
@@ -553,7 +552,7 @@ public class UserPendingController extends WaspController {
 							labPendingMetaHelperWebapp.setMetaValueByName(targetName, userPendingMetaHelperWebapp.getMetaByName(sourceName).getV());
 						} else if (sourceName.equals("departmentId")){
 							String internalExternal = (
-									departmentService.findById( Integer.valueOf( userPendingMetaHelperWebapp.getMetaByName(sourceName).getV() ) )
+									departmentDao.findById( Integer.valueOf( userPendingMetaHelperWebapp.getMetaByName(sourceName).getV() ) )
 											.getIsInternal().intValue() == 1) ? "internal" : "external";
 							targetName = "internal_external_lab";
 							labPendingMetaHelperWebapp.setMetaValueByName(targetName, internalExternal);
@@ -565,7 +564,7 @@ public class UserPendingController extends WaspController {
 				}
 			}
 		}
-		labPendingMetaService.updateByLabpendingId(labPendingDb.getLabPendingId(),  (List<LabPendingMeta>)labPendingMetaHelperWebapp.getMetaList() );
+		labPendingMetaDao.updateByLabpendingId(labPendingDb.getLabPendingId(),  (List<LabPendingMeta>)labPendingMetaHelperWebapp.getMetaList() );
 
 		return labPendingDb;
 	}
@@ -599,7 +598,7 @@ public class UserPendingController extends WaspController {
 		Map userPendingQueryMap = new HashMap();
 		userPendingQueryMap.put("email", decodedEmail);
 		userPendingQueryMap.put("status", "WAIT_EMAIL");
-		if (userPendingService.findByMap(userPendingQueryMap).isEmpty()){
+		if (userPendingDao.findByMap(userPendingQueryMap).isEmpty()){
 			// email already confirmed probably accidently re-confirming
 			return "redirect:/auth/newuser/emailok.do";
 		}
@@ -640,7 +639,7 @@ public class UserPendingController extends WaspController {
 		  Map userPendingQueryMap = new HashMap();
 		  userPendingQueryMap.put("email", email);
 		  userPendingQueryMap.put("status", "WAIT_EMAIL");
-		  if (userPendingService.findByMap(userPendingQueryMap).isEmpty()){
+		  if (userPendingDao.findByMap(userPendingQueryMap).isEmpty()){
 			// email already confirmed probably accidently re-confirming
 			return "redirect:/auth/newuser/emailok.do";
 		  }
@@ -676,7 +675,7 @@ public class UserPendingController extends WaspController {
 		 Map userPendingQueryMap = new HashMap();
 		 userPendingQueryMap.put("email", decodedEmail);
 		 userPendingQueryMap.put("status", "WAIT_EMAIL");
-		 if (userPendingService.findByMap(userPendingQueryMap).isEmpty()){
+		 if (userPendingDao.findByMap(userPendingQueryMap).isEmpty()){
 			 // email already confirmed probably accidently re-confirming
 			 return "redirect:/auth/newpi/emailok.do";
 		 }	  
@@ -715,7 +714,7 @@ public class UserPendingController extends WaspController {
 		Map userPendingQueryMap = new HashMap();
 		userPendingQueryMap.put("email", email);
 		userPendingQueryMap.put("status", "WAIT_EMAIL");
-		if (userPendingService.findByMap(userPendingQueryMap).isEmpty()){
+		if (userPendingDao.findByMap(userPendingQueryMap).isEmpty()){
 			// email already confirmed probably accidently re-confirming
 			return "redirect:/auth/newpi/emailok.do";
 		}	 
@@ -746,7 +745,7 @@ public class UserPendingController extends WaspController {
 		if (isInternal != -1){
 			Map departmentQueryMap = new HashMap();
 			departmentQueryMap.put("isInternal",  isInternal );
-			m.addAttribute("department", departmentService.findByMap(departmentQueryMap));
+			m.addAttribute("department", departmentDao.findByMap(departmentQueryMap));
 		}
 	}
 	

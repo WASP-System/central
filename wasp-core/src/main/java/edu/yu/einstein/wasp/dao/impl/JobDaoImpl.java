@@ -125,6 +125,13 @@ public class JobDaoImpl extends WaspDaoImpl<Job> implements edu.yu.einstein.wasp
 		   }
 		   return result;
 	}
+	
+	  @Override
+	  public List<Job> getActiveJobs(){
+		  Map queryMap = new HashMap();
+		  queryMap.put("isActive", 1);
+		  return this.findByMap(queryMap);
+	  }
 
 }
 

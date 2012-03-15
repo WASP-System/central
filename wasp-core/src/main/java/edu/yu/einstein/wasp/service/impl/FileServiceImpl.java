@@ -24,7 +24,7 @@ import edu.yu.einstein.wasp.model.File;
 import edu.yu.einstein.wasp.service.FileService;
 
 @Service
-public class FileServiceImpl extends WaspServiceImpl<File> implements FileService {
+public class FileServiceImpl extends WaspServiceImpl implements FileService {
 
 	@Autowired
 	private MessageSource messageSource;
@@ -45,7 +45,6 @@ public class FileServiceImpl extends WaspServiceImpl<File> implements FileServic
 	@Autowired
 	public void setFileDao(FileDao fileDao) {
 		this.fileDao = fileDao;
-		this.setWaspDao(fileDao);
 	}
 
 	/**

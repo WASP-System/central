@@ -8,10 +8,10 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import edu.yu.einstein.wasp.dao.StateDao;
+import edu.yu.einstein.wasp.dao.StatejobDao;
 import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.Statejob;
-import edu.yu.einstein.wasp.service.StateService;
-import edu.yu.einstein.wasp.service.StatejobService;
 
 /**
  * Wait for Parent Job State
@@ -26,10 +26,10 @@ import edu.yu.einstein.wasp.service.StatejobService;
 public class WaitForParentJobStateProcessor implements ItemProcessor {
 
 	@Autowired
-	StateService stateService;
+	StateDao stateDao;
 
 	@Autowired
-	StatejobService statejobService;
+	StatejobDao statejobDao;
 
 	String task; 
 	public void setTask(String task) {
@@ -44,7 +44,7 @@ public class WaitForParentJobStateProcessor implements ItemProcessor {
 	@Override
 	public State process(Object stateId) throws Exception {
 		
-		State state = stateService.getStateByStateId(((Integer) stateId).intValue());
+		State state = stateDao.getStateByStateId(((Integer) stateId).intValue());
 		List <Statejob> statejob = state.getStatejob();
 
 		// TODO npe check
@@ -52,7 +52,7 @@ public class WaitForParentJobStateProcessor implements ItemProcessor {
 		m.put("jobId", statejob.get(0).getJobId());
 
 		// find all the states by for the job
-		List <Statejob> siblingStatejobs = statejobService.findByMap(m);
+		List <Statejob> siblingStatejobs = statejobDao.findByMap(m);
 
 		for (Statejob stateJob: siblingStatejobs) {
 

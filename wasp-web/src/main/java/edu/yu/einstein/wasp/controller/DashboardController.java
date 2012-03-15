@@ -10,17 +10,16 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import edu.yu.einstein.wasp.model.Job;
-import edu.yu.einstein.wasp.model.JobDraft;
+import edu.yu.einstein.wasp.dao.DepartmentDao;
+import edu.yu.einstein.wasp.dao.JobDao;
+import edu.yu.einstein.wasp.dao.JobDraftDao;
+import edu.yu.einstein.wasp.dao.LabDao;
+import edu.yu.einstein.wasp.dao.LabPendingDao;
+import edu.yu.einstein.wasp.dao.TaskDao;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.TaskMapping;
 import edu.yu.einstein.wasp.service.AuthenticationService;
-import edu.yu.einstein.wasp.service.DepartmentService;
-import edu.yu.einstein.wasp.service.JobDraftService;
-import edu.yu.einstein.wasp.service.JobService;
-import edu.yu.einstein.wasp.service.LabPendingService;
-import edu.yu.einstein.wasp.service.LabService;
 import edu.yu.einstein.wasp.service.TaskService;
 
 @Controller
@@ -28,22 +27,25 @@ import edu.yu.einstein.wasp.service.TaskService;
 public class DashboardController extends WaspController {
 
 	@Autowired
-	private DepartmentService departmentService;
+	private DepartmentDao departmentDao;
 
 	@Autowired
-	private LabService labService;
+	private LabDao labDao;
 
 	@Autowired
-	private JobService jobService;
+	private JobDao jobDao;
 
 	@Autowired
-	private JobDraftService jobDraftService;
+	private JobDraftDao jobDraftDao;
 
 	@Autowired
 	private AuthenticationService authenticationService;
 
 	@Autowired
-	private LabPendingService labPendingService;
+	private LabPendingDao labPendingDao;
+	
+	@Autowired
+	private TaskDao taskDao;
 	
 	@Autowired
 	private TaskService taskService;
@@ -69,7 +71,7 @@ public class DashboardController extends WaspController {
 
 		
 		
-		//List<State> states=taskService.getStatesByTaskMappingRule(taskService.findById(1), "CREATED");
+		//List<State> states=taskDao.getStatesByTaskMappingRule(taskDao.findById(1), "CREATED");
 		
 		
 		for (String role: authenticationService.getRoles()) {			
@@ -91,17 +93,17 @@ public class DashboardController extends WaspController {
 
 			// adds the role object to the proper bucket
 			switch (entityRolename) {
-				////case da: /* departmentList.add(departmentService.getDepartmentByDepartmentId(roleObjectId)); break; */ 
-				case lu: labList.add(labService.getLabByLabId(roleObjectId)); labMap.put(roleObjectId, labService.getLabManagerPendingTasks(roleObjectId));break;
+				////case da: /* departmentList.add(departmentDao.getDepartmentByDepartmentId(roleObjectId)); break; */ 
+				case lu: labList.add(labDao.getLabByLabId(roleObjectId)); labMap.put(roleObjectId, taskService.getLabManagerPendingTasks(roleObjectId));break;
 				case jv: jobViewableCount++; break;
 				case jd: jobDraftCount++; break;
 			}
 		}
-		jobsAllCount = jobService.findAll().size();
+		jobsAllCount = jobDao.findAll().size();
 		m.addAttribute("me", authenticationService.getAuthenticatedUser());
 		
 		//m.addAttribute("departments", departmentList);  //no longer needed
-		departmentAdminPendingTasks = departmentService.getDepartmentAdminPendingTasks();//number of da pending tasks (if su or ga, then department not considered)	
+		departmentAdminPendingTasks = taskService.getDepartmentAdminPendingTasks();//number of da pending tasks (if su or ga, then department not considered)	
 		m.addAttribute("departmentAdminPendingTasks", departmentAdminPendingTasks);		
 		
 		m.addAttribute("labs", labList);
@@ -110,13 +112,13 @@ public class DashboardController extends WaspController {
 		m.addAttribute("jobsAllCount", jobsAllCount);
 		m.addAttribute("jobDraftCount", jobDraftCount);	
 		if(authenticationService.isSuperUser() || authenticationService.hasRole("ga")){
-			allLabManagerPendingTasks = labService.getAllLabManagerPendingTasks();
+			allLabManagerPendingTasks = taskService.getAllLabManagerPendingTasks();
 		}
 		m.addAttribute("allLabManagerPendingTasks", allLabManagerPendingTasks);
 		
 		List<TaskMapping> taskMappings= new ArrayList<TaskMapping>();
 	
-		List<TaskMapping> taskMappingsAll=taskService.getTaskMappings();
+		List<TaskMapping> taskMappingsAll=taskDao.getTaskMappings();
 		for(TaskMapping tm:taskMappingsAll) {
 			List<State> states=taskService.filterStatesByStatusAndPermission(tm.getTask().getState(),tm.getStatus(), tm.getPermission());
 		

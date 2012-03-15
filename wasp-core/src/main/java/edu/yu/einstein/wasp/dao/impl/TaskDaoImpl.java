@@ -20,10 +20,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.yu.einstein.wasp.dao.StateDao;
 import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.Task;
 import edu.yu.einstein.wasp.model.TaskMapping;
-import edu.yu.einstein.wasp.service.StateService;
 
 @SuppressWarnings("unchecked")
 @Transactional
@@ -31,7 +31,7 @@ import edu.yu.einstein.wasp.service.StateService;
 public class TaskDaoImpl extends WaspDaoImpl<Task> implements edu.yu.einstein.wasp.dao.TaskDao {
 
 	@Autowired
-	StateService stateService;
+	StateDao stateDao;
 
 	/**
 	 * TaskDaoImpl() Constructor
@@ -103,7 +103,7 @@ public class TaskDaoImpl extends WaspDaoImpl<Task> implements edu.yu.einstein.wa
     		Map m = new HashMap();
 		m.put("taskId", t.getTaskId());
 		m.put("status", status);
-		List<State> rt = stateService.findByMap(m);
+		List<State> rt = stateDao.findByMap(m);
 		return rt;
 	}
 

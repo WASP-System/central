@@ -12,26 +12,25 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import util.spring.PostInitialize;
+import edu.yu.einstein.wasp.dao.ResourceCategoryDao;
+import edu.yu.einstein.wasp.dao.SoftwareDao;
+import edu.yu.einstein.wasp.dao.SubtypeSampleDao;
+import edu.yu.einstein.wasp.dao.TypeResourceDao;
+import edu.yu.einstein.wasp.dao.WorkflowDao;
+import edu.yu.einstein.wasp.dao.WorkflowMetaDao;
+import edu.yu.einstein.wasp.dao.WorkflowSoftwareDao;
+import edu.yu.einstein.wasp.dao.WorkflowresourcecategoryDao;
+import edu.yu.einstein.wasp.dao.WorkflowsubtypesampleDao;
+import edu.yu.einstein.wasp.dao.WorkflowtyperesourceDao;
 import edu.yu.einstein.wasp.exception.NullSubtypeSampleException;
 import edu.yu.einstein.wasp.exception.NullTypeResourceException;
 import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.model.SubtypeSample;
-import edu.yu.einstein.wasp.model.TypeResource;
 import edu.yu.einstein.wasp.model.Workflow;
 import edu.yu.einstein.wasp.model.WorkflowMeta;
 import edu.yu.einstein.wasp.model.Workflowsubtypesample;
 import edu.yu.einstein.wasp.model.Workflowtyperesource;
-import edu.yu.einstein.wasp.service.ResourceCategoryService;
-import edu.yu.einstein.wasp.service.SoftwareService;
-import edu.yu.einstein.wasp.service.SubtypeSampleService;
-import edu.yu.einstein.wasp.service.TypeResourceService;
-import edu.yu.einstein.wasp.service.WorkflowMetaService;
-import edu.yu.einstein.wasp.service.WorkflowService;
-import edu.yu.einstein.wasp.service.WorkflowSoftwareService;
-import edu.yu.einstein.wasp.service.WorkflowresourcecategoryService;
-import edu.yu.einstein.wasp.service.WorkflowsubtypesampleService;
-import edu.yu.einstein.wasp.service.WorkflowtyperesourceService;
 
 
 /**
@@ -50,34 +49,34 @@ import edu.yu.einstein.wasp.service.WorkflowtyperesourceService;
 public class WorkflowLoadService extends WaspLoadService {
 
   @Autowired
-  private WorkflowService workflowService;
+  private WorkflowDao workflowDao;
 
   @Autowired
-  private WorkflowMetaService workflowMetaService;
+  private WorkflowMetaDao workflowMetaDao;
 
   @Autowired
-  private SubtypeSampleService subtypeSampleService;
+  private SubtypeSampleDao subtypeSampleDao;
   
   @Autowired
-  private SoftwareService softwareService;
+  private SoftwareDao softwareDao;
   
   @Autowired
-  private ResourceCategoryService resourceCategoryService;
+  private ResourceCategoryDao resourceCategoryDao;
   
   @Autowired
-  private WorkflowresourcecategoryService workflowResourceCategoryService;
+  private WorkflowresourcecategoryDao workflowResourceCategoryDao;
   
   @Autowired
-  private WorkflowSoftwareService workflowSoftwareService;
+  private WorkflowSoftwareDao workflowSoftwareDao;
 
   @Autowired
-  private WorkflowsubtypesampleService workflowsubtypesampleService;
+  private WorkflowsubtypesampleDao workflowsubtypesampleDao;
 
   @Autowired
-  private WorkflowtyperesourceService workflowtyperesourceService;
+  private WorkflowtyperesourceDao workflowtyperesourceDao;
 
   @Autowired
-  TypeResourceService typeResourceService;
+  TypeResourceDao typeResourceDao;
 
   private List<String> pageFlowOrder; 
   public void setPageFlowOrder(List<String> pageFlowOrder) {this.pageFlowOrder = pageFlowOrder; }
@@ -109,7 +108,7 @@ public class WorkflowLoadService extends WaspLoadService {
     if (iname == null) { return; }
     if (isActive == null)
   	  isActive = 1;
-    Workflow workflow = workflowService.getWorkflowByIName(iname); 
+    Workflow workflow = workflowDao.getWorkflowByIName(iname); 
     
     // update dependencies
     Map<String,Workflowtyperesource> oldWorkflowTypeResources = new HashMap<String, Workflowtyperesource>();
@@ -118,18 +117,18 @@ public class WorkflowLoadService extends WaspLoadService {
     }
     List<Integer> typeResourceIdList = new ArrayList<Integer>();
     for (String dependency: safeList(dependencies)) { 
-      Integer typeResourceId = typeResourceService.getTypeResourceByIName(dependency).getTypeResourceId();
+      Integer typeResourceId = typeResourceDao.getTypeResourceByIName(dependency).getTypeResourceId();
       if (typeResourceId == null){
     	// the specified resourceType does not exist!!
     	  throw new NullTypeResourceException();
       }
       
-      Workflowtyperesource workflowtyperesource = workflowtyperesourceService.getWorkflowtyperesourceByWorkflowIdTypeResourceId(workflow.getWorkflowId(), typeResourceId);
+      Workflowtyperesource workflowtyperesource = workflowtyperesourceDao.getWorkflowtyperesourceByWorkflowIdTypeResourceId(workflow.getWorkflowId(), typeResourceId);
 	  if (workflowtyperesource.getWorkflowtyperesourceId() == null){
 		  // doesn't exist so create and save
 	      workflowtyperesource.setWorkflowId(workflow.getWorkflowId()); 
 	      workflowtyperesource.setTypeResourceId(typeResourceId); 
-	      workflowtyperesourceService.save(workflowtyperesource);
+	      workflowtyperesourceDao.save(workflowtyperesource);
 	  } else {
 		  // already exists
 		  oldWorkflowTypeResources.remove(workflowtyperesource.getWorkflowtyperesourceId().toString());
@@ -137,8 +136,8 @@ public class WorkflowLoadService extends WaspLoadService {
     }
     // remove old no longer used dependencies
     for (String key : oldWorkflowTypeResources.keySet()){
-  	  workflowtyperesourceService.remove(oldWorkflowTypeResources.get(key));
-  	  workflowtyperesourceService.flush(oldWorkflowTypeResources.get(key));
+  	  workflowtyperesourceDao.remove(oldWorkflowTypeResources.get(key));
+  	  workflowtyperesourceDao.flush(oldWorkflowTypeResources.get(key));
     } 
     
     for (Integer typeResourceId : typeResourceIdList){
@@ -150,16 +149,16 @@ public class WorkflowLoadService extends WaspLoadService {
         dependencyQueryMap.put("typeresourceid", typeResourceId);
         dependencyQueryMap.put("isactive", 1);
         Boolean isActiveDependencyMatch = false; 
-        for (Software dependency : (List<Software>) softwareService.findByMap(dependencyQueryMap)){
-      	  if (workflowSoftwareService.getWorkflowSoftwareByWorkflowIdSoftwareId(workflow.getWorkflowId(), dependency.getSoftwareId()).getWorkflowSoftwareId() != null){
+        for (Software dependency : softwareDao.findByMap(dependencyQueryMap)){
+      	  if (workflowSoftwareDao.getWorkflowSoftwareByWorkflowIdSoftwareId(workflow.getWorkflowId(), dependency.getSoftwareId()).getWorkflowSoftwareId() != null){
       		isActiveDependencyMatch = true;
       		break;
       	  }
         }
         if (isActiveDependencyMatch)
         	continue;
-        for (ResourceCategory dependency : (List<ResourceCategory>) resourceCategoryService.findByMap(dependencyQueryMap)){
-        	  if (workflowResourceCategoryService
+        for (ResourceCategory dependency : resourceCategoryDao.findByMap(dependencyQueryMap)){
+        	  if (workflowResourceCategoryDao
         			  .getWorkflowresourcecategoryByWorkflowIdResourcecategoryId(workflow.getWorkflowId(), dependency.getResourceCategoryId())
         			  .getResourcecategoryId() != null){
         		  isActiveDependencyMatch = true;
@@ -182,10 +181,10 @@ public class WorkflowLoadService extends WaspLoadService {
       workflow.setIsActive(isActive); // only set to active when all dependencies configured by admin
       workflow.setCreatets(new Date());
 
-      workflowService.save(workflow); 
+      workflowDao.save(workflow); 
 
       // refreshes
-      workflow = workflowService.getWorkflowByIName(iname); 
+      workflow = workflowDao.getWorkflowByIName(iname); 
 
     } else {
     	boolean changed = false;	
@@ -198,7 +197,7 @@ public class WorkflowLoadService extends WaspLoadService {
       	  	changed = true;
         }
         if (changed)
-      	  workflowService.save(workflow); 
+      	  workflowDao.save(workflow); 
     }
 
     // updates uiFields
@@ -240,7 +239,7 @@ public class WorkflowLoadService extends WaspLoadService {
         	changed = true;
         }
         if (changed)
-        	workflowMetaService.save(old);
+        	workflowMetaDao.save(old);
 
         oldWorkflowMetas.remove(old.getK()); // remove this key from the old meta list as we're done with it
         continue;
@@ -248,14 +247,14 @@ public class WorkflowLoadService extends WaspLoadService {
       // current meta key does not exist in db already. Save this new metadata
       workflowMeta.setWorkflowId(workflow.getWorkflowId());
       workflowMeta.setPosition(1);
-      workflowMetaService.save(workflowMeta);
+      workflowMetaDao.save(workflowMeta);
     }
 
     // delete the left overs
     for (String workflowMetaKey : oldWorkflowMetas.keySet()) {
       WorkflowMeta workflowMeta = oldWorkflowMetas.get(workflowMetaKey);
-      workflowMetaService.remove(workflowMeta);
-      workflowMetaService.flush(workflowMeta);
+      workflowMetaDao.remove(workflowMeta);
+      workflowMetaDao.flush(workflowMeta);
     }
 
 
@@ -271,7 +270,7 @@ public class WorkflowLoadService extends WaspLoadService {
     pageFlowWorkflowMeta.setV(pageFlowString);
     pageFlowWorkflowMeta.setPosition(0);
 
-    workflowMetaService.save(pageFlowWorkflowMeta);
+    workflowMetaDao.save(pageFlowWorkflowMeta);
 
      
     // allowable subtype samples
@@ -292,20 +291,20 @@ public class WorkflowLoadService extends WaspLoadService {
 	      }
 	
 	      // else remove from db
-	      workflowsubtypesampleService.remove(Workflowsubtypesample);
-	      workflowsubtypesampleService.flush(Workflowsubtypesample);
+	      workflowsubtypesampleDao.remove(Workflowsubtypesample);
+	      workflowsubtypesampleDao.flush(Workflowsubtypesample);
 	    }
     }
 
     // the leftovers were not in the db so create
     for (String subtypeSampleIName: safeSet(subtypeSamples)) {
-      SubtypeSample subtypeSample = subtypeSampleService.getSubtypeSampleByIName(subtypeSampleIName);
+      SubtypeSample subtypeSample = subtypeSampleDao.getSubtypeSampleByIName(subtypeSampleIName);
       if (subtypeSample.getSubtypeSampleId() != null){
 	      Workflowsubtypesample newWorkflowsubtypesample = new Workflowsubtypesample();
 	      newWorkflowsubtypesample.setWorkflowId(workflow.getWorkflowId()); 
 	      newWorkflowsubtypesample.setSubtypeSampleId(subtypeSample.getSubtypeSampleId());
 	
-	      workflowsubtypesampleService.save(newWorkflowsubtypesample);
+	      workflowsubtypesampleDao.save(newWorkflowsubtypesample);
       } else {
     	  // the specified subtypesample does not exist!!
     	  throw new NullSubtypeSampleException();

@@ -24,11 +24,11 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 
+import edu.yu.einstein.wasp.dao.DepartmentDao;
+import edu.yu.einstein.wasp.dao.UserDao;
 import edu.yu.einstein.wasp.model.Department;
 import edu.yu.einstein.wasp.model.MetaAttribute.Country;
 import edu.yu.einstein.wasp.model.MetaAttribute.State;
-import edu.yu.einstein.wasp.service.DepartmentService;
-import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.taglib.ErrorMessageTag;
 import edu.yu.einstein.wasp.taglib.MessageTag;
 
@@ -48,17 +48,17 @@ public class WaspController {
 
 
   @Autowired
-  private DepartmentService departmentService;
+  private DepartmentDao departmentDao;
     
-  public DepartmentService getDepartmentService() {
-	return departmentService;
+  public DepartmentDao getDepartmentDao() {
+	return departmentDao;
   }
   
 @Autowired
   private UserDetailsService userDetailsService;
 
   @Autowired
-  protected UserService userService;
+  protected UserDao userDao;
 
   @Autowired
   protected HttpServletRequest request;
@@ -77,8 +77,8 @@ public class WaspController {
     m.addAttribute("countries", Country.getList());
     m.addAttribute("states", State.getList());
     m.addAttribute("locales", LOCALES);
-    m.addAttribute("departments", strip(departmentService.findAll()));
-    //m.addAttribute("deptService", departmentService);
+    m.addAttribute("departments", strip(departmentDao.findAll()));
+    //m.addAttribute("deptDao", departmentDao);
    
   }
 

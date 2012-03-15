@@ -6,9 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import edu.yu.einstein.wasp.exception.MetaClassNotFoundException;
-import edu.yu.einstein.wasp.exception.UiFieldParseException;
 import edu.yu.einstein.wasp.model.MetaBase;
-import edu.yu.einstein.wasp.model.UiField;
 
 public class MetaLoadWrapper {
 

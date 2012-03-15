@@ -2,121 +2,93 @@ package edu.yu.einstein.wasp.controller;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
+import edu.yu.einstein.wasp.dao.AcctQuoteDao;
+import edu.yu.einstein.wasp.dao.JobCellDao;
+import edu.yu.einstein.wasp.dao.JobDao;
+import edu.yu.einstein.wasp.dao.JobUserDao;
+import edu.yu.einstein.wasp.dao.RoleDao;
+import edu.yu.einstein.wasp.dao.StateDao;
+import edu.yu.einstein.wasp.dao.TaskDao;
+import edu.yu.einstein.wasp.dao.WorkflowresourcecategoryDao;
 import edu.yu.einstein.wasp.model.AcctQuote;
 import edu.yu.einstein.wasp.model.AcctQuoteMeta;
-import edu.yu.einstein.wasp.model.Job;
-import edu.yu.einstein.wasp.model.JobCell;
-import edu.yu.einstein.wasp.model.JobFile;
-import edu.yu.einstein.wasp.model.JobMeta;
-import edu.yu.einstein.wasp.model.JobResourcecategory;
-import edu.yu.einstein.wasp.model.JobSample;
-import edu.yu.einstein.wasp.model.JobSoftware;
-import edu.yu.einstein.wasp.model.JobUser;
-import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.MetaBase;
-import edu.yu.einstein.wasp.model.ResourceCategory;
-import edu.yu.einstein.wasp.model.Role;
-import edu.yu.einstein.wasp.model.Sample;
-import edu.yu.einstein.wasp.model.SampleCell;
-import edu.yu.einstein.wasp.model.Software;
-import edu.yu.einstein.wasp.model.State;
-import edu.yu.einstein.wasp.model.Statejob;
-import edu.yu.einstein.wasp.model.Statesample;
-import edu.yu.einstein.wasp.model.Task;
 import edu.yu.einstein.wasp.model.User;
-import edu.yu.einstein.wasp.model.Workflowresourcecategory;
-import edu.yu.einstein.wasp.model.WorkflowresourcecategoryMeta;
-import edu.yu.einstein.wasp.service.AcctQuoteService;
-import edu.yu.einstein.wasp.service.JobService;
-import edu.yu.einstein.wasp.service.JobCellService;
-import edu.yu.einstein.wasp.service.JobUserService;
-import edu.yu.einstein.wasp.service.RoleService;
-import edu.yu.einstein.wasp.service.StateService;
-import edu.yu.einstein.wasp.service.TaskService;
-import edu.yu.einstein.wasp.service.WorkflowresourcecategoryService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 import edu.yu.einstein.wasp.util.MetaHelper;
-import edu.yu.einstein.wasp.util.StringHelper;
 
 @Controller
 @Transactional
 @RequestMapping("/acctquote")
 public class AcctQuoteController extends WaspController {
 	
-	private AcctQuoteService acctQuoteService;
+	private AcctQuoteDao acctQuoteDao;
 
 	@Autowired
-	public void setacctQuoteService(AcctQuoteService aqService) {
-		this.acctQuoteService = aqService;
+	public void setacctQuoteDao(AcctQuoteDao aqDao) {
+		this.acctQuoteDao = aqDao;
 	}
 
-	public AcctQuoteService getacctQuoteService() {
-		return this.acctQuoteService;
+	public AcctQuoteDao getacctQuoteDao() {
+		return this.acctQuoteDao;
 	}
 	
-	private JobService	jobService;
+	private JobDao	jobDao;
 
 	@Autowired
-	public void setJobService(JobService jobService) {
-		this.jobService = jobService;
+	public void setJobDao(JobDao jobDao) {
+		this.jobDao = jobDao;
 	}
 
-	public JobService getJobService() {
-		return this.jobService;
+	public JobDao getJobDao() {
+		return this.jobDao;
 	}
 
-	private JobUserService	jobUserService;
+	private JobUserDao	jobUserDao;
 
 	@Autowired
-	public void setJobUserService(JobUserService jobUserService) {
-		this.jobUserService = jobUserService;
+	public void setJobUserDao(JobUserDao jobUserDao) {
+		this.jobUserDao = jobUserDao;
 	}
 
-	public JobUserService getJobUserService() {
-		return this.jobUserService;
+	public JobUserDao getJobUserDao() {
+		return this.jobUserDao;
 	}
 
-	private RoleService	roleService;
+	private RoleDao	roleDao;
 
 	@Autowired
-	public void setJobUserService(RoleService roleService) {
-		this.roleService = roleService;
+	public void setJobUserDao(RoleDao roleDao) {
+		this.roleDao = roleDao;
 	}
 
-	public RoleService getRoleUserService() {
-		return this.roleService;
+	public RoleDao getRoleUserDao() {
+		return this.roleDao;
 	}
 
 	@Autowired
-	private TaskService		taskService;
+	private TaskDao		taskDao;
 	@Autowired
-	private StateService	stateService;
+	private StateDao	stateDao;
 	@Autowired
-	private WorkflowresourcecategoryService workflowresourcecategoryService;
+	private WorkflowresourcecategoryDao workflowresourcecategoryDao;
 	@Autowired
-	private JobCellService jobCellService;
+	private JobCellDao jobCellDao;
 
 	private final MetaHelperWebapp getMetaHelperWebapp() {
 		return new MetaHelperWebapp("acctQuote", AcctQuoteMeta.class, request.getSession());
@@ -153,7 +125,7 @@ public class AcctQuoteController extends WaspController {
 		List<AcctQuote> jobQuoteList;
 		
 		if (!search.equals("true")	&& StringUtils.isEmpty(userId)) {
-			jobQuoteList = sidx.isEmpty() ? this.acctQuoteService.findAll() : this.acctQuoteService.findAllOrderBy(sidx, sord);
+			jobQuoteList = sidx.isEmpty() ? this.acctQuoteDao.findAll() : this.acctQuoteDao.findAllOrderBy(sidx, sord);
 		} else {
 			Map m = new HashMap();
 
@@ -166,7 +138,7 @@ public class AcctQuoteController extends WaspController {
 //			if (!labId.isEmpty())
 //				m.put("labId", Integer.parseInt(labId));
 
-			jobQuoteList = this.acctQuoteService.findByMap(m);
+			jobQuoteList = this.acctQuoteDao.findByMap(m);
 		}
 
 		try {
@@ -194,7 +166,7 @@ public class AcctQuoteController extends WaspController {
 			if(!StringUtils.isEmpty(request.getParameter("selId")))
 			{
 				int selId = Integer.parseInt(request.getParameter("selId"));
-				int selIndex = jobQuoteList.indexOf(jobService.findById(selId));
+				int selIndex = jobQuoteList.indexOf(jobDao.findById(selId));
 				frId = selIndex;
 				toId = frId + 1;
 
@@ -210,7 +182,7 @@ public class AcctQuoteController extends WaspController {
 				 
 				List<AcctQuoteMeta> quoteMeta = getMetaHelperWebapp().syncWithMaster(quote.getAcctQuoteMeta());
 				
-				User user = userService.getById(quote.getJob().getUserId());
+				User user = userDao.getById(quote.getJob().getUserId());
 				 					
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 							quote.getJob().getName(),

@@ -1,21 +1,15 @@
 package edu.yu.einstein.wasp.batch;
 
-import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Date;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.batch.core.StepExecution;
-import org.springframework.batch.core.StepExecutionListener;
-import org.springframework.batch.core.ItemProcessListener;
-import org.springframework.batch.core.ExitStatus;
 
+import edu.yu.einstein.wasp.dao.StaterunDao;
 import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.Staterun;
-import edu.yu.einstein.wasp.service.StateService;
-import edu.yu.einstein.wasp.service.StaterunService;
 
 /**
  * Wait for State
@@ -32,19 +26,19 @@ import edu.yu.einstein.wasp.service.StaterunService;
 public class WaitForSiblingRunStateProcessor extends WaspWaitForSiblingStateProcessor<Staterun> {
 
 	@Autowired
-	StaterunService staterunService;
+	StaterunDao staterunDao;
 
 	@Override
 	public String process(Object stateId) throws Exception {
 
-		State state = stateService.getStateByStateId(((Integer) stateId).intValue());
+		State state = stateDao.getStateByStateId(((Integer) stateId).intValue());
 		List <Staterun> staterun = state.getStaterun();
 
 		// TODO npe check
 
 		Map m = new HashMap();
 		m.put("runId", staterun.get(0).getRunId());
-		List<Staterun> siblingStateEntities= staterunService.findByMap(m);
+		List<Staterun> siblingStateEntities= staterunDao.findByMap(m);
 
 		return handleSiblings(siblingStateEntities);
 

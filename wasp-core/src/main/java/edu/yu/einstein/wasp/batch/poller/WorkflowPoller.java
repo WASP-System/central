@@ -8,12 +8,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.batch.TaskStatus;
+import edu.yu.einstein.wasp.dao.StateDao;
+import edu.yu.einstein.wasp.dao.TaskDao;
+import edu.yu.einstein.wasp.dao.WorkflowDao;
 import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.Task;
 import edu.yu.einstein.wasp.model.Workflow;
-import edu.yu.einstein.wasp.service.StateService;
-import edu.yu.einstein.wasp.service.TaskService;
-import edu.yu.einstein.wasp.service.WorkflowService;
 
 /**
  * Workflow Poller
@@ -25,13 +25,13 @@ import edu.yu.einstein.wasp.service.WorkflowService;
 public class WorkflowPoller {
 
 	@Autowired
-	StateService stateService;
+	StateDao stateDao;
 
 	@Autowired
-	TaskService taskService;
+	TaskDao taskDao;
 
 	@Autowired
-	WorkflowService workflowService;
+	WorkflowDao workflowDao;
  
 	protected String workflowIName; 
 	public void setWorkflowIName(String s) {
@@ -46,9 +46,9 @@ public class WorkflowPoller {
  
 	@Transactional
 	public List<State> getStates() {
-		Workflow workflow = workflowService.getWorkflowByIName(workflowIName);
+		Workflow workflow = workflowDao.getWorkflowByIName(workflowIName);
 
-		Task task = taskService.getTaskByIName(taskIName); 
+		Task task = taskDao.getTaskByIName(taskIName); 
 
 		List<State> rt = new ArrayList<State>();
 

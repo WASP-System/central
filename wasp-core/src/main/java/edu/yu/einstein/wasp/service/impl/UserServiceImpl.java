@@ -10,63 +10,35 @@
  **/
 
 package edu.yu.einstein.wasp.service.impl;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import edu.yu.einstein.wasp.dao.ConfirmEmailAuthDao;
 import edu.yu.einstein.wasp.dao.UserDao;
+import edu.yu.einstein.wasp.model.ConfirmEmailAuth;
 import edu.yu.einstein.wasp.model.User;
-import edu.yu.einstein.wasp.model.Workflow;
-import edu.yu.einstein.wasp.service.ConfirmEmailAuthService;
+import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.service.UserService;
+import edu.yu.einstein.wasp.util.AuthCode;
 
 @Service
-public class UserServiceImpl extends WaspServiceImpl<User> implements UserService {
+public class UserServiceImpl extends WaspServiceImpl implements UserService {
 	
-  @Autowired
-  private ConfirmEmailAuthService confirmEmailAuthService;
-  
-//  @Autowired
-//  private EmailService emailService;
-	
-  private UserDao userDao;
+ private UserDao userDao;
   @Override
 @Autowired
   public void setUserDao(UserDao userDao) {
     this.userDao = userDao;
-    this.setWaspDao(userDao);
   }
   @Override
 public UserDao getUserDao() {
     return this.userDao;
   }
-
-  // **
-
   
-  @Override
-public User getUserByUserId (final int UserId) {
-    return this.getUserDao().getUserByUserId(UserId);
-  }
+  @Autowired
+  private ConfirmEmailAuthDao confirmEmailAuthDao;
 
-  @Override
-public User getUserByLogin (final String login) {
-    return this.getUserDao().getUserByLogin(login);
-  }
-
-  @Override
-public User getUserByEmail (final String email) {
-    return this.getUserDao().getUserByEmail(email);
-  }
-  
- /* public boolean loginExists(final String login, final Integer excludeUserId){
-	  return  this.getUserDao().loginExists(login, excludeUserId);
-  }*/
   
   @Override
 public String getUniqueLoginName(final User user){
@@ -86,19 +58,32 @@ public String getUniqueLoginName(final User user){
 		loginBase = loginBase.replaceAll("[^\\w-]", "").toLowerCase();
 		String login = loginBase;
 		int c = 1;
-		while (this.getUserByLogin(login).getUserId() != null) {
+		while (userDao.getUserByLogin(login).getUserId() != null) {
 			login = loginBase + c;
 			c++;
 		}
 		return login;
   }
   
-  @Override
-  public List<User> getActiveUsers(){
-	  Map queryMap = new HashMap();
-	  queryMap.put("isActive", 1);
-	  return this.findByMap(queryMap);
-  }
+	@Override
+	public String getNewAuthcodeForUser(User user) {
+		String authcode = AuthCode.create(20);
+		ConfirmEmailAuth confirmEmailAuth = confirmEmailAuthDao.getConfirmEmailAuthByUserId(user.getUserId());
+		confirmEmailAuth.setAuthcode(authcode);
+		confirmEmailAuth.setUserId(user.getUserId());
+		confirmEmailAuthDao.save(confirmEmailAuth);
+		return authcode;
+	}
+	
+	@Override
+	public String getNewAuthcodeForUserPending(UserPending userpending) {
+		String authcode = AuthCode.create(20);
+		ConfirmEmailAuth confirmEmailAuth = confirmEmailAuthDao.getConfirmEmailAuthByUserpendingId(userpending.getUserPendingId());
+		confirmEmailAuth.setAuthcode(authcode);
+		confirmEmailAuth.setUserpendingId(userpending.getUserPendingId());
+		confirmEmailAuthDao.save(confirmEmailAuth);
+		return authcode;
+	}
 
   
 }

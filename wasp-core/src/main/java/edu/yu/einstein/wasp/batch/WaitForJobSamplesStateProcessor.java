@@ -9,11 +9,11 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import edu.yu.einstein.wasp.dao.StateDao;
+import edu.yu.einstein.wasp.dao.StatejobDao;
+import edu.yu.einstein.wasp.dao.StatesampleDao;
 import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.Statejob;
-import edu.yu.einstein.wasp.service.StateService;
-import edu.yu.einstein.wasp.service.StatejobService;
-import edu.yu.einstein.wasp.service.StatesampleService;
 
 /**
  * Wait for Child Sample State
@@ -28,13 +28,13 @@ import edu.yu.einstein.wasp.service.StatesampleService;
 public class WaitForJobSamplesStateProcessor implements ItemProcessor {
 
 	@Autowired
-	StateService stateService;
+	StateDao stateDao;
 
 	@Autowired
-	StatesampleService statesampleService;
+	StatesampleDao statesampleDao;
 
 	@Autowired
-	StatejobService statejobService;
+	StatejobDao statejobDao;
 
 	String jobTask; 
 	public void setJobTask(String jobTask) {
@@ -65,7 +65,7 @@ public class WaitForJobSamplesStateProcessor implements ItemProcessor {
 
 	@Override
 	public State process(Object stateId) throws Exception {	
-		State state = stateService.getStateByStateId(((Integer) stateId).intValue());
+		State state = stateDao.getStateByStateId(((Integer) stateId).intValue());
 		// TODO npe check
 
 		// check job state
@@ -78,7 +78,7 @@ public class WaitForJobSamplesStateProcessor implements ItemProcessor {
 		m.put("jobId", statejob.get(0).getJobId());
 
 		// 
-		List <Statejob> siblingStatejobs = statejobService.findByMap(m);
+		List <Statejob> siblingStatejobs = statejobDao.findByMap(m);
 
 		boolean foundOther = false; 
 		for (Statejob siblingStatejob: siblingStatejobs) {
@@ -102,10 +102,10 @@ public class WaitForJobSamplesStateProcessor implements ItemProcessor {
 				if (! siblingStatejob.getState().getTask().getIName().equals(sampleTask)) {
 					continue; 
 				}
-				State siblingState = stateService.findById(siblingStatejob.getStateId());
+				State siblingState = stateDao.findById(siblingStatejob.getStateId());
 				siblingState.setStatus(targetSampleStatus);
 				siblingState.setEndts(new Date());
-				stateService.save(siblingState);
+				stateDao.save(siblingState);
 			}
 		}
 
@@ -113,7 +113,7 @@ public class WaitForJobSamplesStateProcessor implements ItemProcessor {
 		if (targetJobStatus != null) {
 			state.setStatus(targetJobStatus);
 			state.setEndts(new Date());
-			stateService.save(state);
+			stateDao.save(state);
 		}
 
 		return state;

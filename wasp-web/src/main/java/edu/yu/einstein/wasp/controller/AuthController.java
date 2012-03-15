@@ -18,15 +18,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import edu.yu.einstein.wasp.dao.ConfirmEmailAuthDao;
+import edu.yu.einstein.wasp.dao.UserDao;
+import edu.yu.einstein.wasp.dao.UserpasswordauthDao;
 import edu.yu.einstein.wasp.model.ConfirmEmailAuth;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Userpasswordauth;
 import edu.yu.einstein.wasp.service.AuthenticationService;
-import edu.yu.einstein.wasp.service.ConfirmEmailAuthService;
 import edu.yu.einstein.wasp.service.EmailService;
-import edu.yu.einstein.wasp.service.PasswordService;
-import edu.yu.einstein.wasp.service.UserService;
-import edu.yu.einstein.wasp.service.UserpasswordauthService;
 import edu.yu.einstein.wasp.util.AuthCode;
 import edu.yu.einstein.wasp.util.StringHelper;
 
@@ -37,16 +36,14 @@ import edu.yu.einstein.wasp.util.StringHelper;
 public class AuthController extends WaspController {
 
   @Autowired
-  private UserpasswordauthService userpasswordauthService;
+  private UserpasswordauthDao userpasswordauthDao;
 
   @Autowired
   private EmailService emailService;
 
-  @Autowired
-  private PasswordService passwordService;
   
   @Autowired
-  private UserService userService;
+  private UserDao userDao;
   
   @Autowired
   private BeanValidator validator;
@@ -55,7 +52,7 @@ public class AuthController extends WaspController {
   private AuthenticationService authenticationService;
   
   @Autowired
-  private ConfirmEmailAuthService confirmEmailAuthService;
+  private ConfirmEmailAuthDao confirmEmailAuthDao;
   
   @Override
 @InitBinder
@@ -67,7 +64,7 @@ public class AuthController extends WaspController {
   public String loginHandler(ModelMap m){
 	  if (authenticationService.isAuthenticated()){
 		  User authUser = authenticationService.getAuthenticatedUser();
-		  ConfirmEmailAuth confirmEmailAuth = confirmEmailAuthService.getConfirmEmailAuthByUserId(authUser.getUserId());
+		  ConfirmEmailAuth confirmEmailAuth = confirmEmailAuthDao.getConfirmEmailAuthByUserId(authUser.getUserId());
 		  if (confirmEmailAuth.getConfirmEmailAuthId() != null){
 			  // email awaiting confirmation for this user
 			  authenticationService.logoutUser();
@@ -110,12 +107,12 @@ public class AuthController extends WaspController {
 		  return "auth/confirmemail/requestEmailChange";
 	  }
 	  //update user with new email address
-	  User user = userService.getUserByLogin(loginName);
+	  User user = userDao.getUserByLogin(loginName);
 	  user.setEmail(email);
-	  User userDb = userService.merge(user);
+	  User userDb = userDao.merge(user);
 	  
 	  // email user with new authcode
-	  emailService.sendUserEmailConfirm(userDb, confirmEmailAuthService.getNewAuthcodeForUser(userDb));
+	  emailService.sendUserEmailConfirm(userDb, emailService.getNewAuthcodeForUser(userDb));
 	  return "redirect:/auth/confirmemail/emailchanged.do";
   }
 
@@ -128,7 +125,7 @@ public class AuthController extends WaspController {
   @RequestMapping(value="/resetpassword/request", method=RequestMethod.POST)
   public String forgotPassword(@RequestParam("username") String username, @RequestParam("captcha_text") String captchaText, ModelMap m) {
 
-	  User user=userService.getUserByLogin(username);
+	  User user=userDao.getUserByLogin(username);
 	  Captcha captcha = (Captcha) request.getSession().getAttribute(Captcha.NAME);
 	  
 	  if (username == null || captchaText == null || username.equals("") || captchaText.equals(""))
@@ -162,7 +159,7 @@ public class AuthController extends WaspController {
 		  return "auth/resetpassword/authcodeform";
 	  }
 		  
-	  Userpasswordauth userpasswordauth   = userpasswordauthService.getUserpasswordauthByAuthcode(authCode);
+	  Userpasswordauth userpasswordauth   = userpasswordauthDao.getUserpasswordauthByAuthcode(authCode);
 	  if (userpasswordauth.getUserId() == null){
 		  waspErrorMessage("auth.resetpassword_badauthcode.error");
 		  return "auth/resetpassword/authcodeform";
@@ -211,8 +208,8 @@ public class AuthController extends WaspController {
 	    return "auth/resetpassword/form";
 	}
 
-    Userpasswordauth userpasswordauth   = userpasswordauthService.getUserpasswordauthByAuthcode(authCode);
-    User user = userService.getUserByLogin(username);
+    Userpasswordauth userpasswordauth   = userpasswordauthDao.getUserpasswordauthByAuthcode(authCode);
+    User user = userDao.getUserByLogin(username);
     
     if (user.getUserId() == null) {
         waspErrorMessage("auth.resetpassword_username.error");
@@ -231,23 +228,23 @@ public class AuthController extends WaspController {
     	return "auth/resetpassword/authcodeform";
     }
     
-    if (! passwordService.matchPassword(password1, password2)){
+    if (! authenticationService.matchPassword(password1, password2)){
     	waspErrorMessage("auth.resetpassword_new_mismatch.error");
     	m.put("authcode", authCode);
     	m.put("username", username);
     	return "auth/resetpassword/form";
     }
     
-    if (! passwordService.validatePassword(password1)){
+    if (! authenticationService.validatePassword(password1)){
     	 waspErrorMessage("auth.resetpassword_new_invalid.error");
          m.put("authcode", authCode);
          m.put("username", username);
          return "auth/resetpassword/form";
     }
 
-    user.setPassword( passwordService.encodePassword(password1) ); 
-    userService.merge(user);
-    userpasswordauthService.remove(userpasswordauth); // removes auth code from future use
+    user.setPassword( authenticationService.encodePassword(password1) ); 
+    userDao.merge(user);
+    userpasswordauthDao.remove(userpasswordauth); // removes auth code from future use
     request.getSession().removeAttribute(Captcha.NAME); // ensures fresh capcha issued if required in this session
     m.put("user", user); 
 
@@ -267,14 +264,14 @@ public class AuthController extends WaspController {
 		if (m != null) m.put("email", email);
 		return false;
 	}
-	ConfirmEmailAuth confirmEmailAuth = confirmEmailAuthService.getConfirmEmailAuthByAuthcode(authCode);
+	ConfirmEmailAuth confirmEmailAuth = confirmEmailAuthDao.getConfirmEmailAuthByAuthcode(authCode);
 	if (email == null || email.isEmpty() || confirmEmailAuth.getConfirmEmailAuthId() == null) {
 		waspErrorMessage("auth.confirmemail_bademail.error");
 		if (m != null) m.put("authcode", authCode);
 		return false;
 	}
 		  
-	User user = userService.getUserByUserId(confirmEmailAuth.getUserId());
+	User user = userDao.getUserByUserId(confirmEmailAuth.getUserId());
 
 	if (! user.getEmail().equals(email)){
 		waspErrorMessage("auth.confirmemail_wronguser.error");
@@ -292,7 +289,7 @@ public class AuthController extends WaspController {
 	  userpasswordauth.setUserId(user.getUserId());
 	  String authcode = AuthCode.create(20);
 	  userpasswordauth.setAuthcode(authcode);
-	  userpasswordauthService.merge(userpasswordauth); // merge handles both inserts and updates. Doesn't have problem with disconnected entities like persist does
+	  userpasswordauthDao.merge(userpasswordauth); // merge handles both inserts and updates. Doesn't have problem with disconnected entities like persist does
 	  // request user changes their password
 	  emailService.sendRequestNewPassword(user, authcode);
   }
@@ -330,10 +327,10 @@ public class AuthController extends WaspController {
 	}
 	// authcode and email match if we get here
 	// remove entry for current user in email auth table
-	ConfirmEmailAuth auth = confirmEmailAuthService.getConfirmEmailAuthByAuthcode(authCode);
-	confirmEmailAuthService.remove(auth);
+	ConfirmEmailAuth auth = confirmEmailAuthDao.getConfirmEmailAuthByAuthcode(authCode);
+	confirmEmailAuthDao.remove(auth);
 	if (isAdminCreated != null && isAdminCreated == 1 && !authenticationService.isAuthenticationSetExternal()){
-		User user = userService.getUserByUserId(auth.getUserId());
+		User user = userDao.getUserByUserId(auth.getUserId());
 		this.sendPasswordConfirmEmail(user);
 	}
 	return "redirect:/auth/confirmemail/emailupdateok.do";
@@ -369,7 +366,7 @@ public class AuthController extends WaspController {
 		}
 		Map userQueryMap = new HashMap();
 		userQueryMap.put("email", email);
-		User user = userService.getUserByEmail(email);
+		User user = userDao.getUserByEmail(email);
 		if (user.getUserId() == null){
 			waspErrorMessage("auth.confirmemail_bademail.error");
 			m.addAttribute("isAdminCreated", isAdminCreated);
@@ -377,8 +374,8 @@ public class AuthController extends WaspController {
 		}
 		// authcode and email match if we get here
 		// remove entry for current user in email auth table
-		ConfirmEmailAuth auth = confirmEmailAuthService.getConfirmEmailAuthByAuthcode(authCode);
-		confirmEmailAuthService.remove(auth);
+		ConfirmEmailAuth auth = confirmEmailAuthDao.getConfirmEmailAuthByAuthcode(authCode);
+		confirmEmailAuthDao.remove(auth);
 		if (isAdminCreated == 1 && !authenticationService.isAuthenticationSetExternal()){
 			sendPasswordConfirmEmail(user);
 		}

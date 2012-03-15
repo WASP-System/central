@@ -19,9 +19,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftMeta;
 import edu.yu.einstein.wasp.model.SampleDraft;
-import edu.yu.einstein.wasp.service.JobDraftMetaService;
-import edu.yu.einstein.wasp.service.JobDraftService;
-import edu.yu.einstein.wasp.service.SampleDraftService;
+import edu.yu.einstein.wasp.dao.JobDraftMetaDao;
+import edu.yu.einstein.wasp.dao.JobDraftDao;
+import edu.yu.einstein.wasp.dao.SampleDraftDao;
 
 @Controller
 @Transactional
@@ -29,31 +29,31 @@ import edu.yu.einstein.wasp.service.SampleDraftService;
 public class ChipSeqJobSubmissionController extends JobSubmissionController {
 
 	@Autowired
-	protected JobDraftService jobDraftService;
+	protected JobDraftDao jobDraftDao;
 
 	@Autowired
-	protected SampleDraftService sampleDraftService;
+	protected SampleDraftDao sampleDraftDao;
 	
 	@Autowired
-	protected JobDraftMetaService jobDraftMetaService;
+	protected JobDraftMetaDao jobDraftMetaDao;
 
 	@RequestMapping(value="/pair/{jobDraftId}.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public String showChipSeqPairForm (@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
 		
-		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
 
 
-		List<SampleDraft> samples=sampleDraftService.getSampleDraftByJobId(jobDraftId);
+		List<SampleDraft> samples=sampleDraftDao.getSampleDraftByJobId(jobDraftId);
 		if (samples.size() < 2){
 			return nextPage(jobDraft);
 		}
 
 		Set<String> selectedSamplePairs = new HashSet<String>();
 		String samplePairsKey = jobDraft.getWorkflow().getIName()+".samplePairsTvsC";
-		JobDraftMeta samplePairsTvsC = jobDraftMetaService.getJobDraftMetaByKJobdraftId(samplePairsKey, jobDraftId);
+		JobDraftMeta samplePairsTvsC = jobDraftMetaDao.getJobDraftMetaByKJobdraftId(samplePairsKey, jobDraftId);
 		if (samplePairsTvsC.getJobDraftMetaId() != null){
 			for(String pair: samplePairsTvsC.getV().split(";")){
 				String[] pairList = pair.split(":");
@@ -72,23 +72,23 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public String updateChipSeqPair(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
 
-		JobDraft jobDraft = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
 	
 	    Map<String,String[]> params = request.getParameterMap();
 	
-	    JobDraft jobDraftDb = jobDraftService.getJobDraftByJobDraftId(jobDraftId);
+	    JobDraft jobDraftDb = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
 	    List<SampleDraft> samples =  jobDraftDb.getSampleDraft();
 	
 	    String pairMetaString = ""; 
 	    
 	    // remove old paired sample for jobdraft
 	    String samplePairsKey = jobDraft.getWorkflow().getIName()+".samplePairsTvsC";
-		JobDraftMeta samplePairsTvsC = jobDraftMetaService.getJobDraftMetaByKJobdraftId(samplePairsKey, jobDraftId);
+		JobDraftMeta samplePairsTvsC = jobDraftMetaDao.getJobDraftMetaByKJobdraftId(samplePairsKey, jobDraftId);
 		if (samplePairsTvsC.getJobDraftMetaId() != null){
-			jobDraftMetaService.remove(samplePairsTvsC);
-			jobDraftMetaService.flush(samplePairsTvsC);
+			jobDraftMetaDao.remove(samplePairsTvsC);
+			jobDraftMetaDao.flush(samplePairsTvsC);
 		}
 		
 	    for (SampleDraft sd1: samples) {
@@ -115,7 +115,7 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 			jdm.setJobdraftId(jobDraftDb.getJobDraftId());
 			jdm.setK(samplePairsKey);
 			jdm.setV(pairMetaString); 
-			jobDraftMetaService.save(jdm);
+			jobDraftMetaDao.save(jdm);
 		}
 	
 		return nextPage(jobDraftDb);

@@ -11,6 +11,7 @@
 
 package edu.yu.einstein.wasp.dao.impl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,7 +61,23 @@ public class JobDraftDaoImpl extends WaspDaoImpl<JobDraft> implements edu.yu.ein
 		return results.get(0);
 	}
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<JobDraft> getPendingJobDrafts() {
+		Map<String, String> queryMap = new HashMap<String, String>();
+		queryMap.put("status", "PENDING");
+		return this.findByMap(queryMap);
+	}
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<JobDraft> getPendingJobDraftsOrderBy(String orderByColumnName, String direction) {
+		Map<String, String> queryMap = new HashMap<String, String>();
+		queryMap.put("status", "PENDING");
+		List <String> orderByColumnNames = new ArrayList<String> ();
+		orderByColumnNames.add(orderByColumnName);
+		return this.findByMapDistinctOrderBy(queryMap, null, orderByColumnNames, direction);
+	}
 
 }
 

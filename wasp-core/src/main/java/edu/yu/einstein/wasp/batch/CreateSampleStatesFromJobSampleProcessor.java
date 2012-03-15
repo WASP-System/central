@@ -7,15 +7,15 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import edu.yu.einstein.wasp.dao.StateDao;
+import edu.yu.einstein.wasp.dao.StatejobDao;
+import edu.yu.einstein.wasp.dao.StatesampleDao;
+import edu.yu.einstein.wasp.dao.TaskDao;
 import edu.yu.einstein.wasp.model.JobSample;
 import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.Statejob;
 import edu.yu.einstein.wasp.model.Statesample;
 import edu.yu.einstein.wasp.model.Task;
-import edu.yu.einstein.wasp.service.StateService;
-import edu.yu.einstein.wasp.service.StatejobService;
-import edu.yu.einstein.wasp.service.StatesampleService;
-import edu.yu.einstein.wasp.service.TaskService;
 
 /**
  * Created State Processor for each sample in jobsample for the state.statejob
@@ -27,16 +27,16 @@ import edu.yu.einstein.wasp.service.TaskService;
 public class CreateSampleStatesFromJobSampleProcessor implements ItemProcessor<Integer,State> {
 
 	@Autowired
-	StateService stateService;
+	StateDao stateDao;
 
 	@Autowired
-	TaskService taskService;
+	TaskDao taskDao;
 
 	@Autowired
-	StatesampleService statesampleService;
+	StatesampleDao statesampleDao;
 
 	@Autowired
-	StatejobService statejobService;
+	StatejobDao statejobDao;
 
 	String targetTask;
 
@@ -49,31 +49,31 @@ public class CreateSampleStatesFromJobSampleProcessor implements ItemProcessor<I
 	@Override
 	public State process(Integer stateId) throws Exception {
 
-		State state = stateService.getStateByStateId(stateId.intValue());
+		State state = stateDao.getStateByStateId(stateId.intValue());
 		List<Statejob> stateJobs = state.getStatejob();
 
-		Task t = taskService.getTaskByIName(targetTask);
+		Task t = taskDao.getTaskByIName(targetTask);
 
 		for (Statejob sj : stateJobs) {
 			for (JobSample js : sj.getJob().getJobSample()) {
 				State newState = new State();
 				newState.setStatus(targetStatus.toString());
 				newState.setTaskId(t.getTaskId());
-				newState.setSourceStateId((Integer) stateId);
+				newState.setSourceStateId(stateId);
 				newState.setName(t.getName());
 				newState.setStartts(new Date());
-				State newStateDb = stateService.save(newState);
+				State newStateDb = stateDao.save(newState);
 
 				Statejob newStateJob = new Statejob();
 				newStateJob.setStateId(newStateDb.getStateId());
 				newStateJob.setJobId(sj.getJobId());
 
-				statejobService.save(newStateJob);
+				statejobDao.save(newStateJob);
 				Statesample newStateSample = new Statesample();
 				newStateSample.setStateId(newStateDb.getStateId());
 				newStateSample.setSampleId(js.getSampleId());
 
-				statesampleService.save(newStateSample);
+				statesampleDao.save(newStateSample);
 			}
 		}
 

@@ -140,6 +140,18 @@ public interface EmailService  {
 	 * @param authcode
 	 */
 	void informUserAccountCreatedByAdmin(User user, String authcode);
+	
+    /**
+    * setConfirmEmailAuthDao(ConfirmEmailAuthDao confirmEmailAuthDao)
+    *
+    * @param confirmEmailAuthDao
+    *
+    */
+
+	
+	public String getNewAuthcodeForUser(final User user);
+
+	public String getNewAuthcodeForUserPending(UserPending userpending);
 
 }
 

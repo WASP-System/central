@@ -26,7 +26,7 @@ import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.MetaUtil;
 import edu.yu.einstein.wasp.model.SampleDraftMeta;
 import edu.yu.einstein.wasp.model.SubtypeSample;
-import edu.yu.einstein.wasp.service.SubtypeSampleService;
+import edu.yu.einstein.wasp.service.SampleService;
 
 @SuppressWarnings("unchecked")
 @Transactional
@@ -35,7 +35,7 @@ public class SampleDraftMetaDaoImpl extends WaspDaoImpl<SampleDraftMeta> impleme
 
 	
 	@Autowired
-	private SubtypeSampleService subtypeSampleService;
+	private SampleService sampleService;
 	/**
 	 * SampleDraftMetaDaoImpl() Constructor
 	 *
@@ -163,7 +163,7 @@ public class SampleDraftMetaDaoImpl extends WaspDaoImpl<SampleDraftMeta> impleme
 	   Map<SubtypeSample,List<SampleDraftMeta>> result=new LinkedHashMap<SubtypeSample,List<SampleDraftMeta>>();
 	   Map<SubtypeSample, Map<String,List<SampleDraftMeta>> > tmp = new LinkedHashMap<SubtypeSample, Map<String,List<SampleDraftMeta>> >();
 	   List<Object[]> listObj=entityManager.createNativeQuery(sql).setParameter("workflowid", workflowId).getResultList();
-	   List<SubtypeSample> loggedInUserAccessibleSubtypeSamples = subtypeSampleService.getSubtypeSamplesForWorkflowByLoggedInUserRoles(workflowId);
+	   List<SubtypeSample> loggedInUserAccessibleSubtypeSamples = sampleService.getSubtypeSamplesForWorkflowByLoggedInUserRoles(workflowId);
 	   for(Object[] o:listObj) {
 		   
 		   String area=(String)o[0];

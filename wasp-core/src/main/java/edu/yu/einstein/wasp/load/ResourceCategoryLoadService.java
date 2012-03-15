@@ -8,13 +8,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import util.spring.PostInitialize;
+import edu.yu.einstein.wasp.dao.ResourceCategoryDao;
+import edu.yu.einstein.wasp.dao.ResourceCategoryMetaDao;
+import edu.yu.einstein.wasp.dao.TypeResourceDao;
 import edu.yu.einstein.wasp.exception.NullTypeResourceException;
 import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.ResourceCategoryMeta;
 import edu.yu.einstein.wasp.model.TypeResource;
-import edu.yu.einstein.wasp.service.ResourceCategoryMetaService;
-import edu.yu.einstein.wasp.service.ResourceCategoryService;
-import edu.yu.einstein.wasp.service.TypeResourceService;
 
 
 /**
@@ -33,13 +33,13 @@ import edu.yu.einstein.wasp.service.TypeResourceService;
 public class ResourceCategoryLoadService extends WaspLoadService {
 
   @Autowired
-  private ResourceCategoryService resourceCategoryService;
+  private ResourceCategoryDao resourceCategoryDao;
 
   @Autowired
-  private ResourceCategoryMetaService resourceCategoryMetaService;
+  private ResourceCategoryMetaDao resourceCategoryMetaDao;
 
   @Autowired
-  private TypeResourceService typeResourceService;
+  private TypeResourceDao typeResourceDao;
 
   private String resourceType; 
   public void setResourceType(String resourceType) {this.resourceType = resourceType; }
@@ -68,12 +68,12 @@ public class ResourceCategoryLoadService extends WaspLoadService {
     // skips component scanned  (if scanned in)
     if (name == null) { return; }
 
-    TypeResource typeResource = typeResourceService.getTypeResourceByIName(resourceType); 
+    TypeResource typeResource = typeResourceDao.getTypeResourceByIName(resourceType); 
     if (typeResource == null){
     	throw new NullTypeResourceException();
     }
 
-    ResourceCategory resourceCat = resourceCategoryService.getResourceCategoryByIName(iname);
+    ResourceCategory resourceCat = resourceCategoryDao.getResourceCategoryByIName(iname);
     
     if (isActive == null)
     	  isActive = 1;
@@ -86,10 +86,10 @@ public class ResourceCategoryLoadService extends WaspLoadService {
       resourceCat.setName(name);
       resourceCat.setIsActive(isActive.intValue());
       resourceCat.setTypeResourceId(typeResource.getTypeResourceId());
-      resourceCategoryService.save(resourceCat); 
+      resourceCategoryDao.save(resourceCat); 
 
       // refreshes
-      resourceCat = resourceCategoryService.getResourceCategoryByIName(iname); 
+      resourceCat = resourceCategoryDao.getResourceCategoryByIName(iname); 
 
     } else {
       boolean changed = false;	
@@ -102,7 +102,7 @@ public class ResourceCategoryLoadService extends WaspLoadService {
     	  changed = true;
       }
       if (changed)
-    	  resourceCategoryService.save(resourceCat); 
+    	  resourceCategoryDao.save(resourceCat); 
     }
 
 
@@ -135,21 +135,21 @@ public class ResourceCategoryLoadService extends WaspLoadService {
         	changed = true;
         }
         if (changed)
-        	resourceCategoryMetaService.save(old);
+        	resourceCategoryMetaDao.save(old);
 
         oldResourceCatMetas.remove(old.getK()); // remove the meta from the old meta list as we're done with it
         continue; 
       }
 
       resourceCatMeta.setResourcecategoryId(resourceCat.getResourceCategoryId()); 
-      resourceCategoryMetaService.save(resourceCatMeta); 
+      resourceCategoryMetaDao.save(resourceCatMeta); 
     }
 
     // delete the left overs
     for (String resourceMetaKey : oldResourceCatMetas.keySet()) {
       ResourceCategoryMeta resourceCatMeta = oldResourceCatMetas.get(resourceMetaKey); 
-      resourceCategoryMetaService.remove(resourceCatMeta); 
-      resourceCategoryMetaService.flush(resourceCatMeta); 
+      resourceCategoryMetaDao.remove(resourceCatMeta); 
+      resourceCategoryMetaDao.flush(resourceCatMeta); 
     }
 
     updateUiFields(); 

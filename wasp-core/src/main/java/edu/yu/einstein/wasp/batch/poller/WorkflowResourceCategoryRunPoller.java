@@ -9,12 +9,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.batch.TaskStatus;
+import edu.yu.einstein.wasp.dao.ResourceCategoryDao;
+import edu.yu.einstein.wasp.dao.StateDao;
+import edu.yu.einstein.wasp.dao.TaskDao;
 import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.Task;
-import edu.yu.einstein.wasp.service.ResourceCategoryService;
-import edu.yu.einstein.wasp.service.StateService;
-import edu.yu.einstein.wasp.service.TaskService;
 
 /**
  * Workflow Workflow Resource Category Poller
@@ -26,13 +26,13 @@ import edu.yu.einstein.wasp.service.TaskService;
 public class WorkflowResourceCategoryRunPoller {
 
 	@Autowired
-	StateService stateService;
+	StateDao stateDao;
 
 	@Autowired
-	TaskService taskService;
+	TaskDao taskDao;
 
 	@Autowired
-	ResourceCategoryService resourceCategoryService;
+	ResourceCategoryDao resourceCategoryDao;
  
 	protected String resourceCategoryIName; 
 	public void setResourceCategoryIName(String s) {
@@ -47,8 +47,8 @@ public class WorkflowResourceCategoryRunPoller {
  
 	@Transactional
 	public List<State> getStates() {
-		ResourceCategory resourceCategory = resourceCategoryService.getResourceCategoryByIName(resourceCategoryIName); 
-		Task task = taskService.getTaskByIName(taskIName); 
+		ResourceCategory resourceCategory = resourceCategoryDao.getResourceCategoryByIName(resourceCategoryIName); 
+		Task task = taskDao.getTaskByIName(taskIName); 
 
 		List<State> rt = new ArrayList<State>();
 		List<State> allStates = task.getState();

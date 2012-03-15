@@ -20,18 +20,21 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
-import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.dao.ResourceCategoryDao;
+import edu.yu.einstein.wasp.dao.SoftwareDao;
+import edu.yu.einstein.wasp.dao.SoftwareMetaDao;
+import edu.yu.einstein.wasp.dao.WorkflowDao;
+import edu.yu.einstein.wasp.dao.WorkflowSoftwareDao;
+import edu.yu.einstein.wasp.dao.WorkflowresourcecategoryDao;
+import edu.yu.einstein.wasp.dao.WorkflowresourcecategoryMetaDao;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.ResourceCategory;
-import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.Software;
-import edu.yu.einstein.wasp.model.TypeResource;
 import edu.yu.einstein.wasp.model.Workflow;
 import edu.yu.einstein.wasp.model.WorkflowMeta;
 import edu.yu.einstein.wasp.model.WorkflowSoftware;
@@ -40,13 +43,6 @@ import edu.yu.einstein.wasp.model.WorkflowresourcecategoryMeta;
 import edu.yu.einstein.wasp.model.WorkflowsoftwareMeta;
 import edu.yu.einstein.wasp.model.Workflowtyperesource;
 import edu.yu.einstein.wasp.service.MessageService;
-import edu.yu.einstein.wasp.service.ResourceCategoryService;
-import edu.yu.einstein.wasp.service.SoftwareMetaService;
-import edu.yu.einstein.wasp.service.SoftwareService;
-import edu.yu.einstein.wasp.service.WorkflowService;
-import edu.yu.einstein.wasp.service.WorkflowSoftwareService;
-import edu.yu.einstein.wasp.service.WorkflowresourcecategoryMetaService;
-import edu.yu.einstein.wasp.service.WorkflowresourcecategoryService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 
 @Controller
@@ -55,22 +51,22 @@ import edu.yu.einstein.wasp.taglib.JQFieldTag;
 public class WorkflowController extends WaspController {
 
 	@Autowired
-	private WorkflowService workflowService;
+	private WorkflowDao workflowDao;
 
 	@Autowired
-	private ResourceCategoryService resourceCategoryService;
+	private ResourceCategoryDao resourceCategoryDao;
 	@Autowired
-	private SoftwareMetaService softwareMetaService;
+	private SoftwareMetaDao softwareMetaDao;
 	@Autowired
-	private WorkflowresourcecategoryService workflowResourceCategoryService;
+	private WorkflowresourcecategoryDao workflowResourceCategoryDao;
 	@Autowired
-	private WorkflowresourcecategoryMetaService workflowResourceCategoryMetaService;
+	private WorkflowresourcecategoryMetaDao workflowResourceCategoryMetaDao;
 	@Autowired
 	private MessageService messageService;
 	@Autowired
-	private SoftwareService softwareService;
+	private SoftwareDao softwareDao;
 	@Autowired
-	private WorkflowSoftwareService workflowSoftwareService;
+	private WorkflowSoftwareDao workflowSoftwareDao;
 
 	private final MetaHelperWebapp getMetaHelperWebapp() {
 		return new MetaHelperWebapp("workflow", WorkflowMeta.class,
@@ -105,18 +101,18 @@ public class WorkflowController extends WaspController {
 
 		if (request.getParameter("_search") == null
 				|| StringUtils.isEmpty(request.getParameter("searchString"))) {
-			workflowList = workflowService.findAll();
+			workflowList = workflowDao.findAll();
 		} else {
 			Map<String, String> m = new HashMap<String, String>();
 
 			m.put(request.getParameter("searchField"),
 					request.getParameter("searchString"));
 
-			workflowList = workflowService.findByMap(m);
+			workflowList = workflowDao.findByMap(m);
 
 			if ("ne".equals(request.getParameter("searchOper"))) {
 				List<Workflow> allWorkflows = new ArrayList<Workflow>(
-						workflowService.findAll());
+						workflowDao.findAll());
 				for (Iterator<Workflow> it = workflowList.iterator(); it
 						.hasNext();) {
 					Workflow excludeworkflow = it.next();
@@ -219,7 +215,7 @@ public class WorkflowController extends WaspController {
 			@RequestParam("selId") Integer workflowId,
 			ModelMap m) {
 
-		Workflow workflow = workflowService.getWorkflowByWorkflowId(workflowId); 
+		Workflow workflow = workflowDao.getWorkflowByWorkflowId(workflowId); 
 
 		// gets all workflow resources
 		List<Workflowtyperesource> workflowTypeResources = workflow.getWorkflowtyperesource();
@@ -256,7 +252,7 @@ public class WorkflowController extends WaspController {
 					continue;
 				}
 				String area = s.getIName();
-				String version = softwareMetaService.getSoftwareMetaByKSoftwareId(area+".currentVersion", s.getSoftwareId()).getV();
+				String version = softwareMetaDao.getSoftwareMetaByKSoftwareId(area+".currentVersion", s.getSoftwareId()).getV();
 				version = (version == null) ? "" : version; 
 				workflowSoftwareVersionedNameMap.put(area, s.getName() + " (version: " + version +")");
 			}
@@ -275,7 +271,7 @@ public class WorkflowController extends WaspController {
 				continue;
 			}
 			String area = ws.getSoftware().getIName();
-			String version = softwareMetaService.getSoftwareMetaByKSoftwareId(area+".currentVersion", ws.getSoftware().getSoftwareId()).getV();
+			String version = softwareMetaDao.getSoftwareMetaByKSoftwareId(area+".currentVersion", ws.getSoftware().getSoftwareId()).getV();
 			version = (version == null) ? "" : version; 
 			workflowSoftwareMap.put(area, ws);
 			
@@ -326,15 +322,15 @@ public class WorkflowController extends WaspController {
 		if ( submitValue.equals(messageService.getMessage("workflow.cancel.label")) ){
 			return "redirect:/workflow/list.do"; 
 		}
-		Workflow workflow = workflowService.getWorkflowByWorkflowId(workflowId); 
+		Workflow workflow = workflowDao.getWorkflowByWorkflowId(workflowId); 
 		m.put("workflowId", workflowId);
 		m.put("workflow", workflow);
 
 		// removes all the software
 		List<WorkflowSoftware> workflowSoftwares = workflow.getWorkflowSoftware();
 		for (WorkflowSoftware ws: workflowSoftwares) {
-			workflowSoftwareService.remove(ws);
-			workflowSoftwareService.flush(ws);
+			workflowSoftwareDao.remove(ws);
+			workflowSoftwareDao.flush(ws);
 		}
 	
 		// puts software back in
@@ -342,10 +338,10 @@ public class WorkflowController extends WaspController {
 			for (int i=0; i< softwareParams.length; i++) {
 				WorkflowSoftware workflowSoftware = new WorkflowSoftware();
 		
-				Software s = softwareService.getSoftwareByIName(softwareParams[i]);
+				Software s = softwareDao.getSoftwareByIName(softwareParams[i]);
 				workflowSoftware.setWorkflowId(workflowId);
 				workflowSoftware.setSoftwareId(s.getSoftwareId());
-				workflowSoftwareService.save(workflowSoftware);
+				workflowSoftwareDao.save(workflowSoftware);
 			}
 		}
 
@@ -353,12 +349,12 @@ public class WorkflowController extends WaspController {
 		List<Workflowresourcecategory> workflowresourcecategorys = workflow.getWorkflowresourcecategory();
 		for (Workflowresourcecategory wrc: workflowresourcecategorys) {
 			for (WorkflowresourcecategoryMeta wrcm : wrc.getWorkflowresourcecategoryMeta()) {
-				workflowResourceCategoryMetaService.remove(wrcm);
-				workflowResourceCategoryMetaService.flush(wrcm);
+				workflowResourceCategoryMetaDao.remove(wrcm);
+				workflowResourceCategoryMetaDao.flush(wrcm);
 			}
 
-			workflowResourceCategoryService.remove(wrc);
-			workflowResourceCategoryService.flush(wrc);
+			workflowResourceCategoryDao.remove(wrc);
+			workflowResourceCategoryDao.flush(wrc);
 		}
 
 		// maps resourceCategory to meta
@@ -398,11 +394,11 @@ public class WorkflowController extends WaspController {
 			for (int i=0; i< resourceCategoryParams.length; i++) {
 				Workflowresourcecategory workflowResourceCategory = new Workflowresourcecategory();
 			
-				ResourceCategory rc = resourceCategoryService.getResourceCategoryByIName(resourceCategoryParams[i]);
+				ResourceCategory rc = resourceCategoryDao.getResourceCategoryByIName(resourceCategoryParams[i]);
 			
 				workflowResourceCategory.setWorkflowId(workflowId);
 				workflowResourceCategory.setResourcecategoryId(rc.getResourceCategoryId());
-				workflowResourceCategoryService.save(workflowResourceCategory);
+				workflowResourceCategoryDao.save(workflowResourceCategory);
 		
 				int count = 0; 	// counter for position
 	
@@ -415,7 +411,7 @@ public class WorkflowController extends WaspController {
 						wrcm.setV(rcmOptionMap.get(metaKey));
 						wrcm.setPosition(count); 
 		
-						workflowResourceCategoryMetaService.save(wrcm);
+						workflowResourceCategoryMetaDao.save(wrcm);
 					}
 				}
 			}

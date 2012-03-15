@@ -15,28 +15,4 @@
 	    }
  </script>
  
-  <script language="JavaScript">
-		<!--
-		function validate(){
-			
-			var error = false;
-			if(document.f.departmentName.value == ""){
-				error = true
-				var message = '<fmt:message key="department.list_missingparam.error" />';
-				document.f.departmentName.focus();
-			}
-			else if(document.f.adminName.value == ""){
-				error = true
-				var message = '<fmt:message key="department.detail_missingparam.error" />';
-				document.f.adminName.focus();
-			}
-			if(error){ alert(message); return false; }
-  			return true;
-		}
 
-		waspOnLoad=function() {
-			document.f.name.focus();
-		}
-
-		//-->
-	</script>  

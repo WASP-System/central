@@ -7,16 +7,16 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import edu.yu.einstein.wasp.dao.StateDao;
+import edu.yu.einstein.wasp.dao.StatejobDao;
+import edu.yu.einstein.wasp.dao.StaterunDao;
+import edu.yu.einstein.wasp.dao.StatesampleDao;
+import edu.yu.einstein.wasp.dao.TaskDao;
 import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.Statejob;
 import edu.yu.einstein.wasp.model.Staterun;
 import edu.yu.einstein.wasp.model.Statesample;
 import edu.yu.einstein.wasp.model.Task;
-import edu.yu.einstein.wasp.service.StateService;
-import edu.yu.einstein.wasp.service.StatejobService;
-import edu.yu.einstein.wasp.service.StaterunService;
-import edu.yu.einstein.wasp.service.StatesampleService;
-import edu.yu.einstein.wasp.service.TaskService;
 
 /**
  * Created State Processor
@@ -29,19 +29,19 @@ import edu.yu.einstein.wasp.service.TaskService;
 public class CreateSampleStateProcessor implements ItemProcessor {
 
   @Autowired
-  StateService stateService;
+  StateDao stateDao;
 
   @Autowired
-  TaskService taskService;
+  TaskDao taskDao;
 
   @Autowired
-  StatesampleService statesampleService;
+  StatesampleDao statesampleDao;
 
   @Autowired
-  StatejobService statejobService;
+  StatejobDao statejobDao;
 
   @Autowired
-  StaterunService staterunService;
+  StaterunDao staterunDao;
 
   String targetTask; 
   public void setTargetTask(String targetTask) {
@@ -53,13 +53,13 @@ public class CreateSampleStateProcessor implements ItemProcessor {
   @Override
 public State process(Object stateId) throws Exception {
     
-    State state = stateService.getStateByStateId(((Integer) stateId).intValue());
+    State state = stateDao.getStateByStateId(((Integer) stateId).intValue());
 
     List<Statesample> stateSamples = state.getStatesample();
     List<Statejob> stateJobs = state.getStatejob();
     List<Staterun> stateRuns = state.getStaterun();
 
-    Task t = taskService.getTaskByIName(targetTask); 
+    Task t = taskDao.getTaskByIName(targetTask); 
 
     State newState = new State();
     newState.setStatus(targetStatus.toString());
@@ -67,14 +67,14 @@ public State process(Object stateId) throws Exception {
     newState.setName(t.getName());
     newState.setSourceStateId((Integer) stateId);
     newState.setStartts(new Date());
-    State newStateDb = stateService.save(newState);
+    State newStateDb = stateDao.save(newState);
 
     for (Statesample ss: stateSamples) {
       Statesample newStateSample = new Statesample(); 
       newStateSample.setStateId(newStateDb.getStateId());
       newStateSample.setSampleId(ss.getSampleId());
 
-      statesampleService.save(newStateSample);
+      statesampleDao.save(newStateSample);
     }
 
     for (Statejob sj: stateJobs) {
@@ -82,7 +82,7 @@ public State process(Object stateId) throws Exception {
       newStateJob.setStateId(newStateDb.getStateId());
       newStateJob.setJobId(sj.getJobId());
       
-      statejobService.save(newStateJob);
+      statejobDao.save(newStateJob);
     }
 
     for (Staterun sr: stateRuns) {
@@ -90,7 +90,7 @@ public State process(Object stateId) throws Exception {
       newStateRun.setStateId(newStateDb.getStateId());
       newStateRun.setRunId(sr.getRunId());
       
-      staterunService.save(newStateRun);
+      staterunDao.save(newStateRun);
     }
 
     return newState;

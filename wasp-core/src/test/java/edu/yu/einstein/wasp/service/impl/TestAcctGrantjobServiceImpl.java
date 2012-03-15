@@ -16,6 +16,7 @@ import edu.yu.einstein.wasp.model.AcctGrantjob;
 
 
 public class TestAcctGrantjobServiceImpl {
+	/*
 	private AcctGrantjobServiceImpl acctGrantjobServiceImpl = new AcctGrantjobServiceImpl();
 	private AcctGrantjobDao mockAcctGrantjobDao;
 	
@@ -47,5 +48,5 @@ public class TestAcctGrantjobServiceImpl {
 		//fail("Not yet implemented");
 	}
 
-
+*/
 }

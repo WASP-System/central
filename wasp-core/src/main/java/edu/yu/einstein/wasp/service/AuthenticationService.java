@@ -107,5 +107,10 @@ public interface AuthenticationService {
 	 */
 	boolean hasRoleInRoleArray(String[] rolesToCompare, String[] rolesBaseline);
 	
+	public String encodePassword(String s);
+	  public boolean validatePassword(String s);
+	  public boolean matchPassword(String s1, String s2);
+	  public String getRandomPassword(int length);
+	
 	
 }

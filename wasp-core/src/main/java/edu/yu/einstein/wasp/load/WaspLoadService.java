@@ -15,9 +15,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import util.spring.PostInitialize;
+import edu.yu.einstein.wasp.dao.UiFieldDao;
 import edu.yu.einstein.wasp.exception.UiFieldParseException;
 import edu.yu.einstein.wasp.model.UiField;
-import edu.yu.einstein.wasp.service.UiFieldService;
 import edu.yu.einstein.wasp.service.impl.WaspMessageSourceImpl;
 
 
@@ -37,7 +37,7 @@ public abstract class WaspLoadService {
 	private MessageSource messageSource;
 
 	@Autowired
-	protected UiFieldService uiFieldService;
+	protected UiFieldDao uiFieldDao;
 
 	protected String iname; 
 	public void setIName(String iname) {this.iname = iname; }
@@ -194,7 +194,7 @@ public abstract class WaspLoadService {
 		for (String currentArea : workingAreaList){
 			Map<String, String> m = new HashMap<String, String>();
 			m.put("area", currentArea);
-			for (UiField f : (List<UiField>) uiFieldService.findByMap(m) ){
+			for (UiField f : uiFieldDao.findByMap(m) ){
 				String key = f.getLocale() + "." + currentArea + "." + f.getName() + "." + f.getAttrName();
 				oldUiFields.put(key, f );
 			}
@@ -212,12 +212,12 @@ public abstract class WaspLoadService {
 				UiField existingUiField = oldUiFields.get(localizedKey);
 				if (!existingUiField.getAttrValue().equals(f.getAttrValue())){
 					existingUiField.setAttrValue(f.getAttrValue());
-					uiFieldService.merge(f); 
+					uiFieldDao.merge(f); 
 				}
 				oldUiFields.remove(localizedKey);
 			} else {
 				// add new
-				uiFieldService.save(f); 
+				uiFieldDao.save(f); 
 			}
 			Locale locale = new Locale(lang, cntry);
 			((WaspMessageSourceImpl) messageSource).addMessage(key, locale, f.getAttrValue());
@@ -228,8 +228,8 @@ public abstract class WaspLoadService {
 			if (oldF.getName().indexOf("jobsubmit/")>-1) {
 				continue;//do NOT remove custom titles
 			}
-			uiFieldService.remove(oldF); 
-			uiFieldService.flush(oldF); 
+			uiFieldDao.remove(oldF); 
+			uiFieldDao.flush(oldF); 
 		}
 	}
 	

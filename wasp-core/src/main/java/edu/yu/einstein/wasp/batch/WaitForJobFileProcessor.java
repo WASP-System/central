@@ -4,9 +4,9 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import edu.yu.einstein.wasp.dao.StateDao;
 import edu.yu.einstein.wasp.model.JobFile;
 import edu.yu.einstein.wasp.model.State;
-import edu.yu.einstein.wasp.service.StateService;
 
 /**
  * Wait for Wait For Job File Processor
@@ -21,7 +21,7 @@ import edu.yu.einstein.wasp.service.StateService;
 public class WaitForJobFileProcessor implements ItemProcessor {
 
 	@Autowired
-	StateService stateService;
+	StateDao stateDao;
 
 	String filenameRegex; 
 	public void setFilenameRegex(String filenameRegex) {
@@ -30,7 +30,7 @@ public class WaitForJobFileProcessor implements ItemProcessor {
 
 	@Override
 	public State process(Object stateId) throws Exception {	
-		State state = stateService.getStateByStateId(((Integer) stateId).intValue());
+		State state = stateDao.getStateByStateId(((Integer) stateId).intValue());
 		// TODO npe check
 
 		for (JobFile jobFile : state.getStatejob().get(0).getJob().getJobFile()) {

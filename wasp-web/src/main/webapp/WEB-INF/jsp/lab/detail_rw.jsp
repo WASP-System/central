@@ -3,8 +3,6 @@
 
   <h1><fmt:message key="pageTitle.lab/detail_rw.label" /> ${lab.name}</h1>
 
-  <div class="instructions"> <%@ include file="/WEB-INF/jsp/lorem.jsp" %> </div>
-
   <form:form  cssClass="FormGrid" commandName="lab">
     <table class="EditTable ui-widget ui-widget-content">
       <tr class="FormData">

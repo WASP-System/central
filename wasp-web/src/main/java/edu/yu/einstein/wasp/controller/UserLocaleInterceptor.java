@@ -34,20 +34,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
+import edu.yu.einstein.wasp.dao.UiFieldDao;
+import edu.yu.einstein.wasp.dao.UserDao;
 import edu.yu.einstein.wasp.model.UiField;
 import edu.yu.einstein.wasp.model.User;
-import edu.yu.einstein.wasp.service.UiFieldService;
-import edu.yu.einstein.wasp.service.UserService;
 
 public class UserLocaleInterceptor extends HandlerInterceptorAdapter {
    
 	private final static String LOCK="wasp_"+SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME;
 	
 	@Autowired
-	private UserService userService;
+	private UserDao userDao;
 
 	@Autowired
-	private UiFieldService uiFieldService;
+	private UiFieldDao uiFieldDao;
 	
     private static final Logger log = Logger.getLogger(UserLocaleInterceptor.class);
 	
@@ -83,7 +83,7 @@ public class UserLocaleInterceptor extends HandlerInterceptorAdapter {
     	
     	String login=principal.getName();
     	
-    	User user=userService.getUserByLogin(login);
+    	User user=userDao.getUserByLogin(login);
     	
     	if (user==null) {
     		log.error("Logged in user not found in db??? "+login);
@@ -117,7 +117,7 @@ public class UserLocaleInterceptor extends HandlerInterceptorAdapter {
 
 		StringBuffer buf = new StringBuffer("");
 	
-		List<UiField> res = uiFieldService.findAll();
+		List<UiField> res = uiFieldDao.findAll();
 
 		for (UiField f : res) {
 

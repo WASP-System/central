@@ -11,6 +11,8 @@
 
 package edu.yu.einstein.wasp.dao;
 
+import java.util.List;
+
 import edu.yu.einstein.wasp.model.ResourceCategory;
 
 
@@ -21,6 +23,8 @@ public interface ResourceCategoryDao extends WaspDao<ResourceCategory> {
   public ResourceCategory getResourceCategoryByIName (final String iName);
 
   public ResourceCategory getResourceCategoryByName (final String name);
+
+  public List<ResourceCategory> getActiveResourceCategories();
 
 
 }

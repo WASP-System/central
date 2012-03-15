@@ -21,7 +21,14 @@ import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.velocity.VelocityEngineUtils;
 
+import edu.yu.einstein.wasp.dao.ConfirmEmailAuthDao;
+import edu.yu.einstein.wasp.dao.DepartmentDao;
+import edu.yu.einstein.wasp.dao.LabUserDao;
+import edu.yu.einstein.wasp.dao.RoleDao;
+import edu.yu.einstein.wasp.dao.UserDao;
+import edu.yu.einstein.wasp.dao.UserPendingDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
+import edu.yu.einstein.wasp.model.ConfirmEmailAuth;
 import edu.yu.einstein.wasp.model.Department;
 import edu.yu.einstein.wasp.model.DepartmentUser;
 import edu.yu.einstein.wasp.model.Lab;
@@ -30,19 +37,15 @@ import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.model.UserPendingMeta;
-import edu.yu.einstein.wasp.service.DepartmentService;
 import edu.yu.einstein.wasp.service.EmailService;
-import edu.yu.einstein.wasp.service.LabUserService;
-import edu.yu.einstein.wasp.service.RoleService;
-import edu.yu.einstein.wasp.service.UserPendingService;
-import edu.yu.einstein.wasp.service.UserService;
+import edu.yu.einstein.wasp.util.AuthCode;
 import edu.yu.einstein.wasp.util.MetaHelper;
 
 
 /**
- * EmailServiceImpl Class.
+ * EmailDaoImpl Class.
  * 
- * Handles sending emails implementing the {@link EmailService} interface, based on Velocity Templates and {@link JavaMailSender}
+ * Handles sending emails implementing the {@link EmailDao} interface, based on Velocity Templates and {@link JavaMailSender}
  * 
  */
 @Service
@@ -59,19 +62,22 @@ public class EmailServiceImpl implements EmailService {
 	private VelocityEngine velocityEngine;
 
 	@Autowired
-	private LabUserService labUserService;
+	private LabUserDao labUserDao;
 	
 	@Autowired
-	private UserService userService;
+	private UserDao userDao;
 
 	@Autowired
-	private RoleService roleService;
+	private RoleDao roleDao;
 	
 	@Autowired
-	private UserPendingService userPendingService;
+	private UserPendingDao userPendingDao;
 	
 	@Autowired
-	private DepartmentService departmentService;
+	private DepartmentDao departmentDao;
+	
+	@Autowired
+	private ConfirmEmailAuthDao confirmEmailAuthDao;
 
 
 	/**
@@ -179,7 +185,7 @@ public class EmailServiceImpl implements EmailService {
 	 */
 	@Override
 	public void sendPendingLabNotifyAccepted(final Lab lab){
-		User primaryUser = userService.getUserByUserId(lab.getPrimaryUserId());
+		User primaryUser = userDao.getUserByUserId(lab.getPrimaryUserId());
 		Map model = new HashMap();
 		model.put("primaryuser", primaryUser);
 		model.put("lab", lab);
@@ -195,14 +201,14 @@ public class EmailServiceImpl implements EmailService {
 		User user = new User();
 		if (labPending.getUserpendingId() != null ) {
 			// this PI is currently a pending user. 
-			UserPending userPending = userPendingService.getUserPendingByUserPendingId(labPending.getUserpendingId());
+			UserPending userPending = userPendingDao.getUserPendingByUserPendingId(labPending.getUserpendingId());
 			user.setFirstName(userPending.getFirstName());
 			user.setLastName(userPending.getLastName());
 			user.setEmail(userPending.getEmail());
 			user.setLocale(userPending.getLocale());
 		} else if (labPending.getPrimaryUserId() != null ){
 			// the referenced PI of this lab exists in the user table already so get their record
-			user = userService.getUserByUserId(labPending.getPrimaryUserId());
+			user = userDao.getUserByUserId(labPending.getPrimaryUserId());
 		}
 		else{
 			// shouldn't get here 
@@ -224,7 +230,7 @@ public class EmailServiceImpl implements EmailService {
 		userPendingMetaHelper.syncWithMaster(userPending.getUserPendingMeta());
 		User primaryUser;
 		try{
-			primaryUser = userService.getUserByLogin(userPendingMetaHelper.getMetaByName("primaryuserid").getV());
+			primaryUser = userDao.getUserByLogin(userPendingMetaHelper.getMetaByName("primaryuserid").getV());
 		} catch(MetadataException e){
 			throw new MailPreparationException("Cannot get principal user for pending user with id '" + Integer.toString(userPending.getUserPendingId()), e); 
 		}
@@ -248,8 +254,8 @@ public class EmailServiceImpl implements EmailService {
 		prepareAndSend(primaryUser, "emails/pending_labuser_request_confirm", model);
 		
 		// send email to lab managers
-		labManagerQueryMap.put("roleId", roleService.getRoleByRoleName("lm").getRoleId());
-		for (LabUser labUserLM : (List<LabUser>) labUserService.findByMap(labManagerQueryMap)){
+		labManagerQueryMap.put("roleId", roleDao.getRoleByRoleName("lm").getRoleId());
+		for (LabUser labUserLM : labUserDao.findByMap(labManagerQueryMap)){
 			User labManager = labUserLM.getUser();
 			model.put("primaryuser", labManager);
 			prepareAndSend(labManager, "emails/pending_labuser_request_confirm", model); 
@@ -263,7 +269,7 @@ public class EmailServiceImpl implements EmailService {
 	public void sendPendingLabUserConfirmRequest(final LabUser labUser) {
 		Lab lab = labUser.getLab(); 
 		User pendingUser = labUser.getUser(); 
-		User primaryUser= userService.getUserByUserId(labUser.getLab().getPrimaryUserId());	
+		User primaryUser= userDao.getUserByUserId(labUser.getLab().getPrimaryUserId());	
 				
 		Map model = new HashMap();
 		model.put("lab", lab);
@@ -276,8 +282,8 @@ public class EmailServiceImpl implements EmailService {
 		// send email to lab managers
 		Map labManagerQueryMap = new HashMap();
 		labManagerQueryMap.put("labId", labUser.getLabId());
-		labManagerQueryMap.put("roleId", roleService.getRoleByRoleName("lm").getRoleId());
-		for (LabUser labUserLM : (List<LabUser>) labUserService.findByMap(labManagerQueryMap)){
+		labManagerQueryMap.put("roleId", roleDao.getRoleByRoleName("lm").getRoleId());
+		for (LabUser labUserLM : labUserDao.findByMap(labManagerQueryMap)){
 			User labManager = labUserLM.getUser();
 			model.put("primaryuser", labManager);
 			prepareAndSend(labManager, "emails/pending_labuser_request_confirm", model); 
@@ -291,24 +297,24 @@ public class EmailServiceImpl implements EmailService {
 	public void sendPendingPrincipalConfirmRequest(final LabPending labPending) {
 		User user;
 		if (labPending.getUserpendingId() != null){
-			UserPending userPending = userPendingService.getUserPendingByUserPendingId(labPending.getUserpendingId());
+			UserPending userPending = userPendingDao.getUserPendingByUserPendingId(labPending.getUserpendingId());
 			user = new User();
 			user.setFirstName(userPending.getFirstName());
 			user.setLastName(userPending.getLastName());
 		} else if (labPending.getPrimaryUserId() != null){
-			user = userService.getUserByUserId(labPending.getPrimaryUserId());
+			user = userDao.getUserByUserId(labPending.getPrimaryUserId());
 		}
 		else{
 			throw new MailPreparationException("Cannot prepare email as labPending does not have an associated userId or userPendingId");
 		}
 		
-		Department department = departmentService.getDepartmentByDepartmentId(labPending.getDepartmentId());
+		Department department = departmentDao.getDepartmentByDepartmentId(labPending.getDepartmentId());
 		Map model = new HashMap();
 		model.put("labpending", labPending);
 		model.put("user", user);
 		model.put("department", department);
 		for (DepartmentUser du: department.getDepartmentUser()){
-			User administrator = userService.getUserByUserId(du.getUserId());
+			User administrator = userDao.getUserByUserId(du.getUserId());
 			model.put("administrator", administrator);
 			prepareAndSend(administrator, "emails/pending_pi_request_confirm", model); 
 		}
@@ -440,7 +446,25 @@ public class EmailServiceImpl implements EmailService {
 	}
 
 
-
+	@Override
+	public String getNewAuthcodeForUser(User user) {
+		String authcode = AuthCode.create(20);
+		ConfirmEmailAuth confirmEmailAuth = confirmEmailAuthDao.getConfirmEmailAuthByUserId(user.getUserId());
+		confirmEmailAuth.setAuthcode(authcode);
+		confirmEmailAuth.setUserId(user.getUserId());
+		confirmEmailAuthDao.save(confirmEmailAuth);
+		return authcode;
+	}
+	
+	@Override
+	public String getNewAuthcodeForUserPending(UserPending userpending) {
+		String authcode = AuthCode.create(20);
+		ConfirmEmailAuth confirmEmailAuth = confirmEmailAuthDao.getConfirmEmailAuthByUserpendingId(userpending.getUserPendingId());
+		confirmEmailAuth.setAuthcode(authcode);
+		confirmEmailAuth.setUserpendingId(userpending.getUserPendingId());
+		confirmEmailAuthDao.save(confirmEmailAuth);
+		return authcode;
+	}
 	
 	
 }

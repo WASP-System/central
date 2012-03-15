@@ -1,31 +1,24 @@
 package edu.yu.einstein.wasp.batch;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.batch.item.ItemProcessor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.batch.core.StepExecution;
-import org.springframework.batch.core.StepExecutionListener;
-import org.springframework.batch.core.ItemProcessListener;
-import org.springframework.batch.core.ExitStatus;
-
-import edu.yu.einstein.wasp.model.State;
-import edu.yu.einstein.wasp.model.StateEntity;
-import edu.yu.einstein.wasp.service.StateService;
-
+import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.InitializingBean;
-
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
+import org.springframework.stereotype.Component;
+
+import edu.yu.einstein.wasp.dao.StateDao;
+import edu.yu.einstein.wasp.model.State;
+import edu.yu.einstein.wasp.model.StateEntity;
 
 /**
  * Wait for State
@@ -45,7 +38,7 @@ public abstract class WaspWaitForSiblingStateProcessor<E extends StateEntity> im
 	private static final Log log = LogFactory.getLog(WaspWaitForSiblingStateProcessor.class);
 
 	@Autowired
-	protected StateService stateService;
+	protected StateDao stateDao;
 
 	protected String task; 
 	public void setTask(String task) {
@@ -73,6 +66,7 @@ public abstract class WaspWaitForSiblingStateProcessor<E extends StateEntity> im
 	}
 
 
+	@Override
 	public void afterPropertiesSet() throws Exception {
 		if (statusMap == null || statusMap.size() == 0) {
 			statusMap = new HashMap<String, String>();
@@ -99,7 +93,7 @@ public abstract class WaspWaitForSiblingStateProcessor<E extends StateEntity> im
 
 			Map m = new HashMap();
 			// State siblingState =  siblingStateEntity.getState();
-			State siblingState = stateService.findById(siblingStateEntity.getStateId());
+			State siblingState = stateDao.findById(siblingStateEntity.getStateId());
 			// m.put("state", siblingState);
 
 			StandardEvaluationContext context = new StandardEvaluationContext();
@@ -135,7 +129,7 @@ public abstract class WaspWaitForSiblingStateProcessor<E extends StateEntity> im
 			if (siblingTargetStatus != null) {
 				siblingState.setStatus(siblingTargetStatus);
 				siblingState.setEndts(new Date());
-				stateService.save(siblingState);
+				stateDao.save(siblingState);
 
 //				this.stepExecution.setExitStatus(new ExitStatus(siblingTargetStatus)); 
 				return siblingTargetStatus;

@@ -11,6 +11,8 @@
 
 package edu.yu.einstein.wasp.dao;
 
+import java.util.List;
+
 import edu.yu.einstein.wasp.model.Adaptorset;
 
 
@@ -22,6 +24,7 @@ public interface AdaptorsetDao extends WaspDao<Adaptorset> {
 
   public Adaptorset getAdaptorsetByName (final String name);
 
+  public List<Adaptorset> getActiveAdaptorsets();
 
 }
 

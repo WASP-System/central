@@ -9,12 +9,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.batch.TaskStatus;
+import edu.yu.einstein.wasp.dao.StateDao;
+import edu.yu.einstein.wasp.dao.SubtypeSampleDao;
+import edu.yu.einstein.wasp.dao.TaskDao;
 import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.SubtypeSample;
 import edu.yu.einstein.wasp.model.Task;
-import edu.yu.einstein.wasp.service.StateService;
-import edu.yu.einstein.wasp.service.SubtypeSampleService;
-import edu.yu.einstein.wasp.service.TaskService;
 
 /**
  * Workflow Poller
@@ -26,13 +26,13 @@ import edu.yu.einstein.wasp.service.TaskService;
 public class WorkflowSamplePoller {
 
 	@Autowired
-	StateService stateService;
+	StateDao stateDao;
 
 	@Autowired
-	TaskService taskService;
+	TaskDao taskDao;
 
 	@Autowired
-	SubtypeSampleService subtypeSampleService;
+	SubtypeSampleDao subtypeSampleDao;
  
 	protected String subtypeSampleIName; 
 	public void setSubtypeSampleIName(String s) {
@@ -47,8 +47,8 @@ public class WorkflowSamplePoller {
  
 	@Transactional
 	public List<State> getStates() {
-		SubtypeSample subtypeSample = subtypeSampleService.getSubtypeSampleByIName(subtypeSampleIName); 
-		Task task = taskService.getTaskByIName(taskIName); 
+		SubtypeSample subtypeSample = subtypeSampleDao.getSubtypeSampleByIName(subtypeSampleIName); 
+		Task task = taskDao.getTaskByIName(taskIName); 
 
 		List<State> rt = new ArrayList();
 		List<State> allStates = task.getState();

@@ -10,18 +10,18 @@ import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.User;
-import edu.yu.einstein.wasp.service.LabService;
-import edu.yu.einstein.wasp.service.UserService;
+import edu.yu.einstein.wasp.dao.LabDao;
+import edu.yu.einstein.wasp.dao.UserDao;
 
 public class UserPendingMetaValidatorImpl extends MetaValidatorImpl{
 
-	protected UserService userService;
-	protected LabService labService;
+	protected UserDao userDao;
+	protected LabDao labDao;
 	
-	public UserPendingMetaValidatorImpl(UserService userService, LabService labService){
+	public UserPendingMetaValidatorImpl(UserDao userDao, LabDao labDao){
 		this.allowableConstraints.add(Constraint.isValidPiId);
-		this.userService = userService;
-		this.labService = labService;
+		this.userDao = userDao;
+		this.labDao = labDao;
 	}
 
  	@Override
@@ -44,11 +44,11 @@ public class UserPendingMetaValidatorImpl extends MetaValidatorImpl{
 		        } else {
 		        	errorMessageKey = meta.getK() + "_notvalid.error";
 					defaultMessage = errorMessageKey+" (no message has been defined for this property)";
-					User primaryInvestigator = userService.getUserByLogin(meta.getV());
+					User primaryInvestigator = userDao.getUserByLogin(meta.getV());
 					if (primaryInvestigator.getUserId() == null || primaryInvestigator.getIsActive() == null){
 					  errors.rejectValue(errorFieldName, errorMessageKey, defaultMessage);
 					} else {
-						Lab lab = labService.getLabByPrimaryUserId(primaryInvestigator.getUserId());
+						Lab lab = labDao.getLabByPrimaryUserId(primaryInvestigator.getUserId());
 						if (lab.getLabId() == null){
 							errors.rejectValue(errorFieldName, errorMessageKey, defaultMessage);
 						}

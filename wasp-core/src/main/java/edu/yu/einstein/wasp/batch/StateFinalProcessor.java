@@ -6,8 +6,8 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import edu.yu.einstein.wasp.dao.StateDao;
 import edu.yu.einstein.wasp.model.State;
-import edu.yu.einstein.wasp.service.StateService;
 
 /**
  * for a given state
@@ -19,14 +19,14 @@ import edu.yu.einstein.wasp.service.StateService;
 public class StateFinalProcessor implements ItemProcessor {
 
   @Autowired
-  StateService stateService;
+  StateDao stateDao;
 
   @Override
 public State process(Object stateId) throws Exception {
-    State state = stateService.getStateByStateId(((Integer) stateId).intValue());
+    State state = stateDao.getStateByStateId(((Integer) stateId).intValue());
     state.setStatus(TaskStatus.FINALIZED.toString());
     state.setEndts(new Date());
-    stateService.save(state);
+    stateDao.save(state);
 
     return state;
   }

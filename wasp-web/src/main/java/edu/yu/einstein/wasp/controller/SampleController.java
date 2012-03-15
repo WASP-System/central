@@ -23,6 +23,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
+import edu.yu.einstein.wasp.dao.JobDao;
+import edu.yu.einstein.wasp.dao.RunDao;
+import edu.yu.einstein.wasp.dao.SampleDao;
+import edu.yu.einstein.wasp.dao.SubtypeSampleDao;
+import edu.yu.einstein.wasp.dao.TypeSampleCategoryDao;
+import edu.yu.einstein.wasp.dao.TypeSampleDao;
+import edu.yu.einstein.wasp.dao.UserDao;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobSample;
 import edu.yu.einstein.wasp.model.MetaBase;
@@ -34,13 +41,6 @@ import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.SubtypeSample;
 import edu.yu.einstein.wasp.model.TypeSample;
 import edu.yu.einstein.wasp.model.User;
-import edu.yu.einstein.wasp.service.JobService;
-import edu.yu.einstein.wasp.service.RunService;
-import edu.yu.einstein.wasp.service.SampleService;
-import edu.yu.einstein.wasp.service.SubtypeSampleService;
-import edu.yu.einstein.wasp.service.TypeSampleCategoryService;
-import edu.yu.einstein.wasp.service.TypeSampleService;
-import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 import edu.yu.einstein.wasp.util.MetaHelper;
 
@@ -50,45 +50,45 @@ import edu.yu.einstein.wasp.util.MetaHelper;
 public class SampleController extends WaspController {
 
   
-  private SampleService sampleService;
+  private SampleDao sampleDao;
   
-  private TypeSampleService	typeSampleService;
-  
-  @Autowired
-  private SubtypeSampleService	subtypeSampleService;
+  private TypeSampleDao	typeSampleDao;
   
   @Autowired
-  private TypeSampleCategoryService	typeSampleCategoryService;
+  private SubtypeSampleDao	subtypeSampleDao;
   
   @Autowired
-  private JobService jobService;
+  private TypeSampleCategoryDao	typeSampleCategoryDao;
   
   @Autowired
-  private UserService userService;
+  private JobDao jobDao;
   
   @Autowired
-  private RunService runService;
+  private UserDao userDao;
   
   @Autowired
-  public void setSampleService(SampleService sampleService) {
-    this.sampleService = sampleService;
+  private RunDao runDao;
+  
+  @Autowired
+  public void setSampleDao(SampleDao sampleDao) {
+    this.sampleDao = sampleDao;
   }
-  public SampleService getSampleService() {
-    return this.sampleService;
+  public SampleDao getSampleDao() {
+    return this.sampleDao;
   }
   
   @Autowired
-  public void setTypeSampleService(TypeSampleService typeSampleService) {
-	  this.typeSampleService = typeSampleService;
+  public void setTypeSampleDao(TypeSampleDao typeSampleDao) {
+	  this.typeSampleDao = typeSampleDao;
 }
 
-  public TypeSampleService getTypeSampleService() {
-	    return this.typeSampleService;
+  public TypeSampleDao getTypeSampleDao() {
+	    return this.typeSampleDao;
   }
 
   @RequestMapping("/list")
   public String list(ModelMap m) {
-    //List <Sample> sampleList = this.getSampleService().findAll();
+    //List <Sample> sampleList = this.getSampleDao().findAll();
     
     m.addAttribute("_metaList", getMetaHelperWebapp().getMasterList(MetaBase.class));
 	m.addAttribute(JQFieldTag.AREA_ATTR, getMetaHelperWebapp().getArea());
@@ -112,7 +112,7 @@ public class SampleController extends WaspController {
       return "default";
     }
 
-    Sample sample = this.getSampleService().getById(i.intValue());
+    Sample sample = this.getSampleDao().getById(i.intValue());
 
     List<SampleMeta> sampleMetaList = sample.getSampleMeta();
     sampleMetaList.size();
@@ -190,7 +190,7 @@ public class SampleController extends WaspController {
 
 		if (!StringUtils.isEmpty(selId)) {
 
-			sampleList.add(this.sampleService.getSampleBySampleId(Integer.parseInt(selId)));
+			sampleList.add(this.sampleDao.getSampleBySampleId(Integer.parseInt(selId)));
 		
 		} else if (!StringUtils.isEmpty(search) && !StringUtils.isEmpty(searchField) && !StringUtils.isEmpty(searchString) ) {
 		
@@ -199,16 +199,16 @@ public class SampleController extends WaspController {
 			m.put(searchField, searchString);
 
 			if (sidx.isEmpty()) {
-				sampleList = this.sampleService.findByMap(m);
+				sampleList = this.sampleDao.findByMap(m);
 			} else {
 				List<String> sidxList =  new ArrayList<String>();
 				sidxList.add(sidx);
-				sampleList = this.sampleService.findByMapDistinctOrderBy(m, null, sidxList, sord);
+				sampleList = this.sampleDao.findByMapDistinctOrderBy(m, null, sidxList, sord);
 			}
 
 			if ("ne".equals(request.getParameter("searchOper"))) {
 				List<Sample> allSamples = new ArrayList<Sample>(sidx.isEmpty() ? 
-						this.sampleService.findAll() : this.sampleService.findAllOrderBy(sidx, sord));
+						this.sampleDao.findAll() : this.sampleDao.findAllOrderBy(sidx, sord));
 
 				for (Iterator<Sample> it = sampleList.iterator(); it.hasNext();) {
 					Sample excludeSample = it.next();
@@ -220,32 +220,32 @@ public class SampleController extends WaspController {
 			
 		} else {
 			
-			sampleList = sidx.isEmpty() ? this.sampleService.findAll() : this.sampleService.findAllOrderBy(sidx, sord);
+			sampleList = sidx.isEmpty() ? this.sampleDao.findAll() : this.sampleDao.findAllOrderBy(sidx, sord);
 		}
 
 		try {
 
 			Map<Integer, String> allTypeSamples = new TreeMap<Integer, String>();
-			for (TypeSample typeSample : (List<TypeSample>) this.getTypeSampleService().findAll()) {
+			for (TypeSample typeSample : this.getTypeSampleDao().findAll()) {
 				allTypeSamples.put(typeSample.getTypeSampleId(), typeSample.getName());
 			}
 			Map<Integer, String> allSubTypeSamples = new TreeMap<Integer, String>();
-			for (SubtypeSample subtypeSample : (List<SubtypeSample>) subtypeSampleService.findAll()) {
+			for (SubtypeSample subtypeSample : subtypeSampleDao.findAll()) {
 				allSubTypeSamples.put(subtypeSample.getSubtypeSampleId(), subtypeSample.getName());
 			}
 
 			Map<Integer, String> allJobs = new TreeMap<Integer, String>();
-			for (Job job : (List<Job>) jobService.findAll()) {
+			for (Job job : jobDao.findAll()) {
 				allJobs.put(job.getJobId(), job.getName());
 			}
 
 			Map<Integer, String> allUsers = new TreeMap<Integer, String>();
-			for (User user : (List<User>) userService.findAll()) {
+			for (User user : userDao.findAll()) {
 				allUsers.put(user.getUserId(), user.getLastName() + ", " + user.getFirstName());
 			}
 
 			Map<Integer, String> allRuns = new TreeMap<Integer, String>();
-			for (Run run : (List<Run>) runService.findAll()) {
+			for (Run run : runDao.findAll()) {
 				allRuns.put(run.getSampleId(), run.getName());
 			}
 
@@ -297,7 +297,7 @@ public class SampleController extends WaspController {
 			// if the selId is set, change the page index to the one contains the selId 
 //			if (!StringUtils.isEmpty(request.getParameter("selId"))) {
 //				int selId = Integer.parseInt(request.getParameter("selId"));
-//				int selIndex = sampleList.indexOf(sampleService.findById(selId));
+//				int selIndex = sampleList.indexOf(sampleDao.findById(selId));
 //				frId = selIndex;
 //				toId = frId + 1;
 //

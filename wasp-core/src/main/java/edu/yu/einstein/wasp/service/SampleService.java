@@ -16,9 +16,10 @@ import org.springframework.stereotype.Service;
 
 import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.SubtypeSample;
 
 @Service
-public interface SampleService extends WaspService<Sample> {
+public interface SampleService extends WaspService {
 
 	/**
 	 * setSampleDao(SampleDao sampleDao)
@@ -36,14 +37,45 @@ public interface SampleService extends WaspService<Sample> {
 	 */
 	public SampleDao getSampleDao();
 
-	public Sample getSampleBySampleId(final int sampleId);
-
-	public List<Sample> getSamplesByJobId(final int jobId);
-
-	public List<Sample> getActiveSamples();
-
 	public Sample getSampleByName(final String name);
 
-	List<Sample> findAllPlatformUntis();
+	List<Sample> findAllPlatformUnits();
+
+	  /**
+	   * Gets a list of {@link SubtypeSample} objects associated with given workflow which are specified as viewable
+	   * to the currently logged in user (role dependent)
+	   * @param workflowId
+	   * @return List<{@link SubtypeSample}>
+	   */
+	  public List<SubtypeSample> getSubtypeSamplesForWorkflowByLoggedInUserRoles(Integer workflowId);
+
+	  /**
+	   * Gets a list of {@link SubtypeSample} objects associated with given workflowId and typeSampleId which are specified as viewable
+	   * to the currently logged in user (role dependent)
+	   * @param workflowId
+	   * @return List<{@link SubtypeSample}>
+	   */
+	  public List<SubtypeSample> getSubtypeSamplesForWorkflowByLoggedInUserRoles(Integer workflowId, String typeSampleIName);
+
+
+	  /**
+	   * Gets a list of {@link SubtypeSample} objects associated with given workflowId and typeSampleId which are specified as viewable
+	   * to the users with given roles (role dependent)
+	   * @param workflowId
+	   * @param roles
+	   * @param typeSampleIName
+	   * @return
+	   */
+	  public List<SubtypeSample> getSubtypeSamplesForWorkflowByRole(Integer workflowId,	String[] roles, String typeSampleIName);
+
+	  /**
+	   * Gets a list of {@link SubtypeSample} objects associated with given workflowId which are specified as viewable
+	   * to the users with given roles (role dependent)
+	   * @param workflowId
+	   * @param roles
+	   * @return
+	   */
+	  public List<SubtypeSample> getSubtypeSamplesForWorkflowByRole(Integer workflowId,	String[] roles);
+
 
 }

@@ -17,7 +17,7 @@ import edu.yu.einstein.wasp.dao.FileDao;
 import edu.yu.einstein.wasp.model.File;
 
 @Service
-public interface FileService extends WaspService<File> {
+public interface FileService extends WaspService {
 
 	/**
 	 * setFileDao(FileDao fileDao)

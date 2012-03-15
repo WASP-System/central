@@ -4,8 +4,8 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import edu.yu.einstein.wasp.dao.StateDao;
 import edu.yu.einstein.wasp.model.State;
-import edu.yu.einstein.wasp.service.StateService;
 
 /**
  * Empty State Processor
@@ -17,12 +17,12 @@ import edu.yu.einstein.wasp.service.StateService;
 public class EmptyStateProcessor implements ItemProcessor {
 
 	@Autowired
-	StateService stateService;
+	StateDao stateDao;
 
 	@Override
 	public State process(Object stateId) throws Exception {
 		
-		State state = stateService.getStateByStateId(((Integer) stateId).intValue());
+		State state = stateDao.getStateByStateId(((Integer) stateId).intValue());
 		return state;
 	}
 }

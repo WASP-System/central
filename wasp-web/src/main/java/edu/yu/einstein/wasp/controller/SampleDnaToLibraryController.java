@@ -1,21 +1,15 @@
 package edu.yu.einstein.wasp.controller;
 
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.List;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.TreeSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
 import javax.validation.Valid;
 
@@ -34,15 +28,27 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
 
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
+import edu.yu.einstein.wasp.dao.AdaptorDao;
+import edu.yu.einstein.wasp.dao.AdaptorsetDao;
+import edu.yu.einstein.wasp.dao.JobCellDao;
+import edu.yu.einstein.wasp.dao.JobDao;
+import edu.yu.einstein.wasp.dao.JobSampleDao;
+import edu.yu.einstein.wasp.dao.SampleDao;
+import edu.yu.einstein.wasp.dao.SampleMetaDao;
+import edu.yu.einstein.wasp.dao.SampleSourceDao;
+import edu.yu.einstein.wasp.dao.StateDao;
+import edu.yu.einstein.wasp.dao.SubtypeSampleDao;
+import edu.yu.einstein.wasp.dao.TaskDao;
+import edu.yu.einstein.wasp.dao.TypeSampleDao;
+import edu.yu.einstein.wasp.dao.WorkflowsubtypesampleDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Adaptorset;
-import edu.yu.einstein.wasp.model.AdaptorsetResourceCategory;
 import edu.yu.einstein.wasp.model.Job;
-import edu.yu.einstein.wasp.model.JobSample;
 import edu.yu.einstein.wasp.model.JobCell;
 import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
+import edu.yu.einstein.wasp.model.JobSample;
 import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleCell;
@@ -53,68 +59,51 @@ import edu.yu.einstein.wasp.model.Statesample;
 import edu.yu.einstein.wasp.model.SubtypeSample;
 import edu.yu.einstein.wasp.model.Task;
 import edu.yu.einstein.wasp.model.TypeSample;
-import edu.yu.einstein.wasp.model.User;
-import edu.yu.einstein.wasp.model.UserMeta;
 import edu.yu.einstein.wasp.model.Workflow;
 import edu.yu.einstein.wasp.model.Workflowsubtypesample;
-import edu.yu.einstein.wasp.service.AdaptorService;
-import edu.yu.einstein.wasp.service.AdaptorsetService;
-import edu.yu.einstein.wasp.service.AdaptorsetResourceCategoryService;
-import edu.yu.einstein.wasp.service.SampleMetaService;
 import edu.yu.einstein.wasp.service.SampleService;
-import edu.yu.einstein.wasp.service.SampleSourceService;
-import edu.yu.einstein.wasp.service.StatesampleService;
-import edu.yu.einstein.wasp.service.StateService;
-import edu.yu.einstein.wasp.service.SubtypeSampleService;
-import edu.yu.einstein.wasp.service.WorkflowsubtypesampleService;
-import edu.yu.einstein.wasp.service.TypeSampleService;
-import edu.yu.einstein.wasp.service.TaskService;
-import edu.yu.einstein.wasp.service.JobService;
-import edu.yu.einstein.wasp.service.JobSampleService;
-import edu.yu.einstein.wasp.service.JobCellService;
 
 @Controller
 @Transactional
 @RequestMapping("/sampleDnaToLibrary")
 public class SampleDnaToLibraryController extends WaspController {
 
-  private SampleService sampleService;
+  private SampleDao sampleDao;
   @Autowired
-  public void setSampleService(SampleService sampleService) {
-    this.sampleService = sampleService;
+  public void setSampleDao(SampleDao sampleDao) {
+    this.sampleDao = sampleDao;
   }
-  public SampleService getSampleService() {
-    return this.sampleService;
+  public SampleDao getSampleDao() {
+    return this.sampleDao;
   }
 
   @Autowired
-  private SampleMetaService sampleMetaService;
+  private SampleMetaDao sampleMetaDao;
   @Autowired
-  private JobCellService jobCellService;
+  private JobCellDao jobCellDao;
   @Autowired
-  private JobService jobService;
+  private JobDao jobDao;
   @Autowired
-  private AdaptorService adaptorService;
+  private AdaptorDao adaptorDao;
   @Autowired
-  private AdaptorsetService adaptorsetService;
+  private AdaptorsetDao adaptorsetDao;
   @Autowired
-  private AdaptorsetResourceCategoryService adaptorsetResourcecategoryService;
+  private TypeSampleDao typeSampleDao;
   @Autowired
-  private TypeSampleService typeSampleService;
+  private SubtypeSampleDao subtypeSampleDao;
   @Autowired
-  private SubtypeSampleService subtypeSampleService;
+  private WorkflowsubtypesampleDao workflowSubtypesampleDao;
   @Autowired
-  private WorkflowsubtypesampleService workflowSubtypesampleService;
+  private JobSampleDao jobSampleDao;
   @Autowired
-  private JobSampleService jobSampleService;
+  private SampleSourceDao sampleSourceDao;
   @Autowired
-  private SampleSourceService sampleSourceService;
+  private TaskDao taskDao;
   @Autowired
-  private TaskService taskService;
+  private StateDao stateDao;
   @Autowired
-  private StateService stateService;
-  @Autowired
-  private StatesampleService statesampleService;
+  private SampleService sampleService;
+  
 
   private final MetaHelperWebapp getMetaHelperWebapp() {
     return new MetaHelperWebapp("sample", SampleMeta.class, request.getSession());
@@ -171,7 +160,7 @@ public class SampleDnaToLibraryController extends WaspController {
 
   @RequestMapping(value="/detail/{sampleId}", method=RequestMethod.GET)
   public String detail(@PathVariable("sampleId") Integer sampleId, ModelMap m) {
-    Sample sample = sampleService.getSampleBySampleId(sampleId); 
+    Sample sample = sampleDao.getSampleBySampleId(sampleId); 
 
     MetaHelperWebapp metaHelperWebapp = getMetaHelperWebapp();
     List<SampleMeta> coreSampleMeta = metaHelperWebapp.syncWithMaster(sample.getSampleMeta());
@@ -195,7 +184,7 @@ public class SampleDnaToLibraryController extends WaspController {
 
   @RequestMapping(value="/addLibraryMeta/{sampleId}", method=RequestMethod.GET)
   public String addLibraryMetaForm(@PathVariable("sampleId") Integer sampleId, ModelMap m) {
-    Sample sample = sampleService.getSampleBySampleId(sampleId); 
+    Sample sample = sampleDao.getSampleBySampleId(sampleId); 
 
     MetaHelperWebapp metaHelperWebapp = getMetaHelperWebapp();
     List<SampleMeta> coreSampleMeta = metaHelperWebapp.syncWithMaster(sample.getSampleMeta());
@@ -247,7 +236,7 @@ public class SampleDnaToLibraryController extends WaspController {
        String area,
        String returnPageDef
      ) {
-     Sample sample = sampleService.getSampleBySampleId(sampleId);
+     Sample sample = sampleDao.getSampleBySampleId(sampleId);
 
      MetaHelperWebapp metaHelperWebapp = getMetaHelperWebapp();
      metaHelperWebapp.setArea(area);
@@ -278,7 +267,7 @@ public class SampleDnaToLibraryController extends WaspController {
         return returnPageDef;
      }
  
-     sampleMetaService.updateBySampleId(metaHelperWebapp.getArea(), sampleId, sampleMetaList);
+     sampleMetaDao.updateBySampleId(metaHelperWebapp.getArea(), sampleId, sampleMetaList);
 
      return nextPage(sample);
   } 
@@ -290,7 +279,7 @@ public class SampleDnaToLibraryController extends WaspController {
 		  waspErrorMessage("sampleDetail.updated.unexpectedError");
 		  return "redirect:/dashboard.do";		  
 	  }
-	  Job job = jobService.getJobByJobId(jobId);
+	  Job job = jobDao.getJobByJobId(jobId);
 	  if(job==null || job.getJobId()==null || job.getJobId().intValue()==0){
 		  waspErrorMessage("sampleDetail.updated.unexpectedError");
 		  return "redirect:/dashboard.do";
@@ -300,13 +289,13 @@ public class SampleDnaToLibraryController extends WaspController {
 	  Map<String, String> extraJobDetailsMap = getExtraJobDetails(job);
 	  m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);
 
-	  List<Adaptor> allAdaptors = adaptorService.findAll();
+	  List<Adaptor> allAdaptors = adaptorDao.findAll();
 	  Map adaptorList = new HashMap();
 	  for(Adaptor adaptor : allAdaptors){
 		  adaptorList.put(adaptor.getAdaptorId().toString(), adaptor);
 	  }
 	  m.addAttribute("adaptors", adaptorList);
-	  List<Adaptorset> adaptorsetList = adaptorsetService.findAll();
+	  List<Adaptorset> adaptorsetList = adaptorsetDao.findAll();
 	  m.addAttribute("adaptorsets", adaptorsetList);
   
 	  //submittedSamples include all samples (both macromolecules and libraries) that were submitted by user
@@ -368,7 +357,7 @@ public class SampleDnaToLibraryController extends WaspController {
 			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 		}
 	  
-  		Job job = jobService.getJobByJobId(jobId);
+  		Job job = jobDao.getJobByJobId(jobId);
   		if(job.getJobId()==null || job.getJobId().intValue()==0){//not found in database
   			waspErrorMessage("sampleDetail.updated.unexpectedError");
 			return "redirect:/dashboard.do";
@@ -376,13 +365,13 @@ public class SampleDnaToLibraryController extends WaspController {
   		Map<String, String> extraJobDetailsMap = getExtraJobDetails(job);
   		m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);
 
-  		Sample macromoleculeSample = sampleService.getSampleBySampleId(macromolSampleId);
+  		Sample macromoleculeSample = sampleDao.getSampleBySampleId(macromolSampleId);
 		if(macromoleculeSample.getSampleId()==null || macromoleculeSample.getSampleId().intValue()==0){//not found in database
 			waspErrorMessage("sampleDetail.updated.unexpectedError");
 			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 		}
 		//confirm these two objects exist and part of same job
-		JobSample jobSample = jobSampleService.getJobSampleByJobIdSampleId(jobId, macromolSampleId);
+		JobSample jobSample = jobSampleDao.getJobSampleByJobIdSampleId(jobId, macromolSampleId);
 		if(jobSample.getJobSampleId()== null || jobSample.getJobSampleId().intValue()==0){
 			waspErrorMessage("sampleDetail.updated.unexpectedError");
 			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
@@ -391,10 +380,10 @@ public class SampleDnaToLibraryController extends WaspController {
 		m.put("macromoleculeSample", macromoleculeSample);
 		m.put("job", job);
 
-		Adaptorset selectedAdaptorset = adaptorsetService.getAdaptorsetByAdaptorsetId(adaptorsetId);
-		m.put("adaptorsets", adaptorsetService.findAll()); // required for adaptorsets metadata control element (select:${adaptorsets}:adaptorsetId:name)
+		Adaptorset selectedAdaptorset = adaptorsetDao.getAdaptorsetByAdaptorsetId(adaptorsetId);
+		m.put("adaptorsets", adaptorsetDao.findAll()); // required for adaptorsets metadata control element (select:${adaptorsets}:adaptorsetId:name)
 		m.put("adaptors", selectedAdaptorset.getAdaptor()); // required for adaptors metadata control element (select:${adaptors}:adaptorId:barcodenumber)
-		List<Adaptorset> otherAdaptorsets = adaptorsetService.findAll();//should really filter this by the machine requested
+		List<Adaptorset> otherAdaptorsets = adaptorsetDao.findAll();//should really filter this by the machine requested
 		otherAdaptorsets.remove(selectedAdaptorset);//remove this one
 		m.put("otherAdaptorsets", otherAdaptorsets); 
 		  
@@ -432,7 +421,7 @@ public class SampleDnaToLibraryController extends WaspController {
 		  return "redirect:/dashboard.do";
 	  }
 
-	  Job jobForThisSample = jobService.getJobByJobId(jobId);
+	  Job jobForThisSample = jobDao.getJobByJobId(jobId);
 	  if(jobForThisSample.getJobId()==null || jobForThisSample.getJobId().intValue()==0){//not found in database
 		  waspErrorMessage("sampleDetail.updated.unexpectedError");
 		  return "redirect:/dashboard.do";
@@ -444,13 +433,13 @@ public class SampleDnaToLibraryController extends WaspController {
 		  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 	  }
 
-	  Sample parentMacromolecule = sampleService.getSampleBySampleId(macromolSampleId);
+	  Sample parentMacromolecule = sampleDao.getSampleBySampleId(macromolSampleId);
 	  if(parentMacromolecule.getSampleId()==null || parentMacromolecule.getSampleId().intValue()==0){//not found in database
 		  waspErrorMessage("sampleDetail.updated.unexpectedError");
 		  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 	  }
 	  //confirm the job and the macromoleculeSample are part of same job
-	  JobSample jobSample = jobSampleService.getJobSampleByJobIdSampleId(jobId, macromolSampleId);
+	  JobSample jobSample = jobSampleDao.getJobSampleByJobIdSampleId(jobId, macromolSampleId);
 	  if(jobSample.getJobSampleId()== null || jobSample.getJobSampleId().intValue()==0){
 		  waspErrorMessage("sampleDetail.updated.unexpectedError");
 		  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
@@ -489,10 +478,10 @@ public class SampleDnaToLibraryController extends WaspController {
 
 		  waspErrorMessage("sampleDetail.updated.error");
 
-		  Adaptorset selectedAdaptorset = adaptorsetService.getAdaptorsetByAdaptorsetId(adaptorsetId);
-		  m.put("adaptorsets", adaptorsetService.findAll()); // required for adaptorsets metadata control element (select:${adaptorsets}:adaptorsetId:name)
+		  Adaptorset selectedAdaptorset = adaptorsetDao.getAdaptorsetByAdaptorsetId(adaptorsetId);
+		  m.put("adaptorsets", adaptorsetDao.findAll()); // required for adaptorsets metadata control element (select:${adaptorsets}:adaptorsetId:name)
 		  m.put("adaptors", selectedAdaptorset.getAdaptor()); // required for adaptors metadata control element (select:${adaptors}:adaptorId:barcodenumber)
-		  List<Adaptorset> otherAdaptorsets = adaptorsetService.findAll();//should really filter this by the machine requested
+		  List<Adaptorset> otherAdaptorsets = adaptorsetDao.findAll();//should really filter this by the machine requested
 		  otherAdaptorsets.remove(selectedAdaptorset);//remove this one
 		  m.put("otherAdaptorsets", otherAdaptorsets); 
 
@@ -508,12 +497,12 @@ public class SampleDnaToLibraryController extends WaspController {
 	  //all OK so create/save new library
 	  Sample newLibrary = new Sample();
 	  newLibrary.setName(newLibraryName);
-	  //newLibrary.setSampleMeta(sampleMetaListFromForm);//this will not be saved simply by saving newLibrary; use sampleMetaService.updateBySampleId below
-	  TypeSample typeSample = typeSampleService.getTypeSampleByIName("library");
+	  //newLibrary.setSampleMeta(sampleMetaListFromForm);//this will not be saved simply by saving newLibrary; use sampleMetaDao.updateBySampleId below
+	  TypeSample typeSample = typeSampleDao.getTypeSampleByIName("library");
 	  newLibrary.setTypeSample(typeSample);
 	  Map filterMap = new HashMap();
 	  filterMap.put("typeSampleId", typeSample.getTypeSampleId());//restrict search to typeSample is library
-	  List<SubtypeSample> subtypeSampleList = subtypeSampleService.findByMap(filterMap);
+	  List<SubtypeSample> subtypeSampleList = subtypeSampleDao.findByMap(filterMap);
 	  String workflowName = jobForThisSample.getWorkflow().getIName().toLowerCase();//such as chipseq
 	  for(SubtypeSample sts : subtypeSampleList){
 		  if( sts.getIName().toLowerCase().indexOf(workflowName) > -1 ){
@@ -534,15 +523,15 @@ public class SampleDnaToLibraryController extends WaspController {
 	  newLibrary.setIsActive(new Integer(1));
 	  newLibrary.setLastUpdTs(new Date());
 
-	  newLibrary = sampleService.save(newLibrary);
+	  newLibrary = sampleDao.save(newLibrary);
 
-	  sampleMetaService.updateBySampleId(newLibrary.getSampleId(), sampleMetaListFromForm);
+	  sampleMetaDao.updateBySampleId(newLibrary.getSampleId(), sampleMetaListFromForm);
 
 	  //add entry to jobsample table to link new library to job
 	  JobSample newJobSample = new JobSample();
 	  newJobSample.setJob(jobForThisSample);
 	  newJobSample.setSample(newLibrary);
-	  newJobSample = jobSampleService.save(newJobSample);
+	  newJobSample = jobSampleDao.save(newJobSample);
 
 	  //add entry to sample source to link new library to the macromolecule from which it was derived
 	  SampleSource sampleSource = new SampleSource();
@@ -553,7 +542,7 @@ public class SampleDnaToLibraryController extends WaspController {
 	  int maxindex = 0;
 	  Map filterMap2 = new HashMap();
 	  filterMap2.put("sourceSampleId", parentMacromolecule.getSampleId());
-	  List<SampleSource> libFromThisMacromoleculeList = sampleSourceService.findByMap(filterMap2);
+	  List<SampleSource> libFromThisMacromoleculeList = sampleSourceDao.findByMap(filterMap2);
 	  for(SampleSource ss : libFromThisMacromoleculeList){
 		  if(ss.getMultiplexindex().intValue() > maxindex){
 			  maxindex = ss.getMultiplexindex().intValue();
@@ -562,14 +551,14 @@ public class SampleDnaToLibraryController extends WaspController {
 	  maxindex++;
 	  sampleSource.setMultiplexindex(new Integer(maxindex));
 	  sampleSource.setLastUpdTs(new Date());
-	  sampleSource = sampleSourceService.save(sampleSource);
+	  sampleSource = sampleSourceDao.save(sampleSource);
 
 	  //TODO record state change
-	  Task task = taskService.getTaskByIName("Create Library");
+	  Task task = taskDao.getTaskByIName("Create Library");
 	  Map filterMap3 = new HashMap();
 	  filterMap3.put("taskId", task.getTaskId());
 	  filterMap3.put("status", "CREATED");
-	  List<State> stateList = stateService.findByMap(filterMap3);
+	  List<State> stateList = stateDao.findByMap(filterMap3);
 	  for(State state : stateList){
 		  List <Statesample> statesampleList = state.getStatesample();
 		  for(Statesample statesample : statesampleList){
@@ -615,7 +604,7 @@ public class SampleDnaToLibraryController extends WaspController {
 			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 		}
 	  
-  		Job job = jobService.getJobByJobId(jobId);
+  		Job job = jobDao.getJobByJobId(jobId);
   		if(job.getJobId()==null || job.getJobId().intValue()==0){//not found in database
   			waspErrorMessage("sampleDetail.updated.unexpectedError");System.out.println("ROB: error 3");
 			return "redirect:/dashboard.do";
@@ -623,14 +612,14 @@ public class SampleDnaToLibraryController extends WaspController {
   		Map<String, String> extraJobDetailsMap = getExtraJobDetails(job);
   		m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);
 
-  		Sample library = sampleService.getSampleBySampleId(libraryId);
+  		Sample library = sampleDao.getSampleBySampleId(libraryId);
   		if(library.getSampleId()==null || library.getSampleId().intValue()==0 || ! "library".equals(library.getTypeSample().getIName())){//not found in database or not a library
   			waspErrorMessage("sampleDetail.updated.unexpectedError");System.out.println("ROB: error 4");
   			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 		}
   		
   		//confirm these two objects exist and part of same job
-		JobSample jobSample = jobSampleService.getJobSampleByJobIdSampleId(jobId, libraryId);
+		JobSample jobSample = jobSampleDao.getJobSampleByJobIdSampleId(jobId, libraryId);
 		if(jobSample.getJobSampleId()== null || jobSample.getJobSampleId().intValue()==0){
 			waspErrorMessage("sampleDetail.updated.unexpectedError");
 			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
@@ -638,13 +627,13 @@ public class SampleDnaToLibraryController extends WaspController {
 		
 		// get the library subtype for this workflow as the job-viewer sees it
 		String[] roles = {"lu"};
-		List<SubtypeSample> librarySubtypeSamples = subtypeSampleService.getSubtypeSamplesForWorkflowByRole(job.getWorkflow().getWorkflowId(), roles, "library");
+		List<SubtypeSample> librarySubtypeSamples = sampleService.getSubtypeSamplesForWorkflowByRole(job.getWorkflow().getWorkflowId(), roles, "library");
 		if(librarySubtypeSamples.isEmpty()){
 			waspErrorMessage("sampleDetail.updated.unexpectedError");
 			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do"; // no workflowsubtype sample
 		}
 		SubtypeSample librarySubtypeSample = librarySubtypeSamples.get(0); // should be one
-		Workflowsubtypesample wfss = workflowSubtypesampleService.getWorkflowsubtypesampleByWorkflowIdSubtypeSampleId(
+		Workflowsubtypesample wfss = workflowSubtypesampleDao.getWorkflowsubtypesampleByWorkflowIdSubtypeSampleId(
 				job.getWorkflow().getWorkflowId(),
 				library.getSubtypeSampleId());
 		
@@ -667,17 +656,17 @@ public class SampleDnaToLibraryController extends WaspController {
 		Adaptor adaptor = null;
 		sampleMetaHelper.setArea("genericLibrary");	//only should need this, as we're creating a new library from a DNA or RNA at the facility, but I suppose there could be an assay-specific set of metadat, but for now leave this	  
 		try{
-  			adaptor = adaptorService.getAdaptorByAdaptorId(Integer.valueOf( sampleMetaHelper.getMetaValueByName("adaptor",normalizedSampleMeta)) );
-  			selectedAdaptorset = adaptorsetService.getAdaptorsetByAdaptorsetId(Integer.valueOf( sampleMetaHelper.getMetaValueByName("adaptorset",normalizedSampleMeta)) );
+  			adaptor = adaptorDao.getAdaptorByAdaptorId(Integer.valueOf( sampleMetaHelper.getMetaValueByName("adaptor",normalizedSampleMeta)) );
+  			selectedAdaptorset = adaptorsetDao.getAdaptorsetByAdaptorsetId(Integer.valueOf( sampleMetaHelper.getMetaValueByName("adaptorset",normalizedSampleMeta)) );
   		} catch(MetadataException e){
   			logger.warn("Cannot get metadata : " + e.getMessage());
   		} catch(NumberFormatException e){
   			logger.warn("Cannot convert to numeric value for metadata " + e.getMessage());
   		}
 		
-		m.put("adaptorsets", adaptorsetService.findAll()); // required for adaptorsets metadata control element (select:${adaptorsets}:adaptorsetId:name)
+		m.put("adaptorsets", adaptorsetDao.findAll()); // required for adaptorsets metadata control element (select:${adaptorsets}:adaptorsetId:name)
 		m.put("adaptors", selectedAdaptorset.getAdaptor()); // required for adaptors metadata control element (select:${adaptors}:adaptorId:barcodenumber)
-		List<Adaptorset> otherAdaptorsets = adaptorsetService.findAll();//should really filter this by the machine requested
+		List<Adaptorset> otherAdaptorsets = adaptorsetDao.findAll();//should really filter this by the machine requested
 		otherAdaptorsets.remove(selectedAdaptorset);//remove this one
 		if(isRW){
 			m.put("otherAdaptorsets", otherAdaptorsets);
@@ -716,7 +705,7 @@ public class SampleDnaToLibraryController extends WaspController {
 		  return "redirect:/dashboard.do";
 	  }
 	  
-	  Job job = jobService.getJobByJobId(jobId);
+	  Job job = jobDao.getJobByJobId(jobId);
 	  if(job.getJobId()==null || job.getJobId().intValue()==0){//not found in database
 		  waspErrorMessage("sampleDetail.updated.unexpectedError");
 		  return "redirect:/dashboard.do";
@@ -724,14 +713,14 @@ public class SampleDnaToLibraryController extends WaspController {
 	  Map<String, String> extraJobDetailsMap = getExtraJobDetails(job);
 	  m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);
 
-	  Sample sample= sampleService.getSampleBySampleId(sampleId);
+	  Sample sample= sampleDao.getSampleBySampleId(sampleId);
 	  if(sample.getSampleId()==null || sample.getSampleId().intValue()==0){//not found in database
 		  waspErrorMessage("sampleDetail.updated.unexpectedError");
 		  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 	  }
 	  
 	  //confirm these two objects exist and part of same job
-	  JobSample jobSample = jobSampleService.getJobSampleByJobIdSampleId(jobId, sampleId);
+	  JobSample jobSample = jobSampleDao.getJobSampleByJobIdSampleId(jobId, sampleId);
 	  if(jobSample.getJobSampleId()== null || jobSample.getJobSampleId().intValue()==0){
 		  waspErrorMessage("sampleDetail.updated.unexpectedError");
 		  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
@@ -775,7 +764,7 @@ public class SampleDnaToLibraryController extends WaspController {
 		  return "redirect:/dashboard.do";
 	  }
 		
-	  Job jobForThisSample = jobService.getJobByJobId(jobId);
+	  Job jobForThisSample = jobDao.getJobByJobId(jobId);
 	  if(jobForThisSample.getJobId()==null || jobForThisSample.getJobId().intValue()==0){//not found in database
 		  waspErrorMessage("sampleDetail.updated.unexpectedError");
 		  return "redirect:/dashboard.do";
@@ -788,14 +777,14 @@ public class SampleDnaToLibraryController extends WaspController {
 		  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 	  } 
 		  
-	  Sample sampleToSave = sampleService.getSampleBySampleId(sampleId); 
+	  Sample sampleToSave = sampleDao.getSampleBySampleId(sampleId); 
 	  if(sampleToSave.getSampleId()==null || sampleToSave.getSampleId().intValue()==0){//not found in database
 		  waspErrorMessage("sampleDetail.updated.unexpectedError");
 		  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 	  }
 	
 	  //confirm macromoleculeSample is actually part of this job
-	  JobSample jobSample = jobSampleService.getJobSampleByJobIdSampleId(jobId, sampleId);
+	  JobSample jobSample = jobSampleDao.getJobSampleByJobIdSampleId(jobId, sampleId);
 	  if(jobSample.getJobSampleId()== null || jobSample.getJobSampleId().intValue()==0){
 		  waspErrorMessage("sampleDetail.updated.unexpectedError");
 		  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
@@ -804,7 +793,7 @@ public class SampleDnaToLibraryController extends WaspController {
 	  //get list of metadata areas for a sample of this job's workflow; it's in subtypesample.arealist (example: genericBiomolecule,chipseqDna,genericLibrary)
 	  //likely candidate for a method somewhere
 	  List<String> areaList = new ArrayList<String>();
-	  Workflow workflow = jobService.getJobByJobId(jobId).getWorkflow(); 
+	  Workflow workflow = jobDao.getJobByJobId(jobId).getWorkflow(); 
 	  List<Workflowsubtypesample> wfssList = workflow.getWorkflowsubtypesample();
 	  for(Workflowsubtypesample wfss: wfssList){
 		  if(wfss.getSubtypeSample().getTypeSampleId().intValue() == sampleToSave.getTypeSampleId().intValue()){
@@ -851,7 +840,7 @@ public class SampleDnaToLibraryController extends WaspController {
 		  m.put("job", jobForThisSample);
 		  sampleForm.setSampleId(sampleId);
 		  sampleForm.setName(newSampleName);
-		  sampleForm.setTypeSample(typeSampleService.getTypeSampleByTypeSampleId(typeSampleId));
+		  sampleForm.setTypeSample(typeSampleDao.getTypeSampleByTypeSampleId(typeSampleId));
 		  sampleForm.setSampleMeta(sampleMetaListFromForm);
 		  m.put("sample", sampleForm);
 		  return "sampleDnaToLibrary/sampledetail_rw";
@@ -860,8 +849,8 @@ public class SampleDnaToLibraryController extends WaspController {
 	  sampleToSave.setName(newSampleName);
 	  sampleToSave.setLastUpdTs(new Date());
 	  
-	  this.sampleService.merge(sampleToSave);//can you do: sampleToSave.setSampleMeta(sampleMetaListFromForm); and just save the sample (and omit next line)?
-	  this.sampleMetaService.updateBySampleId(sampleId, sampleMetaListFromForm);
+	  this.sampleDao.merge(sampleToSave);//can you do: sampleToSave.setSampleMeta(sampleMetaListFromForm); and just save the sample (and omit next line)?
+	  this.sampleMetaDao.updateBySampleId(sampleId, sampleMetaListFromForm);
 	  
 	  waspMessage("sampleDetail.updated.success");
 	  return "redirect:/sampleDnaToLibrary/sampledetail_rw/" + jobId + "/" + sampleId + ".do";
@@ -910,7 +899,7 @@ public class SampleDnaToLibraryController extends WaspController {
 	  Set<Sample> samplesSet = new HashSet<Sample>();//use this to store a set of unique samples submitted by the user for a specific job; use treeset as it is ordered (by what I don't know)
 	  Map filterJobCell = new HashMap();
 	  filterJobCell.put("jobId", job.getJobId());
-	  List<JobCell> jobCells = jobCellService.findByMap(filterJobCell);
+	  List<JobCell> jobCells = jobCellDao.findByMap(filterJobCell);
 	  for(JobCell jobCell : jobCells){
 		  List<SampleCell> sampleCells = jobCell.getSampleCell();
 		  for(SampleCell sampleCell : sampleCells){

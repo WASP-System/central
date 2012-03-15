@@ -8,7 +8,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -28,8 +27,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
 
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
+import edu.yu.einstein.wasp.dao.DepartmentDao;
+import edu.yu.einstein.wasp.dao.LabDao;
+import edu.yu.einstein.wasp.dao.LabMetaDao;
+import edu.yu.einstein.wasp.dao.LabPendingDao;
+import edu.yu.einstein.wasp.dao.LabPendingMetaDao;
+import edu.yu.einstein.wasp.dao.LabUserDao;
+import edu.yu.einstein.wasp.dao.RoleDao;
+import edu.yu.einstein.wasp.dao.UserMetaDao;
+import edu.yu.einstein.wasp.dao.UserPendingDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
-import edu.yu.einstein.wasp.model.Department;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabMeta;
@@ -43,19 +50,9 @@ import edu.yu.einstein.wasp.model.UserMeta;
 import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.model.UserPendingMeta;
 import edu.yu.einstein.wasp.service.AuthenticationService;
-import edu.yu.einstein.wasp.service.DepartmentService;
 import edu.yu.einstein.wasp.service.EmailService;
-import edu.yu.einstein.wasp.service.LabMetaService;
-import edu.yu.einstein.wasp.service.LabPendingMetaService;
-import edu.yu.einstein.wasp.service.LabPendingService;
-import edu.yu.einstein.wasp.service.LabService;
-import edu.yu.einstein.wasp.service.LabUserService;
 import edu.yu.einstein.wasp.service.MessageService;
-import edu.yu.einstein.wasp.service.PasswordService;
-import edu.yu.einstein.wasp.service.RoleService;
-import edu.yu.einstein.wasp.service.UserMetaService;
-import edu.yu.einstein.wasp.service.UserPendingMetaService;
-import edu.yu.einstein.wasp.service.UserPendingService;
+import edu.yu.einstein.wasp.service.TaskService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 import edu.yu.einstein.wasp.util.MetaHelper;
 
@@ -65,34 +62,31 @@ import edu.yu.einstein.wasp.util.MetaHelper;
 public class LabController extends WaspController {
 
 	@Autowired
-	private LabService labService;
+	private LabDao labDao;
 
 	@Autowired
-	private LabUserService labUserService;
+	private LabUserDao labUserDao;
 
 	@Autowired
-	private RoleService roleService;
+	private RoleDao roleDao;
 
 	@Autowired
-	private LabMetaService labMetaService;
+	private LabMetaDao labMetaDao;
 
 	@Autowired
-	private DepartmentService deptService;
+	private DepartmentDao deptDao;
 
 	@Autowired
-	private UserMetaService userMetaService;
+	private UserMetaDao userMetaDao;
 
 	@Autowired
-	private UserPendingService userPendingService;
+	private UserPendingDao userPendingDao;
 
 	@Autowired
-	private UserPendingMetaService userPendingMetaService;
+	private LabPendingDao labPendingDao;
 
 	@Autowired
-	private LabPendingService labPendingService;
-
-	@Autowired
-	private LabPendingMetaService labPendingMetaService;
+	private LabPendingMetaDao labPendingMetaDao;
 
 	@Autowired
 	private EmailService emailService;
@@ -102,9 +96,10 @@ public class LabController extends WaspController {
 	  
 	@Autowired
 	private AuthenticationService authenticationService;
-
+	
 	@Autowired
-	private PasswordService passwordService;
+	private TaskService taskService;
+
 	
 
 	/**
@@ -163,7 +158,7 @@ public class LabController extends WaspController {
 
 		if (request.getParameter("_search") == null	|| StringUtils.isEmpty(request.getParameter("searchString"))) {
 
-			labList = sidx.isEmpty() ? this.labService.findAll() : this.labService.findAllOrderBy(sidx, sord);
+			labList = sidx.isEmpty() ? this.labDao.findAll() : this.labDao.findAllOrderBy(sidx, sord);
 		
 		} else {
 
@@ -171,11 +166,11 @@ public class LabController extends WaspController {
 
 			m.put(request.getParameter("searchField"), request.getParameter("searchString"));
 
-			labList = this.labService.findByMap(m);
+			labList = this.labDao.findByMap(m);
 
 			if ("ne".equals(request.getParameter("searchOper"))) {
 				List<Lab> allLabs = new ArrayList<Lab>(
-						sidx.isEmpty() ? this.labService.findAll() : this.labService.findAllOrderBy(sidx, sord));
+						sidx.isEmpty() ? this.labDao.findAll() : this.labDao.findAllOrderBy(sidx, sord));
 				
 				allLabs.removeAll(labList);
 
@@ -226,7 +221,7 @@ public class LabController extends WaspController {
 			if(!StringUtils.isEmpty(request.getParameter("selId")))
 			{
 				int selLabId = Integer.parseInt(request.getParameter("selId"));
-				int selLabIndex = labList.indexOf(labService.findById(selLabId));
+				int selLabIndex = labList.indexOf(labDao.findById(selLabId));
 				frId = selLabIndex;
 				toId = frId + 1;
 
@@ -246,7 +241,7 @@ public class LabController extends WaspController {
 				List<String> cellList = new ArrayList<String>(
 						Arrays.asList(new String[] {
 								lab.getName(),
-								this.userService.getUserByUserId(lab.getPrimaryUserId()).getNameFstLst(),
+								this.userDao.getUserByUserId(lab.getPrimaryUserId()).getNameFstLst(),
 								lab.getPrimaryUserId().toString(),
 								lab.getDepartment().getName(),
 
@@ -277,7 +272,7 @@ public class LabController extends WaspController {
 
 		Map<String, Object> jqgrid = new HashMap<String, Object>();
 
-		Lab labDb = this.labService.getById(labId);
+		Lab labDb = this.labDao.getById(labId);
 
 		List<LabUser> users = labDb.getLabUser();
 
@@ -409,19 +404,19 @@ public class LabController extends WaspController {
 			labForm.setLastUpdTs(new Date());
 			labForm.setIsActive(1);
 
-			Lab labDb = this.labService.save(labForm);
+			Lab labDb = this.labDao.save(labForm);
 
 			labId = labDb.getLabId();
 		} else {
-			Lab labDb = this.labService.getById(labId);
+			Lab labDb = this.labDao.getById(labId);
 			labDb.setName(labForm.getName());
 			labDb.setIsActive(labForm.getIsActive());
 			labDb.setDepartmentId(labForm.getDepartmentId());
 			labDb.setPrimaryUserId(labForm.getPrimaryUserId());
-			this.labService.merge(labDb);
+			this.labDao.merge(labDb);
 		}
 
-		labMetaService.updateByLabId(labId, labMetaList);
+		labMetaDao.updateByLabId(labId, labMetaList);
 
 		// MimeMessageHelper a;
 
@@ -445,20 +440,20 @@ public class LabController extends WaspController {
 			labPendingForm.setLastUpdTs(new Date());
 			// labPendingForm.setIsActive(1);
 
-			LabPending labPendingDb = this.labPendingService.save(labPendingForm);
+			LabPending labPendingDb = this.labPendingDao.save(labPendingForm);
 
 			labPendingId = labPendingDb.getLabPendingId();
 		} else {
-			LabPending labPendingDb = this.labPendingService.getById(labPendingId);
+			LabPending labPendingDb = this.labPendingDao.getById(labPendingId);
 			labPendingDb.setName(labPendingForm.getName());
 			// labPendingDb.setIsActive(labPendingForm.getIsActive());
 			labPendingDb.setDepartmentId(labPendingForm.getDepartmentId());
 			labPendingDb.setPrimaryUserId(labPendingForm.getPrimaryUserId());
 
-			this.labPendingService.merge(labPendingDb);
+			this.labPendingDao.merge(labPendingDb);
 		}
 
-		labPendingMetaService.updateByLabpendingId(labPendingId, labPendingMetaList);
+		labPendingMetaDao.updateByLabpendingId(labPendingId, labPendingMetaList);
 
 		// MimeMessageHelper a;
 
@@ -484,7 +479,7 @@ public class LabController extends WaspController {
 
 	private String detail(Integer labId, ModelMap m, boolean isRW) {
 
-		Lab lab = this.labService.getById(labId);
+		Lab lab = this.labDao.getById(labId);
 
 		lab.setLabMeta(getMetaHelperWebapp().syncWithMaster(lab.getLabMeta()));
 
@@ -516,7 +511,7 @@ public class LabController extends WaspController {
 	@PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('da-' + #deptId)")
 	public String pendingDetailRO(@PathVariable("deptId") Integer deptId,
 			@PathVariable("labPendingId") Integer labPendingId, ModelMap m) {
-		LabPending labPending = this.labPendingService.getLabPendingByLabPendingId(labPendingId);
+		LabPending labPending = this.labPendingDao.getLabPendingByLabPendingId(labPendingId);
 		if (labPending.getLabPendingId() == null || labPending.getLabPendingId() == 0) {// labpendingId doesn't exist
 			waspErrorMessage("labPending.labpendingid_notexist.error");
 			return "redirect:/dashboard.do";
@@ -533,15 +528,15 @@ public class LabController extends WaspController {
 	}
 
 	private String getPiFullNameFromLabPendingId(int labPendingId) {
-		LabPending labPending = this.labPendingService.getById(labPendingId);
+		LabPending labPending = this.labPendingDao.getById(labPendingId);
 		String puserFullName = "";
 		if (labPending.getUserpendingId() != null) {
 			// this PI is currently a pending user.
-			UserPending userPending = userPendingService.getUserPendingByUserPendingId(labPending.getUserpendingId());
+			UserPending userPending = userPendingDao.getUserPendingByUserPendingId(labPending.getUserpendingId());
 			puserFullName = userPending.getFirstName() + " " + userPending.getLastName();
 		} else if (labPending.getPrimaryUserId() != null){
 			// the referenced PI of this lab exists in the user table already
-			User user = userService.getUserByUserId(labPending.getPrimaryUserId());
+			User user = userDao.getUserByUserId(labPending.getPrimaryUserId());
 			puserFullName = user.getFirstName() + " " + user.getLastName();
 		} else {
 			// shouldn't get here
@@ -550,16 +545,16 @@ public class LabController extends WaspController {
 	}
 
 	private String getPiFullNameFromLabId(int labId) {
-		Lab lab = this.labService.getById(labId);
+		Lab lab = this.labDao.getById(labId);
 		String puserFullName = "";
-		User user = userService.getUserByUserId(lab.getPrimaryUserId());
+		User user = userDao.getUserByUserId(lab.getPrimaryUserId());
 		puserFullName = user.getFirstName() + " " + user.getLastName();
 		return puserFullName;
 	}
 
 	private String pendingDetail(Integer labPendingId, ModelMap m, boolean isRW) {
 
-		LabPending labPending = this.labPendingService.getById(labPendingId);
+		LabPending labPending = this.labPendingDao.getById(labPendingId);
 
 		labPending.setLabPendingMeta(getLabPendingMetaHelperWebapp().syncWithMaster(
 				labPending.getLabPendingMeta()));
@@ -610,8 +605,8 @@ public class LabController extends WaspController {
 
 		labForm.setLastUpdTs(new Date());
 
-		Lab labDb = this.labService.save(labForm);
-		labMetaService.updateByLabId(labDb.getLabId(), labMetaList);
+		Lab labDb = this.labDao.save(labForm);
+		labMetaDao.updateByLabId(labDb.getLabId(), labMetaList);
 
 		status.setComplete();
 
@@ -648,16 +643,16 @@ public class LabController extends WaspController {
 			return "lab/detail_rw";
 		}
 
-		Lab labDb = this.labService.getById(labId);
+		Lab labDb = this.labDao.getById(labId);
 		labDb.setName(labForm.getName());
 		labDb.setDepartmentId(labForm.getDepartmentId());
 		labDb.setPrimaryUserId(labForm.getPrimaryUserId());
 
 		labDb.setLastUpdTs(new Date());
 
-		this.labService.merge(labDb);
+		this.labDao.merge(labDb);
 
-		labMetaService.updateByLabId(labId, labMetaList);
+		labMetaDao.updateByLabId(labId, labMetaList);
 
 		status.setComplete();
 
@@ -699,16 +694,16 @@ public class LabController extends WaspController {
 			return "lab/pending/detail_rw";
 		}
 
-		LabPending labPendingDb = this.labPendingService.getById(labPendingId);
+		LabPending labPendingDb = this.labPendingDao.getById(labPendingId);
 		labPendingDb.setName(labPendingForm.getName());
 		labPendingDb.setDepartmentId(labPendingForm.getDepartmentId());
 		labPendingDb.setPrimaryUserId(labPendingForm.getPrimaryUserId());
 
 		labPendingDb.setLastUpdTs(new Date());
 
-		this.labPendingService.merge(labPendingDb);
+		this.labPendingDao.merge(labPendingDb);
 
-		labPendingMetaService.updateByLabpendingId(labPendingId, labPendingMetaList);
+		labPendingMetaDao.updateByLabpendingId(labPendingId, labPendingMetaList);
 
 		status.setComplete();
 
@@ -723,7 +718,7 @@ public class LabController extends WaspController {
 	@RequestMapping(value = "/user_manager/{labId}.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('lu-' + #labId)")
 	public String userManager(@PathVariable("labId") Integer labId, ModelMap m) {
-		Lab lab = this.labService.getById(labId);
+		Lab lab = this.labDao.getById(labId);
 		List<LabUser> labUsers = new ArrayList();
 		for (LabUser lu: lab.getLabUser()){
 			if (!lu.getRole().getRoleName().equals("lp")){
@@ -741,12 +736,12 @@ public class LabController extends WaspController {
 	@RequestMapping(value = "/user_list/{labId}.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('lu-' + #labId)")
 	public String userList(@PathVariable("labId") Integer labId, ModelMap m) {
-		Lab lab = this.labService.getById(labId);
+		Lab lab = this.labDao.getById(labId);
 		List<User> labManagers = new ArrayList();
 		List<User> labMembers= new ArrayList();
 		User pi = new User();
 		for(LabUser labUser : lab.getLabUser() ){
-			User currentUser = userService.getUserByUserId(labUser.getUserId());
+			User currentUser = userDao.getUserByUserId(labUser.getUserId());
 			if (currentUser.getUserId().intValue() == lab.getPrimaryUserId().intValue()){
 				pi = currentUser;
 			} else if (labUser.getRole().getRoleName().equals("lm")){
@@ -765,17 +760,17 @@ public class LabController extends WaspController {
 	@RequestMapping(value = "/pendinguser/list/{labId}.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('lu-' + #labId)")
 	public String pendingUserList(@PathVariable("labId") Integer labId,	ModelMap m) {
-		Lab lab = this.labService.getById(labId);
+		Lab lab = this.labDao.getById(labId);
 
 		Map userPendingQueryMap = new HashMap();
 		userPendingQueryMap.put("labId", labId);
 		userPendingQueryMap.put("status", "PENDING");
-		List<UserPending> userPending = userPendingService.findByMap(userPendingQueryMap);
+		List<UserPending> userPending = userPendingDao.findByMap(userPendingQueryMap);
 		
 		Map labUserPendingQueryMap = new HashMap();
 		labUserPendingQueryMap.put("labId", labId);
-		labUserPendingQueryMap.put("roleId", roleService.getRoleByRoleName("lp").getRoleId());
-		List<LabUser> labUserPending = labUserService.findByMap(labUserPendingQueryMap);
+		labUserPendingQueryMap.put("roleId", roleDao.getRoleByRoleName("lp").getRoleId());
+		List<LabUser> labUserPending = labUserDao.findByMap(labUserPendingQueryMap);
 
 		m.addAttribute("lab", lab);
 		m.addAttribute("userpending", userPending);
@@ -791,23 +786,23 @@ public class LabController extends WaspController {
 			@PathVariable("roleName") String roleName, ModelMap m) {
 
 		// TODO CHECK VALID LABUSER
-		LabUser labUser = labUserService.getLabUserByLabIdUserId(labId, userId);
+		LabUser labUser = labUserDao.getLabUserByLabIdUserId(labId, userId);
 
 		if (roleName.equals("xx")) {
 			// TODO CONFIRM ROLE WAS "LP"
-			labUserService.remove(labUser);
+			labUserDao.remove(labUser);
 
 			waspErrorMessage("hello.error");
 			return "redirect:/lab/user_manager/" + labId + ".do";
 		}
 
 		// TODO CHECK VALID ROLE NAME
-		Role role = roleService.getRoleByRoleName(roleName);
+		Role role = roleDao.getRoleByRoleName(roleName);
 
 		// TODO CHECK VALID ROLE FLOW
 
 		labUser.setRoleId(role.getRoleId());
-		labUserService.merge(labUser);
+		labUserDao.merge(labUser);
 
 		// TODO ADD MESSAGE
 
@@ -836,12 +831,12 @@ public class LabController extends WaspController {
 		if (labPending.getUserpendingId() != null) {
 			// this PI is currently a pending user. Make them a full user before
 			// creating lab
-			UserPending userPending = userPendingService.getUserPendingByUserPendingId(labPending.getUserpendingId());
+			UserPending userPending = userPendingDao.getUserPendingByUserPendingId(labPending.getUserpendingId());
 			user = createUserFromUserPending(userPending);
 		} else if (labPending.getPrimaryUserId() != null) {
 			// the referenced PI of this lab exists in the user table already so
 			// get their record
-			user = userService.getUserByUserId(labPending.getPrimaryUserId());
+			user = userDao.getUserByUserId(labPending.getPrimaryUserId());
 		} else {
 			// shouldn't get here
 			return lab; // return empty lab
@@ -852,7 +847,7 @@ public class LabController extends WaspController {
 		lab.setDepartmentId(labPending.getDepartmentId());
 		lab.setIsActive(1);
 
-		Lab labDb = labService.save(lab);
+		Lab labDb = labDao.save(lab);
 
 		// copies meta data from labPendingMeta to labMeta.
 		MetaHelperWebapp labMetaHelperWebapp = new MetaHelperWebapp("lab", LabMeta.class,	request.getSession());
@@ -870,15 +865,15 @@ public class LabController extends WaspController {
 				logger.debug("No match for labPendingMeta property with name '"	+ name + "' in labMeta properties");
 			}
 		}
-		labMetaService.updateByLabId(labDb.getLabId(), (List<LabMeta>) labMetaHelperWebapp.getMetaList());
+		labMetaDao.updateByLabId(labDb.getLabId(), (List<LabMeta>) labMetaHelperWebapp.getMetaList());
 		// set pi role
-		Role role = roleService.getRoleByRoleName("pi");
+		Role role = roleDao.getRoleByRoleName("pi");
 
 		LabUser labUser = new LabUser();
 		labUser.setUserId(user.getUserId());
 		labUser.setLabId(lab.getLabId());
 		labUser.setRoleId(role.getRoleId());
-		labUserService.save(labUser);
+		labUserDao.save(labUser);
 
 		// set status to 'CREATED' for any other pending labs of the same name
 		// (user may have attempted to apply for their
@@ -886,9 +881,9 @@ public class LabController extends WaspController {
 		Map pendingLabQueryMap = new HashMap();
 		pendingLabQueryMap.put("primaryUserId", user.getUserId());
 		pendingLabQueryMap.put("name", labDb.getName());
-		for (LabPending lp : (List<LabPending>) labPendingService.findByMap(pendingLabQueryMap)) {
+		for (LabPending lp : labPendingDao.findByMap(pendingLabQueryMap)) {
 			lp.setStatus("CREATED");
-			labPendingService.save(lp);
+			labPendingDao.save(lp);
 		}
 
 		// if i am the p.i. reauth
@@ -920,12 +915,12 @@ public class LabController extends WaspController {
 		user.setLocale(userPending.getLocale());
 		user.setIsActive(1);
 		user.setLogin(userPending.getLogin());
-		User userDb = userService.save(user);
+		User userDb = userDao.save(user);
 		int userId = userDb.getUserId();
 
 		/*
 		 * List<UserPendingMeta> userPendingMetaList =
-		 * userPendingMetaService.getUserPendingMetaByUserPendingId
+		 * userPendingMetaDao.getUserPendingMetaByUserPendingId
 		 * (userPending.getUserPendingId()); copies meta data
 		 */
 		MetaHelperWebapp userMetaHelperWebapp = new MetaHelperWebapp("user", UserMeta.class, request.getSession());
@@ -955,7 +950,7 @@ public class LabController extends WaspController {
 			 */
 			String piUserLogin = userPendingMetaHelperWebapp.getMetaByName("primaryuserid").getV();
 			MetaHelperWebapp piMetaHelperWebapp = new MetaHelperWebapp("user", UserMeta.class, request.getSession());
-			piMetaHelperWebapp.syncWithMaster(userService.getUserByLogin(piUserLogin).getUserMeta()); // get PI meta from database and sync with
+			piMetaHelperWebapp.syncWithMaster(userDao.getUserByLogin(piUserLogin).getUserMeta()); // get PI meta from database and sync with
 										// current properties
 			try {
 				userMetaHelperWebapp.setMetaValueByName("institution", piMetaHelperWebapp.getMetaByName("institution").getV());
@@ -969,7 +964,7 @@ public class LabController extends WaspController {
 				throw new MetadataException("Metadata user / pi meta name mismatch", e);
 			}
 		}
-		userMetaService.updateByUserId(userId, (List<UserMeta>) userMetaHelperWebapp.getMetaList());
+		userMetaDao.updateByUserId(userId, (List<UserMeta>) userMetaHelperWebapp.getMetaList());
 
 		// userDb doesn't have associated metadata so add it
 		userDb.setUserMeta((List<UserMeta>) userMetaHelperWebapp.getMetaList());
@@ -984,18 +979,18 @@ public class LabController extends WaspController {
 		Map userPendingQueryMap = new HashMap();
 		userPendingQueryMap.put("email", userPending.getEmail());
 		userPendingQueryMap.put("status", "PENDING");
-		List<UserPending> userPendingList = userPendingService.findByMap(userPendingQueryMap);
+		List<UserPending> userPendingList = userPendingDao.findByMap(userPendingQueryMap);
 		userPendingQueryMap.put("status", "WAIT_EMAIL");
-		userPendingList.addAll(userPendingService.findByMap(userPendingQueryMap));
-		Role roleLabPending = roleService.getRoleByRoleName("lp");
+		userPendingList.addAll(userPendingDao.findByMap(userPendingQueryMap));
+		Role roleLabPending = roleDao.getRoleByRoleName("lp");
 
 		for (UserPending userPendingCurrent : userPendingList) {
 			userPendingCurrent.setStatus("CREATED");
-			userPendingService.save(userPendingCurrent);
+			userPendingDao.save(userPendingCurrent);
 
 			if (userPendingCurrent.getLabId() != null) {
 				// not a PI application request
-				LabUser labUserCurrent = labUserService.getLabUserByLabIdUserId(userPendingCurrent.getLabId(),	userDb.getUserId());
+				LabUser labUserCurrent = labUserDao.getLabUserByLabIdUserId(userPendingCurrent.getLabId(),	userDb.getUserId());
 				//NV 12132011
 				//if (labUserCurrent.getLabUserId() > 0) {
 				if (labUserCurrent.getLabUserId() != null) {
@@ -1006,7 +1001,7 @@ public class LabController extends WaspController {
 				labUserCurrent.setUserId(userId);
 				labUserCurrent.setLabId(userPendingCurrent.getLabId());
 				labUserCurrent.setRoleId(roleLabPending.getRoleId());
-				labUserService.save(labUserCurrent);
+				labUserDao.save(labUserCurrent);
 
 			}
 			/*
@@ -1017,11 +1012,11 @@ public class LabController extends WaspController {
 			Map labPendingQueryMap = new HashMap();
 			labPendingQueryMap.put("userpendingId",	userPendingCurrent.getUserPendingId());
 
-			List<LabPending> labPendingList = labPendingService.findByMap(labPendingQueryMap);
+			List<LabPending> labPendingList = labPendingDao.findByMap(labPendingQueryMap);
 			for (LabPending labPending : labPendingList) {
 				labPending.setUserpendingId((Integer) null);
 				labPending.setPrimaryUserId(userId);
-				labPendingService.save(labPending);
+				labPendingDao.save(labPending);
 			}
 		}
 
@@ -1047,12 +1042,12 @@ public class LabController extends WaspController {
 			waspErrorMessage("userPending.action.error");
 			return "redirect:/dashboard.do";
 		}
-		LabUser labUserPending = labUserService.getLabUserByLabUserId(labUserId);
+		LabUser labUserPending = labUserDao.getLabUserByLabUserId(labUserId);
 		if (labUserPending.getLabId().intValue() != labId.intValue()){
 			waspErrorMessage("labuser.labUserNotFoundInLab.error");
 			return "redirect:/dashboard.do";
 		}
-		if (labUserPending.getRoleId().intValue() != roleService.getRoleByRoleName("lp").getRoleId().intValue() ) {
+		if (labUserPending.getRoleId().intValue() != roleDao.getRoleByRoleName("lp").getRoleId().intValue() ) {
 			waspErrorMessage("userPending.status_not_pending.error");
 			return "redirect:/dashboard.do";
 		}
@@ -1060,14 +1055,14 @@ public class LabController extends WaspController {
 		if ("approve".equals(action)) {
 			// add user to lab (labUser table) with role 'lu' (lab-user) and
 			// email pending user notification of acceptance
-			Role roleLabUser = roleService.getRoleByRoleName("lu");
+			Role roleLabUser = roleDao.getRoleByRoleName("lu");
 			// createUserFromUserPending, should have made this.
 			labUserPending.setRoleId(roleLabUser.getRoleId());
-			labUserService.save(labUserPending);
+			labUserDao.save(labUserPending);
 			emailService.sendPendingLabUserNotifyAccepted(labUserPending.getUser(), labUserPending.getLab());
 			waspMessage("userPending.approved.label");
 		} else {
-			labUserService.remove(labUserPending);
+			labUserDao.remove(labUserPending);
 			// email pending user notification of rejection
 			emailService.sendPendingLabUserNotifyRejected(labUserPending.getUser(),	labUserPending.getLab());
 			waspMessage("userPending.rejected.label");
@@ -1101,7 +1096,7 @@ public class LabController extends WaspController {
 			return "redirect:/dashboard.do";
 		}
 
-		UserPending userPending = userPendingService.getUserPendingByUserPendingId(userPendingId);
+		UserPending userPending = userPendingDao.getUserPendingByUserPendingId(userPendingId);
 		if (! userPending.getStatus().equals("PENDING") ) {
 			waspErrorMessage("userPending.status_not_pending.error");
 			return "redirect:/dashboard.do";
@@ -1117,20 +1112,20 @@ public class LabController extends WaspController {
 			// add user to lab (labUser table) with role 'lu' (lab-user) and
 			// email pending user notification of acceptance
 			user = createUserFromUserPending(userPending);
-			Role roleLabUser = roleService.getRoleByRoleName("lu");
+			Role roleLabUser = roleDao.getRoleByRoleName("lu");
 			// createUserFromUserPending, should have made this.
-			LabUser labUser = labUserService.getLabUserByLabIdUserId(labId,	user.getUserId());
+			LabUser labUser = labUserDao.getLabUserByLabIdUserId(labId,	user.getUserId());
 			labUser.setRoleId(roleLabUser.getRoleId());
-			labUserService.merge(labUser);
-			emailService.sendPendingUserNotifyAccepted(user, labService.getLabByLabId(labId));
+			labUserDao.merge(labUser);
+			emailService.sendPendingUserNotifyAccepted(user, labDao.getLabByLabId(labId));
 			waspMessage("userPending.approved.label");
 		} else {
 			// email pending user notification of rejection
-			emailService.sendPendingUserNotifyRejected(userPending,	labService.getLabByLabId(labId));
+			emailService.sendPendingUserNotifyRejected(userPending,	labDao.getLabByLabId(labId));
 			waspMessage("userPending.rejected.label");
 		}
 		userPending.setStatus(action);
-		userPendingService.save(userPending);
+		userPendingDao.save(userPending);
 		String referer = request.getHeader("Referer");
 		return "redirect:"+ referer;
 	}
@@ -1159,7 +1154,7 @@ public class LabController extends WaspController {
 			//return "redirect:/department/detail/" + deptId + ".do";
 			return "redirect:/department/dapendingtasklist.do";
 		}
-		LabPending labPending = labPendingService.getLabPendingByLabPendingId(labPendingId);
+		LabPending labPending = labPendingDao.getLabPendingByLabPendingId(labPendingId);
 		if (! labPending.getStatus().equals("PENDING") ) {
 			waspErrorMessage("labPending.status_not_pending.error");
 			//return "redirect:/department/detail/" + deptId + ".do";
@@ -1185,9 +1180,9 @@ public class LabController extends WaspController {
 			if (labPending.getUserpendingId() != null) {
 				// this PI is currently a pending user. Reject their pending
 				// user application too
-				UserPending userPending = userPendingService.getUserPendingByUserPendingId(labPending.getUserpendingId());
+				UserPending userPending = userPendingDao.getUserPendingByUserPendingId(labPending.getUserpendingId());
 				userPending.setStatus(action);
-				userPendingService.save(userPending);
+				userPendingDao.save(userPending);
 				waspMessage("labPending.rejected.label");
 			} else if (labPending.getPrimaryUserId() == null){
 				waspErrorMessage("labPending.could_not_create_lab.error");
@@ -1197,7 +1192,7 @@ public class LabController extends WaspController {
 			emailService.sendPendingLabNotifyRejected(labPending);
 		}
 		labPending.setStatus(action);
-		labPendingService.save(labPending);
+		labPendingDao.save(labPending);
 		//return "redirect:/department/detail/" + deptId + ".do";
 		return "redirect:/department/dapendingtasklist.do";
 	}
@@ -1224,7 +1219,7 @@ public class LabController extends WaspController {
 			if (departmentId != null && !departmentId.isEmpty()){
 				labPendingMetaHelperWebapp.setMetaValueByName("billing_departmentId",departmentId);
 				labPending.setDepartmentId(Integer.valueOf(departmentId));
-				String internalExternal = (deptService.findById( Integer.valueOf(departmentId) ).getIsInternal().intValue() == 1) ? "internal" : "external";
+				String internalExternal = (deptDao.findById( Integer.valueOf(departmentId) ).getIsInternal().intValue() == 1) ? "internal" : "external";
 				labPendingMetaHelperWebapp.setMetaValueByName("internal_external_lab", internalExternal);
 			}
 			labPendingMetaHelperWebapp.setMetaValueByName("billing_institution", userMetaHelperWebapp.getMetaByName("institution").getV());
@@ -1276,9 +1271,9 @@ public class LabController extends WaspController {
 			return "lab/newrequest";
 		}
 
-		LabPending labPendingDb = labPendingService.save(labPendingForm);
+		LabPending labPendingDb = labPendingDao.save(labPendingForm);
 
-		labPendingMetaService.updateByLabpendingId(labPendingDb.getLabPendingId(), labPendingMetaList);
+		labPendingMetaDao.updateByLabpendingId(labPendingDb.getLabPendingId(), labPendingMetaList);
 
 		status.setComplete();
 
@@ -1306,13 +1301,13 @@ public class LabController extends WaspController {
 			return "redirect:/lab/newrequest.do";
 		}
 		
-		User primaryUser = userService.getUserByLogin(primaryUserLogin);
+		User primaryUser = userDao.getUserByLogin(primaryUserLogin);
 		if (primaryUser.getUserId() == null || primaryUser.getUserId() == 0) {
 			waspErrorMessage("labuser.request_primaryuser.error");
 			return "redirect:/lab/newrequest.do";
 		}
 
-		Lab lab = labService.getLabByPrimaryUserId(primaryUser.getUserId());
+		Lab lab = labDao.getLabByPrimaryUserId(primaryUser.getUserId());
 		if (lab.getLabId() == null || lab.getLabId() == 0) {
 			waspErrorMessage("labuser.request_primaryuser.error");
 			return "redirect:/lab/newrequest.do";
@@ -1320,7 +1315,7 @@ public class LabController extends WaspController {
 
 		// check role of lab user
 		User me = authenticationService.getAuthenticatedUser();
-		LabUser labUser = labUserService.getLabUserByLabIdUserId(lab.getLabId(), me.getUserId());
+		LabUser labUser = labUserDao.getLabUserByLabIdUserId(lab.getLabId(), me.getUserId());
 
 		if (labUser.getLabUserId() != null) {
 			ArrayList<String> alreadyPendingRoles = new ArrayList();
@@ -1340,14 +1335,14 @@ public class LabController extends WaspController {
 			}
 		}
 
-		Role role = roleService.getRoleByRoleName("lp");
+		Role role = roleDao.getRoleByRoleName("lp");
 
 		labUser.setLabId(lab.getLabId());
 		labUser.setUserId(me.getUserId());
 		labUser.setRoleId(role.getRoleId());
-		labUserService.save(labUser);
+		labUserDao.save(labUser);
 
-		labUserService.refresh(labUser);
+		labUserDao.refresh(labUser);
 
 		emailService.sendPendingLabUserConfirmRequest(labUser);
 
@@ -1360,8 +1355,8 @@ public class LabController extends WaspController {
 	protected void prepareSelectListData(ModelMap m) {
 		super.prepareSelectListData(m);
 
-		m.addAttribute("pusers", userService.getActiveUsers());
-		//m.addAttribute("departments", deptService.findAll());
+		m.addAttribute("pusers", userDao.getActiveUsers());
+		//m.addAttribute("departments", deptDao.findAll());
 	}
 
 	@RequestMapping(value = "/pendinglmapproval/list/{labId}.do", method = RequestMethod.GET)
@@ -1369,11 +1364,11 @@ public class LabController extends WaspController {
 	public String tasksPendingLmApproval(@PathVariable("labId") Integer labId, ModelMap m){
 		
 		//Map jobMetaMap = new HashMap();
-		Lab lab = labService.getLabByLabId(labId);
+		Lab lab = labDao.getLabByLabId(labId);
 		List<UserPending> newUsersPendingLmApprovalList = new ArrayList<UserPending>();
 		List<LabUser> existingUsersPendingLmApprovalList = new ArrayList<LabUser>();
 		List<Job> jobsPendingLmApprovalList = new ArrayList<Job>();
-		labService.getLabManagerPendingTasks(labId, newUsersPendingLmApprovalList, existingUsersPendingLmApprovalList, jobsPendingLmApprovalList);
+		taskService.getLabManagerPendingTasks(labId, newUsersPendingLmApprovalList, existingUsersPendingLmApprovalList, jobsPendingLmApprovalList);
 		//for(Job job : jobsPendingLmApprovalList){
 		//	List<JobMeta> jobMetaList = job.getJobMeta();
 		//	jobMetaMap.put(job.getJobId(), jobMetaList);
@@ -1393,7 +1388,7 @@ public class LabController extends WaspController {
 		List<UserPending> newUsersPendingLmApprovalList = new ArrayList<UserPending>();
 		List<LabUser> existingUsersPendingLmApprovalList = new ArrayList<LabUser>();
 		List<Job> jobsPendingLmApprovalList = new ArrayList<Job>();
-		int count = labService.getAllLabManagerPendingTasks(newUsersPendingLmApprovalList, existingUsersPendingLmApprovalList, jobsPendingLmApprovalList);
+		int count = taskService.getAllLabManagerPendingTasks(newUsersPendingLmApprovalList, existingUsersPendingLmApprovalList, jobsPendingLmApprovalList);
 		int count2 = newUsersPendingLmApprovalList.size() + existingUsersPendingLmApprovalList.size() + jobsPendingLmApprovalList.size();
 		m.addAttribute("count", count);
 		m.addAttribute("count2", count2);

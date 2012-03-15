@@ -29,6 +29,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
 
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
+import edu.yu.einstein.wasp.dao.BarcodeDao;
+import edu.yu.einstein.wasp.dao.ResourceBarcodeDao;
+import edu.yu.einstein.wasp.dao.ResourceCategoryDao;
+import edu.yu.einstein.wasp.dao.ResourceDao;
+import edu.yu.einstein.wasp.dao.ResourceMetaDao;
+import edu.yu.einstein.wasp.dao.TypeResourceDao;
 import edu.yu.einstein.wasp.model.Barcode;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.Resource;
@@ -38,13 +44,7 @@ import edu.yu.einstein.wasp.model.ResourceLane;
 import edu.yu.einstein.wasp.model.ResourceMeta;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.TypeResource;
-import edu.yu.einstein.wasp.service.BarcodeService;
 import edu.yu.einstein.wasp.service.MessageService;
-import edu.yu.einstein.wasp.service.ResourceBarcodeService;
-import edu.yu.einstein.wasp.service.ResourceCategoryService;
-import edu.yu.einstein.wasp.service.ResourceMetaService;
-import edu.yu.einstein.wasp.service.ResourceService;
-import edu.yu.einstein.wasp.service.TypeResourceService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 import edu.yu.einstein.wasp.util.MetaHelper;
 
@@ -54,22 +54,22 @@ import edu.yu.einstein.wasp.util.MetaHelper;
 public class ResourceController extends WaspController {
 
 	@Autowired
-	private ResourceService resourceService;
+	private ResourceDao resourceDao;
 
 	@Autowired
-	private ResourceMetaService resourceMetaService;
+	private ResourceMetaDao resourceMetaDao;
 
 	@Autowired
-	private TypeResourceService typeResourceService;
+	private TypeResourceDao typeResourceDao;
 	
 	@Autowired
-	private ResourceCategoryService resourceCategoryService;
+	private ResourceCategoryDao resourceCategoryDao;
 	
 	@Autowired
-	private ResourceBarcodeService resourceBarcodeService;
+	private ResourceBarcodeDao resourceBarcodeDao;
 	
 	@Autowired
-	private BarcodeService barcodeService;
+	private BarcodeDao barcodeDao;
 	
 	@Autowired
 	private MessageService messageService;
@@ -83,7 +83,7 @@ public class ResourceController extends WaspController {
 	protected void prepareSelectListData(ModelMap m) {
 		super.prepareSelectListData(m);
 
-		List <TypeResource> typeResourceList = new ArrayList <TypeResource> (typeResourceService.findAll());
+		List <TypeResource> typeResourceList = new ArrayList <TypeResource> (typeResourceDao.findAll());
 		
 		//When adding a new record in Resources JqGrid, it displays  all Type Resources that are NOT "aligner" or "peakcaller"
 		for (Iterator<TypeResource> it = typeResourceList.iterator(); it.hasNext();) {
@@ -94,13 +94,13 @@ public class ResourceController extends WaspController {
 		}
 		m.addAttribute("typeResources", typeResourceList);
 		
-		//List <ResourceCategory> resourceCategoryList = new ArrayList <ResourceCategory> (resourceCategoryService.findAll());
+		//List <ResourceCategory> resourceCategoryList = new ArrayList <ResourceCategory> (resourceCategoryDao.findAll());
 //		for (ResourceCategory rc : resourceCategoryList) {
 //			if (rc.getIsActive().intValue() == 0 && !rc.getName().contains("_INACTIVE")) {
 //				rc.setName(rc.getName() + "_INACTIVE");
 //			}
 //		}
-		m.addAttribute("categoryResources", resourceCategoryService.getActiveResourceCategories());
+		m.addAttribute("categoryResources", resourceCategoryDao.getActiveResourceCategories());
 
 	}
 
@@ -130,20 +130,20 @@ public class ResourceController extends WaspController {
 
 		if (request.getParameter("_search") == null
 				|| StringUtils.isEmpty(request.getParameter("searchString"))) {
-			resourceList = sidx.isEmpty() ? this.resourceService.findAll() : this.resourceService.findAllOrderBy(sidx, sord);
+			resourceList = sidx.isEmpty() ? this.resourceDao.findAll() : this.resourceDao.findAllOrderBy(sidx, sord);
 
-			//resourceList = resourceService.findAll();
+			//resourceList = resourceDao.findAll();
 		} else {
 			Map<String, String> m = new HashMap<String, String>();
 
 			m.put(request.getParameter("searchField"),
 					request.getParameter("searchString"));
 
-			resourceList = resourceService.findByMap(m);
+			resourceList = resourceDao.findByMap(m);
 
 			if ("ne".equals(request.getParameter("searchOper"))) {
-				//List<Resource> allResources = new ArrayList<Resource>(resourceService.findAll());
-				List<Resource> allResources = new ArrayList<Resource>(sidx.isEmpty() ? this.resourceService.findAll() : this.resourceService.findAllOrderBy(sidx, sord));
+				//List<Resource> allResources = new ArrayList<Resource>(resourceDao.findAll());
+				List<Resource> allResources = new ArrayList<Resource>(sidx.isEmpty() ? this.resourceDao.findAll() : this.resourceDao.findAllOrderBy(sidx, sord));
 
 				for (Iterator<Resource> it = resourceList.iterator(); it
 						.hasNext();) {
@@ -159,7 +159,7 @@ public class ResourceController extends WaspController {
 		try {
 			
 			Map<Integer, Integer> allResourceBarcode = new TreeMap<Integer, Integer>();
-			for (ResourceBarcode resourceBarcode : (List<ResourceBarcode>) this.resourceBarcodeService.findAll()) {
+			for (ResourceBarcode resourceBarcode : this.resourceBarcodeDao.findAll()) {
 				if (resourceBarcode != null) {
 					
 					allResourceBarcode.put(resourceBarcode.getResourceId(), resourceBarcode.getBarcodeId());
@@ -167,7 +167,7 @@ public class ResourceController extends WaspController {
 			}
 			
 			Map<Integer, String> allBarcode = new TreeMap<Integer, String>();
-			for (Barcode barcode : (List<Barcode>) this.barcodeService.findAll()) {
+			for (Barcode barcode : this.barcodeDao.findAll()) {
 				if (barcode != null) {
 					
 					allBarcode.put(barcode.getBarcodeId(), barcode.getBarcode());
@@ -216,7 +216,7 @@ public class ResourceController extends WaspController {
 			if(!StringUtils.isEmpty(request.getParameter("selId")))
 			{
 				int selId = Integer.parseInt(request.getParameter("selId"));
-				int selIndex = resourceList.indexOf(resourceService.findById(selId));
+				int selIndex = resourceList.indexOf(resourceDao.findById(selId));
 				frId = selIndex;
 				toId = frId + 1;
 
@@ -278,7 +278,7 @@ public class ResourceController extends WaspController {
 		if (resourceId == null || resourceId.intValue() == 0) {
 			
 			//check if Resource Name already exists in db; if 'true', do not allow to proceed.
-			if(this.resourceService.getResourceByName(resourceForm.getName()).getName() != null) {
+			if(this.resourceDao.getResourceByName(resourceForm.getName()).getName() != null) {
 				try{
 					response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 					response.getWriter().println(messageService.getMessage("resource.resource_exists.error"));
@@ -290,8 +290,8 @@ public class ResourceController extends WaspController {
 			}
 			
 			//check if barcode already exists in Db; if 'true', do not allow to proceed.
-			if(this.barcodeService.getBarcodeByBarcode(request.getParameter("barcode")).getBarcode() != null && 
-					this.barcodeService.getBarcodeByBarcode(request.getParameter("barcode")).getBarcode().length() != 0) {
+			if(this.barcodeDao.getBarcodeByBarcode(request.getParameter("barcode")).getBarcode() != null && 
+					this.barcodeDao.getBarcodeByBarcode(request.getParameter("barcode")).getBarcode().length() != 0) {
 				try{
 					response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 					response.getWriter().println(messageService.getMessage("resource.barcode_exists.error"));
@@ -302,7 +302,7 @@ public class ResourceController extends WaspController {
 				
 			}
 			
-			ResourceCategory resourceCategory = this.resourceCategoryService.getResourceCategoryByResourceCategoryId(new Integer(request.getParameter("resourceCategoryId")));
+			ResourceCategory resourceCategory = this.resourceCategoryDao.getResourceCategoryByResourceCategoryId(new Integer(request.getParameter("resourceCategoryId")));
 			Integer resourceCategoryId =resourceCategory.getResourceCategoryId();
 			Integer typeResourceId = resourceCategory.getTypeResourceId();
 
@@ -325,19 +325,19 @@ public class ResourceController extends WaspController {
 			barcode.setBarcode(request.getParameter("barcode")==null? "" : request.getParameter("barcode"));
 			resourceBarcode.setBarcode(barcode);
 			
-			Barcode barcodeDB = this.barcodeService.save(barcode);
+			Barcode barcodeDB = this.barcodeDao.save(barcode);
 			resourceBarcode.setBarcodeId(barcodeDB.getBarcodeId());
 
-			Resource resourceDb = this.resourceService.save(resourceForm);
+			Resource resourceDb = this.resourceDao.save(resourceForm);
 			resourceId = resourceDb.getResourceId();
 			
 			resourceBarcode.setResourceId(resourceId);
-			this.resourceBarcodeService.save(resourceBarcode);
+			this.resourceBarcodeDao.save(resourceBarcode);
 			
 		} else {
 			
-			Resource resourceDb = this.resourceService.getById(resourceId);
-			ResourceBarcode resourceBarcodeDB = this.resourceBarcodeService.getResourceBarcodeByResourceId(resourceId);
+			Resource resourceDb = this.resourceDao.getById(resourceId);
+			ResourceBarcode resourceBarcodeDB = this.resourceBarcodeDao.getResourceBarcodeByResourceId(resourceId);
 			
 			if(request.getParameter("resource.decommission_date") == null || request.getParameter("resource.decommission_date").length() == 0){
 				resourceDb.setIsActive(1);
@@ -359,20 +359,20 @@ public class ResourceController extends WaspController {
 				barcode.setIsActive(1);
 				resourceBarcode.setBarcode(barcode);
 				
-				Barcode barcodeDB = this.barcodeService.save(barcode);
+				Barcode barcodeDB = this.barcodeDao.save(barcode);
 				resourceBarcode.setBarcodeId(barcodeDB.getBarcodeId());
 			
 				resourceBarcode.setResourceId(resourceId);
-				this.resourceBarcodeService.save(resourceBarcode);
+				this.resourceBarcodeDao.save(resourceBarcode);
 			} else {
 				resourceBarcodeDB.getBarcode().setBarcode(request.getParameter("barcode")==null? "" : request.getParameter("barcode"));
-				this.resourceBarcodeService.merge(resourceBarcodeDB);
+				this.resourceBarcodeDao.merge(resourceBarcodeDB);
 			}
 			
-			this.resourceService.merge(resourceDb);
+			this.resourceDao.merge(resourceDb);
 		}
 
-		resourceMetaService.updateByResourceId(resourceId, resourceMetaList);
+		resourceMetaDao.updateByResourceId(resourceId, resourceMetaList);
 
 		try {
 			response.getWriter().println(messageService.getMessage("resource.updated_success.label"));
@@ -390,7 +390,7 @@ public class ResourceController extends WaspController {
 
 		Map<String, Object> jqgrid = new HashMap<String, Object>();
 
-		Resource resourceDb = resourceService.getById(resourceId);
+		Resource resourceDb = resourceDao.getById(resourceId);
 
 		List<Run> runs = resourceDb.getRun();
 
@@ -475,7 +475,7 @@ public class ResourceController extends WaspController {
 	}
 
 	private String detail(Integer resourceId, ModelMap m, boolean isRW) {
-		Resource resource = resourceService.getById(resourceId);
+		Resource resource = resourceDao.getById(resourceId);
 		resource.setResourceMeta(getMetaHelperWebapp().syncWithMaster(
 				resource.getResourceMeta()));
 
@@ -577,14 +577,14 @@ public class ResourceController extends WaspController {
 
 		Resource resourceDb;
 		if (newResource) {
-			resourceDb = resourceService.save(resourceForm);
+			resourceDb = resourceDao.save(resourceForm);
 		} else {
 			resourceForm.setResourceId(resourceId);
-			resourceDb = resourceService.merge(resourceForm);
+			resourceDb = resourceDao.merge(resourceForm);
 		}
 
 		resourceId = resourceDb.getResourceId();
-		resourceMetaService.updateByResourceId(resourceId,
+		resourceMetaDao.updateByResourceId(resourceId,
 				resourceForm.getResourceMeta());
 
 		status.setComplete();

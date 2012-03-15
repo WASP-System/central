@@ -11,6 +11,8 @@
 
 package edu.yu.einstein.wasp.dao;
 
+import java.util.List;
+
 import edu.yu.einstein.wasp.model.Software;
 
 
@@ -21,6 +23,8 @@ public interface SoftwareDao extends WaspDao<Software> {
   public Software getSoftwareByIName (final String iName);
 
   public Software getSoftwareByName (final String name);
+
+  public List<Software> getActiveSoftware();
 
 
 }

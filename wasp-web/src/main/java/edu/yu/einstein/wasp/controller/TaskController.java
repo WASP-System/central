@@ -26,7 +26,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
-import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.dao.SampleDao;
+import edu.yu.einstein.wasp.dao.StateDao;
+import edu.yu.einstein.wasp.dao.StateMetaDao;
+import edu.yu.einstein.wasp.dao.StatesampleDao;
+import edu.yu.einstein.wasp.dao.TaskDao;
 import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.StateMeta;
 import edu.yu.einstein.wasp.model.Statejob;
@@ -34,11 +38,6 @@ import edu.yu.einstein.wasp.model.Statesample;
 import edu.yu.einstein.wasp.model.Task;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.MessageService;
-import edu.yu.einstein.wasp.service.SampleService;
-import edu.yu.einstein.wasp.service.StateMetaService;
-import edu.yu.einstein.wasp.service.StateService;
-import edu.yu.einstein.wasp.service.StatesampleService;
-import edu.yu.einstein.wasp.service.TaskService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 
 @Controller
@@ -46,42 +45,42 @@ import edu.yu.einstein.wasp.taglib.JQFieldTag;
 @RequestMapping("/task")
 public class TaskController extends WaspController {
 
-  private TaskService taskService;
+  private TaskDao taskDao;
   @Autowired
-  public void setTaskService(TaskService taskService) {
-    this.taskService = taskService;
+  public void setTaskDao(TaskDao taskDao) {
+    this.taskDao = taskDao;
   }
-  public TaskService getTaskService() {
-    return this.taskService;
+  public TaskDao getTaskDao() {
+    return this.taskDao;
   }
 
-  private StateService stateService;
+  private StateDao stateDao;
   @Autowired
-  public void setStateService(StateService stateService) {
-    this.stateService = stateService;
+  public void setStateDao(StateDao stateDao) {
+    this.stateDao = stateDao;
   }
-  public StateService getStateService() {
-    return this.stateService;
+  public StateDao getStateDao() {
+    return this.stateDao;
   }
 
   @Autowired
   private MessageService messageService;
   
   @Autowired
-  private StateMetaService stateMetaService;
+  private StateMetaDao stateMetaDao;
 
   @Autowired
-  private StatesampleService stateSampleService;
+  private StatesampleDao stateSampleDao;
   
   @Autowired
-  private SampleService sampleService;
+  private SampleDao sampleDao;
   
   @Autowired
   private AuthenticationService authenticationService;
   
   @RequestMapping("/list")
   public String list(ModelMap m) {
-    List <Task> taskList = this.getTaskService().findAll();
+    List <Task> taskList = this.getTaskDao().findAll();
     
     m.addAttribute("task", taskList);
 
@@ -99,7 +98,7 @@ public class TaskController extends WaspController {
       return "default";
     }
 
-    Task task = this.getTaskService().getById(i.intValue());
+    Task task = this.getTaskDao().getById(i.intValue());
 
     List<State> stateList = task.getState();
     stateList.size();
@@ -115,12 +114,12 @@ public class TaskController extends WaspController {
   @PreAuthorize("hasRole('su') or hasRole('lm-' + #labId)")
   public String listLabManagerApproval(@PathVariable("labId") Integer labId, ModelMap m) {
 
-    Task task = this.getTaskService().getTaskByIName("PI Approval");
+    Task task = this.getTaskDao().getTaskByIName("PI Approval");
 
     HashMap map = new HashMap();
     map.put("taskId", task.getTaskId()); 
     map.put("status", "RUNNING");
-    List<State> rawStates = stateService.findByMap(map);
+    List<State> rawStates = stateDao.findByMap(map);
 
     ArrayList<State> states = new ArrayList();
     for (State state:rawStates) {
@@ -146,9 +145,9 @@ public class TaskController extends WaspController {
     // TODO CHECK STATE IN LAB
     // TODO ADD MESSAGE
 
-    State state = this.getStateService().getStateByStateId(stateId);
+    State state = this.getStateDao().getStateByStateId(stateId);
     state.setStatus(newStatus);
-    this.getStateService().merge(state);
+    this.getStateDao().merge(state);
 
     return "redirect:/task/lmapproval/list/" + labId + ".do";
   }
@@ -157,12 +156,12 @@ public class TaskController extends WaspController {
   @PreAuthorize("hasRole('su') or hasRole('da-' + #departmentId)")
   public String listDepartementAdminApproval(@PathVariable("departmentId") Integer departmentId, ModelMap m) {
 
-    Task task = this.getTaskService().getTaskByIName("DA Approval");
+    Task task = this.getTaskDao().getTaskByIName("DA Approval");
 
     HashMap map = new HashMap();
     map.put("taskId", task.getTaskId()); 
     map.put("status", "RUNNING");
-    List<State> rawStates = stateService.findByMap(map);
+    List<State> rawStates = stateDao.findByMap(map);
 
     ArrayList<State> states = new ArrayList();
     for (State state:rawStates) {
@@ -188,9 +187,9 @@ public class TaskController extends WaspController {
     // TODO CHECK STATE IN LAB
     // TODO ADD MESSAGE
 
-    State state = this.getStateService().getStateByStateId(stateId);
+    State state = this.getStateDao().getStateByStateId(stateId);
     state.setStatus(newStatus);
-    this.getStateService().merge(state);
+    this.getStateDao().merge(state);
 
     return "redirect:/task/daapproval/list/" + departmentId + ".do";
   }
@@ -199,7 +198,7 @@ public class TaskController extends WaspController {
   @PreAuthorize("hasRole('su') or hasRole('fm')")
   public String listRequote(ModelMap m) {
 
-    Task task = this.getTaskService().getTaskByIName("Requote");
+    Task task = this.getTaskDao().getTaskByIName("Requote");
     List<State> states = task.getState();
 
     // TODO filter by status
@@ -219,7 +218,7 @@ public class TaskController extends WaspController {
       ModelMap m
     ) {
 
-    State state = stateService.getStateByStateId(stateId);
+    State state = stateDao.getStateByStateId(stateId);
 
     // TODO jobId belongs to stateId
     // TODO check valid state
@@ -253,13 +252,13 @@ public class TaskController extends WaspController {
 
 		List<State> stateList;
 
-    Task task = this.getTaskService().getTaskByIName("Receive Payment");
+    Task task = this.getTaskDao().getTaskByIName("Receive Payment");
 
 		Map stateListBaseQueryMap = new HashMap();
 		stateListBaseQueryMap.put("taskId", task.getTaskId()); 
 		stateListBaseQueryMap.put("status", "WAITING");
 
-		stateList = stateService.findByMap(stateListBaseQueryMap);
+		stateList = stateDao.findByMap(stateListBaseQueryMap);
 
 		Map <String, Object> jqgrid = new HashMap<String, Object>();
 		jqgrid.put("page","1");
@@ -315,7 +314,7 @@ public class TaskController extends WaspController {
 		
 MetaHelperWebapp metaHelperWebapp = new MetaHelperWebapp("fmpayment", "state", StateMeta.class,request.getSession());
 
-								State stateDb = stateService.getStateByStateId(stateId);
+								State stateDb = stateDao.getStateByStateId(stateId);
 
                 List<StateMeta> stateMetaList = metaHelperWebapp.getFromJsonForm(request, StateMeta.class);
                 stateForm.setStateMeta(stateMetaList);
@@ -323,8 +322,8 @@ MetaHelperWebapp metaHelperWebapp = new MetaHelperWebapp("fmpayment", "state", S
                 stateForm.setTaskId(stateDb.getTaskId());
                 stateForm.setStatus("PAID?");
 
-								stateDb = stateService.merge(stateForm);
-                stateMetaService.updateByStateId(stateDb.getStateId(), stateForm.getStateMeta());
+								stateDb = stateDao.merge(stateForm);
+                stateMetaDao.updateByStateId(stateDb.getStateId(), stateForm.getStateMeta());
 
     // TODO jobId belongs to stateId
     // TODO check valid state
@@ -347,12 +346,12 @@ MetaHelperWebapp metaHelperWebapp = new MetaHelperWebapp("fmpayment", "state", S
   @PreAuthorize("hasRole('su') or hasRole('fm')")
   public String listPayment(ModelMap m) {
 
-    Task task = this.getTaskService().getTaskByIName("Receive Payment");
+    Task task = this.getTaskDao().getTaskByIName("Receive Payment");
 
     HashMap map = new HashMap();
     map.put("taskId", task.getTaskId()); 
     map.put("status", "WAITING");
-    List<State> states = stateService.findByMap(map);
+    List<State> states = stateDao.findByMap(map);
     
     m.addAttribute("task", task);
     m.addAttribute("states", states);
@@ -385,7 +384,7 @@ MetaHelperWebapp metaHelperWebapp = new MetaHelperWebapp("fmpayment", "state", S
   @PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('ft')")
   public String listSampleReceive(ModelMap m) {
 
-    Task task = this.getTaskService().getTaskByIName("Receive Sample");
+    Task task = this.getTaskDao().getTaskByIName("Receive Sample");
     List<State> states_temp = task.getState();
 
     List<State> states = new ArrayList<State>();
@@ -424,7 +423,7 @@ MetaHelperWebapp metaHelperWebapp = new MetaHelperWebapp("fmpayment", "state", S
 	  else{
 		  Map map = new HashMap();
 	  	  map.put("sampleId", sampleId);
-	  	  List<Statesample> statesamples = this.stateSampleService.findByMap(map);
+	  	  List<Statesample> statesamples = this.stateSampleDao.findByMap(map);
 	  	  boolean valid = false;
 	  	  for(Statesample ss : statesamples){
 	  		  if(ss.getStateId().intValue() == stateId.intValue()){
@@ -436,16 +435,16 @@ MetaHelperWebapp metaHelperWebapp = new MetaHelperWebapp("fmpayment", "state", S
 	  		  waspErrorMessage("task.samplereceive.error_state_sample_conflict");
 	  	  }
 	  	  else{
-	  		  State state = this.getStateService().getStateByStateId(stateId);
-	  		  Task task = this.getTaskService().getTaskByIName("Receive Sample");
+	  		  State state = this.getStateDao().getStateByStateId(stateId);
+	  		  Task task = this.getTaskDao().getTaskByIName("Receive Sample");
 	  		  if(state.getTaskId().intValue() != task.getTaskId().intValue()){
 	  			  waspErrorMessage("task.samplereceive.error_state_task_conflict");
 	  		  }
 	  		  else{
 	  			  state.setStatus(receivedStatus);  
-	  			  stateService.save(state);
+	  			  stateDao.save(state);
 	  			  /*
-	  			  Sample sample = this.sampleService.getSampleBySampleId(sampleId);
+	  			  Sample sample = this.sampleDao.getSampleBySampleId(sampleId);
 	  			  
 	  			  if(receivedStatus.equals("RECEIVED")){
 	  				  sample.setIsReceived(1);
@@ -455,7 +454,7 @@ MetaHelperWebapp metaHelperWebapp = new MetaHelperWebapp("fmpayment", "state", S
 	  			  }
 	  			  sample.setReceiverUserId(authenticationService.getAuthenticatedUser().getUserId());	  			  
 	  			  sample.setReceiveDts(new Date());
-	  			  sampleService.save(sample);
+	  			  sampleDao.save(sample);
 	  			  */
 	  			  waspMessage("task.samplereceive.update_success");
 	  			  //email LM/PI/DA/submitter  //Not really necessary

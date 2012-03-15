@@ -16,12 +16,15 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import edu.yu.einstein.wasp.dao.TaskDao;
+import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.LabPending;
+import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.Task;
-import edu.yu.einstein.wasp.model.TaskMapping;
+import edu.yu.einstein.wasp.model.UserPending;
 
 @Service
-public interface TaskService extends WaspService<Task> {
+public interface TaskService extends WaspService {
 
 	/**
 	 * setTaskDao(TaskDao taskDao)
@@ -39,11 +42,6 @@ public interface TaskService extends WaspService<Task> {
 	 */
 	public TaskDao getTaskDao();
 
-  public Task getTaskByTaskId (final int taskId);
-
-  public Task getTaskByIName (final String iName);
-
-  public List<State> getStatesByTaskIName (final String iName, final String status);
 
   public List<State> getJobCreatedStates();
 
@@ -54,11 +52,23 @@ public interface TaskService extends WaspService<Task> {
   public List<State> getDaApprovedStates();
 
   public List<State> getSampleReceivedStates();
+  
+  public List<State> getStatesByTaskMappingRule(Task task, String status);
+  
+  public List<State> filterStatesByStatusAndPermission(List<State> states, String status,  String permsission);
 
-  List<TaskMapping> getTaskMappings();
+  public int getLabManagerPendingTasks(int labId);
   
-  List<State> getStatesByTaskMappingRule(Task task, String status);
+  public int getLabManagerPendingTasks(int labId, List<UserPending> newUsersPendingLmApprovalList, List<LabUser> existingUsersPendingLmApprovalList, List<Job> jobsPendingLmApprovalList);
   
-  List<State> filterStatesByStatusAndPermission(List<State> states, String status,  String permsission);
+  public int getAllLabManagerPendingTasks();
+
+  public int getAllLabManagerPendingTasks(
+		List<UserPending> newUsersPendingLmApprovalList,
+		List<LabUser> existingUsersPendingLmApprovalList,
+		List<Job> jobsPendingLmApprovalList);
+  
+  public int getDepartmentAdminPendingTasks();
+  public int getDepartmentAdminPendingTasks(List<LabPending> labsPendingDaApprovalList, List<Job> jobsPendingDaApprovalList);
 }
 
