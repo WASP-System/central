@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import edu.yu.einstein.wasp.dao.UserDao;
+import edu.yu.einstein.wasp.dao.UserMetaDao;
 import edu.yu.einstein.wasp.dao.UserPendingMetaDao;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.User;
@@ -32,11 +32,11 @@ import edu.yu.einstein.wasp.model.User;
 public class AutoCompleteController extends WaspController{
 	  
 	@Autowired
-	private UserDao userDao;
+	private UserMetaDao userMetaDao;
 	
 	
 	@Autowired
-	private UserPendingMetaDao userPendingDao;
+	private UserPendingMetaDao userPendingMetaDao;
 	
 	/**
 	   * Obtains a json message containing list of all current users where each entry in the list looks something like "Peter Piper (PPiper)"
@@ -67,8 +67,8 @@ public class AutoCompleteController extends WaspController{
 	  @RequestMapping(value="/getInstitutesForDisplay", method=RequestMethod.GET)
 	  public @ResponseBody String getInstitutes(@RequestParam String instituteNameFragment) {
 		  	
-		  	List<MetaBase> list = userDao.findDistinctMetaOrderBy("user.institution" ,"ASC");
-		  	list.addAll(userPendingDao.findDistinctMetaOrderBy("piPending.institution","ASC") );
+		  	List<MetaBase> list = userMetaDao.findDistinctMetaOrderBy("user.institution" ,"ASC");
+		  	list.addAll(userPendingMetaDao.findDistinctMetaOrderBy("piPending.institution","ASC") );
 		  	String jsonString = new String();
 	        jsonString = jsonString + "{\"source\": [";
 	        SortedSet<String> uniqueInstitutes = new TreeSet();
