@@ -1,6 +1,7 @@
 package edu.yu.einstein.wasp.integration.selenium;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -39,8 +40,16 @@ public class SelUserDetail extends SelBaseTest {
 		  SeleniumHelper.login(sUserName, sUserPass, driver);	 
 		  driver.get("http://localhost:8080/wasp/dashboard.do");
 		  
+		  Assert.assertNotNull(driver.findElement(By.xpath("//a[contains(@href,'#tabs-labUtils')]")), "Unable to locate 'My Account' tab.");
+		  driver.findElement(By.xpath("//a[contains(@href,'#tabs-home')]")).click();
+
 		  Assert.assertTrue(driver.findElements(By.xpath("//a[contains(@href,'/wasp/user/me_ro.do')]")).size() != 0, "Cannot locate 'My Profile' link.");
+
+		  WebElement element = driver.findElement(By.xpath("//a[contains(@href,'/wasp/user/me_ro.do')]"));
+		  if (!element.isDisplayed())  driver.findElement(By.xpath("//a[contains(@href, '#tabs-home')]")).click();
+		  
 		  driver.findElement(By.xpath("//a[contains(@href,'/wasp/user/me_ro.do')]")).click();
+		  
 		  Assert.assertEquals(driver.getCurrentUrl(),"http://localhost:8080/wasp/user/me_ro.do");
 		  Assert.assertTrue(driver.findElements(By.linkText("Edit")).size() != 0, "Cannot locate 'Edit' link.");
 		  driver.findElement(By.xpath("//a[contains(@href,'/wasp/user/me_rw.do')]")).click();
