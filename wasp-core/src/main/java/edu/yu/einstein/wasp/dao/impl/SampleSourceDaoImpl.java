@@ -11,8 +11,10 @@
 
 package edu.yu.einstein.wasp.dao.impl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import edu.yu.einstein.wasp.model.Sample;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -73,7 +75,7 @@ public class SampleSourceDaoImpl extends WaspDaoImpl<SampleSource> implements ed
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public SampleSource getSampleSourceBySampleIdMultiplexindex (final int sampleId, final int multiplexindex) {
-    		HashMap m = new HashMap();
+    	HashMap m = new HashMap();
 		m.put("sampleId", sampleId);
 		m.put("multiplexindex", multiplexindex);
 
@@ -84,6 +86,40 @@ public class SampleSourceDaoImpl extends WaspDaoImpl<SampleSource> implements ed
 			return rt;
 		}
 		return results.get(0);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public Sample getParentSampleByDerivedSampleId(Integer derivedSampleId){
+		HashMap m = new HashMap();
+		m.put("sampleId", derivedSampleId);
+		List<SampleSource> results = this.findByMap(m);
+
+		if (results.size() == 0) {
+			Sample rt = new Sample();
+			return rt;
+		}
+		return results.get(0).getSample();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public List<Sample> getDerivedSamplesByParentSampleId(Integer parentSampleId){
+		HashMap m = new HashMap();
+		m.put("source_sampleId", parentSampleId);
+		List<Sample> derivedSamples = new ArrayList<Sample>();
+		for(SampleSource sampleSource: (List<SampleSource>) this.findByMap(m)){
+			derivedSamples.add(sampleSource.getSampleViaSource());
+		}
+		return derivedSamples;
 	}
 
 
