@@ -625,7 +625,8 @@ public class SampleDnaToLibraryController extends WaspController {
 			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 		}
 		
-		// get the library subtype for this workflow as the job-viewer sees it
+		// get the library subtype for this workflow as the job-viewer sees it. We will use this 
+		// to synchronize the metadata for display
 		String[] roles = {"lu"};
 		List<SubtypeSample> librarySubtypeSamples = sampleService.getSubtypeSamplesForWorkflowByRole(job.getWorkflow().getWorkflowId(), roles, "library");
 		if(librarySubtypeSamples.isEmpty()){
@@ -639,6 +640,13 @@ public class SampleDnaToLibraryController extends WaspController {
 		
 	  
   		List<SampleMeta> sampleMeta = library.getSampleMeta();
+  		Sample parentSample = sampleSourceDao.getParentSampleByDerivedSampleId(library.getSampleId());
+  		if (parentSample.getSampleId() != null){
+  			sampleMeta.addAll(parentSample.getSampleMeta()); // add parent metadata here
+  		}
+  		for(SampleMeta sm: sampleMeta){
+  			logger.debug("ANDY:sampleMeta: Id="+sm.getSampleId()+", key="+sm.getK()+", value="+sm.getV());
+  		}
   		MetaHelperWebapp sampleMetaHelper = getMetaHelperWebapp(); //new MetaHelperWebapp("sample", SampleMeta.class, request.getSession());
   		List<SampleMeta> normalizedSampleMeta = new ArrayList<SampleMeta>();
   		List<String> subtypeSampleComponentAreas = librarySubtypeSample.getComponentMetaAreas();
@@ -650,8 +658,9 @@ public class SampleDnaToLibraryController extends WaspController {
   			}
   			normalizedSampleMeta.addAll(sampleMetaHelper.syncWithMaster(sampleMeta, visibilityElementMap));
   		}
-  		library.setSampleMeta(normalizedSampleMeta);
-  	
+  		for(SampleMeta sm: normalizedSampleMeta){
+  			logger.debug("ANDY: normalizedSampleMeta: Id="+sm.getSampleId()+", key="+sm.getK()+", value="+sm.getV());
+  		}
 		Adaptorset selectedAdaptorset = null;
 		Adaptor adaptor = null;
 		sampleMetaHelper.setArea("genericLibrary");	//only should need this, as we're creating a new library from a DNA or RNA at the facility, but I suppose there could be an assay-specific set of metadat, but for now leave this	  
@@ -664,17 +673,18 @@ public class SampleDnaToLibraryController extends WaspController {
   			logger.warn("Cannot convert to numeric value for metadata " + e.getMessage());
   		}
 		
-		m.put("adaptorsets", adaptorsetDao.findAll()); // required for adaptorsets metadata control element (select:${adaptorsets}:adaptorsetId:name)
-		m.put("adaptors", selectedAdaptorset.getAdaptor()); // required for adaptors metadata control element (select:${adaptors}:adaptorId:barcodenumber)
+		m.addAttribute("adaptorsets", adaptorsetDao.findAll()); // required for adaptorsets metadata control element (select:${adaptorsets}:adaptorsetId:name)
+		m.addAttribute("adaptors", selectedAdaptorset.getAdaptor()); // required for adaptors metadata control element (select:${adaptors}:adaptorId:barcodenumber)
 		List<Adaptorset> otherAdaptorsets = adaptorsetDao.findAll();//should really filter this by the machine requested
 		otherAdaptorsets.remove(selectedAdaptorset);//remove this one
 		if(isRW){
-			m.put("otherAdaptorsets", otherAdaptorsets);
+			m.addAttribute("otherAdaptorsets", otherAdaptorsets);
 		} 
-		m.put("job", job);
-		m.put("sample", library);
-		m.put("adaptor", adaptor);
-		m.put("componentAreas", subtypeSampleComponentAreas);
+		m.addAttribute("job", job);
+		m.addAttribute("sample", library);
+		m.addAttribute("adaptor", adaptor);
+		m.addAttribute("normalizedSampleMeta",normalizedSampleMeta);
+		//m.addAttribute("componentAreas", subtypeSampleComponentAreas);
 	
 		return isRW?"sampleDnaToLibrary/librarydetail_rw":"sampleDnaToLibrary/librarydetail_ro";
   }
@@ -829,7 +839,7 @@ public class SampleDnaToLibraryController extends WaspController {
 		  }
 	  }
 	  
-	  //check of errors in the metadat 
+	  //check of errors in the metadata
 	  getMetaHelperWebapp().validate(sampleMetaListFromForm, result);
 		
 	  if (result.hasErrors()) {

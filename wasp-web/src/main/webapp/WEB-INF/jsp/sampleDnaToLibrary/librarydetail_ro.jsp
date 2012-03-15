@@ -27,13 +27,11 @@
 </c:if>
    	<tr class="FormData"><td colspan="2" class="label-centered">LIBRARY DETAILS</td></tr>
   
-  	 <tr class="FormData"><td class="CaptionTD">Library Name: </td><td class="DataTD"><c:out value="${library.name}" /></td></tr>
+  	 <tr class="FormData"><td class="CaptionTD">Library Name: </td><td class="DataTD"><c:out value="${sample.name}" /></td></tr>
      <tr class="FormData"><td class="CaptionTD">Sample Type: </td><td class="DataTD">Library</td></tr>
      <c:set var="_area" value = "library" scope="request"/>
-     <c:set var="_metaList" value = "${library.sampleMeta}" scope="request" />
-     <c:forEach items="${componentAreas}" var="_metaArea" >	
-     	<c:import url="/WEB-INF/jsp/meta_ro.jsp" />
-     </c:forEach>
+     <c:set var="_metaList" value = "${normalizedSampleMeta}" scope="request" />
+     <c:import url="/WEB-INF/jsp/meta_ro.jsp" />
     <tr class="FormData"><td colspan="2" class="DataTD"><a href="<c:url value="/sampleDnaToLibrary/listJobSamples/${job.jobId}.do"/>">Cancel</a>&nbsp;
 	<sec:authorize access="hasRole('su') or hasRole('ft')"> 
 	  <a href="<c:url value="/sampleDnaToLibrary/librarydetail_rw/${job.jobId}/${library.sampleId}.do"/>">Edit</a>
