@@ -978,7 +978,7 @@ public class PlatformUnitController extends WaspController {
 		sampleMetaService.updateBySampleId(sampleDb.getSampleId(), normalizedSampleMeta); // now we get the list and persist it
 
 		createUpdateCell(sampleDb, laneCount, sampleId);
-		createState(sampleForm, sampleDb);
+		createState(sampleId, sampleDb);
 		
 		return "redirect:/facility/platformunit/ok";
 	}
@@ -989,13 +989,13 @@ public class PlatformUnitController extends WaspController {
 	 * 
 	 * @param sampleDb
 	 */
-	public void createState(Sample sampleForm, Sample sampleDb) {
+	public void createState(Integer sampleId, Sample sampleDb) {
 		
 		Map<String, String> taskQueryMap = new HashMap<String, String>();
 		taskQueryMap.put("iName", "sampleWrapTask");
 		List <Task> task = new ArrayList <Task> (this.taskService.findByMap(taskQueryMap));
 
-		if (sampleForm.getSampleId() == null || sampleForm.getSampleId().intValue() == 0) {
+		if (sampleId == null || sampleId.intValue() == 0) {
 
 			State state = new State();
 			state.setTaskId(task.get(0).getTaskId());
@@ -1009,20 +1009,6 @@ public class PlatformUnitController extends WaspController {
 			stateSample.setStateId(stateDb.getStateId());
 			this.stateSampleService.save(stateSample);
 		}
-		/*
-		else {
-			
-			Statesample stateSample = this.stateSampleService.getById(sampleForm.getSampleId());
-			State state = new State();
-			state.setTaskId(task.get(0).getTaskId());
-			state.setName("Platform Unit");
-			state.setStatus("UPDATED");
-			state.setLastUpdTs(new Date());
-			State stateDb = this.stateService.save(state);
-			stateSample.setStateId(stateDb.getStateId());
-			this.stateSampleService.merge(stateSample);
-		}
-		*/
 	}
 
 	/**
