@@ -992,14 +992,14 @@ public class PlatformUnitController extends WaspController {
 	public void createState(Integer sampleId, Sample sampleDb) {
 		
 		Map<String, String> taskQueryMap = new HashMap<String, String>();
-		taskQueryMap.put("iName", "sampleWrapTask");
+		taskQueryMap.put("iName", "assignLibraryToPlatformUnit");
 		List <Task> task = new ArrayList <Task> (this.taskService.findByMap(taskQueryMap));
 
 		if (sampleId == null || sampleId.intValue() == 0) {
 
 			State state = new State();
 			state.setTaskId(task.get(0).getTaskId());
-			state.setName("Platform Unit");
+			state.setName(task.get(0).getName());
 			state.setStatus("CREATED");
 			state.setLastUpdTs(new Date());
 			State stateDb = this.stateService.save(state);
