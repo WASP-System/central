@@ -931,10 +931,22 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','list_instructions','label','The current departments registered in the system is listed below. Please click on a department name to view / edit its details.','1');
 
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDetail','updated','error','Sample NOT updated. Fill in required fields or cancel to restore.','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDetail','updated','nameClashError','Sample NOT updated. Name provided already used by another sample in this job. Provide another or cancel to restore!','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDetail','updated','unexpectedError','Sample NOT updated. Unexpected error!','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDetail','updated','success','Sample updated.','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDetail','nameClash','error','Name already exists in database!','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDetail','jobParameter','error','No job matches supplied job parameter','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDetail','jobNotFound','error','Job not found in the database','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDetail','sampleParameter','error','No sample matches supplied sample parameter','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDetail','sampleNotFound','error','Sample not found in the database','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDetail','libraryParameter','error','No library matches supplied library parameter','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDetail','libraryNotFound','error','Library not found in the database','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDetail','subtypeSampleNotFound','error','Cannot find requested sample subtype in the database','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDetail','jobLibraryMismatch','error','Supplied job and library parameters do not refer to a valid object','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDetail','jobSampleMismatch','error','Supplied job and sample parameters do not refer to a valid object','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDetail','adaptorsetParameter','error','No adaptorset matches supplied adaptorset parameter','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDetail','','error','','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDetail','updated','error','Sample NOT updated. Unexpected error!','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDetail','updated_success','label','Sample sucessfully updated.','1');
 
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','libraryCreated','created','success','Library created.','1');
+
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','libraryCreated','created_success','label','Library sucessfully created.','1');
 
 
