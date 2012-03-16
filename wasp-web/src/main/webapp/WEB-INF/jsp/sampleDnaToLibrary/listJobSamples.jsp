@@ -6,7 +6,26 @@ function showAssignForm(e) {
 	  e.parentNode.getElementsByTagName("A")[0].style.display = "none"; 
 	  e.parentNode.getElementsByTagName("DIV")[0].style.display = "block"; 
 	}
-
+function toggleAddLibraryForm(obj, id_number){
+	
+	//first deal with toggling display of the form Add Library To Flow Cell
+	var div_id = 'div_' + id_number;
+	var div_form_to_hide_show = document.getElementById(div_id);
+	if(div_form_to_hide_show.style.display == 'none'){
+		div_form_to_hide_show.style.display = 'block';
+	}
+	else{
+		div_form_to_hide_show.style.display = 'none';
+	}
+	//second, change the name of the controlling anchor (obj is the anchor, this)
+	if(obj.firstChild.data == 'Add Library To Flow Cell'){
+		obj.innerHTML = 'Hide Form';
+	}
+	else{
+		obj.innerHTML = 'Add Library To Flow Cell';
+	}
+	
+}
 </script>
 </head>
   <br />
@@ -18,6 +37,8 @@ function showAssignForm(e) {
 <br />
 <table class="data"> <!-- EditTable ui-widget ui-widget-content -->
 <tr class="FormData"><td class="label-centered">Initial Macromolecule</td><td class="label-centered">Libraries</td></tr>
+
+<c:set var="idCounter" value="0" scope="page" />
 
 <c:forEach items="${samplesSubmitted}" var="sample" varStatus="counter">
 <tr class="FormData">
@@ -119,8 +140,9 @@ function showAssignForm(e) {
 		<!-- 			<a href="javascript:{}" onclick="showAssignForm(this)">(+)</a>
 					<div style="display:none">
 			 -->	
-				
-				
+				<c:set var="idCounter" value="${idCounter + 1}" scope="page" />
+				<a href="javascript:{}" onclick='toggleAddLibraryForm(this, <c:out value="${idCounter}" />)'>Add Library To Flow Cell</a>
+				<div id="div_<c:out value="${idCounter}" />" style="display:none">
 				<table class='data'>
 				<tr class="FormData"><td class="label-centered">Add Library To Flow Cell Lane</td></tr>
 				<tr><td>
@@ -152,11 +174,12 @@ function showAssignForm(e) {
 				<br />&nbsp;Provide picoM Added: <input type='text' name='picoMadded' size='3' maxlength='5'>
 				<br />&nbsp;<input type='submit' value='Submit'/>
 				</form>
-				</td></tr></table>
-						
+				</td></tr>
+				</table>
+				</div>		
 						
 				</div>
-				  </div>		
+						
 						
 								
 		</c:forEach>
