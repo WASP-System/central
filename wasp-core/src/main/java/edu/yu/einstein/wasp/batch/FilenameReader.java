@@ -4,7 +4,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.batch.item.ItemReader;
 
-
 // Generic Filename Reader, 
 // takes in filename
 // and forwards them to ItemProcessor
@@ -12,28 +11,30 @@ import org.springframework.batch.item.ItemReader;
 // @ // Component
 public class FilenameReader implements ItemReader {
 
-  private static final Log log = LogFactory.getLog(StateReader.class);
+	private final Log logger = LogFactory.getLog(getClass());
 
-  private int index = 0;
+	private int index = 0;
 
-  String filename = null;
-  public void setFilename(String filename) {
-    this.filename = filename;
-  }
-  public String getFilename() {
-    return this.filename;
-  }
+	String filename = null;
 
-  @Override
-  public String read() {
+	public void setFilename(String filename) {
+		this.filename = filename;
+	}
 
-    if (this.filename == null) return null;
+	public String getFilename() {
+		return this.filename;
+	}
 
-    log.info( "Reader Filename: " + this.filename );
-    String rt = this.getFilename(); 
-    setFilename(null); 
+	@Override
+	public String read() {
 
-    return rt;
-  }
+		if (this.filename == null)
+			return null;
+
+		logger.info("Reader Filename: " + this.filename);
+		String rt = this.getFilename();
+		setFilename(null);
+
+		return rt;
+	}
 }
-
