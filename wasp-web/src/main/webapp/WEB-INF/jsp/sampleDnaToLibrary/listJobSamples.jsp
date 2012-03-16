@@ -2,29 +2,22 @@
 <head>
 <script src="/wasp/scripts/jquery/jquery-1.7.1.js" type="text/javascript"></script>
 <script>
-function showAssignForm(e) {
-	  e.parentNode.getElementsByTagName("A")[0].style.display = "none"; 
-	  e.parentNode.getElementsByTagName("DIV")[0].style.display = "block"; 
-	}
-function toggleAddLibraryForm(obj, id_number){
+
+function toggleDisplayOfAddLibraryForm(instruction, idCounter){
 	
-	//first deal with toggling display of the form Add Library To Flow Cell
-	var div_id = 'div_' + id_number;
-	var div_form_to_hide_show = document.getElementById(div_id);
-	if(div_form_to_hide_show.style.display == 'none'){
-		div_form_to_hide_show.style.display = 'block';
-	}
-	else{
-		div_form_to_hide_show.style.display = 'none';
-	}
-	//second, change the name of the controlling anchor (obj is the anchor, this)
-	if(obj.firstChild.data == 'Add Library To Flow Cell'){
-		obj.innerHTML = 'Hide Form';
-	}
-	else{
-		obj.innerHTML = 'Add Library To Flow Cell';
-	}
+	var formName = "addLibraryForm_" + idCounter;
+	var theForm = document.getElementById(formName);
+	var showButtonName = "showButton_" + idCounter;
+	var showButton = document.getElementById(showButtonName);
 	
+	if(instruction == 'show'){
+		showButton.style.display = 'none';
+		theForm.style.display = 'block';
+	}
+	else if(instruction == 'cancel'){
+		showButton.style.display = 'block';
+		theForm.style.display = 'none';
+	}	
 }
 </script>
 </head>
@@ -136,13 +129,12 @@ function toggleAddLibraryForm(obj, id_number){
 		        
 				
 				
-				<div>
-		<!-- 			<a href="javascript:{}" onclick="showAssignForm(this)">(+)</a>
-					<div style="display:none">
-			 -->	
+		
 				<c:set var="idCounter" value="${idCounter + 1}" scope="page" />
-				<a href="javascript:{}" onclick='toggleAddLibraryForm(this, <c:out value="${idCounter}" />)'>Add Library To Flow Cell</a>
-				<div id="div_<c:out value="${idCounter}" />" style="display:none">
+				<div id="showButton_<c:out value="${idCounter}" />" >
+				 <input class="FormElement ui-widget-content ui-corner-all" type="button" value="Add Library To Flow Cell" onclick='toggleDisplayOfAddLibraryForm("show", <c:out value="${idCounter}" />)' />				
+				</div>
+				<div id="addLibraryForm_<c:out value="${idCounter}" />" style="display:none">
 				<table class='data'>
 				<tr class="FormData"><td class="label-centered">Add Library To Flow Cell Lane</td></tr>
 				<tr><td>
@@ -172,13 +164,14 @@ function toggleAddLibraryForm(obj, id_number){
 					</c:forEach>
 				</select>
 				<br />&nbsp;Provide picoM Added: <input type='text' name='picoMadded' size='3' maxlength='5'>
-				<br />&nbsp;<input type='submit' value='Submit'/>
+				<br />&nbsp;<input type='submit' value='Submit'/>&nbsp;<input class="fm-button" type="button" value="Cancel" onclick='toggleDisplayOfAddLibraryForm("cancel", <c:out value="${idCounter}" />)' />
+				
 				</form>
 				</td></tr>
 				</table>
 				</div>		
 						
-				</div>
+				
 						
 						
 								
