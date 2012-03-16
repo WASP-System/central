@@ -31,9 +31,22 @@ import edu.yu.einstein.wasp.model.MetaUtil;
 public class MetaHelper {
 
 	
-	protected final Logger logger = Logger.getLogger(getClass());
+	protected final Logger logger = Logger.getLogger(MetaHelper.class);
 	
-
+	/**
+	 * Construct a meta-helper using the default locale (en_US).  Instances of this class are for access of
+	 * non-internationalized metadata (ie values).  Any access in a display layer should use the
+	 * MetaHelper(area, class, locale) constructor.
+	 * @param area
+	 * @param clazz
+	 */
+	public <T extends MetaBase> MetaHelper(String area, Class<T> clazz) {
+		this.area = area;
+		this.parentArea = area;
+		this.clazz = clazz;
+		this.locale = new Locale(Locale.US.toString());
+	}
+	
 	/**
 	 * Constructor
 	 * @param area
