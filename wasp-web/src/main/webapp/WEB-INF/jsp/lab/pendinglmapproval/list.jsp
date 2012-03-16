@@ -222,8 +222,7 @@
       
 <c:choose>
     <c:when test="${newuserspendinglist.size()==0 && existinguserspendinglist.size()==0}">
-    	<h2><fmt:message key="lmpendingtask.subtitle1_none.label" /></h2>
-    	<br />    
+    	<h2><fmt:message key="lmpendingtask.subtitle1_none.label" /></h2>  
     </c:when>
     <c:otherwise> 
  		<h2><fmt:message key="lmpendingtask.subtitle1.label" /></h2>
@@ -249,12 +248,11 @@
 	  </div> 
  	</c:otherwise>
 </c:choose>  
- <br />  
+  
 
 <c:choose>
     <c:when test="${jobspendinglist.size()==0}">
-    	<h2><fmt:message key="lmpendingtask.subtitle2_none.label" /></h2>
-    	<br />    
+    	<h2><fmt:message key="lmpendingtask.subtitle2_none.label" /></h2>   
     </c:when>
     <c:otherwise>    
  		<h2><fmt:message key="lmpendingtask.subtitle2.label" /></h2>

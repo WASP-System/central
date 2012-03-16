@@ -50,6 +50,7 @@ import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
 import edu.yu.einstein.wasp.model.JobSample;
 import edu.yu.einstein.wasp.model.MetaAttribute;
+import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleCell;
 import edu.yu.einstein.wasp.model.SampleMeta;
@@ -57,11 +58,13 @@ import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.Statesample;
 import edu.yu.einstein.wasp.model.SubtypeSample;
+import edu.yu.einstein.wasp.model.SubtypeSampleResourceCategory;
 import edu.yu.einstein.wasp.model.Task;
 import edu.yu.einstein.wasp.model.TypeSample;
 import edu.yu.einstein.wasp.model.Workflow;
 import edu.yu.einstein.wasp.model.Workflowsubtypesample;
 import edu.yu.einstein.wasp.service.SampleService;
+
 
 @Controller
 @Transactional
@@ -105,6 +108,7 @@ public class SampleDnaToLibraryController extends WaspController {
   private SampleService sampleService;
   
 
+  
   private final MetaHelperWebapp getMetaHelperWebapp() {
     return new MetaHelperWebapp("sample", SampleMeta.class, request.getSession());
   }
@@ -317,7 +321,7 @@ public class SampleDnaToLibraryController extends WaspController {
 				else if(ss.getState().getStatus().equals("RECEIVED") || ss.getState().getStatus().equals("FINALIZED")){
 					sampleReceived = "RECEIVED";
 				}
-				else if(ss.getState().getStatus().equals("ABANDONED")){
+				else if(ss.getState().getStatus().equals("WITHDRAWN")){
 					sampleReceived = "WITHDRAWN";
 				}
 			}
@@ -334,6 +338,47 @@ public class SampleDnaToLibraryController extends WaspController {
 		  librariesPerSampleList.add(new Integer(numberLibrariesForThisSample));
 	  }
 	 
+	  
+	  
+	  //3-15-12 new stuff to fill up the flowcells compatible with this job
+	  // pickup FlowCells limited by states and filter to get only those compatible with the selected machine resourceCategoryId
+	  Map stateMap = new HashMap(); 
+		Task task = taskDao.getTaskByIName("assignLibraryToPlatformUnit");
+		if(task == null || task.getTaskId() == null){
+			waspErrorMessage("platformunit.taskNotFound.error");
+			return "redirect:/dashboard.do";
+		}
+		stateMap.put("taskId", task.getTaskId()); 	
+		stateMap.put("status", "CREATED"); 
+		List<State> stateList = stateDao.findByMap(stateMap);
+		
+		List<Sample> flowCells = new ArrayList<Sample>();
+		
+		//Map stsrcMap = new HashMap();//get the ids for the types of flow cells that go on the selected machine
+		//stsrcMap.put("resourcecategoryId", resourceCategory.getResourceCategoryId()); 
+		//stsrcMap.put("resourcecategoryId", job.getJ); 
+		//List<SubtypeSampleResourceCategory> stsrcList = subtypeSampleResourceCategoryService.findByMap(stsrcMap);
+		for(State s : stateList){
+			List<Statesample> ssList = s.getStatesample();
+			for(Statesample ss : ssList){
+				if(ss.getSample().getTypeSample().getIName().equals("platformunit")){
+					for(SubtypeSampleResourceCategory stsrc: ss.getSample().getSubtypeSample().getSubtypeSampleResourceCategory()){
+						for(JobResourcecategory jrc : job.getJobResourcecategory()){
+							if(stsrc.getResourcecategoryId().intValue() == jrc.getResourcecategoryId().intValue()){
+								flowCells.add(ss.getSample());
+							}							
+						}
+					}
+				}
+			}
+		}
+	  
+	  
+	  
+	  
+	  
+	  
+	  m.addAttribute("flowCells", flowCells);
 	  m.addAttribute("samplesSubmitted", submittedSamples);
 	  m.addAttribute("received", receivedList);
 	  m.addAttribute("librariespersample", librariesPerSampleList);
@@ -384,8 +429,13 @@ public class SampleDnaToLibraryController extends WaspController {
 		m.put("macromoleculeSample", macromoleculeSample);
 		m.put("job", job);
 
+
 		Adaptorset selectedAdaptorset = adaptorsetDao.getAdaptorsetByAdaptorsetId(adaptorsetId);
+		//List<Adaptorset> adaptorsets = new ArrayList<Adaptorset>();
+		//adaptorsets.add(selectedAdaptorset);
+		//m.put("adaptorsets", adaptorsets);  //
 		m.put("adaptorsets", adaptorsetDao.findAll()); // required for adaptorsets metadata control element (select:${adaptorsets}:adaptorsetId:name)
+
 		m.put("adaptors", selectedAdaptorset.getAdaptor()); // required for adaptors metadata control element (select:${adaptors}:adaptorId:barcodenumber)
 		List<Adaptorset> otherAdaptorsets = adaptorsetDao.findAll();//should really filter this by the machine requested
 		otherAdaptorsets.remove(selectedAdaptorset);//remove this one

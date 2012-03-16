@@ -61,7 +61,7 @@ BODY {margin: 0; padding: 0;}
   						<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="resourceCategoryId" value="${resourceCategoryId}">
   						<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="jobsToWorkWith" value="${jobsToWorkWith}"> 
   							pmole: <input class="FormElement ui-widget-content ui-corner-all" type="text" size="5" maxlength="5" name="pmolAdded"><br>
-  						<select class="FormElement ui-widget-content ui-corner-all" class="selectLane" name="lanesampleid"></select>
+  						<select class="FormElement ui-widget-content ui-corner-all selectLane" name="lanesampleid"></select>
   						<input class="FormElement ui-widget-content ui-corner-all" type="submit" value="assign">
 					</form>
 					</div>
@@ -88,7 +88,7 @@ BODY {margin: 0; padding: 0;}
   								<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="resourceCategoryId" value="${resourceCategoryId}"> 
   								<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="jobsToWorkWith" value="${jobsToWorkWith}"> 
  								pmole: <input class="FormElement ui-widget-content ui-corner-all" type="text" size="5" maxlength="5" name="pmolAdded"><br>
-  								<select class="FormElement ui-widget-content ui-corner-all" class="selectLane" name="lanesampleid"></select>
+  								<select class="FormElement ui-widget-content ui-corner-all selectLane" name="lanesampleid"></select>
   								<input class="FormElement ui-widget-content ui-corner-all" type="submit" value="assign">
 							</form>
 							</div>
@@ -192,7 +192,7 @@ BODY {margin: 0; padding: 0;}
       <c:forEach items="${pu.sampleSource}" var="puparent">
          <div class="cell">
            <label>Lane</label>
-           <c:out value="${puparent.sampleSourceId}" /> 
+      <!--       <c:out value="${puparent.sampleSourceId}" />  -->
            <c:out value="${puparent.sampleViaSource.name}" /> 
 
            <c:forEach items="${puparent.sampleViaSource.sampleSource}" var="lib">

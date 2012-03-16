@@ -46,8 +46,8 @@
           <property name="baseName" value="adaptorset" />
           <property name="label" value="Adaptor Set" />
           <property name="metaposition" value="40" />
-         <!--   <property name="control" value="select:#{dollar}{adaptorsets}:adaptorsetId:name" /> -->
-          <property name="control" value="select:1:TruSEQ INDEXED DNA" />
+         <property name="control" value="select:#{dollar}{adaptorsets}:adaptorsetId:name" /> 
+         <!--  <property name="control" value="select:1:TruSEQ INDEXED DNA" />-->
           <property name="constraint" value="NotEmpty" />
           <property name="error" value="You must choose an adaptor set" />
         </bean>
@@ -56,8 +56,8 @@
           <property name="baseName" value="adaptor" />
           <property name="label" value="Adaptor" />
           <property name="metaposition" value="50" />
-          <!--  <property name="control" value="select:#{dollar}{adaptors}:adaptorId:name" /> -->
-          <property name="control" value="select:1:TrueSeq Adaptor, Index 1;2:TrueSeq Adaptor, Index 2;3:TrueSeq Adaptor, Index 3;4:TrueSeq Adaptor, Index 4" />
+           <property name="control" value="select:#{dollar}{adaptors}:adaptorId:name" /> 
+         <!--  <property name="control" value="select:1:TrueSeq Adaptor, Index 1;2:TrueSeq Adaptor, Index 2;3:TrueSeq Adaptor, Index 3;4:TrueSeq Adaptor, Index 4" /> -->
           <property name="constraint" value="NotEmpty" />
           <property name="error" value="You must choose an adaptor" />
         </bean>

@@ -1031,7 +1031,7 @@ public class PlatformUnitController extends WaspController {
 		
 		m.put("resourceCategoryId", resourceCategoryId);
 		m.put("resourceCategories", resourceCategories);
-
+//perhaps a better way to screen is to find all jobs that are not completed, and show those that have at least one library
 		if(resourceCategoryId.intValue() > 0){
 			//get list of jobs with following: 
 			//	1. select states from state where task 106 (now it's 5) Assign Library To Platform Unit and status CREATED
@@ -1049,11 +1049,15 @@ public class PlatformUnitController extends WaspController {
 			List<State> states = stateDao.findByMap(filterForState);
 			List<Job> jobList = new ArrayList();
 			for(State state : states){
+				if(state.getStatejob().isEmpty()){
+					continue;
+				}
 				Job job = state.getStatejob().get(0).getJob();//should be one
 				JobResourcecategory jrc = jobResourcecategoryDao.getJobResourcecategoryByResourcecategoryIdJobId(resourceCategoryId, job.getJobId());
 				if(jrc!=null && jrc.getJobResourcecategoryId()!=null && jrc.getJobResourcecategoryId().intValue() != 0){
 					jobList.add(state.getStatejob().get(0).getJob());
 				}
+				
 			}
 		
 			//if(jobList.size()==0){
@@ -1111,7 +1115,9 @@ public class PlatformUnitController extends WaspController {
 				
 		// pickup FlowCells limited by states and filter to get only those compatible with the selected machine resourceCategoryId
 		Map stateMap = new HashMap(); 
-		Task task = taskDao.getTaskByIName("Flowcell/Add Library To Lane");
+
+		Task task = taskDao.getTaskByIName("assignLibraryToPlatformUnit");
+
 		if(task == null || task.getTaskId() == null){
 			waspErrorMessage("platformunit.taskNotFound.error");
 			return "redirect:/dashboard.do";
@@ -1159,6 +1165,9 @@ public class PlatformUnitController extends WaspController {
 				return "redirect:/facility/platformunit/limitPriorToAssign.do?resourceCategoryId=" + resourceCategoryId;
 			}
 			for(State state : states){
+				if(state.getStatejob().isEmpty()){
+					continue;
+				}
 				Job job2 = state.getStatejob().get(0).getJob();//should be one
 				if(job2.getJobId().intValue()==job.getJobId().intValue()){
 					JobResourcecategory jrc = jobResourcecategoryDao.getJobResourcecategoryByResourcecategoryIdJobId(resourceCategoryId, job2.getJobId());
@@ -1171,6 +1180,9 @@ public class PlatformUnitController extends WaspController {
 		else if(jobsToWorkWith.intValue()==-1){//asking for list of all available jobs that meet the resourceCategoryId and state criteria; so parameter jobsToWorkWith has a value > -1 which means it's asking for all available jobs that meet state and resourceCategory criteria
 
 			for(State state : states){
+				if(state.getStatejob().isEmpty()){
+					continue;
+				}
 				Job job = state.getStatejob().get(0).getJob();//should be one
 				JobResourcecategory jrc = jobResourcecategoryDao.getJobResourcecategoryByResourcecategoryIdJobId(resourceCategoryId, job.getJobId());
 				if(jrc!=null && jrc.getJobResourcecategoryId()!=null && jrc.getJobResourcecategoryId().intValue() != 0){
@@ -1291,7 +1303,7 @@ public class PlatformUnitController extends WaspController {
 				stateSampleMap.put("sampleId", flowCell.getSampleId());
 				List<Statesample> stateSampleList = stateSampleDao.findByMap(stateSampleMap);
 				for(Statesample stateSample : stateSampleList){
-					if(stateSample.getState().getTask().getIName().equals("Flowcell/Add Library To Lane")){
+					if(stateSample.getState().getTask().getIName().equals("assignLibraryToPlatformUnit")){
 						flowCellIsAvailable=true;
 						break;
 					}
@@ -1314,7 +1326,9 @@ public class PlatformUnitController extends WaspController {
 		
 		//case 1: identify the adaptor barcode for the library being added; it's barcode is either NONE (no multiplexing) or has some more interesting barcode sequence (for multiplexing, such as AACTG)
 		Adaptor adaptorOnLibraryBeingAdded = null;
-		SampleMeta sampleMeta = sampleMetaDao.getSampleMetaByKSampleId("sample.library.adaptorid", librarySampleId);
+
+		SampleMeta sampleMeta = sampleMetaDao.getSampleMetaByKSampleId("genericLibrary.adaptor", librarySampleId);
+
 		if(sampleMeta==null || sampleMeta.getSampleMetaId()==null){
 			error=true; waspErrorMessage("platformunit.adaptorNotFound.error");
 		}

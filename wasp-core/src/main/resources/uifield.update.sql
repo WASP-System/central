@@ -924,6 +924,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','lmpendingtask','subtitle1_none','label','No Pending Users','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','lmpendingtask','subtitle2','label','Pending Jobs','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','lmpendingtask','subtitle2_none','label','No Pending Jobs','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','samplereceivetask','subtitle_none','label','No Pending Samples','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail_pendingjobs','label','Pending Jobs','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail_update_instructions','label','Use the following form to change the status of a department between Active and Inactive','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail_update_admin','label','Type in the name of an existing WASP user to make them an administrator of this department','1');

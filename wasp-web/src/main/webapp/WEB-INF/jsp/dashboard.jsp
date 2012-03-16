@@ -220,16 +220,16 @@
 					<a href='<c:url value="/sampleDnaToLibrary/listJobSamples/10217.do"/>'>List Samples for Job 10217</a>
 				</li>
 				<li>
-					<a href='<c:url value="/sampleDnaToLibrary/listJobSamples/4.do"/>'>List Samples for New Job 4</a>
+					<a href='<c:url value="/sampleDnaToLibrary/listJobSamples/1.do"/>'>List Samples for New Job 1</a>
 				</li>
 				<li>
-					<a href='<c:url value="/sampleDnaToLibrary/listJobSamples/5.do"/>'>List	Samples for New Job 5</a>
+					<a href='<c:url value="/sampleDnaToLibrary/listJobSamples/2.do"/>'>List	Samples for New Job 2</a>
 				</li>
 				<li>
-					<a href='<c:url value="/sampleDnaToLibrary/listJobSamples/6.do"/>'>List	Samples for Job 6</a>
+					<a href='<c:url value="/sampleDnaToLibrary/listJobSamples/3.do"/>'>List	Samples for Job 3</a>
 				</li>
 				<li>
-					<a href='<c:url value="/sampleDnaToLibrary/listJobSamples/7.do"/>'>List	Samples for Job 7</a>
+					<a href='<c:url value="/sampleDnaToLibrary/listJobSamples/4.do"/>'>List	Samples for Job 4</a>
 				</li>
 			</ul>
 			<br />

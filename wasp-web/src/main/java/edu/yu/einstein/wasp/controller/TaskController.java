@@ -417,7 +417,7 @@ MetaHelperWebapp metaHelperWebapp = new MetaHelperWebapp("fmpayment", "state", S
 	  if(receivedStatus == null ||  receivedStatus.equals("")){
 		  waspErrorMessage("task.samplereceive.error_receivedstatus_empty");
 	  }
-	  else if(!receivedStatus.equals("COMPLETED") && !receivedStatus.equals("ABANDONED")){
+	  else if(!receivedStatus.equals("RECEIVED") && !receivedStatus.equals("WITHDRAWN")){
 		  waspErrorMessage("task.samplereceive.error_receivedstatus_invalid");
 	  }
 	  else{
@@ -443,21 +443,7 @@ MetaHelperWebapp metaHelperWebapp = new MetaHelperWebapp("fmpayment", "state", S
 	  		  else{
 	  			  state.setStatus(receivedStatus);  
 	  			  stateDao.save(state);
-	  			  /*
-	  			  Sample sample = this.sampleDao.getSampleBySampleId(sampleId);
-	  			  
-	  			  if(receivedStatus.equals("RECEIVED")){
-	  				  sample.setIsReceived(1);
-	  			  }
-	  			  else if(receivedStatus.equals("NEVER COMING")){
-	  				sample.setIsReceived(2);
-	  			  }
-	  			  sample.setReceiverUserId(authenticationService.getAuthenticatedUser().getUserId());	  			  
-	  			  sample.setReceiveDts(new Date());
-	  			  sampleDao.save(sample);
-	  			  */
-	  			  waspMessage("task.samplereceive.update_success");
-	  			  //email LM/PI/DA/submitter  //Not really necessary
+	  			  waspMessage("task.samplereceive.update_success");	  			  
 	  		  }
 	  	  }
 	  }
