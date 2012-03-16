@@ -132,7 +132,7 @@ function toggleDisplayOfAddLibraryForm(instruction, idCounter){
 		
 				<c:set var="idCounter" value="${idCounter + 1}" scope="page" />
 				<div id="showButton_<c:out value="${idCounter}" />" >
-				 <input class="FormElement ui-widget-content ui-corner-all" type="button" value="Add Library To Flow Cell" onclick='toggleDisplayOfAddLibraryForm("show", <c:out value="${idCounter}" />)' />				
+				 <input class="fm-button" type="button" value="Add Library To Flow Cell" onclick='toggleDisplayOfAddLibraryForm("show", <c:out value="${idCounter}" />)' />				
 				</div>
 				<div id="addLibraryForm_<c:out value="${idCounter}" />" style="display:none">
 				<table class='data'>
@@ -155,7 +155,7 @@ function toggleDisplayOfAddLibraryForm(instruction, idCounter){
 								
 									<c:forEach items="${library.sampleViaSource.sampleMeta}" var="sm">
         								<c:if test="${fn:substringAfter(sm.k, 'Library.') == 'adaptor'}">
-            								&nbsp;[Index: <c:out value="${adaptors.get(sm.v).barcodesequence}"/>]
+            								&nbsp;[Index: <c:out value="${adaptors.get(sm.v).barcodenumber}"/>, <c:out value="${adaptors.get(sm.v).barcodesequence}"/>]
             							</c:if> 
 		        					</c:forEach> 							
 								
@@ -163,7 +163,7 @@ function toggleDisplayOfAddLibraryForm(instruction, idCounter){
 						</c:forEach> 
 					</c:forEach>
 				</select>
-				<br />&nbsp;Provide picoM Added: <input type='text' name='picoMadded' size='3' maxlength='5'>
+				<br />&nbsp;Final Concentration In Lane (pM): <input type='text' name='picoMadded' size='3' maxlength='5'>
 				<br />&nbsp;<input type='submit' value='Submit'/>&nbsp;<input class="fm-button" type="button" value="Cancel" onclick='toggleDisplayOfAddLibraryForm("cancel", <c:out value="${idCounter}" />)' />
 				
 				</form>
