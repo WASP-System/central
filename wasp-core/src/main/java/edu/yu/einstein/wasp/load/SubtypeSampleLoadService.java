@@ -121,7 +121,6 @@ public class SubtypeSampleLoadService extends WaspLoadService {
     	  changed = true;
       }
       if (!subtypeSample.getAreaList().equals(areaList)){
-    	  logger.debug("ANDY:  '"+subtypeSample.getAreaList()+"' != '"+areaList);
     	  subtypeSample.setAreaList(areaList);
     	  changed = true;
       }
@@ -130,7 +129,6 @@ public class SubtypeSampleLoadService extends WaspLoadService {
     	  changed = true;
       }
       if (changed)
-    	  logger.debug("ANDY: saving: "+subtypeSample.toString());
     	  subtypeSampleDao.save(subtypeSample); 
     }
 
