@@ -11,7 +11,7 @@ import org.springframework.batch.item.ItemReader;
 // @ // Component
 public class StateReader implements ItemReader {
 
-	private final Log logger = LogFactory.getLog(getClass());
+	private static final Log logger = LogFactory.getLog(StateReader.class);
 
 	private int index = 0;
 
@@ -31,7 +31,7 @@ public class StateReader implements ItemReader {
 		if (this.stateId == null)
 			return null;
 
-		log.info("Reader State: " + this.stateId);
+		logger.info("Reader State: " + this.stateId);
 		Integer rt = this.getStateId();
 		setStateId(null);
 
