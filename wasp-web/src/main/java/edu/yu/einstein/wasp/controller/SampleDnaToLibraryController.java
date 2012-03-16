@@ -247,7 +247,7 @@ public class SampleDnaToLibraryController extends WaspController {
      metaHelperWebapp.validate(sampleMetaList, result);
 
      if (result.hasErrors()) {
-        waspMessage("hello.error");
+    	waspErrorMessage("sampleDetail.updated.error");
 
         metaHelperWebapp = getMetaHelperWebapp();
         List<SampleMeta> coreSampleMeta = metaHelperWebapp.syncWithMaster(sample.getSampleMeta());
@@ -443,7 +443,7 @@ public class SampleDnaToLibraryController extends WaspController {
 
 	  Sample parentMacromolecule = sampleDao.getSampleBySampleId(macromolSampleId);
 	  if(parentMacromolecule.getSampleId()==null){//not found in database
-		  waspErrorMessage("sampleDetail.sampleNitFound.error");
+		  waspErrorMessage("sampleDetail.sampleNotFound.error");
 		  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 	  }
 	  //confirm the job and the macromoleculeSample are part of same job
