@@ -247,7 +247,7 @@ public class SampleDnaToLibraryController extends WaspController {
      metaHelperWebapp.validate(sampleMetaList, result);
 
      if (result.hasErrors()) {
-    	waspErrorMessage("sampleDetail.updated.error");
+    	waspErrorMessage("sampleDetail.unexpected.error");
 
         metaHelperWebapp = getMetaHelperWebapp();
         List<SampleMeta> coreSampleMeta = metaHelperWebapp.syncWithMaster(sample.getSampleMeta());
@@ -476,7 +476,7 @@ public class SampleDnaToLibraryController extends WaspController {
 	  }
 
 
-	  //check of errors in the metadat
+	  //check of errors in the metadata
 	  getMetaHelperWebapp().validate(sampleMetaListFromForm, result);
 
 	  if (result.hasErrors()) {
