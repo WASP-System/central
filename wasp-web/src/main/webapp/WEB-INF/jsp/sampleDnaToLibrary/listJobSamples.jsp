@@ -18,6 +18,12 @@ function toggleDisplayOfAddLibraryForm(instruction, idCounter){
 		theForm.style.display = 'none';
 	}	
 }
+function validate(obj){
+	if(obj.value==0){
+		alert("You must select a Lane");
+		return false;
+	}
+}
 </script>
 </head>
 
@@ -87,14 +93,14 @@ function toggleDisplayOfAddLibraryForm(instruction, idCounter){
 									</c:when>
 								</c:choose>	
 				 				<br />
-				 				<select class="FormElement ui-widget-content ui-corner-all" name="platformunitId" size="1">
+				 				<select class="FormElement ui-widget-content ui-corner-all" name="lanesampleid" size="1" onchange="validate(this)">
 									<option value="0">--SELECT A FLOW CELL LANE--
 									<c:forEach items="${flowCells}" var="flowCell">
-										<option value="<c:out value="${flowCell.sampleId}" />" >FlowCell: <c:out value="${flowCell.name}" />
+										<option value="0" />FlowCell: <c:out value="${flowCell.name}" />
 										<c:forEach items="${flowCell.sampleSource}" var="cell">
 											<option value="<c:out value="${cell.sampleViaSource.sampleId}" />" >&nbsp;&nbsp;&nbsp;Lane: <c:out value="${cell.sampleViaSource.name}" />
 											<c:forEach items="${cell.sampleViaSource.sampleSource}" var="library">
-												<option value="<c:out value="${library.sampleViaSource.sampleId}" />" >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Library: <c:out value="${library.sampleViaSource.name}" />
+												<option value="0" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Library: <c:out value="${library.sampleViaSource.name}" />
 												<c:forEach items="${library.sampleViaSource.sampleMeta}" var="sm">
         											<c:if test="${fn:substringAfter(sm.k, 'Library.') == 'adaptor'}">
             											&nbsp;[Index: <c:out value="${adaptors.get(sm.v).barcodenumber}"/>, <c:out value="${adaptors.get(sm.v).barcodesequence}"/>]
@@ -205,14 +211,14 @@ function toggleDisplayOfAddLibraryForm(instruction, idCounter){
 								</c:choose>	
 		
 				 				<br />
-				 				<select class="FormElement ui-widget-content ui-corner-all" name="platformunitId" size="1">
+				 				<select class="FormElement ui-widget-content ui-corner-all" name="lanesampleid" size="1" onchange="validate(this)">
 									<option value="0">--SELECT A FLOW CELL LANE--
 									<c:forEach items="${flowCells}" var="flowCell">
-										<option value="<c:out value="${flowCell.sampleId}" />" >FlowCell: <c:out value="${flowCell.name}" />
+										<option value="0" />FlowCell: <c:out value="${flowCell.name}" />
 										<c:forEach items="${flowCell.sampleSource}" var="cell">
 											<option value="<c:out value="${cell.sampleViaSource.sampleId}" />" >&nbsp;&nbsp;&nbsp;Lane: <c:out value="${cell.sampleViaSource.name}" />
 											<c:forEach items="${cell.sampleViaSource.sampleSource}" var="library">
-												<option value="<c:out value="${library.sampleViaSource.sampleId}" />" >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Library: <c:out value="${library.sampleViaSource.name}" />
+												<option value="0" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Library: <c:out value="${library.sampleViaSource.name}" />
 												<c:forEach items="${library.sampleViaSource.sampleMeta}" var="sm">
         											<c:if test="${fn:substringAfter(sm.k, 'Library.') == 'adaptor'}">
             											&nbsp;[Index: <c:out value="${adaptors.get(sm.v).barcodenumber}"/>, <c:out value="${adaptors.get(sm.v).barcodesequence}"/>]
