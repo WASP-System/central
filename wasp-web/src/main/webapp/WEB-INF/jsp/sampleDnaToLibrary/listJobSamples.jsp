@@ -90,7 +90,7 @@ function toggleDisplayOfAddLibraryForm(instruction, idCounter){
 				 				<select class="FormElement ui-widget-content ui-corner-all" name="platformunitId" size="1">
 									<option value="0">--SELECT A FLOW CELL LANE--
 									<c:forEach items="${flowCells}" var="flowCell">
-										<option value="${flowCell.sampleId}" >FlowCell: <c:out value="${flowCell.name}" />
+										<option value="<c:out value="${flowCell.sampleId}" />" >FlowCell: <c:out value="${flowCell.name}" />
 										<c:forEach items="${flowCell.sampleSource}" var="cell">
 											<option value="<c:out value="${cell.sampleViaSource.sampleId}" />" >&nbsp;&nbsp;&nbsp;Lane: <c:out value="${cell.sampleViaSource.name}" />
 											<c:forEach items="${cell.sampleViaSource.sampleSource}" var="library">
@@ -126,7 +126,7 @@ function toggleDisplayOfAddLibraryForm(instruction, idCounter){
 </c:when>
 <c:when test='${submittedSampleType == "macromolecule"}'>
 	<tr class="FormData">
-		<td class="value-centered">
+		<td rowspan = "${librariesPerSubmittedSample}" class="value-centered">
 			Name: <a href="<c:url value="/sampleDnaToLibrary/sampledetail_ro/${job.jobId}/${sample.sampleId}.do" />"><c:out value="${sample.name}" /></a><br />
 	  		Molecule: <c:out value="${sample.typeSample.name}" /><br /> 
 	  		<c:forEach items="${sample.sampleMeta}" var="sm">
@@ -158,14 +158,19 @@ function toggleDisplayOfAddLibraryForm(instruction, idCounter){
 	 	 		</c:otherwise>
 	  		</c:choose>					  
 		</td>
-		<td class="value-centered">
+		<c:choose>
+			<c:when test="${sample.sampleSourceViaSourceSampleId.size()==0}">
+				<td>&nbsp;</td>
+			</c:when>
+			<c:otherwise>
 			<c:set var="i" value="0" scope="page" /> 
 			<c:forEach items="${sample.sampleSourceViaSourceSampleId}" var="samplesource">
 				<c:set var="lib" value="${samplesource.sample}"/> 
 				<c:if test="${i > 0}">
-					<hr />
+					<tr>
 				</c:if>
-				<c:set var="i" value="${i + 1}" scope="page" />		
+				<td class="value-centered">
+						
 				Name: <a href="<c:url value="/sampleDnaToLibrary/librarydetail_ro/${job.jobId}/${lib.sampleId}.do" />"><c:out value="${lib.name}" /></a><br />
 				Molecule: <c:out value="${sample.typeSample.name}" /><br />
 				<c:forEach items="${sample.sampleMeta}" var="sm">
@@ -222,9 +227,15 @@ function toggleDisplayOfAddLibraryForm(instruction, idCounter){
 							</form>
 						</td></tr>
 					</table>
-				</div>		
+				</div>	
+				</td>
+				<c:if test="${i > 0}">
+					<c:out value="</tr>" />
+				</c:if>	
+				<c:set var="i" value="${i + 1}" scope="page" />
 			</c:forEach>
-		</td>
+			</c:otherwise>
+			</c:choose>
 	</tr>	
 </c:when>
 </c:choose>
