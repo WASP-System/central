@@ -178,8 +178,8 @@ function validate(obj){
 				<td class="value-centered">
 						
 				Name: <a href="<c:url value="/sampleDnaToLibrary/librarydetail_ro/${job.jobId}/${lib.sampleId}.do" />"><c:out value="${lib.name}" /></a><br />
-				Molecule: <c:out value="${sample.typeSample.name}" /><br />
-				<c:forEach items="${sample.sampleMeta}" var="sm">
+				Molecule: <c:out value="${lib.typeSample.name}" /><br />
+				<c:forEach items="${lib.sampleMeta}" var="sm">
         			<c:if test="${fn:substringAfter(sm.k, 'Biomolecule.') == 'species'}">
             			Species: <c:out value="${sm.v}"/><br />
             		</c:if> 
