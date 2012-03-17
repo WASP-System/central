@@ -54,7 +54,62 @@ function toggleDisplayOfAddLibraryForm(instruction, idCounter){
         </c:forEach> 
 		<c:choose>
 			<c:when test='${received[counter.index]=="RECEIVED"}'>			
-				<input class="FormElement ui-widget-content ui-corner-all" type="button" value="Add To FlowCell" />
+				
+				
+				
+				
+				
+				
+				
+				<c:set var="idCounter" value="${idCounter + 1}" scope="page" />
+				<div id="showButton_<c:out value="${idCounter}" />" >
+				 <input class="fm-button" type="button" value="Add Library To Flow Cell" onclick='toggleDisplayOfAddLibraryForm("show", <c:out value="${idCounter}" />)' />				
+				</div>
+				<div id="addLibraryForm_<c:out value="${idCounter}" />" style="display:none">
+				<table class='data'>
+				<tr class="FormData"><td class="label-centered">Add Library To Flow Cell Lane</td></tr>
+				<tr><td>
+				<form action="" method='post' name='addLibToPU' onsubmit='alert("Not Ready"); return false;'>
+				
+ 				 <input type='hidden' name='jobId' value='<c:out value="${job.jobId}" />'/>
+				 <input type='hidden' name='libraryId' value='<c:out value="${sample.sampleId}" />'/>
+				 <br />
+				 <select class="FormElement ui-widget-content ui-corner-all" name="platformunitId" size="1">
+					<option value="0">--SELECT A FLOW CELL LANE--
+					<c:forEach items="${flowCells}" var="flowCell">
+						<option value="<c:out value="${flowCell.sampleId}" />" >FlowCell: <c:out value="${flowCell.name}" />
+						<c:forEach items="${flowCell.sampleSource}" var="cell">
+							<option value="<c:out value="${cell.sampleViaSource.sampleId}" />" >&nbsp;&nbsp;&nbsp;Lane: <c:out value="${cell.sampleViaSource.name}" />
+							<c:forEach items="${cell.sampleViaSource.sampleSource}" var="library">
+								<option value="<c:out value="${library.sampleViaSource.sampleId}" />" >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Library: <c:out value="${library.sampleViaSource.name}" />
+								
+								
+									<c:forEach items="${library.sampleViaSource.sampleMeta}" var="sm">
+        								<c:if test="${fn:substringAfter(sm.k, 'Library.') == 'adaptor'}">
+            								&nbsp;[Index: <c:out value="${adaptors.get(sm.v).barcodenumber}"/>, <c:out value="${adaptors.get(sm.v).barcodesequence}"/>]
+            							</c:if> 
+		        					</c:forEach> 							
+								
+							</c:forEach> 
+						</c:forEach> 
+					</c:forEach>
+				</select>
+				<br />&nbsp;Final Concentration In Lane (pM): <input type='text' name='picoMadded' size='3' maxlength='5'>
+				<br />&nbsp;<input type='submit' value='Submit'/>&nbsp;<input class="fm-button" type="button" value="Cancel" onclick='toggleDisplayOfAddLibraryForm("cancel", <c:out value="${idCounter}" />)' />
+				
+				</form>
+				</td></tr>
+				</table>
+				</div>	
+				
+				
+				
+				
+				
+				
+				
+				
+				
 		 	 </c:when>
 		 	 <c:otherwise>
 		 	 	Status: <c:out value="${received[counter.index]}" />
