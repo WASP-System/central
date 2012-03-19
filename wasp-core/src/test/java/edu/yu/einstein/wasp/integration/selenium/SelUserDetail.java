@@ -40,7 +40,7 @@ public class SelUserDetail extends SelBaseTest {
 		  SeleniumHelper.login(sUserName, sUserPass, driver);	 
 		  driver.get("http://localhost:8080/wasp/dashboard.do");
 		  
-		  Assert.assertNotNull(driver.findElement(By.xpath("//a[contains(@href,'#tabs-labUtils')]")), "Unable to locate 'My Account' tab.");
+		  Assert.assertNotNull(driver.findElement(By.xpath("//a[contains(@href,'#tabs-home')]")), "Unable to locate 'My Account' tab.");
 		  driver.findElement(By.xpath("//a[contains(@href,'#tabs-home')]")).click();
 
 		  Assert.assertTrue(driver.findElements(By.xpath("//a[contains(@href,'/wasp/user/me_ro.do')]")).size() != 0, "Cannot locate 'My Profile' link.");
