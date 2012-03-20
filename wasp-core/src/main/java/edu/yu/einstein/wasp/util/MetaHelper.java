@@ -12,6 +12,7 @@ import java.util.TreeSet;
 
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang.WordUtils;
 import org.apache.log4j.Logger;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
@@ -46,7 +47,7 @@ public class MetaHelper {
 		this.parentArea = parentArea;
 		this.clazz = clazz;
 		this.locale=locale;
-		logger.debug("Constructing MetaHelper with area="+area+", parentArea="+parentArea+", class="+clazz.getName()+", locale="+locale.toString());
+		logger.debug("Constructing MetaHelper with parentArea="+parentArea+", area="+area+", class="+clazz.getName()+", locale="+locale.toString());
 	}
 	
 	/**
@@ -79,7 +80,7 @@ public class MetaHelper {
 	 * or 'UserMeta' will have an area of 'user'
 	*/
 	public <T extends MetaBase> MetaHelper(Class<T> clazz) {
-		this(clazz.getSimpleName().replace("Meta", "").toLowerCase(), clazz);
+		this(WordUtils.uncapitalize(clazz.getSimpleName().replace("Meta", "")), clazz);
 	}
 	
 	/**
@@ -90,7 +91,7 @@ public class MetaHelper {
 	 * @param locale
 	 */
 	public <T extends MetaBase> MetaHelper(Class<T> clazz, Locale locale) {
-		this(clazz.getSimpleName().replace("Meta", "").toLowerCase(), clazz, locale);
+		this(WordUtils.uncapitalize(clazz.getSimpleName().replace("Meta", "")), clazz, locale);
 	}
 	
 

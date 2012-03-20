@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang.WordUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
@@ -55,7 +56,7 @@ public class MetaHelperWebapp extends MetaHelper {
 	 * @param session
 	 */
 	public <T extends MetaBase> MetaHelperWebapp(Class<T> clazz, HttpSession session) {
-		this(clazz.getSimpleName().replace("Meta", "").toLowerCase(), clazz, session);
+		this(WordUtils.uncapitalize(clazz.getSimpleName().replace("Meta", "")), clazz, session);
 	}
 	
 	/**
@@ -72,7 +73,7 @@ public class MetaHelperWebapp extends MetaHelper {
 	 * @param clazz
 	 */
 	public <T extends MetaBase> MetaHelperWebapp(Class<T> clazz) {
-		this(clazz.getSimpleName().replace("Meta", "").toLowerCase(), clazz);
+		this(WordUtils.uncapitalize(clazz.getSimpleName().replace("Meta", "")), clazz);
 	}
 
 
