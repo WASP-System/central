@@ -1,6 +1,6 @@
 package edu.yu.einstein.wasp.exception;
 
-public class UiFieldParseException extends RuntimeException {
+public class UiFieldParseException extends WaspRuntimeException {
 	public UiFieldParseException(){
 		super();
 	}
