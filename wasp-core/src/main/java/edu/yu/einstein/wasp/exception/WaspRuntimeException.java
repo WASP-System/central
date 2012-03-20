@@ -1,6 +1,6 @@
 package edu.yu.einstein.wasp.exception;
 
-public class WaspRuntimeException extends Exception {
+public class WaspRuntimeException extends RuntimeException {
 	public WaspRuntimeException(){
 		super();
 	}
