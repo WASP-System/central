@@ -60,7 +60,7 @@ BODY {margin: 0; padding: 0;}
   						<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="jobid" value="${j.jobId}">
   						<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="resourceCategoryId" value="${resourceCategoryId}">
   						<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="jobsToWorkWith" value="${jobsToWorkWith}"> 
-  							pmole: <input class="FormElement ui-widget-content ui-corner-all" type="text" size="5" maxlength="5" name="pmolAdded"><br>
+  							Final Conc.(pM): <input class="FormElement ui-widget-content ui-corner-all" type="text" size="5" maxlength="5" name="libConcInLanePicoM"><br>
   						<select class="FormElement ui-widget-content ui-corner-all selectLane" name="lanesampleid"></select>
   						<input class="FormElement ui-widget-content ui-corner-all" type="submit" value="assign">
 					</form>
@@ -87,7 +87,7 @@ BODY {margin: 0; padding: 0;}
   								<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="jobid" value="${j.jobId}"> 
   								<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="resourceCategoryId" value="${resourceCategoryId}"> 
   								<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="jobsToWorkWith" value="${jobsToWorkWith}"> 
- 								pmole: <input class="FormElement ui-widget-content ui-corner-all" type="text" size="5" maxlength="5" name="pmolAdded"><br>
+ 								Final Conc.(pM): <input class="FormElement ui-widget-content ui-corner-all" type="text" size="5" maxlength="5" name="libConcInLanePicoM"><br>
   								<select class="FormElement ui-widget-content ui-corner-all selectLane" name="lanesampleid"></select>
   								<input class="FormElement ui-widget-content ui-corner-all" type="submit" value="assign">
 							</form>

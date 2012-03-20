@@ -1232,7 +1232,7 @@ public class PlatformUnitController extends WaspController {
 			@RequestParam("librarysampleid") Integer librarySampleId,
 			@RequestParam("lanesampleid") Integer laneSampleId,
 			@RequestParam("jobid") Integer jobId,
-			@RequestParam(value="pmolAdded", required=false) String pmolAdded,
+			@RequestParam(value="libConcInLanePicoM", required=false) String libConcInLanePicoM,
 			@RequestParam("resourceCategoryId") Integer resourceCategoryId,
 			@RequestParam("jobsToWorkWith") Integer jobsToWorkWith,
     ModelMap m) {
@@ -1266,14 +1266,14 @@ public class PlatformUnitController extends WaspController {
 		else if(jobSample.getJobSampleId()==null){//confirm library is really part of this jobId
 			error = true; waspErrorMessage("platformunit.libraryJobMismatch.error");	
 		}
-		else if ("".equals(pmolAdded)) {
+		else if ("".equals(libConcInLanePicoM)) {
 			error = true; waspErrorMessage("platformunit.pmoleAddedInvalidValue.error");	
 		}
 		else{
-			Integer pmolAddedInteger;
+			Integer libConcInLanePicoMInteger;
 			try{
-				pmolAddedInteger = new Integer(Integer.parseInt(pmolAdded));
-				if(pmolAddedInteger.intValue() <= 0){
+				libConcInLanePicoMInteger = new Integer(Integer.parseInt(libConcInLanePicoM));
+				if(libConcInLanePicoMInteger.intValue() <= 0){
 					error = true; waspErrorMessage("platformunit.pmoleAddedInvalidValue.error");
 				}
 			}
@@ -1430,8 +1430,8 @@ public class PlatformUnitController extends WaspController {
 		newSampleSource = sampleSourceDao.save(newSampleSource);//capture the new samplesourceid
 		SampleSourceMeta newSampleSourceMeta = new SampleSourceMeta();
 		newSampleSourceMeta.setSampleSourceId(newSampleSource.getSampleSourceId());
-		newSampleSourceMeta.setK("pmoleAdded");
-		newSampleSourceMeta.setV(pmolAdded.toString());
+		newSampleSourceMeta.setK("libConcInLanePicoM");
+		newSampleSourceMeta.setV(libConcInLanePicoM.toString());
 		newSampleSourceMeta.setPosition(new Integer(0));
 		sampleSourceMetaDao.save(newSampleSourceMeta);
 		

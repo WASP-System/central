@@ -111,7 +111,7 @@ function validate(obj){
 										</c:forEach> 
 									</c:forEach>
 								</select>
-								<br />&nbsp;Final Concentration In Lane (pM): <input type='text' name='picoMadded' size='3' maxlength='5'>
+								<br />&nbsp;Final Concentration In Lane (pM): <input type='text' name='libConcInLanePicoM' size='3' maxlength='5'>
 								<br />&nbsp;<input type='submit' value='Submit'/>&nbsp;<input class="fm-button" type="button" value="Cancel" onclick='toggleDisplayOfAddLibraryForm("cancel", <c:out value="${idCounter}" />)' />
 							</form>
 						</td></tr>
@@ -228,7 +228,7 @@ function validate(obj){
 										</c:forEach> 
 									</c:forEach>
 								</select>
-								<br />&nbsp;Final Concentration In Lane (pM): <input type='text' name='picoMadded' size='3' maxlength='5'>
+								<br />&nbsp;Final Concentration In Lane (pM): <input type='text' name='libConcInLanePicoM' size='3' maxlength='5'>
 								<br />&nbsp;<input type='submit' value='Submit'/>&nbsp;<input class="fm-button" type="button" value="Cancel" onclick='toggleDisplayOfAddLibraryForm("cancel", <c:out value="${idCounter}" />)' />
 							</form>
 						</td></tr>
@@ -236,7 +236,8 @@ function validate(obj){
 				</div>	
 				</td>
 				<c:if test="${i > 0}">
-					<c:out value="</tr>" />
+				<!--  	<c:out value="</tr>" /> -->
+				</tr>
 				</c:if>	
 				<c:set var="i" value="${i + 1}" scope="page" />
 			</c:forEach>
