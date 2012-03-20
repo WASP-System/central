@@ -18,6 +18,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.SampleMeta;
+import edu.yu.einstein.wasp.model.UserPendingMeta;
 
 @SuppressWarnings("unchecked")
 @Transactional
@@ -88,25 +89,6 @@ public class SampleMetaDaoImpl extends WaspDaoImpl<SampleMeta> implements edu.yu
 
 
 
-	/**
-	 * updateBySampleId (final string area, final int sampleId, final List<SampleMeta> metaList)
-	 *
-	 * @param sampleId
-	 * @param metaList
-	 *
-	 */
-	@Override
-	@SuppressWarnings("unchecked")
-	@Transactional
-	public void updateBySampleId (final String area, final int sampleId, final List<SampleMeta> metaList) {
-		entityManager.createNativeQuery("delete from samplemeta where sampleId=:sampleId and k like :area").setParameter("sampleId", sampleId).setParameter("area", area + ".%").executeUpdate();
-
-		for (SampleMeta m:metaList) {
-			m.setSampleId(sampleId);
-			entityManager.persist(m);
-		}
-	}
-
 
 	/**
 	 * updateBySampleId (final int sampleId, final List<SampleMeta> metaList)
@@ -119,11 +101,19 @@ public class SampleMetaDaoImpl extends WaspDaoImpl<SampleMeta> implements edu.yu
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateBySampleId (final int sampleId, final List<SampleMeta> metaList) {
-		entityManager.createNativeQuery("delete from samplemeta where sampleId=:sampleId").setParameter("sampleId", sampleId).executeUpdate();
-
 		for (SampleMeta m:metaList) {
-			m.setSampleId(sampleId);
-			entityManager.persist(m);
+			SampleMeta currentMeta = getSampleMetaByKSampleId(m.getK(), sampleId);
+			if (currentMeta.getSampleMetaId() == null){
+				// metadata value not in database yet
+				m.setSampleId(sampleId);
+				entityManager.persist(m);
+			} else if (!currentMeta.getV().equals(m.getV())){
+				// meta exists already but value has changed
+				currentMeta.setV(m.getV());
+				entityManager.merge(currentMeta);
+			} else{
+				// no change to meta so do nothing
+			}
 		}
 	}
 

@@ -18,6 +18,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.JobDraftMeta;
+import edu.yu.einstein.wasp.model.UserPendingMeta;
 
 @SuppressWarnings("unchecked")
 @Transactional
@@ -98,7 +99,7 @@ public class JobDraftMetaDaoImpl extends WaspDaoImpl<JobDraftMeta> implements ed
 	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
-	public void updateByJobdraftId (final String area, final int jobdraftId, final List<JobDraftMeta> metaList) {
+	public void replaceByJobdraftId (final String area, final int jobdraftId, final List<JobDraftMeta> metaList) {
 		entityManager.createNativeQuery("delete from jobdraftmeta where jobdraftId=:jobdraftId and k like :area").setParameter("jobdraftId", jobdraftId).setParameter("area", area + ".%").executeUpdate();
 
 		for (JobDraftMeta m:metaList) {
@@ -119,11 +120,19 @@ public class JobDraftMetaDaoImpl extends WaspDaoImpl<JobDraftMeta> implements ed
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByJobdraftId (final int jobdraftId, final List<JobDraftMeta> metaList) {
-		entityManager.createNativeQuery("delete from jobdraftmeta where jobdraftId=:jobdraftId").setParameter("jobdraftId", jobdraftId).executeUpdate();
-
 		for (JobDraftMeta m:metaList) {
-			m.setJobdraftId(jobdraftId);
-			entityManager.persist(m);
+			JobDraftMeta currentMeta = getJobDraftMetaByKJobdraftId(m.getK(), jobdraftId);
+			if (currentMeta.getJobDraftMetaId() == null){
+				// metadata value not in database yet
+				m.setJobdraftId(jobdraftId);
+				entityManager.persist(m);
+			} else if (!currentMeta.getV().equals(m.getV())){
+				// meta exists already but value has changed
+				currentMeta.setV(m.getV());
+				entityManager.merge(currentMeta);
+			} else{
+				// no change to meta so do nothing
+			}
 		}
 	}
 

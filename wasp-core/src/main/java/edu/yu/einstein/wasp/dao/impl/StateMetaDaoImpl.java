@@ -18,6 +18,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.StateMeta;
+import edu.yu.einstein.wasp.model.UserPendingMeta;
 
 @SuppressWarnings("unchecked")
 @Transactional
@@ -88,25 +89,6 @@ public class StateMetaDaoImpl extends WaspDaoImpl<StateMeta> implements edu.yu.e
 
 
 
-	/**
-	 * updateByStateId (final string area, final int stateId, final List<StateMeta> metaList)
-	 *
-	 * @param stateId
-	 * @param metaList
-	 *
-	 */
-	@Override
-	@SuppressWarnings("unchecked")
-	@Transactional
-	public void updateByStateId (final String area, final int stateId, final List<StateMeta> metaList) {
-		entityManager.createNativeQuery("delete from statemeta where stateId=:stateId and k like :area").setParameter("stateId", stateId).setParameter("area", area + ".%").executeUpdate();
-
-		for (StateMeta m:metaList) {
-			m.setStateId(stateId);
-			entityManager.persist(m);
-		}
- 	}
-
 
 	/**
 	 * updateByStateId (final int stateId, final List<StateMeta> metaList)
@@ -119,11 +101,19 @@ public class StateMetaDaoImpl extends WaspDaoImpl<StateMeta> implements edu.yu.e
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByStateId (final int stateId, final List<StateMeta> metaList) {
-		entityManager.createNativeQuery("delete from statemeta where stateId=:stateId").setParameter("stateId", stateId).executeUpdate();
-
 		for (StateMeta m:metaList) {
-			m.setStateId(stateId);
-			entityManager.persist(m);
+			StateMeta currentMeta = getStateMetaByKStateId(m.getK(), stateId);
+			if (currentMeta.getStateMetaId() == null){
+				// metadata value not in database yet
+				m.setStateId(stateId);
+				entityManager.persist(m);
+			} else if (!currentMeta.getV().equals(m.getV())){
+				// meta exists already but value has changed
+				currentMeta.setV(m.getV());
+				entityManager.merge(currentMeta);
+			} else{
+				// no change to meta so do nothing
+			}
 		}
  	}
 

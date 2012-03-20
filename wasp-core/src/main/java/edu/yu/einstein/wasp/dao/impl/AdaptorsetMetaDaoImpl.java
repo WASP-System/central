@@ -18,6 +18,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.AdaptorsetMeta;
+import edu.yu.einstein.wasp.model.UserPendingMeta;
 
 @SuppressWarnings("unchecked")
 @Transactional
@@ -89,26 +90,6 @@ public class AdaptorsetMetaDaoImpl extends WaspDaoImpl<AdaptorsetMeta> implement
 
 
 	/**
-	 * updateByAdaptorsetId (final string area, final int adaptorsetId, final List<AdaptorsetMeta> metaList)
-	 *
-	 * @param adaptorsetId
-	 * @param metaList
-	 *
-	 */
-	@Override
-	@SuppressWarnings("unchecked")
-	@Transactional
-	public void updateByAdaptorsetId (final String area, final int adaptorsetId, final List<AdaptorsetMeta> metaList) {
-		entityManager.createNativeQuery("delete from adaptorsetmeta where adaptorsetId=:adaptorsetId and k like :area").setParameter("adaptorsetId", adaptorsetId).setParameter("area", area + ".%").executeUpdate();
-
-		for (AdaptorsetMeta m:metaList) {
-			m.setAdaptorsetId(adaptorsetId);
-			entityManager.persist(m);
-		}
-	}
-
-
-	/**
 	 * updateByAdaptorsetId (final int adaptorsetId, final List<AdaptorsetMeta> metaList)
 	 *
 	 * @param adaptorsetId
@@ -119,11 +100,19 @@ public class AdaptorsetMetaDaoImpl extends WaspDaoImpl<AdaptorsetMeta> implement
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByAdaptorsetId (final int adaptorsetId, final List<AdaptorsetMeta> metaList) {
-		entityManager.createNativeQuery("delete from adaptorsetmeta where adaptorsetId=:adaptorsetId").setParameter("adaptorsetId", adaptorsetId).executeUpdate();
-
 		for (AdaptorsetMeta m:metaList) {
-			m.setAdaptorsetId(adaptorsetId);
-			entityManager.persist(m);
+			AdaptorsetMeta currentMeta = getAdaptorsetMetaByKAdaptorsetId(m.getK(), adaptorsetId);
+			if (currentMeta.getAdaptorsetMetaId() == null){
+				// metadata value not in database yet
+				m.setAdaptorsetId(adaptorsetId);
+				entityManager.persist(m);
+			} else if (!currentMeta.getV().equals(m.getV())){
+				// meta exists already but value has changed
+				currentMeta.setV(m.getV());
+				entityManager.merge(currentMeta);
+			} else{
+				// no change to meta so do nothing
+			}
 		}
 	}
 

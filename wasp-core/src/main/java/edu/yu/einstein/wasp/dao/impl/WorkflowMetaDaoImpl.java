@@ -17,6 +17,7 @@ import java.util.List;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.yu.einstein.wasp.model.UserPendingMeta;
 import edu.yu.einstein.wasp.model.WorkflowMeta;
 
 @SuppressWarnings("unchecked")
@@ -87,27 +88,6 @@ public class WorkflowMetaDaoImpl extends WaspDaoImpl<WorkflowMeta> implements ed
 	}
 
 
-
-	/**
-	 * updateByWorkflowId (final string area, final int workflowId, final List<WorkflowMeta> metaList)
-	 *
-	 * @param workflowId
-	 * @param metaList
-	 *
-	 */
-	@Override
-	@SuppressWarnings("unchecked")
-	@Transactional
-	public void updateByWorkflowId (final String area, final int workflowId, final List<WorkflowMeta> metaList) {
-		entityManager.createNativeQuery("delete from workflowmeta where workflowId=:workflowId and k like :area").setParameter("workflowId", workflowId).setParameter("area", area + ".%").executeUpdate();
-
-		for (WorkflowMeta m:metaList) {
-			m.setWorkflowId(workflowId);
-			entityManager.persist(m);
-		}
-	}
-
-
 	/**
 	 * updateByWorkflowId (final int workflowId, final List<WorkflowMeta> metaList)
 	 *
@@ -119,11 +99,19 @@ public class WorkflowMetaDaoImpl extends WaspDaoImpl<WorkflowMeta> implements ed
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByWorkflowId (final int workflowId, final List<WorkflowMeta> metaList) {
-		entityManager.createNativeQuery("delete from workflowmeta where workflowId=:workflowId").setParameter("workflowId", workflowId).executeUpdate();
-
 		for (WorkflowMeta m:metaList) {
-			m.setWorkflowId(workflowId);
-			entityManager.persist(m);
+			WorkflowMeta currentMeta = getWorkflowMetaByKWorkflowId(m.getK(), workflowId);
+			if (currentMeta.getWorkflowMetaId() == null){
+				// metadata value not in database yet
+				m.setWorkflowId(workflowId);
+				entityManager.persist(m);
+			} else if (!currentMeta.getV().equals(m.getV())){
+				// meta exists already but value has changed
+				currentMeta.setV(m.getV());
+				entityManager.merge(currentMeta);
+			} else{
+				// no change to meta so do nothing
+			}
 		}
 	}
 

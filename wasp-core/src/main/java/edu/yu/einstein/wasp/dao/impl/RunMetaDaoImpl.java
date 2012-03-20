@@ -18,6 +18,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.RunMeta;
+import edu.yu.einstein.wasp.model.UserPendingMeta;
 
 @SuppressWarnings("unchecked")
 @Transactional
@@ -89,26 +90,6 @@ public class RunMetaDaoImpl extends WaspDaoImpl<RunMeta> implements edu.yu.einst
 
 
 	/**
-	 * updateByRunId (final string area, final int runId, final List<RunMeta> metaList)
-	 *
-	 * @param runId
-	 * @param metaList
-	 *
-	 */
-	@Override
-	@SuppressWarnings("unchecked")
-	@Transactional
-	public void updateByRunId (final String area, final int runId, final List<RunMeta> metaList) {
-		entityManager.createNativeQuery("delete from runmeta where runId=:runId and k like :area").setParameter("runId", runId).setParameter("area", area + ".%").executeUpdate();
-
-		for (RunMeta m:metaList) {
-			m.setRunId(runId);
-			entityManager.persist(m);
-		}
-	}
-
-
-	/**
 	 * updateByRunId (final int runId, final List<RunMeta> metaList)
 	 *
 	 * @param runId
@@ -119,11 +100,19 @@ public class RunMetaDaoImpl extends WaspDaoImpl<RunMeta> implements edu.yu.einst
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByRunId (final int runId, final List<RunMeta> metaList) {
-		entityManager.createNativeQuery("delete from runmeta where runId=:runId").setParameter("runId", runId).executeUpdate();
-
 		for (RunMeta m:metaList) {
-			m.setRunId(runId);
-			entityManager.persist(m);
+			RunMeta currentMeta = getRunMetaByKRunId(m.getK(), runId);
+			if (currentMeta.getRunMetaId() == null){
+				// metadata value not in database yet
+				m.setRunId(runId);
+				entityManager.persist(m);
+			} else if (!currentMeta.getV().equals(m.getV())){
+				// meta exists already but value has changed
+				currentMeta.setV(m.getV());
+				entityManager.merge(currentMeta);
+			} else{
+				// no change to meta so do nothing
+			}
 		}
  	}
 

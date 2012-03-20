@@ -678,7 +678,7 @@ public class JobSubmissionController extends WaspController {
 			return "jobsubmit/metaform";
 		}
 
-		jobDraftMetaDao.updateByJobdraftId(metaHelperWebapp.getArea(), jobDraftId, jobDraftMetaList);
+		jobDraftMetaDao.replaceByJobdraftId(metaHelperWebapp.getArea(), jobDraftId, jobDraftMetaList);
 
 		return nextPage(jobDraft);
 	}
@@ -838,7 +838,7 @@ public class JobSubmissionController extends WaspController {
 		}
 
 
-		jobDraftMetaDao.updateByJobdraftId(metaHelperWebapp.getArea(), jobDraftId, jobDraftMetaList);
+		jobDraftMetaDao.replaceByJobdraftId(metaHelperWebapp.getArea(), jobDraftId, jobDraftMetaList);
 
 		return nextPage(jobDraft);
 	}
@@ -1001,7 +1001,7 @@ public class JobSubmissionController extends WaspController {
 			return returnPage;
 		}
 
-		jobDraftMetaDao.updateByJobdraftId(metaHelperWebapp.getArea(), jobDraftId, jobDraftMetaList);
+		jobDraftMetaDao.replaceByJobdraftId(metaHelperWebapp.getArea(), jobDraftId, jobDraftMetaList);
 
 		return nextPage(jobDraft);
 	}
@@ -1094,10 +1094,10 @@ public class JobSubmissionController extends WaspController {
 
 		// sync meta data in DB (e.g.removes old aligners)
 		for (MetaAttribute.Control.Option opt: ametaJdm.getProperty().getControl().getOptions()) {
-			jobDraftMetaDao.updateByJobdraftId(opt.getValue(), jobDraftId, new ArrayList());
+			jobDraftMetaDao.replaceByJobdraftId(opt.getValue(), jobDraftId, new ArrayList());
 		}
 
-		jobDraftMetaDao.updateByJobdraftId(metaHelperWebapp.getArea(), jobDraftId, jobDraftMetaList);
+		jobDraftMetaDao.replaceByJobdraftId(metaHelperWebapp.getArea(), jobDraftId, jobDraftMetaList);
 
 		return nextPage(jobDraft);
 

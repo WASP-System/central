@@ -18,6 +18,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.LabMeta;
+import edu.yu.einstein.wasp.model.UserPendingMeta;
 
 @SuppressWarnings("unchecked")
 @Transactional
@@ -89,26 +90,6 @@ public class LabMetaDaoImpl extends WaspDaoImpl<LabMeta> implements edu.yu.einst
 
 
 	/**
-	 * updateByLabId (final string area, final int labId, final List<LabMeta> metaList)
-	 *
-	 * @param labId
-	 * @param metaList
-	 *
-	 */
-	@Override
-	@SuppressWarnings("unchecked")
-	@Transactional
-	public void updateByLabId (final String area, final int labId, final List<LabMeta> metaList) {
-		entityManager.createNativeQuery("delete from labmeta where labId=:labId and k like :area").setParameter("labId", labId).setParameter("area", area + ".%").executeUpdate();
-
-		for (LabMeta m:metaList) {
-			m.setLabId(labId);
-			entityManager.persist(m);
-		}
-	}
-
-
-	/**
 	 * updateByLabId (final int labId, final List<LabMeta> metaList)
 	 *
 	 * @param labId
@@ -119,11 +100,19 @@ public class LabMetaDaoImpl extends WaspDaoImpl<LabMeta> implements edu.yu.einst
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByLabId (final int labId, final List<LabMeta> metaList) {
-		entityManager.createNativeQuery("delete from labmeta where labId=:labId").setParameter("labId", labId).executeUpdate();
-
 		for (LabMeta m:metaList) {
-			m.setLabId(labId);
-			entityManager.persist(m);
+			LabMeta currentMeta = getLabMetaByKLabId(m.getK(), labId);
+			if (currentMeta.getLabMetaId() == null){
+				// metadata value not in database yet
+				m.setLabId(labId);
+				entityManager.persist(m);
+			} else if (!currentMeta.getV().equals(m.getV())){
+				// meta exists already but value has changed
+				currentMeta.setV(m.getV());
+				entityManager.merge(currentMeta);
+			} else{
+				// no change to meta so do nothing
+			}
 		}
 	}
 

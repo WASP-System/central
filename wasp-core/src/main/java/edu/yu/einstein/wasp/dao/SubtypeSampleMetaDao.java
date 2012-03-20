@@ -24,9 +24,6 @@ public interface SubtypeSampleMetaDao extends WaspDao<SubtypeSampleMeta> {
 
   List<SubtypeSampleMeta> getSubtypeSamplesMetaBySubtypeSampleId (final int subtypeSampleId);
 
-
-  public void updateBySubtypeSampleId (final String area, final int subtypeSampleId, final List<SubtypeSampleMeta> metaList);
-
   public void updateBySubtypeSampleId (final int subtypeSampleId, final List<SubtypeSampleMeta> metaList);
 
 

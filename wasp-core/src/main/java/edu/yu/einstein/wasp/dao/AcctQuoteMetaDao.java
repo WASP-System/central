@@ -22,9 +22,6 @@ public interface AcctQuoteMetaDao extends WaspDao<AcctQuoteMeta> {
 
   public AcctQuoteMeta getAcctQuoteMetaByKQuoteId (final String k, final Integer quoteId);
 
-
-  public void updateByQuoteId (final String area, final int quoteId, final List<AcctQuoteMeta> metaList);
-
   public void updateByQuoteId (final int quoteId, final List<AcctQuoteMeta> metaList);
 
 

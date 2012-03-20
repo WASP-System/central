@@ -26,6 +26,7 @@ import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.MetaUtil;
 import edu.yu.einstein.wasp.model.SampleDraftMeta;
 import edu.yu.einstein.wasp.model.SubtypeSample;
+import edu.yu.einstein.wasp.model.UserPendingMeta;
 import edu.yu.einstein.wasp.service.SampleService;
 
 @SuppressWarnings("unchecked")
@@ -113,11 +114,19 @@ public class SampleDraftMetaDaoImpl extends WaspDaoImpl<SampleDraftMeta> impleme
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateBySampledraftId (final int sampledraftId, final List<SampleDraftMeta> metaList) {
-		entityManager.createNativeQuery("delete from sampledraftmeta where sampledraftId=:sampledraftId").setParameter("sampledraftId", sampledraftId).executeUpdate();
-
 		for (SampleDraftMeta m:metaList) {
-			m.setSampledraftId(sampledraftId);
-			entityManager.persist(m);
+			SampleDraftMeta currentMeta = getSampleDraftMetaByKSampledraftId(m.getK(), sampledraftId);
+			if (currentMeta.getSampleDraftMetaId() == null){
+				// metadata value not in database yet
+				m.setSampledraftId(sampledraftId);
+				entityManager.persist(m);
+			} else if (!currentMeta.getV().equals(m.getV())){
+				// meta exists already but value has changed
+				currentMeta.setV(m.getV());
+				entityManager.merge(currentMeta);
+			} else{
+				// no change to meta so do nothing
+			}
 		}
  	}
 

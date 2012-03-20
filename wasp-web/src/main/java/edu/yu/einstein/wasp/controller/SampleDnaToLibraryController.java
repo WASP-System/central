@@ -272,7 +272,7 @@ public class SampleDnaToLibraryController extends WaspController {
         return returnPageDef;
      }
  
-     sampleMetaDao.updateBySampleId(metaHelperWebapp.getArea(), sampleId, sampleMetaList);
+     sampleMetaDao.updateBySampleId(sampleId, sampleMetaList);
 
      return nextPage(sample);
   } 
@@ -633,13 +633,7 @@ public class SampleDnaToLibraryController extends WaspController {
 
   } 
   
-  
-  
-  
  
-  
- 
-  
   
   @RequestMapping(value = "/librarydetail_ro/{jobId}/{libraryId}", method = RequestMethod.GET)//sampleId represents an existing library (at this moment both user supplied or facility created)
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
@@ -661,8 +655,10 @@ public class SampleDnaToLibraryController extends WaspController {
   			SessionStatus status, 
   			ModelMap m) throws MetadataException{
   		MetaHelperWebapp sampleMetaHelper = getMetaHelperWebapp();
-  		List<SampleMeta> allLibraryMeta = sampleMetaHelper.getFromRequest(request, SampleMeta.class);
-  		//@RequestParam("sampleIdMapByComponentArea") Map<String, Integer> sampleIdMapByComponentArea
+  		//List<SampleMeta> allLibraryMeta = sampleMetaHelper.getFromRequest(request, SampleMeta.class);
+  		//for(SampleMeta sm: allLibraryMeta){
+  		//	logger.debug("ANDY: metaK="+sm.getK()+", metaV="+sm.getV());
+  		//}
   		String sampleIdMapByComponentAreaString = request.getParameter("sampleIdMapByComponentArea");
   		Map<String, Integer> sampleIdMapByComponentArea = new HashMap<String, Integer>();
   		for (String pair: sampleIdMapByComponentAreaString.split(";")){
@@ -675,10 +671,10 @@ public class SampleDnaToLibraryController extends WaspController {
   		
   		String[] areaList = request.getParameter("componentAreas").split(",");
   		logger.debug("ANDY: " + request.getParameter("libraryId") + ", " + request.getParameter("jobId") + ", " + request.getParameter("componentAreas"));*/
-  		List<String> uniqueAreasInLibraryMeta = sampleMetaHelper.getUniqueAreaList();
-  		for(String area : uniqueAreasInLibraryMeta){
+  		//List<String> uniqueAreasInLibraryMeta = sampleMetaHelper.getUniqueAreaList();
+  		for(String area : sampleIdMapByComponentArea.keySet()){
   			sampleMetaHelper.setArea(area);
-  			List<SampleMeta> metaList = sampleMetaHelper.syncWithMaster(allLibraryMeta);
+  			List<SampleMeta> metaList = sampleMetaHelper.getFromRequest(request, SampleMeta.class);
   			Integer sampleId = sampleIdMapByComponentArea.get(area);
   			if (sampleId != null){
   				for (SampleMeta meta: metaList){

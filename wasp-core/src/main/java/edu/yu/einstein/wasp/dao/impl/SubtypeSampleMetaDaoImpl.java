@@ -18,6 +18,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.SubtypeSampleMeta;
+import edu.yu.einstein.wasp.model.UserPendingMeta;
 
 @SuppressWarnings("unchecked")
 @Transactional
@@ -89,26 +90,6 @@ public class SubtypeSampleMetaDaoImpl extends WaspDaoImpl<SubtypeSampleMeta> imp
 
 
 	/**
-	 * updateBySubtypeSampleId (final string area, final int subtypeSampleId, final List<SubtypeSampleMeta> metaList)
-	 *
-	 * @param subtypeSampleId
-	 * @param metaList
-	 *
-	 */
-	@Override
-	@SuppressWarnings("unchecked")
-	@Transactional
-	public void updateBySubtypeSampleId (final String area, final int subtypeSampleId, final List<SubtypeSampleMeta> metaList) {
-		entityManager.createNativeQuery("delete from subtypeSamplemeta where subtypeSampleId=:subtypeSampleId and k like :area").setParameter("subtypeSampleId", subtypeSampleId).setParameter("area", area + ".%").executeUpdate();
-
-		for (SubtypeSampleMeta m:metaList) {
-			m.setSubtypeSampleId(subtypeSampleId);
-			entityManager.persist(m);
-		}
-	}
-
-
-	/**
 	 * updateBySubtypeSampleId (final int subtypeSampleId, final List<SubtypeSampleMeta> metaList)
 	 *
 	 * @param subtypeSampleId
@@ -119,11 +100,19 @@ public class SubtypeSampleMetaDaoImpl extends WaspDaoImpl<SubtypeSampleMeta> imp
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateBySubtypeSampleId (final int subtypeSampleId, final List<SubtypeSampleMeta> metaList) {
-		entityManager.createNativeQuery("delete from subtypeSamplemeta where subtypeSampleId=:subtypeSampleId").setParameter("subtypeSampleId", subtypeSampleId).executeUpdate();
-
 		for (SubtypeSampleMeta m:metaList) {
-			m.setSubtypeSampleId(subtypeSampleId);
-			entityManager.persist(m);
+			SubtypeSampleMeta currentMeta = getSubtypeSampleMetaByKSubtypeSampleId(m.getK(), subtypeSampleId);
+			if (currentMeta.getSubtypeSampleMetaId() == null){
+				// metadata value not in database yet
+				m.setSubtypeSampleId(subtypeSampleId);
+				entityManager.persist(m);
+			} else if (!currentMeta.getV().equals(m.getV())){
+				// meta exists already but value has changed
+				currentMeta.setV(m.getV());
+				entityManager.merge(currentMeta);
+			} else{
+				// no change to meta so do nothing
+			}
 		}
 	}
 

@@ -24,9 +24,6 @@ public interface SampleSourceMetaDao extends WaspDao<SampleSourceMeta> {
 
   List<SampleSourceMeta> getSampleSourceMetaBySampleSourceId (final int sampleSourceId);
 
-
-  public void updateBySampleSourceId (final String area, final int sampleSourceId, final List<SampleSourceMeta> metaList);
-
   public void updateBySampleSourceId (final int sampleSourceId, final List<SampleSourceMeta> metaList);
 
 

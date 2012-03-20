@@ -19,6 +19,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.AcctQuoteMeta;
+import edu.yu.einstein.wasp.model.UserMeta;
 
 @SuppressWarnings("unchecked")
 @Transactional
@@ -88,27 +89,6 @@ public class AcctQuoteMetaDaoImpl extends WaspDaoImpl<AcctQuoteMeta> implements 
 	}
 
 
-
-	/**
-	 * updateByQuoteId (final string area, final int quoteId, final List<AcctQuoteMeta> metaList)
-	 *
-	 * @param quoteId
-	 * @param metaList
-	 *
-	 */
-	@Override
-	@SuppressWarnings("unchecked")
-	@Transactional
-	public void updateByQuoteId (final String area, final int quoteId, final List<AcctQuoteMeta> metaList) {
-		entityManager.createNativeQuery("delete from acct_quotemeta where quoteId=:quoteId and k like :area").setParameter("quoteId", quoteId).setParameter("area", area + ".%").executeUpdate();
-
-		for (AcctQuoteMeta m:metaList) {
-			m.setQuoteId(quoteId);
-			entityManager.persist(m);
-		}
-	}
-
-
 	/**
 	 * updateByQuoteId (final int quoteId, final List<AcctQuoteMeta> metaList)
 	 *
@@ -120,11 +100,19 @@ public class AcctQuoteMetaDaoImpl extends WaspDaoImpl<AcctQuoteMeta> implements 
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByQuoteId (final int quoteId, final List<AcctQuoteMeta> metaList) {
-		entityManager.createNativeQuery("delete from acct_quotemeta where quoteId=:quoteId").setParameter("quoteId", quoteId).executeUpdate();
-
 		for (AcctQuoteMeta m:metaList) {
-			m.setQuoteId(quoteId);
-			entityManager.persist(m);
+			AcctQuoteMeta currentMeta = getAcctQuoteMetaByKQuoteId(m.getK(), quoteId);
+			if (currentMeta.getQuotemetaId() == null){
+				// metadata value not in database yet
+				m.setQuoteId(quoteId);
+				entityManager.persist(m);
+			} else if (!currentMeta.getV().equals(m.getV())){
+				// meta exists already but value has changed
+				currentMeta.setV(m.getV());
+				entityManager.merge(currentMeta);
+			} else{
+				// no change to meta so do nothing
+			}
 		}
 	}
 

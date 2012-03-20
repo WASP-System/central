@@ -18,6 +18,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.AdaptorMeta;
+import edu.yu.einstein.wasp.model.UserPendingMeta;
 
 @SuppressWarnings("unchecked")
 @Transactional
@@ -87,27 +88,6 @@ public class AdaptorMetaDaoImpl extends WaspDaoImpl<AdaptorMeta> implements edu.
 	}
 
 
-
-	/**
-	 * updateByAdaptorId (final string area, final int adaptorId, final List<AdaptorMeta> metaList)
-	 *
-	 * @param adaptorId
-	 * @param metaList
-	 *
-	 */
-	@Override
-	@SuppressWarnings("unchecked")
-	@Transactional
-	public void updateByAdaptorId (final String area, final int adaptorId, final List<AdaptorMeta> metaList) {
-		entityManager.createNativeQuery("delete from adaptormeta where adaptorId=:adaptorId and k like :area").setParameter("adaptorId", adaptorId).setParameter("area", area + ".%").executeUpdate();
-
-		for (AdaptorMeta m:metaList) {
-			m.setAdaptorId(adaptorId);
-			entityManager.persist(m);
-		}
-	}
-
-
 	/**
 	 * updateByAdaptorId (final int adaptorId, final List<AdaptorMeta> metaList)
 	 *
@@ -119,11 +99,19 @@ public class AdaptorMetaDaoImpl extends WaspDaoImpl<AdaptorMeta> implements edu.
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByAdaptorId (final int adaptorId, final List<AdaptorMeta> metaList) {
-		entityManager.createNativeQuery("delete from adaptormeta where adaptorId=:adaptorId").setParameter("adaptorId", adaptorId).executeUpdate();
-
 		for (AdaptorMeta m:metaList) {
-			m.setAdaptorId(adaptorId);
-			entityManager.persist(m);
+			AdaptorMeta currentMeta = getAdaptorMetaByKAdaptorId(m.getK(), adaptorId);
+			if (currentMeta.getAdaptorMetaId() == null){
+				// metadata value not in database yet
+				m.setAdaptorId(adaptorId);
+				entityManager.persist(m);
+			} else if (!currentMeta.getV().equals(m.getV())){
+				// meta exists already but value has changed
+				currentMeta.setV(m.getV());
+				entityManager.merge(currentMeta);
+			} else{
+				// no change to meta so do nothing
+			}
 		}
 	}
 

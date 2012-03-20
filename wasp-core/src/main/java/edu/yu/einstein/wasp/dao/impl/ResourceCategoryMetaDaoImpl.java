@@ -18,6 +18,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.ResourceCategoryMeta;
+import edu.yu.einstein.wasp.model.UserPendingMeta;
 
 @SuppressWarnings("unchecked")
 @Transactional
@@ -87,27 +88,6 @@ public class ResourceCategoryMetaDaoImpl extends WaspDaoImpl<ResourceCategoryMet
 	}
 
 
-
-	/**
-	 * updateByResourcecategoryId (final string area, final int resourcecategoryId, final List<ResourceCategoryMeta> metaList)
-	 *
-	 * @param resourcecategoryId
-	 * @param metaList
-	 *
-	 */
-	@Override
-	@SuppressWarnings("unchecked")
-	@Transactional
-	public void updateByResourcecategoryId (final String area, final int resourcecategoryId, final List<ResourceCategoryMeta> metaList) {
-		entityManager.createNativeQuery("delete from resourcecategorymeta where resourcecategoryId=:resourcecategoryId and k like :area").setParameter("resourcecategoryId", resourcecategoryId).setParameter("area", area + ".%").executeUpdate();
-
-		for (ResourceCategoryMeta m:metaList) {
-			m.setResourcecategoryId(resourcecategoryId);
-			entityManager.persist(m);
-		}
-	}
-
-
 	/**
 	 * updateByResourcecategoryId (final int resourcecategoryId, final List<ResourceCategoryMeta> metaList)
 	 *
@@ -119,11 +99,19 @@ public class ResourceCategoryMetaDaoImpl extends WaspDaoImpl<ResourceCategoryMet
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByResourcecategoryId (final int resourcecategoryId, final List<ResourceCategoryMeta> metaList) {
-		entityManager.createNativeQuery("delete from resourcecategorymeta where resourcecategoryId=:resourcecategoryId").setParameter("resourcecategoryId", resourcecategoryId).executeUpdate();
-
 		for (ResourceCategoryMeta m:metaList) {
-			m.setResourcecategoryId(resourcecategoryId);
-			entityManager.persist(m);
+			ResourceCategoryMeta currentMeta = getResourceCategoryMetaByKResourcecategoryId(m.getK(), resourcecategoryId);
+			if (currentMeta.getResourceCategoryMetaId() == null){
+				// metadata value not in database yet
+				m.setResourcecategoryId(resourcecategoryId);
+				entityManager.persist(m);
+			} else if (!currentMeta.getV().equals(m.getV())){
+				// meta exists already but value has changed
+				currentMeta.setV(m.getV());
+				entityManager.merge(currentMeta);
+			} else{
+				// no change to meta so do nothing
+			}
 		}
 	}
 

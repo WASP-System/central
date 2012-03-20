@@ -18,6 +18,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.LabPendingMeta;
+import edu.yu.einstein.wasp.model.UserPendingMeta;
 
 @SuppressWarnings("unchecked")
 @Transactional
@@ -88,25 +89,6 @@ public class LabPendingMetaDaoImpl extends WaspDaoImpl<LabPendingMeta> implement
 
 
 
-	/**
-	 * updateByLabpendingId (final string area, final int labpendingId, final List<LabPendingMeta> metaList)
-	 *
-	 * @param labpendingId
-	 * @param metaList
-	 *
-	 */
-	@Override
-	@SuppressWarnings("unchecked")
-	@Transactional
-	public void updateByLabpendingId (final String area, final int labpendingId, final List<LabPendingMeta> metaList) {
-		entityManager.createNativeQuery("delete from labpendingmeta where labpendingId=:labpendingId and k like :area").setParameter("labpendingId", labpendingId).setParameter("area", area + ".%").executeUpdate();
-
-		for (LabPendingMeta m:metaList) {
-			m.setLabpendingId(labpendingId);
-			entityManager.persist(m);
-		}
-	}
-
 
 	/**
 	 * updateByLabpendingId (final int labpendingId, final List<LabPendingMeta> metaList)
@@ -119,11 +101,19 @@ public class LabPendingMetaDaoImpl extends WaspDaoImpl<LabPendingMeta> implement
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByLabpendingId (final int labpendingId, final List<LabPendingMeta> metaList) {
-		entityManager.createNativeQuery("delete from labpendingmeta where labpendingId=:labpendingId").setParameter("labpendingId", labpendingId).executeUpdate();
-
 		for (LabPendingMeta m:metaList) {
-			m.setLabpendingId(labpendingId);
-			entityManager.persist(m);
+			LabPendingMeta currentMeta = getLabPendingMetaByKLabpendingId(m.getK(), labpendingId);
+			if (currentMeta.getLabPendingMetaId() == null){
+				// metadata value not in database yet
+				m.setLabpendingId(labpendingId);
+				entityManager.persist(m);
+			} else if (!currentMeta.getV().equals(m.getV())){
+				// meta exists already but value has changed
+				currentMeta.setV(m.getV());
+				entityManager.merge(currentMeta);
+			} else{
+				// no change to meta so do nothing
+			}
 		}
 	}
 

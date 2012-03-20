@@ -22,9 +22,6 @@ public interface AdaptorMetaDao extends WaspDao<AdaptorMeta> {
 
   public AdaptorMeta getAdaptorMetaByKAdaptorId (final String k, final Integer adaptorId);
 
-
-  public void updateByAdaptorId (final String area, final int adaptorId, final List<AdaptorMeta> metaList);
-
   public void updateByAdaptorId (final int adaptorId, final List<AdaptorMeta> metaList);
 
 

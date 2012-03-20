@@ -22,9 +22,6 @@ public interface SoftwareMetaDao extends WaspDao<SoftwareMeta> {
 
   public SoftwareMeta getSoftwareMetaByKSoftwareId (final String k, final Integer softwareId);
 
-
-  public void updateBySoftwareId (final String area, final int softwareId, final List<SoftwareMeta> metaList);
-
   public void updateBySoftwareId (final int softwareId, final List<SoftwareMeta> metaList);
 
 

@@ -87,27 +87,6 @@ public class UserPendingMetaDaoImpl extends WaspDaoImpl<UserPendingMeta> impleme
 	}
 
 
-
-	/**
-	 * updateByUserpendingId (final string area, final int userpendingId, final List<UserPendingMeta> metaList)
-	 *
-	 * @param userpendingId
-	 * @param metaList
-	 *
-	 */
-	@Override
-	@SuppressWarnings("unchecked")
-	@Transactional
-	public void updateByUserpendingId (final String area, final int userpendingId, final List<UserPendingMeta> metaList) {
-		entityManager.createNativeQuery("delete from userpendingmeta where userpendingId=:userpendingId and k like :area").setParameter("userpendingId", userpendingId).setParameter("area", area + ".%").executeUpdate();
-
-		for (UserPendingMeta m:metaList) {
-			m.setUserpendingId(userpendingId);
-			entityManager.persist(m);
-		}
-	}
-
-
 	/**
 	 * updateByUserpendingId (final int userpendingId, final List<UserPendingMeta> metaList)
 	 *
@@ -119,11 +98,19 @@ public class UserPendingMetaDaoImpl extends WaspDaoImpl<UserPendingMeta> impleme
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByUserpendingId (final int userpendingId, final List<UserPendingMeta> metaList) {
-		entityManager.createNativeQuery("delete from userpendingmeta where userpendingId=:userpendingId").setParameter("userpendingId", userpendingId).executeUpdate();
-
 		for (UserPendingMeta m:metaList) {
-			m.setUserpendingId(userpendingId);
-			entityManager.persist(m);
+			UserPendingMeta currentMeta = getUserPendingMetaByKUserpendingId(m.getK(), userpendingId);
+			if (currentMeta.getUserPendingMetaId() == null){
+				// metadata value not in database yet
+				m.setUserpendingId(userpendingId);
+				entityManager.persist(m);
+			} else if (!currentMeta.getV().equals(m.getV())){
+				// meta exists already but value has changed
+				currentMeta.setV(m.getV());
+				entityManager.merge(currentMeta);
+			} else{
+				// no change to meta so do nothing
+			}
 		}
 	}
 

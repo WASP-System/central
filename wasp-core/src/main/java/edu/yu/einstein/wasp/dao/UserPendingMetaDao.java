@@ -22,9 +22,6 @@ public interface UserPendingMetaDao extends WaspDao<UserPendingMeta> {
 
   public UserPendingMeta getUserPendingMetaByKUserpendingId (final String k, final int userpendingId);
 
-
-  public void updateByUserpendingId (final String area, final int userpendingId, final List<UserPendingMeta> metaList);
-
   public void updateByUserpendingId (final int userpendingId, final List<UserPendingMeta> metaList);
 
 

@@ -18,6 +18,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.UserMeta;
+import edu.yu.einstein.wasp.model.UserPendingMeta;
 
 @SuppressWarnings("unchecked")
 @Transactional
@@ -89,26 +90,6 @@ public class UserMetaDaoImpl extends WaspDaoImpl<UserMeta> implements edu.yu.ein
 
 
 	/**
-	 * updateByUserId (final string area, final int UserId, final List<UserMeta> metaList)
-	 *
-	 * @param UserId
-	 * @param metaList
-	 *
-	 */
-	@Override
-	@SuppressWarnings("unchecked")
-	@Transactional
-	public void updateByUserId (final String area, final int UserId, final List<UserMeta> metaList) {
-		entityManager.createNativeQuery("delete from usermeta where UserId=:UserId and k like :area").setParameter("UserId", UserId).setParameter("area", area + ".%").executeUpdate();
-
-		for (UserMeta m:metaList) {
-			m.setUserId(UserId);
-			entityManager.persist(m);
-		}
- 	}
-
-
-	/**
 	 * updateByUserId (final int UserId, final List<UserMeta> metaList)
 	 *
 	 * @param UserId
@@ -119,11 +100,19 @@ public class UserMetaDaoImpl extends WaspDaoImpl<UserMeta> implements edu.yu.ein
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByUserId (final int UserId, final List<UserMeta> metaList) {
-		entityManager.createNativeQuery("delete from usermeta where UserId=:UserId").setParameter("UserId", UserId).executeUpdate();
-
 		for (UserMeta m:metaList) {
-			m.setUserId(UserId);
-			entityManager.persist(m);
+			UserMeta currentMeta = getUserMetaByKUserId(m.getK(), UserId);
+			if (currentMeta.getUserMetaId() == null){
+				// metadata value not in database yet
+				m.setUserId(UserId);
+				entityManager.persist(m);
+			} else if (!currentMeta.getV().equals(m.getV())){
+				// meta exists already but value has changed
+				currentMeta.setV(m.getV());
+				entityManager.merge(currentMeta);
+			} else{
+				// no change to meta so do nothing
+			}
 		}
 	}
 

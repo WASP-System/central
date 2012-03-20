@@ -22,9 +22,6 @@ public interface ResourceCategoryMetaDao extends WaspDao<ResourceCategoryMeta> {
 
   public ResourceCategoryMeta getResourceCategoryMetaByKResourcecategoryId (final String k, final Integer resourcecategoryId);
 
-
-  public void updateByResourcecategoryId (final String area, final int resourcecategoryId, final List<ResourceCategoryMeta> metaList);
-
   public void updateByResourcecategoryId (final int resourcecategoryId, final List<ResourceCategoryMeta> metaList);
 
 

@@ -18,6 +18,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.JobSampleMeta;
+import edu.yu.einstein.wasp.model.UserPendingMeta;
 
 @SuppressWarnings("unchecked")
 @Transactional
@@ -89,26 +90,6 @@ public class JobSampleMetaDaoImpl extends WaspDaoImpl<JobSampleMeta> implements 
 
 
 	/**
-	 * updateByJobsampleId (final string area, final int jobsampleId, final List<JobSampleMeta> metaList)
-	 *
-	 * @param jobsampleId
-	 * @param metaList
-	 *
-	 */
-	@Override
-	@SuppressWarnings("unchecked")
-	@Transactional
-	public void updateByJobsampleId (final String area, final int jobsampleId, final List<JobSampleMeta> metaList) {
-		entityManager.createNativeQuery("delete from jobsamplemeta where jobsampleId=:jobsampleId and k like :area").setParameter("jobsampleId", jobsampleId).setParameter("area", area + ".%").executeUpdate();
-
-		for (JobSampleMeta m:metaList) {
-			m.setJobsampleId(jobsampleId);
-			entityManager.persist(m);
-		}
- 	}
-
-
-	/**
 	 * updateByJobsampleId (final int jobsampleId, final List<JobSampleMeta> metaList)
 	 *
 	 * @param jobsampleId
@@ -119,11 +100,19 @@ public class JobSampleMetaDaoImpl extends WaspDaoImpl<JobSampleMeta> implements 
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByJobsampleId (final int jobsampleId, final List<JobSampleMeta> metaList) {
-		entityManager.createNativeQuery("delete from jobsamplemeta where jobsampleId=:jobsampleId").setParameter("jobsampleId", jobsampleId).executeUpdate();
-
 		for (JobSampleMeta m:metaList) {
-			m.setJobsampleId(jobsampleId);
-			entityManager.persist(m);
+			JobSampleMeta currentMeta = getJobSampleMetaByKJobsampleId(m.getK(), jobsampleId);
+			if (currentMeta.getJobSampleMetaId() == null){
+				// metadata value not in database yet
+				m.setJobsampleId(jobsampleId);
+				entityManager.persist(m);
+			} else if (!currentMeta.getV().equals(m.getV())){
+				// meta exists already but value has changed
+				currentMeta.setV(m.getV());
+				entityManager.merge(currentMeta);
+			} else{
+				// no change to meta so do nothing
+			}
 		}
  	}
 

@@ -18,6 +18,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.SoftwareMeta;
+import edu.yu.einstein.wasp.model.UserPendingMeta;
 
 @SuppressWarnings("unchecked")
 @Transactional
@@ -87,27 +88,6 @@ public class SoftwareMetaDaoImpl extends WaspDaoImpl<SoftwareMeta> implements ed
 	}
 
 
-
-	/**
-	 * updateBySoftwareId (final string area, final int softwareId, final List<SoftwareMeta> metaList)
-	 *
-	 * @param softwareId
-	 * @param metaList
-	 *
-	 */
-	@Override
-	@SuppressWarnings("unchecked")
-	@Transactional
-	public void updateBySoftwareId (final String area, final int softwareId, final List<SoftwareMeta> metaList) {
-		entityManager.createNativeQuery("delete from softwaremeta where softwareId=:softwareId and k like :area").setParameter("softwareId", softwareId).setParameter("area", area + ".%").executeUpdate();
-
-		for (SoftwareMeta m:metaList) {
-			m.setSoftwareId(softwareId);
-			entityManager.persist(m);
-		}
-	}
-
-
 	/**
 	 * updateBySoftwareId (final int softwareId, final List<SoftwareMeta> metaList)
 	 *
@@ -119,11 +99,19 @@ public class SoftwareMetaDaoImpl extends WaspDaoImpl<SoftwareMeta> implements ed
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateBySoftwareId (final int softwareId, final List<SoftwareMeta> metaList) {
-		entityManager.createNativeQuery("delete from softwaremeta where softwareId=:softwareId").setParameter("softwareId", softwareId).executeUpdate();
-
 		for (SoftwareMeta m:metaList) {
-			m.setSoftwareId(softwareId);
-			entityManager.persist(m);
+			SoftwareMeta currentMeta = getSoftwareMetaByKSoftwareId(m.getK(), softwareId);
+			if (currentMeta.getSoftwareMetaId() == null){
+				// metadata value not in database yet
+				m.setSoftwareId(softwareId);
+				entityManager.persist(m);
+			} else if (!currentMeta.getV().equals(m.getV())){
+				// meta exists already but value has changed
+				currentMeta.setV(m.getV());
+				entityManager.merge(currentMeta);
+			} else{
+				// no change to meta so do nothing
+			}
 		}
 	}
 

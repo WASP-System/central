@@ -22,9 +22,6 @@ public interface StateMetaDao extends WaspDao<StateMeta> {
 
   public StateMeta getStateMetaByKStateId (final String k, final int stateId);
 
-
-  public void updateByStateId (final String area, final int stateId, final List<StateMeta> metaList);
-
   public void updateByStateId (final int stateId, final List<StateMeta> metaList);
 
 
