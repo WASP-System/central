@@ -24,6 +24,27 @@ function validate(obj){
 		return false;
 	}
 }
+function validate_submit(obj){
+	if(obj.lanesampleid.value==0){
+		alert("You must select a Lane");
+		obj.lanesampleid.focus();
+		return false;
+	}
+	if(obj.libConcInLanePicoM.value ==""){
+		alert("Please provide a value for Final Concentration In Lane (pM)");
+		obj.libConcInLanePicoM.focus();
+		return false;
+	}
+	
+	var regExpr = new RegExp("^[0-9]+\.?[0-9]*$");//modified from http://stackoverflow.com/questions/469357/html-text-input-allow-only-numeric-input (modified example 14)
+    if (!regExpr.test(obj.libConcInLanePicoM.value)) {
+    	alert("Please provide a numeric value for Final Concentration In Lane (pM)");
+		obj.libConcInLanePicoM.focus();
+		return false;
+    }
+	
+	return true;
+}
 </script>
 </head>
 
@@ -82,29 +103,29 @@ function validate(obj){
 					  <table class='data'>
 						<tr class="FormData"><td class="label-centered">Add Library To Flow Cell Lane</td></tr>
 						<tr><td>
-							<form action="" method='post' name='addLibToPU' onsubmit='alert("Not Ready"); return false;'>
-								<input type='hidden' name='jobId' value='<c:out value="${job.jobId}" />'/>
+							<form  method='post' name='addLibToPU' action="<c:url value="/facility/platformunit/assignAdd2.do" />" onsubmit="return validate_submit(this);">
+								<input type='hidden' name='jobid' value='<c:out value="${job.jobId}" />'/>
 								<c:choose>
 									<c:when test='${submittedSampleType == "library"}'>
-										<input type='hidden' name='libraryId' value='<c:out value="${sample.sampleId}" />'/>
+										<input type='hidden' name='librarysampleid' value='<c:out value="${sample.sampleId}" />'/>
 									</c:when>
 									<c:when test='${submittedSampleType == "macromolecule"}'>
-										<input type='hidden' name='libraryId' value='<c:out value="${lib.sampleId}" />'/>
+										<input type='hidden' name='librarysampleid' value='<c:out value="${lib.sampleId}" />'/>
 									</c:when>
 								</c:choose>	
 				 				<br />
 				 				<select class="FormElement ui-widget-content ui-corner-all" name="lanesampleid" size="1" onchange="validate(this)">
-									<option value="0">--SELECT A FLOW CELL LANE--
+									<option value="0">--SELECT A FLOW CELL LANE--</option>
 									<c:forEach items="${flowCells}" var="flowCell">
-										<option value="0" />FlowCell: <c:out value="${flowCell.name}" />
+										<option value="0" />FlowCell: <c:out value="${flowCell.name}" /></option>
 										<c:forEach items="${flowCell.sampleSource}" var="cell">
-											<option value="<c:out value="${cell.sampleViaSource.sampleId}" />" >&nbsp;&nbsp;&nbsp;Lane: <c:out value="${cell.sampleViaSource.name}" />
+											<option style="color:red; font-weight: bold;" value="<c:out value="${cell.sampleViaSource.sampleId}" />" >&nbsp;&nbsp;&nbsp;Lane: <c:out value="${cell.sampleViaSource.name}" /></option>
 											<c:forEach items="${cell.sampleViaSource.sampleSource}" var="library">
 												<option value="0" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Library: <c:out value="${library.sampleViaSource.name}" />
 												<c:forEach items="${library.sampleViaSource.sampleMeta}" var="sm">
         											<c:if test="${fn:substringAfter(sm.k, 'Library.') == 'adaptor'}">
             											&nbsp;[Index: <c:out value="${adaptors.get(sm.v).barcodenumber}"/>, <c:out value="${adaptors.get(sm.v).barcodesequence}"/>]
-            										</c:if> 
+            										</c:if> </option>
 		        								</c:forEach> 							
 								
 											</c:forEach> 
@@ -199,30 +220,30 @@ function validate(obj){
 					<table class='data'>
 						<tr class="FormData"><td class="label-centered">Add Library To Flow Cell Lane</td></tr>
 						<tr><td>
-							<form action="" method='post' name='addLibToPU' onsubmit='alert("Not Ready"); return false;'>
-								<input type='hidden' name='jobId' value='<c:out value="${job.jobId}" />'/>
+							<form  method='post' name='addLibToPU' action="<c:url value="/facility/platformunit/assignAdd2.do" />" onsubmit="return validate_submit(this);">
+								<input type='hidden' name='jobid' value='<c:out value="${job.jobId}" />'/>
 				 				<c:choose>
 									<c:when test='${submittedSampleType == "library"}'>
-										<input type='hidden' name='libraryId' value='<c:out value="${sample.sampleId}" />'/>
+										<input type='hidden' name='librarysampleid' value='<c:out value="${sample.sampleId}" />'/>
 									</c:when>
 									<c:when test='${submittedSampleType == "macromolecule"}'>
-										<input type='hidden' name='libraryId' value='<c:out value="${lib.sampleId}" />'/>
+										<input type='hidden' name='librarysampleid' value='<c:out value="${lib.sampleId}" />'/>
 									</c:when>
 								</c:choose>	
 		
 				 				<br />
 				 				<select class="FormElement ui-widget-content ui-corner-all" name="lanesampleid" size="1" onchange="validate(this)">
-									<option value="0">--SELECT A FLOW CELL LANE--
+									<option value="0">--SELECT A FLOW CELL LANE--</option>
 									<c:forEach items="${flowCells}" var="flowCell">
-										<option value="0" />FlowCell: <c:out value="${flowCell.name}" />
+										<option value="0" />FlowCell: <c:out value="${flowCell.name}" /></option>
 										<c:forEach items="${flowCell.sampleSource}" var="cell">
-											<option value="<c:out value="${cell.sampleViaSource.sampleId}" />" >&nbsp;&nbsp;&nbsp;Lane: <c:out value="${cell.sampleViaSource.name}" />
+											<option style="color:red; font-weight: bold;" value="<c:out value="${cell.sampleViaSource.sampleId}" />" >&nbsp;&nbsp;&nbsp;Lane: <c:out value="${cell.sampleViaSource.name}" /></option>
 											<c:forEach items="${cell.sampleViaSource.sampleSource}" var="library">
 												<option value="0" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Library: <c:out value="${library.sampleViaSource.name}" />
 												<c:forEach items="${library.sampleViaSource.sampleMeta}" var="sm">
         											<c:if test="${fn:substringAfter(sm.k, 'Library.') == 'adaptor'}">
             											&nbsp;[Index: <c:out value="${adaptors.get(sm.v).barcodenumber}"/>, <c:out value="${adaptors.get(sm.v).barcodesequence}"/>]
-            										</c:if> 
+            										</c:if> </option>
 		        								</c:forEach> 							
 											</c:forEach> 
 										</c:forEach> 

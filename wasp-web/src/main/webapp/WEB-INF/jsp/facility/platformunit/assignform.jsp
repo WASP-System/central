@@ -55,7 +55,7 @@ BODY {margin: 0; padding: 0;}
 				   <div>
 					<a href="javascript:{}" onclick="showAssignForm(this)">(+)</a>
 					<div style="display:none">
-					<form method="POST" action="<c:url value="/facility/platformunit/assignAdd.do" />">
+					<form method="POST" action="<c:url value="/facility/platformunit/assignAdd1.do" />">
   						<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="librarysampleid" value="${sc.sample.sampleId}">
   						<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="jobid" value="${j.jobId}">
   						<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="resourceCategoryId" value="${resourceCategoryId}">
@@ -82,7 +82,7 @@ BODY {margin: 0; padding: 0;}
         				<div>
 							<a href="javascript:{}" onclick="showAssignForm(this)">(+)</a>
 							<div style="display:none">
-							<form method="POST" action="<c:url value="/facility/platformunit/assignAdd.do" />">
+							<form method="POST" action="<c:url value="/facility/platformunit/assignAdd1.do" />">
   								<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="librarysampleid" value="${schild.sample.sampleId}">
   								<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="jobid" value="${j.jobId}"> 
   								<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="resourceCategoryId" value="${resourceCategoryId}"> 
@@ -202,12 +202,12 @@ BODY {margin: 0; padding: 0;}
                
                <c:if test="${lib.sampleViaSource.typeSample.IName == 'library'}">
                   <c:forEach items="${lib.sampleViaSource.sampleMeta}" var="sm">
-                   <c:if test="${fn:substringAfter(sm.k, '.library.') == 'adaptorid'}">
+                   <c:if test="${fn:substringAfter(sm.k, 'Library.') == 'adaptor'}">
                     <div><label>Adaptor</label> <c:out value="${adaptors[sm.v]}"/></div>
-                    <div><a href="<c:url value="/facility/platformunit/assignRemove.do?samplesourceid=${lib.sampleSourceId}&resourceCategoryId=${resourceCategoryId}&jobsToWorkWith=${jobsToWorkWith}"/>">Remove From Lane</a></div>
                     </c:if> 
                   </c:forEach> 
-               </c:if>
+                 <div><a href="<c:url value="/facility/platformunit/assignRemove.do?samplesourceid=${lib.sampleSourceId}&resourceCategoryId=${resourceCategoryId}&jobsToWorkWith=${jobsToWorkWith}"/>">Remove From Lane</a></div>
+              </c:if>
              </div>
            </c:forEach>
          </div>

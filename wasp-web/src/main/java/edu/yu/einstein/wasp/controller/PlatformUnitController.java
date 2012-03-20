@@ -1202,7 +1202,7 @@ public class PlatformUnitController extends WaspController {
 					adaptors.put(adaptor.getAdaptorId().toString(), adaptorsetname);
 				}
 				else{
-					adaptors.put(adaptor.getAdaptorId().toString(), adaptorsetname + " (" + adaptor.getBarcodesequence() + ")");
+					adaptors.put(adaptor.getAdaptorId().toString(), adaptorsetname + " (Index " + adaptor.getBarcodenumber() + "; " + adaptor.getBarcodesequence() + ")");
 				}
 			}
 		}
@@ -1226,7 +1226,7 @@ public class PlatformUnitController extends WaspController {
 	 * @param laneSampleId
    *
    */
-	@RequestMapping(value="/assignAdd.do", method=RequestMethod.POST)
+	@RequestMapping(value="/assignAdd1.do", method=RequestMethod.POST)
 	@PreAuthorize("hasRole('ft')")
 	public String assignmentAdd(
 			@RequestParam("librarysampleid") Integer librarySampleId,
@@ -1263,17 +1263,17 @@ public class PlatformUnitController extends WaspController {
 		else if ( ! laneSample.getTypeSample().getIName().equals("cell")) { 
 			error = true; waspErrorMessage("platformunit.laneIsNotLane.error");
 		}
-		else if(jobSample.getJobSampleId()==null){//confirm library is really part of this jobId
+		else if(jobSample.getJobSampleId()==null || jobSample.getJobSampleId()==0){//confirm library is really part of this jobId
 			error = true; waspErrorMessage("platformunit.libraryJobMismatch.error");	
 		}
 		else if ("".equals(libConcInLanePicoM)) {
 			error = true; waspErrorMessage("platformunit.pmoleAddedInvalidValue.error");	
 		}
 		else{
-			Integer libConcInLanePicoMInteger;
+			Float libConcInLanePicoMFloat;
 			try{
-				libConcInLanePicoMInteger = new Integer(Integer.parseInt(libConcInLanePicoM));
-				if(libConcInLanePicoMInteger.intValue() <= 0){
+				libConcInLanePicoMFloat = new Float(Float.parseFloat(libConcInLanePicoM));
+				if(libConcInLanePicoMFloat.floatValue() <= 0){
 					error = true; waspErrorMessage("platformunit.pmoleAddedInvalidValue.error");
 				}
 			}
@@ -1374,7 +1374,7 @@ public class PlatformUnitController extends WaspController {
 					error=true; waspErrorMessage("platformunit.libOnLaneNotLib.error");
 				}
 				else{					
-					SampleMeta sampleMeta2 = sampleMetaDao.getSampleMetaByKSampleId("sample.library.adaptorid", libraryAlreadyOnLane.getSampleId());
+					SampleMeta sampleMeta2 = sampleMetaDao.getSampleMetaByKSampleId("genericLibrary.adaptor", libraryAlreadyOnLane.getSampleId());
 					if(sampleMeta2==null || sampleMeta2.getSampleMetaId()==null){
 						error=true; waspErrorMessage("platformunit.adaptorOnLaneNotFound.error");
 					}
@@ -1446,6 +1446,234 @@ public class PlatformUnitController extends WaspController {
 		return return_value;
 	}	
 
+	  /**
+	   * assignmentAdd2
+		 * 
+		 * @param librarySampleId
+		 * @param laneSampleId
+		 * @param jobId
+		 * @param libConcInLanePicoM
+	   *
+	   */
+		@RequestMapping(value="/assignAdd2.do", method=RequestMethod.POST)
+		@PreAuthorize("hasRole('ft')")
+		public String assignmentAdd2(
+				@RequestParam("librarysampleid") Integer librarySampleId,
+				@RequestParam("lanesampleid") Integer laneSampleId,
+				@RequestParam("jobid") Integer jobId,
+				@RequestParam(value="libConcInLanePicoM") String libConcInLanePicoM,
+	    ModelMap m) {
+
+			Job job = jobDao.getJobByJobId(jobId);
+			Sample laneSample = sampleDao.getSampleBySampleId(laneSampleId); 
+			Sample librarySample = sampleDao.getSampleBySampleId(librarySampleId); 
+			JobSample jobSample = jobSampleDao.getJobSampleByJobIdSampleId(jobId, librarySampleId);//confirm library is really part of this jobId
+
+			String return_value = "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
+			boolean error = false;
+			
+			if (jobId == null || jobId == 0 || job == null || job.getJobId() == null) {
+				error = true; waspErrorMessage("platformunit.jobIdNotFound.error"); 
+			}
+			else if(laneSampleId == null || laneSampleId == 0){//user selected a flowcell from dropdown box (parameter laneSampleId == 0); we should actually prevent this with javascript
+				error = true; waspErrorMessage("platformunit.laneIsFlowCell.error");
+			}
+			else if (laneSample == null || laneSample.getSampleId() == null) {
+				error = true; waspErrorMessage("platformunit.laneIdNotFound.error"); 
+			}
+			else if (librarySampleId == null || librarySampleId == 0 || librarySample == null || librarySample.getSampleId() == null) {
+				error = true; waspErrorMessage("platformunit.libraryIdNotFound.error");
+			}
+			else if ( ! librarySample.getTypeSample().getIName().equals("library")) {
+				error = true; waspErrorMessage("platformunit.libraryIsNotLibrary.error");	
+			}
+			else if ( ! laneSample.getTypeSample().getIName().equals("cell")) { 
+				error = true; waspErrorMessage("platformunit.laneIsNotLane.error");
+			}
+			else if(jobSample.getJobSampleId()==null || jobSample.getJobSampleId()==0){//confirm library is really part of this jobId
+				error = true; waspErrorMessage("platformunit.libraryJobMismatch.error");	
+			}
+			else if ("".equals(libConcInLanePicoM)) {
+				error = true; waspErrorMessage("platformunit.pmoleAddedInvalidValue.error");	
+			}
+			else{
+				Float libConcInLanePicoMFloat;
+				try{
+					libConcInLanePicoMFloat = new Float(Float.parseFloat(libConcInLanePicoM));
+					if(libConcInLanePicoMFloat.floatValue() <= 0){
+						error = true; waspErrorMessage("platformunit.pmoleAddedInvalidValue.error");
+					}
+				}
+				catch(Exception e){
+					error = true; waspErrorMessage("platformunit.pmoleAddedInvalidValue.error");
+				}
+			}		
+
+			if(error){
+				return return_value;
+			}
+			
+			// ensure flowcell in the "CREATED" state 
+			
+			boolean flowCellIsAvailable = false;
+			List<SampleSource> parentSampleSources = laneSample.getSampleSourceViaSourceSampleId();//should be one
+			if(parentSampleSources == null || parentSampleSources.size()!=1){
+				error=true; waspErrorMessage("platformunit.flowcellNotFoundNotUnique.error");
+			}
+			else{
+				Sample flowCell = parentSampleSources.get(0).getSample();
+				if( ! "platformunit".equals(flowCell.getTypeSample().getIName()) ){
+					error=true; waspErrorMessage("platformunit.flowcellNotFoundNotUnique.error");
+				}
+				else{
+					Map stateSampleMap = new HashMap(); 
+					stateSampleMap.put("sampleId", flowCell.getSampleId());
+					List<Statesample> stateSampleList = stateSampleDao.findByMap(stateSampleMap);
+					for(Statesample stateSample : stateSampleList){
+						if(stateSample.getState().getTask().getIName().equals("assignLibraryToPlatformUnit")){
+							flowCellIsAvailable=true;
+							break;
+						}
+					}
+					if(!flowCellIsAvailable){
+						error=true; waspErrorMessage("platformunit.flowcellStateError.error");
+					}
+				}
+			}
+			if(error){
+				return return_value;
+			}
+		
+			//(1) identify the barcode sequence on the library being added. If problem then terminate. 
+			//(2) if the library being added has a barcode that is NONE, and the lane contains ANY OTHER LIBRARY, then terminate. 
+			//(3) identify barcode of libraries already on lane; if problem, terminate. Should also get their jobIds.
+			//(4) if the lane already has a library with a barcode of NONE, then terminate
+			//(5) if the library being added has a bardcode that is something other than NONE (meaning a real barcode sequence) AND if a library already on the lane has that same barcode, then terminate. 
+			//(6) do we want to maintain only a single jobId for a lane???
+			
+			//case 1: identify the adaptor barcode for the library being added; it's barcode is either NONE (no multiplexing) or has some more interesting barcode sequence (for multiplexing, such as AACTG)
+			Adaptor adaptorOnLibraryBeingAdded = null;
+
+			SampleMeta sampleMeta = sampleMetaDao.getSampleMetaByKSampleId("genericLibrary.adaptor", librarySampleId);
+
+			if(sampleMeta==null || sampleMeta.getSampleMetaId()==null){
+				error=true; waspErrorMessage("platformunit.adaptorNotFound.error");
+			}
+			else{
+				try{
+					adaptorOnLibraryBeingAdded = adaptorDao.getAdaptorByAdaptorId(new Integer(sampleMeta.getV()));
+					if(adaptorOnLibraryBeingAdded==null || adaptorOnLibraryBeingAdded.getAdaptorId()==null){
+						error=true; waspErrorMessage("platformunit.adaptorNotFound.error");
+					}
+					else if( adaptorOnLibraryBeingAdded.getBarcodesequence()==null || "".equals(adaptorOnLibraryBeingAdded.getBarcodesequence()) ){
+						error=true; waspErrorMessage("platformunit.adaptorBarcodeNotFound.error");
+					}
+				}
+				catch(Exception e){
+					error=true; waspErrorMessage("platformunit.adaptorNotFound.error");
+				}
+			}
+			if(error){
+				return return_value;
+			}
+			
+			int maxIndex = 0; 
+			List<SampleSource> siblingSampleSource = laneSample.getSampleSource(); //Samplesource objects that have this lane's sampleId as samplesource.sampleId
+			String barcodeOnLibBeingAdded = new String(adaptorOnLibraryBeingAdded.getBarcodesequence());
+
+			//case 2: dispense with this easy check 
+			if( "NONE".equals(barcodeOnLibBeingAdded) && siblingSampleSource != null && siblingSampleSource.size() > 0  ){//case 2: the library being added has a barcode of "NONE" AND the lane to which user wants to add this library already contains one or more libraries (such action is prohibited)
+				waspErrorMessage("platformunit.libNoneLaneOthers.error");
+				return return_value;
+			}
+			
+			//cases 3, 4, 5, 6 
+			if (siblingSampleSource != null) {//siblingSampleSource is list of samplesource objects that harbor libraries on this cell (lane) through source_sampleid
+			
+				for (SampleSource ss: siblingSampleSource) {
+					
+					if (ss.getMultiplexindex().intValue() > maxIndex) {//housekeeping; will be needed for the INSERT into samplesource (at end of method)
+						maxIndex = ss.getMultiplexindex().intValue(); 
+					}
+					
+					Sample libraryAlreadyOnLane = ss.getSampleViaSource();//this is a library already on the selected lane
+					if( ! libraryAlreadyOnLane.getTypeSample().getIName().equals("library") ){//confirm it's a library
+						error=true; waspErrorMessage("platformunit.libOnLaneNotLib.error");
+					}
+					else{					
+						SampleMeta sampleMeta2 = sampleMetaDao.getSampleMetaByKSampleId("genericLibrary.adaptor", libraryAlreadyOnLane.getSampleId());
+						if(sampleMeta2==null || sampleMeta2.getSampleMetaId()==null){
+							error=true; waspErrorMessage("platformunit.adaptorOnLaneNotFound.error");
+						}
+						else{
+							try{
+								Adaptor adaptorOnLane = adaptorDao.getAdaptorByAdaptorId(new Integer(sampleMeta2.getV()));
+								if(adaptorOnLane==null || adaptorOnLane.getAdaptorId()==null){
+									error=true; waspErrorMessage("platformunit.adaptorOnLaneNotFound.error");
+								}
+								else if( adaptorOnLane.getBarcodesequence()==null || "".equals(adaptorOnLane.getBarcodesequence()) ){
+									error=true; waspErrorMessage("platformunit.adaptorBarcodeOnLaneNotFound.error");
+								}
+								else if( "NONE".equals(adaptorOnLane.getBarcodesequence()) ){//case 4
+									error=true; waspErrorMessage("platformunit.libWithNoneOnLane.error");
+								}
+								else if(adaptorOnLane.getBarcodesequence().equals(barcodeOnLibBeingAdded)){//case 5, lib already on lane with same barcode as library user wants to add to the lane
+									error=true;  waspErrorMessage("platformunit.barcodeAlreadyOnLane.error");
+								}
+								else{//case 6
+									JobSample jobSample2 = jobSampleDao.getJobSampleByJobIdSampleId(jobId, libraryAlreadyOnLane.getSampleId());//confirm library is really part of this jobId
+									if(jobSample2 == null || jobSample2.getJobSampleId()==null){//this library, already on the lane, is from a different job
+										;//for now do nothing
+										//If Einstein, then terminate (lane restricted to libraries from single job) 
+										//error=true;  waspErrorMessage("platformunit.libJobClash.error");
+										//if SloanKettering, then do nothing (what's the flag)
+									}
+								}
+							}
+							catch(Exception e){
+								error=true; waspErrorMessage("platformunit.adaptorOnLaneNotFound.error");//exception from new Integer();
+							}
+						}					
+					}
+					if(error){
+						return return_value;
+					}	
+				}	
+			}
+			
+			//MUST REMOVE THIS
+	/*****	waspMessage("platformunit.TESTING.success");
+			//return assignmentForm(resourceCategoryId.intValue(), m);//with this way, the page is not updated, so the newly added library does NOT appear on the left side of the page
+			if(1==1){
+				logger.debug("123 ROBERT : success");
+				return "redirect:/facility/platformunit/assign.do?resourceCategoryId=" + resourceCategoryId.intValue() + "&jobsToWorkWith=" + jobsToWorkWith.intValue();
+			}
+	*****/
+			
+			SampleSource newSampleSource = new SampleSource(); 
+			newSampleSource.setSampleId(laneSampleId);
+			newSampleSource.setSourceSampleId(librarySampleId);
+			newSampleSource.setMultiplexindex(new Integer(maxIndex + 1));
+			newSampleSource = sampleSourceDao.save(newSampleSource);//capture the new samplesourceid
+			SampleSourceMeta newSampleSourceMeta = new SampleSourceMeta();
+			newSampleSourceMeta.setSampleSourceId(newSampleSource.getSampleSourceId());
+			newSampleSourceMeta.setK("libConcInLanePicoM");
+			newSampleSourceMeta.setV(libConcInLanePicoM.toString());
+			newSampleSourceMeta.setPosition(new Integer(0));
+			sampleSourceMetaDao.save(newSampleSourceMeta);
+			
+			SampleSourceMeta newSampleSourceMeta2 = new SampleSourceMeta();
+			newSampleSourceMeta2.setSampleSourceId(newSampleSource.getSampleSourceId());
+			newSampleSourceMeta2.setK("jobId");//Ed says we donot need this here
+			newSampleSourceMeta2.setV(jobId.toString());
+			newSampleSourceMeta2.setPosition(new Integer(1));
+			sampleSourceMetaDao.save(newSampleSourceMeta2);
+			
+			waspMessage("platformunit.libAdded.success");
+			return return_value;
+		}	
+	
+	
   /**
    * assignmentRemove
 	 * 
