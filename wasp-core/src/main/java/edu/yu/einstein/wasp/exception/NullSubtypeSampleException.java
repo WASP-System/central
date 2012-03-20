@@ -1,6 +1,6 @@
 package edu.yu.einstein.wasp.exception;
 
-public class NullSubtypeSampleException extends WaspRuntimeException {
+public class NullSubtypeSampleException extends RuntimeException {
 	public NullSubtypeSampleException(){
 		super();
 	}

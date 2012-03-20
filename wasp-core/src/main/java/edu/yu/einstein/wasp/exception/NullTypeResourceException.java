@@ -1,6 +1,6 @@
 package edu.yu.einstein.wasp.exception;
 
-public class NullTypeResourceException extends WaspRuntimeException {
+public class NullTypeResourceException extends RuntimeException {
 	public NullTypeResourceException(){
 		super();
 	}

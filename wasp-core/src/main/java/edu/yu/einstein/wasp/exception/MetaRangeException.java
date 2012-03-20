@@ -1,6 +1,6 @@
 package edu.yu.einstein.wasp.exception;
 
-public class MetaRangeException extends WaspRuntimeException {
+public class MetaRangeException extends RuntimeException {
 	public MetaRangeException(){
 		super();
 	}

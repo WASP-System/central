@@ -1,6 +1,6 @@
 package edu.yu.einstein.wasp.exception;
 
-public class MetaClassNotFoundException extends WaspRuntimeException {
+public class MetaClassNotFoundException extends RuntimeException {
 	public MetaClassNotFoundException(){
 		super();
 	}
