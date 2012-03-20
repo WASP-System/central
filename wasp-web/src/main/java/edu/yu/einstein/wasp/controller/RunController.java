@@ -107,7 +107,7 @@ public class RunController extends WaspController {
 	}
 
 	private final MetaHelperWebapp getMetaHelperWebapp() {
-		return new MetaHelperWebapp("run", RunMeta.class, request.getSession());
+		return new MetaHelperWebapp(RunMeta.class, request.getSession());
 	}
 
 	@Autowired

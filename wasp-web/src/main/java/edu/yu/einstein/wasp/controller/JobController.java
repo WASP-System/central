@@ -106,7 +106,7 @@ public class JobController extends WaspController {
 	private JobCellDao jobCellDao;
 
 	private final MetaHelperWebapp getMetaHelperWebapp() {
-		return new MetaHelperWebapp("job", JobMeta.class, request.getSession());
+		return new MetaHelperWebapp(JobMeta.class, request.getSession());
 	}
 
 	@RequestMapping("/list")

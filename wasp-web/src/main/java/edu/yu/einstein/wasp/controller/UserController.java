@@ -72,7 +72,7 @@ public class UserController extends WaspController {
 	private ConfirmEmailAuthDao confirmEmailAuthDao;
 
 	private final MetaHelperWebapp getMetaHelperWebapp() {
-		return new MetaHelperWebapp("user", UserMeta.class, request.getSession());
+		return new MetaHelperWebapp(UserMeta.class, request.getSession());
 	}
 	
 	/**

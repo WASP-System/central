@@ -249,7 +249,7 @@ public class JobSubmissionController extends WaspController {
 	protected AuthenticationService authenticationService;
 
 	protected final MetaHelperWebapp getMetaHelperWebapp() {
-		return new MetaHelperWebapp("jobDraft", JobDraftMeta.class, request.getSession());
+		return new MetaHelperWebapp(JobDraftMeta.class, request.getSession());
 	}
 	
 	final public String defaultPageFlow = "/jobsubmit/modifymeta/{n};/jobsubmit/samples/{n};/jobsubmit/cells/{n};/jobsubmit/verify/{n};/jobsubmit/submit/{n};/jobsubmit/ok";
@@ -1580,7 +1580,7 @@ public class JobSubmissionController extends WaspController {
 				Map cell = new HashMap();
 				cell.put("id", draft.getSampleDraftId());
 			
-				MetaHelperWebapp sampleMetaHelperWebapp = new MetaHelperWebapp("sampleDraft", SampleDraftMeta.class, request.getSession());
+				MetaHelperWebapp sampleMetaHelperWebapp = new MetaHelperWebapp(SampleDraftMeta.class, request.getSession());
 								
 				List<SampleDraftMeta> draftMeta=sampleMetaHelperWebapp.syncWithMaster(draft.getSampleDraftMeta(),new ArrayList<SampleDraftMeta>(allowedMetaFields));
 				

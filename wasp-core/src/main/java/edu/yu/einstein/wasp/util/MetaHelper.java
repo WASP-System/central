@@ -3,6 +3,7 @@ package edu.yu.einstein.wasp.util;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -34,33 +35,6 @@ public class MetaHelper {
 	protected final Logger logger = Logger.getLogger(MetaHelper.class);
 	
 	/**
-	 * Construct a meta-helper using the default locale (en_US).  Instances of this class are for access of
-	 * non-internationalized metadata (ie values).  Any access in a display layer should use the
-	 * MetaHelper(area, class, locale) constructor.
-	 * @param area
-	 * @param clazz
-	 */
-	public <T extends MetaBase> MetaHelper(String area, Class<T> clazz) {
-		this.area = area;
-		this.parentArea = area;
-		this.clazz = clazz;
-		this.locale = new Locale(Locale.US.toString());
-	}
-	
-	/**
-	 * Constructor
-	 * @param area
-	 * @param clazz
-	 * @param locale
-	 */
-	public <T extends MetaBase> MetaHelper(String area, Class<T> clazz, Locale locale) {
-		this.area = area;
-		this.parentArea = area;
-		this.clazz = clazz;
-		this.locale=locale;
-	}
-
-	/**
 	 * Constructor
 	 * @param area
 	 * @param parentArea
@@ -72,7 +46,53 @@ public class MetaHelper {
 		this.parentArea = parentArea;
 		this.clazz = clazz;
 		this.locale=locale;
+		logger.debug("Constructing MetaHelper with area="+area+", parentArea="+parentArea+", class="+clazz.getName()+", locale="+locale.toString());
 	}
+	
+	/**
+	 * Construct a meta-helper using the default locale (en_US).  Instances of this class are for access of
+	 * non-internationalized metadata (ie values).  Any access in a display layer should use the
+	 * MetaHelper(area, class, locale) constructor.
+	 * @param area
+	 * @param clazz
+	 */
+	public <T extends MetaBase> MetaHelper(String area, Class<T> clazz) {
+		this(area, area, clazz, new Locale(Locale.US.toString()));
+	}
+	
+	/**
+	 * Constructor
+	 * @param area
+	 * @param clazz
+	 * @param locale
+	 */
+	public <T extends MetaBase> MetaHelper(String area, Class<T> clazz, Locale locale) {
+		this(area, area, clazz, locale);
+	}
+	
+	
+	/**
+	 * Construct a meta-helper using the default locale (en_US).  Instances of this class are for access of
+	 * non-internationalized metadata (ie values).  Any access in a display layer should use the
+	 * MetaHelper(class, locale) constructor.
+	 * Area defaults to class name prefix e.g. 'SampleMeta' class will have an area of 'sample' 
+	 * or 'UserMeta' will have an area of 'user'
+	*/
+	public <T extends MetaBase> MetaHelper(Class<T> clazz) {
+		this(clazz.getSimpleName().replace("Meta", "").toLowerCase(), clazz);
+	}
+	
+	/**
+	 * Constructor
+	 * Area defaults to class name prefix e.g. 'SampleMeta' class will have an area of 'sample' 
+	 * or 'UserMeta' will have an area of 'user'
+	 * @param clazz
+	 * @param locale
+	 */
+	public <T extends MetaBase> MetaHelper(Class<T> clazz, Locale locale) {
+		this(clazz.getSimpleName().replace("Meta", "").toLowerCase(), clazz, locale);
+	}
+	
 
 	protected String area;
 	
@@ -162,6 +182,45 @@ public class MetaHelper {
 	 */
 	public void setMetaList(List<? extends MetaBase> list){
 		this.lastList = list;
+	}
+	
+	/**
+	 * Get list of unique areas represented in the current meta list held by this object
+	 * @return
+	 */
+	public <T extends MetaBase> List<String> getUniqueAreaList(){
+		return getUniqueAreaList(this.lastList);
+	}
+	
+	/**
+	 * Get list of unique areas represented in the supplied meta list
+	 * @param dbList
+	 * @return
+	 */
+	public <T extends MetaBase> List<String> getUniqueAreaList(List<T> dbList){
+		List<String> areaList = new ArrayList<String>();
+		Set<String> areaSet = new HashSet<String>();
+		for (T meta: dbList){
+			if (getAreaFromMeta(meta) != null){
+				areaSet.add(getAreaFromMeta(meta));
+			}
+		}
+		areaList.addAll(areaSet);
+		return areaList;
+	}
+	
+	/**
+	 * Extract area from the key of a given meta object or return null if no area could be determined
+	 * e.g. if meta key is 'sample.name' or even 'sample.name.value' this function will return 'sample', however, a meta key of 'name' would return null
+	 * @param meta
+	 * @return
+	 */
+	public static <T extends MetaBase> String getAreaFromMeta(T meta){
+		String[] keyComponents = meta.getK().split("\\.");
+		if (keyComponents.length > 1){
+			return keyComponents[0];
+		}
+		return null;
 	}
 	
 	/**

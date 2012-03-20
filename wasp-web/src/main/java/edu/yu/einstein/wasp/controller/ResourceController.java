@@ -75,8 +75,7 @@ public class ResourceController extends WaspController {
 	private MessageService messageService;
 
 	private final MetaHelperWebapp getMetaHelperWebapp() {
-		return new MetaHelperWebapp("resource", ResourceMeta.class,
-				request.getSession());
+		return new MetaHelperWebapp(ResourceMeta.class, request.getSession());
 	}
 
 	@Override

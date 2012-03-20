@@ -149,7 +149,7 @@ public class DepartmentController extends WaspController {
 	}
 
 	private final MetaHelperWebapp getLabMetaHelperWebapp() {
-		return new MetaHelperWebapp("lab", LabMeta.class, request.getSession());
+		return new MetaHelperWebapp(LabMeta.class, request.getSession());
 	}
 
 	@RequestMapping(value = "/detail/{departmentId}", method = RequestMethod.GET)

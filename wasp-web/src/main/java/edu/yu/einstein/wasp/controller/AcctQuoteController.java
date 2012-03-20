@@ -91,7 +91,7 @@ public class AcctQuoteController extends WaspController {
 	private JobCellDao jobCellDao;
 
 	private final MetaHelperWebapp getMetaHelperWebapp() {
-		return new MetaHelperWebapp("acctQuote", AcctQuoteMeta.class, request.getSession());
+		return new MetaHelperWebapp(AcctQuoteMeta.class, request.getSession());
 	}
 
 	@RequestMapping("/list")

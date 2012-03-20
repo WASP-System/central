@@ -103,7 +103,7 @@ public class UserPendingController extends WaspController {
 	 * @return
 	 */
 	private final MetaHelperWebapp getMetaHelperWebapp() {
-		return new MetaHelperWebapp("userPending", UserPendingMeta.class, request.getSession());
+		return new MetaHelperWebapp(UserPendingMeta.class, request.getSession());
 	}
 	
 		
@@ -530,7 +530,7 @@ public class UserPendingController extends WaspController {
 		labPending.setName(labName);
 		LabPending labPendingDb = labPendingDao.save(labPending);
 		// copies address meta data from PI userMeta to labMeta as billing address info. 
-		MetaHelperWebapp labPendingMetaHelperWebapp = new MetaHelperWebapp("labPending", LabPendingMeta.class, request.getSession());
+		MetaHelperWebapp labPendingMetaHelperWebapp = new MetaHelperWebapp(LabPendingMeta.class, request.getSession());
 		List<LabPendingMeta> labPendingMetaList = labPendingMetaHelperWebapp.getMasterList(LabPendingMeta.class);
 				
 		// fill up labpending metadata using information from userpending metadata

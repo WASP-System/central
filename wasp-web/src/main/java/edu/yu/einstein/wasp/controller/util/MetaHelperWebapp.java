@@ -44,8 +44,35 @@ public class MetaHelperWebapp extends MetaHelper {
 	 * @param clazz
 	 * @param session
 	 */
-	public <T extends MetaBase> MetaHelperWebapp(String area, Class<T> clazz,HttpSession session) {
+	public <T extends MetaBase> MetaHelperWebapp(String area, Class<T> clazz, HttpSession session) {
 		this(area,area,clazz,session);
+	}
+	
+
+	/**
+	 * Constructor
+	 * @param clazz
+	 * @param session
+	 */
+	public <T extends MetaBase> MetaHelperWebapp(Class<T> clazz, HttpSession session) {
+		this(clazz.getSimpleName().replace("Meta", "").toLowerCase(), clazz, session);
+	}
+	
+	/**
+	 * Constructor
+	 * @param area
+	 * @param clazz
+	 */
+	public <T extends MetaBase> MetaHelperWebapp(String area, Class<T> clazz) {
+		super(area, clazz);
+	}
+	
+	/**
+	 * Constructor
+	 * @param clazz
+	 */
+	public <T extends MetaBase> MetaHelperWebapp(Class<T> clazz) {
+		this(clazz.getSimpleName().replace("Meta", "").toLowerCase(), clazz);
 	}
 
 

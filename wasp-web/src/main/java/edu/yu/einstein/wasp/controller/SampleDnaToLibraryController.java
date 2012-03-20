@@ -64,6 +64,7 @@ import edu.yu.einstein.wasp.model.TypeSample;
 import edu.yu.einstein.wasp.model.Workflow;
 import edu.yu.einstein.wasp.model.Workflowsubtypesample;
 import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.util.MetaHelper;
 
 
 @Controller
@@ -110,7 +111,7 @@ public class SampleDnaToLibraryController extends WaspController {
 
   
   private final MetaHelperWebapp getMetaHelperWebapp() {
-    return new MetaHelperWebapp("sample", SampleMeta.class, request.getSession());
+    return new MetaHelperWebapp(SampleMeta.class, request.getSession());
   }
 
 
@@ -642,16 +643,55 @@ public class SampleDnaToLibraryController extends WaspController {
   
   @RequestMapping(value = "/librarydetail_ro/{jobId}/{libraryId}", method = RequestMethod.GET)//sampleId represents an existing library (at this moment both user supplied or facility created)
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
-	public String libraryDetailRO(@PathVariable("jobId") Integer jobId, @PathVariable("libraryId") Integer libraryId, ModelMap m) {
+	public String libraryDetailRO(@PathVariable("jobId") Integer jobId, @PathVariable("libraryId") Integer libraryId, ModelMap m) throws MetadataException{
 	  return libraryDetail(jobId, libraryId, m, false);
   }
+  
   @RequestMapping(value = "/librarydetail_rw/{jobId}/{libraryId}", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
-	public String libraryDetailRW(@PathVariable("jobId") Integer jobId, @PathVariable("libraryId") Integer libraryId, ModelMap m) {
+	public String libraryDetailRW(@PathVariable("jobId") Integer jobId, @PathVariable("libraryId") Integer libraryId, ModelMap m) throws MetadataException{
 	  return libraryDetail(jobId, libraryId, m, true);
   }
   
-  public String libraryDetail(Integer jobId, Integer libraryId, ModelMap m, boolean isRW){
+  	@RequestMapping(value = "/librarydetail_rw/{jobId}/{libraryId}", method = RequestMethod.POST)
+  	@PreAuthorize("hasRole('su') or hasRole('ft')")
+  	public String libraryDetailEdit(
+  			@PathVariable("jobId") Integer jobId, @PathVariable("libraryId") Integer libraryId, 
+  			@Valid Sample libraryForm, BindingResult result, 
+  			SessionStatus status, 
+  			ModelMap m) throws MetadataException{
+  		MetaHelperWebapp sampleMetaHelper = getMetaHelperWebapp();
+  		List<SampleMeta> allLibraryMeta = sampleMetaHelper.getFromRequest(request, SampleMeta.class);
+  		//@RequestParam("sampleIdMapByComponentArea") Map<String, Integer> sampleIdMapByComponentArea
+  		String sampleIdMapByComponentAreaString = request.getParameter("sampleIdMapByComponentArea");
+  		Map<String, Integer> sampleIdMapByComponentArea = new HashMap<String, Integer>();
+  		for (String pair: sampleIdMapByComponentAreaString.split(";")){
+  			String[] components = pair.split(":");
+  			sampleIdMapByComponentArea.put(components[0], Integer.valueOf(components[1]) );
+  		}
+  		
+  		/*Integer libraryId = Integer.valueOf(request.getParameter("libraryId"));
+  		Integer jobId = Integer.valueOf(request.getParameter("jobId"));
+  		
+  		String[] areaList = request.getParameter("componentAreas").split(",");
+  		logger.debug("ANDY: " + request.getParameter("libraryId") + ", " + request.getParameter("jobId") + ", " + request.getParameter("componentAreas"));*/
+  		List<String> uniqueAreasInLibraryMeta = sampleMetaHelper.getUniqueAreaList();
+  		for(String area : uniqueAreasInLibraryMeta){
+  			sampleMetaHelper.setArea(area);
+  			List<SampleMeta> metaList = sampleMetaHelper.syncWithMaster(allLibraryMeta);
+  			Integer sampleId = sampleIdMapByComponentArea.get(area);
+  			if (sampleId != null){
+  				for (SampleMeta meta: metaList){
+  					logger.debug("ANDY: sampleId="+sampleId+", metaKey="+meta.getK()+", metaValue="+meta.getV());
+  				}
+  				//sampleMetaDao.updateBySampleId(sampleId, metaList);
+  			}
+  			
+  		}
+  		return libraryDetail(jobId, libraryId, m, false);
+  	}
+  
+  public String libraryDetail(Integer jobId, Integer libraryId, ModelMap m, boolean isRW) throws MetadataException{
 
 	    if( jobId == null ){
 			waspErrorMessage("sampleDetail.jobParameter.error");
@@ -702,9 +742,26 @@ public class SampleDnaToLibraryController extends WaspController {
   		if (parentSample.getSampleId() != null){
   			sampleMeta.addAll(parentSample.getSampleMeta()); // add parent metadata here
   		}
+  		Map<String,Integer> sampleIdMapByComponentArea = new HashMap<String, Integer>();
+  	
+  		// lets map the the sampleMeta areas to the sampleId. Will pass through the view and use in the POST method to 
+  		// work out which areas go with which sampleId
   		for(SampleMeta sm: sampleMeta){
-  			logger.debug("ANDY:sampleMeta: Id="+sm.getSampleId()+", key="+sm.getK()+", value="+sm.getV());
+  			String area = MetaHelper.getAreaFromMeta(sm);
+  			Integer sampleId = sm.getSampleId();
+  			if (!sampleIdMapByComponentArea.isEmpty() && 
+  					sampleIdMapByComponentArea.get(area) != null && 
+  					sampleIdMapByComponentArea.get(area).intValue() != sampleId.intValue()){
+  				throw new MetadataException("More than one sample in the metadata list contains the same area. It will not be possible to seperate these for merging later");
+  			}
+  			sampleIdMapByComponentArea.put(area, sampleId );
   		}
+  		String sampleIdMapByComponentAreaString = "";
+  		for (String area: sampleIdMapByComponentArea.keySet()){
+  			sampleIdMapByComponentAreaString += area+":"+sampleIdMapByComponentArea.get(area)+";";
+  		}
+  		m.addAttribute("sampleIdMapByComponentArea", sampleIdMapByComponentAreaString); // need to map the areas to the samples again when handling submitted form
+  		
   		MetaHelperWebapp sampleMetaHelper = getMetaHelperWebapp(); //new MetaHelperWebapp("sample", SampleMeta.class, request.getSession());
   		List<SampleMeta> normalizedSampleMeta = new ArrayList<SampleMeta>();
   		List<String> subtypeSampleComponentAreas = librarySubtypeSample.getComponentMetaAreas();
@@ -716,10 +773,7 @@ public class SampleDnaToLibraryController extends WaspController {
   			}
   			normalizedSampleMeta.addAll(sampleMetaHelper.syncWithMaster(sampleMeta, visibilityElementMap));
   		}
-  		for(SampleMeta sm: normalizedSampleMeta){
-  			logger.debug("ANDY: normalizedSampleMeta: Id="+sm.getSampleId()+", key="+sm.getK()+", value="+sm.getV());
-  		}
-		Adaptorset selectedAdaptorset = null;
+  		Adaptorset selectedAdaptorset = null;
 		Adaptor adaptor = null;
 		sampleMetaHelper.setArea("genericLibrary");	//only should need this, as we're creating a new library from a DNA or RNA at the facility, but I suppose there could be an assay-specific set of metadat, but for now leave this	  
 		try{
@@ -742,7 +796,7 @@ public class SampleDnaToLibraryController extends WaspController {
 		m.addAttribute("sample", library);
 		m.addAttribute("adaptor", adaptor);
 		m.addAttribute("normalizedSampleMeta",normalizedSampleMeta);
-		//m.addAttribute("componentAreas", subtypeSampleComponentAreas);
+		m.addAttribute("componentAreas", librarySubtypeSample.getAreaList());
 	
 		return isRW?"sampleDnaToLibrary/librarydetail_rw":"sampleDnaToLibrary/librarydetail_ro";
   }

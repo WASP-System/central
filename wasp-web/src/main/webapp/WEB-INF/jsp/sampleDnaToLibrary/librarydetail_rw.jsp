@@ -30,10 +30,11 @@
 </table>
 <br /> 
 
-<form:form  cssClass="FormGrid" commandName="library">
+<form:form cssClass="FormGrid" commandName="sample">
 <table class="EditTable ui-widget ui-widget-content">
- <input class="FormElement ui-widget-content ui-corner-all" type='hidden' name='jobId' value='<c:out value="${job.jobId}" />'/>
- <input class="FormElement ui-widget-content ui-corner-all" type='hidden' name='libraryId' value='<c:out value="${library.sampleId}" />'/>
+ <input type='hidden' name='jobId' value='<c:out value="${job.jobId}" />'/>
+ <input type='hidden' name='libraryId' value='<c:out value="${sample.sampleId}" />'/>
+ <input type='hidden' name='sampleIdMapByComponentArea' value='<c:out value="${sampleIdMapByComponentArea}" />'/>
 
 <c:if test="${parentMacromolecule != null && parentMacromolecule.sampleId > 0}">
 
@@ -56,7 +57,7 @@
      </tr>
      <tr class="FormData"><td class="CaptionTD">Sample Type:</td><td class="DataTD">Library</td><td>&nbsp;</td></tr>
      <c:set var="_area" value = "sample" scope="request"/>
-	 <c:set var="_metaList" value = "${library.sampleMeta}" scope="request" />		
+	 <c:set var="_metaList" value = "${normalizedSampleMeta}" scope="request" />		
      <c:import url="/WEB-INF/jsp/meta_rw.jsp"/>
      <sec:authorize access="hasRole('su') or hasRole('ft')">
     <tr class="FormData">

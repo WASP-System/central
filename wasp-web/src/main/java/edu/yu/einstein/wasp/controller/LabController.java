@@ -108,7 +108,7 @@ public class LabController extends WaspController {
 	 * @return
 	 */
 	private final MetaHelperWebapp getMetaHelperWebapp() {
-		return new MetaHelperWebapp("lab", LabMeta.class, request.getSession());
+		return new MetaHelperWebapp(LabMeta.class, request.getSession());
 	}
 
 	/**
@@ -117,7 +117,7 @@ public class LabController extends WaspController {
 	 * @return
 	 */
 	private final MetaHelperWebapp getLabPendingMetaHelperWebapp() {
-		return new MetaHelperWebapp("labPending", LabPendingMeta.class,request.getSession());
+		return new MetaHelperWebapp(LabPendingMeta.class,request.getSession());
 	}
 
 	/**
@@ -850,9 +850,9 @@ public class LabController extends WaspController {
 		Lab labDb = labDao.save(lab);
 
 		// copies meta data from labPendingMeta to labMeta.
-		MetaHelperWebapp labMetaHelperWebapp = new MetaHelperWebapp("lab", LabMeta.class,	request.getSession());
+		MetaHelperWebapp labMetaHelperWebapp = new MetaHelperWebapp(LabMeta.class,	request.getSession());
 		labMetaHelperWebapp.getMasterList(LabMeta.class);
-		MetaHelperWebapp labPendingMetaHelperWebapp = new MetaHelperWebapp("labPending", LabPendingMeta.class, request.getSession());
+		MetaHelperWebapp labPendingMetaHelperWebapp = new MetaHelperWebapp(LabPendingMeta.class, request.getSession());
 		List<LabPendingMeta> labPendingMetaList = labPendingMetaHelperWebapp.syncWithMaster(labPending.getLabPendingMeta());
 
 		for (LabPendingMeta lpm : labPendingMetaList) {
@@ -923,10 +923,9 @@ public class LabController extends WaspController {
 		 * userPendingMetaDao.getUserPendingMetaByUserPendingId
 		 * (userPending.getUserPendingId()); copies meta data
 		 */
-		MetaHelperWebapp userMetaHelperWebapp = new MetaHelperWebapp("user", UserMeta.class, request.getSession());
+		MetaHelperWebapp userMetaHelperWebapp = new MetaHelperWebapp(UserMeta.class, request.getSession());
 		userMetaHelperWebapp.getMasterList(UserMeta.class);
-		MetaHelperWebapp userPendingMetaHelperWebapp = new MetaHelperWebapp("userPending",
-				UserPendingMeta.class, request.getSession());
+		MetaHelperWebapp userPendingMetaHelperWebapp = new MetaHelperWebapp(UserPendingMeta.class, request.getSession());
 		if (isPiPending)
 			userPendingMetaHelperWebapp.setArea("piPending");
 		List<UserPendingMeta> userPendingMetaList = userPendingMetaHelperWebapp.syncWithMaster(userPending.getUserPendingMeta());
@@ -949,7 +948,7 @@ public class LabController extends WaspController {
 			 * with metadata for PI.
 			 */
 			String piUserLogin = userPendingMetaHelperWebapp.getMetaByName("primaryuserid").getV();
-			MetaHelperWebapp piMetaHelperWebapp = new MetaHelperWebapp("user", UserMeta.class, request.getSession());
+			MetaHelperWebapp piMetaHelperWebapp = new MetaHelperWebapp(UserMeta.class, request.getSession());
 			piMetaHelperWebapp.syncWithMaster(userDao.getUserByLogin(piUserLogin).getUserMeta()); // get PI meta from database and sync with
 										// current properties
 			try {
@@ -1206,9 +1205,9 @@ public class LabController extends WaspController {
 	 */
 	@RequestMapping(value = "/newrequest", method = RequestMethod.GET)
 	public String showRequestForm(ModelMap m) throws MetadataException {
-		MetaHelperWebapp labPendingMetaHelperWebapp = new MetaHelperWebapp("labPending",	LabPendingMeta.class, request.getSession());
+		MetaHelperWebapp labPendingMetaHelperWebapp = new MetaHelperWebapp(LabPendingMeta.class, request.getSession());
 		labPendingMetaHelperWebapp.getMasterList(LabPendingMeta.class);
-		MetaHelperWebapp userMetaHelperWebapp = new MetaHelperWebapp("user", UserMeta.class, request.getSession());
+		MetaHelperWebapp userMetaHelperWebapp = new MetaHelperWebapp(UserMeta.class, request.getSession());
 
 		// Pre-populate some metadata from user's current information
 		User me = authenticationService.getAuthenticatedUser();
@@ -1253,7 +1252,7 @@ public class LabController extends WaspController {
 	@RequestMapping(value = "/newrequest", method = RequestMethod.POST)
 	public String createNewLabPending(@Valid LabPending labPendingForm,	BindingResult result, SessionStatus status, ModelMap m) {
 		
-		MetaHelperWebapp pendingMetaHelperWebapp = new MetaHelperWebapp("labPending",LabPendingMeta.class, request.getSession());
+		MetaHelperWebapp pendingMetaHelperWebapp = new MetaHelperWebapp(LabPendingMeta.class, request.getSession());
 
 		List<LabPendingMeta> labPendingMetaList = pendingMetaHelperWebapp.getFromRequest(request, LabPendingMeta.class);
 		pendingMetaHelperWebapp.validate(labPendingMetaList, result);

@@ -34,7 +34,7 @@
      <c:import url="/WEB-INF/jsp/meta_ro.jsp" />
     <tr class="FormData"><td colspan="2" class="DataTD"><a href="<c:url value="/sampleDnaToLibrary/listJobSamples/${job.jobId}.do"/>">Cancel</a>&nbsp;
 	<sec:authorize access="hasRole('su') or hasRole('ft')"> 
-	  <a href="<c:url value="/sampleDnaToLibrary/librarydetail_rw/${job.jobId}/${library.sampleId}.do"/>">Edit</a>
+	  <a href="<c:url value="/sampleDnaToLibrary/librarydetail_rw/${job.jobId}/${sample.sampleId}.do"/>">Edit</a>
 	 </sec:authorize>	
 	 </td></tr>
 </table>

@@ -141,7 +141,7 @@ public class SampleController extends WaspController {
   }
 
   private final MetaHelperWebapp getMetaHelperWebapp() {
-		return new MetaHelperWebapp("sample", SampleMeta.class, request.getSession());
+		return new MetaHelperWebapp(SampleMeta.class, request.getSession());
   }
 	
 	/**
