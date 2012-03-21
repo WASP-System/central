@@ -15,13 +15,21 @@ public class SelDepartmentMgmt extends SelBaseTest{
   
 	
   @Test(dataProvider = "DP1")
-  public void createNewDept(String sUseName, String sUserPass, String sDeptName, String sAdminName) {
-	  SeleniumHelper.login(sUseName, sUserPass, driver);	 
+  public void createNewDept(String sUserName, String sUserPass, String sDeptName, String sAdminName) {
+	  SeleniumHelper.login(sUserName, sUserPass, driver);	 
 	  driver.get("http://localhost:8080/wasp/dashboard.do");
 	  
-	  Assert.assertTrue(driver.findElements(By.xpath("//a[contains(@href,'/wasp/department/list.do')]")).size() != 0, "Cannot locate 'Department Management' link.");
-	  driver.findElement(By.xpath("//a[contains(@href,'/wasp/department/list.do')]")).click();
+	  Assert.assertNotNull(driver.findElement(By.xpath("//a[contains(@href,'#tabs-daAdmin')]")), "Unable to locate 'Dept Admin' tab.");
+	  driver.findElement(By.xpath("//a[contains(@href, '#tabs-daAdmin')]")).click();
+	  Assert.assertNotNull(driver.findElement(By.xpath("//a[contains(@href,'/wasp/department/list.do')]")), "Unable to locate 'Department Management' link.");
+	  WebElement element = driver.findElement(By.xpath("//a[contains(@href,'/wasp/department/list.do')]"));
+	  
+	  if (!element.isDisplayed())  driver.findElement(By.xpath("//a[contains(@href, '#tabs-daAdmin')]")).click();
+
+	  driver.findElement(By.xpath("//a[contains(@href, '/wasp/department/list.do')]")).click();
 	  Assert.assertEquals(driver.getCurrentUrl(),"http://localhost:8080/wasp/department/list.do");
+	  
+	  
 	  Assert.assertTrue(driver.findElements(By.name("departmentName")).size() != 0, "Cannot locate 'Department Name' input text field link.");
 	  Assert.assertTrue(driver.findElements(By.name("adminName")).size() != 0, "Cannot locate 'Admin Name' input text field link.");
 
@@ -31,8 +39,8 @@ public class SelDepartmentMgmt extends SelBaseTest{
 	  elAdminName.clear();
 	  elDeptName.sendKeys(sDeptName);
 	  elAdminName.sendKeys(sAdminName);
-      //WebElement menu = driver.findElement(By.xpath("//html/body/ul/li/a[@id='ui-active-menuitem']"));
-      WebElement elMenuItem = driver.findElement(By.xpath("//html/body/ul/li/a[@class='ui-corner-all']"));
+	  
+	  WebElement elMenuItem = driver.findElement(By.xpath("/html/body/ul/li/a"));
       Actions actions = new Actions(driver);
       actions.moveToElement(elMenuItem).click().perform();
 
