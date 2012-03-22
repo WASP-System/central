@@ -1502,4 +1502,48 @@ public class PlatformUnitController extends WaspController {
 		waspErrorMessage("platformunit.libraryRemoved.success");
 		return "redirect:/facility/platformunit/assign.do?resourceCategoryId=" + resourceCategoryId.intValue() + "&jobsToWorkWith=" + jobsToWorkWith.intValue();//with this way, the page is updated but map is not passed, so SUCCESS is not displayed
   }
+	
+	
+	/**
+	   * assignmentRemove (POST)
+		 * 
+		 * @param sampleSourceId
+	   *
+	   */
+		@RequestMapping(value="/assignRemove.do", method=RequestMethod.POST)
+		@PreAuthorize("hasRole('ft')")
+		public String assignmentRemove(
+				@RequestParam("samplesourceid") Integer sampleSourceId,
+				@RequestParam("jobId") Integer jobId,
+	    ModelMap m) {
+
+			if(1==1){
+				 return "redirect:/dashboard.do";
+			}
+			
+			
+			SampleSource sampleSource = sampleSourceDao.getSampleSourceBySampleSourceId(sampleSourceId);//this samplesource should represent a cell->lib link, where sampleid is the cell and source-sampleid is the library 
+			if(sampleSource.getSampleSourceId()==0){//check for existence
+				waspErrorMessage("platformunit.sampleSourceNotExist.error");
+				return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
+			}
+			//check that this represents a cell->lib link
+			Sample putativeLibrary = sampleSource.getSampleViaSource();
+			Sample putativeCell = sampleSource.getSample();
+			if( ! putativeLibrary.getTypeSample().getIName().equals("library") || ! putativeCell.getTypeSample().getIName().equals("cell") ){
+				waspErrorMessage("platformunit.samplesourceTypeError.error");
+				return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
+			}
+			//delete the metadata 
+			List<SampleSourceMeta> sampleSourceMetaList = sampleSourceMetaDao.getSampleSourceMetaBySampleSourceId(sampleSource.getSampleSourceId());
+			for(SampleSourceMeta ssm : sampleSourceMetaList){
+				sampleSourceMetaDao.remove(ssm);
+				sampleSourceMetaDao.flush(ssm);
+			}
+			sampleSourceDao.remove(sampleSource);
+			sampleSourceDao.flush(sampleSource);
+
+			waspErrorMessage("platformunit.libraryRemoved.success");
+			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
+	  }
 }

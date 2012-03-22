@@ -10,7 +10,7 @@
 <br />
 
 <table class="data"> 
-<tr class="FormData"><td class="label-centered">Initial Macromolecule</td><td class="label-centered">Libraries</td></tr>
+<tr class="FormData"><td class="label-centered">Initial Macromolecule</td><td class="label-centered">Libraries</td><td class="label-centered">FlowCells/Runs</td></tr>
 
 <c:set var="idCounter" value="0" scope="page" />
 
@@ -48,23 +48,6 @@
 		
 			<c:choose>
 				<c:when test='${submittedSampleArrivalStatus=="RECEIVED"}'>	
-				
-					<c:choose>
-						<c:when test="${sampleSubmitted.sampleSourceViaSourceSampleId.size()==0}">
-							<br />Assigned To No Flowcells/Runs<br />
-						</c:when>
-						<c:otherwise>	
-							<br />Flowcells/Runs: <br />				
-							<c:forEach items="${sampleSubmitted.sampleSourceViaSourceSampleId}" var="ss">
-								<c:forEach items="${ss.sample.sampleSourceViaSourceSampleId}" var="ss2">									
-									<c:out value="${ss2.sample.name}"/> (Lane <c:out value="${ss2.multiplexindex}"/>)<br/>
-								</c:forEach>
-							</c:forEach>
-						</c:otherwise>
-					</c:choose>
-				
-				
-						
 					<c:set var="idCounter" value="${idCounter + 1}" scope="page" />
 					<div id="showButton_<c:out value="${idCounter}" />" >
 				 		<input class="fm-button" type="button" value="Add Library To Flow Cell" onclick='toggleDisplayOfAddLibraryForm("show", <c:out value="${idCounter}" />)' />				
@@ -119,6 +102,33 @@
 		 	 	</c:otherwise>
 			</c:choose>	
 		</td>
+		
+		
+		<td class="value-centered">
+			<c:choose>
+				<c:when test="${sampleSubmitted.sampleSourceViaSourceSampleId.size()==0}">
+					<br />Assigned To No Flowcells/Runs<br />
+				</c:when>
+				<c:otherwise>					
+					<c:forEach items="${sampleSubmitted.sampleSourceViaSourceSampleId}" var="ss">
+						<c:forEach items="${ss.sample.sampleSourceViaSourceSampleId}" var="ss2">							
+							<c:choose>
+								<c:when test="${ss2.sample.run.size()==0}">
+									<c:out value="${ss2.sample.name}"/> (Lane <c:out value="${ss2.multiplexindex}"/>) &nbsp; [Remove] <br/>
+								</c:when>
+								<c:otherwise>
+									<c:forEach items="${ss2.sample.run}" var="aRun">
+										 <c:out value="${ss2.sample.name}"/> (Lane <c:out value="${ss2.multiplexindex}"/>) ---> <c:out value="${aRun.name}"/><br/>
+									</c:forEach>
+								</c:otherwise>
+							</c:choose>							
+						</c:forEach>
+					</c:forEach>
+				</c:otherwise>
+			</c:choose>
+		</td>
+		
+		
 	</tr>
 </c:when>
 <c:when test='${submittedSampleType == "macromolecule"}'>
@@ -181,24 +191,6 @@
             			Index <c:out value="${adaptors.get(sm.v).barcodenumber}"/>: <c:out value="${adaptors.get(sm.v).barcodesequence}"/><br />
             		</c:if> 
 		        </c:forEach> 
-		        
-		        
-		        
-		        <c:choose>
-						<c:when test="${lib.sampleSourceViaSourceSampleId.size()==0}">
-							<br />Assigned To No Flowcells/Runs<br />
-						</c:when>
-						<c:otherwise>	
-							<br />Flowcells/Runs: <br />				
-							<c:forEach items="${lib.sampleSourceViaSourceSampleId}" var="ss">
-								<c:forEach items="${ss.sample.sampleSourceViaSourceSampleId}" var="ss2">									
-									<c:out value="${ss2.sample.name}"/> (Lane <c:out value="${ss2.multiplexindex}"/>)<br/>
-								</c:forEach>
-							</c:forEach>
-						</c:otherwise>
-				</c:choose>
-					
-		        
  				<c:set var="idCounter" value="${idCounter + 1}" scope="page" />
 				<div id="showButton_<c:out value="${idCounter}" />" >
 				 	<input class="fm-button" type="button" value="Add Library To Flow Cell" onclick='toggleDisplayOfAddLibraryForm("show", <c:out value="${idCounter}" />)' />				
@@ -243,6 +235,35 @@
 					</table>
 				</div>	
 				</td>
+				
+				
+				
+				<td class="value-centered">
+					<c:choose>
+						<c:when test="${lib.sampleSourceViaSourceSampleId.size()==0}">
+							<br />Assigned To No Flowcells/Runs<br />
+						</c:when>
+						<c:otherwise>				
+							<c:forEach items="${lib.sampleSourceViaSourceSampleId}" var="ss">
+								<c:forEach items="${ss.sample.sampleSourceViaSourceSampleId}" var="ss2">
+									<c:choose>
+										<c:when test="${ss2.sample.run.size()==0}">
+											<c:out value="${ss2.sample.name}"/> (Lane <c:out value="${ss2.multiplexindex}"/>) &nbsp; [Remove] <br/>
+										</c:when>
+										<c:otherwise>
+											<c:forEach items="${ss2.sample.run}" var="aRun">
+										 		<c:out value="${ss2.sample.name}"/> (Lane <c:out value="${ss2.multiplexindex}"/>) ---> <c:out value="${aRun.name}"/><br/>
+											</c:forEach>
+										</c:otherwise>
+									</c:choose>	
+								</c:forEach>
+							</c:forEach>
+						</c:otherwise>
+					</c:choose>
+				</td>
+				
+				
+				
 				<c:if test="${i > 0}">
 				<!--  	<c:out value="</tr>" /> -->
 				</tr>
