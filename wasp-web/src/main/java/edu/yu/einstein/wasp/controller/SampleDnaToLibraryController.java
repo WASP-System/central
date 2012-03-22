@@ -305,8 +305,9 @@ public class SampleDnaToLibraryController extends WaspController {
   
 	  //submittedSamples include all samples (both macromolecules and libraries) that were submitted by user
 	  //it DOES NOT include facility-generated libraries
-	  List<Sample> submittedSamples = getSubmittedSamples(job); 
-	  
+	  //List<Sample> submittedSamples = getSubmittedSamplesViaJobCell(job); 
+	  List<Sample> submittedSamples = getSubmittedSamplesViaJobSample(job);
+	  	  
 	  List<String> receivedList = new ArrayList<String>();
 	  List<Integer> librariesPerSampleList = new ArrayList<Integer>();//will be used for rowspan on jsp
 	  for(Sample sample : submittedSamples){
@@ -1013,7 +1014,7 @@ public class SampleDnaToLibraryController extends WaspController {
 	  return extraJobDetailsMap;	  
   }
   
-  private List<Sample> getSubmittedSamples(Job job){
+  private List<Sample> getSubmittedSamplesViaJobCell(Job job){
 	  
 	  //For a list of the samples initially submitted to a job, pull from table jobcell
 	  //exclude duplicates by using a set
@@ -1039,7 +1040,30 @@ public class SampleDnaToLibraryController extends WaspController {
 	  
   }
   
+  private List<Sample> getSubmittedSamplesViaJobSample(Job job){
+	  
+	  //Get list of all samples for a job from table jobsample
+	  //This will include gDNA, RNA, libraries submitted by a user, and libraries created by the facility.
+	  //Then, filter out all those samples that are libraries created by the facility (any sampleid that appears in samplesource.sampleid)
+	  List<Sample> submittedSamples = new ArrayList<Sample>();
+	  Map filterJobCell = new HashMap();
+	  filterJobCell.put("jobId", job.getJobId());
+	  List<JobSample> jobSamples = jobSampleDao.findByMap(filterJobCell);
+	  for(JobSample jobSample : jobSamples){
+		  Sample sample  = jobSample.getSample();
+		  if(sample.getSampleSource().size() == 0){//it's NOT a facility-generated library
+			  submittedSamples.add(sample);
+		  }
+	  }	  
+
+	  Collections.sort(submittedSamples, new SampleNameComparator());//sort by sample's name; for class SampleNameComparator, see end of this file
+	  
+	  return submittedSamples;
+	  
+  }
+  
 }
+
 
 class SampleNameComparator implements Comparator<Sample> {
     @Override

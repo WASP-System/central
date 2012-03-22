@@ -14,15 +14,15 @@
 
 <c:set var="idCounter" value="0" scope="page" />
 
-<c:forEach items="${samplesSubmitted}" var="sample" varStatus="counter">
+<c:forEach items="${samplesSubmitted}" var="sampleSubmitted" varStatus="counter">
 
 <c:set var="librariesPerSubmittedSample" value="${librariespersample[counter.index]}" scope="page" />
 <c:set var="submittedSampleArrivalStatus" value="${received[counter.index]}" scope="page" />
 <c:choose>
-	<c:when test='${sample.typeSample.IName=="library"}'>
+	<c:when test='${sampleSubmitted.typeSample.IName=="library"}'>
 		<c:set var="submittedSampleType" value="library" scope="page" />
 	</c:when>
-	<c:when test='${sample.typeSample.IName=="dna" || sample.typeSample.IName=="rna"}'>
+	<c:when test='${sampleSubmitted.typeSample.IName=="dna" || sampleSubmitted.typeSample.IName=="rna"}'>
 		<c:set var="submittedSampleType" value="macromolecule" scope="page" />
 	</c:when>
 </c:choose>	
@@ -32,14 +32,14 @@
 	<tr class="FormData">
 		<td class="value-centered" ><br />N/A </td>
 		<td class="value-centered">
-			Name: <a href="<c:url value="/sampleDnaToLibrary/librarydetail_ro/${job.jobId}/${sample.sampleId}.do" />"><c:out value="${sample.name}" /></a><br />
-		 	Molecule: <c:out value="${sample.typeSample.name}" /><br /> 
-		 	<c:forEach items="${sample.sampleMeta}" var="sm">
+			Name: <a href="<c:url value="/sampleDnaToLibrary/librarydetail_ro/${job.jobId}/${sampleSubmitted.sampleId}.do" />"><c:out value="${sampleSubmitted.name}" /></a><br />
+		 	Molecule: <c:out value="${sampleSubmitted.typeSample.name}" /><br /> 
+		 	<c:forEach items="${sampleSubmitted.sampleMeta}" var="sm">
         		<c:if test="${fn:substringAfter(sm.k, 'Biomolecule.') == 'species'}">
             		Species: <c:out value="${sm.v}"/><br />
             	</c:if> 
         	</c:forEach>
-        	<c:forEach items="${sample.sampleMeta}" var="sm">
+        	<c:forEach items="${sampleSubmitted.sampleMeta}" var="sm">
         		<c:if test="${fn:substringAfter(sm.k, 'Library.') == 'adaptor'}">
             		Adaptor: <c:out value="${adaptors.get(sm.v).adaptorset.name}"/><br />
             		Index <c:out value="${adaptors.get(sm.v).barcodenumber}"/>: <c:out value="${adaptors.get(sm.v).barcodesequence}"/><br />
@@ -47,7 +47,24 @@
         	</c:forEach> 
 		
 			<c:choose>
-				<c:when test='${submittedSampleArrivalStatus=="RECEIVED"}'>			
+				<c:when test='${submittedSampleArrivalStatus=="RECEIVED"}'>	
+				
+					<c:choose>
+						<c:when test="${sampleSubmitted.sampleSourceViaSourceSampleId.size()==0}">
+							<br />Assigned To No Flowcells/Runs<br />
+						</c:when>
+						<c:otherwise>	
+							<br />Flowcells/Runs: <br />				
+							<c:forEach items="${sampleSubmitted.sampleSourceViaSourceSampleId}" var="ss">
+								<c:forEach items="${ss.sample.sampleSourceViaSourceSampleId}" var="ss2">									
+									<c:out value="${ss2.sample.name}"/> (Lane <c:out value="${ss2.multiplexindex}"/>)<br/>
+								</c:forEach>
+							</c:forEach>
+						</c:otherwise>
+					</c:choose>
+				
+				
+						
 					<c:set var="idCounter" value="${idCounter + 1}" scope="page" />
 					<div id="showButton_<c:out value="${idCounter}" />" >
 				 		<input class="fm-button" type="button" value="Add Library To Flow Cell" onclick='toggleDisplayOfAddLibraryForm("show", <c:out value="${idCounter}" />)' />				
@@ -60,7 +77,7 @@
 								<input type='hidden' name='jobid' value='<c:out value="${job.jobId}" />'/>
 								<c:choose>
 									<c:when test='${submittedSampleType == "library"}'>
-										<input type='hidden' name='librarysampleid' value='<c:out value="${sample.sampleId}" />'/>
+										<input type='hidden' name='librarysampleid' value='<c:out value="${sampleSubmitted.sampleId}" />'/>
 									</c:when>
 									<c:when test='${submittedSampleType == "macromolecule"}'>
 										<input type='hidden' name='librarysampleid' value='<c:out value="${lib.sampleId}" />'/>
@@ -107,9 +124,9 @@
 <c:when test='${submittedSampleType == "macromolecule"}'>
 	<tr class="FormData">
 		<td rowspan = "${librariesPerSubmittedSample}" class="value-centered">
-			Name: <a href="<c:url value="/sampleDnaToLibrary/sampledetail_ro/${job.jobId}/${sample.sampleId}.do" />"><c:out value="${sample.name}" /></a><br />
-	  		Molecule: <c:out value="${sample.typeSample.name}" /><br /> 
-	  		<c:forEach items="${sample.sampleMeta}" var="sm">
+			Name: <a href="<c:url value="/sampleDnaToLibrary/sampledetail_ro/${job.jobId}/${sampleSubmitted.sampleId}.do" />"><c:out value="${sampleSubmitted.name}" /></a><br />
+	  		Molecule: <c:out value="${sampleSubmitted.typeSample.name}" /><br /> 
+	  		<c:forEach items="${sampleSubmitted.sampleMeta}" var="sm">
         		<c:if test="${fn:substringAfter(sm.k, 'Biomolecule.') == 'species'}">
             		Species: <c:out value="${sm.v}"/><br />
            		</c:if> 
@@ -119,7 +136,7 @@
 	  			<c:when test='${submittedSampleArrivalStatus=="RECEIVED"}'>
 	  				<form method="GET" action="<c:url value="/sampleDnaToLibrary/createLibraryFromMacro.do" />">
 	  					<input class="FormElement ui-widget-content ui-corner-all" type='hidden' name='jobId' value='<c:out value="${job.jobId}" />'/>
-	  					<input class="FormElement ui-widget-content ui-corner-all" type='hidden' name='macromolSampleId' value='<c:out value="${sample.sampleId}" />'/>
+	  					<input class="FormElement ui-widget-content ui-corner-all" type='hidden' name='macromolSampleId' value='<c:out value="${sampleSubmitted.sampleId}" />'/>
 	  					<select class="FormElement ui-widget-content ui-corner-all" name="adaptorsetId" size="1" onchange="if(this.options[selectedIndex].value != 0){this.parentNode.submit();}">
 							<option value="0">--ADAPTORS FOR NEW LIBRARY--
 							<c:forEach items="${adaptorsets}" var="adaptorset">
@@ -139,12 +156,12 @@
 	  		</c:choose>					  
 		</td>
 		<c:choose>
-			<c:when test="${sample.sampleSourceViaSourceSampleId.size()==0}">
+			<c:when test="${sampleSubmitted.sampleSourceViaSourceSampleId.size()==0}">
 				<td>&nbsp;</td>
 			</c:when>
 			<c:otherwise>
 			<c:set var="i" value="0" scope="page" /> 
-			<c:forEach items="${sample.sampleSourceViaSourceSampleId}" var="samplesource">
+			<c:forEach items="${sampleSubmitted.sampleSourceViaSourceSampleId}" var="samplesource">
 				<c:set var="lib" value="${samplesource.sample}"/> 
 				<c:if test="${i > 0}">
 					<tr>
@@ -165,6 +182,23 @@
             		</c:if> 
 		        </c:forEach> 
 		        
+		        
+		        
+		        <c:choose>
+						<c:when test="${lib.sampleSourceViaSourceSampleId.size()==0}">
+							<br />Assigned To No Flowcells/Runs<br />
+						</c:when>
+						<c:otherwise>	
+							<br />Flowcells/Runs: <br />				
+							<c:forEach items="${lib.sampleSourceViaSourceSampleId}" var="ss">
+								<c:forEach items="${ss.sample.sampleSourceViaSourceSampleId}" var="ss2">									
+									<c:out value="${ss2.sample.name}"/> (Lane <c:out value="${ss2.multiplexindex}"/>)<br/>
+								</c:forEach>
+							</c:forEach>
+						</c:otherwise>
+				</c:choose>
+					
+		        
  				<c:set var="idCounter" value="${idCounter + 1}" scope="page" />
 				<div id="showButton_<c:out value="${idCounter}" />" >
 				 	<input class="fm-button" type="button" value="Add Library To Flow Cell" onclick='toggleDisplayOfAddLibraryForm("show", <c:out value="${idCounter}" />)' />				
@@ -177,7 +211,7 @@
 								<input type='hidden' name='jobid' value='<c:out value="${job.jobId}" />'/>
 				 				<c:choose>
 									<c:when test='${submittedSampleType == "library"}'>
-										<input type='hidden' name='librarysampleid' value='<c:out value="${sample.sampleId}" />'/>
+										<input type='hidden' name='librarysampleid' value='<c:out value="${sampleSubmitted.sampleId}" />'/>
 									</c:when>
 									<c:when test='${submittedSampleType == "macromolecule"}'>
 										<input type='hidden' name='librarysampleid' value='<c:out value="${lib.sampleId}" />'/>
