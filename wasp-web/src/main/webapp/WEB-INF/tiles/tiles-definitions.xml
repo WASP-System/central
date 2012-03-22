@@ -153,6 +153,7 @@
 		<put-attribute name="body-content" value="/WEB-INF/jsp/sampleDnaToLibrary/ok.jsp" />
 	</definition>
 	<definition name="sampleDnaToLibrary/listJobSamples" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/sampleDnaToLibrary/listJobSamples.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/sampleDnaToLibrary/listJobSamples.jsp" />
 	</definition>
 	<definition name="sampleDnaToLibrary/updateLibrary" extends="template-base">
