@@ -15,8 +15,23 @@
 			<li><a href="#tabs-daAdmin">Dept Admin (<span class="taskAlert"><c:out value="${departmentAdminPendingTasks}" /> tasks</span>)</a></li>
 		</sec:authorize>
 		<sec:authorize
-			access="hasRole('lu-*') or hasRole('su') or hasRole('ga')"> 
-			<li><a href="#tabs-labUtils">Lab Utils (<span class="taskAlert"><c:out value="${allLabManagerPendingTasks}" /> tasks</span>)</a></li>
+				access="hasRole('su') or hasRole('ga')"> 
+				<li><a href="#tabs-labUtils">Lab Utils (<span class="taskAlert"><c:out value="${allLabManagerPendingTasks}" /> tasks</span>)</a></li>
+		</sec:authorize>
+		<sec:authorize
+				access="not hasRole('su') and not hasRole('ga') and not hasRole('fm') and not hasRole('ft') and not hasRole('jd-*')"> 
+			
+			<c:set var="lab" value="${labs[0]}" />
+			<c:set var="id" value="${lab.labId}" />
+			
+			<sec:authorize
+				access="hasRole('lm-${labs[0].labId}' )">
+						<li><a href="#tabs-labUtils">Lab Utils (<span class="taskAlert"><c:out value="${labmap.get(lab.labId)}" /> task<c:if test='${labmap.get(lab.labId) != 1}'>s</c:if></span>)</a></li>
+			</sec:authorize>
+			<sec:authorize
+				access="hasRole('lu-${labs[0].labId}') and not hasRole('lm-${labs[0].labId}')">
+						<li><a href="#tabs-labUtils">Lab Utils</a></li>
+			</sec:authorize>
 		</sec:authorize>
 		<sec:authorize
 			access="hasRole('jv-*') or hasRole('jd-*') or hasRole('su') or hasRole('ga') or hasRole('lu-*') or hasRole('fm') or hasRole('ft')">
