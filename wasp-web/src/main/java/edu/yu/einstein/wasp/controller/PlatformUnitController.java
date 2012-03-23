@@ -1515,7 +1515,7 @@ public class PlatformUnitController extends WaspController {
 		public String assignmentRemove(
 				@RequestParam("samplesourceid") Integer sampleSourceId,
 				@RequestParam("jobId") Integer jobId,
-	    ModelMap m) {
+				ModelMap m) {
 
 			if(1==1){
 				 return "redirect:/dashboard.do";

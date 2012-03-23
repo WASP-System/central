@@ -114,7 +114,14 @@
 						<c:forEach items="${ss.sample.sampleSourceViaSourceSampleId}" var="ss2">							
 							<c:choose>
 								<c:when test="${ss2.sample.run.size()==0}">
-									<c:out value="${ss2.sample.name}"/> (Lane <c:out value="${ss2.multiplexindex}"/>) &nbsp; [Remove] <br/>
+									
+									<form  name='removeLib' method='post' action="<c:url value="/facility/platformunit/assignRemove.do" />" onsubmit='return confirm("Remove library from this flowcell?");'>
+									<input type='hidden' name='jobId' value='<c:out value="${job.jobId}" />'/>
+									<input type='hidden' name='samplesourceid' value='<c:out value="${ss.sampleSourceId}" />'/>
+									<c:out value="${ss2.sample.name}"/> (Lane <c:out value="${ss2.multiplexindex}"/>) &nbsp;<input type='submit' value='Remove'/>
+									</form>
+									
+									
 								</c:when>
 								<c:otherwise>
 									<c:forEach items="${ss2.sample.run}" var="aRun">
@@ -247,8 +254,14 @@
 							<c:forEach items="${lib.sampleSourceViaSourceSampleId}" var="ss">
 								<c:forEach items="${ss.sample.sampleSourceViaSourceSampleId}" var="ss2">
 									<c:choose>
-										<c:when test="${ss2.sample.run.size()==0}">
-											<c:out value="${ss2.sample.name}"/> (Lane <c:out value="${ss2.multiplexindex}"/>) &nbsp; [Remove] <br/>
+										<c:when test="${ss2.sample.run.size()==0}">											
+											
+											<form  name='removeLib' method='post' action="<c:url value="/facility/platformunit/assignRemove.do" />" onsubmit='return confirm("Remove library from this flowcell?");'>
+												<input type='hidden' name='jobId' value='<c:out value="${job.jobId}" />'/>
+												<input type='hidden' name='samplesourceid' value='<c:out value="${ss.sampleSourceId}" />'/>
+												<c:out value="${ss2.sample.name}"/> (Lane <c:out value="${ss2.multiplexindex}"/>) &nbsp;<input type='submit' value='Remove'/>
+											</form>											
+											
 										</c:when>
 										<c:otherwise>
 											<c:forEach items="${ss2.sample.run}" var="aRun">
