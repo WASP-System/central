@@ -118,7 +118,7 @@
 									<form  name='removeLib' method='post' action="<c:url value="/facility/platformunit/assignRemove.do" />" onsubmit='return confirm("Remove library from this flowcell?");'>
 									<input type='hidden' name='jobId' value='<c:out value="${job.jobId}" />'/>
 									<input type='hidden' name='samplesourceid' value='<c:out value="${ss.sampleSourceId}" />'/>
-									<c:out value="${ss2.sample.name}"/> (Lane <c:out value="${ss2.multiplexindex}"/>) &nbsp;<input type='submit' value='Remove'/>
+									<a href="<c:url value="/facility/platformunit/showPlatformUnit/${ss2.sample.sampleId}.do" />"><c:out value="${ss2.sample.name}"/></a> (Lane <c:out value="${ss2.multiplexindex}"/>) &nbsp;<input type='submit' value='Remove'/>
 									</form>
 									
 									
@@ -259,7 +259,7 @@
 											<form  name='removeLib' method='post' action="<c:url value="/facility/platformunit/assignRemove.do" />" onsubmit='return confirm("Remove library from this flowcell?");'>
 												<input type='hidden' name='jobId' value='<c:out value="${job.jobId}" />'/>
 												<input type='hidden' name='samplesourceid' value='<c:out value="${ss.sampleSourceId}" />'/>
-												<c:out value="${ss2.sample.name}"/> (Lane <c:out value="${ss2.multiplexindex}"/>) &nbsp;<input type='submit' value='Remove'/>
+												<a href="<c:url value="/facility/platformunit/showPlatformUnit/${ss2.sample.sampleId}.do" />"><c:out value="${ss2.sample.name}"/></a> (Lane <c:out value="${ss2.multiplexindex}"/>) &nbsp;<input type='submit' value='Remove'/>
 											</form>											
 											
 										</c:when>
