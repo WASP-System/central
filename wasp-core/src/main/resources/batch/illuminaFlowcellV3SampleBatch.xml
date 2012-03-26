@@ -15,7 +15,7 @@
     default-autowire="byName">
 
   <bean id="illuminaFlowcellV3.sample.Poller" parent="wasp.sample.Poller">
-    <property name="subtypeSampleIName" value="illuminaFlowcellV3"/>
+    <property name="sampleSubtypeIName" value="illuminaFlowcellV3"/>
     <property name="taskIName" value="sampleWrapTask"/>
   </bean>
 

@@ -10,11 +10,11 @@ import org.springframework.transaction.annotation.Transactional;
 import util.spring.PostInitialize;
 import edu.yu.einstein.wasp.dao.SoftwareDao;
 import edu.yu.einstein.wasp.dao.SoftwareMetaDao;
-import edu.yu.einstein.wasp.dao.TypeResourceDao;
-import edu.yu.einstein.wasp.exception.NullTypeResourceException;
+import edu.yu.einstein.wasp.dao.ResourceTypeDao;
+import edu.yu.einstein.wasp.exception.NullResourceTypeException;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.model.SoftwareMeta;
-import edu.yu.einstein.wasp.model.TypeResource;
+import edu.yu.einstein.wasp.model.ResourceType;
 
 
 /**
@@ -39,10 +39,10 @@ public class SoftwareLoadService extends WaspLoadService {
   private SoftwareMetaDao softwareMetaDao;
 
   @Autowired
-  private TypeResourceDao typeResourceDao;
+  private ResourceTypeDao resourceTypeDao;
 
-  private String resourceType; 
-  public void setResourceType(String resourceType) {this.resourceType = resourceType; }
+  private String resourceTypeString; 
+  public void setResourceType(String resourceTypeString) {this.resourceTypeString = resourceTypeString; }
 
   private List<SoftwareMeta> meta; 
   public void setMeta(List<SoftwareMeta> meta) {this.meta = meta; }
@@ -68,9 +68,9 @@ public class SoftwareLoadService extends WaspLoadService {
     // skips component scanned  (if scanned in)
     if (name == null) { return; }
 
-    TypeResource typeResource = typeResourceDao.getTypeResourceByIName(resourceType); 
-    if (typeResource == null){
-    	throw new NullTypeResourceException();
+    ResourceType resourceType = resourceTypeDao.getResourceTypeByIName(resourceTypeString); 
+    if (resourceType == null){
+    	throw new NullResourceTypeException();
     }
 
     Software software = softwareDao.getSoftwareByIName(iname);
@@ -85,7 +85,7 @@ public class SoftwareLoadService extends WaspLoadService {
       software.setIName(iname);
       software.setName(name);
       software.setIsActive(isActive.intValue());
-      software.setTypeResourceId(typeResource.getTypeResourceId());
+      software.setResourceTypeId(resourceType.getResourceTypeId());
       softwareDao.save(software); 
 
       // refreshes

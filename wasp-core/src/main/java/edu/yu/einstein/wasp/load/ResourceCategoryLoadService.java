@@ -10,11 +10,11 @@ import org.springframework.transaction.annotation.Transactional;
 import util.spring.PostInitialize;
 import edu.yu.einstein.wasp.dao.ResourceCategoryDao;
 import edu.yu.einstein.wasp.dao.ResourceCategoryMetaDao;
-import edu.yu.einstein.wasp.dao.TypeResourceDao;
-import edu.yu.einstein.wasp.exception.NullTypeResourceException;
+import edu.yu.einstein.wasp.dao.ResourceTypeDao;
+import edu.yu.einstein.wasp.exception.NullResourceTypeException;
 import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.ResourceCategoryMeta;
-import edu.yu.einstein.wasp.model.TypeResource;
+import edu.yu.einstein.wasp.model.ResourceType;
 
 
 /**
@@ -25,7 +25,7 @@ import edu.yu.einstein.wasp.model.TypeResource;
  *   - uifields (List<UiFields>)
  *   - platform
  *   - meta (List<ResourceMeta>)
- *   - cell (List<ResourceLanes>)
+ *   - cell (List<ResourceCells>)
  *
  */
 
@@ -39,10 +39,10 @@ public class ResourceCategoryLoadService extends WaspLoadService {
   private ResourceCategoryMetaDao resourceCategoryMetaDao;
 
   @Autowired
-  private TypeResourceDao typeResourceDao;
+  private ResourceTypeDao resourceTypeDao;
 
-  private String resourceType; 
-  public void setResourceType(String resourceType) {this.resourceType = resourceType; }
+  private String resourceTypeString; 
+  public void setResourceType(String resourceTypeString) {this.resourceTypeString = resourceTypeString; }
 
   private List<ResourceCategoryMeta> meta; 
   public void setMeta(List<ResourceCategoryMeta> meta) {this.meta = meta; }
@@ -68,9 +68,9 @@ public class ResourceCategoryLoadService extends WaspLoadService {
     // skips component scanned  (if scanned in)
     if (name == null) { return; }
 
-    TypeResource typeResource = typeResourceDao.getTypeResourceByIName(resourceType); 
-    if (typeResource == null){
-    	throw new NullTypeResourceException();
+    ResourceType resourceType = resourceTypeDao.getResourceTypeByIName(resourceTypeString); 
+    if (resourceType == null){
+    	throw new NullResourceTypeException();
     }
 
     ResourceCategory resourceCat = resourceCategoryDao.getResourceCategoryByIName(iname);
@@ -85,7 +85,7 @@ public class ResourceCategoryLoadService extends WaspLoadService {
       resourceCat.setIName(iname);
       resourceCat.setName(name);
       resourceCat.setIsActive(isActive.intValue());
-      resourceCat.setTypeResourceId(typeResource.getTypeResourceId());
+      resourceCat.setResourceTypeId(resourceType.getResourceTypeId());
       resourceCategoryDao.save(resourceCat); 
 
       // refreshes

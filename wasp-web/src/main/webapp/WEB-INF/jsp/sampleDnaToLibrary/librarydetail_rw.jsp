@@ -39,7 +39,7 @@
 <c:if test="${parentMacromolecule != null && parentMacromolecule.sampleId > 0}">
 
   	<tr class="FormData"><td class="CaptionTD">Primary Sample Name:</td><td colspan="2" class="DataTD"><c:out value="${parentMacromolecule.name}" /></td></tr>
-  	<tr class="FormData"><td class="CaptionTD">Primary Sample Type:</td><td colspan="2" class="DataTD"><c:out value="${parentMacromolecule.typeSample.name}" /></td></tr>
+  	<tr class="FormData"><td class="CaptionTD">Primary Sample Type:</td><td colspan="2" class="DataTD"><c:out value="${parentMacromolecule.sampleType.name}" /></td></tr>
     <c:forEach items="${parentMacromolecule.sampleMeta}" var="msm">
     	<c:if test="${fn:substringAfter(msm.k, 'Biomolecule.') == 'species'}">
             <tr class="FormData"><td class="CaptionTD">Primary Sample Species:</td><td colspan="2" class="DataTD"><c:out value="${msm.v}"/></td></tr>

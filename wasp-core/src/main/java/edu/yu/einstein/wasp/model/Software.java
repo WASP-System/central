@@ -65,31 +65,31 @@ public class Software extends WaspModel {
 
 
 	/** 
-	 * typeResourceId
+	 * resourceTypeId
 	 *
 	 */
-	@Column(name="typeresourceid")
-	protected int typeResourceId;
+	@Column(name="resourcetypeid")
+	protected int resourceTypeId;
 
 	/**
-	 * setTypeResourceId(int typeResourceId)
+	 * setResourceTypeId(int resourceTypeId)
 	 *
-	 * @param typeResourceId
+	 * @param resourceTypeId
 	 *
 	 */
 	
-	public void setTypeResourceId (int typeResourceId) {
-		this.typeResourceId = typeResourceId;
+	public void setResourceTypeId (int resourceTypeId) {
+		this.resourceTypeId = resourceTypeId;
 	}
 
 	/**
-	 * getTypeResourceId()
+	 * getResourceTypeId()
 	 *
-	 * @return typeResourceId
+	 * @return resourceTypeId
 	 *
 	 */
-	public int getTypeResourceId () {
-		return this.typeResourceId;
+	public int getResourceTypeId () {
+		return this.resourceTypeId;
 	}
 
 
@@ -247,34 +247,34 @@ public class Software extends WaspModel {
 
 
 	/**
-	 * typeResource
+	 * resourceType
 	 *
 	 */
 	@NotAudited
 	@ManyToOne
-	@JoinColumn(name="typeresourceid", insertable=false, updatable=false)
-	protected TypeResource typeResource;
+	@JoinColumn(name="resourcetypeid", insertable=false, updatable=false)
+	protected ResourceType resourceType;
 
 	/**
-	 * setTypeResource (TypeResource typeResource)
+	 * setResourceType (ResourceType resourceType)
 	 *
-	 * @param typeResource
+	 * @param resourceType
 	 *
 	 */
-	public void setTypeResource (TypeResource typeResource) {
-		this.typeResource = typeResource;
-		this.typeResourceId = typeResource.typeResourceId;
+	public void setResourceType (ResourceType resourceType) {
+		this.resourceType = resourceType;
+		this.resourceTypeId = resourceType.resourceTypeId;
 	}
 
 	/**
-	 * getTypeResource ()
+	 * getResourceType ()
 	 *
-	 * @return typeResource
+	 * @return resourceType
 	 *
 	 */
 	
-	public TypeResource getTypeResource () {
-		return this.typeResource;
+	public ResourceType getResourceType () {
+		return this.resourceType;
 	}
 
 

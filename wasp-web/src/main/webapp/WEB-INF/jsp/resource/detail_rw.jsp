@@ -16,19 +16,19 @@
 		</tr>
 
 		<tr class="FormData">
-			<td class="CaptionTD"><fmt:message key="resource.typeResourceId.label" />:</td>
-			<td class="DataTD"><select class="FormElement ui-widget-content ui-corner-all" name=typeResourceId>
+			<td class="CaptionTD"><fmt:message key="resource.resourceTypeId.label" />:</td>
+			<td class="DataTD"><select class="FormElement ui-widget-content ui-corner-all" name=resourceTypeId>
 					<option value='-1'>
 						<fmt:message key="wasp.default_select.label" />
 					</option>
-					<c:forEach var="type" items="${typeResources}">
-						<option value="${type.typeResourceId}"
-							<c:if test="${type.typeResourceId == resource.typeResourceId}"> selected</c:if>>
+					<c:forEach var="type" items="${resourceTypes}">
+						<option value="${type.resourceTypeId}"
+							<c:if test="${type.resourceTypeId == resource.resourceTypeId}"> selected</c:if>>
 							<c:out value="${type.name}" />
 						</option>
 					</c:forEach>
 			</select></td>
-			<td class="CaptionTD error"><form:errors path="typeResourceId" />
+			<td class="CaptionTD error"><form:errors path="resourceTypeId" />
 			</td>
 		</tr>
 

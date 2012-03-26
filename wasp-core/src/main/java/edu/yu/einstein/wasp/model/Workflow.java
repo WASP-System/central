@@ -352,69 +352,69 @@ public class Workflow extends WaspModel {
 
 
 	/** 
-	 * workflowsubtypesample
+	 * workflowSampleSubtype
 	 *
 	 */
 	@NotAudited
 	@OneToMany
 	@JoinColumn(name="workflowid", insertable=false, updatable=false)
-	protected List<Workflowsubtypesample> workflowsubtypesample;
+	protected List<WorkflowSampleSubtype> workflowSampleSubtype;
 
 
 	/** 
-	 * getWorkflowsubtypesample()
+	 * getWorkflowsamplesubtype()
 	 *
-	 * @return workflowsubtypesample
+	 * @return workflowSampleSubtype
 	 *
 	 */
 	@JsonIgnore
-	public List<Workflowsubtypesample> getWorkflowsubtypesample() {
-		return this.workflowsubtypesample;
+	public List<WorkflowSampleSubtype> getWorkflowSampleSubtype() {
+		return this.workflowSampleSubtype;
 	}
 
 
 	/** 
-	 * setWorkflowsubtypesample
+	 * setWorkflowsamplesubtype
 	 *
-	 * @param workflowsubtypesample
+	 * @param workflowSampleSubtype
 	 *
 	 */
-	public void setWorkflowsubtypesample (List<Workflowsubtypesample> workflowsubtypesample) {
-		this.workflowsubtypesample = workflowsubtypesample;
+	public void setWorkflowSampleSubtype (List<WorkflowSampleSubtype> workflowSampleSubtype) {
+		this.workflowSampleSubtype = workflowSampleSubtype;
 	}
 
 
 
 	/** 
-	 * workflowtyperesource
+	 * workflowResourceType
 	 *
 	 */
 	@NotAudited
 	@OneToMany
 	@JoinColumn(name="workflowid", insertable=false, updatable=false)
-	protected List<Workflowtyperesource> workflowtyperesource;
+	protected List<WorkflowResourceType> workflowResourceType;
 
 
 	/** 
-	 * getWorkflowtyperesource()
+	 * getWorkflowresourcetype()
 	 *
-	 * @return workflowtyperesource
+	 * @return workflowResourceType
 	 *
 	 */
 	@JsonIgnore
-	public List<Workflowtyperesource> getWorkflowtyperesource() {
-		return this.workflowtyperesource;
+	public List<WorkflowResourceType> getWorkflowResourceType() {
+		return this.workflowResourceType;
 	}
 
 
 	/** 
-	 * setWorkflowtyperesource
+	 * setWorkflowresourcetype
 	 *
-	 * @param workflowtyperesource
+	 * @param workflowResourceType
 	 *
 	 */
-	public void setWorkflowtyperesource (List<Workflowtyperesource> workflowtyperesource) {
-		this.workflowtyperesource = workflowtyperesource;
+	public void setWorkflowResourceType (List<WorkflowResourceType> workflowResourceType) {
+		this.workflowResourceType = workflowResourceType;
 	}
 
 

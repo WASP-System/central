@@ -72,10 +72,10 @@ public class CreateSoftwareRunProcessor implements ItemProcessor {
 
 		List <JobSoftware> jobSoftwares = state.getStatejob().get(0).getJob().getJobSoftware();
 
-		// finds the right software for typeresource
+		// finds the right software for resourcetype
 		Software software = null;
 		for (JobSoftware js: jobSoftwares) {
-		  if (softwareIName.equals(js.getSoftware().getTypeResource().getIName())) {
+		  if (softwareIName.equals(js.getSoftware().getResourceType().getIName())) {
 				software = js.getSoftware(); 
 			}
 		}

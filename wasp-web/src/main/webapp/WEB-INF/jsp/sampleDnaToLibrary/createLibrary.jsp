@@ -36,7 +36,7 @@
  
 <table class="EditTable ui-widget ui-widget-content">
   	<tr class="FormData"><td class="CaptionTD">Primary Sample Name:</td><td colspan="2" class="DataTD"><c:out value="${macromoleculeSample.name}" /></td></tr>
-  	<tr class="FormData"><td class="CaptionTD">Primary Sample Type:</td><td colspan="2" class="DataTD"><c:out value="${macromoleculeSample.typeSample.name}" /></td></tr>
+  	<tr class="FormData"><td class="CaptionTD">Primary Sample Type:</td><td colspan="2" class="DataTD"><c:out value="${macromoleculeSample.sampleType.name}" /></td></tr>
     <c:forEach items="${macromoleculeSample.sampleMeta}" var="msm">
     	<c:if test="${fn:substringAfter(msm.k, 'Biomolecule.') == 'species'}">
             <tr class="FormData"><td class="CaptionTD">Primary Sample Species:</td><td colspan="2" class="DataTD"><c:out value="${msm.v}"/></td></tr>

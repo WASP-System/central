@@ -34,16 +34,16 @@ import edu.yu.einstein.wasp.dao.ResourceBarcodeDao;
 import edu.yu.einstein.wasp.dao.ResourceCategoryDao;
 import edu.yu.einstein.wasp.dao.ResourceDao;
 import edu.yu.einstein.wasp.dao.ResourceMetaDao;
-import edu.yu.einstein.wasp.dao.TypeResourceDao;
+import edu.yu.einstein.wasp.dao.ResourceTypeDao;
 import edu.yu.einstein.wasp.model.Barcode;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.Resource;
 import edu.yu.einstein.wasp.model.ResourceBarcode;
 import edu.yu.einstein.wasp.model.ResourceCategory;
-import edu.yu.einstein.wasp.model.ResourceLane;
+import edu.yu.einstein.wasp.model.ResourceCell;
 import edu.yu.einstein.wasp.model.ResourceMeta;
 import edu.yu.einstein.wasp.model.Run;
-import edu.yu.einstein.wasp.model.TypeResource;
+import edu.yu.einstein.wasp.model.ResourceType;
 import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 import edu.yu.einstein.wasp.util.MetaHelper;
@@ -60,7 +60,7 @@ public class ResourceController extends WaspController {
 	private ResourceMetaDao resourceMetaDao;
 
 	@Autowired
-	private TypeResourceDao typeResourceDao;
+	private ResourceTypeDao resourceTypeDao;
 	
 	@Autowired
 	private ResourceCategoryDao resourceCategoryDao;
@@ -82,16 +82,16 @@ public class ResourceController extends WaspController {
 	protected void prepareSelectListData(ModelMap m) {
 		super.prepareSelectListData(m);
 
-		List <TypeResource> typeResourceList = new ArrayList <TypeResource> (typeResourceDao.findAll());
+		List <ResourceType> resourceTypeList = new ArrayList <ResourceType> (resourceTypeDao.findAll());
 		
 		//When adding a new record in Resources JqGrid, it displays  all Type Resources that are NOT "aligner" or "peakcaller"
-		for (Iterator<TypeResource> it = typeResourceList.iterator(); it.hasNext();) {
-			TypeResource tr = it.next();
+		for (Iterator<ResourceType> it = resourceTypeList.iterator(); it.hasNext();) {
+			ResourceType tr = it.next();
 			if (tr.getIName().equals("aligner") || tr.getIName().equals("peakcaller")) {
 				it.remove();
 			}
 		}
-		m.addAttribute("typeResources", typeResourceList);
+		m.addAttribute("resourceTypes", resourceTypeList);
 		
 		//List <ResourceCategory> resourceCategoryList = new ArrayList <ResourceCategory> (resourceCategoryDao.findAll());
 //		for (ResourceCategory rc : resourceCategoryList) {
@@ -237,7 +237,7 @@ public class ResourceController extends WaspController {
 								resource.getName(),
 								resource.getResourceCategory().getName(),
 								"",
-								resource.getTypeResource().getName(), 
+								resource.getResourceType().getName(), 
 								resource.getIsActive().intValue() == 1 ? "yes" : "no", //}));
 								allResourceBarcode.get(resource.getResourceId())==null? "" : allBarcode.get(allResourceBarcode.get(resource.getResourceId()))}));
 
@@ -303,10 +303,10 @@ public class ResourceController extends WaspController {
 			
 			ResourceCategory resourceCategory = this.resourceCategoryDao.getResourceCategoryByResourceCategoryId(new Integer(request.getParameter("resourceCategoryId")));
 			Integer resourceCategoryId =resourceCategory.getResourceCategoryId();
-			Integer typeResourceId = resourceCategory.getTypeResourceId();
+			Integer resourceTypeId = resourceCategory.getResourceTypeId();
 
 			resourceForm.setResourcecategoryId(resourceCategoryId);
-			resourceForm.setTypeResourceId(typeResourceId);
+			resourceForm.setResourceTypeId(resourceTypeId);
 			
 			resourceForm.setIName(resourceForm.getName());
 			resourceForm.setLastUpdTs(new Date());
@@ -347,7 +347,7 @@ public class ResourceController extends WaspController {
 			
 			resourceDb.setName(resourceForm.getName());
 			//resourceDb.setResourcecategoryId(Integer.parseInt(request.getParameter("resourceCategoryId")));
-			//resourceDb.setTypeResourceId(resourceForm.getTypeResourceId());
+			//resourceDb.setResourceTypeId(resourceForm.getResourceTypeId());
 			resourceDb.setIName(resourceForm.getName());
 
 			if (resourceBarcodeDB == null || resourceBarcodeDB.getBarcode() == null) {
@@ -481,8 +481,8 @@ public class ResourceController extends WaspController {
 		// List<ResourceMeta> resourceMetaList = resource.getResourceMeta();
 		// resourceMetaList.size();
 
-		List<ResourceLane> resourceLaneList = resource.getResourceLane();
-		resourceLaneList.size();
+		List<ResourceCell> resourceCellList = resource.getResourceCell();
+		resourceCellList.size();
 
 		List<Run> runList = resource.getRun();
 		runList.size();
@@ -493,7 +493,7 @@ public class ResourceController extends WaspController {
 		// m.addAttribute("now", now);
 		m.addAttribute("resource", resource);
 		// m.addAttribute("resourcemeta", resourceMetaList);
-		m.addAttribute("resourcelane", resourceLaneList);
+		m.addAttribute("resourcecell", resourceCellList);
 		m.addAttribute("run", runList);
 		// m.addAttribute("resourceuser", resourceUserList);
 

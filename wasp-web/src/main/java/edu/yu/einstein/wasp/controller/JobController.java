@@ -312,8 +312,8 @@ public class JobController extends WaspController {
 										"<a href=/wasp/sample/list.do?selId=" 
 										+ sample.getSampleId().intValue() + ">" + 
 										sample.getName() + "</a>",
-										sample.getTypeSample().getName(),
-										sample.getSubtypeSample().getName(),
+										sample.getSampleType().getName(),
+										sample.getSampleSubtype().getName(),
 										sampleReceived
 								}
 						)

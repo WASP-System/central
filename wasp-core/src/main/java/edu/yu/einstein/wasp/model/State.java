@@ -547,35 +547,35 @@ public class State extends WaspModel {
 
 
 	/** 
-	 * staterunlane
+	 * stateRunCell
 	 *
 	 */
 	@NotAudited
 	@OneToMany
 	@JoinColumn(name="stateid", insertable=false, updatable=false)
-	protected List<Staterunlane> staterunlane;
+	protected List<StateRunCell> stateRunCell;
 
 
 	/** 
-	 * getStaterunlane()
+	 * getStateruncell()
 	 *
-	 * @return staterunlane
+	 * @return stateRunCell
 	 *
 	 */
 	@JsonIgnore
-	public List<Staterunlane> getStaterunlane() {
-		return this.staterunlane;
+	public List<StateRunCell> getStateRunCell() {
+		return this.stateRunCell;
 	}
 
 
 	/** 
-	 * setStaterunlane
+	 * setStateruncell
 	 *
-	 * @param staterunlane
+	 * @param stateRunCell
 	 *
 	 */
-	public void setStaterunlane (List<Staterunlane> staterunlane) {
-		this.staterunlane = staterunlane;
+	public void setStateRunCell (List<StateRunCell> stateRunCell) {
+		this.stateRunCell = stateRunCell;
 	}
 
 

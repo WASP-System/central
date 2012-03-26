@@ -406,7 +406,7 @@ $v2_dbh->do("insert into state
 (taskid, name, status, lastupduser) 
 select t.taskid, t.name, 'WAITING', s.sampleid
 from task t, sample s
-where t.taskid = 8 and s.typesampleid = 1;");
+where t.taskid = 8 and s.sampletypeid = 1;");
 
 $v2_dbh->do("insert into statesample
 (stateid, sampleid)
@@ -434,7 +434,7 @@ $v2_dbh->do("insert into state
 (taskid, name, status, lastupduser) 
 select t.taskid, t.name, 'WAITING', s.sampleid
 from task t, sample s
-where t.taskid = 9 and s.typesampleid = 3;");
+where t.taskid = 9 and s.sampletypeid = 3;");
 
 $v2_dbh->do("insert into statesample
 (stateid, sampleid)
@@ -473,7 +473,7 @@ $v2_dbh->do("insert into state
 (taskid, name, status, lastupduser) 
 select t.taskid, t.name, 'WAITING', s.sampleid
 from task t, sample s
-where t.taskid = 10 and s.typesampleid = 4;");
+where t.taskid = 10 and s.sampletypeid = 4;");
 
 $v2_dbh->do("insert into statesample
 (stateid, sampleid)
@@ -501,7 +501,7 @@ $v2_dbh->do("insert into state
 (taskid, name, status, lastupduser) 
 select t.taskid, t.name, 'WAITING', s.sampleid
 from task t, sample s
-where t.taskid = 11 and s.typesampleid = 5;");
+where t.taskid = 11 and s.sampletypeid = 5;");
 
 $v2_dbh->do("insert into statesample
 (stateid, sampleid)

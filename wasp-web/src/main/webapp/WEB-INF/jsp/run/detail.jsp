@@ -22,15 +22,15 @@
 
     <p>
     Run Lanes
-    <c:forEach items="${runlane}" var="rl">
+    <c:forEach items="${runcell}" var="rl">
       <div>
       -- Samples:
       <a href="/wasp /sample/detail/<c:out value="${rl.sampleId}"/>.do">
         <c:out value="${rl.sample.name}"/>
       </a>
-      -- ResourceLanes:
-      (<a href="/wasp/run/lane/detail/<c:out value="${rl.runId}"/>/<c:out value="${rl.runLaneId}"/>.do">
-        <c:out value="${rl.resourceLane.name}"/>
+      -- ResourceCells:
+      (<a href="/wasp/run/lane/detail/<c:out value="${rl.runId}"/>/<c:out value="${rl.runCellId}"/>.do">
+        <c:out value="${rl.resourceCell.name}"/>
       </a>)
       </div>
     </c:forEach>

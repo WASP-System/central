@@ -19,10 +19,10 @@
 <c:set var="librariesPerSubmittedSample" value="${librariespersample[counter.index]}" scope="page" />
 <c:set var="submittedSampleArrivalStatus" value="${received[counter.index]}" scope="page" />
 <c:choose>
-	<c:when test='${sampleSubmitted.typeSample.IName=="library"}'>
+	<c:when test='${sampleSubmitted.sampleType.IName=="library"}'>
 		<c:set var="submittedSampleType" value="library" scope="page" />
 	</c:when>
-	<c:when test='${sampleSubmitted.typeSample.IName=="dna" || sampleSubmitted.typeSample.IName=="rna"}'>
+	<c:when test='${sampleSubmitted.sampleType.IName=="dna" || sampleSubmitted.sampleType.IName=="rna"}'>
 		<c:set var="submittedSampleType" value="macromolecule" scope="page" />
 	</c:when>
 </c:choose>	
@@ -33,7 +33,7 @@
 		<td class="value-centered" ><br />N/A </td>
 		<td class="value-centered">
 			Name: <a href="<c:url value="/sampleDnaToLibrary/librarydetail_ro/${job.jobId}/${sampleSubmitted.sampleId}.do" />"><c:out value="${sampleSubmitted.name}" /></a><br />
-		 	Molecule: <c:out value="${sampleSubmitted.typeSample.name}" /><br /> 
+		 	Molecule: <c:out value="${sampleSubmitted.sampleType.name}" /><br /> 
 		 	<c:forEach items="${sampleSubmitted.sampleMeta}" var="sm">
         		<c:if test="${fn:substringAfter(sm.k, 'Biomolecule.') == 'species'}">
             		Species: <c:out value="${sm.v}"/><br />
@@ -142,7 +142,7 @@
 	<tr class="FormData">
 		<td rowspan = "${librariesPerSubmittedSample}" class="value-centered">
 			Name: <a href="<c:url value="/sampleDnaToLibrary/sampledetail_ro/${job.jobId}/${sampleSubmitted.sampleId}.do" />"><c:out value="${sampleSubmitted.name}" /></a><br />
-	  		Molecule: <c:out value="${sampleSubmitted.typeSample.name}" /><br /> 
+	  		Molecule: <c:out value="${sampleSubmitted.sampleType.name}" /><br /> 
 	  		<c:forEach items="${sampleSubmitted.sampleMeta}" var="sm">
         		<c:if test="${fn:substringAfter(sm.k, 'Biomolecule.') == 'species'}">
             		Species: <c:out value="${sm.v}"/><br />
@@ -186,7 +186,7 @@
 				<td class="value-centered">
 						
 				Name: <a href="<c:url value="/sampleDnaToLibrary/librarydetail_ro/${job.jobId}/${lib.sampleId}.do" />"><c:out value="${lib.name}" /></a><br />
-				Molecule: <c:out value="${lib.typeSample.name}" /><br />
+				Molecule: <c:out value="${lib.sampleType.name}" /><br />
 				<c:forEach items="${lib.sampleMeta}" var="sm">
         			<c:if test="${fn:substringAfter(sm.k, 'Biomolecule.') == 'species'}">
             			Species: <c:out value="${sm.v}"/><br />

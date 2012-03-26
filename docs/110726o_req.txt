@@ -399,7 +399,7 @@ Cassette Manager
       - validate metadata
       - ok
         . insert into run 
-        . insert into runlane
+        . insert into runcell
     + post sequence run 
       - validate metadata
       - pass fail per lane

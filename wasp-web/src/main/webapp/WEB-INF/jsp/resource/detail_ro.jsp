@@ -7,9 +7,9 @@
 
 <table class="EditTable ui-widget ui-widget-content">
 	<tr class="FormData">
-		<td class="CaptionTD"><fmt:message key="resource.typeResourceId.label" />:</td>
-		<td class="DataTD"><c:forEach var="type" items="${typeResources}">
-				<c:if test="${type.typeResourceId == resource.typeResourceId}">
+		<td class="CaptionTD"><fmt:message key="resource.resourceTypeId.label" />:</td>
+		<td class="DataTD"><c:forEach var="type" items="${resourceTypes}">
+				<c:if test="${type.resourceTypeId == resource.resourceTypeId}">
 					<c:out value="${type.name}" />
 				</c:if>
 			</c:forEach></td>
@@ -39,10 +39,10 @@
  --%>
 
 <h2>Resource Lanes</h2>
-<c:forEach items="${resourcelane}" var="rl">
+<c:forEach items="${resourcecell}" var="rl">
 	<div>
 		<a
-			href="/wasp/resource/lane/detail/<c:out value="${rl.resourceLaneId}"/>.do">
+			href="/wasp/resource/lane/detail/<c:out value="${rl.resourceCellId}"/>.do">
 			<c:out value="${rl.name}" /> </a>
 	</div>
 </c:forEach>

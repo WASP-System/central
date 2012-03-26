@@ -353,21 +353,21 @@ create table confirmemailauth (
 --
 -- type.RESOURCE
 -- 
-create table typeresource (
-  typeresourceid int(10)  primary key auto_increment, 
+create table resourcetype (
+  resourcetypeid int(10)  primary key auto_increment, 
 
   iname varchar(250) ,
   name varchar(250) ,
 
-  constraint unique index u_typeresource_iname (iname),
-  constraint unique index u_typeresource_name (name)
+  constraint unique index u_resourcetype_iname (iname),
+  constraint unique index u_resourcetype_name (name)
 ) ENGINE=InnoDB charset=utf8; 
 
-insert into typeresource values (1, 'mps', 'Massively Parallel DNA Sequencer'); 
-insert into typeresource values (2, 'amplicon', 'DNA Amplicon'); 
-insert into typeresource values (3, 'aligner', 'Aligner'); 
-insert into typeresource values (4, 'peakcaller', 'Peak Caller'); 
-insert into typeresource values (5, 'sanger', 'Sanger DNA Sequencer'); 
+insert into resourcetype values (1, 'mps', 'Massively Parallel DNA Sequencer'); 
+insert into resourcetype values (2, 'amplicon', 'DNA Amplicon'); 
+insert into resourcetype values (3, 'aligner', 'Aligner'); 
+insert into resourcetype values (4, 'peakcaller', 'Peak Caller'); 
+insert into resourcetype values (5, 'sanger', 'Sanger DNA Sequencer'); 
 
 --
 -- RESOURCE
@@ -375,14 +375,14 @@ insert into typeresource values (5, 'sanger', 'Sanger DNA Sequencer');
 
 create table resourcecategory (
   resourcecategoryid int(10)  primary key auto_increment, 
-  typeresourceid int(10) not null,
+  resourcetypeid int(10) not null,
   iname varchar(250) ,
   name varchar(250) ,
   isactive int(1)  default 1,
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
 
-  foreign key fk_resourccategory_typeresourceid (typeresourceid) references typeresource(typeresourceid),
+  foreign key fk_resourccategory_resourcetypeid (resourcetypeid) references resourcetype(resourcetypeid),
 
   constraint unique index u_resourcecategory_i(iname),
   constraint unique index u_resourcecategory_n(name)
@@ -407,13 +407,13 @@ create table resourcecategorymeta (
 create table resource (
   resourceid int(10)  primary key auto_increment, 
   resourcecategoryid int(10) , 
-  typeresourceid int(10) ,
+  resourcetypeid int(10) ,
   iname varchar(250) ,
   name varchar(250) ,
   isactive int(1)  default 1,
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
-  foreign key fk_resource_trid (typeresourceid) references typeresource(typeresourceid),
+  foreign key fk_resource_trid (resourcetypeid) references resourcetype(resourcetypeid),
   foreign key fk_resource_rid (resourcecategoryid) references resourcecategory(resourcecategoryid),
   constraint unique index u_resource_i(iname),
   constraint unique index u_resource_n(name)
@@ -422,14 +422,14 @@ create table resource (
 
 create table software (
   softwareid int(10)  primary key auto_increment, 
-  typeresourceid int(10) not null,
+  resourcetypeid int(10) not null,
   iname varchar(250) ,
   name varchar(250) ,
   isactive int(1)  default 1,
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
 
-  foreign key fk_software_typeresourceid (typeresourceid) references typeresource(typeresourceid),
+  foreign key fk_software_resourcetypeid (resourcetypeid) references resourcetype(resourcetypeid),
 
   constraint unique index u_software_i(iname)
 ) ENGINE=InnoDB charset=utf8;
@@ -762,29 +762,29 @@ create table file (
 -- SAMPLE
 --
 
-create table typesamplecategory (
-  typesamplecategoryid int(10)  primary key auto_increment,
+create table sampletypecategory (
+  sampletypecategoryid int(10)  primary key auto_increment,
   iname varchar(250), 
   name varchar(250),
 
-  constraint unique index u_typesamplecategory_iname (iname)
+  constraint unique index u_sampletypecategory_iname (iname)
 ) ENGINE=InnoDB charset=utf8;
 
-insert into typesamplecategory values
+insert into sampletypecategory values
 (1, 'biomaterial', 'Biomaterial'),
 (2, 'hardware', 'Hardware');
 
 
-create table typesample (
-  typesampleid int(10)  primary key auto_increment,
-  typesamplecategoryid int(10) ,
+create table sampletype (
+  sampletypeid int(10)  primary key auto_increment,
+  sampletypecategoryid int(10) ,
   iname varchar(250), 
   name varchar(250),
-  foreign key fk_typesample_tscid (typesamplecategoryid) references typesamplecategory(typesamplecategoryid),
-  constraint unique index u_typesample_iname (iname)
+  foreign key fk_sampletype_tscid (sampletypecategoryid) references sampletypecategory(sampletypecategoryid),
+  constraint unique index u_sampletype_iname (iname)
 ) ENGINE=InnoDB charset=utf8;
 
-insert into typesample values
+insert into sampletype values
 (1, 1, 'dna', 'DNA'), 
 (2, 1, 'rna', 'RNA'), 
 (3, 1, 'library', 'Library'),
@@ -798,23 +798,23 @@ insert into typesample values
 
 
 
-create table subtypesample (
-  subtypesampleid int(10)  primary key auto_increment,
+create table samplesubtype (
+  samplesubtypeid int(10)  primary key auto_increment,
 
-  typesampleid int(10) ,
+  sampletypeid int(10) ,
 
   iname varchar(50) , -- meta field prefix
   name varchar(250) ,
   isactive int(1)  default 1,
   arealist varchar(250),
 
-  constraint unique index u_subtypesample_iname (iname),
-  foreign key fk_subtypesample_tsid (typesampleid) references typesample(typesampleid)
+  constraint unique index u_samplesubtype_iname (iname),
+  foreign key fk_samplesubtype_tsid (sampletypeid) references sampletype(sampletypeid)
 ) ENGINE=InnoDB charset=utf8;
 
-create table subtypesamplemeta (
-  subtypesamplemetaid int(10)  primary key auto_increment,
-  subtypesampleid int(10) ,
+create table samplesubtypemeta (
+  samplesubtypemetaid int(10)  primary key auto_increment,
+  samplesubtypeid int(10) ,
 
   k varchar(250) , 
   v varchar(250), 
@@ -823,40 +823,40 @@ create table subtypesamplemeta (
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
 
-  foreign key fk_subtypesamplemeta_sampleid (subtypesampleid) references subtypesample(subtypesampleid),
-  constraint unique index u_subtypesamplemeta_k_sid (k, subtypesampleid)
+  foreign key fk_samplesubtypemeta_sampleid (samplesubtypeid) references samplesubtype(samplesubtypeid),
+  constraint unique index u_samplesubtypemeta_k_sid (k, samplesubtypeid)
 ) ENGINE=InnoDB charset=utf8;
 
-create table subtypesampleresourcecategory (
-  subtypesampleresourcecategoryid int(10)  primary key auto_increment,
-  subtypesampleid int(10) ,
+create table samplesubtyperesourcecategory (
+  samplesubtyperesourcecategoryid int(10)  primary key auto_increment,
+  samplesubtypeid int(10) ,
   resourcecategoryid int(10) ,
-  foreign key fk_subtypesampleresourcecategory_stscid (subtypesampleid) references subtypesample(subtypesampleid),
-  foreign key fk_subtypesampleresourcecategory_rcid (resourcecategoryid) references resourcecategory(resourcecategoryid)
+  foreign key fk_samplesubtyperesourcecategory_stscid (samplesubtypeid) references samplesubtype(samplesubtypeid),
+  foreign key fk_samplesubtyperesourcecategory_rcid (resourcecategoryid) references resourcecategory(resourcecategoryid)
 ) ENGINE=InnoDB charset=utf8;
 
-create table workflowsubtypesample (
-  workflowsubtypesampleid int(10)  primary key auto_increment,
+create table workflowsamplesubtype (
+  workflowsamplesubtypeid int(10)  primary key auto_increment,
   workflowid int(10) ,
-  subtypesampleid int(10) ,
+  samplesubtypeid int(10) ,
  
-  constraint unique index u_subtypesample_wid_stsid (workflowid, subtypesampleid),
+  constraint unique index u_samplesubtype_wid_stsid (workflowid, samplesubtypeid),
 
-  foreign key fk_workflowsubtypesample_stsid (subtypesampleid) references subtypesample(subtypesampleid),
-  foreign key fk_workflowsubtypesample_wid (workflowid) references workflow(workflowid)
+  foreign key fk_workflowsamplesubtype_stsid (samplesubtypeid) references samplesubtype(samplesubtypeid),
+  foreign key fk_workflowsamplesubtype_wid (workflowid) references workflow(workflowid)
 ) ENGINE=InnoDB charset=utf8;
 
 
 
-create table workflowtyperesource (
-  workflowtyperesourceid int(10)  primary key auto_increment, 
+create table workflowresourcetype (
+  workflowresourcetypeid int(10)  primary key auto_increment, 
   workflowid int(10) ,
-  typeresourceid int(10) ,
+  resourcetypeid int(10) ,
 
-  constraint unique index u_workflowtyperesource_wid_trid (workflowid, typeresourceid),
+  constraint unique index u_workflowresourcetype_wid_trid (workflowid, resourcetypeid),
 
-  foreign key fk_workflowtyperesource_trid (typeresourceid) references typeresource(typeresourceid),
-  foreign key fk_workflowtyperesource_wid (workflowid) references workflow(workflowid)
+  foreign key fk_workflowresourcetype_trid (resourcetypeid) references resourcetype(resourcetypeid),
+  foreign key fk_workflowresourcetype_wid (workflowid) references workflow(workflowid)
 ) ENGINE=InnoDB charset=utf8;
 
 create table workflowresourcecategory (
@@ -916,8 +916,8 @@ create table workflowsoftwaremeta (
 create table sample (
   sampleid int(10)  primary key auto_increment,
 
-  typesampleid int(10) ,
-  subtypesampleid int(10),
+  sampletypeid int(10) ,
+  samplesubtypeid int(10),
 
   submitter_labid int(10) ,
   submitter_userid int(10) ,
@@ -934,8 +934,8 @@ create table sample (
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
 
-  foreign key fk_sample_tsid (typesampleid) references typesample(typesampleid),
-  foreign key fk_sample_stsid (subtypesampleid) references subtypesample(subtypesampleid),
+  foreign key fk_sample_tsid (sampletypeid) references sampletype(sampletypeid),
+  foreign key fk_sample_stsid (samplesubtypeid) references samplesubtype(samplesubtypeid),
   foreign key fk_sample_sjid (submitter_jobid) references job(jobid),
   foreign key fk_sample_slid (submitter_labid) references lab(labid),
   foreign key fk_sample_suid (submitter_userid) references user(userid)
@@ -1028,8 +1028,8 @@ create table samplelab (
 
 create table sampledraft (
   sampledraftid int(10)  primary key auto_increment,
-  typesampleid int(10) ,
-  subtypesampleid int(10) ,
+  sampletypeid int(10) ,
+  samplesubtypeid int(10) ,
 
   labid int(10) ,
   userid int(10) ,
@@ -1044,8 +1044,8 @@ create table sampledraft (
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
 
-  foreign key fk_sampledraft_tsid (typesampleid) references typesample(typesampleid),
-  foreign key fk_sampledraft_stsid (subtypesampleid) references subtypesample(subtypesampleid),
+  foreign key fk_sampledraft_tsid (sampletypeid) references sampletype(sampletypeid),
+  foreign key fk_sampledraft_stsid (samplesubtypeid) references samplesubtype(samplesubtypeid),
   foreign key fk_sampledraft_sjid (jobdraftid) references jobdraft(jobdraftid),
   foreign key fk_sampledraft_slid (labid) references lab(labid),
   foreign key fk_sampledraft_suid (userid) references user(userid),
@@ -1332,10 +1332,10 @@ create table adaptorset(
 	adaptorsetid int(10) primary key auto_increment,
 	iname varchar(250),
 	name varchar(250),
-	typesampleid int(10),
+	sampletypeid int(10),
 	isactive int(1)  default 1, 
 
-  	foreign key fk_adaptorset_tid (typesampleid) references typesample(typesampleid),
+  	foreign key fk_adaptorset_tid (sampletypeid) references sampletype(sampletypeid),
   	constraint unique index u_adaptorset_k_iid(iname),
 	constraint unique index u_adaptorset_k_nid(name)
 
@@ -1404,16 +1404,16 @@ create table adaptormeta (
 -- RESOURCELANE LANE
 --
 
-create table resourcelane (
-  resourcelaneid int(10)  primary key auto_increment,
+create table resourcecell (
+  resourcecellid int(10)  primary key auto_increment,
   resourceid int(10) ,
   iname varchar(250),
   name varchar(250),
-  isactive int(1) default 1, -- need this as we cannot delete a resourcelane if it is referenced 
+  isactive int(1) default 1, -- need this as we cannot delete a resourcecell if it is referenced 
 
-  foreign key fk_resourcelane_rid (resourceid) references resource(resourceid),
-  constraint unique index u_resourcelane_iname_rid (iname, resourceid),
-  constraint unique index u_resourcelane_name_rid (name, resourceid)
+  foreign key fk_resourcecell_rid (resourceid) references resource(resourceid),
+  constraint unique index u_resourcecell_iname_rid (iname, resourceid),
+  constraint unique index u_resourcecell_name_rid (name, resourceid)
 ) ENGINE=InnoDB charset=utf8;
 
 --
@@ -1465,19 +1465,19 @@ create table runmeta (
 --
 -- RUN.runLANE (LANE)
 --
-create table runlane (
-  runlaneid int(10)  primary key auto_increment,
+create table runcell (
+  runcellid int(10)  primary key auto_increment,
 
   runid int(10) , 
-  resourcelaneid int(10) , -- lane 
+  resourcecellid int(10) , -- lane 
   sampleid int(10) , 
 
-  foreign key fk_runlane_rid (runid) references run(runid),
-  foreign key fk_runlane_lid (resourcelaneid) references resourcelane(resourcelaneid),
-  foreign key fk_runlane_sid (sampleid) references sample(sampleid),
+  foreign key fk_runcell_rid (runid) references run(runid),
+  foreign key fk_runcell_lid (resourcecellid) references resourcecell(resourcecellid),
+  foreign key fk_runcell_sid (sampleid) references sample(sampleid),
 
-  constraint unique index u_runlane_rid_lid (runid, resourcelaneid),
-  constraint unique index u_runlane_sid_rid (sampleid, runid) 
+  constraint unique index u_runcell_rid_lid (runid, resourcecellid),
+  constraint unique index u_runcell_sid_rid (sampleid, runid) 
 ) ENGINE=InnoDB charset=utf8;
 
 --
@@ -1485,7 +1485,7 @@ create table runlane (
 --
 
 create table runfile (
-  runlanefileid int(10)  primary key auto_increment,
+  runcellfileid int(10)  primary key auto_increment,
 
   runid int(10) ,
   fileid int(10) , 
@@ -1503,10 +1503,10 @@ create table runfile (
   constraint unique index u_rlfile_fileid (fileid)
 ) ENGINE=InnoDB charset=utf8;
 
-create table runlanefile (
-  runlanefileid int(10)  primary key auto_increment,
+create table runcellfile (
+  runcellfileid int(10)  primary key auto_increment,
 
-  runlaneid int(10) ,
+  runcellid int(10) ,
   fileid int(10) , 
   iname varchar(2048) , 
   name varchar(250) , 
@@ -1515,7 +1515,7 @@ create table runlanefile (
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
 
-  foreign key fk_rlfile_rlid (runlaneid) references runlane(runlaneid),
+  foreign key fk_rlfile_rlid (runcellid) references runcell(runcellid),
   foreign key fk_rlfile_fileid (fileid) references file(fileid),
 
   constraint unique index u_rlfile_fileid (fileid)
@@ -1622,14 +1622,14 @@ create table staterun (
 --
 -- tie illumina runs back to real tasks
 --   [still unsure of this design]
-create table staterunlane (
-  staterunlaneid int(10)  primary key auto_increment,
+create table stateruncell (
+  stateruncellid int(10)  primary key auto_increment,
   
   stateid int(10) ,
-  runlaneid int(10) ,
+  runcellid int(10) ,
 
-  foreign key fk_staterunlane_sid (stateid) references state(stateid),
-  foreign key fk_staterunlane_rlid (runlaneid) references runlane(runlaneid)
+  foreign key fk_stateruncell_sid (stateid) references state(stateid),
+  foreign key fk_stateruncell_rlid (runcellid) references runcell(runcellid)
 ) ENGINE=InnoDB charset=utf8;
 
 
@@ -1665,23 +1665,23 @@ CREATE TABLE IF NOT EXISTS `uifield` (
 -- populate "sample type" <-> "list of meta fields" link tables. 
 
   
--- truncate table workflowsubtypesample;
--- truncate table subtypesample;
+-- truncate table workflowsamplesubtype;
+-- truncate table samplesubtype;
 
-insert into subtypesample(typesampleid,iname,name)
+insert into samplesubtype(sampletypeid,iname,name)
 select 
-t.typesampleid, 
+t.sampletypeid, 
 concat(w.iname,t.iname, 'Sample'), 
 concat(w.name, ' ', t.name, ' Sample')
-from typesample t 
+from sampletype t 
 join workflow w
-where t.typesampleid in (1, 3);
+where t.sampletypeid in (1, 3);
 
-insert into workflowsubtypesample(workflowid, subtypesampleid)
-select w.workflowid, st.subtypesampleid
+insert into workflowsamplesubtype(workflowid, samplesubtypeid)
+select w.workflowid, st.samplesubtypeid
 from workflow w
-join typesample t on t.typesampleid in (1, 3)
-join subtypesample st on concat(w.iname, t.iname, 'Sample') = st.iname;
+join sampletype t on t.sampletypeid in (1, 3)
+join samplesubtype st on concat(w.iname, t.iname, 'Sample') = st.iname;
 
 
 create table taskmapping (
@@ -1701,5 +1701,13 @@ create table taskmapping (
 insert into taskmapping (taskid ,status,listmap,detailmap,permission,dashboardsortorder )
 SELECT DISTINCT t.taskid, s.status,  '/path/to/list',  '/path/to/detail',  'hasRole(''lu'')', t.taskid
 FROM task t
-JOIN state s ON t.taskid = s.taskid
+JOIN state s ON t.taskid = s.taskid;
+
+insert into user
+values
+(1, 'super', 'super@super.com', SHA1('user'), 'Super', 'User', 'en_US', 1, now(), 1);
+
+insert into userrole values (1, 1, 11, now(), 1);
+insert into lab values (1, 1, 'default lab', 1, 1, now(), 1);
+insert into labuser values (1, 1, 1, 6, now(), 1);
 

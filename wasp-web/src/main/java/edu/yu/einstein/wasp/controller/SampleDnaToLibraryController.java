@@ -37,10 +37,10 @@ import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.dao.SampleMetaDao;
 import edu.yu.einstein.wasp.dao.SampleSourceDao;
 import edu.yu.einstein.wasp.dao.StateDao;
-import edu.yu.einstein.wasp.dao.SubtypeSampleDao;
+import edu.yu.einstein.wasp.dao.SampleSubtypeDao;
 import edu.yu.einstein.wasp.dao.TaskDao;
-import edu.yu.einstein.wasp.dao.TypeSampleDao;
-import edu.yu.einstein.wasp.dao.WorkflowsubtypesampleDao;
+import edu.yu.einstein.wasp.dao.SampleTypeDao;
+import edu.yu.einstein.wasp.dao.WorkflowSampleSubtypeDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Adaptorset;
@@ -50,19 +50,18 @@ import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
 import edu.yu.einstein.wasp.model.JobSample;
 import edu.yu.einstein.wasp.model.MetaAttribute;
-import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleCell;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.Statesample;
-import edu.yu.einstein.wasp.model.SubtypeSample;
-import edu.yu.einstein.wasp.model.SubtypeSampleResourceCategory;
+import edu.yu.einstein.wasp.model.SampleSubtype;
+import edu.yu.einstein.wasp.model.SampleSubtypeResourceCategory;
 import edu.yu.einstein.wasp.model.Task;
-import edu.yu.einstein.wasp.model.TypeSample;
+import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.model.Workflow;
-import edu.yu.einstein.wasp.model.Workflowsubtypesample;
+import edu.yu.einstein.wasp.model.WorkflowSampleSubtype;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.util.MetaHelper;
 
@@ -92,11 +91,11 @@ public class SampleDnaToLibraryController extends WaspController {
   @Autowired
   private AdaptorsetDao adaptorsetDao;
   @Autowired
-  private TypeSampleDao typeSampleDao;
+  private SampleTypeDao sampleTypeDao;
   @Autowired
-  private SubtypeSampleDao subtypeSampleDao;
+  private SampleSubtypeDao sampleSubtypeDao;
   @Autowired
-  private WorkflowsubtypesampleDao workflowSubtypesampleDao;
+  private WorkflowSampleSubtypeDao workflowSampleSubtypeDao;
   @Autowired
   private JobSampleDao jobSampleDao;
   @Autowired
@@ -330,11 +329,11 @@ public class SampleDnaToLibraryController extends WaspController {
 	  	  }
 		  receivedList.add(sampleReceived);
 		  
-		  if(sample.getTypeSample().getIName().equals("rna") || sample.getTypeSample().getIName().equals("dna")){
+		  if(sample.getSampleType().getIName().equals("rna") || sample.getSampleType().getIName().equals("dna")){
 			  List<SampleSource> librariesForThisSample = sample.getSampleSourceViaSourceSampleId();//how many facility-generated libraries for this macromolecule sample
 			  numberLibrariesForThisSample = librariesForThisSample.size();
 		  }
-		  else if(sample.getTypeSample().getIName().equals("library")){
+		  else if(sample.getSampleType().getIName().equals("library")){
 			  numberLibrariesForThisSample++;//must be one
 		  }		  
 		  librariesPerSampleList.add(new Integer(numberLibrariesForThisSample));
@@ -359,12 +358,12 @@ public class SampleDnaToLibraryController extends WaspController {
 		//Map stsrcMap = new HashMap();//get the ids for the types of flow cells that go on the selected machine
 		//stsrcMap.put("resourcecategoryId", resourceCategory.getResourceCategoryId()); 
 		//stsrcMap.put("resourcecategoryId", job.getJ); 
-		//List<SubtypeSampleResourceCategory> stsrcList = subtypeSampleResourceCategoryService.findByMap(stsrcMap);
+		//List<SampleSubtypeResourceCategory> stsrcList = sampleSubtypeResourceCategoryService.findByMap(stsrcMap);
 		for(State s : stateList){
 			List<Statesample> ssList = s.getStatesample();
 			for(Statesample ss : ssList){
-				if(ss.getSample().getTypeSample().getIName().equals("platformunit")){
-					for(SubtypeSampleResourceCategory stsrc: ss.getSample().getSubtypeSample().getSubtypeSampleResourceCategory()){
+				if(ss.getSample().getSampleType().getIName().equals("platformunit")){
+					for(SampleSubtypeResourceCategory stsrc: ss.getSample().getSampleSubtype().getSampleSubtypeResourceCategory()){
 						for(JobResourcecategory jrc : job.getJobResourcecategory()){
 							if(stsrc.getResourcecategoryId().intValue() == jrc.getResourcecategoryId().intValue()){
 								flowCells.add(ss.getSample());
@@ -558,21 +557,21 @@ public class SampleDnaToLibraryController extends WaspController {
 	  Sample newLibrary = new Sample();
 	  newLibrary.setName(newLibraryName);
 	  //newLibrary.setSampleMeta(sampleMetaListFromForm);//this will not be saved simply by saving newLibrary; use sampleMetaDao.updateBySampleId below
-	  TypeSample typeSample = typeSampleDao.getTypeSampleByIName("library");
-	  newLibrary.setTypeSample(typeSample);
+	  SampleType sampleType = sampleTypeDao.getSampleTypeByIName("library");
+	  newLibrary.setSampleType(sampleType);
 	  Map filterMap = new HashMap();
-	  filterMap.put("typeSampleId", typeSample.getTypeSampleId());//restrict search to typeSample is library
-	  List<SubtypeSample> subtypeSampleList = subtypeSampleDao.findByMap(filterMap);
+	  filterMap.put("sampleTypeId", sampleType.getSampleTypeId());//restrict search to sampleType is library
+	  List<SampleSubtype> sampleSubtypeList = sampleSubtypeDao.findByMap(filterMap);
 	  String workflowName = jobForThisSample.getWorkflow().getIName().toLowerCase();//such as chipseq
-	  for(SubtypeSample sts : subtypeSampleList){
+	  for(SampleSubtype sts : sampleSubtypeList){
 		  if( sts.getIName().toLowerCase().indexOf(workflowName) > -1 ){
-			  newLibrary.setSubtypeSample(sts); 
+			  newLibrary.setSampleSubtype(sts); 
 			  break;
 		  }
 	  }
-	  if(newLibrary.getSubtypeSample() == null){//no match found in database
+	  if(newLibrary.getSampleSubtype() == null){//no match found in database
 		  //error
-		  waspErrorMessage("sampleDetail.subtypeSampleNotFound.error");
+		  waspErrorMessage("sampleDetail.sampleSubtypeNotFound.error");
 		  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 	  }
 	  newLibrary.setSubmitterLabId(parentMacromolecule.getSubmitterLabId());//needed??
@@ -708,7 +707,7 @@ public class SampleDnaToLibraryController extends WaspController {
   		m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);
 
   		Sample library = sampleDao.getSampleBySampleId(libraryId);
-  		if(library.getSampleId()==null || ! "library".equals(library.getTypeSample().getIName())){//not found in database or not a library
+  		if(library.getSampleId()==null || ! "library".equals(library.getSampleType().getIName())){//not found in database or not a library
   			waspErrorMessage("sampleDetail.libraryNotFound.error");
   			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 		}
@@ -723,15 +722,15 @@ public class SampleDnaToLibraryController extends WaspController {
 		// get the library subtype for this workflow as the job-viewer sees it. We will use this 
 		// to synchronize the metadata for display
 		String[] roles = {"lu"};
-		List<SubtypeSample> librarySubtypeSamples = sampleService.getSubtypeSamplesForWorkflowByRole(job.getWorkflow().getWorkflowId(), roles, "library");
-		if(librarySubtypeSamples.isEmpty()){
-			waspErrorMessage("sampleDetail.subtypeSampleNotFound.error");
+		List<SampleSubtype> librarySampleSubtypes = sampleService.getSampleSubtypesForWorkflowByRole(job.getWorkflow().getWorkflowId(), roles, "library");
+		if(librarySampleSubtypes.isEmpty()){
+			waspErrorMessage("sampleDetail.sampleSubtypeNotFound.error");
 			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do"; // no workflowsubtype sample
 		}
-		SubtypeSample librarySubtypeSample = librarySubtypeSamples.get(0); // should be one
-		Workflowsubtypesample wfss = workflowSubtypesampleDao.getWorkflowsubtypesampleByWorkflowIdSubtypeSampleId(
+		SampleSubtype librarySampleSubtype = librarySampleSubtypes.get(0); // should be one
+		WorkflowSampleSubtype wfss = workflowSampleSubtypeDao.getWorkflowSampleSubtypeByWorkflowIdSampleSubtypeId(
 				job.getWorkflow().getWorkflowId(),
-				library.getSubtypeSampleId());
+				library.getSampleSubtypeId());
 		
 	  
   		List<SampleMeta> sampleMeta = library.getSampleMeta();
@@ -761,8 +760,8 @@ public class SampleDnaToLibraryController extends WaspController {
   		
   		MetaHelperWebapp sampleMetaHelper = getMetaHelperWebapp(); //new MetaHelperWebapp("sample", SampleMeta.class, request.getSession());
   		List<SampleMeta> normalizedSampleMeta = new ArrayList<SampleMeta>();
-  		List<String> subtypeSampleComponentAreas = librarySubtypeSample.getComponentMetaAreas();
-  		for(String area : subtypeSampleComponentAreas){
+  		List<String> sampleSubtypeComponentAreas = librarySampleSubtype.getComponentMetaAreas();
+  		for(String area : sampleSubtypeComponentAreas){
   			sampleMetaHelper.setArea(area);
   			Map visibilityElementMap = new HashMap(); // specify meta elements that are to be made immutable or hidden in here
   			if (area.equals("genericLibrary")){
@@ -793,7 +792,7 @@ public class SampleDnaToLibraryController extends WaspController {
 		m.addAttribute("sample", library);
 		m.addAttribute("adaptor", adaptor);
 		m.addAttribute("normalizedSampleMeta",normalizedSampleMeta);
-		m.addAttribute("componentAreas", librarySubtypeSample.getAreaList());
+		m.addAttribute("componentAreas", librarySampleSubtype.getAreaList());
 	
 		return isRW?"sampleDnaToLibrary/librarydetail_rw":"sampleDnaToLibrary/librarydetail_ro";
   }
@@ -848,10 +847,10 @@ public class SampleDnaToLibraryController extends WaspController {
 	  
 	  List<String> areaList = new ArrayList<String>();
 	  Workflow workflow = job.getWorkflow();
-	  List<Workflowsubtypesample> wfssList = workflow.getWorkflowsubtypesample();
-	  for(Workflowsubtypesample wfss: wfssList){
-		  if(wfss.getSubtypeSample().getTypeSampleId().intValue() == sample.getTypeSampleId().intValue()){
-			  String[] items = wfss.getSubtypeSample().getAreaList().split(",");
+	  List<WorkflowSampleSubtype> wfssList = workflow.getWorkflowSampleSubtype();
+	  for(WorkflowSampleSubtype wfss: wfssList){
+		  if(wfss.getSampleSubtype().getSampleTypeId().intValue() == sample.getSampleTypeId().intValue()){
+			  String[] items = wfss.getSampleSubtype().getAreaList().split(",");
 			  for(String item : items){
 				  areaList.add(item);
 			  }			  
@@ -875,7 +874,7 @@ public class SampleDnaToLibraryController extends WaspController {
   
   @RequestMapping(value = "/sampledetail_rw/{jobId}/{sampleId}", method = RequestMethod.POST)//sampleId represents a macromolecule (genomic DNA or RNA) , but that could change as this evolves
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
-	public String updateSampleDetailRW(@PathVariable("jobId") Integer jobId, @PathVariable("sampleId") Integer sampleId, @RequestParam("typeSampleId") Integer typeSampleId, 
+	public String updateSampleDetailRW(@PathVariable("jobId") Integer jobId, @PathVariable("sampleId") Integer sampleId, @RequestParam("sampleTypeId") Integer sampleTypeId, 
 								@Valid Sample sampleForm, BindingResult result, 
 								SessionStatus status, ModelMap m) throws MetadataException {
 		  
@@ -914,14 +913,14 @@ public class SampleDnaToLibraryController extends WaspController {
 		  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 	  } 
 	  		
-	  //get list of metadata areas for a sample of this job's workflow; it's in subtypesample.arealist (example: genericBiomolecule,chipseqDna,genericLibrary)
+	  //get list of metadata areas for a sample of this job's workflow; it's in samplesubtype.arealist (example: genericBiomolecule,chipseqDna,genericLibrary)
 	  //likely candidate for a method somewhere
 	  List<String> areaList = new ArrayList<String>();
 	  Workflow workflow = jobDao.getJobByJobId(jobId).getWorkflow(); 
-	  List<Workflowsubtypesample> wfssList = workflow.getWorkflowsubtypesample();
-	  for(Workflowsubtypesample wfss: wfssList){
-		  if(wfss.getSubtypeSample().getTypeSampleId().intValue() == sampleToSave.getTypeSampleId().intValue()){
-			  String[] items = wfss.getSubtypeSample().getAreaList().split(",");
+	  List<WorkflowSampleSubtype> wfssList = workflow.getWorkflowSampleSubtype();
+	  for(WorkflowSampleSubtype wfss: wfssList){
+		  if(wfss.getSampleSubtype().getSampleTypeId().intValue() == sampleToSave.getSampleTypeId().intValue()){
+			  String[] items = wfss.getSampleSubtype().getAreaList().split(",");
 			  for(String item : items){
 				  areaList.add(item);
 			  }			  
@@ -964,7 +963,7 @@ public class SampleDnaToLibraryController extends WaspController {
 		  m.put("job", jobForThisSample);
 		  sampleForm.setSampleId(sampleId);
 		  sampleForm.setName(newSampleName);
-		  sampleForm.setTypeSample(typeSampleDao.getTypeSampleByTypeSampleId(typeSampleId));
+		  sampleForm.setSampleType(sampleTypeDao.getSampleTypeBySampleTypeId(sampleTypeId));
 		  sampleForm.setSampleMeta(sampleMetaListFromForm);
 		  m.put("sample", sampleForm);
 		  return "sampleDnaToLibrary/sampledetail_rw";
@@ -988,7 +987,7 @@ public class SampleDnaToLibraryController extends WaspController {
 
 	  List<JobResourcecategory> jobResourceCategoryList = job.getJobResourcecategory();
 	  for(JobResourcecategory jrc : jobResourceCategoryList){
-		  if(jrc.getResourceCategory().getTypeResource().getIName().equals("mps")){
+		  if(jrc.getResourceCategory().getResourceType().getIName().equals("mps")){
 			  extraJobDetailsMap.put("Machine", jrc.getResourceCategory().getName());
 			  break;
 		  }

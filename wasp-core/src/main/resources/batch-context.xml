@@ -101,7 +101,7 @@
   <import resource="classpath*:wasp/**/*UiFieldLoad.xml" />
   <import resource="classpath*:wasp/**/*ResourceCategoryLoad.xml" />
   <import resource="classpath*:wasp/**/*SoftwareLoad.xml" />
-  <import resource="classpath*:wasp/**/*SubtypeSampleLoad.xml" />
+  <import resource="classpath*:wasp/**/*SampleSubtypeLoad.xml" />
   <import resource="classpath*:wasp/**/*AdaptorsetLoad.xml" />
   <import resource="classpath*:wasp/**/*WorkflowLoad.xml" />
   <import resource="classpath*:wasp/**/*TaskLoad.xml" />

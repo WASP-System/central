@@ -10,16 +10,16 @@ our $v2_dbh = DBI->connect("dbi:mysql:wasp:localhost:3306", "wasp", "waspV2") or
 our $v2_data = {}; 
 $v2_data->{'job'} = $v2_dbh->selectall_hashref(qq|select * from job |, "jobid");
 
-$v2_data->{'flowcell'} = $v2_dbh->selectall_hashref(qq|select * from sample where typesampleid = 5 |, "name");
+$v2_data->{'flowcell'} = $v2_dbh->selectall_hashref(qq|select * from sample where sampletypeid = 5 |, "name");
 
-$v2_data->{'lane'} = $v2_dbh->selectall_hashref(qq|select * from sample where typesampleid = 4 |, "name");
+$v2_data->{'lane'} = $v2_dbh->selectall_hashref(qq|select * from sample where sampletypeid = 4 |, "name");
 
-$v2_data->{'library'} = $v2_dbh->selectall_hashref(qq|select concat(s2.name, " ", multiplexindex) a, s.sampleid, ss.multiplexindex, s2.name from    sample s,    samplesource ss,   sample s2 where    s.typesampleid = 3 and    s.sampleid = ss.source_sampleid and   ss.sampleid = s2.sampleid|, "a");
+$v2_data->{'library'} = $v2_dbh->selectall_hashref(qq|select concat(s2.name, " ", multiplexindex) a, s.sampleid, ss.multiplexindex, s2.name from    sample s,    samplesource ss,   sample s2 where    s.sampletypeid = 3 and    s.sampleid = ss.source_sampleid and   ss.sampleid = s2.sampleid|, "a");
 
 our $i = 1;
 
 print qq|
- delete from runlanefile;
+ delete from runcellfile;
  delete from runfile;
  delete from samplefile;
  delete from jobfile;
@@ -128,10 +128,10 @@ while (<>) {
   $i++; 
 }
 
-# addes runs and runlanes based on samples
+# addes runs and runcells based on samples
   print "
     insert into runfile (runid, fileid, iname, name) select r.runid, s.fileid, s.iname, s.name from run r, samplefile s where r.sampleid = s.sampleid and r.status = 1;
-    insert into runlanefile (runlaneid, fileid, iname, name) select rl.runlaneid, s.fileid, s.iname, s.name from runlane rl, run r, samplefile s where rl.runid = r.runid and r.status = 1 and rl.sampleid = s.sampleid;
+    insert into runcellfile (runcellid, fileid, iname, name) select rl.runcellid, s.fileid, s.iname, s.name from runcell rl, run r, samplefile s where rl.runid = r.runid and r.status = 1 and rl.sampleid = s.sampleid;
   ";
 
 

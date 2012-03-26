@@ -256,7 +256,7 @@ foreach my $resource (sort keys %$resources) {
 
   $out .= qq|
     insert into resource
-    (resourceid, platform, iname, name, typeresourceid)
+    (resourceid, platform, iname, name, resourcetypeid)
     values
     ($i, '$r->{'assay_platform'}', '$r->{'machine_name'}',  '$r->{'machine_name'}', 1);
   |; 
@@ -305,23 +305,23 @@ print $out;
 $out = "";
 
 $out = qq|
-insert into subtypesample 
+insert into samplesubtype 
 select 
-  workflowid * 10 + s.typesampleid, s.typesampleid, concat(w.iname, s.iname, 'Sample'), concat(w.name, ' ', s.name, ' Sample')
-from workflow w, typesample s
+  workflowid * 10 + s.sampletypeid, s.sampletypeid, concat(w.iname, s.iname, 'Sample'), concat(w.name, ' ', s.name, ' Sample')
+from workflow w, sampletype s
 where
-  typesampleid in (1, 3);
+  sampletypeid in (1, 3);
 |;
 print $out;
 $out = "";
 
 $out = qq|
-insert into workflowsubtypesample
-  (workflowid, subtypesampleid)
+insert into workflowsamplesubtype
+  (workflowid, samplesubtypeid)
 select
-  workflowid, t.subtypesampleid
+  workflowid, t.samplesubtypeid
 from 
-  workflow w, typesample s, subtypesample t
+  workflow w, sampletype s, samplesubtype t
 where
   concat(w.iname, s.iname, 'Sample') = t.iname;
 |;
@@ -393,7 +393,7 @@ foreach my $sample (sort keys %$samples) {
   
   $out .= qq|
     insert into sample
-    ( sampleid, typesampleid, submitter_labid, submitter_userid, submitter_jobid, 
+    ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
        name, isreceived, receiver_userid, receivedts, isgood, isactive)
     values
     ($s->{'sample_id'}, 1, $s->{'lab_id'}, $s->{'user_id'}, null, 
@@ -424,7 +424,7 @@ foreach my $library (sort keys %$libraries) {
 
   $out .= qq|
     insert into sample
-    ( sampleid, typesampleid, submitter_labid, submitter_userid, submitter_jobid, 
+    ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
        name, isreceived, receiver_userid, receivedts, isgood, isactive)
     values
     ($l->{'i'}, 3, $l->{'lab_id'}, $l->{'create_by_userid'}, null, 
@@ -472,7 +472,7 @@ foreach my $lane (sort keys %$lanes) {
 
   $out .= qq|
     insert into sample
-    ( sampleid, typesampleid, submitter_labid, submitter_userid, submitter_jobid, 
+    ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
        name, isreceived, receiver_userid, receivedts, isgood, isactive)
     values
     ($l->{'i'}, 4, $l->{'lab_id'}, $l->{'create_by_userid'}, null,
@@ -607,7 +607,7 @@ foreach my $flowcell (sort keys %$flowcells) {
 
   $out .= qq|
     insert into sample
-    ( sampleid, typesampleid, submitter_labid, submitter_userid, submitter_jobid, 
+    ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
        name, isreceived, receiver_userid, receivedts, isgood, isactive)
     values
     ($fc->{'i'}, 5, 1, $fc->{'create_by_userid'}, null, 
@@ -631,7 +631,7 @@ $out .= qq|
     inner join samplemeta sm2 
       on (sm2.k = 'sample.lane.lane_number' and sm.sampleid = sm2.sampleid) 
     where 
-      typesampleid = 5;
+      sampletypeid = 5;
 
   insert into jobsample
     (lastupduser, jobid, sampleid)
@@ -639,7 +639,7 @@ $out .= qq|
     js.jobid * 10000 +  s.sampleid, js.jobid, s.sampleid
   from sample s, samplesource ss, jobsample js 
   where 
-    typesampleid = 5 and 
+    sampletypeid = 5 and 
     s.sampleid = ss.sampleid and 
     js.sampleid = ss.source_sampleid
   group by js.jobid, s.sampleid;
@@ -705,7 +705,7 @@ $out .= qq|
         rm.v = r.name
     );
 
- insert into resourcelane
+ insert into resourcecell
    (resourceid, iname, name)
  select r.resourceid, 
    concat(rr.name, ' ', multiplexindex) iname, concat(rr.name, ' ', multiplexindex, ' ', count(*)) name
@@ -714,11 +714,11 @@ $out .= qq|
  group by r.resourceid, ss.multiplexindex;
 
 
-  insert into runlane
-    (runid, resourcelaneid, sampleid)
-  select r.runid, l.resourcelaneid, ss.source_sampleid
+  insert into runcell
+    (runid, resourcecellid, sampleid)
+  select r.runid, l.resourcecellid, ss.source_sampleid
   from 
-    run r, samplesource ss, resource rr, resourcelane l
+    run r, samplesource ss, resource rr, resourcecell l
   where
     r.sampleid = ss.sampleid and
     r.resourceid = rr.resourceid and

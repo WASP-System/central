@@ -72,15 +72,15 @@ import edu.yu.einstein.wasp.dao.SampleMetaDao;
 import edu.yu.einstein.wasp.dao.SoftwareDao;
 import edu.yu.einstein.wasp.dao.StateDao;
 import edu.yu.einstein.wasp.dao.StatejobDao;
-import edu.yu.einstein.wasp.dao.SubtypeSampleDao;
+import edu.yu.einstein.wasp.dao.SampleSubtypeDao;
 import edu.yu.einstein.wasp.dao.TaskDao;
-import edu.yu.einstein.wasp.dao.TypeResourceDao;
-import edu.yu.einstein.wasp.dao.TypeSampleDao;
+import edu.yu.einstein.wasp.dao.ResourceTypeDao;
+import edu.yu.einstein.wasp.dao.SampleTypeDao;
 import edu.yu.einstein.wasp.dao.WorkflowDao;
 import edu.yu.einstein.wasp.dao.WorkflowSoftwareDao;
 import edu.yu.einstein.wasp.dao.WorkflowresourcecategoryDao;
 import edu.yu.einstein.wasp.dao.impl.DBResourceBundle;
-import edu.yu.einstein.wasp.exception.NullTypeResourceException;
+import edu.yu.einstein.wasp.exception.NullResourceTypeException;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobCell;
@@ -108,7 +108,7 @@ import edu.yu.einstein.wasp.model.SampleFile;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.Statejob;
-import edu.yu.einstein.wasp.model.SubtypeSample;
+import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.Task;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Workflow;
@@ -180,7 +180,7 @@ public class JobSubmissionController extends WaspController {
 	protected SoftwareDao softwareDao;
 
 	@Autowired
-	protected TypeResourceDao typeResourceDao;
+	protected ResourceTypeDao resourceTypeDao;
 
 	@Autowired
 	protected JobMetaDao jobMetaDao;
@@ -198,7 +198,7 @@ public class JobSubmissionController extends WaspController {
 	protected JobSampleDao jobSampleDao;
 	
 	@Autowired
-	protected TypeSampleDao typeSampleDao;
+	protected SampleTypeDao sampleTypeDao;
 
 	@Autowired
 	protected StatejobDao statejobDao;
@@ -210,7 +210,7 @@ public class JobSubmissionController extends WaspController {
 	protected TaskDao taskDao;
 	
 	@Autowired
-	protected SubtypeSampleDao subTypeSampleDao;
+	protected SampleSubtypeDao subSampleTypeDao;
 	
 	@Autowired
 	protected WorkflowDao workflowDao;
@@ -683,28 +683,28 @@ public class JobSubmissionController extends WaspController {
 		return nextPage(jobDraft);
 	}
 	
-	@RequestMapping(value="/resource/{typeresourceiname}/{jobDraftId}", method=RequestMethod.GET)
+	@RequestMapping(value="/resource/{resourcetypeiname}/{jobDraftId}", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public String showResourceMetaForm(
-			@PathVariable("typeresourceiname") String typeresourceiname, 
+			@PathVariable("resourcetypeiname") String resourcetypeiname, 
 			@PathVariable("jobDraftId") Integer jobDraftId, 
 			ModelMap m) {
-		return showResourceMetaForm(typeresourceiname, jobDraftId, null, m);
+		return showResourceMetaForm(resourcetypeiname, jobDraftId, null, m);
 	}
 	
-	public String showResourceMetaForm(String typeresourceiname, Integer jobDraftId, JobDraft jobDraftForm, ModelMap m){
+	public String showResourceMetaForm(String resourcetypeiname, Integer jobDraftId, JobDraft jobDraftForm, ModelMap m){
 		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
-		if (typeResourceDao.getTypeResourceByIName(typeresourceiname).getTypeResourceId() == null){
-			throw new NullTypeResourceException("No resource type with name '"+typeresourceiname+"'");
+		if (resourceTypeDao.getResourceTypeByIName(resourcetypeiname).getResourceTypeId() == null){
+			throw new NullResourceTypeException("No resource type with name '"+resourcetypeiname+"'");
 		}
 
 		// make list of available resources
 		List<Workflowresourcecategory> allWorkflowResourceCategories = jobDraft.getWorkflow().getWorkflowresourcecategory();
 		List<Workflowresourcecategory> workflowResourceCategories = new ArrayList();
 		for (Workflowresourcecategory w: allWorkflowResourceCategories) {
-			if (! w.getResourceCategory().getTypeResource().getIName().equals(typeresourceiname)) { continue; }
+			if (! w.getResourceCategory().getResourceType().getIName().equals(resourcetypeiname)) { continue; }
 			workflowResourceCategories.add(w); 
 		}
 
@@ -713,7 +713,7 @@ public class JobSubmissionController extends WaspController {
 		String resourceCategoryArea = ""; 
 		String resourceCategoryName = ""; 
 		for (JobDraftresourcecategory jdrc: jobDraft.getJobDraftresourcecategory()) {
-			if (! typeresourceiname.equals( jdrc.getResourceCategory().getTypeResource().getIName())) { continue; }
+			if (! resourcetypeiname.equals( jdrc.getResourceCategory().getResourceType().getIName())) { continue; }
 
 			jobDraftResourceCategory = jdrc;
 			resourceCategoryArea = jdrc.getResourceCategory().getIName(); 
@@ -763,9 +763,9 @@ public class JobSubmissionController extends WaspController {
 		return "jobsubmit/resource";
 	}
 
-	@RequestMapping(value="/resource/{typeresourceiname}/{jobDraftId}", method=RequestMethod.POST)
+	@RequestMapping(value="/resource/{resourcetypeiname}/{jobDraftId}", method=RequestMethod.POST)
 	public String modifyResourceMeta (
-			@PathVariable String typeresourceiname,
+			@PathVariable String resourcetypeiname,
 			@PathVariable Integer jobDraftId,
 			@Valid JobDraft jobDraftForm,
 			BindingResult result,
@@ -774,8 +774,8 @@ public class JobSubmissionController extends WaspController {
 		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
-		if (typeResourceDao.getTypeResourceByIName(typeresourceiname).getTypeResourceId() == null){
-			throw new NullTypeResourceException("No resource type with name '"+typeresourceiname+"'");
+		if (resourceTypeDao.getResourceTypeByIName(resourcetypeiname).getResourceTypeId() == null){
+			throw new NullResourceTypeException("No resource type with name '"+resourcetypeiname+"'");
 		}
 		Map params = request.getParameterMap();
 		Integer changeResource = null;
@@ -790,32 +790,32 @@ public class JobSubmissionController extends WaspController {
 		if (changeResource != null){
 			List<JobDraftresourcecategory> oldJdrs = jobDraft.getJobDraftresourcecategory();
 			for (JobDraftresourcecategory jdr: oldJdrs) {
-				if (jdr.getResourceCategory().getTypeResource().getIName().equals(typeresourceiname)){
+				if (jdr.getResourceCategory().getResourceType().getIName().equals(resourcetypeiname)){
 					jobDraftresourcecategoryDao.remove(jdr);
 					jobDraftresourcecategoryDao.flush(jdr);
 				}
 			}
 			if (changeResource.intValue() == -1) // nothing selected
-				return "redirect:/jobsubmit/resource/" + typeresourceiname + "/" + jobDraftId + ".do";
+				return "redirect:/jobsubmit/resource/" + resourcetypeiname + "/" + jobDraftId + ".do";
 			JobDraftresourcecategory newJdr = new JobDraftresourcecategory();
 			newJdr.setJobdraftId(jobDraftId);
 			newJdr.setResourcecategoryId(changeResource);
 			jobDraftresourcecategoryDao.save(newJdr);
 
-			return "redirect:/jobsubmit/resource/" + typeresourceiname + "/" + jobDraftId + ".do";
+			return "redirect:/jobsubmit/resource/" + resourcetypeiname + "/" + jobDraftId + ".do";
 		}
 
 
 		// get selected resource
 		String resourceCategoryArea = ""; 
 		for (JobDraftresourcecategory jdr: jobDraft.getJobDraftresourcecategory()) {
-			if (! typeresourceiname.equals( jdr.getResourceCategory().getTypeResource().getIName())) { continue; }
+			if (! resourcetypeiname.equals( jdr.getResourceCategory().getResourceType().getIName())) { continue; }
 			resourceCategoryArea = jdr.getResourceCategory().getIName();
 		}
 		
 		if (resourceCategoryArea.isEmpty()){
 			waspErrorMessage("jobDraft.changeResource.error");
-			return "redirect:/jobsubmit/resource/" + typeresourceiname + "/" + jobDraftId + ".do";
+			return "redirect:/jobsubmit/resource/" + resourcetypeiname + "/" + jobDraftId + ".do";
 		}
 		
 		MetaHelperWebapp metaHelperWebapp = getMetaHelperWebapp();
@@ -834,7 +834,7 @@ public class JobSubmissionController extends WaspController {
 			jobDraftForm.setName(jobDraft.getName());
 			jobDraftForm.setWorkflowId(jobDraft.getWorkflowId());
 			jobDraftForm.setLabId(jobDraft.getLabId());
-			return showResourceMetaForm(typeresourceiname, jobDraftId, jobDraftForm, m);
+			return showResourceMetaForm(resourcetypeiname, jobDraftId, jobDraftForm, m);
 		}
 
 
@@ -848,18 +848,18 @@ public class JobSubmissionController extends WaspController {
    * show software form
    */
 	
-	public String showSoftwareForm(String typeresourceiname, Integer jobDraftId, JobDraft jobDraftForm, ModelMap m) {
+	public String showSoftwareForm(String resourcetypeiname, Integer jobDraftId, JobDraft jobDraftForm, ModelMap m) {
 		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
-		if (typeResourceDao.getTypeResourceByIName(typeresourceiname).getTypeResourceId() == null){
-			throw new NullTypeResourceException("No software resource with name '"+typeresourceiname+"'");
+		if (resourceTypeDao.getResourceTypeByIName(resourcetypeiname).getResourceTypeId() == null){
+			throw new NullResourceTypeException("No software resource with name '"+resourcetypeiname+"'");
 		}
 		// make list of available resources
 		List<WorkflowSoftware> allWorkflowSoftwares = jobDraft.getWorkflow().getWorkflowSoftware();
 		List<WorkflowSoftware> workflowSoftwares = new ArrayList();
 		for (WorkflowSoftware w: allWorkflowSoftwares) {
-			if (! w.getSoftware().getTypeResource().getIName().equals(typeresourceiname)) { continue; }
+			if (! w.getSoftware().getResourceType().getIName().equals(resourcetypeiname)) { continue; }
 			workflowSoftwares.add(w); 
 		}
 
@@ -868,7 +868,7 @@ public class JobSubmissionController extends WaspController {
 		String softwareArea = ""; 
 		String softwareName = ""; 
 		for (JobDraftSoftware jdrc: jobDraft.getJobDraftSoftware()) {
-			if (! typeresourceiname.equals( jdrc.getSoftware().getTypeResource().getIName())) { continue; }
+			if (! resourcetypeiname.equals( jdrc.getSoftware().getResourceType().getIName())) { continue; }
 
 			jobDraftSoftware = jdrc;
 			softwareArea = jdrc.getSoftware().getIName(); 
@@ -920,18 +920,18 @@ public class JobSubmissionController extends WaspController {
 	
 	
 
-	@RequestMapping(value="/software/{typeresourceiname}/{jobDraftId}", method=RequestMethod.GET)
+	@RequestMapping(value="/software/{resourcetypeiname}/{jobDraftId}", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public String showSoftwareForm(
-			@PathVariable("typeresourceiname") String typeresourceiname, 
+			@PathVariable("resourcetypeiname") String resourcetypeiname, 
 			@PathVariable("jobDraftId") Integer jobDraftId, 
 			ModelMap m) {
-		return showSoftwareForm(typeresourceiname, jobDraftId, null ,m);
+		return showSoftwareForm(resourcetypeiname, jobDraftId, null ,m);
 	}
 
-	@RequestMapping(value="/software/{typeresourceiname}/{jobDraftId}", method=RequestMethod.POST)
+	@RequestMapping(value="/software/{resourcetypeiname}/{jobDraftId}", method=RequestMethod.POST)
 	public String modifySoftwareMeta (
-			@PathVariable String typeresourceiname,
+			@PathVariable String resourcetypeiname,
 			@PathVariable Integer jobDraftId,
 			@Valid JobDraft jobDraftForm,
 			BindingResult result,
@@ -940,8 +940,8 @@ public class JobSubmissionController extends WaspController {
 		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
-		if (typeResourceDao.getTypeResourceByIName(typeresourceiname).getTypeResourceId() == null){
-			throw new NullTypeResourceException("No software resource with name '"+typeresourceiname+"'");
+		if (resourceTypeDao.getResourceTypeByIName(resourcetypeiname).getResourceTypeId() == null){
+			throw new NullResourceTypeException("No software resource with name '"+resourcetypeiname+"'");
 		}
 		
 		Map params = request.getParameterMap();
@@ -957,30 +957,30 @@ public class JobSubmissionController extends WaspController {
 		if (changeResource != null) {
 			List<JobDraftSoftware> oldJdrs = jobDraft.getJobDraftSoftware();
 			for (JobDraftSoftware jdr: oldJdrs) {
-				if (jdr.getSoftware().getTypeResource().getIName().equals(typeresourceiname))
+				if (jdr.getSoftware().getResourceType().getIName().equals(resourcetypeiname))
 				jobDraftSoftwareDao.remove(jdr);
 				jobDraftSoftwareDao.flush(jdr);
 			}
 			if (changeResource.intValue() == -1) // nothing selected
-				return "redirect:/jobsubmit/software/" + typeresourceiname + "/" + jobDraftId + ".do";
+				return "redirect:/jobsubmit/software/" + resourcetypeiname + "/" + jobDraftId + ".do";
 			JobDraftSoftware newJdr = new JobDraftSoftware();
 			newJdr.setJobdraftId(jobDraftId);
 			newJdr.setSoftwareId(changeResource);
 			jobDraftSoftwareDao.save(newJdr);
 
-			return "redirect:/jobsubmit/software/" + typeresourceiname + "/" + jobDraftId + ".do";
+			return "redirect:/jobsubmit/software/" + resourcetypeiname + "/" + jobDraftId + ".do";
 		}
 
 		// get selected resource
 		String softwareArea = ""; 
 		for (JobDraftSoftware jobDraftSoftware: jobDraft.getJobDraftSoftware()) {
-			if (! typeresourceiname.equals( jobDraftSoftware.getSoftware().getTypeResource().getIName())) { continue; }
+			if (! resourcetypeiname.equals( jobDraftSoftware.getSoftware().getResourceType().getIName())) { continue; }
 			softwareArea = jobDraftSoftware.getSoftware().getIName();
 		}
 		
 		if (softwareArea.isEmpty()){
 			waspErrorMessage("jobDraft.changeSoftwareResource.error");
-			return "redirect:/jobsubmit/software/" + typeresourceiname + "/" + jobDraftId + ".do";
+			return "redirect:/jobsubmit/software/" + resourcetypeiname + "/" + jobDraftId + ".do";
 		}
 		
 		MetaHelperWebapp metaHelperWebapp = getMetaHelperWebapp();
@@ -997,7 +997,7 @@ public class JobSubmissionController extends WaspController {
 			jobDraftForm.setWorkflowId(jobDraft.getWorkflowId());
 			jobDraftForm.setLabId(jobDraft.getLabId());
 			waspErrorMessage("jobDraft.form.error");
-			String returnPage = showSoftwareForm(typeresourceiname, jobDraftId, jobDraftForm, m); 
+			String returnPage = showSoftwareForm(resourcetypeiname, jobDraftId, jobDraftForm, m); 
 			return returnPage;
 		}
 
@@ -1118,11 +1118,11 @@ public class JobSubmissionController extends WaspController {
 			return "redirect:/dashboard.do";
 		//get list of meta fields that are 'allowed' for the given workflowId 
 		int workflowId=jobDraftDao.findById(jobDraftId).getWorkflow().getWorkflowId();
-		Map<SubtypeSample,List<SampleDraftMeta>>allowedMetaFields=sampleDraftMetaDao.getAllowableMetaFields(workflowId);
+		Map<SampleSubtype,List<SampleDraftMeta>>allowedMetaFields=sampleDraftMetaDao.getAllowableMetaFields(workflowId);
 				
 		Map<String,SampleDraftMeta> allowedMetaFieldsMap = new LinkedHashMap<String,SampleDraftMeta>();
 		
-		for(SubtypeSample key: allowedMetaFields.keySet()){
+		for(SampleSubtype key: allowedMetaFields.keySet()){
 			for (SampleDraftMeta subTypeMeta : allowedMetaFields.get(key)){
 				if (!allowedMetaFieldsMap.containsKey(subTypeMeta.getK())){
 					allowedMetaFieldsMap.put(subTypeMeta.getK(), subTypeMeta);
@@ -1459,8 +1459,8 @@ public class JobSubmissionController extends WaspController {
 
 				Sample sample = new Sample();
 				sample.setName(sd.getName()); 
-				sample.setTypeSampleId(sd.getTypeSampleId()); 
-				sample.setSubtypeSampleId(sd.getSubtypeSampleId()); 
+				sample.setSampleTypeId(sd.getSampleTypeId()); 
+				sample.setSampleSubtypeId(sd.getSampleSubtypeId()); 
 				sample.setSubmitterLabId(jobDb.getLabId()); 
 				sample.setSubmitterUserId(me.getUserId()); 
 				sample.setSubmitterJobId(jobDb.getJobId()); 
@@ -1566,8 +1566,8 @@ public class JobSubmissionController extends WaspController {
 			List<Map> rows = new ArrayList<Map>();
 			
 			Map<Integer, String> allSampleSubTypes=new TreeMap<Integer, String>();
-			for(SubtypeSample type:subTypeSampleDao.findAll()) {
-				allSampleSubTypes.put(type.getSubtypeSampleId(),type.getName());
+			for(SampleSubtype type:subSampleTypeDao.findAll()) {
+				allSampleSubTypes.put(type.getSampleSubtypeId(),type.getName());
 			}
 			
 			Set<SampleDraftMeta> allowedMetaFields=new LinkedHashSet<SampleDraftMeta>();
@@ -1588,7 +1588,7 @@ public class JobSubmissionController extends WaspController {
 				
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 						draft.getName(),
-						allSampleSubTypes.get(draft.getSubtypeSampleId()),							
+						allSampleSubTypes.get(draft.getSampleSubtypeId()),							
 						draft.getStatus(),						
 						fileCell,
 						"",
@@ -1842,12 +1842,12 @@ public class JobSubmissionController extends WaspController {
 		sampleDraftForm.setUserId(jd.getUserId());
 		sampleDraftForm.setLabId(jd.getLabId());
 		
-		SubtypeSample subtype=subTypeSampleDao.findById(sampleDraftForm.getSubtypeSampleId());
+		SampleSubtype subtype=subSampleTypeDao.findById(sampleDraftForm.getSampleSubtypeId());
 		
 		if (adding) {
 						
-			int typeSampleId=subtype.getTypeSample().getTypeSampleId();
-			sampleDraftForm.setTypeSampleId(typeSampleId);
+			int sampleTypeId=subtype.getSampleType().getSampleTypeId();
+			sampleDraftForm.setSampleTypeId(sampleTypeId);
 			
 			SampleDraft sampleDraftDb = this.sampleDraftDao
 					.save(sampleDraftForm);
@@ -1860,7 +1860,7 @@ public class JobSubmissionController extends WaspController {
 
 			sampleDraftDb.setName(sampleDraftForm.getName());
 			sampleDraftDb.setStatus(sampleDraftForm.getStatus());
-			sampleDraftDb.setSubtypeSampleId(sampleDraftForm.getSubtypeSampleId());
+			sampleDraftDb.setSampleSubtypeId(sampleDraftForm.getSampleSubtypeId());
 			sampleDraftDb.setSourceSampleId(sampleDraftForm.getSourceSampleId());
 
 			this.sampleDraftDao.merge(sampleDraftDb);
@@ -1982,7 +1982,7 @@ public class JobSubmissionController extends WaspController {
 	@Override
 	protected void prepareSelectListData(ModelMap m) {
 		super.prepareSelectListData(m);
-		m.addAttribute("subtypeSamples",subTypeSampleDao.findAll());
+		m.addAttribute("sampleSubtypes",subSampleTypeDao.findAll());
 		Map<String, String> statuses=new TreeMap<String, String>();
 		for(SampleDraft.Status status:SampleDraft.Status.values()) {
 			statuses.put(status.name(), status.name());

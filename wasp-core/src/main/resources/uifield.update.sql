@@ -1,7 +1,7 @@
 truncate table uifield;
 update software set isactive=0;
 update resourcecategory set isactive=0;
-update subtypesample set isactive=0;
+update samplesubtype set isactive=0;
 update workflow set isactive=0;
 update adaptorset set isactive=0;
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','login','label','Login','1');
@@ -444,9 +444,9 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','name','label','Name','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','name','constraint','NotEmpty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','name','error','Please specify sample name','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','typeSampleId','label','Type','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','typeSampleId','constraint','NotEmpty','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','typeSampleId','error','Please specify type','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','sampleTypeId','label','Type','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','sampleTypeId','constraint','NotEmpty','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','sampleTypeId','error','Please specify type','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','status','label','Status','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','fileData','label','Sample File','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','fileData','suffix','(10Mb Max)','1');
@@ -601,7 +601,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','departmentId','constraint','NotEmpty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','departmentId','error','A department must be selected','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','emailconfirmed','label','Your email address is confirmed and your principal investigator has been emailed to request confirmation of your eligibility to join their lab. You are advised to contact them to request they do this if your account does not become activated in good time.','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','subtypeSampleId','label','Subtype','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','sampleSubtypeId','label','Subtype','1');
 
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','job_list','label','List of Jobs','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','name','label','Name','1');
@@ -755,9 +755,9 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','resourceCategoryId','label','Resource Category','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','resourceCategoryId','error','Must select category of resource','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','resourceCategoryId','constraint','NotEmpty','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','typeResourceId','label','Resource Type','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','typeResourceId','error','Must select assay platform','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','typeResourceId','constraint','NotEmpty','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','resourceTypeId','label','Resource Type','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','resourceTypeId','error','Must select assay platform','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','resourceTypeId','constraint','NotEmpty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','barcode','label','Barcode','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','barcode_exists','error','Barcode already exists in the database','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','commission_date','label','Commission Date','1');
@@ -891,7 +891,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','jobResourceCategoryMismatch','error','Job and resource unexpectedly do not match','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','taskNotFound','error','Task unexpectedly not found','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','typeResourceNotFound','error','Type Resource unexpectedly not found','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','resourceTypeNotFound','error','Type Resource unexpectedly not found','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','jobIdNotFound','error','Action Failed. Value for jobId is unexpectedly NOT valid','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','laneIsFlowCell','error','Action Failed. You mistakenly selected a Flow Cell','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','laneIdNotFound','error','Action Failed. Value for lane is unexpectedly NOT valid','1');
@@ -939,7 +939,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDetail','sampleNotFound','error','Sample not found in the database','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDetail','libraryParameter','error','No library matches supplied library parameter','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDetail','libraryNotFound','error','Library not found in the database','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDetail','subtypeSampleNotFound','error','Cannot find requested sample subtype in the database','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDetail','sampleSubtypeNotFound','error','Cannot find requested sample subtype in the database','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDetail','jobLibraryMismatch','error','Supplied job and library parameters do not refer to a valid object','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDetail','jobSampleMismatch','error','Supplied job and sample parameters do not refer to a valid object','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDetail','adaptorsetParameter','error','No adaptorset matches supplied adaptorset parameter','1');

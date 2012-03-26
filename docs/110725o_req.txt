@@ -352,7 +352,7 @@ Flowcell Manager
       - validate metadata
       - ok
         . insert into run 
-        . insert into runlane
+        . insert into runcell
   * Create
     + name input
     + submission 

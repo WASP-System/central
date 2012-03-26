@@ -8,7 +8,7 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
 <wasp:field name="name"  type="text"/>
-<wasp:field name="subtypeSampleId" type="select" items="${subtypeSamples}" itemValue="subtypeSampleId" itemLabel="name"/>
+<wasp:field name="sampleSubtypeId" type="select" items="${sampleSubtypes}" itemValue="sampleSubtypeId" itemLabel="name"/>
 <wasp:field name="status" type="select" items="${statuses}" />
 <wasp:field name="fileData" type="file" >
 

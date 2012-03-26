@@ -15,14 +15,14 @@
 <br />
 <form:form  cssClass="FormGrid" commandName="sample">
   <input class="FormElement ui-widget-content ui-corner-all" type='hidden' name='jobId' value='<c:out value="${job.jobId}" />'/>
-  <input class="FormElement ui-widget-content ui-corner-all" type='hidden' name='typeSampleId' value='<c:out value="${sample.typeSampleId}" />'/>	
+  <input class="FormElement ui-widget-content ui-corner-all" type='hidden' name='sampleTypeId' value='<c:out value="${sample.sampleTypeId}" />'/>	
 <table class="EditTable ui-widget ui-widget-content">
   	 <tr class="FormData">
       <td class="CaptionTD">Sample Name:</td>
       <td class="DataTD"><form:input cssClass="FormElement ui-widget-content ui-corner-all" path="name" /><span class="requiredField">*</span></td>
       <td class="CaptionTD error"><form:errors path="name" /></td>
      </tr>
-     <tr class="FormData"><td class="CaptionTD">Sample Type:</td><td class="DataTD"><c:out value="${sample.typeSample.name}" /></td><td class="CaptionTD error"><form:errors path="" /></td></tr>
+     <tr class="FormData"><td class="CaptionTD">Sample Type:</td><td class="DataTD"><c:out value="${sample.sampleType.name}" /></td><td class="CaptionTD error"><form:errors path="" /></td></tr>
      <c:set var="_area" value = "sample" scope="request"/>
 	 <c:set var="_metaList" value = "${sample.sampleMeta}" scope="request" />		
      <c:import url="/WEB-INF/jsp/meta_rw.jsp" />

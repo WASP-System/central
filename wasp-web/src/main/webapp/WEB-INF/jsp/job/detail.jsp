@@ -58,7 +58,7 @@
     <h2>SAMPLES</h2>
     <c:forEach items="${jobsample}" var="s">
       <p>
-      <c:out value="${s.sample.typeSample.name}"/>
+      <c:out value="${s.sample.sampleType.name}"/>
       <a href="/wasp/sample/detail/<c:out value="${s.sampleId}"/>.do">
         <c:out value="${s.sample.name}"/>
       </a>

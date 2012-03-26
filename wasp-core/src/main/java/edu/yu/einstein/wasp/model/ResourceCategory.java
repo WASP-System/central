@@ -65,31 +65,31 @@ public class ResourceCategory extends WaspModel {
 
 
 	/** 
-	 * typeResourceId
+	 * resourceTypeId
 	 *
 	 */
-	@Column(name="typeresourceid")
-	protected int typeResourceId;
+	@Column(name="resourcetypeid")
+	protected int resourceTypeId;
 
 	/**
-	 * setTypeResourceId(int typeResourceId)
+	 * setResourceTypeId(int resourceTypeId)
 	 *
-	 * @param typeResourceId
+	 * @param resourceTypeId
 	 *
 	 */
 	
-	public void setTypeResourceId (int typeResourceId) {
-		this.typeResourceId = typeResourceId;
+	public void setResourceTypeId (int resourceTypeId) {
+		this.resourceTypeId = resourceTypeId;
 	}
 
 	/**
-	 * getTypeResourceId()
+	 * getResourceTypeId()
 	 *
-	 * @return typeResourceId
+	 * @return resourceTypeId
 	 *
 	 */
-	public int getTypeResourceId () {
-		return this.typeResourceId;
+	public int getResourceTypeId () {
+		return this.resourceTypeId;
 	}
 
 
@@ -247,34 +247,34 @@ public class ResourceCategory extends WaspModel {
 
 
 	/**
-	 * typeResource
+	 * resourceType
 	 *
 	 */
 	@NotAudited
 	@ManyToOne
-	@JoinColumn(name="typeresourceid", insertable=false, updatable=false)
-	protected TypeResource typeResource;
+	@JoinColumn(name="resourcetypeid", insertable=false, updatable=false)
+	protected ResourceType resourceType;
 
 	/**
-	 * setTypeResource (TypeResource typeResource)
+	 * setResourceType (ResourceType resourceType)
 	 *
-	 * @param typeResource
+	 * @param resourceType
 	 *
 	 */
-	public void setTypeResource (TypeResource typeResource) {
-		this.typeResource = typeResource;
-		this.typeResourceId = typeResource.typeResourceId;
+	public void setResourceType (ResourceType resourceType) {
+		this.resourceType = resourceType;
+		this.resourceTypeId = resourceType.resourceTypeId;
 	}
 
 	/**
-	 * getTypeResource ()
+	 * getResourceType ()
 	 *
-	 * @return typeResource
+	 * @return resourceType
 	 *
 	 */
 	
-	public TypeResource getTypeResource () {
-		return this.typeResource;
+	public ResourceType getResourceType () {
+		return this.resourceType;
 	}
 
 
@@ -411,35 +411,35 @@ public class ResourceCategory extends WaspModel {
 
 	
 	/** 
-	 * subtypeSampleResourceCategory
+	 * sampleSubtypeResourceCategory
 	 *
 	 */
 	@NotAudited
 	@OneToMany
 	@JoinColumn(name="resourcecategoryid", insertable=false, updatable=false)
-	protected List<SubtypeSampleResourceCategory> subtypeSampleResourceCategory;
+	protected List<SampleSubtypeResourceCategory> sampleSubtypeResourceCategory;
 
 
 	/** 
-	 * getSubtypeSampleResourceCategory()
+	 * getSampleSubtypeResourceCategory()
 	 *
-	 * @return subtypeSampleResourceCategory
+	 * @return sampleSubtypeResourceCategory
 	 *
 	 */
 	@JsonIgnore
-	public List<SubtypeSampleResourceCategory> getSubtypeSampleResourceCategory() {
-		return this.subtypeSampleResourceCategory;
+	public List<SampleSubtypeResourceCategory> getSampleSubtypeResourceCategory() {
+		return this.sampleSubtypeResourceCategory;
 	}
 
 
 	/** 
-	 * setSubtypeSampleResourceCategory
+	 * setSampleSubtypeResourceCategory
 	 *
-	 * @param subtypeSampleResourceCategory
+	 * @param sampleSubtypeResourceCategory
 	 *
 	 */
-	public void setSubtypeSampleResourceCategory (List<SubtypeSampleResourceCategory> subtypeSampleResourceCategory) {
-		this.subtypeSampleResourceCategory = subtypeSampleResourceCategory;
+	public void setSampleSubtypeResourceCategory (List<SampleSubtypeResourceCategory> sampleSubtypeResourceCategory) {
+		this.sampleSubtypeResourceCategory = sampleSubtypeResourceCategory;
 	}
 
 

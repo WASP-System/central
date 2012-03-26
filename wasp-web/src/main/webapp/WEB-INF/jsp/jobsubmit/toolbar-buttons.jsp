@@ -11,7 +11,7 @@
 	       title: "<fmt:message key="jobDraft.subtype_select.label"/> '${_subtype.name}'",
 	       onClickButton: function(){                  
 	
-	           var  _myAddAttr = jQuery.extend({subtypeSampleId:${_subtype.subtypeSampleId}}, _addAttr);
+	           var  _myAddAttr = jQuery.extend({sampleSubtypeId:${_subtype.sampleSubtypeId}}, _addAttr);
 	           
 	           $("#grid_id").jqGrid('editGridRow',"new", _myAddAttr); 
 	       }, 

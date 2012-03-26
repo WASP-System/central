@@ -25,7 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.MetaUtil;
 import edu.yu.einstein.wasp.model.SampleDraftMeta;
-import edu.yu.einstein.wasp.model.SubtypeSample;
+import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.UserPendingMeta;
 import edu.yu.einstein.wasp.service.SampleService;
 
@@ -134,17 +134,17 @@ public class SampleDraftMetaDaoImpl extends WaspDaoImpl<SampleDraftMeta> impleme
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Map<SubtypeSample,List<SampleDraftMeta>> getAllowableMetaFields(final int workflowId) {
+	public Map<SampleSubtype,List<SampleDraftMeta>> getAllowableMetaFields(final int workflowId) {
 		
 	   String sql=
 		   "select master.area,master.name,master.pos,label.attrValue as label,error.attrValue as error,\n"+ 
 		   "control.attrValue as control,suffix.attrValue as suffix,constr.attrValue as 'constraint',\n"+
 		   "type.attrValue as `type`,\n"+
 		   "range.attrValue as `range`,\n"+
-		   "master.subtypesampleid, master.subtypeName, master.arealist\n"+
+		   "master.samplesubtypeid, master.subtypeName, master.arealist\n"+
 		   "from \n"+
-		   "(select distinct f.area,f.name,convert(f.attrValue, signed) pos, st.subtypesampleid, st.name as subtypeName, st.arealist as arealist\n"+
-		   "from subtypesample st\n"+					   
+		   "(select distinct f.area,f.name,convert(f.attrValue, signed) pos, st.samplesubtypeid, st.name as subtypeName, st.arealist as arealist\n"+
+		   "from samplesubtype st\n"+					   
 		   "join uifield f on  (\n"+
 		   "st.arealist regexp concat('^\\s*' , f.area , '\\s*$') or\n"+
 		   "st.arealist regexp concat('^\\s*' , f.area , '\\s*,') or\n"+
@@ -152,10 +152,10 @@ public class SampleDraftMetaDaoImpl extends WaspDaoImpl<SampleDraftMeta> impleme
 		   "st.arealist regexp concat(',\\s*' , f.area , '\\s*$') )\n"+
 		   "and f.attrName='metaposition'\n"+
 		   "and f.locale='en_US'\n"+
-		   "where st.subtypesampleid in (\n"+
-		   "select st.subtypesampleid\n"+
-		   "from workflowsubtypesample wst\n"+
-		   "join subtypesample st on st.subtypesampleid = wst.subtypesampleid\n"+
+		   "where st.samplesubtypeid in (\n"+
+		   "select st.samplesubtypeid\n"+
+		   "from workflowSampleSubtype wst\n"+
+		   "join samplesubtype st on st.samplesubtypeid = wst.samplesubtypeid\n"+
 		   "where wst.workflowid=:workflowid\n"+
 		   ")\n"+
 		   ") as master\n"+
@@ -166,13 +166,13 @@ public class SampleDraftMetaDaoImpl extends WaspDaoImpl<SampleDraftMeta> impleme
 		   "left outer join uifield constr on master.area=constr.area and master.name=constr.name and constr.attrName='constraint'\n"+
 		   "left outer join uifield `type` on master.area=type.area and master.name=type.name and type.attrName='type'\n"+
 		   "left outer join uifield `range` on master.area=range.area and master.name=range.name and range.attrName='range'\n"+
-		   "order by master.subtypeSampleId,master.area,master.pos;\n";
+		   "order by master.sampleSubtypeId,master.area,master.pos;\n";
 
 	   
-	   Map<SubtypeSample,List<SampleDraftMeta>> result=new LinkedHashMap<SubtypeSample,List<SampleDraftMeta>>();
-	   Map<SubtypeSample, Map<String,List<SampleDraftMeta>> > tmp = new LinkedHashMap<SubtypeSample, Map<String,List<SampleDraftMeta>> >();
+	   Map<SampleSubtype,List<SampleDraftMeta>> result=new LinkedHashMap<SampleSubtype,List<SampleDraftMeta>>();
+	   Map<SampleSubtype, Map<String,List<SampleDraftMeta>> > tmp = new LinkedHashMap<SampleSubtype, Map<String,List<SampleDraftMeta>> >();
 	   List<Object[]> listObj=entityManager.createNativeQuery(sql).setParameter("workflowid", workflowId).getResultList();
-	   List<SubtypeSample> loggedInUserAccessibleSubtypeSamples = sampleService.getSubtypeSamplesForWorkflowByLoggedInUserRoles(workflowId);
+	   List<SampleSubtype> loggedInUserAccessibleSampleSubtypes = sampleService.getSampleSubtypesForWorkflowByLoggedInUserRoles(workflowId);
 	   for(Object[] o:listObj) {
 		   
 		   String area=(String)o[0];
@@ -185,17 +185,17 @@ public class SampleDraftMetaDaoImpl extends WaspDaoImpl<SampleDraftMeta> impleme
 		   String constraint=(String)o[7];
 		   String metaType=(String)o[8];
 		   String range=(String)o[9];
-		   Integer subtypeSampleId=(Integer)o[10];
+		   Integer sampleSubtypeId=(Integer)o[10];
 		   String subtypeName=(String)o[11];
 		   String areaList=(String)o[12];
-		   boolean subtypeSampleAllowed = false;
-		   for (SubtypeSample sts: loggedInUserAccessibleSubtypeSamples){
-			   if (sts.getSubtypeSampleId().equals(subtypeSampleId)){
-				   subtypeSampleAllowed = true;
+		   boolean sampleSubtypeAllowed = false;
+		   for (SampleSubtype sts: loggedInUserAccessibleSampleSubtypes){
+			   if (sts.getSampleSubtypeId().equals(sampleSubtypeId)){
+				   sampleSubtypeAllowed = true;
 				   break;
 			   }
 		   }
-		   if (!subtypeSampleAllowed) continue;
+		   if (!sampleSubtypeAllowed) continue;
 		   SampleDraftMeta m = new SampleDraftMeta();
 		   
 		   m.setK(area+"."+name);
@@ -212,8 +212,8 @@ public class SampleDraftMetaDaoImpl extends WaspDaoImpl<SampleDraftMeta> impleme
 		   attr.setMetaType(metaType);
 		   attr.setRange(range);
 		   
-		   SubtypeSample subtypeNew=new SubtypeSample();
-		   subtypeNew.setSubtypeSampleId(subtypeSampleId);
+		   SampleSubtype subtypeNew=new SampleSubtype();
+		   subtypeNew.setSampleSubtypeId(sampleSubtypeId);
 		   subtypeNew.setName(subtypeName);
 		   subtypeNew.setAreaList(areaList);
 		   
@@ -229,7 +229,7 @@ public class SampleDraftMetaDaoImpl extends WaspDaoImpl<SampleDraftMeta> impleme
 		   }
 		   areaMap.get(area).add(m);
 	   }
-	   for (SubtypeSample st : tmp.keySet()){
+	   for (SampleSubtype st : tmp.keySet()){
 		   Map<String,List<SampleDraftMeta>> areaMap = tmp.get(st);
 		   if (!result.containsKey(st))
 			   result.put(st, new ArrayList<SampleDraftMeta>());

@@ -66,62 +66,62 @@ public class Sample extends WaspModel {
 
 
 	/** 
-	 * typeSampleId
+	 * sampleTypeId
 	 *
 	 */
-	@Column(name="typesampleid")
-	protected Integer typeSampleId;
+	@Column(name="sampletypeid")
+	protected Integer sampleTypeId;
 
 	/**
-	 * setTypeSampleId(Integer typeSampleId)
+	 * setSampleTypeId(Integer sampleTypeId)
 	 *
-	 * @param typeSampleId
+	 * @param sampleTypeId
 	 *
 	 */
 	
-	public void setTypeSampleId (Integer typeSampleId) {
-		this.typeSampleId = typeSampleId;
+	public void setSampleTypeId (Integer sampleTypeId) {
+		this.sampleTypeId = sampleTypeId;
 	}
 
 	/**
-	 * getTypeSampleId()
+	 * getSampleTypeId()
 	 *
-	 * @return typeSampleId
+	 * @return sampleTypeId
 	 *
 	 */
-	public Integer getTypeSampleId () {
-		return this.typeSampleId;
+	public Integer getSampleTypeId () {
+		return this.sampleTypeId;
 	}
 
 
 
 
 	/** 
-	 * subtypeSampleId
+	 * sampleSubtypeId
 	 *
 	 */
-	@Column(name="subtypesampleid")
-	protected Integer subtypeSampleId;
+	@Column(name="samplesubtypeid")
+	protected Integer sampleSubtypeId;
 
 	/**
-	 * setSubtypeSampleId(Integer subtypeSampleId)
+	 * setSampleSubtypeId(Integer sampleSubtypeId)
 	 *
-	 * @param subtypeSampleId
+	 * @param sampleSubtypeId
 	 *
 	 */
 	
-	public void setSubtypeSampleId (Integer subtypeSampleId) {
-		this.subtypeSampleId = subtypeSampleId;
+	public void setSampleSubtypeId (Integer sampleSubtypeId) {
+		this.sampleSubtypeId = sampleSubtypeId;
 	}
 
 	/**
-	 * getSubtypeSampleId()
+	 * getSampleSubtypeId()
 	 *
-	 * @return subtypeSampleId
+	 * @return sampleSubtypeId
 	 *
 	 */
-	public Integer getSubtypeSampleId () {
-		return this.subtypeSampleId;
+	public Integer getSampleSubtypeId () {
+		return this.sampleSubtypeId;
 	}
 
 
@@ -470,66 +470,66 @@ public class Sample extends WaspModel {
 
 
 	/**
-	 * typeSample
+	 * sampleType
 	 *
 	 */
 	@NotAudited
 	@ManyToOne
-	@JoinColumn(name="typesampleid", insertable=false, updatable=false)
-	protected TypeSample typeSample;
+	@JoinColumn(name="sampletypeid", insertable=false, updatable=false)
+	protected SampleType sampleType;
 
 	/**
-	 * setTypeSample (TypeSample typeSample)
+	 * setSampleType (SampleType sampleType)
 	 *
-	 * @param typeSample
+	 * @param sampleType
 	 *
 	 */
-	public void setTypeSample (TypeSample typeSample) {
-		this.typeSample = typeSample;
-		this.typeSampleId = typeSample.typeSampleId;
+	public void setSampleType (SampleType sampleType) {
+		this.sampleType = sampleType;
+		this.sampleTypeId = sampleType.sampleTypeId;
 	}
 
 	/**
-	 * getTypeSample ()
+	 * getSampleType ()
 	 *
-	 * @return typeSample
+	 * @return sampleType
 	 *
 	 */
 	
-	public TypeSample getTypeSample () {
-		return this.typeSample;
+	public SampleType getSampleType () {
+		return this.sampleType;
 	}
 
 
 	/**
-	 * subtypeSample
+	 * sampleSubtype
 	 *
 	 */
 	@NotAudited
 	@ManyToOne
-	@JoinColumn(name="subtypesampleid", insertable=false, updatable=false)
-	protected SubtypeSample subtypeSample;
+	@JoinColumn(name="samplesubtypeid", insertable=false, updatable=false)
+	protected SampleSubtype sampleSubtype;
 
 	/**
-	 * setSubtypeSample (SubtypeSample subtypeSample)
+	 * setSampleSubtype (SampleSubtype sampleSubtype)
 	 *
-	 * @param subtypeSample
+	 * @param sampleSubtype
 	 *
 	 */
-	public void setSubtypeSample (SubtypeSample subtypeSample) {
-		this.subtypeSample = subtypeSample;
-		this.subtypeSampleId = subtypeSample.subtypeSampleId;
+	public void setSampleSubtype (SampleSubtype sampleSubtype) {
+		this.sampleSubtype = sampleSubtype;
+		this.sampleSubtypeId = sampleSubtype.sampleSubtypeId;
 	}
 
 	/**
-	 * getSubtypeSample ()
+	 * getSampleSubtype ()
 	 *
-	 * @return subtypeSample
+	 * @return sampleSubtype
 	 *
 	 */
 	
-	public SubtypeSample getSubtypeSample () {
-		return this.subtypeSample;
+	public SampleSubtype getSampleSubtype () {
+		return this.sampleSubtype;
 	}
 
 
@@ -936,35 +936,35 @@ public class Sample extends WaspModel {
 
 
 	/** 
-	 * runLane
+	 * runCell
 	 *
 	 */
 	@NotAudited
 	@OneToMany
 	@JoinColumn(name="sampleid", insertable=false, updatable=false)
-	protected List<RunLane> runLane;
+	protected List<RunCell> runCell;
 
 
 	/** 
-	 * getRunLane()
+	 * getRunCell()
 	 *
-	 * @return runLane
+	 * @return runCell
 	 *
 	 */
 	@JsonIgnore
-	public List<RunLane> getRunLane() {
-		return this.runLane;
+	public List<RunCell> getRunCell() {
+		return this.runCell;
 	}
 
 
 	/** 
-	 * setRunLane
+	 * setRunCell
 	 *
-	 * @param runLane
+	 * @param runCell
 	 *
 	 */
-	public void setRunLane (List<RunLane> runLane) {
-		this.runLane = runLane;
+	public void setRunCell (List<RunCell> runCell) {
+		this.runCell = runCell;
 	}
 
 

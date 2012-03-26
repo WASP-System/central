@@ -10,15 +10,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.batch.TaskStatus;
 import edu.yu.einstein.wasp.dao.StateDao;
-import edu.yu.einstein.wasp.dao.SubtypeSampleDao;
+import edu.yu.einstein.wasp.dao.SampleSubtypeDao;
 import edu.yu.einstein.wasp.dao.TaskDao;
 import edu.yu.einstein.wasp.model.State;
-import edu.yu.einstein.wasp.model.SubtypeSample;
+import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.Task;
 
 /**
  * Workflow Poller
- * polls job db for task/subtypesample combos that are not final
+ * polls job db for task/samplesubtype combos that are not final
  *
  */
 
@@ -32,11 +32,11 @@ public class WorkflowSamplePoller {
 	TaskDao taskDao;
 
 	@Autowired
-	SubtypeSampleDao subtypeSampleDao;
+	SampleSubtypeDao sampleSubtypeDao;
  
-	protected String subtypeSampleIName; 
-	public void setSubtypeSampleIName(String s) {
-		this.subtypeSampleIName = s;
+	protected String sampleSubtypeIName; 
+	public void setSampleSubtypeIName(String s) {
+		this.sampleSubtypeIName = s;
 	}
 
 	protected String taskIName; 
@@ -47,7 +47,7 @@ public class WorkflowSamplePoller {
  
 	@Transactional
 	public List<State> getStates() {
-		SubtypeSample subtypeSample = subtypeSampleDao.getSubtypeSampleByIName(subtypeSampleIName); 
+		SampleSubtype sampleSubtype = sampleSubtypeDao.getSampleSubtypeByIName(sampleSubtypeIName); 
 		Task task = taskDao.getTaskByIName(taskIName); 
 
 		List<State> rt = new ArrayList();
@@ -61,7 +61,7 @@ public class WorkflowSamplePoller {
 
 			// should be the same so just get first, 
 			// TODO check for npe
-			if (state.getStatesample().get(0).getSample().getSubtypeSampleId() != subtypeSample.getSubtypeSampleId()) {
+			if (state.getStatesample().get(0).getSample().getSampleSubtypeId() != sampleSubtype.getSampleSubtypeId()) {
 				continue;
 			}
 

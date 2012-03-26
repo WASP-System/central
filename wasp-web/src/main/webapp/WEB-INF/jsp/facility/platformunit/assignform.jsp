@@ -37,16 +37,16 @@ BODY {margin: 0; padding: 0;}
                <div class="sample">
                 
                         <c:choose>
-                         <c:when test="${sc.sample.typeSample.IName == 'library'}">
+                         <c:when test="${sc.sample.sampleType.IName == 'library'}">
                   			<label>User-submitted Library </label>
                 		</c:when>
                 		<c:otherwise>
-                			<label>User-submitted <c:out value="${sc.sample.typeSample.name}"/> </label>
+                			<label>User-submitted <c:out value="${sc.sample.sampleType.name}"/> </label>
                 		</c:otherwise>
                 		</c:choose>
                   <c:out value="${sc.sample.name}"/>
-                  [<c:out value="${sc.sample.typeSample.name}"/>]
-                  <c:if test="${sc.sample.typeSample.IName == 'library'}">
+                  [<c:out value="${sc.sample.sampleType.name}"/>]
+                  <c:if test="${sc.sample.sampleType.IName == 'library'}">
                   	<c:forEach items="${sc.sample.sampleMeta}" var="sm">
                    		<c:if test="${fn:substringAfter(sm.k, '.library.') == 'adaptorid'}">
                     		<div><label>Adaptor</label> <c:out value="${adaptors[sm.v]}"/></div>
@@ -70,10 +70,10 @@ BODY {margin: 0; padding: 0;}
                   
                   <c:forEach items="${sc.sample.sampleSourceViaSourceSampleId}" var="schild">
                     <div class="samplechild">
-                    <c:if test="${schild.sample.typeSample.IName == 'library'}">
+                    <c:if test="${schild.sample.sampleType.IName == 'library'}">
                         <label>Facility-generated Library</label>
                         <c:out value="${schild.sample.name}" />
-                        [<c:out value="${schild.sample.typeSample.name}"/>]
+                        [<c:out value="${schild.sample.sampleType.name}"/>]
                        <c:forEach items="${schild.sample.sampleMeta}" var="sm">
                    		  <c:if test="${fn:substringAfter(sm.k, '.library.') == 'adaptorid'}">
                     		<div><label>Adaptor</label> <c:out value="${adaptors[sm.v]}"/></div>
@@ -94,7 +94,7 @@ BODY {margin: 0; padding: 0;}
 							</div>
 						</div>
                     </c:if>
-                    <c:if test="${schild.sample.typeSample.IName == 'lane'}">
+                    <c:if test="${schild.sample.sampleType.IName == 'lane'}">
                         <label>One Deep Lane</label>
                         <c:out value="${schild.sample.name}" />
 						<div>
@@ -108,7 +108,7 @@ BODY {margin: 0; padding: 0;}
 						</div>
                     </c:if>
                       <c:forEach items="${schild.sample.sampleSourceViaSourceSampleId}" var="schild2">
-                        <c:if test="${schild2.sample.typeSample.IName == 'lane'}">
+                        <c:if test="${schild2.sample.sampleType.IName == 'lane'}">
                           <div class="samplechild2">
                             <label>Two Deep</label>
                               <c:out value="${schild2.sample.name}" />
@@ -160,7 +160,7 @@ BODY {margin: 0; padding: 0;}
                <label>Library</label><c:out value="${lib.sampleViaSource.name}" />
                
                
-               <c:if test="${lib.sampleViaSource.typeSample.IName == 'library'}">
+               <c:if test="${lib.sampleViaSource.sampleType.IName == 'library'}">
                   <c:forEach items="${lib.sampleViaSource.sampleMeta}" var="sm">
                    <c:if test="${fn:substringAfter(sm.k, '.library.') == 'adaptorid'}">
                     <div><label>Adaptor</label> <c:out value="${adaptors[sm.v]}"/></div>
@@ -200,7 +200,7 @@ BODY {margin: 0; padding: 0;}
                <label>Library</label> <c:out value="${lib.sampleViaSource.name}" />
                
                
-               <c:if test="${lib.sampleViaSource.typeSample.IName == 'library'}">
+               <c:if test="${lib.sampleViaSource.sampleType.IName == 'library'}">
                   <c:forEach items="${lib.sampleViaSource.sampleMeta}" var="sm">
                    <c:if test="${fn:substringAfter(sm.k, 'Library.') == 'adaptor'}">
                     <div><label>Adaptor</label> <c:out value="${adaptors[sm.v]}"/></div>

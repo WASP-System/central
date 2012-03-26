@@ -479,35 +479,35 @@ public class File extends WaspModel {
 
 
 	/** 
-	 * runLanefile
+	 * runCellFile
 	 *
 	 */
 	@NotAudited
 	@OneToMany
 	@JoinColumn(name="fileid", insertable=false, updatable=false)
-	protected List<RunLanefile> runLanefile;
+	protected List<RunCellFile> runCellFile;
 
 
 	/** 
-	 * getRunLanefile()
+	 * getRunCellfile()
 	 *
-	 * @return runLanefile
+	 * @return runCellFile
 	 *
 	 */
 	@JsonIgnore
-	public List<RunLanefile> getRunLanefile() {
-		return this.runLanefile;
+	public List<RunCellFile> getRunCellFile() {
+		return this.runCellFile;
 	}
 
 
 	/** 
-	 * setRunLanefile
+	 * setRunCellfile
 	 *
-	 * @param runLanefile
+	 * @param runCellFile
 	 *
 	 */
-	public void setRunLanefile (List<RunLanefile> runLanefile) {
-		this.runLanefile = runLanefile;
+	public void setRunCellFile (List<RunCellFile> runCellFile) {
+		this.runCellFile = runCellFile;
 	}
 
 

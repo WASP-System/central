@@ -6,7 +6,7 @@
 
 <wasp:field name="resourceCategoryId" type="select" items="${categoryResources}" itemValue="resourceCategoryId" itemLabel="name" hidden="true" editHidden="true"/>
 
-<wasp:field name="typeResourceId" type="select" items="${typeResources}" itemValue="typeResourceId" editable="false" itemLabel="name"/>
+<wasp:field name="resourceTypeId" type="select" items="${resourceTypes}" itemValue="resourceTypeId" editable="false" itemLabel="name"/>
 
 <wasp:field name="isActive" type="checkbox" editable="false"/>
 

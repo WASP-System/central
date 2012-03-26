@@ -272,7 +272,7 @@
     			Workflow: <c:out value="${job.workflow.name}" /><br />
     			Sample(s):<br />	
     			<c:forEach items="${job.sample}" var="sample">
-      				--<c:out value="${sample.name}" /> (<c:out value="${sample.typeSample.name}" /> 
+      				--<c:out value="${sample.name}" /> (<c:out value="${sample.sampleType.name}" /> 
       				<c:forEach items="${sample.sampleMeta}" var="samplemeta"> 
       					<c:if test="${fn:substringAfter(samplemeta.k, '.') == 'species'}">
      						; <c:out value="${samplemeta.v}" />)

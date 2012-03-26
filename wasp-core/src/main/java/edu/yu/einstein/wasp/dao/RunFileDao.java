@@ -16,7 +16,7 @@ import edu.yu.einstein.wasp.model.RunFile;
 
 public interface RunFileDao extends WaspDao<RunFile> {
 
-  public RunFile getRunFileByRunlanefileId (final int runlanefileId);
+  public RunFile getRunFileByRunlanefileId (final int runcellfileId);
 
   public RunFile getRunFileByFileId (final int fileId);
 

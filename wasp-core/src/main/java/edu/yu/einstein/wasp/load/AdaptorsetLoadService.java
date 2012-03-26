@@ -14,7 +14,7 @@ import edu.yu.einstein.wasp.dao.AdaptorsetDao;
 import edu.yu.einstein.wasp.dao.AdaptorsetMetaDao;
 import edu.yu.einstein.wasp.dao.AdaptorsetResourceCategoryDao;
 import edu.yu.einstein.wasp.dao.ResourceCategoryDao;
-import edu.yu.einstein.wasp.dao.TypeSampleDao;
+import edu.yu.einstein.wasp.dao.SampleTypeDao;
 import edu.yu.einstein.wasp.exception.NullResourceCategoryException;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.AdaptorMeta;
@@ -22,7 +22,7 @@ import edu.yu.einstein.wasp.model.Adaptorset;
 import edu.yu.einstein.wasp.model.AdaptorsetMeta;
 import edu.yu.einstein.wasp.model.AdaptorsetResourceCategory;
 import edu.yu.einstein.wasp.model.ResourceCategory;
-import edu.yu.einstein.wasp.model.TypeSample;
+import edu.yu.einstein.wasp.model.SampleType;
 
 
 /**
@@ -30,7 +30,7 @@ import edu.yu.einstein.wasp.model.TypeSample;
  * takes in  properties
  *   - iname / internalname
  *   - name / label
- *   - typeSampleIName / typeSample iName
+ *   - sampleTypeIName / sampleType iName
  *   - compatibleResourcesByIName (List<String> iName of Resources)
  *   - adaptorList (List<Adaptor>)
 
@@ -59,10 +59,10 @@ public class AdaptorsetLoadService extends WaspLoadService {
   private ResourceCategoryDao resourceCategoryDao;
 
   @Autowired
-  private TypeSampleDao typeSampleDao;
+  private SampleTypeDao sampleTypeDao;
  
-  private String typeSampleIName;
-  public void setTypeSampleIName(String typeSampleIName){ this.typeSampleIName = typeSampleIName; }
+  private String sampleTypeIName;
+  public void setSampleTypeIName(String sampleTypeIName){ this.sampleTypeIName = sampleTypeIName; }
   
   private List<AdaptorsetMeta>  meta;
   public void setMeta(List<AdaptorsetMeta> meta){ this.meta = meta; }
@@ -94,7 +94,7 @@ public class AdaptorsetLoadService extends WaspLoadService {
     // skips component scanned  (if scanned in)
     if (name == null) { return; }
     
-    TypeSample typeSample = typeSampleDao.getTypeSampleByIName(typeSampleIName);
+    SampleType sampleType = sampleTypeDao.getSampleTypeByIName(sampleTypeIName);
 
     Adaptorset adaptorset = adaptorsetDao.getAdaptorsetByIName(iname);
     
@@ -106,7 +106,7 @@ public class AdaptorsetLoadService extends WaspLoadService {
     	// new
     	adaptorset.setIName(iname);
     	adaptorset.setName(name);
-    	adaptorset.setTypeSample(typeSample);
+    	adaptorset.setSampleType(sampleType);
     	adaptorset.setIsActive(isActive.intValue());
 
     	adaptorsetDao.save(adaptorset);
@@ -120,8 +120,8 @@ public class AdaptorsetLoadService extends WaspLoadService {
     	  adaptorset.setName(name);
     	  changed = true;
       }
-      if (!adaptorset.getTypeSample().equals(typeSample)){
-    	  adaptorset.setTypeSample(typeSample);
+      if (!adaptorset.getSampleType().equals(sampleType)){
+    	  adaptorset.setSampleType(sampleType);
     	  changed = true;
       }
       if (adaptorset.getIsActive().intValue() != isActive.intValue()){

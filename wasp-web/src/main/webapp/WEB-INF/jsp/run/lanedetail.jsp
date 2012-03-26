@@ -6,25 +6,25 @@
     <h1>
       <c:out value="${runelane.run.name}"/>
 
-      <c:out value="${runelane.resourcelane.name}"/>
+      <c:out value="${runelane.resourcecell.name}"/>
     </h1>
 
     <div>
-      Resource: <a href="/resource/detail/<c:out value="${runlane.run.resourceId}"/>.do"><c:out value="${rl.run.resource.name}"/></a>
+      Resource: <a href="/resource/detail/<c:out value="${runcell.run.resourceId}"/>.do"><c:out value="${rl.run.resource.name}"/></a>
     </div>
 
     <p>
       Sample 
-      <a href="/wasp/sample/detail/<c:out value="${runlane.sampleId}"/>.do">
-        <c:out value="${runlane.sample.name}"/>
+      <a href="/wasp/sample/detail/<c:out value="${runcell.sampleId}"/>.do">
+        <c:out value="${runcell.sample.name}"/>
       </a>
     </p>
 
     <h2>FILES</h2>
-    <c:forEach items="${runlanefile}" var="f">
+    <c:forEach items="${runcellfile}" var="f">
       <p>
       <c:out value="${f.file.filelocation}"/>
-      <a href="/wasp/run/lane/file/<c:out value="${runlane.runId}"/>/<c:out value="${runlane.runLaneId}"/>/<c:out value="${f.fileId}"/>.do">
+      <a href="/wasp/run/lane/file/<c:out value="${runcell.runId}"/>/<c:out value="${runcell.runCellId}"/>/<c:out value="${f.fileId}"/>.do">
         <c:out value="${f.name}"/>
       </a>
       </p>

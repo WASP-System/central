@@ -27,11 +27,11 @@ var _validMetaFields={};
 	<c:set var="_subtype" value="${_entry.key}"/>
 	<c:set var="_validMetaFields" value="${_entry.value}"/>
 
-	_validMetaFields.subtypeSampleId_${_subtype.subtypeSampleId}=[];
+	_validMetaFields.sampleSubtypeId_${_subtype.sampleSubtypeId}=[];
 
 	<c:forEach items="${_validMetaFields}" var="_validMeta">
 
-		_validMetaFields.subtypeSampleId_${_subtype.subtypeSampleId}.push('${_validMeta.k}');
+		_validMetaFields.sampleSubtypeId_${_subtype.sampleSubtypeId}.push('${_validMeta.k}');
 
 	</c:forEach>
 </c:forEach>
@@ -48,10 +48,10 @@ $.jgrid.extend ({editGridRow : function(rowid, p){
              { 
     		 beforeShowForm: function(form) {
     				
-                	var subtypeSampleId;
+                	var sampleSubtypeId;
                 	
                 	//disable the list of subtypes (because the subtype is already selected by the "typeful" add button)
-                	var _select=document.getElementById(form[0].id).subtypeSampleId;
+                	var _select=document.getElementById(form[0].id).sampleSubtypeId;
                 	
                 	_select.disabled="disabled";
                 		
@@ -60,13 +60,13 @@ $.jgrid.extend ({editGridRow : function(rowid, p){
             		$('#cloned').val('No');
             		
                 	
-                	if (p.subtypeSampleId) {//adding the sample
+                	if (p.sampleSubtypeId) {//adding the sample
                 		
-                		subtypeSampleId=p.subtypeSampleId;
+                		sampleSubtypeId=p.sampleSubtypeId;
                 	
                 		//pre-select the subtype 
                 		for (var i=0; i < _select.length; i++) {
-                			if ( _select[i].value == subtypeSampleId) {
+                			if ( _select[i].value == sampleSubtypeId) {
                 				_select[i].selected = true;
                 				break;
                 			}
@@ -74,7 +74,7 @@ $.jgrid.extend ({editGridRow : function(rowid, p){
                 		
                 	} else {//edit
                 		
-                		subtypeSampleId = _select.options[_select.selectedIndex].value;
+                		sampleSubtypeId = _select.options[_select.selectedIndex].value;
                 	
                 		var isCloned='Yes'==$('#cloned').val();
                 		
@@ -86,7 +86,7 @@ $.jgrid.extend ({editGridRow : function(rowid, p){
                 	
                 	//get the list of valid meta fields for the given subtype
                 	
-               		var _myValidMetaFields=_validMetaFields['subtypeSampleId_'+subtypeSampleId];
+               		var _myValidMetaFields=_validMetaFields['sampleSubtypeId_'+sampleSubtypeId];
                 
                		//hide meta fields not valid for the given subtype
                 	for(var i in colModel) {
@@ -108,7 +108,7 @@ $.jgrid.extend ({editGridRow : function(rowid, p){
                 	
                 
                		//implement dynamic population of sub-selects
-                	var _jobs4Subtype=_jobsBySampleSubtype[subtypeSampleId];
+                	var _jobs4Subtype=_jobsBySampleSubtype[sampleSubtypeId];
     				if (_jobs4Subtype != null){
                 		populateSelect($('#jobId').get(0), _jobs4Subtype);
     				}
@@ -141,7 +141,7 @@ $.jgrid.extend ({editGridRow : function(rowid, p){
                    		var _val=$("genericLibrary.adaptorset option:selected").val();
                    		
                    		if (!_val) {
-                   			$('genericLibrary.adaptor').children().remove().end();                 		            
+                   			$('genericLibrary\\.adaptor').children().remove().end();                 		            
                    			return;
                    		}
                    		                		      				    

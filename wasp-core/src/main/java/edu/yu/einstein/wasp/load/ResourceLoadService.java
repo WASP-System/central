@@ -10,15 +10,15 @@ import org.springframework.transaction.annotation.Transactional;
 import util.spring.PostInitialize;
 import edu.yu.einstein.wasp.dao.ResourceCategoryDao;
 import edu.yu.einstein.wasp.dao.ResourceDao;
-import edu.yu.einstein.wasp.dao.ResourceLaneDao;
+import edu.yu.einstein.wasp.dao.ResourceCellDao;
 import edu.yu.einstein.wasp.dao.ResourceMetaDao;
-import edu.yu.einstein.wasp.dao.TypeResourceDao;
+import edu.yu.einstein.wasp.dao.ResourceTypeDao;
 import edu.yu.einstein.wasp.exception.NullResourceCategoryException;
-import edu.yu.einstein.wasp.exception.NullTypeResourceException;
+import edu.yu.einstein.wasp.exception.NullResourceTypeException;
 import edu.yu.einstein.wasp.model.Resource;
-import edu.yu.einstein.wasp.model.ResourceLane;
+import edu.yu.einstein.wasp.model.ResourceCell;
 import edu.yu.einstein.wasp.model.ResourceMeta;
-import edu.yu.einstein.wasp.model.TypeResource;
+import edu.yu.einstein.wasp.model.ResourceType;
 
 
 /**
@@ -29,7 +29,7 @@ import edu.yu.einstein.wasp.model.TypeResource;
  *   - uifields (List<UiFields>)
  *   - platform
  *   - meta (List<ResourceMeta>)
- *   - cell (List<ResourceLanes>)
+ *   - cell (List<ResourceCells>)
  *
  */
 
@@ -40,13 +40,13 @@ public class ResourceLoadService extends WaspLoadService {
   private ResourceDao resourceDao;
 
   @Autowired
-  private ResourceLaneDao resourceLaneDao;
+  private ResourceCellDao resourceCellDao;
 
   @Autowired
   private ResourceMetaDao resourceMetaDao;
 
   @Autowired
-  private TypeResourceDao typeResourceDao;
+  private ResourceTypeDao resourceTypeDao;
   
   @Autowired
   private ResourceCategoryDao resourceCategoryDao;
@@ -54,11 +54,11 @@ public class ResourceLoadService extends WaspLoadService {
   private String resourceCategoryIName; 
   public void setResourceCategory(String resourceCategoryIName) { this.resourceCategoryIName = resourceCategoryIName; }
 
-  private String resourceType; 
-  public void setResourceType(String resourceType) {this.resourceType = resourceType; }
+  private String resourceTypeString; 
+  public void setResourceType(String resourceTypeString) {this.resourceTypeString = resourceTypeString; }
 
-  private List<ResourceLane> cells; 
-  public void setCell(List<ResourceLane> cell) {this.cells = cell; }
+  private List<ResourceCell> cells; 
+  public void setCell(List<ResourceCell> cell) {this.cells = cell; }
 
   private List<ResourceMeta> meta; 
   public void setMeta(List<ResourceMeta> meta) {this.meta = meta; }
@@ -79,9 +79,9 @@ public class ResourceLoadService extends WaspLoadService {
     	throw new NullResourceCategoryException();
     }
 
-    TypeResource typeResource = typeResourceDao.getTypeResourceByIName(resourceType); 
-    if (typeResource == null){
-    	throw new NullTypeResourceException();
+    ResourceType resourceType = resourceTypeDao.getResourceTypeByIName(resourceTypeString); 
+    if (resourceType == null){
+    	throw new NullResourceTypeException();
     }
 
     Resource resource = resourceDao.getResourceByIName(iname); 
@@ -93,7 +93,7 @@ public class ResourceLoadService extends WaspLoadService {
       resource.setIName(iname);
       resource.setName(name);
       resource.setResourcecategoryId(resourceCategoryId);
-      resource.setTypeResourceId(typeResource.getTypeResourceId());
+      resource.setResourceTypeId(resourceType.getResourceTypeId());
       resource.setIsActive(1);
 
       resourceDao.save(resource); 
@@ -111,8 +111,8 @@ public class ResourceLoadService extends WaspLoadService {
     	  resource.setResourcecategoryId(resourceCategoryId);
     	  changed = true;
       }
-      if (resource.getTypeResourceId().intValue() != typeResource.getTypeResourceId().intValue()){
-    	  resource.setTypeResourceId(typeResource.getTypeResourceId());
+      if (resource.getResourceTypeId().intValue() != resourceType.getResourceTypeId().intValue()){
+    	  resource.setResourceTypeId(resourceType.getResourceTypeId());
     	  changed = true;
       }
       if (changed)
@@ -168,35 +168,35 @@ public class ResourceLoadService extends WaspLoadService {
 
 
     lastPosition = 0;
-    Map<String, ResourceLane> oldResourceLanes  = new HashMap<String, ResourceLane>();
-    for (ResourceLane resourceCell: safeList(resource.getResourceLane())) {
-      oldResourceLanes.put(resourceCell.getIName(), resourceCell);
+    Map<String, ResourceCell> oldResourceCells  = new HashMap<String, ResourceCell>();
+    for (ResourceCell resourceCell: safeList(resource.getResourceCell())) {
+      oldResourceCells.put(resourceCell.getIName(), resourceCell);
     } 
     
     // sync 
-    for (ResourceLane resourceCell: safeList(cells)) {
-      if (oldResourceLanes.containsKey(resourceCell.getIName())) {
-        ResourceLane old = oldResourceLanes.get(resourceCell.getIName()); 
+    for (ResourceCell resourceCell: safeList(cells)) {
+      if (oldResourceCells.containsKey(resourceCell.getIName())) {
+        ResourceCell old = oldResourceCells.get(resourceCell.getIName()); 
 
         if (!old.getIName().equals(resourceCell.getIName())) { 	
         	old.setName(resourceCell.getName());
         	old.setIsActive(1);
-        	resourceLaneDao.save(old);
+        	resourceCellDao.save(old);
         }
-        oldResourceLanes.remove(old.getIName());
+        oldResourceCells.remove(old.getIName());
         continue;
       }
 
       resourceCell.setResourceId(resource.getResourceId()); 
       resourceCell.setIsActive(1);
-      resourceLaneDao.save(resourceCell); 
+      resourceCellDao.save(resourceCell); 
     }
 
 
     // inactivate the left overs (cannot delete due to foreign key constraints
-    for (String resourceLaneKey : oldResourceLanes.keySet()) {
-      ResourceLane resourceLane = oldResourceLanes.get(resourceLaneKey); 
-      resourceLane.setIsActive(0); 
+    for (String resourceCellKey : oldResourceCells.keySet()) {
+      ResourceCell resourceCell = oldResourceCells.get(resourceCellKey); 
+      resourceCell.setIsActive(0); 
     }
 
     updateUiFields(); 

@@ -1,7 +1,7 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
 
-<h1><fmt:message key="jobDraft.create.label"/> -- <c:out value="${workflowSoftwares.get(0).getSoftware().getTypeResource().getName()}" /></h1>
+<h1><fmt:message key="jobDraft.create.label"/> -- <c:out value="${workflowSoftwares.get(0).getSoftware().getResourceType().getName()}" /></h1>
 
 <%@ include file="/WEB-INF/jsp/jobsubmit/jobsubmitinfo.jsp" %>
 

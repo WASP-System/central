@@ -631,35 +631,35 @@ public class Run extends WaspModel {
 
 
 	/** 
-	 * runLane
+	 * runCell
 	 *
 	 */
 	@NotAudited
 	@OneToMany
 	@JoinColumn(name="runid", insertable=false, updatable=false)
-	protected List<RunLane> runLane;
+	protected List<RunCell> runCell;
 
 
 	/** 
-	 * getRunLane()
+	 * getRunCell()
 	 *
-	 * @return runLane
+	 * @return runCell
 	 *
 	 */
 	@JsonIgnore
-	public List<RunLane> getRunLane() {
-		return this.runLane;
+	public List<RunCell> getRunCell() {
+		return this.runCell;
 	}
 
 
 	/** 
-	 * setRunLane
+	 * setRunCell
 	 *
-	 * @param runLane
+	 * @param runCell
 	 *
 	 */
-	public void setRunLane (List<RunLane> runLane) {
-		this.runLane = runLane;
+	public void setRunCell (List<RunCell> runCell) {
+		this.runCell = runCell;
 	}
 
 

@@ -24,19 +24,19 @@ import org.springframework.web.bind.annotation.RequestParam;
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.dao.ResourceDao;
 import edu.yu.einstein.wasp.dao.RunDao;
-import edu.yu.einstein.wasp.dao.RunLaneDao;
+import edu.yu.einstein.wasp.dao.RunCellDao;
 import edu.yu.einstein.wasp.dao.RunMetaDao;
 import edu.yu.einstein.wasp.dao.SampleDao;
-import edu.yu.einstein.wasp.dao.SubtypeSampleResourceCategoryDao;
+import edu.yu.einstein.wasp.dao.SampleSubtypeResourceCategoryDao;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.Resource;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.RunFile;
-import edu.yu.einstein.wasp.model.RunLane;
-import edu.yu.einstein.wasp.model.RunLanefile;
+import edu.yu.einstein.wasp.model.RunCell;
+import edu.yu.einstein.wasp.model.RunCellFile;
 import edu.yu.einstein.wasp.model.RunMeta;
 import edu.yu.einstein.wasp.model.Sample;
-import edu.yu.einstein.wasp.model.SubtypeSampleResourceCategory;
+import edu.yu.einstein.wasp.model.SampleSubtypeResourceCategory;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Userrole;
 import edu.yu.einstein.wasp.service.MessageService;
@@ -62,7 +62,7 @@ public class RunController extends WaspController {
 	@Autowired
 	private RunMetaDao runMetaDao;
 
-	private RunLaneDao	runLaneDao;
+	private RunCellDao	runCellDao;
 
 	@Autowired
 	public void setResourceDao(ResourceDao resourceDao) {
@@ -87,23 +87,23 @@ public class RunController extends WaspController {
 	private SampleDao	sampleDao;
 
 	@Autowired
-	public void setSubtypeSampleResourceCategoryDao(SubtypeSampleResourceCategoryDao subtypeSampleResourceCategoryDao) {
-		this.subtypeSampleResourceCategoryDao = subtypeSampleResourceCategoryDao;
+	public void setSampleSubtypeResourceCategoryDao(SampleSubtypeResourceCategoryDao sampleSubtypeResourceCategoryDao) {
+		this.sampleSubtypeResourceCategoryDao = sampleSubtypeResourceCategoryDao;
 	}
 
-	public SubtypeSampleResourceCategoryDao getSubtypeSampleResourceCategoryDao() {
-		return this.subtypeSampleResourceCategoryDao;
+	public SampleSubtypeResourceCategoryDao getSampleSubtypeResourceCategoryDao() {
+		return this.sampleSubtypeResourceCategoryDao;
 	}
 
-	private SubtypeSampleResourceCategoryDao	subtypeSampleResourceCategoryDao;
+	private SampleSubtypeResourceCategoryDao	sampleSubtypeResourceCategoryDao;
 
 	@Autowired
-	public void setRunLaneDao(RunLaneDao runLaneDao) {
-		this.runLaneDao = runLaneDao;
+	public void setRunCellDao(RunCellDao runCellDao) {
+		this.runCellDao = runCellDao;
 	}
 
-	public RunLaneDao getRunLaneDao() {
-		return this.runLaneDao;
+	public RunCellDao getRunCellDao() {
+		return this.runCellDao;
 	}
 
 	private final MetaHelperWebapp getMetaHelperWebapp() {
@@ -172,18 +172,18 @@ public class RunController extends WaspController {
 		
 			//first get the resourceCategoryId by resourceId
 			Resource machine = this.resourceDao.getById(resourceId);
-			//then get all the subtypeSampleId by resourceCatgegoryId 
+			//then get all the sampleSubtypeId by resourceCatgegoryId 
 			Map queryMap = new HashMap();
 			queryMap.put("resourcecategoryId", machine.getResourcecategoryId());
-			List <SubtypeSampleResourceCategory> ssrcList = this.subtypeSampleResourceCategoryDao.findByMap(queryMap);
+			List <SampleSubtypeResourceCategory> ssrcList = this.sampleSubtypeResourceCategoryDao.findByMap(queryMap);
 			List <Integer> idList = new ArrayList<Integer> ();
-			for (SubtypeSampleResourceCategory ssrc : ssrcList) {
-				idList.add(ssrc.getSubtypeSampleId());
+			for (SampleSubtypeResourceCategory ssrc : ssrcList) {
+				idList.add(ssrc.getSampleSubtypeId());
 			}
 			
-			//last filter all platform units by the list of subtypeSampleId
+			//last filter all platform units by the list of sampleSubtypeId
 			for(Sample sample:sampleDao.findAllPlatformUnits()) {
-				if (idList.contains(sample.getSubtypeSampleId()))
+				if (idList.contains(sample.getSampleSubtypeId()))
 					resultsMap.put(sample.getSampleId(), sample.getName());
 			}
 		}
@@ -213,18 +213,18 @@ public class RunController extends WaspController {
 			
 		} else {
 		
-			//first get the subtypeSampleId by sampleId
+			//first get the sampleSubtypeId by sampleId
 			Sample flowcell = sampleDao.getById(sampleId);
 			//then get all the resourceCategoryId by resourceCatgegoryId 
 			Map queryMap = new HashMap();
-			queryMap.put("subtypeSampleId", flowcell.getSubtypeSampleId());
-			List <SubtypeSampleResourceCategory> ssrcList = this.subtypeSampleResourceCategoryDao.findByMap(queryMap);
+			queryMap.put("sampleSubtypeId", flowcell.getSampleSubtypeId());
+			List <SampleSubtypeResourceCategory> ssrcList = this.sampleSubtypeResourceCategoryDao.findByMap(queryMap);
 			List <Integer> idList = new ArrayList<Integer> ();
-			for (SubtypeSampleResourceCategory ssrc : ssrcList) {
+			for (SampleSubtypeResourceCategory ssrc : ssrcList) {
 				idList.add(ssrc.getResourcecategoryId());
 			}
 			
-			//last filter all platform units by the list of subtypeSampleId
+			//last filter all platform units by the list of sampleSubtypeId
 			for(Resource resource:resourceDao.findAll()) {
 				if (idList.contains(resource.getResourcecategoryId()))
 					resultsMap.put(resource.getResourceId(), resource.getName());
@@ -412,8 +412,8 @@ public class RunController extends WaspController {
 		List<RunMeta> runMetaList = run.getRunMeta();
 		runMetaList.size();
 
-		List<RunLane> runLaneList = run.getRunLane();
-		runLaneList.size();
+		List<RunCell> runCellList = run.getRunCell();
+		runCellList.size();
 
 		List<RunFile> runFileList = run.getRunFile();
 		runFileList.size();
@@ -421,7 +421,7 @@ public class RunController extends WaspController {
 		m.addAttribute("now", now);
 		m.addAttribute("run", run);
 		m.addAttribute("runmeta", runMetaList);
-		m.addAttribute("runlane", runLaneList);
+		m.addAttribute("runcell", runCellList);
 		m.addAttribute("runfile", runFileList);
 
 		return "run/detail";
@@ -445,18 +445,18 @@ public class RunController extends WaspController {
 			return "default";
 		}
 
-		RunLane runLane = this.getRunLaneDao().getById(i.intValue());
+		RunCell runCell = this.getRunCellDao().getById(i.intValue());
 
 		//
 		// TODO THROW EXCEPTION IF RUNID != RUNLANE.RUNID
 		//
 
-		List<RunLanefile> runLaneFileList = runLane.getRunLanefile();
-		runLaneFileList.size();
+		List<RunCellFile> runCellFileList = runCell.getRunCellFile();
+		runCellFileList.size();
 
 		m.addAttribute("now", now);
-		m.addAttribute("runlane", runLane);
-		m.addAttribute("runlanefile", runLaneFileList);
+		m.addAttribute("runcell", runCell);
+		m.addAttribute("runcellfile", runCellFileList);
 
 		return "run/lanedetail";
 	}

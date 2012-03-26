@@ -23,9 +23,9 @@ import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.dao.WorkflowDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.model.Sample;
-import edu.yu.einstein.wasp.model.SubtypeSample;
-import edu.yu.einstein.wasp.model.SubtypeSampleMeta;
-import edu.yu.einstein.wasp.model.Workflowsubtypesample;
+import edu.yu.einstein.wasp.model.SampleSubtype;
+import edu.yu.einstein.wasp.model.SampleSubtypeMeta;
+import edu.yu.einstein.wasp.model.WorkflowSampleSubtype;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.util.MetaHelper;
@@ -77,8 +77,8 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	@Override
 	public List<Sample> findAllPlatformUnits() {
 		Map queryMap = new HashMap();
-		queryMap.put("typeSample.iName", "platformunit");
-//		queryMap.put("typeSample.typeSampleId", 5);
+		queryMap.put("sampleType.iName", "platformunit");
+//		queryMap.put("sampleType.sampleTypeId", 5);
 		return sampleDao.findByMap(queryMap);
 	}
 	
@@ -86,54 +86,54 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	   * {@inheritDoc}
 	   */
 	  @Override
-	  public List<SubtypeSample> getSubtypeSamplesForWorkflowByLoggedInUserRoles(Integer workflowId){
-		  return getSubtypeSamplesForWorkflowByRole(workflowId, authenticationService.getRoles(), null);
+	  public List<SampleSubtype> getSampleSubtypesForWorkflowByLoggedInUserRoles(Integer workflowId){
+		  return getSampleSubtypesForWorkflowByRole(workflowId, authenticationService.getRoles(), null);
 	  }
 	  
 	  /**
 	   * {@inheritDoc}
 	   */
 	  @Override
-	  public List<SubtypeSample> getSubtypeSamplesForWorkflowByLoggedInUserRoles(Integer workflowId, String typeSampleIName){
-		  return getSubtypeSamplesForWorkflowByRole(workflowId, authenticationService.getRoles(), typeSampleIName);
+	  public List<SampleSubtype> getSampleSubtypesForWorkflowByLoggedInUserRoles(Integer workflowId, String sampleTypeIName){
+		  return getSampleSubtypesForWorkflowByRole(workflowId, authenticationService.getRoles(), sampleTypeIName);
 	  }
 	  
 	  /**
 	   * {@inheritDoc}
 	   */
 	  @Override
-	  public List<SubtypeSample> getSubtypeSamplesForWorkflowByRole(Integer workflowId, String[] roles){
-		  return getSubtypeSamplesForWorkflowByRole(workflowId, roles, null);
+	  public List<SampleSubtype> getSampleSubtypesForWorkflowByRole(Integer workflowId, String[] roles){
+		  return getSampleSubtypesForWorkflowByRole(workflowId, roles, null);
 	  }
 	  
 	  /**
 	   * {@inheritDoc}
 	   */
 	  @Override
-	  public List<SubtypeSample> getSubtypeSamplesForWorkflowByRole(Integer workflowId, String[] roles, String typeSampleIName){
-		  List<SubtypeSample> subtypeSamples = new ArrayList<SubtypeSample>();
-		  for (Workflowsubtypesample wfsts: workflowDao.getWorkflowByWorkflowId(workflowId).getWorkflowsubtypesample() ){
-			  SubtypeSample sts = wfsts.getSubtypeSample();
-			  if (typeSampleIName == null || typeSampleIName.equals(sts.getTypeSample().getIName())){
+	  public List<SampleSubtype> getSampleSubtypesForWorkflowByRole(Integer workflowId, String[] roles, String sampleTypeIName){
+		  List<SampleSubtype> sampleSubtypes = new ArrayList<SampleSubtype>();
+		  for (WorkflowSampleSubtype wfsts: workflowDao.getWorkflowByWorkflowId(workflowId).getWorkflowSampleSubtype() ){
+			  SampleSubtype sts = wfsts.getSampleSubtype();
+			  if (sampleTypeIName == null || sampleTypeIName.equals(sts.getSampleType().getIName())){
 				  String[] includedRoles = new String[]{};
 				  String[] excludedRoles = new String[]{};
-				  MetaHelper metahelper = new MetaHelper("subtypeSample", SubtypeSampleMeta.class, Locale.US);
+				  MetaHelper metahelper = new MetaHelper("sampleSubtype", SampleSubtypeMeta.class, Locale.US);
 				  metahelper.setArea(sts.getIName());
 				  try{
-					  includedRoles = metahelper.getMetaValueByName("includeRoles",sts.getSubtypeSampleMeta()).split(",");
+					  includedRoles = metahelper.getMetaValueByName("includeRoles",sts.getSampleSubtypeMeta()).split(",");
 				  } catch(MetadataException e){
 					  // "includeRoles" meta not present
 				  }
 				  try{
-					  excludedRoles = metahelper.getMetaValueByName("excludeRoles",sts.getSubtypeSampleMeta()).split(",");
+					  excludedRoles = metahelper.getMetaValueByName("excludeRoles",sts.getSampleSubtypeMeta()).split(",");
 				  } catch(MetadataException e){
 					  // "excludeRoles" meta not present
 				  }
 				  if (authenticationService.hasRoleInRoleArray(includedRoles, roles) && !authenticationService.hasRoleInRoleArray(excludedRoles, roles)){
-					  subtypeSamples.add(sts);
+					  sampleSubtypes.add(sts);
 				  }
 			  }
 		  }
-		  return subtypeSamples;
+		  return sampleSubtypes;
 	  }
 }

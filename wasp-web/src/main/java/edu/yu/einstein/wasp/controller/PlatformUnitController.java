@@ -44,12 +44,12 @@ import edu.yu.einstein.wasp.dao.SampleSourceDao;
 import edu.yu.einstein.wasp.dao.SampleSourceMetaDao;
 import edu.yu.einstein.wasp.dao.StateDao;
 import edu.yu.einstein.wasp.dao.StatesampleDao;
-import edu.yu.einstein.wasp.dao.SubtypeSampleDao;
-import edu.yu.einstein.wasp.dao.SubtypeSampleMetaDao;
-import edu.yu.einstein.wasp.dao.SubtypeSampleResourceCategoryDao;
+import edu.yu.einstein.wasp.dao.SampleSubtypeDao;
+import edu.yu.einstein.wasp.dao.SampleSubtypeMetaDao;
+import edu.yu.einstein.wasp.dao.SampleSubtypeResourceCategoryDao;
 import edu.yu.einstein.wasp.dao.TaskDao;
-import edu.yu.einstein.wasp.dao.TypeResourceDao;
-import edu.yu.einstein.wasp.dao.TypeSampleDao;
+import edu.yu.einstein.wasp.dao.ResourceTypeDao;
+import edu.yu.einstein.wasp.dao.SampleTypeDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Adaptorset;
@@ -65,12 +65,12 @@ import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.SampleSourceMeta;
 import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.Statesample;
-import edu.yu.einstein.wasp.model.SubtypeSample;
-import edu.yu.einstein.wasp.model.SubtypeSampleMeta;
-import edu.yu.einstein.wasp.model.SubtypeSampleResourceCategory;
+import edu.yu.einstein.wasp.model.SampleSubtype;
+import edu.yu.einstein.wasp.model.SampleSubtypeMeta;
+import edu.yu.einstein.wasp.model.SampleSubtypeResourceCategory;
 import edu.yu.einstein.wasp.model.Task;
-import edu.yu.einstein.wasp.model.TypeResource;
-import edu.yu.einstein.wasp.model.TypeSample;
+import edu.yu.einstein.wasp.model.ResourceType;
+import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.MessageService;
@@ -119,22 +119,22 @@ public class PlatformUnitController extends WaspController {
 	private StatesampleDao stateSampleDao;
 	
 	@Autowired
-	private SubtypeSampleDao subtypeSampleDao;
+	private SampleSubtypeDao sampleSubtypeDao;
 
 	@Autowired
-	private SubtypeSampleResourceCategoryDao subtypeSampleResourceCategoryDao;
+	private SampleSubtypeResourceCategoryDao sampleSubtypeResourceCategoryDao;
 
 	@Autowired
 	private TaskDao taskDao;
 
 	@Autowired
-	private TypeSampleDao typeSampleDao;
+	private SampleTypeDao sampleTypeDao;
 
 	@Autowired
-	private TypeResourceDao typeResourceDao;
+	private ResourceTypeDao resourceTypeDao;
 	
 	@Autowired
-	private SubtypeSampleMetaDao subtypeSampleMetaDao;
+	private SampleSubtypeMetaDao sampleSubtypeMetaDao;
 
 
 	@Autowired
@@ -195,16 +195,16 @@ public class PlatformUnitController extends WaspController {
 
 		List<Sample> sampleList;
 
-		// First, search for typesampleid which its iname is "platform unit"
-		Map<String, String> typeSampleQueryMap = new HashMap<String, String>();
-		typeSampleQueryMap.put("iName", "platformunit");
-		List<TypeSample> typeSampleList = typeSampleDao.findByMap(typeSampleQueryMap);
-		if (typeSampleList.size() == 0)
+		// First, search for sampletypeid which its iname is "platform unit"
+		Map<String, String> sampleTypeQueryMap = new HashMap<String, String>();
+		sampleTypeQueryMap.put("iName", "platformunit");
+		List<SampleType> sampleTypeList = sampleTypeDao.findByMap(sampleTypeQueryMap);
+		if (sampleTypeList.size() == 0)
 			return "'Platform Unit' sample type is not defined!";
-		// Then, use the typesampleid to pull all platformunits from the sample
+		// Then, use the sampletypeid to pull all platformunits from the sample
 		// table
 		Map<String, Object> sampleListBaseQueryMap = new HashMap<String, Object>();
-		sampleListBaseQueryMap.put("typeSampleId", typeSampleList.get(0).getTypeSampleId());
+		sampleListBaseQueryMap.put("sampleTypeId", sampleTypeList.get(0).getSampleTypeId());
 
 		if (request.getParameter("_search") == null 
 				|| request.getParameter("_search").equals("false") 
@@ -219,7 +219,7 @@ public class PlatformUnitController extends WaspController {
 
 			if ("ne".equals(request.getParameter("searchOper"))) {
 				Map allSampleListBaseQueryMap = new HashMap();
-				allSampleListBaseQueryMap.put("typeSampleId", 5);
+				allSampleListBaseQueryMap.put("sampleTypeId", 5);
 
 				List<Sample> allSampleList = sampleDao.findByMap(allSampleListBaseQueryMap);
 				for (Sample excludeSample : allSampleList) {
@@ -312,10 +312,10 @@ public class PlatformUnitController extends WaspController {
 
 		/**** Begin Lane Count calculations  ****/
 		
-		Map<String, Integer> subtypeSampleMetaMap = new HashMap<String, Integer>();
-		subtypeSampleMetaMap.put("subtypeSampleId", new Integer(request.getParameter("subtypeSampleId")));
+		Map<String, Integer> sampleSubtypeMetaMap = new HashMap<String, Integer>();
+		sampleSubtypeMetaMap.put("sampleSubtypeId", new Integer(request.getParameter("sampleSubtypeId")));
 
-		List <SubtypeSampleMeta> subtypeSampleMetaList = new ArrayList <SubtypeSampleMeta> (this.subtypeSampleMetaDao.findByMap(subtypeSampleMetaMap));
+		List <SampleSubtypeMeta> sampleSubtypeMetaList = new ArrayList <SampleSubtypeMeta> (this.sampleSubtypeMetaDao.findByMap(sampleSubtypeMetaMap));
 		
 		Integer maxCellNum = null;
 		Integer multFactor = null;
@@ -324,12 +324,12 @@ public class PlatformUnitController extends WaspController {
 		
 		List <LaneOptions> laneOptionsMap = new ArrayList <LaneOptions> ();
 		
-		for (SubtypeSampleMeta subtypeSampleMeta : subtypeSampleMetaList) {
-			if (subtypeSampleMeta.getK().matches(".*\\.maxCellNumber")) {
-				maxCellNum = new Integer(subtypeSampleMeta.getV());
+		for (SampleSubtypeMeta sampleSubtypeMeta : sampleSubtypeMetaList) {
+			if (sampleSubtypeMeta.getK().matches(".*\\.maxCellNumber")) {
+				maxCellNum = new Integer(sampleSubtypeMeta.getV());
 			}
-			else if (subtypeSampleMeta.getK().matches(".*\\.multiplicationFactor")) {
-				multFactor = new Integer(subtypeSampleMeta.getV());
+			else if (sampleSubtypeMeta.getK().matches(".*\\.multiplicationFactor")) {
+				multFactor = new Integer(sampleSubtypeMeta.getV());
 			}
 		}
 		if (multFactor == null || multFactor.intValue() <= 1) {
@@ -351,14 +351,14 @@ public class PlatformUnitController extends WaspController {
 
 	
 	/* SELECT FOR Subtypes List based on what type of machine was selected by user
-	 * example: select * from subtypesampleresourcecategory stsrc, subtypesample sts 
-	 * where stsrc.resourcecategoryid = 4 and stsrc.subtypesampleid = sts.subtypesampleid;
+	 * example: select * from samplesubtyperesourcecategory stsrc, samplesubtype sts 
+	 * where stsrc.resourcecategoryid = 4 and stsrc.samplesubtypeid = sts.samplesubtypeid;
 	 * 
 	 */
 	
 	
 	/**
-	 * Displays a list of SubtypeSamples (e.g. illuminaFlowcellV3) based on the machine_type/resourcecategory (e.g. Illumina HiSeq 2000) 
+	 * Displays a list of SampleSubtypes (e.g. illuminaFlowcellV3) based on the machine_type/resourcecategory (e.g. Illumina HiSeq 2000) 
 	 * selected by the user.
 	 * 
 	 * @return
@@ -373,19 +373,19 @@ public class PlatformUnitController extends WaspController {
 
 		Map<String, Object> jqgrid = new HashMap<String, Object>();
 		
-		List<SubtypeSample> subtypeSampleList = new ArrayList<SubtypeSample> ();
+		List<SampleSubtype> sampleSubtypeList = new ArrayList<SampleSubtype> ();
 
-		// First, search for typesampleid which its iname is "platform unit"
-		Map<String, String> typeSampleQueryMap = new HashMap<String, String>();
-		typeSampleQueryMap.put("iName", "platformunit");
-		List<TypeSample> typeSampleList = typeSampleDao.findByMap(typeSampleQueryMap);
-		if (typeSampleList.size() == 0)
+		// First, search for sampletypeid which its iname is "platform unit"
+		Map<String, String> sampleTypeQueryMap = new HashMap<String, String>();
+		sampleTypeQueryMap.put("iName", "platformunit");
+		List<SampleType> sampleTypeList = sampleTypeDao.findByMap(sampleTypeQueryMap);
+		if (sampleTypeList.size() == 0)
 			return "'Platform Unit' sample type is not defined!";
 		
-		// Then, use the typesampleid to pull all platformunits from the sample
+		// Then, use the sampletypeid to pull all platformunits from the sample
 		// table
-		Map<String, Object> subtypeSampleListBaseQueryMap = new HashMap<String, Object>();
-		subtypeSampleListBaseQueryMap.put("typeSampleId", typeSampleList.get(0).getTypeSampleId());
+		Map<String, Object> sampleSubtypeListBaseQueryMap = new HashMap<String, Object>();
+		sampleSubtypeListBaseQueryMap.put("sampleTypeId", sampleTypeList.get(0).getSampleTypeId());
 		
 		Map<String, Object> searchParamMap = new HashMap<String, Object>();
 
@@ -396,25 +396,25 @@ public class PlatformUnitController extends WaspController {
 				|| request.getParameter("_search").equals("false") 
 				|| StringUtils.isEmpty(request.getParameter("searchString"))) {
 
-			subtypeSampleList = sidx.isEmpty() ? subtypeSampleDao.findByMap(subtypeSampleListBaseQueryMap) : this.subtypeSampleDao.findByMapDistinctOrderBy(subtypeSampleListBaseQueryMap, null, orderConstraints, sord);
+			sampleSubtypeList = sidx.isEmpty() ? sampleSubtypeDao.findByMap(sampleSubtypeListBaseQueryMap) : this.sampleSubtypeDao.findByMapDistinctOrderBy(sampleSubtypeListBaseQueryMap, null, orderConstraints, sord);
 
 
 		} else {
 
 			searchParamMap.put(request.getParameter("searchField"), request.getParameter("searchString"));
 
-			subtypeSampleList = this.subtypeSampleDao.findByMap(searchParamMap);
+			sampleSubtypeList = this.sampleSubtypeDao.findByMap(searchParamMap);
 
 			if ("ne".equals(request.getParameter("searchOper"))) {
-				Map allSubtypeSampleListBaseQueryMap = new HashMap();
-				allSubtypeSampleListBaseQueryMap.put("typeSampleId", 5);
+				Map allSampleSubtypeListBaseQueryMap = new HashMap();
+				allSampleSubtypeListBaseQueryMap.put("sampleTypeId", 5);
 				
-				List<SubtypeSample> allSubtypeSampleList = new ArrayList<SubtypeSample>(sidx.isEmpty() ?  this.subtypeSampleDao.findByMap(allSubtypeSampleListBaseQueryMap) : this.subtypeSampleDao.findByMapDistinctOrderBy(allSubtypeSampleListBaseQueryMap, null, orderConstraints, sord));
+				List<SampleSubtype> allSampleSubtypeList = new ArrayList<SampleSubtype>(sidx.isEmpty() ?  this.sampleSubtypeDao.findByMap(allSampleSubtypeListBaseQueryMap) : this.sampleSubtypeDao.findByMapDistinctOrderBy(allSampleSubtypeListBaseQueryMap, null, orderConstraints, sord));
 
-				for (SubtypeSample excludeSubtypeSample : allSubtypeSampleList) {
-					allSubtypeSampleList.remove(excludeSubtypeSample);
+				for (SampleSubtype excludeSampleSubtype : allSampleSubtypeList) {
+					allSampleSubtypeList.remove(excludeSampleSubtype);
 				}
-				subtypeSampleList = allSubtypeSampleList;
+				sampleSubtypeList = allSampleSubtypeList;
 			}
 		}
 
@@ -425,22 +425,22 @@ public class PlatformUnitController extends WaspController {
 		//resourceCategoryMap.put("resourcecategoryId", (Integer) request.getSession().getAttribute("resourceCategoryId"));
 		resourceCategoryMap.put("resourcecategoryId", new Integer(request.getParameter("resourceCategoryId")));
 
-		List<SubtypeSample> subtypeSampleFilteredList = new ArrayList<SubtypeSample> ();
+		List<SampleSubtype> sampleSubtypeFilteredList = new ArrayList<SampleSubtype> ();
 
-		for (SubtypeSampleResourceCategory subtypeSampleResCat : this.subtypeSampleResourceCategoryDao.findByMap(resourceCategoryMap)) {
-			for(SubtypeSample subtypeSample : subtypeSampleList) {
-				if (subtypeSample.getSubtypeSampleId().intValue() == subtypeSampleResCat.getSubtypeSampleId().intValue());
-				subtypeSampleFilteredList.add(subtypeSample);
+		for (SampleSubtypeResourceCategory sampleSubtypeResCat : this.sampleSubtypeResourceCategoryDao.findByMap(resourceCategoryMap)) {
+			for(SampleSubtype sampleSubtype : sampleSubtypeList) {
+				if (sampleSubtype.getSampleSubtypeId().intValue() == sampleSubtypeResCat.getSampleSubtypeId().intValue());
+				sampleSubtypeFilteredList.add(sampleSubtype);
 			}
 		
 		}
-		subtypeSampleList = subtypeSampleFilteredList;
+		sampleSubtypeList = sampleSubtypeFilteredList;
 		
 		ObjectMapper mapper = new ObjectMapper();
 
 		int pageIndex = Integer.parseInt(request.getParameter("page")); // index of page
 		int pageRowNum = Integer.parseInt(request.getParameter("rows")); // number of rows in one page
-		int rowNum = subtypeSampleList.size(); // total number of rows
+		int rowNum = sampleSubtypeList.size(); // total number of rows
 		int pageNum = (rowNum + pageRowNum - 1) / pageRowNum; // total number of pages
 
 		jqgrid.put("records", rowNum + "");
@@ -465,7 +465,7 @@ public class PlatformUnitController extends WaspController {
 		 */
 		if (!StringUtils.isEmpty(request.getParameter("selId"))) {
 			int selId = Integer.parseInt(request.getParameter("selId"));
-			int selIndex = subtypeSampleList.indexOf(this.subtypeSampleDao.findById(selId));
+			int selIndex = sampleSubtypeList.indexOf(this.sampleSubtypeDao.findById(selId));
 			frId = selIndex;
 			toId = frId + 1;
 
@@ -474,22 +474,22 @@ public class PlatformUnitController extends WaspController {
 			jqgrid.put("page", "1");
 		}
 
-		List<SubtypeSample> subtypeSamplePage = subtypeSampleList.subList(frId, toId);
-		for (SubtypeSample subtypeSample : subtypeSamplePage) {
+		List<SampleSubtype> sampleSubtypePage = sampleSubtypeList.subList(frId, toId);
+		for (SampleSubtype sampleSubtype : sampleSubtypePage) {
 			Map cell = new HashMap();
-			cell.put("id", subtypeSample.getSubtypeSampleId());
-			cell.put("subtypeSampleId", subtypeSample.getSubtypeSampleId());
+			cell.put("id", sampleSubtype.getSampleSubtypeId());
+			cell.put("sampleSubtypeId", sampleSubtype.getSampleSubtypeId());
 
 
-			List<SubtypeSampleMeta> subtypeSampleMetaList = getMetaHelperWebapp().syncWithMaster(subtypeSample.getSubtypeSampleMeta());
+			List<SampleSubtypeMeta> sampleSubtypeMetaList = getMetaHelperWebapp().syncWithMaster(sampleSubtype.getSampleSubtypeMeta());
 			
 			List<String> cellList = new ArrayList<String>(
 					Arrays.asList(
 							new String[] { 
-									"<a href=/wasp/facility/platformunit/instance/list.do?subtypeSampleId="+subtypeSample.getSubtypeSampleId()+"&typeSampleId="+subtypeSample.getTypeSampleId()+">" + 
-											subtypeSample.getName() + "</a>" }));
+									"<a href=/wasp/facility/platformunit/instance/list.do?sampleSubtypeId="+sampleSubtype.getSampleSubtypeId()+"&sampleTypeId="+sampleSubtype.getSampleTypeId()+">" + 
+											sampleSubtype.getName() + "</a>" }));
 
-			for (SubtypeSampleMeta meta : subtypeSampleMetaList) {
+			for (SampleSubtypeMeta meta : sampleSubtypeMetaList) {
 				cellList.add(meta.getV());
 			}
 
@@ -504,12 +504,12 @@ public class PlatformUnitController extends WaspController {
 		return json;
 
 	} catch (Exception e) {
-			throw new IllegalStateException("Can't marshall to JSON " + subtypeSampleList, e);
+			throw new IllegalStateException("Can't marshall to JSON " + sampleSubtypeList, e);
 		}
 	}
 	
 	/**
-	 * Displays Platform Unit list filtered by subtypeSampleId
+	 * Displays Platform Unit list filtered by sampleSubtypeId
 	 * 
 	 * @return
 	 */
@@ -528,8 +528,8 @@ public class PlatformUnitController extends WaspController {
 		Map<String, Integer> sampleListBaseQueryMap = new HashMap<String, Integer>();
 		Map<String, String> searchParamMap = new HashMap<String, String>();
 
-		sampleListBaseQueryMap.put("subtypeSampleId", new Integer(request.getParameter("subtypeSampleId")));
-		sampleListBaseQueryMap.put("typeSampleId", new Integer(request.getParameter("typeSampleId")));
+		sampleListBaseQueryMap.put("sampleSubtypeId", new Integer(request.getParameter("sampleSubtypeId")));
+		sampleListBaseQueryMap.put("sampleTypeId", new Integer(request.getParameter("sampleTypeId")));
 
 		
 		List<String> orderConstraints = new ArrayList<String>();
@@ -635,7 +635,7 @@ public class PlatformUnitController extends WaspController {
 					Arrays.asList(
 							new String[] { 
 										sample.getName(),
-										sample.getSubtypeSample()==null?"": sample.getSubtypeSample().getName(), 
+										sample.getSampleSubtype()==null?"": sample.getSampleSubtype().getName(), 
 										sample.getUser().getFirstName()+" "+sample.getUser().getLastName(),
 										allSampleBarcode.get(sample.getSampleId())==null? "" : allBarcode.get(allSampleBarcode.get(sample.getSampleId())),
 										this.sampleMetaDao.getSampleMetaByKSampleId("platformunitInstance.lanecount", sample.getSampleId()).getV()}));
@@ -706,7 +706,7 @@ public class PlatformUnitController extends WaspController {
 				}
 			}
 		}
-		sampleForm.setSubtypeSampleId(new Integer(request.getParameter("subtypeSampleId")));
+		sampleForm.setSampleSubtypeId(new Integer(request.getParameter("sampleSubtypeId")));
 		preparePlatformUnit(sampleForm, sampleId);
 		Integer laneCount = new Integer(request.getParameter("platformunitInstance.lanecount")==null || request.getParameter("platformunitInstance.lanecount").equals("")?request.getParameter("lanecountForEditBox"):request.getParameter("platformunitInstance.lanecount"));
 		updatePlatformUnitInstance(sampleForm, laneCount, sampleId);
@@ -773,8 +773,8 @@ public class PlatformUnitController extends WaspController {
 			User me = authenticationService.getAuthenticatedUser();
 			sampleForm.setSubmitterUserId(me.getUserId());
 
-			TypeSample typeSample = typeSampleDao.getTypeSampleByIName("platformunit");
-			sampleForm.setTypeSampleId(typeSample.getTypeSampleId());
+			SampleType sampleType = sampleTypeDao.getSampleTypeByIName("platformunit");
+			sampleForm.setSampleTypeId(sampleType.getSampleTypeId());
 			sampleForm.setSubmitterLabId(1);
 	
 			sampleForm.setReceiverUserId(sampleForm.getSubmitterUserId());
@@ -797,7 +797,7 @@ public class PlatformUnitController extends WaspController {
 	
 			sampleForm.setSubmitterUserId(sampleDb.getSubmitterUserId());
 			sampleForm.setSubmitterLabId(sampleDb.getSubmitterLabId());
-			sampleForm.setTypeSampleId(sampleDb.getTypeSampleId());
+			sampleForm.setSampleTypeId(sampleDb.getSampleTypeId());
 	
 			sampleForm.setReceiverUserId(sampleDb.getReceiverUserId());
 			sampleForm.setReceiveDts(sampleDb.getReceiveDts());
@@ -819,7 +819,7 @@ public class PlatformUnitController extends WaspController {
 	 */
 	public String createUpdateCell(Sample sampleForm, Integer laneNumber, Integer sampleId) {
 		
-		Integer typeSampleId = typeSampleDao.getTypeSampleByIName("cell").getTypeSampleId();
+		Integer sampleTypeId = sampleTypeDao.getSampleTypeByIName("cell").getSampleTypeId();
         Sample sampleDb = null;
 
 		if (sampleId == null || sampleId.intValue() == 0) {
@@ -829,7 +829,7 @@ public class PlatformUnitController extends WaspController {
 				 cell.setSubmitterLabId(sampleForm.getSubmitterLabId());
 				 cell.setSubmitterUserId(sampleForm.getSubmitterUserId());
 				 cell.setName(sampleForm.getName()+"/"+(i+1));
-				 cell.setTypeSampleId(typeSampleId);
+				 cell.setSampleTypeId(sampleTypeId);
 				 cell.setIsGood(1);
 				 cell.setIsActive(1);
 				 cell.setIsReceived(1);
@@ -1020,13 +1020,13 @@ public class PlatformUnitController extends WaspController {
 	public String limitPriorToAssignmentForm(@RequestParam("resourceCategoryId") Integer resourceCategoryId,
 			ModelMap m) {
 		
-		TypeResource typeResource = typeResourceDao.getTypeResourceByIName("mps");
-		if(typeResource == null || typeResource.getTypeResourceId()==null || typeResource.getTypeResourceId().intValue()==0){
-			waspErrorMessage("platformunit.typeResourceNotFound.error");
+		ResourceType resourceType = resourceTypeDao.getResourceTypeByIName("mps");
+		if(resourceType == null || resourceType.getResourceTypeId()==null || resourceType.getResourceTypeId().intValue()==0){
+			waspErrorMessage("platformunit.resourceTypeNotFound.error");
 			return "redirect:/dashboard.do"; 
 		}
 		Map filterForResourceCategory = new HashMap();
-		filterForResourceCategory.put("typeResourceId", typeResource.getTypeResourceId());
+		filterForResourceCategory.put("resourceTypeId", resourceType.getResourceTypeId());
 		List<ResourceCategory> resourceCategories = resourceCategoryDao.findByMap(filterForResourceCategory);
 		
 		m.put("resourceCategoryId", resourceCategoryId);
@@ -1078,13 +1078,13 @@ public class PlatformUnitController extends WaspController {
 	@PreAuthorize("hasRole('ft')")
 	public String limitPriorToPlatUnitAssignForm(ModelMap m) {
 		
-		TypeResource typeResource = typeResourceDao.getTypeResourceByIName("mps");
-		//if(typeResource.getTypeResourceId()==0){
+		ResourceType resourceType = resourceTypeDao.getResourceTypeByIName("mps");
+		//if(resourceType.getResourceTypeId()==0){
 			//waspErrorMessage("platformunit.resourceCategoryNotFound.error");
 			//return "redirect:/dashboard.do";
 		//}
 		Map filterForResourceCategory = new HashMap();
-		filterForResourceCategory.put("typeResourceId", typeResource.getTypeResourceId());
+		filterForResourceCategory.put("resourceTypeId", resourceType.getResourceTypeId());
 		List<ResourceCategory> resourceCategories = resourceCategoryDao.findByMap(filterForResourceCategory);
 		
 		m.put("resourceCategories", resourceCategories);
@@ -1131,12 +1131,12 @@ public class PlatformUnitController extends WaspController {
 		
 		Map stsrcMap = new HashMap();//get the ids for the types of flow cells that go on the selected machine
 		stsrcMap.put("resourcecategoryId", resourceCategory.getResourceCategoryId()); 
-		List<SubtypeSampleResourceCategory> stsrcList = subtypeSampleResourceCategoryDao.findByMap(stsrcMap);
+		List<SampleSubtypeResourceCategory> stsrcList = sampleSubtypeResourceCategoryDao.findByMap(stsrcMap);
 		for(State s : temp_platformUnitStates){
 			List<Statesample> ssList = s.getStatesample();
 			for(Statesample ss : ssList){
-				for(SubtypeSampleResourceCategory stsrc : stsrcList){
-					if(stsrc.getSubtypeSampleId().intValue() == ss.getSample().getSubtypeSampleId().intValue()){
+				for(SampleSubtypeResourceCategory stsrc : stsrcList){
+					if(stsrc.getSampleSubtypeId().intValue() == ss.getSample().getSampleSubtypeId().intValue()){
 						platformUnitStates.add(s);//consider really just taking the flowcell sample, which is done next line
 						flowCells.add(ss.getSample());
 					}
@@ -1281,10 +1281,10 @@ public class PlatformUnitController extends WaspController {
 		else if (librarySampleId == null || librarySampleId == 0 || librarySample == null || librarySample.getSampleId() == null) {
 			error = true; waspErrorMessage("platformunit.libraryIdNotFound.error");
 		}
-		else if ( ! librarySample.getTypeSample().getIName().equals("library")) {
+		else if ( ! librarySample.getSampleType().getIName().equals("library")) {
 			error = true; waspErrorMessage("platformunit.libraryIsNotLibrary.error");	
 		}
-		else if ( ! laneSample.getTypeSample().getIName().equals("cell")) { 
+		else if ( ! laneSample.getSampleType().getIName().equals("cell")) { 
 			error = true; waspErrorMessage("platformunit.laneIsNotLane.error");
 		}
 		else if(jobSample.getJobSampleId()==null || jobSample.getJobSampleId()==0){//confirm library is really part of this jobId
@@ -1319,7 +1319,7 @@ public class PlatformUnitController extends WaspController {
 		}
 		else{
 			Sample flowCell = parentSampleSources.get(0).getSample();
-			if( ! "platformunit".equals(flowCell.getTypeSample().getIName()) ){
+			if( ! "platformunit".equals(flowCell.getSampleType().getIName()) ){
 				error=true; waspErrorMessage("platformunit.flowcellNotFoundNotUnique.error");
 			}
 			else{
@@ -1394,7 +1394,7 @@ public class PlatformUnitController extends WaspController {
 				}
 				
 				Sample libraryAlreadyOnLane = ss.getSampleViaSource();//this is a library already on the selected lane
-				if( ! libraryAlreadyOnLane.getTypeSample().getIName().equals("library") ){//confirm it's a library
+				if( ! libraryAlreadyOnLane.getSampleType().getIName().equals("library") ){//confirm it's a library
 					error=true; waspErrorMessage("platformunit.libOnLaneNotLib.error");
 				}
 				else{					
@@ -1507,7 +1507,7 @@ public class PlatformUnitController extends WaspController {
 		//check that this represents a cell->lib link
 		Sample putativeLibrary = sampleSource.getSampleViaSource();
 		Sample putativeCell = sampleSource.getSample();
-		if( ! putativeLibrary.getTypeSample().getIName().equals("library") || ! putativeCell.getTypeSample().getIName().equals("cell") ){
+		if( ! putativeLibrary.getSampleType().getIName().equals("library") || ! putativeCell.getSampleType().getIName().equals("cell") ){
 			waspErrorMessage("platformunit.samplesourceTypeError.error");
 			return; 
 		}
@@ -1529,4 +1529,5 @@ public class PlatformUnitController extends WaspController {
 	public String showPlatformUnit(@PathVariable("sampleId") Integer sampleId, ModelMap m){
 		return "redirect:/dashboard.do";
 	}
+
 }

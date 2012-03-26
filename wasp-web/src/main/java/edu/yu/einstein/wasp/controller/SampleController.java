@@ -26,9 +26,9 @@ import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.dao.JobDao;
 import edu.yu.einstein.wasp.dao.RunDao;
 import edu.yu.einstein.wasp.dao.SampleDao;
-import edu.yu.einstein.wasp.dao.SubtypeSampleDao;
-import edu.yu.einstein.wasp.dao.TypeSampleCategoryDao;
-import edu.yu.einstein.wasp.dao.TypeSampleDao;
+import edu.yu.einstein.wasp.dao.SampleSubtypeDao;
+import edu.yu.einstein.wasp.dao.SampleTypeCategoryDao;
+import edu.yu.einstein.wasp.dao.SampleTypeDao;
 import edu.yu.einstein.wasp.dao.UserDao;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobSample;
@@ -38,8 +38,8 @@ import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleFile;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
-import edu.yu.einstein.wasp.model.SubtypeSample;
-import edu.yu.einstein.wasp.model.TypeSample;
+import edu.yu.einstein.wasp.model.SampleSubtype;
+import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 import edu.yu.einstein.wasp.util.MetaHelper;
@@ -52,13 +52,13 @@ public class SampleController extends WaspController {
   
   private SampleDao sampleDao;
   
-  private TypeSampleDao	typeSampleDao;
+  private SampleTypeDao	sampleTypeDao;
   
   @Autowired
-  private SubtypeSampleDao	subtypeSampleDao;
+  private SampleSubtypeDao	sampleSubtypeDao;
   
   @Autowired
-  private TypeSampleCategoryDao	typeSampleCategoryDao;
+  private SampleTypeCategoryDao	sampleTypeCategoryDao;
   
   @Autowired
   private JobDao jobDao;
@@ -78,12 +78,12 @@ public class SampleController extends WaspController {
   }
   
   @Autowired
-  public void setTypeSampleDao(TypeSampleDao typeSampleDao) {
-	  this.typeSampleDao = typeSampleDao;
+  public void setSampleTypeDao(SampleTypeDao sampleTypeDao) {
+	  this.sampleTypeDao = sampleTypeDao;
 }
 
-  public TypeSampleDao getTypeSampleDao() {
-	    return this.typeSampleDao;
+  public SampleTypeDao getSampleTypeDao() {
+	    return this.sampleTypeDao;
   }
 
   @RequestMapping("/list")
@@ -145,20 +145,20 @@ public class SampleController extends WaspController {
   }
 	
 	/**
-	 * Prepares page to display JQGrid table with a list of samples where TypeSampleCategory.iName="biomaterial"
+	 * Prepares page to display JQGrid table with a list of samples where SampleTypeCategory.iName="biomaterial"
 	 * 
 	 * @Author Natalia Volnova
 	 */
-  	private static List<Sample>  joinById (List <Sample> listOne, List <TypeSample> ListTwo) {
+  	private static List<Sample>  joinById (List <Sample> listOne, List <SampleType> ListTwo) {
   		
   		List <Sample> finalList = new ArrayList <Sample> ();
 
-		for (Iterator <TypeSample> it=ListTwo.iterator(); it.hasNext();) {
-			TypeSample tempTypeSample = it.next();
+		for (Iterator <SampleType> it=ListTwo.iterator(); it.hasNext();) {
+			SampleType tempSampleType = it.next();
 			for (Iterator <Sample> itSample=listOne.iterator(); itSample.hasNext();) {
 				Sample tempSample = itSample.next();
 				
-				if (tempSample.getTypeSampleId().intValue() == tempTypeSample.getTypeSampleId().intValue()) {
+				if (tempSample.getSampleTypeId().intValue() == tempSampleType.getSampleTypeId().intValue()) {
 					finalList.add(tempSample);
 				}
 			}
@@ -225,13 +225,13 @@ public class SampleController extends WaspController {
 
 		try {
 
-			Map<Integer, String> allTypeSamples = new TreeMap<Integer, String>();
-			for (TypeSample typeSample : this.getTypeSampleDao().findAll()) {
-				allTypeSamples.put(typeSample.getTypeSampleId(), typeSample.getName());
+			Map<Integer, String> allSampleTypes = new TreeMap<Integer, String>();
+			for (SampleType sampleType : this.getSampleTypeDao().findAll()) {
+				allSampleTypes.put(sampleType.getSampleTypeId(), sampleType.getName());
 			}
-			Map<Integer, String> allSubTypeSamples = new TreeMap<Integer, String>();
-			for (SubtypeSample subtypeSample : subtypeSampleDao.findAll()) {
-				allSubTypeSamples.put(subtypeSample.getSubtypeSampleId(), subtypeSample.getName());
+			Map<Integer, String> allSubSampleTypes = new TreeMap<Integer, String>();
+			for (SampleSubtype sampleSubtype : sampleSubtypeDao.findAll()) {
+				allSubSampleTypes.put(sampleSubtype.getSampleSubtypeId(), sampleSubtype.getName());
 			}
 
 			Map<Integer, String> allJobs = new TreeMap<Integer, String>();
@@ -249,10 +249,10 @@ public class SampleController extends WaspController {
 				allRuns.put(run.getSampleId(), run.getName());
 			}
 
-			// Remove all samples whose typesamplecategory is not "biomaterial"
+			// Remove all samples whose sampletypecategory is not "biomaterial"
 			List<Sample> sampleListFiltered = new ArrayList<Sample> ();
 			for (Sample sample : sampleList) {
-				if (sample.getTypeSample().getTypeSampleCategory().getIName().equals("biomaterial")) {
+				if (sample.getSampleType().getSampleTypeCategory().getIName().equals("biomaterial")) {
 					sampleListFiltered.add(sample);
 				
 				}
@@ -318,8 +318,8 @@ public class SampleController extends WaspController {
 
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 						sample.getName(),
-						(sample.getTypeSampleId() == null)? "": allTypeSamples.get(sample.getTypeSampleId()),
-						(sample.getSubtypeSampleId() == null)? "": allSubTypeSamples.get(sample.getSubtypeSampleId()),
+						(sample.getSampleTypeId() == null)? "": allSampleTypes.get(sample.getSampleTypeId()),
+						(sample.getSampleSubtypeId() == null)? "": allSubSampleTypes.get(sample.getSampleSubtypeId()),
 						(sample.getSubmitterJobId() == null)? "" : allJobs.get(sample.getSubmitterJobId()),
 						allUsers.get(sample.getSubmitterUserId()),
 						(sample.getIsActive() == 1)? "Yes":"No",

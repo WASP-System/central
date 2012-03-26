@@ -31,31 +31,31 @@ import org.hibernate.envers.NotAudited;
 public class RunFile extends WaspModel {
 
 	/** 
-	 * runlanefileId
+	 * runcellfileId
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer runlanefileId;
+	protected Integer runcellfileId;
 
 	/**
-	 * setRunlanefileId(Integer runlanefileId)
+	 * setRunlanefileId(Integer runcellfileId)
 	 *
-	 * @param runlanefileId
+	 * @param runcellfileId
 	 *
 	 */
 	
-	public void setRunlanefileId (Integer runlanefileId) {
-		this.runlanefileId = runlanefileId;
+	public void setRunlanefileId (Integer runcellfileId) {
+		this.runcellfileId = runcellfileId;
 	}
 
 	/**
 	 * getRunlanefileId()
 	 *
-	 * @return runlanefileId
+	 * @return runcellfileId
 	 *
 	 */
 	public Integer getRunlanefileId () {
-		return this.runlanefileId;
+		return this.runcellfileId;
 	}
 
 

@@ -2,7 +2,7 @@
 
 <html>
   <h1><c:out value="${sample.name}"/></h1>
-  <div><c:out value="${sample.typeSample.name}"/></div>
+  <div><c:out value="${sample.sampleType.name}"/></div>
 
 
   [TODO ADD PERM]
@@ -23,20 +23,20 @@
       <a href="/wasp/sample/detail/<c:out value="${s.sourceSampleId}"/>.do">
         <c:out value="${s.sample.name}"/>
       </a>
-      <div><c:out value="${s.sample.typeSample.name}"/></div>
+      <div><c:out value="${s.sample.sampleType.name}"/></div>
     </c:forEach>
     <h3>Children</h3>
     <c:forEach items="${childsample}" var="s">
       <a href="/wasp/sample/detail/<c:out value="${s.sampleId}"/>.do">
         <c:out value="${s.sample.name}"/>
       </a>
-      <div><c:out value="${s.sample.typeSample.name}"/></div>
+      <div><c:out value="${s.sample.sampleType.name}"/></div>
     </c:forEach>
 
     <h2>JOBs</h2>
     <c:forEach items="${jobsample}" var="j">
       <p>
-      <c:out value="${s.sample.typeSample.name}"/>
+      <c:out value="${s.sample.sampleType.name}"/>
       <a href="/wasp/job/detail/<c:out value="${j.jobId}"/>.do">
         <c:out value="${j.job.name}"/>
       </a>

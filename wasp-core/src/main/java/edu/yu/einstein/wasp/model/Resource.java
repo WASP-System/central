@@ -93,31 +93,31 @@ public class Resource extends WaspModel {
 	}
 
 	/** 
-	 * typeResourceId
+	 * resourceTypeId
 	 *
 	 */
-	@Column(name="typeresourceid")
-	protected Integer typeResourceId;
+	@Column(name="resourcetypeid")
+	protected Integer resourceTypeId;
 
 	/**
-	 * setTypeResourceId(Integer typeResourceId)
+	 * setResourceTypeId(Integer resourceTypeId)
 	 *
-	 * @param typeResourceId
+	 * @param resourceTypeId
 	 *
 	 */
 	
-	public void setTypeResourceId (Integer typeResourceId) {
-		this.typeResourceId = typeResourceId;
+	public void setResourceTypeId (Integer resourceTypeId) {
+		this.resourceTypeId = resourceTypeId;
 	}
 
 	/**
-	 * getTypeResourceId()
+	 * getResourceTypeId()
 	 *
-	 * @return typeResourceId
+	 * @return resourceTypeId
 	 *
 	 */
-	public Integer getTypeResourceId () {
-		return this.typeResourceId;
+	public Integer getResourceTypeId () {
+		return this.resourceTypeId;
 	}
 
 
@@ -279,34 +279,34 @@ public class Resource extends WaspModel {
 
 
 	/**
-	 * typeResource
+	 * resourceType
 	 *
 	 */
 	@NotAudited
 	@ManyToOne
-	@JoinColumn(name="typeresourceid", insertable=false, updatable=false)
-	protected TypeResource typeResource;
+	@JoinColumn(name="resourcetypeid", insertable=false, updatable=false)
+	protected ResourceType resourceType;
 
 	/**
-	 * setTypeResource (TypeResource typeResource)
+	 * setResourceType (ResourceType resourceType)
 	 *
-	 * @param typeResource
+	 * @param resourceType
 	 *
 	 */
-	public void setTypeResource (TypeResource typeResource) {
-		this.typeResource = typeResource;
-		this.typeResourceId = typeResource.typeResourceId;
+	public void setResourceType (ResourceType resourceType) {
+		this.resourceType = resourceType;
+		this.resourceTypeId = resourceType.resourceTypeId;
 	}
 
 	/**
-	 * getTypeResource ()
+	 * getResourceType ()
 	 *
-	 * @return typeResource
+	 * @return resourceType
 	 *
 	 */
 	
-	public TypeResource getTypeResource () {
-		return this.typeResource;
+	public ResourceType getResourceType () {
+		return this.resourceType;
 	}
 
 
@@ -414,35 +414,35 @@ public class Resource extends WaspModel {
 
 
 	/** 
-	 * resourceLane
+	 * resourceCell
 	 *
 	 */
 	@NotAudited
 	@OneToMany
 	@JoinColumn(name="resourceid", insertable=false, updatable=false)
-	protected List<ResourceLane> resourceLane;
+	protected List<ResourceCell> resourceCell;
 
 
 	/** 
-	 * getResourceLane()
+	 * getResourceCell()
 	 *
-	 * @return resourceLane
+	 * @return resourceCell
 	 *
 	 */
 	@JsonIgnore
-	public List<ResourceLane> getResourceLane() {
-		return this.resourceLane;
+	public List<ResourceCell> getResourceCell() {
+		return this.resourceCell;
 	}
 
 
 	/** 
-	 * setResourceLane
+	 * setResourceCell
 	 *
-	 * @param resourceLane
+	 * @param resourceCell
 	 *
 	 */
-	public void setResourceLane (List<ResourceLane> resourceLane) {
-		this.resourceLane = resourceLane;
+	public void setResourceCell (List<ResourceCell> resourceCell) {
+		this.resourceCell = resourceCell;
 	}
 
 

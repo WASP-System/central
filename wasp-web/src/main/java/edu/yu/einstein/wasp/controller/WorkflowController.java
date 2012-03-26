@@ -41,7 +41,7 @@ import edu.yu.einstein.wasp.model.WorkflowSoftware;
 import edu.yu.einstein.wasp.model.Workflowresourcecategory;
 import edu.yu.einstein.wasp.model.WorkflowresourcecategoryMeta;
 import edu.yu.einstein.wasp.model.WorkflowsoftwareMeta;
-import edu.yu.einstein.wasp.model.Workflowtyperesource;
+import edu.yu.einstein.wasp.model.WorkflowResourceType;
 import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 
@@ -218,7 +218,7 @@ public class WorkflowController extends WaspController {
 		Workflow workflow = workflowDao.getWorkflowByWorkflowId(workflowId); 
 
 		// gets all workflow resources
-		List<Workflowtyperesource> workflowTypeResources = workflow.getWorkflowtyperesource();
+		List<WorkflowResourceType> workflowResourceTypes = workflow.getWorkflowResourceType();
 
 		List<Workflowresourcecategory> workflowResourceCategories = workflow.getWorkflowresourcecategory();
 		Map<String, Workflowresourcecategory> workflowResourceCategoryMap = new HashMap<String, Workflowresourcecategory>();
@@ -246,8 +246,8 @@ public class WorkflowController extends WaspController {
 		
 		// gets names and versions of all software 
 		Map<String, String> workflowSoftwareVersionedNameMap = new HashMap<String, String>();
-		for(Workflowtyperesource wtr : workflowTypeResources){
-			for (Software s : wtr.getTypeResource().getSoftware()){
+		for(WorkflowResourceType wtr : workflowResourceTypes){
+			for (Software s : wtr.getResourceType().getSoftware()){
 				if (s.getIsActive().intValue() == 0){
 					continue;
 				}
@@ -290,7 +290,7 @@ public class WorkflowController extends WaspController {
 
 		m.put("workflowId", workflowId);
 		m.put("workflow", workflow);
-		m.put("workflowTypeResourceMap", workflowTypeResources);
+		m.put("workflowResourceTypeMap", workflowResourceTypes);
 		
 		m.put("workflowResourceCategoryMap", workflowResourceCategoryMap);
 		m.put("workflowResourceOptions", workflowResourceOptions);

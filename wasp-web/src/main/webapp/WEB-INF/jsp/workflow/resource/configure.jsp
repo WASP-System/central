@@ -7,13 +7,13 @@
 
 <form:form  cssClass="FormGrid" method="POST">
 	<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="workflowId" value="<c:out value="${workflowId}" />" />
-	<c:forEach items="${workflowTypeResourceMap}"
-		var="workflowTypeResource">
+	<c:forEach items="${workflowResourceTypeMap}"
+		var="workflowResourceType">
 		<section style="margin-bottom: 20px">
 			<h2>
-				<c:out value="${workflowTypeResource.typeResource.name}" />
+				<c:out value="${workflowResourceType.resourceType.name}" />
 			</h2>
-			<c:forEach items="${workflowTypeResource.typeResource.resourceCategory}"	var="rc">
+			<c:forEach items="${workflowResourceType.resourceType.resourceCategory}"	var="rc">
 				<c:if test="${rc.isActive == 1 }">
 					<c:set var="wrc" value="" />
 					<c:set var="resourceOptions" value="" />
@@ -55,7 +55,7 @@
 					</div>
 				</c:if>
 			</c:forEach>
-			<c:forEach items="${workflowTypeResource.typeResource.software}"
+			<c:forEach items="${workflowResourceType.resourceType.software}"
 				var="software">
 				<c:if test="${software.isActive == 1 }">
 					<c:set var="ws" value="" />

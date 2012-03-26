@@ -22,7 +22,7 @@
   <bean id="truseqIndexedDnaAdaptorsetLoad" class="edu.yu.einstein.wasp.load.AdaptorsetLoadService" >
   	<property name="area" value="#{truseqIndexedDnaArea}" />
   	<property name="name" value="TruSEQ INDEXED DNA" />
-  	<property name="typeSampleIName" value="dna" />
+  	<property name="sampleTypeIName" value="dna" />
   	<property name="compatibleResourcesByIName">
   		<list>
   			<bean class="java.lang.String" depends-on="illuminaHiSeq2000">

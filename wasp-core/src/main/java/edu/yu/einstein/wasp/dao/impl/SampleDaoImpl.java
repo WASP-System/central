@@ -109,8 +109,8 @@ public class SampleDaoImpl extends WaspDaoImpl<Sample> implements edu.yu.einstei
 	@Override
 	public List<Sample> findAllPlatformUnits() {
 		Map queryMap = new HashMap();
-		queryMap.put("typeSample.iName", "platformunit");
-//		queryMap.put("typeSample.typeSampleId", 5);
+		queryMap.put("sampleType.iName", "platformunit");
+//		queryMap.put("sampleType.sampleTypeId", 5);
 		return this.findByMap(queryMap);
 	}
 	

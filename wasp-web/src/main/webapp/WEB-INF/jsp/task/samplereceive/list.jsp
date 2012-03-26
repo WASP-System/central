@@ -15,7 +15,7 @@
 	<td style='text-align:center'><c:out value="${s.statejob[0].job.name}" /></td>
 	<td style='text-align:center'><c:out value="${s.statejob[0].job.user.lastName}" />,<c:out value="${s.statejob[0].job.user.firstName.substring(0,1)}" /></td>
 	<td style='text-align:center'><c:out value="${ss.sample.name}" /></td>
-	<td style='text-align:center'><c:out value="${ss.sample.typeSample.name}" /></td>
+	<td style='text-align:center'><c:out value="${ss.sample.sampleType.name}" /></td>
 	<td style='text-align:center'><form action="<c:url value="/task/samplereceive/receive.do"/>" method="POST" onsubmit="return validate(this);">
  		<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="stateId" value="${s.stateId}">
  		<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="sampleId" value="${ss.sampleId}"> 

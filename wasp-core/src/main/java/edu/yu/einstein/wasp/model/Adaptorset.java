@@ -126,31 +126,31 @@ public class Adaptorset extends WaspModel {
 
 
 	/** 
-	 * typeSampleId
+	 * sampleTypeId
 	 *
 	 */
-	@Column(name="typesampleid")
-	protected Integer typeSampleId;
+	@Column(name="sampletypeid")
+	protected Integer sampleTypeId;
 
 	/**
-	 * setTypeSampleId(Integer typeSampleId)
+	 * setSampleTypeId(Integer sampleTypeId)
 	 *
-	 * @param typeSampleId
+	 * @param sampleTypeId
 	 *
 	 */
 	
-	public void setTypeSampleId (Integer typeSampleId) {
-		this.typeSampleId = typeSampleId;
+	public void setSampleTypeId (Integer sampleTypeId) {
+		this.sampleTypeId = sampleTypeId;
 	}
 
 	/**
-	 * getTypeSampleId()
+	 * getSampleTypeId()
 	 *
-	 * @return typeSampleId
+	 * @return sampleTypeId
 	 *
 	 */
-	public Integer getTypeSampleId () {
-		return this.typeSampleId;
+	public Integer getSampleTypeId () {
+		return this.sampleTypeId;
 	}
 
 
@@ -188,34 +188,34 @@ public class Adaptorset extends WaspModel {
 
 
 	/**
-	 * typeSample
+	 * sampleType
 	 *
 	 */
 	@NotAudited
 	@ManyToOne
-	@JoinColumn(name="typesampleid", insertable=false, updatable=false)
-	protected TypeSample typeSample;
+	@JoinColumn(name="sampletypeid", insertable=false, updatable=false)
+	protected SampleType sampleType;
 
 	/**
-	 * setTypeSample (TypeSample typeSample)
+	 * setSampleType (SampleType sampleType)
 	 *
-	 * @param typeSample
+	 * @param sampleType
 	 *
 	 */
-	public void setTypeSample (TypeSample typeSample) {
-		this.typeSample = typeSample;
-		this.typeSampleId = typeSample.typeSampleId;
+	public void setSampleType (SampleType sampleType) {
+		this.sampleType = sampleType;
+		this.sampleTypeId = sampleType.sampleTypeId;
 	}
 
 	/**
-	 * getTypeSample ()
+	 * getSampleType ()
 	 *
-	 * @return typeSample
+	 * @return sampleType
 	 *
 	 */
 	
-	public TypeSample getTypeSample () {
-		return this.typeSample;
+	public SampleType getSampleType () {
+		return this.sampleType;
 	}
 
 
