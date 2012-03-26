@@ -46,7 +46,7 @@
   </bean>
 
 
-  <bean id="chipSeqDnaSubtypeSampleResource" class="edu.yu.einstein.wasp.load.SubtypeSampleLoadService">
+  <bean id="chipSeqDnaSampleSubtypeResource" class="edu.yu.einstein.wasp.load.SampleSubtypeLoadService">
   	<property name="name" value="ChIP-seq DNA" />
     <property name="area" value="chipseqDnaSample" />
     <property name="sampleType" value="#{waspSampleType['dna']}" />
@@ -62,7 +62,7 @@
          <property name="area" value="chipseqDnaSample" />
          <property name="metaList">
          	<list>        		
-         		<value>#{waspSubtypeSample['includeRoles']}=#{waspRole['ft']},#{waspRole['lu']}</value>
+         		<value>#{waspSampleSubtype['includeRoles']}=#{waspRole['ft']},#{waspRole['lu']}</value>
          	</list>
          </property>
        </bean>
@@ -79,8 +79,8 @@
   </bean>
   
  
-  <bean id="chipSeqLibrarySubtypeSampleResource" class="edu.yu.einstein.wasp.load.SubtypeSampleLoadService">
-  	<constructor-arg ref="chipSeqDnaSubtypeSampleResource" />
+  <bean id="chipSeqLibrarySampleSubtypeResource" class="edu.yu.einstein.wasp.load.SampleSubtypeLoadService">
+  	<constructor-arg ref="chipSeqDnaSampleSubtypeResource" />
     <property name="name" value="ChIP-seq Library" />
     <property name="area" value="chipseqLibrarySample" />
     <property name="sampleType" value="#{waspSampleType['library']}" />
@@ -96,15 +96,15 @@
          <property name="area" value="chipseqLibrarySample" />
          <property name="metaList">
          	<list>        		
-         		<value>#{waspSubtypeSample['includeRoles']}=#{waspRole['lu']}</value>
+         		<value>#{waspSampleSubtype['includeRoles']}=#{waspRole['lu']}</value>
          	</list>
          </property>
        </bean>
     </property>
   </bean>
   
-  <bean id="chipSeqFacilityLibrarySubtypeSampleResource" class="edu.yu.einstein.wasp.load.SubtypeSampleLoadService">
-  	<constructor-arg ref="chipSeqDnaSubtypeSampleResource" />
+  <bean id="chipSeqFacilityLibrarySampleSubtypeResource" class="edu.yu.einstein.wasp.load.SampleSubtypeLoadService">
+  	<constructor-arg ref="chipSeqDnaSampleSubtypeResource" />
     <property name="name" value="ChIP-seq Facility Library" />
     <property name="area" value="chipseqFacilityLibrarySample" />
     <property name="sampleType" value="#{waspSampleType['library']}" />
@@ -118,7 +118,7 @@
          <property name="area" value="chipseqFacilityLibrarySample" />
          <property name="metaList">
          	<list>        		
-         		<value>#{waspSubtypeSample['includeRoles']}=#{waspRole['ft']}</value>
+         		<value>#{waspSampleSubtype['includeRoles']}=#{waspRole['ft']}</value>
          	</list>
          </property>
        </bean>

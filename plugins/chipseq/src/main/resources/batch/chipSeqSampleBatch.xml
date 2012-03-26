@@ -15,7 +15,7 @@
     default-autowire="byName">
 
   <bean id="chipSeqDna.sample.Poller" parent="wasp.sample.Poller">
-    <property name="subtypeSampleIName" value="chipseqDnaSample"/>
+    <property name="sampleSubtypeIName" value="chipseqDnaSample"/>
     <property name="taskIName" value="sampleWrapTask"/>
   </bean>
 
@@ -34,7 +34,7 @@
   </si:service-activator>
 
   <bean id="chipSeqLibrary.sample.Poller" parent="wasp.sample.Poller">
-    <property name="subtypeSampleIName" value="chipseqLibrarySample"/>
+    <property name="sampleSubtypeIName" value="chipseqLibrarySample"/>
     <property name="taskIName" value="sampleWrapTask"/>
   </bean>
 

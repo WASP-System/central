@@ -19,7 +19,7 @@
   </bean>
 
 
-  <bean id="chipSeqWorkflow" class="edu.yu.einstein.wasp.load.WorkflowLoadService" depends-on="chipSeqDnaSubtypeSampleResource,chipSeqLibrarySubtypeSampleResource">
+  <bean id="chipSeqWorkflow" class="edu.yu.einstein.wasp.load.WorkflowLoadService" depends-on="chipSeqDnaSampleSubtypeResource,chipSeqLibrarySampleSubtypeResource">
     <property name="area" value="#{chipSeqWorkflowArea}" />
     <property name="name" value="Chip Seq" />
     <property name="pageFlowOrder">
@@ -45,7 +45,7 @@
       </list>
     </property>
 
-    <property name="subtypeSamples">
+    <property name="sampleSubtypes">
       <set>
         <value>chipSeqDnaSample</value>
         <value>chipSeqLibrarySample</value>
