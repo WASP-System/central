@@ -20,7 +20,6 @@
 					<c:if test="${! empty workflowResourceCategoryMap[rc.IName]}">
 						<c:set var="wrc" value="${workflowResourceCategoryMap[rc.IName]}" />
 					</c:if>
-	
 					<div style="margin-bottom: 20px;">
 						<input class="FormElement ui-widget-content ui-corner-all" type="checkbox" name="resourceCategory"	value='<c:out value="${rc.IName}" />'
 							<c:if test="${!empty wrc}">CHECKED</c:if>>
@@ -55,9 +54,8 @@
 					</div>
 				</c:if>
 			</c:forEach>
-			<c:forEach items="${workflowResourceType.resourceType.software}"
-				var="software">
-				<c:if test="${software.isActive == 1 }">
+			<c:forEach items="${workflowResourceType.resourceType.software}" var="software">
+				<c:if test="${software.isActive == 1}">
 					<c:set var="ws" value="" />
 					<c:set var="resourceOptions" value="" />
 					<c:if test="${! empty workflowSoftwareMap[software.IName]}">
@@ -72,12 +70,18 @@
 							<c:forEach items="${software.softwareMeta}" var="sm">
 								<c:if test="${fn:contains(sm.k, '.allowableUiField.')}">
 									<div>
-										<c:out value="${sm.k}" />
-										<c:set var="optionName"	value="${ws.resourceCategory.IName};${fn:substringAfter(sm.k, '.allowableUiField.')}" />
+										<c:set var="optionName" value="" />
+										<c:if test="${! empty ws && ws != ''}">
+	
+											<c:set var="optionName"	value="${ws.software.IName};${fn:substringAfter(sm.k, '.allowableUiField.')}" />
+	
+										</c:if>
+										<c:out
+											value="${fn:substringAfter(sm.k, '.allowableUiField.')}" />
 										<c:forEach items="${fn:split(sm.v,';')}" var="option">
 											<div style="margin-left: 10px">
-												<input class="FormElement ui-widget-content ui-corner-all" type="checkbox" name="resourceCategoryOption" value='<c:out value="${software.IName};${sm.k};${option}" />'
-													<c:if test="${workflowResourceOptions[optionName].contains(option)}" >
+												<input class="FormElement ui-widget-content ui-corner-all" type="checkbox" name="softwareOption" value='<c:out value="${software.IName};${sm.k};${option}" />'
+													<c:if test="${workflowSoftwareOptions[optionName].contains(option)}" >
 	CHECKED
 													</c:if>>
 												<c:set var="optionValue" value="${fn:split(option, ':')}" />

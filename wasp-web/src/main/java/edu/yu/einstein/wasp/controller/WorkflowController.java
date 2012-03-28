@@ -32,6 +32,7 @@ import edu.yu.einstein.wasp.dao.WorkflowDao;
 import edu.yu.einstein.wasp.dao.WorkflowSoftwareDao;
 import edu.yu.einstein.wasp.dao.WorkflowresourcecategoryDao;
 import edu.yu.einstein.wasp.dao.WorkflowresourcecategoryMetaDao;
+import edu.yu.einstein.wasp.dao.WorkflowsoftwareMetaDao;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.Software;
@@ -67,6 +68,8 @@ public class WorkflowController extends WaspController {
 	private SoftwareDao softwareDao;
 	@Autowired
 	private WorkflowSoftwareDao workflowSoftwareDao;
+	@Autowired
+	private WorkflowsoftwareMetaDao workflowSoftwareMetaDao;
 
 	private final MetaHelperWebapp getMetaHelperWebapp() {
 		return new MetaHelperWebapp("workflow", WorkflowMeta.class,
@@ -315,6 +318,7 @@ public class WorkflowController extends WaspController {
 			@RequestParam(value="resourceCategory", required=false) String[] resourceCategoryParams,
 			@RequestParam(value="resourceCategoryOption", required=false) String[] resourceCategoryOptionParams,
 			@RequestParam(value="software", required=false) String[] softwareParams,
+			@RequestParam(value="softwareOption", required=false) String[] softwareOptionParams,
 
 			ModelMap m) {
 		// return to list if cancel button pressed
@@ -329,8 +333,45 @@ public class WorkflowController extends WaspController {
 		// removes all the software
 		List<WorkflowSoftware> workflowSoftwares = workflow.getWorkflowSoftware();
 		for (WorkflowSoftware ws: workflowSoftwares) {
+			for (WorkflowsoftwareMeta wsm : ws.getWorkflowsoftwareMeta()) {
+				workflowSoftwareMetaDao.remove(wsm);
+				workflowSoftwareMetaDao.flush(wsm);
+			}
+
 			workflowSoftwareDao.remove(ws);
 			workflowSoftwareDao.flush(ws);
+		}
+		
+		// maps software to meta
+		Map<String, Set<String>> sSmMap = new HashMap<String, Set<String>>();
+		// maps meta to options
+		Map<String, String> smOptionMap = new HashMap<String, String>();
+		if (softwareOptionParams != null) {
+			for (int i=0; i < softwareOptionParams.length; i++) {
+				String[] tokenized = softwareOptionParams[i].split(";");
+				String s = tokenized[0];
+				String name = tokenized[1].replaceAll(".*\\.allowableUiField\\.", "");
+				String option = tokenized[2];
+			
+				String key = s + ".allowableUiField." + name;
+				String value = option + ";";
+			
+				if (sSmMap.containsKey(s)) {
+					if (! sSmMap.get(s).contains(key)) {
+						sSmMap.get(s).add(key);
+					}
+				} else {
+					Set<String> meta = new HashSet();
+					meta.add(key);
+					sSmMap.put(s, meta);
+				}
+	
+				if (smOptionMap.containsKey(key)) {
+					smOptionMap.put(key, smOptionMap.get(key) + value);
+				} else {
+					smOptionMap.put(key, value);
+				}
+			}
 		}
 	
 		// puts software back in
@@ -342,8 +383,24 @@ public class WorkflowController extends WaspController {
 				workflowSoftware.setWorkflowId(workflowId);
 				workflowSoftware.setSoftwareId(s.getSoftwareId());
 				workflowSoftwareDao.save(workflowSoftware);
+				int count = 0; 	// counter for position
+				
+				if (sSmMap.containsKey(s.getIName())) {	
+					for (String metaKey : sSmMap.get(s.getIName())) {
+						count++; 
+						WorkflowsoftwareMeta wsm = new WorkflowsoftwareMeta();
+						wsm.setWorkflowsoftwareId(workflowSoftware.getWorkflowSoftwareId());
+						wsm.setK(metaKey);
+						wsm.setV(smOptionMap.get(metaKey));
+						wsm.setPosition(count); 
+						workflowSoftwareMetaDao.save(wsm);
+					}
+				}
 			}
 		}
+	
+		
+		
 
 		// removes all the resource categories and meta
 		List<Workflowresourcecategory> workflowresourcecategorys = workflow.getWorkflowresourcecategory();

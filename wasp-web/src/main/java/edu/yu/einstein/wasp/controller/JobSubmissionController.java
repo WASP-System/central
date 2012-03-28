@@ -77,6 +77,7 @@ import edu.yu.einstein.wasp.dao.TaskDao;
 import edu.yu.einstein.wasp.dao.ResourceTypeDao;
 import edu.yu.einstein.wasp.dao.SampleTypeDao;
 import edu.yu.einstein.wasp.dao.WorkflowDao;
+import edu.yu.einstein.wasp.dao.WorkflowResourceTypeDao;
 import edu.yu.einstein.wasp.dao.WorkflowSoftwareDao;
 import edu.yu.einstein.wasp.dao.WorkflowresourcecategoryDao;
 import edu.yu.einstein.wasp.dao.impl.DBResourceBundle;
@@ -98,6 +99,7 @@ import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.MetaBase;
+import edu.yu.einstein.wasp.model.ResourceType;
 import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleCell;
@@ -113,6 +115,7 @@ import edu.yu.einstein.wasp.model.Task;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Workflow;
 import edu.yu.einstein.wasp.model.WorkflowMeta;
+import edu.yu.einstein.wasp.model.WorkflowResourceType;
 import edu.yu.einstein.wasp.model.WorkflowSoftware;
 import edu.yu.einstein.wasp.model.Workflowresourcecategory;
 import edu.yu.einstein.wasp.model.WorkflowresourcecategoryMeta;
@@ -217,6 +220,9 @@ public class JobSubmissionController extends WaspController {
 
 	@Autowired
 	protected WorkflowresourcecategoryDao workflowresourcecategoryDao;
+	
+	@Autowired
+	protected WorkflowResourceTypeDao workflowResourceTypeDao;
 
 	@Autowired
 	protected WorkflowSoftwareDao workflowSoftwareDao;
@@ -683,29 +689,37 @@ public class JobSubmissionController extends WaspController {
 		return nextPage(jobDraft);
 	}
 	
-	@RequestMapping(value="/resource/{resourcetypeiname}/{jobDraftId}", method=RequestMethod.GET)
+	@RequestMapping(value="/resource/{resourceTypeIName}/{jobDraftId}", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public String showResourceMetaForm(
-			@PathVariable("resourcetypeiname") String resourcetypeiname, 
+			@PathVariable("resourceTypeIName") String resourceTypeIName, 
 			@PathVariable("jobDraftId") Integer jobDraftId, 
 			ModelMap m) {
-		return showResourceMetaForm(resourcetypeiname, jobDraftId, null, m);
-	}
-	
-	public String showResourceMetaForm(String resourcetypeiname, Integer jobDraftId, JobDraft jobDraftForm, ModelMap m){
 		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
-		if (resourceTypeDao.getResourceTypeByIName(resourcetypeiname).getResourceTypeId() == null){
-			throw new NullResourceTypeException("No resource type with name '"+resourcetypeiname+"'");
+		// check at least one resource exists of the requested resource type
+		WorkflowResourceType wrt = workflowResourceTypeDao.getWorkflowResourceTypeByWorkflowIdResourceTypeId(jobDraft.getWorkflow().getWorkflowId(), 
+				resourceTypeDao.getResourceTypeByIName(resourceTypeIName).getResourceTypeId());
+		if (wrt.getResourceTypeId() == null){
+			waspErrorMessage("jobDraft.no_resources.error");
+			return "redirect:/dashboard.do";
 		}
-
+		return showResourceMetaForm(resourceTypeIName, jobDraftId, null, m);
+	}
+	
+	public String showResourceMetaForm(String resourceTypeIName, Integer jobDraftId, JobDraft jobDraftForm, ModelMap m){
 		// make list of available resources
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
 		List<Workflowresourcecategory> allWorkflowResourceCategories = jobDraft.getWorkflow().getWorkflowresourcecategory();
 		List<Workflowresourcecategory> workflowResourceCategories = new ArrayList();
 		for (Workflowresourcecategory w: allWorkflowResourceCategories) {
-			if (! w.getResourceCategory().getResourceType().getIName().equals(resourcetypeiname)) { continue; }
+			if (! w.getResourceCategory().getResourceType().getIName().equals(resourceTypeIName)) { continue; }
 			workflowResourceCategories.add(w); 
+		}
+		if (workflowResourceCategories.isEmpty()){
+			waspErrorMessage("jobDraft.resourceCategories_not_configured.error");
+			return "redirect:/dashboard.do";
 		}
 
 		// get selected resource
@@ -713,11 +727,12 @@ public class JobSubmissionController extends WaspController {
 		String resourceCategoryArea = ""; 
 		String resourceCategoryName = ""; 
 		for (JobDraftresourcecategory jdrc: jobDraft.getJobDraftresourcecategory()) {
-			if (! resourcetypeiname.equals( jdrc.getResourceCategory().getResourceType().getIName())) { continue; }
-
-			jobDraftResourceCategory = jdrc;
-			resourceCategoryArea = jdrc.getResourceCategory().getIName(); 
-			resourceCategoryName = jdrc.getResourceCategory().getName(); 
+			if (resourceTypeIName.equals( jdrc.getResourceCategory().getResourceType().getIName())) {
+				jobDraftResourceCategory = jdrc;
+				resourceCategoryArea = jdrc.getResourceCategory().getIName(); 
+				resourceCategoryName = jdrc.getResourceCategory().getName();
+				break;
+			}
 		}
 
 		// Resource Options loading
@@ -737,6 +752,10 @@ public class JobSubmissionController extends WaspController {
 					option.setValue(pair[0]);
 					option.setLabel(pair[1]);
 					options.add(option);
+				}
+				if (options.isEmpty()){
+					waspErrorMessage("jobDraft.resourceCategories_not_configured.error");
+					return "redirect:/dashboard.do";
 				}
 				resourceOptions.put(key, options);
 			}
@@ -763,9 +782,9 @@ public class JobSubmissionController extends WaspController {
 		return "jobsubmit/resource";
 	}
 
-	@RequestMapping(value="/resource/{resourcetypeiname}/{jobDraftId}", method=RequestMethod.POST)
+	@RequestMapping(value="/resource/{resourceTypeIName}/{jobDraftId}", method=RequestMethod.POST)
 	public String modifyResourceMeta (
-			@PathVariable String resourcetypeiname,
+			@PathVariable String resourceTypeIName,
 			@PathVariable Integer jobDraftId,
 			@Valid JobDraft jobDraftForm,
 			BindingResult result,
@@ -774,8 +793,12 @@ public class JobSubmissionController extends WaspController {
 		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
-		if (resourceTypeDao.getResourceTypeByIName(resourcetypeiname).getResourceTypeId() == null){
-			throw new NullResourceTypeException("No resource type with name '"+resourcetypeiname+"'");
+		// check at least one resource exists of the requested resource type
+		WorkflowResourceType wrt = workflowResourceTypeDao.getWorkflowResourceTypeByWorkflowIdResourceTypeId(jobDraft.getWorkflow().getWorkflowId(), 
+				resourceTypeDao.getResourceTypeByIName(resourceTypeIName).getResourceTypeId());
+		if (wrt.getResourceTypeId() == null){
+			waspErrorMessage("jobDraft.no_resources.error");
+			return "redirect:/dashboard.do";
 		}
 		Map params = request.getParameterMap();
 		Integer changeResource = null;
@@ -790,41 +813,38 @@ public class JobSubmissionController extends WaspController {
 		if (changeResource != null){
 			List<JobDraftresourcecategory> oldJdrs = jobDraft.getJobDraftresourcecategory();
 			for (JobDraftresourcecategory jdr: oldJdrs) {
-				if (jdr.getResourceCategory().getResourceType().getIName().equals(resourcetypeiname)){
+				if (jdr.getResourceCategory().getResourceType().getIName().equals(resourceTypeIName)){
 					jobDraftresourcecategoryDao.remove(jdr);
 					jobDraftresourcecategoryDao.flush(jdr);
 				}
 			}
 			if (changeResource.intValue() == -1) // nothing selected
-				return "redirect:/jobsubmit/resource/" + resourcetypeiname + "/" + jobDraftId + ".do";
+				return "redirect:/jobsubmit/resource/" + resourceTypeIName + "/" + jobDraftId + ".do";
 			JobDraftresourcecategory newJdr = new JobDraftresourcecategory();
 			newJdr.setJobdraftId(jobDraftId);
 			newJdr.setResourcecategoryId(changeResource);
 			jobDraftresourcecategoryDao.save(newJdr);
 
-			return "redirect:/jobsubmit/resource/" + resourcetypeiname + "/" + jobDraftId + ".do";
+			return "redirect:/jobsubmit/resource/" + resourceTypeIName + "/" + jobDraftId + ".do";
 		}
 
 
 		// get selected resource
 		String resourceCategoryArea = ""; 
 		for (JobDraftresourcecategory jdr: jobDraft.getJobDraftresourcecategory()) {
-			if (! resourcetypeiname.equals( jdr.getResourceCategory().getResourceType().getIName())) { continue; }
+			if (! resourceTypeIName.equals( jdr.getResourceCategory().getResourceType().getIName())) { continue; }
 			resourceCategoryArea = jdr.getResourceCategory().getIName();
 		}
 		
 		if (resourceCategoryArea.isEmpty()){
 			waspErrorMessage("jobDraft.changeResource.error");
-			return "redirect:/jobsubmit/resource/" + resourcetypeiname + "/" + jobDraftId + ".do";
+			return "redirect:/jobsubmit/resource/" + resourceTypeIName + "/" + jobDraftId + ".do";
 		}
 		
 		MetaHelperWebapp metaHelperWebapp = getMetaHelperWebapp();
 		metaHelperWebapp.setArea(resourceCategoryArea);
 
 		List<JobDraftMeta> jobDraftMetaList = metaHelperWebapp.getFromRequest(request, JobDraftMeta.class);
-		for (JobDraftMeta jdm: jobDraftMetaList){
-			logger.debug("ANDY: adding the following meta to jobDraftForm: " + jdm.getK());
-		}
 		
 		metaHelperWebapp.validate(result);
 		jobDraftForm.setJobDraftMeta(jobDraftMetaList);
@@ -834,7 +854,7 @@ public class JobSubmissionController extends WaspController {
 			jobDraftForm.setName(jobDraft.getName());
 			jobDraftForm.setWorkflowId(jobDraft.getWorkflowId());
 			jobDraftForm.setLabId(jobDraft.getLabId());
-			return showResourceMetaForm(resourcetypeiname, jobDraftId, jobDraftForm, m);
+			return showResourceMetaForm(resourceTypeIName, jobDraftId, jobDraftForm, m);
 		}
 
 
@@ -848,32 +868,33 @@ public class JobSubmissionController extends WaspController {
    * show software form
    */
 	
-	public String showSoftwareForm(String resourcetypeiname, Integer jobDraftId, JobDraft jobDraftForm, ModelMap m) {
+	public String showSoftwareForm(String resourceTypeIName, Integer jobDraftId, JobDraft jobDraftForm, ModelMap m) {
 		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
-		if (! isJobDraftEditable(jobDraft))
-			return "redirect:/dashboard.do";
-		if (resourceTypeDao.getResourceTypeByIName(resourcetypeiname).getResourceTypeId() == null){
-			throw new NullResourceTypeException("No software resource with name '"+resourcetypeiname+"'");
-		}
 		// make list of available resources
 		List<WorkflowSoftware> allWorkflowSoftwares = jobDraft.getWorkflow().getWorkflowSoftware();
-		List<WorkflowSoftware> workflowSoftwares = new ArrayList();
+		List<WorkflowSoftware> workflowSoftwares = new ArrayList<WorkflowSoftware>();
 		for (WorkflowSoftware w: allWorkflowSoftwares) {
-			if (! w.getSoftware().getResourceType().getIName().equals(resourcetypeiname)) { continue; }
+			if (! w.getSoftware().getResourceType().getIName().equals(resourceTypeIName)) { continue; }
 			workflowSoftwares.add(w); 
+		}
+		if (workflowSoftwares.isEmpty()){
+			waspErrorMessage("jobDraft.software_not_configured.error");
+			return "redirect:/dashboard.do";
 		}
 
 		// get selected resource
 		JobDraftSoftware jobDraftSoftware = null; 
 		String softwareArea = ""; 
 		String softwareName = ""; 
-		for (JobDraftSoftware jdrc: jobDraft.getJobDraftSoftware()) {
-			if (! resourcetypeiname.equals( jdrc.getSoftware().getResourceType().getIName())) { continue; }
-
-			jobDraftSoftware = jdrc;
-			softwareArea = jdrc.getSoftware().getIName(); 
-			softwareName = jdrc.getSoftware().getName(); 
+		for (JobDraftSoftware jds: jobDraft.getJobDraftSoftware()) {
+			if (resourceTypeIName.equals( jds.getSoftware().getResourceType().getIName())) { 
+				jobDraftSoftware = jds;
+				softwareArea = jds.getSoftware().getIName(); 
+				softwareName = jds.getSoftware().getName(); 
+				break;
+			}
 		}
+		
 
 		// Resource Options loading
 		Map<String, List<MetaAttribute.Control.Option>> resourceOptions = new HashMap<String, List<MetaAttribute.Control.Option>>();
@@ -893,10 +914,13 @@ public class JobSubmissionController extends WaspController {
 					option.setLabel(pair[1]);
 					options.add(option);
 				}
+				if (options.isEmpty()){
+					waspErrorMessage("jobDraft.software_not_configured.error");
+					return "redirect:/dashboard.do";
+				}
 				resourceOptions.put(key, options);
 			}
 		}
-
 
 		MetaHelperWebapp metaHelperWebapp = getMetaHelperWebapp();
 		metaHelperWebapp.setArea(softwareArea);
@@ -920,18 +944,28 @@ public class JobSubmissionController extends WaspController {
 	
 	
 
-	@RequestMapping(value="/software/{resourcetypeiname}/{jobDraftId}", method=RequestMethod.GET)
+	@RequestMapping(value="/software/{resourceTypeIName}/{jobDraftId}", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public String showSoftwareForm(
-			@PathVariable("resourcetypeiname") String resourcetypeiname, 
+			@PathVariable("resourceTypeIName") String resourceTypeIName, 
 			@PathVariable("jobDraftId") Integer jobDraftId, 
 			ModelMap m) {
-		return showSoftwareForm(resourcetypeiname, jobDraftId, null ,m);
+		// check at least one resource exists of the requested resource type
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
+		if (! isJobDraftEditable(jobDraft))
+			return "redirect:/dashboard.do";
+		WorkflowResourceType wrt = workflowResourceTypeDao.getWorkflowResourceTypeByWorkflowIdResourceTypeId(jobDraft.getWorkflow().getWorkflowId(), 
+				resourceTypeDao.getResourceTypeByIName(resourceTypeIName).getResourceTypeId());
+		if (wrt.getResourceTypeId() == null){
+			waspErrorMessage("jobDraft.no_resources.error");
+			return "redirect:/dashboard.do";
+		}
+		return showSoftwareForm(resourceTypeIName, jobDraftId, null ,m);
 	}
 
-	@RequestMapping(value="/software/{resourcetypeiname}/{jobDraftId}", method=RequestMethod.POST)
+	@RequestMapping(value="/software/{resourceTypeIName}/{jobDraftId}", method=RequestMethod.POST)
 	public String modifySoftwareMeta (
-			@PathVariable String resourcetypeiname,
+			@PathVariable String resourceTypeIName,
 			@PathVariable Integer jobDraftId,
 			@Valid JobDraft jobDraftForm,
 			BindingResult result,
@@ -940,8 +974,11 @@ public class JobSubmissionController extends WaspController {
 		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
-		if (resourceTypeDao.getResourceTypeByIName(resourcetypeiname).getResourceTypeId() == null){
-			throw new NullResourceTypeException("No software resource with name '"+resourcetypeiname+"'");
+		WorkflowResourceType wrt = workflowResourceTypeDao.getWorkflowResourceTypeByWorkflowIdResourceTypeId(jobDraft.getWorkflow().getWorkflowId(), 
+				resourceTypeDao.getResourceTypeByIName(resourceTypeIName).getResourceTypeId());
+		if (wrt.getResourceTypeId() == null){
+			waspErrorMessage("jobDraft.no_resources.error");
+			return "redirect:/dashboard.do";
 		}
 		
 		Map params = request.getParameterMap();
@@ -955,32 +992,32 @@ public class JobSubmissionController extends WaspController {
 		// set the resource and reload the page.
 		// todo: consider wiping out old meta values?
 		if (changeResource != null) {
-			List<JobDraftSoftware> oldJdrs = jobDraft.getJobDraftSoftware();
-			for (JobDraftSoftware jdr: oldJdrs) {
-				if (jdr.getSoftware().getResourceType().getIName().equals(resourcetypeiname))
-				jobDraftSoftwareDao.remove(jdr);
-				jobDraftSoftwareDao.flush(jdr);
+			List<JobDraftSoftware> oldJds = jobDraft.getJobDraftSoftware();
+			for (JobDraftSoftware jds: oldJds) {
+				if (jds.getSoftware().getResourceType().getIName().equals(resourceTypeIName))
+				jobDraftSoftwareDao.remove(jds);
+				jobDraftSoftwareDao.flush(jds);
 			}
 			if (changeResource.intValue() == -1) // nothing selected
-				return "redirect:/jobsubmit/software/" + resourcetypeiname + "/" + jobDraftId + ".do";
+				return "redirect:/jobsubmit/software/" + resourceTypeIName + "/" + jobDraftId + ".do";
 			JobDraftSoftware newJdr = new JobDraftSoftware();
 			newJdr.setJobdraftId(jobDraftId);
 			newJdr.setSoftwareId(changeResource);
 			jobDraftSoftwareDao.save(newJdr);
 
-			return "redirect:/jobsubmit/software/" + resourcetypeiname + "/" + jobDraftId + ".do";
+			return "redirect:/jobsubmit/software/" + resourceTypeIName + "/" + jobDraftId + ".do";
 		}
 
 		// get selected resource
 		String softwareArea = ""; 
 		for (JobDraftSoftware jobDraftSoftware: jobDraft.getJobDraftSoftware()) {
-			if (! resourcetypeiname.equals( jobDraftSoftware.getSoftware().getResourceType().getIName())) { continue; }
+			if (! resourceTypeIName.equals( jobDraftSoftware.getSoftware().getResourceType().getIName())) { continue; }
 			softwareArea = jobDraftSoftware.getSoftware().getIName();
 		}
 		
 		if (softwareArea.isEmpty()){
 			waspErrorMessage("jobDraft.changeSoftwareResource.error");
-			return "redirect:/jobsubmit/software/" + resourcetypeiname + "/" + jobDraftId + ".do";
+			return "redirect:/jobsubmit/software/" + resourceTypeIName + "/" + jobDraftId + ".do";
 		}
 		
 		MetaHelperWebapp metaHelperWebapp = getMetaHelperWebapp();
@@ -997,7 +1034,7 @@ public class JobSubmissionController extends WaspController {
 			jobDraftForm.setWorkflowId(jobDraft.getWorkflowId());
 			jobDraftForm.setLabId(jobDraft.getLabId());
 			waspErrorMessage("jobDraft.form.error");
-			String returnPage = showSoftwareForm(resourcetypeiname, jobDraftId, jobDraftForm, m); 
+			String returnPage = showSoftwareForm(resourceTypeIName, jobDraftId, jobDraftForm, m); 
 			return returnPage;
 		}
 

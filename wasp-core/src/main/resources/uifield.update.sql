@@ -865,6 +865,9 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','page_footer','label','','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','no_workflows','error','There are currently no active workflows to create a job for.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','no_lab','error','You are not registered as a lab user but must be one to submit a job','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','no_resources','error','No resources of the requested type have been assigned to the current workflow','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','software_not_configured','error','Software options for this workflow have not been properly configured','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','resourceCategories_not_configured','error','Resource options for this workflow have not been properly configured','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','workflow','listname','label','List of Workflows','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','workflow','workflowId','label','Workflow Id','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','workflow','isActive','label','Is Active?','1');

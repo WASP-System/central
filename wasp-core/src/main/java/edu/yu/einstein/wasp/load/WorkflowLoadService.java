@@ -139,8 +139,6 @@ public class WorkflowLoadService extends WaspLoadService {
         workflow = workflowDao.getWorkflowByIName(iname); 
         workflowDao.refresh(workflow); 
     }
-     
-    logger.debug("ANDY: workflow id for iname="+iname+" is :"+workflow.getWorkflowId());
     
     // update dependencies
     Map<String,WorkflowResourceType> oldWorkflowResourceTypes = new HashMap<String, WorkflowResourceType>();
