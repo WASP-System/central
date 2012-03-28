@@ -453,6 +453,10 @@ public class JobSubmissionController extends WaspController {
 	@RequestMapping(value="/create.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('lu-*')")
 	public String showCreateForm(ModelMap m) {
+		// if we have been tracking another jobDraft remove the session variable
+		if (request.getSession().getAttribute("jobDraftId") != null){
+			request.getSession().removeAttribute("jobDraftId");
+		}
 		m.put("jobDraft", new JobDraft()); 
 		return generateCreateForm(m);
 	}
@@ -464,7 +468,12 @@ public class JobSubmissionController extends WaspController {
 			BindingResult result,
 			SessionStatus status,
 			ModelMap m) {
-
+		
+		if (request.getSession().getAttribute("jobDraftId") != null){
+			// user has pressed submit twice or used the back button and potentially modified the form
+			return modify((Integer) request.getSession().getAttribute("jobDraftId"), jobDraftForm, result, status, m);
+		}
+		
 		User me = authenticationService.getAuthenticatedUser();
 		
 		Errors errors = new BindException(result.getTarget(), "jobDraft");
@@ -492,7 +501,11 @@ public class JobSubmissionController extends WaspController {
 		jobDraftForm.setStatus("PENDING");
 		jobDraftForm.setCreatets(new Date());
 		JobDraft jobDraftDb = jobDraftDao.save(jobDraftForm); 
-
+		// sometimes if user presses submit button twice a job is created but on re-submission it complains
+		// that the job name already exists. Also happens if the back button is used on job creation
+		// Check session to see if we have already submitted job
+		request.getSession().setAttribute("jobDraftId", (Integer) jobDraftDb.getJobDraftId());
+		
 		// Adds the jobdraft to authorized list
  		doReauth();
 
@@ -529,7 +542,10 @@ public class JobSubmissionController extends WaspController {
 	@RequestMapping(value="/modify/{jobDraftId}.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public String modify(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
-	
+		// if we have been tracking another jobDraft remove the session variable
+		if (request.getSession().getAttribute("jobDraftId") != null){
+			request.getSession().removeAttribute("jobDraftId");
+		}
 		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
 
 		if (! isJobDraftEditable(jobDraft))
