@@ -6,7 +6,10 @@
 </h1>
 
 <form:form  cssClass="FormGrid" method="POST">
-	<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="workflowId" value="<c:out value="${workflowId}" />" />
+	<input type="hidden" name="workflowId" value="<c:out value="${workflowId}" />" />
+	<c:set var="requiredResourceCategoryOptions" value="" />
+	<c:set var="requiredSoftwareOptions" value="" />
+	
 	<c:forEach items="${workflowResourceTypeMap}"
 		var="workflowResourceType">
 		<section style="margin-bottom: 20px">
@@ -21,13 +24,14 @@
 						<c:set var="wrc" value="${workflowResourceCategoryMap[rc.IName]}" />
 					</c:if>
 					<div style="margin-bottom: 20px;">
-						<input class="FormElement ui-widget-content ui-corner-all" type="checkbox" name="resourceCategory"	value='<c:out value="${rc.IName}" />'
+						<input class="FormElement ui-widget-content ui-corner-all" type="checkbox" name="resourceCategory"	id="<c:out value="${rc.IName}" />" value='<c:out value="${rc.IName}" />'
 							<c:if test="${!empty wrc}">CHECKED</c:if>>
 						<c:out value="${rc.name}" />
 						<div style="margin-left: 20px;">
 							<c:forEach items="${rc.resourceCategoryMeta}" var="rcm">
 								<c:if test="${fn:contains(rcm.k, '.allowableUiField.')}">
 									<div>
+										<c:set var="requiredResourceCategoryOptions" value="${requiredResourceCategoryOptions}${rcm.k};" />
 										<c:set var="optionName" value="" />
 										<c:if test="${! empty wrc && wrc != ''}">
 	
@@ -39,7 +43,7 @@
 											value="${fn:substringAfter(rcm.k, '.allowableUiField.')}" />
 										<c:forEach items="${fn:split(rcm.v,';')}" var="option">
 											<div style="margin-left: 10px">
-												<input class="FormElement ui-widget-content ui-corner-all" type="checkbox" name="resourceCategoryOption" value='<c:out value="${rc.IName};${rcm.k};${option}" />'
+												<input class="FormElement ui-widget-content ui-corner-all" type="checkbox" name="resourceCategoryOption" value='<c:out value="${rc.IName};${rcm.k};${option}"  />' onchange="checkParent(this,'${rc.IName}')"
 													<c:if test="${workflowResourceOptions[optionName].contains(option)}" >
 	CHECKED
 													</c:if>>
@@ -63,13 +67,14 @@
 					</c:if>
 	
 					<div style="margin-bottom: 20px;">
-						<input class="FormElement ui-widget-content ui-corner-all" type="checkbox" name="software"	value='<c:out value="${software.IName}" />'
+						<input class="FormElement ui-widget-content ui-corner-all" type="checkbox" name="software"	id="<c:out value="${software.IName}" />" value='<c:out value="${software.IName}" />' 
 							<c:if test="${!empty ws}">CHECKED</c:if>>
 						<c:out value="${workflowSoftwareVersionedNameMap[software.IName]}" />
 						<div style="margin-left: 20px;">
 							<c:forEach items="${software.softwareMeta}" var="sm">
 								<c:if test="${fn:contains(sm.k, '.allowableUiField.')}">
 									<div>
+										<c:set var="requiredSoftwareOptions" value="${requiredSoftwareOptions}${sm.k};" />
 										<c:set var="optionName" value="" />
 										<c:if test="${! empty ws && ws != ''}">
 	
@@ -80,7 +85,7 @@
 											value="${fn:substringAfter(sm.k, '.allowableUiField.')}" />
 										<c:forEach items="${fn:split(sm.v,';')}" var="option">
 											<div style="margin-left: 10px">
-												<input class="FormElement ui-widget-content ui-corner-all" type="checkbox" name="softwareOption" value='<c:out value="${software.IName};${sm.k};${option}" />'
+												<input class="FormElement ui-widget-content ui-corner-all" type="checkbox" name="softwareOption" value='<c:out value="${software.IName};${sm.k};${option}"  />' onchange="checkParent(this, '${software.IName}')"
 													<c:if test="${workflowSoftwareOptions[optionName].contains(option)}" >
 	CHECKED
 													</c:if>>
@@ -97,6 +102,8 @@
 			</c:forEach>
 		</section>
 	</c:forEach>
+	<input type="hidden" name="requiredResourceCategoryOptions" value="<c:out value="${requiredResourceCategoryOptions}" />" />
+	<input type="hidden" name="requiredSoftwareOptions" value="<c:out value="${requiredSoftwareOptions}" />" />
 	<div class="submit">
 		<input class="FormElement ui-widget-content ui-corner-all" type="submit" name="submit" value="<fmt:message key="workflow.submit.label" />" />
 		<input class="FormElement ui-widget-content ui-corner-all" type="submit" name="submit" value="<fmt:message key="workflow.cancel.label" />">

@@ -707,7 +707,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','jobsubmit/cell','label','Cells','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','jobsubmit/ok','label','Success','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','sysrole/list','label','System User Management','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','workflow/resource/form','label','Workflow Resource Assignment','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','workflow/resource/configure','label','Workflow Resource Assignment','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','workflow/list','label','Workflow List','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','sample/list','label','Sample Utilities','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','job/list','label','Job List','1');
@@ -875,7 +875,8 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','workflow','name','label','Workflow Name','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','workflow','submit','label','Save Choices','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','workflow','cancel','label','Cancel','1');
-
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','workflow','non-configured_parameter','error','At least one option must be checked for each parameter presented for a selected resource','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','workflow','missing_resource_type','error','At least one option must be checked for each resource or software type','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','acctquote/list','label','List of Job Quotes','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','acctQuote','acctquote_list','label','List of Job Quotes','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','acctQuote','name','label','Job Name','1');

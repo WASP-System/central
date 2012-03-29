@@ -382,6 +382,7 @@
 		<put-attribute name="body-content" value="/WEB-INF/jsp/workflow/detail_rw.jsp" />
 	</definition>
 	<definition name="workflow/resource/configure" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/workflow/resource/configure.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/workflow/resource/configure.jsp" />
 	</definition>
 

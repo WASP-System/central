@@ -226,8 +226,7 @@ public class WorkflowController extends WaspController {
 		List<Workflowresourcecategory> workflowResourceCategories = workflow.getWorkflowresourcecategory();
 		Map<String, Workflowresourcecategory> workflowResourceCategoryMap = new HashMap<String, Workflowresourcecategory>();
 
-		// stores the resource options
-		// cheating just using workflowIname,uifieldId as key
+		// stores the previously selected workflowResource options
 		Map<String, Set<String>> workflowResourceOptions = new HashMap<String, Set<String>>();
 		for (Workflowresourcecategory wrc: workflowResourceCategories) {
 			if (wrc.getResourceCategory().getIsActive() == 0){
@@ -238,7 +237,7 @@ public class WorkflowController extends WaspController {
 				if (wrcm.getK().matches(".*\\.allowableUiField\\..*")) {
 					String optionName = wrc.getResourceCategory().getIName() + ";" + 
 							wrcm.getK().replaceAll(".*\\.allowableUiField\\.", "");
-					Set<String> options = new HashSet();
+					Set<String> options = new HashSet<String>();
 					for (String option : wrcm.getV().split(";")){
 						options.add(option);
 					}
@@ -246,7 +245,6 @@ public class WorkflowController extends WaspController {
 				}
 			}
 		}
-		
 		// gets names and versions of all software 
 		Map<String, String> workflowSoftwareVersionedNameMap = new HashMap<String, String>();
 		for(WorkflowResourceType wtr : workflowResourceTypes){
@@ -266,8 +264,7 @@ public class WorkflowController extends WaspController {
 		Map<String, WorkflowSoftware> workflowSoftwareMap = new HashMap<String, WorkflowSoftware>();
 		
 
-		// stores the resource options
-		// cheating just using workflowIname,uifieldId as key
+		// stores the previously selected workflowSoftware options
 		Map<String, Set<String>> workflowSoftwareOptions = new HashMap<String, Set<String>>();
 		for (WorkflowSoftware ws: workflowSoftwares) {
 			if (ws.getSoftware().getIsActive().intValue() == 0){
@@ -277,7 +274,6 @@ public class WorkflowController extends WaspController {
 			String version = softwareMetaDao.getSoftwareMetaByKSoftwareId(area+".currentVersion", ws.getSoftware().getSoftwareId()).getV();
 			version = (version == null) ? "" : version; 
 			workflowSoftwareMap.put(area, ws);
-			
 			for (WorkflowsoftwareMeta wsm: ws.getWorkflowsoftwareMeta()) {
 				if (wsm.getK().matches(".*\\.allowableUiField\\..*")) {
 					String optionName = ws.getSoftware().getIName() + ";" + 
@@ -315,6 +311,8 @@ public class WorkflowController extends WaspController {
 	@PreAuthorize("hasRole('su') or hasRole('fm')")
 	public String updateSoftware(
 			@RequestParam("workflowId") Integer workflowId,
+			@RequestParam("requiredResourceCategoryOptions") String requiredResourceCategoryOptionsString,
+			@RequestParam("requiredSoftwareOptions") String requiredSoftwareOptionsString,
 			@RequestParam(value="resourceCategory", required=false) String[] resourceCategoryParams,
 			@RequestParam(value="resourceCategoryOption", required=false) String[] resourceCategoryOptionParams,
 			@RequestParam(value="software", required=false) String[] softwareParams,
@@ -326,20 +324,39 @@ public class WorkflowController extends WaspController {
 		if ( submitValue.equals(messageService.getMessage("workflow.cancel.label")) ){
 			return "redirect:/workflow/list.do"; 
 		}
+		
+		Set<String> requiredResourceCategoryOptions = new HashSet<String>();
+		
+		for (String rrco: requiredResourceCategoryOptionsString.split(";")){
+			if (!rrco.isEmpty()){ 
+				if (resourceCategoryParams == null) continue;
+				for (String rc : resourceCategoryParams){
+					if (rrco.startsWith(rc)){
+						requiredResourceCategoryOptions.add(rrco);
+						break;
+					}
+				}
+			}
+		}
+		Set<String> requiredSoftwareOptions = new HashSet<String>();
+		for (String rso: requiredSoftwareOptionsString.split(";")){
+			if (!rso.isEmpty()){ 
+				if (softwareParams == null) continue;
+				for (String sp : softwareParams){
+					if (rso.startsWith(sp)){
+						requiredSoftwareOptions.add(rso);
+						break;
+					}
+				}
+			}
+		}
 		Workflow workflow = workflowDao.getWorkflowByWorkflowId(workflowId); 
 		m.put("workflowId", workflowId);
 		m.put("workflow", workflow);
 
-		// removes all the software
-		List<WorkflowSoftware> workflowSoftwares = workflow.getWorkflowSoftware();
-		for (WorkflowSoftware ws: workflowSoftwares) {
-			for (WorkflowsoftwareMeta wsm : ws.getWorkflowsoftwareMeta()) {
-				workflowSoftwareMetaDao.remove(wsm);
-				workflowSoftwareMetaDao.flush(wsm);
-			}
-
-			workflowSoftwareDao.remove(ws);
-			workflowSoftwareDao.flush(ws);
+		Set<Integer> resourceTypeIds = new HashSet<Integer>();
+		for(WorkflowResourceType wrt: workflow.getWorkflowResourceType()){
+			resourceTypeIds.add(wrt.getResourceTypeId());
 		}
 		
 		// maps software to meta
@@ -351,6 +368,10 @@ public class WorkflowController extends WaspController {
 				String[] tokenized = softwareOptionParams[i].split(";");
 				String s = tokenized[0];
 				String name = tokenized[1].replaceAll(".*\\.allowableUiField\\.", "");
+				
+				if (requiredSoftwareOptions.contains(tokenized[1])){
+					requiredSoftwareOptions.remove(tokenized[1]);
+				}
 				String option = tokenized[2];
 			
 				String key = s + ".allowableUiField." + name;
@@ -361,7 +382,7 @@ public class WorkflowController extends WaspController {
 						sSmMap.get(s).add(key);
 					}
 				} else {
-					Set<String> meta = new HashSet();
+					Set<String> meta = new HashSet<String>();
 					meta.add(key);
 					sSmMap.put(s, meta);
 				}
@@ -373,20 +394,36 @@ public class WorkflowController extends WaspController {
 				}
 			}
 		}
-	
-		// puts software back in
+			
+		// update the database
+		
+		// removes all the software
+		List<WorkflowSoftware> workflowSoftwares = workflow.getWorkflowSoftware();
+		for (WorkflowSoftware ws: workflowSoftwares) {
+			for (WorkflowsoftwareMeta wsm : ws.getWorkflowsoftwareMeta()) {
+				workflowSoftwareMetaDao.remove(wsm);
+				workflowSoftwareMetaDao.flush(wsm);
+			}
+
+			workflowSoftwareDao.remove(ws);
+			workflowSoftwareDao.flush(ws);
+		}
 		if (softwareParams != null) {
+			// puts software back in
 			for (int i=0; i< softwareParams.length; i++) {
 				WorkflowSoftware workflowSoftware = new WorkflowSoftware();
 		
-				Software s = softwareDao.getSoftwareByIName(softwareParams[i]);
+				Software software = softwareDao.getSoftwareByIName(softwareParams[i]);
 				workflowSoftware.setWorkflowId(workflowId);
-				workflowSoftware.setSoftwareId(s.getSoftwareId());
+				workflowSoftware.setSoftwareId(software.getSoftwareId());
 				workflowSoftwareDao.save(workflowSoftware);
+				if (resourceTypeIds.contains(software.getResourceTypeId())){
+					resourceTypeIds.remove(software.getResourceTypeId());
+				}
 				int count = 0; 	// counter for position
 				
-				if (sSmMap.containsKey(s.getIName())) {	
-					for (String metaKey : sSmMap.get(s.getIName())) {
+				if (sSmMap.containsKey(software.getIName())) {	
+					for (String metaKey : sSmMap.get(software.getIName())) {
 						count++; 
 						WorkflowsoftwareMeta wsm = new WorkflowsoftwareMeta();
 						wsm.setWorkflowsoftwareId(workflowSoftware.getWorkflowSoftwareId());
@@ -398,21 +435,6 @@ public class WorkflowController extends WaspController {
 				}
 			}
 		}
-	
-		
-		
-
-		// removes all the resource categories and meta
-		List<Workflowresourcecategory> workflowresourcecategorys = workflow.getWorkflowresourcecategory();
-		for (Workflowresourcecategory wrc: workflowresourcecategorys) {
-			for (WorkflowresourcecategoryMeta wrcm : wrc.getWorkflowresourcecategoryMeta()) {
-				workflowResourceCategoryMetaDao.remove(wrcm);
-				workflowResourceCategoryMetaDao.flush(wrcm);
-			}
-
-			workflowResourceCategoryDao.remove(wrc);
-			workflowResourceCategoryDao.flush(wrc);
-		}
 
 		// maps resourceCategory to meta
 		Map<String, Set<String>> rcRcmMap = new HashMap<String, Set<String>>();
@@ -423,6 +445,9 @@ public class WorkflowController extends WaspController {
 				String[] tokenized = resourceCategoryOptionParams[i].split(";");
 				String rc = tokenized[0];
 				String name = tokenized[1].replaceAll(".*\\.allowableUiField\\.", "");
+				if (requiredResourceCategoryOptions.contains(tokenized[1])){
+					requiredResourceCategoryOptions.remove(tokenized[1]);
+				}
 				String option = tokenized[2];
 			
 				String key = rc + ".allowableUiField." + name;
@@ -446,8 +471,21 @@ public class WorkflowController extends WaspController {
 			}
 		}
 
-		// puts resource categories back in
+		// updates database
+		
+		// removes all the resource categories and meta
+		List<Workflowresourcecategory> workflowresourcecategorys = workflow.getWorkflowresourcecategory();
+		for (Workflowresourcecategory wrc: workflowresourcecategorys) {
+			for (WorkflowresourcecategoryMeta wrcm : wrc.getWorkflowresourcecategoryMeta()) {
+				workflowResourceCategoryMetaDao.remove(wrcm);
+				workflowResourceCategoryMetaDao.flush(wrcm);
+			}
+
+			workflowResourceCategoryDao.remove(wrc);
+			workflowResourceCategoryDao.flush(wrc);
+		}
 		if (resourceCategoryParams != null) {
+			// puts resource categories back in
 			for (int i=0; i< resourceCategoryParams.length; i++) {
 				Workflowresourcecategory workflowResourceCategory = new Workflowresourcecategory();
 			
@@ -456,7 +494,9 @@ public class WorkflowController extends WaspController {
 				workflowResourceCategory.setWorkflowId(workflowId);
 				workflowResourceCategory.setResourcecategoryId(rc.getResourceCategoryId());
 				workflowResourceCategoryDao.save(workflowResourceCategory);
-		
+				if (resourceTypeIds.contains(rc.getResourceTypeId())){
+					resourceTypeIds.remove(rc.getResourceTypeId());
+				}
 				int count = 0; 	// counter for position
 	
 				if (rcRcmMap.containsKey(rc.getIName())) {	
@@ -472,6 +512,19 @@ public class WorkflowController extends WaspController {
 					}
 				}
 			}
+		}
+
+		if (!requiredResourceCategoryOptions.isEmpty() || !requiredSoftwareOptions.isEmpty() || !resourceTypeIds.isEmpty()){
+			if (!requiredResourceCategoryOptions.isEmpty() || !requiredSoftwareOptions.isEmpty()){
+				// at least one required parameter was not processed from the returned request parameters
+				waspErrorMessage("workflow.non-configured_parameter.error");
+			}
+			if (!resourceTypeIds.isEmpty()){
+				// at least one resource category or software of each required resource type must be checked
+				waspErrorMessage("workflow.missing_resource_type.error");
+			}
+			
+			return("redirect:/workflow/resource/configure.do?selId="+ workflowId);
 		}
 
 		return "redirect:/workflow/list.do"; 
