@@ -373,18 +373,24 @@ public class SampleDnaToLibraryController extends WaspController {
 				}
 			}
 		}
+		
+		Map jobCellFilter = new HashMap();
+		jobCellFilter.put("jobId", job.getJobId().intValue());
+		List<String> orderByList = new ArrayList<String>();
+		orderByList.add("cellindex");
+		List<JobCell> jobCellList = jobCellDao.findByMapDistinctOrderBy(jobCellFilter, null, orderByList, "ASC");
+		/* for(JobCell jobCell : jobCellList){
+			System.out.println(jobCell.getCellindex().intValue());
+		} */
 	  
 	  
-	  
-	  
-	  
-	  
-	  m.addAttribute("flowCells", flowCells);
-	  m.addAttribute("samplesSubmitted", submittedSamples);
-	  m.addAttribute("received", receivedList);
-	  m.addAttribute("librariespersample", librariesPerSampleList);
+		m.addAttribute("jobCellList", jobCellList);
+		m.addAttribute("flowCells", flowCells);
+		m.addAttribute("samplesSubmitted", submittedSamples);
+		m.addAttribute("received", receivedList);
+		m.addAttribute("librariespersample", librariesPerSampleList);
 
-	  return "sampleDnaToLibrary/listJobSamples";
+		return "sampleDnaToLibrary/listJobSamples";
   }
 
    @RequestMapping(value = "/createLibraryFromMacro", method = RequestMethod.GET)//here, macromolSampleId represents a macromolecule (genomic DNA or RNA) submitted to facility for conversion to a library

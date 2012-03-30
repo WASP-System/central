@@ -6,8 +6,43 @@
 <h1><fmt:message key="sampleDnaToLibrary.listJobSamples.title_label" /></h1>
 <c:import url="/WEB-INF/jsp/sampleDnaToLibrary/jobdetail_for_import.jsp" />
 <br />
-<hr />
-<br />
+<!--  <div id="accordion">         
+ 	<h4><a href="#">User-Requested Coverage</a></h4>
+    <div>
+    <table class="data">
+		<tr class="FormData"><td colspan="2" class="label-centered">User-Requested Coverage</td></tr>
+		<c:forEach items="${jobCellList}" var="jobCell">
+			 <tr class="FormData">
+				<td class="label-centered" >Requested Lane <c:out value="${jobCell.cellindex}" /></td>
+				<td class="value-centered" >   
+				<c:forEach items="${jobCell.sampleCell}" var="sampleCell">
+					<c:out value="${sampleCell.sample.name}" /><br />
+				</c:forEach>
+				</td>
+ 			</tr>
+		</c:forEach>
+	</table>
+    </div> 
+</div> -->
+
+<div>
+<input  class="fm-button" type="button" id="requested_coverage_show_hide_button" value="Show User-Requested Coverage"  />
+</div>
+<div id="user_requested_coverage_data" style="display:none">
+<table class="data">
+<tr class="FormData"><td colspan="2" class="label-centered">User-Requested Coverage</td></tr>
+<c:forEach items="${jobCellList}" var="jobCell">
+ <tr class="FormData">
+	<td class="label-centered" >Requested Lane <c:out value="${jobCell.cellindex}" /></td>
+	<td class="value-centered" >   
+		<c:forEach items="${jobCell.sampleCell}" var="sampleCell">
+			<c:out value="${sampleCell.sample.name}" /><br />
+		</c:forEach>
+	</td>
+ </tr>
+</c:forEach>
+</table>
+</div>
 
 <table class="data"> 
 <tr class="FormData"><td class="label-centered">Initial Macromolecule</td><td class="label-centered">Libraries</td><td class="label-centered">FlowCells/Runs</td></tr>

@@ -1490,13 +1490,52 @@ public class PlatformUnitController extends WaspController {
 	@PreAuthorize("hasRole('ft')")
 	public String assignmentRemove(
 			@RequestParam("samplesourceid") Integer sampleSourceId,
-			@RequestParam("jobId") Integer jobId,
+			@RequestParam(value="jobId", required=false) Integer jobId,
+			@RequestParam(value="platformUnitId", required=false) Integer platformUnitId,
 			ModelMap m) {
 
-			removeLibraryFromLane(sampleSourceId);
+		if( jobId == null  &&  platformUnitId == null ){
+			//TODO message stating parameter problem
+			return "redirect:/dashboard.do";
+		}
+		else if(jobId != null && platformUnitId != null){//don't know what to do
+			//TODO message stating parameter problem
+			return "redirect:/dashboard.do";
+		}
+		removeLibraryFromLane(sampleSourceId);
+		if(jobId != null){
 			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
+		}
+		else if(platformUnitId != null){
+			return "redirect:/facility/platformunit/showPlatformUnit/" + platformUnitId + ".do";
+		}
+		return "redirect:/dashboard.do";//it really wants to see some return statement outside the if clauses
 	  }
+	
+	/*
+	 * update sampleSourceMetaData libConcInLanePicoM
+	 */
+	@RequestMapping(value="/updateConcInLane.do", method=RequestMethod.POST)
+	@PreAuthorize("hasRole('ft')")
+	public String updateConcInLane(
+			@RequestParam("sampleSourceMetaId") Integer sampleSourceMetaId,
+			@RequestParam("libConcInLanePicoM") String libConcInLanePicoM,
+			@RequestParam("platformUnitId") Integer platformUnitId,
+			ModelMap m) {
 		
+		//TODO confirm parameters
+		//confirm libConcInLanePicoM is integer or float
+		//confirm platformUnitId is Id of sample that is a platformUnit
+		//confirm that sampleSourceMetaId exists and k == "libConcInLanePicoM"
+		SampleSourceMeta sampleSourceMeta = sampleSourceMetaDao.getSampleSourceMetaBySampleSourceMetaId(sampleSourceMetaId);
+		sampleSourceMeta.setV(libConcInLanePicoM);
+		sampleSourceMetaDao.save(sampleSourceMeta);
+		//return "redirect:/dashboard.do";
+		return "redirect:/facility/platformunit/showPlatformUnit/" + platformUnitId.intValue() + ".do";
+
+	}
+	
+	
 	private void removeLibraryFromLane(Integer sampleSourceId){
 
 		SampleSource sampleSource = sampleSourceDao.getSampleSourceBySampleSourceId(sampleSourceId);//this samplesource should represent a cell->lib link, where sampleid is the cell and source-sampleid is the library 
@@ -1527,7 +1566,28 @@ public class PlatformUnitController extends WaspController {
 	@RequestMapping(value = "/showPlatformUnit/{sampleId}.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public String showPlatformUnit(@PathVariable("sampleId") Integer sampleId, ModelMap m){
-		return "redirect:/dashboard.do";
+		
+		Sample platformUnit = sampleDao.getSampleBySampleId(sampleId.intValue());
+		if(platformUnit.getSampleId().intValue()==0){
+			//TODO return where you came from (wherever that was; in this case it was listJobSamples and needs a jobId, whcih I don't have)			
+		}
+		//confirm this sample is typesampleid of 5 (platformunit); highly unlikely
+		if( ! "platformunit".equals(platformUnit.getTypeSample().getIName()) ){
+			waspErrorMessage("platformunit.flowcellNotFoundNotUnique.error");
+			return "redirect:/dashboard.do";
+		}
+		
+		
+		List<Adaptor> allAdaptors = adaptorDao.findAll();
+		Map adaptorList = new HashMap();
+		for(Adaptor adaptor : allAdaptors){
+			adaptorList.put(adaptor.getAdaptorId().toString(), adaptor);
+		}
+		m.addAttribute("adaptors", adaptorList);
+		
+		m.put("platformUnit", platformUnit);
+		return "facility/platformunit/showPlatformUnit";
+		//return "redirect:/dashboard.do";
 	}
 
 }

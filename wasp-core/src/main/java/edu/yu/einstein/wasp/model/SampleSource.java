@@ -12,6 +12,7 @@
 package edu.yu.einstein.wasp.model;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -20,8 +21,10 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 
@@ -280,4 +283,35 @@ public class SampleSource extends WaspModel {
 	}
 
 
+	/** 
+	 * sampleSourceMeta
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="samplesourceid", insertable=false, updatable=false)
+	protected List<SampleSourceMeta> sampleSourceMeta;
+
+
+	/** 
+	 * getSampleSourceMeta()
+	 *
+	 * @return sampleSourceMeta
+	 *
+	 */
+	@JsonIgnore
+	public List<SampleSourceMeta> getSampleSourceMeta() {
+		return this.sampleSourceMeta;
+	}
+
+
+	/** 
+	 * setSampleSourceMeta
+	 *
+	 * @param sampleSourceMeta
+	 *
+	 */
+	public void setSampleSourceMeta (List<SampleSourceMeta> sampleSourceMeta) {
+		this.sampleSourceMeta = sampleSourceMeta;
+	}
 }
