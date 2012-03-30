@@ -1572,7 +1572,7 @@ public class PlatformUnitController extends WaspController {
 			//TODO return where you came from (wherever that was; in this case it was listJobSamples and needs a jobId, whcih I don't have)			
 		}
 		//confirm this sample is typesampleid of 5 (platformunit); highly unlikely
-		if( ! "platformunit".equals(platformUnit.getTypeSample().getIName()) ){
+		if( ! "platformunit".equals(platformUnit.getSampleType().getIName()) ){
 			waspErrorMessage("platformunit.flowcellNotFoundNotUnique.error");
 			return "redirect:/dashboard.do";
 		}
