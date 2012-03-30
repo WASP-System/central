@@ -105,16 +105,16 @@
 				 				<select class="FormElement ui-widget-content ui-corner-all" name="lanesampleid" size="1" onchange="validate(this)">
 									<option value="0">--SELECT A FLOW CELL LANE--</option>
 									<c:forEach items="${flowCells}" var="flowCell">
-										<option value="0" />FlowCell: <c:out value="${flowCell.name}" /></option>
+										<option value="0">FlowCell: <c:out value="${flowCell.name}" /></option>
 										<c:forEach items="${flowCell.sampleSource}" var="cell">
 											<option style="color:red; font-weight: bold;" value="<c:out value="${cell.sampleViaSource.sampleId}" />" >&nbsp;&nbsp;&nbsp;Lane: <c:out value="${cell.sampleViaSource.name}" /></option>
 											<c:forEach items="${cell.sampleViaSource.sampleSource}" var="library">
-												<option value="0" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Library: <c:out value="${library.sampleViaSource.name}" />
+												<option value="0">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Library: <c:out value="${library.sampleViaSource.name}" />
 												<c:forEach items="${library.sampleViaSource.sampleMeta}" var="sm">
         											<c:if test="${fn:substringAfter(sm.k, 'Library.') == 'adaptor'}">
             											&nbsp;[Index: <c:out value="${adaptors.get(sm.v).barcodenumber}"/>, <c:out value="${adaptors.get(sm.v).barcodesequence}"/>]
-            										</c:if> </option>
-		        								</c:forEach> 							
+            										</c:if> 
+		        								</c:forEach> </option>						
 								
 											</c:forEach> 
 										</c:forEach> 
@@ -142,7 +142,7 @@
 		<td class="value-centered">
 			<c:choose>
 				<c:when test="${sampleSubmitted.sampleSourceViaSourceSampleId.size()==0}">
-					<br />Assigned To No Flowcells/Runs<br />
+					<br />Not Yet Assigned<br />
 				</c:when>
 				<c:otherwise>					
 					<c:forEach items="${sampleSubmitted.sampleSourceViaSourceSampleId}" var="ss">
@@ -175,6 +175,9 @@
 </c:when>
 <c:when test='${submittedSampleType == "macromolecule"}'>
 	<tr class="FormData">
+		<c:if test="${librariesPerSubmittedSample == 0}">  <!-- needed since rowspan cannot be zero; see three rows down -->
+			<c:set var="librariesPerSubmittedSample" value="1" scope="page" />
+		</c:if>
 		<td rowspan = "${librariesPerSubmittedSample}" class="value-centered">
 			Name: <a href="<c:url value="/sampleDnaToLibrary/sampledetail_ro/${job.jobId}/${sampleSubmitted.sampleId}.do" />"><c:out value="${sampleSubmitted.name}" /></a><br />
 	  		Molecule: <c:out value="${sampleSubmitted.sampleType.name}" /><br /> 
@@ -209,7 +212,8 @@
 		</td>
 		<c:choose>
 			<c:when test="${sampleSubmitted.sampleSourceViaSourceSampleId.size()==0}">
-				<td>&nbsp;</td>
+				<td class="value-centered">No Libraries Created</td>
+				<td class="value-centered">No Libraries Created</td>
 			</c:when>
 			<c:otherwise>
 			<c:set var="i" value="0" scope="page" /> 
@@ -256,16 +260,16 @@
 				 				<select class="FormElement ui-widget-content ui-corner-all" name="lanesampleid" size="1" onchange="validate(this)">
 									<option value="0">--SELECT A FLOW CELL LANE--</option>
 									<c:forEach items="${flowCells}" var="flowCell">
-										<option value="0" />FlowCell: <c:out value="${flowCell.name}" /></option>
+										<option value="0">FlowCell: <c:out value="${flowCell.name}" /></option>
 										<c:forEach items="${flowCell.sampleSource}" var="cell">
-											<option style="color:red; font-weight: bold;" value="<c:out value="${cell.sampleViaSource.sampleId}" />" >&nbsp;&nbsp;&nbsp;Lane: <c:out value="${cell.sampleViaSource.name}" /></option>
+											<option style="color:red; font-weight: bold;" value="<c:out value="${cell.sampleViaSource.sampleId}" />">&nbsp;&nbsp;&nbsp;Lane: <c:out value="${cell.sampleViaSource.name}" /></option>
 											<c:forEach items="${cell.sampleViaSource.sampleSource}" var="library">
-												<option value="0" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Library: <c:out value="${library.sampleViaSource.name}" />
+												<option value="0">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Library: <c:out value="${library.sampleViaSource.name}" />
 												<c:forEach items="${library.sampleViaSource.sampleMeta}" var="sm">
         											<c:if test="${fn:substringAfter(sm.k, 'Library.') == 'adaptor'}">
             											&nbsp;[Index: <c:out value="${adaptors.get(sm.v).barcodenumber}"/>, <c:out value="${adaptors.get(sm.v).barcodesequence}"/>]
-            										</c:if> </option>
-		        								</c:forEach> 							
+            										</c:if> 
+		        								</c:forEach> </option>						
 											</c:forEach> 
 										</c:forEach> 
 									</c:forEach>
@@ -283,7 +287,7 @@
 				<td class="value-centered">
 					<c:choose>
 						<c:when test="${lib.sampleSourceViaSourceSampleId.size()==0}">
-							<br />Assigned To No Flowcells/Runs<br />
+							<br />Not Yet Assigned<br />
 						</c:when>
 						<c:otherwise>				
 							<c:forEach items="${lib.sampleSourceViaSourceSampleId}" var="ss">
@@ -313,7 +317,7 @@
 				
 				
 				<c:if test="${i > 0}">
-				<!--  	<c:out value="</tr>" /> -->
+				 
 				</tr>
 				</c:if>	
 				<c:set var="i" value="${i + 1}" scope="page" />
