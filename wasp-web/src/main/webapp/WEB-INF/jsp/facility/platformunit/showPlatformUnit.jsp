@@ -46,7 +46,7 @@ function validateUpdateForm(idCounter){
 
 <table class="EditTable ui-widget ui-widget-content">
 <tr class="FormData"><td class="CaptionTD">PlatformUnit:</td><td class="DataTD"><c:out value="${platformUnit.name}" /></td></tr>
-<tr class="FormData"><td class="CaptionTD">Type:</td><td class="DataTD"><c:out value="${platformUnit.subtypeSample.name}" /></td></tr>
+<tr class="FormData"><td class="CaptionTD">Type:</td><td class="DataTD"><c:out value="${platformUnit.sampleSubtype.name}" /></td></tr>
 <c:forEach items="${platformUnit.sampleBarcode}" var="sampleBarcodeItem">
 	<tr class="FormData"><td class="CaptionTD">Barcode:</td><td class="DataTD"><c:out value="${sampleBarcodeItem.barcode.barcode}" /></td></tr></c:forEach>
 <!--  <tr class="FormData"><td class="CaptionTD">Lanes:</td><td class="DataTD"><c:out value="${platformUnit.sampleSource.size()}" /></td></tr> -->
