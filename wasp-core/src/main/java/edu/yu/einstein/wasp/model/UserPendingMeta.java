@@ -60,31 +60,31 @@ public class UserPendingMeta extends MetaBase {
 
 
 	/** 
-	 * userpendingId
+	 * userPendingId
 	 *
 	 */
 	@Column(name="userpendingid")
-	protected Integer userpendingId;
+	protected Integer userPendingId;
 
 	/**
-	 * setUserpendingId(Integer userpendingId)
+	 * setUserpendingId(Integer userPendingId)
 	 *
-	 * @param userpendingId
+	 * @param userPendingId
 	 *
 	 */
 	
-	public void setUserpendingId (Integer userpendingId) {
-		this.userpendingId = userpendingId;
+	public void setUserPendingId (Integer userpendingId) {
+		this.userPendingId = userpendingId;
 	}
 
 	/**
 	 * getUserpendingId()
 	 *
-	 * @return userpendingId
+	 * @return userPendingId
 	 *
 	 */
-	public Integer getUserpendingId () {
-		return this.userpendingId;
+	public Integer getUserPendingId () {
+		return this.userPendingId;
 	}
 
 
@@ -107,7 +107,7 @@ public class UserPendingMeta extends MetaBase {
 	 */
 	public void setUserPending (UserPending userPending) {
 		this.userPending = userPending;
-		this.userpendingId = userPending.userPendingId;
+		this.userPendingId = userPending.userPendingId;
 	}
 
 	/**

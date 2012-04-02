@@ -1009,7 +1009,7 @@ public class LabController extends WaspController {
 			 * userPendingId and insert reference to her new userId instead
 			 */
 			Map labPendingQueryMap = new HashMap();
-			labPendingQueryMap.put("userpendingId",	userPendingCurrent.getUserPendingId());
+			labPendingQueryMap.put("userPendingId",	userPendingCurrent.getUserPendingId());
 
 			List<LabPending> labPendingList = labPendingDao.findByMap(labPendingQueryMap);
 			for (LabPending labPending : labPendingList) {

@@ -353,7 +353,7 @@
 							// after fadeout do the following
 							$('#'+el).html('');
 						});
-				},5000);
+				},7500);
 			}
 		}
 	

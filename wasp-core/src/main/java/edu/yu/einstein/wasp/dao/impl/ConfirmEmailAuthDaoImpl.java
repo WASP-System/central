@@ -92,7 +92,7 @@ public class ConfirmEmailAuthDaoImpl extends WaspDaoImpl<ConfirmEmailAuth> imple
 	@Override
 	public ConfirmEmailAuth getConfirmEmailAuthByUserpendingId(int userpendingId) {
 	    HashMap m = new HashMap();
-		m.put("userpendingId", userpendingId);
+		m.put("userPendingId", userpendingId);
 	
 		List<ConfirmEmailAuth> results = this.findByMap(m);
 	

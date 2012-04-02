@@ -62,9 +62,9 @@ public class UserPendingMetaDaoImpl extends WaspDaoImpl<UserPendingMeta> impleme
 
 
 	/**
-	 * getUserPendingMetaByKUserpendingId(final String k, final int userpendingId)
+	 * getUserPendingMetaByKUserpendingId(final String k, final int userPendingId)
 	 *
-	 * @param final String k, final int userpendingId
+	 * @param final String k, final int userPendingId
 	 *
 	 * @return userPendingMeta
 	 */
@@ -75,7 +75,7 @@ public class UserPendingMetaDaoImpl extends WaspDaoImpl<UserPendingMeta> impleme
 	public UserPendingMeta getUserPendingMetaByKUserpendingId (final String k, final int userpendingId) {
     		HashMap m = new HashMap();
 		m.put("k", k);
-		m.put("userpendingId", userpendingId);
+		m.put("userPendingId", userpendingId);
 
 		List<UserPendingMeta> results = this.findByMap(m);
 
@@ -88,9 +88,9 @@ public class UserPendingMetaDaoImpl extends WaspDaoImpl<UserPendingMeta> impleme
 
 
 	/**
-	 * updateByUserpendingId (final int userpendingId, final List<UserPendingMeta> metaList)
+	 * updateByUserpendingId (final int userPendingId, final List<UserPendingMeta> metaList)
 	 *
-	 * @param userpendingId
+	 * @param userPendingId
 	 * @param metaList
 	 *
 	 */
@@ -102,7 +102,7 @@ public class UserPendingMetaDaoImpl extends WaspDaoImpl<UserPendingMeta> impleme
 			UserPendingMeta currentMeta = getUserPendingMetaByKUserpendingId(m.getK(), userpendingId);
 			if (currentMeta.getUserPendingMetaId() == null){
 				// metadata value not in database yet
-				m.setUserpendingId(userpendingId);
+				m.setUserPendingId(userpendingId);
 				entityManager.persist(m);
 			} else if (!currentMeta.getV().equals(m.getV())){
 				// meta exists already but value has changed

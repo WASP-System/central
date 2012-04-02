@@ -78,6 +78,17 @@ public class MetaHelperWebapp extends MetaHelper {
 
 
 	/**
+	 *  Populates provided list from request.  
+	 *	[parentarea]Meta_[metakey] (ie. "userMeta_user.phone");
+	 * @param request
+	 * @param clazz
+	 * @return
+	 */
+	public final <T extends MetaBase> List<T> getFromRequest(HttpServletRequest request, List<T> list, Class<T> clazz) {
+		return getFromRequest(request, list, (Map<String, MetaAttribute.FormVisibility>) null, clazz);
+	}
+	
+	/**
 	 *  Generates Master List and pulls in from values from request.  
 	 *	[parentarea]Meta_[metakey] (ie. "userMeta_user.phone");
 	 * @param request
@@ -85,7 +96,7 @@ public class MetaHelperWebapp extends MetaHelper {
 	 * @return
 	 */
 	public final <T extends MetaBase> List<T> getFromRequest(HttpServletRequest request, Class<T> clazz) {
-		return getFromRequest(request, (Map<String, MetaAttribute.FormVisibility>) null, clazz);
+		return getFromRequest(request, getMasterList(clazz), (Map<String, MetaAttribute.FormVisibility>) null, clazz);
 	}
 
 	/**
@@ -97,18 +108,29 @@ public class MetaHelperWebapp extends MetaHelper {
 	 * @return
 	 */
 	public final <T extends MetaBase> List<T> getFromRequest(HttpServletRequest request, Map<String, MetaAttribute.FormVisibility> visibility, Class<T> clazz) {
-		List<T> list = getMasterList(visibility, clazz);
+		return getFromRequest(request, getMasterList(visibility, clazz), visibility, clazz);
+	}
+	
+	/**
+	 *  Populates provided list from request.  
+	 *	[parentarea]Meta_[metakey] (ie. "userMeta_user.phone");
+	 * @param request
+	 * @param visibility 
+	 * @param clazz
+	 * @return
+	 */
+	public final <T extends MetaBase> List<T> getFromRequest(HttpServletRequest request, List<T> list, Map<String, MetaAttribute.FormVisibility> visibility, Class<T> clazz) {
 
 		Map params = request.getParameterMap();
 		for (T obj: list) {
 			String requestKey = parentArea + "Meta" + "_" + obj.getK();
-			logger.debug("getFromRequest(): looking for '" + requestKey + "' in request parameters");
 			if (! params.containsKey(requestKey)) { continue; }
 			try {
 				obj.setV(((String[])params.get(requestKey))[0]);
 			} catch (Throwable e) {
 				throw new IllegalStateException("cannot merge attributes ",e);
 			}
+			displayDebugInfoMessage(obj, "getFromRequest() syncing");
 		}
 
 		this.lastList =  list; 
@@ -146,6 +168,7 @@ public class MetaHelperWebapp extends MetaHelper {
 			} catch (Throwable e) {
 				throw new IllegalStateException("cannot merge attributes ",e);
 			}
+			displayDebugInfoMessage(obj, "getFromJsonForm() syncing");
 		}
 
 		this.lastList =  list; 

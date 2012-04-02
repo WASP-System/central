@@ -62,16 +62,16 @@ import org.hibernate.envers.NotAudited;
         
         
         /** 
-        * userpendingId
+        * userPendingId
         *
         */
 	@Column(name="userpendingid")
 	protected Integer userpendingId;
         
         /**
-        * setUserpendingId(Integer userpendingId)
+        * setUserpendingId(Integer userPendingId)
         *
-        * @param userpendingId
+        * @param userPendingId
         *
         */
         
@@ -82,7 +82,7 @@ import org.hibernate.envers.NotAudited;
         /**
         * getUserpendingId()
         *
-        * @return userpendingId
+        * @return userPendingId
         *
         */
         public Integer getUserpendingId () {

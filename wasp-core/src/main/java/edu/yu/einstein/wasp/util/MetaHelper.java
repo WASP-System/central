@@ -1,6 +1,7 @@
 package edu.yu.einstein.wasp.util;
 
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -210,6 +211,18 @@ public class MetaHelper {
 		return areaList;
 	}
 	
+	private String getAssociatedEntityNameFromClassName(){
+		return clazz.getSimpleName().replace("Meta", "");
+	}
+	
+	private String getAssociatedEntityIdSetterMethodName(){
+		return "get"+getAssociatedEntityNameFromClassName()+"Id";
+	}
+	
+	private String setAssociatedEntityIdSetterMethodName(){
+		return "set"+getAssociatedEntityNameFromClassName()+"Id";
+	}
+	
 	/**
 	 * Extract area from the key of a given meta object or return null if no area could be determined
 	 * e.g. if meta key is 'sample.name' or even 'sample.name.value' this function will return 'sample', however, a meta key of 'name' would return null
@@ -279,38 +292,44 @@ public class MetaHelper {
 
 		List<T> list = new ArrayList<T>();
 		for (Integer i: positions) {
+			T obj = null;
 			try {
-				T obj = clazz.newInstance();
-				String name = uniquePositions.get(i);
-				String qualifiedName = area + "." + name;
-
-				obj.setK(qualifiedName);
-
-				MetaAttribute p=new MetaAttribute();
-				obj.setProperty(p);
-
-				p.setMetaposition(i);
-				// in the following note that bundleResource.get() returns null if no mapped value
-				p.setLabel(bundleResource.get(qualifiedName + ".label"));
-				p.setConstraint(bundleResource.get(qualifiedName + ".constraint"));
-				p.setError(bundleResource.get(qualifiedName + ".error"));
-				p.setMetaType(bundleResource.get(qualifiedName + ".type"));
-				p.setRange(bundleResource.get(qualifiedName + ".range"));
-				p.setDefaultVal(bundleResource.get(qualifiedName + ".default"));
-				if (visibility != null && visibility.containsKey(name)){
-					p.setFormVisibility(visibility.get(name));
-					if (visibility.get(name).equals(MetaAttribute.FormVisibility.ignore)){
-						p.setMetaposition(0); // no ranking for hidden attributes
-					}
-				} else {
-					p.setFormVisibility(MetaAttribute.FormVisibility.editable); // set default form visibility
-				}
-
-				p.setControl(MetaUtil.getControl(qualifiedName + ".control", locale));
-				logger.debug("getMasterList() adding '" + qualifiedName + "' to list");
-				list.add(obj);
-			} catch (Exception e) {
+				 obj = clazz.newInstance();
+			} catch(IllegalAccessException e){
+				logger.warn("Unable to create a new instance of '"+ clazz.getName() + "' ('getMasterList' does not have access to the definition of the specified class or constructor)");
+				continue;
+			} catch(InstantiationException e){
+				logger.warn("Unable to create a new instance of '"+ clazz.getName() + "' (the class is not of instatiatable type or has no constructor)");
+				continue;
 			}
+			String name = uniquePositions.get(i);
+			String qualifiedName = area + "." + name;
+
+			obj.setK(qualifiedName);
+
+			MetaAttribute p=new MetaAttribute();
+			obj.setProperty(p);
+
+			p.setMetaposition(i);
+			// in the following note that bundleResource.get() returns null if no mapped value
+			p.setLabel(bundleResource.get(qualifiedName + ".label"));
+			p.setConstraint(bundleResource.get(qualifiedName + ".constraint"));
+			p.setError(bundleResource.get(qualifiedName + ".error"));
+			p.setMetaType(bundleResource.get(qualifiedName + ".type"));
+			p.setRange(bundleResource.get(qualifiedName + ".range"));
+			p.setDefaultVal(bundleResource.get(qualifiedName + ".default"));
+			if (visibility != null && visibility.containsKey(name)){
+				p.setFormVisibility(visibility.get(name));
+				if (visibility.get(name).equals(MetaAttribute.FormVisibility.ignore)){
+					p.setMetaposition(0); // no ranking for hidden attributes
+				}
+			} else {
+				p.setFormVisibility(MetaAttribute.FormVisibility.editable); // set default form visibility
+			}
+
+			p.setControl(MetaUtil.getControl(qualifiedName + ".control", locale));
+			displayDebugInfoMessage(obj, "getMasterList() adding");
+			list.add(obj);
 		}
 
 		this.lastList =  list; 
@@ -348,16 +367,31 @@ public class MetaHelper {
 		
 
 		Map<String, String> dbMap = new HashMap<String, String>();
+		Map<String, Integer> linkedEntityMap = new HashMap<String, Integer>();
 		for (T obj : currentList) {
+			try{
+				linkedEntityMap.put(obj.getK(), (Integer) clazz.getMethod(this.getAssociatedEntityIdSetterMethodName()).invoke(obj));
+			} catch (Exception e){
+				logger.debug("Unable to get an associated entity Id value for "+obj.getK()+" as unable to locate or utilize a suitable getter method in "+ clazz.getName());
+			}
 			dbMap.put(obj.getK(), obj.getV());			
 		}
 
 		for (T obj : masterList) {
 			obj.setV(dbMap.get(obj.getK()));
+			try{
+				clazz.getMethod(this.setAssociatedEntityIdSetterMethodName(), Integer.class).invoke(obj, linkedEntityMap.get(obj.getK()));
+			} catch (Exception e){
+				logger.debug("Not setting an associated entity Id value for "+obj.getK()+" as unable to locate or utilize a suitable setter method in "+ clazz.getName());
+			}
+			displayDebugInfoMessage(obj, "syncWithMaster() syncing");
 		}
+		
 		this.lastList =  masterList; // update with values from current list
 		return masterList;
 	}
+	
+	
 	
 	
 	/**
@@ -455,6 +489,28 @@ public class MetaHelper {
 			messageMap.put(name, currentMessage);
 		}
 		return messageMap;
+	}
+	
+	/**
+	 * Display an informational debug message containing key=value information plus meta object id and linked entity id if applicable
+	 * @param obj
+	 * @param prefix
+	 */
+	protected <T extends MetaBase> void displayDebugInfoMessage(T obj, String prefix){
+		String entityMetaId = "";
+		String entityId = "";
+		try{
+			entityMetaId = String.valueOf( (Integer) clazz.getMethod("get"+clazz.getSimpleName()+"Id").invoke(obj));
+		} catch (Exception e){
+			entityMetaId = "N/A";
+		}
+		try{
+			entityId = String.valueOf( (Integer) clazz.getMethod(this.getAssociatedEntityIdSetterMethodName()).invoke(obj));
+		} catch (Exception e){
+			entityId = "N/A";
+		}
+		logger.debug(prefix + " (" + obj.getK() + "=" + obj.getV() +  ", " + WordUtils.uncapitalize(clazz.getSimpleName()) + "Id="  + 
+				entityMetaId + "," + WordUtils.uncapitalize(this.getAssociatedEntityNameFromClassName()) + "Id=" + 	entityId + ")" );
 	}
 	
 }
