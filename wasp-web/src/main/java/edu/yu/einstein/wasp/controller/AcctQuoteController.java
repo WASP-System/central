@@ -186,7 +186,7 @@ public class AcctQuoteController extends WaspController {
 				 					
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 							quote.getJob().getName(),
-							Float.toString(quote.getAmount()),
+							String.format("%.2f", quote.getAmount()),
 							user.getNameFstLst(),
 							quote.getJob().getLab().getName(),
 							quote.getJob().getLastUpdTs().toString()

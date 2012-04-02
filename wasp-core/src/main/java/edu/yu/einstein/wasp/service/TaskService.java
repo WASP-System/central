@@ -1,4 +1,3 @@
-
 /**
  *
  * TaskService.java 
@@ -28,47 +27,45 @@ public interface TaskService extends WaspService {
 
 	/**
 	 * setTaskDao(TaskDao taskDao)
-	 *
+	 * 
 	 * @param taskDao
-	 *
+	 * 
 	 */
 	public void setTaskDao(TaskDao taskDao);
 
 	/**
 	 * getTaskDao();
-	 *
+	 * 
 	 * @return taskDao
-	 *
+	 * 
 	 */
 	public TaskDao getTaskDao();
 
+	public List<State> getJobCreatedStates();
 
-  public List<State> getJobCreatedStates();
+	public List<State> getQuoteJobStates();
 
-  public List<State> getQuoteJobStates();
+	public List<State> getJob2QuoteStates();
 
-  public List<State> getPiApprovedStates();
+	public List<State> getPiApprovedStates();
 
-  public List<State> getDaApprovedStates();
+	public List<State> getDaApprovedStates();
 
-  public List<State> getSampleReceivedStates();
-  
-  public List<State> getStatesByTaskMappingRule(Task task, String status);
-  
-  public List<State> filterStatesByStatusAndPermission(List<State> states, String status,  String permsission);
+	public List<State> getSampleReceivedStates();
 
-  public int getLabManagerPendingTasks(int labId);
-  
-  public int getLabManagerPendingTasks(int labId, List<UserPending> newUsersPendingLmApprovalList, List<LabUser> existingUsersPendingLmApprovalList, List<Job> jobsPendingLmApprovalList);
-  
-  public int getAllLabManagerPendingTasks();
+	public List<State> getStatesByTaskMappingRule(Task task, String status);
 
-  public int getAllLabManagerPendingTasks(
-		List<UserPending> newUsersPendingLmApprovalList,
-		List<LabUser> existingUsersPendingLmApprovalList,
-		List<Job> jobsPendingLmApprovalList);
-  
-  public int getDepartmentAdminPendingTasks();
-  public int getDepartmentAdminPendingTasks(List<LabPending> labsPendingDaApprovalList, List<Job> jobsPendingDaApprovalList);
+	public List<State> filterStatesByStatusAndPermission(List<State> states, String status, String permsission);
+
+	public int getLabManagerPendingTasks(int labId);
+
+	public int getLabManagerPendingTasks(int labId, List<UserPending> newUsersPendingLmApprovalList, List<LabUser> existingUsersPendingLmApprovalList, List<Job> jobsPendingLmApprovalList);
+
+	public int getAllLabManagerPendingTasks();
+
+	public int getAllLabManagerPendingTasks(List<UserPending> newUsersPendingLmApprovalList, List<LabUser> existingUsersPendingLmApprovalList, List<Job> jobsPendingLmApprovalList);
+
+	public int getDepartmentAdminPendingTasks();
+
+	public int getDepartmentAdminPendingTasks(List<LabPending> labsPendingDaApprovalList, List<Job> jobsPendingDaApprovalList);
 }
-

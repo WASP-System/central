@@ -23,7 +23,43 @@
 	<script src="/wasp/scripts/jqgrid/jquery.jqGrid.min.js" type="text/javascript"></script>
 	
 	<script type="text/javascript">
-
+	
+		/* define custom formatter to format/unformat hyperlinks */
+		jQuery.extend($.fn.fmatter , {
+			linkFormatter : function(cellvalue, options, rowObject) {
+				var cm = options.colModel;
+				
+				var name = cm.formatoptions.idName;
+				var url = cm.formatoptions.baseLinkUrl;
+				var idCol = cm.formatoptions.idCol;
+				
+				var id;
+				if (idCol == -1)
+					id = options.rowId;
+				else
+					id = rowObject[idCol];
+				
+				return "<a href='"+url+"?"+name+"="+id+"'>"+cellvalue+"</a>";
+			}
+		});
+		jQuery.extend($.fn.fmatter.linkFormatter , {
+			unformat : function(cellvalue, options) {
+				return cellvalue.replace(/<.+>/g,"");
+			}
+		});
+	
+		jQuery.extend($.fn.fmatter , {
+			currencyFormatter : function(cellvalue, options, rowObject) {
+				return options.colModel.formatoptions.symbol + cellvalue;
+			}
+		});
+		jQuery.extend($.fn.fmatter.currencyFormatter , {
+			unformat : function(cellvalue, options) {
+				return cellvalue.replace(options.colModel.formatoptions.symbol, "");
+			}
+		});
+		/* define custom formatter ends here*/
+		
 		<%-- fires before showing the form with the new data after user clicked "add" button; receives as Parameter the id of the constructed form. --%>  
 		var _beforeShowAddForm = function(formId) {
 		};
@@ -130,7 +166,7 @@
 		
 		<%-- structure to define L&F of "navigator" functionality. see JQGrid documentation at http://www.trirand.com/jqgridwiki/doku.php?id=wiki:jqgriddocs for parameter descriptions --%>
 		var _navAttr={view:true,del:true,delfunc:_del_function};
-		
+
 		<%-- these objects will be populated by the wasp:field tags included via "grid-columns" tile --%>
 		var colNames=[];  
 		var colModel=[];  
@@ -196,8 +232,7 @@
 		 			
 		 			editoptions['value'][_value]=_label;
 		 		}
-		 		
-		  </c:if>     
+			</c:if>     
 		  
 			<%-- add autocomplete function for the "institution" input fields --%>
 			if(_field_name.indexOf('institution') != -1){
@@ -228,14 +263,30 @@
 				};
 			}
 			
+			<%-- add currency formatter for the "cost" input fields --%>
+			formatter = '';
+			/* if(_field_name.indexOf('cost') != -1){
+				formatter = 'currencyFormatter';
+			} */
 			
 		
-		<%-- list of column names --%>
+			<%-- list of column names --%>
 			colNames.push('${_meta.property.label}');
 		
 			<%-- list of column properties. see JQGrid documentation at http://www.trirand.com/jqgridwiki/doku.php?id=wiki:jqgriddocs for parameter descriptions --%>
 			colModel.push(
-				{name:'${_meta.k}', width:80, edittype:edittype, align:'right',hidden:true,editable:true,editrules:editrules,formoptions:formoptions,editoptions:editoptions}
+				{	
+					name:'${_meta.k}', 
+					width:80, 
+					edittype:edittype, 
+					align:'right',
+					hidden:true,
+					editable:true,
+					editrules:editrules,
+					formoptions:formoptions,
+					editoptions:editoptions,
+					formatter:formatter
+				}
 			);
 
 			<%-- list of column validation errors --%>
@@ -252,32 +303,6 @@
 		
 		</c:forEach>
 	
-		
-		/* define custom formatter to format/unformat hyperlinks */
-		jQuery.extend($.fn.fmatter , {
-			linkFormatter : function(cellvalue, options, rowObject) {
-				var cm = options.colModel;
-				
-				var name = cm.formatoptions.idName;
-				var url = cm.formatoptions.baseLinkUrl;
-				var idCol = cm.formatoptions.idCol;
-				
-				var id;
-				if (idCol == -1)
-					id = options.rowId;
-				else
-					id = rowObject[idCol];
-				
-				return "<a href='"+url+"?"+name+"="+id+"'>"+cellvalue+"</a>";
-			}
-		});
-		jQuery.extend($.fn.fmatter.linkFormatter , {
-			unformat : function(cellvalue, options) {
-				return cellvalue.replace(/<.+>/g,"");
-			}
-		});
-		/* define custom formatter ends here*/
-		
 
 		if (_url.indexOf('/uiField/')==-1) 
 			_enableFilterToolbar=false;//not sure who/why force _enableFilterToolbar to false. add an exception for uiField. Sasha 12.1.12

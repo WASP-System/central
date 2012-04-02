@@ -31,10 +31,40 @@ import org.hibernate.envers.NotAudited;
 public class AcctJobquotecurrent extends WaspModel {
 
 	/** 
+	 * currentId
+	 *
+	 */
+	@Id  @GeneratedValue(strategy=GenerationType.IDENTITY)
+	protected Integer currentId;
+
+	/**
+	 * setCurrentId(Integer currentId)
+	 *
+	 * @param currentId
+	 *
+	 */
+	
+	public void setCurrentId (Integer currentId) {
+		this.currentId = currentId;
+	}
+
+	/**
+	 * getCurrentId()
+	 *
+	 * @return currentId
+	 *
+	 */
+	public Integer getCurrentId () {
+		return this.currentId;
+	}
+
+
+
+	/** 
 	 * jobId
 	 *
 	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
+	@Column(name="jobid")
 	protected Integer jobId;
 
 	/**
@@ -57,9 +87,7 @@ public class AcctJobquotecurrent extends WaspModel {
 	public Integer getJobId () {
 		return this.jobId;
 	}
-
-
-
+	
 
 	/** 
 	 * quoteId

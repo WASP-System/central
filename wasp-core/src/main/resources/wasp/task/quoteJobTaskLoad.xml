@@ -29,7 +29,7 @@
       <list>
         <bean class="edu.yu.einstein.wasp.model.TaskMapping">
           <property name="status" value="CREATED" />
-          <property name="listMap" value="/task/quoteJob/list.do" />
+          <property name="listMap" value="/job2quote/list.do" />
           <property name="detailMap" value="/def.do" />
           <property name="permission" value="hasRole('su')" />
           <property name="dashboardSortOrder" value="1" />

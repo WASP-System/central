@@ -2,7 +2,7 @@
 
 <wasp:field name="name" type="text"/>
 
-<wasp:field name="amount" type="text"/>
+<wasp:field name="amount" type="currency"/>
 
 <wasp:field name="submitter" type="text" sortable="true"/>
 

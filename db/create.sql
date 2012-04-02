@@ -1196,7 +1196,8 @@ create table acct_quotemeta (
 
 
 create table acct_jobquotecurrent (
-  jobid int(10)  primary key,
+  currentid int(10)  primary key auto_increment, 
+  jobid int(10) ,
   quoteid int(10) ,
 
   lastupdts timestamp  default current_timestamp,
@@ -1204,8 +1205,11 @@ create table acct_jobquotecurrent (
 
 
   foreign key fk_acct_jobquotecurrent_jid (jobid) references job(jobid),
-  foreign key fk_acct_jobquotecurrent_qid (quoteid) references acct_quote(quoteid)
+  constraint unique index u_acct_jobquotecurrent_jid (jobid),
+  foreign key fk_acct_jobquotecurrent_qid (quoteid) references acct_quote(quoteid),
+  constraint unique index u_acct_jobquotecurrent_qid (quoteid)
 ) ENGINE=InnoDB charset=utf8;
+
 
 create table acct_quoteuser (
   quoteuserid int(10)  primary key auto_increment, 

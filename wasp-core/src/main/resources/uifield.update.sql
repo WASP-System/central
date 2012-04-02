@@ -608,7 +608,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','name','constraint','NotEmpty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','name','error','Name cannot be empty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','UserId','label','Submitted By','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','lab','label','Submitted From','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','lab','label','Lab','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','submission_date','label','Submitted On','1');
 
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','contentTypeMap','etx','data','text/x-setext','1');
@@ -880,18 +880,21 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','acctquote/list','label','List of Job Quotes','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','acctQuote','acctquote_list','label','List of Job Quotes','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','acctQuote','name','label','Job Name','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','acctQuote','amount','label','Amount','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','acctQuote','amount','label','Quote Amount','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','acctQuote','submitter','label','Submitted By','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','acctQuote','lab','label','Submitted From','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','acctQuote','lab','label','Lab','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','acctQuote','submission_date','label','Submitted On','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','acctQuote','created_success','label','Quote created successfully.','1');
 
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','job2quote/list','label','List of Jobs to Quote','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job2quote','job2quote_list','label','List of Jobs to Quote','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job2quote','name','label','Job Name','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job2quote','amount','label','Quote Amount','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job2quote','submitter','label','Submitted By','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job2quote','lab','label','Submitted From','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job2quote','submission_date','label','Submitted On','1');
+
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','acctQuote','library_cost','label','Library Cost','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','acctQuote','library_cost','metaposition','20','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','acctQuote','sample_cost','label','Sample Cost','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','acctQuote','sample_cost','metaposition','30','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','acctQuote','lane_cost','label','Lane Cost','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','acctQuote','lane_cost','metaposition','40','1');
 
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','jobResourceCategoryMismatch','error','Job and resource unexpectedly do not match','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','taskNotFound','error','Task unexpectedly not found','1');

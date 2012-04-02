@@ -1,7 +1,9 @@
 package edu.yu.einstein.wasp.taglib;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Currency;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -43,7 +45,7 @@ public class JQFieldTag extends BodyTagSupport {
 	//field name
 	private String name;
 	
-	//fields object class to lookup constarints
+	//fields object class to lookup constraints
 	private String object;
 	
 	//fields HTML type 
@@ -123,7 +125,8 @@ public class JQFieldTag extends BodyTagSupport {
 		password,
 		hidden,
 		file,
-		link
+		link,
+		currency
 	}
 	
 	
@@ -373,6 +376,12 @@ public class JQFieldTag extends BodyTagSupport {
 					jsName + ".jq['align']='center';\n" + 
 					jsName + ".jq['search']=false;\n";
 				
+			} else if (type==Type.currency) {
+				buf = buf + 
+				jsName + ".jq['formatter']='currencyFormatter';\n" + 
+				jsName + ".jq['formatoptions']={symbol:'" + Currency.getInstance(Locale.getDefault()).getSymbol() + "'};\n" +
+				jsName + ".jq['align']='right';\n" + 
+				jsName + ".jq['search']=false;\n";
 			}
 			
 	
