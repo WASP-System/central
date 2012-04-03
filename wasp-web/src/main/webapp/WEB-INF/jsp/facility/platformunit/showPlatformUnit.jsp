@@ -86,6 +86,7 @@ function validateUpdateForm(idCounter){
 <c:set var="idCounter" value="0" scope="page" />
 <c:set var="idNewControlCounter" value="0" scope="page" />
 
+
 <table class="EditTable ui-widget ui-widget-content">
 <tr class="FormData"><td class="CaptionTD">PlatformUnit:</td><td class="DataTD"><c:out value="${platformUnit.name}" /></td></tr>
 <tr class="FormData"><td class="CaptionTD">Type:</td><td class="DataTD"><c:out value="${platformUnit.sampleSubtype.name}" /></td></tr>
@@ -117,22 +118,43 @@ function validateUpdateForm(idCounter){
 		<tr>
 		  
 			<c:forEach items="${platformUnit.sampleSource}" var="ss1">
+				<c:set var="numberControlLibrariesPerLane" value="0" scope="page" />
 				<c:set var="cell" value="${ss1.sampleViaSource}" scope="page" />
-				 <td class="value-centered-small" nowrap>
-					<c:choose>
-						<c:when test="${fn:substringAfter(cell.name, '/')=='4'}">
-							Control: phiX (1.4 pM) <a>[Edit]</a>
-						</c:when>
-						<c:otherwise>
-							No Control On Lane
-						</c:otherwise>				
-					</c:choose>
-					
-					
-					
+				 <td class="value-centered-small-heavyborder" nowrap>			
+					<c:forEach items="${cell.sampleSource}" var="ss2">
+				  		<c:set var="controlLibrary" value="${ss2.sampleViaSource}" scope="page" />
+				  		<c:if test="${controlLibrary.sampleSubtype.getIName() == 'controlLibrarySample'}">
+				  			<c:set var="numberControlLibrariesPerLane" value="${numberControlLibrariesPerLane + 1}" scope="page" />
+				  			<c:out value="${controlLibrary.name}" /> 
+				  			<c:set var="controlLibraryMeta" value="${controlLibrary.sampleMeta}" scope="page" />
+							<c:forEach items="${controlLibraryMeta}" var="controlLibraryMetaItem">
+								<c:if test="${fn:substringAfter(controlLibraryMetaItem.k, 'Library.') == 'adaptor'}">
+            						<br /><c:out value="${adaptors.get(controlLibraryMetaItem.v).adaptorset.name}"/>
+            						<br />Index <c:out value="${adaptors.get(controlLibraryMetaItem.v).barcodenumber}"/>: <c:out value="${adaptors.get(controlLibraryMetaItem.v).barcodesequence}"/>
+            					</c:if> 
+            				</c:forEach>
+            				<c:set var="ss2Meta" value="${ss2.sampleSourceMeta}" scope="page" />
+            				<c:forEach items="${ss2Meta}" var="ss2MetaItem">
+            					<c:if test="${ss2MetaItem.k=='libConcInLanePicoM'}"><br />Conc. On Lane: <c:out value="${ss2MetaItem.v}"/> pM </c:if>					
+            				</c:forEach>
+            				
+            				<form  name='removeLib' method='post' action="<c:url value="/facility/platformunit/assignRemove.do" />" onsubmit='return confirm("Remove control from this lane?");'>
+							<input type='hidden' name='platformUnitId' value='<c:out value="${platformUnit.sampleId}" />'/>
+							<input type='hidden' name='samplesourceid' value='<c:out value="${ss2.sampleSourceId}" />'/>
+							<input type='submit' value='Remove Control'/>
+							</form>	
+            				
+            					
+            				<hr>
+            			</c:if>
+					</c:forEach>			  						  		
+					<c:if test="${numberControlLibrariesPerLane == 0 }">
+						No Control On Lane
+						<hr>
+					</c:if>
 					
 					<c:set var="idNewControlCounter" value="${idNewControlCounter + 1}" scope="page" />
-					<br /><a href="javascript:void(0)" id="newControlAnchor_<c:out value="${idNewControlCounter}" />" onclick="toggleDisplayAddNewControlForm('show_form',<c:out value="${idNewControlCounter}" />)">Add Control</a>
+					<a href="javascript:void(0)" id="newControlAnchor_<c:out value="${idNewControlCounter}" />" onclick="toggleDisplayAddNewControlForm('show_form',<c:out value="${idNewControlCounter}" />)">Add Control</a>
 					<div id="idNewControlFormDiv_<c:out value="${idNewControlCounter}" />" style="display:none">
 						<form id="addNewControlToLaneForm_<c:out value="${idNewControlCounter}" />"  method='post' action="<c:url value="/facility/platformunit/addNewControlToLane.do" />" >
 							<input type='hidden' name='platformUnitId' value='<c:out value="${platformUnit.sampleId}" />'/>
@@ -168,15 +190,15 @@ function validateUpdateForm(idCounter){
 		<tr>
 		<c:forEach items="${platformUnit.sampleSource}" var="ss1">
 			<c:set var="cell" value="${ss1.sampleViaSource}" scope="page" />
-			<td class="value-centered-top-small" >
-			<c:choose>
-				<c:when test="${cell.sampleSource.size()==0}">
-				&nbsp;</c:when>
-			<c:otherwise>						
+			<td class="value-centered-top-small-heavyborder" >
 				<c:set var="counter" value="1" scope="page" />
+				<c:set var="numberRegularLibrariesPerLane" value="0" scope="page" />
 				<c:forEach items="${cell.sampleSource}" var="ss2">
-					<c:set var="library" value="${ss2.sampleViaSource}" scope="page" />
-					<c:if test="${counter > 1}"><hr></c:if>
+				  <c:set var="library" value="${ss2.sampleViaSource}" scope="page" />
+				  <c:if test="${counter > 1}"><hr></c:if>
+				  
+				  <c:if test="${library.sampleSubtype.getIName() != 'controlLibrarySample'}">	
+					<c:set var="numberRegularLibrariesPerLane" value="${numberRegularLibrariesPerLane + 1}" scope="page" />						
 					<c:out value="${library.name}" />
 					<c:set var="ss2Meta" value="${ss2.sampleSourceMeta}" scope="page" />
 					<c:forEach items="${ss2Meta}" var="ss2MetaItem">
@@ -210,19 +232,23 @@ function validateUpdateForm(idCounter){
 							</table>
 						</form>
 						</div>						
-						
+					
 					</c:forEach>
-					<form  name='removeLib' method='post' action="<c:url value="/facility/platformunit/assignRemove.do" />" onsubmit='return confirm("Remove library from this flowcell?");'>
+					<form  name='removeLib' method='post' action="<c:url value="/facility/platformunit/assignRemove.do" />" onsubmit='return confirm("Remove library from this lane?");'>
 						<input type='hidden' name='platformUnitId' value='<c:out value="${platformUnit.sampleId}" />'/>
 						<input type='hidden' name='samplesourceid' value='<c:out value="${ss2.sampleSourceId}" />'/>
 						<input type='submit' value='Remove Library'/>
 					</form>					
 					<c:set var="counter" value="${counter + 1}" scope="page" />
+				  </c:if>	
 				</c:forEach>
-			</c:otherwise>
-		</c:choose>		
+			
+			<c:if test="${numberRegularLibrariesPerLane == 0 }">
+				No Libraries On Lane
+			</c:if>	
+			
 		</td>
-		</c:forEach>
+		</c:forEach>		
 		</tr>
 	</table>
 </c:if>

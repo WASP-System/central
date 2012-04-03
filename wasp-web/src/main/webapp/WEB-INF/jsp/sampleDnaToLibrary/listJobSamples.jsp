@@ -112,7 +112,7 @@
 												<option value="0">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Library: <c:out value="${library.sampleViaSource.name}" />
 												<c:forEach items="${library.sampleViaSource.sampleMeta}" var="sm">
         											<c:if test="${fn:substringAfter(sm.k, 'Library.') == 'adaptor'}">
-            											&nbsp;[Index: <c:out value="${adaptors.get(sm.v).barcodenumber}"/>, <c:out value="${adaptors.get(sm.v).barcodesequence}"/>]
+        											    &nbsp;-&nbsp;<c:out value="${adaptors.get(sm.v).adaptorset.name}"/>&nbsp;[Index <c:out value="${adaptors.get(sm.v).barcodenumber}"/>&nbsp;(<c:out value="${adaptors.get(sm.v).barcodesequence}"/>)]
             										</c:if> 
 		        								</c:forEach> </option>						
 								
@@ -267,8 +267,8 @@
 												<option value="0">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Library: <c:out value="${library.sampleViaSource.name}" />
 												<c:forEach items="${library.sampleViaSource.sampleMeta}" var="sm">
         											<c:if test="${fn:substringAfter(sm.k, 'Library.') == 'adaptor'}">
-            											&nbsp;[Index: <c:out value="${adaptors.get(sm.v).barcodenumber}"/>, <c:out value="${adaptors.get(sm.v).barcodesequence}"/>]
-            										</c:if> 
+        											    &nbsp;-&nbsp;<c:out value="${adaptors.get(sm.v).adaptorset.name}"/>&nbsp;[Index <c:out value="${adaptors.get(sm.v).barcodenumber}"/>&nbsp;(<c:out value="${adaptors.get(sm.v).barcodesequence}"/>)]
+            										</c:if>  
 		        								</c:forEach> </option>						
 											</c:forEach> 
 										</c:forEach> 
