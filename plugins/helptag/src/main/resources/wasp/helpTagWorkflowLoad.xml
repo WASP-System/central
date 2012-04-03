@@ -21,7 +21,7 @@
 
   <bean id="helpTagWorkflow" class="edu.yu.einstein.wasp.load.WorkflowLoadService" depends-on="helpTagDnaSampleSubtypeResource,helpTagLibrarySampleSubtypeResource">
     <property name="area" value="#{helpTagWorkflowArea}" />
-    <property name="name" value="Chip Seq" />
+    <property name="name" value="HELP Tagging" />
     <property name="pageFlowOrder">
       <list>
 		<value>/jobsubmit/modifymeta/{n}</value>
@@ -30,7 +30,7 @@
 		<value>/jobsubmit/cells/{n}</value>
 		<value>/jobsubmit/helpTag/pair/{n}</value> 
 		<value>/jobsubmit/software/aligner/{n}</value>
-		<value>/jobsubmit/software/peakcaller/{n}</value>
+		<value>/jobsubmit/software/helptagPipeline/{n}</value>
 		<!-- <value>/jobsubmit/verify/{n}</value> -->
 		<value>/jobsubmit/submit/{n}</value>
 		<value>/jobsubmit/ok</value>
@@ -41,7 +41,7 @@
       <list>
         <value>mps</value>
         <value>aligner</value>
-        <value>peakcaller</value>
+        <value>helptagPipeline</value>
       </list>
     </property>
 
@@ -57,11 +57,11 @@
       <list>
         <bean parent="helpTagUiFieldWrapper">
           <property name="baseName" value="workflow" />
-          <property name="label" value="Chip Seq" />
+          <property name="label" value="HELP Tagging" />
         </bean>
         <bean parent="helpTagUiFieldWrapper">
           <property name="baseName" value="jobsubmit/modifymeta" />
-          <property name="label" value="ModifyChipSeq Metadata" />
+          <property name="label" value="Modify HelpTag Metadata" />
         </bean>
         <bean parent="helpTagUiFieldWrapper">
           <property name="baseName" value="jobsubmit/resource/mps" />
@@ -77,15 +77,15 @@
         </bean>
         <bean parent="helpTagUiFieldWrapper">
           <property name="baseName" value="jobsubmit/helpTag/pair" />
-          <property name="label" value="IP vs Input Pairings" />
+          <property name="label" value="HpaII vs MspI Pairings" />
         </bean>
         <bean parent="helpTagUiFieldWrapper">
           <property name="baseName" value="jobsubmit/software/aligner" />
           <property name="label" value="Aligner Selection" />
         </bean>
         <bean parent="helpTagUiFieldWrapper">
-          <property name="baseName" value="jobsubmit/software/peakcaller" />
-          <property name="label" value="Peak Calling Software Selection" />
+          <property name="baseName" value="jobsubmit/software/helptagPipeline" />
+          <property name="label" value="HELP-tag Pipeline Selection" />
         </bean>
         <bean parent="helpTagUiFieldWrapper">
           <property name="baseName" value="jobsubmit/verify" />
@@ -93,7 +93,7 @@
         </bean>
         <bean parent="helpTagUiFieldWrapper">
           <property name="baseName" value="pairing_instructions" />
-          <property name="label" value="Please select test vs control for all samples to be analyzed in pairs after sequencing." />
+          <property name="label" value="Please select HpaII vs MspI for all samples to be analyzed in pairs after sequencing." />
         </bean>
         <bean parent="helpTagUiFieldWrapper">
           <property name="baseName" value="test" />
