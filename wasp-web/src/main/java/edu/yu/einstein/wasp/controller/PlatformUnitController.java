@@ -1512,30 +1512,6 @@ public class PlatformUnitController extends WaspController {
 		return "redirect:/dashboard.do";//it really wants to see some return statement outside the if clauses
 	  }
 	
-	/*
-	 * update sampleSourceMetaData libConcInLanePicoM
-	 */
-	@RequestMapping(value="/updateConcInLane.do", method=RequestMethod.POST)
-	@PreAuthorize("hasRole('ft')")
-	public String updateConcInLane(
-			@RequestParam("sampleSourceMetaId") Integer sampleSourceMetaId,
-			@RequestParam("libConcInLanePicoM") String libConcInLanePicoM,
-			@RequestParam("platformUnitId") Integer platformUnitId,
-			ModelMap m) {
-		
-		//TODO confirm parameters
-		//confirm libConcInLanePicoM is integer or float
-		//confirm platformUnitId is Id of sample that is a platformUnit
-		//confirm that sampleSourceMetaId exists and k == "libConcInLanePicoM"
-		SampleSourceMeta sampleSourceMeta = sampleSourceMetaDao.getSampleSourceMetaBySampleSourceMetaId(sampleSourceMetaId);
-		sampleSourceMeta.setV(libConcInLanePicoM);
-		sampleSourceMetaDao.save(sampleSourceMeta);
-		//return "redirect:/dashboard.do";
-		return "redirect:/facility/platformunit/showPlatformUnit/" + platformUnitId.intValue() + ".do";
-
-	}
-	
-	
 	private void removeLibraryFromLane(Integer sampleSourceId){
 
 		SampleSource sampleSource = sampleSourceDao.getSampleSourceBySampleSourceId(sampleSourceId);//this samplesource should represent a cell->lib link, where sampleid is the cell and source-sampleid is the library 
@@ -1585,9 +1561,89 @@ public class PlatformUnitController extends WaspController {
 		}
 		m.addAttribute("adaptors", adaptorList);
 		
+		SampleSubtype sampleSubtype = sampleSubtypeDao.getSampleSubtypeByIName("controlLibrarySample");
+		if(sampleSubtype.getSampleSubtypeId().intValue()==0){
+			//TODO throw error and get out of here ; probably go to dashboard, but would be best to go back from where you came from
+			System.out.println("Unable to find sampleSubtype of controlLibrarySample");
+		}
+		
+		Map controlFilterMap = new HashMap();
+		controlFilterMap.put("sampleSubtypeId", sampleSubtype.getSampleSubtypeId());
+		List<Sample> controlLibraryList = sampleDao.findByMap(controlFilterMap);
+		for(Sample sample : controlLibraryList){
+			System.out.println("control: " + sample.getName());
+		}
+		m.addAttribute("controlLibraryList", controlLibraryList);
+		
 		m.put("platformUnit", platformUnit);
 		return "facility/platformunit/showPlatformUnit";
 		//return "redirect:/dashboard.do";
 	}
 
+	/*
+	 * update sampleSourceMetaData libConcInLanePicoM
+	 */
+	@RequestMapping(value="/updateConcInLane.do", method=RequestMethod.POST)
+	@PreAuthorize("hasRole('ft')")
+	public String updateConcInLane(
+			@RequestParam("sampleSourceMetaId") Integer sampleSourceMetaId,
+			@RequestParam("libConcInLanePicoM") String libConcInLanePicoM,
+			@RequestParam("platformUnitId") Integer platformUnitId,
+			ModelMap m) {
+		
+		//TODO confirm parameters
+		//confirm libConcInLanePicoM is integer or float
+		//confirm platformUnitId is Id of sample that is a platformUnit
+		//confirm that sampleSourceMetaId exists and k == "libConcInLanePicoM"
+		SampleSourceMeta sampleSourceMeta = sampleSourceMetaDao.getSampleSourceMetaBySampleSourceMetaId(sampleSourceMetaId);
+		sampleSourceMeta.setV(libConcInLanePicoM);
+		sampleSourceMetaDao.save(sampleSourceMeta);
+		//return "redirect:/dashboard.do";
+		return "redirect:/facility/platformunit/showPlatformUnit/" + platformUnitId.intValue() + ".do";
+
+	}
+	
+	/*
+	 * addNewControlToLane
+	 */
+	@RequestMapping(value="addNewControlToLane.do", method=RequestMethod.POST)
+	@PreAuthorize("hasRole('ft')")
+	public String addNewControlToLane(
+			@RequestParam("platformUnitId") Integer platformUnitId,
+			@RequestParam("cellId") Integer cellId,
+			@RequestParam("newControlId") Integer newControlId,	
+			@RequestParam("newControlConcInLanePicoM") String newControlConcInLanePicoM,
+			ModelMap m){
+		
+		//TODO confirm parameters
+		//confirm platformUnitId is of a flow cell
+		//confirm cellId is a cell of this platformUnit
+		//confirm newControlId is the id of a controlLibrary
+		//confirm newControlConcInLanePicoM is a float (but store it as a string with setV)
+		
+		SampleSource sampleSource = new SampleSource();
+		sampleSource.setSampleId(cellId);
+		sampleSource.setSourceSampleId(newControlId);
+		//figure out the next multiplexindex
+		Sample cell = sampleDao.getSampleBySampleId(cellId);
+		List<SampleSource> sampleSourceList = cell.getSampleSource();
+		int maxMultipleIndex = 0;
+		for(SampleSource ss : sampleSourceList){
+			if(ss.getMultiplexindex().intValue() > maxMultipleIndex){
+				maxMultipleIndex = ss.getMultiplexindex().intValue();
+			}
+		}
+		sampleSource.setMultiplexindex(new Integer(maxMultipleIndex + 1));
+		sampleSource = sampleSourceDao.save(sampleSource);
+		//System.out.println("checking next multiplexIndex; new one is " + sampleSource.getMultiplexindex().intValue());
+		//deal with sampleSourceMeta to set newControlConcInLanePicoM for the control
+		SampleSourceMeta sampleSourceMeta = new SampleSourceMeta();
+		sampleSourceMeta.setSampleSourceId(sampleSource.getSampleSourceId());
+		sampleSourceMeta.setK("libConcInLanePicoM");
+		sampleSourceMeta.setV(newControlConcInLanePicoM);
+		sampleSourceMetaDao.save(sampleSourceMeta);
+		
+		//return "redirect:/dashboard.do";
+		return "redirect:/facility/platformunit/showPlatformUnit/" + platformUnitId.intValue() + ".do";
+	}
 }

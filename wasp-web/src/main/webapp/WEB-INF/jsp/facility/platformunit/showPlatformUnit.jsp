@@ -3,6 +3,47 @@
 <head>
 <script>
 
+function toggleDisplayAddNewControlForm(action, counter){
+	//alert("inside toggleTest; counter = " + counter);
+	var newControlAnchorName = "newControlAnchor_" + counter;
+	var newControlAnchor = document.getElementById(newControlAnchorName);
+	var newControlFormDivName = "idNewControlFormDiv_" + counter;
+	var newControlFormDiv = document.getElementById(newControlFormDivName);
+	if(action == "show_form"){
+		newControlAnchor.style.display = 'none';
+		newControlFormDiv.style.display = 'block';
+	}
+	else if(action == "cancel_form"){
+		newControlAnchor.style.display = 'block';
+		newControlFormDiv.style.display = 'none';		
+	}
+}
+function validateAddNewControlToLaneForm(counter){
+	//alert("testing alert in validate add new control. counter=" + counter);
+	var newControlIdName = "newControlId_" + counter;
+	var newControlId = document.getElementById(newControlIdName);
+	var newControlConcInLanePicoMName = "newControlConcInLanePicoM_" + counter;
+	var newControlConcInLanePicoM = document.getElementById(newControlConcInLanePicoMName);
+	if(newControlId.value==""){
+		alert("Please select a control");
+		newControlId.focus();
+		return false;
+	}
+	var trimmed = newControlConcInLanePicoM.value.replace(/^\s+|\s+$/g, '') ;//trim from both ends
+	if(trimmed == ""){//must trim before testing
+		alert("Please provide a final concentration for this control");
+		newControlConcInLanePicoM.value = "";
+		newControlConcInLanePicoM.focus();
+		return false;
+	}
+	else{
+		//alert("OK to submit, but not doing it");
+		var theFormName = "addNewControlToLaneForm_" + counter;
+		var theForm = document.getElementById(theFormName);
+		theForm.submit();
+	}
+}
+
 function toggleDisplayOfUpdateForm(instruction, idCounter){
 	//alert ("more testing; id = " + idCounter);
 	var formDivName = "updatePicoFormDiv_" + idCounter;
@@ -43,6 +84,7 @@ function validateUpdateForm(idCounter){
 </head>
 
 <c:set var="idCounter" value="0" scope="page" />
+<c:set var="idNewControlCounter" value="0" scope="page" />
 
 <table class="EditTable ui-widget ui-widget-content">
 <tr class="FormData"><td class="CaptionTD">PlatformUnit:</td><td class="DataTD"><c:out value="${platformUnit.name}" /></td></tr>
@@ -71,6 +113,56 @@ function validateUpdateForm(idCounter){
 				<c:set var="cell" value="${ss1.sampleViaSource}" scope="page" />
 					<td class="label-centered" nowrap>Lane: <c:out value="${fn:substringAfter(cell.name, '/')}" /></td>
 			</c:forEach>
+		</tr>
+		<tr>
+		  
+			<c:forEach items="${platformUnit.sampleSource}" var="ss1">
+				<c:set var="cell" value="${ss1.sampleViaSource}" scope="page" />
+				 <td class="value-centered-small" nowrap>
+					<c:choose>
+						<c:when test="${fn:substringAfter(cell.name, '/')=='4'}">
+							Control: phiX (1.4 pM) <a>[Edit]</a>
+						</c:when>
+						<c:otherwise>
+							No Control On Lane
+						</c:otherwise>				
+					</c:choose>
+					
+					
+					
+					
+					<c:set var="idNewControlCounter" value="${idNewControlCounter + 1}" scope="page" />
+					<br /><a href="javascript:void(0)" id="newControlAnchor_<c:out value="${idNewControlCounter}" />" onclick="toggleDisplayAddNewControlForm('show_form',<c:out value="${idNewControlCounter}" />)">Add Control</a>
+					<div id="idNewControlFormDiv_<c:out value="${idNewControlCounter}" />" style="display:none">
+						<form id="addNewControlToLaneForm_<c:out value="${idNewControlCounter}" />"  method='post' action="<c:url value="/facility/platformunit/addNewControlToLane.do" />" >
+							<input type='hidden' name='platformUnitId' value='<c:out value="${platformUnit.sampleId}" />'/>
+							<input type='hidden' name='cellId' value='<c:out value="${cell.sampleId}" />'/>
+							<table class="data">
+								<tr><td class="value-centered-small">
+								<select id="newControlId_<c:out value="${idNewControlCounter}" />" name="newControlId">
+									<option value="">---SELECT A CONTROL---</option>
+									 <c:forEach items="${controlLibraryList}" var="controlLibrary">
+									 	<option value='<c:out value="${controlLibrary.sampleId}" />'><c:out value="${controlLibrary.name}" />
+									 	<c:forEach items="${controlLibrary.sampleMeta}" var="controlLibrarySampleMetaItem">
+									 		<c:if test="${fn:substringAfter(controlLibrarySampleMetaItem.k, 'Library.') == 'adaptor'}">
+            									<c:out value="${adaptors.get(controlLibrarySampleMetaItem.v).adaptorset.name}"/><br />
+            									Index <c:out value="${adaptors.get(controlLibrarySampleMetaItem.v).barcodenumber}"/>: <c:out value="${adaptors.get(controlLibrarySampleMetaItem.v).barcodesequence}"/><br />
+            								</c:if> 
+									 	</c:forEach>
+									 	</option>
+									 </c:forEach>
+								</select>
+								
+								</td></tr>
+								<tr><td class="value-centered-small">Final Conc. (pM): <input type='text' name='newControlConcInLanePicoM' id="newControlConcInLanePicoM_<c:out value="${idNewControlCounter}" />" size='3' maxlength='5' ></td></tr>
+								<tr><td class="value-centered-small">
+								<input type="button" value="Add" onclick='validateAddNewControlToLaneForm(<c:out value="${idNewControlCounter}" />)' />&nbsp;<input type="button" value="Cancel" onclick='toggleDisplayAddNewControlForm("cancel_form", <c:out value="${idNewControlCounter}" />)' />
+								</td></tr>
+							</table>
+						</form>
+					</div>										
+				</td>
+			</c:forEach>			
 		</tr>
 		
 		<tr>
