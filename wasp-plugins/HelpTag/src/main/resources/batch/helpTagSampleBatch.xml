@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+    xsi:schemaLocation=" http://www.springframework.org/schema/beans 
+  http://www.springframework.org/schema/beans/spring-beans.xsd     
+  http://www.springframework.org/schema/integration
+  http://www.springframework.org/schema/integration/spring-integration.xsd
+  http://www.springframework.org/schema/batch 
+  http://www.springframework.org/schema/batch/spring-batch.xsd
+  "
+    xmlns:p="http://www.springframework.org/schema/p" 
+    xmlns:batch="http://www.springframework.org/schema/batch" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:si="http://www.springframework.org/schema/integration" 
+    xmlns="http://www.springframework.org/schema/beans"
+    default-autowire="byName">
+
+  <bean id="helpTagDna.sample.Poller" parent="wasp.sample.Poller">
+    <property name="sampleSubtypeIName" value="helpTagDnaSample"/>
+    <property name="taskIName" value="sampleWrapTask"/>
+  </bean>
+
+  <si:inbound-channel-adapter ref="helpTagDna.sample.Poller" method="getStates" channel="helpTagDna.sample.Channel">
+    <si:poller fixed-rate="10000"/>
+  </si:inbound-channel-adapter>
+
+  <si:service-activator input-channel="helpTagDna.sample.Channel" output-channel="logger">
+    <bean class="edu.yu.einstein.wasp.batch.launcher.StateJobLaunchingMessageHandler" scope="prototype">
+       <constructor-arg ref="jobRegistry" />
+       <constructor-arg ref="jobLauncher" />
+       <constructor-arg ref="jobRepository" />
+       <constructor-arg ref="jobOperator" />
+       <constructor-arg type="java.lang.String"><value>helpTagDna.sample.Job</value></constructor-arg>
+    </bean>
+  </si:service-activator>
+
+  <bean id="helpTagLibrary.sample.Poller" parent="wasp.sample.Poller">
+    <property name="sampleSubtypeIName" value="helpTagLibrarySample"/>
+    <property name="taskIName" value="sampleWrapTask"/>
+  </bean>
+
+  <si:inbound-channel-adapter ref="helpTagLibrary.sample.Poller" method="getStates" channel="helpTagLibrary.sample.Channel">
+    <si:poller fixed-rate="10000"/>
+  </si:inbound-channel-adapter>
+
+  <si:service-activator input-channel="helpTagLibrary.sample.Channel" output-channel="logger">
+    <bean class="edu.yu.einstein.wasp.batch.launcher.StateJobLaunchingMessageHandler" scope="prototype">
+       <constructor-arg ref="jobRegistry" />
+       <constructor-arg ref="jobLauncher" />
+       <constructor-arg ref="jobRepository" />
+       <constructor-arg ref="jobOperator" />
+       <constructor-arg type="java.lang.String"><value>helpTagLibrary.sample.Job</value></constructor-arg>
+    </bean>
+  </si:service-activator>
+
+
+  <batch:job id="helpTagDna.sample.Job">
+    <batch:flow id="helpTagDna.sample.Job0" parent="wasp.sample.DefaultMpsDnaFlow" next="helpTagDna.sample.Job1" />
+    <batch:flow id="helpTagDna.sample.Job1" parent="wasp.default.FinalFlow" />
+  </batch:job>
+
+  <batch:job id="helpTagLibrary.sample.Job">
+    <batch:flow id="helpTagLibrary.sample.Job0" parent="wasp.sample.DefaultMpsLibraryFlow" next="helpTagLibrary.sample.Job1" />
+
+    <!-- send to aligner -->
+    <batch:flow id="helpTagLibrary.sample.Job1" parent="wasp.sample.AlignerRunFlow" next="helpTagLibrary.sample.Job2" />
+
+    <!-- send to peakcaller -->
+    <batch:flow id="helpTagLibrary.sample.Job2" parent="wasp.sample.PeakcallerRunFlow" next="helpTagLibrary.sample.Job3" />
+
+    <!-- send to analysis -->
+
+    <batch:flow id="helpTagLibrary.sample.Job3" parent="wasp.default.FinalFlow" />
+  </batch:job>
+</beans>
