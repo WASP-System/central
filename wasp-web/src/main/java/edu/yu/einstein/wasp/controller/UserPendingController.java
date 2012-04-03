@@ -306,7 +306,7 @@ public class UserPendingController extends WaspController {
 		metaHelperWebapp.setArea("piPending");
 		String instituteName = "";
 		Map visibilityElementMap = new HashMap();
-		visibilityElementMap.put("institution", MetaAttribute.FormVisibility.immutable);
+		visibilityElementMap.put("piPending.institution", MetaAttribute.FormVisibility.immutable);
 		if (instituteSelect != null && !instituteSelect.equals("other")){
 			// internal institute
 			instituteName = instituteSelect;
@@ -314,7 +314,7 @@ public class UserPendingController extends WaspController {
 		} else {
 			// external institute
 			instituteName = StringHelper.removeExtraSpacesAndCapFirstLetter(instituteOther);
-			visibilityElementMap.put("departmentId", MetaAttribute.FormVisibility.immutable);
+			visibilityElementMap.put("piPending.departmentId", MetaAttribute.FormVisibility.immutable);
 			metaHelperWebapp.getMasterList(visibilityElementMap, UserPendingMeta.class);
 			Map departmentQueryMap = new HashMap();
 			departmentQueryMap.put("isInternal", 0);

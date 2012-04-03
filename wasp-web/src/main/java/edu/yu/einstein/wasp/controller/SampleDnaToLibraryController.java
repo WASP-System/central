@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
 
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
+import edu.yu.einstein.wasp.controller.util.SampleWrapperWebapp;
 import edu.yu.einstein.wasp.dao.AdaptorDao;
 import edu.yu.einstein.wasp.dao.AdaptorsetDao;
 import edu.yu.einstein.wasp.dao.JobCellDao;
@@ -64,6 +65,7 @@ import edu.yu.einstein.wasp.model.Workflow;
 import edu.yu.einstein.wasp.model.WorkflowSampleSubtype;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.util.MetaHelper;
+import edu.yu.einstein.wasp.util.SampleWrapper;
 
 
 @Controller
@@ -451,7 +453,7 @@ public class SampleDnaToLibraryController extends WaspController {
 		//prepare empty library
 		Sample library = new Sample();
 		Map visibilityElementMap = new HashMap(); // specify meta elements that are to be made immutable or hidden in here
-		visibilityElementMap.put("adaptorset", MetaAttribute.FormVisibility.immutable); // adaptor is a list control but we just want to display its value
+		visibilityElementMap.put("genericLibrary.adaptorset", MetaAttribute.FormVisibility.immutable); // adaptor is a list control but we just want to display its value
 		MetaHelperWebapp sampleMetaHelper = getMetaHelperWebapp(); //new MetaHelperWebapp("sample", SampleMeta.class, request.getSession());
 		sampleMetaHelper.setArea("genericLibrary");	//only should need this, as we're creating a new library from a DNA or RNA at the facility, but I suppose there could be an assay-specific set of metadat, but for now leave this	  
 		sampleMetaHelper.getMasterList(visibilityElementMap, SampleMeta.class); // pass in visibilityElementMap here to apply our specifications
@@ -512,7 +514,7 @@ public class SampleDnaToLibraryController extends WaspController {
 
 	  String newLibraryName = libraryForm.getName().trim();//from the form
 	  Map visibilityElementMap = new HashMap(); // specify meta elements that are to be made immutable or hidden in here
-	  visibilityElementMap.put("adaptorset", MetaAttribute.FormVisibility.immutable); // adaptor is a list control but we just want to display its value
+	  visibilityElementMap.put("genericLibrary.adaptorset", MetaAttribute.FormVisibility.immutable); // adaptor is a list control but we just want to display its value
 	  MetaHelperWebapp sampleMetaHelper = getMetaHelperWebapp(); //new MetaHelperWebapp("sample", SampleMeta.class, request.getSession());
 	  List<SampleMeta> sampleMetaListFromForm = new ArrayList<SampleMeta>();
 	  sampleMetaHelper.setArea("genericLibrary");
@@ -734,53 +736,16 @@ public class SampleDnaToLibraryController extends WaspController {
 			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do"; // no workflowsubtype sample
 		}
 		SampleSubtype librarySampleSubtype = librarySampleSubtypes.get(0); // should be one
-		WorkflowSampleSubtype wfss = workflowSampleSubtypeDao.getWorkflowSampleSubtypeByWorkflowIdSampleSubtypeId(
-				job.getWorkflow().getWorkflowId(),
-				library.getSampleSubtypeId());
-		
-	  
-  		List<SampleMeta> sampleMeta = library.getSampleMeta();
-  		Sample parentSample = sampleSourceDao.getParentSampleByDerivedSampleId(library.getSampleId());
-  		if (parentSample.getSampleId() != null){
-  			sampleMeta.addAll(parentSample.getSampleMeta()); // add parent metadata here
-  		}
-  		Map<String,Integer> sampleIdMapByComponentArea = new HashMap<String, Integer>();
-  	
-  		// lets map the the sampleMeta areas to the sampleId. Will pass through the view and use in the POST method to 
-  		// work out which areas go with which sampleId
-  		for(SampleMeta sm: sampleMeta){
-  			String area = MetaHelper.getAreaFromMeta(sm);
-  			Integer sampleId = sm.getSampleId();
-  			if (!sampleIdMapByComponentArea.isEmpty() && 
-  					sampleIdMapByComponentArea.get(area) != null && 
-  					sampleIdMapByComponentArea.get(area).intValue() != sampleId.intValue()){
-  				throw new MetadataException("More than one sample in the metadata list contains the same area. It will not be possible to seperate these for merging later");
-  			}
-  			sampleIdMapByComponentArea.put(area, sampleId );
-  		}
-  		String sampleIdMapByComponentAreaString = "";
-  		for (String area: sampleIdMapByComponentArea.keySet()){
-  			sampleIdMapByComponentAreaString += area+":"+sampleIdMapByComponentArea.get(area)+";";
-  		}
-  		m.addAttribute("sampleIdMapByComponentArea", sampleIdMapByComponentAreaString); // need to map the areas to the samples again when handling submitted form
-  		
-  		MetaHelperWebapp sampleMetaHelper = getMetaHelperWebapp(); //new MetaHelperWebapp("sample", SampleMeta.class, request.getSession());
-  		List<SampleMeta> normalizedSampleMeta = new ArrayList<SampleMeta>();
-  		List<String> sampleSubtypeComponentAreas = librarySampleSubtype.getComponentMetaAreas();
-  		for(String area : sampleSubtypeComponentAreas){
-  			sampleMetaHelper.setArea(area);
-  			Map visibilityElementMap = new HashMap(); // specify meta elements that are to be made immutable or hidden in here
-  			if (area.equals("genericLibrary")){
-  				visibilityElementMap.put("adaptorset", MetaAttribute.FormVisibility.immutable); // adaptor is a list control but we just want to display its value
-  			}
-  			normalizedSampleMeta.addAll(sampleMetaHelper.syncWithMaster(sampleMeta, visibilityElementMap));
-  		}
+		SampleWrapperWebapp libraryManaged = new SampleWrapperWebapp(library, sampleSourceDao);
   		Adaptorset selectedAdaptorset = null;
 		Adaptor adaptor = null;
-		sampleMetaHelper.setArea("genericLibrary");	//only should need this, as we're creating a new library from a DNA or RNA at the facility, but I suppose there could be an assay-specific set of metadat, but for now leave this	  
-		try{
-  			adaptor = adaptorDao.getAdaptorByAdaptorId(Integer.valueOf( sampleMetaHelper.getMetaValueByName("adaptor",normalizedSampleMeta)) );
-  			selectedAdaptorset = adaptorsetDao.getAdaptorsetByAdaptorsetId(Integer.valueOf( sampleMetaHelper.getMetaValueByName("adaptorset",normalizedSampleMeta)) );
+		
+		Map<String, MetaAttribute.FormVisibility>  visibilityElementMap = new HashMap<String, MetaAttribute.FormVisibility>(); // specify meta elements that are to be made immutable or hidden in here
+		visibilityElementMap.put("genericLibrary.adaptorset", MetaAttribute.FormVisibility.immutable); // adaptor is a list control but we just want to display its value
+		List<SampleMeta> normalizedSampleMeta = libraryManaged.getMetaTemplatedToSampleSybtypeAndSynchronizedToMaster(librarySampleSubtype, visibilityElementMap);
+		try{	
+  			adaptor = adaptorDao.getAdaptorByAdaptorId(Integer.valueOf( MetaHelper.getMetaValue("genericLibrary", "adaptor", normalizedSampleMeta)) );
+  			selectedAdaptorset = adaptorsetDao.getAdaptorsetByAdaptorsetId(Integer.valueOf( MetaHelper.getMetaValue("genericLibrary", "adaptorset", normalizedSampleMeta)) );
   		} catch(MetadataException e){
   			logger.warn("Cannot get metadata : " + e.getMessage());
   		} catch(NumberFormatException e){

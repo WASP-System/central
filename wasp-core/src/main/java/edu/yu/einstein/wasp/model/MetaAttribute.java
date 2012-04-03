@@ -4,6 +4,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
+import edu.yu.einstein.wasp.util.SampleWrapper;
+
 
 /**
  * Holds attributes for a *meta" object
@@ -95,9 +99,11 @@ public final class MetaAttribute implements Serializable {
 		
 	
 		public void setMetaType(String metaType){
-			if (metaType != null && MetaType.valueOf(metaType.toUpperCase()) != null){
+			try{
 				this.metaType = MetaType.valueOf(metaType);
-			} else {
+			} catch(IllegalArgumentException e){
+				this.metaType = MetaType.STRING;
+			} catch(NullPointerException e){
 				this.metaType = MetaType.STRING;
 			}
 		}
@@ -133,6 +139,8 @@ public final class MetaAttribute implements Serializable {
 		public void setSuffix(String suffix) {
 			this.suffix = suffix;
 		}
+		
+		private static final Logger	logger	= Logger.getLogger(MetaAttribute.class);
 		
 		/**
 		 * 

@@ -34,7 +34,7 @@
 <table class="EditTable ui-widget ui-widget-content">
  <input type='hidden' name='jobId' value='<c:out value="${job.jobId}" />'/>
  <input type='hidden' name='libraryId' value='<c:out value="${sample.sampleId}" />'/>
- <input type='hidden' name='sampleIdMapByComponentArea' value='<c:out value="${sampleIdMapByComponentArea}" />'/>
+ 
 
 <c:if test="${parentMacromolecule != null && parentMacromolecule.sampleId > 0}">
 

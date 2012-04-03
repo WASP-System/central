@@ -117,15 +117,13 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 			  if (sampleTypeIName == null || sampleTypeIName.equals(sts.getSampleType().getIName())){
 				  String[] includedRoles = new String[]{};
 				  String[] excludedRoles = new String[]{};
-				  MetaHelper metahelper = new MetaHelper("sampleSubtype", SampleSubtypeMeta.class, Locale.US);
-				  metahelper.setArea(sts.getIName());
 				  try{
-					  includedRoles = metahelper.getMetaValueByName("includeRoles",sts.getSampleSubtypeMeta()).split(",");
+					  includedRoles = MetaHelper.getMetaValue(sts.getIName(), "includeRoles",sts.getSampleSubtypeMeta()).split(",");
 				  } catch(MetadataException e){
 					  // "includeRoles" meta not present
 				  }
 				  try{
-					  excludedRoles = metahelper.getMetaValueByName("excludeRoles",sts.getSampleSubtypeMeta()).split(",");
+					  excludedRoles = MetaHelper.getMetaValue(sts.getIName(), "excludeRoles",sts.getSampleSubtypeMeta()).split(",");
 				  } catch(MetadataException e){
 					  // "excludeRoles" meta not present
 				  }

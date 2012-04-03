@@ -59,7 +59,7 @@ public class MetaHelper {
 	 * @param clazz
 	 */
 	public <T extends MetaBase> MetaHelper(String area, Class<T> clazz) {
-		this(area, area, clazz, new Locale(Locale.US.toString()));
+		this(area, area, clazz, Locale.US);
 	}
 	
 	/**
@@ -261,8 +261,6 @@ public class MetaHelper {
 		Set<String> keys=DBResourceBundle.MESSAGE_SOURCE.getKeys(Locale.US);
 		for(String k: keys) {
 			if (!k.startsWith(area +".")) continue; // get ONLY keys for area we are dealing with
-
-		
 			String currentMessage = DBResourceBundle.MESSAGE_SOURCE.getMessage(k,null,locale);
 
 		
@@ -318,15 +316,14 @@ public class MetaHelper {
 			p.setMetaType(bundleResource.get(qualifiedName + ".type"));
 			p.setRange(bundleResource.get(qualifiedName + ".range"));
 			p.setDefaultVal(bundleResource.get(qualifiedName + ".default"));
-			if (visibility != null && visibility.containsKey(name)){
-				p.setFormVisibility(visibility.get(name));
-				if (visibility.get(name).equals(MetaAttribute.FormVisibility.ignore)){
+			if (visibility != null && visibility.containsKey(qualifiedName)){
+				p.setFormVisibility(visibility.get(qualifiedName));
+				if (visibility.get(qualifiedName).equals(MetaAttribute.FormVisibility.ignore)){
 					p.setMetaposition(0); // no ranking for hidden attributes
 				}
 			} else {
 				p.setFormVisibility(MetaAttribute.FormVisibility.editable); // set default form visibility
 			}
-
 			p.setControl(MetaUtil.getControl(qualifiedName + ".control", locale));
 			displayDebugInfoMessage(obj, "getMasterList() adding");
 			list.add(obj);
@@ -339,7 +336,7 @@ public class MetaHelper {
 	
 
 	/**
-	 * Updates "dbList" so it only contains fields found in "properties" file
+	 * Updates "dbList" so it only contains fields found in UiFields
 	 * @param dbList
 	 * @return
 	 */
@@ -348,7 +345,7 @@ public class MetaHelper {
 	}
 	
 	/**
-	 * Updates "dbList" so it only contains fields found in "properties" file and apply visibility options
+	 * Updates "dbList" so it only contains fields found in UiFields and apply visibility options
 	 * @param dbList
 	 * @return
 	 */
@@ -358,7 +355,7 @@ public class MetaHelper {
 	
 	
 	/**
-	 * Updates "currentList" so it only contains fields found in "properties" file
+	 * Updates "currentList" so it only contains fields found in UiFields
 	 * @param currentList
 	 * @param masterList
 	 * @return
@@ -401,7 +398,7 @@ public class MetaHelper {
 	 * @throws MetadataException
 	 */
 	public  MetaBase getMetaByName(String name) throws MetadataException{
-		return getMetaByName(name, this.lastList);
+		return getMetaObjectFromList(this.area, name, this.lastList);
 	}
 	
 	/**
@@ -410,7 +407,7 @@ public class MetaHelper {
 	 * @return {@link MetaBase} derived object or null if not found 
 	 * @throws MetadataException 
 	 */
-	public <T extends MetaBase> T getMetaByName(String name, List<T> list) throws MetadataException{
+	public static <T extends MetaBase> T getMetaObjectFromList(String area, String name, List<T> list) throws MetadataException{
 		for (T meta : list) {
 			if (meta.getK().equals(area + "." + name) ) {
 				return meta;
@@ -420,45 +417,54 @@ public class MetaHelper {
 	}
 	
 	/**
+	 * Given a list of metadata, this method returns the subset matching the given area
+	 * @param area
+	 * @param list
+	 * @return List of meta data
+	 */
+	public static <T extends MetaBase> List<T> getMetaSubsetByArea(String area, List<T> list){
+		List<T> subsetMetaList = new ArrayList<T>();
+		for (T meta : list) {
+			if (meta.getK().startsWith(area + ".") ) {
+				subsetMetaList.add(meta);
+			}
+		} 
+		return subsetMetaList;
+	}
+	
+	/**
 	 * Finds a {@link MetaBase} derived object by name in the last list generated and returns its value
 	 * @param name
 	 * @return {@link MetaBase} or null if not found 
 	 * @throws MetadataException
 	 */
 	public  String getMetaValueByName(String name) throws MetadataException{
-		return getMetaByName(name, this.lastList).getV();
+		return getMetaObjectFromList(this.area, name, this.lastList).getV();
 	}
 	
+
 	/**
-	 * Finds a {@link MetaBase} derived object by name in the provided list and returns its value
+	 *  Finds a {@link MetaBase} derived object by name in the provided list and returns its value
+	 * @param area
 	 * @param name
-	 * @return {@link MetaBase} derived object or null if not found 
-	 * @throws MetadataException 
+	 * @param list
+	 * @return Value of metadata
+	 * @throws MetadataException
 	 */
-	public <T extends MetaBase> String getMetaValueByName(String name, List<T> list) throws MetadataException{
-		for (T meta : list) {
-			if (meta.getK().equals(area + "." + name) ) {
-				return meta.getV();
-			}
-		} 
-		throw new MetadataException("Cannot find metadata with name: "+name);
+	public static <T extends MetaBase> String getMetaValue(String area, String name, List<T> list) throws MetadataException{
+		return getMetaObjectFromList(area, name, list).getV();
 	}
-	
+
 	/**
 	 * Finds a {@link MetaBase} derived object by name in the provided list and sets its value
+	 * @param area
 	 * @param name
 	 * @param value
 	 * @param list
 	 * @throws MetadataException
 	 */
-	public <T extends MetaBase> void setMetaValueByName(String name,  String value, List<T> list) throws MetadataException{
-		for (T meta : list) {
-			if (meta.getK().equals(area + "." + name) ) {
-				meta.setV(value);
-				return;
-			}
-		} 
-		throw new MetadataException("Cannot find metadata with name: "+name);
+	public static <T extends MetaBase> void setMetaValueByName(String area, String name,  String value, List<T> list) throws MetadataException{
+		getMetaObjectFromList(area, name, list).setV(value);
 	}
 	
 	/**
@@ -469,7 +475,7 @@ public class MetaHelper {
 	 * @throws MetadataException
 	 */
 	public <T extends MetaBase> void setMetaValueByName(String name,  String value) throws MetadataException{
-		setMetaValueByName(name, value, this.lastList);
+		setMetaValueByName(this.area, name, value, this.lastList);
 	}
 	
 	/**

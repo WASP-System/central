@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
+import org.apache.log4j.Logger;
 import org.springframework.util.StringUtils;
 
 import edu.yu.einstein.wasp.dao.impl.DBResourceBundle;
@@ -19,6 +20,8 @@ import edu.yu.einstein.wasp.model.MetaAttribute.Control;
  *
  */
 public final class MetaUtil {
+	
+		private static final Logger logger = Logger.getLogger(MetaUtil.class);
 			
 		
 		/**
@@ -76,11 +79,9 @@ public final class MetaUtil {
 	public static Control getControl(String key, Locale locale) {
 		
 		//WaspMessageSourceImpl
-		if (
-				!
-				DBResourceBundle.MESSAGE_SOURCE
-				.contains(key, locale)
-			) return null;
+		if (! DBResourceBundle.MESSAGE_SOURCE.contains(key, locale) ){
+			return null;
+		}
 		
 		String controlStr=getMessage(key, locale);
 		

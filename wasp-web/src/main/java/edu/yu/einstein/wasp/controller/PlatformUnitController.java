@@ -968,14 +968,14 @@ public class PlatformUnitController extends WaspController {
 		
 		List<SampleMeta> mySampleMeta = sampleDb.getSampleMeta();
 		MetaHelperWebapp sampleMetaHelper = getMetaHelperWebappPlatformUnitInstance();
-		List<SampleMeta> normalizedSampleMeta = sampleMetaHelper.syncWithMaster(mySampleMeta);
+		sampleMetaHelper.syncWithMaster(mySampleMeta);
 		try {
-			sampleMetaHelper.setMetaValueByName("lanecount", laneCount.toString(), normalizedSampleMeta);
+			sampleMetaHelper.setMetaValueByName("lanecount", laneCount.toString());
 		} catch (MetadataException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} // set a value for a member of the list by name
-		sampleMetaDao.updateBySampleId(sampleDb.getSampleId(), normalizedSampleMeta); // now we get the list and persist it
+		sampleMetaDao.updateBySampleId(sampleDb.getSampleId(), (List<SampleMeta>) sampleMetaHelper.getMetaList()); // now we get the list and persist it
 
 		createUpdateCell(sampleDb, laneCount, sampleId);
 		createState(sampleId, sampleDb);
