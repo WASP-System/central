@@ -64,8 +64,8 @@
     <!-- send to aligner -->
     <batch:flow id="helpTagLibrary.sample.Job1" parent="wasp.sample.AlignerRunFlow" next="helpTagLibrary.sample.Job2" />
 
-    <!-- send to peakcaller -->
-    <batch:flow id="helpTagLibrary.sample.Job2" parent="wasp.sample.PeakcallerRunFlow" next="helpTagLibrary.sample.Job3" />
+    <!-- send to helptag pipeline -->
+    <batch:flow id="helpTagLibrary.sample.Job2" parent="wasp.sample.HelptagPipelineRunFlow" next="helpTagLibrary.sample.Job3" />
 
     <!-- send to analysis -->
 

@@ -6,7 +6,7 @@
         http://www.springframework.org/schema/beans/spring-beans-3.1.xsd"
     default-autowire="byName">
    
-  <!-- ChIP-seq DNA sample --> 
+  <!-- HELP-tag DNA sample --> 
    
   <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="helpTagDnaUiFieldWrapper">
     <property name="baseLocale" value="en_US" />
@@ -47,7 +47,7 @@
 
 
   <bean id="helpTagDnaSampleSubtypeResource" class="edu.yu.einstein.wasp.load.SampleSubtypeLoadService">
-  	<property name="name" value="ChIP-seq DNA" />
+  	<property name="name" value="HELP-tag DNA" />
     <property name="area" value="helptagDnaSample" />
     <property name="sampleType" value="#{waspSampleType['dna']}" />
     <property name="uiFieldGroupsFromWrapper">
@@ -81,7 +81,7 @@
  
   <bean id="helpTagLibrarySampleSubtypeResource" class="edu.yu.einstein.wasp.load.SampleSubtypeLoadService">
   	<constructor-arg ref="helpTagDnaSampleSubtypeResource" />
-    <property name="name" value="ChIP-seq Library" />
+    <property name="name" value="HELP-tag Library" />
     <property name="area" value="helptagLibrarySample" />
     <property name="sampleType" value="#{waspSampleType['library']}" />
     <property name="uiFieldGroupsFromWrapper">
@@ -105,7 +105,7 @@
   
   <bean id="helpTagFacilityLibrarySampleSubtypeResource" class="edu.yu.einstein.wasp.load.SampleSubtypeLoadService">
   	<constructor-arg ref="helpTagDnaSampleSubtypeResource" />
-    <property name="name" value="ChIP-seq Facility Library" />
+    <property name="name" value="HELP-tag Facility Library" />
     <property name="area" value="helptagFacilityLibrarySample" />
     <property name="sampleType" value="#{waspSampleType['library']}" />
     <property name="uiFieldGroupsFromWrapper">
