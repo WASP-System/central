@@ -29,7 +29,7 @@ public class SampleWrapper implements BioMoleculeI{
 	protected SampleWrapper parent = null; // e.g. if this sample is a library then the parent might be a source DNA sample
 	protected Sample sample = null; // the sample object wrapped by this class
 	
-	protected static final Logger	logger	= Logger.getLogger(SampleWrapper.class);
+	protected static final Logger logger = Logger.getLogger(SampleWrapper.class);
 		
 	/**
 	 * Constructor: requires the target sample object and a sampleSourceDao implementation
@@ -38,10 +38,12 @@ public class SampleWrapper implements BioMoleculeI{
 	 */
 	public SampleWrapper(Sample sample, SampleSourceDao sampleSourceDao){
 		this.sample = sample;
-		Sample parentSample = sampleSourceDao.getParentSampleByDerivedSampleId(sample.getSampleId());
-		if (parentSample.getSampleId() != null){
-  			parent = new SampleWrapper(parentSample, sampleSourceDao);
-  		}
+		if (sample.getSampleId() != null){
+			Sample parentSample = sampleSourceDao.getParentSampleByDerivedSampleId(sample.getSampleId());
+			if (parentSample.getSampleId() != null){
+	  			parent = new SampleWrapper(parentSample, sampleSourceDao);
+	  		}
+		}
 	}
 
 	/**
@@ -50,7 +52,8 @@ public class SampleWrapper implements BioMoleculeI{
 	@Override
 	public List<SampleMeta> getAllSampleMeta(){
 		List<SampleMeta> sm = new ArrayList<SampleMeta>();
-		sm.addAll(sample.getSampleMeta());
+		if (sample.getSampleMeta() != null && !sample.getSampleMeta().isEmpty())
+			sm.addAll(sample.getSampleMeta());
 		if (parent != null)
 			sm.addAll(parent.getAllSampleMeta());
 		return sm;

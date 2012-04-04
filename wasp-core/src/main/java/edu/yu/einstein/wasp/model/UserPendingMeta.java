@@ -73,8 +73,8 @@ public class UserPendingMeta extends MetaBase {
 	 *
 	 */
 	
-	public void setUserPendingId (Integer userpendingId) {
-		this.userPendingId = userpendingId;
+	public void setUserPendingId (Integer userPendingId) {
+		this.userPendingId = userPendingId;
 	}
 
 	/**

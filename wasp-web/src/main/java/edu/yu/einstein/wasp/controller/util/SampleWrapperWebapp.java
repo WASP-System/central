@@ -54,5 +54,4 @@ public class SampleWrapperWebapp extends SampleWrapper{
   		return normalizedSampleMeta;
 	}
 
-	
 }

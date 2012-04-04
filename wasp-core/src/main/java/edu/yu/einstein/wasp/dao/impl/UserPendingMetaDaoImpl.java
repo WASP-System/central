@@ -72,10 +72,10 @@ public class UserPendingMetaDaoImpl extends WaspDaoImpl<UserPendingMeta> impleme
 	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
-	public UserPendingMeta getUserPendingMetaByKUserpendingId (final String k, final int userpendingId) {
+	public UserPendingMeta getUserPendingMetaByKUserpendingId (final String k, final int userPendingId) {
     		HashMap m = new HashMap();
 		m.put("k", k);
-		m.put("userPendingId", userpendingId);
+		m.put("userPendingId", userPendingId);
 
 		List<UserPendingMeta> results = this.findByMap(m);
 
@@ -97,12 +97,12 @@ public class UserPendingMetaDaoImpl extends WaspDaoImpl<UserPendingMeta> impleme
 	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
-	public void updateByUserpendingId (final int userpendingId, final List<UserPendingMeta> metaList) {
+	public void updateByUserpendingId (final int userPendingId, final List<UserPendingMeta> metaList) {
 		for (UserPendingMeta m:metaList) {
-			UserPendingMeta currentMeta = getUserPendingMetaByKUserpendingId(m.getK(), userpendingId);
+			UserPendingMeta currentMeta = getUserPendingMetaByKUserpendingId(m.getK(), userPendingId);
 			if (currentMeta.getUserPendingMetaId() == null){
 				// metadata value not in database yet
-				m.setUserPendingId(userpendingId);
+				m.setUserPendingId(userPendingId);
 				entityManager.persist(m);
 			} else if (!currentMeta.getV().equals(m.getV())){
 				// meta exists already but value has changed

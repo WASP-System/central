@@ -472,7 +472,7 @@ public class UserPendingController extends WaspController {
 			return false;
 		}
 			  
-		UserPending userPending = userPendingDao.getUserPendingByUserPendingId(confirmEmailAuth.getUserpendingId());
+		UserPending userPending = userPendingDao.getUserPendingByUserPendingId(confirmEmailAuth.getUserPendingId());
 
 		if (! userPending.getEmail().equals(email)){
 			waspErrorMessage("auth.confirmemail_wronguser.error");

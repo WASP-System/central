@@ -66,7 +66,7 @@ import org.hibernate.envers.NotAudited;
         *
         */
 	@Column(name="userpendingid")
-	protected Integer userpendingId;
+	protected Integer userPendingId;
         
         /**
         * setUserpendingId(Integer userPendingId)
@@ -75,8 +75,8 @@ import org.hibernate.envers.NotAudited;
         *
         */
         
-        public void setUserpendingId (Integer userpendingId) {
-            this.userpendingId = userpendingId;
+        public void setUserpendingId (Integer userPendingId) {
+            this.userPendingId = userPendingId;
         }
         
         /**
@@ -85,8 +85,8 @@ import org.hibernate.envers.NotAudited;
         * @return userPendingId
         *
         */
-        public Integer getUserpendingId () {
-            return this.userpendingId;
+        public Integer getUserPendingId () {
+            return this.userPendingId;
         }
         
         
@@ -265,7 +265,7 @@ import org.hibernate.envers.NotAudited;
         */
         public void setUserPending (UserPending userPending) {
             this.userPending = userPending;
-            this.userpendingId = userPending.userPendingId;
+            this.userPendingId = userPending.userPendingId;
         }
         
         /**

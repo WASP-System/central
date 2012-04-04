@@ -19,7 +19,7 @@ public interface ConfirmEmailAuthDao extends WaspDao<ConfirmEmailAuth> {
 
 	public ConfirmEmailAuth getConfirmEmailAuthByAuthcode (final String authcode);
 	
-	public ConfirmEmailAuth getConfirmEmailAuthByUserpendingId (final int userpendingId);
+	public ConfirmEmailAuth getConfirmEmailAuthByUserpendingId (final int userPendingId);
 	  
 	public ConfirmEmailAuth getConfirmEmailAuthByUserId (final int userId);
 

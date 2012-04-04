@@ -449,20 +449,24 @@ public class SampleDnaToLibraryController extends WaspController {
 		List<Adaptorset> otherAdaptorsets = adaptorsetDao.findAll();//should really filter this by the machine requested
 		otherAdaptorsets.remove(selectedAdaptorset);//remove this one
 		m.put("otherAdaptorsets", otherAdaptorsets); 
-		  
-		//prepare empty library
-		Sample library = new Sample();
-		Map visibilityElementMap = new HashMap(); // specify meta elements that are to be made immutable or hidden in here
+		
+		List<SampleSubtype> librarySampleSubtypes = sampleService.getSampleSubtypesForWorkflowByLoggedInUserRoles(job.getWorkflow().getWorkflowId(), "library");
+		if(librarySampleSubtypes.isEmpty()){
+			waspErrorMessage("sampleDetail.sampleSubtypeNotFound.error");
+			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do"; // no workflowsubtype sample
+		}
+		Map<String, MetaAttribute.FormVisibility> visibilityElementMap = new HashMap<String, MetaAttribute.FormVisibility>(); // specify meta elements that are to be made immutable or hidden in here
 		visibilityElementMap.put("genericLibrary.adaptorset", MetaAttribute.FormVisibility.immutable); // adaptor is a list control but we just want to display its value
-		MetaHelperWebapp sampleMetaHelper = getMetaHelperWebapp(); //new MetaHelperWebapp("sample", SampleMeta.class, request.getSession());
-		sampleMetaHelper.setArea("genericLibrary");	//only should need this, as we're creating a new library from a DNA or RNA at the facility, but I suppose there could be an assay-specific set of metadat, but for now leave this	  
-		sampleMetaHelper.getMasterList(visibilityElementMap, SampleMeta.class); // pass in visibilityElementMap here to apply our specifications
+		SampleSubtype librarySampleSubtype = librarySampleSubtypes.get(0); // should be one
+		SampleWrapperWebapp libraryManaged = new SampleWrapperWebapp(new Sample(), sampleSourceDao);
+		List<SampleMeta> libraryMeta = libraryManaged.getMetaTemplatedToSampleSybtypeAndSynchronizedToMaster(librarySampleSubtype, visibilityElementMap);
 		try {
-			sampleMetaHelper.setMetaValueByName("adaptorset", selectedAdaptorset.getAdaptorsetId().toString());
+			MetaHelper.setMetaValueByName("genericLibrary", "adaptorset", selectedAdaptorset.getAdaptorsetId().toString(), libraryMeta);
 		} catch (MetadataException e) {
 			logger.warn("Cannot set value on 'adaptorset': " + e.getMessage() );
 		}
-		library.setSampleMeta((List<SampleMeta>) sampleMetaHelper.getMetaList());
+		Sample library = libraryManaged.getSampleObject();
+		library.setSampleMeta(libraryMeta);
 		m.put("sample", library); 	
 		
 		return "sampleDnaToLibrary/createLibrary";
@@ -816,26 +820,21 @@ public class SampleDnaToLibraryController extends WaspController {
 		  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 	  }
 	  
-	  List<String> areaList = new ArrayList<String>();
-	  Workflow workflow = job.getWorkflow();
-	  List<WorkflowSampleSubtype> wfssList = workflow.getWorkflowSampleSubtype();
-	  for(WorkflowSampleSubtype wfss: wfssList){
+	  SampleSubtype sampleSubtype = null;
+	  for(WorkflowSampleSubtype wfss: job.getWorkflow().getWorkflowSampleSubtype()){
 		  if(wfss.getSampleSubtype().getSampleTypeId().intValue() == sample.getSampleTypeId().intValue()){
-			  String[] items = wfss.getSampleSubtype().getAreaList().split(",");
-			  for(String item : items){
-				  areaList.add(item);
-			  }			  
+			  sampleSubtype = wfss.getSampleSubtype();
+			  break;
 		  }
 	  }
-	  
-	  List<SampleMeta> sampleMeta = sample.getSampleMeta();
-	  MetaHelperWebapp sampleMetaHelper = getMetaHelperWebapp(); //new MetaHelperWebapp("sample", SampleMeta.class, request.getSession());
-	  List<SampleMeta> normalizedSampleMeta = new ArrayList<SampleMeta>();
-	  for(String area : areaList){
-		  sampleMetaHelper.setArea(area);
-		  normalizedSampleMeta.addAll(sampleMetaHelper.syncWithMaster(sampleMeta));
+	  if (sampleSubtype == null){
+		  sampleSubtype = sampleSubtypeDao.getSampleSubtypeByIName("genericDna");
+		  logger.warn("Cannot locate a SubtypeSample matching the SampleType of the current SampleEntity (sampleId="+String.valueOf(sample.getSampleId())+
+				  ", sampleType="+String.valueOf(sample.getSampleTypeId())+"). Defaulting to '"+sampleSubtype.getIName()+"'");
+		  
 	  }
-	  sample.setSampleMeta(normalizedSampleMeta);
+	  SampleWrapperWebapp sampleManaged = new SampleWrapperWebapp(sample, sampleSourceDao);
+	  sample.setSampleMeta(sampleManaged.getMetaTemplatedToSampleSybtypeAndSynchronizedToMaster(sampleSubtype));
 	  
 	  m.put("job", job);
 	  m.put("sample", sample); 

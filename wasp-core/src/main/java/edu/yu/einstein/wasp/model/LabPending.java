@@ -167,7 +167,7 @@ public class LabPending extends WaspModel {
 	 *
 	 */
 	@Column(name="userpendingid")
-	protected Integer userpendingId;
+	protected Integer userPendingId;
 
 	/**
 	 * setUserpendingId(Integer userPendingId)
@@ -176,8 +176,8 @@ public class LabPending extends WaspModel {
 	 *
 	 */
 	
-	public void setUserpendingId (Integer userpendingId) {
-		this.userpendingId = userpendingId;
+	public void setUserpendingId (Integer userPendingId) {
+		this.userPendingId = userPendingId;
 	}
 
 	/**
@@ -187,7 +187,7 @@ public class LabPending extends WaspModel {
 	 *
 	 */
 	public Integer getUserpendingId () {
-		return this.userpendingId;
+		return this.userPendingId;
 	}
 
 
@@ -367,7 +367,7 @@ public class LabPending extends WaspModel {
 	 */
 	public void setUserPending (UserPending userPending) {
 		this.userPending = userPending;
-		this.userpendingId = userPending.userPendingId;
+		this.userPendingId = userPending.userPendingId;
 	}
 
 	/**
