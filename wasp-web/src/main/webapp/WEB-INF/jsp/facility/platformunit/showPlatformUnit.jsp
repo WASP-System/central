@@ -167,8 +167,7 @@ function validateUpdateForm(idCounter){
 									 	<option value='<c:out value="${controlLibrary.sampleId}" />'><c:out value="${controlLibrary.name}" />
 									 	<c:forEach items="${controlLibrary.sampleMeta}" var="controlLibrarySampleMetaItem">
 									 		<c:if test="${fn:substringAfter(controlLibrarySampleMetaItem.k, 'Library.') == 'adaptor'}">
-            									<c:out value="${adaptors.get(controlLibrarySampleMetaItem.v).adaptorset.name}"/><br />
-            									Index <c:out value="${adaptors.get(controlLibrarySampleMetaItem.v).barcodenumber}"/>: <c:out value="${adaptors.get(controlLibrarySampleMetaItem.v).barcodesequence}"/><br />
+            									&nbsp;-&nbsp;<c:out value="${adaptors.get(controlLibrarySampleMetaItem.v).adaptorset.name}"/> [Index <c:out value="${adaptors.get(controlLibrarySampleMetaItem.v).barcodenumber}"/> (<c:out value="${adaptors.get(controlLibrarySampleMetaItem.v).barcodesequence}"/>)]
             								</c:if> 
 									 	</c:forEach>
 									 	</option>
