@@ -543,11 +543,11 @@ public class ResourceController extends WaspController {
 		if (resourceId > 0) {
 			newResource = false;
 		}
-
-		List<ResourceMeta> resourceMetaList = getMetaHelperWebapp().getFromRequest(
+		MetaHelperWebapp metaHelper = getMetaHelperWebapp();
+		List<ResourceMeta> resourceMetaList = metaHelper.getFromRequest(
 				request, ResourceMeta.class);
 
-		getMetaHelperWebapp().validate(resourceMetaList, result);
+		metaHelper.validate(result);
 
 		if (result.hasErrors()) {
 			resourceForm.setResourceMeta(resourceMetaList);

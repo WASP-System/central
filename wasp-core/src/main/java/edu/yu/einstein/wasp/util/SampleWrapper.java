@@ -24,7 +24,7 @@ import edu.yu.einstein.wasp.model.SampleSubtype;
  * @author ASMcLellan
  *
  */
-public class SampleWrapper implements BioMoleculeI{
+public class SampleWrapper implements BioMoleculeWrapperI{
 
 	protected SampleWrapper parent = null; // e.g. if this sample is a library then the parent might be a source DNA sample
 	protected Sample sample = null; // the sample object wrapped by this class

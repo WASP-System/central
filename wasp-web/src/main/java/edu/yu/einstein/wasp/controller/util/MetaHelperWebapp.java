@@ -176,26 +176,54 @@ public class MetaHelperWebapp extends MetaHelper {
 		return list;
 	}
 
+	
 
 	/**
-	 * Get a {@link MetaValidatorImpl} instance 
-	 * Validates any metadata with constraints in the supplied list
-	 * @param list
-	 * @return
+	 * Validates any metadata with constraints in the last generated metadata list using the supplied validator object
+	 * Must call getMasterList(), getFromRequest(), getFromJsonForm() or syncWithMaster() on this object first or will return null.
+	 * @param validator
+	 * @param result
 	 */
-	public final MetaValidator getMetaValidator(List<? extends MetaBase> list) {
-		return getMetaValidator(list, MetaValidatorImpl.class);
+	public void validate(MetaValidator validator, BindingResult result) {
+		validator.validate(this.lastList, result, parentArea);
+	}
+
+
+	/**
+	 * Validates any metadata with constraints in the last generated metadata list using {@link MetaValidatorImpl}
+	 * Must call getMasterList(), getFromRequest(), getFromJsonForm() or syncWithMaster() on this object first or will return null.
+	 * @param result
+	 */
+	public void validate(BindingResult result) {
+		getMetaValidator().validate(this.lastList, result, parentArea);
+	}
+
+	/**
+	 * Validates any metadata with constraints in the last generated metadata list using a {@link MetaValidator} derived instance of type specified by 'metaValidatorClazz'
+	 * Must call getMasterList(), getFromRequest(), getFromJsonForm() or syncWithMaster() on this object first or will return null.
+	 * @param metaValidatorClazz
+	 * @param result
+	 */
+	public <T extends MetaValidator> void validate(Class<T> metaValidatorClazz, BindingResult result) {
+		getMetaValidator().validate(this.lastList, result, parentArea);
+	}
+	
+	/**
+	 * Validates any metadata with constraints in the supplied list using {@link MetaValidatorImpl}
+	 * @param area
+	 * @param list
+	 * @param result
+	 */
+	public static void validate(String area, List<? extends MetaBase> list, BindingResult result) {
+		getMetaValidator().validate(list, result, area);
 	}
 	
 	/**
 	 * Get a {@link MetaValidator} derived instance of type specified by 'metaValidatorClazz'
-	 * Validates any metadata with constraints in the supplied list
-	 * @param list
 	 * @param metaValidatorClazz
-	 * @return
+	 * @return a metaValidatorClazz instance
 	 */
-	public final <T extends MetaValidator> T getMetaValidator(List<? extends MetaBase> list, Class <T>metaValidatorClazz) {
-		if (list == null) return null;
+	public static  <T extends MetaValidator> T getMetaValidator(Class <T>metaValidatorClazz) {
 		T validator;
 		try {
 			validator = metaValidatorClazz.newInstance();
@@ -206,71 +234,11 @@ public class MetaHelperWebapp extends MetaHelper {
 	}
 	
 	/**
-	 * Get a {@link MetaValidatorImpl} instance 
-	 * Validates any metadata with constraints in the last generated metadata list
-	 * Must call getMasterList(), getFromRequest(), getFromJsonForm() or syncWithMaster() on this object first or will return null.
-	 * @return
+	 * Get the default {@link MetaValidatorImpl} instance 
+	 * @return a MetaValidator Instance
 	 */
-	public final MetaValidator getMetaValidator() {
-		return getMetaValidator(this.lastList);
+	public static MetaValidator getMetaValidator() {
+		return getMetaValidator(MetaValidatorImpl.class);
 	}
 	
-	/**
-	 * Get a {@link MetaValidator} derived instance of type specified by 'metaValidatorClazz'
-	 * Validates any metadata with constraints in the last generated metadata list
-	 * Must call getMasterList(), getFromRequest(), getFromJsonForm() or syncWithMaster() on this object first or will return null.
-	 * @param metaValidatorClazz
-	 * @return
-	 */
-	public final <T extends MetaValidator> T getMetaValidator(Class<T> metaValidatorClazz) {
-		return getMetaValidator(this.lastList, metaValidatorClazz);
-	}
-	
-	/**
-	 * Validates any metadata with constraints in the supplied list using the supplied validator object
-	 * @param validator
-	 * @param list
-	 * @param result
-	 */
-	public void validate(MetaValidator validator, List<? extends MetaBase> list, BindingResult result) {
-		validator.validate(list, result, area, parentArea);
-	}
-
-	/**
-	 * Validates any metadata with constraints in the last generated metadata list using the supplied validator object
-	 * Must call getMasterList(), getFromRequest(), getFromJsonForm() or syncWithMaster() on this object first or will return null.
-	 * @param validator
-	 * @param result
-	 */
-	public void validate(MetaValidator validator, BindingResult result) {
-		validator.validate(this.lastList, result, area, parentArea);
-	}
-
-	/**
-	 * Validates any metadata with constraints in the supplied list using {@link MetaValidatorImpl}
-	 * @param list
-	 * @param result
-	 */
-	public void validate(List<? extends MetaBase> list, BindingResult result) {
-		getMetaValidator(list).validate(list, result, area, parentArea);
-	}
-	
-	/**
-	 * Validates any metadata with constraints in the last generated metadata list using {@link MetaValidatorImpl}
-	 * Must call getMasterList(), getFromRequest(), getFromJsonForm() or syncWithMaster() on this object first or will return null.
-	 * @param result
-	 */
-	public void validate(BindingResult result) {
-		getMetaValidator().validate(this.lastList, result, area, parentArea);
-	}
-
-	/**
-	 * Validates any metadata with constraints in the last generated metadata list using a {@link MetaValidator} derived instance of type specified by 'metaValidatorClazz'
-	 * Must call getMasterList(), getFromRequest(), getFromJsonForm() or syncWithMaster() on this object first or will return null.
-	 * @param metaValidatorClazz
-	 * @param result
-	 */
-	public <T extends MetaValidator> void validate(Class<T> metaValidatorClazz, BindingResult result) {
-		getMetaValidator(this.lastList, metaValidatorClazz).validate(this.lastList, result, area, parentArea);
-	}
 }

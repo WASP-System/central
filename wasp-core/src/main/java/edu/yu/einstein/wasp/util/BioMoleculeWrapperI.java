@@ -14,7 +14,7 @@ import edu.yu.einstein.wasp.model.SampleSubtype;
  * @author ASMcLellan
  *
  */
-public interface BioMoleculeI {
+public interface BioMoleculeWrapperI {
 
 	/** 
 	 * Retrieve the Sample entity represented

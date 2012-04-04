@@ -687,7 +687,7 @@ public class JobSubmissionController extends WaspController {
 
 		jobDraftForm.setJobDraftMeta(jobDraftMetaList);
 
-		metaHelperWebapp.validate(jobDraftMetaList, result);
+		metaHelperWebapp.validate(result);
 
 		if (result.hasErrors()) {
 			waspErrorMessage("jobDraft.form.error");
@@ -1132,7 +1132,7 @@ public class JobSubmissionController extends WaspController {
 		List<JobDraftMeta> jobDraftMetaList = metaHelperWebapp.getFromRequest(request, JobDraftMeta.class);
 
 		jobDraftForm.setJobDraftMeta(jobDraftMetaList);
-		metaHelperWebapp.validate(jobDraftMetaList, result);
+		metaHelperWebapp.validate(result);
 
 		if (result.hasErrors()) {
 			waspErrorMessage("jobDraft.form.error");

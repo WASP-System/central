@@ -592,9 +592,9 @@ public class LabController extends WaspController {
 			SessionStatus status, ModelMap m) {
 
 		// read properties from form
-
-		List<LabMeta> labMetaList = getMetaHelperWebapp().getFromRequest(request,	LabMeta.class);
-		getMetaHelperWebapp().validate(labMetaList, result);
+		MetaHelperWebapp metaHelper = getMetaHelperWebapp();
+		List<LabMeta> labMetaList = metaHelper.getFromRequest(request,	LabMeta.class);
+		metaHelper.validate(result);
 
 		labForm.setLabMeta(labMetaList);
 
@@ -626,16 +626,11 @@ public class LabController extends WaspController {
 		if ( submitValue.equals(messageService.getMessage("labDetail.cancel.label")) ){
 			return "redirect:/lab/detail_ro/" + deptId + "/" + labId + ".do";
 		}
-		
-		List<LabMeta> labMetaList = getMetaHelperWebapp().getFromRequest(request,	LabMeta.class);
-
-		for (LabMeta meta : labMetaList) {
-			meta.setLabId(labId);
-		}
-
+		MetaHelperWebapp metaHelper = getMetaHelperWebapp();
+		List<LabMeta> labMetaList = metaHelper.getFromRequest(request,	LabMeta.class);
 		labForm.setLabMeta(labMetaList);
 
-		getMetaHelperWebapp().validate(labMetaList, result);
+		metaHelper.validate(result);
 
 		if (result.hasErrors()) {
 			prepareSelectListData(m);
@@ -676,16 +671,12 @@ public class LabController extends WaspController {
 		if ( submitValue.equals(messageService.getMessage("labPending.cancel.label")) ){
 			return "redirect:/lab/pending/detail_ro/" + deptId + "/" + labPendingId + ".do";
 		}
-		
-		List<LabPendingMeta> labPendingMetaList = getLabPendingMetaHelperWebapp().getFromRequest(request, LabPendingMeta.class);
-
-		for (LabPendingMeta meta : labPendingMetaList) {
-			meta.setLabpendingId(labPendingId);
-		}
+		MetaHelperWebapp metaHelper = getMetaHelperWebapp();
+		List<LabPendingMeta> labPendingMetaList = metaHelper.getFromRequest(request, LabPendingMeta.class);
 
 		labPendingForm.setLabPendingMeta(labPendingMetaList);
 
-		getLabPendingMetaHelperWebapp().validate(labPendingMetaList, result);
+		metaHelper.validate(result);
 
 		if (result.hasErrors()) {
 			waspErrorMessage("labPending.updated.error");
@@ -1255,7 +1246,7 @@ public class LabController extends WaspController {
 		MetaHelperWebapp pendingMetaHelperWebapp = new MetaHelperWebapp(LabPendingMeta.class, request.getSession());
 
 		List<LabPendingMeta> labPendingMetaList = pendingMetaHelperWebapp.getFromRequest(request, LabPendingMeta.class);
-		pendingMetaHelperWebapp.validate(labPendingMetaList, result);
+		pendingMetaHelperWebapp.validate(result);
 
 		User me = authenticationService.getAuthenticatedUser();
 

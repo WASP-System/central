@@ -7,7 +7,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.log4j.Logger;
+import org.springframework.validation.BindingResult;
 
 import edu.yu.einstein.wasp.dao.SampleMetaDao;
 import edu.yu.einstein.wasp.dao.SampleSourceDao;
@@ -52,6 +55,23 @@ public class SampleWrapperWebapp extends SampleWrapper{
   			normalizedSampleMeta.addAll(sampleMetaHelper.syncWithMaster(this.getAllSampleMeta(), visibilityElementMap));
   		}
   		return normalizedSampleMeta;
+	}
+	
+	public List<SampleMeta> getValidatedMetaFromRequest(HttpServletRequest request, BindingResult result, Map<String, MetaAttribute.FormVisibility> visibilityElementMap){
+		List<SampleMeta> validatedFormMeta = new ArrayList<SampleMeta>();
+		MetaHelperWebapp metaHelper = new MetaHelperWebapp(SampleMeta.class);
+		for (String area : this.getAllSampleMetaAreas()){
+			metaHelper.setArea(area);
+			validatedFormMeta.addAll(metaHelper.getFromRequest(request, visibilityElementMap, SampleMeta.class));
+		}
+		MetaHelperWebapp.validate(metaHelper.getParentArea(), validatedFormMeta, result);
+			
+		
+		return validatedFormMeta;
+	}
+	
+	public List<SampleMeta> getValidatedMetaFromRequest(HttpServletRequest request, BindingResult result){
+		return getValidatedMetaFromRequest(request, result, null);
 	}
 
 }

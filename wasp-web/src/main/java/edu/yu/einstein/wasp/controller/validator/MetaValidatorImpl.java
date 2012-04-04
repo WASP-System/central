@@ -30,12 +30,7 @@ public class MetaValidatorImpl implements MetaValidator {
 	
 	@Override
 	public void validate(List<? extends MetaBase> list, BindingResult result, String area) {
-		validate(list, result, area, area);
-	}
-
-	@Override
-	public void validate(List<? extends MetaBase> list, BindingResult result, String area, String parentarea) {
-		Errors errors=new BindException(result.getTarget(), parentarea); 
+		Errors errors=new BindException(result.getTarget(), area); 
 	
 		for(int i=0;i<list.size();i++) {
 			MetaBase meta=list.get(i);
@@ -49,7 +44,7 @@ public class MetaValidatorImpl implements MetaValidator {
 			MetaAttribute.MetaType metaType = meta.getProperty().getMetaType();
 			String range = meta.getProperty().getRange();
 			
-			String errorFieldName = parentarea+"Meta["+i+"].k";
+			String errorFieldName = area+"Meta["+i+"].k";
 			String errorMessageKey = meta.getK() + ".error";
 			String defaultMessage = errorMessageKey+" (no message has been defined for this property)";
 			if (constraint != null){

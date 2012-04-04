@@ -872,10 +872,10 @@ public class PlatformUnitController extends WaspController {
 		BindingResult result,
 		SessionStatus status,
 		ModelMap m) {
+		MetaHelperWebapp metaHelper = getMetaHelperWebapp();
+		List<SampleMeta> sampleMetaList = metaHelper.getFromRequest(request, SampleMeta.class);
 
-		List<SampleMeta> sampleMetaList = getMetaHelperWebapp().getFromRequest(request, SampleMeta.class);
-
-		getMetaHelperWebapp().validate(sampleMetaList, result);
+		metaHelper.validate(result);
 
 		if (result.hasErrors()) {
 			// TODO REAL ERROR

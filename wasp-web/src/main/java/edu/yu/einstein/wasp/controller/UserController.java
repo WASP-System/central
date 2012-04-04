@@ -432,15 +432,11 @@ public class UserController extends WaspController {
 			}
 			return "redirect:/user/detail_ro/" + userId + ".do";
 		}
-		
-		List<UserMeta> userMetaList = getMetaHelperWebapp().getFromRequest(request, UserMeta.class);
-
-		for (UserMeta meta : userMetaList) {
-			meta.setUserId(userId);
-		}
+		MetaHelperWebapp metaHelper = getMetaHelperWebapp();
+		List<UserMeta> userMetaList = metaHelper.getFromRequest(request, UserMeta.class);
 
 		userForm.setUserMeta(userMetaList);
-		getMetaHelperWebapp().validate(userMetaList, result);
+		metaHelper.validate(result);
 		userForm.setUserId(userId);
 		if (result.hasErrors()) {
 			prepareSelectListData(m);

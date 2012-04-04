@@ -25,16 +25,16 @@ public class UserPendingMetaValidatorImpl extends MetaValidatorImpl{
 	}
 
  	@Override
-	public void validate(List<? extends MetaBase> list, BindingResult result, String area, String parentarea) {
- 		super.validate(list, result, area, parentarea); // call the overridden method in the superclass to validate
+	public void validate(List<? extends MetaBase> list, BindingResult result, String area) {
+ 		super.validate(list, result, area); // call the overridden method in the superclass to validate
  		
-		Errors errors=new BindException(result.getTarget(), parentarea); 
+		Errors errors=new BindException(result.getTarget(), area); 
 		for(int i=0;i<list.size();i++) {
 			MetaBase meta=list.get(i);
 			if (meta.getProperty().getFormVisibility().equals(MetaAttribute.FormVisibility.ignore)) continue;
 			String constraint=meta.getProperty().getConstraint();
 			if (constraint==null) continue;
-			String errorFieldName = parentarea+"Meta["+i+"].k";
+			String errorFieldName = area+"Meta["+i+"].k";
 			String errorMessageKey = meta.getK() + ".error";
 		    String defaultMessage = errorMessageKey+" (no message has been defined for this property)";
 		

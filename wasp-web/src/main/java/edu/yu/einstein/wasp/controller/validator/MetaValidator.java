@@ -15,5 +15,4 @@ public interface MetaValidator {
 
 	public void validate(List<? extends MetaBase> list, BindingResult result, String area);
 	
-	public void validate(List<? extends MetaBase> list, BindingResult result, String area, String parentarea);
 }
