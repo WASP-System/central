@@ -58,6 +58,7 @@ import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
 import edu.yu.einstein.wasp.model.JobSample;
 import edu.yu.einstein.wasp.model.ResourceCategory;
+import edu.yu.einstein.wasp.model.ResourceMeta;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleBarcode;
 import edu.yu.einstein.wasp.model.SampleMeta;
@@ -188,9 +189,6 @@ public class PlatformUnitController extends WaspController {
 	public @ResponseBody
 	String getPlatformUnitBySelIdListJson(HttpServletResponse response) {
 		
-		String sord = request.getParameter("sord");
-		String sidx = request.getParameter("sidx");
-
 		Map<String, Object> jqgrid = new HashMap<String, Object>();
 
 		List<Sample> sampleList;
@@ -638,7 +636,8 @@ public class PlatformUnitController extends WaspController {
 										sample.getSampleSubtype()==null?"": sample.getSampleSubtype().getName(), 
 										sample.getUser().getFirstName()+" "+sample.getUser().getLastName(),
 										allSampleBarcode.get(sample.getSampleId())==null? "" : allBarcode.get(allSampleBarcode.get(sample.getSampleId())),
-										this.sampleMetaDao.getSampleMetaByKSampleId("platformunitInstance.lanecount", sample.getSampleId()).getV()}));
+										this.sampleMetaDao.getSampleMetaByKSampleId("platformunitInstance.lanecount", sample.getSampleId()).getV(),
+										this.sampleMetaDao.getSampleMetaByKSampleId("platformunitInstance.comment", sample.getSampleId()).getV()}));
 
 			for (SampleMeta meta : sampleMetaList) {
 				cellList.add(meta.getV());
@@ -709,7 +708,7 @@ public class PlatformUnitController extends WaspController {
 		sampleForm.setSampleSubtypeId(new Integer(request.getParameter("sampleSubtypeId")));
 		preparePlatformUnit(sampleForm, sampleId);
 		Integer laneCount = new Integer(request.getParameter("platformunitInstance.lanecount")==null || request.getParameter("platformunitInstance.lanecount").equals("")?request.getParameter("lanecountForEditBox"):request.getParameter("platformunitInstance.lanecount"));
-		updatePlatformUnitInstance(sampleForm, laneCount, sampleId);
+		updatePlatformUnitInstance(sampleForm, laneCount, sampleId, request.getParameter("platformunitInstance.comment"));
 
 		try {
 			response.getWriter().println(messageService.getMessage("platformunitInstance.updated_success.label"));
@@ -918,7 +917,7 @@ public class PlatformUnitController extends WaspController {
 	 * @param laneCount
 	 * @return
 	 */
-	public String updatePlatformUnitInstance( Sample sampleForm, Integer laneCount, Integer sampleId) {
+	public String updatePlatformUnitInstance( Sample sampleForm, Integer laneCount, Integer sampleId, String comment) {
 	
 		Sample sampleDb;
 		if (sampleId == null || sampleId.intValue() == 0) {
@@ -971,6 +970,7 @@ public class PlatformUnitController extends WaspController {
 		sampleMetaHelper.syncWithMaster(mySampleMeta);
 		try {
 			sampleMetaHelper.setMetaValueByName("lanecount", laneCount.toString());
+			sampleMetaHelper.setMetaValueByName("comment", comment);
 		} catch (MetadataException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
