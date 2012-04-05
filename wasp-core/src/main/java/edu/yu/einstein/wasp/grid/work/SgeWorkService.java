@@ -32,6 +32,9 @@ import edu.yu.einstein.wasp.grid.file.GridFileService;
 public class SgeWorkService implements GridWorkService {
 
 	private String namePrefix = "WASP-";
+	public void setNamePrefix(String np) {
+		this.namePrefix = np + "-";
+	}
 
 	private GridTransportService transportService;
 
@@ -76,12 +79,13 @@ public class SgeWorkService implements GridWorkService {
 			throw new GridAccessException("Job does not exist on remote host");
 
 		boolean ended = isJobEnded(g);
+		boolean started = isJobStarted(g);
 		boolean died = false;
 
 		GridTransportConnection conn = transportService.connect(g.getHostname());
 		WorkUnit w = new WorkUnit();
 		w.setConnection(conn);
-		w.setCommand("qstat -xml -j " + this.namePrefix + g.getUuid().toString() + " | sed 's/<\\([/]\\)*>/<\\1a>/g'");
+		w.setCommand("qstat -xml -j " + this.namePrefix + "-" + g.getUuid().toString() + " | sed 's/<\\([/]\\)*>/<\\1a>/g'");
 		GridResult result = conn.sendExecToRemote(w);
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder docBuilder;
@@ -108,7 +112,7 @@ public class SgeWorkService implements GridWorkService {
 					}
 				}
 			} else {
-				if (!ended && isJobStarted(g)) {
+				if (!ended && started) {
 					died = true;
 				}
 			}
@@ -122,15 +126,13 @@ public class SgeWorkService implements GridWorkService {
 		} finally {
 			w.getConnection().disconnect();
 		}
-		if (ended) {
-			if (died) {
-				cleanUpAbnormallyTerminatedJob(g);
-				throw new GridExecutionException("abnormally terminated job");
-			} else {
-				cleanUpCompletedJob(g);
-			}
+		if (died) {
+			cleanUpAbnormallyTerminatedJob(g);
+			throw new GridExecutionException("abnormally terminated job");
 		}
-		
+		if (ended) {
+			cleanUpCompletedJob(g);
+		}
 		return ended;
 	}
 
@@ -171,7 +173,7 @@ public class SgeWorkService implements GridWorkService {
 		GridTransportConnection conn = transportService.connect(hostname);
 		WorkUnit w = new WorkUnit();
 		w.setConnection(conn);
-		w.setCommand("cd $HOME/" + workingDirectory + " && tar --remove-files -czvf " + namePrefix + id + "failed-`date +%s`.tar.gz " + namePrefix + id + ".*");
+		w.setCommand("cd $HOME/" + workingDirectory + " && tar --remove-files -czvf " + namePrefix + id + ".tar.gz " + namePrefix + id + ".*");
 		conn.sendExecToRemote(w);
 	}
 	
@@ -183,7 +185,7 @@ public class SgeWorkService implements GridWorkService {
 		GridTransportConnection conn = transportService.connect(hostname);
 		WorkUnit w = new WorkUnit();
 		w.setConnection(conn);
-		w.setCommand("cd $HOME/" + workingDirectory + " && tar --remove-files -czvf " + namePrefix + id + ".tar.gz " + namePrefix + id + ".*");
+		w.setCommand("cd $HOME/" + workingDirectory + " && tar --remove-files -czvf " + namePrefix + id + "-FAILED-`date +%s`.tar.gz " + namePrefix + id + ".*");
 		conn.sendExecToRemote(w);
 	}
 
