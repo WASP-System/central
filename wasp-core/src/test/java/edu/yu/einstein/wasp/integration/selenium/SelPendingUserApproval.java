@@ -65,7 +65,7 @@ public class SelPendingUserApproval extends SelBaseTest{
 	  Assert.assertNotNull(driver.findElement(By.xpath("//a[contains(@href,'#tabs-labUtils')]")), "Unable to locate 'Lab Utils' tab.");
 	  driver.findElement(By.xpath("//a[contains(@href,'#tabs-labUtils')]")).click();
 
-      WebElement element = driver.findElement(By.xpath("//a[contains(@href,'#tabs-labUtils')]"));
+      WebElement element = driver.findElement(By.xpath("//a[contains(@href,'/wasp/lab/pendinglmapproval/')]"));
 	  if (!element.isDisplayed())  driver.findElement(By.xpath("//a[contains(@href, '#tabs-labUtils')]")).click();
 	  
 	  driver.findElement(By.xpath("//a[contains(@href,'/wasp/lab/pendinglmapproval/')]")).click();
