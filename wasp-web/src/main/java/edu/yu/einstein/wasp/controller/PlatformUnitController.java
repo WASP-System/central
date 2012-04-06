@@ -37,6 +37,8 @@ import edu.yu.einstein.wasp.dao.JobDao;
 import edu.yu.einstein.wasp.dao.JobResourcecategoryDao;
 import edu.yu.einstein.wasp.dao.JobSampleDao;
 import edu.yu.einstein.wasp.dao.ResourceCategoryDao;
+import edu.yu.einstein.wasp.dao.ResourceDao;
+import edu.yu.einstein.wasp.dao.RunDao;
 import edu.yu.einstein.wasp.dao.SampleBarcodeDao;
 import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.dao.SampleMetaDao;
@@ -57,7 +59,9 @@ import edu.yu.einstein.wasp.model.Barcode;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
 import edu.yu.einstein.wasp.model.JobSample;
+import edu.yu.einstein.wasp.model.Resource;
 import edu.yu.einstein.wasp.model.ResourceCategory;
+import edu.yu.einstein.wasp.model.ResourceCategoryMeta;
 import edu.yu.einstein.wasp.model.ResourceMeta;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleBarcode;
@@ -69,6 +73,7 @@ import edu.yu.einstein.wasp.model.Statesample;
 import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.SampleSubtypeMeta;
 import edu.yu.einstein.wasp.model.SampleSubtypeResourceCategory;
+import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Task;
 import edu.yu.einstein.wasp.model.ResourceType;
 import edu.yu.einstein.wasp.model.SampleType;
@@ -103,6 +108,9 @@ public class PlatformUnitController extends WaspController {
 	
 	@Autowired
 	private ResourceCategoryDao resourceCategoryDao;
+	
+	@Autowired
+	private ResourceDao resourceDao;
 
 	@Autowired
 	private StateDao stateDao;
@@ -140,6 +148,9 @@ public class PlatformUnitController extends WaspController {
 
 	@Autowired
 	private SampleBarcodeDao sampleBarcodeDao;
+	
+	@Autowired
+	private RunDao runDao;
 	
 	@Autowired
 	private BarcodeDao barcodeDao;
@@ -1553,6 +1564,22 @@ public class PlatformUnitController extends WaspController {
 			return "redirect:/dashboard.do";
 		}
 		
+		//is this flowcell on a run?
+		List<Run> runList = platformUnit.getRun();
+		m.put("runList", runList);
+		
+		List<Resource> resourceList= resourceDao.findAll(); 
+		List<Resource> filteredResourceList = new ArrayList();
+		for(Resource resource : resourceList){
+			System.out.println("resource: " + resource.getName());
+			for(SampleSubtypeResourceCategory ssrc : resource.getResourceCategory().getSampleSubtypeResourceCategory()){
+				if(ssrc.getSampleSubtypeId().intValue() == platformUnit.getSampleSubtypeId().intValue()){
+					filteredResourceList.add(resource);
+					System.out.println("it's a match");					
+				}
+			}
+		}
+		m.put("resources", filteredResourceList);
 		
 		List<Adaptor> allAdaptors = adaptorDao.findAll();
 		Map adaptorList = new HashMap();
@@ -1645,5 +1672,38 @@ public class PlatformUnitController extends WaspController {
 		
 		//return "redirect:/dashboard.do";
 		return "redirect:/facility/platformunit/showPlatformUnit/" + platformUnitId.intValue() + ".do";
+	}
+	
+	@RequestMapping(value="ajaxReadType.do", method=RequestMethod.POST)
+	@PreAuthorize("hasRole('ft')")
+	public @ResponseBody String ajaxReadType(@RequestParam("resourceId") String resourceId){
+		//System.out.println("in ajaxReadType and resourceId = " + resourceId);
+		String returnString;
+		StringBuffer readType = new StringBuffer("<option value=''>---SELECT A READ TYPE---</option>");
+		StringBuffer readLength = new StringBuffer("<option value=''>---SELECT A READ LENGTH---</option>");
+		Resource resource;
+		resource = resourceDao.getResourceByResourceId(new Integer(resourceId));
+		ResourceCategory resourceCategory = resource.getResourceCategory();
+		List<ResourceCategoryMeta> resourceCategoryMetaList = resourceCategory.getResourceCategoryMeta();
+		for(ResourceCategoryMeta rcm : resourceCategoryMetaList){
+			if( rcm.getK().indexOf("readType") > -1 ){
+				String[] tokens = rcm.getV().split(";");//rcm.getV() will be single:single;paired:paired
+				for(String token : tokens){//token could be single:single
+					String [] innerTokens = token.split(":");
+					readType.append("<option value='"+innerTokens[0]+"'>"+innerTokens[1]+"</option>");
+				}
+			}
+			if( rcm.getK().indexOf("readlength") > -1 ){
+				String[] tokens = rcm.getV().split(";");//rcm.getV() will be 50:50;100:100
+				for(String token : tokens){//token could be 50:50
+					String [] innerTokens = token.split(":");
+					readLength.append("<option value='"+innerTokens[0]+"'>"+innerTokens[1]+"</option>");
+				}
+			}
+		}
+		returnString = new String(readType + "****" + readLength);
+		//System.out.println("The return string = " + returnString);
+		//return "<option value=''>---SELECT A READ TYPE---</option><option value='single'>single</option><option value='paired'>paired</option>";
+		return returnString;
 	}
 }

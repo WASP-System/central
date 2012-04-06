@@ -1,8 +1,95 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
 <head>
+<script src="/wasp/scripts/jquery/jquery-1.7.1.js" type="text/javascript"></script>
+<script type="text/javascript" src="/wasp/scripts/jquery/jquery-ui-1.8.18.custom.min.js"></script> 
 <script>
 
+$(document).ready(function(){
+	$("#resourceId").change(function(){
+		var id = $(this).val();
+		//alert('jquery test; resourceId = ' + resourceId);		
+		//$(".readType").html('<option value="">---SELECT A READ TYPE---</option><option value="50">---50---</option>');
+		if(id != ''){
+			$.ajax({
+				type: "POST",
+				url: "/wasp/facility/platformunit/ajaxReadType.do",
+				data: "resourceId=" + id,
+				cache: false,
+				success: function(response){
+					var partsArray = response.split('****');
+					$("#readType").html(partsArray[0]);
+					$("#readLength").html(partsArray[1]);
+					$("#submitButtonCreateNewRun").attr("disabled", false);
+				} 
+			}); 
+		}
+	});
+});
+
+
+
+
+
+function toggleDisplayOfCreateNewRunForm(action){
+	//alert("in new div; action = " + action);
+	var newCreateRunButtonDiv = document.getElementById("newCreateRunButtonDiv");
+	var newCreateRunFormDiv = document.getElementById("newCreateRunFormDiv");
+	if(action=="create"){
+		newCreateRunButtonDiv.style.display = 'none';
+		newCreateRunFormDiv.style.display = 'block';
+	}
+	if(action=="cancel"){
+		newCreateRunButtonDiv.style.display = 'block';
+		newCreateRunFormDiv.style.display = 'none';
+		var runName = document.getElementById("runName");
+		var resourceId = document.getElementById("resourceId");
+		var readLength = document.getElementById("readLength");
+		var readType = document.getElementById("readType");
+		var submitButtonCreateNewRun = document.getElementById("submitButtonCreateNewRun");
+		runName.value="";
+		resourceId.value="";
+		readLength.innerHTML="";
+		readType.innerHTML="";	
+		submitButtonCreateNewRun.disabled = "true";
+	}
+}
+function validateCreateNewRunForm(){
+	var runName = document.getElementById("runName");
+	var resourceId = document.getElementById("resourceId");
+	var readLength = document.getElementById("readLength");
+	var readType = document.getElementById("readType");
+	if(runName.value==""){
+		alert("Please provide a name for this run");
+		runName.focus();
+		return false;
+	}
+	if(resourceId.value==""){
+		alert("Please select a machine");
+		resourceId.focus();
+		return false;
+	}
+	if(readLength.value==""){
+		alert("Please select a read length");
+		readLength.focus();
+		return false;
+	}
+	if(readType.value==""){
+		alert("Please select a read type");
+		readType.focus();
+		return false;
+	}
+	if(!confirm("Submit?")){
+		return false;
+	}
+	document.getElementById("newRunForm").submit();
+}
+function getResourceMeta(obj){//no longer used
+	if(obj.value != ""){
+		//alert("inside getResourceMeta()");
+		document.getElementById("testdiv3").style.display = 'block';
+	}
+}
 function toggleDisplayAddNewControlForm(action, counter){
 	//alert("inside toggleTest; counter = " + counter);
 	var newControlAnchorName = "newControlAnchor_" + counter;
@@ -15,7 +102,13 @@ function toggleDisplayAddNewControlForm(action, counter){
 	}
 	else if(action == "cancel_form"){
 		newControlAnchor.style.display = 'block';
-		newControlFormDiv.style.display = 'none';		
+		newControlFormDiv.style.display = 'none';
+		var newControlIdName = "newControlId_" + counter;
+		var newControlId = document.getElementById(newControlIdName);
+		var newControlConcInLanePicoMName = "newControlConcInLanePicoM_" + counter;
+		var newControlConcInLanePicoM = document.getElementById(newControlConcInLanePicoMName);
+		newControlId.value="";
+		newControlConcInLanePicoM.value="";
 	}
 }
 function validateAddNewControlToLaneForm(counter){
@@ -58,6 +151,9 @@ function toggleDisplayOfUpdateForm(instruction, idCounter){
 	else if(instruction == 'cancel'){
 		editAnchorDiv.style.display = 'block';
 		formDiv.style.display = 'none';
+		var textInputName = "libConcInLanePicoM_" + idCounter;
+		var textInputObject = document.getElementById(textInputName);
+		textInputObject.value="";
 	}	
 }
 function validateUpdateForm(idCounter){
@@ -104,6 +200,58 @@ function validateUpdateForm(idCounter){
 	</c:if>
 </c:forEach>
 </table>
+
+<c:if test="${runList.size()==0}">
+<br />
+<div id="newCreateRunButtonDiv">
+	<input type="button" value="Create New Run" onclick='toggleDisplayOfCreateNewRunForm("create")' />
+</div>
+<div id="newCreateRunFormDiv" style="display:none">
+		<form id="newRunForm"  method='post' action="<c:url value="/facility/platformunit/createNewRun.do" />" >
+		<input type='hidden' name='platformUnitId' value='<c:out value="${platformUnit.sampleId}" />'/>
+		<table class="EditTable ui-widget ui-widget-content">
+			<tr class="FormData"><td class="CaptionTD">Run Name: </td><td class="DataTD"><input type='text' name='runName' id='runName' size='25' maxlength='30' /></td></tr>
+			<tr class="FormData"><td class="CaptionTD">Machine: </td><td class="DataTD">
+				<select id="resourceId" name="resourceId" >
+		  			<option value="">---SELECT A MACHINE---</option>
+						<c:forEach items="${resources}" var="resource">
+							<option value='<c:out value="${resource.getResourceId()}" />'><c:out value="${resource.getName()}" /> - <c:out value="${resource.getResourceCategory().getName()}" /></option>
+						</c:forEach> 
+				</select>			
+			</td></tr>
+			<tr class="FormData"><td class="CaptionTD">Read Length: </td><td class="DataTD">
+				<select id="readLength" name="readLength">
+				</select>			
+			</td></tr>
+			<tr class="FormData"><td class="CaptionTD">Read Type: </td><td class="DataTD">
+				<select id="readType" name="readType">
+				</select>			
+			</td></tr>
+			<tr class="FormData"><td colspan="2" class="CaptionTD">
+				<input id="submitButtonCreateNewRun" disabled = "disabled" type="button" value="Submit" onclick='validateCreateNewRunForm()' />&nbsp;<input type="button" value="Cancel" onclick='toggleDisplayOfCreateNewRunForm("cancel")' />
+			</td></tr>
+		</table>
+		</form>
+</div>
+</c:if>
+<c:if test="${runList.size()>0}"><table><tr class="FormData"><tr class="FormData"><td colspan="2" class="value-centered">Run Details: <c:out value="${runList.get(0).name}" /></td></tr></table></c:if>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 <c:if test="${platformUnit.sampleSource.size() > 0}">
 
@@ -214,9 +362,9 @@ function validateUpdateForm(idCounter){
 					<c:forEach items="${ss2Meta}" var="ss2MetaItem">
 						<c:set var="idCounter" value="${idCounter + 1}" scope="page" />
 						<!--  	<c:if test="${ss2MetaItem.k=='libConcInLanePicoM'}">Conc. On Lane: <c:out value="${ss2MetaItem.v}"/> pM <br /></c:if>  -->
-						
+						<c:set var="currentConcentration" value="" scope="page" />
 						<div id="editAnchorDiv_<c:out value="${idCounter}" />" >
-						<c:if test="${ss2MetaItem.k=='libConcInLanePicoM'}">Conc. On Lane: <c:out value="${ss2MetaItem.v}"/> pM <a href="javascript:void(0)" onclick='toggleDisplayOfUpdateForm("show", <c:out value="${idCounter}" />);'>[Edit]</a><br />	</c:if>					
+						<c:if test="${ss2MetaItem.k=='libConcInLanePicoM'}"><c:set var="currentConcentration" value="${ss2MetaItem.v}" scope="page" />Conc. On Lane: <c:out value="${ss2MetaItem.v}"/> pM <a href="javascript:void(0)" onclick='toggleDisplayOfUpdateForm("show", <c:out value="${idCounter}" />);'>[Edit]</a><br />	</c:if>					
 						</div>	
 						
 						<div id="updatePicoFormDiv_<c:out value="${idCounter}" />" style="display:none">
@@ -224,7 +372,8 @@ function validateUpdateForm(idCounter){
 							<input type='hidden' name='platformUnitId' value='<c:out value="${platformUnit.sampleId}" />'/>
 							<input type='hidden' name='sampleSourceMetaId' value='<c:out value="${ss2MetaItem.sampleSourceMetaId}" />'/>
 							<table class="data">
-								<tr><td class="value-centered-small">New Conc. (pM): <input type='text' name='libConcInLanePicoM' id="libConcInLanePicoM_<c:out value="${idCounter}" />" size='3' maxlength='5' value='<c:out value="${ss2MetaItem.v}"/>'></td></tr>
+								<tr><td class="value-centered-small">Current Conc. (pM): <c:out value="${currentConcentration}" /></td></tr>
+								<tr><td class="value-centered-small">New Conc. (pM): <input type='text' name='libConcInLanePicoM' id="libConcInLanePicoM_<c:out value="${idCounter}" />" size='3' maxlength='5' ></td></tr>
 								<tr><td class="value-centered-small">
 								<input type="button" value="Update" onclick='validateUpdateForm(<c:out value="${idCounter}" />)' />&nbsp;<input type="button" value="Cancel" onclick='toggleDisplayOfUpdateForm("cancel", <c:out value="${idCounter}" />)' />
 								</td></tr>
