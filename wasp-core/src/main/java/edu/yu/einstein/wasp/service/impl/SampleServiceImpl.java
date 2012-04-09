@@ -13,18 +13,20 @@ package edu.yu.einstein.wasp.service.impl;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.dao.SampleDao;
+import edu.yu.einstein.wasp.dao.SampleMetaDao;
 import edu.yu.einstein.wasp.dao.WorkflowDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
+import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSubtype;
-import edu.yu.einstein.wasp.model.SampleSubtypeMeta;
+import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.model.WorkflowSampleSubtype;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.SampleService;
@@ -33,10 +35,6 @@ import edu.yu.einstein.wasp.util.MetaHelper;
 @Service
 public class SampleServiceImpl extends WaspServiceImpl implements SampleService {
 
-	/**
-	 * sampleDao;
-	 * 
-	 */
 	private SampleDao	sampleDao;
 
 	/**
@@ -67,6 +65,9 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	
 	@Autowired
 	private WorkflowDao workflowDao;
+	
+	@Autowired
+	private SampleMetaDao sampleMetaDao;
 
 	@Override
 	public Sample getSampleByName(final String name) {
@@ -110,6 +111,16 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	   * {@inheritDoc}
 	   */
 	  @Override
+	  @Transactional
+	  public void saveSampleWithAssociatedMeta(Sample sample){
+		  sampleDao.save(sample);
+		  sampleMetaDao.updateBySampleId(sample.getSampleId(), sample.getSampleMeta());
+	  }
+	  
+	  /**
+	   * {@inheritDoc}
+	   */
+	  @Override
 	  public List<SampleSubtype> getSampleSubtypesForWorkflowByRole(Integer workflowId, String[] roles, String sampleTypeIName){
 		  List<SampleSubtype> sampleSubtypes = new ArrayList<SampleSubtype>();
 		  for (WorkflowSampleSubtype wfsts: workflowDao.getWorkflowByWorkflowId(workflowId).getWorkflowSampleSubtype() ){
@@ -133,5 +144,19 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 			  }
 		  }
 		  return sampleSubtypes;
+	  }
+	  
+	  /**
+	   * {@inheritDoc}
+	   */
+	  @Override
+	  public boolean isSampleNameUniqueWithinJob(String name, SampleType sampleType, Job job){
+		  List<Sample> samplesInThisJob = job.getSample();
+		  for(Sample sample : samplesInThisJob){
+			  if( sample.getSampleType().getIName().equals(sampleType.getIName()) && name.equals(sample.getName()) ){
+				  return false;
+			  }
+		  }
+		  return true;
 	  }
 }
