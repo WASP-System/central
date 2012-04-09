@@ -36,6 +36,13 @@ function toggleDisplayOfAddLibraryForm(instruction, idCounter){
 	else if(instruction == 'cancel'){
 		showButton.style.display = 'block';
 		theForm.style.display = 'none';
+		//reset the select and edit box in case they were altered
+		var selectboxName = "lanesampleid_" + idCounter;
+		var selectbox = document.getElementById(selectboxName);
+		selectbox.selectedIndex = 0;
+		var editboxPicoName = "libConcInLanePicoM_" + idCounter;
+		var editboxPico = document.getElementById(editboxPicoName);
+		editboxPico.value = "";
 	}	
 }
 function validate(obj){

@@ -102,7 +102,7 @@
 									</c:when>
 								</c:choose>	
 				 				<br />
-				 				<select class="FormElement ui-widget-content ui-corner-all" name="lanesampleid" size="1" onchange="validate(this)">
+				 				<select class="FormElement ui-widget-content ui-corner-all" name="lanesampleid" id="lanesampleid_<c:out value="${idCounter}" />" size="1" onchange="validate(this)">
 									<option value="0">--SELECT A FLOW CELL LANE--</option>
 									<c:forEach items="${flowCells}" var="flowCell">
 										<option value="0">FlowCell: <c:out value="${flowCell.name}" /> [<c:out value="${flowCell.sampleSubtype.name}" />]</option>
@@ -131,7 +131,7 @@
 										</c:forEach> 
 									</c:forEach>
 								</select>
-								<br />&nbsp;Final Concentration In Lane (pM): <input type='text' name='libConcInLanePicoM' size='3' maxlength='5'>
+								<br />&nbsp;Final Concentration In Lane (pM): <input type='text' name='libConcInLanePicoM' id="libConcInLanePicoM_<c:out value="${idCounter}" />" size='3' maxlength='5'>
 								<br />&nbsp;<input type='submit' value='Submit'/>&nbsp;<input class="fm-button" type="button" value="Cancel" onclick='toggleDisplayOfAddLibraryForm("cancel", <c:out value="${idCounter}" />)' />
 							</form>
 						</td></tr>
@@ -268,7 +268,7 @@
 								</c:choose>	
 		
 				 				<br />
-				 				<select class="FormElement ui-widget-content ui-corner-all" name="lanesampleid" size="1" onchange="validate(this)">
+				 				<select class="FormElement ui-widget-content ui-corner-all" name="lanesampleid" id="lanesampleid_<c:out value="${idCounter}" />" size="1" onchange="validate(this)">
 									<option value="0">--SELECT A FLOW CELL LANE--</option>
 									<c:forEach items="${flowCells}" var="flowCell">
 										<option value="0">FlowCell: <c:out value="${flowCell.name}" /> [<c:out value="${flowCell.sampleSubtype.name}" />]</option>
@@ -297,7 +297,7 @@
 										</c:forEach> 
 									</c:forEach>
 								</select>
-								<br />&nbsp;Final Concentration In Lane (pM): <input type='text' name='libConcInLanePicoM' size='3' maxlength='5'>
+								<br />&nbsp;Final Concentration In Lane (pM): <input type='text' name='libConcInLanePicoM' id="libConcInLanePicoM_<c:out value="${idCounter}" />" size='3' maxlength='5'>
 								<br />&nbsp;<input type='submit' value='Submit'/>&nbsp;<input class="fm-button" type="button" value="Cancel" onclick='toggleDisplayOfAddLibraryForm("cancel", <c:out value="${idCounter}" />)' />
 							</form>
 						</td></tr>
