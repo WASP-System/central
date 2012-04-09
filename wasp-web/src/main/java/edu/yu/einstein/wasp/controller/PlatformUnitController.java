@@ -39,6 +39,8 @@ import edu.yu.einstein.wasp.dao.JobSampleDao;
 import edu.yu.einstein.wasp.dao.ResourceCategoryDao;
 import edu.yu.einstein.wasp.dao.ResourceDao;
 import edu.yu.einstein.wasp.dao.RunDao;
+import edu.yu.einstein.wasp.dao.RunCellDao;
+import edu.yu.einstein.wasp.dao.RunMetaDao;
 import edu.yu.einstein.wasp.dao.SampleBarcodeDao;
 import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.dao.SampleMetaDao;
@@ -74,6 +76,8 @@ import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.SampleSubtypeMeta;
 import edu.yu.einstein.wasp.model.SampleSubtypeResourceCategory;
 import edu.yu.einstein.wasp.model.Run;
+import edu.yu.einstein.wasp.model.RunCell;
+import edu.yu.einstein.wasp.model.RunMeta;
 import edu.yu.einstein.wasp.model.Task;
 import edu.yu.einstein.wasp.model.ResourceType;
 import edu.yu.einstein.wasp.model.SampleType;
@@ -153,6 +157,12 @@ public class PlatformUnitController extends WaspController {
 	private RunDao runDao;
 	
 	@Autowired
+	private RunMetaDao runMetaDao;
+
+	@Autowired
+	private RunCellDao runCellDao;
+	
+	@Autowired
 	private BarcodeDao barcodeDao;
 	
 	@Autowired
@@ -170,7 +180,7 @@ public class PlatformUnitController extends WaspController {
 	}
 	
 	@RequestMapping(value="/selid/list", method=RequestMethod.GET)
-	@PreAuthorize("hasRole('ft')")
+	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public String showSelectedSampleListShell(ModelMap m) {
 		m.addAttribute("_metaList", getMetaHelperWebapp().getMasterList(SampleMeta.class));
 		m.addAttribute(JQFieldTag.AREA_ATTR, "platformunitById");
@@ -180,7 +190,7 @@ public class PlatformUnitController extends WaspController {
 	}
 
 	@RequestMapping(value="/list.do", method=RequestMethod.GET)
-	@PreAuthorize("hasRole('ft')")
+	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public String showListShell(ModelMap m) {
 		m.addAttribute("_metaList", getMetaHelperWebapp().getMasterList(SampleMeta.class));
 		m.addAttribute(JQFieldTag.AREA_ATTR, "platformunit");
@@ -305,7 +315,7 @@ public class PlatformUnitController extends WaspController {
 	}
 
 	@RequestMapping(value="/instance/list.do", method=RequestMethod.GET)
-	@PreAuthorize("hasRole('ft')")
+	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public String showPlatformunitInstanceListShell(ModelMap m) {
 		m.addAttribute("_metaList", getMetaHelperWebappPlatformUnitInstance().getMasterList(SampleMeta.class));
 		m.addAttribute(JQFieldTag.AREA_ATTR, "platformunitInstance");
@@ -731,7 +741,7 @@ public class PlatformUnitController extends WaspController {
 	}
 
 	@RequestMapping(value="/view/{sampleId}.do", method=RequestMethod.GET)
-	@PreAuthorize("hasRole('ft')")
+	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public String viewPlatformUnit(
 			 @PathVariable("sampleId") Integer sampleId,
 			 ModelMap m) {
@@ -745,7 +755,7 @@ public class PlatformUnitController extends WaspController {
 	}
 
 	@RequestMapping(value="/modify/{sampleId}.do", method=RequestMethod.GET)
-	@PreAuthorize("hasRole('ft')")
+	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public String updatePlatformUnitForm(
 			 @PathVariable("sampleId") Integer sampleId,
 			 ModelMap m) {
@@ -759,7 +769,7 @@ public class PlatformUnitController extends WaspController {
 	}
 
 	@RequestMapping(value="/modify/{sampleId}.do", method=RequestMethod.POST)
-	@PreAuthorize("hasRole('ft')")
+	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public String modifyPlatformUnit(
 		@PathVariable("sampleId") Integer sampleId,
 		@Valid Sample sampleForm,
@@ -1027,7 +1037,7 @@ public class PlatformUnitController extends WaspController {
 	 * limitPriorToAssignment
 	 */
 	@RequestMapping(value="/limitPriorToAssign.do", method=RequestMethod.GET)
-	@PreAuthorize("hasRole('ft')")
+	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public String limitPriorToAssignmentForm(@RequestParam("resourceCategoryId") Integer resourceCategoryId,
 			ModelMap m) {
 		
@@ -1086,7 +1096,7 @@ public class PlatformUnitController extends WaspController {
 	 * limitPriorToPlatformUnitAssignment
 	 */
 	@RequestMapping(value="/limitPriorToPlatUnitAssign.do", method=RequestMethod.GET)
-	@PreAuthorize("hasRole('ft')")
+	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public String limitPriorToPlatUnitAssignForm(ModelMap m) {
 		
 		ResourceType resourceType = resourceTypeDao.getResourceTypeByIName("mps");
@@ -1109,7 +1119,7 @@ public class PlatformUnitController extends WaspController {
    *
    */
 	@RequestMapping(value="/assign.do", method=RequestMethod.GET)
-	@PreAuthorize("hasRole('ft')")
+	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public String assignmentForm(@RequestParam("resourceCategoryId") Integer resourceCategoryId,
 			@RequestParam("jobsToWorkWith") Integer jobsToWorkWith,//this will be a single jobId or it will be 0 [error] or -1 [indicating find all jobs that are not complete and have libraries to go onto flow cells]
 			ModelMap m) {
@@ -1232,7 +1242,7 @@ public class PlatformUnitController extends WaspController {
 
 	
 	@RequestMapping(value="/assignAdd1.do", method=RequestMethod.POST)
-	@PreAuthorize("hasRole('ft')")
+	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public String assignmentAdd1(
 			@RequestParam("librarysampleid") Integer librarySampleId,
 			@RequestParam("lanesampleid") Integer laneSampleId,
@@ -1247,7 +1257,7 @@ public class PlatformUnitController extends WaspController {
 	}
 	
 	@RequestMapping(value="/assignAdd2.do", method=RequestMethod.POST)
-	@PreAuthorize("hasRole('ft')")
+	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public String assignmentAdd2(
 			@RequestParam("librarysampleid") Integer librarySampleId,
 			@RequestParam("lanesampleid") Integer laneSampleId,
@@ -1268,7 +1278,7 @@ public class PlatformUnitController extends WaspController {
 	 * @param libConcInLanePicoM (final concentration in pM of library being added to flow cell)
    *
    */
-	@PreAuthorize("hasRole('ft')")
+	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public void assignmentAdd(
 			Integer librarySampleId, Integer laneSampleId,
 			Integer jobId, String libConcInLanePicoM) {
@@ -1479,7 +1489,7 @@ public class PlatformUnitController extends WaspController {
    *
    */
 	@RequestMapping(value="/assignRemove.do", method=RequestMethod.GET)
-	@PreAuthorize("hasRole('ft')")
+	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public String assignmentRemove(
 			@RequestParam("samplesourceid") int sampleSourceId,
 			@RequestParam("resourceCategoryId") Integer resourceCategoryId,
@@ -1498,7 +1508,7 @@ public class PlatformUnitController extends WaspController {
 	   *
 	   */
 	@RequestMapping(value="/assignRemove.do", method=RequestMethod.POST)
-	@PreAuthorize("hasRole('ft')")
+	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public String assignmentRemove(
 			@RequestParam("samplesourceid") Integer sampleSourceId,
 			@RequestParam(value="jobId", required=false) Integer jobId,
@@ -1611,7 +1621,7 @@ public class PlatformUnitController extends WaspController {
 	 * update sampleSourceMetaData libConcInLanePicoM
 	 */
 	@RequestMapping(value="/updateConcInLane.do", method=RequestMethod.POST)
-	@PreAuthorize("hasRole('ft')")
+	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public String updateConcInLane(
 			@RequestParam("sampleSourceMetaId") Integer sampleSourceMetaId,
 			@RequestParam("libConcInLanePicoM") String libConcInLanePicoM,
@@ -1634,7 +1644,7 @@ public class PlatformUnitController extends WaspController {
 	 * addNewControlToLane
 	 */
 	@RequestMapping(value="addNewControlToLane.do", method=RequestMethod.POST)
-	@PreAuthorize("hasRole('ft')")
+	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public String addNewControlToLane(
 			@RequestParam("platformUnitId") Integer platformUnitId,
 			@RequestParam("cellId") Integer cellId,
@@ -1675,7 +1685,7 @@ public class PlatformUnitController extends WaspController {
 	}
 	
 	@RequestMapping(value="ajaxReadType.do", method=RequestMethod.POST)
-	@PreAuthorize("hasRole('ft')")
+	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public @ResponseBody String ajaxReadType(@RequestParam("resourceId") String resourceId){
 		//System.out.println("in ajaxReadType and resourceId = " + resourceId);
 		String returnString;
@@ -1705,5 +1715,148 @@ public class PlatformUnitController extends WaspController {
 		//System.out.println("The return string = " + returnString);
 		//return "<option value=''>---SELECT A READ TYPE---</option><option value='single'>single</option><option value='paired'>paired</option>";
 		return returnString;
+	}
+	
+	/*
+	 * createNewRun
+	 */
+	@RequestMapping(value = "/createNewRun.do", method = RequestMethod.POST)
+	@PreAuthorize("hasRole('su') or hasRole('ft')")
+	public String createNewRun(@RequestParam("platformUnitId") Integer platformUnitId,
+			@RequestParam("runName") String runName,
+			@RequestParam("resourceId") Integer resourceId,
+			@RequestParam("readLength") String readLength,
+			@RequestParam("readType") String readType,
+			ModelMap m){
+		
+		String return_string = "redirect:/facility/platformunit/showPlatformUnit/" + platformUnitId.intValue() + ".do";
+		//must confirm validity of parameters
+		//must add success or failure messages
+		
+		//first, is the flowcell (via the platformUnitId, such as an Illumina Flowcell Version 3) compatible with the resourceId (the machine instance, such as an Illumina HiSeq 2000)
+		Sample platformUnit = sampleDao.getSampleBySampleId(platformUnitId);
+		if(platformUnit.getSampleId().intValue()==0){
+			//message unable to find platform unit record
+			System.out.println("unable to find platform unit record");
+			return "redirect:/dashboard.do";
+		}
+		//confirm flowcell (platformUnit)
+		if( !platformUnit.getSampleType().getIName().equals("platformunit") ){
+			//message - not a flow cell
+			System.out.println("PlatformUnit not a flow cell");
+			return return_string;
+		}
+		//record for machine exists
+		Resource machineInstance = resourceDao.getResourceByResourceId(resourceId);
+		if(machineInstance.getResourceId().intValue() == 0){
+			//message: unable to find record for requested machine
+			System.out.println("unable to find record for requested sequencing machine");
+			return return_string;
+		}
+		//confirm the machine and the flow cell are compatible (via sampleSubtpeResourceCategory)
+		boolean platformUnitAndMachineAreCompatible = false;
+		for(SampleSubtypeResourceCategory ssrc : machineInstance.getResourceCategory().getSampleSubtypeResourceCategory()){
+			if(ssrc.getSampleSubtypeId().intValue() == platformUnit.getSampleSubtypeId().intValue()){
+				platformUnitAndMachineAreCompatible = true;
+			}
+		}
+		if(platformUnitAndMachineAreCompatible==false){
+			//message Platform Unit (flowcell) and Resource (sequencing machine) are Not compatible
+			System.out.println("Platform Unit (flowcell) and Resource (sequencing machine) are Not compatible");
+			return return_string;
+		}
+		Integer laneCountFromMeta = null;
+		for(SampleMeta sm : platformUnit.getSampleMeta()){
+			if(sm.getK().indexOf("lanecount") > -1){
+				try{
+					laneCountFromMeta = new Integer(sm.getV());
+				}
+				catch(Exception e){
+					System.out.println("Unable to capture platformUnit lanecount from sampleMetaData");
+					return return_string;
+				}
+			}
+		}
+		if(laneCountFromMeta == null){
+			System.out.println("Unable to capture platformUnit lanecount from sampleMetaData");
+			return return_string;
+		}
+		if(laneCountFromMeta.intValue() != platformUnit.getSampleSource().size()){
+			System.out.println("lanecount from sampleMetaData and from samplesource are discordant: unable to continue");
+			return return_string;
+		}
+		//confirm machine and parameters readLength and readType are compatible
+		boolean readTypeIsValid = false;
+		boolean readLengthIsValid = false;
+		ResourceCategory resourceCategory = machineInstance.getResourceCategory();
+		List<ResourceCategoryMeta> resourceCategoryMetaList = resourceCategory.getResourceCategoryMeta();
+		for(ResourceCategoryMeta rcm : resourceCategoryMetaList){
+			if( rcm.getK().indexOf("readType") > -1 ){
+				String[] tokens = rcm.getV().split(";");//rcm.getV() will be single:single;paired:paired
+				for(String token : tokens){//token could be single:single
+					String [] innerTokens = token.split(":");
+					for(String str : innerTokens){
+						if(readType.equals(str)){
+							readTypeIsValid = true;
+						}
+					}
+				}
+			}
+			if( rcm.getK().indexOf("readlength") > -1 ){
+				String[] tokens = rcm.getV().split(";");//rcm.getV() will be 50:50;100:100
+				for(String token : tokens){//token could be 50:50
+					String [] innerTokens = token.split(":");
+					for(String str : innerTokens){
+						if(readLength.equals(str)){
+							readLengthIsValid = true;
+						}
+					}
+				}
+			}
+		}
+		if(readTypeIsValid == false){
+			System.out.println("Readtype incompatible with selected machine: unable to continue");
+			return return_string;			
+		}
+		if(readLengthIsValid == false){
+			System.out.println("Readlength incompatible with selected machine: unable to continue");
+			return return_string;			
+		}		
+		if(runName.trim() == ""){
+			System.out.println("Run name is Not valid");
+			return return_string;			
+		}
+
+		//run
+		Run newRun = new Run();
+		newRun.setResource(machineInstance);
+		newRun.setName(runName);
+		newRun.setSample(platformUnit);//set the flow cell
+		newRun = runDao.save(newRun);
+		//runmeta : readlength and readType
+		RunMeta newRunMeta = new RunMeta();
+		newRunMeta.setRun(newRun);
+		newRunMeta.setK("run.readlength");
+		newRunMeta.setV(readLength);
+		newRunMeta.setPosition(new Integer(0));//do we really use this???
+		runMetaDao.save(newRunMeta);
+		newRunMeta = new RunMeta();
+		newRunMeta.setRun(newRun);
+		newRunMeta.setK("run.readType");
+		newRunMeta.setV(readType);
+		newRunMeta.setPosition(new Integer(0));//do we really use this???
+		runMetaDao.save(newRunMeta);
+		//runlane
+		for(SampleSource ss : platformUnit.getSampleSource()){
+			Sample cell = ss.getSampleViaSource();
+			System.out.println("cellid = " + cell.getSampleId().intValue());
+			RunCell runCell = new RunCell();
+			runCell.setRun(newRun);//the runid
+			runCell.setSample(cell);//the cellid
+			runCellDao.save(runCell);				
+		}
+		
+		//return "redirect:/dashboard.do";
+		return "redirect:/facility/platformunit/showPlatformUnit/" + platformUnitId.intValue() + ".do";
 	}
 }

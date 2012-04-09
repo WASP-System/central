@@ -171,7 +171,7 @@
 								</c:when>
 								<c:otherwise>
 									<c:forEach items="${ss2.sample.run}" var="aRun">
-										 <c:out value="${ss2.sample.name}"/> (Lane <c:out value="${ss2.multiplexindex}"/>) ---> <c:out value="${aRun.name}"/><br/>
+										 <a href="<c:url value="/facility/platformunit/showPlatformUnit/${ss2.sample.sampleId}.do" />"><c:out value="${ss2.sample.name}"/> (Lane <c:out value="${ss2.multiplexindex}"/>) ---&gt; <c:out value="${aRun.name}"/></a><br/>
 									</c:forEach>
 								</c:otherwise>
 							</c:choose>							
@@ -327,7 +327,7 @@
 										</c:when>
 										<c:otherwise>
 											<c:forEach items="${ss2.sample.run}" var="aRun">
-										 		<c:out value="${ss2.sample.name}"/> (Lane <c:out value="${ss2.multiplexindex}"/>) ---> <c:out value="${aRun.name}"/><br/>
+										 		<a href="<c:url value="/facility/platformunit/showPlatformUnit/${ss2.sample.sampleId}.do" />"><c:out value="${ss2.sample.name}"/> (Lane <c:out value="${ss2.multiplexindex}"/>) ---&gt; <c:out value="${aRun.name}"/></a><br/>
 											</c:forEach>
 										</c:otherwise>
 									</c:choose>	
