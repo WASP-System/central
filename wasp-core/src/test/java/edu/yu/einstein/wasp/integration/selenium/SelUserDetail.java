@@ -55,7 +55,7 @@ public class SelUserDetail extends SelBaseTest {
 		  driver.findElement(By.xpath("//a[contains(@href,'/wasp/user/me_rw.do')]")).click();
 		  Assert.assertEquals(driver.getCurrentUrl(), "http://localhost:8080/wasp/user/me_rw.do");
 		  
-		  Assert.assertEquals(driver.findElement(By.id("login")).getAttribute("value"), "testpi");
+		  Assert.assertEquals(driver.findElement(By.id("login")).getAttribute("value"), "super");
 		  Assert.assertFalse(driver.findElement(By.id("login")).getAttribute("value").isEmpty(), "Login field is empty");
 		  Assert.assertFalse(driver.findElement(By.id("firstName")).getAttribute("value").isEmpty(), "First Name field is empty");
 		  Assert.assertFalse(driver.findElement(By.id("lastName")).getAttribute("value").isEmpty(), "Last Name field is empty");
@@ -71,7 +71,7 @@ public class SelUserDetail extends SelBaseTest {
 		  driver.findElement(By.id("state")).sendKeys("New York");
 		  driver.findElement(By.id("country")).sendKeys("United States");
 		  Assert.assertFalse(driver.findElement(By.id("zip")).getAttribute("value").isEmpty(), "Zip field is empty");
-		  Assert.assertFalse(driver.findElement(By.id("phone")).getAttribute("value").isEmpty(), "Phone field is empty");
+		  driver.findElement(By.id("phone")).sendKeys("1234567890");
 		
 		  Assert.assertTrue(driver.findElements(By.xpath("//input[@value='Save Changes']")).size() != 0, "Cannot locate 'Save Changes' button");
 		  driver.findElement(By.xpath("//input[@value='Save Changes']")).click();
@@ -100,7 +100,19 @@ public class SelUserDetail extends SelBaseTest {
 	   */
 	  @Test (groups="integration-tests", dataProvider = "DP1")
 	  public void changePassword(String sUserName, String sUserPass, String sSuccessUrl, String sOldPass, String sNewPass, String sSuccessUrl2) throws Exception {   
-		  Assert.assertEquals(driver.getCurrentUrl(), sSuccessUrl);
+		  SeleniumHelper.login(sUserName, sUserPass, driver);	 
+		  driver.get("http://localhost:8080/wasp/dashboard.do");
+		  
+		  Assert.assertNotNull(driver.findElement(By.xpath("//a[contains(@href,'#tabs-home')]")), "Unable to locate 'My Account' tab.");
+		  driver.findElement(By.xpath("//a[contains(@href,'#tabs-home')]")).click();
+
+		  Assert.assertTrue(driver.findElements(By.xpath("//a[contains(@href,'/wasp/user/me_ro.do')]")).size() != 0, "Cannot locate 'My Profile' link.");
+
+		  WebElement element = driver.findElement(By.xpath("//a[contains(@href,'/wasp/user/me_ro.do')]"));
+		  if (!element.isDisplayed())  driver.findElement(By.xpath("//a[contains(@href, '#tabs-home')]")).click();
+		  
+		  driver.findElement(By.xpath("//a[contains(@href,'/wasp/user/me_ro.do')]")).click();
+		  
 		  Assert.assertTrue(driver.findElements(By.linkText("Change Password")).size() != 0, "Cannot locate 'Change Password' link.");
 		  driver.findElement(By.xpath("//a[contains(@href,'/wasp/user/mypassword.do')]")).click();
 		  Assert.assertEquals(driver.getCurrentUrl(), sSuccessUrl2);
