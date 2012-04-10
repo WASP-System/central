@@ -97,8 +97,6 @@ public class SampleDnaToLibraryController extends WaspController {
   @Autowired
   private SampleSubtypeDao sampleSubtypeDao;
   @Autowired
-  private WorkflowSampleSubtypeDao workflowSampleSubtypeDao;
-  @Autowired
   private JobSampleDao jobSampleDao;
   @Autowired
   private SampleSourceDao sampleSourceDao;
@@ -466,6 +464,8 @@ public class SampleDnaToLibraryController extends WaspController {
 			logger.warn("Cannot set value on 'adaptorset': " + e.getMessage() );
 		}
 		Sample library = libraryManaged.getSampleObject();
+		library.setSampleSubtype(librarySampleSubtype);
+		library.setSampleType(sampleTypeDao.getSampleTypeByIName("library"));
 		library.setSampleMeta(libraryMeta);
 		m.put("sample", library); 	
 		
@@ -515,32 +515,27 @@ public class SampleDnaToLibraryController extends WaspController {
 		  waspErrorMessage("sampleDetail.jobSampleMismatch.error");
 		  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 	  }
-
+	  
 	  String newLibraryName = libraryForm.getName().trim();//from the form
-	  Map visibilityElementMap = new HashMap(); // specify meta elements that are to be made immutable or hidden in here
-	  visibilityElementMap.put("genericLibrary.adaptorset", MetaAttribute.FormVisibility.immutable); // adaptor is a list control but we just want to display its value
-	  MetaHelperWebapp sampleMetaHelper = getMetaHelperWebapp(); //new MetaHelperWebapp("sample", SampleMeta.class, request.getSession());
-	  List<SampleMeta> sampleMetaListFromForm = new ArrayList<SampleMeta>();
-	  sampleMetaHelper.setArea("genericLibrary");
-	  sampleMetaListFromForm.addAll(sampleMetaHelper.getFromRequest(request, visibilityElementMap, SampleMeta.class));
-	  //confirm that this new library's name is different from all other sample.name in this job
-	  //this could probably be an else to previous if
-	  List<Sample> samplesInThisJob = jobForThisSample.getSample();
-	  for(Sample eachSampleInThisJob : samplesInThisJob){
-		  if( newLibraryName.equals(eachSampleInThisJob.getName()) ){
-			  // adding an error to 'result object' linked to the 'name' field as the name chosen already exists
-			  Errors errors=new BindException(result.getTarget(), sampleMetaHelper.getParentArea());
-			  // reject value on the 'name' field with the message defined in sampleDetail.updated.nameClashError
-			  // usage: errors.rejectValue(field, errorString, default errorString)
-			  errors.rejectValue("name", "sampleDetail.updated.nameClashError", "sampleDetail.updated.nameClashError (no message has been defined for this property)");
-			  result.addAllErrors(errors);
-			  break;
-		  }
+	  //confirm that this new library's name is different from all other sample.name in this job for samples of the same sample type (library)
+	  SampleType sampleType = sampleTypeDao.getSampleTypeBySampleTypeId(libraryForm.getSampleTypeId());
+	  if (!sampleService.isSampleNameUniqueWithinJob(newLibraryName, sampleType, jobForThisSample)){
+		  Errors errors=new BindException(result.getTarget(), "Sample");
+		  // reject value on the 'name' field with the message defined in sampleDetail.updated.nameClashError
+		  // usage: errors.rejectValue(field, errorString, default errorString)
+		  errors.rejectValue("name", "sampleDetail.updated.nameClashError", "sampleDetail.updated.nameClashError (no message has been defined for this property)");
+		  result.addAllErrors(errors);
 	  }
-
-
-	  //check of errors in the metadata
-	  MetaHelperWebapp.validate("Sample", sampleMetaListFromForm, result);
+	  
+	  // get validated metadata from 
+	  Map<String, MetaAttribute.FormVisibility> visibilityElementMap = new HashMap<String, MetaAttribute.FormVisibility>(); // specify meta elements that are to be made immutable or hidden in here
+	  visibilityElementMap.put("genericLibrary.adaptorset", MetaAttribute.FormVisibility.immutable); // adaptor is a list control but we just want to display its value
+	  SampleWrapperWebapp managedLibraryFromForm = new SampleWrapperWebapp(libraryForm, sampleSourceDao);
+	  List<SampleMeta> sampleMetaListFromForm = managedLibraryFromForm.getValidatedMetaFromRequest(request, result, visibilityElementMap);
+	  
+	  
+	  
+	  Sample newLibrary = managedLibraryFromForm.getSampleObject();
 
 	  if (result.hasErrors()) {
 
@@ -566,10 +561,9 @@ public class SampleDnaToLibraryController extends WaspController {
 	  }
 
 	  //all OK so create/save new library
-	  Sample newLibrary = new Sample();
+	  
 	  newLibrary.setName(newLibraryName);
 	  //newLibrary.setSampleMeta(sampleMetaListFromForm);//this will not be saved simply by saving newLibrary; use sampleMetaDao.updateBySampleId below
-	  SampleType sampleType = sampleTypeDao.getSampleTypeByIName("library");
 	  newLibrary.setSampleType(sampleType);
 	  Map filterMap = new HashMap();
 	  filterMap.put("sampleTypeId", sampleType.getSampleTypeId());//restrict search to sampleType is library

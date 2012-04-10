@@ -3,11 +3,15 @@ package edu.yu.einstein.wasp.util;
 import java.util.List;
 import java.util.Set;
 
+import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.dao.SampleMetaDao;
+import edu.yu.einstein.wasp.dao.SampleSourceDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
+import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSubtype;
+import edu.yu.einstein.wasp.service.SampleService;
 
 /**
  * An interface that describes a biological molecule
@@ -47,12 +51,36 @@ public interface BioMoleculeWrapperI {
 	/**
 	 * Synchronizes meta data from the provided SampleMeta list with all the sample meta associated with this biological sample.
 	 * Existing meta data values are updated and merged, and new meta data is persisted as appropriate. 
+	 * Meta data is not persisted if the sample has not itself been persisted
 	 * Throws a MetadataException if a supplied SampleMeta object has a sampleId associated with it that is not the same as sampleId 
 	 * of the represented Sample entity or any of its ancestors.
+	 * The entire list of updated meta is also returned for convenience
 	 * @param inputMetaList
 	 * @param sampleMetaDao
-	 * @throws MetadataException
+	 * @return updated SampleMeta list
 	 */
-	public void updateMetaToListAndSave(List<SampleMeta> inputMetaList, SampleMetaDao sampleMetaDao) throws MetadataException;
+	public List<SampleMeta> updateMetaToList(List<SampleMeta> inputMetaList, SampleMetaDao sampleMetaDao);
+
+	
+	/**
+	 * Adds a parent to the managed sample
+	 * @param parentSample
+	 * @param sampleSourceDao
+	 * @throws SampleParentChildException
+	 */
+	public void setParent(Sample parentSample, SampleSourceDao sampleSourceDao) throws SampleParentChildException;
+	
+	/**
+	 * Save sample object and its metadata to the database. Propagates up the inheritance chain
+	 * @param sampleService
+	 * @param sampleSourceDao
+	 */
+	public void saveAll(SampleService sampleService, SampleSourceDao sampleSourceDao);
+
+	/**
+	 * Get wrapped parent sample object (or null)
+	 * @return
+	 */
+	public SampleWrapper getParentWrapper();
 	
 }

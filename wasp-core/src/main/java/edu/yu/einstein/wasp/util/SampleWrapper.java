@@ -11,11 +11,12 @@ import org.apache.log4j.Logger;
 
 import edu.yu.einstein.wasp.dao.SampleMetaDao;
 import edu.yu.einstein.wasp.dao.SampleSourceDao;
-import edu.yu.einstein.wasp.exception.MetadataException;
-import edu.yu.einstein.wasp.model.MetaAttribute;
+import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
+import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.SampleSubtype;
+import edu.yu.einstein.wasp.service.SampleService;
 
 /**
  * This wrapper implements the BioMolecule interface and helps manage information related to a biological sample,
@@ -66,6 +67,14 @@ public class SampleWrapper implements BioMoleculeWrapperI{
 	public Sample getSampleObject() {
 		return sample;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public SampleWrapper getParentWrapper() {
+		return parent;
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -91,45 +100,99 @@ public class SampleWrapper implements BioMoleculeWrapperI{
   		}
   		return templateSampleMeta;
 	}
-
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void updateMetaToListAndSave(List<SampleMeta> inputMetaList, SampleMetaDao sampleMetaDao) throws MetadataException{
-		Map<Integer, Map<String, SampleMeta> > indexedAllInheritedMetaBySampleId = new HashMap<Integer, Map<String, SampleMeta> >();
-		for(SampleMeta sm :  this.getAllSampleMeta()){
-			Map<String, SampleMeta> indexedAllInheritedMeta = new HashMap<String, SampleMeta>();
-			indexedAllInheritedMeta.put(sm.getK(), sm);
-			indexedAllInheritedMetaBySampleId.put(sm.getSampleId(), indexedAllInheritedMeta);
+	public void setParent(Sample parentSample, SampleSourceDao sampleSourceDao) throws SampleParentChildException{
+		if (parent != null && 
+				parent.getSampleObject().getSampleId() != null && 
+				sampleSourceDao.getParentSampleByDerivedSampleId(sample.getSampleId()).getSampleId() != null && 
+				sampleSourceDao.getParentSampleByDerivedSampleId(sample.getSampleId()).getSampleId().intValue() == parent.getSampleObject().getSampleId().intValue()){
+			throw new SampleParentChildException("parentSample already assigned as parent of sample managed by SampleWrapper");
 		}
+		parent = new SampleWrapper(parentSample, sampleSourceDao);
+	}
+
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<SampleMeta> updateMetaToList(List<SampleMeta> inputMetaList, SampleMetaDao sampleMetaDao){
+		Map<String, SampleMeta> indexedCurrentSampleMeta = new HashMap<String, SampleMeta>();
+		if (sample.getSampleMeta() != null){
+			for(SampleMeta sm :  sample.getSampleMeta())
+				indexedCurrentSampleMeta.put(sm.getK(), sm);
+		}
+		
+		List<SampleMeta> dataToRemove = new ArrayList<SampleMeta>();
 		for(SampleMeta inputMeta : inputMetaList){
-			if (inputMeta.getSampleId() != null && indexedAllInheritedMetaBySampleId.containsKey(inputMeta.getSampleId())){
-				// update existing meta
-				Map <String, SampleMeta> metaToChangeMap = indexedAllInheritedMetaBySampleId.get(inputMeta.getSampleId());
-				if (metaToChangeMap.containsKey(inputMeta.getK()) && !metaToChangeMap.get(inputMeta.getK()).getV().equals(inputMeta.getV())){
-					SampleMeta metaToUpdate = metaToChangeMap.get(inputMeta.getK());
-					metaToUpdate.setV(inputMeta.getV()); // should merge automatically as is entity managed
+			if (sample.getSampleId() == null && inputMeta.getSampleId() != null){
+				continue;
+			}
+			if (inputMeta.getSampleId() == null || sample.getSampleId() == null || inputMeta.getSampleId().intValue() == sample.getSampleId().intValue()){
+				// input meta and sample meta have the same associated Sample object, or no Sample object assigned to meta yet
+				// we will assume intended for this object
+				if (indexedCurrentSampleMeta.containsKey(inputMeta.getK())){
+					// current meta is already associated with sample
+					if (inputMeta.getSampleId() == null)
+						inputMeta.setSampleId(sample.getSampleId());
+					if (!indexedCurrentSampleMeta.get(inputMeta.getK()).getV().equals(inputMeta.getV())){
+						// meta has changed
+						if (sample.getSampleId() != null)
+							sampleMetaDao.save(inputMeta);
+					} 
+				} else {
+					// this is new meta
+					if (inputMeta.getSampleId() == null)
+						inputMeta.setSampleId(sample.getSampleId());
+					if (sample.getSampleId() != null)
+						sampleMetaDao.save(inputMeta);
 				}
-			} else{
-				// new meta 
-				if (inputMeta.getSampleId() == null){
-					inputMeta.setSampleId(sample.getSampleId());
-					sampleMetaDao.persist(inputMeta);
-				} else{
-					// metadata has a sampleId not associated with this wrapper
-					String validSampleIdString = "";
-					for (Integer sampleId: indexedAllInheritedMetaBySampleId.keySet()){
-						if (validSampleIdString.length() > 0) 
-							validSampleIdString += ", ";
-						validSampleIdString += String.valueOf(sampleId);
-					}
-					throw new MetadataException("Metadata is associated with a sample with id="+String.valueOf(inputMeta.getSampleId())+" that is not in the managed list of ids="+validSampleIdString);
-				}
-				
+				indexedCurrentSampleMeta.put(inputMeta.getK(), inputMeta);  // update list 
+				dataToRemove.add(inputMeta); //we're done with this
 			}
 		}
+		for(SampleMeta m : dataToRemove){
+			inputMetaList.remove(m);
+		}
+		List<SampleMeta> returnMetaList = new ArrayList<SampleMeta>();
+		returnMetaList.addAll(indexedCurrentSampleMeta.values());
+		if (sample.getSampleId() == null)
+			sample.setSampleMeta(returnMetaList); // add meta list for non-persisted new samples
+		// cascade through ancestory
+		if (parent != null)
+			returnMetaList.addAll(parent.updateMetaToList(inputMetaList, sampleMetaDao)); // call with depleted inputMetaList
+		
+		// after recursive processing of inputMetaList there should be nothing left. Warn if there is...
+		for (SampleMeta m : inputMetaList){
+			logger.warn("Ignoring input metadata '" + m.getK() + "' as not compatible with managed sample (sampleId='"+sample.getSampleId()+"') or ancestors!!");
+		}
+		return returnMetaList;
 	}
+
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void saveAll(SampleService sampleService, SampleSourceDao sampleSourceDao){
+		if (parent != null)
+			parent.saveAll(sampleService, sampleSourceDao); // Propagate up just in case
+		// persist sample if not yet persisted
+		if (sample.getSampleId() == null){
+			sampleService.saveSampleWithAssociatedMeta(sample);
+		}
+		
+		// save sample -> parent relationship if it doesn't exist
+		if (parent != null && (sampleSourceDao.getParentSampleByDerivedSampleId(sample.getSampleId()).getSampleId() == null ||
+			sampleSourceDao.getParentSampleByDerivedSampleId(sample.getSampleId()).getSampleId().intValue() != parent.getSampleObject().getSampleId().intValue()) ){
+			SampleSource sampleSource = new SampleSource();
+			sampleSource.setSampleId(sample.getSampleId());
+			sampleSource.setSourceSampleId(parent.getSampleObject().getSampleId());
+			sampleSourceDao.persist(sampleSource);
+		}
+	}
 }

@@ -14,8 +14,8 @@
 </table>
 <br />
 <form:form  cssClass="FormGrid" commandName="sample">
-  <input class="FormElement ui-widget-content ui-corner-all" type='hidden' name='jobId' value='<c:out value="${job.jobId}" />'/>
-  <input class="FormElement ui-widget-content ui-corner-all" type='hidden' name='sampleTypeId' value='<c:out value="${sample.sampleTypeId}" />'/>	
+  <input type='hidden' name='jobId' value='<c:out value="${job.jobId}" />'/>
+  <input type='hidden' name='sampleTypeId' value='<c:out value="${sample.sampleTypeId}" />'/>	
 <table class="EditTable ui-widget ui-widget-content">
   	 <tr class="FormData">
       <td class="CaptionTD">Sample Name:</td>

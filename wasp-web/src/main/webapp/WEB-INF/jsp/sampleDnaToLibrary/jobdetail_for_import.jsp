@@ -12,8 +12,8 @@
 <c:if test="${otherAdaptorsets != null && otherAdaptorsets.size() > 0}">
 	<tr class="FormData"><td colspan="2">
 		<form method="GET" action="<c:url value="/sampleDnaToLibrary/createLibraryFromMacro.do" />">
-	  		<input class="FormElement ui-widget-content ui-corner-all" type='hidden' name='jobId' value='<c:out value="${job.jobId}" />'/>
-	  		<input class="FormElement ui-widget-content ui-corner-all" type='hidden' name='macromolSampleId' value='<c:out value="${macromoleculeSample.sampleId}" />'/>
+	  		<input type='hidden' name='jobId' value='<c:out value="${job.jobId}" />'/>
+	  		<input type='hidden' name='macromolSampleId' value='<c:out value="${macromoleculeSample.sampleId}" />'/>
 	  		
 				<select class="FormElement ui-widget-content ui-corner-all" name="adaptorsetId" size="1" onchange="if(this.options[selectedIndex].value != 0){this.parentNode.submit();}">
 				<option value="0">--SELECT NEW ADAPTOR SET--

@@ -6,7 +6,7 @@
   <div>
 		<div class="instructions"><fmt:message key="department.detail_update_instructions.label" /></div>
   <form name="update_form" action = "<c:url value='/department/updateDepartment.do'/>" method="POST" onsubmit="return validate('updateDept');">
-		<input class="FormElement ui-widget-content ui-corner-all" type='hidden' name='departmentId' value='<c:out value="${department.departmentId}" />'/>
+		<input type='hidden' name='departmentId' value='<c:out value="${department.departmentId}" />'/>
 
 		<table class="EditTable ui-widget ui-widget-content">
 			<tr class="FormData">
@@ -29,7 +29,7 @@
 		<div class="instructions"><fmt:message key="department.detail_update_admin.label" /></div>
 		
 		<form name="f" action="<c:url value='/department/user/roleAdd.do'/>" method="POST" onsubmit="return validate('createAdmin');">
-		<input class="FormElement ui-widget-content ui-corner-all" type='hidden' name='departmentId' value='<c:out value="${department.departmentId}" />'/>
+		<input type='hidden' name='departmentId' value='<c:out value="${department.departmentId}" />'/>
 			
 		<table class="EditTable ui-widget ui-widget-content"> 
 			<tr class="FormData">

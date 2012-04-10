@@ -201,8 +201,8 @@
 	  		<c:choose>
 	  			<c:when test='${submittedSampleArrivalStatus=="RECEIVED"}'>
 	  				<form method="GET" action="<c:url value="/sampleDnaToLibrary/createLibraryFromMacro.do" />">
-	  					<input class="FormElement ui-widget-content ui-corner-all" type='hidden' name='jobId' value='<c:out value="${job.jobId}" />'/>
-	  					<input class="FormElement ui-widget-content ui-corner-all" type='hidden' name='macromolSampleId' value='<c:out value="${sampleSubmitted.sampleId}" />'/>
+	  					<input type='hidden' name='jobId' value='<c:out value="${job.jobId}" />'/>
+	  					<input type='hidden' name='macromolSampleId' value='<c:out value="${sampleSubmitted.sampleId}" />'/>
 	  					<select class="FormElement ui-widget-content ui-corner-all" name="adaptorsetId" size="1" onchange="if(this.options[selectedIndex].value != 0){this.parentNode.submit();}">
 							<option value="0">--ADAPTORS FOR NEW LIBRARY--
 							<c:forEach items="${adaptorsets}" var="adaptorset">

@@ -10,7 +10,7 @@
 
 <form name="f" action="<c:url value='/auth/resetpassword/form.do'/>"
 	method="POST">
-	<input class="FormElement ui-widget-content ui-corner-all" type='hidden' name='authcode'
+	<input type='hidden' name='authcode'
 		value='<c:out value="${authcode}" default="" />' />
 
 	<table class="EditTable ui-widget ui-widget-content">
