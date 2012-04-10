@@ -1577,6 +1577,54 @@ public class PlatformUnitController extends WaspController {
 		//is this flowcell on a run?
 		List<Run> runList = platformUnit.getRun();
 		m.put("runList", runList);
+		StringBuffer readType = new StringBuffer("<option value=''>---SELECT A READ TYPE---</option>");
+		StringBuffer readLength = new StringBuffer("<option value=''>---SELECT A READ LENGTH---</option>");
+
+		if(runList.size() > 0){//a run for this platform unit exists
+			Run run = runList.get(0);//should only be one, I hope
+			String currentReadLength = "";
+			String currentReadType = "";
+			List<RunMeta> runMetaList = run.getRunMeta();
+			for(RunMeta rm : runMetaList){
+				if(rm.getK().indexOf("readlength") > -1){
+					currentReadLength = new String(rm.getV());
+				}
+				if(rm.getK().indexOf("readType") > -1){
+					currentReadType = new String(rm.getV());
+				}
+			}
+			Resource resource = run.getResource();
+			ResourceCategory resourceCategory = resource.getResourceCategory();
+			List<ResourceCategoryMeta> resourceCategoryMetaList = resourceCategory.getResourceCategoryMeta();
+			for(ResourceCategoryMeta rcm : resourceCategoryMetaList){
+				if( rcm.getK().indexOf("readType") > -1 ){
+					String[] tokens = rcm.getV().split(";");//rcm.getV() will be single:single;paired:paired
+					for(String token : tokens){//token could be single:single
+						String [] innerTokens = token.split(":");
+						if(currentReadType.equalsIgnoreCase(innerTokens[0])){
+							readType.append("<option SELECTED value='"+innerTokens[0]+"'>"+innerTokens[1]+"</option>");
+						}
+						else{
+							readType.append("<option value='"+innerTokens[0]+"'>"+innerTokens[1]+"</option>");
+						}
+					}
+				}
+				if( rcm.getK().indexOf("readlength") > -1 ){
+					String[] tokens = rcm.getV().split(";");//rcm.getV() will be 50:50;100:100
+					for(String token : tokens){//token could be 50:50
+						String [] innerTokens = token.split(":");
+						if(currentReadLength.equalsIgnoreCase(innerTokens[0])){
+							readLength.append("<option SELECTED value='"+innerTokens[0]+"'>"+innerTokens[1]+"</option>");
+						}
+						else{
+							readLength.append("<option value='"+innerTokens[0]+"'>"+innerTokens[1]+"</option>");
+						}
+					}
+				}
+			}
+			m.put("readType", new String(readType));
+			m.put("readLength", new String(readLength));
+		}
 		
 		List<Resource> resourceList= resourceDao.findAll(); 
 		List<Resource> filteredResourceList = new ArrayList();
@@ -1833,19 +1881,23 @@ public class PlatformUnitController extends WaspController {
 		newRun.setName(runName);
 		newRun.setSample(platformUnit);//set the flow cell
 		newRun = runDao.save(newRun);
+		System.out.println("-----");
+		System.out.println("saved new run runid=" + newRun.getRunId().intValue());
 		//runmeta : readlength and readType
 		RunMeta newRunMeta = new RunMeta();
 		newRunMeta.setRun(newRun);
 		newRunMeta.setK("run.readlength");
 		newRunMeta.setV(readLength);
 		newRunMeta.setPosition(new Integer(0));//do we really use this???
-		runMetaDao.save(newRunMeta);
+		newRunMeta = runMetaDao.save(newRunMeta);
+		System.out.println("saved new run Meta for readLength id=" + newRunMeta.getRunMetaId().intValue());
 		newRunMeta = new RunMeta();
 		newRunMeta.setRun(newRun);
 		newRunMeta.setK("run.readType");
 		newRunMeta.setV(readType);
 		newRunMeta.setPosition(new Integer(0));//do we really use this???
-		runMetaDao.save(newRunMeta);
+		newRunMeta = runMetaDao.save(newRunMeta);
+		System.out.println("saved new run Meta for readType runmetaid=" + newRunMeta.getRunMetaId().intValue());
 		//runlane
 		for(SampleSource ss : platformUnit.getSampleSource()){
 			Sample cell = ss.getSampleViaSource();
@@ -1853,9 +1905,10 @@ public class PlatformUnitController extends WaspController {
 			RunCell runCell = new RunCell();
 			runCell.setRun(newRun);//the runid
 			runCell.setSample(cell);//the cellid
-			runCellDao.save(runCell);				
+			runCell = runCellDao.save(runCell);
+			System.out.println("saved new run cell runcellid=" + runCell.getRunCellId().intValue());
 		}
-		
+		System.out.println("-----");
 		//return "redirect:/dashboard.do";
 		return "redirect:/facility/platformunit/showPlatformUnit/" + platformUnitId.intValue() + ".do";
 	}

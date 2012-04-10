@@ -21,8 +21,9 @@
 </c:forEach>
 </table>
 
-<c:if test="${runList.size()==0}">
 <br />
+
+<c:if test="${runList.size()==0}">
 <div id="newCreateRunButtonDiv">
 	<input type="button" value="Create New Run" onclick='toggleDisplayOfCreateNewRunForm("create")' />
 </div>
@@ -54,10 +55,42 @@
 		</form>
 </div>
 </c:if>
-<c:if test="${runList.size()>0}"><table><tr class="FormData"><tr class="FormData"><td colspan="2" class="value-centered">Run Details: <c:out value="${runList.get(0).name}" /></td></tr></table></c:if>
 
 
-
+<c:if test="${runList.size() > 0}">
+		<form id="newRunForm"  method='post' action="<c:url value="/facility/platformunit/createNewRun.do" />" >
+		<input type='hidden' name='platformUnitId' value='<c:out value="${platformUnit.sampleId}" />'/>
+		<input type='hidden' name='runId' value='<c:out value="${runList.get(0).getRunId()}" />'/>
+		<table class="EditTable ui-widget ui-widget-content">
+			<tr class="FormData"><td class="CaptionTD">Run Name: </td><td class="DataTD"><input type='text' name='runName' id='runName' size='25' maxlength='30' value='<c:out value="${runList.get(0).name}" />'  /></td></tr>
+			<tr class="FormData"><td class="CaptionTD">Machine: </td><td class="DataTD">
+				<select id="resourceId" name="resourceId" >
+		  			<option value="">---SELECT A MACHINE---</option>
+						<c:forEach items="${resources}" var="resource">
+							<c:set var="selected" value="" scope="page" />
+							<c:if test="${resource.getResourceId() == runList.get(0).getResourceId()}">
+								<c:set var="selected" value="SELECTED" scope="page" />
+							</c:if>
+							<option value='<c:out value="${resource.getResourceId()}" />'    <c:out value="${selected}" />     ><c:out value="${resource.getName()}" /> - <c:out value="${resource.getResourceCategory().getName()}" /></option>
+						</c:forEach> 
+				</select>			
+			</td></tr>
+ 			<tr class="FormData"><td class="CaptionTD">Read Length: </td><td class="DataTD">
+				<select id="readLength" name="readLength">
+					<c:out value="${readLength}" escapeXml="false" />
+				</select>			
+			</td></tr>
+			<tr class="FormData"><td class="CaptionTD">Read Type: </td><td class="DataTD">
+				<select id="readType" name="readType">
+					<c:out value="${readType}"  escapeXml="false" />
+				</select>			
+			</td></tr>
+			<tr class="FormData"><td colspan="2" class="CaptionTD">
+				<input id="submitButtonCreateNewRun" type="button" value="Update" onclick='validateCreateNewRunForm()' />&nbsp;<input type="button" value="Reset" onclick='location.href="<c:url value="/facility/platformunit/showPlatformUnit/${platformUnit.sampleId}.do" />"' />
+			</td></tr>
+		</table>
+		</form>
+</c:if>
 
 
 
