@@ -135,13 +135,12 @@ $.jgrid.extend ({editGridRow : function(rowid, p){
                 		   $("#sourceSampleId").html(options);
                 		                    	                		    
                       });
-                	/* TODO: enable dynamic adaptorset /adaptor selection
-                	 $('adaptorset').change(function () {      
-                		alert("hello");
-                   		var _val=$("genericLibrary.adaptorset option:selected").val();
+                	/* TODO: enable dynamic adaptorset /adaptor selection  */
+                	 $('#genericLibrary\\.adaptorset').change(function () {      
+                   		var _val=$('#genericLibrary\\.adaptorset option:selected').val();
                    		
                    		if (!_val) {
-                   			$('genericLibrary\\.adaptor').children().remove().end();                 		            
+                   			$('#genericLibrary\\.adaptor').children().remove().end();                 		            
                    			return;
                    		}
                    		                		      				    
@@ -155,9 +154,9 @@ $.jgrid.extend ({editGridRow : function(rowid, p){
                    			                 			  
                    		   })
                    		   
-                   		   $("genericLibrary.adaptor").html(options);
+                   		   $('#genericLibrary\\.adaptor').html(options);
                    		                    	                		    
-                         }); */
+                         });
                 	
                 	$('#sourceSampleId').change(function () {      
                 		var _val=$("#sourceSampleId option:selected").val();
