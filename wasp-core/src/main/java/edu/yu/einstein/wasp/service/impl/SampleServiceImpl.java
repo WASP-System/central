@@ -79,7 +79,6 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	public List<Sample> findAllPlatformUnits() {
 		Map queryMap = new HashMap();
 		queryMap.put("sampleType.iName", "platformunit");
-//		queryMap.put("sampleType.sampleTypeId", 5);
 		return sampleDao.findByMap(queryMap);
 	}
 	

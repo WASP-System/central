@@ -15,8 +15,10 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import edu.yu.einstein.wasp.dao.SampleDao;
+import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSubtype;
+import edu.yu.einstein.wasp.model.SampleType;
 
 @Service
 public interface SampleService extends WaspService {
@@ -76,6 +78,21 @@ public interface SampleService extends WaspService {
 	   * @return
 	   */
 	  public List<SampleSubtype> getSampleSubtypesForWorkflowByRole(Integer workflowId,	String[] roles);
+
+	  /**
+	   * Returns true unless a sample exists in job of the same sampleType with the same name
+	   * @param name
+	   * @param sampleType
+	   * @param job
+	   * @return boolean
+	   */
+	  public boolean isSampleNameUniqueWithinJob(String name, SampleType sampleType, Job job);
+
+	  /**
+	   * Saves a sample and all the metadata associated with it
+	   * @param sample
+	   */
+	  public void saveSampleWithAssociatedMeta(Sample sample);
 
 
 }
