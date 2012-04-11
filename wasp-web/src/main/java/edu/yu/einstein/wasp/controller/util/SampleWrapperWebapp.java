@@ -57,6 +57,13 @@ public class SampleWrapperWebapp extends SampleWrapper{
   		return normalizedSampleMeta;
 	}
 	
+	/**
+	 * Gets all metadata filled in on the form from the http request and validates. Validation errors are added to the result. Applies visibilityElementMap
+	 * @param request
+	 * @param result
+	 * @param visibilityElementMap
+	 * @return list of sample meta data
+	 */
 	public List<SampleMeta> getValidatedMetaFromRequest(HttpServletRequest request, BindingResult result, Map<String, MetaAttribute.FormVisibility> visibilityElementMap){
 		List<SampleMeta> validatedFormMeta = new ArrayList<SampleMeta>();
 		MetaHelperWebapp metaHelper = new MetaHelperWebapp(SampleMeta.class);
@@ -70,6 +77,13 @@ public class SampleWrapperWebapp extends SampleWrapper{
 		return validatedFormMeta;
 	}
 	
+	/**
+	 * Gets all metadata filled in on the form from the http request and validates. Validation errors are added to the result.
+	 * @param request
+	 * @param result
+	 * @param visibilityElementMap
+	 * @return list of sample meta data
+	 */
 	public List<SampleMeta> getValidatedMetaFromRequest(HttpServletRequest request, BindingResult result){
 		return getValidatedMetaFromRequest(request, result, null);
 	}

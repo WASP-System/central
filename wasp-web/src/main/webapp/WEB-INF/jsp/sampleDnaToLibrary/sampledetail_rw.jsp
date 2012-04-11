@@ -13,9 +13,9 @@
 </c:forEach>
 </table>
 <br />
-<form:form  cssClass="FormGrid" commandName="sample">
+<form:form cssClass="FormGrid" commandName="sample">
   <input type='hidden' name='jobId' value='<c:out value="${job.jobId}" />'/>
-  <input type='hidden' name='sampleTypeId' value='<c:out value="${sample.sampleTypeId}" />'/>	
+  <input type='hidden' name='sampleId' value='<c:out value="${sample.sampleId}" />'/>
 <table class="EditTable ui-widget ui-widget-content">
   	 <tr class="FormData">
       <td class="CaptionTD">Sample Name:</td>

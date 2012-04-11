@@ -813,22 +813,9 @@ public class SampleDnaToLibraryController extends WaspController {
 		  waspErrorMessage("sampleDetail.jobSampleMismatch.error");
 		  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 	  }
-	  
-	  SampleSubtype sampleSubtype = null;
-	  for(WorkflowSampleSubtype wfss: job.getWorkflow().getWorkflowSampleSubtype()){
-		  if(wfss.getSampleSubtype().getSampleTypeId().intValue() == sample.getSampleTypeId().intValue()){
-			  sampleSubtype = wfss.getSampleSubtype();
-			  break;
-		  }
-	  }
-	  if (sampleSubtype == null){
-		  sampleSubtype = sampleSubtypeDao.getSampleSubtypeByIName("genericDna");
-		  logger.warn("Cannot locate a SubtypeSample matching the SampleType of the current SampleEntity (sampleId="+String.valueOf(sample.getSampleId())+
-				  ", sampleType="+String.valueOf(sample.getSampleTypeId())+"). Defaulting to '"+sampleSubtype.getIName()+"'");
-		  
-	  }
+
 	  SampleWrapperWebapp sampleManaged = new SampleWrapperWebapp(sample, sampleSourceDao);
-	  sample.setSampleMeta(sampleManaged.getMetaTemplatedToSampleSybtypeAndSynchronizedToMaster(sampleSubtype));
+	  sample.setSampleMeta(sampleManaged.getMetaTemplatedToSampleSybtypeAndSynchronizedToMaster(sample.getSampleSubtype()));
 	  
 	  m.put("job", job);
 	  m.put("sample", sample); 
@@ -838,7 +825,7 @@ public class SampleDnaToLibraryController extends WaspController {
   
   @RequestMapping(value = "/sampledetail_rw/{jobId}/{sampleId}", method = RequestMethod.POST)//sampleId represents a macromolecule (genomic DNA or RNA) , but that could change as this evolves
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
-	public String updateSampleDetailRW(@PathVariable("jobId") Integer jobId, @PathVariable("sampleId") Integer sampleId, @RequestParam("sampleTypeId") Integer sampleTypeId, 
+	public String updateSampleDetailRW(@PathVariable("jobId") Integer jobId, @PathVariable("sampleId") Integer sampleId, 
 								@Valid Sample sampleForm, BindingResult result, 
 								SessionStatus status, ModelMap m) throws MetadataException {
 		  
@@ -864,48 +851,28 @@ public class SampleDnaToLibraryController extends WaspController {
 		  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 	  } 
 		  
-	  Sample sampleToSave = sampleDao.getSampleBySampleId(sampleId); 
-	  if(sampleToSave.getSampleId()==null){//not found in database
+	  Sample sample = sampleDao.getSampleBySampleId(sampleId); 
+	  if(sample.getSampleId()==null){//not found in database
 		  waspErrorMessage("sampleDetail.sampleNotFound.error");
 		  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 	  }
-	
+	  	
 	  //confirm macromoleculeSample is actually part of this job
 	  JobSample jobSample = jobSampleDao.getJobSampleByJobIdSampleId(jobId, sampleId);
 	  if(jobSample.getJobSampleId()== null){
 		  waspErrorMessage("sampleDetail.jobNotFound.error");
 		  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
-	  } 
-	  		
-	  //get list of metadata areas for a sample of this job's workflow; it's in samplesubtype.arealist (example: genericBiomolecule,chipseqDna,genericLibrary)
-	  //likely candidate for a method somewhere
-	  List<String> areaList = new ArrayList<String>();
-	  Workflow workflow = jobDao.getJobByJobId(jobId).getWorkflow(); 
-	  List<WorkflowSampleSubtype> wfssList = workflow.getWorkflowSampleSubtype();
-	  for(WorkflowSampleSubtype wfss: wfssList){
-		  if(wfss.getSampleSubtype().getSampleTypeId().intValue() == sampleToSave.getSampleTypeId().intValue()){
-			  String[] items = wfss.getSampleSubtype().getAreaList().split(",");
-			  for(String item : items){
-				  areaList.add(item);
-			  }			  
-		  }
-	  }		  
-	  MetaHelperWebapp sampleMetaHelper = getMetaHelperWebapp(); //new MetaHelperWebapp("sample", SampleMeta.class, request.getSession());
-	  List<SampleMeta> sampleMetaListFromForm = new ArrayList<SampleMeta>();
-	  for(String area : areaList){
-		  sampleMetaHelper.setArea(area);
-		  sampleMetaListFromForm.addAll(sampleMetaHelper.getFromRequest(request, SampleMeta.class));
 	  }
-
+	  
 	  String newSampleName = sampleForm.getName().trim();//from the form
 	  //confirm that, if a new sample.name was supplied on the form, it is different from all other sample.name in this job
-	  if( ! newSampleName.equals(sampleToSave.getName().trim() ) ){//name was changed
+	  if( ! newSampleName.equals(sample.getName().trim() ) ){//name was changed
 		  List<Sample> samplesInThisJob = jobForThisSample.getSample();
 		  for(Sample eachSampleInThisJob : samplesInThisJob){
 			  if(eachSampleInThisJob.getSampleId().intValue() != sampleId.intValue()){
 				  if( newSampleName.equals(eachSampleInThisJob.getName()) ){
 					  // adding an error to 'result object' linked to the 'name' field as the name chosen already exists
-					  Errors errors=new BindException(result.getTarget(), sampleMetaHelper.getParentArea());
+					  Errors errors=new BindException(result.getTarget(), "sample");
 					  // reject value on the 'name' field with the message defined in sampleDetail.updated.nameClashError
 					  // usage: errors.rejectValue(field, errorString, default errorString)
 					  errors.rejectValue("name", "sampleDetail.nameClash.error", "sampleDetail.nameClash.error (no message has been defined for this property)");
@@ -916,31 +883,21 @@ public class SampleDnaToLibraryController extends WaspController {
 		  }
 	  }
 	  
-	  //check of errors in the metadata
-	  MetaHelperWebapp.validate("Sample", sampleMetaListFromForm, result);
-		
-	  if (result.hasErrors()) {
-		  
-		  prepareSelectListData(m);//doubt that this is required here; really only needed for meta relating to country or state
-		  waspErrorMessage("sampleDetail.updated.error");
-		  
-		  m.put("job", jobForThisSample);
-		  sampleForm.setSampleId(sampleId);
+	  SampleWrapperWebapp managedSample = new SampleWrapperWebapp(sample, sampleSourceDao);
+	   List<SampleMeta> metaFromForm = managedSample.getValidatedMetaFromRequest(request, result);
+	  if(result.hasErrors()){
 		  sampleForm.setName(newSampleName);
-		  sampleForm.setSampleType(sampleTypeDao.getSampleTypeBySampleTypeId(sampleTypeId));
-		  sampleForm.setSampleMeta(sampleMetaListFromForm);
-		  m.put("sample", sampleForm);
+		  sampleForm.setSampleMeta(metaFromForm);
+		  m.put("job", jobForThisSample);
+		  m.put("sample", sampleForm); 
 		  return "sampleDnaToLibrary/sampledetail_rw";
 	  }
+	  
+	  managedSample.updateMetaToList(metaFromForm, sampleMetaDao);
+	  managedSample.saveAll(sampleService, sampleSourceDao);
 
-	  sampleToSave.setName(newSampleName);
-	  sampleToSave.setLastUpdTs(new Date());
-	  
-	  this.sampleDao.merge(sampleToSave);//can you do: sampleToSave.setSampleMeta(sampleMetaListFromForm); and just save the sample (and omit next line)?
-	  this.sampleMetaDao.updateBySampleId(sampleId, sampleMetaListFromForm);
-	  
 	  waspMessage("sampleDetail.updated_success.label");
-	  return "redirect:/sampleDnaToLibrary/sampledetail_rw/" + jobId + "/" + sampleId + ".do";
+	  return "redirect:/sampleDnaToLibrary/sampledetail_ro/" + jobId + "/" + sampleId + ".do";
 
   }
   

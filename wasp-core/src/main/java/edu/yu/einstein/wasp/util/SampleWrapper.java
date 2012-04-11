@@ -126,8 +126,7 @@ public class SampleWrapper implements BioMoleculeWrapperI{
 			for(SampleMeta sm :  sample.getSampleMeta())
 				indexedCurrentSampleMeta.put(sm.getK(), sm);
 		}
-		
-		List<SampleMeta> dataToRemove = new ArrayList<SampleMeta>();
+		List<SampleMeta> metaToRemoveFromList = new ArrayList<SampleMeta>();
 		for(SampleMeta inputMeta : inputMetaList){
 			if (sample.getSampleId() == null && inputMeta.getSampleId() != null){
 				continue;
@@ -135,27 +134,27 @@ public class SampleWrapper implements BioMoleculeWrapperI{
 			if (inputMeta.getSampleId() == null || sample.getSampleId() == null || inputMeta.getSampleId().intValue() == sample.getSampleId().intValue()){
 				// input meta and sample meta have the same associated Sample object, or no Sample object assigned to meta yet
 				// we will assume intended for this object
-				if (indexedCurrentSampleMeta.containsKey(inputMeta.getK())){
-					// current meta is already associated with sample
-					if (inputMeta.getSampleId() == null)
-						inputMeta.setSampleId(sample.getSampleId());
-					if (!indexedCurrentSampleMeta.get(inputMeta.getK()).getV().equals(inputMeta.getV())){
-						// meta has changed
-						if (sample.getSampleId() != null)
-							sampleMetaDao.save(inputMeta);
-					} 
-				} else {
-					// this is new meta
-					if (inputMeta.getSampleId() == null)
-						inputMeta.setSampleId(sample.getSampleId());
-					if (sample.getSampleId() != null)
-						sampleMetaDao.save(inputMeta);
+				if (inputMeta.getSampleId() == null)
+					inputMeta.setSampleId(sample.getSampleId());
+				if (sample.getSampleId() != null){
+					//save meta
+					SampleMeta currentMeta = sampleMetaDao.getSampleMetaByKSampleId(inputMeta.getK(), sample.getSampleId());
+					if (currentMeta.getSampleMetaId() == null){
+						// metadata value not in database yet
+						sampleMetaDao.persist(inputMeta);
+					} else if (!currentMeta.getV().equals(inputMeta.getV())){
+						// meta exists already but value has changed
+						currentMeta.setV(inputMeta.getV());
+						sampleMetaDao.merge(currentMeta);
+					} else{
+						// no change to meta so do nothing
+					}
 				}
+				metaToRemoveFromList.add(inputMeta);
 				indexedCurrentSampleMeta.put(inputMeta.getK(), inputMeta);  // update list 
-				dataToRemove.add(inputMeta); //we're done with this
 			}
 		}
-		for(SampleMeta m : dataToRemove){
+		for(SampleMeta m : metaToRemoveFromList){
 			inputMetaList.remove(m);
 		}
 		List<SampleMeta> returnMetaList = new ArrayList<SampleMeta>();

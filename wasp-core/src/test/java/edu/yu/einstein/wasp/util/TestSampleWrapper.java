@@ -37,6 +37,10 @@ public class TestSampleWrapper {
 	private Sample sample;
 	private Sample parentSample;
 	private Sample grandparentSample;
+	private SampleMeta sampleMeta1;
+	private SampleMeta sampleMeta2;
+	private SampleMeta sampleMeta3;
+	private SampleMeta sampleMeta4;
 	private static final Logger logger = Logger.getLogger(TestSampleWrapper.class);
 
 	@BeforeTest
@@ -61,28 +65,28 @@ public class TestSampleWrapper {
 		parentSample.setSampleId(2);
 		
 		List<SampleMeta> sampleMetaList1 = new ArrayList<SampleMeta>();
-		SampleMeta sampleMeta1 = new SampleMeta();
+		sampleMeta1 = new SampleMeta();
 		sampleMeta1.setSampleMetaId(1);
 		sampleMeta1.setSampleId(1);
 		sampleMeta1.setK("sampleMeta1.key1");
 		sampleMeta1.setV("1");
 		sampleMetaList1.add(sampleMeta1);
 
-		SampleMeta sampleMeta2 = new SampleMeta();
+		sampleMeta2 = new SampleMeta();
 		sampleMeta2.setK("sampleMeta1.key2");
 		sampleMeta2.setV("2");
 		sampleMetaList1.add(sampleMeta2);
 		sample.setSampleMeta(sampleMetaList1);
 
 		List<SampleMeta> sampleMetaList2 = new ArrayList<SampleMeta>();
-		SampleMeta sampleMeta3 = new SampleMeta();
+		sampleMeta3 = new SampleMeta();
 		sampleMeta3.setSampleMetaId(3);
 		sampleMeta3.setSampleId(2);
 		sampleMeta3.setK("parentSampleMeta2.key3");
 		sampleMeta3.setV("3");
 		sampleMetaList2.add(sampleMeta3);
 
-		SampleMeta sampleMeta4 = new SampleMeta();
+		sampleMeta4 = new SampleMeta();
 		sampleMeta4.setK("parentSampleMeta2.key4");
 		sampleMeta4.setV("4");
 		sampleMetaList2.add(sampleMeta4);
@@ -241,10 +245,17 @@ public class TestSampleWrapper {
 		SampleMetaDao mockSampleMetaDao = createMockBuilder(SampleMetaDaoImpl.class).addMockedMethods(SampleMetaDaoImpl.class.getMethods()).createMock();
 		Assert.assertNotNull(mockSampleMetaDao);
 		
-		expect(mockSampleMetaDao.save(sm2)).andReturn(sm2);
-		expect(mockSampleMetaDao.save(sm5)).andReturn(sm5);
-		expect(mockSampleMetaDao.save(sm6)).andReturn(sm6);
-		expect(mockSampleMetaDao.save(sm7)).andReturn(sm7);
+		expect(mockSampleMetaDao.getSampleMetaByKSampleId("sampleMeta1.key1", sample.getSampleId())).andReturn(sampleMeta1);
+		expect(mockSampleMetaDao.getSampleMetaByKSampleId("sampleMeta1.key2", sample.getSampleId())).andReturn(sampleMeta2);
+		expect(mockSampleMetaDao.getSampleMetaByKSampleId("parentSampleMeta2.key3", parentSample.getSampleId())).andReturn(sampleMeta3);
+		expect(mockSampleMetaDao.getSampleMetaByKSampleId("parentSampleMeta2.key5", sample.getSampleId())).andReturn(new SampleMeta());
+		expect(mockSampleMetaDao.getSampleMetaByKSampleId("anotherarea.key1", parentSample.getSampleId())).andReturn(new SampleMeta());
+		expect(mockSampleMetaDao.getSampleMetaByKSampleId("anotherarea.key2", sample.getSampleId())).andReturn(new SampleMeta());
+		expect(mockSampleMetaDao.merge(sm2)).andReturn(sm2);
+		mockSampleMetaDao.persist(sm3);
+		mockSampleMetaDao.persist(sm5);
+		mockSampleMetaDao.persist(sm6);
+		mockSampleMetaDao.persist(sm7);
 		replay(mockSampleMetaDao);
 		
 		List<SampleMeta> newSampleMetaList = managedSample.updateMetaToList(inputMetaList, mockSampleMetaDao);
@@ -254,23 +265,23 @@ public class TestSampleWrapper {
 			logger.debug(m.toString()+": sampleId: "+m.getSampleId());
 			results.put(m.getK(), m);			
 		}
-		Assert.assertEquals(newSampleMetaList.size(), 7);
-		Assert.assertEquals(results.get("sampleMeta1.key1").getV(), "1");
-		Assert.assertEquals(results.get("parentSampleMeta2.key3").getV(), "10");
-		Assert.assertEquals(results.get("sampleMeta1.key2").getV(), "2");
+		Assert.assertEquals(newSampleMetaList.size(), 7); // the 4 original sample Meta objects (sampleMeta1 - sampleMeta4) plus three new ones
+		Assert.assertEquals(results.get("sampleMeta1.key1").getV(), "1"); // unchanged from sampleMeta1
+		Assert.assertEquals(results.get("parentSampleMeta2.key3").getV(), "10"); // changed from original value of 2 in sampleMeta2 by merging in sm2
+		Assert.assertEquals(results.get("sampleMeta1.key2").getV(), "2"); // unchanged from sampleMeta2
 		Assert.assertEquals(results.get("sampleMeta1.key2").getSampleId().intValue(), 1);
 		
 		Assert.assertTrue(results.containsKey("parentSampleMeta2.key5"));
 		Assert.assertEquals(results.get("parentSampleMeta2.key5").getV(), "11");
-		Assert.assertEquals(results.get("parentSampleMeta2.key5").getSampleId().intValue(), 1);
+		Assert.assertEquals(results.get("parentSampleMeta2.key5").getSampleId().intValue(), 1); // was null in sm5 before adding
 		
 		Assert.assertTrue(results.containsKey("anotherarea.key1"));
 		Assert.assertEquals(results.get("anotherarea.key1").getV(), "12");
-		Assert.assertEquals(results.get("anotherarea.key1").getSampleId().intValue(), 2);
+		Assert.assertEquals(results.get("anotherarea.key1").getSampleId().intValue(), 2); // set to 2 in sm6
 		
 		Assert.assertTrue(results.containsKey("anotherarea.key2"));
 		Assert.assertEquals(results.get("anotherarea.key2").getV(), "13");
-		Assert.assertEquals(results.get("anotherarea.key2").getSampleId().intValue(), 1);
+		Assert.assertEquals(results.get("anotherarea.key2").getSampleId().intValue(), 1); // was null in sm7 before adding
 		
 		Assert.assertFalse(results.containsKey("sampleMeta3.key1"));
 		
