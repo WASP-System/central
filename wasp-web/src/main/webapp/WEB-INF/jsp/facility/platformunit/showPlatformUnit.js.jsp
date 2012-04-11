@@ -30,6 +30,11 @@ $(document).ready(function(){
 				} 
 			}); 
 		}
+		if(id == ''){
+			$("#readType").html("");
+			$("#readLength").html("");
+			$("#submitButtonCreateNewRun").attr("disabled", true);			
+		}
 	});
 });
 
