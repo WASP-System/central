@@ -48,6 +48,15 @@
 				<select id="readType" name="readType">
 				</select>			
 			</td></tr>
+			<tr class="FormData"><td class="CaptionTD">Run Technician: </td><td class="DataTD">
+				<select id="technicianId" name="technicianId" >
+		  			<option value="">---SELECT A TECHNICIAN---</option>
+						<c:forEach items="${technicians}" var="technician">
+							<option value='<c:out value="${technician.getKey()}" />'><c:out value="${technician.getValue()}" /></option>
+						</c:forEach> 
+				</select>			
+			</td></tr>
+			<tr class="FormData"><td class="CaptionTD">Start Date (mm/dd/yyyy): </td><td class="DataTD"><input type="text" name = "runStartDate" id="runStartDate" value="" /></td></tr>
 			<tr class="FormData"><td colspan="2" class="CaptionTD">
 				<input id="submitButtonCreateNewRun" disabled = "disabled" type="button" value="Submit" onclick='validateCreateNewRunForm()' />&nbsp;<input type="button" value="Cancel" onclick='toggleDisplayOfCreateNewRunForm("cancel")' />
 			</td></tr>
@@ -85,6 +94,20 @@
 					<c:out value="${readType}"  escapeXml="false" />
 				</select>			
 			</td></tr>
+			<tr class="FormData"><td class="CaptionTD">Run Technician: </td><td class="DataTD">
+				<select id="technicianId" name="technicianId" >
+		  			<option value="">---SELECT A TECHNICIAN---</option>
+						<c:forEach items="${technicians}" var="technician">
+						<c:set var="selected" value="" scope="page" />
+							<c:if test="${technician.getKey() == runList.get(0).getUserId()}">
+								<c:set var="selected" value="SELECTED" scope="page" />
+							</c:if>
+							<option value='<c:out value="${technician.getKey()}" />' <c:out value="${selected}" />><c:out value="${technician.getValue()}" /></option>
+						</c:forEach> 
+				</select>			
+			</td></tr>
+			<c:set var="date" value="${runList.get(0).getStartts()}" />
+			<tr class="FormData"><td class="CaptionTD">Start Date (mm/dd/yyyy): </td><td class="DataTD"><input type="text" name = "runStartDate" id="runStartDate" value="<fmt:formatDate pattern="MM/dd/yyyy" value="${date}" />" /></td></tr>
 			<tr class="FormData"><td colspan="2" class="CaptionTD">
 				<input id="submitButtonCreateNewRun" type="button" value="Update" onclick='validateCreateNewRunForm()' />&nbsp;<input type="button" value="Reset" onclick='location.href="<c:url value="/facility/platformunit/showPlatformUnit/${platformUnit.sampleId}.do" />"' />
 			</td></tr>

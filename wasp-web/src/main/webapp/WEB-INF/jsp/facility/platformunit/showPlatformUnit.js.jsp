@@ -1,9 +1,17 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
+
+<link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/reset.css" />
+<link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/base.css" />
+<link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/jquery/jquery-ui.css" />
+<link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/jquery/ui.jqgrid.css" />
+	
 <script src="/wasp/scripts/jquery/jquery-1.7.1.js" type="text/javascript"></script>
-<script type="text/javascript" src="/wasp/scripts/jquery/jquery-ui-1.8.18.custom.min.js"></script> 
+<script type="text/javascript" src="/wasp/scripts/jquery/jquery-ui-1.8.18.custom.min.js"></script>
+<script type="text/javascript" src="/wasp/scripts/js/date_validate_modified.js"></script> 
 <script>
 
 $(document).ready(function(){
+	$( "#runStartDate" ).datepicker();
 	$("#resourceId").change(function(){
 		var id = $(this).val();
 		//alert('jquery test; resourceId = ' + resourceId);		
@@ -40,11 +48,16 @@ function toggleDisplayOfCreateNewRunForm(action){
 		var resourceId = document.getElementById("resourceId");
 		var readLength = document.getElementById("readLength");
 		var readType = document.getElementById("readType");
+		var technicianId = document.getElementById("technicianId");
+		var runStartDate = document.getElementById("runStartDate");
 		var submitButtonCreateNewRun = document.getElementById("submitButtonCreateNewRun");
 		runName.value="";
 		resourceId.value="";
 		readLength.innerHTML="";
-		readType.innerHTML="";	
+		readType.innerHTML="";
+		technicianId.value="";
+		runStartDate.value="";
+		
 		submitButtonCreateNewRun.disabled = "true";
 	}
 }
@@ -53,8 +66,10 @@ function validateCreateNewRunForm(){
 	var resourceId = document.getElementById("resourceId");
 	var readLength = document.getElementById("readLength");
 	var readType = document.getElementById("readType");
-	if(runName.value==""){
-		alert("Please provide a name for this run");
+	var technicianId = document.getElementById("technicianId");
+	var runStartDate = document.getElementById("runStartDate");
+	if(runName.value=="" || runName.value.replace(/^\s+|\s+$/g, '') ==""){
+		alert("Please provide a valid name for this run");
 		runName.focus();
 		return false;
 	}
@@ -73,9 +88,25 @@ function validateCreateNewRunForm(){
 		readType.focus();
 		return false;
 	}
+	if(technicianId.value==""){
+		alert("Please select a Technician");
+		technicianId.focus();
+		return false;
+	}
+	if(runStartDate.value == "" || runStartDate.value.replace(/^\s+|\s+$/g, '') ==""){
+		alert("Please select/provide a Start Date");
+		runStartDate.focus();
+		return false;
+	}
+    if (runStartDate.value != "" && !isDate(runStartDate.value)) {
+    	alert("Please provide a Start Date in the proper format");
+    	runStartDate.focus();
+		return false;
+    }
 	if(!confirm("Submit?")){
 		return false;
 	}
+	
 	document.getElementById("newRunForm").submit();
 }
 function getResourceMeta(obj){//no longer used

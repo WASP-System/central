@@ -1,5 +1,7 @@
 package edu.yu.einstein.wasp.controller;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -10,6 +12,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -54,6 +57,7 @@ import edu.yu.einstein.wasp.dao.SampleSubtypeResourceCategoryDao;
 import edu.yu.einstein.wasp.dao.TaskDao;
 import edu.yu.einstein.wasp.dao.ResourceTypeDao;
 import edu.yu.einstein.wasp.dao.SampleTypeDao;
+import edu.yu.einstein.wasp.dao.UserroleDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Adaptorset;
@@ -82,6 +86,7 @@ import edu.yu.einstein.wasp.model.Task;
 import edu.yu.einstein.wasp.model.ResourceType;
 import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.model.Userrole;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
@@ -164,6 +169,9 @@ public class PlatformUnitController extends WaspController {
 	
 	@Autowired
 	private BarcodeDao barcodeDao;
+	
+	@Autowired
+	private UserroleDao userroleDao;
 	
 	@Autowired
 	private MessageService messageService;
@@ -1568,7 +1576,7 @@ public class PlatformUnitController extends WaspController {
 		if(platformUnit.getSampleId().intValue()==0){
 			//TODO return where you came from (wherever that was; in this case it was listJobSamples and needs a jobId, whcih I don't have)			
 		}
-		//confirm this sample is typesampleid of 5 (platformunit); highly unlikely
+		//confirm this sample is typesampleid of 5 (platformunit); highly unlikely that it is not so
 		if( ! "platformunit".equals(platformUnit.getSampleType().getIName()) ){
 			waspErrorMessage("platformunit.flowcellNotFoundNotUnique.error");
 			return "redirect:/dashboard.do";
@@ -1579,7 +1587,18 @@ public class PlatformUnitController extends WaspController {
 		m.put("runList", runList);
 		StringBuffer readType = new StringBuffer("<option value=''>---SELECT A READ TYPE---</option>");
 		StringBuffer readLength = new StringBuffer("<option value=''>---SELECT A READ LENGTH---</option>");
-
+		
+		Map<Integer, String> technicians = new HashMap<Integer, String>();
+		List<User> allUsers = userDao.findAll();
+		for(User user : allUsers){
+			for(Userrole userrole : user.getUserrole()){
+				if(userrole.getRole().getRoleName().equals("fm") || userrole.getRole().getRoleName().equals("ft")){
+					technicians.put(userrole.getUser().getUserId(), user.getNameFstLst());
+				}
+			}
+		}
+		m.put("technicians", technicians);
+		
 		if(runList.size() > 0){//a run for this platform unit exists
 			Run run = runList.get(0);//should only be one, I hope
 			String currentReadLength = "";
@@ -1775,6 +1794,9 @@ public class PlatformUnitController extends WaspController {
 			@RequestParam("resourceId") Integer resourceId,
 			@RequestParam("readLength") String readLength,
 			@RequestParam("readType") String readType,
+			@RequestParam("technicianId") Integer technicianId,
+			@RequestParam("runStartDate") String runStartDate,
+			@RequestParam(value="runId", required=false) Integer runId,
 			ModelMap m){
 		
 		String return_string = "redirect:/facility/platformunit/showPlatformUnit/" + platformUnitId.intValue() + ".do";
@@ -1875,40 +1897,132 @@ public class PlatformUnitController extends WaspController {
 			return return_string;			
 		}
 
-		//run
-		Run newRun = new Run();
-		newRun.setResource(machineInstance);
-		newRun.setName(runName);
-		newRun.setSample(platformUnit);//set the flow cell
-		newRun = runDao.save(newRun);
-		System.out.println("-----");
-		System.out.println("saved new run runid=" + newRun.getRunId().intValue());
-		//runmeta : readlength and readType
-		RunMeta newRunMeta = new RunMeta();
-		newRunMeta.setRun(newRun);
-		newRunMeta.setK("run.readlength");
-		newRunMeta.setV(readLength);
-		newRunMeta.setPosition(new Integer(0));//do we really use this???
-		newRunMeta = runMetaDao.save(newRunMeta);
-		System.out.println("saved new run Meta for readLength id=" + newRunMeta.getRunMetaId().intValue());
-		newRunMeta = new RunMeta();
-		newRunMeta.setRun(newRun);
-		newRunMeta.setK("run.readType");
-		newRunMeta.setV(readType);
-		newRunMeta.setPosition(new Integer(0));//do we really use this???
-		newRunMeta = runMetaDao.save(newRunMeta);
-		System.out.println("saved new run Meta for readType runmetaid=" + newRunMeta.getRunMetaId().intValue());
-		//runlane
-		for(SampleSource ss : platformUnit.getSampleSource()){
-			Sample cell = ss.getSampleViaSource();
-			System.out.println("cellid = " + cell.getSampleId().intValue());
-			RunCell runCell = new RunCell();
-			runCell.setRun(newRun);//the runid
-			runCell.setSample(cell);//the cellid
-			runCell = runCellDao.save(runCell);
-			System.out.println("saved new run cell runcellid=" + runCell.getRunCellId().intValue());
+		//check technician
+		User tech = userDao.getUserByUserId(technicianId);
+		List<Userrole> userRoleList = tech.getUserrole();
+		boolean userIsTechnician = false;
+		for(Userrole ur : userRoleList){
+			if(ur.getRole().getRoleName().equals("ft") || ur.getRole().getRoleName().equals("fm")){
+				userIsTechnician = true;
+			}
 		}
-		System.out.println("-----");
+		if(userIsTechnician == false){
+			System.out.println("Selected Technical Personnel is NOT listed as technician or manager");
+			return return_string;				
+		}
+		
+		Date dateStart;
+		try{
+			DateFormat formatter;
+			formatter = new SimpleDateFormat("MM/dd/yyyy");
+			dateStart = (Date)formatter.parse(runStartDate);  
+		}
+		catch(Exception e){
+			System.out.println("Start Date format must be MM/dd/yyyy.");
+			return return_string;	
+		}
+		
+		//new run
+		if(runId==null){//new run
+			Run newRun = new Run();
+			newRun.setResource(machineInstance);
+			newRun.setName(runName.trim());
+			newRun.setSample(platformUnit);//set the flow cell
+			newRun.setUserId(technicianId);
+			newRun.setStartts(dateStart);
+			newRun = runDao.save(newRun);
+			System.out.println("-----");
+			System.out.println("saved new run runid=" + newRun.getRunId().intValue());
+			//runmeta : readlength and readType
+			RunMeta newRunMeta = new RunMeta();
+			newRunMeta.setRun(newRun);
+			newRunMeta.setK("run.readlength");
+			newRunMeta.setV(readLength);
+			newRunMeta.setPosition(new Integer(0));//do we really use this???
+			newRunMeta = runMetaDao.save(newRunMeta);
+			System.out.println("saved new run Meta for readLength id=" + newRunMeta.getRunMetaId().intValue());
+			newRunMeta = new RunMeta();
+			newRunMeta.setRun(newRun);
+			newRunMeta.setK("run.readType");
+			newRunMeta.setV(readType);
+			newRunMeta.setPosition(new Integer(0));//do we really use this???
+			newRunMeta = runMetaDao.save(newRunMeta);
+			System.out.println("saved new run Meta for readType runmetaid=" + newRunMeta.getRunMetaId().intValue());
+			//runlane
+			for(SampleSource ss : platformUnit.getSampleSource()){
+				Sample cell = ss.getSampleViaSource();
+				System.out.println("cellid = " + cell.getSampleId().intValue());
+				RunCell runCell = new RunCell();
+				runCell.setRun(newRun);//the runid
+				runCell.setSample(cell);//the cellid
+				runCell = runCellDao.save(runCell);
+				System.out.println("saved new run cell runcellid=" + runCell.getRunCellId().intValue());
+			}
+			System.out.println("-----");
+		}
+		else if(runId != null){//update run
+			Run run = runDao.getRunByRunId(runId);
+			if(run.getRunId().intValue()==0){
+				//unable to locate run record; 
+				System.out.println("Update Failed: Unable to locate Sequence Run record");
+				return return_string;
+			}
+			//confirm that the platformUnit on this run is actually the same platformUnit passed in via parameter platformUnitId
+			List<Run> runList = platformUnit.getRun();
+			if(runList.size() == 0){
+				//platformUnit referenced through parameter platformUnitId is NOT on any sequence run
+				System.out.println("Update Failed: Platform Unit " + platformUnit.getSampleId() + " is not on any sequence run");
+				return return_string;
+			}
+			if(runList.get(0).getRunId().intValue() != run.getRunId().intValue()){
+				//platformUnit referenced through parameter platformUnitId is NOT on part of This sequence run
+				System.out.println("Update Failed: Platform Unit " + platformUnit.getSampleId() + " is not part of this sequence run");
+				return return_string;
+			}
+			run.setResource(machineInstance);
+			run.setName(runName.trim());
+			run.setSample(platformUnit);
+			run.setUserId(technicianId);
+			run.setStartts(dateStart);
+
+			run = runDao.save(run);//since this object was pulled from the database, it is persistent, and any alterations are automatically updated; thus this line is superfluous
+			
+			List<RunMeta> runMetaList = run.getRunMeta();
+			boolean readLengthIsSet = false;
+			boolean readTypeIsSet = false;
+			for(RunMeta rm : runMetaList){
+				if(rm.getK().indexOf("readlength") > -1){
+					rm.setV(readLength);
+					runMetaDao.save(rm);//probably superfluous
+					readLengthIsSet = true;
+				}
+				if(rm.getK().indexOf("readType") > -1){
+					rm.setV(readType);
+					runMetaDao.save(rm);//probably superfluous
+					readTypeIsSet = true;
+				}
+			}
+			if(readLengthIsSet == false){
+				RunMeta newRunMeta = new RunMeta();
+				newRunMeta.setRun(run);
+				newRunMeta.setK("run.readlength");
+				newRunMeta.setV(readLength);
+				newRunMeta.setPosition(new Integer(0));//do we really use this???
+				newRunMeta = runMetaDao.save(newRunMeta);
+			}
+			if(readTypeIsSet == false){
+				RunMeta newRunMeta = new RunMeta();
+				newRunMeta.setRun(run);
+				newRunMeta.setK("run.readType");
+				newRunMeta.setV(readType);
+				newRunMeta.setPosition(new Integer(0));//do we really use this???
+				newRunMeta = runMetaDao.save(newRunMeta);
+			}
+			
+			System.out.println("Sequence run has been updated now: runStDate = " + runStartDate);
+		}
+		
+		//need message to confirm update completed sucessfully
 		//return "redirect:/dashboard.do";
 		return "redirect:/facility/platformunit/showPlatformUnit/" + platformUnitId.intValue() + ".do";
 	}
