@@ -132,11 +132,11 @@
 <c:if test="${platformUnit.sampleSource.size() > 0}">
 
 	<table class="data">
-		<tr><td colspan="${platformUnit.sampleSource.size()}" class="label-centered" nowrap><c:out value="${platformUnit.name}" /></td></tr>
+		<tr><td colspan="${platformUnit.sampleSource.size()}" class="label-centered" style="background-color:#FAF2D6" nowrap><c:out value="${platformUnit.name}" /></td></tr>
 		<tr>
 			<c:forEach items="${platformUnit.sampleSource}" var="ss1">
 				<c:set var="cell" value="${ss1.sampleViaSource}" scope="page" />
-					<td class="label-centered" nowrap>Lane: <c:out value="${fn:substringAfter(cell.name, '/')}" /></td>
+					<td class="label-centered"  style="background-color:#FAF2D6" nowrap>Lane: <c:out value="${fn:substringAfter(cell.name, '/')}" /></td>
 			</c:forEach>
 		</tr>
 		<tr>

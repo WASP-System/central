@@ -7,6 +7,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -383,7 +384,37 @@ public class SampleDnaToLibraryController extends WaspController {
 			System.out.println(jobCell.getCellindex().intValue());
 		} */
 	  
-	  
+		//attempt at getting the requested coverage in a better format:
+		int totalNumberCellsRequested = jobCellList.size();
+		Map<Sample, String> coverageMap = new LinkedHashMap<Sample, String>();
+		for(Sample sample : submittedSamples){
+			StringBuffer stringBuffer = new StringBuffer("");
+			System.out.println();
+			System.out.print(sample.getName() + " -- Lanes: ");
+			for(int i = 1; i <= totalNumberCellsRequested; i++){
+				boolean found = false;
+				for(JobCell jobCell : jobCellList){
+					List<SampleCell> sampleCellList = jobCell.getSampleCell();
+					for(SampleCell sampleCell : sampleCellList){
+						if(sampleCell.getSampleId().intValue() == sample.getSampleId().intValue()){
+							if(jobCell.getCellindex().intValue() == i){
+								System.out.print(i + " ");
+								stringBuffer.append("1");
+								found = true;
+							}
+						}
+					}
+				}
+				if(found == false){
+					stringBuffer.append("0");
+				}
+			}
+			coverageMap.put(sample, new String(stringBuffer));
+  		}	
+		
+		m.addAttribute("coverageMap", coverageMap);
+		m.addAttribute("totalNumberCellsRequested", totalNumberCellsRequested);
+		
 		m.addAttribute("jobCellList", jobCellList);
 		m.addAttribute("flowCells", flowCells);
 		m.addAttribute("samplesSubmitted", submittedSamples);

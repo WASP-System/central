@@ -6,7 +6,8 @@
 <h1><fmt:message key="sampleDnaToLibrary.listJobSamples.title_label" /></h1>
 <c:import url="/WEB-INF/jsp/sampleDnaToLibrary/jobdetail_for_import.jsp" />
 <br />
-<!--  <div id="accordion">         
+
+<div id="accordion">         
  	<h4><a href="#">User-Requested Coverage</a></h4>
     <div>
     <table class="data">
@@ -22,8 +23,29 @@
  			</tr>
 		</c:forEach>
 	</table>
+	<table class="data">
+<tr class="FormData">
+	<td class="label-centered" style="background-color:#FAF2D6">&nbsp;</td><c:forEach var="i" begin="0" end="${totalNumberCellsRequested - 1}" ><td class="label-centered" style="background-color:#FAF2D6">Lane <c:out value="${i + 1}" /></td></c:forEach>
+</tr>
+<c:forEach items="${coverageMap}" var="coverageItem">
+	<tr class="FormData">
+		<td class="label-centered" style="background-color:#FAF2D6" >
+			<c:out value="${coverageItem.getKey().getName()}" />
+		</td>
+		<c:set var="string" value="${coverageItem.getValue()}" scope="page" />
+		<c:forEach var="i" begin="0" end="${fn:length(string)-1}" step="1">
+   			<td  class="value-centered" style="text-align: center; vertical-align: middle;"> 
+   				<c:choose>
+   					<c:when test='${fn:substring(string, i, i + 1)=="0"}'><input type="checkbox" DISABLED /></c:when>
+   					<c:otherwise><input type="checkbox" DISABLED checked="checked" /></c:otherwise>
+   				</c:choose>   
+  			</td>   
+		</c:forEach>
+	</tr>
+</c:forEach>
+</table>
     </div> 
-</div> -->
+</div>
 
 <div>
 <input  class="fm-button" type="button" id="requested_coverage_show_hide_button" value="Show User-Requested Coverage"  />
@@ -42,10 +64,31 @@
  </tr>
 </c:forEach>
 </table>
+<table class="data">
+<tr class="FormData">
+	<td class="label-centered" style="background-color:#FAF2D6">&nbsp;</td><c:forEach var="i" begin="0" end="${totalNumberCellsRequested - 1}" ><td class="label-centered" style="background-color:#FAF2D6">Lane <c:out value="${i + 1}" /></td></c:forEach>
+</tr>
+<c:forEach items="${coverageMap}" var="coverageItem">
+	<tr class="FormData">
+		<td class="label-centered" style="background-color:#FAF2D6" >
+			<c:out value="${coverageItem.getKey().getName()}" />
+		</td>
+		<c:set var="string" value="${coverageItem.getValue()}" scope="page" />
+		<c:forEach var="i" begin="0" end="${fn:length(string)-1}" step="1">
+   			<td  class="value-centered" style="text-align: center; vertical-align: middle;"> 
+   				<c:choose>
+   					<c:when test='${fn:substring(string, i, i + 1)=="0"}'><input type="checkbox" DISABLED /></c:when>
+   					<c:otherwise><input type="checkbox" DISABLED checked="checked" /></c:otherwise>
+   				</c:choose>   
+  			</td>   
+		</c:forEach>
+	</tr>
+</c:forEach>
+</table>
 </div>
 
 <table class="data"> 
-<tr class="FormData"><td class="label-centered">Initial Macromolecule</td><td class="label-centered">Libraries</td><td class="label-centered">FlowCells/Runs</td></tr>
+<tr class="FormData"><td class="label-centered" style="background-color:#FAF2D6">Initial Macromolecule</td><td class="label-centered" style="background-color:#FAF2D6">Libraries</td><td class="label-centered" style="background-color:#FAF2D6">FlowCells/Runs</td></tr>
 
 <c:set var="idCounter" value="0" scope="page" />
 
