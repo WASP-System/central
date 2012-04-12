@@ -146,8 +146,14 @@ public class JobController extends WaspController {
 		} else {
 			  Map m = new HashMap();
 			  
-			  if (search.equals("true") && !searchStr.isEmpty())
-				  m.put(request.getParameter("searchField"), request.getParameter("searchString"));
+			  if (search.equals("true") && !searchStr.isEmpty()){
+				  if(request.getParameter("searchField").equals("jobId")){
+					  m.put(request.getParameter("searchField"), Integer.parseInt(request.getParameter("searchString")));
+				  }
+				  else{
+					  m.put(request.getParameter("searchField"), request.getParameter("searchString"));
+				  }
+			  }
 			  
 			  if (!userId.isEmpty())
 				  m.put("UserId", Integer.parseInt(userId));
@@ -172,6 +178,21 @@ public class JobController extends WaspController {
 			userData.put("page", pageIndex + "");
 			userData.put("selId",StringUtils.isEmpty(request.getParameter("selId"))?"":request.getParameter("selId"));
 			jqgrid.put("userdata",userData);
+			
+			/***** Begin Sort by Job ID *****/
+			class JobIdComparator implements Comparator<Job> {
+				@Override
+				public int compare(Job arg0, Job arg1) {
+					return arg0.getJobId().intValue() >= arg1.getJobId().intValue()?1:0;
+				}
+			}
+
+			if (sidx.equals("name")) {
+				Collections.sort(jobList, new JobIdComparator());
+				if (sord.equals("desc"))
+					Collections.reverse(jobList);
+			}
+			/***** End Sort by Job name *****/
 			
 			/***** Begin Sort by Job name *****/
 			class JobNameComparator implements Comparator<Job> {
@@ -234,6 +255,7 @@ public class JobController extends WaspController {
 				User user = userDao.getById(job.getUserId());
 				 					
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
+							"J" + job.getJobId().intValue() + " <a href=/wasp/sampleDnaToLibrary/listJobSamples/"+job.getJobId()+".do>(details)</a>",
 							job.getName(),
 							user.getFirstName() + " " + user.getLastName(),
 							job.getLab().getName(),

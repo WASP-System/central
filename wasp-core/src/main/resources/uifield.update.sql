@@ -604,6 +604,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','sampleSubtypeId','label','Subtype','1');
 
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','job_list','label','List of Jobs','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','jobId','label','JobID','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','name','label','Name','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','name','constraint','NotEmpty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','name','error','Name cannot be empty','1');
