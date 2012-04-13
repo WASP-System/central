@@ -456,8 +456,9 @@ public class PlatformUnitController extends WaspController {
 
 		for (SampleSubtypeResourceCategory sampleSubtypeResCat : this.sampleSubtypeResourceCategoryDao.findByMap(resourceCategoryMap)) {
 			for(SampleSubtype sampleSubtype : sampleSubtypeList) {
-				if (sampleSubtype.getSampleSubtypeId().intValue() == sampleSubtypeResCat.getSampleSubtypeId().intValue());
-				sampleSubtypeFilteredList.add(sampleSubtype);
+				if (sampleSubtype.getSampleSubtypeId().intValue() == sampleSubtypeResCat.getSampleSubtypeId().intValue()) 
+					sampleSubtypeFilteredList.add(sampleSubtype);
+				
 			}
 		
 		}
