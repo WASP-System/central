@@ -270,7 +270,7 @@ public class JobController extends WaspController {
 				User user = userDao.getById(job.getUserId());
 				 					
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
-							"J" + job.getJobId().intValue() + " <a href=/wasp/sampleDnaToLibrary/listJobSamples/"+job.getJobId()+".do>(details)</a>",
+							"J" + job.getJobId().intValue() + " (<a href=/wasp/sampleDnaToLibrary/listJobSamples/"+job.getJobId()+".do>details</a>)",
 							job.getName(),
 							user.getFirstName() + " " + user.getLastName(),
 							job.getLab().getName(),

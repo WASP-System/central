@@ -662,7 +662,7 @@ public class PlatformUnitController extends WaspController {
 			List<String> cellList = new ArrayList<String>(
 					Arrays.asList(
 							new String[] { 
-										sample.getName(),
+										sample.getName() + " (<a href=/wasp/facility/platformunit/showPlatformUnit/"+sample.getSampleId()+".do>details</a>)",
 										sample.getSampleSubtype()==null?"": sample.getSampleSubtype().getName(), 
 										sample.getUser().getFirstName()+" "+sample.getUser().getLastName(),
 										allSampleBarcode.get(sample.getSampleId())==null? "" : allBarcode.get(allSampleBarcode.get(sample.getSampleId())),

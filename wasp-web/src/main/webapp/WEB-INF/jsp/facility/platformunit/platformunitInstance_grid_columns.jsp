@@ -3,7 +3,7 @@
 <wasp:field name="name"  type="text" sortable="true"/>
 <wasp:field name="subtype"  type="text" editable="false"/>
 <wasp:field name="submitter"  type="text" editable="false"/>
-<wasp:field name="barcode" type="text" hidden="true" editHidden="true"/>
+<wasp:field name="barcode" type="text" hidden="false" editHidden="true"/>
 <wasp:field name="lanecountForEditBox" type="text" hidden="true" editHidden="true"/>
 
 
