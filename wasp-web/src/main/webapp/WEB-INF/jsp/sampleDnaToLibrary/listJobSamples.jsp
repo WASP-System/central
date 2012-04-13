@@ -27,12 +27,12 @@
 <tr class="FormData">
 	<td class="label-centered" style="background-color:#FAF2D6">&nbsp;</td><c:forEach var="i" begin="0" end="${totalNumberCellsRequested - 1}" ><td class="label-centered" style="background-color:#FAF2D6">Lane <c:out value="${i + 1}" /></td></c:forEach>
 </tr>
-<c:forEach items="${coverageMap}" var="coverageItem">
+<c:forEach items="${coverageMap.keySet()}" var="coverageItem">
 	<tr class="FormData">
 		<td class="label-centered" style="background-color:#FAF2D6" >
-			<c:out value="${coverageItem.getKey().getName()}" />
+			<c:out value="${coverageItem.getName()}" />
 		</td>
-		<c:set var="string" value="${coverageItem.getValue()}" scope="page" />
+		<c:set var="string" value="${coverageMap.get(coverageItem)}" scope="page" />
 		<c:forEach var="i" begin="0" end="${fn:length(string)-1}" step="1">
    			<td  class="value-centered" style="text-align: center; vertical-align: middle;"> 
    				<c:choose>
@@ -68,12 +68,12 @@
 <tr class="FormData">
 	<td class="label-centered" style="background-color:#FAF2D6">&nbsp;</td><c:forEach var="i" begin="0" end="${totalNumberCellsRequested - 1}" ><td class="label-centered" style="background-color:#FAF2D6">Lane <c:out value="${i + 1}" /></td></c:forEach>
 </tr>
-<c:forEach items="${coverageMap}" var="coverageItem">
+<c:forEach items="${coverageMap.keySet()}" var="coverageItem">
 	<tr class="FormData">
 		<td class="label-centered" style="background-color:#FAF2D6" >
-			<c:out value="${coverageItem.getKey().getName()}" />
+			<c:out value="${coverageItem.getName()}" />
 		</td>
-		<c:set var="string" value="${coverageItem.getValue()}" scope="page" />
+		<c:set var="string" value="${coverageMap.get(coverageItem)}" scope="page" />
 		<c:forEach var="i" begin="0" end="${fn:length(string)-1}" step="1">
    			<td  class="value-centered" style="text-align: center; vertical-align: middle;"> 
    				<c:choose>
