@@ -213,24 +213,7 @@
 				<li>
 					<a href='<c:url value="/task/samplereceive/list.do"/>'>Sample Receiver</a>
 				</li>
-				<li>
-					<a href='<c:url value="/sampleDnaToLibrary/listJobSamples/10216.do"/>'>List	Samples for Job 10216</a>
-				</li>
-				<li>
-					<a href='<c:url value="/sampleDnaToLibrary/listJobSamples/10217.do"/>'>List Samples for Job 10217</a>
-				</li>
-				<li>
-					<a href='<c:url value="/sampleDnaToLibrary/listJobSamples/1.do"/>'>List Samples for New Job 1</a>
-				</li>
-				<li>
-					<a href='<c:url value="/sampleDnaToLibrary/listJobSamples/2.do"/>'>List	Samples for New Job 2</a>
-				</li>
-				<li>
-					<a href='<c:url value="/sampleDnaToLibrary/listJobSamples/3.do"/>'>List	Samples for Job 3</a>
-				</li>
-				<li>
-					<a href='<c:url value="/sampleDnaToLibrary/listJobSamples/4.do"/>'>List	Samples for Job 4</a>
-				</li>
+				
 			</ul>
 			<br />
 			<h2>Platform Unit Utils</h2>
