@@ -147,8 +147,23 @@ public class JobController extends WaspController {
 			  Map m = new HashMap();
 			  
 			  if (search.equals("true") && !searchStr.isEmpty()){
+				  
 				  if(request.getParameter("searchField").equals("jobId")){
-					  m.put(request.getParameter("searchField"), Integer.parseInt(request.getParameter("searchString")));
+					  
+					  String capturedSearchString = request.getParameter("searchString");
+					  //in case user enters J1001 or # J1001 for job with id of 1001
+					  StringBuffer sb = new StringBuffer();
+					  for(int i=0; i<capturedSearchString.length(); i++)
+					  {
+						  if(Character.isDigit(capturedSearchString.charAt(i))){
+					            sb.append(capturedSearchString.charAt(i));
+						  }
+					  }
+					  if(sb.length() == 0){
+						  sb.append("0");
+					  }
+					  //m.put(request.getParameter("searchField"), Integer.parseInt(request.getParameter("searchString")));
+					  m.put(request.getParameter("searchField"), Integer.parseInt(sb.toString()));
 				  }
 				  else{
 					  m.put(request.getParameter("searchField"), request.getParameter("searchString"));

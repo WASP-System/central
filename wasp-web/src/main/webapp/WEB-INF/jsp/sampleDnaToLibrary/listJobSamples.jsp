@@ -6,7 +6,7 @@
 <h1><fmt:message key="sampleDnaToLibrary.listJobSamples.title_label" /></h1>
 <c:import url="/WEB-INF/jsp/sampleDnaToLibrary/jobdetail_for_import.jsp" />
 <br />
-
+<%-- 
 <div id="accordion">         
  	<h4><a href="#">User-Requested Coverage</a></h4>
     <div>
@@ -46,11 +46,12 @@
 </table>
     </div> 
 </div>
-
+--%>
 <div>
 <input  class="fm-button" type="button" id="requested_coverage_show_hide_button" value="Show User-Requested Coverage"  />
 </div>
 <div id="user_requested_coverage_data" style="display:none">
+<%-- 
 <table class="data">
 <tr class="FormData"><td colspan="2" class="label-centered">User-Requested Coverage</td></tr>
 <c:forEach items="${jobCellList}" var="jobCell">
@@ -64,6 +65,7 @@
  </tr>
 </c:forEach>
 </table>
+--%>
 <table class="data">
 <tr class="FormData">
 	<td class="label-centered" style="background-color:#FAF2D6">&nbsp;</td><c:forEach var="i" begin="0" end="${totalNumberCellsRequested - 1}" ><td class="label-centered" style="background-color:#FAF2D6">Lane <c:out value="${i + 1}" /></td></c:forEach>
