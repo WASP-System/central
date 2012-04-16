@@ -16,6 +16,11 @@
 	<packaging>jar</packaging>
 	<name>WASP standalone batch app</name>
 
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.build.outputEncoding>UTF-8</project.build.outputEncoding>
+	</properties>
+
 	<build>
     <plugins>
       <plugin>
@@ -68,6 +73,7 @@
       <dependency>
         <groupId>edu.yu.einstein.wasp</groupId>
 	<artifactId>wasp-core</artifactId>
+	<version>0.1.0-SNAPSHOT</version>
       </dependency>
       <!--
       <dependency>
