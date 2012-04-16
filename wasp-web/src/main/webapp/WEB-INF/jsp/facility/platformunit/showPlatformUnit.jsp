@@ -31,6 +31,7 @@
 		<form id="newRunForm"  method='post' action="<c:url value="/facility/platformunit/createNewRun.do" />" >
 		<input type='hidden' name='platformUnitId' value='<c:out value="${platformUnit.sampleId}" />'/>
 		<table class="EditTable ui-widget ui-widget-content">
+			<tr class="FormData"><td colspan="2" class="CaptionTD" style="text-align:center;color:red">Once You Create This Run Record,<br />Adding User Libraries To This Flow Cell Will Be Prohibited</td></tr>
 			<tr class="FormData"><td class="CaptionTD">Run Name: </td><td class="DataTD"><input type='text' name='runName' id='runName' size='25' maxlength='30' /></td></tr>
 			<tr class="FormData"><td class="CaptionTD">Machine: </td><td class="DataTD">
 				<select id="resourceId" name="resourceId" >
@@ -71,6 +72,7 @@
 		<input type='hidden' name='platformUnitId' value='<c:out value="${platformUnit.sampleId}" />'/>
 		<input type='hidden' name='runId' value='<c:out value="${runList.get(0).getRunId()}" />'/>
 		<table class="EditTable ui-widget ui-widget-content">
+			<tr class="FormData"><td colspan="2" class="CaptionTD" style="text-align:center;color:red">Adding Additional User Libraries To This Flow Cell<br />Is Now Prohibited</td></tr>
 			<tr class="FormData"><td class="CaptionTD">Run Name: </td><td class="DataTD"><input type='text' name='runName' id='runName' size='25' maxlength='30' value='<c:out value="${runList.get(0).name}" />'  /></td></tr>
 			<tr class="FormData"><td class="CaptionTD">Machine: </td><td class="DataTD">
 				<select id="resourceId" name="resourceId" >

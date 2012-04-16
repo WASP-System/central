@@ -8,11 +8,14 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -663,9 +666,9 @@ public class PlatformUnitController extends WaspController {
 					Arrays.asList(
 							new String[] { 
 										sample.getName() + " (<a href=/wasp/facility/platformunit/showPlatformUnit/"+sample.getSampleId()+".do>details</a>)",
+										allSampleBarcode.get(sample.getSampleId())==null? "" : allBarcode.get(allSampleBarcode.get(sample.getSampleId())),
 										sample.getSampleSubtype()==null?"": sample.getSampleSubtype().getName(), 
 										sample.getUser().getFirstName()+" "+sample.getUser().getLastName(),
-										allSampleBarcode.get(sample.getSampleId())==null? "" : allBarcode.get(allSampleBarcode.get(sample.getSampleId())),
 										this.sampleMetaDao.getSampleMetaByKSampleId("platformunitInstance.lanecount", sample.getSampleId()).getV(),
 										this.sampleMetaDao.getSampleMetaByKSampleId("platformunitInstance.comment", sample.getSampleId()).getV()}));
 
@@ -1067,7 +1070,7 @@ public class PlatformUnitController extends WaspController {
 			//	1. select states from state where task 106 (now it's 5) Assign Library To Platform Unit and status CREATED
 			//	2. select those states from statejob to get those jobs
 			//	3. filter jobs to include only those requesting specific sequencing machine (resourceCategoryId) 
-		
+/**************		
 			Task task = taskDao.getTaskByIName("assignLibraryToPlatformUnit");
 			if(task==null || task.getTaskId()==null || task.getTaskId().intValue()==0){
 				waspErrorMessage("platformunit.taskNotFound.error");
@@ -1094,7 +1097,37 @@ public class PlatformUnitController extends WaspController {
 			//	int v = 10216;
 			//	jobList.add(jobDao.getJobByJobId(v));
 			//}
-		
+*****************/
+			// 4/16/12 I (Dubin) think it's actually better to be able to add a job's libraries to flow cells at any point until the job is closed
+			// so for redo the task test
+			Task task = taskDao.getTaskByIName("Start Job");
+			if(task==null || task.getTaskId()==null || task.getTaskId().intValue()==0){
+				waspErrorMessage("platformunit.taskNotFound.error");
+				return "redirect:/dashboard.do"; 
+			}
+			Map filterForState = new HashMap();
+			filterForState.put("taskId", task.getTaskId());
+			filterForState.put("status", "CREATED");
+			List<State> states = stateDao.findByMap(filterForState);
+			Set<Job> jobSet = new HashSet();
+			List<Job> jobList = new ArrayList<Job>();
+			for(State state : states){
+				if(state.getStatejob().isEmpty()){
+					continue;
+				}
+				Job job = state.getStatejob().get(0).getJob();//should be one
+				JobResourcecategory jrc = jobResourcecategoryDao.getJobResourcecategoryByResourcecategoryIdJobId(resourceCategoryId, job.getJobId());
+				if(jrc!=null && jrc.getJobResourcecategoryId()!=null && jrc.getJobResourcecategoryId().intValue() != 0){
+					jobSet.add(state.getStatejob().get(0).getJob());
+				}				
+			}
+			Iterator<Job> it = jobSet.iterator();
+			 
+			while(it.hasNext()){
+				jobList.add((Job)it.next());
+			}
+			Collections.sort(jobList, new JobComparator());
+			
 			m.put("jobList", jobList);
 		}
 		
@@ -1178,7 +1211,7 @@ public class PlatformUnitController extends WaspController {
 		
 		List<Job> jobs = new ArrayList<Job>();
 		
-		Task task2 = taskDao.getTaskByIName("assignLibraryToPlatformUnit");
+		Task task2 = taskDao.getTaskByIName("Start Job");
 		if(task2==null || task2.getTaskId()==null || task2.getTaskId().intValue()==0){
 			waspErrorMessage("platformunit.taskNotFound.error");
 			return "redirect:/facility/platformunit/limitPriorToAssign.do?resourceCategoryId=" + resourceCategoryId;
@@ -1948,7 +1981,7 @@ public class PlatformUnitController extends WaspController {
 			newRunMeta.setV(readType);
 			newRunMeta.setPosition(new Integer(0));//do we really use this???
 			newRunMeta = runMetaDao.save(newRunMeta);
-			System.out.println("saved new run Meta for readType runmetaid=" + newRunMeta.getRunMetaId().intValue());
+			System.out.println("saved new run Meta for readType runmetaid=" + newRunMeta.getRunMetaId().intValue());	
 			//runlane
 			for(SampleSource ss : platformUnit.getSampleSource()){
 				Sample cell = ss.getSampleViaSource();
@@ -1960,6 +1993,32 @@ public class PlatformUnitController extends WaspController {
 				System.out.println("saved new run cell runcellid=" + runCell.getRunCellId().intValue());
 			}
 			System.out.println("-----");
+			//4/16/12
+			//With the creation of this new sequence run record, we want to make it that the flow cell on this
+			//sequence run is no longer able to accept additional User libraries. To do this, set this platform 
+			//unit's task of "Assign Library To Platform Unit" to something like "COMPLETED"
+			//with this, the platform unit associated with this sequence run will not appear on the "Add Library To Flow Cell" drop-down list of available flow cells.
+			Task task = taskDao.getTaskByIName("assignLibraryToPlatformUnit");
+			//well if we do this, then there will be no rollback, so just let it throw its exception if this task is not found.
+			//if(task==null || task.getTaskId()==null || task.getTaskId().intValue()==0){
+				//TODO fix this error message
+			//	waspErrorMessage("platformunit.taskNotFound.error");
+				//return return_string;
+			//}
+			Map taskFilterMap = new HashMap();
+			taskFilterMap.put("taskId", task.getTaskId());
+			taskFilterMap.put("status", "CREATED");
+			List<State> stateList = stateDao.findByMap(taskFilterMap);
+			for(State state : stateList){
+				List <Statesample> statesampleList = state.getStatesample();
+				for(Statesample statesample : statesampleList){
+					if(statesample.getSampleId().intValue() == platformUnit.getSampleId().intValue()){
+						state.setStatus("COMPLETED");
+						stateDao.save(state);
+						System.out.println("StateId " + state.getStateId().intValue() + " is now set to Completed");
+					}
+				}
+			}
 		}
 		else if(runId != null){//update run
 			Run run = runDao.getRunByRunId(runId);
@@ -2027,4 +2086,11 @@ public class PlatformUnitController extends WaspController {
 		//return "redirect:/dashboard.do";
 		return "redirect:/facility/platformunit/showPlatformUnit/" + platformUnitId.intValue() + ".do";
 	}
+}
+
+class JobComparator implements Comparator<Job> {
+    @Override
+    public int compare(Job arg0, Job arg1) {
+    	return arg0.getJobId().compareTo(arg1.getJobId());
+    }
 }
