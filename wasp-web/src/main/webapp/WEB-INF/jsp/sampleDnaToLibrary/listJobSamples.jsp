@@ -128,7 +128,7 @@
 		
 			<c:choose>
 				<c:when test='${submittedSampleArrivalStatus=="RECEIVED"}'>	
-				   Status: <c:out value="${submittedSampleArrivalStatus}" />
+				   Arrival Status: <c:out value="${submittedSampleArrivalStatus}" />
 					<c:set var="idCounter" value="${idCounter + 1}" scope="page" />
 					<div id="showButton_<c:out value="${idCounter}" />" >
 				 		<input class="fm-button" type="button" value="Add Library To Flow Cell" onclick='toggleDisplayOfAddLibraryForm("show", <c:out value="${idCounter}" />)' />				
@@ -185,7 +185,7 @@
 					</div>	
 				 </c:when>
 		 	 	<c:otherwise>
-		 	 		Status: <c:out value="${submittedSampleArrivalStatus}" />
+		 	 		Arrival Status: <c:out value="${submittedSampleArrivalStatus}" />
 		 	 		<c:if test='${submittedSampleArrivalStatus=="NOT ARRIVED"}'>	
 		 	 			<a href="<c:url value="/task/samplereceive/list.do" />">
 		 	 				<c:out value=" (log sample)" />
@@ -246,7 +246,7 @@
         		  
 	  		<c:choose>
 	  			<c:when test='${submittedSampleArrivalStatus=="RECEIVED"}'>
-	  			   Status: <c:out value="${submittedSampleArrivalStatus}" />
+	  			   Arrival Status: <c:out value="${submittedSampleArrivalStatus}" />
 	  				<form method="GET" action="<c:url value="/sampleDnaToLibrary/createLibraryFromMacro.do" />">
 	  					<input type='hidden' name='jobId' value='<c:out value="${job.jobId}" />'/>
 	  					<input type='hidden' name='macromolSampleId' value='<c:out value="${sampleSubmitted.sampleId}" />'/>
@@ -259,7 +259,7 @@
 					</form>
 	 	 		</c:when>
 	 	 		<c:otherwise>
-	 	 			Status: <c:out value="${submittedSampleArrivalStatus}" />
+	 	 			Arrival Status: <c:out value="${submittedSampleArrivalStatus}" />
 	 	 			<c:if test='${submittedSampleArrivalStatus=="NOT ARRIVED"}'>	
 		 	 			<a href="<c:url value="/task/samplereceive/list.do" />">
 		 	 				<c:out value=" (log sample)" />
