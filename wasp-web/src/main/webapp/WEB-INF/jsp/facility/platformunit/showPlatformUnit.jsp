@@ -19,6 +19,36 @@
 		<tr class="FormData"><td class="CaptionTD" style="text-transform: capitalize"><c:out value="${fn:toLowerCase(fn:substringAfter(pusm.k, '.'))}" />:</td><td class="DataTD"><textarea style='font-size:9px' READONLY cols='25' rows='4' wrap='virtual'><c:out value="${pusm.v}" /></textarea></td></tr>
 	</c:if>
 </c:forEach>
+<sec:authorize access="hasRole('su')">
+<c:if test="${runList.size() > 0}">
+<c:choose>
+	<c:when test="${platformUnitStatus == 'UNKNOWN'}">
+		<tr class="FormData"><td colspan="2" class="CaptionTD" style="text-align:center"><hr><br />PlatformUnit Status: <c:out value="${platformUnitStatus}" /></td></tr>
+	</c:when>
+	<c:otherwise>
+		<tr class="FormData">
+			<td colspan="2" class="DataTD" style="text-align:center">
+				<form method='post' action="<c:url value="/facility/platformunit/lockPlatformUnit.do" />" >
+					<input type='hidden' name='platformUnitId' value='<c:out value="${platformUnit.sampleId}" />'/>
+					<c:set var="created" value="" scope="page" />
+					<c:set var="completed" value="" scope="page" />
+					<c:if test="${platformUnitStatus == 'CREATED'}">
+						<c:set var="created" value="checked" scope="page" />
+					</c:if>
+					<c:if test="${platformUnitStatus == 'COMPLETED'}">
+						<c:set var="completed" value="checked" scope="page" />
+					</c:if>
+					<hr><br />
+					<input type="radio" name="lock" <c:out value="${created}" /> value="CREATED"> UNLOCKED 
+					&nbsp;&nbsp;<input type="radio" name="lock" <c:out value="${completed}" /> value="COMPLETED"> LOCKED&nbsp;&nbsp;<input type="button" value="Update" onclick='this.form.submit()' /> &nbsp;&nbsp;<input type="button" value="Reset" onclick='this.form.reset()' /> 
+					<br /> 
+				</form>
+			</td>
+		</tr>
+	</c:otherwise>
+</c:choose>
+</c:if>
+</sec:authorize>
 </table>
 
 <br />

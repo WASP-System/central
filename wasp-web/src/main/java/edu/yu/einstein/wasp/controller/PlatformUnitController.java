@@ -1619,6 +1619,25 @@ public class PlatformUnitController extends WaspController {
 		//is this flowcell on a run?
 		List<Run> runList = platformUnit.getRun();
 		m.put("runList", runList);
+		//if this flowcell is on a run, it gets locked to the addition of new user-libraries
+		//locking the flowcell is recorded as its task, Assign Library To Platform Unit, changing from CREATED to COMPLETED
+		//There are conditions under which the flow cell may need to be unlocked. Currently this will be 
+		//visible on a the platform unit form only to superuser, who may unlock and later relock the flow cell.
+		//Here, just determine if it's locked
+		String platformUnitStatus = "UNKNOWN";
+		List<Statesample> stateSampleList = platformUnit.getStatesample();
+		Task task = taskDao.getTaskByIName("assignLibraryToPlatformUnit");
+		if(task==null || task.getTaskId().intValue()==0){
+			//TODO we have a problem; don't know how to deal with this
+			//however we'll simply leave platformUnitIsLocked as "UNKNOWN"
+		}
+		for(Statesample stateSample : stateSampleList){
+			if(stateSample.getState().getTaskId().intValue() == task.getTaskId().intValue()){
+				platformUnitStatus = stateSample.getState().getStatus().toUpperCase();
+			}
+		}
+		m.put("platformUnitStatus", platformUnitStatus);
+		
 		StringBuffer readType = new StringBuffer("<option value=''>---SELECT A READ TYPE---</option>");
 		StringBuffer readLength = new StringBuffer("<option value=''>---SELECT A READ LENGTH---</option>");
 		
@@ -1716,6 +1735,62 @@ public class PlatformUnitController extends WaspController {
 		m.put("platformUnit", platformUnit);
 		return "facility/platformunit/showPlatformUnit";
 		//return "redirect:/dashboard.do";
+	}
+	
+	/*
+	 * update State of PlatformUnit (as far as it being available for accepting user libraries)
+	 * a superuser can unlock or re-lock the flow cell
+	 */
+	@RequestMapping(value="/lockPlatformUnit.do", method=RequestMethod.POST)
+	@PreAuthorize("hasRole('su')")
+	public String lockPlatformUnit(
+			@RequestParam("platformUnitId") Integer platformUnitId,
+			@RequestParam("lock") String lock,
+			ModelMap m) {
+		
+		//System.out.println("ID: " + platformUnitId.intValue());
+		//System.out.println("lock: " + lock);
+		String ret_value = "redirect:/facility/platformunit/showPlatformUnit/" + platformUnitId.intValue() + ".do";
+		
+		if( ! lock.equals("CREATED") && ! lock.equals("COMPLETED")){
+			//parameter locked invalid
+			return ret_value;
+		}
+		
+		Sample platformUnit = sampleDao.getSampleBySampleId(platformUnitId);
+		if(platformUnit == null || platformUnit.getSampleId().intValue()==0){
+			//message that platform unit not found
+			return ret_value;
+		}
+		if(! platformUnit.getSampleType().getIName().equals("platformunit")){
+			//message that sample is not a platform unit 
+			return ret_value;
+		}
+		
+		Task task = taskDao.getTaskByIName("assignLibraryToPlatformUnit");
+		if(task==null || task.getTaskId().intValue()==0){
+			//TODO we have a problem; 
+			//task not found
+			return ret_value;
+		}
+		
+		boolean stateFoundAndUpdated = false;
+		List<Statesample> stateSampleList = platformUnit.getStatesample();
+		for(Statesample stateSample : stateSampleList){
+			if(stateSample.getState().getTaskId().intValue() == task.getTaskId().intValue()){
+				State state = stateSample.getState();
+				state.setStatus(lock);
+				stateDao.save(state);
+				stateFoundAndUpdated = true;
+			}
+		}
+		if(stateFoundAndUpdated==false){
+			//message unalbe to locate/save new state
+			return ret_value;
+		}
+		
+		//message success
+		return ret_value;
 	}
 
 	/*
