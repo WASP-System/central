@@ -130,9 +130,11 @@
 				<c:when test='${submittedSampleArrivalStatus=="RECEIVED"}'>	
 				   Arrival Status: <c:out value="${submittedSampleArrivalStatus}" />
 					<c:set var="idCounter" value="${idCounter + 1}" scope="page" />
+					<sec:authorize access="hasRole('su') or hasRole('ft')">
 					<div id="showButton_<c:out value="${idCounter}" />" >
 				 		<input class="fm-button" type="button" value="Add Library To Flow Cell" onclick='toggleDisplayOfAddLibraryForm("show", <c:out value="${idCounter}" />)' />				
 					</div>
+					</sec:authorize>
 					<div id="addLibraryForm_<c:out value="${idCounter}" />" style="display:none">
 					  <table class='data'>
 						<tr class="FormData"><td class="label-centered">Add Library To Flow Cell Lane</td></tr>
@@ -186,11 +188,13 @@
 				 </c:when>
 		 	 	<c:otherwise>
 		 	 		Arrival Status: <c:out value="${submittedSampleArrivalStatus}" />
+		 	 		<sec:authorize access="hasRole('su') or hasRole('ft')">
 		 	 		<c:if test='${submittedSampleArrivalStatus=="NOT ARRIVED"}'>	
 		 	 			<a href="<c:url value="/task/samplereceive/list.do" />">
 		 	 				<c:out value=" (log sample)" />
 		 	 			</a>
 		 	 		</c:if>
+		 	 		</sec:authorize>
 		 	 	</c:otherwise>
 			</c:choose>	
 		</td>
@@ -210,14 +214,18 @@
 									<form  name='removeLib' method='post' action="<c:url value="/facility/platformunit/assignRemove.do" />" onsubmit='return confirm("Remove library from this flowcell?");'>
 									<input type='hidden' name='jobId' value='<c:out value="${job.jobId}" />'/>
 									<input type='hidden' name='samplesourceid' value='<c:out value="${ss.sampleSourceId}" />'/>
-									<a href="<c:url value="/facility/platformunit/showPlatformUnit/${ss2.sample.sampleId}.do" />"><c:out value="${ss2.sample.name}"/></a> (Lane <c:out value="${ss2.multiplexindex}"/>) &nbsp;<input type='submit' value='Remove'/>
+									<sec:authorize ifAnyGranted="su, ft"><a href="<c:url value="/facility/platformunit/showPlatformUnit/${ss2.sample.sampleId}.do" />"><c:out value="${ss2.sample.name}"/></a> (Lane <c:out value="${ss2.multiplexindex}"/>) </sec:authorize>
+									<sec:authorize ifNotGranted="su, ft"><c:out value="${ss2.sample.name}"/> (Lane <c:out value="${ss2.multiplexindex}"/>) </sec:authorize>
+									&nbsp;
+									<sec:authorize access="hasRole('su') or hasRole('ft')"><input type='submit' value='Remove'/></sec:authorize>
 									</form>
 									
 									
 								</c:when>
 								<c:otherwise>
 									<c:forEach items="${ss2.sample.run}" var="aRun">
-										 <a href="<c:url value="/facility/platformunit/showPlatformUnit/${ss2.sample.sampleId}.do" />"><c:out value="${ss2.sample.name}"/> (Lane <c:out value="${ss2.multiplexindex}"/>) ---&gt; <c:out value="${aRun.name}"/></a><br/>
+										 <sec:authorize ifAnyGranted="su, ft"><a href="<c:url value="/facility/platformunit/showPlatformUnit/${ss2.sample.sampleId}.do" />"><c:out value="${ss2.sample.name}"/> (Lane <c:out value="${ss2.multiplexindex}"/>) ---&gt; <c:out value="${aRun.name}"/></a><br/></sec:authorize>
+										 <sec:authorize ifNotGranted="su, ft"><c:out value="${ss2.sample.name}"/> (Lane <c:out value="${ss2.multiplexindex}"/>) ---&gt; <c:out value="${aRun.name}"/><br/></sec:authorize>
 									</c:forEach>
 								</c:otherwise>
 							</c:choose>							
@@ -247,6 +255,7 @@
 	  		<c:choose>
 	  			<c:when test='${submittedSampleArrivalStatus=="RECEIVED"}'>
 	  			   Arrival Status: <c:out value="${submittedSampleArrivalStatus}" />
+	  			   <sec:authorize access="hasRole('su') or hasRole('ft')">
 	  				<form method="GET" action="<c:url value="/sampleDnaToLibrary/createLibraryFromMacro.do" />">
 	  					<input type='hidden' name='jobId' value='<c:out value="${job.jobId}" />'/>
 	  					<input type='hidden' name='macromolSampleId' value='<c:out value="${sampleSubmitted.sampleId}" />'/>
@@ -257,14 +266,17 @@
 							</c:forEach>
 						</select>
 					</form>
+					</sec:authorize>
 	 	 		</c:when>
 	 	 		<c:otherwise>
 	 	 			Arrival Status: <c:out value="${submittedSampleArrivalStatus}" />
+	 	 			<sec:authorize access="hasRole('su') or hasRole('ft')">
 	 	 			<c:if test='${submittedSampleArrivalStatus=="NOT ARRIVED"}'>	
 		 	 			<a href="<c:url value="/task/samplereceive/list.do" />">
 		 	 				<c:out value=" (log sample)" />
 		 	 			</a>
 		 	 		</c:if>
+		 	 		</sec:authorize>
 	 	 		</c:otherwise>
 	  		</c:choose>					  
 		</td>
@@ -296,9 +308,11 @@
             		</c:if> 
 		        </c:forEach> 
  				<c:set var="idCounter" value="${idCounter + 1}" scope="page" />
+ 				<sec:authorize access="hasRole('su') or hasRole('ft')">
 				<div id="showButton_<c:out value="${idCounter}" />" >
 				 	<input class="fm-button" type="button" value="Add Library To Flow Cell" onclick='toggleDisplayOfAddLibraryForm("show", <c:out value="${idCounter}" />)' />				
 				</div>
+				</sec:authorize>
 				<div id="addLibraryForm_<c:out value="${idCounter}" />" style="display:none">
 					<table class='data'>
 						<tr class="FormData"><td class="label-centered">Add Library To Flow Cell Lane</td></tr>
@@ -368,13 +382,17 @@
 											<form  name='removeLib' method='post' action="<c:url value="/facility/platformunit/assignRemove.do" />" onsubmit='return confirm("Remove library from this flowcell?");'>
 												<input type='hidden' name='jobId' value='<c:out value="${job.jobId}" />'/>
 												<input type='hidden' name='samplesourceid' value='<c:out value="${ss.sampleSourceId}" />'/>
-												<a href="<c:url value="/facility/platformunit/showPlatformUnit/${ss2.sample.sampleId}.do" />"><c:out value="${ss2.sample.name}"/></a> (Lane <c:out value="${ss2.multiplexindex}"/>) &nbsp;<input type='submit' value='Remove'/>
+												<sec:authorize ifAnyGranted="su, ft"><a href="<c:url value="/facility/platformunit/showPlatformUnit/${ss2.sample.sampleId}.do" />"><c:out value="${ss2.sample.name}"/></a> (Lane <c:out value="${ss2.multiplexindex}"/>) </sec:authorize>
+												<sec:authorize ifNotGranted="su, ft"><c:out value="${ss2.sample.name}"/> (Lane <c:out value="${ss2.multiplexindex}"/>) </sec:authorize>
+												&nbsp;
+												<sec:authorize access="hasRole('su') or hasRole('ft')"><input type='submit' value='Remove'/></sec:authorize>
 											</form>											
 											
 										</c:when>
 										<c:otherwise>
 											<c:forEach items="${ss2.sample.run}" var="aRun">
-										 		<a href="<c:url value="/facility/platformunit/showPlatformUnit/${ss2.sample.sampleId}.do" />"><c:out value="${ss2.sample.name}"/> (Lane <c:out value="${ss2.multiplexindex}"/>) ---&gt; <c:out value="${aRun.name}"/></a><br/>
+										 		<sec:authorize ifAnyGranted="su, ft"><a href="<c:url value="/facility/platformunit/showPlatformUnit/${ss2.sample.sampleId}.do" />"><c:out value="${ss2.sample.name}"/> (Lane <c:out value="${ss2.multiplexindex}"/>) ---&gt; <c:out value="${aRun.name}"/></a><br/></sec:authorize>
+												<sec:authorize ifNotGranted="su, ft"><c:out value="${ss2.sample.name}"/> (Lane <c:out value="${ss2.multiplexindex}"/>) ---&gt; <c:out value="${aRun.name}"/><br/></sec:authorize>
 											</c:forEach>
 										</c:otherwise>
 									</c:choose>	
