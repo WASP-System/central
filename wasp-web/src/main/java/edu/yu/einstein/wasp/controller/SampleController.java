@@ -322,7 +322,7 @@ public class SampleController extends WaspController {
 						(sample.getSampleSubtypeId() == null)? "": allSubSampleTypes.get(sample.getSampleSubtypeId()),
 						(sample.getSubmitterJobId() == null)? "" : allJobs.get(sample.getSubmitterJobId()),
 						allUsers.get(sample.getSubmitterUserId()),
-						(sample.getIsActive() == 1)? "Yes":"No",
+						sample.getReceivedStatus(),
 						allRuns.get(sample.getSampleId())
 				}));
 

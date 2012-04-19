@@ -1002,5 +1002,30 @@ public class Sample extends WaspModel {
 	}
 
 
+	/** 
+	 * getReceivedStatus()
+	 *
+	 * @return receivedStatus
+	 *
+	 */
+	public String getReceivedStatus() {
+		String receivedStatus = "";
+		List<Statesample> statesamples = this.getStatesample();
+		for(Statesample ss : statesamples){
+			if(ss.getState().getTask().getIName().equals("Receive Sample")){
+				if(ss.getState().getStatus().equals("CREATED")){
+					receivedStatus = "AWAITING";
+				}
+				else if(ss.getState().getStatus().equals("RECEIVED") || ss.getState().getStatus().equals("FINALIZED")){
+					receivedStatus = "RECEIVED";
+				}
+				else if(ss.getState().getStatus().equals("ABANDONED")){
+					receivedStatus = "WITHDRAWN";
+				}
+			}
+		}
+		return receivedStatus;
+	}
+	
 
 }

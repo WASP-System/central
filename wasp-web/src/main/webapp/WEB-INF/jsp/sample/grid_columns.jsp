@@ -10,7 +10,7 @@
 
 <wasp:field name="submitterUserId"  itemLabel="submitter" type="text" sortable="true" searchable="false"/>
 
-<wasp:field name="isreceived" type="checkbox" />
+<wasp:field name="isreceived" type="text" />
 
 <wasp:field name="runs" type="text" searchable="false"/>
 

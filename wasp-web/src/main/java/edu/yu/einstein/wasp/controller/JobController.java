@@ -336,21 +336,6 @@ public class JobController extends WaspController {
 		try {
 			List<Map> rows = new ArrayList<Map>();
 			for (Sample sample:samples) {
-				String sampleReceived = "";
-				List<Statesample> statesamples = sample.getStatesample();
-				for(Statesample ss : statesamples){
-					if(ss.getState().getTask().getIName().equals("Receive Sample")){
-						if(ss.getState().getStatus().equals("CREATED")){
-							sampleReceived = "AWAITING";
-						}
-						else if(ss.getState().getStatus().equals("RECEIVED") || ss.getState().getStatus().equals("FINALIZED")){
-							sampleReceived = "RECEIVED";
-						}
-						else if(ss.getState().getStatus().equals("ABANDONED")){
-							sampleReceived = "WITHDRAWN";
-						}
-					}
-				}	
 				Map cell = new HashMap();
 				cell.put("id", sample.getSampleId());
 					 					
@@ -362,7 +347,7 @@ public class JobController extends WaspController {
 										sample.getName() + "</a>",
 										sample.getSampleType().getName(),
 										sample.getSampleSubtype().getName(),
-										sampleReceived
+										sample.getReceivedStatus()
 								}
 						)
 				);
@@ -380,7 +365,7 @@ public class JobController extends WaspController {
 		 }
 	
 	}
-	
+
 	@RequestMapping(value = "/detail/{jobId}", method = RequestMethod.GET)
 	public String detail(@PathVariable("jobId") Integer jobId, ModelMap m) {
 		String now = (new Date()).toString();

@@ -502,7 +502,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sample','subtype','label','Subtype','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sample','job','label','Job','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sample','submitterUserId','label','Submitter','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sample','isreceived','label','Is Received','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sample','isreceived','label','Received Status','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sample','runs','label','Runs','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sample','name','error','Name cannot be null','1');
 
