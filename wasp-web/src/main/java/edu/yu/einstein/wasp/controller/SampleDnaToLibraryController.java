@@ -42,8 +42,8 @@ import edu.yu.einstein.wasp.dao.StateDao;
 import edu.yu.einstein.wasp.dao.SampleSubtypeDao;
 import edu.yu.einstein.wasp.dao.TaskDao;
 import edu.yu.einstein.wasp.dao.SampleTypeDao;
-import edu.yu.einstein.wasp.dao.WorkflowSampleSubtypeDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
+import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Adaptorset;
 import edu.yu.einstein.wasp.model.Job;
@@ -62,11 +62,8 @@ import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.SampleSubtypeResourceCategory;
 import edu.yu.einstein.wasp.model.Task;
 import edu.yu.einstein.wasp.model.SampleType;
-import edu.yu.einstein.wasp.model.Workflow;
-import edu.yu.einstein.wasp.model.WorkflowSampleSubtype;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.util.MetaHelper;
-import edu.yu.einstein.wasp.util.SampleWrapper;
 
 
 @Controller
@@ -281,6 +278,7 @@ public class SampleDnaToLibraryController extends WaspController {
   @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('jv-' + #jobId)")
   public String listJobSamples(@PathVariable("jobId") Integer jobId, ModelMap m) {
     
+	  
 	  if(jobId == null ){
 		  waspErrorMessage("sampleDetail.jobParameter.error");
 		  return "redirect:/dashboard.do";		  
@@ -425,87 +423,68 @@ public class SampleDnaToLibraryController extends WaspController {
 		return "sampleDnaToLibrary/listJobSamples";
   }
 
-   @RequestMapping(value = "/createLibraryFromMacro", method = RequestMethod.GET)//here, macromolSampleId represents a macromolecule (genomic DNA or RNA) submitted to facility for conversion to a library
-	@PreAuthorize("hasRole('su') or hasRole('ft')")
-	public String createLibrary(@RequestParam("macromolSampleId") Integer macromolSampleId,
-			@RequestParam("adaptorsetId") Integer adaptorsetId,//this is the selectedAdaptorSet's Id
-			@RequestParam("jobId") Integer jobId,
-			ModelMap m) {
-	  
-	    if( jobId == null ){
-			waspErrorMessage("sampleDetail.jobParameter.error");
-			return "redirect:/dashboard.do";
-		}
-		if (macromolSampleId == null){	//waspErrorMessage("user.updated.error");
-			waspErrorMessage("sampleDetail.sampleParameter.error");
-			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
-		}
-		if (adaptorsetId == null){	//waspErrorMessage("user.updated.error");
-			waspErrorMessage("sampleDetail.adaptorsetParameter.error");
-			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
-		}
-	  
-  		Job job = jobDao.getJobByJobId(jobId);
-  		if(job.getJobId()==null){//not found in database
-  			waspErrorMessage("sampleDetail.jobNotFound.error");
-			return "redirect:/dashboard.do";
-		}
-  		Map<String, String> extraJobDetailsMap = getExtraJobDetails(job);
-  		m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);
+  @RequestMapping(value = "/createLibraryFromMacro", method = RequestMethod.GET)//here, macromolSampleId represents a macromolecule (genomic DNA or RNA) submitted to facility for conversion to a library
+  @PreAuthorize("hasRole('su') or hasRole('ft')")
+  public String createLibrary(@RequestParam("macromolSampleId") Integer macromolSampleId,
+		  @RequestParam("adaptorsetId") Integer adaptorsetId,//this is the selectedAdaptorSet's Id
+		  @RequestParam("jobId") Integer jobId,
+		  ModelMap m) {
 
-  		Sample macromoleculeSample = sampleDao.getSampleBySampleId(macromolSampleId);
-		if(macromoleculeSample.getSampleId()==null){//not found in database
-			waspErrorMessage("sampleDetail.sampleNotFound.error");
-			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
-		}
-		//confirm these two objects exist and part of same job
-		JobSample jobSample = jobSampleDao.getJobSampleByJobIdSampleId(jobId, macromolSampleId);
-		if(jobSample.getJobSampleId()== null){
-			waspErrorMessage("sampleDetail.jobSampleMismatch.error");
-			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
-		}
+	  String returnString = validateJobIdAndSampleId(jobId, macromolSampleId, null);
+	  if (returnString != null)
+		  return returnString;
 
-		m.put("macromoleculeSample", macromoleculeSample);
-		m.put("job", job);
+	  if (adaptorsetId == null){	//waspErrorMessage("user.updated.error");
+		  waspErrorMessage("sampleDetail.adaptorsetParameter.error");
+		  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
+	  }
+
+	  Job job = jobDao.getJobByJobId(jobId);
+	  Map<String, String> extraJobDetailsMap = getExtraJobDetails(job);
+	  m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);
+
+	  Sample macromoleculeSample = sampleDao.getSampleBySampleId(macromolSampleId);
+
+	  m.put("macromoleculeSample", macromoleculeSample);
+	  m.put("job", job);
 
 
-		Adaptorset selectedAdaptorset = adaptorsetDao.getAdaptorsetByAdaptorsetId(adaptorsetId);
-		//List<Adaptorset> adaptorsets = new ArrayList<Adaptorset>();
-		//adaptorsets.add(selectedAdaptorset);
-		//m.put("adaptorsets", adaptorsets);  //
-		m.put("adaptorsets", adaptorsetDao.findAll()); // required for adaptorsets metadata control element (select:${adaptorsets}:adaptorsetId:name)
+	  Adaptorset selectedAdaptorset = adaptorsetDao.getAdaptorsetByAdaptorsetId(adaptorsetId);
+	  //List<Adaptorset> adaptorsets = new ArrayList<Adaptorset>();
+	  //adaptorsets.add(selectedAdaptorset);
+	  //m.put("adaptorsets", adaptorsets);  //
+	  m.put("adaptorsets", adaptorsetDao.findAll()); // required for adaptorsets metadata control element (select:${adaptorsets}:adaptorsetId:name)
 
-		m.put("adaptors", selectedAdaptorset.getAdaptor()); // required for adaptors metadata control element (select:${adaptors}:adaptorId:barcodenumber)
-		List<Adaptorset> otherAdaptorsets = adaptorsetDao.findAll();//should really filter this by the machine requested
-		otherAdaptorsets.remove(selectedAdaptorset);//remove this one
-		m.put("otherAdaptorsets", otherAdaptorsets); 
-		
-		List<SampleSubtype> librarySampleSubtypes = sampleService.getSampleSubtypesForWorkflowByLoggedInUserRoles(job.getWorkflow().getWorkflowId(), "library");
-		if(librarySampleSubtypes.isEmpty()){
-			waspErrorMessage("sampleDetail.sampleSubtypeNotFound.error");
-			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do"; // no workflowsubtype sample
-		}
-		Map<String, MetaAttribute.FormVisibility> visibilityElementMap = new HashMap<String, MetaAttribute.FormVisibility>(); // specify meta elements that are to be made immutable or hidden in here
-		visibilityElementMap.put("genericLibrary.adaptorset", MetaAttribute.FormVisibility.immutable); // adaptor is a list control but we just want to display its value
-		SampleSubtype librarySampleSubtype = librarySampleSubtypes.get(0); // should be one
-		SampleWrapperWebapp libraryManaged = new SampleWrapperWebapp(new Sample(), sampleSourceDao);
-		List<SampleMeta> libraryMeta = libraryManaged.getMetaTemplatedToSampleSybtypeAndSynchronizedToMaster(librarySampleSubtype, visibilityElementMap);
-		try {
-			MetaHelper.setMetaValueByName("genericLibrary", "adaptorset", selectedAdaptorset.getAdaptorsetId().toString(), libraryMeta);
-		} catch (MetadataException e) {
-			logger.warn("Cannot set value on 'adaptorset': " + e.getMessage() );
-		}
-		Sample library = libraryManaged.getSampleObject();
-		library.setSampleSubtype(librarySampleSubtype);
-		library.setSampleType(sampleTypeDao.getSampleTypeByIName("library"));
-		library.setSampleMeta(libraryMeta);
-		m.put("sample", library); 	
-		
-		return "sampleDnaToLibrary/createLibrary";
+	  m.put("adaptors", selectedAdaptorset.getAdaptor()); // required for adaptors metadata control element (select:${adaptors}:adaptorId:barcodenumber)
+	  List<Adaptorset> otherAdaptorsets = adaptorsetDao.findAll();//should really filter this by the machine requested
+	  otherAdaptorsets.remove(selectedAdaptorset);//remove this one
+	  m.put("otherAdaptorsets", otherAdaptorsets); 
+	  String[] roles = {"ft"};
+	  List<SampleSubtype> librarySampleSubtypes = sampleService.getSampleSubtypesForWorkflowByRole(job.getWorkflow().getWorkflowId(), roles, "library");
+	  if(librarySampleSubtypes.isEmpty()){
+		  waspErrorMessage("sampleDetail.sampleSubtypeNotFound.error");
+		  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do"; // no workflowsubtype sample
+	  }
+	  Map<String, MetaAttribute.FormVisibility> visibilityElementMap = new HashMap<String, MetaAttribute.FormVisibility>(); // specify meta elements that are to be made immutable or hidden in here
+	  visibilityElementMap.put("genericLibrary.adaptorset", MetaAttribute.FormVisibility.immutable); // adaptor is a list control but we just want to display its value
+	  SampleSubtype librarySampleSubtype = librarySampleSubtypes.get(0); // should be one
+	  List<SampleMeta> libraryMeta = SampleWrapperWebapp.templateMetaToSubtypeAndSynchronizeWithMaster(librarySampleSubtype, visibilityElementMap);
+	  try {
+		  MetaHelper.setMetaValueByName("genericLibrary", "adaptorset", selectedAdaptorset.getAdaptorsetId().toString(), libraryMeta);
+	  } catch (MetadataException e) {
+		  logger.warn("Cannot set value on 'adaptorset': " + e.getMessage() );
+	  }
+	  Sample library = new Sample();
+	  library.setSampleSubtype(librarySampleSubtype);
+	  library.setSampleType(sampleTypeDao.getSampleTypeByIName("library"));
+	  library.setSampleMeta(libraryMeta);
+	  m.put("sample", library); 	
 
-  	}
- 
-  
+	  return "sampleDnaToLibrary/createLibrary";
+
+  }
+
+
   @RequestMapping(value = "/createLibraryFromMacro", method = RequestMethod.POST)//here, macromolSampleId represents a macromolecule (genomic DNA or RNA) submitted to facility for conversion to a library
   @PreAuthorize("hasRole('su') or hasRole('ft')")
   public String createLibrary(@RequestParam("macromolSampleId") Integer macromolSampleId,
@@ -515,65 +494,37 @@ public class SampleDnaToLibraryController extends WaspController {
 		  SessionStatus status, 
 		  ModelMap m) {
 
-	  if( jobId == null){
-		  waspErrorMessage("sampleDetail.jobParameter.error");
-		  return "redirect:/dashboard.do";
-	  }
-	  if(macromolSampleId == null ){
-		  waspErrorMessage("sampleDetail.sampleParameter.error");
-		  return "redirect:/dashboard.do";
-	  }
-
-	  Job jobForThisSample = jobDao.getJobByJobId(jobId);
-	  if(jobForThisSample.getJobId()==null){//not found in database
-		  waspErrorMessage("sampleDetail.jobSampleMismatch.error");
-		  return "redirect:/dashboard.do";
-	  }
-	  Map<String, String> extraJobDetailsMap = getExtraJobDetails(jobForThisSample);
-	  m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);
+	  String returnString = validateJobIdAndSampleId(jobId, macromolSampleId, null);
+	  if (returnString != null)
+		  return returnString;
 
 	  if ( request.getParameter("submit").equals("Cancel") ){//equals(messageService.getMessage("userDetail.cancel.label")
 		  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 	  }
 
+
 	  Sample parentMacromolecule = sampleDao.getSampleBySampleId(macromolSampleId);
-	  if(parentMacromolecule.getSampleId()==null){//not found in database
-		  waspErrorMessage("sampleDetail.sampleNotFound.error");
-		  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
-	  }
-	  //confirm the job and the macromoleculeSample are part of same job
-	  JobSample jobSample = jobSampleDao.getJobSampleByJobIdSampleId(jobId, macromolSampleId);
-	  if(jobSample.getJobSampleId()== null){
-		  waspErrorMessage("sampleDetail.jobSampleMismatch.error");
-		  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
-	  }
-	  
-	  String newLibraryName = libraryForm.getName().trim();//from the form
+	  Job jobForThisSample = jobDao.getJobByJobId(jobId);
+
+	  Map<String, String> extraJobDetailsMap = getExtraJobDetails(jobForThisSample);
+	  m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);
+
+	  libraryForm.setName(libraryForm.getName().trim());
 	  //confirm that this new library's name is different from all other sample.name in this job for samples of the same sample type (library)
 	  SampleType sampleType = sampleTypeDao.getSampleTypeBySampleTypeId(libraryForm.getSampleTypeId());
-	  if (!sampleService.isSampleNameUniqueWithinJob(newLibraryName, sampleType, jobForThisSample)){
-		  Errors errors=new BindException(result.getTarget(), "Sample");
-		  // reject value on the 'name' field with the message defined in sampleDetail.updated.nameClashError
-		  // usage: errors.rejectValue(field, errorString, default errorString)
-		  errors.rejectValue("name", "sampleDetail.updated.nameClashError", "sampleDetail.updated.nameClashError (no message has been defined for this property)");
-		  result.addAllErrors(errors);
-	  }
-	  
+	  SampleSubtype sampleSubtype = sampleSubtypeDao.getSampleSubtypeBySampleSubtypeId(libraryForm.getSampleSubtypeId());
+	  validateSampleNameUnique(libraryForm.getName(), macromolSampleId, jobForThisSample, result);
+
 	  // get validated metadata from 
 	  Map<String, MetaAttribute.FormVisibility> visibilityElementMap = new HashMap<String, MetaAttribute.FormVisibility>(); // specify meta elements that are to be made immutable or hidden in here
 	  visibilityElementMap.put("genericLibrary.adaptorset", MetaAttribute.FormVisibility.immutable); // adaptor is a list control but we just want to display its value
-	  SampleWrapperWebapp managedLibraryFromForm = new SampleWrapperWebapp(libraryForm, sampleSourceDao);
-	  List<SampleMeta> sampleMetaListFromForm = managedLibraryFromForm.getValidatedMetaFromRequest(request, result, visibilityElementMap);
-	  
-	  
-	  
-	  Sample newLibrary = managedLibraryFromForm.getSampleObject();
+	  List<SampleMeta> sampleMetaListFromForm = SampleWrapperWebapp.getValidatedMetaFromRequestAndTemplateToSubtype(request, sampleSubtype, result, visibilityElementMap);
 
 	  if (result.hasErrors()) {
-
+		  libraryForm.setSampleMeta(SampleWrapperWebapp.templateMetaToSubtypeAndSynchronizeWithMaster(sampleSubtype, sampleMetaListFromForm, visibilityElementMap));
+		  libraryForm.setSampleSubtype(sampleSubtypeDao.getSampleSubtypeBySampleSubtypeId(libraryForm.getSampleSubtypeId()));
+		  libraryForm.setSampleType(sampleTypeDao.getSampleTypeBySampleTypeId(libraryForm.getSampleTypeId()));
 		  prepareSelectListData(m);//doubt that this is required here; really only needed for meta relating to country or state
-
-
 		  waspErrorMessage("sampleDetail.updated.error");
 
 		  Adaptorset selectedAdaptorset = adaptorsetDao.getAdaptorsetByAdaptorsetId(adaptorsetId);
@@ -582,58 +533,35 @@ public class SampleDnaToLibraryController extends WaspController {
 		  List<Adaptorset> otherAdaptorsets = adaptorsetDao.findAll();//should really filter this by the machine requested
 		  otherAdaptorsets.remove(selectedAdaptorset);//remove this one
 		  m.put("otherAdaptorsets", otherAdaptorsets); 
-
 		  m.put("macromoleculeSample", parentMacromolecule);
 		  m.put("job", jobForThisSample);
-		  libraryForm.setSampleMeta(sampleMetaListFromForm);
 		  m.put("sample", libraryForm); 
-
-
 		  return "sampleDnaToLibrary/createLibrary";
 	  }
 
 	  //all OK so create/save new library
+	  libraryForm.setSubmitterLabId(parentMacromolecule.getSubmitterLabId());//needed??
+	  libraryForm.setSubmitterUserId(parentMacromolecule.getSubmitterUserId());//needed??
+	  libraryForm.setSubmitterJobId(parentMacromolecule.getSubmitterJobId());//needed??
+	  libraryForm.setIsActive(new Integer(1));
+	  libraryForm.setLastUpdTs(new Date());
+	  SampleWrapperWebapp managedLibraryFromForm = new SampleWrapperWebapp(libraryForm, sampleSourceDao);
+	  try {
+		  managedLibraryFromForm.setParent(parentMacromolecule, sampleSourceDao);
+	  } catch (SampleParentChildException e) {
+		  e.printStackTrace();
+	  }
+	  managedLibraryFromForm.updateMetaToList(sampleMetaListFromForm, sampleMetaDao);
+	  managedLibraryFromForm.saveAll(sampleService, sampleSourceDao);
 	  
-	  newLibrary.setName(newLibraryName);
-	  //newLibrary.setSampleMeta(sampleMetaListFromForm);//this will not be saved simply by saving newLibrary; use sampleMetaDao.updateBySampleId below
-	  newLibrary.setSampleType(sampleType);
-	  Map filterMap = new HashMap();
-	  filterMap.put("sampleTypeId", sampleType.getSampleTypeId());//restrict search to sampleType is library
-	  List<SampleSubtype> sampleSubtypeList = sampleSubtypeDao.findByMap(filterMap);
-	  String workflowName = jobForThisSample.getWorkflow().getIName().toLowerCase();//such as chipseq
-	  for(SampleSubtype sts : sampleSubtypeList){
-		  if( sts.getIName().toLowerCase().indexOf(workflowName) > -1 ){
-			  newLibrary.setSampleSubtype(sts); 
-			  break;
-		  }
-	  }
-	  if(newLibrary.getSampleSubtype() == null){//no match found in database
-		  //error
-		  waspErrorMessage("sampleDetail.sampleSubtypeNotFound.error");
-		  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
-	  }
-	  newLibrary.setSubmitterLabId(parentMacromolecule.getSubmitterLabId());//needed??
-
-	  newLibrary.setSubmitterUserId(parentMacromolecule.getSubmitterUserId());//needed??
-
-	  newLibrary.setSubmitterJobId(parentMacromolecule.getSubmitterJobId());//needed??
-	  newLibrary.setIsActive(new Integer(1));
-	  newLibrary.setLastUpdTs(new Date());
-
-	  newLibrary = sampleDao.save(newLibrary);
-
-	  sampleMetaDao.updateBySampleId(newLibrary.getSampleId(), sampleMetaListFromForm);
-
 	  //add entry to jobsample table to link new library to job
 	  JobSample newJobSample = new JobSample();
 	  newJobSample.setJob(jobForThisSample);
-	  newJobSample.setSample(newLibrary);
+	  newJobSample.setSample(libraryForm);
 	  newJobSample = jobSampleDao.save(newJobSample);
 
 	  //add entry to sample source to link new library to the macromolecule from which it was derived
-	  SampleSource sampleSource = new SampleSource();
-	  sampleSource.setSample(newLibrary);
-	  sampleSource.setSampleViaSource(parentMacromolecule);
+	  SampleSource sampleSource = null; 
 
 	  //find max samplesource.multiplexindex for this macromolecule
 	  int maxindex = 0;
@@ -641,7 +569,9 @@ public class SampleDnaToLibraryController extends WaspController {
 	  filterMap2.put("sourceSampleId", parentMacromolecule.getSampleId());
 	  List<SampleSource> libFromThisMacromoleculeList = sampleSourceDao.findByMap(filterMap2);
 	  for(SampleSource ss : libFromThisMacromoleculeList){
-		  if(ss.getMultiplexindex().intValue() > maxindex){
+		  if (ss.getSampleId().intValue() == libraryForm.getSampleId().intValue()){
+			  sampleSource = ss;
+	  	  } else if(ss.getMultiplexindex().intValue() > maxindex){
 			  maxindex = ss.getMultiplexindex().intValue();
 		  }
 	  }
@@ -671,116 +601,133 @@ public class SampleDnaToLibraryController extends WaspController {
 
   } 
   
- 
-  
+
   @RequestMapping(value = "/librarydetail_ro/{jobId}/{libraryId}", method = RequestMethod.GET)//sampleId represents an existing library (at this moment both user supplied or facility created)
 	@PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('jv-' + #jobId)")
 	public String libraryDetailRO(@PathVariable("jobId") Integer jobId, @PathVariable("libraryId") Integer libraryId, ModelMap m) throws MetadataException{
-	  return libraryDetail(jobId, libraryId, m, false);
+	  return validateJobIdAndSampleId(jobId, libraryId, 
+			  libraryDetail(jobId, libraryId, m, false) );
   }
   
   @RequestMapping(value = "/librarydetail_rw/{jobId}/{libraryId}", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public String libraryDetailRW(@PathVariable("jobId") Integer jobId, @PathVariable("libraryId") Integer libraryId, ModelMap m) throws MetadataException{
-	  return libraryDetail(jobId, libraryId, m, true);
+	  return validateJobIdAndSampleId(jobId, libraryId, 
+			  libraryDetail(jobId, libraryId, m, true) );
   }
   
-  	@RequestMapping(value = "/librarydetail_rw/{jobId}/{libraryId}", method = RequestMethod.POST)
-  	@PreAuthorize("hasRole('su') or hasRole('ft')")
-  	public String libraryDetailEdit(
-  			@PathVariable("jobId") Integer jobId, @PathVariable("libraryId") Integer libraryId, 
-  			@Valid Sample libraryForm, BindingResult result, 
-  			SessionStatus status, 
-  			ModelMap m) throws MetadataException{
-  		MetaHelperWebapp sampleMetaHelper = getMetaHelperWebapp();
-  		//List<SampleMeta> allLibraryMeta = sampleMetaHelper.getFromRequest(request, SampleMeta.class);
-  		//for(SampleMeta sm: allLibraryMeta){
-  		//	logger.debug("ANDY: metaK="+sm.getK()+", metaV="+sm.getV());
-  		//}
-  		String sampleIdMapByComponentAreaString = request.getParameter("sampleIdMapByComponentArea");
-  		Map<String, Integer> sampleIdMapByComponentArea = new HashMap<String, Integer>();
-  		for (String pair: sampleIdMapByComponentAreaString.split(";")){
-  			String[] components = pair.split(":");
-  			sampleIdMapByComponentArea.put(components[0], Integer.valueOf(components[1]) );
-  		}
-  		
-  		/*Integer libraryId = Integer.valueOf(request.getParameter("libraryId"));
-  		Integer jobId = Integer.valueOf(request.getParameter("jobId"));
-  		
-  		String[] areaList = request.getParameter("componentAreas").split(",");
-  		logger.debug("ANDY: " + request.getParameter("libraryId") + ", " + request.getParameter("jobId") + ", " + request.getParameter("componentAreas"));*/
-  		//List<String> uniqueAreasInLibraryMeta = sampleMetaHelper.getUniqueAreaList();
-  		for(String area : sampleIdMapByComponentArea.keySet()){
-  			sampleMetaHelper.setArea(area);
-  			List<SampleMeta> metaList = sampleMetaHelper.getFromRequest(request, SampleMeta.class);
-  			Integer sampleId = sampleIdMapByComponentArea.get(area);
-  			if (sampleId != null){
-  				for (SampleMeta meta: metaList){
-  					logger.debug("ANDY: sampleId="+sampleId+", metaKey="+meta.getK()+", metaValue="+meta.getV());
-  				}
-  				//sampleMetaDao.updateBySampleId(sampleId, metaList);
-  			}
-  			
-  		}
-  		return libraryDetail(jobId, libraryId, m, false);
-  	}
-  
-  public String libraryDetail(Integer jobId, Integer libraryId, ModelMap m, boolean isRW) throws MetadataException{
+  @RequestMapping(value = "/librarydetail_rw/{jobId}/{libraryId}", method = RequestMethod.POST)
+  @PreAuthorize("hasRole('su') or hasRole('ft')")
+  public String libraryDetailEdit(
+		  @PathVariable("jobId") Integer jobId, @PathVariable("libraryId") Integer libraryId, 
+		  @Valid Sample libraryForm, BindingResult result, 
+		  SessionStatus status, 
+		  ModelMap m) throws MetadataException{
 
-	    if( jobId == null ){
-			waspErrorMessage("sampleDetail.jobParameter.error");
-			return "redirect:/dashboard.do";
-		}
-		if (libraryId == null){	
-			waspErrorMessage("sampleDetail.libraryParameter.error");
-			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
-		}
+	  // validate path variables
+	  String returnString = validateJobIdAndSampleId(jobId, libraryId, null);
+	  if (returnString != null)
+		  return returnString;
+	  if ( request.getParameter("submit").equals("Cancel") ){//equals(messageService.getMessage("userDetail.cancel.label")
+		  //return "redirect:/sampleDnaToLibrary/sampledetail_ro/" + jobId + "/" + sampleId + ".do";
+		  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
+	  } 
 	  
-  		Job job = jobDao.getJobByJobId(jobId);
-  		if(job.getJobId()==null){//not found in database
-  			waspErrorMessage("sampleDetail.jobNotFound.error");
-			return "redirect:/dashboard.do";
-		}
-  		Map<String, String> extraJobDetailsMap = getExtraJobDetails(job);
-  		m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);
+	  libraryForm.setName(libraryForm.getName().trim());
+	  
+	  Sample library = sampleDao.getSampleBySampleId(libraryId); 
+	  validateSampleNameUnique(libraryForm.getName(), libraryId, jobDao.getJobByJobId(jobId), result);
+	  SampleWrapperWebapp managedLibrary = new SampleWrapperWebapp(library, sampleSourceDao);
+	  List<SampleMeta> metaFromForm = SampleWrapperWebapp.getValidatedMetaFromRequestAndTemplateToSubtype(request, 
+			  sampleSubtypeDao.getSampleSubtypeBySampleSubtypeId(libraryForm.getSampleSubtypeId()), result); 
+	  if(result.hasErrors()){
+		  waspErrorMessage("sampleDetail.updated.error");
+		  libraryForm.setSampleMeta(metaFromForm);
+		  return libraryDetail(jobId, libraryForm, libraryId, m, true);
+	  }
+	  // all ok so save 
+	  library.setName(libraryForm.getName());
+	  managedLibrary.updateMetaToList(metaFromForm, sampleMetaDao);
+	  managedLibrary.saveAll(sampleService, sampleSourceDao);
 
-  		Sample library = sampleDao.getSampleBySampleId(libraryId);
-  		if(library.getSampleId()==null || ! "library".equals(library.getSampleType().getIName())){//not found in database or not a library
-  			waspErrorMessage("sampleDetail.libraryNotFound.error");
-  			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
-		}
-  		
-  		//confirm these two objects exist and part of same job
-		JobSample jobSample = jobSampleDao.getJobSampleByJobIdSampleId(jobId, libraryId);
-		if(jobSample.getJobSampleId()== null){
-			waspErrorMessage("sampleDetail.jobSampleMismatch.error");
-			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
-		}
-		
+	  waspMessage("sampleDetail.updated_success.label");
+	  return "redirect:/sampleDnaToLibrary/librarydetail_ro/"+jobId+"/"+libraryId+".do";
+  }
+  	
+  /**
+   * Handles preparation of model for display of library details. Makes a detached Sample object.
+   * @param jobId
+   * @param libraryInId
+   * @param m
+   * @param isRW
+   * @return
+   * @throws MetadataException
+   */
+  public String libraryDetail(Integer jobId, Integer libraryInId, ModelMap m, boolean isRW) throws MetadataException{
 		// get the library subtype for this workflow as the job-viewer sees it. We will use this 
-		// to synchronize the metadata for display
+		// to synchronize the metadata for display.
+	    // We make a new Sample object 'modelLibrary' so that we can use it with the model and adjust the sample subtype / metadata freely
+	    // without affecting the info in the database
+		Sample libraryIn = sampleDao.getSampleBySampleId(libraryInId);
 		String[] roles = {"lu"};
-		List<SampleSubtype> librarySampleSubtypes = sampleService.getSampleSubtypesForWorkflowByRole(job.getWorkflow().getWorkflowId(), roles, "library");
+		List<SampleSubtype> librarySampleSubtypes = sampleService.getSampleSubtypesForWorkflowByRole(jobDao.getJobByJobId(jobId).getWorkflow().getWorkflowId(), roles, "library");
 		if(librarySampleSubtypes.isEmpty()){
 			waspErrorMessage("sampleDetail.sampleSubtypeNotFound.error");
 			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do"; // no workflowsubtype sample
 		}
-		SampleSubtype librarySampleSubtype = librarySampleSubtypes.get(0); // should be one
-		SampleWrapperWebapp libraryManaged = new SampleWrapperWebapp(library, sampleSourceDao);
+		Sample modelLibrary = new Sample();
+		modelLibrary.setSampleSubtype(librarySampleSubtypes.get(0)); // should be one
+		modelLibrary.setSampleId(libraryIn.getSampleId());
+		modelLibrary.setSampleTypeId(libraryIn.getSampleTypeId());
+		modelLibrary.setSampleType(sampleTypeDao.getSampleTypeBySampleTypeId(libraryIn.getSampleTypeId()));
+		modelLibrary.setName(libraryIn.getName());
+		modelLibrary.setSampleMeta(libraryIn.getSampleMeta());
+		return libraryDetail(jobId, modelLibrary, libraryInId, m, isRW);
+  }
+  
+  
+  /**
+   * Handles preparation of model for display of library details. 
+   * @param jobId
+   * @param libraryIn: should be a detached entity
+   * @param libraryInId: necessary if libraryIn has no id (e.g. from form)
+   * @param m
+   * @param isRW
+   * @return
+   * @throws MetadataException
+   */
+  public String libraryDetail(Integer jobId, Sample libraryIn, Integer libraryInId, ModelMap m, boolean isRW) throws MetadataException{
+	  	Job job = jobDao.getJobByJobId(jobId);
+	  	
+	  	// libraryIn should be a detached Sample object. If the sampleId is null then the Sample object is from a form and all the metadata from the form is 
+	  	// assumed to be associated with it. Otherwise we assume that the library info is cloned from a persisted object.
+		SampleWrapperWebapp libraryInManaged = new SampleWrapperWebapp(libraryIn, sampleSourceDao);
+		
   		Adaptorset selectedAdaptorset = null;
 		Adaptor adaptor = null;
 		
 		Map<String, MetaAttribute.FormVisibility>  visibilityElementMap = new HashMap<String, MetaAttribute.FormVisibility>(); // specify meta elements that are to be made immutable or hidden in here
 		visibilityElementMap.put("genericLibrary.adaptorset", MetaAttribute.FormVisibility.immutable); // adaptor is a list control but we just want to display its value
-		List<SampleMeta> normalizedSampleMeta = libraryManaged.getMetaTemplatedToSampleSybtypeAndSynchronizedToMaster(librarySampleSubtype, visibilityElementMap);
+		libraryIn.setSampleMeta(SampleWrapperWebapp.templateMetaToSubtypeAndSynchronizeWithMaster(
+				sampleSubtypeDao.getSampleSubtypeBySampleSubtypeId(libraryIn.getSampleSubtypeId()), 
+				libraryInManaged.getAllSampleMeta(), visibilityElementMap));
 		try{	
-  			adaptor = adaptorDao.getAdaptorByAdaptorId(Integer.valueOf( MetaHelper.getMetaValue("genericLibrary", "adaptor", normalizedSampleMeta)) );
-  			selectedAdaptorset = adaptorsetDao.getAdaptorsetByAdaptorsetId(Integer.valueOf( MetaHelper.getMetaValue("genericLibrary", "adaptorset", normalizedSampleMeta)) );
+  			adaptor = adaptorDao.getAdaptorByAdaptorId(Integer.valueOf( MetaHelper.getMetaValue("genericLibrary", "adaptor", libraryIn.getSampleMeta())) );
+  			selectedAdaptorset = adaptorsetDao.getAdaptorsetByAdaptorsetId(Integer.valueOf( MetaHelper.getMetaValue("genericLibrary", "adaptorset", libraryIn.getSampleMeta())) );
   		} catch(MetadataException e){
   			logger.warn("Cannot get metadata : " + e.getMessage());
   		} catch(NumberFormatException e){
   			logger.warn("Cannot convert to numeric value for metadata " + e.getMessage());
   		}
+		SampleWrapperWebapp persistentLibraryManaged;
+		if (libraryIn.getSampleId() == null){
+			persistentLibraryManaged = new SampleWrapperWebapp(sampleDao.getSampleBySampleId(libraryInId), sampleSourceDao);
+		} else {
+			persistentLibraryManaged = libraryInManaged;
+		}
+		Sample parentMacromolecule = null;
+		if (persistentLibraryManaged.getParentWrapper() != null)
+			parentMacromolecule = persistentLibraryManaged.getParentWrapper().getSampleObject();
 		
 		m.addAttribute("adaptorsets", adaptorsetDao.findAll()); // required for adaptorsets metadata control element (select:${adaptorsets}:adaptorsetId:name)
 		m.addAttribute("adaptors", selectedAdaptorset.getAdaptor()); // required for adaptors metadata control element (select:${adaptors}:adaptorId:barcodenumber)
@@ -789,12 +736,13 @@ public class SampleDnaToLibraryController extends WaspController {
 		if(isRW){
 			m.addAttribute("otherAdaptorsets", otherAdaptorsets);
 		} 
+		if (libraryIn.getSampleId() == null)
+			libraryIn.setSampleId(libraryInId);
 		m.addAttribute("job", job);
-		m.addAttribute("sample", library);
+		m.addAttribute("extraJobDetailsMap", getExtraJobDetails(job));
+		m.addAttribute("sample", libraryIn);
 		m.addAttribute("adaptor", adaptor);
-		m.addAttribute("normalizedSampleMeta",normalizedSampleMeta);
-		m.addAttribute("componentAreas", librarySampleSubtype.getAreaList());
-	
+		m.addAttribute("parentMacromolecule", parentMacromolecule);
 		return isRW?"sampleDnaToLibrary/librarydetail_rw":"sampleDnaToLibrary/librarydetail_ro";
   }
   
@@ -815,40 +763,21 @@ public class SampleDnaToLibraryController extends WaspController {
  
   
   public String sampleDetail(Integer jobId, Integer sampleId, ModelMap m, boolean isRW){
-	  
-	  if( jobId == null){
-		  waspErrorMessage("sampleDetail.jobParameter.error");
-		  return "redirect:/dashboard.do";
-	  }
-	  if( sampleId == null){
-		  waspErrorMessage("sampleDetail.sampleParameter.error");
-		  return "redirect:/dashboard.do";
-	  }
+	  // validate path variables
+	  String returnString = validateJobIdAndSampleId(jobId, sampleId, null);
+	  if (returnString != null)
+		  return returnString;
 	  
 	  Job job = jobDao.getJobByJobId(jobId);
-	  if(job.getJobId()==null){//not found in database
-		  waspErrorMessage("sampleDetail.jobNotFound.error");
-		  return "redirect:/dashboard.do";
-	  }
+	  	  
 	  Map<String, String> extraJobDetailsMap = getExtraJobDetails(job);
 	  m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);
 
 	  Sample sample= sampleDao.getSampleBySampleId(sampleId);
-	  if(sample.getSampleId()==null){//not found in database
-		  waspErrorMessage("sampleDetail.sampleNotFound.error");
-		  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
-	  }
-	  
 	  //confirm these two objects exist and part of same job
-	  JobSample jobSample = jobSampleDao.getJobSampleByJobIdSampleId(jobId, sampleId);
-	  if(jobSample.getJobSampleId()== null){
-		  waspErrorMessage("sampleDetail.jobSampleMismatch.error");
-		  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
-	  }
-
-	  SampleWrapperWebapp sampleManaged = new SampleWrapperWebapp(sample, sampleSourceDao);
-	  sample.setSampleMeta(sampleManaged.getMetaTemplatedToSampleSybtypeAndSynchronizedToMaster(sample.getSampleSubtype()));
 	  
+	  SampleWrapperWebapp sampleManaged = new SampleWrapperWebapp(sample, sampleSourceDao);
+	  m.addAttribute("normalizedSampleMeta", SampleWrapperWebapp.templateMetaToSubtypeAndSynchronizeWithMaster(sample.getSampleSubtype(), sampleManaged.getAllSampleMeta()) );
 	  m.put("job", job);
 	  m.put("sample", sample); 
 	  
@@ -861,70 +790,35 @@ public class SampleDnaToLibraryController extends WaspController {
 								@Valid Sample sampleForm, BindingResult result, 
 								SessionStatus status, ModelMap m) throws MetadataException {
 		  
-	  if( jobId == null ){
-		  waspErrorMessage("sampleDetail.jobParameter.error");
-		  return "redirect:/dashboard.do";
-	  }
-	  if( sampleId == null){
-		  waspErrorMessage("sampleDetail.sampleParameter.error");
-		  return "redirect:/dashboard.do";
-	  }
-		
-	  Job jobForThisSample = jobDao.getJobByJobId(jobId);
-	  if(jobForThisSample.getJobId()==null){//not found in database
-		  waspErrorMessage("sampleDetail.jobSampleMismatch.error");
-		  return "redirect:/dashboard.do";
-	  }
-	  Map<String, String> extraJobDetailsMap = getExtraJobDetails(jobForThisSample);
-	  m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);
-
+	  // validate path variables
+	  String returnString = validateJobIdAndSampleId(jobId, sampleId, null);
+	  if (returnString != null)
+		  return returnString;
+	  
 	  if ( request.getParameter("submit").equals("Cancel") ){//equals(messageService.getMessage("userDetail.cancel.label")
 		  //return "redirect:/sampleDnaToLibrary/sampledetail_ro/" + jobId + "/" + sampleId + ".do";
 		  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 	  } 
-		  
+		
+	  Job jobForThisSample = jobDao.getJobByJobId(jobId);
+	  
+	  Map<String, String> extraJobDetailsMap = getExtraJobDetails(jobForThisSample);
+	  m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);
+		  	  		  
+	  sampleForm.setName(sampleForm.getName().trim());//from the form
+	  validateSampleNameUnique(sampleForm.getName(), sampleId, jobForThisSample, result);
+	  
 	  Sample sample = sampleDao.getSampleBySampleId(sampleId); 
-	  if(sample.getSampleId()==null){//not found in database
-		  waspErrorMessage("sampleDetail.sampleNotFound.error");
-		  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
-	  }
-	  	
-	  //confirm macromoleculeSample is actually part of this job
-	  JobSample jobSample = jobSampleDao.getJobSampleByJobIdSampleId(jobId, sampleId);
-	  if(jobSample.getJobSampleId()== null){
-		  waspErrorMessage("sampleDetail.jobNotFound.error");
-		  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
-	  }
-	  
-	  String newSampleName = sampleForm.getName().trim();//from the form
-	  //confirm that, if a new sample.name was supplied on the form, it is different from all other sample.name in this job
-	  if( ! newSampleName.equals(sample.getName().trim() ) ){//name was changed
-		  List<Sample> samplesInThisJob = jobForThisSample.getSample();
-		  for(Sample eachSampleInThisJob : samplesInThisJob){
-			  if(eachSampleInThisJob.getSampleId().intValue() != sampleId.intValue()){
-				  if( newSampleName.equals(eachSampleInThisJob.getName()) ){
-					  // adding an error to 'result object' linked to the 'name' field as the name chosen already exists
-					  Errors errors=new BindException(result.getTarget(), "sample");
-					  // reject value on the 'name' field with the message defined in sampleDetail.updated.nameClashError
-					  // usage: errors.rejectValue(field, errorString, default errorString)
-					  errors.rejectValue("name", "sampleDetail.nameClash.error", "sampleDetail.nameClash.error (no message has been defined for this property)");
-					  result.addAllErrors(errors);
-					  break;
-				  }
-			  }
-		  }
-	  }
-	  
 	  SampleWrapperWebapp managedSample = new SampleWrapperWebapp(sample, sampleSourceDao);
-	   List<SampleMeta> metaFromForm = managedSample.getValidatedMetaFromRequest(request, result);
+	  List<SampleMeta> metaFromForm = SampleWrapperWebapp.getValidatedMetaFromRequestAndTemplateToSubtype(request, sample.getSampleSubtype(), result); // gets meta and adds back to managed sampleForm as it is not persisted
 	  if(result.hasErrors()){
-		  sampleForm.setName(newSampleName);
-		  sampleForm.setSampleMeta(metaFromForm);
+		  sampleForm.setSampleType(sampleTypeDao.getSampleTypeBySampleTypeId(sampleForm.getSampleTypeId()));
+		  sampleForm.setSampleSubtype(sampleSubtypeDao.getSampleSubtypeBySampleSubtypeId(sampleForm.getSampleSubtypeId()));
 		  m.put("job", jobForThisSample);
 		  m.put("sample", sampleForm); 
+		  m.addAttribute("normalizedSampleMeta",SampleWrapperWebapp.templateMetaToSubtypeAndSynchronizeWithMaster(sample.getSampleSubtype(), metaFromForm));
 		  return "sampleDnaToLibrary/sampledetail_rw";
 	  }
-	  
 	  managedSample.updateMetaToList(metaFromForm, sampleMetaDao);
 	  managedSample.saveAll(sampleService, sampleSourceDao);
 
@@ -945,15 +839,6 @@ public class SampleDnaToLibraryController extends WaspController {
 			  break;
 		  }
 	  }
-	  /* did not work
-	  MetaHelperWebapp jobMetaHelper = new MetaHelperWebapp("job", JobMeta.class, request.getSession());
-	  try{
-		  extraJobDetailsMap.put("Read Length",jobMetaHelper.getMetaValueByName("readLength", job.getJobMeta()));
-		  extraJobDetailsMap.put("Read Type",jobMetaHelper.getMetaValueByName("readType", job.getJobMeta()).toUpperCase());
-	  } catch(MetadataException e){
-			logger.warn("Cannot get metadata for readLength or readType : " + e.getMessage());
-	  }
-	  */
 	  for(JobMeta jobMeta : job.getJobMeta()){
 		  if(jobMeta.getK().indexOf("readLength") != -1){
 			  extraJobDetailsMap.put("Read Length", jobMeta.getV());
@@ -962,7 +847,7 @@ public class SampleDnaToLibraryController extends WaspController {
 			  extraJobDetailsMap.put("Read Type", jobMeta.getV().toUpperCase());
 		  }
 	  }
-	  
+
 	  return extraJobDetailsMap;	  
   }
   
@@ -1012,6 +897,66 @@ public class SampleDnaToLibraryController extends WaspController {
 	  
 	  return submittedSamples;
 	  
+  }
+  
+  /**
+   * See if Sample name has changed between sample objects and if so check if the new name is unique within the job.
+   * @param formSample
+   * @param originalSample
+   * @param job
+   * @param result
+   */
+  private void validateSampleNameUnique(String sampleName, Integer sampleId, Job job, BindingResult result){
+	  //confirm that, if a new sample.name was supplied on the form, it is different from all other sample.name in this job
+	  List<Sample> samplesInThisJob = job.getSample();
+	  for(Sample eachSampleInThisJob : samplesInThisJob){
+		  if(eachSampleInThisJob.getSampleId().intValue() != sampleId.intValue()){
+			  if( sampleName.equals(eachSampleInThisJob.getName()) ){
+				  // adding an error to 'result object' linked to the 'name' field as the name chosen already exists
+				  Errors errors=new BindException(result.getTarget(), "sample");
+				  // reject value on the 'name' field with the message defined in sampleDetail.updated.nameClashError
+				  // usage: errors.rejectValue(field, errorString, default errorString)
+				  errors.rejectValue("name", "sampleDetail.nameClash.error", "sampleDetail.nameClash.error (no message has been defined for this property)");
+				  result.addAllErrors(errors);
+				  break;
+			  }
+		  }
+	  }
+  }
+  
+  /**
+   * Validates the job and sample id supplied to make sure they are refer to actual persisted model objects and are linked
+   * @param jobId
+   * @param sampleId
+   * @param defaultReturnString
+   * @return a redirect path on error, otherwise the defaultResturnString
+   */
+  private String validateJobIdAndSampleId(Integer jobId, Integer sampleId, String defaultReturnString){
+	  	if( jobId == null ){
+			waspErrorMessage("sampleDetail.jobParameter.error");
+			return "redirect:/dashboard.do";
+		}
+		if (sampleId == null){	
+			waspErrorMessage("sampleDetail.sampleParameter.error");
+			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
+		}
+		
+		if(jobDao.getJobByJobId(jobId).getJobId()==null){//not found in database
+			waspErrorMessage("sampleDetail.jobNotFound.error");
+			return "redirect:/dashboard.do";
+		}
+		
+		if(sampleDao.getSampleBySampleId(sampleId).getSampleId()==null){
+			waspErrorMessage("sampleDetail.sampleNotFound.error");
+			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
+		}
+		
+		//confirm these two objects exist and part of same job
+		if(jobSampleDao.getJobSampleByJobIdSampleId(jobId, sampleId).getJobSampleId()== null){
+			waspErrorMessage("sampleDetail.jobSampleMismatch.error");
+			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
+		}
+		return defaultReturnString;
   }
   
 }

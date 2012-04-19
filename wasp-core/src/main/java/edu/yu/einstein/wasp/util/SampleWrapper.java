@@ -114,61 +114,91 @@ public class SampleWrapper implements BioMoleculeWrapperI{
 		}
 		parent = new SampleWrapper(parentSample, sampleSourceDao);
 	}
-
 	
+		
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public List<SampleMeta> updateMetaToList(List<SampleMeta> inputMetaList, SampleMetaDao sampleMetaDao){
+		return updateMetaToList(inputMetaList, sampleMetaDao, true);
+	}
+	
+	/**
+	 * internal method to do meta updating to supplied list.
+	 * @param inputMetaList
+	 * @param sampleMetaDao
+	 * @param isPrimaryCalledInstance - a boolean to tell if method has been called internally or from public method 
+	 * @return
+	 */
+	private List<SampleMeta> updateMetaToList(List<SampleMeta> inputMetaList, SampleMetaDao sampleMetaDao, boolean isPrimaryCalledInstance){
+		List<SampleMeta> returnMetaList = new ArrayList<SampleMeta>();
+		List<SampleMeta> currentlyProcessedMetaList = new ArrayList<SampleMeta>();
+		// recursively work forward through ancestry and add meta to list
+		// deplete inputMetaList as meta used (use once)
+		if (parent != null)
+			returnMetaList.addAll(parent.updateMetaToList(inputMetaList, sampleMetaDao, false));
+		 
 		Map<String, SampleMeta> indexedCurrentSampleMeta = new HashMap<String, SampleMeta>();
 		if (sample.getSampleMeta() != null){
-			for(SampleMeta sm :  sample.getSampleMeta())
+			for(SampleMeta sm :  sample.getSampleMeta()){
 				indexedCurrentSampleMeta.put(sm.getK(), sm);
-		}
-		List<SampleMeta> metaToRemoveFromList = new ArrayList<SampleMeta>();
-		for(SampleMeta inputMeta : inputMetaList){
-			if (sample.getSampleId() == null && inputMeta.getSampleId() != null){
-				continue;
-			}
-			if (inputMeta.getSampleId() == null || sample.getSampleId() == null || inputMeta.getSampleId().intValue() == sample.getSampleId().intValue()){
-				// input meta and sample meta have the same associated Sample object, or no Sample object assigned to meta yet
-				// we will assume intended for this object
-				if (inputMeta.getSampleId() == null)
-					inputMeta.setSampleId(sample.getSampleId());
-				if (sample.getSampleId() != null){
-					//save meta
-					SampleMeta currentMeta = sampleMetaDao.getSampleMetaByKSampleId(inputMeta.getK(), sample.getSampleId());
-					if (currentMeta.getSampleMetaId() == null){
-						// metadata value not in database yet
-						sampleMetaDao.persist(inputMeta);
-					} else if (!currentMeta.getV().equals(inputMeta.getV())){
-						// meta exists already but value has changed
-						currentMeta.setV(inputMeta.getV());
-						sampleMetaDao.merge(currentMeta);
-					} else{
-						// no change to meta so do nothing
-					}
+				if (sm.getSampleId() == null && sample.getSampleId() != null){
+					sm.setSampleId(sample.getSampleId());
+					sampleMetaDao.save(sm);
 				}
-				metaToRemoveFromList.add(inputMeta);
-				indexedCurrentSampleMeta.put(inputMeta.getK(), inputMeta);  // update list 
 			}
 		}
-		for(SampleMeta m : metaToRemoveFromList){
-			inputMetaList.remove(m);
+		for (SampleMeta inputMeta: inputMetaList){
+			if (indexedCurrentSampleMeta.containsKey(inputMeta.getK())){
+				SampleMeta currentSampleMeta = indexedCurrentSampleMeta.get(inputMeta.getK());
+				// there is an index in the current sample's Meta matching that of the current input meta value
+				if (inputMeta.getSampleId() == null || inputMeta.getSampleId().intValue() == sample.getSampleId().intValue() ){
+					// either no sampleId is set or the sampleId set matches the current meta sampleId
+					if (! inputMeta.getV().equals(currentSampleMeta.getV())){
+						// value changed so update
+						currentSampleMeta.setV(inputMeta.getV());
+						if (sample.getSampleId() != null){
+							//existing sample so save
+							sampleMetaDao.save(currentSampleMeta);
+						}
+					} else {
+						// value unchanged so do nothing 
+					}
+					currentlyProcessedMetaList.add(currentSampleMeta);
+				}
+			} else if (inputMeta.getSampleId() != null && sample.getSampleId() != null && inputMeta.getSampleId().intValue() == sample.getSampleId().intValue() ){
+				// new meta for this sample 
+				sampleMetaDao.save(inputMeta);
+				currentlyProcessedMetaList.add(inputMeta);
+				indexedCurrentSampleMeta.put(inputMeta.getK(), inputMeta);
+			}
 		}
-		List<SampleMeta> returnMetaList = new ArrayList<SampleMeta>();
+		for (SampleMeta currentlyProcessedMeta: currentlyProcessedMetaList)
+			inputMetaList.remove(currentlyProcessedMeta); // we're done with this
+			
+	
+		if (isPrimaryCalledInstance){
+			for (SampleMeta inputMeta: inputMetaList){
+				// new meta should be all that remains if anything. 
+				if (inputMeta.getSampleId() == null){
+					if (sample.getSampleId() != null){
+						inputMeta.setSampleId(sample.getSampleId());
+						sampleMetaDao.save(inputMeta);
+					}
+					currentlyProcessedMetaList.add(inputMeta);
+					indexedCurrentSampleMeta.put(inputMeta.getK(), inputMeta);
+				} else {
+					logger.warn("Ignoring input metadata '" + inputMeta.getK() + "'(sampleId='"+inputMeta.getSampleId()+"')  as not compatible with managed sample (sampleId='"+sample.getSampleId()+"') or ancestors!!");
+				}
+			}
+			if (sample.getSampleId() == null){
+				List<SampleMeta> newSampleMetaList = new ArrayList<SampleMeta>();
+				newSampleMetaList.addAll(indexedCurrentSampleMeta.values());
+				sample.setSampleMeta(newSampleMetaList);
+			}
+		}
 		returnMetaList.addAll(indexedCurrentSampleMeta.values());
-		if (sample.getSampleId() == null)
-			sample.setSampleMeta(returnMetaList); // add meta list for non-persisted new samples
-		// cascade through ancestory
-		if (parent != null)
-			returnMetaList.addAll(parent.updateMetaToList(inputMetaList, sampleMetaDao)); // call with depleted inputMetaList
-		
-		// after recursive processing of inputMetaList there should be nothing left. Warn if there is...
-		for (SampleMeta m : inputMetaList){
-			logger.warn("Ignoring input metadata '" + m.getK() + "' as not compatible with managed sample (sampleId='"+sample.getSampleId()+"') or ancestors!!");
-		}
 		return returnMetaList;
 	}
 
@@ -191,7 +221,7 @@ public class SampleWrapper implements BioMoleculeWrapperI{
 			SampleSource sampleSource = new SampleSource();
 			sampleSource.setSampleId(sample.getSampleId());
 			sampleSource.setSourceSampleId(parent.getSampleObject().getSampleId());
-			sampleSourceDao.persist(sampleSource);
+			sampleSourceDao.save(sampleSource);
 		}
 	}
 }

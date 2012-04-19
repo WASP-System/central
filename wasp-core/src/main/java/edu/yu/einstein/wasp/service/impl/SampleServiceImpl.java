@@ -149,10 +149,12 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	   * {@inheritDoc}
 	   */
 	  @Override
-	  public boolean isSampleNameUniqueWithinJob(String name, SampleType sampleType, Job job){
+	  public boolean isSampleNameUniqueWithinJob(Sample sampleIn, SampleType sampleType, Job job){
 		  List<Sample> samplesInThisJob = job.getSample();
 		  for(Sample sample : samplesInThisJob){
-			  if( sample.getSampleType().getIName().equals(sampleType.getIName()) && name.equals(sample.getName()) ){
+			  if (sampleIn.getSampleId() != null && sample.getSampleId().intValue() == sampleIn.getSampleId().intValue())
+				  continue;
+			  if( sample.getSampleType().getIName().equals(sampleType.getIName()) && sampleIn.getName().equals(sample.getName()) ){
 				  return false;
 			  }
 		  }

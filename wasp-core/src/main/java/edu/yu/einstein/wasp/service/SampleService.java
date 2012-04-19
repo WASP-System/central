@@ -80,13 +80,13 @@ public interface SampleService extends WaspService {
 	  public List<SampleSubtype> getSampleSubtypesForWorkflowByRole(Integer workflowId,	String[] roles);
 
 	  /**
-	   * Returns true unless a sample exists in job of the same sampleType with the same name
-	   * @param name
+	   * Returns true unless a sample exists in job of the same sampleType with the same name as the provided Sample
+	   * @param Sample
 	   * @param sampleType
 	   * @param job
 	   * @return boolean
 	   */
-	  public boolean isSampleNameUniqueWithinJob(String name, SampleType sampleType, Job job);
+	  public boolean isSampleNameUniqueWithinJob(Sample sampleIn, SampleType sampleType, Job job);
 
 	  /**
 	   * Saves a sample and all the metadata associated with it

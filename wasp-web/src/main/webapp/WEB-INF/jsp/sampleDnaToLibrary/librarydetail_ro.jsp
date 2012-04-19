@@ -19,22 +19,17 @@
 <c:if test="${parentMacromolecule != null && parentMacromolecule.sampleId > 0}">
   	<tr class="FormData"><td class="CaptionTD">Primary Sample Name: </td><td class="DataTD"><c:out value="${parentMacromolecule.name}" /></td></tr>
   	<tr class="FormData"><td class="CaptionTD">Primary Sample Type: </td><td class="DataTD"><c:out value="${parentMacromolecule.sampleType.name}" /></td></tr>
-    <c:forEach items="${parentMacromolecule.sampleMeta}" var="msm">
-    	<c:if test="${fn:substringAfter(msm.k, 'Biomolecule.') == 'species'}">
-            <tr class="FormData"><td class="CaptionTD">Primary Sample Species: </td><td class="DataTD"><c:out value="${msm.v}"/></td></tr>
-        </c:if> 
-    </c:forEach> 
 </c:if>
    	<tr class="FormData"><td colspan="2" class="label-centered">LIBRARY DETAILS</td></tr>
   
   	 <tr class="FormData"><td class="CaptionTD">Library Name: </td><td class="DataTD"><c:out value="${sample.name}" /></td></tr>
      <tr class="FormData"><td class="CaptionTD">Sample Type: </td><td class="DataTD">Library</td></tr>
      <c:set var="_area" value = "library" scope="request"/>
-     <c:set var="_metaList" value = "${normalizedSampleMeta}" scope="request" />
+     <c:set var="_metaList" value = "${sample.getSampleMeta()}" scope="request" />
      <c:import url="/WEB-INF/jsp/meta_ro.jsp" />
-    <tr class="FormData"><td colspan="2" class="DataTD"><a href="<c:url value="/sampleDnaToLibrary/listJobSamples/${job.jobId}.do"/>">Cancel</a>&nbsp;
+    <tr class="FormData"><td colspan="2" class="DataTD submitBottom"><a class="button" href="<c:url value="/sampleDnaToLibrary/listJobSamples/${job.jobId}.do"/>">Cancel</a>&nbsp;
 	<sec:authorize access="hasRole('su') or hasRole('ft')"> 
-	  <a href="<c:url value="/sampleDnaToLibrary/librarydetail_rw/${job.jobId}/${sample.sampleId}.do"/>">Edit</a>
+	  <a class="button" href="<c:url value="/sampleDnaToLibrary/librarydetail_rw/${job.jobId}/${sample.sampleId}.do"/>">Edit</a>
 	 </sec:authorize>	
 	 </td></tr>
 </table>

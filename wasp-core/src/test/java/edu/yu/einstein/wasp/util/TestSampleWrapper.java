@@ -245,17 +245,12 @@ public class TestSampleWrapper {
 		SampleMetaDao mockSampleMetaDao = createMockBuilder(SampleMetaDaoImpl.class).addMockedMethods(SampleMetaDaoImpl.class.getMethods()).createMock();
 		Assert.assertNotNull(mockSampleMetaDao);
 		
-		expect(mockSampleMetaDao.getSampleMetaByKSampleId("sampleMeta1.key1", sample.getSampleId())).andReturn(sampleMeta1);
-		expect(mockSampleMetaDao.getSampleMetaByKSampleId("sampleMeta1.key2", sample.getSampleId())).andReturn(sampleMeta2);
-		expect(mockSampleMetaDao.getSampleMetaByKSampleId("parentSampleMeta2.key3", parentSample.getSampleId())).andReturn(sampleMeta3);
-		expect(mockSampleMetaDao.getSampleMetaByKSampleId("parentSampleMeta2.key5", sample.getSampleId())).andReturn(new SampleMeta());
-		expect(mockSampleMetaDao.getSampleMetaByKSampleId("anotherarea.key1", parentSample.getSampleId())).andReturn(new SampleMeta());
-		expect(mockSampleMetaDao.getSampleMetaByKSampleId("anotherarea.key2", sample.getSampleId())).andReturn(new SampleMeta());
-		expect(mockSampleMetaDao.merge(sm2)).andReturn(sm2);
-		mockSampleMetaDao.persist(sm3);
-		mockSampleMetaDao.persist(sm5);
-		mockSampleMetaDao.persist(sm6);
-		mockSampleMetaDao.persist(sm7);
+		expect(mockSampleMetaDao.save(sampleMeta2)).andReturn(sampleMeta2);
+		expect(mockSampleMetaDao.save(sampleMeta4)).andReturn(sampleMeta4);
+		expect(mockSampleMetaDao.save(sm2)).andReturn(sm2);
+		expect(mockSampleMetaDao.save(sm6)).andReturn(sm6); 
+		expect(mockSampleMetaDao.save(sm5)).andReturn(sm5); 
+		expect(mockSampleMetaDao.save(sm7)).andReturn(sm7);
 		replay(mockSampleMetaDao);
 		
 		List<SampleMeta> newSampleMetaList = managedSample.updateMetaToList(inputMetaList, mockSampleMetaDao);
@@ -268,6 +263,7 @@ public class TestSampleWrapper {
 		Assert.assertEquals(newSampleMetaList.size(), 7); // the 4 original sample Meta objects (sampleMeta1 - sampleMeta4) plus three new ones
 		Assert.assertEquals(results.get("sampleMeta1.key1").getV(), "1"); // unchanged from sampleMeta1
 		Assert.assertEquals(results.get("parentSampleMeta2.key3").getV(), "10"); // changed from original value of 2 in sampleMeta2 by merging in sm2
+		Assert.assertEquals(results.get("parentSampleMeta2.key3").getSampleId().intValue(), 2);
 		Assert.assertEquals(results.get("sampleMeta1.key2").getV(), "2"); // unchanged from sampleMeta2
 		Assert.assertEquals(results.get("sampleMeta1.key2").getSampleId().intValue(), 1);
 		
@@ -300,8 +296,8 @@ public class TestSampleWrapper {
 		expect(mockSampleSourceDao.getParentSampleByDerivedSampleId(2)).andReturn(grandparentSample);
 		replay(mockSampleSourceDao);
 				
-		sample.setSampleId(null);
 		SampleWrapper managedSample = new SampleWrapper(sample, mockSampleSourceDao);
+		sample.setSampleId(null);
 		
 		// set up test input meta list
 		List<SampleMeta> inputMetaList = new ArrayList<SampleMeta>();
@@ -322,23 +318,31 @@ public class TestSampleWrapper {
 		sm3.setV("14");
 		inputMetaList.add(sm3);
 		
+		SampleMeta sm4 = new SampleMeta(); 
+		sm4.setK("parentSampleMeta2.key3");
+		sm4.setSampleId(2);
+		sm4.setV("10");
+		inputMetaList.add(sm4);
+		
 		
 		// set up mockSamplemetaDao
 		SampleMetaDao mockSampleMetaDao = createMockBuilder(SampleMetaDaoImpl.class).addMockedMethods(SampleMetaDaoImpl.class.getMethods()).createMock();
 		Assert.assertNotNull(mockSampleMetaDao);
-	
+		expect(mockSampleMetaDao.save(sm4)).andReturn(sm4);
+		expect(mockSampleMetaDao.save(sampleMeta4)).andReturn(sampleMeta4);
 		replay(mockSampleMetaDao);
 		
 		List<SampleMeta> newSampleMetaList = managedSample.updateMetaToList(inputMetaList, mockSampleMetaDao);
 		Map<String, SampleMeta> results = new HashMap<String, SampleMeta>();
 		for (SampleMeta m: newSampleMetaList){
 			logger.debug(m.toString()+": sampleId: "+m.getSampleId());
-			results.put(m.getK(), m);			
+			results.put(m.getK(), m);
 		}
 		Assert.assertEquals(results.get("sampleMeta1.key1").getV(), "1");
-		Assert.assertNull(results.get("sampleMeta1.key1").getSampleId());
 		Assert.assertEquals(results.get("anotherarea.key1").getV(), "12");
 		Assert.assertNull(results.get("anotherarea.key1").getSampleId());
+		Assert.assertEquals(results.get("parentSampleMeta2.key3").getV(), "10");
+		Assert.assertEquals(results.get("parentSampleMeta2.key3").getSampleId().intValue(), 2);
 		Assert.assertFalse(results.containsKey("sampleMeta3.key1"));
 		
 		// Verifies the use of mockSampleMetaDao is as specified 
@@ -356,7 +360,7 @@ public class TestSampleWrapper {
 		expect(mockSampleSourceDao.getParentSampleByDerivedSampleId(2)).andReturn(grandparentSample);
 		expect(mockSampleSourceDao.getParentSampleByDerivedSampleId(1)).andReturn(otherParent);
 		expect(mockSampleSourceDao.getParentSampleByDerivedSampleId(1)).andReturn(otherParent);
-		mockSampleSourceDao.persist(isA(SampleSource.class));
+		expect(mockSampleSourceDao.save(isA(SampleSource.class))).andReturn(new SampleSource());
 		replay(mockSampleSourceDao);
 		
 		// set up mockSamplemetaDao

@@ -30,11 +30,8 @@
 </table>
 <br /> 
 <form:form  cssClass="FormGrid" commandName="sample">
- <input type='hidden' name='jobId' value='<c:out value="${job.jobId}" />'/>
- <input type='hidden' name='macromolSampleId' value='<c:out value="${macromoleculeSample.sampleId}" />'/>
- <input type='hidden' name='adaptorsetId' value='<c:out value="${adaptorsets.get(0).adaptorsetId}" />'/>
- <input type='hidden' name='sampleTypeId' value='<c:out value="${sample.getSampleTypeId()}" />'/>
- <input type='hidden' name='sampleSubtypeId' value='<c:out value="${sample.getSampleSubtypeId()}" />'/>
+ <form:hidden path='sampleTypeId' />
+ <form:hidden path='sampleSubtypeId' />
  
 <table class="EditTable ui-widget ui-widget-content">
   	<tr class="FormData"><td class="CaptionTD">Primary Sample Name:</td><td colspan="2" class="DataTD"><c:out value="${macromoleculeSample.name}" /></td></tr>

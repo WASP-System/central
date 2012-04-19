@@ -30,62 +30,93 @@ public class SampleWrapperWebapp extends SampleWrapper{
 		super(sample, sampleSourceDao);
 	}
 	
-	/**
-	 * Retrieves a list of ALL meta data associated with this biological sample using only the areas comprising the provided {@inheritDoc SampleSubtype}
-	 * and also found in UiFields
-	 * @param sampleSubtype
-	 * @return list of sample meta data
-	 */
-	public List<SampleMeta> getMetaTemplatedToSampleSybtypeAndSynchronizedToMaster(SampleSubtype sampleSubtype) {
-		return getMetaTemplatedToSampleSybtypeAndSynchronizedToMaster(sampleSubtype, null); 
-	}
 
 	/**
-	 * Retrieves a list of ALL meta data associated with this biological sample using only the areas comprising the provided {@inheritDoc SampleSubtype}
-	 * and also found in UiFields. Applies the provided visibilityElementmap to control metadata visibility on forms
+	 * Gets an empty meta list based on a template representing a specified {@link SampleSubtype} and synchronizes with the master list for each area representative
+	 * of that SampleSubtype
+	 * 
 	 * @param sampleSubtype
-	 * @return list of sample meta data
+	 * @param sampleMetaList
+	 * @return list of normalized sample meta data
 	 */
-	public List<SampleMeta> getMetaTemplatedToSampleSybtypeAndSynchronizedToMaster(SampleSubtype sampleSubtype, Map<String, MetaAttribute.FormVisibility> visibilityElementMap) {
+	public static List<SampleMeta> templateMetaToSubtypeAndSynchronizeWithMaster(SampleSubtype sampleSubtype, List<SampleMeta> sampleMetaList) {
+		return templateMetaToSubtypeAndSynchronizeWithMaster(sampleSubtype, sampleMetaList, null); 
+	}
+	
+	/**
+	 * Gets an empty meta list based on a template representing a specified {@link SampleSubtype} and synchronizes with the master list for each area representative
+	 * of that SampleSubtype
+	 * 
+	 * @param sampleSubtype
+	 * @param sampleMetaList
+	 * @return list of normalized sample meta data
+	 */
+	public static List<SampleMeta> templateMetaToSubtypeAndSynchronizeWithMaster(SampleSubtype sampleSubtype) {
+		return templateMetaToSubtypeAndSynchronizeWithMaster(sampleSubtype, null, null); 
+	}
+	
+	/**
+	 * Takes a list of meta data, overlays a template representing a specified {@link SampleSubtype} and synchronizes with the master list for each area representative
+	 * of that SampleSubtype. Applies visibilityElement mask.
+	 * 
+	 * @param sampleSubtype
+	 * @param sampleMetaList
+	 * @return list of normalized sample meta data
+	 */
+	public static List<SampleMeta> templateMetaToSubtypeAndSynchronizeWithMaster(SampleSubtype sampleSubtype, Map<String, MetaAttribute.FormVisibility> visibilityElementMap) {
+		return templateMetaToSubtypeAndSynchronizeWithMaster(sampleSubtype, null, visibilityElementMap); 
+	}
+	
+	/**
+	 * Takes a list of meta data, overlays a template representing a specified {@link SampleSubtype} and synchronizes with the master list for each area representative
+	 * of that SampleSubtype. If sampleMetaList is null, then the master list is retrieved for each area instead. Applies visibilityElement mask.
+	 * @param sampleSubtype
+	 * @param sampleMeta
+	 * @param visibilityElementMap
+	 * @return list of normalized sample meta data
+	 */
+	public static List<SampleMeta> templateMetaToSubtypeAndSynchronizeWithMaster(SampleSubtype sampleSubtype, List<SampleMeta> sampleMetaList, Map<String, MetaAttribute.FormVisibility> visibilityElementMap) {
   		MetaHelper sampleMetaHelper = new MetaHelper(SampleMeta.class); 
   		List<SampleMeta> normalizedSampleMeta = new ArrayList<SampleMeta>();
-  		List<String> sampleSubtypeComponentAreas = sampleSubtype.getComponentMetaAreas();
-  		for(String area : sampleSubtypeComponentAreas){
+  		for(String area : sampleSubtype.getComponentMetaAreas()){
   			sampleMetaHelper.setArea(area);
-  			normalizedSampleMeta.addAll(sampleMetaHelper.syncWithMaster(this.getAllSampleMeta(), visibilityElementMap));
+  			if (sampleMetaList != null){
+  				normalizedSampleMeta.addAll(sampleMetaHelper.syncWithMaster(sampleMetaList, visibilityElementMap));
+  			} else {
+  				normalizedSampleMeta.addAll(sampleMetaHelper.getMasterList(visibilityElementMap, SampleMeta.class));
+  			}
   		}
   		return normalizedSampleMeta;
 	}
 	
 	/**
-	 * Gets all metadata filled in on the form from the http request and validates. Validation errors are added to the result. Applies visibilityElementMap
+	 * Gets all metadata filled in on the form from the http request using the areas representative of the supplied {@link SampleSubtype} and validates. Validation errors are added to the result. Applies visibilityElementMap.
 	 * @param request
+	 * @param areas
 	 * @param result
 	 * @param visibilityElementMap
 	 * @return list of sample meta data
 	 */
-	public List<SampleMeta> getValidatedMetaFromRequest(HttpServletRequest request, BindingResult result, Map<String, MetaAttribute.FormVisibility> visibilityElementMap){
+	public static List<SampleMeta> getValidatedMetaFromRequestAndTemplateToSubtype(HttpServletRequest request, SampleSubtype sampleSubtype, BindingResult result, Map<String, MetaAttribute.FormVisibility> visibilityElementMap){
 		List<SampleMeta> validatedFormMeta = new ArrayList<SampleMeta>();
 		MetaHelperWebapp metaHelper = new MetaHelperWebapp(SampleMeta.class);
-		for (String area : this.getAllSampleMetaAreas()){
+		for (String area : sampleSubtype.getComponentMetaAreas()){
 			metaHelper.setArea(area);
 			validatedFormMeta.addAll(metaHelper.getFromRequest(request, visibilityElementMap, SampleMeta.class));
 		}
 		MetaHelperWebapp.validate(metaHelper.getParentArea(), validatedFormMeta, result);
-			
-		
 		return validatedFormMeta;
 	}
 	
 	/**
-	 * Gets all metadata filled in on the form from the http request and validates. Validation errors are added to the result.
+	 * Gets all metadata filled in on the form from the http request using the areas representative of the supplied {@link SampleSubtype} and validates. Validation errors are added to the result. 
 	 * @param request
+	 * @param areas
 	 * @param result
-	 * @param visibilityElementMap
 	 * @return list of sample meta data
 	 */
-	public List<SampleMeta> getValidatedMetaFromRequest(HttpServletRequest request, BindingResult result){
-		return getValidatedMetaFromRequest(request, result, null);
+	public static List<SampleMeta> getValidatedMetaFromRequestAndTemplateToSubtype(HttpServletRequest request, SampleSubtype sampleSubtype, BindingResult result){
+		return getValidatedMetaFromRequestAndTemplateToSubtype(request, sampleSubtype, result, null);
 	}
 
 }

@@ -14,8 +14,8 @@
 </table>
 <br />
 <form:form cssClass="FormGrid" commandName="sample">
-  <input type='hidden' name='jobId' value='<c:out value="${job.jobId}" />'/>
-  <input type='hidden' name='sampleId' value='<c:out value="${sample.sampleId}" />'/>
+<form:hidden path='sampleSubtypeId' />
+<form:hidden path='sampleTypeId' />
 <table class="EditTable ui-widget ui-widget-content">
   	 <tr class="FormData">
       <td class="CaptionTD">Sample Name:</td>
@@ -24,7 +24,7 @@
      </tr>
      <tr class="FormData"><td class="CaptionTD">Sample Type:</td><td class="DataTD"><c:out value="${sample.sampleType.name}" /></td><td class="CaptionTD error"><form:errors path="" /></td></tr>
      <c:set var="_area" value = "sample" scope="request"/>
-	 <c:set var="_metaList" value = "${sample.sampleMeta}" scope="request" />		
+	 <c:set var="_metaList" value = "${normalizedSampleMeta}" scope="request" />		
      <c:import url="/WEB-INF/jsp/meta_rw.jsp" />
      <sec:authorize access="hasRole('su') or hasRole('ft')">
     <tr class="FormData">

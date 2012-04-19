@@ -945,10 +945,8 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDetail','jobNotFound','error','Job not found in the database','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDetail','sampleParameter','error','No sample matches supplied sample parameter','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDetail','sampleNotFound','error','Sample not found in the database','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDetail','libraryParameter','error','No library matches supplied library parameter','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDetail','libraryNotFound','error','Library not found in the database','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDetail','sampleSubtypeNotFound','error','Cannot find requested sample subtype in the database','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDetail','jobLibraryMismatch','error','Supplied job and library parameters do not refer to a valid object','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDetail','jobSampleMismatch','error','Supplied job and sample parameters do not refer to a valid object','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDetail','adaptorsetParameter','error','No adaptorset matches supplied adaptorset parameter','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDetail','unexpected','error','Sample NOT updated. Unexpected error!','1');
