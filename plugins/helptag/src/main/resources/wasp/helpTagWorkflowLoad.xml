@@ -97,11 +97,11 @@
         </bean>
         <bean parent="helpTagUiFieldWrapper">
           <property name="baseName" value="test" />
-          <property name="label" value="Test" />
+          <property name="label" value="HpaII" />
         </bean>
         <bean parent="helpTagUiFieldWrapper">
           <property name="baseName" value="control" />
-          <property name="label" value="Control" />
+          <property name="label" value="MspI" />
         </bean>
      </list>
  
