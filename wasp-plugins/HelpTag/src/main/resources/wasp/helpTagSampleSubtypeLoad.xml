@@ -6,7 +6,7 @@
         http://www.springframework.org/schema/beans/spring-beans-3.1.xsd"
     default-autowire="byName">
    
-  <!-- HELP-tag DNA sample --> 
+  <!-- HELP-tag DNA sample 
    
   <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="helpTagDnaUiFieldWrapper">
     <property name="baseLocale" value="en_US" />
@@ -17,7 +17,6 @@
   <bean id="helpTagDnaSpecificUiFields" class="org.springframework.beans.factory.config.ListFactoryBean">
     <property name="sourceList">
      	<list value-type="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper">
-	        <!-- helpTag Specific -->
 	        <bean parent="helpTagDnaUiFieldWrapper">
 	          <property name="baseName" value="fragmentSize" />
 	          <property name="label" value="Average Fragmentation Size" />
@@ -70,6 +69,7 @@
     
   </bean>
 
+--> 
 
   <!-- helpTag Library sample -->
   
