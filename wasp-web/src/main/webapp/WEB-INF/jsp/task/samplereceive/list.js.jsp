@@ -9,7 +9,7 @@
 		//alert("test"); return false;
 		//var radio = getElementById(theform.receivedStatus);
 		if(!theform.receivedStatus[0].checked && !theform.receivedStatus[1].checked){
-			alert("Please select either Sample Received or Never Coming");
+			alert("Please select either Sample Received or Withdrawn");
 			return false;
 		}	
 		return true;

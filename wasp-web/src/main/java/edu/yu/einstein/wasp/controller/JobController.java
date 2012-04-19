@@ -299,7 +299,7 @@ public class JobController extends WaspController {
 	}
 
 	@RequestMapping(value = "/subgridJSON.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('su') or hasRole('jv-' + #jobId)")
+	@PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('jv-' + #jobId)")
 	public String subgridJSON(@RequestParam("id") Integer jobId,ModelMap m, HttpServletResponse response) {
 				
 		Map <String, Object> jqgrid = new HashMap<String, Object>();
@@ -311,17 +311,28 @@ public class JobController extends WaspController {
 
 		//For a list of the macromolecule and library samples initially submitted to a job, pull from table jobcell and exclude duplicates
 		//Note that table jobsample is not appropriate, as it will eventually contain records for libraries made by the facility 
-		Set<Sample> samples = new HashSet<Sample>();//used to store set of unique samples submitted by the user for a specific job
+		Set<Sample> samplesAsSet = new HashSet<Sample>();//used to store set of unique samples submitted by the user for a specific job
 		Map filter = new HashMap();
 		filter.put("jobId", job.getJobId());
 		List<JobCell> jobCells = jobCellDao.findByMap(filter);
 		for(JobCell jobCell : jobCells){
 			List<SampleCell> sampleCells = jobCell.getSampleCell();
 			for(SampleCell sampleCell : sampleCells){
-				samples.add(sampleCell.getSample());
+				samplesAsSet.add(sampleCell.getSample());
 			}
 		}
-		  
+		List<Sample> samples = new ArrayList();//this List is needed in order to be able to sort the list (so that it appears the same each time it is displayed on the web; you can't sort a set)
+		for(Sample sample : samplesAsSet){
+			samples.add(sample);
+		}
+		class SampleNameComparator implements Comparator<Sample> {
+		    @Override
+		    public int compare(Sample arg0, Sample arg1) {
+		        return arg0.getName().compareToIgnoreCase(arg1.getName());
+		    }
+		}
+		Collections.sort(samples, new SampleNameComparator());//sort by sample's name using class SampleNameComparator immediately above this line (we needed a list, as you can't sort a set)
+
 		try {
 			List<Map> rows = new ArrayList<Map>();
 			for (Sample sample:samples) {

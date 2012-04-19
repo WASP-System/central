@@ -278,6 +278,7 @@ public class SampleDnaToLibraryController extends WaspController {
   } 
   
   @RequestMapping(value="/listJobSamples/{jobId}", method=RequestMethod.GET)
+  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('jv-' + #jobId)")
   public String listJobSamples(@PathVariable("jobId") Integer jobId, ModelMap m) {
     
 	  if(jobId == null ){
@@ -673,7 +674,7 @@ public class SampleDnaToLibraryController extends WaspController {
  
   
   @RequestMapping(value = "/librarydetail_ro/{jobId}/{libraryId}", method = RequestMethod.GET)//sampleId represents an existing library (at this moment both user supplied or facility created)
-	@PreAuthorize("hasRole('su') or hasRole('ft')")
+	@PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('jv-' + #jobId)")
 	public String libraryDetailRO(@PathVariable("jobId") Integer jobId, @PathVariable("libraryId") Integer libraryId, ModelMap m) throws MetadataException{
 	  return libraryDetail(jobId, libraryId, m, false);
   }
@@ -801,7 +802,7 @@ public class SampleDnaToLibraryController extends WaspController {
   
   
   @RequestMapping(value = "/sampledetail_ro/{jobId}/{sampleId}", method = RequestMethod.GET)//sampleId represents a macromolecule (genomic DNA or RNA) , but that could change as this evolves
-	@PreAuthorize("hasRole('su') or hasRole('ft')")
+	@PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('jv-' + #jobId)")
 	public String sampleDetailRO(@PathVariable("jobId") Integer jobId, @PathVariable("sampleId") Integer sampleId, ModelMap m) {
 	  return sampleDetail(jobId, sampleId, m, false);
   }

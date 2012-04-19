@@ -7,10 +7,14 @@
 <h2><fmt:message key="samplereceivetask.subtitle_none.label" /></h2>
 </c:when>
 <c:otherwise>
+<c:set var="currentJobId" value="-1" scope="page" />
 <table class="EditTable ui-widget ui-widget-content">
 <tr class="FormData"><td class="label-centered">JobID</td><td class="label-centered">Job Name</td><td class="label-centered">Submitter</td><td class="label-centered">Sample</td><td class="label-centered">Molecule</td><td class="label-centered">Action</td></tr>
  <c:forEach items="${states}" var="s">
  <c:forEach items="${s.statesample}" var="ss">
+ <c:if test='${currentJobId != "-1" && currentJobId !=  s.statejob[0].job.jobId}'>
+ 	<tr><td colspan="6" style='background-color:black'></td></tr>
+ </c:if>
 <tr class="FormData"><td style='text-align:center'><c:out value="${s.statejob[0].job.jobId}" /></td>          
 	<td style='text-align:center'><c:out value="${s.statejob[0].job.name}" /></td>
 	<td style='text-align:center'><c:out value="${s.statejob[0].job.user.lastName}" />,<c:out value="${s.statejob[0].job.user.firstName.substring(0,1)}" /></td>
@@ -24,6 +28,7 @@
 		</form>
 	</td>
 </tr>
+<c:set var="currentJobId" value="${s.statejob[0].job.jobId}" scope="page" />
 </c:forEach>
  </c:forEach>
 </table>
