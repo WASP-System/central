@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+    xsi:schemaLocation=" http://www.springframework.org/schema/beans 
+  http://www.springframework.org/schema/beans/spring-beans.xsd     
+  http://www.springframework.org/schema/integration
+  http://www.springframework.org/schema/integration/spring-integration.xsd
+  http://www.springframework.org/schema/batch 
+  http://www.springframework.org/schema/batch/spring-batch.xsd
+  "
+    xmlns:p="http://www.springframework.org/schema/p" 
+    xmlns:batch="http://www.springframework.org/schema/batch" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:si="http://www.springframework.org/schema/integration" 
+    xmlns="http://www.springframework.org/schema/beans"
+    default-autowire="byName">
+
+  <bean id="bisulSeqDna.sample.Poller" parent="wasp.sample.Poller">
+    <property name="sampleSubtypeIName" value="bisulSeqDnaSample"/>
+    <property name="taskIName" value="sampleWrapTask"/>
+  </bean>
+
+  <si:inbound-channel-adapter ref="bisulSeqDna.sample.Poller" method="getStates" channel="bisulSeqDna.sample.Channel">
+    <si:poller fixed-rate="10000"/>
+  </si:inbound-channel-adapter>
+
+  <si:service-activator input-channel="bisulSeqDna.sample.Channel" output-channel="logger">
+    <bean class="edu.yu.einstein.wasp.batch.launcher.StateJobLaunchingMessageHandler" scope="prototype">
+       <constructor-arg ref="jobRegistry" />
+       <constructor-arg ref="jobLauncher" />
+       <constructor-arg ref="jobRepository" />
+       <constructor-arg ref="jobOperator" />
+       <constructor-arg type="java.lang.String"><value>bisulSeqDna.sample.Job</value></constructor-arg>
+    </bean>
+  </si:service-activator>
+
+  <bean id="bisulSeqLibrary.sample.Poller" parent="wasp.sample.Poller">
+    <property name="sampleSubtypeIName" value="bisulSeqLibrarySample"/>
+    <property name="taskIName" value="sampleWrapTask"/>
+  </bean>
+
+  <si:inbound-channel-adapter ref="bisulSeqLibrary.sample.Poller" method="getStates" channel="bisulSeqLibrary.sample.Channel">
+    <si:poller fixed-rate="10000"/>
+  </si:inbound-channel-adapter>
+
+  <si:service-activator input-channel="bisulSeqLibrary.sample.Channel" output-channel="logger">
+    <bean class="edu.yu.einstein.wasp.batch.launcher.StateJobLaunchingMessageHandler" scope="prototype">
+       <constructor-arg ref="jobRegistry" />
+       <constructor-arg ref="jobLauncher" />
+       <constructor-arg ref="jobRepository" />
+       <constructor-arg ref="jobOperator" />
+       <constructor-arg type="java.lang.String"><value>bisulSeqLibrary.sample.Job</value></constructor-arg>
+    </bean>
+  </si:service-activator>
+
+
+  <batch:job id="bisulSeqDna.sample.Job">
+    <batch:flow id="bisulSeqDna.sample.Job0" parent="wasp.sample.DefaultMpsDnaFlow" next="bisulSeqDna.sample.Job1" />
+    <batch:flow id="bisulSeqDna.sample.Job1" parent="wasp.default.FinalFlow" />
+  </batch:job>
+
+  <batch:job id="bisulSeqLibrary.sample.Job">
+    <batch:flow id="bisulSeqLibrary.sample.Job0" parent="wasp.sample.DefaultMpsLibraryFlow" next="bisulSeqLibrary.sample.Job1" />
+
+    <!-- send to bisulseq pipeline -->
+    <batch:flow id="bisulSeqLibrary.sample.Job1" parent="wasp.sample.BisulseqPipelineRunFlow" next="bisulSeqLibrary.sample.Job2" />
+
+    <!-- send to analysis -->
+
+    <batch:flow id="bisulSeqLibrary.sample.Job2" parent="wasp.default.FinalFlow" />
+  </batch:job>
+</beans>

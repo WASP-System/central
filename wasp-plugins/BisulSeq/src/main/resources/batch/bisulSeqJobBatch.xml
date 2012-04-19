@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+    xsi:schemaLocation=" http://www.springframework.org/schema/beans 
+  http://www.springframework.org/schema/beans/spring-beans.xsd     
+  http://www.springframework.org/schema/context  
+  http://www.springframework.org/schema/context/spring-context.xsd 
+  http://www.springframework.org/schema/mvc 
+  http://www.springframework.org/schema/mvc/spring-mvc.xsd  
+  http://www.springframework.org/schema/aop 
+  http://www.springframework.org/schema/aop/spring-aop.xsd
+  http://www.springframework.org/schema/tx
+  http://www.springframework.org/schema/tx/spring-tx.xsd
+  http://www.springframework.org/schema/integration
+  http://www.springframework.org/schema/integration/spring-integration.xsd
+  http://www.springframework.org/schema/integration/file
+  http://www.springframework.org/schema/integration/file/spring-integration-file.xsd
+  http://www.springframework.org/schema/batch 
+  http://www.springframework.org/schema/batch/spring-batch.xsd
+  "
+    xmlns:mvc="http://www.springframework.org/schema/mvc" 
+    xmlns:aop="http://www.springframework.org/schema/aop" 
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:p="http://www.springframework.org/schema/p" 
+    xmlns:batch="http://www.springframework.org/schema/batch" 
+    xmlns:tx="http://www.springframework.org/schema/tx" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:si="http://www.springframework.org/schema/integration" 
+    xmlns:file="http://www.springframework.org/schema/integration/file" 
+    xmlns="http://www.springframework.org/schema/beans"
+    default-autowire="byName">
+
+  <bean id="bisulSeq.job.Poller" parent="wasp.job.Poller">
+    <property name="workflowIName"  value="bisulSeq"/>
+    <property name="taskIName" value="Start Job"/>
+  </bean> 
+  <si:inbound-channel-adapter ref="bisulSeq.job.Poller" method="getStates" channel="bisulSeq.job.Channel">
+    <si:poller fixed-delay="10000" />
+  </si:inbound-channel-adapter>
+
+  <!-- intermediary for output from jobCreateRequestChannel: -->
+  <!-- calls StateJobLaunchingMessageHandler which calls batch:job 'Start Job' (see below) -->	
+  <si:service-activator input-channel="bisulSeq.job.Channel" output-channel="logger">
+    <bean class="edu.yu.einstein.wasp.batch.launcher.StateJobLaunchingMessageHandler" scope="prototype">
+       <constructor-arg ref="jobRegistry" />
+       <constructor-arg ref="jobLauncher" />
+       <constructor-arg ref="jobRepository" />
+       <constructor-arg ref="jobOperator" />
+       <constructor-arg type="java.lang.String"><value>bisulSeq.job.Job</value></constructor-arg>
+    </bean>
+  </si:service-activator>
+
+  <bean class="edu.yu.einstein.wasp.batch.DoCommandStateTasklet" id="bisulSeq.job.SendInvoiceTasklet" scope="step">
+    <property name="stateId">
+      <value>#{jobParameters['state']}</value>
+    </property>
+    <property name="params">
+      <list>
+        <value>'/tmp/abc.pl'</value>
+        <value>'goodbye'</value>
+        <value>new String('hello world').toUpperCase()</value>
+        <value>#m['state'].name</value>
+        <value>#m['state'].statejob[0].job.name</value>
+        <value>#m['state'].statejob[0].job.workflow.iName</value>
+        <value>'#{jobParameters['state']}'</value>
+        <value>'goodbye'</value>
+      </list>
+    </property>
+
+    <!-- 5 second timeout for the command to complete -->
+    <property name="timeout" value="5000" />
+  </bean>
+
+
+  <batch:job id="bisulSeq.job.JobTest">
+    <batch:step id="bisulSeq.job.SendInvoiceTaskStep">
+      <batch:tasklet ref="bisulSeq.job.SendInvoiceTasklet" />
+    </batch:step>
+  </batch:job>
+
+
+
+
+  <batch:job id="bisulSeq.job.Job" restartable="true">
+    <batch:flow id="bisulSeq.job.Job0" parent="wasp.job.CreateSampleFlow" next="bisulSeq.job.Job1" />
+
+    <batch:split id="bisulSeq.job.Job1" next="bisulSeq.job.Job2" task-executor="asyncTaskExecutor">
+      <batch:flow>
+        <batch:flow id="bisulSeq.job.Job1.quoteFlow" parent="wasp.job.QuoteFlow" />
+      </batch:flow>
+      <batch:flow>
+        <batch:flow id="bisulSeq.job.Job1.piApprovalFlow" parent="wasp.job.PiApprovalFlow" />
+      </batch:flow>
+      <batch:flow>
+        <batch:flow id="bisulSeq.job.Job1.daApprovalFlow" parent="wasp.job.DaApprovalFlow" />
+      </batch:flow>
+    </batch:split> 
+
+    <!-- send and invoice -->
+    <!-- <batch:step id="SendInvoiceTaskStep" next="bisulSeq.invoiceFlow" >
+      <batch:tasklet ref="SendInvoiceTasklet" />
+    </batch:step> -->
+    <batch:flow id="bisulSeq.job.Job2" parent="wasp.job.SendInvoiceFlow" next="bisulSeq.job.Job3" />
+
+    <!-- receive all the samples -->
+    <batch:flow id="bisulSeq.job.Job3" parent="wasp.default.WaitForChildrenFinalFlow" next="bisulSeq.job.Job4" />
+
+    <!-- send to analysis -->
+
+    <batch:flow id="bisulSeq.job.Job4" parent="wasp.default.FinalFlow" />
+  </batch:job>
+
+</beans>
