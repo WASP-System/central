@@ -23,7 +23,7 @@
          	<class name="edu.yu.einstein.wasp.integration.selenium.SelNewPI">
          	<methods>
          			<include name="navigateNewPIForm"></include>
-		         	<include name="confirmEmailAuth"></include>	
+		         	<include name="confirmEmailAuth"></include>
 		         	
 	        </methods>
          	</class>
