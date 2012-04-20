@@ -37,8 +37,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	@Autowired
 	private UserDao userDao;
 	
-	@Override
-	@Autowired
 	public void setUserDao(UserDao userDao) {
 		this.userDao = userDao;
 	}
@@ -47,8 +45,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	@Autowired
 	private UserPendingDao userPendingDao;
 	
-	@Override
-	@Autowired
 	public void setUserPendingDao(UserPendingDao userPendingDao) {
 		this.userPendingDao = userPendingDao;
 	}

@@ -49,8 +49,6 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 		this.sampleDao = sampleDao;
 	}
 	
-	@Override
-	@Autowired
 	public void setWorkflowDao(WorkflowDao workflowDao) {
 		this.workflowDao = workflowDao;
 	}
@@ -75,7 +73,6 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	@Autowired
 	private SampleMetaDao sampleMetaDao;
 	
-	@Override
 	public void setSampleMetaDao(SampleMetaDao sampleMetaDao) {
 		this.sampleMetaDao = sampleMetaDao;
 	}
