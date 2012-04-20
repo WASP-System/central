@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.dao.UserDao;
 import edu.yu.einstein.wasp.dao.UserPendingDao;
 import edu.yu.einstein.wasp.exception.LoginNameException;
@@ -36,8 +37,21 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	@Autowired
 	private UserDao userDao;
 	
+	@Override
+	@Autowired
+	public void setUserDao(UserDao userDao) {
+		this.userDao = userDao;
+	}
+
+	
 	@Autowired
 	private UserPendingDao userPendingDao;
+	
+	@Override
+	@Autowired
+	public void setUserPendingDao(UserPendingDao userPendingDao) {
+		this.userPendingDao = userPendingDao;
+	}
 	
 	@Autowired
 	private MessageService messageService;
@@ -215,7 +229,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		// NV 12132011
 		//if (userService.getUserByLogin(login).getUserId() != null){
 		if (userDao.getUserByLogin(login).getUserId() != null){
-
 			return true;
 		} else {
 			Map loginQueryMap = new HashMap();
