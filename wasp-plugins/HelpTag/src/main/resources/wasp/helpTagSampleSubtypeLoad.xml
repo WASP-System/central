@@ -56,16 +56,7 @@
    		<ref bean="helpTagDnaSpecificUiFields" />
     	</list>
     </property>
-    <property name="metaFromWrapper">
-       <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
-         <property name="area" value="helptagDnaSample" />
-         <property name="metaList">
-         	<list>        		
-         		<value>#{waspSampleSubtype['includeRoles']}=#{waspRole['ft']},#{waspRole['lu']}</value>
-         	</list>
-         </property>
-       </bean>
-    </property>
+    <property name="applicableRoles" value="lu,ft" />
     
   </bean>
 
@@ -91,16 +82,7 @@
     		<ref bean="genericLibraryUiFields" /> 
     	</list>
     </property>
-    <property name="metaFromWrapper">
-       <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
-         <property name="area" value="helptagLibrarySample" />
-         <property name="metaList">
-         	<list>        		
-         		<value>#{waspSampleSubtype['includeRoles']}=#{waspRole['lu']}</value>
-         	</list>
-         </property>
-       </bean>
-    </property>
+    <property name="applicableRoles" value="lu" />
   </bean>
   
   <bean id="helpTagFacilityLibrarySampleSubtypeResource" class="edu.yu.einstein.wasp.load.SampleSubtypeLoadService">
@@ -113,16 +95,7 @@
     		<ref bean="genericLibraryUiFields" /> 
     	</list>
     </property>
-    <property name="metaFromWrapper">
-       <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
-         <property name="area" value="helptagFacilityLibrarySample" />
-         <property name="metaList">
-         	<list>        		
-         		<value>#{waspSampleSubtype['includeRoles']}=#{waspRole['ft']}</value>
-         	</list>
-         </property>
-       </bean>
-    </property> 
+    <property name="applicableRoles" value="ft" />
   </bean>
   
 </beans>
