@@ -57,16 +57,7 @@
    		<ref bean="chipSeqDnaSpecificUiFields" />
     	</list>
     </property>
-    <property name="metaFromWrapper">
-       <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
-         <property name="area" value="chipseqDnaSample" />
-         <property name="metaList">
-         	<list>        		
-         		<value>#{waspSampleSubtype['includeRoles']}=#{waspRole['ft']},#{waspRole['lu']}</value>
-         	</list>
-         </property>
-       </bean>
-    </property>
+    <property name="applicableRoles" value="ft,lu" />
     
   </bean>
 
@@ -84,22 +75,13 @@
     <property name="name" value="ChIP-seq Library" />
     <property name="area" value="chipseqLibrarySample" />
     <property name="sampleType" value="#{waspSampleType['library']}" />
+    <property name="applicableRoles" value="lu" />
     <property name="uiFieldGroupsFromWrapper">
     	<list>
     		<ref bean="genericBiomoleculeUiFields" /> 
     		<ref bean="chipSeqDnaSpecificUiFields" />
     		<ref bean="genericLibraryUiFields" /> 
     	</list>
-    </property>
-    <property name="metaFromWrapper">
-       <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
-         <property name="area" value="chipseqLibrarySample" />
-         <property name="metaList">
-         	<list>        		
-         		<value>#{waspSampleSubtype['includeRoles']}=#{waspRole['lu']}</value>
-         	</list>
-         </property>
-       </bean>
     </property>
   </bean>
   
@@ -108,21 +90,12 @@
     <property name="name" value="ChIP-seq Facility Library" />
     <property name="area" value="chipseqFacilityLibrarySample" />
     <property name="sampleType" value="#{waspSampleType['library']}" />
+    <property name="applicableRoles" value="ft" />
     <property name="uiFieldGroupsFromWrapper">
     	<list>
     		<ref bean="genericLibraryUiFields" /> 
     	</list>
     </property>
-    <property name="metaFromWrapper">
-       <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
-         <property name="area" value="chipseqFacilityLibrarySample" />
-         <property name="metaList">
-         	<list>        		
-         		<value>#{waspSampleSubtype['includeRoles']}=#{waspRole['ft']}</value>
-         	</list>
-         </property>
-       </bean>
-    </property> 
   </bean>
   
 </beans>
