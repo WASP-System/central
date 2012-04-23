@@ -15,6 +15,10 @@ _navAttr.search=true;
 _editAttr['afterShowForm'] = function(formId) {
 	$('#lanecountForEditBox').attr('disabled', 'disabled');
 	$('#tr_platformunitInstance\\.lanecount', formId).hide();
+	
+	// remove the trailing hyperlink in the flowcell name when showing in grid
+	var str=$('input#name').val();
+	$('input#name').val(str.replace(/ \(<a href=.*>\)/i, ""));
 };
 
 // hide lanecount text field on the add form and show a lanecount dropdown list
