@@ -1,6 +1,7 @@
 
 package edu.yu.einstein.wasp.load;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,16 +12,20 @@ import org.springframework.transaction.annotation.Transactional;
 
 import util.spring.PostInitialize;
 import edu.yu.einstein.wasp.dao.ResourceCategoryDao;
+import edu.yu.einstein.wasp.dao.RoleDao;
 import edu.yu.einstein.wasp.dao.SampleSubtypeDao;
 import edu.yu.einstein.wasp.dao.SampleSubtypeMetaDao;
 import edu.yu.einstein.wasp.dao.SampleSubtypeResourceCategoryDao;
 import edu.yu.einstein.wasp.dao.SampleTypeDao;
+import edu.yu.einstein.wasp.exception.InvalidRoleException;
 import edu.yu.einstein.wasp.exception.NullResourceCategoryException;
 import edu.yu.einstein.wasp.model.ResourceCategory;
+import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.SampleSubtypeMeta;
 import edu.yu.einstein.wasp.model.SampleSubtypeResourceCategory;
 import edu.yu.einstein.wasp.model.SampleType;
+import edu.yu.einstein.wasp.service.AuthenticationService;
 
 
 /**
@@ -50,6 +55,9 @@ public class SampleSubtypeLoadService extends WaspLoadService {
   
   @Autowired
   private SampleSubtypeResourceCategoryDao sampleSubtypeResourceCategoryDao;
+  
+  @Autowired
+  private RoleDao roleDao;
 
   private String sampleTypeString; 
   public void setSampleType(String sampleTypeString) {this.sampleTypeString = sampleTypeString; }
@@ -79,6 +87,20 @@ public class SampleSubtypeLoadService extends WaspLoadService {
   
   public SampleSubtypeLoadService(SampleSubtypeLoadService inheritFromLoadService){
 	  super(inheritFromLoadService);
+  }
+  
+  private String applicableRoles;
+  
+  public String getApplicableRoles(){
+	  return this.applicableRoles;
+  }
+  
+  public void setApplicableRoles(String applicableRolesString){
+	  for (String applicableRole : applicableRolesString.split(",")){
+		  if (roleDao.getRoleByRoleName(applicableRole).getRoleId() == null)
+			  throw new InvalidRoleException("Role '"+applicableRole+"' is not in the list of valid roles");
+	  }
+	  this.applicableRoles = applicableRolesString;
   }
 
   @Override
@@ -141,7 +163,16 @@ public class SampleSubtypeLoadService extends WaspLoadService {
         oldSampleSubtypeMetas.put(sampleSubtypeMeta.getK(), sampleSubtypeMeta);
       }
     }
-
+    
+    if (applicableRoles != null) {
+    	if (meta == null)
+    		meta = new ArrayList<SampleSubtypeMeta>();
+    	SampleSubtypeMeta ssm = new SampleSubtypeMeta();
+    	ssm.setK(area+".includeRoles");
+    	ssm.setV(this.applicableRoles);
+    	meta.add(ssm);
+    }
+    
     if (meta != null) {
       for (SampleSubtypeMeta sampleSubtypeMeta: safeList(meta) ) {
   
