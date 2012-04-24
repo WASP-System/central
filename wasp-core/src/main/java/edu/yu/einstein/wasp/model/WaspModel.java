@@ -99,11 +99,9 @@ public abstract class WaspModel implements Serializable {
 					  if (WaspModel.class.isInstance(o)){
 						  ((List<Object>)objToSet).add(WaspModel.getDeepCopy(o, (Class<? extends WaspModel>) fieldGenericType));
 					  } else if (java.lang.String.class.equals(fieldGenericType)){
-						  String oString = new String(((String) o).toCharArray());
-						  ((List<Object>)objToSet).add(oString);
+						  ((List<Object>)objToSet).add(o); // String is immutable
 					  } else if (java.lang.Integer.class.equals(fieldGenericType)){
-						  Integer oString = new Integer(((Integer) o).intValue());
-						  ((List<Object>)objToSet).add(oString);
+						  ((List<Object>)objToSet).add(o); // Integer is immutable
 					  } else {
 						  logger.warn("Deep copy cannot render an arrayList of type '" + fieldGenericType.getName() + "' to parameratized type WaspModel, Integer or String");
 					  }

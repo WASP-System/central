@@ -33,6 +33,10 @@ public class TestWaspModel {
 		Assert.assertEquals(sampleCopy.getSampleMeta().get(0).getK(), "meta1Key");
 		Assert.assertEquals(sampleCopy.getSampleMeta().get(1).getV(), "meta2Value");
 		Assert.assertEquals(sampleCopy.getReceiveDts(), sample.getReceiveDts());
+		
+		// test recursion
+		Assert.assertNull(sampleCopy.getLab().getUser().getUserId());
+		Assert.assertEquals(sampleCopy.getLab().getUser().getFirstName(), "Andy");
 	}
 	
 	@Test
@@ -57,6 +61,11 @@ public class TestWaspModel {
 		Assert.assertEquals(sampleCopy.getSampleMeta().get(0).getK(), "meta1Key");
 		Assert.assertEquals(sampleCopy.getSampleMeta().get(1).getV(), "meta2Value");
 		Assert.assertEquals(sampleCopy.getReceiveDts(), sample.getReceiveDts());
+		
+		// test recursion
+		Assert.assertNotNull(sampleCopy.getLab().getUser().getUserId());
+		Assert.assertEquals(sampleCopy.getLab().getUser().getUserId().intValue(), 15);
+		Assert.assertEquals(sampleCopy.getLab().getUser().getFirstName(), "Andy");
 	}
 
 	@BeforeMethod
@@ -66,6 +75,10 @@ public class TestWaspModel {
 		Lab lab = new Lab();
 		lab.setLabId(10);
 		lab.setName("LabName");
+		User user = new User();
+		user.setUserId(15);
+		user.setFirstName("Andy");
+		lab.setUser(user);
 		sample.setLab(lab);
 		sample.setName("s1");
 		List<SampleMeta> sampleMeta = new ArrayList<SampleMeta>();
