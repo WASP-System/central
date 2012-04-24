@@ -7,6 +7,7 @@ import java.util.Random;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,6 +26,7 @@ import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.dao.UserDao;
 import edu.yu.einstein.wasp.dao.UserPendingDao;
 import edu.yu.einstein.wasp.exception.LoginNameException;
+import edu.yu.einstein.wasp.messaging.Security;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.service.AuthenticationService;
@@ -33,6 +35,8 @@ import edu.yu.einstein.wasp.service.MessageService;
 
 @Service
 public class AuthenticationServiceImpl implements AuthenticationService {
+	
+	private static final Logger logger = Logger.getLogger(AuthenticationServiceImpl.class);
 
 	@Autowired
 	private UserDao userDao;
@@ -184,6 +188,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	        Authentication result = authenticationManager.authenticate(authRequest);
 	        SecurityContextHolder.getContext().setAuthentication(result);
 	    } catch(AuthenticationException e) {
+	    	logger.warn("failed to authenticate:" + e.getCause());
 	        return false;
 	    }
 		return true;
@@ -195,6 +200,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	        Authentication authRequest = new UsernamePasswordAuthenticationToken(name, password);
 	        Authentication result = authenticationManager.authenticate(authRequest);
 	    } catch(AuthenticationException e) {
+	    	logger.warn("failed to authenticate:" + e.getCause());
 	        return false;
 	    }
 		return true;
