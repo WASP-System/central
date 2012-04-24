@@ -49,6 +49,15 @@
                   <resource>META-INF/spring.schemas</resource>
 	        </transformer>
               </transformers>
+	      <filters>
+		<filter>
+		  <artifact>edu.yu.einstein.wasp:wasp-cli</artifact>
+		  <excludes>
+		    <exclude>commons-logging.properties</exclude>
+		    <exclude>simplelog.properties</exclude>
+		  </excludes>
+		</filter>
+	      </filters>
             </configuration>
           </execution>
         </executions>
@@ -99,8 +108,8 @@
                   <configuration>
                     <tasks>
     		      <delete file="${project.build.outputDirectory}/log4j.properties"/>
-		      <delete file="${project.build.outputDirectory}/log4j.deploy.properties"/>
-                      <copy file="src/main/resources/log4j.deploy.properties"
+		      <delete file="${project.build.outputDirectory}/log4j.debug.properties"/>
+                      <copy file="src/main/resources/log4j.debug.properties"
                         tofile="${project.build.outputDirectory}/log4j.properties"/>
                     </tasks>
                   </configuration>
