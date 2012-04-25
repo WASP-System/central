@@ -758,6 +758,21 @@ create table file (
   -- constraint unique index u_file_flocation (filelocation)
 ) ENGINE=InnoDB charset=utf8;
 
+create table filemeta (
+  filemetaid int(10)  primary key auto_increment,
+  fileid int(10) ,
+
+  k varchar(250) , 
+  v text,
+  position int(10)  default 0,
+
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
+
+  foreign key fk_filemeta_fileid (fileid) references file(fileid),
+
+  constraint unique index u_filemeta_k_jid (k, fileid)
+) ENGINE=InnoDB charset=utf8;
 
 -- 
 -- SAMPLE
