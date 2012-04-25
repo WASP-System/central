@@ -87,14 +87,18 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 	
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.build.outputEncoding>UTF-8</project.build.outputEncoding>
 		<site.basedir>${project.basedir}</site.basedir>
 		<module.version>0.1.0-SNAPSHOT</module.version>
+		<spring.version>3.1.1.RELEASE</spring.version>
 	</properties>
 
 	<modules>
 		<module>../wasp-core</module>
 		<module>../wasp-tomcat-classloader</module>
 		<module>../wasp-web</module>
+		<module>../wasp-illumina</module>
+		<module>../wasp-cli</module>
 		<module>../wasp-doc</module>
 	</modules>
 
@@ -265,6 +269,11 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 				<version>${module.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>edu.yu.einstein.wasp</groupId>
+				<artifactId>wasp-cli</artifactId>
+				<version>${module.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>org.aspectj</groupId>
 				<artifactId>aspectjrt</artifactId>
 				<version>1.6.12</version>
@@ -419,82 +428,82 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-aop</artifactId>
-				<version>3.1.1.RELEASE</version>
+				<version>${spring.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-asm</artifactId>
-				<version>3.1.1.RELEASE</version>
+				<version>${spring.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-aspects</artifactId>
-				<version>3.1.1.RELEASE</version>
+				<version>${spring.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-beans</artifactId>
-				<version>3.1.1.RELEASE</version>
+				<version>${spring.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-context</artifactId>
-				<version>3.1.1.RELEASE</version>
+				<version>${spring.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-context-support</artifactId>
-				<version>3.1.1.RELEASE</version>
+				<version>${spring.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-core</artifactId>
-				<version>3.1.1.RELEASE</version>
+				<version>${spring.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-expression</artifactId>
-				<version>3.1.1.RELEASE</version>
+				<version>${spring.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-instrument</artifactId>
-				<version>3.1.1.RELEASE</version>
+				<version>${spring.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-instrument-tomcat</artifactId>
-				<version>3.1.1.RELEASE</version>
+				<version>${spring.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-jdbc</artifactId>
-				<version>3.1.1.RELEASE</version>
+				<version>${spring.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-jms</artifactId>
-				<version>3.1.1.RELEASE</version>
+				<version>${spring.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-orm</artifactId>
-				<version>3.1.1.RELEASE</version>
+				<version>${spring.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-oxm</artifactId>
-				<version>3.1.1.RELEASE</version>
+				<version>${spring.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-test</artifactId>
-				<version>3.1.1.RELEASE</version>
+				<version>${spring.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-web</artifactId>
-				<version>3.1.1.RELEASE</version>
+				<version>${spring.version}</version>
 			</dependency>
 <!-- 			<dependency>
 				<groupId>org.springframework</groupId>
@@ -510,7 +519,7 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-tx</artifactId>
-				<version>3.1.1.RELEASE</version>
+				<version>${spring.version}</version>
 			</dependency>
 <!--			<dependency>
 				<groupId>org.springframework</groupId>
@@ -665,8 +674,18 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.integration</groupId>
+				<artifactId>spring-integration-ip</artifactId>
+				<version>2.1.1.RELEASE</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.integration</groupId>
 				<artifactId>spring-integration-file</artifactId>
 				<version>2.1.0.RELEASE</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.integration</groupId>
+				<artifactId>spring-integration-rmi</artifactId>
+				<version>2.1.1.RELEASE</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.batch</groupId>
