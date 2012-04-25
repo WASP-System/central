@@ -14,7 +14,7 @@ public class TestWaspModel {
 	
 	public Sample sample;
 	
-	@Test
+	@Test (groups = "unit-tests")
 	public void testDeepCopy() {
 		Sample sampleCopy = Sample.getDeepCopy(sample);
 		
@@ -39,7 +39,7 @@ public class TestWaspModel {
 		Assert.assertEquals(sampleCopy.getLab().getUser().getFirstName(), "Andy");
 	}
 	
-	@Test
+	@Test (groups = "unit-tests")
 	public void testShallowCopy() {
 		Sample sampleCopy = Sample.getShallowCopy(sample);
 		
