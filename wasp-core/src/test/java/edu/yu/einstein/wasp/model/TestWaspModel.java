@@ -10,32 +10,46 @@ import org.testng.annotations.Test;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.AfterTest;
 
+import edu.yu.einstein.wasp.exception.ModelCopyException;
+
 public class TestWaspModel {
 	
 	public Sample sample;
 	
 	@Test (groups = "unit-tests")
 	public void testDeepCopy() {
-		Sample sampleCopy = Sample.getDeepCopy(sample);
+		Sample sampleCopy = null;
+		try{
+			sampleCopy = Sample.getDeepCopy(sample);
+		} catch(ModelCopyException e){
+			Assert.fail("Unexpected exception caught: " + e.getMessage());
+		}
 		
-		Assert.assertNull(sampleCopy.getSampleId()); // for deep copy primary Id's should be null
+		Assert.assertNotNull(sampleCopy.getSampleId()); 
+		Assert.assertEquals(sampleCopy.getSampleId().intValue(), 1);
 		Assert.assertEquals(sampleCopy.getName(), "s1");
 		
 		Assert.assertNotNull(sampleCopy.getLab());
-		Assert.assertNull(sampleCopy.getLab().getLabId()); // for deep copy primary Id's should be null
+		Assert.assertNotSame(sampleCopy.getLab(), sample.getLab());
+		Assert.assertNotNull(sampleCopy.getLab().getLabId()); 
+		Assert.assertEquals(sampleCopy.getLab().getLabId().intValue(), 10); 
 		Assert.assertEquals(sampleCopy.getLab().getName(), "LabName");
 		
 		Assert.assertNotNull(sampleCopy.getSampleMeta());
+		Assert.assertNotSame(sampleCopy.getSampleMeta(), sample.getSampleMeta());
 		Assert.assertEquals(sampleCopy.getSampleMeta().size(), 2);
-		Assert.assertNull(sampleCopy.getSampleMeta().get(1).getSampleMetaId());
-		Assert.assertNotNull(sampleCopy.getSampleMeta().get(1).getSampleId()); // for deep copy primary Id's should be null
+		Assert.assertNotNull(sampleCopy.getSampleMeta().get(1).getSampleMetaId());
+		Assert.assertEquals(sampleCopy.getSampleMeta().get(1).getSampleMetaId().intValue(), 21);
+		Assert.assertNotNull(sampleCopy.getSampleMeta().get(1).getSampleId()); 
 		Assert.assertEquals(sampleCopy.getSampleMeta().get(1).getSampleId().intValue(), 1);
 		Assert.assertEquals(sampleCopy.getSampleMeta().get(0).getK(), "meta1Key");
 		Assert.assertEquals(sampleCopy.getSampleMeta().get(1).getV(), "meta2Value");
 		Assert.assertEquals(sampleCopy.getReceiveDts(), sample.getReceiveDts());
 		
 		// test recursion
-		Assert.assertNull(sampleCopy.getLab().getUser().getUserId());
+		Assert.assertNotNull(sampleCopy.getLab().getUser().getUserId());
+		Assert.assertNotSame(sampleCopy.getLab().getUser(), sample.getLab().getUser());
+		Assert.assertEquals(sampleCopy.getLab().getUser().getUserId().intValue(), 15);
 		Assert.assertEquals(sampleCopy.getLab().getUser().getFirstName(), "Andy");
 	}
 	
@@ -48,11 +62,13 @@ public class TestWaspModel {
 		Assert.assertEquals(sampleCopy.getName(), "s1");
 		
 		Assert.assertNotNull(sampleCopy.getLab());
+		Assert.assertSame(sampleCopy.getLab(), sample.getLab());
 		Assert.assertNotNull(sampleCopy.getLab().getLabId()); 
 		Assert.assertEquals(sampleCopy.getLab().getLabId().intValue(), 10); 
 		Assert.assertEquals(sampleCopy.getLab().getName(), "LabName");
 		
 		Assert.assertNotNull(sampleCopy.getSampleMeta());
+		Assert.assertSame(sampleCopy.getSampleMeta(), sample.getSampleMeta());
 		Assert.assertEquals(sampleCopy.getSampleMeta().size(), 2);
 		Assert.assertNotNull(sampleCopy.getSampleMeta().get(1).getSampleMetaId());
 		Assert.assertEquals(sampleCopy.getSampleMeta().get(1).getSampleMetaId().intValue(), 21);
@@ -64,6 +80,7 @@ public class TestWaspModel {
 		
 		// test recursion
 		Assert.assertNotNull(sampleCopy.getLab().getUser().getUserId());
+		Assert.assertSame(sampleCopy.getLab().getUser(), sample.getLab().getUser());
 		Assert.assertEquals(sampleCopy.getLab().getUser().getUserId().intValue(), 15);
 		Assert.assertEquals(sampleCopy.getLab().getUser().getFirstName(), "Andy");
 	}
