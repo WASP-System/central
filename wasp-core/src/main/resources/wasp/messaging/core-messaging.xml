@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+	xsi:schemaLocation=" http://www.springframework.org/schema/beans 
+  http://www.springframework.org/schema/beans/spring-beans.xsd     
+  http://www.springframework.org/schema/context  
+  http://www.springframework.org/schema/context/spring-context.xsd 
+  http://www.springframework.org/schema/integration
+  http://www.springframework.org/schema/integration/spring-integration.xsd
+  http://www.springframework.org/schema/integration/file
+  http://www.springframework.org/schema/integration/file/spring-integration-file.xsd
+  http://www.springframework.org/schema/integration/rmi
+  http://www.springframework.org/schema/integration/rmi/spring-integration-rmi-2.1.xsd
+  http://www.springframework.org/schema/batch 
+  http://www.springframework.org/schema/batch/spring-batch.xsd
+  http://www.springframework.org/schema/integration/ip
+  http://www.springframework.org/schema/integration/ip/spring-integration-ip.xsd
+  "
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:batch="http://www.springframework.org/schema/batch"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:si="http://www.springframework.org/schema/integration"
+	xmlns:file="http://www.springframework.org/schema/integration/file"
+	xmlns:rmi="http://www.springframework.org/schema/integration/rmi"
+	xmlns:ip="http://www.springframework.org/schema/integration/ip"
+	xmlns="http://www.springframework.org/schema/beans"
+	default-autowire="byName">
+	    
+	<!-- waspExternalChannel defines a secure route to inject messages into the system -->
+    <rmi:inbound-gateway id="waspExternalGateway"
+    	request-channel="waspExternalChannel" 
+    	reply-channel="waspReplyChannel"
+    	registry-port="23532" />
+    	
+    <!-- primary message channel -->
+    <si:publish-subscribe-channel id="waspMessageChannel" />
+    
+    <!-- channel for messages to enter from outside the application -->
+    <si:channel id="waspExternalChannel" />
+    
+    <!-- return values out of the gateway -->
+    <si:channel id="waspReplyChannel" />
+    
+    <!-- channel to return messages when authentication fails -->
+    <si:channel id="waspFailedLoginChannel" />
+    
+    <!-- channel that handles messages with unknown destinations -->
+    <si:channel id="waspUnknownChannel" />
+    
+    <!-- test for proper authentication -->
+    <si:filter input-channel="waspExternalChannel" 
+		ref="waspSecurityCheck" 
+		output-channel="waspAuthenticatedChannel0" 
+		discard-channel="waspFailedLoginChannel" />
+		
+	<si:header-filter input-channel="waspAuthenticatedChannel0" 
+		output-channel="waspAuthenticatedChannel1"
+		header-names="password"/>
+	<si:header-enricher input-channel="waspAuthenticatedChannel1"
+		output-channel="waspMessageChannel">
+		<si:header name="destination" expression="headers.get('target') + '.waspPlugin'" />
+	</si:header-enricher>
+	
+	<!-- authenticating bean -->
+	<bean id="waspSecurityCheck" class="edu.yu.einstein.wasp.messaging.Security" />
+	 	
+	<!-- indicate failed connection attempt by setting header value "authenticated=false" -->
+	<si:header-enricher id="waspFailedLogin" 
+		input-channel="waspFailedLoginChannel"
+		output-channel="waspReplyChannel">
+		<si:header name="authenticated" value="false"/>
+	</si:header-enricher>
+	
+	<si:header-value-router input-channel="waspMessageChannel"
+		header-name="destination" 
+		default-output-channel="waspUnknownChannel"
+		resolution-required="false"/>
+	
+	<!-- <si:filter input-channel="waspMessageChannel" 
+		output-channel="echo1" 
+		expression="headers.get('target').equals('echo')"/>
+     -->
+    <si:channel id="echo.waspPlugin" />	
+    	
+    <si:service-activator input-channel="echo.waspPlugin" 
+		ref="echoService"
+		method="echo" 
+		output-channel="waspReplyChannel" />
+		
+	<bean id="echoService"
+		class="edu.yu.einstein.wasp.messaging.EchoService" />
+		
+</beans>
