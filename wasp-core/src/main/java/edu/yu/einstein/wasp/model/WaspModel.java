@@ -34,9 +34,10 @@ public abstract class WaspModel implements Serializable {
   
   
   /**
-   * Returns a DEEP copy of the supplied object. Use example: Sample mySampleCopy = Sample.getDeepCopy(mySample);
+   * Returns a DEEP copy of the supplied model object. Use example: Sample mySampleCopy = Sample.getDeepCopy(mySample);
    * A deep copy creates a new instance of the same class type as the provided object and sets all attributes of the new object to also equal NEW objects 
    * whose data is the same as that for the equivalent attribute within the object being copied.
+   * NOTE: even if the model object is lazy loaded, this method will ensure all fields in the copy are fully populated
    * @param waspModelObj
    * @return
    * @throws ModelCopyException 
@@ -140,9 +141,10 @@ public abstract class WaspModel implements Serializable {
   }
   
   /**
-   * Returns a SHALLOW copy of the supplied object. Use example: Sample mySampleCopy = Sample.getShallowCopy(mySample);
+   * Returns a SHALLOW copy of the supplied model object. Use example: Sample mySampleCopy = Sample.getShallowCopy(mySample);
    * A shallow copy creates a new instance of the same class type as the provided object and sets all attributes of the new object to equal the exact SAME objects 
    * referenced within the object being copied.
+   * NOTE: even if the model object is lazy loaded, this method will ensure all fields in the copy are fully populated
    * @param waspModelObj
    * @return
    */
