@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+	xsi:schemaLocation=" http://www.springframework.org/schema/beans 
+  http://www.springframework.org/schema/beans/spring-beans.xsd     
+  http://www.springframework.org/schema/context  
+  http://www.springframework.org/schema/context/spring-context.xsd 
+  http://www.springframework.org/schema/integration
+  http://www.springframework.org/schema/integration/spring-integration.xsd
+  http://www.springframework.org/schema/integration/file
+  http://www.springframework.org/schema/integration/file/spring-integration-file.xsd
+  http://www.springframework.org/schema/integration/jms
+  http://www.springframework.org/schema/integration/jms/spring-integration-jms-2.1.xsd
+  http://www.springframework.org/schema/batch 
+  http://www.springframework.org/schema/batch/spring-batch.xsd
+  http://www.springframework.org/schema/integration/ip
+  http://www.springframework.org/schema/integration/ip/spring-integration-ip.xsd
+  "
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:batch="http://www.springframework.org/schema/batch" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:si="http://www.springframework.org/schema/integration"
+	xmlns:file="http://www.springframework.org/schema/integration/file"
+	xmlns:jms="http://www.springframework.org/schema/integration/jms"
+	xmlns:ip="http://www.springframework.org/schema/integration/ip" xmlns="http://www.springframework.org/schema/beans"
+	default-autowire="byType">
+
+	<!-- client -->
+
+	<context:annotation-config />
+	<context:component-scan base-package="edu.yu.einstein.wasp.cli" />
+
+	<si:gateway id="clientGateway" service-interface="edu.yu.einstein.wasp.cli.TcpGateway"
+		default-request-channel="inputChannel" />
+
+	<ip:tcp-connection-factory id="clientFactory"
+		type="client" 
+		host="localhost" 
+		port="33333" 
+		single-use="true"
+		so-timeout="10000" />
+
+	<si:channel id="inputChannel" />
+
+	<ip:tcp-outbound-gateway id="outboundGateway"
+		request-channel="inputChannel" 
+		reply-channel="replyChannel"
+		connection-factory="clientFactory" 
+		request-timeout="10000"
+		reply-timeout="10000" />
+
+	<si:transformer id="clientBytes2String" 
+		input-channel="replyChannel"
+		expression="new String(payload)" />
+
+	<!-- test server -->
+
+	<ip:tcp-connection-factory id="testServer"
+		type="server" 
+		port="33333" />
+		
+	<ip:tcp-inbound-gateway id="testGateway"
+		connection-factory="testServer" 
+		request-channel="requestChannel"
+		error-channel="errorChannel" />
+		
+	<si:channel id="toServiceActivator" />
+	
+	<si:service-activator input-channel="toServiceActivator" 
+		ref="echoService"
+		method="echo" />
+		
+	<bean id="echoService"
+		class="edu.yu.einstein.wasp.cli.EchoService" />
+		
+	<si:transformer id="serverBytes2String" input-channel="requestChannel"
+		output-channel="toServiceActivator" expression="new String(payload)" />
+		
+	<si:transformer id="errorHandler" input-channel="errorChannel"
+		expression="payload.failedMessage.payload + ':' + payload.cause.message" />
+
+</beans>
