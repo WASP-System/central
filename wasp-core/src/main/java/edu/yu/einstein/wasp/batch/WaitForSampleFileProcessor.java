@@ -36,7 +36,7 @@ public class WaitForSampleFileProcessor implements ItemProcessor {
 		for (SampleFile sampleFile : state.getStatesample().get(0).getSample().getSampleFile()) {
 
 
-			if (sampleFile.getFile().getFilelocation().matches(filenameRegex)) {
+			if (sampleFile.getFile().getAbsolutePath().matches(filenameRegex)) {
 				return state;
 			}
 		}

@@ -6,10 +6,13 @@ import jxl.Cell;
 import jxl.Sheet;
 import jxl.Workbook;
 
+import org.apache.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.testng.Reporter;
+
+import edu.yu.einstein.wasp.util.TestSampleWrapper;
 
 /**
  * 
@@ -17,6 +20,8 @@ import org.testng.Reporter;
  *
  */
 public class SeleniumHelper {
+	
+	private static final Logger logger = Logger.getLogger(SeleniumHelper.class);
 	
 	/**
 	* 
@@ -28,7 +33,7 @@ public class SeleniumHelper {
 		CharSequence csValue = value;
 		
 		if (driver.getPageSource().contains(csValue)) {
-			System.out.println("Text - "+value+" - present");
+			logger.debug("Text - "+value+" - present");
 			return true;
 		}
 		return false;
@@ -45,25 +50,25 @@ public class SeleniumHelper {
 	    String[][] tabArray=null;
 	    try{
 	        Workbook workbook = Workbook.getWorkbook(new File(xlFilePath));
-	        if (workbook == null) System.out.println("workbook is null");
+	        if (workbook == null) logger.debug("workbook is null");
 
 	        Sheet sheet = workbook.getSheet(sheetName);
-	        if (sheet == null) System.out.println("sheet is null");
+	        if (sheet == null) logger.debug("sheet is null");
 
-	        System.out.println("sheet name="+sheetName);
+	        logger.debug("sheet name="+sheetName);
 	        int startRow,startCol, endRow, endCol,ci,cj;
-	        System.out.println("table name="+tableName);
+	        logger.debug("table name="+tableName);
 	        Cell tableStart=sheet.findCell(tableName);
-	        System.out.println("tableStart="+tableStart+"\n table name"+tableName);
+	        logger.debug("tableStart="+tableStart+"\n table name"+tableName);
 	        startRow=tableStart.getRow();
-	        System.out.println("got row start");
+	        logger.debug("got row start");
 
 	        startCol=tableStart.getColumn();
 	
 	        Cell tableEnd= sheet.findCell(tableName, startCol+1,startRow+1, 100, 64000,  false);                               
 	        endRow=tableEnd.getRow();
 	        endCol=tableEnd.getColumn();
-	        System.out.println("startRow="+startRow+", endRow="+endRow+", " +
+	        logger.debug("startRow="+startRow+", endRow="+endRow+", " +
 	                "startCol="+startCol+", endCol="+endCol);
 	        tabArray=new String[endRow-startRow-1][endCol-startCol-1];
 	        ci=0;
@@ -76,7 +81,7 @@ public class SeleniumHelper {
 	        }
 	    }
 	    catch (Exception e)    {
-	        System.out.println("error in getTableArray()");
+	        logger.debug("error in getTableArray()");
 	    }
 	
 	    return(tabArray);
@@ -121,7 +126,7 @@ public class SeleniumHelper {
 	                    System.out.print(customMessage);
 	                }
 	            } else {
-	                System.out.println("Unable to locate Element: " + xpathLocator);
+	                logger.debug("Unable to locate Element: " + xpathLocator);
 	            }
 	            return false;
 	        }

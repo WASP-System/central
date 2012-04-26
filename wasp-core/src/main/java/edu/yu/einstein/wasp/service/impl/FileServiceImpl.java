@@ -68,10 +68,10 @@ public File getFileByFileId (final int fileId) {
   @Override
 public File getMetaInformation(String filePath) throws java.io.IOException {
 	  	File file = new File();
-	  	file.setContenttype(getMimeType(filePath));
+	  	file.setContentType(getMimeType(filePath));
 	  	file.setMd5hash(getMD5(filePath));
 	  	file.setSizek(getFileSizeKb(filePath));
-	  	file.setFilelocation(filePath);
+	  	file.setAbsolutePath(filePath);
 	  	return file;
   }
 

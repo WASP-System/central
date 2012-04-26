@@ -35,7 +35,7 @@ public class WaitForJobFileProcessor implements ItemProcessor {
 
 		for (JobFile jobFile : state.getStatejob().get(0).getJob().getJobFile()) {
 
-			if (jobFile.getFile().getFilelocation().matches(filenameRegex)) {
+			if (jobFile.getFile().getAbsolutePath().matches(filenameRegex)) {
 				return state;
 			}
 		}

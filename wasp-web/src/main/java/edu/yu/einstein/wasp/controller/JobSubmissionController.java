@@ -2,6 +2,7 @@ package edu.yu.einstein.wasp.controller;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -81,6 +82,7 @@ import edu.yu.einstein.wasp.dao.WorkflowResourceTypeDao;
 import edu.yu.einstein.wasp.dao.WorkflowSoftwareDao;
 import edu.yu.einstein.wasp.dao.WorkflowresourcecategoryDao;
 import edu.yu.einstein.wasp.dao.impl.DBResourceBundle;
+import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.NullResourceTypeException;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Job;
@@ -1175,8 +1177,9 @@ public class JobSubmissionController extends WaspController {
 				
 		Map<String,SampleDraftMeta> allowedMetaFieldsMap = new LinkedHashMap<String,SampleDraftMeta>();
 		
-		for(SampleSubtype key: allowedMetaFields.keySet()){
-			for (SampleDraftMeta subTypeMeta : allowedMetaFields.get(key)){
+		for(SampleSubtype sampleSubtype: allowedMetaFields.keySet()){
+			sampleSubtype.setSampleType(sampleTypeDao.getSampleTypeBySampleTypeId(sampleSubtype.getSampleTypeId()));
+			for (SampleDraftMeta subTypeMeta : allowedMetaFields.get(sampleSubtype)){
 				if (!allowedMetaFieldsMap.containsKey(subTypeMeta.getK())){
 					allowedMetaFieldsMap.put(subTypeMeta.getK(), subTypeMeta);
 				}
@@ -1772,7 +1775,7 @@ public class JobSubmissionController extends WaspController {
 	 */
 	protected String getFileCell( edu.yu.einstein.wasp.model.File file) {
 		if (file==null) return "";
-		String fileName=file.getFilelocation();
+		String fileName=file.getAbsolutePath();
 		if (fileName!=null && ( fileName.indexOf('/')>-1 || fileName.indexOf('\\')>-1)) {
 			int idx = fileName.lastIndexOf('/');
 			if (idx==-1) idx = fileName.lastIndexOf('\\');
@@ -1842,9 +1845,9 @@ public class JobSubmissionController extends WaspController {
 								 	
 					edu.yu.einstein.wasp.model.File file = new edu.yu.einstein.wasp.model.File();
 					 
-					file.setFilelocation(dest.getAbsolutePath());
+					file.setAbsolutePath(dest.getAbsolutePath());
 					file.setIsActive(1);
-					file.setContenttype("?");
+					file.setContentType("?");
 					file.setMd5hash("xxx");
 					file.setSizek((int)(fileData.getSize()/1024));
 										
@@ -1975,7 +1978,7 @@ public class JobSubmissionController extends WaspController {
 	 * @Author Sasha Levchuk
 	 */
 	@RequestMapping(value = "/downloadFile.do", method = RequestMethod.GET)	
-	public String downloadSampleDraftFile(@RequestParam("id") Integer fileId,HttpServletResponse response) {
+	public String downloadSampleDraftFile(@RequestParam("id") Integer fileId,HttpServletResponse response) throws IOException {
 		
 		int FILEBUFFERSIZE=1000000;//megabyte
 		
@@ -1996,11 +1999,13 @@ public class JobSubmissionController extends WaspController {
 				}
 				return null;
 		}
+		ServletOutputStream out = null;
+		InputStream in = null;
 		try {
-			ServletOutputStream out = response.getOutputStream();
+			out = response.getOutputStream();
 			
-			File diskFile=new File(file.getFilelocation());
-			InputStream in = new FileInputStream(diskFile);
+			File diskFile=new File(file.getAbsolutePath());
+			in = new FileInputStream(diskFile);
 			
 			String mimeType = "application/octet-stream";
 			byte[] bytes = new byte[FILEBUFFERSIZE];
@@ -2022,14 +2027,16 @@ public class JobSubmissionController extends WaspController {
 			while ((bytesRead = in.read(bytes)) != -1) {
 				out.write(bytes, 0, bytesRead);
 			}
-
-			// do the following in a finally block:
-			in.close();
-			out.close();
-			return null;
+			
 		} catch (Throwable e) {
 			throw new IllegalStateException("Cant download file id "+fileId,e);
+		} finally {
+			if (in != null)
+				in.close();
+			if (out != null)
+				out.close();
 		}
+		return null;
 	}
 	
 	@Override
@@ -2058,16 +2065,12 @@ public class JobSubmissionController extends WaspController {
 	protected List getPageFlowMap(JobDraft jobDraft) {
 		String pageFlow = this.defaultPageFlow;
 
-		try {
-			List<WorkflowMeta> wfmList = jobDraft.getWorkflow().getWorkflowMeta();
-			for (WorkflowMeta wfm : wfmList) {
-				if (wfm.getK().equals("workflow.submitpageflow")) {
-					pageFlow = wfm.getV();
-					break;
-			}
+		try{
+			pageFlow = MetaHelper.getMetaValue("workflow", "submitpageflow", jobDraft.getWorkflow().getWorkflowMeta());
+		} catch(MetadataException e){
+			logger.debug("No page flow defined (workflowMeta workflow.submitpageflow) so using default page flow");
 		}
-		} catch (Exception e) {
-		}
+		
 
 		String context = request.getContextPath();
 		String uri = request.getRequestURI();

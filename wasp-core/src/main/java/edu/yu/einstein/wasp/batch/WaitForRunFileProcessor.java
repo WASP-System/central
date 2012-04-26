@@ -35,7 +35,7 @@ public class WaitForRunFileProcessor implements ItemProcessor {
 
 		for (RunFile runFile : state.getStaterun().get(0).getRun().getRunFile()) {
 
-			if (runFile.getFile().getFilelocation().matches(filenameRegex)) {
+			if (runFile.getFile().getAbsolutePath().matches(filenameRegex)) {
 				return state;
 			}
 		}

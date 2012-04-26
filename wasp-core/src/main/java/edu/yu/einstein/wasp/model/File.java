@@ -13,6 +13,8 @@ package edu.yu.einstein.wasp.model;
 
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -23,6 +25,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
@@ -64,62 +67,92 @@ public class File extends WaspModel {
 
 
 	/** 
-	 * filelocation
+	 * absolutePath
 	 *
 	 */
-	@Column(name="filelocation")
-	protected String filelocation;
+	@Column(name="absolute_path")
+	protected String absolutePath;
 
 	/**
-	 * setFilelocation(String filelocation)
+	 * setAbsolutePath(String absolutePath)
 	 *
-	 * @param filelocation
+	 * @param absolutePath
 	 *
 	 */
 	
-	public void setFilelocation (String filelocation) {
-		this.filelocation = filelocation;
+	public void setAbsolutePath (String absolutePath) {
+		this.absolutePath = absolutePath;
 	}
 
 	/**
-	 * getFilelocation()
+	 * getAbsolutePath()
 	 *
-	 * @return filelocation
+	 * @return absolutePath
 	 *
 	 */
-	public String getFilelocation () {
-		return this.filelocation;
+	public String getAbsolutePath () {
+		return this.absolutePath;
+	}
+	
+	/**
+	 * Return filename.
+	 * Returns null if absolute path cannot be parsed.
+	 * @return filename (or null)
+	 */
+	public String getFileName(){
+		Pattern pattern = Pattern.compile("^(.*[\\\\\\/])*(.+)$");
+		Matcher matcher = pattern.matcher(this.absolutePath);
+		if (matcher.find() && matcher.groupCount() == 2)
+			return matcher.group(2);
+		return null;
+	}
+	
+	/**
+	 * Return absolute path to folder containing the file (or empty string).
+	 * Trailing '\' or '/' characters are removed
+	 * Returns null if absolute path cannot be parsed
+	 * @return path to folder (or null)
+	 */
+	public String getAbsolutePathToFileFolder(){
+		Pattern pattern = Pattern.compile("^(.*[\\\\\\/])*(.+)$");
+		Matcher matcher = pattern.matcher(this.absolutePath);
+		if (matcher.find() && matcher.groupCount() == 2){
+			if (matcher.group(1) == null)
+					return "";
+			return StringUtils.chop(matcher.group(1)); // remove trailing / or \
+		}
+		return null;
 	}
 
 
 
 
 	/** 
-	 * contenttype
+	 * contentType
 	 *
 	 */
 	@Column(name="contenttype")
-	protected String contenttype;
+	protected String contentType;
 
 	/**
-	 * setContenttype(String contenttype)
+	 * setContentType(String contentType)
 	 *
-	 * @param contenttype
+	 * @param contentType
 	 *
 	 */
 	
-	public void setContenttype (String contenttype) {
-		this.contenttype = contenttype;
+	public void setContentType (String contentType) {
+		this.contentType = contentType;
 	}
 
 	/**
-	 * getContenttype()
+	 * getContentType()
 	 *
-	 * @return contenttype
+	 * @return contentType
 	 *
 	 */
-	public String getContenttype () {
-		return this.contenttype;
+	public String getContentType () {
+		return this.contentType;
 	}
 
 

@@ -9,7 +9,7 @@ import edu.yu.einstein.wasp.service.WaspService;
 public abstract class WaspServiceImpl implements WaspService {
 
 	// generic logger included with every class.
-	protected static Logger logger = Logger.getLogger(WaspModel.class.getName());
+	protected static final Logger logger = Logger.getLogger(WaspService.class);
   
 }
 

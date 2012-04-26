@@ -12,6 +12,8 @@
 package edu.yu.einstein.wasp.dao.impl;
 
 import java.io.Serializable;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Date;
@@ -23,15 +25,22 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
+import org.apache.commons.lang.WordUtils;
 import org.apache.log4j.Logger;
+import org.hibernate.Hibernate;
+import org.hibernate.HibernateException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Repository;
 
+import edu.yu.einstein.wasp.exception.ModelDetachException;
+import edu.yu.einstein.wasp.model.WaspModel;
+
 @Repository
 public abstract class WaspDaoImpl<E extends Serializable> implements edu.yu.einstein.wasp.dao.WaspDao<E> {
-	protected Class<E>			entityClass;
+	protected Class<E>	entityClass;
 
-	private static final Logger	log	= Logger.getLogger(WaspDaoImpl.class);
+	// generic logger included with every class.
+	protected static Logger logger = Logger.getLogger(WaspDaoImpl.class.getName());
 
 	@PersistenceContext
 	protected EntityManager		entityManager;
@@ -152,7 +161,7 @@ public abstract class WaspDaoImpl<E extends Serializable> implements edu.yu.eins
 		for (Object key : m.keySet()) {
 			q.setParameter(key.toString().replaceAll("\\W+", ""), m.get(key));
 		}
-		log.debug("qString=" + q.toString());
+		logger.debug("qString=" + q.toString());
 
 		return q.getResultList();
 	}
@@ -314,6 +323,30 @@ public abstract class WaspDaoImpl<E extends Serializable> implements edu.yu.eins
 	  	List<String> orderByList = new ArrayList();
 	  	orderByList.add("v");
 		return this.findByMapDistinctOrderBy(metaQueryMap, orderByList, orderByList, direction); 
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public E getEagerLoadedDetachedEntity(E entity) throws ModelDetachException{
+		E mergedEntity = null;
+		try{
+			mergedEntity = this.merge(entity); // ensures attached to the session to start with
+		} catch(Exception e){
+			throw new ModelDetachException("Cannot merge supplied entity. Maybe it is not persisted ", e);
+		}
+		// execute Hibernate.initialize on all public getter methods of the entity (including inherited) to eager load all data
+		for (Method m: entityClass.getMethods()){
+			if (! m.getName().startsWith("get")) continue;
+			try {
+				Hibernate.initialize(entityClass.getMethod(m.getName()).invoke(mergedEntity));
+			} catch (Exception e) {
+				throw new ModelDetachException("Failed executing 'Hibernate.initialize()' on entity method '"+ m.getName()+"'", e);
+			} 
+		}
+		entityManager.detach(mergedEntity);
+		return mergedEntity;
 	}
 
 }

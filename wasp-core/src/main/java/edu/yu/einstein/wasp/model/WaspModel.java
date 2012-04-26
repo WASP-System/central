@@ -30,7 +30,7 @@ public abstract class WaspModel implements Serializable {
   /**
    * generic logger included with every class.
    */
-  protected static Logger logger = Logger.getLogger(WaspModel.class.getName());
+  protected static final Logger logger = Logger.getLogger(WaspModel.class);
   
   
   /**
@@ -195,5 +195,6 @@ public abstract class WaspModel implements Serializable {
 	  }
 	  return (T) clonedObj;
   }
+
   
 }
