@@ -14,6 +14,8 @@ package edu.yu.einstein.wasp.dao;
 import java.util.List;
 import java.util.Map;
 
+import edu.yu.einstein.wasp.exception.ModelDetachException;
+
 
 public interface WaspDao<E> {
 
@@ -95,6 +97,15 @@ public interface WaspDao<E> {
   public List<E> findByMapDistinctOrderBy(final Map m, final List<String> distinctColumnNames, final List<String> orderByColumnNames, final String direction);
 
   public List findDistinctMetaOrderBy(String metaKeyName, String direction);
+
+  /**
+   * Populates all fields of the supplied entity from the database then returns it detached from the session. The returned object can be modified freely 
+   * without affecting persisted data and can be merged again later
+   * @param entity
+   * @return detached entity with all fields pre-populated (Eagerly loaded).
+   * @throws ModelDetachException
+   */
+  public E getEagerLoadedDetachedEntity(E entity) throws ModelDetachException;
 
 
 
