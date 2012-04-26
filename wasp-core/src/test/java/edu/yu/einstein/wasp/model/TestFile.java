@@ -5,8 +5,6 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
-import edu.yu.einstein.wasp.test.util.SeleniumHelper;
-
 
 public class TestFile{
 	
