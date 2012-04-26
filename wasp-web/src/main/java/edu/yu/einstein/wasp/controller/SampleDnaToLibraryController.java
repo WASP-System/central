@@ -63,6 +63,7 @@ import edu.yu.einstein.wasp.model.SampleSubtypeResourceCategory;
 import edu.yu.einstein.wasp.model.Task;
 import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.util.MetaHelper;
 
 
@@ -104,6 +105,8 @@ public class SampleDnaToLibraryController extends WaspController {
   private StateDao stateDao;
   @Autowired
   private SampleService sampleService;
+  @Autowired
+  private JobService jobService;
   
 
   
@@ -278,6 +281,10 @@ public class SampleDnaToLibraryController extends WaspController {
   @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('jv-' + #jobId)")
   public String listJobSamples(@PathVariable("jobId") Integer jobId, ModelMap m) {
     
+	  //experimental code 3 lines:
+	  //List<Sample> list1 = new ArrayList();
+	  //List<Sample> list2 = new ArrayList();
+	  ///List<ArrayList<Sample>> darray2 = new ArrayList();
 	  
 	  if(jobId == null ){
 		  waspErrorMessage("sampleDetail.jobParameter.error");
@@ -303,32 +310,19 @@ public class SampleDnaToLibraryController extends WaspController {
 	  m.addAttribute("adaptorsets", adaptorsetList);
   
 	  //submittedSamples include all samples (both macromolecules and libraries) that were submitted by user
-	  //it DOES NOT include facility-generated libraries
-	  //List<Sample> submittedSamples = getSubmittedSamplesViaJobCell(job); 
-	  List<Sample> submittedSamples = getSubmittedSamplesViaJobSample(job);
-	  	  
+	  //and it DOES NOT include facility-generated libraries
+	  List<Sample> submittedSamples = jobService.getSubmittedSamples(job);
+	  //order by sample name
+	  sampleService.sortSamplesBySampleName(submittedSamples);
+  	  
 	  List<String> receivedList = new ArrayList<String>();
 	  List<Integer> librariesPerSampleList = new ArrayList<Integer>();//will be used for rowspan on jsp
 	  for(Sample sample : submittedSamples){
 		  
-		  String sampleReceived = "";
-		  int numberLibrariesForThisSample = 0;
-		  List<Statesample> statesamples = sample.getStatesample();
-		  for(Statesample ss : statesamples){
-			if(ss.getState().getTask().getIName().equals("Receive Sample")){
-				if(ss.getState().getStatus().equals("CREATED")){
-					sampleReceived = "NOT ARRIVED";
-				}
-				else if(ss.getState().getStatus().equals("RECEIVED") || ss.getState().getStatus().equals("FINALIZED")){
-					sampleReceived = "RECEIVED";
-				}
-				else if(ss.getState().getStatus().equals("WITHDRAWN")){
-					sampleReceived = "WITHDRAWN";
-				}
-			}
-	  	  }
-		  receivedList.add(sampleReceived);
+		  String sampleReceived = sampleService.getReceiveSampleStatus(sample);
+		  receivedList.add(sampleService.convertReceiveSampleStatusForWeb(sampleReceived));
 		  
+		  int numberLibrariesForThisSample = 0;
 		  if(sample.getSampleType().getIName().equals("rna") || sample.getSampleType().getIName().equals("dna")){
 			  List<SampleSource> librariesForThisSample = sample.getSampleSourceViaSourceSampleId();//how many facility-generated libraries for this macromolecule sample
 			  numberLibrariesForThisSample = librariesForThisSample.size();
@@ -853,6 +847,10 @@ public class SampleDnaToLibraryController extends WaspController {
   
   private List<Sample> getSubmittedSamplesViaJobCell(Job job){
 	  
+	  //replaced by jobService.getSubmittedSamples(job)
+	  //so do not use this private method
+	  
+	  
 	  //For a list of the samples initially submitted to a job, pull from table jobcell
 	  //exclude duplicates by using a set
 	  //transfer to list and order by sample name
@@ -871,6 +869,13 @@ public class SampleDnaToLibraryController extends WaspController {
 	  for(Sample sample : samplesSet){
 		  submittedSamples.add(sample);
 	  }
+	  class SampleNameComparator implements Comparator<Sample> {
+		    @Override
+		    public int compare(Sample arg0, Sample arg1) {
+		        return arg0.getName().compareToIgnoreCase(arg1.getName());
+		    }
+		}
+
 	  Collections.sort(submittedSamples, new SampleNameComparator());//for class SampleNameComparator, see end of this file
 	  
 	  return submittedSamples;
@@ -892,7 +897,12 @@ public class SampleDnaToLibraryController extends WaspController {
 			  submittedSamples.add(sample);
 		  }
 	  }	  
-
+	  class SampleNameComparator implements Comparator<Sample> {
+		    @Override
+		    public int compare(Sample arg0, Sample arg1) {
+		        return arg0.getName().compareToIgnoreCase(arg1.getName());
+		    }
+		}
 	  Collections.sort(submittedSamples, new SampleNameComparator());//sort by sample's name; for class SampleNameComparator, see end of this file
 	  
 	  return submittedSamples;
@@ -962,10 +972,4 @@ public class SampleDnaToLibraryController extends WaspController {
 }
 
 
-class SampleNameComparator implements Comparator<Sample> {
-    @Override
-    public int compare(Sample arg0, Sample arg1) {
-        return arg0.getName().compareToIgnoreCase(arg1.getName());
-    }
-}
 

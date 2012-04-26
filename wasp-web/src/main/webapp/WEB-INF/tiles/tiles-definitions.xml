@@ -217,6 +217,9 @@
 	    <put-attribute name="head-js" value="/WEB-INF/jsp/task/samplereceive/list.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/task/samplereceive/list.jsp" />
 	</definition>
+	<definition name="task/samplereceive/updateSampleReceive" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/task/samplereceive/updateSampleReceive.jsp" />
+	</definition>
 	 <!--<definition name="department/detail" extends="template-base">
 		<put-attribute name="head-js" value="/WEB-INF/jsp/department/detail.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/department/detail.jsp" />

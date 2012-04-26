@@ -128,7 +128,7 @@
 		
 			<c:choose>
 				<c:when test='${submittedSampleArrivalStatus=="RECEIVED"}'>	
-				   Arrival Status: <c:out value="${submittedSampleArrivalStatus}" />
+				   Arrival Status: <c:out value="${submittedSampleArrivalStatus}" /><sec:authorize access="hasRole('su') or hasRole('ft')">&nbsp;<a href="<c:url value="/task/updatesamplereceive/${job.jobId}.do" />">[update]</a></sec:authorize>
 					<c:set var="idCounter" value="${idCounter + 1}" scope="page" />
 					<sec:authorize access="hasRole('su') or hasRole('ft')">
 					<div id="showButton_<c:out value="${idCounter}" />" >
@@ -190,9 +190,10 @@
 		 	 		Arrival Status: <c:out value="${submittedSampleArrivalStatus}" />
 		 	 		<sec:authorize access="hasRole('su') or hasRole('ft')">
 		 	 		<c:if test='${submittedSampleArrivalStatus=="NOT ARRIVED"}'>	
-		 	 			<a href="<c:url value="/task/samplereceive/list.do" />">
-		 	 				<c:out value=" (log sample)" />
-		 	 			</a>
+		 	 			&nbsp;<a href="<c:url value="/task/samplereceive/list.do" />"><c:out value="[log sample]" /></a>
+		 	 		</c:if>
+		 	 		<c:if test='${submittedSampleArrivalStatus=="WITHDRAWN"}'>	
+		 	 			&nbsp;<a href="<c:url value="/task/updatesamplereceive/${job.jobId}.do" />">[update]</a>
 		 	 		</c:if>
 		 	 		</sec:authorize>
 		 	 	</c:otherwise>
@@ -254,7 +255,7 @@
         		  
 	  		<c:choose>
 	  			<c:when test='${submittedSampleArrivalStatus=="RECEIVED"}'>
-	  			   Arrival Status: <c:out value="${submittedSampleArrivalStatus}" />
+	  			   Arrival Status: <c:out value="${submittedSampleArrivalStatus}" /><sec:authorize access="hasRole('su') or hasRole('ft')">&nbsp;<a href="<c:url value="/task/updatesamplereceive/${job.jobId}.do" />">[update]</a></sec:authorize>
 	  			   <sec:authorize access="hasRole('su') or hasRole('ft')">
 	  				<form method="GET" action="<c:url value="/sampleDnaToLibrary/createLibraryFromMacro.do" />">
 	  					<input type='hidden' name='jobId' value='<c:out value="${job.jobId}" />'/>
@@ -272,9 +273,10 @@
 	 	 			Arrival Status: <c:out value="${submittedSampleArrivalStatus}" />
 	 	 			<sec:authorize access="hasRole('su') or hasRole('ft')">
 	 	 			<c:if test='${submittedSampleArrivalStatus=="NOT ARRIVED"}'>	
-		 	 			<a href="<c:url value="/task/samplereceive/list.do" />">
-		 	 				<c:out value=" (log sample)" />
-		 	 			</a>
+		 	 			&nbsp;<a href="<c:url value="/task/samplereceive/list.do" />"><c:out value="[log sample]" /></a>
+		 	 		</c:if>
+		 	 		<c:if test='${submittedSampleArrivalStatus=="WITHDRAWN"}'>	
+		 	 			&nbsp;<a href="<c:url value="/task/updatesamplereceive/${job.jobId}.do" />">[update]</a>
 		 	 		</c:if>
 		 	 		</sec:authorize>
 	 	 		</c:otherwise>

@@ -54,6 +54,7 @@ import edu.yu.einstein.wasp.model.Task;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Workflowresourcecategory;
 import edu.yu.einstein.wasp.model.WorkflowresourcecategoryMeta;
+import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 import edu.yu.einstein.wasp.util.MetaHelper;
 import edu.yu.einstein.wasp.util.StringHelper;
@@ -104,6 +105,8 @@ public class JobController extends WaspController {
 	private WorkflowresourcecategoryDao workflowresourcecategoryDao;
 	@Autowired
 	private JobCellDao jobCellDao;
+	@Autowired
+	private SampleService sampleService;
 
 	private final MetaHelperWebapp getMetaHelperWebapp() {
 		return new MetaHelperWebapp(JobMeta.class, request.getSession());
@@ -346,8 +349,9 @@ public class JobController extends WaspController {
 										+ sample.getSampleId().intValue() + ">" + 
 										sample.getName() + "</a>",
 										sample.getSampleType().getName(),
-										sample.getSampleSubtype().getName(),
-										sample.getReceivedStatus()
+										sample.getSampleSubtype().getName(), 
+										//sample.getReceivedStatus()
+										sampleService.convertReceiveSampleStatusForWeb(sampleService.getReceiveSampleStatus(sample))
 								}
 						)
 				);

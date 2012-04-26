@@ -11,6 +11,8 @@
 package edu.yu.einstein.wasp.service.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,12 +23,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.dao.SampleMetaDao;
+import edu.yu.einstein.wasp.dao.StateDao;
 import edu.yu.einstein.wasp.dao.WorkflowDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.SampleType;
+import edu.yu.einstein.wasp.model.State;
+import edu.yu.einstein.wasp.model.Statesample;
 import edu.yu.einstein.wasp.model.WorkflowSampleSubtype;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.SampleService;
@@ -72,7 +77,10 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	
 	@Autowired
 	private SampleMetaDao sampleMetaDao;
-	
+
+	@Autowired
+	private StateDao stateDao;
+
 	public void setSampleMetaDao(SampleMetaDao sampleMetaDao) {
 		this.sampleMetaDao = sampleMetaDao;
 	}
@@ -167,5 +175,131 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 			  }
 		  }
 		  return true;
+	  }
+	  
+	  /**
+	   * {@inheritDoc}
+	   */
+	  @Override
+	  public String getReceiveSampleStatus(final Sample sample){
+		  
+		  String sampleReceivedStatus = "UNKNOWN";
+		  List<Statesample> statesamples = sample.getStatesample();
+		  for(Statesample ss : statesamples){
+			if(ss.getState().getTask().getIName().equals("Receive Sample")){
+				sampleReceivedStatus = ss.getState().getStatus();
+			}
+	  	  }
+		  return sampleReceivedStatus;
+	  }
+	  
+	  /**
+	   * {@inheritDoc}
+	   */
+	  @Override
+	  public void sortSamplesBySampleName(List<Sample> samples){
+		  class SampleNameComparator implements Comparator<Sample> {
+			    @Override
+			    public int compare(Sample arg0, Sample arg1) {
+			        return arg0.getName().compareToIgnoreCase(arg1.getName());
+			    }
+		  }
+		  Collections.sort(samples, new SampleNameComparator());//sort by sample's name 
+	  }
+	  
+	  /**
+	   * {@inheritDoc}
+	   */
+	  @Override
+	  public String convertReceiveSampleStatusForWeb(String internalStatus){
+		  
+		  if(internalStatus.equals("CREATED")){
+			  return new String("NOT ARRIVED");
+			}
+			else if(internalStatus.equals("RECEIVED") || internalStatus.equals("COMPLETED") || internalStatus.equals("FINALIZED")){
+				return new String("RECEIVED");
+			}
+			else if(internalStatus.equals("WITHDRAWN") || internalStatus.equals("ABANDONED") ){
+				return new String("WITHDRAWN");
+			}
+			else if(internalStatus.equals("UNKNOWN")){
+				return new String("UNKNOWN");
+			}
+			else{
+				return new String(internalStatus);
+			}
+	  }
+	  
+	  /**
+	   * {@inheritDoc}
+	   */
+	  @Override
+	  public String convertReceiveSampleStatusForInternalStorage(String webStatus){
+		  
+		  if(webStatus.equals("NOT ARRIVED")){
+			  return new String("CREATED");
+			}
+			else if(webStatus.equals("RECEIVED")){
+				return new String("COMPLETED");
+			}
+			else if(webStatus.equals("WITHDRAWN")){
+				return new String("ABANDONED");
+			}
+			else if(webStatus.equals("UNKNOWN")){
+				return new String("UNKNOWN");
+			}
+			else{
+				return new String(webStatus);
+			}
+	  }
+	  
+	  /**
+	   * {@inheritDoc}
+	   */
+	  @Override
+	  public List<String> getReceiveSampleStatusOptionsForWeb(){
+		  String [] stringList = {"CREATED", "COMPLETED", "ABANDONED", "UNKNOWN"};
+		  List<String> options = new ArrayList<String>();
+		  for(String str : stringList){
+			  options.add(convertReceiveSampleStatusForWeb(str));
+		  }
+		  return options;
+	  }
+
+	  /**
+	   * {@inheritDoc}
+	   */
+	  @Override
+	  public boolean updateSampleReceiveStatus(final Sample sample, final String status){
+	
+		  if(sample.getSampleId()==0){
+			  return false;
+		  }
+		  List<Statesample> statesamples = sample.getStatesample();
+		  for(Statesample ss : statesamples){
+			if(ss.getState().getTask().getIName().equals("Receive Sample")){
+				State state = ss.getState();
+				String newInternalStatus = convertReceiveSampleStatusForInternalStorage(status);
+				if(!state.getStatus().equals(newInternalStatus)){					
+					state.setStatus(newInternalStatus);
+					stateDao.save(state);
+				}
+			}
+	  	  }
+		  return true;
+	  }
+	  
+	  /**
+	   * {@inheritDoc}
+	   */
+	  @Override
+	  public boolean submittedSampleHasBeenProcessedByFacility(final Sample sample){
+		  boolean sampleHasBeenProcessed = false;
+		  if(sample.getSampleSource().size() > 0 /* a library has been created by facility from a submitted macromolecule */
+				  || 
+			 sample.getSampleSourceViaSourceSampleId().size() > 0){/* a library has been placed onto a flow cell */
+			  sampleHasBeenProcessed = true;
+		  }
+		  return sampleHasBeenProcessed;
 	  }
 }

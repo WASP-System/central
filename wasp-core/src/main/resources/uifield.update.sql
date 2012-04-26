@@ -850,7 +850,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','task','samplereceive','error_state_sample_conflict','Error - StateId and SampleId Mismatch','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','task','samplereceive','error_state_task_conflict','Error - StateId and TaskId Mismatch','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','task','samplereceive','update_success','Update completed successfully','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','task','samplereceive','title_label','Incoming Sample Manager','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','task','samplereceive','title_label','Incoming Sample Manager (Active Jobs Only)','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','task','samplereceive','error_receivedstatus_empty','Update Failed: Please select Received or Never Coming','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','task','samplereceive','error_receivedstatus_invalid','Update Failed: Action Invalid','1');
 

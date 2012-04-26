@@ -41,6 +41,7 @@ import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 import edu.yu.einstein.wasp.util.MetaHelper;
 
@@ -68,6 +69,9 @@ public class SampleController extends WaspController {
   
   @Autowired
   private RunDao runDao;
+  
+  @Autowired
+  private SampleService sampleService;
   
   @Autowired
   public void setSampleDao(SampleDao sampleDao) {
@@ -322,7 +326,7 @@ public class SampleController extends WaspController {
 						(sample.getSampleSubtypeId() == null)? "": allSubSampleTypes.get(sample.getSampleSubtypeId()),
 						(sample.getSubmitterJobId() == null)? "" : allJobs.get(sample.getSubmitterJobId()),
 						allUsers.get(sample.getSubmitterUserId()),
-						sample.getReceivedStatus(),
+						sampleService.convertReceiveSampleStatusForWeb(sampleService.getReceiveSampleStatus(sample)),
 						allRuns.get(sample.getSampleId())
 				}));
 
