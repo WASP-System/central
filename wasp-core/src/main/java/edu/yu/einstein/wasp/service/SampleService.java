@@ -15,6 +15,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import edu.yu.einstein.wasp.dao.SampleDao;
+import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSubtype;
@@ -146,4 +147,25 @@ public interface SampleService extends WaspService {
 	   * @return boolean
 	   */
 	  public boolean submittedSampleHasBeenProcessedByFacility(final Sample sample);
+	  
+	  /**
+	   * Returns a list of facility-generated libraries created from a user-submitted macromolecule
+	   * @param Sample
+	   * @return List<Sample>
+	   */
+	  public List<Sample> getFacilityGeneratedLibraries(Sample sample);
+	  
+	  /**
+	   * Returns list of flow cells for any library
+	   * @param Sample that is a library
+	   * @return List<Sample>
+	   */
+	  public List<Sample> getFlowCellsThatThisLibraryIsOn(Sample library);
+	  
+	  /**
+	   * Returns Adaptor for any library
+	   * @param Sample
+	   * @return Adaptor
+	   */
+	  public Adaptor getLibraryAdaptor(Sample library);
 }

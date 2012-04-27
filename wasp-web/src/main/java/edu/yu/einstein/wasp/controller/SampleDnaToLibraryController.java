@@ -35,6 +35,7 @@ import edu.yu.einstein.wasp.dao.AdaptorsetDao;
 import edu.yu.einstein.wasp.dao.JobCellDao;
 import edu.yu.einstein.wasp.dao.JobDao;
 import edu.yu.einstein.wasp.dao.JobSampleDao;
+import edu.yu.einstein.wasp.dao.RunDao;
 import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.dao.SampleMetaDao;
 import edu.yu.einstein.wasp.dao.SampleSourceDao;
@@ -52,6 +53,7 @@ import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
 import edu.yu.einstein.wasp.model.JobSample;
 import edu.yu.einstein.wasp.model.MetaAttribute;
+import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleCell;
 import edu.yu.einstein.wasp.model.SampleMeta;
@@ -97,6 +99,8 @@ public class SampleDnaToLibraryController extends WaspController {
   private SampleSubtypeDao sampleSubtypeDao;
   @Autowired
   private JobSampleDao jobSampleDao;
+  @Autowired
+  private RunDao runDao;
   @Autowired
   private SampleSourceDao sampleSourceDao;
   @Autowired
@@ -373,17 +377,12 @@ public class SampleDnaToLibraryController extends WaspController {
 		List<String> orderByList = new ArrayList<String>();
 		orderByList.add("cellindex");
 		List<JobCell> jobCellList = jobCellDao.findByMapDistinctOrderBy(jobCellFilter, null, orderByList, "ASC");
-		/* for(JobCell jobCell : jobCellList){
-			System.out.println(jobCell.getCellindex().intValue());
-		} */
 	  
 		//attempt at getting the requested coverage in a better format:
 		int totalNumberCellsRequested = jobCellList.size();
 		Map<Sample, String> coverageMap = new LinkedHashMap<Sample, String>();
 		for(Sample sample : submittedSamples){
 			StringBuffer stringBuffer = new StringBuffer("");
-			System.out.println();
-			System.out.print(sample.getName() + " -- Lanes: ");
 			for(int i = 1; i <= totalNumberCellsRequested; i++){
 				boolean found = false;
 				for(JobCell jobCell : jobCellList){
@@ -391,7 +390,7 @@ public class SampleDnaToLibraryController extends WaspController {
 					for(SampleCell sampleCell : sampleCellList){
 						if(sampleCell.getSampleId().intValue() == sample.getSampleId().intValue()){
 							if(jobCell.getCellindex().intValue() == i){
-								System.out.print(i + " ");
+								//System.out.print(i + " ");
 								stringBuffer.append("1");
 								found = true;
 							}
@@ -414,6 +413,135 @@ public class SampleDnaToLibraryController extends WaspController {
 		m.addAttribute("received", receivedList);
 		m.addAttribute("librariespersample", librariesPerSampleList);
 
+		///////////
+		
+		List<Sample> submittedSamplesList = jobService.getSubmittedSamples(job);
+		List<Sample> macromoleculeSubmittedSamplesList = new ArrayList<Sample>();
+		List<Sample> librarySubmittedSamplesList = new ArrayList<Sample>();
+		Map<Sample, String> speciesMap = new HashMap<Sample, String>();
+		Map<Sample, String> receivedStatusMap = new HashMap<Sample, String>();
+		Map<Sample, List<Sample>> facilityLibraryMap = new HashMap<Sample, List<Sample>>();//key is a submitted sample (macromolecule) and value is list of facility-generated libraries created from that macromolecule)
+		Map<Sample, List<Sample>> flowCellMap = new HashMap<Sample, List<Sample>>();//key is a library and value is list (really a set) of (unique) flow cells that library is on
+		Map<Sample, Adaptor> libraryAdaptorMap = new HashMap<Sample, Adaptor>();//key is library and value is the adaptor used for that library
+		Map<Sample, List<Run>> flowCellRunMap = new HashMap<Sample, List<Run>>();//key is flowcell and value is list of runs that the flow cell is on (should be one, but...)
+		
+		SampleType macromoleculeDnaType = sampleTypeDao.getSampleTypeByIName("dna");
+		SampleType macromoleculeRnaType = sampleTypeDao.getSampleTypeByIName("rna");
+		SampleType libraryType = sampleTypeDao.getSampleTypeByIName("library");
+		if(macromoleculeDnaType==null || macromoleculeRnaType==null || libraryType == null || 
+				macromoleculeDnaType.getSampleTypeId().intValue()==0 || 
+				macromoleculeRnaType.getSampleTypeId().intValue()==0 || 
+				libraryType.getSampleTypeId().intValue()==0){
+			//error message and get outta here
+		}
+		for(Sample sample : submittedSamplesList){
+			if(sample.getSampleType().getIName().equals(macromoleculeDnaType.getIName()) || sample.getSampleType().getIName().equals(macromoleculeRnaType.getIName())){
+				macromoleculeSubmittedSamplesList.add(sample);
+				List<Sample> facilityGeneratedLibrariesList = sampleService.getFacilityGeneratedLibraries(sample);//get list of facility-generated libraries from a user-submitted macromoleucle
+				facilityLibraryMap.put(sample, facilityGeneratedLibrariesList);				
+			}
+			else if(sample.getSampleType().getIName().equals(libraryType.getIName())){
+				librarySubmittedSamplesList.add(sample);
+				//for each library get flowcells/runs
+			}
+			try{		
+				speciesMap.put(sample, MetaHelper.getMetaValue("genericBiomolecule", "species", sample.getSampleMeta()));
+			}
+			catch(MetadataException me){
+				speciesMap.put(sample, "Species Not Found");
+				logger.warn("Unable to identify species for sampleId " + sample.getSampleId());
+				//print a message and get outta here
+			}
+			receivedStatusMap.put(sample, sampleService.convertReceiveSampleStatusForWeb(sampleService.getReceiveSampleStatus(sample)));
+		}
+		sampleService.sortSamplesBySampleName(macromoleculeSubmittedSamplesList);
+		sampleService.sortSamplesBySampleName(librarySubmittedSamplesList);
+		
+		//for each library (those in facilityLibraryMap and those in librarySubmittedSamplesList) get flowcells/runs and add to map Map<Sample, List<Sample>>
+		for(Sample library : librarySubmittedSamplesList){
+			List<Sample> flowCellList = sampleService.getFlowCellsThatThisLibraryIsOn(library);
+			flowCellMap.put(library, flowCellList);
+			Adaptor adaptor = sampleService.getLibraryAdaptor(library);
+			if(adaptor==null){
+				//message and get out of here
+			}
+			libraryAdaptorMap.put(library, adaptor);			
+		}
+		for(List<Sample> libraryList : facilityLibraryMap.values()){
+			for(Sample library : libraryList){
+				List<Sample> flowCellList = sampleService.getFlowCellsThatThisLibraryIsOn(library);
+				flowCellMap.put(library, flowCellList);
+				Adaptor adaptor = sampleService.getLibraryAdaptor(library);
+				if(adaptor==null){
+					//message and get out of here
+				}
+				libraryAdaptorMap.put(library, adaptor);
+			}
+		}
+		
+		//for all the flowcells that we've identified, which are on a sequence run
+		for(List<Sample> flowCellList : flowCellMap.values()){
+			for(Sample flowCell : flowCellList){
+				List<Run> runsList = flowCell.getRun();
+				flowCellRunMap.put(flowCell, runsList);
+			}
+		}
+		
+		//let's have some sanity checking
+		System.out.println("1. User-Submitted Macromolecules");
+		for(Sample macromoleculeSubmittedSample : macromoleculeSubmittedSamplesList){
+			System.out.println("Macromolecule Name: " + macromoleculeSubmittedSample.getName() + "[" + macromoleculeSubmittedSample.getSampleType().getName() +"]");
+			System.out.println("--Macromolecule Species: " + speciesMap.get(macromoleculeSubmittedSample));
+			System.out.println("--Received Status: " + receivedStatusMap.get(macromoleculeSubmittedSample));
+			List<Sample> facilityLibrariesForThisMacromoleculeList = facilityLibraryMap.get(macromoleculeSubmittedSample);
+			System.out.println("--Libraries Made From This Macromolecule: " + facilityLibrariesForThisMacromoleculeList.size());
+			for(Sample facilityLibrary : facilityLibrariesForThisMacromoleculeList){
+				System.out.println("----Library: " + facilityLibrary.getName() + "[" + facilityLibrary.getSampleType().getName() +"]");
+				Adaptor adaptor = libraryAdaptorMap.get(facilityLibrary);
+				if(adaptor != null){
+					System.out.println("------Adaptor: " + adaptor.getAdaptorset().getName() + " Index " + adaptor.getBarcodenumber().intValue() + " [" + adaptor.getBarcodesequence() + "]");
+				}
+				else{
+					System.out.println("------Adaptor: Not Found");
+				}
+				List<Sample> flowCellList = flowCellMap.get(facilityLibrary);
+				System.out.println("--------Flow Cells Library Has Been Run On: " + flowCellList.size());
+				for(Sample flowCell : flowCellList){
+					System.out.println("----------Flow Cell: " + flowCell.getName()); 
+					List<Run> runs = flowCellRunMap.get(flowCell);
+					System.out.println("------------Run For This Flow Cell: " + runs.size());
+					for(Run run : runs){
+						System.out.println("--------------Run: " + run.getName());
+					}					
+				}
+			}
+		}
+		//more sanity checking
+		System.out.println(" ");
+		System.out.println("2. User-Submitted Libraries");
+		for(Sample librarySubmittedSample : librarySubmittedSamplesList){
+			System.out.println("Library Name: " + librarySubmittedSample.getName() + "[" + librarySubmittedSample.getSampleType().getName() +"]");
+			System.out.println("--Macromolecule Species: " + speciesMap.get(librarySubmittedSample));
+			System.out.println("--Received Status: " + receivedStatusMap.get(librarySubmittedSample));
+			Adaptor adaptor = libraryAdaptorMap.get(librarySubmittedSample);
+			if(adaptor != null){
+				System.out.println("----Adaptor: " + adaptor.getAdaptorset().getName() + " Index " + adaptor.getBarcodenumber().intValue() + " [" + adaptor.getBarcodesequence() + "]");
+			}
+			else{
+				System.out.println("----Adaptor: Not Found");
+			}
+			List<Sample> flowCellList = flowCellMap.get(librarySubmittedSample);
+			System.out.println("------Flow Cells Library Has Been Run On: " + flowCellList.size());
+			for(Sample flowCell : flowCellList){
+				System.out.println("--------Flow Cell: " + flowCell.getName()); 
+				List<Run> runs = flowCellRunMap.get(flowCell);
+				System.out.println("----------Run For This Flow Cell: " + runs.size());
+				for(Run run : runs){
+					System.out.println("------------Run: " + run.getName());
+				}					
+			}
+		}
+		
 		return "sampleDnaToLibrary/listJobSamples";
   }
 

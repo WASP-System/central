@@ -16,20 +16,25 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.HashSet;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.yu.einstein.wasp.dao.AdaptorDao;
 import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.dao.SampleMetaDao;
 import edu.yu.einstein.wasp.dao.StateDao;
 import edu.yu.einstein.wasp.dao.WorkflowDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
+import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.SampleType;
+import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.Statesample;
 import edu.yu.einstein.wasp.model.WorkflowSampleSubtype;
@@ -80,6 +85,9 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 
 	@Autowired
 	private StateDao stateDao;
+	
+	@Autowired
+	  private AdaptorDao adaptorDao;
 
 	public void setSampleMetaDao(SampleMetaDao sampleMetaDao) {
 		this.sampleMetaDao = sampleMetaDao;
@@ -293,13 +301,65 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	   * {@inheritDoc}
 	   */
 	  @Override
-	  public boolean submittedSampleHasBeenProcessedByFacility(final Sample sample){
+	  public boolean submittedSampleHasBeenProcessedByFacility(final Sample sample){//should but doesn't really check that this is a user-submitted sample
 		  boolean sampleHasBeenProcessed = false;
-		  if(sample.getSampleSource().size() > 0 /* a library has been created by facility from a submitted macromolecule */
-				  || 
-			 sample.getSampleSourceViaSourceSampleId().size() > 0){/* a library has been placed onto a flow cell */
+		  if( sample.getSampleSourceViaSourceSampleId().size() > 0){/* submitted sample is a user-submitted library that has been placed onto a flow cell or a user-submitted macromolecule that has been used to generate a library */
 			  sampleHasBeenProcessed = true;
 		  }
 		  return sampleHasBeenProcessed;
+	  }
+	  
+	  /**
+	   * {@inheritDoc}
+	   */
+	  @Override
+	  public List<Sample> getFacilityGeneratedLibraries(Sample sample){
+		  List<Sample> libraryList = new ArrayList<Sample>();
+		  List<SampleSource> sampleSourceList = sample.getSampleSourceViaSourceSampleId();
+		  for(SampleSource sampleSource : sampleSourceList){
+			  libraryList.add(sampleSource.getSample());
+		  }
+		  return libraryList;
+	  }
+	  
+	  /**
+	   * {@inheritDoc}
+	   */
+	  @Override
+	  public List<Sample> getFlowCellsThatThisLibraryIsOn(Sample library){
+		  Set<Sample> flowCellSet = new HashSet<Sample>();
+		  List<SampleSource> sampleSourceCellLibList = library.getSampleSourceViaSourceSampleId();
+		  for(SampleSource sampleSourceCellLib : sampleSourceCellLibList){
+			  Sample cell = sampleSourceCellLib.getSample();
+			  List<SampleSource> sampleSourcePlatUnitCellList = cell.getSampleSourceViaSourceSampleId();
+			  for(SampleSource sampleSourcePlatUnitCell : sampleSourcePlatUnitCellList){
+				  Sample flowCell = sampleSourcePlatUnitCell.getSample();
+				  flowCellSet.add(flowCell);
+			  }
+		  }
+		  List<Sample> flowCellList = new ArrayList<Sample>();
+		  for(Sample sample : flowCellSet){
+			  flowCellList.add(sample);
+		  }
+		  return flowCellList;
+	  }
+	  
+	  /**
+	   * {@inheritDoc}
+	   */
+	  @Override
+	  public Adaptor getLibraryAdaptor(Sample library){
+		  Adaptor adaptor = null;
+		  String adaptorId = new String("");
+		  try{		
+			  adaptorId = MetaHelper.getMetaValue("genericLibrary", "adaptor", library.getSampleMeta());
+		  }
+		  catch(MetadataException me){
+			  logger.warn("Unable to identify adaptor for libraryId " + library.getSampleId());
+		  }
+		  if( ! adaptorId.equals("") ){
+			  adaptor = adaptorDao.findById(new Integer(adaptorId));
+		  }		  
+		  return adaptor;
 	  }
 }
