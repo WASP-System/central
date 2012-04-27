@@ -80,6 +80,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','updated','error','User was NOT updated. Please fill in required fields.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','created','error','User was NOT created. Please fill in required fields.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','updated_fail','error','User was NOT updated.','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','job_list','label',"View user\'s jobs in these labs",'1');
 
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','login','label','Login','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','login','error','Login cannot be empty','1');
@@ -497,7 +498,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','hello','error=Hello World','','','1');
 
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sample','sample_list','label','List of Samples','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sample','name','label','Name','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sample','name','label','Sample Name','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sample','type','label','Type','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sample','subtype','label','Subtype','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sample','job','label','Job','1');
@@ -794,7 +795,7 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','resource','isActive','label','Active','1');
 
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','run_list','label','List of Runs','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','name','label','Name','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','name','label','Run Name','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','name','constraint','NotEmpty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','name','error','Run name cannot be empty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','run','run_exists','error','Run name already exists in the database','1');

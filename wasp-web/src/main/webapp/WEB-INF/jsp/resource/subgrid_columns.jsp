@@ -1,9 +1,10 @@
+<%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 subGrid: true,
 subGridUrl:'/wasp/resource/subgridJSON.do',
 subGridModel: [ 
                 {
-                name  : ['List of Runs'],
-                width : [500],
+                name  : ['<fmt:message key="run.run_list.label"/>'],
+                width : ['auto'],
                 align : ['left']            	    
                 }
 ],
