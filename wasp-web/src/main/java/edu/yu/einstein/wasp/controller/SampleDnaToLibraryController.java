@@ -542,6 +542,14 @@ public class SampleDnaToLibraryController extends WaspController {
 			}
 		}
 		
+		m.addAttribute("macromoleculeSubmittedSamplesList", macromoleculeSubmittedSamplesList);
+		m.addAttribute("librarySubmittedSamplesList", librarySubmittedSamplesList);
+		m.addAttribute("speciesMap", speciesMap);
+		m.addAttribute("receivedStatusMap", receivedStatusMap);
+		m.addAttribute("libraryAdaptorMap", libraryAdaptorMap);
+		m.addAttribute("flowCellMap", flowCellMap);
+		m.addAttribute("flowCellRunMap", flowCellRunMap);
+		
 		return "sampleDnaToLibrary/listJobSamples";
   }
 

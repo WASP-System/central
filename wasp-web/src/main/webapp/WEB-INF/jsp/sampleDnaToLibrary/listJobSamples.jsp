@@ -419,3 +419,51 @@
 </c:choose>
 </c:forEach>
 </table>
+
+<br />
+<table class="data"> 
+
+<c:if test="${macromoleculeSubmittedSamplesList.size() > 0}">
+<tr class="FormData"><td class="label-centered" style="background-color:#FAF2D6">Initial Macromolecule</td><td class="label-centered" style="background-color:#FAF2D6">Libraries</td><td class="label-centered" style="background-color:#FAF2D6">FlowCells/Runs</td></tr>
+<c:forEach items="${macromoleculeSubmittedSamplesList}" var="userSubmittedMacromolecule">
+<tr><td>Name: <c:out value="${userSubmittedMacromolecule.getName()}"/><br />Type: <c:out value="${userSubmittedMacromolecule.getSampleType().getName()}"/><br />Species: <c:out value="${speciesMap.get(userSubmittedMacromolecule)}"/><br />Arrival Status: <c:out value="${receivedStatusMap.get(userSubmittedMacromolecule)}"/> </td><td>&nbsp;</td><td>&nbsp;</td></tr>
+</c:forEach>
+</c:if>
+
+<c:if test="${librarySubmittedSamplesList.size() > 0}">
+
+<tr class="FormData"><td colspan="2" class="label-centered" style="background-color:#FAF2D6">User-Submitted Library</td><td class="label-centered" style="background-color:#FAF2D6">FlowCells/Runs</td></tr>
+
+<c:forEach items="${librarySubmittedSamplesList}" var="userSubmittedLibrary">
+
+<tr>
+<td colspan="2">Name: <c:out value="${userSubmittedLibrary.getName()}"/><br />Type: <c:out value="${userSubmittedLibrary.getSampleType().getName()}"/><br />Species: <c:out value="${speciesMap.get(userSubmittedLibrary)}"/><br />
+<c:set var="adaptor" value="${libraryAdaptorMap.get(userSubmittedLibrary)}" scope="page" />
+Adaptor: <c:out value="${adaptor.getAdaptorset().getName()}"/><br />
+Index <c:out value="${adaptor.getBarcodenumber()}"/> [<c:out value="${adaptor.getBarcodesequence()}"/>]<br />
+Arrival Status: <c:out value="${receivedStatusMap.get(userSubmittedLibrary)}"/></td>
+<td>
+<c:set var="flowCellList" value="${flowCellMap.get(userSubmittedLibrary)}" scope="page" />
+<c:choose>
+<c:when test="${flowCellList.size() > 0}">
+	<c:forEach items="${flowCellList}" var="flowCell">
+	<c:out value="${flowCell.getName()}"/>
+	<c:set var="RunList" value="${flowCellRunMap.get(flowCell)}" scope="page" />
+	<c:forEach items="${RunList}" var="run">
+	---> <c:out value="${run.getName()}"/>
+	</c:forEach>
+	<br />
+	</c:forEach>
+</c:when>
+<c:otherwise>
+No FlowCell / Run <br />
+</c:otherwise>
+</c:choose>
+</td>
+</tr>
+
+</c:forEach>
+
+</c:if>
+
+</table>
