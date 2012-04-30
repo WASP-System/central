@@ -348,6 +348,20 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	   * {@inheritDoc}
 	   */
 	  @Override
+	  public List<Sample> getCellsThatThisLibraryIsOn(Sample library){
+		  List<Sample> cellList = new ArrayList<Sample>();
+		  List<SampleSource> sampleSourceCellLibList = library.getSampleSourceViaSourceSampleId();
+		  for(SampleSource sampleSourceCellLib : sampleSourceCellLibList){
+			  Sample cell = sampleSourceCellLib.getSample();
+			  cellList.add(cell);
+		  }
+		  return cellList;
+	  }
+	  
+	  /**
+	   * {@inheritDoc}
+	   */
+	  @Override
 	  public Adaptor getLibraryAdaptor(Sample library){
 		  Adaptor adaptor = null;
 		  String adaptorId = new String("");

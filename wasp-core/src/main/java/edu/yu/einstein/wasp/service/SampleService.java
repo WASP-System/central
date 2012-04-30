@@ -161,7 +161,14 @@ public interface SampleService extends WaspService {
 	   * @return List<Sample>
 	   */
 	  public List<Sample> getFlowCellsThatThisLibraryIsOn(Sample library);
-	  
+	
+	  /**
+	   * Returns list of cells for any library
+	   * @param Sample that is a library
+	   * @return List<Sample>
+	   */
+	  public List<Sample> getCellsThatThisLibraryIsOn(Sample library);
+	
 	  /**
 	   * Returns Adaptor for any library
 	   * @param Sample

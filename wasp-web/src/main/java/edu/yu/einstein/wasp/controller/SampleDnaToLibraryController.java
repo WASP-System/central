@@ -425,6 +425,12 @@ public class SampleDnaToLibraryController extends WaspController {
 		Map<Sample, Adaptor> libraryAdaptorMap = new HashMap<Sample, Adaptor>();//key is library and value is the adaptor used for that library
 		Map<Sample, List<Run>> flowCellRunMap = new HashMap<Sample, List<Run>>();//key is flowcell and value is list of runs that the flow cell is on (should be one, but...)
 		
+		Map<Sample, List<Sample>> cellMap = new HashMap<Sample, List<Sample>>();//key is a library and value is list of cells that library is on
+		Map<Sample, List<Sample>> platformUnitMap = new HashMap<Sample, List<Sample>>();//key is a cell and value is list of platformUnits of which that cell is a part (its really a single Platform Unit)
+		Map<Sample, List<Run>> platformUnitRunMap = new HashMap<Sample, List<Run>>();//key is platformUnit and value is list of runs that the platformUnit is on (should be one, but...)
+
+		
+		
 		SampleType macromoleculeDnaType = sampleTypeDao.getSampleTypeByIName("dna");
 		SampleType macromoleculeRnaType = sampleTypeDao.getSampleTypeByIName("rna");
 		SampleType libraryType = sampleTypeDao.getSampleTypeByIName("library");
@@ -465,7 +471,9 @@ public class SampleDnaToLibraryController extends WaspController {
 			if(adaptor==null){
 				//message and get out of here
 			}
-			libraryAdaptorMap.put(library, adaptor);			
+			libraryAdaptorMap.put(library, adaptor);	
+			List<Sample> cellList = sampleService.getCellsThatThisLibraryIsOn(library);
+			cellMap.put(library, cellList);
 		}
 		for(List<Sample> libraryList : facilityLibraryMap.values()){
 			for(Sample library : libraryList){
@@ -476,6 +484,15 @@ public class SampleDnaToLibraryController extends WaspController {
 					//message and get out of here
 				}
 				libraryAdaptorMap.put(library, adaptor);
+				List<Sample> cellList = sampleService.getCellsThatThisLibraryIsOn(library);
+				cellMap.put(library, cellList);
+			}
+		}
+		
+		for(List<Sample> cellList : cellMap.values()){
+			for(Sample cell : cellList){
+				List<Sample> platformUnitList = sampleService.getCellsThatThisLibraryIsOn(cell);//it's ok to use this method here
+				platformUnitMap.put(cell, platformUnitList);
 			}
 		}
 		
@@ -484,6 +501,14 @@ public class SampleDnaToLibraryController extends WaspController {
 			for(Sample flowCell : flowCellList){
 				List<Run> runsList = flowCell.getRun();
 				flowCellRunMap.put(flowCell, runsList);
+			}
+		}
+		
+		//for all the flowcells that we've identified, which are on a sequence run
+		for(List<Sample> platformUnitList : platformUnitMap.values()){
+			for(Sample platformUnit : platformUnitList){
+				List<Run> runsList = platformUnit.getRun();
+				platformUnitRunMap.put(platformUnit, runsList);
 			}
 		}
 		
@@ -549,6 +574,10 @@ public class SampleDnaToLibraryController extends WaspController {
 		m.addAttribute("libraryAdaptorMap", libraryAdaptorMap);
 		m.addAttribute("flowCellMap", flowCellMap);
 		m.addAttribute("flowCellRunMap", flowCellRunMap);
+		
+		m.addAttribute("cellMap", cellMap);
+		m.addAttribute("platformUnitMap", platformUnitMap);
+		m.addAttribute("platformUnitRunMap", platformUnitRunMap);
 		
 		return "sampleDnaToLibrary/listJobSamples";
   }
