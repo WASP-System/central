@@ -568,6 +568,7 @@ public class SampleDnaToLibraryController extends WaspController {
 		}
 		
 		m.addAttribute("macromoleculeSubmittedSamplesList", macromoleculeSubmittedSamplesList);
+		m.addAttribute("facilityLibraryMap", facilityLibraryMap);
 		m.addAttribute("librarySubmittedSamplesList", librarySubmittedSamplesList);
 		m.addAttribute("speciesMap", speciesMap);
 		m.addAttribute("receivedStatusMap", receivedStatusMap);

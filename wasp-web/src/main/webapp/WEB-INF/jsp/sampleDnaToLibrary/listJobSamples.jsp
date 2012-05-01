@@ -424,10 +424,79 @@
 <table class="data"> 
 
 <c:if test="${macromoleculeSubmittedSamplesList.size() > 0}">
-<tr class="FormData"><td class="label-centered" style="background-color:#FAF2D6">Initial Macromolecule</td><td class="label-centered" style="background-color:#FAF2D6">Libraries</td><td class="label-centered" style="background-color:#FAF2D6">FlowCells/Runs</td></tr>
-<c:forEach items="${macromoleculeSubmittedSamplesList}" var="userSubmittedMacromolecule">
-<tr><td>Name: <c:out value="${userSubmittedMacromolecule.getName()}"/><br />Type: <c:out value="${userSubmittedMacromolecule.getSampleType().getName()}"/><br />Species: <c:out value="${speciesMap.get(userSubmittedMacromolecule)}"/><br />Arrival Status: <c:out value="${receivedStatusMap.get(userSubmittedMacromolecule)}"/> </td><td>&nbsp;</td><td>&nbsp;</td></tr>
-</c:forEach>
+	<tr class="FormData">
+		<td class="label-centered" style="background-color:#FAF2D6">Initial Macromolecule</td><td class="label-centered" style="background-color:#FAF2D6">Libraries</td><td class="label-centered" style="background-color:#FAF2D6">FlowCells/Runs</td>
+	</tr>
+	<c:forEach items="${macromoleculeSubmittedSamplesList}" var="userSubmittedMacromolecule">
+		<c:set value="${facilityLibraryMap.get(userSubmittedMacromolecule)}" var="facilityLibrariesForThisMacromoleculeList" scope="page" />
+		<c:set var="numberLibrariesForThisMacromolecule" value="${facilityLibrariesForThisMacromoleculeList.size()}" scope="page" />
+		
+		<tr>
+			<td rowspan="${numberLibrariesForThisMacromolecule}">
+				Name: <c:out value="${userSubmittedMacromolecule.getName()}"/><br />
+				Type: <c:out value="${userSubmittedMacromolecule.getSampleType().getName()}"/><br />
+				Species: <c:out value="${speciesMap.get(userSubmittedMacromolecule)}"/><br />
+				Arrival Status: <c:out value="${receivedStatusMap.get(userSubmittedMacromolecule)}"/><br />
+			</td>
+			<c:choose>
+				<c:when test="${numberLibrariesForThisMacromolecule == 0}">
+					<td>No Libraries Created</td>	
+					<td>No Libraries Created</td>
+				</c:when>
+				<c:when test="${numberLibrariesForThisMacromolecule > 0}">
+					<c:set var="rowCounter" value="0" scope="page" />
+					<c:forEach items="${facilityLibrariesForThisMacromoleculeList}" var="facilityLibraryForThisMacromolecule">	
+						<c:if test="${rowCounter > 0}">
+					  		<tr>
+					  	</c:if>	
+						<td>
+							Name: <c:out value="${facilityLibraryForThisMacromolecule.getName()}"/><br />Type: <c:out value="${facilityLibraryForThisMacromolecule.getSampleType().getName()}"/><br />
+							<c:set var="adaptor" value="${libraryAdaptorMap.get(facilityLibraryForThisMacromolecule)}" scope="page" />
+							Adaptor: <c:out value="${adaptor.getAdaptorset().getName()}"/><br />
+							Index <c:out value="${adaptor.getBarcodenumber()}"/> [<c:out value="${adaptor.getBarcodesequence()}"/>]<br />
+						</td>
+						
+						
+						<td>
+<c:set var="sampleSourceList" value="${facilityLibraryForThisMacromolecule.getSampleSourceViaSourceSampleId()}" scope="page" />
+<c:choose>
+<c:when test="${sampleSourceList.size() > 0}">
+	<c:forEach items="${sampleSourceList}" var="sampleSource">
+		
+		<c:set var="cell" value="${sampleSource.getSample()}" scope="page" />
+		<c:set var="sampleSourceList2" value="${cell.getSampleSourceViaSourceSampleId()}" scope="page" />
+		<c:forEach items="${sampleSourceList2}" var="sampleSource2">
+			<c:set var="laneNumber" value="${sampleSource2.getMultiplexindex()}" scope="page" />
+			<c:set var="platformUnit" value="${sampleSource2.getSample()}" scope="page" />
+			<c:out value="${platformUnit.getName()}"/> Lane: <c:out value="${laneNumber}"/> 
+			<c:set var="runList" value="${platformUnit.getRun()}" scope="page" />
+			<c:if test="${runList.size() > 0}">
+				---&gt; <c:out value="${runList.get(0).getName()}"/>
+			</c:if>
+			<br />
+		</c:forEach>
+	</c:forEach>
+	
+</c:when>
+<c:otherwise>
+No FlowCell / Run <br />
+</c:otherwise>
+</c:choose>
+</td>
+						
+						
+						
+					
+						
+						<c:if test="${rowCounter > 0}">
+					  		</tr>					  	
+					  	</c:if>
+						<c:set var="rowCounter" value="${rowCounter + 1}" scope="page" />
+					</c:forEach>
+				</c:when>
+			</c:choose>					
+		</tr>
+	</c:forEach>
 </c:if>
 
 <c:if test="${librarySubmittedSamplesList.size() > 0}">
@@ -442,26 +511,7 @@
 Adaptor: <c:out value="${adaptor.getAdaptorset().getName()}"/><br />
 Index <c:out value="${adaptor.getBarcodenumber()}"/> [<c:out value="${adaptor.getBarcodesequence()}"/>]<br />
 Arrival Status: <c:out value="${receivedStatusMap.get(userSubmittedLibrary)}"/></td>
-<%-- 
-<td>
-<c:set var="flowCellList" value="${flowCellMap.get(userSubmittedLibrary)}" scope="page" />
-<c:choose>
-<c:when test="${flowCellList.size() > 0}">
-	<c:forEach items="${flowCellList}" var="flowCell">
-	<c:out value="${flowCell.getName()}"/>
-	<c:set var="RunList" value="${flowCellRunMap.get(flowCell)}" scope="page" />
-	<c:forEach items="${RunList}" var="run">
-	---> <c:out value="${run.getName()}"/>
-	</c:forEach>
-	<br />
-	</c:forEach>
-</c:when>
-<c:otherwise>
-No FlowCell / Run <br />
-</c:otherwise>
-</c:choose>
-</td>
---%>
+
 
 <td>
 <c:set var="sampleSourceList" value="${userSubmittedLibrary.getSampleSourceViaSourceSampleId()}" scope="page" />
@@ -474,7 +524,12 @@ No FlowCell / Run <br />
 		<c:forEach items="${sampleSourceList2}" var="sampleSource2">
 			<c:set var="laneNumber" value="${sampleSource2.getMultiplexindex()}" scope="page" />
 			<c:set var="platformUnit" value="${sampleSource2.getSample()}" scope="page" />
-			<c:out value="${platformUnit.getName()}"/> Lane: <c:out value="${laneNumber}"/> <br />
+			<c:out value="${platformUnit.getName()}"/> Lane: <c:out value="${laneNumber}"/> 
+			<c:set var="runList" value="${platformUnit.getRun()}" scope="page" />
+			<c:if test="${runList.size() > 0}">
+				---&gt; <c:out value="${runList.get(0).getName()}"/>
+			</c:if>
+			<br />
 		</c:forEach>
 	</c:forEach>
 	
