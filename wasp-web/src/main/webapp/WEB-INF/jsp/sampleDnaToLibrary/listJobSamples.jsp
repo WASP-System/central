@@ -420,6 +420,11 @@
 </c:forEach>
 </table>
 
+
+
+
+
+
 <br />
 <table class="data"> 
 
@@ -433,10 +438,10 @@
 		
 		<tr>
 			<td rowspan="${numberLibrariesForThisMacromolecule}">
-				Name: <c:out value="${userSubmittedMacromolecule.getName()}"/><br />
+				Name: <a href="<c:url value="/sampleDnaToLibrary/sampledetail_ro/${job.jobId}/${userSubmittedMacromolecule.getSampleId()}.do" />"><c:out value="${userSubmittedMacromolecule.getName()}"/></a><br />
 				Type: <c:out value="${userSubmittedMacromolecule.getSampleType().getName()}"/><br />
 				Species: <c:out value="${speciesMap.get(userSubmittedMacromolecule)}"/><br />
-				Arrival Status: <c:out value="${receivedStatusMap.get(userSubmittedMacromolecule)}"/><br />
+				Arrival Status: <c:out value="${receivedStatusMap.get(userSubmittedMacromolecule)}"/><sec:authorize access="hasRole('su') or hasRole('ft')">&nbsp;<a href="<c:url value="/task/updatesamplereceive/${job.jobId}.do" />">[update]</a></sec:authorize><br />
 			</td>
 			<c:choose>
 				<c:when test="${numberLibrariesForThisMacromolecule == 0}">
@@ -450,7 +455,8 @@
 					  		<tr>
 					  	</c:if>	
 						<td>
-							Name: <c:out value="${facilityLibraryForThisMacromolecule.getName()}"/><br />Type: <c:out value="${facilityLibraryForThisMacromolecule.getSampleType().getName()}"/><br />
+							Name: <a href="<c:url value="/sampleDnaToLibrary/librarydetail_ro/${job.jobId}/${facilityLibraryForThisMacromolecule.getSampleId()}.do" />"><c:out value="${facilityLibraryForThisMacromolecule.getName()}"/></a><br />
+							Type: <c:out value="${facilityLibraryForThisMacromolecule.getSampleType().getName()}"/><br />
 							<c:set var="adaptor" value="${libraryAdaptorMap.get(facilityLibraryForThisMacromolecule)}" scope="page" />
 							Adaptor: <c:out value="${adaptor.getAdaptorset().getName()}"/><br />
 							Index <c:out value="${adaptor.getBarcodenumber()}"/> [<c:out value="${adaptor.getBarcodesequence()}"/>]<br />
@@ -470,6 +476,7 @@
 											<c:if test="${runList.size() > 0}">
 												---&gt; <c:out value="${runList.get(0).getName()}"/>
 											</c:if>
+											<sec:authorize access="hasRole('su') or hasRole('ft')"><a href="<c:url value="/facility/platformunit/showPlatformUnit/${platformUnit.getSampleId()}.do" />"> [view]</a></sec:authorize>
 											<br />
 										</c:forEach>
 									</c:forEach>
@@ -492,51 +499,47 @@
 </c:if>
 
 <c:if test="${librarySubmittedSamplesList.size() > 0}">
-
-<tr class="FormData"><td colspan="2" class="label-centered" style="background-color:#FAF2D6">User-Submitted Library</td><td class="label-centered" style="background-color:#FAF2D6">FlowCells/Runs</td></tr>
-
-<c:forEach items="${librarySubmittedSamplesList}" var="userSubmittedLibrary">
-
-<tr>
-<td colspan="2">Name: <c:out value="${userSubmittedLibrary.getName()}"/><br />Type: <c:out value="${userSubmittedLibrary.getSampleType().getName()}"/><br />Species: <c:out value="${speciesMap.get(userSubmittedLibrary)}"/><br />
-<c:set var="adaptor" value="${libraryAdaptorMap.get(userSubmittedLibrary)}" scope="page" />
-Adaptor: <c:out value="${adaptor.getAdaptorset().getName()}"/><br />
-Index <c:out value="${adaptor.getBarcodenumber()}"/> [<c:out value="${adaptor.getBarcodesequence()}"/>]<br />
-Arrival Status: <c:out value="${receivedStatusMap.get(userSubmittedLibrary)}"/></td>
-
-
-<td>
-<c:set var="sampleSourceList" value="${userSubmittedLibrary.getSampleSourceViaSourceSampleId()}" scope="page" />
-<c:choose>
-<c:when test="${sampleSourceList.size() > 0}">
-	<c:forEach items="${sampleSourceList}" var="sampleSource">
-		
-		<c:set var="cell" value="${sampleSource.getSample()}" scope="page" />
-		<c:set var="sampleSourceList2" value="${cell.getSampleSourceViaSourceSampleId()}" scope="page" />
-		<c:forEach items="${sampleSourceList2}" var="sampleSource2">
-			<c:set var="laneNumber" value="${sampleSource2.getMultiplexindex()}" scope="page" />
-			<c:set var="platformUnit" value="${sampleSource2.getSample()}" scope="page" />
-			<c:out value="${platformUnit.getName()}"/> Lane: <c:out value="${laneNumber}"/> 
-			<c:set var="runList" value="${platformUnit.getRun()}" scope="page" />
-			<c:if test="${runList.size() > 0}">
-				---&gt; <c:out value="${runList.get(0).getName()}"/>
-			</c:if>
-			<br />
-		</c:forEach>
+	<tr class="FormData">
+		<td colspan="2" class="label-centered" style="background-color:#FAF2D6">User-Submitted Library</td><td class="label-centered" style="background-color:#FAF2D6">FlowCells/Runs</td>
+	</tr>
+	<c:forEach items="${librarySubmittedSamplesList}" var="userSubmittedLibrary">
+	<tr>
+		<td colspan="2">
+			Name: <a href="<c:url value="/sampleDnaToLibrary/librarydetail_ro/${job.jobId}/${userSubmittedLibrary.getSampleId()}.do" />"><c:out value="${userSubmittedLibrary.getName()}"/></a><br />
+			Type: <c:out value="${userSubmittedLibrary.getSampleType().getName()}"/><br />
+			Species: <c:out value="${speciesMap.get(userSubmittedLibrary)}"/><br />
+			<c:set var="adaptor" value="${libraryAdaptorMap.get(userSubmittedLibrary)}" scope="page" />
+			Adaptor: <c:out value="${adaptor.getAdaptorset().getName()}"/><br />
+			Index <c:out value="${adaptor.getBarcodenumber()}"/> [<c:out value="${adaptor.getBarcodesequence()}"/>]<br />
+			Arrival Status: <c:out value="${receivedStatusMap.get(userSubmittedLibrary)}"/><sec:authorize access="hasRole('su') or hasRole('ft')">&nbsp;<a href="<c:url value="/task/updatesamplereceive/${job.jobId}.do" />">[update]</a></sec:authorize><br />
+		</td>
+		<td>
+		<c:set var="sampleSourceList" value="${userSubmittedLibrary.getSampleSourceViaSourceSampleId()}" scope="page" />
+		<c:choose>
+			<c:when test="${sampleSourceList.size() > 0}">
+				<c:forEach items="${sampleSourceList}" var="sampleSource">
+					<c:set var="cell" value="${sampleSource.getSample()}" scope="page" />
+					<c:set var="sampleSourceList2" value="${cell.getSampleSourceViaSourceSampleId()}" scope="page" />
+					<c:forEach items="${sampleSourceList2}" var="sampleSource2">
+						<c:set var="laneNumber" value="${sampleSource2.getMultiplexindex()}" scope="page" />
+						<c:set var="platformUnit" value="${sampleSource2.getSample()}" scope="page" />
+						<c:out value="${platformUnit.getName()}"/> Lane: <c:out value="${laneNumber}"/> 
+						<c:set var="runList" value="${platformUnit.getRun()}" scope="page" />
+						<c:if test="${runList.size() > 0}">
+							---&gt; <c:out value="${runList.get(0).getName()}"/>
+						</c:if>
+						<sec:authorize access="hasRole('su') or hasRole('ft')"><a href="<c:url value="/facility/platformunit/showPlatformUnit/${platformUnit.getSampleId()}.do" />"> [view]</a></sec:authorize>
+						<br />
+					</c:forEach>
+				</c:forEach>			
+			</c:when>
+			<c:otherwise>
+				No FlowCell / Run <br />
+			</c:otherwise>
+		</c:choose>
+		</td>
+	</tr>
 	</c:forEach>
-	
-</c:when>
-<c:otherwise>
-No FlowCell / Run <br />
-</c:otherwise>
-</c:choose>
-</td>
-
-
-</tr>
-
-</c:forEach>
-
 </c:if>
 
 </table>

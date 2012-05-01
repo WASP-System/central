@@ -421,15 +421,7 @@ public class SampleDnaToLibraryController extends WaspController {
 		Map<Sample, String> speciesMap = new HashMap<Sample, String>();
 		Map<Sample, String> receivedStatusMap = new HashMap<Sample, String>();
 		Map<Sample, List<Sample>> facilityLibraryMap = new HashMap<Sample, List<Sample>>();//key is a submitted sample (macromolecule) and value is list of facility-generated libraries created from that macromolecule)
-		Map<Sample, List<Sample>> flowCellMap = new HashMap<Sample, List<Sample>>();//key is a library and value is list (really a set) of (unique) flow cells that library is on
 		Map<Sample, Adaptor> libraryAdaptorMap = new HashMap<Sample, Adaptor>();//key is library and value is the adaptor used for that library
-		Map<Sample, List<Run>> flowCellRunMap = new HashMap<Sample, List<Run>>();//key is flowcell and value is list of runs that the flow cell is on (should be one, but...)
-		
-		Map<Sample, List<Sample>> cellMap = new HashMap<Sample, List<Sample>>();//key is a library and value is list of cells that library is on
-		Map<Sample, List<Sample>> platformUnitMap = new HashMap<Sample, List<Sample>>();//key is a cell and value is list of platformUnits of which that cell is a part (its really a single Platform Unit)
-		Map<Sample, List<Run>> platformUnitRunMap = new HashMap<Sample, List<Run>>();//key is platformUnit and value is list of runs that the platformUnit is on (should be one, but...)
-
-		
 		
 		SampleType macromoleculeDnaType = sampleTypeDao.getSampleTypeByIName("dna");
 		SampleType macromoleculeRnaType = sampleTypeDao.getSampleTypeByIName("rna");
@@ -448,7 +440,6 @@ public class SampleDnaToLibraryController extends WaspController {
 			}
 			else if(sample.getSampleType().getIName().equals(libraryType.getIName())){
 				librarySubmittedSamplesList.add(sample);
-				//for each library get flowcells/runs
 			}
 			try{		
 				speciesMap.put(sample, MetaHelper.getMetaValue("genericBiomolecule", "species", sample.getSampleMeta()));
@@ -465,54 +456,25 @@ public class SampleDnaToLibraryController extends WaspController {
 		
 		//for each library (those in facilityLibraryMap and those in librarySubmittedSamplesList) get flowcells/runs and add to map Map<Sample, List<Sample>>
 		for(Sample library : librarySubmittedSamplesList){
-			List<Sample> flowCellList = sampleService.getFlowCellsThatThisLibraryIsOn(library);
-			flowCellMap.put(library, flowCellList);
 			Adaptor adaptor = sampleService.getLibraryAdaptor(library);
 			if(adaptor==null){
 				//message and get out of here
 			}
 			libraryAdaptorMap.put(library, adaptor);	
-			List<Sample> cellList = sampleService.getCellsThatThisLibraryIsOn(library);
-			cellMap.put(library, cellList);
 		}
 		for(List<Sample> libraryList : facilityLibraryMap.values()){
 			for(Sample library : libraryList){
-				List<Sample> flowCellList = sampleService.getFlowCellsThatThisLibraryIsOn(library);
-				flowCellMap.put(library, flowCellList);
 				Adaptor adaptor = sampleService.getLibraryAdaptor(library);
 				if(adaptor==null){
 					//message and get out of here
 				}
 				libraryAdaptorMap.put(library, adaptor);
-				List<Sample> cellList = sampleService.getCellsThatThisLibraryIsOn(library);
-				cellMap.put(library, cellList);
 			}
 		}
 		
-		for(List<Sample> cellList : cellMap.values()){
-			for(Sample cell : cellList){
-				List<Sample> platformUnitList = sampleService.getCellsThatThisLibraryIsOn(cell);//it's ok to use this method here
-				platformUnitMap.put(cell, platformUnitList);
-			}
-		}
-		
-		//for all the flowcells that we've identified, which are on a sequence run
-		for(List<Sample> flowCellList : flowCellMap.values()){
-			for(Sample flowCell : flowCellList){
-				List<Run> runsList = flowCell.getRun();
-				flowCellRunMap.put(flowCell, runsList);
-			}
-		}
-		
-		//for all the flowcells that we've identified, which are on a sequence run
-		for(List<Sample> platformUnitList : platformUnitMap.values()){
-			for(Sample platformUnit : platformUnitList){
-				List<Run> runsList = platformUnit.getRun();
-				platformUnitRunMap.put(platformUnit, runsList);
-			}
-		}
-		
-		//let's have some sanity checking
+
+		/*
+		//sanity check
 		System.out.println("1. User-Submitted Macromolecules");
 		for(Sample macromoleculeSubmittedSample : macromoleculeSubmittedSamplesList){
 			System.out.println("Macromolecule Name: " + macromoleculeSubmittedSample.getName() + "[" + macromoleculeSubmittedSample.getSampleType().getName() +"]");
@@ -529,19 +491,8 @@ public class SampleDnaToLibraryController extends WaspController {
 				else{
 					System.out.println("------Adaptor: Not Found");
 				}
-				List<Sample> flowCellList = flowCellMap.get(facilityLibrary);
-				System.out.println("--------Flow Cells Library Has Been Run On: " + flowCellList.size());
-				for(Sample flowCell : flowCellList){
-					System.out.println("----------Flow Cell: " + flowCell.getName()); 
-					List<Run> runs = flowCellRunMap.get(flowCell);
-					System.out.println("------------Run For This Flow Cell: " + runs.size());
-					for(Run run : runs){
-						System.out.println("--------------Run: " + run.getName());
-					}					
-				}
 			}
 		}
-		//more sanity checking
 		System.out.println(" ");
 		System.out.println("2. User-Submitted Libraries");
 		for(Sample librarySubmittedSample : librarySubmittedSamplesList){
@@ -555,30 +506,14 @@ public class SampleDnaToLibraryController extends WaspController {
 			else{
 				System.out.println("----Adaptor: Not Found");
 			}
-			List<Sample> flowCellList = flowCellMap.get(librarySubmittedSample);
-			System.out.println("------Flow Cells Library Has Been Run On: " + flowCellList.size());
-			for(Sample flowCell : flowCellList){
-				System.out.println("--------Flow Cell: " + flowCell.getName()); 
-				List<Run> runs = flowCellRunMap.get(flowCell);
-				System.out.println("----------Run For This Flow Cell: " + runs.size());
-				for(Run run : runs){
-					System.out.println("------------Run: " + run.getName());
-				}					
-			}
 		}
-		
+		*/
 		m.addAttribute("macromoleculeSubmittedSamplesList", macromoleculeSubmittedSamplesList);
 		m.addAttribute("facilityLibraryMap", facilityLibraryMap);
 		m.addAttribute("librarySubmittedSamplesList", librarySubmittedSamplesList);
 		m.addAttribute("speciesMap", speciesMap);
 		m.addAttribute("receivedStatusMap", receivedStatusMap);
 		m.addAttribute("libraryAdaptorMap", libraryAdaptorMap);
-		m.addAttribute("flowCellMap", flowCellMap);
-		m.addAttribute("flowCellRunMap", flowCellRunMap);
-		
-		m.addAttribute("cellMap", cellMap);
-		m.addAttribute("platformUnitMap", platformUnitMap);
-		m.addAttribute("platformUnitRunMap", platformUnitRunMap);
 		
 		return "sampleDnaToLibrary/listJobSamples";
   }
