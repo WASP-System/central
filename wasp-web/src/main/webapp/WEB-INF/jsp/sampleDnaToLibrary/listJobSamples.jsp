@@ -426,6 +426,7 @@
 
 
 <br />
+<c:set var="idCounter" value="1000" scope="page" />
 <table class="data"> 
 
 <c:if test="${macromoleculeSubmittedSamplesList.size() > 0}">
@@ -435,13 +436,32 @@
 	<c:forEach items="${macromoleculeSubmittedSamplesList}" var="userSubmittedMacromolecule">
 		<c:set value="${facilityLibraryMap.get(userSubmittedMacromolecule)}" var="facilityLibrariesForThisMacromoleculeList" scope="page" />
 		<c:set var="numberLibrariesForThisMacromolecule" value="${facilityLibrariesForThisMacromoleculeList.size()}" scope="page" />
-		
+		<c:set var="rowSpan" value="${facilityLibrariesForThisMacromoleculeList.size()}" scope="page" />
+		<c:if test="${rowSpan == 0}">
+			<c:set var="rowSpan" value="${rowSpan + 1}" scope="page" />
+		</c:if>
 		<tr>
-			<td rowspan="${numberLibrariesForThisMacromolecule}">
+			<td rowspan="${rowSpan}">
 				Name: <a href="<c:url value="/sampleDnaToLibrary/sampledetail_ro/${job.jobId}/${userSubmittedMacromolecule.getSampleId()}.do" />"><c:out value="${userSubmittedMacromolecule.getName()}"/></a><br />
 				Type: <c:out value="${userSubmittedMacromolecule.getSampleType().getName()}"/><br />
 				Species: <c:out value="${speciesMap.get(userSubmittedMacromolecule)}"/><br />
 				Arrival Status: <c:out value="${receivedStatusMap.get(userSubmittedMacromolecule)}"/><sec:authorize access="hasRole('su') or hasRole('ft')">&nbsp;<a href="<c:url value="/task/updatesamplereceive/${job.jobId}.do" />">[update]</a></sec:authorize><br />
+				
+				<sec:authorize access="hasRole('su') or hasRole('ft')">
+				<c:if test='${receivedStatusMap.get(userSubmittedMacromolecule)=="RECEIVED"}'>
+	  				<form method="GET" action="<c:url value="/sampleDnaToLibrary/createLibraryFromMacro.do" />">
+	  					<input type='hidden' name='jobId' value='<c:out value="${job.jobId}" />'/>
+	  					<input type='hidden' name='macromolSampleId' value='<c:out value="${userSubmittedMacromolecule.getSampleId()}" />'/>
+	  					<select class="FormElement ui-widget-content ui-corner-all" name="adaptorsetId" size="1" onchange="if(this.options[selectedIndex].value != 0){this.parentNode.submit();}">
+							<option value="0">--ADAPTORS FOR NEW LIBRARY--
+							<c:forEach items="${adaptorsets}" var="adaptorset">
+								<option value="<c:out value="${adaptorset.adaptorsetId}" />" ><c:out value="${adaptorset.name}" /> 
+							</c:forEach>
+						</select>
+					</form>
+	 	 		</c:if>
+				</sec:authorize>
+				
 			</td>
 			<c:choose>
 				<c:when test="${numberLibrariesForThisMacromolecule == 0}">
@@ -460,6 +480,57 @@
 							<c:set var="adaptor" value="${libraryAdaptorMap.get(facilityLibraryForThisMacromolecule)}" scope="page" />
 							Adaptor: <c:out value="${adaptor.getAdaptorset().getName()}"/><br />
 							Index <c:out value="${adaptor.getBarcodenumber()}"/> [<c:out value="${adaptor.getBarcodesequence()}"/>]<br />
+														
+							<c:set var="idCounter" value="${idCounter + 1}" scope="page" />
+ 							<sec:authorize access="hasRole('su') or hasRole('ft')">
+							<div id="showButton_<c:out value="${idCounter}" />" >
+				 				<input class="fm-button" type="button" value="Add Library To Flow Cell" onclick='toggleDisplayOfAddLibraryForm("show", <c:out value="${idCounter}" />)' />				
+							</div>
+							</sec:authorize>
+							<div id="addLibraryForm_<c:out value="${idCounter}" />" style="display:none">
+							<table class='data'>
+								<tr class="FormData"><td class="label-centered">Add Library To Flow Cell Lane</td></tr>
+							<tr><td>
+							<form  method='post' name='addLibToPU' action="<c:url value="/facility/platformunit/assignAdd2.do" />" onsubmit="return validate_submit(this);">
+								<input type='hidden' name='jobid' value='<c:out value="${job.jobId}" />'/>
+				 				<input type='hidden' name='librarysampleid' value='<c:out value="${facilityLibraryForThisMacromolecule.getSampleId()}" />'/>
+								<br />
+				 				<select class="FormElement ui-widget-content ui-corner-all" name="lanesampleid" id="lanesampleid_<c:out value="${idCounter}" />" size="1" onchange="validate(this)">
+									<option value="0">--SELECT A FLOW CELL LANE--</option>
+									<c:forEach items="${flowCells}" var="flowCell">
+										<option value="0">FlowCell: <c:out value="${flowCell.name}" /> [<c:out value="${flowCell.sampleSubtype.name}" />]</option>
+										<c:forEach items="${flowCell.sampleSource}" var="cell">
+											<option style="color:red; font-weight: bold;" value="<c:out value="${cell.sampleViaSource.sampleId}" />">&nbsp;&nbsp;&nbsp;Lane: <c:out value="${cell.sampleViaSource.name}" /></option>
+											<c:forEach items="${cell.sampleViaSource.sampleSource}" var="library">
+											  <c:if test="${library.sampleViaSource.sampleSubtype.getIName() == 'controlLibrarySample'}">
+												<option value="0">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Library (Control): <c:out value="${library.sampleViaSource.name}" />
+												<c:forEach items="${library.sampleViaSource.sampleMeta}" var="sm">
+        											<c:if test="${fn:substringAfter(sm.k, 'Library.') == 'adaptor'}">
+        											    &nbsp;-&nbsp;<c:out value="${adaptors.get(sm.v).adaptorset.name}"/>&nbsp;[Index <c:out value="${adaptors.get(sm.v).barcodenumber}"/>&nbsp;(<c:out value="${adaptors.get(sm.v).barcodesequence}"/>)]
+            										</c:if>  
+		        								</c:forEach> </option>	
+		        							  </c:if>					
+											</c:forEach> 
+											<c:forEach items="${cell.sampleViaSource.sampleSource}" var="library">
+											  <c:if test="${library.sampleViaSource.sampleSubtype.getIName() != 'controlLibrarySample'}">
+												<option value="0">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Library: <c:out value="${library.sampleViaSource.name}" />
+												<c:forEach items="${library.sampleViaSource.sampleMeta}" var="sm">
+        											<c:if test="${fn:substringAfter(sm.k, 'Library.') == 'adaptor'}">
+        											    &nbsp;-&nbsp;<c:out value="${adaptors.get(sm.v).adaptorset.name}"/>&nbsp;[Index <c:out value="${adaptors.get(sm.v).barcodenumber}"/>&nbsp;(<c:out value="${adaptors.get(sm.v).barcodesequence}"/>)]
+            										</c:if>  
+		        								</c:forEach> </option>	
+		        							  </c:if>					
+											</c:forEach>
+										</c:forEach> 
+									</c:forEach>
+								</select>
+								<br />&nbsp;Final Concentration In Lane (pM): <input type='text' name='libConcInLanePicoM' id="libConcInLanePicoM_<c:out value="${idCounter}" />" size='3' maxlength='5'>
+								<br />&nbsp;<input type='submit' value='Submit'/>&nbsp;<input class="fm-button" type="button" value="Cancel" onclick='toggleDisplayOfAddLibraryForm("cancel", <c:out value="${idCounter}" />)' />
+							</form>
+							</td></tr>
+						</table>
+						</div>
+						
 						</td>						
 						<td>
 							<c:set var="sampleSourceList" value="${facilityLibraryForThisMacromolecule.getSampleSourceViaSourceSampleId()}" scope="page" />
@@ -512,6 +583,72 @@
 			Adaptor: <c:out value="${adaptor.getAdaptorset().getName()}"/><br />
 			Index <c:out value="${adaptor.getBarcodenumber()}"/> [<c:out value="${adaptor.getBarcodesequence()}"/>]<br />
 			Arrival Status: <c:out value="${receivedStatusMap.get(userSubmittedLibrary)}"/><sec:authorize access="hasRole('su') or hasRole('ft')">&nbsp;<a href="<c:url value="/task/updatesamplereceive/${job.jobId}.do" />">[update]</a></sec:authorize><br />
+
+			<c:if test='${receivedStatusMap.get(userSubmittedLibrary)=="RECEIVED"}'>
+				<c:set var="idCounter" value="${idCounter + 1}" scope="page" />
+ 				<sec:authorize access="hasRole('su') or hasRole('ft')">
+				<div id="showButton_<c:out value="${idCounter}" />" >
+					<input class="fm-button" type="button" value="Add Library To Flow Cell" onclick='toggleDisplayOfAddLibraryForm("show", <c:out value="${idCounter}" />)' />				
+				</div>
+				</sec:authorize>
+				<div id="addLibraryForm_<c:out value="${idCounter}" />" style="display:none">
+				<table class='data'>
+					<tr class="FormData"><td class="label-centered">Add Library To Flow Cell Lane</td></tr>
+					<tr><td>
+					<form  method='post' name='addLibToPU' action="<c:url value="/facility/platformunit/assignAdd2.do" />" onsubmit="return validate_submit(this);">
+						<input type='hidden' name='jobid' value='<c:out value="${job.jobId}" />'/>
+				 		<input type='hidden' name='librarysampleid' value='<c:out value="${userSubmittedLibrary.getSampleId()}" />'/>
+						<br />
+				 		<select class="FormElement ui-widget-content ui-corner-all" name="lanesampleid" id="lanesampleid_<c:out value="${idCounter}" />" size="1" onchange="validate(this)">
+							<option value="0">--SELECT A FLOW CELL LANE--</option>
+							<c:forEach items="${flowCells}" var="flowCell">
+								<option value="0">FlowCell: <c:out value="${flowCell.name}" /> [<c:out value="${flowCell.sampleSubtype.name}" />]</option>
+								<c:forEach items="${flowCell.sampleSource}" var="cell">
+									<option style="color:red; font-weight: bold;" value="<c:out value="${cell.sampleViaSource.sampleId}" />">&nbsp;&nbsp;&nbsp;Lane: <c:out value="${cell.sampleViaSource.name}" /></option>
+									<c:forEach items="${cell.sampleViaSource.sampleSource}" var="library">
+									  <c:if test="${library.sampleViaSource.sampleSubtype.getIName() == 'controlLibrarySample'}">
+										<option value="0">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Library (Control): <c:out value="${library.sampleViaSource.name}" />
+										<c:forEach items="${library.sampleViaSource.sampleMeta}" var="sm">
+        									<c:if test="${fn:substringAfter(sm.k, 'Library.') == 'adaptor'}">
+        									    &nbsp;-&nbsp;<c:out value="${adaptors.get(sm.v).adaptorset.name}"/>&nbsp;[Index <c:out value="${adaptors.get(sm.v).barcodenumber}"/>&nbsp;(<c:out value="${adaptors.get(sm.v).barcodesequence}"/>)]
+            								</c:if>  
+		        						</c:forEach> </option>	
+		        					  </c:if>					
+									</c:forEach> 
+									<c:forEach items="${cell.sampleViaSource.sampleSource}" var="library">
+									  <c:if test="${library.sampleViaSource.sampleSubtype.getIName() != 'controlLibrarySample'}">
+										<option value="0">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Library: <c:out value="${library.sampleViaSource.name}" />
+										<c:forEach items="${library.sampleViaSource.sampleMeta}" var="sm">
+        									<c:if test="${fn:substringAfter(sm.k, 'Library.') == 'adaptor'}">
+        									    &nbsp;-&nbsp;<c:out value="${adaptors.get(sm.v).adaptorset.name}"/>&nbsp;[Index <c:out value="${adaptors.get(sm.v).barcodenumber}"/>&nbsp;(<c:out value="${adaptors.get(sm.v).barcodesequence}"/>)]
+            								</c:if>  
+		        						</c:forEach> </option>	
+		        					  </c:if>					
+									</c:forEach>
+								</c:forEach> 
+							</c:forEach>
+						</select>
+						<br />&nbsp;Final Concentration In Lane (pM): <input type='text' name='libConcInLanePicoM' id="libConcInLanePicoM_<c:out value="${idCounter}" />" size='3' maxlength='5'>
+						<br />&nbsp;<input type='submit' value='Submit'/>&nbsp;<input class="fm-button" type="button" value="Cancel" onclick='toggleDisplayOfAddLibraryForm("cancel", <c:out value="${idCounter}" />)' />
+					</form>
+					</td></tr>
+				</table>
+				</div>
+			</c:if>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 		</td>
 		<td>
 		<c:set var="sampleSourceList" value="${userSubmittedLibrary.getSampleSourceViaSourceSampleId()}" scope="page" />
