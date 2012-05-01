@@ -454,44 +454,36 @@
 							<c:set var="adaptor" value="${libraryAdaptorMap.get(facilityLibraryForThisMacromolecule)}" scope="page" />
 							Adaptor: <c:out value="${adaptor.getAdaptorset().getName()}"/><br />
 							Index <c:out value="${adaptor.getBarcodenumber()}"/> [<c:out value="${adaptor.getBarcodesequence()}"/>]<br />
-						</td>
-						
-						
+						</td>						
 						<td>
-<c:set var="sampleSourceList" value="${facilityLibraryForThisMacromolecule.getSampleSourceViaSourceSampleId()}" scope="page" />
-<c:choose>
-<c:when test="${sampleSourceList.size() > 0}">
-	<c:forEach items="${sampleSourceList}" var="sampleSource">
-		
-		<c:set var="cell" value="${sampleSource.getSample()}" scope="page" />
-		<c:set var="sampleSourceList2" value="${cell.getSampleSourceViaSourceSampleId()}" scope="page" />
-		<c:forEach items="${sampleSourceList2}" var="sampleSource2">
-			<c:set var="laneNumber" value="${sampleSource2.getMultiplexindex()}" scope="page" />
-			<c:set var="platformUnit" value="${sampleSource2.getSample()}" scope="page" />
-			<c:out value="${platformUnit.getName()}"/> Lane: <c:out value="${laneNumber}"/> 
-			<c:set var="runList" value="${platformUnit.getRun()}" scope="page" />
-			<c:if test="${runList.size() > 0}">
-				---&gt; <c:out value="${runList.get(0).getName()}"/>
-			</c:if>
-			<br />
-		</c:forEach>
-	</c:forEach>
+							<c:set var="sampleSourceList" value="${facilityLibraryForThisMacromolecule.getSampleSourceViaSourceSampleId()}" scope="page" />
+							<c:choose>
+								<c:when test="${sampleSourceList.size() > 0}">
+									<c:forEach items="${sampleSourceList}" var="sampleSource">
+										<c:set var="cell" value="${sampleSource.getSample()}" scope="page" />
+										<c:set var="sampleSourceList2" value="${cell.getSampleSourceViaSourceSampleId()}" scope="page" />
+										<c:forEach items="${sampleSourceList2}" var="sampleSource2">
+											<c:set var="laneNumber" value="${sampleSource2.getMultiplexindex()}" scope="page" />
+											<c:set var="platformUnit" value="${sampleSource2.getSample()}" scope="page" />
+											<c:out value="${platformUnit.getName()}"/> Lane: <c:out value="${laneNumber}"/> 
+											<c:set var="runList" value="${platformUnit.getRun()}" scope="page" />
+											<c:if test="${runList.size() > 0}">
+												---&gt; <c:out value="${runList.get(0).getName()}"/>
+											</c:if>
+											<br />
+										</c:forEach>
+									</c:forEach>
 	
-</c:when>
-<c:otherwise>
-No FlowCell / Run <br />
-</c:otherwise>
-</c:choose>
-</td>
-						
-						
-						
-					
-						
-						<c:if test="${rowCounter > 0}">
-					  		</tr>					  	
-					  	</c:if>
-						<c:set var="rowCounter" value="${rowCounter + 1}" scope="page" />
+								</c:when>
+								<c:otherwise>
+									No FlowCell / Run <br />
+								</c:otherwise>
+						</c:choose>
+					</td>
+					<c:if test="${rowCounter > 0}">
+						</tr>					  	
+					</c:if>
+					<c:set var="rowCounter" value="${rowCounter + 1}" scope="page" />
 					</c:forEach>
 				</c:when>
 			</c:choose>					
