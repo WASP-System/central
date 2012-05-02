@@ -161,4 +161,19 @@ public interface SampleService extends WaspService {
 	   * @return Adaptor
 	   */
 	  public Adaptor getLibraryAdaptor(Sample library);
+	  
+	  /**
+	   * Returns list of samples that are flow cells to which libraries can be added [meaning whose task-status is CREATED])
+	   * @param void
+	   * @return List<Sample>
+	   */
+	  public List<Sample> getAvailableFlowCells();
+	  
+	  /**
+	   * Returns list of samples that are flow cells to which libraries can be added AND are compatible with the parameter job
+	   * @param Job job
+	   * @return List<Sample>
+	   * 
+	   */
+	  public List<Sample> getAvailableAndCompatibleFlowCells(Job job);
 }

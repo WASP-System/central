@@ -545,7 +545,7 @@
 											<c:out value="${platformUnit.getName()}"/> Lane: <c:out value="${laneNumber}"/> 
 											<c:set var="runList" value="${platformUnit.getRun()}" scope="page" />
 											<c:if test="${runList.size() > 0}">
-												---&gt; <c:out value="${runList.get(0).getName()}"/>
+												<br />&nbsp;&nbsp;&nbsp;---&gt; <c:out value="${runList.get(0).getName()}"/>
 											</c:if>
 											<sec:authorize access="hasRole('su') or hasRole('ft')"><a href="<c:url value="/facility/platformunit/showPlatformUnit/${platformUnit.getSampleId()}.do" />"> [view]</a></sec:authorize>
 											<br />
@@ -663,7 +663,7 @@
 						<c:out value="${platformUnit.getName()}"/> Lane: <c:out value="${laneNumber}"/> 
 						<c:set var="runList" value="${platformUnit.getRun()}" scope="page" />
 						<c:if test="${runList.size() > 0}">
-							---&gt; <c:out value="${runList.get(0).getName()}"/>
+							<br />&nbsp;&nbsp;&nbsp;---&gt; <c:out value="${runList.get(0).getName()}"/>
 						</c:if>
 						<sec:authorize access="hasRole('su') or hasRole('ft')"><a href="<c:url value="/facility/platformunit/showPlatformUnit/${platformUnit.getSampleId()}.do" />"> [view]</a></sec:authorize>
 						<br />

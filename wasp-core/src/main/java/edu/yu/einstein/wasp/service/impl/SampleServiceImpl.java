@@ -25,14 +25,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.dao.AdaptorDao;
 import edu.yu.einstein.wasp.dao.SampleDao;
+import edu.yu.einstein.wasp.dao.SampleTypeDao;
 import edu.yu.einstein.wasp.dao.SampleMetaDao;
 import edu.yu.einstein.wasp.dao.StateDao;
 import edu.yu.einstein.wasp.dao.WorkflowDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.JobResourcecategory;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSubtype;
+import edu.yu.einstein.wasp.model.SampleSubtypeResourceCategory;
 import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.State;
@@ -82,6 +85,9 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	
 	@Autowired
 	private SampleMetaDao sampleMetaDao;
+	
+	@Autowired
+	private SampleTypeDao sampleTypeDao;
 
 	@Autowired
 	private StateDao stateDao;
@@ -340,4 +346,48 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 		  }		  
 		  return adaptor;
 	  }
+	  
+	  /**
+	   * {@inheritDoc}
+	   */
+	  @Override
+	  public List<Sample> getAvailableFlowCells(){
+		  
+		  List<Sample> availableFlowCellList = new ArrayList<Sample>();
+		  
+		  SampleType sampleType = sampleTypeDao.getSampleTypeByIName("platformunit");
+		  if(sampleType==null || sampleType.getSampleTypeId()==null || sampleType.getSampleTypeId().intValue()==0){
+			  //exception or something
+		  }
+		  Map<String, Integer> filterMap = new HashMap<String, Integer>();
+		  filterMap.put("sampleTypeId", sampleType.getSampleTypeId());
+		  List<Sample> allFlowCellsList = sampleDao.findByMap(filterMap);
+		  
+		  for(Sample sample : allFlowCellsList){
+			  List<Statesample> stateSampleList = sample.getStatesample();
+			  for(Statesample stateSample : stateSampleList){
+				  if(stateSample.getState().getStatus().equals("CREATED")){
+					  availableFlowCellList.add(sample);
+				  }
+			  }
+		  }
+		  
+		  return availableFlowCellList;
+	  }
+	  
+	  public List<Sample> getAvailableAndCompatibleFlowCells(Job job){
+		  List<Sample> availableFlowCells = getAvailableFlowCells();
+		  List<Sample> availableAndCompatibleFlowCells = new ArrayList<Sample>();
+		  for(Sample flowCell : availableFlowCells){
+			  for(SampleSubtypeResourceCategory ssrc : flowCell.getSampleSubtype().getSampleSubtypeResourceCategory()){
+				  for(JobResourcecategory jrc : job.getJobResourcecategory()){
+					  if(ssrc.getResourcecategoryId().intValue() == jrc.getResourcecategoryId().intValue()){
+						  availableAndCompatibleFlowCells.add(flowCell);
+					  }
+				  }
+			  }
+		  }
+		  return availableAndCompatibleFlowCells;
+	  }
+	  
 }

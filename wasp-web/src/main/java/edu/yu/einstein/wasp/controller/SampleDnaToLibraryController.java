@@ -472,7 +472,25 @@ public class SampleDnaToLibraryController extends WaspController {
 			}
 		}
 		
-
+		List<Sample> availableAndCompatibleFlowCells = sampleService.getAvailableAndCompatibleFlowCells(job);//available flowCells that are compatible with this job
+		for(Sample flowCell : availableAndCompatibleFlowCells){
+			System.out.println("FlowCell: " + flowCell.getName());
+			List<SampleSource> sampleSourceList = flowCell.getSampleSource();
+			for(SampleSource sampleSource : sampleSourceList){
+				Sample cell = sampleSource.getSampleViaSource();
+				System.out.println("  Cell: " + cell.getName());
+				List<SampleSource> sampleSourceList2 = cell.getSampleSource();
+				for(SampleSource sampleSource2 : sampleSourceList2){
+					Sample library = sampleSource2.getSampleViaSource();
+					System.out.println("      Library: " + library.getName());
+					
+				}
+				
+			}
+		}
+		
+		
+		
 		/*
 		//sanity check
 		System.out.println("1. User-Submitted Macromolecules");
@@ -506,6 +524,12 @@ public class SampleDnaToLibraryController extends WaspController {
 			else{
 				System.out.println("----Adaptor: Not Found");
 			}
+		}
+		//for(Sample sample : availableFlowCells){
+		//	System.out.println("Available FlowCell: " + sample.getName());
+		//}
+		for(Sample sample : availableAndCompatibleFlowCells){
+			System.out.println("AvailableCompatible FlowCell: " + sample.getName());
 		}
 		*/
 		m.addAttribute("macromoleculeSubmittedSamplesList", macromoleculeSubmittedSamplesList);
