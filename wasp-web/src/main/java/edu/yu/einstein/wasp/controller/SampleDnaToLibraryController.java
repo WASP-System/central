@@ -290,32 +290,34 @@ public class SampleDnaToLibraryController extends WaspController {
 	  //List<Sample> list2 = new ArrayList();
 	  ///List<ArrayList<Sample>> darray2 = new ArrayList();
 	  
-	  if(jobId == null ){
-		  waspErrorMessage("sampleDetail.jobParameter.error");
-		  return "redirect:/dashboard.do";		  
-	  }
-	  Job job = jobDao.getJobByJobId(jobId);
-	  if(job==null || job.getJobId()==null){
-		  waspErrorMessage("sampleDetail.jobNotFound.error");
-		  return "redirect:/dashboard.do";
-	  }
-	  m.addAttribute("job", job);
+//	  if(jobId == null ){
+//		  waspErrorMessage("sampleDetail.jobParameter.error");
+//		  return "redirect:/dashboard.do";		  
+//	  }
+//	  Job job = jobDao.getJobByJobId(jobId);
+//	  if(job==null || job.getJobId()==null){
+//		  waspErrorMessage("sampleDetail.jobNotFound.error");
+//		  return "redirect:/dashboard.do";
+//	  }
+//	  m.addAttribute("job", job);
 
-	  Map<String, String> extraJobDetailsMap = getExtraJobDetails(job);
-	  m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);
+//	  Map<String, String> extraJobDetailsMap = getExtraJobDetails(job);
+//	  m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);
 
-	  List<Adaptor> allAdaptors = adaptorDao.findAll();
-	  Map adaptorList = new HashMap();
-	  for(Adaptor adaptor : allAdaptors){
-		  adaptorList.put(adaptor.getAdaptorId().toString(), adaptor);
-	  }
-	  m.addAttribute("adaptors", adaptorList);
-	  List<Adaptorset> adaptorsetList = adaptorsetDao.findAll();
-	  m.addAttribute("adaptorsets", adaptorsetList);
+	  
+//	  List<Adaptor> allAdaptors = adaptorDao.findAll();
+//	  Map adaptorList = new HashMap();
+//	  for(Adaptor adaptor : allAdaptors){
+//		  adaptorList.put(adaptor.getAdaptorId().toString(), adaptor);
+//	  }
+//	  m.addAttribute("adaptors", adaptorList);
+	  
+//	  List<Adaptorset> adaptorsetList = adaptorsetDao.findAll();
+//	  m.addAttribute("adaptorsets", adaptorsetList);
   
 	  //submittedSamples include all samples (both macromolecules and libraries) that were submitted by user
 	  //and it DOES NOT include facility-generated libraries
-	  List<Sample> submittedSamples = jobService.getSubmittedSamples(job);
+/*	  List<Sample> submittedSamples = jobService.getSubmittedSamples(job);
 	  //order by sample name
 	  sampleService.sortSamplesBySampleName(submittedSamples);
   	  
@@ -337,8 +339,8 @@ public class SampleDnaToLibraryController extends WaspController {
 		  librariesPerSampleList.add(new Integer(numberLibrariesForThisSample));
 	  }
 	 
-	  
-	  
+*/	  
+/*	  
 	  //3-15-12 new stuff to fill up the flowcells compatible with this job
 	  // pickup FlowCells limited by states and filter to get only those compatible with the selected machine resourceCategoryId
 	  Map stateMap = new HashMap(); 
@@ -371,8 +373,8 @@ public class SampleDnaToLibraryController extends WaspController {
 				}
 			}
 		}
-		
-		Map jobCellFilter = new HashMap();
+	*/	
+/*		Map jobCellFilter = new HashMap();
 		jobCellFilter.put("jobId", job.getJobId().intValue());
 		List<String> orderByList = new ArrayList<String>();
 		orderByList.add("cellindex");
@@ -406,14 +408,33 @@ public class SampleDnaToLibraryController extends WaspController {
 		
 		m.addAttribute("coverageMap", coverageMap);
 		m.addAttribute("totalNumberCellsRequested", totalNumberCellsRequested);
-		
-		m.addAttribute("jobCellList", jobCellList);
-		m.addAttribute("flowCells", flowCells);
-		m.addAttribute("samplesSubmitted", submittedSamples);
-		m.addAttribute("received", receivedList);
-		m.addAttribute("librariespersample", librariesPerSampleList);
+*/		
+//		m.addAttribute("jobCellList", jobCellList);
+//		m.addAttribute("flowCells", flowCells);
+//		m.addAttribute("samplesSubmitted", submittedSamples);
+//		m.addAttribute("received", receivedList);
+//		m.addAttribute("librariespersample", librariesPerSampleList);
 
 		///////////
+		
+	  if(jobId == null ){
+		  waspErrorMessage("sampleDetail.jobParameter.error");
+		  return "redirect:/dashboard.do";		  
+	  }
+	  Job job = jobDao.getJobByJobId(jobId);
+	  if(job==null || job.getJobId()==null){
+		  waspErrorMessage("sampleDetail.jobNotFound.error");
+		  return "redirect:/dashboard.do";
+	  }
+	  m.addAttribute("job", job);
+
+	  Map<String, String> extraJobDetailsMap = getExtraJobDetails(job);
+	  m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);
+	  
+	  List<Adaptorset> adaptorsetList = adaptorsetDao.findAll();
+	  m.addAttribute("adaptorsets", adaptorsetList);
+		
+		
 		
 		List<Sample> submittedSamplesList = jobService.getSubmittedSamples(job);
 		List<Sample> macromoleculeSubmittedSamplesList = new ArrayList<Sample>();
@@ -493,7 +514,43 @@ public class SampleDnaToLibraryController extends WaspController {
 			}
 		}
 		
+		Map jobCellFilter = new HashMap();
+		jobCellFilter.put("jobId", job.getJobId().intValue());
+		List<String> orderByList = new ArrayList<String>();
+		orderByList.add("cellindex");
+		List<JobCell> jobCellList = jobCellDao.findByMapDistinctOrderBy(jobCellFilter, null, orderByList, "ASC");
+	  
+		//attempt at getting the requested coverage in a better format:
+		int totalNumberCellsRequested = jobCellList.size();
+		Map<Sample, String> coverageMap = new LinkedHashMap<Sample, String>();
+		List<Sample> tempListOfAllSubmittedSamples = new ArrayList<Sample>();
+		tempListOfAllSubmittedSamples.addAll(macromoleculeSubmittedSamplesList);
+		tempListOfAllSubmittedSamples.addAll(librarySubmittedSamplesList);
+		for(Sample sample : tempListOfAllSubmittedSamples){
+			StringBuffer stringBuffer = new StringBuffer("");
+			for(int i = 1; i <= totalNumberCellsRequested; i++){
+				boolean found = false;
+				for(JobCell jobCell : jobCellList){
+					List<SampleCell> sampleCellList = jobCell.getSampleCell();
+					for(SampleCell sampleCell : sampleCellList){
+						if(sampleCell.getSampleId().intValue() == sample.getSampleId().intValue()){
+							if(jobCell.getCellindex().intValue() == i){
+								//System.out.print(i + " ");
+								stringBuffer.append("1");
+								found = true;
+							}
+						}
+					}
+				}
+				if(found == false){
+					stringBuffer.append("0");
+				}
+			}
+			coverageMap.put(sample, new String(stringBuffer));
+  		}	
 		
+		m.addAttribute("coverageMap", coverageMap);
+		m.addAttribute("totalNumberCellsRequested", totalNumberCellsRequested);
 		
 		/*
 		//sanity check
