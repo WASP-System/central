@@ -89,6 +89,7 @@
 </table>
 </div>
 
+<%-- 
 <table class="data"> 
 <tr class="FormData"><td class="label-centered" style="background-color:#FAF2D6">Initial Macromolecule</td><td class="label-centered" style="background-color:#FAF2D6">Libraries</td><td class="label-centered" style="background-color:#FAF2D6">FlowCells/Runs</td></tr>
 
@@ -419,7 +420,7 @@
 </c:choose>
 </c:forEach>
 </table>
-
+--%>
 
 
 
@@ -528,12 +529,12 @@
 								<br />&nbsp;<input type='submit' value='Submit'/>&nbsp;<input class="fm-button" type="button" value="Cancel" onclick='toggleDisplayOfAddLibraryForm("cancel", <c:out value="${idCounter}" />)' />
 							</form>
 							</td></tr>
-						</table>
-						</div>
+							</table>
+							</div>
 						
-						</td>						
-						<td>
-							<c:set var="sampleSourceList" value="${facilityLibraryForThisMacromolecule.getSampleSourceViaSourceSampleId()}" scope="page" />
+					</td>						
+					<td>
+					<c:set var="sampleSourceList" value="${facilityLibraryForThisMacromolecule.getSampleSourceViaSourceSampleId()}" scope="page" />
 							<c:choose>
 								<c:when test="${sampleSourceList.size() > 0}">
 									<c:forEach items="${sampleSourceList}" var="sampleSource">
@@ -556,16 +557,16 @@
 								<c:otherwise>
 									No FlowCell / Run <br />
 								</c:otherwise>
-						</c:choose>
-					</td>
-				<c:if test="${rowCounter > 0}">
-						</tr>					  	
-				</c:if>
-				<c:set var="rowCounter" value="${rowCounter + 1}" scope="page" />
+							</c:choose>
+					</td>				
+					</tr>					  	
+					<c:set var="rowCounter" value="${rowCounter + 1}" scope="page" />
 					</c:forEach>
 				</c:when>
 			</c:choose>					
+	<c:if test="${numberLibrariesForThisMacromolecule == 0}">
 		</tr>
+	</c:if>	
 	</c:forEach>
 </c:if>
 
@@ -636,20 +637,6 @@
 				</table>
 				</div>
 			</c:if>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 		</td>
 		<td>
 		<c:set var="sampleSourceList" value="${userSubmittedLibrary.getSampleSourceViaSourceSampleId()}" scope="page" />
