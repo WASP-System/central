@@ -460,8 +460,7 @@
 						</select>
 					</form>
 	 	 		</c:if>
-				</sec:authorize>
-				
+				</sec:authorize>				
 			</td>
 			<c:choose>
 				<c:when test="${numberLibrariesForThisMacromolecule == 0}">
@@ -471,10 +470,10 @@
 				<c:when test="${numberLibrariesForThisMacromolecule > 0}">
 					<c:set var="rowCounter" value="0" scope="page" />
 					<c:forEach items="${facilityLibrariesForThisMacromoleculeList}" var="facilityLibraryForThisMacromolecule">	
-						<c:if test="${rowCounter > 0}">
+ 					<c:if test="${rowCounter > 0}">
 					  		<tr>
-					  	</c:if>	
-						<td>
+					 </c:if>	
+					<td>
 							Name: <a href="<c:url value="/sampleDnaToLibrary/librarydetail_ro/${job.jobId}/${facilityLibraryForThisMacromolecule.getSampleId()}.do" />"><c:out value="${facilityLibraryForThisMacromolecule.getName()}"/></a><br />
 							Type: <c:out value="${facilityLibraryForThisMacromolecule.getSampleType().getName()}"/><br />
 							<c:set var="adaptor" value="${libraryAdaptorMap.get(facilityLibraryForThisMacromolecule)}" scope="page" />
@@ -496,34 +495,35 @@
 				 				<input type='hidden' name='librarysampleid' value='<c:out value="${facilityLibraryForThisMacromolecule.getSampleId()}" />'/>
 								<br />
 				 				<select class="FormElement ui-widget-content ui-corner-all" name="lanesampleid" id="lanesampleid_<c:out value="${idCounter}" />" size="1" onchange="validate(this)">
-									<option value="0">--SELECT A FLOW CELL LANE--</option>
-									<c:forEach items="${flowCells}" var="flowCell">
-										<option value="0">FlowCell: <c:out value="${flowCell.name}" /> [<c:out value="${flowCell.sampleSubtype.name}" />]</option>
-										<c:forEach items="${flowCell.sampleSource}" var="cell">
-											<option style="color:red; font-weight: bold;" value="<c:out value="${cell.sampleViaSource.sampleId}" />">&nbsp;&nbsp;&nbsp;Lane: <c:out value="${cell.sampleViaSource.name}" /></option>
-											<c:forEach items="${cell.sampleViaSource.sampleSource}" var="library">
-											  <c:if test="${library.sampleViaSource.sampleSubtype.getIName() == 'controlLibrarySample'}">
-												<option value="0">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Library (Control): <c:out value="${library.sampleViaSource.name}" />
-												<c:forEach items="${library.sampleViaSource.sampleMeta}" var="sm">
-        											<c:if test="${fn:substringAfter(sm.k, 'Library.') == 'adaptor'}">
-        											    &nbsp;-&nbsp;<c:out value="${adaptors.get(sm.v).adaptorset.name}"/>&nbsp;[Index <c:out value="${adaptors.get(sm.v).barcodenumber}"/>&nbsp;(<c:out value="${adaptors.get(sm.v).barcodesequence}"/>)]
-            										</c:if>  
-		        								</c:forEach> </option>	
-		        							  </c:if>					
-											</c:forEach> 
-											<c:forEach items="${cell.sampleViaSource.sampleSource}" var="library">
-											  <c:if test="${library.sampleViaSource.sampleSubtype.getIName() != 'controlLibrarySample'}">
-												<option value="0">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Library: <c:out value="${library.sampleViaSource.name}" />
-												<c:forEach items="${library.sampleViaSource.sampleMeta}" var="sm">
-        											<c:if test="${fn:substringAfter(sm.k, 'Library.') == 'adaptor'}">
-        											    &nbsp;-&nbsp;<c:out value="${adaptors.get(sm.v).adaptorset.name}"/>&nbsp;[Index <c:out value="${adaptors.get(sm.v).barcodenumber}"/>&nbsp;(<c:out value="${adaptors.get(sm.v).barcodesequence}"/>)]
-            										</c:if>  
-		        								</c:forEach> </option>	
-		        							  </c:if>					
-											</c:forEach>
-										</c:forEach> 
+								<option value="0">--SELECT A FLOW CELL LANE--</option>
+								<c:forEach items="${availableAndCompatibleFlowCells}" var="flowCell">
+								<option value="0">FlowCell: <c:out value="${flowCell.getName()}" /> [<c:out value="${flowCell.getSampleSubtype().getName()}" />]</option>
+								<c:set var="sampleSourceList" value="${flowCell.getSampleSource()}" scope="page" />
+								<c:forEach items="${sampleSourceList}" var="sampleSource">
+									<c:set var="cell" value="${sampleSource.getSampleViaSource()}" scope="page" />
+									<option style="color:red; font-weight: bold;" value="<c:out value="${cell.getSampleId()}" />">&nbsp;&nbsp;&nbsp;Lane: <c:out value="${cell.getName()}" /></option>
+									<c:set var="sampleSourceList2" value="${cell.getSampleSource()}" scope="page" />
+									<c:forEach items="${sampleSourceList2}" var="sampleSource2">
+										<c:set var="library" value="${sampleSource2.getSampleViaSource()}" scope="page" />
+									  	<c:if test="${library.getSampleSubtype().getIName() == 'controlLibrarySample'}">
+											<option value="0">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Library (Control): <c:out value="${library.getName()}" />
+											<c:set var="adaptor" value="${libraryAdaptorMap.get(library)}" scope="page" />
+											&nbsp;-&nbsp;<c:out value="${adaptor.getAdaptorset().getName()}"/>&nbsp;[Index <c:out value="${adaptor.getBarcodenumber()}"/>&nbsp;(<c:out value="${adaptor.getBarcodesequence()}"/>)]
+			 								</option>	
+		        					  </c:if>					
+									</c:forEach> 
+									<c:forEach items="${sampleSourceList2}" var="sampleSource2">
+										<c:set var="library" value="${sampleSource2.getSampleViaSource()}" scope="page" />
+									  	<c:if test="${library.getSampleSubtype().getIName() != 'controlLibrarySample'}">
+											<option value="0">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Library: <c:out value="${library.getName()}" />
+											<c:set var="adaptor" value="${libraryAdaptorMap.get(library)}" scope="page" />
+											&nbsp;-&nbsp;<c:out value="${adaptor.getAdaptorset().getName()}"/>&nbsp;[Index <c:out value="${adaptor.getBarcodenumber()}"/>&nbsp;(<c:out value="${adaptor.getBarcodesequence()}"/>)]
+			 								</option>	
+		        					  </c:if>					
 									</c:forEach>
-								</select>
+								</c:forEach> 
+							</c:forEach>
+							</select>
 								<br />&nbsp;Final Concentration In Lane (pM): <input type='text' name='libConcInLanePicoM' id="libConcInLanePicoM_<c:out value="${idCounter}" />" size='3' maxlength='5'>
 								<br />&nbsp;<input type='submit' value='Submit'/>&nbsp;<input class="fm-button" type="button" value="Cancel" onclick='toggleDisplayOfAddLibraryForm("cancel", <c:out value="${idCounter}" />)' />
 							</form>
@@ -558,10 +558,10 @@
 								</c:otherwise>
 						</c:choose>
 					</td>
-					<c:if test="${rowCounter > 0}">
+				<c:if test="${rowCounter > 0}">
 						</tr>					  	
-					</c:if>
-					<c:set var="rowCounter" value="${rowCounter + 1}" scope="page" />
+				</c:if>
+				<c:set var="rowCounter" value="${rowCounter + 1}" scope="page" />
 					</c:forEach>
 				</c:when>
 			</c:choose>					
@@ -601,28 +601,29 @@
 						<br />
 				 		<select class="FormElement ui-widget-content ui-corner-all" name="lanesampleid" id="lanesampleid_<c:out value="${idCounter}" />" size="1" onchange="validate(this)">
 							<option value="0">--SELECT A FLOW CELL LANE--</option>
-							<c:forEach items="${flowCells}" var="flowCell">
-								<option value="0">FlowCell: <c:out value="${flowCell.name}" /> [<c:out value="${flowCell.sampleSubtype.name}" />]</option>
-								<c:forEach items="${flowCell.sampleSource}" var="cell">
-									<option style="color:red; font-weight: bold;" value="<c:out value="${cell.sampleViaSource.sampleId}" />">&nbsp;&nbsp;&nbsp;Lane: <c:out value="${cell.sampleViaSource.name}" /></option>
-									<c:forEach items="${cell.sampleViaSource.sampleSource}" var="library">
-									  <c:if test="${library.sampleViaSource.sampleSubtype.getIName() == 'controlLibrarySample'}">
-										<option value="0">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Library (Control): <c:out value="${library.sampleViaSource.name}" />
-										<c:forEach items="${library.sampleViaSource.sampleMeta}" var="sm">
-        									<c:if test="${fn:substringAfter(sm.k, 'Library.') == 'adaptor'}">
-        									    &nbsp;-&nbsp;<c:out value="${adaptors.get(sm.v).adaptorset.name}"/>&nbsp;[Index <c:out value="${adaptors.get(sm.v).barcodenumber}"/>&nbsp;(<c:out value="${adaptors.get(sm.v).barcodesequence}"/>)]
-            								</c:if>  
-		        						</c:forEach> </option>	
+							<c:forEach items="${availableAndCompatibleFlowCells}" var="flowCell">
+								<option value="0">FlowCell: <c:out value="${flowCell.getName()}" /> [<c:out value="${flowCell.getSampleSubtype().getName()}" />]</option>
+								<c:set var="sampleSourceList" value="${flowCell.getSampleSource()}" scope="page" />
+								<c:forEach items="${sampleSourceList}" var="sampleSource">
+									<c:set var="cell" value="${sampleSource.getSampleViaSource()}" scope="page" />
+									<option style="color:red; font-weight: bold;" value="<c:out value="${cell.getSampleId()}" />">&nbsp;&nbsp;&nbsp;Lane: <c:out value="${cell.getName()}" /></option>
+									<c:set var="sampleSourceList2" value="${cell.getSampleSource()}" scope="page" />
+									<c:forEach items="${sampleSourceList2}" var="sampleSource2">
+										<c:set var="library" value="${sampleSource2.getSampleViaSource()}" scope="page" />
+									  	<c:if test="${library.getSampleSubtype().getIName() == 'controlLibrarySample'}">
+											<option value="0">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Library (Control): <c:out value="${library.getName()}" />
+											<c:set var="adaptor" value="${libraryAdaptorMap.get(library)}" scope="page" />
+											&nbsp;-&nbsp;<c:out value="${adaptor.getAdaptorset().getName()}"/>&nbsp;[Index <c:out value="${adaptor.getBarcodenumber()}"/>&nbsp;(<c:out value="${adaptor.getBarcodesequence()}"/>)]
+			 								</option>	
 		        					  </c:if>					
 									</c:forEach> 
-									<c:forEach items="${cell.sampleViaSource.sampleSource}" var="library">
-									  <c:if test="${library.sampleViaSource.sampleSubtype.getIName() != 'controlLibrarySample'}">
-										<option value="0">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Library: <c:out value="${library.sampleViaSource.name}" />
-										<c:forEach items="${library.sampleViaSource.sampleMeta}" var="sm">
-        									<c:if test="${fn:substringAfter(sm.k, 'Library.') == 'adaptor'}">
-        									    &nbsp;-&nbsp;<c:out value="${adaptors.get(sm.v).adaptorset.name}"/>&nbsp;[Index <c:out value="${adaptors.get(sm.v).barcodenumber}"/>&nbsp;(<c:out value="${adaptors.get(sm.v).barcodesequence}"/>)]
-            								</c:if>  
-		        						</c:forEach> </option>	
+									<c:forEach items="${sampleSourceList2}" var="sampleSource2">
+										<c:set var="library" value="${sampleSource2.getSampleViaSource()}" scope="page" />
+									  	<c:if test="${library.getSampleSubtype().getIName() != 'controlLibrarySample'}">
+											<option value="0">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Library: <c:out value="${library.getName()}" />
+											<c:set var="adaptor" value="${libraryAdaptorMap.get(library)}" scope="page" />
+											&nbsp;-&nbsp;<c:out value="${adaptor.getAdaptorset().getName()}"/>&nbsp;[Index <c:out value="${adaptor.getBarcodenumber()}"/>&nbsp;(<c:out value="${adaptor.getBarcodesequence()}"/>)]
+			 								</option>	
 		        					  </c:if>					
 									</c:forEach>
 								</c:forEach> 

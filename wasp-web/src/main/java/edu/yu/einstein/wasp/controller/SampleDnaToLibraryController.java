@@ -483,7 +483,11 @@ public class SampleDnaToLibraryController extends WaspController {
 				for(SampleSource sampleSource2 : sampleSourceList2){
 					Sample library = sampleSource2.getSampleViaSource();
 					System.out.println("      Library: " + library.getName());
-					
+					Adaptor adaptor = sampleService.getLibraryAdaptor(library);
+					if(adaptor==null){
+						//message and get out of here
+					}
+					libraryAdaptorMap.put(library, adaptor);
 				}
 				
 			}
@@ -538,6 +542,7 @@ public class SampleDnaToLibraryController extends WaspController {
 		m.addAttribute("speciesMap", speciesMap);
 		m.addAttribute("receivedStatusMap", receivedStatusMap);
 		m.addAttribute("libraryAdaptorMap", libraryAdaptorMap);
+		m.addAttribute("availableAndCompatibleFlowCells", availableAndCompatibleFlowCells);
 		
 		return "sampleDnaToLibrary/listJobSamples";
   }
