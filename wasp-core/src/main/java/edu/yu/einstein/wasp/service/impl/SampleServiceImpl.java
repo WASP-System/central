@@ -335,8 +335,20 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	  public Adaptor getLibraryAdaptor(Sample library){
 		  Adaptor adaptor = null;
 		  String adaptorId = new String("");
+		  SampleSubtype sampleSubtype = library.getSampleSubtype();
+		  String areaList = sampleSubtype.getAreaList();
+		  String area = new String("");
+		  
+		  String [] stringList = areaList.split("[\\s,]+");//separates on comma or whitespace
+		  for(String string : stringList){
+			  //System.out.println("The string is: " + string);
+			  if(string.indexOf("Library") > -1){
+				  area = string;
+			  }
+		  }
+		 
 		  try{		
-			  adaptorId = MetaHelper.getMetaValue("genericLibrary", "adaptor", library.getSampleMeta());
+			  adaptorId = MetaHelper.getMetaValue(area, "adaptor", library.getSampleMeta());
 		  }
 		  catch(MetadataException me){
 			  logger.warn("Unable to identify adaptor for libraryId " + library.getSampleId());

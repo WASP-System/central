@@ -495,15 +495,15 @@ public class SampleDnaToLibraryController extends WaspController {
 		
 		List<Sample> availableAndCompatibleFlowCells = sampleService.getAvailableAndCompatibleFlowCells(job);//available flowCells that are compatible with this job
 		for(Sample flowCell : availableAndCompatibleFlowCells){
-			System.out.println("FlowCell: " + flowCell.getName());
+			//System.out.println("FlowCell: " + flowCell.getName());
 			List<SampleSource> sampleSourceList = flowCell.getSampleSource();
 			for(SampleSource sampleSource : sampleSourceList){
 				Sample cell = sampleSource.getSampleViaSource();
-				System.out.println("  Cell: " + cell.getName());
+				//System.out.println("  Cell: " + cell.getName());
 				List<SampleSource> sampleSourceList2 = cell.getSampleSource();
 				for(SampleSource sampleSource2 : sampleSourceList2){
 					Sample library = sampleSource2.getSampleViaSource();
-					System.out.println("      Library: " + library.getName());
+					//System.out.println("      Library: " + library.getName());
 					Adaptor adaptor = sampleService.getLibraryAdaptor(library);
 					if(adaptor==null){
 						//message and get out of here
