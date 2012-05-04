@@ -15,14 +15,19 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
+import edu.yu.einstein.wasp.dao.AdaptorDao;
+import edu.yu.einstein.wasp.dao.AdaptorsetDao;
 import edu.yu.einstein.wasp.dao.JobDao;
 import edu.yu.einstein.wasp.dao.RunDao;
 import edu.yu.einstein.wasp.dao.SampleDao;
@@ -30,9 +35,14 @@ import edu.yu.einstein.wasp.dao.SampleSubtypeDao;
 import edu.yu.einstein.wasp.dao.SampleTypeCategoryDao;
 import edu.yu.einstein.wasp.dao.SampleTypeDao;
 import edu.yu.einstein.wasp.dao.UserDao;
+import edu.yu.einstein.wasp.model.Adaptor;
+import edu.yu.einstein.wasp.model.Adaptorset;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobSample;
 import edu.yu.einstein.wasp.model.MetaBase;
+import edu.yu.einstein.wasp.model.Resource;
+import edu.yu.einstein.wasp.model.ResourceCategory;
+import edu.yu.einstein.wasp.model.ResourceCategoryMeta;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleFile;
@@ -42,6 +52,7 @@ import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.service.AdaptorService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 import edu.yu.einstein.wasp.util.MetaHelper;
 
@@ -54,6 +65,12 @@ public class SampleController extends WaspController {
   private SampleDao sampleDao;
   
   private SampleTypeDao	sampleTypeDao;
+  
+  @Autowired
+  private AdaptorsetDao	adaptorsetDao;
+  
+  @Autowired
+  private AdaptorDao adaptorDao;
   
   @Autowired
   private SampleSubtypeDao	sampleSubtypeDao;
@@ -72,6 +89,9 @@ public class SampleController extends WaspController {
   
   @Autowired
   private SampleService sampleService;
+  
+  @Autowired
+  private AdaptorService adaptorService;
   
   @Autowired
   public void setSampleDao(SampleDao sampleDao) {
@@ -348,4 +368,101 @@ public class SampleController extends WaspController {
 		}
 	}
 
+	@RequestMapping(value="/listControlLibraries", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('su') or hasRole('ft')")
+	  public String listLibraryControls(ModelMap m) {
+		
+		SampleType sampleType = sampleTypeDao.getSampleTypeByIName("library");
+		SampleSubtype sampleSubtype = sampleSubtypeDao.getSampleSubtypeByIName("controlLibrarySample");
+		Map<String, Integer> filterMap = new HashMap<String, Integer>();
+		filterMap.put("sampleTypeId", sampleType.getSampleTypeId());
+		filterMap.put("sampleSubtypeId", sampleSubtype.getSampleSubtypeId());		
+		List<Sample> controlLibraryList = sampleDao.findByMap(filterMap);
+		Map<Sample, Adaptor> libraryAdaptorMap = new HashMap<Sample, Adaptor>();
+		for(Sample library : controlLibraryList){
+			//System.out.println("Control Lib: " + library.getName());
+			Adaptor adaptor = sampleService.getLibraryAdaptor(library);
+			if(adaptor==null){
+				//message and get out of here
+			}
+			libraryAdaptorMap.put(library, adaptor);	
+		}
+		m.addAttribute("controlLibraryList", controlLibraryList);
+		m.addAttribute("libraryAdaptorMap", libraryAdaptorMap);
+		//return "redirect:/dashboard.do";	
+		return "sample/controlLibraries/list";
+	}
+	
+	@RequestMapping(value="/createUpdateLibraryControl/{sampleId}", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('su') or hasRole('ft')")
+	  public String createUpdateLibraryControl(@PathVariable("sampleId") Integer sampleId, ModelMap m) {
+		
+		//if(sampleId.intValue()==0){
+		//	return "redirect:/dashboard.do";
+		//}
+
+		Sample controlLibrary = null;
+		Adaptor controlLibraryAdaptor = null;
+		List<Adaptor> adaptorList = null;
+		
+		if(sampleId.intValue() > 0){
+			controlLibrary = sampleDao.getSampleBySampleId(sampleId);
+			if(controlLibrary.getSampleId() == null || controlLibrary.getSampleId().intValue() == 0){
+				//not found in database
+				//error and get out of here
+			}
+			controlLibraryAdaptor = sampleService.getLibraryAdaptor(controlLibrary);
+			if(controlLibraryAdaptor==null || controlLibraryAdaptor.getAdaptorId()==null){
+				//message and get out of here
+			}
+			Map<String,Integer> adaptorFilter = new HashMap<String,Integer>();
+			adaptorFilter.put("adaptorsetId", controlLibraryAdaptor.getAdaptorsetId());
+			List<String> list = new ArrayList<String>();
+			list.add("barcodenumber");
+			adaptorList = adaptorDao.findByMapDistinctOrderBy(adaptorFilter, null, list, "ASC");
+			
+		}
+		else if(sampleId.intValue() == 0){
+			controlLibrary = new Sample();
+			controlLibraryAdaptor = new Adaptor();
+			adaptorList = new ArrayList<Adaptor>();
+		}		
+		
+		m.addAttribute("controlLibrary", controlLibrary);
+		m.addAttribute("controlLibraryAdaptor", controlLibraryAdaptor);
+		m.addAttribute("adaptorList", adaptorList);
+		
+		List<Adaptorset> adaptorsetList = adaptorsetDao.findAll();
+		m.addAttribute("adaptorsetList", adaptorsetList);
+		
+		return "sample/controlLibraries/createUpdate";
+	}
+	
+	@RequestMapping(value="ajaxAdaptorsByAdaptorId.do", method=RequestMethod.POST)
+	@PreAuthorize("hasRole('su') or hasRole('ft')")
+	public @ResponseBody String ajaxAdaptorsByAdaptorId(@RequestParam("adaptorsetId") String adaptorsetId){
+		
+		//System.out.println("in ajaxAdaptorsByAdaptorId and adaptorsetId = " + adaptorsetId);
+		Adaptorset adaptorSet = adaptorsetDao.getAdaptorsetByAdaptorsetId(new Integer(adaptorsetId));
+		List<Adaptor> adaptorList = adaptorSet.getAdaptor();
+		if(adaptorList.size()==0){
+			return "";
+		}
+		
+		StringBuffer stringBuffer = new StringBuffer("");	
+		stringBuffer.append("<option value=''>---SELECT AN ADAPTOR---</option>");
+		adaptorService.sortAdaptorsByBarcodenumber(adaptorList);
+		for(Adaptor adaptor : adaptorList){
+			stringBuffer.append("<option value='"+adaptor.getAdaptorId().intValue()+"'>Index "+adaptor.getBarcodenumber().intValue()+" ("+adaptor.getBarcodesequence()+")</option>");
+		}
+		String returnString = new String(stringBuffer);
+		//System.out.println("Output: " + returnString);
+		
+		//String returnString = new String("<option value=''>---SELECT AN ADAPTOR---</option><option value='1'>Index 1 (AAGCTT)</option>");
+		//System.out.println("The return string = " + returnString);
+		//return "<option value=''>---SELECT A READ TYPE---</option><option value='single'>single</option><option value='paired'>paired</option>";
+		//String returnString = new String(stringBuffer);
+		//return "<option value=''>---SELECT AN ADAPTOR---</option><option value='1'>Index 1 (AAGCTT)</option>";
+		return returnString;
+	}
 }

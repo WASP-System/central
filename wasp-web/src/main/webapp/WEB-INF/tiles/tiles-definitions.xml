@@ -139,7 +139,14 @@
 	<definition name="sample/detail" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/sample/detail.jsp" />
 	</definition>
-
+	<definition name="sample/controlLibraries/list" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/sample/controlLibraries/list.jsp" />
+	</definition>
+	<definition name="sample/controlLibraries/createUpdate" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/sample/controlLibraries/createUpdate.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/sample/controlLibraries/createUpdate.jsp" />
+	</definition>
+	
 	<definition name="sampleDnaToLibrary/detail" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/sampleDnaToLibrary/detail.jsp" />
 	</definition>

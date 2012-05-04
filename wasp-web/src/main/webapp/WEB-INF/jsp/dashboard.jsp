@@ -214,6 +214,10 @@
 					<a href='<c:url value="/task/samplereceive/list.do"/>'>Sample Receiver</a>
 				</li>
 				
+				<li>
+					<a href='<c:url value="/sample/listControlLibraries.do"/>'>Control Libraries</a>
+				</li>
+				
 			</ul>
 			<br />
 			<h2>Platform Unit Utils</h2>
