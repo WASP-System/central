@@ -55,9 +55,10 @@
 	<si:header-filter input-channel="waspAuthenticatedChannel0" 
 		output-channel="waspAuthenticatedChannel1"
 		header-names="password"/>
+		
 	<si:header-enricher input-channel="waspAuthenticatedChannel1"
 		output-channel="waspMessageChannel">
-		<si:header name="destination" expression="headers.get('target') + '.waspPlugin'" />
+		<si:header name="destination" expression="headers.get('target') + '.waspPluginChannel'" />
 	</si:header-enricher>
 	
 	<!-- authenticating bean -->
@@ -70,18 +71,21 @@
 		<si:header name="authenticated" value="false"/>
 	</si:header-enricher>
 	
+	<!-- return unknown messages to sender -->
+	<si:header-enricher id="waspUnknown" 
+		input-channel="waspUnknownChannel"
+		output-channel="waspReplyChannel">
+		<si:header name="unknown-target" value="true"/>
+	</si:header-enricher>
+	
 	<si:header-value-router input-channel="waspMessageChannel"
 		header-name="destination" 
 		default-output-channel="waspUnknownChannel"
 		resolution-required="false"/>
 	
-	<!-- <si:filter input-channel="waspMessageChannel" 
-		output-channel="echo1" 
-		expression="headers.get('target').equals('echo')"/>
-     -->
-    <si:channel id="echo.waspPlugin" />	
+    <si:channel id="echo.waspPluginChannel" />	
     	
-    <si:service-activator input-channel="echo.waspPlugin" 
+    <si:service-activator input-channel="echo.waspPluginChannel" 
 		ref="echoService"
 		method="echo" 
 		output-channel="waspReplyChannel" />
