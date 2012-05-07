@@ -33,7 +33,7 @@ $(document).ready(function(){
 		}
 		if(id == ''){
 			$("#adaptorId").html("");
-			$("#submitButtonCreateNewRun").attr("disabled", true);			
+			$("#submitButton").attr("disabled", true);			
 		}
 		
 	});

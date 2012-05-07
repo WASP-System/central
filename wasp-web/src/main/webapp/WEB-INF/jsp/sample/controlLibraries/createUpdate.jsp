@@ -5,7 +5,7 @@
 --%>
 <title>Create/Update Library Control</title>
 <c:choose>
-<c:when test="${controlLibrary==null || controlLibrary.getSampleId()==null}">
+<c:when test="${controlLibrary.getSampleId().intValue()==0}">
 	<h1>Create New Library Control</h1>
 </c:when>
 <c:otherwise>
@@ -19,28 +19,32 @@
 <tr class="FormData"><td class="CaptionTD">Control Name: </td><td class="DataTD"><input class="FormElement ui-widget-content ui-corner-all" type="text" name="name" id="name" size='20' maxlength='45' value="<c:out value="${controlLibrary.getName()}"/>" /></td></tr>
 <tr class="FormData"><td class="CaptionTD">Adaptor Set: </td><td class="DataTD">
 				<select class="FormElement ui-widget-content ui-corner-all" name="adaptorsetId" id="adaptorsetId" size="1" >
-				<option value="0">--SELECT AN ADAPTOR SET--
+				<option value="">--SELECT AN ADAPTOR SET--
 				<c:forEach items="${adaptorsetList}" var="adaptorset">
-					<option value="<c:out value="${adaptorset.getAdaptorsetId()}" />" ><c:out value="${adaptorset.getName()}" /> 
+					<c:set var="selectedAdaptorSet" value="" scope="page" />
+					<c:if test="${adaptorset.getAdaptorsetId()==controlLibraryAdaptor.getAdaptorsetId()}">
+						<c:set var="selectedAdaptorSet" value="SELECTED" scope="page" />
+					</c:if>
+					<option value="<c:out value="${adaptorset.getAdaptorsetId()}" />" <c:out value="${selectedAdaptorSet}"/> ><c:out value="${adaptorset.getName()}" /> 
 				</c:forEach>
 				</select>
 </td></tr>
 <tr class="FormData"><td class="CaptionTD">Adaptor: </td><td class="DataTD">
 				<select class="FormElement ui-widget-content ui-corner-all" name="adaptorId" id="adaptorId" size="1" >
 				
-				<c:if test="${controlLibrary.getSampleId() != null}">
-				<option value="0">--SELECT AN ADAPTOR--
+				<c:if test="${controlLibrary.getSampleId().intValue() != 0}">
+				<option value="">--SELECT AN ADAPTOR--
 				<c:forEach items="${adaptorList}" var="adaptor">
-					<c:set var="selected" value="" scope="page" />
+					<c:set var="selectedAdaptor" value="" scope="page" />
 					<c:if test="${adaptor.getAdaptorId()==controlLibraryAdaptor.getAdaptorId()}">
-						<c:set var="selected" value="SELECTED" scope="page" />
+						<c:set var="selectedAdaptor" value="SELECTED" scope="page" />
 					</c:if>
-					<option value="<c:out value="${adaptor.getAdaptorId()}" />" <c:out value="${selected}"/> />Index <c:out value="${adaptor.getBarcodenumber()}"/>&nbsp;(<c:out value="${adaptor.getBarcodesequence()}"/>)
+					<option value="<c:out value="${adaptor.getAdaptorId()}" />" <c:out value="${selectedAdaptor}"/> />Index <c:out value="${adaptor.getBarcodenumber()}"/>&nbsp;(<c:out value="${adaptor.getBarcodesequence()}"/>)
 				</c:forEach>
 				</c:if>
 				</select>
 </td></tr>
-<tr class="FormData"><td class="CaptionTD">Active?: </td>
+<tr class="FormData"><td class="CaptionTD">Is Active?: </td>
 <td class="DataTD">
 				<c:set var="active" value='${controlLibrary.getIsActive()==1?"checked":""}' scope="page" />
 				<c:set var="inactive" value='${controlLibrary.getIsActive()==1?"":"checked"}' scope="page" />
@@ -51,11 +55,11 @@
 </tr>
 <tr class="FormData"><td class="DataTD" colspan="2">
 <c:set var="disabled" value="" scope="page" />
-<c:if test="${controlLibrary.getSampleId() == null}">
+<c:if test="${controlLibrary.getSampleId().intValue()==0}">
 	<c:set var="disabled" value="disabled" scope="page" />
 </c:if>
 <input type="button" id="submitButton" value="Submit" <c:out value="${disabled}"/> onclick='this.form.submit()' /> 
-<input type="button" value="Reset" onclick='this.form.reset()' /> 
+<input type="button" value="Reset" onclick='location.href="<c:url value="/sample/createUpdateLibraryControl/${controlLibrary.getSampleId().intValue()}.do" />"' /> 
 <input type="button" value="Cancel" onclick='location.href="<c:url value="/sample/listControlLibraries.do" />"' /> 
 </td></tr>
 </table>

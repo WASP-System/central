@@ -405,25 +405,31 @@ public class SampleController extends WaspController {
 		Adaptor controlLibraryAdaptor = null;
 		List<Adaptor> adaptorList = null;
 		
+		//update an existing controlLibrary
 		if(sampleId.intValue() > 0){
 			controlLibrary = sampleDao.getSampleBySampleId(sampleId);
-			if(controlLibrary.getSampleId() == null || controlLibrary.getSampleId().intValue() == 0){
+			if(controlLibrary.getSampleId() == null || controlLibrary.getSampleId() == null || controlLibrary.getSampleId().intValue() == 0){
 				//not found in database
 				//error and get out of here
 			}
+			//get the Adaptor used by this library
 			controlLibraryAdaptor = sampleService.getLibraryAdaptor(controlLibrary);
 			if(controlLibraryAdaptor==null || controlLibraryAdaptor.getAdaptorId()==null){
 				//message and get out of here
 			}
+			//identify the adaptorSet that this library's adaptor belongs, then get all the Adaptors for that AdaptorSet (for display in dropdown box)
 			Map<String,Integer> adaptorFilter = new HashMap<String,Integer>();
 			adaptorFilter.put("adaptorsetId", controlLibraryAdaptor.getAdaptorsetId());
 			List<String> list = new ArrayList<String>();
-			list.add("barcodenumber");
+			list.add("barcodenumber");//orderby index (index1,2,3,..)
 			adaptorList = adaptorDao.findByMapDistinctOrderBy(adaptorFilter, null, list, "ASC");
 			
 		}
+		//create a new controlLibrary
 		else if(sampleId.intValue() == 0){
 			controlLibrary = new Sample();
+			controlLibrary.setSampleId(new Integer(0));//will set the default id of zero
+			controlLibrary.setIsActive(new Integer(1));//will set the default isactive value, that will be displayed on the form, to active
 			controlLibraryAdaptor = new Adaptor();
 			adaptorList = new ArrayList<Adaptor>();
 		}		
