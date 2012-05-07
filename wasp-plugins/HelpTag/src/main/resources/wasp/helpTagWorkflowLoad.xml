@@ -19,7 +19,7 @@
   </bean>
 
 
-  <bean id="helpTagWorkflow" class="edu.yu.einstein.wasp.load.WorkflowLoadService" depends-on="helpTagDnaSampleSubtypeResource,helpTagLibrarySampleSubtypeResource">
+  <bean id="helpTagWorkflow" class="edu.yu.einstein.wasp.load.WorkflowLoadService" depends-on="helpTagLibrarySampleSubtypeResource">
     <property name="area" value="#{helpTagWorkflowArea}" />
     <property name="name" value="HELP Tagging" />
     <property name="pageFlowOrder">
