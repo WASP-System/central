@@ -578,6 +578,33 @@
 				<tomcat-url>http://wellington.einstein.yu.edu:8080/manager/html</tomcat-url>
 			</properties>
 		</profile>
+		<profile>
+		<id>deploy</id>
+		<build>
+		<plugins>
+		<plugin>
+		<artifactId>maven-antrun-plugin</artifactId>
+		<executions>
+		<execution>
+		<phase>package</phase>
+		<goals>
+		<goal>run</goal>
+		</goals>
+		<configuration>
+		<tasks>
+		<delete file="${project.build.directory}/${project.build.finalName}/WEB-INF/log4j.properties"/>
+		<delete file="${project.build.directory}/${project.build.finalName}/WEB-INF/log4j.deploy.properties"/>
+		<copy file="src/main/webapp/WEB-INF/log4j.deploy.properties"
+		tofile="${project.build.directory}/${project.build.finalName}/WEB-INF/log4j.properties"/>
+		</tasks>
+		</configuration>
+		</execution>
+		</executions>
+		</plugin>
+		</plugins>
+		</build>
+		</profile>
+
 	</profiles>
 
 </project>
