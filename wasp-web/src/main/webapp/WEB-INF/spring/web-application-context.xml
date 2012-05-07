@@ -23,9 +23,13 @@
         <value>classpath:database.properties</value>  
         <value>classpath:authentication.properties</value>
         <value>classpath:email.properties</value>
+        <value>classpath:wasp.local.properties</value>
       </list>  
     </property>  
   </bean>  
+  
+  <!-- local instance configuration -->
+  <import resource="classpath*:wasp-local-context.xml" />
 
   <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
     <property name="driverClassName"><value>${db.driver}</value></property>
@@ -190,7 +194,18 @@
     <constructor-arg index="0" value="WEB-INF/jsp"/>
     <constructor-arg index="1" value="**/*.*"/>
   </bean>
-
+  
+  
+  <!-- spring batch admin -->
+  <!--
+  <bean id="resourceService" class="org.springframework.batch.admin.web.resources.DefaultResourceService">
+	<property name="servletPath" value="/batchAdmin"/>
+  </bean>
+  -->
+  <!--<import resource="classpath*:/META-INF/spring/batch/bootstrap/**/*.xml"/>
+   <import resource="classpath*:/META-INF/spring/batch/override/**/*.xml"/>
+  <import resource="classpath*:/META-INF/spring/batch/servlet/**/*.xml"/>
+   -->
 </beans>
 
 
