@@ -74,6 +74,10 @@ public class Main {
 				System.err.println("Failed authentication.");
 				System.exit(1);
 			}
+			if (reply.getHeaders().containsKey("unknown-target") && reply.getHeaders().get("unknown-target").equals("true")) {
+				System.err.println("Unknown message target.");
+				System.exit(1);
+			}
 			
 			System.out.println(reply.getPayload());
 		} catch (RemoteLookupFailureException e) {
