@@ -17,10 +17,15 @@
     <property name="baseLocale" value="en_US" />
     <property name="baseArea" value="#{bisulseqPipelineArea}" />
   </bean>
+  
+  <bean id="bisulseqPipelineResourceType" class="edu.yu.einstein.wasp.model.ResourceType">
+  	<property name="iName" value="bisulseqPipeline" />
+  	<property name="name" value="Bi-sulphite-seq Pipeline" />
+  </bean>
 
   <bean id="bisulseqPipelineSoftware" class="edu.yu.einstein.wasp.load.SoftwareLoadService">
     <property name="name" value="BISUL-seq Pipeline" />
-    <property name="resourceType" value="bisulseqPipeline" />
+    <property name="resourceType" ref="bisulseqPipelineResourceType" />
 	<property name="area" value="#{bisulseqPipelineArea}" />
     <property name="metaFromWrapper">
        <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
