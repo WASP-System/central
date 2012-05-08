@@ -29,6 +29,7 @@
          	<list>
          		<value>allowableUiField.readlength=50:50;75:75;100:100;150:150</value>
          		<value>allowableUiField.readType=single:single;paired:paired</value>
+			<value>#{waspGenericInstrumentType['platformUnitSelector']}=A:A;B:B</value>
          	</list>
          </property>
        </bean>

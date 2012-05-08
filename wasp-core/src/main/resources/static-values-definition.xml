@@ -72,6 +72,14 @@
   		</map>
   	</property>
   </bean>
+  <!-- instrument specific requirements -->
+  <bean id="waspGenericInstrumentType" class="org.springframework.beans.factory.config.MapFactoryBean">
+	<property name="sourceMap">
+		<map key-type="java.lang.String" value-type="java.lang.String">
+			<entry key="platformUnitSelector" value="platformUnitSelector" />
+		</map>
+	</property>
+  </bean>
   
   <!-- wasp sample types -->
   <bean id="waspSampleType" class="org.springframework.beans.factory.config.MapFactoryBean" >
