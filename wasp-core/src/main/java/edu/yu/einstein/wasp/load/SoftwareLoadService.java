@@ -41,8 +41,18 @@ public class SoftwareLoadService extends WaspLoadService {
   @Autowired
   private ResourceTypeDao resourceTypeDao;
 
-  private String resourceTypeString; 
-  public void setResourceType(String resourceTypeString) {this.resourceTypeString = resourceTypeString; }
+  private ResourceType resourceType; 
+  
+  public void setResourceTypeByIName(String resourceTypeString) {
+	  this.resourceType = resourceTypeDao.getResourceTypeByIName(resourceTypeString); 
+	  if (resourceType.getResourceTypeId() == null){
+		  throw new NullResourceTypeException();
+	  }
+  }
+  
+  public void setResourceType(ResourceType resourceType){
+	  this.resourceType = resourceType;
+  }
 
   private List<SoftwareMeta> meta; 
   public void setMeta(List<SoftwareMeta> meta) {this.meta = meta; }
@@ -68,9 +78,21 @@ public class SoftwareLoadService extends WaspLoadService {
     // skips component scanned  (if scanned in)
     if (name == null) { return; }
 
-    ResourceType resourceType = resourceTypeDao.getResourceTypeByIName(resourceTypeString); 
-    if (resourceType == null){
+    if (this.resourceType == null || this.resourceType.getIName() == null || this.resourceType.getIName().isEmpty()){
     	throw new NullResourceTypeException();
+    }
+    if (this.resourceType.getResourceTypeId() == null){
+    	ResourceType existingResourceType = resourceTypeDao.getResourceTypeByIName(this.resourceType.getIName());
+	    if (existingResourceType.getResourceTypeId() == null){
+	    	// new
+	    	this.resourceType = resourceTypeDao.save(this.resourceType);
+	    } else {
+	    	// exists, so see if changed
+	    	if (!existingResourceType.getName().equals(resourceType.getName())){
+	    		existingResourceType.setName(resourceType.getName());
+	    	}
+	    	this.resourceType = existingResourceType;
+	    }
     }
 
     Software software = softwareDao.getSoftwareByIName(iname);
