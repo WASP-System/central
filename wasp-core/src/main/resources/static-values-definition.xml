@@ -72,11 +72,21 @@
   		</map>
   	</property>
   </bean>
+  
   <!-- instrument specific requirements -->
   <bean id="waspGenericInstrumentType" class="org.springframework.beans.factory.config.MapFactoryBean">
 	<property name="sourceMap">
 		<map key-type="java.lang.String" value-type="java.lang.String">
 			<entry key="platformUnitSelector" value="platformUnitSelector" />
+		</map>
+	</property>
+  </bean>
+
+  <!-- illumina adaptorset metadata -->
+  <bean id="illuminaAdaptorType" class="org.springframework.beans.factory.config.MapFactoryBean">
+	<property name="sourceMap">
+		<map key-type="java.lang.String" value-type="java.lang.String">
+			<entry key="truseq" value="truseq" />
 		</map>
 	</property>
   </bean>
