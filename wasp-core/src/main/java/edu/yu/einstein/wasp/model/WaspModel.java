@@ -101,18 +101,22 @@ public abstract class WaspModel implements Serializable {
 			  if (java.util.List.class.equals(fieldType)){
 				  // is a List
 				  objToSet = new ArrayList<Class<?>>();
-				  for (Object o : (ArrayList<?>) objFromGet){
-					  if (WaspModel.class.isInstance(o)){
-						  ((List<Object>)objToSet).add(WaspModel.getDeepCopy(o, (Class<? extends WaspModel>) fieldGenericType));
-					  } else if (fieldGenericType.toString().contains("java.lang")){ 
-						  // java.lang package wrapper classes are all immutable
-						  ((List<Object>)objToSet).add(o); 
-					  } else if (java.util.Date.class.equals(fieldGenericType)){
-						  objToSet = new Date();
-						  ((Date) objToSet).setTime( ((Date) o).getTime() );
-					  } else {
-						  throw new ModelCopyException("Deep copy cannot render an arrayList of type '" + fieldGenericType.getName() + "' to parameratized type WaspModel or a java.lang class");
+				  try{
+					  for (Object o : (List<?>) objFromGet){
+						  if (WaspModel.class.isInstance(o)){
+							  ((List<Object>)objToSet).add(WaspModel.getDeepCopy(o, (Class<? extends WaspModel>) fieldGenericType));
+						  } else if (fieldGenericType.toString().contains("java.lang")){ 
+							  // java.lang package wrapper classes are all immutable
+							  ((List<Object>)objToSet).add(o); 
+						  } else if (java.util.Date.class.equals(fieldGenericType)){
+							  objToSet = new Date();
+							  ((Date) objToSet).setTime( ((Date) o).getTime() );
+						  } else {
+							  throw new ModelCopyException("Deep copy cannot render an arrayList of type '" + fieldGenericType.getName() + "' to parameratized type WaspModel or a java.lang class");
+						  }
 					  }
+				  } catch (ClassCastException e){
+					  logger.debug("Deep copy cannot cast object returned by "+getterMethodName+" to ArrayList");
 				  }
 			  } else {
 				  if (WaspModel.class.isInstance(objFromGet)){

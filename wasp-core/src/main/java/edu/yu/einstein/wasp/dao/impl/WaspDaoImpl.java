@@ -330,9 +330,8 @@ public abstract class WaspDaoImpl<E extends Serializable> implements edu.yu.eins
 	 */
 	@Override
 	public E getEagerLoadedDetachedEntity(E entity) throws ModelDetachException{
-		E mergedEntity = null;
 		try{
-			mergedEntity = this.merge(entity); // ensures attached to the session to start with
+			this.merge(entity); // ensures attached to the session to start with
 		} catch(Exception e){
 			throw new ModelDetachException("Cannot merge supplied entity. Maybe it is not persisted ", e);
 		}
@@ -340,13 +339,13 @@ public abstract class WaspDaoImpl<E extends Serializable> implements edu.yu.eins
 		for (Method m: entityClass.getMethods()){
 			if (! m.getName().startsWith("get")) continue;
 			try {
-				Hibernate.initialize(entityClass.getMethod(m.getName()).invoke(mergedEntity));
+				Hibernate.initialize(entityClass.getMethod(m.getName()).invoke(entity));
 			} catch (Exception e) {
-				throw new ModelDetachException("Failed executing 'Hibernate.initialize()' on entity method '"+ m.getName()+"'", e);
+				logger.debug("Failed executing 'Hibernate.initialize()' on entity method '"+ m.getName()+"'", e);
 			} 
 		}
-		entityManager.detach(mergedEntity);
-		return mergedEntity;
+		entityManager.detach(entity);
+		return entity;
 	}
 
 }

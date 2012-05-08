@@ -327,7 +327,22 @@ TABLE.data TD.label	{
 TD.top-heading	{
 	text-align: center;
 	border-bottom: 1px solid #000;
+	padding-left:10px;
+	padding-right:10px;
 }
+
+TD.white-background {
+	background-color: #FFF;
+}
+
+TD.button-padding {
+	padding:10px 10px 10px 10px;
+}
+
+TD.value-centered {
+	text-align: center;
+	vertical-align: middle;
+	}
 
 TABLE.data TD.label-centered	{
 	background: #f7f7f7;

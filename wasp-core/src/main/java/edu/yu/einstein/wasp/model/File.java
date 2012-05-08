@@ -100,9 +100,9 @@ public class File extends WaspModel {
 	 * @return filename (or null)
 	 */
 	public String getFileName(){
-		Pattern pattern = Pattern.compile("^(.*[\\\\\\/])*(.+)$");
+		Pattern pattern = Pattern.compile("^(.*[\\/|\\\\])?(.+?)($|\\.[0-9]+)");
 		Matcher matcher = pattern.matcher(this.absolutePath);
-		if (matcher.find() && matcher.groupCount() == 2)
+		if (matcher.find() && matcher.groupCount() == 3)
 			return matcher.group(2);
 		return null;
 	}

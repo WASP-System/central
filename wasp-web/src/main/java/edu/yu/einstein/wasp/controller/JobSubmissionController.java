@@ -44,8 +44,10 @@ import org.springframework.web.multipart.commons.CommonsMultipartFile;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
+import edu.yu.einstein.wasp.controller.util.SampleAndSampleDraftMetaHelper;
 import edu.yu.einstein.wasp.dao.AdaptorDao;
 import edu.yu.einstein.wasp.dao.AdaptorsetDao;
+import edu.yu.einstein.wasp.dao.AdaptorsetResourceCategoryDao;
 import edu.yu.einstein.wasp.dao.FileDao;
 import edu.yu.einstein.wasp.dao.JobCellDao;
 import edu.yu.einstein.wasp.dao.JobDao;
@@ -83,8 +85,13 @@ import edu.yu.einstein.wasp.dao.WorkflowSoftwareDao;
 import edu.yu.einstein.wasp.dao.WorkflowresourcecategoryDao;
 import edu.yu.einstein.wasp.dao.impl.DBResourceBundle;
 import edu.yu.einstein.wasp.exception.MetadataException;
+import edu.yu.einstein.wasp.exception.MetadataTypeException;
+import edu.yu.einstein.wasp.exception.ModelCopyException;
+import edu.yu.einstein.wasp.exception.ModelDetachException;
 import edu.yu.einstein.wasp.exception.NullResourceTypeException;
 import edu.yu.einstein.wasp.model.Adaptor;
+import edu.yu.einstein.wasp.model.Adaptorset;
+import edu.yu.einstein.wasp.model.AdaptorsetResourceCategory;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobCell;
 import edu.yu.einstein.wasp.model.JobDraft;
@@ -101,6 +108,7 @@ import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.MetaBase;
+import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.ResourceType;
 import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.Sample;
@@ -110,6 +118,7 @@ import edu.yu.einstein.wasp.model.SampleDraftCell;
 import edu.yu.einstein.wasp.model.SampleDraftMeta;
 import edu.yu.einstein.wasp.model.SampleFile;
 import edu.yu.einstein.wasp.model.SampleMeta;
+import edu.yu.einstein.wasp.model.SampleSubtypeMeta;
 import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.Statejob;
 import edu.yu.einstein.wasp.model.SampleSubtype;
@@ -124,6 +133,7 @@ import edu.yu.einstein.wasp.model.WorkflowresourcecategoryMeta;
 import edu.yu.einstein.wasp.model.WorkflowsoftwareMeta;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.MessageService;
+import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 import edu.yu.einstein.wasp.util.MetaHelper;
 
@@ -204,6 +214,9 @@ public class JobSubmissionController extends WaspController {
 	
 	@Autowired
 	protected SampleTypeDao sampleTypeDao;
+	
+	@Autowired
+	protected SampleSubtypeDao sampleSubtypeDao;
 
 	@Autowired
 	protected StatejobDao statejobDao;
@@ -234,6 +247,9 @@ public class JobSubmissionController extends WaspController {
 	
 	@Autowired
 	protected AdaptorDao adaptorDao;
+	
+	@Autowired
+	protected AdaptorsetResourceCategoryDao adaptorsetResourceCategoryDao;
 
 	@Autowired
 	protected File sampleDir;
@@ -252,6 +268,9 @@ public class JobSubmissionController extends WaspController {
 	
 	@Autowired
 	protected MessageService messageService;
+	
+	@Autowired
+	protected SampleService sampleService;
 		
 	@Autowired
 	protected AuthenticationService authenticationService;
@@ -1157,13 +1176,376 @@ public class JobSubmissionController extends WaspController {
 		return nextPage(jobDraft);
 
 	}
+	
+	@RequestMapping(value="/samples/{jobDraftId}", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String showSampleDraftList(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
+		if (! isJobDraftEditable(jobDraft))
+			return "redirect:/dashboard.do";
+		List<SampleDraft> sampleDraftList = jobDraft.getSampleDraft();
+		String[] roles = new String[1];
+		roles[0] = "lu";
+		List<SampleSubtype> sampleSubtypeList = sampleService.getSampleSubtypesForWorkflowByRole(jobDraft.getWorkflowId(), roles);
+		m.addAttribute("jobDraft", jobDraft);
+		m.addAttribute("sampleDraftList", sampleDraftList);
+		m.addAttribute("sampleSubtypeList", sampleSubtypeList);
+		m.addAttribute("pageFlowMap", getPageFlowMap(jobDraft));
+		return "jobsubmit/sample";
+	}
+	
+	@RequestMapping(value="/samples/{jobDraftId}", method=RequestMethod.POST)
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String submitSampleDraftList(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
+		if (! isJobDraftEditable(jobDraft))
+			return "redirect:/dashboard.do";
+		if (jobDraft.getSampleDraft().isEmpty()){
+			waspErrorMessage("jobDraft.noSamples.error");
+			return submitSampleDraftList(jobDraftId, m); 
+		}
+		return nextPage(jobDraft);
+	}
+	
+	@RequestMapping(value="/samples/view/{jobDraftId}/{sampleDraftId}", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String viewSampleDraft(@PathVariable("jobDraftId") Integer jobDraftId, @PathVariable("sampleDraftId") Integer sampleDraftId, ModelMap m) {
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
+		if (! isJobDraftEditable(jobDraft))
+			return "redirect:/dashboard.do";
+		SampleDraft sampleDraft = sampleDraftDao.getSampleDraftBySampleDraftId(sampleDraftId);
+		if (sampleDraft.getSampleDraftId() == null){
+			waspErrorMessage("jobDraft.jobDraft_null.error");
+			return "redirect:/jobsubmit/sample.do";
+		}
+		List<SampleDraftMeta> normalizedMeta = new ArrayList<SampleDraftMeta>();
+		try {
+			normalizedMeta.addAll(SampleAndSampleDraftMetaHelper.templateMetaToSubtypeAndSynchronizeWithMaster(sampleDraft.getSampleSubtype(), sampleDraft.getSampleDraftMeta(), SampleDraftMeta.class));
+		} catch (MetadataTypeException e) {
+			logger.warn("Could not get meta for class 'SampleDraftMeta':" + e.getMessage());
+		}
+		if (sampleDraft.getSampleType().getIName().equals("library")){
+			// library specific functionality
+			prepareAdaptorsetsAndAdaptors(jobDraft, normalizedMeta, m);
+		}
+		m.addAttribute("normalizedMeta", normalizedMeta);
+		m.addAttribute("sampleDraft", sampleDraft);
+		m.addAttribute("jobDraft", jobDraft);
+		return "jobsubmit/sample/sampledetail_ro";
+	}
+	
+	
+	@RequestMapping(value="/samples/remove/{jobDraftId}/{sampleDraftId}", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String removeSampleDraft(@PathVariable("jobDraftId") Integer jobDraftId, @PathVariable("sampleDraftId") Integer sampleDraftId, ModelMap m) {
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
+		if (! isJobDraftEditable(jobDraft))
+			return "redirect:/dashboard.do";
+		SampleDraft sampleDraft = sampleDraftDao.getSampleDraftBySampleDraftId(sampleDraftId);
+		if (sampleDraft.getSampleDraftId() == null){
+			waspErrorMessage("jobDraft.jobDraft_null.error");
+			return "redirect:/jobsubmit/samples/"+jobDraftId+".do";
+		}
+		Map<String, Integer> query = new HashMap<String, Integer>();
+		query.put("sampledraftId", sampleDraftId);
+		for (SampleDraftMeta sdm : sampleDraftMetaDao.findByMap(query)){
+			sampleDraftMetaDao.remove(sdm);
+		}
+		sampleDraftDao.remove(sampleDraft);
+		waspMessage("sampleDetail.updated_success.label");
+		return "redirect:/jobsubmit/samples/"+jobDraftId+".do";
+	}
+	
 
+	
+	@RequestMapping(value="/samples/edit/{jobDraftId}/{sampleDraftId}", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String editSampleDraft(@PathVariable("jobDraftId") Integer jobDraftId, @PathVariable("sampleDraftId") Integer sampleDraftId, ModelMap m) {
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
+		if (! isJobDraftEditable(jobDraft))
+			return "redirect:/dashboard.do";
+		SampleDraft sampleDraft = sampleDraftDao.getSampleDraftBySampleDraftId(sampleDraftId);
+		if (sampleDraft.getSampleDraftId() == null){
+			waspErrorMessage("jobDraft.jobDraft_null.error");
+			return "redirect:/jobsubmit/samples/"+jobDraftId+".do";
+		}
+		List<SampleDraftMeta> normalizedMeta = new ArrayList<SampleDraftMeta>();
+		try {
+			normalizedMeta.addAll(SampleAndSampleDraftMetaHelper.templateMetaToSubtypeAndSynchronizeWithMaster(sampleDraft.getSampleSubtype(), sampleDraft.getSampleDraftMeta(), SampleDraftMeta.class));
+		} catch (MetadataTypeException e) {
+			logger.warn("Could not get meta for class 'SampleDraftMeta':" + e.getMessage());
+		}
+		if (sampleDraft.getSampleType().getIName().equals("library")){
+			prepareAdaptorsetsAndAdaptors(jobDraft, m);
+		}
+		m.addAttribute("heading", messageService.getMessage("jobDraft.sample_edit_heading.label"));
+		m.addAttribute("normalizedMeta", normalizedMeta);
+		m.addAttribute("sampleDraft", sampleDraft);
+		m.addAttribute("jobDraft", jobDraft);
+		return "jobsubmit/sample/sampledetail_rw";
+	}
+	
+	@RequestMapping(value="/samples/edit/{jobDraftId}/{sampleDraftId}", method=RequestMethod.POST)
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String updateSampleDraft(@PathVariable("jobDraftId") Integer jobDraftId, 
+			@PathVariable("sampleDraftId") Integer sampleDraftId,
+			@Valid SampleDraft sampleDraftForm, BindingResult result, SessionStatus status, ModelMap m) {
+		if ( request.getParameter("submit").equals("Cancel") ){//equals(messageService.getMessage("userDetail.cancel.label")
+			return "redirect:/jobsubmit/samples/"+jobDraftId+".do";
+		}
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
+		if (! isJobDraftEditable(jobDraft))
+			return "redirect:/dashboard.do";
+		SampleDraft sampleDraft = sampleDraftDao.getSampleDraftBySampleDraftId(sampleDraftId);
+		if (sampleDraft.getSampleDraftId() == null){
+			waspErrorMessage("jobDraft.sampleDraft_null.error");
+			return "redirect:/jobsubmit/samples/"+jobDraftId+".do";
+		}
+		SampleSubtype sampleSubtype = sampleSubtypeDao.getSampleSubtypeBySampleSubtypeId(sampleDraftForm.getSampleSubtypeId());
+		List<SampleDraftMeta> metaFromForm = new ArrayList<SampleDraftMeta>();
+		try {
+			metaFromForm.addAll(SampleAndSampleDraftMetaHelper.getValidatedMetaFromRequestAndTemplateToSubtype(request, sampleSubtype, result, SampleDraftMeta.class));
+		} catch (MetadataTypeException e) {
+			logger.warn("Could not get meta for class 'SampleDraftMeta':" + e.getMessage());
+		}
+		sampleDraftForm.setName(sampleDraftForm.getName().trim());//from the form
+		validateSampleDraftNameUnique(sampleDraftForm.getName(), sampleDraftId, jobDraft, result);
+		if (result.hasErrors()){
+			waspErrorMessage("sampleDetail.updated.error");
+			if (sampleDraftForm.getSampleType().getIName().equals("library")){
+				// library specific functionality
+				prepareAdaptorsetsAndAdaptors(jobDraft, metaFromForm, m);
+			}
+			m.addAttribute("heading", messageService.getMessage("jobDraft.sample_edit_heading.label"));
+			m.addAttribute("normalizedMeta", metaFromForm);
+			m.addAttribute("sampleDraft", sampleDraftForm);
+			m.addAttribute("jobDraft", jobDraft);
+			return "jobsubmit/sample/sampledetail_rw";
+		}
+		// all ok so save
+		if (!sampleDraft.getName().equals(sampleDraftForm.getName()))
+			sampleDraft.setName(sampleDraftForm.getName());
+		sampleDraftDao.save(sampleDraft);
+		sampleDraftMetaDao.updateBySampledraftId(sampleDraft.getSampleDraftId(), metaFromForm);
+		waspMessage("sampleDetail.updated_success.label");
+		return "redirect:/jobsubmit/samples/view/"+jobDraftId+"/"+sampleDraftId+".do";
+	}
+	
+	@RequestMapping(value="/samples/clone/{jobDraftId}/{sampleDraftId}", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String cloneSampleDraft(@PathVariable("jobDraftId") Integer jobDraftId, @PathVariable("sampleDraftId") Integer sampleDraftId, ModelMap m) {
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
+		if (! isJobDraftEditable(jobDraft))
+			return "redirect:/dashboard.do";
+		SampleDraft sampleDraft = sampleDraftDao.getSampleDraftBySampleDraftId(sampleDraftId);
+		if (sampleDraft.getSampleDraftId() == null){
+			waspErrorMessage("jobDraft.jobDraft_null.error");
+			return "redirect:/jobsubmit/samples/"+jobDraftId+".do";
+		}
+		SampleDraft clone = null;
+		try {
+			clone = sampleDraftDao.getEagerLoadedDetachedEntity(sampleDraft);
+		} catch (ModelDetachException e) {
+			logger.debug(e.getMessage());
+			waspErrorMessage("jobDraft.clone.error");
+			return "redirect:/jobsubmit/samples/"+jobDraftId+".do";
+		}
+		// nullify key id's as if new
+		clone.setSampleDraftId(null);
+		clone.setName(null);
+		for (SampleDraftMeta sdm: clone.getSampleDraftMeta()){
+			sdm.setSampledraftId(null);
+			sdm.setSampleDraftMetaId(null);
+		}
+		if (sampleDraft.getSampleType().getIName().equals("library")){
+			prepareAdaptorsetsAndAdaptors(jobDraft, m);
+		}
+		
+		m.addAttribute("heading", messageService.getMessage("jobDraft.sample_clone_heading.label"));
+		m.addAttribute("normalizedMeta", clone.getSampleDraftMeta());
+		m.addAttribute("sampleDraft", clone);
+		m.addAttribute("jobDraft", jobDraft);
+		return "jobsubmit/sample/sampledetail_rw";
+	}
+	
+	@RequestMapping(value="/samples/clone/{jobDraftId}/{sampleDraftId}", method=RequestMethod.POST)
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String updateCloneSampleDraft(@PathVariable("jobDraftId") Integer jobDraftId,
+			@PathVariable("sampleDraftId") Integer sampleDraftId, 
+			@Valid SampleDraft cloneForm, BindingResult result, SessionStatus status, ModelMap m){
+		String viewString = this.updateSampleDraft(jobDraftId, sampleDraftId, cloneForm, result, status, m);
+		m.addAttribute("heading", messageService.getMessage("jobDraft.sample_clone_heading.label"));
+		return viewString;
+	}
+	
+	@RequestMapping(value="/samples/add/{jobDraftId}/{sampleSubtypeId}.do", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String newSampleDraft(@PathVariable("jobDraftId") Integer jobDraftId, @PathVariable("sampleSubtypeId") Integer sampleSubtypeId, ModelMap m) {
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
+		if (! isJobDraftEditable(jobDraft))
+			return "redirect:/dashboard.do";
+		SampleDraft sampleDraft = new SampleDraft();
+		SampleSubtype sampleSubtype = sampleSubtypeDao.getSampleSubtypeBySampleSubtypeId(sampleSubtypeId);
+		if (sampleSubtype.getSampleSubtypeId() == null){
+			waspErrorMessage("jobDraft.sampleSubtype_null.error");
+			return "redirect:/jobsubmit/samples/"+jobDraftId+".do";
+		}
+		sampleDraft.setSampleSubtypeId(sampleSubtypeId);
+		sampleDraft.setSampleSubtype(sampleSubtype);
+		sampleDraft.setSampleTypeId(sampleSubtype.getSampleType().getSampleTypeId());
+		sampleDraft.setSampleType(sampleSubtype.getSampleType());
+		List<SampleDraftMeta> normalizedMeta = new ArrayList<SampleDraftMeta>();
+		try {
+			normalizedMeta.addAll(SampleAndSampleDraftMetaHelper.templateMetaToSubtypeAndSynchronizeWithMaster(sampleSubtype, SampleDraftMeta.class));
+		} catch (MetadataTypeException e) {
+			logger.warn("Could not get meta for class 'SampleDraftMeta':" + e.getMessage());
+		}
+		if (sampleDraft.getSampleType().getIName().equals("library")){
+			prepareAdaptorsetsAndAdaptors(jobDraft, m);
+		}
+		m.addAttribute("heading", messageService.getMessage("jobDraft.sample_add_heading.label"));
+		m.addAttribute("normalizedMeta", normalizedMeta);
+		m.addAttribute("sampleDraft", sampleDraft);
+		m.addAttribute("jobDraft", jobDraft);
+		return "jobsubmit/sample/sampledetail_rw";
+	}
+	
+	
+	@RequestMapping(value="/samples/add/{jobDraftId}/{sampleSubtypeId}", method=RequestMethod.POST)
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String updateNewSampleDraft(
+			@PathVariable("jobDraftId") Integer jobDraftId, 
+			@PathVariable("sampleSubtypeId") Integer sampleSubtypeId,
+			@Valid SampleDraft sampleDraftForm, BindingResult result, SessionStatus status, ModelMap m) {
+		
+		if ( request.getParameter("submit").equals("Cancel") ){//equals(messageService.getMessage("userDetail.cancel.label")
+			return "redirect:/jobsubmit/samples/"+jobDraftId+".do";
+		}
+		
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
+		if (! isJobDraftEditable(jobDraft))
+			return "redirect:/dashboard.do";
+		SampleSubtype sampleSubtype = sampleSubtypeDao.getSampleSubtypeBySampleSubtypeId(sampleDraftForm.getSampleSubtypeId());
+		List<SampleDraftMeta> metaFromForm = new ArrayList<SampleDraftMeta>();
+		try {
+			metaFromForm.addAll(SampleAndSampleDraftMetaHelper.getValidatedMetaFromRequestAndTemplateToSubtype(request, sampleSubtype, result, SampleDraftMeta.class));
+		} catch (MetadataTypeException e) {
+			logger.warn("Could not get meta for class 'SampleDraftMeta':" + e.getMessage());
+		}
+		sampleDraftForm.setName(sampleDraftForm.getName().trim());//from the form
+		sampleDraftForm.setSampleSubtype(sampleSubtypeDao.getSampleSubtypeBySampleSubtypeId(sampleDraftForm.getSampleSubtypeId()));
+		sampleDraftForm.setSampleType(sampleTypeDao.getSampleTypeBySampleTypeId(sampleDraftForm.getSampleTypeId()));
+		validateSampleDraftNameUnique(sampleDraftForm.getName(), 0, jobDraft, result);
+		
+		if (result.hasErrors()){
+			if (sampleDraftForm.getSampleType().getIName().equals("library")){
+				// library specific functionality
+				prepareAdaptorsetsAndAdaptors(jobDraft, metaFromForm, m);
+			}
+			waspErrorMessage("sampleDetail.updated.error");
+			m.addAttribute("heading", messageService.getMessage("jobDraft.sample_add_heading.label"));
+			m.addAttribute("normalizedMeta", metaFromForm);
+			m.addAttribute("sampleDraft", sampleDraftForm);
+			m.addAttribute("jobDraft", jobDraft);
+			return "jobsubmit/sample/sampledetail_rw";
+		}
+		// all ok so save
+		sampleDraftForm.setLabId(jobDraft.getLabId());
+		sampleDraftForm.setUserId(jobDraft.getUserId());
+		sampleDraftForm.setJobdraftId(jobDraftId);
+		SampleDraft sampleDraftDb = sampleDraftDao.save(sampleDraftForm);
+		sampleDraftMetaDao.updateBySampledraftId(sampleDraftDb.getSampleDraftId(), metaFromForm);
+		waspMessage("sampleDetail.updated_success.label");
+		return "redirect:/jobsubmit/samples/view/"+jobDraftId+"/"+sampleDraftDb.getSampleDraftId()+".do";
+	}
+	
+	@RequestMapping(value="/samples/addExisting/{jobDraftId}", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String addExistingSampleDraft(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
+		if (! isJobDraftEditable(jobDraft))
+			return "redirect:/dashboard.do";
+		SampleDraft newSampleDraft = new SampleDraft();
+		
+		// TODO: functionality here
+		
+		return "redirect:/jobsubmit/samples/view/"+jobDraftId+"/"+newSampleDraft.getSampleDraftId()+".do";
+	}
+	
+	/**
+	   * See if SampleDraft name has changed between sampleDraft objects and if so check if the new name is unique within the jobDraft.
+	   * @param formSample
+	   * @param originalSample
+	   * @param job
+	   * @param result
+	   */
+	  private void validateSampleDraftNameUnique(String sampleDraftName, Integer sampleDraftId, JobDraft jobDraft, BindingResult result){
+		  //confirm that, if a new sample.name was supplied on the form, it is different from all other sample.name in this job
+		  List<SampleDraft> sampleDraftsInThisJob = jobDraft.getSampleDraft();
+		  for(SampleDraft eachSampleDraftInThisJob : sampleDraftsInThisJob){
+			  if(eachSampleDraftInThisJob.getSampleDraftId().intValue() != sampleDraftId.intValue()){
+				  if( sampleDraftName.equals(eachSampleDraftInThisJob.getName()) ){
+					  // adding an error to 'result object' linked to the 'name' field as the name chosen already exists
+					  Errors errors=new BindException(result.getTarget(), "sampleDraft");
+					  // reject value on the 'name' field with the message defined in sampleDetail.updated.nameClashError
+					  // usage: errors.rejectValue(field, errorString, default errorString)
+					  errors.rejectValue("name", "sampleDetail.nameClash.error", "sampleDetail.nameClash.error (no message has been defined for this property)");
+					  result.addAllErrors(errors);
+					  break;
+				  }
+			  }
+		  }
+	  }
+	  
+	  /**
+	   * get adaptorsets and adaptors for populating model. If only one adaptor set exists then pre-populate the adaptors list with the adaptors 
+	   * available for that adaptor set otherwise populate with an empty adaptor list (will be filled by JSON request as adaptorset is selected)
+	   * @param jobDraft
+	   * @param m
+	   */
+	  private void prepareAdaptorsetsAndAdaptors(JobDraft jobDraft, ModelMap m){
+			List<Adaptor> adaptors = new ArrayList<Adaptor>();
+			List<Adaptorset> adaptorsets = new ArrayList<Adaptorset>();
+			for (JobDraftresourcecategory jdrc: jobDraft.getJobDraftresourcecategory()){
+				Map<String, Integer> adaptorsetRCQuery = new HashMap<String, Integer>();
+				adaptorsetRCQuery.put("resourcecategoryId", jdrc.getResourcecategoryId());
+				for (AdaptorsetResourceCategory asrc: adaptorsetResourceCategoryDao.findByMap(adaptorsetRCQuery))
+					adaptorsets.add(asrc.getAdaptorset());
+			}
+			if (adaptorsets.size() == 1){
+				adaptors = adaptorsets.get(0).getAdaptor();
+			}
+			m.addAttribute("adaptorsets", adaptorsets); // required for adaptorsets metadata control element (select:${adaptorsets}:adaptorsetId:name)
+			m.addAttribute("adaptors", adaptors); // required for adaptors metadata control element (select:${adaptors}:adaptorId:barcodenumber)
+		}
+		
+	  /**
+	   * get adaptorsets and adaptors for populating model. If a selected adaptor is found in the provided SampleDraftMeta
+	   * it is used to find appropriate adaptors
+	   * @param jobDraft
+	   * @param sampleDraftMeta
+	   * @param m
+	   */
+		private void prepareAdaptorsetsAndAdaptors(JobDraft jobDraft, List<SampleDraftMeta> sampleDraftMeta, ModelMap m){
+			prepareAdaptorsetsAndAdaptors(jobDraft, m);
+			Adaptorset selectedAdaptorset = null;
+			try{	
+	  			selectedAdaptorset = adaptorsetDao.getAdaptorsetByAdaptorsetId(Integer.valueOf( MetaHelper.getMetaValue("genericLibrary", "adaptorset", sampleDraftMeta)) );
+	  		} catch(MetadataException e){
+	  			logger.warn("Cannot get metadata : " + e.getMessage());
+	  		} catch(NumberFormatException e){
+	  			logger.warn("Cannot convert to numeric value for metadata " + e.getMessage());
+	  		}
+			if (selectedAdaptorset != null)
+				m.addAttribute("adaptors", selectedAdaptorset.getAdaptor());
+		}
 
-	/*
+/*
+	
 	 * Prepares page to manage sample drafts
 	 * 
 	 * @Author Sasha Levchuk
-	 */	
+	 	
 	@RequestMapping(value="/samples/{jobDraftId}", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public String showSampleDraft(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
@@ -1216,19 +1598,7 @@ public class JobSubmissionController extends WaspController {
 		
 
 	}
-
-	@RequestMapping(value="/samples/{jobDraftId}", method=RequestMethod.POST)
-	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
-	public String submitSampleDraft(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
-		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
-		if (! isJobDraftEditable(jobDraft))
-			return "redirect:/dashboard.do";
-		if (jobDraft.getSampleDraft().isEmpty()){
-			waspErrorMessage("jobDraft.noSamples.error");
-			return showSampleDraft(jobDraftId, m); 
-		}
-		return nextPage(jobDraft);
-	}
+*/
 
 	@RequestMapping(value="/cells/{jobDraftId}.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
@@ -1595,11 +1965,11 @@ public class JobSubmissionController extends WaspController {
 	}
 
 
-	/*
+/*	
 	 * Returns sample drafts by job draft ID 
 	 * 
 	 * @Author Sasha Levchuk
-	 */	
+	 	
 	@RequestMapping(value="/listSampleDraftsJSON", method=RequestMethod.GET)	
 	public String getSampleDraftListJSON(@RequestParam("jobdraftId") Integer jobdraftId, HttpServletResponse response) {
 	
@@ -1671,11 +2041,11 @@ public class JobSubmissionController extends WaspController {
 	}
 
 
-	/*
+	
 	 * Returns samples by Job ID 
 	 * 
 	 * @Author Sasha Levchuk
-	 */	
+	 	
 	@RequestMapping(value="/samplesByJobId", method=RequestMethod.GET)	
 	public String samplesByJobId(@RequestParam("jobId") Integer jobId, HttpServletResponse response) {
 	
@@ -1694,36 +2064,15 @@ public class JobSubmissionController extends WaspController {
 		}
 	}
 	
-	/*
-	 * Returns adaptors by adaptorsetID 
-	 * 
-	 * @Author asmclellan
-	 */	
-	@RequestMapping(value="/adaptorsByAdaptorsetId", method=RequestMethod.GET)	
-	public String adaptorsByAdaptorId(@RequestParam("adaptorsetId") Integer adaptorsetId, HttpServletResponse response) {
-	
-		//result
-		Map <Integer, String> adaptorsMap = new LinkedHashMap<Integer, String>();
-		for(Adaptor adaptor:adaptorsetDao.getAdaptorsetByAdaptorsetId(adaptorsetId).getAdaptor()) {
-			adaptorsMap.put(adaptor.getAdaptorId(), adaptor.getName());
-		}
 
-		try {
-			
-			return outputJSON(adaptorsMap, response); 	
-			
-		} catch (Throwable e) {
-			throw new IllegalStateException("Can't marshall to JSON "+adaptorsMap,e);
-		}
-	}
 	
 
-	/*
+	
 	 * The call just checks if sampleDraft has non-null sourceSampleId field
 	 * I can't get sourceSampleId value while editing form due to JQGrid specifics
 	 * 
 	 * @Author Sasha Levchuk
-	 */	
+	 	
 	@RequestMapping(value = "/getOldSample", method = RequestMethod.GET)
 	public String getOldSample(@RequestParam("id") Integer sampleDraftId, HttpServletResponse response) {
 
@@ -1746,10 +2095,10 @@ public class JobSubmissionController extends WaspController {
 
 	}
 
-	/*
+	
 	 * Renders meta info by smaple ID
 	 * @Author Sasha Levchuk
-	 */
+	 
 	@RequestMapping(value="/sampleMetaBySampleId", method=RequestMethod.GET)	
 	public String sampleMetaBySampleId(@RequestParam("sampleId") Integer sampleId, HttpServletResponse response) {
 	
@@ -1767,6 +2116,29 @@ public class JobSubmissionController extends WaspController {
 			throw new IllegalStateException("Can't marshall to JSON "+metaMap,e);
 		}
 	
+	}*/
+	
+	/*
+	 * Returns adaptors by adaptorsetID 
+	 * 
+	 * @Author asmclellan
+	 */	
+	@RequestMapping(value="/adaptorsByAdaptorsetId", method=RequestMethod.GET)	
+	public String adaptorsByAdaptorId(@RequestParam("adaptorsetId") Integer adaptorsetId, HttpServletResponse response) {
+	
+		//result
+		Map <Integer, String> adaptorsMap = new LinkedHashMap<Integer, String>();
+		for(Adaptor adaptor:adaptorsetDao.getAdaptorsetByAdaptorsetId(adaptorsetId).getAdaptor()) {
+			adaptorsMap.put(adaptor.getAdaptorId(), adaptor.getName());
+		}
+
+		try {
+			
+			return outputJSON(adaptorsMap, response); 	
+			
+		} catch (Throwable e) {
+			throw new IllegalStateException("Can't marshall to JSON "+adaptorsMap,e);
+		}
 	}
 
 	/*

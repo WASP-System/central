@@ -426,74 +426,6 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','lab_list','label','Labs in ${departmentName}','1');
 
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','ampliconSeq','samples','data','samplefile;ampliconSample','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','ampliconSeq','platform','label','Platform','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','ampliconSeq','platform','constraint','NotEmpty','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','ampliconSeq','platform','error','Platform cannot be empty','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','ampliconSeq','platform','control','select:HISeq2000:HISeq2000','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','ampliconSeq','platform','metaposition','100','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','ampliconSeq','readlength','label','Read Length','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','ampliconSeq','readlength','constraint','NotEmpty','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','ampliconSeq','readlength','error','readlength cannot be empty','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','ampliconSeq','readlength','control','select:100:100 bp; 150: 150bp','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','ampliconSeq','readlength','metaposition','110','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','ampliconSeq','readtype','label','Read Type','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','ampliconSeq','readtype','constraint','NotEmpty','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','ampliconSeq','readtype','error','readtype cannot be empty','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','ampliconSeq','readtype','control','select:single:Single-End Read; pair:Pair-End Read','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','ampliconSeq','readtype','metaposition','120','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','ampliconSeq','antibody','label','Anti Body','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','ampliconSeq','antibody','constraint','NotEmpty','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','ampliconSeq','antibody','error','antibody cannot be empty','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','ampliconSeq','antibody','control','select:abc:abc;def:def;ghi:ghi','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','ampliconSeq','antibody','metaposition','130','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','ampliconSeq','pcrprimers','label','PCR Primers','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','ampliconSeq','pcrprimers','constraint','NotEmpty','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','ampliconSeq','pcrprimers','error','pcrprimers cannot be empty','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','ampliconSeq','pcrprimers','control','select:xyz:xyz','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','ampliconSeq','pcrprimers','metaposition','140','1');
-
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','name','label','Name','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','name','constraint','NotEmpty','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','name','error','Please specify sample name','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','sampleTypeId','label','Type','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','sampleTypeId','constraint','NotEmpty','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','sampleTypeId','error','Please specify type','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','status','label','Status','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','fileData','label','Sample File','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','fileData','suffix','(10Mb Max)','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','created','data','Sample Created.','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','updated','data','Sample Updated.','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','removed','data','Sample Removed.','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','fileupload_wait','data','File Upload Started. Please Wait ...','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','fileupload_done','data','File Upload Done.','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','fileupload_nofile','data','No File Selected.','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','material_provided','label','material_provided','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','reference_genome_id','label','reference_genome_id','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','species_id','label','species_id','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','fragment_size','label','fragment_size','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','amount','label','amount','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','concentration','label','concentration','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','260_280','label','260_280','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','260_230','label','260_230','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','volume','label','volume','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','buffer','label','buffer','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','sample_type','label','sample_type','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','antibody_id','label','antibody_id','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','enrich_primer_pair_id','label','enrich_primer_pair_id','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','material_provided','metaposition','10','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','reference_genome_id','metaposition','20','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','species_id','metaposition','30','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','fragment_size','metaposition','40','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','amount','metaposition','50','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','concentration','metaposition','60','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','260_280','metaposition','70','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','260_230','metaposition','80','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','volume','metaposition','90','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','buffer','metaposition','100','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','sample_type','metaposition','110','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','antibody_id','metaposition','120','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','enrich_primer_pair_id','metaposition','130','1');
 
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','hello','error=Hello World','','','1');
 
@@ -619,7 +551,6 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','departmentId','constraint','NotEmpty','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','user','departmentId','error','A department must be selected','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','emailconfirmed','label','Your email address is confirmed and your principal investigator has been emailed to request confirmation of your eligibility to join their lab. You are advised to contact them to request they do this if your account does not become activated in good time.','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','sampleSubtypeId','label','Subtype','1');
 
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','job_list','label','List of Jobs','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','jobId','label','JobID','1');
@@ -720,6 +651,8 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','jobsubmit/list','label','List of Job Drafts','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','jobsubmit/create','label','New Job','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','jobsubmit/metaform','label','New Job','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','jobsubmit/sample/sampledetail_ro','label','View Sample Draft','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','jobsubmit/sample/sampledetail_rw','label','Edit Sample Draft','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','jobsubmit/sample','label','Submit Samples','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','uifield/list','label','Properties','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','lab/newrequest','label','Request Access to Lab','1');
@@ -753,9 +686,6 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','emailsent','label','Thank you for your account request. You have been sent an email with instructions as to how to confirm your email address. Please click to <a href="../login.do"/>Login</a>','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','action','error','Invalid action. Must be approve or reject only','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','userPending','labid_mismatch','error','Lab id mismatch with user-pending id','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','cloned','label','Locked','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','jobId','label','Existing Job','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDraft','sourceSampleId','label','Existing Sample','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','jobViewerUserRoleAdd','error1','JobId or LabId Error','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','jobViewerUserRoleAdd','error2','Login Not Found','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','jobViewerUserRoleAdd','error3','User is submitter, thus already has access to this job','1');
@@ -869,7 +799,6 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','numberofcells','label','Select number of sequencing cells required','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','sample','label','Sample','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','cell','label','Cell','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','submit','label','Save Changes','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','noSamples','error','You must create entries for at least one sample','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','next','label','Next','1');
 
@@ -894,7 +823,31 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','no_resources','error','No resources of the requested type have been assigned to the current workflow','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','software_not_configured','error','Software options for this workflow have not been properly configured','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','resourceCategories_not_configured','error','Resource options for this workflow have not been properly configured','1');
-
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','sample_edit_heading','label','Edit Sample / Library','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','sample_add_heading','label','Add a new Sample / Library','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','sample_clone_heading','label','Clone Sample / Library','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','sample_number','label','Sample #','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','sample_name','label','Sample Name','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','sample_type','label','Sample Type','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','sample_subtype','label','Sample Subtype','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','sample_subtype_null','error','This sample subtype identifier does not return a valid sample subtype','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','sample_class','label','Class','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','sample_file','label','File','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','sample_action','label','Action','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','sample_view','label','View','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','sample_edit','label','Edit','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','sample_remove','label','Remove','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','sample_clone','label','Clone','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','sample_add_existing','label','Existing','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','edit','label','Edit','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','cancel','label','Cancel','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','submit','label','Save Changes','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','no_draft_samples','label','No draft samples to display','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','sample_ro_heading','label','Sample Draft View','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','sampleSubtype_null','label','No sample subtype matches supplied id','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','sampleDraft_null','label','No sample draft matches supplied id','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','clone','error','Unable to clone sample draft','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobDraft','remove_confirm','label','Are you sure you wish to remove this sample?','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','workflow','listname','label','List of Workflows','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','workflow','workflowId','label','Workflow Id','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','workflow','isActive','label','Is Active?','1');

@@ -15,6 +15,7 @@ import org.springframework.validation.BindingResult;
 import edu.yu.einstein.wasp.dao.SampleMetaDao;
 import edu.yu.einstein.wasp.dao.SampleSourceDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
+import edu.yu.einstein.wasp.exception.MetadataTypeException;
 import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
@@ -76,15 +77,11 @@ public class SampleWrapperWebapp extends SampleWrapper{
 	 * @return list of normalized sample meta data
 	 */
 	public static List<SampleMeta> templateMetaToSubtypeAndSynchronizeWithMaster(SampleSubtype sampleSubtype, List<SampleMeta> sampleMetaList, Map<String, MetaAttribute.FormVisibility> visibilityElementMap) {
-  		MetaHelper sampleMetaHelper = new MetaHelper(SampleMeta.class); 
-  		List<SampleMeta> normalizedSampleMeta = new ArrayList<SampleMeta>();
-  		for(String area : sampleSubtype.getComponentMetaAreas()){
-  			sampleMetaHelper.setArea(area);
-  			if (sampleMetaList != null){
-  				normalizedSampleMeta.addAll(sampleMetaHelper.syncWithMaster(sampleMetaList, visibilityElementMap));
-  			} else {
-  				normalizedSampleMeta.addAll(sampleMetaHelper.getMasterList(visibilityElementMap, SampleMeta.class));
-  			}
+  		List<SampleMeta> normalizedSampleMeta = null;
+  		try {
+  			normalizedSampleMeta = SampleAndSampleDraftMetaHelper.templateMetaToSubtypeAndSynchronizeWithMaster(sampleSubtype, sampleMetaList, visibilityElementMap, SampleMeta.class);
+  		} catch(MetadataTypeException e){
+  			logger.warn("caught unexpected MetadataTypeException with message: "+ e.getMessage());
   		}
   		return normalizedSampleMeta;
 	}
@@ -99,12 +96,11 @@ public class SampleWrapperWebapp extends SampleWrapper{
 	 */
 	public static List<SampleMeta> getValidatedMetaFromRequestAndTemplateToSubtype(HttpServletRequest request, SampleSubtype sampleSubtype, BindingResult result, Map<String, MetaAttribute.FormVisibility> visibilityElementMap){
 		List<SampleMeta> validatedFormMeta = new ArrayList<SampleMeta>();
-		MetaHelperWebapp metaHelper = new MetaHelperWebapp(SampleMeta.class);
-		for (String area : sampleSubtype.getComponentMetaAreas()){
-			metaHelper.setArea(area);
-			validatedFormMeta.addAll(metaHelper.getFromRequest(request, visibilityElementMap, SampleMeta.class));
-		}
-		MetaHelperWebapp.validate(metaHelper.getParentArea(), validatedFormMeta, result);
+		try {
+			validatedFormMeta = SampleAndSampleDraftMetaHelper.getValidatedMetaFromRequestAndTemplateToSubtype(request, sampleSubtype, result, SampleMeta.class);
+  		} catch(MetadataTypeException e){
+  			logger.warn("caught unexpected MetadataTypeException with message: "+ e.getMessage());
+  		}
 		return validatedFormMeta;
 	}
 	

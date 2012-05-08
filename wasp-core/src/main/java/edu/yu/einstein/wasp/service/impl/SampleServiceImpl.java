@@ -167,7 +167,9 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 				  } catch(MetadataException e){
 					  // "excludeRoles" meta not present
 				  }
-				  if (authenticationService.hasRoleInRoleArray(includedRoles, roles) && !authenticationService.hasRoleInRoleArray(excludedRoles, roles)){
+				  if ((includedRoles.length == 0 && excludedRoles.length == 0) ||
+						  ( authenticationService.hasRoleInRoleArray(includedRoles, roles) && 
+								  !authenticationService.hasRoleInRoleArray(excludedRoles, roles) ) ){
 					  sampleSubtypes.add(sts);
 				  }
 			  }

@@ -141,9 +141,9 @@ public class SampleDraftMetaDaoImpl extends WaspDaoImpl<SampleDraftMeta> impleme
 		   "control.attrValue as control,suffix.attrValue as suffix,constr.attrValue as 'constraint',\n"+
 		   "type.attrValue as `type`,\n"+
 		   "range.attrValue as `range`,\n"+
-		   "master.samplesubtypeid, master.subtypeName, master.arealist\n"+
+		   "master.samplesubtypeid, master.sampletypeid, master.subtypeName, master.arealist\n"+
 		   "from \n"+
-		   "(select distinct f.area,f.name,convert(f.attrValue, signed) pos, st.samplesubtypeid, st.name as subtypeName, st.arealist as arealist\n"+
+		   "(select distinct f.area,f.name,convert(f.attrValue, signed) pos, st.samplesubtypeid, st.sampletypeid, st.name as subtypeName, st.arealist as arealist\n"+
 		   "from samplesubtype st\n"+					   
 		   "join uifield f on  (\n"+
 		   "st.arealist regexp concat('^\\s*' , f.area , '\\s*$') or\n"+
@@ -186,8 +186,9 @@ public class SampleDraftMetaDaoImpl extends WaspDaoImpl<SampleDraftMeta> impleme
 		   String metaType=(String)o[8];
 		   String range=(String)o[9];
 		   Integer sampleSubtypeId=(Integer)o[10];
-		   String subtypeName=(String)o[11];
-		   String areaList=(String)o[12];
+		   Integer sampleTypeId=(Integer)o[11];
+		   String subtypeName=(String)o[12];
+		   String areaList=(String)o[13];
 		   boolean sampleSubtypeAllowed = false;
 		   for (SampleSubtype sts: loggedInUserAccessibleSampleSubtypes){
 			   if (sts.getSampleSubtypeId().equals(sampleSubtypeId)){
@@ -216,6 +217,7 @@ public class SampleDraftMetaDaoImpl extends WaspDaoImpl<SampleDraftMeta> impleme
 		   subtypeNew.setSampleSubtypeId(sampleSubtypeId);
 		   subtypeNew.setName(subtypeName);
 		   subtypeNew.setAreaList(areaList);
+		   subtypeNew.setSampleTypeId(sampleTypeId);
 		   
 		   
 		   Map<String,List<SampleDraftMeta>> areaMap = tmp.get(subtypeNew);   

@@ -15,12 +15,14 @@ public class TestFile{
 	private static final String TestPath2 = "/foo/bar/file2.txt";
 	private static final String TestPath3 = "\\file3.txt"; // need to escape the \
 	private static final String TestPath4 = "file4.txt";
+	private static final String TestPath5 = "/foo/bar/file5.txt.345543";
 	
 	// expected files
 	private static final String File1 = "file1.txt";
 	private static final String File2 = "file2.txt";
 	private static final String File3 = "file3.txt";
 	private static final String File4 = "file4.txt";
+	private static final String File5 = "file5.txt";
 	
 	// expected PathsToFolder
 	private static final String PathToFolder1 = "foo";
@@ -31,15 +33,17 @@ public class TestFile{
 	
 	@BeforeTest
 	public void setupTest(){
-		files = new File[4];
+		files = new File[5];
 		files[0] = new File();
 		files[1] = new File();
 		files[2] = new File();
 		files[3] = new File();
+		files[4] = new File();
 		files[0].setAbsolutePath(TestPath1);
 		files[1].setAbsolutePath(TestPath2);
 		files[2].setAbsolutePath(TestPath3);
 		files[3].setAbsolutePath(TestPath4);
+		files[4].setAbsolutePath(TestPath5);
 	}
 	
 	@Test (groups = "unit-tests")
@@ -59,6 +63,10 @@ public class TestFile{
 		fileName = files[3].getFileName();
 		Assert.assertNotNull(fileName);
 		Assert.assertEquals(fileName, File4);
+		
+		fileName = files[4].getFileName();
+		Assert.assertNotNull(fileName);
+		Assert.assertEquals(fileName, File5);
 	}
 	
 	@Test (groups = "unit-tests")

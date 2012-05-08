@@ -119,9 +119,6 @@ public class AdaptorsetResourceCategory extends WaspModel {
 		return this.resourcecategoryId;
 	}
 
-
-
-
 	/**
 	 * resourceCategory
 	 *

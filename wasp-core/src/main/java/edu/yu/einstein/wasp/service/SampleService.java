@@ -47,6 +47,7 @@ public interface SampleService extends WaspService {
 	  /**
 	   * Gets a list of {@link SampleSubtype} objects associated with given workflow which are specified as viewable
 	   * to the currently logged in user (role dependent)
+	   * If no role annotation is provided for the SampleSubtype it is also returned
 	   * @param workflowId
 	   * @return List<{@link SampleSubtype}>
 	   */
@@ -55,6 +56,7 @@ public interface SampleService extends WaspService {
 	  /**
 	   * Gets a list of {@link SampleSubtype} objects associated with given workflowId and sampleTypeId which are specified as viewable
 	   * to the currently logged in user (role dependent)
+	   * If no role annotation is provided for the SampleSubtype it is also returned
 	   * @param workflowId
 	   * @return List<{@link SampleSubtype}>
 	   */
@@ -63,7 +65,8 @@ public interface SampleService extends WaspService {
 
 	  /**
 	   * Gets a list of {@link SampleSubtype} objects associated with given workflowId and sampleTypeId which are specified as viewable
-	   * to the users with given roles (role dependent)
+	   * to the users with given roles (role dependent). 
+	   * If no role annotation is provided for the SampleSubtype it is also returned
 	   * @param workflowId
 	   * @param roles
 	   * @param sampleTypeIName
@@ -74,6 +77,7 @@ public interface SampleService extends WaspService {
 	  /**
 	   * Gets a list of {@link SampleSubtype} objects associated with given workflowId which are specified as viewable
 	   * to the users with given roles (role dependent)
+	   * If no role annotation is provided for the SampleSubtype it is also returned
 	   * @param workflowId
 	   * @param roles
 	   * @return
