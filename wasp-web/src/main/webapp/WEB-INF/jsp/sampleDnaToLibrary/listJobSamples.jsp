@@ -446,10 +446,12 @@
 				Name: <a href="<c:url value="/sampleDnaToLibrary/sampledetail_ro/${job.jobId}/${userSubmittedMacromolecule.getSampleId()}.do" />"><c:out value="${userSubmittedMacromolecule.getName()}"/></a><br />
 				Type: <c:out value="${userSubmittedMacromolecule.getSampleType().getName()}"/><br />
 				Species: <c:out value="${speciesMap.get(userSubmittedMacromolecule)}"/><br />
-				Arrival Status: <c:out value="${receivedStatusMap.get(userSubmittedMacromolecule)}"/><sec:authorize access="hasRole('su') or hasRole('ft')">&nbsp;<a href="<c:url value="/task/updatesamplereceive/${job.jobId}.do" />">[update]</a></sec:authorize><br />
+				Arrival Status: <c:out value="${receivedStatusMap.get(userSubmittedMacromolecule)}"/><sec:authorize access="hasRole('su') or hasRole('ft')">&nbsp;<%--<a href="<c:url value="/task/updatesamplereceive/${job.jobId}.do" />">[update]</a>--%><c:if test='${receiveSampleStatusMap.get(userSubmittedMacromolecule)=="CREATED"}'><a href="<c:url value="/task/samplereceive/list.do" />">[log sample]</a></c:if>
+				</sec:authorize><br />
 				
 				<sec:authorize access="hasRole('su') or hasRole('ft')">
-				<c:if test='${receivedStatusMap.get(userSubmittedMacromolecule)=="RECEIVED"}'>
+			<%-- <c:if test='${receivedStatusMap.get(userSubmittedMacromolecule)=="RECEIVED"}'> --%>
+				<c:if test='${createLibraryStatusMap.get(userSubmittedMacromolecule)=="CREATED"}'> 
 	  				<form method="GET" action="<c:url value="/sampleDnaToLibrary/createLibraryFromMacro.do" />">
 	  					<input type='hidden' name='jobId' value='<c:out value="${job.jobId}" />'/>
 	  					<input type='hidden' name='macromolSampleId' value='<c:out value="${userSubmittedMacromolecule.getSampleId()}" />'/>
@@ -484,7 +486,9 @@
 							<c:set var="idCounter" value="${idCounter + 1}" scope="page" />
  							<sec:authorize access="hasRole('su') or hasRole('ft')">
 							<div id="showButton_<c:out value="${idCounter}" />" >
+							<c:if test='${assignLibraryToPlatformUnitStatusMap.get(userSubmittedMacromolecule)=="CREATED"}'> 
 				 				<input class="fm-button" type="button" value="Add Library To Flow Cell" onclick='toggleDisplayOfAddLibraryForm("show", <c:out value="${idCounter}" />)' />				
+							</c:if>
 							</div>
 							</sec:authorize>
 							<div id="addLibraryForm_<c:out value="${idCounter}" />" style="display:none">
@@ -583,13 +587,15 @@
 			<c:set var="adaptor" value="${libraryAdaptorMap.get(userSubmittedLibrary)}" scope="page" />
 			Adaptor: <c:out value="${adaptor.getAdaptorset().getName()}"/><br />
 			Index <c:out value="${adaptor.getBarcodenumber()}"/> [<c:out value="${adaptor.getBarcodesequence()}"/>]<br />
-			Arrival Status: <c:out value="${receivedStatusMap.get(userSubmittedLibrary)}"/><sec:authorize access="hasRole('su') or hasRole('ft')">&nbsp;<a href="<c:url value="/task/updatesamplereceive/${job.jobId}.do" />">[update]</a></sec:authorize><br />
+			Arrival Status: <c:out value="${receivedStatusMap.get(userSubmittedLibrary)}"/><sec:authorize access="hasRole('su') or hasRole('ft')">&nbsp;<%--<a href="<c:url value="/task/updatesamplereceive/${job.jobId}.do" />">[update]</a>--%><c:if test='${receiveSampleStatusMap.get(userSubmittedLibrary)=="CREATED"}'><a href="<c:url value="/task/samplereceive/list.do" />">[log sample]</a></c:if></sec:authorize><br />
 
 			<c:if test='${receivedStatusMap.get(userSubmittedLibrary)=="RECEIVED"}'>
 				<c:set var="idCounter" value="${idCounter + 1}" scope="page" />
  				<sec:authorize access="hasRole('su') or hasRole('ft')">
 				<div id="showButton_<c:out value="${idCounter}" />" >
+				<c:if test='${assignLibraryToPlatformUnitStatusMap.get(userSubmittedLibrary)=="CREATED"}'>
 					<input class="fm-button" type="button" value="Add Library To Flow Cell" onclick='toggleDisplayOfAddLibraryForm("show", <c:out value="${idCounter}" />)' />				
+				</c:if>
 				</div>
 				</sec:authorize>
 				<div id="addLibraryForm_<c:out value="${idCounter}" />" style="display:none">

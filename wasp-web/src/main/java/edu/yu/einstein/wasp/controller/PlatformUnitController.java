@@ -91,6 +91,7 @@ import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Userrole;
 import edu.yu.einstein.wasp.service.AuthenticationService;
+import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 import edu.yu.einstein.wasp.util.MetaHelper;
@@ -181,6 +182,9 @@ public class PlatformUnitController extends WaspController {
 	  
 	@Autowired
 	private AuthenticationService authenticationService;
+	
+	@Autowired
+	private SampleService sampleService;
 	
 	private final MetaHelperWebapp getMetaHelperWebapp() {
 		return new MetaHelperWebapp("platformunit",  "sample",SampleMeta.class, request.getSession());
@@ -1729,7 +1733,11 @@ public class PlatformUnitController extends WaspController {
 		List<Sample> controlLibraryList = sampleDao.findByMap(controlFilterMap);
 		for(Sample sample : controlLibraryList){
 			System.out.println("control: " + sample.getName());
+			if(sample.getIsActive().intValue()==0){
+				controlLibraryList.remove(sample);
+			}
 		}
+		sampleService.sortSamplesBySampleName(controlLibraryList);
 		m.addAttribute("controlLibraryList", controlLibraryList);
 		
 		m.put("platformUnit", platformUnit);

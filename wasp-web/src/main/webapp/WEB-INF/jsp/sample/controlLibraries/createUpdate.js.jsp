@@ -38,6 +38,33 @@ $(document).ready(function(){
 		
 	});
 });
+function validate(){
+	
+	//alert("test");
+	document.form.name.value = document.form.name.value.trim();
+	if(document.form.name.value == ""){
+		alert("Please provide a name for this control");
+		document.form.name.focus();
+		return false;
+	}
+	if(document.form.adaptorsetId.value ==""){
+		alert("Please select an Adaptor Set");
+		document.form.adaptorsetId.focus();
+		return false;
+	}
+	if(document.form.adaptorId.value ==""){
+		alert("Please select an Adaptor");
+		document.form.adaptorId.focus();
+		return false;
+	}
+	if(document.form.active[0].value=="" && document.form.active[1].value==""){
+		alert("Please select Active or Inactive for this control");
+		return false;
+	}
+	document.form.submit();
+	return true;
+	
+}
 /*
 function toggleDisplayOfCreateNewRunForm(action){
 	//alert("in new div; action = " + action);

@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,6 +32,7 @@ import edu.yu.einstein.wasp.dao.AdaptorsetDao;
 import edu.yu.einstein.wasp.dao.JobDao;
 import edu.yu.einstein.wasp.dao.RunDao;
 import edu.yu.einstein.wasp.dao.SampleDao;
+import edu.yu.einstein.wasp.dao.SampleMetaDao;
 import edu.yu.einstein.wasp.dao.SampleSubtypeDao;
 import edu.yu.einstein.wasp.dao.SampleTypeCategoryDao;
 import edu.yu.einstein.wasp.dao.SampleTypeDao;
@@ -92,6 +94,9 @@ public class SampleController extends WaspController {
   
   @Autowired
   private AdaptorService adaptorService;
+  
+  @Autowired
+  private SampleMetaDao sampleMetaDao;
   
   @Autowired
   public void setSampleDao(SampleDao sampleDao) {
@@ -378,6 +383,7 @@ public class SampleController extends WaspController {
 		filterMap.put("sampleTypeId", sampleType.getSampleTypeId());
 		filterMap.put("sampleSubtypeId", sampleSubtype.getSampleSubtypeId());		
 		List<Sample> controlLibraryList = sampleDao.findByMap(filterMap);
+		sampleService.sortSamplesBySampleName(controlLibraryList);
 		Map<Sample, Adaptor> libraryAdaptorMap = new HashMap<Sample, Adaptor>();
 		for(Sample library : controlLibraryList){
 			//System.out.println("Control Lib: " + library.getName());
@@ -470,5 +476,97 @@ public class SampleController extends WaspController {
 		//String returnString = new String(stringBuffer);
 		//return "<option value=''>---SELECT AN ADAPTOR---</option><option value='1'>Index 1 (AAGCTT)</option>";
 		return returnString;
+	}
+	
+	@RequestMapping(value="/createUpdateLibraryControl", method=RequestMethod.POST)
+	@PreAuthorize("hasRole('su') or hasRole('ft')")
+	  public String createUpdateLibraryControl(@RequestParam("sampleId") Integer sampleId, @RequestParam("name") String name, 
+			  @RequestParam("adaptorsetId") Integer adaptorsetId, 
+			  @RequestParam("adaptorId") Integer adaptorId, @RequestParam("active") Integer active, ModelMap m) {
+		
+		//confirm parameters
+		name = name.trim();
+		if("".equals(name)){
+			//error and get out of here
+			return "redirect:/sample/listControlLibraries.do";
+		}
+		if(active.intValue() != 0 && active.intValue() != 1){
+			//error for value of isactive so get out of here
+			return "redirect:/sample/listControlLibraries.do";
+		}
+		//confirm adaptorsetId is consistent with selected adaptor's adaptorset
+		Adaptor adaptor = adaptorDao.getAdaptorByAdaptorId(adaptorId);
+		if(adaptor.getAdaptorId()==null){
+			//error and get out of here
+			return "redirect:/sample/listControlLibraries.do";
+		}
+		if(adaptor.getAdaptorset().getAdaptorsetId().intValue() != adaptorsetId.intValue()){
+			//error and get out of here
+			return "redirect:/sample/listControlLibraries.do";
+		}
+		
+		if(sampleId.intValue() > 0){//updating an existing control
+			Sample controlLibrary = sampleDao.getSampleBySampleId(sampleId);
+			if(controlLibrary.getSampleId() == null){//existing sample unexpectedly NOT found in the database
+				//message and get outofhere
+				return "redirect:/sample/listControlLibraries.do";
+			}
+			controlLibrary.setName(name);
+			controlLibrary.setIsActive(active);
+			List<SampleMeta> sampleMetaList = controlLibrary.getSampleMeta();
+			for(SampleMeta sampleMeta : sampleMetaList){
+				if(sampleMeta.getK().equals("controlLibrary.adaptorset")){
+					sampleMeta.setV(adaptorsetId.toString());
+				}
+				if(sampleMeta.getK().equals("controlLibrary.adaptor")){
+					sampleMeta.setV(adaptorId.toString());
+				}
+			}
+			controlLibrary.setSampleMeta(sampleMetaList);
+			sampleDao.save(controlLibrary);
+		}
+		else if(sampleId.intValue() == 0){//create new control
+			SampleType sampleType = sampleTypeDao.getSampleTypeByIName("library");
+			if(sampleType.getSampleTypeId()==null){
+				//error get out of here
+			}
+			SampleSubtype sampleSubtype = sampleSubtypeDao.getSampleSubtypeByIName("controlLibrarySample");
+			if(sampleSubtype.getSampleSubtypeId()==null){
+				//error get out of here
+				return "redirect:/sample/listControlLibraries.do";
+			}
+			
+			Sample newControlLibrary = new Sample();
+			newControlLibrary.setSampleType(sampleType);
+			newControlLibrary.setSampleSubtype(sampleSubtype);
+			newControlLibrary.setName(name);
+			newControlLibrary.setIsActive(active);
+			
+			newControlLibrary = sampleDao.save(newControlLibrary);
+			Integer newId = newControlLibrary.getSampleId();
+			if(newId==null || newId.intValue()==0){
+				//rollback and get outahere
+				TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+				return "redirect:/sample/listControlLibraries.do";
+			}
+			
+			SampleMeta sampleMeta = new SampleMeta();
+			sampleMeta.setK("controlLibrary.adaptorset");
+			sampleMeta.setV(adaptorsetId.toString());
+			sampleMeta.setSampleId(newId);
+			sampleMetaDao.save(sampleMeta);
+			SampleMeta sampleMeta2 = new SampleMeta();
+			sampleMeta2.setK("controlLibrary.adaptor");
+			sampleMeta2.setV(adaptorId.toString());
+			sampleMeta2.setSampleId(newId);
+			sampleMetaDao.save(sampleMeta2);
+			if(sampleMeta.getSampleMetaId()==null || sampleMeta.getSampleMetaId()==0 || sampleMeta2.getSampleMetaId()==null || sampleMeta2.getSampleMetaId()==0){
+				//rollback and get out
+				TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+				return "redirect:/sample/listControlLibraries.do";
+			}
+		}
+		
+		return "redirect:/sample/listControlLibraries.do";
 	}
 }

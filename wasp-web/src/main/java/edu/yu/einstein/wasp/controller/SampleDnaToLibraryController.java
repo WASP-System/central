@@ -441,6 +441,9 @@ public class SampleDnaToLibraryController extends WaspController {
 		List<Sample> librarySubmittedSamplesList = new ArrayList<Sample>();
 		Map<Sample, String> speciesMap = new HashMap<Sample, String>();
 		Map<Sample, String> receivedStatusMap = new HashMap<Sample, String>();
+		Map<Sample, String> receiveSampleStatusMap = new HashMap<Sample, String>();// created 5/7/12
+		Map<Sample, String> createLibraryStatusMap = new HashMap<Sample, String>();
+		Map<Sample, String> assignLibraryToPlatformUnitStatusMap = new HashMap<Sample, String>();
 		Map<Sample, List<Sample>> facilityLibraryMap = new HashMap<Sample, List<Sample>>();//key is a submitted sample (macromolecule) and value is list of facility-generated libraries created from that macromolecule)
 		Map<Sample, Adaptor> libraryAdaptorMap = new HashMap<Sample, Adaptor>();//key is library and value is the adaptor used for that library
 		
@@ -471,6 +474,36 @@ public class SampleDnaToLibraryController extends WaspController {
 				//print a message and get outta here
 			}
 			receivedStatusMap.put(sample, sampleService.convertReceiveSampleStatusForWeb(sampleService.getReceiveSampleStatus(sample)));
+			
+			//for each task, determine if it's status is CREATED (if it has many states for a single status, simply determine if at least one is CREATED) 
+			Task taskReceiveSampleStatus = taskDao.getTaskByIName("Receive Sample");
+			Task taskCreateLibrary = taskDao.getTaskByIName("Create Library");
+			Task taskAssignLibraryToPlatformUnit = taskDao.getTaskByIName("assignLibraryToPlatformUnit");
+			List<Statesample> stateSampleList = sample.getStatesample();
+			String receiveSampleStatus = new String("NOT CREATED");
+			String createLibraryStatus = new String("NOT CREATED");
+			String assignLibraryToPlatformUnitStatus = new String("NOT CREATED");
+			for(Statesample stateSample : stateSampleList){
+				State state = stateSample.getState();
+				if(state.getTask().getIName().equals(taskReceiveSampleStatus.getIName())){
+					if(state.getStatus().equals("CREATED")){
+						receiveSampleStatus = "CREATED";
+					}
+				}
+				else if(state.getTask().getIName().equals(taskCreateLibrary.getIName())){
+					if(state.getStatus().equals("CREATED")){
+						createLibraryStatus = "CREATED";
+					}
+				}
+				else if(state.getTask().getIName().equals(taskAssignLibraryToPlatformUnit.getIName())){
+					if(state.getStatus().equals("CREATED")){
+						assignLibraryToPlatformUnitStatus = "CREATED";
+					}
+				}
+			}
+			receiveSampleStatusMap.put(sample, receiveSampleStatus);
+			createLibraryStatusMap.put(sample, createLibraryStatus);
+			assignLibraryToPlatformUnitStatusMap.put(sample, assignLibraryToPlatformUnitStatus);
 		}
 		sampleService.sortSamplesBySampleName(macromoleculeSubmittedSamplesList);
 		sampleService.sortSamplesBySampleName(librarySubmittedSamplesList);
@@ -598,6 +631,9 @@ public class SampleDnaToLibraryController extends WaspController {
 		m.addAttribute("librarySubmittedSamplesList", librarySubmittedSamplesList);
 		m.addAttribute("speciesMap", speciesMap);
 		m.addAttribute("receivedStatusMap", receivedStatusMap);
+		m.addAttribute("receiveSampleStatusMap", receiveSampleStatusMap);
+		m.addAttribute("createLibraryStatusMap", createLibraryStatusMap);
+		m.addAttribute("assignLibraryToPlatformUnitStatusMap", assignLibraryToPlatformUnitStatusMap);
 		m.addAttribute("libraryAdaptorMap", libraryAdaptorMap);
 		m.addAttribute("availableAndCompatibleFlowCells", availableAndCompatibleFlowCells);
 		

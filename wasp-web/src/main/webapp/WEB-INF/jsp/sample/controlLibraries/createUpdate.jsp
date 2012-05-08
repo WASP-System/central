@@ -13,8 +13,8 @@
 </c:otherwise>
 </c:choose>
 
-<form method="POST" action="<c:url value="/sample/createUpdateControlLibrary/${controlLibrary.getSampleId()}.do" />">
-
+<form method="POST" id ="form" name ="form" action="<c:url value="/sample/createUpdateLibraryControl.do" />">
+<input type='hidden' name='sampleId' value='<c:out value="${controlLibrary.getSampleId().intValue()}" />'/>
 <table class="EditTable ui-widget ui-widget-content">
 <tr class="FormData"><td class="CaptionTD">Control Name: </td><td class="DataTD"><input class="FormElement ui-widget-content ui-corner-all" type="text" name="name" id="name" size='20' maxlength='45' value="<c:out value="${controlLibrary.getName()}"/>" /></td></tr>
 <tr class="FormData"><td class="CaptionTD">Adaptor Set: </td><td class="DataTD">
@@ -48,7 +48,7 @@
 <td class="DataTD">
 				<c:set var="active" value='${controlLibrary.getIsActive()==1?"checked":""}' scope="page" />
 				<c:set var="inactive" value='${controlLibrary.getIsActive()==1?"":"checked"}' scope="page" />
-					<input type="radio" name="active" <c:out value="${active}" /> value="1"> Active 
+					<input type="radio" id="active" name="active" <c:out value="${active}" /> value="1"> Active 
 					&nbsp;&nbsp;<input type="radio" name="active" <c:out value="${inactive}" /> value="0"> Inactive 
 
 </td>
@@ -58,9 +58,11 @@
 <c:if test="${controlLibrary.getSampleId().intValue()==0}">
 	<c:set var="disabled" value="disabled" scope="page" />
 </c:if>
-<input type="button" id="submitButton" value="Submit" <c:out value="${disabled}"/> onclick='this.form.submit()' /> 
+<sec:authorize access="hasRole('su') or hasRole('ft')">
+<input type="button" id="submitButton" value="Submit" <c:out value="${disabled}"/> onclick='return validate()' /> 
 <input type="button" value="Reset" onclick='location.href="<c:url value="/sample/createUpdateLibraryControl/${controlLibrary.getSampleId().intValue()}.do" />"' /> 
 <input type="button" value="Cancel" onclick='location.href="<c:url value="/sample/listControlLibraries.do" />"' /> 
+</sec:authorize>
 </td></tr>
 </table>
 </form>
