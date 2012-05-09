@@ -40,7 +40,7 @@
           <property name="baseName" value="pValueCutoff" />
           <property name="metaposition" value="10" />
           <property name="label" value="p Value Cutoff" />
-          <property name="default" value="1.0e+5" />
+          <property name="default" value="100000" />
           <property name="type" value="NUMBER" />
         </bean>
         
@@ -57,7 +57,7 @@
           <property name="baseName" value="genomeSize" />
           <property name="metaposition" value="30" />
           <property name="label" value="Effective Genome Size" />
-          <property name="default" value="1.0e+9" />
+          <property name="default" value="1000000000" />
           <property name="type" value="NUMBER" />
         </bean>
         
