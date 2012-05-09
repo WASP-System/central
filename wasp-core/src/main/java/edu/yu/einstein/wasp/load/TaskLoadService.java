@@ -1,8 +1,10 @@
 package edu.yu.einstein.wasp.load;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,8 +55,6 @@ public class TaskLoadService extends WaspLoadService {
 
 		// inserts or update workflow
 		if (task.getTaskId() == null) { 
-			task = new Task();
-
 			task.setIName(iname);
 			task.setName(name);
 
@@ -65,55 +65,50 @@ public class TaskLoadService extends WaspLoadService {
 
 		} else {
 
-			// TODO check if any data chance, if not don't update.
-			task.setName(name);
-
-			taskDao.save(task); 
+			if (task.getName()==null || !task.getName().equals(name)){
+				task.setName(name); // merge
+			}
+			
 		}
 
 		// no taskmapping in property
 		if (taskMapping == null) { taskMapping = new ArrayList<TaskMapping>(); }
 
-		List<TaskMapping> dbTaskMapping = task.getTaskMapping();
+		List<TaskMapping> dbTaskMapping = taskMappingDao.getTaskMappingByTaskId(task.getTaskId());
 
-		Set<String> seenStatus = new HashSet(); 
-
-		// adds to seen
-		if (taskMapping != null) {
+		// checks if already exists
 		for (TaskMapping tm: taskMapping) {
-			seenStatus.add(tm.getStatus());
-		}
-		}
-
-		// hard removal, todo make a set of status and check that
-		if (dbTaskMapping != null) {
-		for (TaskMapping tm: dbTaskMapping) {
-			if (seenStatus.contains(tm.getStatus())) {
-				taskMappingDao.remove(tm);
-				taskMappingDao.flush(tm);
-			}
-		}
-		}
-
-		if (taskMapping != null) {
-		for (TaskMapping tm: taskMapping) {
-			TaskMapping dbTm = taskMappingDao.getTaskMappingByTaskIdStatus(task.getTaskId(), tm.getStatus()); 
-
-			if (dbTm.getTaskMappingId() != null) {
-				// update
-				dbTm.setPermission(tm.getPermission()); 
-				dbTm.setListMap(tm.getListMap()); 
-				dbTm.setDetailMap(tm.getDetailMap()); 
-				taskMappingDao.save(dbTm);
-
-			} else {
-				// insert
-				tm.setTaskId(task.getTaskId());
+			tm.setTaskId(task.getTaskId());
+			if (tm.getDashboardSortOrder()==null)
+				tm.setDashboardSortOrder(1); // default to 1
+			Map<String, Object> tmQuery = new HashMap<String, Object>();
+			tmQuery.put("taskId", tm.getTaskId());
+			tmQuery.put("status", tm.getStatus());
+			tmQuery.put("permission", tm.getPermission());
+			List<TaskMapping> matchingTM = taskMappingDao.findByMap(tmQuery);
+			if (matchingTM==null || matchingTM.isEmpty()){
+				// is new
 				taskMappingDao.save(tm);
-
+			} else {
+				// exists so update if changed
+				TaskMapping dbTm = matchingTM.get(0);
+				if (!dbTm.getPermission().equals(tm.getPermission()))
+					dbTm.setPermission(tm.getPermission()); 
+				if (!dbTm.getListMap().equals(tm.getListMap()))
+					dbTm.setListMap(tm.getListMap()); 
+				if (!dbTm.getDetailMap().equals(tm.getDetailMap()))
+					dbTm.setDetailMap(tm.getDetailMap());
+				if (!dbTm.getDashboardSortOrder().equals(tm.getDashboardSortOrder()))
+					dbTm.setDashboardSortOrder(tm.getDashboardSortOrder());
+				dbTaskMapping.remove(dbTm);
 			}
-
 		}
+		
+		// cleanup old taskMappings
+		if (dbTaskMapping != null){
+			for (TaskMapping tm: dbTaskMapping) {
+				taskMappingDao.remove(tm);
+			}
 		}
 
 		updateUiFields(); 

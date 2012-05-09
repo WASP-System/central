@@ -32,7 +32,6 @@
           <property name="listMap" value="/task/platformunit/list.do" />
           <property name="detailMap" value="/def.do" />
           <property name="permission" value="hasRole('su')" />
-          <property name="dashboardSortOrder" value="1" />
         </bean>
       </list>
     </property>

@@ -72,7 +72,7 @@ public class TaskMappingDaoImpl extends WaspDaoImpl<TaskMapping> implements edu.
 	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
-	public TaskMapping getTaskMappingByTaskIdStatus (final int taskId, final String status) {
+	public List<TaskMapping> getTaskMappingByTaskIdStatus (final int taskId, final String status) {
     		HashMap m = new HashMap();
 		m.put("taskId", taskId);
 		m.put("status", status);
@@ -80,10 +80,32 @@ public class TaskMappingDaoImpl extends WaspDaoImpl<TaskMapping> implements edu.
 		List<TaskMapping> results = this.findByMap(m);
 
 		if (results.size() == 0) {
-			TaskMapping rt = new TaskMapping();
-			return rt;
+			return null;
 		}
-		return results.get(0);
+		return results;
+	}
+	
+	/**
+	 * getTaskMappingByTaskId(final int taskId)
+	 *
+	 * @param final int taskId
+	 *
+	 * @return taskMapping
+	 */
+
+	@Override
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public List<TaskMapping> getTaskMappingByTaskId (final int taskId) {
+    		HashMap m = new HashMap();
+		m.put("taskId", taskId);
+
+		List<TaskMapping> results = this.findByMap(m);
+
+		if (results.size() == 0) {
+			return null;
+		}
+		return results;
 	}
 
 
