@@ -1713,7 +1713,7 @@ create table taskmapping (
   dashboardsortorder int(10),
 
   foreign key fk_taskmapping_tid (taskid) references task(taskid),
-  constraint unique index u_taskmapping_t_s (taskid, status)
+  constraint unique index u_taskmapping_t_s (taskid, status, permission)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=5 ;
 
 
