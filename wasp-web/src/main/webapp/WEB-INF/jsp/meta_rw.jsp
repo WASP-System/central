@@ -22,9 +22,18 @@
 					<c:if test= "${fn:length(selectItems) > 1 && _meta.property.formVisibility != 'immutable'}">
 						<option value=''><fmt:message key="wasp.default_select.label"/></option>
 					</c:if>
+					<c:set var="useDefault" value="0" />
+					<c:if test="${not empty _meta.property.defaultVal}">
+						<c:set var="useDefault" value="1" />
+						<c:forEach var="option" items="${selectItems}">
+							<c:if test="${option[itemValue] == _meta.v}" >
+								<c:set var="useDefault" value="0" />
+							</c:if>
+						</c:forEach>
+					</c:if>
 					<c:forEach var="option" items="${selectItems}">
-						<c:if test="${fn:length(selectItems) == 1 || option[itemValue] == _meta.v || _meta.property.formVisibility != 'immutable'}">
-							<option value="${option[itemValue]}"<c:if test="${fn:length(selectItems) == 1 || option[itemValue] == _meta.v}"> selected</c:if>>
+						<c:if test="${fn:length(selectItems) == 1 || option[itemValue] == _meta.v || _meta.property.formVisibility != 'immutable' }">
+							<option value="${option[itemValue]}"<c:if test="${fn:length(selectItems) == 1 || option[itemValue] == _meta.v || (useDefault==1 && option[itemValue] == _meta.property.defaultVal)}"> selected</c:if>>
 							<c:out value="${option[itemLabel]}"/></option>
 						</c:if>
 					</c:forEach>																									
