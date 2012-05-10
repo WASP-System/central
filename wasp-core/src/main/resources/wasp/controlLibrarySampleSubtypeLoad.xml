@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.1.xsd"
+    default-autowire="byName">
+   
+  <bean id="controlLibrarySampleSubtypeResource" class="edu.yu.einstein.wasp.load.SampleSubtypeLoadService">
+    <property name="name" value="Control Library" />
+    <property name="area" value="controlLibrarySample" />
+    <property name="sampleType" value="#{waspSampleType['library']}" />
+    <property name="uiFieldGroupsFromWrapper">
+    	<list>
+    		<ref bean="genericBiomoleculeUiFields" /> 
+    		<ref bean="genericLibraryUiFields" /> 
+    	</list>
+    </property>
+    <property name="applicableRoles" value="ft,su" />
+  </bean>
+  
+  
+</beans>
+

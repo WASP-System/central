@@ -29,10 +29,19 @@
       <list>
         <bean class="edu.yu.einstein.wasp.model.TaskMapping">
           <property name="status" value="CREATED" />
-          <property name="listMap" value="/lab/pendinglmapproval/list.do" />
+          <property name="listMap" value="/lab/allpendinglmapproval/list.do" />
           <property name="detailMap" value="/def.do" />
-          <property name="permission" value="hasRole('su')" />
+          <property name="permission" value="hasRole('su') or hasRole('ft')" />
         </bean>
+        <!--
+        <bean class="edu.yu.einstein.wasp.model.TaskMapping">
+          <property name="status" value="CREATED" />
+          <property name="listMap" value="/lab/pendinglmapproval/list/#{dollar}{lab.labId}.do" />
+          <property name="detailMap" value="/def.do" />
+          <property name="permission" value="hasRole('lm-#labId')" />
+          <property name="dashboardSortOrder" value="1" />
+        </bean>
+        -->
       </list>
     </property>
 

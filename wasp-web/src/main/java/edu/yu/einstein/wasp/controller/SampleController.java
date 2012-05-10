@@ -515,10 +515,10 @@ public class SampleController extends WaspController {
 			controlLibrary.setIsActive(active);
 			List<SampleMeta> sampleMetaList = controlLibrary.getSampleMeta();
 			for(SampleMeta sampleMeta : sampleMetaList){
-				if(sampleMeta.getK().equals("controlLibrary.adaptorset")){
+				if(sampleMeta.getK().equals("genericLibrary.adaptorset")){
 					sampleMeta.setV(adaptorsetId.toString());
 				}
-				if(sampleMeta.getK().equals("controlLibrary.adaptor")){
+				if(sampleMeta.getK().equals("genericLibrary.adaptor")){
 					sampleMeta.setV(adaptorId.toString());
 				}
 			}
@@ -551,12 +551,12 @@ public class SampleController extends WaspController {
 			}
 			
 			SampleMeta sampleMeta = new SampleMeta();
-			sampleMeta.setK("controlLibrary.adaptorset");
+			sampleMeta.setK("genericLibrary.adaptorset");
 			sampleMeta.setV(adaptorsetId.toString());
 			sampleMeta.setSampleId(newId);
 			sampleMetaDao.save(sampleMeta);
 			SampleMeta sampleMeta2 = new SampleMeta();
-			sampleMeta2.setK("controlLibrary.adaptor");
+			sampleMeta2.setK("genericLibrary.adaptor");
 			sampleMeta2.setV(adaptorId.toString());
 			sampleMeta2.setSampleId(newId);
 			sampleMetaDao.save(sampleMeta2);
