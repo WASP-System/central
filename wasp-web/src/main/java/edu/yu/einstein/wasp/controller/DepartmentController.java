@@ -143,8 +143,8 @@ public class DepartmentController extends WaspController {
 			}
 		}
 		m.addAttribute("department", departmentList);
-		departmentAdminPendingTasks = taskService.getDepartmentAdminPendingTasks();// number of da pending tasks (if su or ga, then department not considered)
-		m.addAttribute("departmentAdminPendingTasks", departmentAdminPendingTasks);
+		//////////departmentAdminPendingTasks = taskService.getDepartmentAdminPendingTasks();// number of da pending tasks (if su or ga, then department not considered)
+		//////////m.addAttribute("departmentAdminPendingTasks", departmentAdminPendingTasks);
 		return "department/list";
 	}
 
@@ -478,7 +478,7 @@ public class DepartmentController extends WaspController {
 	}
 
 	@RequestMapping(value = "/dapendingtasklist", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('su') or hasRole('da-*') or hasRole('ga-*')")
+	@PreAuthorize("hasRole('su') or hasRole('da-*') or hasRole('fm-*') or hasRole('ga-*')")
 	public String departmentAdminPendingTaskList(ModelMap m) {
 
 		List<LabPending> labsPendingDaApprovalList = new ArrayList<LabPending>();

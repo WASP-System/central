@@ -27,6 +27,7 @@
   <fmt:message key="department.list_instructions.label" />
 </div>
 
+<%-- 
 <div class="action">
  	<c:choose>
 		<c:when test='${departmentAdminPendingTasks == 0}'>
@@ -37,6 +38,7 @@
 		</c:otherwise>
 	</c:choose>
 </div>
+--%>
 
 <table class="EditTable ui-widget ui-widget-content">
 	<c:forEach items="${department}" var="d">

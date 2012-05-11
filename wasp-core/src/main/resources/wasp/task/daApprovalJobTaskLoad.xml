@@ -24,16 +24,19 @@
         </bean>
       </list>
     </property>
+
+    <!--  
     <property name="taskMapping">
       <list>
         <bean class="edu.yu.einstein.wasp.model.TaskMapping">
           <property name="status" value="CREATED" />
           <property name="listMap" value="/department/dapendingtasklist.do" />
           <property name="detailMap" value="/def.do" />
-          <property name="permission" value="hasRole('lm-#labId')" />
+          <property name="permission" value="hasRole('da-*')" />
         </bean>
       </list>
     </property>
-
+	-->
+	
   </bean>
 </beans>

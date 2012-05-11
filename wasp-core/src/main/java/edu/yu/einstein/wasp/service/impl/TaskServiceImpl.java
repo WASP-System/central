@@ -301,6 +301,123 @@ public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 	}
 
 	@Override
+	public int getLabManagerPendingTasks2(List<UserPending> newUsersPendingLmApprovalList, List<LabUser> existingUsersPendingLmApprovalList, List<Job> jobsPendingLmApprovalList) {
+
+		// three tasks awaiting Lab Manager or PI from lab where labid = labId
+		// 1. approve or reject new users that have applied to join a lab
+		// 2. approve or reject existing users that have applied to join a lab
+		// 3. approve or reject a new job submission
+		// however if the user is superuser, ft, fm, and ga, then don't filter by lab_id
+		
+		if (authenticationService.isSuperUser() || authenticationService.hasRole("fm-*") 
+				|| authenticationService.hasRole("ft-*") || authenticationService.hasRole("lm-*") 
+				|| authenticationService.hasRole("pi-*") || authenticationService.hasRole("ga-*")) {
+
+			Map themap = new HashMap();
+			themap.put("status", "PENDING");
+			// themap.put("labId", "NOT NULL");//this won't work
+			List<UserPending> tempNewUsersPendingLmApprovalList = userPendingDao.findByMap(themap);
+			// remove those with labId being NULL (as these are new PI's and will be
+			// dealt with at the DepartmentAdmin level (approving a new lab)
+			for (Iterator<UserPending> iter = tempNewUsersPendingLmApprovalList.iterator(); iter.hasNext();) {
+				// must go through iterator if want to remove object, or else get
+				// exception (http://www.rgagnon.com/javadetails/java-0619.html)
+				UserPending up = iter.next();
+				if (up.getLabId() != null) {
+					newUsersPendingLmApprovalList.add(up);
+				}
+			}
+
+			// 2 pending existing users
+			Role role = roleDao.getRoleByName("Lab Member Pending");
+			themap.clear();
+			themap.put("roleId", role.getRoleId());
+			List<LabUser> tempExistingUsersPendingLmApprovalList = labUserDao.findByMap(themap);
+			for (LabUser lu : tempExistingUsersPendingLmApprovalList) {
+				existingUsersPendingLmApprovalList.add(lu);
+			}
+
+			// 3 jobs awaiting PI approval
+			Task task = taskDao.getTaskByIName("PI Approval");
+			themap.clear();
+			themap.put("taskId", task.getTaskId());
+			themap.put("status", "CREATED");
+			List<State> stateList = stateDao.findByMap(themap);
+			for (int i = 0; i < stateList.size(); i++) {
+				List<Statejob> statejobList = stateList.get(i).getStatejob();
+				for (Statejob stateJob : statejobList) {
+					jobsPendingLmApprovalList.add(stateJob.getJob());
+				}
+			}
+
+		}else if (authenticationService.hasRole("pi-*") || authenticationService.hasRole("lm-*") ){
+			//determine the lab(s) these PI's or lm represent and get info according to their lab(s)
+			//recall that any PI also has role of lm, so it is sufficient to ask for lm
+		
+			// get list of departmentId values for this authenticated user
+			List<Integer> labIdList = new ArrayList<Integer>();
+			for (String role : authenticationService.getRoles()) {
+				String[] splitRole = role.split("-");
+				if (splitRole.length != 2) {
+					continue;
+				}
+				if (splitRole[1].equals("*")) {
+					continue;
+				}
+				if ("lm".equals(splitRole[0])) {// lab manager (which also includes any PIs)
+					try {
+						labIdList.add(Integer.parseInt(splitRole[1]));
+					} catch (Exception e) {
+						continue;
+					}
+				}
+			}
+			
+			for(int labId : labIdList){
+				// 1 pending new users
+				Lab lab = labDao.getLabByLabId(labId);
+				// usersPendingLmApprovalList.addAll(lab.getUserPending());
+				for (UserPending userPending : lab.getUserPending()) {
+					if ("PENDING".equals(userPending.getStatus())) {
+						newUsersPendingLmApprovalList.add(userPending);
+					}
+				}
+
+				// 2 pending existing users
+				Role role = roleDao.getRoleByName("Lab Member Pending");
+				if (role.getRoleId() == null) {
+					// TODO: throw exception
+				}
+				for (LabUser labUser : lab.getLabUser()) {
+					if (labUser.getRole().getRoleName().equals(role.getRoleName())) {
+						existingUsersPendingLmApprovalList.add(labUser);
+					}
+				}
+
+				// 3 pending jobs
+				Map themap = new HashMap();
+				Task task = taskDao.getTaskByIName("PI Approval");
+				if (task.getTaskId() == null) {// unexpectedly not found
+					// TODO: throw exception
+				}
+				themap.put("taskId", task.getTaskId());
+				themap.put("status", "CREATED");
+				// may need to be iterated over a few times
+				List<State> stateList = stateDao.findByMap(themap);
+				for (int i = 0; i < stateList.size(); i++) {
+					List<Statejob> statejobList = stateList.get(i).getStatejob();
+					for (Statejob stateJob : statejobList) {
+						if (stateJob.getJob().getLab().getLabId().intValue() == labId) {
+							jobsPendingLmApprovalList.add(stateJob.getJob());
+						}
+					}
+				}
+			}
+		}
+		return newUsersPendingLmApprovalList.size() + existingUsersPendingLmApprovalList.size() + jobsPendingLmApprovalList.size();
+	}
+	
+	@Override
 	public int getAllLabManagerPendingTasks() {
 		List<UserPending> newUsersPendingLmApprovalList = new ArrayList<UserPending>();
 		List<LabUser> existingUsersPendingLmApprovalList = new ArrayList<LabUser>();
@@ -311,7 +428,7 @@ public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 
 	@Override
 	public int getAllLabManagerPendingTasks(List<UserPending> newUsersPendingLmApprovalList, List<LabUser> existingUsersPendingLmApprovalList, List<Job> jobsPendingLmApprovalList) {
-
+/****
 		Map themap = new HashMap();
 		themap.put("status", "PENDING");
 		// themap.put("labId", "NOT NULL");//this won't work
@@ -350,7 +467,120 @@ public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 		}
 
 		return newUsersPendingLmApprovalList.size() + existingUsersPendingLmApprovalList.size() + jobsPendingLmApprovalList.size();
+**********/
+		
+		// three tasks awaiting Lab Manager or PI from lab where labid = labId
+		// 1. approve or reject new users that have applied to join a lab
+		// 2. approve or reject existing users that have applied to join a lab
+		// 3. approve or reject a new job submission
+		// however if the user is superuser, ft, fm, and ga, then don't filter by lab_id
+		
+		if (authenticationService.isSuperUser() || authenticationService.hasRole("fm-*") 
+				|| authenticationService.hasRole("ft-*") || authenticationService.hasRole("ga-*")) {
 
+			Map themap = new HashMap();
+			themap.put("status", "PENDING");
+			// themap.put("labId", "NOT NULL");//this won't work
+			List<UserPending> tempNewUsersPendingLmApprovalList = userPendingDao.findByMap(themap);
+			// remove those with labId being NULL (as these are new PI's and will be
+			// dealt with at the DepartmentAdmin level (approving a new lab)
+			for (Iterator<UserPending> iter = tempNewUsersPendingLmApprovalList.iterator(); iter.hasNext();) {
+				// must go through iterator if want to remove object, or else get
+				// exception (http://www.rgagnon.com/javadetails/java-0619.html)
+				UserPending up = iter.next();
+				if (up.getLabId() != null) {
+					newUsersPendingLmApprovalList.add(up);
+				}
+			}
+
+			// 2 pending existing users
+			Role role = roleDao.getRoleByName("Lab Member Pending");
+			themap.clear();
+			themap.put("roleId", role.getRoleId());
+			List<LabUser> tempExistingUsersPendingLmApprovalList = labUserDao.findByMap(themap);
+			for (LabUser lu : tempExistingUsersPendingLmApprovalList) {
+				existingUsersPendingLmApprovalList.add(lu);
+			}
+
+			// 3 jobs awaiting PI approval
+			Task task = taskDao.getTaskByIName("PI Approval");
+			themap.clear();
+			themap.put("taskId", task.getTaskId());
+			themap.put("status", "CREATED");
+			List<State> stateList = stateDao.findByMap(themap);
+			for (int i = 0; i < stateList.size(); i++) {
+				List<Statejob> statejobList = stateList.get(i).getStatejob();
+				for (Statejob stateJob : statejobList) {
+					jobsPendingLmApprovalList.add(stateJob.getJob());
+				}
+			}
+
+		}else if (authenticationService.hasRole("pi-*") || authenticationService.hasRole("lm-*") ){
+			//determine the lab(s) these PI's or lm represent and get info according to their lab(s)
+			//recall that any PI also has role of lm, so it is sufficient to ask for lm
+		
+			// get list of departmentId values for this authenticated user
+			List<Integer> labIdList = new ArrayList<Integer>();
+			for (String role : authenticationService.getRoles()) {
+				String[] splitRole = role.split("-");
+				if (splitRole.length != 2) {
+					continue;
+				}
+				if (splitRole[1].equals("*")) {
+					continue;
+				}
+				if ("lm".equals(splitRole[0])) {// lab manager (which also includes any PIs)
+					try {
+						labIdList.add(Integer.parseInt(splitRole[1]));
+					} catch (Exception e) {
+						continue;
+					}
+				}
+			}
+			
+			for(int labId : labIdList){
+				// 1 pending new users
+				Lab lab = labDao.getLabByLabId(labId);
+				// usersPendingLmApprovalList.addAll(lab.getUserPending());
+				for (UserPending userPending : lab.getUserPending()) {
+					if ("PENDING".equals(userPending.getStatus())) {
+						newUsersPendingLmApprovalList.add(userPending);
+					}
+				}
+
+				// 2 pending existing users
+				Role role = roleDao.getRoleByName("Lab Member Pending");
+				if (role.getRoleId() == null) {
+					// TODO: throw exception
+				}
+				for (LabUser labUser : lab.getLabUser()) {
+					if (labUser.getRole().getRoleName().equals(role.getRoleName())) {
+						existingUsersPendingLmApprovalList.add(labUser);
+					}
+				}
+
+				// 3 pending jobs
+				Map themap = new HashMap();
+				Task task = taskDao.getTaskByIName("PI Approval");
+				if (task.getTaskId() == null) {// unexpectedly not found
+					// TODO: throw exception
+				}
+				themap.put("taskId", task.getTaskId());
+				themap.put("status", "CREATED");
+				// may need to be iterated over a few times
+				List<State> stateList = stateDao.findByMap(themap);
+				for (int i = 0; i < stateList.size(); i++) {
+					List<Statejob> statejobList = stateList.get(i).getStatejob();
+					for (Statejob stateJob : statejobList) {
+						if (stateJob.getJob().getLab().getLabId().intValue() == labId) {
+							jobsPendingLmApprovalList.add(stateJob.getJob());
+						}
+					}
+				}
+			}
+		}
+		return newUsersPendingLmApprovalList.size() + existingUsersPendingLmApprovalList.size() + jobsPendingLmApprovalList.size();	
+		
 	}
 
 	@Override
@@ -370,7 +600,7 @@ public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 			// TODO: throw exception
 		}
 
-		if (authenticationService.isSuperUser() || authenticationService.hasRole("ga")) {
+		if (authenticationService.isSuperUser() || authenticationService.hasRole("fm-*") || authenticationService.hasRole("ft-*") || authenticationService.hasRole("ga")) {
 
 			themap.put("status", "PENDING");
 			labsPendingDaApprovalList.addAll(labPendingDao.findByMap(themap));	// returns a list
@@ -385,7 +615,7 @@ public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 					jobsPendingDaApprovalList.add(stateJob.getJob());
 				}
 			}
-		} else {
+		} else if (authenticationService.hasRole("da-*") ){//if a departmental administrator
 			// get list of departmentId values for this authenticated user
 			List<Integer> departmentIdList = new ArrayList<Integer>();
 			for (String role : authenticationService.getRoles()) {

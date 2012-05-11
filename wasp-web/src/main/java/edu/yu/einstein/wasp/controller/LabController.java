@@ -1372,13 +1372,14 @@ public class LabController extends WaspController {
 	}
 
 	@RequestMapping(value = "/allpendinglmapproval/list.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('su') or hasRole('lm-' + #labId) or hasRole('ga-*')")
+	@PreAuthorize("hasRole('su') or hasRole('lm-*') or hasRole('ga-*') or hasRole('ft-*') or hasRole('fm-*')")
 	public String allTasksPendingLmApproval(ModelMap m){
 		
 		List<UserPending> newUsersPendingLmApprovalList = new ArrayList<UserPending>();
 		List<LabUser> existingUsersPendingLmApprovalList = new ArrayList<LabUser>();
 		List<Job> jobsPendingLmApprovalList = new ArrayList<Job>();
-		int count = taskService.getAllLabManagerPendingTasks(newUsersPendingLmApprovalList, existingUsersPendingLmApprovalList, jobsPendingLmApprovalList);
+		/////int count = taskService.getAllLabManagerPendingTasks(newUsersPendingLmApprovalList, existingUsersPendingLmApprovalList, jobsPendingLmApprovalList);
+		int count = taskService.getLabManagerPendingTasks2(newUsersPendingLmApprovalList, existingUsersPendingLmApprovalList, jobsPendingLmApprovalList);
 		int count2 = newUsersPendingLmApprovalList.size() + existingUsersPendingLmApprovalList.size() + jobsPendingLmApprovalList.size();
 		m.addAttribute("count", count);
 		m.addAttribute("count2", count2);

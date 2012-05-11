@@ -116,6 +116,8 @@ public class DashboardController extends WaspController {
 		}
 		m.addAttribute("allLabManagerPendingTasks", allLabManagerPendingTasks);
 		
+		
+		
 		List<TaskMapping> taskMappings= new ArrayList<TaskMapping>();
 	
 		List<TaskMapping> taskMappingsAll=taskDao.getTaskMappings();
@@ -129,6 +131,14 @@ public class DashboardController extends WaspController {
 		}
 		
 		m.addAttribute("tasks",taskMappings);
+		
+		int numberOfLabManagerPendingTasks = taskService.getAllLabManagerPendingTasks();//if pi or lm, then number is dependent on labId(s), otherwise all such pi/lm tasks
+		m.addAttribute("numberOfLabManagerPendingTasks", numberOfLabManagerPendingTasks);
+		int numberOfDepartmentAdminPendingTasks = taskService.getDepartmentAdminPendingTasks();//if da, then number is dependent on the department(s) the da covers, otherwise all such da tasks
+		m.addAttribute("numberOfDepartmentAdminPendingTasks", numberOfDepartmentAdminPendingTasks);
+
+		int totalNumberOfTypesOfTasks = taskMappings.size() + (numberOfLabManagerPendingTasks>0?1:0) + (numberOfDepartmentAdminPendingTasks>0?1:0);
+		m.addAttribute("totalNumberOfTypesOfTasks", totalNumberOfTypesOfTasks);
 		
 		return "dashboard";
 	}

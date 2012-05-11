@@ -216,7 +216,7 @@
    
 
       
-<sec:authorize access="hasRole('su')"> 
+<sec:authorize access="hasRole('su') or hasRole('lm-*}') or hasRole('pi-*') or hasRole('fm-*') or hasRole('ft-*') or hasRole('ga-*')"> 
 <h1><fmt:message key="pageTitle.lab/pendinglmapproval/list.label"/></h1>
  
 <c:choose>

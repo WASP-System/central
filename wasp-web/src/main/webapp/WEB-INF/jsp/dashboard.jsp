@@ -11,10 +11,10 @@
 			<li><a href="#tabs-suUtils">Superuser Utils</a></li>
 		</sec:authorize>
 		<sec:authorize access="hasRole('da-*') or hasRole('su') or hasRole('ga')">
-			<li><a href="#tabs-daAdmin">Dept Admin (<span class="taskAlert"><c:out value="${departmentAdminPendingTasks}" /> tasks</span>)</a></li>
+			<li><a href="#tabs-daAdmin">Dept Admin <%-- (<span class="taskAlert"><c:out value="${departmentAdminPendingTasks}" /> tasks</span>)--%> </a></li>
 		</sec:authorize>
 		<sec:authorize access="hasRole('da-${labs[0].departmentId}') or hasRole('su') or hasRole('ga') or hasRole('fm')"> 
-			<li><a href="#tabs-labUtils">Lab Utils (<span class="taskAlert"><c:out value="${allLabManagerPendingTasks}" /> tasks</span>)</a></li>
+			<li><a href="#tabs-labUtils">Lab Utils <%-- (<span class="taskAlert"><c:out value="${allLabManagerPendingTasks}" /> tasks</span>)--%> </a></li>
 		</sec:authorize>
 		<sec:authorize access="not hasRole('da-${labs[0].departmentId}') and not hasRole('su') and not hasRole('ga') and not hasRole('fm')"> 
 			<sec:authorize access="hasRole('lm-${labs[0].labId}' )">
@@ -31,7 +31,8 @@
 		<sec:authorize access="hasRole('fm')">
 			<li><a href="#tabs-facilityUtils">Facility Utils</a></li>
 		</sec:authorize>
-		<li><a href="#tabs-taskList">Tasks (<span class="taskAlert"><c:out value="${fn:length(tasks)}" /></span>)</a></li>
+		<%-- <li><a href="#tabs-taskList">Tasks (<span class="taskAlert"><c:out value="${fn:length(tasks)}" /></span>)</a></li> --%>
+		<li><a href="#tabs-taskList">Tasks (<span class="taskAlert"><c:out value="${totalNumberOfTypesOfTasks}" /></span>)</a></li>
 	</ul>
 	<div id="tabs-home">
 		<ul class="navTabs">
@@ -78,28 +79,32 @@
 			<ul class="navTabs">
 				<li>
 					<a href='<c:url value="/department/list.do"/>'>Department Management</a>&nbsp;
-					<c:choose>
-						<c:when test='${departmentAdminPendingTasks == 0}'>(No Pending Departmental Tasks)</c:when>
-						<c:otherwise>
-							<span class="taskAlert"> (<c:out value="${departmentAdminPendingTasks}" /> Pending Department Administrator Task<c:if
-									test='${departmentAdminPendingTasks != 1}'>s</c:if>)
-							</span>
-						</c:otherwise>
-					</c:choose>
+						<%--
+					 	<c:choose>
+							<c:when test='${departmentAdminPendingTasks == 0}'>(No Pending Departmental Tasks)</c:when>
+							<c:otherwise>
+								<span class="taskAlert"> (<c:out value="${departmentAdminPendingTasks}" /> Pending Department Administrator Task<c:if
+										test='${departmentAdminPendingTasks != 1}'>s</c:if>)
+								</span>
+							</c:otherwise>
+						</c:choose>
+						--%>
 				</li>
-				<c:forEach items="${departments}" var="d">
-					<b><c:out value="${d.name}" /> </b>
-					<c:set var="departmentId" value="${d.departmentId}" />
-					<li>
+					<%--
+					<c:forEach items="${departments}" var="d">
+						<b><c:out value="${d.name}" /> </b>
+						<c:set var="departmentId" value="${d.departmentId}" />
+						<li>
 						<a href='<c:url value="/department/detail/${departmentId}.do"/>'>Department	Detail</a>
-					</li>
-					<li>
+						</li>
+						<li>
 						<a href='<c:url value="/department/pendinglab/list/${departmentId}.do"/>'>PendingLab Approval</a>
-					</li>
-					<li>
+						</li>
+						<li>
 						<a href='<c:url value="/task/daapproval/list/${departmentId}.do"/>'>Pending Department Admin Job Approval</a>
-					</li>
-				</c:forEach>
+						</li>
+					</c:forEach>
+					--%>
 			</ul>
 		</div>
 	</sec:authorize>
@@ -108,7 +113,9 @@
 
 	<sec:authorize access="hasRole('da-${labs[0].departmentId}') or hasRole('ft') or hasRole('su') or hasRole('ga') or hasRole('lu-${labs[0].labId}')">
 		<div id="tabs-labUtils">
-			<ul class="navTabs">
+			
+				<%-- 
+				<ul class="navTabs">
 				<sec:authorize access="hasRole('su') or hasRole('ga')">
 					<li>
 						<a href='<c:url value="/lab/allpendinglmapproval/list.do"/>'>All Labs Management</a>&nbsp;
@@ -122,6 +129,7 @@
 					</li>
 					</sec:authorize>
 				</ul>
+				--%>
 				
 				<ul class="navTabs">
 					<c:forEach items="${labs}" var="l">
@@ -142,6 +150,8 @@
 							</li>
 							<!-- li><a href="<c:url value="/task/lmapproval/list/${l.labId}.do"/>">Pending Lab Manager Approval</a></div-->
 							<!--  <li><a href="<c:url value="/task/lmapproval/list/${l.labId}.do"/>">Tasks Pending PI/Lab Manager Approval</a> -->
+					
+						<%-- 		
 							<li>
 								<a href='<c:url value="/lab/pendinglmapproval/list/${l.labId}.do"/>'>Tasks Pending PI/Lab Manager Approval</a>
 								<c:choose>
@@ -152,6 +162,9 @@
 									</c:otherwise>
 								</c:choose>
 							</li>
+						--%>	
+							
+							
 						</sec:authorize>
 					</c:forEach>
 			</ul>
@@ -249,10 +262,26 @@
 		<ul class="navTabs">
 			<c:forEach items="${tasks}" var="task">
 				<li>
-					<a href='<c:url value="${task.listMap}"/>'>${task.task.name}/${task.status}</a>	(${task.stateCount})
+					<a href='<c:url value="${task.listMap}"/>'>${task.task.name}<%-- /${task.status}--%></a>&nbsp; (${task.stateCount})
 				</li>
 	
 			</c:forEach>
+			
+			<sec:authorize	access="hasRole('da-*') or hasRole('su') or hasRole('ga-*') or hasRole('fm-*') or hasRole('ft-*') or hasRole('pi-*') or hasRole('lm-*') ">
+			<c:if test="${numberOfLabManagerPendingTasks > 0}">
+			<li>
+				<a href='<c:url value="/lab/allpendinglmapproval/list.do"/>'>Lab Management Tasks</a>&nbsp; (${numberOfLabManagerPendingTasks})
+			</li>
+			</c:if>
+			<c:if test="${numberOfDepartmentAdminPendingTasks > 0}">
+			<li>
+				<a href='<c:url value="/department/dapendingtasklist.do"/>'>Department Administration Tasks</a>&nbsp; (${numberOfDepartmentAdminPendingTasks})
+			</li>
+			</c:if>
+			</sec:authorize>
+			
+			
+			
 		</ul>
 	</div>
 </div>
