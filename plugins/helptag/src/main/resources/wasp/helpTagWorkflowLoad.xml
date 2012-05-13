@@ -47,9 +47,7 @@
 
     <property name="sampleSubtypes">
       <set>
-        <value>helpTagDnaSample</value>
         <value>helpTagLibrarySample</value>
-        <value>helpTagFacilityLibrarySample</value>
       </set>
     </property>
     

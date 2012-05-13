@@ -61,13 +61,13 @@
 --> 
 
   <!-- helpTag Library sample -->
-<!--   
+
   <bean id="helpTagLibraryUiFieldWrapper" class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper">
     <property name="baseLocale" value="en_US" />
-    <property name="baseArea" value="helptagLibrarySample" />
+    <property name="baseArea" value="helptagLibrary" />
   </bean>
 
-  <bean id="helpTagLibrarySpecificUiFields" class="edu.yu.einstein.wasp.model.UiField">
+  <bean id="helpTagLibrarySpecificUiFields" class="org.springframework.beans.factory.config.ListFactoryBean">
     <property name="sourceList">
      	<list value-type="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper">
 	        <bean parent="helpTagLibraryUiFieldWrapper">
@@ -96,7 +96,6 @@
 	      </list>
       </property>
   </bean>
- -->  
  
   <bean id="helpTagLibrarySampleSubtypeResource" class="edu.yu.einstein.wasp.load.SampleSubtypeLoadService">
   	<!-- <constructor-arg ref="helpTagDnaSampleSubtypeResource" /> -->
@@ -107,7 +106,7 @@
     	<list>
     		<ref bean="genericBiomoleculeUiFields" /> 
     		<ref bean="genericLibraryUiFields" /> 
-    		<!-- <ref bean="helpTagLibrarySpecificUiFields" /> -->
+    		<ref bean="helpTagLibrarySpecificUiFields" />
     	</list>
     </property>
     <property name="applicableRoles" value="ft,lu" />
