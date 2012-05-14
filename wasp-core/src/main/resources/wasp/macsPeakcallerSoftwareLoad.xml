@@ -68,11 +68,8 @@
           <property name="control" value="select:yes:yes;no:no" />
           <property name="default" value="no" />
         </bean>
-
-        
       </list>
     </property>
-
   </bean> 
 
 </beans>

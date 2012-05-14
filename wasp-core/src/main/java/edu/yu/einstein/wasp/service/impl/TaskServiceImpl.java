@@ -26,6 +26,7 @@ import edu.yu.einstein.wasp.dao.LabUserDao;
 import edu.yu.einstein.wasp.dao.RoleDao;
 import edu.yu.einstein.wasp.dao.StateDao;
 import edu.yu.einstein.wasp.dao.TaskDao;
+import edu.yu.einstein.wasp.dao.TaskMappingDao;
 import edu.yu.einstein.wasp.dao.UserPendingDao;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Lab;
@@ -74,6 +75,9 @@ public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 
 	@Autowired
 	private UserPendingDao			userPendingDao;
+
+	@Autowired
+	private TaskMappingDao			taskMappingDao;
 
 	@Autowired
 	private StateDao				stateDao;
@@ -158,13 +162,10 @@ public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 		List<State> result = new ArrayList<State>();
 
 		// further filter out states that do not match any of the task mappings
-		for (TaskMapping m : taskDao.getTaskMappings()) {
-			if (!m.getTaskId().equals(task.getTaskId()))
-				continue;
-
+		for (TaskMapping m : taskMappingDao.getTaskMappingByTaskId(task.getTaskId())) {
 			if (!m.getStatus().equals(status))
 				continue;
-
+ 
 			// let's just stick to jobId -> stateJob.jobId,
 			// labId->stateJob.job.labId, departmentId
 			// stateJob.job.lab.departmentId
@@ -174,7 +175,7 @@ public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 				String perm = expand(m.getPermission(), state);
 				try {
 					if (SecurityUtil.isAuthorized(perm)) {// check if user can
-															// see this state
+						// see this state
 						result.add(state); // yes, he can! add it to result
 						it.remove(); // and remove from the list of candidates
 					}
@@ -213,8 +214,8 @@ public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 		List<State> result = new ArrayList<State>();
 
 		if (permission.indexOf('#') == -1) {// no '#' means static permission.
-											// no needs to call "expand"
-											// function.
+			// no needs to call "expand"
+			// function.
 			try {
 				return SecurityUtil.isAuthorized(permission) ? candidates : result;
 			} catch (Throwable e) {
@@ -645,7 +646,7 @@ public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 				for (int departmentId : departmentIdList) {
 					themap.clear();
 					themap.put("departmentId", departmentId); // this is the new
-																// line
+					// line
 					themap.put("status", "PENDING");
 					labsPendingDaApprovalList.addAll(labPendingDao.findByMap(themap));
 
