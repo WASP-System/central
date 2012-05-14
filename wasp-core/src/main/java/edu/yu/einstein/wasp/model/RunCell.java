@@ -102,23 +102,23 @@ public class RunCell extends WaspModel {
 	protected Integer resourcecellId;
 
 	/**
-	 * setResourcelaneId(Integer resourcecellId)
+	 * setResourceCellId(Integer resourcecellId)
 	 *
 	 * @param resourcecellId
 	 *
 	 */
 	
-	public void setResourcelaneId (Integer resourcecellId) {
+	public void setResourceCellId (Integer resourcecellId) {
 		this.resourcecellId = resourcecellId;
 	}
 
 	/**
-	 * getResourcelaneId()
+	 * getResourceCellId()
 	 *
 	 * @return resourcecellId
 	 *
 	 */
-	public Integer getResourcelaneId () {
+	public Integer getResourceCellId () {
 		return this.resourcecellId;
 	}
 
