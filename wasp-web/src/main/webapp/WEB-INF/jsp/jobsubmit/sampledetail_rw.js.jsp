@@ -14,13 +14,6 @@
 					$('select#adaptor').children().remove().end();                 		            
 					return;
 				}
-
-				$.getJSON("/wasp/jobsubmit/adaptorsByAdaptorsetId.do",{adaptorsetId: selectedAdaptorSet, ajax: 'true'}, function(data, textStatus, jqXHR){
-					$.each(data, function (index, name) {         				    
-						options += '\n<option value="' + index + '">' + name + '</option>';
-					});
-					                 			  
-				});
 				 
 				$.ajax({
 					async: false,
