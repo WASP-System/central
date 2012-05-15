@@ -1276,7 +1276,7 @@ public class JobSubmissionController extends WaspController {
 			logger.warn("Could not get meta for class 'SampleDraftMeta':" + e.getMessage());
 		}
 		if (sampleDraft.getSampleType().getIName().equals("library")){
-			prepareAdaptorsetsAndAdaptors(jobDraft, m);
+			prepareAdaptorsetsAndAdaptors(jobDraft, normalizedMeta, m);
 		}
 		m.addAttribute("heading", messageService.getMessage("jobDraft.sample_edit_heading.label"));
 		m.addAttribute("normalizedMeta", normalizedMeta);
@@ -1358,7 +1358,7 @@ public class JobSubmissionController extends WaspController {
 			sdm.setSampleDraftMetaId(null);
 		}
 		if (sampleDraft.getSampleType().getIName().equals("library")){
-			prepareAdaptorsetsAndAdaptors(jobDraft, m);
+			prepareAdaptorsetsAndAdaptors(jobDraft, clone.getSampleDraftMeta(), m);
 		}
 		
 		m.addAttribute("heading", messageService.getMessage("jobDraft.sample_clone_heading.label"));
@@ -1401,7 +1401,7 @@ public class JobSubmissionController extends WaspController {
 			logger.warn("Could not get meta for class 'SampleDraftMeta':" + e.getMessage());
 		}
 		if (sampleDraft.getSampleType().getIName().equals("library")){
-			prepareAdaptorsetsAndAdaptors(jobDraft, m);
+			prepareAdaptorsetsAndAdaptors(jobDraft, normalizedMeta, m);
 		}
 		m.addAttribute("heading", messageService.getMessage("jobDraft.sample_add_heading.label"));
 		m.addAttribute("normalizedMeta", normalizedMeta);
@@ -1498,28 +1498,6 @@ public class JobSubmissionController extends WaspController {
 	  }
 	  
 	  /**
-	   * get adaptorsets and adaptors for populating model. If only one adaptor set exists then pre-populate the adaptors list with the adaptors 
-	   * available for that adaptor set otherwise populate with an empty adaptor list (will be filled by JSON request as adaptorset is selected)
-	   * @param jobDraft
-	   * @param m
-	   */
-	  private void prepareAdaptorsetsAndAdaptors(JobDraft jobDraft, ModelMap m){
-			List<Adaptor> adaptors = new ArrayList<Adaptor>();
-			List<Adaptorset> adaptorsets = new ArrayList<Adaptorset>();
-			for (JobDraftresourcecategory jdrc: jobDraft.getJobDraftresourcecategory()){
-				Map<String, Integer> adaptorsetRCQuery = new HashMap<String, Integer>();
-				adaptorsetRCQuery.put("resourcecategoryId", jdrc.getResourcecategoryId());
-				for (AdaptorsetResourceCategory asrc: adaptorsetResourceCategoryDao.findByMap(adaptorsetRCQuery))
-					adaptorsets.add(asrc.getAdaptorset());
-			}
-			if (adaptorsets.size() == 1){
-				adaptors = adaptorsets.get(0).getAdaptor();
-			}
-			m.addAttribute("adaptorsets", adaptorsets); // required for adaptorsets metadata control element (select:${adaptorsets}:adaptorsetId:name)
-			m.addAttribute("adaptors", adaptors); // required for adaptors metadata control element (select:${adaptors}:adaptorId:barcodenumber)
-		}
-		
-	  /**
 	   * get adaptorsets and adaptors for populating model. If a selected adaptor is found in the provided SampleDraftMeta
 	   * it is used to find appropriate adaptors
 	   * @param jobDraft
@@ -1527,17 +1505,30 @@ public class JobSubmissionController extends WaspController {
 	   * @param m
 	   */
 		private void prepareAdaptorsetsAndAdaptors(JobDraft jobDraft, List<SampleDraftMeta> sampleDraftMeta, ModelMap m){
-			prepareAdaptorsetsAndAdaptors(jobDraft, m);
+			List<Adaptorset> adaptorsets = new ArrayList<Adaptorset>();
+			for (JobDraftresourcecategory jdrc: jobDraft.getJobDraftresourcecategory()){
+				Map<String, Integer> adaptorsetRCQuery = new HashMap<String, Integer>();
+				adaptorsetRCQuery.put("resourcecategoryId", jdrc.getResourcecategoryId());
+				for (AdaptorsetResourceCategory asrc: adaptorsetResourceCategoryDao.findByMap(adaptorsetRCQuery))
+					adaptorsets.add(asrc.getAdaptorset());
+			}
+			m.addAttribute("adaptorsets", adaptorsets); // required for adaptorsets metadata control element (select:${adaptorsets}:adaptorsetId:name)
+			
+			List<Adaptor> adaptors = new ArrayList<Adaptor>();
 			Adaptorset selectedAdaptorset = null;
 			try{	
 	  			selectedAdaptorset = adaptorsetDao.getAdaptorsetByAdaptorsetId(Integer.valueOf( MetaHelper.getMetaValue("genericLibrary", "adaptorset", sampleDraftMeta)) );
 	  		} catch(MetadataException e){
-	  			logger.warn("Cannot get metadata : " + e.getMessage());
+	  			logger.debug("Cannot get metadata genericLibrary.adaptorset. Presumably not be defined: " + e.getMessage());
 	  		} catch(NumberFormatException e){
 	  			logger.warn("Cannot convert to numeric value for metadata " + e.getMessage());
 	  		}
-			if (selectedAdaptorset != null)
-				m.addAttribute("adaptors", selectedAdaptorset.getAdaptor());
+			if (selectedAdaptorset != null){
+				adaptors = selectedAdaptorset.getAdaptor();
+			} else if (adaptorsets.size() == 1){
+				adaptors = adaptorsets.get(0).getAdaptor();
+			}
+			m.addAttribute("adaptors", adaptors); // required for adaptors metadata control element (select:${adaptors}:adaptorId:barcodenumber)
 		}
 
 /*
