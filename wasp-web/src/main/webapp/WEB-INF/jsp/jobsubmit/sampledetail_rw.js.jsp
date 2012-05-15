@@ -15,8 +15,9 @@
     $(function(){
 		$('select#adaptorset').change(function() {      
 				var selectedAdaptorSet=$('select#adaptorset option:selected').val();
-				var options = '<option value=""><fmt:message key="wasp.default_select.label" /></option>';
+				var options = '';
 				var url = "/wasp/jobsubmit/adaptorsByAdaptorsetId.do?adaptorsetId=" + selectedAdaptorSet;
+				var adaptorCount = 0;
 				if (!selectedAdaptorSet) {
 					$('tr#row_adaptor').hide();
 					$('select#adaptor').children().remove().end();                 		            
@@ -29,11 +30,15 @@
 				    dataType: "json",
 				    success: function(data) {
 				    	$.each(data, function (index, name) {         				    
-							options += '\n<option value="' + index + '">' + name + '</option>';
+							options += '<option value="' + index + '">' + name + '</option>\n';
+							adaptorCount++;
 						});
 				    }
 				});   
-				$('select#adaptor').html(options);    
+				if (adaptorCount > 1){
+					options = '<option value=""><fmt:message key="wasp.default_select.label" /></option>' + options;
+				}
+				$('select#adaptor').html(options);
 				$('tr#row_adaptor').show();
 		   	});
 	    });
