@@ -10,7 +10,7 @@
 		<c:set var="labelKey" value="${fn:replace(_meta.k, _myArea, _myCtxArea)}.label" />
 		<c:set var="id" value="${fn:substringAfter(_meta.k,'.')}" />
 
-		<tr class="FormData">
+		<tr class="FormData" id="row_${id}">
 			<td class="CaptionTD"><fmt:message key="${labelKey}"/>:</td>
 			<td class="DataTD">
 			<c:choose>
