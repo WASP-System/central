@@ -428,7 +428,7 @@ public class SampleDnaToLibraryController extends WaspController {
 	  }
 	  m.addAttribute("job", job);
 
-	  Map<String, String> extraJobDetailsMap = getExtraJobDetails(job);
+	  Map<String, String> extraJobDetailsMap = jobService.getExtraJobDetails(job);
 	  m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);
 	  
 	  List<Adaptorset> adaptorsetList = adaptorsetDao.findAll();
@@ -657,7 +657,7 @@ public class SampleDnaToLibraryController extends WaspController {
 	  }
 
 	  Job job = jobDao.getJobByJobId(jobId);
-	  Map<String, String> extraJobDetailsMap = getExtraJobDetails(job);
+	  Map<String, String> extraJobDetailsMap = jobService.getExtraJobDetails(job);
 	  m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);
 
 	  Sample macromoleculeSample = sampleDao.getSampleBySampleId(macromolSampleId);
@@ -723,7 +723,7 @@ public class SampleDnaToLibraryController extends WaspController {
 	  Sample parentMacromolecule = sampleDao.getSampleBySampleId(macromolSampleId);
 	  Job jobForThisSample = jobDao.getJobByJobId(jobId);
 
-	  Map<String, String> extraJobDetailsMap = getExtraJobDetails(jobForThisSample);
+	  Map<String, String> extraJobDetailsMap = jobService.getExtraJobDetails(jobForThisSample);
 	  m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);
 
 	  libraryForm.setName(libraryForm.getName().trim());
@@ -956,7 +956,7 @@ public class SampleDnaToLibraryController extends WaspController {
 		if (libraryIn.getSampleId() == null)
 			libraryIn.setSampleId(libraryInId);
 		m.addAttribute("job", job);
-		m.addAttribute("extraJobDetailsMap", getExtraJobDetails(job));
+		m.addAttribute("extraJobDetailsMap", jobService.getExtraJobDetails(job));
 		m.addAttribute("sample", libraryIn);
 		m.addAttribute("adaptor", adaptor);
 		m.addAttribute("parentMacromolecule", parentMacromolecule);
@@ -987,7 +987,7 @@ public class SampleDnaToLibraryController extends WaspController {
 	  
 	  Job job = jobDao.getJobByJobId(jobId);
 	  	  
-	  Map<String, String> extraJobDetailsMap = getExtraJobDetails(job);
+	  Map<String, String> extraJobDetailsMap = jobService.getExtraJobDetails(job);
 	  m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);
 
 	  Sample sample= sampleDao.getSampleBySampleId(sampleId);
@@ -1019,7 +1019,7 @@ public class SampleDnaToLibraryController extends WaspController {
 		
 	  Job jobForThisSample = jobDao.getJobByJobId(jobId);
 	  
-	  Map<String, String> extraJobDetailsMap = getExtraJobDetails(jobForThisSample);
+	  Map<String, String> extraJobDetailsMap = jobService.getExtraJobDetails(jobForThisSample);
 	  m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);
 		  	  		  
 	  sampleForm.setName(sampleForm.getName().trim());//from the form
@@ -1046,6 +1046,8 @@ public class SampleDnaToLibraryController extends WaspController {
   
   
   private Map<String, String> getExtraJobDetails(Job job){
+	  
+	  //replaced by JobService.getExtraJobDetails(job)
 	  
 	  Map<String, String> extraJobDetailsMap = new HashMap<String, String>();
 

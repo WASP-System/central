@@ -29,6 +29,8 @@ import edu.yu.einstein.wasp.dao.WorkflowDao;
 import edu.yu.einstein.wasp.dao.TaskDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.JobMeta;
+import edu.yu.einstein.wasp.model.JobResourcecategory;
 import edu.yu.einstein.wasp.model.JobSample;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSubtype;
@@ -202,5 +204,32 @@ public class JobServiceImpl extends WaspServiceImpl implements JobService {
 			    }
 		  }
 		  Collections.sort(jobs, new JobIdComparator());//sort by job ID 
+	  }
+	  
+	  /**
+	   * {@inheritDoc}
+	   */
+	  @Override
+	  public Map<String, String> getExtraJobDetails(Job job){
+		    
+		  Map<String, String> extraJobDetailsMap = new HashMap<String, String>();
+
+		  List<JobResourcecategory> jobResourceCategoryList = job.getJobResourcecategory();
+		  for(JobResourcecategory jrc : jobResourceCategoryList){
+			  if(jrc.getResourceCategory().getResourceType().getIName().equals("mps")){
+				  extraJobDetailsMap.put("Machine", jrc.getResourceCategory().getName());
+				  break;
+			  }
+		  }
+		  for(JobMeta jobMeta : job.getJobMeta()){
+			  if(jobMeta.getK().indexOf("readLength") != -1){
+				  extraJobDetailsMap.put("Read Length", jobMeta.getV());
+			  }
+			  if(jobMeta.getK().indexOf("readType") != -1){
+				  extraJobDetailsMap.put("Read Type", jobMeta.getV().toUpperCase());
+			  }
+		  }
+
+		  return extraJobDetailsMap;	  
 	  }
 }

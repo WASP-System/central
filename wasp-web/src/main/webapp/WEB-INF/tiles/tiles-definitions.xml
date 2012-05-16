@@ -121,10 +121,12 @@
 		<put-attribute name="head-js" value="/WEB-INF/jsp/lab/pendinglmapproval/list.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/lab/pendinglmapproval/list.jsp" />
 	</definition>
+	<!--  no longer being used
 	<definition name="lab/allpendinglmapproval/list" extends="template-base">
 		<put-attribute name="head-js" value="/WEB-INF/jsp/lab/allpendinglmapproval/list.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/lab/allpendinglmapproval/list.jsp" />
 	</definition>
+	-->
 	<definition name="user/mypassword" extends="template-base">
 		<put-attribute name="head-js" value="/WEB-INF/jsp/user/mypassword.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/user/mypassword.jsp" />
@@ -317,6 +319,7 @@
 		<put-attribute name="body-content" value="/WEB-INF/jsp/lab/pendinguser/list.jsp" />
 	</definition>
 	<definition name="department/dapendingtasks" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/department/dapendingtasks.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/department/dapendingtasks.jsp" />
 	</definition>
 	<definition name="jobsubmit/sample" extends="template-base">

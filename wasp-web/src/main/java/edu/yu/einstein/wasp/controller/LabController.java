@@ -45,13 +45,17 @@ import edu.yu.einstein.wasp.model.LabPendingMeta;
 import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.Role;
+import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserMeta;
 import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.model.UserPendingMeta;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.EmailService;
+import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.MessageService;
+import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.TaskService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 import edu.yu.einstein.wasp.util.MetaHelper;
@@ -90,10 +94,16 @@ public class LabController extends WaspController {
 
 	@Autowired
 	private EmailService emailService;
-	
+
+	@Autowired
+	private JobService jobService;
+
 	@Autowired
 	private MessageService messageService; 
-	  
+	
+	@Autowired
+	private SampleService sampleService;
+	
 	@Autowired
 	private AuthenticationService authenticationService;
 	
@@ -1024,7 +1034,7 @@ public class LabController extends WaspController {
 	 * @return
 	 */
 	@RequestMapping(value = "/labuserpending/{action}/{labId}/{labUserId}.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('su') or hasRole('lm-' + #labId)")
+	@PreAuthorize("hasRole('su') or hasRole('lm-' + #labId) or hasRole('fm-*') or hasRole('ft-*')")
 	public String labUserPendingDetail(@PathVariable("labId") Integer labId,
 									   @PathVariable("labUserId") Integer labUserId,
 									   @PathVariable("action") String action, ModelMap m){
@@ -1075,7 +1085,7 @@ public class LabController extends WaspController {
 	 * @throws MetadataException
 	 */
 	@RequestMapping(value = "/userpending/{action}/{labId}/{userPendingId}.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('su') or hasRole('lm-' + #labId)")
+	@PreAuthorize("hasRole('su') or hasRole('lm-' + #labId) or hasRole('fm-*') or hasRole('ft-*')")
 	public String userPendingDetail(@PathVariable("labId") Integer labId,
 			@PathVariable("userPendingId") Integer userPendingId,
 			@PathVariable("action") String action, ModelMap m)
@@ -1122,7 +1132,7 @@ public class LabController extends WaspController {
 
 	/**
 	 * Request-mapped function that allows a department administrator to accept
-	 * or reject an application for a new lab within their department.
+	 * or reject an application for a new lab (new PI) within their department.
 	 * 
 	 * @param departmentId
 	 * @param labPendingId
@@ -1133,36 +1143,34 @@ public class LabController extends WaspController {
 	 */
 
 	@RequestMapping(value = "/pending/{action}/{deptId}/{labPendingId}.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('su') or hasRole('da-' + #deptId) or hasRole('ga-*')")
+	@PreAuthorize("hasRole('su') or hasRole('da-' + #deptId) or hasRole('ga-*') or hasRole('fm') or hasRole('ft') ")
 	public String labPendingDetail(@PathVariable("deptId") Integer deptId,
 			@PathVariable("labPendingId") Integer labPendingId,
 			@PathVariable("action") String action, ModelMap m)
 			throws MetadataException {
 
+		String referer = request.getHeader("Referer");
+		
 		if (!(action.equals("approve") || action.equals("reject"))) {
 			waspErrorMessage("labPending.action.error");
-			//return "redirect:/department/detail/" + deptId + ".do";
-			return "redirect:/department/dapendingtasklist.do";
+			return "redirect:"+ referer;
 		}
 		LabPending labPending = labPendingDao.getLabPendingByLabPendingId(labPendingId);
-		if (! labPending.getStatus().equals("PENDING") ) {
+		if (labPending.getLabPendingId()==null || labPending.getLabPendingId().intValue()==0 || ! labPending.getStatus().equals("PENDING") ) {
 			waspErrorMessage("labPending.status_not_pending.error");
-			//return "redirect:/department/detail/" + deptId + ".do";
-			return "redirect:/department/dapendingtasklist.do";
+			return "redirect:"+ referer;
 		}
 		
 		if (labPending.getDepartmentId().intValue() != deptId.intValue()) {
 			waspErrorMessage("labPending.departmentid_mismatch.error");
-			//return "redirect:/department/detail/" + deptId + ".do";
-			return "redirect:/department/dapendingtasklist.do";
+			return "redirect:"+ referer;
 		}
 
 		if ("approve".equals(action)) {
 			Lab lab = createLabFromLabPending(labPending);
-			if (lab.getLabId() == null || lab.getLabId() == 0){
+			if (lab.getLabId() == null || lab.getLabId().intValue() == 0){
 				waspErrorMessage("labPending.could_not_create_lab.error");
-				//return "redirect:/department/detail/" + deptId + ".do";
-				return "redirect:/department/dapendingtasklist.do";
+				return "redirect:"+ referer;
 			}
 			emailService.sendPendingLabNotifyAccepted(lab);
 			waspMessage("labPending.approved.label");
@@ -1176,15 +1184,16 @@ public class LabController extends WaspController {
 				waspMessage("labPending.rejected.label");
 			} else if (labPending.getPrimaryUserId() == null){
 				waspErrorMessage("labPending.could_not_create_lab.error");
-				//return "redirect:/department/detail/" + deptId + ".do";
-				return "redirect:/department/dapendingtasklist.do";
+				return "redirect:"+ referer;
 			}
 			emailService.sendPendingLabNotifyRejected(labPending);
 		}
 		labPending.setStatus(action);
 		labPendingDao.save(labPending);
 		//return "redirect:/department/detail/" + deptId + ".do";
-		return "redirect:/department/dapendingtasklist.do";
+		//return "redirect:/department/dapendingtasklist.do";
+		
+		return "redirect:"+ referer;
 	}
 	
 	/**
@@ -1349,44 +1358,49 @@ public class LabController extends WaspController {
 		//m.addAttribute("departments", deptDao.findAll());
 	}
 
-	@RequestMapping(value = "/pendinglmapproval/list/{labId}.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('su') or hasRole('lm-' + #labId) or hasRole('ga-*')")
-	public String tasksPendingLmApproval(@PathVariable("labId") Integer labId, ModelMap m){
-		
-		//Map jobMetaMap = new HashMap();
-		Lab lab = labDao.getLabByLabId(labId);
-		List<UserPending> newUsersPendingLmApprovalList = new ArrayList<UserPending>();
-		List<LabUser> existingUsersPendingLmApprovalList = new ArrayList<LabUser>();
-		List<Job> jobsPendingLmApprovalList = new ArrayList<Job>();
-		taskService.getLabManagerPendingTasks(labId, newUsersPendingLmApprovalList, existingUsersPendingLmApprovalList, jobsPendingLmApprovalList);
-		//for(Job job : jobsPendingLmApprovalList){
-		//	List<JobMeta> jobMetaList = job.getJobMeta();
-		//	jobMetaMap.put(job.getJobId(), jobMetaList);
-		//}
-		//m.addAttribute("jobmetamap", jobMetaMap);
-		m.addAttribute("lab", lab);
-		m.addAttribute("newuserspendinglist", newUsersPendingLmApprovalList); 
-		m.addAttribute("existinguserspendinglist", existingUsersPendingLmApprovalList); 
-		m.addAttribute("jobspendinglist", jobsPendingLmApprovalList); 
-		return "lab/pendinglmapproval/list";
-	}
-
-	@RequestMapping(value = "/allpendinglmapproval/list.do", method = RequestMethod.GET)
+	@RequestMapping(value = "/pendinglmapproval/list.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('lm-*') or hasRole('ga-*') or hasRole('ft-*') or hasRole('fm-*')")
-	public String allTasksPendingLmApproval(ModelMap m){
+	public String pendingLmApprovalList(ModelMap m){
 		
 		List<UserPending> newUsersPendingLmApprovalList = new ArrayList<UserPending>();
 		List<LabUser> existingUsersPendingLmApprovalList = new ArrayList<LabUser>();
 		List<Job> jobsPendingLmApprovalList = new ArrayList<Job>();
-		/////int count = taskService.getAllLabManagerPendingTasks(newUsersPendingLmApprovalList, existingUsersPendingLmApprovalList, jobsPendingLmApprovalList);
-		int count = taskService.getLabManagerPendingTasks2(newUsersPendingLmApprovalList, existingUsersPendingLmApprovalList, jobsPendingLmApprovalList);
-		int count2 = newUsersPendingLmApprovalList.size() + existingUsersPendingLmApprovalList.size() + jobsPendingLmApprovalList.size();
-		m.addAttribute("count", count);
-		m.addAttribute("count2", count2);
+		taskService.getLabManagerPendingTasks(newUsersPendingLmApprovalList, existingUsersPendingLmApprovalList, jobsPendingLmApprovalList);
+		
+		//finish up with pending jobs		
+		jobService.sortJobsByJobId(jobsPendingLmApprovalList);
 		m.addAttribute("newuserspendinglist", newUsersPendingLmApprovalList); 
 		m.addAttribute("existinguserspendinglist", existingUsersPendingLmApprovalList); 
 		m.addAttribute("jobspendinglist", jobsPendingLmApprovalList); 
-		return "lab/allpendinglmapproval/list";
+		
+		Map<Job, List<Sample>> jobSubmittedSamplesMap = new HashMap<Job, List<Sample>>();
+		Map<Job, Map<String,String>> jobExtraJobDetailsMap = new HashMap<Job, Map<String,String>>();
+		Map<Sample, String> sampleSpeciesMap = new HashMap<Sample, String>();
+		for(Job job : jobsPendingLmApprovalList){
+			jobExtraJobDetailsMap.put(job, jobService.getExtraJobDetails(job));
+			List<Sample> sampleList = jobService.getSubmittedSamples(job);
+			sampleService.sortSamplesBySampleName(sampleList);
+			jobSubmittedSamplesMap.put(job, sampleList);
+			for(Sample sample : sampleList){
+				int speciesFound = 0;
+				for(SampleMeta sampleMeta : sample.getSampleMeta()){
+					if(sampleMeta.getK().indexOf("species") > -1){
+						sampleSpeciesMap.put(sample, sampleMeta.getV());
+						speciesFound = 1;
+						break;
+					}
+				}
+				if(speciesFound == 0){
+					sampleSpeciesMap.put(sample, new String("Unknown"));
+				}
+			}
+			
+		}
+		m.addAttribute("jobExtraJobDetailsMap", jobExtraJobDetailsMap);
+		m.addAttribute("jobSubmittedSamplesMap", jobSubmittedSamplesMap);
+		m.addAttribute("sampleSpeciesMap", sampleSpeciesMap);
+		
+		return "lab/pendinglmapproval/list";
 	}
 
 	

@@ -500,7 +500,8 @@ public class JobController extends WaspController {
 	    
 	    return "job/pendingjob/detail_ro";
   }
-  
+ 
+  /* 5/15/12 should not longer be user
   @RequestMapping(value = "/allpendinglmapproval/{action}/{labId}/{jobId}.do", method = RequestMethod.GET)
   @PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('lm-' + #labId) or hasRole('pi-' + #labId)")
 	public String allPendingLmApproval(@PathVariable("action") String action, @PathVariable("labId") Integer labId, @PathVariable("jobId") Integer jobId, ModelMap m) {
@@ -509,40 +510,48 @@ public class JobController extends WaspController {
 	  
 	  return "redirect:/lab/allpendinglmapproval/list.do";	
 	}
+  */
   
   @RequestMapping(value = "/pendinglmapproval/{action}/{labId}/{jobId}.do", method = RequestMethod.GET)
-  @PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('lm-' + #labId) or hasRole('pi-' + #labId)")
+  @PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('fm') or hasRole('ft') or hasRole('lm-' + #labId) or hasRole('pi-' + #labId)")
 	public String pendingLmApproval(@PathVariable("action") String action, @PathVariable("labId") Integer labId, @PathVariable("jobId") Integer jobId, ModelMap m) {
 	  
 	  pendingJobApproval(action, jobId, "LM");//could use PI instead of LM
-	  
-	  return "redirect:/lab/pendinglmapproval/list/" + labId + ".do";	
+	  String referer = request.getHeader("Referer");
+	  return "redirect:"+ referer;
+	  //return "redirect:/lab/pendinglmapproval/list.do";	
 	}
   
   @RequestMapping(value = "/pendingdaapproval/{action}/{deptId}/{jobId}.do", method = RequestMethod.GET)
-  @PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('da-' + #deptId)")
+  @PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('fm') or hasRole('ft') or hasRole('ga') or hasRole('da-' + #deptId)")
 	public String pendingDaApproval(@PathVariable("action") String action, @PathVariable("deptId") Integer deptId, @PathVariable("jobId") Integer jobId, ModelMap m) {
 	  
 	  pendingJobApproval(action, jobId, "DA");//private method below
-	  return "redirect:/department/dapendingtasklist.do";		  
+	  String referer = request.getHeader("Referer");
+	  return "redirect:"+ referer;
+	  //return "redirect:/department/dapendingtasklist.do";		  
 	}
  
   private void pendingJobApproval(String action, Integer jobId, String approver){
-	  //logger.debug("ROBERT DUBIN : ACTION: " + action);
-	  //logger.debug("ROBERT DUBIN : APPROVER: " + approver);
-	 // logger.debug("ROBERT DUBIN : Job ID: " + jobId);
+
 	  Task taskOfInterest;
-	  boolean updated = false;
 	  //confirm action is either approve or reject
-	  Job job = jobDao.getJobByJobId(jobId);//confirm id > 0
+	  Job job = jobDao.getJobByJobId(jobId);
+	  if(job.getJobId()==null || job.getJobId().intValue() == 0){//confirm id > 0
+		  waspErrorMessage("job.approval.error"); 
+		  return;
+	  }
 	  if("DA".equals(approver)){
-		  taskOfInterest = taskDao.getTaskByIName("DA Approval");//confirm id > 0
+		  taskOfInterest = taskDao.getTaskByIName("DA Approval");//confirm task id > 0 is below
 	  }
 	  else if("LM".equals(approver) || "PI".equals(approver)){
-		 taskOfInterest = taskDao.getTaskByIName("PI Approval");//confirm id > 0
+		 taskOfInterest = taskDao.getTaskByIName("PI Approval");//confirm task id > 0 is below
 	  }
 	  else{
-		  taskOfInterest = taskDao.getTaskByIName("");//should never get here
+		  waspErrorMessage("job.approval.error"); 
+		  return;
+	  }
+	  if(taskOfInterest.getTaskId()==null || taskOfInterest.getTaskId().intValue()==0){//confirm id > 0
 		  waspErrorMessage("job.approval.error"); 
 		  return;
 	  }
@@ -551,21 +560,18 @@ public class JobController extends WaspController {
 		  State state = statejob.getState();
 		  if(taskOfInterest.getTaskId()==state.getTaskId()){
 			  if("approve".equals(action)){
-				  state.setStatus("APPROVED");
+				  state.setStatus("COMPLETED");
 				  stateDao.save(state);
-				  //logger.debug("ROBERT DUBIN : State saved to approved for stateId: " + state.getStateId());
-				  updated = true; waspMessage("job.approval.approved"); break;
+				  waspMessage("job.approval.approved"); break;
 			  }
 			  else if("reject".equals(action)){
-				  state.setStatus("REJECTED");
+				  state.setStatus("ABANDONED");
 				  stateDao.save(state); 
-				 // logger.debug("ROBERT DUBIN : State saved to rejected for stateId: " + state.getStateId());
-				  updated = true; waspMessage("job.approval.rejected"); break;
+				  waspMessage("job.approval.rejected"); break;
 			  }			 
 		  }
 	  }
-	  
-	 // flow returns to calling method, either pendingDaApproval or pendingLmApproval
+	  return;	 // flow returns to calling method, either pendingDaApproval or pendingLmApproval
   }
 
 

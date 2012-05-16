@@ -56,16 +56,16 @@ public interface TaskService extends WaspService {
 	public List<State> getStatesByTaskMappingRule(Task task, String status);
 
 	public List<State> filterStatesByStatusAndPermission(List<State> states, String status, String permsission);
-
+/* these three out 5/15/12
 	public int getLabManagerPendingTasks(int labId);
 
 	public int getLabManagerPendingTasks(int labId, List<UserPending> newUsersPendingLmApprovalList, List<LabUser> existingUsersPendingLmApprovalList, List<Job> jobsPendingLmApprovalList);
 
 	public int getLabManagerPendingTasks2(List<UserPending> newUsersPendingLmApprovalList, List<LabUser> existingUsersPendingLmApprovalList, List<Job> jobsPendingLmApprovalList);
+*/
+	public int getLabManagerPendingTasks();
 
-	public int getAllLabManagerPendingTasks();
-
-	public int getAllLabManagerPendingTasks(List<UserPending> newUsersPendingLmApprovalList, List<LabUser> existingUsersPendingLmApprovalList, List<Job> jobsPendingLmApprovalList);
+	public int getLabManagerPendingTasks(List<UserPending> newUsersPendingLmApprovalList, List<LabUser> existingUsersPendingLmApprovalList, List<Job> jobsPendingLmApprovalList);
 
 	public int getDepartmentAdminPendingTasks();
 

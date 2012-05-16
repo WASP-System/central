@@ -59,20 +59,10 @@ public class DashboardController extends WaspController {
 
 	@RequestMapping("/dashboard")
 	public String list(ModelMap m) {
-		//List<Department> departmentList = new ArrayList<Department>();
 		List<Lab> labList = new ArrayList<Lab>();
 		int jobViewableCount = 0;
 		int jobsAllCount = 0;
 		int jobDraftCount = 0;
-		HashMap labMap = new HashMap();
-		
-		int departmentAdminPendingTasks = 0;
-		int allLabManagerPendingTasks = 0;
-
-		
-		
-		//List<State> states=taskDao.getStatesByTaskMappingRule(taskDao.findById(1), "CREATED");
-		
 		
 		for (String role: authenticationService.getRoles()) {			
 			
@@ -93,30 +83,18 @@ public class DashboardController extends WaspController {
 
 			// adds the role object to the proper bucket
 			switch (entityRolename) {
-				////case da: /* departmentList.add(departmentDao.getDepartmentByDepartmentId(roleObjectId)); break; */ 
-				case lu: labList.add(labDao.getLabByLabId(roleObjectId)); labMap.put(roleObjectId, taskService.getLabManagerPendingTasks(roleObjectId));break;
+				case lu: labList.add(labDao.getLabByLabId(roleObjectId)); break; 
 				case jv: jobViewableCount++; break;
 				case jd: jobDraftCount++; break;
 			}
 		}
 		jobsAllCount = jobDao.findAll().size();
 		m.addAttribute("me", authenticationService.getAuthenticatedUser());
-		
-		//m.addAttribute("departments", departmentList);  //no longer needed
-		departmentAdminPendingTasks = taskService.getDepartmentAdminPendingTasks();//number of da pending tasks (if su or ga, then department not considered)	
-		m.addAttribute("departmentAdminPendingTasks", departmentAdminPendingTasks);		
-		
+				
 		m.addAttribute("labs", labList);
-		m.addAttribute("labmap", labMap);
 		m.addAttribute("jobViewableCount", jobViewableCount);
 		m.addAttribute("jobsAllCount", jobsAllCount);
 		m.addAttribute("jobDraftCount", jobDraftCount);	
-		if(authenticationService.isSuperUser() || authenticationService.hasRole("ga")){
-			allLabManagerPendingTasks = taskService.getAllLabManagerPendingTasks();
-		}
-		m.addAttribute("allLabManagerPendingTasks", allLabManagerPendingTasks);
-		
-		
 		
 		List<TaskMapping> taskMappings= new ArrayList<TaskMapping>();
 	
@@ -132,7 +110,7 @@ public class DashboardController extends WaspController {
 		
 		m.addAttribute("tasks",taskMappings);
 		
-		int numberOfLabManagerPendingTasks = taskService.getAllLabManagerPendingTasks();//if pi or lm, then number is dependent on labId(s), otherwise all such pi/lm tasks
+		int numberOfLabManagerPendingTasks = taskService.getLabManagerPendingTasks();//if pi or lm, then number is dependent on labId(s), otherwise all such pi/lm tasks
 		m.addAttribute("numberOfLabManagerPendingTasks", numberOfLabManagerPendingTasks);
 		int numberOfDepartmentAdminPendingTasks = taskService.getDepartmentAdminPendingTasks();//if da, then number is dependent on the department(s) the da covers, otherwise all such da tasks
 		m.addAttribute("numberOfDepartmentAdminPendingTasks", numberOfDepartmentAdminPendingTasks);

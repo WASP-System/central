@@ -36,8 +36,12 @@ import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabMeta;
 import edu.yu.einstein.wasp.model.LabPending;
 import edu.yu.einstein.wasp.model.MetaBase;
+import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.service.AuthenticationService;
+import edu.yu.einstein.wasp.service.JobService;
+import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.TaskService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 import edu.yu.einstein.wasp.util.StringHelper;
@@ -93,6 +97,12 @@ public class DepartmentController extends WaspController {
 	
 	@Autowired
 	private TaskService taskService;
+	
+	@Autowired
+	private JobService jobService;
+	
+	@Autowired
+	private SampleService sampleService;
 
 	// private static final MetaAttribute.Area AREA =
 	// MetaAttribute.Area.labPending;
@@ -478,23 +488,46 @@ public class DepartmentController extends WaspController {
 	}
 
 	@RequestMapping(value = "/dapendingtasklist", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('su') or hasRole('da-*') or hasRole('fm-*') or hasRole('ga-*')")
+	@PreAuthorize("hasRole('su') or hasRole('da-*') or hasRole('fm-*') or hasRole('ft-*') or hasRole('ga-*')")
 	public String departmentAdminPendingTaskList(ModelMap m) {
 
 		List<LabPending> labsPendingDaApprovalList = new ArrayList<LabPending>();
 		List<Job> jobsPendingDaApprovalList = new ArrayList<Job>();
 
 		taskService.getDepartmentAdminPendingTasks(labsPendingDaApprovalList, jobsPendingDaApprovalList);
-		// logger.debug("ROB : total number of labs pending: " + labsPendingDaApprovalList.size());
-		// logger.debug("ROB : total number of jobs pending: " + jobsPendingDaApprovalList.size());
-		// logger.debug("ROB : count of tasks: " + count);
 		m.addAttribute("labspendinglist", labsPendingDaApprovalList);
+		
+		//finish up with pending jobs		
+		jobService.sortJobsByJobId(jobsPendingDaApprovalList);
 		m.addAttribute("jobspendinglist", jobsPendingDaApprovalList);
-		m.addAttribute("sizelabspendinglist", labsPendingDaApprovalList.size());
-		m.addAttribute("sizejobspendinglist", jobsPendingDaApprovalList.size());
-		m.addAttribute("actingasrole", "da");
+		
+		Map<Job, List<Sample>> jobSubmittedSamplesMap = new HashMap<Job, List<Sample>>();
+		Map<Job, Map<String,String>> jobExtraJobDetailsMap = new HashMap<Job, Map<String,String>>();
+		Map<Sample, String> sampleSpeciesMap = new HashMap<Sample, String>();
+		for(Job job : jobsPendingDaApprovalList){
+			jobExtraJobDetailsMap.put(job, jobService.getExtraJobDetails(job));
+			List<Sample> sampleList = jobService.getSubmittedSamples(job);
+			sampleService.sortSamplesBySampleName(sampleList);
+			jobSubmittedSamplesMap.put(job, sampleList);
+			for(Sample sample : sampleList){
+				int speciesFound = 0;
+				for(SampleMeta sampleMeta : sample.getSampleMeta()){
+					if(sampleMeta.getK().indexOf("species") > -1){
+						sampleSpeciesMap.put(sample, sampleMeta.getV());
+						speciesFound = 1;
+						break;
+					}
+				}
+				if(speciesFound == 0){
+					sampleSpeciesMap.put(sample, new String("Unknown"));
+				}
+			}			
+		}
+		m.addAttribute("jobExtraJobDetailsMap", jobExtraJobDetailsMap);
+		m.addAttribute("jobSubmittedSamplesMap", jobSubmittedSamplesMap);
+		m.addAttribute("sampleSpeciesMap", sampleSpeciesMap);	
+		
 		return "department/dapendingtasks";
-
 	}
 
 }

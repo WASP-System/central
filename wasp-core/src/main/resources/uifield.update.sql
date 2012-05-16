@@ -913,6 +913,16 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','lmpendingtask','subtitle1_none','label','No Pending Users','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','lmpendingtask','subtitle2','label','Pending Jobs','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','lmpendingtask','subtitle2_none','label','No Pending Jobs','1');
+
+
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','dapendingtask','title','label','Department Administrator Pending Tasks','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','dapendingtask','subtitle1','label','Pending Principal Investigators','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','dapendingtask','subtitle1_none','label','Pending Principal Investigators','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','dapendingtask','subtitle2','label','Pending Jobs','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','dapendingtask','subtitle2_none','label','No Pending Jobs','1');
+
+
+
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','samplereceivetask','subtitle_none','label','No Pending Samples','1');
 
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','department','detail_pendingjobs','label','Pending Jobs','1');

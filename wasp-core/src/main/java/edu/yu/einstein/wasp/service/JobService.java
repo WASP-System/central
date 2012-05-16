@@ -11,6 +11,7 @@
 package edu.yu.einstein.wasp.service;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
@@ -79,5 +80,11 @@ public interface JobService extends WaspService {
 	 */
 	public void sortJobsByJobId(List<Job> jobs);
 	
-
+	/**
+	 * getExtraJobDetails
+	 * @param Job job
+	 * @return Map<String,String> for easy display on web
+	 */
+	public Map<String, String> getExtraJobDetails(Job job);
+	
 }
