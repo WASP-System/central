@@ -12,12 +12,12 @@
     xmlns="http://www.springframework.org/schema/beans"
     default-autowire="byName">
     
-  <si:logging-channel-adapter id="logger" level="DEBUG"/>
+  <si:logging-channel-adapter id="wasp.logger" level="DEBUG"/>
 
   <!-- default error channel --> 
   <si:channel id="errorChannel">
     <si:interceptors>
-      <si:wire-tap channel="logger"/>
+      <si:wire-tap channel="wasp.logger"/>
     </si:interceptors>
   </si:channel>
 

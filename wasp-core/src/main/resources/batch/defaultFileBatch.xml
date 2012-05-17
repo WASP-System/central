@@ -29,7 +29,7 @@
   </file:inbound-channel-adapter>
 
 
-  <si:service-activator input-channel="wasp.file.InputChannel" output-channel="logger">
+  <si:service-activator input-channel="wasp.file.InputChannel" output-channel="wasp.logger">
     <bean class="edu.yu.einstein.wasp.batch.launcher.FileLaunchingMessageHandler" scope="prototype">
         <constructor-arg ref="jobRegistry" />
         <constructor-arg ref="jobLauncher" />
