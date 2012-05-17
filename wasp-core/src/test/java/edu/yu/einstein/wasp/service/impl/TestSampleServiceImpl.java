@@ -31,9 +31,11 @@ import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSubtype;
+import edu.yu.einstein.wasp.model.SampleSubtypeMeta;
 import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.model.Workflow;
 import edu.yu.einstein.wasp.model.WorkflowSampleSubtype;
+import edu.yu.einstein.wasp.service.AuthenticationService;
 
 public class TestSampleServiceImpl {
 	
@@ -44,32 +46,60 @@ public class TestSampleServiceImpl {
 	SampleMetaDao mockSampleMetaDao;
 
 
-  // Test (groups = "unit-tests-service-objects")
-  //TODO: test not working, please fix me!
+  @Test (groups = "unit-tests-service-objects")
   public void getSampleSubtypesForWorkflowByRole() {
 	  
 	  sampleServiceImpl.setSampleDao(mockSampleDao);
 	  sampleServiceImpl.setWorkflowDao(mockWorkflowDao);
+	  sampleServiceImpl.setAuthenticationService(new AuthenticationServiceImpl());
 	  
 	  Integer workflowId = new Integer(1);
 	  Workflow wf = new Workflow();
+	  wf.setWorkflowId(workflowId);
 	  WorkflowSampleSubtype wfss = new WorkflowSampleSubtype();
 	  SampleSubtype sampleSubtype = new SampleSubtype();
+	  sampleSubtype.setIName("subtype1");
+	  sampleSubtype.setSampleSubtypeId(1);
+	  
+	  List<SampleSubtypeMeta> sampleSubtypeMeta = new ArrayList<SampleSubtypeMeta>();
+	  SampleSubtypeMeta meta1 = new SampleSubtypeMeta();
+	  meta1.setSampleSubtypeId(1);
+	  meta1.setK("subtype1.includeRoles");
+	  meta1.setV("7");
+	  sampleSubtypeMeta.add(meta1);
+	  SampleSubtypeMeta meta2 = new SampleSubtypeMeta();
+	  meta2.setSampleSubtypeId(1);
+	  meta2.setK("subtype1.excludeRoles");
+	  meta2.setV("8,9");
+	  sampleSubtypeMeta.add(meta2);
+	  
+	  sampleSubtype.setSampleSubtypeMeta(sampleSubtypeMeta);
 	  wfss.setSampleSubtype(sampleSubtype);
 
 	  List<WorkflowSampleSubtype> wfssList = new ArrayList <WorkflowSampleSubtype>();
 	  wfssList.add(wfss);
 	  wf.setWorkflowSampleSubtype(wfssList);
-  
-	  String [] roles = new String[]{"6","7","8"};
 	  
-	  List<SampleSubtype> sampleSubtypes = new ArrayList<SampleSubtype>();
+	  List<SampleSubtype> sampleSubtypesEmpty = new ArrayList<SampleSubtype>();
+	  List<SampleSubtype> sampleSubtypesPopulated = new ArrayList<SampleSubtype>();
+	  sampleSubtypesPopulated.add(sampleSubtype);
 	  
-	  expect(mockWorkflowDao.getWorkflowByWorkflowId(1)).andReturn(wf);
+	  
+	  expect(mockWorkflowDao.getWorkflowByWorkflowId(workflowId)).andReturn(wf);
+	  expect(mockWorkflowDao.getWorkflowByWorkflowId(workflowId)).andReturn(wf);
+	  expect(mockWorkflowDao.getWorkflowByWorkflowId(workflowId)).andReturn(wf);
 
 	  replay(mockWorkflowDao);
 
-      Assert.assertEquals(sampleServiceImpl.getSampleSubtypesForWorkflowByRole(1, roles, null), sampleSubtypes);
+	  String [] roles = new String[]{"6"};
+      Assert.assertEquals(sampleServiceImpl.getSampleSubtypesForWorkflowByRole(workflowId, roles, null), sampleSubtypesEmpty);
+      
+      roles = new String[]{"7"};
+      Assert.assertEquals(sampleServiceImpl.getSampleSubtypesForWorkflowByRole(workflowId, roles, null), sampleSubtypesPopulated);
+      
+      roles = new String[]{"7","9"};
+      Assert.assertEquals(sampleServiceImpl.getSampleSubtypesForWorkflowByRole(workflowId, roles, null), sampleSubtypesEmpty);
+      
 	  verify(mockWorkflowDao);
 	  
   }
