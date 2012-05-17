@@ -1,0 +1,5 @@
+# Do not configure properties here.  Properties need to be set in the wasp.local.properties 
+# file if you wish to override defaults.
+
+#chipsom.current.version=2.16.2
+#chipsom.init=hostfile=$(/work/00952/tg801997/apps/bin/pe_hostfile.csh)
