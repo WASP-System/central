@@ -162,7 +162,10 @@ public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 		List<State> result = new ArrayList<State>();
 
 		// further filter out states that do not match any of the task mappings
-		for (TaskMapping m : taskMappingDao.getTaskMappingByTaskId(task.getTaskId())) {
+		List<TaskMapping> taskMappings = taskMappingDao.getTaskMappingByTaskId(task.getTaskId());
+		if (taskMappings == null)
+			return result;
+		for (TaskMapping m : taskMappings) {
 			if (!m.getStatus().equals(status))
 				continue;
  
