@@ -23,7 +23,7 @@
     <si:poller fixed-rate="10000"/>
   </si:inbound-channel-adapter>
 
-  <si:service-activator input-channel="helpTagDna.sample.Channel" output-channel="logger">
+  <si:service-activator input-channel="helpTagDna.sample.Channel" output-channel="wasp.logger">
     <bean class="edu.yu.einstein.wasp.batch.launcher.StateJobLaunchingMessageHandler" scope="prototype">
        <constructor-arg ref="jobRegistry" />
        <constructor-arg ref="jobLauncher" />
@@ -42,7 +42,7 @@
     <si:poller fixed-rate="10000"/>
   </si:inbound-channel-adapter>
 
-  <si:service-activator input-channel="helpTagLibrary.sample.Channel" output-channel="logger">
+  <si:service-activator input-channel="helpTagLibrary.sample.Channel" output-channel="wasp.logger">
     <bean class="edu.yu.einstein.wasp.batch.launcher.StateJobLaunchingMessageHandler" scope="prototype">
        <constructor-arg ref="jobRegistry" />
        <constructor-arg ref="jobLauncher" />
