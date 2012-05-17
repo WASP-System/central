@@ -30,7 +30,7 @@ import edu.yu.einstein.wasp.model.ResourceType;
  */
 
 @Transactional
-public class SoftwareLoadService extends WaspLoadService {
+public class SoftwareLoadService extends WaspResourceLoadService {
 
   @Autowired
   private SoftwareDao softwareDao;
@@ -42,6 +42,9 @@ public class SoftwareLoadService extends WaspLoadService {
   private ResourceTypeDao resourceTypeDao;
 
   private ResourceType resourceType; 
+  
+  private List<String> dependencies; 
+  public void setDependencies(List<String> dependencies) {this.dependencies = dependencies; }
   
   public void setResourceTypeByIName(String resourceTypeString) {
 	  this.resourceType = resourceTypeDao.getResourceTypeByIName(resourceTypeString); 

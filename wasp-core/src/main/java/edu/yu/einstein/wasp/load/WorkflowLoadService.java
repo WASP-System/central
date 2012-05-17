@@ -46,7 +46,7 @@ import edu.yu.einstein.wasp.model.WorkflowResourceType;
  */
 
 @Transactional
-public class WorkflowLoadService extends WaspLoadService {
+public class WorkflowLoadService extends WaspResourceLoadService {
 
   @Autowired
   private WorkflowDao workflowDao;
@@ -80,9 +80,6 @@ public class WorkflowLoadService extends WaspLoadService {
 
   private List<String> pageFlowOrder; 
   public void setPageFlowOrder(List<String> pageFlowOrder) {this.pageFlowOrder = pageFlowOrder; }
-
-  private List<String> dependencies; 
-  public void setDependencies(List<String> dependencies) {this.dependencies = dependencies; }
 
   private Set<String> sampleSubtypes;
   public void setSampleSubtypes(Set<String> sampleSubtypes) {this.sampleSubtypes = sampleSubtypes; }
@@ -139,7 +136,7 @@ public class WorkflowLoadService extends WaspLoadService {
         workflow = workflowDao.getWorkflowByIName(iname); 
         workflowDao.refresh(workflow); 
     }
-    
+    // TODO: Extract this to abstract superclass.  Needs to be used by software load service as well.
     // update dependencies
     Map<String,WorkflowResourceType> oldWorkflowResourceTypes = new HashMap<String, WorkflowResourceType>();
     for (WorkflowResourceType old : safeList(workflow.getWorkflowResourceType()) ){

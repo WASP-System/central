@@ -87,7 +87,7 @@
     	
     <si:service-activator input-channel="echo.waspPluginChannel" 
 		ref="echoService"
-		method="echo" 
+		method="process" 
 		output-channel="waspReplyChannel" />
 		
 	<bean id="echoService"

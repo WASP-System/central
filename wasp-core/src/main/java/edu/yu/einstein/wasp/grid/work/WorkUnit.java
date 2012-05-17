@@ -6,6 +6,8 @@ package edu.yu.einstein.wasp.grid.work;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import edu.yu.einstein.wasp.model.File;
+
 /**
  * Basic unit of work to be executed.   
  * 
@@ -39,19 +41,42 @@ public class WorkUnit {
 	/**
 	 * number of processors required.
 	 */
-	private Integer processorRequirements;
+	private Integer processors;
 	/**
 	 * Execution mode, currently only as a process.
 	 */
 	private ExecutionMode mode = ExecutionMode.PROCESS;
 	/**
-	 * Working directory: a relative directory to the user's home directory.
+	 * Number of processors per node, required for determining parallel environment, etc.
 	 */
 	private String workingDirectory;
 	/**
 	 * Transport specific connection
 	 */
 	private GridTransportConnection connection;
+	
+	/**
+	 * WASP files, will be available or provisioned to working directory on remote host
+	 */
+	private Set<File> requiredFiles;
+	
+	/**
+	 * Set of expected output files.  These files will be returned to WASP host and entered as WASP {@link File} objects
+	 * upon successful completion of the WorkUnit.
+	 */
+	private Set<String> resultFiles;
+	
+	/**
+	 * whether or not to delete the remote working directory after successful completion.
+	 */
+	private boolean clean = false;
+	
+	/**
+	 * whether or not to copy results files to the remote archive upon completion.  Execution of subsequent steps on the 
+	 * same host will greatly benefit by setting this to true.
+	 */
+	private boolean provisionResults = false;
+	
 	
 	/**
 	 * ExecutionMode is the method by which jobs are executed, is handled by the underlying WorkService implementation,
@@ -64,7 +89,7 @@ public class WorkUnit {
 		/**
 		 * Handle processing at the process level.  Default.
 		 */
-		PROCESS;
+		PROCESS, MPI;
 	}
 	
 	/**
@@ -110,15 +135,15 @@ public class WorkUnit {
 	}
 
 	public Integer getProcessorRequirements() {
-		return processorRequirements;
+		return processors;
 	}
 
 	/**
 	 * Set the number of processors/threads required.
-	 * @param processorRequirements
+	 * @param processors
 	 */
 	public void setProcessorRequirements(Integer processorRequirements) {
-		this.processorRequirements = processorRequirements;
+		this.processors = processorRequirements;
 	}
 
 	public ExecutionMode getMode() {
@@ -128,7 +153,7 @@ public class WorkUnit {
 	public void setMode(ExecutionMode mode) {
 		this.mode = mode;
 	}
-
+	
 	public String getWorkingDirectory() {
 		return workingDirectory;
 	}

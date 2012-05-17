@@ -2,6 +2,7 @@ package edu.yu.einstein.wasp.grid;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Set;
 
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 
@@ -43,5 +44,60 @@ public interface GridHostResolver {
 	 * @throws GridUnresolvableHostException
 	 */
 	public String getUsername(String hostname) throws GridUnresolvableHostException;
+	
+	/**
+	 * return a host specific string for the job queue specification.
+	 * @param w
+	 * @return queue or null
+	 */
+	public String getQueue(WorkUnit w);
+	
+	/**
+	 * return a host specific string for the job maximum runtime.
+	 * @param w
+	 * @return runtime or null
+	 */
+	public String getMaxRunTime(WorkUnit w);
+	
+	/**
+	 * Set the parallel environment strings.
+	 * @param pe
+	 */
+	public void setAvailableParallelEnvironments(Set<String> pe);
+	
+	/**
+	 * return an appropriate parallel environment string for the host. Should be requested only when required.
+	 * @param w
+	 * @return string or null
+	 */
+	public String getParallelEnvironmentString(WorkUnit w);
+	
+	/**
+	 * return a host specific string for the account under which to run the job.
+	 * @param w
+	 * @return account or null
+	 */
+	public String getAccount(WorkUnit w);
+	
+	/**
+	 * return a host specific string for the project.
+	 * @param w
+	 * @return project or null
+	 */
+	public String getProject(WorkUnit w);
+	
+	/**
+	 * return a host specific string for email notification recipients.
+	 * @param w
+	 * @return email list or null
+	 */
+	public String getMailRecipient(WorkUnit w);
+	
+	/**
+	 * return a host specific string for the curcumstances for sending email notifications.
+	 * @param w
+	 * @return notifications or null
+	 */
+	public String getMailCircumstances(WorkUnit w);
 
 }

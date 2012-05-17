@@ -39,7 +39,7 @@
 
   <!-- intermediary for output from jobCreateRequestChannel: -->
   <!-- calls StateJobLaunchingMessageHandler which calls batch:job 'Start Job' (see below) -->	
-  <si:service-activator input-channel="chipSeq.job.Channel" output-channel="logger">
+  <si:service-activator input-channel="chipSeq.job.Channel" output-channel="wasp.logger">
     <bean class="edu.yu.einstein.wasp.batch.launcher.StateJobLaunchingMessageHandler" scope="prototype">
        <constructor-arg ref="jobRegistry" />
        <constructor-arg ref="jobLauncher" />

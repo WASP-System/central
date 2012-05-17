@@ -113,7 +113,15 @@ public class SshFileService implements GridFileService {
 				logger.debug(file + " exists: " + file.exists());
 
 				result = file.exists();
+				
+				// no exception, return result
+				attempt = retries;
+				
 			} catch (Exception e) {
+				if (attempt + 1 < retries) {
+					// ignore exception, try again
+					continue;
+				}
 				throw new RuntimeException(e);
 			} finally {
 				manager.close();

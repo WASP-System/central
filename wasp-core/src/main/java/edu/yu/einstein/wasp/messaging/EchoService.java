@@ -15,12 +15,6 @@ import edu.yu.einstein.wasp.cli.ClientMessageI;
 public class EchoService implements ClientMessageI {
 	
 	private static final Logger logger = Logger.getLogger(EchoService.class);
-	
-	@Override
-	public String echo(Message message) throws RemoteException {
-		logger.info(message);
-		return (String) message.getHeaders().get("target");
-	}
 
 	@Override
 	public Message process(Message message) throws RemoteException {
