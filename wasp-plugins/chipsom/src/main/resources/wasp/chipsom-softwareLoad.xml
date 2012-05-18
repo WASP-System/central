@@ -51,11 +51,11 @@
 
 	</bean>
 	
-	<bean id="chipsomInit" class="java.lang.String" >
-		<constructor-arg type="java.lang.String" value="${chipsom.init}"/>
+	<bean id="chipsomInit" class="java.lang.String" factory-method="valueOf">
+		<constructor-arg value="${chipsom.init}"/>
 	</bean>
-	<bean id="chipsomExec" class="java.lang.String" >
-		<constructor-arg type="java.lang.String" value="${chipsom.exec}"/>
+	<bean id="chipsomExec" class="java.lang.String" factory-method="valueOf">
+		<constructor-arg value="${chipsom.exec}"/>
 	</bean>
 
 </beans>

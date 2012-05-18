@@ -36,6 +36,7 @@
 	<!-- Private message channel -->
 	<si:channel id="chipsom.channel" />
 	
+	<!-- 
 	<si:service-activator input-channel="chipsom.channel" output-channel="wasp.logger">
 		<constructor-arg ref="jobRegistry" />
 		<constructor-arg ref="jobLauncher" />
@@ -43,7 +44,7 @@
 		<constructor-arg ref="jobOperator" />
 		<constructor-arg type="java.lang.String"><value>chipsom.batch</value></constructor-arg>
 	</si:service-activator>
-  
+   -->
 
 
 </beans>
