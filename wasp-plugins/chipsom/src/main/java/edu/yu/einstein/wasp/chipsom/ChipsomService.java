@@ -7,6 +7,7 @@ import java.rmi.RemoteException;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.integration.support.MessageBuilder;
 
 import org.springframework.integration.Message;
@@ -35,10 +36,10 @@ public class ChipsomService implements ClientMessageI {
 	@Autowired
 	private GridFileService waspGridFileService;
 	
-	@Autowired
+	@Value("${chipsom.init}")
 	public String chipsomInit;
 	
-	@Autowired
+	@Value("${chipsom.exec}")
 	public String chipsomExec;
 	
 	private static final Logger logger = Logger.getLogger(ChipsomService.class);
