@@ -79,6 +79,9 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	
 	@Autowired
 	private AuthenticationService authenticationService;
+	public void setAuthenticationService(AuthenticationService as) {
+		this.authenticationService = as;
+	}
 	
 	@Autowired
 	private WorkflowDao workflowDao;
