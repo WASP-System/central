@@ -305,6 +305,7 @@ public class SgeWorkService implements GridWorkService {
 			header = "#!/bin/bash\n#\n" +
 					"#$ -N " + namePrefix + name + "\n" +
 					"#$ -S /bin/bash\n" +
+					"#$ -V\n" +
 					"#$ -o $HOME/" + w.getWorkingDirectory() + namePrefix + name + ".out\n" +
 					"#$ -e $HOME/" + w.getWorkingDirectory() + namePrefix + name + ".err\n";
 			preamble = "cd $HOME/" + w.getWorkingDirectory() + "\n" +
