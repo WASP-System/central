@@ -154,7 +154,9 @@ public class SshFileService implements GridFileService {
 	}
 
 	private String getRemoteFileString(String host, String path) throws GridUnresolvableHostException {
-		return "sftp://" + this.hostResolver.getUsername(host) + "@" + host + "/" + path;
+		String remote = "sftp://" + this.hostResolver.getUsername(host) + "@" + host + "/" + path;
+		logger.debug("constructed remote file string: " + remote);
+		return remote;
 	}
 
 	private static FileSystemOptions createDefaultOptions(
