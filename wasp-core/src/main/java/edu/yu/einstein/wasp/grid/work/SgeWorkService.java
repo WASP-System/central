@@ -345,6 +345,9 @@ public class SgeWorkService implements GridWorkService {
 			String pe = "";
 			if (w.getMode() == ExecutionMode.MPI)
 				pe = getParallelEnvironment();
+			String numProcs = "";
+			if (w.getMode() != ExecutionMode.MPI)
+				numProcs = getProcs();
 			
 			return header + "\n\n##### resource requests\n\n" +
 					getAccount() + 
@@ -354,7 +357,7 @@ public class SgeWorkService implements GridWorkService {
 					getProject() + 
 					getMailRecipient() +
 					getMailCircumstances() +
-					getProcs() +
+					numProcs +
 					getMemory() + 
 					"\n\n##### preamble \n\n" +
 					preamble + "\n\n##### command \n\n" +
@@ -373,7 +376,7 @@ public class SgeWorkService implements GridWorkService {
 		 * @param account the account to set
 		 */
 		public void setAccount(String account) {
-			this.account = this.account = "#$ -A " + account + "\n";
+			this.account = "#$ -A " + account + "\n";
 		}
 
 		/**
