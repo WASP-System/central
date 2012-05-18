@@ -47,6 +47,7 @@ public class SshService implements GridWorkService, GridTransportService {
 
 	@Override
 	public GridResult execute(WorkUnit w) throws GridAccessException, GridUnresolvableHostException {
+		logger.debug("attempting to execute " + w.getId());
 		transportService.connect(w);
 		GridResult result = w.getConnection().sendExecToRemote(w);
 		return result;

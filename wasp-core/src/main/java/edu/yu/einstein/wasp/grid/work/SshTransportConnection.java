@@ -39,6 +39,7 @@ public class SshTransportConnection implements GridTransportConnection {
 		try {
 			jsch.addIdentity(identityFile.getAbsolutePath());
 			session = jsch.getSession(hostResolver.getUsername(w), hostResolver.getHostname(w));
+			logger.debug("Attempting to create SshTransportConnection to " + session.getHost() + " as " + session.getUserName());
 			session.connect();
 			session.setHost(hostResolver.getHostname(w));
 		} catch (JSchException e) {
@@ -58,6 +59,7 @@ public class SshTransportConnection implements GridTransportConnection {
 		try {
 			jsch.addIdentity(identityFile.getAbsolutePath());
 			session = jsch.getSession(hostResolver.getUsername(hostname), hostname);
+			logger.debug("Attempting to create SshTransportConnection to " + session.getHost() + " as " + session.getUserName());
 			session.connect();
 			session.setHost(hostname);
 		} catch (JSchException e) {
@@ -70,6 +72,7 @@ public class SshTransportConnection implements GridTransportConnection {
 
 	@Override
 	public void disconnect() throws GridAccessException {
+		logger.debug("Disconnectiong SshTransportConnection to " + session.getHost() + " as " + session.getUserName());
 		channel.disconnect();
 		session.disconnect();
 	}
@@ -90,6 +93,7 @@ public class SshTransportConnection implements GridTransportConnection {
 			String command = w.getCommand();
 			if (w.getWrapperCommand() != null)
 				command = w.getWrapperCommand();
+			logger.debug("sending exec: " + command);
 			channel.setCommand(command);
 			channel.connect();
 			result.setExitStatus(channel.getExitStatus());
