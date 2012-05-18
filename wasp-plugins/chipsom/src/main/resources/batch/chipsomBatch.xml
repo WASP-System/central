@@ -19,10 +19,10 @@
 	xmlns="http://www.springframework.org/schema/beans"
 	default-autowire="byName">
     
-    
+    <!-- 
     <batch:job id="chipsom.batch">
     
     </batch:job>
-
+ 	-->
     
 </beans>
