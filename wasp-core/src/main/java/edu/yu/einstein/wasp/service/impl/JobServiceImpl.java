@@ -140,8 +140,10 @@ public class JobServiceImpl extends WaspServiceImpl implements JobService {
 		
 		List<Job> activeJobList = new ArrayList<Job>();
 		
-		Task task = taskDao.getTaskByIName("Start Job");
-		List<State> states = taskService.getStatesByTaskMappingRule(task, "CREATED");
+		List<State> states = taskService.getJobCreatedStates(); //return taskDao.getStatesByTaskIName("Start Job", "CREATED");
+		if(states==null){
+			return activeJobList;
+		}
 		Set<Job> jobsSet = new HashSet<Job>();//to filter out any duplicates
 		for(State state : states){
 			List<Statejob> stateJobList = state.getStatejob();
@@ -166,8 +168,10 @@ public class JobServiceImpl extends WaspServiceImpl implements JobService {
 		
 		List<Job> jobsAwaitingSubmittedSamplesList = new ArrayList<Job>();
 		
-		Task task = taskDao.getTaskByIName("Receive Sample");
-		List<State> states = taskService.getStatesByTaskMappingRule(task, "CREATED");
+		List<State> states = taskService.getSampleNotYetReceivedStates(); ////////return taskDao.getStatesByTaskIName("Receive Sample", "CREATED");
+		if(states==null){
+			return jobsAwaitingSubmittedSamplesList;
+		}
 		Set<Sample> sampleSet = new HashSet<Sample>();//to filter out any duplicates
 		for(State state : states){
 			List<Statesample> stateSampleList = state.getStatesample();

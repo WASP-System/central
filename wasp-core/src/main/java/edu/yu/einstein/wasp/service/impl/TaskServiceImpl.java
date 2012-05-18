@@ -126,7 +126,11 @@ public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 	public List<State> getSampleReceivedStates() {
 		return taskDao.getStatesByTaskIName("Receive Sample", "COMPLETED");
 	}
-
+	@Override
+	public List<State> getSampleNotYetReceivedStates() {
+		return taskDao.getStatesByTaskIName("Receive Sample", "CREATED");
+	}
+	
 	private String expand(String perm, State state) {
 
 		if (state == null || state.getStatejob() == null || state.getStatejob().isEmpty() || state.getStatejob().get(0).getJob() == null || state.getStatejob().get(0).getJob().getLab() == null)

@@ -302,6 +302,7 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 				if(!state.getStatus().equals(newInternalStatus)){					
 					state.setStatus(newInternalStatus);
 					stateDao.save(state);
+					break;
 				}
 			}
 	  	  }
