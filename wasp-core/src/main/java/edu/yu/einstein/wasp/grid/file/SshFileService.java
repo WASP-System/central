@@ -34,7 +34,9 @@ public class SshFileService implements GridFileService {
 	@Override
 	public void put(File localFile, String host, String remoteFile)
 			throws IOException {
-
+		
+		logger.debug("put called: " + localFile + " to " + host + " as " + remoteFile);
+		
 		if (!localFile.exists())
 			throw new RuntimeException("File " + localFile.getAbsolutePath()
 					+ " not found");
@@ -63,6 +65,8 @@ public class SshFileService implements GridFileService {
 	public void get(String host, String remoteFile, File localFile)
 			throws IOException {
 
+		logger.debug("get called: " + remoteFile + " from " + host + " as " + localFile);
+		
 		if (!exists(host, remoteFile))
 			throw new RuntimeException("File " + remoteFile + "@" + host + " not found");
 
@@ -98,6 +102,8 @@ public class SshFileService implements GridFileService {
 	
 	public boolean exists(String host, String remoteFile, int attempts, int delayMillis) {
 
+		logger.debug("exists called: " + remoteFile + " at " + host);
+		
 		int attempt = 0;
 		FileObject file;
 		boolean result = false;
@@ -135,6 +141,8 @@ public class SshFileService implements GridFileService {
 	public void delete(String host, String remoteFile) throws IOException {
 		StandardFileSystemManager manager = new StandardFileSystemManager();
 		 
+		logger.debug("delete called: " + remoteFile + " at " + host);
+		
 	    try {
 	        manager.init();
 	 
@@ -195,6 +203,8 @@ public class SshFileService implements GridFileService {
 	public void touch(String host, String remoteFile) throws IOException {
 		StandardFileSystemManager manager = new StandardFileSystemManager();
 
+		logger.debug("touch called: " + remoteFile + " at " + host);
+		
 		try {
 			manager.init();
 
