@@ -52,7 +52,7 @@
 	<!-- waspGridFileService implements basic file transfer methods -->
 	<bean id="waspGridFileService" class="edu.yu.einstein.wasp.grid.file.SshFileService">
 		<property name="hostResolver" ref="gridHostResolver" />
-		<property name="identityFile" value="~/.ssh/id_rsa.testing" />
+		<property name="identityFile" value="${wasp.ssh.identityfile}" />
 	</bean>
 
 </beans>
