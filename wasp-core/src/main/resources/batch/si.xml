@@ -21,7 +21,7 @@
     </si:interceptors>
   </si:channel>
 
-  <!-- depreicated -->
+  <!-- depreciated -->
   <bean id="taskService" class="edu.yu.einstein.wasp.service.impl.TaskServiceImpl" />
 
 
