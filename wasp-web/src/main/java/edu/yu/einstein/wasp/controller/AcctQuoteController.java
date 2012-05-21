@@ -18,13 +18,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.dao.AcctQuoteDao;
-import edu.yu.einstein.wasp.dao.JobCellDao;
 import edu.yu.einstein.wasp.dao.JobDao;
 import edu.yu.einstein.wasp.dao.JobUserDao;
 import edu.yu.einstein.wasp.dao.RoleDao;
-import edu.yu.einstein.wasp.dao.StateDao;
-import edu.yu.einstein.wasp.dao.TaskDao;
-import edu.yu.einstein.wasp.dao.WorkflowresourcecategoryDao;
 import edu.yu.einstein.wasp.model.AcctQuote;
 import edu.yu.einstein.wasp.model.AcctQuoteMeta;
 import edu.yu.einstein.wasp.model.MetaBase;
@@ -80,15 +76,6 @@ public class AcctQuoteController extends WaspController {
 	public RoleDao getRoleUserDao() {
 		return this.roleDao;
 	}
-
-	@Autowired
-	private TaskDao		taskDao;
-	@Autowired
-	private StateDao	stateDao;
-	@Autowired
-	private WorkflowresourcecategoryDao workflowresourcecategoryDao;
-	@Autowired
-	private JobCellDao jobCellDao;
 
 	private final MetaHelperWebapp getMetaHelperWebapp() {
 		return new MetaHelperWebapp(AcctQuoteMeta.class, request.getSession());

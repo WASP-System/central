@@ -1,9 +1,7 @@
 package edu.yu.einstein.wasp.controller;
 
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,25 +22,17 @@ import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.dao.AcctJobquotecurrentDao;
 import edu.yu.einstein.wasp.dao.AcctQuoteDao;
 import edu.yu.einstein.wasp.dao.AcctQuoteMetaDao;
-import edu.yu.einstein.wasp.dao.JobCellDao;
 import edu.yu.einstein.wasp.dao.JobDao;
-import edu.yu.einstein.wasp.dao.JobUserDao;
-import edu.yu.einstein.wasp.dao.RoleDao;
 import edu.yu.einstein.wasp.dao.StateDao;
 import edu.yu.einstein.wasp.dao.StatejobDao;
-import edu.yu.einstein.wasp.dao.TaskDao;
-import edu.yu.einstein.wasp.dao.WorkflowresourcecategoryDao;
-import edu.yu.einstein.wasp.exception.LoginNameException;
 import edu.yu.einstein.wasp.model.AcctJobquotecurrent;
 import edu.yu.einstein.wasp.model.AcctQuote;
 import edu.yu.einstein.wasp.model.AcctQuoteMeta;
 import edu.yu.einstein.wasp.model.Job;
-import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.Statejob;
 import edu.yu.einstein.wasp.model.User;
-import edu.yu.einstein.wasp.model.UserMeta;
 import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.TaskService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
@@ -61,12 +51,6 @@ public class Job2QuoteController extends WaspController {
 	private AcctJobquotecurrentDao acctJobquotecurrentDao;
 	@Autowired
 	private JobDao			jobDao;
-	@Autowired
-	private JobUserDao		jobUserDao;
-	@Autowired
-	private RoleDao			roleDao;
-	@Autowired
-	private TaskDao			taskDao;
 	@Autowired
 	private StateDao		stateDao;
 	@Autowired
