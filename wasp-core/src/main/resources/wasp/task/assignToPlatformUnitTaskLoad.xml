@@ -29,7 +29,7 @@
       <list>
         <bean class="edu.yu.einstein.wasp.model.TaskMapping">
           <property name="status" value="CREATED" />
-          <property name="listMap" value="/task/platformunit/list.do" />
+          <property name="listMap" value="/wasp/facility/platformunit/limitPriorToAssign.do?resourceCategoryId=0" />
           <property name="detailMap" value="/def.do" />
           <property name="permission" value="hasRole('su')" />
         </bean>
