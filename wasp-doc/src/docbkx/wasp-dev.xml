@@ -8,7 +8,7 @@
 	<titleabbrev>WASP</titleabbrev>
 	<info>
 		<legalnotice>
-			<para>Distributed under the * license.</para>
+			<para>Distributed under the The GNU Affero General Public License.</para>
 		</legalnotice>
 		<authorgroup>
 			<author>
@@ -71,4 +71,5 @@
 
 	<xi:include href="content/tasks.xml"/>
 
+	<xi:include href="content/agpl.xml"/>
 </book>
