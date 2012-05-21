@@ -49,6 +49,7 @@ public class ChipsomService implements ClientMessageI {
 	 */
 	@Override
 	public Message process(Message m) throws RemoteException {
+		logger.debug("saw message: " + m.getPayload().toString());
 		if (m.getPayload().toString().equals("help"))
 			return help();
 		

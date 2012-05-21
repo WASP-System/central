@@ -108,7 +108,7 @@ public class SshFileService implements GridFileService {
 		FileObject file;
 		boolean result = false;
 
-		while (attempt < retries) {
+		while (attempt <= retries) {
 			attempt++;
 			StandardFileSystemManager manager = new StandardFileSystemManager();
 			try {
@@ -125,7 +125,7 @@ public class SshFileService implements GridFileService {
 				attempt = retries;
 				
 			} catch (Exception e) {
-				if (attempt < retries) {
+				if (attempt <= retries) {
 					logger.debug("failed, retrying: " + e.getCause().toString());
 					// ignore exception, try again
 					continue;
