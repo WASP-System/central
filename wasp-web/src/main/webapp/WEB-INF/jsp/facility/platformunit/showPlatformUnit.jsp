@@ -82,8 +82,8 @@
 			<tr class="FormData"><td class="CaptionTD">Run Technician: </td><td class="DataTD">
 				<select id="technicianId" name="technicianId" >
 		  			<option value="">---SELECT A TECHNICIAN---</option>
-						<c:forEach items="${technicians}" var="technician">
-							<option value='<c:out value="${technician.getKey()}" />'><c:out value="${technician.getValue()}" /></option>
+						<c:forEach items="${technicians.keySet()}" var="technicianId">
+							<option value='<c:out value="${technicianId}" />'><c:out value="${technicians.get(technicianId)}" /></option>
 						</c:forEach> 
 				</select>			
 			</td></tr>
@@ -129,12 +129,12 @@
 			<tr class="FormData"><td class="CaptionTD">Run Technician: </td><td class="DataTD">
 				<select id="technicianId" name="technicianId" >
 		  			<option value="">---SELECT A TECHNICIAN---</option>
-						<c:forEach items="${technicians}" var="technician">
+						<c:forEach items="${technicians.keySet()}" var="technicianId">
 						<c:set var="selected" value="" scope="page" />
-							<c:if test="${technician.getKey() == runList.get(0).getUserId()}">
+							<c:if test="${technicianId == runList.get(0).getUserId()}">
 								<c:set var="selected" value="SELECTED" scope="page" />
 							</c:if>
-							<option value='<c:out value="${technician.getKey()}" />' <c:out value="${selected}" />><c:out value="${technician.getValue()}" /></option>
+							<option value='<c:out value="${technicianId}" />' <c:out value="${selected}" />><c:out value="${technicians.get(technicianId)}" /></option>
 						</c:forEach> 
 				</select>			
 			</td></tr>
