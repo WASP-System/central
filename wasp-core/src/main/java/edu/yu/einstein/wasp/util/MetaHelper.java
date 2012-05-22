@@ -468,14 +468,30 @@ public class MetaHelper {
 	}
 	
 	/**
-	 * Finds a {@link MetaBase} derived object by name in the last list generated and sets its value
+	 * Finds a {@link MetaBase} derived object by name in the last list generated and sets its value. 
+	 * If a matching object doesn't exist a new one will be created and added to the internal metaList.
 	 * @param name
 	 * @param value
-	 * @param list
 	 * @throws MetadataException
 	 */
+	@SuppressWarnings("unchecked")
 	public <T extends MetaBase> void setMetaValueByName(String name,  String value) throws MetadataException{
-		setMetaValueByName(this.area, name, value, this.lastList);
+		if (this.lastList == null)
+			this.lastList = new ArrayList<T>();
+		try{
+			setMetaValueByName(this.area, name, value, this.lastList);
+		} catch(MetadataException e){
+			// meta doesn't exist so create new
+			T meta = null;
+			try {
+				meta = (T) clazz.newInstance();
+			} catch (Exception e1) {
+				throw new MetadataException("Cannot create new instance of type '"+clazz.getName()+"': "+ e1.getMessage());
+			}
+			meta.setK(this.area+"."+name);
+			meta.setV(value);
+			((List<T>) this.lastList).add(meta);
+		}
 	}
 	
 	/**

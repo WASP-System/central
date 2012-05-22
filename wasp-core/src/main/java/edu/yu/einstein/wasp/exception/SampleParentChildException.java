@@ -5,7 +5,7 @@ package edu.yu.einstein.wasp.exception;
  * @author andymac
  *
  */
-public class SampleParentChildException extends Exception{
+public class SampleParentChildException extends SampleException{
 	
 	public SampleParentChildException(){
 		super();

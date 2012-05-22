@@ -33,10 +33,8 @@ import edu.yu.einstein.wasp.util.SampleWrapper;
 
 public class TestSampleWrapper {
 
-	private SampleSourceDao mockSampleSourceDao;
 	private Sample sample;
 	private Sample parentSample;
-	private Sample grandparentSample;
 	private SampleMeta sampleMeta1;
 	private SampleMeta sampleMeta2;
 	private SampleMeta sampleMeta3;
@@ -45,13 +43,6 @@ public class TestSampleWrapper {
 
 	@BeforeTest
 	public void beforeTest() {
-        
-        // configure mockSampleSourceDao
-		// mockSampleSourceDao = createMock(SampleSourceDaoImpl.class);
-		mockSampleSourceDao = createMockBuilder(SampleSourceDaoImpl.class).addMockedMethods(SampleSourceDaoImpl.class.getMethods()).createMock();
-		Assert.assertNotNull(mockSampleSourceDao);
-		
-		
 		
 	}
 	
@@ -60,9 +51,9 @@ public class TestSampleWrapper {
 		// set up samples
 		sample = new Sample();
 		sample.setSampleId(1);
-		grandparentSample = new Sample(); // our parent object has no parent so empty Sample object should be returned
 		parentSample = new Sample();
 		parentSample.setSampleId(2);
+		sample.setParent(parentSample);
 		
 		List<SampleMeta> sampleMetaList1 = new ArrayList<SampleMeta>();
 		sampleMeta1 = new SampleMeta();
@@ -96,38 +87,23 @@ public class TestSampleWrapper {
 	
 	@AfterMethod
 	public void afterMethod() {
-		// after each test method remove the expectations from the mock
-		EasyMock.reset(mockSampleSourceDao);
 	}
 
 
 	@Test (groups = "unit-tests")
 	public void testSampleWrapperConstruct() {
-		// set up mockSampleSourceDao
-		expect(mockSampleSourceDao.getParentSampleByDerivedSampleId(1)).andReturn(parentSample);
-		expect(mockSampleSourceDao.getParentSampleByDerivedSampleId(2)).andReturn(grandparentSample);
-		replay(mockSampleSourceDao);
-		
-		SampleWrapper managedSample = new SampleWrapper(sample, mockSampleSourceDao);
+		SampleWrapper managedSample = new SampleWrapper(sample);
 		Assert.assertNotNull(managedSample.getSampleObject());
 		Assert.assertEquals(managedSample.getSampleObject().getSampleId().intValue(), 1);
 		Assert.assertNotNull(managedSample.getParentWrapper());
 		Assert.assertNotNull(managedSample.getParentWrapper().getSampleObject().getSampleId());
 		Assert.assertEquals(managedSample.getParentWrapper().getSampleObject().getSampleId().intValue(), 2);
 		Assert.assertNull(managedSample.getParentWrapper().getParentWrapper());
-
-		//Verifies the use of mockSampleSourceDao is as specified (only need to do this once, i.e in this test)
-		verify(mockSampleSourceDao);
 	}
 
 	@Test (groups = "unit-tests", dependsOnMethods = {"testSampleWrapperConstruct"})
 	public void testSampleWrapperGetAllSampleMeta() {
-		// set up mockSampleSourceDao
-		expect(mockSampleSourceDao.getParentSampleByDerivedSampleId(1)).andReturn(parentSample);
-		expect(mockSampleSourceDao.getParentSampleByDerivedSampleId(2)).andReturn(grandparentSample);
-		replay(mockSampleSourceDao);
-		
-		SampleWrapper managedSample = new SampleWrapper(sample, mockSampleSourceDao);
+		SampleWrapper managedSample = new SampleWrapper(sample);
 		List<SampleMeta> allMeta = managedSample.getAllSampleMeta();
 		Assert.assertEquals(allMeta.size(), 4);
 		Map<String, Integer> results = new HashMap<String, Integer>();
@@ -152,12 +128,7 @@ public class TestSampleWrapper {
 	
 	@Test (groups = "unit-tests", dependsOnMethods = {"testSampleWrapperConstruct"})
 	public void testGetAllSampleMetaAreas(){
-		// set up mockSampleSourceDao
-		expect(mockSampleSourceDao.getParentSampleByDerivedSampleId(1)).andReturn(parentSample);
-		expect(mockSampleSourceDao.getParentSampleByDerivedSampleId(2)).andReturn(grandparentSample);
-		replay(mockSampleSourceDao);
-				
-		SampleWrapper managedSample = new SampleWrapper(sample, mockSampleSourceDao);
+		SampleWrapper managedSample = new SampleWrapper(sample);
 		List<String> areas = new ArrayList<String>();
 		areas.addAll(managedSample.getAllSampleMetaAreas());
 		Assert.assertEquals(areas.size(), 2);
@@ -167,12 +138,7 @@ public class TestSampleWrapper {
 	
 	@Test (groups = "unit-tests", dependsOnMethods = {"testSampleWrapperConstruct"})
 	public void testGetMetaTemplatedToSampleSybtype(){
-		// set up mockSampleSourceDao
-		expect(mockSampleSourceDao.getParentSampleByDerivedSampleId(1)).andReturn(parentSample);
-		expect(mockSampleSourceDao.getParentSampleByDerivedSampleId(2)).andReturn(grandparentSample);
-		replay(mockSampleSourceDao);
-				
-		SampleWrapper managedSample = new SampleWrapper(sample, mockSampleSourceDao);
+		SampleWrapper managedSample = new SampleWrapper(sample);
 		SampleSubtype testSampleSubtype1 = new SampleSubtype();
 		SampleSubtype testSampleSubtype2 = new SampleSubtype();
 		SampleSubtype testSampleSubtype3 = new SampleSubtype();
@@ -192,12 +158,7 @@ public class TestSampleWrapper {
 	 */
 	@Test (groups = "unit-tests", dependsOnMethods = {"testSampleWrapperConstruct"})
 	public void testUpdateMetaToList1(){
-		// set up mockSampleSourceDao
-		expect(mockSampleSourceDao.getParentSampleByDerivedSampleId(1)).andReturn(parentSample);
-		expect(mockSampleSourceDao.getParentSampleByDerivedSampleId(2)).andReturn(grandparentSample);
-		replay(mockSampleSourceDao);
-				
-		SampleWrapper managedSample = new SampleWrapper(sample, mockSampleSourceDao);
+		SampleWrapper managedSample = new SampleWrapper(sample);
 		
 		// set up test input meta list
 		List<SampleMeta> inputMetaList = new ArrayList<SampleMeta>();
@@ -291,12 +252,7 @@ public class TestSampleWrapper {
 	 */
 	@Test (groups = "unit-tests", dependsOnMethods = {"testSampleWrapperConstruct"})
 	public void testUpdateMetaToList2(){
-		// set up mockSampleSourceDao
-		expect(mockSampleSourceDao.getParentSampleByDerivedSampleId(1)).andReturn(parentSample);
-		expect(mockSampleSourceDao.getParentSampleByDerivedSampleId(2)).andReturn(grandparentSample);
-		replay(mockSampleSourceDao);
-				
-		SampleWrapper managedSample = new SampleWrapper(sample, mockSampleSourceDao);
+		SampleWrapper managedSample = new SampleWrapper(sample);
 		sample.setSampleId(null);
 		
 		// set up test input meta list
@@ -354,26 +310,17 @@ public class TestSampleWrapper {
 		
 		Sample otherParent = new Sample();
 		otherParent.setSampleId(3);
-				
-		// set up mockSampleSourceDao
-		expect(mockSampleSourceDao.getParentSampleByDerivedSampleId(1)).andReturn(parentSample);
-		expect(mockSampleSourceDao.getParentSampleByDerivedSampleId(2)).andReturn(grandparentSample);
-		expect(mockSampleSourceDao.getParentSampleByDerivedSampleId(1)).andReturn(otherParent);
-		expect(mockSampleSourceDao.getParentSampleByDerivedSampleId(1)).andReturn(otherParent);
-		expect(mockSampleSourceDao.save(isA(SampleSource.class))).andReturn(new SampleSource());
-		replay(mockSampleSourceDao);
 		
 		// set up mockSamplemetaDao
 		SampleService mockSampleService = createMockBuilder(SampleServiceImpl.class).addMockedMethods(SampleServiceImpl.class.getMethods()).createMock();
 		Assert.assertNotNull(mockSampleService);
 		replay(mockSampleService);
 		
-		SampleWrapper managedSample = new SampleWrapper(sample, mockSampleSourceDao);
+		SampleWrapper managedSample = new SampleWrapper(sample);
 		
 		// Exercise
-		managedSample.saveAll(mockSampleService, mockSampleSourceDao);
+		managedSample.saveAll(mockSampleService);
 		verify(mockSampleService);
-		verify(mockSampleSourceDao);
 	}
 
 }

@@ -7,7 +7,9 @@ import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.easymock.EasyMock;
 import org.springframework.orm.hibernate3.HibernateTemplate;
@@ -27,9 +29,12 @@ import edu.yu.einstein.wasp.dao.WorkflowDao;
 import edu.yu.einstein.wasp.dao.impl.SampleDaoImpl;
 import edu.yu.einstein.wasp.dao.impl.SampleMetaDaoImpl;
 import edu.yu.einstein.wasp.dao.impl.WorkflowDaoImpl;
+import edu.yu.einstein.wasp.exception.SampleParentChildException;
+import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
+import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.SampleSubtypeMeta;
 import edu.yu.einstein.wasp.model.SampleType;
@@ -101,8 +106,10 @@ public class TestSampleServiceImpl {
       Assert.assertEquals(sampleServiceImpl.getSampleSubtypesForWorkflowByRole(workflowId, roles, null), sampleSubtypesEmpty);
       
 	  verify(mockWorkflowDao);
-	  
   }
+  
+  
+  
   @Test (groups = "unit-tests-service-objects")
   public void saveSampleWithAssociatedMeta(){
 	  sampleServiceImpl.setSampleDao(mockSampleDao);
@@ -143,6 +150,286 @@ public class TestSampleServiceImpl {
 	  
 	  Assert.assertEquals(sampleServiceImpl.isSampleNameUniqueWithinJob(sample, sampleType, job), false);
 
+	  
+  }
+  
+  @Test (groups = "unit-tests-service-objects")
+  public void getPlatformUnitForCell(){
+	  SampleType puSampleType = new SampleType();
+	  puSampleType.setIName("platformunit");
+	  
+	  SampleType cellSampleType = new SampleType();
+	  cellSampleType.setIName("cell");
+	  
+	  Sample pu = new Sample();
+	  pu.setSampleId(1);
+	  pu.setSampleType(puSampleType);
+	  
+	  Sample cell1 = new Sample();
+	  cell1.setSampleId(2);
+	  cell1.setSampleType(cellSampleType);
+	  
+	  Sample pu2 = new Sample();
+	  pu2.setSampleId(3);
+	  pu2.setSampleType(puSampleType);
+	  
+	  List<SampleSource> puCells = new ArrayList<SampleSource>();
+	  SampleSource puCell1 = new SampleSource();
+	  puCell1.setSampleSourceId(1);
+	  puCell1.setSample(pu);
+	  puCell1.setIndex(1);
+	  puCell1.setSourceSample(cell1);
+	  puCells.add(puCell1);
+	  
+	  cell1.setSampleSource(puCells);
+	  
+	  
+	  
+	  try {
+		Assert.assertEquals(sampleServiceImpl.getPlatformUnitForCell(cell1), pu);
+	  } catch (SampleTypeException e) {
+		  Assert.fail("Caught unexpected SampleTypeException: "+ e.getMessage());
+	  } catch (SampleParentChildException e) {
+		  Assert.fail("Caught unexpected SampleParentChildException: "+ e.getMessage());
+	  }
+	  
+	  String exceptionMessage="";
+	  try {
+			sampleServiceImpl.getPlatformUnitForCell(pu);
+	  } catch (SampleTypeException e) {
+		  exceptionMessage = e.getMessage();
+	  } catch (SampleParentChildException e) {
+		  Assert.fail("Caught unexpected SampleParentChildException: "+ e.getMessage());
+	  }
+	  Assert.assertEquals(exceptionMessage, "Expected 'cell' but got Sample of type 'platformunit' instead.");
+	  
+	  SampleSource pu2Cell1 = new SampleSource();
+	  pu2Cell1.setSampleSourceId(2);
+	  pu2Cell1.setSample(pu2);
+	  pu2Cell1.setIndex(1);
+	  pu2Cell1.setSourceSample(cell1);
+	  puCells.add(pu2Cell1);
+	  
+	  exceptionMessage="";
+	  try {
+			sampleServiceImpl.getPlatformUnitForCell(cell1);
+	  } catch (SampleParentChildException e) {
+		  exceptionMessage = e.getMessage();
+	  } catch (SampleTypeException e) {
+		  Assert.fail("Caught unexpected SampleTypeException: "+ e.getMessage());
+	  }
+	  Assert.assertEquals(exceptionMessage, "Cell '2' is associated with more than one flowcell");
+	  
+	  cell1.setSampleSource(null);
+	  puCells.remove(pu2Cell1);
+	  exceptionMessage="";
+	  try {
+			sampleServiceImpl.getPlatformUnitForCell(cell1);
+	  } catch (SampleParentChildException e) {
+		  exceptionMessage = e.getMessage();
+	  } catch (SampleTypeException e) {
+		  Assert.fail("Caught unexpected SampleTypeException: "+ e.getMessage());
+	  }
+	  Assert.assertEquals(exceptionMessage, "Cell '2' is associated with no flowcells");
+	  
+  }
+  
+  @Test (groups = "unit-tests-service-object")
+  public void getIndexedCellsOnPlatformUnit(){
+	  SampleType puSampleType = new SampleType();
+	  puSampleType.setIName("platformunit");
+	  
+	  SampleType cellSampleType = new SampleType();
+	  cellSampleType.setIName("cell");
+	  
+	  SampleType librarySampleType = new SampleType();
+	  librarySampleType.setIName("library");
+	  
+	  Sample pu = new Sample();
+	  pu.setSampleId(1);
+	  pu.setSampleType(puSampleType);
+	  
+	  Sample cell1 = new Sample();
+	  cell1.setSampleId(2);
+	  cell1.setSampleType(cellSampleType);
+	  
+	  Sample cell2 = new Sample();
+	  cell2.setSampleId(3);
+	  cell2.setSampleType(cellSampleType);
+	  
+	  Sample library = new Sample();
+	  library.setSampleId(4);
+	  library.setSampleType(librarySampleType);
+	  
+	  List<SampleSource> puCells = new ArrayList<SampleSource>();
+	  SampleSource puCell1 = new SampleSource();
+	  puCell1.setSampleSourceId(1);
+	  puCell1.setSample(pu);
+	  puCell1.setIndex(1);
+	  puCell1.setSourceSample(cell1);
+	  puCells.add(puCell1);
+	  
+	  SampleSource puCell2 = new SampleSource();
+	  puCell2.setSampleSourceId(2);
+	  puCell2.setSample(pu);
+	  puCell2.setIndex(2);
+	  puCell2.setSourceSample(cell2);
+	  puCells.add(puCell2);
+
+	  pu.setSampleSource(puCells);
+	  
+	  Map<Integer, Sample> expectedResult = new HashMap<Integer, Sample>();
+	  expectedResult.put(1, cell1);
+	  expectedResult.put(2, cell2);
+	  
+	  try {
+		Assert.assertEquals(sampleServiceImpl.getIndexedCellsOnPlatformUnit(pu), expectedResult);
+	  } catch (SampleTypeException e) {
+		  Assert.fail("Caught unexpected SampleTypeException: "+ e.getMessage());
+	  }
+	  
+	  String exceptionMessage="";
+	  try {
+			sampleServiceImpl.getIndexedCellsOnPlatformUnit(cell1);
+	  } catch (SampleTypeException e) {
+		  exceptionMessage = e.getMessage();
+	  }
+	  Assert.assertEquals(exceptionMessage, "Expected 'platformunit' but got Sample of type 'cell' instead.");
+	  
+	  exceptionMessage="";
+	  try {
+		  	SampleSource puLibrary = new SampleSource();
+		  	puLibrary.setSampleSourceId(2);
+		  	puLibrary.setSample(pu);
+		  	puLibrary.setIndex(3);
+		  	puLibrary.setSourceSample(library);
+		  	puCells.add(puLibrary);
+			sampleServiceImpl.getIndexedCellsOnPlatformUnit(pu);
+	  } catch (SampleTypeException e) {
+		  exceptionMessage = e.getMessage();
+	  }
+	  Assert.assertEquals(exceptionMessage, "Expected 'cell' but got Sample of type 'library' instead.");
+	  
+	  
+  }
+  
+  @Test (groups = "unit-tests-service-objects")
+  public void getLibrariesOnCellAllMethods(){
+	  
+	  List<Sample> samplesNoControl = new ArrayList<Sample>(); 
+	  List<Sample> samplesWithControl = new ArrayList<Sample>(); 
+	  List<Sample> controlSamples = new ArrayList<Sample>(); 
+	  
+	  SampleType cellSampleType = new SampleType();
+	  cellSampleType.setIName("cell");
+	  
+	  SampleType librarySampleType = new SampleType();
+	  librarySampleType.setIName("library");
+	  
+	  SampleSubtype librarySampleSubtype = new SampleSubtype();
+	  librarySampleSubtype.setIName("ChipSeqLibrary");
+	  
+	  SampleSubtype controlSampleSubtype = new SampleSubtype();
+	  controlSampleSubtype.setIName("controlLibrarySample");
+	  
+	  Sample cell1 = new Sample();
+	  cell1.setSampleId(1);
+	  cell1.setSampleType(cellSampleType);
+	  
+	  Sample cellWrongType = new Sample();
+	  cellWrongType.setSampleId(2);
+	  cellWrongType.setSampleType(librarySampleType);
+	  
+	  Sample library1 = new Sample();
+	  library1.setSampleId(3);
+	  library1.setSampleType(librarySampleType);
+	  library1.setSampleSubtype(librarySampleSubtype);
+	  samplesNoControl.add(library1);
+
+	  Sample library2 = new Sample();
+	  library2.setSampleId(4);
+	  library2.setSampleType(librarySampleType);
+	  library2.setSampleSubtype(librarySampleSubtype);
+	  samplesNoControl.add(library2);
+	  
+	  samplesWithControl.addAll(samplesNoControl);
+	  
+	  Sample control = new Sample();
+	  control.setSampleId(5);
+	  control.setSampleType(librarySampleType);
+	  control.setSampleSubtype(controlSampleSubtype);
+	  samplesWithControl.add(control);
+	  controlSamples.add(control);
+
+	  Sample libraryWrongType = new Sample();
+	  libraryWrongType.setSampleId(6);
+	  libraryWrongType.setSampleType(cellSampleType);
+
+	  List<SampleSource> cell1Libraries = new ArrayList<SampleSource>();
+	  SampleSource ssCell1Lib1 = new SampleSource();
+	  ssCell1Lib1.setSampleSourceId(1);
+	  ssCell1Lib1.setSample(cell1);
+	  ssCell1Lib1.setSourceSample(library1);
+	  cell1Libraries.add(ssCell1Lib1);
+
+	  SampleSource ssCell1Lib2 = new SampleSource();
+	  ssCell1Lib2.setSampleSourceId(2);
+	  ssCell1Lib2.setSample(cell1);
+	  ssCell1Lib2.setSourceSample(library2);
+	  cell1Libraries.add(ssCell1Lib2);
+	  
+	  SampleSource ssCell1Lib3 = new SampleSource();
+	  ssCell1Lib3.setSampleSourceId(3);
+	  ssCell1Lib3.setSample(cell1);
+	  ssCell1Lib3.setSourceSample(control);
+	  cell1Libraries.add(ssCell1Lib3);
+	  
+	  List<SampleSource> cell1LibrariesWithNonLibrary = new ArrayList<SampleSource>();
+	  cell1LibrariesWithNonLibrary.addAll(cell1Libraries);
+	  
+	  SampleSource ssCell1Lib3WrongType = new SampleSource();
+	  ssCell1Lib3WrongType.setSampleSourceId(4);
+	  ssCell1Lib3WrongType.setSample(cell1);
+	  ssCell1Lib3WrongType.setSourceSample(libraryWrongType);
+	  cell1LibrariesWithNonLibrary.add(ssCell1Lib3WrongType);
+	  
+	  cell1.setSampleSource(cell1Libraries);
+	  
+	  try {
+		Assert.assertEquals(sampleServiceImpl.getLibrariesOnCell(cell1), samplesWithControl);
+	  } catch (SampleTypeException e) {
+		Assert.fail("Caught unexpected SampleTypeException: "+ e.getMessage());
+	  }
+	  
+	  try {
+		Assert.assertEquals(sampleServiceImpl.getLibrariesOnCellWithoutControls(cell1), samplesNoControl);
+	  } catch (SampleTypeException e) {
+		Assert.fail("Caught unexpected SampleTypeException: "+ e.getMessage());
+	  }
+	  
+	  try {
+		Assert.assertEquals(sampleServiceImpl.getControlLibrariesOnCell(cell1), controlSamples);
+	  } catch (SampleTypeException e) {
+		Assert.fail("Caught unexpected SampleTypeException: "+ e.getMessage());
+	  }
+	  
+	  String exceptionMessage="";
+	  try {
+			sampleServiceImpl.getLibrariesOnCell(cellWrongType);
+	  } catch (SampleTypeException e) {
+		  exceptionMessage = e.getMessage();
+	  }
+	  Assert.assertEquals(exceptionMessage, "Expected 'cell' but got Sample of type 'library' instead.");
+	  
+	  cell1.setSampleSource(cell1LibrariesWithNonLibrary);
+	  
+	  exceptionMessage="";
+	  try {
+			sampleServiceImpl.getLibrariesOnCell(cell1);
+	  } catch (SampleTypeException e) {
+		  exceptionMessage = e.getMessage();
+	  }
+	  Assert.assertEquals(exceptionMessage, "Expected 'library' but got Sample of type 'cell' instead.");
 	  
   }
   

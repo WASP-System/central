@@ -23,18 +23,5 @@ public interface SampleSourceDao extends WaspDao<SampleSource> {
 
   public SampleSource getSampleSourceBySampleIdMultiplexindex (final int sampleId, final int multiplexindex);
 
-  /**
-   * Get the parent sample for a derived sample with supplied Id
-   * @param source_sampleId
-   * @return{@link Sample} parent sample
-   */
-  public Sample getParentSampleByDerivedSampleId(Integer derivedSampleId);
-
-  /**
-   * Get the samples derived from a parent sample with supplied Id
-   * @param source_sampleId
-   * @return List<{@link Sample}> derived sample list
-   */
-  public List<Sample> getDerivedSamplesByParentSampleId(Integer parentSampleId);
 }
 

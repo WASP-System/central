@@ -25,15 +25,26 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.dao.AdaptorDao;
 import edu.yu.einstein.wasp.dao.SampleDao;
+import edu.yu.einstein.wasp.dao.SampleSourceDao;
+import edu.yu.einstein.wasp.dao.SampleSourceMetaDao;
 import edu.yu.einstein.wasp.dao.SampleTypeDao;
 import edu.yu.einstein.wasp.dao.SampleMetaDao;
 import edu.yu.einstein.wasp.dao.StateDao;
 import edu.yu.einstein.wasp.dao.WorkflowDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
+import edu.yu.einstein.wasp.exception.SampleDuplicationException;
+import edu.yu.einstein.wasp.exception.SampleException;
+import edu.yu.einstein.wasp.exception.SampleIndexException;
+import edu.yu.einstein.wasp.exception.SampleMultiplexException;
+import edu.yu.einstein.wasp.exception.SampleParentChildException;
+import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
+import edu.yu.einstein.wasp.model.JobSample;
 import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.SampleMeta;
+import edu.yu.einstein.wasp.model.SampleSourceMeta;
 import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.SampleSubtypeResourceCategory;
 import edu.yu.einstein.wasp.model.SampleType;
@@ -77,10 +88,13 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 		return this.sampleDao;
 	}
 	
-	@Autowired
 	private AuthenticationService authenticationService;
-	public void setAuthenticationService(AuthenticationService as) {
-		this.authenticationService = as;
+	
+	
+	@Override
+	@Autowired
+	public void setAuthenticationService(AuthenticationService authenticationService){
+		this.authenticationService = authenticationService;
 	}
 	
 	@Autowired
@@ -88,6 +102,12 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	
 	@Autowired
 	private SampleMetaDao sampleMetaDao;
+	
+	@Autowired
+	private SampleSourceDao sampleSourceDao;
+	
+	@Autowired
+	private SampleSourceMetaDao sampleSourceMetaDao;
 	
 	@Autowired
 	private SampleTypeDao sampleTypeDao;
@@ -201,7 +221,7 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	   */
 	  @Override
 	  public String getReceiveSampleStatus(final Sample sample){
-		  
+		// TODO: Write test!!
 		  String sampleReceivedStatus = "UNKNOWN";
 		  List<Statesample> statesamples = sample.getStatesample();
 		  for(Statesample ss : statesamples){
@@ -217,6 +237,7 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	   */
 	  @Override
 	  public void sortSamplesBySampleName(List<Sample> samples){
+		  // TODO: Write test!!
 		  class SampleNameComparator implements Comparator<Sample> {
 			    @Override
 			    public int compare(Sample arg0, Sample arg1) {
@@ -231,7 +252,7 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	   */
 	  @Override
 	  public String convertReceiveSampleStatusForWeb(String internalStatus){
-		  
+		  // TODO: Write test!!
 		  if(internalStatus.equals("CREATED")){
 			  return new String("NOT ARRIVED");
 			}
@@ -254,7 +275,7 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	   */
 	  @Override
 	  public String convertReceiveSampleStatusForInternalStorage(String webStatus){
-		  
+		  // TODO: Write test!!
 		  if(webStatus.equals("NOT ARRIVED")){
 			  return new String("CREATED");
 			}
@@ -277,6 +298,7 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	   */
 	  @Override
 	  public List<String> getReceiveSampleStatusOptionsForWeb(){
+		  // TODO: Write test!!
 		  String [] stringList = {"CREATED", "COMPLETED", "ABANDONED", "UNKNOWN"};
 		  List<String> options = new ArrayList<String>();
 		  for(String str : stringList){
@@ -290,7 +312,7 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	   */
 	  @Override
 	  public boolean updateSampleReceiveStatus(final Sample sample, final String status){
-	
+		  // TODO: Write test!!
 		  if(sample.getSampleId()==0){
 			  return false;
 		  }
@@ -314,8 +336,9 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	   */
 	  @Override
 	  public boolean submittedSampleHasBeenProcessedByFacility(final Sample sample){//should but doesn't really check that this is a user-submitted sample
+		// TODO: Write test!!
 		  boolean sampleHasBeenProcessed = false;
-		  if( sample.getSampleSourceViaSourceSampleId().size() > 0){/* submitted sample is a user-submitted library that has been placed onto a flow cell or a user-submitted macromolecule that has been used to generate a library */
+		  if( sample.getSourceSampleId().size() > 0){/* submitted sample is a user-submitted library that has been placed onto a flow cell or a user-submitted macromolecule that has been used to generate a library */
 			  sampleHasBeenProcessed = true;
 		  }
 		  return sampleHasBeenProcessed;
@@ -326,10 +349,17 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	   */
 	  @Override
 	  public List<Sample> getFacilityGeneratedLibraries(Sample sample){
+		  // TODO: Write test!!
+		  SampleType libraryType = sampleTypeDao.getSampleTypeByIName("library");
 		  List<Sample> libraryList = new ArrayList<Sample>();
-		  List<SampleSource> sampleSourceList = sample.getSampleSourceViaSourceSampleId();
-		  for(SampleSource sampleSource : sampleSourceList){
-			  libraryList.add(sampleSource.getSample());
+		  if (sample.getChildren() != null){
+			  for (Sample childSample : sample.getChildren()){
+				  if (childSample.getSampleType().equals(libraryType)){
+					  libraryList.add(childSample);
+				  }
+			  }
+		  } else {
+			  logger.debug("No facility generated libraries found");
 		  }
 		  return libraryList;
 	  }
@@ -339,6 +369,7 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	   */
 	  @Override
 	  public Adaptor getLibraryAdaptor(Sample library){
+		// TODO: Write test!!
 		  Adaptor adaptor = null;
 		  String adaptorId = new String("");
 		  SampleSubtype sampleSubtype = library.getSampleSubtype();
@@ -370,7 +401,7 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	   */
 	  @Override
 	  public List<Sample> getAvailableFlowCells(){
-		  
+		// TODO: Write test!!
 		  List<Sample> availableFlowCellList = new ArrayList<Sample>();
 		  
 		  SampleType sampleType = sampleTypeDao.getSampleTypeByIName("platformunit");
@@ -394,6 +425,7 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	  }
 	  
 	  public List<Sample> getAvailableAndCompatibleFlowCells(Job job){
+		  // TODO: Write test!!
 		  List<Sample> availableFlowCells = getAvailableFlowCells();
 		  List<Sample> availableAndCompatibleFlowCells = new ArrayList<Sample>();
 		  for(Sample flowCell : availableFlowCells){
@@ -407,5 +439,251 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 		  }
 		  return availableAndCompatibleFlowCells;
 	  }
+	  
+	  /**
+	   * {@inheritDoc}
+	   */
+	  @Override
+	  public Sample getPlatformUnitForCell(Sample cell) throws SampleTypeException, SampleParentChildException{
+		  if (!cell.getSampleType().getIName().equals("cell")){
+			  throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
+		  }
+		  if (cell.getSampleSource()==null || cell.getSampleSource().isEmpty())
+			  throw new SampleParentChildException("Cell '"+cell.getSampleId().toString()+"' is associated with no flowcells");
+		  if (cell.getSampleSource().size() > 1)
+			  throw new SampleParentChildException("Cell '"+cell.getSampleId().toString()+"' is associated with more than one flowcell");
+		  SampleSource ss = cell.getSampleSource().get(0);
+		  return ss.getSample();
+	  }
+	  
+	  /**
+	   * {@inheritDoc}
+	   */
+	  @Override
+	  public Map<Integer, Sample> getIndexedCellsOnPlatformUnit(Sample platformUnit) throws SampleTypeException{
+		  if (!platformUnit.getSampleType().getIName().equals("platformunit")){
+			  throw new SampleTypeException("Expected 'platformunit' but got Sample of type '" + platformUnit.getSampleType().getIName() + "' instead.");
+		  }
+		  
+		  Map<Integer, Sample> indexedCells = new HashMap<Integer, Sample>();
+		  if (platformUnit.getSampleSource() == null)
+			  return indexedCells;
+		  
+		  for (SampleSource ss : platformUnit.getSampleSource()){
+			  Sample cell = ss.getSourceSample();
+			  Integer index = ss.getIndex();
+			  if (!cell.getSampleType().getIName().equals("cell")){
+				  throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
+			  }
+			  indexedCells.put(index, cell);
+		  }
+		  return indexedCells;
+	  }
+	  
+	  /**
+	   * {@inheritDoc}
+	   */
+	  @Override
+	  public void addCellToPlatformUnit(Sample platformUnit, Sample cell, Integer index) throws SampleTypeException, SampleIndexException{
+		  if (!platformUnit.getSampleType().getIName().equals("platformunit")){
+			  throw new SampleTypeException("Expected 'platformunit' but got Sample of type '" + platformUnit.getSampleType().getIName() + "' instead.");
+		  }
+		  if (!cell.getSampleType().getIName().equals("cell")){
+			  throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
+		  }
+		  if (index == null || index < 1)
+			  throw new SampleIndexException("index must be an integer >= 1");
+		  Map<String, Integer> sampleSourceQuery = new HashMap<String, Integer>();
+		  sampleSourceQuery.put("sampleId", platformUnit.getSampleId());
+		  sampleSourceQuery.put("index", index);
+		  if (sampleSourceDao.findByMap(sampleSourceQuery) != null)
+			  throw new SampleIndexException("index '"+index+"' already assigned to a cell associated with this platform unit");
+		  SampleSource sampleSource = new SampleSource();
+		  sampleSource.setSample(platformUnit);
+		  sampleSource.setSourceSample(cell);
+		  sampleSource.setIndex(index);
+		  sampleSourceDao.persist(sampleSource);
+	  }
+	  
+	  /**
+	   * {@inheritDoc}
+	   */
+	  @Override
+	  public List<Sample> getLibrariesOnCell(Sample cell) throws SampleTypeException{
+		  return getLibrariesOnCell(cell, null);
+	  }
+	  
+	  /**
+	   * Index is essentially a a wrapper around an int. It is required (instead of Integer) because
+	   * Integer is immutable and so it's value passed as a parameter, when 'changed' within a method
+	   * cannot be used as the modified version outside that method.
+	   * @author asmclellan
+	   *
+	   */
+	  private class Index{
+		  private int index;
+		  
+		  public Index(){
+			  index = 0;
+		  }
+		  
+		  public void setValue(int index){
+			  this.index = index;
+		  }
+		  
+		  public int getValue(){
+			  return this.index;
+		  }
+		  
+		  public void increment(){
+			  this.index++;
+		  }
+	  }
+	  
+	  /**
+	   * Returns list of Samples on a cell. If control libraries are spiked in, these are also returned.
+	   * Also takes a parameter maxIndex (can be null) which returns the maximum index sampleSource index value found
+	   * @param cell
+	   * @param maxIndex
+	   * @return
+	   * @throws SampleTypeException
+	   */
+	  private List<Sample> getLibrariesOnCell(Sample cell, Index maxIndex) throws SampleTypeException{
+		  if (!cell.getSampleType().getIName().equals("cell")){
+			  throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
+		  }
+		  List<Sample> libraries = new ArrayList<Sample>();
+		  if (cell.getSampleSource() == null)
+			  return libraries;
+		  
+		  for (SampleSource ss : cell.getSampleSource()){
+			  Sample library = ss.getSourceSample();
+			  if (!library.getSampleType().getIName().equals("library") && !library.getSampleType().getIName().equals("controlLibrarySample")){
+				  throw new SampleTypeException("Expected 'library' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
+			  }
+			  if (maxIndex != null && ss.getIndex() != null && ss.getIndex() > maxIndex.getValue())
+				  maxIndex.setValue(ss.getIndex());
+			  libraries.add(library);
+		  }
+		  return libraries;
+	  }
+	  
+	  /**
+	   * {@inheritDoc}
+	   */
+	  @Override
+	  public List<Sample> getLibrariesOnCellWithoutControls(Sample cell) throws SampleTypeException{
+		   List<Sample> filteredLibraryList = new ArrayList<Sample>();
+		  for (Sample library : getLibrariesOnCell(cell)){
+			  if (!library.getSampleSubtype().getIName().equals("controlLibrarySample"))
+				  filteredLibraryList.add(library);
+		  }
+		  return filteredLibraryList;
+	  }
+	  
+	  /**
+	   * {@inheritDoc}
+	   */
+	  @Override
+	  public List<Sample> getControlLibrariesOnCell(Sample cell) throws SampleTypeException{
+		   List<Sample> filteredLibraryList = new ArrayList<Sample>();
+		  for (Sample library : getLibrariesOnCell(cell)){
+			  if (library.getSampleSubtype().getIName().equals("controlLibrarySample"))
+				  filteredLibraryList.add(library);
+		  }
+		  return filteredLibraryList;
+	  }
+	  
+	  /**
+	   * {@inheritDoc}
+	   */
+	  @Override
+	  public void addLibraryToCell(Sample cell, Sample library, Float libConcInLanePicoM) throws SampleTypeException, SampleException, SampleMultiplexException, MetadataException{
+		  // TODO: Write test!!
+		  if (!cell.getSampleType().getIName().equals("cell")){
+			  throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
+		  }
+		  if (!library.getSampleType().getIName().equals("library")){
+			  throw new SampleTypeException("Expected 'library' but got Sample of type '" + library.getSampleType().getIName() + "' instead.");
+		  }
+		  /* 
+			(1) identify the barcode sequence on the library being added. If problem then terminate. 
+			(2) if the library being added has a barcode that is NONE, and the lane contains ANY OTHER LIBRARY, then terminate. 
+			(3) identify barcode of libraries already on lane; if problem, terminate. Should also get their jobIds.
+			(4) if the lane already has a library with a barcode of NONE, then terminate
+			(5) if the library being added has a bardcode that is something other than NONE (meaning a real barcode sequence) AND if a library already on the lane has that same barcode, then terminate. 
+			(6) do we want to maintain only a single jobId for a lane???
+		   */
+
+		  //case 1: identify the adaptor barcode for the library being added; it's barcode is either NONE (no multiplexing) or has some more interesting barcode sequence (for multiplexing, such as AACTG)
+		  Adaptor adaptorOnLibraryBeingAdded = null;
+		  try{
+			  adaptorOnLibraryBeingAdded = adaptorDao.getAdaptorByAdaptorId(Integer.valueOf(MetaHelper.getMetaValue("genericLibrary", "adaptor", library.getSampleMeta())));
+		  } catch(NumberFormatException e){
+			  throw new MetadataException("Cannot convert genericLibrary.adaptor meta result to Integer: "+e.getMessage());
+		  }
+		  
+		  if(adaptorOnLibraryBeingAdded==null || adaptorOnLibraryBeingAdded.getAdaptorId()==null){
+			  throw new SampleException("No adaptor associated with library");
+		  }
+		  else if( adaptorOnLibraryBeingAdded.getBarcodesequence()==null || adaptorOnLibraryBeingAdded.getBarcodesequence().equals("") ){
+			  throw new SampleException("Library adaptor has no barcode");
+		  }
+		  Index index = new Index();
+		  List<Sample> libraries = this.getLibrariesOnCell(cell, index); 
+		  index.increment();
+		  String barcodeOnLibBeingAdded = new String(adaptorOnLibraryBeingAdded.getBarcodesequence());
+
+		  //case 2: dispense with this easy check 
+		  if( barcodeOnLibBeingAdded.equals("NONE") && libraries != null && libraries.size() > 0  ){ //case 2: the library being added has a barcode of "NONE" AND the lane to which user wants to add this library already contains one or more libraries (such action is prohibited)
+			  throw new SampleMultiplexException("Cannot add more than one sample to cell if not multiplexed. Input library has barcode 'NONE'.");
+		  }
+		 
+		  //cases 3, 4, 5, 6 
+		  if (libraries != null) {
+			  for (Sample libraryAlreadyOnLane: libraries) {
+				  Adaptor adaptorOnLane = null;
+				  try{
+					  adaptorOnLane = adaptorDao.getAdaptorByAdaptorId(Integer.valueOf(MetaHelper.getMetaValue("genericLibrary", "adaptor", libraryAlreadyOnLane.getSampleMeta())));
+				  } catch(NumberFormatException e){
+					  throw new MetadataException("Library already on lane: Cannot convert genericLibrary.adaptor meta result to Integer: "+e.getMessage());
+				  }
+				  
+				  if(adaptorOnLane==null || adaptorOnLane.getAdaptorId()==null){
+					  throw new SampleException("Library already on lane : No adaptor associated with library");
+				  }
+				  else if( adaptorOnLane.getBarcodesequence()==null || adaptorOnLane.getBarcodesequence().equals("") ){
+					  throw new SampleException("Library already on lane: adaptor has no barcode");
+				  } 
+				  else if( adaptorOnLane.getBarcodesequence().equals("NONE")){ 
+					  throw new SampleMultiplexException("Library already on lane: Cannot add more than one sample to cell if not multiplexed. Library has barcode 'NONE'");
+				  }
+				  else if(adaptorOnLane.getBarcodesequence().equals(barcodeOnLibBeingAdded)){
+					  throw new SampleMultiplexException("Library already on lane: has same barcode as input library");
+				  }
+				  else{
+					  // TODO: confirm library is really part of this jobId. For now do nothing. If Einstein, then terminate (lane restricted to libraries from single job)
+				  }
+			  }	
+		  }
+
+		  SampleSource newSampleSource = new SampleSource(); 
+		  newSampleSource.setSample(cell);
+		  newSampleSource.setSourceSample(library);
+		  newSampleSource.setIndex(index.getValue());
+		  newSampleSource = sampleSourceDao.save(newSampleSource);//capture the new samplesourceid
+		  
+		  try{
+			  MetaHelper metaHelper = new MetaHelper("LibraryOnCell", SampleSourceMeta.class);
+			  metaHelper.setMetaValueByName("libConcInLanePicoM", libConcInLanePicoM.toString());
+			  metaHelper.setMetaValueByName("jobId", library.getJob().getJobId().toString());
+			  sampleSourceMetaDao.updateBySampleSourceId(newSampleSource.getSampleSourceId(), (List<SampleSourceMeta>) metaHelper.getMetaList());
+		  } catch(MetadataException e){
+			  logger.warn("Unable to set LibraryOnCell SampleSourceMeta");
+		  }
+		  
+	  }
+	  
+	  
 	  
 }

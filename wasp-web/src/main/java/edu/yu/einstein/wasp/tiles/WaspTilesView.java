@@ -15,9 +15,14 @@ public class WaspTilesView extends org.springframework.web.servlet.view.tiles2.T
 	
 	@Override
 	protected void renderMergedOutputModel(Map<String, Object> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
-
+		logger.debug("Requesting view name '"+getUrl().toString()+"'");
 		request.setAttribute("waspViewName", getUrl());
-		super.renderMergedOutputModel(model, request, response);
+		try{
+			super.renderMergedOutputModel(model, request, response);
+		} catch (Exception e){
+			logger.error("Cannot renderMergedOutputModel ("+getUrl().toString()+")");
+			throw new Exception(e);
+		}
 	}
 
 }

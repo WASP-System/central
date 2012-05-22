@@ -32,7 +32,7 @@ import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.controller.util.SampleWrapperWebapp;
 import edu.yu.einstein.wasp.dao.AdaptorDao;
 import edu.yu.einstein.wasp.dao.AdaptorsetDao;
-import edu.yu.einstein.wasp.dao.JobCellDao;
+import edu.yu.einstein.wasp.dao.JobCellSelectionDao;
 import edu.yu.einstein.wasp.dao.JobDao;
 import edu.yu.einstein.wasp.dao.JobSampleDao;
 import edu.yu.einstein.wasp.dao.RunDao;
@@ -45,17 +45,18 @@ import edu.yu.einstein.wasp.dao.TaskDao;
 import edu.yu.einstein.wasp.dao.SampleTypeDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.SampleParentChildException;
+import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Adaptorset;
 import edu.yu.einstein.wasp.model.Job;
-import edu.yu.einstein.wasp.model.JobCell;
+import edu.yu.einstein.wasp.model.JobCellSelection;
 import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
 import edu.yu.einstein.wasp.model.JobSample;
 import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
-import edu.yu.einstein.wasp.model.SampleCell;
+import edu.yu.einstein.wasp.model.SampleJobCellSelection;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.State;
@@ -86,7 +87,7 @@ public class SampleDnaToLibraryController extends WaspController {
   @Autowired
   private SampleMetaDao sampleMetaDao;
   @Autowired
-  private JobCellDao jobCellDao;
+  private JobCellSelectionDao jobCellSelectionDao;
   @Autowired
   private JobDao jobDao;
   @Autowired
@@ -330,7 +331,7 @@ public class SampleDnaToLibraryController extends WaspController {
 		  
 		  int numberLibrariesForThisSample = 0;
 		  if(sample.getSampleType().getIName().equals("rna") || sample.getSampleType().getIName().equals("dna")){
-			  List<SampleSource> librariesForThisSample = sample.getSampleSourceViaSourceSampleId();//how many facility-generated libraries for this macromolecule sample
+			  List<SampleSource> librariesForThisSample = sample.getSourceSampleId();//how many facility-generated libraries for this macromolecule sample
 			  numberLibrariesForThisSample = librariesForThisSample.size();
 		  }
 		  else if(sample.getSampleType().getIName().equals("library")){
@@ -378,7 +379,7 @@ public class SampleDnaToLibraryController extends WaspController {
 		jobCellFilter.put("jobId", job.getJobId().intValue());
 		List<String> orderByList = new ArrayList<String>();
 		orderByList.add("cellindex");
-		List<JobCell> jobCellList = jobCellDao.findByMapDistinctOrderBy(jobCellFilter, null, orderByList, "ASC");
+		List<JobCellSelection> jobCellList = jobCellSelectionDao.findByMapDistinctOrderBy(jobCellFilter, null, orderByList, "ASC");
 	  
 		//attempt at getting the requested coverage in a better format:
 		int totalNumberCellsRequested = jobCellList.size();
@@ -387,11 +388,11 @@ public class SampleDnaToLibraryController extends WaspController {
 			StringBuffer stringBuffer = new StringBuffer("");
 			for(int i = 1; i <= totalNumberCellsRequested; i++){
 				boolean found = false;
-				for(JobCell jobCell : jobCellList){
-					List<SampleCell> sampleCellList = jobCell.getSampleCell();
-					for(SampleCell sampleCell : sampleCellList){
-						if(sampleCell.getSampleId().intValue() == sample.getSampleId().intValue()){
-							if(jobCell.getCellindex().intValue() == i){
+				for(JobCellSelection jobCellSelection : jobCellList){
+					List<SampleJobCellSelection> sampleCellList = jobCellSelection.getSampleCell();
+					for(SampleJobCellSelection sampleJobCellSelection : sampleCellList){
+						if(sampleJobCellSelection.getSampleId().intValue() == sample.getSampleId().intValue()){
+							if(jobCellSelection.getCellindex().intValue() == i){
 								//System.out.print(i + " ");
 								stringBuffer.append("1");
 								found = true;
@@ -459,8 +460,8 @@ public class SampleDnaToLibraryController extends WaspController {
 		for(Sample sample : submittedSamplesList){
 			if(sample.getSampleType().getIName().equals(macromoleculeDnaType.getIName()) || sample.getSampleType().getIName().equals(macromoleculeRnaType.getIName())){
 				macromoleculeSubmittedSamplesList.add(sample);
-				List<Sample> facilityGeneratedLibrariesList = sampleService.getFacilityGeneratedLibraries(sample);//get list of facility-generated libraries from a user-submitted macromoleucle
-				facilityLibraryMap.put(sample, facilityGeneratedLibrariesList);				
+				List<Sample> facilityGeneratedLibrariesList = sampleService.getFacilityGeneratedLibraries(sample);//get list of facility-generated libraries from a user-submitted macromolecule
+				facilityLibraryMap.put(sample, facilityGeneratedLibrariesList);
 			}
 			else if(sample.getSampleType().getIName().equals(libraryType.getIName())){
 				librarySubmittedSamplesList.add(sample);
@@ -528,33 +529,29 @@ public class SampleDnaToLibraryController extends WaspController {
 		
 		List<Sample> availableAndCompatibleFlowCells = sampleService.getAvailableAndCompatibleFlowCells(job);//available flowCells that are compatible with this job
 		for(Sample flowCell : availableAndCompatibleFlowCells){
-			//System.out.println("FlowCell: " + flowCell.getName());
-			List<SampleSource> sampleSourceList = flowCell.getSampleSource();
-			for(SampleSource sampleSource : sampleSourceList){
-				Sample cell = sampleSource.getSampleViaSource();
-				//System.out.println("  Cell: " + cell.getName());
-				List<SampleSource> sampleSourceList2 = cell.getSampleSource();
-				for(SampleSource sampleSource2 : sampleSourceList2){
-					Sample library = sampleSource2.getSampleViaSource();
-					//System.out.println("      Library: " + library.getName());
-					Adaptor adaptor = sampleService.getLibraryAdaptor(library);
-					if(adaptor==null){
-						//message and get out of here
+			try{
+				for (Sample cell: sampleService.getIndexedCellsOnPlatformUnit(flowCell).values()){
+					for (Sample library: sampleService.getLibrariesOnCell(cell)){
+						Adaptor adaptor = sampleService.getLibraryAdaptor(library);
+						if(adaptor==null){
+							logger.error("Expected and adaptor but found none in library id="+library.getSampleId().toString());
+						}
+						libraryAdaptorMap.put(library, adaptor);
 					}
-					libraryAdaptorMap.put(library, adaptor);
 				}
-				
+			} catch(SampleTypeException e){
+				logger.error(e.getMessage());
 			}
 		}
 		
 		Map jobCellFilter = new HashMap();
 		jobCellFilter.put("jobId", job.getJobId().intValue());
 		List<String> orderByList = new ArrayList<String>();
-		orderByList.add("cellindex");
-		List<JobCell> jobCellList = jobCellDao.findByMapDistinctOrderBy(jobCellFilter, null, orderByList, "ASC");
+		orderByList.add("cellIndex");
+		List<JobCellSelection> jobCellSelectionList = jobCellSelectionDao.findByMapDistinctOrderBy(jobCellFilter, null, orderByList, "ASC");
 	  
 		//attempt at getting the requested coverage in a better format:
-		int totalNumberCellsRequested = jobCellList.size();
+		int totalNumberCellsRequested = jobCellSelectionList.size();
 		Map<Sample, String> coverageMap = new LinkedHashMap<Sample, String>();
 		List<Sample> tempListOfAllSubmittedSamples = new ArrayList<Sample>();
 		tempListOfAllSubmittedSamples.addAll(macromoleculeSubmittedSamplesList);
@@ -563,11 +560,11 @@ public class SampleDnaToLibraryController extends WaspController {
 			StringBuffer stringBuffer = new StringBuffer("");
 			for(int i = 1; i <= totalNumberCellsRequested; i++){
 				boolean found = false;
-				for(JobCell jobCell : jobCellList){
-					List<SampleCell> sampleCellList = jobCell.getSampleCell();
-					for(SampleCell sampleCell : sampleCellList){
-						if(sampleCell.getSampleId().intValue() == sample.getSampleId().intValue()){
-							if(jobCell.getCellindex().intValue() == i){
+				for(JobCellSelection jobCellSelection : jobCellSelectionList){
+					List<SampleJobCellSelection> sampleJobCellSelectionList = jobCellSelection.getSampleJobCellSelection();
+					for(SampleJobCellSelection sampleJobCellSelection : sampleJobCellSelectionList){
+						if(sampleJobCellSelection.getSampleId().intValue() == sample.getSampleId().intValue()){
+							if(jobCellSelection.getCellIndex().intValue() == i){
 								//System.out.print(i + " ");
 								stringBuffer.append("1");
 								found = true;
@@ -762,40 +759,20 @@ public class SampleDnaToLibraryController extends WaspController {
 	  libraryForm.setSubmitterJobId(parentMacromolecule.getSubmitterJobId());//needed??
 	  libraryForm.setIsActive(new Integer(1));
 	  libraryForm.setLastUpdTs(new Date());
-	  SampleWrapperWebapp managedLibraryFromForm = new SampleWrapperWebapp(libraryForm, sampleSourceDao);
+	  SampleWrapperWebapp managedLibraryFromForm = new SampleWrapperWebapp(libraryForm);
 	  try {
-		  managedLibraryFromForm.setParent(parentMacromolecule, sampleSourceDao);
+		  managedLibraryFromForm.setParent(parentMacromolecule);
 	  } catch (SampleParentChildException e) {
 		  e.printStackTrace();
 	  }
 	  managedLibraryFromForm.updateMetaToList(sampleMetaListFromForm, sampleMetaDao);
-	  managedLibraryFromForm.saveAll(sampleService, sampleSourceDao);
+	  managedLibraryFromForm.saveAll(sampleService);
 	  
 	  //add entry to jobsample table to link new library to job
 	  JobSample newJobSample = new JobSample();
 	  newJobSample.setJob(jobForThisSample);
 	  newJobSample.setSample(libraryForm);
 	  newJobSample = jobSampleDao.save(newJobSample);
-
-	  //add entry to sample source to link new library to the macromolecule from which it was derived
-	  SampleSource sampleSource = null; 
-
-	  //find max samplesource.multiplexindex for this macromolecule
-	  int maxindex = 0;
-	  Map filterMap2 = new HashMap();
-	  filterMap2.put("sourceSampleId", parentMacromolecule.getSampleId());
-	  List<SampleSource> libFromThisMacromoleculeList = sampleSourceDao.findByMap(filterMap2);
-	  for(SampleSource ss : libFromThisMacromoleculeList){
-		  if (ss.getSampleId().intValue() == libraryForm.getSampleId().intValue()){
-			  sampleSource = ss;
-	  	  } else if(ss.getMultiplexindex().intValue() > maxindex){
-			  maxindex = ss.getMultiplexindex().intValue();
-		  }
-	  }
-	  maxindex++;
-	  sampleSource.setMultiplexindex(new Integer(maxindex));
-	  sampleSource.setLastUpdTs(new Date());
-	  sampleSource = sampleSourceDao.save(sampleSource);
 
 	  //TODO record state change
 	  Task task = taskDao.getTaskByIName("Create Library");
@@ -854,7 +831,7 @@ public class SampleDnaToLibraryController extends WaspController {
 	  
 	  Sample library = sampleDao.getSampleBySampleId(libraryId); 
 	  validateSampleNameUnique(libraryForm.getName(), libraryId, jobDao.getJobByJobId(jobId), result);
-	  SampleWrapperWebapp managedLibrary = new SampleWrapperWebapp(library, sampleSourceDao);
+	  SampleWrapperWebapp managedLibrary = new SampleWrapperWebapp(library);
 	  List<SampleMeta> metaFromForm = SampleWrapperWebapp.getValidatedMetaFromRequestAndTemplateToSubtype(request, 
 			  sampleSubtypeDao.getSampleSubtypeBySampleSubtypeId(libraryForm.getSampleSubtypeId()), result); 
 	  if(result.hasErrors()){
@@ -865,7 +842,7 @@ public class SampleDnaToLibraryController extends WaspController {
 	  // all ok so save 
 	  library.setName(libraryForm.getName());
 	  managedLibrary.updateMetaToList(metaFromForm, sampleMetaDao);
-	  managedLibrary.saveAll(sampleService, sampleSourceDao);
+	  managedLibrary.saveAll(sampleService);
 
 	  waspMessage("sampleDetail.updated_success.label");
 	  return "redirect:/sampleDnaToLibrary/librarydetail_ro/"+jobId+"/"+libraryId+".do";
@@ -918,7 +895,7 @@ public class SampleDnaToLibraryController extends WaspController {
 	  	
 	  	// libraryIn should be a detached Sample object. If the sampleId is null then the Sample object is from a form and all the metadata from the form is 
 	  	// assumed to be associated with it. Otherwise we assume that the library info is cloned from a persisted object.
-		SampleWrapperWebapp libraryInManaged = new SampleWrapperWebapp(libraryIn, sampleSourceDao);
+		SampleWrapperWebapp libraryInManaged = new SampleWrapperWebapp(libraryIn);
 		
   		Adaptorset selectedAdaptorset = null;
 		Adaptor adaptor = null;
@@ -938,7 +915,7 @@ public class SampleDnaToLibraryController extends WaspController {
   		}
 		SampleWrapperWebapp persistentLibraryManaged;
 		if (libraryIn.getSampleId() == null){
-			persistentLibraryManaged = new SampleWrapperWebapp(sampleDao.getSampleBySampleId(libraryInId), sampleSourceDao);
+			persistentLibraryManaged = new SampleWrapperWebapp(sampleDao.getSampleBySampleId(libraryInId));
 		} else {
 			persistentLibraryManaged = libraryInManaged;
 		}
@@ -993,7 +970,7 @@ public class SampleDnaToLibraryController extends WaspController {
 	  Sample sample= sampleDao.getSampleBySampleId(sampleId);
 	  //confirm these two objects exist and part of same job
 	  
-	  SampleWrapperWebapp sampleManaged = new SampleWrapperWebapp(sample, sampleSourceDao);
+	  SampleWrapperWebapp sampleManaged = new SampleWrapperWebapp(sample);
 	  m.addAttribute("normalizedSampleMeta", SampleWrapperWebapp.templateMetaToSubtypeAndSynchronizeWithMaster(sample.getSampleSubtype(), sampleManaged.getAllSampleMeta()) );
 	  m.put("job", job);
 	  m.put("sample", sample); 
@@ -1026,7 +1003,7 @@ public class SampleDnaToLibraryController extends WaspController {
 	  validateSampleNameUnique(sampleForm.getName(), sampleId, jobForThisSample, result);
 	  
 	  Sample sample = sampleDao.getSampleBySampleId(sampleId); 
-	  SampleWrapperWebapp managedSample = new SampleWrapperWebapp(sample, sampleSourceDao);
+	  SampleWrapperWebapp managedSample = new SampleWrapperWebapp(sample);
 	  List<SampleMeta> metaFromForm = SampleWrapperWebapp.getValidatedMetaFromRequestAndTemplateToSubtype(request, sample.getSampleSubtype(), result); // gets meta and adds back to managed sampleForm as it is not persisted
 	  if(result.hasErrors()){
 		  sampleForm.setSampleType(sampleTypeDao.getSampleTypeBySampleTypeId(sampleForm.getSampleTypeId()));
@@ -1037,7 +1014,7 @@ public class SampleDnaToLibraryController extends WaspController {
 		  return "sampleDnaToLibrary/sampledetail_rw";
 	  }
 	  managedSample.updateMetaToList(metaFromForm, sampleMetaDao);
-	  managedSample.saveAll(sampleService, sampleSourceDao);
+	  managedSample.saveAll(sampleService);
 
 	  waspMessage("sampleDetail.updated_success.label");
 	  return "redirect:/sampleDnaToLibrary/sampledetail_ro/" + jobId + "/" + sampleId + ".do";
@@ -1083,11 +1060,11 @@ public class SampleDnaToLibraryController extends WaspController {
 	  Set<Sample> samplesSet = new HashSet<Sample>();//use this to store a set of unique samples submitted by the user for a specific job; use treeset as it is ordered (by what I don't know)
 	  Map filterJobCell = new HashMap();
 	  filterJobCell.put("jobId", job.getJobId());
-	  List<JobCell> jobCells = jobCellDao.findByMap(filterJobCell);
-	  for(JobCell jobCell : jobCells){
-		  List<SampleCell> sampleCells = jobCell.getSampleCell();
-		  for(SampleCell sampleCell : sampleCells){
-			   samplesSet.add(sampleCell.getSample());
+	  List<JobCellSelection> jobCellSelections = jobCellSelectionDao.findByMap(filterJobCell);
+	  for(JobCellSelection jobCellSelection : jobCellSelections){
+		  List<SampleJobCellSelection> sampleJobCellSelections = jobCellSelection.getSampleJobCellSelection();
+		  for(SampleJobCellSelection sampleJobCellSelection : sampleJobCellSelections){
+			   samplesSet.add(sampleJobCellSelection.getSample());
 		  }
 	  }	  
 	  List<Sample> submittedSamples = new ArrayList<Sample>();//need list in order to sort (sets do not sort)

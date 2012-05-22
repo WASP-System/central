@@ -28,12 +28,12 @@ BODY {margin: 0; padding: 0;}
     <div class="job">
       <label>Job <c:out value="${j.jobId}" /></label>
       <c:out value="${j.name}" /> [Analysis: <c:out value="${j.workflow.name}" />] 
-      <c:forEach items="${j.jobCell}" var="jc">
+      <c:forEach items="${j.jobCellSelection}" var="jc">
         <div class="jobcell">
-          Job Cell: <c:out value="${jc.cellindex}" /> 
-          <c:forEach items="${jc.sampleCell}" var="sc">
+          Job Cell: <c:out value="${jc.cellIndex}" /> 
+          <c:forEach items="${jc.sampleJobCellSelection}" var="sc">
             <div class="samplecell">
-              Sample Cell: <c:out value="${sc.libraryindex}" /> 
+              Sample Cell: <c:out value="${sc.libraryIndex}" /> 
                <div class="sample">
                 
                         <c:choose>
@@ -68,7 +68,7 @@ BODY {margin: 0; padding: 0;}
 				  </div>
                   </c:if>
                   
-                  <c:forEach items="${sc.sample.sampleSourceViaSourceSampleId}" var="schild">
+                  <c:forEach items="${sc.sample.sourceSampleId}" var="schild">
                     <div class="samplechild">
                     <c:if test="${schild.sample.sampleType.IName == 'library'}">
                         <label>Facility-generated Library</label>
@@ -107,7 +107,7 @@ BODY {margin: 0; padding: 0;}
 							</div>
 						</div>
                     </c:if>
-                      <c:forEach items="${schild.sample.sampleSourceViaSourceSampleId}" var="schild2">
+                      <c:forEach items="${schild.sample.sourceSampleId}" var="schild2">
                         <c:if test="${schild2.sample.sampleType.IName == 'lane'}">
                           <div class="samplechild2">
                             <label>Two Deep</label>
@@ -153,15 +153,15 @@ BODY {margin: 0; padding: 0;}
          <div class="cell">
            <label>Cells</label>
            <c:out value="${puparent.sampleSourceId}" /> 
-           <c:out value="${puparent.sampleViaSource.name}" /> 
+           <c:out value="${puparent.sourceSample.name}" /> 
 
-           <c:forEach items="${puparent.sampleViaSource.sampleSource}" var="lib">
+           <c:forEach items="${puparent.sourceSample.sampleSource}" var="lib">
              <div class="library">
-               <label>Library</label><c:out value="${lib.sampleViaSource.name}" />
+               <label>Library</label><c:out value="${lib.sourceSample.name}" />
                
                
-               <c:if test="${lib.sampleViaSource.sampleType.IName == 'library'}">
-                  <c:forEach items="${lib.sampleViaSource.sampleMeta}" var="sm">
+               <c:if test="${lib.sourceSample.sampleType.IName == 'library'}">
+                  <c:forEach items="${lib.sourceSample.sampleMeta}" var="sm">
                    <c:if test="${fn:substringAfter(sm.k, '.library.') == 'adaptorid'}">
                     <div><label>Adaptor</label> <c:out value="${adaptors[sm.v]}"/></div>
                     </c:if> 
@@ -193,15 +193,15 @@ BODY {margin: 0; padding: 0;}
          <div class="cell">
            <label>Lane</label>
       <!--       <c:out value="${puparent.sampleSourceId}" />  -->
-           <c:out value="${puparent.sampleViaSource.name}" /> 
+           <c:out value="${puparent.sourceSample.name}" /> 
 
-           <c:forEach items="${puparent.sampleViaSource.sampleSource}" var="lib">
+           <c:forEach items="${puparent.sourceSample.sampleSource}" var="lib">
              <div class="library">
-               <label>Library</label> <c:out value="${lib.sampleViaSource.name}" />
+               <label>Library</label> <c:out value="${lib.sourceSample.name}" />
                
                
-               <c:if test="${lib.sampleViaSource.sampleType.IName == 'library'}">
-                  <c:forEach items="${lib.sampleViaSource.sampleMeta}" var="sm">
+               <c:if test="${lib.sourceSample.sampleType.IName == 'library'}">
+                  <c:forEach items="${lib.sourceSample.sampleMeta}" var="sm">
                    <c:if test="${fn:substringAfter(sm.k, 'Library.') == 'adaptor'}">
                     <div><label>Adaptor</label> <c:out value="${adaptors[sm.v]}"/></div>
                     </c:if> 
@@ -232,7 +232,7 @@ BODY {margin: 0; padding: 0;}
     <c:forEach items="${flowCells}" var="pu">
 	lanes.append($('<option></option>').val('<c:out value="0" />').html('<b><c:out value="${pu.name}" /></b>'));
       <c:forEach items="${pu.sampleSource}" var="puparent">
-         lanes.append($('<option></option>').val('<c:out value="${puparent.sampleViaSource.sampleId}" />').html(' - <c:out value="${puparent.sampleViaSource.name}" />'));
+         lanes.append($('<option></option>').val('<c:out value="${puparent.sourceSample.sampleId}" />').html(' - <c:out value="${puparent.sourceSample.name}" />'));
       </c:forEach>
   </c:forEach>
 </script>

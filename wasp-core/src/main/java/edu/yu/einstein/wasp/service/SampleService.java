@@ -11,10 +11,18 @@
 package edu.yu.einstein.wasp.service;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
 import edu.yu.einstein.wasp.dao.SampleDao;
+import edu.yu.einstein.wasp.exception.MetadataException;
+import edu.yu.einstein.wasp.exception.SampleDuplicationException;
+import edu.yu.einstein.wasp.exception.SampleException;
+import edu.yu.einstein.wasp.exception.SampleIndexException;
+import edu.yu.einstein.wasp.exception.SampleMultiplexException;
+import edu.yu.einstein.wasp.exception.SampleParentChildException;
+import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Sample;
@@ -180,4 +188,75 @@ public interface SampleService extends WaspService {
 	   * 
 	   */
 	  public List<Sample> getAvailableAndCompatibleFlowCells(Job job);
+
+	  
+	  /**
+	   * Returns Map of Cells according to their index for a platform unit
+	   * @param platformUnit
+	   * @return Map<Integer, Sample> indexedCells
+	   * @throws SampleTypeException 
+	   */
+	  public Map<Integer, Sample> getIndexedCellsOnPlatformUnit(Sample platformUnit) throws SampleTypeException;
+	  
+	  /**
+	   * Adds a cell to a platform unit. Ensures that the index is unique.
+	   * @param platformUnit
+	   * @param cell
+	   * @param Index
+	   * @throws SampleTypeException
+	   * @throws SampleIndexException
+	   */
+	  public void addCellToPlatformUnit(Sample platformUnit, Sample cell, Integer Index) throws SampleTypeException, SampleIndexException;
+
+	  /**
+	   * Returns list of Samples on a cell. If control libraries are spiked in, these are also returned.
+	   * @param cell
+	   * @return list of libraries (including spike-in controls)
+	   * @throws SampleTypeException
+	   */
+	  public List<Sample> getLibrariesOnCell(Sample cell) throws SampleTypeException;
+
+	  /**
+	   * Returns list of Samples on a cell. If control libraries are spiked in, these are ignored and NOT returned.
+	   * @param cell
+	   * @return list of libraries (without spike-in controls)
+	   * @throws SampleTypeException
+	   */
+	  public List<Sample> getLibrariesOnCellWithoutControls(Sample cell) throws SampleTypeException;
+
+	  /**
+	   * Returns a list of spiked-in libraries on a cell
+	   * @param cell
+	   * @return list of control libraries
+	   * @throws SampleTypeException
+	   */
+	  public List<Sample> getControlLibrariesOnCell(Sample cell) throws SampleTypeException;
+
+	  /**
+	   * Set the authentication service
+	   * @param authenticationService
+	   */
+	  public void setAuthenticationService(AuthenticationService authenticationService);
+
+	  /**
+	   * Get a cell for a given platform unit
+	   * @param cell
+	   * @return
+	   * @throws SampleParentChildException 
+	   * @throws SampleTypeException 
+	   */
+	  public Sample getPlatformUnitForCell(Sample cell) throws SampleTypeException, SampleParentChildException;
+
+	  /**
+	   * Adds a given library to the given cell
+	   * @param cell
+	   * @param library
+	   * @param libConcInLanePicoM
+	   * @throws SampleTypeException
+	   * @throws SampleException
+	   * @throws SampleMultiplexException
+	   * @throws MetadataException
+	   */
+	  public void addLibraryToCell(Sample cell, Sample library,	Float libConcInLanePicoM) throws SampleTypeException, SampleException, SampleMultiplexException, MetadataException;
+
 }

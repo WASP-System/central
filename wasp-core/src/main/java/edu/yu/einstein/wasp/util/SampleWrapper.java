@@ -33,16 +33,16 @@ public class SampleWrapper implements BioMoleculeWrapperI{
 	protected static final Logger logger = Logger.getLogger(SampleWrapper.class);
 		
 	/**
-	 * Constructor: requires the target sample object and a sampleSourceDao implementation
+	 * Constructor: requires the target sample object
 	 * @param sample
 	 * @param sampleSourceDao
 	 */
-	public SampleWrapper(Sample sample, SampleSourceDao sampleSourceDao){
+	public SampleWrapper(Sample sample){
 		this.sample = sample;
 		if (sample.getSampleId() != null){
-			Sample parentSample = sampleSourceDao.getParentSampleByDerivedSampleId(sample.getSampleId());
-			if (parentSample.getSampleId() != null){
-	  			parent = new SampleWrapper(parentSample, sampleSourceDao);
+			Sample parentSample = sample.getParent();
+			if (parentSample != null){
+	  			parent = new SampleWrapper(parentSample);
 	  		}
 		}
 	}
@@ -105,14 +105,15 @@ public class SampleWrapper implements BioMoleculeWrapperI{
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setParent(Sample parentSample, SampleSourceDao sampleSourceDao) throws SampleParentChildException{
+	public void setParent(Sample parentSample) throws SampleParentChildException{
 		if (parent != null && 
 				parent.getSampleObject().getSampleId() != null && 
-				sampleSourceDao.getParentSampleByDerivedSampleId(sample.getSampleId()).getSampleId() != null && 
-				sampleSourceDao.getParentSampleByDerivedSampleId(sample.getSampleId()).getSampleId().intValue() == parent.getSampleObject().getSampleId().intValue()){
+				sample.getParent().getSampleId() != null && 
+				sample.getParent().getSampleId().intValue() == parent.getSampleObject().getSampleId().intValue()){
 			throw new SampleParentChildException("parentSample already assigned as parent of sample managed by SampleWrapper");
 		}
-		parent = new SampleWrapper(parentSample, sampleSourceDao);
+		parent = new SampleWrapper(parentSample);
+		sample.setParent(parentSample);
 	}
 	
 		
@@ -207,21 +208,12 @@ public class SampleWrapper implements BioMoleculeWrapperI{
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void saveAll(SampleService sampleService, SampleSourceDao sampleSourceDao){
+	public void saveAll(SampleService sampleService){
 		if (parent != null)
-			parent.saveAll(sampleService, sampleSourceDao); // Propagate up just in case
+			parent.saveAll(sampleService); // Propagate up just in case
 		// persist sample if not yet persisted
 		if (sample.getSampleId() == null){
 			sampleService.saveSampleWithAssociatedMeta(sample);
-		}
-		
-		// save sample -> parent relationship if it doesn't exist
-		if (parent != null && (sampleSourceDao.getParentSampleByDerivedSampleId(sample.getSampleId()).getSampleId() == null ||
-			sampleSourceDao.getParentSampleByDerivedSampleId(sample.getSampleId()).getSampleId().intValue() != parent.getSampleObject().getSampleId().intValue()) ){
-			SampleSource sampleSource = new SampleSource();
-			sampleSource.setSampleId(sample.getSampleId());
-			sampleSource.setSourceSampleId(parent.getSampleObject().getSampleId());
-			sampleSourceDao.save(sampleSource);
 		}
 	}
 }

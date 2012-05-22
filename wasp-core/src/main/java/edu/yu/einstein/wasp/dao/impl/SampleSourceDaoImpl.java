@@ -87,42 +87,6 @@ public class SampleSourceDaoImpl extends WaspDaoImpl<SampleSource> implements ed
 		}
 		return results.get(0);
 	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	@SuppressWarnings("unchecked")
-	@Transactional
-	public Sample getParentSampleByDerivedSampleId(Integer derivedSampleId){
-		HashMap m = new HashMap();
-		m.put("sampleId", derivedSampleId);
-		List<SampleSource> results = this.findByMap(m);
-
-		if (results.size() == 0) {
-			Sample rt = new Sample();
-			return rt;
-		}
-		return results.get(0).getSampleViaSource();
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	@SuppressWarnings("unchecked")
-	@Transactional
-	public List<Sample> getDerivedSamplesByParentSampleId(Integer parentSampleId){
-		HashMap m = new HashMap();
-		m.put("source_sampleId", parentSampleId);
-		List<Sample> derivedSamples = new ArrayList<Sample>();
-		for(SampleSource sampleSource: (List<SampleSource>) this.findByMap(m)){
-			derivedSamples.add(sampleSource.getSample());
-		}
-		return derivedSamples;
-	}
-
-
 
 }
 

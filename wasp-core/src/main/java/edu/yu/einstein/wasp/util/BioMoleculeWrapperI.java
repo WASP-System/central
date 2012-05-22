@@ -65,17 +65,16 @@ public interface BioMoleculeWrapperI {
 	/**
 	 * Adds a parent to the managed sample
 	 * @param parentSample
-	 * @param sampleSourceDao
 	 * @throws SampleParentChildException
 	 */
-	public void setParent(Sample parentSample, SampleSourceDao sampleSourceDao) throws SampleParentChildException;
+	public void setParent(Sample parentSample) throws SampleParentChildException;
 	
 	/**
 	 * Save sample object and its metadata to the database. Propagates up the inheritance chain
 	 * @param sampleService
 	 * @param sampleSourceDao
 	 */
-	public void saveAll(SampleService sampleService, SampleSourceDao sampleSourceDao);
+	public void saveAll(SampleService sampleService);
 
 	/**
 	 * Get wrapped parent sample object (or null)

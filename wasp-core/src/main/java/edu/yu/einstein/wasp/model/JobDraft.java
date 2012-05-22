@@ -613,35 +613,35 @@ public class JobDraft extends WaspModel {
 
 
 	/** 
-	 * jobDraftCell
+	 * jobDraftCellSelection
 	 *
 	 */
 	@NotAudited
 	@OneToMany
 	@JoinColumn(name="jobdraftid", insertable=false, updatable=false)
-	protected List<JobDraftCell> jobDraftCell;
+	protected List<JobDraftCellSelection> jobDraftCellSelection;
 
 
 	/** 
 	 * getJobDraftCell()
 	 *
-	 * @return jobDraftCell
+	 * @return jobDraftCellSelection
 	 *
 	 */
 	@JsonIgnore
-	public List<JobDraftCell> getJobDraftCell() {
-		return this.jobDraftCell;
+	public List<JobDraftCellSelection> getJobDraftCellSelection() {
+		return this.jobDraftCellSelection;
 	}
 
 
 	/** 
 	 * setJobDraftCell
 	 *
-	 * @param jobDraftCell
+	 * @param jobDraftCellSelection
 	 *
 	 */
-	public void setJobDraftCell (List<JobDraftCell> jobDraftCell) {
-		this.jobDraftCell = jobDraftCell;
+	public void setJobDraftCellSelection (List<JobDraftCellSelection> jobDraftCellSelection) {
+		this.jobDraftCellSelection = jobDraftCellSelection;
 	}
 
 

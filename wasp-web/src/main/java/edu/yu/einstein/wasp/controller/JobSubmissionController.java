@@ -49,9 +49,9 @@ import edu.yu.einstein.wasp.dao.AdaptorDao;
 import edu.yu.einstein.wasp.dao.AdaptorsetDao;
 import edu.yu.einstein.wasp.dao.AdaptorsetResourceCategoryDao;
 import edu.yu.einstein.wasp.dao.FileDao;
-import edu.yu.einstein.wasp.dao.JobCellDao;
+import edu.yu.einstein.wasp.dao.JobCellSelectionDao;
 import edu.yu.einstein.wasp.dao.JobDao;
-import edu.yu.einstein.wasp.dao.JobDraftCellDao;
+import edu.yu.einstein.wasp.dao.JobDraftCellSelectionDao;
 import edu.yu.einstein.wasp.dao.JobDraftDao;
 import edu.yu.einstein.wasp.dao.JobDraftMetaDao;
 import edu.yu.einstein.wasp.dao.JobDraftSoftwareDao;
@@ -65,9 +65,9 @@ import edu.yu.einstein.wasp.dao.LabDao;
 import edu.yu.einstein.wasp.dao.ResourceCategoryDao;
 import edu.yu.einstein.wasp.dao.ResourceDao;
 import edu.yu.einstein.wasp.dao.RoleDao;
-import edu.yu.einstein.wasp.dao.SampleCellDao;
+import edu.yu.einstein.wasp.dao.SampleJobCellSelectionDao;
 import edu.yu.einstein.wasp.dao.SampleDao;
-import edu.yu.einstein.wasp.dao.SampleDraftCellDao;
+import edu.yu.einstein.wasp.dao.SampleDraftJobDraftCellSelectionDao;
 import edu.yu.einstein.wasp.dao.SampleDraftDao;
 import edu.yu.einstein.wasp.dao.SampleDraftMetaDao;
 import edu.yu.einstein.wasp.dao.SampleFileDao;
@@ -93,9 +93,9 @@ import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Adaptorset;
 import edu.yu.einstein.wasp.model.AdaptorsetResourceCategory;
 import edu.yu.einstein.wasp.model.Job;
-import edu.yu.einstein.wasp.model.JobCell;
+import edu.yu.einstein.wasp.model.JobCellSelection;
 import edu.yu.einstein.wasp.model.JobDraft;
-import edu.yu.einstein.wasp.model.JobDraftCell;
+import edu.yu.einstein.wasp.model.JobDraftCellSelection;
 import edu.yu.einstein.wasp.model.JobDraftMeta;
 import edu.yu.einstein.wasp.model.JobDraftSoftware;
 import edu.yu.einstein.wasp.model.JobDraftresourcecategory;
@@ -112,9 +112,9 @@ import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.ResourceType;
 import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.Sample;
-import edu.yu.einstein.wasp.model.SampleCell;
+import edu.yu.einstein.wasp.model.SampleJobCellSelection;
 import edu.yu.einstein.wasp.model.SampleDraft;
-import edu.yu.einstein.wasp.model.SampleDraftCell;
+import edu.yu.einstein.wasp.model.SampleDraftJobDraftCellSelection;
 import edu.yu.einstein.wasp.model.SampleDraftMeta;
 import edu.yu.einstein.wasp.model.SampleFile;
 import edu.yu.einstein.wasp.model.SampleMeta;
@@ -149,7 +149,7 @@ public class JobSubmissionController extends WaspController {
 	protected JobDraftMetaDao jobDraftMetaDao;
 
 	@Autowired
-	protected JobDraftCellDao jobDraftCellDao;
+	protected JobDraftCellSelectionDao jobDraftCellSelectionDao;
 
 	@Autowired
 	protected JobDraftresourcecategoryDao jobDraftresourcecategoryDao;
@@ -170,7 +170,7 @@ public class JobSubmissionController extends WaspController {
 	protected SampleDraftMetaDao sampleDraftMetaDao;
 
 	@Autowired
-	protected SampleDraftCellDao sampleDraftCellDao;
+	protected SampleDraftJobDraftCellSelectionDao sampleDraftJobDraftCellSelectionDao;
 
 
 	@Autowired
@@ -258,13 +258,13 @@ public class JobSubmissionController extends WaspController {
 	protected FileDao fileDao;
 
 	@Autowired
-	protected JobCellDao jobCellDao;
+	protected JobCellSelectionDao jobCellSelectionDao;
 
 	@Autowired
 	protected java.net.URI jobRunnerHost;
 	
 	@Autowired
-	protected SampleCellDao sampleCellDao;
+	protected SampleJobCellSelectionDao sampleJobCellSelectionDao;
 	
 	@Autowired
 	protected MessageService messageService;
@@ -1606,7 +1606,7 @@ public class JobSubmissionController extends WaspController {
 		//int cellindexCount = 0;
 
 		for (SampleDraft sd: samples) {
- 			for (SampleDraftCell sdc: sd.getSampleDraftCell()) {
+ 			for (SampleDraftJobDraftCellSelection sdc: sd.getSampleDraftJobDraftCellSelection()) {
 /*
 				int cellId = sdc.getJobdraftcellId();
 				if (! cellMap.containsKey(cellId)) {
@@ -1615,7 +1615,7 @@ public class JobSubmissionController extends WaspController {
 				}
 				int cellIndex = cellMap.get(cellId);
 */
-				int cellIndex = sdc.getJobDraftCell().getCellindex();
+				int cellIndex = sdc.getJobDraftCellSelection().getCellIndex();
 
 				String key = sd.getSampleDraftId() + "_" + cellIndex;
 
@@ -1653,16 +1653,16 @@ public class JobSubmissionController extends WaspController {
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
 		
-		List<JobDraftCell> oldJobDraftCells = jobDraft.getJobDraftCell();
+		List<JobDraftCellSelection> oldJobDraftCellSelections = jobDraft.getJobDraftCellSelection();
 
-		for (JobDraftCell jdc: oldJobDraftCells) {
-			List<SampleDraftCell> oldSampleDraftCells = jdc.getSampleDraftCell();
-			for (SampleDraftCell sdc: oldSampleDraftCells) {
-				sampleDraftCellDao.remove(sdc);
-				sampleDraftCellDao.flush(sdc);
+		for (JobDraftCellSelection jdc: oldJobDraftCellSelections) {
+			List<SampleDraftJobDraftCellSelection> oldSampleDraftJobDraftCellSelections = jdc.getSampleDraftJobDraftCellSelection();
+			for (SampleDraftJobDraftCellSelection sdc: oldSampleDraftJobDraftCellSelections) {
+				sampleDraftJobDraftCellSelectionDao.remove(sdc);
+				sampleDraftJobDraftCellSelectionDao.flush(sdc);
 			}
-			jobDraftCellDao.remove(jdc);
-			jobDraftCellDao.flush(jdc);
+			jobDraftCellSelectionDao.remove(jdc);
+			jobDraftCellSelectionDao.flush(jdc);
 		}
 
 
@@ -1683,9 +1683,9 @@ public class JobSubmissionController extends WaspController {
 			int libraryindex = 0;
 			boolean cellfound = false;
 
-			JobDraftCell thisJobDraftCell = new JobDraftCell();
-			thisJobDraftCell.setJobdraftId(jobDraftId);
-			thisJobDraftCell.setCellindex(cellindex + 1);
+			JobDraftCellSelection thisJobDraftCellSelection = new JobDraftCellSelection();
+			thisJobDraftCellSelection.setJobdraftId(jobDraftId);
+			thisJobDraftCellSelection.setCellIndex(cellindex + 1);
 
 			for (SampleDraft sd: samples) {
 				String checked = "0";
@@ -1702,21 +1702,21 @@ public class JobSubmissionController extends WaspController {
 					cellfound = true;
 					cellindex++;
 
-					JobDraftCell jobDraftCellDb = jobDraftCellDao.save(thisJobDraftCell);
-					thisJobDraftCell = jobDraftCellDb;
+					JobDraftCellSelection jobDraftCellSelectionDb = jobDraftCellSelectionDao.save(thisJobDraftCellSelection);
+					thisJobDraftCellSelection = jobDraftCellSelectionDb;
 
-					jobDraftCellDao.flush(thisJobDraftCell);
+					jobDraftCellSelectionDao.flush(thisJobDraftCellSelection);
 				}
 
 				libraryindex++;
 
-				SampleDraftCell sampleDraftCell = new SampleDraftCell();
+				SampleDraftJobDraftCellSelection sampleDraftJobDraftCellSelection = new SampleDraftJobDraftCellSelection();
 
-				sampleDraftCell.setJobdraftcellId(thisJobDraftCell.getJobDraftCellId());
-				sampleDraftCell.setSampledraftId(sd.getSampleDraftId());
-				sampleDraftCell.setLibraryindex(libraryindex);
+				sampleDraftJobDraftCellSelection.setJobDraftCellSelectionId(thisJobDraftCellSelection.getJobDraftCellSelectionId());
+				sampleDraftJobDraftCellSelection.setSampledraftId(sd.getSampleDraftId());
+				sampleDraftJobDraftCellSelection.setLibraryIndex(libraryindex);
 
-				sampleDraftCellDao.save(sampleDraftCell);
+				sampleDraftJobDraftCellSelectionDao.save(sampleDraftJobDraftCellSelection);
 
 				// checkedList.add("sdc_" + sd.getSampleDraftId() + "_" + i + " " + cellindex + " " + libraryindex);
 
@@ -1853,16 +1853,16 @@ public class JobSubmissionController extends WaspController {
 		}
 
 		// Job Cells (oldid, newobj)
-		Map<Integer,JobCell> jobDraftCellMap = new HashMap<Integer,JobCell>();
+		Map<Integer,JobCellSelection> jobDraftCellMap = new HashMap<Integer,JobCellSelection>();
 
-		for (JobDraftCell jdc: jobDraft.getJobDraftCell()) {
-			JobCell jobCell = new JobCell();
-			jobCell.setJobId(jobDb.getJobId());
-			jobCell.setCellindex(jdc.getCellindex());
+		for (JobDraftCellSelection jdc: jobDraft.getJobDraftCellSelection()) {
+			JobCellSelection jobCellSelection = new JobCellSelection();
+			jobCellSelection.setJobId(jobDb.getJobId());
+			jobCellSelection.setCellIndex(jdc.getCellIndex());
 
-			JobCell jobCellDb =	jobCellDao.save(jobCell);	
+			JobCellSelection jobCellSelectionDb =	jobCellSelectionDao.save(jobCellSelection);	
 
-			jobDraftCellMap.put(jdc.getJobDraftCellId(), jobCellDb);
+			jobDraftCellMap.put(jdc.getJobDraftCellSelectionId(), jobCellSelectionDb);
 		}
 
 		// Create Samples
@@ -1919,13 +1919,12 @@ public class JobSubmissionController extends WaspController {
 
 			jobSampleDao.save(jobSample);
 
-			for (SampleDraftCell sdc: sd.getSampleDraftCell()) {
-				SampleCell sampleCell = new SampleCell();
-				sampleCell.setSampleId(sampleDb.getSampleId());
-				sampleCell.setJobcellId(jobDraftCellMap.get(sdc.getJobdraftcellId()).getJobCellId());
-				sampleCell.setLibraryindex(sdc.getLibraryindex());
-
-				SampleCell sampleCellDb = sampleCellDao.save(sampleCell);
+			for (SampleDraftJobDraftCellSelection sdc: sd.getSampleDraftJobDraftCellSelection()) {
+				SampleJobCellSelection sampleJobCellSelection = new SampleJobCellSelection();
+				sampleJobCellSelection.setSampleId(sampleDb.getSampleId());
+				sampleJobCellSelection.setJobCellSelectionId(jobDraftCellMap.get(sdc.getJobDraftCellSelectionId()).getJobCellSelectionId());
+				sampleJobCellSelection.setLibraryIndex(sdc.getLibraryIndex());
+				sampleJobCellSelectionDao.save(sampleJobCellSelection);
 			}
 		}
 

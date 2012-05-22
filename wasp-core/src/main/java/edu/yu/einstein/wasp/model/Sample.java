@@ -62,6 +62,33 @@ public class Sample extends WaspModel {
 		return this.sampleId;
 	}
 
+	/** 
+	 * parentId
+	 *
+	 */
+	@Column(name="parentid")
+	protected Integer parentId;
+
+	/**
+	 * setParentId(Integer parentId)
+	 *
+	 * @param parentId
+	 *
+	 */
+	
+	public void setParentId (Integer parentId) {
+		this.parentId = parentId;
+	}
+
+	/**
+	 * getParentId()
+	 *
+	 * @return parentId
+	 *
+	 */
+	public Integer getParentId () {
+		return this.parentId;
+	}
 
 
 
@@ -531,6 +558,70 @@ public class Sample extends WaspModel {
 	public SampleSubtype getSampleSubtype () {
 		return this.sampleSubtype;
 	}
+	
+	
+	/**
+	 * parent
+	 *
+	 */
+	@NotAudited
+	@ManyToOne
+	@JoinColumn(name="parentid", insertable=false, updatable=false)
+	protected Sample parent;
+
+	/**
+	 * setParent (Sample parent)
+	 *
+	 * @param sampleSubtype
+	 *
+	 */
+	public void setParent (Sample parent) {
+		this.parent = parent;
+		this.parentId = parent.sampleId;
+	}
+	
+	/** 
+	 * children
+	 *
+	 */
+	@NotAudited
+	@OneToMany(mappedBy = "parentId")
+	protected List<Sample> children;
+
+
+	/** 
+	 * getChildren()
+	 *
+	 * @return children
+	 *
+	 */
+	@JsonIgnore
+	public List<Sample> getChildren() {
+		return this.children;
+	}
+
+
+	/** 
+	 * setChildren
+	 *
+	 * @param sampleMeta
+	 *
+	 */
+	public void setChildren (List<Sample> children) {
+		this.children = children;
+	}
+	
+
+	/**
+	 * getSampleSubtype ()
+	 *
+	 * @return sampleSubtype
+	 *
+	 */
+	
+	public Sample getParent() {
+		return this.parent;
+	}
 
 
 	/**
@@ -660,7 +751,7 @@ public class Sample extends WaspModel {
 	public void setSampleMeta (List<SampleMeta> sampleMeta) {
 		this.sampleMeta = sampleMeta;
 	}
-
+	
 
 
 	/** 
@@ -698,35 +789,35 @@ public class Sample extends WaspModel {
 
 
 	/** 
-	 * sampleSourceViaSourceSampleId
+	 * sourceSampleId
 	 *
 	 */
 	@NotAudited
 	@OneToMany
 	@JoinColumn(name="source_sampleid", insertable=false, updatable=false)
-	protected List<SampleSource> sampleSourceViaSourceSampleId;
+	protected List<SampleSource> sourceSampleId;
 
 
 	/** 
-	 * getSampleSourceViaSourceSampleId()
+	 * getSourceSampleId()
 	 *
-	 * @return sampleSourceViaSourceSampleId
+	 * @return sourceSampleId
 	 *
 	 */
 	@JsonIgnore
-	public List<SampleSource> getSampleSourceViaSourceSampleId() {
-		return this.sampleSourceViaSourceSampleId;
+	public List<SampleSource> getSourceSampleId() {
+		return this.sourceSampleId;
 	}
 
 
 	/** 
-	 * setSampleSourceViaSourceSampleId
+	 * setSourceSampleId
 	 *
 	 * @param sampleSource
 	 *
 	 */
-	public void setSampleSourceViaSourceSampleId (List<SampleSource> sampleSource) {
-		this.sampleSourceViaSourceSampleId = sampleSource;
+	public void setSourceSampleId (List<SampleSource> sampleSource) {
+		this.sourceSampleId = sampleSource;
 	}
 
 
@@ -834,35 +925,35 @@ public class Sample extends WaspModel {
 
 
 	/** 
-	 * sampleCell
+	 * sampleJobCellSelection
 	 *
 	 */
 	@NotAudited
 	@OneToMany
 	@JoinColumn(name="sampleid", insertable=false, updatable=false)
-	protected List<SampleCell> sampleCell;
+	protected List<SampleJobCellSelection> sampleJobCellSelection;
 
 
 	/** 
 	 * getSampleCell()
 	 *
-	 * @return sampleCell
+	 * @return sampleJobCellSelection
 	 *
 	 */
 	@JsonIgnore
-	public List<SampleCell> getSampleCell() {
-		return this.sampleCell;
+	public List<SampleJobCellSelection> getSampleJobCellSelection() {
+		return this.sampleJobCellSelection;
 	}
 
 
 	/** 
 	 * setSampleCell
 	 *
-	 * @param sampleCell
+	 * @param sampleJobCellSelection
 	 *
 	 */
-	public void setSampleCell (List<SampleCell> sampleCell) {
-		this.sampleCell = sampleCell;
+	public void setSampleJobCellSelection (List<SampleJobCellSelection> sampleJobCellSelection) {
+		this.sampleJobCellSelection = sampleJobCellSelection;
 	}
 
 

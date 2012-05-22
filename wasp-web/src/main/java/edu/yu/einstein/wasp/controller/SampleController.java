@@ -155,7 +155,7 @@ public class SampleController extends WaspController {
     List<SampleSource> parentSampleList = sample.getSampleSource();
     parentSampleList.size();
 
-    List<SampleSource> childSampleList = sample.getSampleSourceViaSourceSampleId();
+    List<SampleSource> childSampleList = sample.getSourceSampleId();
     childSampleList.size();
 
     m.addAttribute("now", now);

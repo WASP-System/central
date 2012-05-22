@@ -27,8 +27,8 @@ import edu.yu.einstein.wasp.util.SampleWrapper;
 public class SampleWrapperWebapp extends SampleWrapper{
 
 	
-	public SampleWrapperWebapp(Sample sample, SampleSourceDao sampleSourceDao) {
-		super(sample, sampleSourceDao);
+	public SampleWrapperWebapp(Sample sample) {
+		super(sample);
 	}
 	
 

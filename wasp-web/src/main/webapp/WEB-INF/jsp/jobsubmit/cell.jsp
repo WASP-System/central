@@ -19,7 +19,7 @@
 	<select class="FormElement ui-widget-content ui-corner-all" id="jobcells" name="jobcells" onchange="adjustcolumns(this.options[this.selectedIndex].innerHTML)">
 	  <c:forEach var="i" begin="1" end="15">
 	    <c:set var="selected" value="" />
-	    <c:if test="${i == fn:length(jobDraft.jobDraftCell)}">
+	    <c:if test="${i == fn:length(jobDraft.jobDraftCellSelection)}">
 	      <c:set var="selected" value='selected="yes"' />
 	    </c:if>
 	    <option ${selected} value="${i}"><c:out value="${i}" /></option>

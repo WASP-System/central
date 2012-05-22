@@ -971,12 +971,8 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','flowcellStateError','error','Action Failed. Flowcell state not compatible with adding libraries','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','adaptorNotFound','error','Action Failed. Libary adaptor NOT found','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','adaptorBarcodeNotFound','error','Action Failed. Libary adaptor barcode NOT found','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','libNoneLaneOthers','error','Action Failed. The library you want to add contains no multiplex barcode AND the lane selected already contains other libraries.','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','libOnLaneNotLib','error','Action Failed. Unexpectedly, one of the libraries already on the lane is NOT in fact a library','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','adaptorOnLaneNotFound','error','Action Failed. Unexpectedly, one of the libraries does NOT appear to have any adaptor','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','adaptorBarcodeOnLaneNotFound','error','Action Failed. Unexpectedly, one of the libraries does NOT appear to have any adaptor barcode','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','libWithNoneOnLane','error','Action Failed. Lane already contains a library that lacks a multiplex barcode sequence.','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','barcodeAlreadyOnLane','error','Action Failed. Barcode on the library you wish to add is already on another library on the selected lane','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','sampleType','error','Action Failed. Cell or Library type exception raised','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','multiplex','error','Action Failed. Barcode on the library is not compatible with other libraries on the cell','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','libJobClash','error','Action Failed. Libraries on a lane must be from a single job','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','libAdded','success','Update Complete. Library added to flowcell.','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','platformunit','TESTING','success','TESTING.','1');

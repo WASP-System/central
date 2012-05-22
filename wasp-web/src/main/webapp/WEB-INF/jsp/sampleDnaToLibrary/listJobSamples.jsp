@@ -119,11 +119,11 @@
 								<option value="0"><fmt:message key="listJobSamples.platformUnit.label" />: <c:out value="${flowCell.getName()}" /> [<c:out value="${flowCell.getSampleSubtype().getName()}" />]</option>
 								<c:set var="sampleSourceList" value="${flowCell.getSampleSource()}" scope="page" />
 								<c:forEach items="${sampleSourceList}" var="sampleSource">
-									<c:set var="cell" value="${sampleSource.getSampleViaSource()}" scope="page" />
+									<c:set var="cell" value="${sampleSource.getSourceSample()}" scope="page" />
 									<option style="color:red; font-weight: bold;" value="<c:out value="${cell.getSampleId()}" />">&nbsp;&nbsp;&nbsp;<fmt:message key="listJobSamples.cell.label" />: <c:out value="${cell.getName()}" /></option>
 									<c:set var="sampleSourceList2" value="${cell.getSampleSource()}" scope="page" />
 									<c:forEach items="${sampleSourceList2}" var="sampleSource2">
-										<c:set var="library" value="${sampleSource2.getSampleViaSource()}" scope="page" />
+										<c:set var="library" value="${sampleSource2.getSourceSample()}" scope="page" />
 									  	<c:if test="${library.getSampleSubtype().getIName() == 'controlLibrarySample'}">
 											<option value="0">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<fmt:message key="listJobSamples.libraryControl.label" />: <c:out value="${library.getName()}" />
 											<c:set var="adaptor" value="${libraryAdaptorMap.get(library)}" scope="page" />
@@ -132,7 +132,7 @@
 		        					  </c:if>					
 									</c:forEach> 
 									<c:forEach items="${sampleSourceList2}" var="sampleSource2">
-										<c:set var="library" value="${sampleSource2.getSampleViaSource()}" scope="page" />
+										<c:set var="library" value="${sampleSource2.getSourceSample()}" scope="page" />
 									  	<c:if test="${library.getSampleSubtype().getIName() != 'controlLibrarySample'}">
 											<option value="0">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<fmt:message key="listJobSamples.library.label" />: <c:out value="${library.getName()}" />
 											<c:set var="adaptor" value="${libraryAdaptorMap.get(library)}" scope="page" />
@@ -152,14 +152,14 @@
 						
 					</td>						
 					<td>
-					<c:set var="sampleSourceList" value="${facilityLibraryForThisMacromolecule.getSampleSourceViaSourceSampleId()}" scope="page" />
+					<c:set var="sampleSourceList" value="${facilityLibraryForThisMacromolecule.getSourceSampleId()}" scope="page" />
 							<c:choose>
 								<c:when test="${sampleSourceList.size() > 0}">
 									<c:forEach items="${sampleSourceList}" var="sampleSource">
 										<c:set var="cell" value="${sampleSource.getSample()}" scope="page" />
-										<c:set var="sampleSourceList2" value="${cell.getSampleSourceViaSourceSampleId()}" scope="page" />
+										<c:set var="sampleSourceList2" value="${cell.getSourceSampleId()}" scope="page" />
 										<c:forEach items="${sampleSourceList2}" var="sampleSource2">
-											<c:set var="laneNumber" value="${sampleSource2.getMultiplexindex()}" scope="page" />
+											<c:set var="laneNumber" value="${sampleSource2.getIndex()}" scope="page" />
 											<c:set var="platformUnit" value="${sampleSource2.getSample()}" scope="page" />
 											<c:out value="${platformUnit.getName()}"/> <fmt:message key="listJobSamples.cell.label" />: <c:out value="${laneNumber}"/> 
 											<c:set var="runList" value="${platformUnit.getRun()}" scope="page" />
@@ -203,8 +203,7 @@
 			<fmt:message key="listJobSamples.adaptor.label" />: <c:out value="${adaptor.getAdaptorset().getName()}"/><br />
 			<fmt:message key="listJobSamples.index.label" /> <c:out value="${adaptor.getBarcodenumber()}"/> [<c:out value="${adaptor.getBarcodesequence()}"/>]<br />
 			<fmt:message key="listJobSamples.arrivalStatus.label" />: <c:out value="${receivedStatusMap.get(userSubmittedLibrary)}"/><sec:authorize access="hasRole('su') or hasRole('ft')">&nbsp;<%--<a href="<c:url value="/task/updatesamplereceive/${job.jobId}.do" />">[update]</a>--%><c:if test='${receiveSampleStatusMap.get(userSubmittedLibrary)=="CREATED"}'><a href="<c:url value="/task/samplereceive/list.do" />">[<fmt:message key="listJobSamples.logSample.label" />]</a></c:if></sec:authorize><br />
-
-			<c:if test='${receivedStatusMap.get(userSubmittedLibrary)=="RECEIVED"}'>
+			<%-- <c:if test='${receivedStatusMap.get(userSubmittedLibrary)=="RECEIVED"}'> --%>
 				<c:set var="idCounter" value="${idCounter + 1}" scope="page" />
  				<sec:authorize access="hasRole('su') or hasRole('ft')">
 				<div id="showButton_<c:out value="${idCounter}" />" >
@@ -227,11 +226,11 @@
 								<option value="0"><fmt:message key="listJobSamples.platformUnit.label" />: <c:out value="${flowCell.getName()}" /> [<c:out value="${flowCell.getSampleSubtype().getName()}" />]</option>
 								<c:set var="sampleSourceList" value="${flowCell.getSampleSource()}" scope="page" />
 								<c:forEach items="${sampleSourceList}" var="sampleSource">
-									<c:set var="cell" value="${sampleSource.getSampleViaSource()}" scope="page" />
+									<c:set var="cell" value="${sampleSource.getSourceSample()}" scope="page" />
 									<option style="color:red; font-weight: bold;" value="<c:out value="${cell.getSampleId()}" />">&nbsp;&nbsp;&nbsp;<fmt:message key="listJobSamples.cell.label" />: <c:out value="${cell.getName()}" /></option>
 									<c:set var="sampleSourceList2" value="${cell.getSampleSource()}" scope="page" />
 									<c:forEach items="${sampleSourceList2}" var="sampleSource2">
-										<c:set var="library" value="${sampleSource2.getSampleViaSource()}" scope="page" />
+										<c:set var="library" value="${sampleSource2.getSourceSample()}" scope="page" />
 									  	<c:if test="${library.getSampleSubtype().getIName() == 'controlLibrarySample'}">
 											<option value="0">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<fmt:message key="listJobSamples.libraryControl.label" />: <c:out value="${library.getName()}" />
 											<c:set var="adaptor" value="${libraryAdaptorMap.get(library)}" scope="page" />
@@ -240,7 +239,7 @@
 		        					  </c:if>					
 									</c:forEach> 
 									<c:forEach items="${sampleSourceList2}" var="sampleSource2">
-										<c:set var="library" value="${sampleSource2.getSampleViaSource()}" scope="page" />
+										<c:set var="library" value="${sampleSource2.getSourceSample()}" scope="page" />
 									  	<c:if test="${library.getSampleSubtype().getIName() != 'controlLibrarySample'}">
 											<option value="0">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<fmt:message key="listJobSamples.library.label" />: <c:out value="${library.getName()}" />
 											<c:set var="adaptor" value="${libraryAdaptorMap.get(library)}" scope="page" />
@@ -257,17 +256,17 @@
 					</td></tr>
 				</table>
 				</div>
-			</c:if>
+			<%-- </c:if> --%>
 		</td>
 		<td>
-		<c:set var="sampleSourceList" value="${userSubmittedLibrary.getSampleSourceViaSourceSampleId()}" scope="page" />
+		<c:set var="sampleSourceList" value="${userSubmittedLibrary.getSourceSampleId()}" scope="page" />
 		<c:choose>
 			<c:when test="${sampleSourceList.size() > 0}">
 				<c:forEach items="${sampleSourceList}" var="sampleSource">
 					<c:set var="cell" value="${sampleSource.getSample()}" scope="page" />
-					<c:set var="sampleSourceList2" value="${cell.getSampleSourceViaSourceSampleId()}" scope="page" />
+					<c:set var="sampleSourceList2" value="${cell.getSourceSampleId()}" scope="page" />
 					<c:forEach items="${sampleSourceList2}" var="sampleSource2">
-						<c:set var="laneNumber" value="${sampleSource2.getMultiplexindex()}" scope="page" />
+						<c:set var="laneNumber" value="${sampleSource2.getIndex()}" scope="page" />
 						<c:set var="platformUnit" value="${sampleSource2.getSample()}" scope="page" />
 						<c:out value="${platformUnit.getName()}"/> <fmt:message key="listJobSamples.cell.label" />: <c:out value="${laneNumber}"/> 
 						<c:set var="runList" value="${platformUnit.getRun()}" scope="page" />

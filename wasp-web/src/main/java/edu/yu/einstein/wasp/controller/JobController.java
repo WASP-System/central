@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
-import edu.yu.einstein.wasp.dao.JobCellDao;
+import edu.yu.einstein.wasp.dao.JobCellSelectionDao;
 import edu.yu.einstein.wasp.dao.JobDao;
 import edu.yu.einstein.wasp.dao.JobUserDao;
 import edu.yu.einstein.wasp.dao.RoleDao;
@@ -33,7 +33,7 @@ import edu.yu.einstein.wasp.dao.StateDao;
 import edu.yu.einstein.wasp.dao.TaskDao;
 import edu.yu.einstein.wasp.dao.WorkflowresourcecategoryDao;
 import edu.yu.einstein.wasp.model.Job;
-import edu.yu.einstein.wasp.model.JobCell;
+import edu.yu.einstein.wasp.model.JobCellSelection;
 import edu.yu.einstein.wasp.model.JobFile;
 import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
@@ -45,7 +45,7 @@ import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.Sample;
-import edu.yu.einstein.wasp.model.SampleCell;
+import edu.yu.einstein.wasp.model.SampleJobCellSelection;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.Statejob;
@@ -104,7 +104,7 @@ public class JobController extends WaspController {
 	@Autowired
 	private WorkflowresourcecategoryDao workflowresourcecategoryDao;
 	@Autowired
-	private JobCellDao jobCellDao;
+	private JobCellSelectionDao jobCellSelectionDao;
 	@Autowired
 	private SampleService sampleService;
 
@@ -317,11 +317,11 @@ public class JobController extends WaspController {
 		Set<Sample> samplesAsSet = new HashSet<Sample>();//used to store set of unique samples submitted by the user for a specific job
 		Map filter = new HashMap();
 		filter.put("jobId", job.getJobId());
-		List<JobCell> jobCells = jobCellDao.findByMap(filter);
-		for(JobCell jobCell : jobCells){
-			List<SampleCell> sampleCells = jobCell.getSampleCell();
-			for(SampleCell sampleCell : sampleCells){
-				samplesAsSet.add(sampleCell.getSample());
+		List<JobCellSelection> jobCellSelections = jobCellSelectionDao.findByMap(filter);
+		for(JobCellSelection jobCellSelection : jobCellSelections){
+			List<SampleJobCellSelection> sampleJobCellSelections = jobCellSelection.getSampleJobCellSelection();
+			for(SampleJobCellSelection sampleJobCellSelection : sampleJobCellSelections){
+				samplesAsSet.add(sampleJobCellSelection.getSample());
 			}
 		}
 		List<Sample> samples = new ArrayList();//this List is needed in order to be able to sort the list (so that it appears the same each time it is displayed on the web; you can't sort a set)

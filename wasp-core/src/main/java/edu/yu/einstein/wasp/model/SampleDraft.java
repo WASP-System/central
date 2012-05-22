@@ -619,34 +619,34 @@ processed
 
 
 	/**
-	* sampleDraftCell
+	* sampleDraftJobDraftCellSelection
 	*
 	*/
 	@NotAudited
 	@OneToMany
 	@JoinColumn(name="sampledraftid", insertable=false, updatable=false)
-	protected List<SampleDraftCell> sampleDraftCell;
+	protected List<SampleDraftJobDraftCellSelection> sampleDraftJobDraftCellSelection;
 
 	/**
 	* getSampleDraftCell()
 	*
-	* @return sampleDraftCell
+	* @return sampleDraftJobDraftCellSelection
 	*
 	*/
 	@JsonIgnore
-	public List<SampleDraftCell> getSampleDraftCell() {
-		return this.sampleDraftCell;
+	public List<SampleDraftJobDraftCellSelection> getSampleDraftJobDraftCellSelection() {
+		return this.sampleDraftJobDraftCellSelection;
 	}
 	
 	
 	/**
 	* setSampleDraftCell
 	*
-	* @param sampleDraftCell
+	* @param sampleDraftJobDraftCellSelection
 	*
 	*/
-	public void setSampleDraftCell (List<SampleDraftCell> sampleDraftCell) {
-		this.sampleDraftCell = sampleDraftCell;
+	public void setSampleDraftJobDraftCellSelection (List<SampleDraftJobDraftCellSelection> sampleDraftJobDraftCellSelection) {
+		this.sampleDraftJobDraftCellSelection = sampleDraftJobDraftCellSelection;
 	}
 	
 

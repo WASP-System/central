@@ -100,7 +100,7 @@ public class JobServiceImpl extends WaspServiceImpl implements JobService {
 		if(job != null && job.getJobId().intValue()>0){
 			for(JobSample jobSample : job.getJobSample()){
 				  Sample sample  = jobSample.getSample();//includes submitted samples that are macromolecules, submitted samples that are libraries, and facility-generated libraries generated from a macromolecule
-				  if(sample.getSampleSource().size() == 0){//this sample is NOT a facility-generated library (by contrast, if size>0, this indicates a facility-generated library), so add it to the submittedSample list
+				  if(sample.getParent() == null){//this sample is NOT a facility-generated library (by contrast, if sample.getParent() != null this indicates a facility-generated library), so add it to the submittedSample list
 					  submittedSamplesList.add(sample);
 				  }
 			  }	

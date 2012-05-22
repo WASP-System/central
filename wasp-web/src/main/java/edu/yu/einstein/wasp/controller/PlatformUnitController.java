@@ -62,6 +62,10 @@ import edu.yu.einstein.wasp.dao.ResourceTypeDao;
 import edu.yu.einstein.wasp.dao.SampleTypeDao;
 import edu.yu.einstein.wasp.dao.UserroleDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
+import edu.yu.einstein.wasp.exception.SampleDuplicationException;
+import edu.yu.einstein.wasp.exception.SampleException;
+import edu.yu.einstein.wasp.exception.SampleMultiplexException;
+import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Adaptorset;
 import edu.yu.einstein.wasp.model.Barcode;
@@ -876,7 +880,7 @@ public class PlatformUnitController extends WaspController {
 				 SampleSource sampleSource = new SampleSource();
 				 sampleSource.setSampleId(sampleForm.getSampleId());
 				 sampleSource.setSourceSampleId(sampleDb.getSampleId());
-				 sampleSource.setMultiplexindex(i+1);
+				 sampleSource.setIndex(i+1);
 				 this.sampleSourceDao.save(sampleSource);
 	 			 
 			 }
@@ -1279,7 +1283,6 @@ public class PlatformUnitController extends WaspController {
 		m.put("resourceCategoryId", resourceCategoryId);
 		m.put("jobs", jobs); 
 		m.put("platformUnitStates", platformUnitStates); 
-		m.put("hello", "hello world"); 
 		m.put("adaptors", adaptors);
 		m.put("flowCells", flowCells);
 		
@@ -1333,7 +1336,7 @@ public class PlatformUnitController extends WaspController {
 		Sample laneSample = sampleDao.getSampleBySampleId(laneSampleId); 
 		Sample librarySample = sampleDao.getSampleBySampleId(librarySampleId); 
 		JobSample jobSample = jobSampleDao.getJobSampleByJobIdSampleId(jobId, librarySampleId);//confirm library is really part of this jobId
-
+		Float libConcInLanePicoMFloat = 0.0f;
 		boolean error = false;
 		
 		if (jobId == null || jobId == 0 || job == null || job.getJobId() == null) {
@@ -1361,7 +1364,6 @@ public class PlatformUnitController extends WaspController {
 			error = true; waspErrorMessage("platformunit.pmoleAddedInvalidValue.error");	
 		}
 		else{
-			Float libConcInLanePicoMFloat;
 			try{
 				libConcInLanePicoMFloat = new Float(Float.parseFloat(libConcInLanePicoM));
 				if(libConcInLanePicoMFloat.floatValue() <= 0){
@@ -1380,7 +1382,7 @@ public class PlatformUnitController extends WaspController {
 		// ensure flowcell in the "CREATED" state 
 		
 		boolean flowCellIsAvailable = false;
-		List<SampleSource> parentSampleSources = laneSample.getSampleSourceViaSourceSampleId();//should be one
+		List<SampleSource> parentSampleSources = laneSample.getSourceSampleId();//should be one
 		if(parentSampleSources == null || parentSampleSources.size()!=1){
 			error=true; waspErrorMessage("platformunit.flowcellNotFoundNotUnique.error");
 		}
@@ -1407,122 +1409,25 @@ public class PlatformUnitController extends WaspController {
 		if(error){
 			return;
 		}
-	
-		//(1) identify the barcode sequence on the library being added. If problem then terminate. 
-		//(2) if the library being added has a barcode that is NONE, and the lane contains ANY OTHER LIBRARY, then terminate. 
-		//(3) identify barcode of libraries already on lane; if problem, terminate. Should also get their jobIds.
-		//(4) if the lane already has a library with a barcode of NONE, then terminate
-		//(5) if the library being added has a bardcode that is something other than NONE (meaning a real barcode sequence) AND if a library already on the lane has that same barcode, then terminate. 
-		//(6) do we want to maintain only a single jobId for a lane???
-		
-		//case 1: identify the adaptor barcode for the library being added; it's barcode is either NONE (no multiplexing) or has some more interesting barcode sequence (for multiplexing, such as AACTG)
-		Adaptor adaptorOnLibraryBeingAdded = null;
-
-		SampleMeta sampleMeta = sampleMetaDao.getSampleMetaByKSampleId("genericLibrary.adaptor", librarySampleId);
-
-		if(sampleMeta==null || sampleMeta.getSampleMetaId()==null){
-			error=true; waspErrorMessage("platformunit.adaptorNotFound.error");
-		}
-		else{
-			try{
-				adaptorOnLibraryBeingAdded = adaptorDao.getAdaptorByAdaptorId(new Integer(sampleMeta.getV()));
-				if(adaptorOnLibraryBeingAdded==null || adaptorOnLibraryBeingAdded.getAdaptorId()==null){
-					error=true; waspErrorMessage("platformunit.adaptorNotFound.error");
-				}
-				else if( adaptorOnLibraryBeingAdded.getBarcodesequence()==null || "".equals(adaptorOnLibraryBeingAdded.getBarcodesequence()) ){
-					error=true; waspErrorMessage("platformunit.adaptorBarcodeNotFound.error");
-				}
-			}
-			catch(Exception e){
-				error=true; waspErrorMessage("platformunit.adaptorNotFound.error");
-			}
-		}
-		if(error){
+		try{
+			sampleService.addLibraryToCell(laneSample, librarySample, libConcInLanePicoMFloat);
+		} catch(SampleTypeException ste){
+			waspErrorMessage("platformunit.sampleType.error");
+			logger.warn(ste.getMessage()); // print more detailed error to warn logs
+			return;
+		} catch(SampleMultiplexException sme){
+			waspErrorMessage("platformunit.multiplex.error");
+			logger.debug(sme.getMessage()); // print more detailed error to debug logs
+			return;
+		} catch(SampleException se){
+			waspErrorMessage("platformunit.adaptorNotFound.error");
+			logger.warn(se.getMessage()); // print more detailed error to warn logs
+			return;
+		} catch(MetadataException me){
+			waspErrorMessage("platformunit.adaptorBarcodeNotFound.error");
+			logger.warn(me.getMessage()); // print more detailed error to warn logs
 			return;
 		}
-		
-		int maxIndex = 0; 
-		List<SampleSource> siblingSampleSource = laneSample.getSampleSource(); //Samplesource objects that have this lane's sampleId as samplesource.sampleId
-		String barcodeOnLibBeingAdded = new String(adaptorOnLibraryBeingAdded.getBarcodesequence());
-
-		//case 2: dispense with this easy check 
-		if( "NONE".equals(barcodeOnLibBeingAdded) && siblingSampleSource != null && siblingSampleSource.size() > 0  ){//case 2: the library being added has a barcode of "NONE" AND the lane to which user wants to add this library already contains one or more libraries (such action is prohibited)
-			waspErrorMessage("platformunit.libNoneLaneOthers.error");
-			return;
-		}
-		
-		//cases 3, 4, 5, 6 
-		if (siblingSampleSource != null) {//siblingSampleSource is list of samplesource objects that harbor libraries on this cell (lane) through source_sampleid
-		
-			for (SampleSource ss: siblingSampleSource) {
-				
-				if (ss.getMultiplexindex().intValue() > maxIndex) {//housekeeping; will be needed for the INSERT into samplesource (at end of method)
-					maxIndex = ss.getMultiplexindex().intValue(); 
-				}
-				
-				Sample libraryAlreadyOnLane = ss.getSampleViaSource();//this is a library already on the selected lane
-				if( ! libraryAlreadyOnLane.getSampleType().getIName().equals("library") ){//confirm it's a library
-					error=true; waspErrorMessage("platformunit.libOnLaneNotLib.error");
-				}
-				else{					
-					SampleMeta sampleMeta2 = sampleMetaDao.getSampleMetaByKSampleId("genericLibrary.adaptor", libraryAlreadyOnLane.getSampleId());
-					if(sampleMeta2==null || sampleMeta2.getSampleMetaId()==null){
-						error=true; waspErrorMessage("platformunit.adaptorOnLaneNotFound.error");
-					}
-					else{
-						try{
-							Adaptor adaptorOnLane = adaptorDao.getAdaptorByAdaptorId(new Integer(sampleMeta2.getV()));
-							if(adaptorOnLane==null || adaptorOnLane.getAdaptorId()==null){
-								error=true; waspErrorMessage("platformunit.adaptorOnLaneNotFound.error");
-							}
-							else if( adaptorOnLane.getBarcodesequence()==null || "".equals(adaptorOnLane.getBarcodesequence()) ){
-								error=true; waspErrorMessage("platformunit.adaptorBarcodeOnLaneNotFound.error");
-							}
-							else if( "NONE".equals(adaptorOnLane.getBarcodesequence()) ){//case 4
-								error=true; waspErrorMessage("platformunit.libWithNoneOnLane.error");
-							}
-							else if(adaptorOnLane.getBarcodesequence().equals(barcodeOnLibBeingAdded)){//case 5, lib already on lane with same barcode as library user wants to add to the lane
-								error=true;  waspErrorMessage("platformunit.barcodeAlreadyOnLane.error");
-							}
-							else{//case 6
-								JobSample jobSample2 = jobSampleDao.getJobSampleByJobIdSampleId(jobId, libraryAlreadyOnLane.getSampleId());//confirm library is really part of this jobId
-								if(jobSample2 == null || jobSample2.getJobSampleId()==null){//this library, already on the lane, is from a different job
-									;//for now do nothing
-									//If Einstein, then terminate (lane restricted to libraries from single job) 
-									//error=true;  waspErrorMessage("platformunit.libJobClash.error");
-									//if SloanKettering, then do nothing (what's the flag)
-								}
-							}
-						}
-						catch(Exception e){
-							error=true; waspErrorMessage("platformunit.adaptorOnLaneNotFound.error");//exception from new Integer();
-						}
-					}					
-				}
-				if(error){
-					return;
-				}	
-			}	
-		}
-		
-		SampleSource newSampleSource = new SampleSource(); 
-		newSampleSource.setSampleId(laneSampleId);
-		newSampleSource.setSourceSampleId(librarySampleId);
-		newSampleSource.setMultiplexindex(new Integer(maxIndex + 1));
-		newSampleSource = sampleSourceDao.save(newSampleSource);//capture the new samplesourceid
-		SampleSourceMeta newSampleSourceMeta = new SampleSourceMeta();
-		newSampleSourceMeta.setSampleSourceId(newSampleSource.getSampleSourceId());
-		newSampleSourceMeta.setK("libConcInLanePicoM");
-		newSampleSourceMeta.setV(libConcInLanePicoM.toString());
-		newSampleSourceMeta.setPosition(new Integer(0));
-		sampleSourceMetaDao.save(newSampleSourceMeta);
-		
-		SampleSourceMeta newSampleSourceMeta2 = new SampleSourceMeta();
-		newSampleSourceMeta2.setSampleSourceId(newSampleSource.getSampleSourceId());
-		newSampleSourceMeta2.setK("jobId");//Ed says we donot need this here
-		newSampleSourceMeta2.setV(jobId.toString());
-		newSampleSourceMeta2.setPosition(new Integer(1));
-		sampleSourceMetaDao.save(newSampleSourceMeta2);
 		
 		waspMessage("platformunit.libAdded.success");
 		return;
@@ -1587,7 +1492,7 @@ public class PlatformUnitController extends WaspController {
 			return;
 		}
 		//check that this represents a cell->lib link
-		Sample putativeLibrary = sampleSource.getSampleViaSource();
+		Sample putativeLibrary = sampleSource.getSourceSample();
 		Sample putativeCell = sampleSource.getSample();
 		if( ! putativeLibrary.getSampleType().getIName().equals("library") || ! putativeCell.getSampleType().getIName().equals("cell") ){
 			waspErrorMessage("platformunit.samplesourceTypeError.error");
@@ -1705,11 +1610,11 @@ public class PlatformUnitController extends WaspController {
 		List<Resource> resourceList= resourceDao.findAll(); 
 		List<Resource> filteredResourceList = new ArrayList();
 		for(Resource resource : resourceList){
-			System.out.println("resource: " + resource.getName());
+			logger.debug("resource: " + resource.getName());
 			for(SampleSubtypeResourceCategory ssrc : resource.getResourceCategory().getSampleSubtypeResourceCategory()){
 				if(ssrc.getSampleSubtypeId().intValue() == platformUnit.getSampleSubtypeId().intValue()){
 					filteredResourceList.add(resource);
-					System.out.println("it's a match");					
+					logger.debug("it's a match");					
 				}
 			}
 		}
@@ -1725,14 +1630,14 @@ public class PlatformUnitController extends WaspController {
 		SampleSubtype sampleSubtype = sampleSubtypeDao.getSampleSubtypeByIName("controlLibrarySample");
 		if(sampleSubtype.getSampleSubtypeId().intValue()==0){
 			//TODO throw error and get out of here ; probably go to dashboard, but would be best to go back from where you came from
-			System.out.println("Unable to find sampleSubtype of controlLibrarySample");
+			logger.debug("Unable to find sampleSubtype of controlLibrarySample");
 		}
 		
 		Map controlFilterMap = new HashMap();
 		controlFilterMap.put("sampleSubtypeId", sampleSubtype.getSampleSubtypeId());
 		List<Sample> controlLibraryList = sampleDao.findByMap(controlFilterMap);
 		for(Sample sample : controlLibraryList){
-			System.out.println("control: " + sample.getName());
+			logger.debug("control: " + sample.getName());
 			if(sample.getIsActive().intValue()==0){
 				controlLibraryList.remove(sample);
 			}
@@ -1756,8 +1661,8 @@ public class PlatformUnitController extends WaspController {
 			@RequestParam("lock") String lock,
 			ModelMap m) {
 		
-		//System.out.println("ID: " + platformUnitId.intValue());
-		//System.out.println("lock: " + lock);
+		//logger.debug("ID: " + platformUnitId.intValue());
+		//logger.debug("lock: " + lock);
 		String ret_value = "redirect:/facility/platformunit/showPlatformUnit/" + platformUnitId.intValue() + ".do";
 		
 		if( ! lock.equals("CREATED") && ! lock.equals("COMPLETED")){
@@ -1850,13 +1755,13 @@ public class PlatformUnitController extends WaspController {
 		List<SampleSource> sampleSourceList = cell.getSampleSource();
 		int maxMultipleIndex = 0;
 		for(SampleSource ss : sampleSourceList){
-			if(ss.getMultiplexindex().intValue() > maxMultipleIndex){
-				maxMultipleIndex = ss.getMultiplexindex().intValue();
+			if(ss.getIndex().intValue() > maxMultipleIndex){
+				maxMultipleIndex = ss.getIndex().intValue();
 			}
 		}
-		sampleSource.setMultiplexindex(new Integer(maxMultipleIndex + 1));
+		sampleSource.setIndex(new Integer(maxMultipleIndex + 1));
 		sampleSource = sampleSourceDao.save(sampleSource);
-		//System.out.println("checking next multiplexIndex; new one is " + sampleSource.getMultiplexindex().intValue());
+		//logger.debug("checking next multiplexIndex; new one is " + sampleSource.getMultiplexindex().intValue());
 		//deal with sampleSourceMeta to set newControlConcInLanePicoM for the control
 		SampleSourceMeta sampleSourceMeta = new SampleSourceMeta();
 		sampleSourceMeta.setSampleSourceId(sampleSource.getSampleSourceId());
@@ -1871,7 +1776,7 @@ public class PlatformUnitController extends WaspController {
 	@RequestMapping(value="ajaxReadType.do", method=RequestMethod.POST)
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public @ResponseBody String ajaxReadType(@RequestParam("resourceId") String resourceId){
-		//System.out.println("in ajaxReadType and resourceId = " + resourceId);
+		//logger.debug("in ajaxReadType and resourceId = " + resourceId);
 		String returnString;
 		StringBuffer readType = new StringBuffer("<option value=''>---SELECT A READ TYPE---</option>");
 		StringBuffer readLength = new StringBuffer("<option value=''>---SELECT A READ LENGTH---</option>");
@@ -1896,7 +1801,7 @@ public class PlatformUnitController extends WaspController {
 			}
 		}
 		returnString = new String(readType + "****" + readLength);
-		//System.out.println("The return string = " + returnString);
+		//logger.debug("The return string = " + returnString);
 		//return "<option value=''>---SELECT A READ TYPE---</option><option value='single'>single</option><option value='paired'>paired</option>";
 		return returnString;
 	}
@@ -1924,20 +1829,20 @@ public class PlatformUnitController extends WaspController {
 		Sample platformUnit = sampleDao.getSampleBySampleId(platformUnitId);
 		if(platformUnit.getSampleId().intValue()==0){
 			//message unable to find platform unit record
-			System.out.println("unable to find platform unit record");
+			logger.debug("unable to find platform unit record");
 			return "redirect:/dashboard.do";
 		}
 		//confirm flowcell (platformUnit)
 		if( !platformUnit.getSampleType().getIName().equals("platformunit") ){
 			//message - not a flow cell
-			System.out.println("PlatformUnit not a flow cell");
+			logger.debug("PlatformUnit not a flow cell");
 			return return_string;
 		}
 		//record for machine exists
 		Resource machineInstance = resourceDao.getResourceByResourceId(resourceId);
 		if(machineInstance.getResourceId().intValue() == 0){
 			//message: unable to find record for requested machine
-			System.out.println("unable to find record for requested sequencing machine");
+			logger.debug("unable to find record for requested sequencing machine");
 			return return_string;
 		}
 		//confirm the machine and the flow cell are compatible (via sampleSubtpeResourceCategory)
@@ -1949,7 +1854,7 @@ public class PlatformUnitController extends WaspController {
 		}
 		if(platformUnitAndMachineAreCompatible==false){
 			//message Platform Unit (flowcell) and Resource (sequencing machine) are Not compatible
-			System.out.println("Platform Unit (flowcell) and Resource (sequencing machine) are Not compatible");
+			logger.debug("Platform Unit (flowcell) and Resource (sequencing machine) are Not compatible");
 			return return_string;
 		}
 		Integer laneCountFromMeta = null;
@@ -1959,17 +1864,17 @@ public class PlatformUnitController extends WaspController {
 					laneCountFromMeta = new Integer(sm.getV());
 				}
 				catch(Exception e){
-					System.out.println("Unable to capture platformUnit lanecount from sampleMetaData");
+					logger.debug("Unable to capture platformUnit lanecount from sampleMetaData");
 					return return_string;
 				}
 			}
 		}
 		if(laneCountFromMeta == null){
-			System.out.println("Unable to capture platformUnit lanecount from sampleMetaData");
+			logger.debug("Unable to capture platformUnit lanecount from sampleMetaData");
 			return return_string;
 		}
 		if(laneCountFromMeta.intValue() != platformUnit.getSampleSource().size()){
-			System.out.println("lanecount from sampleMetaData and from samplesource are discordant: unable to continue");
+			logger.debug("lanecount from sampleMetaData and from samplesource are discordant: unable to continue");
 			return return_string;
 		}
 		//confirm machine and parameters readLength and readType are compatible
@@ -2002,15 +1907,15 @@ public class PlatformUnitController extends WaspController {
 			}
 		}
 		if(readTypeIsValid == false){
-			System.out.println("Readtype incompatible with selected machine: unable to continue");
+			logger.debug("Readtype incompatible with selected machine: unable to continue");
 			return return_string;			
 		}
 		if(readLengthIsValid == false){
-			System.out.println("Readlength incompatible with selected machine: unable to continue");
+			logger.debug("Readlength incompatible with selected machine: unable to continue");
 			return return_string;			
 		}		
 		if(runName.trim() == ""){
-			System.out.println("Run name is Not valid");
+			logger.debug("Run name is Not valid");
 			return return_string;			
 		}
 
@@ -2024,7 +1929,7 @@ public class PlatformUnitController extends WaspController {
 			}
 		}
 		if(userIsTechnician == false){
-			System.out.println("Selected Technical Personnel is NOT listed as technician or manager");
+			logger.debug("Selected Technical Personnel is NOT listed as technician or manager");
 			return return_string;				
 		}
 		
@@ -2035,7 +1940,7 @@ public class PlatformUnitController extends WaspController {
 			dateStart = (Date)formatter.parse(runStartDate);  
 		}
 		catch(Exception e){
-			System.out.println("Start Date format must be MM/dd/yyyy.");
+			logger.debug("Start Date format must be MM/dd/yyyy.");
 			return return_string;	
 		}
 		
@@ -2048,8 +1953,8 @@ public class PlatformUnitController extends WaspController {
 			newRun.setUserId(technicianId);
 			newRun.setStartts(dateStart);
 			newRun = runDao.save(newRun);
-			System.out.println("-----");
-			System.out.println("saved new run runid=" + newRun.getRunId().intValue());
+			logger.debug("-----");
+			logger.debug("saved new run runid=" + newRun.getRunId().intValue());
 			//runmeta : readlength and readType
 			RunMeta newRunMeta = new RunMeta();
 			newRunMeta.setRun(newRun);
@@ -2057,25 +1962,27 @@ public class PlatformUnitController extends WaspController {
 			newRunMeta.setV(readLength);
 			newRunMeta.setPosition(new Integer(0));//do we really use this???
 			newRunMeta = runMetaDao.save(newRunMeta);
-			System.out.println("saved new run Meta for readLength id=" + newRunMeta.getRunMetaId().intValue());
+			logger.debug("saved new run Meta for readLength id=" + newRunMeta.getRunMetaId().intValue());
 			newRunMeta = new RunMeta();
 			newRunMeta.setRun(newRun);
 			newRunMeta.setK("run.readType");
 			newRunMeta.setV(readType);
 			newRunMeta.setPosition(new Integer(0));//do we really use this???
 			newRunMeta = runMetaDao.save(newRunMeta);
-			System.out.println("saved new run Meta for readType runmetaid=" + newRunMeta.getRunMetaId().intValue());	
+			logger.debug("saved new run Meta for readType runmetaid=" + newRunMeta.getRunMetaId().intValue());	
 			//runlane
-			for(SampleSource ss : platformUnit.getSampleSource()){
-				Sample cell = ss.getSampleViaSource();
-				System.out.println("cellid = " + cell.getSampleId().intValue());
-				RunCell runCell = new RunCell();
-				runCell.setRun(newRun);//the runid
-				runCell.setSample(cell);//the cellid
-				runCell = runCellDao.save(runCell);
-				System.out.println("saved new run cell runcellid=" + runCell.getRunCellId().intValue());
+			try {
+				for(Sample cell: sampleService.getIndexedCellsOnPlatformUnit(platformUnit).values()){
+					RunCell runCell = new RunCell();
+					runCell.setRun(newRun);//the runid
+					runCell.setSample(cell);//the cellid
+					runCell = runCellDao.save(runCell);
+					logger.debug("saved new run cell runcellid=" + runCell.getRunCellId().intValue());
+				}
+			} catch (SampleTypeException e) {
+				logger.error(e.getMessage());
 			}
-			System.out.println("-----");
+			logger.debug("-----");
 			//4/16/12
 			//With the creation of this new sequence run record, we want to make it that the flow cell on this
 			//sequence run is no longer able to accept additional User libraries. To do this, set this platform 
@@ -2098,7 +2005,7 @@ public class PlatformUnitController extends WaspController {
 					if(statesample.getSampleId().intValue() == platformUnit.getSampleId().intValue()){
 						state.setStatus("COMPLETED");
 						stateDao.save(state);
-						System.out.println("StateId " + state.getStateId().intValue() + " is now set to Completed");
+						logger.debug("StateId " + state.getStateId().intValue() + " is now set to Completed");
 					}
 				}
 			}
@@ -2107,19 +2014,19 @@ public class PlatformUnitController extends WaspController {
 			Run run = runDao.getRunByRunId(runId);
 			if(run.getRunId().intValue()==0){
 				//unable to locate run record; 
-				System.out.println("Update Failed: Unable to locate Sequence Run record");
+				logger.debug("Update Failed: Unable to locate Sequence Run record");
 				return return_string;
 			}
 			//confirm that the platformUnit on this run is actually the same platformUnit passed in via parameter platformUnitId
 			List<Run> runList = platformUnit.getRun();
 			if(runList.size() == 0){
 				//platformUnit referenced through parameter platformUnitId is NOT on any sequence run
-				System.out.println("Update Failed: Platform Unit " + platformUnit.getSampleId() + " is not on any sequence run");
+				logger.debug("Update Failed: Platform Unit " + platformUnit.getSampleId() + " is not on any sequence run");
 				return return_string;
 			}
 			if(runList.get(0).getRunId().intValue() != run.getRunId().intValue()){
 				//platformUnit referenced through parameter platformUnitId is NOT on part of This sequence run
-				System.out.println("Update Failed: Platform Unit " + platformUnit.getSampleId() + " is not part of this sequence run");
+				logger.debug("Update Failed: Platform Unit " + platformUnit.getSampleId() + " is not part of this sequence run");
 				return return_string;
 			}
 			run.setResource(machineInstance);
@@ -2162,7 +2069,7 @@ public class PlatformUnitController extends WaspController {
 				newRunMeta = runMetaDao.save(newRunMeta);
 			}
 			
-			System.out.println("Sequence run has been updated now: runStDate = " + runStartDate);
+			logger.debug("Sequence run has been updated now: runStDate = " + runStartDate);
 		}
 		
 		//need message to confirm update completed sucessfully

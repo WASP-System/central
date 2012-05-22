@@ -1,10 +1,10 @@
 
 /**
  *
- * JobCell.java 
+ * JobCellSelection.java 
  * @author echeng (table2type.pl)
  *  
- * the JobCell
+ * the JobCellSelection
  *
  *
  */
@@ -29,35 +29,35 @@ import org.hibernate.envers.NotAudited;
 
 @Entity
 @Audited
-@Table(name="jobcell")
-public class JobCell extends WaspModel {
+@Table(name="jobcellselection")
+public class JobCellSelection extends WaspModel {
 
 	/** 
-	 * jobCellId
+	 * jobCellSelectionId
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer jobCellId;
+	protected Integer jobCellSelectionId;
 
 	/**
-	 * setJobCellId(Integer jobCellId)
+	 * setjobCellSelectionId(Integer jobCellSelectionId)
 	 *
-	 * @param jobCellId
+	 * @param jobCellSelectionId
 	 *
 	 */
 	
-	public void setJobCellId (Integer jobCellId) {
-		this.jobCellId = jobCellId;
+	public void setJobCellSelectionId (Integer jobCellSelectionId) {
+		this.jobCellSelectionId = jobCellSelectionId;
 	}
 
 	/**
-	 * getJobCellId()
+	 * getJobCellSelectionId()
 	 *
-	 * @return jobCellId
+	 * @return jobCellSelectionId
 	 *
 	 */
-	public Integer getJobCellId () {
-		return this.jobCellId;
+	public Integer getJobCellSelectionId () {
+		return this.jobCellSelectionId;
 	}
 
 
@@ -99,27 +99,27 @@ public class JobCell extends WaspModel {
 	 *
 	 */
 	@Column(name="cellindex")
-	protected Integer cellindex;
+	protected Integer cellIndex;
 
 	/**
-	 * setCellindex(Integer cellindex)
+	 * setCellindex(Integer cellIndex)
 	 *
 	 * @param cellindex
 	 *
 	 */
 	
-	public void setCellindex (Integer cellindex) {
-		this.cellindex = cellindex;
+	public void setCellIndex (Integer cellIndex) {
+		this.cellIndex = cellIndex;
 	}
 
 	/**
-	 * getCellindex()
+	 * getCellIndex()
 	 *
-	 * @return cellindex
+	 * @return cellIndex
 	 *
 	 */
-	public Integer getCellindex () {
-		return this.cellindex;
+	public Integer getCellIndex () {
+		return this.cellIndex;
 	}
 
 
@@ -158,35 +158,35 @@ public class JobCell extends WaspModel {
 
 
 	/** 
-	 * sampleCell
+	 * sampleJobCellSelection
 	 *
 	 */
 	@NotAudited
 	@OneToMany
-	@JoinColumn(name="jobcellid", insertable=false, updatable=false)
-	protected List<SampleCell> sampleCell;
+	@JoinColumn(name="jobcellselectionid", insertable=false, updatable=false)
+	protected List<SampleJobCellSelection> sampleJobCellSelection;
 
 
 	/** 
 	 * getSampleCell()
 	 *
-	 * @return sampleCell
+	 * @return sampleJobCellSelection
 	 *
 	 */
 	@JsonIgnore
-	public List<SampleCell> getSampleCell() {
-		return this.sampleCell;
+	public List<SampleJobCellSelection> getSampleJobCellSelection() {
+		return this.sampleJobCellSelection;
 	}
 
 
 	/** 
 	 * setSampleCell
 	 *
-	 * @param sampleCell
+	 * @param sampleJobCellSelection
 	 *
 	 */
-	public void setSampleCell (List<SampleCell> sampleCell) {
-		this.sampleCell = sampleCell;
+	public void setSampleJobCellSelection (List<SampleJobCellSelection> sampleJobCellSelection) {
+		this.sampleJobCellSelection = sampleJobCellSelection;
 	}
 
 

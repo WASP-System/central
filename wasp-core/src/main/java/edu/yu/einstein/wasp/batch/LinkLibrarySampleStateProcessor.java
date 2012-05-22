@@ -71,7 +71,7 @@ public class LinkLibrarySampleStateProcessor implements ItemProcessor {
 		// should be only one, but looping for good measure
 		for (Statesample ss: stateSamples) {
 			// finds the derived library
-			List<SampleSource> libSources =  ss.getSample().getSampleSourceViaSourceSampleId(); 
+			List<SampleSource> libSources =  ss.getSample().getSourceSampleId(); 
 			for (SampleSource libSource : libSources) {
 				Sample librarySample =  libSource.getSample(); 
 

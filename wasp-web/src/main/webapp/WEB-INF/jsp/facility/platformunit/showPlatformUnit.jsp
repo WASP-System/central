@@ -167,7 +167,7 @@
 		<tr><td colspan="${platformUnit.sampleSource.size()}" class="label-centered" style="background-color:#FAF2D6" nowrap><c:out value="${platformUnit.name}" /></td></tr>
 		<tr>
 			<c:forEach items="${platformUnit.sampleSource}" var="ss1">
-				<c:set var="cell" value="${ss1.sampleViaSource}" scope="page" />
+				<c:set var="cell" value="${ss1.sourceSample}" scope="page" />
 					<td class="label-centered"  style="background-color:#FAF2D6" nowrap>Lane: <c:out value="${fn:substringAfter(cell.name, '/')}" /></td>
 			</c:forEach>
 		</tr>
@@ -175,10 +175,10 @@
 		  
 			<c:forEach items="${platformUnit.sampleSource}" var="ss1">
 				<c:set var="numberControlLibrariesPerLane" value="0" scope="page" />
-				<c:set var="cell" value="${ss1.sampleViaSource}" scope="page" />
+				<c:set var="cell" value="${ss1.sourceSample}" scope="page" />
 				 <td class="value-centered-small-heavyborder" nowrap>			
 					<c:forEach items="${cell.sampleSource}" var="ss2">
-				  		<c:set var="controlLibrary" value="${ss2.sampleViaSource}" scope="page" />
+				  		<c:set var="controlLibrary" value="${ss2.sourceSample}" scope="page" />
 				  		<c:if test="${controlLibrary.sampleSubtype.getIName() == 'controlLibrarySample'}">
 				  			<c:set var="numberControlLibrariesPerLane" value="${numberControlLibrariesPerLane + 1}" scope="page" />
 				  			<c:out value="${controlLibrary.name}" /> 
@@ -244,12 +244,12 @@
 		
 		<tr>
 		<c:forEach items="${platformUnit.sampleSource}" var="ss1">
-			<c:set var="cell" value="${ss1.sampleViaSource}" scope="page" />
+			<c:set var="cell" value="${ss1.sourceSample}" scope="page" />
 			<td class="value-centered-top-small-heavyborder" >
 				<c:set var="counter" value="1" scope="page" />
 				<c:set var="numberRegularLibrariesPerLane" value="0" scope="page" />
 				<c:forEach items="${cell.sampleSource}" var="ss2">
-				  <c:set var="library" value="${ss2.sampleViaSource}" scope="page" />
+				  <c:set var="library" value="${ss2.sourceSample}" scope="page" />
 				  <c:if test="${counter > 1}"><hr></c:if>
 				  
 				  <c:if test="${library.sampleSubtype.getIName() != 'controlLibrarySample'}">	

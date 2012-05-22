@@ -62,8 +62,6 @@ public class SampleSource extends WaspModel {
 	}
 
 
-
-
 	/** 
 	 * sampleId
 	 *
@@ -96,31 +94,31 @@ public class SampleSource extends WaspModel {
 
 
 	/** 
-	 * multiplexindex
+	 * index
 	 *
 	 */
-	@Column(name="multiplexindex")
-	protected Integer multiplexindex;
+	@Column(name="indexvalue")
+	protected Integer index;
 
 	/**
-	 * setMultiplexindex(Integer multiplexindex)
+	 * setIndex(Integer index)
 	 *
-	 * @param multiplexindex
+	 * @param index
 	 *
 	 */
 	
-	public void setMultiplexindex (Integer multiplexindex) {
-		this.multiplexindex = multiplexindex;
+	public void setIndex (Integer index) {
+		this.index = index;
 	}
 
 	/**
-	 * getMultiplexindex()
+	 * getIndex()
 	 *
-	 * @return multiplexindex
+	 * @return index
 	 *
 	 */
-	public Integer getMultiplexindex () {
-		return this.multiplexindex;
+	public Integer getIndex () {
+		return this.index;
 	}
 
 
@@ -258,28 +256,28 @@ public class SampleSource extends WaspModel {
 	@NotAudited
 	@ManyToOne
 	@JoinColumn(name="source_sampleid", insertable=false, updatable=false)
-	protected Sample sampleViaSource;
+	protected Sample sourceSample;
 
 	/**
-	 * setSampleViaSource (Sample sample)
+	 * setSourceSample(Sample sample)
 	 *
 	 * @param sample
 	 *
 	 */
-	public void setSampleViaSource (Sample sample) {
-		this.sample = sample;
-		this.sourceSampleId = sample.sampleId;
+	public void setSourceSample (Sample sourceSample) {
+		this.sourceSample = sourceSample;
+		this.sourceSampleId = sourceSample.sampleId;
 	}
 
 	/**
-	 * getSampleViaSource ()
+	 * getSourceSample()
 	 *
 	 * @return sample
 	 *
 	 */
 	
-	public Sample getSampleViaSource () {
-		return this.sampleViaSource;
+	public Sample getSourceSample() {
+		return this.sourceSample;
 	}
 
 

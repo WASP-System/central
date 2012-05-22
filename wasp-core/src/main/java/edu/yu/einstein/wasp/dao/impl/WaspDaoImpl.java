@@ -49,14 +49,7 @@ public abstract class WaspDaoImpl<E extends Serializable> implements edu.yu.eins
 	public void persist(final E entity) {
 		setUpdateTs(entity);
 		setEditorId(entity);
-		logger.debug("Persisting entity of type: "+entity.getClass().getName()+"...");
-		for (Field field : entity.getClass().getDeclaredFields()){
-			try {
-				logger.debug("    Field: "+field.getName()+"="+entity.getClass().getMethod("get"+WordUtils.capitalize(field.getName())).invoke(entity).toString());
-			} catch (Exception e) {
-			}
-			
-		}
+		logEntityFieldDetailsOnCRUD(entity, "persisting");
 		entityManager.persist(entity);
 	}
 
@@ -65,14 +58,7 @@ public abstract class WaspDaoImpl<E extends Serializable> implements edu.yu.eins
 
 		setEditorId(entity);
 		setUpdateTs(entity);
-		logger.debug("Saving entity of type: "+entity.getClass().getName()+"...");
-		for (Field field : entity.getClass().getDeclaredFields()){
-			try {
-				logger.debug("    Field: "+field.getName()+"="+entity.getClass().getMethod("get"+WordUtils.capitalize(field.getName())).invoke(entity).toString());
-			} catch (Exception e) {
-			}
-			
-		}
+		logEntityFieldDetailsOnCRUD(entity, "saving");
 		if (entityManager.contains(entity)) {
 			entityManager.merge(entity);
 		} else {
@@ -85,14 +71,7 @@ public abstract class WaspDaoImpl<E extends Serializable> implements edu.yu.eins
 
 	@Override
 	public void remove(E entity) {
-		logger.debug("Removing entity of type: "+entity.getClass().getSimpleName()+"...");
-		for (Field field : entity.getClass().getDeclaredFields()){
-			try {
-				logger.debug("    Field: "+field.getName()+"="+entity.getClass().getMethod("get"+WordUtils.capitalize(field.getName())).invoke(entity).toString());
-			} catch (Exception e) {
-			}
-			
-		}
+		logEntityFieldDetailsOnCRUD(entity, "removing");
 		entityManager.remove(entity);
 	}
 
@@ -101,14 +80,7 @@ public abstract class WaspDaoImpl<E extends Serializable> implements edu.yu.eins
 
 		setUpdateTs(entity);
 		setEditorId(entity);
-		logger.debug("Merging entity of type: "+entity.getClass().getSimpleName()+"...");
-		for (Field field : entity.getClass().getDeclaredFields()){
-			try {
-				logger.debug("    Field: "+field.getName()+"="+entity.getClass().getMethod("get"+WordUtils.capitalize(field.getName())).invoke(entity).toString());
-			} catch (Exception e) {
-			}
-			
-		}
+		logEntityFieldDetailsOnCRUD(entity, "merging");
 		return entityManager.merge(entity);
 	}
 
@@ -375,6 +347,19 @@ public abstract class WaspDaoImpl<E extends Serializable> implements edu.yu.eins
 		}
 		entityManager.detach(entity);
 		return entity;
+	}
+	
+	private void logEntityFieldDetailsOnCRUD(E entity, String actionName){
+		if (!logger.isDebugEnabled())
+			return;
+		logger.debug(WordUtils.capitalize(actionName)+" entity of type: "+entity.getClass().getName()+"...");
+		for (Field field : entity.getClass().getDeclaredFields()){
+			try {
+				logger.debug("    -> "+field.getName()+"="+entity.getClass().getMethod("get"+WordUtils.capitalize(field.getName())).invoke(entity).toString());
+			} catch (Exception e) {
+			}
+			
+		}
 	}
 
 }

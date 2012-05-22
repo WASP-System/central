@@ -1,10 +1,10 @@
 
 /**
  *
- * JobDraftCell.java 
+ * JobDraftCellSelection.java 
  * @author echeng (table2type.pl)
  *  
- * the JobDraftCell
+ * the JobDraftCellSelection
  *
  *
  */
@@ -29,35 +29,35 @@ import org.hibernate.envers.NotAudited;
 
 @Entity
 @Audited
-@Table(name="jobdraftcell")
-public class JobDraftCell extends WaspModel {
+@Table(name="jobdraftcellselection")
+public class JobDraftCellSelection extends WaspModel {
 
 	/** 
-	 * jobDraftCellId
+	 * jobDraftCellSelectionId
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer jobDraftCellId;
+	protected Integer jobDraftCellSelectionId;
 
 	/**
-	 * setJobDraftCellId(Integer jobDraftCellId)
+	 * setJobDraftCellSelectionId(Integer jobDraftCellSelectionId)
 	 *
-	 * @param jobDraftCellId
+	 * @param jobDraftCelSelectionlId
 	 *
 	 */
 	
-	public void setJobDraftCellId (Integer jobDraftCellId) {
-		this.jobDraftCellId = jobDraftCellId;
+	public void setJobDraftCellSelectionId (Integer jobDraftCellSelectionId) {
+		this.jobDraftCellSelectionId = jobDraftCellSelectionId;
 	}
 
 	/**
-	 * getJobDraftCellId()
+	 * getJobDraftCellSelectionId()
 	 *
-	 * @return jobDraftCellId
+	 * @return jobDraftCellSelectionId
 	 *
 	 */
-	public Integer getJobDraftCellId () {
-		return this.jobDraftCellId;
+	public Integer getJobDraftCellSelectionId () {
+		return this.jobDraftCellSelectionId;
 	}
 
 
@@ -99,27 +99,27 @@ public class JobDraftCell extends WaspModel {
 	 *
 	 */
 	@Column(name="cellindex")
-	protected Integer cellindex;
+	protected Integer cellIndex;
 
 	/**
-	 * setCellindex(Integer cellindex)
+	 * setCellIndex(Integer cellIndex)
 	 *
-	 * @param cellindex
+	 * @param cellIndex
 	 *
 	 */
 	
-	public void setCellindex (Integer cellindex) {
-		this.cellindex = cellindex;
+	public void setCellIndex (Integer cellIndex) {
+		this.cellIndex = cellIndex;
 	}
 
 	/**
-	 * getCellindex()
+	 * getCellIndex()
 	 *
-	 * @return cellindex
+	 * @return cellIndex
 	 *
 	 */
-	public Integer getCellindex () {
-		return this.cellindex;
+	public Integer getCellIndex () {
+		return this.cellIndex;
 	}
 
 
@@ -158,35 +158,35 @@ public class JobDraftCell extends WaspModel {
 
 
 	/** 
-	 * sampleDraftCell
+	 * sampleDraftJobDraftCellSelection
 	 *
 	 */
 	@NotAudited
 	@OneToMany
-	@JoinColumn(name="jobdraftcellid", insertable=false, updatable=false)
-	protected List<SampleDraftCell> sampleDraftCell;
+	@JoinColumn(name="jobdraftcellselectionid", insertable=false, updatable=false)
+	protected List<SampleDraftJobDraftCellSelection> sampleDraftJobDraftCellSelection;
 
 
 	/** 
 	 * getSampleDraftCell()
 	 *
-	 * @return sampleDraftCell
+	 * @return sampleDraftJobDraftCellSelection
 	 *
 	 */
 	@JsonIgnore
-	public List<SampleDraftCell> getSampleDraftCell() {
-		return this.sampleDraftCell;
+	public List<SampleDraftJobDraftCellSelection> getSampleDraftJobDraftCellSelection() {
+		return this.sampleDraftJobDraftCellSelection;
 	}
 
 
 	/** 
 	 * setSampleDraftCell
 	 *
-	 * @param sampleDraftCell
+	 * @param sampleDraftJobDraftCellSelection
 	 *
 	 */
-	public void setSampleDraftCell (List<SampleDraftCell> sampleDraftCell) {
-		this.sampleDraftCell = sampleDraftCell;
+	public void setSampleDraftJobDraftCellSelection (List<SampleDraftJobDraftCellSelection> sampleDraftJobDraftCellSelection) {
+		this.sampleDraftJobDraftCellSelection = sampleDraftJobDraftCellSelection;
 	}
 
 
