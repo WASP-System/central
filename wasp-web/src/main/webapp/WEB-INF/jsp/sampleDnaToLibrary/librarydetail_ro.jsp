@@ -1,35 +1,30 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
-<wasp:message />  <br />
-<h1>Library Details</h1>
-<table class="EditTable ui-widget ui-widget-content">
-<tr class="FormData"><td class="CaptionTD">Job ID:</td><td class="DataTD"><a href="<c:url value="/sampleDnaToLibrary/listJobSamples/${job.jobId}.do" />">J<c:out value="${job.jobId}" /></a></td></tr>
-<tr class="FormData"><td class="CaptionTD">Job Name:</td><td class="DataTD"><c:out value="${job.name}" /></td></tr>
-<tr class="FormData"><td class="CaptionTD">Submitter:</td><td class="DataTD"><c:out value="${job.user.firstName}" /> <c:out value="${job.user.lastName}" /></td></tr>
-<tr class="FormData"><td class="CaptionTD">PI:</td><td class="DataTD"><c:out value="${job.lab.user.firstName}" /> <c:out value="${job.lab.user.lastName}" /></td></tr>
-<tr class="FormData"><td class="CaptionTD">Submitted:</td><td class="DataTD"><fmt:formatDate value="${job.createts}" type="date" /></td></tr>
-<tr class="FormData"><td class="CaptionTD">Workflow:</td><td class="DataTD"><c:out value="${job.workflow.name}" /></td></tr>
-<c:forEach items='${extraJobDetailsMap}' var="detail">
-	<tr class="FormData"><td class="CaptionTD">  <c:out value='${detail.key}' />   </td><td class="DataTD"> <c:out value='${detail.value}' /> </td></tr>
-</c:forEach>
-</table>
+  <br />
+<title><fmt:message key="pageTitle.sampleDnaToLibrary/librarydetail_ro.label"/></title>
+<h1><fmt:message key="pageTitle.sampleDnaToLibrary/librarydetail_ro.label"/></h1>
+<c:import url="/WEB-INF/jsp/sampleDnaToLibrary/jobdetail_for_import.jsp" />
 <br /> 
-
 
 <table class="EditTable ui-widget ui-widget-content">
 <c:if test="${parentMacromolecule != null && parentMacromolecule.sampleId > 0}">
-  	<tr class="FormData"><td class="CaptionTD">Primary Sample Name: </td><td class="DataTD"><c:out value="${parentMacromolecule.name}" /></td></tr>
-  	<tr class="FormData"><td class="CaptionTD">Primary Sample Type: </td><td class="DataTD"><c:out value="${parentMacromolecule.sampleType.name}" /></td></tr>
+  	<tr class="FormData"><td class="CaptionTD"><fmt:message key="librarydetail_ro.primarySampleName.label" />: </td><td class="DataTD"><c:out value="${parentMacromolecule.name}" /></td></tr>
+  	<tr class="FormData"><td class="CaptionTD"><fmt:message key="librarydetail_ro.primarySampleType.label" />: </td><td class="DataTD"><c:out value="${parentMacromolecule.sampleType.name}" /></td></tr>
+	<c:forEach items="${parentMacromolecule.sampleMeta}" var="msm">
+    	<c:if test="${fn:substringAfter(msm.k, 'Biomolecule.') == 'species'}">
+            <tr class="FormData"><td class="CaptionTD"><fmt:message key="librarydetail_ro.primarySampleSpecies.label" />:</td><td colspan="1" class="DataTD"><c:out value="${msm.v}"/></td></tr>
+        </c:if> 
+    </c:forEach> 
 </c:if>
-   	<tr class="FormData"><td colspan="2" class="label-centered">LIBRARY DETAILS</td></tr>
+   	<tr class="FormData"><td colspan="2" class="label-centered" style="font-weight:bold;text-decoration:underline"><fmt:message key="librarydetail_ro.libraryDetails.label" /></td></tr>
   
-  	 <tr class="FormData"><td class="CaptionTD">Library Name: </td><td class="DataTD"><c:out value="${sample.name}" /></td></tr>
-     <tr class="FormData"><td class="CaptionTD">Sample Type: </td><td class="DataTD">Library</td></tr>
+  	 <tr class="FormData"><td class="CaptionTD"><fmt:message key="librarydetail_ro.libraryName.label" />: </td><td class="DataTD"><c:out value="${sample.name}" /></td></tr>
+     <tr class="FormData"><td class="CaptionTD"><fmt:message key="librarydetail_ro.librarySampleType.label" />: </td><td class="DataTD">Library</td></tr>
      <c:set var="_area" value = "library" scope="request"/>
      <c:set var="_metaList" value = "${sample.getSampleMeta()}" scope="request" />
      <c:import url="/WEB-INF/jsp/meta_ro.jsp" />
-    <tr class="FormData"><td colspan="2" class="DataTD submitBottom"><a class="button" href="<c:url value="/sampleDnaToLibrary/listJobSamples/${job.jobId}.do"/>">Cancel</a>&nbsp;
+    <tr class="FormData"><td colspan="2" class="DataTD submitBottom"><a class="button" href="<c:url value="/sampleDnaToLibrary/listJobSamples/${job.jobId}.do"/>"><fmt:message key="librarydetail_ro.cancel.label" /></a>&nbsp;
 	<sec:authorize access="hasRole('su') or hasRole('ft')"> 
-	  <a class="button" href="<c:url value="/sampleDnaToLibrary/librarydetail_rw/${job.jobId}/${sample.sampleId}.do"/>">Edit</a>
+	  <a class="button" href="<c:url value="/sampleDnaToLibrary/librarydetail_rw/${job.jobId}/${sample.sampleId}.do"/>"><fmt:message key="librarydetail_ro.edit.label" /></a>
 	 </sec:authorize>	
 	 </td></tr>
 </table>

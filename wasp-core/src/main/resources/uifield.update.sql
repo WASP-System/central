@@ -673,9 +673,94 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','task/samplereceive/list','label','Incoming Sample Manager','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','task/fmpayment/list','label','Receive Payment for Jobs','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','department/dapendingtasks','label','Department Administrator Pending Tasks','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','sampleDnaToLibrary/listJobSamples','label','Sample DNA to Library List','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','sampleDnaToLibrary/listJobSamples','label','Samples And Libraries','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','sampleDnaToLibrary/sampledetail_ro','label','Sample Details','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','sampleDnaToLibrary/sampledetail_rw','label','Update Sample Details','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','sampleDnaToLibrary/librarydetail_ro','label','Library Details','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','sampleDnaToLibrary/librarydetail_rw','label','Update Library','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','pageTitle','sampleDnaToLibrary/createLibrary','label','New Library','1');
 
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampleDnaToLibrary','listJobSamples','title_label','Job Samples List','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','listJobSamples','showUserRequestedCoverage','label','Show User-Requested Coverage','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','listJobSamples','hideUserRequestedCoverage','label','Hide User-Requested Coverage','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','listJobSamples','cell','label','Cell','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','listJobSamples','initialMacromolecules','label','Initial Macromolecules','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','listJobSamples','libraries','label','Libraries','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','listJobSamples','platformUnitsAndRuns','label','Platform Units / Runs','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','listJobSamples','name','label','Name','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','listJobSamples','type','label','Type','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','listJobSamples','species','label','Species','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','listJobSamples','arrivalStatus','label','Arrival Status','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','listJobSamples','logSample','label','log sample','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','listJobSamples','selectAdaptorSetForNewLibrary','label','--SELECT ADAPTOR SET FOR NEW LIBRARY--','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','listJobSamples','noLibrariesCreated','label','No Libraries Created','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','listJobSamples','adaptor','label','Adaptor','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','listJobSamples','index','label','Index','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','listJobSamples','addLibraryToPlatformUnit','label','Add Library To Platform Unit','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','listJobSamples','selectPlatformUnitCell','label','--SELECT A PLATFORM UNIT CELL--','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','listJobSamples','platformUnit','label','Platform Unit','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','listJobSamples','libraryControl_option','label','Library (Control)','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','listJobSamples','library','label','Library','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','listJobSamples','finalConcentrationPM','label','Final Concentration (pM)','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','listJobSamples','submit','label','Submit','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','listJobSamples','cancel','label','Cancel','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','listJobSamples','view','label','View','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','listJobSamples','noPlatformUnitsAndRuns','label','No Platform Units / Runs','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','listJobSamples','userSubmittedLibraries','label','User-Submitted Libraries','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','listJobSamples','youMustSelectCell_alert','label','You must select a cell','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','listJobSamples','valFinalConc_alert','label','Please provide a value for Final Concentration in the cell (pM)','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','listJobSamples','numValFinalConc_alert','label','Please provide a numeric value for Final Concentration in the cell (pM)','1');
+
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobdetail_for_import','jobId','label','Job ID','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobdetail_for_import','jobName','label','Job Name','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobdetail_for_import','jobSubmitter','label','Submitter','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobdetail_for_import','jobPI','label','PI','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobdetail_for_import','jobSubmissionDate','label','Submission Date','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobdetail_for_import','jobWorkflow','label','Workflow','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobdetail_for_import','Machine','label','Machine','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobdetail_for_import','Read Type','label','Read Type','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','jobdetail_for_import','Read Length','label','Read Length','1');
+
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampledetail_ro','sampleName','label','Sample Name','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampledetail_ro','sampleType','label','Sample Type','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampledetail_ro','cancel','label','Cancel','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampledetail_ro','edit','label','Edit','1');
+
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampledetail_rw','sampleName','label','Sample Name','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampledetail_rw','sampleType','label','Sample Type','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampledetail_rw','cancel','label','Cancel','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampledetail_rw','save','label','Save','1');
+
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','librarydetail_ro','primarySampleName','label','Primary Sample Name','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','librarydetail_ro','primarySampleType','label','Primary Sample Type','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','librarydetail_ro','primarySampleSpecies','label','Species','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','librarydetail_ro','libraryDetails','label','Library Details','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','librarydetail_ro','libraryName','label','Library Name','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','librarydetail_ro','librarySampleType','label','Library Type','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','librarydetail_ro','cancel','label','Cancel','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','librarydetail_ro','edit','label','Edit','1');
+
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','librarydetail_rw','selectNewAdaptorSet','label','--SELECT NEW ADAPTOR SET--','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','librarydetail_rw','primarySampleName','label','Primary Sample Name','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','librarydetail_rw','primarySampleType','label','Primary Sample Type','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','librarydetail_rw','primarySampleSpecies','label','Species','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','librarydetail_rw','libraryDetails','label','Library Details','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','librarydetail_rw','libraryName','label','Library Name','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','librarydetail_rw','libraryType','label','Library Type','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','librarydetail_rw','librarySubtype','label','Library Subtype','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','librarydetail_rw','cancel','label','Cancel','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','librarydetail_rw','save','label','Save','1');
+
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','createLibrary','selectNewAdaptorSet','label','--SELECT NEW ADAPTOR SET--','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','createLibrary','primarySampleName','label','Primary Sample Name','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','createLibrary','primarySampleType','label','Primary Sample Type','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','createLibrary','primarySampleSpecies','label','Species','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','createLibrary','libraryDetails','label','Library Details','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','createLibrary','libraryName','label','Library Name','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','createLibrary','libraryType','label','Library Type','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','createLibrary','librarySubtype','label','Library Subtype','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','createLibrary','cancel','label','Cancel','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','createLibrary','save','label','Save','1');
+
 
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','uiField','updated','data','Attribute Updated','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','piPending','captcha','error','Captcha text incorrect','1');

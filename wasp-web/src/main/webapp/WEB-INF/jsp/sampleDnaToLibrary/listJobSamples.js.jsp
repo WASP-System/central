@@ -14,10 +14,8 @@ $(document).ready(function() {
 
   	$("#requested_coverage_show_hide_button").click(function() {
   	  $("#user_requested_coverage_data").fadeToggle("slow", "linear");
-  	  if($(this).prop("value")=="Show User-Requested Coverage"){$(this).prop("value", "Hide User-Requested Coverage");}
-  	  else{$(this).prop("value", "Show User-Requested Coverage");}
-  		//if( $(this).html() == "show"){ $(this).html("hide"); }
-	  	//else{ $(this).html("show"); }
+  	  if($(this).prop("value")=="<fmt:message key="listJobSamples.showUserRequestedCoverage.label" />"){$(this).prop("value", "<fmt:message key="listJobSamples.hideUserRequestedCoverage.label" />");}
+  	  else{$(this).prop("value", "<fmt:message key="listJobSamples.showUserRequestedCoverage.label" />");}
   	});  
 });
 
@@ -47,18 +45,18 @@ function toggleDisplayOfAddLibraryForm(instruction, idCounter){
 }
 function validate(obj){
 	if(obj.value==0){
-		alert("You must select a Lane");
+		alert("<fmt:message key="listJobSamples.youMustSelectCell_alert.label" />");
 		return false;
 	}
 }
 function validate_submit(obj){
 	if(obj.lanesampleid.value==0){
-		alert("You must select a Lane");
+		alert("<fmt:message key="listJobSamples.youMustSelectCell_alert.label" />");
 		obj.lanesampleid.focus();
 		return false;
 	}
 	if(obj.libConcInLanePicoM.value =="" || obj.libConcInLanePicoM.value.replace(/^\s+|\s+$/g, '') ==""){ //trim from both ends
-		alert("Please provide a value for Final Concentration In Lane (pM)");
+		alert("<fmt:message key="listJobSamples.valFinalConc_alert.label" />");
 		obj.libConcInLanePicoM.value = "";
 		obj.libConcInLanePicoM.focus();
 		return false;
@@ -66,7 +64,7 @@ function validate_submit(obj){
 	
 	var regExpr = new RegExp("^[0-9]+\.?[0-9]*$");//modified from http://stackoverflow.com/questions/469357/html-text-input-allow-only-numeric-input (modified example 14)
     if (!regExpr.test(obj.libConcInLanePicoM.value)) {
-    	alert("Please provide a numeric value for Final Concentration In Lane (pM)");
+    	alert("<fmt:message key="listJobSamples.numValFinalConc_alert.label" />");
 		obj.libConcInLanePicoM.focus();
 		return false;
     }
