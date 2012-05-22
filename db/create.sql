@@ -930,7 +930,7 @@ create table workflowsoftwaremeta (
 
 create table sample (
   sampleid int(10)  primary key auto_increment,
-
+  parentid int(10),
   sampletypeid int(10) ,
   samplesubtypeid int(10),
 
@@ -949,6 +949,7 @@ create table sample (
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
 
+  foreign key fk_sample_sampleid (parentid) references sample(sampleid),
   foreign key fk_sample_tsid (sampletypeid) references sampletype(sampletypeid),
   foreign key fk_sample_stsid (samplesubtypeid) references samplesubtype(samplesubtypeid),
   foreign key fk_sample_sjid (submitter_jobid) references job(jobid),
@@ -977,7 +978,7 @@ create table samplemeta (
 create table samplesource (
   samplesourceid int(10)  primary key auto_increment, 
   sampleid int(10) ,
-  multiplexindex int(10)  default 0,
+  indexvalue int(10)  default 0,
   source_sampleid int(10) ,
 
   lastupdts timestamp  default current_timestamp,
@@ -986,7 +987,7 @@ create table samplesource (
   foreign key fk_samplesource_sid (sampleid) references sample(sampleid),
   foreign key fk_samplesource_ssid (source_sampleid) references sample(sampleid),
 
-  constraint unique index u_samplesource_sid (sampleid, multiplexindex)
+  constraint unique index u_samplesource_sid (sampleid, indexvalue)
 ) ENGINE=InnoDB charset=utf8;
 
 create table samplesourcemeta (
@@ -1082,8 +1083,8 @@ create table sampledraftmeta (
   constraint unique index u_sampledraftmeta_k_sid (k, sampledraftid)
 ) ENGINE=InnoDB charset=utf8;
 
-create table jobdraftcell (
-  jobdraftcellid int(10)  primary key auto_increment,
+create table jobdraftcellselection (
+  jobdraftcellselectionid int(10)  primary key auto_increment,
   jobdraftid int(10) ,
   cellindex int(10) ,
 
@@ -1091,16 +1092,16 @@ create table jobdraftcell (
   constraint unique index u_jobdraftcell_jdid_ci (jobdraftid, cellindex)
 );
 
-create table sampledraftcell (
-  sampledraftcellid int(10)  primary key auto_increment,
+create table sampledraftjobdraftcellselection (
+  sampledraftjobdraftcellselectionid int(10)  primary key auto_increment,
   sampledraftid int(10) ,
-  jobdraftcellid int(10) ,
+  jobdraftcellselectionid int(10) ,
 
   libraryindex int(10) , 
 
   foreign key fk_sampledraftcell_sdid (sampledraftid) references sampledraft(sampledraftid),
-  foreign key fk_sampledraftcell_jdcid (jobdraftcellid) references jobdraftcell(jobdraftcellid),
-  constraint unique index u_sampledraftcell_jdcid_li (jobdraftcellid, libraryindex)
+  foreign key fk_sampledraftcell_jdcid (jobdraftcellselectionid) references jobdraftcellselection(jobdraftcellselectionid),
+  constraint unique index u_sampledraftcell_jdcid_li (jobdraftcellselectionid, libraryindex)
 );
 
 
@@ -1142,8 +1143,8 @@ create table jobsamplemeta (
 ) ENGINE=InnoDB charset=utf8;
 
 
-create table jobcell (
-  jobcellid int(10)  primary key auto_increment,
+create table jobcellselection (
+  jobcellselectionid int(10)  primary key auto_increment,
   jobid int(10) ,
   cellindex int(10) ,
 
@@ -1151,16 +1152,16 @@ create table jobcell (
   constraint unique index u_jobcell_jdid_ci (jobid, cellindex)
 );
 
-create table samplecell (
-  samplecellid int(10)  primary key auto_increment,
+create table samplejobcellselection (
+  samplejobcellselectionid int(10)  primary key auto_increment,
   sampleid int(10) ,
-  jobcellid int(10) ,
+  jobcellselectionid int(10) ,
 
   libraryindex int(10) , 
 
   foreign key fk_samplecell_sdid (sampleid) references sample(sampleid),
-  foreign key fk_samplecell_jdcid (jobcellid) references jobcell(jobcellid),
-  constraint unique index u_samplecell_jdcid_li (jobcellid, libraryindex)
+  foreign key fk_samplecell_jdcid (jobcellselectionid) references jobcellselection(jobcellselectionid),
+  constraint unique index u_samplecell_jdcid_li (jobcellselectionid, libraryindex)
 );
 
 
