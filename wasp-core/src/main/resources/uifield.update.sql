@@ -730,9 +730,6 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampledetail_rw','cancel','label','Cancel','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','sampledetail_rw','save','label','Save','1');
 
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','librarydetail_ro','primarySampleName','label','Primary Sample Name','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','librarydetail_ro','primarySampleType','label','Primary Sample Type','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','librarydetail_ro','primarySampleSpecies','label','Species','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','librarydetail_ro','libraryDetails','label','Library Details','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','librarydetail_ro','libraryName','label','Library Name','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','librarydetail_ro','librarySampleType','label','Library Type','1');
@@ -740,9 +737,6 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','librarydetail_ro','edit','label','Edit','1');
 
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','librarydetail_rw','selectNewAdaptorSet','label','--SELECT NEW ADAPTOR SET--','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','librarydetail_rw','primarySampleName','label','Primary Sample Name','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','librarydetail_rw','primarySampleType','label','Primary Sample Type','1');
-insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','librarydetail_rw','primarySampleSpecies','label','Species','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','librarydetail_rw','libraryDetails','label','Library Details','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','librarydetail_rw','libraryName','label','Library Name','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','librarydetail_rw','libraryType','label','Library Type','1');

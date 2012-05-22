@@ -28,19 +28,6 @@
 
 <form:form cssClass="FormGrid" commandName="sample">
 <table class="EditTable ui-widget ui-widget-content">
-
-
-<c:if test="${parentMacromolecule != null && parentMacromolecule.sampleId > 0}">
-
-  	<tr class="FormData"><td class="CaptionTD"><fmt:message key="librarydetail_rw.primarySampleName.label" />:</td><td colspan="2" class="DataTD"><c:out value="${parentMacromolecule.name}" /></td></tr>
-  	<tr class="FormData"><td class="CaptionTD"><fmt:message key="librarydetail_rw.primarySampleType.label" />:</td><td colspan="2" class="DataTD"><c:out value="${parentMacromolecule.sampleType.name}" /></td></tr>
-	<c:forEach items="${parentMacromolecule.sampleMeta}" var="msm">
-    	<c:if test="${fn:substringAfter(msm.k, 'Biomolecule.') == 'species'}">
-            <tr class="FormData"><td class="CaptionTD"><fmt:message key="librarydetail_rw.primarySampleSpecies.label" />:</td><td colspan="2" class="DataTD"><c:out value="${msm.v}"/></td></tr>
-        </c:if> 
-    </c:forEach> 
-</c:if>
-
  	<tr class="FormData"><td colspan="3" class="label-centered" style="font-weight:bold;text-decoration:underline"><fmt:message key="librarydetail_rw.libraryDetails.label" /></td></tr>
 	<form:hidden path='sampleSubtypeId' />
 	<form:hidden path='sampleTypeId' />

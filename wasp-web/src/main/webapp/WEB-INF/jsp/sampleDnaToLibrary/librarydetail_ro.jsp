@@ -6,17 +6,7 @@
 <br /> 
 
 <table class="EditTable ui-widget ui-widget-content">
-<c:if test="${parentMacromolecule != null && parentMacromolecule.sampleId > 0}">
-  	<tr class="FormData"><td class="CaptionTD"><fmt:message key="librarydetail_ro.primarySampleName.label" />: </td><td class="DataTD"><c:out value="${parentMacromolecule.name}" /></td></tr>
-  	<tr class="FormData"><td class="CaptionTD"><fmt:message key="librarydetail_ro.primarySampleType.label" />: </td><td class="DataTD"><c:out value="${parentMacromolecule.sampleType.name}" /></td></tr>
-	<c:forEach items="${parentMacromolecule.sampleMeta}" var="msm">
-    	<c:if test="${fn:substringAfter(msm.k, 'Biomolecule.') == 'species'}">
-            <tr class="FormData"><td class="CaptionTD"><fmt:message key="librarydetail_ro.primarySampleSpecies.label" />:</td><td colspan="1" class="DataTD"><c:out value="${msm.v}"/></td></tr>
-        </c:if> 
-    </c:forEach> 
-</c:if>
    	<tr class="FormData"><td colspan="2" class="label-centered" style="font-weight:bold;text-decoration:underline"><fmt:message key="librarydetail_ro.libraryDetails.label" /></td></tr>
-  
   	 <tr class="FormData"><td class="CaptionTD"><fmt:message key="librarydetail_ro.libraryName.label" />: </td><td class="DataTD"><c:out value="${sample.name}" /></td></tr>
      <tr class="FormData"><td class="CaptionTD"><fmt:message key="librarydetail_ro.librarySampleType.label" />: </td><td class="DataTD">Library</td></tr>
      <c:set var="_area" value = "library" scope="request"/>
