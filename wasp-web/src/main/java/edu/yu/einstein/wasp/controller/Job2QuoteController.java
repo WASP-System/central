@@ -202,7 +202,7 @@ public class Job2QuoteController extends WaspController {
 	}
 
 	/**
-	 * Creates/Updates user
+	 * Creates/Updates job quote
 	 * 
 	 * @Author AJ Jing 
 	 */	

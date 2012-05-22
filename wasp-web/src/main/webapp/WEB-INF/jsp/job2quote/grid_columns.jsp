@@ -18,9 +18,10 @@ _editAttr['beforeShowForm'] = function(formId) {
 
 _editAttr['afterShowForm'] = function(formId) {
 	$('#name').attr('disabled', 'disabled');
+	$('#amount').attr('disabled', 'disabled');
 	
 	$('input[type="text"][name$="cost"]').keyup( function(evt){
-		$('input#amount').val(sumCosts().toFixed(2));
+		$('#amount').val(sumCosts().toFixed(2));
 	} );
 };
 
