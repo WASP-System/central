@@ -1529,7 +1529,7 @@ public class PlatformUnitController extends WaspController {
 		List<Run> runList = platformUnit.getRun();
 		m.put("runList", runList);
 		//if this flowcell is on a run, it gets locked to the addition of new user-libraries
-		//locking the flowcell is recorded as its task, Assign Library To Platform Unit, changing from CREATED to COMPLETED
+		//locking the flowcell is recorded as its task, Assign Library To Platform Unit, changing from CREATED to COMPLETED/FINALIZED
 		//There are conditions under which the flow cell may need to be unlocked. Currently this will be 
 		//visible on a the platform unit form only to superuser, who may unlock and later relock the flow cell.
 		//Here, just determine if it's locked

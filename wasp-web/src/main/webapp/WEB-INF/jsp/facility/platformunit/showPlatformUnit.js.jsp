@@ -74,41 +74,41 @@ function validateCreateNewRunForm(){
 	var technicianId = document.getElementById("technicianId");
 	var runStartDate = document.getElementById("runStartDate");
 	if(runName.value=="" || runName.value.replace(/^\s+|\s+$/g, '') ==""){
-		alert("Please provide a valid name for this run");
+		alert("<fmt:message key="showPlatformUnit.pleaseProvideValidName_alert.label"/>");
 		runName.focus();
 		return false;
 	}
 	if(resourceId.value==""){
-		alert("Please select a machine");
+		alert("<fmt:message key="showPlatformUnit.pleaseSelectMachine_alert.label"/>");
 		resourceId.focus();
 		return false;
 	}
 	if(readLength.value==""){
-		alert("Please select a read length");
+		alert("<fmt:message key="showPlatformUnit.pleaseSelectReadLength_alert.label"/>");
 		readLength.focus();
 		return false;
 	}
 	if(readType.value==""){
-		alert("Please select a read type");
+		alert("<fmt:message key="showPlatformUnit.pleaseSelectReadType_alert.label"/>");
 		readType.focus();
 		return false;
 	}
 	if(technicianId.value==""){
-		alert("Please select a Technician");
+		alert("<fmt:message key="showPlatformUnit.pleaseSelectTechnician_alert.label"/>");
 		technicianId.focus();
 		return false;
 	}
 	if(runStartDate.value == "" || runStartDate.value.replace(/^\s+|\s+$/g, '') ==""){
-		alert("Please select/provide a Start Date");
+		alert("<fmt:message key="showPlatformUnit.pleaseProvideStartDate_alert.label"/>");
 		runStartDate.focus();
 		return false;
 	}
     if (runStartDate.value != "" && !isDate(runStartDate.value)) {
-    	alert("Please provide a Start Date in the proper format");
+    	alert("<fmt:message key="showPlatformUnit.pleaseProvideValidStartDate_alert.label"/>");
     	runStartDate.focus();
 		return false;
     }
-	if(!confirm("Submit?")){
+	if(!confirm("<fmt:message key="showPlatformUnit.submit_alert.label"/>")){
 		return false;
 	}
 	
@@ -148,13 +148,13 @@ function validateAddNewControlToLaneForm(counter){
 	var newControlConcInLanePicoMName = "newControlConcInLanePicoM_" + counter;
 	var newControlConcInLanePicoM = document.getElementById(newControlConcInLanePicoMName);
 	if(newControlId.value==""){
-		alert("Please select a control");
+		alert("<fmt:message key="showPlatformUnit.pleaseSelectControl_alert.label"/>");
 		newControlId.focus();
 		return false;
 	}
 	var trimmed = newControlConcInLanePicoM.value.replace(/^\s+|\s+$/g, '') ;//trim from both ends
 	if(trimmed == ""){//must trim before testing
-		alert("Please provide a final concentration for this control");
+		alert("<fmt:message key="showPlatformUnit.pleaseProvideControlConc_alert.label"/>");
 		newControlConcInLanePicoM.value = "";
 		newControlConcInLanePicoM.focus();
 		return false;
@@ -192,7 +192,7 @@ function validateUpdateForm(idCounter){
 	var textInputObject = document.getElementById(textInputName);
 	var trimmed = textInputObject.value.replace(/^\s+|\s+$/g, '') ;//trim from both ends
 	if(trimmed == ""){
-		alert("Please provide a value");
+		alert("<fmt:message key="showPlatformUnit.pleaseProvideValue_alert.label"/>");
 		textInputObject.value = "";
 		textInputObject.focus();
 		return false;
