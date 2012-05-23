@@ -560,6 +560,8 @@ insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','UserId','label','Submitted By','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','lab','label','Lab','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','submission_date','label','Submitted On','1');
+insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','job','viewfiles','label','Result','1');
+
 
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','contentTypeMap','etx','data','text/x-setext','1');
 insert into uifield(locale,area,name,attrName,attrValue,lastupduser) values('en_US','contentTypeMap','me','data','application/x-troff-me','1');
