@@ -51,7 +51,7 @@ public class ErrorMessageTag extends BodyTagSupport {
 		
 		Locale locale=(Locale)session.getAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 		
-		if (locale==null) locale=Locale.ENGLISH;
+		if (locale==null) locale=Locale.US;
 		
 	
 		
@@ -61,7 +61,7 @@ public class ErrorMessageTag extends BodyTagSupport {
 			buf.append("<ul>\n");
 			for(String key:messageKeys) {
 				try {
-					String message="<li>"+DBResourceBundle.MESSAGE_SOURCE.getMessage(key, null,Locale.US) + "</li>\n";
+					String message="<li>"+DBResourceBundle.MESSAGE_SOURCE.getMessage(key, null,locale) + "</li>\n";
 					buf.append(message);
 				} catch (Throwable e) {
 					log.error("Cant get message by key "+key,e);
