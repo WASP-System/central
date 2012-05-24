@@ -16,6 +16,7 @@
         <intercept-url pattern="/scripts/**" access="permitAll" />
         <intercept-url pattern="/autocomplete/**" access="permitAll" />
         <intercept-url pattern="/css/**" access="permitAll" />
+        <intercept-url pattern="/images/**" access="permitAll" />
         <intercept-url pattern="/stickyCaptchaImg.png" access="permitAll" />
         <intercept-url pattern="/open/**" access="permitAll" />
         <intercept-url pattern="/**" access="isAuthenticated()" />

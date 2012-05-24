@@ -1,9 +1,37 @@
+#container {
+  margin:auto;
+  width: 980px; 
+  background: #ffffff;
+}
+
+#header {
+  background-image: url(/wasp/images/dna_background_stretch.png); 
+}
+
+
+#content {
+  float:left;
+  width:960px;
+  background-color: #FFFFE6;
+  padding-left:10px;
+  padding-right:10px;
+  min-height: 550px;
+}
+
+#footer { 
+  clear:both;
+  padding-top:10px;
+  background:#CCCCCC;
+} 
+
+
 body	{
 	font-size: 13px;
 	font-family: Helevetica, "MS Trebuchet", sans-serif;
 	line-height: 16px;
 	width:960px;
 	margin:15px auto;
+	background-color:#fff;
 	}
 
 h1	{
@@ -122,7 +150,7 @@ nav#jobSubmit	a:hover{
 	margin-left: 10px;
 	padding-right: 10px;
 	padding-bottom: 10px;
-	list-style-image: url(/wasp/css/waspBullet.png);
+	list-style-image: url(/wasp/images/waspBullet.png);
 	
 }
 

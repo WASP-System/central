@@ -4,7 +4,7 @@
 
 <%@ page import="edu.yu.einstein.wasp.dao.impl.DBResourceBundle" %> 
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
-<!DOCTYPE html>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html lang="en">
 <head>
   <meta charset="utf-8" />
@@ -15,7 +15,7 @@
   <link rel="stylesheet" type="text/css" href="/wasp/css/jquery/jquery-ui.css"/>
   <link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/base.css" />
   <script type="text/javascript" src="/wasp/scripts/jquery/jquery-1.7.1.js"></script>
-  <script>
+  <script type="text/javascript">
   	function waspFade(el, msg) {
 		if (msg != null && msg != ""){
 			$('#'+el).html(msg);
@@ -44,9 +44,17 @@
 </head>
 
 <body onload='waspFade("waspErrorMessage");waspFade("waspMessage");waspOnLoad()'>
-  <tiles:insertAttribute name="banner-content" />
-  
-  <tiles:insertAttribute name="body-content" />
+	<div id="container">
+  		<div id="header">
+			<tiles:insertAttribute name="banner-content" />
+		</div>
+  		<div id="content">
+			<tiles:insertAttribute name="body-content" />
+		</div>
+  		<div id="footer">
+			<tiles:insertAttribute name="footer-content" />
+		</div>
+	</div>
 </body>
 </html>
 
