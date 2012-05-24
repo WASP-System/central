@@ -63,7 +63,6 @@ public class DBResourceBundle implements ApplicationContextAware{
 	
 
 	// PostInitialized... b/c Resource and Workflow need uifields set within them
-	@SuppressWarnings("unchecked")
 	@PostInitialize
 	@Transactional
 	public void init() {
@@ -101,10 +100,10 @@ public class DBResourceBundle implements ApplicationContextAware{
 		}
 
 		try{
-			for (Resource messageFile: this.applicationContext.getResources("classpath:/i18n/**/*messages_*.properties"))
+			for (Resource messageFile: this.applicationContext.getResources("classpath*:/i18n/**/*messages_*.properties"))
 				messageFiles.add(messageFile);
 		} catch(IOException e){
-			throw new WaspMessageInitializationException("IO problem encountered getting resources from 'classpath:/i18n/**/*messages_*.properties': "+e.getMessage());
+			throw new WaspMessageInitializationException("IO problem encountered getting resources from 'classpath*:/i18n/**/*messages_*.properties': "+e.getMessage());
 		}
 					
 		for (Resource messageFile: messageFiles){
@@ -135,7 +134,7 @@ public class DBResourceBundle implements ApplicationContextAware{
 					String key = keyValuePairs.nextToken().trim();
 					String value = "";
 					if (keyValuePairs.hasMoreTokens())
-						value =  keyValuePairs.nextToken().replaceFirst("^\\s*", "");
+						value =  keyValuePairs.nextToken(); //value =  keyValuePairs.nextToken().replaceFirst("^\\s*", "");
 					while(keyValuePairs.hasMoreTokens())
 						value+="="+keyValuePairs.nextToken();
 								StringTokenizer keyComponents = new StringTokenizer(key, "\\.");
