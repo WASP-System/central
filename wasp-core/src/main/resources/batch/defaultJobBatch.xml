@@ -28,6 +28,7 @@
   - errorChannel
   - taskService
   - finalStateProcessor
+  - parentStep
 
   -->
   <!-- every 5 seconds call taskService.getJobCreatedStates() -->
