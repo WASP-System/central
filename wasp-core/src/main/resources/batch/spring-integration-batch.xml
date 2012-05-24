@@ -35,10 +35,12 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
         <property name="isolationLevelForCreate" value="ISOLATION_DEFAULT" />
     </bean>
 
+	<!-- ANDY: simpleTaskExecutor is not referenced in the code or by other beans -->
     <bean id="simpleTaskExecutor" class="org.springframework.core.task.SimpleAsyncTaskExecutor">
         <property name="concurrencyLimit" value="100" />
     </bean>
 
+	<!-- ANDY: pooledTaskExecutor is not referenced in the code or by other beans -->
     <task:executor id="pooledTaskExecutor" pool-size="90-95" queue-capacity="6" />
 <bean id="te" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
 <property name="corePoolSize" value="5" />
