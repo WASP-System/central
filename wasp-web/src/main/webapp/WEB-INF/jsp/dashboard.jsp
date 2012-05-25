@@ -172,9 +172,6 @@
 						href='<c:url value="/facility/platformunit/limitPriorToPlatUnitAssign.do" />'>List / Create</a>
 				</li>
 				<li>
-					<a href='<c:url value="/facility/platformunit/assign.do" />'>Platform Unit assignment (must remove this)</a>
-				</li>
-				<li>
 					<a href='<c:url value="/facility/platformunit/limitPriorToAssign.do?resourceCategoryId=0" />'>Platform Unit assignment</a>
 				</li>
 			</ul>

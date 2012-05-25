@@ -59,8 +59,8 @@ h1	{
 	
 h2	{
 	font-size: 1.2em;
-	margin-bottom: 20px;
-	margin-top: 20px;
+	margin-bottom: 10px;
+	margin-top: 10px;
 	}
 
 p	{
@@ -163,10 +163,10 @@ nav#jobSubmit	a:hover{
 }
 
 .navTabs li{
-	padding-top: 10px;
+	padding-top: 5px;
 	margin-left: 10px;
 	padding-right: 10px;
-	padding-bottom: 10px;
+	padding-bottom: 5px;
 	list-style-image: url(/wasp/images/waspBullet.png);
 	
 }
