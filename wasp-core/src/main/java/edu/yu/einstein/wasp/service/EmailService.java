@@ -155,8 +155,6 @@ public interface EmailService  {
 
 	public String getNewAuthcodeForUserPending(UserPending userpending);
 
-	void setApplicationContext(ApplicationContext applicationContext)
-			throws BeansException;
 
 }
 
