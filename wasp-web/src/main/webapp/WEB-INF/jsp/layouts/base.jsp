@@ -49,6 +49,8 @@
 			<tiles:insertAttribute name="banner-content" />
 		</div>
   		<div id="content">
+  			<wasp:errorMessage />
+  			<wasp:message />
 			<tiles:insertAttribute name="body-content" />
 		</div>
   		<div id="footer">
