@@ -13,9 +13,9 @@
 
 #content {
   float:left;
-  width:960px;
+  width:940px;
   background-color: #FFFFE6;
-  padding :10px 10px 10px 10px;
+  padding :10px 20px 10px 20px;
   min-height: 93%;
   
 }
@@ -191,7 +191,9 @@ div#tabs h2, b{
 	color: #ff0000;
 }
 
-
+table.EditTable{
+	
+}
 
 	
 input[type="submit"],
