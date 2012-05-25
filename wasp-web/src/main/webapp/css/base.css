@@ -1,9 +1,8 @@
 #container {
-  margin:auto;
   width: 980px; 
   background: #ffffff;
-  height: 92%;
-  
+  height: 93%;
+  margin: auto;
 }
 
 #header {
@@ -17,8 +16,8 @@
   width:960px;
   background-color: #FFFFE6;
   padding :10px 10px 10px 10px;
-  height: 92%;
-  overflow:auto;
+  min-height: 93%;
+  
 }
 
 #footer { 
@@ -46,7 +45,9 @@ body	{
 	font-family: Helevetica, "MS Trebuchet", sans-serif;
 	line-height: 16px;
 	width:960px;
-	margin:15px auto;
+	margin: auto;
+	margin-bottom: 20px;
+	margin-top: 20px;
 	background-color:#6E6E6E;
 	height: 93%;
 	}
