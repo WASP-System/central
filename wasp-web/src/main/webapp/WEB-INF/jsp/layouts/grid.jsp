@@ -621,11 +621,17 @@
 
 <body onload='waspFade("waspErrorMessage");waspFade("waspMessage");'>
 
-	<tiles:insertAttribute name="banner-content" />
-	
-	<tiles:insertAttribute name="body-content" />
-	
-	<tiles:insertAttribute name="footer-content" />
+<div id="container">
+  		<div id="header">
+			<tiles:insertAttribute name="banner-content" />
+		</div>
+  		<div id="content">
+			<tiles:insertAttribute name="body-content" />
+		</div>
+  		<div id="footer">
+			<tiles:insertAttribute name="footer-content" />
+		</div>
+	</div>
 
 </body>
 </html>
