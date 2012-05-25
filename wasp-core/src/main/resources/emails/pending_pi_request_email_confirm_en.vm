@@ -1,5 +1,5 @@
 WASP: confirm email address request
-Dear ${user.firstName} ${user.lastName},
+<p>Dear ${user.firstName} ${user.lastName},</p>
 
-click here to 
-<a href="http://localhost:8080/wasp/auth/confirmPIEmail.do?authcode=${authcode}&email=${urlencodedemail}">confirm your email address</a>
+<p>click here to 
+<a href="${baseUrl}/auth/confirmPIEmail.do?authcode=${authcode}&email=${urlencodedemail}">confirm your email address</a></p>

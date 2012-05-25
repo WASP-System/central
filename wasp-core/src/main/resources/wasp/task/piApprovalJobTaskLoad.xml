@@ -25,7 +25,7 @@
       </list>
     </property>
 
-<!--
+
     <property name="taskMapping">
       <list>
         <bean class="edu.yu.einstein.wasp.model.TaskMapping">
@@ -44,7 +44,7 @@
         </bean>
       </list>
     </property>
--->
+
 
   </bean>
 </beans>

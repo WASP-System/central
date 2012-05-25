@@ -1,5 +1,6 @@
 package edu.yu.einstein.wasp.service.impl;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.HashMap;
@@ -7,12 +8,17 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
-
+import org.springframework.core.io.Resource;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
+import org.apache.log4j.Logger;
 import org.apache.velocity.app.VelocityEngine;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.mail.MailPreparationException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
@@ -49,7 +55,7 @@ import edu.yu.einstein.wasp.util.MetaHelper;
  * 
  */
 @Service
-public class EmailServiceImpl implements EmailService {
+public class EmailServiceImpl implements EmailService, ApplicationContextAware{
 	
 	static {
 		System.setProperty("mail.mime.charset", "utf8");
@@ -78,6 +84,20 @@ public class EmailServiceImpl implements EmailService {
 	
 	@Autowired
 	private ConfirmEmailAuthDao confirmEmailAuthDao;
+	
+	@Value("${wasp.host.baseurl}")
+	private String baseUrl;
+
+	private static Logger logger = Logger.getLogger("EmailServiceImpl");
+	
+	private ApplicationContext applicationContext;
+	
+	@Override
+	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+		this.applicationContext=applicationContext;
+	}
+
+
 
 
 	/**
@@ -378,19 +398,33 @@ public class EmailServiceImpl implements EmailService {
 	 * @throws MailPreparationException
 	 */
 	protected void generateMessage(final User user, final String template, final Map model, MimeMessage mimeMessage) throws MailPreparationException {
-		
+		model.put("baseUrl", baseUrl);
 		String lang=user.getLocale().substring(0, 2);
-		String headerText = 
-				VelocityEngineUtils.mergeTemplateIntoString(velocityEngine,
-						"emails/header_"+lang+".vm", "UTF-8", (HashMap) null);
 		
-		String footerText = 
-				VelocityEngineUtils.mergeTemplateIntoString(velocityEngine,
-						"emails/footer_"+lang+".vm", "UTF-8", (HashMap) null);
+		String headerVm = "emails/header_"+lang+".vm";
+		String footerVm = "emails/footer_"+lang+".vm";
+		String mainTextVm = template+ "_"+lang+".vm";
+		/*
+		Resource headerFileLocation = null;
+		try {
+			headerFileLocation = this.applicationContext.getResource("classpath:/"+headerVm).getURL().;
+		} catch (IOException e1) {
+			throw new MailPreparationException("Cannot obtain file '"+headerVm+"' from classpath: "+e1.getMessage());
+		}
+		logger.debug("Absolute path for '"+headerVm+"' is '"+headerFileLocation+"'");
 		
-		String mainText =
-			VelocityEngineUtils.mergeTemplateIntoString(velocityEngine,
-				template+ "_"+lang+".vm", "UTF-8", model);
+		Resource footerFileLocation = null;
+		try {
+			footerFileLocation = this.applicationContext.getResource("classpath:/"+footerVm);
+		} catch (IOException e1) {
+			throw new MailPreparationException("Cannot obtain file '"+footerVm+"' from classpath: "+e1.getMessage());
+		}
+		
+		logger.debug("Absolute path for '"+footerVm+"' is '"+footerFileLocation+"'");
+		*/
+		String headerText = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine,	headerVm, "UTF-8", model);
+		String footerText = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine,	footerVm, "UTF-8", model);
+		String mainText = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, mainTextVm, "UTF-8", model);
 
 		String subject = extractSubject(mainText);
 		String body = extractBody(mainText);
