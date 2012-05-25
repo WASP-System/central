@@ -1,8 +1,8 @@
 <html>
-<p>
 <body style="font-family:arial,'sans-serif','Times New Roman',Georgia; font-size:100%">
-<table width='100%' style='vertical-align: middle;'>
-<tr><td align='left'><img src='${baseUrl}/images/waspSystemLogo_108x80.png' align='left'></td></tr>
-</table>
-</p>
-<br />
+<div style="width: 980px;margin: auto;"> 
+	<div style="background-image: url(${baseUrl}/images/header_background.png);padding :5px 5px 5px 5px;">
+		<a href="/wasp/"><img src="${baseUrl}/images/waspSystemLogo_108x80.png" alt="WASP System" /></a>
+	</div>
+	
+	<br /><br />
