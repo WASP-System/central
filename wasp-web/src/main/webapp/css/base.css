@@ -5,7 +5,7 @@
 }
 
 #header {
-  background-image: url(/wasp/images/dna_background_stretch.png); 
+  background-image: url(/wasp/images/header_background.png); 
 }
 
 
@@ -13,8 +13,7 @@
   float:left;
   width:960px;
   background-color: #FFFFE6;
-  padding-left:10px;
-  padding-right:10px;
+  padding :10px 10px 10px 10px;
   min-height: 550px;
 }
 
