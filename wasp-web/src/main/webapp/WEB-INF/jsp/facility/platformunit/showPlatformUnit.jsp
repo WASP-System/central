@@ -151,22 +151,9 @@
 </c:if>
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 <c:if test="${platformUnit.sampleSource.size() > 0}">
 <br />
-<div style="width:940px; overflow:auto;">
+<div class="fixed-width_scrollable">
 	<table class="data" >
 		<tr><td colspan="${platformUnit.sampleSource.size()}" class="label-centered" style="background-color:#FAF2D6" nowrap><c:out value="${platformUnit.name}" /></td></tr>
 		<tr>

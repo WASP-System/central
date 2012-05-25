@@ -35,6 +35,11 @@
 	font-size: 14px;
 }
 
+.fixed-width_scrollable {
+	width:940px; 
+	overflow:auto;
+}
+
 html {
 	height: 93%;
 }
