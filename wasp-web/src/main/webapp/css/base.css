@@ -2,10 +2,13 @@
   margin:auto;
   width: 980px; 
   background: #ffffff;
+  height: 92%;
+  
 }
 
 #header {
   background-image: url(/wasp/images/header_background.png); 
+  padding :5px 5px 5px 5px;
 }
 
 
@@ -14,14 +17,28 @@
   width:960px;
   background-color: #FFFFE6;
   padding :10px 10px 10px 10px;
-  min-height: 550px;
+  height: 92%;
+  overflow:auto;
 }
 
 #footer { 
   clear:both;
-  padding-top:10px;
+  padding :5px 5px 5px 5px;
   background:#CCCCCC;
-} 
+  font-size: 11px;
+}
+
+.header_nav {
+	float:right;
+	text-align:right;
+	padding-top:5px;
+	padding-right:5px;
+	font-size: 14px;
+}
+
+html {
+	height: 93%;
+}
 
 
 body	{
@@ -30,7 +47,8 @@ body	{
 	line-height: 16px;
 	width:960px;
 	margin:15px auto;
-	background-color:#fff;
+	background-color:#6E6E6E;
+	height: 93%;
 	}
 
 h1	{
