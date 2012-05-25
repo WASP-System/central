@@ -165,8 +165,9 @@
 
 
 <c:if test="${platformUnit.sampleSource.size() > 0}">
-
-	<table class="data">
+<br />
+<div style="width:940px; overflow:auto;">
+	<table class="data" >
 		<tr><td colspan="${platformUnit.sampleSource.size()}" class="label-centered" style="background-color:#FAF2D6" nowrap><c:out value="${platformUnit.name}" /></td></tr>
 		<tr>
 			<c:forEach items="${platformUnit.sampleSource}" var="ss1">
@@ -310,6 +311,7 @@
 		</c:forEach>		
 		</tr>
 	</table>
+	</div>
 </c:if>
 
 

@@ -1610,11 +1610,11 @@ public class PlatformUnitController extends WaspController {
 		List<Resource> resourceList= resourceDao.findAll(); 
 		List<Resource> filteredResourceList = new ArrayList();
 		for(Resource resource : resourceList){
-			logger.debug("resource: " + resource.getName());
+			//logger.debug("resource: " + resource.getName());
 			for(SampleSubtypeResourceCategory ssrc : resource.getResourceCategory().getSampleSubtypeResourceCategory()){
 				if(ssrc.getSampleSubtypeId().intValue() == platformUnit.getSampleSubtypeId().intValue()){
 					filteredResourceList.add(resource);
-					logger.debug("it's a match");					
+					//logger.debug("it's a match");					
 				}
 			}
 		}
