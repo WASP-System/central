@@ -26,6 +26,7 @@ import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.SampleType;
 
@@ -259,4 +260,13 @@ public interface SampleService extends WaspService {
 	   */
 	  public void addLibraryToCell(Sample cell, Sample library,	Float libConcInLanePicoM) throws SampleTypeException, SampleException, SampleMultiplexException, MetadataException;
 
+	  /**
+	   * Clones a sampleDraft object
+	   * @param sampleDraft
+	   * @return
+	   */
+	  public SampleDraft cloneSampleDraft(SampleDraft sampleDraft);
+
+	  
+	  
 }

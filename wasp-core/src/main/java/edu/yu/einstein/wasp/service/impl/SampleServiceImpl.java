@@ -43,6 +43,8 @@ import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
 import edu.yu.einstein.wasp.model.JobSample;
 import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.SampleDraft;
+import edu.yu.einstein.wasp.model.SampleDraftMeta;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSourceMeta;
 import edu.yu.einstein.wasp.model.SampleSubtype;
@@ -682,6 +684,39 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 			  logger.warn("Unable to set LibraryOnCell SampleSourceMeta");
 		  }
 		  
+	  }
+	  
+	  @Override
+	  public SampleDraft cloneSampleDraft(final SampleDraft sampleDraft){
+		  SampleDraft clone = new SampleDraft();
+		  if (sampleDraft.getFile() != null)
+			  clone.setFile(sampleDraft.getFile());
+		  if (sampleDraft.getJobDraft() != null)
+			  clone.setJobDraft(sampleDraft.getJobDraft());
+		  if (sampleDraft.getLab() != null)
+			  clone.setLab(sampleDraft.getLab());
+		  if (sampleDraft.getName() != null)
+			  clone.setName(sampleDraft.getName());
+		  if (sampleDraft.getSampleSubtype() != null)
+			  clone.setSampleSubtype(sampleDraft.getSampleSubtype());
+		  if (sampleDraft.getSampleType() != null)
+			  clone.setSampleType(sampleDraft.getSampleType());
+		  clone.setSourceSampleId(sampleDraft.getSourceSampleId());
+		  clone.setStatus(sampleDraft.getStatus());
+		  if (sampleDraft.getUser() != null)
+			  clone.setUser(sampleDraft.getUser());
+		  if (sampleDraft.getSampleDraftMeta() != null){
+			  List<SampleDraftMeta> clonedMeta = new ArrayList<SampleDraftMeta>();
+			  for (SampleDraftMeta sdm: sampleDraft.getSampleDraftMeta()){
+				  SampleDraftMeta sdmClone = new SampleDraftMeta();
+				  sdmClone.setK(sdm.getK());
+				  sdmClone.setV(sdm.getV());
+				  sdmClone.setPosition(sdm.getPosition());
+				  clonedMeta.add(sdmClone);
+			  }
+			  clone.setSampleDraftMeta(clonedMeta);
+		  }
+		  return clone;
 	  }
 	  
 	  

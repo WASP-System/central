@@ -28,7 +28,7 @@
 			<c:set var="isExistingSample" value="0" />
 			<c:if test="${not empty sampleDraft.getSourceSampleId()}"><c:set var="isExistingSample" value="1" /></c:if>
 				<tr>
-					<td class="DataTD value-centered <c:if test="${status.count % 2 == 0}"> white-background</c:if>">${sampleDraft.getSampleDraftId()}</td>
+					<td class="DataTD value-centered <c:if test="${status.count % 2 == 0}"> white-background</c:if>">${status.count}</td>
 					<td class="DataTD value-centered <c:if test="${status.count % 2 == 0}"> white-background</c:if>">${sampleDraft.getName()}</td>
 					<td class="DataTD value-centered <c:if test="${status.count % 2 == 0}"> white-background</c:if>">${sampleDraft.getSampleType().getName()}</td>
 					<td class="DataTD value-centered <c:if test="${status.count % 2 == 0}"> white-background</c:if>">${sampleDraft.getSampleSubtype().getName()}</td>

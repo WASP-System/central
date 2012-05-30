@@ -1342,38 +1342,30 @@ public class JobSubmissionController extends WaspController {
 			waspErrorMessage("jobDraft.jobDraft_null.error");
 			return "redirect:/jobsubmit/samples/"+jobDraftId+".do";
 		}
-		SampleDraft clone = null;
+		SampleDraft clone = sampleService.cloneSampleDraft(sampleDraft);
+		clone.setName("");
+		List<SampleDraftMeta> normalizedMeta = new ArrayList<SampleDraftMeta>();
 		try {
-			clone = sampleDraftDao.getEagerLoadedDetachedEntity(sampleDraft);
-		} catch (ModelDetachException e) {
-			logger.debug(e.getMessage());
-			waspErrorMessage("jobDraft.clone.error");
-			return "redirect:/jobsubmit/samples/"+jobDraftId+".do";
+			normalizedMeta.addAll(SampleAndSampleDraftMetaHelper.templateMetaToSubtypeAndSynchronizeWithMaster(clone.getSampleSubtype(), clone.getSampleDraftMeta(), SampleDraftMeta.class));
+		} catch (MetadataTypeException e) {
+			logger.warn("Could not get meta for class 'SampleDraftMeta':" + e.getMessage());
 		}
-		// nullify key id's as if new
-		clone.setSampleDraftId(null);
-		clone.setName(null);
-		for (SampleDraftMeta sdm: clone.getSampleDraftMeta()){
-			sdm.setSampledraftId(null);
-			sdm.setSampleDraftMetaId(null);
-		}
-		if (sampleDraft.getSampleType().getIName().equals("library")){
+		if (clone.getSampleType().getIName().equals("library")){
 			prepareAdaptorsetsAndAdaptors(jobDraft, clone.getSampleDraftMeta(), m);
 		}
-		
 		m.addAttribute("heading", messageService.getMessage("jobDraft.sample_clone_heading.label"));
-		m.addAttribute("normalizedMeta", clone.getSampleDraftMeta());
+		m.addAttribute("normalizedMeta", normalizedMeta);
 		m.addAttribute("sampleDraft", clone);
 		m.addAttribute("jobDraft", jobDraft);
 		return "jobsubmit/sample/sampledetail_rw";
 	}
 	
-	@RequestMapping(value="/samples/clone/{jobDraftId}/{sampleDraftId}", method=RequestMethod.POST)
+	@RequestMapping(value="/samples/clone/{jobDraftId}/{sdi}", method=RequestMethod.POST)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public String updateCloneSampleDraft(@PathVariable("jobDraftId") Integer jobDraftId,
-			@PathVariable("sampleDraftId") Integer sampleDraftId, 
+			@PathVariable("sdi") Integer sdi, 
 			@Valid SampleDraft cloneForm, BindingResult result, SessionStatus status, ModelMap m){
-		String viewString = this.updateSampleDraft(jobDraftId, sampleDraftId, cloneForm, result, status, m);
+		String viewString = this.updateNewSampleDraft(jobDraftId, (Integer) request.getAttribute("sampleSubtypeId"), cloneForm, result, status, m);
 		m.addAttribute("heading", messageService.getMessage("jobDraft.sample_clone_heading.label"));
 		return viewString;
 	}
@@ -1417,7 +1409,6 @@ public class JobSubmissionController extends WaspController {
 			@PathVariable("jobDraftId") Integer jobDraftId, 
 			@PathVariable("sampleSubtypeId") Integer sampleSubtypeId,
 			@Valid SampleDraft sampleDraftForm, BindingResult result, SessionStatus status, ModelMap m) {
-		
 		if ( request.getParameter("submit").equals("Cancel") ){//equals(messageService.getMessage("userDetail.cancel.label")
 			return "redirect:/jobsubmit/samples/"+jobDraftId+".do";
 		}
@@ -1456,7 +1447,7 @@ public class JobSubmissionController extends WaspController {
 		SampleDraft sampleDraftDb = sampleDraftDao.save(sampleDraftForm);
 		sampleDraftMetaDao.updateBySampledraftId(sampleDraftDb.getSampleDraftId(), metaFromForm);
 		waspMessage("sampleDetail.updated_success.label");
-		return "redirect:/jobsubmit/samples/view/"+jobDraftId+"/"+sampleDraftDb.getSampleDraftId()+".do";
+		return "redirect:/jobsubmit/samples/"+jobDraftId+".do";
 	}
 	
 	@RequestMapping(value="/samples/addExisting/{jobDraftId}", method=RequestMethod.GET)
