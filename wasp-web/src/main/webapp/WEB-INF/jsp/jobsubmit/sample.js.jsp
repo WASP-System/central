@@ -10,4 +10,24 @@ function verifyRemove(targetURL){
 	}
 }
 
+function addFileUploadRow(){
+	var table = document.getElementById("fileUploadTbl");
+	var rowNum = table.rows.length;
+	var newRow = table.insertRow(rowNum);
+	
+	var td1 = newRow.insertCell(0);
+	var textInput = document.createElement("input");
+	textInput.type="text";
+	textInput.name="file_description";
+	td1.appendChild(textInput);
+	
+		
+	var td2 = newRow.insertCell(1);
+	var fileInput = document.createElement("input");
+	fileInput.type="file";
+	fileInput.name="file_upload";
+	fileInput.onchange=function() { addFileUploadRow(); };
+	td2.appendChild(fileInput);
+}
+
 </script>

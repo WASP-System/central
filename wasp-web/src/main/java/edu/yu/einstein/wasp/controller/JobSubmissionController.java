@@ -1,6 +1,6 @@
 package edu.yu.einstein.wasp.controller;
 
-import java.io.File;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,10 +22,12 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -40,6 +42,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
@@ -53,6 +57,7 @@ import edu.yu.einstein.wasp.dao.JobCellSelectionDao;
 import edu.yu.einstein.wasp.dao.JobDao;
 import edu.yu.einstein.wasp.dao.JobDraftCellSelectionDao;
 import edu.yu.einstein.wasp.dao.JobDraftDao;
+import edu.yu.einstein.wasp.dao.JobDraftFileDao;
 import edu.yu.einstein.wasp.dao.JobDraftMetaDao;
 import edu.yu.einstein.wasp.dao.JobDraftSoftwareDao;
 import edu.yu.einstein.wasp.dao.JobDraftresourcecategoryDao;
@@ -92,13 +97,16 @@ import edu.yu.einstein.wasp.exception.NullResourceTypeException;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Adaptorset;
 import edu.yu.einstein.wasp.model.AdaptorsetResourceCategory;
+import edu.yu.einstein.wasp.model.File;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobCellSelection;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftCellSelection;
+import edu.yu.einstein.wasp.model.JobDraftFile;
 import edu.yu.einstein.wasp.model.JobDraftMeta;
 import edu.yu.einstein.wasp.model.JobDraftSoftware;
 import edu.yu.einstein.wasp.model.JobDraftresourcecategory;
+import edu.yu.einstein.wasp.model.JobFile;
 import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
 import edu.yu.einstein.wasp.model.JobSample;
@@ -156,6 +164,9 @@ public class JobSubmissionController extends WaspController {
 
 	@Autowired
 	protected JobDraftSoftwareDao jobDraftSoftwareDao;
+	
+	@Autowired
+	protected JobDraftFileDao jobDraftFileDao;
 
 	@Autowired
 	protected JobResourcecategoryDao jobResourcecategoryDao;
@@ -251,8 +262,6 @@ public class JobSubmissionController extends WaspController {
 	@Autowired
 	protected AdaptorsetResourceCategoryDao adaptorsetResourceCategoryDao;
 
-	@Autowired
-	protected File sampleDir;
 	
 	@Autowired
 	protected FileDao fileDao;
@@ -274,6 +283,10 @@ public class JobSubmissionController extends WaspController {
 		
 	@Autowired
 	protected AuthenticationService authenticationService;
+	
+	@Value("${wasp.download.folder}")
+	protected String downloadFolder;
+
 
 	protected final MetaHelperWebapp getMetaHelperWebapp() {
 		return new MetaHelperWebapp(JobDraftMeta.class, request.getSession());
@@ -1187,22 +1200,83 @@ public class JobSubmissionController extends WaspController {
 		String[] roles = new String[1];
 		roles[0] = "lu";
 		List<SampleSubtype> sampleSubtypeList = sampleService.getSampleSubtypesForWorkflowByRole(jobDraft.getWorkflowId(), roles);
+		List<File> files = new ArrayList<File>();
+		for(JobDraftFile jdf: jobDraft.getJobDraftFile())
+			files.add(jdf.getFile());
 		m.addAttribute("jobDraft", jobDraft);
 		m.addAttribute("sampleDraftList", sampleDraftList);
 		m.addAttribute("sampleSubtypeList", sampleSubtypeList);
 		m.addAttribute("pageFlowMap", getPageFlowMap(jobDraft));
+		m.addAttribute("files", files);
 		return "jobsubmit/sample";
 	}
 	
 	@RequestMapping(value="/samples/{jobDraftId}", method=RequestMethod.POST)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
-	public String submitSampleDraftList(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
+	public String submitSampleDraftList(
+			@PathVariable("jobDraftId") Integer jobDraftId, 
+			@RequestParam("file_description") List<String> fileDescriptions,
+			@RequestParam("file_upload") List<MultipartFile> mpFiles) {
 		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
 		if (jobDraft.getSampleDraft().isEmpty()){
 			waspErrorMessage("jobDraft.noSamples.error");
-			return submitSampleDraftList(jobDraftId, m); 
+			return "redirect:/jobsubmit/samples/"+jobDraftId+".do"; 
+		}
+		
+		if (mpFiles != null){
+			int fileCount = -1;
+			for (MultipartFile mpFile: mpFiles){
+				fileCount++;
+				if (mpFile.isEmpty())
+					continue;
+				String path = downloadFolder+"/"+jobDraftId;
+				String absolutePath = path+"/"+mpFile.getOriginalFilename(); 
+				java.io.File pathFile = new java.io.File(path);
+				if (!pathFile.exists()){
+					try{
+						pathFile.mkdir();
+					} catch(Exception e){
+						logger.error("File upload failure trying to create '"+path+"': "+e.getMessage());
+						waspErrorMessage("jobDraft.upload_file.error");
+						break;
+					}
+				}
+								
+				String md5Hash = "";
+				try {
+					md5Hash = DigestUtils.md5Hex(mpFile.getInputStream());
+				} catch (IOException e) {
+					logger.warn("Cannot generate MD5 Hash for '"+mpFile.getOriginalFilename()+"': "+ e.getMessage());
+				}
+				String fileName = mpFile.getOriginalFilename();
+				Integer fileSizeK = (int)(mpFile.getSize()/1024);
+				String contentType = mpFile.getContentType();
+				logger.debug("Uploading file '"+fileName+"' to '"+absolutePath+"' (type="+contentType+", size="+fileSizeK+"Kb, md5Hash="+md5Hash+")");
+				java.io.File newFile = new java.io.File(absolutePath);
+				try{
+					mpFile.transferTo(newFile);
+				} catch(Exception e){
+					logger.error("File upload failure trying to save '"+absolutePath+"': "+e.getMessage());
+					waspErrorMessage("jobDraft.upload_file.error");
+					continue;
+				}
+				File file = new File();
+				file.setDescription(fileDescriptions.get(fileCount));
+				file.setAbsolutePath(absolutePath);
+				file.setIsActive(1);
+				file.setContentType(contentType);
+				file.setMd5hash(md5Hash);
+				file.setSizek(fileSizeK);
+				
+									
+				fileDao.persist(file);
+				JobDraftFile jobDraftFile = new JobDraftFile();
+				jobDraftFile.setFile(file);
+				jobDraftFile.setJobDraft(jobDraft);
+				jobDraftFileDao.persist(jobDraftFile);
+			}
 		}
 		return nextPage(jobDraft);
 	}
@@ -1365,7 +1439,7 @@ public class JobSubmissionController extends WaspController {
 	public String updateCloneSampleDraft(@PathVariable("jobDraftId") Integer jobDraftId,
 			@PathVariable("sdi") Integer sdi, 
 			@Valid SampleDraft cloneForm, BindingResult result, SessionStatus status, ModelMap m){
-		String viewString = this.updateNewSampleDraft(jobDraftId, (Integer) request.getAttribute("sampleSubtypeId"), cloneForm, result, status, m);
+		String viewString = this.updateNewSampleDraft(jobDraftId, Integer.parseInt(request.getParameter("sampleSubtypeId")), cloneForm, result, status, m);
 		m.addAttribute("heading", messageService.getMessage("jobDraft.sample_clone_heading.label"));
 		return viewString;
 	}
@@ -2181,7 +2255,7 @@ public class JobSubmissionController extends WaspController {
 					).getUsername();
 				 				 
 					String[] path=new String[] {
-							this.sampleDir.toString(),
+							this.downloadFolder,
 							piUser.getLogin(),
 							login,
 							"jobdraft_"+sampleDraftForm.getJobdraftId(),
@@ -2190,7 +2264,7 @@ public class JobSubmissionController extends WaspController {
 					
 					String destStr=StringUtils.join(path, System.getProperty("file.separator"));
 					
-					File dest=new File(destStr);
+					java.io.File dest=new java.io.File(destStr);
 					
 					FileUtils.forceMkdir(dest);
 					
@@ -2335,7 +2409,7 @@ public class JobSubmissionController extends WaspController {
 		
 		int FILEBUFFERSIZE=1000000;//megabyte
 		
-		edu.yu.einstein.wasp.model.File file=fileDao.findById(fileId);
+		File file=fileDao.findById(fileId);
 		
 		if (file==null) {
 				String html="<html>\n"+
@@ -2357,7 +2431,7 @@ public class JobSubmissionController extends WaspController {
 		try {
 			out = response.getOutputStream();
 			
-			File diskFile=new File(file.getAbsolutePath());
+			java.io.File diskFile=new java.io.File(file.getAbsolutePath());
 			in = new FileInputStream(diskFile);
 			
 			String mimeType = "application/octet-stream";

@@ -10,7 +10,7 @@
 	<fmt:message key="jobDraft.cell_instructions.label"/>
 </div>
 
-<form command="jobDraft" method="POST">
+<form name="jobDraft" method="POST">
 <div class= "greyback">
 	<table class="EditTable ui-widget ui-widget-content">
 	<tr class="FormData">

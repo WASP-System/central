@@ -16,7 +16,8 @@
 		<td class="CaptionTD top-heading"><fmt:message key="jobDraft.sample_type.label"/></td>
 		<td class="CaptionTD top-heading"><fmt:message key="jobDraft.sample_subtype.label"/></td>
 		<td class="CaptionTD top-heading"><fmt:message key="jobDraft.sample_class.label"/></td>
-		<td class="CaptionTD top-heading"><fmt:message key="jobDraft.sample_file.label"/></td>
+		<!-- TODO: re-implement line below when functionality added
+		  <td class="CaptionTD top-heading"><fmt:message key="jobDraft.sample_file.label"/></td> -->
 		<td class="CaptionTD top-heading"><fmt:message key="jobDraft.sample_action.label"/></td>
 	</tr>
 	<c:choose>
@@ -38,18 +39,23 @@
 							<c:otherwise>New</c:otherwise>
 						</c:choose>
 					</td>
-					<td class="DataTD value-centered <c:if test="${status.count % 2 == 0}"> white-background</c:if>">
+					<!-- TODO: re-implement lines below when functionality added
+		  			<td class="DataTD value-centered <c:if test="${status.count % 2 == 0}"> white-background</c:if>">
 					<c:if test="${ not empty sampleDraft.getFile()}">
 						<a href="/wasp/jobsubmit/downloadFile.do?id=<c:out value="${sampleDraft.getFile().getFileId()}" />">${sampleDraft.getFile().getFileName()}</a>
 					</c:if>
+					<c:if test="${ empty sampleDraft.getFile()}">
+						<fmt:message key="jobDraft.no_file.label"/>
+					</c:if>
 					&nbsp;</td>
-					<td class="value-centered white-background">
-						<a class="button" href="/wasp/jobsubmit/samples/clone/<c:out value="${ jobDraft.getJobDraftId() }"/>/<c:out value="${ sampleDraft.getSampleDraftId() }"/>.do"><fmt:message key="jobDraft.sample_clone.label"/></a>
-						<a class="button" href="/wasp/jobsubmit/samples/view/<c:out value="${ jobDraft.getJobDraftId() }"/>/<c:out value="${ sampleDraft.getSampleDraftId() }"/>.do"><fmt:message key="jobDraft.sample_view.label"/></a>
-						<a class="button" href="javascript:verifyRemove('/wasp/jobsubmit/samples/remove/<c:out value="${ jobDraft.getJobDraftId() }"/>/<c:out value="${ sampleDraft.getSampleDraftId() }"/>.do')"><fmt:message key="jobDraft.sample_remove.label"/></a>
+					-->
+					<td class="DataTD value-centered <c:if test="${status.count % 2 == 0}"> white-background</c:if>">
+						<a  href="/wasp/jobsubmit/samples/clone/<c:out value="${ jobDraft.getJobDraftId() }"/>/<c:out value="${ sampleDraft.getSampleDraftId() }"/>.do"><fmt:message key="jobDraft.sample_clone.label"/></a>
+						<a  href="/wasp/jobsubmit/samples/view/<c:out value="${ jobDraft.getJobDraftId() }"/>/<c:out value="${ sampleDraft.getSampleDraftId() }"/>.do"> | <fmt:message key="jobDraft.sample_view.label"/></a>
+						<a  href="javascript:verifyRemove('/wasp/jobsubmit/samples/remove/<c:out value="${ jobDraft.getJobDraftId() }"/>/<c:out value="${ sampleDraft.getSampleDraftId() }"/>.do')"> | <fmt:message key="jobDraft.sample_remove.label"/></a>
 						<c:if test="${isExistingSample == 0}">
 							<%-- Only edit new samples --%>
-							<a class="button" href="/wasp/jobsubmit/samples/edit/<c:out value="${ jobDraft.getJobDraftId() }"/>/<c:out value="${ sampleDraft.getSampleDraftId() }"/>.do"><fmt:message key="jobDraft.sample_edit.label"/></a>
+							<a href="/wasp/jobsubmit/samples/edit/<c:out value="${ jobDraft.getJobDraftId() }"/>/<c:out value="${ sampleDraft.getSampleDraftId() }"/>.do"> | <fmt:message key="jobDraft.sample_edit.label"/></a>
 						</c:if>
 					</td>
 				</tr>
@@ -61,14 +67,32 @@
 			<c:forEach items="${ sampleSubtypeList }" var="sampleSubtype">
 				<a class="button" href="/wasp/jobsubmit/samples/add/<c:out value="${ jobDraft.getJobDraftId() }"/>/<c:out value="${ sampleSubtype.getSampleSubtypeId() }"/>.do">+ <c:out value="${ sampleSubtype.getName() }"/></a>
 			</c:forEach>
-	<!-- TODO: re-instate line below when implemented -->
-	<!-- <a class="button" href="/wasp/jobsubmit/samples/addExisting/<c:out value="${ jobDraft.getJobDraftId() }"/>.do">+ <fmt:message key="jobDraft.sample_add_existing.label"/></a>  -->	
+			<!-- TODO: re-implement line below when functionality added
+			<a class="button" href="/wasp/jobsubmit/samples/addExisting/<c:out value="${ jobDraft.getJobDraftId() }"/>.do">+ <fmt:message key="jobDraft.sample_add_existing.label"/></a>  
+			-->	
 		</td>
 	</tr>
 </table>
 
-
-<form method="POST">
+<br />
+<h2><fmt:message key="jobDraft.upload_file_heading.label"/></h2>
+<div class="instructions">
+   <fmt:message key="jobDraft.upload_file_description.label"/>
+</div>
+<form method="POST"  enctype="multipart/form-data">
+<table id="fileUploadTbl"  class="EditTable ui-widget ui-widget-content">
+	<tr>
+		<td class="CaptionTD top-heading">Description</td><td class="CaptionTD top-heading">File</td>
+	</tr>
+	<c:forEach items="${files}" var="file">
+		<tr>
+			<td class="DataTD value-centered"><c:out value="${file.getDescription()}" /></td><td class="DataTD value-centered"><c:out value="${file.getFileName()}" /></td>
+		</tr>
+	</c:forEach>
+	<tr>
+		<td class="DataTD value-centered"><input type="text" name="file_description" /></td><td class="DataTD value-centered"><input type="file" name="file_upload" onchange="addFileUploadRow()"/></td>
+	</tr>
+</table>
 <input class="FormElement ui-widget-content ui-corner-all" type="submit" value="<fmt:message key="jobDraft.next.label"/>">
 </form>
 

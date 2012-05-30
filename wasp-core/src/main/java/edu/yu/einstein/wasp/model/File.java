@@ -440,6 +440,38 @@ public class File extends WaspModel {
 	public void setJobFile (List<JobFile> jobFile) {
 		this.jobFile = jobFile;
 	}
+	
+	/** 
+	 * jobDraftFile
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="fileid", insertable=false, updatable=false)
+	protected List<JobDraftFile> jobDraftFile;
+
+
+	/** 
+	 * getJobDraftFile()
+	 *
+	 * @return jobDraftFile
+	 *
+	 */
+	@JsonIgnore
+	public List<JobDraftFile> getJobDraftFile() {
+		return this.jobDraftFile;
+	}
+
+
+	/** 
+	 * setJobDraftFile
+	 *
+	 * @param jobDraftFile
+	 *
+	 */
+	public void setJobDraftFile (List<JobDraftFile> jobDraftFile) {
+		this.jobDraftFile = jobDraftFile;
+	}
 
 
 
