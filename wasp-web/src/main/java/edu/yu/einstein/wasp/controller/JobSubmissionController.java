@@ -1799,7 +1799,7 @@ public class JobSubmissionController extends WaspController {
 			java.io.File diskFile=new java.io.File(file.getAbsolutePath());
 			in = new FileInputStream(diskFile);
 			
-			String mimeType = "application/octet-stream";
+			String mimeType = file.getContentType();
 			byte[] bytes = new byte[FILEBUFFERSIZE];
 			int bytesRead;
 
@@ -1809,11 +1809,6 @@ public class JobSubmissionController extends WaspController {
 			
 			String fileName=diskFile.getName();
 				
-			if (fileName!=null && fileName.indexOf('.')>-1) {
-				int idx = fileName.lastIndexOf('.');
-				fileName=fileName.substring(0,idx);		
-			}
-			
 			response.setHeader( "Content-Disposition", "attachment; filename=\"" + fileName + "\"" );
 
 			while ((bytesRead = in.read(bytes)) != -1) {
