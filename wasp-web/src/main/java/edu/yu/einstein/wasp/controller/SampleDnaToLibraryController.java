@@ -35,10 +35,8 @@ import edu.yu.einstein.wasp.dao.AdaptorsetDao;
 import edu.yu.einstein.wasp.dao.JobCellSelectionDao;
 import edu.yu.einstein.wasp.dao.JobDao;
 import edu.yu.einstein.wasp.dao.JobSampleDao;
-import edu.yu.einstein.wasp.dao.RunDao;
 import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.dao.SampleMetaDao;
-import edu.yu.einstein.wasp.dao.SampleSourceDao;
 import edu.yu.einstein.wasp.dao.StateDao;
 import edu.yu.einstein.wasp.dao.SampleSubtypeDao;
 import edu.yu.einstein.wasp.dao.TaskDao;
@@ -48,21 +46,20 @@ import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Adaptorset;
+import edu.yu.einstein.wasp.model.File;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobCellSelection;
+import edu.yu.einstein.wasp.model.JobFile;
 import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
 import edu.yu.einstein.wasp.model.JobSample;
 import edu.yu.einstein.wasp.model.MetaAttribute;
-import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleJobCellSelection;
 import edu.yu.einstein.wasp.model.SampleMeta;
-import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.Statesample;
 import edu.yu.einstein.wasp.model.SampleSubtype;
-import edu.yu.einstein.wasp.model.SampleSubtypeResourceCategory;
 import edu.yu.einstein.wasp.model.Task;
 import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.service.SampleService;
@@ -100,10 +97,6 @@ public class SampleDnaToLibraryController extends WaspController {
   private SampleSubtypeDao sampleSubtypeDao;
   @Autowired
   private JobSampleDao jobSampleDao;
-  @Autowired
-  private RunDao runDao;
-  @Autowired
-  private SampleSourceDao sampleSourceDao;
   @Autowired
   private TaskDao taskDao;
   @Autowired
@@ -623,6 +616,12 @@ public class SampleDnaToLibraryController extends WaspController {
 			System.out.println("AvailableCompatible FlowCell: " + sample.getName());
 		}
 		*/
+		
+		// get files associated with this job
+		List<File> files = new ArrayList<File>();
+		for (JobFile jf: job.getJobFile())
+			files.add(jf.getFile());
+		
 		m.addAttribute("macromoleculeSubmittedSamplesList", macromoleculeSubmittedSamplesList);
 		m.addAttribute("facilityLibraryMap", facilityLibraryMap);
 		m.addAttribute("librarySubmittedSamplesList", librarySubmittedSamplesList);
@@ -633,6 +632,7 @@ public class SampleDnaToLibraryController extends WaspController {
 		m.addAttribute("assignLibraryToPlatformUnitStatusMap", assignLibraryToPlatformUnitStatusMap);
 		m.addAttribute("libraryAdaptorMap", libraryAdaptorMap);
 		m.addAttribute("availableAndCompatibleFlowCells", availableAndCompatibleFlowCells);
+		m.addAttribute("files", files);
 		
 		return "sampleDnaToLibrary/listJobSamples";
   }
