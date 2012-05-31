@@ -99,7 +99,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 			logger.warn("Cannot generate MD5 Hash for '"+mpFile.getOriginalFilename()+"': "+ e.getMessage());
 		}
 		String fileName = mpFile.getOriginalFilename();
-		Integer fileSizeK = (int)(mpFile.getSize()/1024);
+		Integer fileSizeK = (int)((mpFile.getSize()/1024) + 0.5);
 		String contentType = mpFile.getContentType();
 		logger.debug("Uploading file '"+fileName+"' to '"+absolutePath+"' (type="+contentType+", size="+fileSizeK+"Kb, md5Hash="+md5Hash+")");
 		java.io.File newFile = new java.io.File(absolutePath);
