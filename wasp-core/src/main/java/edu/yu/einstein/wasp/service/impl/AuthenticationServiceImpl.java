@@ -19,14 +19,13 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.dao.UserDao;
 import edu.yu.einstein.wasp.dao.UserPendingDao;
 import edu.yu.einstein.wasp.exception.LoginNameException;
-import edu.yu.einstein.wasp.messaging.Security;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.service.AuthenticationService;
@@ -34,6 +33,7 @@ import edu.yu.einstein.wasp.service.MessageService;
 
 
 @Service
+@Transactional
 public class AuthenticationServiceImpl implements AuthenticationService {
 	
 	private static final Logger logger = Logger.getLogger(AuthenticationServiceImpl.class);

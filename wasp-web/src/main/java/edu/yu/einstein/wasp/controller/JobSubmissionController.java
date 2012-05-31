@@ -9,9 +9,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -22,14 +20,10 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
@@ -41,10 +35,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartResolver;
-import org.springframework.web.multipart.commons.CommonsMultipartFile;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
@@ -69,69 +60,48 @@ import edu.yu.einstein.wasp.dao.JobUserDao;
 import edu.yu.einstein.wasp.dao.LabDao;
 import edu.yu.einstein.wasp.dao.ResourceCategoryDao;
 import edu.yu.einstein.wasp.dao.ResourceDao;
+import edu.yu.einstein.wasp.dao.ResourceTypeDao;
 import edu.yu.einstein.wasp.dao.RoleDao;
-import edu.yu.einstein.wasp.dao.SampleJobCellSelectionDao;
 import edu.yu.einstein.wasp.dao.SampleDao;
-import edu.yu.einstein.wasp.dao.SampleDraftJobDraftCellSelectionDao;
 import edu.yu.einstein.wasp.dao.SampleDraftDao;
+import edu.yu.einstein.wasp.dao.SampleDraftJobDraftCellSelectionDao;
 import edu.yu.einstein.wasp.dao.SampleDraftMetaDao;
 import edu.yu.einstein.wasp.dao.SampleFileDao;
+import edu.yu.einstein.wasp.dao.SampleJobCellSelectionDao;
 import edu.yu.einstein.wasp.dao.SampleMetaDao;
+import edu.yu.einstein.wasp.dao.SampleSubtypeDao;
+import edu.yu.einstein.wasp.dao.SampleTypeDao;
 import edu.yu.einstein.wasp.dao.SoftwareDao;
 import edu.yu.einstein.wasp.dao.StateDao;
 import edu.yu.einstein.wasp.dao.StatejobDao;
-import edu.yu.einstein.wasp.dao.SampleSubtypeDao;
 import edu.yu.einstein.wasp.dao.TaskDao;
-import edu.yu.einstein.wasp.dao.ResourceTypeDao;
-import edu.yu.einstein.wasp.dao.SampleTypeDao;
 import edu.yu.einstein.wasp.dao.WorkflowDao;
 import edu.yu.einstein.wasp.dao.WorkflowResourceTypeDao;
 import edu.yu.einstein.wasp.dao.WorkflowSoftwareDao;
 import edu.yu.einstein.wasp.dao.WorkflowresourcecategoryDao;
 import edu.yu.einstein.wasp.dao.impl.DBResourceBundle;
+import edu.yu.einstein.wasp.exception.FileMoveException;
 import edu.yu.einstein.wasp.exception.FileUploadException;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.MetadataTypeException;
-import edu.yu.einstein.wasp.exception.ModelCopyException;
-import edu.yu.einstein.wasp.exception.ModelDetachException;
-import edu.yu.einstein.wasp.exception.NullResourceTypeException;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Adaptorset;
 import edu.yu.einstein.wasp.model.AdaptorsetResourceCategory;
 import edu.yu.einstein.wasp.model.File;
-import edu.yu.einstein.wasp.model.Job;
-import edu.yu.einstein.wasp.model.JobCellSelection;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftCellSelection;
 import edu.yu.einstein.wasp.model.JobDraftFile;
 import edu.yu.einstein.wasp.model.JobDraftMeta;
 import edu.yu.einstein.wasp.model.JobDraftSoftware;
 import edu.yu.einstein.wasp.model.JobDraftresourcecategory;
-import edu.yu.einstein.wasp.model.JobFile;
-import edu.yu.einstein.wasp.model.JobMeta;
-import edu.yu.einstein.wasp.model.JobResourcecategory;
-import edu.yu.einstein.wasp.model.JobSample;
-import edu.yu.einstein.wasp.model.JobSoftware;
-import edu.yu.einstein.wasp.model.JobUser;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.MetaBase;
-import edu.yu.einstein.wasp.model.ResourceCategory;
-import edu.yu.einstein.wasp.model.ResourceType;
-import edu.yu.einstein.wasp.model.Role;
-import edu.yu.einstein.wasp.model.Sample;
-import edu.yu.einstein.wasp.model.SampleJobCellSelection;
 import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleDraftJobDraftCellSelection;
 import edu.yu.einstein.wasp.model.SampleDraftMeta;
-import edu.yu.einstein.wasp.model.SampleFile;
-import edu.yu.einstein.wasp.model.SampleMeta;
-import edu.yu.einstein.wasp.model.SampleSubtypeMeta;
-import edu.yu.einstein.wasp.model.State;
-import edu.yu.einstein.wasp.model.Statejob;
 import edu.yu.einstein.wasp.model.SampleSubtype;
-import edu.yu.einstein.wasp.model.Task;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Workflow;
 import edu.yu.einstein.wasp.model.WorkflowMeta;
@@ -142,6 +112,7 @@ import edu.yu.einstein.wasp.model.WorkflowresourcecategoryMeta;
 import edu.yu.einstein.wasp.model.WorkflowsoftwareMeta;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FileService;
+import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
@@ -154,6 +125,9 @@ public class JobSubmissionController extends WaspController {
 
 	@Autowired
 	protected JobDraftDao jobDraftDao;
+	
+	@Autowired
+	protected JobService jobService;
 
 	@Autowired
 	protected JobDraftMetaDao jobDraftMetaDao;
@@ -1746,175 +1720,16 @@ public class JobSubmissionController extends WaspController {
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public String submitJob(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
 		User me = authenticationService.getAuthenticatedUser();
-
 		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
 		
-		getMetaHelperWebapp().setArea(jobDraft.getWorkflow().getIName());
-
-		// no sync w/ master
-		// jobDraft.setJobDraftMeta(getMetaHelper().syncWithMaster(jobDraft.getJobDraftMeta()));
-
-
-		// Copies JobDraft to a new Job
-		Job job = new Job();
-		job.setUserId(me.getUserId());
-		job.setLabId(jobDraft.getLabId());
-		job.setName(jobDraft.getName());
-		job.setWorkflowId(jobDraft.getWorkflowId());
-		job.setIsActive(1);
-		job.setCreatets(new Date());
-
-		job.setViewablebylab(0); // Todo: get from lab? // really not being used yet
-
-		Job jobDb = jobDao.save(job); 
-
-		// Saves the metadata
-		for (JobDraftMeta jdm: jobDraft.getJobDraftMeta()) {
-			JobMeta jobMeta = new JobMeta();
-			jobMeta.setJobId(jobDb.getJobId());
-			jobMeta.setK(jdm.getK());
-			jobMeta.setV(jdm.getV());
-
-			jobMetaDao.save(jobMeta); 
+		try {
+			jobService.createJobFromJobDraft(jobDraft, me);
+		} catch (FileMoveException e) {
+			logger.error(e.getMessage());
+			waspErrorMessage("jobDraft.createJobFromJobDraft.error");
 		}
-
-		// save the software selected
-		for (JobDraftSoftware jdr: jobDraft.getJobDraftSoftware()) {
-			JobSoftware jobSoftware = new JobSoftware();
-			jobSoftware.setJobId(jobDb.getJobId());
-			jobSoftware.setSoftwareId(jdr.getSoftwareId());
-
-			jobSoftwareDao.save(jobSoftware); 
-		}
-
-		// save the resource category selected
-		for (JobDraftresourcecategory jdr: jobDraft.getJobDraftresourcecategory()) {
-			JobResourcecategory jobResourceCategory = new JobResourcecategory();
-			jobResourceCategory.setJobId(jobDb.getJobId());
-			jobResourceCategory.setResourcecategoryId(jdr.getResourcecategoryId());
-
-			jobResourcecategoryDao.save(jobResourceCategory); 
-		}
-
-
-		// Creates the JobUser Permission
-		JobUser jobUser = new JobUser(); 
-		jobUser.setUserId(me.getUserId());
-		jobUser.setJobId(jobDb.getJobId());
-		Role role = roleDao.getRoleByRoleName("js");
-		jobUser.setRoleId(role.getRoleId());
-		jobUserDao.save(jobUser);
-		
-		// added 10-20-11 by rob dubin: with job submission, add lab PI as job viewer ("jv")
-		//note: could use similar logic in loop to assign jv to all the lab members
-		Lab lab = labDao.getLabByLabId(jobDb.getLabId());		
-		// if the pi is different from the job user
-		if (jobUser.getUserId().intValue() != lab.getPrimaryUserId().intValue()) {
-			JobUser jobUser2 = new JobUser();		
-			jobUser2.setUserId(lab.getPrimaryUserId());//the lab PI
-			jobUser2.setJobId(jobDb.getJobId());
-			Role role2 = roleDao.getRoleByRoleName("jv");
-			jobUser2.setRoleId(role2.getRoleId());
-			jobUserDao.save(jobUser2);
-		}
-
-		// Job Cells (oldid, newobj)
-		Map<Integer,JobCellSelection> jobDraftCellMap = new HashMap<Integer,JobCellSelection>();
-
-		for (JobDraftCellSelection jdc: jobDraft.getJobDraftCellSelection()) {
-			JobCellSelection jobCellSelection = new JobCellSelection();
-			jobCellSelection.setJobId(jobDb.getJobId());
-			jobCellSelection.setCellIndex(jdc.getCellIndex());
-
-			JobCellSelection jobCellSelectionDb =	jobCellSelectionDao.save(jobCellSelection);	
-
-			jobDraftCellMap.put(jdc.getJobDraftCellSelectionId(), jobCellSelectionDb);
-		}
-
-		// Create Samples
-		for (SampleDraft sd: jobDraft.getSampleDraft()) {
-			// existing sample...
-			Sample sampleDb;
-
-			if (sd.getSourceSampleId() != null) {
-				sampleDb = sampleDao.getSampleBySampleId(sd.getSourceSampleId());
-			} else { 
-
-				Sample sample = new Sample();
-				sample.setName(sd.getName()); 
-				sample.setSampleTypeId(sd.getSampleTypeId()); 
-				sample.setSampleSubtypeId(sd.getSampleSubtypeId()); 
-				sample.setSubmitterLabId(jobDb.getLabId()); 
-				sample.setSubmitterUserId(me.getUserId()); 
-				sample.setSubmitterJobId(jobDb.getJobId()); 
-				sample.setIsReceived(0);
-				sample.setIsActive(1);
-	
-				sampleDb = sampleDao.save(sample); 
-	
-				// sample file
-				if (sd.getFileId() != null) {
-					SampleFile sampleFile = new SampleFile();
-					sampleFile.setSampleId(sampleDb.getSampleId());
-					sampleFile.setFileId(sd.getFileId());
-	
-					sampleFile.setIsActive(1);
-	
-					// TODO ADD NAME AND INAME
-	
-					sampleFileDao.save(sampleFile);
-				}
-	
-				// Sample Draft Meta Data
-				for (SampleDraftMeta sdm: sd.getSampleDraftMeta()) {
-					SampleMeta sampleMeta = new SampleMeta();
-	
-					sampleMeta.setSampleId(sampleDb.getSampleId());	
-					sampleMeta.setK(sdm.getK());	
-					sampleMeta.setV(sdm.getV());	
-					sampleMeta.setPosition(sdm.getPosition());	
-	
-					SampleMeta sampleMetaDb = sampleMetaDao.save(sampleMeta); 
-				}
-			}
-
-			// Job Sample
-			JobSample jobSample = new JobSample();
-			jobSample.setJobId(jobDb.getJobId());
-			jobSample.setSampleId(sampleDb.getSampleId());
-
-			jobSampleDao.save(jobSample);
-
-			for (SampleDraftJobDraftCellSelection sdc: sd.getSampleDraftJobDraftCellSelection()) {
-				SampleJobCellSelection sampleJobCellSelection = new SampleJobCellSelection();
-				sampleJobCellSelection.setSampleId(sampleDb.getSampleId());
-				sampleJobCellSelection.setJobCellSelectionId(jobDraftCellMap.get(sdc.getJobDraftCellSelectionId()).getJobCellSelectionId());
-				sampleJobCellSelection.setLibraryIndex(sdc.getLibraryIndex());
-				sampleJobCellSelectionDao.save(sampleJobCellSelection);
-			}
-		}
-
-		// something like this:
-		State state = new State(); 
-
-		Task jobCreateTask = taskDao.getTaskByIName("Start Job");
-		state.setTaskId(jobCreateTask.getTaskId());
-		state.setName(jobCreateTask.getName());
-		state.setStartts(new Date());
-		state.setStatus("CREATED"); 
-		stateDao.save(state);
-		
-		Statejob statejob = new Statejob();
-		statejob.setStateId(state.getStateId());
-		statejob.setJobId(job.getJobId());
-		statejobDao.save(statejob);
-
-		// update the jobdraft
-		jobDraft.setStatus("SUBMITTED");
-		jobDraft.setSubmittedjobId(jobDb.getJobId());
-		jobDraftDao.save(jobDraft); 
 
 		// Adds new Job to Authorized List
 		doReauth();

@@ -16,10 +16,11 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 
 import edu.yu.einstein.wasp.dao.JobDao;
+import edu.yu.einstein.wasp.exception.FileMoveException;
 import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.Sample;
-import edu.yu.einstein.wasp.model.SampleSubtype;
-import edu.yu.einstein.wasp.model.SampleType;
+import edu.yu.einstein.wasp.model.User;
 
 @Service
 public interface JobService extends WaspService {
@@ -86,5 +87,13 @@ public interface JobService extends WaspService {
 	 * @return Map<String,String> for easy display on web
 	 */
 	public Map<String, String> getExtraJobDetails(Job job);
+
+	/**
+	 * Create a Job object from a job draft. Also handle dependencies.
+	 * @param jobdraft
+	 * @return entity-managed Job object
+	 * @throws FileMoveException 
+	 */
+	public Job createJobFromJobDraft(JobDraft jobdraft, User user) throws FileMoveException;
 	
 }

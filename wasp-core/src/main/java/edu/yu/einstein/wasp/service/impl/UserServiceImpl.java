@@ -13,6 +13,7 @@ package edu.yu.einstein.wasp.service.impl;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.dao.ConfirmEmailAuthDao;
 import edu.yu.einstein.wasp.dao.UserDao;
@@ -23,6 +24,7 @@ import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.util.AuthCode;
 
 @Service
+@Transactional
 public class UserServiceImpl extends WaspServiceImpl implements UserService {
 	
  private UserDao userDao;

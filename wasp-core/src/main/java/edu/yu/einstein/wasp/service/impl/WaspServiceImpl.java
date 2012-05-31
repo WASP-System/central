@@ -2,7 +2,6 @@ package edu.yu.einstein.wasp.service.impl;
 
 import org.apache.log4j.Logger;
 
-import edu.yu.einstein.wasp.model.WaspModel;
 import edu.yu.einstein.wasp.service.WaspService;
 
 

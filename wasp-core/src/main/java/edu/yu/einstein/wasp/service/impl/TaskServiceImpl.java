@@ -18,6 +18,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import util.spring.SecurityUtil;
 import edu.yu.einstein.wasp.dao.LabDao;
@@ -42,6 +43,7 @@ import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.TaskService;
 
 @Service
+@Transactional
 public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 
 	/**

@@ -10,12 +10,14 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import edu.yu.einstein.wasp.service.MessageService;
 
 @Service
+@Transactional
 public class MessageServiceImpl implements MessageService{
 	
 	  

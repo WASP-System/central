@@ -20,6 +20,7 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.velocity.VelocityEngineUtils;
 
 import edu.yu.einstein.wasp.dao.ConfirmEmailAuthDao;
@@ -50,6 +51,7 @@ import edu.yu.einstein.wasp.util.MetaHelper;
  * 
  */
 @Service
+@Transactional
 public class EmailServiceImpl implements EmailService{
 	
 	static {
