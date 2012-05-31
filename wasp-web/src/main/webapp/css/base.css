@@ -55,6 +55,7 @@ body	{
   	margin-bottom: 10px;
 	background-color:#989898;
 	background-image: url(/wasp/images/background.png);
+	background-repeat: repeat-x;
 	height: 93%;
 	}
 
