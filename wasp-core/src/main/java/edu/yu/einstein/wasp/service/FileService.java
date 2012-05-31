@@ -12,9 +12,13 @@
 package edu.yu.einstein.wasp.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import edu.yu.einstein.wasp.dao.FileDao;
+import edu.yu.einstein.wasp.exception.FileUploadException;
 import edu.yu.einstein.wasp.model.File;
+import edu.yu.einstein.wasp.model.JobDraft;
+import edu.yu.einstein.wasp.model.JobDraftFile;
 
 @Service
 public interface FileService extends WaspService {
@@ -25,7 +29,7 @@ public interface FileService extends WaspService {
 	 * @param fileDao
 	 *
 	 */
-	void setFileDao(FileDao fileDao);
+	public void setFileDao(FileDao fileDao);
 
 	/**
 	 * getFileDao();
@@ -33,14 +37,42 @@ public interface FileService extends WaspService {
 	 * @return fileDao
 	 *
 	 */
-	FileDao getFileDao();
+	public FileDao getFileDao();
 
-    File getFileByFileId (final int fileId);
+	/**
+	 * Return a file object with specified file id
+	 * @param fileId
+	 * @return
+	 */
+    public File getFileByFileId (final int fileId);
 
-    //returns File object with contentType/md5hash and sizek fields populated.
-    File getMetaInformation(String filePath) throws java.io.IOException;
 
+    /**
+     * Get a file based on its location
+     * @param filelocation
+     * @return
+     */
 	public File getFileByFilelocation (final String filelocation);
+
+	/**
+	 * 
+	 * @param jobdraft
+	 * @param mpFile
+	 * @param destPath
+	 * @param description
+	 * @return entity-managed file object
+	 * @throws FileUploadException
+	 */
+	public File processUploadedFile(MultipartFile mpFile, String destPath, String description) throws FileUploadException;
+
+	
+	/**
+	 * links a file object to a specified jobDraft
+	 * @param file
+	 * @param jobDraft
+	 * @return the entity-managed JobDraftFile object created
+	 */
+	JobDraftFile linkFileWithJobDraft(File file, JobDraft jobDraft);
 
 }
 

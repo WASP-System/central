@@ -89,6 +89,7 @@ import edu.yu.einstein.wasp.dao.WorkflowResourceTypeDao;
 import edu.yu.einstein.wasp.dao.WorkflowSoftwareDao;
 import edu.yu.einstein.wasp.dao.WorkflowresourcecategoryDao;
 import edu.yu.einstein.wasp.dao.impl.DBResourceBundle;
+import edu.yu.einstein.wasp.exception.FileUploadException;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.MetadataTypeException;
 import edu.yu.einstein.wasp.exception.ModelCopyException;
@@ -140,6 +141,7 @@ import edu.yu.einstein.wasp.model.Workflowresourcecategory;
 import edu.yu.einstein.wasp.model.WorkflowresourcecategoryMeta;
 import edu.yu.einstein.wasp.model.WorkflowsoftwareMeta;
 import edu.yu.einstein.wasp.service.AuthenticationService;
+import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
@@ -183,6 +185,8 @@ public class JobSubmissionController extends WaspController {
 	@Autowired
 	protected SampleDraftJobDraftCellSelectionDao sampleDraftJobDraftCellSelectionDao;
 
+	@Autowired
+	protected FileService fileService;
 
 	@Autowired
 	protected JobDao jobDao;
@@ -1231,51 +1235,14 @@ public class JobSubmissionController extends WaspController {
 				fileCount++;
 				if (mpFile.isEmpty())
 					continue;
-				String path = downloadFolder+"/"+jobDraftId;
-				String absolutePath = path+"/"+mpFile.getOriginalFilename(); 
-				java.io.File pathFile = new java.io.File(path);
-				if (!pathFile.exists()){
-					try{
-						pathFile.mkdir();
-					} catch(Exception e){
-						logger.error("File upload failure trying to create '"+path+"': "+e.getMessage());
-						waspErrorMessage("jobDraft.upload_file.error");
-						break;
-					}
-				}
-								
-				String md5Hash = "";
-				try {
-					md5Hash = DigestUtils.md5Hex(mpFile.getInputStream());
-				} catch (IOException e) {
-					logger.warn("Cannot generate MD5 Hash for '"+mpFile.getOriginalFilename()+"': "+ e.getMessage());
-				}
-				String fileName = mpFile.getOriginalFilename();
-				Integer fileSizeK = (int)(mpFile.getSize()/1024);
-				String contentType = mpFile.getContentType();
-				logger.debug("Uploading file '"+fileName+"' to '"+absolutePath+"' (type="+contentType+", size="+fileSizeK+"Kb, md5Hash="+md5Hash+")");
-				java.io.File newFile = new java.io.File(absolutePath);
+				String path = downloadFolder+"/jd_"+jobDraftId;
 				try{
-					mpFile.transferTo(newFile);
-				} catch(Exception e){
-					logger.error("File upload failure trying to save '"+absolutePath+"': "+e.getMessage());
+					File file = fileService.processUploadedFile(mpFile, path, fileDescriptions.get(fileCount));
+					fileService.linkFileWithJobDraft(file, jobDraft);
+				} catch(FileUploadException e){
+					logger.error(e.getMessage());
 					waspErrorMessage("jobDraft.upload_file.error");
-					continue;
 				}
-				File file = new File();
-				file.setDescription(fileDescriptions.get(fileCount));
-				file.setAbsolutePath(absolutePath);
-				file.setIsActive(1);
-				file.setContentType(contentType);
-				file.setMd5hash(md5Hash);
-				file.setSizek(fileSizeK);
-				
-									
-				fileDao.persist(file);
-				JobDraftFile jobDraftFile = new JobDraftFile();
-				jobDraftFile.setFile(file);
-				jobDraftFile.setJobDraft(jobDraft);
-				jobDraftFileDao.persist(jobDraftFile);
 			}
 		}
 		return nextPage(jobDraft);
@@ -1322,6 +1289,9 @@ public class JobSubmissionController extends WaspController {
 		}
 		Map<String, Integer> query = new HashMap<String, Integer>();
 		query.put("sampledraftId", sampleDraftId);
+		for (SampleDraftJobDraftCellSelection cellSelection : sampleDraft.getSampleDraftJobDraftCellSelection()){
+			sampleDraftJobDraftCellSelectionDao.remove(cellSelection);
+		}
 		for (SampleDraftMeta sdm : sampleDraftMetaDao.findByMap(query)){
 			sampleDraftMetaDao.remove(sdm);
 		}
@@ -1596,65 +1566,7 @@ public class JobSubmissionController extends WaspController {
 			m.addAttribute("adaptors", adaptors); // required for adaptors metadata control element (select:${adaptors}:adaptorId:barcodenumber)
 		}
 
-/*
-	
-	 * Prepares page to manage sample drafts
-	 * 
-	 * @Author Sasha Levchuk
-	 	
-	@RequestMapping(value="/samples/{jobDraftId}", method=RequestMethod.GET)
-	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
-	public String showSampleDraft(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
-	
-		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
-		if (! isJobDraftEditable(jobDraft))
-			return "redirect:/dashboard.do";
-		//get list of meta fields that are 'allowed' for the given workflowId 
-		int workflowId=jobDraftDao.findById(jobDraftId).getWorkflow().getWorkflowId();
-		Map<SampleSubtype,List<SampleDraftMeta>>allowedMetaFields=sampleDraftMetaDao.getAllowableMetaFields(workflowId);
-				
-		Map<String,SampleDraftMeta> allowedMetaFieldsMap = new LinkedHashMap<String,SampleDraftMeta>();
-		
-		for(SampleSubtype sampleSubtype: allowedMetaFields.keySet()){
-			sampleSubtype.setSampleType(sampleTypeDao.getSampleTypeBySampleTypeId(sampleSubtype.getSampleTypeId()));
-			for (SampleDraftMeta subTypeMeta : allowedMetaFields.get(sampleSubtype)){
-				if (!allowedMetaFieldsMap.containsKey(subTypeMeta.getK())){
-					allowedMetaFieldsMap.put(subTypeMeta.getK(), subTypeMeta);
-				}
-			}
-		}
-		Set<SampleDraftMeta> allowedMetaFieldsSet = new LinkedHashSet<SampleDraftMeta>();
-		allowedMetaFieldsSet.addAll(allowedMetaFieldsMap.values());
-		
-		m.addAttribute("_metaList", allowedMetaFieldsSet); // all field metadata for all sybtypes associated with this workflow combined
-		m.addAttribute("_metaBySubtypeList", allowedMetaFields); // all sample subtypes associated with this workflow and field metadata
-		
-		
-		Map<Integer,Map<Integer,String>> jobsBySampleSubtype=new LinkedHashMap<Integer,Map<Integer,String>>();
-		for(Map.Entry<Integer, List<Job>> e:jobDao.getJobSamplesByWorkflow(workflowId).entrySet()) {
-			Map<Integer,String> jm = new LinkedHashMap<Integer,String>();
-			jobsBySampleSubtype.put(e.getKey(),jm);
-			for(Job j:e.getValue()) {
-				jm.put(j.getJobId(), j.getName());
-			}		
-		}
-		m.addAttribute("_jobsBySampleSubtype",jobsBySampleSubtype);
-		m.addAttribute(JQFieldTag.AREA_ATTR, "sampleDraft");	
-		prepareSelectListData(m);
-		m.addAttribute("jobdraftId",jobDraftId);
-		m.addAttribute("jobDraft",jobDraft);
-		m.addAttribute("uploadStartedMessage",messageService.getMessage("sampleDraft.fileupload_wait.data"));
-		m.addAttribute("_metaDataMessages", MetaHelper.getMetadataMessages(request.getSession()));
-		m.addAttribute("pageFlowMap", getPageFlowMap(jobDraft));
-		m.addAttribute("adaptorsets", adaptorsetDao.findAll()); // required for adaptorsets metadata control element (select:${adaptorsets}:adaptorsetId:name)
-		m.addAttribute("adaptors",new ArrayList<Adaptor>()); // required for adaptors metadata control element (select:${adaptors}:adaptorId:barcodenumber)
-		
-	
-		return "jobsubmit/sample";
-		
 
-	}
-*/
 
 	@RequestMapping(value="/cells/{jobDraftId}.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
@@ -1672,14 +1584,7 @@ public class JobSubmissionController extends WaspController {
 
 		for (SampleDraft sd: samples) {
  			for (SampleDraftJobDraftCellSelection sdc: sd.getSampleDraftJobDraftCellSelection()) {
-/*
-				int cellId = sdc.getJobdraftcellId();
-				if (! cellMap.containsKey(cellId)) {
-					cellindexCount++;
-					cellMap.put(cellId, cellindexCount); 
-				}
-				int cellIndex = cellMap.get(cellId);
-*/
+
 				int cellIndex = sdc.getJobDraftCellSelection().getCellIndex();
 
 				String key = sd.getSampleDraftId() + "_" + cellIndex;
@@ -1695,8 +1600,6 @@ public class JobSubmissionController extends WaspController {
 		jobDraft.setJobDraftMeta(getMetaHelperWebapp().getMasterList(JobDraftMeta.class));
 
 		m.put("jobDraft", jobDraft);
-		//m.put("area", getMetaHelperWebapp().getArea());
-		//m.put("parentarea", getMetaHelperWebapp().getParentArea());
 
 		m.put("sampleDrafts", samples);
 		m.put("selectedSampleCell", selectedSampleCell);
@@ -2020,158 +1923,6 @@ public class JobSubmissionController extends WaspController {
 	}
 
 
-/*	
-	 * Returns sample drafts by job draft ID 
-	 * 
-	 * @Author Sasha Levchuk
-	 	
-	@RequestMapping(value="/listSampleDraftsJSON", method=RequestMethod.GET)	
-	public String getSampleDraftListJSON(@RequestParam("jobdraftId") Integer jobdraftId, HttpServletResponse response) {
-	
-		//result
-		Map <String, Object> jqgrid = new HashMap<String, Object>();
-		
-		List<SampleDraft> drafts=sampleDraftDao.getSampleDraftByJobId(jobdraftId);
-		
-		int workflowId=jobDraftDao.findById(jobdraftId).getWorkflow().getWorkflowId();
-		
-		ObjectMapper mapper = new ObjectMapper();
-
-		try {
-			//String users = mapper.writeValueAsString(userList);
-			jqgrid.put("page","1");
-			jqgrid.put("records",drafts.size()+"");
-			jqgrid.put("total",drafts.size()+"");
-			
-			
-			List<Map> rows = new ArrayList<Map>();
-			
-			Map<Integer, String> allSampleSubTypes=new TreeMap<Integer, String>();
-			for(SampleSubtype type:subSampleTypeDao.findAll()) {
-				allSampleSubTypes.put(type.getSampleSubtypeId(),type.getName());
-			}
-			
-			Set<SampleDraftMeta> allowedMetaFields=new LinkedHashSet<SampleDraftMeta>();
-			
-			for(List<SampleDraftMeta> metaList:sampleDraftMetaDao.getAllowableMetaFields(workflowId).values()) {
-				allowedMetaFields.addAll(metaList);
-			}
-			
-			for (SampleDraft draft : drafts) {
-				Map cell = new HashMap();
-				cell.put("id", draft.getSampleDraftId());
-			
-				MetaHelperWebapp sampleMetaHelperWebapp = new MetaHelperWebapp(SampleDraftMeta.class, request.getSession());
-								
-				List<SampleDraftMeta> draftMeta=sampleMetaHelperWebapp.syncWithMaster(draft.getSampleDraftMeta(),new ArrayList<SampleDraftMeta>(allowedMetaFields));
-				
-				String fileCell=getFileCell(draft.getFile());
-				
-				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
-						draft.getName(),
-						allSampleSubTypes.get(draft.getSampleSubtypeId()),							
-						draft.getStatus(),						
-						fileCell,
-						"",
-						draft.getSourceSampleId()+"",
-						draft.getSourceSampleId()==null?"No":"Yes"
-				})); 
-			
-				for(SampleDraftMeta meta:draftMeta) {
-					cellList.add(meta.getV());
-				}
-			
-				cell.put("cell", cellList);
-			 
-				rows.add(cell);
-			}
-
-			jqgrid.put("rows",rows);
-		
-			return outputJSON(jqgrid, response); 	
-			
-		} catch (Throwable e) {
-			throw new IllegalStateException("Can't marshall to JSON "+drafts,e);
-		}
-	}
-
-
-	
-	 * Returns samples by Job ID 
-	 * 
-	 * @Author Sasha Levchuk
-	 	
-	@RequestMapping(value="/samplesByJobId", method=RequestMethod.GET)	
-	public String samplesByJobId(@RequestParam("jobId") Integer jobId, HttpServletResponse response) {
-	
-		//result
-		Map <Integer, String> samplesMap = new LinkedHashMap<Integer, String>();
-		for(Sample sample:sampleDao.getSamplesByJobId(jobId)) {
-			samplesMap.put(sample.getSampleId(), sample.getName());
-		}
-
-		try {
-			
-			return outputJSON(samplesMap, response); 	
-			
-		} catch (Throwable e) {
-			throw new IllegalStateException("Can't marshall to JSON "+samplesMap,e);
-		}
-	}
-	
-
-	
-
-	
-	 * The call just checks if sampleDraft has non-null sourceSampleId field
-	 * I can't get sourceSampleId value while editing form due to JQGrid specifics
-	 * 
-	 * @Author Sasha Levchuk
-	 	
-	@RequestMapping(value = "/getOldSample", method = RequestMethod.GET)
-	public String getOldSample(@RequestParam("id") Integer sampleDraftId, HttpServletResponse response) {
-
-		SampleDraft samplDraft = sampleDraftDao.findById(sampleDraftId);
-
-		try {
-			
-			List<Integer> result = new ArrayList<Integer>();
-
-			if (samplDraft.getSourceSampleId() == null) return outputJSON(result, response);
-
-			result.add(samplDraft.getSourceSampleId());
-			
-			return outputJSON(result, response);
-		} catch (Throwable e) {
-			
-			throw new IllegalStateException("Can't marshall to JSON ", e);
-
-		}
-
-	}
-
-	
-	 * Renders meta info by smaple ID
-	 * @Author Sasha Levchuk
-	 
-	@RequestMapping(value="/sampleMetaBySampleId", method=RequestMethod.GET)	
-	public String sampleMetaBySampleId(@RequestParam("sampleId") Integer sampleId, HttpServletResponse response) {
-	
-		//result
-		Map <String, String> metaMap = new LinkedHashMap<String, String>();
-		for(SampleMeta meta:sampleMetaDao.getSamplesMetaBySampleId(sampleId)) {
-			metaMap.put(meta.getK(), meta.getV());
-		}
-
-		try {
-			
-			return outputJSON(metaMap, response); 	
-			
-		} catch (Throwable e) {
-			throw new IllegalStateException("Can't marshall to JSON "+metaMap,e);
-		}
-	
-	}*/
 	
 	/*
 	 * Returns adaptors by adaptorsetID 
@@ -2196,208 +1947,7 @@ public class JobSubmissionController extends WaspController {
 		}
 	}
 
-	/*
-	 * Renders URL to download draft file
-	 * @Author Sasha Levchuk
-	 */
-	protected String getFileCell( edu.yu.einstein.wasp.model.File file) {
-		if (file==null) return "";
-		String fileName=file.getAbsolutePath();
-		if (fileName!=null && ( fileName.indexOf('/')>-1 || fileName.indexOf('\\')>-1)) {
-			int idx = fileName.lastIndexOf('/');
-			if (idx==-1) idx = fileName.lastIndexOf('\\');
-			fileName=fileName.substring(idx+1);						
-		}
-		
-		if (fileName!=null && fileName.indexOf('.')>-1) {
-			int idx = fileName.lastIndexOf('.');
-			fileName=fileName.substring(0,idx);		
-		}
-		
-		return "<a href='/wasp/jobsubmit/downloadFile.do?id="+file.getFileId()+"'>"+fileName+"</a> "+file.getSizek()+"kB";
-	}
-	
-	
-	/*
-	 * Uploads sample draft file
-	 * @Author Sasha Levchuk
-	 */
-	@RequestMapping(value = "/uploadFile", method = RequestMethod.POST)		
-	public String uploadFile(@RequestParam("id") Integer sampleDraftId,SampleDraft sampleDraftForm, ModelMap m, HttpServletResponse response) {
-		 	
-		String jsCallback="<html>\n"+
-"<head>\n"+
-"<script type='text/javascript'>\n"+
-"function init() {\n"+
-	"if(top.uploadDone) top.uploadDone('{message}'); \n"+
-"}\n"+
-"window.onload=init;\n"+
-"</script>\n"+
-"<body>\n"+
-"</body>\n";
- 
-			
-		try {
-			
-			if (sampleDraftForm.getFileData()!=null) {//uploading just file				
-					
-					CommonsMultipartFile fileData=sampleDraftForm.getFileData();
-					
-					SampleDraft samplDraft=sampleDraftDao.findById(sampleDraftId);
-					
-					Lab lab=samplDraft.getLab();
-					
-					User piUser=userDao.getById(lab.getPrimaryUserId());
-					
-					final String login = 
-					((org.springframework.security.core.userdetails.User)
-							SecurityContextHolder.getContext().getAuthentication().getPrincipal()
-					).getUsername();
-				 				 
-					String[] path=new String[] {
-							this.downloadFolder,
-							piUser.getLogin(),
-							login,
-							"jobdraft_"+sampleDraftForm.getJobdraftId(),
-							fileData.getOriginalFilename()+"."+System.currentTimeMillis()
-							};
-					
-					String destStr=StringUtils.join(path, System.getProperty("file.separator"));
-					
-					java.io.File dest=new java.io.File(destStr);
-					
-					FileUtils.forceMkdir(dest);
-					
-					fileData.transferTo(dest);
-								 	
-					edu.yu.einstein.wasp.model.File file = new edu.yu.einstein.wasp.model.File();
-					 
-					file.setAbsolutePath(dest.getAbsolutePath());
-					file.setIsActive(1);
-					file.setContentType("?");
-					file.setMd5hash("xxx");
-					file.setSizek((int)(fileData.getSize()/1024));
-										
-					fileDao.persist(file);
-					
-					samplDraft.setFileId(file.getFileId());
-					
-					sampleDraftDao.merge(samplDraft);
-								
-					//submit file for processing by Spring Batch / Spring Intgeration instance 
-					RestTemplate template = new RestTemplate();
-					try {
-						template.postForLocation(jobRunnerHost+"/bee/jobs/launchBeeJob.do?file={file}",String.class, dest.getAbsolutePath());
-					} catch (Throwable ee) {
-						//ignoring until we have "no downtime" instance to run jobs
-					}
-					
-					jsCallback=jsCallback.replace("{message}", messageService.getMessage("sampleDraft.fileupload_done.data"));
-					response.setContentType( "text/html; charset=UTF-8" );
-					response.getWriter().print(jsCallback);
-				
-			} else {
-				jsCallback=jsCallback.replace("{message}",messageService.getMessage("sampleDraft.fileupload_nofile.data"));
-					response.setContentType( "text/html; charset=UTF-8" );
-					response.getWriter().print(jsCallback);				
-			}
-		} catch(Throwable e) {
-			throw new IllegalStateException("cant get file to upload",e);
-		}		
-		return null;
-	}
-	
-	
-	/*
-	 * Updates sample draft record
-	 * @Author Sasha Levchuk
-	 */
-	@RequestMapping(value = "/updateSampleDraft", method = RequestMethod.POST)
-	public String updateSampleDraft(@RequestParam("id") Integer sampleDraftId,
-			SampleDraft sampleDraftForm, ModelMap m,
-			HttpServletResponse response) {
 
-		
-		boolean adding = sampleDraftId == 0;
-
-		// get from jobdraft table
-		JobDraft jd = jobDraftDao.findById(sampleDraftForm.getJobdraftId());
-		sampleDraftForm.setUserId(jd.getUserId());
-		sampleDraftForm.setLabId(jd.getLabId());
-		
-		SampleSubtype subtype=subSampleTypeDao.findById(sampleDraftForm.getSampleSubtypeId());
-		
-		if (adding) {
-						
-			int sampleTypeId=subtype.getSampleType().getSampleTypeId();
-			sampleDraftForm.setSampleTypeId(sampleTypeId);
-			
-			SampleDraft sampleDraftDb = this.sampleDraftDao
-					.save(sampleDraftForm);
-			
-			sampleDraftId = sampleDraftDb.getSampleDraftId();
-		} else {
-
-			SampleDraft sampleDraftDb = this.sampleDraftDao
-					.getById(sampleDraftId);
-
-			sampleDraftDb.setName(sampleDraftForm.getName());
-			sampleDraftDb.setStatus(sampleDraftForm.getStatus());
-			sampleDraftDb.setSampleSubtypeId(sampleDraftForm.getSampleSubtypeId());
-			sampleDraftDb.setSourceSampleId(sampleDraftForm.getSourceSampleId());
-
-			this.sampleDraftDao.merge(sampleDraftDb);
-		}
-		
-		List<SampleDraftMeta> sampleDraftMetaList = new ArrayList<SampleDraftMeta>();
-		
-		for (String area: subtype.getComponentMetaAreas()){
-			MetaHelperWebapp sampleMetaHelperWebapp = new MetaHelperWebapp(area,SampleDraftMeta.class, request.getSession());
-			sampleDraftMetaList.addAll(sampleMetaHelperWebapp.getFromJsonForm(request, SampleDraftMeta.class));
-		}
-		sampleDraftForm.setSampleDraftMeta(sampleDraftMetaList);
-		
-		for (Iterator<SampleDraftMeta> it=sampleDraftMetaList.iterator();it.hasNext();) {
-			SampleDraftMeta meta = it.next();
-			if (StringUtils.isEmpty(meta.getV())) it.remove();//remove blank entries
-			else meta.setSampledraftId(sampleDraftId);
-		}
-
-		sampleDraftMetaDao.updateBySampledraftId(sampleDraftId,
-				sampleDraftMetaList);
-
-		try {
-			response.getWriter()
-					.println(
-							sampleDraftId
-									+ "|"
-									+ (adding ? messageService.getMessage("sampleDraft.created.data")
-											: messageService.getMessage("sampleDraft.updated.data")));
-			return null;
-
-		} catch (Throwable e) {
-			throw new IllegalStateException("Cant output success message ", e);
-		}
-	}
-	
-	
-	/*
-	 * Deletes sample draft record
-	 * @Author Sasha Levchuk
-	 */
-	@RequestMapping(value = "/deleteSampleDraftJSON", method = RequestMethod.DELETE)	
-	public String deleteSampleDraftJSON(@RequestParam("id") Integer sampleDraftId,HttpServletResponse response) {
-
-		sampleDraftMetaDao.updateBySampledraftId(sampleDraftId, new ArrayList<SampleDraftMeta>());
-		this.sampleDraftDao.remove(sampleDraftDao.findById(sampleDraftId));
-		
-		try {
-			response.getWriter().println(messageService.getMessage("sampleDraft.removed.data"));
-			return null;
-		} catch (Throwable e) {
-			throw new IllegalStateException("Cant output success message ",e);
-		}
-	}
 	
 	/*
 	 * Downloads sample draft file
@@ -2563,18 +2113,4 @@ public class JobSubmissionController extends WaspController {
 		return pageDef;
 	}
 
-/*
-	private void setPageTitle(String tilesDef, String workflowIName) {
-		
-		Locale locale=(Locale)request.getSession().getAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
-		
-		String code=workflowIName+"."+tilesDef+".label";
-			
-		String pageTitle=DBResourceBundle.MESSAGE_SOURCE.getMessage(code, null, locale);
-		
-		if (pageTitle!=null) {		
-			request.setAttribute("forcePageTitle", pageTitle);		
-		}
-	}
-*/
 }

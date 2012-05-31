@@ -1,7 +1,7 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 <br />
 
-<h1><fmt:message key="jobDraft.create.label"/> -- <fmt:message key="${jobDraft.getWorkflow().getIName()}.jobsubmit/samples.label"/></h1>
+<h1><fmt:message key="jobDraft.create.label"/> -- <fmt:message key="jobsubmit/samples.label"/></h1>
 
 <%@ include file="/WEB-INF/jsp/jobsubmit/jobsubmitinfo.jsp" %>
 
@@ -82,15 +82,15 @@
 <form method="POST"  enctype="multipart/form-data">
 <table id="fileUploadTbl"  class="EditTable ui-widget ui-widget-content">
 	<tr>
-		<td class="CaptionTD top-heading">Description</td><td class="CaptionTD top-heading">File</td>
+		<td class="CaptionTD top-heading">File</td><td class="CaptionTD top-heading">Description</td>
 	</tr>
 	<c:forEach items="${files}" var="file">
 		<tr>
-			<td class="DataTD value-centered"><c:out value="${file.getDescription()}" /></td><td class="DataTD value-centered"><c:out value="${file.getFileName()}" /></td>
+			<td class="DataTD value-centered"><c:out value="${file.getFileName()}" /></td><td class="DataTD value-centered"><c:out value="${file.getDescription()}" /></td>
 		</tr>
 	</c:forEach>
 	<tr>
-		<td class="DataTD value-centered"><input type="text" name="file_description" /></td><td class="DataTD value-centered"><input type="file" name="file_upload" onchange="addFileUploadRow()"/></td>
+		<td class="DataTD value-centered"><input type="file" name="file_upload" onchange="addFileUploadRow()"/></td><td class="DataTD value-centered"><input type="text" name="file_description" /></td>
 	</tr>
 </table>
 <input class="FormElement ui-widget-content ui-corner-all" type="submit" value="<fmt:message key="jobDraft.next.label"/>">
