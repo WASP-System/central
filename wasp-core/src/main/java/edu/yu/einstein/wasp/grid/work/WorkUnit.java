@@ -6,6 +6,7 @@ package edu.yu.einstein.wasp.grid.work;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.model.File;
 
 /**

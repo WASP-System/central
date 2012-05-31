@@ -3,9 +3,7 @@
  */
 package edu.yu.einstein.wasp.grid.work;
 
-import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.UUID;
 
 

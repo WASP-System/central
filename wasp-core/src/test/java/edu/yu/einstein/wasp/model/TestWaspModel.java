@@ -7,8 +7,6 @@ import java.util.List;
 import org.junit.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import org.testng.annotations.BeforeTest;
-import org.testng.annotations.AfterTest;
 
 import edu.yu.einstein.wasp.exception.ModelCopyException;
 

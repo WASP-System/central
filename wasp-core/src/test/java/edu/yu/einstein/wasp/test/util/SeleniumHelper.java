@@ -12,8 +12,6 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.testng.Reporter;
 
-import edu.yu.einstein.wasp.util.TestSampleWrapper;
-
 /**
  * 
  * @author nvolnova

@@ -4,6 +4,7 @@
 package edu.yu.einstein.wasp.grid;
 
 import edu.yu.einstein.wasp.exception.GridException;
+import edu.yu.einstein.wasp.grid.work.WorkUnit;
 
 /**
  * WorkUnit is successfully submitted to the grid provider, however the script terminated abnormally.

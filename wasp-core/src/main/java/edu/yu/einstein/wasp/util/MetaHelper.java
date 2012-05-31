@@ -1,7 +1,6 @@
 package edu.yu.einstein.wasp.util;
 
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;

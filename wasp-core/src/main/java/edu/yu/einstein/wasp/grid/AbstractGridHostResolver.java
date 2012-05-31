@@ -3,6 +3,8 @@
  */
 package edu.yu.einstein.wasp.grid;
 
+import edu.yu.einstein.wasp.grid.work.WorkUnit;
+
 /**
  * Base class for {@link GridHostResolver}s.  This class provides the mechansim for setting how a host resolver
  * handles the case when it can not determine where to send the {@link WorkUnit}.  

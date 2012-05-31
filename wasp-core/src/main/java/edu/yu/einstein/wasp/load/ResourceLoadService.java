@@ -9,8 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import util.spring.PostInitialize;
 import edu.yu.einstein.wasp.dao.ResourceCategoryDao;
-import edu.yu.einstein.wasp.dao.ResourceDao;
 import edu.yu.einstein.wasp.dao.ResourceCellDao;
+import edu.yu.einstein.wasp.dao.ResourceDao;
 import edu.yu.einstein.wasp.dao.ResourceMetaDao;
 import edu.yu.einstein.wasp.dao.ResourceTypeDao;
 import edu.yu.einstein.wasp.exception.NullResourceCategoryException;

@@ -13,7 +13,6 @@ package edu.yu.einstein.wasp.dao.impl;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Date;
@@ -28,12 +27,10 @@ import javax.persistence.Query;
 import org.apache.commons.lang.WordUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.Hibernate;
-import org.hibernate.HibernateException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Repository;
 
 import edu.yu.einstein.wasp.exception.ModelDetachException;
-import edu.yu.einstein.wasp.model.WaspModel;
 
 @Repository
 public abstract class WaspDaoImpl<E extends Serializable> implements edu.yu.einstein.wasp.dao.WaspDao<E> {

@@ -3,17 +3,17 @@
  */
 package edu.yu.einstein.wasp.grid.file;
 
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.Test;
-import org.testng.annotations.BeforeMethod;
-import org.testng.AssertJUnit;
-
-import edu.yu.einstein.wasp.grid.SingleHostResolver;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+
+import org.testng.AssertJUnit;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
+import edu.yu.einstein.wasp.grid.SingleHostResolver;
 
 /**
  * @author calder

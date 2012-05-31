@@ -1,6 +1,5 @@
 package edu.yu.einstein.wasp.taglib;
 
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Currency;

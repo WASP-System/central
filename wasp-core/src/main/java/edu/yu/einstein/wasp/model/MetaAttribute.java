@@ -6,8 +6,6 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import edu.yu.einstein.wasp.util.SampleWrapper;
-
 
 /**
  * Holds attributes for a *meta" object

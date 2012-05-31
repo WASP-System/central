@@ -3,10 +3,7 @@ package edu.yu.einstein.wasp.util;
 import java.util.List;
 import java.util.Set;
 
-import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.dao.SampleMetaDao;
-import edu.yu.einstein.wasp.dao.SampleSourceDao;
-import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;

@@ -13,13 +13,11 @@ package edu.yu.einstein.wasp.dao.impl;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.AcctQuoteMeta;
-import edu.yu.einstein.wasp.model.UserMeta;
 
 @SuppressWarnings("unchecked")
 @Transactional

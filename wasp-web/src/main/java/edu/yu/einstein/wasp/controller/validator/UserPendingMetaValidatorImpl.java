@@ -6,12 +6,12 @@ import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
 
+import edu.yu.einstein.wasp.dao.LabDao;
+import edu.yu.einstein.wasp.dao.UserDao;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.User;
-import edu.yu.einstein.wasp.dao.LabDao;
-import edu.yu.einstein.wasp.dao.UserDao;
 
 public class UserPendingMetaValidatorImpl extends MetaValidatorImpl{
 

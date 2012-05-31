@@ -1,7 +1,5 @@
 package edu.yu.einstein.wasp.grid;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Set;
 
 import edu.yu.einstein.wasp.grid.work.WorkUnit;

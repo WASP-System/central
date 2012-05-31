@@ -2,14 +2,11 @@ package edu.yu.einstein.wasp.controller;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashSet;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -35,19 +32,16 @@ import edu.yu.einstein.wasp.dao.StateDao;
 import edu.yu.einstein.wasp.dao.StateMetaDao;
 import edu.yu.einstein.wasp.dao.StatesampleDao;
 import edu.yu.einstein.wasp.dao.TaskDao;
-import edu.yu.einstein.wasp.model.JobSample;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Sample;
-import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.StateMeta;
 import edu.yu.einstein.wasp.model.Statejob;
-import edu.yu.einstein.wasp.model.Statesample;
 import edu.yu.einstein.wasp.model.Task;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.JobService;
-import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.MessageService;
+import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 
 @Controller

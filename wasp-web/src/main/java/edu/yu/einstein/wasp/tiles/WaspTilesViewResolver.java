@@ -8,6 +8,7 @@ package edu.yu.einstein.wasp.tiles;
 
 
 import org.springframework.web.servlet.view.UrlBasedViewResolver;
+import org.springframework.web.servlet.view.tiles2.TilesView;
 
 public class WaspTilesViewResolver extends UrlBasedViewResolver {
 
