@@ -51,9 +51,10 @@ body	{
 	line-height: 16px;
 	width:980px;
 	margin: auto;
-	margin-bottom: 20px;
-	margin-top: 20px;
-	background-color:#979797;
+	margin-top: 10px;
+  	margin-bottom: 10px;
+	background-color:#989898;
+	background-image: url(/wasp/images/background.png);
 	height: 93%;
 	}
 
