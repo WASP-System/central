@@ -1,8 +1,8 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp"%>
 
 <c:if test="${not empty param.error}">
-	<fmt:message key="auth.login_failed.error" />
-
+<script type="text/JavaScript">waspFade("waspErrorMessage", "<fmt:message key="auth.login_failed.error" />");</script>
+	
 </c:if>
 
 <h1>

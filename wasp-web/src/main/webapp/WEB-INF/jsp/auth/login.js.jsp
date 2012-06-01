@@ -1,5 +1,5 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
-<script language="JavaScript">
+<script type="text/JavaScript">
 		<!--
 		function validate(){
 			
@@ -8,7 +8,7 @@
 			if(document.f.j_username.value == "" || document.f.j_password.value == ""){
 				error = true;
 			}
-			if(error){ alert(message); return false; }
+			if(error){waspFade("waspErrorMessage", message); return false; }
   			return true;
 		}
 		
