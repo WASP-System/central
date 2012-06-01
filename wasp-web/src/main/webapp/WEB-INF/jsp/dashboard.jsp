@@ -143,9 +143,6 @@
 					<li>
 						<a href='<c:url value="/job2quote/list.do"/>'>Jobs Quotes</a>
 					</li>
-					<li>
-						<a href='<c:url value="/task/fmpayment/list.do"/>'>Receive Payment for Jobs</a>
-					</li>
 				</sec:authorize>
 			</ul>
 			<br />
