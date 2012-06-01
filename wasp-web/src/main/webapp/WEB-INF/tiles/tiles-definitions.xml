@@ -213,15 +213,6 @@
 	<definition name="run/detail" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/run/detail.jsp" />
 	</definition>
-	<definition name="task/list" extends="template-base">
-		<put-attribute name="body-content" value="/WEB-INF/jsp/task/list.jsp" />
-	</definition>
-	<definition name="task/detail" extends="template-base">
-		<put-attribute name="body-content" value="/WEB-INF/jsp/task/detail.jsp" />
-	</definition>
-	<definition name="task/fmrequote/list" extends="template-base">
-		<put-attribute name="body-content" value="/WEB-INF/jsp/task/fmrequote/list.jsp" />
-	</definition>
 	<definition name="task/samplereceive/list" extends="template-base">
 	    <put-attribute name="head-js" value="/WEB-INF/jsp/task/samplereceive/list.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/task/samplereceive/list.jsp" />
@@ -407,10 +398,6 @@
 	<definition name="workflow/resource/configure" extends="template-base">
 		<put-attribute name="head-js" value="/WEB-INF/jsp/workflow/resource/configure.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/workflow/resource/configure.jsp" />
-	</definition>
-
-	<definition name="hello" extends="template-base">
-		<put-attribute name="body-content" value="/WEB-INF/jsp/hello.jsp" />
 	</definition>
 
 	<definition name="job/metaform_rw" extends="template-base">
