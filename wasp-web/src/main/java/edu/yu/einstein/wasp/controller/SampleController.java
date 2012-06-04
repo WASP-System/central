@@ -275,12 +275,13 @@ public class SampleController extends WaspController {
 				allRuns.put(run.getSampleId(), run.getName());
 			}
 
-			// Remove all samples whose sampletypecategory is not "biomaterial"
+			// Remove all samples whose sampletypecategory is not "biomaterial" and also remove all control libraries
 			List<Sample> sampleListFiltered = new ArrayList<Sample> ();
 			for (Sample sample : sampleList) {
 				if (sample.getSampleType().getSampleTypeCategory().getIName().equals("biomaterial")) {
-					sampleListFiltered.add(sample);
-				
+					if ( ! sample.getSampleSubtype().getIName().equals("controlLibrarySample")){//exclude controlLibraries
+						sampleListFiltered.add(sample);
+					}
 				}
 			}
 			sampleList = sampleListFiltered;
@@ -348,7 +349,7 @@ public class SampleController extends WaspController {
 						(sample.getSampleSubtypeId() == null)? "": allSubSampleTypes.get(sample.getSampleSubtypeId()),
 						(sample.getSubmitterJobId() == null)? "" : allJobs.get(sample.getSubmitterJobId()),
 						allUsers.get(sample.getSubmitterUserId()),
-						sampleService.convertReceiveSampleStatusForWeb(sampleService.getReceiveSampleStatus(sample)),
+						(sample.getSampleSubtype().getIName().indexOf("FacilityLibrary") > -1) ? "N/A" : sampleService.convertReceiveSampleStatusForWeb(sampleService.getReceiveSampleStatus(sample)),//facility-generated libraries have no receive sample information as they were created by the facility
 						allRuns.get(sample.getSampleId())
 				}));
 
