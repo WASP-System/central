@@ -11,7 +11,7 @@
 
 <c:set var="currentJobId" value="-1" scope="page" />
 <table class="EditTable ui-widget ui-widget-content">
-<tr class="FormData"><td class="label-centered">JobID</td><td class="label-centered">Job Name</td><td class="label-centered">Submitter</td><td class="label-centered">Sample</td><td class="label-centered">Molecule</td><td class="label-centered">Action</td></tr>
+<tr class="FormData"><th class="label-centered" style="font-weight:bold; background-color:#FAF2D6">JobID</th><th class="label-centered" style="font-weight:bold; background-color:#FAF2D6">Job Name</th><th class="label-centered" style="font-weight:bold; background-color:#FAF2D6">Submitter</th><th class="label-centered" style="font-weight:bold; background-color:#FAF2D6">Sample</th><th class="label-centered" style="font-weight:bold; background-color:#FAF2D6">Molecule</th><th class="label-centered" style="font-weight:bold; background-color:#FAF2D6">Action</th></tr>
 
 <c:forEach items="${jobList}" var="job">
 	<c:if test='${currentJobId != "-1" && currentJobId !=  job.getJobId()}'>

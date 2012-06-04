@@ -14,7 +14,7 @@
 <c:otherwise>
 <input class="ui-widget ui-widget-content fm-button" type="button" value="Create New Control" onclick='location.href="<c:url value="/sample/createUpdateLibraryControl/0.do" />"' />
 <table class="EditTable ui-widget ui-widget-content">
-<tr class="FormData"><td class="label-centered">Control Name</td><td class="label-centered">Adaptor Set</td><td class="label-centered">Adaptor</td><td class="label-centered">Is Active?</td></tr>
+<tr class="FormData"><th class="label-centered" style="font-weight:bold; background-color:#FAF2D6">Control Name</th><th class="label-centered" style="font-weight:bold; background-color:#FAF2D6">Adaptor Set</th><th class="label-centered" style="font-weight:bold; background-color:#FAF2D6">Adaptor</th><th class="label-centered" style="font-weight:bold; background-color:#FAF2D6">Is Active?</th></tr>
 <tr><td colspan="4" style='background-color:black'></td></tr>
 <c:forEach items="${controlLibraryList}" var="controlLibrary">
 	<c:set var="adaptor" value="${libraryAdaptorMap.get(controlLibrary)}" scope="page" />

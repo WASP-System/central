@@ -525,4 +525,29 @@ public class JobServiceImpl extends WaspServiceImpl implements JobService {
 			
 			return jobDb;
 	  }
+	  
+		 /**
+	   * {@inheritDoc}
+	   */
+	@Override
+	public List<Job> getJobsWithLibraryCreatedTask(){
+		
+		Map stateMap = new HashMap(); 
+		Task task = taskDao.getTaskByIName("Create Library");
+		if(task == null || task.getTaskId() == null){
+			//waspErrorMessage("platformunit.taskNotFound.error"); maybe throw exception?????
+		}
+		stateMap.put("taskId", task.getTaskId()); 	
+		stateMap.put("status", "CREATED"); 
+		List<State> stateList = stateDao.findByMap(stateMap);
+		
+		Set<Job> jobs = new HashSet<Job>();//use set to avoid duplicates
+		for(State state : stateList){
+			List<Statejob> stateJobList = state.getStatejob();
+			for(Statejob stateJob : stateJobList){
+				jobs.add(stateJob.getJob());
+			}
+		}
+		return new ArrayList<Job>(jobs);//return as list rather than as set
+	}
 }

@@ -29,7 +29,7 @@
       <list>
         <bean class="edu.yu.einstein.wasp.model.TaskMapping">
           <property name="status" value="CREATED" />
-          <property name="listMap" value="/lab/pendinglmapproval/list.do" />
+          <property name="listMap" value="/job/jobsAwaitingLibraryCreation/jobsAwaitingLibraryCreationList.do" />
           <property name="detailMap" value="/def.do" />
           <property name="permission" value="hasRole('su')" />
         </bean>

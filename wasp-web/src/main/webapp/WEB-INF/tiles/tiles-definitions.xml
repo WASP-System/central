@@ -287,6 +287,9 @@
 	<definition name="job/pendingjob/detail_ro" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/job/pendingjob/detail_ro.jsp" />
 	</definition>
+	<definition name="job/jobsAwaitingLibraryCreation/jobsAwaitingLibraryCreationList" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/job/jobsAwaitingLibraryCreation/jobsAwaitingLibraryCreationList.jsp" />
+	</definition>
 	<definition name="facility/platformunit/detail_rw" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/facility/platformunit/detail_rw.jsp" />
 	</definition>

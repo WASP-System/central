@@ -785,6 +785,7 @@ public class SampleDnaToLibraryController extends WaspController {
 		  for(Statesample statesample : statesampleList){
 			  if(statesample.getSampleId().intValue() == parentMacromolecule.getSampleId().intValue()){
 				  state.setStatus("COMPLETED");
+				  break;
 			  }
 		  }
 	  }

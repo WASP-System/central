@@ -103,7 +103,10 @@ public class DashboardController extends WaspController {
 		
 			if (states!=null && !states.isEmpty()) {
 				tm.setStateCount(states.size());
-				taskMappings.add(tm);
+				//5-31-12: Dubin added next if statement to prevent dashboard display of task PI Approval, as it's count and link will be taken care of explicitly through numberOfLabManagerPendingTasks
+				if( ! tm.getTask().getIName().equals("PI Approval")){
+					taskMappings.add(tm);
+				}
 			}
 		}
 		

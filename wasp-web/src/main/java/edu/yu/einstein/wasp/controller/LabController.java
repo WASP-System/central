@@ -1182,7 +1182,7 @@ public class LabController extends WaspController {
 				userPending.setStatus(action);
 				userPendingDao.save(userPending);
 				waspMessage("labPending.rejected.label");
-			} else if (labPending.getPrimaryUserId() == null){
+			} else if (labPending.getPrimaryUserId() == null){ //if labPending.userpendingid AND labPending.primaryuserid are both null - should never get here
 				waspErrorMessage("labPending.could_not_create_lab.error");
 				return "redirect:"+ referer;
 			}

@@ -54,6 +54,7 @@ import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Workflowresourcecategory;
 import edu.yu.einstein.wasp.model.WorkflowresourcecategoryMeta;
 import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 import edu.yu.einstein.wasp.util.MetaHelper;
 import edu.yu.einstein.wasp.util.StringHelper;
@@ -106,6 +107,8 @@ public class JobController extends WaspController {
 	private JobCellSelectionDao jobCellSelectionDao;
 	@Autowired
 	private SampleService sampleService;
+	@Autowired
+	private JobService jobService;
 
 	private final MetaHelperWebapp getMetaHelperWebapp() {
 		return new MetaHelperWebapp(JobMeta.class, request.getSession());
@@ -649,5 +652,26 @@ public class JobController extends WaspController {
 		m.put("metaHelper", metaHelperWebapp); 
 
 		return "job/metaform_rw";
+	}
+	
+	@RequestMapping(value = "/jobsAwaitingLibraryCreation/jobsAwaitingLibraryCreationList.do", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('fm') or hasRole('ft') or hasRole('ga')")
+	public String jobsAwaitingLibraryCreation(ModelMap m) {
+		  
+		List<Job> jobsWithLibraryCreatedTask = jobService.getJobsWithLibraryCreatedTask();
+		List<Job> jobsActive = jobService.getActiveJobs();
+		    
+		List<Job> jobsActiveAndWithLibraryCreatedTask = new ArrayList<Job>();
+		for(Job jobActive : jobsActive){
+		    for(Job jobAwaiting : jobsWithLibraryCreatedTask){
+		    	if(jobActive.getJobId().intValue()==jobAwaiting.getJobId().intValue()){
+		    		jobsActiveAndWithLibraryCreatedTask.add(jobActive);
+		    		break;
+		    	}
+		    }
+		}
+		jobService.sortJobsByJobId(jobsActiveAndWithLibraryCreatedTask);
+		m.put("jobList", jobsActiveAndWithLibraryCreatedTask);
+		return "job/jobsAwaitingLibraryCreation/jobsAwaitingLibraryCreationList";	  
 	}
 }

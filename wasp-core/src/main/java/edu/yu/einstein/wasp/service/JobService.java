@@ -96,4 +96,11 @@ public interface JobService extends WaspService {
 	 */
 	public Job createJobFromJobDraft(JobDraft jobdraft, User user) throws FileMoveException;
 	
+	/**
+	 * getJobsWithLibraryCreatedTask() returns list of unique jobs with a state whose task = Create Library and status = Created)
+	 * @param none
+	 * @return List<Job>
+	 * 
+	 */
+	public List<Job> getJobsWithLibraryCreatedTask();
 }

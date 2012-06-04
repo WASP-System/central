@@ -12,16 +12,31 @@
        <h2><fmt:message key="dapendingtask.subtitle1.label" /></h2> 
 	   <div id="accordion">
       		<c:forEach items="${labspendinglist}" var="labPending">
-      			<c:set var="piPending" value="${labPending.getUserPending()}" />
+      			<c:choose>
+      			<c:when test="${labPending.getUserpendingId()==NULL}" > <%-- an already registered user requesting a new lab with him/her-self as PI, so use attribute labpending.primaryuserid --%>
+      				<c:set var="piPending" value="${labPending.getUser()}" /> 
+      			</c:when>
+      			<c:otherwise>
+      				<c:set var="piPending" value="${labPending.getUserPending()}" />
+      			</c:otherwise>
+      			</c:choose>
       		 	<h4><a href="#">New PI: <c:out value="${piPending.getFirstName()}" /> <c:out value="${piPending.getLastName()}" /> (Email: <c:out value="${piPending.getEmail()}" />)</a> </h4>     
             	<div> 
             		PI: <c:out value="${piPending.getFirstName()}" /> <c:out value="${piPending.getLastName()}" /><br />
             		Email: <c:out value="${piPending.getEmail()}" /><br /> 
             		Department: <c:out value="${labPending.getDepartment().getName()}" /><br />          		
-            		<c:set var="departmentId" value="0" />           	         	
-      	      		<c:forEach items="${piPending.getUserPendingMeta()}" var="meta">      	      			
-      	      			
-        	 			<c:if test="${meta.k == 'piPending.institution' || meta.k == 'piPending.building_room' || meta.k == 'piPending.address' || meta.k == 'piPending.city' || meta.k == 'piPending.state' || meta.k == 'piPending.country' || meta.k == 'piPending.phone'}">
+            		<c:set var="departmentId" value="0" />             		
+            		<c:choose>
+      					<c:when test="${labPending.getUserpendingId()==NULL}" > <%-- an already registered user requesting a new lab with him/her-self as PI, so use attribute labpending.primaryuserid --%>
+      						<c:set var="metaList" value="${piPending.getUserMeta()}" /> 
+      					</c:when>
+      					<c:otherwise>
+      						<c:set var="metaList" value="${piPending.getUserPendingMeta()}" />
+      					</c:otherwise>
+      				</c:choose>
+            		<%-- 	<c:forEach items="${piPending.getUserPendingMeta()}" var="meta">     --%>  	
+      	      	    <c:forEach items="${metaList}" var="meta">
+        	 			<c:if test="${fn:contains(meta.k, 'institution') || fn:contains(meta.k, 'building_room') || fn:contains(meta.k, 'address') || fn:contains(meta.k, 'city') || fn:contains(meta.k, 'state') || fn:contains(meta.k, 'country') || fn:contains(meta.k, 'phone')}">
  							<c:set var="optionName" value="${meta.k}.label" /><fmt:message key="${optionName}" />:&nbsp;<c:out value="${meta.v}" /><br />
         	 			</c:if>
       				</c:forEach>  

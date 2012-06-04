@@ -1685,7 +1685,7 @@ CREATE TABLE IF NOT EXISTS `uifield` (
   `uifieldid` int(10)  AUTO_INCREMENT,
   `locale` varchar(5) ,
   `area` varchar(50) ,
-  `name` varchar(50) ,
+  `name` varchar(100) ,
   `attrname` varchar(50) ,
   `attrvalue` text DEFAULT NULL,
   `lastupdts` datetime DEFAULT NULL,

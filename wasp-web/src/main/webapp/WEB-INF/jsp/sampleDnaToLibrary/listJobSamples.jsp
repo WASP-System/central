@@ -65,7 +65,7 @@
 				
 				<sec:authorize access="hasRole('su') or hasRole('ft')">
 			<%-- <c:if test='${receivedStatusMap.get(userSubmittedMacromolecule)=="RECEIVED"}'> --%>
-			<%-- 5/21/12	<c:if test='${createLibraryStatusMap.get(userSubmittedMacromolecule)=="CREATED"}'>  --%>
+			<c:if test='${createLibraryStatusMap.get(userSubmittedMacromolecule)=="CREATED"}'>  
 	  				<form method="GET" action="<c:url value="/sampleDnaToLibrary/createLibraryFromMacro.do" />">
 	  					<input type='hidden' name='jobId' value='<c:out value="${job.jobId}" />'/>
 	  					<input type='hidden' name='macromolSampleId' value='<c:out value="${userSubmittedMacromolecule.getSampleId()}" />'/>
@@ -76,7 +76,7 @@
 							</c:forEach>
 						</select>
 					</form>
-	 	 	<%-- 5/21/12	</c:if> --%>
+	 	 	</c:if> 
 				</sec:authorize>				
 			</td>
 			<c:choose>
@@ -100,9 +100,9 @@
 							<c:set var="idCounter" value="${idCounter + 1}" scope="page" />
  							<sec:authorize access="hasRole('su') or hasRole('ft')">
 							<div id="showButton_<c:out value="${idCounter}" />" >
-						<%-- 5/21/12	<c:if test='${assignLibraryToPlatformUnitStatusMap.get(userSubmittedMacromolecule)=="CREATED"}'> --%>
+						<c:if test='${assignLibraryToPlatformUnitStatusMap.get(userSubmittedMacromolecule)=="CREATED"}'> 
 				 				<input class="fm-button" type="button" value="<fmt:message key="listJobSamples.addLibraryToPlatformUnit.label" />" onclick='toggleDisplayOfAddLibraryForm("show", <c:out value="${idCounter}" />)' />				
-						<%-- 5/21/12	</c:if> --%>
+						</c:if> 
 							</div>
 							</sec:authorize>
 							<div id="addLibraryForm_<c:out value="${idCounter}" />" style="display:none">
@@ -207,9 +207,9 @@
 				<c:set var="idCounter" value="${idCounter + 1}" scope="page" />
  				<sec:authorize access="hasRole('su') or hasRole('ft')">
 				<div id="showButton_<c:out value="${idCounter}" />" >
-			<%-- 5/21/12	<c:if test='${assignLibraryToPlatformUnitStatusMap.get(userSubmittedLibrary)=="CREATED"}'> --%>
+			<c:if test='${assignLibraryToPlatformUnitStatusMap.get(userSubmittedLibrary)=="CREATED"}'> 
 					<input class="fm-button" type="button" value="<fmt:message key="listJobSamples.addLibraryToPlatformUnit.label" />" onclick='toggleDisplayOfAddLibraryForm("show", <c:out value="${idCounter}" />)' />				
-			<%-- 5/21/12	</c:if> --%>
+			</c:if> 
 				</div>
 				</sec:authorize>
 				<div id="addLibraryForm_<c:out value="${idCounter}" />" style="display:none">
