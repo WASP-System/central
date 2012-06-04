@@ -46,6 +46,8 @@ public interface FileService extends WaspService {
 	 */
     public File getFileByFileId (final int fileId);
 
+    //returns File object with contentType/md5hash and sizek fields populated.
+    public File getMetaInformation(String filePath) throws java.io.IOException;
 
     /**
      * Get a file based on its location
@@ -72,7 +74,7 @@ public interface FileService extends WaspService {
 	 * @param jobDraft
 	 * @return the entity-managed JobDraftFile object created
 	 */
-	JobDraftFile linkFileWithJobDraft(File file, JobDraft jobDraft);
+	public JobDraftFile linkFileWithJobDraft(File file, JobDraft jobDraft);
 
 }
 
