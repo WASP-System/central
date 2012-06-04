@@ -141,5 +141,18 @@ public class WaspController {
 		 
 		return null;		
 }
+  
+  protected String outputJSON(String string, HttpServletResponse response) throws JsonMappingException, IOException {
+	  
+	  	ObjectMapper mapper = new ObjectMapper();
+	  
+	  	String json=mapper.writeValueAsString(string);
+		 
+		response.setContentType("application/json;charset=UTF-8");
+		
+		response.getWriter().print(json);
+		 
+		return null;		
+}
 
 }

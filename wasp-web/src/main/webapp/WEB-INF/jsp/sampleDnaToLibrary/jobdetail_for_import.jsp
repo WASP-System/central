@@ -14,7 +14,7 @@
 		<td class="CaptionTD"><fmt:message key="jobdetail_for_import.files.label" />:</td>
 		<td class="DataTD">
 			<c:forEach items="${files}" var="file">
-				<a href="/wasp/jobsubmit/downloadFile.do?id=<c:out value="${file.getFileId()}" />">${file.getFileName()}</a> (<c:out value="${file.getDescription()}" />)<br />
+				<a href="/wasp/file/downloadFile.do?id=<c:out value="${file.getFileId()}" />">${file.getFileName()}</a> (<c:out value="${file.getDescription()}" />)<br />
 			</c:forEach>
 		</td>
 	</tr>

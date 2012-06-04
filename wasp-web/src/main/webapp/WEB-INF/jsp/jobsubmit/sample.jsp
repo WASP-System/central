@@ -42,7 +42,7 @@
 					<!-- TODO: re-implement lines below when functionality added
 		  			<td class="DataTD value-centered <c:if test="${status.count % 2 == 0}"> white-background</c:if>">
 					<c:if test="${ not empty sampleDraft.getFile()}">
-						<a href="/wasp/jobsubmit/downloadFile.do?id=<c:out value="${sampleDraft.getFile().getFileId()}" />">${sampleDraft.getFile().getFileName()}</a>
+						<a href="/wasp/file/downloadFile.do?id=<c:out value="${sampleDraft.getFile().getFileId()}" />">${sampleDraft.getFile().getFileName()}</a>
 					</c:if>
 					<c:if test="${ empty sampleDraft.getFile()}">
 						<fmt:message key="jobDraft.no_file.label"/>

@@ -1,9 +1,6 @@
 package edu.yu.einstein.wasp.controller;
 
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -16,7 +13,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
@@ -43,7 +39,6 @@ import edu.yu.einstein.wasp.controller.util.SampleAndSampleDraftMetaHelper;
 import edu.yu.einstein.wasp.dao.AdaptorDao;
 import edu.yu.einstein.wasp.dao.AdaptorsetDao;
 import edu.yu.einstein.wasp.dao.AdaptorsetResourceCategoryDao;
-import edu.yu.einstein.wasp.dao.FileDao;
 import edu.yu.einstein.wasp.dao.JobCellSelectionDao;
 import edu.yu.einstein.wasp.dao.JobDao;
 import edu.yu.einstein.wasp.dao.JobDraftCellSelectionDao;
@@ -239,10 +234,6 @@ public class JobSubmissionController extends WaspController {
 	
 	@Autowired
 	protected AdaptorsetResourceCategoryDao adaptorsetResourceCategoryDao;
-
-	
-	@Autowired
-	protected FileDao fileDao;
 
 	@Autowired
 	protected JobCellSelectionDao jobCellSelectionDao;
@@ -1764,67 +1755,7 @@ public class JobSubmissionController extends WaspController {
 
 
 	
-	/*
-	 * Downloads sample draft file
-	 * 
-	 * @Author Sasha Levchuk
-	 */
-	@RequestMapping(value = "/downloadFile.do", method = RequestMethod.GET)	
-	public String downloadSampleDraftFile(@RequestParam("id") Integer fileId,HttpServletResponse response) throws IOException {
-		
-		int FILEBUFFERSIZE=1000000;//megabyte
-		
-		File file=fileDao.findById(fileId);
-		
-		if (file==null) {
-				String html="<html>\n"+
-				"<head>\n"+				
-				"</script>\n"+
-				"<body>\n"+
-				"<script>alert('Error: file id "+fileId+" not foud');</script>\n"+
-				"</body>\n";
-				response.setContentType( "text/html; charset=UTF-8" );
-				try {
-					response.getWriter().print(html);
-				} catch (Throwable e) {
-					throw new IllegalStateException("Cant output error message ",e);
-				}
-				return null;
-		}
-		ServletOutputStream out = null;
-		InputStream in = null;
-		try {
-			out = response.getOutputStream();
-			
-			java.io.File diskFile=new java.io.File(file.getAbsolutePath());
-			in = new FileInputStream(diskFile);
-			
-			String mimeType = file.getContentType();
-			byte[] bytes = new byte[FILEBUFFERSIZE];
-			int bytesRead;
 
-			response.setContentType(mimeType);
-			
-			response.setContentLength( (int)diskFile.length() );
-			
-			String fileName=diskFile.getName();
-				
-			response.setHeader( "Content-Disposition", "attachment; filename=\"" + fileName + "\"" );
-
-			while ((bytesRead = in.read(bytes)) != -1) {
-				out.write(bytes, 0, bytesRead);
-			}
-			
-		} catch (Throwable e) {
-			throw new IllegalStateException("Cant download file id "+fileId,e);
-		} finally {
-			if (in != null)
-				in.close();
-			if (out != null)
-				out.close();
-		}
-		return null;
-	}
 	
 	@Override
 	protected void prepareSelectListData(ModelMap m) {
