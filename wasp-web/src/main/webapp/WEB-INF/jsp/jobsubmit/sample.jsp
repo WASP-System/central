@@ -1,7 +1,7 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 <br />
 
-<h1><fmt:message key="jobDraft.create.label"/> -- <fmt:message key="jobsubmit/samples.label"/></h1>
+<h1><fmt:message key="jobDraft.create.label"/> -- <fmt:message key="pageTitle.jobsubmit/sample.label"/></h1>
 
 <%@ include file="/WEB-INF/jsp/jobsubmit/jobsubmitinfo.jsp" %>
 
