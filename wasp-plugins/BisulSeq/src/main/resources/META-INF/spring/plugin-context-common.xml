@@ -14,7 +14,7 @@
   xmlns="http://www.springframework.org/schema/beans"
   default-autowire="byName">
 
-  <context:component-scan base-package="edu.yu.einstein.wasp.bisulseq" />
+  <context:component-scan base-package="edu.yu.einstein.wasp.bisulseq.load" />
 
   <bean id="bisulseqPluginDomain" class="java.lang.String">
   	<constructor-arg><value>edu.yu.einstein.wasp.bisulseq</value></constructor-arg>

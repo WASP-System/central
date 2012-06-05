@@ -33,9 +33,6 @@
       </property>  
   </bean> 
   
-  <!-- local instance configuration -->
-  <import resource="wasp-local-context.xml" />
-
   <bean id="messageSource" class="edu.yu.einstein.wasp.service.impl.WaspMessageSourceImpl" >
         <!-- property name="useCodeAsDefaultMessage" value="true"/-->
   </bean>
@@ -101,6 +98,9 @@
   
   <!-- load constant string value definitions -->
   <import resource="classpath*:static-values-definition.xml" /> 
+  
+  <!-- loads all the plugin root contexts -->
+  <import resource="classpath*:META-INF/spring/plugin-context-batch.xml" />
 
   <!-- loads load scripts to update database -->
   <import resource="classpath*:wasp/**/*UiFieldLoad.xml" />
@@ -122,7 +122,7 @@
     <!-- loads all the plugable batch -->
     <import resource="classpath*:batch/**/*Batch.xml" /> 
 
-	<!-- loads all the plugin root contexts -->
+	<!-- loads more definitions -->
 	<import resource="classpath*:/wasp/messaging/core-messaging.xml" />
     <import resource="classpath*:wasp/*waspPlugin.xml" /> 
 

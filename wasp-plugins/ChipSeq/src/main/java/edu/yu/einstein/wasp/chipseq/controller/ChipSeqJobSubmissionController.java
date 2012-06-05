@@ -1,4 +1,4 @@
-package edu.yu.einstein.wasp.chipseq;
+package edu.yu.einstein.wasp.chipseq.controller;
 
 import edu.yu.einstein.wasp.controller.JobSubmissionController; 
 

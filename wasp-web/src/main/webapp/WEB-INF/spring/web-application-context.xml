@@ -27,9 +27,6 @@
       </list>  
     </property>  
   </bean>  
-  
-  <!-- local instance configuration -->
-  <import resource="classpath*:wasp-local-context.xml" />
 
   <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
     <property name="driverClassName"><value>${db.driver}</value></property>
@@ -173,7 +170,7 @@
   <import resource="classpath*:static-values-definition.xml" />
 
   <!-- spring plugin definitions -->
-  <import resource="classpath*:META-INF/**/waspPlugin*.xml" />
+  <import resource="classpath*:META-INF/spring/plugin-context-web.xml" />
 
   <!-- load into db tables--> 
   <import resource="classpath*:wasp/**/*UiFieldLoad.xml" />
@@ -183,6 +180,7 @@
   <import resource="classpath*:wasp/**/*AdaptorsetLoad.xml" />
   <import resource="classpath*:wasp/**/*TaskLoad.xml" />
   <import resource="classpath*:wasp/**/*WorkflowLoad.xml" />
+  <import resource="classpath*:wasp/**/*waspPlugin.xml" />
 
 
   <!-- extracts plugin's precompiled jsp files --> 
