@@ -56,8 +56,8 @@
       			Submitter: <c:out value="${job.getUser().getNameFstLst()}" /><br />
       			PI: <c:out value="${job.getLab().getUser().getNameFstLst()}" /><br />
       			<c:set var="extraJobDetailsMap" value="${jobExtraJobDetailsMap.get(job)}" />
-      			<c:forEach items="${extraJobDetailsMap}" var="detail">
-      				<c:out value="${detail.getKey()}" />: <c:out value="${detail.getValue()}" /><br />
+      			<c:forEach items="${extraJobDetailsMap.keySet()}" var="detailKey">
+      				<c:out value="${detailKey}" />: <c:out value="${extraJobDetailsMap.get(detailKey)}" /><br />
       			</c:forEach>      			
     			Workflow: <c:out value="${job.getWorkflow().getName()}" /><br />      			
       			<c:set var="submittedSamplesList" value="${jobSubmittedSamplesMap.get(job)}" />
