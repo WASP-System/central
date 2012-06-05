@@ -22,7 +22,7 @@
 	</tr>
 	<c:choose>
 		<c:when test="${empty sampleDraftList }">
-			<tr><td class="DataTD value-centered white-background" colspan="7"><fmt:message key="jobDraft.no_draft_samples.label" /></td></tr>
+			<tr><td class="DataTD value-centered td-even-number" colspan="7"><fmt:message key="jobDraft.no_draft_samples.label" /></td></tr>
 		</c:when>
 		<c:otherwise>
 			<c:forEach items="${sampleDraftList}" var="sampleDraft" varStatus="status">
@@ -40,7 +40,7 @@
 						</c:choose>
 					</td>
 					<!-- TODO: re-implement lines below when functionality added
-		  			<td class="DataTD value-centered <c:if test="${status.count % 2 == 0}"> white-background</c:if>">
+		  			<td class="DataTD value-centered <c:if test="${status.count % 2 == 0}"> td-even-number</c:if>">
 					<c:if test="${ not empty sampleDraft.getFile()}">
 						<a href="/wasp/file/downloadFile.do?id=<c:out value="${sampleDraft.getFile().getFileId()}" />">${sampleDraft.getFile().getFileName()}</a>
 					</c:if>
@@ -49,7 +49,7 @@
 					</c:if>
 					&nbsp;</td>
 					-->
-					<td class="DataTD value-centered <c:if test="${status.count % 2 == 0}"> white-background</c:if>">
+					<td class="DataTD value-centered <c:if test="${status.count % 2 == 0}"> td-even-number</c:if>">
 						<a  href="/wasp/jobsubmit/samples/clone/<c:out value="${ jobDraft.getJobDraftId() }"/>/<c:out value="${ sampleDraft.getSampleDraftId() }"/>.do"><fmt:message key="jobDraft.sample_clone.label"/></a>
 						<a  href="/wasp/jobsubmit/samples/view/<c:out value="${ jobDraft.getJobDraftId() }"/>/<c:out value="${ sampleDraft.getSampleDraftId() }"/>.do"> | <fmt:message key="jobDraft.sample_view.label"/></a>
 						<a  href="javascript:verifyRemove('/wasp/jobsubmit/samples/remove/<c:out value="${ jobDraft.getJobDraftId() }"/>/<c:out value="${ sampleDraft.getSampleDraftId() }"/>.do')"> | <fmt:message key="jobDraft.sample_remove.label"/></a>

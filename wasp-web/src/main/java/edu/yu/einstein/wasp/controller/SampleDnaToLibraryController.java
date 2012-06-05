@@ -527,7 +527,7 @@ public class SampleDnaToLibraryController extends WaspController {
 					for (Sample library: sampleService.getLibrariesOnCell(cell)){
 						Adaptor adaptor = sampleService.getLibraryAdaptor(library);
 						if(adaptor==null){
-							logger.error("Expected and adaptor but found none in library id="+library.getSampleId().toString());
+							logger.error("Expected an adaptor but found none in library id="+library.getSampleId().toString());
 						}
 						libraryAdaptorMap.put(library, adaptor);
 					}
@@ -872,8 +872,8 @@ public class SampleDnaToLibraryController extends WaspController {
 		}
 		Sample modelLibrary = new Sample();
 		modelLibrary.setSampleSubtype(librarySampleSubtypes.get(0)); // should be one
+		modelLibrary.setParent(libraryIn.getParent());
 		modelLibrary.setSampleId(libraryIn.getSampleId());
-		modelLibrary.setSampleTypeId(libraryIn.getSampleTypeId());
 		modelLibrary.setSampleType(sampleTypeDao.getSampleTypeBySampleTypeId(libraryIn.getSampleTypeId()));
 		modelLibrary.setName(libraryIn.getName());
 		modelLibrary.setSampleMeta(libraryIn.getSampleMeta());
