@@ -49,6 +49,7 @@
   <bean id="chipSeqDnaSampleSubtypeResource" class="edu.yu.einstein.wasp.load.SampleSubtypeLoadService">
   	<property name="name" value="ChIP-seq DNA" />
     <property name="area" value="chipseqDnaSample" />
+    <property name="domain" value="#{chipSeqPluginDomain}" />
     <property name="sampleType" value="#{waspSampleType['dna']}" />
     <property name="uiFieldGroupsFromWrapper">
     	<list>
@@ -74,6 +75,7 @@
   	<constructor-arg ref="chipSeqDnaSampleSubtypeResource" />
     <property name="name" value="ChIP-seq Library" />
     <property name="area" value="chipseqLibrarySample" />
+    <property name="domain" value="#{chipSeqPluginDomain}" />
     <property name="sampleType" value="#{waspSampleType['library']}" />
     <property name="applicableRoles" value="lu" />
     <property name="uiFieldGroupsFromWrapper">
@@ -89,6 +91,7 @@
   	<constructor-arg ref="chipSeqDnaSampleSubtypeResource" />
     <property name="name" value="ChIP-seq Facility Library" />
     <property name="area" value="chipseqFacilityLibrarySample" />
+    <property name="domain" value="#{chipSeqPluginDomain}" />
     <property name="sampleType" value="#{waspSampleType['library']}" />
     <property name="applicableRoles" value="ft" />
     <property name="uiFieldGroupsFromWrapper">
