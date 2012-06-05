@@ -29,11 +29,11 @@
 			<c:set var="isExistingSample" value="0" />
 			<c:if test="${not empty sampleDraft.getSourceSampleId()}"><c:set var="isExistingSample" value="1" /></c:if>
 				<tr>
-					<td class="DataTD value-centered <c:if test="${status.count % 2 == 0}"> white-background</c:if>">${status.count}</td>
-					<td class="DataTD value-centered <c:if test="${status.count % 2 == 0}"> white-background</c:if>">${sampleDraft.getName()}</td>
-					<td class="DataTD value-centered <c:if test="${status.count % 2 == 0}"> white-background</c:if>">${sampleDraft.getSampleType().getName()}</td>
-					<td class="DataTD value-centered <c:if test="${status.count % 2 == 0}"> white-background</c:if>">${sampleDraft.getSampleSubtype().getName()}</td>
-					<td class="DataTD value-centered <c:if test="${status.count % 2 == 0}"> white-background</c:if>">
+					<td class="DataTD value-centered <c:if test="${status.count % 2 == 0}"> td-even-number</c:if>">${status.count}</td>
+					<td class="DataTD value-centered <c:if test="${status.count % 2 == 0}"> td-even-number</c:if>">${sampleDraft.getName()}</td>
+					<td class="DataTD value-centered <c:if test="${status.count % 2 == 0}"> td-even-number</c:if>">${sampleDraft.getSampleType().getName()}</td>
+					<td class="DataTD value-centered <c:if test="${status.count % 2 == 0}"> td-even-number</c:if>">${sampleDraft.getSampleSubtype().getName()}</td>
+					<td class="DataTD value-centered <c:if test="${status.count % 2 == 0}"> td-even-number</c:if>">
 						<c:choose>
 							<c:when test="${isExistingSample == 1}">Existing</c:when>
 							<c:otherwise>New</c:otherwise>

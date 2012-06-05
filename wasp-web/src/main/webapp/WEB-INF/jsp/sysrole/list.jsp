@@ -9,9 +9,9 @@
 
 <table class="EditTable ui-widget ui-widget-content">
 <tr class="FormData">
-  	<td class="CaptionTD label-centered">Name (Login Name)</td>
-  	<td class="CaptionTD label-centered">Role</td>
-  	<td class="CaptionTD label-centered">Action</td>
+  	<th class="top-heading">Name (Login Name)</td>
+  	<th class="top-heading">Role</td>
+  	<th class="top-heading">Action</td>
 </tr>
 
   <c:forEach items="${userRoleMap}" var="rs">

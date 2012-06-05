@@ -85,6 +85,7 @@ td {
 th {
 	padding: 2px 10px 0 10px;
 	font-weight: bold;
+	background: #FAF2D6;
 }
 
 label, td.label, th.label {font-weight: bold;}
@@ -386,14 +387,13 @@ TABLE.data TD.label	{
 	}
 
 
-TD.top-heading	{
+TD.top-heading, TH.top-heading	{
 	text-align: center;
 	border-bottom: 1px solid #000;
-	padding-left:10px;
-	padding-right:10px;
+	padding: 5px 10px 5px 10px;
 }
 
-TD.white-background {
+.td-even-number {
 	background-color: #FFF;
 }
 

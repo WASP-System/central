@@ -12,7 +12,7 @@
 
 <c:set var="currentJobId" value="-1" scope="page" />
 <table class="EditTable ui-widget ui-widget-content">
-<tr class="FormData"><th class="label-centered" style="font-weight:bold; background-color:#FAF2D6"><fmt:message key="jobListCreateLibrary.jobId.label" /></th><th class="label-centered" style="font-weight:bold; background-color:#FAF2D6"><fmt:message key="jobListCreateLibrary.jobName.label" /></th><th class="label-centered" style="font-weight:bold; background-color:#FAF2D6"><fmt:message key="jobListCreateLibrary.submitter.label" /></th><th class="label-centered" style="font-weight:bold; background-color:#FAF2D6"><fmt:message key="jobListCreateLibrary.pi.label" /></th></tr>
+<tr class="FormData"><th class="top-heading"><fmt:message key="jobListCreateLibrary.jobId.label" /></th><th class="top-heading"><fmt:message key="jobListCreateLibrary.jobName.label" /></th><th class="top-heading"><fmt:message key="jobListCreateLibrary.submitter.label" /></th><th class="top-heading" ><fmt:message key="jobListCreateLibrary.pi.label" /></th></tr>
 
 <c:forEach items="${jobList}" var="job">
 <%-- 	
