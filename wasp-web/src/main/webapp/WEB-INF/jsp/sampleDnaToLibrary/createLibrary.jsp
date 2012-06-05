@@ -3,26 +3,7 @@
 <title><fmt:message key="pageTitle.sampleDnaToLibrary/createLibrary.label"/></title>
 <h1><fmt:message key="pageTitle.sampleDnaToLibrary/createLibrary.label"/></h1>
 <c:import url="/WEB-INF/jsp/sampleDnaToLibrary/jobdetail_for_import.jsp" />
-<br /> 
 
-<table>
-<c:if test="${otherAdaptorsets != null && otherAdaptorsets.size() > 0}">
-	<tr class="FormData"><td colspan="2">
-		<form method="GET" action="<c:url value="/sampleDnaToLibrary/createLibraryFromMacro.do" />">
-	  		<input type='hidden' name='jobId' value='<c:out value="${job.jobId}" />'/>
-	  		<input type='hidden' name='macromolSampleId' value='<c:out value="${macromoleculeSample.sampleId}" />'/>
-	  		
-				<select class="FormElement ui-widget-content ui-corner-all" name="adaptorsetId" size="1" onchange="if(this.options[selectedIndex].value != 0){this.parentNode.submit();}">
-				<option value="0"><fmt:message key="createLibrary.selectNewAdaptorSet.label" />
-				<c:forEach items="${otherAdaptorsets}" var="adaptorset">
-					<option value="<c:out value="${adaptorset.adaptorsetId}" />" ><c:out value="${adaptorset.name}" /> 
-				</c:forEach>
-				</select>
-			
-		</form>
-	</td></tr>
-</c:if>
-</table>
 <br /> 
 <form:form  cssClass="FormGrid" commandName="sample">
  <form:hidden path='sampleTypeId' />

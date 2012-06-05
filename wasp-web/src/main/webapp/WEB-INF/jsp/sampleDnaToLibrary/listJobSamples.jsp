@@ -6,7 +6,7 @@
 <br />
 
 <div>
-<input  class="fm-button" type="button" id="requested_coverage_show_hide_button" value="<fmt:message key="listJobSamples.showUserRequestedCoverage.label" />"  />
+<input  class="button" type="button" id="requested_coverage_show_hide_button" value="<fmt:message key="listJobSamples.showUserRequestedCoverage.label" />"  />
 </div>
 <div id="user_requested_coverage_data" style="display:none">
 
@@ -64,19 +64,11 @@
 				</sec:authorize><br />
 				
 				<sec:authorize access="hasRole('su') or hasRole('ft')">
-			<%-- <c:if test='${receivedStatusMap.get(userSubmittedMacromolecule)=="RECEIVED"}'> --%>
-			<c:if test='${createLibraryStatusMap.get(userSubmittedMacromolecule)=="CREATED"}'>  
-	  				<form method="GET" action="<c:url value="/sampleDnaToLibrary/createLibraryFromMacro.do" />">
-	  					<input type='hidden' name='jobId' value='<c:out value="${job.jobId}" />'/>
-	  					<input type='hidden' name='macromolSampleId' value='<c:out value="${userSubmittedMacromolecule.getSampleId()}" />'/>
-	  					<select class="FormElement ui-widget-content ui-corner-all" name="adaptorsetId" size="1" onchange="if(this.options[selectedIndex].value != 0){this.parentNode.submit();}">
-							<option value="0"><fmt:message key="listJobSamples.selectAdaptorSetForNewLibrary.label" />
-							<c:forEach items="${adaptorsets}" var="adaptorset">
-								<option value="<c:out value="${adaptorset.adaptorsetId}" />" ><c:out value="${adaptorset.name}" /> 
-							</c:forEach>
-						</select>
-					</form>
-	 	 	</c:if> 
+				<c:if test='${receivedStatusMap.get(userSubmittedMacromolecule)=="RECEIVED"}'>
+					<c:if test='${createLibraryStatusMap.get(userSubmittedMacromolecule)=="CREATED"}'>
+						<br /><a href="<c:url value="/sampleDnaToLibrary/createLibraryFromMacro/${job.jobId}/${userSubmittedMacromolecule.sampleId}.do"/>" class="button">Create Library</a><br /><br />
+			 	 	</c:if>
+		 	 	</c:if>
 				</sec:authorize>				
 			</td>
 			<c:choose>
@@ -100,9 +92,9 @@
 							<c:set var="idCounter" value="${idCounter + 1}" scope="page" />
  							<sec:authorize access="hasRole('su') or hasRole('ft')">
 							<div id="showButton_<c:out value="${idCounter}" />" >
-						<c:if test='${assignLibraryToPlatformUnitStatusMap.get(userSubmittedMacromolecule)=="CREATED"}'> 
-				 				<input class="fm-button" type="button" value="<fmt:message key="listJobSamples.addLibraryToPlatformUnit.label" />" onclick='toggleDisplayOfAddLibraryForm("show", <c:out value="${idCounter}" />)' />				
-						</c:if> 
+						 	<c:if test='${assignLibraryToPlatformUnitStatusMap.get(userSubmittedMacromolecule)=="CREATED"}'>
+				 				<input class="button" type="button" value="<fmt:message key="listJobSamples.addLibraryToPlatformUnit.label" />" onclick='toggleDisplayOfAddLibraryForm("show", <c:out value="${idCounter}" />)' />				
+							</c:if>
 							</div>
 							</sec:authorize>
 							<div id="addLibraryForm_<c:out value="${idCounter}" />" style="display:none">
@@ -144,7 +136,7 @@
 							</c:forEach>
 							</select>
 								<br />&nbsp;<fmt:message key="listJobSamples.finalConcentrationPM.label" />: <input type='text' name='libConcInLanePicoM' id="libConcInLanePicoM_<c:out value="${idCounter}" />" size='3' maxlength='5'>
-								<br />&nbsp;<input type='submit' value='<fmt:message key="listJobSamples.submit.label" />'/>&nbsp;<input class="fm-button" type="button" value="<fmt:message key="listJobSamples.cancel.label" />" onclick='toggleDisplayOfAddLibraryForm("cancel", <c:out value="${idCounter}" />)' />
+								<br />&nbsp;<input type='submit' value='<fmt:message key="listJobSamples.submit.label" />'/>&nbsp;<input class="button" type="button" value="<fmt:message key="listJobSamples.cancel.label" />" onclick='toggleDisplayOfAddLibraryForm("cancel", <c:out value="${idCounter}" />)' />
 							</form>
 							</td></tr>
 							</table>
@@ -181,10 +173,7 @@
 					<c:set var="rowCounter" value="${rowCounter + 1}" scope="page" />
 					</c:forEach>
 				</c:when>
-			</c:choose>					
-	<c:if test="${numberLibrariesForThisMacromolecule == 0}">
-		</tr>
-	</c:if>	
+			</c:choose>				
 	</c:forEach>
 </c:if>
 
@@ -203,12 +192,12 @@
 			<fmt:message key="listJobSamples.adaptor.label" />: <c:out value="${adaptor.getAdaptorset().getName()}"/><br />
 			<fmt:message key="listJobSamples.index.label" /> <c:out value="${adaptor.getBarcodenumber()}"/> [<c:out value="${adaptor.getBarcodesequence()}"/>]<br />
 			<fmt:message key="listJobSamples.arrivalStatus.label" />: <c:out value="${receivedStatusMap.get(userSubmittedLibrary)}"/><sec:authorize access="hasRole('su') or hasRole('ft')">&nbsp;<%--<a href="<c:url value="/task/updatesamplereceive/${job.jobId}.do" />">[update]</a>--%><c:if test='${receiveSampleStatusMap.get(userSubmittedLibrary)=="CREATED"}'><a href="<c:url value="/task/samplereceive/list.do" />">[<fmt:message key="listJobSamples.logSample.label" />]</a></c:if></sec:authorize><br />
-			<%-- <c:if test='${receivedStatusMap.get(userSubmittedLibrary)=="RECEIVED"}'> --%>
+			<c:if test='${receivedStatusMap.get(userSubmittedLibrary)=="RECEIVED"}'>
 				<c:set var="idCounter" value="${idCounter + 1}" scope="page" />
  				<sec:authorize access="hasRole('su') or hasRole('ft')">
 				<div id="showButton_<c:out value="${idCounter}" />" >
 			<c:if test='${assignLibraryToPlatformUnitStatusMap.get(userSubmittedLibrary)=="CREATED"}'> 
-					<input class="fm-button" type="button" value="<fmt:message key="listJobSamples.addLibraryToPlatformUnit.label" />" onclick='toggleDisplayOfAddLibraryForm("show", <c:out value="${idCounter}" />)' />				
+					<input class="button" type="button" value="<fmt:message key="listJobSamples.addLibraryToPlatformUnit.label" />" onclick='toggleDisplayOfAddLibraryForm("show", <c:out value="${idCounter}" />)' />				
 			</c:if> 
 				</div>
 				</sec:authorize>
@@ -251,12 +240,12 @@
 							</c:forEach>
 						</select>
 						<br />&nbsp;<fmt:message key="listJobSamples.finalConcentrationPM.label" />: <input type='text' name='libConcInLanePicoM' id="libConcInLanePicoM_<c:out value="${idCounter}" />" size='3' maxlength='5'>
-						<br />&nbsp;<input type='submit' value='<fmt:message key="listJobSamples.submit.label" />'/>&nbsp;<input class="fm-button" type="button" value="<fmt:message key="listJobSamples.cancel.label" />" onclick='toggleDisplayOfAddLibraryForm("cancel", <c:out value="${idCounter}" />)' />
+						<br />&nbsp;<input type='submit' value='<fmt:message key="listJobSamples.submit.label" />'/>&nbsp;<input class="button" type="button" value="<fmt:message key="listJobSamples.cancel.label" />" onclick='toggleDisplayOfAddLibraryForm("cancel", <c:out value="${idCounter}" />)' />
 					</form>
 					</td></tr>
 				</table>
 				</div>
-			<%-- </c:if> --%>
+			</c:if> 
 		</td>
 		<td>
 		<c:set var="sampleSourceList" value="${userSubmittedLibrary.getSourceSampleId()}" scope="page" />

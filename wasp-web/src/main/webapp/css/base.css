@@ -241,7 +241,7 @@ td.submit A,
 	}
 
 input[type="submit"]:hover,
-a.button:hover, 
+.button:hover, 
 div.submit a:hover,
 td.submit a:hover  {
 	color: #aa0000;

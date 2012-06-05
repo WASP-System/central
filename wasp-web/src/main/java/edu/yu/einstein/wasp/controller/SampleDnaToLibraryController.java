@@ -25,13 +25,13 @@ import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
 
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.controller.util.SampleWrapperWebapp;
 import edu.yu.einstein.wasp.dao.AdaptorDao;
 import edu.yu.einstein.wasp.dao.AdaptorsetDao;
+import edu.yu.einstein.wasp.dao.AdaptorsetResourceCategoryDao;
 import edu.yu.einstein.wasp.dao.JobCellSelectionDao;
 import edu.yu.einstein.wasp.dao.JobDao;
 import edu.yu.einstein.wasp.dao.JobSampleDao;
@@ -46,6 +46,7 @@ import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Adaptorset;
+import edu.yu.einstein.wasp.model.AdaptorsetResourceCategory;
 import edu.yu.einstein.wasp.model.File;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobCellSelection;
@@ -53,7 +54,6 @@ import edu.yu.einstein.wasp.model.JobFile;
 import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
 import edu.yu.einstein.wasp.model.JobSample;
-import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleJobCellSelection;
 import edu.yu.einstein.wasp.model.SampleMeta;
@@ -92,6 +92,8 @@ public class SampleDnaToLibraryController extends WaspController {
   @Autowired
   private AdaptorsetDao adaptorsetDao;
   @Autowired
+  private AdaptorsetResourceCategoryDao adaptorsetResourceCategoryDao;
+  @Autowired
   private SampleTypeDao sampleTypeDao;
   @Autowired
   private SampleSubtypeDao sampleSubtypeDao;
@@ -118,19 +120,6 @@ public class SampleDnaToLibraryController extends WaspController {
 
   public String nextPage(Sample sample) {
      String pageFlow = this.defaultPageFlow;
-/*
-     try {
-       List<WorkflowMeta> wfmList = sample.getWorkflow().getWorkflowMeta();
-       for (WorkflowMeta wfm : wfmList) {
-         if (wfm.getK().equals("workflow.submitpageflow")) {
-           pageFlow = wfm.getV();
-           break;
-         }
-       }
-     } catch (Exception e) {
-     }
-*/
-
 
     String context = request.getContextPath();
     String uri = request.getRequestURI();
@@ -279,138 +268,7 @@ public class SampleDnaToLibraryController extends WaspController {
   @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('jv-' + #jobId)")
   public String listJobSamples(@PathVariable("jobId") Integer jobId, ModelMap m) {
     
-	  //experimental code 3 lines:
-	  //List<Sample> list1 = new ArrayList();
-	  //List<Sample> list2 = new ArrayList();
-	  ///List<ArrayList<Sample>> darray2 = new ArrayList();
-	  
-//	  if(jobId == null ){
-//		  waspErrorMessage("sampleDetail.jobParameter.error");
-//		  return "redirect:/dashboard.do";		  
-//	  }
-//	  Job job = jobDao.getJobByJobId(jobId);
-//	  if(job==null || job.getJobId()==null){
-//		  waspErrorMessage("sampleDetail.jobNotFound.error");
-//		  return "redirect:/dashboard.do";
-//	  }
-//	  m.addAttribute("job", job);
-
-//	  Map<String, String> extraJobDetailsMap = getExtraJobDetails(job);
-//	  m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);
-
-	  
-//	  List<Adaptor> allAdaptors = adaptorDao.findAll();
-//	  Map adaptorList = new HashMap();
-//	  for(Adaptor adaptor : allAdaptors){
-//		  adaptorList.put(adaptor.getAdaptorId().toString(), adaptor);
-//	  }
-//	  m.addAttribute("adaptors", adaptorList);
-	  
-//	  List<Adaptorset> adaptorsetList = adaptorsetDao.findAll();
-//	  m.addAttribute("adaptorsets", adaptorsetList);
-  
-	  //submittedSamples include all samples (both macromolecules and libraries) that were submitted by user
-	  //and it DOES NOT include facility-generated libraries
-/*	  List<Sample> submittedSamples = jobService.getSubmittedSamples(job);
-	  //order by sample name
-	  sampleService.sortSamplesBySampleName(submittedSamples);
-  	  
-	  List<String> receivedList = new ArrayList<String>();
-	  List<Integer> librariesPerSampleList = new ArrayList<Integer>();//will be used for rowspan on jsp
-	  for(Sample sample : submittedSamples){
-		  
-		  String sampleReceived = sampleService.getReceiveSampleStatus(sample);
-		  receivedList.add(sampleService.convertReceiveSampleStatusForWeb(sampleReceived));
-		  
-		  int numberLibrariesForThisSample = 0;
-		  if(sample.getSampleType().getIName().equals("rna") || sample.getSampleType().getIName().equals("dna")){
-			  List<SampleSource> librariesForThisSample = sample.getSourceSampleId();//how many facility-generated libraries for this macromolecule sample
-			  numberLibrariesForThisSample = librariesForThisSample.size();
-		  }
-		  else if(sample.getSampleType().getIName().equals("library")){
-			  numberLibrariesForThisSample++;//must be one
-		  }		  
-		  librariesPerSampleList.add(new Integer(numberLibrariesForThisSample));
-	  }
-	 
-*/	  
-/*	  
-	  //3-15-12 new stuff to fill up the flowcells compatible with this job
-	  // pickup FlowCells limited by states and filter to get only those compatible with the selected machine resourceCategoryId
-	  Map stateMap = new HashMap(); 
-		Task task = taskDao.getTaskByIName("assignLibraryToPlatformUnit");
-		if(task == null || task.getTaskId() == null){
-			waspErrorMessage("platformunit.taskNotFound.error");
-			return "redirect:/dashboard.do";
-		}
-		stateMap.put("taskId", task.getTaskId()); 	
-		stateMap.put("status", "CREATED"); 
-		List<State> stateList = stateDao.findByMap(stateMap);
-		
-		List<Sample> flowCells = new ArrayList<Sample>();
-		
-		//Map stsrcMap = new HashMap();//get the ids for the types of flow cells that go on the selected machine
-		//stsrcMap.put("resourcecategoryId", resourceCategory.getResourceCategoryId()); 
-		//stsrcMap.put("resourcecategoryId", job.getJ); 
-		//List<SampleSubtypeResourceCategory> stsrcList = sampleSubtypeResourceCategoryService.findByMap(stsrcMap);
-		for(State s : stateList){
-			List<Statesample> ssList = s.getStatesample();
-			for(Statesample ss : ssList){
-				if(ss.getSample().getSampleType().getIName().equals("platformunit")){
-					for(SampleSubtypeResourceCategory stsrc: ss.getSample().getSampleSubtype().getSampleSubtypeResourceCategory()){
-						for(JobResourcecategory jrc : job.getJobResourcecategory()){
-							if(stsrc.getResourcecategoryId().intValue() == jrc.getResourcecategoryId().intValue()){
-								flowCells.add(ss.getSample());
-							}							
-						}
-					}
-				}
-			}
-		}
-	*/	
-/*		Map jobCellFilter = new HashMap();
-		jobCellFilter.put("jobId", job.getJobId().intValue());
-		List<String> orderByList = new ArrayList<String>();
-		orderByList.add("cellindex");
-		List<JobCellSelection> jobCellList = jobCellSelectionDao.findByMapDistinctOrderBy(jobCellFilter, null, orderByList, "ASC");
-	  
-		//attempt at getting the requested coverage in a better format:
-		int totalNumberCellsRequested = jobCellList.size();
-		Map<Sample, String> coverageMap = new LinkedHashMap<Sample, String>();
-		for(Sample sample : submittedSamples){
-			StringBuffer stringBuffer = new StringBuffer("");
-			for(int i = 1; i <= totalNumberCellsRequested; i++){
-				boolean found = false;
-				for(JobCellSelection jobCellSelection : jobCellList){
-					List<SampleJobCellSelection> sampleCellList = jobCellSelection.getSampleCell();
-					for(SampleJobCellSelection sampleJobCellSelection : sampleCellList){
-						if(sampleJobCellSelection.getSampleId().intValue() == sample.getSampleId().intValue()){
-							if(jobCellSelection.getCellindex().intValue() == i){
-								//System.out.print(i + " ");
-								stringBuffer.append("1");
-								found = true;
-							}
-						}
-					}
-				}
-				if(found == false){
-					stringBuffer.append("0");
-				}
-			}
-			coverageMap.put(sample, new String(stringBuffer));
-  		}	
-		
-		m.addAttribute("coverageMap", coverageMap);
-		m.addAttribute("totalNumberCellsRequested", totalNumberCellsRequested);
-*/		
-//		m.addAttribute("jobCellList", jobCellList);
-//		m.addAttribute("flowCells", flowCells);
-//		m.addAttribute("samplesSubmitted", submittedSamples);
-//		m.addAttribute("received", receivedList);
-//		m.addAttribute("librariespersample", librariesPerSampleList);
-
-		///////////
-		
+	
 	  if(jobId == null ){
 		  waspErrorMessage("sampleDetail.jobParameter.error");
 		  return "redirect:/dashboard.do";		  
@@ -575,47 +433,7 @@ public class SampleDnaToLibraryController extends WaspController {
 		m.addAttribute("coverageMap", coverageMap);
 		m.addAttribute("totalNumberCellsRequested", totalNumberCellsRequested);
 		
-		/*
-		//sanity check
-		System.out.println("1. User-Submitted Macromolecules");
-		for(Sample macromoleculeSubmittedSample : macromoleculeSubmittedSamplesList){
-			System.out.println("Macromolecule Name: " + macromoleculeSubmittedSample.getName() + "[" + macromoleculeSubmittedSample.getSampleType().getName() +"]");
-			System.out.println("--Macromolecule Species: " + speciesMap.get(macromoleculeSubmittedSample));
-			System.out.println("--Received Status: " + receivedStatusMap.get(macromoleculeSubmittedSample));
-			List<Sample> facilityLibrariesForThisMacromoleculeList = facilityLibraryMap.get(macromoleculeSubmittedSample);
-			System.out.println("--Libraries Made From This Macromolecule: " + facilityLibrariesForThisMacromoleculeList.size());
-			for(Sample facilityLibrary : facilityLibrariesForThisMacromoleculeList){
-				System.out.println("----Library: " + facilityLibrary.getName() + "[" + facilityLibrary.getSampleType().getName() +"]");
-				Adaptor adaptor = libraryAdaptorMap.get(facilityLibrary);
-				if(adaptor != null){
-					System.out.println("------Adaptor: " + adaptor.getAdaptorset().getName() + " Index " + adaptor.getBarcodenumber().intValue() + " [" + adaptor.getBarcodesequence() + "]");
-				}
-				else{
-					System.out.println("------Adaptor: Not Found");
-				}
-			}
-		}
-		System.out.println(" ");
-		System.out.println("2. User-Submitted Libraries");
-		for(Sample librarySubmittedSample : librarySubmittedSamplesList){
-			System.out.println("Library Name: " + librarySubmittedSample.getName() + "[" + librarySubmittedSample.getSampleType().getName() +"]");
-			System.out.println("--Macromolecule Species: " + speciesMap.get(librarySubmittedSample));
-			System.out.println("--Received Status: " + receivedStatusMap.get(librarySubmittedSample));
-			Adaptor adaptor = libraryAdaptorMap.get(librarySubmittedSample);
-			if(adaptor != null){
-				System.out.println("----Adaptor: " + adaptor.getAdaptorset().getName() + " Index " + adaptor.getBarcodenumber().intValue() + " [" + adaptor.getBarcodesequence() + "]");
-			}
-			else{
-				System.out.println("----Adaptor: Not Found");
-			}
-		}
-		//for(Sample sample : availableFlowCells){
-		//	System.out.println("Available FlowCell: " + sample.getName());
-		//}
-		for(Sample sample : availableAndCompatibleFlowCells){
-			System.out.println("AvailableCompatible FlowCell: " + sample.getName());
-		}
-		*/
+		
 		
 		// get files associated with this job
 		List<File> files = new ArrayList<File>();
@@ -636,22 +454,51 @@ public class SampleDnaToLibraryController extends WaspController {
 		
 		return "sampleDnaToLibrary/listJobSamples";
   }
+  
+  /**
+   * get adaptorsets and adaptors for populating model. If a selected adaptor is found in the provided SampleDraftMeta
+   * it is used to find appropriate adaptors
+   * @param jobDraft
+   * @param sampleDraftMeta
+   * @param m
+   */
+	private void prepareAdaptorsetsAndAdaptors(Job job, List<SampleMeta> sampleMeta, ModelMap m){
+		List<Adaptorset> adaptorsets = new ArrayList<Adaptorset>();
+		for (JobResourcecategory jrc: job.getJobResourcecategory()){
+			Map<String, Integer> adaptorsetRCQuery = new HashMap<String, Integer>();
+			adaptorsetRCQuery.put("resourcecategoryId", jrc.getResourcecategoryId());
+			for (AdaptorsetResourceCategory asrc: adaptorsetResourceCategoryDao.findByMap(adaptorsetRCQuery))
+				adaptorsets.add(asrc.getAdaptorset());
+		}
+		m.addAttribute("adaptorsets", adaptorsets); // required for adaptorsets metadata control element (select:${adaptorsets}:adaptorsetId:name)
+		
+		List<Adaptor> adaptors = new ArrayList<Adaptor>();
+		Adaptorset selectedAdaptorset = null;
+		try{	
+  			selectedAdaptorset = adaptorsetDao.getAdaptorsetByAdaptorsetId(Integer.valueOf( MetaHelper.getMetaValue("genericLibrary", "adaptorset", sampleMeta)) );
+  		} catch(MetadataException e){
+  			logger.debug("Cannot get metadata genericLibrary.adaptorset. Presumably not be defined: " + e.getMessage());
+  		} catch(NumberFormatException e){
+  			logger.warn("Cannot convert to numeric value for metadata " + e.getMessage());
+  		}
+		if (selectedAdaptorset != null){
+			adaptors = selectedAdaptorset.getAdaptor();
+		} else if (adaptorsets.size() == 1){
+			adaptors = adaptorsets.get(0).getAdaptor();
+		}
+		m.addAttribute("adaptors", adaptors); // required for adaptors metadata control element (select:${adaptors}:adaptorId:barcodenumber)
+	}
+	
 
-  @RequestMapping(value = "/createLibraryFromMacro", method = RequestMethod.GET)//here, macromolSampleId represents a macromolecule (genomic DNA or RNA) submitted to facility for conversion to a library
+  @RequestMapping(value = "/createLibraryFromMacro/{jobId}/{macromolSampleId}", method = RequestMethod.GET)//here, macromolSampleId represents a macromolecule (genomic DNA or RNA) submitted to facility for conversion to a library
   @PreAuthorize("hasRole('su') or hasRole('ft')")
-  public String createLibrary(@RequestParam("macromolSampleId") Integer macromolSampleId,
-		  @RequestParam("adaptorsetId") Integer adaptorsetId,//this is the selectedAdaptorSet's Id
-		  @RequestParam("jobId") Integer jobId,
+  public String createLibrary(@PathVariable("macromolSampleId") Integer macromolSampleId,
+		  @PathVariable("jobId") Integer jobId,
 		  ModelMap m) {
 
 	  String returnString = validateJobIdAndSampleId(jobId, macromolSampleId, null);
 	  if (returnString != null)
 		  return returnString;
-
-	  if (adaptorsetId == null){	//waspErrorMessage("user.updated.error");
-		  waspErrorMessage("sampleDetail.adaptorsetParameter.error");
-		  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
-	  }
 
 	  Job job = jobDao.getJobByJobId(jobId);
 	  Map<String, String> extraJobDetailsMap = jobService.getExtraJobDetails(job);
@@ -662,32 +509,17 @@ public class SampleDnaToLibraryController extends WaspController {
 	  m.put("macromoleculeSample", macromoleculeSample);
 	  m.put("job", job);
 
-
-	  Adaptorset selectedAdaptorset = adaptorsetDao.getAdaptorsetByAdaptorsetId(adaptorsetId);
-	  //List<Adaptorset> adaptorsets = new ArrayList<Adaptorset>();
-	  //adaptorsets.add(selectedAdaptorset);
-	  //m.put("adaptorsets", adaptorsets);  //
-	  m.put("adaptorsets", adaptorsetDao.findAll()); // required for adaptorsets metadata control element (select:${adaptorsets}:adaptorsetId:name)
-
-	  m.put("adaptors", selectedAdaptorset.getAdaptor()); // required for adaptors metadata control element (select:${adaptors}:adaptorId:barcodenumber)
-	  List<Adaptorset> otherAdaptorsets = adaptorsetDao.findAll();//should really filter this by the machine requested
-	  otherAdaptorsets.remove(selectedAdaptorset);//remove this one
-	  m.put("otherAdaptorsets", otherAdaptorsets); 
+	   
 	  String[] roles = {"ft"};
 	  List<SampleSubtype> librarySampleSubtypes = sampleService.getSampleSubtypesForWorkflowByRole(job.getWorkflow().getWorkflowId(), roles, "library");
 	  if(librarySampleSubtypes.isEmpty()){
 		  waspErrorMessage("sampleDetail.sampleSubtypeNotFound.error");
 		  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do"; // no workflowsubtype sample
 	  }
-	  Map<String, MetaAttribute.FormVisibility> visibilityElementMap = new HashMap<String, MetaAttribute.FormVisibility>(); // specify meta elements that are to be made immutable or hidden in here
-	  visibilityElementMap.put("genericLibrary.adaptorset", MetaAttribute.FormVisibility.immutable); // adaptor is a list control but we just want to display its value
 	  SampleSubtype librarySampleSubtype = librarySampleSubtypes.get(0); // should be one
-	  List<SampleMeta> libraryMeta = SampleWrapperWebapp.templateMetaToSubtypeAndSynchronizeWithMaster(librarySampleSubtype, visibilityElementMap);
-	  try {
-		  MetaHelper.setMetaValueByName("genericLibrary", "adaptorset", selectedAdaptorset.getAdaptorsetId().toString(), libraryMeta);
-	  } catch (MetadataException e) {
-		  logger.warn("Cannot set value on 'adaptorset': " + e.getMessage() );
-	  }
+	  List<SampleMeta> libraryMeta = SampleWrapperWebapp.templateMetaToSubtypeAndSynchronizeWithMaster(librarySampleSubtype);
+	  prepareAdaptorsetsAndAdaptors(job, libraryMeta, m);
+	  
 	  Sample library = new Sample();
 	  library.setSampleSubtype(librarySampleSubtype);
 	  library.setSampleType(sampleTypeDao.getSampleTypeByIName("library"));
@@ -699,11 +531,10 @@ public class SampleDnaToLibraryController extends WaspController {
   }
 
 
-  @RequestMapping(value = "/createLibraryFromMacro", method = RequestMethod.POST)//here, macromolSampleId represents a macromolecule (genomic DNA or RNA) submitted to facility for conversion to a library
+  @RequestMapping(value = "/createLibraryFromMacro/{jobId}/{macromolSampleId}", method = RequestMethod.POST)//here, macromolSampleId represents a macromolecule (genomic DNA or RNA) submitted to facility for conversion to a library
   @PreAuthorize("hasRole('su') or hasRole('ft')")
-  public String createLibrary(@RequestParam("macromolSampleId") Integer macromolSampleId,
-		  @RequestParam("adaptorsetId") Integer adaptorsetId,//this is the selectedAdaptorSet's Id
-		  @RequestParam("jobId") Integer jobId, 
+  public String createLibrary(@PathVariable("macromolSampleId") Integer macromolSampleId,
+		  @PathVariable("jobId") Integer jobId, 
 		  @Valid Sample libraryForm, BindingResult result, 
 		  SessionStatus status, 
 		  ModelMap m) {
@@ -730,23 +561,15 @@ public class SampleDnaToLibraryController extends WaspController {
 	  validateSampleNameUnique(libraryForm.getName(), macromolSampleId, jobForThisSample, result);
 
 	  // get validated metadata from 
-	  Map<String, MetaAttribute.FormVisibility> visibilityElementMap = new HashMap<String, MetaAttribute.FormVisibility>(); // specify meta elements that are to be made immutable or hidden in here
-	  visibilityElementMap.put("genericLibrary.adaptorset", MetaAttribute.FormVisibility.immutable); // adaptor is a list control but we just want to display its value
-	  List<SampleMeta> sampleMetaListFromForm = SampleWrapperWebapp.getValidatedMetaFromRequestAndTemplateToSubtype(request, sampleSubtype, result, visibilityElementMap);
+	  List<SampleMeta> sampleMetaListFromForm = SampleWrapperWebapp.getValidatedMetaFromRequestAndTemplateToSubtype(request, sampleSubtype, result);
 
 	  if (result.hasErrors()) {
-		  libraryForm.setSampleMeta(SampleWrapperWebapp.templateMetaToSubtypeAndSynchronizeWithMaster(sampleSubtype, sampleMetaListFromForm, visibilityElementMap));
+		  libraryForm.setSampleMeta(SampleWrapperWebapp.templateMetaToSubtypeAndSynchronizeWithMaster(sampleSubtype, sampleMetaListFromForm));
 		  libraryForm.setSampleSubtype(sampleSubtypeDao.getSampleSubtypeBySampleSubtypeId(libraryForm.getSampleSubtypeId()));
 		  libraryForm.setSampleType(sampleTypeDao.getSampleTypeBySampleTypeId(libraryForm.getSampleTypeId()));
 		  prepareSelectListData(m);//doubt that this is required here; really only needed for meta relating to country or state
 		  waspErrorMessage("sampleDetail.updated.error");
-
-		  Adaptorset selectedAdaptorset = adaptorsetDao.getAdaptorsetByAdaptorsetId(adaptorsetId);
-		  m.put("adaptorsets", adaptorsetDao.findAll()); // required for adaptorsets metadata control element (select:${adaptorsets}:adaptorsetId:name)
-		  m.put("adaptors", selectedAdaptorset.getAdaptor()); // required for adaptors metadata control element (select:${adaptors}:adaptorId:barcodenumber)
-		  List<Adaptorset> otherAdaptorsets = adaptorsetDao.findAll();//should really filter this by the machine requested
-		  otherAdaptorsets.remove(selectedAdaptorset);//remove this one
-		  m.put("otherAdaptorsets", otherAdaptorsets); 
+		  prepareAdaptorsetsAndAdaptors(jobForThisSample, libraryForm.getSampleMeta(), m);
 		  m.put("macromoleculeSample", parentMacromolecule);
 		  m.put("job", jobForThisSample);
 		  m.put("sample", libraryForm); 
@@ -901,11 +724,9 @@ public class SampleDnaToLibraryController extends WaspController {
   		Adaptorset selectedAdaptorset = null;
 		Adaptor adaptor = null;
 		
-		Map<String, MetaAttribute.FormVisibility>  visibilityElementMap = new HashMap<String, MetaAttribute.FormVisibility>(); // specify meta elements that are to be made immutable or hidden in here
-		visibilityElementMap.put("genericLibrary.adaptorset", MetaAttribute.FormVisibility.immutable); // adaptor is a list control but we just want to display its value
 		libraryIn.setSampleMeta(SampleWrapperWebapp.templateMetaToSubtypeAndSynchronizeWithMaster(
 				sampleSubtypeDao.getSampleSubtypeBySampleSubtypeId(libraryIn.getSampleSubtypeId()), 
-				libraryInManaged.getAllSampleMeta(), visibilityElementMap));
+				libraryInManaged.getAllSampleMeta()));
 		try{	
   			adaptor = adaptorDao.getAdaptorByAdaptorId(Integer.valueOf( MetaHelper.getMetaValue("genericLibrary", "adaptor", libraryIn.getSampleMeta())) );
   			selectedAdaptorset = adaptorsetDao.getAdaptorsetByAdaptorsetId(Integer.valueOf( MetaHelper.getMetaValue("genericLibrary", "adaptorset", libraryIn.getSampleMeta())) );
@@ -924,19 +745,12 @@ public class SampleDnaToLibraryController extends WaspController {
 		if (persistentLibraryManaged.getParentWrapper() != null)
 			parentMacromolecule = persistentLibraryManaged.getParentWrapper().getSampleObject();
 		
-		m.addAttribute("adaptorsets", adaptorsetDao.findAll()); // required for adaptorsets metadata control element (select:${adaptorsets}:adaptorsetId:name)
-		m.addAttribute("adaptors", selectedAdaptorset.getAdaptor()); // required for adaptors metadata control element (select:${adaptors}:adaptorId:barcodenumber)
-		List<Adaptorset> otherAdaptorsets = adaptorsetDao.findAll();//should really filter this by the machine requested
-		otherAdaptorsets.remove(selectedAdaptorset);//remove this one
-		if(isRW){
-			m.addAttribute("otherAdaptorsets", otherAdaptorsets);
-		} 
+		prepareAdaptorsetsAndAdaptors(job, libraryIn.getSampleMeta(), m);
 		if (libraryIn.getSampleId() == null)
 			libraryIn.setSampleId(libraryInId);
 		m.addAttribute("job", job);
 		m.addAttribute("extraJobDetailsMap", jobService.getExtraJobDetails(job));
 		m.addAttribute("sample", libraryIn);
-		m.addAttribute("adaptor", adaptor);
 		m.addAttribute("parentMacromolecule", parentMacromolecule);
 		return isRW?"sampleDnaToLibrary/librarydetail_rw":"sampleDnaToLibrary/librarydetail_ro";
   }

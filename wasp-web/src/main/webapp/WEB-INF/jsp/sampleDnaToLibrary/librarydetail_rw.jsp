@@ -4,27 +4,6 @@
 <h1><fmt:message key="pageTitle.sampleDnaToLibrary/librarydetail_rw.label"/></h1>
 <c:import url="/WEB-INF/jsp/sampleDnaToLibrary/jobdetail_for_import.jsp" />
 <br /> 
-<%-- 5/22/12 this likely will not work here, so leave out for the moment
-<table>
-<c:if test="${otherAdaptorsets != null && otherAdaptorsets.size() > 0}">
-	<tr class="FormData"><td colspan="2">
-		<form method="GET" action="<c:url value="/sampleDnaToLibrary/librarydetail_rw/${job.jobId}/${sample.sampleId}.do" />">
-	  		<input type='hidden' name='jobId' value='<c:out value="${job.jobId}" />'/>
-	  		<input type='hidden' name='macromolSampleId' value='<c:out value="${parentMacromolecule.sampleId}" />'/>
-	  		
-				<select class="FormElement ui-widget-content ui-corner-all" name="adaptorsetId" size="1" onchange="if(this.options[selectedIndex].value != 0){this.parentNode.submit();}">
-				<option value="0"><fmt:message key="librarydetail_rw.selectNewAdaptorSet.label" />
-				<c:forEach items="${otherAdaptorsets}" var="adaptorset">
-					<option value="<c:out value="${adaptorset.adaptorsetId}" />" ><c:out value="${adaptorset.name}" /> 
-				</c:forEach>
-				</select>
-			
-		</form>
-	</td></tr>
-</c:if>
-</table>
---%>
-<br /> 
 
 <form:form cssClass="FormGrid" commandName="sample">
 <table class="EditTable ui-widget ui-widget-content">
