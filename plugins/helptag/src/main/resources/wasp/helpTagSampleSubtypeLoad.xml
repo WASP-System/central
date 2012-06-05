@@ -46,6 +46,7 @@
   <bean id="helpTagDnaSampleSubtypeResource" class="edu.yu.einstein.wasp.load.SampleSubtypeLoadService">
   	<property name="name" value="HELP-tag DNA" />
     <property name="area" value="helptagDnaSample" />
+    <property name="domain" value="#{helpTagPluginDomain}" />
     <property name="sampleType" value="#{waspSampleType['dna']}" />
     <property name="uiFieldGroupsFromWrapper">
     	<list>
@@ -101,6 +102,7 @@
   	<!-- <constructor-arg ref="helpTagDnaSampleSubtypeResource" /> -->
     <property name="name" value="HELP-tag Library" />
     <property name="area" value="helptagLibrarySample" />
+    <property name="domain" value="#{helpTagPluginDomain}" />
     <property name="sampleType" value="#{waspSampleType['library']}" />
     <property name="uiFieldGroupsFromWrapper">
     	<list>
@@ -118,6 +120,7 @@
   	<constructor-arg ref="helpTagDnaSampleSubtypeResource" />
     <property name="name" value="HELP-tag Facility Library" />
     <property name="area" value="helptagFacilityLibrarySample" />
+    <property name="domain" value="#{helpTagPluginDomain}" />
     <property name="sampleType" value="#{waspSampleType['library']}" />
     <property name="uiFieldGroupsFromWrapper">
     	<list>

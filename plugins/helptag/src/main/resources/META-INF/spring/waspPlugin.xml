@@ -16,4 +16,8 @@
 
   <context:component-scan base-package="edu.yu.einstein.wasp.helptag" />
 
+  <bean id="helpTagPluginDomain" class="java.lang.String">
+  	<constructor-arg><value>edu.yu.einstein.wasp.helptag</value></constructor-arg>
+  </bean>
+
 </beans>
