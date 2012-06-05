@@ -38,6 +38,9 @@ public abstract class WaspLoadService {
 
 	@Autowired
 	protected UiFieldDao uiFieldDao;
+	
+	protected String domain;
+	public void setDomain(String domain) { this.domain = domain;}
 
 	protected String iname; 
 	public void setIName(String iname) {this.iname = iname; }

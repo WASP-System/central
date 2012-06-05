@@ -27,6 +27,7 @@
     <property name="name" value="BISUL-seq Pipeline" />
     <property name="resourceType" ref="bisulseqPipelineResourceType" />
 	<property name="area" value="#{bisulseqPipelineArea}" />
+	<property name="domain" value="#{bisulseqPluginDomain}" />
     <property name="metaFromWrapper">
        <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
          <property name="area" value="#{bisulseqPipelineArea}" />

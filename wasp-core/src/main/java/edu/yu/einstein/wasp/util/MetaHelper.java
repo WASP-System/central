@@ -38,16 +38,40 @@ public class MetaHelper {
 	/**
 	 * Constructor
 	 * @param area
-	 * @param parentArea
+	 * @param domain
 	 * @param clazz
 	 * @param locale
 	 */
-	public <T extends MetaBase> MetaHelper(String area, String parentArea, Class<T> clazz, Locale locale) {
+	public <T extends MetaBase> MetaHelper(String area, String domain, Class<T> clazz, Locale locale) {
 		this.area = area;
-		this.parentArea = parentArea;
+		this.parentArea = WordUtils.uncapitalize(clazz.getSimpleName().replace("Meta", ""));
+		this.domain = domain;
 		this.clazz = clazz;
 		this.locale=locale;
-		logger.debug("Constructing MetaHelper with parentArea="+parentArea+", area="+area+", class="+clazz.getName()+", locale="+locale.toString());
+		logger.debug("Constructing MetaHelper with parentArea="+parentArea+", area="+area+", domain="+domain+", class="+clazz.getName()+", locale="+locale.toString());
+	}
+	
+		
+	/**
+	 * Construct a meta-helper using the default locale (en_US).  Instances of this class are for access of
+	 * non-internationalized metadata (ie values).  Any access in a display layer should use the
+	 * MetaHelper(area, class, locale) constructor.
+	 * @param area
+	 * @param domain
+	 * @param clazz
+	 */
+	public <T extends MetaBase> MetaHelper(String area, String domain, Class<T> clazz) {
+		this(area, domain, clazz, Locale.US);
+	}
+	
+	/**
+	 * Constructor
+	 * @param area
+	 * @param clazz
+	 * @param locale
+	 */
+	public <T extends MetaBase> MetaHelper(String area, Class<T> clazz, Locale locale) {
+		this(area, "", clazz, locale);
 	}
 	
 	/**
@@ -58,19 +82,8 @@ public class MetaHelper {
 	 * @param clazz
 	 */
 	public <T extends MetaBase> MetaHelper(String area, Class<T> clazz) {
-		this(area, area, clazz, Locale.US);
+		this(area, "", clazz, Locale.US);
 	}
-	
-	/**
-	 * Constructor
-	 * @param area
-	 * @param clazz
-	 * @param locale
-	 */
-	public <T extends MetaBase> MetaHelper(String area, Class<T> clazz, Locale locale) {
-		this(area, area, clazz, locale);
-	}
-	
 	
 	/**
 	 * Construct a meta-helper using the default locale (en_US).  Instances of this class are for access of
@@ -111,6 +124,24 @@ public class MetaHelper {
 	 */
 	public void setArea(String area) {
 		this.area = area;
+	}
+	
+	protected String domain;
+	
+	/**
+	 * get domain attribute
+	 * @return
+	 */
+	public String getDomain() {
+		return this.domain;
+	}
+	
+	/**
+	 * set domain attribute
+	 * @param area
+	 */
+	public void setDomain(String domain) {
+		this.domain = domain;
 	}
 
 	/**

@@ -15,5 +15,9 @@
   default-autowire="byName">
 
   <context:component-scan base-package="edu.yu.einstein.wasp.chipseq" />
+  
+  <bean id="chipSeqPluginDomain" class="java.lang.String">
+  	<constructor-arg><value>edu.yu.einstein.wasp.chipseq</value></constructor-arg>
+  </bean>
 
 </beans>

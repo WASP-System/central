@@ -32,11 +32,12 @@ public class MetaHelperWebapp extends MetaHelper {
 	 * Constructor
 	 * @param area
 	 * @param parentArea
+	 * @param domain
 	 * @param clazz
 	 * @param session
 	 */
-	public <T extends MetaBase> MetaHelperWebapp(String area, String parentArea, Class<T> clazz, HttpSession session) {
-		super(area, parentArea, clazz, (Locale)session.getAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME));
+	public <T extends MetaBase> MetaHelperWebapp(String area, String domain, Class<T> clazz, HttpSession session) {
+		super(area, domain, clazz, (Locale)session.getAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME));
 	}
 	
 	/**
@@ -46,7 +47,7 @@ public class MetaHelperWebapp extends MetaHelper {
 	 * @param session
 	 */
 	public <T extends MetaBase> MetaHelperWebapp(String area, Class<T> clazz, HttpSession session) {
-		this(area,area,clazz,session);
+		this(area,"",clazz,session);
 	}
 	
 
@@ -70,10 +71,21 @@ public class MetaHelperWebapp extends MetaHelper {
 	
 	/**
 	 * Constructor
+	 * @param area
+	 * @param clazz
+	 */
+	public <T extends MetaBase> MetaHelperWebapp(String area, String domain, Class<T> clazz) {
+		super(area, domain, clazz);
+	}
+	
+	
+	
+	/**
+	 * Constructor
 	 * @param clazz
 	 */
 	public <T extends MetaBase> MetaHelperWebapp(Class<T> clazz) {
-		this(WordUtils.uncapitalize(clazz.getSimpleName().replace("Meta", "")), clazz);
+		super(clazz);
 	}
 
 

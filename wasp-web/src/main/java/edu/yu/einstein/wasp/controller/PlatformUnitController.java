@@ -187,11 +187,11 @@ public class PlatformUnitController extends WaspController {
 	private SampleService sampleService;
 	
 	private final MetaHelperWebapp getMetaHelperWebapp() {
-		return new MetaHelperWebapp("platformunit",  "sample",SampleMeta.class, request.getSession());
+		return new MetaHelperWebapp("platformunit", SampleMeta.class, request.getSession());
 	}
 	
 	private final MetaHelperWebapp getMetaHelperWebappPlatformUnitInstance() {
-		return new MetaHelperWebapp("platformunitInstance",  "sample",SampleMeta.class, request.getSession());
+		return new MetaHelperWebapp("platformunitInstance", SampleMeta.class, request.getSession());
 	}
 	
 	@RequestMapping(value="/selid/list", method=RequestMethod.GET)

@@ -25,18 +25,24 @@ public final class UiField implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	protected Integer uiFieldId;
+	
+	@Column(name = "domain")
+	protected String domain;
 
 	@NotEmpty
-	private String area;
+	@Column(name = "area")
+	protected String area;
 	
 	@NotEmpty
-	private String name;
-
+	@Column(name = "name")
+	protected String name;
+	
+	@NotEmpty
 	@Column(name = "attrname")
-	private String attrName;
+	protected String attrName;
 
 	@Column(name = "attrvalue")
-	private String attrValue;
+	protected String attrValue;
 
 	@Column(name = "locale")
 	@NotEmpty
@@ -58,6 +64,14 @@ public final class UiField implements Serializable {
 
 	public void setArea(String area) {
 		this.area = area;
+	}
+	
+	public String getDomain() {
+		return domain;
+	}
+
+	public void setDomain(String domain) {
+		this.domain = domain;
 	}
 
 	public String getAttrName() {
@@ -183,7 +197,7 @@ if (uiFieldId == null) { return prime * result + 0; }
 
 	@Override
 	public String toString() {
-		return "UiField [uiFieldId=" + uiFieldId + ", area=" + area + ", name="
+		return "UiField [uiFieldId=" + uiFieldId + ", domain=" + domain + ", area=" + area + ", name="
 				+ name + ", attrName=" + attrName + ", attrValue=" + attrValue
 				+ ", locale=" + locale + ", lastUpdTs=" + lastUpdTs
 				+ ", lastUpdUser=" + lastUpdUser + "]";

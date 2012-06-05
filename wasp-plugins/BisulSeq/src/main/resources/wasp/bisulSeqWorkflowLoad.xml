@@ -21,6 +21,7 @@
 
   <bean id="bisulSeqWorkflow" class="edu.yu.einstein.wasp.load.WorkflowLoadService" depends-on="bisulSeqDnaSampleSubtypeResource,bisulSeqLibrarySampleSubtypeResource">
     <property name="area" value="#{bisulSeqWorkflowArea}" />
+    <property name="domain" value="#{bisulseqPluginDomain}" />
     <property name="name" value="BISUL Seq" />
     <property name="pageFlowOrder">
       <list>

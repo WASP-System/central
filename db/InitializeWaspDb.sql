@@ -1705,6 +1705,7 @@ DROP TABLE IF EXISTS `uifield`;
 CREATE TABLE IF NOT EXISTS `uifield` (
   `uifieldid` int(10)  AUTO_INCREMENT,
   `locale` varchar(5) ,
+  `domain` varchar(100) ,
   `area` varchar(50) ,
   `name` varchar(100) ,
   `attrname` varchar(50) ,

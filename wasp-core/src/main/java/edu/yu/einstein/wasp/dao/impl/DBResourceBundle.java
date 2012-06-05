@@ -141,14 +141,18 @@ public class DBResourceBundle implements ApplicationContextAware{
 					while(keyValuePairs.hasMoreTokens())
 						value+="="+keyValuePairs.nextToken();
 								StringTokenizer keyComponents = new StringTokenizer(key, "\\.");
-					if (keyComponents.countTokens() != 3){
-						logger.warn("Problem parsing message '"+line+"' from file '"+messageFile.getFilename()+"'. Key is not in the format 'area.name.suffix'. Ignoring message!");
+					if (keyComponents.countTokens() < 3 || keyComponents.countTokens() > 4 ){
+						logger.warn("Problem parsing message '"+line+"' from file '"+messageFile.getFilename()+"'. Key is not in the format 'com.my.domain.plugin.area.name.suffix'. Ignoring message!");
 						continue;
 					}
+					String domain = "";
+					for (int i=0; i < keyComponents.countTokens() - 3; i++)
+							domain += keyComponents.nextToken()+".";
+					domain = StringUtils.chop(domain);
 					String area = keyComponents.nextToken();
 					String name = keyComponents.nextToken();
 					String attrName = keyComponents.nextToken();
-					String sql="insert into uifield(locale,area,name,attrname,attrvalue,lastupduser) values('"+locale+"', '"+area+"', '"+name+"', '"+attrName+"', '"+value+"', 1)";
+					String sql="insert into uifield(locale,domain,area,name,attrname,attrvalue,lastupduser) values('"+locale+"', '"+domain+"', '"+area+"', '"+name+"', '"+attrName+"', '"+value+"', 1)";
 					try{
 						entityManager.createNativeQuery(sql).executeUpdate();
 					} catch(Throwable e){
