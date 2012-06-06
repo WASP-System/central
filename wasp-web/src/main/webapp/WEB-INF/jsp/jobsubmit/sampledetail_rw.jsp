@@ -21,8 +21,8 @@
      <c:import url="/WEB-INF/jsp/meta_rw.jsp" />
      <tr class="FormData">
         <td colspan="3" align="left" class="submitBottom">
-        	<input class="FormElement ui-widget-content ui-corner-all" type="submit" name="submit" value="<fmt:message key="jobDraft.cancel.label"/>" />
-            <input class="FormElement ui-widget-content ui-corner-all" type="submit" name="submit" value="<fmt:message key="jobDraft.submit.label"/>" />
+        	<input type="submit" name="submit" value="<fmt:message key="jobDraft.cancel.label"/>" />
+            <input type="submit" name="submit" value="<fmt:message key="jobDraft.submit.label"/>" />
         </td>
     </tr>
 </table>
