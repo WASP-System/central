@@ -3,10 +3,13 @@ package edu.yu.einstein.wasp.batch;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import edu.yu.einstein.wasp.cli.Main;
 import edu.yu.einstein.wasp.dao.StateDao;
 import edu.yu.einstein.wasp.dao.StatejobDao;
 import edu.yu.einstein.wasp.dao.StaterunDao;
@@ -19,8 +22,7 @@ import edu.yu.einstein.wasp.model.Statesample;
 import edu.yu.einstein.wasp.model.Task;
 
 /**
- * Created State Processor
- * simply creates a new State with targetTask and copies
+ * Created State Processor simply creates a new State with targetTask and copies
  * the original stated from state Sample and creates a state sample out of it.
  * 
  */
@@ -28,72 +30,76 @@ import edu.yu.einstein.wasp.model.Task;
 @Component
 public class CreateSampleStateProcessor implements ItemProcessor {
 
-  @Autowired
-  StateDao stateDao;
+	private final static Log logger = LogFactory.getLog(CreateSampleStateProcessor.class);
 
-  @Autowired
-  TaskDao taskDao;
+	@Autowired
+	StateDao stateDao;
 
-  @Autowired
-  StatesampleDao statesampleDao;
+	@Autowired
+	TaskDao taskDao;
 
-  @Autowired
-  StatejobDao statejobDao;
+	@Autowired
+	StatesampleDao statesampleDao;
 
-  @Autowired
-  StaterunDao staterunDao;
+	@Autowired
+	StatejobDao statejobDao;
 
-  String targetTask; 
-  public void setTargetTask(String targetTask) {
-    this.targetTask = targetTask; 
-  }
+	@Autowired
+	StaterunDao staterunDao;
 
-  TaskStatus targetStatus = TaskStatus.CREATED; 
+	String targetTask;
 
-  @Override
-public State process(Object stateId) throws Exception {
-    
-    State state = stateDao.getStateByStateId(((Integer) stateId).intValue());
+	public void setTargetTask(String targetTask) {
+		this.targetTask = targetTask;
+	}
 
-    List<Statesample> stateSamples = state.getStatesample();
-    List<Statejob> stateJobs = state.getStatejob();
-    List<Staterun> stateRuns = state.getStaterun();
+	TaskStatus targetStatus = TaskStatus.CREATED;
 
-    Task t = taskDao.getTaskByIName(targetTask); 
+	@Override
+	public State process(Object stateId) throws Exception {
 
-    State newState = new State();
-    newState.setStatus(targetStatus.toString());
-    newState.setTaskId(t.getTaskId());
-    newState.setName(t.getName());
-    newState.setSourceStateId((Integer) stateId);
-    newState.setStartts(new Date());
-    State newStateDb = stateDao.save(newState);
+		logger.debug("debug");
 
-    for (Statesample ss: stateSamples) {
-      Statesample newStateSample = new Statesample(); 
-      newStateSample.setStateId(newStateDb.getStateId());
-      newStateSample.setSampleId(ss.getSampleId());
+		State state = stateDao.getStateByStateId(((Integer) stateId).intValue());
 
-      statesampleDao.save(newStateSample);
-    }
+		List<Statesample> stateSamples = state.getStatesample();
+		List<Statejob> stateJobs = state.getStatejob();
+		List<Staterun> stateRuns = state.getStaterun();
 
-    for (Statejob sj: stateJobs) {
-      Statejob newStateJob = new Statejob(); 
-      newStateJob.setStateId(newStateDb.getStateId());
-      newStateJob.setJobId(sj.getJobId());
-      
-      statejobDao.save(newStateJob);
-    }
+		Task t = taskDao.getTaskByIName(targetTask);
 
-    for (Staterun sr: stateRuns) {
-      Staterun newStateRun = new Staterun(); 
-      newStateRun.setStateId(newStateDb.getStateId());
-      newStateRun.setRunId(sr.getRunId());
-      
-      staterunDao.save(newStateRun);
-    }
+		State newState = new State();
+		newState.setStatus(targetStatus.toString());
+		newState.setTaskId(t.getTaskId());
+		newState.setName(t.getName());
+		newState.setSourceStateId((Integer) stateId);
+		newState.setStartts(new Date());
+		State newStateDb = stateDao.save(newState);
 
-    return newState;
-  }
+		for (Statesample ss : stateSamples) {
+			Statesample newStateSample = new Statesample();
+			newStateSample.setStateId(newStateDb.getStateId());
+			newStateSample.setSampleId(ss.getSampleId());
+
+			statesampleDao.save(newStateSample);
+		}
+
+		for (Statejob sj : stateJobs) {
+			Statejob newStateJob = new Statejob();
+			newStateJob.setStateId(newStateDb.getStateId());
+			newStateJob.setJobId(sj.getJobId());
+
+			statejobDao.save(newStateJob);
+		}
+
+		for (Staterun sr : stateRuns) {
+			Staterun newStateRun = new Staterun();
+			newStateRun.setStateId(newStateDb.getStateId());
+			newStateRun.setRunId(sr.getRunId());
+
+			staterunDao.save(newStateRun);
+		}
+
+		return newState;
+	}
 }
-
