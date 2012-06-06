@@ -12,8 +12,10 @@
     <c:set var="_area" value = "sampleDraft" scope="request"/>
 	<c:set var="_metaList" value = "${normalizedMeta}" scope="request" />		
     <c:import url="/WEB-INF/jsp/meta_ro.jsp"/>
-    <tr class="FormData"><td colspan="2" class="DataTD submitBottom">
-    	<a class="button" href="<c:url value="/jobsubmit/samples/${jobDraft.jobDraftId}.do"/>"><fmt:message key="jobDraft.cancel.label"/></a>&nbsp;
-		<a class="button" href="<c:url value="/jobsubmit/samples/edit/${jobDraft.jobDraftId}/${sampleDraft.sampleDraftId}.do" />"><fmt:message key="jobDraft.edit.label"/></a></td>
+    <tr class="FormData">
+    	<td colspan="2" class="submitBottom">
+    		<a class="FormElement button" href="<c:url value="/jobsubmit/samples/${jobDraft.jobDraftId}.do"/>"><fmt:message key="jobDraft.cancel.label"/></a>&nbsp;
+			<a class="FormElement button" href="<c:url value="/jobsubmit/samples/edit/${jobDraft.jobDraftId}/${sampleDraft.sampleDraftId}.do" />"><fmt:message key="jobDraft.edit.label"/></a>
+		</td>
 	</tr>
 </table>

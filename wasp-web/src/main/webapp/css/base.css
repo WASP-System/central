@@ -242,6 +242,7 @@ td.submit A,
 
 input[type="submit"]:hover,
 .button:hover, 
+.fm-button:hover,
 div.submit a:hover,
 td.submit a:hover  {
 	color: #aa0000;
@@ -268,8 +269,7 @@ td.DataTD{
 
 td.submitBottom {
 	border-top: 1px solid;
-	padding-top: 5px;
-	padding-bottom: 5px;
+	padding: 10px 10px 10px 10px;
 }
 	
 
