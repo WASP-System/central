@@ -4,10 +4,7 @@ DROP USER 'wasp'@'localhost';
 DROP DATABASE IF EXISTS wasp;
 
 create database wasp CHARACTER SET utf8 COLLATE utf8_general_ci;
-create user wasp;
-
-update mysql.user set host='localhost' where user='wasp';
-update mysql.user set password=PASSWORD('waspV2') where user='wasp';
+create user 'wasp'@'localhost' IDENTIFIED BY 'waspV2';
 
 grant all on wasp.* to 'wasp'@'localhost';
 
@@ -702,24 +699,7 @@ create table jobdraftsoftware (
   constraint unique index u_jobdraftsoftware_sid_jdid (softwareid, jobdraftid)
 ) ENGINE=InnoDB charset=utf8;
 
-create table jobdraftfile ( 
-  jobdraftfileid int(10)  primary key auto_increment,
-  jobdraftid int(10) , 
-  fileid int(10) , 
 
-  iname varchar(2048), -- 
-  name varchar(250), 
-  description varchar(2048), 
-
-  isactive int(1)  default 1, 
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_jobdraftfile_jid (jobdraftid) references jobdraft(jobdraftid),
-  foreign key fk_jobdraftfile_fid (fileid) references file(fileid) -- ,
-
-  -- constraint unique index u_jobdraftfile_iname_jid (iname, jobdraftid)
-) ENGINE=InnoDB charset=utf8;
 
 -- ---------------------------------------------------
 
@@ -884,6 +864,25 @@ create table samplesubtyperesourcecategory (
   resourcecategoryid int(10) ,
   foreign key fk_samplesubtyperesourcecategory_stscid (samplesubtypeid) references samplesubtype(samplesubtypeid),
   foreign key fk_samplesubtyperesourcecategory_rcid (resourcecategoryid) references resourcecategory(resourcecategoryid)
+) ENGINE=InnoDB charset=utf8;
+
+create table jobdraftfile ( 
+  jobdraftfileid int(10)  primary key auto_increment,
+  jobdraftid int(10) , 
+  fileid int(10) , 
+
+  iname varchar(2048), -- 
+  name varchar(250), 
+  description varchar(2048), 
+
+  isactive int(1)  default 1, 
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
+
+  foreign key fk_jobdraftfile_jid (jobdraftid) references jobdraft(jobdraftid),
+  foreign key fk_jobdraftfile_fid (fileid) references file(fileid) -- ,
+
+  -- constraint unique index u_jobdraftfile_iname_jid (iname, jobdraftid)
 ) ENGINE=InnoDB charset=utf8;
 
 create table workflowsamplesubtype (
