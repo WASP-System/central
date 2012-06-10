@@ -16,7 +16,7 @@
       <list value-type="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper">
         <bean parent="genericDNAUiFieldWrapper">
           <property name="baseName" value="concentration" />
-          <property name="label" value="Concentration" />
+          <property name="label" value="Concentration (ng/&#956;l)" />
           <property name="metaposition" value="10" />
           <property name="constraint" value="NotEmpty" />
           <property name="error" value="You must provide a concentration" />
@@ -25,7 +25,7 @@
         
         <bean parent="genericDNAUiFieldWrapper">
           <property name="baseName" value="volume" />
-          <property name="label" value="Volume" />
+          <property name="label" value="Volume (&#956;l)" />
           <property name="metaposition" value="20" />
           <property name="constraint" value="NotEmpty" />
           <property name="error" value="You must provide a volume" />

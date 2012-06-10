@@ -215,7 +215,7 @@ public abstract class WaspLoadService {
 				UiField existingUiField = oldUiFields.get(localizedKey);
 				if (!existingUiField.getAttrValue().equals(f.getAttrValue())){
 					existingUiField.setAttrValue(f.getAttrValue());
-					uiFieldDao.merge(f); 
+					uiFieldDao.merge(existingUiField); 
 				}
 				oldUiFields.remove(localizedKey);
 			} else {
