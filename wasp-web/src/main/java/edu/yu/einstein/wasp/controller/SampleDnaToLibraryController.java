@@ -332,20 +332,22 @@ public class SampleDnaToLibraryController extends WaspController {
 			Task taskCreateLibrary = taskDao.getTaskByIName("Create Library");
 ////			Task taskAssignLibraryToPlatformUnit = taskDao.getTaskByIName("assignLibraryToPlatformUnit");
 			List<Statesample> stateSampleList = sample.getStatesample();
-			String receiveSampleStatus = new String("NOT CREATED");
-			String createLibraryStatus = new String("NOT CREATED");
+			String receiveSampleStatus = new String("NOT FOUND");
+			String createLibraryStatus = new String("NOT FOUND");
 ////			String assignLibraryToPlatformUnitStatus = new String("NOT CREATED");
 			for(Statesample stateSample : stateSampleList){
 				State state = stateSample.getState();
 				if(state.getTask().getIName().equals(taskReceiveSampleStatus.getIName())){
-					if(state.getStatus().equals("CREATED")){
-						receiveSampleStatus = "CREATED";
-					}
+					//if(state.getStatus().equals("CREATED")){
+					//	receiveSampleStatus = "CREATED";
+					//}
+					receiveSampleStatus = state.getStatus();
 				}
 				else if(state.getTask().getIName().equals(taskCreateLibrary.getIName())){
-					if(state.getStatus().equals("CREATED")){
-						createLibraryStatus = "CREATED";
-					}
+					//if(state.getStatus().equals("CREATED")){
+					//	createLibraryStatus = "CREATED";
+					//}
+					createLibraryStatus = state.getStatus();
 				}
 ////				else if(state.getTask().getIName().equals(taskAssignLibraryToPlatformUnit.getIName())){
 ////					if(state.getStatus().equals("CREATED")){
@@ -361,11 +363,12 @@ public class SampleDnaToLibraryController extends WaspController {
 				Task taskAssignLibraryToPlatformUnit = taskDao.getTaskByIName("assignLibraryToPlatformUnit");
 				for(Statesample stateSample : library.getStatesample()){
 					State state = stateSample.getState();
-					String assignLibraryToPlatformUnitStatus = new String("NOT CREATED");
+					String assignLibraryToPlatformUnitStatus = new String("NOT FOUND");
 					if(state.getTask().getIName().equals(taskAssignLibraryToPlatformUnit.getIName())){
-						if(state.getStatus().equals("CREATED")){
-							assignLibraryToPlatformUnitStatus = "CREATED";
-						}
+						//if(state.getStatus().equals("CREATED")){
+						//	assignLibraryToPlatformUnitStatus = "CREATED";
+						//}
+						assignLibraryToPlatformUnitStatus = state.getStatus();
 					}
 					assignLibraryToPlatformUnitStatusMap.put(library, assignLibraryToPlatformUnitStatus);
 				}
