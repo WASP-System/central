@@ -79,9 +79,6 @@
 	<definition name="auth/confirmemail/requestEmailChange" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/auth/confirmemail/requestEmailChange.jsp" />
 	</definition>
-	<definition name="auth/confirmemail/emailupdateok" extends="template-base">
-		<put-attribute name="body-content" value="/WEB-INF/jsp/auth/confirmemail/emailupdateok.jsp" />
-	</definition>
 	<definition name="dashboard" extends="template-base">
 		<put-attribute name="head-js" value="/WEB-INF/jsp/dashboard.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/dashboard.jsp" />

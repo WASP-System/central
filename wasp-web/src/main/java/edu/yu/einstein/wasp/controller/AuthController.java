@@ -146,7 +146,7 @@ public class AuthController extends WaspController {
 		  return "auth/resetpassword/request";
 	  }
 
-	  this.sendPasswordConfirmEmail(user);
+	  emailService.sendRequestNewPassword(user, getUserPasswordAuthcode(user));
 	  
     return "auth/resetpassword/email";
   }
@@ -284,14 +284,13 @@ public class AuthController extends WaspController {
    * Makes an entry in the userpasswordauth table and sends an email to email authcode to user
    * @param user {@link User} object
    */
-  protected void sendPasswordConfirmEmail(final User user){
+  protected String getUserPasswordAuthcode(final User user){
 	  Userpasswordauth userpasswordauth = new Userpasswordauth();
 	  userpasswordauth.setUserId(user.getUserId());
 	  String authcode = AuthCode.create(20);
 	  userpasswordauth.setAuthcode(authcode);
 	  userpasswordauthDao.merge(userpasswordauth); // merge handles both inserts and updates. Doesn't have problem with disconnected entities like persist does
-	  // request user changes their password
-	  emailService.sendRequestNewPassword(user, authcode);
+	  return authcode; 
   }
   
   /**
@@ -329,11 +328,14 @@ public class AuthController extends WaspController {
 	// remove entry for current user in email auth table
 	ConfirmEmailAuth auth = confirmEmailAuthDao.getConfirmEmailAuthByAuthcode(authCode);
 	confirmEmailAuthDao.remove(auth);
+	waspMessage("user.email_change_confirmed.label");
 	if (isAdminCreated != null && isAdminCreated == 1 && !authenticationService.isAuthenticationSetExternal()){
 		User user = userDao.getUserByUserId(auth.getUserId());
-		this.sendPasswordConfirmEmail(user);
+		// request user changes their password
+		return "redirect:/auth/resetpassword/form.do?authcode="+getUserPasswordAuthcode(user);
 	}
-	return "redirect:/auth/confirmemail/emailupdateok.do";
+	
+	return "redirect:/auth/loginHandler.do";
   }
   
   /**
@@ -376,10 +378,12 @@ public class AuthController extends WaspController {
 		// remove entry for current user in email auth table
 		ConfirmEmailAuth auth = confirmEmailAuthDao.getConfirmEmailAuthByAuthcode(authCode);
 		confirmEmailAuthDao.remove(auth);
-		if (isAdminCreated == 1 && !authenticationService.isAuthenticationSetExternal()){
-			sendPasswordConfirmEmail(user);
+		waspMessage("user.email_change_confirmed.label");
+		if (isAdminCreated != null && isAdminCreated == 1 && !authenticationService.isAuthenticationSetExternal()){
+			// request user changes their password
+			return "redirect:/auth/resetpassword/form.do?authcode="+getUserPasswordAuthcode(user);
 		}
-		return "redirect:/auth/confirmemail/emailupdateok.do";
+		return "redirect:/auth/loginHandler.do";
 	}
 
   @RequestMapping("/reauth")
