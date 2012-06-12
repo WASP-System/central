@@ -66,7 +66,7 @@
 				<sec:authorize access="hasRole('su') or hasRole('ft')">
 				<c:if test='${receivedStatusMap.get(userSubmittedMacromolecule)=="RECEIVED"}'>
 					<c:if test='${createLibraryStatusMap.get(userSubmittedMacromolecule)=="CREATED" || createLibraryStatusMap.get(userSubmittedMacromolecule)=="COMPLETED" || createLibraryStatusMap.get(userSubmittedMacromolecule)=="FINALIZED"}'>
-						<br /><a href="<c:url value="/sampleDnaToLibrary/createLibraryFromMacro/${job.jobId}/${userSubmittedMacromolecule.sampleId}.do"/>" class="button">Create Library</a><br /><br />
+						<input class="fm-button" type="button" value="<fmt:message key="listJobSamples.createLibrary.label" />"  onClick="window.location='<c:url value="/sampleDnaToLibrary/createLibraryFromMacro/${job.jobId}/${userSubmittedMacromolecule.sampleId}.do"/>'" />
 			 	 	</c:if>
 		 	 	</c:if>
 				</sec:authorize>				
