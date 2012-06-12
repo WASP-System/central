@@ -92,9 +92,11 @@
 							<c:set var="idCounter" value="${idCounter + 1}" scope="page" />
  							<sec:authorize access="hasRole('su') or hasRole('ft')">
 							<div id="showButton_<c:out value="${idCounter}" />" >
-						 	<c:if test='${assignLibraryToPlatformUnitStatusMap.get(userSubmittedMacromolecule)=="CREATED"}'>
-				 				<input class="button" type="button" value="<fmt:message key="listJobSamples.addLibraryToPlatformUnit.label" />" onclick='toggleDisplayOfAddLibraryForm("show", <c:out value="${idCounter}" />)' />				
-							</c:if>
+
+						<c:if test='${assignLibraryToPlatformUnitStatusMap.get(facilityLibraryForThisMacromolecule)=="CREATED"}'> 
+				 				<input class="fm-button" type="button" value="<fmt:message key="listJobSamples.addLibraryToPlatformUnit.label" />" onclick='toggleDisplayOfAddLibraryForm("show", <c:out value="${idCounter}" />)' />				
+						</c:if> 
+
 							</div>
 							</sec:authorize>
 							<div id="addLibraryForm_<c:out value="${idCounter}" />" style="display:none">

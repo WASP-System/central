@@ -50,6 +50,7 @@ import edu.yu.einstein.wasp.dao.StateDao;
 import edu.yu.einstein.wasp.dao.StatejobDao;
 import edu.yu.einstein.wasp.dao.TaskDao;
 import edu.yu.einstein.wasp.exception.FileMoveException;
+import edu.yu.einstein.wasp.model.AcctJobquotecurrent;
 import edu.yu.einstein.wasp.model.File;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobCellSelection;
@@ -333,6 +334,53 @@ public class JobServiceImpl extends WaspServiceImpl implements JobService {
 			  }
 		  }
 
+		  // 6/11/12 added next section related to DA approval, PI approval, and the quote states
+		  List<Statejob> statejobs = job.getStatejob();
+		  for(Statejob statejob : statejobs){
+			  State state = statejob.getState();
+			  if(state.getTask().getIName().equals("DA Approval")){
+				  if(state.getStatus().equals("CREATED")){
+					  extraJobDetailsMap.put("DA Approval", "Awaiting Response");
+				  }
+				  else if(state.getStatus().equals("COMPLETED") || state.getStatus().equals("FINALIZED")){
+					  extraJobDetailsMap.put("DA Approval", "Approved");
+				  }
+				  else if(state.getStatus().equals("ABANDONED")){
+					  extraJobDetailsMap.put("DA Approval", "Rejected");
+				  }
+				  else{
+					  extraJobDetailsMap.put("DA Approval", "Unknown");
+				  }
+			  }
+			  if(state.getTask().getIName().equals("PI Approval")){
+				  if(state.getStatus().equals("CREATED")){
+					  extraJobDetailsMap.put("PI Approval", "Awaiting Response");
+				  }
+				  else if(state.getStatus().equals("COMPLETED") || state.getStatus().equals("FINALIZED")){
+					  extraJobDetailsMap.put("PI Approval", "Approved");
+				  }
+				  else if(state.getStatus().equals("ABANDONED")){
+					  extraJobDetailsMap.put("PI Approval", "Rejected");
+				  }
+				  else{
+					  extraJobDetailsMap.put("PI Approval", "Unknown");
+				  }
+			  }
+			  if(state.getTask().getIName().equals("Quote Job")){
+				  if(state.getStatus().equals("CREATED")){
+					  extraJobDetailsMap.put("Quote Job Price", "Awaiting Quote");
+				  }
+				  else if(state.getStatus().equals("COMPLETED") || state.getStatus().equals("FINALIZED")){
+					  Float price = new Float(job.getAcctJobquotecurrent().get(0).getAcctQuote().getAmount());
+					  extraJobDetailsMap.put("Quote Job Price", price.toString());
+				  }
+				  else {
+					  extraJobDetailsMap.put("Quote Job Price", "Unknown");
+				  }
+			  }
+		  }
+		  
+		  
 		  return extraJobDetailsMap;	  
 	  }
 	  
@@ -526,9 +574,9 @@ public class JobServiceImpl extends WaspServiceImpl implements JobService {
 			return jobDb;
 	  }
 	  
-		 /**
-	   * {@inheritDoc}
-	   */
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public List<Job> getJobsWithLibraryCreatedTask(){
 		
@@ -548,6 +596,32 @@ public class JobServiceImpl extends WaspServiceImpl implements JobService {
 				jobs.add(stateJob.getJob());
 			}
 		}
+		return new ArrayList<Job>(jobs);//return as list rather than as set
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<Job> getJobsWithLibrariesToGoOnFlowCell(){
+		
+		Map stateMap = new HashMap(); 
+		Task task = taskDao.getTaskByIName("assignLibraryToPlatformUnit");
+		if(task == null || task.getTaskId() == null){
+			//waspErrorMessage("platformunit.taskNotFound.error"); maybe throw exception?????
+		}
+		stateMap.put("taskId", task.getTaskId()); 	
+		stateMap.put("status", "CREATED"); 
+		List<State> stateList = stateDao.findByMap(stateMap);
+		
+		Set<Job> jobs = new HashSet<Job>();//use set to avoid duplicates
+		for(State state : stateList){
+			List<Statejob> stateJobList = state.getStatejob();
+			for(Statejob stateJob : stateJobList){
+				jobs.add(stateJob.getJob());
+			}
+		}
+		
 		return new ArrayList<Job>(jobs);//return as list rather than as set
 	}
 }

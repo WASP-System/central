@@ -103,4 +103,12 @@ public interface JobService extends WaspService {
 	 * 
 	 */
 	public List<Job> getJobsWithLibraryCreatedTask();
+	
+	/**
+	 * getJobsWithLibrariesToGoOnFlowCell() returns list of unique jobs with one or more of the job's samples (either facility library or user-submitted library) whose state = assignLibraryToPlatformUnit and status = Created)
+	 * @param none
+	 * @return List<Job>
+	 * 
+	 */
+	public List<Job> getJobsWithLibrariesToGoOnFlowCell();
 }

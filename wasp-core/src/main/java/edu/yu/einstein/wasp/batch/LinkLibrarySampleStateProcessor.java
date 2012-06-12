@@ -3,6 +3,8 @@ package edu.yu.einstein.wasp.batch;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -19,6 +21,7 @@ import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.Statejob;
 import edu.yu.einstein.wasp.model.Statesample;
 import edu.yu.einstein.wasp.model.Task;
+import edu.yu.einstein.wasp.service.SampleService;
 
 /**
  * LinkLibrarySampleStateProcessor
@@ -49,6 +52,11 @@ public class LinkLibrarySampleStateProcessor implements ItemProcessor {
 	@Autowired
 	TaskDao taskDao;
 
+	@Autowired
+	SampleService sampleService;
+
+	private final Log logger = LogFactory.getLog(getClass());
+	
 	protected String targetTask; 
 	public void setTargetTask(String targetTask) {
 		this.targetTask = targetTask; 
@@ -62,6 +70,8 @@ public class LinkLibrarySampleStateProcessor implements ItemProcessor {
 	@Override
 	public State process(Object stateId) throws Exception {
 		
+		logger.debug("beginning of LinkLibrarySampleStateProcessor.process()");
+		
 		State state = stateDao.getStateByStateId(((Integer) stateId).intValue());
 		List<Statesample> stateSamples = state.getStatesample();
 		List<Statejob> stateJobs = state.getStatejob();
@@ -71,9 +81,12 @@ public class LinkLibrarySampleStateProcessor implements ItemProcessor {
 		// should be only one, but looping for good measure
 		for (Statesample ss: stateSamples) {
 			// finds the derived library
-			List<SampleSource> libSources =  ss.getSample().getSourceSampleId(); 
-			for (SampleSource libSource : libSources) {
-				Sample librarySample =  libSource.getSample(); 
+			//List<SampleSource> libSources =  ss.getSample().getSourceSampleId(); 
+			Sample sample = ss.getSample();//macromoleculeSample I believe
+			List<Sample> librarySamples = sampleService.getFacilityGeneratedLibraries(sample);
+			//for (SampleSource libSource : libSources) {
+			for(Sample librarySample : librarySamples){  //THIS IS VERY DANGEROUS!!!If it's not one, your're sunk!!
+				//Sample librarySample =  libSource.getSample(); 
 
 				// todo, next if not library 
 
@@ -98,11 +111,11 @@ public class LinkLibrarySampleStateProcessor implements ItemProcessor {
 					newStateJob.setJobId(sj.getJobId());
 					statejobDao.save(newStateJob);
 
-					// links job to the library via new jobsample
-					JobSample newJobSample = new JobSample();
-					newJobSample.setJobId(sj.getJobId());
-					newJobSample.setSampleId(librarySample.getSampleId());
-					jobSampleDao.save(newJobSample);
+					// links job to the library via new jobsample; 6/8/12 this was moved back to controller SampleDNAToLibraryController.createLibrary where it really belongs, and removed from any batch responsibility
+					//JobSample newJobSample = new JobSample();
+					//newJobSample.setJobId(sj.getJobId());
+					//newJobSample.setSampleId(librarySample.getSampleId());
+					//jobSampleDao.save(newJobSample);
 
 				}
 
@@ -116,7 +129,7 @@ public class LinkLibrarySampleStateProcessor implements ItemProcessor {
 			}
 		}
 
-
+		logger.debug("end of LinkLibrarySampleStateProcessor.process()");
 		return state;
 	}
 }

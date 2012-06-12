@@ -14,8 +14,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,6 +30,7 @@ import edu.yu.einstein.wasp.dao.SampleSourceDao;
 import edu.yu.einstein.wasp.dao.SampleSourceMetaDao;
 import edu.yu.einstein.wasp.dao.SampleTypeDao;
 import edu.yu.einstein.wasp.dao.StateDao;
+import edu.yu.einstein.wasp.dao.TaskDao;
 import edu.yu.einstein.wasp.dao.WorkflowDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.SampleException;
@@ -47,7 +50,9 @@ import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.SampleSubtypeResourceCategory;
 import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.model.State;
+import edu.yu.einstein.wasp.model.Statejob;
 import edu.yu.einstein.wasp.model.Statesample;
+import edu.yu.einstein.wasp.model.Task;
 import edu.yu.einstein.wasp.model.WorkflowSampleSubtype;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.SampleService;
@@ -115,6 +120,9 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	
 	@Autowired
 	  private AdaptorDao adaptorDao;
+	
+	@Autowired
+	  private TaskDao taskDao;
 
 	public void setSampleMetaDao(SampleMetaDao sampleMetaDao) {
 		this.sampleMetaDao = sampleMetaDao;
@@ -715,6 +723,32 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 		  return clone;
 	  }
 	  
-	  
+	  /**
+	   * {@inheritDoc}
+	   */
+	  @Override
+	  public List<Sample> platformUnitsAwaitingLibraries(){
+		  
+			Map stateMap = new HashMap(); 
+			Task task = taskDao.getTaskByIName("assignLibraryToPlatformUnit");
+			if(task == null || task.getTaskId() == null){
+				//waspErrorMessage("platformunit.taskNotFound.error"); maybe throw exception?????
+			}
+			stateMap.put("taskId", task.getTaskId()); 	
+			stateMap.put("status", "CREATED"); 
+			List<State> stateList = stateDao.findByMap(stateMap);
+			
+			Set<Sample> samples = new HashSet<Sample>();//use set to avoid duplicates
+			for(State state : stateList){
+				List<Statesample> statesampleList = state.getStatesample();
+				for(Statesample statesample : statesampleList){
+					if(statesample.getSample().getSampleType().getIName().equals("platformunit")){
+						samples.add(statesample.getSample());
+					}
+				}
+			}
+			
+			return new ArrayList<Sample>(samples);//return as list rather than as set
+	  }
 	  
 }

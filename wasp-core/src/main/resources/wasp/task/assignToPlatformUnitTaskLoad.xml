@@ -29,9 +29,10 @@
       <list>
         <bean class="edu.yu.einstein.wasp.model.TaskMapping">
           <property name="status" value="CREATED" />
-          <property name="listMap" value="/facility/platformunit/limitPriorToAssign.do?resourceCategoryId=0" />
+         <!-- <property name="listMap" value="/facility/platformunit/limitPriorToAssign.do?resourceCategoryId=0" />  --> 
+           <property name="listMap" value="/task/assignLibraries/lists.do" />
           <property name="detailMap" value="/def.do" />
-          <property name="permission" value="hasRole('su')" />
+          <property name="permission" value="hasRole('su') or hasRole('fm') or hasRole('ft')" />
         </bean>
       </list>
     </property>

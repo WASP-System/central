@@ -266,6 +266,11 @@ public interface SampleService extends WaspService {
 	   */
 	  public SampleDraft cloneSampleDraft(SampleDraft sampleDraft);
 
-	  
+	  /**
+	   * Returns list of samples that are platformUnits with task assignLibraryToPlatformUnit and status = CREATED (so, it's not yet part of a sequence run)
+	   * @param none
+	   * @return List<Sample>
+	   */
+	  public List<Sample> platformUnitsAwaitingLibraries();
 	  
 }

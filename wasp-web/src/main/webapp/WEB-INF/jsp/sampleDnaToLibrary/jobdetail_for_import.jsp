@@ -6,9 +6,21 @@
 <tr class="FormData"><td class="CaptionTD"><fmt:message key="jobdetail_for_import.jobPI.label" />:</td><td class="DataTD"><c:out value="${job.lab.user.firstName}" /> <c:out value="${job.lab.user.lastName}" /></td></tr>
 <tr class="FormData"><td class="CaptionTD"><fmt:message key="jobdetail_for_import.jobSubmissionDate.label" />:</td><td class="DataTD"><fmt:formatDate value="${job.createts}" type="date" /></td></tr>
 <tr class="FormData"><td class="CaptionTD"><fmt:message key="jobdetail_for_import.jobWorkflow.label" />:</td><td class="DataTD"><c:out value="${job.workflow.name}" /></td></tr>
+<%-- 
 <c:forEach items='${extraJobDetailsMap}' var="detail">
 	<tr class="FormData"><td class="CaptionTD"><fmt:message key="jobdetail_for_import.${detail.key}.label" />:</td><td class="DataTD"><c:out value='${detail.value}' /> </td></tr>
 </c:forEach>
+--%>
+
+<c:set var="extra" value="${extraJobDetailsMap}" scope="page" />
+<tr class="FormData"><td class="CaptionTD"><fmt:message key="jobdetail_for_import.Machine.label" />:</td><td class="DataTD"><c:out value='${extraJobDetailsMap.get("Machine")}' /> </td></tr>
+<tr class="FormData"><td class="CaptionTD"><fmt:message key="jobdetail_for_import.Read_Length.label" />:</td><td class="DataTD"><c:out value='${extraJobDetailsMap.get("Read Length")}' /> </td></tr>
+<tr class="FormData"><td class="CaptionTD"><fmt:message key="jobdetail_for_import.Read_Type.label" />:</td><td class="DataTD"><c:out value='${extraJobDetailsMap.get("Read Type")}' /> </td></tr>
+<tr class="FormData"><td class="CaptionTD"><fmt:message key="jobdetail_for_import.PI_Approval.label" />:</td><td class="DataTD"><c:out value='${extraJobDetailsMap.get("PI Approval")}' /> </td></tr>
+<tr class="FormData"><td class="CaptionTD"><fmt:message key="jobdetail_for_import.DA_Approval.label" />:</td><td class="DataTD"><c:out value='${extraJobDetailsMap.get("DA Approval")}' /> </td></tr>
+<tr class="FormData"><td class="CaptionTD"><fmt:message key="jobdetail_for_import.Quote_Job_Price.label" />:</td><td class="DataTD"><fmt:formatNumber type="currency" value='${extraJobDetailsMap.get("Quote Job Price")}' /> </td></tr>
+
+
 <c:if test="${not empty files}">
 	<tr class="FormData">
 		<td class="CaptionTD"><fmt:message key="jobdetail_for_import.files.label" />:</td>

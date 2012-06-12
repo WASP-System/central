@@ -52,10 +52,39 @@
     </bean>
   </si:service-activator>
 
+  <bean id="chipSeqFacilityLibrary.sample.Poller" parent="wasp.sample.Poller">
+    <property name="sampleSubtypeIName" value="chipseqFacilityLibrarySample"/>
+    <property name="taskIName" value="sampleWrapTask"/>
+  </bean>
+
+  <si:inbound-channel-adapter ref="chipSeqFacilityLibrary.sample.Poller" method="getStates" channel="chipSeqFacilityLibrary.sample.Channel">
+    <si:poller fixed-rate="10000"/>
+  </si:inbound-channel-adapter>
+
+  <si:service-activator input-channel="chipSeqFacilityLibrary.sample.Channel" output-channel="wasp.logger">
+    <bean class="edu.yu.einstein.wasp.batch.launcher.StateJobLaunchingMessageHandler" scope="prototype">
+       <constructor-arg ref="jobRegistry" />
+       <constructor-arg ref="jobLauncher" />
+       <constructor-arg ref="jobRepository" />
+       <constructor-arg ref="jobOperator" />
+       <constructor-arg type="java.lang.String"><value>chipSeqFacilityLibrary.sample.Job</value></constructor-arg>
+    </bean>
+  </si:service-activator>
+
 
   <batch:job id="chipSeqDna.sample.Job">
-    <batch:flow id="chipSeqDna.sample.Job0" parent="wasp.sample.DefaultMpsDnaFlow" next="chipSeqDna.sample.Job1" />
-    <batch:flow id="chipSeqDna.sample.Job1" parent="wasp.default.FinalFlow" />
+    <batch:flow id="chipSeqDna.sample.Job0" parent="wasp.sample.DefaultMpsDnaFlow" next="chipSeqDna.sample.Job3" /> <!-- this is NOW JOB3!!!!! -->
+    
+     <!-- send to aligner -->
+<!--      <batch:flow id="chipSeqDna.sample.Job1" parent="wasp.sample.AlignerRunFlow" next="chipSeqDna.sample.Job2" /> -->
+
+    <!-- send to peakcaller -->
+<!--    <batch:flow id="chipSeqDna.sample.Job2" parent="wasp.sample.PeakcallerRunFlow" next="chipSeqDna.sample.Job3" /> -->
+
+    <!-- send to analysis -->
+
+    <batch:flow id="chipSeqDna.sample.Job3" parent="wasp.default.FinalFlow" />
+
   </batch:job>
 
   <batch:job id="chipSeqLibrary.sample.Job">
@@ -71,4 +100,19 @@
 
     <batch:flow id="chipSeqLibrary.sample.Job3" parent="wasp.default.FinalFlow" />
   </batch:job>
+  
+   <batch:job id="chipSeqFacilityLibrary.sample.Job">
+    <batch:flow id="chipSeqFacilityLibrary.sample.Job0" parent="wasp.sample.DefaultMpsFacilityLibraryFlow" next="chipSeqFacilityLibrary.sample.Job1" />
+
+    <!-- send to aligner -->
+    <batch:flow id="chipSeqFacilityLibrary.sample.Job1" parent="wasp.sample.AlignerRunFlow" next="chipSeqFacilityLibrary.sample.Job2" />
+
+    <!-- send to peakcaller -->
+    <batch:flow id="chipSeqFacilityLibrary.sample.Job2" parent="wasp.sample.PeakcallerRunFlow" next="chipSeqFacilityLibrary.sample.Job3" />
+
+    <!-- send to analysis -->
+
+    <batch:flow id="chipSeqFacilityLibrary.sample.Job3" parent="wasp.default.FinalFlow" />
+  </batch:job>
+  
 </beans>

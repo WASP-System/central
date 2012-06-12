@@ -22,6 +22,7 @@ import edu.yu.einstein.wasp.dao.StateDao;
 import edu.yu.einstein.wasp.dao.TaskDao;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
@@ -62,6 +63,56 @@ public class TaskController extends WaspController {
   private SampleService sampleService;
   
 
+  @RequestMapping(value = "/assignLibraries/lists", method = RequestMethod.GET)
+  @PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('ft')")
+  public String assignLibrariesLists(ModelMap m) {
+
+	  List<Job> jobsWithLibrariesToGoOnFlowCell = jobService.getJobsWithLibrariesToGoOnFlowCell();
+	  List<Job> jobsActive = jobService.getActiveJobs();
+	    
+	  List<Job> jobsActiveAndWithLibrariesToGoOnFlowCell = new ArrayList<Job>();
+	  for(Job jobActive : jobsActive){
+		  for(Job jobAwaiting : jobsWithLibrariesToGoOnFlowCell){
+			  if(jobActive.getJobId().intValue()==jobAwaiting.getJobId().intValue()){
+	    			jobsActiveAndWithLibrariesToGoOnFlowCell.add(jobActive);
+	    			break;
+	    	  }
+	      }
+	  }
+	  jobService.sortJobsByJobId(jobsActiveAndWithLibrariesToGoOnFlowCell);	  
+	  m.addAttribute("jobList", jobsActiveAndWithLibrariesToGoOnFlowCell);
+	  
+	  List<Sample> activePlatformUnits = sampleService.platformUnitsAwaitingLibraries();
+	  sampleService.sortSamplesBySampleName(activePlatformUnits);	  
+	  m.addAttribute("activePlatformUnits", activePlatformUnits);
+	  
+	  List<String> barcodes = new ArrayList<String>();
+	  List<String> lanes = new ArrayList<String>();
+	  for(Sample platformUnit : activePlatformUnits){
+		  String barcode = platformUnit.getSampleBarcode().get(0).getBarcode().getBarcode();
+		  if(barcode==null || barcode.equals("")){
+			  barcode = new String("Unknown");
+		  }
+		  barcodes.add(barcode);
+		  String lane = new String("");
+		  List<SampleMeta> sampleMetaList = platformUnit.getSampleMeta();
+		  for(SampleMeta sampleMeta : sampleMetaList){
+			  if(sampleMeta.getK().indexOf("lanecount") > -1){
+				  lane = sampleMeta.getV();
+			  }
+		  }
+		  if(lane.equals("")){
+			  lane = new String("Unknown");
+		  }
+		  lanes.add(lane);
+	  }
+	  
+	  m.addAttribute("barcodes", barcodes);
+	  m.addAttribute("lanes", lanes);
+	 
+	  return "task/assignLibraries/lists";
+  }
+  
   @RequestMapping(value = "/samplereceive/list", method = RequestMethod.GET)
   @PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('ft')")
   public String listSampleReceive(ModelMap m) {

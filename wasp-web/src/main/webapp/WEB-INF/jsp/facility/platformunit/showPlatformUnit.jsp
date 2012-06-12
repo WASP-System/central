@@ -182,7 +182,7 @@
             				</c:forEach>
             				<c:set var="ss2Meta" value="${ss2.sampleSourceMeta}" scope="page" />
             				<c:forEach items="${ss2Meta}" var="ss2MetaItem">
-            					<c:if test="${ss2MetaItem.k=='libConcInLanePicoM'}"><br /><fmt:message key="showPlatformUnit.concOnCell.label"/>: <c:out value="${ss2MetaItem.v}"/> <fmt:message key="showPlatformUnit.pM.label"/> </c:if>					
+            					<c:if test="${fn:indexOf(ss2MetaItem.k,'libConcInLanePicoM') > -1 }"><br /><fmt:message key="showPlatformUnit.concOnCell.label"/>: <c:out value="${ss2MetaItem.v}"/> <fmt:message key="showPlatformUnit.pM.label"/> </c:if>					
             				</c:forEach>
             				
             				<form  name='removeLib' method='post' action="<c:url value="/facility/platformunit/assignRemove.do" />" onsubmit='return confirm("<fmt:message key="showPlatformUnit.removeControlFromThisCell.label"/>");'>
@@ -248,7 +248,7 @@
 					<c:out value="${library.name}" />
 					<c:set var="ss2Meta" value="${ss2.sampleSourceMeta}" scope="page" />
 					<c:forEach items="${ss2Meta}" var="ss2MetaItem">
-						<c:if test="${ss2MetaItem.k=='jobId'}"><a href="<c:url value="/sampleDnaToLibrary/listJobSamples/${ss2MetaItem.v}.do" />"> (<fmt:message key="showPlatformUnit.jobJ.label"/><c:out value="${ss2MetaItem.v}"/>)</a></c:if>
+						<c:if test="${fn:indexOf(ss2MetaItem.k,'jobId') > -1}"><a href="<c:url value="/sampleDnaToLibrary/listJobSamples/${ss2MetaItem.v}.do" />"> (<fmt:message key="showPlatformUnit.jobJ.label"/><c:out value="${ss2MetaItem.v}"/>)</a></c:if>
 					</c:forEach>
 					<br />				
 					<c:set var="libraryMeta" value="${library.sampleMeta}" scope="page" />
@@ -263,7 +263,7 @@
 						<%--  	<c:if test="${ss2MetaItem.k=='libConcInLanePicoM'}"><fmt:message key="showPlatformUnit.concOnCell.label"/>: <c:out value="${ss2MetaItem.v}"/> <fmt:message key="showPlatformUnit.pM.label"/> <br /></c:if>  --%>
 						<c:set var="currentConcentration" value="" scope="page" />
 						<div id="editAnchorDiv_<c:out value="${idCounter}" />" >
-						<c:if test="${ss2MetaItem.k=='libConcInLanePicoM'}"><c:set var="currentConcentration" value="${ss2MetaItem.v}" scope="page" /><fmt:message key="showPlatformUnit.concOnCell.label"/>: <c:out value="${ss2MetaItem.v}"/> <fmt:message key="showPlatformUnit.pM.label"/> <a href="javascript:void(0)" onclick='toggleDisplayOfUpdateForm("show", <c:out value="${idCounter}" />);'>[<fmt:message key="showPlatformUnit.edit.label"/>]</a><br />	</c:if>					
+						<c:if test="${fn:indexOf(ss2MetaItem.k, 'libConcInLanePicoM') > -1 }"><c:set var="currentConcentration" value="${ss2MetaItem.v}" scope="page" /><fmt:message key="showPlatformUnit.concOnCell.label"/>: <c:out value="${ss2MetaItem.v}"/> <fmt:message key="showPlatformUnit.pM.label"/> <a href="javascript:void(0)" onclick='toggleDisplayOfUpdateForm("show", <c:out value="${idCounter}" />);'>[<fmt:message key="showPlatformUnit.edit.label"/>]</a><br />	</c:if>					
 						</div>	
 						
 						<div id="updatePicoFormDiv_<c:out value="${idCounter}" />" style="display:none">

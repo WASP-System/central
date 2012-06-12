@@ -75,13 +75,13 @@
         <property name="task" value="Receive Sample" />
         <property name="spelMap">
           <map>
-            <entry key="#state.statesample[0].sample.isReceived == 1" value="FINALIZED" />
+            <entry key="#state.statesample[0].sample.isReceived == 1" value="FINALIZED" /> <!-- currently (6/11/12) sample.isReceived is NOT being set to 1; instead, only the state is being set to COMPLETED or ABANDONED -->
           </map>
         </property>
 
         <property name="statusMap">
           <map>
-            <entry key="ABANDONED" value="ABANDONED" />
+    <!--         <entry key="ABANDONED" value="ABANDONED" />  if we leave this uncommented, then the createLibrary "CREATED" state will be generated, which is NOT what we want for an abandoned sample -->
             <entry key="COMPLETED" value="FINALIZED" />
           </map>
         </property>
@@ -238,8 +238,10 @@
     <batch:flow id="wasp.sample.DefaultMpsDnaFlow0" parent="wasp.sample.ReceiveFlow" next="wasp.sample.DefaultMpsDnaFlow1" />
     <batch:flow id="wasp.sample.DefaultMpsDnaFlow1" parent="wasp.sample.WaitForJobInvoiceSentFlow" next="wasp.sample.DefaultMpsDnaFlow2" /> 
     <batch:flow id="wasp.sample.DefaultMpsDnaFlow2" parent="wasp.sample.CreateLibraryFlow" next="wasp.sample.DefaultMpsDnaFlow3" /> 
-    <batch:flow id="wasp.sample.DefaultMpsDnaFlow3" parent="wasp.sample.LinkLibraryFlow" /> 
-
+    <batch:flow id="wasp.sample.DefaultMpsDnaFlow3" parent="wasp.sample.LinkLibraryFlow"  />    
+<!--<batch:flow id="wasp.sample.DefaultMpsDnaFlow4" parent="wasp.sample.LibraryPlatformUnitAssignFlow" next="wasp.sample.DefaultMpsDnaFlow5" /> 
+     <batch:flow id="wasp.sample.DefaultMpsDnaFlow5" parent="wasp.default.WaitForChildrenFinalFlow" next="wasp.sample.DefaultMpsDnaFlow6" /> 
+    <batch:flow id="wasp.sample.DefaultMpsDnaFlow6" parent="wasp.sample.GetResultsFlow" /> -->
   </batch:flow>
   <!-- /default mps dna flow-->
 
@@ -253,5 +255,12 @@
   </batch:flow>
   <!-- /default mps library flow-->
 
+  <!-- default mps facility library flow-->
+  <batch:flow id="wasp.sample.DefaultMpsFacilityLibraryFlow">
+    <batch:flow id="wasp.sample.DefaultMpsFacilityLibraryFlow0" parent="wasp.sample.LibraryPlatformUnitAssignFlow" next="wasp.sample.DefaultMpsFacilityLibraryFlow1" /> 
+    <batch:flow id="wasp.sample.DefaultMpsFacilityLibraryFlow1" parent="wasp.default.WaitForChildrenFinalFlow" next="wasp.sample.DefaultMpsFacilityLibraryFlow2" />
+    <batch:flow id="wasp.sample.DefaultMpsFacilityLibraryFlow2" parent="wasp.sample.GetResultsFlow" />
+  </batch:flow>
+  <!-- /default mps library flow-->
 
 </beans>

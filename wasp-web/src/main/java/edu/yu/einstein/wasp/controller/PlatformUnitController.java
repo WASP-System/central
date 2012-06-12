@@ -1425,6 +1425,19 @@ public class PlatformUnitController extends WaspController {
 			return;
 		}
 		
+		//update batch. 
+		//This is being done after first assignment to flow cell. BUT, maybe user requested the library be on two or three lane. 
+		//Really must work this logic out. Alternatively, the logic should perhaps be inside batch to create TWO or more assignLibraryToPlatformUnit states for the library.
+		List<Statesample> stateSampleList = librarySample.getStatesample();
+		for(Statesample stateSample : stateSampleList){
+			State state = stateSample.getState();
+			if(state.getTask().getIName().equals("assignLibraryToPlatformUnit")){
+				state.setStatus("COMPLETED");
+				stateDao.save(state);
+				break;
+			}
+		}
+		
 		waspMessage("platformunit.libAdded.success");
 		return;
 	}	
