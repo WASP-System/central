@@ -422,7 +422,6 @@ public class LabController extends WaspController {
 			labDb.setName(labForm.getName());
 			labDb.setIsActive(labForm.getIsActive());
 			labDb.setDepartmentId(labForm.getDepartmentId());
-			labDb.setPrimaryUserId(labForm.getPrimaryUserId());
 			this.labDao.merge(labDb);
 		}
 
