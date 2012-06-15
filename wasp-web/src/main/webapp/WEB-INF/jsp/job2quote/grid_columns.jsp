@@ -1,5 +1,7 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
+<wasp:field name="jobId" type="text" sortable="true" editable="false"/>
+
 <wasp:field name="name" type="text" sortable="true"/>
 
 <wasp:field name="amount" type="currency"/>
@@ -9,6 +11,8 @@
 <wasp:field name="lab" type="text" sortable="true" searchable="false" editable="false"/>
 
 <wasp:field name="submission_date"  type="text" editable="false"/>
+
+_url='/wasp/job2quote/listJSON.do?showall=${param.showall}';
   
 _navAttr={edit:true,view:true,add:false,del:false};
 

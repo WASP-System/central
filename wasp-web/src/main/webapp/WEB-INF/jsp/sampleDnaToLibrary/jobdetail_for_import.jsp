@@ -18,7 +18,13 @@
 <tr class="FormData"><td class="CaptionTD"><fmt:message key="jobdetail_for_import.Read_Type.label" />:</td><td class="DataTD"><c:out value='${extraJobDetailsMap.get("Read Type")}' /> </td></tr>
 <tr class="FormData"><td class="CaptionTD"><fmt:message key="jobdetail_for_import.PI_Approval.label" />:</td><td class="DataTD"><c:out value='${extraJobDetailsMap.get("PI Approval")}' /> </td></tr>
 <tr class="FormData"><td class="CaptionTD"><fmt:message key="jobdetail_for_import.DA_Approval.label" />:</td><td class="DataTD"><c:out value='${extraJobDetailsMap.get("DA Approval")}' /> </td></tr>
-<tr class="FormData"><td class="CaptionTD"><fmt:message key="jobdetail_for_import.Quote_Job_Price.label" />:</td><td class="DataTD"><fmt:formatNumber type="currency" value='${extraJobDetailsMap.get("Quote Job Price")}' /> </td></tr>
+<tr class="FormData"><td class="CaptionTD"><fmt:message key="jobdetail_for_import.Quote_Job_Price.label" />:</td><td class="DataTD">
+  <c:set var="quote" value='${extraJobDetailsMap.get("Quote Job Price")}' scope="page" />
+  <c:choose>   
+   <c:when test='${quote == "Awaiting Quote" || quote == "Unknown" || quote == "Not Yet Set"}'><c:out value='${quote}' /></c:when>
+   <c:otherwise><fmt:formatNumber type="currency" value='${quote}' /></c:otherwise>
+  </c:choose>
+</td></tr>
 
 
 <c:if test="${not empty files}">

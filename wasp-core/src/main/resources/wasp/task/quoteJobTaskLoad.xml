@@ -31,7 +31,7 @@
           <property name="status" value="CREATED" />
           <property name="listMap" value="/job2quote/list.do" />
           <property name="detailMap" value="/def.do" />
-          <property name="permission" value="hasRole('su') or hasRole('fm') or hasRole('ft')" />
+          <property name="permission" value="hasRole('su') or hasRole('da-#departmentId') or hasRole('fm') or hasRole('ft')" />
         </bean>
       </list>
     </property>

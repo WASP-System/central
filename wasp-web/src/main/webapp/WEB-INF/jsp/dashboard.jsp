@@ -141,7 +141,7 @@
 			<ul class="navTabs">
 				<sec:authorize access="hasRole('fm')">
 					<li>
-						<a href='<c:url value="/job2quote/list.do"/>'>Jobs Quotes</a>
+						<a href='<c:url value="/job2quote/list.do?showall=true"/>'>List of All Job Quotes</a>
 					</li>
 				</sec:authorize>
 			</ul>

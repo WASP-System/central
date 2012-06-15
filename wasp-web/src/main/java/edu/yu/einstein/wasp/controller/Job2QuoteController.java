@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import edu.yu.einstein.wasp.controller.JobController.DashboardEntityRolename;
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.dao.AcctJobquotecurrentDao;
 import edu.yu.einstein.wasp.dao.AcctQuoteDao;
@@ -33,6 +34,7 @@ import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.Statejob;
 import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.TaskService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
@@ -59,6 +61,8 @@ public class Job2QuoteController extends WaspController {
 	private TaskService		taskService;
 	@Autowired
 	private MessageService	messageService;
+	@Autowired
+	private AuthenticationService	authenticationService;
 
 	private final MetaHelperWebapp getMetaHelperWebapp() {
 		return new MetaHelperWebapp("acctQuote", AcctQuoteMeta.class, request.getSession());
@@ -86,7 +90,8 @@ public class Job2QuoteController extends WaspController {
 		String sidx = request.getParameter("sidx");
 
 		String userId = request.getParameter("userId");
-
+		String showall = request.getParameter("showall");
+		
 		// result
 		Map<String, Object> jqgrid = new HashMap<String, Object>();
 
@@ -102,7 +107,10 @@ public class Job2QuoteController extends WaspController {
 		}
 
 		List<Job> job2quoteList;
-		if (!search.equals("true") && StringUtils.isEmpty(userId)) {
+		if(!search.equals("true") && !StringUtils.isEmpty(showall) && showall.equals("true")){
+			job2quoteList = jobDao.findAll();
+		}
+		else if (!search.equals("true") && StringUtils.isEmpty(userId)) {
 			if (StringUtils.isEmpty(sidx)) {
 				job2quoteList = jobList;
 			} else {
@@ -121,7 +129,44 @@ public class Job2QuoteController extends WaspController {
 			job2quoteList = this.jobDao.findByMap(m);
 			job2quoteList.retainAll(jobList);
 		}
-
+		
+		//restrict what a DA can see if the individual's sole role is that of DA (based on deptId)
+		if(authenticationService.hasRole("da-*") 
+			&& !authenticationService.hasRole("ft") 
+			&& !authenticationService.hasRole("fm") 
+			&& !authenticationService.hasRole("ga") 
+			&& !authenticationService.hasRole("su")){
+			
+			List<Integer> departmentIds = new ArrayList<Integer>();
+			
+			for (String role: authenticationService.getRoles()) {			
+				
+				String[] splitRole = role.split("-");
+				if (splitRole.length != 2) { continue; }
+				if (splitRole[1].equals("*")) { continue; }				
+				if(splitRole[0].equals("da")){
+					try { departmentIds.add(Integer.parseInt(splitRole[1])); } 
+					catch (Exception e)	{ continue; }
+				}
+			}
+			List<Job> jobsToRemove = new ArrayList<Job>();
+			for (Job job : job2quoteList){
+				boolean valid = false;
+				for(Integer deptId : departmentIds){
+					if( deptId.intValue() == job.getLab().getDepartment().getDepartmentId().intValue() ){
+						valid = true;
+						break;
+					}
+				}
+				if(valid == false){
+					jobsToRemove.add(job);//cannot remove from job2quoteList right here, as will throw ConcurrentModificationException
+				}				
+			}
+			for(Job job : jobsToRemove){
+				job2quoteList.remove(job);
+			}
+		}
+		
 		try {
 			// index of page
 			int pageIndex = Integer.parseInt(request.getParameter("page")); 
@@ -176,6 +221,7 @@ public class Job2QuoteController extends WaspController {
 
 				List<String> cellList = new ArrayList<String>(
 					Arrays.asList(new String[] { 
+						"J"+item.getJobId().intValue(),
 						item.getName(),
 						String.format("%.2f", amount),
 						user.getNameFstLst(), 

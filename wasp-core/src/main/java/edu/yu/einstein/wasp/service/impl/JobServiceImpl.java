@@ -371,15 +371,28 @@ public class JobServiceImpl extends WaspServiceImpl implements JobService {
 					  extraJobDetailsMap.put("Quote Job Price", "Awaiting Quote");
 				  }
 				  else if(state.getStatus().equals("COMPLETED") || state.getStatus().equals("FINALIZED")){
-					  Float price = new Float(job.getAcctJobquotecurrent().get(0).getAcctQuote().getAmount());
-					  extraJobDetailsMap.put("Quote Job Price", price.toString());
+					  try{
+						  Float price = new Float(job.getAcctJobquotecurrent().get(0).getAcctQuote().getAmount());
+						  extraJobDetailsMap.put("Quote Job Price", price.toString());
+					  }
+					  catch(Exception e){
+						  extraJobDetailsMap.put("Quote Job Price", "Unknown"); 
+					  }					  
 				  }
 				  else {
 					  extraJobDetailsMap.put("Quote Job Price", "Unknown");
 				  }
 			  }
 		  }
-		  
+		  if(extraJobDetailsMap.containsKey("DA Approval")==false){
+			  extraJobDetailsMap.put("DA Approval", "Not Yet Set");
+		  }
+		  if(extraJobDetailsMap.containsKey("PI Approval")==false){
+			  extraJobDetailsMap.put("PI Approval", "Not Yet Set");
+		  }
+		  if(extraJobDetailsMap.containsKey("Quote Job Price")==false){
+			  extraJobDetailsMap.put("Quote Job Price", "Not Yet Set");
+		  }
 		  
 		  return extraJobDetailsMap;	  
 	  }

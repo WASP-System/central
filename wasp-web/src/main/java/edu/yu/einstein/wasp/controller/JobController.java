@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import edu.yu.einstein.wasp.controller.DashboardController.DashboardEntityRolename;
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.dao.JobCellSelectionDao;
 import edu.yu.einstein.wasp.dao.JobDao;
@@ -55,6 +56,7 @@ import edu.yu.einstein.wasp.model.Workflowresourcecategory;
 import edu.yu.einstein.wasp.model.WorkflowresourcecategoryMeta;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 import edu.yu.einstein.wasp.util.MetaHelper;
 import edu.yu.einstein.wasp.util.StringHelper;
@@ -109,7 +111,16 @@ public class JobController extends WaspController {
 	private SampleService sampleService;
 	@Autowired
 	private JobService jobService;
-
+	@Autowired
+	private AuthenticationService authenticationService;
+	
+	// list of baserolenames (da-department admin, lu- labuser ...)
+	// see role table
+	// higher level roles such as 'lm' or 'js' are used on the view
+	public static enum DashboardEntityRolename {
+		da, lu, jv, jd, su, ga
+	};
+	
 	private final MetaHelperWebapp getMetaHelperWebapp() {
 		return new MetaHelperWebapp(JobMeta.class, request.getSession());
 	}
@@ -144,9 +155,40 @@ public class JobController extends WaspController {
 		//result
 		Map <String, Object> jqgrid = new HashMap<String, Object>();
 		
-		List<Job> jobList;
+		List<Job> jobList = new ArrayList<Job>();
 		
-		if (!search.equals("true")	&& userId.isEmpty()	&& labId.isEmpty()) {
+		if (!search.equals("true")	&& !userId.isEmpty() && labId.isEmpty()) {
+			
+			for (String role: authenticationService.getRoles()) {			
+				
+				String[] splitRole = role.split("-");
+				if (splitRole.length != 2) { continue; }
+				if (splitRole[1].equals("*")) { continue; }
+			
+				DashboardEntityRolename entityRolename; 
+				int roleObjectId = 0;
+
+				try { 
+					entityRolename = DashboardEntityRolename.valueOf(splitRole[0]);
+					roleObjectId = Integer.parseInt(splitRole[1]);
+				} catch (Exception e)	{
+					continue;
+				}
+				
+
+				// adds the role object to the proper bucket
+				switch (entityRolename) {
+					
+					case jv: 
+						
+						jobList.add(jobDao.getJobByJobId(roleObjectId));
+						
+						break;
+					
+				}
+			}
+		}
+		else if (!search.equals("true")	&& userId.isEmpty()	&& labId.isEmpty()) {
 			jobList = sidx.isEmpty() ? this.jobDao.findAll() : this.jobDao.findAllOrderBy(sidx, sord);
 		} else {
 			  Map m = new HashMap();

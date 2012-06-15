@@ -1748,7 +1748,7 @@ create table taskmapping (
   status varchar(50) not null,
   listmap varchar(255) default null,
   detailmap varchar(255) default null,
-  permission varchar(50) not null,
+  permission varchar(255) not null,
   dashboardsortorder int(10),
 
   foreign key fk_taskmapping_tid (taskid) references task(taskid),
