@@ -712,7 +712,8 @@ public class SampleDnaToLibraryController extends WaspController {
 		}
 		Sample modelLibrary = new Sample();
 		modelLibrary.setSampleSubtype(librarySampleSubtypes.get(0)); // should be one
-		modelLibrary.setParent(libraryIn.getParent());
+		if (libraryIn.getParentId() != null)
+			modelLibrary.setParent(libraryIn.getParent());
 		modelLibrary.setSampleId(libraryIn.getSampleId());
 		modelLibrary.setSampleType(sampleTypeDao.getSampleTypeBySampleTypeId(libraryIn.getSampleTypeId()));
 		modelLibrary.setName(libraryIn.getName());
