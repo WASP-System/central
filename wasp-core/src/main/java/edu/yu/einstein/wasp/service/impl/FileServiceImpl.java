@@ -123,7 +123,9 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	 */
 	@Override 
 	public File processUploadedFile(MultipartFile mpFile, String destPath, String description) throws FileUploadException{
-		String absolutePath = destPath+"/"+mpFile.getOriginalFilename(); 
+		String noSpacesFileName = mpFile.getOriginalFilename().replaceAll("\\s+", "_");
+		//String absolutePath = destPath+"/"+mpFile.getOriginalFilename();
+		String absolutePath = destPath+"/"+noSpacesFileName;
 		java.io.File pathFile = new java.io.File(destPath);
 		if (!pathFile.exists()){
 			try{
@@ -137,9 +139,11 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		try {
 			md5Hash = DigestUtils.md5Hex(mpFile.getInputStream());
 		} catch (IOException e) {
-			logger.warn("Cannot generate MD5 Hash for '"+mpFile.getOriginalFilename()+"': "+ e.getMessage());
+			//logger.warn("Cannot generate MD5 Hash for '"+mpFile.getOriginalFilename()+"': "+ e.getMessage());
+			logger.warn("Cannot generate MD5 Hash for '"+noSpacesFileName+"': "+ e.getMessage());
 		}
-		String fileName = mpFile.getOriginalFilename();
+		//String fileName = mpFile.getOriginalFilename();
+		String fileName = mpFile.getOriginalFilename().replaceAll("\\s+", "_");
 		Integer fileSizeK = (int)((mpFile.getSize()/1024) + 0.5);
 		String contentType = mpFile.getContentType();
 		logger.debug("Uploading file '"+fileName+"' to '"+absolutePath+"' (type="+contentType+", size="+fileSizeK+"Kb, md5Hash="+md5Hash+")");

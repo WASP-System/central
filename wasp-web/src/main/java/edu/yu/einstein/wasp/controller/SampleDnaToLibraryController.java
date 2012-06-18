@@ -330,48 +330,37 @@ public class SampleDnaToLibraryController extends WaspController {
 			//for each task, determine if it's status is CREATED (if it has many states for a single status, simply determine if at least one is CREATED) 
 			Task taskReceiveSampleStatus = taskDao.getTaskByIName("Receive Sample");
 			Task taskCreateLibrary = taskDao.getTaskByIName("Create Library");
-////			Task taskAssignLibraryToPlatformUnit = taskDao.getTaskByIName("assignLibraryToPlatformUnit");
+			Task taskAssignLibraryToPlatformUnit = taskDao.getTaskByIName("assignLibraryToPlatformUnit");
 			List<Statesample> stateSampleList = sample.getStatesample();
 			String receiveSampleStatus = new String("NOT FOUND");
 			String createLibraryStatus = new String("NOT FOUND");
-////			String assignLibraryToPlatformUnitStatus = new String("NOT CREATED");
+			String assignLibraryToPlatformUnitStatus = new String("NOT FOUND");
 			for(Statesample stateSample : stateSampleList){
 				State state = stateSample.getState();
 				if(state.getTask().getIName().equals(taskReceiveSampleStatus.getIName())){
-					//if(state.getStatus().equals("CREATED")){
-					//	receiveSampleStatus = "CREATED";
-					//}
 					receiveSampleStatus = state.getStatus();
 				}
 				else if(state.getTask().getIName().equals(taskCreateLibrary.getIName())){
-					//if(state.getStatus().equals("CREATED")){
-					//	createLibraryStatus = "CREATED";
-					//}
 					createLibraryStatus = state.getStatus();
 				}
-////				else if(state.getTask().getIName().equals(taskAssignLibraryToPlatformUnit.getIName())){
-////					if(state.getStatus().equals("CREATED")){
-////						assignLibraryToPlatformUnitStatus = "CREATED";
-////					}
-////				}
+				else if(state.getTask().getIName().equals(taskAssignLibraryToPlatformUnit.getIName())){
+					assignLibraryToPlatformUnitStatus = state.getStatus();
+				}
 			}
 			receiveSampleStatusMap.put(sample, receiveSampleStatus);
 			createLibraryStatusMap.put(sample, createLibraryStatus);
-////			assignLibraryToPlatformUnitStatusMap.put(sample, assignLibraryToPlatformUnitStatus);
+			assignLibraryToPlatformUnitStatusMap.put(sample, assignLibraryToPlatformUnitStatus);
 			
 			for(Sample library : sampleService.getFacilityGeneratedLibraries(sample)){
-				Task taskAssignLibraryToPlatformUnit = taskDao.getTaskByIName("assignLibraryToPlatformUnit");
+				Task taskAssignLibraryToPlatformUnit2 = taskDao.getTaskByIName("assignLibraryToPlatformUnit");
+				String assignLibraryToPlatformUnitStatus2 = new String("NOT FOUND");
 				for(Statesample stateSample : library.getStatesample()){
-					State state = stateSample.getState();
-					String assignLibraryToPlatformUnitStatus = new String("NOT FOUND");
+					State state = stateSample.getState();					
 					if(state.getTask().getIName().equals(taskAssignLibraryToPlatformUnit.getIName())){
-						//if(state.getStatus().equals("CREATED")){
-						//	assignLibraryToPlatformUnitStatus = "CREATED";
-						//}
-						assignLibraryToPlatformUnitStatus = state.getStatus();
+						assignLibraryToPlatformUnitStatus2 = state.getStatus();
 					}
-					assignLibraryToPlatformUnitStatusMap.put(library, assignLibraryToPlatformUnitStatus);
 				}
+				assignLibraryToPlatformUnitStatusMap.put(library, assignLibraryToPlatformUnitStatus2);
 			}			
 		}
 		sampleService.sortSamplesBySampleName(macromoleculeSubmittedSamplesList);

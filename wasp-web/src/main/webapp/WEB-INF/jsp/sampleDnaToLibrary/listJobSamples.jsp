@@ -65,7 +65,7 @@
 				
 				<sec:authorize access="hasRole('su') or hasRole('ft')">
 				<c:if test='${receivedStatusMap.get(userSubmittedMacromolecule)=="RECEIVED"}'>
-					<c:if test='${createLibraryStatusMap.get(userSubmittedMacromolecule)=="CREATED" || createLibraryStatusMap.get(userSubmittedMacromolecule)=="COMPLETED" || createLibraryStatusMap.get(userSubmittedMacromolecule)=="FINALIZED"}'>
+					<c:if test='${createLibraryStatusMap.get(userSubmittedMacromolecule)=="CREATED"}'>
 						<input class="fm-button" type="button" value="<fmt:message key="listJobSamples.createLibrary.label" />"  onClick="window.location='<c:url value="/sampleDnaToLibrary/createLibraryFromMacro/${job.jobId}/${userSubmittedMacromolecule.sampleId}.do"/>'" />
 			 	 	</c:if>
 		 	 	</c:if>
@@ -93,7 +93,7 @@
  							<sec:authorize access="hasRole('su') or hasRole('ft')">
 							<div id="showButton_<c:out value="${idCounter}" />" >
 
-						<c:if test='${assignLibraryToPlatformUnitStatusMap.get(facilityLibraryForThisMacromolecule)=="CREATED" || assignLibraryToPlatformUnitStatusMap.get(facilityLibraryForThisMacromolecule)=="COMPLETED" || assignLibraryToPlatformUnitStatusMap.get(facilityLibraryForThisMacromolecule)=="FINALIZED"}'> 
+						<c:if test='${assignLibraryToPlatformUnitStatusMap.get(facilityLibraryForThisMacromolecule)=="CREATED"}'> 
 				 				<input class="fm-button" type="button" value="<fmt:message key="listJobSamples.addLibraryToPlatformUnit.label" />" onclick='toggleDisplayOfAddLibraryForm("show", <c:out value="${idCounter}" />)' />				
 						</c:if> 
 
@@ -199,7 +199,7 @@
  				<sec:authorize access="hasRole('su') or hasRole('ft')">
 				<div id="showButton_<c:out value="${idCounter}" />" >
 			<c:if test='${receivedStatusMap.get(userSubmittedLibrary)=="RECEIVED"}'>	
-			  <c:if test='${assignLibraryToPlatformUnitStatusMap.get(userSubmittedLibrary)=="CREATED" || assignLibraryToPlatformUnitStatusMap.get(userSubmittedLibrary)=="COMPLETED" || assignLibraryToPlatformUnitStatusMap.get(userSubmittedLibrary)=="FINALIZED"}'> 
+			  <c:if test='${assignLibraryToPlatformUnitStatusMap.get(userSubmittedLibrary)=="CREATED"}'> 
 					<input class="button" type="button" value="<fmt:message key="listJobSamples.addLibraryToPlatformUnit.label" />" onclick='toggleDisplayOfAddLibraryForm("show", <c:out value="${idCounter}" />)' />				
 			  </c:if> 
 			</c:if>  
