@@ -118,12 +118,7 @@
 		<put-attribute name="head-js" value="/WEB-INF/jsp/lab/pendinglmapproval/list.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/lab/pendinglmapproval/list.jsp" />
 	</definition>
-	<!--  no longer being used
-	<definition name="lab/allpendinglmapproval/list" extends="template-base">
-		<put-attribute name="head-js" value="/WEB-INF/jsp/lab/allpendinglmapproval/list.js.jsp" />
-		<put-attribute name="body-content" value="/WEB-INF/jsp/lab/allpendinglmapproval/list.jsp" />
-	</definition>
-	-->
+
 	<definition name="user/mypassword" extends="template-base">
 		<put-attribute name="head-js" value="/WEB-INF/jsp/user/mypassword.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/user/mypassword.jsp" />
@@ -212,6 +207,7 @@
 	<definition name="run/detail" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/run/detail.jsp" />
 	</definition>
+
 	<definition name="task/assignLibraries/lists" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/task/assignLibraries/lists.jsp" />
 	</definition>
@@ -403,6 +399,10 @@
 	<definition name="workflow/resource/configure" extends="template-base">
 		<put-attribute name="head-js" value="/WEB-INF/jsp/workflow/resource/configure.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/workflow/resource/configure.jsp" />
+	</definition>
+
+	<definition name="hello" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/hello.jsp" />
 	</definition>
 
 	<definition name="job/metaform_rw" extends="template-base">
