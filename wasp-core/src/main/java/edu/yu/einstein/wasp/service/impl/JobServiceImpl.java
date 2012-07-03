@@ -373,7 +373,7 @@ public class JobServiceImpl extends WaspServiceImpl implements JobService {
 				  else if(state.getStatus().equals("COMPLETED") || state.getStatus().equals("FINALIZED")){
 					  try{
 						  Float price = new Float(job.getAcctJobquotecurrent().get(0).getAcctQuote().getAmount());
-						  extraJobDetailsMap.put("Quote Job Price", price.toString());
+						  extraJobDetailsMap.put("Quote Job Price", "$"+String.format("%.2f", price));
 					  }
 					  catch(Exception e){
 						  extraJobDetailsMap.put("Quote Job Price", "Unknown"); 
