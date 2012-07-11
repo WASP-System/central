@@ -11,11 +11,7 @@
 		<constructor-arg value="${jobParameters['platformUnitId']}" />
 	</bean>
 	
-	<bean id="waitForRunStopTasklet" class="edu.yu.einstein.wasp.tasklets.libraryflow.WaitForRunStopTasklet" scope="step">
-		<constructor-arg value="${jobParameters['platformUnitId']}" />
-	</bean>
-	
-	<bean id="abandonRunTasklet" class="edu.yu.einstein.wasp.tasklets.libraryflow.AbandonRunTasklet" scope="step">
+	<bean id="waitForRunCompleteTasklet" class="edu.yu.einstein.wasp.tasklets.libraryflow.WaitForRunCompleteTasklet" scope="step">
 		<constructor-arg value="${jobParameters['platformUnitId']}" />
 	</bean>
 	
@@ -23,16 +19,12 @@
 	<batch:flow id="runLibraryFlow">
 		<batch:step id="waitForRunStart">
 			<batch:tasklet ref="waitForRunStartTasklet" />
-			<batch:next on="RUN STARTED" to="waitForRunStop" />
-			<batch:next on="RUN FAILED" to="waitForRunStart" />
-			<batch:next on="RUN ABANDONED" to="abandonRun" />
-			<batch:fail on="*" />
+			<batch:end on="FAILED" />
+			<batch:next on="COMPLETE" to="waitForRunComplete" />
+			<batch:next on="REPEAT STEP" to="waitForRunStart" />
 		</batch:step>
-		<batch:step id="waitForRunStop">
-			<batch:tasklet ref="waitForRunStopTasklet" />
-		</batch:step>
-		<batch:step id="abandonRun">
-			<batch:tasklet ref="abandonRunTasklet" />
+		<batch:step id="waitForRunComplete">
+			<batch:tasklet ref="waitForRunCompleteTasklet" />
 		</batch:step>
 	</batch:flow>
 	

@@ -18,7 +18,7 @@ import edu.yu.einstein.wasp.exceptions.UnexpectedMessagePayloadValueException;
 import edu.yu.einstein.wasp.messages.WaspRunStatus;
 import edu.yu.einstein.wasp.messages.WaspRunStatusMessage;
 
-public class WaitForRunStopTasklet implements Tasklet, MessageHandler, StepExecutionListener {
+public class WaitForRunCompleteTasklet implements Tasklet, MessageHandler, StepExecutionListener {
 	
 	@Autowired
 	private ApplicationContext context;
@@ -32,7 +32,7 @@ public class WaitForRunStopTasklet implements Tasklet, MessageHandler, StepExecu
 	}
 	
 
-	public WaitForRunStopTasklet(Integer platformUnitId) {
+	public WaitForRunCompleteTasklet(Integer platformUnitId) {
 		this.platformUnitId = platformUnitId;
 		this.runStatus = null;
 		
