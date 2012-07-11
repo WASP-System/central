@@ -19,12 +19,14 @@
 	<batch:flow id="runLibraryFlow">
 		<batch:step id="waitForRunStart">
 			<batch:tasklet ref="waitForRunStartTasklet" />
-			<batch:end on="FAILED" />
+			<batch:fail on="FAILED" exit-code="EARLY TERMINATION" />
 			<batch:next on="COMPLETE" to="waitForRunComplete" />
 			<batch:next on="REPEAT STEP" to="waitForRunStart" />
 		</batch:step>
 		<batch:step id="waitForRunComplete">
 			<batch:tasklet ref="waitForRunCompleteTasklet" />
+			<batch:fail on="FAILED" exit-code="EARLY TERMINATION" />
+			<batch:next on="REPEAT STEP" to="waitForRunComplete" />
 		</batch:step>
 	</batch:flow>
 	

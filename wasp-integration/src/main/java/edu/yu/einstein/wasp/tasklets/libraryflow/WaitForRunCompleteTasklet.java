@@ -77,8 +77,11 @@ public class WaitForRunCompleteTasklet implements Tasklet, MessageHandler, StepE
 
 	@Override
 	public ExitStatus afterStep(StepExecution stepExecution) {
-		// Define exit status of this step to be the string value of runStatus
-		return new ExitStatus("RUN "+runStatus.toString());
+		if (stepExecution.getExitStatus() == ExitStatus.FAILED)
+			return ExitStatus.FAILED;
+		if (this.runStatus == WaspRunStatus.COMPLETED)
+			return ExitStatus.COMPLETED;
+		return new ExitStatus("REPEAT STEP");
 	}
 
 	@Override
