@@ -9,14 +9,14 @@
 
 	<batch:job-repository id="jobRepository" />
 	
-	<bean id="taskExecutor" class="org.springframework.core.task.SyncTaskExecutor" />
+	<bean id="taskExecutor" class="org.springframework.core.task.SimpleAsyncTaskExecutor" />
 	
 	<bean id="jobLauncher" class="org.springframework.batch.core.launch.support.SimpleJobLauncher">
 		<property name="jobRepository" ref="jobRepository" />
 		<property name="taskExecutor" ref="taskExecutor" />
 	</bean>
-	
-	<!-- AOP advice to restart tasklets with name pattern *RetryableTasklet.java -->
+
+	<!-- AOP advice to restart tasklets with name pattern *RetryableTasklet.java 
     <aop:config>
         <aop:pointcut id="batchJobRetry" expression=" execution(* *..*RetryableTasklet.execute(..))  "/>
         <aop:advisor pointcut-ref="batchJobRetry" advice-ref="retryAdvice" order="-1"/>
@@ -36,5 +36,5 @@
             </bean>
         </property>
     </bean>
-
+	-->
 </beans>

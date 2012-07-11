@@ -20,7 +20,8 @@
 	<!-- Define flow -->
 	<batch:flow id="runFlow">
 		<batch:step id="runStartStep" next="runCompleteStep">			
-			<batch:tasklet ref="runStartTasklet" />
+			<batch:tasklet ref="runStartTasklet">
+			 </batch:tasklet>
 		</batch:step>
 		<batch:step id="runCompleteStep">
 			<batch:tasklet ref="runCompleteTasklet" />

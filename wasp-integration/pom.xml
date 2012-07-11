@@ -43,11 +43,11 @@
 	</profiles>
 
 	<dependencies>
-		<dependency>
+		<!-- dependency>
       		<groupId>edu.yu.einstein.wasp</groupId>
       		<artifactId>wasp-core</artifactId>
       		<version>${module.version}</version>
-    	</dependency>
+    	</dependency -->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
