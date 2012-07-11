@@ -14,55 +14,58 @@ import org.springframework.integration.MessagingException;
 import org.springframework.integration.core.MessageHandler;
 import org.springframework.integration.core.SubscribableChannel;
 
+import edu.yu.einstein.wasp.exceptions.UnexpectedMessagePayloadValueException;
 import edu.yu.einstein.wasp.messages.WaspRunStatus;
 import edu.yu.einstein.wasp.messages.WaspRunStatusMessage;
-import edu.yu.einstein.wasp.model.Run;
-import edu.yu.einstein.wasp.service.SampleService;
 
 public class WaitForRunStopTasklet implements Tasklet, MessageHandler, StepExecutionListener {
-	
-	@Autowired
-	SampleService sampleService;
 	
 	@Autowired
 	private ApplicationContext context;
 	
 	private WaspRunStatus runStatus;
 	
-	private Integer runId;
+	private Integer platformUnitId;
 	
 	public void setContext(ApplicationContext context) {
 		this.context = context;
 	}
 	
-	public void setSampleService(SampleService sampleService) {
-		this.sampleService = sampleService;
-	}
-
-	private Integer platformUnitId;
 
 	public WaitForRunStopTasklet(Integer platformUnitId) {
 		this.platformUnitId = platformUnitId;
-		this.runStatus = WaspRunStatus.UNKNOWN;
-		Run run = sampleService.getCurrentRunForPlatformUnit(sampleService.getSampleDao().getSampleBySampleId(platformUnitId));
-		this.runId = run.getSampleId();
+		this.runStatus = null;
 		
 		// listen in on the waspRunPublishSubscribeChannel for messages
 		SubscribableChannel waspRunPublishSubscribeChannel = context.getBean("waspRunPublishSubscribeChannel", SubscribableChannel.class);
 		waspRunPublishSubscribeChannel.subscribe(this); // register as a message handler on the waspRunPublishSubscribeChannel
 	}
+	
+	private RepeatStatus delayedContinueRepeatStatus(){
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// do nothing here just proceed to the return
+		}
+		return delayedContinueRepeatStatus();
+	}
 
 	@Override
 	public RepeatStatus execute(StepContribution stepContribution, ChunkContext chunkContext) throws Exception {
 
-		if (this.runStatus.equals(WaspRunStatus.UNKNOWN)){
+		if (this.runStatus == null){
 			// no messages yet
-			Thread.sleep(5000);
-			return RepeatStatus.CONTINUABLE; // we're not done with this step yet
+			return delayedContinueRepeatStatus(); // we're not done with this step yet
+		}
+		// We have received a run status message. Woohoo! Better be sure it's one we're expecting
+		if (this.runStatus != WaspRunStatus.STOPPED && 
+				this.runStatus != WaspRunStatus.COMPLETED && 
+				this.runStatus != WaspRunStatus.ABANDONED &&
+				this.runStatus != WaspRunStatus.FAILED){
+			throw new UnexpectedMessagePayloadValueException("Got unexpected message WaspRunStatus."+runStatus.toString());
 		}
 		
-		// We have received a run status message. Woohoo!
-		// the status will be returned as the exit code from this step using the afterStep method from the StepExecutionListener interface
+		// the status will be returned as the exit code from this step using the afterStep() method from the StepExecutionListener interface
 		return RepeatStatus.FINISHED; // clean exit to complete step
 	}
 
@@ -70,7 +73,7 @@ public class WaitForRunStopTasklet implements Tasklet, MessageHandler, StepExecu
 	public void handleMessage(Message<?> message) throws MessagingException {
 		// we have picked up a message broadcast on the waspRunPublishSubscribeChannel.
 		// Let's see if it is for us and if so we should get the run status from the payload
-		if (WaspRunStatusMessage.actUponMessage(message, this.runId)){
+		if (WaspRunStatusMessage.actUponMessage(message, null, this.platformUnitId)){
 			this.runStatus = (WaspRunStatus) message.getPayload();
 		}
 	}
