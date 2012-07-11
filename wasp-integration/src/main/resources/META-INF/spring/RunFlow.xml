@@ -7,11 +7,11 @@
 
 	<!-- Define step tasklets -->
 	<!-- Note: need scope="step" because the bean uses late-binding to evaluate the job parameter values -->
-	<bean id="runStartTasklet" class="edu.yu.einstein.wasp.tasklets.wasprunflow.RunStartTasklet" scope="step">
+	<bean id="runStartTasklet" class="edu.yu.einstein.wasp.tasklets.runflow.RunStartTasklet" scope="step">
 		<constructor-arg value="#{jobParameters['runId']}" />
 	</bean>
 	
-	<bean id="runStopTasklet" class="edu.yu.einstein.wasp.tasklets.wasprunflow.RunStopTasklet" scope="step">
+	<bean id="runStopTasklet" class="edu.yu.einstein.wasp.tasklets.runflow.RunStopTasklet" scope="step">
 		<constructor-arg value="#{jobParameters['runId']}" />
 	</bean>
 

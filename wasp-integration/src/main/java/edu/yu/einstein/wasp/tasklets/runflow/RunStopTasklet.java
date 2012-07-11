@@ -1,4 +1,4 @@
-package edu.yu.einstein.wasp.tasklets.wasprunflow;
+package edu.yu.einstein.wasp.tasklets.runflow;
 
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.scope.context.ChunkContext;
