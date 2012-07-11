@@ -12,18 +12,18 @@
 		<constructor-arg value="#{jobParameters['platformUnitId']}" />
 	</bean>
 	
-	<bean id="runStopTasklet" class="edu.yu.einstein.wasp.tasklets.runflow.RunStopTasklet" scope="step">
+	<bean id="runCompleteTasklet" class="edu.yu.einstein.wasp.tasklets.runflow.RunCompleteTasklet" scope="step">
 		<constructor-arg value="#{jobParameters['runId']}" />
 		<constructor-arg value="#{jobParameters['platformUnitId']}" />
 	</bean>
 
 	<!-- Define flow -->
 	<batch:flow id="runFlow">
-		<batch:step id="runStartStep" next="runStopStep">			
+		<batch:step id="runStartStep" next="runCompleteStep">			
 			<batch:tasklet ref="runStartTasklet" />
 		</batch:step>
-		<batch:step id="runStopStep">
-			<batch:tasklet ref="runStopTasklet" />
+		<batch:step id="runCompleteStep">
+			<batch:tasklet ref="runCompleteTasklet" />
 		</batch:step>
 	</batch:flow> 
 	
