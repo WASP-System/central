@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.dao.AdaptorDao;
+import edu.yu.einstein.wasp.dao.RunDao;
 import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.dao.SampleMetaDao;
 import edu.yu.einstein.wasp.dao.SampleSourceDao;
@@ -41,6 +42,7 @@ import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
+import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleDraftMeta;
@@ -123,6 +125,9 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	
 	@Autowired
 	  private TaskDao taskDao;
+	
+	@Autowired
+	  private RunDao runDao;
 
 	public void setSampleMetaDao(SampleMetaDao sampleMetaDao) {
 		this.sampleMetaDao = sampleMetaDao;
@@ -750,5 +755,18 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 			
 			return new ArrayList<Sample>(samples);//return as list rather than as set
 	  }
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Run getCurrentRunForPlatformUnit(Sample platformUnit) {
+		for (Run run : platformUnit.getRun()){
+			// return run if it has been started by has no record of completion
+			if (run.getStartts() != null && run.getEnDts() == null)
+				return run;
+		}
+		return null;
+	}
 	  
 }

@@ -24,6 +24,7 @@ import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleSubtype;
@@ -272,5 +273,13 @@ public interface SampleService extends WaspService {
 	   * @return List<Sample>
 	   */
 	  public List<Sample> platformUnitsAwaitingLibraries();
+	  
+	  /**
+	   * Get the run on which a given platform unit has been placed. If the platform unit is not currently associated with an active run or is not associated with a run 
+	   * this method returns null
+	   * @param platformUnit
+	   * @return
+	   */
+	  public Run getCurrentRunForPlatformUnit(Sample platformUnit);
 	  
 }
