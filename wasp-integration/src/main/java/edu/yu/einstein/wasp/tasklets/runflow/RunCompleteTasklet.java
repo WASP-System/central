@@ -7,6 +7,7 @@ import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.integration.Message;
 import org.springframework.integration.core.PollableChannel;
 
@@ -18,7 +19,7 @@ import edu.yu.einstein.wasp.messages.WaspRunStatusMessage;
  * @author andymac
  *
  */
-public class RunCompleteTasklet implements Tasklet{
+public class RunCompleteTasklet implements Tasklet, ApplicationContextAware{
 	
 private final Logger logger = Logger.getLogger(RunCompleteTasklet .class);
 	
@@ -26,10 +27,11 @@ private final Logger logger = Logger.getLogger(RunCompleteTasklet .class);
 	private Integer platformUnitId;
 	
 	@Autowired
-	private ApplicationContext context;
+	private ApplicationContext applicationContext;
 	
-	public void setContext(ApplicationContext context) {
-		this.context = context;
+	@Override
+	public void setApplicationContext(ApplicationContext applicationContext) {
+		this.applicationContext = applicationContext;
 	}
 	
 	public RunCompleteTasklet(Integer runId, Integer platformUnitId){
@@ -42,7 +44,7 @@ private final Logger logger = Logger.getLogger(RunCompleteTasklet .class);
 		// send message to inform other flows that a run has started
 		Message<WaspRunStatus> message =  WaspRunStatusMessage.build(runId, platformUnitId, WaspRunStatus.COMPLETED);
 		logger.debug("Sending message via 'waspRunPriorityChannel': "+message.toString());
-		PollableChannel waspRunPriorityChannel = context.getBean("waspRunPriorityChannel", PollableChannel.class);
+		PollableChannel waspRunPriorityChannel = applicationContext.getBean("waspRunPriorityChannel", PollableChannel.class);
 		waspRunPriorityChannel.send(message);
 		return RepeatStatus.FINISHED;
 	}

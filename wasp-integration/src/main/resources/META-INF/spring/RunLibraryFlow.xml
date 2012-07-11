@@ -8,11 +8,11 @@
 	<!-- Define step tasklets (Implement the Tasklet interface) -->
 	<!-- Note: need scope="step" because the bean uses late-binding to evaluate the job parameter values -->
 	<bean id="waitForRunStartTasklet" class="edu.yu.einstein.wasp.tasklets.libraryflow.WaitForRunStartTasklet" scope="step">
-		<constructor-arg value="${jobParameters['platformUnitId']}" />
+		<constructor-arg value="#{jobParameters['platformUnitId']}" />
 	</bean>
 	
 	<bean id="waitForRunCompleteTasklet" class="edu.yu.einstein.wasp.tasklets.libraryflow.WaitForRunCompleteTasklet" scope="step">
-		<constructor-arg value="${jobParameters['platformUnitId']}" />
+		<constructor-arg value="#{jobParameters['platformUnitId']}" />
 	</bean>
 	
 	<!-- Define flow -->
