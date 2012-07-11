@@ -31,7 +31,7 @@
 	</batch:flow>
 	
 	<!-- define job -->
-	<batch:job id="runLibraryJob">
+	<batch:job id="runLibraryJob" restartable="true">
 		<batch:flow parent="runLibraryFlow" id="runLibraryFlowExecution" />
 	</batch:job> 
 

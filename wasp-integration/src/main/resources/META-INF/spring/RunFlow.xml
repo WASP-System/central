@@ -28,7 +28,7 @@
 	</batch:flow> 
 	
 	<!-- define job -->
-	<batch:job id="runJob">
+	<batch:job id="runJob" restartable="true">
 		<batch:flow parent="runFlow" id="runFlowExecution" />
 	</batch:job> 
 
