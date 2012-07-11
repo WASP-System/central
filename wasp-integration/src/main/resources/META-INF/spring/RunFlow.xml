@@ -9,10 +9,12 @@
 	<!-- Note: need scope="step" because the bean uses late-binding to evaluate the job parameter values -->
 	<bean id="runStartTasklet" class="edu.yu.einstein.wasp.tasklets.runflow.RunStartTasklet" scope="step">
 		<constructor-arg value="#{jobParameters['runId']}" />
+		<constructor-arg value="#{jobParameters['platformUnitId']}" />
 	</bean>
 	
 	<bean id="runStopTasklet" class="edu.yu.einstein.wasp.tasklets.runflow.RunStopTasklet" scope="step">
 		<constructor-arg value="#{jobParameters['runId']}" />
+		<constructor-arg value="#{jobParameters['platformUnitId']}" />
 	</bean>
 
 	<!-- Define flow -->

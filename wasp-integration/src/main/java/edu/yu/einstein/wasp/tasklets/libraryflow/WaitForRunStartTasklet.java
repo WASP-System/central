@@ -52,6 +52,7 @@ public class WaitForRunStartTasklet implements Tasklet, MessageHandler, StepExec
 			}
 			return RepeatStatus.CONTINUABLE; // we're not done with this step yet
 		}
+		
 		// We have received a run status message. Woohoo! Better be sure it's one we're expecting
 		if (this.runStatus != WaspRunStatus.STARTED && 
 				this.runStatus != WaspRunStatus.ABANDONED){

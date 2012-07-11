@@ -41,22 +41,19 @@ public class WaitForRunStopTasklet implements Tasklet, MessageHandler, StepExecu
 		waspRunPublishSubscribeChannel.subscribe(this); // register as a message handler on the waspRunPublishSubscribeChannel
 	}
 	
-	private RepeatStatus delayedContinueRepeatStatus(){
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			// do nothing here just proceed to the return
-		}
-		return delayedContinueRepeatStatus();
-	}
-
 	@Override
 	public RepeatStatus execute(StepContribution stepContribution, ChunkContext chunkContext) throws Exception {
 
 		if (this.runStatus == null){
 			// no messages yet
-			return delayedContinueRepeatStatus(); // we're not done with this step yet
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				// do nothing here just proceed to the return
+			}
+			return RepeatStatus.CONTINUABLE; // we're not done with this step yet
 		}
+		
 		// We have received a run status message. Woohoo! Better be sure it's one we're expecting
 		if (this.runStatus != WaspRunStatus.STOPPED && 
 				this.runStatus != WaspRunStatus.COMPLETED && 

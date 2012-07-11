@@ -19,6 +19,7 @@ import edu.yu.einstein.wasp.messages.WaspRunStatusMessage;
 public class RunStartTasklet implements Tasklet{
 	
 	private Integer runId;
+	private Integer platformUnitId;
 	
 	@Autowired
 	private ApplicationContext context;
@@ -27,16 +28,21 @@ public class RunStartTasklet implements Tasklet{
 		this.context = context;
 	}
 	
-	public RunStartTasklet(Integer runId){
+	public RunStartTasklet(Integer runId, Integer platformUnitId){
 		this.runId = runId;
+		this.platformUnitId = platformUnitId;
 	}
 
 	@Override
 	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception {
 		// send message to inform other flows that a run has started
 		PollableChannel waspRunPriorityChannel = context.getBean("waspRunPriorityChannel", PollableChannel.class);
-		waspRunPriorityChannel.send(WaspRunStatusMessage.build(runId, WaspRunStatus.STARTED));
-		Thread.sleep(6000); // gives time for message to be processed (TESTING ONLY)
+		waspRunPriorityChannel.send(WaspRunStatusMessage.build(runId, platformUnitId, WaspRunStatus.STARTED));
+		try{
+			Thread.sleep(6000); // gives time for message to be processed (TESTING ONLY)
+		} catch (InterruptedException e) {
+			// do nothing here just proceed to the return
+		}
 		return RepeatStatus.FINISHED;
 	}
 
