@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:batch="http://www.springframework.org/schema/batch"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch-2.1.xsd">
+
+	<!-- Define step tasklets -->
+	<!-- Note: need scope="step" because the bean uses late-binding to evaluate the job parameter values -->
+	<bean id="runStartTasklet" class="edu.yu.einstein.wasp.tasklets.wasprunflow.RunStartTasklet" scope="step">
+		<constructor-arg value="#{jobParameters['runId']}" />
+	</bean>
+	
+	<bean id="runStopTasklet" class="edu.yu.einstein.wasp.tasklets.wasprunflow.RunStopTasklet" scope="step">
+		<constructor-arg value="#{jobParameters['runId']}" />
+	</bean>
+
+	<!-- Define flow -->
+	<batch:job id="runJob">
+		<batch:step id="runStartStep" next="runStopStep">			
+			<batch:tasklet ref="runStartTasklet" />
+		</batch:step>
+		<batch:step id="runStopStep">
+			<batch:tasklet ref="runStopTasklet" />
+		</batch:step>
+	</batch:job> 
+
+
+</beans>

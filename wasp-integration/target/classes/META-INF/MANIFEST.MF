@@ -1,0 +1,64 @@
+Manifest-Version: 1.0
+Built-By: andymac
+Build-Jdk: 1.6.0_33
+Class-Path: lib/wasp-core-0.1.0-SNAPSHOT.jar lib/wasp-cli-0.1.0-SNAPSH
+ OT.jar lib/commons-vfs2-2.0.jar lib/commons-logging-1.1.1.jar lib/mav
+ en-scm-api-1.4.jar lib/plexus-utils-1.5.6.jar lib/maven-scm-provider-
+ svnexe-1.4.jar lib/maven-scm-provider-svn-commons-1.4.jar lib/regexp-
+ 1.3.jar lib/jsch-0.1.46.jar lib/mail-1.4.4.jar lib/activation-1.1.jar
+  lib/commons-beanutils-1.8.3.jar lib/commons-collections-3.2.1.jar li
+ b/commons-digester-2.1.jar lib/commons-lang-2.6.jar lib/commons-pool-
+ 1.5.6.jar lib/antlr-2.7.7.jar lib/asm-3.3.1.jar lib/aopalliance-1.0.j
+ ar lib/dom4j-1.6.1.jar lib/xml-apis-1.0.b2.jar lib/ehcache-core-2.4.4
+ .jar lib/hibernate-jpa-2.0-api-1.0.1.Final.jar lib/hibernate-validato
+ r-4.2.0.Final.jar lib/hibernate-validator-annotation-processor-4.2.0.
+ Final.jar lib/hibernate-core-3.6.8.Final.jar lib/hibernate-commons-an
+ notations-3.2.0.Final.jar lib/hibernate-envers-3.6.8.Final.jar lib/hi
+ bernate-entitymanager-3.6.8.Final.jar lib/jackson-core-asl-1.8.5.jar 
+ lib/jackson-mapper-lgpl-1.8.5.jar lib/jackson-core-lgpl-1.8.5.jar lib
+ /oro-2.0.8.jar lib/javassist-3.12.1.GA.jar lib/jsp-api-2.2.jar lib/js
+ tl-1.2.jar lib/jta-1.1.jar lib/mysql-connector-java-5.1.18.jar lib/sp
+ ring-asm-3.1.1.RELEASE.jar lib/spring-aspects-3.1.1.RELEASE.jar lib/s
+ pring-beans-3.1.1.RELEASE.jar lib/spring-context-support-3.1.1.RELEAS
+ E.jar lib/spring-core-3.1.1.RELEASE.jar lib/spring-expression-3.1.1.R
+ ELEASE.jar lib/spring-instrument-3.1.1.RELEASE.jar lib/spring-instrum
+ ent-tomcat-3.1.1.RELEASE.jar lib/spring-jms-3.1.1.RELEASE.jar lib/spr
+ ing-orm-3.1.1.RELEASE.jar lib/spring-oxm-3.1.1.RELEASE.jar lib/spring
+ -web-3.1.1.RELEASE.jar lib/org.springframework.web.servlet-3.1.0.RC2.
+ jar lib/org.springframework.beans-3.1.0.RC2.jar lib/org.springframewo
+ rk.asm-3.1.0.RC2.jar lib/org.springframework.context-3.1.0.RC2.jar li
+ b/org.springframework.aop-3.1.0.RC2.jar lib/org.springframework.conte
+ xt.support-3.1.0.RC2.jar lib/org.springframework.core-3.1.0.RC2.jar l
+ ib/org.springframework.expression-3.1.0.RC2.jar lib/org.springframewo
+ rk.web-3.1.0.RC2.jar lib/com.springsource.org.aopalliance-1.0.0.jar l
+ ib/spring-tx-3.1.1.RELEASE.jar lib/slf4j-api-1.6.2.jar lib/slf4j-simp
+ le-1.6.2.jar lib/spring-security-acl-3.1.0.RELEASE.jar lib/spring-sec
+ urity-core-3.1.0.RELEASE.jar lib/spring-security-crypto-3.1.0.RELEASE
+ .jar lib/spring-security-ldap-3.1.0.RELEASE.jar lib/spring-security-a
+ spects-3.1.0.RELEASE.jar lib/spring-security-cas-3.1.0.RELEASE.jar li
+ b/cas-client-core-3.1.12.jar lib/spring-security-config-3.1.0.RELEASE
+ .jar lib/spring-security-openid-3.1.0.RELEASE.jar lib/httpclient-4.1.
+ 1.jar lib/httpcore-4.1.jar lib/guice-2.0.jar lib/openid4java-nodeps-0
+ .9.6.jar lib/jcip-annotations-1.0.jar lib/spring-security-taglibs-3.1
+ .0.RELEASE.jar lib/spring-security-web-3.1.0.RELEASE.jar lib/validati
+ on-api-1.0.0.GA.jar lib/velocity-1.7.jar lib/javax.servlet-api-3.0.1.
+ jar lib/commons-fileupload-1.2.2.jar lib/commons-codec-1.5.jar lib/sp
+ ring-integration-ip-2.1.1.RELEASE.jar lib/spring-integration-stream-2
+ .1.1.RELEASE.jar lib/spring-integration-file-2.1.0.RELEASE.jar lib/sp
+ ring-integration-rmi-2.1.1.RELEASE.jar lib/spring-batch-test-2.1.8.RE
+ LEASE.jar lib/objenesis-1.2.jar lib/jxl-2.6.12.jar lib/cglib-2.2.2.ja
+ r lib/selenium-firefox-driver-2.15.0.jar lib/selenium-remote-driver-2
+ .15.0.jar lib/json-20080701.jar lib/selenium-api-2.15.0.jar lib/commo
+ ns-exec-1.1.jar lib/spring-ldap-core-1.3.0.RELEASE.jar lib/guava-11.0
+ .1.jar lib/jsr305-1.3.9.jar lib/spring-jdbc-3.1.2.RELEASE.jar lib/spr
+ ing-context-3.1.2.RELEASE.jar lib/cglib-nodep-2.2.jar lib/spring-aop-
+ 3.1.2.RELEASE.jar lib/spring-batch-core-2.1.8.RELEASE.jar lib/xstream
+ -1.3.jar lib/xpp3_min-1.1.4c.jar lib/jettison-1.1.jar lib/spring-batc
+ h-infrastructure-2.1.8.RELEASE.jar lib/spring-batch-integration-1.2.0
+ .RELEASE.jar lib/spring-integration-core-2.1.0.RELEASE.jar lib/common
+ s-dbcp-1.2.2.jar lib/commons-io-1.4.jar lib/hsqldb-1.8.0.7.jar lib/as
+ pectjrt-1.6.8.jar lib/aspectjweaver-1.6.8.jar lib/log4j-1.2.14.jar
+Main-Class: org.springframework.batch.core.launch.support.CommandLineJ
+ obRunner
+Created-By: Maven Integration for Eclipse
+
