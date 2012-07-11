@@ -5,6 +5,8 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
 		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch-2.1.xsd">
 
+	<!-- Define step tasklets (Implement the Tasklet interface) -->
+	<!-- Note: need scope="step" because the bean uses late-binding to evaluate the job parameter values -->
 	<bean id="waitForRunStartTasklet" class="edu.yu.einstein.wasp.tasklets.libraryflow.WaitForRunStartTasklet" scope="step">
 		<constructor-arg value="${jobParameters['platformUnitId']}" />
 	</bean>
@@ -17,7 +19,8 @@
 		<constructor-arg value="${jobParameters['platformUnitId']}" />
 	</bean>
 	
-	<batch:job id="runLibraryJob">
+	<!-- Define flow -->
+	<batch:flow id="runLibraryFlow">
 		<batch:step id="waitForRunStart">
 			<batch:tasklet ref="waitForRunStartTasklet" />
 			<batch:next on="RUN STARTED" to="waitForRunStop" />
@@ -31,8 +34,12 @@
 		<batch:step id="abandonRun">
 			<batch:tasklet ref="abandonRunTasklet" />
 		</batch:step>
-		
-	</batch:job>
+	</batch:flow>
+	
+	<!-- define job -->
+	<batch:job id="runLibraryJob">
+		<batch:flow parent="runLibraryFlow" id="runLibraryFlowExecution" />
+	</batch:job> 
 
 
 </beans>
