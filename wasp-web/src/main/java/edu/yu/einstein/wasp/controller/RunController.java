@@ -324,7 +324,9 @@ public class RunController extends WaspController {
 							run.getResourceId().toString(),
 							run.getSample().getName(),
 							run.getSampleId().toString(),
-							user.getFirstName() + " " + user.getLastName()
+							user.getFirstName() + " " + user.getLastName(),
+							"", // placeholder for resourceId, refer to the list of columns on gridcolumns.jsp
+							""  // placeholder for sampleId, refer to the list of columns on gridcolumns.jsp
 				}));
 				 
 				for (RunMeta meta:runMeta) {

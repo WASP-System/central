@@ -10,6 +10,7 @@
 
 <wasp:field name="submission_date"  type="text" />
   
+<wasp:field name="viewfiles"  type="text" sortable="true" searchable="false"/>
 
 _url='/wasp/job/listJSON.do?selId=${param.selId}&userId=${param.userId}&labId=${param.labId}';
 

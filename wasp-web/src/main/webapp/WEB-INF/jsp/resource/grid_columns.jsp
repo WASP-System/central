@@ -14,10 +14,15 @@
 
 _navAttr={view:true,del:true,delfunc:_del_function_resource};
 
-// hide the resourceCategory dropdown list on the edit form
+// make machineType field read-only, hide the resourceCategory dropdown list on the edit form
 _editAttr['afterShowForm'] = function(formId) {
 	$('#machineType').attr('disabled', 'disabled');
 	$('#tr_resourceCategoryId', formId).hide();
+};
+// hide the resourceCategory dropdown list on the view form
+_viewAttr['afterShowForm'] = function(formId) {
+	$('#trv_resourceCategoryId').hide();
+//	$('#viewmodgrid_id').width(520);
 };
 
 // hide resource category text field on the add form, keep the dropdown list with only active resouceCategory in it

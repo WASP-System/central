@@ -321,7 +321,8 @@ public class JobController extends WaspController {
 							job.getName(),
 							user.getFirstName() + " " + user.getLastName(),
 							job.getLab().getName(),
-							job.getLastUpdTs().toString()
+							job.getLastUpdTs().toString(),
+							"<a href=/wasp/"+job.getWorkflow().getIName()+"/viewfiles/"+job.getJobId()+".do>View files</a>"
 				}));
 				 
 				for (JobMeta meta:jobMeta) {
@@ -389,12 +390,10 @@ public class JobController extends WaspController {
 				List<String> cellList = new ArrayList<String>(
 						Arrays.asList(
 								new String[] {
-										"<a href=/wasp/sample/list.do?selId=" 
-										+ sample.getSampleId().intValue() + ">" + 
-										sample.getName() + "</a>",
+										"<a href=/wasp/sample/list.do?selId=" + sample.getSampleId().intValue() + ">" + 
+											sample.getName() + "</a>",
 										sample.getSampleType().getName(),
 										sample.getSampleSubtype().getName(), 
-										//sample.getReceivedStatus()
 										sampleService.convertReceiveSampleStatusForWeb(sampleService.getReceiveSampleStatus(sample))
 								}
 						)
