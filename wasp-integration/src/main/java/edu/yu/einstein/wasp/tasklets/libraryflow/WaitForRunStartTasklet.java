@@ -1,6 +1,7 @@
 package edu.yu.einstein.wasp.tasklets.libraryflow;
 
 import org.apache.log4j.Logger;
+import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecution;
@@ -20,7 +21,7 @@ import edu.yu.einstein.wasp.exceptions.UnexpectedMessagePayloadValueException;
 import edu.yu.einstein.wasp.messages.WaspRunStatus;
 import edu.yu.einstein.wasp.messages.WaspRunStatusMessage;
 
-public class WaitForRunStartTasklet implements Tasklet, MessageHandler, StepExecutionListener, ApplicationContextAware {
+public class WaitForRunStartTasklet implements Tasklet, MessageHandler, ApplicationContextAware {
 	
 	private final Logger logger = Logger.getLogger(WaitForRunStartTasklet.class);
 	
@@ -44,9 +45,24 @@ public class WaitForRunStartTasklet implements Tasklet, MessageHandler, StepExec
 	 * @param platformUnitId
 	 */
 	public WaitForRunStartTasklet(Integer platformUnitId) {
-		logger.debug("Constructing new Instance"); // TODO: remove. This is for initial testing ONLY
+		// using step.scope. Constructor called once per step execution.
+		logger.debug("WaitForRunStartTasklet: Constructing new Instance"); 
 		this.platformUnitId = platformUnitId;
 		this.runStatus = null;
+	}
+	
+	/**
+	 * Returns a status of RepeatStatus.CONTINUABLE after specified timeout
+	 * @param ms
+	 * @return
+	 */
+	private RepeatStatus delayedRepeatStatusContinuable(Integer ms){
+		try {
+			Thread.sleep(ms); 
+		} catch (InterruptedException e) {
+			// do nothing here just proceed to the return
+		}
+		return RepeatStatus.CONTINUABLE; // we're not done with this step yet
 	}
 
 	
@@ -60,26 +76,26 @@ public class WaitForRunStartTasklet implements Tasklet, MessageHandler, StepExec
 			this.waspRunPublishSubscribeChannel = applicationContext.getBean("waspRunPublishSubscribeChannel", SubscribableChannel.class);
 			waspRunPublishSubscribeChannel.subscribe(this); // register as a message handler on the waspRunPublishSubscribeChannel
 		}
-		logger.debug("Entering WaitForRunStartTasklet:execute()"); // TODO: remove. This is for initial testing ONLY
+		logger.debug("Entering WaitForRunStartTasklet:execute()"); 
 		if (this.runStatus == null){
 			// no messages yet
-			try {
-				Thread.sleep(5000); // sleep 5 seconds
-			} catch (InterruptedException e) {
-				// do nothing here just proceed to the return
-			}
-			return RepeatStatus.CONTINUABLE; // we're not done with this step yet
+			return delayedRepeatStatusContinuable(5000);
 		}
 		
 		// We have received a run status message. Woohoo! Better be sure it's one we're expecting
 		if (this.runStatus != WaspRunStatus.STARTED && 
 				this.runStatus != WaspRunStatus.ABANDONED){
-			throw new UnexpectedMessagePayloadValueException("Got unexpected message WaspRunStatus."+runStatus.toString());
+			logger.error("Got unexpected message waiting for 'WaspRunStatus.STARTED': 'WaspRunStatus."+runStatus.toString()+"'"); 
+			String failureMessage = "Got unexpected message waiting for 'WaspRunStatus.COMPLETED': 'WaspRunStatus."+runStatus.toString()+"'";
+			this.runStatus = null; // on fail this object is not deleted and may be re-used on restart so clean up to be safe
+			logger.error(failureMessage); 
+			throw new UnexpectedMessagePayloadValueException(failureMessage);
 		}
-		this.waspRunPublishSubscribeChannel.unsubscribe(this); //unregister as a message handler on the waspRunPublishSubscribeChannel
-		// the status will be returned as the exit code from this step using the afterStep() method from the StepExecutionListener interface
+		
+		// message is as expected
 		return RepeatStatus.FINISHED; // clean exit to complete step
 	}
+
 
 	/**
 	 * Implementation of {@link MessageHandler} Interface method.
@@ -94,29 +110,14 @@ public class WaitForRunStartTasklet implements Tasklet, MessageHandler, StepExec
 			this.runStatus = (WaspRunStatus) message.getPayload();
 		}
 	}
-	
-	/**
-	 * Implementation of the {@link StepExecutionListener} Interface method
-	 */
-	@Override
-	public void beforeStep(StepExecution stepExecution) {
-		// nothing to do here
-	}
 
-	/**
-	 * Implementation of the {@link StepExecutionListener} Interface method
-	 */
-	@Override
-	public ExitStatus afterStep(StepExecution stepExecution) {
-		// Re-define ExitStatus
-		logger.debug("Entering afterStep()"); // TODO: remove. This is for initial testing ONLY
-		if (stepExecution.getExitStatus() == ExitStatus.FAILED)
-			return ExitStatus.FAILED;
-		if (this.runStatus == WaspRunStatus.STARTED)
-			return ExitStatus.COMPLETED;
-		return new ExitStatus("REPEAT STEP");
+	protected void finalize () throws Throwable{
+		// unregister from waspRunPublishSubscribeChannel only if this object gets garbage collected
+		if (waspRunPublishSubscribeChannel != null){
+			this.waspRunPublishSubscribeChannel.unsubscribe(this); 
+			waspRunPublishSubscribeChannel = null;
+		}
 	}
-
 	
 
 }

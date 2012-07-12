@@ -7,12 +7,9 @@ import org.apache.log4j.Logger;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.JobParameter;
 import org.springframework.batch.core.JobParameters;
-import org.springframework.batch.core.JobParametersInvalidException;
 import org.springframework.batch.core.launch.JobLauncher;
-import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
-import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
-import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.integration.Message;
@@ -24,7 +21,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import org.springframework.batch.core.JobParameter;
 
 import edu.yu.einstein.wasp.messages.WaspRunStatus;
 import edu.yu.einstein.wasp.messages.WaspRunStatusMessage;
@@ -68,12 +64,9 @@ public class RunFlowTests extends AbstractTestNGSpringContextTests implements Me
 			JobExecution jobExecution = jobLauncher.run(runJob, new JobParameters(parameterMap));
 			
 			// Check 'STARTED' message received
-			logger.debug("Going to sleep 2s Whilst awaiting first message...");
-			try{
-				Thread.sleep(2000);
-			} catch(InterruptedException e){
-				logger.debug("Awoken by interrupt.");
-			}
+			// Going to sleep 2s Whilst awaiting first message
+			Thread.sleep(2000);
+			
 			if (message == null)
 				Assert.fail("'Start' message was not received");
 			
@@ -88,12 +81,9 @@ public class RunFlowTests extends AbstractTestNGSpringContextTests implements Me
 			Assert.assertEquals(message.getPayload(), WaspRunStatus.STARTED);
 			
 			// Check 'COMPLETED' message received
-			logger.debug("Going to sleep 8s Whilst awaiting second message...");
-			try{
-				Thread.sleep(8000);
-			} catch(InterruptedException e){
-				logger.debug("Awoken by interrupt.");
-			}
+			// Going to sleep 8s Whilst awaiting second message
+			Thread.sleep(8000);
+			
 			if (message == null)
 				Assert.fail("'Complete' message was not received");
 			
@@ -109,6 +99,11 @@ public class RunFlowTests extends AbstractTestNGSpringContextTests implements Me
 		}
 	}
 	
+	/**
+	 * Test With Expected messages. Send a WaspRunStatus.STARTED and WaspRunStatus.COMPLETED message. The STARTED one has higher priority so
+	 * should arrive first folled by the COMPLETE message 5 s later due to the poller on the bridge between waspRunPriorityChannel and waspRunPublishSubscribeChannel.
+	 *
+	 */
 	@Test (groups = "unit-tests", dependsOnMethods = "testJobLauncher")
 	public void testRunLibraryJob() {
 		try{
@@ -120,29 +115,69 @@ public class RunFlowTests extends AbstractTestNGSpringContextTests implements Me
 			Map<String, JobParameter> parameterMap = new HashMap<String, JobParameter>();
 			parameterMap.put( PU_KEY, new JobParameter(PU_ID.toString()) );
 			JobExecution jobExecution = jobLauncher.run(runJob, new JobParameters(parameterMap));
-			try{
-				Thread.sleep(2000);
-			} catch(InterruptedException e){
-				logger.debug("Awoken by interrupt.");
-			}
+			
+			// Short delay before sending messages to allow flow setup and subscribing to waspRunPublishSubscribeChannel
+			Thread.sleep(1000);
+				
+			// send run completed message
+			message =  WaspRunStatusMessage.build(RUN_ID, PU_ID, WaspRunStatus.COMPLETED);
+			logger.debug("Sending message via 'waspRunPriorityChannel': "+message.toString());
+			waspRunPriorityChannel.send(message);
+			
 			// send run started message
 			Message<WaspRunStatus> message =  WaspRunStatusMessage.build(RUN_ID, PU_ID, WaspRunStatus.STARTED);
 			logger.debug("Sending message via 'waspRunPriorityChannel': "+message.toString());
 			waspRunPriorityChannel.send(message);
 			
+			// Delay to allow message receiving and transitions
+			int repeat = 0;
+			while (jobExecution.getStatus().isLessThanOrEqualTo(BatchStatus.STARTED) && repeat < 40){
+				Thread.sleep(500);
+				repeat++;
+			}
+			
+			// check BatchStatus is as expected
+			Assert.assertEquals(jobExecution.getStatus(), BatchStatus.COMPLETED);
+			
+		} catch (Exception e){
+			// caught an unexpected exception
+			Assert.fail("Caught Exception: "+e.getMessage());
+		}
+	}
+	
+	/**
+	 * Test With Unexpected message. Send a WaspRunStatus.COMPLETED message. As a STARTED message is expected first it should fail
+	 *
+	 */
+	@Test (groups = "unit-tests", dependsOnMethods = "testJobLauncher")
+	public void testRunLibraryJobFail() {
+		try{
+			// get a ref to the waspRunPriorityChannel to send test messages
+			PollableChannel waspRunPriorityChannel = context.getBean("waspRunPriorityChannel", PollableChannel.class);
+			
+			// setup job execution for the  'runLibraryJob' job
+			Job runJob = context.getBean("runLibraryJob", Job.class); // get the 'runLibraryJob' job from the context
+			Map<String, JobParameter> parameterMap = new HashMap<String, JobParameter>();
+			parameterMap.put( PU_KEY, new JobParameter(PU_ID.toString()) );
+			JobExecution jobExecution = jobLauncher.run(runJob, new JobParameters(parameterMap));
+			
+			// Short delay before sending messages to allow flow setup and subscribing to waspRunPublishSubscribeChannel
+			Thread.sleep(1000);
+				
 			// send run completed message
 			message =  WaspRunStatusMessage.build(RUN_ID, PU_ID, WaspRunStatus.COMPLETED);
 			logger.debug("Sending message via 'waspRunPriorityChannel': "+message.toString());
 			waspRunPriorityChannel.send(message);
 			
 			// Delay to allow message receiving and transitions
-			try{
-				Thread.sleep(40000);
-			} catch(InterruptedException e){
-				logger.debug("Awoken by interrupt.");
+			int repeat = 0;
+			while (jobExecution.getStatus().isLessThanOrEqualTo(BatchStatus.STARTED) && repeat < 40){
+				Thread.sleep(500);
+				repeat++;
 			}
+			
 			// check BatchStatus is as expected
-			Assert.assertEquals(jobExecution.getStatus(), BatchStatus.COMPLETED);
+			Assert.assertEquals(jobExecution.getStatus(), BatchStatus.FAILED);
 			
 		} catch (Exception e){
 			// caught an unexpected exception

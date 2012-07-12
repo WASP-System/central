@@ -1,8 +1,5 @@
 package edu.yu.einstein;
 
-import edu.yu.einstein.ExampleItemWriter;
-
-
 import org.testng.annotations.Test;
 
 public class ExampleItemWriterTests{

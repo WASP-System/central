@@ -40,7 +40,7 @@ public abstract class WaspRunStatusMessage {
 	 * @return
 	 */
 	public static boolean actUponMessage(Message<?> message, Integer runId, Integer platformUnitId ){
-		if ( ! WaspRunStatus.class.isInstance(message.getPayload().getClass()) || (runId == null && platformUnitId == null) )
+		if ( ! WaspRunStatus.class.isInstance(message.getPayload()) || (runId == null && platformUnitId == null) )
 			return false;
 		if (runId != null && platformUnitId != null){
 			if ( message.getHeaders().containsKey("runId") &&  ((Integer) message.getHeaders().get("runId")).equals(runId) &&

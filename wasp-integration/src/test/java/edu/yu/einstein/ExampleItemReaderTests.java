@@ -1,7 +1,5 @@
 package edu.yu.einstein; 
 
-import edu.yu.einstein.ExampleItemReader;
-
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

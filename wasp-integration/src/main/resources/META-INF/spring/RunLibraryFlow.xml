@@ -20,13 +20,12 @@
 		<batch:step id="waitForRunStart">
 			<batch:tasklet ref="waitForRunStartTasklet" />
 			<batch:fail on="FAILED" exit-code="EARLY TERMINATION" />
-			<batch:next on="COMPLETE" to="waitForRunComplete" />
-			<batch:next on="REPEAT STEP" to="waitForRunStart" />
+			<batch:next on="COMPLETED" to="waitForRunComplete" />
 		</batch:step>
 		<batch:step id="waitForRunComplete">
 			<batch:tasklet ref="waitForRunCompleteTasklet" />
 			<batch:fail on="FAILED" exit-code="EARLY TERMINATION" />
-			<batch:next on="REPEAT STEP" to="waitForRunComplete" />
+			<batch:end on="COMPLETED" />
 		</batch:step>
 	</batch:flow>
 	

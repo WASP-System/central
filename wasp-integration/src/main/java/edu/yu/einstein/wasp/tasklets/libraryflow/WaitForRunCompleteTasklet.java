@@ -20,7 +20,7 @@ import edu.yu.einstein.wasp.exceptions.UnexpectedMessagePayloadValueException;
 import edu.yu.einstein.wasp.messages.WaspRunStatus;
 import edu.yu.einstein.wasp.messages.WaspRunStatusMessage;
 
-public class WaitForRunCompleteTasklet implements Tasklet, MessageHandler, StepExecutionListener, ApplicationContextAware {
+public class WaitForRunCompleteTasklet implements Tasklet, MessageHandler, ApplicationContextAware {
 	
 	private final Logger logger = Logger.getLogger(WaitForRunCompleteTasklet.class);
 	
@@ -44,9 +44,24 @@ public class WaitForRunCompleteTasklet implements Tasklet, MessageHandler, StepE
 	 * @param platformUnitId
 	 */
 	public WaitForRunCompleteTasklet(Integer platformUnitId) {
-		logger.debug("Constructing new Instance"); // TODO: remove. This is for initial testing ONLY
+		// using step.scope. Constructor called once per step execution.
+		logger.debug("WaitForRunCompleteTasklet:Constructing new Instance"); 
 		this.platformUnitId = platformUnitId;
 		this.runStatus = null;
+	}
+	
+	/**
+	 * Returns a status of RepeatStatus.CONTINUABLE after specified timeout
+	 * @param ms
+	 * @return
+	 */
+	private RepeatStatus delayedRepeatStatusContinuable(Integer ms){
+		try {
+			Thread.sleep(ms); 
+		} catch (InterruptedException e) {
+			// do nothing here just proceed to the return
+		}
+		return RepeatStatus.CONTINUABLE; // we're not done with this step yet
 	}
 
 	
@@ -63,12 +78,7 @@ public class WaitForRunCompleteTasklet implements Tasklet, MessageHandler, StepE
 		logger.debug("Entering WaitForRunCompleteTasklet:execute()"); // TODO: remove. This is for initial testing ONLY
 		if (this.runStatus == null){
 			// no messages yet
-			try {
-				Thread.sleep(5000); // sleep 5 seconds
-			} catch (InterruptedException e) {
-				// do nothing here just proceed to the return
-			}
-			return RepeatStatus.CONTINUABLE; // we're not done with this step yet
+			return delayedRepeatStatusContinuable(5000);
 		}
 		
 		// We have received a run status message. Woohoo! Better be sure it's one we're expecting
@@ -76,10 +86,13 @@ public class WaitForRunCompleteTasklet implements Tasklet, MessageHandler, StepE
 				this.runStatus != WaspRunStatus.COMPLETED && 
 				this.runStatus != WaspRunStatus.ABANDONED &&
 				this.runStatus != WaspRunStatus.FAILED){
-			throw new UnexpectedMessagePayloadValueException("Got unexpected message WaspRunStatus."+runStatus.toString());
+			String failureMessage = "Got unexpected message waiting for 'WaspRunStatus.COMPLETED': 'WaspRunStatus."+runStatus.toString()+"'";
+			this.runStatus = null; // on fail this object is not deleted and may be re-used on restart so clean up to be safe
+			logger.error(failureMessage); 
+			throw new UnexpectedMessagePayloadValueException(failureMessage);
 		}
-		this.waspRunPublishSubscribeChannel.unsubscribe(this); //unregister as a message handler on the waspRunPublishSubscribeChannel
-		// the status will be returned as the exit code from this step using the afterStep() method from the StepExecutionListener interface
+		
+		// message is as expected
 		return RepeatStatus.FINISHED; // clean exit to complete step
 	}
 
@@ -97,27 +110,13 @@ public class WaitForRunCompleteTasklet implements Tasklet, MessageHandler, StepE
 		}
 	}
 	
-	/**
-	 * Implementation of the {@link StepExecutionListener} Interface method
-	 */
-	@Override
-	public void beforeStep(StepExecution stepExecution) {
-		// nothing to do here
+	protected void finalize () throws Throwable{
+		// unregister from waspRunPublishSubscribeChannel only if this object gets garbage collected
+		if (waspRunPublishSubscribeChannel != null){
+			this.waspRunPublishSubscribeChannel.unsubscribe(this); 
+			waspRunPublishSubscribeChannel = null;
+		}
 	}
-
-	/**
-	 * Implementation of the {@link StepExecutionListener} Interface method
-	 */
-	@Override
-	public ExitStatus afterStep(StepExecution stepExecution) {
-		// Re-define ExitStatus
-		if (stepExecution.getExitStatus() == ExitStatus.FAILED)
-			return ExitStatus.FAILED;
-		if (this.runStatus == WaspRunStatus.COMPLETED)
-			return ExitStatus.COMPLETED;
-		return new ExitStatus("REPEAT STEP");
-	}
-
 	
 
 }

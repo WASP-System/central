@@ -8,11 +8,11 @@ package edu.yu.einstein.wasp.messages;
  */
 public enum WaspRunStatus {
 	UNKNOWN (1),
-	CREATED (1),
-	STARTED (2),
-	STOPPED (3),
-	COMPLETED (4),
-	FAILED (4),
+	CREATED (4),
+	STARTED (3),
+	STOPPED (2),
+	COMPLETED (1),
+	FAILED (5),
 	ABANDONED (5);
 	
 	
