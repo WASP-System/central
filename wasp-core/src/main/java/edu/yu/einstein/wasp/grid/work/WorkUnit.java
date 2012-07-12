@@ -68,6 +68,11 @@ public class WorkUnit {
 	private Set<String> resultFiles;
 	
 	/**
+	 * Set of plugins that this workunit is dependent upon, useful for GridHostResolver to determine target system.
+	 */
+	private Set<String> pluginDependencies;
+	
+	/**
 	 * whether or not to delete the remote working directory after successful completion.
 	 */
 	private boolean clean = false;
