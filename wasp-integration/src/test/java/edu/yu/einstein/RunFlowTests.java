@@ -39,7 +39,8 @@ public class RunFlowTests extends AbstractTestNGSpringContextTests implements Me
 	
 	private Message<?> message = null;
 	
-	private final Integer PU_ID = 1;
+	private final Integer PU_ID1 = 1;
+	private final Integer PU_ID2 = 2; // need more than one if running the same flow more than once due to re-run constraints in Batch
 	private final String PU_KEY = "platformUnitId";
 	private final Integer RUN_ID = 10;
 	private final String RUN_KEY = "runId";
@@ -59,7 +60,7 @@ public class RunFlowTests extends AbstractTestNGSpringContextTests implements Me
 			// setup job execution for the 'runJob' job
 			Job runJob = context.getBean("runJob", Job.class); // get the 'runJob' job from the context
 			Map<String, JobParameter> parameterMap = new HashMap<String, JobParameter>();
-			parameterMap.put( PU_KEY, new JobParameter(PU_ID.toString()) );
+			parameterMap.put( PU_KEY, new JobParameter(PU_ID1.toString()) );
 			parameterMap.put( RUN_KEY, new JobParameter(RUN_ID.toString()) );
 			JobExecution jobExecution = jobLauncher.run(runJob, new JobParameters(parameterMap));
 			
@@ -72,7 +73,7 @@ public class RunFlowTests extends AbstractTestNGSpringContextTests implements Me
 			
 			// check headers as expected
 			Assert.assertTrue(message.getHeaders().containsKey(PU_KEY));
-			Assert.assertEquals(message.getHeaders().get(PU_KEY), PU_ID);
+			Assert.assertEquals(message.getHeaders().get(PU_KEY), PU_ID1);
 			Assert.assertTrue(message.getHeaders().containsKey(RUN_KEY));
 			Assert.assertEquals(message.getHeaders().get(RUN_KEY), RUN_ID);
 			
@@ -113,19 +114,19 @@ public class RunFlowTests extends AbstractTestNGSpringContextTests implements Me
 			// setup job execution for the  'runLibraryJob' job
 			Job runJob = context.getBean("runLibraryJob", Job.class); // get the 'runLibraryJob' job from the context
 			Map<String, JobParameter> parameterMap = new HashMap<String, JobParameter>();
-			parameterMap.put( PU_KEY, new JobParameter(PU_ID.toString()) );
+			parameterMap.put( PU_KEY, new JobParameter(PU_ID1.toString()) );
 			JobExecution jobExecution = jobLauncher.run(runJob, new JobParameters(parameterMap));
 			
 			// Short delay before sending messages to allow flow setup and subscribing to waspRunPublishSubscribeChannel
 			Thread.sleep(1000);
 				
 			// send run completed message
-			message =  WaspRunStatusMessage.build(RUN_ID, PU_ID, WaspRunStatus.COMPLETED);
+			message =  WaspRunStatusMessage.build(RUN_ID, PU_ID1, WaspRunStatus.COMPLETED);
 			logger.debug("Sending message via 'waspRunPriorityChannel': "+message.toString());
 			waspRunPriorityChannel.send(message);
 			
 			// send run started message
-			Message<WaspRunStatus> message =  WaspRunStatusMessage.build(RUN_ID, PU_ID, WaspRunStatus.STARTED);
+			Message<WaspRunStatus> message =  WaspRunStatusMessage.build(RUN_ID, PU_ID1, WaspRunStatus.STARTED);
 			logger.debug("Sending message via 'waspRunPriorityChannel': "+message.toString());
 			waspRunPriorityChannel.send(message);
 			
@@ -158,14 +159,14 @@ public class RunFlowTests extends AbstractTestNGSpringContextTests implements Me
 			// setup job execution for the  'runLibraryJob' job
 			Job runJob = context.getBean("runLibraryJob", Job.class); // get the 'runLibraryJob' job from the context
 			Map<String, JobParameter> parameterMap = new HashMap<String, JobParameter>();
-			parameterMap.put( PU_KEY, new JobParameter(PU_ID.toString()) );
+			parameterMap.put( PU_KEY, new JobParameter(PU_ID2.toString()) );
 			JobExecution jobExecution = jobLauncher.run(runJob, new JobParameters(parameterMap));
 			
 			// Short delay before sending messages to allow flow setup and subscribing to waspRunPublishSubscribeChannel
 			Thread.sleep(1000);
 				
 			// send run completed message
-			message =  WaspRunStatusMessage.build(RUN_ID, PU_ID, WaspRunStatus.COMPLETED);
+			message =  WaspRunStatusMessage.build(RUN_ID, PU_ID2, WaspRunStatus.COMPLETED);
 			logger.debug("Sending message via 'waspRunPriorityChannel': "+message.toString());
 			waspRunPriorityChannel.send(message);
 			
