@@ -39,8 +39,11 @@ public class RunFlowTests extends AbstractTestNGSpringContextTests implements Me
 	
 	private Message<?> message = null;
 	
+	// need more than one platform unit ID if running the same flow more than once due to re-run constraints in Batch
 	private final Integer PU_ID1 = 1;
-	private final Integer PU_ID2 = 2; // need more than one if running the same flow more than once due to re-run constraints in Batch
+	private final Integer PU_ID2 = 2;
+	private final Integer PU_ID3 = 3;
+	
 	private final String PU_KEY = "platformUnitId";
 	private final Integer RUN_ID = 10;
 	private final String RUN_KEY = "runId";
@@ -122,10 +125,10 @@ public class RunFlowTests extends AbstractTestNGSpringContextTests implements Me
 			PollableChannel waspRunPriorityChannel = context.getBean("waspRunPriorityChannel", PollableChannel.class);
 			
 			// setup job execution for the  'runLibraryJob' job
-			Job runJob = context.getBean("runLibraryJob", Job.class); // get the 'runLibraryJob' job from the context
+			Job runLibraryJob = context.getBean("runLibraryJob", Job.class); // get the 'runLibraryJob' job from the context
 			Map<String, JobParameter> parameterMap = new HashMap<String, JobParameter>();
 			parameterMap.put( PU_KEY, new JobParameter(PU_ID1.toString()) );
-			JobExecution jobExecution = jobLauncher.run(runJob, new JobParameters(parameterMap));
+			JobExecution jobExecution = jobLauncher.run(runLibraryJob, new JobParameters(parameterMap));
 			
 			// Short delay before sending messages to allow flow setup and subscribing to waspRunPublishSubscribeChannel
 			Thread.sleep(1000);
@@ -140,7 +143,7 @@ public class RunFlowTests extends AbstractTestNGSpringContextTests implements Me
 			logger.debug("Sending message via 'waspRunPriorityChannel': "+message.toString());
 			waspRunPriorityChannel.send(message);
 			
-			// Delay to allow message receiving and transitions
+			// Delay to allow message receiving and transitions. Time out after 20s.
 			int repeat = 0;
 			while (jobExecution.getStatus().isLessThanOrEqualTo(BatchStatus.STARTED) && repeat < 40){
 				Thread.sleep(500);
@@ -168,10 +171,10 @@ public class RunFlowTests extends AbstractTestNGSpringContextTests implements Me
 			PollableChannel waspRunPriorityChannel = context.getBean("waspRunPriorityChannel", PollableChannel.class);
 			
 			// setup job execution for the  'runLibraryJob' job
-			Job runJob = context.getBean("runLibraryJob", Job.class); // get the 'runLibraryJob' job from the context
+			Job runLibraryJob = context.getBean("runLibraryJob", Job.class); // get the 'runLibraryJob' job from the context
 			Map<String, JobParameter> parameterMap = new HashMap<String, JobParameter>();
 			parameterMap.put( PU_KEY, new JobParameter(PU_ID2.toString()) );
-			JobExecution jobExecution = jobLauncher.run(runJob, new JobParameters(parameterMap));
+			JobExecution jobExecution = jobLauncher.run(runLibraryJob, new JobParameters(parameterMap));
 			
 			// Short delay before sending messages to allow flow setup and subscribing to waspRunPublishSubscribeChannel
 			Thread.sleep(1000);
@@ -181,7 +184,7 @@ public class RunFlowTests extends AbstractTestNGSpringContextTests implements Me
 			logger.debug("Sending message via 'waspRunPriorityChannel': "+message.toString());
 			waspRunPriorityChannel.send(message);
 			
-			// Delay to allow message receiving and transitions
+			// Delay to allow message receiving and transitions. Time out after 20s.
 			int repeat = 0;
 			while (jobExecution.getStatus().isLessThanOrEqualTo(BatchStatus.STARTED) && repeat < 40){
 				Thread.sleep(500);
@@ -190,6 +193,42 @@ public class RunFlowTests extends AbstractTestNGSpringContextTests implements Me
 			
 			// check BatchStatus is as expected
 			Assert.assertEquals(jobExecution.getStatus(), BatchStatus.FAILED);
+			
+		} catch (Exception e){
+			// caught an unexpected exception
+			Assert.fail("Caught Exception: "+e.getMessage());
+		}
+	}
+	
+	/**
+	 *
+	 */
+	@Test (groups = "unit-tests", dependsOnMethods = {"testRunJob", "testRunLibraryJob"})
+	public void testRunJobAndRunLibraryJobIntegration(){
+		try {
+			// setup job execution for the  'runLibraryJob' job
+			Job runLibraryJob = context.getBean("runLibraryJob", Job.class); // get the 'runLibraryJob' job from the context
+			Map<String, JobParameter> parameterMap = new HashMap<String, JobParameter>();
+			parameterMap.put( PU_KEY, new JobParameter(PU_ID3.toString()) );
+			JobExecution jobExecutionRunLibraryJob = jobLauncher.run(runLibraryJob, new JobParameters(parameterMap));
+			
+			Thread.sleep(1000); // wait for job to get going 
+			
+			// setup job execution for the 'runJob' job
+			Job runJob = context.getBean("runJob", Job.class); // get the 'runJob' job from the context
+			parameterMap.put( RUN_KEY, new JobParameter(RUN_ID.toString()) );
+			JobExecution jobExecutionRunJob = jobLauncher.run(runJob, new JobParameters(parameterMap));
+			
+			// Delay to allow message receiving and transitions. Time out after 40s.
+			int repeat = 0;
+			while (jobExecutionRunJob.getStatus().isLessThanOrEqualTo(BatchStatus.STARTED) && jobExecutionRunLibraryJob.getStatus().isLessThanOrEqualTo(BatchStatus.STARTED) && repeat < 40){
+				Thread.sleep(1000);
+				repeat++;
+			}
+			
+			// check BatchStatus' are as expected
+			Assert.assertEquals(jobExecutionRunJob.getStatus(), BatchStatus.COMPLETED);
+			Assert.assertEquals(jobExecutionRunLibraryJob.getStatus(), BatchStatus.COMPLETED);
 			
 		} catch (Exception e){
 			// caught an unexpected exception
