@@ -45,12 +45,22 @@ public class RunFlowTests extends AbstractTestNGSpringContextTests implements Me
 	private final Integer RUN_ID = 10;
 	private final String RUN_KEY = "runId";
 	
+	/**
+	 * Verifies that autowired objects are ok
+	 */
 	@Test (groups = "unit-tests")
-	public void testJobLauncher() {
+	public void testAutowiringOk() {
 		Assert.assertNotNull(jobLauncher);
+		Assert.assertNotNull(context);
 	}
 	
-	@Test (groups = "unit-tests", dependsOnMethods = "testJobLauncher")
+	/**
+	 * This test tests the runFlow.
+	 * The method sets up a waspRunPublishSubscribeChannel and listens on it. it then launches the runFlowJob.
+	 * The method verifies that a WaspRunStatus.STARTED is sent by the flow logic and a WaspRunStatus.COMPLETED 8s later.
+	 * The headers and payload of the received messages are checked as is the order received.
+	 */
+	@Test (groups = "unit-tests", dependsOnMethods = "testAutowiringOk")
 	public void testRunJob() {
 		try{
 			// listen in on the waspRunPublishSubscribeChannel for messages
@@ -101,11 +111,11 @@ public class RunFlowTests extends AbstractTestNGSpringContextTests implements Me
 	}
 	
 	/**
+	 * This test test the runLibraryFlow
 	 * Test With Expected messages. Send a WaspRunStatus.STARTED and WaspRunStatus.COMPLETED message. The STARTED one has higher priority so
-	 * should arrive first folled by the COMPLETE message 5 s later due to the poller on the bridge between waspRunPriorityChannel and waspRunPublishSubscribeChannel.
-	 *
+	 * should arrive first followed by the COMPLETE message 5s later (due to the poller on the bridge between waspRunPriorityChannel and waspRunPublishSubscribeChannel).
 	 */
-	@Test (groups = "unit-tests", dependsOnMethods = "testJobLauncher")
+	@Test (groups = "unit-tests", dependsOnMethods = "testAutowiringOk")
 	public void testRunLibraryJob() {
 		try{
 			// get a ref to the waspRunPriorityChannel to send test messages
@@ -147,10 +157,11 @@ public class RunFlowTests extends AbstractTestNGSpringContextTests implements Me
 	}
 	
 	/**
-	 * Test With Unexpected message. Send a WaspRunStatus.COMPLETED message. As a STARTED message is expected first it should fail
-	 *
+	 * This is a failure test for the runLibraryFlow
+	 * Test With Unexpected message. Send a WaspRunStatus.COMPLETED message. 
+	 * As a STARTED message is expected first it should fail
 	 */
-	@Test (groups = "unit-tests", dependsOnMethods = "testJobLauncher")
+	@Test (groups = "unit-tests", dependsOnMethods = "testAutowiringOk")
 	public void testRunLibraryJobFail() {
 		try{
 			// get a ref to the waspRunPriorityChannel to send test messages
