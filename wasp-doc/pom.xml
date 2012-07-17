@@ -173,10 +173,12 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 			<dependency>
 				<groupId>edu.yu.einstein.wasp</groupId>
 				<artifactId>wasp-core</artifactId>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>edu.yu.einstein.wasp</groupId>
 				<artifactId>wasp-web</artifactId>
+				<version>${project.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
