@@ -214,6 +214,8 @@ public class UserPendingController extends WaspController {
 		}
 		
 		// form passes validation so finalize and persist userPending data and metadata		
+		request.getSession().setAttribute("demoEmail", userPendingForm.getEmail());
+		
 		String piUserLogin = userPendingMetaHelperWebapp.getMetaByName("primaryuserid").getV();	
 		
 		Lab lab = labDao.getLabByPrimaryUserId(userDao.getUserByLogin(piUserLogin).getUserId());
@@ -429,7 +431,7 @@ public class UserPendingController extends WaspController {
 			
 			return "auth/newpi/form";
 		}
-
+		request.getSession().setAttribute("demoEmail", userPendingForm.getEmail());
 		userPendingForm.setStatus("WAIT_EMAIL");
 
 		userPendingForm.setPassword( authenticationService.encodePassword(userPendingForm.getPassword()) ); 

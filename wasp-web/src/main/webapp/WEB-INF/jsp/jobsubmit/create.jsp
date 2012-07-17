@@ -6,7 +6,8 @@
 <h1><fmt:message key="jobDraft.create.label" /></h1>
 
 <div class="instructions">
-<fmt:message key="jobDraft.create_instructions.label"/>
+<p><fmt:message key="jobDraft.create_instructions.label"/></p>
+For demonstration purposes only the Chip Seq workflow is currently enabled
 </div>
 
 <form:form  cssClass="FormGrid" commandName="jobDraft">
@@ -35,7 +36,7 @@
     <td class="DataTD">
       <c:forEach var="workflow" items="${workflows}">
         <div class="radioelement">
-          <input class="FormElement ui-widget-content ui-corner-all" type="radio" name="workflowId" value="${workflow.workflowId}" <c:if test="${workflow.workflowId == jobDraft.workflowId}"> checked</c:if> >
+          <input class="FormElement ui-widget-content ui-corner-all" type="radio" name="workflowId" value="${workflow.workflowId}" <c:if test="${workflow.workflowId == jobDraft.workflowId || workflow.IName == 'chipSeq'}"> checked</c:if>  <c:if test="${workflow.IName != 'chipSeq'}"> disabled="disabled"</c:if>>
           <span><fmt:message key="${workflow.IName}.workflow.label"/></span>
         </div>
       </c:forEach>

@@ -6,9 +6,13 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.regex.Pattern;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 import org.apache.velocity.app.VelocityEngine;
@@ -22,6 +26,7 @@ import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.velocity.VelocityEngineUtils;
+import org.springframework.web.bind.annotation.CookieValue;
 
 import edu.yu.einstein.wasp.dao.ConfirmEmailAuthDao;
 import edu.yu.einstein.wasp.dao.DepartmentDao;
@@ -41,6 +46,7 @@ import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.model.UserPendingMeta;
 import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.util.AuthCode;
+import edu.yu.einstein.wasp.util.DemoEmail;
 import edu.yu.einstein.wasp.util.MetaHelper;
 
 
@@ -52,7 +58,7 @@ import edu.yu.einstein.wasp.util.MetaHelper;
  */
 @Service
 @Transactional
-public class EmailServiceImpl implements EmailService{
+public class EmailServiceImpl extends WaspServiceImpl implements EmailService{
 	
 	static {
 		System.setProperty("mail.mime.charset", "utf8");
@@ -84,8 +90,9 @@ public class EmailServiceImpl implements EmailService{
 	
 	@Value("${wasp.host.baseurl}")
 	private String baseUrl;
-
-	private static Logger logger = Logger.getLogger("EmailServiceImpl");
+	
+	@Autowired
+	private DemoEmail demoEmail;
 	
 
 
@@ -401,14 +408,19 @@ public class EmailServiceImpl implements EmailService{
 		String subject = extractSubject(mainText);
 		String body = extractBody(mainText);
 		String completeEmailTextHtml = headerText + body + footerText;
+		String defaultEmail = demoEmail.getDemoEmail();
 		try{
+			
+			if (defaultEmail.isEmpty() || !Pattern.matches("([\\w+|\\.?]+)\\w+@([\\w+|\\.?]+)\\.(\\w{2,8}\\w?)", defaultEmail)){
+				throw new MailPreparationException("Email address is not of a suitable format or is not set in the cookie");
+			}
 			MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, "UTF-8");
 			Properties props = ((JavaMailSenderImpl)mailSender).getJavaMailProperties();
 		
 			message.setFrom(props.getProperty("mail.smtp.from")); //TODO: remove this line and un-comment line below in production code
 			// message.setTo(user.getEmail());
 			
-			message.setTo(props.getProperty("mail.smtp.from"));
+			message.setTo(defaultEmail);
 			message.setSubject(subject);
 			String plainText = completeEmailTextHtml.replaceAll("\\<.*?>","");
 			message.setText(plainText, completeEmailTextHtml);

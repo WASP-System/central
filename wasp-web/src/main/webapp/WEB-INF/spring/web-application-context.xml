@@ -6,7 +6,9 @@
   http://www.springframework.org/schema/mvc 
   http://www.springframework.org/schema/mvc/spring-mvc-3.1.xsd  
   http://www.springframework.org/schema/tx
-  http://www.springframework.org/schema/tx/spring-tx-3.1.xsd"
+  http://www.springframework.org/schema/tx/spring-tx-3.1.xsd
+  http://www.springframework.org/schema/aop
+  http://www.springframework.org/schema/aop/spring-aop-3.0.xsd"
    
   xmlns:mvc="http://www.springframework.org/schema/mvc"  
   xmlns:context="http://www.springframework.org/schema/context" 
@@ -14,6 +16,7 @@
   xmlns:tx="http://www.springframework.org/schema/tx"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns="http://www.springframework.org/schema/beans"
+  xmlns:aop="http://www.springframework.org/schema/aop"
   default-autowire="byName">
 
 <!--  configure properties files -->
@@ -189,6 +192,12 @@
     <constructor-arg index="1" value="${catalina.home}/waspPlugins"/>
     <constructor-arg index="2" value="**/*.*"/>
   </bean>
+  
+  <!-- an HTTP Session-scoped bean exposed as a proxy -->
+   <bean class="edu.yu.einstein.wasp.util.DemoEmail" scope="session">
+      <!-- this next element effects the proxying of the surrounding bean -->
+      <aop:scoped-proxy/>
+   </bean>
   
   
   <!-- spring batch admin -->

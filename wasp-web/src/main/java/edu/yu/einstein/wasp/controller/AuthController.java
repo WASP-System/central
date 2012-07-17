@@ -4,6 +4,10 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 
 import nl.captcha.Captcha;
 
@@ -13,6 +17,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -27,6 +32,7 @@ import edu.yu.einstein.wasp.model.Userpasswordauth;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.util.AuthCode;
+import edu.yu.einstein.wasp.util.DemoEmail;
 import edu.yu.einstein.wasp.util.StringHelper;
 
 
@@ -40,6 +46,9 @@ public class AuthController extends WaspController {
 
   @Autowired
   private EmailService emailService;
+  
+  @Autowired
+  private DemoEmail demoEmail;
 
   
   @Autowired
@@ -73,6 +82,28 @@ public class AuthController extends WaspController {
 			  return "redirect:/dashboard.do";
 		  }
 	  } 
+	  return "redirect:/auth/getEmailForDemo.do";
+  }
+  
+  @RequestMapping(value="/getEmailForDemo", method=RequestMethod.GET)
+  public String getEmailForDemoGet(@CookieValue(value="waspDemoEmail", defaultValue="", required=false) String email, ModelMap m){
+	  if (!email.isEmpty()){
+		  demoEmail.setDemoEmail(email);
+		  return "redirect:/auth/login.do";
+	  }
+	  return "auth/getEmailForDemoForm";
+  }
+  
+  @RequestMapping(value="/getEmailForDemo", method=RequestMethod.POST)
+  public String getEmailForDemoPost(@RequestParam(value="email") String email, ModelMap m, HttpServletResponse response){
+	  if (email.isEmpty() || !Pattern.matches("([\\w+|\\.?]+)\\w+@([\\w+|\\.?]+)\\.(\\w{2,8}\\w?)", email)){
+		  waspErrorMessage("auth.demo_email.error");
+		  return "auth/getEmailForDemoForm";
+	  }
+	  Cookie waspDemoCookie = new Cookie("waspDemoEmail", email);
+	  waspDemoCookie.setMaxAge(60*60*24);
+	  response.addCookie(waspDemoCookie);
+	  demoEmail.setDemoEmail(email);
 	  return "redirect:/auth/login.do";
   }
   

@@ -64,7 +64,6 @@ public class StringHelper {
 	 * extract login from formatted string such as 'John Greally (jgreally)' and return login 
 	 * in this example, the returned login would be 'jgreally'. If there is no parenthesis
 	 * this method assumes the input string represents the login (e.g. 'jgreally')
-	 * Note: regular expression was modified 7/9/12 to include names such as lhall-pearson
 	 * 
 	 * @param formattedNameAndLogin
 	 * @return user login name
@@ -73,7 +72,7 @@ public class StringHelper {
 		if (formattedNameAndLogin == null || formattedNameAndLogin.isEmpty()){
 			return ""; // trim() will fail if formattedNameAndLogin is empty string, so simply return empty string
 		}
-		Pattern userLoginRegexPattern = Pattern.compile("^.*?\\(?([-\\w+]+)\\)?$");
+		Pattern userLoginRegexPattern = Pattern.compile("^.*?\\(?(\\w++)\\)?$");
 		Matcher matchLoginRegex = userLoginRegexPattern.matcher(formattedNameAndLogin.trim());
 		String userLogin = "";
 		if (matchLoginRegex.find())
