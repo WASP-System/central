@@ -1,0 +1,99 @@
+
+# /
+/deploy
+/.classpath
+/.settings
+/.project
+/wasp.war
+/.springBeans
+/target
+/.DS_Store
+/.localized
+/test-output
+/installAll.sh
+
+# /db/
+/db/t
+
+# /wasp-cli/
+/wasp-cli/.settings
+/wasp-cli/.classpath
+/wasp-cli/.project
+/wasp-cli/target
+/wasp-cli/bin
+
+# /wasp-core/
+/wasp-core/deploy
+/wasp-core/.classpath
+/wasp-core/.settings
+/wasp-core/.project
+/wasp-core/wasp.war
+/wasp-core/.springBeans
+/wasp-core/target
+/wasp-core/.DS_Store
+/wasp-core/.localized
+/wasp-core/test-output
+
+# /wasp-core/src/main/java/
+/wasp-core/src/main/java/META-INF
+
+# /wasp-doc/
+/wasp-doc/target
+
+# /wasp-exec/
+/wasp-exec/target
+
+# /wasp-integration/
+/wasp-integration/test-output
+
+# /wasp-parent/
+/wasp-parent/target
+
+# /wasp-plugins/
+/wasp-plugins/target
+
+# /wasp-plugins/BisulSeq/
+/wasp-plugins/BisulSeq/target
+
+# /wasp-plugins/ChipSeq/
+/wasp-plugins/ChipSeq/.classpath
+/wasp-plugins/ChipSeq/.settings
+/wasp-plugins/ChipSeq/target
+/wasp-plugins/ChipSeq/.project
+/wasp-plugins/ChipSeq/bin
+
+# /wasp-plugins/HelpTag/
+/wasp-plugins/HelpTag/target
+
+# /wasp-plugins/chipsom/
+/wasp-plugins/chipsom/deploy
+/wasp-plugins/chipsom/.classpath
+/wasp-plugins/chipsom/.settings
+/wasp-plugins/chipsom/.project
+/wasp-plugins/chipsom/wasp.war
+/wasp-plugins/chipsom/.springBeans
+/wasp-plugins/chipsom/target
+/wasp-plugins/chipsom/.DS_Store
+/wasp-plugins/chipsom/.localized
+/wasp-plugins/chipsom/test-output
+
+# /wasp-plugins/wasp-config/
+/wasp-plugins/wasp-config/target
+/wasp-plugins/wasp-config/.project
+/wasp-plugins/wasp-config/.settings
+/wasp-plugins/wasp-config/.classpath
+
+# /wasp-tomcat-classloader/
+/wasp-tomcat-classloader/target
+
+# /wasp-web/
+/wasp-web/deploy
+/wasp-web/.classpath
+/wasp-web/.settings
+/wasp-web/.project
+/wasp-web/.springBeans
+/wasp-web/target
+/wasp-web/.DS_Store
+/wasp-web/.localized
+/wasp-web/test-output
+
