@@ -1,16 +1,18 @@
 
-# /
-/deploy
-/.classpath
-/.settings
-/.project
-/wasp.war
-/.springBeans
-/target
-/.DS_Store
-/.localized
-/test-output
-/installAll.sh
+# all 
+deploy
+.classpath
+.settings
+.project
+wasp.war
+.springBeans
+target
+.DS_Store
+.localized
+test-output
+installAll.sh
+bin
+MANIFEST.MF
 
 # /db/
 /db/t
