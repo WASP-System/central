@@ -12,6 +12,7 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 	
 	<groupId>edu.yu.einstein.wasp</groupId>
 	<artifactId>wasp-doc</artifactId>
+	<version>0.1.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>WASP documentation</name>
 
