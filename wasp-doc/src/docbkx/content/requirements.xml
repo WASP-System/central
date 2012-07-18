@@ -93,6 +93,14 @@
 				<para>MySQL &gt;=5.0.</para>
 			</listitem>
 		</varlistentry>
+		<varlistentry>
+			<term>
+				<application>Git</application>
+			</term>
+			<listitem>
+				<para>Git Source Code Management</para>
+			</listitem>
+		</varlistentry>
 	</variablelist>
 	<para>Detailed description of operating system requirements and scheduler.</para>
 	<para>Detailed description of dependencies, where necessary.</para>
