@@ -102,6 +102,7 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<build>
 		<plugins>
+		<!--
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>license-maven-plugin</artifactId>
@@ -118,6 +119,7 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 				</execution>
 				</executions>
 			</plugin>
+		-->
 		</plugins>
 		<pluginManagement>
 			<plugins>
