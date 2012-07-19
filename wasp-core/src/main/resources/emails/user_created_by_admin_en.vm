@@ -4,6 +4,6 @@ WASP: Account Created
 <p>We are pleased to inform you that you have been provided with an account within the WASP system.</p>
 <p>Your username for logging in is '${user.login}'.</p>
 <p>Please click here to 
-<a href="${baseUrl}/auth/confirmNewUserEmail.do?authcode=${authcode}&email=${urlencodedemail}&isAdminCreated=1">confirm your new email address</a></p>
+<a href="${baseUrl}/auth/confirmNewUserEmail.do?authcode=${authcode}&email=${urlencodedemail}&isAdminCreated=1">confirm your new email address and change your password</a>.</p>
 
 

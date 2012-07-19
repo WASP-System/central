@@ -19,7 +19,14 @@
 	  	<tr class="FormData">
 		    <td class="DataTD"><c:out value="${rs.key}" /></td>
 		    <td class="DataTD"><c:out value="${r.role.name}" /></td>
-		    <td class="submit value-centered"><a href="<c:url value="/sysrole/remove/${r.userId}/${r.role.roleName}.do" />">Remove Role</a></td>
+		    <c:choose>
+		    <c:when test='${rs.key == "User, Super (super)" && r.role.name == "Super User" }'>
+		    	<td class="DataTD value-centered">Unchangeable</td>
+		    </c:when>
+		    <c:otherwise>
+		    	<td class="submit value-centered"><a href="<c:url value="/sysrole/remove/${r.userId}/${r.role.roleName}.do" />">Remove Role</a></td>
+		    </c:otherwise>
+		    </c:choose>
 	    </tr>
 	  </c:forEach>
 	</c:forEach>

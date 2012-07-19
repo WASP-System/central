@@ -3,5 +3,5 @@ WASP: Lab Registration Accepted
 
 <p>We are pleased to inform you that you are now an active registered member of lab '${lab.name}' within the WASP system.</p>
 <p>If this is your first application for a WASP account, your account been activated and you may now log in with user-name '${user.login}'.</p>
-
+<p>Click <a href="${baseUrl}/auth/login.do">here</a> to login.</p>
 
