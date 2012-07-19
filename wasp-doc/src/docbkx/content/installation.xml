@@ -12,48 +12,442 @@
 		What you need to get WASP installed.
 	</para>
 	<section>
-		<title>Database configuration</title>
-		<para>WASP database tables are defined using SQL files in the MySQL dialect. These files should be loaded into a MySQL client to
-		create the database, users, tables and initial state information.</para>
-		<programlisting>$ mysql -uroot -p &lt; createdb.sql
-$ mysql -uroot -p wasp &lt; create.sql
-$ mysql -uroot -p wasp &lt; spring_batch_init.sql</programlisting>
+		<title>Getting the WASP System Source Code from GitHub</title>
+		<para>
+			Make sure you have Git on your server (obtain from <ulink url="http://git-scm.com">http://git-scm.com</ulink>) and obtain the latest WASP System code from <ulink url='https://github.com/WASP-System'>https://github.com/WASP-System</ulink>.
+			<important><para>Please make sure you understand the importance of line endings in Git and adjust your setting accordingly: <ulink url="http://help.github.com/articles/dealing-with-line-endings">http://help.github.com/articles/dealing-with-line-endings</ulink></para></important>
+		</para>
+		<para>
+			After cloning the WASP System source code, you’ll notice the project contains many folders. Most of these represent modules of the system, wrapped up into individual Maven projects:
+			<informaltable frame='none'>
+				<tgroup cols='2'>
+					<tbody>
+						<row><entry>db</entry><entry>Contains database initialization files</entry></row>
+						<row><entry>wasp-parent</entry><entry>Hosts a parent.pom that defines common dependencies and versions required by other components. Maven Project.</entry></row>
+						<row><entry>wasp-web</entry><entry>The WASP System webapp. Maven/Spring project. Builds a war file for Tomcat7 deployment.</entry></row>
+						<row><entry>wasp-core</entry><entry>Spring component containing core code. Maven/Spring project. Builds a jar.</entry></row>
+						<row><entry>wasp-config</entry><entry>local configuration e.g. database and email sever details etc. Maven/Spring project. Builds a jar.</entry></row>
+						<row><entry>wasp-exec</entry><entry>Spring component that runs WASP System task management flows and pipeline flows. Maven/Spring project. Builds a jar.</entry></row>
+						<row><entry>wasp-plugins</entry><entry>Contains subfolders which contain modular extensions, each is a Maven/Spring project that builds a jar.</entry></row>
+						<row><entry>wasp-tomcat-classloader</entry><entry>Extends WebappClassLoader to allow loading of classes from the waspPlugins folder in the Tomcat base folder. Maven project. Builds a jar</entry></row>
+						<row><entry>wasp-cli</entry><entry>Used to run wasp analysis jobs from the command line. Maven/Spring project. Builds a jar.</entry></row>
+						<row><entry>wasp-doc</entry><entry>This DocBooks documentation. Builds documentation</entry></row>
+					</tbody>
+				</tgroup>
+			</informaltable>
+		</para>
 	</section>
 	<section>
-		<title>Apache Tomcat administration</title>
-		<para>Install Tomcat 7.0.</para>
-		<para>Configure Tomcat as a service.</para>
-		<para>Configure WASP specific resource directories.  WASP expects the presence of 
-		the <code>$CATALINA_HOME/waspPlugins</code> folder.  This is where all plugins,
-		including application configuration plugins reside.</para>
-		<para>Configure logging.</para>
+		<title>Setting up the Server (Linux)</title>
+		<orderedlist numeration="arabic">
+			<listitem>
+				<para>Download the latest versions of  the following software packages and install according to the provider’s instructions:</para>
+				<para>
+					<itemizedlist>
+						<listitem><para><application>Apache Tomcat7</application> (<ulink url='http://tomcat.apache.org'>http://tomcat.apache.org</ulink>)</para></listitem>
+						<listitem><para><application>Apache Maven3</application>(<ulink url='http://maven.apache.org'>http://maven.apache.org</ulink>)</para></listitem>
+						<listitem><para><application>Apache Ant</application> (<ulink url='http://ant.apache.org'>http://ant.apache.org</ulink>)</para></listitem>
+						<listitem><para><application>Oracle Java SE 6</application> (<ulink url='http://www.oracle.com'>http://www.oracle.com</ulink>)</para></listitem>
+						<listitem><para><application>MySQL Community Server</application> (<ulink url='http://www.mysql.com/downloads/mysql'>http://www.mysql.com/downloads/mysql</ulink>)</para></listitem>
+					</itemizedlist>
+				</para>
+			</listitem>
+			<listitem>
+				<para>Add environment variables to your user profile and set the values to the paths of the installations above:</para>
+				<para>
+					<itemizedlist>
+						<listitem><para><envar>ANT_HOME</envar></para></listitem>
+						<listitem><para><envar>JAVA_HOME</envar></para></listitem>
+						<listitem><para><envar>CATALINA_HOME</envar></para></listitem>
+						<listitem><para><envar>MAVEN_HOME</envar></para></listitem>
+					</itemizedlist>
+				</para>
+				<para>Then set the PATH environment variable to point to the relevant binaries.</para>
+				
+				<programlisting>PATH=$JAVA_HOME/bin:$ANT_HOME/bin:$MAVEN_HOME/bin:$PATH</programlisting>
+				
+				<para>E.g. in a typical Linux setup using bash, your <filename>.bashrc</filename> file should contain something similar to this:</para>
+				<programlisting>
+export ANT_HOME=/opt/ant
+export JAVA_HOME=/usr/java/latest
+export CATALINA_HOME=/usr/local/tomcat/tomcat/current
+export MAVEN_HOME=/opt/maven/current
+export PATH=$JAVA_HOME/bin:$ANT_HOME/bin:$MAVEN_HOME/bin:$PATH
+				</programlisting>
+			</listitem>
+		</orderedlist>
 	</section>
 	<section>
-		<title>WASP applications directory</title>
-		<para>Configure and build applications.  In order to install WASP from source, check out the latest version
-		of the code and preform the following steps to build and install:</para>
-		<para>Build the main projects</para>
-		<programlisting>$ cd wasp
-$ mvn -Dcatalina.home=$CATALINA_HOME clean install</programlisting>
-		<para>Edit database properties in the configuration project and compile and install all plugin projects</para>
-		<programlisting>$ cd wasp-plugins/wasp-config
-$ vi database.properties
-$ mvn -Dcatalina.home=$CATALINA_HOME clean install
-$ cd ../ChipSeq
-$ mvn -Dcatalina.home=$CATALINA_HOME clean install</programlisting>
-		<para>Compile the batch application</para>
-		<programlisting>$ cd ../../wasp-exec
-$ mvn -Dcatalina.home=$CATALINA_HOME clean install</programlisting>
-		<para>The <code>wasp-exec</code> README file has instructions on starting the wasp backend application.  The
-		wasp-web application can be deployed to the Tomcat application server by copying the WAR file or using the
-		maven tomcat7:deploy goal.</para>
+		<title>Tomcat 7 setup</title>
+		<orderedlist numeration="arabic">
+			<listitem>
+				<para>Using your favorite editor, create a new file in folder <filename>$CATALINA_HOME/bin</filename> called
+				<filename>setenv.sh</filename>, and put the following text into it and save:</para>
+				<programlisting>
+CATALINA_HOME="/usr/local/tomcat/tomcat"
+JAVA_OPTS="-Xms16m -Xmx256m -XX:MaxPermSize=128m"
+JAVA_HOME="/usr/java/latest"
+				</programlisting>
+			</listitem>
+			<listitem>
+				<para>Open <filename>$CATALINA_HOME/conf/tomcat-users.xml</filename> using your favorite editor and add the
+				following (replacing placeholders ‘myGuiPass’ and ‘myScriptPass’ with your own choice of
+				passwords):</para>
+				<programlisting><![CDATA[
+</tomcat-users>
+	<role rolename="manager-gui"/>
+	<user username="tomcat" password="myGuiPass" roles="manager-gui"/>
+	<role rolename="manager-script"/>
+	<user username="tomcat-script" password="myScriptPass" roles="manager-script"/>
+</tomcat-users>
+				]]></programlisting>
+				<para>The <quote>manager-script</quote> account is used to deploy The WASP System using Maven. The <quote>managergui</quote>
+				account can be used to manage your tomcat installation at <systemitem class="systemname">http://localhost:8080/manager.</systemitem>
+				To deploy wasp using Maven, the following complementary information about the server needs
+				to be added to your local maven configuration as follows:</para>
+				<para>From within your home folder, open the <filename>.m2/settings.xml</filename> file and locate the <literal><![CDATA[<server></server>]]></literal>
+				tags. In between these tags place the following (replacing placeholder <quote>myScriptPass</quote> with the
+				same password you used above for the <quote>tomcat-script</quote> account):</para>
+				<programlisting><![CDATA[
+<server>
+	<id>tomcat-localhost</id>
+	<username>tomcat-script</username>
+	<password>myScriptPass</password>
+</server>
+				]]></programlisting>
+			</listitem>
+			<listitem>
+			<para>Create the folders below:</para>
+			<programlisting>
+$CATALINA_HOME/waspPlugins
+$CATALINA_HOME/downloads
+			</programlisting>
+			<para>Ensure that their permissions are set such that Maven can copy files into the waspPlugins
+			folder, and that the Tomcat user can write to the downloads file.</para>
+		</listitem>
+		<listitem>
+		<para>To create a startup launch daemon:</para>
+		<orderedlist numeration='lowerroman'>
+			<listitem>
+				<para>Type the following at the command line:</para>
+				<programlisting>
+$ cd $CATALINA_HOME/bin
+$ tar xvfz commons-daemon-native.tar.gz
+$ cd commons-daemon-1.0.x-native-src/unix
+$ ./configure
+$ make
+$ cp jsvc ../..
+				</programlisting>
+			</listitem>
+			<listitem><para>
+				Using your favorite editor and sudo, create the following file <filename>/etc/init.d/tomcat7</filename>
+				then paste in the following:
+				<important><para>Replace the values of the variables under <quote># local
+				config section</quote> at the top with values relevant to your setup</para></important>
+			</para>
+			<programlisting><![CDATA[
+#!/bin/sh
+
+# local config section
+CATALINA_HOME=/path/to/tomcat
+JAVA_HOME=/path/to/java
+TOMCAT_USER=tomcat
+# end of local config section
+
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements. See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License. You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# resolve links - $0 may be a softlink
+ARG0="$0"
+while [ -h "$ARG0" ]; do
+ls=`ls -ld "$ARG0"`
+link=`expr "$ls" : '.*-> \(.*\)$'`
+if expr "$link" : '/.*' > /dev/null; then
+ARG0="$link"
+else
+ARG0="`dirname $ARG0`/$link"
+fi
+done
+DIRNAME="`dirname $ARG0`"
+PROGRAM="`basename $ARG0`"
+for o
+do
+case "$o" in
+--java-home )
+JAVA_HOME="$2"
+shift; shift;
+continue
+;;
+--catalina-home )
+CATALINA_HOME="$2"
+shift; shift;
+continue
+;;
+--catalina-base )
+CATALINA_BASE="$2"
+shift; shift;
+continue
+;;
+--catalina-pid )
+CATALINA_PID="$2"
+shift; shift;
+continue
+;;
+--tomcat-user )
+TOMCAT_USER="$2"
+shift; shift;
+continue
+;;
+* )
+break
+;;
+esac
+done
+# OS specific support (must be 'true' or 'false').
+cygwin=false;
+darwin=false;
+case "`uname`" in
+CYGWIN*)
+cygwin=true
+;;
+Darwin*)
+darwin=true
+;;
+esac
+# Use the maximum available, or set MAX_FD != -1 to use that
+test ".$MAX_FD" = . && MAX_FD="maximum"
+# Setup parameters for running the jsvc
+#
+test ".$TOMCAT_USER" = . && TOMCAT_USER=tomcat
+# Set JAVA_HOME to working JDK or JRE
+# JAVA_HOME=/opt/jdk-1.6.0.22
+# If not set we'll try to guess the JAVA_HOME
+# from java binary if on the PATH
+#
+if [ -z "$JAVA_HOME" ]; then
+JAVA_BIN="`which java 2>/dev/null || type java 2>&1`"
+test -x "$JAVA_BIN" && JAVA_HOME="`dirname $JAVA_BIN`"
+test ".$JAVA_HOME" != . && JAVA_HOME=`cd "$JAVA_HOME/.." >/dev/null; pwd`
+else
+JAVA_BIN="$JAVA_HOME/bin/java"
+fi
+# Only set CATALINA_HOME if not already set
+test ".$CATALINA_HOME" = . && CATALINA_HOME=`cd "$DIRNAME/.." >/dev/null; pwd`
+test ".$CATALINA_BASE" = . && CATALINA_BASE="$CATALINA_HOME"
+test ".$CATALINA_MAIN" = . && CATALINA_MAIN=org.apache.catalina.startup.Bootstrap
+test ".$JSVC" = . && JSVC="$CATALINA_BASE/bin/jsvc"
+# Ensure that any user defined CLASSPATH variables are not used on startup,
+# but allow them to be specified in setenv.sh, in rare case when it is needed.
+CLASSPATH=
+JAVA_OPTS=
+if [ -r "$CATALINA_BASE/bin/setenv.sh" ]; then
+. "$CATALINA_BASE/bin/setenv.sh"
+elif [ -r "$CATALINA_HOME/bin/setenv.sh" ]; then
+. "$CATALINA_HOME/bin/setenv.sh"
+fi
+# Add on extra jar files to CLASSPATH
+test ".$CLASSPATH" != . && CLASSPATH="${CLASSPATH}:"
+CLASSPATH="$CLASSPATH$CATALINA_HOME/bin/bootstrap.jar:$CATALINA_HOME/bin/
+commons-daemon.jar"
+test ".$CATALINA_OUT" = . && CATALINA_OUT="$CATALINA_BASE/logs/catalinadaemon.
+out"
+test ".$CATALINA_TMP" = . && CATALINA_TMP="$CATALINA_BASE/temp"
+# Add tomcat-juli.jar to classpath
+# tomcat-juli.jar can be over-ridden per instance
+if [ -r "$CATALINA_BASE/bin/tomcat-juli.jar" ] ; then
+CLASSPATH="$CLASSPATH:$CATALINA_BASE/bin/tomcat-juli.jar"
+else
+CLASSPATH="$CLASSPATH:$CATALINA_HOME/bin/tomcat-juli.jar"
+fi
+# Set juli LogManager config file if it is present and an override has not been issued
+if [ -z "$LOGGING_CONFIG" ]; then
+if [ -r "$CATALINA_BASE/conf/logging.properties" ]; then
+LOGGING_CONFIG="-Djava.util.logging.config.file=$CATALINA_BASE/conf/
+logging.properties"
+else
+# Bugzilla 45585
+LOGGING_CONFIG="-Dnop"
+fi
+fi
+test ".$LOGGING_MANAGER" = . && LOGGING_MANAGER="-
+Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager"
+JAVA_OPTS="$JAVA_OPTS $LOGGING_MANAGER"
+# Set -pidfile
+test ".$CATALINA_PID" = . && CATALINA_PID="$CATALINA_BASE/logs/catalina-daemon.pid"
+# Increase the maximum file descriptors if we can
+if [ "$cygwin" = "false" ]; then
+MAX_FD_LIMIT=`ulimit -H -n`
+if [ "$?" -eq 0 ]; then
+# Darwin does not allow RLIMIT_INFINITY on file soft limit
+if [ "$darwin" = "true" -a "$MAX_FD_LIMIT" = "unlimited" ]; then
+MAX_FD_LIMIT=`/usr/sbin/sysctl -n kern.maxfilesperproc`
+fi
+test ".$MAX_FD" = ".maximum" && MAX_FD="$MAX_FD_LIMIT"
+ulimit -n $MAX_FD
+if [ "$?" -ne 0 ]; then
+echo "$PROGRAM: Could not set maximum file descriptor limit: $MAX_FD"
+fi
+else
+echo "$PROGRAM: Could not query system maximum file descriptor limit:
+$MAX_FD_LIMIT"
+fi
+fi
+# ----- Execute The Requested Command -----------------------------------------
+case "$1" in
+run )
+shift
+"$JSVC" $* \
+$JSVC_OPTS \
+-java-home "$JAVA_HOME" \
+-pidfile "$CATALINA_PID" \
+-wait 10 \
+-nodetach \
+-outfile "&1" \
+-errfile "&2" \
+-classpath "$CLASSPATH" \
+"$LOGGING_CONFIG" $JAVA_OPTS $CATALINA_OPTS \
+-Djava.endorsed.dirs="$JAVA_ENDORSED_DIRS" \
+-Dcatalina.base="$CATALINA_BASE" \
+-Dcatalina.home="$CATALINA_HOME" \
+-Djava.io.tmpdir="$CATALINA_TMP" \
+$CATALINA_MAIN
+exit $?
+;;
+start )
+"$JSVC" $JSVC_OPTS \
+-java-home "$JAVA_HOME" \
+-user $TOMCAT_USER \
+-pidfile "$CATALINA_PID" \
+-wait 10 \
+-outfile "$CATALINA_OUT" \
+-errfile "&1" \
+-classpath "$CLASSPATH" \
+"$LOGGING_CONFIG" $JAVA_OPTS $CATALINA_OPTS \
+-Djava.endorsed.dirs="$JAVA_ENDORSED_DIRS" \
+-Dcatalina.base="$CATALINA_BASE" \
+-Dcatalina.home="$CATALINA_HOME" \
+-Djava.io.tmpdir="$CATALINA_TMP" \
+$CATALINA_MAIN
+exit $?
+;;
+stop )
+"$JSVC" $JSVC_OPTS \
+-stop \
+-pidfile "$CATALINA_PID" \
+-classpath "$CLASSPATH" \
+-Djava.endorsed.dirs="$JAVA_ENDORSED_DIRS" \
+-Dcatalina.base="$CATALINA_BASE" \
+-Dcatalina.home="$CATALINA_HOME" \
+-Djava.io.tmpdir="$CATALINA_TMP" \
+$CATALINA_MAIN
+exit $?
+;;
+version )
+"$JSVC" \
+-java-home "$JAVA_HOME" \
+-pidfile "$CATALINA_PID" \
+-classpath "$CLASSPATH" \
+-errfile "&2" \
+-version \
+-check \
+$CATALINA_MAIN
+if [ "$?" = 0 ]; then
+"$JAVA_BIN" \
+-classpath "$CATALINA_HOME/lib/catalina.jar" \
+org.apache.catalina.util.ServerInfo
+fi
+exit $?
+;;
+* )
+echo "Unkown command: \`$1'"
+echo "Usage: $PROGRAM ( commands ... )"
+echo "commands:"
+echo " run Start Catalina without detaching from console"
+echo " start Start Catalina"
+echo " stop Stop Catalina"
+echo " version What version of commons daemon and Tomcat"
+echo " are you running?"
+exit 1
+;;
+esac
+					]]></programlisting>
+				</listitem>
+				<listitem><para>At the command line run: <userinput>$ chkconfig --add tomcat7</userinput></para></listitem>
+				<listitem><para>At the command line run <userinput>$ sudo /etc/init.d/tomcat7 start</userinput> to start tomcat. You should see a welcome page at 
+				<systemitem class="systemname">http://localhost:8080</systemitem> if all went well.</para></listitem>
+			</orderedlist>
+		</listitem>
+	</orderedlist>
 	</section>
 	<section>
-		<title>WASP Metadata</title>
-		<para>Configure genomes directories.</para>
+	<title>Installing, Building and Deploying WASP</title>
+	<orderedlist numeration='arabic'>
+		<listitem><para>Clone the wasp repository using git clone url. It may be useful to set an environment variable
+			in your <filename>.bash_profile</filename> (or <filename>.bashrc</filename>) to point to this installation. For the remainder of this section it
+			is assumed you have created such a variable and called it <envar>WASP_HOME</envar>.</para></listitem>
+		<listitem><para>Initialize the wasp database by running the following at the command line:</para>
+			<programlisting><![CDATA[
+$ mysql -uroot -p < $WASP_HOME/db/InitializeWaspDb.sql
+$ mysql -uroot -p wasp < $WASP_HOME/db/createSpringBatchTables.sql
+			]]></programlisting>
+		</listitem>
+		<listitem><para>Install the core WASP components:</para>
+			<programlisting>
+$ cd $WASP_HOME
+$ mvn clean install
+			</programlisting>
+			<para>Check to see that <filename>wasp-tomcat-classloader-x.x.x-SNAPSHOT.jar</filename> has been copied into the
+			<filename>$CATALINA_HOME/lib</filename> folder. If not (due to a permissions issue) you should do this manually:
+			<userinput>$ sudo cp $WASP_HOME/wasp-tomcat-classloader/target/wasp-tomcat-classloader-?.?.?-SNAPSHOT.jar $CATALINA_HOME/lib</userinput></para>
+		</listitem>
+		<listitem><para>Install the provided plugins:</para>
+			<para><userinput>$ for x in `ls -d $WASP_HOME/wasp-plugins/*`;do cd $x; mvn -Dcatalina.home=$CATALINA_HOME clean install;done</userinput></para>
+			<para>If the jars failed to be copied into the $CATALINA_HOME/waspPlugins folder, make sure your
+				user has permission to write to this folder and try again.</para>
+		</listitem>
+		<listitem><para>Deploy the WASP System webapp: <userinput>$ mvn tomcat:deploy</userinput></para>
+			<para>If this fails you should check that Tomcat7 Setup Step 2, above, was completed properly.</para>
+			<note>The commands <userinput>$ mvn tomcat:undeploy</userinput> and <userinput>$ mvn tomcat:redeploy</userinput> are also useful and selfexplanatory.</note>
+		</listitem>
+		<listitem><para>Goto <systemitem class="systemname">localhost:8080/wasp</systemitem>. If you see the login page you have set up the webapp properly.</para></listitem>
+		<listitem><para>You may start up the backend executable component (task management) in a new shell as follows:</para>
+			<programlisting><![CDATA[
+$ cd $WASP_HOME/wasp-exec
+$ java -Dcatalina.home=$CATALINA_HOME -cp "target/wasp-exec-0.1.0-SNAPSHOT.jar:$CATALINA_HOME/waspPlugins/*" edu.yu.einstein.wasp.batch.StartSpring
+			]]></programlisting>
+			<para>To run it in the background with no terminal output use this variant of the command instead:</para>
+			<programlisting><![CDATA[
+$ nohup java -Dcatalina.home=$CATALINA_HOME -cp "target/wasp-exec-0.1.0-SNAPSHOT.jar:$CATALINA_HOME/waspPlugins/*" edu.yu.einstein.wasp.batch.StartSpring > /dev/null 2>&1 &
+			]]></programlisting>
+		</listitem>
+	</orderedlist>
 	</section>
 	<section>
-		<title>Deploy WASP</title>
-		<para>Check out the latest version of WASP, build with Maven and deploy.</para>
+		<title>Building the Documentation</title>
+		<orderedlist numeration='arabic'>
+			<listitem><para>The DocBook documentation (<ulink url='http://docbook.sourceforge.net'>docbook.sourceforge.net</ulink>) can be built by running the following commands:</para>
+				<programlisting><![CDATA[
+$ cd $WASP_HOME/wasp-doc
+$ mvn clean install docbkx:generate-html docbkx:generate-pdf
+$ cp -R $WASP_HOME/wasp-doc/src/docbkx/content/figures $WASP_HOME/wasp-doc/target/docbkx/html
+				]]></programlisting>
+			</listitem>
+			<listitem><para>Javadoc can be generated by running <userinput>$ mvn javadoc:javadoc</userinput> in any component parent folder, e.g.
+<filename>WASP_HOME/wasp-web</filename> (for the WASP SYSTEM webapp) or <filename>$WASP_HOME/wasp-core</filename>
+(for the core code). The documentation can then be found in <filename>target/apidocs</filename> folder under the component parent folder.</para>
+			</listitem>
+		</orderedlist>
 	</section>
 </chapter>
