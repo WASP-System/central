@@ -2,11 +2,14 @@ package edu.yu.einstein.wasp.controller;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -28,15 +31,21 @@ import org.springframework.web.bind.support.SessionStatus;
 
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.dao.ConfirmEmailAuthDao;
+import edu.yu.einstein.wasp.dao.DepartmentUserDao;
 import edu.yu.einstein.wasp.dao.UserMetaDao;
 import edu.yu.einstein.wasp.exception.LoginNameException;
+import edu.yu.einstein.wasp.model.DepartmentUser;
+import edu.yu.einstein.wasp.model.LabPending;
 import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.MetaBase;
+import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserMeta;
+import edu.yu.einstein.wasp.model.Userrole;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.service.MessageService;
+import edu.yu.einstein.wasp.service.RoleService;
 import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 import edu.yu.einstein.wasp.util.MetaHelper;
@@ -64,12 +73,17 @@ public class UserController extends WaspController {
 	@Autowired
 	private EmailService emailService;
 	
+	@Autowired
+	private RoleService roleService;
 	
 	@Autowired
 	private UserService userService;
 	
 	@Autowired
 	private ConfirmEmailAuthDao confirmEmailAuthDao;
+	
+	@Autowired
+	private DepartmentUserDao departmentUserDao;
 
 	private final MetaHelperWebapp getMetaHelperWebapp() {
 		return new MetaHelperWebapp(UserMeta.class, request.getSession());
@@ -204,6 +218,8 @@ public class UserController extends WaspController {
 			userList = sidx.isEmpty() ? this.userDao.findAll() : this.userDao.findAllOrderBy(sidx, sord);
 		}
 
+		userService.reverseSortUsersByUserId(userList);
+		
 		try {
 			int pageIndex = Integer.parseInt(request.getParameter("page"));		// index of page
 			int pageRowNum = Integer.parseInt(request.getParameter("rows"));	// number of rows in one page
@@ -244,12 +260,29 @@ public class UserController extends WaspController {
 				cell.put("id", user.getUserId());
 				 
 				List<UserMeta> userMeta=getMetaHelperWebapp().syncWithMaster(user.getUserMeta());
-				 					
+				 
+				//List<String> roles = roleService.getUniqueSortedRoleList(user);//unique list without lab affiliation
+				List<String> roles = roleService.getCompleteSortedRoleList(user);//complete list with lab affilation if labmember or labmanager
+				StringBuffer stringBuffer = new StringBuffer();
+				int counter = 1;
+				for(String role : roles){
+					if(counter > 1){stringBuffer.append("<br />");}
+					stringBuffer.append(role);
+					counter++;
+				}
+				String rolesAsString;				
+				if(stringBuffer.length()==0){
+					rolesAsString = new String("<a href=/wasp/sysrole/list.do>Add Role</a><br><a href=/wasp/department/list.do>Confer Dept Admin</a>");
+				}
+				else{
+					rolesAsString = new String(stringBuffer);
+				}
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 							user.getLogin(),
 //							user.getPassword(),
 							user.getFirstName(),
-							user.getLastName(),						
+							user.getLastName(),	
+							rolesAsString,
 							user.getEmail(),
 							LOCALES.get(user.getLocale()),
 							user.getIsActive().intValue()==1?"yes":"no"
@@ -282,7 +315,7 @@ public class UserController extends WaspController {
 	 * @Author Sasha Levchuk 
 	 */	
 	@RequestMapping(value = "/detail_rw/updateJSON.do", method = RequestMethod.POST)
-	@PreAuthorize("hasRole('su') or User.login == principal.name")
+	@PreAuthorize("hasRole('su') or hasRole('fm') or User.login == principal.name")
 	public String updateDetailJSON(@RequestParam("id") Integer userId,User userForm, ModelMap m, HttpServletResponse response) {
 		userId = (userId == null)? 0:userId;
 		boolean adding = (userId == 0);
