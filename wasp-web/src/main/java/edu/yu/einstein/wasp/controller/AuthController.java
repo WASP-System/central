@@ -331,11 +331,11 @@ public class AuthController extends WaspController {
    * @param m model
    * @return view
    */
-  @RequestMapping(value="/confirmNewUserEmail", method=RequestMethod.GET)
+  @RequestMapping(value="/confirmNewUserEmail", method=RequestMethod.GET)//for new users created via the User grid
   public String confirmNewUserEmailFromEmailLink(
-		  @RequestParam(value="authcode", required=false) String authCode,
-		  @RequestParam(value="email", required=false) String urlEncodedEmail,
-		  @RequestParam(value="isAdminCreated", required=false) Integer isAdminCreated,
+		  @RequestParam(value="authcode", required=true) String authCode,
+		  @RequestParam(value="email", required=true) String urlEncodedEmail,
+		  @RequestParam(value="isAdminCreated", required=true) Integer isAdminCreated,
 	      ModelMap m) {
     if (isAdminCreated == null) isAdminCreated = 0;
 	if ( (authCode==null || authCode.isEmpty()) && (urlEncodedEmail==null || urlEncodedEmail.isEmpty()) ){
@@ -343,30 +343,48 @@ public class AuthController extends WaspController {
 		// return the authcodeform view
 		return "auth/confirmemail/authcodeform";
 	}
+	
 	String decodedEmail;
 	try{
 		decodedEmail = URLDecoder.decode(urlEncodedEmail, "UTF-8");
-	} catch(UnsupportedEncodingException e){
+	} catch(UnsupportedEncodingException e){//not good place to go; should be a different error page.
 		waspErrorMessage("auth.confirmemail_corruptemail.error");
 		m.addAttribute("isAdminCreated", isAdminCreated);
 		return "redirect:/auth/confirmNewUserEmail.do"; // do this to clear GET parameters and forward to authcodeform view
+		
 	}
-	if (! userEmailValid(authCode, decodedEmail, null)){
-		m.addAttribute("isAdminCreated", isAdminCreated);
-		return "redirect:/auth/confirmNewUserEmail.do"; // do this to clear GET parameters and forward to authcodeform view
-	}
+	
+	//if (isAdminCreated == 0 && ! userEmailValid(authCode, decodedEmail, null)){
+	//	m.addAttribute("isAdminCreated", isAdminCreated);
+	//	return "redirect:/auth/confirmNewUserEmail.do"; // do this to clear GET parameters and forward to authcodeform view
+	//}
 	// authcode and email match if we get here
 	// remove entry for current user in email auth table
 	ConfirmEmailAuth auth = confirmEmailAuthDao.getConfirmEmailAuthByAuthcode(authCode);
-	confirmEmailAuthDao.remove(auth);
-	waspMessage("user.email_change_confirmed.label");
-	if (isAdminCreated != null && isAdminCreated == 1 && !authenticationService.isAuthenticationSetExternal()){
+	if(auth != null && auth.getConfirmEmailAuthId()!=null && auth.getConfirmEmailAuthId().intValue()!=0){//first time clicked
 		User user = userDao.getUserByUserId(auth.getUserId());
-		// request user changes their password
-		return "redirect:/auth/resetpassword/form.do?authcode="+getUserPasswordAuthcode(user);
+		if ( ! user.getEmail().equals(decodedEmail)){//mismatch error with email address and user.email; should virtually never occur			
+			return "auth/confirmemail/confirmemailerror";
+		}
+		confirmEmailAuthDao.remove(auth);
+		return "redirect:/auth/resetpassword/form.do?authcode="+getUserPasswordAuthcode(user);//sets the password authcode in database (see function above)
+	}
+	else if (isAdminCreated != null && isAdminCreated == 1 && !authenticationService.isAuthenticationSetExternal()){
+		
+		User user = userDao.getUserByEmail(decodedEmail);//user.email is unique 
+		if(user == null || user.getUserId().intValue()==0){
+			return "auth/confirmemail/confirmemailerror";
+		}
+		Userpasswordauth userpasswordauth = userpasswordauthDao.getUserpasswordauthByUserId(user.getUserId());
+			
+		if(userpasswordauth != null && userpasswordauth.getUserId()!=null && userpasswordauth.getUserId().intValue()==user.getUserId().intValue()){
+			// request user changes their password
+			return "redirect:/auth/resetpassword/form.do?authcode="+userpasswordauth.getAuthcode();
+		}
+		return "redirect:/auth/login.do"; 		
 	}
 	
-	return "redirect:/auth/loginHandler.do";
+	return "redirect:/auth/login.do";
   }
   
   /**

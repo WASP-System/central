@@ -70,6 +70,9 @@
 	<definition name="auth/confirmemail/authcodeform" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/auth/confirmemail/authcodeform.jsp" />
 	</definition>
+	<definition name="auth/confirmemail/confirmemailerror" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/auth/confirmemail/confirmemailerror.jsp" />
+	</definition>
 	<definition name="auth/confirmemail/emailchanged" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/auth/confirmemail/emailchanged.jsp" />
 	</definition>
