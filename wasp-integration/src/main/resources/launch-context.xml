@@ -7,7 +7,7 @@
 
 	<context:property-placeholder location="classpath:batch.properties, classpath:integration.properties" ignore-unresolvable="true"/>
 
-	<context:component-scan base-package="edu.yu.einstein" />
+	<context:component-scan base-package="edu.yu.einstein.wasp.service.impl" />
 
 	<!-- import configuration files  -->
 	<import resource="persistence-context.xml" />

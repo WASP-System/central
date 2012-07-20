@@ -15,6 +15,16 @@
 		<property name="jobRepository" ref="jobRepository" />
 		<property name="taskExecutor" ref="taskExecutor" />
 	</bean>
+	
+	<!-- Not required, but useful for keeping track of which jobs are available in the context. 
+	Also useful for collecting jobs centrally in an application context when they have been created 
+	elsewhere (e.g. in child contexts). -->
+	<bean id="jobRegistry" class="org.springframework.batch.core.configuration.support.MapJobRegistry" />
+	
+	<!-- This is a bean post-processor that can register all jobs as they are created -->
+	<bean id="jobRegistryBeanPostProcessor" class="org.springframework.batch.core.configuration.support.JobRegistryBeanPostProcessor">
+    <property name="jobRegistry" ref="jobRegistry"/>
+</bean>
 
 	<!-- AOP advice to restart tasklets with name pattern *RetryableTasklet.java 
     <aop:config>

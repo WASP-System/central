@@ -9,6 +9,7 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameter;
 import org.springframework.batch.core.JobParameters;
+import org.springframework.batch.core.configuration.JobRegistry;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -35,6 +36,9 @@ public class RunFlowTests extends AbstractTestNGSpringContextTests implements Me
 	@Autowired
 	ApplicationContext context;
 	
+	@Autowired 
+	JobRegistry jobRegistry;
+	
 	private final Logger logger = Logger.getLogger(RunFlowTests.class);
 	
 	private Message<?> message = null;
@@ -55,6 +59,7 @@ public class RunFlowTests extends AbstractTestNGSpringContextTests implements Me
 	public void testAutowiringOk() {
 		Assert.assertNotNull(jobLauncher);
 		Assert.assertNotNull(context);
+		Assert.assertNotNull(jobRegistry);
 	}
 	
 	/**
@@ -71,7 +76,7 @@ public class RunFlowTests extends AbstractTestNGSpringContextTests implements Me
 			waspRunPublishSubscribeChannel.subscribe(this); // register as a message handler on the waspRunPublishSubscribeChannel
 			
 			// setup job execution for the 'runJob' job
-			Job runJob = context.getBean("runJob", Job.class); // get the 'runJob' job from the context
+			Job runJob = jobRegistry.getJob("runJob"); // get the 'runJob' job from the context
 			Map<String, JobParameter> parameterMap = new HashMap<String, JobParameter>();
 			parameterMap.put( PU_KEY, new JobParameter(PU_ID1.toString()) );
 			parameterMap.put( RUN_KEY, new JobParameter(RUN_ID.toString()) );
@@ -125,7 +130,7 @@ public class RunFlowTests extends AbstractTestNGSpringContextTests implements Me
 			PollableChannel waspRunPriorityChannel = context.getBean("waspRunPriorityChannel", PollableChannel.class);
 			
 			// setup job execution for the  'runLibraryJob' job
-			Job runLibraryJob = context.getBean("runLibraryJob", Job.class); // get the 'runLibraryJob' job from the context
+			Job runLibraryJob = jobRegistry.getJob("runLibraryJob"); // get the 'runLibraryJob' job from the context
 			Map<String, JobParameter> parameterMap = new HashMap<String, JobParameter>();
 			parameterMap.put( PU_KEY, new JobParameter(PU_ID1.toString()) );
 			JobExecution jobExecution = jobLauncher.run(runLibraryJob, new JobParameters(parameterMap));
@@ -171,7 +176,7 @@ public class RunFlowTests extends AbstractTestNGSpringContextTests implements Me
 			PollableChannel waspRunPriorityChannel = context.getBean("waspRunPriorityChannel", PollableChannel.class);
 			
 			// setup job execution for the  'runLibraryJob' job
-			Job runLibraryJob = context.getBean("runLibraryJob", Job.class); // get the 'runLibraryJob' job from the context
+			Job runLibraryJob = jobRegistry.getJob("runLibraryJob"); // get the 'runLibraryJob' job from the context
 			Map<String, JobParameter> parameterMap = new HashMap<String, JobParameter>();
 			parameterMap.put( PU_KEY, new JobParameter(PU_ID2.toString()) );
 			JobExecution jobExecution = jobLauncher.run(runLibraryJob, new JobParameters(parameterMap));
@@ -207,7 +212,7 @@ public class RunFlowTests extends AbstractTestNGSpringContextTests implements Me
 	public void testRunJobAndRunLibraryJobIntegration(){
 		try {
 			// setup job execution for the  'runLibraryJob' job
-			Job runLibraryJob = context.getBean("runLibraryJob", Job.class); // get the 'runLibraryJob' job from the context
+			Job runLibraryJob = jobRegistry.getJob("runLibraryJob"); // get the 'runLibraryJob' job from the context
 			Map<String, JobParameter> parameterMap = new HashMap<String, JobParameter>();
 			parameterMap.put( PU_KEY, new JobParameter(PU_ID3.toString()) );
 			JobExecution jobExecutionRunLibraryJob = jobLauncher.run(runLibraryJob, new JobParameters(parameterMap));
@@ -215,7 +220,7 @@ public class RunFlowTests extends AbstractTestNGSpringContextTests implements Me
 			Thread.sleep(1000); // wait for job to get going 
 			
 			// setup job execution for the 'runJob' job
-			Job runJob = context.getBean("runJob", Job.class); // get the 'runJob' job from the context
+			Job runJob = jobRegistry.getJob("runJob"); // get the 'runJob' job from the context
 			parameterMap.put( RUN_KEY, new JobParameter(RUN_ID.toString()) );
 			JobExecution jobExecutionRunJob = jobLauncher.run(runJob, new JobParameters(parameterMap));
 			
