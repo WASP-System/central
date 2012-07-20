@@ -88,7 +88,8 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 		<project.build.outputEncoding>UTF-8</project.build.outputEncoding>
 		<site.basedir>${project.basedir}</site.basedir>
 		<module.version>0.1.0-SNAPSHOT</module.version>
-		<spring.version>3.1.1.RELEASE</spring.version>
+		<spring.version>3.1.2.RELEASE</spring.version>
+		<springsec.version>3.1.1.RELEASE</springsec.version>
 	</properties>
 
 	<modules>
@@ -372,22 +373,22 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 			<dependency>
 				<groupId>org.hibernate</groupId>
 				<artifactId>hibernate-validator</artifactId>
-				<version>4.2.0.Final</version>
+				<version>4.3.0.Final</version>
 			</dependency>
 			<dependency>
 				<groupId>org.hibernate</groupId>
 				<artifactId>hibernate-validator-annotation-processor</artifactId>
-				<version>4.2.0.Final</version>
+				<version>4.3.0.Final</version>
 			</dependency>
 			<dependency>
 				<groupId>org.hibernate</groupId>
 				<artifactId>hibernate-core</artifactId>
-				<version>3.6.8.Final</version>
+				<version>4.1.4.Final</version>
 			</dependency>
 			<dependency>
 				<groupId>org.hibernate</groupId>
 				<artifactId>hibernate-envers</artifactId>
-				<version>3.6.8.Final</version>
+				<version>4.1.4.Final</version>
 			</dependency>
 			<dependency>
 				<groupId>org.codehaus.jackson</groupId>
@@ -554,47 +555,47 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 			<dependency>
 				<groupId>org.springframework.security</groupId>
 				<artifactId>spring-security-acl</artifactId>
-				<version>3.1.0.RELEASE</version>
+				<version>${springsec.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.security</groupId>
 				<artifactId>spring-security-core</artifactId>
-				<version>3.1.0.RELEASE</version>
+				<version>${springsec.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.security</groupId>
 				<artifactId>spring-security-ldap</artifactId>
-				<version>3.1.0.RELEASE</version>
+				<version>${springsec.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.security</groupId>
 				<artifactId>spring-security-aspects</artifactId>
-				<version>3.1.0.RELEASE</version>
+				<version>${springsec.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.security</groupId>
 				<artifactId>spring-security-cas</artifactId>
-				<version>3.1.0.RELEASE</version>
+				<version>${springsec.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.security</groupId>
 				<artifactId>spring-security-config</artifactId>
-				<version>3.1.0.RELEASE</version>
+				<version>${springsec.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.security</groupId>
 				<artifactId>spring-security-openid</artifactId>
-				<version>3.1.0.RELEASE</version>
+				<version>${springsec.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.security</groupId>
 				<artifactId>spring-security-taglibs</artifactId>
-				<version>3.1.0.RELEASE</version>
+				<version>${springsec.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.security</groupId>
 				<artifactId>spring-security-web</artifactId>
-				<version>3.1.0.RELEASE</version>
+				<version>${springsec.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>taglibs</groupId>
