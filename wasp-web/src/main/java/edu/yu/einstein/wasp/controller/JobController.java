@@ -144,19 +144,164 @@ public class JobController extends WaspController {
 	public String getListJSON(HttpServletResponse response) {
 		
 		String search = request.getParameter("_search");
-		String searchStr = request.getParameter("searchString");
+		String searchField = request.getParameter("searchField");
+		String searchString = request.getParameter("searchString");
+		String searchOperator = request.getParameter("searchOper");
 	
 		String sord = request.getParameter("sord");
 		String sidx = request.getParameter("sidx");
 		
 		String userId = request.getParameter("userId");
 		String labId = request.getParameter("labId");
-		
+System.out.println("search = " + search);
+System.out.println("searchField = " + searchField);
+System.out.println("searchString = " + searchString);
+System.out.println("searchOperator = " + searchOperator);
+System.out.println("sidx = " + sidx);
+System.out.println("sord = " + sord);
+
 		//result
 		Map <String, Object> jqgrid = new HashMap<String, Object>();
 		
 		List<Job> jobList = new ArrayList<Job>();
-		
+		if(!userId.isEmpty() && !labId.isEmpty()){//coming from a GET string anchor in the user grid (subgrid of lab name); also see the get string in job/grid_columns.jsp. No search or sort options
+			Map<String, Integer> queryMap = new HashMap<String, Integer>();
+			queryMap.put("UserId", Integer.parseInt(userId));
+			queryMap.put("labId", Integer.parseInt(labId));			  				  
+			jobList = this.jobDao.findByMap(queryMap);
+		}
+		else if(sidx.isEmpty() && search.equals("false")){//not sort and not search
+			jobList = this.jobDao.findAll();
+		}
+		else if(!sidx.isEmpty() && !sord.isEmpty() && search.equals("false")){//sort ; return all entries and sort either asc or desc according to the requested parameter
+			
+			if(sidx.equals("jobId") || sidx.equals("name") || sidx.equals("createts")){
+				jobList = this.jobDao.findAllOrderBy(sidx, sord);
+			}
+			else if(sidx.equals("submitter") || sidx.equals("pi")){
+				jobList = this.jobDao.findAll();
+				
+				if(sidx.equals("submitter")){
+					Collections.sort(jobList, new SubmitterLastNameFirstNameComparator());
+					if(sord.equals("desc")){
+						Collections.reverse(jobList);
+					}
+				}
+				else if(sidx.equals("pi")){
+					Collections.sort(jobList, new PILastNameFirstNameComparator());	
+					if(sord.equals("desc")){
+						Collections.reverse(jobList);
+					}
+				}
+			}
+			
+		}
+		else if(search.equals("true") && !searchString.trim().isEmpty()){//search; sort will not be empty, but ignore			
+				  
+			if(searchField.equals("jobId")){					  
+					  
+				//in case user enters J1001 or # J1001 for job with id of 1001
+				StringBuffer sb = new StringBuffer();
+				for(int i=0; i<searchString.trim().length(); i++)
+				{
+					if(Character.isDigit(searchString.charAt(i))){
+						sb.append(searchString.charAt(i));
+					}
+				}
+				if(sb.length() > 0){
+					
+					Job job = this.jobDao.getJobByJobId(Integer.parseInt(sb.toString()));
+					
+					if(searchOperator.equals("eq") && job.getJobId().intValue() > 0){
+						jobList.add(job);
+					}
+					else if(searchOperator.equals("ne")){
+						jobList = this.jobDao.findAll();//this is already ordered by jobId
+						jobList.remove(job);
+					}
+					
+				}  
+				else{
+					jobList = this.jobDao.findAll();//this is already ordered by jobId
+				}
+			}
+			
+			//if(searchField)
+			
+			else if(searchField.equals("submitter") || searchField.equals("pi") || searchField.equals("name")){//this is indicating the search on the submitter's name or a PI or the name of the job
+				String tokens[] = searchString.trim().split(" +");
+				List<Job> tempJobList = this.jobDao.findAll();
+				List<Job> jobsSearched = new ArrayList<Job>();
+				for (Job job : tempJobList){
+					if(searchField.equals("name")){
+						if(job.getName().toLowerCase().equals(searchString.trim().toLowerCase())){
+							jobsSearched.add(job);
+						}
+					}
+					else{
+						if(tokens.length==2){//look for match of firstname lastname of submitter or PI
+							if(searchField.equals("submitter")){
+								if(job.getUser().getFirstName().toLowerCase().equals(tokens[0].toLowerCase()) && job.getUser().getLastName().toLowerCase().equals(tokens[1].toLowerCase())){
+									jobsSearched.add(job);
+								}
+							}
+							else if(searchField.equals("pi")){
+								if(job.getLab().getUser().getFirstName().toLowerCase().equals(tokens[0].toLowerCase()) && job.getLab().getUser().getLastName().toLowerCase().equals(tokens[1].toLowerCase())){
+									jobsSearched.add(job);
+								}
+							}
+						}
+						else if(tokens.length > 0 && tokens.length !=2){//check token[0] for matching first or last name of submitter or PI
+							if(searchField.equals("submitter")){
+								if(job.getUser().getFirstName().toLowerCase().equals(tokens[0].toLowerCase()) || job.getUser().getLastName().toLowerCase().equals(tokens[0].toLowerCase())){
+									jobsSearched.add(job);
+								}
+							}
+							else if(searchField.equals("pi")){
+								if(job.getLab().getUser().getFirstName().toLowerCase().equals(tokens[0].toLowerCase()) || job.getLab().getUser().getLastName().toLowerCase().equals(tokens[0].toLowerCase())){
+									jobsSearched.add(job);
+								}
+							}
+						}
+					}
+				}
+				if(searchOperator.equals("eq")){
+					jobList.addAll(jobsSearched);
+				}
+				else if(searchOperator.equals("ne")){
+					tempJobList.removeAll(jobsSearched);
+					jobList.addAll(tempJobList);
+				}			
+			}
+			
+			if(!sidx.isEmpty() && !sord.isEmpty() && sord.equals("desc")){//order is initially "asc"
+				//jobList is already ordered by jobId asc, so just reverse the entire order
+				Collections.reverse(jobList);				
+			}
+		}
+					  
+					  
+					  /*
+					   * 
+					   Map m = new HashMap();
+					  //m.put(request.getParameter("searchField"), Integer.parseInt(request.getParameter("searchString")));
+					  m.put(request.getParameter("searchField"), Integer.parseInt(sb.toString()));
+				  }
+				  else{
+					  m.put(request.getParameter("searchField"), request.getParameter("searchString"));
+				  }
+			  }
+			  
+			  if (!userId.isEmpty())
+				  m.put("UserId", Integer.parseInt(userId));
+			  
+			  if (!labId.isEmpty())
+				  m.put("labId", Integer.parseInt(labId));
+			  				  
+			  jobList = this.jobDao.findByMap(m);
+			
+		}*/
+/*		
 		if (!search.equals("true")	&& !userId.isEmpty() && labId.isEmpty()) {
 			
 			for (String role: authenticationService.getRoles()) {			
@@ -225,7 +370,7 @@ public class JobController extends WaspController {
 			  				  
 			  jobList = this.jobDao.findByMap(m);
 		}
-
+*/
 		try {
 			int pageIndex = Integer.parseInt(request.getParameter("page"));		// index of page
 			int pageRowNum = Integer.parseInt(request.getParameter("rows"));	// number of rows in one page
@@ -249,12 +394,12 @@ public class JobController extends WaspController {
 				}
 			}
 
-			if (sidx.equals("name")) {
+			if (sidx.equals("jobId")) {
 				Collections.sort(jobList, new JobIdComparator());
 				if (sord.equals("desc"))
 					Collections.reverse(jobList);
 			}
-			/***** End Sort by Job name *****/
+			/***** End Sort by Job jobId *****/
 			
 			/***** Begin Sort by Job name *****/
 			class JobNameComparator implements Comparator<Job> {
@@ -279,15 +424,13 @@ public class JobController extends WaspController {
 				}
 			}
 
-			if (sidx.equals("UserId")) {
+			if (sidx.equals("submitter")) {
 				Collections.sort(jobList, new JobSubmitterLastNameComparator());
 				if (sord.equals("desc"))
 					Collections.reverse(jobList);
 			}
 			/***** End Sort by User last name *****/
-			
 
-			 
 			List<Map> rows = new ArrayList<Map>();
 			
 			int frId = pageRowNum * (pageIndex - 1);
@@ -319,9 +462,10 @@ public class JobController extends WaspController {
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 							"J" + job.getJobId().intValue() + " (<a href=/wasp/sampleDnaToLibrary/listJobSamples/"+job.getJobId()+".do>details</a>)",
 							job.getName(),
-							user.getFirstName() + " " + user.getLastName(),
-							job.getLab().getName(),
-							job.getLastUpdTs().toString(),
+							user.getNameFstLst(),
+							//job.getLab().getName() + " (" + pi.getNameLstCmFst() + ")",
+							job.getLab().getUser().getNameFstLst(),
+							job.getCreatets().toString(),
 							"<a href=/wasp/"+job.getWorkflow().getIName()+"/viewfiles/"+job.getJobId()+".do>View files</a>"
 				}));
 				 
@@ -714,5 +858,30 @@ public class JobController extends WaspController {
 		jobService.sortJobsByJobId(jobsActiveAndWithLibraryCreatedTask);
 		m.put("jobList", jobsActiveAndWithLibraryCreatedTask);
 		return "job/jobsAwaitingLibraryCreation/jobsAwaitingLibraryCreationList";	  
+	}
+}
+
+class SubmitterLastNameFirstNameComparator implements Comparator<Job> {
+	@Override
+	public int compare(Job arg0, Job arg1) {
+		return arg0.getUser().getLastName().concat(arg0.getUser().getFirstName()).compareToIgnoreCase(arg1.getUser().getLastName().concat(arg1.getUser().getFirstName()));
+	}
+}
+class PILastNameFirstNameComparator implements Comparator<Job> {
+	@Override
+	public int compare(Job arg0, Job arg1) {
+		return arg0.getLab().getUser().getLastName().concat(arg0.getLab().getUser().getFirstName()).compareToIgnoreCase(arg1.getLab().getUser().getLastName().concat(arg1.getLab().getUser().getFirstName()));
+	}
+}
+class JobNameComparator implements Comparator<Job> {
+	@Override
+	public int compare(Job arg0, Job arg1) {
+		return arg0.getName().compareToIgnoreCase(arg1.getName());
+	}
+}
+class JobIdComparator implements Comparator<Job> {
+	@Override
+	public int compare(Job arg0, Job arg1) {
+		return arg0.getJobId().intValue() >= arg1.getJobId().intValue()?1:0;
 	}
 }
