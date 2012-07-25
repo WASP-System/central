@@ -153,6 +153,8 @@ public class JobController extends WaspController {
 		
 		String userId = request.getParameter("userId");
 		String labId = request.getParameter("labId");
+System.out.println("userId = " + userId);
+System.out.println("labId = " + labId);
 System.out.println("search = " + search);
 System.out.println("searchField = " + searchField);
 System.out.println("searchString = " + searchString);
@@ -164,14 +166,22 @@ System.out.println("sord = " + sord);
 		Map <String, Object> jqgrid = new HashMap<String, Object>();
 		
 		List<Job> jobList = new ArrayList<Job>();
-		if(!userId.isEmpty() && !labId.isEmpty()){//coming from a GET string anchor in the user grid (subgrid of lab name); also see the get string in job/grid_columns.jsp. No search or sort options
+		
+		
+/*
+		if(!userId.isEmpty() && !labId.isEmpty()){//coming from a GET string anchor in the user grid (subgrid of lab name); !!!these parameters are maintained if user then sorts or searches. 
+
 			Map<String, Integer> queryMap = new HashMap<String, Integer>();
 			queryMap.put("UserId", Integer.parseInt(userId));
 			queryMap.put("labId", Integer.parseInt(labId));			  				  
 			jobList = this.jobDao.findByMap(queryMap);
+			//List<String> distinctColumnNames = null;
+			//List<String> orderByColumnNames = new ArrayList<String>();
+			//orderByColumnNames.add("jobId");
+			//jobList = this.jobDao.findByMapDistinctOrderBy(queryMap, distinctColumnNames, orderByColumnNames, "asc");
 		}
-		else if(sidx.isEmpty() && search.equals("false")){//not sort and not search
-			jobList = this.jobDao.findAll();
+		else if(sidx.isEmpty() && search.equals("false")){//neither sort nor search
+			jobList = this.jobDao.findAllOrderBy("jobId", "asc");
 		}
 		else if(!sidx.isEmpty() && !sord.isEmpty() && search.equals("false")){//sort ; return all entries and sort either asc or desc according to the requested parameter
 			
@@ -275,12 +285,40 @@ System.out.println("sord = " + sord);
 			}
 			
 			if(!sidx.isEmpty() && !sord.isEmpty() && sord.equals("desc")){//order is initially "asc"
-				//jobList is already ordered by jobId asc, so just reverse the entire order
-				Collections.reverse(jobList);				
+				if(sidx.equals("submitter")){
+					Collections.sort(jobList, new SubmitterLastNameFirstNameComparator());
+					if(sord.equals("desc")){
+						Collections.reverse(jobList);
+					}
+				}
+				else if(sidx.equals("pi")){
+					Collections.sort(jobList, new PILastNameFirstNameComparator());	
+					if(sord.equals("desc")){
+						Collections.reverse(jobList);
+					}
+				}
+				else if(sidx.equals("jobId")){
+					Collections.sort(jobList, new JobIdComparator());
+					if(sord.equals("desc")){
+						Collections.reverse(jobList);
+					}
+				}
+				else if(sidx.equals("name")){
+					Collections.sort(jobList, new JobNameComparator());	
+					if(sord.equals("desc")){
+						Collections.reverse(jobList);
+					}
+				}
+				else if(sidx.equals("createts")){
+					Collections.sort(jobList, new JobCreatetsComparator());	
+					if(sord.equals("desc")){
+						Collections.reverse(jobList);
+					}
+				}				
 			}
 		}
 					  
-					  
+*/					  
 					  /*
 					   * 
 					   Map m = new HashMap();
@@ -861,6 +899,12 @@ System.out.println("sord = " + sord);
 	}
 }
 
+class JobIdComparator implements Comparator<Job> {
+	@Override
+	public int compare(Job arg0, Job arg1) {
+		return arg0.getJobId().intValue() >= arg1.getJobId().intValue()?1:0;
+	}
+}
 class SubmitterLastNameFirstNameComparator implements Comparator<Job> {
 	@Override
 	public int compare(Job arg0, Job arg1) {
@@ -879,9 +923,9 @@ class JobNameComparator implements Comparator<Job> {
 		return arg0.getName().compareToIgnoreCase(arg1.getName());
 	}
 }
-class JobIdComparator implements Comparator<Job> {
+class JobCreatetsComparator implements Comparator<Job> {
 	@Override
 	public int compare(Job arg0, Job arg1) {
-		return arg0.getJobId().intValue() >= arg1.getJobId().intValue()?1:0;
+		return arg0.getCreatets().compareTo(arg1.getCreatets());
 	}
 }
