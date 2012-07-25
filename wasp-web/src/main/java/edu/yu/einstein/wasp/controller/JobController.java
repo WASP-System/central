@@ -136,7 +136,16 @@ public class JobController extends WaspController {
 		m.addAttribute("_metaDataMessages", MetaHelper.getMetadataMessages(request.getSession()));
 
 		prepareSelectListData(m);
-
+		
+		String userId = request.getParameter("userId");
+		String labId = request.getParameter("labId");
+		
+		m.addAttribute("displayTheAnchor", "NO");
+		if(userId != null && labId != null){
+			if(!userId.trim().isEmpty() && !labId.trim().isEmpty()){
+				m.addAttribute("displayTheAnchor", "YES");
+			}
+		}
 		return "job/list";
 	}
 
@@ -153,6 +162,7 @@ public class JobController extends WaspController {
 		
 		String userId = request.getParameter("userId");
 		String labId = request.getParameter("labId");
+/*
 System.out.println("userId = " + userId);
 System.out.println("labId = " + labId);
 System.out.println("search = " + search);
@@ -161,53 +171,67 @@ System.out.println("searchString = " + searchString);
 System.out.println("searchOperator = " + searchOperator);
 System.out.println("sidx = " + sidx);
 System.out.println("sord = " + sord);
-
+*/
 		//result
 		Map <String, Object> jqgrid = new HashMap<String, Object>();
 		
+		List<Job> tempJobList = new ArrayList<Job>();
+		List<Job> jobsFoundInSearch = new ArrayList<Job>();
 		List<Job> jobList = new ArrayList<Job>();
 		
+		if(authenticationService.hasRole("su")||authenticationService.hasRole("fm")||authenticationService.hasRole("ft")
+				||authenticationService.hasRole("sa")||authenticationService.hasRole("ga")||authenticationService.hasRole("da")){
 		
-/*
-		if(!userId.isEmpty() && !labId.isEmpty()){//coming from a GET string anchor in the user grid (subgrid of lab name); !!!these parameters are maintained if user then sorts or searches. 
-
-			Map<String, Integer> queryMap = new HashMap<String, Integer>();
-			queryMap.put("UserId", Integer.parseInt(userId));
-			queryMap.put("labId", Integer.parseInt(labId));			  				  
-			jobList = this.jobDao.findByMap(queryMap);
-			//List<String> distinctColumnNames = null;
-			//List<String> orderByColumnNames = new ArrayList<String>();
-			//orderByColumnNames.add("jobId");
-			//jobList = this.jobDao.findByMapDistinctOrderBy(queryMap, distinctColumnNames, orderByColumnNames, "asc");
-		}
-		else if(sidx.isEmpty() && search.equals("false")){//neither sort nor search
-			jobList = this.jobDao.findAllOrderBy("jobId", "asc");
-		}
-		else if(!sidx.isEmpty() && !sord.isEmpty() && search.equals("false")){//sort ; return all entries and sort either asc or desc according to the requested parameter
-			
-			if(sidx.equals("jobId") || sidx.equals("name") || sidx.equals("createts")){
-				jobList = this.jobDao.findAllOrderBy(sidx, sord);
-			}
-			else if(sidx.equals("submitter") || sidx.equals("pi")){
-				jobList = this.jobDao.findAll();
+			tempJobList = this.jobDao.findAllOrderBy("jobId", "asc");//sort by jobId here just in case sord.isEmpty()==true
+					
+			if(!userId.trim().isEmpty() && !labId.trim().isEmpty()){//coming from user grid
 				
-				if(sidx.equals("submitter")){
-					Collections.sort(jobList, new SubmitterLastNameFirstNameComparator());
-					if(sord.equals("desc")){
-						Collections.reverse(jobList);
+				int userIdint = Integer.parseInt(userId.trim());
+				int labIdint = Integer.parseInt(labId.trim());
+				List<Job> jobsToRemove = new ArrayList<Job>();
+				
+				for(Job job:tempJobList){
+					
+					if(job.getUserId().intValue() != userIdint || job.getLabId().intValue() != labIdint){
+							
+						jobsToRemove.add(job);
 					}
 				}
-				else if(sidx.equals("pi")){
-					Collections.sort(jobList, new PILastNameFirstNameComparator());	
-					if(sord.equals("desc")){
-						Collections.reverse(jobList);
-					}
+				
+				tempJobList.removeAll(jobsToRemove);
+			}
+		}
+		else {
+
+			for (String role: authenticationService.getRoles()) {			
+			
+				String[] splitRole = role.split("-");
+				if (splitRole.length != 2) { continue; }
+				if (splitRole[1].equals("*")) { continue; }
+		
+				DashboardEntityRolename entityRolename; 
+				int roleObjectId = 0;
+
+				try { 
+					entityRolename = DashboardEntityRolename.valueOf(splitRole[0]);
+					roleObjectId = Integer.parseInt(splitRole[1]);
+				} catch (Exception e)	{
+					continue;
+				}
+			
+				// adds the role object to the proper bucket
+				switch (entityRolename) {
+					case jv: tempJobList.add(jobDao.getJobByJobId(roleObjectId));  break;
 				}
 			}
 			
+			if(sord.isEmpty()){//sort by jobId here just in case sord.isEmpty()==true
+				Collections.sort(tempJobList, new JobIdComparator());
+			}
 		}
-		else if(search.equals("true") && !searchString.trim().isEmpty()){//search; sort will not be empty, but ignore			
-				  
+		
+		if(search.equals("true") && !searchString.trim().isEmpty()){//search	; search has to be through the list (in tempJobList) of allowable jobs for that viewer		
+		  
 			if(searchField.equals("jobId")){					  
 					  
 				//in case user enters J1001 or # J1001 for job with id of 1001
@@ -219,196 +243,98 @@ System.out.println("sord = " + sord);
 					}
 				}
 				if(sb.length() > 0){
-					
-					Job job = this.jobDao.getJobByJobId(Integer.parseInt(sb.toString()));
-					
-					if(searchOperator.equals("eq") && job.getJobId().intValue() > 0){
-						jobList.add(job);
+					int id = Integer.parseInt(sb.toString());
+					for(Job job : tempJobList){						
+						if(job.getJobId().intValue()==id){
+							jobsFoundInSearch.add(job); 
+							break;//only one, so if found, can stop
+						}
 					}
-					else if(searchOperator.equals("ne")){
-						jobList = this.jobDao.findAll();//this is already ordered by jobId
-						jobList.remove(job);
-					}
-					
-				}  
-				else{
-					jobList = this.jobDao.findAll();//this is already ordered by jobId
-				}
-			}
-			
-			//if(searchField)
-			
+				}					
+			}			
 			else if(searchField.equals("submitter") || searchField.equals("pi") || searchField.equals("name")){//this is indicating the search on the submitter's name or a PI or the name of the job
-				String tokens[] = searchString.trim().split(" +");
-				List<Job> tempJobList = this.jobDao.findAll();
-				List<Job> jobsSearched = new ArrayList<Job>();
+				String tokens[] = searchString.trim().split(" +");				
 				for (Job job : tempJobList){
-					if(searchField.equals("name")){
+					if(searchField.equals("name")){//this is name of job
 						if(job.getName().toLowerCase().equals(searchString.trim().toLowerCase())){
-							jobsSearched.add(job);
+							jobsFoundInSearch.add(job);
 						}
 					}
 					else{
 						if(tokens.length==2){//look for match of firstname lastname of submitter or PI
 							if(searchField.equals("submitter")){
 								if(job.getUser().getFirstName().toLowerCase().equals(tokens[0].toLowerCase()) && job.getUser().getLastName().toLowerCase().equals(tokens[1].toLowerCase())){
-									jobsSearched.add(job);
+									jobsFoundInSearch.add(job);
 								}
 							}
 							else if(searchField.equals("pi")){
 								if(job.getLab().getUser().getFirstName().toLowerCase().equals(tokens[0].toLowerCase()) && job.getLab().getUser().getLastName().toLowerCase().equals(tokens[1].toLowerCase())){
-									jobsSearched.add(job);
+									jobsFoundInSearch.add(job);
 								}
 							}
 						}
 						else if(tokens.length > 0 && tokens.length !=2){//check token[0] for matching first or last name of submitter or PI
 							if(searchField.equals("submitter")){
 								if(job.getUser().getFirstName().toLowerCase().equals(tokens[0].toLowerCase()) || job.getUser().getLastName().toLowerCase().equals(tokens[0].toLowerCase())){
-									jobsSearched.add(job);
+									jobsFoundInSearch.add(job);
 								}
 							}
 							else if(searchField.equals("pi")){
 								if(job.getLab().getUser().getFirstName().toLowerCase().equals(tokens[0].toLowerCase()) || job.getLab().getUser().getLastName().toLowerCase().equals(tokens[0].toLowerCase())){
-									jobsSearched.add(job);
+									jobsFoundInSearch.add(job);
 								}
 							}
 						}
 					}
-				}
-				if(searchOperator.equals("eq")){
-					jobList.addAll(jobsSearched);
-				}
-				else if(searchOperator.equals("ne")){
-					tempJobList.removeAll(jobsSearched);
-					jobList.addAll(tempJobList);
-				}			
+				}		
 			}
-			
-			if(!sidx.isEmpty() && !sord.isEmpty() && sord.equals("desc")){//order is initially "asc"
-				if(sidx.equals("submitter")){
-					Collections.sort(jobList, new SubmitterLastNameFirstNameComparator());
-					if(sord.equals("desc")){
-						Collections.reverse(jobList);
-					}
-				}
-				else if(sidx.equals("pi")){
-					Collections.sort(jobList, new PILastNameFirstNameComparator());	
-					if(sord.equals("desc")){
-						Collections.reverse(jobList);
-					}
-				}
-				else if(sidx.equals("jobId")){
-					Collections.sort(jobList, new JobIdComparator());
-					if(sord.equals("desc")){
-						Collections.reverse(jobList);
-					}
-				}
-				else if(sidx.equals("name")){
-					Collections.sort(jobList, new JobNameComparator());	
-					if(sord.equals("desc")){
-						Collections.reverse(jobList);
-					}
-				}
-				else if(sidx.equals("createts")){
-					Collections.sort(jobList, new JobCreatetsComparator());	
-					if(sord.equals("desc")){
-						Collections.reverse(jobList);
-					}
-				}				
+			if(searchOperator.equals("eq")){
+				jobList.addAll(jobsFoundInSearch);
 			}
+			else if(searchOperator.equals("ne")){
+				tempJobList.removeAll(jobsFoundInSearch);
+				jobList.addAll(tempJobList);
+			}	
 		}
-					  
-*/					  
-					  /*
-					   * 
-					   Map m = new HashMap();
-					  //m.put(request.getParameter("searchField"), Integer.parseInt(request.getParameter("searchString")));
-					  m.put(request.getParameter("searchField"), Integer.parseInt(sb.toString()));
-				  }
-				  else{
-					  m.put(request.getParameter("searchField"), request.getParameter("searchString"));
-				  }
-			  }
-			  
-			  if (!userId.isEmpty())
-				  m.put("UserId", Integer.parseInt(userId));
-			  
-			  if (!labId.isEmpty())
-				  m.put("labId", Integer.parseInt(labId));
-			  				  
-			  jobList = this.jobDao.findByMap(m);
-			
-		}*/
-/*		
-		if (!search.equals("true")	&& !userId.isEmpty() && labId.isEmpty()) {
-			
-			for (String role: authenticationService.getRoles()) {			
-				
-				String[] splitRole = role.split("-");
-				if (splitRole.length != 2) { continue; }
-				if (splitRole[1].equals("*")) { continue; }
-			
-				DashboardEntityRolename entityRolename; 
-				int roleObjectId = 0;
+		else{//no searching, so copy all from tempJobList into jobList
 
-				try { 
-					entityRolename = DashboardEntityRolename.valueOf(splitRole[0]);
-					roleObjectId = Integer.parseInt(splitRole[1]);
-				} catch (Exception e)	{
-					continue;
-				}
-				
+			jobList.addAll(tempJobList);
+		}
+		
+		if(!sidx.isEmpty() && !sord.isEmpty() ){
 
-				// adds the role object to the proper bucket
-				switch (entityRolename) {
-					
-					case jv: 
-						
-						jobList.add(jobDao.getJobByJobId(roleObjectId));
-						
-						break;
-					
+			if(sidx.equals("submitter")){
+				Collections.sort(jobList, new SubmitterLastNameFirstNameComparator());
+				if(sord.equals("desc")){
+					Collections.reverse(jobList);
 				}
 			}
+			else if(sidx.equals("pi")){
+				Collections.sort(jobList, new PILastNameFirstNameComparator());	
+				if(sord.equals("desc")){
+					Collections.reverse(jobList);
+				}
+			}
+			else if(sidx.equals("jobId")){
+				Collections.sort(jobList, new JobIdComparator());
+				if(sord.equals("desc")){
+					Collections.reverse(jobList);
+				}
+			}
+			else if(sidx.equals("name")){
+				Collections.sort(jobList, new JobNameComparator());	
+				if(sord.equals("desc")){
+					Collections.reverse(jobList);
+				}
+			}
+			else if(sidx.equals("createts")){
+				Collections.sort(jobList, new JobCreatetsComparator());	
+				if(sord.equals("desc")){
+					Collections.reverse(jobList);
+				}
+			}				
 		}
-		else if (!search.equals("true")	&& userId.isEmpty()	&& labId.isEmpty()) {
-			jobList = sidx.isEmpty() ? this.jobDao.findAll() : this.jobDao.findAllOrderBy(sidx, sord);
-		} else {
-			  Map m = new HashMap();
-			  
-			  if (search.equals("true") && !searchStr.isEmpty()){
-				  
-				  if(request.getParameter("searchField").equals("jobId")){
-					  
-					  String capturedSearchString = request.getParameter("searchString");
-					  //in case user enters J1001 or # J1001 for job with id of 1001
-					  StringBuffer sb = new StringBuffer();
-					  for(int i=0; i<capturedSearchString.length(); i++)
-					  {
-						  if(Character.isDigit(capturedSearchString.charAt(i))){
-					            sb.append(capturedSearchString.charAt(i));
-						  }
-					  }
-					  if(sb.length() == 0){
-						  sb.append("0");
-					  }
-					  //m.put(request.getParameter("searchField"), Integer.parseInt(request.getParameter("searchString")));
-					  m.put(request.getParameter("searchField"), Integer.parseInt(sb.toString()));
-				  }
-				  else{
-					  m.put(request.getParameter("searchField"), request.getParameter("searchString"));
-				  }
-			  }
-			  
-			  if (!userId.isEmpty())
-				  m.put("UserId", Integer.parseInt(userId));
-			  
-			  if (!labId.isEmpty())
-				  m.put("labId", Integer.parseInt(labId));
-			  				  
-			  jobList = this.jobDao.findByMap(m);
-		}
-*/
+		
 		try {
 			int pageIndex = Integer.parseInt(request.getParameter("page"));		// index of page
 			int pageRowNum = Integer.parseInt(request.getParameter("rows"));	// number of rows in one page
@@ -423,52 +349,7 @@ System.out.println("sord = " + sord);
 			userData.put("page", pageIndex + "");
 			userData.put("selId",StringUtils.isEmpty(request.getParameter("selId"))?"":request.getParameter("selId"));
 			jqgrid.put("userdata",userData);
-			
-			/***** Begin Sort by Job ID *****/
-			class JobIdComparator implements Comparator<Job> {
-				@Override
-				public int compare(Job arg0, Job arg1) {
-					return arg0.getJobId().intValue() >= arg1.getJobId().intValue()?1:0;
-				}
-			}
-
-			if (sidx.equals("jobId")) {
-				Collections.sort(jobList, new JobIdComparator());
-				if (sord.equals("desc"))
-					Collections.reverse(jobList);
-			}
-			/***** End Sort by Job jobId *****/
-			
-			/***** Begin Sort by Job name *****/
-			class JobNameComparator implements Comparator<Job> {
-				@Override
-				public int compare(Job arg0, Job arg1) {
-					return arg0.getName().compareToIgnoreCase(arg1.getName());
-				}
-			}
-
-			if (sidx.equals("name")) {
-				Collections.sort(jobList, new JobNameComparator());
-				if (sord.equals("desc"))
-					Collections.reverse(jobList);
-			}
-			/***** End Sort by Job name *****/
-			
-			/***** Begin Sort by User last name *****/
-			class JobSubmitterLastNameComparator implements Comparator<Job> {
-				@Override
-				public int compare(Job arg0, Job arg1) {
-					return arg0.getUser().getLastName().compareToIgnoreCase(arg1.getUser().getLastName());
-				}
-			}
-
-			if (sidx.equals("submitter")) {
-				Collections.sort(jobList, new JobSubmitterLastNameComparator());
-				if (sord.equals("desc"))
-					Collections.reverse(jobList);
-			}
-			/***** End Sort by User last name *****/
-
+					
 			List<Map> rows = new ArrayList<Map>();
 			
 			int frId = pageRowNum * (pageIndex - 1);
@@ -519,7 +400,7 @@ System.out.println("sord = " + sord);
 
 			 
 			jqgrid.put("rows",rows);
-			 
+			
 			return outputJSON(jqgrid, response); 	
 			 
 		} catch (Throwable e) {
