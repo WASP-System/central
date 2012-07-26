@@ -162,7 +162,7 @@ public class JobController extends WaspController {
 		
 		String userId = request.getParameter("userId");
 		String labId = request.getParameter("labId");
-/*
+
 System.out.println("userId = " + userId);
 System.out.println("labId = " + labId);
 System.out.println("search = " + search);
@@ -171,7 +171,7 @@ System.out.println("searchString = " + searchString);
 System.out.println("searchOperator = " + searchOperator);
 System.out.println("sidx = " + sidx);
 System.out.println("sord = " + sord);
-*/
+
 		//result
 		Map <String, Object> jqgrid = new HashMap<String, Object>();
 		
