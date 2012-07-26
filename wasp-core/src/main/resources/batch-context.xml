@@ -104,13 +104,7 @@
   <import resource="classpath*:META-INF/spring/plugin-context-batch.xml" />
 
   <!-- loads load scripts to update database -->
-  <import resource="classpath*:wasp/**/*UiFieldLoad.xml" />
-  <import resource="classpath*:wasp/**/*ResourceCategoryLoad.xml" />
-  <import resource="classpath*:wasp/**/*SoftwareLoad.xml" />
-  <import resource="classpath*:wasp/**/*SampleSubtypeLoad.xml" />
-  <import resource="classpath*:wasp/**/*AdaptorsetLoad.xml" />
-  <import resource="classpath*:wasp/**/*WorkflowLoad.xml" />
-  <import resource="classpath*:wasp/**/*TaskLoad.xml" />
+  <import resource="classpath*:wasp/**/*Load.xml" />
 
   <!-- Spring Integration/Batch config--> 
     <bean class="org.springframework.batch.core.scope.StepScope" />

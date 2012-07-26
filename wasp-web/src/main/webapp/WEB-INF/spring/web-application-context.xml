@@ -174,14 +174,7 @@
   <import resource="classpath*:META-INF/spring/plugin-context-web.xml" />
 
   <!-- load into db tables--> 
-  <import resource="classpath*:wasp/**/*UiFieldLoad.xml" />
-  <import resource="classpath*:wasp/**/*ResourceCategoryLoad.xml" />
-  <import resource="classpath*:wasp/**/*SoftwareLoad.xml" />
-  <import resource="classpath*:wasp/**/*SampleSubtypeLoad.xml" />
-  <import resource="classpath*:wasp/**/*AdaptorsetLoad.xml" />
-  <import resource="classpath*:wasp/**/*TaskLoad.xml" />
-  <import resource="classpath*:wasp/**/*WorkflowLoad.xml" />
-  <import resource="classpath*:wasp/**/*waspPlugin.xml" />
+  <import resource="classpath*:wasp/**/*Load.xml" />
 
 
   <!-- extracts plugin's precompiled jsp files --> 
