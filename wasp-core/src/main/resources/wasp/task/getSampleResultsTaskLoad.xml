@@ -11,7 +11,7 @@
     <property name="area" value="getSampleResultsTask" />
   </bean>
 
-  <bean id="getSampleResultsTask" class="edu.yu.einstein.wasp.load.TaskLoadService">
+  <bean id="getSampleResultsTask" class="edu.yu.einstein.wasp.load.TaskLoader">
 
     <property name="iName" value="getSampleResults" />
     <property name="name" value="Get Sample Results" />

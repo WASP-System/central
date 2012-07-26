@@ -18,7 +18,7 @@
     <property name="baseArea" value="#{bowtieAlignerArea}" />
   </bean>
 
-  <bean id="bowtieAlignerSoftware" class="edu.yu.einstein.wasp.load.SoftwareLoadService">
+  <bean id="bowtieAlignerSoftware" class="edu.yu.einstein.wasp.load.SoftwareLoader">
     <property name="name" value="Bowtie Aligner" />
     <property name="area" value="#{bowtieAlignerArea}" />
     <property name="resourceTypeByIName" value="aligner" />

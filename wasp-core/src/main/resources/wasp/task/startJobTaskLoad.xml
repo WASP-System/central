@@ -11,7 +11,7 @@
     <property name="area" value="startJob" />
   </bean>
 
-  <bean id="startJobTask" class="edu.yu.einstein.wasp.load.TaskLoadService">
+  <bean id="startJobTask" class="edu.yu.einstein.wasp.load.TaskLoader">
 
     <property name="iName" value="Start Job" />
     <property name="name" value="Start Job" />

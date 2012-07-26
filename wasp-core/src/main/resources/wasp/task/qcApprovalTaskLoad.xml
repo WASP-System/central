@@ -11,7 +11,7 @@
     <property name="area" value="runQcApprovalTask" />
   </bean>
 
-  <bean id="qcApprovalTask" class="edu.yu.einstein.wasp.load.TaskLoadService">
+  <bean id="qcApprovalTask" class="edu.yu.einstein.wasp.load.TaskLoader">
 
     <property name="iName" value="runQcApproval" />
     <property name="name" value="Run Qc Approval" />

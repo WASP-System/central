@@ -11,7 +11,7 @@
     <property name="area" value="quoteJob" />
   </bean>
 
-  <bean id="quoteJobTask" class="edu.yu.einstein.wasp.load.TaskLoadService">
+  <bean id="quoteJobTask" class="edu.yu.einstein.wasp.load.TaskLoader">
 
     <property name="iName" value="Quote Job" />
     <property name="name" value="Quote Job" />
