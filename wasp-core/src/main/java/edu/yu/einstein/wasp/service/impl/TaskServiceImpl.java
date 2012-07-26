@@ -20,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import util.spring.SecurityUtil;
 import edu.yu.einstein.wasp.dao.LabDao;
 import edu.yu.einstein.wasp.dao.LabPendingDao;
 import edu.yu.einstein.wasp.dao.LabUserDao;
@@ -39,6 +38,7 @@ import edu.yu.einstein.wasp.model.Statejob;
 import edu.yu.einstein.wasp.model.Task;
 import edu.yu.einstein.wasp.model.TaskMapping;
 import edu.yu.einstein.wasp.model.UserPending;
+import edu.yu.einstein.wasp.security.SecurityUtil;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.TaskService;
 

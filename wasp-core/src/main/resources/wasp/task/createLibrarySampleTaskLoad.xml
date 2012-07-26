@@ -11,7 +11,7 @@
     <property name="area" value="createLibrarySampleTask" />
   </bean>
 
-  <bean id="createLibrarySampleTask" class="edu.yu.einstein.wasp.load.TaskLoadService">
+  <bean id="createLibrarySampleTask" class="edu.yu.einstein.wasp.load.TaskLoader">
 
     <property name="iName" value="Create Library" />
     <property name="name" value="Create Library" />

@@ -11,7 +11,7 @@
     <property name="area" value="boneShakerTask" />
   </bean>
 
-  <bean id="sendInvoiceTask" class="edu.yu.einstein.wasp.load.TaskLoadService">
+  <bean id="sendInvoiceTask" class="edu.yu.einstein.wasp.load.TaskLoader">
 
     <property name="iName" value="Send Invoice" />
     <property name="name" value="Send Invoice" />

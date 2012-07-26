@@ -2,7 +2,7 @@
 
 <%-- template for pages that do NOT have a JQGrid table --%>
 
-<%@ page import="edu.yu.einstein.wasp.dao.impl.DBResourceBundle" %> 
+<%@ page import="edu.yu.einstein.wasp.resourcebundle.DBResourceBundle" %> 
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html lang="en">

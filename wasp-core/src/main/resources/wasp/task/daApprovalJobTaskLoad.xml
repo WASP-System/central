@@ -11,7 +11,7 @@
     <property name="area" value="daApprovalTask" />
   </bean>
 
-  <bean id="daApprovalTask" class="edu.yu.einstein.wasp.load.TaskLoadService">
+  <bean id="daApprovalTask" class="edu.yu.einstein.wasp.load.TaskLoader">
 
     <property name="iName" value="DA Approval" />
     <property name="name" value="DA Approval XXX" />

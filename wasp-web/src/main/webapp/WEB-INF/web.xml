@@ -5,7 +5,7 @@
 	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee 
          http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
 
-
+	<!-- Filter that binds a JPA EntityManager to the thread for the entire processing of the request. Intended for the "Open EntityManager in View" pattern, i.e. to allow for lazy loading in web views despite the original transactions already being completed. -->
 	<filter>
 		<filter-name>springSecurityFilterChain</filter-name>
 		<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
