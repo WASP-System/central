@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import edu.yu.einstein.wasp.load.service.TaskLoadService;
 import edu.yu.einstein.wasp.model.TaskMapping;
@@ -19,7 +18,7 @@ import edu.yu.einstein.wasp.model.TaskMapping;
  *
  */
 
-@Component
+
 public class TaskLoader extends WaspLoader implements InitializingBean {
 
 	@Autowired

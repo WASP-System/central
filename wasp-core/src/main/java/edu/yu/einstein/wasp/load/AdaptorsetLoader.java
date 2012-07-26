@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import edu.yu.einstein.wasp.load.service.AdaptorsetLoadService;
 import edu.yu.einstein.wasp.model.Adaptor;
@@ -22,7 +21,7 @@ import edu.yu.einstein.wasp.model.AdaptorsetMeta;
 
  */
 
-@Component
+
 public class AdaptorsetLoader extends WaspLoader implements InitializingBean {
 
   @Autowired

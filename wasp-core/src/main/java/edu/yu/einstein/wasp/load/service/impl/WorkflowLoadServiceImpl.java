@@ -108,7 +108,7 @@ public class WorkflowLoadServiceImpl extends WaspLoadServiceImpl implements	Work
 	      Integer resourceTypeId = resourceTypeDao.getResourceTypeByIName(dependency).getResourceTypeId();
 	      if (resourceTypeId == null){
 	    	// the specified resourceType does not exist!!
-	    	  throw new NullResourceTypeException();
+	    	  throw new NullResourceTypeException("No resource type defined with iname='"+dependency+"'");
 	      }
 	      
 	      WorkflowResourceType workflowResourceType = workflowresourcetypeDao.getWorkflowResourceTypeByWorkflowIdResourceTypeId(workflow.getWorkflowId(), resourceTypeId);

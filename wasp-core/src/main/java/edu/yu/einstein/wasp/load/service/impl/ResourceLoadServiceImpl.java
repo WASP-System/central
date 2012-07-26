@@ -43,12 +43,12 @@ public class ResourceLoadServiceImpl extends WaspLoadServiceImpl implements	Reso
 	private Resource addOrUpdateResourceCategory(String resourceCategoryIName, String resourceTypeString, String iname, String name){
 		Integer resourceCategoryId = resourceCategoryDao.getResourceCategoryByIName(resourceCategoryIName).getResourceCategoryId();
 	    if (resourceCategoryId == null){
-	    	throw new NullResourceCategoryException();
+	    	throw new NullResourceCategoryException("ResourceCategoryId is null for '"+resourceCategoryIName+"'");
 	    }
 
 	    ResourceType resourceType = resourceTypeDao.getResourceTypeByIName(resourceTypeString); 
-	    if (resourceType == null){
-	    	throw new NullResourceTypeException();
+	    if (resourceType.getResourceTypeId() == null){
+	    	throw new NullResourceTypeException("No resource type returned for '"+resourceTypeString+"'");
 	    }
 	    Resource resource = resourceDao.getResourceByIName(iname); 
 

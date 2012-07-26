@@ -3,7 +3,6 @@ package edu.yu.einstein.wasp.load;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import edu.yu.einstein.wasp.load.service.SoftwareLoadService;
 import edu.yu.einstein.wasp.model.ResourceType;
@@ -22,7 +21,7 @@ import edu.yu.einstein.wasp.model.SoftwareMeta;
  *
  */
 
-@Component
+
 public class SoftwareLoader extends WaspResourceLoader {
 
   @Autowired

@@ -1,10 +1,10 @@
 package edu.yu.einstein.wasp.load;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import edu.yu.einstein.wasp.load.service.WorkflowLoadService;
@@ -23,7 +23,7 @@ import edu.yu.einstein.wasp.model.WorkflowMeta;
  *
  */
 
-@Component
+
 public class WorkflowLoader extends WaspResourceLoader {
 
   @Autowired
@@ -58,9 +58,11 @@ public class WorkflowLoader extends WaspResourceLoader {
 	  pageFlowWorkflowMeta.setK("workflow.submitpageflow");
 	  pageFlowWorkflowMeta.setV(pageFlowString);
 	  pageFlowWorkflowMeta.setPosition(0);
+	  if (meta == null)
+		  meta = new ArrayList<WorkflowMeta>();
 	  meta.add(pageFlowWorkflowMeta);
 	  
-	  workflowLoadService.update(iname, name, isActive, meta, pageFlowOrder, sampleSubtypes);
+	  workflowLoadService.update(iname, name, isActive, meta, dependencies, sampleSubtypes);
 	  workflowLoadService.updateUiFields(uiFields);
   }
 }

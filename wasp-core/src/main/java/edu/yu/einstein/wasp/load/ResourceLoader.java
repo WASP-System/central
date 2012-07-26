@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import edu.yu.einstein.wasp.load.service.ResourceLoadService;
 import edu.yu.einstein.wasp.model.ResourceCell;
@@ -23,7 +22,7 @@ import edu.yu.einstein.wasp.model.ResourceMeta;
  *
  */
 
-@Component
+
 public class ResourceLoader extends WaspLoader implements InitializingBean {
 
   @Autowired
