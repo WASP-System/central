@@ -43,7 +43,7 @@
       </property>
   </bean>
 
-  <bean id="helpTagDnaSampleSubtypeResource" class="edu.yu.einstein.wasp.load.SampleSubtypeLoadService">
+  <bean id="helpTagDnaSampleSubtypeResource" class="edu.yu.einstein.wasp.load.SampleSubtypeLoader">
   	<property name="name" value="HELP-tag DNA" />
     <property name="area" value="helptagDnaSample" />
     <property name="domain" value="#{helpTagPluginDomain}" />
@@ -98,7 +98,7 @@
       </property>
   </bean>
  
-  <bean id="helpTagLibrarySampleSubtypeResource" class="edu.yu.einstein.wasp.load.SampleSubtypeLoadService">
+  <bean id="helpTagLibrarySampleSubtypeResource" class="edu.yu.einstein.wasp.load.SampleSubtypeLoader">
   	<!-- <constructor-arg ref="helpTagDnaSampleSubtypeResource" /> -->
     <property name="name" value="HELP-tag Library" />
     <property name="area" value="helptagLibrarySample" />
@@ -116,7 +116,7 @@
   
   
 <!--   
-  <bean id="helpTagFacilityLibrarySampleSubtypeResource" class="edu.yu.einstein.wasp.load.SampleSubtypeLoadService">
+  <bean id="helpTagFacilityLibrarySampleSubtypeResource" class="edu.yu.einstein.wasp.load.SampleSubtypeLoader">
   	<constructor-arg ref="helpTagDnaSampleSubtypeResource" />
     <property name="name" value="HELP-tag Facility Library" />
     <property name="area" value="helptagFacilityLibrarySample" />

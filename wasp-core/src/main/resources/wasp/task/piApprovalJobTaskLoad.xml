@@ -11,7 +11,7 @@
     <property name="area" value="piApprovalTask" />
   </bean>
 
-  <bean id="piApprovalTask" class="edu.yu.einstein.wasp.load.TaskLoadService">
+  <bean id="piApprovalTask" class="edu.yu.einstein.wasp.load.TaskLoader">
 
     <property name="iName" value="PI Approval" />
     <property name="name" value="PI Approval" />
