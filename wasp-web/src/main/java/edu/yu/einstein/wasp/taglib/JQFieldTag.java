@@ -24,9 +24,9 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
-import edu.yu.einstein.wasp.DBResourceBundle;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.State;
+import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
 
 /*
  * Builds jqGrid-compatible JavaScript object to describe a field

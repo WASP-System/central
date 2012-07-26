@@ -9,7 +9,7 @@
  *
  **/
 
-package edu.yu.einstein.wasp;
+package edu.yu.einstein.wasp.resourcebundle;
 
 import java.io.BufferedReader;
 import java.io.IOException;

@@ -68,8 +68,9 @@
   <context:component-scan base-package="util.spring" />
   <context:component-scan base-package="edu.yu.einstein.wasp.dao.impl" />
   <context:component-scan base-package="edu.yu.einstein.wasp.service.impl" /> 
-  <context:component-scan base-package="edu.yu.einstein.wasp.load" />
   <context:component-scan base-package="edu.yu.einstein.wasp.messaging" />
+  <context:component-scan base-package="edu.yu.einstein.wasp.load.service.impl" />
+  <context:component-scan base-package="edu.yu.einstein.wasp.resourcebundle" />
 
   <context:annotation-config/>
 
