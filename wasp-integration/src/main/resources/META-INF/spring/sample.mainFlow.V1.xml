@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:batch="http://www.springframework.org/schema/batch"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd">
+
+	<!-- taskExecutor needs to be externalized and generalized -->
+	<bean id="taskExecutor" class="org.springframework.core.task.SimpleAsyncTaskExecutor" />
+
+	<!-- for job, call with parameter 'puId' -->
+	<batch:flow id="sample.mainFlow.v1">
+		<batch:step id="sample.mainFlow.listenForSampleReceived" next="sample.mainFlow.isSample">
+			<!-- tasklet class: WaitForSampleReceivedTasklet -->
+		</batch:step>
+		<batch:decision decider="sample.typeDecider" id="sample.mainFlow.isSample">
+			<batch:next on="SAMPLE" to="sample.mainFlow.sampleQC"/>
+			<batch:end on="LIBRARY" exit-code="COMPLETED" />
+		</batch:decision>
+		<batch:step id="sample.mainFlow.sampleQC" next="sample.mainFlow.createLibrary">
+			<!-- tasklet class: sampleQCTasklet -->
+		</batch:step>
+		<batch:step id="sample.mainFlow.createLibrary">
+			<!-- tasklet class: createLibraryTasklet -->
+		</batch:step>
+	</batch:flow>
+	
+</beans>

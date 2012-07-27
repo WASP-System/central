@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:batch="http://www.springframework.org/schema/batch"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd">
+
+	<!-- taskExecutor needs to be externalized and generalized -->
+	<bean id="taskExecutor" class="org.springframework.core.task.SimpleAsyncTaskExecutor" />
+
+	<!-- for library, call with parameters sampleid and jobid -->
+	<batch:flow id="library.mainFlow.v1">
+		<batch:step id="library.mainFlow.listenForLibrary" next="library.mainFlow.libraryQC">
+			<!-- tasklet class: listenForLibraryTasklet -->
+		</batch:step>
+		<batch:step id="library.mainFlow.libraryQC" next="library.mainFlow.successfullyProcessed">
+			<!-- tasklet class: sampleQCTasklet -->
+		</batch:step>
+		<batch:step id="library.mainFlow.successfullyProcessed">
+		
+		</batch:step>
+	</batch:flow>
+	
+</beans>
