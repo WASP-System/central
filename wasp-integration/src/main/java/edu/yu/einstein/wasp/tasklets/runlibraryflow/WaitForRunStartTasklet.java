@@ -1,4 +1,7 @@
-package edu.yu.einstein.wasp.tasklets.libraryflow;
+package edu.yu.einstein.wasp.tasklets.runlibraryflow;
+
+
+import javax.annotation.PreDestroy;
 
 import org.apache.log4j.Logger;
 import org.springframework.batch.core.BatchStatus;
@@ -111,7 +114,8 @@ public class WaitForRunStartTasklet implements Tasklet, MessageHandler, Applicat
 		}
 	}
 
-	protected void finalize () throws Throwable{
+	@PreDestroy
+	protected void preDestroy() throws Throwable{
 		// unregister from waspRunPublishSubscribeChannel only if this object gets garbage collected
 		if (waspRunPublishSubscribeChannel != null){
 			this.waspRunPublishSubscribeChannel.unsubscribe(this); 
