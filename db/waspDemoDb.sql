@@ -322,39 +322,6 @@ LOCK TABLES `acct_grant` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `acct_grant_AUD`
---
-
-DROP TABLE IF EXISTS `acct_grant_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `acct_grant_AUD` (
-  `grantId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `code` varchar(255) DEFAULT NULL,
-  `expirationdt` datetime DEFAULT NULL,
-  `isactive` int(11) DEFAULT NULL,
-  `labid` int(11) DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`grantId`,`REV`),
-  KEY `FKA198D7C1DF74E053` (`REV`),
-  CONSTRAINT `FKA198D7C1DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `acct_grant_AUD`
---
-
-LOCK TABLES `acct_grant_AUD` WRITE;
-/*!40000 ALTER TABLE `acct_grant_AUD` DISABLE KEYS */;
-/*!40000 ALTER TABLE `acct_grant_AUD` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `acct_grantjob`
 --
 
@@ -383,36 +350,6 @@ CREATE TABLE `acct_grantjob` (
 LOCK TABLES `acct_grantjob` WRITE;
 /*!40000 ALTER TABLE `acct_grantjob` DISABLE KEYS */;
 /*!40000 ALTER TABLE `acct_grantjob` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `acct_grantjob_AUD`
---
-
-DROP TABLE IF EXISTS `acct_grantjob_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `acct_grantjob_AUD` (
-  `jobId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `grantid` int(11) DEFAULT NULL,
-  `isactive` int(11) DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
-  PRIMARY KEY (`jobId`,`REV`),
-  KEY `FKCEA3731EDF74E053` (`REV`),
-  CONSTRAINT `FKCEA3731EDF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `acct_grantjob_AUD`
---
-
-LOCK TABLES `acct_grantjob_AUD` WRITE;
-/*!40000 ALTER TABLE `acct_grantjob_AUD` DISABLE KEYS */;
-/*!40000 ALTER TABLE `acct_grantjob_AUD` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -448,38 +385,6 @@ LOCK TABLES `acct_invoice` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `acct_invoice_AUD`
---
-
-DROP TABLE IF EXISTS `acct_invoice_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `acct_invoice_AUD` (
-  `invoiceId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `amount` float DEFAULT NULL,
-  `comment` varchar(255) DEFAULT NULL,
-  `jobid` int(11) DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
-  `quoteid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`invoiceId`,`REV`),
-  KEY `FK4BD28452DF74E053` (`REV`),
-  CONSTRAINT `FK4BD28452DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `acct_invoice_AUD`
---
-
-LOCK TABLES `acct_invoice_AUD` WRITE;
-/*!40000 ALTER TABLE `acct_invoice_AUD` DISABLE KEYS */;
-/*!40000 ALTER TABLE `acct_invoice_AUD` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `acct_jobquotecurrent`
 --
 
@@ -508,37 +413,6 @@ LOCK TABLES `acct_jobquotecurrent` WRITE;
 /*!40000 ALTER TABLE `acct_jobquotecurrent` DISABLE KEYS */;
 INSERT INTO `acct_jobquotecurrent` VALUES (1,1,1,'2012-06-11 18:21:25',1);
 /*!40000 ALTER TABLE `acct_jobquotecurrent` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `acct_jobquotecurrent_AUD`
---
-
-DROP TABLE IF EXISTS `acct_jobquotecurrent_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `acct_jobquotecurrent_AUD` (
-  `currentId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `jobid` int(11) DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
-  `quoteid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`currentId`,`REV`),
-  KEY `FKF4D3825FDF74E053` (`REV`),
-  CONSTRAINT `FKF4D3825FDF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `acct_jobquotecurrent_AUD`
---
-
-LOCK TABLES `acct_jobquotecurrent_AUD` WRITE;
-/*!40000 ALTER TABLE `acct_jobquotecurrent_AUD` DISABLE KEYS */;
-INSERT INTO `acct_jobquotecurrent_AUD` VALUES (1,212,0,1,'2012-06-11 14:21:25',1,1);
-/*!40000 ALTER TABLE `acct_jobquotecurrent_AUD` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -571,38 +445,6 @@ CREATE TABLE `acct_ledger` (
 LOCK TABLES `acct_ledger` WRITE;
 /*!40000 ALTER TABLE `acct_ledger` DISABLE KEYS */;
 /*!40000 ALTER TABLE `acct_ledger` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `acct_ledger_AUD`
---
-
-DROP TABLE IF EXISTS `acct_ledger_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `acct_ledger_AUD` (
-  `ledgerId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `amount` float DEFAULT NULL,
-  `comment` varchar(255) DEFAULT NULL,
-  `invoiceid` int(11) DEFAULT NULL,
-  `jobid` int(11) DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
-  PRIMARY KEY (`ledgerId`,`REV`),
-  KEY `FK7C500266DF74E053` (`REV`),
-  CONSTRAINT `FK7C500266DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `acct_ledger_AUD`
---
-
-LOCK TABLES `acct_ledger_AUD` WRITE;
-/*!40000 ALTER TABLE `acct_ledger_AUD` DISABLE KEYS */;
-/*!40000 ALTER TABLE `acct_ledger_AUD` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -640,40 +482,6 @@ INSERT INTO `acct_quote` VALUES (1,1,2800.00,NULL,NULL,NULL,'2012-06-11 18:21:25
 UNLOCK TABLES;
 
 --
--- Table structure for table `acct_quote_AUD`
---
-
-DROP TABLE IF EXISTS `acct_quote_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `acct_quote_AUD` (
-  `quoteId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `userid` int(11) DEFAULT NULL,
-  `amount` float DEFAULT NULL,
-  `comment` varchar(255) DEFAULT NULL,
-  `isactive` int(11) DEFAULT NULL,
-  `jobid` int(11) DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
-  PRIMARY KEY (`quoteId`,`REV`),
-  KEY `FK91E9A521DF74E053` (`REV`),
-  CONSTRAINT `FK91E9A521DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `acct_quote_AUD`
---
-
-LOCK TABLES `acct_quote_AUD` WRITE;
-/*!40000 ALTER TABLE `acct_quote_AUD` DISABLE KEYS */;
-INSERT INTO `acct_quote_AUD` VALUES (1,212,0,NULL,2800,NULL,NULL,1,'2012-06-11 14:21:25',1);
-/*!40000 ALTER TABLE `acct_quote_AUD` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `acct_quotemeta`
 --
 
@@ -703,34 +511,6 @@ LOCK TABLES `acct_quotemeta` WRITE;
 /*!40000 ALTER TABLE `acct_quotemeta` DISABLE KEYS */;
 INSERT INTO `acct_quotemeta` VALUES (1,1,'acctQuote.library_cost','800',0,'2012-06-11 18:21:25',NULL),(2,1,'acctQuote.sample_cost','0',0,'2012-06-11 18:21:25',NULL),(3,1,'acctQuote.lane_cost','2000',0,'2012-06-11 18:21:25',NULL);
 /*!40000 ALTER TABLE `acct_quotemeta` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `acct_quotemeta_AUD`
---
-
-DROP TABLE IF EXISTS `acct_quotemeta_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `acct_quotemeta_AUD` (
-  `quotemetaId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `quoteid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`quotemetaId`,`REV`),
-  KEY `FKE1BC08A6DF74E053` (`REV`),
-  CONSTRAINT `FKE1BC08A6DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `acct_quotemeta_AUD`
---
-
-LOCK TABLES `acct_quotemeta_AUD` WRITE;
-/*!40000 ALTER TABLE `acct_quotemeta_AUD` DISABLE KEYS */;
-INSERT INTO `acct_quotemeta_AUD` VALUES (1,212,0,1),(2,212,0,1),(3,212,0,1);
-/*!40000 ALTER TABLE `acct_quotemeta_AUD` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -769,39 +549,6 @@ LOCK TABLES `acct_quoteuser` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `acct_quoteuser_AUD`
---
-
-DROP TABLE IF EXISTS `acct_quoteuser_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `acct_quoteuser_AUD` (
-  `quoteUserId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `userid` int(11) DEFAULT NULL,
-  `comment` varchar(255) DEFAULT NULL,
-  `isapproved` int(11) DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
-  `quoteid` int(11) DEFAULT NULL,
-  `roleid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`quoteUserId`,`REV`),
-  KEY `FKECB38B6CDF74E053` (`REV`),
-  CONSTRAINT `FKECB38B6CDF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `acct_quoteuser_AUD`
---
-
-LOCK TABLES `acct_quoteuser_AUD` WRITE;
-/*!40000 ALTER TABLE `acct_quoteuser_AUD` DISABLE KEYS */;
-/*!40000 ALTER TABLE `acct_quoteuser_AUD` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `acct_workflowcost`
 --
 
@@ -827,35 +574,6 @@ CREATE TABLE `acct_workflowcost` (
 LOCK TABLES `acct_workflowcost` WRITE;
 /*!40000 ALTER TABLE `acct_workflowcost` DISABLE KEYS */;
 /*!40000 ALTER TABLE `acct_workflowcost` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `acct_workflowcost_AUD`
---
-
-DROP TABLE IF EXISTS `acct_workflowcost_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `acct_workflowcost_AUD` (
-  `workflowId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `basecost` float DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
-  PRIMARY KEY (`workflowId`,`REV`),
-  KEY `FK99AA6A89DF74E053` (`REV`),
-  CONSTRAINT `FK99AA6A89DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `acct_workflowcost_AUD`
---
-
-LOCK TABLES `acct_workflowcost_AUD` WRITE;
-/*!40000 ALTER TABLE `acct_workflowcost_AUD` DISABLE KEYS */;
-/*!40000 ALTER TABLE `acct_workflowcost_AUD` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -893,40 +611,6 @@ INSERT INTO `adaptor` VALUES (1,1,'illuminaTrueseqDnaIndexed1','TrueSeq Adaptor,
 UNLOCK TABLES;
 
 --
--- Table structure for table `adaptor_AUD`
---
-
-DROP TABLE IF EXISTS `adaptor_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `adaptor_AUD` (
-  `adaptorId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `adaptorsetid` int(11) DEFAULT NULL,
-  `barcodenumber` int(11) DEFAULT NULL,
-  `barcodesequence` varchar(255) DEFAULT NULL,
-  `iname` varchar(255) DEFAULT NULL,
-  `isactive` int(11) DEFAULT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  `sequence` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`adaptorId`,`REV`),
-  KEY `FK33F907D6DF74E053` (`REV`),
-  CONSTRAINT `FK33F907D6DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `adaptor_AUD`
---
-
-LOCK TABLES `adaptor_AUD` WRITE;
-/*!40000 ALTER TABLE `adaptor_AUD` DISABLE KEYS */;
-INSERT INTO `adaptor_AUD` VALUES (1,9,0,1,1,'ATCACG','illuminaTrueseqDnaIndexed1',1,'TrueSeq Adaptor, Index 1','AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC'),(2,9,0,1,2,'CGATGT','illuminaTrueseqDnaIndexed2',1,'TrueSeq Adaptor, Index 2','AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC'),(3,9,0,1,3,'TTAGGC','illuminaTrueseqDnaIndexed3',1,'TrueSeq Adaptor, Index 3','AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC'),(4,9,0,1,4,'TGACCA','illuminaTrueseqDnaIndexed4',1,'TrueSeq Adaptor, Index 4','AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC'),(5,9,0,1,5,'ACAGTG','illuminaTrueseqDnaIndexed5',1,'TrueSeq Adaptor, Index 5','AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC'),(6,9,0,1,6,'GCCAAT','illuminaTrueseqDnaIndexed6',1,'TrueSeq Adaptor, Index 6','AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC'),(7,9,0,1,7,'CAGATC','illuminaTrueseqDnaIndexed7',1,'TrueSeq Adaptor, Index 7','AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC'),(8,9,0,1,8,'ACTTGA','illuminaTrueseqDnaIndexed8',1,'TrueSeq Adaptor, Index 8','AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC'),(9,9,0,1,9,'GATCAG','illuminaTrueseqDnaIndexed9',1,'TrueSeq Adaptor, Index 9','AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC'),(10,9,0,1,10,'TAGCTT','illuminaTrueseqDnaIndexed10',1,'TrueSeq Adaptor, Index 10','AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC'),(11,9,0,1,11,'GGCTAC','illuminaTrueseqDnaIndexed11',1,'TrueSeq Adaptor, Index 11','AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC'),(12,9,0,1,12,'CTTGTA','illuminaTrueseqDnaIndexed12',1,'TrueSeq Adaptor, Index 12','AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC'),(13,9,0,1,13,'AGTCAA','illuminaTrueseqDnaIndexed13',1,'TrueSeq Adaptor, Index 13','AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC'),(14,9,0,1,14,'AGTTCC','illuminaTrueseqDnaIndexed14',1,'TrueSeq Adaptor, Index 14','AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC'),(15,9,0,1,15,'ATGTCA','illuminaTrueseqDnaIndexed15',1,'TrueSeq Adaptor, Index 15','AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC'),(16,9,0,1,16,'CCGTCC','illuminaTrueseqDnaIndexed16',1,'TrueSeq Adaptor, Index 16','AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC'),(17,9,0,1,18,'GTCCGC','illuminaTrueseqDnaIndexed18',1,'TrueSeq Adaptor, Index 18','AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC'),(18,9,0,1,19,'GTGAAA','illuminaTrueseqDnaIndexed19',1,'TrueSeq Adaptor, Index 19','AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC'),(19,9,0,1,20,'GTGGCC','illuminaTrueseqDnaIndexed20',1,'TrueSeq Adaptor, Index 20','AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC'),(20,9,0,1,21,'GTTTCG','illuminaTrueseqDnaIndexed21',1,'TrueSeq Adaptor, Index 21','AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC'),(21,9,0,1,22,'CGTACG','illuminaTrueseqDnaIndexed22',1,'TrueSeq Adaptor, Index 22','AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC'),(22,9,0,1,23,'GAGTGG','illuminaTrueseqDnaIndexed23',1,'TrueSeq Adaptor, Index 23','AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC'),(23,9,0,1,25,'ACTGAT','illuminaTrueseqDnaIndexed25',1,'TrueSeq Adaptor, Index 25','AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC'),(24,9,0,1,27,'ATTCCT','illuminaTrueseqDnaIndexed27',1,'TrueSeq Adaptor, Index 27','AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC'),(25,591,0,2,1,'CGCTGCTG','illuminaHelptagLibrary1',1,'helptag Adaptor','CGCTGCTG');
-/*!40000 ALTER TABLE `adaptor_AUD` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `adaptormeta`
 --
 
@@ -958,33 +642,6 @@ LOCK TABLES `adaptormeta` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `adaptormeta_AUD`
---
-
-DROP TABLE IF EXISTS `adaptormeta_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `adaptormeta_AUD` (
-  `adaptorMetaId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `adaptorid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`adaptorMetaId`,`REV`),
-  KEY `FK534108DBDF74E053` (`REV`),
-  CONSTRAINT `FK534108DBDF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `adaptormeta_AUD`
---
-
-LOCK TABLES `adaptormeta_AUD` WRITE;
-/*!40000 ALTER TABLE `adaptormeta_AUD` DISABLE KEYS */;
-/*!40000 ALTER TABLE `adaptormeta_AUD` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `adaptorset`
 --
 
@@ -1013,37 +670,6 @@ LOCK TABLES `adaptorset` WRITE;
 /*!40000 ALTER TABLE `adaptorset` DISABLE KEYS */;
 INSERT INTO `adaptorset` VALUES (1,'truseqIndexedDna','TruSEQ INDEXED DNA',1,1),(2,'helptagLibrary','HELP-tag Library',3,1);
 /*!40000 ALTER TABLE `adaptorset` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `adaptorset_AUD`
---
-
-DROP TABLE IF EXISTS `adaptorset_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `adaptorset_AUD` (
-  `adaptorsetId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `iname` varchar(255) DEFAULT NULL,
-  `isactive` int(11) DEFAULT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  `sampletypeid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`adaptorsetId`,`REV`),
-  KEY `FK8224150EDF74E053` (`REV`),
-  CONSTRAINT `FK8224150EDF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `adaptorset_AUD`
---
-
-LOCK TABLES `adaptorset_AUD` WRITE;
-/*!40000 ALTER TABLE `adaptorset_AUD` DISABLE KEYS */;
-INSERT INTO `adaptorset_AUD` VALUES (1,9,0,'truseqIndexedDna',1,'TruSEQ INDEXED DNA',1),(1,41,1,'truseqIndexedDna',1,'TruSEQ INDEXED DNA',1),(1,71,1,'truseqIndexedDna',1,'TruSEQ INDEXED DNA',1),(1,81,1,'truseqIndexedDna',1,'TruSEQ INDEXED DNA',1),(1,91,1,'truseqIndexedDna',1,'TruSEQ INDEXED DNA',1),(1,101,1,'truseqIndexedDna',1,'TruSEQ INDEXED DNA',1),(1,111,1,'truseqIndexedDna',1,'TruSEQ INDEXED DNA',1),(1,140,1,'truseqIndexedDna',1,'TruSEQ INDEXED DNA',1),(1,170,1,'truseqIndexedDna',1,'TruSEQ INDEXED DNA',1),(1,180,1,'truseqIndexedDna',1,'TruSEQ INDEXED DNA',1),(1,190,1,'truseqIndexedDna',1,'TruSEQ INDEXED DNA',1),(1,200,1,'truseqIndexedDna',1,'TruSEQ INDEXED DNA',1),(1,210,1,'truseqIndexedDna',1,'TruSEQ INDEXED DNA',1),(1,222,1,'truseqIndexedDna',1,'TruSEQ INDEXED DNA',1),(1,249,1,'truseqIndexedDna',1,'TruSEQ INDEXED DNA',1),(1,260,1,'truseqIndexedDna',1,'TruSEQ INDEXED DNA',1),(1,271,1,'truseqIndexedDna',1,'TruSEQ INDEXED DNA',1),(1,281,1,'truseqIndexedDna',1,'TruSEQ INDEXED DNA',1),(1,291,1,'truseqIndexedDna',1,'TruSEQ INDEXED DNA',1),(1,301,1,'truseqIndexedDna',1,'TruSEQ INDEXED DNA',1),(1,311,1,'truseqIndexedDna',1,'TruSEQ INDEXED DNA',1),(1,321,1,'truseqIndexedDna',1,'TruSEQ INDEXED DNA',1),(1,331,1,'truseqIndexedDna',1,'TruSEQ INDEXED DNA',1),(1,341,1,'truseqIndexedDna',1,'TruSEQ INDEXED DNA',1),(1,351,1,'truseqIndexedDna',1,'TruSEQ INDEXED DNA',1),(1,361,1,'truseqIndexedDna',1,'TruSEQ INDEXED DNA',1),(1,371,1,'truseqIndexedDna',1,'TruSEQ INDEXED DNA',1),(1,381,1,'truseqIndexedDna',1,'TruSEQ INDEXED DNA',1),(1,391,1,'truseqIndexedDna',1,'TruSEQ INDEXED DNA',1),(1,401,1,'truseqIndexedDna',1,'TruSEQ INDEXED DNA',1),(1,411,1,'truseqIndexedDna',1,'TruSEQ INDEXED DNA',1),(1,422,1,'truseqIndexedDna',1,'TruSEQ INDEXED DNA',1),(1,432,1,'truseqIndexedDna',1,'TruSEQ INDEXED DNA',1),(1,444,1,'truseqIndexedDna',1,'TruSEQ INDEXED DNA',1),(1,454,1,'truseqIndexedDna',1,'TruSEQ INDEXED DNA',1),(1,464,1,'truseqIndexedDna',1,'TruSEQ INDEXED DNA',1),(1,474,1,'truseqIndexedDna',1,'TruSEQ INDEXED DNA',1),(1,484,1,'truseqIndexedDna',1,'TruSEQ INDEXED DNA',1),(1,494,1,'truseqIndexedDna',1,'TruSEQ INDEXED DNA',1),(1,504,1,'truseqIndexedDna',1,'TruSEQ INDEXED DNA',1),(1,514,1,'truseqIndexedDna',1,'TruSEQ INDEXED DNA',1),(1,524,1,'truseqIndexedDna',1,'TruSEQ INDEXED DNA',1),(1,534,1,'truseqIndexedDna',1,'TruSEQ INDEXED DNA',1),(1,544,1,'truseqIndexedDna',1,'TruSEQ INDEXED DNA',1),(1,554,1,'truseqIndexedDna',1,'TruSEQ INDEXED DNA',1),(1,564,1,'truseqIndexedDna',1,'TruSEQ INDEXED DNA',1),(1,574,1,'truseqIndexedDna',1,'TruSEQ INDEXED DNA',1),(1,590,1,'truseqIndexedDna',1,'TruSEQ INDEXED DNA',1),(1,609,1,'truseqIndexedDna',1,'TruSEQ INDEXED DNA',1),(1,646,1,'truseqIndexedDna',1,'TruSEQ INDEXED DNA',1),(2,591,0,'helptagLibrary',1,'HELP-tag Library',3),(2,610,1,'helptagLibrary',1,'HELP-tag Library',3),(2,647,1,'helptagLibrary',1,'HELP-tag Library',3);
-/*!40000 ALTER TABLE `adaptorset_AUD` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -1079,34 +705,6 @@ INSERT INTO `adaptorsetmeta` VALUES (1,1,'truseqIndexedDna.truseq','1',1,'2012-0
 UNLOCK TABLES;
 
 --
--- Table structure for table `adaptorsetmeta_AUD`
---
-
-DROP TABLE IF EXISTS `adaptorsetmeta_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `adaptorsetmeta_AUD` (
-  `adaptorsetMetaId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `adaptorsetid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`adaptorsetMetaId`,`REV`),
-  KEY `FK4E32BA13DF74E053` (`REV`),
-  CONSTRAINT `FK4E32BA13DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `adaptorsetmeta_AUD`
---
-
-LOCK TABLES `adaptorsetmeta_AUD` WRITE;
-/*!40000 ALTER TABLE `adaptorsetmeta_AUD` DISABLE KEYS */;
-INSERT INTO `adaptorsetmeta_AUD` VALUES (1,9,0,1);
-/*!40000 ALTER TABLE `adaptorsetmeta_AUD` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `adaptorsetresourcecategory`
 --
 
@@ -1133,35 +731,6 @@ LOCK TABLES `adaptorsetresourcecategory` WRITE;
 /*!40000 ALTER TABLE `adaptorsetresourcecategory` DISABLE KEYS */;
 INSERT INTO `adaptorsetresourcecategory` VALUES (1,1,1),(2,2,1);
 /*!40000 ALTER TABLE `adaptorsetresourcecategory` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `adaptorsetresourcecategory_AUD`
---
-
-DROP TABLE IF EXISTS `adaptorsetresourcecategory_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `adaptorsetresourcecategory_AUD` (
-  `adaptorsetresourcecategoryid` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `adaptorsetid` int(11) DEFAULT NULL,
-  `resourcecategoryid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`adaptorsetresourcecategoryid`,`REV`),
-  KEY `FK6C80281ADF74E053` (`REV`),
-  CONSTRAINT `FK6C80281ADF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `adaptorsetresourcecategory_AUD`
---
-
-LOCK TABLES `adaptorsetresourcecategory_AUD` WRITE;
-/*!40000 ALTER TABLE `adaptorsetresourcecategory_AUD` DISABLE KEYS */;
-INSERT INTO `adaptorsetresourcecategory_AUD` VALUES (1,9,0,1,1),(2,591,0,2,1);
-/*!40000 ALTER TABLE `adaptorsetresourcecategory_AUD` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -1193,38 +762,6 @@ INSERT INTO `barcode` VALUES (1,'AXZ123XX',NULL,1,'2012-06-11 18:57:27',1);
 UNLOCK TABLES;
 
 --
--- Table structure for table `barcode_AUD`
---
-
-DROP TABLE IF EXISTS `barcode_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `barcode_AUD` (
-  `barcodeId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `barcode` varchar(255) DEFAULT NULL,
-  `barcodefor` varchar(255) DEFAULT NULL,
-  `isactive` int(11) DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
-  PRIMARY KEY (`barcodeId`,`REV`),
-  KEY `FK6221D651DF74E053` (`REV`),
-  CONSTRAINT `FK6221D651DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `barcode_AUD`
---
-
-LOCK TABLES `barcode_AUD` WRITE;
-/*!40000 ALTER TABLE `barcode_AUD` DISABLE KEYS */;
-INSERT INTO `barcode_AUD` VALUES (1,240,0,'AXZ123XX',NULL,1,'2012-06-11 14:57:27',1);
-/*!40000 ALTER TABLE `barcode_AUD` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `confirmemailauth`
 --
 
@@ -1247,29 +784,14 @@ CREATE TABLE `confirmemailauth` (
 ) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
-
 --
--- Table structure for table `confirmemailauth_AUD`
+-- Dumping data for table `confirmemailauth`
 --
 
-DROP TABLE IF EXISTS `confirmemailauth_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `confirmemailauth_AUD` (
-  `confirmEmailAuthId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `userid` int(11) DEFAULT NULL,
-  `authcode` varchar(255) DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
-  `userpendingid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`confirmEmailAuthId`,`REV`),
-  KEY `FKEE29F855DF74E053` (`REV`),
-  CONSTRAINT `FKEE29F855DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
+LOCK TABLES `confirmemailauth` WRITE;
+/*!40000 ALTER TABLE `confirmemailauth` DISABLE KEYS */;
+/*!40000 ALTER TABLE `confirmemailauth` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `department`
@@ -1298,38 +820,6 @@ LOCK TABLES `department` WRITE;
 /*!40000 ALTER TABLE `department` DISABLE KEYS */;
 INSERT INTO `department` VALUES (1,'Internal - Default Department',1,1,'2012-05-23 15:55:35',1),(2,'External - Default Department',0,1,'2012-05-23 15:55:35',1),(3,'Genetics',1,1,'2012-06-14 13:47:08',1);
 /*!40000 ALTER TABLE `department` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `department_AUD`
---
-
-DROP TABLE IF EXISTS `department_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `department_AUD` (
-  `departmentId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `isactive` int(11) DEFAULT NULL,
-  `isinternal` int(11) DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`departmentId`,`REV`),
-  KEY `FKF0647823DF74E053` (`REV`),
-  CONSTRAINT `FKF0647823DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `department_AUD`
---
-
-LOCK TABLES `department_AUD` WRITE;
-/*!40000 ALTER TABLE `department_AUD` DISABLE KEYS */;
-INSERT INTO `department_AUD` VALUES (3,662,0,1,1,'2012-06-14 09:47:08',1,'Genetics');
-/*!40000 ALTER TABLE `department_AUD` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -1364,37 +854,6 @@ INSERT INTO `departmentuser` VALUES (1,1,3,'2012-05-30 19:57:15',1),(2,3,3,'2012
 UNLOCK TABLES;
 
 --
--- Table structure for table `departmentuser_AUD`
---
-
-DROP TABLE IF EXISTS `departmentuser_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `departmentuser_AUD` (
-  `departmentUserId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `userid` int(11) DEFAULT NULL,
-  `departmentid` int(11) DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
-  PRIMARY KEY (`departmentUserId`,`REV`),
-  KEY `FK1BA90D6EDF74E053` (`REV`),
-  CONSTRAINT `FK1BA90D6EDF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `departmentuser_AUD`
---
-
-LOCK TABLES `departmentuser_AUD` WRITE;
-/*!40000 ALTER TABLE `departmentuser_AUD` DISABLE KEYS */;
-INSERT INTO `departmentuser_AUD` VALUES (1,52,0,3,1,'2012-05-30 15:57:15',1),(2,662,0,3,3,'2012-06-14 09:47:08',1),(3,689,0,13,2,'2012-06-14 10:13:04',1);
-/*!40000 ALTER TABLE `departmentuser_AUD` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `file`
 --
 
@@ -1426,41 +885,6 @@ LOCK TABLES `file` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `file_AUD`
---
-
-DROP TABLE IF EXISTS `file_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `file_AUD` (
-  `fileId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `absolute_path` varchar(255) DEFAULT NULL,
-  `contenttype` varchar(255) DEFAULT NULL,
-  `description` varchar(255) DEFAULT NULL,
-  `isactive` int(11) DEFAULT NULL,
-  `isarchived` int(11) DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
-  `md5hash` varchar(255) DEFAULT NULL,
-  `sizek` int(11) DEFAULT NULL,
-  PRIMARY KEY (`fileId`,`REV`),
-  KEY `FKD42D054DDF74E053` (`REV`),
-  CONSTRAINT `FKD42D054DDF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `file_AUD`
---
-
-LOCK TABLES `file_AUD` WRITE;
-/*!40000 ALTER TABLE `file_AUD` DISABLE KEYS */;
-/*!40000 ALTER TABLE `file_AUD` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `filemeta`
 --
 
@@ -1489,33 +913,6 @@ CREATE TABLE `filemeta` (
 LOCK TABLES `filemeta` WRITE;
 /*!40000 ALTER TABLE `filemeta` DISABLE KEYS */;
 /*!40000 ALTER TABLE `filemeta` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `filemeta_AUD`
---
-
-DROP TABLE IF EXISTS `filemeta_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `filemeta_AUD` (
-  `fileMetaId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `fileid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`fileMetaId`,`REV`),
-  KEY `FK95BB72D2DF74E053` (`REV`),
-  CONSTRAINT `FK95BB72D2DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `filemeta_AUD`
---
-
-LOCK TABLES `filemeta_AUD` WRITE;
-/*!40000 ALTER TABLE `filemeta_AUD` DISABLE KEYS */;
-/*!40000 ALTER TABLE `filemeta_AUD` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -1558,42 +955,6 @@ INSERT INTO `job` VALUES (1,2,10,1,'job1','2012-06-11 11:42:02',0,1,'2012-06-11 
 UNLOCK TABLES;
 
 --
--- Table structure for table `job_AUD`
---
-
-DROP TABLE IF EXISTS `job_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `job_AUD` (
-  `jobId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `userid` int(11) DEFAULT NULL,
-  `createts` datetime DEFAULT NULL,
-  `isactive` int(11) DEFAULT NULL,
-  `labid` int(11) DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  `viewablebylab` int(11) DEFAULT NULL,
-  `workflowid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`jobId`,`REV`),
-  KEY `FKAA4FA30EDF74E053` (`REV`),
-  CONSTRAINT `FKAA4FA30EDF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `job_AUD`
---
-
-LOCK TABLES `job_AUD` WRITE;
-/*!40000 ALTER TABLE `job_AUD` DISABLE KEYS */;
-INSERT INTO `job_AUD` VALUES (1,155,0,10,'2012-06-11 11:42:02',1,2,'2012-06-11 11:42:02',10,'job1',0,1);
-/*!40000 ALTER TABLE `job_AUD` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `jobcellselection`
 --
 
@@ -1618,35 +979,6 @@ LOCK TABLES `jobcellselection` WRITE;
 /*!40000 ALTER TABLE `jobcellselection` DISABLE KEYS */;
 INSERT INTO `jobcellselection` VALUES (1,1,1),(2,1,2);
 /*!40000 ALTER TABLE `jobcellselection` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `jobcellselection_AUD`
---
-
-DROP TABLE IF EXISTS `jobcellselection_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `jobcellselection_AUD` (
-  `jobCellSelectionId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `cellindex` int(11) DEFAULT NULL,
-  `jobid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`jobCellSelectionId`,`REV`),
-  KEY `FKF613F51EDF74E053` (`REV`),
-  CONSTRAINT `FKF613F51EDF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `jobcellselection_AUD`
---
-
-LOCK TABLES `jobcellselection_AUD` WRITE;
-/*!40000 ALTER TABLE `jobcellselection_AUD` DISABLE KEYS */;
-INSERT INTO `jobcellselection_AUD` VALUES (1,155,0,1,1),(2,155,0,2,1);
-/*!40000 ALTER TABLE `jobcellselection_AUD` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -1690,42 +1022,6 @@ INSERT INTO `jobdraft` VALUES (1,2,10,1,'job1','2012-06-11 11:34:06',1,'SUBMITTE
 UNLOCK TABLES;
 
 --
--- Table structure for table `jobdraft_AUD`
---
-
-DROP TABLE IF EXISTS `jobdraft_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `jobdraft_AUD` (
-  `jobDraftId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `userid` int(11) DEFAULT NULL,
-  `createts` datetime DEFAULT NULL,
-  `labid` int(11) DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  `status` varchar(255) DEFAULT NULL,
-  `submittedjobid` int(11) DEFAULT NULL,
-  `workflowid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`jobDraftId`,`REV`),
-  KEY `FK2FB037D5DF74E053` (`REV`),
-  CONSTRAINT `FK2FB037D5DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `jobdraft_AUD`
---
-
-LOCK TABLES `jobdraft_AUD` WRITE;
-/*!40000 ALTER TABLE `jobdraft_AUD` DISABLE KEYS */;
-INSERT INTO `jobdraft_AUD` VALUES (1,142,0,10,'2012-06-11 11:34:06',2,'2012-06-11 11:34:06',10,'job1','PENDING',NULL,1),(1,144,1,10,'2012-06-11 11:34:06',2,'2012-06-11 11:38:04',10,'job1','PENDING',NULL,1),(1,155,1,10,'2012-06-11 11:34:06',2,'2012-06-11 11:42:03',10,'job1','SUBMITTED',1,1);
-/*!40000 ALTER TABLE `jobdraft_AUD` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `jobdraftcellselection`
 --
 
@@ -1750,35 +1046,6 @@ LOCK TABLES `jobdraftcellselection` WRITE;
 /*!40000 ALTER TABLE `jobdraftcellselection` DISABLE KEYS */;
 INSERT INTO `jobdraftcellselection` VALUES (1,1,1),(2,1,2);
 /*!40000 ALTER TABLE `jobdraftcellselection` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `jobdraftcellselection_AUD`
---
-
-DROP TABLE IF EXISTS `jobdraftcellselection_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `jobdraftcellselection_AUD` (
-  `jobDraftCellSelectionId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `cellindex` int(11) DEFAULT NULL,
-  `jobdraftid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`jobDraftCellSelectionId`,`REV`),
-  KEY `FKF8AB9BB7DF74E053` (`REV`),
-  CONSTRAINT `FKF8AB9BB7DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `jobdraftcellselection_AUD`
---
-
-LOCK TABLES `jobdraftcellselection_AUD` WRITE;
-/*!40000 ALTER TABLE `jobdraftcellselection_AUD` DISABLE KEYS */;
-INSERT INTO `jobdraftcellselection_AUD` VALUES (1,149,0,1,1),(2,149,0,2,1);
-/*!40000 ALTER TABLE `jobdraftcellselection_AUD` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -1816,40 +1083,6 @@ LOCK TABLES `jobdraftfile` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `jobdraftfile_AUD`
---
-
-DROP TABLE IF EXISTS `jobdraftfile_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `jobdraftfile_AUD` (
-  `jobDraftFileId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `description` varchar(255) DEFAULT NULL,
-  `fileid` int(11) DEFAULT NULL,
-  `iname` varchar(255) DEFAULT NULL,
-  `isactive` int(11) DEFAULT NULL,
-  `jobdraftid` int(11) DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`jobDraftFileId`,`REV`),
-  KEY `FK2ED46D51DF74E053` (`REV`),
-  CONSTRAINT `FK2ED46D51DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `jobdraftfile_AUD`
---
-
-LOCK TABLES `jobdraftfile_AUD` WRITE;
-/*!40000 ALTER TABLE `jobdraftfile_AUD` DISABLE KEYS */;
-/*!40000 ALTER TABLE `jobdraftfile_AUD` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `jobdraftmeta`
 --
 
@@ -1879,34 +1112,6 @@ LOCK TABLES `jobdraftmeta` WRITE;
 /*!40000 ALTER TABLE `jobdraftmeta` DISABLE KEYS */;
 INSERT INTO `jobdraftmeta` VALUES (1,1,'illuminaHiSeq2000.readLength','50',0,'2012-06-11 15:38:12',NULL),(2,1,'illuminaHiSeq2000.readType','single',0,'2012-06-11 15:38:12',NULL),(3,1,'chipSeq.samplePairsTvsC','1:2;',0,'2012-06-11 15:41:54',10),(4,1,'bowtieAligner.mismatches','2',0,'2012-06-11 15:41:59',NULL),(5,1,'bowtieAligner.seedLength','32',0,'2012-06-11 15:41:59',NULL),(6,1,'bowtieAligner.reportAlignmentNum','1',0,'2012-06-11 15:41:59',NULL),(7,1,'bowtieAligner.discardThreshold','1',0,'2012-06-11 15:41:59',NULL),(8,1,'bowtieAligner.isBest','yes',0,'2012-06-11 15:41:59',NULL),(9,1,'macsPeakcaller.pValueCutoff','100000',0,'2012-06-11 15:42:02',NULL),(10,1,'macsPeakcaller.bandwidth','300',0,'2012-06-11 15:42:02',NULL),(11,1,'macsPeakcaller.genomeSize','1000000000',0,'2012-06-11 15:42:02',NULL),(12,1,'macsPeakcaller.keepDup','no',0,'2012-06-11 15:42:02',NULL);
 /*!40000 ALTER TABLE `jobdraftmeta` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `jobdraftmeta_AUD`
---
-
-DROP TABLE IF EXISTS `jobdraftmeta_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `jobdraftmeta_AUD` (
-  `jobDraftMetaId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `jobdraftid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`jobDraftMetaId`,`REV`),
-  KEY `FK3FD2215ADF74E053` (`REV`),
-  CONSTRAINT `FK3FD2215ADF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `jobdraftmeta_AUD`
---
-
-LOCK TABLES `jobdraftmeta_AUD` WRITE;
-/*!40000 ALTER TABLE `jobdraftmeta_AUD` DISABLE KEYS */;
-INSERT INTO `jobdraftmeta_AUD` VALUES (1,146,0,1),(2,146,0,1),(3,150,0,1),(4,152,0,1),(5,152,0,1),(6,152,0,1),(7,152,0,1),(8,152,0,1),(9,154,0,1),(10,154,0,1),(11,154,0,1),(12,154,0,1);
-/*!40000 ALTER TABLE `jobdraftmeta_AUD` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -1941,37 +1146,6 @@ INSERT INTO `jobdraftresourcecategory` VALUES (1,1,1,'2012-06-11 15:38:08',10);
 UNLOCK TABLES;
 
 --
--- Table structure for table `jobdraftresourcecategory_AUD`
---
-
-DROP TABLE IF EXISTS `jobdraftresourcecategory_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `jobdraftresourcecategory_AUD` (
-  `jobDraftresourcecategoryId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `jobdraftid` int(11) DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
-  `resourcecategoryid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`jobDraftresourcecategoryId`,`REV`),
-  KEY `FKC593DCE1DF74E053` (`REV`),
-  CONSTRAINT `FKC593DCE1DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `jobdraftresourcecategory_AUD`
---
-
-LOCK TABLES `jobdraftresourcecategory_AUD` WRITE;
-/*!40000 ALTER TABLE `jobdraftresourcecategory_AUD` DISABLE KEYS */;
-INSERT INTO `jobdraftresourcecategory_AUD` VALUES (1,145,0,1,'2012-06-11 11:38:08',10,1);
-/*!40000 ALTER TABLE `jobdraftresourcecategory_AUD` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `jobdraftsoftware`
 --
 
@@ -2000,37 +1174,6 @@ LOCK TABLES `jobdraftsoftware` WRITE;
 /*!40000 ALTER TABLE `jobdraftsoftware` DISABLE KEYS */;
 INSERT INTO `jobdraftsoftware` VALUES (1,1,1,'2012-06-11 15:41:57',10),(2,1,2,'2012-06-11 15:42:01',10);
 /*!40000 ALTER TABLE `jobdraftsoftware` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `jobdraftsoftware_AUD`
---
-
-DROP TABLE IF EXISTS `jobdraftsoftware_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `jobdraftsoftware_AUD` (
-  `jobDraftSoftwareId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `jobdraftid` int(11) DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
-  `softwareid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`jobDraftSoftwareId`,`REV`),
-  KEY `FKE5429FCDF74E053` (`REV`),
-  CONSTRAINT `FKE5429FCDF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `jobdraftsoftware_AUD`
---
-
-LOCK TABLES `jobdraftsoftware_AUD` WRITE;
-/*!40000 ALTER TABLE `jobdraftsoftware_AUD` DISABLE KEYS */;
-INSERT INTO `jobdraftsoftware_AUD` VALUES (1,151,0,1,'2012-06-11 11:41:57',10,1),(2,153,0,1,'2012-06-11 11:42:01',10,2);
-/*!40000 ALTER TABLE `jobdraftsoftware_AUD` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -2068,40 +1211,6 @@ LOCK TABLES `jobfile` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `jobfile_AUD`
---
-
-DROP TABLE IF EXISTS `jobfile_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `jobfile_AUD` (
-  `jobFileId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `description` varchar(255) DEFAULT NULL,
-  `fileid` int(11) DEFAULT NULL,
-  `iname` varchar(255) DEFAULT NULL,
-  `isactive` int(11) DEFAULT NULL,
-  `jobid` int(11) DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`jobFileId`,`REV`),
-  KEY `FK28E9940ADF74E053` (`REV`),
-  CONSTRAINT `FK28E9940ADF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `jobfile_AUD`
---
-
-LOCK TABLES `jobfile_AUD` WRITE;
-/*!40000 ALTER TABLE `jobfile_AUD` DISABLE KEYS */;
-/*!40000 ALTER TABLE `jobfile_AUD` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `jobmeta`
 --
 
@@ -2131,34 +1240,6 @@ LOCK TABLES `jobmeta` WRITE;
 /*!40000 ALTER TABLE `jobmeta` DISABLE KEYS */;
 INSERT INTO `jobmeta` VALUES (1,1,'illuminaHiSeq2000.readLength','50',0,'2012-06-11 15:42:02',10),(2,1,'illuminaHiSeq2000.readType','single',0,'2012-06-11 15:42:02',10),(3,1,'chipSeq.samplePairsTvsC','1:2;',0,'2012-06-11 15:42:02',10),(4,1,'bowtieAligner.mismatches','2',0,'2012-06-11 15:42:02',10),(5,1,'bowtieAligner.seedLength','32',0,'2012-06-11 15:42:02',10),(6,1,'bowtieAligner.reportAlignmentNum','1',0,'2012-06-11 15:42:02',10),(7,1,'bowtieAligner.discardThreshold','1',0,'2012-06-11 15:42:02',10),(8,1,'bowtieAligner.isBest','yes',0,'2012-06-11 15:42:02',10),(9,1,'macsPeakcaller.pValueCutoff','100000',0,'2012-06-11 15:42:02',10),(10,1,'macsPeakcaller.bandwidth','300',0,'2012-06-11 15:42:02',10),(11,1,'macsPeakcaller.genomeSize','1000000000',0,'2012-06-11 15:42:02',10),(12,1,'macsPeakcaller.keepDup','no',0,'2012-06-11 15:42:02',10);
 /*!40000 ALTER TABLE `jobmeta` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `jobmeta_AUD`
---
-
-DROP TABLE IF EXISTS `jobmeta_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `jobmeta_AUD` (
-  `jobMetaId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `jobid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`jobMetaId`,`REV`),
-  KEY `FK39E74813DF74E053` (`REV`),
-  CONSTRAINT `FK39E74813DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `jobmeta_AUD`
---
-
-LOCK TABLES `jobmeta_AUD` WRITE;
-/*!40000 ALTER TABLE `jobmeta_AUD` DISABLE KEYS */;
-INSERT INTO `jobmeta_AUD` VALUES (1,155,0,1),(2,155,0,1),(3,155,0,1),(4,155,0,1),(5,155,0,1),(6,155,0,1),(7,155,0,1),(8,155,0,1),(9,155,0,1),(10,155,0,1),(11,155,0,1),(12,155,0,1);
-/*!40000 ALTER TABLE `jobmeta_AUD` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -2193,37 +1274,6 @@ INSERT INTO `jobresourcecategory` VALUES (1,1,1,'2012-06-11 15:42:02',10);
 UNLOCK TABLES;
 
 --
--- Table structure for table `jobresourcecategory_AUD`
---
-
-DROP TABLE IF EXISTS `jobresourcecategory_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `jobresourcecategory_AUD` (
-  `jobResourcecategoryId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `jobid` int(11) DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
-  `resourcecategoryid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`jobResourcecategoryId`,`REV`),
-  KEY `FK17CFB61ADF74E053` (`REV`),
-  CONSTRAINT `FK17CFB61ADF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `jobresourcecategory_AUD`
---
-
-LOCK TABLES `jobresourcecategory_AUD` WRITE;
-/*!40000 ALTER TABLE `jobresourcecategory_AUD` DISABLE KEYS */;
-INSERT INTO `jobresourcecategory_AUD` VALUES (1,155,0,1,'2012-06-11 11:42:02',10,1);
-/*!40000 ALTER TABLE `jobresourcecategory_AUD` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `jobsample`
 --
 
@@ -2252,37 +1302,6 @@ LOCK TABLES `jobsample` WRITE;
 /*!40000 ALTER TABLE `jobsample` DISABLE KEYS */;
 INSERT INTO `jobsample` VALUES (1,1,1,'2012-06-11 15:42:03',10),(2,1,2,'2012-06-11 15:42:03',10),(3,1,3,'2012-06-11 18:47:42',1);
 /*!40000 ALTER TABLE `jobsample` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `jobsample_AUD`
---
-
-DROP TABLE IF EXISTS `jobsample_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `jobsample_AUD` (
-  `jobSampleId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `jobid` int(11) DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
-  `sampleid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`jobSampleId`,`REV`),
-  KEY `FK206091F8DF74E053` (`REV`),
-  CONSTRAINT `FK206091F8DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `jobsample_AUD`
---
-
-LOCK TABLES `jobsample_AUD` WRITE;
-/*!40000 ALTER TABLE `jobsample_AUD` DISABLE KEYS */;
-INSERT INTO `jobsample_AUD` VALUES (1,155,0,1,'2012-06-11 11:42:03',10,1),(2,155,0,1,'2012-06-11 11:42:03',10,2),(3,235,0,1,'2012-06-11 14:47:42',1,3);
-/*!40000 ALTER TABLE `jobsample_AUD` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -2317,33 +1336,6 @@ LOCK TABLES `jobsamplemeta` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `jobsamplemeta_AUD`
---
-
-DROP TABLE IF EXISTS `jobsamplemeta_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `jobsamplemeta_AUD` (
-  `jobSampleMetaId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `jobsampleid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`jobSampleMetaId`,`REV`),
-  KEY `FK4EB2B1FDDF74E053` (`REV`),
-  CONSTRAINT `FK4EB2B1FDDF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `jobsamplemeta_AUD`
---
-
-LOCK TABLES `jobsamplemeta_AUD` WRITE;
-/*!40000 ALTER TABLE `jobsamplemeta_AUD` DISABLE KEYS */;
-/*!40000 ALTER TABLE `jobsamplemeta_AUD` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `jobsoftware`
 --
 
@@ -2372,37 +1364,6 @@ LOCK TABLES `jobsoftware` WRITE;
 /*!40000 ALTER TABLE `jobsoftware` DISABLE KEYS */;
 INSERT INTO `jobsoftware` VALUES (1,1,1,'2012-06-11 15:42:02',10),(2,1,2,'2012-06-11 15:42:02',10);
 /*!40000 ALTER TABLE `jobsoftware` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `jobsoftware_AUD`
---
-
-DROP TABLE IF EXISTS `jobsoftware_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `jobsoftware_AUD` (
-  `jobSoftwareId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `jobid` int(11) DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
-  `softwareid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`jobSoftwareId`,`REV`),
-  KEY `FK17954C35DF74E053` (`REV`),
-  CONSTRAINT `FK17954C35DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `jobsoftware_AUD`
---
-
-LOCK TABLES `jobsoftware_AUD` WRITE;
-/*!40000 ALTER TABLE `jobsoftware_AUD` DISABLE KEYS */;
-INSERT INTO `jobsoftware_AUD` VALUES (1,155,0,1,'2012-06-11 11:42:02',10,1),(2,155,0,1,'2012-06-11 11:42:02',10,2);
-/*!40000 ALTER TABLE `jobsoftware_AUD` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -2440,38 +1401,6 @@ INSERT INTO `jobuser` VALUES (1,1,10,9,'2012-06-11 15:42:02',10),(2,1,5,10,'2012
 UNLOCK TABLES;
 
 --
--- Table structure for table `jobuser_AUD`
---
-
-DROP TABLE IF EXISTS `jobuser_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `jobuser_AUD` (
-  `jobUserId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `userid` int(11) DEFAULT NULL,
-  `jobid` int(11) DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
-  `roleid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`jobUserId`,`REV`),
-  KEY `FK44DECAD9DF74E053` (`REV`),
-  CONSTRAINT `FK44DECAD9DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `jobuser_AUD`
---
-
-LOCK TABLES `jobuser_AUD` WRITE;
-/*!40000 ALTER TABLE `jobuser_AUD` DISABLE KEYS */;
-INSERT INTO `jobuser_AUD` VALUES (1,155,0,10,1,'2012-06-11 11:42:02',10,9),(2,155,0,5,1,'2012-06-11 11:42:02',10,10);
-/*!40000 ALTER TABLE `jobuser_AUD` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `lab`
 --
 
@@ -2505,39 +1434,6 @@ INSERT INTO `lab` VALUES (1,1,'Default lab',1,1,'2012-06-14 14:08:21',1),(2,3,'C
 UNLOCK TABLES;
 
 --
--- Table structure for table `lab_AUD`
---
-
-DROP TABLE IF EXISTS `lab_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `lab_AUD` (
-  `labId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `departmentid` int(11) DEFAULT NULL,
-  `isactive` int(11) DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  `primaryuserid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`labId`,`REV`),
-  KEY `FKFC3840DEDF74E053` (`REV`),
-  CONSTRAINT `FKFC3840DEDF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `lab_AUD`
---
-
-LOCK TABLES `lab_AUD` WRITE;
-/*!40000 ALTER TABLE `lab_AUD` DISABLE KEYS */;
-INSERT INTO `lab_AUD` VALUES (1,685,1,1,1,'2012-06-14 10:08:21',1,'Default lab',1),(2,53,0,1,1,'2012-05-30 16:22:24',3,'Greally Lab',5),(2,651,1,1,1,'2012-06-13 19:23:39',1,'Cancer Genetics',5),(2,677,1,1,1,'2012-06-14 10:05:28',1,'Cancer Genetics',5),(2,684,1,3,1,'2012-06-14 10:07:33',1,'Cancer Genetics',5),(3,62,0,1,1,'2012-05-30 18:03:56',1,'Goldin Lab',7),(3,652,1,1,1,'2012-06-13 19:23:54',1,'Godwin Lab',7),(3,678,1,1,1,'2012-06-14 10:05:34',1,'Godwin Lab',7),(3,683,1,3,1,'2012-06-14 10:07:27',1,'Godwin Lab',7),(4,121,0,1,1,'2012-05-31 09:59:22',3,'Auton Lab',8),(4,653,1,1,1,'2012-06-13 19:24:02',1,'Williams Lab',8),(4,679,1,1,1,'2012-06-14 10:05:39',1,'Williams Lab',8),(4,681,1,3,1,'2012-06-14 10:06:49',1,'Williams Lab',8),(5,122,0,2,1,'2012-05-31 10:00:01',1,'Trokie Lab',9),(5,654,1,2,1,'2012-06-13 19:24:23',1,'Zebra Fish Lab',9),(5,680,1,2,1,'2012-06-14 10:05:52',1,'Zebra Fish Lab',9);
-/*!40000 ALTER TABLE `lab_AUD` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `labmeta`
 --
 
@@ -2567,34 +1463,6 @@ LOCK TABLES `labmeta` WRITE;
 /*!40000 ALTER TABLE `labmeta` DISABLE KEYS */;
 INSERT INTO `labmeta` VALUES (1,2,'lab.internal_external_lab','internal',0,'2012-05-30 20:22:24',NULL),(2,2,'lab.phone','718-123-4567',0,'2012-05-30 20:22:24',NULL),(3,2,'lab.building_room','Price 220',0,'2012-05-30 20:22:24',NULL),(4,2,'lab.billing_contact','John Greally',0,'2012-05-30 20:22:24',NULL),(5,2,'lab.billing_institution','Einstein',0,'2012-05-30 20:22:24',NULL),(6,2,'lab.billing_departmentId','3',0,'2012-05-30 20:22:24',NULL),(7,2,'lab.billing_building_room','Price 220',0,'2012-05-30 20:22:24',NULL),(8,2,'lab.billing_address','1301 Morris Park Ave.',0,'2012-05-30 20:22:24',NULL),(9,2,'lab.billing_city','Bronx',0,'2012-05-30 20:22:24',NULL),(10,2,'lab.billing_state','NY',0,'2012-05-30 20:22:24',NULL),(11,2,'lab.billing_country','US',0,'2012-05-30 20:22:24',NULL),(12,2,'lab.billing_zip','10461',0,'2012-05-30 20:22:24',NULL),(13,2,'lab.billing_phone','718-123-4567',0,'2012-05-30 20:22:24',NULL),(14,3,'lab.internal_external_lab','internal',0,'2012-05-30 22:03:56',NULL),(15,3,'lab.phone','718-678-1112',0,'2012-05-30 22:03:56',NULL),(16,3,'lab.building_room','Price 353',0,'2012-05-30 22:03:56',NULL),(17,3,'lab.billing_contact','Aaron Goldin',0,'2012-05-30 22:03:56',NULL),(18,3,'lab.billing_institution','Einstein',0,'2012-05-30 22:03:56',NULL),(19,3,'lab.billing_departmentId','3',0,'2012-05-30 22:03:56',NULL),(20,3,'lab.billing_building_room','Price 353',0,'2012-05-30 22:03:56',NULL),(21,3,'lab.billing_address','1301 Morris Park Ave.',0,'2012-05-30 22:03:56',NULL),(22,3,'lab.billing_city','Bronx',0,'2012-05-30 22:03:56',NULL),(23,3,'lab.billing_state','NY',0,'2012-05-30 22:03:56',NULL),(24,3,'lab.billing_country','US',0,'2012-05-30 22:03:56',NULL),(25,3,'lab.billing_zip','10461',0,'2012-05-30 22:03:56',NULL),(26,3,'lab.billing_phone','718-678-1112',0,'2012-05-30 22:03:56',NULL),(27,4,'lab.internal_external_lab','internal',0,'2012-05-31 13:59:23',NULL),(28,4,'lab.phone','718-678-1019',0,'2012-05-31 13:59:23',NULL),(29,4,'lab.building_room','Price 321',0,'2012-05-31 13:59:23',NULL),(30,4,'lab.billing_contact','Adam Auton',0,'2012-05-31 13:59:23',NULL),(31,4,'lab.billing_institution','Einstein',0,'2012-05-31 13:59:23',NULL),(32,4,'lab.billing_departmentId','3',0,'2012-05-31 13:59:23',NULL),(33,4,'lab.billing_building_room','Price 321',0,'2012-05-31 13:59:23',NULL),(34,4,'lab.billing_address','1301 Morris Park Ave.',0,'2012-05-31 13:59:23',NULL),(35,4,'lab.billing_city','Bronx',0,'2012-05-31 13:59:23',NULL),(36,4,'lab.billing_state','NY',0,'2012-05-31 13:59:23',NULL),(37,4,'lab.billing_country','US',0,'2012-05-31 13:59:23',NULL),(38,4,'lab.billing_zip','10461',0,'2012-05-31 13:59:23',NULL),(39,4,'lab.billing_phone','718-678-1019',0,'2012-05-31 13:59:23',NULL),(40,5,'lab.internal_external_lab','external',0,'2012-05-31 14:00:01',NULL),(41,5,'lab.phone','212-321-1091',0,'2012-05-31 14:00:01',NULL),(42,5,'lab.building_room','Hammer 1101',0,'2012-05-31 14:00:01',NULL),(43,5,'lab.billing_contact','Leslie Trokie',0,'2012-05-31 14:00:01',NULL),(44,5,'lab.billing_institution','NYU Medical',0,'2012-05-31 14:00:02',NULL),(45,5,'lab.billing_departmentId','3',0,'2012-05-31 14:00:02',NULL),(46,5,'lab.billing_building_room','Hammer 1101',0,'2012-05-31 14:00:02',NULL),(47,5,'lab.billing_address','16-50 32nd Street',0,'2012-05-31 14:00:02',NULL),(48,5,'lab.billing_city','New York',0,'2012-05-31 14:00:02',NULL),(49,5,'lab.billing_state','NY',0,'2012-05-31 14:00:02',NULL),(50,5,'lab.billing_country','US',0,'2012-05-31 14:00:02',NULL),(51,5,'lab.billing_zip','10002',0,'2012-05-31 14:00:02',NULL),(52,5,'lab.billing_phone','212-321-1091',0,'2012-05-31 14:00:02',NULL),(53,1,'lab.internal_external_lab','internal',0,'2012-06-14 14:08:21',NULL),(54,1,'lab.phone','N/A',0,'2012-06-14 14:08:21',NULL),(55,1,'lab.building_room','N/A',0,'2012-06-14 14:08:21',NULL),(56,1,'lab.billing_contact','N/A',0,'2012-06-14 14:08:21',NULL),(57,1,'lab.billing_institution','N/A',0,'2012-06-14 14:08:21',NULL),(58,1,'lab.billing_departmentId','1',0,'2012-06-14 14:08:21',NULL),(59,1,'lab.billing_building_room','N/A',0,'2012-06-14 14:08:21',NULL),(60,1,'lab.billing_address','N/A',0,'2012-06-14 14:08:21',NULL),(61,1,'lab.billing_city','N/A',0,'2012-06-14 14:08:21',NULL),(62,1,'lab.billing_state','NY',0,'2012-06-14 14:08:21',NULL),(63,1,'lab.billing_country','US',0,'2012-06-14 14:08:21',NULL),(64,1,'lab.billing_zip','N/A',0,'2012-06-14 14:08:21',NULL),(65,1,'lab.billing_phone','N/A',0,'2012-06-14 14:08:21',NULL);
 /*!40000 ALTER TABLE `labmeta` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `labmeta_AUD`
---
-
-DROP TABLE IF EXISTS `labmeta_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `labmeta_AUD` (
-  `labMetaId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `labid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`labMetaId`,`REV`),
-  KEY `FK7AC7DE3DF74E053` (`REV`),
-  CONSTRAINT `FK7AC7DE3DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `labmeta_AUD`
---
-
-LOCK TABLES `labmeta_AUD` WRITE;
-/*!40000 ALTER TABLE `labmeta_AUD` DISABLE KEYS */;
-INSERT INTO `labmeta_AUD` VALUES (1,53,0,2),(2,53,0,2),(3,53,0,2),(4,53,0,2),(5,53,0,2),(6,53,0,2),(7,53,0,2),(8,53,0,2),(9,53,0,2),(10,53,0,2),(11,53,0,2),(12,53,0,2),(13,53,0,2),(14,62,0,3),(15,62,0,3),(16,62,0,3),(17,62,0,3),(18,62,0,3),(19,62,0,3),(20,62,0,3),(21,62,0,3),(22,62,0,3),(23,62,0,3),(24,62,0,3),(25,62,0,3),(26,62,0,3),(27,121,0,4),(28,121,0,4),(29,121,0,4),(30,121,0,4),(31,121,0,4),(32,121,0,4),(33,121,0,4),(34,121,0,4),(35,121,0,4),(36,121,0,4),(37,121,0,4),(38,121,0,4),(39,121,0,4),(40,122,0,5),(41,122,0,5),(42,122,0,5),(43,122,0,5),(44,122,0,5),(45,122,0,5),(46,122,0,5),(47,122,0,5),(48,122,0,5),(49,122,0,5),(50,122,0,5),(51,122,0,5),(52,122,0,5),(53,685,0,1),(54,685,0,1),(55,685,0,1),(56,685,0,1),(57,685,0,1),(58,685,0,1),(59,685,0,1),(60,685,0,1),(61,685,0,1),(62,685,0,1),(63,685,0,1),(64,685,0,1),(65,685,0,1);
-/*!40000 ALTER TABLE `labmeta_AUD` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -2635,40 +1503,6 @@ INSERT INTO `labpending` VALUES (1,1,'Greally Lab',5,NULL,'approve','2012-05-30 
 UNLOCK TABLES;
 
 --
--- Table structure for table `labpending_AUD`
---
-
-DROP TABLE IF EXISTS `labpending_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `labpending_AUD` (
-  `labPendingId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `departmentid` int(11) DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  `primaryuserid` int(11) DEFAULT NULL,
-  `status` varchar(255) DEFAULT NULL,
-  `userpendingid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`labPendingId`,`REV`),
-  KEY `FKDD97E83BDF74E053` (`REV`),
-  CONSTRAINT `FKDD97E83BDF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `labpending_AUD`
---
-
-LOCK TABLES `labpending_AUD` WRITE;
-/*!40000 ALTER TABLE `labpending_AUD` DISABLE KEYS */;
-INSERT INTO `labpending_AUD` VALUES (1,51,0,1,'2012-05-30 15:53:59',0,'Greally Lab',NULL,'PENDING',1),(1,53,1,1,'2012-05-30 16:22:25',3,'Greally Lab',5,'approve',NULL),(2,55,0,1,'2012-05-30 16:42:35',0,'Charron Lab',NULL,'PENDING',2),(2,56,1,1,'2012-05-30 16:43:36',3,'Charron Lab',NULL,'reject',2),(3,61,0,1,'2012-05-30 18:03:28',0,'Goldin Lab',NULL,'PENDING',7),(3,62,1,1,'2012-05-30 18:03:56',1,'Goldin Lab',7,'approve',NULL),(4,117,0,1,'2012-05-31 09:41:05',0,'Auton Lab',NULL,'PENDING',8),(4,121,1,1,'2012-05-31 09:59:23',3,'Auton Lab',8,'approve',NULL),(5,118,0,2,'2012-05-31 09:41:19',0,'Trokie Lab',NULL,'PENDING',9),(5,122,1,2,'2012-05-31 10:00:02',1,'Trokie Lab',9,'approve',NULL);
-/*!40000 ALTER TABLE `labpending_AUD` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `labpendingmeta`
 --
 
@@ -2698,34 +1532,6 @@ LOCK TABLES `labpendingmeta` WRITE;
 /*!40000 ALTER TABLE `labpendingmeta` DISABLE KEYS */;
 INSERT INTO `labpendingmeta` VALUES (1,1,'labPending.internal_external_lab','internal',0,'2012-05-30 19:53:59',NULL),(2,1,'labPending.phone','718-123-4567',0,'2012-05-30 19:53:59',NULL),(3,1,'labPending.building_room','Price 220',0,'2012-05-30 19:53:59',NULL),(4,1,'labPending.billing_contact','John Greally',0,'2012-05-30 19:53:59',NULL),(5,1,'labPending.billing_institution','Einstein',0,'2012-05-30 19:53:59',NULL),(6,1,'labPending.billing_departmentId','1',0,'2012-05-30 19:53:59',NULL),(7,1,'labPending.billing_building_room','Price 220',0,'2012-05-30 19:53:59',NULL),(8,1,'labPending.billing_address','1301 Morris Park Ave.',0,'2012-05-30 19:53:59',NULL),(9,1,'labPending.billing_city','Bronx',0,'2012-05-30 19:53:59',NULL),(10,1,'labPending.billing_state','NY',0,'2012-05-30 19:53:59',NULL),(11,1,'labPending.billing_country','US',0,'2012-05-30 19:53:59',NULL),(12,1,'labPending.billing_zip','10461',0,'2012-05-30 19:53:59',NULL),(13,1,'labPending.billing_phone','718-123-4567',0,'2012-05-30 19:53:59',NULL),(14,2,'labPending.internal_external_lab','internal',0,'2012-05-30 20:42:35',NULL),(15,2,'labPending.phone','718-678-1212',0,'2012-05-30 20:42:35',NULL),(16,2,'labPending.building_room','Forr 310',0,'2012-05-30 20:42:35',NULL),(17,2,'labPending.billing_contact','Maureen Charron',0,'2012-05-30 20:42:35',NULL),(18,2,'labPending.billing_institution','Einstein',0,'2012-05-30 20:42:35',NULL),(19,2,'labPending.billing_departmentId','1',0,'2012-05-30 20:42:35',NULL),(20,2,'labPending.billing_building_room','Forr 310',0,'2012-05-30 20:42:35',NULL),(21,2,'labPending.billing_address','1300 Morris Park Ave.',0,'2012-05-30 20:42:35',NULL),(22,2,'labPending.billing_city','Bronx',0,'2012-05-30 20:42:35',NULL),(23,2,'labPending.billing_state','NY',0,'2012-05-30 20:42:35',NULL),(24,2,'labPending.billing_country','US',0,'2012-05-30 20:42:35',NULL),(25,2,'labPending.billing_zip','10461',0,'2012-05-30 20:42:35',NULL),(26,2,'labPending.billing_phone','718-678-1212',0,'2012-05-30 20:42:35',NULL),(27,3,'labPending.internal_external_lab','internal',0,'2012-05-30 22:03:28',NULL),(28,3,'labPending.phone','718-678-1112',0,'2012-05-30 22:03:28',NULL),(29,3,'labPending.building_room','Price 353',0,'2012-05-30 22:03:28',NULL),(30,3,'labPending.billing_contact','Aaron Goldin',0,'2012-05-30 22:03:28',NULL),(31,3,'labPending.billing_institution','Einstein',0,'2012-05-30 22:03:28',NULL),(32,3,'labPending.billing_departmentId','1',0,'2012-05-30 22:03:28',NULL),(33,3,'labPending.billing_building_room','Price 353',0,'2012-05-30 22:03:28',NULL),(34,3,'labPending.billing_address','1301 Morris Park Ave.',0,'2012-05-30 22:03:28',NULL),(35,3,'labPending.billing_city','Bronx',0,'2012-05-30 22:03:28',NULL),(36,3,'labPending.billing_state','NY',0,'2012-05-30 22:03:28',NULL),(37,3,'labPending.billing_country','US',0,'2012-05-30 22:03:28',NULL),(38,3,'labPending.billing_zip','10461',0,'2012-05-30 22:03:28',NULL),(39,3,'labPending.billing_phone','718-678-1112',0,'2012-05-30 22:03:28',NULL),(40,4,'labPending.internal_external_lab','internal',0,'2012-05-31 13:41:05',NULL),(41,4,'labPending.phone','718-678-1019',0,'2012-05-31 13:41:05',NULL),(42,4,'labPending.building_room','Price 321',0,'2012-05-31 13:41:05',NULL),(43,4,'labPending.billing_contact','Adam Auton',0,'2012-05-31 13:41:05',NULL),(44,4,'labPending.billing_institution','Einstein',0,'2012-05-31 13:41:05',NULL),(45,4,'labPending.billing_departmentId','1',0,'2012-05-31 13:41:05',NULL),(46,4,'labPending.billing_building_room','Price 321',0,'2012-05-31 13:41:05',NULL),(47,4,'labPending.billing_address','1301 Morris Park Ave.',0,'2012-05-31 13:41:05',NULL),(48,4,'labPending.billing_city','Bronx',0,'2012-05-31 13:41:05',NULL),(49,4,'labPending.billing_state','NY',0,'2012-05-31 13:41:05',NULL),(50,4,'labPending.billing_country','US',0,'2012-05-31 13:41:05',NULL),(51,4,'labPending.billing_zip','10461',0,'2012-05-31 13:41:05',NULL),(52,4,'labPending.billing_phone','718-678-1019',0,'2012-05-31 13:41:05',NULL),(53,5,'labPending.internal_external_lab','external',0,'2012-05-31 13:41:19',NULL),(54,5,'labPending.phone','212-321-1091',0,'2012-05-31 13:41:19',NULL),(55,5,'labPending.building_room','Hammer 1101',0,'2012-05-31 13:41:19',NULL),(56,5,'labPending.billing_contact','Leslie Trokie',0,'2012-05-31 13:41:19',NULL),(57,5,'labPending.billing_institution','NYU Medical',0,'2012-05-31 13:41:19',NULL),(58,5,'labPending.billing_departmentId','2',0,'2012-05-31 13:41:19',NULL),(59,5,'labPending.billing_building_room','Hammer 1101',0,'2012-05-31 13:41:19',NULL),(60,5,'labPending.billing_address','16-50 32nd Street',0,'2012-05-31 13:41:19',NULL),(61,5,'labPending.billing_city','New York',0,'2012-05-31 13:41:19',NULL),(62,5,'labPending.billing_state','NY',0,'2012-05-31 13:41:19',NULL),(63,5,'labPending.billing_country','US',0,'2012-05-31 13:41:19',NULL),(64,5,'labPending.billing_zip','10002',0,'2012-05-31 13:41:19',NULL),(65,5,'labPending.billing_phone','212-321-1091',0,'2012-05-31 13:41:19',NULL);
 /*!40000 ALTER TABLE `labpendingmeta` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `labpendingmeta_AUD`
---
-
-DROP TABLE IF EXISTS `labpendingmeta_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `labpendingmeta_AUD` (
-  `labPendingMetaId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `labpendingid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`labPendingMetaId`,`REV`),
-  KEY `FK57FF2EC0DF74E053` (`REV`),
-  CONSTRAINT `FK57FF2EC0DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `labpendingmeta_AUD`
---
-
-LOCK TABLES `labpendingmeta_AUD` WRITE;
-/*!40000 ALTER TABLE `labpendingmeta_AUD` DISABLE KEYS */;
-INSERT INTO `labpendingmeta_AUD` VALUES (1,51,0,1),(2,51,0,1),(3,51,0,1),(4,51,0,1),(5,51,0,1),(6,51,0,1),(7,51,0,1),(8,51,0,1),(9,51,0,1),(10,51,0,1),(11,51,0,1),(12,51,0,1),(13,51,0,1),(14,55,0,2),(15,55,0,2),(16,55,0,2),(17,55,0,2),(18,55,0,2),(19,55,0,2),(20,55,0,2),(21,55,0,2),(22,55,0,2),(23,55,0,2),(24,55,0,2),(25,55,0,2),(26,55,0,2),(27,61,0,3),(28,61,0,3),(29,61,0,3),(30,61,0,3),(31,61,0,3),(32,61,0,3),(33,61,0,3),(34,61,0,3),(35,61,0,3),(36,61,0,3),(37,61,0,3),(38,61,0,3),(39,61,0,3),(40,117,0,4),(41,117,0,4),(42,117,0,4),(43,117,0,4),(44,117,0,4),(45,117,0,4),(46,117,0,4),(47,117,0,4),(48,117,0,4),(49,117,0,4),(50,117,0,4),(51,117,0,4),(52,117,0,4),(53,118,0,5),(54,118,0,5),(55,118,0,5),(56,118,0,5),(57,118,0,5),(58,118,0,5),(59,118,0,5),(60,118,0,5),(61,118,0,5),(62,118,0,5),(63,118,0,5),(64,118,0,5),(65,118,0,5);
-/*!40000 ALTER TABLE `labpendingmeta_AUD` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -2763,38 +1569,6 @@ INSERT INTO `labuser` VALUES (1,1,1,6,'2012-05-23 15:55:46',1),(2,2,5,6,'2012-05
 UNLOCK TABLES;
 
 --
--- Table structure for table `labuser_AUD`
---
-
-DROP TABLE IF EXISTS `labuser_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `labuser_AUD` (
-  `labUserId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `userid` int(11) DEFAULT NULL,
-  `labid` int(11) DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
-  `roleid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`labUserId`,`REV`),
-  KEY `FK12A400A9DF74E053` (`REV`),
-  CONSTRAINT `FK12A400A9DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `labuser_AUD`
---
-
-LOCK TABLES `labuser_AUD` WRITE;
-/*!40000 ALTER TABLE `labuser_AUD` DISABLE KEYS */;
-INSERT INTO `labuser_AUD` VALUES (2,53,0,5,2,'2012-05-30 16:22:24',3,6),(3,59,0,6,2,'2012-05-30 17:13:54',5,8),(4,62,0,7,3,'2012-05-30 18:03:56',1,6),(5,121,0,8,4,'2012-05-31 09:59:23',3,6),(6,122,0,9,5,'2012-05-31 10:00:02',1,6),(7,123,0,10,2,'2012-05-31 10:02:26',5,8),(7,124,1,10,2,'2012-05-31 10:02:38',5,7),(8,129,0,12,3,'2012-05-31 10:15:29',7,8);
-/*!40000 ALTER TABLE `labuser_AUD` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `meta`
 --
 
@@ -2822,38 +1596,6 @@ CREATE TABLE `meta` (
 LOCK TABLES `meta` WRITE;
 /*!40000 ALTER TABLE `meta` DISABLE KEYS */;
 /*!40000 ALTER TABLE `meta` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `meta_AUD`
---
-
-DROP TABLE IF EXISTS `meta_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `meta_AUD` (
-  `metaId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `k` varchar(255) DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
-  `position` int(11) DEFAULT NULL,
-  `property` varchar(255) DEFAULT NULL,
-  `v` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`metaId`,`REV`),
-  KEY `FKE52AB956DF74E053` (`REV`),
-  CONSTRAINT `FKE52AB956DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `meta_AUD`
---
-
-LOCK TABLES `meta_AUD` WRITE;
-/*!40000 ALTER TABLE `meta_AUD` DISABLE KEYS */;
-/*!40000 ALTER TABLE `meta_AUD` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -2885,38 +1627,6 @@ CREATE TABLE `project` (
 LOCK TABLES `project` WRITE;
 /*!40000 ALTER TABLE `project` DISABLE KEYS */;
 /*!40000 ALTER TABLE `project` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `project_AUD`
---
-
-DROP TABLE IF EXISTS `project_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `project_AUD` (
-  `projectId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `userid` int(11) DEFAULT NULL,
-  `isactive` int(11) DEFAULT NULL,
-  `labid` int(11) DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`projectId`,`REV`),
-  KEY `FKC7FF446ADF74E053` (`REV`),
-  CONSTRAINT `FKC7FF446ADF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `project_AUD`
---
-
-LOCK TABLES `project_AUD` WRITE;
-/*!40000 ALTER TABLE `project_AUD` DISABLE KEYS */;
-/*!40000 ALTER TABLE `project_AUD` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -2955,39 +1665,6 @@ LOCK TABLES `resource` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `resource_AUD`
---
-
-DROP TABLE IF EXISTS `resource_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `resource_AUD` (
-  `resourceId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `iname` varchar(255) DEFAULT NULL,
-  `isactive` int(11) DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  `resourcetypeid` int(11) DEFAULT NULL,
-  `resourcecategoryid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`resourceId`,`REV`),
-  KEY `FKE91B3ADFDF74E053` (`REV`),
-  CONSTRAINT `FKE91B3ADFDF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `resource_AUD`
---
-
-LOCK TABLES `resource_AUD` WRITE;
-/*!40000 ALTER TABLE `resource_AUD` DISABLE KEYS */;
-/*!40000 ALTER TABLE `resource_AUD` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `resourcebarcode`
 --
 
@@ -3013,34 +1690,6 @@ CREATE TABLE `resourcebarcode` (
 LOCK TABLES `resourcebarcode` WRITE;
 /*!40000 ALTER TABLE `resourcebarcode` DISABLE KEYS */;
 /*!40000 ALTER TABLE `resourcebarcode` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `resourcebarcode_AUD`
---
-
-DROP TABLE IF EXISTS `resourcebarcode_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `resourcebarcode_AUD` (
-  `resourceBarcodeId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `barcodeid` int(11) DEFAULT NULL,
-  `resourceid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`resourceBarcodeId`,`REV`),
-  KEY `FK7BEA9D83DF74E053` (`REV`),
-  CONSTRAINT `FK7BEA9D83DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `resourcebarcode_AUD`
---
-
-LOCK TABLES `resourcebarcode_AUD` WRITE;
-/*!40000 ALTER TABLE `resourcebarcode_AUD` DISABLE KEYS */;
-/*!40000 ALTER TABLE `resourcebarcode_AUD` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -3077,39 +1726,6 @@ INSERT INTO `resourcecategory` VALUES (1,1,'illuminaHiSeq2000','Illumina HiSeq 2
 UNLOCK TABLES;
 
 --
--- Table structure for table `resourcecategory_AUD`
---
-
-DROP TABLE IF EXISTS `resourcecategory_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `resourcecategory_AUD` (
-  `resourceCategoryId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `iname` varchar(255) DEFAULT NULL,
-  `isactive` int(11) DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  `resourcetypeid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`resourceCategoryId`,`REV`),
-  KEY `FK38BC5ADDDF74E053` (`REV`),
-  CONSTRAINT `FK38BC5ADDDF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `resourcecategory_AUD`
---
-
-LOCK TABLES `resourcecategory_AUD` WRITE;
-/*!40000 ALTER TABLE `resourcecategory_AUD` DISABLE KEYS */;
-INSERT INTO `resourcecategory_AUD` VALUES (1,1,0,'illuminaHiSeq2000',1,'2012-05-23 12:08:18',0,'Illumina HiSeq 2000',1),(1,33,1,'illuminaHiSeq2000',1,'2012-05-29 09:46:26',0,'Illumina HiSeq 2000',1),(1,63,1,'illuminaHiSeq2000',1,'2012-05-30 18:05:16',0,'Illumina HiSeq 2000',1),(1,73,1,'illuminaHiSeq2000',1,'2012-05-31 09:24:11',0,'Illumina HiSeq 2000',1),(1,83,1,'illuminaHiSeq2000',1,'2012-05-31 09:26:55',0,'Illumina HiSeq 2000',1),(1,93,1,'illuminaHiSeq2000',1,'2012-05-31 09:28:30',0,'Illumina HiSeq 2000',1),(1,103,1,'illuminaHiSeq2000',1,'2012-05-31 09:29:35',0,'Illumina HiSeq 2000',1),(1,132,1,'illuminaHiSeq2000',1,'2012-06-11 11:31:25',0,'Illumina HiSeq 2000',1),(1,162,1,'illuminaHiSeq2000',1,'2012-06-11 13:49:12',0,'Illumina HiSeq 2000',1),(1,172,1,'illuminaHiSeq2000',1,'2012-06-11 13:58:15',0,'Illumina HiSeq 2000',1),(1,182,1,'illuminaHiSeq2000',1,'2012-06-11 14:02:33',0,'Illumina HiSeq 2000',1),(1,192,1,'illuminaHiSeq2000',1,'2012-06-11 14:03:11',0,'Illumina HiSeq 2000',1),(1,202,1,'illuminaHiSeq2000',1,'2012-06-11 14:20:01',0,'Illumina HiSeq 2000',1),(1,214,1,'illuminaHiSeq2000',1,'2012-06-11 14:35:46',0,'Illumina HiSeq 2000',1),(1,241,1,'illuminaHiSeq2000',1,'2012-06-11 15:33:06',0,'Illumina HiSeq 2000',1),(1,252,1,'illuminaHiSeq2000',1,'2012-06-11 15:45:19',0,'Illumina HiSeq 2000',1),(1,263,1,'illuminaHiSeq2000',1,'2012-06-11 15:47:17',0,'Illumina HiSeq 2000',1),(1,273,1,'illuminaHiSeq2000',1,'2012-06-11 16:33:09',0,'Illumina HiSeq 2000',1),(1,283,1,'illuminaHiSeq2000',1,'2012-06-11 16:34:51',0,'Illumina HiSeq 2000',1),(1,293,1,'illuminaHiSeq2000',1,'2012-06-11 16:55:00',0,'Illumina HiSeq 2000',1),(1,303,1,'illuminaHiSeq2000',1,'2012-06-11 16:59:19',0,'Illumina HiSeq 2000',1),(1,313,1,'illuminaHiSeq2000',1,'2012-06-11 17:45:42',0,'Illumina HiSeq 2000',1),(1,323,1,'illuminaHiSeq2000',1,'2012-06-11 17:50:08',0,'Illumina HiSeq 2000',1),(1,333,1,'illuminaHiSeq2000',1,'2012-06-11 17:50:51',0,'Illumina HiSeq 2000',1),(1,343,1,'illuminaHiSeq2000',1,'2012-06-12 09:11:38',0,'Illumina HiSeq 2000',1),(1,353,1,'illuminaHiSeq2000',1,'2012-06-12 09:18:59',0,'Illumina HiSeq 2000',1),(1,363,1,'illuminaHiSeq2000',1,'2012-06-12 09:43:12',0,'Illumina HiSeq 2000',1),(1,373,1,'illuminaHiSeq2000',1,'2012-06-12 09:55:13',0,'Illumina HiSeq 2000',1),(1,383,1,'illuminaHiSeq2000',1,'2012-06-12 09:57:37',0,'Illumina HiSeq 2000',1),(1,393,1,'illuminaHiSeq2000',1,'2012-06-12 09:58:46',0,'Illumina HiSeq 2000',1),(1,403,1,'illuminaHiSeq2000',1,'2012-06-12 10:02:55',0,'Illumina HiSeq 2000',1),(1,414,1,'illuminaHiSeq2000',1,'2012-06-12 10:53:33',0,'Illumina HiSeq 2000',1),(1,424,1,'illuminaHiSeq2000',1,'2012-06-12 10:54:54',0,'Illumina HiSeq 2000',1),(1,436,1,'illuminaHiSeq2000',1,'2012-06-12 11:16:34',0,'Illumina HiSeq 2000',1),(1,446,1,'illuminaHiSeq2000',1,'2012-06-12 11:18:47',0,'Illumina HiSeq 2000',1),(1,456,1,'illuminaHiSeq2000',1,'2012-06-12 11:53:54',0,'Illumina HiSeq 2000',1),(1,466,1,'illuminaHiSeq2000',1,'2012-06-12 13:12:44',0,'Illumina HiSeq 2000',1),(1,476,1,'illuminaHiSeq2000',1,'2012-06-12 13:42:15',0,'Illumina HiSeq 2000',1),(1,486,1,'illuminaHiSeq2000',1,'2012-06-12 13:43:52',0,'Illumina HiSeq 2000',1),(1,496,1,'illuminaHiSeq2000',1,'2012-06-12 13:46:47',0,'Illumina HiSeq 2000',1),(1,506,1,'illuminaHiSeq2000',1,'2012-06-12 14:04:13',0,'Illumina HiSeq 2000',1),(1,516,1,'illuminaHiSeq2000',1,'2012-06-12 14:07:08',0,'Illumina HiSeq 2000',1),(1,526,1,'illuminaHiSeq2000',1,'2012-06-12 14:10:18',0,'Illumina HiSeq 2000',1),(1,536,1,'illuminaHiSeq2000',1,'2012-06-12 14:17:32',0,'Illumina HiSeq 2000',1),(1,546,1,'illuminaHiSeq2000',1,'2012-06-12 14:20:59',0,'Illumina HiSeq 2000',1),(1,556,1,'illuminaHiSeq2000',1,'2012-06-12 14:23:13',0,'Illumina HiSeq 2000',1),(1,566,1,'illuminaHiSeq2000',1,'2012-06-12 14:24:55',0,'Illumina HiSeq 2000',1),(1,576,1,'illuminaHiSeq2000',1,'2012-06-13 16:02:48',0,'Illumina HiSeq 2000',1),(1,595,1,'illuminaHiSeq2000',1,'2012-06-13 17:30:34',0,'Illumina HiSeq 2000',1),(1,632,1,'illuminaHiSeq2000',1,'2012-06-13 19:23:10',0,'Illumina HiSeq 2000',1);
-/*!40000 ALTER TABLE `resourcecategory_AUD` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `resourcecategorymeta`
 --
 
@@ -3142,34 +1758,6 @@ INSERT INTO `resourcecategorymeta` VALUES (1,1,'illuminaHiSeq2000.allowableUiFie
 UNLOCK TABLES;
 
 --
--- Table structure for table `resourcecategorymeta_AUD`
---
-
-DROP TABLE IF EXISTS `resourcecategorymeta_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `resourcecategorymeta_AUD` (
-  `resourceCategoryMetaId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `resourcecategoryid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`resourceCategoryMetaId`,`REV`),
-  KEY `FKD0858062DF74E053` (`REV`),
-  CONSTRAINT `FKD0858062DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `resourcecategorymeta_AUD`
---
-
-LOCK TABLES `resourcecategorymeta_AUD` WRITE;
-/*!40000 ALTER TABLE `resourcecategorymeta_AUD` DISABLE KEYS */;
-INSERT INTO `resourcecategorymeta_AUD` VALUES (1,1,0,1),(2,1,0,1),(3,1,0,1);
-/*!40000 ALTER TABLE `resourcecategorymeta_AUD` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `resourcecell`
 --
 
@@ -3197,36 +1785,6 @@ CREATE TABLE `resourcecell` (
 LOCK TABLES `resourcecell` WRITE;
 /*!40000 ALTER TABLE `resourcecell` DISABLE KEYS */;
 /*!40000 ALTER TABLE `resourcecell` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `resourcecell_AUD`
---
-
-DROP TABLE IF EXISTS `resourcecell_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `resourcecell_AUD` (
-  `resourceCellId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `iname` varchar(255) DEFAULT NULL,
-  `isactive` int(11) DEFAULT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  `resourceid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`resourceCellId`,`REV`),
-  KEY `FK5AB90C41DF74E053` (`REV`),
-  CONSTRAINT `FK5AB90C41DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `resourcecell_AUD`
---
-
-LOCK TABLES `resourcecell_AUD` WRITE;
-/*!40000 ALTER TABLE `resourcecell_AUD` DISABLE KEYS */;
-/*!40000 ALTER TABLE `resourcecell_AUD` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -3261,33 +1819,6 @@ LOCK TABLES `resourcemeta` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `resourcemeta_AUD`
---
-
-DROP TABLE IF EXISTS `resourcemeta_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `resourcemeta_AUD` (
-  `resourceMetaId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `resourceid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`resourceMetaId`,`REV`),
-  KEY `FK76908F64DF74E053` (`REV`),
-  CONSTRAINT `FK76908F64DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `resourcemeta_AUD`
---
-
-LOCK TABLES `resourcemeta_AUD` WRITE;
-/*!40000 ALTER TABLE `resourcemeta_AUD` DISABLE KEYS */;
-/*!40000 ALTER TABLE `resourcemeta_AUD` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `resourcetype`
 --
 
@@ -3312,35 +1843,6 @@ LOCK TABLES `resourcetype` WRITE;
 /*!40000 ALTER TABLE `resourcetype` DISABLE KEYS */;
 INSERT INTO `resourcetype` VALUES (1,'mps','Massively Parallel DNA Sequencer'),(2,'amplicon','DNA Amplicon'),(3,'aligner','Aligner'),(4,'peakcaller','Peak Caller'),(5,'sanger','Sanger DNA Sequencer'),(6,'helptagPipeline','HELP-tag Pipeline'),(7,'bisulseqPipeline','Bi-sulphite-seq Pipeline');
 /*!40000 ALTER TABLE `resourcetype` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `resourcetype_AUD`
---
-
-DROP TABLE IF EXISTS `resourcetype_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `resourcetype_AUD` (
-  `resourceTypeId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `iname` varchar(255) DEFAULT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`resourceTypeId`,`REV`),
-  KEY `FK691A6619DF74E053` (`REV`),
-  CONSTRAINT `FK691A6619DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `resourcetype_AUD`
---
-
-LOCK TABLES `resourcetype_AUD` WRITE;
-/*!40000 ALTER TABLE `resourcetype_AUD` DISABLE KEYS */;
-INSERT INTO `resourcetype_AUD` VALUES (7,579,0,'bisulseqPipeline','Bi-sulphite-seq Pipeline');
-/*!40000 ALTER TABLE `resourcetype_AUD` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -3372,35 +1874,6 @@ INSERT INTO `role` VALUES (1,'fm','Facilities Manager','system'),(2,'sa','System
 UNLOCK TABLES;
 
 --
--- Table structure for table `role_AUD`
---
-
-DROP TABLE IF EXISTS `role_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `role_AUD` (
-  `roleId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `domain` varchar(255) DEFAULT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  `rolename` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`roleId`,`REV`),
-  KEY `FKF0208347DF74E053` (`REV`),
-  CONSTRAINT `FKF0208347DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `role_AUD`
---
-
-LOCK TABLES `role_AUD` WRITE;
-/*!40000 ALTER TABLE `role_AUD` DISABLE KEYS */;
-/*!40000 ALTER TABLE `role_AUD` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `roleset`
 --
 
@@ -3427,34 +1900,6 @@ LOCK TABLES `roleset` WRITE;
 /*!40000 ALTER TABLE `roleset` DISABLE KEYS */;
 INSERT INTO `roleset` VALUES (2,1,1),(16,1,5),(13,2,2),(4,3,3),(1,4,4),(3,5,5),(12,6,6),(17,6,7),(18,6,8),(8,7,7),(19,7,8),(10,8,8),(6,9,9),(20,9,10),(7,10,10),(21,11,1),(22,11,2),(23,11,3),(24,11,5),(14,11,11),(11,12,12),(9,13,13),(5,14,14),(15,15,15);
 /*!40000 ALTER TABLE `roleset` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `roleset_AUD`
---
-
-DROP TABLE IF EXISTS `roleset_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `roleset_AUD` (
-  `rolesetId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `childroleid` int(11) DEFAULT NULL,
-  `parentroleid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`rolesetId`,`REV`),
-  KEY `FK38BA17FDDF74E053` (`REV`),
-  CONSTRAINT `FK38BA17FDDF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `roleset_AUD`
---
-
-LOCK TABLES `roleset_AUD` WRITE;
-/*!40000 ALTER TABLE `roleset_AUD` DISABLE KEYS */;
-/*!40000 ALTER TABLE `roleset_AUD` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -3502,44 +1947,6 @@ LOCK TABLES `run` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `run_AUD`
---
-
-DROP TABLE IF EXISTS `run_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `run_AUD` (
-  `runId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `userid` int(11) DEFAULT NULL,
-  `endts` datetime DEFAULT NULL,
-  `isactive` int(11) DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  `resourceCategoryid` int(11) DEFAULT NULL,
-  `resourceid` int(11) DEFAULT NULL,
-  `sampleid` int(11) DEFAULT NULL,
-  `softwareid` int(11) DEFAULT NULL,
-  `startts` datetime DEFAULT NULL,
-  `status` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`runId`,`REV`),
-  KEY `FK5C67AADCDF74E053` (`REV`),
-  CONSTRAINT `FK5C67AADCDF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `run_AUD`
---
-
-LOCK TABLES `run_AUD` WRITE;
-/*!40000 ALTER TABLE `run_AUD` DISABLE KEYS */;
-/*!40000 ALTER TABLE `run_AUD` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `runcell`
 --
 
@@ -3568,35 +1975,6 @@ CREATE TABLE `runcell` (
 LOCK TABLES `runcell` WRITE;
 /*!40000 ALTER TABLE `runcell` DISABLE KEYS */;
 /*!40000 ALTER TABLE `runcell` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `runcell_AUD`
---
-
-DROP TABLE IF EXISTS `runcell_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `runcell_AUD` (
-  `runCellId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `resourcecellid` int(11) DEFAULT NULL,
-  `runid` int(11) DEFAULT NULL,
-  `sampleid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`runCellId`,`REV`),
-  KEY `FK722335BEDF74E053` (`REV`),
-  CONSTRAINT `FK722335BEDF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `runcell_AUD`
---
-
-LOCK TABLES `runcell_AUD` WRITE;
-/*!40000 ALTER TABLE `runcell_AUD` DISABLE KEYS */;
-/*!40000 ALTER TABLE `runcell_AUD` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -3633,39 +2011,6 @@ LOCK TABLES `runcellfile` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `runcellfile_AUD`
---
-
-DROP TABLE IF EXISTS `runcellfile_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `runcellfile_AUD` (
-  `runCellfileId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `fileid` int(11) DEFAULT NULL,
-  `iname` varchar(255) DEFAULT NULL,
-  `isactive` int(11) DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  `runcellid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`runCellfileId`,`REV`),
-  KEY `FKE2544EBADF74E053` (`REV`),
-  CONSTRAINT `FKE2544EBADF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `runcellfile_AUD`
---
-
-LOCK TABLES `runcellfile_AUD` WRITE;
-/*!40000 ALTER TABLE `runcellfile_AUD` DISABLE KEYS */;
-/*!40000 ALTER TABLE `runcellfile_AUD` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `runfile`
 --
 
@@ -3699,39 +2044,6 @@ LOCK TABLES `runfile` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `runfile_AUD`
---
-
-DROP TABLE IF EXISTS `runfile_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `runfile_AUD` (
-  `runcellfileId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `fileid` int(11) DEFAULT NULL,
-  `iname` varchar(255) DEFAULT NULL,
-  `isactive` int(11) DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  `runid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`runcellfileId`,`REV`),
-  KEY `FK7CFD04D8DF74E053` (`REV`),
-  CONSTRAINT `FK7CFD04D8DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `runfile_AUD`
---
-
-LOCK TABLES `runfile_AUD` WRITE;
-/*!40000 ALTER TABLE `runfile_AUD` DISABLE KEYS */;
-/*!40000 ALTER TABLE `runfile_AUD` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `runmeta`
 --
 
@@ -3760,33 +2072,6 @@ CREATE TABLE `runmeta` (
 LOCK TABLES `runmeta` WRITE;
 /*!40000 ALTER TABLE `runmeta` DISABLE KEYS */;
 /*!40000 ALTER TABLE `runmeta` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `runmeta_AUD`
---
-
-DROP TABLE IF EXISTS `runmeta_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `runmeta_AUD` (
-  `runMetaId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `runid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`runMetaId`,`REV`),
-  KEY `FK8DFAB8E1DF74E053` (`REV`),
-  CONSTRAINT `FK8DFAB8E1DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `runmeta_AUD`
---
-
-LOCK TABLES `runmeta_AUD` WRITE;
-/*!40000 ALTER TABLE `runmeta_AUD` DISABLE KEYS */;
-/*!40000 ALTER TABLE `runmeta_AUD` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -3839,47 +2124,6 @@ INSERT INTO `sample` VALUES (1,NULL,1,3,2,10,1,0,NULL,NULL,'input',NULL,1,'2012-
 UNLOCK TABLES;
 
 --
--- Table structure for table `sample_AUD`
---
-
-DROP TABLE IF EXISTS `sample_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `sample_AUD` (
-  `sampleId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `isactive` int(11) DEFAULT NULL,
-  `isgood` int(11) DEFAULT NULL,
-  `isreceived` int(11) DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  `parentid` int(11) DEFAULT NULL,
-  `receivedts` datetime DEFAULT NULL,
-  `receiver_userid` int(11) DEFAULT NULL,
-  `samplesubtypeid` int(11) DEFAULT NULL,
-  `sampletypeid` int(11) DEFAULT NULL,
-  `submitter_jobid` int(11) DEFAULT NULL,
-  `submitter_labid` int(11) DEFAULT NULL,
-  `submitter_userid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`sampleId`,`REV`),
-  KEY `FK88CBE7BDF74E053` (`REV`),
-  CONSTRAINT `FK88CBE7BDF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `sample_AUD`
---
-
-LOCK TABLES `sample_AUD` WRITE;
-/*!40000 ALTER TABLE `sample_AUD` DISABLE KEYS */;
-INSERT INTO `sample_AUD` VALUES (1,155,0,1,NULL,0,'2012-06-11 11:42:02',10,'input',NULL,NULL,NULL,3,1,1,2,10),(2,155,0,1,NULL,0,'2012-06-11 11:42:03',10,'IP',NULL,NULL,NULL,3,1,1,2,10),(3,235,0,1,NULL,NULL,'2012-06-11 14:47:42',1,'facLib_input',1,NULL,NULL,5,3,1,2,10),(4,240,0,1,1,1,'2012-06-11 14:57:27',1,'AXZ123XX',NULL,'2012-06-11 14:57:27',1,1,5,NULL,1,1),(5,240,0,1,1,1,'2012-06-11 14:57:27',1,'AXZ123XX/1',NULL,'2012-06-11 14:57:27',1,NULL,4,NULL,1,1),(6,240,0,1,1,1,'2012-06-11 14:57:27',1,'AXZ123XX/2',NULL,'2012-06-11 14:57:27',1,NULL,4,NULL,1,1),(7,240,0,1,1,1,'2012-06-11 14:57:27',1,'AXZ123XX/3',NULL,'2012-06-11 14:57:27',1,NULL,4,NULL,1,1),(8,240,0,1,1,1,'2012-06-11 14:57:27',1,'AXZ123XX/4',NULL,'2012-06-11 14:57:27',1,NULL,4,NULL,1,1),(9,240,0,1,1,1,'2012-06-11 14:57:27',1,'AXZ123XX/5',NULL,'2012-06-11 14:57:27',1,NULL,4,NULL,1,1),(10,240,0,1,1,1,'2012-06-11 14:57:27',1,'AXZ123XX/6',NULL,'2012-06-11 14:57:27',1,NULL,4,NULL,1,1),(11,240,0,1,1,1,'2012-06-11 14:57:27',1,'AXZ123XX/7',NULL,'2012-06-11 14:57:27',1,NULL,4,NULL,1,1),(12,240,0,1,1,1,'2012-06-11 14:57:27',1,'AXZ123XX/8',NULL,'2012-06-11 14:57:27',1,NULL,4,NULL,1,1);
-/*!40000 ALTER TABLE `sample_AUD` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `samplebarcode`
 --
 
@@ -3908,37 +2152,6 @@ LOCK TABLES `samplebarcode` WRITE;
 /*!40000 ALTER TABLE `samplebarcode` DISABLE KEYS */;
 INSERT INTO `samplebarcode` VALUES (1,4,1,'2012-06-11 18:57:27',1);
 /*!40000 ALTER TABLE `samplebarcode` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `samplebarcode_AUD`
---
-
-DROP TABLE IF EXISTS `samplebarcode_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `samplebarcode_AUD` (
-  `sampleBarcode` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `barcodeid` int(11) DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
-  `sampleid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`sampleBarcode`,`REV`),
-  KEY `FKD2871267DF74E053` (`REV`),
-  CONSTRAINT `FKD2871267DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `samplebarcode_AUD`
---
-
-LOCK TABLES `samplebarcode_AUD` WRITE;
-/*!40000 ALTER TABLE `samplebarcode_AUD` DISABLE KEYS */;
-INSERT INTO `samplebarcode_AUD` VALUES (1,240,0,1,'2012-06-11 14:57:27',1,4);
-/*!40000 ALTER TABLE `samplebarcode_AUD` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -3988,44 +2201,6 @@ INSERT INTO `sampledraft` VALUES (1,1,3,2,10,1,NULL,NULL,'input',NULL,'2012-06-1
 UNLOCK TABLES;
 
 --
--- Table structure for table `sampledraft_AUD`
---
-
-DROP TABLE IF EXISTS `sampledraft_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `sampledraft_AUD` (
-  `sampleDraftId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `userid` int(11) DEFAULT NULL,
-  `fileid` int(11) DEFAULT NULL,
-  `jobdraftid` int(11) DEFAULT NULL,
-  `labid` int(11) DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  `samplesubtypeid` int(11) DEFAULT NULL,
-  `sampletypeid` int(11) DEFAULT NULL,
-  `sourcesampleid` int(11) DEFAULT NULL,
-  `status` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`sampleDraftId`,`REV`),
-  KEY `FKFC6C3888DF74E053` (`REV`),
-  CONSTRAINT `FKFC6C3888DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `sampledraft_AUD`
---
-
-LOCK TABLES `sampledraft_AUD` WRITE;
-/*!40000 ALTER TABLE `sampledraft_AUD` DISABLE KEYS */;
-INSERT INTO `sampledraft_AUD` VALUES (1,147,0,10,NULL,1,2,'2012-06-11 11:40:19',10,'input',3,1,NULL,NULL),(2,148,0,10,NULL,1,2,'2012-06-11 11:41:13',10,'IP',3,1,NULL,NULL);
-/*!40000 ALTER TABLE `sampledraft_AUD` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `sampledraftjobdraftcellselection`
 --
 
@@ -4053,36 +2228,6 @@ LOCK TABLES `sampledraftjobdraftcellselection` WRITE;
 /*!40000 ALTER TABLE `sampledraftjobdraftcellselection` DISABLE KEYS */;
 INSERT INTO `sampledraftjobdraftcellselection` VALUES (1,1,1,1),(2,2,2,1);
 /*!40000 ALTER TABLE `sampledraftjobdraftcellselection` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `sampledraftjobdraftcellselection_AUD`
---
-
-DROP TABLE IF EXISTS `sampledraftjobdraftcellselection_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `sampledraftjobdraftcellselection_AUD` (
-  `sampleDraftJobDraftCellSelectionId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `jobdraftcellselectionid` int(11) DEFAULT NULL,
-  `libraryindex` int(11) DEFAULT NULL,
-  `sampledraftid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`sampleDraftJobDraftCellSelectionId`,`REV`),
-  KEY `FK874E3960DF74E053` (`REV`),
-  CONSTRAINT `FK874E3960DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `sampledraftjobdraftcellselection_AUD`
---
-
-LOCK TABLES `sampledraftjobdraftcellselection_AUD` WRITE;
-/*!40000 ALTER TABLE `sampledraftjobdraftcellselection_AUD` DISABLE KEYS */;
-INSERT INTO `sampledraftjobdraftcellselection_AUD` VALUES (1,149,0,1,1,1),(2,149,0,2,1,2);
-/*!40000 ALTER TABLE `sampledraftjobdraftcellselection_AUD` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -4115,34 +2260,6 @@ LOCK TABLES `sampledraftmeta` WRITE;
 /*!40000 ALTER TABLE `sampledraftmeta` DISABLE KEYS */;
 INSERT INTO `sampledraftmeta` VALUES (1,1,'genericBiomolecule.species','Human',0,'2012-06-11 15:40:19',NULL),(2,1,'genericDna.concentration','50',0,'2012-06-11 15:40:19',NULL),(3,1,'genericDna.volume','59',0,'2012-06-11 15:40:19',NULL),(4,1,'genericDna.buffer','TE',0,'2012-06-11 15:40:19',NULL),(5,1,'genericDna.A260_280','1.8',0,'2012-06-11 15:40:19',NULL),(6,1,'genericDna.A260_230','1.6',0,'2012-06-11 15:40:19',NULL),(7,1,'chipseqDna.fragmentSize','500',0,'2012-06-11 15:40:19',NULL),(8,1,'chipseqDna.fragmentSizeSD','30',0,'2012-06-11 15:40:19',NULL),(9,1,'chipseqDna.antibody','',0,'2012-06-11 15:40:19',NULL),(10,2,'genericBiomolecule.species','Human',0,'2012-06-11 15:41:13',NULL),(11,2,'genericDna.concentration','40',0,'2012-06-11 15:41:13',NULL),(12,2,'genericDna.volume','49',0,'2012-06-11 15:41:13',NULL),(13,2,'genericDna.buffer','TE',0,'2012-06-11 15:41:13',NULL),(14,2,'genericDna.A260_280','1.8',0,'2012-06-11 15:41:13',NULL),(15,2,'genericDna.A260_230','1.65',0,'2012-06-11 15:41:13',NULL),(16,2,'chipseqDna.fragmentSize','500',0,'2012-06-11 15:41:13',NULL),(17,2,'chipseqDna.fragmentSizeSD','20',0,'2012-06-11 15:41:13',NULL),(18,2,'chipseqDna.antibody','anti-SRY (mouse monoclonal)',0,'2012-06-11 15:41:13',NULL);
 /*!40000 ALTER TABLE `sampledraftmeta` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `sampledraftmeta_AUD`
---
-
-DROP TABLE IF EXISTS `sampledraftmeta_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `sampledraftmeta_AUD` (
-  `sampleDraftMetaId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `sampledraftid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`sampleDraftMetaId`,`REV`),
-  KEY `FK5868908DDF74E053` (`REV`),
-  CONSTRAINT `FK5868908DDF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `sampledraftmeta_AUD`
---
-
-LOCK TABLES `sampledraftmeta_AUD` WRITE;
-/*!40000 ALTER TABLE `sampledraftmeta_AUD` DISABLE KEYS */;
-INSERT INTO `sampledraftmeta_AUD` VALUES (1,147,0,1),(2,147,0,1),(3,147,0,1),(4,147,0,1),(5,147,0,1),(6,147,0,1),(7,147,0,1),(8,147,0,1),(9,147,0,1),(10,148,0,2),(11,148,0,2),(12,148,0,2),(13,148,0,2),(14,148,0,2),(15,148,0,2),(16,148,0,2),(17,148,0,2),(18,148,0,2);
-/*!40000 ALTER TABLE `sampledraftmeta_AUD` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -4180,40 +2297,6 @@ LOCK TABLES `samplefile` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `samplefile_AUD`
---
-
-DROP TABLE IF EXISTS `samplefile_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `samplefile_AUD` (
-  `sampleFileId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `description` varchar(255) DEFAULT NULL,
-  `fileid` int(11) DEFAULT NULL,
-  `iname` varchar(255) DEFAULT NULL,
-  `isactive` int(11) DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  `sampleid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`sampleFileId`,`REV`),
-  KEY `FKA32130F7DF74E053` (`REV`),
-  CONSTRAINT `FKA32130F7DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `samplefile_AUD`
---
-
-LOCK TABLES `samplefile_AUD` WRITE;
-/*!40000 ALTER TABLE `samplefile_AUD` DISABLE KEYS */;
-/*!40000 ALTER TABLE `samplefile_AUD` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `samplejobcellselection`
 --
 
@@ -4241,36 +2324,6 @@ LOCK TABLES `samplejobcellselection` WRITE;
 /*!40000 ALTER TABLE `samplejobcellselection` DISABLE KEYS */;
 INSERT INTO `samplejobcellselection` VALUES (1,1,1,1),(2,2,2,1);
 /*!40000 ALTER TABLE `samplejobcellselection` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `samplejobcellselection_AUD`
---
-
-DROP TABLE IF EXISTS `samplejobcellselection_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `samplejobcellselection_AUD` (
-  `sampleJobCellSelectionId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `jobcellselectionid` int(11) DEFAULT NULL,
-  `libraryindex` int(11) DEFAULT NULL,
-  `sampleid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`sampleJobCellSelectionId`,`REV`),
-  KEY `FK5C21F1C8DF74E053` (`REV`),
-  CONSTRAINT `FK5C21F1C8DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `samplejobcellselection_AUD`
---
-
-LOCK TABLES `samplejobcellselection_AUD` WRITE;
-/*!40000 ALTER TABLE `samplejobcellselection_AUD` DISABLE KEYS */;
-INSERT INTO `samplejobcellselection_AUD` VALUES (1,155,0,1,1,1),(2,155,0,2,1,2);
-/*!40000 ALTER TABLE `samplejobcellselection_AUD` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -4302,37 +2355,6 @@ CREATE TABLE `samplelab` (
 LOCK TABLES `samplelab` WRITE;
 /*!40000 ALTER TABLE `samplelab` DISABLE KEYS */;
 /*!40000 ALTER TABLE `samplelab` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `samplelab_AUD`
---
-
-DROP TABLE IF EXISTS `samplelab_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `samplelab_AUD` (
-  `sampleLabId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `isprimary` int(11) DEFAULT NULL,
-  `labid` int(11) DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
-  `sampleid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`sampleLabId`,`REV`),
-  KEY `FKD99AF7F4DF74E053` (`REV`),
-  CONSTRAINT `FKD99AF7F4DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `samplelab_AUD`
---
-
-LOCK TABLES `samplelab_AUD` WRITE;
-/*!40000 ALTER TABLE `samplelab_AUD` DISABLE KEYS */;
-/*!40000 ALTER TABLE `samplelab_AUD` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -4368,34 +2390,6 @@ INSERT INTO `samplemeta` VALUES (1,1,'genericBiomolecule.species','Human',0,'201
 UNLOCK TABLES;
 
 --
--- Table structure for table `samplemeta_AUD`
---
-
-DROP TABLE IF EXISTS `samplemeta_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `samplemeta_AUD` (
-  `sampleMetaId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `sampleid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`sampleMetaId`,`REV`),
-  KEY `FKB41EE500DF74E053` (`REV`),
-  CONSTRAINT `FKB41EE500DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `samplemeta_AUD`
---
-
-LOCK TABLES `samplemeta_AUD` WRITE;
-/*!40000 ALTER TABLE `samplemeta_AUD` DISABLE KEYS */;
-INSERT INTO `samplemeta_AUD` VALUES (1,155,0,1),(2,155,0,1),(3,155,0,1),(4,155,0,1),(5,155,0,1),(6,155,0,1),(7,155,0,1),(8,155,0,1),(9,155,0,1),(10,155,0,2),(11,155,0,2),(12,155,0,2),(13,155,0,2),(14,155,0,2),(15,155,0,2),(16,155,0,2),(17,155,0,2),(18,155,0,2),(19,235,0,3),(20,235,0,3),(21,235,0,3),(22,235,0,3),(23,235,0,3),(24,235,0,3),(25,235,0,3),(26,240,0,4),(27,240,0,4);
-/*!40000 ALTER TABLE `samplemeta_AUD` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `samplesource`
 --
 
@@ -4425,38 +2419,6 @@ LOCK TABLES `samplesource` WRITE;
 /*!40000 ALTER TABLE `samplesource` DISABLE KEYS */;
 INSERT INTO `samplesource` VALUES (1,4,1,5,'2012-06-11 18:57:27',1),(2,4,2,6,'2012-06-11 18:57:27',1),(3,4,3,7,'2012-06-11 18:57:27',1),(4,4,4,8,'2012-06-11 18:57:27',1),(5,4,5,9,'2012-06-11 18:57:27',1),(6,4,6,10,'2012-06-11 18:57:27',1),(7,4,7,11,'2012-06-11 18:57:27',1),(8,4,8,12,'2012-06-11 18:57:27',1),(9,5,1,3,'2012-06-12 14:08:29',1),(10,6,1,3,'2012-06-12 14:55:15',1);
 /*!40000 ALTER TABLE `samplesource` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `samplesource_AUD`
---
-
-DROP TABLE IF EXISTS `samplesource_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `samplesource_AUD` (
-  `sampleSourceId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `indexvalue` int(11) DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
-  `sampleid` int(11) DEFAULT NULL,
-  `source_sampleid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`sampleSourceId`,`REV`),
-  KEY `FKA05CF996DF74E053` (`REV`),
-  CONSTRAINT `FKA05CF996DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `samplesource_AUD`
---
-
-LOCK TABLES `samplesource_AUD` WRITE;
-/*!40000 ALTER TABLE `samplesource_AUD` DISABLE KEYS */;
-INSERT INTO `samplesource_AUD` VALUES (1,240,0,1,'2012-06-11 14:57:27',1,4,5),(2,240,0,2,'2012-06-11 14:57:27',1,4,6),(3,240,0,3,'2012-06-11 14:57:27',1,4,7),(4,240,0,4,'2012-06-11 14:57:27',1,4,8),(5,240,0,5,'2012-06-11 14:57:27',1,4,9),(6,240,0,6,'2012-06-11 14:57:27',1,4,10),(7,240,0,7,'2012-06-11 14:57:27',1,4,11),(8,240,0,8,'2012-06-11 14:57:27',1,4,12),(9,413,0,1,'2012-06-12 10:08:29',1,5,3),(10,434,0,1,'2012-06-12 10:55:15',1,6,3);
-/*!40000 ALTER TABLE `samplesource_AUD` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -4492,34 +2454,6 @@ INSERT INTO `samplesourcemeta` VALUES (1,9,'LibraryOnCell.libConcInLanePicoM','1
 UNLOCK TABLES;
 
 --
--- Table structure for table `samplesourcemeta_AUD`
---
-
-DROP TABLE IF EXISTS `samplesourcemeta_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `samplesourcemeta_AUD` (
-  `sampleSourceMetaId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `samplesourceid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`sampleSourceMetaId`,`REV`),
-  KEY `FK24D61A9BDF74E053` (`REV`),
-  CONSTRAINT `FK24D61A9BDF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `samplesourcemeta_AUD`
---
-
-LOCK TABLES `samplesourcemeta_AUD` WRITE;
-/*!40000 ALTER TABLE `samplesourcemeta_AUD` DISABLE KEYS */;
-INSERT INTO `samplesourcemeta_AUD` VALUES (1,413,0,9),(2,413,0,9),(3,434,0,10),(4,434,0,10);
-/*!40000 ALTER TABLE `samplesourcemeta_AUD` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `samplesubtype`
 --
 
@@ -4548,38 +2482,6 @@ LOCK TABLES `samplesubtype` WRITE;
 /*!40000 ALTER TABLE `samplesubtype` DISABLE KEYS */;
 INSERT INTO `samplesubtype` VALUES (1,5,'illuminaFlowcellV3','Illumina Flow Cell Version 3',1,'illuminaFlowcellV3'),(2,3,'controlLibrarySample','Control Library',1,'genericBiomolecule,genericLibrary'),(3,1,'chipseqDnaSample','ChIP-seq DNA',1,'genericBiomolecule,genericDna,chipseqDna'),(4,3,'chipseqLibrarySample','ChIP-seq Library',1,'genericBiomolecule,chipseqDna,genericLibrary'),(5,3,'chipseqFacilityLibrarySample','ChIP-seq Facility Library',1,'genericLibrary'),(6,1,'bisulseqDnaSample','BISUL-seq DNA',1,'genericBiomolecule,genericDna,bisulseqDna'),(7,3,'bisulseqLibrarySample','BISUL-seq Library',1,'genericBiomolecule,bisulseqDna,genericLibrary'),(8,3,'bisulseqFacilityLibrarySample','BISUL-seq Facility Library',1,'genericLibrary'),(9,3,'helptagLibrarySample','HELP-tag Library',1,'genericBiomolecule,genericLibrary,helptagLibrary');
 /*!40000 ALTER TABLE `samplesubtype` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `samplesubtype_AUD`
---
-
-DROP TABLE IF EXISTS `samplesubtype_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `samplesubtype_AUD` (
-  `sampleSubtypeId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `arealist` varchar(255) DEFAULT NULL,
-  `iname` varchar(255) DEFAULT NULL,
-  `isactive` int(11) DEFAULT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  `sampletypeid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`sampleSubtypeId`,`REV`),
-  KEY `FK92994A61DF74E053` (`REV`),
-  CONSTRAINT `FK92994A61DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `samplesubtype_AUD`
---
-
-LOCK TABLES `samplesubtype_AUD` WRITE;
-/*!40000 ALTER TABLE `samplesubtype_AUD` DISABLE KEYS */;
-INSERT INTO `samplesubtype_AUD` VALUES (1,4,0,'illuminaFlowcellV3','illuminaFlowcellV3',1,'Illumina Flow Cell Version 3',5),(1,36,1,'illuminaFlowcellV3','illuminaFlowcellV3',1,'Illumina Flow Cell Version 3',5),(1,66,1,'illuminaFlowcellV3','illuminaFlowcellV3',1,'Illumina Flow Cell Version 3',5),(1,76,1,'illuminaFlowcellV3','illuminaFlowcellV3',1,'Illumina Flow Cell Version 3',5),(1,86,1,'illuminaFlowcellV3','illuminaFlowcellV3',1,'Illumina Flow Cell Version 3',5),(1,96,1,'illuminaFlowcellV3','illuminaFlowcellV3',1,'Illumina Flow Cell Version 3',5),(1,106,1,'illuminaFlowcellV3','illuminaFlowcellV3',1,'Illumina Flow Cell Version 3',5),(1,135,1,'illuminaFlowcellV3','illuminaFlowcellV3',1,'Illumina Flow Cell Version 3',5),(1,165,1,'illuminaFlowcellV3','illuminaFlowcellV3',1,'Illumina Flow Cell Version 3',5),(1,175,1,'illuminaFlowcellV3','illuminaFlowcellV3',1,'Illumina Flow Cell Version 3',5),(1,185,1,'illuminaFlowcellV3','illuminaFlowcellV3',1,'Illumina Flow Cell Version 3',5),(1,195,1,'illuminaFlowcellV3','illuminaFlowcellV3',1,'Illumina Flow Cell Version 3',5),(1,205,1,'illuminaFlowcellV3','illuminaFlowcellV3',1,'Illumina Flow Cell Version 3',5),(1,217,1,'illuminaFlowcellV3','illuminaFlowcellV3',1,'Illumina Flow Cell Version 3',5),(1,244,1,'illuminaFlowcellV3','illuminaFlowcellV3',1,'Illumina Flow Cell Version 3',5),(1,255,1,'illuminaFlowcellV3','illuminaFlowcellV3',1,'Illumina Flow Cell Version 3',5),(1,266,1,'illuminaFlowcellV3','illuminaFlowcellV3',1,'Illumina Flow Cell Version 3',5),(1,276,1,'illuminaFlowcellV3','illuminaFlowcellV3',1,'Illumina Flow Cell Version 3',5),(1,286,1,'illuminaFlowcellV3','illuminaFlowcellV3',1,'Illumina Flow Cell Version 3',5),(1,296,1,'illuminaFlowcellV3','illuminaFlowcellV3',1,'Illumina Flow Cell Version 3',5),(1,306,1,'illuminaFlowcellV3','illuminaFlowcellV3',1,'Illumina Flow Cell Version 3',5),(1,316,1,'illuminaFlowcellV3','illuminaFlowcellV3',1,'Illumina Flow Cell Version 3',5),(1,326,1,'illuminaFlowcellV3','illuminaFlowcellV3',1,'Illumina Flow Cell Version 3',5),(1,336,1,'illuminaFlowcellV3','illuminaFlowcellV3',1,'Illumina Flow Cell Version 3',5),(1,346,1,'illuminaFlowcellV3','illuminaFlowcellV3',1,'Illumina Flow Cell Version 3',5),(1,356,1,'illuminaFlowcellV3','illuminaFlowcellV3',1,'Illumina Flow Cell Version 3',5),(1,366,1,'illuminaFlowcellV3','illuminaFlowcellV3',1,'Illumina Flow Cell Version 3',5),(1,376,1,'illuminaFlowcellV3','illuminaFlowcellV3',1,'Illumina Flow Cell Version 3',5),(1,386,1,'illuminaFlowcellV3','illuminaFlowcellV3',1,'Illumina Flow Cell Version 3',5),(1,396,1,'illuminaFlowcellV3','illuminaFlowcellV3',1,'Illumina Flow Cell Version 3',5),(1,406,1,'illuminaFlowcellV3','illuminaFlowcellV3',1,'Illumina Flow Cell Version 3',5),(1,417,1,'illuminaFlowcellV3','illuminaFlowcellV3',1,'Illumina Flow Cell Version 3',5),(1,427,1,'illuminaFlowcellV3','illuminaFlowcellV3',1,'Illumina Flow Cell Version 3',5),(1,439,1,'illuminaFlowcellV3','illuminaFlowcellV3',1,'Illumina Flow Cell Version 3',5),(1,449,1,'illuminaFlowcellV3','illuminaFlowcellV3',1,'Illumina Flow Cell Version 3',5),(1,459,1,'illuminaFlowcellV3','illuminaFlowcellV3',1,'Illumina Flow Cell Version 3',5),(1,469,1,'illuminaFlowcellV3','illuminaFlowcellV3',1,'Illumina Flow Cell Version 3',5),(1,479,1,'illuminaFlowcellV3','illuminaFlowcellV3',1,'Illumina Flow Cell Version 3',5),(1,489,1,'illuminaFlowcellV3','illuminaFlowcellV3',1,'Illumina Flow Cell Version 3',5),(1,499,1,'illuminaFlowcellV3','illuminaFlowcellV3',1,'Illumina Flow Cell Version 3',5),(1,509,1,'illuminaFlowcellV3','illuminaFlowcellV3',1,'Illumina Flow Cell Version 3',5),(1,519,1,'illuminaFlowcellV3','illuminaFlowcellV3',1,'Illumina Flow Cell Version 3',5),(1,529,1,'illuminaFlowcellV3','illuminaFlowcellV3',1,'Illumina Flow Cell Version 3',5),(1,539,1,'illuminaFlowcellV3','illuminaFlowcellV3',1,'Illumina Flow Cell Version 3',5),(1,549,1,'illuminaFlowcellV3','illuminaFlowcellV3',1,'Illumina Flow Cell Version 3',5),(1,559,1,'illuminaFlowcellV3','illuminaFlowcellV3',1,'Illumina Flow Cell Version 3',5),(1,569,1,'illuminaFlowcellV3','illuminaFlowcellV3',1,'Illumina Flow Cell Version 3',5),(1,582,1,'illuminaFlowcellV3','illuminaFlowcellV3',1,'Illumina Flow Cell Version 3',5),(1,601,1,'illuminaFlowcellV3','illuminaFlowcellV3',1,'Illumina Flow Cell Version 3',5),(1,638,1,'illuminaFlowcellV3','illuminaFlowcellV3',1,'Illumina Flow Cell Version 3',5),(2,5,0,'genericBiomolecule,genericLibrary','controlLibrarySample',1,'Control Library',3),(2,37,1,'genericBiomolecule,genericLibrary','controlLibrarySample',1,'Control Library',3),(2,67,1,'genericBiomolecule,genericLibrary','controlLibrarySample',1,'Control Library',3),(2,77,1,'genericBiomolecule,genericLibrary','controlLibrarySample',1,'Control Library',3),(2,87,1,'genericBiomolecule,genericLibrary','controlLibrarySample',1,'Control Library',3),(2,97,1,'genericBiomolecule,genericLibrary','controlLibrarySample',1,'Control Library',3),(2,107,1,'genericBiomolecule,genericLibrary','controlLibrarySample',1,'Control Library',3),(2,136,1,'genericBiomolecule,genericLibrary','controlLibrarySample',1,'Control Library',3),(2,166,1,'genericBiomolecule,genericLibrary','controlLibrarySample',1,'Control Library',3),(2,176,1,'genericBiomolecule,genericLibrary','controlLibrarySample',1,'Control Library',3),(2,186,1,'genericBiomolecule,genericLibrary','controlLibrarySample',1,'Control Library',3),(2,196,1,'genericBiomolecule,genericLibrary','controlLibrarySample',1,'Control Library',3),(2,206,1,'genericBiomolecule,genericLibrary','controlLibrarySample',1,'Control Library',3),(2,218,1,'genericBiomolecule,genericLibrary','controlLibrarySample',1,'Control Library',3),(2,245,1,'genericBiomolecule,genericLibrary','controlLibrarySample',1,'Control Library',3),(2,256,1,'genericBiomolecule,genericLibrary','controlLibrarySample',1,'Control Library',3),(2,267,1,'genericBiomolecule,genericLibrary','controlLibrarySample',1,'Control Library',3),(2,277,1,'genericBiomolecule,genericLibrary','controlLibrarySample',1,'Control Library',3),(2,287,1,'genericBiomolecule,genericLibrary','controlLibrarySample',1,'Control Library',3),(2,297,1,'genericBiomolecule,genericLibrary','controlLibrarySample',1,'Control Library',3),(2,307,1,'genericBiomolecule,genericLibrary','controlLibrarySample',1,'Control Library',3),(2,317,1,'genericBiomolecule,genericLibrary','controlLibrarySample',1,'Control Library',3),(2,327,1,'genericBiomolecule,genericLibrary','controlLibrarySample',1,'Control Library',3),(2,337,1,'genericBiomolecule,genericLibrary','controlLibrarySample',1,'Control Library',3),(2,347,1,'genericBiomolecule,genericLibrary','controlLibrarySample',1,'Control Library',3),(2,357,1,'genericBiomolecule,genericLibrary','controlLibrarySample',1,'Control Library',3),(2,367,1,'genericBiomolecule,genericLibrary','controlLibrarySample',1,'Control Library',3),(2,377,1,'genericBiomolecule,genericLibrary','controlLibrarySample',1,'Control Library',3),(2,387,1,'genericBiomolecule,genericLibrary','controlLibrarySample',1,'Control Library',3),(2,397,1,'genericBiomolecule,genericLibrary','controlLibrarySample',1,'Control Library',3),(2,407,1,'genericBiomolecule,genericLibrary','controlLibrarySample',1,'Control Library',3),(2,418,1,'genericBiomolecule,genericLibrary','controlLibrarySample',1,'Control Library',3),(2,428,1,'genericBiomolecule,genericLibrary','controlLibrarySample',1,'Control Library',3),(2,440,1,'genericBiomolecule,genericLibrary','controlLibrarySample',1,'Control Library',3),(2,450,1,'genericBiomolecule,genericLibrary','controlLibrarySample',1,'Control Library',3),(2,460,1,'genericBiomolecule,genericLibrary','controlLibrarySample',1,'Control Library',3),(2,470,1,'genericBiomolecule,genericLibrary','controlLibrarySample',1,'Control Library',3),(2,480,1,'genericBiomolecule,genericLibrary','controlLibrarySample',1,'Control Library',3),(2,490,1,'genericBiomolecule,genericLibrary','controlLibrarySample',1,'Control Library',3),(2,500,1,'genericBiomolecule,genericLibrary','controlLibrarySample',1,'Control Library',3),(2,510,1,'genericBiomolecule,genericLibrary','controlLibrarySample',1,'Control Library',3),(2,520,1,'genericBiomolecule,genericLibrary','controlLibrarySample',1,'Control Library',3),(2,530,1,'genericBiomolecule,genericLibrary','controlLibrarySample',1,'Control Library',3),(2,540,1,'genericBiomolecule,genericLibrary','controlLibrarySample',1,'Control Library',3),(2,550,1,'genericBiomolecule,genericLibrary','controlLibrarySample',1,'Control Library',3),(2,560,1,'genericBiomolecule,genericLibrary','controlLibrarySample',1,'Control Library',3),(2,570,1,'genericBiomolecule,genericLibrary','controlLibrarySample',1,'Control Library',3),(2,581,1,'genericBiomolecule,genericLibrary','controlLibrarySample',1,'Control Library',3),(2,600,1,'genericBiomolecule,genericLibrary','controlLibrarySample',1,'Control Library',3),(2,637,1,'genericBiomolecule,genericLibrary','controlLibrarySample',1,'Control Library',3),(3,6,0,'genericBiomolecule,genericDna,chipseqDna','chipseqDnaSample',1,'ChIP-seq DNA',1),(3,38,1,'genericBiomolecule,genericDna,chipseqDna','chipseqDnaSample',1,'ChIP-seq DNA',1),(3,68,1,'genericBiomolecule,genericDna,chipseqDna','chipseqDnaSample',1,'ChIP-seq DNA',1),(3,78,1,'genericBiomolecule,genericDna,chipseqDna','chipseqDnaSample',1,'ChIP-seq DNA',1),(3,88,1,'genericBiomolecule,genericDna,chipseqDna','chipseqDnaSample',1,'ChIP-seq DNA',1),(3,98,1,'genericBiomolecule,genericDna,chipseqDna','chipseqDnaSample',1,'ChIP-seq DNA',1),(3,108,1,'genericBiomolecule,genericDna,chipseqDna','chipseqDnaSample',1,'ChIP-seq DNA',1),(3,137,1,'genericBiomolecule,genericDna,chipseqDna','chipseqDnaSample',1,'ChIP-seq DNA',1),(3,167,1,'genericBiomolecule,genericDna,chipseqDna','chipseqDnaSample',1,'ChIP-seq DNA',1),(3,177,1,'genericBiomolecule,genericDna,chipseqDna','chipseqDnaSample',1,'ChIP-seq DNA',1),(3,187,1,'genericBiomolecule,genericDna,chipseqDna','chipseqDnaSample',1,'ChIP-seq DNA',1),(3,197,1,'genericBiomolecule,genericDna,chipseqDna','chipseqDnaSample',1,'ChIP-seq DNA',1),(3,207,1,'genericBiomolecule,genericDna,chipseqDna','chipseqDnaSample',1,'ChIP-seq DNA',1),(3,219,1,'genericBiomolecule,genericDna,chipseqDna','chipseqDnaSample',1,'ChIP-seq DNA',1),(3,246,1,'genericBiomolecule,genericDna,chipseqDna','chipseqDnaSample',1,'ChIP-seq DNA',1),(3,257,1,'genericBiomolecule,genericDna,chipseqDna','chipseqDnaSample',1,'ChIP-seq DNA',1),(3,268,1,'genericBiomolecule,genericDna,chipseqDna','chipseqDnaSample',1,'ChIP-seq DNA',1),(3,278,1,'genericBiomolecule,genericDna,chipseqDna','chipseqDnaSample',1,'ChIP-seq DNA',1),(3,288,1,'genericBiomolecule,genericDna,chipseqDna','chipseqDnaSample',1,'ChIP-seq DNA',1),(3,298,1,'genericBiomolecule,genericDna,chipseqDna','chipseqDnaSample',1,'ChIP-seq DNA',1),(3,308,1,'genericBiomolecule,genericDna,chipseqDna','chipseqDnaSample',1,'ChIP-seq DNA',1),(3,318,1,'genericBiomolecule,genericDna,chipseqDna','chipseqDnaSample',1,'ChIP-seq DNA',1),(3,328,1,'genericBiomolecule,genericDna,chipseqDna','chipseqDnaSample',1,'ChIP-seq DNA',1),(3,338,1,'genericBiomolecule,genericDna,chipseqDna','chipseqDnaSample',1,'ChIP-seq DNA',1),(3,348,1,'genericBiomolecule,genericDna,chipseqDna','chipseqDnaSample',1,'ChIP-seq DNA',1),(3,358,1,'genericBiomolecule,genericDna,chipseqDna','chipseqDnaSample',1,'ChIP-seq DNA',1),(3,368,1,'genericBiomolecule,genericDna,chipseqDna','chipseqDnaSample',1,'ChIP-seq DNA',1),(3,378,1,'genericBiomolecule,genericDna,chipseqDna','chipseqDnaSample',1,'ChIP-seq DNA',1),(3,388,1,'genericBiomolecule,genericDna,chipseqDna','chipseqDnaSample',1,'ChIP-seq DNA',1),(3,398,1,'genericBiomolecule,genericDna,chipseqDna','chipseqDnaSample',1,'ChIP-seq DNA',1),(3,408,1,'genericBiomolecule,genericDna,chipseqDna','chipseqDnaSample',1,'ChIP-seq DNA',1),(3,419,1,'genericBiomolecule,genericDna,chipseqDna','chipseqDnaSample',1,'ChIP-seq DNA',1),(3,429,1,'genericBiomolecule,genericDna,chipseqDna','chipseqDnaSample',1,'ChIP-seq DNA',1),(3,441,1,'genericBiomolecule,genericDna,chipseqDna','chipseqDnaSample',1,'ChIP-seq DNA',1),(3,451,1,'genericBiomolecule,genericDna,chipseqDna','chipseqDnaSample',1,'ChIP-seq DNA',1),(3,461,1,'genericBiomolecule,genericDna,chipseqDna','chipseqDnaSample',1,'ChIP-seq DNA',1),(3,471,1,'genericBiomolecule,genericDna,chipseqDna','chipseqDnaSample',1,'ChIP-seq DNA',1),(3,481,1,'genericBiomolecule,genericDna,chipseqDna','chipseqDnaSample',1,'ChIP-seq DNA',1),(3,491,1,'genericBiomolecule,genericDna,chipseqDna','chipseqDnaSample',1,'ChIP-seq DNA',1),(3,501,1,'genericBiomolecule,genericDna,chipseqDna','chipseqDnaSample',1,'ChIP-seq DNA',1),(3,511,1,'genericBiomolecule,genericDna,chipseqDna','chipseqDnaSample',1,'ChIP-seq DNA',1),(3,521,1,'genericBiomolecule,genericDna,chipseqDna','chipseqDnaSample',1,'ChIP-seq DNA',1),(3,531,1,'genericBiomolecule,genericDna,chipseqDna','chipseqDnaSample',1,'ChIP-seq DNA',1),(3,541,1,'genericBiomolecule,genericDna,chipseqDna','chipseqDnaSample',1,'ChIP-seq DNA',1),(3,551,1,'genericBiomolecule,genericDna,chipseqDna','chipseqDnaSample',1,'ChIP-seq DNA',1),(3,561,1,'genericBiomolecule,genericDna,chipseqDna','chipseqDnaSample',1,'ChIP-seq DNA',1),(3,571,1,'genericBiomolecule,genericDna,chipseqDna','chipseqDnaSample',1,'ChIP-seq DNA',1),(3,586,1,'genericBiomolecule,genericDna,chipseqDna','chipseqDnaSample',1,'ChIP-seq DNA',1),(3,605,1,'genericBiomolecule,genericDna,chipseqDna','chipseqDnaSample',1,'ChIP-seq DNA',1),(3,642,1,'genericBiomolecule,genericDna,chipseqDna','chipseqDnaSample',1,'ChIP-seq DNA',1),(4,7,0,'genericBiomolecule,chipseqDna,genericLibrary','chipseqLibrarySample',1,'ChIP-seq Library',3),(4,39,1,'genericBiomolecule,chipseqDna,genericLibrary','chipseqLibrarySample',1,'ChIP-seq Library',3),(4,69,1,'genericBiomolecule,chipseqDna,genericLibrary','chipseqLibrarySample',1,'ChIP-seq Library',3),(4,79,1,'genericBiomolecule,chipseqDna,genericLibrary','chipseqLibrarySample',1,'ChIP-seq Library',3),(4,89,1,'genericBiomolecule,chipseqDna,genericLibrary','chipseqLibrarySample',1,'ChIP-seq Library',3),(4,99,1,'genericBiomolecule,chipseqDna,genericLibrary','chipseqLibrarySample',1,'ChIP-seq Library',3),(4,109,1,'genericBiomolecule,chipseqDna,genericLibrary','chipseqLibrarySample',1,'ChIP-seq Library',3),(4,138,1,'genericBiomolecule,chipseqDna,genericLibrary','chipseqLibrarySample',1,'ChIP-seq Library',3),(4,168,1,'genericBiomolecule,chipseqDna,genericLibrary','chipseqLibrarySample',1,'ChIP-seq Library',3),(4,178,1,'genericBiomolecule,chipseqDna,genericLibrary','chipseqLibrarySample',1,'ChIP-seq Library',3),(4,188,1,'genericBiomolecule,chipseqDna,genericLibrary','chipseqLibrarySample',1,'ChIP-seq Library',3),(4,198,1,'genericBiomolecule,chipseqDna,genericLibrary','chipseqLibrarySample',1,'ChIP-seq Library',3),(4,208,1,'genericBiomolecule,chipseqDna,genericLibrary','chipseqLibrarySample',1,'ChIP-seq Library',3),(4,220,1,'genericBiomolecule,chipseqDna,genericLibrary','chipseqLibrarySample',1,'ChIP-seq Library',3),(4,247,1,'genericBiomolecule,chipseqDna,genericLibrary','chipseqLibrarySample',1,'ChIP-seq Library',3),(4,258,1,'genericBiomolecule,chipseqDna,genericLibrary','chipseqLibrarySample',1,'ChIP-seq Library',3),(4,269,1,'genericBiomolecule,chipseqDna,genericLibrary','chipseqLibrarySample',1,'ChIP-seq Library',3),(4,279,1,'genericBiomolecule,chipseqDna,genericLibrary','chipseqLibrarySample',1,'ChIP-seq Library',3),(4,289,1,'genericBiomolecule,chipseqDna,genericLibrary','chipseqLibrarySample',1,'ChIP-seq Library',3),(4,299,1,'genericBiomolecule,chipseqDna,genericLibrary','chipseqLibrarySample',1,'ChIP-seq Library',3),(4,309,1,'genericBiomolecule,chipseqDna,genericLibrary','chipseqLibrarySample',1,'ChIP-seq Library',3),(4,319,1,'genericBiomolecule,chipseqDna,genericLibrary','chipseqLibrarySample',1,'ChIP-seq Library',3),(4,329,1,'genericBiomolecule,chipseqDna,genericLibrary','chipseqLibrarySample',1,'ChIP-seq Library',3),(4,339,1,'genericBiomolecule,chipseqDna,genericLibrary','chipseqLibrarySample',1,'ChIP-seq Library',3),(4,349,1,'genericBiomolecule,chipseqDna,genericLibrary','chipseqLibrarySample',1,'ChIP-seq Library',3),(4,359,1,'genericBiomolecule,chipseqDna,genericLibrary','chipseqLibrarySample',1,'ChIP-seq Library',3),(4,369,1,'genericBiomolecule,chipseqDna,genericLibrary','chipseqLibrarySample',1,'ChIP-seq Library',3),(4,379,1,'genericBiomolecule,chipseqDna,genericLibrary','chipseqLibrarySample',1,'ChIP-seq Library',3),(4,389,1,'genericBiomolecule,chipseqDna,genericLibrary','chipseqLibrarySample',1,'ChIP-seq Library',3),(4,399,1,'genericBiomolecule,chipseqDna,genericLibrary','chipseqLibrarySample',1,'ChIP-seq Library',3),(4,409,1,'genericBiomolecule,chipseqDna,genericLibrary','chipseqLibrarySample',1,'ChIP-seq Library',3),(4,420,1,'genericBiomolecule,chipseqDna,genericLibrary','chipseqLibrarySample',1,'ChIP-seq Library',3),(4,430,1,'genericBiomolecule,chipseqDna,genericLibrary','chipseqLibrarySample',1,'ChIP-seq Library',3),(4,442,1,'genericBiomolecule,chipseqDna,genericLibrary','chipseqLibrarySample',1,'ChIP-seq Library',3),(4,452,1,'genericBiomolecule,chipseqDna,genericLibrary','chipseqLibrarySample',1,'ChIP-seq Library',3),(4,462,1,'genericBiomolecule,chipseqDna,genericLibrary','chipseqLibrarySample',1,'ChIP-seq Library',3),(4,472,1,'genericBiomolecule,chipseqDna,genericLibrary','chipseqLibrarySample',1,'ChIP-seq Library',3),(4,482,1,'genericBiomolecule,chipseqDna,genericLibrary','chipseqLibrarySample',1,'ChIP-seq Library',3),(4,492,1,'genericBiomolecule,chipseqDna,genericLibrary','chipseqLibrarySample',1,'ChIP-seq Library',3),(4,502,1,'genericBiomolecule,chipseqDna,genericLibrary','chipseqLibrarySample',1,'ChIP-seq Library',3),(4,512,1,'genericBiomolecule,chipseqDna,genericLibrary','chipseqLibrarySample',1,'ChIP-seq Library',3),(4,522,1,'genericBiomolecule,chipseqDna,genericLibrary','chipseqLibrarySample',1,'ChIP-seq Library',3),(4,532,1,'genericBiomolecule,chipseqDna,genericLibrary','chipseqLibrarySample',1,'ChIP-seq Library',3),(4,542,1,'genericBiomolecule,chipseqDna,genericLibrary','chipseqLibrarySample',1,'ChIP-seq Library',3),(4,552,1,'genericBiomolecule,chipseqDna,genericLibrary','chipseqLibrarySample',1,'ChIP-seq Library',3),(4,562,1,'genericBiomolecule,chipseqDna,genericLibrary','chipseqLibrarySample',1,'ChIP-seq Library',3),(4,572,1,'genericBiomolecule,chipseqDna,genericLibrary','chipseqLibrarySample',1,'ChIP-seq Library',3),(4,587,1,'genericBiomolecule,chipseqDna,genericLibrary','chipseqLibrarySample',1,'ChIP-seq Library',3),(4,606,1,'genericBiomolecule,chipseqDna,genericLibrary','chipseqLibrarySample',1,'ChIP-seq Library',3),(4,643,1,'genericBiomolecule,chipseqDna,genericLibrary','chipseqLibrarySample',1,'ChIP-seq Library',3),(5,8,0,'genericLibrary','chipseqFacilityLibrarySample',1,'ChIP-seq Facility Library',3),(5,40,1,'genericLibrary','chipseqFacilityLibrarySample',1,'ChIP-seq Facility Library',3),(5,70,1,'genericLibrary','chipseqFacilityLibrarySample',1,'ChIP-seq Facility Library',3),(5,80,1,'genericLibrary','chipseqFacilityLibrarySample',1,'ChIP-seq Facility Library',3),(5,90,1,'genericLibrary','chipseqFacilityLibrarySample',1,'ChIP-seq Facility Library',3),(5,100,1,'genericLibrary','chipseqFacilityLibrarySample',1,'ChIP-seq Facility Library',3),(5,110,1,'genericLibrary','chipseqFacilityLibrarySample',1,'ChIP-seq Facility Library',3),(5,139,1,'genericLibrary','chipseqFacilityLibrarySample',1,'ChIP-seq Facility Library',3),(5,169,1,'genericLibrary','chipseqFacilityLibrarySample',1,'ChIP-seq Facility Library',3),(5,179,1,'genericLibrary','chipseqFacilityLibrarySample',1,'ChIP-seq Facility Library',3),(5,189,1,'genericLibrary','chipseqFacilityLibrarySample',1,'ChIP-seq Facility Library',3),(5,199,1,'genericLibrary','chipseqFacilityLibrarySample',1,'ChIP-seq Facility Library',3),(5,209,1,'genericLibrary','chipseqFacilityLibrarySample',1,'ChIP-seq Facility Library',3),(5,221,1,'genericLibrary','chipseqFacilityLibrarySample',1,'ChIP-seq Facility Library',3),(5,248,1,'genericLibrary','chipseqFacilityLibrarySample',1,'ChIP-seq Facility Library',3),(5,259,1,'genericLibrary','chipseqFacilityLibrarySample',1,'ChIP-seq Facility Library',3),(5,270,1,'genericLibrary','chipseqFacilityLibrarySample',1,'ChIP-seq Facility Library',3),(5,280,1,'genericLibrary','chipseqFacilityLibrarySample',1,'ChIP-seq Facility Library',3),(5,290,1,'genericLibrary','chipseqFacilityLibrarySample',1,'ChIP-seq Facility Library',3),(5,300,1,'genericLibrary','chipseqFacilityLibrarySample',1,'ChIP-seq Facility Library',3),(5,310,1,'genericLibrary','chipseqFacilityLibrarySample',1,'ChIP-seq Facility Library',3),(5,320,1,'genericLibrary','chipseqFacilityLibrarySample',1,'ChIP-seq Facility Library',3),(5,330,1,'genericLibrary','chipseqFacilityLibrarySample',1,'ChIP-seq Facility Library',3),(5,340,1,'genericLibrary','chipseqFacilityLibrarySample',1,'ChIP-seq Facility Library',3),(5,350,1,'genericLibrary','chipseqFacilityLibrarySample',1,'ChIP-seq Facility Library',3),(5,360,1,'genericLibrary','chipseqFacilityLibrarySample',1,'ChIP-seq Facility Library',3),(5,370,1,'genericLibrary','chipseqFacilityLibrarySample',1,'ChIP-seq Facility Library',3),(5,380,1,'genericLibrary','chipseqFacilityLibrarySample',1,'ChIP-seq Facility Library',3),(5,390,1,'genericLibrary','chipseqFacilityLibrarySample',1,'ChIP-seq Facility Library',3),(5,400,1,'genericLibrary','chipseqFacilityLibrarySample',1,'ChIP-seq Facility Library',3),(5,410,1,'genericLibrary','chipseqFacilityLibrarySample',1,'ChIP-seq Facility Library',3),(5,421,1,'genericLibrary','chipseqFacilityLibrarySample',1,'ChIP-seq Facility Library',3),(5,431,1,'genericLibrary','chipseqFacilityLibrarySample',1,'ChIP-seq Facility Library',3),(5,443,1,'genericLibrary','chipseqFacilityLibrarySample',1,'ChIP-seq Facility Library',3),(5,453,1,'genericLibrary','chipseqFacilityLibrarySample',1,'ChIP-seq Facility Library',3),(5,463,1,'genericLibrary','chipseqFacilityLibrarySample',1,'ChIP-seq Facility Library',3),(5,473,1,'genericLibrary','chipseqFacilityLibrarySample',1,'ChIP-seq Facility Library',3),(5,483,1,'genericLibrary','chipseqFacilityLibrarySample',1,'ChIP-seq Facility Library',3),(5,493,1,'genericLibrary','chipseqFacilityLibrarySample',1,'ChIP-seq Facility Library',3),(5,503,1,'genericLibrary','chipseqFacilityLibrarySample',1,'ChIP-seq Facility Library',3),(5,513,1,'genericLibrary','chipseqFacilityLibrarySample',1,'ChIP-seq Facility Library',3),(5,523,1,'genericLibrary','chipseqFacilityLibrarySample',1,'ChIP-seq Facility Library',3),(5,533,1,'genericLibrary','chipseqFacilityLibrarySample',1,'ChIP-seq Facility Library',3),(5,543,1,'genericLibrary','chipseqFacilityLibrarySample',1,'ChIP-seq Facility Library',3),(5,553,1,'genericLibrary','chipseqFacilityLibrarySample',1,'ChIP-seq Facility Library',3),(5,563,1,'genericLibrary','chipseqFacilityLibrarySample',1,'ChIP-seq Facility Library',3),(5,573,1,'genericLibrary','chipseqFacilityLibrarySample',1,'ChIP-seq Facility Library',3),(5,588,1,'genericLibrary','chipseqFacilityLibrarySample',1,'ChIP-seq Facility Library',3),(5,607,1,'genericLibrary','chipseqFacilityLibrarySample',1,'ChIP-seq Facility Library',3),(5,644,1,'genericLibrary','chipseqFacilityLibrarySample',1,'ChIP-seq Facility Library',3),(6,583,0,'genericBiomolecule,genericDna,bisulseqDna','bisulseqDnaSample',1,'BISUL-seq DNA',1),(6,602,1,'genericBiomolecule,genericDna,bisulseqDna','bisulseqDnaSample',1,'BISUL-seq DNA',1),(6,639,1,'genericBiomolecule,genericDna,bisulseqDna','bisulseqDnaSample',1,'BISUL-seq DNA',1),(7,584,0,'genericBiomolecule,bisulseqDna,genericLibrary','bisulseqLibrarySample',1,'BISUL-seq Library',3),(7,603,1,'genericBiomolecule,bisulseqDna,genericLibrary','bisulseqLibrarySample',1,'BISUL-seq Library',3),(7,640,1,'genericBiomolecule,bisulseqDna,genericLibrary','bisulseqLibrarySample',1,'BISUL-seq Library',3),(8,585,0,'genericLibrary','bisulseqFacilityLibrarySample',1,'BISUL-seq Facility Library',3),(8,604,1,'genericLibrary','bisulseqFacilityLibrarySample',1,'BISUL-seq Facility Library',3),(8,641,1,'genericLibrary','bisulseqFacilityLibrarySample',1,'BISUL-seq Facility Library',3),(9,589,0,'genericBiomolecule,genericLibrary,helptagLibrary','helptagLibrarySample',1,'HELP-tag Library',3),(9,608,1,'genericBiomolecule,genericLibrary,helptagLibrary','helptagLibrarySample',1,'HELP-tag Library',3),(9,645,1,'genericBiomolecule,genericLibrary,helptagLibrary','helptagLibrarySample',1,'HELP-tag Library',3);
-/*!40000 ALTER TABLE `samplesubtype_AUD` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -4615,34 +2517,6 @@ INSERT INTO `samplesubtypemeta` VALUES (1,1,'illuminaFlowcellV3.maxCellNumber','
 UNLOCK TABLES;
 
 --
--- Table structure for table `samplesubtypemeta_AUD`
---
-
-DROP TABLE IF EXISTS `samplesubtypemeta_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `samplesubtypemeta_AUD` (
-  `sampleSubtypeMetaId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `samplesubtypeid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`sampleSubtypeMetaId`,`REV`),
-  KEY `FKB970DE6DF74E053` (`REV`),
-  CONSTRAINT `FKB970DE6DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `samplesubtypemeta_AUD`
---
-
-LOCK TABLES `samplesubtypemeta_AUD` WRITE;
-/*!40000 ALTER TABLE `samplesubtypemeta_AUD` DISABLE KEYS */;
-INSERT INTO `samplesubtypemeta_AUD` VALUES (1,4,0,1),(2,4,0,1),(3,5,0,2),(4,6,0,3),(5,7,0,4),(6,8,0,5),(7,583,0,6),(8,584,0,7),(9,585,0,8),(10,589,0,9);
-/*!40000 ALTER TABLE `samplesubtypemeta_AUD` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `samplesubtyperesourcecategory`
 --
 
@@ -4669,35 +2543,6 @@ LOCK TABLES `samplesubtyperesourcecategory` WRITE;
 /*!40000 ALTER TABLE `samplesubtyperesourcecategory` DISABLE KEYS */;
 INSERT INTO `samplesubtyperesourcecategory` VALUES (1,1,1);
 /*!40000 ALTER TABLE `samplesubtyperesourcecategory` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `samplesubtyperesourcecategory_AUD`
---
-
-DROP TABLE IF EXISTS `samplesubtyperesourcecategory_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `samplesubtyperesourcecategory_AUD` (
-  `sampleSubtypeResourceCategoryId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `resourcecategoryid` int(11) DEFAULT NULL,
-  `samplesubtypeid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`sampleSubtypeResourceCategoryId`,`REV`),
-  KEY `FK44FE576DDF74E053` (`REV`),
-  CONSTRAINT `FK44FE576DDF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `samplesubtyperesourcecategory_AUD`
---
-
-LOCK TABLES `samplesubtyperesourcecategory_AUD` WRITE;
-/*!40000 ALTER TABLE `samplesubtyperesourcecategory_AUD` DISABLE KEYS */;
-INSERT INTO `samplesubtyperesourcecategory_AUD` VALUES (1,4,0,1,1);
-/*!40000 ALTER TABLE `samplesubtyperesourcecategory_AUD` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -4730,35 +2575,6 @@ INSERT INTO `sampletype` VALUES (1,1,'dna','DNA'),(2,1,'rna','RNA'),(3,1,'librar
 UNLOCK TABLES;
 
 --
--- Table structure for table `sampletype_AUD`
---
-
-DROP TABLE IF EXISTS `sampletype_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `sampletype_AUD` (
-  `sampleTypeId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `iname` varchar(255) DEFAULT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  `sampletypecategoryid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`sampleTypeId`,`REV`),
-  KEY `FKA6A8BBB5DF74E053` (`REV`),
-  CONSTRAINT `FKA6A8BBB5DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `sampletype_AUD`
---
-
-LOCK TABLES `sampletype_AUD` WRITE;
-/*!40000 ALTER TABLE `sampletype_AUD` DISABLE KEYS */;
-/*!40000 ALTER TABLE `sampletype_AUD` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `sampletypecategory`
 --
 
@@ -4782,34 +2598,6 @@ LOCK TABLES `sampletypecategory` WRITE;
 /*!40000 ALTER TABLE `sampletypecategory` DISABLE KEYS */;
 INSERT INTO `sampletypecategory` VALUES (1,'biomaterial','Biomaterial'),(2,'hardware','Hardware');
 /*!40000 ALTER TABLE `sampletypecategory` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `sampletypecategory_AUD`
---
-
-DROP TABLE IF EXISTS `sampletypecategory_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `sampletypecategory_AUD` (
-  `sampleTypecategoryId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `iname` varchar(255) DEFAULT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`sampleTypecategoryId`,`REV`),
-  KEY `FK41FEA5B3DF74E053` (`REV`),
-  CONSTRAINT `FK41FEA5B3DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `sampletypecategory_AUD`
---
-
-LOCK TABLES `sampletypecategory_AUD` WRITE;
-/*!40000 ALTER TABLE `sampletypecategory_AUD` DISABLE KEYS */;
-/*!40000 ALTER TABLE `sampletypecategory_AUD` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -4845,39 +2633,6 @@ INSERT INTO `software` VALUES (1,3,'bowtieAligner','Bowtie Aligner',1,'2012-06-1
 UNLOCK TABLES;
 
 --
--- Table structure for table `software_AUD`
---
-
-DROP TABLE IF EXISTS `software_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `software_AUD` (
-  `softwareId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `iname` varchar(255) DEFAULT NULL,
-  `isactive` int(11) DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  `resourcetypeid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`softwareId`,`REV`),
-  KEY `FKA56863F8DF74E053` (`REV`),
-  CONSTRAINT `FKA56863F8DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `software_AUD`
---
-
-LOCK TABLES `software_AUD` WRITE;
-/*!40000 ALTER TABLE `software_AUD` DISABLE KEYS */;
-INSERT INTO `software_AUD` VALUES (1,2,0,'bowtieAligner',1,'2012-05-23 12:08:19',0,'Bowtie Aligner',3),(1,34,1,'bowtieAligner',1,'2012-05-29 09:46:26',0,'Bowtie Aligner',3),(1,64,1,'bowtieAligner',1,'2012-05-30 18:05:16',0,'Bowtie Aligner',3),(1,74,1,'bowtieAligner',1,'2012-05-31 09:24:11',0,'Bowtie Aligner',3),(1,84,1,'bowtieAligner',1,'2012-05-31 09:26:55',0,'Bowtie Aligner',3),(1,94,1,'bowtieAligner',1,'2012-05-31 09:28:30',0,'Bowtie Aligner',3),(1,104,1,'bowtieAligner',1,'2012-05-31 09:29:36',0,'Bowtie Aligner',3),(1,133,1,'bowtieAligner',1,'2012-06-11 11:31:25',0,'Bowtie Aligner',3),(1,163,1,'bowtieAligner',1,'2012-06-11 13:49:12',0,'Bowtie Aligner',3),(1,173,1,'bowtieAligner',1,'2012-06-11 13:58:15',0,'Bowtie Aligner',3),(1,183,1,'bowtieAligner',1,'2012-06-11 14:02:34',0,'Bowtie Aligner',3),(1,193,1,'bowtieAligner',1,'2012-06-11 14:03:12',0,'Bowtie Aligner',3),(1,203,1,'bowtieAligner',1,'2012-06-11 14:20:01',0,'Bowtie Aligner',3),(1,215,1,'bowtieAligner',1,'2012-06-11 14:35:46',0,'Bowtie Aligner',3),(1,242,1,'bowtieAligner',1,'2012-06-11 15:33:06',0,'Bowtie Aligner',3),(1,253,1,'bowtieAligner',1,'2012-06-11 15:45:19',0,'Bowtie Aligner',3),(1,264,1,'bowtieAligner',1,'2012-06-11 15:47:17',0,'Bowtie Aligner',3),(1,274,1,'bowtieAligner',1,'2012-06-11 16:33:09',0,'Bowtie Aligner',3),(1,284,1,'bowtieAligner',1,'2012-06-11 16:34:51',0,'Bowtie Aligner',3),(1,294,1,'bowtieAligner',1,'2012-06-11 16:55:00',0,'Bowtie Aligner',3),(1,304,1,'bowtieAligner',1,'2012-06-11 16:59:19',0,'Bowtie Aligner',3),(1,314,1,'bowtieAligner',1,'2012-06-11 17:45:42',0,'Bowtie Aligner',3),(1,324,1,'bowtieAligner',1,'2012-06-11 17:50:09',0,'Bowtie Aligner',3),(1,334,1,'bowtieAligner',1,'2012-06-11 17:50:51',0,'Bowtie Aligner',3),(1,344,1,'bowtieAligner',1,'2012-06-12 09:11:38',0,'Bowtie Aligner',3),(1,354,1,'bowtieAligner',1,'2012-06-12 09:19:00',0,'Bowtie Aligner',3),(1,364,1,'bowtieAligner',1,'2012-06-12 09:43:13',0,'Bowtie Aligner',3),(1,374,1,'bowtieAligner',1,'2012-06-12 09:55:14',0,'Bowtie Aligner',3),(1,384,1,'bowtieAligner',1,'2012-06-12 09:57:37',0,'Bowtie Aligner',3),(1,394,1,'bowtieAligner',1,'2012-06-12 09:58:47',0,'Bowtie Aligner',3),(1,404,1,'bowtieAligner',1,'2012-06-12 10:02:55',0,'Bowtie Aligner',3),(1,415,1,'bowtieAligner',1,'2012-06-12 10:53:34',0,'Bowtie Aligner',3),(1,425,1,'bowtieAligner',1,'2012-06-12 10:54:54',0,'Bowtie Aligner',3),(1,437,1,'bowtieAligner',1,'2012-06-12 11:16:35',0,'Bowtie Aligner',3),(1,447,1,'bowtieAligner',1,'2012-06-12 11:18:47',0,'Bowtie Aligner',3),(1,457,1,'bowtieAligner',1,'2012-06-12 11:53:54',0,'Bowtie Aligner',3),(1,467,1,'bowtieAligner',1,'2012-06-12 13:12:44',0,'Bowtie Aligner',3),(1,477,1,'bowtieAligner',1,'2012-06-12 13:42:15',0,'Bowtie Aligner',3),(1,487,1,'bowtieAligner',1,'2012-06-12 13:43:53',0,'Bowtie Aligner',3),(1,497,1,'bowtieAligner',1,'2012-06-12 13:46:47',0,'Bowtie Aligner',3),(1,507,1,'bowtieAligner',1,'2012-06-12 14:04:14',0,'Bowtie Aligner',3),(1,517,1,'bowtieAligner',1,'2012-06-12 14:07:08',0,'Bowtie Aligner',3),(1,527,1,'bowtieAligner',1,'2012-06-12 14:10:18',0,'Bowtie Aligner',3),(1,537,1,'bowtieAligner',1,'2012-06-12 14:17:32',0,'Bowtie Aligner',3),(1,547,1,'bowtieAligner',1,'2012-06-12 14:20:59',0,'Bowtie Aligner',3),(1,557,1,'bowtieAligner',1,'2012-06-12 14:23:14',0,'Bowtie Aligner',3),(1,567,1,'bowtieAligner',1,'2012-06-12 14:24:56',0,'Bowtie Aligner',3),(1,578,1,'bowtieAligner',1,'2012-06-13 16:02:48',0,'Bowtie Aligner',3),(1,597,1,'bowtieAligner',1,'2012-06-13 17:30:35',0,'Bowtie Aligner',3),(1,634,1,'bowtieAligner',1,'2012-06-13 19:23:11',0,'Bowtie Aligner',3),(2,3,0,'macsPeakcaller',1,'2012-05-23 12:08:19',0,'MACS Peakcaller',4),(2,35,1,'macsPeakcaller',1,'2012-05-29 09:46:26',0,'MACS Peakcaller',4),(2,65,1,'macsPeakcaller',1,'2012-05-30 18:05:16',0,'MACS Peakcaller',4),(2,75,1,'macsPeakcaller',1,'2012-05-31 09:24:11',0,'MACS Peakcaller',4),(2,85,1,'macsPeakcaller',1,'2012-05-31 09:26:55',0,'MACS Peakcaller',4),(2,95,1,'macsPeakcaller',1,'2012-05-31 09:28:30',0,'MACS Peakcaller',4),(2,105,1,'macsPeakcaller',1,'2012-05-31 09:29:36',0,'MACS Peakcaller',4),(2,134,1,'macsPeakcaller',1,'2012-06-11 11:31:25',0,'MACS Peakcaller',4),(2,164,1,'macsPeakcaller',1,'2012-06-11 13:49:12',0,'MACS Peakcaller',4),(2,174,1,'macsPeakcaller',1,'2012-06-11 13:58:16',0,'MACS Peakcaller',4),(2,184,1,'macsPeakcaller',1,'2012-06-11 14:02:34',0,'MACS Peakcaller',4),(2,194,1,'macsPeakcaller',1,'2012-06-11 14:03:12',0,'MACS Peakcaller',4),(2,204,1,'macsPeakcaller',1,'2012-06-11 14:20:01',0,'MACS Peakcaller',4),(2,216,1,'macsPeakcaller',1,'2012-06-11 14:35:47',0,'MACS Peakcaller',4),(2,243,1,'macsPeakcaller',1,'2012-06-11 15:33:07',0,'MACS Peakcaller',4),(2,254,1,'macsPeakcaller',1,'2012-06-11 15:45:20',0,'MACS Peakcaller',4),(2,265,1,'macsPeakcaller',1,'2012-06-11 15:47:18',0,'MACS Peakcaller',4),(2,275,1,'macsPeakcaller',1,'2012-06-11 16:33:09',0,'MACS Peakcaller',4),(2,285,1,'macsPeakcaller',1,'2012-06-11 16:34:51',0,'MACS Peakcaller',4),(2,295,1,'macsPeakcaller',1,'2012-06-11 16:55:01',0,'MACS Peakcaller',4),(2,305,1,'macsPeakcaller',1,'2012-06-11 16:59:20',0,'MACS Peakcaller',4),(2,315,1,'macsPeakcaller',1,'2012-06-11 17:45:42',0,'MACS Peakcaller',4),(2,325,1,'macsPeakcaller',1,'2012-06-11 17:50:09',0,'MACS Peakcaller',4),(2,335,1,'macsPeakcaller',1,'2012-06-11 17:50:52',0,'MACS Peakcaller',4),(2,345,1,'macsPeakcaller',1,'2012-06-12 09:11:39',0,'MACS Peakcaller',4),(2,355,1,'macsPeakcaller',1,'2012-06-12 09:19:00',0,'MACS Peakcaller',4),(2,365,1,'macsPeakcaller',1,'2012-06-12 09:43:13',0,'MACS Peakcaller',4),(2,375,1,'macsPeakcaller',1,'2012-06-12 09:55:14',0,'MACS Peakcaller',4),(2,385,1,'macsPeakcaller',1,'2012-06-12 09:57:37',0,'MACS Peakcaller',4),(2,395,1,'macsPeakcaller',1,'2012-06-12 09:58:47',0,'MACS Peakcaller',4),(2,405,1,'macsPeakcaller',1,'2012-06-12 10:02:55',0,'MACS Peakcaller',4),(2,416,1,'macsPeakcaller',1,'2012-06-12 10:53:34',0,'MACS Peakcaller',4),(2,426,1,'macsPeakcaller',1,'2012-06-12 10:54:54',0,'MACS Peakcaller',4),(2,438,1,'macsPeakcaller',1,'2012-06-12 11:16:35',0,'MACS Peakcaller',4),(2,448,1,'macsPeakcaller',1,'2012-06-12 11:18:47',0,'MACS Peakcaller',4),(2,458,1,'macsPeakcaller',1,'2012-06-12 11:53:54',0,'MACS Peakcaller',4),(2,468,1,'macsPeakcaller',1,'2012-06-12 13:12:44',0,'MACS Peakcaller',4),(2,478,1,'macsPeakcaller',1,'2012-06-12 13:42:15',0,'MACS Peakcaller',4),(2,488,1,'macsPeakcaller',1,'2012-06-12 13:43:53',0,'MACS Peakcaller',4),(2,498,1,'macsPeakcaller',1,'2012-06-12 13:46:48',0,'MACS Peakcaller',4),(2,508,1,'macsPeakcaller',1,'2012-06-12 14:04:14',0,'MACS Peakcaller',4),(2,518,1,'macsPeakcaller',1,'2012-06-12 14:07:09',0,'MACS Peakcaller',4),(2,528,1,'macsPeakcaller',1,'2012-06-12 14:10:19',0,'MACS Peakcaller',4),(2,538,1,'macsPeakcaller',1,'2012-06-12 14:17:32',0,'MACS Peakcaller',4),(2,548,1,'macsPeakcaller',1,'2012-06-12 14:21:00',0,'MACS Peakcaller',4),(2,558,1,'macsPeakcaller',1,'2012-06-12 14:23:14',0,'MACS Peakcaller',4),(2,568,1,'macsPeakcaller',1,'2012-06-12 14:24:56',0,'MACS Peakcaller',4),(2,577,1,'macsPeakcaller',1,'2012-06-13 16:02:48',0,'MACS Peakcaller',4),(2,596,1,'macsPeakcaller',1,'2012-06-13 17:30:34',0,'MACS Peakcaller',4),(2,633,1,'macsPeakcaller',1,'2012-06-13 19:23:11',0,'MACS Peakcaller',4),(3,579,0,'bisulseqPipeline',1,'2012-06-13 16:02:48',0,'BISUL-seq Pipeline',7),(3,598,1,'bisulseqPipeline',1,'2012-06-13 17:30:35',0,'BISUL-seq Pipeline',7),(3,635,1,'bisulseqPipeline',1,'2012-06-13 19:23:11',0,'BISUL-seq Pipeline',7),(4,580,0,'helptagPipeline',1,'2012-06-13 16:02:48',0,'HELP-tag Pipeline',6),(4,599,1,'helptagPipeline',1,'2012-06-13 17:30:35',0,'HELP-tag Pipeline',6),(4,636,1,'helptagPipeline',1,'2012-06-13 19:23:11',0,'HELP-tag Pipeline',6);
-/*!40000 ALTER TABLE `software_AUD` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `softwaremeta`
 --
 
@@ -4907,34 +2662,6 @@ LOCK TABLES `softwaremeta` WRITE;
 /*!40000 ALTER TABLE `softwaremeta` DISABLE KEYS */;
 INSERT INTO `softwaremeta` VALUES (1,1,'bowtieAligner.currentVersion','0.12.7',1,'2012-05-23 16:08:19',0),(2,1,'bowtieAligner.priorVersions','',2,'2012-05-23 16:08:19',0),(3,2,'macsPeakcaller.currentVersion','4.1',1,'2012-05-23 16:08:19',0),(4,2,'macsPeakcaller.priorVersions','',2,'2012-05-23 16:08:19',0),(5,3,'bisulseqPipeline.currentVersion','1.0',1,'2012-06-13 20:02:48',0),(6,3,'bisulseqPipeline.priorVersions','',2,'2012-06-13 20:02:48',0),(7,4,'helptagPipeline.currentVersion','1.0',1,'2012-06-13 20:02:48',0),(8,4,'helptagPipeline.priorVersions','',2,'2012-06-13 20:02:48',0);
 /*!40000 ALTER TABLE `softwaremeta` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `softwaremeta_AUD`
---
-
-DROP TABLE IF EXISTS `softwaremeta_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `softwaremeta_AUD` (
-  `softwareMetaId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `softwareid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`softwareMetaId`,`REV`),
-  KEY `FK878183FDDF74E053` (`REV`),
-  CONSTRAINT `FK878183FDDF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `softwaremeta_AUD`
---
-
-LOCK TABLES `softwaremeta_AUD` WRITE;
-/*!40000 ALTER TABLE `softwaremeta_AUD` DISABLE KEYS */;
-INSERT INTO `softwaremeta_AUD` VALUES (1,2,0,1),(2,2,0,1),(3,3,0,2),(4,3,0,2),(5,579,0,3),(6,579,0,3),(7,580,0,4),(8,580,0,4);
-/*!40000 ALTER TABLE `softwaremeta_AUD` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -4973,41 +2700,6 @@ INSERT INTO `state` VALUES (1,12,'Start Job','CREATED',NULL,'2012-06-11 11:42:03
 UNLOCK TABLES;
 
 --
--- Table structure for table `state_AUD`
---
-
-DROP TABLE IF EXISTS `state_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `state_AUD` (
-  `stateId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `endts` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  `source_stateid` int(11) DEFAULT NULL,
-  `startts` datetime DEFAULT NULL,
-  `status` varchar(255) DEFAULT NULL,
-  `taskid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`stateId`,`REV`),
-  KEY `FK83B041E2DF74E053` (`REV`),
-  CONSTRAINT `FK83B041E2DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `state_AUD`
---
-
-LOCK TABLES `state_AUD` WRITE;
-/*!40000 ALTER TABLE `state_AUD` DISABLE KEYS */;
-INSERT INTO `state_AUD` VALUES (1,155,0,NULL,'2012-06-11 11:42:03',10,'Start Job',NULL,'2012-06-11 11:42:03','CREATED',12),(2,156,0,NULL,'2012-06-11 11:42:12',0,'Sample Task',1,'2012-06-11 11:42:12','CREATED',14),(2,238,1,'2012-06-11 14:47:47','2012-06-11 14:47:47',0,'Sample Task',1,'2012-06-11 11:42:12','FINALIZED',14),(3,156,0,NULL,'2012-06-11 11:42:12',0,'Sample Task',1,'2012-06-11 11:42:12','CREATED',14),(4,159,0,NULL,'2012-06-11 11:42:12',0,'DA Approval XXX',1,'2012-06-11 11:42:12','CREATED',4),(4,226,1,NULL,'2012-06-11 14:37:37',1,'DA Approval XXX',1,'2012-06-11 11:42:12','COMPLETED',4),(4,227,1,'2012-06-11 14:37:57','2012-06-11 14:37:57',0,'DA Approval XXX',1,'2012-06-11 11:42:12','FINALIZED',4),(5,157,0,NULL,'2012-06-11 11:42:12',0,'PI Approval',1,'2012-06-11 11:42:12','CREATED',7),(5,224,1,NULL,'2012-06-11 14:37:12',1,'PI Approval',1,'2012-06-11 11:42:12','COMPLETED',7),(5,225,1,'2012-06-11 14:37:17','2012-06-11 14:37:17',0,'PI Approval',1,'2012-06-11 11:42:12','FINALIZED',7),(6,158,0,NULL,'2012-06-11 11:42:12',0,'Quote Job',1,'2012-06-11 11:42:12','CREATED',9),(6,212,1,NULL,'2012-06-11 11:42:12',0,'Quote Job',1,'2012-06-11 11:42:12','COMPLETED',9),(6,213,1,'2012-06-11 14:21:36','2012-06-11 14:21:36',0,'Quote Job',1,'2012-06-11 11:42:12','FINALIZED',9),(7,160,0,NULL,'2012-06-11 11:42:21',0,'Receive Sample',2,'2012-06-11 11:42:21','CREATED',10),(7,231,1,NULL,'2012-06-11 14:38:57',1,'Receive Sample',2,'2012-06-11 11:42:21','COMPLETED',10),(7,232,1,'2012-06-11 14:39:06','2012-06-11 14:39:06',0,'Receive Sample',2,'2012-06-11 11:42:21','FINALIZED',10),(8,161,0,NULL,'2012-06-11 11:42:21',0,'Receive Sample',3,'2012-06-11 11:42:21','CREATED',10),(8,234,1,NULL,'2012-06-11 14:43:33',1,'Receive Sample',3,'2012-06-11 11:42:21','ABANDONED',10),(9,228,0,NULL,'2012-06-11 14:37:57',0,'Send Invoice',1,'2012-06-11 14:37:57','CREATED',11),(9,229,1,'2012-06-11 14:37:57','2012-06-11 14:37:57',0,'Send Invoice',1,'2012-06-11 14:37:57','COMPLETED',11),(9,230,1,'2012-06-11 14:37:57','2012-06-11 14:37:57',0,'Send Invoice',1,'2012-06-11 14:37:57','FINALIZED',11),(10,233,0,NULL,'2012-06-11 14:39:06',0,'Create Library',2,'2012-06-11 14:39:06','CREATED',2),(10,235,1,NULL,'2012-06-11 14:39:06',0,'Create Library',2,'2012-06-11 14:39:06','COMPLETED',2),(10,236,1,'2012-06-11 14:47:47','2012-06-11 14:47:47',0,'Create Library',2,'2012-06-11 14:39:06','FINALIZED',2),(11,237,0,NULL,'2012-06-11 14:47:47',0,'Sample Task',1,'2012-06-11 14:47:47','CREATED',14),(12,239,0,NULL,'2012-06-11 14:47:51',0,'Assign Library To Platform Unit',11,'2012-06-11 14:47:51','CREATED',1),(12,434,1,NULL,'2012-06-12 10:55:15',1,'Assign Library To Platform Unit',11,'2012-06-11 14:47:51','COMPLETED',1),(12,435,1,'2012-06-12 10:55:26','2012-06-12 10:55:26',0,'Assign Library To Platform Unit',11,'2012-06-11 14:47:51','FINALIZED',1),(13,240,0,NULL,'2012-06-11 14:57:27',1,'Assign Library To Platform Unit',NULL,NULL,'CREATED',1);
-/*!40000 ALTER TABLE `state_AUD` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `statejob`
 --
 
@@ -5034,35 +2726,6 @@ LOCK TABLES `statejob` WRITE;
 /*!40000 ALTER TABLE `statejob` DISABLE KEYS */;
 INSERT INTO `statejob` VALUES (1,1,1),(2,2,1),(3,3,1),(4,4,1),(5,5,1),(6,6,1),(7,7,1),(8,8,1),(9,9,1),(10,10,1),(11,11,1),(12,12,1);
 /*!40000 ALTER TABLE `statejob` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `statejob_AUD`
---
-
-DROP TABLE IF EXISTS `statejob_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `statejob_AUD` (
-  `statejobId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `jobid` int(11) DEFAULT NULL,
-  `stateid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`statejobId`,`REV`),
-  KEY `FK516AC95DDF74E053` (`REV`),
-  CONSTRAINT `FK516AC95DDF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `statejob_AUD`
---
-
-LOCK TABLES `statejob_AUD` WRITE;
-/*!40000 ALTER TABLE `statejob_AUD` DISABLE KEYS */;
-INSERT INTO `statejob_AUD` VALUES (1,155,0,1,1),(2,156,0,1,2),(3,156,0,1,3),(4,159,0,1,4),(5,157,0,1,5),(6,158,0,1,6),(7,160,0,1,7),(8,161,0,1,8),(9,228,0,1,9),(10,233,0,1,10),(11,237,0,1,11),(12,239,0,1,12);
-/*!40000 ALTER TABLE `statejob_AUD` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -5097,33 +2760,6 @@ LOCK TABLES `statemeta` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `statemeta_AUD`
---
-
-DROP TABLE IF EXISTS `statemeta_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `statemeta_AUD` (
-  `stateMetaId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `stateid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`stateMetaId`,`REV`),
-  KEY `FK21745CE7DF74E053` (`REV`),
-  CONSTRAINT `FK21745CE7DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `statemeta_AUD`
---
-
-LOCK TABLES `statemeta_AUD` WRITE;
-/*!40000 ALTER TABLE `statemeta_AUD` DISABLE KEYS */;
-/*!40000 ALTER TABLE `statemeta_AUD` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `staterun`
 --
 
@@ -5152,34 +2788,6 @@ LOCK TABLES `staterun` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `staterun_AUD`
---
-
-DROP TABLE IF EXISTS `staterun_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `staterun_AUD` (
-  `staterunId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `runid` int(11) DEFAULT NULL,
-  `stateid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`staterunId`,`REV`),
-  KEY `FK382D12BDF74E053` (`REV`),
-  CONSTRAINT `FK382D12BDF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `staterun_AUD`
---
-
-LOCK TABLES `staterun_AUD` WRITE;
-/*!40000 ALTER TABLE `staterun_AUD` DISABLE KEYS */;
-/*!40000 ALTER TABLE `staterun_AUD` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `stateruncell`
 --
 
@@ -5205,34 +2813,6 @@ CREATE TABLE `stateruncell` (
 LOCK TABLES `stateruncell` WRITE;
 /*!40000 ALTER TABLE `stateruncell` DISABLE KEYS */;
 /*!40000 ALTER TABLE `stateruncell` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `stateruncell_AUD`
---
-
-DROP TABLE IF EXISTS `stateruncell_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `stateruncell_AUD` (
-  `stateruncellId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `runcellid` int(11) DEFAULT NULL,
-  `stateid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`stateruncellId`,`REV`),
-  KEY `FK2F949C8DDF74E053` (`REV`),
-  CONSTRAINT `FK2F949C8DDF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `stateruncell_AUD`
---
-
-LOCK TABLES `stateruncell_AUD` WRITE;
-/*!40000 ALTER TABLE `stateruncell_AUD` DISABLE KEYS */;
-/*!40000 ALTER TABLE `stateruncell_AUD` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -5265,35 +2845,6 @@ INSERT INTO `statesample` VALUES (1,2,1),(2,3,2),(3,7,1),(4,8,2),(5,10,1),(6,11,
 UNLOCK TABLES;
 
 --
--- Table structure for table `statesample_AUD`
---
-
-DROP TABLE IF EXISTS `statesample_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `statesample_AUD` (
-  `statesampleId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `sampleid` int(11) DEFAULT NULL,
-  `stateid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`statesampleId`,`REV`),
-  KEY `FK58FBC1CCDF74E053` (`REV`),
-  CONSTRAINT `FK58FBC1CCDF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `statesample_AUD`
---
-
-LOCK TABLES `statesample_AUD` WRITE;
-/*!40000 ALTER TABLE `statesample_AUD` DISABLE KEYS */;
-INSERT INTO `statesample_AUD` VALUES (1,156,0,1,2),(2,156,0,2,3),(3,160,0,1,7),(4,161,0,2,8),(5,233,0,1,10),(6,237,0,3,11),(7,239,0,3,12),(8,240,0,4,13);
-/*!40000 ALTER TABLE `statesample_AUD` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `task`
 --
 
@@ -5317,35 +2868,6 @@ LOCK TABLES `task` WRITE;
 /*!40000 ALTER TABLE `task` DISABLE KEYS */;
 INSERT INTO `task` VALUES (1,'assignLibraryToPlatformUnit','Assign Library To Platform Unit'),(2,'Create Library','Create Library'),(3,'createRunTask','Create Run'),(4,'DA Approval','DA Approval XXX'),(5,'getSampleResults','Get Sample Results'),(6,'placeIllumina','Place Illumina'),(7,'PI Approval','PI Approval'),(8,'runQcApproval','Run Qc Approval'),(9,'Quote Job','Quote Job'),(10,'Receive Sample','Receive Sample'),(11,'Send Invoice','Send Invoice'),(12,'Start Job','Start Job'),(13,'jobWrapTask','Job Task'),(14,'sampleWrapTask','Sample Task'),(15,'runWrapTask','Run Task'),(16,'waitForAllJobSamples','Wait for All Job Sample Task');
 /*!40000 ALTER TABLE `task` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `task_AUD`
---
-
-DROP TABLE IF EXISTS `task_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `task_AUD` (
-  `taskId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `iname` varchar(255) DEFAULT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`taskId`,`REV`),
-  KEY `FKE79218D6DF74E053` (`REV`),
-  CONSTRAINT `FKE79218D6DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `task_AUD`
---
-
-LOCK TABLES `task_AUD` WRITE;
-/*!40000 ALTER TABLE `task_AUD` DISABLE KEYS */;
-INSERT INTO `task_AUD` VALUES (1,10,0,'assignLibraryToPlatformUnit','Assign Library To Platform Unit'),(2,11,0,'Create Library','Create Library'),(3,12,0,'createRunTask','Create Run'),(4,13,0,'DA Approval','DA Approval XXX'),(5,14,0,'getSampleResults','Get Sample Results'),(6,15,0,'placeIllumina','Place Illumina'),(7,16,0,'PI Approval','PI Approval'),(8,17,0,'runQcApproval','Run Qc Approval'),(9,18,0,'Quote Job','Quote Job'),(10,19,0,'Receive Sample','Receive Sample'),(11,20,0,'Send Invoice','Send Invoice'),(12,21,0,'Start Job','Start Job'),(13,22,0,'jobWrapTask','Job Task'),(14,23,0,'sampleWrapTask','Sample Task'),(15,24,0,'runWrapTask','Run Task'),(16,25,0,'waitForAllJobSamples','Wait for All Job Sample Task');
-/*!40000 ALTER TABLE `task_AUD` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -5377,39 +2899,6 @@ LOCK TABLES `taskmapping` WRITE;
 /*!40000 ALTER TABLE `taskmapping` DISABLE KEYS */;
 INSERT INTO `taskmapping` VALUES (6,2,'CREATED','/job/jobsAwaitingLibraryCreation/jobsAwaitingLibraryCreationList.do','/def.do','hasRole(\'su\')',1),(7,3,'CREATED','/lab/pendinglmapproval/list.do','/def.do','hasRole(\'su\')',1),(8,5,'CREATED','/lab/pendinglmapproval/list.do','/def.do','hasRole(\'su\')',1),(9,9,'CREATED','/job2quote/list.do','/def.do','hasRole(\'su\') or hasRole(\'fm\') or hasRole(\'ft\')',1),(10,10,'CREATED','/task/samplereceive/list.do','/def.do','hasRole(\'su\') or hasRole(\'ft\')',1),(11,7,'CREATED','/lab/allpendinglmapproval/list.do','/def.do','hasRole(\'su\') or hasRole(\'ft\')',1),(12,7,'CREATED','/lab/pendinglmapproval/list/${lab.labId}.do','/def.do','hasRole(\'lm-#labId\')',1),(13,1,'CREATED','/task/assignLibraries/lists.do','/def.do','hasRole(\'su\') or hasRole(\'fm\') or hasRole(\'ft\')',1);
 /*!40000 ALTER TABLE `taskmapping` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `taskmapping_AUD`
---
-
-DROP TABLE IF EXISTS `taskmapping_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `taskmapping_AUD` (
-  `taskmappingid` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `dashboardsortorder` int(11) DEFAULT NULL,
-  `detailmap` varchar(255) DEFAULT NULL,
-  `listmap` varchar(255) DEFAULT NULL,
-  `permission` varchar(255) DEFAULT NULL,
-  `status` varchar(255) DEFAULT NULL,
-  `taskid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`taskmappingid`,`REV`),
-  KEY `FK6234C4FADF74E053` (`REV`),
-  CONSTRAINT `FK6234C4FADF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `taskmapping_AUD`
---
-
-LOCK TABLES `taskmapping_AUD` WRITE;
-/*!40000 ALTER TABLE `taskmapping_AUD` DISABLE KEYS */;
-INSERT INTO `taskmapping_AUD` VALUES (5,10,0,1,'/def.do','/facility/platformunit/limitPriorToAssign.do?resourceCategoryId=0','hasRole(\'su\')','CREATED',1),(5,250,2,NULL,NULL,NULL,NULL,NULL,NULL),(6,11,0,1,'/def.do','/lab/pendinglmapproval/list.do','hasRole(\'su\')','CREATED',2),(6,131,1,1,'/def.do','/job/jobsAwaitingLibraryCreation/jobsAwaitingLibraryCreationList.do','hasRole(\'su\')','CREATED',2),(7,12,0,1,'/def.do','/lab/pendinglmapproval/list.do','hasRole(\'su\')','CREATED',3),(8,14,0,1,'/def.do','/lab/pendinglmapproval/list.do','hasRole(\'su\')','CREATED',5),(9,18,0,1,'/def.do','/job2quote/list.do','hasRole(\'su\') or hasRole(\'fm\') or hasRole(\'ft\')','CREATED',9),(10,19,0,1,'/def.do','/task/samplereceive/list.do','hasRole(\'su\') or hasRole(\'ft\')','CREATED',10),(11,42,0,1,'/def.do','/lab/allpendinglmapproval/list.do','hasRole(\'su\') or hasRole(\'ft\')','CREATED',7),(12,42,0,1,'/def.do','/lab/pendinglmapproval/list/${lab.labId}.do','hasRole(\'lm-#labId\')','CREATED',7),(13,250,0,1,'/def.do','/task/assignLibrariesLists.do','hasRole(\'su\') or hasRole(\'fm\') or hasRole(\'ft\')','CREATED',1),(13,261,1,1,'/def.do','/task/assignLibraries/lists.do','hasRole(\'su\') or hasRole(\'fm\') or hasRole(\'ft\')','CREATED',1);
-/*!40000 ALTER TABLE `taskmapping_AUD` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -5479,42 +2968,6 @@ INSERT INTO `user` VALUES (1,'super','super@super.com','12dea96fec20593566ab7569
 UNLOCK TABLES;
 
 --
--- Table structure for table `user_AUD`
---
-
-DROP TABLE IF EXISTS `user_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `user_AUD` (
-  `UserId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `email` varchar(255) DEFAULT NULL,
-  `firstname` varchar(255) DEFAULT NULL,
-  `isactive` int(11) DEFAULT NULL,
-  `lastname` varchar(255) DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
-  `locale` varchar(255) DEFAULT NULL,
-  `login` varchar(255) DEFAULT NULL,
-  `password` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`UserId`,`REV`),
-  KEY `FKF0223C1CDF74E053` (`REV`),
-  CONSTRAINT `FKF0223C1CDF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `user_AUD`
---
-
-LOCK TABLES `user_AUD` WRITE;
-/*!40000 ALTER TABLE `user_AUD` DISABLE KEYS */;
-INSERT INTO `user_AUD` VALUES (1,672,1,'super@super.com','Super',1,'User','2012-06-14 09:49:39',1,'en_US','super','12dea96fec20593566ab75692c9949596833adc9'),(2,28,0,'shahina.maqbool@abc.edu','Shahina',1,'Maqbool','2012-05-23 13:22:59',1,'en_US','smaqbool','301d9b9c8215a531e1ee28b61e46b48937d01a5d'),(2,30,1,'shahina.maqbool@abc.edu','Shahina',1,'Maqbool','2012-05-23 15:12:19',0,'en_US','smaqbool','3c303561dc548b69dba5f0b0c9b834cbcea1d6a9'),(2,614,1,'john.smithl@abc.edu','John',1,'Smith','2012-06-13 17:49:54',1,'en_US','jsmith','12dea96fec20593566ab75692c9949596833adc9'),(2,620,1,'john.smithl@abc.edu','John',1,'Smith','2012-06-13 17:53:13',1,'en_US','jsmith','12dea96fec20593566ab75692c9949596833adc9'),(2,663,1,'john.smithl@abc.edu','John',1,'Smith','2012-06-14 09:47:26',1,'en_US','jsmith','12dea96fec20593566ab75692c9949596833adc9'),(2,673,1,'john.smithl@abc.edu','John',1,'Smith','2012-06-14 09:49:50',1,'en_US','jsmith','12dea96fec20593566ab75692c9949596833adc9'),(3,45,0,'svetlana.maslova@abc.com','Svetlana',1,'Maslova','2012-05-30 12:15:28',1,'en_US','smaslova','68068826365ced322c818b4f616d80f3e9b58085'),(3,49,1,'svetlana.maslova@abc.com','Svetlana',1,'Maslova','2012-05-30 13:32:34',0,'en_US','smaslova','3c303561dc548b69dba5f0b0c9b834cbcea1d6a9'),(3,615,1,'j.doe@abc.com','Joe',1,'Doe','2012-06-13 17:50:24',1,'en_US','jdoe','12dea96fec20593566ab75692c9949596833adc9'),(3,621,1,'j.doe@abc.com','Joe',1,'Doe','2012-06-13 17:53:31',1,'en_US','jdoe','12dea96fec20593566ab75692c9949596833adc9'),(3,664,1,'j.doe@abc.com','Joe',1,'Doe','2012-06-14 09:47:34',1,'en_US','jdoe','12dea96fec20593566ab75692c9949596833adc9'),(3,674,1,'j.doe@abc.com','Joe',1,'Doe','2012-06-14 09:49:57',1,'en_US','jdoe','12dea96fec20593566ab75692c9949596833adc9'),(4,46,0,'svetlana.maslova@abc2.com','Svetlana',1,'Maslova','2012-05-30 12:31:54',1,'en_US','smaslova2','a609590597a1907002ddaa51054df6d6d7758005'),(4,616,1,'peter@abc2.com','Peter',0,'Walters','2012-06-13 17:50:57',1,'en_US','pwalters','a609590597a1907002ddaa51054df6d6d7758005'),(4,622,1,'peter@abc2.com','Peter',0,'Walters','2012-06-13 17:53:43',1,'en_US','pwalters','a609590597a1907002ddaa51054df6d6d7758005'),(4,661,1,'peter@abc2.com','Peter',1,'Walters','2012-06-14 09:45:09',1,'en_US','pwalters','a609590597a1907002ddaa51054df6d6d7758005'),(4,665,1,'peter@abc2.com','Peter',1,'Walters','2012-06-14 09:47:41',1,'en_US','pwalters','a609590597a1907002ddaa51054df6d6d7758005'),(4,675,1,'peter@abc2.com','Peter',1,'Walters','2012-06-14 09:50:12',1,'en_US','pwalters','a609590597a1907002ddaa51054df6d6d7758005'),(5,53,0,'john.greally@abc.com','John',1,'Greally','2012-05-30 16:22:24',3,'en_US','jgreally','3c303561dc548b69dba5f0b0c9b834cbcea1d6a9'),(5,617,1,'john.greally@abc.com','John',1,'Greally','2012-06-13 17:51:40',1,'en_US','ssmythe','12dea96fec20593566ab75692c9949596833adc9'),(5,618,1,'ss@abc.com','Sally',1,'Smythe','2012-06-13 17:52:06',1,'en_US','ssmythe','12dea96fec20593566ab75692c9949596833adc9'),(5,623,1,'ss@abc.com','Sally',1,'Smythe','2012-06-13 17:54:02',1,'en_US','ssmythe','12dea96fec20593566ab75692c9949596833adc9'),(5,666,1,'ss@abc.com','Sally',1,'Smythe','2012-06-14 09:47:46',1,'en_US','ssmythe','12dea96fec20593566ab75692c9949596833adc9'),(6,59,0,'esther.berko@abc.com','Esther',1,'Berko','2012-05-30 17:13:54',5,'en_US','eberko','3c303561dc548b69dba5f0b0c9b834cbcea1d6a9'),(6,619,1,'npeters@abc.com','Nancy',1,'Peters','2012-06-13 17:52:38',1,'en_US','npeters','12dea96fec20593566ab75692c9949596833adc9'),(6,624,1,'npeters@abc.com','Nancy',1,'Peters','2012-06-13 17:54:17',1,'en_US','npeters','12dea96fec20593566ab75692c9949596833adc9'),(6,667,1,'npeters@abc.com','Nancy',1,'Peters','2012-06-14 09:47:53',1,'en_US','npeters','12dea96fec20593566ab75692c9949596833adc9'),(7,62,0,'aaron.goldin@abc.com','Aaron',1,'Goldin','2012-05-30 18:03:56',1,'en_US','agoldin','3c303561dc548b69dba5f0b0c9b834cbcea1d6a9'),(7,625,1,'andrew.godwin@abc.com','Andrew',1,'Godwin','2012-06-13 17:55:13',1,'en_US','agodwin','12dea96fec20593566ab75692c9949596833adc9'),(7,676,1,'andrew.godwin@abc.com','Andrew',1,'Godwin','2012-06-14 09:50:32',1,'en_US','agodwin','12dea96fec20593566ab75692c9949596833adc9'),(8,121,0,'adam.auton@abc.com','Adam',1,'Auton','2012-05-31 09:59:22',3,'en_US','aauton','3c303561dc548b69dba5f0b0c9b834cbcea1d6a9'),(8,626,1,'adam.auton@abc.com','Fran',1,'Williams','2012-06-13 17:55:58',1,'en_US','fwilliams','12dea96fec20593566ab75692c9949596833adc9'),(8,627,1,'franny@abc.com','Fran',1,'Williams','2012-06-13 17:56:11',1,'en_US','fwilliams','12dea96fec20593566ab75692c9949596833adc9'),(8,668,1,'franny@abc.com','Fran',1,'Williams','2012-06-14 09:48:05',1,'en_US','fwilliams','12dea96fec20593566ab75692c9949596833adc9'),(9,122,0,'leslie.trokie@abc.com','Leslie',1,'Trokie','2012-05-31 10:00:01',1,'en_US','ltrokie','3c303561dc548b69dba5f0b0c9b834cbcea1d6a9'),(9,628,1,'fishyface@abc.com','Barrry',1,'Fish','2012-06-13 18:00:39',1,'en_US','bfish','12dea96fec20593566ab75692c9949596833adc9'),(9,669,1,'fishyface@abc.com','Barrry',1,'Fish','2012-06-14 09:48:25',1,'en_US','bfish','12dea96fec20593566ab75692c9949596833adc9'),(9,682,1,'fishyface@abc.com','Barrry',1,'Fish','2012-06-14 10:07:09',1,'en_US','bfish','12dea96fec20593566ab75692c9949596833adc9'),(10,123,0,'masako.suzuki@abc.com','Masako',1,'Suzuki','2012-05-31 10:02:26',5,'en_US','msuzuki','3c303561dc548b69dba5f0b0c9b834cbcea1d6a9'),(10,629,1,'Liu@abc.com','Percy',1,'Liu','2012-06-13 18:02:20',1,'en_US','pliu','12dea96fec20593566ab75692c9949596833adc9'),(10,670,1,'Liu@abc.com','Percy',1,'Liu','2012-06-14 09:48:31',1,'en_US','pliu','12dea96fec20593566ab75692c9949596833adc9'),(11,125,0,'raul.olea@abc.com','Raul',1,'Olea','2012-05-31 10:07:26',1,'en_US','rolea','96cc15370a77831b87e548a4cc0a0bda540748db'),(11,127,1,'raul.olea@abc.com','Raul',1,'Olea','2012-05-31 10:11:55',0,'en_US','rolea','3c303561dc548b69dba5f0b0c9b834cbcea1d6a9'),(11,630,1,'robin@abc.com','Robin',1,'Lister','2012-06-13 18:03:43',1,'en_US','robin','12dea96fec20593566ab75692c9949596833adc9'),(12,129,0,'pilib.obroin@abc.com','Pilib',1,'OBroin','2012-05-31 10:15:29',7,'en_US','pobroin','3c303561dc548b69dba5f0b0c9b834cbcea1d6a9'),(12,631,1,'mac@abc.com','Simon',1,'McDonald','2012-06-13 18:05:05',1,'en_US','mac','12dea96fec20593566ab75692c9949596833adc9'),(12,671,1,'mac@abc.com','Simon',1,'McDonald','2012-06-14 09:48:40',1,'en_US','mac','12dea96fec20593566ab75692c9949596833adc9'),(13,686,0,'gd@abc.com','Grainne',1,'O\'Donovan','2012-06-14 10:11:40',1,'en_US','gdon','d67dadedb0743b9cd15d7d9dce9619ef420981d2'),(13,688,1,'gd@abc.com','Grainne',1,'O\'Donovan','2012-06-14 10:12:28',0,'en_US','gdon','db25f2fc14cd2d2b1e7af307241f548fb03c312a');
-/*!40000 ALTER TABLE `user_AUD` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `usermeta`
 --
 
@@ -5547,34 +3000,6 @@ INSERT INTO `usermeta` VALUES (1,2,'user.title','Dr',0,'2012-05-23 17:23:00',NUL
 UNLOCK TABLES;
 
 --
--- Table structure for table `usermeta_AUD`
---
-
-DROP TABLE IF EXISTS `usermeta_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `usermeta_AUD` (
-  `userMetaId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `userid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`userMetaId`,`REV`),
-  KEY `FKB38AAA21DF74E053` (`REV`),
-  CONSTRAINT `FKB38AAA21DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `usermeta_AUD`
---
-
-LOCK TABLES `usermeta_AUD` WRITE;
-/*!40000 ALTER TABLE `usermeta_AUD` DISABLE KEYS */;
-INSERT INTO `usermeta_AUD` VALUES (1,28,0,2),(2,28,0,2),(3,28,0,2),(4,28,0,2),(5,28,0,2),(6,28,0,2),(7,28,0,2),(8,28,0,2),(9,28,0,2),(10,28,0,2),(11,28,0,2),(12,45,0,3),(13,45,0,3),(14,45,0,3),(15,45,0,3),(16,45,0,3),(17,45,0,3),(18,45,0,3),(19,45,0,3),(20,45,0,3),(21,45,0,3),(22,45,0,3),(23,46,0,4),(24,46,0,4),(25,46,0,4),(26,46,0,4),(27,46,0,4),(28,46,0,4),(29,46,0,4),(30,46,0,4),(31,46,0,4),(32,46,0,4),(33,46,0,4),(34,53,0,5),(35,53,0,5),(36,53,0,5),(37,53,0,5),(38,53,0,5),(39,53,0,5),(40,53,0,5),(41,53,0,5),(42,53,0,5),(43,53,0,5),(44,53,0,5),(45,53,0,5),(46,59,0,6),(47,59,0,6),(48,59,0,6),(49,59,0,6),(50,59,0,6),(51,59,0,6),(52,59,0,6),(53,59,0,6),(54,59,0,6),(55,59,0,6),(56,59,0,6),(57,59,0,6),(58,62,0,7),(59,62,0,7),(60,62,0,7),(61,62,0,7),(62,62,0,7),(63,62,0,7),(64,62,0,7),(65,62,0,7),(66,62,0,7),(67,62,0,7),(68,62,0,7),(69,62,0,7),(70,121,0,8),(71,121,0,8),(72,121,0,8),(73,121,0,8),(74,121,0,8),(75,121,0,8),(76,121,0,8),(77,121,0,8),(78,121,0,8),(79,121,0,8),(80,121,0,8),(81,121,0,8),(82,122,0,9),(83,122,0,9),(84,122,0,9),(85,122,0,9),(86,122,0,9),(87,122,0,9),(88,122,0,9),(89,122,0,9),(90,122,0,9),(91,122,0,9),(92,122,0,9),(93,122,0,9),(94,123,0,10),(95,123,0,10),(96,123,0,10),(97,123,0,10),(98,123,0,10),(99,123,0,10),(100,123,0,10),(101,123,0,10),(102,123,0,10),(103,123,0,10),(104,123,0,10),(105,123,0,10),(106,125,0,11),(107,125,0,11),(108,125,0,11),(109,125,0,11),(110,125,0,11),(111,125,0,11),(112,125,0,11),(113,125,0,11),(114,125,0,11),(115,125,0,11),(116,125,0,11),(117,129,0,12),(118,129,0,12),(119,129,0,12),(120,129,0,12),(121,129,0,12),(122,129,0,12),(123,129,0,12),(124,129,0,12),(125,129,0,12),(126,129,0,12),(127,129,0,12),(128,129,0,12),(129,672,0,1),(130,672,0,1),(131,672,0,1),(132,672,0,1),(133,672,0,1),(134,672,0,1),(135,672,0,1),(136,672,0,1),(137,672,0,1),(138,672,0,1),(139,672,0,1),(140,686,0,13),(141,686,0,13),(142,686,0,13),(143,686,0,13),(144,686,0,13),(145,686,0,13),(146,686,0,13),(147,686,0,13),(148,686,0,13),(149,686,0,13),(150,686,0,13);
-/*!40000 ALTER TABLE `usermeta_AUD` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `userpasswordauth`
 --
 
@@ -5592,27 +3017,14 @@ CREATE TABLE `userpasswordauth` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
-
 --
--- Table structure for table `userpasswordauth_AUD`
+-- Dumping data for table `userpasswordauth`
 --
 
-DROP TABLE IF EXISTS `userpasswordauth_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `userpasswordauth_AUD` (
-  `UserId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `authcode` varchar(255) DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
-  PRIMARY KEY (`UserId`,`REV`),
-  KEY `FK3CB5DCDFDF74E053` (`REV`),
-  CONSTRAINT `FK3CB5DCDFDF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
+LOCK TABLES `userpasswordauth` WRITE;
+/*!40000 ALTER TABLE `userpasswordauth` DISABLE KEYS */;
+/*!40000 ALTER TABLE `userpasswordauth` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `userpending`
@@ -5651,43 +3063,6 @@ INSERT INTO `userpending` VALUES (1,'john.greally@abc.com','3c303561dc548b69dba5
 UNLOCK TABLES;
 
 --
--- Table structure for table `userpending_AUD`
---
-
-DROP TABLE IF EXISTS `userpending_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `userpending_AUD` (
-  `userPendingId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `email` varchar(255) DEFAULT NULL,
-  `firstname` varchar(255) DEFAULT NULL,
-  `labid` int(11) DEFAULT NULL,
-  `lastname` varchar(255) DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
-  `locale` varchar(255) DEFAULT NULL,
-  `login` varchar(255) DEFAULT NULL,
-  `password` varchar(255) DEFAULT NULL,
-  `status` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`userPendingId`,`REV`),
-  KEY `FK51166B3DDF74E053` (`REV`),
-  CONSTRAINT `FK51166B3DDF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `userpending_AUD`
---
-
-LOCK TABLES `userpending_AUD` WRITE;
-/*!40000 ALTER TABLE `userpending_AUD` DISABLE KEYS */;
-INSERT INTO `userpending_AUD` VALUES (1,50,0,'john.greally@abc.com','John',NULL,'Greally','2012-05-30 15:51:56',0,'en_US','jgreally','3c303561dc548b69dba5f0b0c9b834cbcea1d6a9','WAIT_EMAIL'),(1,51,1,'john.greally@abc.com','John',NULL,'Greally','2012-05-30 15:53:59',0,'en_US','jgreally','3c303561dc548b69dba5f0b0c9b834cbcea1d6a9','PENDING'),(1,53,1,'john.greally@abc.com','John',NULL,'Greally','2012-05-30 16:22:24',3,'en_US','jgreally','3c303561dc548b69dba5f0b0c9b834cbcea1d6a9','CREATED'),(2,54,0,'maureen.charron@abc.com','Maureen',NULL,'Charron','2012-05-30 16:39:40',0,'en_US','mcharron','3c303561dc548b69dba5f0b0c9b834cbcea1d6a9','WAIT_EMAIL'),(2,55,1,'maureen.charron@abc.com','Maureen',NULL,'Charron','2012-05-30 16:42:35',0,'en_US','mcharron','3c303561dc548b69dba5f0b0c9b834cbcea1d6a9','PENDING'),(2,56,1,'maureen.charron@abc.com','Maureen',NULL,'Charron','2012-05-30 16:43:36',3,'en_US','mcharron','3c303561dc548b69dba5f0b0c9b834cbcea1d6a9','reject'),(3,57,0,'esther.berko@abc.com','Esther',2,'Berko','2012-05-30 17:04:19',0,'en_US','eberko','3c303561dc548b69dba5f0b0c9b834cbcea1d6a9','WAIT_EMAIL'),(3,58,1,'esther.berko@abc.com','Esther',2,'Berko','2012-05-30 17:05:34',0,'en_US','eberko','3c303561dc548b69dba5f0b0c9b834cbcea1d6a9','PENDING'),(3,59,1,'esther.berko@abc.com','Esther',2,'Berko','2012-05-30 17:13:55',5,'en_US','eberko','3c303561dc548b69dba5f0b0c9b834cbcea1d6a9','approve'),(7,60,0,'aaron.goldin@abc.com','Aaron',NULL,'Goldin','2012-05-30 18:03:12',0,'en_US','agoldin','3c303561dc548b69dba5f0b0c9b834cbcea1d6a9','WAIT_EMAIL'),(7,61,1,'aaron.goldin@abc.com','Aaron',NULL,'Goldin','2012-05-30 18:03:28',0,'en_US','agoldin','3c303561dc548b69dba5f0b0c9b834cbcea1d6a9','PENDING'),(7,62,1,'aaron.goldin@abc.com','Aaron',NULL,'Goldin','2012-05-30 18:03:56',1,'en_US','agoldin','3c303561dc548b69dba5f0b0c9b834cbcea1d6a9','CREATED'),(8,113,0,'adam.auton@abc.com','Adam',NULL,'Auton','2012-05-31 09:32:38',0,'en_US','aauton','3c303561dc548b69dba5f0b0c9b834cbcea1d6a9','WAIT_EMAIL'),(8,117,1,'adam.auton@abc.com','Adam',NULL,'Auton','2012-05-31 09:41:05',0,'en_US','aauton','3c303561dc548b69dba5f0b0c9b834cbcea1d6a9','PENDING'),(8,121,1,'adam.auton@abc.com','Adam',NULL,'Auton','2012-05-31 09:59:22',3,'en_US','aauton','3c303561dc548b69dba5f0b0c9b834cbcea1d6a9','CREATED'),(9,114,0,'leslie.trokie@abc.com','Leslie',NULL,'Trokie','2012-05-31 09:36:35',0,'en_US','ltrokie','3c303561dc548b69dba5f0b0c9b834cbcea1d6a9','WAIT_EMAIL'),(9,118,1,'leslie.trokie@abc.com','Leslie',NULL,'Trokie','2012-05-31 09:41:19',0,'en_US','ltrokie','3c303561dc548b69dba5f0b0c9b834cbcea1d6a9','PENDING'),(9,122,1,'leslie.trokie@abc.com','Leslie',NULL,'Trokie','2012-05-31 10:00:01',1,'en_US','ltrokie','3c303561dc548b69dba5f0b0c9b834cbcea1d6a9','CREATED'),(10,115,0,'masako.suzuki@abc.com','Masako',2,'Suzuki','2012-05-31 09:38:38',0,'en_US','msuzuki','3c303561dc548b69dba5f0b0c9b834cbcea1d6a9','WAIT_EMAIL'),(10,119,1,'masako.suzuki@abc.com','Masako',2,'Suzuki','2012-05-31 09:41:37',0,'en_US','msuzuki','3c303561dc548b69dba5f0b0c9b834cbcea1d6a9','PENDING'),(10,123,1,'masako.suzuki@abc.com','Masako',2,'Suzuki','2012-05-31 10:02:26',5,'en_US','msuzuki','3c303561dc548b69dba5f0b0c9b834cbcea1d6a9','approve'),(11,116,0,'pilib.obroin@abc.com','Pilib',3,'OBroin','2012-05-31 09:40:40',0,'en_US','pobroin','3c303561dc548b69dba5f0b0c9b834cbcea1d6a9','WAIT_EMAIL'),(11,120,1,'pilib.obroin@abc.com','Pilib',3,'OBroin','2012-05-31 09:41:49',0,'en_US','pobroin','3c303561dc548b69dba5f0b0c9b834cbcea1d6a9','PENDING'),(11,129,1,'pilib.obroin@abc.com','Pilib',3,'OBroin','2012-05-31 10:15:30',7,'en_US','pobroin','3c303561dc548b69dba5f0b0c9b834cbcea1d6a9','approve');
-/*!40000 ALTER TABLE `userpending_AUD` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `userpendingmeta`
 --
 
@@ -5717,34 +3092,6 @@ LOCK TABLES `userpendingmeta` WRITE;
 /*!40000 ALTER TABLE `userpendingmeta` DISABLE KEYS */;
 INSERT INTO `userpendingmeta` VALUES (1,1,'piPending.labName','Greally Lab',0,'2012-05-30 19:51:56',NULL),(2,1,'piPending.title','Dr',0,'2012-05-30 19:51:56',NULL),(3,1,'piPending.institution','Einstein',0,'2012-05-30 19:51:56',NULL),(4,1,'piPending.departmentId','1',0,'2012-05-30 19:51:56',NULL),(5,1,'piPending.building_room','Price 220',0,'2012-05-30 19:51:56',NULL),(6,1,'piPending.address','1301 Morris Park Ave.',0,'2012-05-30 19:51:56',NULL),(7,1,'piPending.city','Bronx',0,'2012-05-30 19:51:56',NULL),(8,1,'piPending.state','NY',0,'2012-05-30 19:51:56',NULL),(9,1,'piPending.country','US',0,'2012-05-30 19:51:56',NULL),(10,1,'piPending.zip','10461',0,'2012-05-30 19:51:56',NULL),(11,1,'piPending.phone','718-123-4567',0,'2012-05-30 19:51:56',NULL),(12,1,'piPending.fax','',0,'2012-05-30 19:51:56',NULL),(13,2,'piPending.labName','Charron Lab',0,'2012-05-30 20:39:40',NULL),(14,2,'piPending.title','Prof',0,'2012-05-30 20:39:40',NULL),(15,2,'piPending.institution','Einstein',0,'2012-05-30 20:39:40',NULL),(16,2,'piPending.departmentId','1',0,'2012-05-30 20:39:40',NULL),(17,2,'piPending.building_room','Forr 310',0,'2012-05-30 20:39:40',NULL),(18,2,'piPending.address','1300 Morris Park Ave.',0,'2012-05-30 20:39:40',NULL),(19,2,'piPending.city','Bronx',0,'2012-05-30 20:39:40',NULL),(20,2,'piPending.state','NY',0,'2012-05-30 20:39:40',NULL),(21,2,'piPending.country','US',0,'2012-05-30 20:39:40',NULL),(22,2,'piPending.zip','10461',0,'2012-05-30 20:39:40',NULL),(23,2,'piPending.phone','718-678-1212',0,'2012-05-30 20:39:40',NULL),(24,2,'piPending.fax','',0,'2012-05-30 20:39:40',NULL),(25,3,'userPending.primaryuserid','jgreally',0,'2012-05-30 21:04:19',NULL),(26,3,'userPending.title','Ms',0,'2012-05-30 21:04:19',NULL),(27,3,'userPending.building_room','Price 222',0,'2012-05-30 21:04:19',NULL),(28,3,'userPending.address','1301 Morris Park Ave.',0,'2012-05-30 21:04:19',NULL),(29,3,'userPending.phone','718-678-1234',0,'2012-05-30 21:04:19',NULL),(30,3,'userPending.fax','',0,'2012-05-30 21:04:19',NULL),(67,7,'piPending.labName','Goldin Lab',0,'2012-05-30 22:03:12',NULL),(68,7,'piPending.title','Prof',0,'2012-05-30 22:03:12',NULL),(69,7,'piPending.institution','Einstein',0,'2012-05-30 22:03:12',NULL),(70,7,'piPending.departmentId','1',0,'2012-05-30 22:03:12',NULL),(71,7,'piPending.building_room','Price 353',0,'2012-05-30 22:03:12',NULL),(72,7,'piPending.address','1301 Morris Park Ave.',0,'2012-05-30 22:03:12',NULL),(73,7,'piPending.city','Bronx',0,'2012-05-30 22:03:12',NULL),(74,7,'piPending.state','NY',0,'2012-05-30 22:03:12',NULL),(75,7,'piPending.country','US',0,'2012-05-30 22:03:12',NULL),(76,7,'piPending.zip','10461',0,'2012-05-30 22:03:12',NULL),(77,7,'piPending.phone','718-678-1112',0,'2012-05-30 22:03:12',NULL),(78,7,'piPending.fax','',0,'2012-05-30 22:03:12',NULL),(79,8,'piPending.labName','Auton Lab',0,'2012-05-31 13:32:38',NULL),(80,8,'piPending.title','Dr',0,'2012-05-31 13:32:38',NULL),(81,8,'piPending.institution','Einstein',0,'2012-05-31 13:32:38',NULL),(82,8,'piPending.departmentId','1',0,'2012-05-31 13:32:38',NULL),(83,8,'piPending.building_room','Price 321',0,'2012-05-31 13:32:38',NULL),(84,8,'piPending.address','1301 Morris Park Ave.',0,'2012-05-31 13:32:38',NULL),(85,8,'piPending.city','Bronx',0,'2012-05-31 13:32:38',NULL),(86,8,'piPending.state','NY',0,'2012-05-31 13:32:38',NULL),(87,8,'piPending.country','US',0,'2012-05-31 13:32:38',NULL),(88,8,'piPending.zip','10461',0,'2012-05-31 13:32:38',NULL),(89,8,'piPending.phone','718-678-1019',0,'2012-05-31 13:32:38',NULL),(90,8,'piPending.fax','718-678-1020',0,'2012-05-31 13:32:38',NULL),(91,9,'piPending.labName','Trokie Lab',0,'2012-05-31 13:36:35',NULL),(92,9,'piPending.title','Dr',0,'2012-05-31 13:36:35',NULL),(93,9,'piPending.institution','NYU Medical',0,'2012-05-31 13:36:35',NULL),(94,9,'piPending.departmentId','2',0,'2012-05-31 13:36:35',NULL),(95,9,'piPending.building_room','Hammer 1101',0,'2012-05-31 13:36:35',NULL),(96,9,'piPending.address','16-50 32nd Street',0,'2012-05-31 13:36:35',NULL),(97,9,'piPending.city','New York',0,'2012-05-31 13:36:35',NULL),(98,9,'piPending.state','NY',0,'2012-05-31 13:36:35',NULL),(99,9,'piPending.country','US',0,'2012-05-31 13:36:35',NULL),(100,9,'piPending.zip','10002',0,'2012-05-31 13:36:35',NULL),(101,9,'piPending.phone','212-321-1091',0,'2012-05-31 13:36:35',NULL),(102,9,'piPending.fax','',0,'2012-05-31 13:36:35',NULL),(103,10,'userPending.primaryuserid','jgreally',0,'2012-05-31 13:38:38',NULL),(104,10,'userPending.title','Dr',0,'2012-05-31 13:38:38',NULL),(105,10,'userPending.building_room','Price 222',0,'2012-05-31 13:38:38',NULL),(106,10,'userPending.address','1301 Morris Park Ave',0,'2012-05-31 13:38:38',NULL),(107,10,'userPending.phone','718-678-1096',0,'2012-05-31 13:38:38',NULL),(108,10,'userPending.fax','718-678-1097',0,'2012-05-31 13:38:38',NULL),(109,11,'userPending.primaryuserid','agoldin',0,'2012-05-31 13:40:40',NULL),(110,11,'userPending.title','Dr',0,'2012-05-31 13:40:40',NULL),(111,11,'userPending.building_room','Price 353',0,'2012-05-31 13:40:40',NULL),(112,11,'userPending.address','1301 Morris Park Ave',0,'2012-05-31 13:40:40',NULL),(113,11,'userPending.phone','617-435-1211',0,'2012-05-31 13:40:40',NULL),(114,11,'userPending.fax','',0,'2012-05-31 13:40:40',NULL);
 /*!40000 ALTER TABLE `userpendingmeta` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `userpendingmeta_AUD`
---
-
-DROP TABLE IF EXISTS `userpendingmeta_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `userpendingmeta_AUD` (
-  `userPendingMetaId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `userpendingid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`userPendingMetaId`,`REV`),
-  KEY `FK12A060C2DF74E053` (`REV`),
-  CONSTRAINT `FK12A060C2DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `userpendingmeta_AUD`
---
-
-LOCK TABLES `userpendingmeta_AUD` WRITE;
-/*!40000 ALTER TABLE `userpendingmeta_AUD` DISABLE KEYS */;
-INSERT INTO `userpendingmeta_AUD` VALUES (1,50,0,1),(2,50,0,1),(3,50,0,1),(4,50,0,1),(5,50,0,1),(6,50,0,1),(7,50,0,1),(8,50,0,1),(9,50,0,1),(10,50,0,1),(11,50,0,1),(12,50,0,1),(13,54,0,2),(14,54,0,2),(15,54,0,2),(16,54,0,2),(17,54,0,2),(18,54,0,2),(19,54,0,2),(20,54,0,2),(21,54,0,2),(22,54,0,2),(23,54,0,2),(24,54,0,2),(25,57,0,3),(26,57,0,3),(27,57,0,3),(28,57,0,3),(29,57,0,3),(30,57,0,3),(67,60,0,7),(68,60,0,7),(69,60,0,7),(70,60,0,7),(71,60,0,7),(72,60,0,7),(73,60,0,7),(74,60,0,7),(75,60,0,7),(76,60,0,7),(77,60,0,7),(78,60,0,7),(79,113,0,8),(80,113,0,8),(81,113,0,8),(82,113,0,8),(83,113,0,8),(84,113,0,8),(85,113,0,8),(86,113,0,8),(87,113,0,8),(88,113,0,8),(89,113,0,8),(90,113,0,8),(91,114,0,9),(92,114,0,9),(93,114,0,9),(94,114,0,9),(95,114,0,9),(96,114,0,9),(97,114,0,9),(98,114,0,9),(99,114,0,9),(100,114,0,9),(101,114,0,9),(102,114,0,9),(103,115,0,10),(104,115,0,10),(105,115,0,10),(106,115,0,10),(107,115,0,10),(108,115,0,10),(109,116,0,11),(110,116,0,11),(111,116,0,11),(112,116,0,11),(113,116,0,11),(114,116,0,11);
-/*!40000 ALTER TABLE `userpendingmeta_AUD` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -5779,37 +3126,6 @@ INSERT INTO `userrole` VALUES (1,1,11,'2012-05-23 15:55:46',1),(2,2,1,'2012-05-2
 UNLOCK TABLES;
 
 --
--- Table structure for table `userrole_AUD`
---
-
-DROP TABLE IF EXISTS `userrole_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `userrole_AUD` (
-  `userroleId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `userid` int(11) DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
-  `roleid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`userroleId`,`REV`),
-  KEY `FKBE807412DF74E053` (`REV`),
-  CONSTRAINT `FKBE807412DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `userrole_AUD`
---
-
-LOCK TABLES `userrole_AUD` WRITE;
-/*!40000 ALTER TABLE `userrole_AUD` DISABLE KEYS */;
-INSERT INTO `userrole_AUD` VALUES (2,31,0,2,'2012-05-23 15:25:50',1,1),(3,128,0,2,'2012-05-31 10:14:47',1,11),(3,658,2,NULL,NULL,NULL,NULL),(4,659,0,11,'2012-06-14 09:43:46',1,3),(5,660,0,4,'2012-06-14 09:44:54',1,5);
-/*!40000 ALTER TABLE `userrole_AUD` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `workflow`
 --
 
@@ -5838,39 +3154,6 @@ LOCK TABLES `workflow` WRITE;
 /*!40000 ALTER TABLE `workflow` DISABLE KEYS */;
 INSERT INTO `workflow` VALUES (1,'chipSeq','Chip Seq','2012-05-23 12:08:20',1,'2012-06-13 23:23:12',0),(2,'bisulSeq','BISUL Seq','2012-06-13 16:02:49',1,'2012-06-13 23:23:12',0),(3,'helpTag','HELP Tagging','2012-06-13 16:02:49',1,'2012-06-13 23:23:12',0);
 /*!40000 ALTER TABLE `workflow` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `workflow_AUD`
---
-
-DROP TABLE IF EXISTS `workflow_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `workflow_AUD` (
-  `workflowId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `createts` datetime DEFAULT NULL,
-  `iname` varchar(255) DEFAULT NULL,
-  `isactive` int(11) DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`workflowId`,`REV`),
-  KEY `FK5D080E10DF74E053` (`REV`),
-  CONSTRAINT `FK5D080E10DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `workflow_AUD`
---
-
-LOCK TABLES `workflow_AUD` WRITE;
-/*!40000 ALTER TABLE `workflow_AUD` DISABLE KEYS */;
-INSERT INTO `workflow_AUD` VALUES (1,26,0,'2012-05-23 12:08:20','chipSeq',1,'2012-05-23 12:08:20',0,'Chip Seq'),(1,43,1,'2012-05-23 12:08:20','chipSeq',1,'2012-05-29 09:46:27',0,'Chip Seq'),(1,72,1,'2012-05-23 12:08:20','chipSeq',1,'2012-05-30 18:05:17',0,'Chip Seq'),(1,82,1,'2012-05-23 12:08:20','chipSeq',1,'2012-05-31 09:24:13',0,'Chip Seq'),(1,92,1,'2012-05-23 12:08:20','chipSeq',1,'2012-05-31 09:26:56',0,'Chip Seq'),(1,102,1,'2012-05-23 12:08:20','chipSeq',1,'2012-05-31 09:28:31',0,'Chip Seq'),(1,112,1,'2012-05-23 12:08:20','chipSeq',1,'2012-05-31 09:29:36',0,'Chip Seq'),(1,141,1,'2012-05-23 12:08:20','chipSeq',1,'2012-06-11 11:31:26',0,'Chip Seq'),(1,171,1,'2012-05-23 12:08:20','chipSeq',1,'2012-06-11 13:49:13',0,'Chip Seq'),(1,181,1,'2012-05-23 12:08:20','chipSeq',1,'2012-06-11 13:58:16',0,'Chip Seq'),(1,191,1,'2012-05-23 12:08:20','chipSeq',1,'2012-06-11 14:02:35',0,'Chip Seq'),(1,201,1,'2012-05-23 12:08:20','chipSeq',1,'2012-06-11 14:03:13',0,'Chip Seq'),(1,211,1,'2012-05-23 12:08:20','chipSeq',1,'2012-06-11 14:20:02',0,'Chip Seq'),(1,223,1,'2012-05-23 12:08:20','chipSeq',1,'2012-06-11 14:35:48',0,'Chip Seq'),(1,251,1,'2012-05-23 12:08:20','chipSeq',1,'2012-06-11 15:33:08',0,'Chip Seq'),(1,262,1,'2012-05-23 12:08:20','chipSeq',1,'2012-06-11 15:45:21',0,'Chip Seq'),(1,272,1,'2012-05-23 12:08:20','chipSeq',1,'2012-06-11 15:47:19',0,'Chip Seq'),(1,282,1,'2012-05-23 12:08:20','chipSeq',1,'2012-06-11 16:33:10',0,'Chip Seq'),(1,292,1,'2012-05-23 12:08:20','chipSeq',1,'2012-06-11 16:34:52',0,'Chip Seq'),(1,302,1,'2012-05-23 12:08:20','chipSeq',1,'2012-06-11 16:55:02',0,'Chip Seq'),(1,312,1,'2012-05-23 12:08:20','chipSeq',1,'2012-06-11 16:59:21',0,'Chip Seq'),(1,322,1,'2012-05-23 12:08:20','chipSeq',1,'2012-06-11 17:45:43',0,'Chip Seq'),(1,332,1,'2012-05-23 12:08:20','chipSeq',1,'2012-06-11 17:50:10',0,'Chip Seq'),(1,342,1,'2012-05-23 12:08:20','chipSeq',1,'2012-06-11 17:50:53',0,'Chip Seq'),(1,352,1,'2012-05-23 12:08:20','chipSeq',1,'2012-06-12 09:11:40',0,'Chip Seq'),(1,362,1,'2012-05-23 12:08:20','chipSeq',1,'2012-06-12 09:19:04',0,'Chip Seq'),(1,372,1,'2012-05-23 12:08:20','chipSeq',1,'2012-06-12 09:43:14',0,'Chip Seq'),(1,382,1,'2012-05-23 12:08:20','chipSeq',1,'2012-06-12 09:55:15',0,'Chip Seq'),(1,392,1,'2012-05-23 12:08:20','chipSeq',1,'2012-06-12 09:57:38',0,'Chip Seq'),(1,402,1,'2012-05-23 12:08:20','chipSeq',1,'2012-06-12 09:58:48',0,'Chip Seq'),(1,412,1,'2012-05-23 12:08:20','chipSeq',1,'2012-06-12 10:02:56',0,'Chip Seq'),(1,423,1,'2012-05-23 12:08:20','chipSeq',1,'2012-06-12 10:53:35',0,'Chip Seq'),(1,433,1,'2012-05-23 12:08:20','chipSeq',1,'2012-06-12 10:54:55',0,'Chip Seq'),(1,445,1,'2012-05-23 12:08:20','chipSeq',1,'2012-06-12 11:16:36',0,'Chip Seq'),(1,455,1,'2012-05-23 12:08:20','chipSeq',1,'2012-06-12 11:18:48',0,'Chip Seq'),(1,465,1,'2012-05-23 12:08:20','chipSeq',1,'2012-06-12 11:53:55',0,'Chip Seq'),(1,475,1,'2012-05-23 12:08:20','chipSeq',1,'2012-06-12 13:12:45',0,'Chip Seq'),(1,485,1,'2012-05-23 12:08:20','chipSeq',1,'2012-06-12 13:42:16',0,'Chip Seq'),(1,495,1,'2012-05-23 12:08:20','chipSeq',1,'2012-06-12 13:43:54',0,'Chip Seq'),(1,505,1,'2012-05-23 12:08:20','chipSeq',1,'2012-06-12 13:46:49',0,'Chip Seq'),(1,515,1,'2012-05-23 12:08:20','chipSeq',1,'2012-06-12 14:04:15',0,'Chip Seq'),(1,525,1,'2012-05-23 12:08:20','chipSeq',1,'2012-06-12 14:07:10',0,'Chip Seq'),(1,535,1,'2012-05-23 12:08:20','chipSeq',1,'2012-06-12 14:10:20',0,'Chip Seq'),(1,545,1,'2012-05-23 12:08:20','chipSeq',1,'2012-06-12 14:17:33',0,'Chip Seq'),(1,555,1,'2012-05-23 12:08:20','chipSeq',1,'2012-06-12 14:21:01',0,'Chip Seq'),(1,565,1,'2012-05-23 12:08:20','chipSeq',1,'2012-06-12 14:23:15',0,'Chip Seq'),(1,575,1,'2012-05-23 12:08:20','chipSeq',1,'2012-06-12 14:24:57',0,'Chip Seq'),(1,593,1,'2012-05-23 12:08:20','chipSeq',1,'2012-06-13 16:02:49',0,'Chip Seq'),(1,612,1,'2012-05-23 12:08:20','chipSeq',1,'2012-06-13 17:30:36',0,'Chip Seq'),(1,649,1,'2012-05-23 12:08:20','chipSeq',1,'2012-06-13 19:23:12',0,'Chip Seq'),(2,592,0,'2012-06-13 16:02:49','bisulSeq',1,'2012-06-13 16:02:49',0,'BISUL Seq'),(2,611,1,'2012-06-13 16:02:49','bisulSeq',1,'2012-06-13 17:30:36',0,'BISUL Seq'),(2,648,1,'2012-06-13 16:02:49','bisulSeq',1,'2012-06-13 19:23:12',0,'BISUL Seq'),(3,594,0,'2012-06-13 16:02:49','helpTag',1,'2012-06-13 16:02:49',0,'HELP Tagging'),(3,613,1,'2012-06-13 16:02:49','helpTag',1,'2012-06-13 17:30:36',0,'HELP Tagging'),(3,650,1,'2012-06-13 16:02:49','helpTag',1,'2012-06-13 19:23:12',0,'HELP Tagging');
-/*!40000 ALTER TABLE `workflow_AUD` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -5906,34 +3189,6 @@ INSERT INTO `workflowmeta` VALUES (61,2,'workflow.submitpageflow','/jobsubmit/mo
 UNLOCK TABLES;
 
 --
--- Table structure for table `workflowmeta_AUD`
---
-
-DROP TABLE IF EXISTS `workflowmeta_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `workflowmeta_AUD` (
-  `workflowMetaId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `workflowid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`workflowMetaId`,`REV`),
-  KEY `FKB48E6215DF74E053` (`REV`),
-  CONSTRAINT `FKB48E6215DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `workflowmeta_AUD`
---
-
-LOCK TABLES `workflowmeta_AUD` WRITE;
-/*!40000 ALTER TABLE `workflowmeta_AUD` DISABLE KEYS */;
-INSERT INTO `workflowmeta_AUD` VALUES (1,26,0,1),(1,27,2,NULL),(2,27,0,1),(2,32,2,NULL),(3,32,0,1),(3,43,2,NULL),(4,43,0,1),(4,44,2,NULL),(5,44,0,1),(5,72,2,NULL),(6,72,0,1),(6,82,2,NULL),(7,82,0,1),(7,92,2,NULL),(8,92,0,1),(8,102,2,NULL),(9,102,0,1),(9,112,2,NULL),(10,112,0,1),(10,130,2,NULL),(11,130,0,1),(11,141,2,NULL),(12,141,0,1),(12,171,2,NULL),(13,171,0,1),(13,181,2,NULL),(14,181,0,1),(14,191,2,NULL),(15,191,0,1),(15,201,2,NULL),(16,201,0,1),(16,211,2,NULL),(17,211,0,1),(17,223,2,NULL),(18,223,0,1),(18,251,2,NULL),(19,251,0,1),(19,262,2,NULL),(20,262,0,1),(20,272,2,NULL),(21,272,0,1),(21,282,2,NULL),(22,282,0,1),(22,292,2,NULL),(23,292,0,1),(23,302,2,NULL),(24,302,0,1),(24,312,2,NULL),(25,312,0,1),(25,322,2,NULL),(26,322,0,1),(26,332,2,NULL),(27,332,0,1),(27,342,2,NULL),(28,342,0,1),(28,352,2,NULL),(29,352,0,1),(29,362,2,NULL),(30,362,0,1),(30,372,2,NULL),(31,372,0,1),(31,382,2,NULL),(32,382,0,1),(32,392,2,NULL),(33,392,0,1),(33,402,2,NULL),(34,402,0,1),(34,412,2,NULL),(35,412,0,1),(35,423,2,NULL),(36,423,0,1),(36,433,2,NULL),(37,433,0,1),(37,445,2,NULL),(38,445,0,1),(38,455,2,NULL),(39,455,0,1),(39,465,2,NULL),(40,465,0,1),(40,475,2,NULL),(41,475,0,1),(41,485,2,NULL),(42,485,0,1),(42,495,2,NULL),(43,495,0,1),(43,505,2,NULL),(44,505,0,1),(44,515,2,NULL),(45,515,0,1),(45,525,2,NULL),(46,525,0,1),(46,535,2,NULL),(47,535,0,1),(47,545,2,NULL),(48,545,0,1),(48,555,2,NULL),(49,555,0,1),(49,565,2,NULL),(50,565,0,1),(50,575,2,NULL),(51,575,0,1),(51,593,2,NULL),(52,592,0,2),(52,611,2,NULL),(53,593,0,1),(53,612,2,NULL),(54,594,0,3),(54,613,2,NULL),(55,611,0,2),(55,648,2,NULL),(56,612,0,1),(56,649,2,NULL),(57,613,0,3),(57,650,2,NULL),(58,648,0,2),(58,655,2,NULL),(59,649,0,1),(59,656,2,NULL),(60,650,0,3),(60,657,2,NULL),(61,655,0,2),(62,656,0,1),(63,657,0,3);
-/*!40000 ALTER TABLE `workflowmeta_AUD` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `workflowresourcecategory`
 --
 
@@ -5960,35 +3215,6 @@ LOCK TABLES `workflowresourcecategory` WRITE;
 /*!40000 ALTER TABLE `workflowresourcecategory` DISABLE KEYS */;
 INSERT INTO `workflowresourcecategory` VALUES (1,1,1);
 /*!40000 ALTER TABLE `workflowresourcecategory` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `workflowresourcecategory_AUD`
---
-
-DROP TABLE IF EXISTS `workflowresourcecategory_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `workflowresourcecategory_AUD` (
-  `workflowresourcecategoryId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `resourcecategoryid` int(11) DEFAULT NULL,
-  `workflowid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`workflowresourcecategoryId`,`REV`),
-  KEY `FKFBA5DD1CDF74E053` (`REV`),
-  CONSTRAINT `FKFBA5DD1CDF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `workflowresourcecategory_AUD`
---
-
-LOCK TABLES `workflowresourcecategory_AUD` WRITE;
-/*!40000 ALTER TABLE `workflowresourcecategory_AUD` DISABLE KEYS */;
-INSERT INTO `workflowresourcecategory_AUD` VALUES (1,143,0,1,1);
-/*!40000 ALTER TABLE `workflowresourcecategory_AUD` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -6023,34 +3249,6 @@ INSERT INTO `workflowresourcecategorymeta` VALUES (1,1,'illuminaHiSeq2000.allowa
 UNLOCK TABLES;
 
 --
--- Table structure for table `workflowresourcecategorymeta_AUD`
---
-
-DROP TABLE IF EXISTS `workflowresourcecategorymeta_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `workflowresourcecategorymeta_AUD` (
-  `workflowresourcecategoryMetaId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `workflowresourcecategoryid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`workflowresourcecategoryMetaId`,`REV`),
-  KEY `FK2255CB21DF74E053` (`REV`),
-  CONSTRAINT `FK2255CB21DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `workflowresourcecategorymeta_AUD`
---
-
-LOCK TABLES `workflowresourcecategorymeta_AUD` WRITE;
-/*!40000 ALTER TABLE `workflowresourcecategorymeta_AUD` DISABLE KEYS */;
-INSERT INTO `workflowresourcecategorymeta_AUD` VALUES (1,143,0,1),(2,143,0,1);
-/*!40000 ALTER TABLE `workflowresourcecategorymeta_AUD` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `workflowresourcetype`
 --
 
@@ -6077,35 +3275,6 @@ LOCK TABLES `workflowresourcetype` WRITE;
 /*!40000 ALTER TABLE `workflowresourcetype` DISABLE KEYS */;
 INSERT INTO `workflowresourcetype` VALUES (1,1,1),(2,1,3),(3,1,4),(4,2,1),(5,2,7),(6,3,1),(7,3,3),(8,3,6);
 /*!40000 ALTER TABLE `workflowresourcetype` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `workflowresourcetype_AUD`
---
-
-DROP TABLE IF EXISTS `workflowresourcetype_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `workflowresourcetype_AUD` (
-  `workflowresourcetypeId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `resourcetypeid` int(11) DEFAULT NULL,
-  `workflowid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`workflowresourcetypeId`,`REV`),
-  KEY `FKAD64DFD8DF74E053` (`REV`),
-  CONSTRAINT `FKAD64DFD8DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `workflowresourcetype_AUD`
---
-
-LOCK TABLES `workflowresourcetype_AUD` WRITE;
-/*!40000 ALTER TABLE `workflowresourcetype_AUD` DISABLE KEYS */;
-INSERT INTO `workflowresourcetype_AUD` VALUES (1,26,0,1,1),(2,26,0,3,1),(3,26,0,4,1),(4,592,0,1,2),(5,592,0,7,2),(6,594,0,1,3),(7,594,0,3,3),(8,594,0,6,3);
-/*!40000 ALTER TABLE `workflowresourcetype_AUD` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -6138,35 +3307,6 @@ INSERT INTO `workflowsamplesubtype` VALUES (178,1,3),(179,1,4),(180,1,5),(175,2,
 UNLOCK TABLES;
 
 --
--- Table structure for table `workflowsamplesubtype_AUD`
---
-
-DROP TABLE IF EXISTS `workflowsamplesubtype_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `workflowsamplesubtype_AUD` (
-  `workflowsamplesubtypeId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `samplesubtypeid` int(11) DEFAULT NULL,
-  `workflowid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`workflowsamplesubtypeId`,`REV`),
-  KEY `FKD79E0882DF74E053` (`REV`),
-  CONSTRAINT `FKD79E0882DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `workflowsamplesubtype_AUD`
---
-
-LOCK TABLES `workflowsamplesubtype_AUD` WRITE;
-/*!40000 ALTER TABLE `workflowsamplesubtype_AUD` DISABLE KEYS */;
-INSERT INTO `workflowsamplesubtype_AUD` VALUES (1,26,0,3,1),(1,27,2,NULL,NULL),(2,26,0,4,1),(2,27,2,NULL,NULL),(3,26,0,5,1),(3,27,2,NULL,NULL),(4,27,0,3,1),(4,32,2,NULL,NULL),(5,27,0,4,1),(5,32,2,NULL,NULL),(6,27,0,5,1),(6,32,2,NULL,NULL),(7,32,0,3,1),(7,43,2,NULL,NULL),(8,32,0,4,1),(8,43,2,NULL,NULL),(9,32,0,5,1),(9,43,2,NULL,NULL),(10,43,0,3,1),(10,44,2,NULL,NULL),(11,43,0,4,1),(11,44,2,NULL,NULL),(12,43,0,5,1),(12,44,2,NULL,NULL),(13,44,0,3,1),(13,72,2,NULL,NULL),(14,44,0,4,1),(14,72,2,NULL,NULL),(15,44,0,5,1),(15,72,2,NULL,NULL),(16,72,0,3,1),(16,82,2,NULL,NULL),(17,72,0,4,1),(17,82,2,NULL,NULL),(18,72,0,5,1),(18,82,2,NULL,NULL),(19,82,0,3,1),(19,92,2,NULL,NULL),(20,82,0,4,1),(20,92,2,NULL,NULL),(21,82,0,5,1),(21,92,2,NULL,NULL),(22,92,0,3,1),(22,102,2,NULL,NULL),(23,92,0,4,1),(23,102,2,NULL,NULL),(24,92,0,5,1),(24,102,2,NULL,NULL),(25,102,0,3,1),(25,112,2,NULL,NULL),(26,102,0,4,1),(26,112,2,NULL,NULL),(27,102,0,5,1),(27,112,2,NULL,NULL),(28,112,0,3,1),(28,130,2,NULL,NULL),(29,112,0,4,1),(29,130,2,NULL,NULL),(30,112,0,5,1),(30,130,2,NULL,NULL),(31,130,0,3,1),(31,141,2,NULL,NULL),(32,130,0,4,1),(32,141,2,NULL,NULL),(33,130,0,5,1),(33,141,2,NULL,NULL),(34,141,0,3,1),(34,171,2,NULL,NULL),(35,141,0,4,1),(35,171,2,NULL,NULL),(36,141,0,5,1),(36,171,2,NULL,NULL),(37,171,0,3,1),(37,181,2,NULL,NULL),(38,171,0,4,1),(38,181,2,NULL,NULL),(39,171,0,5,1),(39,181,2,NULL,NULL),(40,181,0,3,1),(40,191,2,NULL,NULL),(41,181,0,4,1),(41,191,2,NULL,NULL),(42,181,0,5,1),(42,191,2,NULL,NULL),(43,191,0,3,1),(43,201,2,NULL,NULL),(44,191,0,4,1),(44,201,2,NULL,NULL),(45,191,0,5,1),(45,201,2,NULL,NULL),(46,201,0,3,1),(46,211,2,NULL,NULL),(47,201,0,4,1),(47,211,2,NULL,NULL),(48,201,0,5,1),(48,211,2,NULL,NULL),(49,211,0,3,1),(49,223,2,NULL,NULL),(50,211,0,4,1),(50,223,2,NULL,NULL),(51,211,0,5,1),(51,223,2,NULL,NULL),(52,223,0,3,1),(52,251,2,NULL,NULL),(53,223,0,4,1),(53,251,2,NULL,NULL),(54,223,0,5,1),(54,251,2,NULL,NULL),(55,251,0,3,1),(55,262,2,NULL,NULL),(56,251,0,4,1),(56,262,2,NULL,NULL),(57,251,0,5,1),(57,262,2,NULL,NULL),(58,262,0,3,1),(58,272,2,NULL,NULL),(59,262,0,4,1),(59,272,2,NULL,NULL),(60,262,0,5,1),(60,272,2,NULL,NULL),(61,272,0,3,1),(61,282,2,NULL,NULL),(62,272,0,4,1),(62,282,2,NULL,NULL),(63,272,0,5,1),(63,282,2,NULL,NULL),(64,282,0,3,1),(64,292,2,NULL,NULL),(65,282,0,4,1),(65,292,2,NULL,NULL),(66,282,0,5,1),(66,292,2,NULL,NULL),(67,292,0,3,1),(67,302,2,NULL,NULL),(68,292,0,4,1),(68,302,2,NULL,NULL),(69,292,0,5,1),(69,302,2,NULL,NULL),(70,302,0,3,1),(70,312,2,NULL,NULL),(71,302,0,4,1),(71,312,2,NULL,NULL),(72,302,0,5,1),(72,312,2,NULL,NULL),(73,312,0,3,1),(73,322,2,NULL,NULL),(74,312,0,4,1),(74,322,2,NULL,NULL),(75,312,0,5,1),(75,322,2,NULL,NULL),(76,322,0,3,1),(76,332,2,NULL,NULL),(77,322,0,4,1),(77,332,2,NULL,NULL),(78,322,0,5,1),(78,332,2,NULL,NULL),(79,332,0,3,1),(79,342,2,NULL,NULL),(80,332,0,4,1),(80,342,2,NULL,NULL),(81,332,0,5,1),(81,342,2,NULL,NULL),(82,342,0,3,1),(82,352,2,NULL,NULL),(83,342,0,4,1),(83,352,2,NULL,NULL),(84,342,0,5,1),(84,352,2,NULL,NULL),(85,352,0,3,1),(85,362,2,NULL,NULL),(86,352,0,4,1),(86,362,2,NULL,NULL),(87,352,0,5,1),(87,362,2,NULL,NULL),(88,362,0,3,1),(88,372,2,NULL,NULL),(89,362,0,4,1),(89,372,2,NULL,NULL),(90,362,0,5,1),(90,372,2,NULL,NULL),(91,372,0,3,1),(91,382,2,NULL,NULL),(92,372,0,4,1),(92,382,2,NULL,NULL),(93,372,0,5,1),(93,382,2,NULL,NULL),(94,382,0,3,1),(94,392,2,NULL,NULL),(95,382,0,4,1),(95,392,2,NULL,NULL),(96,382,0,5,1),(96,392,2,NULL,NULL),(97,392,0,3,1),(97,402,2,NULL,NULL),(98,392,0,4,1),(98,402,2,NULL,NULL),(99,392,0,5,1),(99,402,2,NULL,NULL),(100,402,0,3,1),(100,412,2,NULL,NULL),(101,402,0,4,1),(101,412,2,NULL,NULL),(102,402,0,5,1),(102,412,2,NULL,NULL),(103,412,0,3,1),(103,423,2,NULL,NULL),(104,412,0,4,1),(104,423,2,NULL,NULL),(105,412,0,5,1),(105,423,2,NULL,NULL),(106,423,0,3,1),(106,433,2,NULL,NULL),(107,423,0,4,1),(107,433,2,NULL,NULL),(108,423,0,5,1),(108,433,2,NULL,NULL),(109,433,0,3,1),(109,445,2,NULL,NULL),(110,433,0,4,1),(110,445,2,NULL,NULL),(111,433,0,5,1),(111,445,2,NULL,NULL),(112,445,0,3,1),(112,455,2,NULL,NULL),(113,445,0,4,1),(113,455,2,NULL,NULL),(114,445,0,5,1),(114,455,2,NULL,NULL),(115,455,0,3,1),(115,465,2,NULL,NULL),(116,455,0,4,1),(116,465,2,NULL,NULL),(117,455,0,5,1),(117,465,2,NULL,NULL),(118,465,0,3,1),(118,475,2,NULL,NULL),(119,465,0,4,1),(119,475,2,NULL,NULL),(120,465,0,5,1),(120,475,2,NULL,NULL),(121,475,0,3,1),(121,485,2,NULL,NULL),(122,475,0,4,1),(122,485,2,NULL,NULL),(123,475,0,5,1),(123,485,2,NULL,NULL),(124,485,0,3,1),(124,495,2,NULL,NULL),(125,485,0,4,1),(125,495,2,NULL,NULL),(126,485,0,5,1),(126,495,2,NULL,NULL),(127,495,0,3,1),(127,505,2,NULL,NULL),(128,495,0,4,1),(128,505,2,NULL,NULL),(129,495,0,5,1),(129,505,2,NULL,NULL),(130,505,0,3,1),(130,515,2,NULL,NULL),(131,505,0,4,1),(131,515,2,NULL,NULL),(132,505,0,5,1),(132,515,2,NULL,NULL),(133,515,0,3,1),(133,525,2,NULL,NULL),(134,515,0,4,1),(134,525,2,NULL,NULL),(135,515,0,5,1),(135,525,2,NULL,NULL),(136,525,0,3,1),(136,535,2,NULL,NULL),(137,525,0,4,1),(137,535,2,NULL,NULL),(138,525,0,5,1),(138,535,2,NULL,NULL),(139,535,0,3,1),(139,545,2,NULL,NULL),(140,535,0,4,1),(140,545,2,NULL,NULL),(141,535,0,5,1),(141,545,2,NULL,NULL),(142,545,0,3,1),(142,555,2,NULL,NULL),(143,545,0,4,1),(143,555,2,NULL,NULL),(144,545,0,5,1),(144,555,2,NULL,NULL),(145,555,0,3,1),(145,565,2,NULL,NULL),(146,555,0,4,1),(146,565,2,NULL,NULL),(147,555,0,5,1),(147,565,2,NULL,NULL),(148,565,0,3,1),(148,575,2,NULL,NULL),(149,565,0,4,1),(149,575,2,NULL,NULL),(150,565,0,5,1),(150,575,2,NULL,NULL),(151,575,0,3,1),(151,593,2,NULL,NULL),(152,575,0,4,1),(152,593,2,NULL,NULL),(153,575,0,5,1),(153,593,2,NULL,NULL),(154,592,0,6,2),(154,611,2,NULL,NULL),(155,592,0,7,2),(155,611,2,NULL,NULL),(156,592,0,8,2),(156,611,2,NULL,NULL),(157,593,0,3,1),(157,612,2,NULL,NULL),(158,593,0,4,1),(158,612,2,NULL,NULL),(159,593,0,5,1),(159,612,2,NULL,NULL),(160,594,0,9,3),(160,613,2,NULL,NULL),(161,611,0,6,2),(161,648,2,NULL,NULL),(162,611,0,7,2),(162,648,2,NULL,NULL),(163,611,0,8,2),(163,648,2,NULL,NULL),(164,612,0,3,1),(164,649,2,NULL,NULL),(165,612,0,4,1),(165,649,2,NULL,NULL),(166,612,0,5,1),(166,649,2,NULL,NULL),(167,613,0,9,3),(167,650,2,NULL,NULL),(168,648,0,6,2),(168,655,2,NULL,NULL),(169,648,0,7,2),(169,655,2,NULL,NULL),(170,648,0,8,2),(170,655,2,NULL,NULL),(171,649,0,3,1),(171,656,2,NULL,NULL),(172,649,0,4,1),(172,656,2,NULL,NULL),(173,649,0,5,1),(173,656,2,NULL,NULL),(174,650,0,9,3),(174,657,2,NULL,NULL),(175,655,0,6,2),(176,655,0,7,2),(177,655,0,8,2),(178,656,0,3,1),(179,656,0,4,1),(180,656,0,5,1),(181,657,0,9,3);
-/*!40000 ALTER TABLE `workflowsamplesubtype_AUD` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `workflowsoftware`
 --
 
@@ -6193,35 +3333,6 @@ LOCK TABLES `workflowsoftware` WRITE;
 /*!40000 ALTER TABLE `workflowsoftware` DISABLE KEYS */;
 INSERT INTO `workflowsoftware` VALUES (1,1,1),(2,1,2);
 /*!40000 ALTER TABLE `workflowsoftware` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `workflowsoftware_AUD`
---
-
-DROP TABLE IF EXISTS `workflowsoftware_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `workflowsoftware_AUD` (
-  `workflowSoftwareId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `softwareid` int(11) DEFAULT NULL,
-  `workflowid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`workflowSoftwareId`,`REV`),
-  KEY `FK553B9537DF74E053` (`REV`),
-  CONSTRAINT `FK553B9537DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `workflowsoftware_AUD`
---
-
-LOCK TABLES `workflowsoftware_AUD` WRITE;
-/*!40000 ALTER TABLE `workflowsoftware_AUD` DISABLE KEYS */;
-INSERT INTO `workflowsoftware_AUD` VALUES (1,143,0,1,1),(2,143,0,2,1);
-/*!40000 ALTER TABLE `workflowsoftware_AUD` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -6252,33 +3363,6 @@ CREATE TABLE `workflowsoftwaremeta` (
 LOCK TABLES `workflowsoftwaremeta` WRITE;
 /*!40000 ALTER TABLE `workflowsoftwaremeta` DISABLE KEYS */;
 /*!40000 ALTER TABLE `workflowsoftwaremeta` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `workflowsoftwaremeta_AUD`
---
-
-DROP TABLE IF EXISTS `workflowsoftwaremeta_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `workflowsoftwaremeta_AUD` (
-  `workflowsoftwareMetaId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `workflowsoftwareid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`workflowsoftwareMetaId`,`REV`),
-  KEY `FKCBCBFDBCDF74E053` (`REV`),
-  CONSTRAINT `FKCBCBFDBCDF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `workflowsoftwaremeta_AUD`
---
-
-LOCK TABLES `workflowsoftwaremeta_AUD` WRITE;
-/*!40000 ALTER TABLE `workflowsoftwaremeta_AUD` DISABLE KEYS */;
-/*!40000 ALTER TABLE `workflowsoftwaremeta_AUD` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -6313,36 +3397,6 @@ LOCK TABLES `workflowtask` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `workflowtask_AUD`
---
-
-DROP TABLE IF EXISTS `workflowtask_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `workflowtask_AUD` (
-  `workflowtaskId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `iname` varchar(255) DEFAULT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  `taskid` int(11) DEFAULT NULL,
-  `workflowid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`workflowtaskId`,`REV`),
-  KEY `FKB6F5C195DF74E053` (`REV`),
-  CONSTRAINT `FKB6F5C195DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `workflowtask_AUD`
---
-
-LOCK TABLES `workflowtask_AUD` WRITE;
-/*!40000 ALTER TABLE `workflowtask_AUD` DISABLE KEYS */;
-/*!40000 ALTER TABLE `workflowtask_AUD` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `workflowtasksource`
 --
 
@@ -6369,34 +3423,6 @@ LOCK TABLES `workflowtasksource` WRITE;
 /*!40000 ALTER TABLE `workflowtasksource` DISABLE KEYS */;
 /*!40000 ALTER TABLE `workflowtasksource` ENABLE KEYS */;
 UNLOCK TABLES;
-
---
--- Table structure for table `workflowtasksource_AUD`
---
-
-DROP TABLE IF EXISTS `workflowtasksource_AUD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `workflowtasksource_AUD` (
-  `workflowtasksourceId` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `sourceworkflowtaskid` int(11) DEFAULT NULL,
-  `workflowtaskid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`workflowtasksourceId`,`REV`),
-  KEY `FK2E19C130DF74E053` (`REV`),
-  CONSTRAINT `FK2E19C130DF74E053` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`REV`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `workflowtasksource_AUD`
---
-
-LOCK TABLES `workflowtasksource_AUD` WRITE;
-/*!40000 ALTER TABLE `workflowtasksource_AUD` DISABLE KEYS */;
-/*!40000 ALTER TABLE `workflowtasksource_AUD` ENABLE KEYS */;
-UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -6407,4 +3433,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2012-06-14 10:20:27
+-- Dump completed on 2012-08-01 14:54:59
