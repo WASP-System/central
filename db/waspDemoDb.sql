@@ -15,6 +15,9 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
+DROP DATABASE IF EXISTS wasp;
+create database wasp CHARACTER SET utf8 COLLATE utf8_general_ci;
+
 --
 -- Table structure for table `BATCH_JOB_EXECUTION`
 --
