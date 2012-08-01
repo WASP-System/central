@@ -11,7 +11,7 @@ import org.springframework.beans.factory.InitializingBean;
  * @author calder
  * 
  */
-public abstract class WaspResourceLoader extends WaspLoader implements InitializingBean {
+public abstract class WaspResourceLoader extends WaspLoader {
 
 	protected List<String> dependencies;
 

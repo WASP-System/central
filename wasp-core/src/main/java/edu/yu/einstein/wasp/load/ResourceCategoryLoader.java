@@ -2,6 +2,8 @@ package edu.yu.einstein.wasp.load;
 
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -22,7 +24,7 @@ import edu.yu.einstein.wasp.model.ResourceCategoryMeta;
  */
 
 
-public class ResourceCategoryLoader extends WaspLoader implements InitializingBean {
+public class ResourceCategoryLoader extends WaspLoader {
 
   @Autowired
   ResourceCategoryLoadService resourceCategoryLoadService;
@@ -47,8 +49,8 @@ public class ResourceCategoryLoader extends WaspLoader implements InitializingBe
 	this.isActive = isActive;
   }
 
-  @Override 
-  public void afterPropertiesSet() throws Exception {
+  @PostConstruct 
+  public void init() throws Exception {
 	  resourceCategoryLoadService.update(meta, resourceTypeString, iname, name, isActive);
 
 	  resourceCategoryLoadService.updateUiFields(uiFields); 

@@ -2,6 +2,8 @@ package edu.yu.einstein.wasp.load;
 
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -22,7 +24,7 @@ import edu.yu.einstein.wasp.model.AdaptorsetMeta;
  */
 
 
-public class AdaptorsetLoader extends WaspLoader implements InitializingBean {
+public class AdaptorsetLoader extends WaspLoader {
 
   @Autowired
   private AdaptorsetLoadService adaptorsetLoadService;
@@ -54,8 +56,8 @@ public class AdaptorsetLoader extends WaspLoader implements InitializingBean {
 	this.isActive = isActive;
   }
 
-  @Override 
-  public void afterPropertiesSet() throws Exception {
+  @PostConstruct 
+  public void init() throws Exception {
 	  adaptorsetLoadService.update(meta, adaptorList, sampleTypeIName, iname, name, isActive, compatibleResourcesByIName);
 	  adaptorsetLoadService.updateUiFields(this.uiFields); 
   }
