@@ -48,9 +48,9 @@
 
     <property name="sampleSubtypes">
       <set>
-        <value>chipSeqDnaSample</value>
-        <value>chipSeqLibrarySample</value>
-        <value>chipSeqFacilityLibrarySample</value>
+        <value>chipseqDnaSample</value>
+        <value>chipseqLibrarySample</value>
+        <value>chipseqFacilityLibrarySample</value>
       </set>
     </property>
     

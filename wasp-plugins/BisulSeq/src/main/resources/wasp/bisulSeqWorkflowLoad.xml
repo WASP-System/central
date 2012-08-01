@@ -45,9 +45,9 @@
 
     <property name="sampleSubtypes">
       <set>
-        <value>bisulSeqDnaSample</value>
-        <value>bisulSeqLibrarySample</value>
-        <value>bisulSeqFacilityLibrarySample</value>
+        <value>bisulseqDnaSample</value>
+        <value>bisulseqLibrarySample</value>
+        <value>bisulseqFacilityLibrarySample</value>
       </set>
     </property>
     
