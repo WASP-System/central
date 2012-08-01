@@ -17,7 +17,7 @@
 
 DROP DATABASE IF EXISTS wasp;
 create database wasp CHARACTER SET utf8 COLLATE utf8_general_ci;
-
+use wasp;
 --
 -- Table structure for table `BATCH_JOB_EXECUTION`
 --
