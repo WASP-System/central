@@ -1,1771 +1,3436 @@
--- Recreate Database 
-GRANT USAGE ON *.* TO 'wasp'@'localhost';
-DROP USER 'wasp'@'localhost';
-DROP DATABASE IF EXISTS wasp;
-
-create database wasp CHARACTER SET utf8 COLLATE utf8_general_ci;
-create user 'wasp'@'localhost' IDENTIFIED BY 'waspV2';
-
-grant all on wasp.* to 'wasp'@'localhost';
-
-flush privileges;
-
-use wasp;
-
+-- MySQL dump 10.13  Distrib 5.1.52, for unknown-linux-gnu (x86_64)
 --
--- META - for generic drop downs and such
---
-create table meta (
-  metaid int(10)  primary key auto_increment,
-
-  property varchar(250) , 
-  k varchar(250) , -- internal value?
-  v varchar(250) , -- external label?
-  position int(10)  default 0,
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  constraint unique index u_meta_p_k (property, k),
-  constraint unique index u_meta_p_v (property, v)
-) ENGINE=InnoDB charset=utf8;
-
-
-
---
--- USER 
---
-create table user (
-  userid int(10)  primary key auto_increment,
-
-  login varchar(250) , 
-  email varchar(250) , 
-  password varchar(250) , 
-  firstname varchar(250) , 
-  lastname varchar(250) , 
-
-  locale varchar(5)  default 'en_US',
-
-  isactive int(1)  default 1,
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0, 
-
-  constraint unique index u_user_login (login),
-  constraint unique index u_user_email (email)
-) ENGINE=InnoDB charset=utf8;
-
-
-
--- insert into user values 
--- ( 1, 'admin', 'admin@localhost',  PASSWORD('waspV2'), 'Admin', '-', 1, now(), 1 );
-
-create table usermeta (
-  usermetaid int(10)  primary key auto_increment,
-  userid int(10) ,
-
-  k varchar(250) , 
-  v varchar(250), 
-  position int(10)  default 0,
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_usermeta_userid (userid) references user(userid),
-  constraint unique index u_usermeta_k_uid (k, userid)
-) ENGINE=InnoDB charset=utf8;
-
---
--- forgot password
---
-create table userpasswordauth (
-  userid int(10)  primary key, 
-  authcode varchar(250) ,
-  lastupdts timestamp  default current_timestamp, 
-  lastupduser int(10)  default 0,
-
-  foreign key fk_userpasswordauth_userid (userid) references user(userid),
-  constraint unique index u_userpasswordauth (authcode)
-) ENGINE=InnoDB charset=utf8;
-
-
-
-
---
--- ROLE
---
-create table role ( 
-  roleid int(10)  primary key auto_increment, 
-  rolename varchar(250), 
-  name varchar(250),
-  domain varchar(20),
-
-  constraint unique index u_role_rname (rolename),
-  constraint unique index u_role_name (name)
-) ENGINE=InnoDB charset=utf8;
-
-insert into role values
-(1, 'fm', 'Facilities Manager', 'system'),
-(2, 'sa', 'System Administrator', 'system'),
-(3, 'ga', 'General Administrator', 'system'),
-(4, 'da', 'Department Administrator', 'department'), -- departmentuser, implicit
-(5, 'ft', 'Facilities Tech', 'system'), 
-(6, 'pi', 'Primary Investigator', 'lab'), -- labuser, explicit
-(7, 'lm', 'Lab Manager', 'lab'), -- labuser, explicit
-(8, 'lu', 'Lab Member', 'lab'), -- labuser, explicit
-(9, 'js', 'Job Submitter', 'job'),-- jobuser, explicit
-(10, 'jv', 'Job Viewer', 'job'), -- jobuser, explicit
-(11, 'su', 'Super User', 'system'),
-(12, 'lx', 'Lab Member Inactive', 'lab'), -- labuser, explicit
-(13, 'lp', 'Lab Member Pending', 'lab'), -- labuser, explicit
-(14, 'jd', 'Job Drafter', 'jobdraft'), -- labuser, explicit
-(15, 'u', 'User', 'user');
-
-
-create table roleset (
-  rolesetid int(10)  primary key auto_increment, 
-  parentroleid int(10) ,
-  childroleid int(10) ,
-  
-  foreign key fk_roleset_prid (parentroleid) references role(roleid),
-  foreign key fk_roleset_crid (childroleid) references role(roleid),
-
-  constraint unique index u_role_rname (parentroleid, childroleid)
-) ENGINE=InnoDB charset=utf8;
-
-insert into roleset
-(parentroleid, childroleid)
-select 
-roleid, roleid 
-from role;
-
-insert into roleset 
-(parentroleid, childroleid)
-values
-(1, 5),
-(6, 7),
-(6, 8),
-(7, 8),
-(9, 10),
-(11, 1),
-(11, 2),
-(11, 3),
-(11, 5);
-
-
--- USER.ROLE
---
-create table userrole (
-  userroleid int(10)  primary key auto_increment, 
-
-  userid int(10) , 
-  roleid int(10) , 
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_userrole_rid (roleid) references role(roleid),
-  foreign key fk_userrole_uid (userid) references user(userid),
-
-  constraint unique index userrole_uid_rid (userid, roleid)
-) ENGINE=InnoDB charset=utf8;
-
-
--- insert into userrole values (1, 1, 1, now(), 1);
-
---
--- DEPARTMENT
---
-create table department (
-  departmentid int(10)  primary key auto_increment,
-  name varchar(250) ,
-
-  isinternal int(1)  default 1,
-  isactive int(1)  default 1,
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  constraint unique index u_department_name (name)
-) ENGINE=InnoDB charset=utf8;
-
-insert into department values 
-( 1, 'Internal - Default Department', 1, 1, now(), 1 ),
-( 2, 'External - Default Department', 0,  1, now(), 1 );
-
--- LAB.USER
---   - presumably 'Department Admin'
--- 
-create table departmentuser ( 
-  departmentuserid int(10)  primary key auto_increment, 
-
-  departmentid int(10) , 
-  userid int(10) , 
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_departmentuser_uid (userid) references user(userid),
-  foreign key fk_departmentuser_did (departmentid) references department(departmentid),
-
-  constraint unique index u_departmentuser_did_uid (departmentid, userid)
-) ENGINE=InnoDB charset=utf8;
-
-
-
---
--- LAB 
---
-create table lab ( 
-  labid int(10)  primary key auto_increment,
-
-  departmentid int(10) , 
-  name varchar(250) ,
-
-  primaryuserid int(10) , -- primary investigator?
-
-  isactive int(1)  default 1,
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_lab_did (departmentid) references department(departmentid),
-  foreign key fk_lab_puid (primaryuserid) references user(userid)
---  There is no reason why lab name needs to be unique or why a user cannot have more than one lab
---  constraint unique index u_lab_name (name),
---  constraint unique index u_lab_puid (primaryuserid)
-) ENGINE=InnoDB charset=utf8;
-
--- insert into lab values 
--- ( 1, 1, 'Default Lab',  1, 1, now(), 1 );
-
-create table labmeta (
-  labmetaid int(10)  primary key auto_increment,
-  labid int(10) ,
-
-  k varchar(250) , 
-  v varchar(250), 
-  position int(10)  default 0,
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_labmeta_labid (labid) references lab(labid),
-  constraint unique index u_labmeta_k_lid (k, labid)
-) ENGINE=InnoDB charset=utf8;
-
---
--- LAB.USER
---   - presumably 'Lab Member', 'Lab Manager' or 'Primary Investigator'
--- 
-create table labuser ( 
-  labuserid int(10)  primary key auto_increment, 
-
-  labid int(10) , 
-  userid int(10) , 
-
-  roleid int(10) , 
-   
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_labuser_lid (labid) references lab(labid),
-  foreign key fk_labuser_uid (userid) references user(userid),
-  foreign key fk_labuser_rid (roleid) references role(roleid),
-
-  constraint unique index u_labuser_lid_uid (labid, userid)
-) ENGINE=InnoDB charset=utf8;
-
---
--- pending user
--- 
-create table userpending (
-  userpendingid int(10)  primary key auto_increment,
-
-  email varchar(250) , 
-  password varchar(250) , 
-  login varchar(250) , 
-  firstname varchar(250) , 
-  lastname varchar(250) , 
-  locale varchar(5)  default 'en_US',
-  labid int(10),
-
-  status varchar(10)  default 'PENDING', -- PENDING, APPROVED, DECLINED
-
-  lastupdts timestamp  default current_timestamp, 
-  lastupduser int(10)  default 0,
-
-  foreign key fk_userpending_lid (labid) references lab(labid),
-
-  index i_userpending_status(status, email) 
-) ENGINE=InnoDB charset=utf8;
-
-create table userpendingmeta (
-  userpendingmetaid int(10)  primary key auto_increment,
-  userpendingid int(10) ,
-
-  k varchar(250) , 
-  v varchar(250), 
-  position int(10)  default 0,
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_userpendingmeta_userpendingid (userpendingid) references userpending(userpendingid),
-  constraint unique index u_userpendingmeta_k_lid (k, userpendingid)
-) ENGINE=InnoDB charset=utf8;
-
-create table labpending ( 
-  labpendingid int(10)  primary key auto_increment,
-
-  departmentid int(10) , 
-  name varchar(250) ,
-
-  primaryuserid int(10),
-  userpendingid int(10),
-
-  status varchar(10)  default 'PENDING', -- PENDING, APPROVED, DECLINED
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_labpending_did (departmentid) references department(departmentid),
-  foreign key fk_labpending_pruid (primaryuserid) references user(userid),
-  foreign key fk_labpending_peuid (userpendingid) references userpending(userpendingid),
-  index (status, name)
-) ENGINE=InnoDB charset=utf8;
-
-create table labpendingmeta (
-  labpendingmetaid int(10)  primary key auto_increment,
-  labpendingid int(10) ,
-
-  k varchar(250) , 
-  v varchar(250), 
-  position int(10)  default 0,
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_labpendingmeta_labpendingid (labpendingid) references labpending(labpendingid),
-  constraint unique index u_labpendingmeta_k_lid (k, labpendingid)
-) ENGINE=InnoDB charset=utf8;
-
-
---
--- confirm email
---
-create table confirmemailauth (
-  confirmemailauthid  int(10)  primary key auto_increment,
-  userpendingid int(10),
-  userid int(10),
-  authcode varchar(250) ,
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default '0',
-  foreign key fk_labpending_uid (userid) references user(userid),
-  foreign key fk_labpending_peuid (userpendingid) references userpending(userpendingid),
-  constraint unique index u_confirmemailauth (authcode)
-) ENGINE=InnoDB charset=utf8;
-
-
---
--- type.RESOURCE
--- 
-create table resourcetype (
-  resourcetypeid int(10)  primary key auto_increment, 
-
-  iname varchar(250) ,
-  name varchar(250) ,
-
-  constraint unique index u_resourcetype_iname (iname),
-  constraint unique index u_resourcetype_name (name)
-) ENGINE=InnoDB charset=utf8; 
-
-insert into resourcetype values (1, 'mps', 'Massively Parallel DNA Sequencer'); 
-insert into resourcetype values (2, 'amplicon', 'DNA Amplicon'); 
-insert into resourcetype values (3, 'aligner', 'Aligner'); 
-insert into resourcetype values (4, 'peakcaller', 'Peak Caller'); 
-insert into resourcetype values (5, 'sanger', 'Sanger DNA Sequencer'); 
-insert into resourcetype values (6, 'helptagPipeline', 'HELP-tag Pipeline'); 
-
---
--- RESOURCE
--- 
-
-create table resourcecategory (
-  resourcecategoryid int(10)  primary key auto_increment, 
-  resourcetypeid int(10) not null,
-  iname varchar(250) ,
-  name varchar(250) ,
-  isactive int(1)  default 1,
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_resourccategory_resourcetypeid (resourcetypeid) references resourcetype(resourcetypeid),
-
-  constraint unique index u_resourcecategory_i(iname),
-  constraint unique index u_resourcecategory_n(name)
-) ENGINE=InnoDB charset=utf8;
-
-create table resourcecategorymeta (
-  resourcecategorymetaid int(10)  primary key auto_increment,
-  resourcecategoryid int(10) ,
-
-  k varchar(250) , 
-  v varchar(250), 
-  position int(10)  default 0,
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_resourccategoryemeta_resourcecategoryid (resourcecategoryid) references resourcecategory(resourcecategoryid),
-  constraint unique index u_resourcecategorymeta_k_rid (k, resourcecategoryid)
-) ENGINE=InnoDB charset=utf8;
-
-
-create table resource (
-  resourceid int(10)  primary key auto_increment, 
-  resourcecategoryid int(10) , 
-  resourcetypeid int(10) ,
-  iname varchar(250) ,
-  name varchar(250) ,
-  isactive int(1)  default 1,
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-  foreign key fk_resource_trid (resourcetypeid) references resourcetype(resourcetypeid),
-  foreign key fk_resource_rid (resourcecategoryid) references resourcecategory(resourcecategoryid),
-  constraint unique index u_resource_i(iname),
-  constraint unique index u_resource_n(name)
-) ENGINE=InnoDB charset=utf8;
-
-
-create table software (
-  softwareid int(10)  primary key auto_increment, 
-  resourcetypeid int(10) not null,
-  iname varchar(250) ,
-  name varchar(250) ,
-  isactive int(1)  default 1,
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_software_resourcetypeid (resourcetypeid) references resourcetype(resourcetypeid),
-
-  constraint unique index u_software_i(iname)
-) ENGINE=InnoDB charset=utf8;
-
-
-create table softwaremeta (
-  softwaremetaid int(10)  primary key auto_increment,
-  softwareid int(10) ,
-
-  k varchar(250), 
-  v varchar(250), 
-  position int(10)  default 0,
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_softwaremeta_sid (softwareid) references software(softwareid),
-  constraint unique index u_softwaremeta_k_rid (k, softwareid)
-) ENGINE=InnoDB charset=utf8;
-
-
-create table resourcemeta (
-  resourcemetaid int(10)  primary key auto_increment,
-  resourceid int(10) ,
-
-  k varchar(250) , 
-  v varchar(250), 
-  position int(10)  default 0,
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_resourcemeta_resourceid (resourceid) references resource(resourceid),
-  constraint unique index u_resourcemeta_k_rid (k, resourceid)
-) ENGINE=InnoDB charset=utf8;
-
-
--- 
--- RESOURCE.USER 
---   - presumably 'Facilities Tech', maybe w/ roleid
-  -- create table resourceuser ( 
-  -- resourceuserid int(10)  primary key auto_increment, 
-  -- 
-  -- resourceid int(10) , 
-  -- userid int(10) , 
-  -- 
-  -- lastupdts timestamp  default current_timestamp,
-  -- lastupduser int(10)  default 0,
-  -- 
-  -- foreign key fk_resourceuser_lid (resourceid) references resource(resourceid),
-  -- foreign key fk_resourceuser_uid (userid) references user(userid),
-  -- 
-  -- constraint unique index u_resourceuser_rid_uid (resourceid, userid)
-  -- ) ENGINE=InnoDB charset=utf8;
-
-
-
---
-
-
-create table workflow (
-  workflowid int(10)  primary key auto_increment, 
-
-  iname varchar(250) , 
-  name varchar(250) , 
-  createts datetime ,
-
-  isactive int(1)  default 0,
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  constraint unique index u_workflow_iname (iname),
-  constraint unique index u_workflow_name (name)
-) ENGINE=InnoDB charset=utf8;
-
-create table workflowmeta (
-  workflowmetaid int(10)  primary key auto_increment,
-  workflowid int(10) ,
-
-  k varchar(250) , 
-  v text,
-  position int(10)  default 0,
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_workflowmeta_workflowid (workflowid) references workflow(workflowid),
-  constraint unique index u_workflowmeta_k_wid (k, workflowid)
-) ENGINE=InnoDB charset=utf8;
-
---
--- JOB
---
-create table job (
-  jobid int(10)  primary key auto_increment, 
-
-  labid int(10) ,
-  userid int(10) ,  -- investigator
-  workflowid int(10) ,  
-
-  name varchar(250) , 
-   
-  createts datetime ,
-
-  viewablebylab int(1)  default 0,
-
-  isactive int(1)  default 1,
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_job_lid (labid) references lab(labid),
-  foreign key fk_job_uid (userid) references user(userid),
-  foreign key fk_job_wid (workflowid) references workflow(workflowid),
-
-  constraint unique index u_job_name_lid (name, labid)
-) ENGINE=InnoDB charset=utf8;
-
-
-create table jobmeta (
-  jobmetaid int(10)  primary key auto_increment,
-  jobid int(10) ,
-
-  k varchar(250) , 
-  v text,
-  position int(10)  default 0,
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_jobmeta_jobid (jobid) references job(jobid),
-
-  constraint unique index u_jobmeta_k_jid (k, jobid)
-) ENGINE=InnoDB charset=utf8;
-
---
--- JOB.USER
---   - presumably 'Job Submitter', 'Job Viewer'
--- 
-
-create table jobuser ( 
-  jobuserid int(10)  primary key auto_increment, 
-
-  jobid int(10) , 
-  userid int(10) , 
-
-  roleid int(10) , 
-   
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_jobuser_jid (jobid) references job(jobid),
-  foreign key fk_jobuser_uid (userid) references user(userid),
-  foreign key fk_jobuser_rid (roleid) references role(roleid),
-
-  constraint unique index u_jobuser_jid_uid (jobid, userid)
-) ENGINE=InnoDB charset=utf8;
-
-
-create table jobresourcecategory (
-  jobresourcecategoryid int(10)  primary key auto_increment,
-  jobid int(10) ,
-  resourcecategoryid int(10) ,
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_jobresourcecategory_jid (jobid) references job(jobid),
-  foreign key fk_jobresourcecategory_rcid (resourcecategoryid) references resourcecategory(resourcecategoryid),
-  constraint unique index u_jobresourcecategory_rcid_jid (resourcecategoryid, jobid)
-) ENGINE=InnoDB charset=utf8;
-
-create table jobsoftware (
-  jobsoftwareid int(10)  primary key auto_increment,
-  jobid int(10) ,
-  softwareid int(10) ,
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_jobsoftware_jdid (jobid) references job(jobid),
-  foreign key fk_jobsoftware_sid (softwareid) references software(softwareid),
-  constraint unique index u_jobsoftware_rid_jdid (softwareid, jobid)
-) ENGINE=InnoDB charset=utf8;
-
---
--- job draft
---
-
-create table jobdraft (
-  jobdraftid int(10)  primary key auto_increment, 
-
-  labid int(10) ,
-  userid int(10) ,  -- investigator
-  workflowid int(10) ,  
-
-  name varchar(250) , 
-   
-  createts datetime ,
-  submittedjobid int(10),
-
-  status varchar(50)  default 1,
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_jobdraft_lid (labid) references lab(labid),
-  foreign key fk_jobdraft_uid (userid) references user(userid),
-  foreign key fk_jobdraft_wid (workflowid) references workflow(workflowid),
-  foreign key fk_jobdraft_sjid (submittedjobid) references job(jobid)
-
-) ENGINE=InnoDB charset=utf8;
-
-
-create table jobdraftmeta (
-  jobdraftmetaid int(10)  primary key auto_increment,
-  jobdraftid int(10) ,
-
-  k varchar(250) , 
-  v varchar(250), 
-  position int(10)  default 0,
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_jobdraftmeta_jdid (jobdraftid) references jobdraft(jobdraftid),
-
-  constraint unique index u_jobdraftmeta_k_jdid (k, jobdraftid)
-) ENGINE=InnoDB charset=utf8;
-
-create table jobdraftresourcecategory (
-  jobdraftresourcecategoryid int(10)  primary key auto_increment,
-  jobdraftid int(10) ,
-  resourcecategoryid int(10) ,
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_jobdraftresourcecategory_jdid (jobdraftid) references jobdraft(jobdraftid),
-  foreign key fk_jobdraftresourcecategory_rcid (resourcecategoryid) references resourcecategory(resourcecategoryid),
-  constraint unique index u_jobdraftresourcecategory_rcid_jdid (resourcecategoryid, jobdraftid)
-) ENGINE=InnoDB charset=utf8;
-
-create table jobdraftsoftware (
-  jobdraftsoftwareid int(10)  primary key auto_increment,
-  jobdraftid int(10) ,
-  softwareid int(10) ,
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_jobdraftsoftware_jdid (jobdraftid) references jobdraft(jobdraftid),
-  foreign key fk_jobdraftsoftware_sid (softwareid) references software(softwareid),
-  constraint unique index u_jobdraftsoftware_sid_jdid (softwareid, jobdraftid)
-) ENGINE=InnoDB charset=utf8;
-
-
-
--- ---------------------------------------------------
-
---
--- PROJECT
---  user job folders?
-
-create table project (
-  projectid int(10)  primary key auto_increment, 
-  labid int(10) ,
-  userid int(10) ,
- 
-  name varchar(250) ,
-
-  isactive int(1)  default 1,
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_project_lid (labid) references lab(labid),
-
-  constraint unique index u_project_name_lid (name, labid)
-) ENGINE=InnoDB charset=utf8;
-
-
---
--- BARCODE
---   - physical object tracker
---
-create table barcode ( 
-  barcodeid int(10)  primary key auto_increment, 
-  barcode varchar(250) , 
-
-  barcodefor varchar(250), -- enum sample/resource 
-
-  isactive int(1)  default 1,
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0
-
-) ENGINE=InnoDB charset=utf8;
-
-create table resourcebarcode (
-  resourcebarcodeid int(10)  primary key auto_increment, 
-
-  resourceid int(10) , 
-  barcodeid int(10) , 
-
-  foreign key fk_resourcebarcode_rid (resourceid) references resource(resourceid),
-  foreign key fk_resourcebarcode_bcid (barcodeid) references barcode(barcodeid),
-
-  constraint unique index u_resourcebarcode_rid (resourceid),
-  constraint unique index u_resourcebarcode_bcid (barcodeid)
-) ENGINE=InnoDB charset=utf8;
-
--- FILE
---   mysql max out at 767 bytes for indexable length
---
-create table file (
-  fileid int(10)  primary key auto_increment,
-  absolute_path varchar(2048) , 
-  contenttype varchar(250) , 
-  sizek int(10) ,
-  md5hash varchar(250) ,
-  description varchar(250),
-
-  isarchived int(1)  default 0,
-  isactive int(1)  default 1,
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0 
-
-  -- constraint unique index u_file_flocation (filelocation)
-) ENGINE=InnoDB charset=utf8;
-
-create table filemeta (
-  filemetaid int(10)  primary key auto_increment,
-  fileid int(10) ,
-
-  k varchar(250) , 
-  v text,
-  position int(10)  default 0,
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_filemeta_fileid (fileid) references file(fileid),
-
-  constraint unique index u_filemeta_k_jid (k, fileid)
-) ENGINE=InnoDB charset=utf8;
-
--- 
--- SAMPLE
---
-
-create table sampletypecategory (
-  sampletypecategoryid int(10)  primary key auto_increment,
-  iname varchar(250), 
-  name varchar(250),
-
-  constraint unique index u_sampletypecategory_iname (iname)
-) ENGINE=InnoDB charset=utf8;
-
-insert into sampletypecategory values
-(1, 'biomaterial', 'Biomaterial'),
-(2, 'hardware', 'Hardware');
-
-
-create table sampletype (
-  sampletypeid int(10)  primary key auto_increment,
-  sampletypecategoryid int(10) ,
-  iname varchar(250), 
-  name varchar(250),
-  foreign key fk_sampletype_tscid (sampletypecategoryid) references sampletypecategory(sampletypecategoryid),
-  constraint unique index u_sampletype_iname (iname)
-) ENGINE=InnoDB charset=utf8;
-
-insert into sampletype values
-(1, 1, 'dna', 'DNA'), 
-(2, 1, 'rna', 'RNA'), 
-(3, 1, 'library', 'Library'),
-(4, 2, 'cell', 'Cell'), 
-(5, 2, 'platformunit', 'Platform Unit'),
-(6, 1, 'tissue', 'Tissue'),
-(7, 1, 'protein', 'Protein'),
-(8, 1, 'cellPrimary', 'Primary Cell'),
-(9, 1, 'cellLine', 'Cell Line'),
-(10, 1, 'facilityLibrary', 'Library');
-
-
-
-create table samplesubtype (
-  samplesubtypeid int(10)  primary key auto_increment,
-
-  sampletypeid int(10) ,
-
-  iname varchar(50) , -- meta field prefix
-  name varchar(250) ,
-  isactive int(1)  default 1,
-  arealist varchar(250),
-
-  constraint unique index u_samplesubtype_iname (iname),
-  foreign key fk_samplesubtype_tsid (sampletypeid) references sampletype(sampletypeid)
-) ENGINE=InnoDB charset=utf8;
-
-create table samplesubtypemeta (
-  samplesubtypemetaid int(10)  primary key auto_increment,
-  samplesubtypeid int(10) ,
-
-  k varchar(250) , 
-  v varchar(250), 
-  position int(10)  default 0,
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_samplesubtypemeta_sampleid (samplesubtypeid) references samplesubtype(samplesubtypeid),
-  constraint unique index u_samplesubtypemeta_k_sid (k, samplesubtypeid)
-) ENGINE=InnoDB charset=utf8;
-
-create table samplesubtyperesourcecategory (
-  samplesubtyperesourcecategoryid int(10)  primary key auto_increment,
-  samplesubtypeid int(10) ,
-  resourcecategoryid int(10) ,
-  foreign key fk_samplesubtyperesourcecategory_stscid (samplesubtypeid) references samplesubtype(samplesubtypeid),
-  foreign key fk_samplesubtyperesourcecategory_rcid (resourcecategoryid) references resourcecategory(resourcecategoryid)
-) ENGINE=InnoDB charset=utf8;
-
-create table jobdraftfile ( 
-  jobdraftfileid int(10)  primary key auto_increment,
-  jobdraftid int(10) , 
-  fileid int(10) , 
-
-  iname varchar(2048), -- 
-  name varchar(250), 
-  description varchar(2048), 
-
-  isactive int(1)  default 1, 
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_jobdraftfile_jid (jobdraftid) references jobdraft(jobdraftid),
-  foreign key fk_jobdraftfile_fid (fileid) references file(fileid) -- ,
-
-  -- constraint unique index u_jobdraftfile_iname_jid (iname, jobdraftid)
-) ENGINE=InnoDB charset=utf8;
-
-create table workflowsamplesubtype (
-  workflowsamplesubtypeid int(10)  primary key auto_increment,
-  workflowid int(10) ,
-  samplesubtypeid int(10) ,
- 
-  constraint unique index u_samplesubtype_wid_stsid (workflowid, samplesubtypeid),
-
-  foreign key fk_workflowsamplesubtype_stsid (samplesubtypeid) references samplesubtype(samplesubtypeid),
-  foreign key fk_workflowsamplesubtype_wid (workflowid) references workflow(workflowid)
-) ENGINE=InnoDB charset=utf8;
-
-
-
-create table workflowresourcetype (
-  workflowresourcetypeid int(10)  primary key auto_increment, 
-  workflowid int(10) ,
-  resourcetypeid int(10) ,
-
-  constraint unique index u_workflowresourcetype_wid_trid (workflowid, resourcetypeid),
-
-  foreign key fk_workflowresourcetype_trid (resourcetypeid) references resourcetype(resourcetypeid),
-  foreign key fk_workflowresourcetype_wid (workflowid) references workflow(workflowid)
-) ENGINE=InnoDB charset=utf8;
-
-create table workflowresourcecategory (
-  workflowresourcecategoryid int(10)  primary key auto_increment, 
-  workflowid int(10) ,
-  resourcecategoryid int(10) ,
-
-  constraint unique index u_workflowresource_wid_rcid (workflowid, resourcecategoryid),
-
-  foreign key fk_workflowresourcecategory_rcid (resourcecategoryid) references resourcecategory(resourcecategoryid),
-  foreign key fk_workflowresourcecategory_wid (workflowid) references workflow(workflowid)
-) ENGINE=InnoDB charset=utf8;
-
-create table workflowresourcecategorymeta (
-  workflowresourcecategorymetaid int(10)  primary key auto_increment, 
-  workflowresourcecategoryid int(10) ,
-  k varchar(250) , 
-  v text,
-  position int(10)  default 0,
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_wrometa_workflowresourcecategoryid (workflowresourcecategoryid) references workflowresourcecategory(workflowresourcecategoryid),
-
-  constraint unique index u_wro_wrcid_k (workflowresourcecategoryid, k)
-) ENGINE=InnoDB charset=utf8;
-
-create table workflowsoftware (
-  workflowsoftwareid int(10)  primary key auto_increment, 
-  workflowid int(10) ,
-  softwareid int(10) ,
-
-  constraint unique index u_workflowsoftware_wid_sid (workflowid, softwareid),
-
-  foreign key fk_workflowsoftware_sid (softwareid) references software(softwareid),
-  foreign key fk_workflowsoftware_wid (workflowid) references workflow(workflowid)
-) ENGINE=InnoDB charset=utf8;
-
-create table workflowsoftwaremeta (
-  workflowsoftwaremetaid int(10)  primary key auto_increment, 
-  workflowsoftwareid int(10) ,
-  k varchar(250) , 
-  v text,
-  position int(10)  default 0,
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_wrometa_workflowsoftwareid (workflowsoftwareid) references workflowsoftware(workflowsoftwareid),
-
-  constraint unique index u_wro_wrcid_k (workflowsoftwareid, k)
-) ENGINE=InnoDB charset=utf8;
-
-
-
-create table sample (
-  sampleid int(10)  primary key auto_increment,
-  parentid int(10),
-  sampletypeid int(10) ,
-  samplesubtypeid int(10),
-
-  submitter_labid int(10) ,
-  submitter_userid int(10) ,
-  submitter_jobid int(10) null,
-
-  isreceived int(1)  default 0,
-  receiver_userid int(10),
-  receivedts datetime,
-
-  name varchar(250),
-  isgood int(1),
-
-  isactive int(1)  default 1,
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_sample_sampleid (parentid) references sample(sampleid),
-  foreign key fk_sample_tsid (sampletypeid) references sampletype(sampletypeid),
-  foreign key fk_sample_stsid (samplesubtypeid) references samplesubtype(samplesubtypeid),
-  foreign key fk_sample_sjid (submitter_jobid) references job(jobid),
-  foreign key fk_sample_slid (submitter_labid) references lab(labid),
-  foreign key fk_sample_suid (submitter_userid) references user(userid)
-) ENGINE=InnoDB charset=utf8;
-
-create table samplemeta (
-  samplemetaid int(10)  primary key auto_increment,
-  sampleid int(10) ,
-
-  k varchar(250) , 
-  v varchar(250), 
-  position int(10)  default 0,
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_samplemeta_sampleid (sampleid) references sample(sampleid),
-  constraint unique index u_samplemeta_k_sid (k, sampleid)
-) ENGINE=InnoDB charset=utf8;
-
-
--- SAMPLE.SOURCE
---   - if a sample has a parent, what is it. 
-create table samplesource (
-  samplesourceid int(10)  primary key auto_increment, 
-  sampleid int(10) ,
-  indexvalue int(10)  default 0,
-  source_sampleid int(10) ,
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_samplesource_sid (sampleid) references sample(sampleid),
-  foreign key fk_samplesource_ssid (source_sampleid) references sample(sampleid),
-
-  constraint unique index u_samplesource_sid (sampleid, indexvalue)
-) ENGINE=InnoDB charset=utf8;
-
-create table samplesourcemeta (
-  samplesourcemetaid int(10)  primary key auto_increment,
-  samplesourceid int(10) ,
-
-  k varchar(250) , 
-  v varchar(250), 
-  position int(10)  default 0,
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_samplesourcemeta_sampleid (samplesourceid) references samplesource(samplesourceid),
-  constraint unique index u_samplesourcemeta_k_sid (k, samplesourceid)
-) ENGINE=InnoDB charset=utf8;
-
--- SAMPLE.BARCODE 
-create table samplebarcode (
-  samplebarcode int(10)  primary key auto_increment, 
- 
-  sampleid int(10) , 
-  barcodeid int(10) , 
- 
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_samplebarcode_sid (sampleid) references sample(sampleid),
-  foreign key fk_samplebarcode_bid (barcodeid) references barcode(barcodeid),
-
-  constraint unique index u_samplebarcode_sid (sampleid),
-  constraint unique index u_samplebarcode_bcid (barcodeid)
-) ENGINE=InnoDB charset=utf8;
-
--- SAMPLE.LAB
---   - lab share?
-create table samplelab (
-  samplelabid int(10)  primary key auto_increment, 
-  
-  sampleid int(10) ,  
-  labid int(10) ,
-
-  isprimary int(1)  default 0, 
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_samplelab_sid (sampleid) references sample(sampleid),
-  foreign key fk_samplelab_lid (labid) references lab(labid),
-
-  constraint unique index u_samplelab_sid_lid (sampleid, labid)
-) ENGINE=InnoDB charset=utf8;
-
-
-create table sampledraft (
-  sampledraftid int(10)  primary key auto_increment,
-  sampletypeid int(10) ,
-  samplesubtypeid int(10) ,
-
-  labid int(10) ,
-  userid int(10) ,
-  jobdraftid int(10) null,
-
-  sourcesampleid int(10) null,
-  fileid int(10) null,
-
-  name varchar(250),
-  status varchar(50), 
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_sampledraft_tsid (sampletypeid) references sampletype(sampletypeid),
-  foreign key fk_sampledraft_stsid (samplesubtypeid) references samplesubtype(samplesubtypeid),
-  foreign key fk_sampledraft_sjid (jobdraftid) references jobdraft(jobdraftid),
-  foreign key fk_sampledraft_slid (labid) references lab(labid),
-  foreign key fk_sampledraft_suid (userid) references user(userid),
-  foreign key fk_sampledraft_fid (fileid) references file(fileid)
-) ENGINE=InnoDB charset=utf8;
-
-create table sampledraftmeta (
-  sampledraftmetaid int(10)  primary key auto_increment,
-  sampledraftid int(10) ,
-
-  k varchar(250) , 
-  v varchar(250), 
-  position int(10)  default 0,
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_sampledraftmeta_sdid (sampledraftid) references sampledraft(sampledraftid),
-  constraint unique index u_sampledraftmeta_k_sid (k, sampledraftid)
-) ENGINE=InnoDB charset=utf8;
-
-create table jobdraftcellselection (
-  jobdraftcellselectionid int(10)  primary key auto_increment,
-  jobdraftid int(10) ,
-  cellindex int(10) ,
-
-  foreign key fk_jobdraft_jid (jobdraftid) references jobdraft(jobdraftid),
-  constraint unique index u_jobdraftcell_jdid_ci (jobdraftid, cellindex)
-);
-
-create table sampledraftjobdraftcellselection (
-  sampledraftjobdraftcellselectionid int(10)  primary key auto_increment,
-  sampledraftid int(10) ,
-  jobdraftcellselectionid int(10) ,
-
-  libraryindex int(10) , 
-
-  foreign key fk_sampledraftcell_sdid (sampledraftid) references sampledraft(sampledraftid),
-  foreign key fk_sampledraftcell_jdcid (jobdraftcellselectionid) references jobdraftcellselection(jobdraftcellselectionid),
-  constraint unique index u_sampledraftcell_jdcid_li (jobdraftcellselectionid, libraryindex)
-);
-
-
---
--- back to the job
---
-
-
--- 
--- JOB.SAMPLE
---   - maps samples used and created to jobs
-create table jobsample ( 
-  jobsampleid int(10)  primary key auto_increment, 
-  jobid int(10) , 
-  sampleid int(10) ,
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_jobsample_jid (jobid) references job(jobid),
-  foreign key fk_jobsample_sid (sampleid) references sample(sampleid),
-
-  constraint unique index u_jobsample_jid_sid (jobid, sampleid)
-) ENGINE=InnoDB charset=utf8;
-
-create table jobsamplemeta (
-  jobsamplemetaid int(10)  primary key auto_increment,
-  jobsampleid int(10) ,
-
-  k varchar(250) , 
-  v varchar(250), 
-  position int(10)  default 0,
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_jobsamplemeta_jsid (jobsampleid) references jobsample(jobsampleid),
-  constraint unique index u_jobsamplemeta_k_jsid (k, jobsampleid)
-) ENGINE=InnoDB charset=utf8;
-
-
-create table jobcellselection (
-  jobcellselectionid int(10)  primary key auto_increment,
-  jobid int(10) ,
-  cellindex int(10) ,
-
-  foreign key fk_job_jid (jobid) references job(jobid),
-  constraint unique index u_jobcell_jdid_ci (jobid, cellindex)
-);
-
-create table samplejobcellselection (
-  samplejobcellselectionid int(10)  primary key auto_increment,
-  sampleid int(10) ,
-  jobcellselectionid int(10) ,
-
-  libraryindex int(10) , 
-
-  foreign key fk_samplecell_sdid (sampleid) references sample(sampleid),
-  foreign key fk_samplecell_jdcid (jobcellselectionid) references jobcellselection(jobcellselectionid),
-  constraint unique index u_samplecell_jdcid_li (jobcellselectionid, libraryindex)
-);
-
-
---
--- ACCOUNTING TABLES
---
-create table acct_workflowcost (
-  workflowid int(10)  primary key,
-  basecost float(10,2) ,
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_acct_workflowcost_wfid (workflowid) references job(workflowid)
-) ENGINE=InnoDB charset=utf8;
-
-
-create table acct_quote (
-  quoteid int(10)  primary key auto_increment,
-  jobid int(10) ,
-  amount float(10,2) ,
-  userid int(10), -- quoter
-  comment varchar(250),
-
-  isactive int(1)  default 1,
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_acct_quote_jid (jobid) references job(jobid),
-  foreign key fk_acct_quote_uid (userid) references user(userid)
-) ENGINE=InnoDB charset=utf8;
-
-
-create table acct_quotemeta (
-  quotemetaid int(10)  primary key auto_increment,
-  quoteid int(10) ,
-
-  k varchar(250) , 
-  v varchar(250), 
-  position int(10)  default 0,
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_quotemeta_qid (quoteid) references acct_quote(quoteid),
-  constraint unique index u_quotemeta_k_qid (k, quoteid)
-) ENGINE=InnoDB charset=utf8;
-
-
-create table acct_jobquotecurrent (
-  currentid int(10)  primary key auto_increment, 
-  jobid int(10) ,
-  quoteid int(10) ,
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-
-  foreign key fk_acct_jobquotecurrent_jid (jobid) references job(jobid),
-  constraint unique index u_acct_jobquotecurrent_jid (jobid),
-  foreign key fk_acct_jobquotecurrent_qid (quoteid) references acct_quote(quoteid),
-  constraint unique index u_acct_jobquotecurrent_qid (quoteid)
-) ENGINE=InnoDB charset=utf8;
-
-
-create table acct_quoteuser (
-  quoteuserid int(10)  primary key auto_increment, 
-  quoteid int(10) ,
-  userid int(10) ,
-  roleid int(10) , -- PI, DA, FM,  
-  isapproved int(1) ,
-  comment varchar(250),
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-
-  foreign key fk_acct_quote_jid (quoteid) references acct_quote(quoteid),
-  foreign key fk_acct_quote_uid (userid) references user(userid),
-  foreign key fk_acct_quote_rid (roleid) references role(roleid)
-) ENGINE=InnoDB charset=utf8;
-
-
-create table acct_invoice (
-  invoiceid int(10)  primary key auto_increment,
-  quoteid int(10) ,
-  jobid int(10) , -- DENORMALIZED
-  amount float(10,2) ,
-  comment varchar(250),
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-
-  foreign key fk_acct_invoice_qid (quoteid) references acct_quote(quoteid),
-  foreign key fk_acct_invoice_jid (jobid) references job(jobid)
-) ENGINE=InnoDB charset=utf8;
-
-create table acct_ledger (
-  ledgerid int(10)  primary key auto_increment,
-  invoiceid int(10) ,
-  jobid int(10) , -- DENORMALIZED
-  amount float(10,2),
-  comment varchar(250),
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-
-  foreign key fk_acct_ledger_iid (invoiceid) references acct_invoice(invoiceid),
-  foreign key fk_acct_ledger_jid (jobid) references job(jobid)
-) ENGINE=InnoDB charset=utf8;
-
-create table acct_grant (
-  grantid int(10)  primary key auto_increment,
-  labid int(10) ,
-  name varchar(250) ,
-  code varchar(250) ,
-  expirationdt datetime,
-
-  isactive int(1)  default 1,
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-
-  foreign key fk_grant_lid (labid) references lab(labid)
-) ENGINE=InnoDB charset=utf8;
-
-create table acct_grantjob (
-  jobid int(10)  primary key auto_increment, 
-  grantid int(10) ,
-
-  isactive int(1)  default 1,
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_acct_ledgergrant_jid (jobid) references acct_ledger(jobid),
-  foreign key fk_acct_ledgergrant_gid (grantid) references acct_grant(grantid)
-) ENGINE=InnoDB charset=utf8;
-
-
---
---
--- JOB.FILE
---
-create table jobfile ( 
-  jobfileid int(10)  primary key auto_increment,
-  jobid int(10) , 
-  fileid int(10) , 
-
-  iname varchar(2048), -- 
-  name varchar(250), 
-  description varchar(2048), 
-
-  isactive int(1)  default 1, 
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_jobfile_jid (jobid) references job(jobid),
-  foreign key fk_jobfile_fid (fileid) references file(fileid) -- ,
-
-  -- constraint unique index u_jobfile_iname_jid (iname, jobid)
-) ENGINE=InnoDB charset=utf8;
-
-
-
-create table samplefile ( 
-  samplefileid int(10)  primary key auto_increment,
-  sampleid int(10) , 
-  fileid int(10) , 
-
-  iname varchar(2048), -- 
-  name varchar(250), 
-  description varchar(2048), 
-
-  isactive int(1)  default 1, 
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_samplefile_sid (sampleid) references sample(sampleid),
-  foreign key fk_samplefile_fid (fileid) references file(fileid) -- ,
-
-  -- constraint unique index u_samplefile_iname_jid (iname, sampleid)
-) ENGINE=InnoDB charset=utf8;
-
-
--- adaptors 
-
-create table adaptorset(
-	adaptorsetid int(10) primary key auto_increment,
-	iname varchar(250),
-	name varchar(250),
-	sampletypeid int(10),
-	isactive int(1)  default 1, 
-
-  	foreign key fk_adaptorset_tid (sampletypeid) references sampletype(sampletypeid),
-  	constraint unique index u_adaptorset_k_iid(iname),
-	constraint unique index u_adaptorset_k_nid(name)
-
-) ENGINE=InnoDB charset=utf8;
-
-create table adaptorsetmeta (
-  adaptorsetmetaid int(10)  primary key auto_increment,
-  adaptorsetid int(10) ,
-
-  k varchar(250) , 
-  v varchar(250), 
-  position int(10)  default 0,
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_adaptorsetmeta_runid (adaptorsetid) references adaptorset(adaptorsetid),
-  constraint unique index u_adaptorsetmeta_k_aid (k, adaptorsetid)
-) ENGINE=InnoDB charset=utf8;
-
-create table adaptorsetresourcecategory (
-  adaptorsetresourcecategoryid int(10)  primary key auto_increment, 
-  adaptorsetid int(10) ,
-  resourcecategoryid int(10) ,
-
-  foreign key fk_adaptorsetresourcecategory_rid (resourcecategoryid) references resourcecategory(resourcecategoryid),
-  foreign key fk_adaptorsetresourcecategory_aid (adaptorsetid) references adaptorset(adaptorsetid),
-  constraint unique index u_adaptorsetresourcecategory_aid_rid (adaptorsetid, resourcecategoryid)
-) ENGINE=InnoDB charset=utf8;
-
-create table adaptor(
-	adaptorid int(10) primary key auto_increment,
-	adaptorsetid int(10),
-	iname varchar(250),
-	name varchar(250),
-	sequence varchar(250),
-	barcodesequence varchar(250),
-	barcodenumber int(10),
-	isactive int(1)  default 1, 
-
-  	foreign key fk_adaptor_aid (adaptorsetid) references adaptorset(adaptorsetid),
-  	constraint unique index u_adaptor_k_iid(iname),
-	constraint unique index u_adaptor_k_nid(name)
-) ENGINE=InnoDB charset=utf8;
-
-create table adaptormeta (
-  adaptormetaid int(10)  primary key auto_increment,
-  adaptorid int(10) ,
-
-  k varchar(250) , 
-  v varchar(250), 
-  position int(10)  default 0,
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_adaptormeta_runid (adaptorid) references adaptor(adaptorid),
-  constraint unique index u_adaptormeta_k_aid (k, adaptorid)
-) ENGINE=InnoDB charset=utf8;
-
--- ---------------------------------
-
--- resource stuffs
-
---
--- RESOURCELANE LANE
---
-
-create table resourcecell (
-  resourcecellid int(10)  primary key auto_increment,
-  resourceid int(10) ,
-  iname varchar(250),
-  name varchar(250),
-  isactive int(1) default 1, -- need this as we cannot delete a resourcecell if it is referenced 
-
-  foreign key fk_resourcecell_rid (resourceid) references resource(resourceid),
-  constraint unique index u_resourcecell_iname_rid (iname, resourceid),
-  constraint unique index u_resourcecell_name_rid (name, resourceid)
-) ENGINE=InnoDB charset=utf8;
-
---
--- RUN
---
-
-create table run (
-  runid int(10)  primary key auto_increment,
-
-  resourceid int(10) ,
-  resourcecategoryid int(10) ,
-  softwareid  int(10) ,
-  userid int(10) , -- facilities tech
-
-  name varchar(250) , 
-  sampleid int(10) , -- flowcell
-
-  startts datetime, 
-  endts datetime, 
-
-  status varchar(250), -- ????
-
-  isactive int(1)  default 1, 
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_run_rid (resourceid) references resource(resourceid),
-  foreign key fk_run_rcid (resourcecategoryid) references resourcecategory(resourcecategoryid),
-  foreign key fk_run_swid (softwareid) references software(softwareid),
-  foreign key fk_run_sid (sampleid) references sample(sampleid),
-  foreign key fk_run_userid (userid) references user(userid)
-) ENGINE=InnoDB charset=utf8;
-
-create table runmeta (
-  runmetaid int(10)  primary key auto_increment,
-  runid int(10) ,
-
-  k varchar(250) , 
-  v varchar(250), 
-  position int(10)  default 0,
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_runmeta_runid (runid) references run(runid),
-  constraint unique index u_runmeta_k_rid (k, runid)
-) ENGINE=InnoDB charset=utf8;
-
---
--- RUN.runLANE (LANE)
---
-create table runcell (
-  runcellid int(10)  primary key auto_increment,
-
-  runid int(10) , 
-  resourcecellid int(10) , -- lane 
-  sampleid int(10) , 
-
-  foreign key fk_runcell_rid (runid) references run(runid),
-  foreign key fk_runcell_lid (resourcecellid) references resourcecell(resourcecellid),
-  foreign key fk_runcell_sid (sampleid) references sample(sampleid),
-
-  constraint unique index u_runcell_rid_lid (runid, resourcecellid),
-  constraint unique index u_runcell_sid_rid (sampleid, runid) 
-) ENGINE=InnoDB charset=utf8;
-
---
--- RESOURCE
---
-
-create table runfile (
-  runcellfileid int(10)  primary key auto_increment,
-
-  runid int(10) ,
-  fileid int(10) , 
-
-  iname varchar(2048) , 
-  name varchar(250) , 
-
-  isactive int(1)  default 1, 
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_rfile_rid (runid) references run(runid),
-  foreign key fk_rfile_fid (fileid) references file(fileid),
-
-  constraint unique index u_rlfile_fileid (fileid)
-) ENGINE=InnoDB charset=utf8;
-
-create table runcellfile (
-  runcellfileid int(10)  primary key auto_increment,
-
-  runcellid int(10) ,
-  fileid int(10) , 
-  iname varchar(2048) , 
-  name varchar(250) , 
-
-  isactive int(1)  default 1, 
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_rlfile_rlid (runcellid) references runcell(runcellid),
-  foreign key fk_rlfile_fileid (fileid) references file(fileid),
-
-  constraint unique index u_rlfile_fileid (fileid)
-) ENGINE=InnoDB charset=utf8;
-
-
-
---
--- TASK
--- 
-create table task (
-  taskid int(10)  primary key auto_increment,
-
-  iname varchar(250) ,
-  name varchar(250) ,
-  constraint unique index u_task_iname (iname)
-) ENGINE=InnoDB charset=utf8;
-
-create table workflowtask (
-  workflowtaskid int(10)  primary key auto_increment,
-  workflowid int(10) ,
-  taskid int(10) ,
-
-  iname varchar(250) , -- can be multiple task, so this differenciates
-  name varchar(250) ,
-  foreign key fk_workflowtask_wid (workflowid) references workflow(workflowid),
-  foreign key fk_workflowtask_tid (taskid) references task(taskid),
-  constraint unique index u_workflowtask_iname (iname)
-) ENGINE=InnoDB charset=utf8;
-
-create table workflowtasksource (
-  workflowtasksourceid int(10)  primary key auto_increment,
-  workflowtaskid int(10) ,
-  sourceworkflowtaskid int(10),
-  foreign key fk_workflowtasksource_wid (workflowtaskid) references workflowtask(workflowtaskid),
-  foreign key fk_workflowtasksource_sid (sourceworkflowtaskid) references workflowtask(workflowtaskid)
-) ENGINE=InnoDB charset=utf8;
-
-create table state (
-  stateid int(10) not null primary key auto_increment,
-
-  taskid int(10) not null, 
-  name varchar(250) ,
-  status varchar(50), -- 
-  source_stateid int(10) ,
-
-  startts datetime, 
-  endts datetime, 
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_state_tid (taskid) references task(taskid),
-  foreign key fk_state_ssid (source_stateid) references state(stateid)
-) ENGINE=InnoDB charset=utf8;
-
-create table statemeta (
-  statemetaid int(10)  primary key auto_increment,
-  stateid int(10) ,
-
-  k varchar(250) ,
-  v varchar(250),
-  position int(10)  default 0,
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_statemeta_sid (stateid) references state(stateid),
-  constraint unique index u_statemeta_k_pid (k, stateid)
-) ENGINE=InnoDB charset=utf8;
-
-
-create table statejob (
-  statejobid int(10)  primary key auto_increment, 
-
-  stateid int(10) , 
-  jobid int(10) , 
-
-  foreign key fk_statejob_sid (stateid) references state(stateid),
-  foreign key fk_statejob_jid (jobid) references job(jobid)
-) ENGINE=InnoDB charset=utf8;
-
-
-create table statesample (
-  statesampleid int(10)  primary key auto_increment, 
-
-  stateid int(10) , 
-  sampleid int(10) , 
-
-  foreign key fk_statesample_sid (stateid) references state(stateid),
-  foreign key fk_statesample_sampleid (sampleid) references sample(sampleid)
-) ENGINE=InnoDB charset=utf8;
-
-create table staterun (
-  staterunid int(10)  primary key auto_increment, 
-
-  stateid int(10) , 
-  runid int(10) , 
-
-  foreign key fk_staterun_sid (stateid) references state(stateid),
-  foreign key fk_staterun_rid (runid) references run(runid)
-) ENGINE=InnoDB charset=utf8;
-
---
--- tie illumina runs back to real tasks
---   [still unsure of this design]
-create table stateruncell (
-  stateruncellid int(10)  primary key auto_increment,
-  
-  stateid int(10) ,
-  runcellid int(10) ,
-
-  foreign key fk_stateruncell_sid (stateid) references state(stateid),
-  foreign key fk_stateruncell_rlid (runcellid) references runcell(runcellid)
-) ENGINE=InnoDB charset=utf8;
-
-
-
-
-SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
-
+-- Host: localhost    Database: wasp
+-- ------------------------------------------------------
+-- Server version	5.1.52
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `BATCH_JOB_EXECUTION`
+--
+
+DROP TABLE IF EXISTS `BATCH_JOB_EXECUTION`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `BATCH_JOB_EXECUTION` (
+  `JOB_EXECUTION_ID` bigint(20) NOT NULL,
+  `VERSION` bigint(20) DEFAULT NULL,
+  `JOB_INSTANCE_ID` bigint(20) NOT NULL,
+  `CREATE_TIME` datetime NOT NULL,
+  `START_TIME` datetime DEFAULT NULL,
+  `END_TIME` datetime DEFAULT NULL,
+  `STATUS` varchar(10) DEFAULT NULL,
+  `EXIT_CODE` varchar(100) DEFAULT NULL,
+  `EXIT_MESSAGE` varchar(2500) DEFAULT NULL,
+  `LAST_UPDATED` datetime DEFAULT NULL,
+  PRIMARY KEY (`JOB_EXECUTION_ID`),
+  KEY `JOB_INST_EXEC_FK` (`JOB_INSTANCE_ID`),
+  CONSTRAINT `JOB_INST_EXEC_FK` FOREIGN KEY (`JOB_INSTANCE_ID`) REFERENCES `BATCH_JOB_INSTANCE` (`JOB_INSTANCE_ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `BATCH_JOB_EXECUTION`
+--
+
+LOCK TABLES `BATCH_JOB_EXECUTION` WRITE;
+/*!40000 ALTER TABLE `BATCH_JOB_EXECUTION` DISABLE KEYS */;
+INSERT INTO `BATCH_JOB_EXECUTION` VALUES (1,1,1,'2012-06-11 11:42:12','2012-06-11 11:42:12',NULL,'STARTED','UNKNOWN','','2012-06-11 11:42:12'),(2,2,2,'2012-06-11 11:42:21','2012-06-11 11:42:21','2012-06-11 14:47:47','COMPLETED','COMPLETED','','2012-06-11 14:47:47'),(3,1,3,'2012-06-11 11:42:21','2012-06-11 11:42:21',NULL,'STARTED','UNKNOWN','','2012-06-11 11:42:21'),(4,1,4,'2012-06-11 14:47:51','2012-06-11 14:47:51',NULL,'STARTED','UNKNOWN','','2012-06-11 14:47:51');
+/*!40000 ALTER TABLE `BATCH_JOB_EXECUTION` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `BATCH_JOB_EXECUTION_CONTEXT`
+--
+
+DROP TABLE IF EXISTS `BATCH_JOB_EXECUTION_CONTEXT`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `BATCH_JOB_EXECUTION_CONTEXT` (
+  `JOB_EXECUTION_ID` bigint(20) NOT NULL,
+  `SHORT_CONTEXT` varchar(2500) NOT NULL,
+  `SERIALIZED_CONTEXT` text,
+  PRIMARY KEY (`JOB_EXECUTION_ID`),
+  CONSTRAINT `JOB_EXEC_CTX_FK` FOREIGN KEY (`JOB_EXECUTION_ID`) REFERENCES `BATCH_JOB_EXECUTION` (`JOB_EXECUTION_ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `BATCH_JOB_EXECUTION_CONTEXT`
+--
+
+LOCK TABLES `BATCH_JOB_EXECUTION_CONTEXT` WRITE;
+/*!40000 ALTER TABLE `BATCH_JOB_EXECUTION_CONTEXT` DISABLE KEYS */;
+INSERT INTO `BATCH_JOB_EXECUTION_CONTEXT` VALUES (1,'{\"map\":\"\"}',NULL),(2,'{\"map\":\"\"}',NULL),(3,'{\"map\":\"\"}',NULL),(4,'{\"map\":\"\"}',NULL);
+/*!40000 ALTER TABLE `BATCH_JOB_EXECUTION_CONTEXT` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `BATCH_JOB_EXECUTION_SEQ`
+--
+
+DROP TABLE IF EXISTS `BATCH_JOB_EXECUTION_SEQ`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `BATCH_JOB_EXECUTION_SEQ` (
+  `ID` bigint(20) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `BATCH_JOB_EXECUTION_SEQ`
+--
+
+LOCK TABLES `BATCH_JOB_EXECUTION_SEQ` WRITE;
+/*!40000 ALTER TABLE `BATCH_JOB_EXECUTION_SEQ` DISABLE KEYS */;
+INSERT INTO `BATCH_JOB_EXECUTION_SEQ` VALUES (4);
+/*!40000 ALTER TABLE `BATCH_JOB_EXECUTION_SEQ` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `BATCH_JOB_INSTANCE`
+--
+
+DROP TABLE IF EXISTS `BATCH_JOB_INSTANCE`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `BATCH_JOB_INSTANCE` (
+  `JOB_INSTANCE_ID` bigint(20) NOT NULL,
+  `VERSION` bigint(20) DEFAULT NULL,
+  `JOB_NAME` varchar(100) NOT NULL,
+  `JOB_KEY` varchar(32) NOT NULL,
+  PRIMARY KEY (`JOB_INSTANCE_ID`),
+  UNIQUE KEY `JOB_INST_UN` (`JOB_NAME`,`JOB_KEY`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `BATCH_JOB_INSTANCE`
+--
+
+LOCK TABLES `BATCH_JOB_INSTANCE` WRITE;
+/*!40000 ALTER TABLE `BATCH_JOB_INSTANCE` DISABLE KEYS */;
+INSERT INTO `BATCH_JOB_INSTANCE` VALUES (1,0,'chipSeq.job.Job','d3736548b57443f165dbf05f887cc42e'),(2,0,'chipSeqDna.sample.Job','e3b369a7e2cbc3678eceafce8ce5a6a1'),(3,0,'chipSeqDna.sample.Job','8e86ad4ff6a9a632338aa2f953179a10'),(4,0,'chipSeqFacilityLibrary.sample.Job','58842e2b4b651815314814569b991fd8');
+/*!40000 ALTER TABLE `BATCH_JOB_INSTANCE` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `BATCH_JOB_PARAMS`
+--
+
+DROP TABLE IF EXISTS `BATCH_JOB_PARAMS`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `BATCH_JOB_PARAMS` (
+  `JOB_INSTANCE_ID` bigint(20) NOT NULL,
+  `TYPE_CD` varchar(6) NOT NULL,
+  `KEY_NAME` varchar(100) NOT NULL,
+  `STRING_VAL` varchar(250) DEFAULT NULL,
+  `DATE_VAL` datetime DEFAULT NULL,
+  `LONG_VAL` bigint(20) DEFAULT NULL,
+  `DOUBLE_VAL` double DEFAULT NULL,
+  KEY `JOB_INST_PARAMS_FK` (`JOB_INSTANCE_ID`),
+  CONSTRAINT `JOB_INST_PARAMS_FK` FOREIGN KEY (`JOB_INSTANCE_ID`) REFERENCES `BATCH_JOB_INSTANCE` (`JOB_INSTANCE_ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `BATCH_JOB_PARAMS`
+--
+
+LOCK TABLES `BATCH_JOB_PARAMS` WRITE;
+/*!40000 ALTER TABLE `BATCH_JOB_PARAMS` DISABLE KEYS */;
+INSERT INTO `BATCH_JOB_PARAMS` VALUES (1,'STRING','state','1','1969-12-31 19:00:00',0,0),(2,'STRING','state','2','1969-12-31 19:00:00',0,0),(3,'STRING','state','3','1969-12-31 19:00:00',0,0),(4,'STRING','state','11','1969-12-31 19:00:00',0,0);
+/*!40000 ALTER TABLE `BATCH_JOB_PARAMS` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `BATCH_JOB_SEQ`
+--
+
+DROP TABLE IF EXISTS `BATCH_JOB_SEQ`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `BATCH_JOB_SEQ` (
+  `ID` bigint(20) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `BATCH_JOB_SEQ`
+--
+
+LOCK TABLES `BATCH_JOB_SEQ` WRITE;
+/*!40000 ALTER TABLE `BATCH_JOB_SEQ` DISABLE KEYS */;
+INSERT INTO `BATCH_JOB_SEQ` VALUES (4);
+/*!40000 ALTER TABLE `BATCH_JOB_SEQ` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `BATCH_STEP_EXECUTION`
+--
+
+DROP TABLE IF EXISTS `BATCH_STEP_EXECUTION`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `BATCH_STEP_EXECUTION` (
+  `STEP_EXECUTION_ID` bigint(20) NOT NULL,
+  `VERSION` bigint(20) NOT NULL,
+  `STEP_NAME` varchar(100) NOT NULL,
+  `JOB_EXECUTION_ID` bigint(20) NOT NULL,
+  `START_TIME` datetime NOT NULL,
+  `END_TIME` datetime DEFAULT NULL,
+  `STATUS` varchar(10) DEFAULT NULL,
+  `COMMIT_COUNT` bigint(20) DEFAULT NULL,
+  `READ_COUNT` bigint(20) DEFAULT NULL,
+  `FILTER_COUNT` bigint(20) DEFAULT NULL,
+  `WRITE_COUNT` bigint(20) DEFAULT NULL,
+  `READ_SKIP_COUNT` bigint(20) DEFAULT NULL,
+  `WRITE_SKIP_COUNT` bigint(20) DEFAULT NULL,
+  `PROCESS_SKIP_COUNT` bigint(20) DEFAULT NULL,
+  `ROLLBACK_COUNT` bigint(20) DEFAULT NULL,
+  `EXIT_CODE` varchar(100) DEFAULT NULL,
+  `EXIT_MESSAGE` varchar(2500) DEFAULT NULL,
+  `LAST_UPDATED` datetime DEFAULT NULL,
+  PRIMARY KEY (`STEP_EXECUTION_ID`),
+  KEY `JOB_EXEC_STEP_FK` (`JOB_EXECUTION_ID`),
+  CONSTRAINT `JOB_EXEC_STEP_FK` FOREIGN KEY (`JOB_EXECUTION_ID`) REFERENCES `BATCH_JOB_EXECUTION` (`JOB_EXECUTION_ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `BATCH_STEP_EXECUTION`
+--
+
+LOCK TABLES `BATCH_STEP_EXECUTION` WRITE;
+/*!40000 ALTER TABLE `BATCH_STEP_EXECUTION` DISABLE KEYS */;
+INSERT INTO `BATCH_STEP_EXECUTION` VALUES (1,4,'wasp.job.CreateSampleFlow0',1,'2012-06-11 11:42:12','2012-06-11 11:42:12','COMPLETED',2,1,0,1,0,0,0,0,'COMPLETED','','2012-06-11 11:42:12'),(2,4,'wasp.job.DaApprovalFlow0',1,'2012-06-11 11:42:12','2012-06-11 11:42:12','COMPLETED',2,1,0,1,0,0,0,0,'COMPLETED','','2012-06-11 11:42:12'),(3,4,'wasp.job.PiApprovalFlow0',1,'2012-06-11 11:42:12','2012-06-11 11:42:12','COMPLETED',2,1,0,1,0,0,0,0,'COMPLETED','','2012-06-11 11:42:12'),(4,4,'wasp.job.QuoteFlow0',1,'2012-06-11 11:42:12','2012-06-11 11:42:12','COMPLETED',2,1,0,1,0,0,0,0,'COMPLETED','','2012-06-11 11:42:12'),(5,4,'wasp.job.QuoteFlow1',1,'2012-06-11 11:42:12','2012-06-11 14:21:36','COMPLETED',2,1,0,1,0,0,0,478,'COMPLETED','','2012-06-11 14:21:36'),(6,4,'wasp.job.DaApprovalFlow1',1,'2012-06-11 11:42:12','2012-06-11 14:37:57','COMPLETED',2,1,0,1,0,0,0,527,'COMPLETED','','2012-06-11 14:37:57'),(7,4,'wasp.job.PiApprovalFlow1',1,'2012-06-11 11:42:12','2012-06-11 14:37:17','COMPLETED',2,1,0,1,0,0,0,525,'COMPLETED','','2012-06-11 14:37:17'),(8,4,'wasp.sample.ReceiveFlow0',2,'2012-06-11 11:42:21','2012-06-11 11:42:21','COMPLETED',2,1,0,1,0,0,0,0,'COMPLETED','','2012-06-11 11:42:21'),(9,4,'wasp.sample.ReceiveFlow0',3,'2012-06-11 11:42:21','2012-06-11 11:42:21','COMPLETED',2,1,0,1,0,0,0,0,'COMPLETED','','2012-06-11 11:42:21'),(10,1,'wasp.sample.ReceiveFlow1',3,'2012-06-11 11:42:21',NULL,'STARTED',0,0,0,0,0,0,0,0,'EXECUTING','','2012-06-11 11:42:21'),(11,4,'wasp.sample.ReceiveFlow1',2,'2012-06-11 11:42:21','2012-06-11 14:39:06','COMPLETED',2,1,0,1,0,0,0,530,'COMPLETED','','2012-06-11 14:39:06'),(12,4,'wasp.job.SendInvoiceFlow0',1,'2012-06-11 14:37:57','2012-06-11 14:37:57','COMPLETED',2,1,0,1,0,0,0,0,'COMPLETED','','2012-06-11 14:37:57'),(13,4,'wasp.job.SendInvoiceFlow1',1,'2012-06-11 14:37:57','2012-06-11 14:37:57','COMPLETED',2,1,0,1,0,0,0,0,'COMPLETED','','2012-06-11 14:37:57'),(14,4,'wasp.job.SendInvoiceFlow2',1,'2012-06-11 14:37:57','2012-06-11 14:37:57','COMPLETED',2,1,0,1,0,0,0,0,'COMPLETED','','2012-06-11 14:37:57'),(15,1,'wasp.default.WaitForChildrenFinalFlow0',1,'2012-06-11 14:37:57',NULL,'STARTED',0,0,0,0,0,0,0,0,'EXECUTING','','2012-06-11 14:37:57'),(16,4,'wasp.sample.WaitForJobInvoiceSentFlow0',2,'2012-06-11 14:39:06','2012-06-11 14:39:06','COMPLETED',2,1,0,1,0,0,0,0,'COMPLETED','','2012-06-11 14:39:06'),(17,4,'wasp.sample.CreateLibraryFlow0',2,'2012-06-11 14:39:06','2012-06-11 14:39:06','COMPLETED',2,1,0,1,0,0,0,0,'COMPLETED','','2012-06-11 14:39:06'),(18,4,'wasp.sample.CreateLibraryFlow1',2,'2012-06-11 14:39:06','2012-06-11 14:47:47','COMPLETED',2,1,0,1,0,0,0,26,'COMPLETED','','2012-06-11 14:47:47'),(19,4,'wasp.sample.LinkLibraryFlow0',2,'2012-06-11 14:47:47','2012-06-11 14:47:47','COMPLETED',2,1,0,1,0,0,0,0,'COMPLETED','','2012-06-11 14:47:47'),(20,4,'wasp.default.FinalFlow0',2,'2012-06-11 14:47:47','2012-06-11 14:47:47','COMPLETED',2,1,0,1,0,0,0,0,'COMPLETED','','2012-06-11 14:47:47'),(21,4,'wasp.sample.LibraryPlatformUnitAssignFlow0',4,'2012-06-11 14:47:51','2012-06-11 14:47:51','COMPLETED',2,1,0,1,0,0,0,0,'COMPLETED','','2012-06-11 14:47:51'),(22,4,'wasp.sample.LibraryPlatformUnitAssignFlow1',4,'2012-06-11 14:47:51','2012-06-12 10:55:26','COMPLETED',2,1,0,1,0,0,0,3621,'COMPLETED','','2012-06-12 10:55:26'),(23,4,'wasp.default.WaitForChildrenFinalFlow0',4,'2012-06-12 10:55:26','2012-06-12 10:55:26','COMPLETED',2,1,0,1,0,0,0,0,'COMPLETED','','2012-06-12 10:55:26'),(24,1,'wasp.sample.GetResultsFlow0',4,'2012-06-12 10:55:26',NULL,'STARTED',0,0,0,0,0,0,0,0,'EXECUTING','','2012-06-12 10:55:26');
+/*!40000 ALTER TABLE `BATCH_STEP_EXECUTION` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `BATCH_STEP_EXECUTION_CONTEXT`
+--
+
+DROP TABLE IF EXISTS `BATCH_STEP_EXECUTION_CONTEXT`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `BATCH_STEP_EXECUTION_CONTEXT` (
+  `STEP_EXECUTION_ID` bigint(20) NOT NULL,
+  `SHORT_CONTEXT` varchar(2500) NOT NULL,
+  `SERIALIZED_CONTEXT` text,
+  PRIMARY KEY (`STEP_EXECUTION_ID`),
+  CONSTRAINT `STEP_EXEC_CTX_FK` FOREIGN KEY (`STEP_EXECUTION_ID`) REFERENCES `BATCH_STEP_EXECUTION` (`STEP_EXECUTION_ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `BATCH_STEP_EXECUTION_CONTEXT`
+--
+
+LOCK TABLES `BATCH_STEP_EXECUTION_CONTEXT` WRITE;
+/*!40000 ALTER TABLE `BATCH_STEP_EXECUTION_CONTEXT` DISABLE KEYS */;
+INSERT INTO `BATCH_STEP_EXECUTION_CONTEXT` VALUES (1,'{\"map\":\"\"}',NULL),(2,'{\"map\":\"\"}',NULL),(3,'{\"map\":\"\"}',NULL),(4,'{\"map\":\"\"}',NULL),(5,'{\"map\":\"\"}',NULL),(6,'{\"map\":\"\"}',NULL),(7,'{\"map\":\"\"}',NULL),(8,'{\"map\":\"\"}',NULL),(9,'{\"map\":\"\"}',NULL),(10,'{\"map\":\"\"}',NULL),(11,'{\"map\":\"\"}',NULL),(12,'{\"map\":\"\"}',NULL),(13,'{\"map\":\"\"}',NULL),(14,'{\"map\":\"\"}',NULL),(15,'{\"map\":\"\"}',NULL),(16,'{\"map\":\"\"}',NULL),(17,'{\"map\":\"\"}',NULL),(18,'{\"map\":\"\"}',NULL),(19,'{\"map\":\"\"}',NULL),(20,'{\"map\":\"\"}',NULL),(21,'{\"map\":\"\"}',NULL),(22,'{\"map\":\"\"}',NULL),(23,'{\"map\":\"\"}',NULL),(24,'{\"map\":\"\"}',NULL);
+/*!40000 ALTER TABLE `BATCH_STEP_EXECUTION_CONTEXT` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `BATCH_STEP_EXECUTION_SEQ`
+--
+
+DROP TABLE IF EXISTS `BATCH_STEP_EXECUTION_SEQ`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `BATCH_STEP_EXECUTION_SEQ` (
+  `ID` bigint(20) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `BATCH_STEP_EXECUTION_SEQ`
+--
+
+LOCK TABLES `BATCH_STEP_EXECUTION_SEQ` WRITE;
+/*!40000 ALTER TABLE `BATCH_STEP_EXECUTION_SEQ` DISABLE KEYS */;
+INSERT INTO `BATCH_STEP_EXECUTION_SEQ` VALUES (24);
+/*!40000 ALTER TABLE `BATCH_STEP_EXECUTION_SEQ` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `REVINFO`
+--
+
+DROP TABLE IF EXISTS `REVINFO`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `REVINFO` (
+  `REV` int(11) NOT NULL AUTO_INCREMENT,
+  `REVTSTMP` bigint(20) DEFAULT NULL,
+  PRIMARY KEY (`REV`)
+) ENGINE=InnoDB AUTO_INCREMENT=632 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `REVINFO`
+--
+
+LOCK TABLES `REVINFO` WRITE;
+/*!40000 ALTER TABLE `REVINFO` DISABLE KEYS */;
+INSERT INTO `REVINFO` VALUES (1,1337789299012),(2,1337789299229),(3,1337789299267),(4,1337789299391),(5,1337789299499),(6,1337789299630),(7,1337789299662),(8,1337789299681),(9,1337789299881),(10,1337789299972),(11,1337789299982),(12,1337789299995),(13,1337789300004),(14,1337789300015),(15,1337789300021),(16,1337789300028),(17,1337789300038),(18,1337789300054),(19,1337789300067),(20,1337789300087),(21,1337789300094),(22,1337789300101),(23,1337789300109),(24,1337789300114),(25,1337789300121),(26,1337789300309),(27,1337789375325),(28,1337793780858),(29,1337800148920),(30,1337800339748),(31,1337801150818),(32,1338298767555),(33,1338299186671),(34,1338299186863),(35,1338299186910),(36,1338299187000),(37,1338299187111),(38,1338299187213),(39,1338299187241),(40,1338299187262),(41,1338299187384),(42,1338299187480),(43,1338299187734),(44,1338299228119),(45,1338394544506),(46,1338395529962),(47,1338395576431),(48,1338395783821),(49,1338399154874),(50,1338407516946),(51,1338407639718),(52,1338407835703),(53,1338409345227),(54,1338410380372),(55,1338410557276),(56,1338410616436),(57,1338411860243),(58,1338411935086),(59,1338412435006),(60,1338415392915),(61,1338415408770),(62,1338415436887),(63,1338415516686),(64,1338415516924),(65,1338415516996),(66,1338415517164),(67,1338415517334),(68,1338415517462),(69,1338415517504),(70,1338415517527),(71,1338415517692),(72,1338415518041),(73,1338470651718),(74,1338470651963),(75,1338470652019),(76,1338470652173),(77,1338470652285),(78,1338470652422),(79,1338470652559),(80,1338470652601),(81,1338470652908),(82,1338470653377),(83,1338470815392),(84,1338470815648),(85,1338470815696),(86,1338470815793),(87,1338470815907),(88,1338470816035),(89,1338470816065),(90,1338470816093),(91,1338470816308),(92,1338470816619),(93,1338470910201),(94,1338470910351),(95,1338470910411),(96,1338470910523),(97,1338470910643),(98,1338470910762),(99,1338470910792),(100,1338470910812),(101,1338470910933),(102,1338470911228),(103,1338470975982),(104,1338470976172),(105,1338470976256),(106,1338470976340),(107,1338470976461),(108,1338470976600),(109,1338470976631),(110,1338470976655),(111,1338470976765),(112,1338470977125),(113,1338471158729),(114,1338471395290),(115,1338471518768),(116,1338471640440),(117,1338471668933),(118,1338471679777),(119,1338471698417),(120,1338471709447),(121,1338472763712),(122,1338472802102),(123,1338472946676),(124,1338472958567),(125,1338473247544),(126,1338473270894),(127,1338473515232),(128,1338473687674),(129,1338473730025),(130,1339428322234),(131,1339428322394),(132,1339428685208),(133,1339428685366),(134,1339428685455),(135,1339428685520),(136,1339428685636),(137,1339428685751),(138,1339428685787),(139,1339428685816),(140,1339428685931),(141,1339428686229),(142,1339428846463),(143,1339428951161),(144,1339429084884),(145,1339429088556),(146,1339429092728),(147,1339429219684),(148,1339429273934),(149,1339429310188),(150,1339429314414),(151,1339429317165),(152,1339429319050),(153,1339429321284),(154,1339429322790),(155,1339429323445),(156,1339429332168),(157,1339429332241),(158,1339429332247),(159,1339429332250),(160,1339429341355),(161,1339429341469),(162,1339436952673),(163,1339436952912),(164,1339436953013),(165,1339436953137),(166,1339436953262),(167,1339436953460),(168,1339436953509),(169,1339436953531),(170,1339436953620),(171,1339436953977),(172,1339437495883),(173,1339437496149),(174,1339437496218),(175,1339437496293),(176,1339437496405),(177,1339437496584),(178,1339437496635),(179,1339437496664),(180,1339437496766),(181,1339437497127),(182,1339437754083),(183,1339437754331),(184,1339437754398),(185,1339437754524),(186,1339437754693),(187,1339437754853),(188,1339437754902),(189,1339437754928),(190,1339437755018),(191,1339437755356),(192,1339437792074),(193,1339437792334),(194,1339437792417),(195,1339437792524),(196,1339437792697),(197,1339437792891),(198,1339437792926),(199,1339437792958),(200,1339437793063),(201,1339437793430),(202,1339438801217),(203,1339438801464),(204,1339438801527),(205,1339438801654),(206,1339438801830),(207,1339438802012),(208,1339438802058),(209,1339438802083),(210,1339438802195),(211,1339438802528),(212,1339438885665),(213,1339438896751),(214,1339439746820),(215,1339439747082),(216,1339439747187),(217,1339439747292),(218,1339439747543),(219,1339439747789),(220,1339439747842),(221,1339439747867),(222,1339439747994),(223,1339439748441),(224,1339439832062),(225,1339439837489),(226,1339439857874),(227,1339439877617),(228,1339439877756),(229,1339439877802),(230,1339439877851),(231,1339439937291),(232,1339439946714),(233,1339439946802),(234,1339440213076),(235,1339440462320),(236,1339440467053),(237,1339440467129),(238,1339440467160),(239,1339440471181),(240,1339441047618),(241,1339443186781),(242,1339443187060),(243,1339443187178),(244,1339443187363),(245,1339443187600),(246,1339443187847),(247,1339443187901),(248,1339443188026),(249,1339443188127),(250,1339443188204),(251,1339443188619),(252,1339443919911),(253,1339443920150),(254,1339443920219),(255,1339443920337),(256,1339443920505),(257,1339443920690),(258,1339443920723),(259,1339443920785),(260,1339443920909),(261,1339443920976),(262,1339443921257),(263,1339444037917),(264,1339444038174),(265,1339444038263),(266,1339444038376),(267,1339444038546),(268,1339444038749),(269,1339444038778),(270,1339444038845),(271,1339444038973),(272,1339444039301),(273,1339446789248),(274,1339446789469),(275,1339446789563),(276,1339446789703),(277,1339446789865),(278,1339446790063),(279,1339446790093),(280,1339446790163),(281,1339446790323),(282,1339446790679),(283,1339446891676),(284,1339446891928),(285,1339446891996),(286,1339446892069),(287,1339446892202),(288,1339446892387),(289,1339446892418),(290,1339446892527),(291,1339446892622),(292,1339446892980),(293,1339448100718),(294,1339448100992),(295,1339448101088),(296,1339448101243),(297,1339448101406),(298,1339448101609),(299,1339448101647),(300,1339448101711),(301,1339448101822),(302,1339448102163),(303,1339448359715),(304,1339448360033),(305,1339448360199),(306,1339448360291),(307,1339448360414),(308,1339448360680),(309,1339448360732),(310,1339448360848),(311,1339448360998),(312,1339448361442),(313,1339451142326),(314,1339451142636),(315,1339451142711),(316,1339451142830),(317,1339451142998),(318,1339451143224),(319,1339451143262),(320,1339451143344),(321,1339451143463),(322,1339451143824),(323,1339451409070),(324,1339451409317),(325,1339451409399),(326,1339451409498),(327,1339451409694),(328,1339451409913),(329,1339451409949),(330,1339451410041),(331,1339451410152),(332,1339451410517),(333,1339451451876),(334,1339451452156),(335,1339451452230),(336,1339451452357),(337,1339451452581),(338,1339451452787),(339,1339451452824),(340,1339451452901),(341,1339451453027),(342,1339451453338),(343,1339506698917),(344,1339506699155),(345,1339506699233),(346,1339506699354),(347,1339506699510),(348,1339506699724),(349,1339506699758),(350,1339506699826),(351,1339506699964),(352,1339506700278),(353,1339507139956),(354,1339507140205),(355,1339507140281),(356,1339507140373),(357,1339507140571),(358,1339507143721),(359,1339507143862),(360,1339507144025),(361,1339507144144),(362,1339507144445),(363,1339508593045),(364,1339508593312),(365,1339508593392),(366,1339508593501),(367,1339508593668),(368,1339508593879),(369,1339508593909),(370,1339508594002),(371,1339508594120),(372,1339508594448),(373,1339509314067),(374,1339509314368),(375,1339509314463),(376,1339509314589),(377,1339509314790),(378,1339509315028),(379,1339509315059),(380,1339509315137),(381,1339509315296),(382,1339509315643),(383,1339509457708),(384,1339509457947),(385,1339509458044),(386,1339509458171),(387,1339509458338),(388,1339509458535),(389,1339509458577),(390,1339509458638),(391,1339509458778),(392,1339509459101),(393,1339509527113),(394,1339509527384),(395,1339509527473),(396,1339509527597),(397,1339509527758),(398,1339509527957),(399,1339509527992),(400,1339509528063),(401,1339509528214),(402,1339509528529),(403,1339509775723),(404,1339509775977),(405,1339509776060),(406,1339509776128),(407,1339509776276),(408,1339509776501),(409,1339509776548),(410,1339509776620),(411,1339509776746),(412,1339509777098),(413,1339510109217),(414,1339512814142),(415,1339512814403),(416,1339512814481),(417,1339512814607),(418,1339512814779),(419,1339512814978),(420,1339512815008),(421,1339512815107),(422,1339512815212),(423,1339512815524),(424,1339512894344),(425,1339512894588),(426,1339512894688),(427,1339512894791),(428,1339512894977),(429,1339512895169),(430,1339512895205),(431,1339512895294),(432,1339512895430),(433,1339512895774),(434,1339512915242),(435,1339512926237),(436,1339514194993),(437,1339514195283),(438,1339514195363),(439,1339514195478),(440,1339514195722),(441,1339514195932),(442,1339514195969),(443,1339514196044),(444,1339514196144),(445,1339514196491),(446,1339514327517),(447,1339514327775),(448,1339514327869),(449,1339514327984),(450,1339514328176),(451,1339514328408),(452,1339514328475),(453,1339514328548),(454,1339514328642),(455,1339514328949),(456,1339516434533),(457,1339516434776),(458,1339516434857),(459,1339516435004),(460,1339516435157),(461,1339516435349),(462,1339516435401),(463,1339516435495),(464,1339516435674),(465,1339516435970),(466,1339521164405),(467,1339521164669),(468,1339521164758),(469,1339521164868),(470,1339521164974),(471,1339521165179),(472,1339521165228),(473,1339521165319),(474,1339521165431),(475,1339521165746),(476,1339522935351),(477,1339522935625),(478,1339522935704),(479,1339522935827),(480,1339522935979),(481,1339522936189),(482,1339522936243),(483,1339522936334),(484,1339522936446),(485,1339522936803),(486,1339523032975),(487,1339523033284),(488,1339523033356),(489,1339523033459),(490,1339523033624),(491,1339523033798),(492,1339523033880),(493,1339523033938),(494,1339523034041),(495,1339523034509),(496,1339523207863),(497,1339523208115),(498,1339523208186),(499,1339523208273),(500,1339523208390),(501,1339523208593),(502,1339523208661),(503,1339523208752),(504,1339523208842),(505,1339523209229),(506,1339524253996),(507,1339524254262),(508,1339524254343),(509,1339524254487),(510,1339524254731),(511,1339524254928),(512,1339524254965),(513,1339524255038),(514,1339524255168),(515,1339524255526),(516,1339524428849),(517,1339524429126),(518,1339524429203),(519,1339524429283),(520,1339524429387),(521,1339524429579),(522,1339524429615),(523,1339524429684),(524,1339524429832),(525,1339524430278),(526,1339524618845),(527,1339524619118),(528,1339524619204),(529,1339524619332),(530,1339524619512),(531,1339524619700),(532,1339524619746),(533,1339524619807),(534,1339524619933),(535,1339524620263),(536,1339525052355),(537,1339525052632),(538,1339525052705),(539,1339525052846),(540,1339525052998),(541,1339525053191),(542,1339525053278),(543,1339525053350),(544,1339525053447),(545,1339525053775),(546,1339525259773),(547,1339525260034),(548,1339525260115),(549,1339525260210),(550,1339525260378),(551,1339525260633),(552,1339525260677),(553,1339525260790),(554,1339525260889),(555,1339525261258),(556,1339525394016),(557,1339525394285),(558,1339525394365),(559,1339525394440),(560,1339525394655),(561,1339525394912),(562,1339525394977),(563,1339525395037),(564,1339525395134),(565,1339525395478),(566,1339525496107),(567,1339525496402),(568,1339525496483),(569,1339525496590),(570,1339525496761),(571,1339525496955),(572,1339525496995),(573,1339525497082),(574,1339525497176),(575,1339525497528),(576,1339617768242),(577,1339617768396),(578,1339617768569),(579,1339617768675),(580,1339617768723),(581,1339617768870),(582,1339617768899),(583,1339617769008),(584,1339617769039),(585,1339617769062),(586,1339617769154),(587,1339617769189),(588,1339617769225),(589,1339617769290),(590,1339617769449),(591,1339617769479),(592,1339617769738),(593,1339617769861),(594,1339617769988),(595,1339623034892),(596,1339623035084),(597,1339623035277),(598,1339623035336),(599,1339623035391),(600,1339623035581),(601,1339623035627),(602,1339623035782),(603,1339623035831),(604,1339623035855),(605,1339623035933),(606,1339623035980),(607,1339623036022),(608,1339623036101),(609,1339623036265),(610,1339623036279),(611,1339623036664),(612,1339623036792),(613,1339623036888),(614,1339624194702),(615,1339624224413),(616,1339624257888),(617,1339624300897),(618,1339624326916),(619,1339624358901),(620,1339624393651),(621,1339624411759),(622,1339624423830),(623,1339624442530),(624,1339624457583),(625,1339624513117),(626,1339624558610),(627,1339624572022),(628,1339624839574),(629,1339624940779),(630,1339625023048),(631,1339625105117);
+/*!40000 ALTER TABLE `REVINFO` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `acct_grant`
+--
+
+DROP TABLE IF EXISTS `acct_grant`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `acct_grant` (
+  `grantid` int(10) NOT NULL AUTO_INCREMENT,
+  `labid` int(10) DEFAULT NULL,
+  `name` varchar(250) DEFAULT NULL,
+  `code` varchar(250) DEFAULT NULL,
+  `expirationdt` datetime DEFAULT NULL,
+  `isactive` int(1) DEFAULT '1',
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`grantid`),
+  KEY `fk_grant_lid` (`labid`),
+  CONSTRAINT `acct_grant_ibfk_1` FOREIGN KEY (`labid`) REFERENCES `lab` (`labid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `acct_grant`
+--
+
+LOCK TABLES `acct_grant` WRITE;
+/*!40000 ALTER TABLE `acct_grant` DISABLE KEYS */;
+/*!40000 ALTER TABLE `acct_grant` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `acct_grantjob`
+--
+
+DROP TABLE IF EXISTS `acct_grantjob`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `acct_grantjob` (
+  `jobid` int(10) NOT NULL AUTO_INCREMENT,
+  `grantid` int(10) DEFAULT NULL,
+  `isactive` int(1) DEFAULT '1',
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`jobid`),
+  KEY `fk_acct_ledgergrant_gid` (`grantid`),
+  KEY `FKAA5FF3CD5E117DCB` (`jobid`),
+  CONSTRAINT `acct_grantjob_ibfk_1` FOREIGN KEY (`jobid`) REFERENCES `acct_ledger` (`jobid`),
+  CONSTRAINT `acct_grantjob_ibfk_2` FOREIGN KEY (`grantid`) REFERENCES `acct_grant` (`grantid`),
+  CONSTRAINT `FKAA5FF3CD5E117DCB` FOREIGN KEY (`jobid`) REFERENCES `acct_ledger` (`ledgerid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `acct_grantjob`
+--
+
+LOCK TABLES `acct_grantjob` WRITE;
+/*!40000 ALTER TABLE `acct_grantjob` DISABLE KEYS */;
+/*!40000 ALTER TABLE `acct_grantjob` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `acct_invoice`
+--
+
+DROP TABLE IF EXISTS `acct_invoice`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `acct_invoice` (
+  `invoiceid` int(10) NOT NULL AUTO_INCREMENT,
+  `quoteid` int(10) DEFAULT NULL,
+  `jobid` int(10) DEFAULT NULL,
+  `amount` float(10,2) DEFAULT NULL,
+  `comment` varchar(250) DEFAULT NULL,
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`invoiceid`),
+  KEY `fk_acct_invoice_qid` (`quoteid`),
+  KEY `fk_acct_invoice_jid` (`jobid`),
+  CONSTRAINT `acct_invoice_ibfk_1` FOREIGN KEY (`quoteid`) REFERENCES `acct_quote` (`quoteid`),
+  CONSTRAINT `acct_invoice_ibfk_2` FOREIGN KEY (`jobid`) REFERENCES `job` (`jobid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `acct_invoice`
+--
+
+LOCK TABLES `acct_invoice` WRITE;
+/*!40000 ALTER TABLE `acct_invoice` DISABLE KEYS */;
+/*!40000 ALTER TABLE `acct_invoice` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `acct_jobquotecurrent`
+--
+
+DROP TABLE IF EXISTS `acct_jobquotecurrent`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `acct_jobquotecurrent` (
+  `currentid` int(10) NOT NULL AUTO_INCREMENT,
+  `jobid` int(10) DEFAULT NULL,
+  `quoteid` int(10) DEFAULT NULL,
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`currentid`),
+  UNIQUE KEY `u_acct_jobquotecurrent_jid` (`jobid`),
+  UNIQUE KEY `u_acct_jobquotecurrent_qid` (`quoteid`),
+  CONSTRAINT `acct_jobquotecurrent_ibfk_1` FOREIGN KEY (`jobid`) REFERENCES `job` (`jobid`),
+  CONSTRAINT `acct_jobquotecurrent_ibfk_2` FOREIGN KEY (`quoteid`) REFERENCES `acct_quote` (`quoteid`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `acct_jobquotecurrent`
+--
+
+LOCK TABLES `acct_jobquotecurrent` WRITE;
+/*!40000 ALTER TABLE `acct_jobquotecurrent` DISABLE KEYS */;
+INSERT INTO `acct_jobquotecurrent` VALUES (1,1,1,'2012-06-11 18:21:25',1);
+/*!40000 ALTER TABLE `acct_jobquotecurrent` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `acct_ledger`
+--
+
+DROP TABLE IF EXISTS `acct_ledger`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `acct_ledger` (
+  `ledgerid` int(10) NOT NULL AUTO_INCREMENT,
+  `invoiceid` int(10) DEFAULT NULL,
+  `jobid` int(10) DEFAULT NULL,
+  `amount` float(10,2) DEFAULT NULL,
+  `comment` varchar(250) DEFAULT NULL,
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`ledgerid`),
+  KEY `fk_acct_ledger_iid` (`invoiceid`),
+  KEY `fk_acct_ledger_jid` (`jobid`),
+  CONSTRAINT `acct_ledger_ibfk_1` FOREIGN KEY (`invoiceid`) REFERENCES `acct_invoice` (`invoiceid`),
+  CONSTRAINT `acct_ledger_ibfk_2` FOREIGN KEY (`jobid`) REFERENCES `job` (`jobid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `acct_ledger`
+--
+
+LOCK TABLES `acct_ledger` WRITE;
+/*!40000 ALTER TABLE `acct_ledger` DISABLE KEYS */;
+/*!40000 ALTER TABLE `acct_ledger` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `acct_quote`
+--
+
+DROP TABLE IF EXISTS `acct_quote`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `acct_quote` (
+  `quoteid` int(10) NOT NULL AUTO_INCREMENT,
+  `jobid` int(10) DEFAULT NULL,
+  `amount` float(10,2) DEFAULT NULL,
+  `userid` int(10) DEFAULT NULL,
+  `comment` varchar(250) DEFAULT NULL,
+  `isactive` int(1) DEFAULT '1',
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`quoteid`),
+  KEY `fk_acct_quote_jid` (`jobid`),
+  KEY `fk_acct_quote_uid` (`userid`),
+  CONSTRAINT `acct_quote_ibfk_1` FOREIGN KEY (`jobid`) REFERENCES `job` (`jobid`),
+  CONSTRAINT `acct_quote_ibfk_2` FOREIGN KEY (`userid`) REFERENCES `user` (`userid`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `acct_quote`
+--
+
+LOCK TABLES `acct_quote` WRITE;
+/*!40000 ALTER TABLE `acct_quote` DISABLE KEYS */;
+INSERT INTO `acct_quote` VALUES (1,1,2800.00,NULL,NULL,NULL,'2012-06-11 18:21:25',1);
+/*!40000 ALTER TABLE `acct_quote` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `acct_quotemeta`
+--
+
+DROP TABLE IF EXISTS `acct_quotemeta`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `acct_quotemeta` (
+  `quotemetaid` int(10) NOT NULL AUTO_INCREMENT,
+  `quoteid` int(10) DEFAULT NULL,
+  `k` varchar(250) DEFAULT NULL,
+  `v` varchar(250) DEFAULT NULL,
+  `position` int(10) DEFAULT '0',
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`quotemetaid`),
+  UNIQUE KEY `u_quotemeta_k_qid` (`k`,`quoteid`),
+  KEY `fk_quotemeta_qid` (`quoteid`),
+  CONSTRAINT `acct_quotemeta_ibfk_1` FOREIGN KEY (`quoteid`) REFERENCES `acct_quote` (`quoteid`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `acct_quotemeta`
+--
+
+LOCK TABLES `acct_quotemeta` WRITE;
+/*!40000 ALTER TABLE `acct_quotemeta` DISABLE KEYS */;
+INSERT INTO `acct_quotemeta` VALUES (1,1,'acctQuote.library_cost','800',0,'2012-06-11 18:21:25',NULL),(2,1,'acctQuote.sample_cost','0',0,'2012-06-11 18:21:25',NULL),(3,1,'acctQuote.lane_cost','2000',0,'2012-06-11 18:21:25',NULL);
+/*!40000 ALTER TABLE `acct_quotemeta` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `acct_quoteuser`
+--
+
+DROP TABLE IF EXISTS `acct_quoteuser`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `acct_quoteuser` (
+  `quoteuserid` int(10) NOT NULL AUTO_INCREMENT,
+  `quoteid` int(10) DEFAULT NULL,
+  `userid` int(10) DEFAULT NULL,
+  `roleid` int(10) DEFAULT NULL,
+  `isapproved` int(1) DEFAULT NULL,
+  `comment` varchar(250) DEFAULT NULL,
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`quoteuserid`),
+  KEY `fk_acct_quote_jid` (`quoteid`),
+  KEY `fk_acct_quote_uid` (`userid`),
+  KEY `fk_acct_quote_rid` (`roleid`),
+  CONSTRAINT `acct_quoteuser_ibfk_1` FOREIGN KEY (`quoteid`) REFERENCES `acct_quote` (`quoteid`),
+  CONSTRAINT `acct_quoteuser_ibfk_2` FOREIGN KEY (`userid`) REFERENCES `user` (`userid`),
+  CONSTRAINT `acct_quoteuser_ibfk_3` FOREIGN KEY (`roleid`) REFERENCES `role` (`roleid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `acct_quoteuser`
+--
+
+LOCK TABLES `acct_quoteuser` WRITE;
+/*!40000 ALTER TABLE `acct_quoteuser` DISABLE KEYS */;
+/*!40000 ALTER TABLE `acct_quoteuser` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `acct_workflowcost`
+--
+
+DROP TABLE IF EXISTS `acct_workflowcost`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `acct_workflowcost` (
+  `workflowid` int(10) NOT NULL,
+  `basecost` float(10,2) DEFAULT NULL,
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`workflowid`),
+  KEY `FKC3C958B8744987E0` (`workflowid`),
+  CONSTRAINT `acct_workflowcost_ibfk_1` FOREIGN KEY (`workflowid`) REFERENCES `job` (`workflowid`),
+  CONSTRAINT `FKC3C958B8744987E0` FOREIGN KEY (`workflowid`) REFERENCES `job` (`jobid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `acct_workflowcost`
+--
+
+LOCK TABLES `acct_workflowcost` WRITE;
+/*!40000 ALTER TABLE `acct_workflowcost` DISABLE KEYS */;
+/*!40000 ALTER TABLE `acct_workflowcost` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `adaptor`
+--
+
+DROP TABLE IF EXISTS `adaptor`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `adaptor` (
+  `adaptorid` int(10) NOT NULL AUTO_INCREMENT,
+  `adaptorsetid` int(10) DEFAULT NULL,
+  `iname` varchar(250) DEFAULT NULL,
+  `name` varchar(250) DEFAULT NULL,
+  `sequence` varchar(250) DEFAULT NULL,
+  `barcodesequence` varchar(250) DEFAULT NULL,
+  `barcodenumber` int(10) DEFAULT NULL,
+  `isactive` int(1) DEFAULT '1',
+  PRIMARY KEY (`adaptorid`),
+  UNIQUE KEY `u_adaptor_k_iid` (`iname`),
+  UNIQUE KEY `u_adaptor_k_nid` (`name`),
+  KEY `fk_adaptor_aid` (`adaptorsetid`),
+  CONSTRAINT `adaptor_ibfk_1` FOREIGN KEY (`adaptorsetid`) REFERENCES `adaptorset` (`adaptorsetid`)
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `adaptor`
+--
+
+LOCK TABLES `adaptor` WRITE;
+/*!40000 ALTER TABLE `adaptor` DISABLE KEYS */;
+INSERT INTO `adaptor` VALUES (1,1,'illuminaTrueseqDnaIndexed1','TrueSeq Adaptor, Index 1','AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC','ATCACG',1,1),(2,1,'illuminaTrueseqDnaIndexed2','TrueSeq Adaptor, Index 2','AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC','CGATGT',2,1),(3,1,'illuminaTrueseqDnaIndexed3','TrueSeq Adaptor, Index 3','AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC','TTAGGC',3,1),(4,1,'illuminaTrueseqDnaIndexed4','TrueSeq Adaptor, Index 4','AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC','TGACCA',4,1),(5,1,'illuminaTrueseqDnaIndexed5','TrueSeq Adaptor, Index 5','AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC','ACAGTG',5,1),(6,1,'illuminaTrueseqDnaIndexed6','TrueSeq Adaptor, Index 6','AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC','GCCAAT',6,1),(7,1,'illuminaTrueseqDnaIndexed7','TrueSeq Adaptor, Index 7','AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC','CAGATC',7,1),(8,1,'illuminaTrueseqDnaIndexed8','TrueSeq Adaptor, Index 8','AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC','ACTTGA',8,1),(9,1,'illuminaTrueseqDnaIndexed9','TrueSeq Adaptor, Index 9','AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC','GATCAG',9,1),(10,1,'illuminaTrueseqDnaIndexed10','TrueSeq Adaptor, Index 10','AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC','TAGCTT',10,1),(11,1,'illuminaTrueseqDnaIndexed11','TrueSeq Adaptor, Index 11','AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC','GGCTAC',11,1),(12,1,'illuminaTrueseqDnaIndexed12','TrueSeq Adaptor, Index 12','AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC','CTTGTA',12,1),(13,1,'illuminaTrueseqDnaIndexed13','TrueSeq Adaptor, Index 13','AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC','AGTCAA',13,1),(14,1,'illuminaTrueseqDnaIndexed14','TrueSeq Adaptor, Index 14','AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC','AGTTCC',14,1),(15,1,'illuminaTrueseqDnaIndexed15','TrueSeq Adaptor, Index 15','AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC','ATGTCA',15,1),(16,1,'illuminaTrueseqDnaIndexed16','TrueSeq Adaptor, Index 16','AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC','CCGTCC',16,1),(17,1,'illuminaTrueseqDnaIndexed18','TrueSeq Adaptor, Index 18','AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC','GTCCGC',18,1),(18,1,'illuminaTrueseqDnaIndexed19','TrueSeq Adaptor, Index 19','AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC','GTGAAA',19,1),(19,1,'illuminaTrueseqDnaIndexed20','TrueSeq Adaptor, Index 20','AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC','GTGGCC',20,1),(20,1,'illuminaTrueseqDnaIndexed21','TrueSeq Adaptor, Index 21','AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC','GTTTCG',21,1),(21,1,'illuminaTrueseqDnaIndexed22','TrueSeq Adaptor, Index 22','AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC','CGTACG',22,1),(22,1,'illuminaTrueseqDnaIndexed23','TrueSeq Adaptor, Index 23','AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC','GAGTGG',23,1),(23,1,'illuminaTrueseqDnaIndexed25','TrueSeq Adaptor, Index 25','AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC','ACTGAT',25,1),(24,1,'illuminaTrueseqDnaIndexed27','TrueSeq Adaptor, Index 27','AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC','ATTCCT',27,1),(25,2,'illuminaHelptagLibrary1','helptag Adaptor','CGCTGCTG','CGCTGCTG',1,1);
+/*!40000 ALTER TABLE `adaptor` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `adaptormeta`
+--
+
+DROP TABLE IF EXISTS `adaptormeta`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `adaptormeta` (
+  `adaptormetaid` int(10) NOT NULL AUTO_INCREMENT,
+  `adaptorid` int(10) DEFAULT NULL,
+  `k` varchar(250) DEFAULT NULL,
+  `v` varchar(250) DEFAULT NULL,
+  `position` int(10) DEFAULT '0',
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`adaptormetaid`),
+  UNIQUE KEY `u_adaptormeta_k_aid` (`k`,`adaptorid`),
+  KEY `fk_adaptormeta_runid` (`adaptorid`),
+  CONSTRAINT `adaptormeta_ibfk_1` FOREIGN KEY (`adaptorid`) REFERENCES `adaptor` (`adaptorid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `adaptormeta`
+--
+
+LOCK TABLES `adaptormeta` WRITE;
+/*!40000 ALTER TABLE `adaptormeta` DISABLE KEYS */;
+/*!40000 ALTER TABLE `adaptormeta` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `adaptorset`
+--
+
+DROP TABLE IF EXISTS `adaptorset`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `adaptorset` (
+  `adaptorsetid` int(10) NOT NULL AUTO_INCREMENT,
+  `iname` varchar(250) DEFAULT NULL,
+  `name` varchar(250) DEFAULT NULL,
+  `sampletypeid` int(10) DEFAULT NULL,
+  `isactive` int(1) DEFAULT '1',
+  PRIMARY KEY (`adaptorsetid`),
+  UNIQUE KEY `u_adaptorset_k_iid` (`iname`),
+  UNIQUE KEY `u_adaptorset_k_nid` (`name`),
+  KEY `fk_adaptorset_tid` (`sampletypeid`),
+  CONSTRAINT `adaptorset_ibfk_1` FOREIGN KEY (`sampletypeid`) REFERENCES `sampletype` (`sampletypeid`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `adaptorset`
+--
+
+LOCK TABLES `adaptorset` WRITE;
+/*!40000 ALTER TABLE `adaptorset` DISABLE KEYS */;
+INSERT INTO `adaptorset` VALUES (1,'truseqIndexedDna','TruSEQ INDEXED DNA',1,1),(2,'helptagLibrary','HELP-tag Library',3,1);
+/*!40000 ALTER TABLE `adaptorset` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `adaptorsetmeta`
+--
+
+DROP TABLE IF EXISTS `adaptorsetmeta`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `adaptorsetmeta` (
+  `adaptorsetmetaid` int(10) NOT NULL AUTO_INCREMENT,
+  `adaptorsetid` int(10) DEFAULT NULL,
+  `k` varchar(250) DEFAULT NULL,
+  `v` varchar(250) DEFAULT NULL,
+  `position` int(10) DEFAULT '0',
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`adaptorsetmetaid`),
+  UNIQUE KEY `u_adaptorsetmeta_k_aid` (`k`,`adaptorsetid`),
+  KEY `fk_adaptorsetmeta_runid` (`adaptorsetid`),
+  CONSTRAINT `adaptorsetmeta_ibfk_1` FOREIGN KEY (`adaptorsetid`) REFERENCES `adaptorset` (`adaptorsetid`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `adaptorsetmeta`
+--
+
+LOCK TABLES `adaptorsetmeta` WRITE;
+/*!40000 ALTER TABLE `adaptorsetmeta` DISABLE KEYS */;
+INSERT INTO `adaptorsetmeta` VALUES (1,1,'truseqIndexedDna.truseq','1',1,'2012-05-23 16:08:19',0);
+/*!40000 ALTER TABLE `adaptorsetmeta` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `adaptorsetresourcecategory`
+--
+
+DROP TABLE IF EXISTS `adaptorsetresourcecategory`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `adaptorsetresourcecategory` (
+  `adaptorsetresourcecategoryid` int(10) NOT NULL AUTO_INCREMENT,
+  `adaptorsetid` int(10) DEFAULT NULL,
+  `resourcecategoryid` int(10) DEFAULT NULL,
+  PRIMARY KEY (`adaptorsetresourcecategoryid`),
+  UNIQUE KEY `u_adaptorsetresourcecategory_aid_rid` (`adaptorsetid`,`resourcecategoryid`),
+  KEY `fk_adaptorsetresourcecategory_rid` (`resourcecategoryid`),
+  CONSTRAINT `adaptorsetresourcecategory_ibfk_1` FOREIGN KEY (`resourcecategoryid`) REFERENCES `resourcecategory` (`resourcecategoryid`),
+  CONSTRAINT `adaptorsetresourcecategory_ibfk_2` FOREIGN KEY (`adaptorsetid`) REFERENCES `adaptorset` (`adaptorsetid`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `adaptorsetresourcecategory`
+--
+
+LOCK TABLES `adaptorsetresourcecategory` WRITE;
+/*!40000 ALTER TABLE `adaptorsetresourcecategory` DISABLE KEYS */;
+INSERT INTO `adaptorsetresourcecategory` VALUES (1,1,1),(2,2,1);
+/*!40000 ALTER TABLE `adaptorsetresourcecategory` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `barcode`
+--
+
+DROP TABLE IF EXISTS `barcode`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `barcode` (
+  `barcodeid` int(10) NOT NULL AUTO_INCREMENT,
+  `barcode` varchar(250) DEFAULT NULL,
+  `barcodefor` varchar(250) DEFAULT NULL,
+  `isactive` int(1) DEFAULT '1',
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`barcodeid`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `barcode`
+--
+
+LOCK TABLES `barcode` WRITE;
+/*!40000 ALTER TABLE `barcode` DISABLE KEYS */;
+INSERT INTO `barcode` VALUES (1,'AXZ123XX',NULL,1,'2012-06-11 18:57:27',1);
+/*!40000 ALTER TABLE `barcode` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `confirmemailauth`
+--
+
+DROP TABLE IF EXISTS `confirmemailauth`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `confirmemailauth` (
+  `confirmemailauthid` int(10) NOT NULL AUTO_INCREMENT,
+  `userpendingid` int(10) DEFAULT NULL,
+  `userid` int(10) DEFAULT NULL,
+  `authcode` varchar(250) DEFAULT NULL,
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`confirmemailauthid`),
+  UNIQUE KEY `u_confirmemailauth` (`authcode`),
+  KEY `fk_labpending_uid` (`userid`),
+  KEY `fk_labpending_peuid` (`userpendingid`),
+  CONSTRAINT `confirmemailauth_ibfk_1` FOREIGN KEY (`userid`) REFERENCES `user` (`userid`),
+  CONSTRAINT `confirmemailauth_ibfk_2` FOREIGN KEY (`userpendingid`) REFERENCES `userpending` (`userpendingid`)
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `confirmemailauth`
+--
+
+LOCK TABLES `confirmemailauth` WRITE;
+/*!40000 ALTER TABLE `confirmemailauth` DISABLE KEYS */;
+/*!40000 ALTER TABLE `confirmemailauth` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `department`
+--
+
+DROP TABLE IF EXISTS `department`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `department` (
+  `departmentid` int(10) NOT NULL AUTO_INCREMENT,
+  `name` varchar(250) DEFAULT NULL,
+  `isinternal` int(1) DEFAULT '1',
+  `isactive` int(1) DEFAULT '1',
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`departmentid`),
+  UNIQUE KEY `u_department_name` (`name`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `department`
+--
+
+LOCK TABLES `department` WRITE;
+/*!40000 ALTER TABLE `department` DISABLE KEYS */;
+INSERT INTO `department` VALUES (1,'Internal - Default Department',1,1,'2012-05-23 15:55:35',1),(2,'External - Default Department',0,1,'2012-05-23 15:55:35',1),(3,'Genetics',1,1,'2012-06-14 13:47:08',1);
+/*!40000 ALTER TABLE `department` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `departmentuser`
+--
+
+DROP TABLE IF EXISTS `departmentuser`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `departmentuser` (
+  `departmentuserid` int(10) NOT NULL AUTO_INCREMENT,
+  `departmentid` int(10) DEFAULT NULL,
+  `userid` int(10) DEFAULT NULL,
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`departmentuserid`),
+  UNIQUE KEY `u_departmentuser_did_uid` (`departmentid`,`userid`),
+  KEY `fk_departmentuser_uid` (`userid`),
+  CONSTRAINT `departmentuser_ibfk_1` FOREIGN KEY (`userid`) REFERENCES `user` (`userid`),
+  CONSTRAINT `departmentuser_ibfk_2` FOREIGN KEY (`departmentid`) REFERENCES `department` (`departmentid`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `departmentuser`
+--
+
+LOCK TABLES `departmentuser` WRITE;
+/*!40000 ALTER TABLE `departmentuser` DISABLE KEYS */;
+INSERT INTO `departmentuser` VALUES (1,1,3,'2012-05-30 19:57:15',1),(2,3,3,'2012-06-14 13:47:08',1),(3,2,13,'2012-06-14 14:13:04',1);
+/*!40000 ALTER TABLE `departmentuser` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `file`
+--
+
+DROP TABLE IF EXISTS `file`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `file` (
+  `fileid` int(10) NOT NULL AUTO_INCREMENT,
+  `absolute_path` varchar(2048) DEFAULT NULL,
+  `contenttype` varchar(250) DEFAULT NULL,
+  `sizek` int(10) DEFAULT NULL,
+  `md5hash` varchar(250) DEFAULT NULL,
+  `description` varchar(250) DEFAULT NULL,
+  `isarchived` int(1) DEFAULT '0',
+  `isactive` int(1) DEFAULT '1',
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`fileid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `file`
+--
+
+LOCK TABLES `file` WRITE;
+/*!40000 ALTER TABLE `file` DISABLE KEYS */;
+/*!40000 ALTER TABLE `file` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `filemeta`
+--
+
+DROP TABLE IF EXISTS `filemeta`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `filemeta` (
+  `filemetaid` int(10) NOT NULL AUTO_INCREMENT,
+  `fileid` int(10) DEFAULT NULL,
+  `k` varchar(250) DEFAULT NULL,
+  `v` text,
+  `position` int(10) DEFAULT '0',
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`filemetaid`),
+  UNIQUE KEY `u_filemeta_k_jid` (`k`,`fileid`),
+  KEY `fk_filemeta_fileid` (`fileid`),
+  CONSTRAINT `filemeta_ibfk_1` FOREIGN KEY (`fileid`) REFERENCES `file` (`fileid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `filemeta`
+--
+
+LOCK TABLES `filemeta` WRITE;
+/*!40000 ALTER TABLE `filemeta` DISABLE KEYS */;
+/*!40000 ALTER TABLE `filemeta` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `job`
+--
+
+DROP TABLE IF EXISTS `job`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `job` (
+  `jobid` int(10) NOT NULL AUTO_INCREMENT,
+  `labid` int(10) DEFAULT NULL,
+  `userid` int(10) DEFAULT NULL,
+  `workflowid` int(10) DEFAULT NULL,
+  `name` varchar(250) DEFAULT NULL,
+  `createts` datetime DEFAULT NULL,
+  `viewablebylab` int(1) DEFAULT '0',
+  `isactive` int(1) DEFAULT '1',
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`jobid`),
+  UNIQUE KEY `u_job_name_lid` (`name`,`labid`),
+  KEY `fk_job_lid` (`labid`),
+  KEY `fk_job_uid` (`userid`),
+  KEY `fk_job_wid` (`workflowid`),
+  CONSTRAINT `job_ibfk_1` FOREIGN KEY (`labid`) REFERENCES `lab` (`labid`),
+  CONSTRAINT `job_ibfk_2` FOREIGN KEY (`userid`) REFERENCES `user` (`userid`),
+  CONSTRAINT `job_ibfk_3` FOREIGN KEY (`workflowid`) REFERENCES `workflow` (`workflowid`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `job`
+--
+
+LOCK TABLES `job` WRITE;
+/*!40000 ALTER TABLE `job` DISABLE KEYS */;
+INSERT INTO `job` VALUES (1,2,10,1,'job1','2012-06-11 11:42:02',0,1,'2012-06-11 15:42:02',10);
+/*!40000 ALTER TABLE `job` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `jobcellselection`
+--
+
+DROP TABLE IF EXISTS `jobcellselection`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `jobcellselection` (
+  `jobcellselectionid` int(10) NOT NULL AUTO_INCREMENT,
+  `jobid` int(10) DEFAULT NULL,
+  `cellindex` int(10) DEFAULT NULL,
+  PRIMARY KEY (`jobcellselectionid`),
+  UNIQUE KEY `u_jobcell_jdid_ci` (`jobid`,`cellindex`),
+  CONSTRAINT `jobcellselection_ibfk_1` FOREIGN KEY (`jobid`) REFERENCES `job` (`jobid`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `jobcellselection`
+--
+
+LOCK TABLES `jobcellselection` WRITE;
+/*!40000 ALTER TABLE `jobcellselection` DISABLE KEYS */;
+INSERT INTO `jobcellselection` VALUES (1,1,1),(2,1,2);
+/*!40000 ALTER TABLE `jobcellselection` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `jobdraft`
+--
+
+DROP TABLE IF EXISTS `jobdraft`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `jobdraft` (
+  `jobdraftid` int(10) NOT NULL AUTO_INCREMENT,
+  `labid` int(10) DEFAULT NULL,
+  `userid` int(10) DEFAULT NULL,
+  `workflowid` int(10) DEFAULT NULL,
+  `name` varchar(250) DEFAULT NULL,
+  `createts` datetime DEFAULT NULL,
+  `submittedjobid` int(10) DEFAULT NULL,
+  `status` varchar(50) DEFAULT '1',
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`jobdraftid`),
+  KEY `fk_jobdraft_lid` (`labid`),
+  KEY `fk_jobdraft_uid` (`userid`),
+  KEY `fk_jobdraft_wid` (`workflowid`),
+  KEY `fk_jobdraft_sjid` (`submittedjobid`),
+  CONSTRAINT `jobdraft_ibfk_1` FOREIGN KEY (`labid`) REFERENCES `lab` (`labid`),
+  CONSTRAINT `jobdraft_ibfk_2` FOREIGN KEY (`userid`) REFERENCES `user` (`userid`),
+  CONSTRAINT `jobdraft_ibfk_3` FOREIGN KEY (`workflowid`) REFERENCES `workflow` (`workflowid`),
+  CONSTRAINT `jobdraft_ibfk_4` FOREIGN KEY (`submittedjobid`) REFERENCES `job` (`jobid`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `jobdraft`
+--
+
+LOCK TABLES `jobdraft` WRITE;
+/*!40000 ALTER TABLE `jobdraft` DISABLE KEYS */;
+INSERT INTO `jobdraft` VALUES (1,2,10,1,'job1','2012-06-11 11:34:06',1,'SUBMITTED','2012-06-11 15:42:03',10);
+/*!40000 ALTER TABLE `jobdraft` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `jobdraftcellselection`
+--
+
+DROP TABLE IF EXISTS `jobdraftcellselection`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `jobdraftcellselection` (
+  `jobdraftcellselectionid` int(10) NOT NULL AUTO_INCREMENT,
+  `jobdraftid` int(10) DEFAULT NULL,
+  `cellindex` int(10) DEFAULT NULL,
+  PRIMARY KEY (`jobdraftcellselectionid`),
+  UNIQUE KEY `u_jobdraftcell_jdid_ci` (`jobdraftid`,`cellindex`),
+  CONSTRAINT `jobdraftcellselection_ibfk_1` FOREIGN KEY (`jobdraftid`) REFERENCES `jobdraft` (`jobdraftid`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `jobdraftcellselection`
+--
+
+LOCK TABLES `jobdraftcellselection` WRITE;
+/*!40000 ALTER TABLE `jobdraftcellselection` DISABLE KEYS */;
+INSERT INTO `jobdraftcellselection` VALUES (1,1,1),(2,1,2);
+/*!40000 ALTER TABLE `jobdraftcellselection` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `jobdraftfile`
+--
+
+DROP TABLE IF EXISTS `jobdraftfile`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `jobdraftfile` (
+  `jobDraftFileId` int(11) NOT NULL AUTO_INCREMENT,
+  `description` varchar(255) DEFAULT NULL,
+  `fileid` int(11) DEFAULT NULL,
+  `iname` varchar(255) DEFAULT NULL,
+  `isactive` int(11) DEFAULT NULL,
+  `jobdraftid` int(11) DEFAULT NULL,
+  `lastupdts` datetime DEFAULT NULL,
+  `lastupduser` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`jobDraftFileId`),
+  KEY `FK2FB3FF80E3C3069A` (`jobdraftid`),
+  KEY `FK2FB3FF8062D4EF2A` (`fileid`),
+  CONSTRAINT `FK2FB3FF8062D4EF2A` FOREIGN KEY (`fileid`) REFERENCES `file` (`fileid`),
+  CONSTRAINT `FK2FB3FF80E3C3069A` FOREIGN KEY (`jobdraftid`) REFERENCES `jobdraft` (`jobdraftid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `jobdraftfile`
+--
+
+LOCK TABLES `jobdraftfile` WRITE;
+/*!40000 ALTER TABLE `jobdraftfile` DISABLE KEYS */;
+/*!40000 ALTER TABLE `jobdraftfile` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `jobdraftmeta`
+--
+
+DROP TABLE IF EXISTS `jobdraftmeta`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `jobdraftmeta` (
+  `jobdraftmetaid` int(10) NOT NULL AUTO_INCREMENT,
+  `jobdraftid` int(10) DEFAULT NULL,
+  `k` varchar(250) DEFAULT NULL,
+  `v` varchar(250) DEFAULT NULL,
+  `position` int(10) DEFAULT '0',
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`jobdraftmetaid`),
+  UNIQUE KEY `u_jobdraftmeta_k_jdid` (`k`,`jobdraftid`),
+  KEY `fk_jobdraftmeta_jdid` (`jobdraftid`),
+  CONSTRAINT `jobdraftmeta_ibfk_1` FOREIGN KEY (`jobdraftid`) REFERENCES `jobdraft` (`jobdraftid`)
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `jobdraftmeta`
+--
+
+LOCK TABLES `jobdraftmeta` WRITE;
+/*!40000 ALTER TABLE `jobdraftmeta` DISABLE KEYS */;
+INSERT INTO `jobdraftmeta` VALUES (1,1,'illuminaHiSeq2000.readLength','50',0,'2012-06-11 15:38:12',NULL),(2,1,'illuminaHiSeq2000.readType','single',0,'2012-06-11 15:38:12',NULL),(3,1,'chipSeq.samplePairsTvsC','1:2;',0,'2012-06-11 15:41:54',10),(4,1,'bowtieAligner.mismatches','2',0,'2012-06-11 15:41:59',NULL),(5,1,'bowtieAligner.seedLength','32',0,'2012-06-11 15:41:59',NULL),(6,1,'bowtieAligner.reportAlignmentNum','1',0,'2012-06-11 15:41:59',NULL),(7,1,'bowtieAligner.discardThreshold','1',0,'2012-06-11 15:41:59',NULL),(8,1,'bowtieAligner.isBest','yes',0,'2012-06-11 15:41:59',NULL),(9,1,'macsPeakcaller.pValueCutoff','100000',0,'2012-06-11 15:42:02',NULL),(10,1,'macsPeakcaller.bandwidth','300',0,'2012-06-11 15:42:02',NULL),(11,1,'macsPeakcaller.genomeSize','1000000000',0,'2012-06-11 15:42:02',NULL),(12,1,'macsPeakcaller.keepDup','no',0,'2012-06-11 15:42:02',NULL);
+/*!40000 ALTER TABLE `jobdraftmeta` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `jobdraftresourcecategory`
+--
+
+DROP TABLE IF EXISTS `jobdraftresourcecategory`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `jobdraftresourcecategory` (
+  `jobdraftresourcecategoryid` int(10) NOT NULL AUTO_INCREMENT,
+  `jobdraftid` int(10) DEFAULT NULL,
+  `resourcecategoryid` int(10) DEFAULT NULL,
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`jobdraftresourcecategoryid`),
+  UNIQUE KEY `u_jobdraftresourcecategory_rcid_jdid` (`resourcecategoryid`,`jobdraftid`),
+  KEY `fk_jobdraftresourcecategory_jdid` (`jobdraftid`),
+  CONSTRAINT `jobdraftresourcecategory_ibfk_1` FOREIGN KEY (`jobdraftid`) REFERENCES `jobdraft` (`jobdraftid`),
+  CONSTRAINT `jobdraftresourcecategory_ibfk_2` FOREIGN KEY (`resourcecategoryid`) REFERENCES `resourcecategory` (`resourcecategoryid`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `jobdraftresourcecategory`
+--
+
+LOCK TABLES `jobdraftresourcecategory` WRITE;
+/*!40000 ALTER TABLE `jobdraftresourcecategory` DISABLE KEYS */;
+INSERT INTO `jobdraftresourcecategory` VALUES (1,1,1,'2012-06-11 15:38:08',10);
+/*!40000 ALTER TABLE `jobdraftresourcecategory` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `jobdraftsoftware`
+--
+
+DROP TABLE IF EXISTS `jobdraftsoftware`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `jobdraftsoftware` (
+  `jobdraftsoftwareid` int(10) NOT NULL AUTO_INCREMENT,
+  `jobdraftid` int(10) DEFAULT NULL,
+  `softwareid` int(10) DEFAULT NULL,
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`jobdraftsoftwareid`),
+  UNIQUE KEY `u_jobdraftsoftware_sid_jdid` (`softwareid`,`jobdraftid`),
+  KEY `fk_jobdraftsoftware_jdid` (`jobdraftid`),
+  CONSTRAINT `jobdraftsoftware_ibfk_1` FOREIGN KEY (`jobdraftid`) REFERENCES `jobdraft` (`jobdraftid`),
+  CONSTRAINT `jobdraftsoftware_ibfk_2` FOREIGN KEY (`softwareid`) REFERENCES `software` (`softwareid`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `jobdraftsoftware`
+--
+
+LOCK TABLES `jobdraftsoftware` WRITE;
+/*!40000 ALTER TABLE `jobdraftsoftware` DISABLE KEYS */;
+INSERT INTO `jobdraftsoftware` VALUES (1,1,1,'2012-06-11 15:41:57',10),(2,1,2,'2012-06-11 15:42:01',10);
+/*!40000 ALTER TABLE `jobdraftsoftware` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `jobfile`
+--
+
+DROP TABLE IF EXISTS `jobfile`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `jobfile` (
+  `jobfileid` int(10) NOT NULL AUTO_INCREMENT,
+  `jobid` int(10) DEFAULT NULL,
+  `fileid` int(10) DEFAULT NULL,
+  `iname` varchar(2048) DEFAULT NULL,
+  `name` varchar(250) DEFAULT NULL,
+  `description` varchar(2048) DEFAULT NULL,
+  `isactive` int(1) DEFAULT '1',
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`jobfileid`),
+  KEY `fk_jobfile_jid` (`jobid`),
+  KEY `fk_jobfile_fid` (`fileid`),
+  CONSTRAINT `jobfile_ibfk_1` FOREIGN KEY (`jobid`) REFERENCES `job` (`jobid`),
+  CONSTRAINT `jobfile_ibfk_2` FOREIGN KEY (`fileid`) REFERENCES `file` (`fileid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `jobfile`
+--
+
+LOCK TABLES `jobfile` WRITE;
+/*!40000 ALTER TABLE `jobfile` DISABLE KEYS */;
+/*!40000 ALTER TABLE `jobfile` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `jobmeta`
+--
+
+DROP TABLE IF EXISTS `jobmeta`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `jobmeta` (
+  `jobmetaid` int(10) NOT NULL AUTO_INCREMENT,
+  `jobid` int(10) DEFAULT NULL,
+  `k` varchar(250) DEFAULT NULL,
+  `v` text,
+  `position` int(10) DEFAULT '0',
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`jobmetaid`),
+  UNIQUE KEY `u_jobmeta_k_jid` (`k`,`jobid`),
+  KEY `fk_jobmeta_jobid` (`jobid`),
+  CONSTRAINT `jobmeta_ibfk_1` FOREIGN KEY (`jobid`) REFERENCES `job` (`jobid`)
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `jobmeta`
+--
+
+LOCK TABLES `jobmeta` WRITE;
+/*!40000 ALTER TABLE `jobmeta` DISABLE KEYS */;
+INSERT INTO `jobmeta` VALUES (1,1,'illuminaHiSeq2000.readLength','50',0,'2012-06-11 15:42:02',10),(2,1,'illuminaHiSeq2000.readType','single',0,'2012-06-11 15:42:02',10),(3,1,'chipSeq.samplePairsTvsC','1:2;',0,'2012-06-11 15:42:02',10),(4,1,'bowtieAligner.mismatches','2',0,'2012-06-11 15:42:02',10),(5,1,'bowtieAligner.seedLength','32',0,'2012-06-11 15:42:02',10),(6,1,'bowtieAligner.reportAlignmentNum','1',0,'2012-06-11 15:42:02',10),(7,1,'bowtieAligner.discardThreshold','1',0,'2012-06-11 15:42:02',10),(8,1,'bowtieAligner.isBest','yes',0,'2012-06-11 15:42:02',10),(9,1,'macsPeakcaller.pValueCutoff','100000',0,'2012-06-11 15:42:02',10),(10,1,'macsPeakcaller.bandwidth','300',0,'2012-06-11 15:42:02',10),(11,1,'macsPeakcaller.genomeSize','1000000000',0,'2012-06-11 15:42:02',10),(12,1,'macsPeakcaller.keepDup','no',0,'2012-06-11 15:42:02',10);
+/*!40000 ALTER TABLE `jobmeta` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `jobresourcecategory`
+--
+
+DROP TABLE IF EXISTS `jobresourcecategory`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `jobresourcecategory` (
+  `jobresourcecategoryid` int(10) NOT NULL AUTO_INCREMENT,
+  `jobid` int(10) DEFAULT NULL,
+  `resourcecategoryid` int(10) DEFAULT NULL,
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`jobresourcecategoryid`),
+  UNIQUE KEY `u_jobresourcecategory_rcid_jid` (`resourcecategoryid`,`jobid`),
+  KEY `fk_jobresourcecategory_jid` (`jobid`),
+  CONSTRAINT `jobresourcecategory_ibfk_1` FOREIGN KEY (`jobid`) REFERENCES `job` (`jobid`),
+  CONSTRAINT `jobresourcecategory_ibfk_2` FOREIGN KEY (`resourcecategoryid`) REFERENCES `resourcecategory` (`resourcecategoryid`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `jobresourcecategory`
+--
+
+LOCK TABLES `jobresourcecategory` WRITE;
+/*!40000 ALTER TABLE `jobresourcecategory` DISABLE KEYS */;
+INSERT INTO `jobresourcecategory` VALUES (1,1,1,'2012-06-11 15:42:02',10);
+/*!40000 ALTER TABLE `jobresourcecategory` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `jobsample`
+--
+
+DROP TABLE IF EXISTS `jobsample`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `jobsample` (
+  `jobsampleid` int(10) NOT NULL AUTO_INCREMENT,
+  `jobid` int(10) DEFAULT NULL,
+  `sampleid` int(10) DEFAULT NULL,
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`jobsampleid`),
+  UNIQUE KEY `u_jobsample_jid_sid` (`jobid`,`sampleid`),
+  KEY `fk_jobsample_sid` (`sampleid`),
+  CONSTRAINT `jobsample_ibfk_1` FOREIGN KEY (`jobid`) REFERENCES `job` (`jobid`),
+  CONSTRAINT `jobsample_ibfk_2` FOREIGN KEY (`sampleid`) REFERENCES `sample` (`sampleid`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `jobsample`
+--
+
+LOCK TABLES `jobsample` WRITE;
+/*!40000 ALTER TABLE `jobsample` DISABLE KEYS */;
+INSERT INTO `jobsample` VALUES (1,1,1,'2012-06-11 15:42:03',10),(2,1,2,'2012-06-11 15:42:03',10),(3,1,3,'2012-06-11 18:47:42',1);
+/*!40000 ALTER TABLE `jobsample` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `jobsamplemeta`
+--
+
+DROP TABLE IF EXISTS `jobsamplemeta`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `jobsamplemeta` (
+  `jobsamplemetaid` int(10) NOT NULL AUTO_INCREMENT,
+  `jobsampleid` int(10) DEFAULT NULL,
+  `k` varchar(250) DEFAULT NULL,
+  `v` varchar(250) DEFAULT NULL,
+  `position` int(10) DEFAULT '0',
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`jobsamplemetaid`),
+  UNIQUE KEY `u_jobsamplemeta_k_jsid` (`k`,`jobsampleid`),
+  KEY `fk_jobsamplemeta_jsid` (`jobsampleid`),
+  CONSTRAINT `jobsamplemeta_ibfk_1` FOREIGN KEY (`jobsampleid`) REFERENCES `jobsample` (`jobsampleid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `jobsamplemeta`
+--
+
+LOCK TABLES `jobsamplemeta` WRITE;
+/*!40000 ALTER TABLE `jobsamplemeta` DISABLE KEYS */;
+/*!40000 ALTER TABLE `jobsamplemeta` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `jobsoftware`
+--
+
+DROP TABLE IF EXISTS `jobsoftware`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `jobsoftware` (
+  `jobsoftwareid` int(10) NOT NULL AUTO_INCREMENT,
+  `jobid` int(10) DEFAULT NULL,
+  `softwareid` int(10) DEFAULT NULL,
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`jobsoftwareid`),
+  UNIQUE KEY `u_jobsoftware_rid_jdid` (`softwareid`,`jobid`),
+  KEY `fk_jobsoftware_jdid` (`jobid`),
+  CONSTRAINT `jobsoftware_ibfk_1` FOREIGN KEY (`jobid`) REFERENCES `job` (`jobid`),
+  CONSTRAINT `jobsoftware_ibfk_2` FOREIGN KEY (`softwareid`) REFERENCES `software` (`softwareid`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `jobsoftware`
+--
+
+LOCK TABLES `jobsoftware` WRITE;
+/*!40000 ALTER TABLE `jobsoftware` DISABLE KEYS */;
+INSERT INTO `jobsoftware` VALUES (1,1,1,'2012-06-11 15:42:02',10),(2,1,2,'2012-06-11 15:42:02',10);
+/*!40000 ALTER TABLE `jobsoftware` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `jobuser`
+--
+
+DROP TABLE IF EXISTS `jobuser`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `jobuser` (
+  `jobuserid` int(10) NOT NULL AUTO_INCREMENT,
+  `jobid` int(10) DEFAULT NULL,
+  `userid` int(10) DEFAULT NULL,
+  `roleid` int(10) DEFAULT NULL,
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`jobuserid`),
+  UNIQUE KEY `u_jobuser_jid_uid` (`jobid`,`userid`),
+  KEY `fk_jobuser_uid` (`userid`),
+  KEY `fk_jobuser_rid` (`roleid`),
+  CONSTRAINT `jobuser_ibfk_1` FOREIGN KEY (`jobid`) REFERENCES `job` (`jobid`),
+  CONSTRAINT `jobuser_ibfk_2` FOREIGN KEY (`userid`) REFERENCES `user` (`userid`),
+  CONSTRAINT `jobuser_ibfk_3` FOREIGN KEY (`roleid`) REFERENCES `role` (`roleid`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `jobuser`
+--
+
+LOCK TABLES `jobuser` WRITE;
+/*!40000 ALTER TABLE `jobuser` DISABLE KEYS */;
+INSERT INTO `jobuser` VALUES (1,1,10,9,'2012-06-11 15:42:02',10),(2,1,5,10,'2012-06-11 15:42:02',10);
+/*!40000 ALTER TABLE `jobuser` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `lab`
+--
+
+DROP TABLE IF EXISTS `lab`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `lab` (
+  `labid` int(10) NOT NULL AUTO_INCREMENT,
+  `departmentid` int(10) DEFAULT NULL,
+  `name` varchar(250) DEFAULT NULL,
+  `primaryuserid` int(10) DEFAULT NULL,
+  `isactive` int(1) DEFAULT '1',
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`labid`),
+  KEY `fk_lab_did` (`departmentid`),
+  KEY `fk_lab_puid` (`primaryuserid`),
+  CONSTRAINT `lab_ibfk_1` FOREIGN KEY (`departmentid`) REFERENCES `department` (`departmentid`),
+  CONSTRAINT `lab_ibfk_2` FOREIGN KEY (`primaryuserid`) REFERENCES `user` (`userid`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `lab`
+--
+
+LOCK TABLES `lab` WRITE;
+/*!40000 ALTER TABLE `lab` DISABLE KEYS */;
+INSERT INTO `lab` VALUES (1,1,'Default lab',1,1,'2012-06-14 14:08:21',1),(2,3,'Cancer Genetics',5,1,'2012-06-14 14:07:33',1),(3,3,'Godwin Lab',7,1,'2012-06-14 14:07:27',1),(4,3,'Williams Lab',8,1,'2012-06-14 14:06:49',1),(5,2,'Zebra Fish Lab',9,1,'2012-06-14 14:05:52',1);
+/*!40000 ALTER TABLE `lab` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `labmeta`
+--
+
+DROP TABLE IF EXISTS `labmeta`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `labmeta` (
+  `labmetaid` int(10) NOT NULL AUTO_INCREMENT,
+  `labid` int(10) DEFAULT NULL,
+  `k` varchar(250) DEFAULT NULL,
+  `v` varchar(250) DEFAULT NULL,
+  `position` int(10) DEFAULT '0',
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`labmetaid`),
+  UNIQUE KEY `u_labmeta_k_lid` (`k`,`labid`),
+  KEY `fk_labmeta_labid` (`labid`),
+  CONSTRAINT `labmeta_ibfk_1` FOREIGN KEY (`labid`) REFERENCES `lab` (`labid`)
+) ENGINE=InnoDB AUTO_INCREMENT=66 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `labmeta`
+--
+
+LOCK TABLES `labmeta` WRITE;
+/*!40000 ALTER TABLE `labmeta` DISABLE KEYS */;
+INSERT INTO `labmeta` VALUES (1,2,'lab.internal_external_lab','internal',0,'2012-05-30 20:22:24',NULL),(2,2,'lab.phone','718-123-4567',0,'2012-05-30 20:22:24',NULL),(3,2,'lab.building_room','Price 220',0,'2012-05-30 20:22:24',NULL),(4,2,'lab.billing_contact','John Greally',0,'2012-05-30 20:22:24',NULL),(5,2,'lab.billing_institution','Einstein',0,'2012-05-30 20:22:24',NULL),(6,2,'lab.billing_departmentId','3',0,'2012-05-30 20:22:24',NULL),(7,2,'lab.billing_building_room','Price 220',0,'2012-05-30 20:22:24',NULL),(8,2,'lab.billing_address','1301 Morris Park Ave.',0,'2012-05-30 20:22:24',NULL),(9,2,'lab.billing_city','Bronx',0,'2012-05-30 20:22:24',NULL),(10,2,'lab.billing_state','NY',0,'2012-05-30 20:22:24',NULL),(11,2,'lab.billing_country','US',0,'2012-05-30 20:22:24',NULL),(12,2,'lab.billing_zip','10461',0,'2012-05-30 20:22:24',NULL),(13,2,'lab.billing_phone','718-123-4567',0,'2012-05-30 20:22:24',NULL),(14,3,'lab.internal_external_lab','internal',0,'2012-05-30 22:03:56',NULL),(15,3,'lab.phone','718-678-1112',0,'2012-05-30 22:03:56',NULL),(16,3,'lab.building_room','Price 353',0,'2012-05-30 22:03:56',NULL),(17,3,'lab.billing_contact','Aaron Goldin',0,'2012-05-30 22:03:56',NULL),(18,3,'lab.billing_institution','Einstein',0,'2012-05-30 22:03:56',NULL),(19,3,'lab.billing_departmentId','3',0,'2012-05-30 22:03:56',NULL),(20,3,'lab.billing_building_room','Price 353',0,'2012-05-30 22:03:56',NULL),(21,3,'lab.billing_address','1301 Morris Park Ave.',0,'2012-05-30 22:03:56',NULL),(22,3,'lab.billing_city','Bronx',0,'2012-05-30 22:03:56',NULL),(23,3,'lab.billing_state','NY',0,'2012-05-30 22:03:56',NULL),(24,3,'lab.billing_country','US',0,'2012-05-30 22:03:56',NULL),(25,3,'lab.billing_zip','10461',0,'2012-05-30 22:03:56',NULL),(26,3,'lab.billing_phone','718-678-1112',0,'2012-05-30 22:03:56',NULL),(27,4,'lab.internal_external_lab','internal',0,'2012-05-31 13:59:23',NULL),(28,4,'lab.phone','718-678-1019',0,'2012-05-31 13:59:23',NULL),(29,4,'lab.building_room','Price 321',0,'2012-05-31 13:59:23',NULL),(30,4,'lab.billing_contact','Adam Auton',0,'2012-05-31 13:59:23',NULL),(31,4,'lab.billing_institution','Einstein',0,'2012-05-31 13:59:23',NULL),(32,4,'lab.billing_departmentId','3',0,'2012-05-31 13:59:23',NULL),(33,4,'lab.billing_building_room','Price 321',0,'2012-05-31 13:59:23',NULL),(34,4,'lab.billing_address','1301 Morris Park Ave.',0,'2012-05-31 13:59:23',NULL),(35,4,'lab.billing_city','Bronx',0,'2012-05-31 13:59:23',NULL),(36,4,'lab.billing_state','NY',0,'2012-05-31 13:59:23',NULL),(37,4,'lab.billing_country','US',0,'2012-05-31 13:59:23',NULL),(38,4,'lab.billing_zip','10461',0,'2012-05-31 13:59:23',NULL),(39,4,'lab.billing_phone','718-678-1019',0,'2012-05-31 13:59:23',NULL),(40,5,'lab.internal_external_lab','external',0,'2012-05-31 14:00:01',NULL),(41,5,'lab.phone','212-321-1091',0,'2012-05-31 14:00:01',NULL),(42,5,'lab.building_room','Hammer 1101',0,'2012-05-31 14:00:01',NULL),(43,5,'lab.billing_contact','Leslie Trokie',0,'2012-05-31 14:00:01',NULL),(44,5,'lab.billing_institution','NYU Medical',0,'2012-05-31 14:00:02',NULL),(45,5,'lab.billing_departmentId','3',0,'2012-05-31 14:00:02',NULL),(46,5,'lab.billing_building_room','Hammer 1101',0,'2012-05-31 14:00:02',NULL),(47,5,'lab.billing_address','16-50 32nd Street',0,'2012-05-31 14:00:02',NULL),(48,5,'lab.billing_city','New York',0,'2012-05-31 14:00:02',NULL),(49,5,'lab.billing_state','NY',0,'2012-05-31 14:00:02',NULL),(50,5,'lab.billing_country','US',0,'2012-05-31 14:00:02',NULL),(51,5,'lab.billing_zip','10002',0,'2012-05-31 14:00:02',NULL),(52,5,'lab.billing_phone','212-321-1091',0,'2012-05-31 14:00:02',NULL),(53,1,'lab.internal_external_lab','internal',0,'2012-06-14 14:08:21',NULL),(54,1,'lab.phone','N/A',0,'2012-06-14 14:08:21',NULL),(55,1,'lab.building_room','N/A',0,'2012-06-14 14:08:21',NULL),(56,1,'lab.billing_contact','N/A',0,'2012-06-14 14:08:21',NULL),(57,1,'lab.billing_institution','N/A',0,'2012-06-14 14:08:21',NULL),(58,1,'lab.billing_departmentId','1',0,'2012-06-14 14:08:21',NULL),(59,1,'lab.billing_building_room','N/A',0,'2012-06-14 14:08:21',NULL),(60,1,'lab.billing_address','N/A',0,'2012-06-14 14:08:21',NULL),(61,1,'lab.billing_city','N/A',0,'2012-06-14 14:08:21',NULL),(62,1,'lab.billing_state','NY',0,'2012-06-14 14:08:21',NULL),(63,1,'lab.billing_country','US',0,'2012-06-14 14:08:21',NULL),(64,1,'lab.billing_zip','N/A',0,'2012-06-14 14:08:21',NULL),(65,1,'lab.billing_phone','N/A',0,'2012-06-14 14:08:21',NULL);
+/*!40000 ALTER TABLE `labmeta` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `labpending`
+--
+
+DROP TABLE IF EXISTS `labpending`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `labpending` (
+  `labpendingid` int(10) NOT NULL AUTO_INCREMENT,
+  `departmentid` int(10) DEFAULT NULL,
+  `name` varchar(250) DEFAULT NULL,
+  `primaryuserid` int(10) DEFAULT NULL,
+  `userpendingid` int(10) DEFAULT NULL,
+  `status` varchar(10) DEFAULT 'PENDING',
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`labpendingid`),
+  KEY `fk_labpending_did` (`departmentid`),
+  KEY `fk_labpending_pruid` (`primaryuserid`),
+  KEY `fk_labpending_peuid` (`userpendingid`),
+  KEY `status` (`status`,`name`),
+  CONSTRAINT `labpending_ibfk_1` FOREIGN KEY (`departmentid`) REFERENCES `department` (`departmentid`),
+  CONSTRAINT `labpending_ibfk_2` FOREIGN KEY (`primaryuserid`) REFERENCES `user` (`userid`),
+  CONSTRAINT `labpending_ibfk_3` FOREIGN KEY (`userpendingid`) REFERENCES `userpending` (`userpendingid`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `labpending`
+--
+
+LOCK TABLES `labpending` WRITE;
+/*!40000 ALTER TABLE `labpending` DISABLE KEYS */;
+INSERT INTO `labpending` VALUES (1,1,'Greally Lab',5,NULL,'approve','2012-05-30 20:22:25',3),(2,1,'Charron Lab',NULL,2,'reject','2012-05-30 20:43:36',3),(3,1,'Goldin Lab',7,NULL,'approve','2012-05-30 22:03:56',1),(4,1,'Auton Lab',8,NULL,'approve','2012-05-31 13:59:23',3),(5,2,'Trokie Lab',9,NULL,'approve','2012-05-31 14:00:02',1);
+/*!40000 ALTER TABLE `labpending` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `labpendingmeta`
+--
+
+DROP TABLE IF EXISTS `labpendingmeta`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `labpendingmeta` (
+  `labpendingmetaid` int(10) NOT NULL AUTO_INCREMENT,
+  `labpendingid` int(10) DEFAULT NULL,
+  `k` varchar(250) DEFAULT NULL,
+  `v` varchar(250) DEFAULT NULL,
+  `position` int(10) DEFAULT '0',
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`labpendingmetaid`),
+  UNIQUE KEY `u_labpendingmeta_k_lid` (`k`,`labpendingid`),
+  KEY `fk_labpendingmeta_labpendingid` (`labpendingid`),
+  CONSTRAINT `labpendingmeta_ibfk_1` FOREIGN KEY (`labpendingid`) REFERENCES `labpending` (`labpendingid`)
+) ENGINE=InnoDB AUTO_INCREMENT=66 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `labpendingmeta`
+--
+
+LOCK TABLES `labpendingmeta` WRITE;
+/*!40000 ALTER TABLE `labpendingmeta` DISABLE KEYS */;
+INSERT INTO `labpendingmeta` VALUES (1,1,'labPending.internal_external_lab','internal',0,'2012-05-30 19:53:59',NULL),(2,1,'labPending.phone','718-123-4567',0,'2012-05-30 19:53:59',NULL),(3,1,'labPending.building_room','Price 220',0,'2012-05-30 19:53:59',NULL),(4,1,'labPending.billing_contact','John Greally',0,'2012-05-30 19:53:59',NULL),(5,1,'labPending.billing_institution','Einstein',0,'2012-05-30 19:53:59',NULL),(6,1,'labPending.billing_departmentId','1',0,'2012-05-30 19:53:59',NULL),(7,1,'labPending.billing_building_room','Price 220',0,'2012-05-30 19:53:59',NULL),(8,1,'labPending.billing_address','1301 Morris Park Ave.',0,'2012-05-30 19:53:59',NULL),(9,1,'labPending.billing_city','Bronx',0,'2012-05-30 19:53:59',NULL),(10,1,'labPending.billing_state','NY',0,'2012-05-30 19:53:59',NULL),(11,1,'labPending.billing_country','US',0,'2012-05-30 19:53:59',NULL),(12,1,'labPending.billing_zip','10461',0,'2012-05-30 19:53:59',NULL),(13,1,'labPending.billing_phone','718-123-4567',0,'2012-05-30 19:53:59',NULL),(14,2,'labPending.internal_external_lab','internal',0,'2012-05-30 20:42:35',NULL),(15,2,'labPending.phone','718-678-1212',0,'2012-05-30 20:42:35',NULL),(16,2,'labPending.building_room','Forr 310',0,'2012-05-30 20:42:35',NULL),(17,2,'labPending.billing_contact','Maureen Charron',0,'2012-05-30 20:42:35',NULL),(18,2,'labPending.billing_institution','Einstein',0,'2012-05-30 20:42:35',NULL),(19,2,'labPending.billing_departmentId','1',0,'2012-05-30 20:42:35',NULL),(20,2,'labPending.billing_building_room','Forr 310',0,'2012-05-30 20:42:35',NULL),(21,2,'labPending.billing_address','1300 Morris Park Ave.',0,'2012-05-30 20:42:35',NULL),(22,2,'labPending.billing_city','Bronx',0,'2012-05-30 20:42:35',NULL),(23,2,'labPending.billing_state','NY',0,'2012-05-30 20:42:35',NULL),(24,2,'labPending.billing_country','US',0,'2012-05-30 20:42:35',NULL),(25,2,'labPending.billing_zip','10461',0,'2012-05-30 20:42:35',NULL),(26,2,'labPending.billing_phone','718-678-1212',0,'2012-05-30 20:42:35',NULL),(27,3,'labPending.internal_external_lab','internal',0,'2012-05-30 22:03:28',NULL),(28,3,'labPending.phone','718-678-1112',0,'2012-05-30 22:03:28',NULL),(29,3,'labPending.building_room','Price 353',0,'2012-05-30 22:03:28',NULL),(30,3,'labPending.billing_contact','Aaron Goldin',0,'2012-05-30 22:03:28',NULL),(31,3,'labPending.billing_institution','Einstein',0,'2012-05-30 22:03:28',NULL),(32,3,'labPending.billing_departmentId','1',0,'2012-05-30 22:03:28',NULL),(33,3,'labPending.billing_building_room','Price 353',0,'2012-05-30 22:03:28',NULL),(34,3,'labPending.billing_address','1301 Morris Park Ave.',0,'2012-05-30 22:03:28',NULL),(35,3,'labPending.billing_city','Bronx',0,'2012-05-30 22:03:28',NULL),(36,3,'labPending.billing_state','NY',0,'2012-05-30 22:03:28',NULL),(37,3,'labPending.billing_country','US',0,'2012-05-30 22:03:28',NULL),(38,3,'labPending.billing_zip','10461',0,'2012-05-30 22:03:28',NULL),(39,3,'labPending.billing_phone','718-678-1112',0,'2012-05-30 22:03:28',NULL),(40,4,'labPending.internal_external_lab','internal',0,'2012-05-31 13:41:05',NULL),(41,4,'labPending.phone','718-678-1019',0,'2012-05-31 13:41:05',NULL),(42,4,'labPending.building_room','Price 321',0,'2012-05-31 13:41:05',NULL),(43,4,'labPending.billing_contact','Adam Auton',0,'2012-05-31 13:41:05',NULL),(44,4,'labPending.billing_institution','Einstein',0,'2012-05-31 13:41:05',NULL),(45,4,'labPending.billing_departmentId','1',0,'2012-05-31 13:41:05',NULL),(46,4,'labPending.billing_building_room','Price 321',0,'2012-05-31 13:41:05',NULL),(47,4,'labPending.billing_address','1301 Morris Park Ave.',0,'2012-05-31 13:41:05',NULL),(48,4,'labPending.billing_city','Bronx',0,'2012-05-31 13:41:05',NULL),(49,4,'labPending.billing_state','NY',0,'2012-05-31 13:41:05',NULL),(50,4,'labPending.billing_country','US',0,'2012-05-31 13:41:05',NULL),(51,4,'labPending.billing_zip','10461',0,'2012-05-31 13:41:05',NULL),(52,4,'labPending.billing_phone','718-678-1019',0,'2012-05-31 13:41:05',NULL),(53,5,'labPending.internal_external_lab','external',0,'2012-05-31 13:41:19',NULL),(54,5,'labPending.phone','212-321-1091',0,'2012-05-31 13:41:19',NULL),(55,5,'labPending.building_room','Hammer 1101',0,'2012-05-31 13:41:19',NULL),(56,5,'labPending.billing_contact','Leslie Trokie',0,'2012-05-31 13:41:19',NULL),(57,5,'labPending.billing_institution','NYU Medical',0,'2012-05-31 13:41:19',NULL),(58,5,'labPending.billing_departmentId','2',0,'2012-05-31 13:41:19',NULL),(59,5,'labPending.billing_building_room','Hammer 1101',0,'2012-05-31 13:41:19',NULL),(60,5,'labPending.billing_address','16-50 32nd Street',0,'2012-05-31 13:41:19',NULL),(61,5,'labPending.billing_city','New York',0,'2012-05-31 13:41:19',NULL),(62,5,'labPending.billing_state','NY',0,'2012-05-31 13:41:19',NULL),(63,5,'labPending.billing_country','US',0,'2012-05-31 13:41:19',NULL),(64,5,'labPending.billing_zip','10002',0,'2012-05-31 13:41:19',NULL),(65,5,'labPending.billing_phone','212-321-1091',0,'2012-05-31 13:41:19',NULL);
+/*!40000 ALTER TABLE `labpendingmeta` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `labuser`
+--
+
+DROP TABLE IF EXISTS `labuser`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `labuser` (
+  `labuserid` int(10) NOT NULL AUTO_INCREMENT,
+  `labid` int(10) DEFAULT NULL,
+  `userid` int(10) DEFAULT NULL,
+  `roleid` int(10) DEFAULT NULL,
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`labuserid`),
+  UNIQUE KEY `u_labuser_lid_uid` (`labid`,`userid`),
+  KEY `fk_labuser_uid` (`userid`),
+  KEY `fk_labuser_rid` (`roleid`),
+  CONSTRAINT `labuser_ibfk_1` FOREIGN KEY (`labid`) REFERENCES `lab` (`labid`),
+  CONSTRAINT `labuser_ibfk_2` FOREIGN KEY (`userid`) REFERENCES `user` (`userid`),
+  CONSTRAINT `labuser_ibfk_3` FOREIGN KEY (`roleid`) REFERENCES `role` (`roleid`)
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `labuser`
+--
+
+LOCK TABLES `labuser` WRITE;
+/*!40000 ALTER TABLE `labuser` DISABLE KEYS */;
+INSERT INTO `labuser` VALUES (1,1,1,6,'2012-05-23 15:55:46',1),(2,2,5,6,'2012-05-30 20:22:24',3),(3,2,6,8,'2012-05-30 21:13:54',5),(4,3,7,6,'2012-05-30 22:03:56',1),(5,4,8,6,'2012-05-31 13:59:23',3),(6,5,9,6,'2012-05-31 14:00:02',1),(7,2,10,7,'2012-05-31 14:02:38',5),(8,3,12,8,'2012-05-31 14:15:29',7);
+/*!40000 ALTER TABLE `labuser` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `meta`
+--
+
+DROP TABLE IF EXISTS `meta`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `meta` (
+  `metaid` int(10) NOT NULL AUTO_INCREMENT,
+  `property` varchar(250) DEFAULT NULL,
+  `k` varchar(250) DEFAULT NULL,
+  `v` varchar(250) DEFAULT NULL,
+  `position` int(10) DEFAULT '0',
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`metaid`),
+  UNIQUE KEY `u_meta_p_k` (`property`,`k`),
+  UNIQUE KEY `u_meta_p_v` (`property`,`v`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `meta`
+--
+
+LOCK TABLES `meta` WRITE;
+/*!40000 ALTER TABLE `meta` DISABLE KEYS */;
+/*!40000 ALTER TABLE `meta` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `project`
+--
+
+DROP TABLE IF EXISTS `project`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `project` (
+  `projectid` int(10) NOT NULL AUTO_INCREMENT,
+  `labid` int(10) DEFAULT NULL,
+  `userid` int(10) DEFAULT NULL,
+  `name` varchar(250) DEFAULT NULL,
+  `isactive` int(1) DEFAULT '1',
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`projectid`),
+  UNIQUE KEY `u_project_name_lid` (`name`,`labid`),
+  KEY `fk_project_lid` (`labid`),
+  CONSTRAINT `project_ibfk_1` FOREIGN KEY (`labid`) REFERENCES `lab` (`labid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `project`
+--
+
+LOCK TABLES `project` WRITE;
+/*!40000 ALTER TABLE `project` DISABLE KEYS */;
+/*!40000 ALTER TABLE `project` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `resource`
+--
+
+DROP TABLE IF EXISTS `resource`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `resource` (
+  `resourceid` int(10) NOT NULL AUTO_INCREMENT,
+  `resourcecategoryid` int(10) DEFAULT NULL,
+  `resourcetypeid` int(10) DEFAULT NULL,
+  `iname` varchar(250) DEFAULT NULL,
+  `name` varchar(250) DEFAULT NULL,
+  `isactive` int(1) DEFAULT '1',
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`resourceid`),
+  UNIQUE KEY `u_resource_i` (`iname`),
+  UNIQUE KEY `u_resource_n` (`name`),
+  KEY `fk_resource_trid` (`resourcetypeid`),
+  KEY `fk_resource_rid` (`resourcecategoryid`),
+  CONSTRAINT `resource_ibfk_1` FOREIGN KEY (`resourcetypeid`) REFERENCES `resourcetype` (`resourcetypeid`),
+  CONSTRAINT `resource_ibfk_2` FOREIGN KEY (`resourcecategoryid`) REFERENCES `resourcecategory` (`resourcecategoryid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `resource`
+--
+
+LOCK TABLES `resource` WRITE;
+/*!40000 ALTER TABLE `resource` DISABLE KEYS */;
+/*!40000 ALTER TABLE `resource` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `resourcebarcode`
+--
+
+DROP TABLE IF EXISTS `resourcebarcode`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `resourcebarcode` (
+  `resourcebarcodeid` int(10) NOT NULL AUTO_INCREMENT,
+  `resourceid` int(10) DEFAULT NULL,
+  `barcodeid` int(10) DEFAULT NULL,
+  PRIMARY KEY (`resourcebarcodeid`),
+  UNIQUE KEY `u_resourcebarcode_rid` (`resourceid`),
+  UNIQUE KEY `u_resourcebarcode_bcid` (`barcodeid`),
+  CONSTRAINT `resourcebarcode_ibfk_1` FOREIGN KEY (`resourceid`) REFERENCES `resource` (`resourceid`),
+  CONSTRAINT `resourcebarcode_ibfk_2` FOREIGN KEY (`barcodeid`) REFERENCES `barcode` (`barcodeid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `resourcebarcode`
+--
+
+LOCK TABLES `resourcebarcode` WRITE;
+/*!40000 ALTER TABLE `resourcebarcode` DISABLE KEYS */;
+/*!40000 ALTER TABLE `resourcebarcode` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `resourcecategory`
+--
+
+DROP TABLE IF EXISTS `resourcecategory`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `resourcecategory` (
+  `resourcecategoryid` int(10) NOT NULL AUTO_INCREMENT,
+  `resourcetypeid` int(10) NOT NULL,
+  `iname` varchar(250) DEFAULT NULL,
+  `name` varchar(250) DEFAULT NULL,
+  `isactive` int(1) DEFAULT '1',
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`resourcecategoryid`),
+  UNIQUE KEY `u_resourcecategory_i` (`iname`),
+  UNIQUE KEY `u_resourcecategory_n` (`name`),
+  KEY `fk_resourccategory_resourcetypeid` (`resourcetypeid`),
+  CONSTRAINT `resourcecategory_ibfk_1` FOREIGN KEY (`resourcetypeid`) REFERENCES `resourcetype` (`resourcetypeid`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `resourcecategory`
+--
+
+LOCK TABLES `resourcecategory` WRITE;
+/*!40000 ALTER TABLE `resourcecategory` DISABLE KEYS */;
+INSERT INTO `resourcecategory` VALUES (1,1,'illuminaHiSeq2000','Illumina HiSeq 2000',1,'2012-06-13 23:23:10',0);
+/*!40000 ALTER TABLE `resourcecategory` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `resourcecategorymeta`
+--
+
+DROP TABLE IF EXISTS `resourcecategorymeta`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `resourcecategorymeta` (
+  `resourcecategorymetaid` int(10) NOT NULL AUTO_INCREMENT,
+  `resourcecategoryid` int(10) DEFAULT NULL,
+  `k` varchar(250) DEFAULT NULL,
+  `v` varchar(250) DEFAULT NULL,
+  `position` int(10) DEFAULT '0',
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`resourcecategorymetaid`),
+  UNIQUE KEY `u_resourcecategorymeta_k_rid` (`k`,`resourcecategoryid`),
+  KEY `fk_resourccategoryemeta_resourcecategoryid` (`resourcecategoryid`),
+  CONSTRAINT `resourcecategorymeta_ibfk_1` FOREIGN KEY (`resourcecategoryid`) REFERENCES `resourcecategory` (`resourcecategoryid`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `resourcecategorymeta`
+--
+
+LOCK TABLES `resourcecategorymeta` WRITE;
+/*!40000 ALTER TABLE `resourcecategorymeta` DISABLE KEYS */;
+INSERT INTO `resourcecategorymeta` VALUES (1,1,'illuminaHiSeq2000.allowableUiField.readType','single:single;paired:paired',1,'2012-05-23 16:08:18',0),(2,1,'illuminaHiSeq2000.allowableUiField.readlength','50:50;75:75;100:100;150:150',2,'2012-05-23 16:08:18',0),(3,1,'illuminaHiSeq2000.platformUnitSelector','A:A;B:B',3,'2012-05-23 16:08:18',0);
+/*!40000 ALTER TABLE `resourcecategorymeta` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `resourcecell`
+--
+
+DROP TABLE IF EXISTS `resourcecell`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `resourcecell` (
+  `resourcecellid` int(10) NOT NULL AUTO_INCREMENT,
+  `resourceid` int(10) DEFAULT NULL,
+  `iname` varchar(250) DEFAULT NULL,
+  `name` varchar(250) DEFAULT NULL,
+  `isactive` int(1) DEFAULT '1',
+  PRIMARY KEY (`resourcecellid`),
+  UNIQUE KEY `u_resourcecell_iname_rid` (`iname`,`resourceid`),
+  UNIQUE KEY `u_resourcecell_name_rid` (`name`,`resourceid`),
+  KEY `fk_resourcecell_rid` (`resourceid`),
+  CONSTRAINT `resourcecell_ibfk_1` FOREIGN KEY (`resourceid`) REFERENCES `resource` (`resourceid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `resourcecell`
+--
+
+LOCK TABLES `resourcecell` WRITE;
+/*!40000 ALTER TABLE `resourcecell` DISABLE KEYS */;
+/*!40000 ALTER TABLE `resourcecell` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `resourcemeta`
+--
+
+DROP TABLE IF EXISTS `resourcemeta`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `resourcemeta` (
+  `resourcemetaid` int(10) NOT NULL AUTO_INCREMENT,
+  `resourceid` int(10) DEFAULT NULL,
+  `k` varchar(250) DEFAULT NULL,
+  `v` varchar(250) DEFAULT NULL,
+  `position` int(10) DEFAULT '0',
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`resourcemetaid`),
+  UNIQUE KEY `u_resourcemeta_k_rid` (`k`,`resourceid`),
+  KEY `fk_resourcemeta_resourceid` (`resourceid`),
+  CONSTRAINT `resourcemeta_ibfk_1` FOREIGN KEY (`resourceid`) REFERENCES `resource` (`resourceid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `resourcemeta`
+--
+
+LOCK TABLES `resourcemeta` WRITE;
+/*!40000 ALTER TABLE `resourcemeta` DISABLE KEYS */;
+/*!40000 ALTER TABLE `resourcemeta` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `resourcetype`
+--
+
+DROP TABLE IF EXISTS `resourcetype`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `resourcetype` (
+  `resourcetypeid` int(10) NOT NULL AUTO_INCREMENT,
+  `iname` varchar(250) DEFAULT NULL,
+  `name` varchar(250) DEFAULT NULL,
+  PRIMARY KEY (`resourcetypeid`),
+  UNIQUE KEY `u_resourcetype_iname` (`iname`),
+  UNIQUE KEY `u_resourcetype_name` (`name`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `resourcetype`
+--
+
+LOCK TABLES `resourcetype` WRITE;
+/*!40000 ALTER TABLE `resourcetype` DISABLE KEYS */;
+INSERT INTO `resourcetype` VALUES (1,'mps','Massively Parallel DNA Sequencer'),(2,'amplicon','DNA Amplicon'),(3,'aligner','Aligner'),(4,'peakcaller','Peak Caller'),(5,'sanger','Sanger DNA Sequencer'),(6,'helptagPipeline','HELP-tag Pipeline'),(7,'bisulseqPipeline','Bi-sulphite-seq Pipeline');
+/*!40000 ALTER TABLE `resourcetype` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `role`
+--
+
+DROP TABLE IF EXISTS `role`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `role` (
+  `roleid` int(10) NOT NULL AUTO_INCREMENT,
+  `rolename` varchar(250) DEFAULT NULL,
+  `name` varchar(250) DEFAULT NULL,
+  `domain` varchar(20) DEFAULT NULL,
+  PRIMARY KEY (`roleid`),
+  UNIQUE KEY `u_role_rname` (`rolename`),
+  UNIQUE KEY `u_role_name` (`name`)
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `role`
+--
+
+LOCK TABLES `role` WRITE;
+/*!40000 ALTER TABLE `role` DISABLE KEYS */;
+INSERT INTO `role` VALUES (1,'fm','Facilities Manager','system'),(2,'sa','System Administrator','system'),(3,'ga','General Administrator','system'),(4,'da','Department Administrator','department'),(5,'ft','Facilities Tech','system'),(6,'pi','Primary Investigator','lab'),(7,'lm','Lab Manager','lab'),(8,'lu','Lab Member','lab'),(9,'js','Job Submitter','job'),(10,'jv','Job Viewer','job'),(11,'su','Super User','system'),(12,'lx','Lab Member Inactive','lab'),(13,'lp','Lab Member Pending','lab'),(14,'jd','Job Drafter','jobdraft'),(15,'u','User','user');
+/*!40000 ALTER TABLE `role` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `roleset`
+--
+
+DROP TABLE IF EXISTS `roleset`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `roleset` (
+  `rolesetid` int(10) NOT NULL AUTO_INCREMENT,
+  `parentroleid` int(10) DEFAULT NULL,
+  `childroleid` int(10) DEFAULT NULL,
+  PRIMARY KEY (`rolesetid`),
+  UNIQUE KEY `u_role_rname` (`parentroleid`,`childroleid`),
+  KEY `fk_roleset_crid` (`childroleid`),
+  CONSTRAINT `roleset_ibfk_1` FOREIGN KEY (`parentroleid`) REFERENCES `role` (`roleid`),
+  CONSTRAINT `roleset_ibfk_2` FOREIGN KEY (`childroleid`) REFERENCES `role` (`roleid`)
+) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `roleset`
+--
+
+LOCK TABLES `roleset` WRITE;
+/*!40000 ALTER TABLE `roleset` DISABLE KEYS */;
+INSERT INTO `roleset` VALUES (2,1,1),(16,1,5),(13,2,2),(4,3,3),(1,4,4),(3,5,5),(12,6,6),(17,6,7),(18,6,8),(8,7,7),(19,7,8),(10,8,8),(6,9,9),(20,9,10),(7,10,10),(21,11,1),(22,11,2),(23,11,3),(24,11,5),(14,11,11),(11,12,12),(9,13,13),(5,14,14),(15,15,15);
+/*!40000 ALTER TABLE `roleset` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `run`
+--
+
+DROP TABLE IF EXISTS `run`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `run` (
+  `runid` int(10) NOT NULL AUTO_INCREMENT,
+  `resourceid` int(10) DEFAULT NULL,
+  `resourcecategoryid` int(10) DEFAULT NULL,
+  `softwareid` int(10) DEFAULT NULL,
+  `userid` int(10) DEFAULT NULL,
+  `name` varchar(250) DEFAULT NULL,
+  `sampleid` int(10) DEFAULT NULL,
+  `startts` datetime DEFAULT NULL,
+  `endts` datetime DEFAULT NULL,
+  `status` varchar(250) DEFAULT NULL,
+  `isactive` int(1) DEFAULT '1',
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`runid`),
+  KEY `fk_run_rid` (`resourceid`),
+  KEY `fk_run_rcid` (`resourcecategoryid`),
+  KEY `fk_run_swid` (`softwareid`),
+  KEY `fk_run_sid` (`sampleid`),
+  KEY `fk_run_userid` (`userid`),
+  CONSTRAINT `run_ibfk_1` FOREIGN KEY (`resourceid`) REFERENCES `resource` (`resourceid`),
+  CONSTRAINT `run_ibfk_2` FOREIGN KEY (`resourcecategoryid`) REFERENCES `resourcecategory` (`resourcecategoryid`),
+  CONSTRAINT `run_ibfk_3` FOREIGN KEY (`softwareid`) REFERENCES `software` (`softwareid`),
+  CONSTRAINT `run_ibfk_4` FOREIGN KEY (`sampleid`) REFERENCES `sample` (`sampleid`),
+  CONSTRAINT `run_ibfk_5` FOREIGN KEY (`userid`) REFERENCES `user` (`userid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `run`
+--
+
+LOCK TABLES `run` WRITE;
+/*!40000 ALTER TABLE `run` DISABLE KEYS */;
+/*!40000 ALTER TABLE `run` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `runcell`
+--
+
+DROP TABLE IF EXISTS `runcell`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `runcell` (
+  `runcellid` int(10) NOT NULL AUTO_INCREMENT,
+  `runid` int(10) DEFAULT NULL,
+  `resourcecellid` int(10) DEFAULT NULL,
+  `sampleid` int(10) DEFAULT NULL,
+  PRIMARY KEY (`runcellid`),
+  UNIQUE KEY `u_runcell_rid_lid` (`runid`,`resourcecellid`),
+  UNIQUE KEY `u_runcell_sid_rid` (`sampleid`,`runid`),
+  KEY `fk_runcell_lid` (`resourcecellid`),
+  CONSTRAINT `runcell_ibfk_1` FOREIGN KEY (`runid`) REFERENCES `run` (`runid`),
+  CONSTRAINT `runcell_ibfk_2` FOREIGN KEY (`resourcecellid`) REFERENCES `resourcecell` (`resourcecellid`),
+  CONSTRAINT `runcell_ibfk_3` FOREIGN KEY (`sampleid`) REFERENCES `sample` (`sampleid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `runcell`
+--
+
+LOCK TABLES `runcell` WRITE;
+/*!40000 ALTER TABLE `runcell` DISABLE KEYS */;
+/*!40000 ALTER TABLE `runcell` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `runcellfile`
+--
+
+DROP TABLE IF EXISTS `runcellfile`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `runcellfile` (
+  `runcellfileid` int(10) NOT NULL AUTO_INCREMENT,
+  `runcellid` int(10) DEFAULT NULL,
+  `fileid` int(10) DEFAULT NULL,
+  `iname` varchar(2048) DEFAULT NULL,
+  `name` varchar(250) DEFAULT NULL,
+  `isactive` int(1) DEFAULT '1',
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`runcellfileid`),
+  UNIQUE KEY `u_rlfile_fileid` (`fileid`),
+  KEY `fk_rlfile_rlid` (`runcellid`),
+  CONSTRAINT `runcellfile_ibfk_1` FOREIGN KEY (`runcellid`) REFERENCES `runcell` (`runcellid`),
+  CONSTRAINT `runcellfile_ibfk_2` FOREIGN KEY (`fileid`) REFERENCES `file` (`fileid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `runcellfile`
+--
+
+LOCK TABLES `runcellfile` WRITE;
+/*!40000 ALTER TABLE `runcellfile` DISABLE KEYS */;
+/*!40000 ALTER TABLE `runcellfile` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `runfile`
+--
+
+DROP TABLE IF EXISTS `runfile`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `runfile` (
+  `runcellfileid` int(10) NOT NULL AUTO_INCREMENT,
+  `runid` int(10) DEFAULT NULL,
+  `fileid` int(10) DEFAULT NULL,
+  `iname` varchar(2048) DEFAULT NULL,
+  `name` varchar(250) DEFAULT NULL,
+  `isactive` int(1) DEFAULT '1',
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`runcellfileid`),
+  UNIQUE KEY `u_rlfile_fileid` (`fileid`),
+  KEY `fk_rfile_rid` (`runid`),
+  CONSTRAINT `runfile_ibfk_1` FOREIGN KEY (`runid`) REFERENCES `run` (`runid`),
+  CONSTRAINT `runfile_ibfk_2` FOREIGN KEY (`fileid`) REFERENCES `file` (`fileid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `runfile`
+--
+
+LOCK TABLES `runfile` WRITE;
+/*!40000 ALTER TABLE `runfile` DISABLE KEYS */;
+/*!40000 ALTER TABLE `runfile` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `runmeta`
+--
+
+DROP TABLE IF EXISTS `runmeta`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `runmeta` (
+  `runmetaid` int(10) NOT NULL AUTO_INCREMENT,
+  `runid` int(10) DEFAULT NULL,
+  `k` varchar(250) DEFAULT NULL,
+  `v` varchar(250) DEFAULT NULL,
+  `position` int(10) DEFAULT '0',
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`runmetaid`),
+  UNIQUE KEY `u_runmeta_k_rid` (`k`,`runid`),
+  KEY `fk_runmeta_runid` (`runid`),
+  CONSTRAINT `runmeta_ibfk_1` FOREIGN KEY (`runid`) REFERENCES `run` (`runid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `runmeta`
+--
+
+LOCK TABLES `runmeta` WRITE;
+/*!40000 ALTER TABLE `runmeta` DISABLE KEYS */;
+/*!40000 ALTER TABLE `runmeta` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `sample`
+--
+
+DROP TABLE IF EXISTS `sample`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `sample` (
+  `sampleid` int(10) NOT NULL AUTO_INCREMENT,
+  `parentid` int(10) DEFAULT NULL,
+  `sampletypeid` int(10) DEFAULT NULL,
+  `samplesubtypeid` int(10) DEFAULT NULL,
+  `submitter_labid` int(10) DEFAULT NULL,
+  `submitter_userid` int(10) DEFAULT NULL,
+  `submitter_jobid` int(10) DEFAULT NULL,
+  `isreceived` int(1) DEFAULT '0',
+  `receiver_userid` int(10) DEFAULT NULL,
+  `receivedts` datetime DEFAULT NULL,
+  `name` varchar(250) DEFAULT NULL,
+  `isgood` int(1) DEFAULT NULL,
+  `isactive` int(1) DEFAULT '1',
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`sampleid`),
+  KEY `fk_sample_sampleid` (`parentid`),
+  KEY `fk_sample_tsid` (`sampletypeid`),
+  KEY `fk_sample_stsid` (`samplesubtypeid`),
+  KEY `fk_sample_sjid` (`submitter_jobid`),
+  KEY `fk_sample_slid` (`submitter_labid`),
+  KEY `fk_sample_suid` (`submitter_userid`),
+  CONSTRAINT `sample_ibfk_1` FOREIGN KEY (`parentid`) REFERENCES `sample` (`sampleid`),
+  CONSTRAINT `sample_ibfk_2` FOREIGN KEY (`sampletypeid`) REFERENCES `sampletype` (`sampletypeid`),
+  CONSTRAINT `sample_ibfk_3` FOREIGN KEY (`samplesubtypeid`) REFERENCES `samplesubtype` (`samplesubtypeid`),
+  CONSTRAINT `sample_ibfk_4` FOREIGN KEY (`submitter_jobid`) REFERENCES `job` (`jobid`),
+  CONSTRAINT `sample_ibfk_5` FOREIGN KEY (`submitter_labid`) REFERENCES `lab` (`labid`),
+  CONSTRAINT `sample_ibfk_6` FOREIGN KEY (`submitter_userid`) REFERENCES `user` (`userid`)
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `sample`
+--
+
+LOCK TABLES `sample` WRITE;
+/*!40000 ALTER TABLE `sample` DISABLE KEYS */;
+INSERT INTO `sample` VALUES (1,NULL,1,3,2,10,1,0,NULL,NULL,'input',NULL,1,'2012-06-11 15:42:02',10),(2,NULL,1,3,2,10,1,0,NULL,NULL,'IP',NULL,1,'2012-06-11 15:42:03',10),(3,1,3,5,2,10,1,NULL,NULL,NULL,'facLib_input',NULL,1,'2012-06-11 18:47:42',1),(4,NULL,5,1,1,1,NULL,1,1,'2012-06-11 14:57:27','AXZ123XX',1,1,'2012-06-11 18:57:27',1),(5,NULL,4,NULL,1,1,NULL,1,1,'2012-06-11 14:57:27','AXZ123XX/1',1,1,'2012-06-11 18:57:27',1),(6,NULL,4,NULL,1,1,NULL,1,1,'2012-06-11 14:57:27','AXZ123XX/2',1,1,'2012-06-11 18:57:27',1),(7,NULL,4,NULL,1,1,NULL,1,1,'2012-06-11 14:57:27','AXZ123XX/3',1,1,'2012-06-11 18:57:27',1),(8,NULL,4,NULL,1,1,NULL,1,1,'2012-06-11 14:57:27','AXZ123XX/4',1,1,'2012-06-11 18:57:27',1),(9,NULL,4,NULL,1,1,NULL,1,1,'2012-06-11 14:57:27','AXZ123XX/5',1,1,'2012-06-11 18:57:27',1),(10,NULL,4,NULL,1,1,NULL,1,1,'2012-06-11 14:57:27','AXZ123XX/6',1,1,'2012-06-11 18:57:27',1),(11,NULL,4,NULL,1,1,NULL,1,1,'2012-06-11 14:57:27','AXZ123XX/7',1,1,'2012-06-11 18:57:27',1),(12,NULL,4,NULL,1,1,NULL,1,1,'2012-06-11 14:57:27','AXZ123XX/8',1,1,'2012-06-11 18:57:27',1);
+/*!40000 ALTER TABLE `sample` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `samplebarcode`
+--
+
+DROP TABLE IF EXISTS `samplebarcode`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `samplebarcode` (
+  `samplebarcode` int(10) NOT NULL AUTO_INCREMENT,
+  `sampleid` int(10) DEFAULT NULL,
+  `barcodeid` int(10) DEFAULT NULL,
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`samplebarcode`),
+  UNIQUE KEY `u_samplebarcode_sid` (`sampleid`),
+  UNIQUE KEY `u_samplebarcode_bcid` (`barcodeid`),
+  CONSTRAINT `samplebarcode_ibfk_1` FOREIGN KEY (`sampleid`) REFERENCES `sample` (`sampleid`),
+  CONSTRAINT `samplebarcode_ibfk_2` FOREIGN KEY (`barcodeid`) REFERENCES `barcode` (`barcodeid`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `samplebarcode`
+--
+
+LOCK TABLES `samplebarcode` WRITE;
+/*!40000 ALTER TABLE `samplebarcode` DISABLE KEYS */;
+INSERT INTO `samplebarcode` VALUES (1,4,1,'2012-06-11 18:57:27',1);
+/*!40000 ALTER TABLE `samplebarcode` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `sampledraft`
+--
+
+DROP TABLE IF EXISTS `sampledraft`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `sampledraft` (
+  `sampledraftid` int(10) NOT NULL AUTO_INCREMENT,
+  `sampletypeid` int(10) DEFAULT NULL,
+  `samplesubtypeid` int(10) DEFAULT NULL,
+  `labid` int(10) DEFAULT NULL,
+  `userid` int(10) DEFAULT NULL,
+  `jobdraftid` int(10) DEFAULT NULL,
+  `sourcesampleid` int(10) DEFAULT NULL,
+  `fileid` int(10) DEFAULT NULL,
+  `name` varchar(250) DEFAULT NULL,
+  `status` varchar(50) DEFAULT NULL,
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`sampledraftid`),
+  KEY `fk_sampledraft_tsid` (`sampletypeid`),
+  KEY `fk_sampledraft_stsid` (`samplesubtypeid`),
+  KEY `fk_sampledraft_sjid` (`jobdraftid`),
+  KEY `fk_sampledraft_slid` (`labid`),
+  KEY `fk_sampledraft_suid` (`userid`),
+  KEY `fk_sampledraft_fid` (`fileid`),
+  CONSTRAINT `sampledraft_ibfk_1` FOREIGN KEY (`sampletypeid`) REFERENCES `sampletype` (`sampletypeid`),
+  CONSTRAINT `sampledraft_ibfk_2` FOREIGN KEY (`samplesubtypeid`) REFERENCES `samplesubtype` (`samplesubtypeid`),
+  CONSTRAINT `sampledraft_ibfk_3` FOREIGN KEY (`jobdraftid`) REFERENCES `jobdraft` (`jobdraftid`),
+  CONSTRAINT `sampledraft_ibfk_4` FOREIGN KEY (`labid`) REFERENCES `lab` (`labid`),
+  CONSTRAINT `sampledraft_ibfk_5` FOREIGN KEY (`userid`) REFERENCES `user` (`userid`),
+  CONSTRAINT `sampledraft_ibfk_6` FOREIGN KEY (`fileid`) REFERENCES `file` (`fileid`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `sampledraft`
+--
+
+LOCK TABLES `sampledraft` WRITE;
+/*!40000 ALTER TABLE `sampledraft` DISABLE KEYS */;
+INSERT INTO `sampledraft` VALUES (1,1,3,2,10,1,NULL,NULL,'input',NULL,'2012-06-11 15:40:19',10),(2,1,3,2,10,1,NULL,NULL,'IP',NULL,'2012-06-11 15:41:13',10);
+/*!40000 ALTER TABLE `sampledraft` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `sampledraftjobdraftcellselection`
+--
+
+DROP TABLE IF EXISTS `sampledraftjobdraftcellselection`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `sampledraftjobdraftcellselection` (
+  `sampledraftjobdraftcellselectionid` int(10) NOT NULL AUTO_INCREMENT,
+  `sampledraftid` int(10) DEFAULT NULL,
+  `jobdraftcellselectionid` int(10) DEFAULT NULL,
+  `libraryindex` int(10) DEFAULT NULL,
+  PRIMARY KEY (`sampledraftjobdraftcellselectionid`),
+  UNIQUE KEY `u_sampledraftcell_jdcid_li` (`jobdraftcellselectionid`,`libraryindex`),
+  KEY `fk_sampledraftcell_sdid` (`sampledraftid`),
+  CONSTRAINT `sampledraftjobdraftcellselection_ibfk_1` FOREIGN KEY (`sampledraftid`) REFERENCES `sampledraft` (`sampledraftid`),
+  CONSTRAINT `sampledraftjobdraftcellselection_ibfk_2` FOREIGN KEY (`jobdraftcellselectionid`) REFERENCES `jobdraftcellselection` (`jobdraftcellselectionid`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `sampledraftjobdraftcellselection`
+--
+
+LOCK TABLES `sampledraftjobdraftcellselection` WRITE;
+/*!40000 ALTER TABLE `sampledraftjobdraftcellselection` DISABLE KEYS */;
+INSERT INTO `sampledraftjobdraftcellselection` VALUES (1,1,1,1),(2,2,2,1);
+/*!40000 ALTER TABLE `sampledraftjobdraftcellselection` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `sampledraftmeta`
+--
+
+DROP TABLE IF EXISTS `sampledraftmeta`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `sampledraftmeta` (
+  `sampledraftmetaid` int(10) NOT NULL AUTO_INCREMENT,
+  `sampledraftid` int(10) DEFAULT NULL,
+  `k` varchar(250) DEFAULT NULL,
+  `v` varchar(250) DEFAULT NULL,
+  `position` int(10) DEFAULT '0',
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`sampledraftmetaid`),
+  UNIQUE KEY `u_sampledraftmeta_k_sid` (`k`,`sampledraftid`),
+  KEY `fk_sampledraftmeta_sdid` (`sampledraftid`),
+  CONSTRAINT `sampledraftmeta_ibfk_1` FOREIGN KEY (`sampledraftid`) REFERENCES `sampledraft` (`sampledraftid`)
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `sampledraftmeta`
+--
+
+LOCK TABLES `sampledraftmeta` WRITE;
+/*!40000 ALTER TABLE `sampledraftmeta` DISABLE KEYS */;
+INSERT INTO `sampledraftmeta` VALUES (1,1,'genericBiomolecule.species','Human',0,'2012-06-11 15:40:19',NULL),(2,1,'genericDna.concentration','50',0,'2012-06-11 15:40:19',NULL),(3,1,'genericDna.volume','59',0,'2012-06-11 15:40:19',NULL),(4,1,'genericDna.buffer','TE',0,'2012-06-11 15:40:19',NULL),(5,1,'genericDna.A260_280','1.8',0,'2012-06-11 15:40:19',NULL),(6,1,'genericDna.A260_230','1.6',0,'2012-06-11 15:40:19',NULL),(7,1,'chipseqDna.fragmentSize','500',0,'2012-06-11 15:40:19',NULL),(8,1,'chipseqDna.fragmentSizeSD','30',0,'2012-06-11 15:40:19',NULL),(9,1,'chipseqDna.antibody','',0,'2012-06-11 15:40:19',NULL),(10,2,'genericBiomolecule.species','Human',0,'2012-06-11 15:41:13',NULL),(11,2,'genericDna.concentration','40',0,'2012-06-11 15:41:13',NULL),(12,2,'genericDna.volume','49',0,'2012-06-11 15:41:13',NULL),(13,2,'genericDna.buffer','TE',0,'2012-06-11 15:41:13',NULL),(14,2,'genericDna.A260_280','1.8',0,'2012-06-11 15:41:13',NULL),(15,2,'genericDna.A260_230','1.65',0,'2012-06-11 15:41:13',NULL),(16,2,'chipseqDna.fragmentSize','500',0,'2012-06-11 15:41:13',NULL),(17,2,'chipseqDna.fragmentSizeSD','20',0,'2012-06-11 15:41:13',NULL),(18,2,'chipseqDna.antibody','anti-SRY (mouse monoclonal)',0,'2012-06-11 15:41:13',NULL);
+/*!40000 ALTER TABLE `sampledraftmeta` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `samplefile`
+--
+
+DROP TABLE IF EXISTS `samplefile`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `samplefile` (
+  `samplefileid` int(10) NOT NULL AUTO_INCREMENT,
+  `sampleid` int(10) DEFAULT NULL,
+  `fileid` int(10) DEFAULT NULL,
+  `iname` varchar(2048) DEFAULT NULL,
+  `name` varchar(250) DEFAULT NULL,
+  `description` varchar(2048) DEFAULT NULL,
+  `isactive` int(1) DEFAULT '1',
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`samplefileid`),
+  KEY `fk_samplefile_sid` (`sampleid`),
+  KEY `fk_samplefile_fid` (`fileid`),
+  CONSTRAINT `samplefile_ibfk_1` FOREIGN KEY (`sampleid`) REFERENCES `sample` (`sampleid`),
+  CONSTRAINT `samplefile_ibfk_2` FOREIGN KEY (`fileid`) REFERENCES `file` (`fileid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `samplefile`
+--
+
+LOCK TABLES `samplefile` WRITE;
+/*!40000 ALTER TABLE `samplefile` DISABLE KEYS */;
+/*!40000 ALTER TABLE `samplefile` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `samplejobcellselection`
+--
+
+DROP TABLE IF EXISTS `samplejobcellselection`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `samplejobcellselection` (
+  `samplejobcellselectionid` int(10) NOT NULL AUTO_INCREMENT,
+  `sampleid` int(10) DEFAULT NULL,
+  `jobcellselectionid` int(10) DEFAULT NULL,
+  `libraryindex` int(10) DEFAULT NULL,
+  PRIMARY KEY (`samplejobcellselectionid`),
+  UNIQUE KEY `u_samplecell_jdcid_li` (`jobcellselectionid`,`libraryindex`),
+  KEY `fk_samplecell_sdid` (`sampleid`),
+  CONSTRAINT `samplejobcellselection_ibfk_1` FOREIGN KEY (`sampleid`) REFERENCES `sample` (`sampleid`),
+  CONSTRAINT `samplejobcellselection_ibfk_2` FOREIGN KEY (`jobcellselectionid`) REFERENCES `jobcellselection` (`jobcellselectionid`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `samplejobcellselection`
+--
+
+LOCK TABLES `samplejobcellselection` WRITE;
+/*!40000 ALTER TABLE `samplejobcellselection` DISABLE KEYS */;
+INSERT INTO `samplejobcellselection` VALUES (1,1,1,1),(2,2,2,1);
+/*!40000 ALTER TABLE `samplejobcellselection` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `samplelab`
+--
+
+DROP TABLE IF EXISTS `samplelab`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `samplelab` (
+  `samplelabid` int(10) NOT NULL AUTO_INCREMENT,
+  `sampleid` int(10) DEFAULT NULL,
+  `labid` int(10) DEFAULT NULL,
+  `isprimary` int(1) DEFAULT '0',
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`samplelabid`),
+  UNIQUE KEY `u_samplelab_sid_lid` (`sampleid`,`labid`),
+  KEY `fk_samplelab_lid` (`labid`),
+  CONSTRAINT `samplelab_ibfk_1` FOREIGN KEY (`sampleid`) REFERENCES `sample` (`sampleid`),
+  CONSTRAINT `samplelab_ibfk_2` FOREIGN KEY (`labid`) REFERENCES `lab` (`labid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `samplelab`
+--
+
+LOCK TABLES `samplelab` WRITE;
+/*!40000 ALTER TABLE `samplelab` DISABLE KEYS */;
+/*!40000 ALTER TABLE `samplelab` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `samplemeta`
+--
+
+DROP TABLE IF EXISTS `samplemeta`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `samplemeta` (
+  `samplemetaid` int(10) NOT NULL AUTO_INCREMENT,
+  `sampleid` int(10) DEFAULT NULL,
+  `k` varchar(250) DEFAULT NULL,
+  `v` varchar(250) DEFAULT NULL,
+  `position` int(10) DEFAULT '0',
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`samplemetaid`),
+  UNIQUE KEY `u_samplemeta_k_sid` (`k`,`sampleid`),
+  KEY `fk_samplemeta_sampleid` (`sampleid`),
+  CONSTRAINT `samplemeta_ibfk_1` FOREIGN KEY (`sampleid`) REFERENCES `sample` (`sampleid`)
+) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `samplemeta`
+--
+
+LOCK TABLES `samplemeta` WRITE;
+/*!40000 ALTER TABLE `samplemeta` DISABLE KEYS */;
+INSERT INTO `samplemeta` VALUES (1,1,'genericBiomolecule.species','Human',0,'2012-06-11 15:42:02',10),(2,1,'genericDna.concentration','50',0,'2012-06-11 15:42:02',10),(3,1,'genericDna.volume','59',0,'2012-06-11 15:42:02',10),(4,1,'genericDna.buffer','TE',0,'2012-06-11 15:42:02',10),(5,1,'genericDna.A260_280','1.8',0,'2012-06-11 15:42:02',10),(6,1,'genericDna.A260_230','1.6',0,'2012-06-11 15:42:03',10),(7,1,'chipseqDna.fragmentSize','500',0,'2012-06-11 15:42:03',10),(8,1,'chipseqDna.fragmentSizeSD','30',0,'2012-06-11 15:42:03',10),(9,1,'chipseqDna.antibody','',0,'2012-06-11 15:42:03',10),(10,2,'genericBiomolecule.species','Human',0,'2012-06-11 15:42:03',10),(11,2,'genericDna.concentration','40',0,'2012-06-11 15:42:03',10),(12,2,'genericDna.volume','49',0,'2012-06-11 15:42:03',10),(13,2,'genericDna.buffer','TE',0,'2012-06-11 15:42:03',10),(14,2,'genericDna.A260_280','1.8',0,'2012-06-11 15:42:03',10),(15,2,'genericDna.A260_230','1.65',0,'2012-06-11 15:42:03',10),(16,2,'chipseqDna.fragmentSize','500',0,'2012-06-11 15:42:03',10),(17,2,'chipseqDna.fragmentSizeSD','20',0,'2012-06-11 15:42:03',10),(18,2,'chipseqDna.antibody','anti-SRY (mouse monoclonal)',0,'2012-06-11 15:42:03',10),(19,3,'genericLibrary.concentration','55',0,'2012-06-11 18:47:42',NULL),(20,3,'genericLibrary.adaptor','1',0,'2012-06-11 18:47:42',NULL),(21,3,'genericLibrary.volume','44',0,'2012-06-11 18:47:42',NULL),(22,3,'genericLibrary.adaptorset','1',0,'2012-06-11 18:47:42',NULL),(23,3,'genericLibrary.sizeSd','20',0,'2012-06-11 18:47:42',NULL),(24,3,'genericLibrary.size','400',0,'2012-06-11 18:47:42',NULL),(25,3,'genericLibrary.buffer','TE',0,'2012-06-11 18:47:42',NULL),(26,4,'platformunitInstance.comment','',0,'2012-06-11 18:57:27',NULL),(27,4,'platformunitInstance.lanecount','8',0,'2012-06-11 18:57:27',NULL);
+/*!40000 ALTER TABLE `samplemeta` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `samplesource`
+--
+
+DROP TABLE IF EXISTS `samplesource`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `samplesource` (
+  `samplesourceid` int(10) NOT NULL AUTO_INCREMENT,
+  `sampleid` int(10) DEFAULT NULL,
+  `indexvalue` int(10) DEFAULT '0',
+  `source_sampleid` int(10) DEFAULT NULL,
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`samplesourceid`),
+  UNIQUE KEY `u_samplesource_sid` (`sampleid`,`indexvalue`),
+  KEY `fk_samplesource_ssid` (`source_sampleid`),
+  CONSTRAINT `samplesource_ibfk_1` FOREIGN KEY (`sampleid`) REFERENCES `sample` (`sampleid`),
+  CONSTRAINT `samplesource_ibfk_2` FOREIGN KEY (`source_sampleid`) REFERENCES `sample` (`sampleid`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `samplesource`
+--
+
+LOCK TABLES `samplesource` WRITE;
+/*!40000 ALTER TABLE `samplesource` DISABLE KEYS */;
+INSERT INTO `samplesource` VALUES (1,4,1,5,'2012-06-11 18:57:27',1),(2,4,2,6,'2012-06-11 18:57:27',1),(3,4,3,7,'2012-06-11 18:57:27',1),(4,4,4,8,'2012-06-11 18:57:27',1),(5,4,5,9,'2012-06-11 18:57:27',1),(6,4,6,10,'2012-06-11 18:57:27',1),(7,4,7,11,'2012-06-11 18:57:27',1),(8,4,8,12,'2012-06-11 18:57:27',1),(9,5,1,3,'2012-06-12 14:08:29',1),(10,6,1,3,'2012-06-12 14:55:15',1);
+/*!40000 ALTER TABLE `samplesource` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `samplesourcemeta`
+--
+
+DROP TABLE IF EXISTS `samplesourcemeta`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `samplesourcemeta` (
+  `samplesourcemetaid` int(10) NOT NULL AUTO_INCREMENT,
+  `samplesourceid` int(10) DEFAULT NULL,
+  `k` varchar(250) DEFAULT NULL,
+  `v` varchar(250) DEFAULT NULL,
+  `position` int(10) DEFAULT '0',
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`samplesourcemetaid`),
+  UNIQUE KEY `u_samplesourcemeta_k_sid` (`k`,`samplesourceid`),
+  KEY `fk_samplesourcemeta_sampleid` (`samplesourceid`),
+  CONSTRAINT `samplesourcemeta_ibfk_1` FOREIGN KEY (`samplesourceid`) REFERENCES `samplesource` (`samplesourceid`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `samplesourcemeta`
+--
+
+LOCK TABLES `samplesourcemeta` WRITE;
+/*!40000 ALTER TABLE `samplesourcemeta` DISABLE KEYS */;
+INSERT INTO `samplesourcemeta` VALUES (1,9,'LibraryOnCell.libConcInLanePicoM','11',0,'2012-06-12 15:19:24',1),(2,9,'LibraryOnCell.jobId','1',0,'2012-06-12 14:08:29',NULL),(3,10,'LibraryOnCell.libConcInLanePicoM','12.0',0,'2012-06-12 14:55:15',NULL),(4,10,'LibraryOnCell.jobId','1',0,'2012-06-12 14:55:15',NULL);
+/*!40000 ALTER TABLE `samplesourcemeta` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `samplesubtype`
+--
+
+DROP TABLE IF EXISTS `samplesubtype`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `samplesubtype` (
+  `samplesubtypeid` int(10) NOT NULL AUTO_INCREMENT,
+  `sampletypeid` int(10) DEFAULT NULL,
+  `iname` varchar(50) DEFAULT NULL,
+  `name` varchar(250) DEFAULT NULL,
+  `isactive` int(1) DEFAULT '1',
+  `arealist` varchar(250) DEFAULT NULL,
+  PRIMARY KEY (`samplesubtypeid`),
+  UNIQUE KEY `u_samplesubtype_iname` (`iname`),
+  KEY `fk_samplesubtype_tsid` (`sampletypeid`),
+  CONSTRAINT `samplesubtype_ibfk_1` FOREIGN KEY (`sampletypeid`) REFERENCES `sampletype` (`sampletypeid`)
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `samplesubtype`
+--
+
+LOCK TABLES `samplesubtype` WRITE;
+/*!40000 ALTER TABLE `samplesubtype` DISABLE KEYS */;
+INSERT INTO `samplesubtype` VALUES (1,5,'illuminaFlowcellV3','Illumina Flow Cell Version 3',1,'illuminaFlowcellV3'),(2,3,'controlLibrarySample','Control Library',1,'genericBiomolecule,genericLibrary'),(3,1,'chipseqDnaSample','ChIP-seq DNA',1,'genericBiomolecule,genericDna,chipseqDna'),(4,3,'chipseqLibrarySample','ChIP-seq Library',1,'genericBiomolecule,chipseqDna,genericLibrary'),(5,3,'chipseqFacilityLibrarySample','ChIP-seq Facility Library',1,'genericLibrary'),(6,1,'bisulseqDnaSample','BISUL-seq DNA',1,'genericBiomolecule,genericDna,bisulseqDna'),(7,3,'bisulseqLibrarySample','BISUL-seq Library',1,'genericBiomolecule,bisulseqDna,genericLibrary'),(8,3,'bisulseqFacilityLibrarySample','BISUL-seq Facility Library',1,'genericLibrary'),(9,3,'helptagLibrarySample','HELP-tag Library',1,'genericBiomolecule,genericLibrary,helptagLibrary');
+/*!40000 ALTER TABLE `samplesubtype` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `samplesubtypemeta`
+--
+
+DROP TABLE IF EXISTS `samplesubtypemeta`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `samplesubtypemeta` (
+  `samplesubtypemetaid` int(10) NOT NULL AUTO_INCREMENT,
+  `samplesubtypeid` int(10) DEFAULT NULL,
+  `k` varchar(250) DEFAULT NULL,
+  `v` varchar(250) DEFAULT NULL,
+  `position` int(10) DEFAULT '0',
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`samplesubtypemetaid`),
+  UNIQUE KEY `u_samplesubtypemeta_k_sid` (`k`,`samplesubtypeid`),
+  KEY `fk_samplesubtypemeta_sampleid` (`samplesubtypeid`),
+  CONSTRAINT `samplesubtypemeta_ibfk_1` FOREIGN KEY (`samplesubtypeid`) REFERENCES `samplesubtype` (`samplesubtypeid`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `samplesubtypemeta`
+--
+
+LOCK TABLES `samplesubtypemeta` WRITE;
+/*!40000 ALTER TABLE `samplesubtypemeta` DISABLE KEYS */;
+INSERT INTO `samplesubtypemeta` VALUES (1,1,'illuminaFlowcellV3.maxCellNumber','8',1,'2012-05-23 16:08:19',0),(2,1,'illuminaFlowcellV3.multiplicationFactor','1',2,'2012-05-23 16:09:34',0),(3,2,'controlLibrarySample.includeRoles','ft,su',1,'2012-05-23 16:08:19',0),(4,3,'chipseqDnaSample.includeRoles','ft,lu',1,'2012-05-23 16:08:19',0),(5,4,'chipseqLibrarySample.includeRoles','lu',1,'2012-05-23 16:08:19',0),(6,5,'chipseqFacilityLibrarySample.includeRoles','ft',1,'2012-05-23 16:08:19',0),(7,6,'bisulseqDnaSample.includeRoles','ft,lu',1,'2012-06-13 20:02:48',0),(8,7,'bisulseqLibrarySample.includeRoles','lu',1,'2012-06-13 20:02:49',0),(9,8,'bisulseqFacilityLibrarySample.includeRoles','ft',1,'2012-06-13 20:02:49',0),(10,9,'helptagLibrarySample.includeRoles','ft,lu',1,'2012-06-13 20:02:49',0);
+/*!40000 ALTER TABLE `samplesubtypemeta` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `samplesubtyperesourcecategory`
+--
+
+DROP TABLE IF EXISTS `samplesubtyperesourcecategory`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `samplesubtyperesourcecategory` (
+  `samplesubtyperesourcecategoryid` int(10) NOT NULL AUTO_INCREMENT,
+  `samplesubtypeid` int(10) DEFAULT NULL,
+  `resourcecategoryid` int(10) DEFAULT NULL,
+  PRIMARY KEY (`samplesubtyperesourcecategoryid`),
+  KEY `fk_samplesubtyperesourcecategory_stscid` (`samplesubtypeid`),
+  KEY `fk_samplesubtyperesourcecategory_rcid` (`resourcecategoryid`),
+  CONSTRAINT `samplesubtyperesourcecategory_ibfk_1` FOREIGN KEY (`samplesubtypeid`) REFERENCES `samplesubtype` (`samplesubtypeid`),
+  CONSTRAINT `samplesubtyperesourcecategory_ibfk_2` FOREIGN KEY (`resourcecategoryid`) REFERENCES `resourcecategory` (`resourcecategoryid`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `samplesubtyperesourcecategory`
+--
+
+LOCK TABLES `samplesubtyperesourcecategory` WRITE;
+/*!40000 ALTER TABLE `samplesubtyperesourcecategory` DISABLE KEYS */;
+INSERT INTO `samplesubtyperesourcecategory` VALUES (1,1,1);
+/*!40000 ALTER TABLE `samplesubtyperesourcecategory` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `sampletype`
+--
+
+DROP TABLE IF EXISTS `sampletype`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `sampletype` (
+  `sampletypeid` int(10) NOT NULL AUTO_INCREMENT,
+  `sampletypecategoryid` int(10) DEFAULT NULL,
+  `iname` varchar(250) DEFAULT NULL,
+  `name` varchar(250) DEFAULT NULL,
+  PRIMARY KEY (`sampletypeid`),
+  UNIQUE KEY `u_sampletype_iname` (`iname`),
+  KEY `fk_sampletype_tscid` (`sampletypecategoryid`),
+  CONSTRAINT `sampletype_ibfk_1` FOREIGN KEY (`sampletypecategoryid`) REFERENCES `sampletypecategory` (`sampletypecategoryid`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `sampletype`
+--
+
+LOCK TABLES `sampletype` WRITE;
+/*!40000 ALTER TABLE `sampletype` DISABLE KEYS */;
+INSERT INTO `sampletype` VALUES (1,1,'dna','DNA'),(2,1,'rna','RNA'),(3,1,'library','Library'),(4,2,'cell','Cell'),(5,2,'platformunit','Platform Unit'),(6,1,'tissue','Tissue'),(7,1,'protein','Protein'),(8,1,'cellPrimary','Primary Cell'),(9,1,'cellLine','Cell Line'),(10,1,'facilityLibrary','Library');
+/*!40000 ALTER TABLE `sampletype` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `sampletypecategory`
+--
+
+DROP TABLE IF EXISTS `sampletypecategory`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `sampletypecategory` (
+  `sampletypecategoryid` int(10) NOT NULL AUTO_INCREMENT,
+  `iname` varchar(250) DEFAULT NULL,
+  `name` varchar(250) DEFAULT NULL,
+  PRIMARY KEY (`sampletypecategoryid`),
+  UNIQUE KEY `u_sampletypecategory_iname` (`iname`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `sampletypecategory`
+--
+
+LOCK TABLES `sampletypecategory` WRITE;
+/*!40000 ALTER TABLE `sampletypecategory` DISABLE KEYS */;
+INSERT INTO `sampletypecategory` VALUES (1,'biomaterial','Biomaterial'),(2,'hardware','Hardware');
+/*!40000 ALTER TABLE `sampletypecategory` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `software`
+--
+
+DROP TABLE IF EXISTS `software`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `software` (
+  `softwareid` int(10) NOT NULL AUTO_INCREMENT,
+  `resourcetypeid` int(10) NOT NULL,
+  `iname` varchar(250) DEFAULT NULL,
+  `name` varchar(250) DEFAULT NULL,
+  `isactive` int(1) DEFAULT '1',
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`softwareid`),
+  UNIQUE KEY `u_software_i` (`iname`),
+  KEY `fk_software_resourcetypeid` (`resourcetypeid`),
+  CONSTRAINT `software_ibfk_1` FOREIGN KEY (`resourcetypeid`) REFERENCES `resourcetype` (`resourcetypeid`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `software`
+--
+
+LOCK TABLES `software` WRITE;
+/*!40000 ALTER TABLE `software` DISABLE KEYS */;
+INSERT INTO `software` VALUES (1,3,'bowtieAligner','Bowtie Aligner',1,'2012-06-13 23:23:11',0),(2,4,'macsPeakcaller','MACS Peakcaller',1,'2012-06-13 23:23:11',0),(3,7,'bisulseqPipeline','BISUL-seq Pipeline',1,'2012-06-13 23:23:11',0),(4,6,'helptagPipeline','HELP-tag Pipeline',1,'2012-06-13 23:23:11',0);
+/*!40000 ALTER TABLE `software` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `softwaremeta`
+--
+
+DROP TABLE IF EXISTS `softwaremeta`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `softwaremeta` (
+  `softwaremetaid` int(10) NOT NULL AUTO_INCREMENT,
+  `softwareid` int(10) DEFAULT NULL,
+  `k` varchar(250) DEFAULT NULL,
+  `v` varchar(250) DEFAULT NULL,
+  `position` int(10) DEFAULT '0',
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`softwaremetaid`),
+  UNIQUE KEY `u_softwaremeta_k_rid` (`k`,`softwareid`),
+  KEY `fk_softwaremeta_sid` (`softwareid`),
+  CONSTRAINT `softwaremeta_ibfk_1` FOREIGN KEY (`softwareid`) REFERENCES `software` (`softwareid`)
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `softwaremeta`
+--
+
+LOCK TABLES `softwaremeta` WRITE;
+/*!40000 ALTER TABLE `softwaremeta` DISABLE KEYS */;
+INSERT INTO `softwaremeta` VALUES (1,1,'bowtieAligner.currentVersion','0.12.7',1,'2012-05-23 16:08:19',0),(2,1,'bowtieAligner.priorVersions','',2,'2012-05-23 16:08:19',0),(3,2,'macsPeakcaller.currentVersion','4.1',1,'2012-05-23 16:08:19',0),(4,2,'macsPeakcaller.priorVersions','',2,'2012-05-23 16:08:19',0),(5,3,'bisulseqPipeline.currentVersion','1.0',1,'2012-06-13 20:02:48',0),(6,3,'bisulseqPipeline.priorVersions','',2,'2012-06-13 20:02:48',0),(7,4,'helptagPipeline.currentVersion','1.0',1,'2012-06-13 20:02:48',0),(8,4,'helptagPipeline.priorVersions','',2,'2012-06-13 20:02:48',0);
+/*!40000 ALTER TABLE `softwaremeta` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `state`
+--
+
+DROP TABLE IF EXISTS `state`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `state` (
+  `stateid` int(10) NOT NULL AUTO_INCREMENT,
+  `taskid` int(10) NOT NULL,
+  `name` varchar(250) DEFAULT NULL,
+  `status` varchar(50) DEFAULT NULL,
+  `source_stateid` int(10) DEFAULT NULL,
+  `startts` datetime DEFAULT NULL,
+  `endts` datetime DEFAULT NULL,
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`stateid`),
+  KEY `fk_state_tid` (`taskid`),
+  KEY `fk_state_ssid` (`source_stateid`),
+  CONSTRAINT `state_ibfk_1` FOREIGN KEY (`taskid`) REFERENCES `task` (`taskid`),
+  CONSTRAINT `state_ibfk_2` FOREIGN KEY (`source_stateid`) REFERENCES `state` (`stateid`)
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `state`
+--
+
+LOCK TABLES `state` WRITE;
+/*!40000 ALTER TABLE `state` DISABLE KEYS */;
+INSERT INTO `state` VALUES (1,12,'Start Job','CREATED',NULL,'2012-06-11 11:42:03',NULL,'2012-06-11 15:42:03',10),(2,14,'Sample Task','FINALIZED',1,'2012-06-11 11:42:12','2012-06-11 14:47:47','2012-06-11 18:47:47',0),(3,14,'Sample Task','CREATED',1,'2012-06-11 11:42:12',NULL,'2012-06-11 15:42:12',0),(4,4,'DA Approval XXX','FINALIZED',1,'2012-06-11 11:42:12','2012-06-11 14:37:57','2012-06-11 18:37:57',0),(5,7,'PI Approval','FINALIZED',1,'2012-06-11 11:42:12','2012-06-11 14:37:17','2012-06-11 18:37:17',0),(6,9,'Quote Job','FINALIZED',1,'2012-06-11 11:42:12','2012-06-11 14:21:36','2012-06-11 18:21:36',0),(7,10,'Receive Sample','FINALIZED',2,'2012-06-11 11:42:21','2012-06-11 14:39:06','2012-06-11 18:39:06',0),(8,10,'Receive Sample','ABANDONED',3,'2012-06-11 11:42:21',NULL,'2012-06-11 18:43:33',1),(9,11,'Send Invoice','FINALIZED',1,'2012-06-11 14:37:57','2012-06-11 14:37:57','2012-06-11 18:37:57',0),(10,2,'Create Library','FINALIZED',2,'2012-06-11 14:39:06','2012-06-11 14:47:47','2012-06-11 18:47:47',0),(11,14,'Sample Task','CREATED',1,'2012-06-11 14:47:47',NULL,'2012-06-11 18:47:47',0),(12,1,'Assign Library To Platform Unit','FINALIZED',11,'2012-06-11 14:47:51','2012-06-12 10:55:26','2012-06-12 14:55:26',0),(13,1,'Assign Library To Platform Unit','CREATED',NULL,NULL,NULL,'2012-06-11 18:57:27',1);
+/*!40000 ALTER TABLE `state` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `statejob`
+--
+
+DROP TABLE IF EXISTS `statejob`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `statejob` (
+  `statejobid` int(10) NOT NULL AUTO_INCREMENT,
+  `stateid` int(10) DEFAULT NULL,
+  `jobid` int(10) DEFAULT NULL,
+  PRIMARY KEY (`statejobid`),
+  KEY `fk_statejob_sid` (`stateid`),
+  KEY `fk_statejob_jid` (`jobid`),
+  CONSTRAINT `statejob_ibfk_1` FOREIGN KEY (`stateid`) REFERENCES `state` (`stateid`),
+  CONSTRAINT `statejob_ibfk_2` FOREIGN KEY (`jobid`) REFERENCES `job` (`jobid`)
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `statejob`
+--
+
+LOCK TABLES `statejob` WRITE;
+/*!40000 ALTER TABLE `statejob` DISABLE KEYS */;
+INSERT INTO `statejob` VALUES (1,1,1),(2,2,1),(3,3,1),(4,4,1),(5,5,1),(6,6,1),(7,7,1),(8,8,1),(9,9,1),(10,10,1),(11,11,1),(12,12,1);
+/*!40000 ALTER TABLE `statejob` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `statemeta`
+--
+
+DROP TABLE IF EXISTS `statemeta`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `statemeta` (
+  `statemetaid` int(10) NOT NULL AUTO_INCREMENT,
+  `stateid` int(10) DEFAULT NULL,
+  `k` varchar(250) DEFAULT NULL,
+  `v` varchar(250) DEFAULT NULL,
+  `position` int(10) DEFAULT '0',
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`statemetaid`),
+  UNIQUE KEY `u_statemeta_k_pid` (`k`,`stateid`),
+  KEY `fk_statemeta_sid` (`stateid`),
+  CONSTRAINT `statemeta_ibfk_1` FOREIGN KEY (`stateid`) REFERENCES `state` (`stateid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `statemeta`
+--
+
+LOCK TABLES `statemeta` WRITE;
+/*!40000 ALTER TABLE `statemeta` DISABLE KEYS */;
+/*!40000 ALTER TABLE `statemeta` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `staterun`
+--
+
+DROP TABLE IF EXISTS `staterun`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `staterun` (
+  `staterunid` int(10) NOT NULL AUTO_INCREMENT,
+  `stateid` int(10) DEFAULT NULL,
+  `runid` int(10) DEFAULT NULL,
+  PRIMARY KEY (`staterunid`),
+  KEY `fk_staterun_sid` (`stateid`),
+  KEY `fk_staterun_rid` (`runid`),
+  CONSTRAINT `staterun_ibfk_1` FOREIGN KEY (`stateid`) REFERENCES `state` (`stateid`),
+  CONSTRAINT `staterun_ibfk_2` FOREIGN KEY (`runid`) REFERENCES `run` (`runid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `staterun`
+--
+
+LOCK TABLES `staterun` WRITE;
+/*!40000 ALTER TABLE `staterun` DISABLE KEYS */;
+/*!40000 ALTER TABLE `staterun` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `stateruncell`
+--
+
+DROP TABLE IF EXISTS `stateruncell`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `stateruncell` (
+  `stateruncellid` int(10) NOT NULL AUTO_INCREMENT,
+  `stateid` int(10) DEFAULT NULL,
+  `runcellid` int(10) DEFAULT NULL,
+  PRIMARY KEY (`stateruncellid`),
+  KEY `fk_stateruncell_sid` (`stateid`),
+  KEY `fk_stateruncell_rlid` (`runcellid`),
+  CONSTRAINT `stateruncell_ibfk_1` FOREIGN KEY (`stateid`) REFERENCES `state` (`stateid`),
+  CONSTRAINT `stateruncell_ibfk_2` FOREIGN KEY (`runcellid`) REFERENCES `runcell` (`runcellid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `stateruncell`
+--
+
+LOCK TABLES `stateruncell` WRITE;
+/*!40000 ALTER TABLE `stateruncell` DISABLE KEYS */;
+/*!40000 ALTER TABLE `stateruncell` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `statesample`
+--
+
+DROP TABLE IF EXISTS `statesample`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `statesample` (
+  `statesampleid` int(10) NOT NULL AUTO_INCREMENT,
+  `stateid` int(10) DEFAULT NULL,
+  `sampleid` int(10) DEFAULT NULL,
+  PRIMARY KEY (`statesampleid`),
+  KEY `fk_statesample_sid` (`stateid`),
+  KEY `fk_statesample_sampleid` (`sampleid`),
+  CONSTRAINT `statesample_ibfk_1` FOREIGN KEY (`stateid`) REFERENCES `state` (`stateid`),
+  CONSTRAINT `statesample_ibfk_2` FOREIGN KEY (`sampleid`) REFERENCES `sample` (`sampleid`)
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `statesample`
+--
+
+LOCK TABLES `statesample` WRITE;
+/*!40000 ALTER TABLE `statesample` DISABLE KEYS */;
+INSERT INTO `statesample` VALUES (1,2,1),(2,3,2),(3,7,1),(4,8,2),(5,10,1),(6,11,3),(7,12,3),(8,13,4);
+/*!40000 ALTER TABLE `statesample` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `task`
+--
+
+DROP TABLE IF EXISTS `task`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `task` (
+  `taskid` int(10) NOT NULL AUTO_INCREMENT,
+  `iname` varchar(250) DEFAULT NULL,
+  `name` varchar(250) DEFAULT NULL,
+  PRIMARY KEY (`taskid`),
+  UNIQUE KEY `u_task_iname` (`iname`)
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `task`
+--
+
+LOCK TABLES `task` WRITE;
+/*!40000 ALTER TABLE `task` DISABLE KEYS */;
+INSERT INTO `task` VALUES (1,'assignLibraryToPlatformUnit','Assign Library To Platform Unit'),(2,'Create Library','Create Library'),(3,'createRunTask','Create Run'),(4,'DA Approval','DA Approval XXX'),(5,'getSampleResults','Get Sample Results'),(6,'placeIllumina','Place Illumina'),(7,'PI Approval','PI Approval'),(8,'runQcApproval','Run Qc Approval'),(9,'Quote Job','Quote Job'),(10,'Receive Sample','Receive Sample'),(11,'Send Invoice','Send Invoice'),(12,'Start Job','Start Job'),(13,'jobWrapTask','Job Task'),(14,'sampleWrapTask','Sample Task'),(15,'runWrapTask','Run Task'),(16,'waitForAllJobSamples','Wait for All Job Sample Task');
+/*!40000 ALTER TABLE `task` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `taskmapping`
+--
+
+DROP TABLE IF EXISTS `taskmapping`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `taskmapping` (
+  `taskmappingid` int(10) NOT NULL AUTO_INCREMENT,
+  `taskid` int(10) NOT NULL,
+  `status` varchar(50) NOT NULL,
+  `listmap` varchar(255) DEFAULT NULL,
+  `detailmap` varchar(255) DEFAULT NULL,
+  `permission` varchar(255) NOT NULL,
+  `dashboardsortorder` int(10) DEFAULT NULL,
+  PRIMARY KEY (`taskmappingid`),
+  UNIQUE KEY `u_taskmapping_t_s` (`taskid`,`status`,`permission`),
+  CONSTRAINT `taskmapping_ibfk_1` FOREIGN KEY (`taskid`) REFERENCES `task` (`taskid`)
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `taskmapping`
+--
+
+LOCK TABLES `taskmapping` WRITE;
+/*!40000 ALTER TABLE `taskmapping` DISABLE KEYS */;
+INSERT INTO `taskmapping` VALUES (6,2,'CREATED','/job/jobsAwaitingLibraryCreation/jobsAwaitingLibraryCreationList.do','/def.do','hasRole(\'su\')',1),(7,3,'CREATED','/lab/pendinglmapproval/list.do','/def.do','hasRole(\'su\')',1),(8,5,'CREATED','/lab/pendinglmapproval/list.do','/def.do','hasRole(\'su\')',1),(9,9,'CREATED','/job2quote/list.do','/def.do','hasRole(\'su\') or hasRole(\'fm\') or hasRole(\'ft\')',1),(10,10,'CREATED','/task/samplereceive/list.do','/def.do','hasRole(\'su\') or hasRole(\'ft\')',1),(11,7,'CREATED','/lab/allpendinglmapproval/list.do','/def.do','hasRole(\'su\') or hasRole(\'ft\')',1),(12,7,'CREATED','/lab/pendinglmapproval/list/${lab.labId}.do','/def.do','hasRole(\'lm-#labId\')',1),(13,1,'CREATED','/task/assignLibraries/lists.do','/def.do','hasRole(\'su\') or hasRole(\'fm\') or hasRole(\'ft\')',1);
+/*!40000 ALTER TABLE `taskmapping` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `uifield`
+--
 
 DROP TABLE IF EXISTS `uifield`;
-CREATE TABLE IF NOT EXISTS `uifield` (
-  `uifieldid` int(10)  AUTO_INCREMENT,
-  `locale` varchar(5) ,
-  `domain` varchar(100) ,
-  `area` varchar(50) ,
-  `name` varchar(100) ,
-  `attrname` varchar(50) ,
-  `attrvalue` text DEFAULT NULL,
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `uifield` (
+  `uifieldid` int(10) NOT NULL AUTO_INCREMENT,
+  `locale` varchar(5) DEFAULT NULL,
+  `area` varchar(50) DEFAULT NULL,
+  `domain` varchar(50) DEFAULT NULL,
+  `name` varchar(100) DEFAULT NULL,
+  `attrname` varchar(50) DEFAULT NULL,
+  `attrvalue` text,
   `lastupdts` datetime DEFAULT NULL,
   `lastupduser` int(11) DEFAULT NULL,
   PRIMARY KEY (`uifieldid`),
   UNIQUE KEY `u_uifield_laaa` (`locale`,`area`,`name`,`attrname`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=537 ;
+) ENGINE=InnoDB AUTO_INCREMENT=1285 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
+--
+-- Dumping data for table `uifield`
+--
+
+LOCK TABLES `uifield` WRITE;
+/*!40000 ALTER TABLE `uifield` DISABLE KEYS */;
+INSERT INTO `uifield` VALUES (1,'en_US','acctQuote','','acctquote_list','label','List of Job Quotes',NULL,1),(2,'en_US','acctQuote','','amount','label','Quote Amount',NULL,1),(3,'en_US','acctQuote','','created_success','label','Quote created successfully.',NULL,1),(4,'en_US','acctQuote','','lab','label','Lab',NULL,1),(5,'en_US','acctQuote','','lane_cost','label','Lane Cost',NULL,1),(6,'en_US','acctQuote','','lane_cost','metaposition','40',NULL,1),(7,'en_US','acctQuote','','library_cost','label','Library Cost',NULL,1),(8,'en_US','acctQuote','','library_cost','metaposition','20',NULL,1),(9,'en_US','acctQuote','','name','label','Job Name',NULL,1),(10,'en_US','acctQuote','','sample_cost','label','Sample Cost',NULL,1),(11,'en_US','acctQuote','','sample_cost','metaposition','30',NULL,1),(12,'en_US','acctQuote','','submission_date','label','Submitted On',NULL,1),(13,'en_US','acctQuote','','submitter','label','Submitted By',NULL,1),(14,'en_US','activePlatformUnit','','tableHeader','label','Active Platform Units Awaiting Libraries',NULL,1),(15,'en_US','activePlatformUnit','','name','label','Name',NULL,1),(16,'en_US','activePlatformUnit','','barcode','label','Barcode',NULL,1),(17,'en_US','activePlatformUnit','','type','label','Type',NULL,1),(18,'en_US','jobListAssignLibrary','','numberLanes','label','Lanes',NULL,1),(19,'en_US','auth','','confirmemail','data','Submit',NULL,1),(20,'en_US','auth','','confirmemail_authcode','label','Auth code',NULL,1),(21,'en_US','auth','','confirmemail_badauthcode','error','Invalid authorization code provided',NULL,1),(22,'en_US','auth','','confirmemail_bademail','error','email address is incorrect',NULL,1),(23,'en_US','auth','','confirmemail_captcha','error','Captcha text incorrect',NULL,1),(24,'en_US','auth','','confirmemail_captcha','label','Captcha text',NULL,1),(25,'en_US','auth','','confirmemail_corruptemail','error','email address in url cannot be decoded',NULL,1),(26,'en_US','auth','','confirmemail_email','label','Email Address',NULL,1),(27,'en_US','auth','','confirmemail_submit','label','Submit',NULL,1),(28,'en_US','auth','','confirmemail_wronguser','error','User email address and authorization code provided do not match',NULL,1),(29,'en_US','auth','','get_email_instructions','label','Please enter a valid email address. This is required for demonstrating functionality which results in an email being sent by the system. This email address will be stored for 24h in a cookie on your personal computer only. For demonstration purposes it is used to override the send-to email address of all demonstration user accounts and mock account applications you might make.',NULL,1),(30,'en_US','auth','','demo_email','label','Please enter your email address',NULL,1),(31,'en_US','auth','','demo_email','error','You must supply an email address',NULL,1),(32,'en_US','auth','','demo_email_submit','label','Submit',NULL,1),(33,'en_US','auth','','login','data','Login',NULL,1),(34,'en_US','auth','','login_anchor_about','label','About',NULL,1),(35,'en_US','auth','','login_anchor_forgotpass','label','Forgot Password',NULL,1),(36,'en_US','auth','','login_anchor_newpi','label','New PI',NULL,1),(37,'en_US','auth','','login_anchor_newuser','label','New User',NULL,1),(38,'en_US','auth','','login_failed','error','Your login attempt was not successful. Try again.',NULL,1),(39,'en_US','auth','','login_instructions','label','Please login to the WASP System using your username and password. If you have forgotton your password, or are currently unregistered and wish to create an account please select from the links below.',NULL,1),(40,'en_US','auth','','login_password','label','Password',NULL,1),(41,'en_US','auth','','login_reason','label','Reason',NULL,1),(42,'en_US','auth','','login_submit','label','Login',NULL,1),(43,'en_US','auth','','login_user','label','User',NULL,1),(44,'en_US','auth','','requestEmailChange_badcredentials','error','Failed to authenticate with supplied login credentials',NULL,1),(45,'en_US','auth','','requestEmailChange_bademail','error','email address is of incorrect format',NULL,1),(46,'en_US','auth','','requestEmailChange_captcha','error','Captcha text incorrect',NULL,1),(47,'en_US','auth','','requestEmailChange_email','label','New Email Address',NULL,1),(48,'en_US','auth','','requestEmailChange_submit','label','Submit',NULL,1),(49,'en_US','auth','','resetpassword','data','Submit',NULL,1),(50,'en_US','auth','','resetpasswordemailsent','label','An email has been sent to your registered email address containing an authorization code. Please click the link within this email or alternatively <a href=\"form.do\">click here</a> and enter the authorization code provided. ',NULL,1),(51,'en_US','auth','','resetpasswordok','label','Your password has been reset. Please click to <a href=\"../login.do\"/>Login</a>',NULL,1),(52,'en_US','auth','','resetpasswordok_title','label','Reset Password: Complete',NULL,1),(53,'en_US','auth','','resetpasswordRequest','data','Submit',NULL,1),(54,'en_US','auth','','resetpasswordRequest_captcha','error','Captcha text incorrect',NULL,1),(55,'en_US','auth','','resetpasswordRequest_captcha','label','Captcha text',NULL,1),(56,'en_US','auth','','resetpasswordRequest_missingparam','error','Please provide values for all fields',NULL,1),(57,'en_US','auth','','resetpasswordRequest_submit','label','Submit',NULL,1),(58,'en_US','auth','','resetpasswordRequest_user','label','Username',NULL,1),(59,'en_US','auth','','resetpasswordRequest_username','error','A user with the supplied username does not exist',NULL,1),(60,'en_US','auth','','resetpassword_authcode','label','Auth Code',NULL,1),(61,'en_US','auth','','resetpassword_badauthcode','error','Invalid authorization code provided',NULL,1),(62,'en_US','auth','','resetpassword_captcha','label','Captcha text',NULL,1),(63,'en_US','auth','','resetpassword_captcha','error','Captcha text incorrect',NULL,1),(64,'en_US','auth','','resetpassword_instructions','label','New Password Requirements:<br />At least 8 characters in length<br />Only letters & numbers permitted (no spaces, etc)<br />At least one letter and one number<br />',NULL,1),(65,'en_US','auth','','resetpassword_missingparam','error','Please provide values for all fields',NULL,1),(66,'en_US','auth','','resetpassword_new_invalid','error','New password must be at least 8 characters, containing only letters and numbers, with at least one letter and number',NULL,1),(67,'en_US','auth','','resetpassword_new_mismatch','error','The two entries for your NEW password are NOT identical',NULL,1),(68,'en_US','auth','','resetpassword_noauthcode','error','No authorization code provided',NULL,1),(69,'en_US','auth','','resetpassword_password1','label','New Password',NULL,1),(70,'en_US','auth','','resetpassword_password2','label','Confirm New Password',NULL,1),(71,'en_US','auth','','resetpassword_start_instructions','label','To reset your password you must first supply your WASP username below. You will then be sent an email to your confirmed email address with further instructions',NULL,1),(72,'en_US','auth','','resetpassword_submit','label','Submit',NULL,1),(73,'en_US','auth','','resetpassword_user','label','Username',NULL,1),(74,'en_US','auth','','resetpassword_username','error','A user with the supplied username does not exist',NULL,1),(75,'en_US','auth','','resetpassword_wronguser','error','Username and authorization code provided do not match',NULL,1),(76,'en_US','createLibrary','','cancel','label','Cancel',NULL,1),(77,'en_US','createLibrary','','libraryDetails','label','Library Details',NULL,1),(78,'en_US','createLibrary','','libraryName','label','Library Name',NULL,1),(79,'en_US','createLibrary','','librarySubtype','label','Library Subtype',NULL,1),(80,'en_US','createLibrary','','libraryType','label','Library Type',NULL,1),(81,'en_US','createLibrary','','primarySampleName','label','Primary Sample Name',NULL,1),(82,'en_US','createLibrary','','primarySampleSpecies','label','Species',NULL,1),(83,'en_US','createLibrary','','primarySampleType','label','Primary Sample Type',NULL,1),(84,'en_US','createLibrary','','save','label','Save',NULL,1),(85,'en_US','createLibrary','','selectNewAdaptorSet','label','--SELECT NEW ADAPTOR SET--',NULL,1),(86,'en_US','dapendingtask','','subtitle1','label','Pending Principal Investigators',NULL,1),(87,'en_US','dapendingtask','','subtitle1_none','label','Pending Principal Investigators',NULL,1),(88,'en_US','dapendingtask','','subtitle2','label','Pending Jobs',NULL,1),(89,'en_US','dapendingtask','','subtitle2_none','label','No Pending Jobs',NULL,1),(90,'en_US','dapendingtask','','title','label','Department Administrator Pending Tasks',NULL,1),(91,'en_US','department','','create','label','Create New Department',NULL,1),(92,'en_US','department','','create_instructions','label','A new department can be created by adding its name and an administrator in the form below. More administrators can be added later if desired.',NULL,1),(93,'en_US','department','','detail','label','Department',NULL,1),(94,'en_US','department','','detail_adminAlreadyExists','error','Selected person is already an administrator for this department',NULL,1),(95,'en_US','department','','detail_administrators','label','Administrators',NULL,1),(96,'en_US','department','','detail_administrator_name','label','Administrator Name',NULL,1),(97,'en_US','department','','detail_createadmin','label','Create Administrator',NULL,1),(98,'en_US','department','','detail_email','label','Administrator Email',NULL,1),(99,'en_US','department','','detail_emailnotfound','error','Email not found',NULL,1),(100,'en_US','department','','detail_existingadmin','label','Current Administrators',NULL,1),(101,'en_US','department','','detail_formatting','error','Formatting Error',NULL,1),(102,'en_US','department','','detail_invalidDept','error','Specified department does Not exist',NULL,1),(103,'en_US','department','','detail_labs','label','Labs',NULL,1),(104,'en_US','department','','detail_missinglogin','error','No new administrator username provided',NULL,1),(105,'en_US','department','','detail_missingparam','error','Administrator name is missing',NULL,1),(106,'en_US','department','','detail_ok','label','New Administrator Created',NULL,1),(107,'en_US','department','','detail_pendingjobs','label','Pending Jobs',NULL,1),(108,'en_US','department','','detail_pendinglabs','label','Pending Labs',NULL,1),(109,'en_US','department','','detail_remove','label','Remove',NULL,1),(110,'en_US','department','','detail_submit','label','Submit',NULL,1),(111,'en_US','department','','detail_update','label','Update Department',NULL,1),(112,'en_US','department','','detail_update_admin','label','Type in the name of an existing WASP user to make them an administrator of this department',NULL,1),(113,'en_US','department','','detail_update_instructions','label','Use the following form to change the status of a department between Active and Inactive',NULL,1),(114,'en_US','department','','detail_update_missingparam','error','Deaprtment name must be provided',NULL,1),(115,'en_US','department','','detail_update_ok','label','Department has been updated',NULL,1),(116,'en_US','department','','detail_usernotfound','error','User not found in database',NULL,1),(117,'en_US','department','','lab_list','label','List of Labs',NULL,1),(118,'en_US','department','','list','label','List &amp; Manage Departments',NULL,1),(119,'en_US','department','','list','data','Submit',NULL,1),(120,'en_US','department','','list_create','label','Create Department',NULL,1),(121,'en_US','department','','list_department','label','Department Name',NULL,1),(122,'en_US','department','','list_department_exists','error','Department already exists',NULL,1),(123,'en_US','department','','list_instructions','label','The current departments registered in the system is listed below. Please click on a department name to view / edit its details.',NULL,1),(124,'en_US','department','','list_invalid','error','Invalid department name',NULL,1),(125,'en_US','department','','list_missingparam','error','Please provide a department name',NULL,1),(126,'en_US','department','','list_ok','label','New department has been created',NULL,1),(127,'en_US','file','','not_found','error','File not found',NULL,1),(128,'en_US','fmpayment','','amount','label','Amount',NULL,1),(129,'en_US','fmpayment','','amount','constraint','NotEmpty',NULL,1),(130,'en_US','fmpayment','','amount','metaposition','10',NULL,1),(131,'en_US','fmpayment','','amount','error','AmounT cannot be Empty',NULL,1),(132,'en_US','fmpayment','','comment','label','Comment',NULL,1),(133,'en_US','fmpayment','','comment','constraint','NotEmpty',NULL,1),(134,'en_US','fmpayment','','comment','metaposition','20',NULL,1),(135,'en_US','fmpayment','','comment','error','Comment cannot be Empty',NULL,1),(136,'en_US','fmpayment','','name','label','Receive Payment for Jobs',NULL,1),(137,'en_US','job','','approval','approved','Job has been approved',NULL,1),(138,'en_US','job','','approval','rejected','Job has been rejected',NULL,1),(139,'en_US','job','','approval','error','Error - Update Failed',NULL,1),(140,'en_US','job','','jobId','label','JobID',NULL,1),(141,'en_US','job','','jobViewerUserRoleAdd','error1','JobId or LabId Error',NULL,1),(142,'en_US','job','','jobViewerUserRoleAdd','error2','Login Not Found',NULL,1),(143,'en_US','job','','jobViewerUserRoleAdd','error3','User is submitter, thus already has access to this job',NULL,1),(144,'en_US','job','','jobViewerUserRoleAdd','error4','User already has access to this job',NULL,1),(145,'en_US','job','','job_list','label','List of Jobs',NULL,1),(146,'en_US','job','','lab','label','Lab',NULL,1),(147,'en_US','job','','name','label','Name',NULL,1),(148,'en_US','job','','name','constraint','NotEmpty',NULL,1),(149,'en_US','job','','name','error','Name cannot be empty',NULL,1),(150,'en_US','job','','submission_date','label','Submitted On',NULL,1),(151,'en_US','job','','UserId','label','Submitted By',NULL,1),(152,'en_US','job','','viewfiles','label','Result',NULL,1),(153,'en_US','job2quote','','job2quote_list','label','List of Jobs to Quote',NULL,1),(154,'en_US','jobdetail_for_import','','files','label','Submitted Files',NULL,1),(155,'en_US','jobdetail_for_import','','jobId','label','Job ID',NULL,1),(156,'en_US','jobdetail_for_import','','jobName','label','Job Name',NULL,1),(157,'en_US','jobdetail_for_import','','jobPI','label','PI',NULL,1),(158,'en_US','jobdetail_for_import','','jobSubmissionDate','label','Submission Date',NULL,1),(159,'en_US','jobdetail_for_import','','jobSubmitter','label','Submitter',NULL,1),(160,'en_US','jobdetail_for_import','','jobWorkflow','label','Workflow',NULL,1),(161,'en_US','jobdetail_for_import','','Machine','label','Machine',NULL,1),(162,'en_US','jobdetail_for_import','','Read_Length','label','Read Length',NULL,1),(163,'en_US','jobdetail_for_import','','Read_Type','label','Read Type',NULL,1),(164,'en_US','jobdetail_for_import','','PI_Approval','label','PI Approval',NULL,1),(165,'en_US','jobdetail_for_import','','DA_Approval','label','Departmental Approval',NULL,1),(166,'en_US','jobdetail_for_import','','Quote_Job_Price','label','Anticipated Cost',NULL,1),(167,'en_US','jobDraft','','cancel','label','Cancel',NULL,1),(168,'en_US','jobDraft','','cell','label','Cell',NULL,1),(169,'en_US','jobDraft','','cell_instructions','label','Please choose the number of sequencing cells you wish to order and then indicate which samples you wish to combine (multiplex) in the same cell',NULL,1),(170,'en_US','jobDraft','','changeResource','error','You must select a job resource',NULL,1),(171,'en_US','jobDraft','','changeSoftwareResource','error','You must select a software resource',NULL,1),(172,'en_US','jobDraft','','clone','error','Unable to clone sample draft',NULL,1),(173,'en_US','jobDraft','','create','label','Create A Job',NULL,1),(174,'en_US','jobDraft','','createJobFromJobDraft','error','Unable to create a Job from current Job Draft',NULL,1),(175,'en_US','jobDraft','','create_instructions','label','To create a job, please provide a name, select the lab from which you are submitting and choose the assay workflow most suited to your experiment.',NULL,1),(176,'en_US','jobDraft','','edit','label','Edit',NULL,1),(177,'en_US','jobDraft','','form','error','Please address errors on this page',NULL,1),(178,'en_US','jobDraft','','jobDraft_list','label','List of Job Drafts (Click Job Name to Continue on Submission)',NULL,1),(179,'en_US','jobDraft','','jobDraft_null','error','This jobdraft identifier does not return a valid job draft',NULL,1),(180,'en_US','jobDraft','','lab','label','Lab',NULL,1),(181,'en_US','jobDraft','','labId','label','Lab',NULL,1),(182,'en_US','jobDraft','','labId','error','Lab Must Not Be Empty',NULL,1),(183,'en_US','jobDraft','','last_modify_date','label','Last Modified On',NULL,1),(184,'en_US','jobDraft','','last_modify_user','label','Last Modified By',NULL,1),(185,'en_US','jobDraft','','meta_instructions','label','Please provide the metadata requested below.',NULL,1),(186,'en_US','jobDraft','','name','error','You must provide a name for this job',NULL,1),(187,'en_US','jobDraft','','name','label','Job Name',NULL,1),(188,'en_US','jobDraft','','name_exists','error','Job name chosen already exists',NULL,1),(189,'en_US','jobDraft','','next','label','Next',NULL,1),(190,'en_US','jobDraft','','noSamples','error','You must create entries for at least one sample',NULL,1),(191,'en_US','jobDraft','','not_pending','error','This jobdraft has already been submitted',NULL,1),(192,'en_US','jobDraft','','no_draft_samples','label','No draft samples to display',NULL,1),(193,'en_US','jobDraft','','no_file','label','None Uploaded',NULL,1),(194,'en_US','jobDraft','','no_lab','error','You are not registered as a lab user but must be one to submit a job',NULL,1),(195,'en_US','jobDraft','','no_resources','error','No resources of the requested type have been assigned to the current workflow',NULL,1),(196,'en_US','jobDraft','','no_workflows','error','There are currently no active workflows to create a job for.',NULL,1),(197,'en_US','jobDraft','','numberofcells','label','Select number of sequencing cells required',NULL,1),(198,'en_US','jobDraft','','page_footer','label','',NULL,1),(199,'en_US','jobDraft','','remove_confirm','label','Are you sure you wish to remove this sample?',NULL,1),(200,'en_US','jobDraft','','resourceCategories_not_configured','error','Resource options for this workflow have not been properly configured',NULL,1),(201,'en_US','jobDraft','','resource_instructions','label','Please select from the platforms available for this assay workflow. If there are options available for the platform and assay workflow, you will be prompted to choose those applicable to your experimental design.',NULL,1),(202,'en_US','jobDraft','','sample','label','Sample',NULL,1),(203,'en_US','jobDraft','','sampleDraft_null','label','No sample draft matches supplied id',NULL,1),(204,'en_US','jobDraft','','sampleSubtype_null','label','No sample subtype matches supplied id',NULL,1),(205,'en_US','jobDraft','','sample_action','label','Action',NULL,1),(206,'en_US','jobDraft','','sample_add_existing','label','Existing',NULL,1),(207,'en_US','jobDraft','','sample_add_heading','label','Add a new Sample / Library',NULL,1),(208,'en_US','jobDraft','','sample_class','label','Class',NULL,1),(209,'en_US','jobDraft','','sample_clone','label','Clone',NULL,1),(210,'en_US','jobDraft','','sample_clone_heading','label','Clone Sample / Library',NULL,1),(211,'en_US','jobDraft','','sample_edit','label','Edit',NULL,1),(212,'en_US','jobDraft','','sample_edit_heading','label','Edit Sample / Library',NULL,1),(213,'en_US','jobDraft','','sample_file','label','File',NULL,1),(214,'en_US','jobDraft','','sample_instructions','label','Please add details for each of your samples. Choose from the sample sub-types available by clicking the appropriate link on the bottom bar of the table below. You can enter information about new samples or select from previously submitted samples.',NULL,1),(215,'en_US','jobDraft','','sample_name','label','Sample Name',NULL,1),(216,'en_US','jobDraft','','sample_number','label','Sample #',NULL,1),(217,'en_US','jobDraft','','sample_remove','label','Remove',NULL,1),(218,'en_US','jobDraft','','sample_ro_heading','label','Sample Draft View',NULL,1),(219,'en_US','jobDraft','','sample_subtype','label','Sample Subtype',NULL,1),(220,'en_US','jobDraft','','sample_subtype_null','error','This sample subtype identifier does not return a valid sample subtype',NULL,1),(221,'en_US','jobDraft','','sample_type','label','Sample Type',NULL,1),(222,'en_US','jobDraft','','sample_view','label','View',NULL,1),(223,'en_US','jobDraft','','software_instructions','label','Please select from the software options available for this assay workflow. If there are settable parameters, you will be prompted to choose those applicable to your experimental design or you may leave the pre-populated default values.',NULL,1),(224,'en_US','jobDraft','','software_not_configured','error','Software options for this workflow have not been properly configured',NULL,1),(225,'en_US','jobDraft','','submission_complete','label','Thank you for your submission. You may track the progress of submitted jobs and review data after job completion by navigating to the \"Job Utils\" tab on the dashboard',NULL,1),(226,'en_US','jobDraft','','submit','label','Save Changes',NULL,1),(227,'en_US','jobDraft','','submitter','label','Submitted By',NULL,1),(228,'en_US','jobDraft','','subtype_select','label','Add samples of subtype',NULL,1),(229,'en_US','jobDraft','','upload_file','error','File Upload failed',NULL,1),(230,'en_US','jobDraft','','upload_file_description','label','If you wish you may upload one or more files, e.g. quality control data, to associate with this sample submission.',NULL,1),(231,'en_US','jobDraft','','upload_file_heading','label','Upload Files',NULL,1),(232,'en_US','jobDraft','','user_incorrect','error','You are not authorized to edit this jobdraft',NULL,1),(233,'en_US','jobDraft','','workflowId','label','Assay Workflow',NULL,1),(234,'en_US','jobDraft','','workflowId','error','You must select an Assay Workflow',NULL,1),(235,'en_US','jobListAssignLibrary','','tableHeader','label','Active Jobs With Libraries To Be Run',NULL,1),(236,'en_US','jobListAssignLibrary','','jobId','label','Job',NULL,1),(237,'en_US','jobListAssignLibrary','','jobName','label','Job Name',NULL,1),(238,'en_US','jobListAssignLibrary','','submitter','label','Submitter',NULL,1),(239,'en_US','jobListAssignLibrary','','pi','label','PI',NULL,1),(240,'en_US','jobListCreateLibrary','','noneNeeded','label','No jobs with libraries to be created',NULL,1),(241,'en_US','jobListCreateLibrary','','jobId','label','Job',NULL,1),(242,'en_US','jobListCreateLibrary','','jobName','label','Job Name',NULL,1),(243,'en_US','jobListCreateLibrary','','submitter','label','Submitter',NULL,1),(244,'en_US','jobListCreateLibrary','','pi','label','PI',NULL,1),(245,'en_US','lab','','adduser','label','Add New LabUser',NULL,1),(246,'en_US','lab','','billing_address','label','Billing Address',NULL,1),(247,'en_US','lab','','billing_address','error','Billing Address cannot be empty',NULL,1),(248,'en_US','lab','','billing_address','constraint','NotEmpty',NULL,1),(249,'en_US','lab','','billing_address','metaposition','80',NULL,1),(250,'en_US','lab','','billing_building_room','label','Room',NULL,1),(251,'en_US','lab','','billing_building_room','metaposition','70',NULL,1),(252,'en_US','lab','','billing_city','label','Billing City',NULL,1),(253,'en_US','lab','','billing_city','error','Billing City cannot be empty',NULL,1),(254,'en_US','lab','','billing_city','constraint','NotEmpty',NULL,1),(255,'en_US','lab','','billing_city','metaposition','90',NULL,1),(256,'en_US','lab','','billing_contact','label','Billing Contact',NULL,1),(257,'en_US','lab','','billing_contact','error','Billing Contact cannot be empty',NULL,1),(258,'en_US','lab','','billing_contact','constraint','NotEmpty',NULL,1),(259,'en_US','lab','','billing_contact','metaposition','40',NULL,1),(260,'en_US','lab','','billing_country','label','Billing Country',NULL,1),(261,'en_US','lab','','billing_country','error','Billing Country cannot be empty',NULL,1),(262,'en_US','lab','','billing_country','control','select:${countries}:code:name',NULL,1),(263,'en_US','lab','','billing_country','constraint','NotEmpty',NULL,1),(264,'en_US','lab','','billing_country','metaposition','110',NULL,1),(265,'en_US','lab','','billing_departmentId','error','Billing Department cannot be empty',NULL,1),(266,'en_US','lab','','billing_departmentId','label','Billing Department',NULL,1),(267,'en_US','lab','','billing_departmentId','constraint','NotEmpty',NULL,1),(268,'en_US','lab','','billing_departmentId','metaposition','60',NULL,1),(269,'en_US','lab','','billing_departmentId','control','select:${departments}:departmentId:name',NULL,1),(270,'en_US','lab','','billing_institution','label','Billing Institution',NULL,1),(271,'en_US','lab','','billing_institution','error','Institution cannot be empty',NULL,1),(272,'en_US','lab','','billing_institution','constraint','NotEmpty',NULL,1),(273,'en_US','lab','','billing_institution','metaposition','50',NULL,1),(274,'en_US','lab','','billing_phone','label','Billing Phone',NULL,1),(275,'en_US','lab','','billing_phone','error','Billing Phone cannot be empty',NULL,1),(276,'en_US','lab','','billing_phone','constraint','NotEmpty',NULL,1),(277,'en_US','lab','','billing_phone','metaposition','130',NULL,1),(278,'en_US','lab','','billing_state','label','Billing State',NULL,1),(279,'en_US','lab','','billing_state','control','select:${states}:code:name',NULL,1),(280,'en_US','lab','','billing_state','metaposition','100',NULL,1),(281,'en_US','lab','','billing_zip','label','Billing Zip',NULL,1),(282,'en_US','lab','','billing_zip','error','Billing Zip cannot be empty',NULL,1),(283,'en_US','lab','','billing_zip','constraint','NotEmpty',NULL,1),(284,'en_US','lab','','billing_zip','metaposition','120',NULL,1),(285,'en_US','lab','','building_room','label','Room',NULL,1),(286,'en_US','lab','','building_room','metaposition','30',NULL,1),(287,'en_US','lab','','created','error','Lab was NOT created. Please fill in required fields.',NULL,1),(288,'en_US','lab','','created_success','label','Lab was created',NULL,1),(289,'en_US','lab','','departmentId','label','Department',NULL,1),(290,'en_US','lab','','departmentId','error','Please select department',NULL,1),(291,'en_US','lab','','detail','label','Lab Details',NULL,1),(292,'en_US','lab','','internal_external_lab','label','External/Internal',NULL,1),(293,'en_US','lab','','internal_external_lab','error','Please specify lab type (External/Internal)',NULL,1),(294,'en_US','lab','','internal_external_lab','control','select:external:External;internal:Internal',NULL,1),(295,'en_US','lab','','internal_external_lab','constraint','NotEmpty',NULL,1),(296,'en_US','lab','','internal_external_lab','metaposition','10',NULL,1),(297,'en_US','lab','','isActive','label','Active',NULL,1),(298,'en_US','lab','','lab_list','label','List of Labs',NULL,1),(299,'en_US','lab','','list_pi','label','Principal Investigator',NULL,1),(300,'en_US','lab','','list_users','label','Lab Members',NULL,1),(301,'en_US','lab','','name','label','Lab Name',NULL,1),(302,'en_US','lab','','name','error','Lab Name cannot be empty',NULL,1),(303,'en_US','lab','','phone','label','Phone',NULL,1),(304,'en_US','lab','','phone','error','Phone cannot be empty',NULL,1),(305,'en_US','lab','','phone','constraint','NotEmpty',NULL,1),(306,'en_US','lab','','phone','metaposition','20',NULL,1),(307,'en_US','lab','','primaryUser','label','Primary User',NULL,1),(308,'en_US','lab','','primaryUserId','label','Primary User',NULL,1),(309,'en_US','lab','','primaryUserId','error','Please select Primary User',NULL,1),(310,'en_US','lab','','updated','error','Lab was NOT updated. Please fill in required fields.',NULL,1),(311,'en_US','lab','','updated_success','label','Lab was updated',NULL,1),(312,'en_US','labDetail','','cancel','label','Cancel',NULL,1),(313,'en_US','labDetail','','create_job','label','create job',NULL,1),(314,'en_US','labDetail','','edit','label','Edit',NULL,1),(315,'en_US','labDetail','','save','label','Save Changes',NULL,1),(316,'en_US','labPending','','action','error','Invalid action. Must be approve or reject only',NULL,1),(317,'en_US','labPending','','approved','label','New lab application successfully approved',NULL,1),(318,'en_US','labPending','','billing_address','label','Billing Address',NULL,1),(319,'en_US','labPending','','billing_address','error','Billing Address cannot be empty',NULL,1),(320,'en_US','labPending','','billing_address','constraint','NotEmpty',NULL,1),(321,'en_US','labPending','','billing_address','metaposition','80',NULL,1),(322,'en_US','labPending','','billing_building_room','label','Room',NULL,1),(323,'en_US','labPending','','billing_building_room','metaposition','70',NULL,1),(324,'en_US','labPending','','billing_city','label','Billing City',NULL,1),(325,'en_US','labPending','','billing_city','error','Billing City cannot be empty',NULL,1),(326,'en_US','labPending','','billing_city','constraint','NotEmpty',NULL,1),(327,'en_US','labPending','','billing_city','metaposition','90',NULL,1),(328,'en_US','labPending','','billing_contact','label','Billing Contact',NULL,1),(329,'en_US','labPending','','billing_contact','error','Billing Contact cannot be empty',NULL,1),(330,'en_US','labPending','','billing_contact','constraint','NotEmpty',NULL,1),(331,'en_US','labPending','','billing_contact','metaposition','40',NULL,1),(332,'en_US','labPending','','billing_country','label','Billing Country',NULL,1),(333,'en_US','labPending','','billing_country','error','Billing Country cannot be empty',NULL,1),(334,'en_US','labPending','','billing_country','control','select:${countries}:code:name',NULL,1),(335,'en_US','labPending','','billing_country','constraint','NotEmpty',NULL,1),(336,'en_US','labPending','','billing_country','metaposition','110',NULL,1),(337,'en_US','labPending','','billing_departmentId','error','Billing Department cannot be empty',NULL,1),(338,'en_US','labPending','','billing_departmentId','label','Billing Department',NULL,1),(339,'en_US','labPending','','billing_departmentId','constraint','NotEmpty',NULL,1),(340,'en_US','labPending','','billing_departmentId','metaposition','60',NULL,1),(341,'en_US','labPending','','billing_departmentId','control','select:${departments}:departmentId:name',NULL,1),(342,'en_US','labPending','','billing_institution','label','Billing Institution',NULL,1),(343,'en_US','labPending','','billing_institution','error','Institution cannot be empty',NULL,1),(344,'en_US','labPending','','billing_institution','constraint','NotEmpty',NULL,1),(345,'en_US','labPending','','billing_institution','metaposition','50',NULL,1),(346,'en_US','labPending','','billing_phone','label','Billing Phone',NULL,1),(347,'en_US','labPending','','billing_phone','error','Billing Phone cannot be empty',NULL,1),(348,'en_US','labPending','','billing_phone','constraint','NotEmpty',NULL,1),(349,'en_US','labPending','','billing_phone','metaposition','130',NULL,1),(350,'en_US','labPending','','billing_state','label','Billing State',NULL,1),(351,'en_US','labPending','','billing_state','control','select:${states}:code:name',NULL,1),(352,'en_US','labPending','','billing_state','metaposition','100',NULL,1),(353,'en_US','labPending','','billing_zip','label','Billing Zip',NULL,1),(354,'en_US','labPending','','billing_zip','error','Billing Zip cannot be empty',NULL,1),(355,'en_US','labPending','','billing_zip','constraint','NotEmpty',NULL,1),(356,'en_US','labPending','','billing_zip','metaposition','120',NULL,1),(357,'en_US','labPending','','building_room','label','Room',NULL,1),(358,'en_US','labPending','','building_room','metaposition','30',NULL,1),(359,'en_US','labPending','','cancel','label','Cancel',NULL,1),(360,'en_US','labPending','','could_not_create_lab','error','Failed to process new lab request',NULL,1),(361,'en_US','labPending','','created','error','Pending Lab was NOT created. Please fill in required fields.',NULL,1),(362,'en_US','labPending','','createNewLab','label','Create New Lab Request',NULL,1),(363,'en_US','labPending','','departmentId','label','Department',NULL,1),(364,'en_US','labPending','','departmentId','error','Please select department',NULL,1),(365,'en_US','labPending','','departmentid_mismatch','error','Deparment id mismatch with lab-pending id',NULL,1),(366,'en_US','labPending','','heading','label','Pending Lab Details:',NULL,1),(367,'en_US','labPending','','internal_external_lab','label','External/Internal',NULL,1),(368,'en_US','labPending','','internal_external_lab','error','Please specify lab type (External/Internal)',NULL,1),(369,'en_US','labPending','','internal_external_lab','control','select:external:External;internal:Internal',NULL,1),(370,'en_US','labPending','','internal_external_lab','constraint','NotEmpty',NULL,1),(371,'en_US','labPending','','internal_external_lab','metaposition','10',NULL,1),(372,'en_US','labPending','','labpendingid_notexist','error','Lab-pending id does not exist',NULL,1),(373,'en_US','labPending','','name','label','Lab Name',NULL,1),(374,'en_US','labPending','','name','error','Lab Name cannot be empty',NULL,1),(375,'en_US','labPending','','newLabSubmit','label','Submit',NULL,1),(376,'en_US','labPending','','newPiNote','label','Request subject to WASP administrator confirmation of principal investigator status.',NULL,1),(377,'en_US','labPending','','phone','label','Phone',NULL,1),(378,'en_US','labPending','','phone','error','Phone cannot be empty',NULL,1),(379,'en_US','labPending','','phone','constraint','NotEmpty',NULL,1),(380,'en_US','labPending','','phone','metaposition','20',NULL,1),(381,'en_US','labPending','','primaryUserId','label','Primary User',NULL,1),(382,'en_US','labPending','','primaryUserId','error','Please select Primary User',NULL,1),(383,'en_US','labPending','','rejected','label','New lab application successfully rejected',NULL,1),(384,'en_US','labPending','','save','label','Save Changes',NULL,1),(385,'en_US','labPending','','status_mismatch','error','Status must be pending with lab-pending id',NULL,1),(386,'en_US','labPending','','status_not_pending','error','Pending lab is already approved or rejected',NULL,1),(387,'en_US','labPending','','updated','error','Pending Lab was NOT updated. Please fill in required fields.',NULL,1),(388,'en_US','labPending','','updated_success','label','Pending Lab updated successfully.',NULL,1),(389,'en_US','labuser','','active','label','Active',NULL,1),(390,'en_US','labuser','','current','label','Current Lab Members',NULL,1),(391,'en_US','labuser','','inactive','label','Inactive',NULL,1),(392,'en_US','labuser','','labUserNote','label','Request subject to principal investigator acceptance.',NULL,1),(393,'en_US','labuser','','labUserNotFoundInLab','error','Cannot locate specified lab user in specified lab',NULL,1),(394,'en_US','labuser','','request','label','Pending Lab Members',NULL,1),(395,'en_US','labuser','','request_alreadyaccess','error','You are currently a member of the requested lab.',NULL,1),(396,'en_US','labuser','','request_alreadypending','error','You are already a pending user for the requested lab.',NULL,1),(397,'en_US','labuser','','request_primaryuser','label','Primary Investigator',NULL,1),(398,'en_US','labuser','','request_primaryuser','error','Invalid Primary User',NULL,1),(399,'en_US','labuser','','request_submit','label','Request Access',NULL,1),(400,'en_US','labuser','','request_success','label','Your request for access has been submitted.',NULL,1),(401,'en_US','labuser','','role_change_request','label','Roles updated succesfully',NULL,1),(402,'en_US','labuser','','status_activate','label','Activate',NULL,1),(403,'en_US','labuser','','status_deactivate','label','Deactivate',NULL,1),(404,'en_US','labuser','','status_demoteLU','label','DEMOTE to LU',NULL,1),(405,'en_US','labuser','','status_promoteLM','label','PROMOTE to LM',NULL,1),(406,'en_US','libraryCreated','','created_success','label','Library sucessfully created.',NULL,1),(407,'en_US','librarydetail_ro','','cancel','label','Cancel',NULL,1),(408,'en_US','librarydetail_ro','','edit','label','Edit',NULL,1),(409,'en_US','librarydetail_ro','','libraryDetails','label','Library Details',NULL,1),(410,'en_US','librarydetail_ro','','libraryName','label','Library Name',NULL,1),(411,'en_US','librarydetail_ro','','librarySampleType','label','Library Type',NULL,1),(412,'en_US','librarydetail_rw','','cancel','label','Cancel',NULL,1),(413,'en_US','librarydetail_rw','','libraryDetails','label','Library Details',NULL,1),(414,'en_US','librarydetail_rw','','libraryName','label','Library Name',NULL,1),(415,'en_US','librarydetail_rw','','librarySubtype','label','Library Subtype',NULL,1),(416,'en_US','librarydetail_rw','','libraryType','label','Library Type',NULL,1),(417,'en_US','librarydetail_rw','','save','label','Save',NULL,1),(418,'en_US','librarydetail_rw','','selectNewAdaptorSet','label','--SELECT NEW ADAPTOR SET--',NULL,1),(419,'en_US','listJobSamples','','adaptor','label','Adaptor',NULL,1),(420,'en_US','listJobSamples','','addLibraryToPlatformUnit','label','Add Library To Platform Unit',NULL,1),(421,'en_US','listJobSamples','','arrivalStatus','label','Arrival Status',NULL,1),(422,'en_US','listJobSamples','','cancel','label','Cancel',NULL,1),(423,'en_US','listJobSamples','','cell','label','Cell',NULL,1),(424,'en_US','listJobSamples','','createLibrary','label','Create Library',NULL,1),(425,'en_US','listJobSamples','','finalConcentrationPM','label','Final Concentration (pM)',NULL,1),(426,'en_US','listJobSamples','','hideUserRequestedCoverage','label','Hide User-Requested Coverage',NULL,1),(427,'en_US','listJobSamples','','index','label','Index',NULL,1),(428,'en_US','listJobSamples','','initialMacromolecules','label','Initial Macromolecules',NULL,1),(429,'en_US','listJobSamples','','libraries','label','Libraries',NULL,1),(430,'en_US','listJobSamples','','library','label','Library',NULL,1),(431,'en_US','listJobSamples','','libraryControl_option','label','Library (Control)',NULL,1),(432,'en_US','listJobSamples','','logSample','label','log sample',NULL,1),(433,'en_US','listJobSamples','','name','label','Name',NULL,1),(434,'en_US','listJobSamples','','noLibrariesCreated','label','No Libraries Created',NULL,1),(435,'en_US','listJobSamples','','noPlatformUnitsAndRuns','label','No Platform Units / Runs',NULL,1),(436,'en_US','listJobSamples','','numValFinalConc_alert','label','Please provide a numeric value for Final Concentration in the cell (pM)',NULL,1),(437,'en_US','listJobSamples','','platformUnit','label','Platform Unit',NULL,1),(438,'en_US','listJobSamples','','platformUnitsAndRuns','label','Platform Units / Runs',NULL,1),(439,'en_US','listJobSamples','','selectAdaptorSetForNewLibrary','label','--SELECT ADAPTOR SET FOR NEW LIBRARY--',NULL,1),(440,'en_US','listJobSamples','','selectPlatformUnitCell','label','--SELECT A PLATFORM UNIT CELL--',NULL,1),(441,'en_US','listJobSamples','','showUserRequestedCoverage','label','Show User-Requested Coverage',NULL,1),(442,'en_US','listJobSamples','','species','label','Species',NULL,1),(443,'en_US','listJobSamples','','submit','label','Submit',NULL,1),(444,'en_US','listJobSamples','','type','label','Type',NULL,1),(445,'en_US','listJobSamples','','userSubmittedLibraries','label','User-Submitted Libraries',NULL,1),(446,'en_US','listJobSamples','','valFinalConc_alert','label','Please provide a value for Final Concentration in the cell (pM)',NULL,1),(447,'en_US','listJobSamples','','view','label','View',NULL,1),(448,'en_US','listJobSamples','','youMustSelectCell_alert','label','You must select a cell',NULL,1),(449,'en_US','lmpendingtask','','subtitle1','label','Pending Users',NULL,1),(450,'en_US','lmpendingtask','','subtitle1_none','label','No Pending Users',NULL,1),(451,'en_US','lmpendingtask','','subtitle2','label','Pending Jobs',NULL,1),(452,'en_US','lmpendingtask','','subtitle2_none','label','No Pending Jobs',NULL,1),(453,'en_US','lmpendingtask','','title','label','PI/Lab Manager Pending Tasks',NULL,1),(454,'en_US','metadata','','lengthMax','error','Length exceeds maximum permitted',NULL,1),(455,'en_US','metadata','','lengthMin','error','Length less than minimum permitted',NULL,1),(456,'en_US','metadata','','metaType','error','Value is not of expected type',NULL,1),(457,'en_US','metadata','','rangeMax','error','Value exceeds maximum permitted',NULL,1),(458,'en_US','metadata','','rangeMin','error','Value less than minimum permitted',NULL,1),(459,'en_US','pageTitle','','acctquote/list','label','List of Job Quotes',NULL,1),(460,'en_US','pageTitle','','auth/confirmemail/authcodeform','label','Confirm Email Address',NULL,1),(461,'en_US','pageTitle','','auth/confirmemail/emailchanged','label','Confirm New Email Address',NULL,1),(462,'en_US','pageTitle','','auth/confirmemail/requestEmailChange','label','Request to Change Email',NULL,1),(463,'en_US','pageTitle','','auth/confirmemail/useridchanged','label','Confirm New User Id',NULL,1),(464,'en_US','pageTitle','','auth/confirmemail/userloginandemailchanged','label','Confirm New Email Address',NULL,1),(465,'en_US','pageTitle','','auth/confirmemail/userloginchanged','label','User Login Changed',NULL,1),(466,'en_US','pageTitle','','auth/getEmailForDemo','label','Email for Demo',NULL,1),(467,'en_US','pageTitle','','auth/login','label','Login',NULL,1),(468,'en_US','pageTitle','','auth/newpi/created','label','Application Submitted',NULL,1),(469,'en_US','pageTitle','','auth/newpi/emailok','label','Email Confirmed',NULL,1),(470,'en_US','pageTitle','','auth/newpi/form','label','New Principal Investigator',NULL,1),(471,'en_US','pageTitle','','auth/newpi/institute','label','New Principal Investigator',NULL,1),(472,'en_US','pageTitle','','auth/newuser/created','label','Application Submitted',NULL,1),(473,'en_US','pageTitle','','auth/newuser/emailok','label','Email Confirmed',NULL,1),(474,'en_US','pageTitle','','auth/newuser/form','label','New User',NULL,1),(475,'en_US','pageTitle','','auth/resetpassword/authcodeform','label','Reset Password',NULL,1),(476,'en_US','pageTitle','','auth/resetpassword/email','label','Email Sent',NULL,1),(477,'en_US','pageTitle','','auth/resetpassword/form','label','Reset Password',NULL,1),(478,'en_US','pageTitle','','auth/resetpassword/ok','label','Password Was Reset',NULL,1),(479,'en_US','pageTitle','','auth/resetpassword/request','label','Reset Password Request',NULL,1),(480,'en_US','pageTitle','','dashboard','label','WASP',NULL,1),(481,'en_US','pageTitle','','department/dapendingtasks','label','Department Administrator Pending Tasks',NULL,1),(482,'en_US','pageTitle','','department/detail','label','Department Detail',NULL,1),(483,'en_US','pageTitle','','department/list','label','Department List',NULL,1),(484,'en_US','pageTitle','','facility/platformunit/assign','label','Assign Library To Platform Unit',NULL,1),(485,'en_US','pageTitle','','facility/platformunit/instance/list','label','Platform Unit Instance List',NULL,1),(486,'en_US','pageTitle','','facility/platformunit/limitPriorToAssign','label','Machine Type Assignment',NULL,1),(487,'en_US','pageTitle','','facility/platformunit/list','label','Platform Unit List',NULL,1),(488,'en_US','pageTitle','','facility/platformunit/showPlatformUnit','label','Platform Unit / Sequence Run',NULL,1),(489,'en_US','pageTitle','','job/list','label','Job List',NULL,1),(490,'en_US','pageTitle','','job/jobsAwaitingLibraryCreation/jobsAwaitingLibraryCreationList','label','Active Jobs With Libraries To Be Created',NULL,1),(491,'en_US','pageTitle','','job2quote/list','label','List of Jobs to Quote',NULL,1),(492,'en_US','pageTitle','','jobsubmit/cell','label','Cells',NULL,1),(493,'en_US','pageTitle','','jobsubmit/create','label','New Job',NULL,1),(494,'en_US','pageTitle','','jobsubmit/list','label','List of Job Drafts',NULL,1),(495,'en_US','pageTitle','','jobsubmit/metaform','label','New Job',NULL,1),(496,'en_US','pageTitle','','jobsubmit/ok','label','Job Successfully Submitted',NULL,1),(497,'en_US','pageTitle','','jobsubmit/sample','label','Submit Samples',NULL,1),(498,'en_US','pageTitle','','jobsubmit/sample/sampledetail_ro','label','View Sample Draft',NULL,1),(499,'en_US','pageTitle','','jobsubmit/sample/sampledetail_rw','label','Edit Sample Draft',NULL,1),(500,'en_US','pageTitle','','lab/allpendinglmapproval/list','label','PI/Lab Manager Pending Tasks',NULL,1),(501,'en_US','pageTitle','','lab/detail_ro','label','Lab Detail',NULL,1),(502,'en_US','pageTitle','','lab/detail_rw','label','Update Lab Detail',NULL,1),(503,'en_US','pageTitle','','lab/list','label','Lab List',NULL,1),(504,'en_US','pageTitle','','lab/newrequest','label','Request Access to Lab',NULL,1),(505,'en_US','pageTitle','','lab/pending/detail_ro','label','Pending Lab Detail',NULL,1),(506,'en_US','pageTitle','','lab/pending/detail_rw','label','Update Pending Lab Detail',NULL,1),(507,'en_US','pageTitle','','lab/pendinglmapproval/list','label','PI/Lab Manager Pending Tasks',NULL,1),(508,'en_US','pageTitle','','lab/pendinguser/list','label','Pending Users',NULL,1),(509,'en_US','pageTitle','','lab/user_list','label','Lab Member List',NULL,1),(510,'en_US','pageTitle','','lab/user_manager','label','Lab User Manager',NULL,1),(511,'en_US','pageTitle','','resource/create','label','Create New Resource',NULL,1),(512,'en_US','pageTitle','','resource/detail_ro','label','Resource Detail',NULL,1),(513,'en_US','pageTitle','','resource/detail_rw','label','Update Resource Detail',NULL,1),(514,'en_US','pageTitle','','resource/list','label','Machine List',NULL,1),(515,'en_US','pageTitle','','run/detail','label','Run Detail',NULL,1),(516,'en_US','pageTitle','','run/list','label','Run List',NULL,1),(517,'en_US','pageTitle','','sample/list','label','Sample Utilities',NULL,1),(518,'en_US','pageTitle','','sampleDnaToLibrary/createLibrary','label','New Library',NULL,1),(519,'en_US','pageTitle','','sampleDnaToLibrary/librarydetail_ro','label','Library Details',NULL,1),(520,'en_US','pageTitle','','sampleDnaToLibrary/librarydetail_rw','label','Update Library',NULL,1),(521,'en_US','pageTitle','','sampleDnaToLibrary/listJobSamples','label','Samples And Libraries',NULL,1),(522,'en_US','pageTitle','','sampleDnaToLibrary/sampledetail_ro','label','Sample Details',NULL,1),(523,'en_US','pageTitle','','sampleDnaToLibrary/sampledetail_rw','label','Update Sample Details',NULL,1),(524,'en_US','pageTitle','','sysrole/list','label','System User Management',NULL,1),(525,'en_US','pageTitle','','task/assignLibraries/lists','label','Assign Libraries',NULL,1),(526,'en_US','pageTitle','','task/detail','label','Requote Pending Jobs',NULL,1),(527,'en_US','pageTitle','','task/fmpayment/list','label','Receive Payment for Jobs',NULL,1),(528,'en_US','pageTitle','','task/fmrequote/list','label','Requote Pending Jobs',NULL,1),(529,'en_US','pageTitle','','task/samplereceive/list','label','Incoming Sample Manager',NULL,1),(530,'en_US','pageTitle','','uifield/list','label','Properties',NULL,1),(531,'en_US','pageTitle','','user/detail_ro','label','User Detail',NULL,1),(532,'en_US','pageTitle','','user/detail_rw','label','Update User Detail',NULL,1),(533,'en_US','pageTitle','','user/list','label','User List',NULL,1),(534,'en_US','pageTitle','','user/mypassword','label','Change Password',NULL,1),(535,'en_US','pageTitle','','workflow/list','label','Workflow List',NULL,1),(536,'en_US','pageTitle','','workflow/resource/configure','label','Workflow Resource Assignment',NULL,1),(537,'en_US','piPending','','address','label','Address',NULL,1),(538,'en_US','piPending','','address','error','Address cannot be empty',NULL,1),(539,'en_US','piPending','','address','constraint','NotEmpty',NULL,1),(540,'en_US','piPending','','address','metaposition','40',NULL,1),(541,'en_US','piPending','','building_room','label','Building / Room',NULL,1),(542,'en_US','piPending','','building_room','metaposition','30',NULL,1),(543,'en_US','piPending','','captcha','error','Captcha text incorrect',NULL,1),(544,'en_US','piPending','','captcha','label','Captcha text',NULL,1),(545,'en_US','piPending','','city','label','City',NULL,1),(546,'en_US','piPending','','city','error','City cannot be empty',NULL,1),(547,'en_US','piPending','','city','constraint','NotEmpty',NULL,1),(548,'en_US','piPending','','city','metaposition','50',NULL,1),(549,'en_US','piPending','','country','label','Country',NULL,1),(550,'en_US','piPending','','country','error','Country cannot be empty',NULL,1),(551,'en_US','piPending','','country','control','select:${countries}:code:name',NULL,1),(552,'en_US','piPending','','country','constraint','NotEmpty',NULL,1),(553,'en_US','piPending','','country','metaposition','70',NULL,1),(554,'en_US','piPending','','departmentId','error','Department cannot be empty',NULL,1),(555,'en_US','piPending','','departmentId','label','Department',NULL,1),(556,'en_US','piPending','','departmentId','constraint','NotEmpty',NULL,1),(557,'en_US','piPending','','departmentId','control','select:${departments}:departmentId:name',NULL,1),(558,'en_US','piPending','','departmentId','metaposition','20',NULL,1),(559,'en_US','piPending','','email','label','Email',NULL,1),(560,'en_US','piPending','','email','error','Wrong email address format',NULL,1),(561,'en_US','piPending','','emailconfirmed','label','Your email address has been confirmed and your department administrator has been emailed to request confirmation of your eligibility to register your lab. You are advised to contact them to request they do this if your account does not become activated in good time.',NULL,1),(562,'en_US','piPending','','emailsent','label','Thank you for your account request. You have been sent an email with instructions as to how to confirm your email address. Please click to <a href=\"../login.do\"/>Login</a>',NULL,1),(563,'en_US','piPending','','email_exists','error','Email already exists in the database',NULL,1),(564,'en_US','piPending','','fax','label','Fax',NULL,1),(565,'en_US','piPending','','fax','metaposition','100',NULL,1),(566,'en_US','piPending','','firstName','label','First Name',NULL,1),(567,'en_US','piPending','','firstName','error','First Name cannot be empty',NULL,1),(568,'en_US','piPending','','form_instructions','label','Please fill out the form below, making sure to complete all required fields marked with an asterisk',NULL,1),(569,'en_US','piPending','','institute_multi_select','error','You cannot select more than one institute',NULL,1),(570,'en_US','piPending','','institute_not_selected','error','You must select an institute',NULL,1),(571,'en_US','piPending','','institution','label','Institution',NULL,1),(572,'en_US','piPending','','institution','error','Institution cannot be empty',NULL,1),(573,'en_US','piPending','','institution','constraint','NotEmpty',NULL,1),(574,'en_US','piPending','','institution','metaposition','10',NULL,1),(575,'en_US','piPending','','internal_institute_list','data','Einstein;Montifiore',NULL,1),(576,'en_US','piPending','','labName','label','Lab Name',NULL,1),(577,'en_US','piPending','','labName','error','Lab Name cannot be empty',NULL,1),(578,'en_US','piPending','','labName','constraint','NotEmpty',NULL,1),(579,'en_US','piPending','','labName','metaposition','1',NULL,1),(580,'en_US','piPending','','lastName','label','Last Name',NULL,1),(581,'en_US','piPending','','lastName','error','Last Name cannot be empty',NULL,1),(582,'en_US','piPending','','locale','label','Locale',NULL,1),(583,'en_US','piPending','','locale','constraint','NotEmpty',NULL,1),(584,'en_US','piPending','','locale','error','Locale cannot be empty',NULL,1),(585,'en_US','piPending','','login','label','Login',NULL,1),(586,'en_US','piPending','','login','error','Login cannot be empty',NULL,1),(587,'en_US','piPending','','password','label','Password',NULL,1),(588,'en_US','piPending','','password','error','Password cannot be empty',NULL,1),(589,'en_US','piPending','','password2','label','Re-confirm Password',NULL,1),(590,'en_US','piPending','','password2','error','Re-confirm password cannot be empty',NULL,1),(591,'en_US','piPending','','password_invalid','error','Password must be at least 8 characters, containing only letters and numbers, with at least one letter and number',NULL,1),(592,'en_US','piPending','','password_mismatch','error','The two entries for your password are NOT identical',NULL,1),(593,'en_US','piPending','','phone','label','Phone',NULL,1),(594,'en_US','piPending','','phone','error','Phone cannot be empty',NULL,1),(595,'en_US','piPending','','phone','constraint','NotEmpty',NULL,1),(596,'en_US','piPending','','phone','metaposition','90',NULL,1),(597,'en_US','piPending','','select_default','label','-- select --',NULL,1),(598,'en_US','piPending','','select_institute','label','Institute',NULL,1),(599,'en_US','piPending','','select_institute_message','label','Please select your institute or choose \"other\"',NULL,1),(600,'en_US','piPending','','select_institute_other','label','Other',NULL,1),(601,'en_US','piPending','','select_institute_submit','label','Submit',NULL,1),(602,'en_US','piPending','','specify_other_institute','label','If \"Other\" Please specify',NULL,1),(603,'en_US','piPending','','state','label','State',NULL,1),(604,'en_US','piPending','','state','control','select:${states}:code:name',NULL,1),(605,'en_US','piPending','','state','metaposition','60',NULL,1),(606,'en_US','piPending','','submit','label','Apply for Account',NULL,1),(607,'en_US','piPending','','title','label','Title',NULL,1),(608,'en_US','piPending','','title','error','Title cannot be empty',NULL,1),(609,'en_US','piPending','','title','constraint','NotEmpty',NULL,1),(610,'en_US','piPending','','title','control','select:Prof:Prof;Dr:Dr;Mr:Mr;Ms:Ms;Mrs:Mrs;Miss:Miss',NULL,1),(611,'en_US','piPending','','title','metaposition','5',NULL,1),(612,'en_US','piPending','','zip','label','Zip',NULL,1),(613,'en_US','piPending','','zip','error','Zip cannot be empty',NULL,1),(614,'en_US','piPending','','zip','constraint','NotEmpty',NULL,1),(615,'en_US','piPending','','zip','metaposition','80',NULL,1),(616,'en_US','platformunit','','adaptorBarcodeNotFound','error','Action Failed. Libary adaptor barcode NOT found',NULL,1),(617,'en_US','platformunit','','adaptorNotFound','error','Action Failed. Libary adaptor NOT found',NULL,1),(618,'en_US','platformunit','','flowcellNotFoundNotUnique','error','Action Failed. Flowcell record not found or not unique',NULL,1),(619,'en_US','platformunit','','flowcellStateError','error','Action Failed. Flowcell state not compatible with adding libraries',NULL,1),(620,'en_US','platformunit','','jobIdNotFound','error','Action Failed. Value for jobId is unexpectedly NOT valid',NULL,1),(621,'en_US','platformunit','','jobIdNotSelected','error','Select A Job',NULL,1),(622,'en_US','platformunit','','jobNotFound','error','Selected Job Not Found',NULL,1),(623,'en_US','platformunit','','jobResourceCategoryMismatch','error','Job and resource unexpectedly do not match',NULL,1),(624,'en_US','platformunit','','laneIdNotFound','error','Action Failed. Value for lane is unexpectedly NOT valid',NULL,1),(625,'en_US','platformunit','','laneIsFlowCell','error','Action Failed. You mistakenly selected a Flow Cell',NULL,1),(626,'en_US','platformunit','','laneIsNotLane','error','Action Failed. Lane selected is unexpectedly NOT a Lane',NULL,1),(627,'en_US','platformunit','','libAdded','success','Update Complete. Library added to flowcell.',NULL,1),(628,'en_US','platformunit','','libJobClash','error','Action Failed. Libraries on a lane must be from a single job',NULL,1),(629,'en_US','platformunit','','libraryIdNotFound','error','Action Failed. Value for libraryId is unexpectedly NOT valid',NULL,1),(630,'en_US','platformunit','','libraryIsNotLibrary','error','Action Failed. Library selected is unexpectedly NOT a Library',NULL,1),(631,'en_US','platformunit','','libraryJobMismatch','error','Action Failed. Libary does NOT appear to be part of the specified Job',NULL,1),(632,'en_US','platformunit','','libraryRemoved','success','Selected Library Removed From Flowcell',NULL,1),(633,'en_US','platformunit','','multiplex','error','Action Failed. Barcode on the library is not compatible with other libraries on the cell',NULL,1),(634,'en_US','platformunit','','name','label','Name',NULL,1),(635,'en_US','platformunit','','pmoleAddedInvalidValue','error','Action Failed. Value for pmol is NOT valid',NULL,1),(636,'en_US','platformunit','','resourceCategoryInvalidValue','error','Resource Not Found',NULL,1),(637,'en_US','platformunit','','resourceTypeNotFound','error','Type Resource unexpectedly not found',NULL,1),(638,'en_US','platformunit','','sampleSourceNotExist','error','Action Failed: Selected Library Not Found',NULL,1),(639,'en_US','platformunit','','samplesourceTypeError','error','Action Failed: Selected samplesource missing cell or library',NULL,1),(640,'en_US','platformunit','','sampleType','error','Action Failed. Cell or Library type exception raised',NULL,1),(641,'en_US','platformunit','','subtype_list','label','Subtype Sample List',NULL,1),(642,'en_US','platformunit','','taskNotFound','error','Task unexpectedly not found',NULL,1),(643,'en_US','platformunit','','TESTING','success','TESTING.',NULL,1),(644,'en_US','platformunitById','','name','label','Name',NULL,1),(645,'en_US','platformunitById','','platformunitbyid_list','label','Platform Unit List',NULL,1),(646,'en_US','platformunitById','','submitter','label','Submitter',NULL,1),(647,'en_US','platformunitInstance','','barcode','label','Barcode',NULL,1),(648,'en_US','platformunitInstance','','barcode_exists','error','Barcode already exists in the database',NULL,1),(649,'en_US','platformunitInstance','','comment','label','Comment',NULL,1),(650,'en_US','platformunitInstance','','comment','error','Comment',NULL,1),(651,'en_US','platformunitInstance','','comment','metaposition','20',NULL,1),(652,'en_US','platformunitInstance','','created','error','Platformunit was NOT created. Please fill in required fields.',NULL,1),(653,'en_US','platformunitInstance','','created_success','label','Platformunit created successfully.',NULL,1),(654,'en_US','platformunitInstance','','lanecount','label','Lane Count',NULL,1),(655,'en_US','platformunitInstance','','lanecount','error','Lane Count cannot be empty',NULL,1),(656,'en_US','platformunitInstance','','lanecount','control','select:${lanes}:laneCount:label',NULL,1),(657,'en_US','platformunitInstance','','lanecount','metaposition','60',NULL,1),(658,'en_US','platformunitInstance','','lanecountForEditBox','label','Lane Count',NULL,1),(659,'en_US','platformunitInstance','','lanecount_empty','error','Please select a number of lanes',NULL,1),(660,'en_US','platformunitInstance','','name','label','Name',NULL,1),(661,'en_US','platformunitInstance','','name','constraint','NotEmpty',NULL,1),(662,'en_US','platformunitInstance','','name','error','Name cannot be empty',NULL,1),(663,'en_US','platformunitInstance','','name_exists','error','Name already exists in the database',NULL,1),(664,'en_US','platformunitInstance','','platformunitinstance_list','label','Platform Unit Instance List',NULL,1),(665,'en_US','platformunitInstance','','submitter','label','Submitter',NULL,1),(666,'en_US','platformunitInstance','','submitter','constraint','NotEmpty',NULL,1),(667,'en_US','platformunitInstance','','submitter','error','Submitter cannot be empty',NULL,1),(668,'en_US','platformunitInstance','','subtype','label','Subtype',NULL,1),(669,'en_US','platformunitInstance','','subtype','constraint','NotEmpty',NULL,1),(670,'en_US','platformunitInstance','','subtype','error','Subtype cannot be empty',NULL,1),(671,'en_US','platformunitInstance','','updated','error','Platformunit was NOT updated. Please fill in required fields.',NULL,1),(672,'en_US','platformunitInstance','','updated_success','label','Platformunit updated successfully.',NULL,1),(673,'en_US','resource','','barcode','label','Barcode',NULL,1),(674,'en_US','resource','','barcode_exists','error','Barcode already exists in the database',NULL,1),(675,'en_US','resource','','cancel','label','Cancel',NULL,1),(676,'en_US','resource','','commission_date','label','Commission Date',NULL,1),(677,'en_US','resource','','commission_date','error','Commission date cannot be empty',NULL,1),(678,'en_US','resource','','commission_date','constraint','NotEmpty',NULL,1),(679,'en_US','resource','','commission_date','metaposition','40',NULL,1),(680,'en_US','resource','','created','error','Resource was NOT created. Please fill in required fields.',NULL,1),(681,'en_US','resource','','created_success','label','Resource created successfully.',NULL,1),(682,'en_US','resource','','decommission_date','label','Decommission Date',NULL,1),(683,'en_US','resource','','decommission_date','error','Decommission date cannot be empty',NULL,1),(684,'en_US','resource','','decommission_date','metaposition','50',NULL,1),(685,'en_US','resource','','isActive','label','Active',NULL,1),(686,'en_US','resource','','machineType','label','Resource Category',NULL,1),(687,'en_US','resource','','name','label','Name',NULL,1),(688,'en_US','resource','','name','error','Resource name cannot be empty',NULL,1),(689,'en_US','resource','','name','constraint','NotEmpty',NULL,1),(690,'en_US','resource','','resourceCategoryId','label','Resource Category',NULL,1),(691,'en_US','resource','','resourceCategoryId','error','Must select category of resource',NULL,1),(692,'en_US','resource','','resourceCategoryId','constraint','NotEmpty',NULL,1),(693,'en_US','resource','','resourceTypeId','label','Resource Type',NULL,1),(694,'en_US','resource','','resourceTypeId','error','Must select assay platform',NULL,1),(695,'en_US','resource','','resourceTypeId','constraint','NotEmpty',NULL,1),(696,'en_US','resource','','resource_exists','error','Resource name already exists in the database',NULL,1),(697,'en_US','resource','','resource_list','label','List of Machines',NULL,1),(698,'en_US','resource','','save','label','Save',NULL,1),(699,'en_US','resource','','updated','error','Resource was NOT updated. Please fill in required fields.',NULL,1),(700,'en_US','resource','','updated_success','label','Resource updated successfully.',NULL,1),(701,'en_US','run','','created_success','label','Run created successfully.',NULL,1),(702,'en_US','run','','end_datetime','label','Finished On',NULL,1),(703,'en_US','run','','end_datetime','metaposition','50',NULL,1),(704,'en_US','run','','flow_cell_name','label','Flowcell',NULL,1),(705,'en_US','run','','isActive','label','Active',NULL,1),(706,'en_US','run','','name','label','Run Name',NULL,1),(707,'en_US','run','','name','constraint','NotEmpty',NULL,1),(708,'en_US','run','','name','error','Run name cannot be empty',NULL,1),(709,'en_US','run','','path_to_data','label','Data Path',NULL,1),(710,'en_US','run','','resourceId','label','Machine',NULL,1),(711,'en_US','run','','resourceName','label','Machine',NULL,1),(712,'en_US','run','','run_exists','error','Run name already exists in the database',NULL,1),(713,'en_US','run','','run_list','label','List of Runs',NULL,1),(714,'en_US','run','','run_success','label','Success',NULL,1),(715,'en_US','run','','sampleId','label','Flowcell',NULL,1),(716,'en_US','run','','start_datetime','label','Started On',NULL,1),(717,'en_US','run','','start_datetime','metaposition','40',NULL,1),(718,'en_US','run','','start_esf_staff','label','Started By',NULL,1),(719,'en_US','run','','updated_success','label','Run updated successfully.',NULL,1),(720,'en_US','sample','','isreceived','label','Received Status',NULL,1),(721,'en_US','sample','','job','label','Job',NULL,1),(722,'en_US','sample','','name','label','Sample Name',NULL,1),(723,'en_US','sample','','name','error','Name cannot be null',NULL,1),(724,'en_US','sample','','runs','label','Runs',NULL,1),(725,'en_US','sample','','sample_list','label','List of Samples',NULL,1),(726,'en_US','sample','','submitterUserId','label','Submitter',NULL,1),(727,'en_US','sample','','subtype','label','Subtype',NULL,1),(728,'en_US','sample','','type','label','Type',NULL,1),(729,'en_US','sampleDetail','','adaptorsetParameter','error','No adaptorset matches supplied adaptorset parameter',NULL,1),(730,'en_US','sampleDetail','','jobNotFound','error','Job not found in the database',NULL,1),(731,'en_US','sampleDetail','','jobParameter','error','No job matches supplied job parameter',NULL,1),(732,'en_US','sampleDetail','','jobSampleMismatch','error','Supplied job and sample parameters do not refer to a valid object',NULL,1),(733,'en_US','sampleDetail','','libraryNotFound','error','Library not found in the database',NULL,1),(734,'en_US','sampleDetail','','nameClash','error','Name already exists in database!',NULL,1),(735,'en_US','sampleDetail','','sampleNotFound','error','Sample not found in the database',NULL,1),(736,'en_US','sampleDetail','','sampleParameter','error','No sample matches supplied sample parameter',NULL,1),(737,'en_US','sampleDetail','','sampleSubtypeNotFound','error','Cannot find requested sample subtype in the database',NULL,1),(738,'en_US','sampleDetail','','unexpected','error','Sample NOT updated. Unexpected error!',NULL,1),(739,'en_US','sampleDetail','','updated','error','Sample NOT updated. Fill in required fields or cancel to restore.',NULL,1),(740,'en_US','sampleDetail','','updated_success','label','Sample sucessfully updated.',NULL,1),(741,'en_US','sampledetail_ro','','cancel','label','Cancel',NULL,1),(742,'en_US','sampledetail_ro','','edit','label','Edit',NULL,1),(743,'en_US','sampledetail_ro','','sampleName','label','Sample Name',NULL,1),(744,'en_US','sampledetail_ro','','sampleType','label','Sample Type',NULL,1),(745,'en_US','sampledetail_rw','','cancel','label','Cancel',NULL,1),(746,'en_US','sampledetail_rw','','sampleName','label','Sample Name',NULL,1),(747,'en_US','sampledetail_rw','','sampleType','label','Sample Type',NULL,1),(748,'en_US','sampledetail_rw','','save','label','Save',NULL,1),(749,'en_US','sampleDraft','','name','error','You must provide a sample name',NULL,1),(750,'en_US','samplereceivetask','','subtitle_none','label','No Pending Samples',NULL,1),(751,'en_US','showPlatformUnit','','add','label','Add',NULL,1),(752,'en_US','showPlatformUnit','','addControl','label','Add Control',NULL,1),(753,'en_US','showPlatformUnit','','barcode','label','Barcode',NULL,1),(754,'en_US','showPlatformUnit','','cancel','label','Cancel',NULL,1),(755,'en_US','showPlatformUnit','','cell','label','Cell',NULL,1),(756,'en_US','showPlatformUnit','','concOnCell','label','Conc. On Cell',NULL,1),(757,'en_US','showPlatformUnit','','createNewRun','label','Create New Run',NULL,1),(758,'en_US','showPlatformUnit','','currentConcPM','label','Current Conc. (pM)',NULL,1),(759,'en_US','showPlatformUnit','','edit','label','Edit',NULL,1),(760,'en_US','showPlatformUnit','','finalConcPM','label','Final Conc. (pM)',NULL,1),(761,'en_US','showPlatformUnit','','index','label','Index',NULL,1),(762,'en_US','showPlatformUnit','','jobJ','label','Job J',NULL,1),(763,'en_US','showPlatformUnit','','locked','label','Locked',NULL,1),(764,'en_US','showPlatformUnit','','machine','label','Machine',NULL,1),(765,'en_US','showPlatformUnit','','newConcPM','label','New Conc. (pM)',NULL,1),(766,'en_US','showPlatformUnit','','noControlOnCell','label','No Control On Cell',NULL,1),(767,'en_US','showPlatformUnit','','noLibrariesOnCell','label','No Libraries On Cell',NULL,1),(768,'en_US','showPlatformUnit','','platformUnit','label','Platform Unit',NULL,1),(769,'en_US','showPlatformUnit','','platformUnitStatus','label','Platform Unit Status',NULL,1),(770,'en_US','showPlatformUnit','','pleasePorvideValue_alert','label','Please provide a value',NULL,1),(771,'en_US','showPlatformUnit','','pleaseProvideControlConc_alert','label','Please provide a final concentration for this control',NULL,1),(772,'en_US','showPlatformUnit','','pleaseProvideStartDate_alert','label','Please provide a start date',NULL,1),(773,'en_US','showPlatformUnit','','pleaseProvideValidName_alert','label','Please provide a valid name for this run',NULL,1),(774,'en_US','showPlatformUnit','','pleaseProvideValidStartDate_alert','label','Please provide a start date in the proper format',NULL,1),(775,'en_US','showPlatformUnit','','pleaseSelectControl_alert','label','Please select a control',NULL,1),(776,'en_US','showPlatformUnit','','pleaseSelectMachine_alert','label','Please select a machine',NULL,1),(777,'en_US','showPlatformUnit','','pleaseSelectReadLength_alert','label','Please select a read length',NULL,1),(778,'en_US','showPlatformUnit','','pleaseSelectReadType_alert','label','Please select a read type',NULL,1),(779,'en_US','showPlatformUnit','','pleaseSelectTechnician_alert','label','Please select a technician',NULL,1),(780,'en_US','showPlatformUnit','','pM','label','pM',NULL,1),(781,'en_US','showPlatformUnit','','readLength','label','Read Length',NULL,1),(782,'en_US','showPlatformUnit','','readType','label','Read Type',NULL,1),(783,'en_US','showPlatformUnit','','removeControl','label','Remove Control',NULL,1),(784,'en_US','showPlatformUnit','','removeControlFromThisCell','label','Remove Control From This Cell?',NULL,1),(785,'en_US','showPlatformUnit','','removeLibFromCell_alert','label','Remove Library From This Cell?',NULL,1),(786,'en_US','showPlatformUnit','','reset','label','Reset',NULL,1),(787,'en_US','showPlatformUnit','','runName','label','Run Name',NULL,1),(788,'en_US','showPlatformUnit','','runTechnician','label','Run Technician',NULL,1),(789,'en_US','showPlatformUnit','','selectControl','label','--SELECT A CONTROL--',NULL,1),(790,'en_US','showPlatformUnit','','selectMachine','label','--SELECT A MACHINE--',NULL,1),(791,'en_US','showPlatformUnit','','selectTechnician','label','--SELECT A TECHNICIAN--',NULL,1),(792,'en_US','showPlatformUnit','','startDate','label','Start Date (mm/dd/yyyy)',NULL,1),(793,'en_US','showPlatformUnit','','submit','label','Submit',NULL,1),(794,'en_US','showPlatformUnit','','submit_alert','label','Submit?',NULL,1),(795,'en_US','showPlatformUnit','','type','label','Type',NULL,1),(796,'en_US','showPlatformUnit','','unlocked','label','Unlocked',NULL,1),(797,'en_US','showPlatformUnit','','update','label','Update',NULL,1),(798,'en_US','showPlatformUnit','','warning1','label','Once You Create This Run Record,<br />Adding User Libraries To This Flow Cell Will Be Prohibited',NULL,1),(799,'en_US','showPlatformUnit','','warning2','label','Adding Additional User Libraries To This Flow Cell<br />Is Now Prohibited',NULL,1),(800,'en_US','sysrole','','invalidRoleSpecified','error','Invalid role specified',NULL,1),(801,'en_US','sysrole','','list_add_role','label','Use the form below to add system roles to existing WASP users',NULL,1),(802,'en_US','sysrole','','list_create','label','Add System Role to User',NULL,1),(803,'en_US','sysrole','','list_current','label','Current Users with System Roles',NULL,1),(804,'en_US','sysrole','','list_submit','label','Submit',NULL,1),(805,'en_US','sysrole','','list_sysuser_name','label','Existing User',NULL,1),(806,'en_US','sysrole','','list_sysuser_role','label','New Role',NULL,1),(807,'en_US','sysrole','','noRoleSpecified','error','No role specified',NULL,1),(808,'en_US','sysrole','','noUserSpecified','error','No user specified',NULL,1),(809,'en_US','sysrole','','onlyUserWithRole','error','Cannot remove role from user. The role must be granted to another user first.',NULL,1),(810,'en_US','sysrole','','success','label','Update completed successfully',NULL,1),(811,'en_US','sysrole','','userNonexistant','error','The user specified does not exist in the database',NULL,1),(812,'en_US','sysrole','','userRoleExists','error','Specified user already has the selected role',NULL,1),(813,'en_US','sysrole','','wrongUserRoleCombination','error','Specified user does not have specified role',NULL,1),(814,'en_US','task','','samplereceive','error_state_sample_conflict','Error - StateId and SampleId Mismatch',NULL,1),(815,'en_US','task','','samplereceive','error_state_task_conflict','Error - StateId and TaskId Mismatch',NULL,1),(816,'en_US','task','','samplereceive','update_success','Update completed successfully',NULL,1),(817,'en_US','task','','samplereceive','title_label','Incoming Sample Manager (Active Jobs Only)',NULL,1),(818,'en_US','task','','samplereceive','error_receivedstatus_empty','Update Failed: Please select Received or Never Coming',NULL,1),(819,'en_US','task','','samplereceive','error_receivedstatus_invalid','Update Failed: Action Invalid',NULL,1),(820,'en_US','uiField','','added','label','Field Added',NULL,1),(821,'en_US','uiField','','area','label','Area',NULL,1),(822,'en_US','uiField','','attrName','label','Attribute Name',NULL,1),(823,'en_US','uiField','','attrName','suffix','<font color=\"blue\"> see footnote<sup>1</sup> </font>',NULL,1),(824,'en_US','uiField','','attrValue','label','Attribute Value',NULL,1),(825,'en_US','uiField','','locale','label','Locale',NULL,1),(826,'en_US','uiField','','locale','error','Locale not specified',NULL,1),(827,'en_US','uiField','','name','label','Field Name',NULL,1),(828,'en_US','uiField','','not_unique','error','Property already exists',NULL,1),(829,'en_US','uiField','','removed','data','Field Deleted',NULL,1),(830,'en_US','uiField','','updated','data','Attribute Updated',NULL,1),(831,'en_US','uiField','','updated','label','Field Updated',NULL,1),(832,'en_US','user','','address','label','Address',NULL,1),(833,'en_US','user','','address','metaposition','40',NULL,1),(834,'en_US','user','','auth_login_validate','error','Login Failure. Please provide valid login credentials.',NULL,1),(835,'en_US','user','','building_room','label','Room',NULL,1),(836,'en_US','user','','building_room','metaposition','30',NULL,1),(837,'en_US','user','','building_room','error','Room cannot be empty',NULL,1),(838,'en_US','user','','building_room','constraint','NotEmpty',NULL,1),(839,'en_US','user','','city','label','City',NULL,1),(840,'en_US','user','','city','error','City cannot be empty',NULL,1),(841,'en_US','user','','city','constraint','NotEmpty',NULL,1),(842,'en_US','user','','city','metaposition','50',NULL,1),(843,'en_US','user','','country','label','Country',NULL,1),(844,'en_US','user','','country','error','Country cannot be empty',NULL,1),(845,'en_US','user','','country','control','select:${countries}:code:name',NULL,1),(846,'en_US','user','','country','constraint','NotEmpty',NULL,1),(847,'en_US','user','','country','metaposition','70',NULL,1),(848,'en_US','user','','created','error','User was NOT created. Please fill in required fields.',NULL,1),(849,'en_US','user','','created_success','label','User was created',NULL,1),(850,'en_US','user','','departmentId','control','select:${departments}:departmentId:name',NULL,1),(851,'en_US','user','','departmentId','constraint','NotEmpty',NULL,1),(852,'en_US','user','','departmentId','error','A department must be selected',NULL,1),(853,'en_US','user','','departmentId','label','Department',NULL,1),(854,'en_US','user','','departmentId','metaposition','20',NULL,1),(855,'en_US','user','','email','label','Email',NULL,1),(856,'en_US','user','','email','constraint','NotEmpty',NULL,1),(857,'en_US','user','','email','error','Wrong email address format',NULL,1),(858,'en_US','user','','email_changed_p1','label','Your email address has changed. An email has been sent to your new email address requesting confirmation. Please confirm by clicking the link in the email then <a href=\"../login.do\"/>click here to login</a>',NULL,1),(859,'en_US','user','','email_changed_p2','label','If you have not received an email, requesting confirmation, within a reasonable time period and suspect your email address may have been mis-typed, you may reset your email address by clicking <a href=\"requestEmailChange.do\">here</a>',NULL,1),(860,'en_US','user','','email_change_confirmed','label','Your email address change has been confirmed successfully.',NULL,1),(861,'en_US','user','','email_exists','error','Email already exists in the database',NULL,1),(862,'en_US','user','','fax','label','Fax',NULL,1),(863,'en_US','user','','fax','metaposition','100',NULL,1),(864,'en_US','user','','firstName','label','First Name',NULL,1),(865,'en_US','user','','firstName','constraint','NotEmpty',NULL,1),(866,'en_US','user','','firstName','error','First Name cannot be empty',NULL,1),(867,'en_US','user','','institution','label','Institution',NULL,1),(868,'en_US','user','','institution','error','Institution cannot be empty',NULL,1),(869,'en_US','user','','institution','constraint','NotEmpty',NULL,1),(870,'en_US','user','','institution','metaposition','10',NULL,1),(871,'en_US','user','','isActive','label','Active',NULL,1),(872,'en_US','user','','jobs','label','Jobs',NULL,1),(873,'en_US','user','','job_list','label','View jobs belonging to user in these labs ',NULL,1),(874,'en_US','user','','labusers','label','Lab Users',NULL,1),(875,'en_US','user','','lastName','label','Last Name',NULL,1),(876,'en_US','user','','lastName','constraint','NotEmpty',NULL,1),(877,'en_US','user','','lastName','error','Last Name cannot be empty',NULL,1),(878,'en_US','user','','locale','label','Locale',NULL,1),(879,'en_US','user','','locale','constraint','NotEmpty',NULL,1),(880,'en_US','user','','locale','error','Locale cannot be empty',NULL,1),(881,'en_US','user','','login','label','Login',NULL,1),(882,'en_US','user','','login','constraint','NotEmpty',NULL,1),(883,'en_US','user','','login','error','Login cannot be empty',NULL,1),(884,'en_US','user','','login_exists','error','Login name already exists in the database',NULL,1),(885,'en_US','user','','mypassword','data','Submit',NULL,1),(886,'en_US','user','','mypassword_cannotChange','error','Externally authenticated user cannot change password in WASP',NULL,1),(887,'en_US','user','','mypassword_cur_mismatch','error','Your old password does NOT match the password in our database',NULL,1),(888,'en_US','user','','mypassword_instructions','label','New Password Requirements:<br />At least 8 characters in length<br />Only letters & numbers permitted (no spaces, etc)<br />At least one letter and one number<br />',NULL,1),(889,'en_US','user','','mypassword_missingparam','error','Please provide values for all fields',NULL,1),(890,'en_US','user','','mypassword_newpassword1','label','New Password',NULL,1),(891,'en_US','user','','mypassword_newpassword2','label','Confirm New Password',NULL,1),(892,'en_US','user','','mypassword_new_invalid','error','New password must be at least 8 characters, containing only letters and numbers, with at least one letter and number',NULL,1),(893,'en_US','user','','mypassword_new_mismatch','error','The two entries for your NEW password are NOT identical',NULL,1),(894,'en_US','user','','mypassword_nodiff','error','Your old and new passwords may NOT be the same',NULL,1),(895,'en_US','user','','mypassword_ok','label','Password Has Been Changed',NULL,1),(896,'en_US','user','','mypassword_oldpassword','label','Old Password',NULL,1),(897,'en_US','user','','mypassword_submit','label','Submit',NULL,1),(898,'en_US','user','','password','label','Password',NULL,1),(899,'en_US','user','','password','constraint','NotEmpty',NULL,1),(900,'en_US','user','','password','error','Password cannot be empty',NULL,1),(901,'en_US','user','','phone','label','Phone',NULL,1),(902,'en_US','user','','phone','error','Phone cannot be empty',NULL,1),(903,'en_US','user','','phone','constraint','NotEmpty',NULL,1),(904,'en_US','user','','phone','metaposition','90',NULL,1),(905,'en_US','user','','samples','label','Samples',NULL,1),(906,'en_US','user','','state','label','State',NULL,1),(907,'en_US','user','','state','error','State cannot be empty',NULL,1),(908,'en_US','user','','state','control','select:${states}:code:name',NULL,1),(909,'en_US','user','','state','constraint','NotEmpty',NULL,1),(910,'en_US','user','','state','metaposition','60',NULL,1),(911,'en_US','user','','title','label','Title',NULL,1),(912,'en_US','user','','title','error','Title cannot be empty',NULL,1),(913,'en_US','user','','title','constraint','NotEmpty',NULL,1),(914,'en_US','user','','title','control','select:Prof:Prof;Dr:Dr;Mr:Mr;Ms:Ms;Mrs:Mrs;Miss:Miss',NULL,1),(915,'en_US','user','','title','metaposition','1',NULL,1),(916,'en_US','user','','updated','error','User was NOT updated. Please fill in required fields.',NULL,1),(917,'en_US','user','','updated_fail','error','User was NOT updated.',NULL,1),(918,'en_US','user','','updated_success','label','User was updated',NULL,1),(919,'en_US','user','','userloginandemail_changed_p1','label','Your login and email address has changed. An email has been sent to your new email address requesting confirmation. Please confirm by clicking the link in the email then <a href=\"../login.do\"/>click here to login</a>',NULL,1),(920,'en_US','user','','userloginandemail_changed_p2','label','If you have not received an email, requesting confirmation, within a reasonable time period and suspect your email address may have been mis-typed, you may reset your email address by clicking <a href=\"requestEmailChange.do\">here</a>',NULL,1),(921,'en_US','user','','userlogin_changed_p1','label','Your login has changed. Please <a href=\"../login.do\"/>click here to login</a>',NULL,1),(922,'en_US','user','','user_list','label','List of Users',NULL,1),(923,'en_US','user','','zip','label','Zip',NULL,1),(924,'en_US','user','','zip','error','Zip cannot be empty',NULL,1),(925,'en_US','user','','zip','metaposition','80',NULL,1),(926,'en_US','userDetail','','cancel','label','Cancel',NULL,1),(927,'en_US','userDetail','','change_password','label','Change Password',NULL,1),(928,'en_US','userDetail','','edit','label','Edit',NULL,1),(929,'en_US','userDetail','','edit_as_other','label','Edit (as other)',NULL,1),(930,'en_US','userDetail','','jobs','label','Jobs',NULL,1),(931,'en_US','userDetail','','lab_users','label','Lab Users',NULL,1),(932,'en_US','userDetail','','samples','label','Samples',NULL,1),(933,'en_US','userDetail','','save','label','Save Changes',NULL,1),(934,'en_US','userPending','','action','error','Invalid action. Must be approve or reject only',NULL,1),(935,'en_US','userPending','','action_approve','label','APPROVE',NULL,1),(936,'en_US','userPending','','action_reject','label','REJECT',NULL,1),(937,'en_US','userPending','','address','label','Street',NULL,1),(938,'en_US','userPending','','address','metaposition','40',NULL,1),(939,'en_US','userPending','','approved','label','User account application successfully approved',NULL,1),(940,'en_US','userPending','','building_room','constraint','NotEmpty',NULL,1),(941,'en_US','userPending','','building_room','error','Room cannot be empty',NULL,1),(942,'en_US','userPending','','building_room','label','Building / Room',NULL,1),(943,'en_US','userPending','','building_room','metaposition','30',NULL,1),(944,'en_US','userPending','','captcha','error','Captcha text incorrect',NULL,1),(945,'en_US','userPending','','captcha','label','Captcha text',NULL,1),(946,'en_US','userPending','','email','label','Email',NULL,1),(947,'en_US','userPending','','email','error','Must be correctly formatted',NULL,1),(948,'en_US','userPending','','emailconfirmed','label','Your email address is confirmed and your principal investigator has been emailed to request confirmation of your eligibility to join their lab. You are advised to contact them to request they do this if your account does not become activated in good time.',NULL,1),(949,'en_US','userPending','','emailsent','label','Thank you for your account request. You have been sent an email with instructions as to how to confirm your email address. Please click to <a href=\"../login.do\"/>Login</a>',NULL,1),(950,'en_US','userPending','','email_exists','error','Email already exists in the database',NULL,1),(951,'en_US','userPending','','external_authentication','error','Authentication Failed (Login Name or Password incorrect)',NULL,1),(952,'en_US','userPending','','fax','label','Fax',NULL,1),(953,'en_US','userPending','','fax','metaposition','100',NULL,1),(954,'en_US','userPending','','firstName','label','First Name',NULL,1),(955,'en_US','userPending','','firstName','error','First Name cannot be empty',NULL,1),(956,'en_US','userPending','','form_instructions','label','Please fill out the form below, making sure to complete all required fields marked with an asterisk',NULL,1),(957,'en_US','userPending','','labid_mismatch','error','Lab id mismatch with user-pending id',NULL,1),(958,'en_US','userPending','','lastName','label','Last Name',NULL,1),(959,'en_US','userPending','','lastName','error','Last Name cannot be empty',NULL,1),(960,'en_US','userPending','','locale','constraint','NotEmpty',NULL,1),(961,'en_US','userPending','','locale','label','Locale',NULL,1),(962,'en_US','userPending','','locale','error','A locale must be selected',NULL,1),(963,'en_US','userPending','','login','label','Login',NULL,1),(964,'en_US','userPending','','login','error','Login cannot be empty',NULL,1),(965,'en_US','userPending','','login_exists','error','Login name already exists in the database',NULL,1),(966,'en_US','userPending','','login_malformed','error','Contains invalid characters',NULL,1),(967,'en_US','userPending','','no_pending_users','label','There are currently no pending users awaiting approval',NULL,1),(968,'en_US','userPending','','page','label','New User',NULL,1),(969,'en_US','userPending','','password','label','Password',NULL,1),(970,'en_US','userPending','','password','error','Password cannot be empty',NULL,1),(971,'en_US','userPending','','password2','label','Re-confirm Password',NULL,1),(972,'en_US','userPending','','password2','error','Re-confirm password cannot be empty',NULL,1),(973,'en_US','userPending','','password_invalid','error','Password must be at least 8 characters, containing only letters and numbers, with at least one letter and number',NULL,1),(974,'en_US','userPending','','password_mismatch','error','The two entries for your password are NOT identical',NULL,1),(975,'en_US','userPending','','phone','label','Phone',NULL,1),(976,'en_US','userPending','','phone','error','Phone cannot be empty',NULL,1),(977,'en_US','userPending','','phone','constraint','NotEmpty',NULL,1),(978,'en_US','userPending','','phone','metaposition','90',NULL,1),(979,'en_US','userPending','','primaryuserid','label','PI Wasp Username',NULL,1),(980,'en_US','userPending','','primaryuserid','error','PI Wasp Username cannot be empty',NULL,1),(981,'en_US','userPending','','primaryuserid','constraint','isValidPiId',NULL,1),(982,'en_US','userPending','','primaryuserid','metaposition','1',NULL,1),(983,'en_US','userPending','','primaryuserid_notvalid','error','Not an active registered PI Username',NULL,1),(984,'en_US','userPending','','rejected','label','User account application successfully rejected',NULL,1),(985,'en_US','userPending','','status_not_pending','error','Pending user is already approved or rejected',NULL,1),(986,'en_US','userPending','','submit','label','Apply for Account',NULL,1),(987,'en_US','userPending','','title','label','Title',NULL,1),(988,'en_US','userPending','','title','error','Title cannot be empty',NULL,1),(989,'en_US','userPending','','title','constraint','NotEmpty',NULL,1),(990,'en_US','userPending','','title','control','select:Prof:Prof;Dr:Dr;Mr:Mr;Ms:Ms;Mrs:Mrs;Miss:Miss',NULL,1),(991,'en_US','userPending','','title','metaposition','5',NULL,1),(992,'en_US','wasp','','authentication','label','WASP',NULL,1),(993,'en_US','wasp','','default_select','label','-- select --',NULL,1),(994,'en_US','workflow','','cancel','label','Cancel',NULL,1),(995,'en_US','workflow','','configure','label','Resources and Software',NULL,1),(996,'en_US','workflow','','isActive','label','Is Active?',NULL,1),(997,'en_US','workflow','','listname','label','List of Workflows',NULL,1),(998,'en_US','workflow','','missing_resource_type','error','At least one option must be checked for each resource or software type',NULL,1),(999,'en_US','workflow','','name','label','Workflow Name',NULL,1),(1000,'en_US','workflow','','non-configured_parameter','error','At least one option must be checked for each parameter presented for a selected resource',NULL,1),(1001,'en_US','workflow','','submit','label','Save Choices',NULL,1),(1002,'en_US','workflow','','workflowId','label','Workflow Id',NULL,1),(1003,'en_US','contentTypeMap','','arc','data','application/octet-stream',NULL,1),(1004,'en_US','contentTypeMap','','bin','data','application/octet-stream',NULL,1),(1005,'en_US','contentTypeMap','','dump','data','application/octet-stream',NULL,1),(1006,'en_US','contentTypeMap','','dvi','data','application/x-dvi',NULL,1),(1007,'en_US','contentTypeMap','','etx','data','text/x-setext',NULL,1),(1008,'en_US','contentTypeMap','','exe','data','application/octet-stream',NULL,1),(1009,'en_US','contentTypeMap','','fpix','data','image/vnd.fpx',NULL,1),(1010,'en_US','contentTypeMap','','fpx','data','image/vnd.fpx',NULL,1),(1011,'en_US','contentTypeMap','','gz','data','application/octet-stream',NULL,1),(1012,'en_US','contentTypeMap','','hqx','data','application/octet-stream',NULL,1),(1013,'en_US','contentTypeMap','','ief','data','image/ief',NULL,1),(1014,'en_US','contentTypeMap','','latex','data','application/x-latex',NULL,1),(1015,'en_US','contentTypeMap','','lib','data','application/octet-stream',NULL,1),(1016,'en_US','contentTypeMap','','man','data','application/x-troff-man',NULL,1),(1017,'en_US','contentTypeMap','','me','data','application/x-troff-me',NULL,1),(1018,'en_US','contentTypeMap','','mime','data','message/rfc822',NULL,1),(1019,'en_US','contentTypeMap','','mov','data','video/quicktime',NULL,1),(1020,'en_US','contentTypeMap','','movie','data','video/x-sgi-movie',NULL,1),(1021,'en_US','contentTypeMap','','ms','data','application/x-troff-ms',NULL,1),(1022,'en_US','contentTypeMap','','mv','data','video/x-sgi-movie',NULL,1),(1023,'en_US','contentTypeMap','','obj','data','application/octet-stream',NULL,1),(1024,'en_US','contentTypeMap','','oda','data','application/oda',NULL,1),(1025,'en_US','contentTypeMap','','pbm','data','image/x-portable-bitmap',NULL,1),(1026,'en_US','contentTypeMap','','pdf','data','application/pdf',NULL,1),(1027,'en_US','contentTypeMap','','pgm','data','image/x-portable-graymap',NULL,1),(1028,'en_US','contentTypeMap','','pnm','data','image/x-portable-anymap',NULL,1),(1029,'en_US','contentTypeMap','','ppm','data','image/x-portable-pixmap',NULL,1),(1030,'en_US','contentTypeMap','','qt','data','video/quicktime',NULL,1),(1031,'en_US','contentTypeMap','','ras','data','image/x-cmu-rast',NULL,1),(1032,'en_US','contentTypeMap','','rgb','data','image/x-rgb',NULL,1),(1033,'en_US','contentTypeMap','','roff','data','application/x-troff',NULL,1),(1034,'en_US','contentTypeMap','','saveme','data','application/octet-stream',NULL,1),(1035,'en_US','contentTypeMap','','src','data','application/x-wais-source',NULL,1),(1036,'en_US','contentTypeMap','','t','data','application/x-troff',NULL,1),(1037,'en_US','contentTypeMap','','tex','data','application/x-tex',NULL,1),(1038,'en_US','contentTypeMap','','texi','data','application/x-texinfo',NULL,1),(1039,'en_US','contentTypeMap','','texinfo','data','application/x-texinfo',NULL,1),(1040,'en_US','contentTypeMap','','tr','data','application/x-troff',NULL,1),(1041,'en_US','contentTypeMap','','tsv','data','text/tab-separated-values',NULL,1),(1042,'en_US','contentTypeMap','','wsrc','data','application/x-wais-source',NULL,1),(1043,'en_US','contentTypeMap','','xbm','data','image/x-xbitmap',NULL,1),(1044,'en_US','contentTypeMap','','xml','data','application/xml',NULL,1),(1045,'en_US','contentTypeMap','','xpm','data','image/x-xbitmap',NULL,1),(1046,'en_US','contentTypeMap','','xwd','data','image/x-xwindowdump',NULL,1),(1047,'en_US','contentTypeMap','','zip','data','application/octet-stream',NULL,1),(1048,'en_US','wasp','','isAuthenticationExternal','data','FALSE',NULL,1),(1049,'en_US','illuminaHiSeq2000',NULL,'readLength','constraint','NotEmpty','2012-06-13 19:23:11',0),(1050,'en_US','illuminaHiSeq2000',NULL,'readLength','metaposition','10','2012-06-13 19:23:11',0),(1051,'en_US','illuminaHiSeq2000',NULL,'readLength','label','Read Length','2012-06-13 19:23:11',0),(1052,'en_US','illuminaHiSeq2000',NULL,'readLength','control','select:${resourceOptions.get(readlength)}:value:label','2012-06-13 19:23:11',0),(1053,'en_US','illuminaHiSeq2000',NULL,'readLength','error','You must choose a read length','2012-06-13 19:23:11',0),(1054,'en_US','illuminaHiSeq2000',NULL,'readType','constraint','NotEmpty','2012-06-13 19:23:11',0),(1055,'en_US','illuminaHiSeq2000',NULL,'readType','metaposition','20','2012-06-13 19:23:11',0),(1056,'en_US','illuminaHiSeq2000',NULL,'readType','label','Read Type','2012-06-13 19:23:11',0),(1057,'en_US','illuminaHiSeq2000',NULL,'readType','control','select:${resourceOptions.get(readType)}:value:label','2012-06-13 19:23:11',0),(1058,'en_US','illuminaHiSeq2000',NULL,'readType','error','You must choose a read type','2012-06-13 19:23:11',0),(1059,'en_US','macsPeakcaller',NULL,'pValueCutoff','metaposition','10','2012-06-13 19:23:11',0),(1060,'en_US','macsPeakcaller',NULL,'pValueCutoff','type','NUMBER','2012-06-13 19:23:11',0),(1061,'en_US','macsPeakcaller',NULL,'pValueCutoff','default','100000','2012-06-13 19:23:11',0),(1062,'en_US','macsPeakcaller',NULL,'pValueCutoff','label','p Value Cutoff','2012-06-13 19:23:11',0),(1063,'en_US','macsPeakcaller',NULL,'bandwidth','metaposition','20','2012-06-13 19:23:11',0),(1064,'en_US','macsPeakcaller',NULL,'bandwidth','type','NUMBER','2012-06-13 19:23:11',0),(1065,'en_US','macsPeakcaller',NULL,'bandwidth','range','0:5000','2012-06-13 19:23:11',0),(1066,'en_US','macsPeakcaller',NULL,'bandwidth','default','300','2012-06-13 19:23:11',0),(1067,'en_US','macsPeakcaller',NULL,'bandwidth','label','Bandwidth','2012-06-13 19:23:11',0),(1068,'en_US','macsPeakcaller',NULL,'genomeSize','metaposition','30','2012-06-13 19:23:11',0),(1069,'en_US','macsPeakcaller',NULL,'genomeSize','type','NUMBER','2012-06-13 19:23:11',0),(1070,'en_US','macsPeakcaller',NULL,'genomeSize','default','1000000000','2012-06-13 19:23:11',0),(1071,'en_US','macsPeakcaller',NULL,'genomeSize','label','Effective Genome Size','2012-06-13 19:23:11',0),(1072,'en_US','macsPeakcaller',NULL,'keepDup','metaposition','40','2012-06-13 19:23:11',0),(1073,'en_US','macsPeakcaller',NULL,'keepDup','default','no','2012-06-13 19:23:11',0),(1074,'en_US','macsPeakcaller',NULL,'keepDup','label','Keep Duplicates?','2012-06-13 19:23:11',0),(1075,'en_US','macsPeakcaller',NULL,'keepDup','control','select:yes:yes;no:no','2012-06-13 19:23:11',0),(1076,'en_US','bowtieAligner',NULL,'mismatches','constraint','NotEmpty','2012-06-13 19:23:11',0),(1077,'en_US','bowtieAligner',NULL,'mismatches','metaposition','10','2012-06-13 19:23:11',0),(1078,'en_US','bowtieAligner',NULL,'mismatches','type','INTEGER','2012-06-13 19:23:11',0),(1079,'en_US','bowtieAligner',NULL,'mismatches','range','0:3','2012-06-13 19:23:11',0),(1080,'en_US','bowtieAligner',NULL,'mismatches','default','2','2012-06-13 19:23:11',0),(1081,'en_US','bowtieAligner',NULL,'mismatches','label','Number of mismatches (0-3)','2012-06-13 19:23:11',0),(1082,'en_US','bowtieAligner',NULL,'mismatches','error','A value for number of mismatches must be specified','2012-06-13 19:23:11',0),(1083,'en_US','bowtieAligner',NULL,'seedLength','constraint','NotEmpty','2012-06-13 19:23:11',0),(1084,'en_US','bowtieAligner',NULL,'seedLength','metaposition','20','2012-06-13 19:23:11',0),(1085,'en_US','bowtieAligner',NULL,'seedLength','type','NUMBER','2012-06-13 19:23:11',0),(1086,'en_US','bowtieAligner',NULL,'seedLength','range','5:1000','2012-06-13 19:23:11',0),(1087,'en_US','bowtieAligner',NULL,'seedLength','default','32','2012-06-13 19:23:11',0),(1088,'en_US','bowtieAligner',NULL,'seedLength','label','Seed Length','2012-06-13 19:23:11',0),(1089,'en_US','bowtieAligner',NULL,'seedLength','error','A value for seed length must be specified','2012-06-13 19:23:11',0),(1090,'en_US','bowtieAligner',NULL,'reportAlignmentNum','constraint','NotEmpty','2012-06-13 19:23:11',0),(1091,'en_US','bowtieAligner',NULL,'reportAlignmentNum','metaposition','30','2012-06-13 19:23:11',0),(1092,'en_US','bowtieAligner',NULL,'reportAlignmentNum','type','INTEGER','2012-06-13 19:23:11',0),(1093,'en_US','bowtieAligner',NULL,'reportAlignmentNum','default','1','2012-06-13 19:23:11',0),(1094,'en_US','bowtieAligner',NULL,'reportAlignmentNum','label','Number of Alignments to Report','2012-06-13 19:23:11',0),(1095,'en_US','bowtieAligner',NULL,'reportAlignmentNum','error','A value for number of alignments must be specified','2012-06-13 19:23:11',0),(1096,'en_US','bowtieAligner',NULL,'discardThreshold','constraint','NotEmpty','2012-06-13 19:23:11',0),(1097,'en_US','bowtieAligner',NULL,'discardThreshold','metaposition','40','2012-06-13 19:23:11',0),(1098,'en_US','bowtieAligner',NULL,'discardThreshold','type','INTEGER','2012-06-13 19:23:11',0),(1099,'en_US','bowtieAligner',NULL,'discardThreshold','default','1','2012-06-13 19:23:11',0),(1100,'en_US','bowtieAligner',NULL,'discardThreshold','label','Discard if more than how many alignments?','2012-06-13 19:23:11',0),(1101,'en_US','bowtieAligner',NULL,'discardThreshold','error','A value for the discard threshold must be specified','2012-06-13 19:23:11',0),(1102,'en_US','bowtieAligner',NULL,'isBest','constraint','NotEmpty','2012-06-13 19:23:11',0),(1103,'en_US','bowtieAligner',NULL,'isBest','metaposition','50','2012-06-13 19:23:11',0),(1104,'en_US','bowtieAligner',NULL,'isBest','default','yes','2012-06-13 19:23:11',0),(1105,'en_US','bowtieAligner',NULL,'isBest','label','report only best alignments?','2012-06-13 19:23:11',0),(1106,'en_US','bowtieAligner',NULL,'isBest','control','select:yes:yes;no:no','2012-06-13 19:23:11',0),(1107,'en_US','bowtieAligner',NULL,'isBest','error','A value must be selected','2012-06-13 19:23:11',0),(1108,'en_US','bisulseqPipeline',NULL,'SeqMode','metaposition','10','2012-06-13 19:23:11',0),(1109,'en_US','bisulseqPipeline',NULL,'SeqMode','default','no','2012-06-13 19:23:11',0),(1110,'en_US','bisulseqPipeline',NULL,'SeqMode','label','Is Reduced Representation Bisul-Seq?','2012-06-13 19:23:11',0),(1111,'en_US','bisulseqPipeline',NULL,'SeqMode','control','select:yes:yes;no:no','2012-06-13 19:23:11',0),(1112,'en_US','bisulseqPipeline',NULL,'NumMismatch','metaposition','20','2012-06-13 19:23:11',0),(1113,'en_US','bisulseqPipeline',NULL,'NumMismatch','type','NUMBER','2012-06-13 19:23:11',0),(1114,'en_US','bisulseqPipeline',NULL,'NumMismatch','range','2:15','2012-06-13 19:23:11',0),(1115,'en_US','bisulseqPipeline',NULL,'NumMismatch','default','2','2012-06-13 19:23:11',0),(1116,'en_US','bisulseqPipeline',NULL,'NumMismatch','label','Number of mismatch allowed','2012-06-13 19:23:11',0),(1117,'en_US','bisulseqPipeline',NULL,'ReportMode','metaposition','30','2012-06-13 19:23:11',0),(1118,'en_US','bisulseqPipeline',NULL,'ReportMode','default','yes','2012-06-13 19:23:11',0),(1119,'en_US','bisulseqPipeline',NULL,'ReportMode','label','Only report unique hits?','2012-06-13 19:23:11',0),(1120,'en_US','bisulseqPipeline',NULL,'ReportMode','control','select:yes:yes;no:no','2012-06-13 19:23:11',0),(1121,'en_US','bisulseqPipeline',NULL,'TrimQ','metaposition','40','2012-06-13 19:23:11',0),(1122,'en_US','bisulseqPipeline',NULL,'TrimQ','type','NUMBER','2012-06-13 19:23:11',0),(1123,'en_US','bisulseqPipeline',NULL,'TrimQ','range','0:30','2012-06-13 19:23:11',0),(1124,'en_US','bisulseqPipeline',NULL,'TrimQ','default','0','2012-06-13 19:23:11',0),(1125,'en_US','bisulseqPipeline',NULL,'TrimQ','label','Quality threshold in trimming','2012-06-13 19:23:11',0),(1126,'en_US','bisulseqPipeline',NULL,'MapFormard','metaposition','50','2012-06-13 19:23:11',0),(1127,'en_US','bisulseqPipeline',NULL,'MapFormard','default','yes','2012-06-13 19:23:11',0),(1128,'en_US','bisulseqPipeline',NULL,'MapFormard','label','Only map to forward strands?','2012-06-13 19:23:11',0),(1129,'en_US','bisulseqPipeline',NULL,'MapFormard','control','select:yes:yes;no:no','2012-06-13 19:23:11',0),(1130,'en_US','helptagPipeline',NULL,'pValueCutoff','metaposition','10','2012-06-13 19:23:11',0),(1131,'en_US','helptagPipeline',NULL,'pValueCutoff','type','NUMBER','2012-06-13 19:23:11',0),(1132,'en_US','helptagPipeline',NULL,'pValueCutoff','default','100000','2012-06-13 19:23:11',0),(1133,'en_US','helptagPipeline',NULL,'pValueCutoff','label','p Value Cutoff','2012-06-13 19:23:11',0),(1134,'en_US','helptagPipeline',NULL,'bandwidth','metaposition','20','2012-06-13 19:23:11',0),(1135,'en_US','helptagPipeline',NULL,'bandwidth','type','NUMBER','2012-06-13 19:23:11',0),(1136,'en_US','helptagPipeline',NULL,'bandwidth','range','0:5000','2012-06-13 19:23:11',0),(1137,'en_US','helptagPipeline',NULL,'bandwidth','default','300','2012-06-13 19:23:11',0),(1138,'en_US','helptagPipeline',NULL,'bandwidth','label','Bandwidth','2012-06-13 19:23:11',0),(1139,'en_US','helptagPipeline',NULL,'genomeSize','metaposition','30','2012-06-13 19:23:11',0),(1140,'en_US','helptagPipeline',NULL,'genomeSize','type','NUMBER','2012-06-13 19:23:11',0),(1141,'en_US','helptagPipeline',NULL,'genomeSize','default','1000000000','2012-06-13 19:23:11',0),(1142,'en_US','helptagPipeline',NULL,'genomeSize','label','Effective Genome Size','2012-06-13 19:23:11',0),(1143,'en_US','helptagPipeline',NULL,'keepDup','metaposition','40','2012-06-13 19:23:11',0),(1144,'en_US','helptagPipeline',NULL,'keepDup','default','no','2012-06-13 19:23:11',0),(1145,'en_US','helptagPipeline',NULL,'keepDup','label','Keep Duplicates?','2012-06-13 19:23:11',0),(1146,'en_US','helptagPipeline',NULL,'keepDup','control','select:yes:yes;no:no','2012-06-13 19:23:11',0),(1147,'en_US','genericBiomolecule',NULL,'species','constraint','NotEmpty','2012-06-13 19:23:11',0),(1148,'en_US','genericBiomolecule',NULL,'species','metaposition','10','2012-06-13 19:23:11',0),(1149,'en_US','genericBiomolecule',NULL,'species','label','Species','2012-06-13 19:23:11',0),(1150,'en_US','genericBiomolecule',NULL,'species','control','select:Human:Human;Mouse:Mouse','2012-06-13 19:23:11',0),(1151,'en_US','genericBiomolecule',NULL,'species','error','You must select a species','2012-06-13 19:23:11',0),(1152,'en_US','genericLibrary',NULL,'concentration','constraint','NotEmpty','2012-06-13 19:23:11',0),(1153,'en_US','genericLibrary',NULL,'concentration','metaposition','10','2012-06-13 19:23:11',0),(1154,'en_US','genericLibrary',NULL,'concentration','type','NUMBER','2012-06-13 19:23:11',0),(1155,'en_US','genericLibrary',NULL,'concentration','label','Concentration (ng/?l)','2012-06-13 19:36:24',0),(1156,'en_US','genericLibrary',NULL,'concentration','error','You must provide a concentration','2012-06-13 19:23:11',0),(1157,'en_US','genericLibrary',NULL,'volume','constraint','NotEmpty','2012-06-13 19:23:11',0),(1158,'en_US','genericLibrary',NULL,'volume','metaposition','20','2012-06-13 19:23:11',0),(1159,'en_US','genericLibrary',NULL,'volume','type','NUMBER','2012-06-13 19:23:11',0),(1160,'en_US','genericLibrary',NULL,'volume','label','Volume (?l)','2012-06-13 19:36:24',0),(1161,'en_US','genericLibrary',NULL,'volume','error','You must provide a volume','2012-06-13 19:23:11',0),(1162,'en_US','genericLibrary',NULL,'buffer','constraint','NotEmpty','2012-06-13 19:23:11',0),(1163,'en_US','genericLibrary',NULL,'buffer','metaposition','30','2012-06-13 19:23:11',0),(1164,'en_US','genericLibrary',NULL,'buffer','label','Buffer','2012-06-13 19:23:11',0),(1165,'en_US','genericLibrary',NULL,'buffer','control','select:TE:TE;Water:Water','2012-06-13 19:23:11',0),(1166,'en_US','genericLibrary',NULL,'buffer','error','You must select a buffer type','2012-06-13 19:23:11',0),(1167,'en_US','genericLibrary',NULL,'adaptorset','constraint','NotEmpty','2012-06-13 19:23:11',0),(1168,'en_US','genericLibrary',NULL,'adaptorset','metaposition','40','2012-06-13 19:23:11',0),(1169,'en_US','genericLibrary',NULL,'adaptorset','label','Adaptor Set','2012-06-13 19:23:11',0),(1170,'en_US','genericLibrary',NULL,'adaptorset','control','select:${adaptorsets}:adaptorsetId:name','2012-06-13 19:23:11',0),(1171,'en_US','genericLibrary',NULL,'adaptorset','error','You must choose an adaptor set','2012-06-13 19:23:11',0),(1172,'en_US','genericLibrary',NULL,'adaptor','constraint','NotEmpty','2012-06-13 19:23:11',0),(1173,'en_US','genericLibrary',NULL,'adaptor','metaposition','50','2012-06-13 19:23:11',0),(1174,'en_US','genericLibrary',NULL,'adaptor','label','Adaptor','2012-06-13 19:23:11',0),(1175,'en_US','genericLibrary',NULL,'adaptor','control','select:${adaptors}:adaptorId:name','2012-06-13 19:23:11',0),(1176,'en_US','genericLibrary',NULL,'adaptor','error','You must choose an adaptor','2012-06-13 19:23:11',0),(1177,'en_US','genericLibrary',NULL,'size','constraint','NotEmpty','2012-06-13 19:23:11',0),(1178,'en_US','genericLibrary',NULL,'size','metaposition','60','2012-06-13 19:23:11',0),(1179,'en_US','genericLibrary',NULL,'size','type','NUMBER','2012-06-13 19:23:11',0),(1180,'en_US','genericLibrary',NULL,'size','label','Library Size','2012-06-13 19:23:11',0),(1181,'en_US','genericLibrary',NULL,'size','error','You must specify the library size','2012-06-13 19:23:11',0),(1182,'en_US','genericLibrary',NULL,'sizeSd','constraint','NotEmpty','2012-06-13 19:23:11',0),(1183,'en_US','genericLibrary',NULL,'sizeSd','metaposition','70','2012-06-13 19:23:11',0),(1184,'en_US','genericLibrary',NULL,'sizeSd','type','NUMBER','2012-06-13 19:23:11',0),(1185,'en_US','genericLibrary',NULL,'sizeSd','label','Library Size SD','2012-06-13 19:23:11',0),(1186,'en_US','genericLibrary',NULL,'sizeSd','error','You must specify the library size standard deviation','2012-06-13 19:23:11',0),(1187,'en_US','illuminaFlowcellV3',NULL,'cellName','label','Lane','2012-06-13 19:23:11',0),(1188,'en_US','illuminaFlowcellV3',NULL,'platformUnitName','label','Flow Cell','2012-06-13 19:23:11',0),(1189,'en_US','genericDna',NULL,'concentration','constraint','NotEmpty','2012-06-13 19:23:11',0),(1190,'en_US','genericDna',NULL,'concentration','metaposition','10','2012-06-13 19:23:11',0),(1191,'en_US','genericDna',NULL,'concentration','type','NUMBER','2012-06-13 19:23:11',0),(1192,'en_US','genericDna',NULL,'concentration','label','Concentration (ng/?l)','2012-06-13 19:36:24',0),(1193,'en_US','genericDna',NULL,'concentration','error','You must provide a concentration','2012-06-13 19:23:11',0),(1194,'en_US','genericDna',NULL,'volume','constraint','NotEmpty','2012-06-13 19:23:11',0),(1195,'en_US','genericDna',NULL,'volume','metaposition','20','2012-06-13 19:23:11',0),(1196,'en_US','genericDna',NULL,'volume','type','NUMBER','2012-06-13 19:23:11',0),(1197,'en_US','genericDna',NULL,'volume','label','Volume (?l)','2012-06-13 19:36:24',0),(1198,'en_US','genericDna',NULL,'volume','error','You must provide a volume','2012-06-13 19:23:11',0),(1199,'en_US','genericDna',NULL,'buffer','constraint','NotEmpty','2012-06-13 19:23:11',0),(1200,'en_US','genericDna',NULL,'buffer','metaposition','30','2012-06-13 19:23:11',0),(1201,'en_US','genericDna',NULL,'buffer','label','Buffer','2012-06-13 19:23:11',0),(1202,'en_US','genericDna',NULL,'buffer','control','select:TE:TE;Water:Water','2012-06-13 19:23:11',0),(1203,'en_US','genericDna',NULL,'buffer','error','You must select a buffer type','2012-06-13 19:23:11',0),(1204,'en_US','genericDna',NULL,'A260_280','constraint','NotEmpty','2012-06-13 19:23:11',0),(1205,'en_US','genericDna',NULL,'A260_280','metaposition','40','2012-06-13 19:23:11',0),(1206,'en_US','genericDna',NULL,'A260_280','type','NUMBER','2012-06-13 19:23:11',0),(1207,'en_US','genericDna',NULL,'A260_280','label','A260/280','2012-06-13 19:23:11',0),(1208,'en_US','genericDna',NULL,'A260_280','error','You must provide an A260/280 reading','2012-06-13 19:23:11',0),(1209,'en_US','genericDna',NULL,'A260_230','constraint','NotEmpty','2012-06-13 19:23:11',0),(1210,'en_US','genericDna',NULL,'A260_230','metaposition','50','2012-06-13 19:23:11',0),(1211,'en_US','genericDna',NULL,'A260_230','type','NUMBER','2012-06-13 19:23:11',0),(1212,'en_US','genericDna',NULL,'A260_230','label','A260/230','2012-06-13 19:23:11',0),(1213,'en_US','genericDna',NULL,'A260_230','error','You must provide an A260/230 reading','2012-06-13 19:23:11',0),(1214,'en_US','bisulseqDna',NULL,'fragmentSize','constraint','NotEmpty','2012-06-13 19:23:11',0),(1215,'en_US','bisulseqDna',NULL,'fragmentSize','metaposition','10','2012-06-13 19:23:11',0),(1216,'en_US','bisulseqDna',NULL,'fragmentSize','type','NUMBER','2012-06-13 19:23:11',0),(1217,'en_US','bisulseqDna',NULL,'fragmentSize','label','Average Fragmentation Size','2012-06-13 19:23:11',0),(1218,'en_US','bisulseqDna',NULL,'fragmentSize','error','You must provide a fragmentSize','2012-06-13 19:23:11',0),(1219,'en_US','bisulseqDna',NULL,'fragmentSizeSD','constraint','NotEmpty','2012-06-13 19:23:11',0),(1220,'en_US','bisulseqDna',NULL,'fragmentSizeSD','metaposition','20','2012-06-13 19:23:11',0),(1221,'en_US','bisulseqDna',NULL,'fragmentSizeSD','type','NUMBER','2012-06-13 19:23:11',0),(1222,'en_US','bisulseqDna',NULL,'fragmentSizeSD','label','Fragmentation Size Std. Dev.','2012-06-13 19:23:11',0),(1223,'en_US','bisulseqDna',NULL,'fragmentSizeSD','error','You must provide a standard deviation','2012-06-13 19:23:11',0),(1224,'en_US','bisulseqDna',NULL,'antibody','metaposition','30','2012-06-13 19:23:11',0),(1225,'en_US','bisulseqDna',NULL,'antibody','label','Antibody','2012-06-13 19:23:11',0),(1226,'en_US','chipseqDna',NULL,'fragmentSize','constraint','NotEmpty','2012-06-13 19:23:11',0),(1227,'en_US','chipseqDna',NULL,'fragmentSize','metaposition','10','2012-06-13 19:23:11',0),(1228,'en_US','chipseqDna',NULL,'fragmentSize','type','NUMBER','2012-06-13 19:23:11',0),(1229,'en_US','chipseqDna',NULL,'fragmentSize','label','Average Fragmentation Size','2012-06-13 19:23:11',0),(1230,'en_US','chipseqDna',NULL,'fragmentSize','error','You must provide a fragmentSize','2012-06-13 19:23:11',0),(1231,'en_US','chipseqDna',NULL,'fragmentSizeSD','constraint','NotEmpty','2012-06-13 19:23:11',0),(1232,'en_US','chipseqDna',NULL,'fragmentSizeSD','metaposition','20','2012-06-13 19:23:11',0),(1233,'en_US','chipseqDna',NULL,'fragmentSizeSD','type','NUMBER','2012-06-13 19:23:11',0),(1234,'en_US','chipseqDna',NULL,'fragmentSizeSD','label','Fragmentation Size Std. Dev.','2012-06-13 19:23:11',0),(1235,'en_US','chipseqDna',NULL,'fragmentSizeSD','error','You must provide a standard deviation','2012-06-13 19:23:11',0),(1236,'en_US','chipseqDna',NULL,'antibody','metaposition','30','2012-06-13 19:23:11',0),(1237,'en_US','chipseqDna',NULL,'antibody','label','Antibody','2012-06-13 19:23:11',0),(1238,'en_US','helptagLibrary',NULL,'fragmentSize','constraint','NotEmpty','2012-06-13 19:23:12',0),(1239,'en_US','helptagLibrary',NULL,'fragmentSize','metaposition','10','2012-06-13 19:23:12',0),(1240,'en_US','helptagLibrary',NULL,'fragmentSize','type','NUMBER','2012-06-13 19:23:12',0),(1241,'en_US','helptagLibrary',NULL,'fragmentSize','label','Average Fragmentation Size','2012-06-13 19:23:12',0),(1242,'en_US','helptagLibrary',NULL,'fragmentSize','error','You must provide a fragmentSize','2012-06-13 19:23:12',0),(1243,'en_US','helptagLibrary',NULL,'fragmentSizeSD','constraint','NotEmpty','2012-06-13 19:23:12',0),(1244,'en_US','helptagLibrary',NULL,'fragmentSizeSD','metaposition','20','2012-06-13 19:23:12',0),(1245,'en_US','helptagLibrary',NULL,'fragmentSizeSD','type','NUMBER','2012-06-13 19:23:12',0),(1246,'en_US','helptagLibrary',NULL,'fragmentSizeSD','label','Fragmentation Size Std. Dev.','2012-06-13 19:23:12',0),(1247,'en_US','helptagLibrary',NULL,'fragmentSizeSD','error','You must provide a standard deviation','2012-06-13 19:23:12',0),(1248,'en_US','helptagLibrary',NULL,'antibody','metaposition','30','2012-06-13 19:23:12',0),(1249,'en_US','helptagLibrary',NULL,'antibody','label','Antibody','2012-06-13 19:23:12',0),(1250,'en_US','daApprovalTask',NULL,'tmpl','tmpl','Tmpl','2012-06-13 19:23:12',0),(1251,'en_US','quoteJob',NULL,'tmpl','tmpl','Tmpl','2012-06-13 19:23:12',0),(1252,'en_US','boneShakerTask',NULL,'tmpl','tmpl','Tmpl','2012-06-13 19:23:12',0),(1253,'en_US','runQcApprovalTask',NULL,'tmpl','tmpl','Tmpl','2012-06-13 19:23:12',0),(1254,'en_US','bisulSeq',NULL,'workflow','label','BISUL Seq','2012-06-13 19:23:12',0),(1255,'en_US','bisulSeq',NULL,'jobsubmit/modifymeta','label','Modify BisulSeq Metadata','2012-06-13 19:23:12',0),(1256,'en_US','bisulSeq',NULL,'jobsubmit/resource/mps','label','MPS Sequencer Options','2012-06-13 19:23:12',0),(1257,'en_US','bisulSeq',NULL,'jobsubmit/samples','label','Samples','2012-06-13 19:23:12',0),(1258,'en_US','bisulSeq',NULL,'jobsubmit/cells','label','DNA Sequencer Cells','2012-06-13 19:23:12',0),(1259,'en_US','bisulSeq',NULL,'jobsubmit/software/bisulseqPipeline','label','BISUL-seq Pipeline Selection','2012-06-13 19:23:12',0),(1260,'en_US','bisulSeq',NULL,'jobsubmit/verify','label','Verify Submission','2012-06-13 19:23:12',0),(1261,'en_US','chipSeq',NULL,'workflow','label','Chip Seq','2012-06-13 19:23:12',0),(1262,'en_US','chipSeq',NULL,'jobsubmit/modifymeta','label','ModifyChipSeq Metadata','2012-06-13 19:23:12',0),(1263,'en_US','chipSeq',NULL,'jobsubmit/resource/mps','label','MPS Sequencer Options','2012-06-13 19:23:12',0),(1264,'en_US','chipSeq',NULL,'jobsubmit/samples','label','Samples','2012-06-13 19:23:12',0),(1265,'en_US','chipSeq',NULL,'jobsubmit/cells','label','DNA Sequencer Cells','2012-06-13 19:23:12',0),(1266,'en_US','chipSeq',NULL,'jobsubmit/chipSeq/pair','label','IP vs Input Pairings','2012-06-13 19:23:12',0),(1267,'en_US','chipSeq',NULL,'jobsubmit/software/aligner','label','Aligner Selection','2012-06-13 19:23:12',0),(1268,'en_US','chipSeq',NULL,'jobsubmit/software/peakcaller','label','Peak Calling Software Selection','2012-06-13 19:23:12',0),(1269,'en_US','chipSeq',NULL,'jobsubmit/verify','label','Verify Submission','2012-06-13 19:23:12',0),(1270,'en_US','chipSeq',NULL,'pairing_instructions','label','Please select test vs control for all samples to be analyzed in pairs after sequencing.','2012-06-13 19:23:12',0),(1271,'en_US','chipSeq',NULL,'test','label','Test','2012-06-13 19:23:12',0),(1272,'en_US','chipSeq',NULL,'control','label','Control','2012-06-13 19:23:12',0),(1273,'en_US','helpTag',NULL,'workflow','label','HELP Tagging','2012-06-13 19:23:12',0),(1274,'en_US','helpTag',NULL,'jobsubmit/modifymeta','label','Modify HelpTag Metadata','2012-06-13 19:23:12',0),(1275,'en_US','helpTag',NULL,'jobsubmit/resource/mps','label','MPS Sequencer Options','2012-06-13 19:23:12',0),(1276,'en_US','helpTag',NULL,'jobsubmit/samples','label','Samples','2012-06-13 19:23:12',0),(1277,'en_US','helpTag',NULL,'jobsubmit/cells','label','DNA Sequencer Cells','2012-06-13 19:23:12',0),(1278,'en_US','helpTag',NULL,'jobsubmit/helpTag/pair','label','HpaII vs MspI Pairings','2012-06-13 19:23:12',0),(1279,'en_US','helpTag',NULL,'jobsubmit/software/aligner','label','Aligner Selection','2012-06-13 19:23:12',0),(1280,'en_US','helpTag',NULL,'jobsubmit/software/helptagPipeline','label','HELP-tag Pipeline Selection','2012-06-13 19:23:12',0),(1281,'en_US','helpTag',NULL,'jobsubmit/verify','label','Verify Submission','2012-06-13 19:23:12',0),(1282,'en_US','helpTag',NULL,'pairing_instructions','label','Please select HpaII vs MspI for all samples to be analyzed in pairs after sequencing.','2012-06-13 19:23:12',0),(1283,'en_US','helpTag',NULL,'test','label','HpaII','2012-06-13 19:23:12',0),(1284,'en_US','helpTag',NULL,'control','label','MspI','2012-06-13 19:23:12',0);
+/*!40000 ALTER TABLE `uifield` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `user`
+--
+
+DROP TABLE IF EXISTS `user`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `user` (
+  `userid` int(10) NOT NULL AUTO_INCREMENT,
+  `login` varchar(250) DEFAULT NULL,
+  `email` varchar(250) DEFAULT NULL,
+  `password` varchar(250) DEFAULT NULL,
+  `firstname` varchar(250) DEFAULT NULL,
+  `lastname` varchar(250) DEFAULT NULL,
+  `locale` varchar(5) DEFAULT 'en_US',
+  `isactive` int(1) DEFAULT '1',
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`userid`),
+  UNIQUE KEY `u_user_login` (`login`),
+  UNIQUE KEY `u_user_email` (`email`)
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `user`
+--
+
+LOCK TABLES `user` WRITE;
+/*!40000 ALTER TABLE `user` DISABLE KEYS */;
+INSERT INTO `user` VALUES (1,'super','super@super.com','12dea96fec20593566ab75692c9949596833adc9','Super','User','en_US',1,'2012-06-14 13:49:39',1),(2,'jsmith','john.smithl@abc.edu','12dea96fec20593566ab75692c9949596833adc9','John','Smith','en_US',1,'2012-06-14 13:49:50',1),(3,'jdoe','j.doe@abc.com','12dea96fec20593566ab75692c9949596833adc9','Joe','Doe','en_US',1,'2012-06-14 13:49:57',1),(4,'pwalters','peter@abc2.com','a609590597a1907002ddaa51054df6d6d7758005','Peter','Walters','en_US',1,'2012-06-14 13:50:12',1),(5,'ssmythe','ss@abc.com','12dea96fec20593566ab75692c9949596833adc9','Sally','Smythe','en_US',1,'2012-06-14 13:47:46',1),(6,'npeters','npeters@abc.com','12dea96fec20593566ab75692c9949596833adc9','Nancy','Peters','en_US',1,'2012-06-14 13:47:53',1),(7,'agodwin','andrew.godwin@abc.com','12dea96fec20593566ab75692c9949596833adc9','Andrew','Godwin','en_US',1,'2012-06-14 13:50:32',1),(8,'fwilliams','franny@abc.com','12dea96fec20593566ab75692c9949596833adc9','Fran','Williams','en_US',1,'2012-06-14 13:48:05',1),(9,'bfish','fishyface@abc.com','12dea96fec20593566ab75692c9949596833adc9','Barrry','Fish','en_US',1,'2012-06-14 14:07:09',1),(10,'pliu','Liu@abc.com','12dea96fec20593566ab75692c9949596833adc9','Percy','Liu','en_US',1,'2012-06-14 13:48:31',1),(11,'robin','robin@abc.com','12dea96fec20593566ab75692c9949596833adc9','Robin','Lister','en_US',1,'2012-06-13 22:03:43',1),(12,'mac','mac@abc.com','12dea96fec20593566ab75692c9949596833adc9','Simon','McDonald','en_US',1,'2012-06-14 13:48:40',1),(13,'gdon','gd@abc.com','12dea96fec20593566ab75692c9949596833adc9','Grainne','O\'Donovan','en_US',1,'2012-06-14 14:12:28',0);
+/*!40000 ALTER TABLE `user` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `usermeta`
+--
+
+DROP TABLE IF EXISTS `usermeta`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `usermeta` (
+  `usermetaid` int(10) NOT NULL AUTO_INCREMENT,
+  `userid` int(10) DEFAULT NULL,
+  `k` varchar(250) DEFAULT NULL,
+  `v` varchar(250) DEFAULT NULL,
+  `position` int(10) DEFAULT '0',
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`usermetaid`),
+  UNIQUE KEY `u_usermeta_k_uid` (`k`,`userid`),
+  KEY `fk_usermeta_userid` (`userid`),
+  CONSTRAINT `usermeta_ibfk_1` FOREIGN KEY (`userid`) REFERENCES `user` (`userid`)
+) ENGINE=InnoDB AUTO_INCREMENT=151 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `usermeta`
+--
+
+LOCK TABLES `usermeta` WRITE;
+/*!40000 ALTER TABLE `usermeta` DISABLE KEYS */;
+INSERT INTO `usermeta` VALUES (1,2,'user.title','Dr',0,'2012-05-23 17:23:00',NULL),(2,2,'user.institution','Einstein',0,'2012-05-23 17:23:00',NULL),(3,2,'user.departmentId','1',0,'2012-05-23 17:23:00',NULL),(4,2,'user.building_room','Price 954',0,'2012-05-23 17:23:00',NULL),(5,2,'user.address','1301 Morris Park Ave',0,'2012-05-23 17:23:00',NULL),(6,2,'user.city','Bronx',0,'2012-05-23 17:23:00',NULL),(7,2,'user.state','NY',0,'2012-05-23 17:23:00',NULL),(8,2,'user.country','US',0,'2012-05-23 17:23:00',NULL),(9,2,'user.zip','10461',0,'2012-05-23 17:23:00',NULL),(10,2,'user.phone','718-600-1985',0,'2012-05-23 17:23:00',NULL),(11,2,'user.fax','',0,'2012-05-23 17:23:00',NULL),(12,3,'user.title','Ms',0,'2012-05-30 16:15:28',NULL),(13,3,'user.institution','Einstein',0,'2012-05-30 16:15:28',NULL),(14,3,'user.departmentId','1',0,'2012-05-30 16:15:28',NULL),(15,3,'user.building_room','Price 1003',0,'2012-05-30 16:15:28',NULL),(16,3,'user.address','1301 Morris Park Ave.',0,'2012-05-30 16:15:28',NULL),(17,3,'user.city','Bronx',0,'2012-05-30 16:15:28',NULL),(18,3,'user.state','NY',0,'2012-05-30 16:15:28',NULL),(19,3,'user.country','US',0,'2012-05-30 16:15:28',NULL),(20,3,'user.zip','10461',0,'2012-05-30 16:15:28',NULL),(21,3,'user.phone','718-600-3465',0,'2012-05-30 16:15:28',NULL),(22,3,'user.fax','',0,'2012-05-30 16:15:28',NULL),(23,4,'user.title','Ms',0,'2012-05-30 16:31:54',NULL),(24,4,'user.institution','Einstein',0,'2012-05-30 16:31:54',NULL),(25,4,'user.departmentId','1',0,'2012-05-30 16:31:54',NULL),(26,4,'user.building_room','Price 201',0,'2012-05-30 16:31:54',NULL),(27,4,'user.address','1301 Morris Park Ave.',0,'2012-05-30 16:31:54',NULL),(28,4,'user.city','Bronx',0,'2012-05-30 16:31:54',NULL),(29,4,'user.state','NY',0,'2012-05-30 16:31:54',NULL),(30,4,'user.country','US',0,'2012-05-30 16:31:54',NULL),(31,4,'user.zip','10461',0,'2012-05-30 16:31:54',NULL),(32,4,'user.phone','718-600-1100',0,'2012-05-30 16:31:54',NULL),(33,4,'user.fax','',0,'2012-05-30 16:31:54',NULL),(34,5,'user.title','Dr',0,'2012-05-30 20:22:24',NULL),(35,5,'user.institution','Einstein',0,'2012-05-30 20:22:24',NULL),(36,5,'user.departmentId','3',0,'2012-05-30 20:22:24',NULL),(37,5,'user.building_room','Price 2200',0,'2012-05-30 20:22:24',NULL),(38,5,'user.address','1301 Morris Park Ave.',0,'2012-05-30 20:22:24',NULL),(39,5,'user.city','Bronx',0,'2012-05-30 20:22:24',NULL),(40,5,'user.state','NY',0,'2012-05-30 20:22:24',NULL),(41,5,'user.country','US',0,'2012-05-30 20:22:24',NULL),(42,5,'user.zip','10461',0,'2012-05-30 20:22:24',NULL),(43,5,'user.phone','718-123-4567',0,'2012-05-30 20:22:24',NULL),(44,5,'user.fax','',0,'2012-05-30 20:22:24',NULL),(45,5,'user.labName','Greally Lab',0,'2012-05-30 20:22:24',NULL),(46,6,'user.title','Ms',0,'2012-05-30 21:13:54',NULL),(47,6,'user.institution','Einstein',0,'2012-05-30 21:13:54',NULL),(48,6,'user.departmentId','3',0,'2012-05-30 21:13:54',NULL),(49,6,'user.building_room','Price 2220',0,'2012-05-30 21:13:54',NULL),(50,6,'user.address','1301 Morris Park Ave.',0,'2012-05-30 21:13:54',NULL),(51,6,'user.city','Bronx',0,'2012-05-30 21:13:54',NULL),(52,6,'user.state','NY',0,'2012-05-30 21:13:54',NULL),(53,6,'user.country','US',0,'2012-05-30 21:13:54',NULL),(54,6,'user.zip','10461',0,'2012-05-30 21:13:54',NULL),(55,6,'user.phone','718-608-0000',0,'2012-05-30 21:13:54',NULL),(56,6,'user.fax','',0,'2012-05-30 21:13:54',NULL),(57,6,'user.primaryuserid','jgreally',0,'2012-05-30 21:13:54',NULL),(58,7,'user.title','Prof',0,'2012-05-30 22:03:56',NULL),(59,7,'user.institution','Einstein',0,'2012-05-30 22:03:56',NULL),(60,7,'user.departmentId','3',0,'2012-05-30 22:03:56',NULL),(61,7,'user.building_room','Price 933',0,'2012-05-30 22:03:56',NULL),(62,7,'user.address','1301 Morris Park Ave.',0,'2012-05-30 22:03:56',NULL),(63,7,'user.city','Bronx',0,'2012-05-30 22:03:56',NULL),(64,7,'user.state','NY',0,'2012-05-30 22:03:56',NULL),(65,7,'user.country','US',0,'2012-05-30 22:03:56',NULL),(66,7,'user.zip','10461',0,'2012-05-30 22:03:56',NULL),(67,7,'user.phone','718-600-1192',0,'2012-05-30 22:03:56',NULL),(68,7,'user.fax','',0,'2012-05-30 22:03:56',NULL),(69,7,'user.labName','Goldin Lab',0,'2012-05-30 22:03:56',NULL),(70,8,'user.title','Dr',0,'2012-05-31 13:59:22',NULL),(71,8,'user.institution','Einstein',0,'2012-05-31 13:59:22',NULL),(72,8,'user.departmentId','3',0,'2012-05-31 13:59:22',NULL),(73,8,'user.building_room','Price 654',0,'2012-05-31 13:59:22',NULL),(74,8,'user.address','1301 Morris Park Ave.',0,'2012-05-31 13:59:22',NULL),(75,8,'user.city','Bronx',0,'2012-05-31 13:59:22',NULL),(76,8,'user.state','NY',0,'2012-05-31 13:59:22',NULL),(77,8,'user.country','US',0,'2012-05-31 13:59:22',NULL),(78,8,'user.zip','10461',0,'2012-05-31 13:59:22',NULL),(79,8,'user.phone','718-600-0019',0,'2012-05-31 13:59:22',NULL),(80,8,'user.fax','718-600-0020',0,'2012-05-31 13:59:22',NULL),(81,8,'user.labName','Auton Lab',0,'2012-05-31 13:59:22',NULL),(82,9,'user.title','Dr',0,'2012-05-31 14:00:01',NULL),(83,9,'user.institution','NYU Medical',0,'2012-05-31 14:00:01',NULL),(84,9,'user.departmentId','2',0,'2012-05-31 14:00:01',NULL),(85,9,'user.building_room','Hammer 1406',0,'2012-05-31 14:00:01',NULL),(86,9,'user.address','16-50 54th Street',0,'2012-05-31 14:00:01',NULL),(87,9,'user.city','New York',0,'2012-05-31 14:00:01',NULL),(88,9,'user.state','NY',0,'2012-05-31 14:00:01',NULL),(89,9,'user.country','US',0,'2012-05-31 14:00:01',NULL),(90,9,'user.zip','10002',0,'2012-05-31 14:00:01',NULL),(91,9,'user.phone','212-445-2345',0,'2012-05-31 14:00:01',NULL),(92,9,'user.fax','',0,'2012-05-31 14:00:01',NULL),(93,9,'user.labName','Trokie Lab',0,'2012-05-31 14:00:01',NULL),(94,10,'user.title','Dr',0,'2012-05-31 14:02:26',NULL),(95,10,'user.institution','Einstein',0,'2012-05-31 14:02:26',NULL),(96,10,'user.departmentId','3',0,'2012-05-31 14:02:26',NULL),(97,10,'user.building_room','Price 2222',0,'2012-05-31 14:02:26',NULL),(98,10,'user.address','1301 Morris Park Ave',0,'2012-05-31 14:02:26',NULL),(99,10,'user.city','Bronx',0,'2012-05-31 14:02:26',NULL),(100,10,'user.state','NY',0,'2012-05-31 14:02:26',NULL),(101,10,'user.country','US',0,'2012-05-31 14:02:26',NULL),(102,10,'user.zip','10461',0,'2012-05-31 14:02:26',NULL),(103,10,'user.phone','718-500-6696',0,'2012-05-31 14:02:26',NULL),(104,10,'user.fax','718-500-6697',0,'2012-05-31 14:02:26',NULL),(105,10,'user.primaryuserid','jgreally',0,'2012-05-31 14:02:26',NULL),(106,11,'user.title','Mr',0,'2012-05-31 14:07:26',NULL),(107,11,'user.institution','Einstein',0,'2012-05-31 14:07:26',NULL),(108,11,'user.departmentId','1',0,'2012-05-31 14:07:26',NULL),(109,11,'user.building_room','Price 1357',0,'2012-05-31 14:07:26',NULL),(110,11,'user.address','1301 Morris Park Ave.',0,'2012-05-31 14:07:26',NULL),(111,11,'user.city','Bronx',0,'2012-05-31 14:07:26',NULL),(112,11,'user.state','NY',0,'2012-05-31 14:07:26',NULL),(113,11,'user.country','US',0,'2012-05-31 14:07:26',NULL),(114,11,'user.zip','10461',0,'2012-05-31 14:07:26',NULL),(115,11,'user.phone','718-600-4533',0,'2012-05-31 14:07:26',NULL),(116,11,'user.fax','',0,'2012-05-31 14:07:26',NULL),(117,12,'user.title','Prof',0,'2012-05-31 14:15:29',NULL),(118,12,'user.institution','Einstein',0,'2012-05-31 14:15:29',NULL),(119,12,'user.departmentId','3',0,'2012-05-31 14:15:29',NULL),(120,12,'user.building_room','Price 222',0,'2012-05-31 14:15:29',NULL),(121,12,'user.address','1301 Morris Park Ave',0,'2012-05-31 14:15:29',NULL),(122,12,'user.city','Bronx',0,'2012-05-31 14:15:29',NULL),(123,12,'user.state','NY',0,'2012-05-31 14:15:29',NULL),(124,12,'user.country','US',0,'2012-05-31 14:15:29',NULL),(125,12,'user.zip','10461',0,'2012-05-31 14:15:29',NULL),(126,12,'user.phone','617-600-1313',0,'2012-05-31 14:15:29',NULL),(127,12,'user.fax','',0,'2012-05-31 14:15:29',NULL),(128,12,'user.primaryuserid','agoldin',0,'2012-05-31 14:15:29',NULL),(129,1,'user.title','Dr',0,'2012-06-14 13:49:39',NULL),(130,1,'user.institution','Einstein',0,'2012-06-14 13:49:39',NULL),(131,1,'user.departmentId','1',0,'2012-06-14 13:49:39',NULL),(132,1,'user.building_room','N/A',0,'2012-06-14 13:49:39',NULL),(133,1,'user.address','N/A',0,'2012-06-14 13:49:39',NULL),(134,1,'user.city','N/A',0,'2012-06-14 13:49:39',NULL),(135,1,'user.state','NY',0,'2012-06-14 13:49:39',NULL),(136,1,'user.country','US',0,'2012-06-14 13:49:39',NULL),(137,1,'user.zip','N/A',0,'2012-06-14 13:49:39',NULL),(138,1,'user.phone','N/A',0,'2012-06-14 13:49:39',NULL),(139,1,'user.fax','N/A',0,'2012-06-14 13:49:39',NULL),(140,13,'user.title','Miss',0,'2012-06-14 14:11:40',NULL),(141,13,'user.institution','Einstein',0,'2012-06-14 14:11:40',NULL),(142,13,'user.departmentId','1',0,'2012-06-14 14:11:40',NULL),(143,13,'user.building_room','4333',0,'2012-06-14 14:11:40',NULL),(144,13,'user.address','Chanin',0,'2012-06-14 14:11:40',NULL),(145,13,'user.city','Bronx',0,'2012-06-14 14:11:40',NULL),(146,13,'user.state','NY',0,'2012-06-14 14:11:40',NULL),(147,13,'user.country','US',0,'2012-06-14 14:11:40',NULL),(148,13,'user.zip','10461',0,'2012-06-14 14:11:40',NULL),(149,13,'user.phone','718-600-4455',0,'2012-06-14 14:11:40',NULL),(150,13,'user.fax','',0,'2012-06-14 14:11:40',NULL);
+/*!40000 ALTER TABLE `usermeta` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `userpasswordauth`
+--
+
+DROP TABLE IF EXISTS `userpasswordauth`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `userpasswordauth` (
+  `userid` int(10) NOT NULL,
+  `authcode` varchar(250) DEFAULT NULL,
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`userid`),
+  UNIQUE KEY `u_userpasswordauth` (`authcode`),
+  CONSTRAINT `userpasswordauth_ibfk_1` FOREIGN KEY (`userid`) REFERENCES `user` (`userid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `userpasswordauth`
+--
+
+LOCK TABLES `userpasswordauth` WRITE;
+/*!40000 ALTER TABLE `userpasswordauth` DISABLE KEYS */;
+/*!40000 ALTER TABLE `userpasswordauth` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `userpending`
+--
+
+DROP TABLE IF EXISTS `userpending`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `userpending` (
+  `userpendingid` int(10) NOT NULL AUTO_INCREMENT,
+  `email` varchar(250) DEFAULT NULL,
+  `password` varchar(250) DEFAULT NULL,
+  `login` varchar(250) DEFAULT NULL,
+  `firstname` varchar(250) DEFAULT NULL,
+  `lastname` varchar(250) DEFAULT NULL,
+  `locale` varchar(5) DEFAULT 'en_US',
+  `labid` int(10) DEFAULT NULL,
+  `status` varchar(10) DEFAULT 'PENDING',
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`userpendingid`),
+  KEY `fk_userpending_lid` (`labid`),
+  KEY `i_userpending_status` (`status`,`email`),
+  CONSTRAINT `userpending_ibfk_1` FOREIGN KEY (`labid`) REFERENCES `lab` (`labid`)
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `userpending`
+--
+
+LOCK TABLES `userpending` WRITE;
+/*!40000 ALTER TABLE `userpending` DISABLE KEYS */;
+INSERT INTO `userpending` VALUES (1,'john.greally@abc.com','3c303561dc548b69dba5f0b0c9b834cbcea1d6a9','jgreally','John','Greally','en_US',NULL,'CREATED','2012-05-30 20:22:24',3),(2,'maureen.charron@abc.com','3c303561dc548b69dba5f0b0c9b834cbcea1d6a9','mcharron','Maureen','Charron','en_US',NULL,'reject','2012-05-30 20:43:36',3),(3,'esther.berko@abc.com','3c303561dc548b69dba5f0b0c9b834cbcea1d6a9','eberko','Esther','Berko','en_US',2,'approve','2012-05-30 21:13:55',5),(7,'aaron.goldin@abc.com','3c303561dc548b69dba5f0b0c9b834cbcea1d6a9','agoldin','Aaron','Goldin','en_US',NULL,'CREATED','2012-05-30 22:03:56',1),(8,'adam.auton@abc.com','3c303561dc548b69dba5f0b0c9b834cbcea1d6a9','aauton','Adam','Auton','en_US',NULL,'CREATED','2012-05-31 13:59:22',3),(9,'leslie.trokie@abc.com','3c303561dc548b69dba5f0b0c9b834cbcea1d6a9','ltrokie','Leslie','Trokie','en_US',NULL,'CREATED','2012-05-31 14:00:01',1),(10,'masako.suzuki@abc.com','3c303561dc548b69dba5f0b0c9b834cbcea1d6a9','msuzuki','Masako','Suzuki','en_US',2,'approve','2012-05-31 14:02:26',5),(11,'pilib.obroin@abc.com','3c303561dc548b69dba5f0b0c9b834cbcea1d6a9','pobroin','Pilib','OBroin','en_US',3,'approve','2012-05-31 14:15:30',7);
+/*!40000 ALTER TABLE `userpending` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `userpendingmeta`
+--
+
+DROP TABLE IF EXISTS `userpendingmeta`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `userpendingmeta` (
+  `userpendingmetaid` int(10) NOT NULL AUTO_INCREMENT,
+  `userpendingid` int(10) DEFAULT NULL,
+  `k` varchar(250) DEFAULT NULL,
+  `v` varchar(250) DEFAULT NULL,
+  `position` int(10) DEFAULT '0',
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`userpendingmetaid`),
+  UNIQUE KEY `u_userpendingmeta_k_lid` (`k`,`userpendingid`),
+  KEY `fk_userpendingmeta_userpendingid` (`userpendingid`),
+  CONSTRAINT `userpendingmeta_ibfk_1` FOREIGN KEY (`userpendingid`) REFERENCES `userpending` (`userpendingid`)
+) ENGINE=InnoDB AUTO_INCREMENT=115 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `userpendingmeta`
+--
+
+LOCK TABLES `userpendingmeta` WRITE;
+/*!40000 ALTER TABLE `userpendingmeta` DISABLE KEYS */;
+INSERT INTO `userpendingmeta` VALUES (1,1,'piPending.labName','Greally Lab',0,'2012-05-30 19:51:56',NULL),(2,1,'piPending.title','Dr',0,'2012-05-30 19:51:56',NULL),(3,1,'piPending.institution','Einstein',0,'2012-05-30 19:51:56',NULL),(4,1,'piPending.departmentId','1',0,'2012-05-30 19:51:56',NULL),(5,1,'piPending.building_room','Price 220',0,'2012-05-30 19:51:56',NULL),(6,1,'piPending.address','1301 Morris Park Ave.',0,'2012-05-30 19:51:56',NULL),(7,1,'piPending.city','Bronx',0,'2012-05-30 19:51:56',NULL),(8,1,'piPending.state','NY',0,'2012-05-30 19:51:56',NULL),(9,1,'piPending.country','US',0,'2012-05-30 19:51:56',NULL),(10,1,'piPending.zip','10461',0,'2012-05-30 19:51:56',NULL),(11,1,'piPending.phone','718-123-4567',0,'2012-05-30 19:51:56',NULL),(12,1,'piPending.fax','',0,'2012-05-30 19:51:56',NULL),(13,2,'piPending.labName','Charron Lab',0,'2012-05-30 20:39:40',NULL),(14,2,'piPending.title','Prof',0,'2012-05-30 20:39:40',NULL),(15,2,'piPending.institution','Einstein',0,'2012-05-30 20:39:40',NULL),(16,2,'piPending.departmentId','1',0,'2012-05-30 20:39:40',NULL),(17,2,'piPending.building_room','Forr 310',0,'2012-05-30 20:39:40',NULL),(18,2,'piPending.address','1300 Morris Park Ave.',0,'2012-05-30 20:39:40',NULL),(19,2,'piPending.city','Bronx',0,'2012-05-30 20:39:40',NULL),(20,2,'piPending.state','NY',0,'2012-05-30 20:39:40',NULL),(21,2,'piPending.country','US',0,'2012-05-30 20:39:40',NULL),(22,2,'piPending.zip','10461',0,'2012-05-30 20:39:40',NULL),(23,2,'piPending.phone','718-678-1212',0,'2012-05-30 20:39:40',NULL),(24,2,'piPending.fax','',0,'2012-05-30 20:39:40',NULL),(25,3,'userPending.primaryuserid','jgreally',0,'2012-05-30 21:04:19',NULL),(26,3,'userPending.title','Ms',0,'2012-05-30 21:04:19',NULL),(27,3,'userPending.building_room','Price 222',0,'2012-05-30 21:04:19',NULL),(28,3,'userPending.address','1301 Morris Park Ave.',0,'2012-05-30 21:04:19',NULL),(29,3,'userPending.phone','718-678-1234',0,'2012-05-30 21:04:19',NULL),(30,3,'userPending.fax','',0,'2012-05-30 21:04:19',NULL),(67,7,'piPending.labName','Goldin Lab',0,'2012-05-30 22:03:12',NULL),(68,7,'piPending.title','Prof',0,'2012-05-30 22:03:12',NULL),(69,7,'piPending.institution','Einstein',0,'2012-05-30 22:03:12',NULL),(70,7,'piPending.departmentId','1',0,'2012-05-30 22:03:12',NULL),(71,7,'piPending.building_room','Price 353',0,'2012-05-30 22:03:12',NULL),(72,7,'piPending.address','1301 Morris Park Ave.',0,'2012-05-30 22:03:12',NULL),(73,7,'piPending.city','Bronx',0,'2012-05-30 22:03:12',NULL),(74,7,'piPending.state','NY',0,'2012-05-30 22:03:12',NULL),(75,7,'piPending.country','US',0,'2012-05-30 22:03:12',NULL),(76,7,'piPending.zip','10461',0,'2012-05-30 22:03:12',NULL),(77,7,'piPending.phone','718-678-1112',0,'2012-05-30 22:03:12',NULL),(78,7,'piPending.fax','',0,'2012-05-30 22:03:12',NULL),(79,8,'piPending.labName','Auton Lab',0,'2012-05-31 13:32:38',NULL),(80,8,'piPending.title','Dr',0,'2012-05-31 13:32:38',NULL),(81,8,'piPending.institution','Einstein',0,'2012-05-31 13:32:38',NULL),(82,8,'piPending.departmentId','1',0,'2012-05-31 13:32:38',NULL),(83,8,'piPending.building_room','Price 321',0,'2012-05-31 13:32:38',NULL),(84,8,'piPending.address','1301 Morris Park Ave.',0,'2012-05-31 13:32:38',NULL),(85,8,'piPending.city','Bronx',0,'2012-05-31 13:32:38',NULL),(86,8,'piPending.state','NY',0,'2012-05-31 13:32:38',NULL),(87,8,'piPending.country','US',0,'2012-05-31 13:32:38',NULL),(88,8,'piPending.zip','10461',0,'2012-05-31 13:32:38',NULL),(89,8,'piPending.phone','718-678-1019',0,'2012-05-31 13:32:38',NULL),(90,8,'piPending.fax','718-678-1020',0,'2012-05-31 13:32:38',NULL),(91,9,'piPending.labName','Trokie Lab',0,'2012-05-31 13:36:35',NULL),(92,9,'piPending.title','Dr',0,'2012-05-31 13:36:35',NULL),(93,9,'piPending.institution','NYU Medical',0,'2012-05-31 13:36:35',NULL),(94,9,'piPending.departmentId','2',0,'2012-05-31 13:36:35',NULL),(95,9,'piPending.building_room','Hammer 1101',0,'2012-05-31 13:36:35',NULL),(96,9,'piPending.address','16-50 32nd Street',0,'2012-05-31 13:36:35',NULL),(97,9,'piPending.city','New York',0,'2012-05-31 13:36:35',NULL),(98,9,'piPending.state','NY',0,'2012-05-31 13:36:35',NULL),(99,9,'piPending.country','US',0,'2012-05-31 13:36:35',NULL),(100,9,'piPending.zip','10002',0,'2012-05-31 13:36:35',NULL),(101,9,'piPending.phone','212-321-1091',0,'2012-05-31 13:36:35',NULL),(102,9,'piPending.fax','',0,'2012-05-31 13:36:35',NULL),(103,10,'userPending.primaryuserid','jgreally',0,'2012-05-31 13:38:38',NULL),(104,10,'userPending.title','Dr',0,'2012-05-31 13:38:38',NULL),(105,10,'userPending.building_room','Price 222',0,'2012-05-31 13:38:38',NULL),(106,10,'userPending.address','1301 Morris Park Ave',0,'2012-05-31 13:38:38',NULL),(107,10,'userPending.phone','718-678-1096',0,'2012-05-31 13:38:38',NULL),(108,10,'userPending.fax','718-678-1097',0,'2012-05-31 13:38:38',NULL),(109,11,'userPending.primaryuserid','agoldin',0,'2012-05-31 13:40:40',NULL),(110,11,'userPending.title','Dr',0,'2012-05-31 13:40:40',NULL),(111,11,'userPending.building_room','Price 353',0,'2012-05-31 13:40:40',NULL),(112,11,'userPending.address','1301 Morris Park Ave',0,'2012-05-31 13:40:40',NULL),(113,11,'userPending.phone','617-435-1211',0,'2012-05-31 13:40:40',NULL),(114,11,'userPending.fax','',0,'2012-05-31 13:40:40',NULL);
+/*!40000 ALTER TABLE `userpendingmeta` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `userrole`
+--
+
+DROP TABLE IF EXISTS `userrole`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `userrole` (
+  `userroleid` int(10) NOT NULL AUTO_INCREMENT,
+  `userid` int(10) DEFAULT NULL,
+  `roleid` int(10) DEFAULT NULL,
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`userroleid`),
+  UNIQUE KEY `userrole_uid_rid` (`userid`,`roleid`),
+  KEY `fk_userrole_rid` (`roleid`),
+  CONSTRAINT `userrole_ibfk_1` FOREIGN KEY (`roleid`) REFERENCES `role` (`roleid`),
+  CONSTRAINT `userrole_ibfk_2` FOREIGN KEY (`userid`) REFERENCES `user` (`userid`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `userrole`
+--
+
+LOCK TABLES `userrole` WRITE;
+/*!40000 ALTER TABLE `userrole` DISABLE KEYS */;
+INSERT INTO `userrole` VALUES (1,1,11,'2012-05-23 15:55:46',1),(2,2,1,'2012-05-23 19:25:50',1),(4,11,3,'2012-06-14 13:43:46',1),(5,4,5,'2012-06-14 13:44:54',1);
+/*!40000 ALTER TABLE `userrole` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `workflow`
+--
+
+DROP TABLE IF EXISTS `workflow`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `workflow` (
+  `workflowid` int(10) NOT NULL AUTO_INCREMENT,
+  `iname` varchar(250) DEFAULT NULL,
+  `name` varchar(250) DEFAULT NULL,
+  `createts` datetime DEFAULT NULL,
+  `isactive` int(1) DEFAULT '0',
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`workflowid`),
+  UNIQUE KEY `u_workflow_iname` (`iname`),
+  UNIQUE KEY `u_workflow_name` (`name`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `workflow`
+--
+
+LOCK TABLES `workflow` WRITE;
+/*!40000 ALTER TABLE `workflow` DISABLE KEYS */;
+INSERT INTO `workflow` VALUES (1,'chipSeq','Chip Seq','2012-05-23 12:08:20',1,'2012-06-13 23:23:12',0),(2,'bisulSeq','BISUL Seq','2012-06-13 16:02:49',1,'2012-06-13 23:23:12',0),(3,'helpTag','HELP Tagging','2012-06-13 16:02:49',1,'2012-06-13 23:23:12',0);
+/*!40000 ALTER TABLE `workflow` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `workflowmeta`
+--
+
+DROP TABLE IF EXISTS `workflowmeta`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `workflowmeta` (
+  `workflowmetaid` int(10) NOT NULL AUTO_INCREMENT,
+  `workflowid` int(10) DEFAULT NULL,
+  `k` varchar(250) DEFAULT NULL,
+  `v` text,
+  `position` int(10) DEFAULT '0',
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`workflowmetaid`),
+  UNIQUE KEY `u_workflowmeta_k_wid` (`k`,`workflowid`),
+  KEY `fk_workflowmeta_workflowid` (`workflowid`),
+  CONSTRAINT `workflowmeta_ibfk_1` FOREIGN KEY (`workflowid`) REFERENCES `workflow` (`workflowid`)
+) ENGINE=InnoDB AUTO_INCREMENT=64 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `workflowmeta`
+--
+
+LOCK TABLES `workflowmeta` WRITE;
+/*!40000 ALTER TABLE `workflowmeta` DISABLE KEYS */;
+INSERT INTO `workflowmeta` VALUES (61,2,'workflow.submitpageflow','/jobsubmit/modifymeta/{n};/jobsubmit/resource/mps/{n};/jobsubmit/samples/{n};/jobsubmit/cells/{n};/jobsubmit/software/bisulseqPipeline/{n};/jobsubmit/submit/{n};/jobsubmit/ok',0,'2012-06-13 23:36:25',0),(62,1,'workflow.submitpageflow','/jobsubmit/modifymeta/{n};/jobsubmit/resource/mps/{n};/jobsubmit/samples/{n};/jobsubmit/cells/{n};/jobsubmit/chipSeq/pair/{n};/jobsubmit/software/aligner/{n};/jobsubmit/software/peakcaller/{n};/jobsubmit/submit/{n};/jobsubmit/ok',0,'2012-06-13 23:36:25',0),(63,3,'workflow.submitpageflow','/jobsubmit/modifymeta/{n};/jobsubmit/resource/mps/{n};/jobsubmit/samples/{n};/jobsubmit/cells/{n};/jobsubmit/helpTag/pair/{n};/jobsubmit/software/aligner/{n};/jobsubmit/software/helptagPipeline/{n};/jobsubmit/submit/{n};/jobsubmit/ok',0,'2012-06-13 23:36:25',0);
+/*!40000 ALTER TABLE `workflowmeta` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `workflowresourcecategory`
+--
+
+DROP TABLE IF EXISTS `workflowresourcecategory`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `workflowresourcecategory` (
+  `workflowresourcecategoryid` int(10) NOT NULL AUTO_INCREMENT,
+  `workflowid` int(10) DEFAULT NULL,
+  `resourcecategoryid` int(10) DEFAULT NULL,
+  PRIMARY KEY (`workflowresourcecategoryid`),
+  UNIQUE KEY `u_workflowresource_wid_rcid` (`workflowid`,`resourcecategoryid`),
+  KEY `fk_workflowresourcecategory_rcid` (`resourcecategoryid`),
+  CONSTRAINT `workflowresourcecategory_ibfk_1` FOREIGN KEY (`resourcecategoryid`) REFERENCES `resourcecategory` (`resourcecategoryid`),
+  CONSTRAINT `workflowresourcecategory_ibfk_2` FOREIGN KEY (`workflowid`) REFERENCES `workflow` (`workflowid`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `workflowresourcecategory`
+--
+
+LOCK TABLES `workflowresourcecategory` WRITE;
+/*!40000 ALTER TABLE `workflowresourcecategory` DISABLE KEYS */;
+INSERT INTO `workflowresourcecategory` VALUES (1,1,1);
+/*!40000 ALTER TABLE `workflowresourcecategory` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `workflowresourcecategorymeta`
+--
+
+DROP TABLE IF EXISTS `workflowresourcecategorymeta`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `workflowresourcecategorymeta` (
+  `workflowresourcecategorymetaid` int(10) NOT NULL AUTO_INCREMENT,
+  `workflowresourcecategoryid` int(10) DEFAULT NULL,
+  `k` varchar(250) DEFAULT NULL,
+  `v` text,
+  `position` int(10) DEFAULT '0',
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`workflowresourcecategorymetaid`),
+  UNIQUE KEY `u_wro_wrcid_k` (`workflowresourcecategoryid`,`k`),
+  CONSTRAINT `workflowresourcecategorymeta_ibfk_1` FOREIGN KEY (`workflowresourcecategoryid`) REFERENCES `workflowresourcecategory` (`workflowresourcecategoryid`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `workflowresourcecategorymeta`
+--
+
+LOCK TABLES `workflowresourcecategorymeta` WRITE;
+/*!40000 ALTER TABLE `workflowresourcecategorymeta` DISABLE KEYS */;
+INSERT INTO `workflowresourcecategorymeta` VALUES (1,1,'illuminaHiSeq2000.allowableUiField.readType','single:single;paired:paired;',1,'2012-06-11 15:35:51',1),(2,1,'illuminaHiSeq2000.allowableUiField.readlength','50:50;75:75;100:100;150:150;',2,'2012-06-11 15:35:51',1);
+/*!40000 ALTER TABLE `workflowresourcecategorymeta` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `workflowresourcetype`
+--
+
+DROP TABLE IF EXISTS `workflowresourcetype`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `workflowresourcetype` (
+  `workflowresourcetypeid` int(10) NOT NULL AUTO_INCREMENT,
+  `workflowid` int(10) DEFAULT NULL,
+  `resourcetypeid` int(10) DEFAULT NULL,
+  PRIMARY KEY (`workflowresourcetypeid`),
+  UNIQUE KEY `u_workflowresourcetype_wid_trid` (`workflowid`,`resourcetypeid`),
+  KEY `fk_workflowresourcetype_trid` (`resourcetypeid`),
+  CONSTRAINT `workflowresourcetype_ibfk_1` FOREIGN KEY (`resourcetypeid`) REFERENCES `resourcetype` (`resourcetypeid`),
+  CONSTRAINT `workflowresourcetype_ibfk_2` FOREIGN KEY (`workflowid`) REFERENCES `workflow` (`workflowid`)
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `workflowresourcetype`
+--
+
+LOCK TABLES `workflowresourcetype` WRITE;
+/*!40000 ALTER TABLE `workflowresourcetype` DISABLE KEYS */;
+INSERT INTO `workflowresourcetype` VALUES (1,1,1),(2,1,3),(3,1,4),(4,2,1),(5,2,7),(6,3,1),(7,3,3),(8,3,6);
+/*!40000 ALTER TABLE `workflowresourcetype` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `workflowsamplesubtype`
+--
+
+DROP TABLE IF EXISTS `workflowsamplesubtype`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `workflowsamplesubtype` (
+  `workflowsamplesubtypeid` int(10) NOT NULL AUTO_INCREMENT,
+  `workflowid` int(10) DEFAULT NULL,
+  `samplesubtypeid` int(10) DEFAULT NULL,
+  PRIMARY KEY (`workflowsamplesubtypeid`),
+  UNIQUE KEY `u_samplesubtype_wid_stsid` (`workflowid`,`samplesubtypeid`),
+  KEY `fk_workflowsamplesubtype_stsid` (`samplesubtypeid`),
+  CONSTRAINT `workflowsamplesubtype_ibfk_1` FOREIGN KEY (`samplesubtypeid`) REFERENCES `samplesubtype` (`samplesubtypeid`),
+  CONSTRAINT `workflowsamplesubtype_ibfk_2` FOREIGN KEY (`workflowid`) REFERENCES `workflow` (`workflowid`)
+) ENGINE=InnoDB AUTO_INCREMENT=182 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `workflowsamplesubtype`
+--
+
+LOCK TABLES `workflowsamplesubtype` WRITE;
+/*!40000 ALTER TABLE `workflowsamplesubtype` DISABLE KEYS */;
+INSERT INTO `workflowsamplesubtype` VALUES (178,1,3),(179,1,4),(180,1,5),(175,2,6),(176,2,7),(177,2,8),(181,3,9);
+/*!40000 ALTER TABLE `workflowsamplesubtype` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `workflowsoftware`
+--
+
+DROP TABLE IF EXISTS `workflowsoftware`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `workflowsoftware` (
+  `workflowsoftwareid` int(10) NOT NULL AUTO_INCREMENT,
+  `workflowid` int(10) DEFAULT NULL,
+  `softwareid` int(10) DEFAULT NULL,
+  PRIMARY KEY (`workflowsoftwareid`),
+  UNIQUE KEY `u_workflowsoftware_wid_sid` (`workflowid`,`softwareid`),
+  KEY `fk_workflowsoftware_sid` (`softwareid`),
+  CONSTRAINT `workflowsoftware_ibfk_1` FOREIGN KEY (`softwareid`) REFERENCES `software` (`softwareid`),
+  CONSTRAINT `workflowsoftware_ibfk_2` FOREIGN KEY (`workflowid`) REFERENCES `workflow` (`workflowid`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `workflowsoftware`
+--
+
+LOCK TABLES `workflowsoftware` WRITE;
+/*!40000 ALTER TABLE `workflowsoftware` DISABLE KEYS */;
+INSERT INTO `workflowsoftware` VALUES (1,1,1),(2,1,2);
+/*!40000 ALTER TABLE `workflowsoftware` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `workflowsoftwaremeta`
+--
+
+DROP TABLE IF EXISTS `workflowsoftwaremeta`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `workflowsoftwaremeta` (
+  `workflowsoftwaremetaid` int(10) NOT NULL AUTO_INCREMENT,
+  `workflowsoftwareid` int(10) DEFAULT NULL,
+  `k` varchar(250) DEFAULT NULL,
+  `v` text,
+  `position` int(10) DEFAULT '0',
+  `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastupduser` int(10) DEFAULT '0',
+  PRIMARY KEY (`workflowsoftwaremetaid`),
+  UNIQUE KEY `u_wro_wrcid_k` (`workflowsoftwareid`,`k`),
+  CONSTRAINT `workflowsoftwaremeta_ibfk_1` FOREIGN KEY (`workflowsoftwareid`) REFERENCES `workflowsoftware` (`workflowsoftwareid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `workflowsoftwaremeta`
+--
+
+LOCK TABLES `workflowsoftwaremeta` WRITE;
+/*!40000 ALTER TABLE `workflowsoftwaremeta` DISABLE KEYS */;
+/*!40000 ALTER TABLE `workflowsoftwaremeta` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `workflowtask`
+--
+
+DROP TABLE IF EXISTS `workflowtask`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `workflowtask` (
+  `workflowtaskid` int(10) NOT NULL AUTO_INCREMENT,
+  `workflowid` int(10) DEFAULT NULL,
+  `taskid` int(10) DEFAULT NULL,
+  `iname` varchar(250) DEFAULT NULL,
+  `name` varchar(250) DEFAULT NULL,
+  PRIMARY KEY (`workflowtaskid`),
+  UNIQUE KEY `u_workflowtask_iname` (`iname`),
+  KEY `fk_workflowtask_wid` (`workflowid`),
+  KEY `fk_workflowtask_tid` (`taskid`),
+  CONSTRAINT `workflowtask_ibfk_1` FOREIGN KEY (`workflowid`) REFERENCES `workflow` (`workflowid`),
+  CONSTRAINT `workflowtask_ibfk_2` FOREIGN KEY (`taskid`) REFERENCES `task` (`taskid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `workflowtask`
+--
+
+LOCK TABLES `workflowtask` WRITE;
+/*!40000 ALTER TABLE `workflowtask` DISABLE KEYS */;
+/*!40000 ALTER TABLE `workflowtask` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `workflowtasksource`
+--
+
+DROP TABLE IF EXISTS `workflowtasksource`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `workflowtasksource` (
+  `workflowtasksourceid` int(10) NOT NULL AUTO_INCREMENT,
+  `workflowtaskid` int(10) DEFAULT NULL,
+  `sourceworkflowtaskid` int(10) DEFAULT NULL,
+  PRIMARY KEY (`workflowtasksourceid`),
+  KEY `fk_workflowtasksource_wid` (`workflowtaskid`),
+  KEY `fk_workflowtasksource_sid` (`sourceworkflowtaskid`),
+  CONSTRAINT `workflowtasksource_ibfk_1` FOREIGN KEY (`workflowtaskid`) REFERENCES `workflowtask` (`workflowtaskid`),
+  CONSTRAINT `workflowtasksource_ibfk_2` FOREIGN KEY (`sourceworkflowtaskid`) REFERENCES `workflowtask` (`workflowtaskid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `workflowtasksource`
+--
+
+LOCK TABLES `workflowtasksource` WRITE;
+/*!40000 ALTER TABLE `workflowtasksource` DISABLE KEYS */;
+/*!40000 ALTER TABLE `workflowtasksource` ENABLE KEYS */;
+UNLOCK TABLES;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
-
--- populate "sample type" <-> "list of meta fields" link tables. 
-
-  
--- truncate table workflowsamplesubtype;
--- truncate table samplesubtype;
-
-insert into samplesubtype(sampletypeid,iname,name)
-select 
-t.sampletypeid, 
-concat(w.iname,t.iname, 'Sample'), 
-concat(w.name, ' ', t.name, ' Sample')
-from sampletype t 
-join workflow w
-where t.sampletypeid in (1, 3);
-
-insert into workflowsamplesubtype(workflowid, samplesubtypeid)
-select w.workflowid, st.samplesubtypeid
-from workflow w
-join sampletype t on t.sampletypeid in (1, 3)
-join samplesubtype st on concat(w.iname, t.iname, 'Sample') = st.iname;
-
-
-create table taskmapping (
-  taskmappingid int(10) primary key not null auto_increment,
-  taskid int(10) not null,
-  status varchar(50) not null,
-  listmap varchar(255) default null,
-  detailmap varchar(255) default null,
-  permission varchar(255) not null,
-  dashboardsortorder int(10),
-
-  foreign key fk_taskmapping_tid (taskid) references task(taskid),
-  constraint unique index u_taskmapping_t_s (taskid, status, permission)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=5 ;
-
-
-insert into taskmapping (taskid ,status,listmap,detailmap,permission,dashboardsortorder )
-SELECT DISTINCT t.taskid, s.status,  '/path/to/list',  '/path/to/detail',  'hasRole(''lu'')', t.taskid
-FROM task t
-JOIN state s ON t.taskid = s.taskid;
-
-insert into user
-values
-(1, 'super', 'super@super.com', SHA1('user'), 'Super', 'User', 'en_US', 1, now(), 1);
-
-insert into userrole values (1, 1, 11, now(), 1);
-insert into lab values (1, 1, 'default lab', 1, 1, now(), 1);
-insert into labuser values (1, 1, 1, 6, now(), 1);
-
+-- Dump completed on 2012-08-01 14:54:59
