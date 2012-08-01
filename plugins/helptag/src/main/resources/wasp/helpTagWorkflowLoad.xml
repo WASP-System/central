@@ -48,7 +48,7 @@
 
     <property name="sampleSubtypes">
       <set>
-        <value>helpTagLibrarySample</value>
+        <value>helptagLibrarySample</value>
       </set>
     </property>
     
