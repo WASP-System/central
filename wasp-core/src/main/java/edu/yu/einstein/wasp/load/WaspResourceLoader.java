@@ -5,8 +5,6 @@ package edu.yu.einstein.wasp.load;
 
 import java.util.List;
 
-import org.springframework.beans.factory.InitializingBean;
-
 /**
  * @author calder
  * 
