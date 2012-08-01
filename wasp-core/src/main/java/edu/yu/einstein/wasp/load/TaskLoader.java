@@ -2,7 +2,8 @@ package edu.yu.einstein.wasp.load;
 
 import java.util.List;
 
-import org.springframework.beans.factory.InitializingBean;
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.yu.einstein.wasp.load.service.TaskLoadService;
@@ -19,7 +20,7 @@ import edu.yu.einstein.wasp.model.TaskMapping;
  */
 
 
-public class TaskLoader extends WaspLoader implements InitializingBean {
+public class TaskLoader extends WaspLoader {
 
 	@Autowired
 	TaskLoadService taskLoadService;
@@ -32,8 +33,8 @@ public class TaskLoader extends WaspLoader implements InitializingBean {
 	}
 
 
-	@Override 
-	public void afterPropertiesSet() throws Exception{
+	@PostConstruct 
+	  public void init() throws Exception{
 		logger.info("task loader started for  " + iname);
 		taskLoadService.update(iname, name, taskMapping);
 		taskLoadService.updateUiFields(uiFields); 
