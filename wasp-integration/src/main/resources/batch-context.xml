@@ -26,17 +26,19 @@
     <property name="jobRegistry" ref="jobRegistry"/>
 </bean>
 
-	<!-- AOP advice to restart tasklets with name pattern *RetryableTasklet.java 
+	<!-- AOP advice to restart tasklets with name pattern *RetryableTasklet.java -->
     <aop:config>
-        <aop:pointcut id="batchJobRetry" expression=" execution(* *..*RetryableTasklet.execute(..))  "/>
-        <aop:advisor pointcut-ref="batchJobRetry" advice-ref="retryAdvice" order="-1"/>
+        <aop:pointcut id="batchJobRetry" expression="execution(@edu.yu.einstein.annotations.Retryable * *..*Tasklet.execute(..))"/>
+        <aop:advisor pointcut-ref="batchJobRetry" advice-ref="retryAdvice" />
     </aop:config>
 
     <bean id="retryAdvice"  class="org.springframework.batch.retry.interceptor.RetryOperationsInterceptor">
         <property name="retryOperations">
             <bean class="org.springframework.batch.retry.support.RetryTemplate">
                 <property name="retryPolicy">
-                    <bean class="org.springframework.batch.retry.policy.AlwaysRetryPolicy" />
+                    <bean class="org.springframework.batch.retry.policy.SimpleRetryPolicy">
+                    	<property name="maxAttempts" value="3" />
+                    </bean>
                 </property>
                 <property name="backOffPolicy">
                     <bean class="org.springframework.batch.retry.backoff.FixedBackOffPolicy">
@@ -46,5 +48,4 @@
             </bean>
         </property>
     </bean>
-	-->
 </beans>

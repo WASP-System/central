@@ -188,6 +188,8 @@ public class RunFlowTests extends AbstractTestNGSpringContextTests implements Me
 			message =  WaspRunStatusMessage.build(RUN_ID, PU_ID2, WaspRunStatus.COMPLETED);
 			logger.debug("Sending message via 'waspRunPriorityChannel': "+message.toString());
 			waspRunPriorityChannel.send(message);
+			waspRunPriorityChannel.send(message);
+			waspRunPriorityChannel.send(message);
 			
 			// Delay to allow message receiving and transitions. Time out after 20s.
 			int repeat = 0;

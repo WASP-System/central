@@ -20,6 +20,7 @@ import org.springframework.integration.MessagingException;
 import org.springframework.integration.core.MessageHandler;
 import org.springframework.integration.core.SubscribableChannel;
 
+import edu.yu.einstein.annotations.Retryable;
 import edu.yu.einstein.wasp.exceptions.UnexpectedMessagePayloadValueException;
 import edu.yu.einstein.wasp.messages.WaspRunStatus;
 import edu.yu.einstein.wasp.messages.WaspRunStatusMessage;
@@ -72,6 +73,7 @@ public class WaitForRunStartTasklet implements Tasklet, MessageHandler, Applicat
 	/**
 	 * Implementation of {@link Tasklet} Interface method
 	 */
+	@Retryable
 	@Override
 	public RepeatStatus execute(StepContribution stepContribution, ChunkContext chunkContext) throws Exception {
 		if (waspRunPublishSubscribeChannel == null){
