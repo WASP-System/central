@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 
@@ -49,8 +51,8 @@ public class WorkflowLoader extends WaspResourceLoader {
   }
 
  
-  @Override 
-  public void afterPropertiesSet() throws Exception {
+  @PostConstruct 
+  public void init() throws Exception {
 	  String pageFlowString = StringUtils.collectionToDelimitedString(pageFlowOrder, ";");
 
 	  // Add meta for Inserting UiPageflow fields

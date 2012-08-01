@@ -2,6 +2,8 @@ package edu.yu.einstein.wasp.load;
 
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.yu.einstein.wasp.load.service.SoftwareLoadService;
@@ -54,8 +56,8 @@ public class SoftwareLoader extends WaspResourceLoader {
 	this.isActive = isActive;
   }
 
-  @Override 
-  public void afterPropertiesSet() throws Exception {
+  @PostConstruct 
+  public void init() throws Exception {
 	  
 	softwareLoadService.update(resourceType, meta, iname, name, isActive);
 	

@@ -52,7 +52,6 @@ import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.SampleSubtypeResourceCategory;
 import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.model.State;
-import edu.yu.einstein.wasp.model.Statejob;
 import edu.yu.einstein.wasp.model.Statesample;
 import edu.yu.einstein.wasp.model.Task;
 import edu.yu.einstein.wasp.model.WorkflowSampleSubtype;

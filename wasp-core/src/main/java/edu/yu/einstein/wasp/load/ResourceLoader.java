@@ -2,7 +2,8 @@ package edu.yu.einstein.wasp.load;
 
 import java.util.List;
 
-import org.springframework.beans.factory.InitializingBean;
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.yu.einstein.wasp.load.service.ResourceLoadService;
@@ -23,7 +24,7 @@ import edu.yu.einstein.wasp.model.ResourceMeta;
  */
 
 
-public class ResourceLoader extends WaspLoader implements InitializingBean {
+public class ResourceLoader extends WaspLoader {
 
   @Autowired
   ResourceLoadService resourceLoadService;
@@ -46,8 +47,8 @@ public class ResourceLoader extends WaspLoader implements InitializingBean {
 
 
 
-  @Override 
-  public void afterPropertiesSet() throws Exception {
+  @PostConstruct 
+  public void init() throws Exception {
  
 	  resourceLoadService.update(meta, resourceCategoryIName, resourceTypeString, cells, iname, name);
 	  resourceLoadService.updateUiFields(uiFields); 

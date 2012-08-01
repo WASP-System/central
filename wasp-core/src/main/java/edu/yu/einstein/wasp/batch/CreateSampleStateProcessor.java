@@ -9,7 +9,6 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import edu.yu.einstein.wasp.cli.Main;
 import edu.yu.einstein.wasp.dao.StateDao;
 import edu.yu.einstein.wasp.dao.StatejobDao;
 import edu.yu.einstein.wasp.dao.StaterunDao;

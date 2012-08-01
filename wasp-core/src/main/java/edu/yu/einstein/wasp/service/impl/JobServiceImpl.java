@@ -50,7 +50,6 @@ import edu.yu.einstein.wasp.dao.StateDao;
 import edu.yu.einstein.wasp.dao.StatejobDao;
 import edu.yu.einstein.wasp.dao.TaskDao;
 import edu.yu.einstein.wasp.exception.FileMoveException;
-import edu.yu.einstein.wasp.model.AcctJobquotecurrent;
 import edu.yu.einstein.wasp.model.File;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobCellSelection;

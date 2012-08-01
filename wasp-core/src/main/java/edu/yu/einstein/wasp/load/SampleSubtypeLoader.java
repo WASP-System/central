@@ -3,7 +3,8 @@ package edu.yu.einstein.wasp.load;
 
 import java.util.List;
 
-import org.springframework.beans.factory.InitializingBean;
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.yu.einstein.wasp.load.service.SampleSubtypeLoadService;
@@ -21,7 +22,7 @@ import edu.yu.einstein.wasp.model.SampleSubtypeMeta;
  */
 
 
-public class SampleSubtypeLoader extends WaspLoader implements InitializingBean {
+public class SampleSubtypeLoader extends WaspLoader {
 
   @Autowired
   private SampleSubtypeLoadService sampleSubtypeLoadService;
@@ -68,8 +69,8 @@ public class SampleSubtypeLoader extends WaspLoader implements InitializingBean 
   }
 
 
-  @Override 
-  public void afterPropertiesSet() throws Exception {
+  @PostConstruct 
+  public void init() throws Exception {
 	  sampleSubtypeLoadService.update(sampleTypeString, meta, iname, name, isActive,  uiFields, applicableRoles, compatibleResourcesByIName);
 	  sampleSubtypeLoadService.updateUiFields(uiFields); 
 
