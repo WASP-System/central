@@ -184,7 +184,7 @@ public class RunFlowTests extends AbstractTestNGSpringContextTests implements Me
 			// Short delay before sending messages to allow flow setup and subscribing to waspRunPublishSubscribeChannel
 			Thread.sleep(1000);
 				
-			// send run completed message
+			// send run completed message 3 times because there is @Retryable on the execute method. Should fail after 3 wrong messages
 			message =  WaspRunStatusMessage.build(RUN_ID, PU_ID2, WaspRunStatus.COMPLETED);
 			logger.debug("Sending message via 'waspRunPriorityChannel': "+message.toString());
 			waspRunPriorityChannel.send(message);

@@ -26,9 +26,9 @@
     <property name="jobRegistry" ref="jobRegistry"/>
 </bean>
 
-	<!-- AOP advice to restart tasklets with name pattern *RetryableTasklet.java -->
+	<!-- AOP advice to restart methods with @Retryable annotation-->
     <aop:config>
-        <aop:pointcut id="batchJobRetry" expression="execution(@edu.yu.einstein.annotations.Retryable * *..*Tasklet.execute(..))"/>
+        <aop:pointcut id="batchJobRetry" expression="execution(@edu.yu.einstein.annotations.Retryable * *(..))"/>
         <aop:advisor pointcut-ref="batchJobRetry" advice-ref="retryAdvice" />
     </aop:config>
 
