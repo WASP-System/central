@@ -8,5 +8,6 @@ public class WaspMessageType {
 	public static final String RUN = "RUN";
 	public static final String SAMPLE = "SAMPLE";
 	public static final String LIBRARY = "LIBRARY";
+	public static final String ANALYSIS = "ANALYSIS";
 
 }

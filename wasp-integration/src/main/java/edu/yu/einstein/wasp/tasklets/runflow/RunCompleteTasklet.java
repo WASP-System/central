@@ -44,8 +44,8 @@ private final Logger logger = Logger.getLogger(RunCompleteTasklet .class);
 	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception {
 		// send message to inform other flows that a run has started
 		Message<WaspStatus> message =  WaspRunStatusMessage.build(runId, platformUnitId, WaspStatus.COMPLETED);
-		logger.debug("Sending message via 'waspRunPriorityChannel': "+message.toString());
-		PollableChannel waspRunPriorityChannel = applicationContext.getBean("waspRunPriorityChannel", PollableChannel.class);
+		logger.debug("Sending message via 'wasp.channel.priority.run': "+message.toString());
+		PollableChannel waspRunPriorityChannel = applicationContext.getBean("wasp.channel.priority.run", PollableChannel.class);
 		waspRunPriorityChannel.send(message);
 		return RepeatStatus.FINISHED;
 	}

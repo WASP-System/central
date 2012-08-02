@@ -12,7 +12,8 @@
 		<property name="url" value="${batch.jdbc.url}" />
 	</bean>
 
-	<jdbc:initialize-database data-source="dataSource">
+	<jdbc:initialize-database data-source="dataSource" >
+		<jdbc:script location="${batch.resetSchema.script}" />
 		<jdbc:script location="${batch.schema.script}" />
 	</jdbc:initialize-database>
 	

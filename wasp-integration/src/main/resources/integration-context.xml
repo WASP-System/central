@@ -8,29 +8,65 @@
 		http://www.springframework.org/schema/integration/rmi http://www.springframework.org/schema/integration/rmi/spring-integration-rmi.xsd">
 
 
-	<int:channel id="waspRunPriorityChannel">
+	<!-- priority channels -->
+	<int:channel id="wasp.channel.priority.run">
 		<int:priority-queue />
 	</int:channel>
 	
-	<int:channel id="waspRmiRequestChannel" />
+	<int:channel id="wasp.channel.priority.sample">
+		<int:priority-queue />
+	</int:channel>
 	
-	<int:publish-subscribe-channel id="waspRunNotificationChannel" />
+	<int:channel id="wasp.channel.priority.library">
+		<int:priority-queue />
+	</int:channel>
 	
-	<int:publish-subscribe-channel id="waspSampleNotificationChannel" />
+	<int:channel id="wasp.channel.priority.analysis">
+		<int:priority-queue />
+	</int:channel>
 	
-	<int:publish-subscribe-channel id="waspLibraryNotificationChannel" />
 	
-	<int:publish-subscribe-channel id="waspAnalysisNotificationChannel" />
+	<!-- publish-subscribe channels for broadcasting messages -->	
+	<int:publish-subscribe-channel id="wasp.channel.notification.run" />
 	
-	<!-- throttles messages -->
-	<int:bridge input-channel="waspRunPriorityChannel" output-channel="waspRunNotificationChannel">
+	<int:publish-subscribe-channel id="wasp.channel.notification.sample" />
+	
+	<int:publish-subscribe-channel id="wasp.channel.notification.library" />
+	
+	<int:publish-subscribe-channel id="wasp.channel.notification.analysis" />
+	
+	
+	<!-- bridges between priority and publish-subscribe channels to throttle messages -->
+	<int:bridge id="wasp.channel.bridge.run" input-channel="wasp.channel.priority.run" output-channel="wasp.channel.notification.run">
 		<int:poller max-messages-per-poll="1" fixed-rate="5000" />
 	</int:bridge>
 	
-	<!-- accepts incoming messages from outside -->
-	<int-rmi:inbound-gateway id="rmiGateway" expect-reply="false" request-channel="waspRmiRequestChannel"/>
+	<int:bridge id="wasp.channel.bridge.sample"  input-channel="wasp.channel.priority.sample" output-channel="wasp.channel.notification.sample">
+		<int:poller max-messages-per-poll="1" fixed-rate="5000" />
+	</int:bridge>
+	
+	<int:bridge id="wasp.channel.bridge.library"  input-channel="wasp.channel.priority.library" output-channel="wasp.channel.notification.library">
+		<int:poller max-messages-per-poll="1" fixed-rate="5000" />
+	</int:bridge>
+	
+	<int:bridge id="wasp.channel.bridge.analysis"  input-channel="wasp.channel.priority.analysis" output-channel="wasp.channel.notification.analysis">
+		<int:poller max-messages-per-poll="1" fixed-rate="5000" />
+	</int:bridge>
 	
 	
+	<!-- inbound RMI gateway accepts incoming messages from other JAVA apps (e.g. webapp or cli) -->
+	<int-rmi:inbound-gateway id="wasp.gateway.rmi.inbound" expect-reply="false" request-channel="wasp.channel.rmi.inbound" />
+	
+	<int:channel id="wasp.channel.rmi.inbound" />
+	
+	<bean id="waspMessageType" class="edu.yu.einstein.wasp.messages.WaspMessageType" />
+	
+	<!-- header-router to sort inbound messages into appropriate channels -->
+	<int:header-value-router id="waspMessageTypeRouter" header-name="#{waspMessageType.MESSAGE_TYPE_FIELD}" input-channel="wasp.channel.rmi.inbound">
+		<int:mapping value="#{waspMessageType.RUN}" channel="wasp.channel.priority.run"/>
+		<int:mapping value="#{waspMessageType.SAMPLE}" channel="wasp.channel.priority.sample"/>
+		<int:mapping value="#{waspMessageType.LIBRARY}" channel="wasp.channel.priority.library"/>
+		<int:mapping value="#{waspMessageType.ANALYSIS}" channel="wasp.channel.priority.analysis"/>
+	</int:header-value-router>
 		
-	
 </beans>

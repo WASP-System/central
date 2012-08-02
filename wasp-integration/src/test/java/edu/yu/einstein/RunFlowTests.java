@@ -18,6 +18,8 @@ import org.springframework.integration.MessagingException;
 import org.springframework.integration.core.MessageHandler;
 import org.springframework.integration.core.PollableChannel;
 import org.springframework.integration.core.SubscribableChannel;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.Assert;
@@ -29,6 +31,8 @@ import edu.yu.einstein.wasp.messages.WaspStatus;
 
 
 @ContextConfiguration(locations={"classpath:launch-context.xml"})
+@DirtiesContext(classMode=ClassMode.AFTER_CLASS) // close application context after tests executed
+
 public class RunFlowTests extends AbstractTestNGSpringContextTests implements MessageHandler {
 	
 	@Autowired
@@ -73,7 +77,7 @@ public class RunFlowTests extends AbstractTestNGSpringContextTests implements Me
 	public void testRunJob() {
 		try{
 			// listen in on the waspRunPublishSubscribeChannel for messages
-			SubscribableChannel waspRunPublishSubscribeChannel = context.getBean("waspRunNotificationChannel", SubscribableChannel.class);
+			SubscribableChannel waspRunPublishSubscribeChannel = context.getBean("wasp.channel.notification.run", SubscribableChannel.class);
 			waspRunPublishSubscribeChannel.subscribe(this); // register as a message handler on the waspRunPublishSubscribeChannel
 			
 			// setup job execution for the 'runJob' job
@@ -130,7 +134,7 @@ public class RunFlowTests extends AbstractTestNGSpringContextTests implements Me
 	public void testRunLibraryJob() {
 		try{
 			// get a ref to the waspRunPriorityChannel to send test messages
-			PollableChannel waspRunPriorityChannel = context.getBean("waspRunPriorityChannel", PollableChannel.class);
+			PollableChannel waspRunPriorityChannel = context.getBean("wasp.channel.priority.run", PollableChannel.class);
 			
 			// setup job execution for the  'runLibraryJob' job
 			Job runLibraryJob = jobRegistry.getJob("runLibraryJob"); // get the 'runLibraryJob' job from the context
@@ -143,12 +147,12 @@ public class RunFlowTests extends AbstractTestNGSpringContextTests implements Me
 				
 			// send run completed message
 			message =  WaspRunStatusMessage.build(RUN_ID, PU_ID1, WaspStatus.COMPLETED);
-			logger.debug("Sending message via 'waspRunPriorityChannel': "+message.toString());
+			logger.debug("Sending message via 'wasp.channel.priority.run': "+message.toString());
 			waspRunPriorityChannel.send(message);
 			
 			// send run started message
 			Message<WaspStatus> message =  WaspRunStatusMessage.build(RUN_ID, PU_ID1, WaspStatus.STARTED);
-			logger.debug("Sending message via 'waspRunPriorityChannel': "+message.toString());
+			logger.debug("Sending message via 'wasp.channel.priority.run': "+message.toString());
 			waspRunPriorityChannel.send(message);
 			
 			// Delay to allow message receiving and transitions. Time out after 20s.
@@ -176,7 +180,7 @@ public class RunFlowTests extends AbstractTestNGSpringContextTests implements Me
 	public void testRunLibraryJobFail() {
 		try{
 			// get a ref to the waspRunPriorityChannel to send test messages
-			PollableChannel waspRunPriorityChannel = context.getBean("waspRunPriorityChannel", PollableChannel.class);
+			PollableChannel waspRunPriorityChannel = context.getBean("wasp.channel.priority.run", PollableChannel.class);
 			
 			// setup job execution for the  'runLibraryJob' job
 			Job runLibraryJob = jobRegistry.getJob("runLibraryJob"); // get the 'runLibraryJob' job from the context
@@ -189,7 +193,7 @@ public class RunFlowTests extends AbstractTestNGSpringContextTests implements Me
 				
 			// send run completed message 3 times because there is @Retryable on the execute method. Should fail after 3 wrong messages
 			message =  WaspRunStatusMessage.build(RUN_ID, PU_ID2, WaspStatus.COMPLETED);
-			logger.debug("Sending message via 'waspRunPriorityChannel': "+message.toString());
+			logger.debug("Sending message via 'wasp.channel.priority.run': "+message.toString());
 			waspRunPriorityChannel.send(message);
 			waspRunPriorityChannel.send(message);
 			waspRunPriorityChannel.send(message);

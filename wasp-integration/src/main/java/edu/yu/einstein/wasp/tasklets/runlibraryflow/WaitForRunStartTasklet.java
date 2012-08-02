@@ -79,7 +79,7 @@ public class WaitForRunStartTasklet implements Tasklet, MessageHandler, Applicat
 	public RepeatStatus execute(StepContribution stepContribution, ChunkContext chunkContext) throws Exception {
 		if (waspRunPublishSubscribeChannel == null){
 			// listen in on the waspRunPublishSubscribeChannel for messages 
-			this.waspRunPublishSubscribeChannel = applicationContext.getBean("waspRunNotificationChannel", SubscribableChannel.class);
+			this.waspRunPublishSubscribeChannel = applicationContext.getBean("wasp.channel.notification.run", SubscribableChannel.class);
 			waspRunPublishSubscribeChannel.subscribe(this); // register as a message handler on the waspRunPublishSubscribeChannel
 		}
 		logger.debug("Entering WaitForRunStartTasklet:execute()"); 

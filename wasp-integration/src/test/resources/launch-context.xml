@@ -10,9 +10,9 @@
 	<context:component-scan base-package="edu.yu.einstein.wasp.service.impl" />
 
 	<!-- import configuration files  -->
-	<import resource="persistence-context.xml" />
-	<import resource="batch-context.xml" />
-	<import resource="integration-context.xml" />
+	<import resource="classpath:persistence-context.xml" />
+	<import resource="classpath:batch-context.xml" />
+	<import resource="classpath:integration-context.xml" />
 	
 	<!-- import batch flows -->
 	<import resource="classpath:/META-INF/spring/*Flow.xml" />
