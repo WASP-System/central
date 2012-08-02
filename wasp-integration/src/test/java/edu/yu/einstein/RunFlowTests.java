@@ -23,8 +23,9 @@ import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import edu.yu.einstein.wasp.messages.WaspRunStatus;
+import edu.yu.einstein.wasp.messages.WaspMessageType;
 import edu.yu.einstein.wasp.messages.WaspRunStatusMessage;
+import edu.yu.einstein.wasp.messages.WaspStatus;
 
 
 @ContextConfiguration(locations={"classpath:launch-context.xml"})
@@ -65,14 +66,14 @@ public class RunFlowTests extends AbstractTestNGSpringContextTests implements Me
 	/**
 	 * This test tests the runFlow.
 	 * The method sets up a waspRunPublishSubscribeChannel and listens on it. it then launches the runFlowJob.
-	 * The method verifies that a WaspRunStatus.STARTED is sent by the flow logic and a WaspRunStatus.COMPLETED 8s later.
+	 * The method verifies that a WaspStatus.STARTED is sent by the flow logic and a WaspStatus.COMPLETED 8s later.
 	 * The headers and payload of the received messages are checked as is the order received.
 	 */
 	@Test (groups = "unit-tests", dependsOnMethods = "testAutowiringOk")
 	public void testRunJob() {
 		try{
 			// listen in on the waspRunPublishSubscribeChannel for messages
-			SubscribableChannel waspRunPublishSubscribeChannel = context.getBean("waspRunPublishSubscribeChannel", SubscribableChannel.class);
+			SubscribableChannel waspRunPublishSubscribeChannel = context.getBean("waspRunNotificationChannel", SubscribableChannel.class);
 			waspRunPublishSubscribeChannel.subscribe(this); // register as a message handler on the waspRunPublishSubscribeChannel
 			
 			// setup job execution for the 'runJob' job
@@ -92,12 +93,14 @@ public class RunFlowTests extends AbstractTestNGSpringContextTests implements Me
 			// check headers as expected
 			Assert.assertTrue(message.getHeaders().containsKey(PU_KEY));
 			Assert.assertEquals(message.getHeaders().get(PU_KEY), PU_ID1);
+			Assert.assertTrue(message.getHeaders().containsKey(WaspMessageType.MESSAGE_TYPE_FIELD));
+			Assert.assertEquals(message.getHeaders().get(WaspMessageType.MESSAGE_TYPE_FIELD), WaspMessageType.RUN);
 			Assert.assertTrue(message.getHeaders().containsKey(RUN_KEY));
 			Assert.assertEquals(message.getHeaders().get(RUN_KEY), RUN_ID);
 			
 			// check payload as expected
-			Assert.assertEquals(WaspRunStatus.class, message.getPayload().getClass());
-			Assert.assertEquals(message.getPayload(), WaspRunStatus.STARTED);
+			Assert.assertEquals(WaspStatus.class, message.getPayload().getClass());
+			Assert.assertEquals(message.getPayload(), WaspStatus.STARTED);
 			
 			// Check 'COMPLETED' message received
 			// Going to sleep 8s Whilst awaiting second message
@@ -107,7 +110,7 @@ public class RunFlowTests extends AbstractTestNGSpringContextTests implements Me
 				Assert.fail("'Complete' message was not received");
 			
 			// check payload as expected (don't bother checking headers this time around)
-			Assert.assertEquals(message.getPayload(), WaspRunStatus.COMPLETED);
+			Assert.assertEquals(message.getPayload(), WaspStatus.COMPLETED);
 			waspRunPublishSubscribeChannel.unsubscribe(this);
 			
 			// check BatchStatus is as expected
@@ -120,7 +123,7 @@ public class RunFlowTests extends AbstractTestNGSpringContextTests implements Me
 	
 	/**
 	 * This test test the runLibraryFlow
-	 * Test With Expected messages. Send a WaspRunStatus.STARTED and WaspRunStatus.COMPLETED message. The STARTED one has higher priority so
+	 * Test With Expected messages. Send a WaspStatus.STARTED and WaspStatus.COMPLETED message. The STARTED one has higher priority so
 	 * should arrive first followed by the COMPLETE message 5s later (due to the poller on the bridge between waspRunPriorityChannel and waspRunPublishSubscribeChannel).
 	 */
 	@Test (groups = "unit-tests", dependsOnMethods = "testAutowiringOk")
@@ -139,12 +142,12 @@ public class RunFlowTests extends AbstractTestNGSpringContextTests implements Me
 			Thread.sleep(1000);
 				
 			// send run completed message
-			message =  WaspRunStatusMessage.build(RUN_ID, PU_ID1, WaspRunStatus.COMPLETED);
+			message =  WaspRunStatusMessage.build(RUN_ID, PU_ID1, WaspStatus.COMPLETED);
 			logger.debug("Sending message via 'waspRunPriorityChannel': "+message.toString());
 			waspRunPriorityChannel.send(message);
 			
 			// send run started message
-			Message<WaspRunStatus> message =  WaspRunStatusMessage.build(RUN_ID, PU_ID1, WaspRunStatus.STARTED);
+			Message<WaspStatus> message =  WaspRunStatusMessage.build(RUN_ID, PU_ID1, WaspStatus.STARTED);
 			logger.debug("Sending message via 'waspRunPriorityChannel': "+message.toString());
 			waspRunPriorityChannel.send(message);
 			
@@ -166,7 +169,7 @@ public class RunFlowTests extends AbstractTestNGSpringContextTests implements Me
 	
 	/**
 	 * This is a failure test for the runLibraryFlow
-	 * Test With Unexpected message. Send a WaspRunStatus.COMPLETED message. 
+	 * Test With Unexpected message. Send a WaspStatus.COMPLETED message. 
 	 * As a STARTED message is expected first it should fail
 	 */
 	@Test (groups = "unit-tests", dependsOnMethods = "testAutowiringOk")
@@ -185,7 +188,7 @@ public class RunFlowTests extends AbstractTestNGSpringContextTests implements Me
 			Thread.sleep(1000);
 				
 			// send run completed message 3 times because there is @Retryable on the execute method. Should fail after 3 wrong messages
-			message =  WaspRunStatusMessage.build(RUN_ID, PU_ID2, WaspRunStatus.COMPLETED);
+			message =  WaspRunStatusMessage.build(RUN_ID, PU_ID2, WaspStatus.COMPLETED);
 			logger.debug("Sending message via 'waspRunPriorityChannel': "+message.toString());
 			waspRunPriorityChannel.send(message);
 			waspRunPriorityChannel.send(message);

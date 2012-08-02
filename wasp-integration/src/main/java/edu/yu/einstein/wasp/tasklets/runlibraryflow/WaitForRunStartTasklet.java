@@ -22,8 +22,9 @@ import org.springframework.integration.core.SubscribableChannel;
 
 import edu.yu.einstein.annotations.Retryable;
 import edu.yu.einstein.wasp.exceptions.UnexpectedMessagePayloadValueException;
-import edu.yu.einstein.wasp.messages.WaspRunStatus;
 import edu.yu.einstein.wasp.messages.WaspRunStatusMessage;
+import edu.yu.einstein.wasp.messages.WaspStatus;
+import edu.yu.einstein.wasp.messages.WaspStatusMessage;
 
 public class WaitForRunStartTasklet implements Tasklet, MessageHandler, ApplicationContextAware {
 	
@@ -37,7 +38,7 @@ public class WaitForRunStartTasklet implements Tasklet, MessageHandler, Applicat
 		this.applicationContext = applicationContext;
 	}
 	
-	private WaspRunStatus runStatus;
+	private WaspStatus runStatus;
 	
 	private Integer platformUnitId;
 	
@@ -78,7 +79,7 @@ public class WaitForRunStartTasklet implements Tasklet, MessageHandler, Applicat
 	public RepeatStatus execute(StepContribution stepContribution, ChunkContext chunkContext) throws Exception {
 		if (waspRunPublishSubscribeChannel == null){
 			// listen in on the waspRunPublishSubscribeChannel for messages 
-			this.waspRunPublishSubscribeChannel = applicationContext.getBean("waspRunPublishSubscribeChannel", SubscribableChannel.class);
+			this.waspRunPublishSubscribeChannel = applicationContext.getBean("waspRunNotificationChannel", SubscribableChannel.class);
 			waspRunPublishSubscribeChannel.subscribe(this); // register as a message handler on the waspRunPublishSubscribeChannel
 		}
 		logger.debug("Entering WaitForRunStartTasklet:execute()"); 
@@ -88,10 +89,10 @@ public class WaitForRunStartTasklet implements Tasklet, MessageHandler, Applicat
 		}
 		
 		// We have received a run status message. Woohoo! Better be sure it's one we're expecting
-		if (this.runStatus != WaspRunStatus.STARTED && 
-				this.runStatus != WaspRunStatus.ABANDONED){
-			logger.error("Got unexpected message waiting for 'WaspRunStatus.STARTED': 'WaspRunStatus."+runStatus.toString()+"'"); 
-			String failureMessage = "Got unexpected message waiting for 'WaspRunStatus.COMPLETED': 'WaspRunStatus."+runStatus.toString()+"'";
+		if (this.runStatus != WaspStatus.STARTED && 
+				this.runStatus != WaspStatus.ABANDONED){
+			logger.error("Got unexpected message waiting for 'WaspStatus.STARTED': 'WaspStatus."+runStatus.toString()+"'"); 
+			String failureMessage = "Got unexpected message waiting for 'WaspStatus.COMPLETED': 'WaspStatus."+runStatus.toString()+"'";
 			this.runStatus = null; // on fail this object is not deleted and may be re-used on restart so clean up to be safe
 			logger.error(failureMessage); 
 			throw new UnexpectedMessagePayloadValueException(failureMessage);
@@ -112,7 +113,7 @@ public class WaitForRunStartTasklet implements Tasklet, MessageHandler, Applicat
 		// Let's see if it is for us and if so we should get the run status from the payload
 		logger.debug("Message recieved by WaitForRunStartTasklet:handleMessage(): "+message.toString());
 		if (WaspRunStatusMessage.actUponMessage(message, null, this.platformUnitId)){
-			this.runStatus = (WaspRunStatus) message.getPayload();
+			this.runStatus = (WaspStatus) message.getPayload();
 		}
 	}
 

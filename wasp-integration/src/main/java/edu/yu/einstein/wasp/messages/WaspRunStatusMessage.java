@@ -10,17 +10,18 @@ import edu.yu.einstein.wasp.exceptions.WaspMessageBuildingException;
  * @author andymac
  *
  */
-public abstract class WaspRunStatusMessage {
+public abstract class WaspRunStatusMessage extends WaspStatusMessage{
 	
 	/**
 	 * Build a Spring Integration Message using the runId header and the runStatus as payload.
 	 * @return {@link Message}<{@link WaspRunStatus}>
 	 * @throws WaspMessageBuildingException
 	 */
-	public static Message<WaspRunStatus> build(Integer runId, Integer platformUnitId,WaspRunStatus runStatus) throws WaspMessageBuildingException {
-		Message<WaspRunStatus> message = null;
+	public static Message<WaspStatus> build(Integer runId, Integer platformUnitId, WaspStatus runStatus) throws WaspMessageBuildingException {
+		Message<WaspStatus> message = null;
 		try {
 			message = MessageBuilder.withPayload(runStatus)
+					.setHeader(WaspMessageType.MESSAGE_TYPE_FIELD, WaspMessageType.RUN)
 					.setHeader("runId", runId)
 					.setHeader("platformUnitId", platformUnitId)
 					.setPriority(runStatus.getPriority())
@@ -40,7 +41,9 @@ public abstract class WaspRunStatusMessage {
 	 * @return
 	 */
 	public static boolean actUponMessage(Message<?> message, Integer runId, Integer platformUnitId ){
-		if ( ! WaspRunStatus.class.isInstance(message.getPayload()) || (runId == null && platformUnitId == null) )
+		if (! isMessageOfExpectedType(message, WaspMessageType.RUN))
+			return false;
+		if ( runId == null && platformUnitId == null )
 			return false;
 		if (runId != null && platformUnitId != null){
 			if ( message.getHeaders().containsKey("runId") &&  ((Integer) message.getHeaders().get("runId")).equals(runId) &&

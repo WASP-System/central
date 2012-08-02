@@ -2,19 +2,35 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:int="http://www.springframework.org/schema/integration"
-	xsi:schemaLocation="http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration-2.1.xsd
-		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+	xmlns:int-rmi="http://www.springframework.org/schema/integration/rmi"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+		http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration-2.1.xsd
+		http://www.springframework.org/schema/integration/rmi http://www.springframework.org/schema/integration/rmi/spring-integration-rmi.xsd">
 
 
 	<int:channel id="waspRunPriorityChannel">
 		<int:priority-queue />
 	</int:channel>
 	
-	<int:publish-subscribe-channel id="waspRunPublishSubscribeChannel" />
+	<int:channel id="waspRmiRequestChannel" />
+	
+	<int:publish-subscribe-channel id="waspRunNotificationChannel" />
+	
+	<int:publish-subscribe-channel id="waspSampleNotificationChannel" />
+	
+	<int:publish-subscribe-channel id="waspLibraryNotificationChannel" />
+	
+	<int:publish-subscribe-channel id="waspAnalysisNotificationChannel" />
 	
 	<!-- throttles messages -->
-	<int:bridge input-channel="waspRunPriorityChannel" output-channel="waspRunPublishSubscribeChannel">
+	<int:bridge input-channel="waspRunPriorityChannel" output-channel="waspRunNotificationChannel">
 		<int:poller max-messages-per-poll="1" fixed-rate="5000" />
 	</int:bridge>
+	
+	<!-- accepts incoming messages from outside -->
+	<int-rmi:inbound-gateway id="rmiGateway" expect-reply="false" request-channel="waspRmiRequestChannel"/>
+	
+	
+		
 	
 </beans>
