@@ -31,7 +31,6 @@ import edu.yu.einstein.wasp.messages.WaspStatus;
 
 
 @ContextConfiguration(locations={"classpath:test-launch-context.xml"})
-@DirtiesContext(classMode=ClassMode.AFTER_CLASS) // close application context after tests executed
 
 public class RunFlowTests extends AbstractTestNGSpringContextTests implements MessageHandler {
 	
