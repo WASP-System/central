@@ -138,7 +138,7 @@ public class JobController extends WaspController {
 		prepareSelectListData(m);
 		
 		String userId = request.getParameter("userId");
-		String labId = request.getParameter("labId");
+		String labId = request.getParameter("labId");System.out.println("I am now inside /job/list");
 		
 		m.addAttribute("displayTheAnchor", "NO");
 		if(userId != null && labId != null){
@@ -162,7 +162,9 @@ public class JobController extends WaspController {
 		
 		String userId = request.getParameter("userId");
 		String labId = request.getParameter("labId");
-
+		
+		
+		
 System.out.println("userId = " + userId);
 System.out.println("labId = " + labId);
 System.out.println("search = " + search);
