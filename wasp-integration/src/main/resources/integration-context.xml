@@ -9,9 +9,10 @@
 
 	<import resource="classpath:inbound-message-routing.xml" />
 	
+	<!-- registry to store and access message channel beans -->
 	<bean id="messageRegistry" class="edu.yu.einstein.wasp.messaging.MessageChannelRegistry" />
 	
-	<!-- This is a bean post-processor that can register all message channels as they are created -->
+	<!-- This is a custom bean post-processor that can register all message channels to the messageRegistry as they are created -->
 	<bean id="messageRegistryBeanPostProcessor" class="edu.yu.einstein.wasp.messaging.MessageChannelRegistryBeanPostProcessor">
     	<property name="messageRegistry" ref="messageRegistry"/>
 	</bean>

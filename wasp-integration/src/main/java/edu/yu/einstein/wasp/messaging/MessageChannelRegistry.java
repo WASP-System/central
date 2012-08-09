@@ -51,6 +51,7 @@ public class MessageChannelRegistry {
 	
 	/**
 	 * gets a named message channel from the registry or returns null if there are no matches
+	 * to name or the object obtained cannot be cast to the specified type
 	 * @param name
 	 * @return
 	 */
