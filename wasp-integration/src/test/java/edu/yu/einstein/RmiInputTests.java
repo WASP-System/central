@@ -120,12 +120,6 @@ public class RmiInputTests extends AbstractTestNGSpringContextTests implements M
 				Assert.fail("Timeout waiting to receive message on 'wasp.channel.notification.run'");
 			
 			// verify message headers
-			Assert.assertTrue(message.getHeaders().containsKey(PU_KEY));
-			Assert.assertEquals(message.getHeaders().get(PU_KEY), PU_ID);
-			Assert.assertTrue(message.getHeaders().containsKey(WaspMessageType.MESSAGE_TYPE_FIELD));
-			Assert.assertEquals(message.getHeaders().get(WaspMessageType.MESSAGE_TYPE_FIELD), WaspMessageType.RUN);
-			Assert.assertTrue(message.getHeaders().containsKey(RUN_KEY));
-			Assert.assertEquals(message.getHeaders().get(RUN_KEY), RUN_ID);
 			Assert.assertTrue(message.getHeaders().containsKey("unknown-target"));
 			Assert.assertEquals(message.getHeaders().get("unknown-target"), "true");
 			
