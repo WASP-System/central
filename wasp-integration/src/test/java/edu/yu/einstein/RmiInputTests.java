@@ -8,11 +8,14 @@ import org.springframework.integration.MessagingException;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.core.MessageHandler;
 import org.springframework.integration.core.SubscribableChannel;
+import org.springframework.integration.support.MessageBuilder;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import edu.yu.einstein.wasp.messages.WaspMessageType;
@@ -34,6 +37,24 @@ public class RmiInputTests extends AbstractTestNGSpringContextTests implements M
 	private final String PU_KEY = "platformUnitId";
 	private final Integer RUN_ID = 10;
 	private final String RUN_KEY = "runId";
+	private DirectChannel outboundRmiChannel;
+	private DirectChannel replyChannel;
+	private SubscribableChannel waspRunPublishSubscribeChannel;
+	
+	@BeforeClass
+	private void setup(){
+		waspRunPublishSubscribeChannel = context.getBean("wasp.channel.notification.run", SubscribableChannel.class);
+		waspRunPublishSubscribeChannel.subscribe(this); // register as a message handler on the waspRunPublishSubscribeChannel
+		outboundRmiChannel = context.getBean("wasp.channel.rmi.outbound", DirectChannel.class);
+		replyChannel = context.getBean("wasp.channel.rmi.internal.reply", DirectChannel.class);
+		replyChannel.subscribe(this);
+	}
+	
+	@AfterClass 
+	private void tearDown(){
+		waspRunPublishSubscribeChannel.unsubscribe(this);
+		replyChannel.unsubscribe(this);
+	}
 	
 	@Test (groups = "unit-tests")
 	public void testAutowiringOk() {
@@ -42,16 +63,7 @@ public class RmiInputTests extends AbstractTestNGSpringContextTests implements M
 	
 	@Test(groups = "unit-tests", dependsOnMethods = "testAutowiringOk")
 	public void testSendMessage() throws Exception{
-		
-		//try{ 
-			// listen in on the waspRunPublishSubscribeChannel for messages
-			SubscribableChannel waspRunPublishSubscribeChannel = context.getBean("wasp.channel.notification.run", SubscribableChannel.class);
-			waspRunPublishSubscribeChannel.subscribe(this); // register as a message handler on the waspRunPublishSubscribeChannel
-			
-			DirectChannel outboundRmiChannel = context.getBean("wasp.channel.rmi.outbound", DirectChannel.class);
-			DirectChannel replyChannel = context.getBean("wasp.channel.rmi.internal.reply", DirectChannel.class);
-			replyChannel.subscribe(this);
-			
+		try{ 
 			// send run started message into outboundRmiChannel
 			message =  WaspRunStatusMessage.build(RUN_ID, PU_ID, WaspStatus.STARTED);
 			logger.debug("Sending message via 'wasp.channel.rmi.outbound': "+message.toString());
@@ -74,14 +86,58 @@ public class RmiInputTests extends AbstractTestNGSpringContextTests implements M
 			Assert.assertEquals(message.getHeaders().get(WaspMessageType.MESSAGE_TYPE_FIELD), WaspMessageType.RUN);
 			Assert.assertTrue(message.getHeaders().containsKey(RUN_KEY));
 			Assert.assertEquals(message.getHeaders().get(RUN_KEY), RUN_ID);
+			Assert.assertFalse(message.getHeaders().containsKey("unknown-target"));
 			
 			// check payload as expected (don't bother checking headers this time around)
 			Assert.assertEquals(message.getPayload(), WaspStatus.STARTED);
 			
-		//} catch (Exception e){
-		//	// caught an unexpected exception
-		//	Assert.fail("Caught Exception: "+e.getMessage());
-		//}
+		} catch (Exception e){
+			// caught an unexpected exception
+			Assert.fail("Caught Exception: "+e.getMessage());
+		}
+	}
+	
+	@Test(groups = "unit-tests", dependsOnMethods = "testSendMessage")
+	public void testUnknownTarget() throws Exception{
+		try{ 
+			// send run started message into outboundRmiChannel
+			message = MessageBuilder.withPayload(WaspStatus.STARTED)
+					.setHeader(WaspMessageType.MESSAGE_TYPE_FIELD, WaspMessageType.RUN)
+					.setHeader("target", "foo") //unknown target foo
+					.setHeader("runId", RUN_ID)
+					.setHeader("platformUnitId", PU_ID)
+					.setPriority(WaspStatus.STARTED.getPriority())
+					.build();
+			logger.debug("Sending message via 'wasp.channel.rmi.outbound': "+message.toString());
+			outboundRmiChannel.send(message);
+			
+			
+			// Delay to allow message receiving and transitions. Time out after 20s.
+			int repeat = 0;
+			while (message == null && repeat < 40){
+				Thread.sleep(500);
+				repeat++;
+			}
+			if (message == null)
+				Assert.fail("Timeout waiting to receive message on 'wasp.channel.notification.run'");
+			
+			// verify message headers
+			Assert.assertTrue(message.getHeaders().containsKey(PU_KEY));
+			Assert.assertEquals(message.getHeaders().get(PU_KEY), PU_ID);
+			Assert.assertTrue(message.getHeaders().containsKey(WaspMessageType.MESSAGE_TYPE_FIELD));
+			Assert.assertEquals(message.getHeaders().get(WaspMessageType.MESSAGE_TYPE_FIELD), WaspMessageType.RUN);
+			Assert.assertTrue(message.getHeaders().containsKey(RUN_KEY));
+			Assert.assertEquals(message.getHeaders().get(RUN_KEY), RUN_ID);
+			Assert.assertTrue(message.getHeaders().containsKey("unknown-target"));
+			Assert.assertEquals(message.getHeaders().get("unknown-target"), "true");
+			
+			// check payload as expected (don't bother checking headers this time around)
+			Assert.assertEquals(message.getPayload(), WaspStatus.STARTED);
+			
+		} catch (Exception e){
+			// caught an unexpected exception
+			Assert.fail("Caught Exception: "+e.getMessage());
+		}
 	}
 	
 	@Override
