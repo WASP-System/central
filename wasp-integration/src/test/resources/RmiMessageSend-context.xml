@@ -8,6 +8,11 @@
 		http://www.springframework.org/schema/integration/rmi http://www.springframework.org/schema/integration/rmi/spring-integration-rmi-2.1.xsd">
 
 	<int:channel id="wasp.channel.rmi.outbound" />
-	<int-rmi:outbound-gateway id="outboundRmiGateway" remote-channel="wasp.channel.rmi.inbound" request-channel="wasp.channel.rmi.outbound" host="localhost" />
+	<int-rmi:outbound-gateway id="outboundRmiGateway" 
+		remote-channel="wasp.channel.rmi.inbound" 
+		request-channel="wasp.channel.rmi.outbound" 
+		reply-channel="wasp.channel.rmi.internal.reply"
+		host="localhost" 
+		port="23532" />
 
 </beans>

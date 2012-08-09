@@ -10,5 +10,7 @@
 	<!-- import configuration files  -->
 	<import resource="classpath:test-persistence-context.xml" />
 	
+	<bean id='authenticationService' class="edu.yu.einstein.test.service.impl.StubAuthenticationServiceImpl" />
+	
 
 </beans>

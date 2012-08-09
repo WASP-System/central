@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans
-	xsi:schemaLocation=" http://www.springframework.org/schema/beans 
+	xint:schemaLocation=" http://www.springframework.org/schema/beans 
   http://www.springframework.org/schema/beans/spring-beans.xsd     
   http://www.springframework.org/schema/context  
   http://www.springframework.org/schema/context/spring-context.xsd 
@@ -17,7 +17,7 @@
   "
 	xmlns:context="http://www.springframework.org/schema/context"
 	xmlns:batch="http://www.springframework.org/schema/batch" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:si="http://www.springframework.org/schema/integration"
+	xmlns:int="http://www.springframework.org/schema/integration"
 	xmlns:file="http://www.springframework.org/schema/integration/file"
 	xmlns:jms="http://www.springframework.org/schema/integration/jms"
 	xmlns:ip="http://www.springframework.org/schema/integration/ip" xmlns="http://www.springframework.org/schema/beans"
@@ -28,7 +28,7 @@
 	<context:annotation-config />
 	<context:component-scan base-package="edu.yu.einstein.wasp.cli" />
 
-	<si:gateway id="clientGateway" service-interface="edu.yu.einstein.wasp.cli.TcpGateway"
+	<int:gateway id="clientGateway" service-interface="edu.yu.einstein.wasp.cli.TcpGateway"
 		default-request-channel="inputChannel" />
 
 	<ip:tcp-connection-factory id="clientFactory"
@@ -38,7 +38,7 @@
 		single-use="true"
 		so-timeout="10000" />
 
-	<si:channel id="inputChannel" />
+	<int:channel id="inputChannel" />
 
 	<ip:tcp-outbound-gateway id="outboundGateway"
 		request-channel="inputChannel" 
@@ -47,7 +47,7 @@
 		request-timeout="10000"
 		reply-timeout="10000" />
 
-	<si:transformer id="clientBytes2String" 
+	<int:transformer id="clientBytes2String" 
 		input-channel="replyChannel"
 		expression="new String(payload)" />
 
@@ -62,19 +62,19 @@
 		request-channel="requestChannel"
 		error-channel="errorChannel" />
 		
-	<si:channel id="toServiceActivator" />
+	<int:channel id="toServiceActivator" />
 	
-	<si:service-activator input-channel="toServiceActivator" 
+	<int:service-activator input-channel="toServiceActivator" 
 		ref="echoService"
 		method="echo" />
 		
 	<bean id="echoService"
 		class="edu.yu.einstein.wasp.cli.EchoService" />
 		
-	<si:transformer id="serverBytes2String" input-channel="requestChannel"
+	<int:transformer id="serverBytes2String" input-channel="requestChannel"
 		output-channel="toServiceActivator" expression="new String(payload)" />
 		
-	<si:transformer id="errorHandler" input-channel="errorChannel"
+	<int:transformer id="errorHandler" input-channel="errorChannel"
 		expression="payload.failedMessage.payload + ':' + payload.cause.message" />
 
 </beans>

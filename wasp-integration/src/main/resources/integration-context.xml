@@ -7,6 +7,7 @@
 		http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration-2.1.xsd
 		http://www.springframework.org/schema/integration/rmi http://www.springframework.org/schema/integration/rmi/spring-integration-rmi.xsd">
 
+	<import resource="classpath:inbound-message-routing.xml" />
 
 	<!-- priority channels -->
 	<int:channel id="wasp.channel.priority.run">
@@ -54,15 +55,22 @@
 	</int:bridge>
 	
 	
-	<!-- inbound RMI gateway accepts incoming messages from other JAVA apps (e.g. webapp or cli) -->
-	<int-rmi:inbound-gateway id="wasp.gateway.rmi.inbound" expect-reply="false" request-channel="wasp.channel.rmi.inbound" />
-	
-	<int:channel id="wasp.channel.rmi.inbound" />
+	<!-- channel for receiving messages intended for batch system.  -->
+	<!-- messages can be routed here by injecting into internal or secure message gateway with header 'target' = 'batch' -->
+	<int:channel id="wasp.channel.batch" >
+		<int:interceptors>
+	    	<int:wire-tap channel="wasp.channel.defaultLogging" />
+	    </int:interceptors>
+	</int:channel>
 	
 	<bean id="waspMessageType" class="edu.yu.einstein.wasp.messages.WaspMessageType" />
 	
 	<!-- header-router to sort inbound messages into appropriate channels -->
-	<int:header-value-router id="waspMessageTypeRouter" header-name="#{waspMessageType.MESSAGE_TYPE_FIELD}" input-channel="wasp.channel.rmi.inbound">
+	<int:header-value-router id="waspMessageTypeRouter" 
+		header-name="#{waspMessageType.MESSAGE_TYPE_FIELD}" 
+		input-channel="wasp.channel.batch" 
+		default-output-channel="wasp.channel.unknown"
+		resolution-required="false" >
 		<int:mapping value="#{waspMessageType.RUN}" channel="wasp.channel.priority.run"/>
 		<int:mapping value="#{waspMessageType.SAMPLE}" channel="wasp.channel.priority.sample"/>
 		<int:mapping value="#{waspMessageType.LIBRARY}" channel="wasp.channel.priority.library"/>

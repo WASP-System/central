@@ -41,14 +41,16 @@ public class RmiInputTests extends AbstractTestNGSpringContextTests implements M
 	}
 	
 	@Test(groups = "unit-tests", dependsOnMethods = "testAutowiringOk")
-	public void testSendMessage() {
+	public void testSendMessage() throws Exception{
 		
-		try{ 
+		//try{ 
 			// listen in on the waspRunPublishSubscribeChannel for messages
 			SubscribableChannel waspRunPublishSubscribeChannel = context.getBean("wasp.channel.notification.run", SubscribableChannel.class);
 			waspRunPublishSubscribeChannel.subscribe(this); // register as a message handler on the waspRunPublishSubscribeChannel
 			
 			DirectChannel outboundRmiChannel = context.getBean("wasp.channel.rmi.outbound", DirectChannel.class);
+			DirectChannel replyChannel = context.getBean("wasp.channel.rmi.internal.reply", DirectChannel.class);
+			replyChannel.subscribe(this);
 			
 			// send run started message into outboundRmiChannel
 			message =  WaspRunStatusMessage.build(RUN_ID, PU_ID, WaspStatus.STARTED);
@@ -76,10 +78,10 @@ public class RmiInputTests extends AbstractTestNGSpringContextTests implements M
 			// check payload as expected (don't bother checking headers this time around)
 			Assert.assertEquals(message.getPayload(), WaspStatus.STARTED);
 			
-		} catch (Exception e){
-			// caught an unexpected exception
-			Assert.fail("Caught Exception: "+e.getMessage());
-		}
+		//} catch (Exception e){
+		//	// caught an unexpected exception
+		//	Assert.fail("Caught Exception: "+e.getMessage());
+		//}
 	}
 	
 	@Override
