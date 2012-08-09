@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:batch="http://www.springframework.org/schema/batch"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd">
+		
+	<bean id='waspJobQuoteTasklet' class="edu.yu.einstein.wasp.tasklets.waspJobQuoteTasklet" scope="step">
+		<constructor-arg value="#{jobParameters['jobId']}" />
+	</bean>
+	
+	<bean id='waspJobPiApproveTasklet' class="edu.yu.einstein.wasp.tasklets.waspJobPiApproveTasklet" scope="step">
+		<constructor-arg value="#{jobParameters['jobId']}" />
+	</bean>
+	
+	<bean id='waspJobAdminApproveTasklet' class="edu.yu.einstein.wasp.tasklets.waspJobAdminApproveTasklet" scope="step">
+		<constructor-arg value="#{jobParameters['jobId']}" />
+	</bean>
+
+	<batch:flow id="chipSeq.waspJob.mainFlow.v1" >
+		<batch:split id="chipSeq.waspJob.postSubmitTasks" task-executor="taskExecutor">
+			<batch:flow>
+				<batch:step id="chipSeq.waspJob.quote">
+					<batch:tasklet ref="waspJobQuoteTasklet" />
+				</batch:step>
+			</batch:flow>
+			<batch:flow>
+				<batch:step id="chipSeq.waspJob.piApprove">
+					<batch:tasklet ref="waspJobPiApproveTasklet" />
+				</batch:step>
+			</batch:flow>
+			<batch:flow>
+				<batch:step id="chipSeq.waspJob.adminApprove">
+					<batch:tasklet ref="waspJobAdminApproveTasklet" />
+				</batch:step>
+			</batch:flow>
+			<batch:next on="COMPLETED" to="chipSeq.waspJob.approved" />
+			<batch:next on="*" to="chipSeq.waspJob.rejected" />
+		</batch:split>
+		<batch:step id="chipSeq.waspJob.approved">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.tasklets.chipSeqJobActionedTasklet" scope="step">
+					<constructor-arg value="#{jobParameters['jobId']}" />
+					<constructor-arg value="true" />
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+		<batch:step id="chipSeq.waspJob.rejected">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.tasklets.chipSeqJobActionedTasklet" scope="step">
+					<constructor-arg value="#{jobParameters['jobId']}" />
+					<constructor-arg value="false" />
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+	</batch:flow>
+
+</beans>
