@@ -19,10 +19,9 @@ public class MessageChannelRegistry {
 	private Map<String, MessageChannel> messageChannels;
 	
 	/**
-	 * Initialization
+	 * Constructor
 	 */
-	@PostConstruct
-	public void init(){
+	public  MessageChannelRegistry(){
 		messageChannels = new HashMap<String, MessageChannel>();
 	}
 	
