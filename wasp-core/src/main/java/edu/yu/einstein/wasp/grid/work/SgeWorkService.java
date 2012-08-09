@@ -316,7 +316,7 @@ public class SgeWorkService implements GridWorkService {
 											// non 0 exit code
 					"set -o physical\n" + // replace symbolic links with
 											// physical path
-					"touch " + namePrefix + "${WASPNAME}.start\n" +
+					"echo $JOB_ID >> " + namePrefix + "${WASPNAME}.start\n" +
 					"echo submitted to host `hostname -f` `date` 1>&2";
 			command = w.getCommand();
 			postscript = "echo \"##### begin ${WASPNAME}\" > " + namePrefix + "${WASPNAME}.command\n\n" +
