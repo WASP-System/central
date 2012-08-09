@@ -23,10 +23,10 @@
 	
 	<!-- This is a bean post-processor that can register all jobs as they are created -->
 	<bean id="jobRegistryBeanPostProcessor" class="org.springframework.batch.core.configuration.support.JobRegistryBeanPostProcessor">
-    <property name="jobRegistry" ref="jobRegistry"/>
-</bean>
-
-	<!-- AOP advice to restart methods with @Retryable annotation-->
+    	<property name="jobRegistry" ref="jobRegistry"/>
+    </bean>
+    
+    <!-- AOP advice to restart methods with @Retryable annotation-->
     <aop:config>
         <aop:pointcut id="batchJobRetry" expression="execution(@edu.yu.einstein.annotations.Retryable * *(..))"/>
         <aop:advisor pointcut-ref="batchJobRetry" advice-ref="retryAdvice" />

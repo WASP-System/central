@@ -22,8 +22,7 @@
 	xmlns:file="http://www.springframework.org/schema/integration/file"
 	xmlns:rmi="http://www.springframework.org/schema/integration/rmi"
 	xmlns:ip="http://www.springframework.org/schema/integration/ip"
-	xmlns="http://www.springframework.org/schema/beans"
-	default-autowire="byName">
+	xmlns="http://www.springframework.org/schema/beans">
 	
 	<!-- default logging channel -->
 	<int:logging-channel-adapter id='wasp.channel.defaultLogging' log-full-message="true" level="DEBUG" />

@@ -5,17 +5,7 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd">
 		
-	<bean id='waspJobQuoteTasklet' class="edu.yu.einstein.wasp.tasklets.waspJobQuoteTasklet" scope="step">
-		<constructor-arg value="#{jobParameters['jobId']}" />
-	</bean>
-	
-	<bean id='waspJobPiApproveTasklet' class="edu.yu.einstein.wasp.tasklets.waspJobPiApproveTasklet" scope="step">
-		<constructor-arg value="#{jobParameters['jobId']}" />
-	</bean>
-	
-	<bean id='waspJobAdminApproveTasklet' class="edu.yu.einstein.wasp.tasklets.waspJobAdminApproveTasklet" scope="step">
-		<constructor-arg value="#{jobParameters['jobId']}" />
-	</bean>
+	<!-- common tasklets defined in config-common-context.xml -->
 
 	<batch:flow id="chipSeq.waspJob.mainFlow.v1" >
 		<batch:split id="chipSeq.waspJob.postSubmitTasks" task-executor="taskExecutor">
@@ -39,7 +29,7 @@
 		</batch:split>
 		<batch:step id="chipSeq.waspJob.approved">
 			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.tasklets.chipSeqJobActionedTasklet" scope="step">
+				<bean class="edu.yu.einstein.wasp.tasklets.ChipSeqJobActionedTasklet" scope="step">
 					<constructor-arg value="#{jobParameters['jobId']}" />
 					<constructor-arg value="true" />
 				</bean>

@@ -8,8 +8,19 @@
 		http://www.springframework.org/schema/integration/rmi http://www.springframework.org/schema/integration/rmi/spring-integration-rmi.xsd">
 
 	<import resource="classpath:inbound-message-routing.xml" />
+	
+	<bean id="messageRegistry" class="edu.yu.einstein.wasp.messaging.MessageChannelRegistry" />
+	
+	<!-- This is a bean post-processor that can register all message channels as they are created -->
+	<bean id="messageRegistryBeanPostProcessor" class="edu.yu.einstein.wasp.messaging.MessageChannelRegistryBeanPostProcessor">
+    	<property name="messageRegistry" ref="messageRegistry"/>
+	</bean>
 
 	<!-- priority channels -->
+	<int:channel id="wasp.channel.priority.job">
+		<int:priority-queue />
+	</int:channel>
+	
 	<int:channel id="wasp.channel.priority.run">
 		<int:priority-queue />
 	</int:channel>
@@ -28,6 +39,8 @@
 	
 	
 	<!-- publish-subscribe channels for broadcasting messages -->	
+	<int:publish-subscribe-channel id="wasp.channel.notification.job" />
+	
 	<int:publish-subscribe-channel id="wasp.channel.notification.run" />
 	
 	<int:publish-subscribe-channel id="wasp.channel.notification.sample" />
@@ -38,6 +51,10 @@
 	
 	
 	<!-- bridges between priority and publish-subscribe channels to throttle messages -->
+	<int:bridge id="wasp.channel.bridge.job" input-channel="wasp.channel.priority.job" output-channel="wasp.channel.notification.job">
+		<int:poller max-messages-per-poll="1" fixed-rate="5000" />
+	</int:bridge>
+	
 	<int:bridge id="wasp.channel.bridge.run" input-channel="wasp.channel.priority.run" output-channel="wasp.channel.notification.run">
 		<int:poller max-messages-per-poll="1" fixed-rate="5000" />
 	</int:bridge>
@@ -71,6 +88,7 @@
 		input-channel="wasp.channel.batch" 
 		default-output-channel="wasp.channel.unknown"
 		resolution-required="false" >
+		<int:mapping value="#{waspMessageType.JOB}" channel="wasp.channel.priority.job"/>
 		<int:mapping value="#{waspMessageType.RUN}" channel="wasp.channel.priority.run"/>
 		<int:mapping value="#{waspMessageType.SAMPLE}" channel="wasp.channel.priority.sample"/>
 		<int:mapping value="#{waspMessageType.LIBRARY}" channel="wasp.channel.priority.library"/>

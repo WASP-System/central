@@ -21,13 +21,14 @@ import org.testng.annotations.Test;
 import edu.yu.einstein.wasp.messages.WaspMessageType;
 import edu.yu.einstein.wasp.messages.WaspRunStatusMessage;
 import edu.yu.einstein.wasp.messages.WaspStatus;
+import edu.yu.einstein.wasp.messaging.MessageChannelRegistry;
 
 @ContextConfiguration(locations={"classpath:test-launch-context.xml", "classpath:RmiMessageSend-context.xml"})
 
 public class RmiInputTests extends AbstractTestNGSpringContextTests implements MessageHandler{
 	
 	@Autowired
-	ApplicationContext context;
+	MessageChannelRegistry channelRegistry;
 	
 	private final Logger logger = Logger.getLogger(RunFlowTests.class);
 	
@@ -43,10 +44,11 @@ public class RmiInputTests extends AbstractTestNGSpringContextTests implements M
 	
 	@BeforeClass
 	private void setup(){
-		waspRunPublishSubscribeChannel = context.getBean("wasp.channel.notification.run", SubscribableChannel.class);
+		Assert.assertNotNull(channelRegistry);
+		waspRunPublishSubscribeChannel = channelRegistry.getChannel("wasp.channel.notification.run", SubscribableChannel.class);
 		waspRunPublishSubscribeChannel.subscribe(this); // register as a message handler on the waspRunPublishSubscribeChannel
-		outboundRmiChannel = context.getBean("wasp.channel.rmi.outbound", DirectChannel.class);
-		replyChannel = context.getBean("wasp.channel.rmi.internal.reply", DirectChannel.class);
+		outboundRmiChannel = channelRegistry.getChannel("wasp.channel.rmi.outbound", DirectChannel.class);
+		replyChannel = channelRegistry.getChannel("wasp.channel.rmi.internal.reply", DirectChannel.class);
 		replyChannel.subscribe(this);
 	}
 	
@@ -55,13 +57,9 @@ public class RmiInputTests extends AbstractTestNGSpringContextTests implements M
 		waspRunPublishSubscribeChannel.unsubscribe(this);
 		replyChannel.unsubscribe(this);
 	}
+
 	
-	@Test (groups = "unit-tests")
-	public void testAutowiringOk() {
-		Assert.assertNotNull(context);
-	}
-	
-	@Test(groups = "unit-tests", dependsOnMethods = "testAutowiringOk")
+	@Test(groups = "unit-tests")
 	public void testSendMessage() throws Exception{
 		try{ 
 			// send run started message into outboundRmiChannel
