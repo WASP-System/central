@@ -1,7 +1,10 @@
 package edu.yu.einstein.wasp.controller;
 
+import java.text.Format;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -20,9 +23,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import edu.yu.einstein.wasp.controller.DashboardController.DashboardEntityRolename;
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
@@ -149,8 +154,9 @@ public class JobController extends WaspController {
 		return "job/list";
 	}
 
-	@RequestMapping(value="/listJSON", method=RequestMethod.GET)	
-	public String getListJSON(HttpServletResponse response) {
+	@RequestMapping(value="/listJSON", method=RequestMethod.GET)
+	//@ResponseBody  
+	public String getListJSON(HttpServletResponse response /* , @RequestBody(required = false) Filters filters */) {
 		
 		String search = request.getParameter("_search");
 		String searchField = request.getParameter("searchField");
@@ -163,8 +169,8 @@ public class JobController extends WaspController {
 		String userId = request.getParameter("userId");
 		String labId = request.getParameter("labId");
 		
-		
-		
+
+System.out.println("selId = " + request.getParameter("selId"));		
 System.out.println("userId = " + userId);
 System.out.println("labId = " + labId);
 System.out.println("search = " + search);
@@ -174,7 +180,37 @@ System.out.println("searchOperator = " + searchOperator);
 System.out.println("sidx = " + sidx);
 System.out.println("sord = " + sord);
 
-		//result
+System.out.println("jobid = " + request.getParameter("jobid"));	
+System.out.println("jobname = " + request.getParameter("jobname"));	
+System.out.println("submitter = " + request.getParameter("submitter"));	
+System.out.println("pi = " + request.getParameter("pi"));	
+System.out.println("createts = " + request.getParameter("createts"));	
+System.out.println("viewfiles = " + request.getParameter("viewfiles"));	
+
+String filters = request.getParameter("filters");
+System.out.println("filters = " + filters);	
+/*
+for(int i = 10; i < 2001; i++){
+Job jobA = new Job();
+jobA.setLabId(2);
+if(i%2==0){
+	jobA.setUserId(6);
+}
+else{
+	jobA.setUserId(5);
+}
+jobA.setWorkflowId(1);
+jobA.setName("job " + i);
+Date date = new Date();
+jobA.setCreatets(date);
+jobA.setViewablebylab(0);
+jobA.setIsActive(1);
+jobA.setLastUpdTs(date);
+jobA.setLastUpdUser(6);
+this.jobDao.save(jobA);
+}
+*/
+//result
 		Map <String, Object> jqgrid = new HashMap<String, Object>();
 		
 		List<Job> tempJobList = new ArrayList<Job>();
@@ -232,7 +268,7 @@ System.out.println("sord = " + sord);
 			}
 		}
 		
-		if(search.equals("true") && !searchString.trim().isEmpty()){//search	; search has to be through the list (in tempJobList) of allowable jobs for that viewer		
+		if(search.equals("true") && searchString!= null && !searchString.isEmpty() && !searchString.trim().isEmpty()){//search	; search has to be through the list (in tempJobList) of allowable jobs for that viewer		
 		  
 			if(searchField.equals("jobId")){					  
 					  
@@ -379,14 +415,14 @@ System.out.println("sord = " + sord);
 				List<JobMeta> jobMeta = getMetaHelperWebapp().syncWithMaster(job.getJobMeta());
 				
 				User user = userDao.getById(job.getUserId());
-				 					
+				Format formatter = new SimpleDateFormat("MM/dd/yyyy");					
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 							"J" + job.getJobId().intValue() + " (<a href=/wasp/sampleDnaToLibrary/listJobSamples/"+job.getJobId()+".do>details</a>)",
 							job.getName(),
 							user.getNameFstLst(),
 							//job.getLab().getName() + " (" + pi.getNameLstCmFst() + ")",
 							job.getLab().getUser().getNameFstLst(),
-							job.getCreatets().toString(),
+							formatter.format(job.getCreatets()),
 							"<a href=/wasp/"+job.getWorkflow().getIName()+"/viewfiles/"+job.getJobId()+".do>View files</a>"
 				}));
 				 
@@ -811,4 +847,54 @@ class JobCreatetsComparator implements Comparator<Job> {
 	public int compare(Job arg0, Job arg1) {
 		return arg0.getCreatets().compareTo(arg1.getCreatets());
 	}
+}
+
+class Filters{
+
+// inner class Rules
+public class Rules{
+private String field;
+private String op;
+private String data;
+
+public String getField() {
+return field;
+}
+public void setField(String field) {
+this.field = field;
+}
+public String getOp() {
+return op;
+}
+public void setOp(String op) {
+this.op = op;
+}
+public String getData() {
+return data;
+}
+public void setData(String data) {
+this.data = data;
+}
+}
+
+private String groupOp;
+
+private List<Rules> rules;
+
+public String getGroupOp() {
+return groupOp;
+}
+
+public void setGroupOp(String groupOp) {
+this.groupOp = groupOp;
+}
+
+public List<Rules> getRules() {
+return rules;
+}
+
+public void setRules(List<Rules> rules) {
+this.rules = rules;
+}
+
 }

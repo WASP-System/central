@@ -1,11 +1,12 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
-<c:if test="${displayTheAnchor=='YES'}"><a href='<c:url value="/job/list.do"/>'>View All Jobs</a></c:if>
-
-  
+<c:if test="${displayTheAnchor=='YES'}"><a href='<c:url value="/job/list.do"/>'>View All Jobs</a></c:if>  
 <script type="text/javascript" src="/wasp/scripts/jquery/jquery-ui-1.8.18.custom.min.js"></script> 
+
+
+
  <script type="text/javascript">
      $(document).ready(function() { 
-    	  // ////$("#jobName").keyup(function(){getAuthNames();});
+    	  // ////$("#jobName").keyup(function(){getAuthNames();}); 
 	     //  ////$("#submitter").keyup(function(){getAuthNames();});
 	     //  ////$("#pi").keyup(function(){getAuthNames();});
 	       //$("#jqg2").keyup(function(){getAuthNames();});
@@ -15,19 +16,243 @@
 	       //$('input[id^="jqg"]').live('click', function(){alert("this is the alert");});
 	       //$('input[id^="jqg"]').live('keyup', function(){alert("this is the alert");});
 
-$('input[id^="jqg"]').live('keyup', function(){ var num = parseInt(this.id.replace("jqg", "")); getAuthNames2(num);});
+//$('input[id^="jqg"]').live('keyup', function(){ var num = parseInt(this.id.replace("jqg", "")); getAuthNames2(num);});
 	   	       
 	       //$("#searchhdfbox_grid_id a").live('click', function(){alert("this is the alert for the close x");});
-	       //$("#fbox_grid_id_search").live('mouseenter', function(){var string = $("#jqg2").val() + "a"; $("#jqg2").val(string); });
-	      
-	       
+	       //$("#fbox_grid_id_search").live('mouseenter', function(){var string = $("#jqg2").val() + "a"; $("#jqg2").val(string); });	       
 	      // $("#fbox_grid_id_search").live('mouseenter', function(){var string = $("#jqg2").val(); alert("the value of jqg2 = " + string); });
 	       //$("#fbox_grid_id_search").live('mouseenter', function(){$("#jqg2").keydown(); });
-	       
-	       
+
+//$("#gs_submitter").live('keyup', function(){getAuthNames();});
+
+
+
+
+
+/*  
+
+	       ///http://trirand.com/blog/jqgrid/jqgrid.html version 3.7 toolbar search 
+	       //this first line (the immediate next line) is added by rob to populate the autocomplete on submitter 
+	       var submitterAutocompleteList = new Array("Esther Berko", "John Greally", "Robert Dubin");
+	       var getUniqueNames = function(columnName) {
+	    	   var texts = jQuery("#toolbar").jqGrid('getCol',columnName), uniqueTexts = [],
+	    	   textsLength = texts.length, text, textsMap = {}, i;
+	    	   for (i=0;i<textsLength;i++) {
+	    	   text = texts[i];
+	    	   if (text !== undefined && textsMap[text] === undefined) {
+	    	   // to test whether the texts is unique we place it in the map.
+	    	   textsMap[text] = true;
+	    	   uniqueTexts.push(text);
+	    	   }
+	    	   }
+	    	   return uniqueTexts;
+	    	   };
+    	 jQuery("#toolbar").jqGrid({
+    		   	url:'/wasp/job/listJSON.do?selId=${param.selId}&userId=${param.userId}&labId=${param.labId}', 
+    			datatype: "json",
+    			height: 255,
+    			width: 600,
+    		   	colNames:['JobID','Job Name', 'submitter','PI','Submitter On','Result'],
+    		   	colModel:[
+    		   		{name:'jobId',index:'jobId', width:65, sorttype:'int'},
+    		   		{name:'jobname',index:'jobname', width:100},
+    		   		{name:'submitter',index:'submitter', width:100},
+    		   		{name:'pi',index:'pi', width:100},
+    		   		{name:'createts',index:'createts', width:100},
+    		   		{name:'viewfiles',index:'viewfiles', width:100}
+    		   	],
+    		   	rowNum:20,
+    			rowTotal: 2000,
+    			rowList : [20,30,50],
+    			loadonce:false,
+    		   	mtype: "GET",
+    			rownumbers: true,
+    			rownumWidth: 40,
+    			gridview: true,
+    		   	pager: '#ptoolbar',
+    		   	sortname: 'jobId',
+    		    viewrecords: true,
+    		    sortorder: "asc",
+    			caption: "Toolbar Searching"	
+    		});
+
+    		jQuery("#toolbar").jqGrid('navGrid','#ptoolbar',{del:false,add:false,edit:false,search:false});
+    		//jQuery("#toolbar").jqGrid('filterToolbar',{stringResult: true,searchOnEnter : false, defaultSearch:"cn"}); 
+    	     jQuery("#toolbar").jqGrid('filterToolbar',{stringResult: true,searchOnEnter : true, defaultSearch:"cn"});
+    		
+    		//taken from http://www.ok-soft-gmbh.com/jqGrid/FillToolbarSearchFilter.htm 
+    		jQuery("#toolbar").jqGrid('setColProp', 'submitter',
+				{
+					searchoptions: {
+					sopt:['cn'],
+						dataInit: function(elem) {
+							$(elem).autocomplete({
+							source:getUniqueNames('submitter'), 
+							//source:submitterAutocompleteList,//defined about 20 lines above 
+							//source:"Robert Dubin",
+							delay:0,
+							minLength:0
+						});
+					}
+				}
+			}); 
+    		
+    		
+    		
+    	 //jQuery("#grid_id").jqGrid('navGrid','#gridpager',{del:false,add:false,edit:false,search:false});
+ 		//jQuery("#grid_id").jqGrid('filterToolbar',{stringResult: true,searchOnEnter : false});
+*/  
+ 
+  
+ //http://www.ok-soft-gmbh.com/jqGrid/FillToolbarSearchFilter.htm 
+    	 var submitterAutocompleteList = new Array("Esther Berko", "John Greally", "Robert Dubin"), mydata = [
+{id:"1", Name:"Miroslav Klose", Category:"sport", Subcategory:"football"},
+{id:"2", Name:"Michael Schumacher", Category:"sport", Subcategory:"formula 1"},
+{id:"3", Name:"Albert Einstein", Category:"science", Subcategory:"physics"},
+{id:"4", Name:"Blaise Pascal", Category:"science", Subcategory:"mathematics"}
+],
+grid = $("#list"),
+getUniqueNames = function(columnName) {
+var texts = grid.jqGrid('getCol',columnName), uniqueTexts = [],
+textsLength = texts.length, text, textsMap = {}, i;
+for (i=0;i<textsLength;i++) {
+text = texts[i];
+if (text !== undefined && textsMap[text] === undefined) {
+// to test whether the texts is unique we place it in the map.
+textsMap[text] = true;
+uniqueTexts.push(text);
+}
+}
+return uniqueTexts;
+},
+buildSearchSelect = function(uniqueNames) {
+var values=":All";
+$.each (uniqueNames, function() {
+values += ";" + this + ":" + this;
+});
+return values;
+},
+setSearchSelect = function(columnName) {
+grid.jqGrid('setColProp', columnName,
+{
+stype: 'select',
+searchoptions: {
+value:buildSearchSelect(getUniqueNames(columnName)),
+sopt:['eq']
+}
+}
+);
+};
+grid.jqGrid({
+//data: mydata, 
+//datatype: 'local', 
+	url:'/wasp/job/listJSON.do?selId=${param.selId}&userId=${param.userId}&labId=${param.labId}',
+    datatype: 'JSON',
+    mtype: 'GET',
+    height: 255,
+	width: 600,
+   	colNames:['JobID','Job Name', 'Submitter','PI','Submitted','Result'],
+colModel: [
+{ name:'jobId', index:'jobId', width:250 },
+{ name:'name', index:'name', width:250 },
+{ name:'submitter', index:'submitter', width:250 },
+{ name:'pi', index:'pi', width:250 },
+{ name:'createts', index:'createts', width:200 },
+{ name:'viewfiles', index:'viewfiles', width:200, search: false, sortable: false }
+],
+sortname: 'jobId',
+viewrecords: true,
+rownumbers: true,
+sortorder: "desc",
+ignoreCase: true,
+pager: '#pager',
+height: "auto",
+caption: "Jobs (must internationalize)"
+}).jqGrid('navGrid','#pager',
+//{edit:false, add:false, del:false, search:false, refresh:false}); 
+{edit:false, add:false, del:false, search:false});
+//setSearchSelect('Category');
+//setSearchSelect('Subcategory');
+grid.jqGrid('setColProp', 'submitter',
+{
+searchoptions: {
+sopt:['cn'],
+dataInit: function(elem) {	
+/* 
+$(elem).autocomplete({
+//source:getUniqueNames('Name'), 
+source:submitterAutocompleteList,
+delay:0,
+minLength:0
+});
+*/ 
+	setTimeout(
+				function(){ 
+			$.getJSON("/wasp/autocomplete/getUserNamesAndLoginForDisplay.do", 
+					{ adminNameFragment: "" }, 
+					function(data) { 
+						//jQuery(elm).autocomplete("option", "appendTo", "#result"); 
+						//jQuery(elm).autocomplete("option", "source", data); 
+						jQuery(elem).autocomplete(data);
+					} );
+				}, 200
+	);
+}
+}
+});
+grid.jqGrid('setColProp', 'pi',
+{
+		searchoptions: {
+		sopt:['cn'],
+		dataInit: function(elem) {	
+		/* 
+		$(elem).autocomplete({
+		//source:getUniqueNames('Name'), 
+		source:submitterAutocompleteList,
+		delay:0,
+		minLength:0
+		});
+		*/ 
+			setTimeout(
+						function(){ 
+					$.getJSON("/wasp/autocomplete/getPiNamesAndLoginForDisplay.do", 
+							{ piNameFragment: "" }, 
+							function(data) { 
+								//jQuery(elm).autocomplete("option", "appendTo", "#result"); 
+								//jQuery(elm).autocomplete("option", "source", data); 
+								jQuery(elem).autocomplete(data);
+							} );
+						}, 200
+			);
+		}
+		}
+});
+grid.jqGrid('setColProp', 'createts',
+{
+			searchoptions: {
+				sopt:['eq'],
+				dataInit: function(elem) {	
+					jQuery(elem).datepicker();
+				}
+			}
+});
+
+grid.jqGrid('filterToolbar',
+{stringResult:true, searchOnEnter:true, defaultSearch:"cn"}); 
+   
+ 
+ 
      });
-      
+     
+/*       
      function getAuthNames(){        
+    	 if( $("#gs_submitter").val().length == 1){
+	        	$.getJSON("/wasp/autocomplete/getUserNamesAndLoginForDisplay.do", { adminNameFragment: $("#gs_submitter").val() }, function(data) { $("input#gs_submitter").autocomplete(data);} );
+  		}
+     }
+      
+
+	function getAuthNames(){        
     	 if( $("#jobName").val().length == 1){
 	        	$.getJSON("/wasp/autocomplete/getUserNamesAndLoginForDisplay.do", { adminNameFragment: $("#jobName").val() }, function(data) { $("input#jobName").autocomplete(data);} );
   		}
@@ -49,11 +274,14 @@ $('input[id^="jqg"]').live('keyup', function(){ var num = parseInt(this.id.repla
     		 //setTimeout(
 			//				function(){
 			//					$.getJSON("/wasp/autocomplete/getUserNamesAndLoginForDisplay.do", { adminNameFragment: $("#jqg"+num).val() }, function(data) { $("input#jqg"+num).autocomplete(data);} );
-			//},200);
+			//},200); 
   		}    
      }
-     
+  */   
  </script>
+ 
+ 
+ 
 
 <!-- 
 <script type="text/javascript">
@@ -232,12 +460,24 @@ datePick2 = function(elem)
 </center>
 </br >
 -->
-  
+
+
+
+<!-- search toolbar -->
+<center>
+<table id="list"><tr><td/></tr></table>
+<div id="pager"></div>
+</center> 
+<!--
+  <table id="toolbar"></table>
+<div id="ptoolbar" ></div>
+-->
+<!--   
 <table id="grid_id"></table> 
 <div id="gridpager"></div>
-
-    
+-->
  <!--   
+   
     <br/>
     <br />
     -------------------------------

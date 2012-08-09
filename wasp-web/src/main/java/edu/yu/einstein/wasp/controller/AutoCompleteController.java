@@ -4,6 +4,7 @@
 package edu.yu.einstein.wasp.controller;
 
 import java.util.List;
+import java.util.ArrayList;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -19,6 +20,8 @@ import edu.yu.einstein.wasp.dao.UserMetaDao;
 import edu.yu.einstein.wasp.dao.UserPendingMetaDao;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.model.Lab;
+import edu.yu.einstein.wasp.dao.LabDao;
 
 /**
  * Methods for handling json responses for JQuery auto-complete on input boxes
@@ -37,7 +40,36 @@ public class AutoCompleteController extends WaspController{
 	
 	@Autowired
 	private UserPendingMetaDao userPendingMetaDao;
-	
+
+	@Autowired
+	private LabDao labDao;
+
+	/**
+	   * Obtains a json message containing list of all PIs where each entry in the list looks something like "Peter Piper (PPiper)"
+	   * Used to populate a JQuery autocomplete managed input box
+	   * @param piNameFragment
+	   * @return json message
+	   */
+	  @RequestMapping(value="/getPiNamesAndLoginForDisplay", method=RequestMethod.GET)
+	  public @ResponseBody String getPINames(@RequestParam String piNameFragment) {
+	      
+		  List<Lab> labList = labDao.findAll(); 
+	      List<User> userList = new ArrayList<User>();
+	      for(Lab lab : labList){
+	    	  userList.add(lab.getUser());
+	      }
+		 
+	      String jsonString = new String();
+	      jsonString = jsonString + "{\"source\": [";
+	      for (User u : userList){
+	    	  if(u.getFirstName().indexOf(piNameFragment) > -1 || u.getLastName().indexOf(piNameFragment) > -1 || u.getLogin().indexOf(piNameFragment) > -1){
+	    		  jsonString = jsonString + "\""+ u.getFirstName() + " " + u.getLastName() + " (" + u.getLogin() + ")\",";
+	    	  }
+	      }
+	      jsonString = jsonString.replaceAll(",$", "") + "]}";
+	      return jsonString;                
+	  }
+	  
 	/**
 	   * Obtains a json message containing list of all current users where each entry in the list looks something like "Peter Piper (PPiper)"
 	   * Used to populate a JQuery autocomplete managed input box
