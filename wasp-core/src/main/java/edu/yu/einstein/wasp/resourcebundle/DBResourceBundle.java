@@ -9,7 +9,7 @@
  *
  **/
 
-package edu.yu.einstein.wasp.dao.impl;
+package edu.yu.einstein.wasp.resourcebundle;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -22,8 +22,7 @@ import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
+import javax.annotation.PostConstruct;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -33,18 +32,17 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.MessageSource;
 import org.springframework.core.io.Resource;
-import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Component;
 
-import util.spring.PostInitialize;
 import edu.yu.einstein.wasp.exception.WaspMessageInitializationException;
+import edu.yu.einstein.wasp.service.WaspSqlService;
 import edu.yu.einstein.wasp.service.impl.WaspMessageSourceImpl;
 
-@Repository
+@Component
 public class DBResourceBundle implements ApplicationContextAware{
 
-	@PersistenceContext
-	private EntityManager entityManager;
+	@Autowired
+	private WaspSqlService waspSqlService;
 	
 	@Autowired
 	private MessageSource messageSource;
@@ -65,15 +63,14 @@ public class DBResourceBundle implements ApplicationContextAware{
 	}
 	
 
-	// PostInitialized... b/c Resource and Workflow need uifields set within them
-	@PostInitialize
-	@Transactional
-	public void init() {
+	@PostConstruct
+	public void init() throws Exception {
 		
 		// process uifields initialization file uifield_init.sql if present
 		final String uiFieldInitFileName = "uifield_init.sql";
 		List<Resource> messageFiles = new ArrayList<Resource>();
 		Resource uiFieldInitResource = this.applicationContext.getResource("classpath:/"+uiFieldInitFileName);	
+		List<String> updateList = new ArrayList<String>(); 
 		try {
 			InputStream is = uiFieldInitResource.getInputStream();
 			BufferedReader br = new BufferedReader(new InputStreamReader(is));
@@ -88,18 +85,19 @@ public class DBResourceBundle implements ApplicationContextAware{
 						|| StringUtils.startsWithIgnoreCase(line.trim(), "delete")
 						|| StringUtils.startsWithIgnoreCase(line.trim(), "truncate")
 					){
-					// line is sql 
-					logger.info("Executing ["+line+"]");				
-					try{
-						entityManager.createNativeQuery(line).executeUpdate();
-					} catch(Throwable e){
-						throw new WaspMessageInitializationException("Problem executing sql statement  ["+line+"] : "+e.getMessage());
-					}
+						updateList.add(line);
 				}
 			}
 			br.close();
 		} catch (IOException e) {
-			throw new WaspMessageInitializationException("IO problem encountered reading resource '"+uiFieldInitFileName+"': "+e.getMessage());
+			throw new WaspMessageInitializationException("IO problem encountered reading resource '"+uiFieldInitFileName+"': "+e.getMessage(), e);
+		}
+		 	
+		// execute sql statements
+		try{
+			waspSqlService.executeNativeSqlUpdateOnList(updateList);
+		} catch(Exception e){
+			throw new WaspMessageInitializationException("Problem executing sql updates : "+e.getMessage(), e);
 		}
 
 		try{
@@ -129,6 +127,7 @@ public class DBResourceBundle implements ApplicationContextAware{
 				BufferedReader br = new BufferedReader(new InputStreamReader(is));
 
 				String line;
+				updateList = new ArrayList<String>(); 
 				while ((line = br.readLine()) != null) {
 					if (line.trim().isEmpty() || line.trim().startsWith("#"))
 						continue;
@@ -153,11 +152,7 @@ public class DBResourceBundle implements ApplicationContextAware{
 					String name = keyComponents.nextToken();
 					String attrName = keyComponents.nextToken();
 					String sql="insert into uifield(locale,domain,area,name,attrname,attrvalue,lastupduser) values('"+locale+"', '"+domain+"', '"+area+"', '"+name+"', '"+attrName+"', '"+value+"', 1)";
-					try{
-						entityManager.createNativeQuery(sql).executeUpdate();
-					} catch(Throwable e){
-						throw new WaspMessageInitializationException("Problem executing sql statement  ["+sql+"] : "+e.getMessage());
-					}
+					updateList.add(sql);
 					String lang = locale.substring(0, 2);
 					String cntry = locale.substring(3);
 
@@ -169,13 +164,21 @@ public class DBResourceBundle implements ApplicationContextAware{
 
 			} catch (IOException e) {
 				throw new WaspMessageInitializationException("IO problem encountered reading resource '"+messageFile.getFilename()+"': "+e.getMessage());
-			}			
+			}		
+			// execute sql statements
+			try{
+				waspSqlService.executeNativeSqlUpdateOnList(updateList);
+			} catch(Exception e){
+				throw new WaspMessageInitializationException("Problem executing sql updates : "+e.getMessage(), e);
+			}
 			logger.info("Property table was initialized succesfully for file '"+messageFile.getFilename()+"'");
 
 		}
 
 		MESSAGE_SOURCE = (WaspMessageSourceImpl) messageSource;//save handle to messageSource for easy access
 	}
+
+
 	
 
 }

@@ -14,7 +14,7 @@ import javax.servlet.jsp.tagext.Tag;
 import org.apache.log4j.Logger;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
-import edu.yu.einstein.wasp.dao.impl.DBResourceBundle;
+import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
 
 /*
  * Displays localized messages using list of keys stored in session under name "_feedback"

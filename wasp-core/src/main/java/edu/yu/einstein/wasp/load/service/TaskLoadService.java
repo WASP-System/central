@@ -1,0 +1,11 @@
+package edu.yu.einstein.wasp.load.service;
+
+import java.util.List;
+
+import edu.yu.einstein.wasp.model.TaskMapping;
+
+public interface TaskLoadService extends WaspLoadService {
+	
+	public void update(String iname, String name, List<TaskMapping> taskMapping);
+
+}

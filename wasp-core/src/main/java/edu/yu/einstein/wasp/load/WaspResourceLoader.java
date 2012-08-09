@@ -9,7 +9,7 @@ import java.util.List;
  * @author calder
  * 
  */
-public abstract class WaspResourceLoadService extends WaspLoadService {
+public abstract class WaspResourceLoader extends WaspLoader {
 
 	protected List<String> dependencies;
 

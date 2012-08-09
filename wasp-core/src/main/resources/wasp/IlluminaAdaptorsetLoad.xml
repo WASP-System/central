@@ -18,7 +18,7 @@
     <property name="area" value="#{truseqIndexedDnaArea}" />
   </bean>
 
-  <bean id="truseqIndexedDnaAdaptorsetLoad" class="edu.yu.einstein.wasp.load.AdaptorsetLoadService" >
+  <bean id="truseqIndexedDnaAdaptorsetLoad" class="edu.yu.einstein.wasp.load.AdaptorsetLoader" >
   	<property name="area" value="#{truseqIndexedDnaArea}" />
   	<property name="name" value="TruSEQ INDEXED DNA" />
   	<property name="sampleTypeIName" value="dna" />

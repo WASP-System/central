@@ -19,7 +19,7 @@
   </bean>
 
 
-  <bean id="bisulSeqWorkflow" class="edu.yu.einstein.wasp.load.WorkflowLoadService" depends-on="bisulSeqDnaSampleSubtypeResource,bisulSeqLibrarySampleSubtypeResource">
+  <bean id="bisulSeqWorkflow" class="edu.yu.einstein.wasp.load.WorkflowLoader" depends-on="bisulSeqDnaSampleSubtypeResource,bisulSeqLibrarySampleSubtypeResource">
     <property name="area" value="#{bisulSeqWorkflowArea}" />
     <property name="domain" value="#{bisulseqPluginDomain}" />
     <property name="name" value="BISUL Seq" />
@@ -45,9 +45,9 @@
 
     <property name="sampleSubtypes">
       <set>
-        <value>bisulSeqDnaSample</value>
-        <value>bisulSeqLibrarySample</value>
-        <value>bisulSeqFacilityLibrarySample</value>
+        <value>bisulseqDnaSample</value>
+        <value>bisulseqLibrarySample</value>
+        <value>bisulseqFacilityLibrarySample</value>
       </set>
     </property>
     

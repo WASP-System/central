@@ -1,4 +1,4 @@
-package edu.yu.einstein.wasp.load;
+package edu.yu.einstein.wasp.load.service.impl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -6,49 +6,27 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import util.spring.PostInitialize;
 import edu.yu.einstein.wasp.dao.TaskDao;
 import edu.yu.einstein.wasp.dao.TaskMappingDao;
+import edu.yu.einstein.wasp.load.service.TaskLoadService;
 import edu.yu.einstein.wasp.model.Task;
 import edu.yu.einstein.wasp.model.TaskMapping;
 
-
-/**
- * update/inserts db copy of task from bean definition
- * takes in	properties
- *	 - iname
- *	 - name
- *	 - uifields (List<UiFields)
- *
- */
-
+@Service
 @Transactional
-public class TaskLoadService extends WaspLoadService {
-
+public class TaskLoadServiceImpl extends WaspLoadServiceImpl implements	TaskLoadService {
+	
 	@Autowired
 	private TaskDao taskDao;
 
 	@Autowired
 	private TaskMappingDao taskMappingDao;
-
-	public TaskLoadService (){};
-
-	private List<TaskMapping> taskMapping;
-	public void setTaskMapping(List<TaskMapping> taskMapping) {
-		this.taskMapping = taskMapping; 
-	}
-
+	
 	@Override
-	@Transactional
-	@PostInitialize 
-	public void postInitialize() {
-		// skips component scanned	(if scanned in)
-		if (name == null) { return; }
-
-		logger.info("task loader started for  " + iname);
-
+	public void update(String iname, String name, List<TaskMapping> taskMapping){
 		Task task = taskDao.getTaskByIName(iname); 
 
 		// inserts or update workflow
@@ -108,9 +86,7 @@ public class TaskLoadService extends WaspLoadService {
 				taskMappingDao.remove(tm);
 			}
 		}
-
-		updateUiFields(); 
-
 	}
-}
 
+	
+}

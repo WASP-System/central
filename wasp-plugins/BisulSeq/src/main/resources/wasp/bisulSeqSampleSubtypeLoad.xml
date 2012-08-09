@@ -46,7 +46,7 @@
   </bean>
 
 
-  <bean id="bisulSeqDnaSampleSubtypeResource" class="edu.yu.einstein.wasp.load.SampleSubtypeLoadService">
+  <bean id="bisulSeqDnaSampleSubtypeResource" class="edu.yu.einstein.wasp.load.SampleSubtypeLoader">
   	<property name="name" value="BISUL-seq DNA" />
     <property name="area" value="bisulseqDnaSample" />
     <property name="domain" value="#{bisulseqPluginDomain}" />
@@ -71,7 +71,7 @@
   </bean>
   
  
-  <bean id="bisulSeqLibrarySampleSubtypeResource" class="edu.yu.einstein.wasp.load.SampleSubtypeLoadService">
+  <bean id="bisulSeqLibrarySampleSubtypeResource" class="edu.yu.einstein.wasp.load.SampleSubtypeLoader">
   	<constructor-arg ref="bisulSeqDnaSampleSubtypeResource" />
     <property name="name" value="BISUL-seq Library" />
     <property name="area" value="bisulseqLibrarySample" />
@@ -87,7 +87,7 @@
     <property name="applicableRoles" value="lu" />
   </bean>
   
-  <bean id="bisulSeqFacilityLibrarySampleSubtypeResource" class="edu.yu.einstein.wasp.load.SampleSubtypeLoadService">
+  <bean id="bisulSeqFacilityLibrarySampleSubtypeResource" class="edu.yu.einstein.wasp.load.SampleSubtypeLoader">
   	<constructor-arg ref="bisulSeqDnaSampleSubtypeResource" />
     <property name="name" value="BISUL-seq Facility Library" />
     <property name="area" value="bisulseqFacilityLibrarySample" />

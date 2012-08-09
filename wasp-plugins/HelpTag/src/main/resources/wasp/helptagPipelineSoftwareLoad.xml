@@ -23,7 +23,7 @@
   	<property name="name" value="HELP-tag Pipeline" />
   </bean>
 
-  <bean id="helptagPipelineSoftware" class="edu.yu.einstein.wasp.load.SoftwareLoadService">
+  <bean id="helptagPipelineSoftware" class="edu.yu.einstein.wasp.load.SoftwareLoader">
     <property name="name" value="HELP-tag Pipeline" />
     <property name="resourceType" ref="helptagPipelineResourceType"/>
 	<property name="area" value="#{helptagPipelineArea}" />

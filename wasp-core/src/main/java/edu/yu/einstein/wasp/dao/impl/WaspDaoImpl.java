@@ -20,8 +20,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
 import org.apache.commons.lang.WordUtils;
@@ -33,14 +31,11 @@ import org.springframework.stereotype.Repository;
 import edu.yu.einstein.wasp.exception.ModelDetachException;
 
 @Repository
-public abstract class WaspDaoImpl<E extends Serializable> implements edu.yu.einstein.wasp.dao.WaspDao<E> {
+public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenceDao implements edu.yu.einstein.wasp.dao.WaspDao<E> {
 	protected Class<E>	entityClass;
 
 	// generic logger included with every class.
 	protected static Logger logger = Logger.getLogger(WaspDaoImpl.class.getName());
-
-	@PersistenceContext
-	protected EntityManager		entityManager;
 
 	@Override
 	public void persist(final E entity) {
