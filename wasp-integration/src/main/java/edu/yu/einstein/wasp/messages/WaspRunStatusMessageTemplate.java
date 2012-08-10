@@ -10,7 +10,7 @@ import edu.yu.einstein.wasp.exceptions.WaspMessageBuildingException;
  * @author andymac
  *
  */
-public abstract class WaspRunStatusMessage extends WaspStatusMessage{
+public abstract class WaspRunStatusMessageTemplate extends StatusMessageTemplate{
 	
 	/**
 	 * Build a Spring Integration Message using the runId header and the runStatus as payload.

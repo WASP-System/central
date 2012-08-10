@@ -38,6 +38,10 @@
 		<int:priority-queue />
 	</int:channel>
 	
+	<int:channel id="wasp.channel.priority.default">
+		<int:priority-queue />
+	</int:channel>
+	
 	
 	<!-- publish-subscribe channels for broadcasting messages -->	
 	<int:publish-subscribe-channel id="wasp.channel.notification.job" />
@@ -49,6 +53,8 @@
 	<int:publish-subscribe-channel id="wasp.channel.notification.library" />
 	
 	<int:publish-subscribe-channel id="wasp.channel.notification.analysis" />
+	
+	<int:publish-subscribe-channel id="wasp.channel.notification.default" />
 	
 	
 	<!-- bridges between priority and publish-subscribe channels to throttle messages -->
@@ -72,6 +78,10 @@
 		<int:poller max-messages-per-poll="1" fixed-rate="5000" />
 	</int:bridge>
 	
+	<int:bridge id="wasp.channel.bridge.default"  input-channel="wasp.channel.priority.default" output-channel="wasp.channel.notification.default">
+		<int:poller max-messages-per-poll="1" fixed-rate="5000" />
+	</int:bridge>
+	
 	
 	<!-- channel for receiving messages intended for batch system.  -->
 	<!-- messages can be routed here by injecting into internal or secure message gateway with header 'target' = 'batch' -->
@@ -87,7 +97,7 @@
 	<int:header-value-router id="waspMessageTypeRouter" 
 		header-name="#{waspMessageType.MESSAGE_TYPE_FIELD}" 
 		input-channel="wasp.channel.batch" 
-		default-output-channel="wasp.channel.unknown"
+		default-output-channel="wasp.channel.priority.default"
 		resolution-required="false" >
 		<int:mapping value="#{waspMessageType.JOB}" channel="wasp.channel.priority.job"/>
 		<int:mapping value="#{waspMessageType.RUN}" channel="wasp.channel.priority.run"/>

@@ -5,22 +5,28 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd">
 
-	
-	<bean id='waspJobQuoteTasklet' class="edu.yu.einstein.wasp.tasklets.WaspJobQuoteTasklet" scope="step">
-		<constructor-arg value="#{jobParameters['jobId']}" />
-	</bean>
-	
-	<!-- bean id='waspJobPiApproveTasklet' class="edu.yu.einstein.wasp.tasklets.WaspJobPiApproveTasklet" scope="step">
-		<constructor-arg value="#{jobParameters['jobId']}" />
-	</bean>
-	
-	<bean id='waspJobAdminApproveTasklet' class="edu.yu.einstein.wasp.tasklets.WaspJobAdminApproveTasklet" scope="step">
-		<constructor-arg value="#{jobParameters['jobId']}" />
-	</bean -->
-	
 	<!-- common configuration imports -->
 	<import resource="classpath:batch-context.xml" />
 	<import resource="classpath:integration-context.xml" />
+	
+	<bean id='waspJobQuoteTasklet' class="edu.yu.einstein.wasp.tasklets.WaspJobApprovalTasklet" scope="step">
+		<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.job"/>
+		<constructor-arg name="jobId" value="#{jobParameters['jobId']}" />
+		<constructor-arg name="task" value='#{jobTasks.QUOTE}' />
+	</bean>
+	
+	<bean id='waspJobPiApproveTasklet' class="edu.yu.einstein.wasp.tasklets.WaspJobApprovalTasklet" scope="step">
+		<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.job"/>
+		<constructor-arg name="jobId" value="#{jobParameters['jobId']}" />
+		<constructor-arg name="task" value='#{jobTasks.PI_APPROVE}' />
+	</bean>
+	
+	<bean id='waspJobAdminApproveTasklet' class="edu.yu.einstein.wasp.tasklets.WaspJobApprovalTasklet" scope="step">
+		<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.job"/>
+		<constructor-arg name="jobId" value="#{jobParameters['jobId']}" />
+		<constructor-arg name="task" value='#{jobTasks.ADMIN_APPROVE}' />
+	</bean>
+	
 	
 	<!-- import batch flows -->
 	<import resource="classpath:/META-INF/spring/*Flow.xml" />

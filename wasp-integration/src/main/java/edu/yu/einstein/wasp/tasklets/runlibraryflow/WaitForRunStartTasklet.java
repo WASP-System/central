@@ -22,9 +22,9 @@ import org.springframework.integration.core.SubscribableChannel;
 
 import edu.yu.einstein.annotations.Retryable;
 import edu.yu.einstein.wasp.exceptions.UnexpectedMessagePayloadValueException;
-import edu.yu.einstein.wasp.messages.WaspRunStatusMessage;
+import edu.yu.einstein.wasp.messages.WaspRunStatusMessageTemplate;
 import edu.yu.einstein.wasp.messages.WaspStatus;
-import edu.yu.einstein.wasp.messages.WaspStatusMessage;
+import edu.yu.einstein.wasp.messages.StatusMessageTemplate;
 
 public class WaitForRunStartTasklet implements Tasklet, MessageHandler, ApplicationContextAware {
 	
@@ -112,7 +112,7 @@ public class WaitForRunStartTasklet implements Tasklet, MessageHandler, Applicat
 		// we have picked up a message broadcast on the waspRunPublishSubscribeChannel.
 		// Let's see if it is for us and if so we should get the run status from the payload
 		logger.debug("Message recieved by WaitForRunStartTasklet:handleMessage(): "+message.toString());
-		if (WaspRunStatusMessage.actUponMessage(message, null, this.platformUnitId)){
+		if (WaspRunStatusMessageTemplate.actUponMessage(message, null, this.platformUnitId)){
 			this.runStatus = (WaspStatus) message.getPayload();
 		}
 	}

@@ -16,7 +16,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import edu.yu.einstein.wasp.messages.WaspMessageType;
-import edu.yu.einstein.wasp.messages.WaspRunStatusMessage;
+import edu.yu.einstein.wasp.messages.WaspRunStatusMessageTemplate;
 import edu.yu.einstein.wasp.messages.WaspStatus;
 import edu.yu.einstein.wasp.messaging.MessageChannelRegistry;
 
@@ -26,7 +26,7 @@ public class RmiInputTests extends AbstractTestNGSpringContextTests implements M
 	@Autowired
 	MessageChannelRegistry channelRegistry;
 	
-	private final Logger logger = Logger.getLogger(RunFlowTests.class);
+	private final Logger logger = Logger.getLogger(JobApprovalFlowTests.class);
 	
 	private Message<?> message = null;
 	
@@ -59,7 +59,7 @@ public class RmiInputTests extends AbstractTestNGSpringContextTests implements M
 	public void testSendMessage() throws Exception{
 		try{ 
 			// send run started message into outboundRmiChannel
-			message =  WaspRunStatusMessage.build(RUN_ID, PU_ID, WaspStatus.STARTED);
+			message =  WaspRunStatusMessageTemplate.build(RUN_ID, PU_ID, WaspStatus.STARTED);
 			logger.info("Sending message via 'wasp.channel.rmi.outbound': "+message.toString());
 			outboundRmiChannel.send(message);
 			

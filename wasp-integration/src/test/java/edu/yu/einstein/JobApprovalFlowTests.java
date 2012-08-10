@@ -26,13 +26,13 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import edu.yu.einstein.wasp.messages.WaspMessageType;
-import edu.yu.einstein.wasp.messages.WaspRunStatusMessage;
+import edu.yu.einstein.wasp.messages.WaspRunStatusMessageTemplate;
 import edu.yu.einstein.wasp.messages.WaspStatus;
 
 
 @ContextConfiguration(locations={"classpath:test-launch-context.xml"})
 
-public class RunFlowTests extends AbstractTestNGSpringContextTests implements MessageHandler {
+public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests implements MessageHandler {
 	
 	@Autowired
 	private JobLauncher jobLauncher;
@@ -43,7 +43,7 @@ public class RunFlowTests extends AbstractTestNGSpringContextTests implements Me
 	@Autowired 
 	JobRegistry jobRegistry;
 	
-	private final Logger logger = Logger.getLogger(RunFlowTests.class);
+	private final Logger logger = Logger.getLogger(JobApprovalFlowTests.class);
 	
 	private Message<?> message = null;
 	
@@ -145,12 +145,12 @@ public class RunFlowTests extends AbstractTestNGSpringContextTests implements Me
 			Thread.sleep(1000);
 				
 			// send run completed message
-			message =  WaspRunStatusMessage.build(RUN_ID, PU_ID1, WaspStatus.COMPLETED);
+			message =  WaspRunStatusMessageTemplate.build(RUN_ID, PU_ID1, WaspStatus.COMPLETED);
 			logger.debug("Sending message via 'wasp.channel.priority.run': "+message.toString());
 			waspRunPriorityChannel.send(message);
 			
 			// send run started message
-			Message<WaspStatus> message =  WaspRunStatusMessage.build(RUN_ID, PU_ID1, WaspStatus.STARTED);
+			Message<WaspStatus> message =  WaspRunStatusMessageTemplate.build(RUN_ID, PU_ID1, WaspStatus.STARTED);
 			logger.debug("Sending message via 'wasp.channel.priority.run': "+message.toString());
 			waspRunPriorityChannel.send(message);
 			
@@ -191,7 +191,7 @@ public class RunFlowTests extends AbstractTestNGSpringContextTests implements Me
 			Thread.sleep(1000);
 				
 			// send run completed message 3 times because there is @Retryable on the execute method. Should fail after 3 wrong messages
-			message =  WaspRunStatusMessage.build(RUN_ID, PU_ID2, WaspStatus.COMPLETED);
+			message =  WaspRunStatusMessageTemplate.build(RUN_ID, PU_ID2, WaspStatus.COMPLETED);
 			logger.debug("Sending message via 'wasp.channel.priority.run': "+message.toString());
 			waspRunPriorityChannel.send(message);
 			waspRunPriorityChannel.send(message);

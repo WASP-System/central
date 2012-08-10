@@ -6,8 +6,10 @@
 		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd">
 		
 	<!-- common tasklets defined in config-common-context.xml -->
+	
+	<bean id='jobTasks' class="edu.yu.einstein.wasp.messages.WaspJobTask" />
 
-	<batch:flow id="chipSeq.waspJob.mainFlow.v1" >
+	<batch:flow id="chipSeq.waspJob.flow.approvals.v1" >
 		<batch:split id="chipSeq.waspJob.postSubmitTasks" task-executor="taskExecutor">
 			<batch:flow>
 				<batch:step id="chipSeq.waspJob.quote">
@@ -30,19 +32,25 @@
 		<batch:step id="chipSeq.waspJob.approved">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.tasklets.ChipSeqJobActionedTasklet" scope="step">
-					<constructor-arg value="#{jobParameters['jobId']}" />
-					<constructor-arg value="true" />
+					<constructor-arg name="jobId" value="#{jobParameters['jobId']}" />
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.notification.job" />
+					<constructor-arg name="isAccepted" value="true" />
 				</bean>
 			</batch:tasklet>
 		</batch:step>
 		<batch:step id="chipSeq.waspJob.rejected">
 			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.tasklets.chipSeqJobActionedTasklet" scope="step">
-					<constructor-arg value="#{jobParameters['jobId']}" />
-					<constructor-arg value="false" />
+				<bean class="edu.yu.einstein.wasp.tasklets.ChipSeqJobActionedTasklet" scope="step">
+					<constructor-arg name="jobId" value="#{jobParameters['jobId']}" />
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="isAccepted" value="false" />
 				</bean>
 			</batch:tasklet>
 		</batch:step>
 	</batch:flow>
+	
+	<batch:job id="chipSeq.waspJob.jobflow.v1">
+		<batch:flow id="chipSeq.waspJob.jobflow.approvals" parent="chipSeq.waspJob.flow.approvals.v1" />
+	</batch:job>
 
 </beans>

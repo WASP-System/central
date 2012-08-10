@@ -7,9 +7,9 @@ import org.springframework.integration.Message;
  * @author andymac
  *
  */
-public abstract class WaspStatusMessage {
+public abstract class StatusMessageTemplate {
 	
-	protected static boolean isMessageOfExpectedType(Message<?> message, String type){
+	public static boolean isMessageOfExpectedType(Message<?> message, String type){
 		if (! WaspStatus.class.isInstance(message.getPayload()) )
 			return false;
 		if (! message.getHeaders().containsKey(WaspMessageType.MESSAGE_TYPE_FIELD) )
