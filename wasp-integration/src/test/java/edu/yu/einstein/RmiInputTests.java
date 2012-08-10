@@ -60,7 +60,7 @@ public class RmiInputTests extends AbstractTestNGSpringContextTests implements M
 		try{ 
 			// send run started message into outboundRmiChannel
 			message =  WaspRunStatusMessage.build(RUN_ID, PU_ID, WaspStatus.STARTED);
-			logger.debug("Sending message via 'wasp.channel.rmi.outbound': "+message.toString());
+			logger.info("Sending message via 'wasp.channel.rmi.outbound': "+message.toString());
 			outboundRmiChannel.send(message);
 			
 			
@@ -102,7 +102,7 @@ public class RmiInputTests extends AbstractTestNGSpringContextTests implements M
 					.setHeader("platformUnitId", PU_ID)
 					.setPriority(WaspStatus.STARTED.getPriority())
 					.build();
-			logger.debug("Sending message via 'wasp.channel.rmi.outbound': "+message.toString());
+			logger.info("Sending message via 'wasp.channel.rmi.outbound': "+message.toString());
 			outboundRmiChannel.send(message);
 			
 			
@@ -130,7 +130,7 @@ public class RmiInputTests extends AbstractTestNGSpringContextTests implements M
 	
 	@Override
 	public void handleMessage(Message<?> message) throws MessagingException {
-		logger.debug("Message recieved by handleMessage(): "+message.toString());
+		logger.info("Message recieved by handleMessage(): "+message.toString());
 		this.message = message; 
 	}
 
