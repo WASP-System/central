@@ -2,15 +2,12 @@ package edu.yu.einstein;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessagingException;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.core.MessageHandler;
 import org.springframework.integration.core.SubscribableChannel;
 import org.springframework.integration.support.MessageBuilder;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.Assert;
@@ -24,8 +21,7 @@ import edu.yu.einstein.wasp.messages.WaspStatus;
 import edu.yu.einstein.wasp.messaging.MessageChannelRegistry;
 
 @ContextConfiguration(locations={"classpath:test-launch-context.xml", "classpath:RmiMessageSend-context.xml"})
-
-public class RmiInputTests extends AbstractTestNGSpringContextTests implements MessageHandler{
+public class RmiInputTests extends AbstractTestNGSpringContextTests implements MessageHandler{ // AbstractTestNGSpringContextTests extension for @Autowired to work
 	
 	@Autowired
 	MessageChannelRegistry channelRegistry;
