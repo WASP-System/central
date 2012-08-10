@@ -113,7 +113,7 @@ public class RmiInputTests extends AbstractTestNGSpringContextTests implements M
 				repeat++;
 			}
 			if (message == null)
-				Assert.fail("Timeout waiting to receive message on 'wasp.channel.notification.run'");
+				Assert.fail("Timeout waiting to receive message on 'wasp.channel.rmi.outbound.reply'");
 			
 			// verify message headers
 			Assert.assertTrue(message.getHeaders().containsKey("unknown-target"));
