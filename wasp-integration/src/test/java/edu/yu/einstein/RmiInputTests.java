@@ -48,7 +48,7 @@ public class RmiInputTests extends AbstractTestNGSpringContextTests implements M
 		waspRunPublishSubscribeChannel = channelRegistry.getChannel("wasp.channel.notification.run", SubscribableChannel.class);
 		waspRunPublishSubscribeChannel.subscribe(this); // register as a message handler on the waspRunPublishSubscribeChannel
 		outboundRmiChannel = channelRegistry.getChannel("wasp.channel.rmi.outbound", DirectChannel.class);
-		replyChannel = channelRegistry.getChannel("wasp.channel.rmi.internal.reply", DirectChannel.class);
+		replyChannel = channelRegistry.getChannel("wasp.channel.rmi.outbound.reply", DirectChannel.class);
 		replyChannel.subscribe(this);
 	}
 	
