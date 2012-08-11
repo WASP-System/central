@@ -30,6 +30,7 @@
 	
 	<!-- import batch flows -->
 	<import resource="classpath:/META-INF/spring/*Flow.xml" />
+	<import resource="classpath:/META-INF/spring/chipSeq.waspJob.mainFlow.v1.xml" />
 	
 
 </beans>

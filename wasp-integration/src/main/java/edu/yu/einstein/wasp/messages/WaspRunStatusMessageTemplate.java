@@ -21,7 +21,7 @@ public abstract class WaspRunStatusMessageTemplate extends StatusMessageTemplate
 		Message<WaspStatus> message = null;
 		try {
 			message = MessageBuilder.withPayload(runStatus)
-					.setHeader(WaspMessageType.MESSAGE_TYPE_FIELD, WaspMessageType.RUN)
+					.setHeader(WaspMessageType.HEADER, WaspMessageType.RUN)
 					.setHeader("target", "batch")
 					.setHeader("runId", runId)
 					.setHeader("platformUnitId", platformUnitId)

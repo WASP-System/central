@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessagingException;
+import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.core.MessageHandler;
 import org.springframework.integration.core.PollableChannel;
 import org.springframework.integration.core.SubscribableChannel;
@@ -23,14 +24,20 @@ import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import edu.yu.einstein.wasp.messages.WaspJobStatusMessageTemplate;
+import edu.yu.einstein.wasp.messages.WaspJobTask;
 import edu.yu.einstein.wasp.messages.WaspMessageType;
 import edu.yu.einstein.wasp.messages.WaspRunStatusMessageTemplate;
 import edu.yu.einstein.wasp.messages.WaspStatus;
+import edu.yu.einstein.wasp.messaging.MessageChannelRegistry;
+import edu.yu.einstein.wasp.tasklets.WaspTasklet;
 
 
-@ContextConfiguration(locations={"classpath:test-launch-context.xml"})
+@ContextConfiguration(locations={"classpath:test-launch-context.xml", "classpath:RmiMessageSend-context.xml"})
 
 public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests implements MessageHandler {
 	
@@ -38,7 +45,7 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 	private JobLauncher jobLauncher;
 	
 	@Autowired
-	ApplicationContext context;
+	MessageChannelRegistry channelRegistry;
 	
 	@Autowired 
 	JobRegistry jobRegistry;
@@ -47,213 +54,97 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 	
 	private Message<?> message = null;
 	
-	// need more than one platform unit ID if running the same flow more than once due to re-run constraints in Batch
-	private final Integer PU_ID1 = 1;
-	private final Integer PU_ID2 = 2;
-	private final Integer PU_ID3 = 3;
+	private final String JOB_ID_KEY = "jobId";
 	
-	private final String PU_KEY = "platformUnitId";
-	private final Integer RUN_ID = 10;
-	private final String RUN_KEY = "runId";
+	private final Integer JOB_ID = 1;
 	
-	/**
-	 * Verifies that autowired objects are ok
-	 */
-	@Test (groups = "unit-tests")
-	public void testAutowiringOk() {
+	private DirectChannel outboundRmiChannel;
+	private DirectChannel replyChannel;
+	private SubscribableChannel waspRunPublishSubscribeChannel;
+	
+	@BeforeClass
+	private void setup(){
+		Assert.assertNotNull(channelRegistry);
 		Assert.assertNotNull(jobLauncher);
-		Assert.assertNotNull(context);
 		Assert.assertNotNull(jobRegistry);
+		outboundRmiChannel = channelRegistry.getChannel("wasp.channel.rmi.outbound", DirectChannel.class);
+		replyChannel = channelRegistry.getChannel("wasp.channel.rmi.outbound.reply", DirectChannel.class);
+		replyChannel.subscribe(this);
 	}
 	
+	@AfterClass 
+	private void tearDown(){
+		//waspRunPublishSubscribeChannel.unsubscribe(this);
+		replyChannel.unsubscribe(this);
+	}
+	
+		
 	/**
-	 * This test tests the runFlow.
-	 * The method sets up a waspRunPublishSubscribeChannel and listens on it. it then launches the runFlowJob.
+	 * This test exercises the approvalFlow.
+	 * The method sets up a waspRunPublishSubscribeChannel and listens on it. it then launches the chipSeq.waspJob.jobflow.v1.
 	 * The method verifies that a WaspStatus.STARTED is sent by the flow logic and a WaspStatus.COMPLETED 8s later.
 	 * The headers and payload of the received messages are checked as is the order received.
 	 */
-	@Test (groups = "unit-tests", dependsOnMethods = "testAutowiringOk")
-	public void testRunJob() {
-		try{
-			// listen in on the waspRunPublishSubscribeChannel for messages
-			SubscribableChannel waspRunPublishSubscribeChannel = context.getBean("wasp.channel.notification.run", SubscribableChannel.class);
-			waspRunPublishSubscribeChannel.subscribe(this); // register as a message handler on the waspRunPublishSubscribeChannel
-			
-			// setup job execution for the 'runJob' job
-			Job runJob = jobRegistry.getJob("runJob"); // get the 'runJob' job from the context
+	@Test (groups = "unit-tests")
+	public void testJobApproved() throws Exception{
+		//try{
+			// setup job execution for the 'chipSeq.waspJob.jobflow.v1' job
+		waspRunPublishSubscribeChannel = channelRegistry.getChannel("wasp.channel.notification.job", SubscribableChannel.class);
+		waspRunPublishSubscribeChannel.subscribe(this); // register as a message handler on the waspRunPublishSubscribeChannel
+		
+			Job job = jobRegistry.getJob("chipSeq.waspJob.jobflow.v1"); // get the 'chipSeq.waspJob.jobflow.v1' job from the context
 			Map<String, JobParameter> parameterMap = new HashMap<String, JobParameter>();
-			parameterMap.put( PU_KEY, new JobParameter(PU_ID1.toString()) );
-			parameterMap.put( RUN_KEY, new JobParameter(RUN_ID.toString()) );
-			JobExecution jobExecution = jobLauncher.run(runJob, new JobParameters(parameterMap));
+			parameterMap.put( JOB_ID_KEY, new JobParameter(JOB_ID.toString()) );
+			JobExecution jobExecution = jobLauncher.run(job, new JobParameters(parameterMap));
+			Thread.sleep(5000);
 			
-			// Check 'STARTED' message received
-			// Going to sleep 2s Whilst awaiting first message
-			Thread.sleep(2000);
+			// send approval messages (simulating button presses in web view)
+			Message<WaspStatus> quoteApprovedMessage = WaspJobStatusMessageTemplate.build(JOB_ID, WaspStatus.COMPLETED, WaspJobTask.QUOTE);
+			logger.debug("Sending message: "+quoteApprovedMessage);
+			outboundRmiChannel.send(quoteApprovedMessage);
 			
-			if (message == null)
-				Assert.fail("'Start' message was not received");
+			Message<WaspStatus> piApprovedMessage = WaspJobStatusMessageTemplate.build(JOB_ID, WaspStatus.COMPLETED, WaspJobTask.PI_APPROVE);
+			logger.debug("Sending message: "+piApprovedMessage);
+			outboundRmiChannel.send(piApprovedMessage);
 			
-			// check headers as expected
-			Assert.assertTrue(message.getHeaders().containsKey(PU_KEY));
-			Assert.assertEquals(message.getHeaders().get(PU_KEY), PU_ID1);
-			Assert.assertTrue(message.getHeaders().containsKey(WaspMessageType.MESSAGE_TYPE_FIELD));
-			Assert.assertEquals(message.getHeaders().get(WaspMessageType.MESSAGE_TYPE_FIELD), WaspMessageType.RUN);
-			Assert.assertTrue(message.getHeaders().containsKey(RUN_KEY));
-			Assert.assertEquals(message.getHeaders().get(RUN_KEY), RUN_ID);
+			Message<WaspStatus> adminApprovedMessage = WaspJobStatusMessageTemplate.build(JOB_ID, WaspStatus.COMPLETED, WaspJobTask.ADMIN_APPROVE);
+			logger.debug("Sending message: "+adminApprovedMessage);
+			outboundRmiChannel.send(adminApprovedMessage);
 			
-			// check payload as expected
-			Assert.assertEquals(WaspStatus.class, message.getPayload().getClass());
-			Assert.assertEquals(message.getPayload(), WaspStatus.STARTED);
-			
-			// Check 'COMPLETED' message received
-			// Going to sleep 8s Whilst awaiting second message
-			Thread.sleep(8000);
-			
-			if (message == null)
-				Assert.fail("'Complete' message was not received");
-			
-			// check payload as expected (don't bother checking headers this time around)
-			Assert.assertEquals(message.getPayload(), WaspStatus.COMPLETED);
-			waspRunPublishSubscribeChannel.unsubscribe(this);
-			
-			// check BatchStatus is as expected
-			Assert.assertEquals(jobExecution.getStatus(), BatchStatus.COMPLETED);
-		} catch (Exception e){
-			// caught an unexpected exception
-			Assert.fail("Caught Exception: "+e.getMessage());
-		}
-	}
-	
-	/**
-	 * This test test the runLibraryFlow
-	 * Test With Expected messages. Send a WaspStatus.STARTED and WaspStatus.COMPLETED message. The STARTED one has higher priority so
-	 * should arrive first followed by the COMPLETE message 5s later (due to the poller on the bridge between waspRunPriorityChannel and waspRunPublishSubscribeChannel).
-	 */
-	@Test (groups = "unit-tests", dependsOnMethods = "testAutowiringOk")
-	public void testRunLibraryJob() {
-		try{
-			// get a ref to the waspRunPriorityChannel to send test messages
-			PollableChannel waspRunPriorityChannel = context.getBean("wasp.channel.priority.run", PollableChannel.class);
-			
-			// setup job execution for the  'runLibraryJob' job
-			Job runLibraryJob = jobRegistry.getJob("runLibraryJob"); // get the 'runLibraryJob' job from the context
-			Map<String, JobParameter> parameterMap = new HashMap<String, JobParameter>();
-			parameterMap.put( PU_KEY, new JobParameter(PU_ID1.toString()) );
-			JobExecution jobExecution = jobLauncher.run(runLibraryJob, new JobParameters(parameterMap));
-			
-			// Short delay before sending messages to allow flow setup and subscribing to waspRunPublishSubscribeChannel
-			Thread.sleep(1000);
-				
-			// send run completed message
-			message =  WaspRunStatusMessageTemplate.build(RUN_ID, PU_ID1, WaspStatus.COMPLETED);
-			logger.debug("Sending message via 'wasp.channel.priority.run': "+message.toString());
-			waspRunPriorityChannel.send(message);
-			
-			// send run started message
-			Message<WaspStatus> message =  WaspRunStatusMessageTemplate.build(RUN_ID, PU_ID1, WaspStatus.STARTED);
-			logger.debug("Sending message via 'wasp.channel.priority.run': "+message.toString());
-			waspRunPriorityChannel.send(message);
-			
-			// Delay to allow message receiving and transitions. Time out after 20s.
-			int repeat = 0;
-			while (jobExecution.getStatus().isLessThanOrEqualTo(BatchStatus.STARTED) && repeat < 40){
-				Thread.sleep(500);
-				repeat++;
-			}
-			
-			// check BatchStatus is as expected
-			Assert.assertEquals(jobExecution.getStatus(), BatchStatus.COMPLETED);
-			
-		} catch (Exception e){
-			// caught an unexpected exception
-			Assert.fail("Caught Exception: "+e.getMessage());
-		}
-	}
-	
-	/**
-	 * This is a failure test for the runLibraryFlow
-	 * Test With Unexpected message. Send a WaspStatus.COMPLETED message. 
-	 * As a STARTED message is expected first it should fail
-	 */
-	@Test (groups = "unit-tests", dependsOnMethods = "testAutowiringOk")
-	public void testRunLibraryJobFail() {
-		try{
-			// get a ref to the waspRunPriorityChannel to send test messages
-			PollableChannel waspRunPriorityChannel = context.getBean("wasp.channel.priority.run", PollableChannel.class);
-			
-			// setup job execution for the  'runLibraryJob' job
-			Job runLibraryJob = jobRegistry.getJob("runLibraryJob"); // get the 'runLibraryJob' job from the context
-			Map<String, JobParameter> parameterMap = new HashMap<String, JobParameter>();
-			parameterMap.put( PU_KEY, new JobParameter(PU_ID2.toString()) );
-			JobExecution jobExecution = jobLauncher.run(runLibraryJob, new JobParameters(parameterMap));
-			
-			// Short delay before sending messages to allow flow setup and subscribing to waspRunPublishSubscribeChannel
-			Thread.sleep(1000);
-				
-			// send run completed message 3 times because there is @Retryable on the execute method. Should fail after 3 wrong messages
-			message =  WaspRunStatusMessageTemplate.build(RUN_ID, PU_ID2, WaspStatus.COMPLETED);
-			logger.debug("Sending message via 'wasp.channel.priority.run': "+message.toString());
-			waspRunPriorityChannel.send(message);
-			waspRunPriorityChannel.send(message);
-			waspRunPriorityChannel.send(message);
-			
-			// Delay to allow message receiving and transitions. Time out after 20s.
-			int repeat = 0;
-			while (jobExecution.getStatus().isLessThanOrEqualTo(BatchStatus.STARTED) && repeat < 40){
-				Thread.sleep(500);
-				repeat++;
-			}
-			
-			// check BatchStatus is as expected
-			Assert.assertEquals(jobExecution.getStatus(), BatchStatus.FAILED);
-			
-		} catch (Exception e){
-			// caught an unexpected exception
-			Assert.fail("Caught Exception: "+e.getMessage());
-		}
-	}
-	
-	/**
-	 *
-	 */
-	@Test (groups = "unit-tests", dependsOnMethods = {"testRunJob", "testRunLibraryJob"})
-	public void testRunJobAndRunLibraryJobIntegration(){
-		try {
-			// setup job execution for the  'runLibraryJob' job
-			Job runLibraryJob = jobRegistry.getJob("runLibraryJob"); // get the 'runLibraryJob' job from the context
-			Map<String, JobParameter> parameterMap = new HashMap<String, JobParameter>();
-			parameterMap.put( PU_KEY, new JobParameter(PU_ID3.toString()) );
-			JobExecution jobExecutionRunLibraryJob = jobLauncher.run(runLibraryJob, new JobParameters(parameterMap));
-			
-			Thread.sleep(1000); // wait for job to get going 
-			
-			// setup job execution for the 'runJob' job
-			Job runJob = jobRegistry.getJob("runJob"); // get the 'runJob' job from the context
-			parameterMap.put( RUN_KEY, new JobParameter(RUN_ID.toString()) );
-			JobExecution jobExecutionRunJob = jobLauncher.run(runJob, new JobParameters(parameterMap));
 			
 			// Delay to allow message receiving and transitions. Time out after 40s.
 			int repeat = 0;
-			while (jobExecutionRunJob.getStatus().isLessThanOrEqualTo(BatchStatus.STARTED) && jobExecutionRunLibraryJob.getStatus().isLessThanOrEqualTo(BatchStatus.STARTED) && repeat < 40){
+			while (message == null && repeat < 40){
 				Thread.sleep(1000);
 				repeat++;
 			}
+			if (message == null)
+				Assert.fail("Timeout waiting to receive message on 'wasp.channel.notification.run'");
 			
-			// check BatchStatus' are as expected
-			Assert.assertEquals(jobExecutionRunJob.getStatus(), BatchStatus.COMPLETED);
-			Assert.assertEquals(jobExecutionRunLibraryJob.getStatus(), BatchStatus.COMPLETED);
+			// check headers as expected
+			Assert.assertTrue(message.getHeaders().containsKey(JOB_ID_KEY));
+			Assert.assertEquals(message.getHeaders().get(JOB_ID_KEY), JOB_ID);
+			Assert.assertTrue(message.getHeaders().containsKey(WaspMessageType.HEADER));
+			Assert.assertEquals(message.getHeaders().get(WaspMessageType.HEADER), WaspMessageType.JOB);
 			
-		} catch (Exception e){
+			// check payload as expected
+			Assert.assertEquals(WaspStatus.class, message.getPayload().getClass());
+			Assert.assertEquals(message.getPayload(), WaspStatus.CREATED);
+			
+			// check BatchStatus is as expected
+			Assert.assertEquals(jobExecution.getStatus(), BatchStatus.COMPLETED);
+		//} catch (Exception e){
 			// caught an unexpected exception
-			Assert.fail("Caught Exception: "+e.getMessage());
-		}
+		//	Assert.fail("Caught Exception: "+e.getMessage());
+		//}
 	}
 	
 
 	@Override
 	public void handleMessage(Message<?> message) throws MessagingException {
 		logger.debug("Message recieved by handleMessage(): "+message.toString());
-		this.message = message; 
+		if (WaspJobStatusMessageTemplate.actUponMessage(message, JOB_ID, WaspJobTask.NOTIFY_JOB_STATUS))
+			this.message = message; 
 	}
 	
 }

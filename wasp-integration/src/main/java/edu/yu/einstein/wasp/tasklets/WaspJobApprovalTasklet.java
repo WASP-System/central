@@ -38,7 +38,7 @@ public class WaspJobApprovalTasklet extends WaspTasklet implements Tasklet, Mess
 	
 	public WaspJobApprovalTasklet(SubscribableChannel inputSubscribableChannel, Integer jobId, String task) {
 		super();
-		logger.debug("Constructing new instance with jobId='"+jobId+"'"); 
+		logger.debug("Constructing new instance with jobId='"+jobId+"' and task '"+task+"'"); 
 		this.jobId = jobId;
 		this.subscribeChannel = inputSubscribableChannel;
 		this.task = task;

@@ -56,7 +56,7 @@ public class RmiInputTests extends AbstractTestNGSpringContextTests implements M
 
 	
 	@Test(groups = "unit-tests")
-	public void testSendMessage() throws Exception{
+	public void testSendMessage() {
 		try{ 
 			// send run started message into outboundRmiChannel
 			message =  WaspRunStatusMessageTemplate.build(RUN_ID, PU_ID, WaspStatus.STARTED);
@@ -76,8 +76,8 @@ public class RmiInputTests extends AbstractTestNGSpringContextTests implements M
 			// verify message headers
 			Assert.assertTrue(message.getHeaders().containsKey(PU_KEY));
 			Assert.assertEquals(message.getHeaders().get(PU_KEY), PU_ID);
-			Assert.assertTrue(message.getHeaders().containsKey(WaspMessageType.MESSAGE_TYPE_FIELD));
-			Assert.assertEquals(message.getHeaders().get(WaspMessageType.MESSAGE_TYPE_FIELD), WaspMessageType.RUN);
+			Assert.assertTrue(message.getHeaders().containsKey(WaspMessageType.HEADER));
+			Assert.assertEquals(message.getHeaders().get(WaspMessageType.HEADER), WaspMessageType.RUN);
 			Assert.assertTrue(message.getHeaders().containsKey(RUN_KEY));
 			Assert.assertEquals(message.getHeaders().get(RUN_KEY), RUN_ID);
 			Assert.assertFalse(message.getHeaders().containsKey("unknown-target"));
@@ -96,7 +96,7 @@ public class RmiInputTests extends AbstractTestNGSpringContextTests implements M
 		try{ 
 			// send run started message into outboundRmiChannel
 			message = MessageBuilder.withPayload(WaspStatus.STARTED)
-					.setHeader(WaspMessageType.MESSAGE_TYPE_FIELD, WaspMessageType.RUN)
+					.setHeader(WaspMessageType.HEADER, WaspMessageType.RUN)
 					.setHeader("target", "foo") //unknown target foo
 					.setHeader("runId", RUN_ID)
 					.setHeader("platformUnitId", PU_ID)

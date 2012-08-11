@@ -12,9 +12,9 @@ public abstract class StatusMessageTemplate {
 	public static boolean isMessageOfExpectedType(Message<?> message, String type){
 		if (! WaspStatus.class.isInstance(message.getPayload()) )
 			return false;
-		if (! message.getHeaders().containsKey(WaspMessageType.MESSAGE_TYPE_FIELD) )
+		if (! message.getHeaders().containsKey(WaspMessageType.HEADER) )
 			return false;
-		if ( ((String) message.getHeaders().get(WaspMessageType.MESSAGE_TYPE_FIELD)).equals(type) )
+		if ( ((String) message.getHeaders().get(WaspMessageType.HEADER)).equals(type) )
 			return true;
 		return false;
 	}

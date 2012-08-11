@@ -58,7 +58,7 @@
 	
 	
 	<!-- bridges between priority and publish-subscribe channels to throttle messages -->
-	<int:bridge id="wasp.channel.bridge.job" input-channel="wasp.channel.priority.job" output-channel="wasp.channel.notification.job">
+	<int:bridge id="wasp.channel.bridge.job" input-channel="wasp.channel.priority.job" output-channel="wasp.channel.notification.job" >
 		<int:poller max-messages-per-poll="1" fixed-rate="5000" />
 	</int:bridge>
 	
@@ -95,7 +95,7 @@
 	
 	<!-- header-router to sort inbound messages into appropriate channels -->
 	<int:header-value-router id="waspMessageTypeRouter" 
-		header-name="#{waspMessageType.MESSAGE_TYPE_FIELD}" 
+		header-name="#{waspMessageType.HEADER}" 
 		input-channel="wasp.channel.batch" 
 		default-output-channel="wasp.channel.priority.default"
 		resolution-required="false" >

@@ -33,7 +33,7 @@
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.tasklets.ChipSeqJobActionedTasklet" scope="step">
 					<constructor-arg name="jobId" value="#{jobParameters['jobId']}" />
-					<constructor-arg name="outputMessageChannel" ref="wasp.channel.notification.job" />
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="isAccepted" value="true" />
 				</bean>
 			</batch:tasklet>

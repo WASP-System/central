@@ -9,6 +9,7 @@ import org.springframework.integration.Message;
 import org.springframework.integration.MessageChannel;
 
 import edu.yu.einstein.wasp.messages.WaspJobStatusMessageTemplate;
+import edu.yu.einstein.wasp.messages.WaspJobTask;
 import edu.yu.einstein.wasp.messages.WaspStatus;
 
 public class ChipSeqJobActionedTasklet extends WaspTasklet implements Tasklet {
@@ -24,7 +25,7 @@ public class ChipSeqJobActionedTasklet extends WaspTasklet implements Tasklet {
 	
 	
 	public ChipSeqJobActionedTasklet(MessageChannel outputMessageChannel, Integer jobId, boolean isAccepted) {
-		logger.debug("Constructing new instance with jobId='"+jobId+"'"); 
+		logger.debug("Constructing new instance with jobId='"+jobId+"', isAccepted='"+isAccepted+"'"); 
 		this.jobId = jobId;
 		this.messageChannel = outputMessageChannel;
 		this.isAccepted = isAccepted;
@@ -36,10 +37,11 @@ public class ChipSeqJobActionedTasklet extends WaspTasklet implements Tasklet {
 		logger.debug("execute() invoked");
 		Message<WaspStatus> message;
 		if (isAccepted){
-			message = WaspJobStatusMessageTemplate.build(jobId, WaspStatus.CREATED);
+			message = WaspJobStatusMessageTemplate.build(jobId, WaspStatus.CREATED, WaspJobTask.NOTIFY_JOB_STATUS);
 		} else {
-			message = WaspJobStatusMessageTemplate.build(jobId, WaspStatus.ABANDONED);
+			message = WaspJobStatusMessageTemplate.build(jobId, WaspStatus.ABANDONED, WaspJobTask.NOTIFY_JOB_STATUS);
 		}
+		logger.debug("sending message: "+message);
 		messageChannel.send(message);
 		return RepeatStatus.FINISHED;
 	}

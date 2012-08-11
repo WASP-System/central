@@ -41,7 +41,7 @@ public abstract class WaspJobStatusMessageTemplate extends StatusMessageTemplate
 		Message<WaspStatus> message = null;
 		try {
 			message = MessageBuilder.withPayload(status)
-					.setHeader(WaspMessageType.MESSAGE_TYPE_FIELD, WaspMessageType.JOB)
+					.setHeader(WaspMessageType.HEADER, WaspMessageType.JOB)
 					.setHeader("target", "batch")
 					.setHeader("jobId", jobId)
 					.setPriority(status.getPriority())
@@ -61,9 +61,9 @@ public abstract class WaspJobStatusMessageTemplate extends StatusMessageTemplate
 		Message<WaspStatus> message = null;
 		try {
 			message = MessageBuilder.withPayload(status)
-					.setHeader(WaspMessageType.MESSAGE_TYPE_FIELD, WaspMessageType.JOB)
+					.setHeader(WaspMessageType.HEADER, WaspMessageType.JOB)
 					.setHeader("target", "batch")
-					.setHeader(WaspJobTask.TASK_FIELD, task)
+					.setHeader(WaspJobTask.HEADER, task)
 					.setHeader("jobId", jobId)
 					.setPriority(status.getPriority())
 					.build();
@@ -100,8 +100,8 @@ public abstract class WaspJobStatusMessageTemplate extends StatusMessageTemplate
 		if (! actUponMessage(message, jobId) )
 			return false;
 		if (task != null && 
-				message.getHeaders().containsKey(WaspJobTask.TASK_FIELD) && 
-				((Integer) message.getHeaders().get(WaspJobTask.TASK_FIELD)).equals(task))
+				message.getHeaders().containsKey(WaspJobTask.HEADER) && 
+				message.getHeaders().get(WaspJobTask.HEADER).equals(task))
 			return true;
 		return false;
 	}
