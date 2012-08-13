@@ -1,7 +1,5 @@
 package edu.yu.einstein.wasp.tasklets.job;
 
-import java.util.Iterator;
-
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
@@ -10,7 +8,6 @@ import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
-import org.springframework.batch.core.annotation.AfterStep;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
@@ -19,9 +16,7 @@ import org.springframework.integration.MessagingException;
 import org.springframework.integration.core.MessageHandler;
 import org.springframework.integration.core.SubscribableChannel;
 
-import edu.yu.einstein.wasp.exceptions.UnexpectedMessagePayloadValueException;
 import edu.yu.einstein.wasp.messages.WaspJobStatusMessageTemplate;
-import edu.yu.einstein.wasp.messages.WaspJobTask;
 import edu.yu.einstein.wasp.messages.WaspStatus;
 import edu.yu.einstein.wasp.tasklets.WaspTasklet;
 
@@ -33,18 +28,17 @@ public class WaspJobApprovalTasklet extends WaspTasklet implements Tasklet, Mess
 	
 	private SubscribableChannel subscribeChannel;
 	
-	private WaspStatus finalWaspStatus;
-	
 	private String task;
 	
+	private Message<WaspStatus> message;
 	
+		
 	public WaspJobApprovalTasklet(SubscribableChannel inputSubscribableChannel, Integer jobId, String task) {
-		super();
 		logger.debug("Constructing new instance with jobId='"+jobId+"' and task='"+task+"'"); 
 		this.jobId = jobId;
 		this.subscribeChannel = inputSubscribableChannel;
 		this.task = task;
-		this.finalWaspStatus = null;
+		this.message = null;
 	}
 	
 	@PostConstruct
@@ -67,8 +61,12 @@ public class WaspJobApprovalTasklet extends WaspTasklet implements Tasklet, Mess
 	@Override
 	public ExitStatus afterStep(StepExecution stepExecution){
 		ExitStatus exitStatus = stepExecution.getExitStatus();
-		if (exitStatus.equals(ExitStatus.COMPLETED) && finalWaspStatus.equals(WaspStatus.ABANDONED))
+		if (exitStatus.equals(ExitStatus.COMPLETED) && message.getPayload().isUnsuccessful()){
 			exitStatus =  ExitStatus.FAILED; // modify exit code if abandoned
+		} else if (! message.getPayload().isSuccessful()){
+			exitStatus = new ExitStatus(message.getPayload().toString()); // set exit status to equal the message payload value
+		}
+		this.message = null; // clean up in case of restart
 		logger.debug("AfterStep() going to return ExitStatus of '"+exitStatus.toString()+"' (instance with jobId='"+jobId+"' and task='"+task+"')");
 		return exitStatus;
 	}
@@ -76,27 +74,8 @@ public class WaspJobApprovalTasklet extends WaspTasklet implements Tasklet, Mess
 	@Override
 	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception {
 		logger.debug("execute() invoked (instance with jobId='"+jobId+"' and task='"+task+"')");
-		if (statusMessageStack.isEmpty())
-			return delayedRepeatStatusContinuable(5000); // returns RepeatStatus.CONTINUABLE after 5s delay
-		
-		// We have received a status message. Woohoo! Better be sure it's one we're expecting
-		Iterator<Message<WaspStatus>> statusItr = statusMessageStack.iterator();
-		while(statusItr.hasNext()){
-			WaspStatus jobStatus = statusItr.next().getPayload();
-			statusItr.remove();
-			if ( jobStatus == WaspStatus.ABANDONED || jobStatus == WaspStatus.COMPLETED){
-				finalWaspStatus = jobStatus;
-				while(statusItr.hasNext())
-					statusItr.remove(); // remove remainder of messages from list
-				break;
-			}
-		}
-		if (finalWaspStatus == null){
-			String failureMessage = "Got unexpected message (instance with jobId='"+jobId+"' and task='"+task+"')";
-			logger.error(failureMessage); 
-			throw new UnexpectedMessagePayloadValueException(failureMessage);
-		}
-		
+		if (message == null)
+			return delayedRepeatStatusContinuable(5000); // returns RepeatStatus.CONTINUABLE after 5s delay	
 		return RepeatStatus.FINISHED;
 	}
 	
@@ -104,8 +83,13 @@ public class WaspJobApprovalTasklet extends WaspTasklet implements Tasklet, Mess
 	@Override
 	public void handleMessage(Message<?> message) throws MessagingException {
 		logger.debug("handleMessage() invoked (instance with jobId='"+jobId+"' and task='"+task+"'). Received message: " + message.toString());
-		if (WaspJobStatusMessageTemplate.actUponMessage(message, jobId, task))
-			statusMessageStack.add((Message<WaspStatus>) message);
+		if (WaspJobStatusMessageTemplate.actUponMessage(message, jobId, task)){
+			if (this.message == null){
+				this.message = (Message<WaspStatus>) message;
+			} else {
+				throw new MessagingException("Received an applicable message before previous message processed");
+			}
+		}
 	}
 
 	@Override

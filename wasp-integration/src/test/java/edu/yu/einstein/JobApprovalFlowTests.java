@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.springframework.batch.core.BatchStatus;
+import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameter;
@@ -129,8 +130,9 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 			Assert.assertEquals(WaspStatus.class, message.getPayload().getClass());
 			Assert.assertEquals(message.getPayload(), WaspStatus.CREATED);
 			
-			// check BatchStatus is as expected
+			// check BatchStatus and ExitStatus is as expected
 			Assert.assertEquals(jobExecution.getStatus(), BatchStatus.COMPLETED);
+			Assert.assertEquals(jobExecution.getExitStatus(), ExitStatus.COMPLETED);
 		} catch (Exception e){
 			// caught an unexpected exception
 			Assert.fail("Caught Exception: "+e.getMessage());
@@ -184,8 +186,9 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 			Assert.assertEquals(WaspStatus.class, message.getPayload().getClass());
 			Assert.assertEquals(message.getPayload(), WaspStatus.ABANDONED);
 			
-			// check BatchStatus is as expected
+			// check BatchStatus and ExitStatus is as expected
 			Assert.assertEquals(jobExecution.getStatus(), BatchStatus.COMPLETED);
+			Assert.assertEquals(jobExecution.getExitStatus(), new ExitStatus("ABANDONED"));
 		} catch (Exception e){
 			// caught an unexpected exception
 			Assert.fail("Caught Exception: "+e.getMessage());
