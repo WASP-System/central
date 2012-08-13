@@ -26,12 +26,13 @@
 					<batch:tasklet ref="waspJobAdminApproveTasklet" />
 				</batch:step>
 			</batch:flow>
+			<!-- if any of the split flows return an exit status of FAILED (i.e. rejected) then proceed down rejected pathway -->
+			<batch:next on="FAILED" to="chipSeq.waspJob.rejected" />
 			<batch:next on="COMPLETED" to="chipSeq.waspJob.approved" />
-			<batch:next on="*" to="chipSeq.waspJob.rejected" />
 		</batch:split>
 		<batch:step id="chipSeq.waspJob.approved">
 			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.tasklets.ChipSeqJobActionedTasklet" scope="step">
+				<bean class="edu.yu.einstein.wasp.tasklets.job.ChipSeqJobActionedTasklet" scope="step">
 					<constructor-arg name="jobId" value="#{jobParameters['jobId']}" />
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="isAccepted" value="true" />
@@ -40,7 +41,7 @@
 		</batch:step>
 		<batch:step id="chipSeq.waspJob.rejected">
 			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.tasklets.ChipSeqJobActionedTasklet" scope="step">
+				<bean class="edu.yu.einstein.wasp.tasklets.job.ChipSeqJobActionedTasklet" scope="step">
 					<constructor-arg name="jobId" value="#{jobParameters['jobId']}" />
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="isAccepted" value="false" />

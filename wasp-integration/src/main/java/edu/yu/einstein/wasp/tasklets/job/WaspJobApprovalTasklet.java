@@ -1,4 +1,4 @@
-package edu.yu.einstein.wasp.tasklets;
+package edu.yu.einstein.wasp.tasklets.job;
 
 import java.util.Iterator;
 
@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.annotation.AfterStep;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
@@ -22,8 +23,9 @@ import edu.yu.einstein.wasp.exceptions.UnexpectedMessagePayloadValueException;
 import edu.yu.einstein.wasp.messages.WaspJobStatusMessageTemplate;
 import edu.yu.einstein.wasp.messages.WaspJobTask;
 import edu.yu.einstein.wasp.messages.WaspStatus;
+import edu.yu.einstein.wasp.tasklets.WaspTasklet;
 
-public class WaspJobApprovalTasklet extends WaspTasklet implements Tasklet, MessageHandler {
+public class WaspJobApprovalTasklet extends WaspTasklet implements Tasklet, MessageHandler, StepExecutionListener {
 	
 	private final Logger logger = Logger.getLogger(WaspJobApprovalTasklet.class);
 
@@ -38,7 +40,7 @@ public class WaspJobApprovalTasklet extends WaspTasklet implements Tasklet, Mess
 	
 	public WaspJobApprovalTasklet(SubscribableChannel inputSubscribableChannel, Integer jobId, String task) {
 		super();
-		logger.debug("Constructing new instance with jobId='"+jobId+"' and task '"+task+"'"); 
+		logger.debug("Constructing new instance with jobId='"+jobId+"' and task='"+task+"'"); 
 		this.jobId = jobId;
 		this.subscribeChannel = inputSubscribableChannel;
 		this.task = task;
@@ -55,24 +57,25 @@ public class WaspJobApprovalTasklet extends WaspTasklet implements Tasklet, Mess
 	@PreDestroy
 	protected void destroy() throws Throwable{
 		// unregister from message channel only if this object gets garbage collected
-		logger.debug("Destroying instance with jobId='"+jobId+"'"); 
+		logger.debug("Destroying instance with jobId='"+jobId+"' and task='"+task+"'"); 
 		if (subscribeChannel != null){
 			this.subscribeChannel.unsubscribe(this); 
 			subscribeChannel = null;
 		}
 	}
 	
-	@AfterStep
-	ExitStatus afterStep(StepExecution stepExecution){
+	@Override
+	public ExitStatus afterStep(StepExecution stepExecution){
 		ExitStatus exitStatus = stepExecution.getExitStatus();
 		if (exitStatus.equals(ExitStatus.COMPLETED) && finalWaspStatus.equals(WaspStatus.ABANDONED))
-			return new ExitStatus(WaspStatus.ABANDONED.toString()); // modify exit code if abandoned
+			exitStatus =  ExitStatus.FAILED; // modify exit code if abandoned
+		logger.debug("AfterStep() going to return ExitStatus of '"+exitStatus.toString()+"' (instance with jobId='"+jobId+"' and task='"+task+"')");
 		return exitStatus;
 	}
 
 	@Override
 	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception {
-		logger.debug("execute() invoked");
+		logger.debug("execute() invoked (instance with jobId='"+jobId+"' and task='"+task+"')");
 		if (statusMessageStack.isEmpty())
 			return delayedRepeatStatusContinuable(5000); // returns RepeatStatus.CONTINUABLE after 5s delay
 		
@@ -89,7 +92,7 @@ public class WaspJobApprovalTasklet extends WaspTasklet implements Tasklet, Mess
 			}
 		}
 		if (finalWaspStatus == null){
-			String failureMessage = "Got unexpected message";
+			String failureMessage = "Got unexpected message (instance with jobId='"+jobId+"' and task='"+task+"')";
 			logger.error(failureMessage); 
 			throw new UnexpectedMessagePayloadValueException(failureMessage);
 		}
@@ -100,9 +103,14 @@ public class WaspJobApprovalTasklet extends WaspTasklet implements Tasklet, Mess
 	@SuppressWarnings("unchecked") 
 	@Override
 	public void handleMessage(Message<?> message) throws MessagingException {
-		logger.debug("handleMessage() invoked. Received message: " + message.toString());
+		logger.debug("handleMessage() invoked (instance with jobId='"+jobId+"' and task='"+task+"'). Received message: " + message.toString());
 		if (WaspJobStatusMessageTemplate.actUponMessage(message, jobId, task))
 			statusMessageStack.add((Message<WaspStatus>) message);
+	}
+
+	@Override
+	public void beforeStep(StepExecution stepExecution) {
+		// Do Nothing here
 	}
 
 }

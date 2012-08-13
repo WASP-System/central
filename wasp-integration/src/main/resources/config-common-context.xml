@@ -9,19 +9,19 @@
 	<import resource="classpath:batch-context.xml" />
 	<import resource="classpath:integration-context.xml" />
 	
-	<bean id='waspJobQuoteTasklet' class="edu.yu.einstein.wasp.tasklets.WaspJobApprovalTasklet" scope="step">
+	<bean id='waspJobQuoteTasklet' class="edu.yu.einstein.wasp.tasklets.job.WaspJobApprovalTasklet" scope="step">
 		<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.job"/>
 		<constructor-arg name="jobId" value="#{jobParameters['jobId']}" />
 		<constructor-arg name="task" value='#{jobTasks.QUOTE}' />
 	</bean>
 	
-	<bean id='waspJobPiApproveTasklet' class="edu.yu.einstein.wasp.tasklets.WaspJobApprovalTasklet" scope="step">
+	<bean id='waspJobPiApproveTasklet' class="edu.yu.einstein.wasp.tasklets.job.WaspJobApprovalTasklet" scope="step">
 		<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.job"/>
 		<constructor-arg name="jobId" value="#{jobParameters['jobId']}" />
 		<constructor-arg name="task" value='#{jobTasks.PI_APPROVE}' />
 	</bean>
 	
-	<bean id='waspJobAdminApproveTasklet' class="edu.yu.einstein.wasp.tasklets.WaspJobApprovalTasklet" scope="step">
+	<bean id='waspJobAdminApproveTasklet' class="edu.yu.einstein.wasp.tasklets.job.WaspJobApprovalTasklet" scope="step">
 		<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.job"/>
 		<constructor-arg name="jobId" value="#{jobParameters['jobId']}" />
 		<constructor-arg name="task" value='#{jobTasks.ADMIN_APPROVE}' />

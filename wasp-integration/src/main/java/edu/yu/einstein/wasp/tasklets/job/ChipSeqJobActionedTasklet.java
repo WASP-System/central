@@ -1,4 +1,4 @@
-package edu.yu.einstein.wasp.tasklets;
+package edu.yu.einstein.wasp.tasklets.job;
 
 import org.apache.log4j.Logger;
 import org.springframework.batch.core.StepContribution;
@@ -11,6 +11,7 @@ import org.springframework.integration.MessageChannel;
 import edu.yu.einstein.wasp.messages.WaspJobStatusMessageTemplate;
 import edu.yu.einstein.wasp.messages.WaspJobTask;
 import edu.yu.einstein.wasp.messages.WaspStatus;
+import edu.yu.einstein.wasp.tasklets.WaspTasklet;
 
 public class ChipSeqJobActionedTasklet extends WaspTasklet implements Tasklet {
 	
