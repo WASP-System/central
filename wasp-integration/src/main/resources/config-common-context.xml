@@ -27,6 +27,12 @@
 		<constructor-arg name="task" value='#{jobTasks.ADMIN_APPROVE}' />
 	</bean>
 	
+	<bean id="waspJobListenForJobApprovedTasklet" class="edu.yu.einstein.wasp.tasklets.job.WaspJobApprovalTasklet" scope="step">
+		<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.job"/>
+		<constructor-arg name="jobId" value="#{jobParameters['jobId']}" />
+		<constructor-arg name="task" value='#{jobTasks.NOTIFY_JOB_STATUS}' />
+	</bean>
+	
 	
 	<!-- import batch flows -->
 	<import resource="classpath:/META-INF/spring/*Flow.xml" />

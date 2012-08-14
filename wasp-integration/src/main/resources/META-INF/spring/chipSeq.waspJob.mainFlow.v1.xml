@@ -29,6 +29,7 @@
 			<!-- if any of the split flows return an exit status of FAILED (i.e. rejected) then proceed down rejected pathway -->
 			<batch:next on="FAILED" to="chipSeq.waspJob.rejected" />
 			<batch:next on="COMPLETED" to="chipSeq.waspJob.approved" />
+			<batch:fail on="*"/> <!-- unexpected message -->
 		</batch:split>
 		<batch:step id="chipSeq.waspJob.approved">
 			<batch:tasklet>
@@ -47,9 +48,11 @@
 					<constructor-arg name="isAccepted" value="false" />
 				</bean>
 			</batch:tasklet>
+			<batch:end on="*" exit-code="ABANDONED"/>
 		</batch:step>
 	</batch:flow>
 	
+	<!-- for job, call with parameter 'jobId' -->
 	<batch:job id="chipSeq.waspJob.jobflow.v1">
 		<batch:flow id="chipSeq.waspJob.jobflow.approvals" parent="chipSeq.waspJob.flow.approvals.v1" />
 	</batch:job>

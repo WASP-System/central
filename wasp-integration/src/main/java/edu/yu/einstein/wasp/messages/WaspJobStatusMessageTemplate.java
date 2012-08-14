@@ -13,9 +13,11 @@ import edu.yu.einstein.wasp.exceptions.WaspMessageBuildingException;
 public abstract class WaspJobStatusMessageTemplate extends StatusMessageTemplate{
 	
 	/**
-	 * Build a Spring Integration Message using the runId header and the runStatus as payload.
+	 * Build a Spring Integration Message using the jobId header and the WaspStatus as payload.
 	 * The message-type header is not set so the message will be routed generically
-	 * @return {@link Message}<{@link WaspRunStatus}>
+	 * @param jobId
+	 * @param status
+	 * @return
 	 * @throws WaspMessageBuildingException
 	 */
 	public static Message<WaspStatus> buildGeneric(Integer jobId, WaspStatus status) throws WaspMessageBuildingException {
@@ -33,8 +35,10 @@ public abstract class WaspJobStatusMessageTemplate extends StatusMessageTemplate
 	}
 	
 	/**
-	 * Build a Spring Integration Message using the runId header and the runStatus as payload.
-	 * @return {@link Message}<{@link WaspRunStatus}>
+	 * Build a Spring Integration Message using the jobId header and the WaspStatus as payload.
+	 * @param jobId
+	 * @param status
+	 * @return
 	 * @throws WaspMessageBuildingException
 	 */
 	public static Message<WaspStatus> build(Integer jobId, WaspStatus status) throws WaspMessageBuildingException {
@@ -53,8 +57,11 @@ public abstract class WaspJobStatusMessageTemplate extends StatusMessageTemplate
 	}
 	
 	/**
-	 * Build a Spring Integration Message using the runId header, task header and the runStatus as payload.
-	 * @return {@link Message}<{@link WaspRunStatus}>
+	 * Build a Spring Integration Message using the jobId header, task header and the WaspStatus as payload.
+	 * @param jobId
+	 * @param status
+	 * @param task
+	 * @return
 	 * @throws WaspMessageBuildingException
 	 */
 	public static Message<WaspStatus> build(Integer jobId, WaspStatus status, String task) throws WaspMessageBuildingException {

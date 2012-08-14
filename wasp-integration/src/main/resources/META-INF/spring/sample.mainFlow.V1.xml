@@ -4,24 +4,50 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd">
 
-	<!-- taskExecutor needs to be externalized and generalized -->
-	<bean id="taskExecutor" class="org.springframework.core.task.SimpleAsyncTaskExecutor" />
-
-	<!-- for job, call with parameter 'puId' -->
-	<batch:flow id="sample.mainFlow.v1">
-		<batch:step id="sample.mainFlow.listenForSampleReceived" next="sample.mainFlow.isSample">
-			<!-- tasklet class: WaitForSampleReceivedTasklet -->
-		</batch:step>
-		<batch:decision decider="sample.typeDecider" id="sample.mainFlow.isSample">
-			<batch:next on="SAMPLE" to="sample.mainFlow.sampleQC"/>
+	<!-- common tasklets defined in config-common-context.xml -->
+	
+	<bean id="wasp.sample.typeDecider" class="edu.yu.einstein.wasp.decider.SampleTypeDecider" scope="step">
+		<constructor-arg value="#{jobParameters['sampleId']}" />
+	</bean>
+	
+	<batch:flow id="wasp.sample.mainFlow.v1">
+		<batch:split id="wasp.sample.postSubmitTasks">
+			<batch:flow>
+				<batch:step id="listenForSampleReceivedTasklet">
+					<batch:tasklet>
+						<bean class="edu.yu.einstein.wasp.tasklets.sample.ListenForSampleReceivedTasklet">
+							<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.sample" />
+							<constructor-arg name="sampleId" value="#{jobParameters['sampleId']}" />
+						</bean>
+					</batch:tasklet>
+				</batch:step>
+			</batch:flow>
+			<batch:flow>
+				<batch:step id="wasp.sample.mainFlow.listenForJobApproved">
+					<batch:tasklet ref="waspListenForJobApprovedTasklet" />
+				</batch:step>
+			</batch:flow>
+			<batch:end on="FAILED" exit-code="ABANDONED" />
+			<batch:next on="COMPLETED" to="wasp.sample.mainFlow.sampleDecision" />
+			<batch:fail on="*" /> <!-- unexpected message -->
+		</batch:split>
+		<batch:decision decider="wasp.sample.typeDecider" id="wasp.sample.mainFlow.sampleDecision">
+			<batch:next on="SAMPLE" to="wasp.sample.mainFlow.sampleQC" />
 			<batch:end on="LIBRARY" exit-code="COMPLETED" />
+			<batch:end on="UNKNOWN" exit-code="EARLY TERMINATION" />
 		</batch:decision>
-		<batch:step id="sample.mainFlow.sampleQC" next="sample.mainFlow.createLibrary">
-			<!-- tasklet class: sampleQCTasklet -->
+		<batch:step id="wasp.sample.mainFlow.sampleQC" next="wasp.sample.mainFlow.createLibrary">
+			<!-- TODO: tasklet class: sampleQCTasklet -->
 		</batch:step>
-		<batch:step id="sample.mainFlow.createLibrary">
-			<!-- tasklet class: createLibraryTasklet -->
+		<batch:step id="wasp.sample.mainFlow.createLibrary">
+			<!-- TODO: tasklet class: createLibraryTasklet -->
 		</batch:step>
 	</batch:flow>
+	
+	
+	<!-- for job, call with parameter 'sampleId' -->
+	<batch:job id="chipSeq.waspJob.jobflow.v1">
+		<batch:flow id="chipSeq.waspJob.jobflow.approvals" parent="chipSeq.waspJob.flow.approvals.v1" />
+	</batch:job>
 	
 </beans>
