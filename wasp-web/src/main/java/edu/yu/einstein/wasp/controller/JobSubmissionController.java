@@ -1230,7 +1230,7 @@ public class JobSubmissionController extends WaspController {
 		} catch (MetadataTypeException e) {
 			logger.warn("Could not get meta for class 'SampleDraftMeta':" + e.getMessage());
 		}
-		if (sampleDraft.getSampleType().getIName().equals("library")){
+		if (sampleService.isLibrary(sampleDraft)){
 			// library specific functionality
 			prepareAdaptorsetsAndAdaptors(jobDraft, normalizedMeta, m);
 		}
@@ -1284,7 +1284,7 @@ public class JobSubmissionController extends WaspController {
 		} catch (MetadataTypeException e) {
 			logger.warn("Could not get meta for class 'SampleDraftMeta':" + e.getMessage());
 		}
-		if (sampleDraft.getSampleType().getIName().equals("library")){
+		if (sampleService.isLibrary(sampleDraft)){
 			prepareAdaptorsetsAndAdaptors(jobDraft, normalizedMeta, m);
 		}
 		m.addAttribute("heading", messageService.getMessage("jobDraft.sample_edit_heading.label"));
@@ -1321,7 +1321,7 @@ public class JobSubmissionController extends WaspController {
 		validateSampleDraftNameUnique(sampleDraftForm.getName(), sampleDraftId, jobDraft, result);
 		if (result.hasErrors()){
 			waspErrorMessage("sampleDetail.updated.error");
-			if (sampleDraftForm.getSampleType().getIName().equals("library")){
+			if (sampleService.isLibrary(sampleDraftForm)){
 				// library specific functionality
 				prepareAdaptorsetsAndAdaptors(jobDraft, metaFromForm, m);
 			}
@@ -1359,7 +1359,7 @@ public class JobSubmissionController extends WaspController {
 		} catch (MetadataTypeException e) {
 			logger.warn("Could not get meta for class 'SampleDraftMeta':" + e.getMessage());
 		}
-		if (clone.getSampleType().getIName().equals("library")){
+		if (sampleService.isLibrary(clone)){
 			prepareAdaptorsetsAndAdaptors(jobDraft, clone.getSampleDraftMeta(), m);
 		}
 		m.addAttribute("heading", messageService.getMessage("jobDraft.sample_clone_heading.label"));
@@ -1401,7 +1401,7 @@ public class JobSubmissionController extends WaspController {
 		} catch (MetadataTypeException e) {
 			logger.warn("Could not get meta for class 'SampleDraftMeta':" + e.getMessage());
 		}
-		if (sampleDraft.getSampleType().getIName().equals("library")){
+		if (sampleService.isLibrary(sampleDraft)){
 			prepareAdaptorsetsAndAdaptors(jobDraft, normalizedMeta, m);
 		}
 		m.addAttribute("heading", messageService.getMessage("jobDraft.sample_add_heading.label"));
@@ -1438,7 +1438,7 @@ public class JobSubmissionController extends WaspController {
 		validateSampleDraftNameUnique(sampleDraftForm.getName(), 0, jobDraft, result);
 		
 		if (result.hasErrors()){
-			if (sampleDraftForm.getSampleType().getIName().equals("library")){
+			if (sampleService.isLibrary(sampleDraftForm)){
 				// library specific functionality
 				prepareAdaptorsetsAndAdaptors(jobDraft, metaFromForm, m);
 			}

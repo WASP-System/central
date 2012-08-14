@@ -568,7 +568,7 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 		  
 		  for (SampleSource ss : cell.getSampleSource()){
 			  Sample library = ss.getSourceSample();
-			  if (!library.getSampleType().getIName().equals("library") && !library.getSampleType().getIName().equals("controlLibrarySample")){
+			  if (!this.isLibrary(library) && !library.getSampleType().getIName().equals("controlLibrarySample")){
 				  throw new SampleTypeException("Expected 'library' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
 			  }
 			  if (maxIndex != null && ss.getIndex() != null && ss.getIndex() > maxIndex.getValue())
@@ -613,7 +613,7 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 		  if (!cell.getSampleType().getIName().equals("cell")){
 			  throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
 		  }
-		  if (!library.getSampleType().getIName().equals("library")){
+		  if (!this.isLibrary(library)){
 			  throw new SampleTypeException("Expected 'library' but got Sample of type '" + library.getSampleType().getIName() + "' instead.");
 		  }
 		  /* 
@@ -766,6 +766,57 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 				return run;
 		}
 		return null;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean isBiomolecule(Sample sample){
+		if (sample.getSampleType().getIName().equals("dna") || 
+				sample.getSampleType().getIName().equals("rna") || 
+				sample.getSampleType().getIName().equals("library") || 
+				sample.getSampleType().getIName().equals("facilityLibrary") || 
+				sample.getSampleType().getIName().equals("protein") 
+				)
+			return true;
+		return false;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean isBiomolecule(SampleDraft sampleDraft){
+		if (sampleDraft.getSampleType().getIName().equals("dna") || 
+				sampleDraft.getSampleType().getIName().equals("rna") || 
+				sampleDraft.getSampleType().getIName().equals("library") || 
+				sampleDraft.getSampleType().getIName().equals("facilityLibrary") || 
+				sampleDraft.getSampleType().getIName().equals("protein") 
+				)
+			return true;
+		return false;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean isLibrary(SampleDraft sampleDraft){
+		if (sampleDraft.getSampleType().getIName().equals("library") || sampleDraft.getSampleType().getIName().equals("facilityLibrary"))
+			return true;
+		return false;
+	}
+
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean isLibrary(Sample sample) {
+		if (sample.getSampleType().getIName().equals("library") || sample.getSampleType().getIName().equals("facilityLibrary"))
+			return true;
+		return false;
 	}
 	  
 }

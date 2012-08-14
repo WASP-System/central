@@ -1347,7 +1347,7 @@ public class PlatformUnitController extends WaspController {
 		else if (librarySampleId == null || librarySampleId == 0 || librarySample == null || librarySample.getSampleId() == null) {
 			error = true; waspErrorMessage("platformunit.libraryIdNotFound.error");
 		}
-		else if ( ! librarySample.getSampleType().getIName().equals("library")) {
+		else if ( ! sampleService.isLibrary(librarySample)) {
 			error = true; waspErrorMessage("platformunit.libraryIsNotLibrary.error");	
 		}
 		else if ( ! laneSample.getSampleType().getIName().equals("cell")) { 
@@ -1503,7 +1503,7 @@ public class PlatformUnitController extends WaspController {
 		//check that this represents a cell->lib link
 		Sample putativeLibrary = sampleSource.getSourceSample();
 		Sample putativeCell = sampleSource.getSample();
-		if( ! putativeLibrary.getSampleType().getIName().equals("library") || ! putativeCell.getSampleType().getIName().equals("cell") ){
+		if( ! sampleService.isLibrary(putativeLibrary) || ! putativeCell.getSampleType().getIName().equals("cell") ){
 			waspErrorMessage("platformunit.samplesourceTypeError.error");
 			return; 
 		}

@@ -282,4 +282,34 @@ public interface SampleService extends WaspService {
 	   */
 	  public Run getCurrentRunForPlatformUnit(Sample platformUnit);
 	  
+
+	  /**
+	   * returns true if sample is DNA, RNA, Protein, a library (or facilityLibrary)
+	   * @param sample
+	   * @return
+	   */
+	  public boolean isBiomolecule(Sample sample);
+	  
+	  /**
+	   * returns true if sampleDraft is DNA, RNA, Protein, a library (or facilityLibrary)
+	   * @param sample
+	   * @return
+	   */
+	  public boolean isBiomolecule(SampleDraft sampleDraft);
+		
+	  
+	  /**
+	   * returns true if sample is a library (or facilityLibrary)
+	   * @param sample
+	   * @return
+	   */
+	  public boolean isLibrary(Sample sample);
+	  
+	  /**
+	   * returns true if sampleDraft is a library (or facilityLibrary)
+	   * @param sample
+	   * @return
+	   */
+	  public boolean isLibrary(SampleDraft sampleDraft);
+	  
 }
