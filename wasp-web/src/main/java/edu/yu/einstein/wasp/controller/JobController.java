@@ -1,5 +1,6 @@
 package edu.yu.einstein.wasp.controller;
 
+import java.text.DateFormat;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -33,6 +34,7 @@ import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.dao.JobCellSelectionDao;
 import edu.yu.einstein.wasp.dao.JobDao;
 import edu.yu.einstein.wasp.dao.JobUserDao;
+import edu.yu.einstein.wasp.dao.LabDao;
 import edu.yu.einstein.wasp.dao.RoleDao;
 import edu.yu.einstein.wasp.dao.StateDao;
 import edu.yu.einstein.wasp.dao.TaskDao;
@@ -45,6 +47,7 @@ import edu.yu.einstein.wasp.model.JobResourcecategory;
 import edu.yu.einstein.wasp.model.JobSample;
 import edu.yu.einstein.wasp.model.JobSoftware;
 import edu.yu.einstein.wasp.model.JobUser;
+import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.ResourceCategory;
@@ -108,6 +111,8 @@ public class JobController extends WaspController {
 	@Autowired
 	private StateDao	stateDao;
 	@Autowired
+	private LabDao		labDao;
+	@Autowired
 	private WorkflowresourcecategoryDao workflowresourcecategoryDao;
 	@Autowired
 	private JobCellSelectionDao jobCellSelectionDao;
@@ -157,18 +162,78 @@ public class JobController extends WaspController {
 	//@ResponseBody  
 	public String getListJSON(HttpServletResponse response /* , @RequestBody(required = false) Filters filters */) {
 		
+		String sord = request.getParameter("sord");//always has a value
+		String sidx = request.getParameter("sidx");//always has a value
 		String search = request.getParameter("_search");
-		String searchField = request.getParameter("searchField");
-		String searchString = request.getParameter("searchString");
-		String searchOperator = request.getParameter("searchOper");
-	
-		String sord = request.getParameter("sord");
-		String sidx = request.getParameter("sidx");
 		
-		String userId = request.getParameter("userId");
-		String labId = request.getParameter("labId");
-		
+		System.out.println("sidx = " + sidx);
+		System.out.println("sord = " + sord);
+		System.out.println("search = " + search);
 
+		//on job grid's search toolbar
+		String jobIdAsString = request.getParameter("jobId");
+		Integer jobId = null;
+		if(jobIdAsString != null && !jobIdAsString.isEmpty() && !jobIdAsString.trim().isEmpty()){
+			//in case user enters J1001 or # J1001 for job with id of 1001
+			StringBuffer sb = new StringBuffer();
+			for(int i=0; i<jobIdAsString.trim().length(); i++)
+			{
+				if(Character.isDigit(jobIdAsString.charAt(i))){
+					sb.append(jobIdAsString.charAt(i));
+				}
+			}
+			if(sb.length() > 0){
+				int id = Integer.parseInt(sb.toString());
+				jobId = new Integer(id);
+			}
+		}
+		
+		String jobname = request.getParameter("name");
+		if(jobname != null && !jobname.isEmpty() && !jobname.trim().isEmpty()){
+			jobname = jobname.trim();
+		}
+		
+		String submitterNameAndLogin = request.getParameter("submitter");
+		User submitter = null;
+		if(submitterNameAndLogin != null && !submitterNameAndLogin.isEmpty() && !submitterNameAndLogin.trim().isEmpty()){
+			String submitterLogin = StringHelper.getLoginFromFormattedNameAndLogin(submitterNameAndLogin.trim());
+			if(!submitterLogin.isEmpty() && submitterLogin.trim() != ""){
+				submitter = userDao.getUserByLogin(submitterLogin);
+			}
+		}
+		
+		String piNameAndLogin = request.getParameter("pi");
+		User pi = null;
+		Lab piLab = null;
+		if(piNameAndLogin != null && !piNameAndLogin.isEmpty() && !piNameAndLogin.trim().isEmpty()){
+			String piLogin = StringHelper.getLoginFromFormattedNameAndLogin(piNameAndLogin.trim());
+			if(!piLogin.isEmpty() && piLogin.trim() != ""){
+				pi = userDao.getUserByLogin(piLogin);
+				piLab = labDao.getLabByPrimaryUserId(pi.getUserId().intValue());
+			}
+		}
+	/*cannot make the SQL work with date	
+		String createDateAsString = request.getParameter("createts");
+		Date createts = null;
+		if(createDateAsString != null && !createDateAsString.isEmpty() && !createDateAsString.trim().isEmpty()){
+			try{
+				DateFormat formatter;
+				formatter = new SimpleDateFormat("MM/dd/yyyy");
+				createts = (Date)formatter.parse(createDateAsString); 
+			}catch(Exception e){ }
+		}
+	*/
+		
+		//String searchField = request.getParameter("searchField");
+		//String searchString = request.getParameter("searchString");
+		//String searchOperator = request.getParameter("searchOper");
+	
+		//String sord = request.getParameter("sord");
+		//String sidx = request.getParameter("sidx");
+		
+		//String userId = request.getParameter("userId");
+		//String labId = request.getParameter("labId");
+/*		
 System.out.println("selId = " + request.getParameter("selId"));		
 System.out.println("userId = " + userId);
 System.out.println("labId = " + labId);
@@ -179,35 +244,16 @@ System.out.println("searchOperator = " + searchOperator);
 System.out.println("sidx = " + sidx);
 System.out.println("sord = " + sord);
 
-System.out.println("jobid = " + request.getParameter("jobid"));	
+System.out.println("jobId = " + request.getParameter("jobId"));	
 System.out.println("jobname = " + request.getParameter("jobname"));	
 System.out.println("submitter = " + request.getParameter("submitter"));	
 System.out.println("pi = " + request.getParameter("pi"));	
 System.out.println("createts = " + request.getParameter("createts"));	
 System.out.println("viewfiles = " + request.getParameter("viewfiles"));	
 
-String filters = request.getParameter("filters");
+String filters = request.getParameter("filters");//if the jog grid had its toolbar's stringResult = true, capture this for JSON as string
 System.out.println("filters = " + filters);	
-/*
-for(int i = 10; i < 2001; i++){
-Job jobA = new Job();
-jobA.setLabId(2);
-if(i%2==0){
-	jobA.setUserId(6);
-}
-else{
-	jobA.setUserId(5);
-}
-jobA.setWorkflowId(1);
-jobA.setName("job " + i);
-Date date = new Date();
-jobA.setCreatets(date);
-jobA.setViewablebylab(0);
-jobA.setIsActive(1);
-jobA.setLastUpdTs(date);
-jobA.setLastUpdUser(6);
-this.jobDao.save(jobA);
-}
+
 */
 //result
 		Map <String, Object> jqgrid = new HashMap<String, Object>();
@@ -219,8 +265,40 @@ this.jobDao.save(jobA);
 		if(authenticationService.hasRole("su")||authenticationService.hasRole("fm")||authenticationService.hasRole("ft")
 				||authenticationService.hasRole("sa")||authenticationService.hasRole("ga")||authenticationService.hasRole("da")){
 		
-			tempJobList = this.jobDao.findAllOrderBy("jobId", "asc");//sort by jobId here just in case sord.isEmpty()==true
-					
+			String direction;
+			if("jobId".equals(sidx)){
+				direction = new String(sord);
+			}
+			else{
+				direction = new String("desc");
+			}
+			if("true".equals(search)){
+				Map m = new HashMap();
+				if(jobId != null){
+					m.put("jobId", jobId.intValue());
+				}
+				if(jobname != null){
+					m.put("name", jobname);
+				}
+				if(submitter != null){
+					m.put("UserId", submitter.getUserId().intValue());
+				}
+				if(piLab != null && piLab.getLabId().intValue() > 0){
+					m.put("labId", piLab.getLabId().intValue());
+				}
+				//if(createts != null){
+				//	SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+				//	m.put("DATE(createts)", "2012-06-18");
+				//}
+				List<String> orderByColumnNames = new ArrayList<String>();
+				orderByColumnNames.add("jobId");
+				
+				tempJobList = this.jobDao.findByMapDistinctOrderBy(m, null, orderByColumnNames, direction);
+			}
+			else{
+				tempJobList = this.jobDao.findAllOrderBy("jobId", "desc");//sort by jobId/descending to start
+			}
+			/*********this way of passing info into the grid will be removed		
 			if(!userId.trim().isEmpty() && !labId.trim().isEmpty()){//coming from user grid
 				
 				int userIdint = Integer.parseInt(userId.trim());
@@ -237,6 +315,7 @@ this.jobDao.save(jobA);
 				
 				tempJobList.removeAll(jobsToRemove);
 			}
+			************/
 		}
 		else {
 
@@ -267,6 +346,11 @@ this.jobDao.save(jobA);
 			}
 		}
 		
+		jobList.addAll(tempJobList);
+		
+		
+		
+		/***********
 		if(search.equals("true") && searchString!= null && !searchString.isEmpty() && !searchString.trim().isEmpty()){//search	; search has to be through the list (in tempJobList) of allowable jobs for that viewer		
 		  
 			if(searchField.equals("jobId")){					  
@@ -337,7 +421,7 @@ this.jobDao.save(jobA);
 
 			jobList.addAll(tempJobList);
 		}
-		
+		*/
 		if(!sidx.isEmpty() && !sord.isEmpty() ){
 
 			if(sidx.equals("submitter")){

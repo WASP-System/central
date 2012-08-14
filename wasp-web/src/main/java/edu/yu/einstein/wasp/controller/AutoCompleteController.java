@@ -20,8 +20,10 @@ import edu.yu.einstein.wasp.dao.UserMetaDao;
 import edu.yu.einstein.wasp.dao.UserPendingMetaDao;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.dao.LabDao;
+import edu.yu.einstein.wasp.dao.JobDao;
 
 /**
  * Methods for handling json responses for JQuery auto-complete on input boxes
@@ -43,6 +45,9 @@ public class AutoCompleteController extends WaspController{
 
 	@Autowired
 	private LabDao labDao;
+	
+	@Autowired
+	private JobDao jobDao;
 
 	/**
 	   * Obtains a json message containing list of all PIs where each entry in the list looks something like "Peter Piper (PPiper)"
@@ -114,4 +119,27 @@ public class AutoCompleteController extends WaspController{
 	        jsonString = jsonString.replaceAll(",$", "") + "]}";
 	        return jsonString;                
 	  }
+	  
+	  /**
+	   * Obtains a json message containing a list of all job names from the job list. 
+	   * Used to populate a JQuery autocomplete managed input box
+	   * @param jobName
+	   * @return
+	   */
+	  @RequestMapping(value="/getJobNamesForDisplay", method=RequestMethod.GET)
+	  public @ResponseBody String getJobNames(@RequestParam String jobName) {
+		  	
+		  	 List<Job> jobList = jobDao.findAll();
+	         String jsonString = new String();
+	         jsonString = jsonString + "{\"source\": [";
+	         for (Job job : jobList){
+	        	 if(job.getName().indexOf(jobName) > -1){
+	        		 jsonString = jsonString + "\""+ job.getName() + "\",";
+	        	 }
+	         }
+	         jsonString = jsonString.replaceAll(",$", "") + "]}";
+	         return jsonString;                
+	  }
+	  
+	  
 }

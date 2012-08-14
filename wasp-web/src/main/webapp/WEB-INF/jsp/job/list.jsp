@@ -1,9 +1,5 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
-<c:if test="${displayTheAnchor=='YES'}"><a href='<c:url value="/job/list.do"/>'>View All Jobs</a></c:if>  
 <script type="text/javascript" src="/wasp/scripts/jquery/jquery-ui-1.8.18.custom.min.js"></script> 
-
-
-
  <script type="text/javascript">
      $(document).ready(function() { 
     	  // ////$("#jobName").keyup(function(){getAuthNames();}); 
@@ -173,6 +169,23 @@ caption: "Jobs (must internationalize)"
 {edit:false, add:false, del:false, search:false});
 //setSearchSelect('Category');
 //setSearchSelect('Subcategory');
+grid.jqGrid('setColProp', 'name',
+{
+searchoptions: {
+sopt:['cn'],
+dataInit: function(elem) {	
+	setTimeout(
+				function(){ 
+			$.getJSON("/wasp/autocomplete/getJobNamesForDisplay.do", 
+					{ jobName: "" }, 
+					function(data) { 
+						jQuery(elem).autocomplete(data);
+					} );
+				}, 200
+	);
+}
+}
+});
 grid.jqGrid('setColProp', 'submitter',
 {
 searchoptions: {
@@ -227,6 +240,7 @@ grid.jqGrid('setColProp', 'pi',
 		}
 		}
 });
+/* this works, but I cannot make the SQL work
 grid.jqGrid('setColProp', 'createts',
 {
 			searchoptions: {
@@ -236,10 +250,11 @@ grid.jqGrid('setColProp', 'createts',
 				}
 			}
 });
-
+*/
 grid.jqGrid('filterToolbar',
-{stringResult:true, searchOnEnter:true, defaultSearch:"cn"}); 
-   
+{stringResult:false, searchOnEnter:true, defaultSearch:"cn"}); 
+//if stringResult:true then jsp sends a requestParameter names filters that contains the search as JSON 
+//else if false, you can capture the requestParameter in the controller based on the column's name/id   
  
  
      });
