@@ -27,7 +27,16 @@ jQuery("#list").jqGrid({
 	ignoreCase: true,
 	pager: '#pager',
 	height: "auto",
-	caption: "Job List"
+	caption: "Job List",
+	//next eight lines stolen from AJ's job grid to incorporate subgrid about a job's samples 
+	subGrid: true,
+	subGridUrl:'/wasp/job/subgridJSON.do',
+	subGridModel: [
+		{	name : ['Sample Name','Type','Subtype','Received Status'],
+			width : ['auto', 'auto', 'auto', 'auto'],
+			align : ['center', 'center', 'center', 'center']
+		}
+	]	
 }).jqGrid('navGrid','#pager', {edit:false, add:false, del:false, search:false});
 });
 </script>
@@ -117,4 +126,10 @@ jQuery("#list").jqGrid('navButtonAdd',"#pager",{caption:"",title:"Search", butto
 <center>
 <table id="list"><tr><td/></tr></table>
 <div id="pager"></div>
+
+<br /><br />
+
+<table id="grid_id"></table> 
+<div id="gridpager"></div>
+
 </center> 
