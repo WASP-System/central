@@ -10,24 +10,24 @@ jQuery("#list").jqGrid({
     datatype: 'JSON',
     mtype: 'GET',
     height: 255,
-	width: 600,
+	width: 800,
    	colNames:['JobID','Job Name', 'Submitter','PI','Submitted','Result'],
 	colModel: [
-		{ name:'jobId', index:'jobId', width:250 },
-		{ name:'name', index:'name', width:250 },
-		{ name:'submitter', index:'submitter', width:250 },
-		{ name:'pi', index:'pi', width:250 },
-		{ name:'createts', index:'createts', width:200 },
-		{ name:'viewfiles', index:'viewfiles', width:200, search: false, sortable: false }
+		{ name:'jobId', index:'jobId' },
+		{ name:'name', index:'name' },
+		{ name:'submitter', index:'submitter' },
+		{ name:'pi', index:'pi' },
+		{ name:'createts', index:'createts' },
+		{ name:'viewfiles', index:'viewfiles', search: false, sortable: false }
 	],
 	sortname: 'jobId',
-	viewrecords: true,
-	rownumbers: true,
 	sortorder: "desc",
+	viewrecords: true,
+	rownumbers: true,	
 	ignoreCase: true,
 	pager: '#pager',
 	height: "auto",
-	caption: "Jobs (must internationalize)"
+	caption: "Job List"
 }).jqGrid('navGrid','#pager', {edit:false, add:false, del:false, search:false});
 });
 </script>
@@ -86,7 +86,6 @@ jQuery("#list").jqGrid('setColProp', 'pi',
 		}
 		}
 });
-/* this works, but I cannot make the SQL work
 jQuery("#list").jqGrid('setColProp', 'createts',
 {
 			searchoptions: {
@@ -96,12 +95,17 @@ jQuery("#list").jqGrid('setColProp', 'createts',
 				}
 			}
 });
-*/
+ 
 jQuery("#list").jqGrid('filterToolbar', {stringResult:false, searchOnEnter:true, defaultSearch:"cn"}); 
 //if stringResult:true then jsp sends a requestParameter names filters that contains the search as JSON 
 //else if false, you can capture the requestParameter in the controller based on the column's name/id   
- 
- 
+
+//jQuery("#list")[0].toggleToolbar();//hide the toolbar 
+//jQuery("#list").jqGrid('navButtonAdd',"#pager",{caption:"",title:"Search", buttonicon :'ui-icon-search', onClickButton:function(){ $("#list")[0].toggleToolbar(); } }); //icon to add the search bar with search textbox  
+
+jQuery("#list").jqGrid('navButtonAdd',"#pager",{caption:"",title:"Search", buttonicon :'ui-icon-search', onClickButton:function(){ $("#list")[0].triggerToolbar(); } }); //icon to trigger search via toolbar (can also trigger viat ENTER key)
+
+
 });
      
  </script>

@@ -147,34 +147,34 @@ public class JobController extends WaspController {
 		prepareSelectListData(m);
 		
 		String userId = request.getParameter("userId");
-		String labId = request.getParameter("labId");System.out.println("I am now inside /job/list");
+		String labId = request.getParameter("labId");
 		
-		m.addAttribute("displayTheAnchor", "NO");
-		if(userId != null && labId != null){
-			if(!userId.trim().isEmpty() && !labId.trim().isEmpty()){
-				m.addAttribute("displayTheAnchor", "YES");
-			}
-		}
 		return "job/list";
 	}
 
 	@RequestMapping(value="/listJSON", method=RequestMethod.GET)
-	//@ResponseBody  
-	public String getListJSON(HttpServletResponse response /* , @RequestBody(required = false) Filters filters */) {
+	public String getListJSON(HttpServletResponse response) {
 		
+		Map <String, Object> jqgrid = new HashMap<String, Object>();
+		
+		List<Job> tempJobList = new ArrayList<Job>();
+		List<Job> jobsFoundInSearch = new ArrayList<Job>();//not currently used
+		List<Job> jobList = new ArrayList<Job>();
+
 		String sord = request.getParameter("sord");//always has a value
 		String sidx = request.getParameter("sidx");//always has a value
 		String search = request.getParameter("_search");
 		
-		System.out.println("sidx = " + sidx);
-		System.out.println("sord = " + sord);
-		System.out.println("search = " + search);
+		//System.out.println("sidx = " + sidx);System.out.println("sord = " + sord);System.out.println("search = " + search);
 
-		//on job grid's search toolbar
+		//The jobGrid's toolbar's stringResult = false, so each parameter on the toolbar is sent as a key:value pair
+		//If stringResult = true, the parameters containing values would have been sent as a key named filters in JSON format 
+		//see http://www.trirand.com/jqgridwiki/doku.php?id=wiki:toolbar_searching
+		//below capture parameters on job grid's search toolbar
 		String jobIdAsString = request.getParameter("jobId");
 		Integer jobId = null;
 		if(jobIdAsString != null && !jobIdAsString.isEmpty() && !jobIdAsString.trim().isEmpty()){
-			//in case user enters J1001 or # J1001 for job with id of 1001
+			//parse out just the jobId, in case user entered J1001 or # J1001 for job with id of 1001
 			StringBuffer sb = new StringBuffer();
 			for(int i=0; i<jobIdAsString.trim().length(); i++)
 			{
@@ -191,6 +191,9 @@ public class JobController extends WaspController {
 		String jobname = request.getParameter("name");
 		if(jobname != null && !jobname.isEmpty() && !jobname.trim().isEmpty()){
 			jobname = jobname.trim();
+		}
+		else{
+			jobname = null;
 		}
 		
 		String submitterNameAndLogin = request.getParameter("submitter");
@@ -212,7 +215,7 @@ public class JobController extends WaspController {
 				piLab = labDao.getLabByPrimaryUserId(pi.getUserId().intValue());
 			}
 		}
-	/*cannot make the SQL work with date	
+		//*** I cannot make the SQL work with date	
 		String createDateAsString = request.getParameter("createts");
 		Date createts = null;
 		if(createDateAsString != null && !createDateAsString.isEmpty() && !createDateAsString.trim().isEmpty()){
@@ -222,56 +225,12 @@ public class JobController extends WaspController {
 				createts = (Date)formatter.parse(createDateAsString); 
 			}catch(Exception e){ }
 		}
-	*/
-		
-		//String searchField = request.getParameter("searchField");
-		//String searchString = request.getParameter("searchString");
-		//String searchOperator = request.getParameter("searchOper");
-	
-		//String sord = request.getParameter("sord");
-		//String sidx = request.getParameter("sidx");
-		
-		//String userId = request.getParameter("userId");
-		//String labId = request.getParameter("labId");
-/*		
-System.out.println("selId = " + request.getParameter("selId"));		
-System.out.println("userId = " + userId);
-System.out.println("labId = " + labId);
-System.out.println("search = " + search);
-System.out.println("searchField = " + searchField);
-System.out.println("searchString = " + searchString);
-System.out.println("searchOperator = " + searchOperator);
-System.out.println("sidx = " + sidx);
-System.out.println("sord = " + sord);
-
-System.out.println("jobId = " + request.getParameter("jobId"));	
-System.out.println("jobname = " + request.getParameter("jobname"));	
-System.out.println("submitter = " + request.getParameter("submitter"));	
-System.out.println("pi = " + request.getParameter("pi"));	
-System.out.println("createts = " + request.getParameter("createts"));	
-System.out.println("viewfiles = " + request.getParameter("viewfiles"));	
-
-String filters = request.getParameter("filters");//if the jog grid had its toolbar's stringResult = true, capture this for JSON as string
-System.out.println("filters = " + filters);	
-
-*/
-//result
-		Map <String, Object> jqgrid = new HashMap<String, Object>();
-		
-		List<Job> tempJobList = new ArrayList<Job>();
-		List<Job> jobsFoundInSearch = new ArrayList<Job>();
-		List<Job> jobList = new ArrayList<Job>();
-		
+		//***/
+				
+		//viewer is a member of the facility
 		if(authenticationService.hasRole("su")||authenticationService.hasRole("fm")||authenticationService.hasRole("ft")
 				||authenticationService.hasRole("sa")||authenticationService.hasRole("ga")||authenticationService.hasRole("da")){
 		
-			String direction;
-			if("jobId".equals(sidx)){
-				direction = new String(sord);
-			}
-			else{
-				direction = new String("desc");
-			}
 			if("true".equals(search)){
 				Map m = new HashMap();
 				if(jobId != null){
@@ -280,44 +239,26 @@ System.out.println("filters = " + filters);
 				if(jobname != null){
 					m.put("name", jobname);
 				}
-				if(submitter != null){
+				if(submitter != null && submitter.getUserId().intValue() > 0){
 					m.put("UserId", submitter.getUserId().intValue());
 				}
 				if(piLab != null && piLab.getLabId().intValue() > 0){
 					m.put("labId", piLab.getLabId().intValue());
 				}
-				//if(createts != null){
+				//if(createts != null){couldn't get this to work properly via SQL statement, so it's dealt with below on a job-by-job basis
 				//	SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-				//	m.put("DATE(createts)", "2012-06-18");
+				//	m.put("date_format(createts, 'yyyy-MM-dd')", "2012-06-18");
 				//}
 				List<String> orderByColumnNames = new ArrayList<String>();
 				orderByColumnNames.add("jobId");
 				
-				tempJobList = this.jobDao.findByMapDistinctOrderBy(m, null, orderByColumnNames, direction);
+				tempJobList = this.jobDao.findByMapDistinctOrderBy(m, null, orderByColumnNames, "desc");//default order is by jobId/desc
 			}
 			else{
-				tempJobList = this.jobDao.findAllOrderBy("jobId", "desc");//sort by jobId/descending to start
+				tempJobList = this.jobDao.findAllOrderBy("jobId", "desc");//default order is by jobId/desc
 			}
-			/*********this way of passing info into the grid will be removed		
-			if(!userId.trim().isEmpty() && !labId.trim().isEmpty()){//coming from user grid
-				
-				int userIdint = Integer.parseInt(userId.trim());
-				int labIdint = Integer.parseInt(labId.trim());
-				List<Job> jobsToRemove = new ArrayList<Job>();
-				
-				for(Job job:tempJobList){
-					
-					if(job.getUserId().intValue() != userIdint || job.getLabId().intValue() != labIdint){
-							
-						jobsToRemove.add(job);
-					}
-				}
-				
-				tempJobList.removeAll(jobsToRemove);
-			}
-			************/
 		}
-		else {
+		else { //viewer is NOT member of the facility; as of now, no searching capacity for this type of viewer - show all the jobs that person may see (note, if PI, (s)he see's all jobs in that lab)
 
 			for (String role: authenticationService.getRoles()) {			
 			
@@ -341,90 +282,40 @@ System.out.println("filters = " + filters);
 				}
 			}
 			
-			if(sord.isEmpty()){//sort by jobId here just in case sord.isEmpty()==true
-				Collections.sort(tempJobList, new JobIdComparator());
-			}
+			Collections.sort(tempJobList, new JobIdComparator());
+			Collections.reverse(tempJobList);//default order is by jobId/desc
 		}
 		
-		jobList.addAll(tempJobList);
-		
-		
-		
-		/***********
-		if(search.equals("true") && searchString!= null && !searchString.isEmpty() && !searchString.trim().isEmpty()){//search	; search has to be through the list (in tempJobList) of allowable jobs for that viewer		
-		  
-			if(searchField.equals("jobId")){					  
-					  
-				//in case user enters J1001 or # J1001 for job with id of 1001
-				StringBuffer sb = new StringBuffer();
-				for(int i=0; i<searchString.trim().length(); i++)
-				{
-					if(Character.isDigit(searchString.charAt(i))){
-						sb.append(searchString.charAt(i));
-					}
+		//deal with createts by examining each entry one by one
+		if("true".equals(search) && createts != null){
+			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+			String dateToSearchFor = formatter.format(createts);
+			for (Job job : tempJobList){
+				if(formatter.format(job.getCreatets()).equals(dateToSearchFor)){
+					jobsFoundInSearch.add(job);
 				}
-				if(sb.length() > 0){
-					int id = Integer.parseInt(sb.toString());
-					for(Job job : tempJobList){						
-						if(job.getJobId().intValue()==id){
-							jobsFoundInSearch.add(job); 
-							break;//only one, so if found, can stop
-						}
-					}
-				}					
-			}			
-			else if(searchField.equals("submitter") || searchField.equals("pi") || searchField.equals("name")){//this is indicating the search on the submitter's name or a PI or the name of the job
-				String tokens[] = searchString.trim().split(" +");				
-				for (Job job : tempJobList){
-					if(searchField.equals("name")){//this is name of job
-						if(job.getName().toLowerCase().equals(searchString.trim().toLowerCase())){
-							jobsFoundInSearch.add(job);
-						}
-					}
-					else{
-						if(tokens.length==2){//look for match of firstname lastname of submitter or PI
-							if(searchField.equals("submitter")){
-								if(job.getUser().getFirstName().toLowerCase().equals(tokens[0].toLowerCase()) && job.getUser().getLastName().toLowerCase().equals(tokens[1].toLowerCase())){
-									jobsFoundInSearch.add(job);
-								}
-							}
-							else if(searchField.equals("pi")){
-								if(job.getLab().getUser().getFirstName().toLowerCase().equals(tokens[0].toLowerCase()) && job.getLab().getUser().getLastName().toLowerCase().equals(tokens[1].toLowerCase())){
-									jobsFoundInSearch.add(job);
-								}
-							}
-						}
-						else if(tokens.length > 0 && tokens.length !=2){//check token[0] for matching first or last name of submitter or PI
-							if(searchField.equals("submitter")){
-								if(job.getUser().getFirstName().toLowerCase().equals(tokens[0].toLowerCase()) || job.getUser().getLastName().toLowerCase().equals(tokens[0].toLowerCase())){
-									jobsFoundInSearch.add(job);
-								}
-							}
-							else if(searchField.equals("pi")){
-								if(job.getLab().getUser().getFirstName().toLowerCase().equals(tokens[0].toLowerCase()) || job.getLab().getUser().getLastName().toLowerCase().equals(tokens[0].toLowerCase())){
-									jobsFoundInSearch.add(job);
-								}
-							}
-						}
-					}
-				}		
 			}
-			if(searchOperator.equals("eq")){
-				jobList.addAll(jobsFoundInSearch);
-			}
-			else if(searchOperator.equals("ne")){
-				tempJobList.removeAll(jobsFoundInSearch);
-				jobList.addAll(tempJobList);
-			}	
 		}
-		else{//no searching, so copy all from tempJobList into jobList
-
+		if(jobsFoundInSearch.size()>0){
+			jobList.addAll(jobsFoundInSearch);
+		}
+		else{
 			jobList.addAll(tempJobList);
 		}
-		*/
-		if(!sidx.isEmpty() && !sord.isEmpty() ){
-
-			if(sidx.equals("submitter")){
+		
+		//deal with sort
+		if(sidx != null && !sidx.isEmpty() && sord != null && !sord.isEmpty() ){
+			
+			if(sidx.equals("jobId") && sord.equals("asc")){//recall that the result set is already sorted by jobId/desc
+				Collections.sort(jobList, new JobIdComparator());
+			}
+			else if(sidx.equals("name")){
+				Collections.sort(jobList, new JobNameComparator());	
+				if(sord.equals("desc")){
+					Collections.reverse(jobList);
+				}
+			}
+			else if(sidx.equals("submitter")){
 				Collections.sort(jobList, new SubmitterLastNameFirstNameComparator());
 				if(sord.equals("desc")){
 					Collections.reverse(jobList);
@@ -435,19 +326,7 @@ System.out.println("filters = " + filters);
 				if(sord.equals("desc")){
 					Collections.reverse(jobList);
 				}
-			}
-			else if(sidx.equals("jobId")){
-				Collections.sort(jobList, new JobIdComparator());
-				if(sord.equals("desc")){
-					Collections.reverse(jobList);
-				}
-			}
-			else if(sidx.equals("name")){
-				Collections.sort(jobList, new JobNameComparator());	
-				if(sord.equals("desc")){
-					Collections.reverse(jobList);
-				}
-			}
+			}			
 			else if(sidx.equals("createts")){
 				Collections.sort(jobList, new JobCreatetsComparator());	
 				if(sord.equals("desc")){
@@ -932,7 +811,7 @@ class JobCreatetsComparator implements Comparator<Job> {
 	}
 }
 
-class Filters{
+class Filters{//not used 
 
 // inner class Rules
 public class Rules{
