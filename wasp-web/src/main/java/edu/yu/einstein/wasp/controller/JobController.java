@@ -155,78 +155,104 @@ public class JobController extends WaspController {
 	@RequestMapping(value="/listJSON", method=RequestMethod.GET)
 	public String getListJSON(HttpServletResponse response) {
 		
+		//This method is aware of the web viewer, and based on roles, it only displays jobs that the user is permitted to see
+		
 		Map <String, Object> jqgrid = new HashMap<String, Object>();
 		
 		List<Job> tempJobList = new ArrayList<Job>();
 		List<Job> jobsFoundInSearch = new ArrayList<Job>();//not currently used
 		List<Job> jobList = new ArrayList<Job>();
 
-		String sord = request.getParameter("sord");//always has a value
-		String sidx = request.getParameter("sidx");//always has a value
+		//Coming from the jobGrid
+		String sord = request.getParameter("sord");//grid is set so that this always has a value
+		String sidx = request.getParameter("sidx");//grid is set so that this always has a value
 		String search = request.getParameter("_search");
-		
 		//System.out.println("sidx = " + sidx);System.out.println("sord = " + sord);System.out.println("search = " + search);
 
-		//The jobGrid's toolbar's stringResult = false, so each parameter on the toolbar is sent as a key:value pair
+		//Coming from a call from the userGrid (example: job/list.do?userId=2&labId=3). [A similar url call came from dashboard, but on 8/16/12 it was altered and no longer sends any parameter]  
+		//Note that these two request parameters SHOULD BE mutually exclusive with submitter and pi coming from the jobGrid's toolbar
+		String userIdFromURL = request.getParameter("userId");
+		String labIdFromURL = request.getParameter("labId");
+		//System.out.println("userIdFromURL = " + userIdFromURL);System.out.println("labIdFromURL = " + labIdFromURL);
+
+		//The jobGrid's toolbar's is it's search capability. The toolbar's attribute stringResult is currently set to false, 
+		//meaning that each parameter on the toolbar is sent as a key:value pair
 		//If stringResult = true, the parameters containing values would have been sent as a key named filters in JSON format 
 		//see http://www.trirand.com/jqgridwiki/doku.php?id=wiki:toolbar_searching
-		//below capture parameters on job grid's search toolbar
-		String jobIdAsString = request.getParameter("jobId");
+		//below we capture parameters on job grid's search toolbar by name (key:value).
+		String jobIdAsString = request.getParameter("jobId");//if not passed, will be null
+		String jobname = request.getParameter("name");//if not passed, will be null
+		String submitterNameAndLogin = request.getParameter("submitter");//if not passed, will be null
+		String piNameAndLogin = request.getParameter("pi");//if not passed, will be null
+		String createDateAsString = request.getParameter("createts");//if not passed, will be null
+		System.out.println("jobIdAsString = " + jobIdAsString);System.out.println("jobname = " + jobname);System.out.println("submitterNameAndLogin = " + submitterNameAndLogin);System.out.println("piNameAndLogin = " + piNameAndLogin);System.out.println("createDateAsString = " + createDateAsString);
+
+		//deal with jobId
 		Integer jobId = null;
-		if(jobIdAsString != null && !jobIdAsString.isEmpty() && !jobIdAsString.trim().isEmpty()){
-			//parse out just the jobId, in case user entered J1001 or # J1001 for job with id of 1001
-			StringBuffer sb = new StringBuffer();
-			for(int i=0; i<jobIdAsString.trim().length(); i++)
-			{
-				if(Character.isDigit(jobIdAsString.charAt(i))){
-					sb.append(jobIdAsString.charAt(i));
+		if(jobIdAsString != null){//something was passed
+			jobId = StringHelper.convertStringToInteger(jobIdAsString);//returns null is unable to convert
+			if(jobId == null){//perhaps the passed value was abc, which is not a valid jobId
+				jobId = new Integer(0);//fake it so that result set will be empty; this way, the search will be performed with jobId = 0 and will come up with an empty result set
+			}
+		}		
+		
+		//nothing to do to deal with jobname
+		
+		//deal with submitter from grid and userId from URL (should be mutually exclusive)
+		User submitter = null;
+		//from grid
+		if(submitterNameAndLogin != null){//something was passed; expecting firstname lastname (login)
+			String submitterLogin = StringHelper.getLoginFromFormattedNameAndLogin(submitterNameAndLogin.trim());//if fails, returns empty string
+			if(submitterLogin.isEmpty()){//most likely incorrect format !!!!for later, if some passed in amy can always do search for users with first or last name of amy, but would need to be done by searching every job
+				submitter = new User();
+				submitter.setUserId(new Integer(0));//fake it; perform search below and no user will appear in the result set
+			}
+			else{
+				submitter = userDao.getUserByLogin(submitterLogin);
+				if(submitter.getUserId()==null){//if not found in database, submitter is NOT null and getUserId()=null
+					submitter.setUserId(new Integer(0));//fake it; perform search below and no user will appear in the result set
 				}
 			}
-			if(sb.length() > 0){
-				int id = Integer.parseInt(sb.toString());
-				jobId = new Integer(id);
-			}
-		}
+		}		
 		
-		String jobname = request.getParameter("name");
-		if(jobname != null && !jobname.isEmpty() && !jobname.trim().isEmpty()){
-			jobname = jobname.trim();
-		}
-		else{
-			jobname = null;
-		}
-		
-		String submitterNameAndLogin = request.getParameter("submitter");
-		User submitter = null;
-		if(submitterNameAndLogin != null && !submitterNameAndLogin.isEmpty() && !submitterNameAndLogin.trim().isEmpty()){
-			String submitterLogin = StringHelper.getLoginFromFormattedNameAndLogin(submitterNameAndLogin.trim());
-			if(!submitterLogin.isEmpty() && submitterLogin.trim() != ""){
-				submitter = userDao.getUserByLogin(submitterLogin);
-			}
-		}
-		
-		String piNameAndLogin = request.getParameter("pi");
+		//deal with PI (lab)
 		User pi = null;
-		Lab piLab = null;
-		if(piNameAndLogin != null && !piNameAndLogin.isEmpty() && !piNameAndLogin.trim().isEmpty()){
-			String piLogin = StringHelper.getLoginFromFormattedNameAndLogin(piNameAndLogin.trim());
-			if(!piLogin.isEmpty() && piLogin.trim() != ""){
-				pi = userDao.getUserByLogin(piLogin);
-				piLab = labDao.getLabByPrimaryUserId(pi.getUserId().intValue());
+		Lab piLab = null;//this is what's tested below
+		if(piNameAndLogin != null){//something was passed; expecting firstname lastname (login)
+			String piLogin = StringHelper.getLoginFromFormattedNameAndLogin(piNameAndLogin.trim());//if fails, returns empty string
+			if(piLogin.isEmpty()){//likely incorrect format
+				piLab = new Lab();
+				piLab.setLabId(new Integer(0));//fake it; result set will come up empty
+			}
+			else{
+				pi = userDao.getUserByLogin(piLogin);//if User not found, pi object is NOT null and pi.getUnserId()=null
+				if(pi.getUserId()==null){
+					piLab = new Lab();
+					piLab.setLabId(new Integer(0));//fake it; result set will come up empty
+				}
+				else{
+					piLab = labDao.getLabByPrimaryUserId(pi.getUserId().intValue());//if the Lab not found, piLab object is NOT null and piLab.getLabId()=null
+					if(piLab.getLabId()==null){
+						piLab.setLabId(new Integer(0));
+					}
+				}
 			}
 		}
 		
-		String createDateAsString = request.getParameter("createts");
+		//deal with createts
 		Date createts = null;
-		if(createDateAsString != null && !createDateAsString.isEmpty() && !createDateAsString.trim().isEmpty()){
-			try{
-				DateFormat formatter;
-				formatter = new SimpleDateFormat("MM/dd/yyyy");
+		if(createDateAsString != null){
+			DateFormat formatter;
+			formatter = new SimpleDateFormat("MM/dd/yyyy");
+			try{				
 				createts = (Date)formatter.parse(createDateAsString); 
-			}catch(Exception e){ }
+			}
+			catch(Exception e){ 
+				createts = new Date(0);//fake it; set date to 01/01/1970 which is NOT in this database. So results set will be empty
+			}
 		}
 						
-		//viewer is a member of the facility or administration
+		//web viewer is a member of the facility or administration
 		if(authenticationService.hasRole("su")||authenticationService.hasRole("fm")||authenticationService.hasRole("ft")
 				||authenticationService.hasRole("sa")||authenticationService.hasRole("ga")||authenticationService.hasRole("da")){
 		
@@ -236,15 +262,16 @@ public class JobController extends WaspController {
 					m.put("jobId", jobId.intValue());
 				}
 				if(jobname != null){
-					m.put("name", jobname);
+					m.put("name", jobname.trim());
 				}
-				if(submitter != null && submitter.getUserId().intValue() > 0){
+				if(submitter != null){
 					m.put("UserId", submitter.getUserId().intValue());
 				}
-				if(piLab != null && piLab.getLabId().intValue() > 0){
+				if(piLab != null){
 					m.put("labId", piLab.getLabId().intValue());
 				}
-				//if(createts != null){couldn't get this to work properly via SQL statement, so it's dealt with below on a job-by-job basis
+				//couldn't get createts to work properly via SQL statement, so it's dealt with below on a job-by-job basis
+				//if(createts != null){
 				//	SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 				//	m.put("date_format(createts, 'yyyy-MM-dd')", "2012-06-18");
 				//}
@@ -257,7 +284,7 @@ public class JobController extends WaspController {
 				tempJobList = this.jobDao.findAllOrderBy("jobId", "desc");//default order is by jobId/desc
 			}
 		}
-		else { //viewer is NOT member of the facility; as of now, no searching capacity for this type of viewer - show all the jobs that person may see (note, if PI, (s)he see's all jobs in that lab)
+		else { //web viewer is NOT member of the facility, so is a regular user that submits jobs [a regular labmember or PI]; as of now, no searching capacity for this type of viewer - show all the jobs that person may see (note, if PI, (s)he see's all jobs in that lab)
 
 			for (String role: authenticationService.getRoles()) {			
 			
@@ -286,7 +313,9 @@ public class JobController extends WaspController {
 		}
 		
 		//deal with createts by examining each entry one by one
+		Boolean performOneByOneSearch = false;
 		if("true".equals(search) && createts != null){
+			performOneByOneSearch = true;
 			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 			String dateToSearchFor = formatter.format(createts);
 			for (Job job : tempJobList){
@@ -295,7 +324,7 @@ public class JobController extends WaspController {
 				}
 			}
 		}
-		if(jobsFoundInSearch.size()>0){
+		if(performOneByOneSearch){
 			jobList.addAll(jobsFoundInSearch);
 		}
 		else{
