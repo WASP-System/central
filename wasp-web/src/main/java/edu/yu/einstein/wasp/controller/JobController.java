@@ -166,26 +166,29 @@ public class JobController extends WaspController {
 		//Coming from the jobGrid
 		String sord = request.getParameter("sord");//grid is set so that this always has a value
 		String sidx = request.getParameter("sidx");//grid is set so that this always has a value
-		String search = request.getParameter("_search");
+		String search = request.getParameter("_search");//from grid (will return true or false, depending on the toolbar's parameters; but if userIdFromURL or labIdFromURL have values, we reset search to true (see about 6 lines below)
 		//System.out.println("sidx = " + sidx);System.out.println("sord = " + sord);System.out.println("search = " + search);
 
 		//Coming from a call from the userGrid (example: job/list.do?userId=2&labId=3). [A similar url call came from dashboard, but on 8/16/12 it was altered and no longer sends any parameter]  
 		//Note that these two request parameters SHOULD BE mutually exclusive with submitter and pi coming from the jobGrid's toolbar
-		String userIdFromURL = request.getParameter("userId");
-		String labIdFromURL = request.getParameter("labId");
+		String userIdFromURL = request.getParameter("userId");//if not passed, userId is the empty string (interestingly, it's value is not null)
+		String labIdFromURL = request.getParameter("labId");//if not passed, labId is the empty string (interestingly, it's value is not null)
 		//System.out.println("userIdFromURL = " + userIdFromURL);System.out.println("labIdFromURL = " + labIdFromURL);
-
+		if(!userIdFromURL.isEmpty() || !labIdFromURL.isEmpty()){//perhaps should be &&
+			search = "true";
+		}
+		
 		//The jobGrid's toolbar's is it's search capability. The toolbar's attribute stringResult is currently set to false, 
 		//meaning that each parameter on the toolbar is sent as a key:value pair
 		//If stringResult = true, the parameters containing values would have been sent as a key named filters in JSON format 
 		//see http://www.trirand.com/jqgridwiki/doku.php?id=wiki:toolbar_searching
 		//below we capture parameters on job grid's search toolbar by name (key:value).
-		String jobIdAsString = request.getParameter("jobId");//if not passed, will be null
+		String jobIdAsString = request.getParameter("jobId");//if not passed, jobIdAsString will be null
 		String jobname = request.getParameter("name");//if not passed, will be null
 		String submitterNameAndLogin = request.getParameter("submitter");//if not passed, will be null
 		String piNameAndLogin = request.getParameter("pi");//if not passed, will be null
 		String createDateAsString = request.getParameter("createts");//if not passed, will be null
-		System.out.println("jobIdAsString = " + jobIdAsString);System.out.println("jobname = " + jobname);System.out.println("submitterNameAndLogin = " + submitterNameAndLogin);System.out.println("piNameAndLogin = " + piNameAndLogin);System.out.println("createDateAsString = " + createDateAsString);
+		//System.out.println("jobIdAsString = " + jobIdAsString);System.out.println("jobname = " + jobname);System.out.println("submitterNameAndLogin = " + submitterNameAndLogin);System.out.println("piNameAndLogin = " + piNameAndLogin);System.out.println("createDateAsString = " + createDateAsString);
 
 		//deal with jobId
 		Integer jobId = null;
@@ -198,7 +201,7 @@ public class JobController extends WaspController {
 		
 		//nothing to do to deal with jobname
 		
-		//deal with submitter from grid and userId from URL (should be mutually exclusive)
+		//deal with submitter from grid and userId from URL (note that submitterNameAndLogin and userIdFromURL can both be null, but if either is not null, only one should be not null)
 		User submitter = null;
 		//from grid
 		if(submitterNameAndLogin != null){//something was passed; expecting firstname lastname (login)
@@ -213,7 +216,20 @@ public class JobController extends WaspController {
 					submitter.setUserId(new Integer(0));//fake it; perform search below and no user will appear in the result set
 				}
 			}
-		}		
+		}//else from URL next
+		else if(userIdFromURL != null && !userIdFromURL.isEmpty()){//something was passed; should be a number 
+			Integer submitterIdAsInteger = StringHelper.convertStringToInteger(userIdFromURL);//returns null is unable to convert
+			if(submitterIdAsInteger == null){
+				submitter = new User();
+				submitter.setUserId(new Integer(0));//fake it; perform search below and no user will appear in the result set
+			}
+			else{
+				submitter = userDao.getUserByUserId(submitterIdAsInteger.intValue());
+				if(submitter.getUserId()==null){//if not found in database, submitter is NOT null and getUserId()=null
+					submitter.setUserId(new Integer(0));//fake it; perform search below and no user will appear in the result set
+				}
+			}
+		}
 		
 		//deal with PI (lab)
 		User pi = null;
@@ -233,8 +249,21 @@ public class JobController extends WaspController {
 				else{
 					piLab = labDao.getLabByPrimaryUserId(pi.getUserId().intValue());//if the Lab not found, piLab object is NOT null and piLab.getLabId()=null
 					if(piLab.getLabId()==null){
-						piLab.setLabId(new Integer(0));
+						piLab.setLabId(new Integer(0));//fake it; result set will come up empty
 					}
+				}
+			}
+		}//else from URL next
+		else if(labIdFromURL != null && !labIdFromURL.isEmpty()){
+			Integer labIdAsInteger = StringHelper.convertStringToInteger(labIdFromURL);//returns null is unable to convert
+			if(labIdAsInteger == null){
+				piLab = new Lab();
+				piLab.setLabId(new Integer(0));//fake it; result set will come up empty
+			}
+			else{
+				piLab = labDao.getLabByLabId(labIdAsInteger.intValue());//if the Lab not found, piLab object is NOT null and piLab.getLabId()=null
+				if(piLab.getLabId()==null){
+					piLab.setLabId(new Integer(0));//fake it; result set will come up empty
 				}
 			}
 		}
