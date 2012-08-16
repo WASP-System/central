@@ -215,7 +215,7 @@ public class JobController extends WaspController {
 				piLab = labDao.getLabByPrimaryUserId(pi.getUserId().intValue());
 			}
 		}
-		//*** I cannot make the SQL work with date	
+		
 		String createDateAsString = request.getParameter("createts");
 		Date createts = null;
 		if(createDateAsString != null && !createDateAsString.isEmpty() && !createDateAsString.trim().isEmpty()){
@@ -225,9 +225,8 @@ public class JobController extends WaspController {
 				createts = (Date)formatter.parse(createDateAsString); 
 			}catch(Exception e){ }
 		}
-		//***/
-				
-		//viewer is a member of the facility
+						
+		//viewer is a member of the facility or administration
 		if(authenticationService.hasRole("su")||authenticationService.hasRole("fm")||authenticationService.hasRole("ft")
 				||authenticationService.hasRole("sa")||authenticationService.hasRole("ga")||authenticationService.hasRole("da")){
 		

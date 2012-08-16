@@ -109,7 +109,8 @@
 				<ul class="navTabs">
 					<sec:authorize access="hasRole('jv-*')">
 						<li>
-							<a href='<c:url value="/job/list.do?userId=${me.getUserId()}"/>'>My	Viewable Jobs (<c:out value="${jobViewableCount}" />)</a>
+						<!--  	8/16/12 this call no longer requires the ?userId, since the controller JobController.getListJSON automatically inquires who the viewer is, based on roles, and shows only what the user can see <a href='<c:url value="/job/list.do?userId=${me.getUserId()}"/>'>My	Viewable Jobs (<c:out value="${jobViewableCount}" />)</a>  -->
+						<a href='<c:url value="/job/list.do"/>'>My	Viewable Jobs (<c:out value="${jobViewableCount}" />)</a>
 						</li>
 					</sec:authorize>
 					<sec:authorize access="hasRole('jd-*')">

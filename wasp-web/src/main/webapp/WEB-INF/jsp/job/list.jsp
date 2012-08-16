@@ -37,13 +37,26 @@ jQuery("#list").jqGrid({
 			align : ['center', 'center', 'center', 'center']
 		}
 	]	
-}).jqGrid('navGrid','#pager', {edit:false, add:false, del:false, search:false});
+}).jqGrid('navGrid','#pager', {edit:false, add:false, del:false, search:false, beforeRefresh: 
+	function () { 
+		var url = window.location.href; 
+		if(url.indexOf("userId") != -1){//url contains this string (indicating coming from jobGrid), upon refresh, change url to remove; will cause a COMPLETE refresh of page rather than a JSON call 
+   			window.location.replace("list.do"); //completely refresh the page, without the userId and labId request parameters 
+		}
+	}
+});
+ 
+
 });
 </script>
 
+<!-- permit toolbar searching only by facility personnel -->
 <sec:authorize access="hasRole('su') or hasRole('fm') or hasRole('ft') or hasRole('sa') or hasRole('ga') or hasRole('da')">
 <script>
 $(document).ready(function() { 
+	
+var url = window.location.href; 
+			
 jQuery("#list").jqGrid('setColProp', 'name',
 {
 searchoptions: {
@@ -61,6 +74,9 @@ dataInit: function(elem) {
 }
 }
 });
+
+if(url.indexOf("userId") == -1){ //url does NOT contain the string userId, so permit search with autocomplete 
+
 jQuery("#list").jqGrid('setColProp', 'submitter',
 {
 searchoptions: {
@@ -78,6 +94,7 @@ setTimeout(
 }
 }
 });
+
 jQuery("#list").jqGrid('setColProp', 'pi',
 {
 		searchoptions: {
@@ -95,6 +112,13 @@ jQuery("#list").jqGrid('setColProp', 'pi',
 		}
 		}
 });
+
+}else {//url does contains the string userId (indicating coming from jobGrid, so prohibit search on these columns 
+	jQuery("#list").jqGrid('setColProp', 'submitter', {search:false});
+	jQuery("#list").jqGrid('setColProp', 'pi', {search:false});
+}
+
+
 jQuery("#list").jqGrid('setColProp', 'createts',
 {
 			searchoptions: {
@@ -121,15 +145,12 @@ jQuery("#list").jqGrid('navButtonAdd',"#pager",{caption:"",title:"Search", butto
 </sec:authorize> 
  
  
-
-
 <center>
 <table id="list"><tr><td/></tr></table>
 <div id="pager"></div>
-
+<!--  
 <br /><br />
-
 <table id="grid_id"></table> 
 <div id="gridpager"></div>
-
+-->
 </center> 
