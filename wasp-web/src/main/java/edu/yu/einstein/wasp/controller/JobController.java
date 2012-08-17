@@ -149,6 +149,10 @@ public class JobController extends WaspController {
 		String userId = request.getParameter("userId");
 		String labId = request.getParameter("labId");
 		
+		m.addAttribute("viewerIsFacilityMember", "false");
+		if(authenticationService.isFacilityMember()){
+			m.addAttribute("viewerIsFacilityMember", "true");
+		}
 		return "job/list";
 	}
 
@@ -277,7 +281,7 @@ public class JobController extends WaspController {
 				createts = (Date)formatter.parse(createDateAsString); 
 			}
 			catch(Exception e){ 
-				createts = new Date(0);//fake it; set date to 01/01/1970 which is NOT in this database. So results set will be empty
+				createts = new Date(0);//fake it; parameter of 0 sets date to 01/01/1970 which is NOT in this database. So result set will be empty
 			}
 		}
 						
@@ -312,32 +316,10 @@ public class JobController extends WaspController {
 			
 		}
 		else { //web viewer is NOT member of the facility, so viewer is a regular user that submits jobs [a regular labmember or PI]; 
-				//note that as of now, no jobGrid searching capacity for this type of viewer - instead, simply show all jobs that the person may view (note, if PI, (s)he see's all jobs in that lab)
+				//note that as of now, no jobGrid searching capacity is permitted for this type of viewer - instead, simply show all jobs that the person may view (note, if PI, (s)he see's all jobs in that lab)
 
-			for (String role: authenticationService.getRoles()) {			
-			
-				String[] splitRole = role.split("-");
-				if (splitRole.length != 2) { continue; }
-				if (splitRole[1].equals("*")) { continue; }
-		
-				DashboardEntityRolename entityRolename; 
-				int roleObjectId = 0;
-
-				try { 
-					entityRolename = DashboardEntityRolename.valueOf(splitRole[0]);
-					roleObjectId = Integer.parseInt(splitRole[1]);
-				} catch (Exception e)	{
-					continue;
-				}
-			
-				// adds the role object to the proper bucket
-				switch (entityRolename) {
-					case jv: tempJobList.add(jobDao.getJobByJobId(roleObjectId));  break;
-				}
-			}
-			
-			Collections.sort(tempJobList, new JobIdComparator());
-			Collections.reverse(tempJobList);//need to reverse since default order is by jobId/desc
+			User viewer = authenticationService.getAuthenticatedUser();//the web viewer that is logged on that wants to see his/her submitted or viewable jobs
+			tempJobList = jobService.getJobsSubmittedOrViewableByUser(viewer);//default order is by jobId/desc
 		}
 		
 		//Deal with any one-by-one additional searches of the result set
