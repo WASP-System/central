@@ -155,7 +155,7 @@ public class JobController extends WaspController {
 	@RequestMapping(value="/listJSON", method=RequestMethod.GET)
 	public String getListJSON(HttpServletResponse response) {
 		
-		//This method is aware of the web viewer, and based on roles, it only displays jobs that the user is permitted to see
+		//This method is aware of the web viewer, based on roles, and  the output from this method is to display jobs that the user is permitted to see
 		
 		Map <String, Object> jqgrid = new HashMap<String, Object>();
 		
@@ -163,21 +163,13 @@ public class JobController extends WaspController {
 		List<Job> jobsFoundInSearch = new ArrayList<Job>();//not currently used
 		List<Job> jobList = new ArrayList<Job>();
 
-		//Coming from the jobGrid
+		//Parameters coming from the jobGrid
 		String sord = request.getParameter("sord");//grid is set so that this always has a value
 		String sidx = request.getParameter("sidx");//grid is set so that this always has a value
-		String search = request.getParameter("_search");//from grid (will return true or false, depending on the toolbar's parameters; but if userIdFromURL or labIdFromURL have values, we reset search to true (see about 6 lines below)
+		String search = request.getParameter("_search");//from grid (will return true or false, depending on the toolbar's parameters)
 		//System.out.println("sidx = " + sidx);System.out.println("sord = " + sord);System.out.println("search = " + search);
 
-		//Coming from a call from the userGrid (example: job/list.do?userId=2&labId=3). [A similar url call came from dashboard, but on 8/16/12 it was altered and no longer sends any parameter]  
-		//Note that these two request parameters SHOULD BE mutually exclusive with submitter and pi coming from the jobGrid's toolbar
-		String userIdFromURL = request.getParameter("userId");//if not passed, userId is the empty string (interestingly, it's value is not null)
-		String labIdFromURL = request.getParameter("labId");//if not passed, labId is the empty string (interestingly, it's value is not null)
-		//System.out.println("userIdFromURL = " + userIdFromURL);System.out.println("labIdFromURL = " + labIdFromURL);
-		if(!userIdFromURL.isEmpty() || !labIdFromURL.isEmpty()){//perhaps should be &&
-			search = "true";
-		}
-		
+		//Parameters coming from grid's toolbar
 		//The jobGrid's toolbar's is it's search capability. The toolbar's attribute stringResult is currently set to false, 
 		//meaning that each parameter on the toolbar is sent as a key:value pair
 		//If stringResult = true, the parameters containing values would have been sent as a key named filters in JSON format 
@@ -190,6 +182,14 @@ public class JobController extends WaspController {
 		String createDateAsString = request.getParameter("createts");//if not passed, will be null
 		//System.out.println("jobIdAsString = " + jobIdAsString);System.out.println("jobname = " + jobname);System.out.println("submitterNameAndLogin = " + submitterNameAndLogin);System.out.println("piNameAndLogin = " + piNameAndLogin);System.out.println("createDateAsString = " + createDateAsString);
 
+		//Additional URL parameters coming from a call from the userGrid (example: job/list.do?userId=2&labId=3). [A similar url call came from dashboard, but on 8/16/12 it was altered and no longer sends any parameter]  
+		//Note that these two request parameters attached to the URL SHOULD BE mutually exclusive with submitter and pi coming from the jobGrid's toolbar
+		String userIdFromURL = request.getParameter("userId");//if not passed, userId is the empty string (interestingly, it's value is not null)
+		String labIdFromURL = request.getParameter("labId");//if not passed, labId is the empty string (interestingly, it's value is not null)
+		//System.out.println("userIdFromURL = " + userIdFromURL);System.out.println("labIdFromURL = " + labIdFromURL);
+		
+		//DEAL WITH PARAMETERS
+		
 		//deal with jobId
 		Integer jobId = null;
 		if(jobIdAsString != null){//something was passed
@@ -216,7 +216,7 @@ public class JobController extends WaspController {
 					submitter.setUserId(new Integer(0));//fake it; perform search below and no user will appear in the result set
 				}
 			}
-		}//else from URL next
+		}//else deal with the userId from URL next
 		else if(userIdFromURL != null && !userIdFromURL.isEmpty()){//something was passed; should be a number 
 			Integer submitterIdAsInteger = StringHelper.convertStringToInteger(userIdFromURL);//returns null is unable to convert
 			if(submitterIdAsInteger == null){
@@ -253,7 +253,7 @@ public class JobController extends WaspController {
 					}
 				}
 			}
-		}//else from URL next
+		}//else deal with the labId from URL next
 		else if(labIdFromURL != null && !labIdFromURL.isEmpty()){
 			Integer labIdAsInteger = StringHelper.convertStringToInteger(labIdFromURL);//returns null is unable to convert
 			if(labIdAsInteger == null){
@@ -282,38 +282,37 @@ public class JobController extends WaspController {
 		}
 						
 		//web viewer is a member of the facility or administration
-		if(authenticationService.hasRole("su")||authenticationService.hasRole("fm")||authenticationService.hasRole("ft")
-				||authenticationService.hasRole("sa")||authenticationService.hasRole("ga")||authenticationService.hasRole("da")){
-		
-			if("true".equals(search)){
-				Map m = new HashMap();
-				if(jobId != null){
-					m.put("jobId", jobId.intValue());
-				}
-				if(jobname != null){
-					m.put("name", jobname.trim());
-				}
-				if(submitter != null){
-					m.put("UserId", submitter.getUserId().intValue());
-				}
-				if(piLab != null){
-					m.put("labId", piLab.getLabId().intValue());
-				}
-				//couldn't get createts to work properly via SQL statement, so it's dealt with below on a job-by-job basis
-				//if(createts != null){
-				//	SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-				//	m.put("date_format(createts, 'yyyy-MM-dd')", "2012-06-18");
-				//}
-				List<String> orderByColumnNames = new ArrayList<String>();
-				orderByColumnNames.add("jobId");
-				
-				tempJobList = this.jobDao.findByMapDistinctOrderBy(m, null, orderByColumnNames, "desc");//default order is by jobId/desc
+		//if(authenticationService.hasRole("su")||authenticationService.hasRole("fm")||authenticationService.hasRole("ft")
+		//		||authenticationService.hasRole("sa")||authenticationService.hasRole("ga")||authenticationService.hasRole("da")){
+		if(authenticationService.isFacilityMember()){//true if viewer has role of su, fm, ft, sa, ga, da	
+			Map m = new HashMap();
+			if(jobId != null){
+				m.put("jobId", jobId.intValue());
 			}
-			else{
-				tempJobList = this.jobDao.findAllOrderBy("jobId", "desc");//default order is by jobId/desc
+			if(jobname != null){
+				m.put("name", jobname.trim());
 			}
+			if(submitter != null){
+				m.put("UserId", submitter.getUserId().intValue());
+			}
+			if(piLab != null){
+				m.put("labId", piLab.getLabId().intValue());
+			}
+			//While I'd have liked to include createts here, for use in the next SQL statement, 
+			//I couldn't get createts to work properly via SQL statement, so it's dealt with below on a job-by-job basis
+			//if(createts != null){
+			//	SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+			//	m.put("date_format(createts, 'yyyy-MM-dd')", "2012-06-18");
+			//}
+			List<String> orderByColumnNames = new ArrayList<String>();
+			orderByColumnNames.add("jobId");
+			
+			//if Map m has no entries, SQL will find ALL jobs
+			tempJobList = this.jobDao.findByMapDistinctOrderBy(m, null, orderByColumnNames, "desc");//default order is by jobId/desc
+			
 		}
-		else { //web viewer is NOT member of the facility, so is a regular user that submits jobs [a regular labmember or PI]; as of now, no searching capacity for this type of viewer - show all the jobs that person may see (note, if PI, (s)he see's all jobs in that lab)
+		else { //web viewer is NOT member of the facility, so viewer is a regular user that submits jobs [a regular labmember or PI]; 
+				//note that as of now, no jobGrid searching capacity for this type of viewer - instead, simply show all jobs that the person may view (note, if PI, (s)he see's all jobs in that lab)
 
 			for (String role: authenticationService.getRoles()) {			
 			
@@ -338,12 +337,14 @@ public class JobController extends WaspController {
 			}
 			
 			Collections.sort(tempJobList, new JobIdComparator());
-			Collections.reverse(tempJobList);//default order is by jobId/desc
+			Collections.reverse(tempJobList);//need to reverse since default order is by jobId/desc
 		}
 		
-		//deal with createts by examining each entry one by one
+		//Deal with any one-by-one additional searches of the result set
 		Boolean performOneByOneSearch = false;
-		if("true".equals(search) && createts != null){
+		
+		//search for a specific createts one by one
+		if(createts != null){
 			performOneByOneSearch = true;
 			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 			String dateToSearchFor = formatter.format(createts);
@@ -360,10 +361,11 @@ public class JobController extends WaspController {
 			jobList.addAll(tempJobList);
 		}
 		
-		//deal with sort
+		//Finally deal with any sort requests coming from the grid. 
 		if(sidx != null && !sidx.isEmpty() && sord != null && !sord.isEmpty() ){
 			
-			if(sidx.equals("jobId") && sord.equals("asc")){//recall that the result set is already sorted by jobId/desc
+			//resultset within jobList is currently sorted by jobId/desc.
+			if(sidx.equals("jobId") && sord.equals("asc")){
 				Collections.sort(jobList, new JobIdComparator());
 			}
 			else if(sidx.equals("name")){
@@ -392,6 +394,7 @@ public class JobController extends WaspController {
 			}				
 		}
 		
+		//Format output for grid by pages
 		try {
 			int pageIndex = Integer.parseInt(request.getParameter("page"));		// index of page
 			int pageRowNum = Integer.parseInt(request.getParameter("rows"));	// number of rows in one page
@@ -447,23 +450,20 @@ public class JobController extends WaspController {
 				 
 				for (JobMeta meta:jobMeta) {
 					cellList.add(meta.getV());
-				}
-				
+				}				
 				 
-				cell.put("cell", cellList);
-				 
+				cell.put("cell", cellList);				 
 				rows.add(cell);
 			}
-
 			 
 			jqgrid.put("rows",rows);
 			
 			return outputJSON(jqgrid, response); 	
 			 
-		} catch (Throwable e) {
+		} 
+		catch (Throwable e) {
 			throw new IllegalStateException("Can't marshall to JSON " + jobList,e);
-		}
-	
+		}	
 	}
 
 	@RequestMapping(value = "/subgridJSON.do", method = RequestMethod.GET)
