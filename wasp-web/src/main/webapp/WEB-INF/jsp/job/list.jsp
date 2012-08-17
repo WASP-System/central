@@ -129,7 +129,43 @@ jQuery("#list").jqGrid('setColProp', 'createts',
 			}
 });
  
-jQuery("#list").jqGrid('filterToolbar', {stringResult:false, searchOnEnter:true, defaultSearch:"cn"}); 
+jQuery("#list").jqGrid('filterToolbar', {stringResult:false, searchOnEnter:true, defaultSearch:"cn", 
+	beforeSearch: function(){
+		var jobId = $('#gs_jobId').val();
+		if(jobId.length>0){
+			var numberFormat=new RegExp("^[0-9]+$");
+			if(!numberFormat.test(jobId)){
+				alert("Required jobId format: all digits");
+				return true;//do not perform search 
+			}
+		}
+		var name = $('#gs_name').val();//not tested  
+		var properNameAndLoginFormat=new RegExp("^.*?\\({1}([-\\w+]+)\\){1}$");
+		var submitter = $('#gs_submitter').val();
+		if(submitter.length>0){
+			if(!properNameAndLoginFormat.test(submitter)){
+				alert("Required Submitter format: firstname lastname (login). It is best to select name from list.");
+				return true;//do not perform search 
+			}
+		}
+		var pi = $('#gs_pi').val();	
+		if(pi.length>0){
+			if(!properNameAndLoginFormat.test(pi)){
+				alert("Required PI format: firstname lastname (login). It is best to select name from list.");
+				return true;//do not perform search 
+			}
+		}
+		var createts = $('#gs_createts').val();		
+		if(createts.length>0){
+			var dateFormat=new RegExp("^[0-1][0-9]/[0-3][0-9]/[1-2][0-9][0-9][0-9]$");
+			if(!dateFormat.test(createts)){
+				alert("Required date format: MM/DD/YYYY. It is best to use calendar to select date.");
+				return true;//do not perform search 
+			}
+		}
+		return false;//perform search 
+	} 
+}); 
 //if stringResult:true then jsp sends a requestParameter names filters that contains the search as JSON 
 //else if false, you can capture the requestParameter in the controller based on the column's name/id   
 

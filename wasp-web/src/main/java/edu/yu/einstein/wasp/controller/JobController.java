@@ -146,7 +146,7 @@ public class JobController extends WaspController {
 
 		prepareSelectListData(m);
 		
-		String userId = request.getParameter("userId");
+		String userId = request.getParameter("userId");//don't think these two params are used here
 		String labId = request.getParameter("labId");
 		
 		m.addAttribute("viewerIsFacilityMember", "false");
