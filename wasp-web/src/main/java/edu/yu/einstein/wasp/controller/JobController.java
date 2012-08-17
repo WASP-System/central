@@ -151,7 +151,7 @@ public class JobController extends WaspController {
 		
 		m.addAttribute("viewerIsFacilityMember", "false");
 		if(authenticationService.isFacilityMember()){
-			m.addAttribute("viewerIsFacilityMember", "true");
+			m.addAttribute("viewerIsFacilityMember", "true");//send to jsp; this way don't have to perform multiple sec:authorize access= tests!!
 		}
 		return "job/list";
 	}

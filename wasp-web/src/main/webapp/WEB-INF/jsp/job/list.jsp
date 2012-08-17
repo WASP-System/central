@@ -51,7 +51,7 @@ jQuery("#list").jqGrid({
 </script>
 
 <!-- permit toolbar searching only by facility personnel -->
-<sec:authorize access="hasRole('su') or hasRole('fm') or hasRole('ft') or hasRole('sa') or hasRole('ga') or hasRole('da')">
+<c:if test='${viewerIsFacilityMember=="true"}'>
 <script>
 $(document).ready(function() { 
 	
@@ -142,8 +142,7 @@ jQuery("#list").jqGrid('navButtonAdd',"#pager",{caption:"",title:"Search", butto
 });
      
  </script>
-</sec:authorize> 
- 
+</c:if> 
  
 <center>
 <table id="list"><tr><td/></tr></table>
