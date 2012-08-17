@@ -37,7 +37,8 @@ jQuery("#list").jqGrid({
 			align : ['center', 'center', 'center', 'center']
 		}
 	]	
-}).jqGrid('navGrid','#pager', {edit:false, add:false, del:false, search:false, beforeRefresh: 
+});
+jQuery("#list").jqGrid('navGrid','#pager', {edit:false, add:false, del:false, search:false, beforeRefresh: 
 	function () { 
 		var url = window.location.href; 
 		if(url.indexOf("userId") != -1){//url contains this string (indicating coming from jobGrid), upon refresh, change url to remove; will cause a COMPLETE refresh of page rather than a JSON call 
@@ -132,31 +133,37 @@ jQuery("#list").jqGrid('setColProp', 'createts',
 jQuery("#list").jqGrid('filterToolbar', {stringResult:false, searchOnEnter:true, defaultSearch:"cn", 
 	beforeSearch: function(){
 		var jobId = $('#gs_jobId').val();
-		if(jobId.length>0){
+		if(typeof(jobId) !== 'undefined' && jobId != null && jobId.length>0){
 			var numberFormat=new RegExp("^[0-9]+$");
 			if(!numberFormat.test(jobId)){
 				alert("Required jobId format: all digits");
 				return true;//do not perform search 
 			}
 		}
-		var name = $('#gs_name').val();//not tested  
+		
+		var name = $('#gs_name').val(); 
+		
 		var properNameAndLoginFormat=new RegExp("^.*?\\({1}([-\\w+]+)\\){1}$");
-		var submitter = $('#gs_submitter').val();
-		if(submitter.length>0){
+		
+		var submitter = $('#gs_submitter').val();//may not always be defined 
+		if(typeof(submitter) !== 'undefined' && submitter != null && submitter.length>0){
+			//could have subsituted if(typeof(submitter) !== 'undefined' && submitter != null && submitter.length>0) with if(submitter && submitter.length>0)  
 			if(!properNameAndLoginFormat.test(submitter)){
 				alert("Required Submitter format: firstname lastname (login). It is best to select name from list.");
 				return true;//do not perform search 
 			}
 		}
-		var pi = $('#gs_pi').val();	
-		if(pi.length>0){
+		
+		var pi = $('#gs_pi').val();	//may not always be defined 
+		if(typeof(pi) !== 'undefined' && pi != null && pi.length>0){
+			//could have subsituted if(typeof(pi) !== 'undefined' && pi != null && pi.length>0) with if(pi && pi.length>0)  
 			if(!properNameAndLoginFormat.test(pi)){
 				alert("Required PI format: firstname lastname (login). It is best to select name from list.");
 				return true;//do not perform search 
 			}
 		}
-		var createts = $('#gs_createts').val();		
-		if(createts.length>0){
+		var createts = $('#gs_createts').val();		 
+		if(typeof(createts) !== 'undefined' && createts != null && createts.length>0){
 			var dateFormat=new RegExp("^[0-1][0-9]/[0-3][0-9]/[1-2][0-9][0-9][0-9]$");
 			if(!dateFormat.test(createts)){
 				alert("Required date format: MM/DD/YYYY. It is best to use calendar to select date.");
