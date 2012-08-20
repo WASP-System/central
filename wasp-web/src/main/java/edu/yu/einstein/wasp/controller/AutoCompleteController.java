@@ -50,6 +50,38 @@ public class AutoCompleteController extends WaspController{
 	private JobDao jobDao;
 
 	/**
+	   * NOT USED - but shows a way to have the json message contain list of all PIs where each entry in the list looks something like "Peter Piper" but once selected, it is "Peter Piper (PPiper)" that is actually put into the autocomplete input box"
+	   * Used to populate a JQuery autocomplete managed input box
+	   * @param piNameFragment
+	   * @return json message
+	   */
+	  @RequestMapping(value="/getPiForAutocomplete", method=RequestMethod.GET)
+	  public @ResponseBody String getPiForAutocomplete() {
+	      
+		  List<Lab> labList = labDao.findAll(); 
+	      List<User> userList = new ArrayList<User>();
+	      for(Lab lab : labList){
+	    	  userList.add(lab.getUser());
+	      }
+		 
+	      StringBuilder sb = new StringBuilder();
+	      sb.append("{\"source\": [");
+	      int counter = 0;
+	      for (User u : userList){
+	    	  if(counter++ > 0){
+	    		  sb.append(",");
+	    	  }
+	    	  sb.append("{\"label\": \""+u.getFirstName()+" "+u.getLastName()+"\", \"value\":\""+u.getFirstName()+" "+u.getLastName()+" ("+u.getLogin()+")\"}");
+	      }
+	      sb.append("]}");
+	      
+	      String jsonOutput = new String(sb);
+	      //System.out.println("jsonOutput: " + jsonOutput);
+	      
+	      return jsonOutput; 
+	  }
+	  
+	/**
 	   * Obtains a json message containing list of all PIs where each entry in the list looks something like "Peter Piper (PPiper)"
 	   * Used to populate a JQuery autocomplete managed input box
 	   * @param piNameFragment

@@ -1,4 +1,23 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
+<!-- style adds vertical scrollbar to the autocomplete; code taken from  http://jqueryui.com/demos/autocomplete/#maxheight  -->
+<!-- overflow-x: auto; was previously set to hidden -->
+<style>
+	.ui-autocomplete {
+		max-height: 400px;
+		overflow-y: auto;
+		/* prevent horizontal scrollbar */
+		overflow-x: auto; 
+		/* add padding to account for vertical scrollbar */
+		padding-right: 20px;
+	}
+	/* IE 6 doesn't support max-height
+	 * we use height instead, but this forces the menu to always be this tall
+	 */
+	* html .ui-autocomplete {
+		height: 100px;
+	}
+</style>
+	
 <script type="text/javascript" src="/wasp/scripts/jquery/jquery-ui-1.8.18.custom.min.js"></script> 
  <script type="text/javascript">
 ///http://trirand.com/blog/jqgrid/jqgrid.html version 3.7 toolbar search 
@@ -103,7 +122,8 @@ jQuery("#list").jqGrid('setColProp', 'pi',
 		dataInit: function(elem) {	
 		setTimeout(
 						function(){ 
-					$.getJSON("/wasp/autocomplete/getPiNamesAndLoginForDisplay.do", 
+					$.getJSON("/wasp/autocomplete/getPiNamesAndLoginForDisplay.do",
+					//Not used $.getJSON("/wasp/autocomplete/getPiForAutocomplete.do", 
 							{ piNameFragment: "" }, 
 							function(data) { 
 								jQuery(elem).autocomplete(data);
