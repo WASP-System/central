@@ -3,6 +3,9 @@
  */
 package edu.yu.einstein.wasp.controller;
 
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.SortedSet;
@@ -83,6 +86,7 @@ public class AutoCompleteController extends WaspController{
 	  
 	/**
 	   * Obtains a json message containing list of all PIs where each entry in the list looks something like "Peter Piper (PPiper)"
+	   * OrderBy lastname, then firstname ascending
 	   * Used to populate a JQuery autocomplete managed input box
 	   * @param piNameFragment
 	   * @return json message
@@ -93,9 +97,16 @@ public class AutoCompleteController extends WaspController{
 		  List<Lab> labList = labDao.findAll(); 
 	      List<User> userList = new ArrayList<User>();
 	      for(Lab lab : labList){
-	    	  userList.add(lab.getUser());
+	    	  userList.add(lab.getUser());//PI of lab
 	      }
-		 
+	      class LastNameFirstNameComparator implements Comparator<User> {
+	    	@Override
+	    	public int compare(User arg0, User arg1) {
+	    		return arg0.getLastName().concat(arg0.getFirstName()).compareToIgnoreCase(arg1.getLastName().concat(arg1.getFirstName()));
+	    	}
+	      }
+	      Collections.sort(userList, new LastNameFirstNameComparator());
+	      
 	      String jsonString = new String();
 	      jsonString = jsonString + "{\"source\": [";
 	      for (User u : userList){
@@ -173,5 +184,28 @@ public class AutoCompleteController extends WaspController{
 	         return jsonString;                
 	  }
 	  
-	  
+		/**
+	   * Obtains a json message containing list of ALL users where each entry in the list looks something like "Peter Piper (PPiper)"
+	   * Order by lastname then firstname, ascending
+	   * Used to populate a JQuery autocomplete managed input box
+	   * @param adminNameFragment
+	   * @return json message
+	   */
+	  @RequestMapping(value="/getAllUserNamesAndLoginForDisplay", method=RequestMethod.GET)
+	  public @ResponseBody String getAllUserNames(@RequestParam String adminNameFragment) {
+		  
+		  List<String> orderbyList = new ArrayList<String>();
+		  orderbyList.add("lastName");
+		  orderbyList.add("firstName");
+	      List<User> userList = userDao.findByMapDistinctOrderBy(new HashMap(), null, orderbyList, "asc");
+	      String jsonString = new String();
+	      jsonString = jsonString + "{\"source\": [";
+	      for (User u : userList){
+	      	 if(u.getFirstName().indexOf(adminNameFragment) > -1 || u.getLastName().indexOf(adminNameFragment) > -1 || u.getLogin().indexOf(adminNameFragment) > -1){
+	       		 jsonString = jsonString + "\""+ u.getFirstName() + " " + u.getLastName() + " (" + u.getLogin() + ")\",";
+	       	 }
+	      }
+	      jsonString = jsonString.replaceAll(",$", "") + "]}";
+	      return jsonString;                
+	  }
 }
