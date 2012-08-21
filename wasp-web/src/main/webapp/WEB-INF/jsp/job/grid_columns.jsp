@@ -10,7 +10,7 @@
 
 <wasp:field name="createts"  type="text" sortable="true" searchable="true"/>
   
-<wasp:field name="viewfiles"  type="text"  sortable="false" searchable="true"/>
+<wasp:field name="viewfiles"  type="text"  sortable="false" searchable="false"/>
 
  _url='/wasp/job/listJSON.do?selId=${param.selId}&userId=${param.userId}&labId=${param.labId}';
 
