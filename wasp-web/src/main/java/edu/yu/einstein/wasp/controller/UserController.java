@@ -129,14 +129,18 @@ public class UserController extends WaspController {
 			for (LabUser uLab:uLabs) {
 				Map cell = new HashMap();
 				cell.put("id", uLab.getLabId());
-				 					
+				
+				User pi = userDao.getUserByUserId(uLab.getLab().getPrimaryUserId().intValue());
+				
 				List<String> cellList = new ArrayList<String>(
 						Arrays.asList(
 								new String[] {
 										"<a href=/wasp/job/list.do?labId=" 
 										+ uLab.getLabId().intValue() 
 										+ "&userId=" + userId + ">" + 
-											uLab.getLab().getName() + "</a>"
+											//uLab.getLab().getName() + 
+											pi.getFirstName() + " " + pi.getLastName() + " " + "Lab" +
+											"</a>"
 								}
 						)
 				);
