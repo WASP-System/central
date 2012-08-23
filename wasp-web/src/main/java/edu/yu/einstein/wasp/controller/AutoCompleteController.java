@@ -8,8 +8,10 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.LinkedHashSet;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -203,6 +205,105 @@ public class AutoCompleteController extends WaspController{
 	      for (User u : userList){
 	      	 if(u.getFirstName().indexOf(adminNameFragment) > -1 || u.getLastName().indexOf(adminNameFragment) > -1 || u.getLogin().indexOf(adminNameFragment) > -1){
 	       		 jsonString = jsonString + "\""+ u.getFirstName() + " " + u.getLastName() + " (" + u.getLogin() + ")\",";
+	       	 }
+	      }
+	      jsonString = jsonString.replaceAll(",$", "") + "]}";
+	      return jsonString;                
+	  }
+	  
+		/**
+	   * Obtains a json message containing list of ALL users login"
+	   * Order ascending
+	   * Used to populate a JQuery autocomplete managed input box
+	   * @param str
+	   * @return json message
+	   */
+	  @RequestMapping(value="/getAllUserLoginsForDisplay", method=RequestMethod.GET)
+	  public @ResponseBody String getAllUserLogins(@RequestParam String str) {
+		  
+		  List<User> userList = userDao.findAllOrderBy("login", "asc");
+	      String jsonString = new String();
+	      jsonString = jsonString + "{\"source\": [";
+	      for (User u : userList){
+	      	 if(u.getLogin().indexOf(str) > -1){
+	       		 jsonString = jsonString + "\""+ u.getLogin()+"\",";
+	       	 }
+	      }
+	      jsonString = jsonString.replaceAll(",$", "") + "]}";
+	      return jsonString;                
+	  }
+	  
+		/**
+	   * Obtains a json message containing DISTINCT list of ALL users first names"
+	   * Order ascending
+	   * Used to populate a JQuery autocomplete managed input box
+	   * @param str
+	   * @return json message
+	   */
+	  @RequestMapping(value="/getDistinctUserFirstNamesForDisplay", method=RequestMethod.GET)
+	  public @ResponseBody String getDistinctUserFirstNames(@RequestParam String str) {
+		  
+		  List<User> userList = userDao.findAllOrderBy("firstName", "asc");
+		  Set<String> distinctSetUserFirstName = new LinkedHashSet<String>();
+		  for(User user : userList){
+			  distinctSetUserFirstName.add(user.getFirstName());//use Set to collect Distinct list of names
+		  }
+		  
+	      String jsonString = new String();
+	      jsonString = jsonString + "{\"source\": [";
+	      for (String firstName : distinctSetUserFirstName){
+	      	 if(firstName.indexOf(str) > -1){
+	       		 jsonString = jsonString + "\""+ firstName+"\",";
+	       	 }
+	      }
+	      jsonString = jsonString.replaceAll(",$", "") + "]}";
+	      return jsonString;                
+	  }
+	  
+		/**
+	   * Obtains a json message containing DISTINCT list of ALL users last names"
+	   * Order ascending
+	   * Used to populate a JQuery autocomplete managed input box
+	   * @param str
+	   * @return json message
+	   */
+	  @RequestMapping(value="/getDistinctUserLastNamesForDisplay", method=RequestMethod.GET)
+	  public @ResponseBody String getDistinctUserLastNames(@RequestParam String str) {
+		  
+		  List<User> userList = userDao.findAllOrderBy("lastName", "asc");
+		  Set<String> distinctSetUserLastName = new LinkedHashSet<String>();
+		  for(User user : userList){
+			  distinctSetUserLastName.add(user.getLastName());//use Set to collect Distinct list of names
+		  }
+		  
+	      String jsonString = new String();
+	      jsonString = jsonString + "{\"source\": [";
+	      for (String lastName : distinctSetUserLastName){
+	      	 if(lastName.indexOf(str) > -1){//note: if str equals "", this, perhaps unexpectedly, evaluates to true
+	       		 jsonString = jsonString + "\""+ lastName+"\",";
+	       	 }
+	      }
+	      jsonString = jsonString.replaceAll(",$", "") + "]}";
+	      return jsonString;                
+	  }
+	  
+		/**
+	   * Obtains a json message containing list of ALL users email addresses"
+	   * Order ascending
+	   * Used to populate a JQuery autocomplete managed input box
+	   * @param str
+	   * @return json message
+	   */
+	  @RequestMapping(value="/getAllUserEmailsForDisplay", method=RequestMethod.GET)
+	  public @ResponseBody String getAllUserEmails(@RequestParam String str) {
+		  
+		  List<User> userList = userDao.findAllOrderBy("email", "asc");
+		  		  
+	      String jsonString = new String();
+	      jsonString = jsonString + "{\"source\": [";
+	      for (User u : userList){
+	      	 if(u.getEmail().indexOf(str) > -1){//note: if str equals "", this, perhaps unexpectedly, evaluates to true
+	       		 jsonString = jsonString + "\""+ u.getEmail()+"\",";
 	       	 }
 	      }
 	      jsonString = jsonString.replaceAll(",$", "") + "]}";
