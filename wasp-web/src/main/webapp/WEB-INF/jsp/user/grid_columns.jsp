@@ -12,7 +12,7 @@
 
 <wasp:field name="email" type="text" sortable="true" searchable="true"/>
 
-<wasp:field name="locale" type="select" items="${locales}" itemValue="key" itemLabel="value"  sortable="false" searchable="false"/> 
+<wasp:field name="locale" type="select" items="${locales}" itemValue="key" itemLabel="value"  hidden="true" sortable="false" searchable="false"/> 
 
 <wasp:field name="isActive"  type="checkbox" hidden="false" editHidden="true" sortable="false" searchable="false"/>
 
@@ -28,3 +28,12 @@ _addAttr['afterShowForm'] = function(formId) {
 	$('#tr_roles', formId).hide();
 };
 
+// show the locale attribute on the edit form; it is hidden on the main grid
+_editAttr['beforeShowForm'] = function(formId) {
+	$('#tr_locale', formId).show();
+};
+
+// show the locale attribute on the add form; it is hidden on the main grid
+_addAttr['beforeShowForm'] = function(formId) {
+	$('#tr_locale', formId).show();
+};
