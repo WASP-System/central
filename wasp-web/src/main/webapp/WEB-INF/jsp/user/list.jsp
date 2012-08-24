@@ -28,7 +28,7 @@ $(document).ready(function() {
 //set column properties for the filterToolbar search 
 
 var url_string = window.location.href; 
-if(url_string.indexOf("userId") == -1){ //url does NOT contain the string userId, so permit search of submitter and pi using filterToolbar and autocomplete 
+if(url_string.indexOf("selId") == -1){ //url does NOT contain the string userId, so permit search of submitter and pi using filterToolbar and autocomplete 
 
 	jQuery("#grid_id").jqGrid('setColProp', 'login',
 	{

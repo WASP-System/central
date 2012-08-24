@@ -16,12 +16,12 @@
 
 <wasp:field name="isActive"  type="checkbox" hidden="false" editHidden="true" sortable="false" searchable="false"/>
 
-_url='/wasp/user/listJSON.do?selId=${param.selId}&userId=${param.userId}';
+_url='/wasp/user/listJSON.do?selId=${param.selId}';
 
 _navAttr={edit:true,view:false,add:true,del:false,search:false,refresh:true,beforeRefresh: 
 	function () { 
 		var url = window.location.href; 
-		if(url.indexOf('userId') != -1){<%-- url contains this string (indicating coming from jobGrid), upon refresh, change url to remove; will cause a COMPLETE refresh of page rather than a JSON call--%> 
+		if(url.indexOf('selId') != -1){<%-- url contains this string (indicating coming from jobGrid), upon refresh, change url to remove; will cause a COMPLETE refresh of page rather than a JSON call--%> 
 			window.location.replace('list.do'); <%-- completely refresh the page, without the userId and labId request parameters --%>
 		}
 	}

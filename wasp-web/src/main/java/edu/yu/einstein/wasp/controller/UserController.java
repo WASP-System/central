@@ -174,8 +174,10 @@ public class UserController extends WaspController {
 		String search = request.getParameter("_search");
 		String searchField = request.getParameter("searchField");//no longer user; replaced by filterToolbar items
 		String searchString = request.getParameter("searchString");//no longer user; replaced by filterToolbar items
-		String selId = request.getParameter("selId");//no longer user
-		//System.out.println("sidx = " + sidx);System.out.println("sord = " + sord);System.out.println("search = " + search);System.out.println("selId = " + selId);
+		
+		//Parameter coming from url anchor within lab grid (not coming from the filterToolbar)
+		String userIdFromURL = request.getParameter("selId");//if not passed, userId is the empty string (interestingly, it's value is not null)
+		//System.out.println("selId = " + userIdFromURL);System.out.println("sidx = " + sidx);System.out.println("sord = " + sord);System.out.println("search = " + search);System.out.println("selId = " + selId);
 
 		//Parameters coming from grid's toolbar
 		//The jobGrid's toolbar's is it's search capability. The toolbar's attribute stringResult is currently set to false, 
@@ -185,10 +187,6 @@ public class UserController extends WaspController {
 		String lastName = request.getParameter("lastName");//null if this parameter is not passed
 		String email = request.getParameter("email");//null if this parameter is not passed
 		//System.out.println("login = " + login);System.out.println("firstName = " + firstName);System.out.println("lastName = " + lastName);System.out.println("email = " + email);
-		
-		//Parameter coming from url anchor within lab grid (not coming from the filterToolbar)
-		String userIdFromURL = request.getParameter("userId");//if not passed, userId is the empty string (interestingly, it's value is not null)
-		//System.out.println("userId = " + userIdFromURL);
 		
 		//result
 		Map <String, Object> jqgrid = new HashMap<String, Object>();
