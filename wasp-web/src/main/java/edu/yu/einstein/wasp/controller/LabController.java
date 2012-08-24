@@ -59,6 +59,7 @@ import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.TaskService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 import edu.yu.einstein.wasp.util.MetaHelper;
+import edu.yu.einstein.wasp.util.StringHelper;
 
 @Controller
 @Transactional
@@ -161,17 +162,33 @@ public class LabController extends WaspController {
 		String sord = request.getParameter("sord");
 		String sidx = request.getParameter("sidx");
 
+		//parameter from filterToolbar
+		String piNameAndLogin = request.getParameter("primaryUser");//if not passed, will be null; if passed will be firstname lastname (login)
+		//System.out.println("piNameAndLogin = " + piNameAndLogin);
+		
+		//deal with the parameter
+		User pi = null;
+		if(piNameAndLogin != null){//something was passed; expecting firstname lastname (login)
+			String piLogin = StringHelper.getLoginFromFormattedNameAndLogin(piNameAndLogin.trim());//if fails, returns empty string
+			if(!piLogin.isEmpty()){//likely incorrect format
+				pi = userDao.getUserByLogin(piLogin);//if User not found, pi object is NOT null and pi.getUnserId()=null
+			}
+		}
+	
 		// result
 		Map<String, Object> jqgrid = new HashMap<String, Object>();
 
-		List<Lab> labList;
+		List<Lab> labList = new ArrayList<Lab>();
 
-		if (request.getParameter("_search") == null	|| StringUtils.isEmpty(request.getParameter("searchString"))) {
+		//if (request.getParameter("_search") == null	|| StringUtils.isEmpty(request.getParameter("searchString"))) {
+		if(piNameAndLogin==null){//no search parameter, so get all labs
 
-			labList = sidx.isEmpty() ? this.labDao.findAll() : this.labDao.findAllOrderBy(sidx, sord);
+			//labList = sidx.isEmpty() ? this.labDao.findAll() : this.labDao.findAllOrderBy(sidx, sord);
+			labList = this.labDao.findAll();
 		
 		} else {
 
+			/*
 			Map<String, String> m = new HashMap<String, String>();
 
 			m.put(request.getParameter("searchField"), request.getParameter("searchString"));
@@ -186,20 +203,30 @@ public class LabController extends WaspController {
 
 				labList = allLabs;
 			}
+			*/
+			if(pi != null && pi.getUserId() != null){
+				Lab lab = this.labDao.getLabByPrimaryUserId(pi.getUserId().intValue());
+				if(lab != null && lab.getLabId() != null && lab.getLabId() != 0){
+					labList.add(lab);
+				}
+			}
 		}
 		
 		/***** Sort by PI name cannot be achieved by DB query "sort by" clause *****/
 		class LabPUNameComparator implements Comparator<Lab> {
 			@Override
 			public int compare(Lab arg0, Lab arg1) {
-				return arg0.getUser().getFirstName().compareToIgnoreCase(arg1.getUser().getFirstName());
+				return arg0.getUser().getLastName().compareToIgnoreCase(arg1.getUser().getLastName());
 			}
 		}
 		
-		if (sidx.equals("primaryUser")) {
-			Collections.sort(labList, new LabPUNameComparator());
-			if (sord.equals("desc"))
-				Collections.reverse(labList);
+		if ( !labList.isEmpty() && labList.size() > 1 ){
+	
+				Collections.sort(labList, new LabPUNameComparator());
+				if (sord.equals("desc")){
+					Collections.reverse(labList);
+				}
+			
 		}
 		/***** Sort by PI name ends here *****/
 
