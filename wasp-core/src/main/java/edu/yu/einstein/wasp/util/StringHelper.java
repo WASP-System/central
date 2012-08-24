@@ -89,4 +89,27 @@ public class StringHelper {
 		if (s == null || s.isEmpty()) return false;
 		return s.matches("^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$");
 	}
+	
+	/**
+	 * Converts a string to Integer. Non-numeric characters are excluded (example: string "   # J1001 " converted to Integer 1001). 
+	 * @param String s
+	 * @return Integer
+	 */
+	public static Integer convertStringToInteger(String s){
+		Integer _integer = null;
+		if(s != null){
+			StringBuffer sb = new StringBuffer();
+			for(int i=0; i<s.length(); i++)
+			{
+				if(Character.isDigit(s.charAt(i))){
+					sb.append(s.charAt(i));
+				}
+			}
+			if(sb.length() > 0){
+				int id = Integer.parseInt(sb.toString());
+				_integer = new Integer(id);
+			}
+		}
+		return _integer;
+	}
 }

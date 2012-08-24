@@ -50,6 +50,12 @@ public interface AuthenticationService {
 	public boolean isSuperUser();
 	
 	/**
+	 * Returns true if User has role of su, fm, ft, sa, ga, or da, else returns false
+	 * @return
+	 */
+	public boolean isFacilityMember();
+
+	/**
 	 * Attempts to authenticate a user based on given credentials and returns true if user authenticates or false if not.
 	 * @param name
 	 * @param password

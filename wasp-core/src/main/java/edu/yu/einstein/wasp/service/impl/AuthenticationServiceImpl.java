@@ -182,6 +182,16 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	}
 	
 	@Override
+	public boolean isFacilityMember() {
+		for (String role: this.getRoles()){
+			if (role.equals("su") || role.equals("fm") || role.equals("ft") || role.equals("sa") || role.equals("ga") || role.equals("da")){
+				return true;
+			}
+		}
+		return false;
+	}
+		
+	@Override
 	public boolean authenticate(String name, String password){
 		try {
 	        Authentication authRequest = new UsernamePasswordAuthenticationToken(name, password);
