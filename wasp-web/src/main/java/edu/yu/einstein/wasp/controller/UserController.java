@@ -42,6 +42,7 @@ import edu.yu.einstein.wasp.service.RoleService;
 import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 import edu.yu.einstein.wasp.util.MetaHelper;
+import edu.yu.einstein.wasp.util.StringHelper;
 
 
 /**
@@ -174,7 +175,7 @@ public class UserController extends WaspController {
 		String searchField = request.getParameter("searchField");//no longer user; replaced by filterToolbar items
 		String searchString = request.getParameter("searchString");//no longer user; replaced by filterToolbar items
 		String selId = request.getParameter("selId");//no longer user
-		//System.out.println("sidx = " + sidx);System.out.println("sord = " + sord);System.out.println("search = " + search);
+		//System.out.println("sidx = " + sidx);System.out.println("sord = " + sord);System.out.println("search = " + search);System.out.println("selId = " + selId);
 
 		//Parameters coming from grid's toolbar
 		//The jobGrid's toolbar's is it's search capability. The toolbar's attribute stringResult is currently set to false, 
@@ -185,25 +186,37 @@ public class UserController extends WaspController {
 		String email = request.getParameter("email");//null if this parameter is not passed
 		//System.out.println("login = " + login);System.out.println("firstName = " + firstName);System.out.println("lastName = " + lastName);System.out.println("email = " + email);
 		
+		//Parameter coming from url anchor within lab grid (not coming from the filterToolbar)
+		String userIdFromURL = request.getParameter("userId");//if not passed, userId is the empty string (interestingly, it's value is not null)
+		//System.out.println("userId = " + userIdFromURL);
+		
 		//result
 		Map <String, Object> jqgrid = new HashMap<String, Object>();
 
 		List<User> userList = new ArrayList<User>();
 		
-		Map<String, String> m = new HashMap<String, String>();
-		if(login != null){
-			m.put("login", login);
+		Map m = new HashMap();
+		if(userIdFromURL != null && !userIdFromURL.isEmpty()){
+			Integer userIdAsInteger = StringHelper.convertStringToInteger(userIdFromURL.trim());//returns null is unable to convert
+			if(userIdAsInteger == null){
+				userIdAsInteger = new Integer(0);//fake it; perform search below and no user will appear in the result set
+			}
+			m.put("UserId", userIdAsInteger.intValue());
 		}
-		if(firstName != null){
-			m.put("firstName", firstName);
+		else{
+			if(login != null){
+				m.put("login", login);
+			}
+			if(firstName != null){
+				m.put("firstName", firstName);
+			}
+			if(lastName != null){
+				m.put("lastName", lastName);
+			}
+			if(email != null){
+				m.put("email", email);
+			}
 		}
-		if(lastName != null){
-			m.put("lastName", lastName);
-		}
-		if(email != null){
-			m.put("email", email);
-		}
-		
 		List<String> orderByList = new ArrayList<String>();
 		if(sidx != null && !sidx.isEmpty() && sord != null && !sord.isEmpty() ){
 			orderByList.add(sidx);

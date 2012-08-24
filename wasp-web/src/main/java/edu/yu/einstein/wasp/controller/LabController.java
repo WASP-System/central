@@ -251,7 +251,8 @@ public class LabController extends WaspController {
 				List<String> cellList = new ArrayList<String>(
 						Arrays.asList(new String[] {
 								lab.getName(),
-								this.userDao.getUserByUserId(lab.getPrimaryUserId()).getNameFstLst(),
+								//this.userDao.getUserByUserId(lab.getPrimaryUserId()).getNameFstLst(),
+								"<a href=/wasp/user/list.do?userId="+lab.getPrimaryUserId()+">"+ this.userDao.getUserByUserId(lab.getPrimaryUserId()).getNameFstLst() +"</a>",
 								lab.getPrimaryUserId().toString(),
 								lab.getDepartment().getName(),
 
