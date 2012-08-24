@@ -129,14 +129,18 @@ public class UserController extends WaspController {
 			for (LabUser uLab:uLabs) {
 				Map cell = new HashMap();
 				cell.put("id", uLab.getLabId());
-				 					
+				
+				User pi = userDao.getUserByUserId(uLab.getLab().getPrimaryUserId().intValue());
+				
 				List<String> cellList = new ArrayList<String>(
 						Arrays.asList(
 								new String[] {
 										"<a href=/wasp/job/list.do?labId=" 
 										+ uLab.getLabId().intValue() 
 										+ "&userId=" + userId + ">" + 
-											uLab.getLab().getName() + "</a>"
+											//uLab.getLab().getName() + 
+											pi.getFirstName() + " " + pi.getLastName() + " " + "Lab" +
+											"</a>"
 								}
 						)
 				);
@@ -167,52 +171,49 @@ public class UserController extends WaspController {
 		String sord = request.getParameter("sord");
 		String sidx = request.getParameter("sidx");
 		String search = request.getParameter("_search");
-		String searchField = request.getParameter("searchField");
-		String searchString = request.getParameter("searchString");
-		String selId = request.getParameter("selId");
+		String searchField = request.getParameter("searchField");//no longer user; replaced by filterToolbar items
+		String searchString = request.getParameter("searchString");//no longer user; replaced by filterToolbar items
+		String selId = request.getParameter("selId");//no longer user
+		//System.out.println("sidx = " + sidx);System.out.println("sord = " + sord);System.out.println("search = " + search);
+
+		//Parameters coming from grid's toolbar
+		//The jobGrid's toolbar's is it's search capability. The toolbar's attribute stringResult is currently set to false, 
+		//meaning that each parameter on the toolbar is sent as a key:value pair
+		String login = request.getParameter("login");//null if this parameter is not passed
+		String firstName = request.getParameter("firstName");//null if this parameter is not passed
+		String lastName = request.getParameter("lastName");//null if this parameter is not passed
+		String email = request.getParameter("email");//null if this parameter is not passed
+		//System.out.println("login = " + login);System.out.println("firstName = " + firstName);System.out.println("lastName = " + lastName);System.out.println("email = " + email);
 		
 		//result
 		Map <String, Object> jqgrid = new HashMap<String, Object>();
-		
+
 		List<User> userList = new ArrayList<User>();
 		
-		if (!StringUtils.isEmpty(selId)) {
-
-			userList.add(this.userDao.getUserByUserId(Integer.parseInt(selId)));
-		
-		} else if (!StringUtils.isEmpty(search) && !StringUtils.isEmpty(searchField) && !StringUtils.isEmpty(searchString) ) {
-		
-			Map<String, String> m = new HashMap<String, String>();
-
-			m.put(searchField, searchString);
-
-			if (sidx.isEmpty()) {
-				userList = this.userDao.findByMap(m);
-			} else {
-				List<String> sidxList =  new ArrayList<String>();
-				sidxList.add(sidx);
-				userList = this.userDao.findByMapDistinctOrderBy(m, null, sidxList, sord);
-			}
-
-			if ("ne".equals(request.getParameter("searchOper"))) {
-				List<User> all = new ArrayList<User>(sidx.isEmpty() ? 
-						this.userDao.findAll() : this.userDao.findAllOrderBy(sidx, sord));
-
-				for (Iterator<User> it = userList.iterator(); it.hasNext();) {
-					User exclude = it.next();
-					all.remove(exclude);
-
-				}
-				userList = all;
-			}
-			
-		} else {
-			
-			userList = sidx.isEmpty() ? this.userDao.findAll() : this.userDao.findAllOrderBy(sidx, sord);
+		Map<String, String> m = new HashMap<String, String>();
+		if(login != null){
+			m.put("login", login);
 		}
-
-		userService.reverseSortUsersByUserId(userList);
+		if(firstName != null){
+			m.put("firstName", firstName);
+		}
+		if(lastName != null){
+			m.put("lastName", lastName);
+		}
+		if(email != null){
+			m.put("email", email);
+		}
 		
+		List<String> orderByList = new ArrayList<String>();
+		if(sidx != null && !sidx.isEmpty() && sord != null && !sord.isEmpty() ){
+			orderByList.add(sidx);
+		}
+		else{//default orderBy will be userId/desc (rationale: so that when a new user is created using the grid, the viewer sees a link to prompt that they should assign a role)
+			orderByList.add("UserId");
+			sord = "desc";
+		}
+		userList = this.userDao.findByMapDistinctOrderBy(m, null, orderByList, sord);
+
 		try {
 			int pageIndex = Integer.parseInt(request.getParameter("page"));		// index of page
 			int pageRowNum = Integer.parseInt(request.getParameter("rows"));	// number of rows in one page
@@ -272,7 +273,7 @@ public class UserController extends WaspController {
 				}
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 							user.getLogin(),
-//							user.getPassword(),
+							//user.getPassword(),
 							user.getFirstName(),
 							user.getLastName(),	
 							rolesAsString,
@@ -284,22 +285,19 @@ public class UserController extends WaspController {
 				for(UserMeta meta:userMeta) {
 					cellList.add(meta.getV());
 				}
-				
-				 
-				cell.put("cell", cellList);
-				 
+								 
+				cell.put("cell", cellList);				 
 				rows.add(cell);
 			}
 
-			 
 			jqgrid.put("rows",rows);
 			 
 			return outputJSON(jqgrid, response); 	
 			 
-		} catch (Throwable e) {
+		} 
+		catch (Throwable e) {
 			throw new IllegalStateException("Can't marshall to JSON "+userList,e);
-		}
-	
+		}	
 	}
 
 	/**

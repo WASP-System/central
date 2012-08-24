@@ -111,4 +111,15 @@ public interface JobService extends WaspService {
 	 * 
 	 */
 	public List<Job> getJobsWithLibrariesToGoOnFlowCell();
+	
+	/**
+	 * getJobsSubmittedOrViewableByUser() returns list of jobs that was submitted by, as well as viewable by, a specific user. 
+	 * Note that some jobs viewable to the user may have been submitted by someone else.
+	 * Note that a PI can see there own jobs AND jobs submitted by members of their lab
+	 * Note that returned job list is ordered by jobId/descending
+	 * @param User user
+	 * @return List<Job>
+	 * 
+	 */
+	public List<Job> getJobsSubmittedOrViewableByUser(User user);
 }

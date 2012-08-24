@@ -1234,6 +1234,9 @@ public class LabController extends WaspController {
 		
 		labPending.setLabPendingMeta( (List<LabPendingMeta>) labPendingMetaHelperWebapp.getMetaList());
 		m.addAttribute("labPending", labPending);
+		String userIsPI = authenticationService.hasRole("pi")?new String("true"):new String("false");
+		m.addAttribute("userIsPI", userIsPI);
+		
 		prepareSelectListData(m);
 
 		return "lab/newrequest";

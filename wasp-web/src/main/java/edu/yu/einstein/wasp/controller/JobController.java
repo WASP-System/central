@@ -1,7 +1,11 @@
 package edu.yu.einstein.wasp.controller;
 
+import java.text.DateFormat;
+import java.text.Format;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -20,14 +24,17 @@ import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.dao.JobCellSelectionDao;
 import edu.yu.einstein.wasp.dao.JobDao;
 import edu.yu.einstein.wasp.dao.JobUserDao;
+import edu.yu.einstein.wasp.dao.LabDao;
 import edu.yu.einstein.wasp.dao.RoleDao;
 import edu.yu.einstein.wasp.dao.StateDao;
 import edu.yu.einstein.wasp.dao.TaskDao;
@@ -40,6 +47,7 @@ import edu.yu.einstein.wasp.model.JobResourcecategory;
 import edu.yu.einstein.wasp.model.JobSample;
 import edu.yu.einstein.wasp.model.JobSoftware;
 import edu.yu.einstein.wasp.model.JobUser;
+import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.ResourceCategory;
@@ -103,6 +111,8 @@ public class JobController extends WaspController {
 	@Autowired
 	private StateDao	stateDao;
 	@Autowired
+	private LabDao		labDao;
+	@Autowired
 	private WorkflowresourcecategoryDao workflowresourcecategoryDao;
 	@Autowired
 	private JobCellSelectionDao jobCellSelectionDao;
@@ -135,96 +145,238 @@ public class JobController extends WaspController {
 		m.addAttribute("_metaDataMessages", MetaHelper.getMetadataMessages(request.getSession()));
 
 		prepareSelectListData(m);
-
+		
+		String userId = request.getParameter("userId");//don't think these two params are used here
+		String labId = request.getParameter("labId");
+		
+		m.addAttribute("viewerIsFacilityMember", "false");
+		if(authenticationService.isFacilityMember()){
+			m.addAttribute("viewerIsFacilityMember", "true");//send to jsp; this way don't have to perform multiple sec:authorize access= tests!!
+		}
 		return "job/list";
 	}
 
-	@RequestMapping(value="/listJSON", method=RequestMethod.GET)	
+	@RequestMapping(value="/listJSON", method=RequestMethod.GET)
 	public String getListJSON(HttpServletResponse response) {
 		
-		String search = request.getParameter("_search");
-		String searchStr = request.getParameter("searchString");
-	
-		String sord = request.getParameter("sord");
-		String sidx = request.getParameter("sidx");
+		//This method is aware of the web viewer, based on roles, and  the output from this method is to display jobs that the user is permitted to see
 		
-		String userId = request.getParameter("userId");
-		String labId = request.getParameter("labId");
-		
-		//result
 		Map <String, Object> jqgrid = new HashMap<String, Object>();
 		
+		List<Job> tempJobList = new ArrayList<Job>();
+		List<Job> jobsFoundInSearch = new ArrayList<Job>();//not currently used
 		List<Job> jobList = new ArrayList<Job>();
+
+		//Parameters coming from the jobGrid
+		String sord = request.getParameter("sord");//grid is set so that this always has a value
+		String sidx = request.getParameter("sidx");//grid is set so that this always has a value
+		String search = request.getParameter("_search");//from grid (will return true or false, depending on the toolbar's parameters)
+		//System.out.println("sidx = " + sidx);System.out.println("sord = " + sord);System.out.println("search = " + search);
+
+		//Parameters coming from grid's toolbar
+		//The jobGrid's toolbar's is it's search capability. The toolbar's attribute stringResult is currently set to false, 
+		//meaning that each parameter on the toolbar is sent as a key:value pair
+		//If stringResult = true, the parameters containing values would have been sent as a key named filters in JSON format 
+		//see http://www.trirand.com/jqgridwiki/doku.php?id=wiki:toolbar_searching
+		//below we capture parameters on job grid's search toolbar by name (key:value).
+		String jobIdAsString = request.getParameter("jobId");//if not passed, jobIdAsString will be null
+		String jobname = request.getParameter("name");//if not passed, will be null
+		String submitterNameAndLogin = request.getParameter("submitter");//if not passed, will be null
+		String piNameAndLogin = request.getParameter("pi");//if not passed, will be null
+		String createDateAsString = request.getParameter("createts");//if not passed, will be null
+		//System.out.println("jobIdAsString = " + jobIdAsString);System.out.println("jobname = " + jobname);System.out.println("submitterNameAndLogin = " + submitterNameAndLogin);System.out.println("piNameAndLogin = " + piNameAndLogin);System.out.println("createDateAsString = " + createDateAsString);
+
+		//Additional URL parameters coming from a call from the userGrid (example: job/list.do?userId=2&labId=3). [A similar url call came from dashboard, but on 8/16/12 it was altered and no longer sends any parameter]  
+		//Note that these two request parameters attached to the URL SHOULD BE mutually exclusive with submitter and pi coming from the jobGrid's toolbar
+		String userIdFromURL = request.getParameter("userId");//if not passed, userId is the empty string (interestingly, it's value is not null)
+		String labIdFromURL = request.getParameter("labId");//if not passed, labId is the empty string (interestingly, it's value is not null)
+		//System.out.println("userIdFromURL = " + userIdFromURL);System.out.println("labIdFromURL = " + labIdFromURL);
 		
-		if (!search.equals("true")	&& !userId.isEmpty() && labId.isEmpty()) {
-			
-			for (String role: authenticationService.getRoles()) {			
-				
-				String[] splitRole = role.split("-");
-				if (splitRole.length != 2) { continue; }
-				if (splitRole[1].equals("*")) { continue; }
-			
-				DashboardEntityRolename entityRolename; 
-				int roleObjectId = 0;
-
-				try { 
-					entityRolename = DashboardEntityRolename.valueOf(splitRole[0]);
-					roleObjectId = Integer.parseInt(splitRole[1]);
-				} catch (Exception e)	{
-					continue;
+		//DEAL WITH PARAMETERS
+		
+		//deal with jobId
+		Integer jobId = null;
+		if(jobIdAsString != null){//something was passed
+			jobId = StringHelper.convertStringToInteger(jobIdAsString);//returns null is unable to convert
+			if(jobId == null){//perhaps the passed value was abc, which is not a valid jobId
+				jobId = new Integer(0);//fake it so that result set will be empty; this way, the search will be performed with jobId = 0 and will come up with an empty result set
+			}
+		}		
+		
+		//nothing to do to deal with jobname
+		
+		//deal with submitter from grid and userId from URL (note that submitterNameAndLogin and userIdFromURL can both be null, but if either is not null, only one should be not null)
+		User submitter = null;
+		//from grid
+		if(submitterNameAndLogin != null){//something was passed; expecting firstname lastname (login)
+			String submitterLogin = StringHelper.getLoginFromFormattedNameAndLogin(submitterNameAndLogin.trim());//if fails, returns empty string
+			if(submitterLogin.isEmpty()){//most likely incorrect format !!!!for later, if some passed in amy can always do search for users with first or last name of amy, but would need to be done by searching every job
+				submitter = new User();
+				submitter.setUserId(new Integer(0));//fake it; perform search below and no user will appear in the result set
+			}
+			else{
+				submitter = userDao.getUserByLogin(submitterLogin);
+				if(submitter.getUserId()==null){//if not found in database, submitter is NOT null and getUserId()=null
+					submitter.setUserId(new Integer(0));//fake it; perform search below and no user will appear in the result set
 				}
-				
-
-				// adds the role object to the proper bucket
-				switch (entityRolename) {
-					
-					case jv: 
-						
-						jobList.add(jobDao.getJobByJobId(roleObjectId));
-						
-						break;
-					
+			}
+		}//else deal with the userId from URL next
+		else if(userIdFromURL != null && !userIdFromURL.isEmpty()){//something was passed; should be a number 
+			Integer submitterIdAsInteger = StringHelper.convertStringToInteger(userIdFromURL);//returns null is unable to convert
+			if(submitterIdAsInteger == null){
+				submitter = new User();
+				submitter.setUserId(new Integer(0));//fake it; perform search below and no user will appear in the result set
+			}
+			else{
+				submitter = userDao.getUserByUserId(submitterIdAsInteger.intValue());
+				if(submitter.getUserId()==null){//if not found in database, submitter is NOT null and getUserId()=null
+					submitter.setUserId(new Integer(0));//fake it; perform search below and no user will appear in the result set
 				}
 			}
 		}
-		else if (!search.equals("true")	&& userId.isEmpty()	&& labId.isEmpty()) {
-			jobList = sidx.isEmpty() ? this.jobDao.findAll() : this.jobDao.findAllOrderBy(sidx, sord);
-		} else {
-			  Map m = new HashMap();
-			  
-			  if (search.equals("true") && !searchStr.isEmpty()){
-				  
-				  if(request.getParameter("searchField").equals("jobId")){
-					  
-					  String capturedSearchString = request.getParameter("searchString");
-					  //in case user enters J1001 or # J1001 for job with id of 1001
-					  StringBuffer sb = new StringBuffer();
-					  for(int i=0; i<capturedSearchString.length(); i++)
-					  {
-						  if(Character.isDigit(capturedSearchString.charAt(i))){
-					            sb.append(capturedSearchString.charAt(i));
-						  }
-					  }
-					  if(sb.length() == 0){
-						  sb.append("0");
-					  }
-					  //m.put(request.getParameter("searchField"), Integer.parseInt(request.getParameter("searchString")));
-					  m.put(request.getParameter("searchField"), Integer.parseInt(sb.toString()));
-				  }
-				  else{
-					  m.put(request.getParameter("searchField"), request.getParameter("searchString"));
-				  }
-			  }
-			  
-			  if (!userId.isEmpty())
-				  m.put("UserId", Integer.parseInt(userId));
-			  
-			  if (!labId.isEmpty())
-				  m.put("labId", Integer.parseInt(labId));
-			  				  
-			  jobList = this.jobDao.findByMap(m);
+		
+		//deal with PI (lab)
+		User pi = null;
+		Lab piLab = null;//this is what's tested below
+		if(piNameAndLogin != null){//something was passed; expecting firstname lastname (login)
+			String piLogin = StringHelper.getLoginFromFormattedNameAndLogin(piNameAndLogin.trim());//if fails, returns empty string
+			if(piLogin.isEmpty()){//likely incorrect format
+				piLab = new Lab();
+				piLab.setLabId(new Integer(0));//fake it; result set will come up empty
+			}
+			else{
+				pi = userDao.getUserByLogin(piLogin);//if User not found, pi object is NOT null and pi.getUnserId()=null
+				if(pi.getUserId()==null){
+					piLab = new Lab();
+					piLab.setLabId(new Integer(0));//fake it; result set will come up empty
+				}
+				else{
+					piLab = labDao.getLabByPrimaryUserId(pi.getUserId().intValue());//if the Lab not found, piLab object is NOT null and piLab.getLabId()=null
+					if(piLab.getLabId()==null){
+						piLab.setLabId(new Integer(0));//fake it; result set will come up empty
+					}
+				}
+			}
+		}//else deal with the labId from URL next
+		else if(labIdFromURL != null && !labIdFromURL.isEmpty()){
+			Integer labIdAsInteger = StringHelper.convertStringToInteger(labIdFromURL);//returns null is unable to convert
+			if(labIdAsInteger == null){
+				piLab = new Lab();
+				piLab.setLabId(new Integer(0));//fake it; result set will come up empty
+			}
+			else{
+				piLab = labDao.getLabByLabId(labIdAsInteger.intValue());//if the Lab not found, piLab object is NOT null and piLab.getLabId()=null
+				if(piLab.getLabId()==null){
+					piLab.setLabId(new Integer(0));//fake it; result set will come up empty
+				}
+			}
 		}
+		
+		//deal with createts
+		Date createts = null;
+		if(createDateAsString != null){
+			DateFormat formatter;
+			formatter = new SimpleDateFormat("MM/dd/yyyy");
+			try{				
+				createts = (Date)formatter.parse(createDateAsString); 
+			}
+			catch(Exception e){ 
+				createts = new Date(0);//fake it; parameter of 0 sets date to 01/01/1970 which is NOT in this database. So result set will be empty
+			}
+		}
+						
+		//web viewer is a member of the facility or administration
+		//if(authenticationService.hasRole("su")||authenticationService.hasRole("fm")||authenticationService.hasRole("ft")
+		//		||authenticationService.hasRole("sa")||authenticationService.hasRole("ga")||authenticationService.hasRole("da")){
+		if(authenticationService.isFacilityMember()){//true if viewer has role of su, fm, ft, sa, ga, da	
+			Map m = new HashMap();
+			if(jobId != null){
+				m.put("jobId", jobId.intValue());
+			}
+			if(jobname != null){
+				m.put("name", jobname.trim());
+			}
+			if(submitter != null){
+				m.put("UserId", submitter.getUserId().intValue());
+			}
+			if(piLab != null){
+				m.put("labId", piLab.getLabId().intValue());
+			}
+			//While I'd have liked to include createts here, for use in the next SQL statement, 
+			//I couldn't get createts to work properly via SQL statement, so it's dealt with below on a job-by-job basis
+			//if(createts != null){
+			//	SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+			//	m.put("date_format(createts, 'yyyy-MM-dd')", "2012-06-18");
+			//}
+			List<String> orderByColumnNames = new ArrayList<String>();
+			orderByColumnNames.add("jobId");
+			
+			//if Map m has no entries, SQL will find ALL jobs
+			tempJobList = this.jobDao.findByMapDistinctOrderBy(m, null, orderByColumnNames, "desc");//default order is by jobId/desc
+			
+		}
+		else { //web viewer is NOT member of the facility, so viewer is a regular user that submits jobs [a regular labmember or PI]; 
+				//note that as of now, no jobGrid searching capacity is permitted for this type of viewer - instead, simply show all jobs that the person may view (note, if PI, (s)he see's all jobs in that lab)
 
+			User viewer = authenticationService.getAuthenticatedUser();//the web viewer that is logged on that wants to see his/her submitted or viewable jobs
+			tempJobList = jobService.getJobsSubmittedOrViewableByUser(viewer);//default order is by jobId/desc
+		}
+		
+		//Deal with any one-by-one additional searches of the result set
+		Boolean performOneByOneSearch = false;
+		
+		//search for a specific createts one by one
+		if(createts != null){
+			performOneByOneSearch = true;
+			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+			String dateToSearchFor = formatter.format(createts);
+			for (Job job : tempJobList){
+				if(formatter.format(job.getCreatets()).equals(dateToSearchFor)){
+					jobsFoundInSearch.add(job);
+				}
+			}
+		}
+		if(performOneByOneSearch){
+			jobList.addAll(jobsFoundInSearch);
+		}
+		else{
+			jobList.addAll(tempJobList);
+		}
+		
+		//Finally deal with any sort requests coming from the grid. 
+		if(sidx != null && !sidx.isEmpty() && sord != null && !sord.isEmpty() ){
+			
+			//resultset within jobList is currently sorted by jobId/desc.
+			if(sidx.equals("jobId") && sord.equals("asc")){
+				Collections.sort(jobList, new JobIdComparator());
+			}
+			else if(sidx.equals("name")){
+				Collections.sort(jobList, new JobNameComparator());	
+				if(sord.equals("desc")){
+					Collections.reverse(jobList);
+				}
+			}
+			else if(sidx.equals("submitter")){
+				Collections.sort(jobList, new SubmitterLastNameFirstNameComparator());
+				if(sord.equals("desc")){
+					Collections.reverse(jobList);
+				}
+			}
+			else if(sidx.equals("pi")){
+				Collections.sort(jobList, new PILastNameFirstNameComparator());	
+				if(sord.equals("desc")){
+					Collections.reverse(jobList);
+				}
+			}			
+			else if(sidx.equals("createts")){
+				Collections.sort(jobList, new JobCreatetsComparator());	
+				if(sord.equals("desc")){
+					Collections.reverse(jobList);
+				}
+			}				
+		}
+		
+		//Format output for grid by pages
 		try {
 			int pageIndex = Integer.parseInt(request.getParameter("page"));		// index of page
 			int pageRowNum = Integer.parseInt(request.getParameter("rows"));	// number of rows in one page
@@ -239,54 +391,7 @@ public class JobController extends WaspController {
 			userData.put("page", pageIndex + "");
 			userData.put("selId",StringUtils.isEmpty(request.getParameter("selId"))?"":request.getParameter("selId"));
 			jqgrid.put("userdata",userData);
-			
-			/***** Begin Sort by Job ID *****/
-			class JobIdComparator implements Comparator<Job> {
-				@Override
-				public int compare(Job arg0, Job arg1) {
-					return arg0.getJobId().intValue() >= arg1.getJobId().intValue()?1:0;
-				}
-			}
-
-			if (sidx.equals("name")) {
-				Collections.sort(jobList, new JobIdComparator());
-				if (sord.equals("desc"))
-					Collections.reverse(jobList);
-			}
-			/***** End Sort by Job name *****/
-			
-			/***** Begin Sort by Job name *****/
-			class JobNameComparator implements Comparator<Job> {
-				@Override
-				public int compare(Job arg0, Job arg1) {
-					return arg0.getName().compareToIgnoreCase(arg1.getName());
-				}
-			}
-
-			if (sidx.equals("name")) {
-				Collections.sort(jobList, new JobNameComparator());
-				if (sord.equals("desc"))
-					Collections.reverse(jobList);
-			}
-			/***** End Sort by Job name *****/
-			
-			/***** Begin Sort by User last name *****/
-			class JobSubmitterLastNameComparator implements Comparator<Job> {
-				@Override
-				public int compare(Job arg0, Job arg1) {
-					return arg0.getUser().getLastName().compareToIgnoreCase(arg1.getUser().getLastName());
-				}
-			}
-
-			if (sidx.equals("UserId")) {
-				Collections.sort(jobList, new JobSubmitterLastNameComparator());
-				if (sord.equals("desc"))
-					Collections.reverse(jobList);
-			}
-			/***** End Sort by User last name *****/
-			
-
-			 
+					
 			List<Map> rows = new ArrayList<Map>();
 			
 			int frId = pageRowNum * (pageIndex - 1);
@@ -314,35 +419,33 @@ public class JobController extends WaspController {
 				List<JobMeta> jobMeta = getMetaHelperWebapp().syncWithMaster(job.getJobMeta());
 				
 				User user = userDao.getById(job.getUserId());
-				 					
+				Format formatter = new SimpleDateFormat("MM/dd/yyyy");					
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 							"J" + job.getJobId().intValue() + " (<a href=/wasp/sampleDnaToLibrary/listJobSamples/"+job.getJobId()+".do>details</a>)",
 							job.getName(),
-							user.getFirstName() + " " + user.getLastName(),
-							job.getLab().getName(),
-							job.getLastUpdTs().toString(),
+							user.getNameFstLst(),
+							//job.getLab().getName() + " (" + pi.getNameLstCmFst() + ")",
+							job.getLab().getUser().getNameFstLst(),
+							formatter.format(job.getCreatets()),
 							"<a href=/wasp/"+job.getWorkflow().getIName()+"/viewfiles/"+job.getJobId()+".do>View files</a>"
 				}));
 				 
 				for (JobMeta meta:jobMeta) {
 					cellList.add(meta.getV());
-				}
-				
+				}				
 				 
-				cell.put("cell", cellList);
-				 
+				cell.put("cell", cellList);				 
 				rows.add(cell);
 			}
-
 			 
 			jqgrid.put("rows",rows);
-			 
+			
 			return outputJSON(jqgrid, response); 	
 			 
-		} catch (Throwable e) {
+		} 
+		catch (Throwable e) {
 			throw new IllegalStateException("Can't marshall to JSON " + jobList,e);
-		}
-	
+		}	
 	}
 
 	@RequestMapping(value = "/subgridJSON.do", method = RequestMethod.GET)
@@ -714,4 +817,85 @@ public class JobController extends WaspController {
 		m.put("jobList", jobsActiveAndWithLibraryCreatedTask);
 		return "job/jobsAwaitingLibraryCreation/jobsAwaitingLibraryCreationList";	  
 	}
+}
+
+class JobIdComparator implements Comparator<Job> {
+	@Override
+	public int compare(Job arg0, Job arg1) {
+		return arg0.getJobId().intValue() >= arg1.getJobId().intValue()?1:0;
+	}
+}
+class SubmitterLastNameFirstNameComparator implements Comparator<Job> {
+	@Override
+	public int compare(Job arg0, Job arg1) {
+		return arg0.getUser().getLastName().concat(arg0.getUser().getFirstName()).compareToIgnoreCase(arg1.getUser().getLastName().concat(arg1.getUser().getFirstName()));
+	}
+}
+class PILastNameFirstNameComparator implements Comparator<Job> {
+	@Override
+	public int compare(Job arg0, Job arg1) {
+		return arg0.getLab().getUser().getLastName().concat(arg0.getLab().getUser().getFirstName()).compareToIgnoreCase(arg1.getLab().getUser().getLastName().concat(arg1.getLab().getUser().getFirstName()));
+	}
+}
+class JobNameComparator implements Comparator<Job> {
+	@Override
+	public int compare(Job arg0, Job arg1) {
+		return arg0.getName().compareToIgnoreCase(arg1.getName());
+	}
+}
+class JobCreatetsComparator implements Comparator<Job> {
+	@Override
+	public int compare(Job arg0, Job arg1) {
+		return arg0.getCreatets().compareTo(arg1.getCreatets());
+	}
+}
+
+class Filters{//not used 
+
+// inner class Rules
+public class Rules{
+private String field;
+private String op;
+private String data;
+
+public String getField() {
+return field;
+}
+public void setField(String field) {
+this.field = field;
+}
+public String getOp() {
+return op;
+}
+public void setOp(String op) {
+this.op = op;
+}
+public String getData() {
+return data;
+}
+public void setData(String data) {
+this.data = data;
+}
+}
+
+private String groupOp;
+
+private List<Rules> rules;
+
+public String getGroupOp() {
+return groupOp;
+}
+
+public void setGroupOp(String groupOp) {
+this.groupOp = groupOp;
+}
+
+public List<Rules> getRules() {
+return rules;
+}
+
+public void setRules(List<Rules> rules) {
+this.rules = rules;
+}
+
 }
