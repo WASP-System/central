@@ -13,35 +13,29 @@ import edu.yu.einstein.wasp.messages.WaspJobTask;
 import edu.yu.einstein.wasp.messages.WaspStatus;
 import edu.yu.einstein.wasp.tasklets.WaspTasklet;
 
-public class ChipSeqJobActionedTasklet extends WaspTasklet implements Tasklet {
+public class NotifyJobStatusTasklet extends WaspTasklet implements Tasklet {
 	
-	private final Logger logger = Logger.getLogger(ChipSeqJobActionedTasklet.class);
+	private final Logger logger = Logger.getLogger(NotifyJobStatusTasklet.class);
 
 	private Integer jobId;
 	
+	private WaspStatus status;
+	
 	private MessageChannel messageChannel;
 	
-	private boolean isAccepted;
 	
-	
-	
-	public ChipSeqJobActionedTasklet(MessageChannel outputMessageChannel, Integer jobId, boolean isAccepted) {
-		logger.debug("Constructing new instance with jobId='"+jobId+"', isAccepted='"+isAccepted+"'"); 
+	public NotifyJobStatusTasklet(MessageChannel outputMessageChannel, Integer jobId, String status) {
+		logger.debug("Constructing new instance with jobId='"+jobId+"'"); 
 		this.jobId = jobId;
+		this.status = WaspStatus.valueOf(status);
 		this.messageChannel = outputMessageChannel;
-		this.isAccepted = isAccepted;
 	}
 	
 	
 	@Override
 	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception {
 		logger.debug("execute() invoked");
-		Message<WaspStatus> message;
-		if (isAccepted){
-			message = WaspJobStatusMessageTemplate.build(jobId, WaspStatus.CREATED, WaspJobTask.NOTIFY_JOB_STATUS);
-		} else {
-			message = WaspJobStatusMessageTemplate.build(jobId, WaspStatus.ABANDONED, WaspJobTask.NOTIFY_JOB_STATUS);
-		}
+		Message<WaspStatus> message = WaspJobStatusMessageTemplate.build(jobId, this.status, WaspJobTask.NOTIFY_STATUS);
 		logger.debug("sending message: "+message);
 		messageChannel.send(message);
 		return RepeatStatus.FINISHED;

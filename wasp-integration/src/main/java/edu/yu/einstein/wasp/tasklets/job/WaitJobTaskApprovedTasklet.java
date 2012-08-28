@@ -20,9 +20,9 @@ import edu.yu.einstein.wasp.messages.WaspJobStatusMessageTemplate;
 import edu.yu.einstein.wasp.messages.WaspStatus;
 import edu.yu.einstein.wasp.tasklets.WaspTasklet;
 
-public class WaspJobApprovalTasklet extends WaspTasklet implements Tasklet, MessageHandler, StepExecutionListener {
+public class WaitJobTaskApprovedTasklet extends WaspTasklet implements Tasklet, MessageHandler, StepExecutionListener {
 	
-	private final Logger logger = Logger.getLogger(WaspJobApprovalTasklet.class);
+	private final Logger logger = Logger.getLogger(WaitJobTaskApprovedTasklet.class);
 
 	private Integer jobId;
 	
@@ -33,7 +33,7 @@ public class WaspJobApprovalTasklet extends WaspTasklet implements Tasklet, Mess
 	private Message<WaspStatus> message;
 	
 		
-	public WaspJobApprovalTasklet(SubscribableChannel inputSubscribableChannel, Integer jobId, String task) {
+	public WaitJobTaskApprovedTasklet(SubscribableChannel inputSubscribableChannel, Integer jobId, String task) {
 		logger.debug("Constructing new instance with jobId='"+jobId+"' and task='"+task+"'"); 
 		this.jobId = jobId;
 		this.subscribeChannel = inputSubscribableChannel;

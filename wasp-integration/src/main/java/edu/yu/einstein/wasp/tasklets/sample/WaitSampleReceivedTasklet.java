@@ -21,9 +21,9 @@ import edu.yu.einstein.wasp.messages.WaspSampleStatusMessageTemplate;
 import edu.yu.einstein.wasp.messages.WaspStatus;
 import edu.yu.einstein.wasp.tasklets.WaspTasklet;
 
-public class ListenForSampleReceivedTasklet extends WaspTasklet implements Tasklet, MessageHandler, StepExecutionListener {
+public class WaitSampleReceivedTasklet extends WaspTasklet implements Tasklet, MessageHandler, StepExecutionListener {
 	
-	private final Logger logger = Logger.getLogger(ListenForSampleReceivedTasklet.class);
+	private final Logger logger = Logger.getLogger(WaitSampleReceivedTasklet.class);
 
 	private Integer sampleId;
 	
@@ -32,7 +32,7 @@ public class ListenForSampleReceivedTasklet extends WaspTasklet implements Taskl
 	private Message<WaspStatus> message;
 	
 		
-	public ListenForSampleReceivedTasklet(SubscribableChannel inputSubscribableChannel, Integer sampleId) {
+	public WaitSampleReceivedTasklet(SubscribableChannel inputSubscribableChannel, Integer sampleId) {
 		logger.debug("Constructing new instance with sampleId='"+sampleId+"'"); 
 		this.sampleId = sampleId;
 		this.subscribeChannel = inputSubscribableChannel;

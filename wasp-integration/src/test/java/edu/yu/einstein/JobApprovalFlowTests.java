@@ -57,6 +57,8 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 	
 	private final String JOB_ID_KEY = "jobId";
 	
+	// need to use different jobId for each test as database not reset and 
+	// it is not possible to re-submit a batch job with an identical signature (parameters)
 	private final Integer JOB_ID = 1;
 	private final Integer JOB_ID2 = 2;
 	
@@ -112,7 +114,7 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 			
 			// Delay to allow message receiving and transitions. Time out after 40s.
 			int repeat = 0;
-			while ((message == null || (! WaspJobStatusMessageTemplate.actUponMessage(message, JOB_ID, WaspJobTask.NOTIFY_JOB_STATUS))) && repeat < 40){
+			while ((message == null || (! WaspJobStatusMessageTemplate.actUponMessage(message, JOB_ID, WaspJobTask.NOTIFY_STATUS))) && repeat < 40){
 				message = null;
 				Thread.sleep(1000);
 				repeat++;
@@ -131,8 +133,7 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 			Assert.assertEquals(message.getPayload(), WaspStatus.CREATED);
 			
 			// check BatchStatus and ExitStatus is as expected
-			Assert.assertEquals(jobExecution.getStatus(), BatchStatus.COMPLETED);
-			Assert.assertEquals(jobExecution.getExitStatus(), ExitStatus.COMPLETED);
+			Assert.assertEquals(jobExecution.getStatus(), BatchStatus.STARTED);
 		} catch (Exception e){
 			// caught an unexpected exception
 			Assert.fail("Caught Exception: "+e.getMessage());
@@ -166,9 +167,9 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 			logger.debug("Sending message: "+adminApprovedMessage);
 			outboundRmiChannel.send(adminApprovedMessage);
 			
-			// Delay to allow message receiving and transitions. Time out after 40s.
+			// Delay to allow message receiving and transitions. Timeout after 40s.
 			int repeat = 0;
-			while ((message == null || (! WaspJobStatusMessageTemplate.actUponMessage(message, JOB_ID2, WaspJobTask.NOTIFY_JOB_STATUS))) && repeat < 40){
+			while ((message == null || (! WaspJobStatusMessageTemplate.actUponMessage(message, JOB_ID2, WaspJobTask.NOTIFY_STATUS))) && repeat < 40){
 				message = null;
 				Thread.sleep(1000);
 				repeat++;
@@ -186,7 +187,7 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 			Assert.assertEquals(WaspStatus.class, message.getPayload().getClass());
 			Assert.assertEquals(message.getPayload(), WaspStatus.ABANDONED);
 			
-			// check BatchStatus and ExitStatus is as expected
+			// check BatchStatus and ExitStatus are as expected
 			Assert.assertEquals(jobExecution.getStatus(), BatchStatus.COMPLETED);
 			Assert.assertEquals(jobExecution.getExitStatus(), new ExitStatus("ABANDONED"));
 		} catch (Exception e){

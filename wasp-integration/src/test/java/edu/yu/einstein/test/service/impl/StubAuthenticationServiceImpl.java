@@ -122,4 +122,10 @@ public class StubAuthenticationServiceImpl implements AuthenticationService {
 		return null;
 	}
 
+	@Override
+	public boolean isFacilityMember() {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
 }

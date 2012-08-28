@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:batch="http://www.springframework.org/schema/batch"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd">
+
+	<!-- common tasklets defined in config-common-context.xml -->
+	
+	<bean id="wasp.sample.typeDecider" class="edu.yu.einstein.wasp.decider.SampleTypeDecider" scope="step">
+		<constructor-arg value="#{jobParameters['sampleId']}" />
+	</bean>
+	
+	<bean id="waspNotifyLibraryCreatedTasklet" class="edu.yu.einstein.wasp.tasklets.sample.NotifyLibraryCreatedTasklet">
+		<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.library" />
+		<constructor-arg name="libraryId" value="#{jobParameters['sampleId']}" />
+	</bean>
+	
+	<batch:flow id="wasp.sample.mainFlow.v1">
+			<batch:split id="wasp.sample.postSubmitTasks">
+			<batch:flow>
+				<batch:step id="listenForSampleReceivedTasklet">
+					<batch:tasklet>
+						<bean class="edu.yu.einstein.wasp.tasklets.sample.WaitSampleReceivedTasklet">
+							<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.sample" />
+							<constructor-arg name="sampleId" value="#{jobParameters['sampleId']}" />
+						</bean>
+					</batch:tasklet>
+				</batch:step>
+			</batch:flow>
+			<batch:flow>
+				<batch:step id="wasp.sample.mainFlow.listenForJobApproved">
+					<batch:tasklet ref="waspJobListenForTaskApprovedTasklet" />
+				</batch:step>
+			</batch:flow>
+			<batch:next on="FAILED" to="wasp.sample.mainFlow.notifySampleAbandoned" />
+			<batch:next on="COMPLETED" to="wasp.sample.mainFlow.sampleDecision" />
+			<batch:fail on="*" /> <!-- unexpected message -->
+		</batch:split>
+		<batch:decision decider="wasp.sample.typeDecider" id="wasp.sample.mainFlow.sampleDecision">
+			<batch:next on="SAMPLE" to="wasp.sample.mainFlow.sampleQC" />
+			<batch:next on="LIBRARY" to="wasp.sample.mainFlow.notifyLibraryCreated" />
+			<batch:end on="UNKNOWN" exit-code="EARLY TERMINATION" />
+		</batch:decision>
+		<batch:step id="wasp.sample.mainFlow.sampleQC" next="wasp.sample.mainFlow.notifySampleReady">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.tasklets.sample.SampleOCTasklet">
+					<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.sample" />
+					<constructor-arg name="sampleId" value="#{jobParameters['sampleId']}" />
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+		<batch:step id="wasp.sample.mainFlow.notifySampleReady">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.tasklets.sample.NotifySampleStatusTasklet">
+					<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.sample" />
+					<constructor-arg name="sampleId" value="#{jobParameters['sampleId']}" />
+					<constructor-arg name="status" value="CREATED" />
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+		<batch:step id="wasp.sample.mainFlow.notifySampleAbandoned">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.tasklets.sample.NotifySampleStatusTasklet">
+					<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.sample" />
+					<constructor-arg name="sampleId" value="#{jobParameters['sampleId']}" />
+					<constructor-arg name="status" value="ABANDONED" />
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+		<batch:step id="wasp.sample.mainFlow.notifyLibraryCreated">
+			<batch:tasklet ref="waspNotifyLibraryCreatedTasklet" />
+		</batch:step>
+	</batch:flow>
+	
+	
+	<!-- for job, call with parameter 'sampleId' -->
+	<batch:job id="wasp.sample.jobflow.v1">
+		<batch:split id="wasp.sample.jobFlow.split">
+		<batch:flow parent="wasp.sample.mainFlow.v1" />
+		<batch:flow>
+			<!-- will receive message of COMPLETED if the 'wasp.sample.mainFlow.v1' flow is finished -->
+			<!-- or if the sample is aborted with an ABANDONED message at time e.g. via a message from the web layer -->
+			<batch:step id="wasp.sample.jobflow.ListenForComplete">
+				<batch:tasklet ref="waspSampleListenForCompleteTasklet" />
+			</batch:step>
+		</batch:flow>
+		<batch:end on="COMPLETED" exit-code="COMPLETED" />
+		<batch:end on="FAILED" exit-code="ABANDONED" />
+		<batch:fail on="*"/>
+		</batch:split>
+	</batch:job>
+	
+</beans>

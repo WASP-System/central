@@ -28,7 +28,7 @@ public abstract class WaspSampleStatusMessageTemplate extends StatusMessageTempl
 					.setPriority(status.getPriority())
 					.build();
 		} catch(Exception e){
-			throw new WaspMessageBuildingException("buildWaspRunStatusMessage() failed to build message: "+e.getMessage());
+			throw new WaspMessageBuildingException("buildGeneric() failed to build message: "+e.getMessage());
 		}
 		return message;
 	}
@@ -52,7 +52,7 @@ public abstract class WaspSampleStatusMessageTemplate extends StatusMessageTempl
 					.setPriority(status.getPriority())
 					.build();
 		} catch(Exception e){
-			throw new WaspMessageBuildingException("buildWaspRunStatusMessage() failed to build message: "+e.getMessage());
+			throw new WaspMessageBuildingException("build() failed to build message: "+e.getMessage());
 		}
 		return message;
 	}
