@@ -51,18 +51,18 @@
 	
 	<!-- for job, call with parameter 'jobId' -->
 	<batch:job id="chipSeq.waspJob.jobflow.v1">
-		<batch:split id="chipSeq.waspJob.jobFlow.split">
-		<batch:flow parent="chipSeq.waspJob.flow.approvals.v1" />
-		<batch:flow>
-			<!-- will receive message of COMPLETED if the 'chipSeq.waspJob.flow.approvals.v1' flow is finished -->
-			<!-- or if the job is aborted with an ABANDONED message at time e.g. via a message from the web layer -->
-			<batch:step id="chipSeq.waspJob.jobflow.ListenForComplete">
-				<batch:tasklet ref="waspJobListenForCompleteTasklet" />
-			</batch:step>
-		</batch:flow>
-		<batch:end on="COMPLETED" exit-code="COMPLETED" />
-		<batch:end on="FAILED" exit-code="ABANDONED" />
-		<batch:fail on="*"/> <!-- catch all -->
+		<batch:split id="chipSeq.waspJob.jobFlow.split" task-executor="taskExecutor">
+			<batch:flow parent="chipSeq.waspJob.flow.approvals.v1" />
+			<batch:flow>
+				<!-- will receive message of COMPLETED if the 'chipSeq.waspJob.flow.approvals.v1' flow is finished -->
+				<!-- or if the job is aborted with an ABANDONED message at time e.g. via a message from the web layer -->
+				<batch:step id="chipSeq.waspJob.jobflow.ListenForComplete">
+					<batch:tasklet ref="waspJobListenForCompleteTasklet" />
+				</batch:step>
+			</batch:flow>
+			<batch:end on="COMPLETED" exit-code="COMPLETED" />
+			<batch:end on="FAILED" exit-code="ABANDONED" />
+			<batch:fail on="*"/> <!-- catch all -->
 		</batch:split>
 	</batch:job>
 

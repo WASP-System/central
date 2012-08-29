@@ -75,18 +75,18 @@
 	
 	<!-- for job, call with parameter 'sampleId' -->
 	<batch:job id="wasp.sample.jobflow.v1">
-		<batch:split id="wasp.sample.jobFlow.split">
-		<batch:flow parent="wasp.sample.mainFlow.v1" />
-		<batch:flow>
-			<!-- will receive message of COMPLETED if the 'wasp.sample.mainFlow.v1' flow is finished -->
-			<!-- or if the sample is aborted with an ABANDONED message at time e.g. via a message from the web layer -->
-			<batch:step id="wasp.sample.jobflow.ListenForComplete">
-				<batch:tasklet ref="waspSampleListenForCompleteTasklet" />
-			</batch:step>
-		</batch:flow>
-		<batch:end on="COMPLETED" exit-code="COMPLETED" />
-		<batch:end on="FAILED" exit-code="ABANDONED" />
-		<batch:fail on="*"/>
+		<batch:split id="wasp.sample.jobFlow.split" task-executor="taskExecutor">
+			<batch:flow parent="wasp.sample.mainFlow.v1" />
+			<batch:flow>
+				<!-- will receive message of COMPLETED if the 'wasp.sample.mainFlow.v1' flow is finished -->
+				<!-- or if the sample is aborted with an ABANDONED message at time e.g. via a message from the web layer -->
+				<batch:step id="wasp.sample.jobflow.ListenForComplete">
+					<batch:tasklet ref="waspSampleListenForCompleteTasklet" />
+				</batch:step>
+			</batch:flow>
+			<batch:end on="COMPLETED" exit-code="COMPLETED" />
+			<batch:end on="FAILED" exit-code="ABANDONED" />
+			<batch:fail on="*"/>
 		</batch:split>
 	</batch:job>
 	
