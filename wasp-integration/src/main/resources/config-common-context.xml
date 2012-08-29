@@ -11,35 +11,46 @@
 	
 	<bean id='jobTasks' class="edu.yu.einstein.wasp.messages.WaspJobTask" />
 	
-	<bean id='waspJobQuoteTasklet' class="edu.yu.einstein.wasp.tasklets.job.WaitJobTaskApprovedTasklet" scope="step">
-		<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.job"/>
-		<constructor-arg name="jobId" value="#{jobParameters['jobId']}" />
-		<constructor-arg name="task" value='#{jobTasks.QUOTE}' />
+	<bean id="listenForJobQuotedTasklet" class="edu.yu.einstein.wasp.tasklets.ListenForFinishedStatusTasklet" scope="step">
+		<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.job" />
+		<constructor-arg name="messageTemplate">
+			<bean class="edu.yu.einstein.wasp.messages.WaspJobStatusMessageTemplate" >
+				<constructor-arg  name="jobId" value="#{jobParameters['jobId']}"/>
+				<property name="task" value="#{jobTasks.QUOTE}" />
+			</bean>
+		</constructor-arg>
 	</bean>
 	
-	<bean id='waspJobPiApproveTasklet' class="edu.yu.einstein.wasp.tasklets.job.WaitJobTaskApprovedTasklet" scope="step">
-		<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.job"/>
-		<constructor-arg name="jobId" value="#{jobParameters['jobId']}" />
-		<constructor-arg name="task" value='#{jobTasks.PI_APPROVE}' />
+	<bean id="listenForJobPiApproveTasklet" class="edu.yu.einstein.wasp.tasklets.ListenForFinishedStatusTasklet" scope="step">
+		<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.job" />
+		<constructor-arg name="messageTemplate">
+			<bean class="edu.yu.einstein.wasp.messages.WaspJobStatusMessageTemplate">
+				<constructor-arg  name="jobId" value="#{jobParameters['jobId']}"/>
+				<property name="task" value="#{jobTasks.PI_APPROVE}" />
+			</bean>
+		</constructor-arg>
 	</bean>
 	
-	<bean id='waspJobAdminApproveTasklet' class="edu.yu.einstein.wasp.tasklets.job.WaitJobTaskApprovedTasklet" scope="step">
-		<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.job"/>
-		<constructor-arg name="jobId" value="#{jobParameters['jobId']}" />
-		<constructor-arg name="task" value='#{jobTasks.ADMIN_APPROVE}' />
+	<bean id="listenForJobAdminApproveTasklet" class="edu.yu.einstein.wasp.tasklets.ListenForFinishedStatusTasklet" scope="step">
+		<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.job" />
+		<constructor-arg name="messageTemplate">
+			<bean class="edu.yu.einstein.wasp.messages.WaspJobStatusMessageTemplate">
+				<constructor-arg  name="jobId" value="#{jobParameters['jobId']}"/>
+				<property name="task" value="#{jobTasks.ADMIN_APPROVE}" />
+			</bean>
+		</constructor-arg>
 	</bean>
 	
-	<bean id="waspJobListenForTaskApprovedTasklet" class="edu.yu.einstein.wasp.tasklets.job.WaitJobTaskApprovedTasklet" scope="step">
-		<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.job"/>
-		<constructor-arg name="jobId" value="#{jobParameters['jobId']}" />
-		<constructor-arg name="task" value='#{jobTasks.NOTIFY_STATUS}' />
-	</bean>
 	
-	<bean id="waspJobListenForCompleteTasklet" class="edu.yu.einstein.wasp.tasklets.job.WaitJobCompleteTasklet" scope="step">
-		<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.job"/>
-		<constructor-arg name="jobId" value="#{jobParameters['jobId']}" />
-	</bean>
-	
+	<bean id="listenForJobFinishedStatusTasklet" class="edu.yu.einstein.wasp.tasklets.ListenForFinishedStatusTasklet" scope="step">
+		<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.job" />
+		<constructor-arg name="messageTemplate">
+			<bean class="edu.yu.einstein.wasp.messages.WaspJobStatusMessageTemplate">
+				<constructor-arg  name="jobId" value="#{jobParameters['jobId']}"/>
+				<property name="task" value="#{jobTasks.NOTIFY_STATUS}" />
+			</bean>
+		</constructor-arg>
+	</bean>	
 	
 	<!-- import batch flows -->
 	<import resource="classpath:/META-INF/spring/*Flow.xml" />

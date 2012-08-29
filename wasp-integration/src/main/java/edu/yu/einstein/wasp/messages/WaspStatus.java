@@ -46,7 +46,7 @@ public enum WaspStatus {
 	 * @return
 	 */
 	public boolean isActive() {
-		return this.isLessThanOrEqualTo(STOPPED);
+		return this.isGreaterThanOrEqualTo(STOPPED);
 	}
 	
 	/**
@@ -54,7 +54,7 @@ public enum WaspStatus {
 	 * @return
 	 */
 	public boolean isFinished() {
-		return this.isGreaterThanOrEqualTo(FAILED);
+		return this.isLessThanOrEqualTo(FAILED);
 	}
 	
 	/**

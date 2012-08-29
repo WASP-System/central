@@ -2,21 +2,35 @@ package edu.yu.einstein.wasp.messages;
 
 import org.springframework.integration.Message;
 
+import edu.yu.einstein.wasp.exceptions.WaspMessageBuildingException;
+
 /**
- * Abstract base class for status messages
+ * Interface defining status message templates
  * @author andymac
  *
  */
-public abstract class StatusMessageTemplate {
+public interface StatusMessageTemplate {
 	
-	public static boolean isMessageOfExpectedType(Message<?> message, String type){
-		if (! WaspStatus.class.isInstance(message.getPayload()) )
-			return false;
-		if (! message.getHeaders().containsKey(WaspMessageType.HEADER) )
-			return false;
-		if ( ((String) message.getHeaders().get(WaspMessageType.HEADER)).equals(type) )
-			return true;
-		return false;
-	}
+	/**
+	 * Build a Spring Integration Message.
+	 * The message-type header is not set so the message will be routed generically
+	 * @return
+	 * @throws WaspMessageBuildingException
+	 */
+	public Message<WaspStatus> buildGeneric() throws WaspMessageBuildingException;
+	
+	/**
+	 * Build a Spring Integration Message.
+	 * @return
+	 * @throws WaspMessageBuildingException
+	 */
+	public Message<WaspStatus> build() throws WaspMessageBuildingException;
+	
+	/**
+	 * Takes a message and checks it's headers against to see if the message should be acted upon or not
+	 * @param message
+	 * @return
+	 */
+	public boolean actUponMessage(Message<?> message);
 
 }

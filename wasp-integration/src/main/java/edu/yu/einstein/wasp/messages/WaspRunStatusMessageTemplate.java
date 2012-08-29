@@ -6,11 +6,11 @@ import org.springframework.integration.support.MessageBuilder;
 import edu.yu.einstein.wasp.exceptions.WaspMessageBuildingException;
 
 /**
- * Static methods for handling WaspRunStatus messages.
+ * Handling WaspRunStatus messages.
  * @author andymac
  *
  */
-public abstract class WaspRunStatusMessageTemplate extends StatusMessageTemplate{
+public abstract class WaspRunStatusMessageTemplate implements StatusMessageTemplate{
 	
 	/**
 	 * Build a Spring Integration Message using the runId header and the runStatus as payload.
@@ -42,8 +42,6 @@ public abstract class WaspRunStatusMessageTemplate extends StatusMessageTemplate
 	 * @return
 	 */
 	public static boolean actUponMessage(Message<?> message, Integer runId, Integer platformUnitId ){
-		if (! isMessageOfExpectedType(message, WaspMessageType.RUN))
-			return false;
 		if ( runId == null && platformUnitId == null )
 			return false;
 		if (runId != null && platformUnitId != null){
