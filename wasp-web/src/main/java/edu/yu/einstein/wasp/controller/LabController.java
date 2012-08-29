@@ -161,6 +161,8 @@ public class LabController extends WaspController {
 
 		String sord = request.getParameter("sord");
 		String sidx = request.getParameter("sidx");
+		String search = request.getParameter("_search");//from grid (will return true or false, depending on the toolbar's parameters)
+		System.out.println("sidx = " + sidx);System.out.println("sord = " + sord);System.out.println("search = " + search);
 
 		//parameter from filterToolbar
 		String piNameAndLogin = request.getParameter("primaryUser");//if not passed, will be null; if passed will be firstname lastname (login)
@@ -212,23 +214,48 @@ public class LabController extends WaspController {
 			}
 		}
 		
-		/***** Sort by PI name cannot be achieved by DB query "sort by" clause *****/
-		class LabPUNameComparator implements Comparator<Lab> {
+		/* Note that sorting by PI name cannot be achieved by DB query "sort by" clause, as class Lab only contains Pi's Id */
+		class PILastNameFirstNameComparatorThroughLab implements Comparator<Lab> {
 			@Override
 			public int compare(Lab arg0, Lab arg1) {
-				return arg0.getUser().getLastName().compareToIgnoreCase(arg1.getUser().getLastName());
+				return arg0.getUser().getLastName().concat(arg0.getUser().getFirstName()).compareToIgnoreCase(arg1.getUser().getLastName().concat(arg1.getUser().getFirstName()));
+			}
+		}
+		class LabNameComparatorThroughLab implements Comparator<Lab> {
+			@Override
+			public int compare(Lab arg0, Lab arg1) {
+				return arg0.getName().compareToIgnoreCase(arg1.getName());
+			}
+		}
+		class DepartmentComparatorThroughLab implements Comparator<Lab> {
+			@Override
+			public int compare(Lab arg0, Lab arg1) {
+				return arg0.getDepartment().getName().compareToIgnoreCase(arg1.getDepartment().getName());
 			}
 		}
 		
 		if ( !labList.isEmpty() && labList.size() > 1 ){
 	
-				Collections.sort(labList, new LabPUNameComparator());
-				if (sord.equals("desc")){
+			if(sidx == null || sidx.isEmpty() || sidx.equals("primaryUser") ){//PIname/Asc will be default order by
+				Collections.sort(labList, new PILastNameFirstNameComparatorThroughLab());
+				if (sidx.equals("primaryUser") && sord.equals("desc")){
 					Collections.reverse(labList);
 				}
-			
+			}
+			else if (sidx.equals("name")){
+				Collections.sort(labList, new LabNameComparatorThroughLab());//asc
+				if(sord.equals("desc")){
+					Collections.reverse(labList);
+				}
+			}
+			else if (sidx.equals("departmentId")){
+				Collections.sort(labList, new DepartmentComparatorThroughLab());//asc
+				if(sord.equals("desc")){
+					Collections.reverse(labList);
+				}
+			}
 		}
-		/***** Sort by PI name ends here *****/
+		
 
 		ObjectMapper mapper = new ObjectMapper();
 
@@ -278,8 +305,7 @@ public class LabController extends WaspController {
 				List<String> cellList = new ArrayList<String>(
 						Arrays.asList(new String[] {
 								lab.getName(),
-								this.userDao.getUserByUserId(lab.getPrimaryUserId()).getNameFstLst(),
-								//"<a href=/wasp/user/list.do?userId="+lab.getPrimaryUserId()+">"+ this.userDao.getUserByUserId(lab.getPrimaryUserId()).getNameFstLst() +"</a>",
+								this.userDao.getUserByUserId(lab.getPrimaryUserId()).getNameFstLst(), //the grid itself is aattaching an anchor to the PI, using selId
 								lab.getPrimaryUserId().toString(),
 								lab.getDepartment().getName(),
 

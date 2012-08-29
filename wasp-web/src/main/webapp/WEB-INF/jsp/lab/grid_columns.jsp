@@ -1,9 +1,9 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
-<wasp:field name="name" type="text" sortable="false" searchable="false"/> 
-<wasp:field name="primaryUser" type="text" sortable="false" searchable="false" showLink="true" baseLinkURL="/wasp/user/list.do" idCol="2"/>
+<wasp:field name="name" type="text" sortable="true" searchable="false"/> 
+<wasp:field name="primaryUser" type="text" sortable="true" searchable="false" showLink="true" baseLinkURL="/wasp/user/list.do" idCol="2"/>
 <wasp:field name="primaryUserId" type="hidden" />
-<wasp:field name="departmentId"  sortable="false" searchable="false" type="select" items="${departments}" itemValue="departmentId" itemLabel="name"/>
+<wasp:field name="departmentId"  sortable="true" searchable="false" type="select" items="${departments}" itemValue="departmentId" itemLabel="name"/>
 <wasp:field name="isActive"  sortable="false" searchable="false" type="checkbox" />
 
 _url='/wasp/lab/listJSON.do?selId=${param.selId}';
