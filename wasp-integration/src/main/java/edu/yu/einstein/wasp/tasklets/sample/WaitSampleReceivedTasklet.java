@@ -16,8 +16,8 @@ import org.springframework.integration.MessagingException;
 import org.springframework.integration.core.MessageHandler;
 import org.springframework.integration.core.SubscribableChannel;
 
-import edu.yu.einstein.wasp.messages.WaspJobStatusMessageTemplate;
-import edu.yu.einstein.wasp.messages.WaspSampleStatusMessageTemplate;
+import edu.yu.einstein.wasp.messages.JobStatusMessageTemplate;
+import edu.yu.einstein.wasp.messages.SampleStatusMessageTemplate;
 import edu.yu.einstein.wasp.messages.WaspStatus;
 import edu.yu.einstein.wasp.tasklets.WaspTasklet;
 
@@ -81,7 +81,7 @@ public class WaitSampleReceivedTasklet extends WaspTasklet implements Tasklet, M
 	@Override
 	public void handleMessage(Message<?> message) throws MessagingException {
 		logger.debug("handleMessage() invoked (instance with sampleId='"+sampleId+"'). Received message: " + message.toString());
-		if (WaspSampleStatusMessageTemplate.actUponMessage(message, sampleId)){
+		if (SampleStatusMessageTemplate.actUponMessage(message, sampleId)){
 			if (this.message == null){
 				this.message = (Message<WaspStatus>) message;
 			} else {

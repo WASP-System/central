@@ -10,7 +10,18 @@
 		<constructor-arg value="#{jobParameters['sampleId']}" />
 	</bean>
 	
-	<bean id="waspNotifyLibraryCreatedTasklet" class="edu.yu.einstein.wasp.tasklets.sample.NotifyLibraryCreatedTasklet">
+	<bean id="waspNotifyLibraryCreatedTasklet" class="edu.yu.einstein.wasp.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.messages.WaspLibraryStatusMessageTemplate">
+							<constructor-arg  name="sampleId" value="#{jobParameters['sampleId']}" />
+							<property name="task" value="#{sampleTasks.NOTIFY_STATUS}" />
+							<property name="status" value="ABANDONED" />
+						</bean>
+					</constructor-arg>
+				</bean>
+	
+	<bean id="waspNotifyLibraryCreatedTasklet" class="edu.yu.einstein.wasp.tasklets.NotifyStatusTasklet">
 		<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.library" />
 		<constructor-arg name="libraryId" value="#{jobParameters['sampleId']}" />
 	</bean>
@@ -81,7 +92,7 @@
 				<!-- will receive message of COMPLETED if the 'wasp.sample.mainFlow.v1' flow is finished -->
 				<!-- or if the sample is aborted with an ABANDONED message at time e.g. via a message from the web layer -->
 				<batch:step id="wasp.sample.jobflow.ListenForComplete">
-					<batch:tasklet ref="waspSampleListenForCompleteTasklet" />
+					<batch:tasklet ref="listenForJobFinishedStatusTasklet" />
 				</batch:step>
 			</batch:flow>
 			<batch:end on="COMPLETED" exit-code="COMPLETED" />

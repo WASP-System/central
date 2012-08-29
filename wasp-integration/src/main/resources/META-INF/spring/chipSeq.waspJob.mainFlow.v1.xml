@@ -33,7 +33,7 @@
 				<bean class="edu.yu.einstein.wasp.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
-						<bean class="edu.yu.einstein.wasp.messages.WaspJobStatusMessageTemplate">
+						<bean class="edu.yu.einstein.wasp.messages.JobStatusMessageTemplate">
 							<constructor-arg  name="jobId" value="#{jobParameters['jobId']}"/>
 							<property name="task" value="#{jobTasks.NOTIFY_STATUS}" />
 							<property name="status" value="CREATED" />
@@ -48,7 +48,7 @@
 				<bean class="edu.yu.einstein.wasp.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
-						<bean class="edu.yu.einstein.wasp.messages.WaspJobStatusMessageTemplate">
+						<bean class="edu.yu.einstein.wasp.messages.JobStatusMessageTemplate">
 							<constructor-arg  name="jobId" value="#{jobParameters['jobId']}"/>
 							<property name="task" value="#{jobTasks.NOTIFY_STATUS}" />
 							<property name="status" value="ABANDONED" />

@@ -11,10 +11,12 @@
 	
 	<bean id='jobTasks' class="edu.yu.einstein.wasp.messages.WaspJobTask" />
 	
+	<bean id='sampleTasks' class="edu.yu.einstein.wasp.messages.WaspSampleTask" />
+	
 	<bean id="listenForJobQuotedTasklet" class="edu.yu.einstein.wasp.tasklets.ListenForFinishedStatusTasklet" scope="step">
 		<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.job" />
 		<constructor-arg name="messageTemplate">
-			<bean class="edu.yu.einstein.wasp.messages.WaspJobStatusMessageTemplate" >
+			<bean class="edu.yu.einstein.wasp.messages.JobStatusMessageTemplate" >
 				<constructor-arg  name="jobId" value="#{jobParameters['jobId']}"/>
 				<property name="task" value="#{jobTasks.QUOTE}" />
 			</bean>
@@ -24,7 +26,7 @@
 	<bean id="listenForJobPiApproveTasklet" class="edu.yu.einstein.wasp.tasklets.ListenForFinishedStatusTasklet" scope="step">
 		<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.job" />
 		<constructor-arg name="messageTemplate">
-			<bean class="edu.yu.einstein.wasp.messages.WaspJobStatusMessageTemplate">
+			<bean class="edu.yu.einstein.wasp.messages.JobStatusMessageTemplate">
 				<constructor-arg  name="jobId" value="#{jobParameters['jobId']}"/>
 				<property name="task" value="#{jobTasks.PI_APPROVE}" />
 			</bean>
@@ -34,7 +36,7 @@
 	<bean id="listenForJobAdminApproveTasklet" class="edu.yu.einstein.wasp.tasklets.ListenForFinishedStatusTasklet" scope="step">
 		<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.job" />
 		<constructor-arg name="messageTemplate">
-			<bean class="edu.yu.einstein.wasp.messages.WaspJobStatusMessageTemplate">
+			<bean class="edu.yu.einstein.wasp.messages.JobStatusMessageTemplate">
 				<constructor-arg  name="jobId" value="#{jobParameters['jobId']}"/>
 				<property name="task" value="#{jobTasks.ADMIN_APPROVE}" />
 			</bean>
@@ -45,7 +47,7 @@
 	<bean id="listenForJobFinishedStatusTasklet" class="edu.yu.einstein.wasp.tasklets.ListenForFinishedStatusTasklet" scope="step">
 		<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.job" />
 		<constructor-arg name="messageTemplate">
-			<bean class="edu.yu.einstein.wasp.messages.WaspJobStatusMessageTemplate">
+			<bean class="edu.yu.einstein.wasp.messages.JobStatusMessageTemplate">
 				<constructor-arg  name="jobId" value="#{jobParameters['jobId']}"/>
 				<property name="task" value="#{jobTasks.NOTIFY_STATUS}" />
 			</bean>

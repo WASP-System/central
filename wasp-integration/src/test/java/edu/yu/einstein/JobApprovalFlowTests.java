@@ -29,7 +29,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import edu.yu.einstein.wasp.messages.WaspJobStatusMessageTemplate;
+import edu.yu.einstein.wasp.messages.JobStatusMessageTemplate;
 import edu.yu.einstein.wasp.messages.WaspJobTask;
 import edu.yu.einstein.wasp.messages.WaspMessageType;
 import edu.yu.einstein.wasp.messages.WaspRunStatusMessageTemplate;
@@ -100,21 +100,27 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 			Thread.sleep(5000); // allow some time for flow initialization
 			
 			// send approval messages (simulating button presses in web view)
-			Message<WaspStatus> quoteApprovedMessage = WaspJobStatusMessageTemplate.build(JOB_ID, WaspStatus.COMPLETED, WaspJobTask.QUOTE);
+			JobStatusMessageTemplate template = new JobStatusMessageTemplate(JOB_ID);
+			template.setStatus(WaspStatus.COMPLETED);
+			
+			template.setTask(WaspJobTask.QUOTE);
+			Message<WaspStatus> quoteApprovedMessage = template.build();
 			logger.debug("Sending message: "+quoteApprovedMessage);
 			outboundRmiChannel.send(quoteApprovedMessage);
 			
-			Message<WaspStatus> piApprovedMessage = WaspJobStatusMessageTemplate.build(JOB_ID, WaspStatus.COMPLETED, WaspJobTask.PI_APPROVE);
+			template.setTask(WaspJobTask.PI_APPROVE);
+			Message<WaspStatus> piApprovedMessage = template.build();
 			logger.debug("Sending message: "+piApprovedMessage);
 			outboundRmiChannel.send(piApprovedMessage);
 			
-			Message<WaspStatus> adminApprovedMessage = WaspJobStatusMessageTemplate.build(JOB_ID, WaspStatus.COMPLETED, WaspJobTask.ADMIN_APPROVE);
+			template.setTask(WaspJobTask.ADMIN_APPROVE);
+			Message<WaspStatus> adminApprovedMessage = template.build();
 			logger.debug("Sending message: "+adminApprovedMessage);
 			outboundRmiChannel.send(adminApprovedMessage);
 			
 			// Delay to allow message receiving and transitions. Time out after 40s.
 			int repeat = 0;
-			while ((message == null || (! WaspJobStatusMessageTemplate.actUponMessage(message, JOB_ID, WaspJobTask.NOTIFY_STATUS))) && repeat < 40){
+			while ((message == null || (! JobStatusMessageTemplate.actUponMessage(message, JOB_ID, WaspJobTask.NOTIFY_STATUS))) && repeat < 40){
 				message = null;
 				Thread.sleep(1000);
 				repeat++;
@@ -155,21 +161,28 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 			Thread.sleep(5000);
 			
 			// send approval messages (simulating button presses in web view)
-			Message<WaspStatus> quoteApprovedMessage = WaspJobStatusMessageTemplate.build(JOB_ID2, WaspStatus.COMPLETED, WaspJobTask.QUOTE);
+			JobStatusMessageTemplate template = new JobStatusMessageTemplate(JOB_ID2);
+			template.setStatus(WaspStatus.COMPLETED);
+			
+			template.setTask(WaspJobTask.QUOTE);
+			Message<WaspStatus> quoteApprovedMessage = template.build();
 			logger.debug("Sending message: "+quoteApprovedMessage);
 			outboundRmiChannel.send(quoteApprovedMessage);
 			
-			Message<WaspStatus> piApprovedMessage = WaspJobStatusMessageTemplate.build(JOB_ID2, WaspStatus.ABANDONED, WaspJobTask.PI_APPROVE);
-			logger.debug("Sending message: "+piApprovedMessage);
-			outboundRmiChannel.send(piApprovedMessage);
-			
-			Message<WaspStatus> adminApprovedMessage = WaspJobStatusMessageTemplate.build(JOB_ID2, WaspStatus.COMPLETED, WaspJobTask.ADMIN_APPROVE);
+			template.setTask(WaspJobTask.ADMIN_APPROVE);
+			Message<WaspStatus> adminApprovedMessage = template.build();
 			logger.debug("Sending message: "+adminApprovedMessage);
 			outboundRmiChannel.send(adminApprovedMessage);
 			
+			template.setTask(WaspJobTask.PI_APPROVE);
+			template.setStatus(WaspStatus.ABANDONED);
+			Message<WaspStatus> piApprovedMessage = template.build();
+			logger.debug("Sending message: "+piApprovedMessage);
+			outboundRmiChannel.send(piApprovedMessage);
+			
 			// Delay to allow message receiving and transitions. Timeout after 40s.
 			int repeat = 0;
-			while ((message == null || (! WaspJobStatusMessageTemplate.actUponMessage(message, JOB_ID2, WaspJobTask.NOTIFY_STATUS))) && repeat < 40){
+			while ((message == null || (! JobStatusMessageTemplate.actUponMessage(message, JOB_ID2, WaspJobTask.NOTIFY_STATUS))) && repeat < 40){
 				message = null;
 				Thread.sleep(1000);
 				repeat++;
