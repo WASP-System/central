@@ -37,6 +37,7 @@ import edu.yu.einstein.wasp.dao.RoleDao;
 import edu.yu.einstein.wasp.dao.UserMetaDao;
 import edu.yu.einstein.wasp.dao.UserPendingDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
+import edu.yu.einstein.wasp.model.Department;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabMeta;
@@ -166,7 +167,8 @@ public class LabController extends WaspController {
 
 		//parameter from filterToolbar
 		String piNameAndLogin = request.getParameter("primaryUser");//if not passed, will be null; if passed will be firstname lastname (login)
-		//System.out.println("piNameAndLogin = " + piNameAndLogin);
+		String departmentName = request.getParameter("departmentId");//if not passed, will be null; if passed will be name of department
+		System.out.println("piNameAndLogin = " + piNameAndLogin);System.out.println("departmentName = " + departmentName);
 		
 		//deal with the parameter
 		User pi = null;
@@ -176,7 +178,14 @@ public class LabController extends WaspController {
 				pi = userDao.getUserByLogin(piLogin);//if User not found, pi object is NOT null and pi.getUnserId()=null
 			}
 		}
-	
+		Department department = null;
+		if(departmentName != null){
+			department = deptDao.getDepartmentByName(departmentName.trim());
+			if(department.getDepartmentId()==null){//not found in department list
+				department.setDepartmentId(0);
+			}
+		}
+		
 		// result
 		Map<String, Object> jqgrid = new HashMap<String, Object>();
 
@@ -213,7 +222,15 @@ public class LabController extends WaspController {
 				}
 			}
 		}
-		
+		if(department != null ){
+			List<Lab> removeLabList = new ArrayList<Lab>();
+			for(Lab lab : labList){				
+				if(lab.getDepartmentId().intValue() != department.getDepartmentId().intValue()){
+					removeLabList.add(lab);
+				}
+			}
+			labList.removeAll(removeLabList);
+		}
 		/* Note that sorting by PI name cannot be achieved by DB query "sort by" clause, as class Lab only contains Pi's Id */
 		class PILastNameFirstNameComparatorThroughLab implements Comparator<Lab> {
 			@Override

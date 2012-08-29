@@ -49,6 +49,24 @@ if(url_string.indexOf("selId") == -1){ //url does NOT contain the string selId, 
 		}
 	});
 
+	jQuery("#grid_id").jqGrid('setColProp', 'departmentId',
+			{
+				search:true,
+				sopt:['eq'],
+				searchoptions: {
+					dataInit: function(elem) {	
+						setTimeout(
+							function(){ 
+								$.getJSON("/wasp/autocomplete/getDepartmentNamesForDisplay.do", 
+								{ str: "" }, 
+								function(data) { 
+									jQuery(elem).autocomplete(data);
+								} );
+							}, 200
+						);
+					}
+				}
+			});
 
 
 //function to validate the user-entered data 

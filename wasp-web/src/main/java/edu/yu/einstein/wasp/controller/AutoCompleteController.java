@@ -23,12 +23,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import edu.yu.einstein.wasp.dao.UserMetaDao;
 import edu.yu.einstein.wasp.dao.UserPendingMetaDao;
+import edu.yu.einstein.wasp.model.Department;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.dao.LabDao;
 import edu.yu.einstein.wasp.dao.JobDao;
+import edu.yu.einstein.wasp.dao.DepartmentDao;
 
 /**
  * Methods for handling json responses for JQuery auto-complete on input boxes
@@ -53,6 +55,9 @@ public class AutoCompleteController extends WaspController{
 	
 	@Autowired
 	private JobDao jobDao;
+
+	@Autowired
+	private DepartmentDao departmentDao;
 
 	/**
 	   * NOT USED - but shows a way to have the json message contain list of all PIs where each entry in the list looks something like "Peter Piper" but once selected, it is "Peter Piper (PPiper)" that is actually put into the autocomplete input box"
@@ -309,4 +314,28 @@ public class AutoCompleteController extends WaspController{
 	      jsonString = jsonString.replaceAll(",$", "") + "]}";
 	      return jsonString;                
 	  }
+	  
+		/**
+	   * Obtains a json message containing list of ALL department names"
+	   * Order ascending
+	   * Used to populate a JQuery autocomplete managed input box
+	   * @param str
+	   * @return json message
+	   */
+	  @RequestMapping(value="/getDepartmentNamesForDisplay", method=RequestMethod.GET)
+	  public @ResponseBody String getAllDepartments(@RequestParam String str) {
+		  
+		  List<Department> departmentList = departmentDao.findAllOrderBy("name", "asc");
+		  		  
+	      String jsonString = new String();
+	      jsonString = jsonString + "{\"source\": [";
+	      for (Department d: departmentList){
+	      	 if(d.getName().indexOf(str) > -1){//note: if str equals "", this, perhaps unexpectedly, evaluates to true
+	       		 jsonString = jsonString + "\""+ d.getName()+"\",";
+	       	 }
+	      }
+	      jsonString = jsonString.replaceAll(",$", "") + "]}";
+	      return jsonString;                
+	  }
+	  
 }
