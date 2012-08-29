@@ -13,6 +13,8 @@
 	
 	<bean id='sampleTasks' class="edu.yu.einstein.wasp.messages.WaspSampleTask" />
 	
+	<bean id='libraryTasks' class="edu.yu.einstein.wasp.messages.WaspLibraryTask" />
+	
 	<bean id="listenForJobQuotedTasklet" class="edu.yu.einstein.wasp.tasklets.ListenForFinishedStatusTasklet" scope="step">
 		<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.job" />
 		<constructor-arg name="messageTemplate">

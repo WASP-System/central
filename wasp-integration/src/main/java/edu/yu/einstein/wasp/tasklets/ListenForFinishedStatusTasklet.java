@@ -1,5 +1,8 @@
 package edu.yu.einstein.wasp.tasklets;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
@@ -30,17 +33,41 @@ public class ListenForFinishedStatusTasklet extends WaspTasklet implements Taskl
 	
 	private final Logger logger = Logger.getLogger(ListenForFinishedStatusTasklet.class);
 
-	private StatusMessageTemplate messageTemplate;
+	private Set<StatusMessageTemplate> messageTemplateSet;
 	
-	private SubscribableChannel subscribeChannel;
+	private Set<SubscribableChannel> subscribeChannelSet;
 	
 	private Message<WaspStatus> message;
 	
+	public ListenForFinishedStatusTasklet(Set<SubscribableChannel> inputSubscribableChannelSet, Set<StatusMessageTemplate> messageTemplateSet) {
+		logger.debug("Constructing new instance"); 
+		this.messageTemplateSet = messageTemplateSet;
+		this.subscribeChannelSet = inputSubscribableChannelSet;
+		this.message = null;
+	}
 		
 	public ListenForFinishedStatusTasklet(SubscribableChannel inputSubscribableChannel, StatusMessageTemplate messageTemplate) {
 		logger.debug("Constructing new instance"); 
-		this.messageTemplate = messageTemplate;
-		this.subscribeChannel = inputSubscribableChannel;
+		this.messageTemplateSet = new HashSet<StatusMessageTemplate>();
+		this.messageTemplateSet.add(messageTemplate);
+		this.subscribeChannelSet = new HashSet<SubscribableChannel>();
+		this.subscribeChannelSet.add(inputSubscribableChannel);
+		this.message = null;
+	}
+	
+	public ListenForFinishedStatusTasklet(SubscribableChannel inputSubscribableChannel, Set<StatusMessageTemplate> messageTemplateSet) {
+		logger.debug("Constructing new instance"); 
+		this.messageTemplateSet = messageTemplateSet;
+		this.subscribeChannelSet = new HashSet<SubscribableChannel>();
+		this.subscribeChannelSet.add(inputSubscribableChannel);
+		this.message = null;
+	}
+	
+	public ListenForFinishedStatusTasklet(Set<SubscribableChannel> inputSubscribableChannelSet, StatusMessageTemplate messageTemplate) {
+		logger.debug("Constructing new instance"); 
+		this.messageTemplateSet = new HashSet<StatusMessageTemplate>();
+		this.messageTemplateSet.add(messageTemplate);
+		this.subscribeChannelSet = inputSubscribableChannelSet;
 		this.message = null;
 	}
 	
@@ -48,16 +75,20 @@ public class ListenForFinishedStatusTasklet extends WaspTasklet implements Taskl
 	protected void init(){
 		// subscribe to injected message channel
 		logger.debug("subscribing to injected message channel");
-		subscribeChannel.subscribe(this);
+		for (SubscribableChannel subscribeChannel: subscribeChannelSet)
+			subscribeChannel.subscribe(this);
 	}
 	
 	@PreDestroy
 	protected void destroy() throws Throwable{
 		// unregister from message channel only if this object gets garbage collected
-		logger.debug("Destroying instance"); 
-		if (subscribeChannel != null){
-			this.subscribeChannel.unsubscribe(this); 
-			subscribeChannel = null;
+		logger.debug("Destroying instance");
+		
+		if (subscribeChannelSet != null){
+			for (SubscribableChannel subscribeChannel: subscribeChannelSet){
+				subscribeChannel.unsubscribe(this); 
+				subscribeChannel = null;
+			}
 		}
 	}
 	
@@ -84,11 +115,17 @@ public class ListenForFinishedStatusTasklet extends WaspTasklet implements Taskl
 	@Override
 	public void handleMessage(Message<?> message) throws MessagingException {
 		logger.debug("handleMessage() invoked). Received message: " + message.toString());
-		if (messageTemplate.actUponMessage(message) && ((WaspStatus) message.getPayload()).isFinished() ){
-			if (this.message == null){
-				this.message = (Message<WaspStatus>) message;
-			} else {
-				throw new MessagingException("Received an applicable message before previous message processed");
+		if (! ((WaspStatus) message.getPayload()).isFinished() )
+			return;
+		for (StatusMessageTemplate messageTemplate: messageTemplateSet){
+			// we need to process the message if any registered messageTemplates can act on a finished status
+			if (messageTemplate.actUponMessage(message)){
+				if (this.message == null){
+					this.message = (Message<WaspStatus>) message;
+				} else {
+					throw new MessagingException("Received an applicable message before previous message processed");
+				}
+				return;
 			}
 		}
 	}

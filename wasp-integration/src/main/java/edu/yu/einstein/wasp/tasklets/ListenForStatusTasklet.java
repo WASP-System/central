@@ -1,4 +1,4 @@
-package edu.yu.einstein.wasp.tasklets.sample;
+package edu.yu.einstein.wasp.tasklets;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -16,25 +16,30 @@ import org.springframework.integration.MessagingException;
 import org.springframework.integration.core.MessageHandler;
 import org.springframework.integration.core.SubscribableChannel;
 
-import edu.yu.einstein.wasp.messages.JobStatusMessageTemplate;
-import edu.yu.einstein.wasp.messages.SampleStatusMessageTemplate;
+import edu.yu.einstein.wasp.messages.StatusMessageTemplate;
 import edu.yu.einstein.wasp.messages.WaspStatus;
-import edu.yu.einstein.wasp.tasklets.WaspTasklet;
 
-public class WaitSampleReceivedTasklet extends WaspTasklet implements Tasklet, MessageHandler, StepExecutionListener {
+/**
+ * Tasklet that waits for a message with a WaspStatus 
+ * of ABANDONED, FAILED (returns ExitStatus of FAILED) 
+ * or COMPLETED (returns ExitStatus of COMPLETED). 
+ * @author andymac
+ *
+ */
+public class ListenForStatusTasklet extends WaspTasklet implements Tasklet, MessageHandler, StepExecutionListener {
 	
-	private final Logger logger = Logger.getLogger(WaitSampleReceivedTasklet.class);
+	private final Logger logger = Logger.getLogger(ListenForStatusTasklet.class);
 
-	private Integer sampleId;
+	private StatusMessageTemplate messageTemplate;
 	
 	private SubscribableChannel subscribeChannel;
 	
 	private Message<WaspStatus> message;
 	
 		
-	public WaitSampleReceivedTasklet(SubscribableChannel inputSubscribableChannel, Integer sampleId) {
-		logger.debug("Constructing new instance with sampleId='"+sampleId+"'"); 
-		this.sampleId = sampleId;
+	public ListenForStatusTasklet(SubscribableChannel inputSubscribableChannel, StatusMessageTemplate messageTemplate) {
+		logger.debug("Constructing new instance"); 
+		this.messageTemplate = messageTemplate;
 		this.subscribeChannel = inputSubscribableChannel;
 		this.message = null;
 	}
@@ -49,7 +54,7 @@ public class WaitSampleReceivedTasklet extends WaspTasklet implements Tasklet, M
 	@PreDestroy
 	protected void destroy() throws Throwable{
 		// unregister from message channel only if this object gets garbage collected
-		logger.debug("Destroying instance with sampleId='"+sampleId+"'"); 
+		logger.debug("Destroying instance"); 
 		if (subscribeChannel != null){
 			this.subscribeChannel.unsubscribe(this); 
 			subscribeChannel = null;
@@ -61,17 +66,15 @@ public class WaitSampleReceivedTasklet extends WaspTasklet implements Tasklet, M
 		ExitStatus exitStatus = stepExecution.getExitStatus();
 		if (exitStatus.equals(ExitStatus.COMPLETED) && message.getPayload().isUnsuccessful()){
 			exitStatus =  ExitStatus.FAILED; // modify exit code if abandoned
-		} else if (! message.getPayload().isSuccessful()){
-			exitStatus = new ExitStatus(message.getPayload().toString()); // set exit status to equal the message payload value
-		}
+		} 
 		this.message = null; // clean up in case of restart
-		logger.debug("AfterStep() going to return ExitStatus of '"+exitStatus.toString()+"' (instance with sampleId='"+sampleId+"')");
+		logger.debug("AfterStep() going to return ExitStatus of '"+exitStatus.toString()+"'");
 		return exitStatus;
 	}
 
 	@Override
 	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception {
-		logger.debug("execute() invoked (instance with sampleId='"+sampleId+"'");
+		logger.debug("execute() invoked");
 		if (message == null)
 			return delayedRepeatStatusContinuable(5000); // returns RepeatStatus.CONTINUABLE after 5s delay	
 		return RepeatStatus.FINISHED;
@@ -80,8 +83,8 @@ public class WaitSampleReceivedTasklet extends WaspTasklet implements Tasklet, M
 	@SuppressWarnings("unchecked") 
 	@Override
 	public void handleMessage(Message<?> message) throws MessagingException {
-		logger.debug("handleMessage() invoked (instance with sampleId='"+sampleId+"'). Received message: " + message.toString());
-		if (SampleStatusMessageTemplate.actUponMessage(message, sampleId)){
+		logger.debug("handleMessage() invoked). Received message: " + message.toString());
+		if (messageTemplate.actUponMessage(message) && ((WaspStatus) message.getPayload()).equals(messageTemplate.getStatus()) ){
 			if (this.message == null){
 				this.message = (Message<WaspStatus>) message;
 			} else {

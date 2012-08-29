@@ -14,6 +14,7 @@ public abstract class WaspStatusMessageTemplate implements StatusMessageTemplate
 	
 	protected String target;
 	
+	@Override
 	public WaspStatus getStatus() {
 		return status;
 	}
@@ -26,6 +27,7 @@ public abstract class WaspStatusMessageTemplate implements StatusMessageTemplate
 		this.status = status;
 	}
 
+	@Override
 	public String getTask() {
 		return task;
 	}
@@ -43,7 +45,7 @@ public abstract class WaspStatusMessageTemplate implements StatusMessageTemplate
 	}
 
 	public WaspStatusMessageTemplate(){
-		this.task = null;
+		this.task = WaspTask.NOTIFY_STATUS; // default
 		this.status = null;
 		this.target = "batch"; // default
 	}	

@@ -35,11 +35,9 @@
 					<constructor-arg name="messageTemplate">
 						<bean class="edu.yu.einstein.wasp.messages.JobStatusMessageTemplate">
 							<constructor-arg  name="jobId" value="#{jobParameters['jobId']}"/>
-							<property name="task" value="#{jobTasks.NOTIFY_STATUS}" />
-							<property name="status" value="CREATED" />
+							<property name="status" value="ACCEPTED" />
 						</bean>
 					</constructor-arg>
-					
 				</bean>
 			</batch:tasklet>
 		</batch:step>
@@ -50,7 +48,6 @@
 					<constructor-arg name="messageTemplate">
 						<bean class="edu.yu.einstein.wasp.messages.JobStatusMessageTemplate">
 							<constructor-arg  name="jobId" value="#{jobParameters['jobId']}"/>
-							<property name="task" value="#{jobTasks.NOTIFY_STATUS}" />
 							<property name="status" value="ABANDONED" />
 						</bean>
 					</constructor-arg>

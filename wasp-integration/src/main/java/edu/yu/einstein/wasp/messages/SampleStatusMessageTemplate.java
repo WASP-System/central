@@ -10,7 +10,7 @@ import edu.yu.einstein.wasp.exceptions.WaspMessageBuildingException;
  * @author andymac
  *
  */
-public class SampleStatusMessageTemplate extends WaspStatusMessageTemplate implements StatusMessageTemplate{
+public class SampleStatusMessageTemplate extends WaspStatusMessageTemplate{
 	
 	protected Integer sampleId;
 	

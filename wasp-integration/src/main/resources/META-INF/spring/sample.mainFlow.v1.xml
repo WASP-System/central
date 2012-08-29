@@ -11,19 +11,14 @@
 	</bean>
 	
 	<bean id="waspNotifyLibraryCreatedTasklet" class="edu.yu.einstein.wasp.tasklets.NotifyStatusTasklet" scope="step">
-					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
-					<constructor-arg name="messageTemplate">
-						<bean class="edu.yu.einstein.wasp.messages.WaspLibraryStatusMessageTemplate">
-							<constructor-arg  name="sampleId" value="#{jobParameters['sampleId']}" />
-							<property name="task" value="#{sampleTasks.NOTIFY_STATUS}" />
-							<property name="status" value="ABANDONED" />
-						</bean>
-					</constructor-arg>
-				</bean>
-	
-	<bean id="waspNotifyLibraryCreatedTasklet" class="edu.yu.einstein.wasp.tasklets.NotifyStatusTasklet">
-		<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.library" />
-		<constructor-arg name="libraryId" value="#{jobParameters['sampleId']}" />
+		<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+		<constructor-arg name="messageTemplate">
+			<bean class="edu.yu.einstein.wasp.messages.WaspLibraryStatusMessageTemplate">
+				<constructor-arg name="sampleId" value="#{jobParameters['sampleId']}" />
+				<property name="task" value="#{libraryTasks.NOTIFY_STATUS}" />
+				<property name="status" value="CREATED" />
+			</bean>
+		</constructor-arg>
 	</bean>
 	
 	<batch:flow id="wasp.sample.mainFlow.v1">
@@ -31,16 +26,31 @@
 			<batch:flow>
 				<batch:step id="listenForSampleReceivedTasklet">
 					<batch:tasklet>
-						<bean class="edu.yu.einstein.wasp.tasklets.sample.WaitSampleReceivedTasklet">
+						<bean class="edu.yu.einstein.wasp.tasklets.ListenForStatusTasklet">
 							<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.sample" />
-							<constructor-arg name="sampleId" value="#{jobParameters['sampleId']}" />
+							<constructor-arg name="messageTemplate">
+								<bean class="edu.yu.einstein.wasp.messages.SampleStatusMessageTemplate" >
+									<constructor-arg name="sampleId" value="#{jobParameters['sampleId']}" />
+									<property name="status" value="RECEIVED" />
+								</bean>
+							</constructor-arg>
 						</bean>
 					</batch:tasklet>
 				</batch:step>
 			</batch:flow>
 			<batch:flow>
 				<batch:step id="wasp.sample.mainFlow.listenForJobApproved">
-					<batch:tasklet ref="waspJobListenForTaskApprovedTasklet" />
+					<batch:tasklet>
+						<bean class="edu.yu.einstein.wasp.tasklets.ListenForStatusTasklet">
+							<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.job" />
+							<constructor-arg name="messageTemplate">
+								<bean class="edu.yu.einstein.wasp.messages.JobStatusMessageTemplate" >
+									<constructor-arg name="jobId" value="#{jobParameters['jobId']}" />
+									<property name="status" value="ACCEPTED" />
+								</bean>
+							</constructor-arg>
+						</bean>
+					</batch:tasklet>
 				</batch:step>
 			</batch:flow>
 			<batch:next on="FAILED" to="wasp.sample.mainFlow.notifySampleAbandoned" />
@@ -52,34 +62,60 @@
 			<batch:next on="LIBRARY" to="wasp.sample.mainFlow.notifyLibraryCreated" />
 			<batch:end on="UNKNOWN" exit-code="EARLY TERMINATION" />
 		</batch:decision>
-		<batch:step id="wasp.sample.mainFlow.sampleQC" next="wasp.sample.mainFlow.notifySampleReady">
+		<batch:step id="wasp.sample.mainFlow.sampleQC">
 			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.tasklets.sample.SampleOCTasklet">
+				<bean class="edu.yu.einstein.wasp.tasklets.ListenForFinishedStatusTasklet" scope="step">
 					<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.sample" />
-					<constructor-arg name="sampleId" value="#{jobParameters['sampleId']}" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.messages.SampleStatusMessageTemplate">
+							<constructor-arg name="jobId" value="#{jobParameters['sampleId']}"/>
+							<property name="task" value="#{sampleTask.QC}" />
+						</bean>
+					</constructor-arg>
 				</bean>
 			</batch:tasklet>
+			<batch:next on="FAILED" to="wasp.sample.mainFlow.notifySampleAbandoned" />
+			<batch:next on="COMPLETED" to="wasp.sample.mainFlow.notifySampleReady" />
+			<batch:fail on="*" /> <!-- unexpected message -->
 		</batch:step>
 		<batch:step id="wasp.sample.mainFlow.notifySampleReady">
 			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.tasklets.sample.NotifySampleStatusTasklet">
-					<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.sample" />
-					<constructor-arg name="sampleId" value="#{jobParameters['sampleId']}" />
-					<constructor-arg name="status" value="CREATED" />
+				<bean class="edu.yu.einstein.wasp.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.messages.SampleStatusMessageTemplate">
+							<constructor-arg  name="sampleId" value="#{jobParameters['sampleId']}"/>
+							<property name="status" value="ACCEPTED" />
+						</bean>
+					</constructor-arg>
 				</bean>
 			</batch:tasklet>
 		</batch:step>
 		<batch:step id="wasp.sample.mainFlow.notifySampleAbandoned">
 			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.tasklets.sample.NotifySampleStatusTasklet">
-					<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.sample" />
-					<constructor-arg name="sampleId" value="#{jobParameters['sampleId']}" />
-					<constructor-arg name="status" value="ABANDONED" />
+				<bean class="edu.yu.einstein.wasp.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.messages.SampleStatusMessageTemplate">
+							<constructor-arg  name="sampleId" value="#{jobParameters['sampleId']}"/>
+							<property name="status" value="ABANDONED" />
+						</bean>
+					</constructor-arg>
 				</bean>
 			</batch:tasklet>
 		</batch:step>
-		<batch:step id="wasp.sample.mainFlow.notifyLibraryCreated">
-			<batch:tasklet ref="waspNotifyLibraryCreatedTasklet" />
+		<batch:step id="wasp.sample.mainFlow.notifyLibraryRecieved">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.messages.LibraryStatusMessageTemplate">
+							<constructor-arg  name="sampleId" value="#{jobParameters['sampleId']}"/>
+							<property name="status" value="RECEIVED" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
 		</batch:step>
 	</batch:flow>
 	
@@ -89,10 +125,29 @@
 		<batch:split id="wasp.sample.jobFlow.split" task-executor="taskExecutor">
 			<batch:flow parent="wasp.sample.mainFlow.v1" />
 			<batch:flow>
-				<!-- will receive message of COMPLETED if the 'wasp.sample.mainFlow.v1' flow is finished -->
-				<!-- or if the sample is aborted with an ABANDONED message at time e.g. via a message from the web layer -->
+				<!-- will receive message of COMPLETED if the 'wasp.sample.mainFlow.v1' flow or job flow is finished -->
+				<!-- or if the sample OR job is aborted with an ABANDONED message at time e.g. via a message from the web layer -->
 				<batch:step id="wasp.sample.jobflow.ListenForComplete">
-					<batch:tasklet ref="listenForJobFinishedStatusTasklet" />
+					<batch:tasklet>
+						<bean class="edu.yu.einstein.wasp.tasklets.ListenForFinishedStatusTasklet" scope="step">
+							<constructor-arg name="inputSubscribableChannel">
+								<list>
+									<ref bean="wasp.channel.notification.job" />
+									<ref bean="wasp.channel.notification.sample" />
+								</list>
+							</constructor-arg>
+							<constructor-arg name="messageTemplateSet">
+								<list>
+									<bean class="edu.yu.einstein.wasp.messages.JobStatusMessageTemplate">
+										<constructor-arg name="jobId" value="#{jobParameters['sampleId']}"/>
+									</bean>
+									<bean class="edu.yu.einstein.wasp.messages.SampleStatusMessageTemplate">
+										<constructor-arg name="jobId" value="#{jobParameters['sampleId']}"/>
+									</bean>
+								</list>
+							</constructor-arg>
+						</bean>
+					</batch:tasklet>
 				</batch:step>
 			</batch:flow>
 			<batch:end on="COMPLETED" exit-code="COMPLETED" />

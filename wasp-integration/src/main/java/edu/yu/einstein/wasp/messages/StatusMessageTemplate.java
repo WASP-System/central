@@ -32,5 +32,9 @@ public interface StatusMessageTemplate {
 	 * @return
 	 */
 	public boolean actUponMessage(Message<?> message);
+	
+	public WaspStatus getStatus();
+	
+	public String getTask();
 
 }

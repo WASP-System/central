@@ -10,7 +10,7 @@ import edu.yu.einstein.wasp.exceptions.WaspMessageBuildingException;
  * @author andymac
  *
  */
-public class JobStatusMessageTemplate extends WaspStatusMessageTemplate implements StatusMessageTemplate{
+public class JobStatusMessageTemplate extends WaspStatusMessageTemplate {
 	
 	private Integer jobId;
 	

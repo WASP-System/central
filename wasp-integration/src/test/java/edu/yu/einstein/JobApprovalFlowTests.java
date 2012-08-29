@@ -136,7 +136,7 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 			
 			// check payload as expected
 			Assert.assertEquals(WaspStatus.class, message.getPayload().getClass());
-			Assert.assertEquals(message.getPayload(), WaspStatus.CREATED);
+			Assert.assertEquals(message.getPayload(), WaspStatus.ACCEPTED);
 			
 			// check BatchStatus and ExitStatus is as expected
 			Assert.assertEquals(jobExecution.getStatus(), BatchStatus.STARTED);
