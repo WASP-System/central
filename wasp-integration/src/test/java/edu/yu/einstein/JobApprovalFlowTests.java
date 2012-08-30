@@ -139,7 +139,7 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 			Assert.assertEquals(message.getPayload(), WaspStatus.ACCEPTED);
 			
 			// check BatchStatus and ExitStatus is as expected
-			Assert.assertEquals(jobExecution.getStatus(), BatchStatus.COMPLETED);
+			Assert.assertEquals(jobExecution.getStatus(), BatchStatus.STARTED);
 		} catch (Exception e){
 			// caught an unexpected exception
 			Assert.fail("Caught Exception: "+e.getMessage());
@@ -202,8 +202,8 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 			
 			Thread.sleep(5000); // allow batch to wrap up
 			// check BatchStatus and ExitStatus are as expected
-			Assert.assertEquals(jobExecution.getStatus(), BatchStatus.COMPLETED);
-			Assert.assertEquals(jobExecution.getExitStatus(), new ExitStatus("ABANDONED"));
+			Assert.assertEquals(jobExecution.getStatus(), BatchStatus.STOPPED);
+			Assert.assertEquals(jobExecution.getExitStatus().getExitCode(), ExitStatus.STOPPED.getExitCode());
 		} catch (Exception e){
 			// caught an unexpected exception
 			Assert.fail("Caught Exception: "+e.getMessage());

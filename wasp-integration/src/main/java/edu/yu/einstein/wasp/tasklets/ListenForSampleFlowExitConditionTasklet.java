@@ -71,6 +71,7 @@ public class ListenForSampleFlowExitConditionTasklet extends WaspTasklet impleme
 		ExitStatus exitStatus = stepExecution.getExitStatus();
 		if (exitStatus.equals(ExitStatus.COMPLETED) && message.getPayload().isUnsuccessful()){
 			exitStatus =  ExitStatus.FAILED; // modify exit code if abandoned
+			stepExecution.getJobExecution().stop();
 		} 
 		this.message = null; // clean up in case of restart
 		logger.debug("AfterStep() going to return ExitStatus of '"+exitStatus.toString()+"'");
