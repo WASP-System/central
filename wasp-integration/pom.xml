@@ -17,7 +17,7 @@
 	<properties>
 		<maven.test.failure.ignore>true</maven.test.failure.ignore>
 		<spring.framework.version>3.1.2.RELEASE</spring.framework.version>
-		<spring.batch.version>2.1.8.RELEASE</spring.batch.version>
+		<spring.batch.version>2.1.9.RELEASE</spring.batch.version>
 		<module.version>0.1.0-SNAPSHOT</module.version>
 	</properties>
 	<profiles>
