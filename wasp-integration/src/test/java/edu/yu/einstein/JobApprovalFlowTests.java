@@ -139,7 +139,7 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 			Assert.assertEquals(message.getPayload(), WaspStatus.ACCEPTED);
 			
 			// check BatchStatus and ExitStatus is as expected
-			Assert.assertEquals(jobExecution.getStatus(), BatchStatus.STARTED);
+			Assert.assertEquals(jobExecution.getStatus(), BatchStatus.COMPLETED);
 		} catch (Exception e){
 			// caught an unexpected exception
 			Assert.fail("Caught Exception: "+e.getMessage());

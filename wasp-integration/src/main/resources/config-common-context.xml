@@ -15,38 +15,41 @@
 	
 	<bean id='libraryTasks' class="edu.yu.einstein.wasp.messages.WaspLibraryTask" />
 	
-	<bean id="listenForJobQuotedTasklet" class="edu.yu.einstein.wasp.tasklets.ListenForFinishedStatusTasklet" scope="step">
+	<bean id="listenForJobQuotedTasklet" class="edu.yu.einstein.wasp.tasklets.ListenForStatusTasklet" scope="step">
 		<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.job" />
 		<constructor-arg name="messageTemplate">
 			<bean class="edu.yu.einstein.wasp.messages.JobStatusMessageTemplate" >
 				<constructor-arg  name="jobId" value="#{jobParameters['jobId']}"/>
 				<property name="task" value="#{jobTasks.QUOTE}" />
+				<property name="status" value="COMPLETED" />
 			</bean>
 		</constructor-arg>
 	</bean>
 	
-	<bean id="listenForJobPiApproveTasklet" class="edu.yu.einstein.wasp.tasklets.ListenForFinishedStatusTasklet" scope="step">
+	<bean id="listenForJobPiApproveTasklet" class="edu.yu.einstein.wasp.tasklets.ListenForStatusTasklet" scope="step">
 		<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.job" />
 		<constructor-arg name="messageTemplate">
 			<bean class="edu.yu.einstein.wasp.messages.JobStatusMessageTemplate">
 				<constructor-arg  name="jobId" value="#{jobParameters['jobId']}"/>
 				<property name="task" value="#{jobTasks.PI_APPROVE}" />
+				<property name="status" value="COMPLETED" />
 			</bean>
 		</constructor-arg>
 	</bean>
 	
-	<bean id="listenForJobAdminApproveTasklet" class="edu.yu.einstein.wasp.tasklets.ListenForFinishedStatusTasklet" scope="step">
+	<bean id="listenForJobAdminApproveTasklet" class="edu.yu.einstein.wasp.tasklets.ListenForStatusTasklet" scope="step">
 		<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.job" />
 		<constructor-arg name="messageTemplate">
 			<bean class="edu.yu.einstein.wasp.messages.JobStatusMessageTemplate">
 				<constructor-arg  name="jobId" value="#{jobParameters['jobId']}"/>
 				<property name="task" value="#{jobTasks.ADMIN_APPROVE}" />
+				<property name="status" value="COMPLETED" />
 			</bean>
 		</constructor-arg>
 	</bean>
 	
 	
-	<bean id="listenForJobFinishedStatusTasklet" class="edu.yu.einstein.wasp.tasklets.ListenForFinishedStatusTasklet" scope="step">
+	<bean id="listenForJobFinishedStatusTasklet" class="edu.yu.einstein.wasp.tasklets.ListenForStatusTasklet" scope="step">
 		<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.job" />
 		<constructor-arg name="messageTemplate">
 			<bean class="edu.yu.einstein.wasp.messages.JobStatusMessageTemplate">

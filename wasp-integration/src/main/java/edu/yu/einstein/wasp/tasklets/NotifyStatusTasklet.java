@@ -35,6 +35,5 @@ public class NotifyStatusTasklet extends WaspTasklet implements Tasklet {
 		messageChannel.send(message);
 		return RepeatStatus.FINISHED;
 	}
-	
 
 }
