@@ -15,7 +15,6 @@
 		<constructor-arg name="messageTemplate">
 			<bean class="edu.yu.einstein.wasp.messages.WaspLibraryStatusMessageTemplate">
 				<constructor-arg name="sampleId" value="#{jobParameters['sampleId']}" />
-				<property name="task" value="#{libraryTasks.NOTIFY_STATUS}" />
 				<property name="status" value="CREATED" />
 			</bean>
 		</constructor-arg>

@@ -11,9 +11,9 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.integration.Message;
 import org.springframework.integration.core.PollableChannel;
 
+import edu.yu.einstein.wasp.messages.StatusMessageTemplate;
 import edu.yu.einstein.wasp.messages.WaspRunStatusMessageTemplate;
 import edu.yu.einstein.wasp.messages.WaspStatus;
-import edu.yu.einstein.wasp.messages.StatusMessageTemplate;
 
 /**
  * Tasklet to handle business logic associated with a run being started. A {@link StatusMessageTemplate} is sent to inform other flows of the fact.

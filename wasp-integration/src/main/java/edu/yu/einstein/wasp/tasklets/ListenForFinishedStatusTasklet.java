@@ -23,9 +23,9 @@ import edu.yu.einstein.wasp.messages.StatusMessageTemplate;
 import edu.yu.einstein.wasp.messages.WaspStatus;
 
 /**
- * Tasklet that waits for a message with a WaspStatus 
- * of ABANDONED, FAILED (returns ExitStatus of FAILED) 
- * or COMPLETED (returns ExitStatus of COMPLETED). 
+ * Listens on the provided subscribable channel(s) for a message for a task 
+ * specified in any of the provided message template(s) with an unsuccessful status (ABANDONED or FAILED) .
+ * Returns ExitStatus of FAILED on receiving an applicable ABANDONED and FAILED wasp status.
  * @author andymac
  *
  */
@@ -82,8 +82,6 @@ public class ListenForFinishedStatusTasklet extends WaspTasklet implements Taskl
 	@PreDestroy
 	protected void destroy() throws Throwable{
 		// unregister from message channel only if this object gets garbage collected
-		logger.debug("Destroying instance");
-		
 		if (subscribeChannelSet != null){
 			for (SubscribableChannel subscribeChannel: subscribeChannelSet){
 				subscribeChannel.unsubscribe(this); 
@@ -115,7 +113,10 @@ public class ListenForFinishedStatusTasklet extends WaspTasklet implements Taskl
 	@Override
 	public void handleMessage(Message<?> message) throws MessagingException {
 		logger.debug("handleMessage() invoked). Received message: " + message.toString());
-		if (! ((WaspStatus) message.getPayload()).isFinished() )
+		if (! WaspStatus.class.isInstance(message.getPayload()))
+			return;
+		WaspStatus statusFromMessage = (WaspStatus) message.getPayload();
+		if (! statusFromMessage.isFinished() )
 			return;
 		for (StatusMessageTemplate messageTemplate: messageTemplateSet){
 			// we need to process the message if any registered messageTemplates can act on a finished status

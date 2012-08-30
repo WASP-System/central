@@ -20,11 +20,9 @@ import edu.yu.einstein.wasp.messages.StatusMessageTemplate;
 import edu.yu.einstein.wasp.messages.WaspStatus;
 
 /**
- * Tasklet that waits for a message with a WaspStatus 
- * of ABANDONED, FAILED (returns ExitStatus of FAILED) 
- * or COMPLETED (returns ExitStatus of COMPLETED). 
+ * Listens on the provided subscribable channel for a message with a task and status specified in the
+ * provided message template.
  * @author andymac
- *
  */
 public class ListenForStatusTasklet extends WaspTasklet implements Tasklet, MessageHandler, StepExecutionListener {
 	
@@ -38,14 +36,15 @@ public class ListenForStatusTasklet extends WaspTasklet implements Tasklet, Mess
 	
 		
 	public ListenForStatusTasklet(SubscribableChannel inputSubscribableChannel, StatusMessageTemplate messageTemplate) {
-		logger.debug("Constructing new instance"); 
 		this.messageTemplate = messageTemplate;
 		this.subscribeChannel = inputSubscribableChannel;
 		this.message = null;
 	}
 	
 	@PostConstruct
-	protected void init(){
+	protected void init() throws MessagingException{
+		if (messageTemplate.getStatus() == null)
+			throw new MessagingException("The message template defines no status to check against");
 		// subscribe to injected message channel
 		logger.debug("subscribing to injected message channel");
 		subscribeChannel.subscribe(this);
@@ -54,7 +53,6 @@ public class ListenForStatusTasklet extends WaspTasklet implements Tasklet, Mess
 	@PreDestroy
 	protected void destroy() throws Throwable{
 		// unregister from message channel only if this object gets garbage collected
-		logger.debug("Destroying instance"); 
 		if (subscribeChannel != null){
 			this.subscribeChannel.unsubscribe(this); 
 			subscribeChannel = null;
@@ -84,7 +82,10 @@ public class ListenForStatusTasklet extends WaspTasklet implements Tasklet, Mess
 	@Override
 	public void handleMessage(Message<?> message) throws MessagingException {
 		logger.debug("handleMessage() invoked). Received message: " + message.toString());
-		if (messageTemplate.actUponMessage(message) && ((WaspStatus) message.getPayload()).equals(messageTemplate.getStatus()) ){
+		if (! WaspStatus.class.isInstance(message.getPayload()))
+			return;
+		WaspStatus statusFromMessage = (WaspStatus) message.getPayload();
+		if (messageTemplate.actUponMessage(message) && statusFromMessage.equals(messageTemplate.getStatus()) ){
 			if (this.message == null){
 				this.message = (Message<WaspStatus>) message;
 			} else {

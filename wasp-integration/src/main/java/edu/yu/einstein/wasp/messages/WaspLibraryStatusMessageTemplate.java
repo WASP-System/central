@@ -6,7 +6,7 @@ import org.springframework.integration.support.MessageBuilder;
 import edu.yu.einstein.wasp.exceptions.WaspMessageBuildingException;
 
 /**
- * Handling Wasp Library Status Messages.
+ * Handling Wasp Library Status Messages. If not task is defined the default is WaspTask.NOTIFY_STATUS
  * @author andymac
  *
  */

@@ -4,7 +4,6 @@ import java.rmi.RemoteException;
 
 import org.apache.log4j.Logger;
 import org.springframework.integration.Message;
-import edu.yu.einstein.wasp.messaging.ClientMessageI;
 
 /**
  * 
