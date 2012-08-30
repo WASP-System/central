@@ -17,7 +17,6 @@ public enum WaspStatus {
 	STOPPED (3),
 	STARTED (4),
 	ACCEPTED (5),
-	RECEIVED (6),
 	CREATED (6);
 	
 	

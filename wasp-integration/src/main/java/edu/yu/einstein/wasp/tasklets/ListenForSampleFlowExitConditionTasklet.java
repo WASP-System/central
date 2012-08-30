@@ -1,5 +1,7 @@
 package edu.yu.einstein.wasp.tasklets;
 
+import java.util.Set;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
@@ -16,49 +18,51 @@ import org.springframework.integration.MessagingException;
 import org.springframework.integration.core.MessageHandler;
 import org.springframework.integration.core.SubscribableChannel;
 
-import edu.yu.einstein.wasp.messages.StatusMessageTemplate;
+import edu.yu.einstein.wasp.messages.JobStatusMessageTemplate;
+import edu.yu.einstein.wasp.messages.SampleStatusMessageTemplate;
 import edu.yu.einstein.wasp.messages.WaspStatus;
 
 /**
- * Listens on the provided subscribable channel for a message for a task 
- * specified in the provided message template and delivering a status of 
- * COMPLETED, ABANDONED or FAILED.
- * 
- * Returns ExitStatus of FAILED on receiving an applicable ABANDONED and FAILED wasp status.
+ * Listens for job abandoment / failure or sample acceptance / abandonment or failure to signal that the sample flow
+ * should be terminated.
  * @author andymac
- *
  */
-public class ListenForFinishedStatusTasklet extends WaspTasklet implements Tasklet, MessageHandler, StepExecutionListener {
+public class ListenForSampleFlowExitConditionTasklet extends WaspTasklet implements Tasklet, MessageHandler, StepExecutionListener {
 	
-	private final Logger logger = Logger.getLogger(ListenForFinishedStatusTasklet.class);
+	private final Logger logger = Logger.getLogger(ListenForSampleFlowExitConditionTasklet.class);
 
-	private StatusMessageTemplate messageTemplate;
+	private Integer sampleId;
 	
-	private SubscribableChannel subscribeChannel;
+	private Integer jobId;
+	
+	private Set<SubscribableChannel> subscribeChannels;
 	
 	private Message<WaspStatus> message;
 	
-			
-	public ListenForFinishedStatusTasklet(SubscribableChannel inputSubscribableChannel, StatusMessageTemplate messageTemplate) {
-		logger.debug("Constructing new instance"); 
-		this.messageTemplate = messageTemplate;
-		this.subscribeChannel = inputSubscribableChannel;
+		
+	public ListenForSampleFlowExitConditionTasklet(Set<SubscribableChannel> subscribeChannels, Integer sampleId, Integer jobId) {
+		this.sampleId = sampleId;
+		this.jobId = jobId;
+		this.subscribeChannels = subscribeChannels;
 		this.message = null;
 	}
 	
 	@PostConstruct
-	protected void init(){
+	protected void init() throws MessagingException{
 		// subscribe to injected message channel
-		logger.debug("subscribing to injected message channel");
-		subscribeChannel.subscribe(this);
+		logger.debug("subscribing to injected message channels");
+		for (SubscribableChannel subscribeChannel: subscribeChannels)
+			subscribeChannel.subscribe(this);
 	}
 	
 	@PreDestroy
 	protected void destroy() throws Throwable{
 		// unregister from message channel only if this object gets garbage collected
-		if (subscribeChannel != null){
-			subscribeChannel.unsubscribe(this); 
-			subscribeChannel = null;
+		if (subscribeChannels != null){
+			for (SubscribableChannel subscribeChannel: subscribeChannels){
+				subscribeChannel.unsubscribe(this); 
+				subscribeChannel = null;
+			}
 		}
 	}
 	
@@ -88,11 +92,9 @@ public class ListenForFinishedStatusTasklet extends WaspTasklet implements Taskl
 		if (! WaspStatus.class.isInstance(message.getPayload()))
 			return;
 		WaspStatus statusFromMessage = (WaspStatus) message.getPayload();
-		if (! statusFromMessage.isFinished() )
-			return;
-		
-		// we need to process the message if any registered messageTemplates can act on a finished status
-		if (messageTemplate.actUponMessage(message)){
+		if ( ( JobStatusMessageTemplate.actUponMessage(message, jobId) && statusFromMessage.isUnsuccessful() ) ||
+			( SampleStatusMessageTemplate.actUponMessage(message, sampleId) && 
+					( statusFromMessage.equals(WaspStatus.ACCEPTED) || statusFromMessage.isUnsuccessful() ) ) ){
 			if (this.message == null){
 				this.message = (Message<WaspStatus>) message;
 			} else {

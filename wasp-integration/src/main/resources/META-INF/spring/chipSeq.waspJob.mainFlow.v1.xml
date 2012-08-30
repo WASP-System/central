@@ -7,8 +7,9 @@
 		
 	<!-- common tasklets defined in config-common-context.xml -->
 	
+	<!-- Define main job approval flow -->
 	<batch:flow id="chipSeq.waspJob.flow.approvals.v1" >
-		<batch:split id="chipSeq.waspJob.postSubmitTasks" task-executor="taskExecutor">
+		<batch:split id="chipSeq.waspJob.postSubmitApprovalTasks" task-executor="taskExecutor">
 			<batch:flow>
 				<batch:step id="chipSeq.waspJob.quote">
 					<batch:tasklet ref="listenForJobQuotedTasklet"/>
@@ -56,7 +57,7 @@
 		</batch:step>
 	</batch:flow>
 	
-	<!-- for job, call with parameter 'jobId' -->
+	<!-- for dispatching job, call with parameter 'jobId' -->
 	<batch:job id="chipSeq.waspJob.jobflow.v1">
 		<batch:split id="chipSeq.waspJob.jobFlow.split" task-executor="taskExecutor">
 			<batch:flow parent="chipSeq.waspJob.flow.approvals.v1" />
