@@ -72,6 +72,11 @@
 				<li>
 					<a href='<c:url value="/department/list.do"/>'>Department Management</a>&nbsp;
 				</li>
+				<sec:authorize	access="hasRole('da-*')">
+				<li>
+					<a href='<c:url value="/lab/list.do"/>'>Lab Utils</a>
+				</li>
+				</sec:authorize>
 			</ul>
 		</div>
 	</sec:authorize>
