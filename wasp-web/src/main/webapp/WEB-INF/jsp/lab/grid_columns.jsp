@@ -5,6 +5,7 @@
 <wasp:field name="primaryUserId" type="hidden" />
 <wasp:field name="departmentId"  sortable="true" searchable="false" type="select" items="${departments}" itemValue="departmentId" itemLabel="name"/>
 <wasp:field name="isActive"  sortable="false" searchable="false" type="checkbox" />
+<wasp:field name="list_users" type="text" sortable="false" searchable="false" editable="false"/>
 
 _url='/wasp/lab/listJSON.do?selId=${param.selId}';
 

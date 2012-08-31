@@ -326,7 +326,9 @@ public class LabController extends WaspController {
 								lab.getPrimaryUserId().toString(),
 								lab.getDepartment().getName(),
 
-								lab.getIsActive().intValue() == 1 ? "yes" : "no" }));
+								lab.getIsActive().intValue() == 1 ? "yes" : "no",
+								"<a href=/wasp/lab/user_manager/"+lab.getLabId()+".do>Manage</a>"
+								}));
 
 				for (LabMeta meta : labMeta) {
 					cellList.add(meta.getV());
@@ -787,7 +789,7 @@ public class LabController extends WaspController {
 	}
 
 	@RequestMapping(value = "/user_manager/{labId}.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('su') or hasRole('lu-' + #labId)")
+	@PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('da-*') or hasRole('lu-' + #labId)")
 	public String userManager(@PathVariable("labId") Integer labId, ModelMap m) {
 		Lab lab = this.labDao.getById(labId);
 		List<LabUser> labUsers = new ArrayList();
@@ -851,7 +853,7 @@ public class LabController extends WaspController {
 	}
 
 	@RequestMapping(value = "/user/role/{labId}/{userId}/{roleName}.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('su') or hasRole('lm-' + #labId)")
+	@PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('da-*') or hasRole('lm-' + #labId)")
 	public String userDetail(@PathVariable("labId") Integer labId,
 			@PathVariable("userId") Integer userId,
 			@PathVariable("roleName") String roleName, ModelMap m) {

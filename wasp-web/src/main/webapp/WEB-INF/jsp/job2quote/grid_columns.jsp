@@ -1,20 +1,20 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
-<wasp:field name="jobId" type="text" sortable="true" editable="false"/>
+<wasp:field name="jobId" type="text" sortable="true" searchable="true" editable="false"/>
 
-<wasp:field name="name" type="text" sortable="true"/>
+<wasp:field name="name" type="text" sortable="false" searchable="false"/>
 
-<wasp:field name="amount" type="currency"/>
+<wasp:field name="amount" type="currency" sortable="true" searchable="false"/>
 
 <wasp:field name="submitter" type="text" sortable="true" searchable="false" editable="false"/>
 
 <wasp:field name="lab" type="text" sortable="true" searchable="false" editable="false"/>
 
-<wasp:field name="submission_date"  type="text" editable="false"/>
+<wasp:field name="submitted_on"  type="text" sortable="false" searchable="false" editable="false"/>
 
 _url='/wasp/job2quote/listJSON.do?showall=${param.showall}';
   
-_navAttr={edit:true,view:true,add:false,del:false};
+_navAttr={edit:true,view:true,add:false,del:false,search:false,refresh:true};
 
 _editAttr['beforeShowForm'] = function(formId) {
 	$('input[type="text"][name$="cost"]').val('0');
