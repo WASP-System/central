@@ -14,7 +14,9 @@
 			<li><a href="#tabs-daAdmin">Dept Admin</a></li>
 		</sec:authorize>
 		<sec:authorize access="hasRole('da-${labs[0].departmentId}') or hasRole('su') or hasRole('lu-*') or hasRole('ft-*') or hasRole('ga') or hasRole('fm')"> 
-			<li><a href="#tabs-labUtils">Lab Utils</a></li>
+			<c:if test="${labCount > 0}">
+				<li><a href="#tabs-labUtils">Lab Utils</a></li>
+			</c:if>
 		</sec:authorize>
 		<sec:authorize
 			access="hasRole('jv-*') or hasRole('jd-*') or hasRole('su') or hasRole('ga') or hasRole('lu-*') or hasRole('fm') or hasRole('ft')">
@@ -84,8 +86,8 @@
 
 
 	<sec:authorize access="hasRole('da-${labs[0].departmentId}') or hasRole('ft') or hasRole('su') or hasRole('ga') or hasRole('lu-${labs[0].labId}')">
-		<div id="tabs-labUtils">
-				
+		<c:if test="${labCount > 0}">
+		   <div id="tabs-labUtils">				
 				<ul class="navTabs">
 					<c:forEach items="${labs}" var="l">
 						<br /><b><c:out value="${l.name}" /> </b>
@@ -104,8 +106,9 @@
 							</li>							
 						</sec:authorize>
 					</c:forEach>
-			</ul>
-		</div>
+				</ul>
+			</div>
+		</c:if>
 	</sec:authorize>
 
 	<div>
