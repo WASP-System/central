@@ -39,6 +39,7 @@ import edu.yu.einstein.wasp.dao.RoleDao;
 import edu.yu.einstein.wasp.dao.StateDao;
 import edu.yu.einstein.wasp.dao.TaskDao;
 import edu.yu.einstein.wasp.dao.WorkflowresourcecategoryDao;
+import edu.yu.einstein.wasp.model.AcctJobquotecurrent;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobCellSelection;
 import edu.yu.einstein.wasp.model.JobFile;
@@ -419,7 +420,10 @@ public class JobController extends WaspController {
 				List<JobMeta> jobMeta = getMetaHelperWebapp().syncWithMaster(job.getJobMeta());
 				
 				User user = userDao.getById(job.getUserId());
-				Format formatter = new SimpleDateFormat("MM/dd/yyyy");					
+				Format formatter = new SimpleDateFormat("MM/dd/yyyy");	
+				List<AcctJobquotecurrent> ajqcList = job.getAcctJobquotecurrent();
+				float amount = ajqcList.isEmpty() ? 0 : ajqcList.get(0).getAcctQuote().getAmount();
+				
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 							"J" + job.getJobId().intValue() + " (<a href=/wasp/sampleDnaToLibrary/listJobSamples/"+job.getJobId()+".do>details</a>)",
 							job.getName(),
@@ -427,6 +431,7 @@ public class JobController extends WaspController {
 							//job.getLab().getName() + " (" + pi.getNameLstCmFst() + ")",
 							job.getLab().getUser().getNameFstLst(),
 							formatter.format(job.getCreatets()),
+							String.format("%.2f", amount),
 							"<a href=/wasp/"+job.getWorkflow().getIName()+"/viewfiles/"+job.getJobId()+".do>View files</a>"
 				}));
 				 
