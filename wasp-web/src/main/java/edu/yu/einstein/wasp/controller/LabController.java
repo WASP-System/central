@@ -37,6 +37,7 @@ import edu.yu.einstein.wasp.dao.RoleDao;
 import edu.yu.einstein.wasp.dao.UserMetaDao;
 import edu.yu.einstein.wasp.dao.UserPendingDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
+import edu.yu.einstein.wasp.model.Department;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabMeta;
@@ -59,6 +60,7 @@ import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.TaskService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 import edu.yu.einstein.wasp.util.MetaHelper;
+import edu.yu.einstein.wasp.util.StringHelper;
 
 @Controller
 @Transactional
@@ -160,18 +162,44 @@ public class LabController extends WaspController {
 
 		String sord = request.getParameter("sord");
 		String sidx = request.getParameter("sidx");
+		String search = request.getParameter("_search");//from grid (will return true or false, depending on the toolbar's parameters)
+		System.out.println("sidx = " + sidx);System.out.println("sord = " + sord);System.out.println("search = " + search);
 
+		//parameter from filterToolbar
+		String piNameAndLogin = request.getParameter("primaryUser");//if not passed, will be null; if passed will be firstname lastname (login)
+		String departmentName = request.getParameter("departmentId");//if not passed, will be null; if passed will be name of department
+		System.out.println("piNameAndLogin = " + piNameAndLogin);System.out.println("departmentName = " + departmentName);
+		
+		//deal with the parameter
+		User pi = null;
+		if(piNameAndLogin != null){//something was passed; expecting firstname lastname (login)
+			String piLogin = StringHelper.getLoginFromFormattedNameAndLogin(piNameAndLogin.trim());//if fails, returns empty string
+			if(!piLogin.isEmpty()){//likely incorrect format
+				pi = userDao.getUserByLogin(piLogin);//if User not found, pi object is NOT null and pi.getUnserId()=null
+			}
+		}
+		Department department = null;
+		if(departmentName != null){
+			department = deptDao.getDepartmentByName(departmentName.trim());
+			if(department.getDepartmentId()==null){//not found in department list
+				department.setDepartmentId(0);
+			}
+		}
+		
 		// result
 		Map<String, Object> jqgrid = new HashMap<String, Object>();
 
-		List<Lab> labList;
+		List<Lab> labList = new ArrayList<Lab>();
 
-		if (request.getParameter("_search") == null	|| StringUtils.isEmpty(request.getParameter("searchString"))) {
+		//if (request.getParameter("_search") == null	|| StringUtils.isEmpty(request.getParameter("searchString"))) {
+		if(piNameAndLogin==null){//no search parameter, so get all labs
 
-			labList = sidx.isEmpty() ? this.labDao.findAll() : this.labDao.findAllOrderBy(sidx, sord);
+			//labList = sidx.isEmpty() ? this.labDao.findAll() : this.labDao.findAllOrderBy(sidx, sord);
+			labList = this.labDao.findAll();
 		
 		} else {
 
+			/*
 			Map<String, String> m = new HashMap<String, String>();
 
 			m.put(request.getParameter("searchField"), request.getParameter("searchString"));
@@ -186,22 +214,65 @@ public class LabController extends WaspController {
 
 				labList = allLabs;
 			}
+			*/
+			if(pi != null && pi.getUserId() != null){
+				Lab lab = this.labDao.getLabByPrimaryUserId(pi.getUserId().intValue());
+				if(lab != null && lab.getLabId() != null && lab.getLabId() != 0){
+					labList.add(lab);
+				}
+			}
 		}
-		
-		/***** Sort by PI name cannot be achieved by DB query "sort by" clause *****/
-		class LabPUNameComparator implements Comparator<Lab> {
+		if(department != null ){
+			List<Lab> removeLabList = new ArrayList<Lab>();
+			for(Lab lab : labList){				
+				if(lab.getDepartmentId().intValue() != department.getDepartmentId().intValue()){
+					removeLabList.add(lab);
+				}
+			}
+			labList.removeAll(removeLabList);
+		}
+		/* Note that sorting by PI name cannot be achieved by DB query "sort by" clause, as class Lab only contains Pi's Id */
+		class PILastNameFirstNameComparatorThroughLab implements Comparator<Lab> {
 			@Override
 			public int compare(Lab arg0, Lab arg1) {
-				return arg0.getUser().getFirstName().compareToIgnoreCase(arg1.getUser().getFirstName());
+				return arg0.getUser().getLastName().concat(arg0.getUser().getFirstName()).compareToIgnoreCase(arg1.getUser().getLastName().concat(arg1.getUser().getFirstName()));
+			}
+		}
+		class LabNameComparatorThroughLab implements Comparator<Lab> {
+			@Override
+			public int compare(Lab arg0, Lab arg1) {
+				return arg0.getName().compareToIgnoreCase(arg1.getName());
+			}
+		}
+		class DepartmentComparatorThroughLab implements Comparator<Lab> {
+			@Override
+			public int compare(Lab arg0, Lab arg1) {
+				return arg0.getDepartment().getName().compareToIgnoreCase(arg1.getDepartment().getName());
 			}
 		}
 		
-		if (sidx.equals("primaryUser")) {
-			Collections.sort(labList, new LabPUNameComparator());
-			if (sord.equals("desc"))
-				Collections.reverse(labList);
+		if ( !labList.isEmpty() && labList.size() > 1 ){
+	
+			if(sidx == null || sidx.isEmpty() || sidx.equals("primaryUser") ){//PIname/Asc will be default order by
+				Collections.sort(labList, new PILastNameFirstNameComparatorThroughLab());
+				if (sidx.equals("primaryUser") && sord.equals("desc")){
+					Collections.reverse(labList);
+				}
+			}
+			else if (sidx.equals("name")){
+				Collections.sort(labList, new LabNameComparatorThroughLab());//asc
+				if(sord.equals("desc")){
+					Collections.reverse(labList);
+				}
+			}
+			else if (sidx.equals("departmentId")){
+				Collections.sort(labList, new DepartmentComparatorThroughLab());//asc
+				if(sord.equals("desc")){
+					Collections.reverse(labList);
+				}
+			}
 		}
-		/***** Sort by PI name ends here *****/
+		
 
 		ObjectMapper mapper = new ObjectMapper();
 
@@ -251,7 +322,7 @@ public class LabController extends WaspController {
 				List<String> cellList = new ArrayList<String>(
 						Arrays.asList(new String[] {
 								lab.getName(),
-								this.userDao.getUserByUserId(lab.getPrimaryUserId()).getNameFstLst(),
+								this.userDao.getUserByUserId(lab.getPrimaryUserId()).getNameFstLst(), //the grid itself is aattaching an anchor to the PI, using selId
 								lab.getPrimaryUserId().toString(),
 								lab.getDepartment().getName(),
 
