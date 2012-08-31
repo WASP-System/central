@@ -27,6 +27,8 @@
 $(document).ready(function() { 
 //set column properties for the filterToolbar search 
 
+var url_string = window.location.href; 
+if(url_string.indexOf("selId") == -1){ //url does NOT contain the string userId, so permit search of submitter and pi using filterToolbar and autocomplete 
 
 	jQuery("#grid_id").jqGrid('setColProp', 'login',
 	{
@@ -103,7 +105,7 @@ jQuery("#grid_id").jqGrid('setColProp', 'email',
 				}
 			}
 		});
- 
+
 //function to validate the user-entered data 
 validate = function(){
 
@@ -123,6 +125,8 @@ validate = function(){
 jQuery("#grid_id").jqGrid('filterToolbar', {stringResult:false, searchOnEnter:true, defaultSearch:"eq", beforeSearch: validate }); 
 //add search icon to navgrid and link it's being clicked to filterToolbar (so that filterToolbar search begins when the search icon is pressed (or the default, which is when ENTER is pressed)) 
 jQuery("#grid_id").jqGrid('navButtonAdd','#gridpager',{caption:"",title:"Search", buttonicon :'ui-icon-search', onClickButton:function(){ $("#grid_id")[0].triggerToolbar(); } }); 
+
+} //end if  
 
 });//end document.ready() 
   
