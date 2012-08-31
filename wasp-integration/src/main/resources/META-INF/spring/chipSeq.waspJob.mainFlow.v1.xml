@@ -65,12 +65,9 @@
 				<!-- will receive message of COMPLETED if the 'chipSeq.waspJob.flow.approvals.v1' flow is finished -->
 				<!-- or if the job is aborted with an ABANDONED message at time e.g. via a message from the web layer -->
 				<batch:step id="chipSeq.waspJob.jobflow.ListenForComplete">
-					<batch:tasklet ref="listenForJobFinishedStatusTasklet" />
+					<batch:tasklet ref="listenForJobExitConditionTasklet" />
 				</batch:step>
 			</batch:flow>
-			<batch:end on="COMPLETED" exit-code="COMPLETED" />
-			<batch:end on="FAILED" exit-code="ABANDONED" />
-			<batch:fail on="*"/> <!-- catch all -->
 		</batch:split>
 	</batch:job>
 

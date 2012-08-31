@@ -140,6 +140,18 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 			
 			// check BatchStatus and ExitStatus is as expected
 			Assert.assertEquals(jobExecution.getStatus(), BatchStatus.STARTED);
+			
+			// send message to tell exit condition monitoring tasklet that job is finished
+			template.setTask(WaspJobTask.NOTIFY_STATUS);
+			Message<WaspStatus> completeNotificationMessage = template.build();
+			logger.debug("Sending message: "+completeNotificationMessage);
+			outboundRmiChannel.send(completeNotificationMessage);
+			
+			Thread.sleep(5000); // wait for message receiving and job completion events
+			// check BatchStatus and ExitStatus are as expected
+			Assert.assertEquals(jobExecution.getStatus(), BatchStatus.COMPLETED);
+			Assert.assertEquals(jobExecution.getExitStatus().getExitCode(), ExitStatus.COMPLETED.getExitCode());
+			
 		} catch (Exception e){
 			// caught an unexpected exception
 			Assert.fail("Caught Exception: "+e.getMessage());
