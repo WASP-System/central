@@ -13,15 +13,11 @@ import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.configuration.JobRegistry;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessagingException;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.core.MessageHandler;
-import org.springframework.integration.core.PollableChannel;
 import org.springframework.integration.core.SubscribableChannel;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.Assert;
@@ -32,10 +28,8 @@ import org.testng.annotations.Test;
 import edu.yu.einstein.wasp.messages.JobStatusMessageTemplate;
 import edu.yu.einstein.wasp.messages.WaspJobTask;
 import edu.yu.einstein.wasp.messages.WaspMessageType;
-import edu.yu.einstein.wasp.messages.WaspRunStatusMessageTemplate;
 import edu.yu.einstein.wasp.messages.WaspStatus;
 import edu.yu.einstein.wasp.messaging.MessageChannelRegistry;
-import edu.yu.einstein.wasp.tasklets.WaspTasklet;
 
 
 @ContextConfiguration(locations={"classpath:test-launch-context.xml", "classpath:RmiMessageSend-context.xml"})
@@ -46,10 +40,10 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 	private JobLauncher jobLauncher;
 	
 	@Autowired
-	MessageChannelRegistry channelRegistry;
+	private MessageChannelRegistry channelRegistry;
 	
 	@Autowired 
-	JobRegistry jobRegistry;
+	private JobRegistry jobRegistry;
 	
 	private final Logger logger = Logger.getLogger(JobApprovalFlowTests.class);
 	

@@ -1,9 +1,12 @@
-package edu.yu.einstein.test.service.impl;
+package edu.yu.einstein.test.stubs;
+
+import org.springframework.stereotype.Service;
 
 import edu.yu.einstein.wasp.exception.LoginNameException;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 
+@Service
 public class StubAuthenticationServiceImpl implements AuthenticationService {
 
 	@Override

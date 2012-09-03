@@ -10,10 +10,10 @@ import edu.yu.einstein.wasp.exceptions.WaspMessageBuildingException;
  * @author andymac
  *
  */
-public class WaspLibraryStatusMessageTemplate extends SampleStatusMessageTemplate {
+public class LibraryStatusMessageTemplate extends SampleStatusMessageTemplate {
 	
 	
-	public WaspLibraryStatusMessageTemplate(Integer sampleId){
+	public LibraryStatusMessageTemplate(Integer sampleId){
 		super(sampleId);
 	}
 		

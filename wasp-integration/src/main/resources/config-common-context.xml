@@ -52,20 +52,10 @@
 	</bean>
 	
 	
-	<bean id="listenForJobExitConditionTasklet" class="edu.yu.einstein.wasp.tasklets.ListenForExitConditionTasklet" scope="step">
-		<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.job" />
-		<constructor-arg name="abortMonitoringChannel" ref="wasp.channel.notification.abort" />
-		<constructor-arg name="messageTemplate">
-			<bean class="edu.yu.einstein.wasp.messages.JobStatusMessageTemplate">
-				<constructor-arg name="jobId" value="#{jobParameters['jobId']}"/>
-				<property name="status" value="COMPLETED" />
-			</bean>
-		</constructor-arg>
-	</bean>	
-	
 	<!-- import batch flows -->
 	<import resource="classpath:/META-INF/spring/*Flow.xml" />
 	<import resource="classpath:/META-INF/spring/chipSeq.waspJob.mainFlow.v1.xml" />
+	<import resource="classpath:/META-INF/spring/sample.mainFlow.v1.xml" />
 	
 
 </beans>

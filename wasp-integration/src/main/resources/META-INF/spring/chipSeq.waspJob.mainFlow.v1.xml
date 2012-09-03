@@ -64,8 +64,19 @@
 			<batch:flow>
 				<!-- will receive message of COMPLETED if the 'chipSeq.waspJob.flow.approvals.v1' flow is finished -->
 				<!-- or if the job is aborted with an ABANDONED message at time e.g. via a message from the web layer -->
-				<batch:step id="chipSeq.waspJob.jobflow.ListenForComplete">
-					<batch:tasklet ref="listenForJobExitConditionTasklet" />
+				<batch:step id="chipSeq.waspJob.jobflow.ListenForExitCondition">
+					<batch:tasklet>
+						<bean class="edu.yu.einstein.wasp.tasklets.ListenForExitConditionTasklet" scope="step">
+							<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.job" />
+							<constructor-arg name="abortMonitoringChannel" ref="wasp.channel.notification.abort" />
+							<constructor-arg name="messageTemplate">
+								<bean class="edu.yu.einstein.wasp.messages.JobStatusMessageTemplate">
+									<constructor-arg name="jobId" value="#{jobParameters['jobId']}"/>
+									<property name="status" value="COMPLETED" />
+								</bean>
+							</constructor-arg>
+						</bean>	
+					</batch:tasklet>
 				</batch:step>
 			</batch:flow>
 		</batch:split>
