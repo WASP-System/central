@@ -29,26 +29,6 @@ public class SampleStatusMessageTemplate extends WaspStatusMessageTemplate{
 	}
 	
 	/**
-	 * Build a Spring Integration Message using the sampleId header and the WaspStatus as payload.
-	 * The message-type header is not set so the message will be routed generically
-	 * @return
-	 * @throws WaspMessageBuildingException
-	 */
-	@Override
-	public Message<WaspStatus> buildGeneric() throws WaspMessageBuildingException{
-		Message<WaspStatus> message = null;
-		try {
-			message = MessageBuilder.withPayload(status)
-					.setHeader("sampleId", sampleId)
-					.setPriority(status.getPriority())
-					.build();
-		} catch(Exception e){
-			throw new WaspMessageBuildingException("buildGeneric() failed to build message: "+e.getMessage());
-		}
-		return message;
-	}
-	
-	/**
 	 * Build a Spring Integration Message using the sampleId header, task header if not null, and the WaspStatus as payload .
 	 * @return
 	 * @throws WaspMessageBuildingException
@@ -106,7 +86,9 @@ public class SampleStatusMessageTemplate extends WaspStatusMessageTemplate{
 	public static boolean actUponMessage(Message<?> message, Integer sampleId ){
 		if (sampleId != null &&
 				message.getHeaders().containsKey("sampleId") && 
-				((Integer) message.getHeaders().get("sampleId")).equals(sampleId) )
+				((Integer) message.getHeaders().get("sampleId")).equals(sampleId) &&
+				message.getHeaders().containsKey(WaspMessageType.HEADER) && 
+				((String) message.getHeaders().get(WaspMessageType.HEADER)).equals(WaspMessageType.SAMPLE))
 			return true;
 		return false;
 	}

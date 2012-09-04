@@ -11,13 +11,6 @@ import edu.yu.einstein.wasp.exceptions.WaspMessageBuildingException;
  */
 public interface StatusMessageTemplate {
 	
-	/**
-	 * Build a Spring Integration Message.
-	 * The message-type header is not set so the message will be routed generically
-	 * @return
-	 * @throws WaspMessageBuildingException
-	 */
-	public Message<WaspStatus> buildGeneric() throws WaspMessageBuildingException;
 	
 	/**
 	 * Build a Spring Integration Message.

@@ -36,13 +36,13 @@ public class RmiInputTests extends AbstractTestNGSpringContextTests implements M
 	private final String RUN_KEY = "runId";
 	private DirectChannel outboundRmiChannel;
 	private DirectChannel replyChannel;
-	private SubscribableChannel waspRunPublishSubscribeChannel;
+	private SubscribableChannel listeningChannel;
 	
 	@BeforeClass
 	private void setup(){
 		Assert.assertNotNull(channelRegistry);
-		waspRunPublishSubscribeChannel = channelRegistry.getChannel("wasp.channel.notification.run", SubscribableChannel.class);
-		waspRunPublishSubscribeChannel.subscribe(this); // register as a message handler on the waspRunPublishSubscribeChannel
+		listeningChannel = channelRegistry.getChannel("wasp.channel.notification.run", SubscribableChannel.class);
+		listeningChannel.subscribe(this); // register as a message handler on the listeningChannel
 		outboundRmiChannel = channelRegistry.getChannel("wasp.channel.rmi.outbound", DirectChannel.class);
 		replyChannel = channelRegistry.getChannel("wasp.channel.rmi.outbound.reply", DirectChannel.class);
 		replyChannel.subscribe(this);
@@ -50,7 +50,7 @@ public class RmiInputTests extends AbstractTestNGSpringContextTests implements M
 	
 	@AfterClass 
 	private void tearDown(){
-		waspRunPublishSubscribeChannel.unsubscribe(this);
+		listeningChannel.unsubscribe(this);
 		replyChannel.unsubscribe(this);
 	}
 

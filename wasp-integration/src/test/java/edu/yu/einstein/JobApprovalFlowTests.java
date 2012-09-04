@@ -58,7 +58,7 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 	
 	private DirectChannel outboundRmiChannel;
 	private DirectChannel replyChannel;
-	private SubscribableChannel waspRunPublishSubscribeChannel;
+	private SubscribableChannel listeningChannel;
 	
 	@BeforeClass
 	private void setup(){
@@ -66,22 +66,22 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 		Assert.assertNotNull(jobLauncher);
 		Assert.assertNotNull(jobRegistry);
 		outboundRmiChannel = channelRegistry.getChannel("wasp.channel.rmi.outbound", DirectChannel.class);
-		waspRunPublishSubscribeChannel = channelRegistry.getChannel("wasp.channel.notification.job", SubscribableChannel.class);
-		waspRunPublishSubscribeChannel.subscribe(this); // register as a message handler on the waspRunPublishSubscribeChannel
+		listeningChannel = channelRegistry.getChannel("wasp.channel.notification.job", SubscribableChannel.class);
+		listeningChannel.subscribe(this); // register as a message handler on the listeningChannel
 		replyChannel = channelRegistry.getChannel("wasp.channel.rmi.outbound.reply", DirectChannel.class);
 		replyChannel.subscribe(this);
 	}
 	
 	@AfterClass 
 	private void tearDown(){
-		waspRunPublishSubscribeChannel.unsubscribe(this);
+		listeningChannel.unsubscribe(this);
 		replyChannel.unsubscribe(this);
 	}
 	
 		
 	/**
 	 * This test exercises the approvalFlow.
-	 * The method sets up a waspRunPublishSubscribeChannel and listens on it. it then launches the chipSeq.waspJob.jobflow.v1.
+	 * The method sets up a listeningChannel and listens on it. it then launches the chipSeq.waspJob.jobflow.v1.
 	 */
 	@Test (groups = "unit-tests")
 	public void testJobApproved() throws Exception{
@@ -154,7 +154,7 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 	
 	/**
 	 * This test exercises the approvalFlow. In this case one approval task receives an ABANDONED signal to signify rejection.
-	 * The method sets up a waspRunPublishSubscribeChannel and listens on it. it then launches the chipSeq.waspJob.jobflow.v1.
+	 * The method sets up a listeningChannel and listens on it. it then launches the chipSeq.waspJob.jobflow.v1.
 	 */
 	@Test (groups = "unit-tests")
 	public void testJobNotApproved() throws Exception{
