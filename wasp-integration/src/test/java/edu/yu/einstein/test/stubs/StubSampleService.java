@@ -43,169 +43,169 @@ public class StubSampleService implements SampleService {
 
 	@Override
 	public Sample getSampleByName(String name) {
-		// TODO Auto-generated method stub
+		// Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public List<Sample> findAllPlatformUnits() {
-		// TODO Auto-generated method stub
+		// Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public List<SampleSubtype> getSampleSubtypesForWorkflowByLoggedInUserRoles(
 			Integer workflowId) {
-		// TODO Auto-generated method stub
+		// Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public List<SampleSubtype> getSampleSubtypesForWorkflowByLoggedInUserRoles(
 			Integer workflowId, String sampleTypeIName) {
-		// TODO Auto-generated method stub
+		// Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public List<SampleSubtype> getSampleSubtypesForWorkflowByRole(
 			Integer workflowId, String[] roles, String sampleTypeIName) {
-		// TODO Auto-generated method stub
+		// Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public List<SampleSubtype> getSampleSubtypesForWorkflowByRole(
 			Integer workflowId, String[] roles) {
-		// TODO Auto-generated method stub
+		// Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public boolean isSampleNameUniqueWithinJob(Sample sampleIn,
 			SampleType sampleType, Job job) {
-		// TODO Auto-generated method stub
+		// Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public void saveSampleWithAssociatedMeta(Sample sample) {
-		// TODO Auto-generated method stub
+		// Auto-generated method stub
 
 	}
 
 	@Override
 	public String getReceiveSampleStatus(Sample sample) {
-		// TODO Auto-generated method stub
+		// Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public void sortSamplesBySampleName(List<Sample> samples) {
-		// TODO Auto-generated method stub
+		// Auto-generated method stub
 
 	}
 
 	@Override
 	public String convertReceiveSampleStatusForWeb(String internalStatus) {
-		// TODO Auto-generated method stub
+		// Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public String convertReceiveSampleStatusForInternalStorage(String webStatus) {
-		// TODO Auto-generated method stub
+		// Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public List<String> getReceiveSampleStatusOptionsForWeb() {
-		// TODO Auto-generated method stub
+		// Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public boolean updateSampleReceiveStatus(Sample sample, String status) {
-		// TODO Auto-generated method stub
+		// Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean submittedSampleHasBeenProcessedByFacility(Sample sample) {
-		// TODO Auto-generated method stub
+		// Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public List<Sample> getFacilityGeneratedLibraries(Sample sample) {
-		// TODO Auto-generated method stub
+		// Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Adaptor getLibraryAdaptor(Sample library) {
-		// TODO Auto-generated method stub
+		// Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public List<Sample> getAvailableFlowCells() {
-		// TODO Auto-generated method stub
+		// Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public List<Sample> getAvailableAndCompatibleFlowCells(Job job) {
-		// TODO Auto-generated method stub
+		// Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Map<Integer, Sample> getIndexedCellsOnPlatformUnit(
 			Sample platformUnit) throws SampleTypeException {
-		// TODO Auto-generated method stub
+		// Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public void addCellToPlatformUnit(Sample platformUnit, Sample cell,
 			Integer Index) throws SampleTypeException, SampleIndexException {
-		// TODO Auto-generated method stub
+		// Auto-generated method stub
 
 	}
 
 	@Override
 	public List<Sample> getLibrariesOnCell(Sample cell)
 			throws SampleTypeException {
-		// TODO Auto-generated method stub
+		// Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public List<Sample> getLibrariesOnCellWithoutControls(Sample cell)
 			throws SampleTypeException {
-		// TODO Auto-generated method stub
+		// Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public List<Sample> getControlLibrariesOnCell(Sample cell)
 			throws SampleTypeException {
-		// TODO Auto-generated method stub
+		// Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public void setAuthenticationService(
 			AuthenticationService authenticationService) {
-		// TODO Auto-generated method stub
+		// Auto-generated method stub
 
 	}
 
 	@Override
 	public Sample getPlatformUnitForCell(Sample cell)
 			throws SampleTypeException, SampleParentChildException {
-		// TODO Auto-generated method stub
+		// Auto-generated method stub
 		return null;
 	}
 
@@ -213,42 +213,43 @@ public class StubSampleService implements SampleService {
 	public void addLibraryToCell(Sample cell, Sample library,
 			Float libConcInLanePicoM) throws SampleTypeException,
 			SampleException, SampleMultiplexException, MetadataException {
-		// TODO Auto-generated method stub
+		// Auto-generated method stub
 
 	}
 
 	@Override
 	public SampleDraft cloneSampleDraft(SampleDraft sampleDraft) {
-		// TODO Auto-generated method stub
+		// Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public List<Sample> platformUnitsAwaitingLibraries() {
-		// TODO Auto-generated method stub
+		// Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Run getCurrentRunForPlatformUnit(Sample platformUnit) {
-		// TODO Auto-generated method stub
+		// Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public boolean isBiomolecule(Sample sample) {
-		// TODO Auto-generated method stub
+		// Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean isBiomolecule(SampleDraft sampleDraft) {
-		// TODO Auto-generated method stub
+		// Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean isLibrary(Sample sample) {
+		// stub functionality copied from SampleServiceImpl
 		if (sample.getSampleType().getIName().equals("library") || sample.getSampleType().getIName().equals("facilityLibrary"))
 			return true;
 		return false;
@@ -256,7 +257,7 @@ public class StubSampleService implements SampleService {
 
 	@Override
 	public boolean isLibrary(SampleDraft sampleDraft) {
-		// TODO Auto-generated method stub
+		// Auto-generated method stub
 		return false;
 	}
 
