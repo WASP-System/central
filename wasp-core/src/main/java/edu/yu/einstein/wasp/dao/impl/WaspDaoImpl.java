@@ -158,7 +158,8 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 
 		return q.getResultList();
 	}
-
+	
+	
 	@Override
 	@SuppressWarnings("unchecked")
 	public List<E> findByMapDistinctOrderBy(final Map m, final List<String> distinctColumnNames, final List<String> orderByColumnNames, final String direction) {
@@ -233,6 +234,11 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 		}
 
 		return q.getResultList();
+	}
+	
+	@Override
+	public List<E> findByMapOrderBy(final Map m, final List<String> orderByColumnNames, final String direction) {
+		return findByMapDistinctOrderBy(m, null, orderByColumnNames, direction);
 	}
 
 	@Override

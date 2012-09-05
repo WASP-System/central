@@ -95,6 +95,8 @@ public interface WaspDao<E> {
   *	List<Department> departmentList = this.getDepartmentService().findByMapDistinctOrderBy(whereConstraints, distinctConstraints, orderConstraints, direction);
   */
   public List<E> findByMapDistinctOrderBy(final Map m, final List<String> distinctColumnNames, final List<String> orderByColumnNames, final String direction);
+  
+  public List<E> findByMapOrderBy(final Map m, final List<String> orderByColumnNames, final String direction);
 
   public List findDistinctMetaOrderBy(String metaKeyName, String direction);
 

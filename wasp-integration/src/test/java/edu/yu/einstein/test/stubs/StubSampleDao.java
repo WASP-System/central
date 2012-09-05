@@ -152,4 +152,11 @@ public class StubSampleDao implements SampleDao {
 		return null;
 	}
 
+	@Override
+	public List<Sample> findByMapOrderBy(Map m,
+			List<String> orderByColumnNames, String direction) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

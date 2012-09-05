@@ -34,11 +34,7 @@ import edu.yu.einstein.wasp.messages.WaspJobTask;
 import edu.yu.einstein.wasp.messages.WaspSampleTask;
 import edu.yu.einstein.wasp.messages.WaspStatus;
 import edu.yu.einstein.wasp.messaging.MessageChannelRegistry;
-import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleType;
-
-
-
 
 @ContextConfiguration(locations={"classpath:test-launch-context.xml", "classpath:RmiMessageSend-context.xml"})
 
