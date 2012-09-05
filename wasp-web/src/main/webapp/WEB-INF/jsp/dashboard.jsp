@@ -78,6 +78,9 @@
 				<li>
 					<a href='<c:url value="/lab/list.do"/>'>Lab Utils</a>
 				</li>
+				<li>
+						<a href='<c:url value="/job2quote/list.do"/>'>List Job Quotes</a>
+					</li>
 				</sec:authorize>
 			</ul>
 		</div>
@@ -150,7 +153,7 @@
 			<ul class="navTabs">
 				<sec:authorize access="hasRole('fm')">
 					<li>
-						<a href='<c:url value="/job2quote/list.do?showall=true"/>'>List of All Job Quotes</a>
+						<a href='<c:url value="/job2quote/list.do"/>'>List All Job Quotes</a>
 					</li>
 				</sec:authorize>
 			</ul>

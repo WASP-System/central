@@ -54,6 +54,7 @@ import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.model.UserPendingMeta;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.EmailService;
+import edu.yu.einstein.wasp.service.FilterService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.SampleService;
@@ -96,7 +97,10 @@ public class LabController extends WaspController {
 
 	@Autowired
 	private EmailService emailService;
-
+	
+	@Autowired
+	private FilterService filterService;
+	
 	@Autowired
 	private JobService jobService;
 
@@ -231,6 +235,13 @@ public class LabController extends WaspController {
 			}
 			labList.removeAll(removeLabList);
 		}
+		
+		//perform ONLY if the viewer is A DA but is NOT any other type of facility member
+		if(authenticationService.isOnlyDepartmentAdministrator()){//remove labs not in the DA's department
+			List<Lab> labsToKeep = filterService.filterLabListForDA(labList);
+			labList.retainAll(labsToKeep);
+		}
+				
 		/* Note that sorting by PI name cannot be achieved by DB query "sort by" clause, as class Lab only contains Pi's Id */
 		class PILastNameFirstNameComparatorThroughLab implements Comparator<Lab> {
 			@Override

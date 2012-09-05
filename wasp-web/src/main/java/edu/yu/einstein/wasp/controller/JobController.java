@@ -63,6 +63,7 @@ import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Workflowresourcecategory;
 import edu.yu.einstein.wasp.model.WorkflowresourcecategoryMeta;
 import edu.yu.einstein.wasp.service.AuthenticationService;
+import edu.yu.einstein.wasp.service.FilterService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
@@ -119,6 +120,8 @@ public class JobController extends WaspController {
 	private JobCellSelectionDao jobCellSelectionDao;
 	@Autowired
 	private SampleService sampleService;
+	@Autowired
+	private FilterService filterService;
 	@Autowired
 	private JobService jobService;
 	@Autowired
@@ -342,6 +345,12 @@ public class JobController extends WaspController {
 		}
 		else{
 			jobList.addAll(tempJobList);
+		}
+		
+		//perform ONLY if the viewer is A DA but is NOT any other type of facility member
+		if(authenticationService.isOnlyDepartmentAdministrator()){//remove jobs not in the DA's department
+			List<Job> jobsToKeep = filterService.filterJobListForDA(jobList);
+			jobList.retainAll(jobsToKeep);
 		}
 		
 		//Finally deal with any sort requests coming from the grid. 

@@ -124,6 +124,7 @@ jQuery("#grid_id").jqGrid('navButtonAdd','#gridpager',{caption:"",title:"Search"
 
 <center>  
 <br /><br />
+<fmt:message key="job2quote.job2quote_note.label" />
 <table id="grid_id"></table> 
 <div id="gridpager"></div>
 </center>

@@ -24,6 +24,7 @@ _editAttr['afterShowForm'] = function(formId) {
 	$('#name').attr('disabled', 'disabled');
 	$('#amount').attr('disabled', 'disabled');
 	
+	
 	$('input[type="text"][name$="cost"]').keyup( function(evt){
 		$('#amount').val(sumCosts().toFixed(2));
 	} );

@@ -33,6 +33,8 @@ import edu.yu.einstein.wasp.dao.StatejobDao;
 import edu.yu.einstein.wasp.model.AcctJobquotecurrent;
 import edu.yu.einstein.wasp.model.AcctQuote;
 import edu.yu.einstein.wasp.model.AcctQuoteMeta;
+import edu.yu.einstein.wasp.model.Department;
+import edu.yu.einstein.wasp.model.DepartmentUser;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.MetaBase;
@@ -41,6 +43,7 @@ import edu.yu.einstein.wasp.model.Statejob;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.MessageService;
+import edu.yu.einstein.wasp.service.FilterService;
 import edu.yu.einstein.wasp.service.TaskService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 import edu.yu.einstein.wasp.util.MetaHelper;
@@ -65,6 +68,8 @@ public class Job2QuoteController extends WaspController {
 	private StateDao		stateDao;
 	@Autowired
 	private StatejobDao		statejobDao;
+	@Autowired
+	private FilterService	filterService;
 	@Autowired
 	private TaskService		taskService;
 	@Autowired
@@ -179,7 +184,13 @@ public class Job2QuoteController extends WaspController {
 		orderByColumnNames.add("jobId");
 		
 		//if Map m has no entries, SQL will find ALL jobs
-		jobList = this.jobDao.findByMapDistinctOrderBy(m, null, orderByColumnNames, "desc");//default order is by jobId/desc
+		jobList = this.jobDao.findByMapDistinctOrderBy(m, null, orderByColumnNames, "desc");//default order is by jobId/desc		
+		
+		//perform ONLY if the viewer is A DA but is NOT any other type of facility member
+		if(authenticationService.isOnlyDepartmentAdministrator()){//remove jobs not in the DA's department
+			List<Job> jobsToKeep = filterService.filterJobListForDA(jobList);
+			jobList.retainAll(jobsToKeep);
+		}
 		
 		if(sidx != null && !sidx.isEmpty() && sord != null && !sord.isEmpty() ){
 			
@@ -205,8 +216,7 @@ public class Job2QuoteController extends WaspController {
 				if(sord.equals("desc")){
 					Collections.reverse(jobList);
 				}
-			}
-						
+			}						
 		}
 		job2quoteList.addAll(jobList);
 		
@@ -340,7 +350,7 @@ public class Job2QuoteController extends WaspController {
 				
 				List<String> cellList = new ArrayList<String>(
 					Arrays.asList(new String[] { 
-						"J"+item.getJobId().intValue(),
+						"J"+item.getJobId().intValue() + " (<a href=/wasp/sampleDnaToLibrary/listJobSamples/"+item.getJobId()+".do>details</a>)",
 						item.getName(),
 						String.format("%.2f", amount),
 						user.getNameFstLst(), 

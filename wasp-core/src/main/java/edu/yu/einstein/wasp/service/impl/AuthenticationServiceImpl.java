@@ -190,6 +190,22 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		}
 		return false;
 	}
+	
+	@Override
+	public boolean isOnlyDepartmentAdministrator() {
+		boolean isDA = false;
+		boolean isFacilityMemberOtherThanDA = false;
+		for (String role: this.getRoles()){
+			if (role.equals("da-*")){
+				isDA = true;
+			}
+			if (role.equals("su") || role.equals("fm") || role.equals("ft") || role.equals("sa") || role.equals("ga")){
+				isFacilityMemberOtherThanDA = true;
+			}
+		}
+		if(isDA == true && isFacilityMemberOtherThanDA == false){return true;}
+		return false;
+	}
 		
 	@Override
 	public boolean authenticate(String name, String password){
