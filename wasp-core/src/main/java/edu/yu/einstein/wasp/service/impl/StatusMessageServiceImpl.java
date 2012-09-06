@@ -36,10 +36,12 @@ public class StatusMessageServiceImpl extends WaspServiceImpl implements StatusM
 	 */
 	public <T extends MetaBase> T save(String key, String value, Integer modelParentId, Class<T> clazz, WaspDao<T> dao) throws StatusMetaMessagingException{
 		String parentClassName = StringUtils.substringBefore(clazz.getSimpleName(), "Meta");
+		String modelParentIdEntityName = WordUtils.uncapitalize(parentClassName) + "Id";
 		String modelParentIdEntityIdSetterMethodName = "set" + parentClassName + "Id";
 		
 		T meta = getMetaForStatusMessageKey(key, modelParentId, clazz, dao); // get existing if present
 		if (meta == null){
+			logger.debug("Metadata doesn't exist for current message key '" + key + "' and " + modelParentIdEntityName + "=" + modelParentId + ". Creating new instance.");
 			try {
 				meta = clazz.newInstance(); // get an instance of class'clazz' via reflection 
 			} catch (Exception e) {
@@ -48,12 +50,14 @@ public class StatusMessageServiceImpl extends WaspServiceImpl implements StatusM
 			
 			// use reflection to invoke method to set the id of the parent model object (UserId to UserMeta or JobId to JobMeta etc) at runtime
 			try {
-				clazz.getMethod(modelParentIdEntityIdSetterMethodName).invoke(meta, modelParentId);
+				clazz.getMethod(modelParentIdEntityIdSetterMethodName, Integer.class).invoke(meta, modelParentId);
 			} catch (Exception e) {
 				throw new StatusMetaMessagingException("Problem invoking method '" + modelParentIdEntityIdSetterMethodName + "'on instance of class '"+ clazz.getName()+"' ", e);
 			}
 			
 			meta.setK(key);
+		} else {
+			logger.debug("Metadata already exists for current message key '" + key + "' and " + modelParentIdEntityName + "=" + modelParentId + ". Updating with new value.");
 		}
 		
 		meta.setV(value);
