@@ -1269,10 +1269,14 @@ public class PlatformUnitController extends WaspController {
 		MetaHelperWebapp metaHelperWebapp = getMetaHelperWebappPlatformUnitInstance();
 		metaHelperWebapp.getFromRequest(request, SampleMeta.class);
 		metaHelperWebapp.validate(result);
-		//List<SampleMeta> smList = (List<SampleMeta>)metaHelperWebapp.getMetaList();
-		//for(SampleMeta sm : smList){
-		//	System.out.println(sm.getK() + " = " + sm.getV());
-		//}
+		Integer numberOfLanes = new Integer(0);
+		List<SampleMeta> smList = (List<SampleMeta>)metaHelperWebapp.getMetaList();
+		for(SampleMeta sm : smList){
+			//System.out.println(sm.getK() + " = " + sm.getV());
+			if(sm.getK().indexOf("lanecount") > -1){
+				numberOfLanes = Integer.valueOf(sm.getV());
+			}
+		}
 		
 		if (! result.hasFieldErrors("name")){
 			try{
@@ -1358,6 +1362,34 @@ public class PlatformUnitController extends WaspController {
 		sampleBarcode.setSampleId(platformUnitDb.getSampleId());
 		this.sampleBarcodeDao.save(sampleBarcode);
 
+		//create the lanes
+		Integer sampleTypeId = sampleTypeDao.getSampleTypeByIName("cell").getSampleTypeId();
+		for (int i = 0; i < numberOfLanes.intValue(); i++) {
+			
+			 Sample cell = new Sample();
+			 cell.setSubmitterLabId(platformUnitDb.getSubmitterLabId());
+			 cell.setSubmitterUserId(platformUnitDb.getSubmitterUserId());
+			 cell.setName(platformUnitDb.getName()+"/"+(i+1));
+			 cell.setSampleTypeId(sampleTypeId);
+			 cell.setIsGood(1);
+			 cell.setIsActive(1);
+			 cell.setIsReceived(1);
+			 cell.setReceiverUserId(platformUnitDb.getSubmitterUserId());
+			 cell.setReceiveDts(new Date());
+			 Sample cellDb = this.sampleDao.save(cell);
+			 
+			 SampleSource sampleSource = new SampleSource();
+			 sampleSource.setSampleId(platformUnitDb.getSampleId());
+			 sampleSource.setSourceSampleId(cellDb.getSampleId());
+			 sampleSource.setIndex(i+1);
+			 this.sampleSourceDao.save(sampleSource);
+			 
+		 }
+		
+		
+		
+		
+		
 		
 /*		
 		List<SampleMeta> mySampleMeta = new ArrayList<SampleMeta>();//platformUnitDb.getSampleMeta();
