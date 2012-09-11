@@ -1269,18 +1269,10 @@ public class PlatformUnitController extends WaspController {
 		MetaHelperWebapp metaHelperWebapp = getMetaHelperWebappPlatformUnitInstance();
 		metaHelperWebapp.getFromRequest(request, SampleMeta.class);
 		metaHelperWebapp.validate(result);
-/*		
-		String barcodeName = null;
-		List<SampleMeta> smList = (List<SampleMeta>) metaHelperWebapp.getMetaList();
-		for(SampleMeta sm : smList){
-			if(sm.getK().equals(metaHelperWebapp.getArea()+".barcode")){
-				barcodeName = new String(sm.getV());
-			}
-		}
-		//String robert = metaHelperWebapp.get.getMetaValueByName("platformunitInstance.barcode");
-		//System.out.println("robert = " + robert);
-		//NEED CHECKING HERE!!!!!!!!!!!!
-*/
+		//List<SampleMeta> smList = (List<SampleMeta>)metaHelperWebapp.getMetaList();
+		//for(SampleMeta sm : smList){
+		//	System.out.println(sm.getK() + " = " + sm.getV());
+		//}
 		
 		if (! result.hasFieldErrors("name")){
 			try{
@@ -1296,9 +1288,7 @@ public class PlatformUnitController extends WaspController {
 			}				
 		}
 		boolean barcodeErrorExists = false;
-		System.out.println("barcode = " + barcode);
 		if(barcode==null || "".equals(barcode)){
-			System.out.println("barcode is empty");
 			m.put("barcodeError", "Barcode cannot be empty");
 			barcodeErrorExists = true;
 		}
@@ -1315,33 +1305,10 @@ public class PlatformUnitController extends WaspController {
 			}
 		}
 		
+		//if(resourceCategoryAndSampleSubtypeAreIncompatible(resourceCategoryId, sampleSubtypeId)){
+		//must check
 		
-		
-		
-/*		if (! result.hasFieldErrors("barcode") && barcodeName != null){
-			try{System.out.println("2.barcodeName = " + barcodeName);
-				if(sampleService.platformUnitBarcodeNameExists(barcodeName)==true){
-					System.out.println("3 barcodeName = " + barcodeName);
-					Errors errors=new BindException(result.getTarget(), metaHelperWebapp.getParentArea());
-					System.out.println("4 barcodeName = " + barcodeName);
-					errors.rejectValue("sampleMeta_platformunitInstance.barcode", metaHelperWebapp.getArea()+".barcode_exists.error", metaHelperWebapp.getArea()+".barcode_exists.error");
-					System.out.println("5 barcodeName = " + barcodeName);
-					//result.addAllErrors(errors);
-					System.out.println("6 barcodeName = " + barcodeName);
-				}
-			}catch(SampleTypeException e){
-				System.out.println("in the exception");
-					//Errors errors=new BindException(result.getTarget(), metaHelperWebapp.getArea());
-					//errors.rejectValue("barcode", metaHelperWebapp.getArea()+".barcode_exists.error", metaHelperWebapp.getArea()+".barcode_exists.error");
-					//result.addAllErrors(errors);
-			}				
-		}
-	*/	
-		
-		System.out.println("name = " + platformunitInstance.getName());
-		/* System.out.println("barcodeName = " + barcodeName); */
 		if (result.hasErrors() || barcodeErrorExists == true){
-			System.out.println("result has error");
 			
 			m.put("resourceCategoryId", resourceCategoryId);
 			m.put("sampleSubtypeId", sampleSubtypeId);
@@ -1353,35 +1320,14 @@ public class PlatformUnitController extends WaspController {
 			prepareSelectListDataByResourceCategory(m, resourceCategoryDao.findById(resourceCategoryId));
 			prepareSelectListDataBySampleSubtype(m, sampleSubtypeDao.findById(sampleSubtypeId));
 			
-			////////userPendingForm.setUserPendingMeta((List<UserPendingMeta>) userPendingMetaHelperWebapp.getMetaList());
 			platformunitInstance.setSampleMeta((List<SampleMeta>) metaHelperWebapp.getMetaList());
 			///m.addAttribute(metaHelperWebapp.getArea(), platformunitInstance);
-			return "facility/platformunit/createUpdatePlatformUnit";
-			
+			return "facility/platformunit/createUpdatePlatformUnit";			
 		}
-		else if (!result.hasErrors()){
-			System.out.println("result has NO errors");
-		}
-/*			
-		List<Sample> existingPlatformUnits = sampleDao.findAllPlatformUnits();
-		for(Sample pu : existingPlatformUnits){
-			if(pu.getName().compareToIgnoreCase(name)==0){
-				waspErrorMessage("platformunitInstance.name_exists.error");
-				return "redirect:/facility/platformunit/createUpdatePlatformUnit.do?resourceCategoryId="+resourceCategoryId.toString()+"&sampleSubtypeId="+sampleSubtypeId.toString();
-			}
-			List<SampleBarcode> sampleBarcodeList = pu.getSampleBarcode();
-			for(SampleBarcode sb : sampleBarcodeList){
-				if(sb.getBarcode().getBarcode().compareToIgnoreCase(barcode)==0){
-					waspErrorMessage("platformunitInstance.barcode_exists.error");
-					return "redirect:/facility/platformunit/createUpdatePlatformUnit.do?resourceCategoryId="+resourceCategoryId.toString()+"&sampleSubtypeId="+sampleSubtypeId.toString();
-				}
-			}
-		}
-		
+		//save new platformunti
 		Sample platformUnit = new Sample();
-		SampleType sampleType = sampleTypeDao.getSampleTypeByIName("platformunit");
 		
-		platformUnit.setName(name);
+		platformUnit.setName(platformunitInstance.getName());
 		
 		User me = authenticationService.getAuthenticatedUser();
 		platformUnit.setSubmitterUserId(me.getUserId());
@@ -1398,28 +1344,26 @@ public class PlatformUnitController extends WaspController {
 		platformUnit.setIsGood(1);//Ed
 		
 		Sample platformUnitDb = sampleDao.save(platformUnit);
-		
-		SampleBarcode sampleBarcode = new SampleBarcode();
-		Barcode barcodeObject = new Barcode();
-		
+		//save the metadata
+		sampleMetaDao.updateBySampleId(platformUnitDb.getSampleId(), (List<SampleMeta>)metaHelperWebapp.getMetaList()); // now we get the list and persist it
+
+		//save the barcode
+		Barcode barcodeObject = new Barcode();		
 		barcodeObject.setBarcode(barcode);
 		barcodeObject.setIsActive(new Integer(1));
-
-		sampleBarcode.setBarcode(barcodeObject);
-		
 		Barcode barcodeDB = this.barcodeDao.save(barcodeObject);//save new barcode in db
+		
+		SampleBarcode sampleBarcode = new SampleBarcode();	
 		sampleBarcode.setBarcodeId(barcodeDB.getBarcodeId()); // set new barcodeId in samplebarcode
-
 		sampleBarcode.setSampleId(platformUnitDb.getSampleId());
 		this.sampleBarcodeDao.save(sampleBarcode);
 
 		
-		
+/*		
 		List<SampleMeta> mySampleMeta = new ArrayList<SampleMeta>();//platformUnitDb.getSampleMeta();
 		MetaHelperWebapp sampleMetaHelper = getMetaHelperWebappPlatformUnitInstance();
 		sampleMetaHelper.syncWithMaster(mySampleMeta);
 		try {
-			sampleMetaHelper.setMetaValueByName("barcode", barcode);
 			sampleMetaHelper.setMetaValueByName("readlength", readLength.toString());
 			sampleMetaHelper.setMetaValueByName("readType", readType.toString());
 			sampleMetaHelper.setMetaValueByName("lanecount", numberOfLanes.toString());
@@ -1428,14 +1372,15 @@ public class PlatformUnitController extends WaspController {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} // set a value for a member of the list by name
-		sampleMetaDao.updateBySampleId(platformUnitDb.getSampleId(), (List<SampleMeta>) sampleMetaHelper.getMetaList()); // now we get the list and persist it
 
+		//sampleMetaDao.updateBySampleId(platformUnitDb.getSampleId(), (List<SampleMeta>)metaHelperWebapp.getMetaList()); // now we get the list and persist it
+*/
 		//createUpdateCell(platformUnitDb, numberOfLanes, platformUnitDb.getSampleId());
 		//createState(platformUnitDb.getSampleId(), platformUnitDb);
 		
 		//return "redirect:/facility/platformunit/ok";
 		 
-		 */
+		 
 		return "redirect:/dashboard.do"; 
 	}
 	
