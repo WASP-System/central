@@ -1094,6 +1094,15 @@ public class PlatformUnitController extends WaspController {
 
 	}
 
+
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	private List<ResourceCategory> getResourceCategoriesForMPS(){
 		
@@ -1385,36 +1394,20 @@ public class PlatformUnitController extends WaspController {
 			 this.sampleSourceDao.save(sampleSource);
 			 
 		 }
-		
-		
-		
-		
-		
-		
-/*		
-		List<SampleMeta> mySampleMeta = new ArrayList<SampleMeta>();//platformUnitDb.getSampleMeta();
-		MetaHelperWebapp sampleMetaHelper = getMetaHelperWebappPlatformUnitInstance();
-		sampleMetaHelper.syncWithMaster(mySampleMeta);
-		try {
-			sampleMetaHelper.setMetaValueByName("readlength", readLength.toString());
-			sampleMetaHelper.setMetaValueByName("readType", readType.toString());
-			sampleMetaHelper.setMetaValueByName("lanecount", numberOfLanes.toString());
-			sampleMetaHelper.setMetaValueByName("comments", comments);
-		} catch (MetadataException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} // set a value for a member of the list by name
-
-		//sampleMetaDao.updateBySampleId(platformUnitDb.getSampleId(), (List<SampleMeta>)metaHelperWebapp.getMetaList()); // now we get the list and persist it
-*/
-		//createUpdateCell(platformUnitDb, numberOfLanes, platformUnitDb.getSampleId());
-		//createState(platformUnitDb.getSampleId(), platformUnitDb);
-		
-		//return "redirect:/facility/platformunit/ok";
-		 
 		 
 		return "redirect:/dashboard.do"; 
 	}
+	
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	
