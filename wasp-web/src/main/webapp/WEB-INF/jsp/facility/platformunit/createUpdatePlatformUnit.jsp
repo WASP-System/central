@@ -1,6 +1,8 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 <br />
-<h2>CREATE NEW FLOW CELL</h2>
+<title><fmt:message key="pageTitle.facility/platformunit/createUpdatePlatformUnit.label"/></title>
+<h1><fmt:message key="pageTitle.facility/platformunit/createUpdatePlatformUnit.label"/></h1>
+ 
 <table class="EditTable ui-widget ui-widget-content">
 <tr class="FormData">
 	<td class="CaptionTD">Choose A Machine:</td>

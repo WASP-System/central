@@ -1,6 +1,7 @@
 package edu.yu.einstein.wasp.controller;
 
 import java.text.DateFormat;
+import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -68,12 +69,15 @@ import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.exception.SampleMultiplexException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
+import edu.yu.einstein.wasp.model.AcctJobquotecurrent;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Adaptorset;
 import edu.yu.einstein.wasp.model.Barcode;
 import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
 import edu.yu.einstein.wasp.model.JobSample;
+import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.Resource;
 import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.ResourceCategoryMeta;
@@ -102,6 +106,7 @@ import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 import edu.yu.einstein.wasp.util.MetaHelper;
+import edu.yu.einstein.wasp.util.StringHelper;
 
 
 
@@ -259,6 +264,292 @@ public class PlatformUnitController extends WaspController {
 		
 		return "facility/platformunit/list";
 	}
+	
+	
+	
+	
+	
+	
+	
+	@RequestMapping(value="/listJSON_DUBINTEST", method=RequestMethod.GET)
+	public String getListJSON(HttpServletResponse response) {
+		
+		Map <String, Object> jqgrid = new HashMap<String, Object>();
+		
+		//Parameters coming from the jobGrid
+		String sord = request.getParameter("sord");//grid is set so that this always has a value
+		String sidx = request.getParameter("sidx");//grid is set so that this always has a value
+		String search = request.getParameter("_search");//from grid (will return true or false, depending on the toolbar's parameters)
+		//System.out.println("sidx = " + sidx);System.out.println("sord = " + sord);System.out.println("search = " + search);
+
+		//Parameters coming from grid's toolbar
+		//The jobGrid's toolbar's is it's search capability. The toolbar's attribute stringResult is currently set to false, 
+		//meaning that each parameter on the toolbar is sent as a key:value pair
+		//If stringResult = true, the parameters containing values would have been sent as a key named filters in JSON format 
+		//see http://www.trirand.com/jqgridwiki/doku.php?id=wiki:toolbar_searching
+		//below we capture parameters on job grid's search toolbar by name (key:value).
+		String nameFromGrid = request.getParameter("name")==null?null:request.getParameter("name").trim();//if not passed, jobIdAsString will be null
+		String barcodeFromGrid = request.getParameter("barcode")==null?null:request.getParameter("barcode").trim();//if not passed, will be null
+		String sampleSubtypeNameFromGrid = request.getParameter("sampleSubtypeName")==null?null:request.getParameter("sampleSubtypeName").trim();//if not passed, will be null
+		String readTypeFromGrid = request.getParameter("readType")==null?null:request.getParameter("readType").trim();//if not passed, will be null
+		String readlengthFromGrid = request.getParameter("readlength")==null?null:request.getParameter("readlength").trim();//if not passed, will be null
+		String lanecountFromGrid = request.getParameter("lanecount")==null?null:request.getParameter("lanecount").trim();//if not passed, will be null
+		String dateFromGridAsString = request.getParameter("date")==null?null:request.getParameter("date").trim();//if not passed, will be null
+		//System.out.println("nameFromGrid = " + nameFromGrid);System.out.println("barcodeFromGrid = " + barcodeFromGrid);
+		//System.out.println("sampleSubtypeNameFromGrid = " + sampleSubtypeNameFromGrid); 
+		//System.out.println("readTypeFromGrid = " + readTypeFromGrid);System.out.println("readlengthFromGrid = " + readlengthFromGrid);
+		//System.out.println("lanecountFromGrid = " + lanecountFromGrid);System.out.println("dateFromGridAsString = " + dateFromGridAsString);
+		
+		List<Sample> tempPlatformUnitList =  new ArrayList<Sample>();
+		List<Sample> platformUnitsFoundInSearch = new ArrayList<Sample>();//not currently used
+		List<Sample> platformUnitList = new ArrayList<Sample>();
+		
+		Date dateFromGridAsDate = null;
+		if(dateFromGridAsString != null){//this is MM/dd/yyyy coming from grid
+			DateFormat formatter;
+			formatter = new SimpleDateFormat("MM/dd/yyyy");
+			try{				
+				dateFromGridAsDate = (Date)formatter.parse(dateFromGridAsString); 
+			}
+			catch(Exception e){ 
+				dateFromGridAsDate = new Date(0);//fake it; parameter of 0 sets date to 01/01/1970 which is NOT in this database. So result set will be empty
+			}
+		}		
+		
+		Map queryMap = new HashMap();
+		queryMap.put("sampleType.iName", "platformunit");//restrict to platformUnit
+		//deal with those attributes that can be searched for directly in table sample (sample.name and sample.sampleSubtype)
+		if(nameFromGrid != null){
+			queryMap.put("name", nameFromGrid);//and restrict to the passed name
+		}
+		if(sampleSubtypeNameFromGrid != null){
+			queryMap.put("sampleSubtype.name", sampleSubtypeNameFromGrid);//and restrict to the passed sampleSubtypeName
+		}
+		
+		List<String> orderByColumnNames = new ArrayList<String>();
+		orderByColumnNames.add("sampleId");
+		String direction = "desc";
+		tempPlatformUnitList = sampleDao.findByMapDistinctOrderBy(queryMap, null, orderByColumnNames, direction);			
+		
+		if(barcodeFromGrid != null || readTypeFromGrid != null || readlengthFromGrid != null || lanecountFromGrid != null || dateFromGridAsDate != null){
+			
+			if(barcodeFromGrid != null){
+				for(Sample sample : tempPlatformUnitList){
+					List<SampleBarcode> sbList = sample.getSampleBarcode();
+					if(sbList.get(0).getBarcode().getBarcode().equalsIgnoreCase(barcodeFromGrid)){
+						platformUnitsFoundInSearch.add(sample);
+					}
+				}
+				tempPlatformUnitList.retainAll(platformUnitsFoundInSearch);
+				platformUnitsFoundInSearch.clear();
+			}			
+			if(readTypeFromGrid != null){
+				for(Sample sample : tempPlatformUnitList){
+					List<SampleMeta> sampleMetaList = sample.getSampleMeta();
+					for(SampleMeta sm : sampleMetaList){
+						if(sm.getK().indexOf("readType") > -1){
+							if(sm.getV().equalsIgnoreCase(readTypeFromGrid)){
+								platformUnitsFoundInSearch.add(sample);
+							}
+							break;//out of inner for loop
+						}
+					}					
+				}
+				tempPlatformUnitList.retainAll(platformUnitsFoundInSearch);
+				platformUnitsFoundInSearch.clear();
+			}			
+			if(readlengthFromGrid != null){
+				for(Sample sample : tempPlatformUnitList){
+					List<SampleMeta> sampleMetaList = sample.getSampleMeta();
+					for(SampleMeta sm : sampleMetaList){
+						if(sm.getK().indexOf("readlength") > -1){
+							if(sm.getV().equalsIgnoreCase(readlengthFromGrid)){//remember both readlengthFromGrid and the metadata value are strings (in this case, they are string representations of numbers)
+								platformUnitsFoundInSearch.add(sample);
+							}
+							break;
+						}
+					}					
+				}
+				tempPlatformUnitList.retainAll(platformUnitsFoundInSearch);
+				platformUnitsFoundInSearch.clear();
+			}			
+			if(lanecountFromGrid != null){
+				for(Sample sample : tempPlatformUnitList){
+					List<SampleMeta> sampleMetaList = sample.getSampleMeta();
+					for(SampleMeta sm : sampleMetaList){
+						if(sm.getK().indexOf("lanecount") > -1){
+							if(sm.getV().equalsIgnoreCase(lanecountFromGrid)){//remember both readlengthFromGrid and the metadata value are strings (in this case, they are string representations of numbers)
+								platformUnitsFoundInSearch.add(sample);
+							}
+							break;
+						}
+					}					
+				}
+				tempPlatformUnitList.retainAll(platformUnitsFoundInSearch);
+				platformUnitsFoundInSearch.clear();
+			}			
+			if(dateFromGridAsDate != null){
+				SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+				String dateToSearchFor = formatter.format(dateFromGridAsDate);
+				for(Sample sample : tempPlatformUnitList){
+					if(formatter.format(sample.getReceiveDts()).equals(dateToSearchFor)){
+						platformUnitsFoundInSearch.add(sample);
+					}
+				}
+				tempPlatformUnitList.retainAll(platformUnitsFoundInSearch);
+				platformUnitsFoundInSearch.clear();
+			}
+		}
+		
+		platformUnitList.addAll(tempPlatformUnitList);
+		
+		//finally deal with sorting
+		if(sidx != null && !sidx.isEmpty() && sord != null && !sord.isEmpty() ){
+			
+			boolean indexSorted = false;
+			
+			if(sidx.equals("name")){Collections.sort(platformUnitList, new SampleNameComparator()); indexSorted = true;}
+			else if(sidx.equals("sampleSubtypeName")){Collections.sort(platformUnitList, new SampleSubtypeNameComparator()); indexSorted = true;}
+			else if(sidx.equals("date")){Collections.sort(platformUnitList, new SampleReceiveDateComparator()); indexSorted = true;}
+			else if(sidx.equals("barcode")){Collections.sort(platformUnitList, new SampleBarcodeComparator()); indexSorted = true;}
+			else if(sidx.equals("readlength")){Collections.sort(platformUnitList, new SampleMetaIsIntegerComparator("readlength")); indexSorted = true;}//Collections.sort(platformUnitList, new SampleReadlengthComparator());
+			else if(sidx.equals("readType")){Collections.sort(platformUnitList, new SampleMetaIsStringComparator("readType")); indexSorted = true;}//Collections.sort(platformUnitList, new SampleReadlengthComparator());
+			else if(sidx.equals("lanecount")){Collections.sort(platformUnitList, new SampleMetaIsIntegerComparator("lanecount")); indexSorted = true;}//Collections.sort(platformUnitList, new SampleReadlengthComparator());
+
+			if(indexSorted == true && sord.equals("desc")){//must be last
+				Collections.reverse(platformUnitList);
+			}
+		}
+
+		//Format output for grid by pages
+		try {
+			int pageIndex = Integer.parseInt(request.getParameter("page"));		// index of page
+			int pageRowNum = Integer.parseInt(request.getParameter("rows"));	// number of rows in one page
+			int rowNum = platformUnitList.size();										// total number of rows
+			int pageNum = (rowNum + pageRowNum - 1) / pageRowNum;				// total number of pages
+			
+			jqgrid.put("records", rowNum + "");
+			jqgrid.put("total", pageNum + "");
+			jqgrid.put("page", pageIndex + "");
+			 
+			Map<String, String> userData=new HashMap<String, String>();
+			userData.put("page", pageIndex + "");
+			userData.put("selId",StringUtils.isEmpty(request.getParameter("selId"))?"":request.getParameter("selId"));
+			jqgrid.put("userdata",userData);
+					
+			List<Map> rows = new ArrayList<Map>();
+			
+			int frId = pageRowNum * (pageIndex - 1);
+			int toId = pageRowNum * pageIndex;
+			toId = toId <= rowNum ? toId : rowNum;
+
+			/* if the selId is set, change the page index to the one contains the selId */
+			if(!StringUtils.isEmpty(request.getParameter("selId")))
+			{
+				int selId = Integer.parseInt(request.getParameter("selId"));
+				int selIndex = platformUnitList.indexOf(jobDao.findById(selId));
+				frId = selIndex;
+				toId = frId + 1;
+
+				jqgrid.put("records", "1");
+				jqgrid.put("total", "1");
+				jqgrid.put("page", "1");
+			}				
+
+			List<Sample> samplePage = platformUnitList.subList(frId, toId);
+			for (Sample sample : samplePage) {
+				Map cell = new HashMap();
+				cell.put("id", sample.getSampleId());
+				 
+				List<SampleMeta> sampleMetaList = getMetaHelperWebappPlatformUnitInstance().syncWithMaster(sample.getSampleMeta());
+				String readlength = "";
+				String readType = "";
+				String lanecount = "";
+				String comment = "";
+				for(SampleMeta sm : sampleMetaList){
+					if( sm.getK().indexOf("readlength") > -1 ){
+						readlength = sm.getV();
+					}
+					if( sm.getK().indexOf("readType") > -1 ){
+						readType = sm.getV();
+					}
+					if( sm.getK().indexOf("lanecount") > -1 ){
+						lanecount = sm.getV();
+					}
+					if( sm.getK().indexOf("comment") > -1 ){
+						comment = sm.getV();
+					}
+				}
+				
+				String barcode = "";
+				List<SampleBarcode> sampleBarcodeList = sample.getSampleBarcode();
+				if(sampleBarcodeList != null && sampleBarcodeList.size() > 0){
+					barcode = sampleBarcodeList.get(0).getBarcode().getBarcode();
+				}
+				
+				//User user = userDao.getById(job.getUserId());
+				Format formatter = new SimpleDateFormat("MM/dd/yyyy");	
+				//List<AcctJobquotecurrent> ajqcList = job.getAcctJobquotecurrent();
+				//float amount = ajqcList.isEmpty() ? 0 : ajqcList.get(0).getAcctQuote().getAmount();
+				
+				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
+							//"J" + job.getJobId().intValue() + " (<a =/wasp/sampleDnaToLibrary/listJobSamples/"+job.getJobId()+".do>details</a>)",
+							sample.getName() + " (<a href=/wasp/facility/platformunit/showPlatformUnit/"+sample.getSampleId()+".do>details</a>)",
+							barcode,
+							sample.getSampleSubtype()==null?"": sample.getSampleSubtype().getName(),
+							readType,
+							readlength,
+							lanecount,
+							formatter.format(sample.getReceiveDts()),//use in this case as record created date
+							//sample.getSampleSubtype().getName()
+							//user.getNameFstLst(),
+							//job.getLab().getName() + " (" + pi.getNameLstCmFst() + ")",
+							//job.getLab().getUser().getNameFstLst(),
+							//formatter.format(job.getCreatets()),
+							//String.format("%.2f", amount),
+							//"<a href=/wasp/"+job.getWorkflow().getIName()+"/viewfiles/"+job.getJobId()+".do>View files</a>"
+				}));
+				 
+				for (SampleMeta meta:sampleMetaList) {
+					cellList.add(meta.getV());
+				}				
+				 
+				cell.put("cell", cellList);				 
+				rows.add(cell);
+			}
+			 
+			jqgrid.put("rows",rows);
+			
+			return outputJSON(jqgrid, response); 	
+			 
+		} 
+		catch (Throwable e) {
+			throw new IllegalStateException("Can't marshall to JSON " + platformUnitList, e);
+		}	
+	}	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	/**
 	 * View platform unit by selId parameter
@@ -1395,7 +1686,7 @@ public class PlatformUnitController extends WaspController {
 			 
 		 }
 		 
-		return "redirect:/dashboard.do"; 
+		return "redirect:/facility/platformunit/list.do"; 
 	}
 	
 
@@ -2456,4 +2747,115 @@ class JobComparator implements Comparator<Job> {
     public int compare(Job arg0, Job arg1) {
     	return arg0.getJobId().compareTo(arg1.getJobId());
     }
+}
+class SampleNameComparator implements Comparator<Sample> {
+	@Override
+	public int compare(Sample arg0, Sample arg1) {
+		return arg0.getName().compareToIgnoreCase(arg1.getName());
+	}
+}
+class SampleSubtypeNameComparator implements Comparator<Sample> {
+	@Override
+	public int compare(Sample arg0, Sample arg1) {
+		return arg0.getSampleSubtype().getName().compareToIgnoreCase(arg1.getSampleSubtype().getName());
+	}
+}
+class SampleReceiveDateComparator implements Comparator<Sample> {
+	@Override
+	public int compare(Sample arg0, Sample arg1) {
+		return arg0.getReceiveDts().compareTo(arg1.getReceiveDts());
+	}
+}
+class SampleBarcodeComparator implements Comparator<Sample> {
+	@Override
+	public int compare(Sample arg0, Sample arg1) {
+		return arg0.getSampleBarcode().get(0).getBarcode().getBarcode().compareToIgnoreCase(arg1.getSampleBarcode().get(0).getBarcode().getBarcode());
+	}
+}
+
+class SampleMetaIsStringComparator implements Comparator<Sample> {
+	
+	String metaKey;
+	
+	SampleMetaIsStringComparator(String metaKey){
+		this.metaKey = new String(metaKey);
+	}
+	@Override
+	public int compare(Sample arg0, Sample arg1) {
+		
+		String metaValue0 = null;
+		String metaValue1 = null;
+		
+		List<SampleMeta> metaList0 = arg0.getSampleMeta();
+		for(SampleMeta sm : metaList0){
+			if(sm.getK().indexOf(metaKey) > -1){
+				metaValue0 = new String(sm.getV());
+				break;
+			}
+		}		
+		
+		List<SampleMeta> metaList1 = arg1.getSampleMeta();
+		for(SampleMeta sm : metaList1){
+			if(sm.getK().indexOf(metaKey) > -1){
+				metaValue1 = new String(sm.getV());
+				break;
+			}
+		}
+		
+		if(metaValue0==null){metaValue0=new String("");} 
+		if(metaValue1==null){metaValue1=new String("");}
+		
+		return metaValue0.compareToIgnoreCase(metaValue1);
+	}
+}
+class SampleMetaIsIntegerComparator implements Comparator<Sample> {
+	
+	String metaKey;
+	
+	SampleMetaIsIntegerComparator(String metaKey){
+		this.metaKey = new String(metaKey);
+	}
+	@Override
+	public int compare(Sample arg0, Sample arg1) {
+		
+		String metaValue0 = null;
+		String metaValue1 = null;
+		
+		List<SampleMeta> metaList0 = arg0.getSampleMeta();
+		for(SampleMeta sm : metaList0){
+			if(sm.getK().indexOf(metaKey) > -1){
+				metaValue0 = new String(sm.getV());
+				break;
+			}
+		}		
+		
+		List<SampleMeta> metaList1 = arg1.getSampleMeta();
+		for(SampleMeta sm : metaList1){
+			if(sm.getK().indexOf(metaKey) > -1){
+				metaValue1 = new String(sm.getV());
+				break;
+			}
+		}
+		
+		if(metaValue0==null){metaValue0=new String("0");} 
+		if(metaValue1==null){metaValue1=new String("0");}
+		
+		Integer metaIntegerValue0;
+		try{
+			metaIntegerValue0 = Integer.valueOf(metaValue0);
+		}
+		catch(NumberFormatException e){
+			metaIntegerValue0 = new Integer(0);
+		}
+		Integer metaIntegerValue1;
+		try{
+			metaIntegerValue1 = Integer.valueOf(metaValue1);
+		}
+		catch(NumberFormatException e){
+			metaIntegerValue1 = new Integer(0);
+		}
+		
+		return metaIntegerValue0.compareTo(metaIntegerValue1);
+
+	}
 }

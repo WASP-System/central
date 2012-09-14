@@ -6,8 +6,10 @@ package edu.yu.einstein.wasp.controller;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -23,14 +25,23 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import edu.yu.einstein.wasp.dao.UserMetaDao;
 import edu.yu.einstein.wasp.dao.UserPendingMetaDao;
+import edu.yu.einstein.wasp.model.Barcode;
 import edu.yu.einstein.wasp.model.Department;
 import edu.yu.einstein.wasp.model.MetaBase;
+import edu.yu.einstein.wasp.model.ResourceCategory;
+import edu.yu.einstein.wasp.model.ResourceCategoryMeta;
+import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.SampleBarcode;
+import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.dao.LabDao;
 import edu.yu.einstein.wasp.dao.JobDao;
 import edu.yu.einstein.wasp.dao.DepartmentDao;
+import edu.yu.einstein.wasp.dao.ResourceCategoryDao;
+import edu.yu.einstein.wasp.dao.SampleDao;
+import edu.yu.einstein.wasp.dao.SampleSubtypeDao;
 import edu.yu.einstein.wasp.service.FilterService;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 
@@ -60,6 +71,15 @@ public class AutoCompleteController extends WaspController{
 
 	@Autowired
 	private DepartmentDao departmentDao;
+
+	@Autowired
+	private ResourceCategoryDao resourceCategoryDao;
+
+	@Autowired
+	private SampleDao sampleDao;
+	
+	@Autowired
+	private SampleSubtypeDao sampleSubtypeDao;
 
 	@Autowired
 	private FilterService filterService;
@@ -403,4 +423,132 @@ public class AutoCompleteController extends WaspController{
 	      return jsonString;                
 	  }
 	  
+		/**
+	   * Obtains a json message containing list of ALL platformUnit names"
+	   * Order ascending
+	   * Used to populate a JQuery autocomplete managed input box
+	   * @param str
+	   * @return json message
+	   */
+	  @RequestMapping(value="/getPlatformUnitNamesForDisplay", method=RequestMethod.GET)
+	  public @ResponseBody String getAllPlatformUnitNames(@RequestParam String str) {
+		  
+		  Map queryMap = new HashMap();
+		  queryMap.put("sampleType.iName", "platformunit");//restrict to platformUnit
+		  List<String> orderByColumnNames = new ArrayList<String>();
+		  orderByColumnNames.add("name");
+		  String direction = "asc";
+		  List<Sample> sampleList = sampleDao.findByMapDistinctOrderBy(queryMap, null, orderByColumnNames, direction);
+			
+	      String jsonString = new String();
+	      jsonString = jsonString + "{\"source\": [";
+	      for (Sample s: sampleList){
+	      	 if(s.getName().indexOf(str) > -1){//note: if str equals "", this, perhaps unexpectedly, evaluates to true
+	       		 jsonString = jsonString + "\""+ s.getName()+"\",";
+	       	 }
+	      }
+	      jsonString = jsonString.replaceAll(",$", "") + "]}";
+	      return jsonString;                
+	  }
+	  
+		/**
+	   * Obtains a json message containing list of ALL platformUnit barcodes"
+	   * Order ascending
+	   * Used to populate a JQuery autocomplete managed input box
+	   * @param str
+	   * @return json message
+	   */
+	  @RequestMapping(value="/getPlatformUnitBarcodesForDisplay", method=RequestMethod.GET)
+	  public @ResponseBody String getAllPlatformUnitBarcodes(@RequestParam String str) {
+		  
+		  List<Sample> sampleList = sampleDao.findAllPlatformUnits();
+		  List<String> platformUnitBarcodeList = new ArrayList<String>();
+		  for(Sample s : sampleList){
+			  List<SampleBarcode> sbList = s.getSampleBarcode();
+			  if(sbList != null && sbList.size()>0){
+				  platformUnitBarcodeList.add(sbList.get(0).getBarcode().getBarcode());
+			  }			  
+		  }
+		  Collections.sort(platformUnitBarcodeList);
+		  
+	      String jsonString = new String();
+	      jsonString = jsonString + "{\"source\": [";
+	      for (String barcodeAsString : platformUnitBarcodeList){
+	      	 if(barcodeAsString.indexOf(str) > -1){//note: if str equals "", this, perhaps unexpectedly, evaluates to true
+	       		 jsonString = jsonString + "\""+ barcodeAsString +"\",";
+	       	 }
+	      }
+	      jsonString = jsonString.replaceAll(",$", "") + "]}";
+	      return jsonString;                
+	  }
+	  
+		/**
+	   * Obtains a json message containing list of ALL platformUnit samplesubtypes (such as Illumina Flow Cell Version 3)"
+	   * Order ascending
+	   * Used to populate a JQuery autocomplete managed input box
+	   * @param str
+	   * @return json message
+	   */
+	  @RequestMapping(value="/getPlatformUnitSubtypesForDisplay", method=RequestMethod.GET)
+	  public @ResponseBody String getAllPlatformUnitSubtypes(@RequestParam String str) {
+		  
+		  Map queryMap = new HashMap();
+		  queryMap.put("sampleType.iName", "platformunit");
+		  List<String> orderByList = new ArrayList<String>();
+		  orderByList.add("name");
+		  List<SampleSubtype> sampleSubtypeList = sampleSubtypeDao.findByMapDistinctOrderBy(queryMap, null, orderByList, "asc");  
+		  
+	      String jsonString = new String();
+	      jsonString = jsonString + "{\"source\": [";
+	      for (SampleSubtype ss : sampleSubtypeList){
+	      	 if(ss.getName().indexOf(str) > -1){//note: if str equals "", this, perhaps unexpectedly, evaluates to true
+	       		 jsonString = jsonString + "\""+ ss.getName() +"\",";
+	       	 }
+	      }
+	      jsonString = jsonString.replaceAll(",$", "") + "]}";
+	      return jsonString;                
+	  }
+	  
+		/**
+	   * Obtains a json message containing list of ALL platformUnit readTypes (distinct list; such as single and paired)"
+	   * Order ascending
+	   * Used to populate a JQuery autocomplete managed input box
+	   * @param str
+	   * @return json message
+	   */
+	  @RequestMapping(value="/getReadTypesForDisplay", method=RequestMethod.GET)
+	  public @ResponseBody String getAllReadTypes(@RequestParam String str) {
+		  
+		  Map queryMap = new HashMap();
+		  queryMap.put("resourceType.iName", "mps");
+		  List<ResourceCategory> resourceCategoryList = resourceCategoryDao.findByMap(queryMap); 
+
+		  Set<String> readTypeSet = new HashSet<String>();//for adding distinct character to list
+	      
+		  for(ResourceCategory rc : resourceCategoryList){
+			  List<ResourceCategoryMeta> resourceCategoryMetaList = rc.getResourceCategoryMeta();
+			  for(ResourceCategoryMeta rcm : resourceCategoryMetaList){
+				  if(rcm.getK().indexOf("readType") > -1){
+					  String[] tokens = rcm.getV().split(";");//rcm.getV() will be single:single;paired:paired
+					  for(String token : tokens){//token could be single:single
+						  String[] colonTokens = token.split(":");
+						  readTypeSet.add(colonTokens[0]);
+					  }
+					  break;
+				  }	      		 
+			  }
+	      }
+	      List<String> readTypeList = new ArrayList<String>(readTypeSet);
+	      Collections.sort(readTypeList);
+	      
+	      String jsonString = new String();
+	      jsonString = jsonString + "{\"source\": [";
+	      for (String readType : readTypeList){
+	      	 if(readType.indexOf(str) > -1){//note: if str equals "", this, perhaps unexpectedly, evaluates to true
+	       		 jsonString = jsonString + "\""+ readType +"\",";
+	       	 }
+	      }
+	      jsonString = jsonString.replaceAll(",$", "") + "]}";
+	      return jsonString;                 
+	  }
 }
