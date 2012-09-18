@@ -104,6 +104,25 @@ $(document).ready(function() {
 					}
 				}
 			});
+	
+	jQuery("#grid_id").jqGrid('setColProp', 'resourceCategoryName',
+			{
+				search:true,
+				sopt:['eq'],
+				searchoptions: {
+					dataInit: function(elem) {	
+						setTimeout(
+							function(){ 
+								$.getJSON("/wasp/autocomplete/getMpsResourceCategoryNamesForDisplay.do", 
+								{ str: "" }, 
+								function(data) { 
+									jQuery(elem).autocomplete(data);
+								} );
+							}, 200
+						);
+					}
+				}
+			});
 
 	jQuery("#grid_id").jqGrid('setColProp', 'readlength',
 			{
@@ -173,6 +192,7 @@ jQuery("#grid_id").jqGrid('navButtonAdd','#gridpager',{caption:"",title:"Search"
 
 //navigate to page to add a new platform unit 
 jQuery("#grid_id").jqGrid('navButtonAdd','#gridpager',{caption:"", position: "first", title:"New", buttonicon :'ui-icon-plus', onClickButton:function(){ location.href="/wasp/facility/platformunit/createUpdatePlatformUnit.do?resourceCategoryId=0&sampleSubtypeId=0"; } }); 
+
 
 
 });//end document.ready() 

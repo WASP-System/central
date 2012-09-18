@@ -551,4 +551,34 @@ public class AutoCompleteController extends WaspController{
 	      jsonString = jsonString.replaceAll(",$", "") + "]}";
 	      return jsonString;                 
 	  }
+	  
+		/**
+	   * Obtains a json message containing list of ALL resourceCategoryNames for resources of type "MPS" (list of names of types of sequencing machines, such as Illumina HiSeq2000)
+	   * Order ascending
+	   * Used to populate a JQuery autocomplete managed input box
+	   * @param str
+	   * @return json message
+	   */
+	  @RequestMapping(value="/getMpsResourceCategoryNamesForDisplay", method=RequestMethod.GET)
+	  public @ResponseBody String getAllMpsResourceCategories(@RequestParam String str) {
+		  
+		  Map queryMap = new HashMap();
+		  queryMap.put("resourceType.iName", "mps");
+		  List<ResourceCategory> resourceCategoryList = resourceCategoryDao.findByMap(queryMap); 
+		  List<String> resourceCategoryNameList = new ArrayList<String>();
+		  for(ResourceCategory rc : resourceCategoryList){
+			  resourceCategoryNameList.add(rc.getName());
+		  }
+	      Collections.sort(resourceCategoryNameList);
+	      
+	      String jsonString = new String();
+	      jsonString = jsonString + "{\"source\": [";
+	      for (String resourceCategoryName : resourceCategoryNameList){
+	      	 if(resourceCategoryName.indexOf(str) > -1){//note: if str equals "", this, perhaps unexpectedly, evaluates to true
+	       		 jsonString = jsonString + "\""+ resourceCategoryName +"\",";
+	       	 }
+	      }
+	      jsonString = jsonString.replaceAll(",$", "") + "]}";
+	      return jsonString;                 
+	  }
 }

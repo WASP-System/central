@@ -271,7 +271,7 @@ public class PlatformUnitController extends WaspController {
 	
 	
 	
-	@RequestMapping(value="/listJSON_DUBINTEST", method=RequestMethod.GET)
+	@RequestMapping(value="/listJSON_platformUnitGrid", method=RequestMethod.GET)
 	public String getListJSON(HttpServletResponse response) {
 		
 		Map <String, Object> jqgrid = new HashMap<String, Object>();
@@ -280,7 +280,7 @@ public class PlatformUnitController extends WaspController {
 		String sord = request.getParameter("sord");//grid is set so that this always has a value
 		String sidx = request.getParameter("sidx");//grid is set so that this always has a value
 		String search = request.getParameter("_search");//from grid (will return true or false, depending on the toolbar's parameters)
-		//System.out.println("sidx = " + sidx);System.out.println("sord = " + sord);System.out.println("search = " + search);
+		System.out.println("sidx = " + sidx);System.out.println("sord = " + sord);System.out.println("search = " + search);
 
 		//Parameters coming from grid's toolbar
 		//The jobGrid's toolbar's is it's search capability. The toolbar's attribute stringResult is currently set to false, 
@@ -295,10 +295,12 @@ public class PlatformUnitController extends WaspController {
 		String readlengthFromGrid = request.getParameter("readlength")==null?null:request.getParameter("readlength").trim();//if not passed, will be null
 		String lanecountFromGrid = request.getParameter("lanecount")==null?null:request.getParameter("lanecount").trim();//if not passed, will be null
 		String dateFromGridAsString = request.getParameter("date")==null?null:request.getParameter("date").trim();//if not passed, will be null
+		String resourceCategoryNameFromGrid = request.getParameter("resourceCategoryName")==null?null:request.getParameter("resourceCategoryName").trim();//if not passed, will be null
 		//System.out.println("nameFromGrid = " + nameFromGrid);System.out.println("barcodeFromGrid = " + barcodeFromGrid);
 		//System.out.println("sampleSubtypeNameFromGrid = " + sampleSubtypeNameFromGrid); 
 		//System.out.println("readTypeFromGrid = " + readTypeFromGrid);System.out.println("readlengthFromGrid = " + readlengthFromGrid);
 		//System.out.println("lanecountFromGrid = " + lanecountFromGrid);System.out.println("dateFromGridAsString = " + dateFromGridAsString);
+		//System.out.println("resourceCategoryNameFromGrid = " + resourceCategoryNameFromGrid);
 		
 		List<Sample> tempPlatformUnitList =  new ArrayList<Sample>();
 		List<Sample> platformUnitsFoundInSearch = new ArrayList<Sample>();//not currently used
@@ -331,7 +333,8 @@ public class PlatformUnitController extends WaspController {
 		String direction = "desc";
 		tempPlatformUnitList = sampleDao.findByMapDistinctOrderBy(queryMap, null, orderByColumnNames, direction);			
 		
-		if(barcodeFromGrid != null || readTypeFromGrid != null || readlengthFromGrid != null || lanecountFromGrid != null || dateFromGridAsDate != null){
+		if(barcodeFromGrid != null || readTypeFromGrid != null || readlengthFromGrid != null 
+				|| lanecountFromGrid != null || dateFromGridAsDate != null || resourceCategoryNameFromGrid != null){
 			
 			if(barcodeFromGrid != null){
 				for(Sample sample : tempPlatformUnitList){
@@ -399,6 +402,24 @@ public class PlatformUnitController extends WaspController {
 				tempPlatformUnitList.retainAll(platformUnitsFoundInSearch);
 				platformUnitsFoundInSearch.clear();
 			}
+			if(resourceCategoryNameFromGrid != null){
+				ResourceCategory rcRequested = resourceCategoryDao.getResourceCategoryByName(resourceCategoryNameFromGrid);
+				if(rcRequested != null && rcRequested.getResourceCategoryId()!=null){//if not found, then platformUnitsFoundInSearch will be empty, and no records retained
+					for(Sample sample : tempPlatformUnitList){
+						List<SampleMeta> sampleMetaList = sample.getSampleMeta();
+						for(SampleMeta sm : sampleMetaList){
+							if(sm.getK().indexOf("resourceCategoryId") > -1){
+								if(sm.getV().equals(rcRequested.getResourceCategoryId().toString())){//remember metadata is string (here representing a number)
+									platformUnitsFoundInSearch.add(sample);
+								}
+								break;
+							}
+						}
+					}
+				}				
+				tempPlatformUnitList.retainAll(platformUnitsFoundInSearch);
+				platformUnitsFoundInSearch.clear();
+			}
 		}
 		
 		platformUnitList.addAll(tempPlatformUnitList);
@@ -412,9 +433,10 @@ public class PlatformUnitController extends WaspController {
 			else if(sidx.equals("sampleSubtypeName")){Collections.sort(platformUnitList, new SampleSubtypeNameComparator()); indexSorted = true;}
 			else if(sidx.equals("date")){Collections.sort(platformUnitList, new SampleReceiveDateComparator()); indexSorted = true;}
 			else if(sidx.equals("barcode")){Collections.sort(platformUnitList, new SampleBarcodeComparator()); indexSorted = true;}
-			else if(sidx.equals("readlength")){Collections.sort(platformUnitList, new SampleMetaIsIntegerComparator("readlength")); indexSorted = true;}//Collections.sort(platformUnitList, new SampleReadlengthComparator());
-			else if(sidx.equals("readType")){Collections.sort(platformUnitList, new SampleMetaIsStringComparator("readType")); indexSorted = true;}//Collections.sort(platformUnitList, new SampleReadlengthComparator());
-			else if(sidx.equals("lanecount")){Collections.sort(platformUnitList, new SampleMetaIsIntegerComparator("lanecount")); indexSorted = true;}//Collections.sort(platformUnitList, new SampleReadlengthComparator());
+			else if(sidx.equals("readlength")){Collections.sort(platformUnitList, new SampleMetaIsIntegerComparator("readlength")); indexSorted = true;}
+			else if(sidx.equals("readType")){Collections.sort(platformUnitList, new SampleMetaIsStringComparator("readType")); indexSorted = true;}
+			else if(sidx.equals("lanecount")){Collections.sort(platformUnitList, new SampleMetaIsIntegerComparator("lanecount")); indexSorted = true;}
+			else if(sidx.equals("resourceCategoryName")){Collections.sort(platformUnitList, new SampleMetaIsResourceCategoryNameComparator(resourceCategoryDao)); indexSorted = true;}
 
 			if(indexSorted == true && sord.equals("desc")){//must be last
 				Collections.reverse(platformUnitList);
@@ -461,11 +483,14 @@ public class PlatformUnitController extends WaspController {
 				Map cell = new HashMap();
 				cell.put("id", sample.getSampleId());
 				 
-				List<SampleMeta> sampleMetaList = getMetaHelperWebappPlatformUnitInstance().syncWithMaster(sample.getSampleMeta());
+				List<SampleMeta> sampleMetaList = sample.getSampleMeta();//getMetaHelperWebappPlatformUnitInstance().syncWithMaster(sample.getSampleMeta());
 				String readlength = "";
 				String readType = "";
 				String lanecount = "";
 				String comment = "";
+				String resourceCategoryIdAsString = "";
+				Integer resourceCategoryIdAsInteger;
+				ResourceCategory resourceCategory;
 				for(SampleMeta sm : sampleMetaList){
 					if( sm.getK().indexOf("readlength") > -1 ){
 						readlength = sm.getV();
@@ -479,7 +504,19 @@ public class PlatformUnitController extends WaspController {
 					if( sm.getK().indexOf("comment") > -1 ){
 						comment = sm.getV();
 					}
+					if( sm.getK().indexOf("resourceCategoryId") > -1 ){
+						resourceCategoryIdAsString = sm.getV();
+					}
 				}
+				//System.out.println("resourceCategoryIdAsString: " + resourceCategoryIdAsString);
+				try{
+					resourceCategoryIdAsInteger = Integer.valueOf(resourceCategoryIdAsString);
+				}catch(NumberFormatException e){
+					resourceCategoryIdAsInteger = new Integer(0);
+				}
+				//System.out.println("resourceCategoryIdAsInteger: " + resourceCategoryIdAsInteger.toString());
+				resourceCategory = resourceCategoryDao.getResourceCategoryByResourceCategoryId(resourceCategoryIdAsInteger);
+				//System.out.println("resourceCategoryName: " + resourceCategory.getName());
 				
 				String barcode = "";
 				List<SampleBarcode> sampleBarcodeList = sample.getSampleBarcode();
@@ -493,19 +530,15 @@ public class PlatformUnitController extends WaspController {
 				//float amount = ajqcList.isEmpty() ? 0 : ajqcList.get(0).getAcctQuote().getAmount();
 				
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
-							//"J" + job.getJobId().intValue() + " (<a =/wasp/sampleDnaToLibrary/listJobSamples/"+job.getJobId()+".do>details</a>)",
-							sample.getName() + " (<a href=/wasp/facility/platformunit/showPlatformUnit/"+sample.getSampleId()+".do>details</a>)",
+							formatter.format(sample.getReceiveDts()),//use in this case as record created date
+							//resourceCategory.getName(),
+							//sample.getName() + " (<a href=/wasp/facility/platformunit/showPlatformUnit/"+sample.getSampleId()+".do>details</a>)",
+							"<a href=/wasp/facility/platformunit/showPlatformUnit/"+sample.getSampleId()+".do>"+sample.getName()+"</a>",
 							barcode,
 							sample.getSampleSubtype()==null?"": sample.getSampleSubtype().getName(),
 							readType,
 							readlength,
 							lanecount,
-							formatter.format(sample.getReceiveDts()),//use in this case as record created date
-							//sample.getSampleSubtype().getName()
-							//user.getNameFstLst(),
-							//job.getLab().getName() + " (" + pi.getNameLstCmFst() + ")",
-							//job.getLab().getUser().getNameFstLst(),
-							//formatter.format(job.getCreatets()),
 							//String.format("%.2f", amount),
 							//"<a href=/wasp/"+job.getWorkflow().getIName()+"/viewfiles/"+job.getJobId()+".do>View files</a>"
 				}));
@@ -1651,6 +1684,15 @@ public class PlatformUnitController extends WaspController {
 		//save the metadata
 		sampleMetaDao.updateBySampleId(platformUnitDb.getSampleId(), (List<SampleMeta>)metaHelperWebapp.getMetaList()); // now we get the list and persist it
 
+		//9-14-12 have to also save resourceCategoryId as sampleMetadata
+		/*removed 9-18-12
+		SampleMeta sampleMeta = new SampleMeta();
+		sampleMeta.setSampleId(platformUnitDb.getSampleId());
+		sampleMeta.setK(metaHelperWebapp.getArea()+".resourceCategoryId");
+		sampleMeta.setV(resourceCategoryId.toString());
+		sampleMetaDao.save(sampleMeta);
+		*/
+		
 		//save the barcode
 		Barcode barcodeObject = new Barcode();		
 		barcodeObject.setBarcode(barcode);
@@ -2857,5 +2899,60 @@ class SampleMetaIsIntegerComparator implements Comparator<Sample> {
 		
 		return metaIntegerValue0.compareTo(metaIntegerValue1);
 
+	}
+}
+
+class SampleMetaIsResourceCategoryNameComparator implements Comparator<Sample> {
+
+	ResourceCategoryDao resourceCategoryDao;
+	
+	SampleMetaIsResourceCategoryNameComparator(ResourceCategoryDao resourceCategoryDao){
+		this.resourceCategoryDao = resourceCategoryDao;
+	}
+
+	@Override
+	public int compare(Sample arg0, Sample arg1) {
+			
+		String metaValue0 = null;
+		String metaValue1 = null;
+		
+		List<SampleMeta> metaList0 = arg0.getSampleMeta();
+		for(SampleMeta sm : metaList0){
+			if(sm.getK().indexOf("resourceCategoryId") > -1){
+				metaValue0 = new String(sm.getV());
+				break;
+			}
+		}		
+		
+		List<SampleMeta> metaList1 = arg1.getSampleMeta();
+		for(SampleMeta sm : metaList1){
+			if(sm.getK().indexOf("resourceCategoryId") > -1){
+				metaValue1 = new String(sm.getV());
+				break;
+			}
+		}
+		
+		if(metaValue0==null){metaValue0=new String("0");} 
+		if(metaValue1==null){metaValue1=new String("0");}
+		
+		Integer metaIntegerValue0;
+		try{
+			metaIntegerValue0 = Integer.valueOf(metaValue0);
+		}
+		catch(NumberFormatException e){
+			metaIntegerValue0 = new Integer(0);
+		}
+		Integer metaIntegerValue1;
+		try{
+			metaIntegerValue1 = Integer.valueOf(metaValue1);
+		}
+		catch(NumberFormatException e){
+			metaIntegerValue1 = new Integer(0);
+		}
+				
+		ResourceCategory rc0 = this.resourceCategoryDao.getResourceCategoryByResourceCategoryId(metaIntegerValue0);
+		ResourceCategory rc1 = this.resourceCategoryDao.getResourceCategoryByResourceCategoryId(metaIntegerValue1);
+		
+		return (rc0.getName()==null?"":rc0.getName()).compareToIgnoreCase(  (rc1.getName()==null?"":rc1.getName())  );
 	}
 }

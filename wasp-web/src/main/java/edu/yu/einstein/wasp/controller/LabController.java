@@ -170,8 +170,8 @@ public class LabController extends WaspController {
 		System.out.println("sidx = " + sidx);System.out.println("sord = " + sord);System.out.println("search = " + search);
 
 		//parameter from filterToolbar
-		String piNameAndLogin = request.getParameter("primaryUser");//if not passed, will be null; if passed will be firstname lastname (login)
-		String departmentName = request.getParameter("departmentId");//if not passed, will be null; if passed will be name of department
+		String piNameAndLogin = request.getParameter("primaryUser")==null?null:request.getParameter("primaryUser").trim();//if not passed, will be null; if passed will be firstname lastname (login)
+		String departmentName = request.getParameter("departmentId")==null?null:request.getParameter("departmentId").trim();//if not passed, will be null; if passed will be name of department
 		System.out.println("piNameAndLogin = " + piNameAndLogin);System.out.println("departmentName = " + departmentName);
 		
 		//deal with the parameter

@@ -49,6 +49,14 @@
 			<rtexprvalue>true</rtexprvalue> 
 		</attribute>
 		<attribute>
+            <!-- 
+			<description>Width of grid column field if set</description>
+            -->
+			<name>columnWidth</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
 			<name>object</name>
 			<!-- 
 			<description>Object class to read validation rules from. See MetaAttribute.Area for supported types</description>

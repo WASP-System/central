@@ -14,7 +14,14 @@
 
 _url='/wasp/job2quote/listJSON.do?showall=${param.showall}';
   
-_navAttr={edit:true,view:true,add:false,del:false,search:false,refresh:true};
+_navAttr={edit:true,view:true,add:false,del:false,search:false,refresh:true,beforeRefresh: 
+		function () { 
+			<%--http://stackoverflow.com/questions/7089643/programmatically-sorting-the-jqgrid 
+			with next line, sortname is set to "" and with that sidx is also set to "" 
+			so that with reload grid, sidx is not controlling anything--%>
+			$("#grid_id").setGridParam({sortname:''});
+		}
+};
 
 _editAttr['beforeShowForm'] = function(formId) {
 	$('input[type="text"][name$="cost"]').val('0');
