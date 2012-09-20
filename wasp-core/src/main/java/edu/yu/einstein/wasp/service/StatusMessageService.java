@@ -36,6 +36,30 @@ public interface StatusMessageService extends WaspService {
 	public <T extends MetaBase> String read(String key, Integer modelParentId, Class<T> clazz, WaspDao<T> dao);
 	
 	/**
+	 * Save status message with default key in metadata model provided (clazz) via provided DAO. Message is defined with a key / value pair
+	 * If data already exists under the provided key it will be overwritten.
+	 * @param key
+	 * @param value
+	 * @param modelParentId
+	 * @param clazz
+	 * @param dao
+	 * @return
+	 * @throws StatusMetaMessagingException
+	 */
+	public <T extends MetaBase> T save(String value, Integer modelParentId, Class<T> clazz, WaspDao<T> dao) throws StatusMetaMessagingException;
+	
+	/**
+	 * Returns a status message using the default key for the modelParentId specified (UserId to UserMeta or JobId to JobMeta etc). Returns null if no match found.
+	 * @param key
+	 * @param modelParentId
+	 * @param clazz
+	 * @param dao
+	 * @return
+	 * @throws StatusMetaMessagingException
+	 */
+	public <T extends MetaBase> String read(Integer modelParentId, Class<T> clazz, WaspDao<T> dao);
+	
+	/**
 	 * Given a status message key and modelParentId (UserId to UserMeta or JobId to JobMeta etc), returns a MetaBase derived object of type
 	 * specified in 'clazz'. Returns null if no match found.
 	 * @param key

@@ -31,9 +31,12 @@ public class StatusMessageServiceImpl extends WaspServiceImpl implements StatusM
 	
 	private static final String STATUS_KEY_PREFIX = "statusMessage."; 
 	
+	private static final String DEFAULT_KEY = "default";
+	
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public <T extends MetaBase> T save(String key, String value, Integer modelParentId, Class<T> clazz, WaspDao<T> dao) throws StatusMetaMessagingException{
 		String parentClassName = StringUtils.substringBefore(clazz.getSimpleName(), "Meta");
 		String modelParentIdEntityName = WordUtils.uncapitalize(parentClassName) + "Id";
@@ -67,6 +70,15 @@ public class StatusMessageServiceImpl extends WaspServiceImpl implements StatusM
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
+	public <T extends MetaBase> T save(String value, Integer modelParentId, Class<T> clazz, WaspDao<T> dao) throws StatusMetaMessagingException{
+		return save(DEFAULT_KEY, value, modelParentId, clazz, dao);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public <T extends MetaBase> String read(String key, Integer modelParentId, Class<T> clazz, WaspDao<T> dao) {
 		T metaMatch = getMetaForStatusMessageKey(key, modelParentId, clazz, dao);
 		if (metaMatch == null)
@@ -77,6 +89,15 @@ public class StatusMessageServiceImpl extends WaspServiceImpl implements StatusM
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
+	public <T extends MetaBase> String read(Integer modelParentId, Class<T> clazz, WaspDao<T> dao) {
+		return read(DEFAULT_KEY,  modelParentId, clazz, dao);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public <T extends MetaBase> T getMetaForStatusMessageKey(String key, Integer modelParentId, Class<T> clazz, WaspDao<T> dao) {
 		String parentClassName = StringUtils.substringBefore(clazz.getSimpleName(), "Meta");
 		String modelParentIdEntityName = WordUtils.uncapitalize(parentClassName) + "Id";
@@ -97,6 +118,7 @@ public class StatusMessageServiceImpl extends WaspServiceImpl implements StatusM
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public <T extends MetaBase> Map<String, String> readAll(Integer modelParentId, Class<T> clazz, WaspDao<T> dao) {
 		Map<String, String> results = new LinkedHashMap<String, String>(); // use LinkedHashMap to maintain order of entries in the Map
 		String parentClassName = StringUtils.substringBefore(clazz.getSimpleName(), "Meta");
