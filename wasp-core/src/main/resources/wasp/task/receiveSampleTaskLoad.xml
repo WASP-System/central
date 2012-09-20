@@ -11,7 +11,7 @@
     <property name="area" value="receiveSampleTask" />
   </bean>
 
-  <bean id="receiveSampleTask" class="edu.yu.einstein.wasp.load.TaskLoader">
+  <bean id="receiveSampleTask" class="edu.yu.einstein.wasp.load.TaskMappingLoader">
 
     <property name="iName" value="Receive Sample" />
     <property name="name" value="Receive Sample" />

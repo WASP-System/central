@@ -23,7 +23,7 @@
 		<batch:split id="wasp.sample.waitUntilActionable" task-executor="taskExecutor">
 			<!-- We need to wait for the sample to be received and for the job to be approved before working on the sample -->
 			<batch:flow>
-				<batch:step id="listenForSampleReceivedTasklet">
+				<batch:step id="listenForSampleReceived">
 					<!-- Listen for sample CREATED message: tells us sample is physically received -->
 					<batch:tasklet>
 						<bean class="edu.yu.einstein.wasp.tasklets.ListenForStatusTasklet" scope="step">
@@ -40,7 +40,7 @@
 				</batch:step>
 			</batch:flow>
 			<batch:flow>
-				<batch:step id="wasp.sample.mainFlow.listenForJobApproved">
+				<batch:step id="listenForJobApproved">
 					<!-- Listen for job ACCEPTED message: tells us job is approved -->
 					<batch:tasklet>
 						<bean class="edu.yu.einstein.wasp.tasklets.ListenForStatusTasklet" scope="step">
@@ -56,17 +56,17 @@
 					</batch:tasklet>
 				</batch:step>
 			</batch:flow>
-			<batch:next on="FAILED" to="wasp.sample.mainFlow.notifySampleAbandoned" />
-			<batch:next on="COMPLETED" to="wasp.sample.mainFlow.sampleDecision" />
+			<batch:next on="FAILED" to="notifySampleAbandoned" />
+			<batch:next on="COMPLETED" to="sampleDecision" />
 			<batch:fail on="*" /> <!-- unexpected message -->
 		</batch:split>
-		<batch:decision decider="wasp.sample.typeDecider" id="wasp.sample.mainFlow.sampleDecision">
+		<batch:decision decider="wasp.sample.typeDecider" id="sampleDecision">
 			<!-- figure out if received sample is DNA / RNA etc or a Library -->
-			<batch:next on="SAMPLE" to="wasp.sample.mainFlow.sampleQC" />
-			<batch:next on="LIBRARY" to="wasp.sample.mainFlow.notifyLibraryRecieved" />
+			<batch:next on="SAMPLE" to="sampleQC" />
+			<batch:next on="LIBRARY" to="notifyLibraryRecieved" />
 			<batch:end on="UNKNOWN" exit-code="EARLY TERMINATION" />
 		</batch:decision>
-		<batch:step id="wasp.sample.mainFlow.sampleQC">
+		<batch:step id="sampleQC">
 			<!-- Wait for QC result to be notified. If failed abandon this sample flow otherwise sample ready -->
 			<!-- for library making -->
 			<batch:tasklet>
@@ -82,11 +82,11 @@
 					</constructor-arg>
 				</bean>
 			</batch:tasklet>
-			<batch:next on="FAILED" to="wasp.sample.mainFlow.notifySampleAbandoned" />
-			<batch:next on="COMPLETED" to="wasp.sample.mainFlow.notifySampleReady" />
+			<batch:next on="FAILED" to="notifySampleAbandoned" />
+			<batch:next on="COMPLETED" to="notifySampleReady" />
 			<batch:fail on="*" /> <!-- unexpected message -->
 		</batch:step>
-		<batch:step id="wasp.sample.mainFlow.notifySampleReady">
+		<batch:step id="notifySampleReady">
 			<!-- publish that sample is ready for further processing -->
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.tasklets.NotifyStatusTasklet" scope="step">
@@ -100,7 +100,7 @@
 				</bean>
 			</batch:tasklet>
 		</batch:step>
-		<batch:step id="wasp.sample.mainFlow.notifySampleAbandoned">
+		<batch:step id="notifySampleAbandoned">
 			<!-- publish that sample had been abandoned  -->
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.tasklets.NotifyStatusTasklet" scope="step">
@@ -114,7 +114,7 @@
 				</bean>
 			</batch:tasklet>
 		</batch:step>
-		<batch:step id="wasp.sample.mainFlow.notifyLibraryRecieved">
+		<batch:step id="notifyLibraryRecieved">
 			<batch:tasklet ref="waspNotifyLibraryCreatedTasklet" />
 		</batch:step>
 	</batch:flow>
@@ -127,7 +127,7 @@
 				<!-- Will listen for indicators that the flow should terminate such as the wasp job flow has been aborted or -->
 				<!-- if the wasp.sample.mainFlow flow completes (broadcasting an ACCEPTED status message) or is aborted -->
 				<!-- e.g. via a message from the web layer -->
-				<batch:step id="wasp.sample.jobflow.ListenForExitCondition">
+				<batch:step id="listenForExitCondition">
 					<batch:tasklet>
 						<bean class="edu.yu.einstein.wasp.tasklets.ListenForExitConditionTasklet" scope="step">
 							<constructor-arg name="inputSubscribableChannels">

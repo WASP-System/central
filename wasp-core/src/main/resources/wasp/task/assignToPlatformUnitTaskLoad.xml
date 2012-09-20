@@ -6,21 +6,16 @@
         http://www.springframework.org/schema/beans/spring-beans-3.1.xsd"
     default-autowire="byName">
 
-  <bean class="edu.yu.einstein.wasp.model.UiField" id="assignLibraryToPlatformUnitTaskUiField">
-    <property name="locale" value="en_US" />
-    <property name="area" value="assignLibraryToPlatformUnit" />
-  </bean>
-
-  <bean id="assignLibraryToPlatformUnitTask" class="edu.yu.einstein.wasp.load.TaskLoader">
-
-    <property name="iName" value="assignLibraryToPlatformUnit" />
-    <property name="name" value="Assign Library To Platform Unit" />
-    <property name="uiFields">
+  <bean id="assignLibraryToPlatformUnitTask" class="edu.yu.einstein.wasp.load.TaskMappingLoader">
+  
+  	<property name="area" value="assignLibraryToPlatformUnitTask" />
+    
+    <property name="uiFieldsFromWrapper">
       <list>
-        <bean parent="taskStartJobUiField">
-          <property name="name" value="tmpl" />
-          <property name="attrName" value="tmpl" />
-          <property name="attrValue" value="Tmpl" />
+        <bean id="assignLibraryToPlatformUnitTaskUiField" class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper">
+        	<property name="baseLocale" value="en_US" />
+    		<property name="baseName" value="description" />
+        	<property name="label" value="Assign library to platformunit" />
         </bean>
       </list>
     </property>
@@ -28,10 +23,10 @@
     <property name="taskMapping">
       <list>
         <bean class="edu.yu.einstein.wasp.model.TaskMapping">
-          <property name="status" value="CREATED" />
+          <property name="stepName" value="assignLibraryToPlatformUnit" />
+          <property name="status" value="STARTED" />
          <!-- <property name="listMap" value="/facility/platformunit/limitPriorToAssign.do?resourceCategoryId=0" />  --> 
            <property name="listMap" value="/task/assignLibraries/lists.do" />
-          <property name="detailMap" value="/def.do" />
           <property name="permission" value="hasRole('su') or hasRole('fm') or hasRole('ft')" />
         </bean>
       </list>

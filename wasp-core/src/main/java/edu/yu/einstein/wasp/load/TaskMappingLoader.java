@@ -6,7 +6,7 @@ import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import edu.yu.einstein.wasp.load.service.TaskLoadService;
+import edu.yu.einstein.wasp.load.service.TaskMappingLoadService;
 import edu.yu.einstein.wasp.model.TaskMapping;
 
 
@@ -20,12 +20,12 @@ import edu.yu.einstein.wasp.model.TaskMapping;
  */
 
 
-public class TaskLoader extends WaspLoader {
+public class TaskMappingLoader extends WaspLoader {
 
 	@Autowired
-	TaskLoadService taskLoadService;
+	TaskMappingLoadService taskMappingLoadService;
 	
-	public TaskLoader (){};
+	public TaskMappingLoader (){};
 
 	private List<TaskMapping> taskMapping;
 	public void setTaskMapping(List<TaskMapping> taskMapping) {
@@ -35,9 +35,9 @@ public class TaskLoader extends WaspLoader {
 
 	@PostConstruct 
 	  public void init() throws Exception{
-		logger.info("task loader started for  " + iname);
-		taskLoadService.update(iname, name, taskMapping);
-		taskLoadService.updateUiFields(uiFields); 
+		logger.info("task loader started for taskMapping "+ iname);
+		taskMappingLoadService.update(iname, taskMapping);
+		taskMappingLoadService.updateUiFields(uiFields); 
 
 	}
 }

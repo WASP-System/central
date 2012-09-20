@@ -146,61 +146,6 @@ public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 
 	}
 
-	// returns list of states for the task in given status.
-	// consults taskmapping table to see if currently logged in user is
-	// authorized to see them
-	// only states that pass authorization are returned,.
-	@Override
-	public List<State> getStatesByTaskMappingRule(Task task, String status) {
-
-		List<State> candidates = new ArrayList<State>();
-
-		// filter out states that are not in right status
-		for (State s : task.getState()) {
-			if (s.getStatus().equals(status)) {
-				candidates.add(s);
-			}
-		}
-
-		if (candidates.isEmpty())
-			return candidates;
-
-		List<State> result = new ArrayList<State>();
-
-		// further filter out states that do not match any of the task mappings
-		List<TaskMapping> taskMappings = taskMappingDao.getTaskMappingByTaskId(task.getTaskId());
-		if (taskMappings == null)
-			return result;
-		for (TaskMapping m : taskMappings) {
-			if (!m.getStatus().equals(status))
-				continue;
- 
-			// let's just stick to jobId -> stateJob.jobId,
-			// labId->stateJob.job.labId, departmentId
-			// stateJob.job.lab.departmentId
-
-			for (Iterator<State> it = candidates.iterator(); it.hasNext();) {
-				State state = it.next();
-				String perm = expand(m.getPermission(), state);
-				try {
-					if (SecurityUtil.isAuthorized(perm)) {// check if user can
-						// see this state
-						result.add(state); // yes, he can! add it to result
-						it.remove(); // and remove from the list of candidates
-					}
-				} catch (Throwable e) {
-					throw new IllegalStateException("Cant authorize access " + perm + "|" + m.getPermission(), e);
-				}
-			}
-
-			if (candidates.isEmpty())
-				return result;
-
-		}
-
-		return candidates;
-
-	}
 
 	// returns states that
 	// a) are in the given status

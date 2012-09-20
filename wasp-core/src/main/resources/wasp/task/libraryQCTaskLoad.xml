@@ -6,26 +6,26 @@
         http://www.springframework.org/schema/beans/spring-beans-3.1.xsd"
     default-autowire="byName">
 
-  <bean id="createLibrarySampleTask" class="edu.yu.einstein.wasp.load.TaskMappingLoader">
-  
-    <property name="area" value="createLibraryTask" />
-
+  <bean id="libraryQCTask" class="edu.yu.einstein.wasp.load.TaskMappingLoader">
+    
+    <property name="area" value="libraryQCTask" />
+    
     <property name="uiFieldsFromWrapper">
       <list>
-        <bean id="createLibraryTaskUiField" class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper">
+        <bean id="libraryQCTaskUiField" class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper">
         	<property name="baseLocale" value="en_US" />
-        	<property name="baseName" value="description" />
-        	<property name="label" value="Create Library" />
+    		<property name="baseName" value="description" />
+        	<property name="label" value="Library QC" />
         </bean>
       </list>
     </property>
-
+    
     <property name="taskMapping">
       <list>
         <bean class="edu.yu.einstein.wasp.model.TaskMapping">
-          <property name="stepName" value="createLibrary" />
+          <property name="stepName" value="libraryQC" />
           <property name="status" value="STARTED" />
-          <property name="listMap" value="/job/jobsAwaitingLibraryCreation/jobsAwaitingLibraryCreationList.do" />
+          <property name="listMap" value="/library/pendingqc/list.do" />
           <property name="permission" value="hasRole('su') or hasRole('fm') or hasRole('ft')" />
         </bean>
       </list>
@@ -33,3 +33,7 @@
 
   </bean>
 </beans>
+
+
+
+

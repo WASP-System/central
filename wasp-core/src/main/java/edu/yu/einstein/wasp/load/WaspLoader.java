@@ -41,7 +41,15 @@ public abstract class WaspLoader {
 	protected List<UiField> uiFields; 
 	
 	public void setUiFields(List<UiField> uiFields) {
-		this.uiFields = uiFields;	
+		if (uiFields == null || uiFields.isEmpty())
+			return;
+		if (this.uiFields == null)
+			this.uiFields = new ArrayList<UiField>();
+		for (UiField uiField : uiFields){
+			if (uiField.getArea() == null)
+				uiField.setArea(area);
+			this.uiFields.add(uiField);
+		}	
 	}
 	
 	public void setUiFieldGroups(List< List<UiField> > uiFieldsList) {
@@ -49,6 +57,8 @@ public abstract class WaspLoader {
 		for (List<UiField> uiFieldSet : safeList(uiFieldsList)){
 			int metapositionMaxPos = -1;
 			for (UiField uiField : uiFieldSet){
+				if (uiField.getArea() == null)
+					uiField.setArea(area);
 				if (uiField.getAttrName().equals("metaposition")){
 					int metaPosition;
 					try{
@@ -70,9 +80,7 @@ public abstract class WaspLoader {
 	
 	public void setUiFieldsFromWrapper(List<UiFieldFamilyWrapper> uiFieldWrappers) {
 		for (UiFieldFamilyWrapper uiFieldWrapper : safeList(uiFieldWrappers)){
-			if (this.uiFields == null)
-				this.uiFields = new  ArrayList<UiField>();
-			this.uiFields.addAll(uiFieldWrapper.getUiFields());
+			this.setUiFields(uiFieldWrapper.getUiFields());
 		}
 	}
 	
@@ -82,6 +90,8 @@ public abstract class WaspLoader {
 			int metapositionMaxPos = -1;
 			for (UiFieldFamilyWrapper uiFieldWrapper : uiFieldWrapperSet){
 				for (UiField uiField : uiFieldWrapper.getUiFields()){
+					if (uiField.getArea() == null)
+						uiField.setArea(area);
 					if (uiField.getAttrName().equals("metaposition")){
 						int metaPosition;
 						try{

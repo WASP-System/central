@@ -19,7 +19,6 @@ import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.LabPending;
 import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.State;
-import edu.yu.einstein.wasp.model.Task;
 import edu.yu.einstein.wasp.model.UserPending;
 
 @Service
@@ -52,18 +51,11 @@ public interface TaskService extends WaspService {
 	public List<State> getDaApprovedStates();
 
 	public List<State> getSampleReceivedStates();
+	
 	public List<State> getSampleNotYetReceivedStates();
 
-	public List<State> getStatesByTaskMappingRule(Task task, String status);
-
 	public List<State> filterStatesByStatusAndPermission(List<State> states, String status, String permsission);
-/* these three out 5/15/12
-	public int getLabManagerPendingTasks(int labId);
 
-	public int getLabManagerPendingTasks(int labId, List<UserPending> newUsersPendingLmApprovalList, List<LabUser> existingUsersPendingLmApprovalList, List<Job> jobsPendingLmApprovalList);
-
-	public int getLabManagerPendingTasks2(List<UserPending> newUsersPendingLmApprovalList, List<LabUser> existingUsersPendingLmApprovalList, List<Job> jobsPendingLmApprovalList);
-*/
 	public int getLabManagerPendingTasks();
 
 	public int getLabManagerPendingTasks(List<UserPending> newUsersPendingLmApprovalList, List<LabUser> existingUsersPendingLmApprovalList, List<Job> jobsPendingLmApprovalList);

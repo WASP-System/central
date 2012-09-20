@@ -11,6 +11,7 @@ package edu.yu.einstein.wasp.messages;
  *
  */
 public enum WaspStatus {
+	UNKNOWN (1),
 	ABANDONED (2),
 	COMPLETED (2),
 	FAILED (2),
@@ -64,6 +65,10 @@ public enum WaspStatus {
 	 */
 	public boolean isSuccessful() {
 		return this == COMPLETED;
+	}
+	
+	public boolean isUnknown() {
+		return this == UNKNOWN;
 	}
 	
 	/**
