@@ -4,14 +4,19 @@ package edu.yu.einstein.wasp.controller.util;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.WordUtils;
+import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.Errors;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
+import edu.yu.einstein.wasp.controller.validator.Constraint;
 import edu.yu.einstein.wasp.controller.validator.MetaValidator;
 import edu.yu.einstein.wasp.controller.validator.MetaValidatorImpl;
 import edu.yu.einstein.wasp.model.MetaAttribute;
@@ -218,6 +223,28 @@ public class MetaHelperWebapp extends MetaHelper {
 	 */
 	public <T extends MetaValidator> void validate(Class<T> metaValidatorClazz, BindingResult result) {
 		getMetaValidator().validate(this.lastList, result, parentArea);
+	}
+	
+	/**
+	 * Adds an error message to and existing meta field regardless of whether there is normally a constraint on it or not. Will override any existing
+	 * message applied to the same metadata field.
+	 * @param metaName
+	 * @param errorKey
+	 * @param result
+	 */
+	public void addValidationError(String metaName, String errorMessageKey, BindingResult result){
+		Errors errors=new BindException(result.getTarget(), area); 
+		
+		for(int i=0;i<this.lastList.size();i++) {
+			MetaBase meta=this.lastList.get(i);
+			if (meta.getProperty().getFormVisibility().equals(MetaAttribute.FormVisibility.ignore)) continue;
+			if (!meta.getK().equals(area + "." + metaName)) continue;
+			String errorFieldName = area+"Meta["+i+"].k";
+			String defaultMessage = errorMessageKey+" (no message has been defined for this property)";
+			errors.rejectValue(errorFieldName, errorMessageKey, defaultMessage);
+			result.addAllErrors(errors);
+			return;
+		}
 	}
 	
 	/**
