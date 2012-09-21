@@ -303,6 +303,9 @@
 	<definition name="facility/platformunit/assign" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/facility/platformunit/assignform.jsp" />
 	</definition>
+		<definition name="facility/platformunit/createUpdatePlatformUnit" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/facility/platformunit/createUpdatePlatformUnit.jsp" />
+	</definition>
 	<definition name="facility/platformunit/limitPriorToAssign" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/facility/platformunit/limitPriorToAssignForm.jsp" />
 	</definition>

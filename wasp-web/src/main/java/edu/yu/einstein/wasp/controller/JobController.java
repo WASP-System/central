@@ -39,6 +39,7 @@ import edu.yu.einstein.wasp.dao.RoleDao;
 import edu.yu.einstein.wasp.dao.StateDao;
 import edu.yu.einstein.wasp.dao.TaskDao;
 import edu.yu.einstein.wasp.dao.WorkflowresourcecategoryDao;
+import edu.yu.einstein.wasp.model.AcctJobquotecurrent;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobCellSelection;
 import edu.yu.einstein.wasp.model.JobFile;
@@ -62,6 +63,7 @@ import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Workflowresourcecategory;
 import edu.yu.einstein.wasp.model.WorkflowresourcecategoryMeta;
 import edu.yu.einstein.wasp.service.AuthenticationService;
+import edu.yu.einstein.wasp.service.FilterService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
@@ -118,6 +120,8 @@ public class JobController extends WaspController {
 	private JobCellSelectionDao jobCellSelectionDao;
 	@Autowired
 	private SampleService sampleService;
+	@Autowired
+	private FilterService filterService;
 	@Autowired
 	private JobService jobService;
 	@Autowired
@@ -343,6 +347,12 @@ public class JobController extends WaspController {
 			jobList.addAll(tempJobList);
 		}
 		
+		//perform ONLY if the viewer is A DA but is NOT any other type of facility member
+		if(authenticationService.isOnlyDepartmentAdministrator()){//remove jobs not in the DA's department
+			List<Job> jobsToKeep = filterService.filterJobListForDA(jobList);
+			jobList.retainAll(jobsToKeep);
+		}
+		
 		//Finally deal with any sort requests coming from the grid. 
 		if(sidx != null && !sidx.isEmpty() && sord != null && !sord.isEmpty() ){
 			
@@ -419,7 +429,10 @@ public class JobController extends WaspController {
 				List<JobMeta> jobMeta = getMetaHelperWebapp().syncWithMaster(job.getJobMeta());
 				
 				User user = userDao.getById(job.getUserId());
-				Format formatter = new SimpleDateFormat("MM/dd/yyyy");					
+				Format formatter = new SimpleDateFormat("MM/dd/yyyy");	
+				List<AcctJobquotecurrent> ajqcList = job.getAcctJobquotecurrent();
+				float amount = ajqcList.isEmpty() ? 0 : ajqcList.get(0).getAcctQuote().getAmount();
+				
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 							"J" + job.getJobId().intValue() + " (<a href=/wasp/sampleDnaToLibrary/listJobSamples/"+job.getJobId()+".do>details</a>)",
 							job.getName(),
@@ -427,6 +440,7 @@ public class JobController extends WaspController {
 							//job.getLab().getName() + " (" + pi.getNameLstCmFst() + ")",
 							job.getLab().getUser().getNameFstLst(),
 							formatter.format(job.getCreatets()),
+							String.format("%.2f", amount),
 							"<a href=/wasp/"+job.getWorkflow().getIName()+"/viewfiles/"+job.getJobId()+".do>View files</a>"
 				}));
 				 

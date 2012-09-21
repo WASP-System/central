@@ -114,7 +114,7 @@ public class DepartmentController extends WaspController {
 	}
 
 	@RequestMapping("/list")
-	@PreAuthorize("hasRole('su') or hasRole('da-*') or hasRole('ga-*')")
+	@PreAuthorize("hasRole('su') or hasRole('da-*') or hasRole('ga-*') or hasRole('ft') or hasRole('fm')")
 	public String list(ModelMap m) {
 
 		List<Department> departmentList;

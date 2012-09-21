@@ -31,12 +31,14 @@ import edu.yu.einstein.wasp.dao.ConfirmEmailAuthDao;
 import edu.yu.einstein.wasp.dao.DepartmentUserDao;
 import edu.yu.einstein.wasp.dao.UserMetaDao;
 import edu.yu.einstein.wasp.exception.LoginNameException;
+import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserMeta;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.EmailService;
+import edu.yu.einstein.wasp.service.FilterService;
 import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.RoleService;
 import edu.yu.einstein.wasp.service.UserService;
@@ -66,6 +68,9 @@ public class UserController extends WaspController {
 	
 	@Autowired
 	private EmailService emailService;
+	
+	@Autowired
+	private FilterService	filterService;
 	
 	@Autowired
 	private RoleService roleService;
@@ -225,6 +230,12 @@ public class UserController extends WaspController {
 		}
 		userList = this.userDao.findByMapDistinctOrderBy(m, null, orderByList, sord);
 
+		//perform ONLY if the viewer is A DA but is NOT any other type of facility member
+		if(authenticationService.isOnlyDepartmentAdministrator()){//remove users not in the DA's department
+			List<User> usersToKeep = filterService.filterUserListForDA(userList);
+			userList.retainAll(usersToKeep);
+		}		
+		
 		try {
 			int pageIndex = Integer.parseInt(request.getParameter("page"));		// index of page
 			int pageRowNum = Integer.parseInt(request.getParameter("rows"));	// number of rows in one page

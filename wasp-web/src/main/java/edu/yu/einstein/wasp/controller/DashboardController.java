@@ -59,6 +59,7 @@ public class DashboardController extends WaspController {
 	@RequestMapping("/dashboard")
 	public String list(ModelMap m) {
 		List<Lab> labList = new ArrayList<Lab>();
+		int labCount = 0;
 		int jobViewableCount = 0;
 		int jobsAllCount = 0;
 		int jobDraftCount = 0;
@@ -88,9 +89,11 @@ public class DashboardController extends WaspController {
 			}
 		}
 		jobsAllCount = jobDao.findAll().size();
+		labCount = labList.size();
 		m.addAttribute("me", authenticationService.getAuthenticatedUser());
 				
 		m.addAttribute("labs", labList);
+		m.addAttribute("labCount", labCount);
 		m.addAttribute("jobViewableCount", jobViewableCount);
 		m.addAttribute("jobsAllCount", jobsAllCount);
 		m.addAttribute("jobDraftCount", jobDraftCount);	

@@ -54,6 +54,7 @@ import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.model.UserPendingMeta;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.EmailService;
+import edu.yu.einstein.wasp.service.FilterService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.SampleService;
@@ -96,7 +97,10 @@ public class LabController extends WaspController {
 
 	@Autowired
 	private EmailService emailService;
-
+	
+	@Autowired
+	private FilterService filterService;
+	
 	@Autowired
 	private JobService jobService;
 
@@ -139,7 +143,7 @@ public class LabController extends WaspController {
 	 * @return
 	 */
 	@RequestMapping("/list")
-	@PreAuthorize("hasRole('su')")
+	@PreAuthorize("hasRole('su') or hasRole('da-*') or hasRole('ga-*')")
 	public String list(ModelMap m) {
 
 		m.addAttribute("_metaList",	getMetaHelperWebapp().getMasterList(MetaBase.class));
@@ -231,6 +235,13 @@ public class LabController extends WaspController {
 			}
 			labList.removeAll(removeLabList);
 		}
+		
+		//perform ONLY if the viewer is A DA but is NOT any other type of facility member
+		if(authenticationService.isOnlyDepartmentAdministrator()){//remove labs not in the DA's department
+			List<Lab> labsToKeep = filterService.filterLabListForDA(labList);
+			labList.retainAll(labsToKeep);
+		}
+				
 		/* Note that sorting by PI name cannot be achieved by DB query "sort by" clause, as class Lab only contains Pi's Id */
 		class PILastNameFirstNameComparatorThroughLab implements Comparator<Lab> {
 			@Override
@@ -326,7 +337,9 @@ public class LabController extends WaspController {
 								lab.getPrimaryUserId().toString(),
 								lab.getDepartment().getName(),
 
-								lab.getIsActive().intValue() == 1 ? "yes" : "no" }));
+								lab.getIsActive().intValue() == 1 ? "yes" : "no",
+								"<a href=/wasp/lab/user_manager/"+lab.getLabId()+".do>Manage</a>"
+								}));
 
 				for (LabMeta meta : labMeta) {
 					cellList.add(meta.getV());
@@ -787,7 +800,7 @@ public class LabController extends WaspController {
 	}
 
 	@RequestMapping(value = "/user_manager/{labId}.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('su') or hasRole('lu-' + #labId)")
+	@PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('da-*') or hasRole('lu-' + #labId)")
 	public String userManager(@PathVariable("labId") Integer labId, ModelMap m) {
 		Lab lab = this.labDao.getById(labId);
 		List<LabUser> labUsers = new ArrayList();
@@ -851,7 +864,7 @@ public class LabController extends WaspController {
 	}
 
 	@RequestMapping(value = "/user/role/{labId}/{userId}/{roleName}.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('su') or hasRole('lm-' + #labId)")
+	@PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('da-*') or hasRole('lm-' + #labId)")
 	public String userDetail(@PathVariable("labId") Integer labId,
 			@PathVariable("userId") Integer userId,
 			@PathVariable("roleName") String roleName, ModelMap m) {
