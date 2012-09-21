@@ -46,40 +46,33 @@ import edu.yu.einstein.wasp.service.TaskService;
 @Transactional
 public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 
-	/**
-	 * taskDao;
-	 * 
-	 */
-	private TaskDao	taskDao;
+	private TaskMappingDao	taskMappingDao;
 
 	/**
-	 * setTaskDao(TaskDao taskDao)
+	 * setTaskMappingDao(TaskMappingDao taskMappingDao)
 	 * 
-	 * @param taskDao
+	 * @param taskMappingDao
 	 * 
 	 */
 	@Override
 	@Autowired
-	public void setTaskDao(TaskDao taskDao) {
-		this.taskDao = taskDao;
+	public void setTaskMappingDao(TaskMappingDao taskMappingDao) {
+		this.taskMappingDao = taskMappingDao;
 	}
 
 	/**
-	 * getTaskDao();
+	 * getTaskMappingDao();
 	 * 
-	 * @return taskDao
+	 * @return taskMappingDao
 	 * 
 	 */
 	@Override
-	public TaskDao getTaskDao() {
-		return this.taskDao;
+	public TaskMappingDao getTaskMappingDao() {
+		return this.taskMappingDao;
 	}
 
 	@Autowired
 	private UserPendingDao			userPendingDao;
-
-	@Autowired
-	private TaskMappingDao			taskMappingDao;
 
 	@Autowired
 	private StateDao				stateDao;
@@ -99,6 +92,7 @@ public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 	@Autowired
 	private AuthenticationService	authenticationService;
 
+/*
 	@Override
 	public List<State> getJobCreatedStates() {
 		return taskDao.getStatesByTaskIName("Start Job", "CREATED");
@@ -133,6 +127,8 @@ public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 		return taskDao.getStatesByTaskIName("Receive Sample", "CREATED");
 	}
 	
+
+	
 	private String expand(String perm, State state) {
 
 		if (state == null || state.getStatejob() == null || state.getStatejob().isEmpty() || state.getStatejob().get(0).getJob() == null || state.getStatejob().get(0).getJob().getLab() == null)
@@ -144,6 +140,16 @@ public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 
 		return perm;
 
+	}
+
+*/
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<TaskMapping> getMappedTasksForCurrentUser(){
+		
 	}
 
 

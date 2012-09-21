@@ -67,8 +67,6 @@ import edu.yu.einstein.wasp.dao.SampleMetaDao;
 import edu.yu.einstein.wasp.dao.SampleSubtypeDao;
 import edu.yu.einstein.wasp.dao.SampleTypeDao;
 import edu.yu.einstein.wasp.dao.SoftwareDao;
-import edu.yu.einstein.wasp.dao.StateDao;
-import edu.yu.einstein.wasp.dao.StatejobDao;
 import edu.yu.einstein.wasp.dao.TaskDao;
 import edu.yu.einstein.wasp.dao.WorkflowDao;
 import edu.yu.einstein.wasp.dao.WorkflowResourceTypeDao;
@@ -201,12 +199,6 @@ public class JobSubmissionController extends WaspController {
 	
 	@Autowired
 	protected SampleSubtypeDao sampleSubtypeDao;
-
-	@Autowired
-	protected StatejobDao statejobDao;
-
-	@Autowired
-	protected StateDao stateDao;
 
 	@Autowired
 	protected TaskDao taskDao;

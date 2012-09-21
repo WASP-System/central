@@ -15,31 +15,23 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import edu.yu.einstein.wasp.dao.TaskDao;
+import edu.yu.einstein.wasp.dao.TaskMappingDao;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.LabPending;
 import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.State;
+import edu.yu.einstein.wasp.model.TaskMapping;
 import edu.yu.einstein.wasp.model.UserPending;
 
 @Service
 public interface TaskService extends WaspService {
 
-	/**
-	 * setTaskDao(TaskDao taskDao)
-	 * 
-	 * @param taskDao
-	 * 
-	 */
-	public void setTaskDao(TaskDao taskDao);
 
-	/**
-	 * getTaskDao();
-	 * 
-	 * @return taskDao
-	 * 
-	 */
-	public TaskDao getTaskDao();
+	public TaskMappingDao getTaskMappingDao(); 
 
+
+	public void setTaskMappingDao(TaskMappingDao taskMappingDao);
+/*
 	public List<State> getJobCreatedStates();
 
 	public List<State> getQuoteJobStates();
@@ -53,6 +45,14 @@ public interface TaskService extends WaspService {
 	public List<State> getSampleReceivedStates();
 	
 	public List<State> getSampleNotYetReceivedStates();
+*/
+	/**
+	 * Obtains a list of task-mappings, with the stateCount attribute set to the number of taskMappings, for 
+	 * named batch steps in the preset state which have at least one match in the Batch database. Only task-mappings that the current 
+	 * user has permissions to see are returned.
+	 * @return
+	 */
+	public List<TaskMapping> getMappedTasksForCurrentUser();
 
 	public List<State> filterStatesByStatusAndPermission(List<State> states, String status, String permsission);
 

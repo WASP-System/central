@@ -26,6 +26,11 @@
     	<property name="jobRegistry" ref="jobRegistry"/>
     </bean>
     
+    <!-- Entry point for browsing executions of running or historical jobs and steps.  -->
+    <bean id="jobExplorer" class="org.springframework.batch.core.explore.support.JobExplorerFactoryBean">
+    	<property name="dataSource" ref="dataSource" />
+    </bean>
+    
     <!-- AOP advice to restart methods with @Retryable annotation-->
     <aop:config>
         <aop:pointcut id="batchJobRetry" expression="execution(@edu.yu.einstein.annotations.Retryable * *(..))"/>
