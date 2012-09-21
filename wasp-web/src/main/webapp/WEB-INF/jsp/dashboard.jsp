@@ -177,7 +177,7 @@
 			<h2>Platform Unit Utils</h2>
 			<ul class="navTabs">
 				<li>
-					<a href='<c:url value="/facility/platformunit/createUpdatePlatformUnit.do?resourceCategoryId=0&sampleSubtypeId=0" />'>New Platform Unit</a> 
+					<a href='<c:url value="/facility/platformunit/createUpdatePlatformUnit.do?sampleSubtypeId=0&sampleId=0" />'>New Platform Unit</a> 
 					/ 
 					<a href='<c:url value="/facility/platformunit/list.do" />'>All Platform Units</a>
 				</li>

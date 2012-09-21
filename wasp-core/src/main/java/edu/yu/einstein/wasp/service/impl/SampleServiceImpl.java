@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.dao.AdaptorDao;
+import edu.yu.einstein.wasp.dao.BarcodeDao;
 import edu.yu.einstein.wasp.dao.RunDao;
 import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.dao.SampleMetaDao;
@@ -40,6 +41,7 @@ import edu.yu.einstein.wasp.exception.SampleMultiplexException;
 import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.model.Adaptor;
+import edu.yu.einstein.wasp.model.Barcode;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
 import edu.yu.einstein.wasp.model.Run;
@@ -123,6 +125,9 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	
 	@Autowired
 	  private AdaptorDao adaptorDao;
+	
+	@Autowired
+	private BarcodeDao barcodeDao;
 	
 	@Autowired
 	  private TaskDao taskDao;
@@ -774,17 +779,52 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean platformUnitNameExists(String name) throws SampleTypeException{
-		SampleType sampleType = sampleTypeDao.getSampleTypeByIName("platformunit");
-		if(sampleType == null || sampleType.getSampleTypeId()==null || sampleType.getSampleTypeId().intValue()==0){
-			throw new SampleTypeException("SampleType for platformunit unexpectedly not found.");
-		}
+	public boolean platformUnitNameUsedByAnother(Sample platformUnit, String name) throws SampleTypeException, SampleException{
+		
 		Map<String, Object> filter = new HashMap<String, Object>();
-		filter.put("sampleTypeId", sampleType.getSampleTypeId());
+		filter.put("sampleType.iName", "platformunit");
 		filter.put("name", name);
-		List<Sample> platformUnits = sampleDao.findByMap(filter);
-		if(platformUnits != null && platformUnits.size() > 0){
-			return true;
+		List<Sample> platformUnitsWithThisName = sampleDao.findByMap(filter);//if abc is in database and name==ABC, the record abc comes up in result set. Why I don't know.
+
+		//System.out.println("search name="+name);
+		///for(Sample s : platformUnitsWithThisName){
+		//	System.out.println("database names: " + s.getName());
+		//}
+		//next section deals with it to keep only exact matches
+		List<Sample> samplesToRemove = new ArrayList<Sample>();
+		for(Sample s : platformUnitsWithThisName){
+			if(!s.getName().equals(name)){
+				samplesToRemove.add(s);
+			}
+		}
+		platformUnitsWithThisName.removeAll(samplesToRemove);
+		
+		if(platformUnitsWithThisName != null){
+			
+			if(platformUnitsWithThisName.size() > 1){//should never occur
+				return true;
+			}			
+			else if(platformUnitsWithThisName.size() == 1){//the name exists in the database
+			
+				if(platformUnit == null || platformUnit.getSampleId() == null || platformUnit.getSampleId().intValue()==0){//if we're creating a new platformunit sample
+					return true;
+				}
+				else{//platformUnit.getSampleId() != null && platformUnit.getSampleId().intValue()>0
+				
+					//first confirm that the Sample platformUnit is in the database 
+					Sample sample = sampleDao.getSampleBySampleId(platformUnit.getSampleId().intValue());
+					if(sample==null || sample.getSampleId()==null || sample.getSampleId().intValue()==0){
+						throw new SampleException("Sample for this platformunit unexpectedly not found in database.");
+					}
+					else if(!sample.getSampleType().getIName().equalsIgnoreCase("platformunit")){//and actually represents a subtype platformunit
+						throw new SampleTypeException("This sample is NOT of type platformunit.");
+					}
+				
+					if(platformUnit.getSampleId().intValue() != platformUnitsWithThisName.get(0).getSampleId().intValue()){//this name already exists and is used by another platformunit (then return true)
+						return true;
+					}
+				}
+			}
 		}
 		return false;
 	}
@@ -793,31 +833,50 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean platformUnitBarcodeNameExists(String barcodeName) throws SampleTypeException{
-		SampleType sampleType = sampleTypeDao.getSampleTypeByIName("platformunit");
-		if(sampleType == null || sampleType.getSampleTypeId()==null || sampleType.getSampleTypeId().intValue()==0){
-			throw new SampleTypeException("SampleType for platformunit unexpectedly not found.");
-		}
+	public boolean platformUnitBarcodeUsedByAnother(Sample platformUnit, String barcodeName) throws SampleTypeException, SampleException{
+
 		Map<String, Object> filter = new HashMap<String, Object>();
-		filter.put("sampleTypeId", sampleType.getSampleTypeId());
-		List<Sample> platformUnits = sampleDao.findByMap(filter);
-		for(Sample pu : platformUnits){
-			List<SampleMeta> sampleMetaList = pu.getSampleMeta();
-			for(SampleMeta sm : sampleMetaList){
-				if(sm.getK().indexOf("barcode") > -1){
-					if(sm.getV().equalsIgnoreCase(barcodeName)){
+		filter.put("barcode", barcodeName);
+		List<Barcode> barcodesWithThisName = barcodeDao.findByMap(filter);
+ 
+		//if abc is in database and barcodeName==ABC, the record abc comes up in result set. Why I don't know.
+		//next section deals with it to keep only exact matches
+		List<Barcode> barcodesToRemove = new ArrayList<Barcode>();
+		for(Barcode b : barcodesWithThisName){
+			if(!b.getBarcode().equals(barcodeName)){
+				barcodesToRemove.add(b);
+			}
+		}
+		barcodesWithThisName.removeAll(barcodesToRemove);
+		
+		if(barcodesWithThisName != null){
+			
+			if(barcodesWithThisName.size() > 1){//should never occur
+				return true;
+			}			
+			else if(barcodesWithThisName.size() == 1){//the barcodename exists in the database
+			
+				if(platformUnit == null || platformUnit.getSampleId() == null || platformUnit.getSampleId().intValue()==0){//if we're creating a new platformunit sample
+					return true;
+				}
+				else{ /////platformUnit.getSampleId() != null && platformUnit.getSampleId().intValue()>0
+				
+					//first confirm that the Sample platformUnit is in the database 
+					Sample sample = sampleDao.getSampleBySampleId(platformUnit.getSampleId().intValue());
+					if(sample==null || sample.getSampleId()==null || sample.getSampleId().intValue()==0){
+						throw new SampleException("Sample for this platformunit unexpectedly not found in database.");
+					}
+					else if(!sample.getSampleType().getIName().equalsIgnoreCase("platformunit")){//and actually represents a subtype platformunit
+						throw new SampleTypeException("This sample is NOT of type platformunit.");
+					}
+				
+					if(platformUnit.getSampleId().intValue() != barcodesWithThisName.get(0).getSampleBarcode().get(0).getSampleId().intValue()){//this barcodename already exists and is used by another platformunit (then return true)
 						return true;
 					}
 				}
 			}
-			List<SampleBarcode> sampleBarcodeList  = pu.getSampleBarcode();
-			for(SampleBarcode sb : sampleBarcodeList){
-				if(sb.getBarcode().getBarcode().equalsIgnoreCase(barcodeName)){
-					return true;
-				}
-			}		
-		}		
-		return false;		
+		}
+		return false;
 	}
 	
 }

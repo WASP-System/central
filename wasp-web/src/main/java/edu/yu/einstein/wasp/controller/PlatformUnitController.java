@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -1490,6 +1491,43 @@ public class PlatformUnitController extends WaspController {
 		m.put("readTypes", readTypeList);//contains list like single:single as one entry and paired:paired as a second entry
 		m.put("readlengths", readlengthList);
 	}
+
+	private void prepareDistinctSelectListDataForResourceCategoriesForThisSampleSubtype(ModelMap m, SampleSubtype sampleSubtype) {
+		
+		List<SelectOptionsMeta> readTypeList = new ArrayList<SelectOptionsMeta>();
+		List<SelectOptionsMeta> readlengthList = new ArrayList<SelectOptionsMeta>();
+		Set<SelectOptionsMeta> readTypeSet = new LinkedHashSet<SelectOptionsMeta>();
+		Set<SelectOptionsMeta> readlengthSet = new LinkedHashSet<SelectOptionsMeta>();
+		
+		List<SampleSubtypeResourceCategory> sampleSubtypeResourceCategoryList = sampleSubtype.getSampleSubtypeResourceCategory();
+		for(SampleSubtypeResourceCategory ssrc : sampleSubtypeResourceCategoryList){			
+		
+			List<ResourceCategoryMeta> rcMetaList = ssrc.getResourceCategory().getResourceCategoryMeta();
+			for(ResourceCategoryMeta rcm : rcMetaList){
+			
+				if( rcm.getK().indexOf("readType") > -1 ){
+					String[] tokens = rcm.getV().split(";");//rcm.getV() will be single:single;paired:paired
+					for(String token : tokens){//token could be single:single
+						String[] colonTokens = token.split(":");
+						readTypeSet.add(new SelectOptionsMeta(colonTokens[0], colonTokens[1]));//for distinct
+					}
+				}
+				if( rcm.getK().indexOf("readlength") > -1 ){
+					String[] tokens = rcm.getV().split(";");//rcm.getV() will be 50:50;100:100
+					for(String token : tokens){//token could be 50:50
+						String[] colonTokens = token.split(":");
+						readlengthSet.add(new SelectOptionsMeta(colonTokens[0], colonTokens[1]));//for distinct
+					}
+				}				
+			}
+			readTypeList.addAll(readTypeSet);
+			readlengthList.addAll(readlengthSet);
+			m.put("readTypes", readTypeList);//contains list like single:single as one entry and paired:paired as a second entry
+			m.put("readlengths", readlengthList);//contains list of entries such as 50:50
+			
+		}//for(SampleSubtypeResourceCategory ...){
+	}
+	
 	
 	private void prepareSelectListDataBySampleSubtype(ModelMap m, SampleSubtype sampleSubtype) {
 		Integer maxCellNumber = null;
@@ -1523,67 +1561,68 @@ public class PlatformUnitController extends WaspController {
 	 */
 	@RequestMapping(value="/createUpdatePlatformUnit.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
-	public String createUpdatePlatformUnit(@RequestParam("resourceCategoryId") Integer resourceCategoryId,
-			@RequestParam("sampleSubtypeId") Integer sampleSubtypeId,
+	public String createUpdatePlatformUnit(@RequestParam("sampleSubtypeId") Integer sampleSubtypeId, 
+			@RequestParam("sampleId") Integer sampleId,
 			ModelMap m) {	
 		
-		if(resourceCategoryId.intValue()<0){
-			resourceCategoryId=0;
-		}
 		if(sampleSubtypeId.intValue()<0){
 			sampleSubtypeId=0;
 		}
-		m.put("resourceCategoryId", resourceCategoryId);
+		if(sampleId.intValue()<0){
+			sampleId=0;
+		}
 		m.put("sampleSubtypeId", sampleSubtypeId);
+		m.put("sampleId", sampleId);
 		
-		List<ResourceCategory> resourceCategories = getResourceCategoriesForMPS();
-		if(resourceCategories==null || resourceCategories.size()==0){
-			waspErrorMessage("platformunit.resourceTypeNotFound.error");//***************must fix message to another, like, no machines registered
+		Map filterMap = new HashMap();
+		filterMap.put("sampleType.iName", "platformunit");
+		List<String> orderByColumnNames = new ArrayList<String>();
+		orderByColumnNames.add("name");
+		List<SampleSubtype> sampleSubtypes = sampleSubtypeDao.findByMapDistinctOrderBy(filterMap, null, orderByColumnNames, "asc");
+		m.put("sampleSubtypes", sampleSubtypes);
+		if(sampleSubtypes.size()==0){
+			waspErrorMessage("platformunit.resourceTypeNotFound.error");//****Need correct error message, like no flow cells registered for this machine
 			return "redirect:/dashboard.do"; 
-		}		
-		m.put("resourceCategories", resourceCategories);
-		
-		if(resourceCategoryId.intValue()>0){
-			ResourceCategory resourceCategory = resourceCategoryDao.getResourceCategoryByResourceCategoryId(resourceCategoryId);
-			if(resourceCategory == null || resourceCategory.getResourceCategoryId()==null || resourceCategory.getResourceCategoryId().intValue()==0){
-				waspErrorMessage("platformunit.resourceTypeNotFound.error");//***************Need correct error message, like requested machine not registered
-				return "redirect:/dashboard.do"; 
-			}
-			else if( !resourceCategories.contains(resourceCategory)){
-				waspErrorMessage("platformunit.resourceTypeNotFound.error");//***************Need correct error message, like requested machine not for massively parallel sequencing
-				return "redirect:/dashboard.do"; 
-			}
+		}
 			
-			List<SampleSubtype> sampleSubtypes = getSampleSubtypesForThisResourceCategory(resourceCategory);			
-			m.put("sampleSubtypes", sampleSubtypes);
-			if(sampleSubtypes.size()==0){
-				waspErrorMessage("platformunit.resourceTypeNotFound.error");//****Need correct error message, like no flow cells registered for this machine
+		if(sampleSubtypeId.intValue()>0){
+				
+			SampleSubtype sampleSubtype = sampleSubtypeDao.getSampleSubtypeBySampleSubtypeId(sampleSubtypeId);
+			if(sampleSubtype == null || sampleSubtype.getSampleSubtypeId()==null || sampleSubtype.getSampleSubtypeId().intValue()==0){
+				waspErrorMessage("platformunit.resourceTypeNotFound.error");//*****Need correct error message, like flow cell type not found
 				return "redirect:/dashboard.do"; 
 			}
+			//prepareSelectListDataByResourceCategory(m, resourceCategory);
+			prepareDistinctSelectListDataForResourceCategoriesForThisSampleSubtype(m, sampleSubtype);
+			prepareSelectListDataBySampleSubtype(m, sampleSubtype);
 			
-			if(sampleSubtypeId.intValue()>0){
-				
-				SampleSubtype sampleSubtype = sampleSubtypeDao.getSampleSubtypeBySampleSubtypeId(sampleSubtypeId);
-				if(sampleSubtype == null || sampleSubtype.getSampleSubtypeId()==null || sampleSubtype.getSampleSubtypeId().intValue()==0){
-					waspErrorMessage("platformunit.resourceTypeNotFound.error");//*****Need correct error message, like flow cell type not found
-					return "redirect:/dashboard.do"; 
+			MetaHelperWebapp metaHelperWebapp = getMetaHelperWebappPlatformUnitInstance();
+			
+			Sample platformunitInstance;
+			String barcode;
+			if(sampleId > 0){
+				platformunitInstance = sampleDao.findById(sampleId.intValue());
+				//NEED TO ASSERT THIS IS A platformunit
+				if(platformunitInstance.getSampleSubtype().getIName().equals("platformunit")){
+					//TODO redirect to list of platformunits with error that the selected sample is not a platform unit
 				}
-				else if(resourceCategoryAndSampleSubtypeAreIncompatible(resourceCategoryId, sampleSubtypeId)){
-					waspErrorMessage("platformunit.resourceTypeNotFound.error");//****Need correct error message, like machine and flow cell not compatible
-					return "redirect:/dashboard.do"; 
+				metaHelperWebapp.syncWithMaster(platformunitInstance.getSampleMeta());
+				platformunitInstance.setSampleMeta((List<SampleMeta>)metaHelperWebapp.getMetaList());
+				List<SampleBarcode> sampleBarcodeList = platformunitInstance.getSampleBarcode();
+				if(sampleBarcodeList.size()>0){
+					barcode = sampleBarcodeList.get(0).getBarcode().getBarcode();
 				}
-				
-				prepareSelectListDataByResourceCategory(m, resourceCategory);
-				prepareSelectListDataBySampleSubtype(m, sampleSubtype);
-				
-				Sample platformunitInstance = new Sample();
-				
-				MetaHelperWebapp metaHelperWebapp = getMetaHelperWebappPlatformUnitInstance();
+				else{barcode = new String("");}
+			}
+			else{
+				platformunitInstance = new Sample();
 				platformunitInstance.setSampleMeta(metaHelperWebapp.getMasterList(SampleMeta.class));
-				m.addAttribute(metaHelperWebapp.getParentArea(), platformunitInstance);
-				
-			}//if(sampleSubtypeId.intValue()>0)				
-		}//if(resourceCategoryId.intValue()>0)
+				barcode = new String("");
+			}
+			m.addAttribute(metaHelperWebapp.getParentArea(), platformunitInstance);
+			m.addAttribute("barcode", barcode);
+			
+		}//if(sampleSubtypeId.intValue()>0)				
 		
 		return "facility/platformunit/createUpdatePlatformUnit";
 	}
@@ -1591,14 +1630,14 @@ public class PlatformUnitController extends WaspController {
 	@RequestMapping(value="/createUpdatePlatformUnit.do", method=RequestMethod.POST)
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public String createUpdatePlatformUnitPost(
-			@RequestParam("resourceCategoryId") Integer resourceCategoryId,
 			@RequestParam("sampleSubtypeId") Integer sampleSubtypeId,
+			@RequestParam("sampleId") Integer sampleId,
 			@RequestParam("barcode") String barcode,
 			@Valid Sample platformunitInstance, 
 			 BindingResult result,
 			 SessionStatus status, 		
 			ModelMap m) throws MetadataException {
-		
+System.out.println("1");				
 		MetaHelperWebapp metaHelperWebapp = getMetaHelperWebappPlatformUnitInstance();
 		metaHelperWebapp.getFromRequest(request, SampleMeta.class);
 		metaHelperWebapp.validate(result);
@@ -1610,20 +1649,21 @@ public class PlatformUnitController extends WaspController {
 				numberOfLanes = Integer.valueOf(sm.getV());
 			}
 		}
-		
-		if (! result.hasFieldErrors("name")){
+System.out.println("2");		
+		if (! result.hasFieldErrors("name") && !"".equals(platformunitInstance.getName())){//checking for the name being empty was already performed by @Valid
 			try{
-				if(sampleService.platformUnitNameExists(platformunitInstance.getName())==true){
+				if(sampleService.platformUnitNameUsedByAnother(platformunitInstance, platformunitInstance.getName())==true){
 					Errors errors=new BindException(result.getTarget(), metaHelperWebapp.getParentArea());
 					errors.rejectValue("name", metaHelperWebapp.getArea()+".name_exists.error", metaHelperWebapp.getArea()+".name_exists.error");
 					result.addAllErrors(errors);
 				}
 			}catch(Exception e){
 					Errors errors=new BindException(result.getTarget(), metaHelperWebapp.getParentArea());
-					errors.rejectValue("name", metaHelperWebapp.getArea()+".name_exists.error", metaHelperWebapp.getArea()+".name_exists.error");
+					errors.rejectValue("name", e.toString(), e.toString());//metaHelperWebapp.getArea()+".name_exists.error", metaHelperWebapp.getArea()+".name_exists.error");
 					result.addAllErrors(errors);
 			}				
 		}
+System.out.println("3");
 		boolean barcodeErrorExists = false;
 		if(barcode==null || "".equals(barcode)){
 			m.put("barcodeError", "Barcode cannot be empty");
@@ -1631,103 +1671,168 @@ public class PlatformUnitController extends WaspController {
 		}
 		else{ 
 			try{
-				if(sampleService.platformUnitBarcodeNameExists(barcode)==true){
+				if(sampleService.platformUnitBarcodeUsedByAnother(platformunitInstance, barcode)==true){
 					m.put("barcodeError", "Barcode already exists in database.");
 					barcodeErrorExists = true;
 				}
 			}
-			catch(SampleTypeException e){
-				m.put("barcodeError", "Unexpected barcode error");
+			catch(Exception e){
+				m.put("barcodeError", e.toString());
 				barcodeErrorExists = true;
 			}
 		}
+		//MUST NOW CHECK FOR CHANGE IN NUMBER OF LANES and if no longer the same --what to do if less?? if more must create additional lanes??
 		
-		//if(resourceCategoryAndSampleSubtypeAreIncompatible(resourceCategoryId, sampleSubtypeId)){
-		//must check
-		
+System.out.println("4");		
 		if (result.hasErrors() || barcodeErrorExists == true){
-			
-			m.put("resourceCategoryId", resourceCategoryId);
+System.out.println("5");			
 			m.put("sampleSubtypeId", sampleSubtypeId);
+			m.put("sampleId", sampleId);
 			m.put("barcode", barcode);
-			List<ResourceCategory> resourceCategories = getResourceCategoriesForMPS();
-			m.put("resourceCategories", resourceCategories);
-			List<SampleSubtype> sampleSubtypes = getSampleSubtypesForThisResourceCategory(resourceCategoryDao.findById(resourceCategoryId));			
-			m.put("sampleSubtypes", sampleSubtypes);
-			prepareSelectListDataByResourceCategory(m, resourceCategoryDao.findById(resourceCategoryId));
-			prepareSelectListDataBySampleSubtype(m, sampleSubtypeDao.findById(sampleSubtypeId));
+			Map filterMap = new HashMap();
+			filterMap.put("sampleType.iName", "platformunit");
+			List<String> orderByColumnNames = new ArrayList<String>();
+			orderByColumnNames.add("name");
+System.out.println("5.1");
 			
+			List<SampleSubtype> sampleSubtypes = sampleSubtypeDao.findByMapDistinctOrderBy(filterMap, null, orderByColumnNames, "asc");
+System.out.println("5.2");
+			m.put("sampleSubtypes", sampleSubtypes);
+System.out.println("5.3");
+			prepareDistinctSelectListDataForResourceCategoriesForThisSampleSubtype(m, sampleSubtypeDao.findById(sampleSubtypeId));
+System.out.println("5.4");
+			prepareSelectListDataBySampleSubtype(m, sampleSubtypeDao.findById(sampleSubtypeId));
+System.out.println("5.5");			
 			platformunitInstance.setSampleMeta((List<SampleMeta>) metaHelperWebapp.getMetaList());
-			///m.addAttribute(metaHelperWebapp.getArea(), platformunitInstance);
+System.out.println("5.6");			
 			return "facility/platformunit/createUpdatePlatformUnit";			
 		}
-		//save new platformunti
-		Sample platformUnit = new Sample();
 		
-		platformUnit.setName(platformunitInstance.getName());
-		
-		User me = authenticationService.getAuthenticatedUser();
-		platformUnit.setSubmitterUserId(me.getUserId());
+System.out.println("6");
+		if((sampleId == null || sampleId.intValue()==0) && (platformunitInstance.getSampleId()==null || platformunitInstance.getSampleId()==0)){//new platform unit
+System.out.println("7");			
+			//generate and save new platformunit
+			Sample platformUnit = new Sample();
 
-		SampleType sampleType = sampleTypeDao.getSampleTypeByIName("platformunit");
-		platformUnit.setSampleTypeId(sampleType.getSampleTypeId());		
-		platformUnit.setSampleSubtypeId(sampleSubtypeId);
-		
-		platformUnit.setSubmitterLabId(1);//Ed
-		platformUnit.setReceiverUserId(platformUnit.getSubmitterUserId());//Ed
-		platformUnit.setReceiveDts(new Date());//Ed
-		platformUnit.setIsReceived(1);//Ed
-		platformUnit.setIsActive(1);//Ed
-		platformUnit.setIsGood(1);//Ed
-		
-		Sample platformUnitDb = sampleDao.save(platformUnit);
-		//save the metadata
-		sampleMetaDao.updateBySampleId(platformUnitDb.getSampleId(), (List<SampleMeta>)metaHelperWebapp.getMetaList()); // now we get the list and persist it
+			platformUnit.setName(platformunitInstance.getName());
 
-		//9-14-12 have to also save resourceCategoryId as sampleMetadata
-		/*removed 9-18-12
-		SampleMeta sampleMeta = new SampleMeta();
-		sampleMeta.setSampleId(platformUnitDb.getSampleId());
-		sampleMeta.setK(metaHelperWebapp.getArea()+".resourceCategoryId");
-		sampleMeta.setV(resourceCategoryId.toString());
-		sampleMetaDao.save(sampleMeta);
-		*/
-		
-		//save the barcode
-		Barcode barcodeObject = new Barcode();		
-		barcodeObject.setBarcode(barcode);
-		barcodeObject.setIsActive(new Integer(1));
-		Barcode barcodeDB = this.barcodeDao.save(barcodeObject);//save new barcode in db
-		
-		SampleBarcode sampleBarcode = new SampleBarcode();	
-		sampleBarcode.setBarcodeId(barcodeDB.getBarcodeId()); // set new barcodeId in samplebarcode
-		sampleBarcode.setSampleId(platformUnitDb.getSampleId());
-		this.sampleBarcodeDao.save(sampleBarcode);
+			User me = authenticationService.getAuthenticatedUser();
+			platformUnit.setSubmitterUserId(me.getUserId());
 
-		//create the lanes
-		Integer sampleTypeId = sampleTypeDao.getSampleTypeByIName("cell").getSampleTypeId();
-		for (int i = 0; i < numberOfLanes.intValue(); i++) {
+			SampleType sampleType = sampleTypeDao.getSampleTypeByIName("platformunit");
+			platformUnit.setSampleTypeId(sampleType.getSampleTypeId());		
+			platformUnit.setSampleSubtypeId(sampleSubtypeId);
+
+			platformUnit.setSubmitterLabId(1);//Ed
+			platformUnit.setReceiverUserId(platformUnit.getSubmitterUserId());//Ed
+			platformUnit.setReceiveDts(new Date());//Ed
+			platformUnit.setIsReceived(1);//Ed
+			platformUnit.setIsActive(1);//Ed
+			platformUnit.setIsGood(1);//Ed
+
+			Sample platformUnitDb = sampleDao.save(platformUnit);
+			//save the metadata
+			sampleMetaDao.updateBySampleId(platformUnitDb.getSampleId(), (List<SampleMeta>)metaHelperWebapp.getMetaList()); // now we get the list and persist it
+
+			//save the barcode
+			Barcode barcodeObject = new Barcode();		
+			barcodeObject.setBarcode(barcode);
+			barcodeObject.setIsActive(new Integer(1));
+			Barcode barcodeDB = this.barcodeDao.save(barcodeObject);//save new barcode in db
+
+			SampleBarcode sampleBarcode = new SampleBarcode();	
+			sampleBarcode.setBarcodeId(barcodeDB.getBarcodeId()); // set new barcodeId in samplebarcode
+			sampleBarcode.setSampleId(platformUnitDb.getSampleId());
+			this.sampleBarcodeDao.save(sampleBarcode);
+
+			//create the lanes
+			Integer sampleTypeId = sampleTypeDao.getSampleTypeByIName("cell").getSampleTypeId();
+			for (int i = 0; i < numberOfLanes.intValue(); i++) {
+
+				Sample cell = new Sample();
+				cell.setSubmitterLabId(platformUnitDb.getSubmitterLabId());
+				cell.setSubmitterUserId(platformUnitDb.getSubmitterUserId());
+				cell.setName(platformUnitDb.getName()+"/"+(i+1));
+				cell.setSampleTypeId(sampleTypeId);
+				cell.setIsGood(1);
+				cell.setIsActive(1);
+				cell.setIsReceived(1);
+				cell.setReceiverUserId(platformUnitDb.getSubmitterUserId());
+				cell.setReceiveDts(new Date());
+				Sample cellDb = this.sampleDao.save(cell);
+
+				SampleSource sampleSource = new SampleSource();
+				sampleSource.setSampleId(platformUnitDb.getSampleId());
+				sampleSource.setSourceSampleId(cellDb.getSampleId());
+				sampleSource.setIndex(i+1);
+				this.sampleSourceDao.save(sampleSource);			 
+			}
+		}
+		else if(sampleId.intValue()>0 && platformunitInstance.getSampleId().intValue()>0 && sampleId.intValue()==platformunitInstance.getSampleId().intValue()){//update existing platform unit
+System.out.println("8");		
+			//update and save existing platformunit
+			Sample platformUnit = sampleDao.getSampleBySampleId(platformunitInstance.getSampleId().intValue());
+
+			platformUnit.setName(platformunitInstance.getName());
+
+			User me = authenticationService.getAuthenticatedUser();
+			platformUnit.setSubmitterUserId(me.getUserId());//should we do this?
+
+			//no need to reset sample type as it's still a platformunit, but the samplesubtype (type of flow cell) might change
+			platformUnit.setSampleSubtypeId(sampleSubtypeId);
+
+			Sample platformUnitDb = sampleDao.save(platformUnit);
+			//save the metadata
+			sampleMetaDao.updateBySampleId(platformUnitDb.getSampleId(), (List<SampleMeta>)metaHelperWebapp.getMetaList()); // now we get the list and persist it
+
+			//update the barcode
+			List<SampleBarcode> sampleBarcodeList = platformUnit.getSampleBarcode();
+			if(sampleBarcodeList != null && sampleBarcodeList.size() > 0){
+				SampleBarcode sampleBarcode = sampleBarcodeList.get(0);
+				Barcode existingBarcode = sampleBarcode.getBarcode();
+				existingBarcode.setBarcode(barcode);
+				this.barcodeDao.save(existingBarcode);
+			}
+			else{//should never happen
+				Barcode barcodeObject = new Barcode();		
+				barcodeObject.setBarcode(barcode);
+				barcodeObject.setIsActive(new Integer(1));
+				Barcode barcodeDB = this.barcodeDao.save(barcodeObject);//save new barcode in db
+
+				SampleBarcode sampleBarcode = new SampleBarcode();	
+				sampleBarcode.setBarcodeId(barcodeDB.getBarcodeId()); // set new barcodeId in samplebarcode
+				sampleBarcode.setSampleId(platformUnitDb.getSampleId());
+				this.sampleBarcodeDao.save(sampleBarcode);
+			}
 			
-			 Sample cell = new Sample();
-			 cell.setSubmitterLabId(platformUnitDb.getSubmitterLabId());
-			 cell.setSubmitterUserId(platformUnitDb.getSubmitterUserId());
-			 cell.setName(platformUnitDb.getName()+"/"+(i+1));
-			 cell.setSampleTypeId(sampleTypeId);
-			 cell.setIsGood(1);
-			 cell.setIsActive(1);
-			 cell.setIsReceived(1);
-			 cell.setReceiverUserId(platformUnitDb.getSubmitterUserId());
-			 cell.setReceiveDts(new Date());
-			 Sample cellDb = this.sampleDao.save(cell);
-			 
-			 SampleSource sampleSource = new SampleSource();
-			 sampleSource.setSampleId(platformUnitDb.getSampleId());
-			 sampleSource.setSourceSampleId(cellDb.getSampleId());
-			 sampleSource.setIndex(i+1);
-			 this.sampleSourceDao.save(sampleSource);
-			 
-		 }
-		 
+			//deal with the lanes
+			/*
+			Integer sampleTypeId = sampleTypeDao.getSampleTypeByIName("cell").getSampleTypeId();
+			for (int i = 0; i < numberOfLanes.intValue(); i++) {
+
+				Sample cell = new Sample();
+				cell.setSubmitterLabId(platformUnitDb.getSubmitterLabId());
+				cell.setSubmitterUserId(platformUnitDb.getSubmitterUserId());
+				cell.setName(platformUnitDb.getName()+"/"+(i+1));
+				cell.setSampleTypeId(sampleTypeId);
+				cell.setIsGood(1);
+				cell.setIsActive(1);
+				cell.setIsReceived(1);
+				cell.setReceiverUserId(platformUnitDb.getSubmitterUserId());
+				cell.setReceiveDts(new Date());
+				Sample cellDb = this.sampleDao.save(cell);
+
+				SampleSource sampleSource = new SampleSource();
+				sampleSource.setSampleId(platformUnitDb.getSampleId());
+				sampleSource.setSourceSampleId(cellDb.getSampleId());
+				sampleSource.setIndex(i+1);
+				this.sampleSourceDao.save(sampleSource);			 
+			}
+			*/
+		}
+		else{
+			//TODO throw exception of some sort
+		}
 		return "redirect:/facility/platformunit/list.do"; 
 	}
 	
@@ -2222,11 +2327,7 @@ public class PlatformUnitController extends WaspController {
 	public String showPlatformUnit(@PathVariable("sampleId") Integer sampleId, ModelMap m){
 		
 		Sample platformUnit = sampleDao.getSampleBySampleId(sampleId.intValue());
-		if(platformUnit.getSampleId().intValue()==0){
-			//TODO return where you came from (wherever that was; in this case it was listJobSamples and needs a jobId, whcih I don't have)			
-		}
-		//confirm this sample is typesampleid of 5 (platformunit); highly unlikely that it is not so
-		if( ! "platformunit".equals(platformUnit.getSampleType().getIName()) ){
+		if( platformUnit==null || platformUnit.getSampleId()==null || platformUnit.getSampleId().intValue()==0 || ! "platformunit".equals(platformUnit.getSampleType().getIName()) ){
 			waspErrorMessage("platformunit.flowcellNotFoundNotUnique.error");
 			return "redirect:/dashboard.do";
 		}
@@ -2266,7 +2367,7 @@ public class PlatformUnitController extends WaspController {
 			}
 		}
 		m.put("technicians", technicians);
-		
+/*		
 		if(runList.size() > 0){//a run for this platform unit exists
 			Run run = runList.get(0);//should only be one, I hope
 			String currentReadLength = "";
@@ -2312,7 +2413,7 @@ public class PlatformUnitController extends WaspController {
 			m.put("readType", new String(readType));
 			m.put("readLength", new String(readLength));
 		}
-		
+*/		
 		List<Resource> resourceList= resourceDao.findAll(); 
 		List<Resource> filteredResourceList = new ArrayList();
 		for(Resource resource : resourceList){

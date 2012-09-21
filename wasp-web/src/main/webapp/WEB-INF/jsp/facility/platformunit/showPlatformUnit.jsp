@@ -22,6 +22,7 @@
 		<tr class="FormData"><td class="CaptionTD" style="text-transform: capitalize"><c:out value="${fn:toLowerCase(fn:substringAfter(pusm.k, '.'))}" />:</td><td class="DataTD"><textarea style='font-size:9px' READONLY cols='25' rows='4' wrap='virtual'><c:out value="${pusm.v}" /></textarea></td></tr>
 	</c:if>
 </c:forEach>
+<%-- 
 <sec:authorize access="hasRole('su')">
 <c:if test="${runList.size() > 0}">
 <c:choose>
@@ -52,6 +53,10 @@
 </c:choose>
 </c:if>
 </sec:authorize>
+--%>
+<tr><td colspan='2' style='text-align:center; padding:10px' >
+<a href='<c:url value="/facility/platformunit/createUpdatePlatformUnit.do?sampleSubtypeId=${platformUnit.sampleSubtypeId}&sampleId=${platformUnit.sampleId}" />'>Edit</a> | <a href='<c:url value="/facility/platformunit/deletePlatformUnit.do?sampleId=${platformUnit.sampleId}" />'>Delete</a> | <a href='<c:url value="/facility/platformunit/addToRun.do?sampleId=${platformUnit.sampleId}" />'>Add To Run</a> 
+</td></tr>
 </table>
 
 <br />

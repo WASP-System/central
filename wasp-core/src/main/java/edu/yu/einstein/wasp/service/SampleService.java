@@ -283,17 +283,19 @@ public interface SampleService extends WaspService {
 	  public Run getCurrentRunForPlatformUnit(Sample platformUnit);
 	  
 	  /**
-	   * Determine whether a platform unit name is already in the database. 
-	   * @param String
+	   * Determine whether a platform unit name is already in the database. If this is a new platformunit, the id will be null so compare the name to all platformunits. 
+	   * If id is not null, then make sure that the name is associated with that pu, and if not return true.
+	   * @param Sample platformUnit
+	   * @param String platformUnitName 
 	   * @return boolean
 	   */
-	  public boolean platformUnitNameExists(String name) throws SampleTypeException;
+	  public boolean platformUnitNameUsedByAnother(Sample platformUnit, String name) throws SampleTypeException, SampleException;
 	  
 	  /**
 	   * Determine whether a platform unit barcodeName is already in the database. 
-	   * @param String
+	   * @param Sample platformUnit
 	   * @return boolean
 	   */
-	  public boolean platformUnitBarcodeNameExists(String barcodeName) throws SampleTypeException;
+	  public boolean platformUnitBarcodeUsedByAnother(Sample platformUnit, String barcodeName) throws SampleTypeException, SampleException;
 	  
 }

@@ -1,9 +1,18 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 <br />
-<title><fmt:message key="pageTitle.facility/platformunit/createUpdatePlatformUnit.label"/></title>
-<h1><fmt:message key="pageTitle.facility/platformunit/createUpdatePlatformUnit.label"/></h1>
- 
+<c:choose>
+<c:when test='${sampleId == "0"}'>
+	<title><fmt:message key="pageTitle.facility/platformunit/createPlatformUnit.label"/></title>
+	<h1><fmt:message key="pageTitle.facility/platformunit/createPlatformUnit.label"/></h1>
+</c:when>
+<c:otherwise>
+	<title><fmt:message key="pageTitle.facility/platformunit/updatePlatformUnit.label"/></title>
+	<h1><fmt:message key="pageTitle.facility/platformunit/updatePlatformUnit.label"/></h1>
+</c:otherwise>
+</c:choose>
+
 <table class="EditTable ui-widget ui-widget-content">
+<%-- 
 <tr class="FormData">
 	<td class="CaptionTD">Choose A Machine:</td>
 	<td  class="DataTD">
@@ -23,13 +32,17 @@
 	</td>
 	<td></td>
 </tr>
-
+--%>
+<%-- 
 <c:if test='${resourceCategoryId > "0"}'>
+--%>
 <tr class="FormData">
 	<td class="CaptionTD">Choose A Type Of Flow Cell:</td>
 	<td class="DataTD">
 	<form method="GET" action="<c:url value="/facility/platformunit/createUpdatePlatformUnit.do" />">
-		<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="resourceCategoryId" value="<c:out value="${resourceCategoryId}" />" />
+		
+		<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="sampleId" value="<c:out value="${sampleId}" />" />
+		
 		<select class="FormElement ui-widget-content ui-corner-all" name="sampleSubtypeId" size="1" onchange="this.parentNode.submit()">
 			<option value="0">--SELECT A TYPE OF FLOW CELL--			
 			<c:forEach items="${sampleSubtypes}" var="sampleSubtype">
@@ -44,11 +57,17 @@
 	</td>
 	<td></td>
 </tr>
+<%-- 
 </c:if>
-
+--%>
+<%--
 <c:if test='${resourceCategoryId > "0" && sampleSubtypeId > "0"}'>
+--%>
+<c:if test='${sampleSubtypeId > "0"}'>
   	<form:form  cssClass="FormGrid" commandName="sample" action="/wasp/facility/platformunit/createUpdatePlatformUnit.do">
-  	<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="resourceCategoryId" id="resourceCategoryId" value="<c:out value="${resourceCategoryId}" />" />
+  	
+  	<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="sampleId" id="sampleId" value="<c:out value="${sampleId}" />" />
+  	
   	<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="sampleSubtypeId" id="sampleSubtypeId" value="<c:out value="${sampleSubtypeId}" />" />
 	<tr class="FormData">
         <td class="CaptionTD"><fmt:message key="platformunitInstance.name.label" />:</td>
@@ -69,6 +88,9 @@
     <div class="submit">
     <tr><td colspan="3">
     	<input class="FormElement ui-widget-content ui-corner-all" type="submit" value="<fmt:message key='platformunitInstance.submit.label'/>" /> 
+    	<c:if test="${sampleId > 0}">
+    		&nbsp;<input class="FormElement ui-widget-content ui-corner-all" type="button" onClick="location.href='createUpdatePlatformUnit.do?sampleId=${sampleId}&sampleSubtypeId=${sampleSubtypeId}';" value="<fmt:message key='platformunitInstance.reset.label'/>" /> 
+    	</c:if>
     </td></tr>
     </div>
     
