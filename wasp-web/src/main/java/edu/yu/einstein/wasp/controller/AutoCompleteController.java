@@ -31,6 +31,8 @@ import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.dao.LabDao;
 import edu.yu.einstein.wasp.dao.JobDao;
 import edu.yu.einstein.wasp.dao.DepartmentDao;
+import edu.yu.einstein.wasp.service.FilterService;
+import edu.yu.einstein.wasp.service.AuthenticationService;
 
 /**
  * Methods for handling json responses for JQuery auto-complete on input boxes
@@ -58,6 +60,12 @@ public class AutoCompleteController extends WaspController{
 
 	@Autowired
 	private DepartmentDao departmentDao;
+
+	@Autowired
+	private FilterService filterService;
+	
+	@Autowired
+	private AuthenticationService authenticationService;
 
 	/**
 	   * NOT USED - but shows a way to have the json message contain list of all PIs where each entry in the list looks something like "Peter Piper" but once selected, it is "Peter Piper (PPiper)" that is actually put into the autocomplete input box"
@@ -93,6 +101,7 @@ public class AutoCompleteController extends WaspController{
 	  
 	/**
 	   * Obtains a json message containing list of all PIs where each entry in the list looks something like "Peter Piper (PPiper)"
+	   * 9/4/12 added filter so that if the viewer is just a DA, then restrict PIs to those covered by the DA's department(s)
 	   * OrderBy lastname, then firstname ascending
 	   * Used to populate a JQuery autocomplete managed input box
 	   * @param piNameFragment
@@ -101,7 +110,13 @@ public class AutoCompleteController extends WaspController{
 	  @RequestMapping(value="/getPiNamesAndLoginForDisplay", method=RequestMethod.GET)
 	  public @ResponseBody String getPINames(@RequestParam String piNameFragment) {
 	      
-		  List<Lab> labList = labDao.findAll(); 
+		  List<Lab> labList = labDao.findAll();
+		  //perform next if block ONLY if the viewer is A DA but is NOT any other type of facility member; this will restrict the PI's that are 
+		  //visible and available via this autocomplete widget to those labs that are in departments that this DA controls  
+		  if(authenticationService.isOnlyDepartmentAdministrator()){//if viewer is just a DA, then retain only labs in the DA's department(s)
+			  List<Lab> labsToKeep = filterService.filterLabListForDA(labList);
+			  labList.retainAll(labsToKeep);
+		  }
 	      List<User> userList = new ArrayList<User>();
 	      for(Lab lab : labList){
 	    	  userList.add(lab.getUser());//PI of lab
@@ -172,6 +187,7 @@ public class AutoCompleteController extends WaspController{
 	  
 	  /**
 	   * Obtains a json message containing a list of all job names from the job list. 
+	   * 9/4/12 added filter so that if the viewer is just a DA, then restrict jobNames to those in jobs covered by the DA's department(s)
 	   * Used to populate a JQuery autocomplete managed input box
 	   * @param jobName
 	   * @return
@@ -180,6 +196,12 @@ public class AutoCompleteController extends WaspController{
 	  public @ResponseBody String getJobNames(@RequestParam String jobName) {
 		  	
 		  	 List<Job> jobList = jobDao.findAll();
+		  	 //perform next if block ONLY if the viewer is A DA but is NOT any other type of facility member; this will restrict the job names that are 
+		  	 //visible and available via this autocomplete widget to those jobs that are in departments that this DA controls  
+			 if(authenticationService.isOnlyDepartmentAdministrator()){//if viewer is just a DA, then retain only jobs in the DA's department(s)
+				 List<Job> jobsToKeep = filterService.filterJobListForDA(jobList);
+				 jobList.retainAll(jobsToKeep);
+			 }
 	         String jsonString = new String();
 	         jsonString = jsonString + "{\"source\": [";
 	         for (Job job : jobList){
@@ -193,6 +215,7 @@ public class AutoCompleteController extends WaspController{
 	  
 		/**
 	   * Obtains a json message containing list of ALL users where each entry in the list looks something like "Peter Piper (PPiper)"
+	   * 9/4/12 added filter so that if the viewer is just a DA, then restrict UserNames and Logins to those covered by the DA's department(s)
 	   * Order by lastname then firstname, ascending
 	   * Used to populate a JQuery autocomplete managed input box
 	   * @param adminNameFragment
@@ -205,6 +228,14 @@ public class AutoCompleteController extends WaspController{
 		  orderbyList.add("lastName");
 		  orderbyList.add("firstName");
 	      List<User> userList = userDao.findByMapDistinctOrderBy(new HashMap(), null, orderbyList, "asc");
+	      
+		  //perform next if block ONLY if the viewer is A DA but is NOT any other type of facility member; this will restrict the Users that are 
+		  //visible and available via this autocomplete widget to those that are in departments that this DA controls  
+		  if(authenticationService.isOnlyDepartmentAdministrator()){//if viewer is just a DA, then retain only users in the DA's department(s)
+			  List<User> usersToKeep = filterService.filterUserListForDA(userList);
+			  userList.retainAll(usersToKeep);
+		  }
+	      
 	      String jsonString = new String();
 	      jsonString = jsonString + "{\"source\": [";
 	      for (User u : userList){
@@ -219,6 +250,7 @@ public class AutoCompleteController extends WaspController{
 		/**
 	   * Obtains a json message containing list of ALL users login"
 	   * Order ascending
+	   * 9/4/12 added filter so that if the viewer is just a DA, then restrict Users to those covered by the DA's department(s)
 	   * Used to populate a JQuery autocomplete managed input box
 	   * @param str
 	   * @return json message
@@ -227,6 +259,12 @@ public class AutoCompleteController extends WaspController{
 	  public @ResponseBody String getAllUserLogins(@RequestParam String str) {
 		  
 		  List<User> userList = userDao.findAllOrderBy("login", "asc");
+		  //perform next if block ONLY if the viewer is A DA but is NOT any other type of facility member; this will restrict the Users logins that are 
+		  //visible and available via this autocomplete widget to those that are in departments that this DA controls  
+		  if(authenticationService.isOnlyDepartmentAdministrator()){//if viewer is just a DA, then retain only users in the DA's department(s)
+			  List<User> usersToKeep = filterService.filterUserListForDA(userList);
+			  userList.retainAll(usersToKeep);
+		  }
 	      String jsonString = new String();
 	      jsonString = jsonString + "{\"source\": [";
 	      for (User u : userList){
@@ -241,6 +279,7 @@ public class AutoCompleteController extends WaspController{
 		/**
 	   * Obtains a json message containing DISTINCT list of ALL users first names"
 	   * Order ascending
+	   * 9/4/12 added filter so that if the viewer is just a DA, then restrict User first names to those covered by the DA's department(s)
 	   * Used to populate a JQuery autocomplete managed input box
 	   * @param str
 	   * @return json message
@@ -249,6 +288,12 @@ public class AutoCompleteController extends WaspController{
 	  public @ResponseBody String getDistinctUserFirstNames(@RequestParam String str) {
 		  
 		  List<User> userList = userDao.findAllOrderBy("firstName", "asc");
+		  //perform next if block ONLY if the viewer is A DA but is NOT any other type of facility member; this will restrict the Users that are 
+		  //visible and available via this autocomplete widget to those that are in departments that this DA controls  
+		  if(authenticationService.isOnlyDepartmentAdministrator()){//if viewer is just a DA, then retain only users in the DA's department(s)
+			  List<User> usersToKeep = filterService.filterUserListForDA(userList);
+			  userList.retainAll(usersToKeep);
+		  }
 		  Set<String> distinctSetUserFirstName = new LinkedHashSet<String>();
 		  for(User user : userList){
 			  distinctSetUserFirstName.add(user.getFirstName());//use Set to collect Distinct list of names
@@ -268,6 +313,7 @@ public class AutoCompleteController extends WaspController{
 		/**
 	   * Obtains a json message containing DISTINCT list of ALL users last names"
 	   * Order ascending
+	   * 9/4/12 added filter so that if the viewer is just a DA, then restrict user's last names to those covered by the DA's department(s)
 	   * Used to populate a JQuery autocomplete managed input box
 	   * @param str
 	   * @return json message
@@ -276,6 +322,12 @@ public class AutoCompleteController extends WaspController{
 	  public @ResponseBody String getDistinctUserLastNames(@RequestParam String str) {
 		  
 		  List<User> userList = userDao.findAllOrderBy("lastName", "asc");
+		  //perform next if block ONLY if the viewer is A DA but is NOT any other type of facility member; this will restrict the Users that are 
+		  //visible and available via this autocomplete widget to those that are in departments that this DA controls  
+		  if(authenticationService.isOnlyDepartmentAdministrator()){//if viewer is just a DA, then retain only users in the DA's department(s)
+			  List<User> usersToKeep = filterService.filterUserListForDA(userList);
+			  userList.retainAll(usersToKeep);
+		  }
 		  Set<String> distinctSetUserLastName = new LinkedHashSet<String>();
 		  for(User user : userList){
 			  distinctSetUserLastName.add(user.getLastName());//use Set to collect Distinct list of names
@@ -295,6 +347,7 @@ public class AutoCompleteController extends WaspController{
 		/**
 	   * Obtains a json message containing list of ALL users email addresses"
 	   * Order ascending
+	   * 9/4/12 added filter so that if the viewer is just a DA, then restrict user's email address to those covered by the DA's department(s)
 	   * Used to populate a JQuery autocomplete managed input box
 	   * @param str
 	   * @return json message
@@ -303,7 +356,12 @@ public class AutoCompleteController extends WaspController{
 	  public @ResponseBody String getAllUserEmails(@RequestParam String str) {
 		  
 		  List<User> userList = userDao.findAllOrderBy("email", "asc");
-		  		  
+		  //perform next if block ONLY if the viewer is A DA but is NOT any other type of facility member; this will restrict the Users email addresses that are 
+		  //visible and available via this autocomplete widget to those that are in departments that this DA controls  
+		  if(authenticationService.isOnlyDepartmentAdministrator()){//if viewer is just a DA, then retain only users in the DA's department(s)
+			  List<User> usersToKeep = filterService.filterUserListForDA(userList);
+			  userList.retainAll(usersToKeep);
+		  }		  
 	      String jsonString = new String();
 	      jsonString = jsonString + "{\"source\": [";
 	      for (User u : userList){
@@ -317,6 +375,7 @@ public class AutoCompleteController extends WaspController{
 	  
 		/**
 	   * Obtains a json message containing list of ALL department names"
+	   * 9/4/12 added filter so that if the viewer is just a DA, then restrict PIs to those covered by the DA's department(s)
 	   * Order ascending
 	   * Used to populate a JQuery autocomplete managed input box
 	   * @param str
@@ -326,6 +385,12 @@ public class AutoCompleteController extends WaspController{
 	  public @ResponseBody String getAllDepartments(@RequestParam String str) {
 		  
 		  List<Department> departmentList = departmentDao.findAllOrderBy("name", "asc");
+		  //perform next if block ONLY if the viewer is A DA but is NOT any other type of facility member; this will restrict the  
+		  //departments that are visible and available via this autocomplete widget to those departments that this DA controls  
+		  if(authenticationService.isOnlyDepartmentAdministrator()){//if viewer is just a DA, then retain departments that this DA controls
+			  List<Department> departmentsToKeep = filterService.filterDepartmentListForDA(departmentList);
+			  departmentList.retainAll(departmentsToKeep);
+		  }
 		  		  
 	      String jsonString = new String();
 	      jsonString = jsonString + "{\"source\": [";

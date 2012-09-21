@@ -44,8 +44,10 @@ import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.SampleBarcode;
 import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleDraftMeta;
+import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.SampleSourceMeta;
 import edu.yu.einstein.wasp.model.SampleSubtype;
@@ -798,6 +800,7 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 		return false;
 	}
 	
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -818,5 +821,55 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 			return true;
 		return false;
 	}
-	  
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean platformUnitNameExists(String name) throws SampleTypeException{
+		SampleType sampleType = sampleTypeDao.getSampleTypeByIName("platformunit");
+		if(sampleType == null || sampleType.getSampleTypeId()==null || sampleType.getSampleTypeId().intValue()==0){
+			throw new SampleTypeException("SampleType for platformunit unexpectedly not found.");
+		}
+		Map<String, Object> filter = new HashMap<String, Object>();
+		filter.put("sampleTypeId", sampleType.getSampleTypeId());
+		filter.put("name", name);
+		List<Sample> platformUnits = sampleDao.findByMap(filter);
+		if(platformUnits != null && platformUnits.size() > 0){
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean platformUnitBarcodeNameExists(String barcodeName) throws SampleTypeException{
+		SampleType sampleType = sampleTypeDao.getSampleTypeByIName("platformunit");
+		if(sampleType == null || sampleType.getSampleTypeId()==null || sampleType.getSampleTypeId().intValue()==0){
+			throw new SampleTypeException("SampleType for platformunit unexpectedly not found.");
+		}
+		Map<String, Object> filter = new HashMap<String, Object>();
+		filter.put("sampleTypeId", sampleType.getSampleTypeId());
+		List<Sample> platformUnits = sampleDao.findByMap(filter);
+		for(Sample pu : platformUnits){
+			List<SampleMeta> sampleMetaList = pu.getSampleMeta();
+			for(SampleMeta sm : sampleMetaList){
+				if(sm.getK().indexOf("barcode") > -1){
+					if(sm.getV().equalsIgnoreCase(barcodeName)){
+						return true;
+					}
+				}
+			}
+			List<SampleBarcode> sampleBarcodeList  = pu.getSampleBarcode();
+			for(SampleBarcode sb : sampleBarcodeList){
+				if(sb.getBarcode().getBarcode().equalsIgnoreCase(barcodeName)){
+					return true;
+				}
+			}		
+		}		
+		return false;		
+	}
+	
 }

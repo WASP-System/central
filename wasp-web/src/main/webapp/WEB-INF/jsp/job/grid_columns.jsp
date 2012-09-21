@@ -9,6 +9,8 @@
 <wasp:field name="pi" type="text"  sortable="true"  searchable="false"/>
 
 <wasp:field name="createts"  type="text" sortable="true" searchable="true"/>
+
+<wasp:field name="amount"  type="currency" sortable="false" searchable="false" />
   
 <wasp:field name="viewfiles"  type="text"  sortable="false" searchable="false"/>
 
