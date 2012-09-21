@@ -19,6 +19,7 @@ import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 import edu.yu.einstein.wasp.controller.validator.Constraint;
 import edu.yu.einstein.wasp.controller.validator.MetaValidator;
 import edu.yu.einstein.wasp.controller.validator.MetaValidatorImpl;
+import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.util.MetaHelper;
@@ -226,25 +227,26 @@ public class MetaHelperWebapp extends MetaHelper {
 	}
 	
 	/**
-	 * Adds an error message to and existing meta field regardless of whether there is normally a constraint on it or not. Will override any existing
-	 * message applied to the same metadata field.
-	 * @param metaName
-	 * @param errorKey
+	 * Adds an error message to and existing meta field regardless of whether there is normally a constraint on it or not.
+	 * @param name
+	 * @param errorMessageKey
 	 * @param result
+	 * @throws MetadataException
 	 */
-	public void addValidationError(String metaName, String errorMessageKey, BindingResult result){
-		Errors errors=new BindException(result.getTarget(), area); 
+	public void addValidationError(String name, String errorMessageKey, BindingResult result) throws MetadataException{
+		Errors errors=new BindException(result.getTarget(), parentArea); 
 		
 		for(int i=0;i<this.lastList.size();i++) {
 			MetaBase meta=this.lastList.get(i);
 			if (meta.getProperty().getFormVisibility().equals(MetaAttribute.FormVisibility.ignore)) continue;
-			if (!meta.getK().equals(area + "." + metaName)) continue;
-			String errorFieldName = area+"Meta["+i+"].k";
+			if (!meta.getK().equals(area + "." + name)) continue;
+			String errorFieldName = parentArea+"Meta["+i+"].k";
 			String defaultMessage = errorMessageKey+" (no message has been defined for this property)";
 			errors.rejectValue(errorFieldName, errorMessageKey, defaultMessage);
 			result.addAllErrors(errors);
 			return;
 		}
+		throw new MetadataException("Cannot find metadata with name: "+name);
 	}
 	
 	/**
