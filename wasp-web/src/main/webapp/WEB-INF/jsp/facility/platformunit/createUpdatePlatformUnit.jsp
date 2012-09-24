@@ -1,13 +1,12 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 <br />
+<title><fmt:message key="pageTitle.facility/platformunit/createUpdatePlatformUnit.label"/></title>
 <c:choose>
 <c:when test='${sampleId == "0"}'>
-	<title><fmt:message key="pageTitle.facility/platformunit/createPlatformUnit.label"/></title>
-	<h1><fmt:message key="pageTitle.facility/platformunit/createPlatformUnit.label"/></h1>
+	<h1><fmt:message key="platformunitInstance.headerCreate.label"/></h1>
 </c:when>
 <c:otherwise>
-	<title><fmt:message key="pageTitle.facility/platformunit/updatePlatformUnit.label"/></title>
-	<h1><fmt:message key="pageTitle.facility/platformunit/updatePlatformUnit.label"/></h1>
+	<h1><fmt:message key="platformunitInstance.headerUpdate.label"/></h1>
 </c:otherwise>
 </c:choose>
 
@@ -87,9 +86,10 @@
     
     <div class="submit">
     <tr><td colspan="3">
-    	<input class="FormElement ui-widget-content ui-corner-all" type="submit" value="<fmt:message key='platformunitInstance.submit.label'/>" /> 
+    	<input class="fm-button" type="button" onClick="submit();" value="<fmt:message key='platformunitInstance.submit.label'/>" /> 
     	<c:if test="${sampleId > 0}">
-    		&nbsp;<input class="FormElement ui-widget-content ui-corner-all" type="button" onClick="location.href='createUpdatePlatformUnit.do?sampleId=${sampleId}&sampleSubtypeId=${sampleSubtypeId}';" value="<fmt:message key='platformunitInstance.reset.label'/>" /> 
+    		&nbsp;<input class="fm-button" type="button" onClick="location.href='createUpdatePlatformUnit.do?sampleId=${sampleId}&sampleSubtypeId=${sampleSubtypeId}';" value="<fmt:message key='platformunitInstance.reset.label'/>" /> 
+    		&nbsp;<input class="fm-button" type="button" onClick="location.href='showPlatformUnit/${sampleId}.do';" value="<fmt:message key='platformunitInstance.cancel.label'/>" /> 
     	</c:if>
     </td></tr>
     </div>

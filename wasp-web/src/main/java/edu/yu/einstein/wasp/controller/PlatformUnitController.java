@@ -32,6 +32,7 @@ import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -1637,18 +1638,26 @@ public class PlatformUnitController extends WaspController {
 			 BindingResult result,
 			 SessionStatus status, 		
 			ModelMap m) throws MetadataException {
+		
+		String action;
+		if((sampleId == null || sampleId.intValue()==0) && (platformunitInstance == null || platformunitInstance.getSampleId()==null || platformunitInstance.getSampleId()==0)){//new platform unit
+			action = new String("create");
+		}
+		else if(sampleId.intValue()>0 && platformunitInstance.getSampleId().intValue()>0 && sampleId.intValue()==platformunitInstance.getSampleId().intValue()){//update existing platform unit
+			action = new String("update");
+		}
+		else{//should not occur
+			action = new String("error");
+			//TODO get out of here
+			waspErrorMessage("platformunit.resourceTypeNotFound.error");//****Need correct error message; unexpected mismatch
+			return "redirect:/dashboard.do";
+		}
+		
 System.out.println("1");				
 		MetaHelperWebapp metaHelperWebapp = getMetaHelperWebappPlatformUnitInstance();
 		metaHelperWebapp.getFromRequest(request, SampleMeta.class);
 		metaHelperWebapp.validate(result);
-		Integer numberOfLanes = new Integer(0);
-		List<SampleMeta> smList = (List<SampleMeta>)metaHelperWebapp.getMetaList();
-		for(SampleMeta sm : smList){
-			//System.out.println(sm.getK() + " = " + sm.getV());
-			if(sm.getK().indexOf("lanecount") > -1){
-				numberOfLanes = Integer.valueOf(sm.getV());
-			}
-		}
+
 System.out.println("2");		
 		if (! result.hasFieldErrors("name") && !"".equals(platformunitInstance.getName())){//checking for the name being empty was already performed by @Valid
 			try{
@@ -1682,9 +1691,132 @@ System.out.println("3");
 			}
 		}
 		//MUST NOW CHECK FOR CHANGE IN NUMBER OF LANES and if no longer the same --what to do if less?? if more must create additional lanes??
+		//only if this is an update, determine if the number of lanes changed. 
+		//If true, this will require alterations in the update section below.
+		//If true AND there are libraries on the lanes that no longer will exist, then PREVENT THE UPDATE
+		//if the number of lanes changed AND it was reduced......
+		boolean numberOfLanesError = false;
+		String laneCountErrorType = null;
+		Integer numberOfLanesRequested = null;//will need this for the create/update below
+		String numberOfLanesRequestedAsString = null;
+		
+		try{
+			numberOfLanesRequestedAsString = metaHelperWebapp.getMetaValueByName("lanecount");
+			try{
+				numberOfLanesRequested = new Integer(numberOfLanesRequestedAsString);
+				
+			}catch(Exception e){numberOfLanesError = true; laneCountErrorType = new String(".lanecount_valueinvalid.error");}
+		}catch(Exception e){numberOfLanesError = true; laneCountErrorType = new String(".lanecount_notfound.error");}
+		
+		
+		
+		try{
+			numberOfLanesRequestedAsString = metaHelperWebapp.getMetaValueByName("lanecount");
+			numberOfLanesRequested = new Integer(numberOfLanesRequestedAsString);
+			if(numberOfLanesRequested.intValue()<=0){
+				Errors errors=new BindException(result.getTarget(), metaHelperWebapp.getParentArea());
+				errors.rejectValue("lanecount", metaHelperWebapp.getArea()+".lanecount_valueinvalid.error", metaHelperWebapp.getArea()+".lanecount_invalidvalue.error");
+				result.addAllErrors(errors);
+				numberOfLanesError = true;
+			}
+		}catch(Exception e){
+			if(numberOfLanesRequestedAsString==null){
+				Errors errors=new BindException(result.getTarget(), metaHelperWebapp.getParentArea());
+				errors.rejectValue("lanecount", metaHelperWebapp.getArea()+".lanecount_notfound.error", metaHelperWebapp.getArea()+".lanecount_notfound.error");
+				result.addAllErrors(errors);
+				numberOfLanesError = true;
+			}
+			else if(numberOfLanesRequested == null){
+				Errors errors=new BindException(result.getTarget(), metaHelperWebapp.getParentArea());
+				errors.rejectValue("lanecount", metaHelperWebapp.getArea()+".lanecount_valueinvalid.error", metaHelperWebapp.getArea()+".lanecount_invalidvalue.error");
+				result.addAllErrors(errors);
+				numberOfLanesError = true;
+			}
+		}
+		
+		Integer numberOfLanesInDatabase = null;
+		if(action.equals("update") && numberOfLanesRequested != null && numberOfLanesRequested.intValue() > 0){
+			
+			Sample platformUnitInDatabase = sampleDao.getSampleBySampleId(platformunitInstance.getSampleId().intValue());
+			try{
+				String numberOfLanesInDatabaseAsString = MetaHelper.getMetaValue(metaHelperWebapp.getArea(), "lanecount", platformUnitInDatabase.getSampleMeta());
+				numberOfLanesInDatabase = new Integer(numberOfLanesInDatabaseAsString);
+				System.out.println("numberOfLanesInDatabaseAsString: " + numberOfLanesInDatabaseAsString);
+				System.out.println("numberOfLanesInDatabase: " + numberOfLanesInDatabase.intValue());
+			}catch(Exception e){
+				Errors errors=new BindException(result.getTarget(), metaHelperWebapp.getParentArea());
+				errors.rejectValue("lanecount", metaHelperWebapp.getArea()+".lanecount_valueinvalid.error", metaHelperWebapp.getArea()+".lanecount_invalidvalue.error");
+				result.addAllErrors(errors);
+				numberOfLanesError = true;
+			}
+			if(numberOfLanesInDatabase!=null && numberOfLanesRequested.intValue() < numberOfLanesInDatabase.intValue()){
+				Map<Integer,Sample> indexedCellMap = null;
+				try{
+					indexedCellMap = sampleService.getIndexedCellsOnPlatformUnit(platformUnitInDatabase);
+				}catch(Exception e){
+					waspErrorMessage("platformunit.resourceTypeNotFound.error");//****Need correct error message; unexpected mismatch
+					return "redirect:/dashboard.do";
+					//return "redirect:/facility/platformunit/list.do";
+				}
+				
+				if(indexedCellMap==null || indexedCellMap.size()==0){
+					waspErrorMessage("platformunit.resourceTypeNotFound.error");//****Need correct error message; unexpected mismatch
+					return "redirect:/dashboard.do";
+					//return "redirect:/facility/platformunit/list.do";
+				}
+				
+				for(int i = numberOfLanesRequested.intValue() + 1; i <= numberOfLanesInDatabase.intValue(); i++){
+					Integer index = new Integer(i);
+					Sample cell = indexedCellMap.get(index);
+					//System.out.println("cell " + i + ": " + cell.getName());
+					if(cell == null){
+						//seems like this is a problem
+						waspErrorMessage("platformunit.resourceTypeNotFound.error");//****Need correct error message; unexpected mismatch
+						return "redirect:/dashboard.do";
+						//return "redirect:/facility/platformunit/list.do";
+					}
+					List<Sample> libraryList = null;
+					try{
+						libraryList = sampleService.getLibrariesOnCell(cell);
+					}catch(Exception e){
+						waspErrorMessage("platformunit.resourceTypeNotFound.error");//****Need correct error message; unexpected mismatch
+						return "redirect:/dashboard.do";
+						//return "redirect:/facility/platformunit/list.do";
+					}
+					if(libraryList!=null && libraryList.size()>0){
+						//HERE IS THE ERROR TO CATCH AND PASS BACK
+						//Errors errors=new BindException(result.getTarget(), metaHelperWebapp.getParentArea());
+						//errors.rejectValue("lanecount", metaHelperWebapp.getArea()+".lanecount_valuereducedlibrariespresent.error", metaHelperWebapp.getArea()+".lanecount_invalidvalue.error");
+						//result.addAllErrors(errors);
+						//numberOfLanesError = true;
+						break;
+					}
+				}
+				
+				
+
+			}
+			
+		}
+System.out.println("numberOfLanesRequestedAsString: " + numberOfLanesRequestedAsString);
+System.out.println("numberOfLanesRequested: " + numberOfLanesRequested.intValue());
+		if(numberOfLanesRequested.intValue()==8){
+			Errors errors=new BindException(result.getTarget(), metaHelperWebapp.getParentArea());
+		
+			List<FieldError> fieldErrorList = errors.getFieldErrors();
+			for(FieldError fieldError : fieldErrorList){
+				System.out.println("fields: "+fieldError.getField());
+			}
+			//errors.rejectValue("lanecount", metaHelperWebapp.getArea()+".lanecount_valueinvalid.error", metaHelperWebapp.getArea()+".lanecount_invalidvalue.error");
+			//result.addAllErrors(errors);
+			numberOfLanesError = true;
+		}
+
+		
+		
 		
 System.out.println("4");		
-		if (result.hasErrors() || barcodeErrorExists == true){
+		if (result.hasErrors() || barcodeErrorExists == true || numberOfLanesError == true){
 System.out.println("5");			
 			m.put("sampleSubtypeId", sampleSubtypeId);
 			m.put("sampleId", sampleId);
@@ -1709,7 +1841,7 @@ System.out.println("5.6");
 		}
 		
 System.out.println("6");
-		if((sampleId == null || sampleId.intValue()==0) && (platformunitInstance.getSampleId()==null || platformunitInstance.getSampleId()==0)){//new platform unit
+		if(action.equals("create")){
 System.out.println("7");			
 			//generate and save new platformunit
 			Sample platformUnit = new Sample();
@@ -1747,7 +1879,7 @@ System.out.println("7");
 
 			//create the lanes
 			Integer sampleTypeId = sampleTypeDao.getSampleTypeByIName("cell").getSampleTypeId();
-			for (int i = 0; i < numberOfLanes.intValue(); i++) {
+			for (int i = 0; i < numberOfLanesRequested.intValue(); i++) {
 
 				Sample cell = new Sample();
 				cell.setSubmitterLabId(platformUnitDb.getSubmitterLabId());
@@ -1768,7 +1900,7 @@ System.out.println("7");
 				this.sampleSourceDao.save(sampleSource);			 
 			}
 		}
-		else if(sampleId.intValue()>0 && platformunitInstance.getSampleId().intValue()>0 && sampleId.intValue()==platformunitInstance.getSampleId().intValue()){//update existing platform unit
+		else if(action.equals("update")){
 System.out.println("8");		
 			//update and save existing platformunit
 			Sample platformUnit = sampleDao.getSampleBySampleId(platformunitInstance.getSampleId().intValue());

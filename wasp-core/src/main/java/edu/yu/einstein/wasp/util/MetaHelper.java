@@ -435,7 +435,7 @@ public class MetaHelper {
 	 * Finds a {@link MetaBase} derived object by name in the provided list
 	 * @param name
 	 * @return {@link MetaBase} derived object or null if not found 
-	 * @throws MetadataException 
+	 * @throws MetadataException if not found
 	 */
 	public static <T extends MetaBase> T getMetaObjectFromList(String area, String name, List<T> list) throws MetadataException{
 		for (T meta : list) {
@@ -466,7 +466,7 @@ public class MetaHelper {
 	 * Finds a {@link MetaBase} derived object by name in the last list generated and returns its value
 	 * @param name
 	 * @return {@link MetaBase} or null if not found 
-	 * @throws MetadataException
+	 * @throws MetadataException if not found
 	 */
 	public  String getMetaValueByName(String name) throws MetadataException{
 		return getMetaObjectFromList(this.area, name, this.lastList).getV();
