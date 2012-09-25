@@ -131,4 +131,10 @@ public class StubAuthenticationServiceImpl implements AuthenticationService {
 		return true;
 	}
 
+	@Override
+	public boolean isOnlyDepartmentAdministrator() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 }

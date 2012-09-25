@@ -261,4 +261,18 @@ public class StubSampleService implements SampleService {
 		return false;
 	}
 
+	@Override
+	public boolean platformUnitNameExists(String name)
+			throws SampleTypeException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean platformUnitBarcodeNameExists(String barcodeName)
+			throws SampleTypeException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 }

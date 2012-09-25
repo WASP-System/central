@@ -91,8 +91,13 @@ public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 
 	@Autowired
 	private AuthenticationService	authenticationService;
+	
 
-/*
+// >>>>>>> TODO: REMOVE
+	
+	@Autowired
+	private TaskDao taskDao;
+	
 	@Override
 	public List<State> getJobCreatedStates() {
 		return taskDao.getStatesByTaskIName("Start Job", "CREATED");
@@ -142,14 +147,15 @@ public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 
 	}
 
-*/
+//<<<<<<<<<
 	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public List<TaskMapping> getMappedTasksForCurrentUser(){
-		
+		// TODO: add code
+		return null;
 	}
 
 

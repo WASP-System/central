@@ -31,7 +31,7 @@ public interface TaskService extends WaspService {
 
 
 	public void setTaskMappingDao(TaskMappingDao taskMappingDao);
-/*
+// >>>>> TODO: REMOVE
 	public List<State> getJobCreatedStates();
 
 	public List<State> getQuoteJobStates();
@@ -45,7 +45,7 @@ public interface TaskService extends WaspService {
 	public List<State> getSampleReceivedStates();
 	
 	public List<State> getSampleNotYetReceivedStates();
-*/
+// <<<<<<<
 	/**
 	 * Obtains a list of task-mappings, with the stateCount attribute set to the number of taskMappings, for 
 	 * named batch steps in the preset state which have at least one match in the Batch database. Only task-mappings that the current 

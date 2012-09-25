@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.yu.einstein.wasp.service.JobExplorerWasp;
+import edu.yu.einstein.wasp.batch.core.extension.JobExplorerWasp;
 
 @Service
 @Transactional
