@@ -1564,13 +1564,14 @@ public class PlatformUnitController extends WaspController {
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public String createUpdatePlatformUnit(@RequestParam("sampleSubtypeId") Integer sampleSubtypeId, 
 			@RequestParam("sampleId") Integer sampleId,
+			@RequestParam(value="reset", defaultValue="") String reset,
 			ModelMap m) {	
-		
+	
 		if(sampleSubtypeId.intValue()<0){
-			sampleSubtypeId=0;
+			sampleSubtypeId = new Integer(0);
 		}
 		if(sampleId.intValue()<0){
-			sampleId=0;
+			sampleId = new Integer(0);
 		}
 		m.put("sampleSubtypeId", sampleSubtypeId);
 		m.put("sampleId", sampleId);
@@ -1587,21 +1588,25 @@ public class PlatformUnitController extends WaspController {
 		}
 			
 		if(sampleSubtypeId.intValue()>0){
-				
-			SampleSubtype sampleSubtype = sampleSubtypeDao.getSampleSubtypeBySampleSubtypeId(sampleSubtypeId);
-			if(sampleSubtype == null || sampleSubtype.getSampleSubtypeId()==null || sampleSubtype.getSampleSubtypeId().intValue()==0){
-				waspErrorMessage("platformunit.resourceTypeNotFound.error");//*****Need correct error message, like flow cell type not found
-				return "redirect:/dashboard.do"; 
+			
+			SampleSubtype sampleSubtype = null;
+			
+			if(!reset.equals("reset")){
+				sampleSubtype = sampleSubtypeDao.getSampleSubtypeBySampleSubtypeId(sampleSubtypeId);
+				if(sampleSubtype == null || sampleSubtype.getSampleSubtypeId()==null || sampleSubtype.getSampleSubtypeId().intValue()==0){
+					waspErrorMessage("platformunit.resourceTypeNotFound.error");//*****Need correct error message, like flow cell type not found
+					return "redirect:/dashboard.do"; 
+				}
+				//prepareSelectListDataByResourceCategory(m, resourceCategory);
+				prepareDistinctSelectListDataForResourceCategoriesForThisSampleSubtype(m, sampleSubtype);
+				prepareSelectListDataBySampleSubtype(m, sampleSubtype);
 			}
-			//prepareSelectListDataByResourceCategory(m, resourceCategory);
-			prepareDistinctSelectListDataForResourceCategoriesForThisSampleSubtype(m, sampleSubtype);
-			prepareSelectListDataBySampleSubtype(m, sampleSubtype);
 			
 			MetaHelperWebapp metaHelperWebapp = getMetaHelperWebappPlatformUnitInstance();
 			
 			Sample platformunitInstance;
 			String barcode;
-			if(sampleId > 0){
+			if(sampleId.intValue() > 0){
 				platformunitInstance = sampleDao.findById(sampleId.intValue());
 				//NEED TO ASSERT THIS IS A platformunit
 				if(platformunitInstance.getSampleSubtype().getIName().equals("platformunit")){
@@ -1614,6 +1619,17 @@ public class PlatformUnitController extends WaspController {
 					barcode = sampleBarcodeList.get(0).getBarcode().getBarcode();
 				}
 				else{barcode = new String("");}
+				if(reset.equals("reset")){
+					sampleSubtypeId = new Integer(platformunitInstance.getSampleSubtypeId().intValue());
+					sampleSubtype = sampleSubtypeDao.getSampleSubtypeBySampleSubtypeId(sampleSubtypeId);
+					if(sampleSubtype == null || sampleSubtype.getSampleSubtypeId()==null || sampleSubtype.getSampleSubtypeId().intValue()==0){
+						waspErrorMessage("platformunit.resourceTypeNotFound.error");//*****Need correct error message, like flow cell type not found
+						return "redirect:/dashboard.do"; 
+					}
+					m.put("sampleSubtypeId", sampleSubtypeId);
+					prepareDistinctSelectListDataForResourceCategoriesForThisSampleSubtype(m, sampleSubtype);//since it's a map, it will write over any older data
+					prepareSelectListDataBySampleSubtype(m, sampleSubtype);
+				}
 			}
 			else{
 				platformunitInstance = new Sample();
@@ -1639,27 +1655,39 @@ public class PlatformUnitController extends WaspController {
 			 SessionStatus status, 		
 			ModelMap m) throws MetadataException {
 		
-		String action;
-		if((sampleId == null || sampleId.intValue()==0) && (platformunitInstance == null || platformunitInstance.getSampleId()==null || platformunitInstance.getSampleId()==0)){//new platform unit
-			action = new String("create");
+		String action = null;
+		Sample platformUnitInDatabase = null;
+		if(sampleSubtypeId !=null && sampleSubtypeId.intValue() > 0){
+			SampleSubtype sampleSubtype = sampleSubtypeDao.getSampleSubtypeBySampleSubtypeId(sampleSubtypeId.intValue());
+			if(sampleSubtype!= null && sampleSubtype.getSampleType()!=null && sampleSubtype.getSampleType().getIName().equals("platformunit")){
+				if((sampleId == null || sampleId.intValue()==0) && (platformunitInstance == null || platformunitInstance.getSampleId()==null || platformunitInstance.getSampleId().intValue()==0)){//new platform unit
+					action = new String("create");
+				}
+				else if(sampleId.intValue()>0 && platformunitInstance.getSampleId().intValue()>0 && sampleId.intValue()==platformunitInstance.getSampleId().intValue()){//update existing platform unit
+			
+					platformUnitInDatabase = sampleDao.getSampleBySampleId(sampleId.intValue());
+					if(platformUnitInDatabase !=null && platformUnitInDatabase.getSampleId()!=null 
+							&& platformUnitInDatabase.getSampleId().intValue() > 0 && "platformunit".equals(platformUnitInDatabase.getSampleType().getIName())
+							&& "platformunit".equals(platformUnitInDatabase.getSampleSubtype().getSampleType().getIName())){
+						action = new String("update");	
+					}
+				}
+			}
 		}
-		else if(sampleId.intValue()>0 && platformunitInstance.getSampleId().intValue()>0 && sampleId.intValue()==platformunitInstance.getSampleId().intValue()){//update existing platform unit
-			action = new String("update");
-		}
-		else{//should not occur
-			action = new String("error");
-			//TODO get out of here
-			waspErrorMessage("platformunit.resourceTypeNotFound.error");//****Need correct error message; unexpected mismatch
+		if(action == null){
+			logger.debug("PlatformUnitController.java/createUpdatePlatformUnit.do POST: Unexpected paramater problems");
+			waspErrorMessage("wasp.unexpected_error.error");
 			return "redirect:/dashboard.do";
 		}
-		
-System.out.println("1");				
+
 		MetaHelperWebapp metaHelperWebapp = getMetaHelperWebappPlatformUnitInstance();
 		metaHelperWebapp.getFromRequest(request, SampleMeta.class);
 		metaHelperWebapp.validate(result);
-
-System.out.println("2");		
-		if (! result.hasFieldErrors("name") && !"".equals(platformunitInstance.getName())){//checking for the name being empty was already performed by @Valid
+		
+		boolean otherErrorsExist = false;
+		
+		//check whether name has been used; note that @Valid has already checked for name being the empty 
+		if (! result.hasFieldErrors("name")){
 			try{
 				if(sampleService.platformUnitNameUsedByAnother(platformunitInstance, platformunitInstance.getName())==true){
 					Errors errors=new BindException(result.getTarget(), metaHelperWebapp.getParentArea());
@@ -1667,156 +1695,118 @@ System.out.println("2");
 					result.addAllErrors(errors);
 				}
 			}catch(Exception e){
-					Errors errors=new BindException(result.getTarget(), metaHelperWebapp.getParentArea());
-					errors.rejectValue("name", e.toString(), e.toString());//metaHelperWebapp.getArea()+".name_exists.error", metaHelperWebapp.getArea()+".name_exists.error");
-					result.addAllErrors(errors);
-			}				
+				logger.error(e.getMessage()); 
+				Errors errors=new BindException(result.getTarget(), metaHelperWebapp.getParentArea());
+				errors.rejectValue("name", "wasp.unexpected_error.error", "wasp.unexpected_error.error");
+				result.addAllErrors(errors);
+			}
 		}
-System.out.println("3");
-		boolean barcodeErrorExists = false;
+		
+		//check for barcode. Since barcode is outside of Sample, @Valid is unable to to perform this check		
 		if(barcode==null || "".equals(barcode)){
-			m.put("barcodeError", "Barcode cannot be empty");
-			barcodeErrorExists = true;
+			String msg = messageService.getMessage(metaHelperWebapp.getArea()+".barcode_error.error");
+			if(msg==null){
+				msg = new String("Barcode cannot be empty.");
+			}
+			m.put("barcodeError", msg);//"Barcode cannot be empty"
+			otherErrorsExist = true;
 		}
 		else{ 
 			try{
 				if(sampleService.platformUnitBarcodeUsedByAnother(platformunitInstance, barcode)==true){
-					m.put("barcodeError", "Barcode already exists in database.");
-					barcodeErrorExists = true;
+					String msg = messageService.getMessage(metaHelperWebapp.getArea()+".barcode_exists.error");
+					if(msg==null){
+						msg = new String("Barcode already exists in database.");
+					}
+					m.put("barcodeError", msg);//"Barcode already exists in database."
+					otherErrorsExist = true;					
 				}
 			}
 			catch(Exception e){
-				m.put("barcodeError", e.toString());
-				barcodeErrorExists = true;
+				logger.error(e.getMessage()); 
+				String msg = messageService.getMessage("wasp.unexpected_error.error");
+				if(msg==null){
+					msg = new String("Unexpected error. Last command was NOT executed.");
+				}
+				m.put("barcodeError", msg);//"Barcode already exists in database."
+				otherErrorsExist = true;	
 			}
 		}
-		//MUST NOW CHECK FOR CHANGE IN NUMBER OF LANES and if no longer the same --what to do if less?? if more must create additional lanes??
+		
+		//this is lanecount from incoming form
+		//will need numberOfLanesRequested for the create/update below, as well as for "if(action.equals("update"))" in a few lines
+		Integer numberOfLanesRequested = null;
+		try{//Note:@Valid now checks to see whether lanecount is an integer greater than 0
+			numberOfLanesRequested = new Integer(metaHelperWebapp.getMetaValueByName("lanecount"));
+			if(numberOfLanesRequested==null || numberOfLanesRequested <=0){
+				throw new Exception("numberOfLanesRequested: Invalid value");
+			}
+		}
+		catch(Exception e){logger.debug(e.getMessage()); metaHelperWebapp.addValidationError("lanecount", "wasp.unexpected_error.error", result); otherErrorsExist = true;}
+
+		//CHECK FOR CHANGE IN NUMBER OF LANES and if no longer the same --what to do if less?? if more must create additional lanes??
 		//only if this is an update, determine if the number of lanes changed. 
 		//If true, this will require alterations in the update section below.
 		//If true AND there are libraries on the lanes that no longer will exist, then PREVENT THE UPDATE
 		//if the number of lanes changed AND it was reduced......
-		boolean numberOfLanesError = false;
-		String laneCountErrorType = null;
-		Integer numberOfLanesRequested = null;//will need this for the create/update below
-		String numberOfLanesRequestedAsString = null;
-		
-		try{
-			numberOfLanesRequestedAsString = metaHelperWebapp.getMetaValueByName("lanecount");
-			try{
-				numberOfLanesRequested = new Integer(numberOfLanesRequestedAsString);
-				
-			}catch(Exception e){numberOfLanesError = true; laneCountErrorType = new String(".lanecount_valueinvalid.error");}
-		}catch(Exception e){numberOfLanesError = true; laneCountErrorType = new String(".lanecount_notfound.error");}
-		
-		
-		
-		try{
-			numberOfLanesRequestedAsString = metaHelperWebapp.getMetaValueByName("lanecount");
-			numberOfLanesRequested = new Integer(numberOfLanesRequestedAsString);
-			if(numberOfLanesRequested.intValue()<=0){
-				Errors errors=new BindException(result.getTarget(), metaHelperWebapp.getParentArea());
-				errors.rejectValue("lanecount", metaHelperWebapp.getArea()+".lanecount_valueinvalid.error", metaHelperWebapp.getArea()+".lanecount_invalidvalue.error");
-				result.addAllErrors(errors);
-				numberOfLanesError = true;
-			}
-		}catch(Exception e){
-			if(numberOfLanesRequestedAsString==null){
-				Errors errors=new BindException(result.getTarget(), metaHelperWebapp.getParentArea());
-				errors.rejectValue("lanecount", metaHelperWebapp.getArea()+".lanecount_notfound.error", metaHelperWebapp.getArea()+".lanecount_notfound.error");
-				result.addAllErrors(errors);
-				numberOfLanesError = true;
-			}
-			else if(numberOfLanesRequested == null){
-				Errors errors=new BindException(result.getTarget(), metaHelperWebapp.getParentArea());
-				errors.rejectValue("lanecount", metaHelperWebapp.getArea()+".lanecount_valueinvalid.error", metaHelperWebapp.getArea()+".lanecount_invalidvalue.error");
-				result.addAllErrors(errors);
-				numberOfLanesError = true;
-			}
-		}
-		
 		Integer numberOfLanesInDatabase = null;
-		if(action.equals("update") && numberOfLanesRequested != null && numberOfLanesRequested.intValue() > 0){
-			
-			Sample platformUnitInDatabase = sampleDao.getSampleBySampleId(platformunitInstance.getSampleId().intValue());
+		int numberOfLanesToBeAdded = 0;
+		int numberOfLanesToBeRemoved = 0;
+		if(action.equals("update")){		
+			System.out.println("A");			
 			try{
-				String numberOfLanesInDatabaseAsString = MetaHelper.getMetaValue(metaHelperWebapp.getArea(), "lanecount", platformUnitInDatabase.getSampleMeta());
-				numberOfLanesInDatabase = new Integer(numberOfLanesInDatabaseAsString);
-				System.out.println("numberOfLanesInDatabaseAsString: " + numberOfLanesInDatabaseAsString);
-				System.out.println("numberOfLanesInDatabase: " + numberOfLanesInDatabase.intValue());
-			}catch(Exception e){
-				Errors errors=new BindException(result.getTarget(), metaHelperWebapp.getParentArea());
-				errors.rejectValue("lanecount", metaHelperWebapp.getArea()+".lanecount_valueinvalid.error", metaHelperWebapp.getArea()+".lanecount_invalidvalue.error");
-				result.addAllErrors(errors);
-				numberOfLanesError = true;
-			}
-			if(numberOfLanesInDatabase!=null && numberOfLanesRequested.intValue() < numberOfLanesInDatabase.intValue()){
-				Map<Integer,Sample> indexedCellMap = null;
-				try{
-					indexedCellMap = sampleService.getIndexedCellsOnPlatformUnit(platformUnitInDatabase);
-				}catch(Exception e){
-					waspErrorMessage("platformunit.resourceTypeNotFound.error");//****Need correct error message; unexpected mismatch
-					return "redirect:/dashboard.do";
-					//return "redirect:/facility/platformunit/list.do";
+				numberOfLanesInDatabase = new Integer(MetaHelper.getMetaValue(metaHelperWebapp.getArea(), "lanecount", platformUnitInDatabase.getSampleMeta()));
+				if(numberOfLanesInDatabase==null || numberOfLanesInDatabase.intValue()<=0){
+					throw new Exception("lanecount in database is not valid for platformId " + platformUnitInDatabase.getSampleId().intValue());
 				}
-				
-				if(indexedCellMap==null || indexedCellMap.size()==0){
-					waspErrorMessage("platformunit.resourceTypeNotFound.error");//****Need correct error message; unexpected mismatch
-					return "redirect:/dashboard.do";
-					//return "redirect:/facility/platformunit/list.do";
+				else if(numberOfLanesRequested.intValue() > numberOfLanesInDatabase.intValue()){
+					numberOfLanesToBeAdded = numberOfLanesRequested.intValue() - numberOfLanesInDatabase.intValue();
 				}
-				
-				for(int i = numberOfLanesRequested.intValue() + 1; i <= numberOfLanesInDatabase.intValue(); i++){
-					Integer index = new Integer(i);
-					Sample cell = indexedCellMap.get(index);
-					//System.out.println("cell " + i + ": " + cell.getName());
-					if(cell == null){
-						//seems like this is a problem
-						waspErrorMessage("platformunit.resourceTypeNotFound.error");//****Need correct error message; unexpected mismatch
-						return "redirect:/dashboard.do";
-						//return "redirect:/facility/platformunit/list.do";
+				else if(numberOfLanesRequested.intValue() < numberOfLanesInDatabase.intValue()){
+					numberOfLanesToBeRemoved = numberOfLanesInDatabase.intValue() - numberOfLanesRequested.intValue();
+					System.out.println("B");	
+					Map<Integer,Sample> indexedCellMap = null;
+					indexedCellMap = sampleService.getIndexedCellsOnPlatformUnit(platformUnitInDatabase);//throws exception					
+					if(indexedCellMap==null || indexedCellMap.size()==0){
+						throw new Exception("No cells found for platformUnit Id: " + platformUnitInDatabase.getSampleId().intValue());
 					}
-					List<Sample> libraryList = null;
-					try{
-						libraryList = sampleService.getLibrariesOnCell(cell);
-					}catch(Exception e){
-						waspErrorMessage("platformunit.resourceTypeNotFound.error");//****Need correct error message; unexpected mismatch
-						return "redirect:/dashboard.do";
-						//return "redirect:/facility/platformunit/list.do";
-					}
-					if(libraryList!=null && libraryList.size()>0){
-						//HERE IS THE ERROR TO CATCH AND PASS BACK
-						//Errors errors=new BindException(result.getTarget(), metaHelperWebapp.getParentArea());
-						//errors.rejectValue("lanecount", metaHelperWebapp.getArea()+".lanecount_valuereducedlibrariespresent.error", metaHelperWebapp.getArea()+".lanecount_invalidvalue.error");
-						//result.addAllErrors(errors);
-						//numberOfLanesError = true;
-						break;
+					System.out.println("C");	
+					for(int i = numberOfLanesRequested.intValue() + 1; i <= numberOfLanesInDatabase.intValue(); i++){
+						Integer index = new Integer(i);
+						Sample cell = indexedCellMap.get(index);
+						//System.out.println("cell " + i + ": " + cell.getName());
+						if(cell == null){
+							//seems like this is a problem
+							throw new Exception("No cell found for platformUnitId " + platformUnitInDatabase.getSampleId().intValue() + " and cell index " + i);
+						}
+						List<Sample> libraryList = null;
+						try{
+							libraryList = sampleService.getLibrariesOnCell(cell);
+						}catch(Exception e){
+							throw new Exception("Problem getting libraryList from platformUnitId " + platformUnitInDatabase.getSampleId().intValue() + " and cell index " + i);
+						}
+						System.out.println("D");	
+						if(libraryList!=null && libraryList.size()>0){//don't forget list is permitted to be empty
+							//HERE IS THE ERROR TO CATCH AND PASS BACK
+							metaHelperWebapp.addValidationError("lanecount", metaHelperWebapp.getArea()+".lanecount_valuealteredconflicting.error", result);
+							otherErrorsExist=true;
+							System.out.println("found problem with number of lanes being reduced");
+							break;
+						}
 					}
 				}
-				
-				
-
-			}
-			
+			}catch(Exception e){logger.debug(e.getMessage()); metaHelperWebapp.addValidationError("lanecount", "wasp.unexpected_error.error", result); otherErrorsExist = true;}
 		}
-System.out.println("numberOfLanesRequestedAsString: " + numberOfLanesRequestedAsString);
-System.out.println("numberOfLanesRequested: " + numberOfLanesRequested.intValue());
-		if(numberOfLanesRequested.intValue()==8){
-			Errors errors=new BindException(result.getTarget(), metaHelperWebapp.getParentArea());
-		
-			List<FieldError> fieldErrorList = errors.getFieldErrors();
-			for(FieldError fieldError : fieldErrorList){
-				System.out.println("fields: "+fieldError.getField());
-			}
-			//errors.rejectValue("lanecount", metaHelperWebapp.getArea()+".lanecount_valueinvalid.error", metaHelperWebapp.getArea()+".lanecount_invalidvalue.error");
-			//result.addAllErrors(errors);
-			numberOfLanesError = true;
-		}
+//		if(numberOfLanesRequested.intValue()==8){
+//			metaHelperWebapp.addValidationError("lanecount", metaHelperWebapp.getArea()+".lanecount_valueinvalid.error", result);
+//			otherErrorsExist=true;
+//		}
 
 		
 		
 		
 System.out.println("4");		
-		if (result.hasErrors() || barcodeErrorExists == true || numberOfLanesError == true){
+		if (result.hasErrors() || otherErrorsExist == true){
 System.out.println("5");			
 			m.put("sampleSubtypeId", sampleSubtypeId);
 			m.put("sampleId", sampleId);
@@ -1903,22 +1893,22 @@ System.out.println("7");
 		else if(action.equals("update")){
 System.out.println("8");		
 			//update and save existing platformunit
-			Sample platformUnit = sampleDao.getSampleBySampleId(platformunitInstance.getSampleId().intValue());
+			//Sample platformUnit = sampleDao.getSampleBySampleId(platformunitInstance.getSampleId().intValue());
 
-			platformUnit.setName(platformunitInstance.getName());
+			platformUnitInDatabase.setName(platformunitInstance.getName());
 
 			User me = authenticationService.getAuthenticatedUser();
-			platformUnit.setSubmitterUserId(me.getUserId());//should we do this?
+			platformUnitInDatabase.setSubmitterUserId(me.getUserId());//should we do this?
 
 			//no need to reset sample type as it's still a platformunit, but the samplesubtype (type of flow cell) might change
-			platformUnit.setSampleSubtypeId(sampleSubtypeId);
+			platformUnitInDatabase.setSampleSubtypeId(sampleSubtypeId);
 
-			Sample platformUnitDb = sampleDao.save(platformUnit);
+			platformUnitInDatabase = sampleDao.save(platformUnitInDatabase);
 			//save the metadata
-			sampleMetaDao.updateBySampleId(platformUnitDb.getSampleId(), (List<SampleMeta>)metaHelperWebapp.getMetaList()); // now we get the list and persist it
+			sampleMetaDao.updateBySampleId(platformUnitInDatabase.getSampleId(), (List<SampleMeta>)metaHelperWebapp.getMetaList()); // now we get the list and persist it
 
 			//update the barcode
-			List<SampleBarcode> sampleBarcodeList = platformUnit.getSampleBarcode();
+			List<SampleBarcode> sampleBarcodeList = platformUnitInDatabase.getSampleBarcode();
 			if(sampleBarcodeList != null && sampleBarcodeList.size() > 0){
 				SampleBarcode sampleBarcode = sampleBarcodeList.get(0);
 				Barcode existingBarcode = sampleBarcode.getBarcode();
@@ -1933,7 +1923,7 @@ System.out.println("8");
 
 				SampleBarcode sampleBarcode = new SampleBarcode();	
 				sampleBarcode.setBarcodeId(barcodeDB.getBarcodeId()); // set new barcodeId in samplebarcode
-				sampleBarcode.setSampleId(platformUnitDb.getSampleId());
+				sampleBarcode.setSampleId(platformUnitInDatabase.getSampleId());
 				this.sampleBarcodeDao.save(sampleBarcode);
 			}
 			
@@ -1943,19 +1933,19 @@ System.out.println("8");
 			for (int i = 0; i < numberOfLanes.intValue(); i++) {
 
 				Sample cell = new Sample();
-				cell.setSubmitterLabId(platformUnitDb.getSubmitterLabId());
-				cell.setSubmitterUserId(platformUnitDb.getSubmitterUserId());
-				cell.setName(platformUnitDb.getName()+"/"+(i+1));
+				cell.setSubmitterLabId(platformUnitInDatabase.getSubmitterLabId());
+				cell.setSubmitterUserId(platformUnitInDatabase.getSubmitterUserId());
+				cell.setName(platformUnitInDatabase.getName()+"/"+(i+1));
 				cell.setSampleTypeId(sampleTypeId);
 				cell.setIsGood(1);
 				cell.setIsActive(1);
 				cell.setIsReceived(1);
-				cell.setReceiverUserId(platformUnitDb.getSubmitterUserId());
+				cell.setReceiverUserId(platformUnitInDatabase.getSubmitterUserId());
 				cell.setReceiveDts(new Date());
 				Sample cellDb = this.sampleDao.save(cell);
 
 				SampleSource sampleSource = new SampleSource();
-				sampleSource.setSampleId(platformUnitDb.getSampleId());
+				sampleSource.setSampleId(platformUnitInDatabase.getSampleId());
 				sampleSource.setSourceSampleId(cellDb.getSampleId());
 				sampleSource.setIndex(i+1);
 				this.sampleSourceDao.save(sampleSource);			 

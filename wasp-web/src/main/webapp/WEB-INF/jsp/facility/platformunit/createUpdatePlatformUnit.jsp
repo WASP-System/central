@@ -87,10 +87,15 @@
     <div class="submit">
     <tr><td colspan="3">
     	<input class="fm-button" type="button" onClick="submit();" value="<fmt:message key='platformunitInstance.submit.label'/>" /> 
-    	<c:if test="${sampleId > 0}">
-    		&nbsp;<input class="fm-button" type="button" onClick="location.href='createUpdatePlatformUnit.do?sampleId=${sampleId}&sampleSubtypeId=${sampleSubtypeId}';" value="<fmt:message key='platformunitInstance.reset.label'/>" /> 
-    		&nbsp;<input class="fm-button" type="button" onClick="location.href='showPlatformUnit/${sampleId}.do';" value="<fmt:message key='platformunitInstance.cancel.label'/>" /> 
-    	</c:if>
+ 		<c:choose>
+    		<c:when test="${sampleId > 0}">
+    			&nbsp;<input class="fm-button" type="button" onClick="location.href='createUpdatePlatformUnit.do?reset=reset&sampleId=${sampleId}&sampleSubtypeId=${sampleSubtypeId}';" value="<fmt:message key='platformunitInstance.reset.label'/>" /> 
+    			&nbsp;<input class="fm-button" type="button" onClick="location.href='showPlatformUnit/${sampleId}.do';" value="<fmt:message key='platformunitInstance.cancel.label'/>" /> 
+    		</c:when>
+    		<c:otherwise>
+ 	   			&nbsp;<input class="fm-button" type="button" onClick="location.href='/wasp/dashboard.do';" value="<fmt:message key='platformunitInstance.cancel.label'/>" /> 
+     		</c:otherwise>
+    	</c:choose>
     </td></tr>
     </div>
     
