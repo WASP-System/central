@@ -9,22 +9,20 @@
 	<import resource="classpath:batch-context.xml" />
 	<import resource="classpath:integration-context.xml" />
 	
+	<!-- create beans for classes containing constants -->
 	<bean id="waspMessageType" class="edu.yu.einstein.wasp.messages.WaspMessageType" />
-	
 	<bean id="waspJobParameters" class="edu.yu.einstein.wasp.messages.WaspJobParameters" />
-	
 	<bean id='jobTasks' class="edu.yu.einstein.wasp.messages.WaspJobTask" />
-	
 	<bean id='sampleTasks' class="edu.yu.einstein.wasp.messages.WaspSampleTask" />
-	
 	<bean id='libraryTasks' class="edu.yu.einstein.wasp.messages.WaspLibraryTask" />
 	
+	<!-- create common tasklet beans -->
 	<bean id="listenForJobQuotedTasklet" class="edu.yu.einstein.wasp.tasklets.ListenForStatusTasklet" scope="step">
 		<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.job" />
 		<constructor-arg name="abortMonitoringChannel" ref="wasp.channel.notification.abort" />
 		<constructor-arg name="messageTemplate">
 			<bean class="edu.yu.einstein.wasp.messages.JobStatusMessageTemplate" >
-				<constructor-arg  name="jobId" value="#{jobParameters['jobId']}"/>
+				<constructor-arg  name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
 				<property name="task" value="#{jobTasks.QUOTE}" />
 				<property name="status" value="COMPLETED" />
 			</bean>
@@ -36,7 +34,7 @@
 		<constructor-arg name="abortMonitoringChannel" ref="wasp.channel.notification.abort" />
 		<constructor-arg name="messageTemplate">
 			<bean class="edu.yu.einstein.wasp.messages.JobStatusMessageTemplate">
-				<constructor-arg  name="jobId" value="#{jobParameters['jobId']}"/>
+				<constructor-arg  name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
 				<property name="task" value="#{jobTasks.PI_APPROVE}" />
 				<property name="status" value="COMPLETED" />
 			</bean>
@@ -48,7 +46,7 @@
 		<constructor-arg name="abortMonitoringChannel" ref="wasp.channel.notification.abort" />
 		<constructor-arg name="messageTemplate">
 			<bean class="edu.yu.einstein.wasp.messages.JobStatusMessageTemplate">
-				<constructor-arg  name="jobId" value="#{jobParameters['jobId']}"/>
+				<constructor-arg  name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
 				<property name="task" value="#{jobTasks.ADMIN_APPROVE}" />
 				<property name="status" value="COMPLETED" />
 			</bean>
