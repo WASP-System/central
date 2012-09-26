@@ -8,6 +8,8 @@ package edu.yu.einstein.wasp.messages;
  */
 public abstract class WaspStatusMessageTemplate implements StatusMessageTemplate{
 	
+	public static final String TARGET_KEY = "target";
+	
 	protected String task;
 	
 	protected WaspStatus status;

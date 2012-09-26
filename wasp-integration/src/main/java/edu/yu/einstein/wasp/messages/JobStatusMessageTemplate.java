@@ -12,6 +12,8 @@ import edu.yu.einstein.wasp.exceptions.WaspMessageBuildingException;
  */
 public class JobStatusMessageTemplate extends WaspStatusMessageTemplate {
 	
+	public static final String JOB_ID_KEY = "jobId";
+	
 	private Integer jobId;
 	
 	public Integer getJobId() {
@@ -42,15 +44,15 @@ public class JobStatusMessageTemplate extends WaspStatusMessageTemplate {
 			if (this.task == null){
 				message = MessageBuilder.withPayload(status)
 						.setHeader(WaspMessageType.HEADER, WaspMessageType.JOB)
-						.setHeader("target", target)
-						.setHeader("jobId", jobId)
+						.setHeader(TARGET_KEY, target)
+						.setHeader(JOB_ID_KEY, jobId)
 						.setPriority(status.getPriority())
 						.build();
 			} else {
 				message = MessageBuilder.withPayload(status)
 						.setHeader(WaspMessageType.HEADER, WaspMessageType.JOB)
-						.setHeader("target", target)
-						.setHeader("jobId", jobId)
+						.setHeader(TARGET_KEY, target)
+						.setHeader(JOB_ID_KEY, jobId)
 						.setHeader(WaspJobTask.HEADER, task)
 						.setPriority(status.getPriority())
 						.build();
@@ -86,8 +88,8 @@ public class JobStatusMessageTemplate extends WaspStatusMessageTemplate {
 	 */
 	public static boolean actUponMessage(Message<?> message, Integer jobId ){
 		if (jobId != null &&
-				message.getHeaders().containsKey("jobId") && 
-				((Integer) message.getHeaders().get("jobId")).equals(jobId) &&
+				message.getHeaders().containsKey(JOB_ID_KEY) && 
+				((Integer) message.getHeaders().get(JOB_ID_KEY)).equals(jobId) &&
 				message.getHeaders().containsKey(WaspMessageType.HEADER) && 
 				((String) message.getHeaders().get(WaspMessageType.HEADER)).equals(WaspMessageType.JOB))
 			return true;

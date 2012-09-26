@@ -48,7 +48,7 @@
 							<constructor-arg name="abortMonitoringChannel" ref="wasp.channel.notification.abort"/>
 							<constructor-arg name="messageTemplate">
 								<bean class="edu.yu.einstein.wasp.messages.JobStatusMessageTemplate" >
-									<constructor-arg name="jobId" value="#{jobParameters['jobId']}" />
+									<constructor-arg name="jobId" value="#{jobParameters[T(edu.yu.einstein.wasp.messages.JobStatusMessageTemplate).JOB_ID_KEY]}" />
 									<property name="status" value="ACCEPTED" />
 								</bean>
 							</constructor-arg>
@@ -75,7 +75,7 @@
 					<constructor-arg name="abortMonitoringChannel" ref="wasp.channel.notification.abort"/>
 					<constructor-arg name="messageTemplate">
 						<bean class="edu.yu.einstein.wasp.messages.SampleStatusMessageTemplate">
-							<constructor-arg name="sampleId" value="#{jobParameters['sampleId']}" />
+							<constructor-arg name="sampleId" value="#{jobParameters[T(edu.yu.einstein.wasp.messages.SampleStatusMessageTemplate).SAMPLE_ID_KEY]}" />
 							<property name="task" value="#{sampleTasks.QC}" />
 							<property name="status" value="COMPLETED" />
 						</bean>
@@ -93,7 +93,7 @@
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
 						<bean class="edu.yu.einstein.wasp.messages.SampleStatusMessageTemplate">
-							<constructor-arg  name="sampleId" value="#{jobParameters['sampleId']}"/>
+							<constructor-arg  name="sampleId" value="#{jobParameters[T(edu.yu.einstein.wasp.messages.SampleStatusMessageTemplate).SAMPLE_ID_KEY]}"/>
 							<property name="status" value="ACCEPTED" />
 						</bean>
 					</constructor-arg>
@@ -107,7 +107,7 @@
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
 						<bean class="edu.yu.einstein.wasp.messages.SampleStatusMessageTemplate">
-							<constructor-arg  name="sampleId" value="#{jobParameters['sampleId']}"/>
+							<constructor-arg  name="sampleId" value="#{jobParameters[T(edu.yu.einstein.wasp.messages.SampleStatusMessageTemplate).SAMPLE_ID_KEY]}"/>
 							<property name="status" value="ABANDONED" />
 						</bean>
 					</constructor-arg>
@@ -136,11 +136,11 @@
 					<constructor-arg name="messageTemplates">
 						<set>
 							<bean class="edu.yu.einstein.wasp.messages.SampleStatusMessageTemplate">
-								<constructor-arg name="sampleId" value="#{jobParameters['sampleId']}"/>
+								<constructor-arg name="sampleId" value="#{jobParameters[T(edu.yu.einstein.wasp.messages.SampleStatusMessageTemplate).SAMPLE_ID_KEY]}"/>
 								<property name="status" value="ACCEPTED" />
 							</bean>
 							<bean class="edu.yu.einstein.wasp.messages.LibraryStatusMessageTemplate">
-								<constructor-arg name="sampleId" value="#{jobParameters['sampleId']}"/>
+								<constructor-arg name="sampleId" value="#{jobParameters[T(edu.yu.einstein.wasp.messages.SampleStatusMessageTemplate).SAMPLE_ID_KEY]}"/>
 								<property name="status" value="CREATED" />
 							</bean>
 						</set>
