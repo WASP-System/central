@@ -11,6 +11,8 @@ public interface WaspStepExecutionDao extends StepExecutionDao{
 	
 	/**
 	 * Get the ids of all step executions that match the step name provided, and parameters provided as a Map.
+	 * The name match is a suffix match so 'aStep' or 'job.aStep' or 'wasp.job.aStep' will all 
+	 * match a step name of 'wasp.job.aStep' in the database
 	 * @param name
 	 * @param parameterMap
 	 * @return

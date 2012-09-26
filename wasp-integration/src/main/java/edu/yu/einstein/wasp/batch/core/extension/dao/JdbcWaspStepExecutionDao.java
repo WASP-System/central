@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.apache.log4j.Logger;
 
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
@@ -26,6 +27,8 @@ public class JdbcWaspStepExecutionDao extends JdbcStepExecutionDao implements Wa
 	
 	private JobExecutionDao jobExecutionDao;
 	
+	private static final Logger logger = Logger.getLogger(JdbcWaspStepExecutionDao.class);
+	
 	public void setWaspJobInstanceDao(WaspJobInstanceDao waspJobInstanceDao){
 		Assert.notNull(waspJobInstanceDao, "waspJobInstanceDao cannot be null");
 		this.waspJobInstanceDao = waspJobInstanceDao;
@@ -38,9 +41,6 @@ public class JdbcWaspStepExecutionDao extends JdbcStepExecutionDao implements Wa
 	
 	/**
 	 * {@inheritDoc}
-	 * @param name
-	 * @param parameterMap
-	 * @return
 	 */
 	@Override
 	public List<StepExecution> getStepExecutionsByNameAndMatchingParameters(String name, Map<String, String> parameterMap){
@@ -51,10 +51,10 @@ public class JdbcWaspStepExecutionDao extends JdbcStepExecutionDao implements Wa
 		List<Long> jobInstanceIds = waspJobInstanceDao.getJobInstanceIdsByMatchingParameters(parameterMap);
 		if (jobInstanceIds == null || jobInstanceIds.isEmpty())
 			return null;
-		String sql = "select SE.JOB_EXECUTION_ID, STEP_EXECUTION_ID from BATCH_STEP_EXECUTION SE, BATCH_JOB_EXECUTION JE where STEP_NAME = :name ";
+		String sql = "select SE.JOB_EXECUTION_ID, STEP_EXECUTION_ID from BATCH_STEP_EXECUTION SE, BATCH_JOB_EXECUTION JE where STEP_NAME LIKE :name ";
 			sql += "and JE.JOB_EXECUTION_ID = SE.JOB_EXECUTION_ID and JE.JOB_INSTANCE_ID in ( ";
 		MapSqlParameterSource parameterSource = new MapSqlParameterSource();
-		parameterSource.addValue(name, name);
+		parameterSource.addValue("name", "%"+name);
 		int index = 1;
 		for (Long id: jobInstanceIds){
 			parameterSource.addValue("id"+index, id);
@@ -64,6 +64,9 @@ public class JdbcWaspStepExecutionDao extends JdbcStepExecutionDao implements Wa
 			index++;
 		}
 		sql += " )";
+		logger.debug("Built SQL string: " + sql);
+		for (String key: parameterSource.getValues().keySet())
+			logger.debug("Parameter: " + key + "=" + parameterSource.getValues().get(key).toString());
 		final List<StepExecution> stepExecutions = new ArrayList<StepExecution>();
 		RowMapper<StepExecution> mapper = new RowMapper<StepExecution>() {
 			

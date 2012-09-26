@@ -49,7 +49,7 @@ public class WaspBatchJobExplorer extends SimpleJobExplorer implements JobExplor
 	 * {@inheritDoc}
 	 */
 	@Override
-	public StepExecution getStatusByStepNameAndParameterMap(String name, Map<String, String> parameterMap) throws BatchDaoDataRetrievalException{
+	public StepExecution getStepExecutionByStepNameAndParameterMap(String name, Map<String, String> parameterMap) throws BatchDaoDataRetrievalException{
 		List<StepExecution> stepExecutions = stepExecutionDao.getStepExecutionsByNameAndMatchingParameters(name, parameterMap);
 		if (stepExecutions.isEmpty())
 			return null;

@@ -28,6 +28,6 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * @return
 	 * @throws BatchDaoDataRetrievalException
 	 */
-	public StepExecution getStatusByStepNameAndParameterMap(String name, Map<String, String> parameterMap) throws BatchDaoDataRetrievalException;
+	public StepExecution getStepExecutionByStepNameAndParameterMap(String name, Map<String, String> parameterMap) throws BatchDaoDataRetrievalException;
 
 }

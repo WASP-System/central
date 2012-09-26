@@ -27,7 +27,7 @@
     </bean>
     
     <!-- Entry point for browsing executions of running or historical jobs and steps.  -->
-    <bean id="jobExplorer" class="org.springframework.batch.core.explore.support.JobExplorerFactoryBean">
+    <bean id="jobExplorer" class="edu.yu.einstein.wasp.batch.core.extension.WaspJobExplorerFactoryBean">
     	<property name="dataSource" ref="dataSource" />
     </bean>
     

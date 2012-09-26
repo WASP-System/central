@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.springframework.batch.core.repository.dao.JdbcJobInstanceDao;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.jdbc.core.RowMapper;
@@ -17,6 +18,7 @@ import org.springframework.util.Assert;
 @Repository
 public class JdbcWaspJobInstanceDao extends JdbcJobInstanceDao implements WaspJobInstanceDao, InitializingBean{
 	
+	private static final Logger logger = Logger.getLogger(JdbcWaspJobInstanceDao.class);
 	
 	/**
 	 * {@inheritDoc}
@@ -36,6 +38,10 @@ public class JdbcWaspJobInstanceDao extends JdbcJobInstanceDao implements WaspJo
 			parameterSource.addValue("val"+index, parameterMap.get(key));
 			index++;
 		}
+		logger.debug("Built SQL string: " + sql);
+		for (String key: parameterSource.getValues().keySet())
+			logger.debug("Parameter: " + key + "=" + parameterSource.getValues().get(key).toString());
+		
 		
 		RowMapper<Long> mapper = new RowMapper<Long>() {
 			
