@@ -323,8 +323,8 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 	}
 	
 	/**
-	 * API testing. Testing access of state information via API extension. After running testDNASampleReceived() and testLibrarySampleReceived()
-	 * The Batch tables should contain two steps called 'wasp.sample.step.listenForSampleReceived' with a Batch Status of Completed.
+	 * API extension testing. Testing access of state information via API extension. After running testDNASampleReceived() and testLibrarySampleReceived()
+	 * the Batch tables should contain two steps called 'wasp.sample.step.listenForSampleReceived' with a Batch Status of Completed.
 	 * Only one of these should match the supplied jobId and sampleId.
 	 */
 	@Test(dependsOnMethods={"testDNASampleReceived", "testLibrarySampleReceived"})
@@ -343,8 +343,8 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 	}
 	
 	/**
-	 * API testing. Testing access of state information via API extension. After running testDNASampleReceived() and testLibrarySampleReceived()
-	 * The Batch tables should contain two steps called 'wasp.sample.step.listenForSampleReceived' with a Batch Status of Completed.
+	 * API extension testing. Testing access of state information via API extension. After running testDNASampleReceived() and testLibrarySampleReceived()
+	 * the Batch tables should contain two steps called 'wasp.sample.step.listenForSampleReceived' with a Batch Status of Completed.
 	 * Both of these should match the supplied jobId, so if the sampleId parameter is absent to distinguish them this test should throw
 	 * an exception.
 	 */
@@ -356,6 +356,7 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 			StepExecution stepExecution = jobExplorer.getStepExecutionByStepNameAndParameterMap("listenForSampleReceived", parameterMap);
 		} catch (BatchDaoDataRetrievalException e) {
 			Assert.assertEquals(e.getMessage(), "More than one StepExecution object returned with given step name and parameter map");
+			return;
 		}
 		Assert.fail("Expected an BatchDaoDataRetrievalException but got none");
 	}
