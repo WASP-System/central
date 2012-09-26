@@ -12,8 +12,6 @@ import edu.yu.einstein.wasp.exceptions.WaspMessageBuildingException;
  */
 public class SampleStatusMessageTemplate extends WaspStatusMessageTemplate{
 	
-	public static final String SAMPLE_ID_KEY = "sampleId";
-	
 	protected Integer sampleId;
 	
 
@@ -43,17 +41,17 @@ public class SampleStatusMessageTemplate extends WaspStatusMessageTemplate{
 		try {
 			if (this.task == null){
 				message = MessageBuilder.withPayload(status)
-						.setHeader(WaspMessageType.HEADER, WaspMessageType.SAMPLE)
+						.setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.SAMPLE)
 						.setHeader(TARGET_KEY, target)
-						.setHeader(SAMPLE_ID_KEY, sampleId)
+						.setHeader(WaspJobParameters.SAMPLE_ID, sampleId)
 						.setPriority(status.getPriority())
 						.build();
 			} else {
 				message = MessageBuilder.withPayload(status)
-						.setHeader(WaspMessageType.HEADER, WaspMessageType.SAMPLE)
+						.setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.SAMPLE)
 						.setHeader(TARGET_KEY, target)
-						.setHeader(SAMPLE_ID_KEY, sampleId)
-						.setHeader(WaspJobTask.HEADER, task)
+						.setHeader(WaspJobParameters.SAMPLE_ID, sampleId)
+						.setHeader(WaspJobTask.HEADER_KEY, task)
 						.setPriority(status.getPriority())
 						.build();
 			}
@@ -87,10 +85,10 @@ public class SampleStatusMessageTemplate extends WaspStatusMessageTemplate{
 	 */
 	public static boolean actUponMessage(Message<?> message, Integer sampleId ){
 		if (sampleId != null &&
-				message.getHeaders().containsKey(SAMPLE_ID_KEY) && 
-				((Integer) message.getHeaders().get(SAMPLE_ID_KEY)).equals(sampleId) &&
-				message.getHeaders().containsKey(WaspMessageType.HEADER) && 
-				((String) message.getHeaders().get(WaspMessageType.HEADER)).equals(WaspMessageType.SAMPLE))
+				message.getHeaders().containsKey(WaspJobParameters.SAMPLE_ID) && 
+				((Integer) message.getHeaders().get(WaspJobParameters.SAMPLE_ID)).equals(sampleId) &&
+				message.getHeaders().containsKey(WaspMessageType.HEADER_KEY) && 
+				((String) message.getHeaders().get(WaspMessageType.HEADER_KEY)).equals(WaspMessageType.SAMPLE))
 			return true;
 		return false;
 	}
@@ -106,8 +104,8 @@ public class SampleStatusMessageTemplate extends WaspStatusMessageTemplate{
 		if (! actUponMessage(message, sampleId) )
 			return false;
 		if (task != null && 
-				message.getHeaders().containsKey(WaspJobTask.HEADER) && 
-				message.getHeaders().get(WaspJobTask.HEADER).equals(task))
+				message.getHeaders().containsKey(WaspJobTask.HEADER_KEY) && 
+				message.getHeaders().get(WaspJobTask.HEADER_KEY).equals(task))
 			return true;
 		return false;
 	}

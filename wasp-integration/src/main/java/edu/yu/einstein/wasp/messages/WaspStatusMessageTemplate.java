@@ -10,6 +10,10 @@ public abstract class WaspStatusMessageTemplate implements StatusMessageTemplate
 	
 	public static final String TARGET_KEY = "target";
 	
+	public static final String MESSAGE_TYPE_KEY = "messagetype";
+	
+	public static final String DEFAULT_TARGET = "batch";
+	
 	protected String task;
 	
 	protected WaspStatus status;
@@ -49,7 +53,7 @@ public abstract class WaspStatusMessageTemplate implements StatusMessageTemplate
 	public WaspStatusMessageTemplate(){
 		this.task = WaspTask.NOTIFY_STATUS; // default
 		this.status = null;
-		this.target = "batch"; // default
+		this.target = DEFAULT_TARGET; // default
 	}	
 }
 	

@@ -12,8 +12,6 @@ import edu.yu.einstein.wasp.exceptions.WaspMessageBuildingException;
  */
 public class JobStatusMessageTemplate extends WaspStatusMessageTemplate {
 	
-	public static final String JOB_ID_KEY = "jobId";
-	
 	private Integer jobId;
 	
 	public Integer getJobId() {
@@ -43,17 +41,17 @@ public class JobStatusMessageTemplate extends WaspStatusMessageTemplate {
 		try {
 			if (this.task == null){
 				message = MessageBuilder.withPayload(status)
-						.setHeader(WaspMessageType.HEADER, WaspMessageType.JOB)
+						.setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.JOB)
 						.setHeader(TARGET_KEY, target)
-						.setHeader(JOB_ID_KEY, jobId)
+						.setHeader(WaspJobParameters.JOB_ID, jobId)
 						.setPriority(status.getPriority())
 						.build();
 			} else {
 				message = MessageBuilder.withPayload(status)
-						.setHeader(WaspMessageType.HEADER, WaspMessageType.JOB)
+						.setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.JOB)
 						.setHeader(TARGET_KEY, target)
-						.setHeader(JOB_ID_KEY, jobId)
-						.setHeader(WaspJobTask.HEADER, task)
+						.setHeader(WaspJobParameters.JOB_ID, jobId)
+						.setHeader(WaspJobTask.HEADER_KEY, task)
 						.setPriority(status.getPriority())
 						.build();
 			}
@@ -88,10 +86,10 @@ public class JobStatusMessageTemplate extends WaspStatusMessageTemplate {
 	 */
 	public static boolean actUponMessage(Message<?> message, Integer jobId ){
 		if (jobId != null &&
-				message.getHeaders().containsKey(JOB_ID_KEY) && 
-				((Integer) message.getHeaders().get(JOB_ID_KEY)).equals(jobId) &&
-				message.getHeaders().containsKey(WaspMessageType.HEADER) && 
-				((String) message.getHeaders().get(WaspMessageType.HEADER)).equals(WaspMessageType.JOB))
+				message.getHeaders().containsKey(WaspJobParameters.JOB_ID) && 
+				((Integer) message.getHeaders().get(WaspJobParameters.JOB_ID)).equals(jobId) &&
+				message.getHeaders().containsKey(WaspMessageType.HEADER_KEY) && 
+				((String) message.getHeaders().get(WaspMessageType.HEADER_KEY)).equals(WaspMessageType.JOB))
 			return true;
 		return false;
 	}
@@ -107,8 +105,8 @@ public class JobStatusMessageTemplate extends WaspStatusMessageTemplate {
 		if (! actUponMessage(message, jobId) )
 			return false;
 		if (task != null && 
-				message.getHeaders().containsKey(WaspJobTask.HEADER) && 
-				message.getHeaders().get(WaspJobTask.HEADER).equals(task))
+				message.getHeaders().containsKey(WaspJobTask.HEADER_KEY) && 
+				message.getHeaders().get(WaspJobTask.HEADER_KEY).equals(task))
 			return true;
 		return false;
 	}

@@ -135,7 +135,7 @@ public class ListenForExitConditionTasklet extends WaspTasklet implements Taskle
 		WaspStatus statusFromMessage = (WaspStatus) message.getPayload();
 		// only single messages with unsuccessful status if they are general notifications (i.e. not for specific tasks)
 		boolean stopJobNotificationPreviouslyReceived = stopJobNotificationReceived;
-		if (statusFromMessage.isUnsuccessful() && message.getHeaders().get(WaspJobTask.HEADER).equals(WaspJobTask.NOTIFY_STATUS))
+		if (statusFromMessage.isUnsuccessful() && message.getHeaders().get(WaspJobTask.HEADER_KEY).equals(WaspJobTask.NOTIFY_STATUS))
 			stopJobNotificationReceived = true;
 		
 		for (StatusMessageTemplate messageTemplate: messageTemplates){

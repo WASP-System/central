@@ -125,8 +125,8 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 			// check headers as expected
 			Assert.assertTrue(message.getHeaders().containsKey(JOB_ID_KEY));
 			Assert.assertEquals(message.getHeaders().get(JOB_ID_KEY), JOB_ID);
-			Assert.assertTrue(message.getHeaders().containsKey(WaspMessageType.HEADER));
-			Assert.assertEquals(message.getHeaders().get(WaspMessageType.HEADER), WaspMessageType.JOB);
+			Assert.assertTrue(message.getHeaders().containsKey(WaspMessageType.HEADER_KEY));
+			Assert.assertEquals(message.getHeaders().get(WaspMessageType.HEADER_KEY), WaspMessageType.JOB);
 			
 			// check payload as expected
 			Assert.assertEquals(WaspStatus.class, message.getPayload().getClass());
@@ -199,8 +199,8 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 			// check headers as expected
 			Assert.assertTrue(message.getHeaders().containsKey(JOB_ID_KEY));
 			Assert.assertEquals(message.getHeaders().get(JOB_ID_KEY), JOB_ID2);
-			Assert.assertTrue(message.getHeaders().containsKey(WaspMessageType.HEADER));
-			Assert.assertEquals(message.getHeaders().get(WaspMessageType.HEADER), WaspMessageType.JOB);
+			Assert.assertTrue(message.getHeaders().containsKey(WaspMessageType.HEADER_KEY));
+			Assert.assertEquals(message.getHeaders().get(WaspMessageType.HEADER_KEY), WaspMessageType.JOB);
 			
 			// check payload as expected
 			Assert.assertEquals(WaspStatus.class, message.getPayload().getClass());

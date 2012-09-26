@@ -9,6 +9,10 @@
 	<import resource="classpath:batch-context.xml" />
 	<import resource="classpath:integration-context.xml" />
 	
+	<bean id="waspMessageType" class="edu.yu.einstein.wasp.messages.WaspMessageType" />
+	
+	<bean id="waspJobParameters" class="edu.yu.einstein.wasp.messages.WaspJobParameters" />
+	
 	<bean id='jobTasks' class="edu.yu.einstein.wasp.messages.WaspJobTask" />
 	
 	<bean id='sampleTasks' class="edu.yu.einstein.wasp.messages.WaspSampleTask" />
