@@ -32,7 +32,7 @@
     	</dependency>
     	<dependency>
       		<groupId>edu.yu.einstein.wasp</groupId>
-      		<artifactId>wasp-batch-api-extension</artifactId>
+      		<artifactId>wasp-batch</artifactId>
     	</dependency>
 		<dependency>
 			<groupId>junit</groupId>
