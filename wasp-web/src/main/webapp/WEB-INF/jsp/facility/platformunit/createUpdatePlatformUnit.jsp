@@ -43,7 +43,9 @@
 		<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="sampleId" value="<c:out value="${sampleId}" />" />
 		
 		<select class="FormElement ui-widget-content ui-corner-all" name="sampleSubtypeId" size="1" onchange="this.parentNode.submit()">
-			<option value="0">--SELECT A TYPE OF FLOW CELL--			
+			<c:if test='${sampleSubtypeId == 0}'>
+				<option value="0">--select--
+			</c:if>			
 			<c:forEach items="${sampleSubtypes}" var="sampleSubtype">
 				<c:set var="selectedFlag2" value=""/>
 				<c:if test='${sampleSubtypeId==sampleSubtype.sampleSubtypeId}'>
@@ -54,7 +56,7 @@
 		 </select>
 	</form> 
 	</td>
-	<td></td>
+	<td>&nbsp;</td>
 </tr>
 <%-- 
 </c:if>
@@ -78,7 +80,26 @@
         <td class="DataTD"><input class="FormElement ui-widget-content ui-corner-all"  name="barcode" id="barcode" value="<c:out value="${barcode}" />" /><span class="requiredField">*</span></td>
         <td class="CaptionTD error"><c:out value="${barcodeError}" /> </td>
 	</tr>
-
+	<tr class="FormData">
+        <td class="CaptionTD"><fmt:message key="platformunitInstance.numberOfLanesRequested.label" />:</td>
+        <td class="DataTD">
+        	
+        	<select class="FormElement ui-widget-content ui-corner-all" name="numberOfLanesRequested" size="1">
+				<option value="0">--select--
+						
+			<c:forEach items="${numberOfCellsList}" var="item">
+				<c:set var="selectedFlag3" value=""/>
+				<c:if test='${numberOfCellsOnThisPlatformUnit==item}'>
+					<c:set var="selectedFlag3" value="SELECTED"/>
+				</c:if>
+				<option value="<c:out value="${item}"/>" <c:out value="${selectedFlag3}"/> ><c:out value="${item}" /> 
+			</c:forEach>
+		 </select>
+        
+        <span class="requiredField">*</span></td>
+        <td class="CaptionTD error"><c:out value="${numberOfLanesRequestedError}" /> </td>
+	</tr>
+	
 	<c:set var="_area" value = "sample" scope="request"/>
 	<c:set var="_metaArea" value = "platformunitInstance" scope="request"/>
     <c:set var="_metaList" value = "${sample.sampleMeta}" scope="request" />

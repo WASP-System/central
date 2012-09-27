@@ -191,7 +191,7 @@ jQuery("#grid_id").jqGrid('filterToolbar', {stringResult:false, searchOnEnter:tr
 jQuery("#grid_id").jqGrid('navButtonAdd','#gridpager',{caption:"",title:"Search", buttonicon :'ui-icon-search', onClickButton:function(){ $("#grid_id")[0].triggerToolbar(); } }); 
 
 //navigate to page to add a new platform unit 
-jQuery("#grid_id").jqGrid('navButtonAdd','#gridpager',{caption:"", position: "first", title:"New", buttonicon :'ui-icon-plus', onClickButton:function(){ location.href="/wasp/facility/platformunit/createUpdatePlatformUnit.do?sampleSubtypeId=0"; } }); 
+jQuery("#grid_id").jqGrid('navButtonAdd','#gridpager',{caption:"", position: "first", title:"New", buttonicon :'ui-icon-plus', onClickButton:function(){ location.href="/wasp/facility/platformunit/createUpdatePlatformUnit.do?sampleSubtypeId=0&sampleId=0"; } }); 
 
 
 

@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+//import edu.yu.einstein.wasp.controller.PlatformUnitController.SelectOptionsMeta;
 import edu.yu.einstein.wasp.dao.AdaptorDao;
 import edu.yu.einstein.wasp.dao.BarcodeDao;
 import edu.yu.einstein.wasp.dao.RunDao;
@@ -31,6 +32,7 @@ import edu.yu.einstein.wasp.dao.SampleMetaDao;
 import edu.yu.einstein.wasp.dao.SampleSourceDao;
 import edu.yu.einstein.wasp.dao.SampleSourceMetaDao;
 import edu.yu.einstein.wasp.dao.SampleTypeDao;
+import edu.yu.einstein.wasp.dao.SampleSubtypeDao;
 import edu.yu.einstein.wasp.dao.StateDao;
 import edu.yu.einstein.wasp.dao.TaskDao;
 import edu.yu.einstein.wasp.dao.WorkflowDao;
@@ -40,6 +42,7 @@ import edu.yu.einstein.wasp.exception.SampleIndexException;
 import edu.yu.einstein.wasp.exception.SampleMultiplexException;
 import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
+import edu.yu.einstein.wasp.exception.SampleSubtypeException;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Barcode;
 import edu.yu.einstein.wasp.model.Job;
@@ -53,6 +56,7 @@ import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.SampleSourceMeta;
 import edu.yu.einstein.wasp.model.SampleSubtype;
+import edu.yu.einstein.wasp.model.SampleSubtypeMeta;
 import edu.yu.einstein.wasp.model.SampleSubtypeResourceCategory;
 import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.model.State;
@@ -119,6 +123,9 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	
 	@Autowired
 	private SampleTypeDao sampleTypeDao;
+
+	@Autowired
+	private SampleSubtypeDao sampleSubtypeDao;
 
 	@Autowired
 	private StateDao stateDao;
@@ -495,6 +502,16 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 			  indexedCells.put(index, cell);
 		  }
 		  return indexedCells;
+	  }
+	  
+	  /**
+	   * {@inheritDoc}
+	   */
+	  @Override
+	  public Integer getNumberOfIndexedCellsOnPlatformUnit(Sample platformUnit) throws SampleTypeException{
+
+		  Map<Integer, Sample> indexedCells = getIndexedCellsOnPlatformUnit(platformUnit);
+		  return new Integer(indexedCells.size());
 	  }
 	  
 	  /**
@@ -879,4 +896,106 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 		return false;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<SampleSubtype> getSampleSubtypesBySampleTypeIName(String sampleTypeIName) throws SampleTypeException{
+		
+		SampleType sampleType = sampleTypeDao.getSampleTypeByIName(sampleTypeIName);
+		if(sampleType==null||sampleType.getSampleTypeId()==null||sampleType.getSampleTypeId().intValue()==0){
+			throw new SampleTypeException("SampleType not found: iname = " + sampleTypeIName);
+		}
+		
+		Map<String,String> filterMap = new HashMap<String,String>();
+		filterMap.put("sampleType.iName", sampleType.getIName());
+		List<String> orderByColumnNames = new ArrayList<String>();
+		orderByColumnNames.add("name");
+		return sampleSubtypeDao.findByMapDistinctOrderBy(filterMap, null, orderByColumnNames, "asc");
+
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	 public SampleSubtype getSampleSubtypeById(Integer sampleSubtypeId){
+		
+		return sampleSubtypeDao.getSampleSubtypeBySampleSubtypeId(sampleSubtypeId.intValue());
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	 public boolean sampleSubtypeIsSpecificSampleType(SampleSubtype sampleSubtype, String sampleTypeIName) throws SampleSubtypeException, SampleTypeException{
+		if(sampleSubtype==null){throw new SampleSubtypeException("SampleSubtype is null");} 
+		else if(sampleSubtype.getSampleType()==null || sampleSubtype.getSampleType().getIName()==null){throw new SampleTypeException("SampleType is null or it's iname is null");} 
+		return sampleTypeIName.equals(sampleSubtype.getSampleType().getIName());
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Sample getSampleById(Integer sampleId){
+		
+		return sampleDao.getSampleBySampleId(sampleId.intValue());
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean sampleIsSpecificSampleType(Sample sample, String sampleTypeIName) throws SampleException, SampleTypeException{
+		if(sample==null){throw new SampleException("Sample is null");} 
+		else if(sample.getSampleType()==null || sample.getSampleType().getIName()==null){throw new SampleTypeException("SampleType is null or it's iname is null");} 
+		return sampleTypeIName.equals(sample.getSampleType().getIName());
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<Integer> getNumberOfCellsListForThisTypeOfPlatformUnit(SampleSubtype sampleSubtype) throws SampleTypeException, SampleSubtypeException{
+			
+		//confirm sampleSubtype exists and of proper type (platformunit); exception will be thrown if not OK
+		//do we still want to assert?   ************getSampleSubtypeByIdAndAssertSampleType(sampleSubtype.getSampleSubtypeId(), "platformunit");
+		
+		Integer maxCellNumber = null;
+		Integer multiplicationFactor = null;
+		List<Integer> numberOfCellsListForPlatformUnit = new ArrayList<Integer>();
+		
+		List<SampleSubtypeMeta> ssMetaList = sampleSubtype.getSampleSubtypeMeta();
+		for(SampleSubtypeMeta ssm : ssMetaList){
+			if( ssm.getK().indexOf("maxCellNumber") > -1 ){
+				try{
+					maxCellNumber = new Integer(ssm.getV()); //could throw NumberFormatException
+				}catch(Exception e){throw new SampleSubtypeException("maxCellNumber value invalid for SampleSubtype with Id of " + sampleSubtype.getSampleTypeId().intValue());}
+			}
+			if( ssm.getK().indexOf("multiplicationFactor") > -1 ){
+				try{
+					multiplicationFactor = new Integer(ssm.getV());  //could throw NumberFormatException
+				}catch(Exception e){throw new SampleSubtypeException("multiplicationFactor value invalid for SampleSubtype with Id of " + sampleSubtype.getSampleTypeId().intValue());}
+			}				 
+		}
+		if(maxCellNumber==null){throw new SampleSubtypeException("maxCellNumber not found for SampleSubtype with Id of " + sampleSubtype.getSampleTypeId().intValue());}
+		else if(maxCellNumber.intValue()<=0){throw new SampleSubtypeException("maxCellNumber value invalid for SampleSubtype with Id of " + sampleSubtype.getSampleTypeId().intValue());}
+		
+		numberOfCellsListForPlatformUnit.add(maxCellNumber);	
+		System.out.println("maxCellNumber: " + maxCellNumber.intValue());
+		if (multiplicationFactor != null && multiplicationFactor.intValue() > 1 && multiplicationFactor.intValue() <= maxCellNumber.intValue() ) {
+			Integer cellNum = new Integer(maxCellNumber.intValue());
+			System.out.println("cellNumber: " + cellNum.intValue());
+			while (cellNum.intValue() >= multiplicationFactor.intValue()){
+				cellNum = new Integer(cellNum.intValue()/multiplicationFactor.intValue());
+				System.out.println("cellNumber: " + cellNum.intValue());
+				numberOfCellsListForPlatformUnit.add(cellNum);						
+			}
+		}
+		Collections.sort(numberOfCellsListForPlatformUnit);
+		
+		return numberOfCellsListForPlatformUnit;
+	}
+
 }

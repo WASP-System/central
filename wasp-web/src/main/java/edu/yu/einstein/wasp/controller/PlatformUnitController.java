@@ -380,7 +380,8 @@ public class PlatformUnitController extends WaspController {
 			}			
 			if(lanecountFromGrid != null){
 				for(Sample sample : tempPlatformUnitList){
-					List<SampleMeta> sampleMetaList = sample.getSampleMeta();
+					/* replaced 9-25-12
+					List<SampleMeta> sampleMetaList = sample.getSampleMeta();		
 					for(SampleMeta sm : sampleMetaList){
 						if(sm.getK().indexOf("lanecount") > -1){
 							if(sm.getV().equalsIgnoreCase(lanecountFromGrid)){//remember both readlengthFromGrid and the metadata value are strings (in this case, they are string representations of numbers)
@@ -388,7 +389,16 @@ public class PlatformUnitController extends WaspController {
 							}
 							break;
 						}
-					}					
+					}
+					*/
+					Integer numberOfIndexedCellsOnPlatformUnit;
+					try{
+						numberOfIndexedCellsOnPlatformUnit = sampleService.getNumberOfIndexedCellsOnPlatformUnit(sample);
+					}catch(Exception e){numberOfIndexedCellsOnPlatformUnit = new Integer(0);}
+					
+					if(lanecountFromGrid.equals(numberOfIndexedCellsOnPlatformUnit.toString())){
+						platformUnitsFoundInSearch.add(sample);
+					}
 				}
 				tempPlatformUnitList.retainAll(platformUnitsFoundInSearch);
 				platformUnitsFoundInSearch.clear();
@@ -437,7 +447,8 @@ public class PlatformUnitController extends WaspController {
 			else if(sidx.equals("barcode")){Collections.sort(platformUnitList, new SampleBarcodeComparator()); indexSorted = true;}
 			else if(sidx.equals("readlength")){Collections.sort(platformUnitList, new SampleMetaIsIntegerComparator("readlength")); indexSorted = true;}
 			else if(sidx.equals("readType")){Collections.sort(platformUnitList, new SampleMetaIsStringComparator("readType")); indexSorted = true;}
-			else if(sidx.equals("lanecount")){Collections.sort(platformUnitList, new SampleMetaIsIntegerComparator("lanecount")); indexSorted = true;}
+			//replaced 9-25-12    else if(sidx.equals("lanecount")){Collections.sort(platformUnitList, new SampleMetaIsIntegerComparator("lanecount")); indexSorted = true;}
+			else if(sidx.equals("lanecount")){Collections.sort(platformUnitList, new SampleLanecountComparator(sampleService)); indexSorted = true;}
 			else if(sidx.equals("resourceCategoryName")){Collections.sort(platformUnitList, new SampleMetaIsResourceCategoryNameComparator(resourceCategoryDao)); indexSorted = true;}
 
 			if(indexSorted == true && sord.equals("desc")){//must be last
@@ -486,9 +497,12 @@ public class PlatformUnitController extends WaspController {
 				cell.put("id", sample.getSampleId());
 				 
 				List<SampleMeta> sampleMetaList = sample.getSampleMeta();//getMetaHelperWebappPlatformUnitInstance().syncWithMaster(sample.getSampleMeta());
+				
+				String lanecount = sampleService.getNumberOfIndexedCellsOnPlatformUnit(sample).toString();//throws exception if sample is not platformUnit
+				
 				String readlength = "";
 				String readType = "";
-				String lanecount = "";
+				
 				String comment = "";
 				String resourceCategoryIdAsString = "";
 				Integer resourceCategoryIdAsInteger;
@@ -500,9 +514,10 @@ public class PlatformUnitController extends WaspController {
 					if( sm.getK().indexOf("readType") > -1 ){
 						readType = sm.getV();
 					}
-					if( sm.getK().indexOf("lanecount") > -1 ){
-						lanecount = sm.getV();
-					}
+					//9-25-12 for lanecount begin to use sampleService.getNumberOfIndexedCellsOnPlatformUnit(platformUnitInDatabase);
+					//if( sm.getK().indexOf("lanecount") > -1 ){
+					//	lanecount = sm.getV();
+					//}
 					if( sm.getK().indexOf("comment") > -1 ){
 						comment = sm.getV();
 					}
@@ -1521,12 +1536,39 @@ public class PlatformUnitController extends WaspController {
 					}
 				}				
 			}
-			readTypeList.addAll(readTypeSet);
-			readlengthList.addAll(readlengthSet);
-			m.put("readTypes", readTypeList);//contains list like single:single as one entry and paired:paired as a second entry
-			m.put("readlengths", readlengthList);//contains list of entries such as 50:50
 			
 		}//for(SampleSubtypeResourceCategory ...){
+		readTypeList.addAll(readTypeSet);
+		readlengthList.addAll(readlengthSet);
+		m.put("readTypes", readTypeList);//contains list like single:single as one entry and paired:paired as a second entry
+		m.put("readlengths", readlengthList);//contains list of entries such as 50:50
+
+	}
+	
+	private List<SelectOptionsMeta> getDistinctResourceCategoryMetaListForSampleSubtype(SampleSubtype sampleSubtype, String meta) {
+		
+		List<SelectOptionsMeta> list = new ArrayList<SelectOptionsMeta>();
+		List<String> stringList = new ArrayList<String>();
+		
+		List<SampleSubtypeResourceCategory> sampleSubtypeResourceCategoryList = sampleSubtype.getSampleSubtypeResourceCategory();
+		for(SampleSubtypeResourceCategory ssrc : sampleSubtypeResourceCategoryList){			
+		
+			List<ResourceCategoryMeta> rcMetaList = ssrc.getResourceCategory().getResourceCategoryMeta();
+			for(ResourceCategoryMeta rcm : rcMetaList){
+			
+				if( rcm.getK().indexOf(meta) > -1 ){
+					String[] tokens = rcm.getV().split(";");//rcm.getV() will be single:single;paired:paired
+					for(String token : tokens){//token could be single:single
+						String[] colonTokens = token.split(":");
+						if(!stringList.contains(colonTokens[0])){//for distinct
+							stringList.add(colonTokens[0]);
+							list.add(new SelectOptionsMeta(colonTokens[0], colonTokens[1]));							
+						}
+					}
+				}		
+			}
+		}	
+		return list;
 	}
 	
 	
@@ -1576,70 +1618,91 @@ public class PlatformUnitController extends WaspController {
 		m.put("sampleSubtypeId", sampleSubtypeId);
 		m.put("sampleId", sampleId);
 		
-		Map filterMap = new HashMap();
-		filterMap.put("sampleType.iName", "platformunit");
-		List<String> orderByColumnNames = new ArrayList<String>();
-		orderByColumnNames.add("name");
-		List<SampleSubtype> sampleSubtypes = sampleSubtypeDao.findByMapDistinctOrderBy(filterMap, null, orderByColumnNames, "asc");
-		m.put("sampleSubtypes", sampleSubtypes);
-		if(sampleSubtypes.size()==0){
-			waspErrorMessage("platformunit.resourceTypeNotFound.error");//****Need correct error message, like no flow cells registered for this machine
-			return "redirect:/dashboard.do"; 
-		}
-			
-		if(sampleSubtypeId.intValue()>0){
-			
-			SampleSubtype sampleSubtype = null;
-			
-			if(!reset.equals("reset")){
-				sampleSubtype = sampleSubtypeDao.getSampleSubtypeBySampleSubtypeId(sampleSubtypeId);
-				if(sampleSubtype == null || sampleSubtype.getSampleSubtypeId()==null || sampleSubtype.getSampleSubtypeId().intValue()==0){
-					waspErrorMessage("platformunit.resourceTypeNotFound.error");//*****Need correct error message, like flow cell type not found
-					return "redirect:/dashboard.do"; 
-				}
-				//prepareSelectListDataByResourceCategory(m, resourceCategory);
-				prepareDistinctSelectListDataForResourceCategoriesForThisSampleSubtype(m, sampleSubtype);
-				prepareSelectListDataBySampleSubtype(m, sampleSubtype);
+		try{
+			List<SampleSubtype> sampleSubtypes = sampleService.getSampleSubtypesBySampleTypeIName("platformunit");//throws exception if SampleTypeIName not valid, otherwise return empty (size=0) or full list
+			if(sampleSubtypes.size()==0){
+				throw new Exception("No SampleSubtypes with SampleType of 'platformunit' found in database");
 			}
+			m.put("sampleSubtypes", sampleSubtypes);
 			
-			MetaHelperWebapp metaHelperWebapp = getMetaHelperWebappPlatformUnitInstance();
+			if(sampleSubtypeId.intValue()>0){//a type of platformunit (flowcell) has been chosen
 			
-			Sample platformunitInstance;
-			String barcode;
-			if(sampleId.intValue() > 0){
-				platformunitInstance = sampleDao.findById(sampleId.intValue());
-				//NEED TO ASSERT THIS IS A platformunit
-				if(platformunitInstance.getSampleSubtype().getIName().equals("platformunit")){
-					//TODO redirect to list of platformunits with error that the selected sample is not a platform unit
-				}
-				metaHelperWebapp.syncWithMaster(platformunitInstance.getSampleMeta());
-				platformunitInstance.setSampleMeta((List<SampleMeta>)metaHelperWebapp.getMetaList());
-				List<SampleBarcode> sampleBarcodeList = platformunitInstance.getSampleBarcode();
-				if(sampleBarcodeList.size()>0){
-					barcode = sampleBarcodeList.get(0).getBarcode().getBarcode();
-				}
-				else{barcode = new String("");}
-				if(reset.equals("reset")){
-					sampleSubtypeId = new Integer(platformunitInstance.getSampleSubtypeId().intValue());
-					sampleSubtype = sampleSubtypeDao.getSampleSubtypeBySampleSubtypeId(sampleSubtypeId);
-					if(sampleSubtype == null || sampleSubtype.getSampleSubtypeId()==null || sampleSubtype.getSampleSubtypeId().intValue()==0){
-						waspErrorMessage("platformunit.resourceTypeNotFound.error");//*****Need correct error message, like flow cell type not found
-						return "redirect:/dashboard.do"; 
+				SampleSubtype sampleSubtype = null;
+				List<Integer> numberOfCellsList;
+				if(!reset.equals("reset")){
+					sampleSubtype = sampleService.getSampleSubtypeById(sampleSubtypeId);
+					if(sampleSubtype.getSampleSubtypeId()==null){
+						throw new Exception("SampleSubtype with ID of " + sampleSubtypeId.toString() + " unexpectedly not found in database");								
 					}
-					m.put("sampleSubtypeId", sampleSubtypeId);
-					prepareDistinctSelectListDataForResourceCategoriesForThisSampleSubtype(m, sampleSubtype);//since it's a map, it will write over any older data
-					prepareSelectListDataBySampleSubtype(m, sampleSubtype);
+					if(!sampleService.sampleSubtypeIsSpecificSampleType(sampleSubtype, "platformunit")){
+						throw new Exception("SampleSubtype with ID of " + sampleSubtypeId.toString() + " is unexpectedly not SampleType of platformunit");								
+					}
+					//prepareSelectListDataByResourceCategory(m, resourceCategory);
+					//prepareDistinctSelectListDataForResourceCategoriesForThisSampleSubtype(m, sampleSubtype);
+					//prepareSelectListDataBySampleSubtype(m, sampleSubtype);
+					
+					m.addAttribute("readlengths", getDistinctResourceCategoryMetaListForSampleSubtype(sampleSubtype, "readlength"));
+					m.addAttribute("readTypes", getDistinctResourceCategoryMetaListForSampleSubtype(sampleSubtype, "readType"));
+					
+					numberOfCellsList = sampleService.getNumberOfCellsListForThisTypeOfPlatformUnit(sampleSubtype);//throws exception if problems
+					m.addAttribute("numberOfCellsList", numberOfCellsList);
 				}
-			}
-			else{
-				platformunitInstance = new Sample();
-				platformunitInstance.setSampleMeta(metaHelperWebapp.getMasterList(SampleMeta.class));
-				barcode = new String("");
-			}
-			m.addAttribute(metaHelperWebapp.getParentArea(), platformunitInstance);
-			m.addAttribute("barcode", barcode);
 			
-		}//if(sampleSubtypeId.intValue()>0)				
+				MetaHelperWebapp metaHelperWebapp = getMetaHelperWebappPlatformUnitInstance();
+			
+				Sample platformunitInstance = null;
+				String barcode;
+				if(sampleId.intValue() > 0){
+					platformunitInstance = sampleService.getSampleById(sampleId);
+					if(platformunitInstance.getSampleId()==null){
+						throw new Exception("Sample with ID of " + platformunitInstance.getSampleId().toString() + " unexpectedly not found in database");								
+					}
+					if(!sampleService.sampleIsSpecificSampleType(platformunitInstance, "platformunit")){
+						throw new Exception("Sample with ID of " + platformunitInstance.getSampleId().toString() + " unexpectedly not of SampleType 'platformunit'");								
+					}
+					metaHelperWebapp.syncWithMaster(platformunitInstance.getSampleMeta());
+					platformunitInstance.setSampleMeta((List<SampleMeta>)metaHelperWebapp.getMetaList());
+					
+					//deal with barcode
+					List<SampleBarcode> sampleBarcodeList = platformunitInstance.getSampleBarcode();
+					if(sampleBarcodeList.size()>0){
+						barcode = sampleBarcodeList.get(0).getBarcode().getBarcode();
+					}
+					else{barcode = new String("");}
+					m.addAttribute("barcode", barcode);
+					
+					//deal with numberOfCellsOnPlatformUnit
+					Integer numberOfCellsOnThisPlatformUnit = sampleService.getNumberOfIndexedCellsOnPlatformUnit(platformunitInstance);
+					m.addAttribute("numberOfCellsOnThisPlatformUnit", numberOfCellsOnThisPlatformUnit);
+					
+					if(reset.equals("reset")){
+						sampleSubtypeId = new Integer(platformunitInstance.getSampleSubtypeId().intValue());
+						m.put("sampleSubtypeId", sampleSubtypeId);
+						
+						sampleSubtype = sampleService.getSampleSubtypeById(sampleSubtypeId);//throws exceptions //sampleSubtypeDao.getSampleSubtypeBySampleSubtypeId(sampleSubtypeId);
+						if(sampleSubtype.getSampleSubtypeId()==null){
+							throw new Exception("SampleSubtype with ID of " + sampleSubtypeId.toString() + " unexpectedly not found in database");								
+						}
+						if(!sampleService.sampleSubtypeIsSpecificSampleType(sampleSubtype, "platformunit")){
+							throw new Exception("SampleSubtype with ID of " + sampleSubtypeId.toString() + " is unexpectedly not SampleType of platformunit");								
+						}
+						m.addAttribute("readlengths", getDistinctResourceCategoryMetaListForSampleSubtype(sampleSubtype, "readlength"));
+						m.addAttribute("readTypes", getDistinctResourceCategoryMetaListForSampleSubtype(sampleSubtype, "readType"));
+						
+						numberOfCellsList = sampleService.getNumberOfCellsListForThisTypeOfPlatformUnit(sampleSubtype);//throws exception if problems
+						m.addAttribute("numberOfCellsList", numberOfCellsList);
+					}
+				}
+				else{
+					platformunitInstance = new Sample();
+					platformunitInstance.setSampleMeta(metaHelperWebapp.getMasterList(SampleMeta.class));
+					barcode = new String("");
+					m.addAttribute("numberOfCellsOnThisPlatformUnit", new Integer(0));
+				}
+				m.addAttribute(metaHelperWebapp.getParentArea(), platformunitInstance);
+			
+			}//if(sampleSubtypeId.intValue()>0)				
+		}catch(Exception e){logger.debug(e.getMessage());waspErrorMessage("wasp.unexpected_error.error");return "redirect:/dashboard.do";}
 		
 		return "facility/platformunit/createUpdatePlatformUnit";
 	}
@@ -1650,15 +1713,24 @@ public class PlatformUnitController extends WaspController {
 			@RequestParam("sampleSubtypeId") Integer sampleSubtypeId,
 			@RequestParam("sampleId") Integer sampleId,
 			@RequestParam("barcode") String barcode,
+			@RequestParam("numberOfLanesRequested") Integer numberOfLanesRequested,
 			@Valid Sample platformunitInstance, 
 			 BindingResult result,
 			 SessionStatus status, 		
 			ModelMap m) throws MetadataException {
+	/*	
+		try{
+			SampleSubtype sampleSubtype = sampleService.***********nononnogetSampleSubtypeByIdAndAssertSampleType(sampleSubtypeId, "platformunit");//throws exceptions
+		}catch(Exception e){logger.debug(e.getMessage());waspErrorMessage("wasp.unexpected_error.error");return "redirect:/dashboard.do";}
+	*/	
+		
+		
 		
 		String action = null;
 		Sample platformUnitInDatabase = null;
+		SampleSubtype sampleSubtype = null;
 		if(sampleSubtypeId !=null && sampleSubtypeId.intValue() > 0){
-			SampleSubtype sampleSubtype = sampleSubtypeDao.getSampleSubtypeBySampleSubtypeId(sampleSubtypeId.intValue());
+			sampleSubtype = sampleSubtypeDao.getSampleSubtypeBySampleSubtypeId(sampleSubtypeId.intValue());
 			if(sampleSubtype!= null && sampleSubtype.getSampleType()!=null && sampleSubtype.getSampleType().getIName().equals("platformunit")){
 				if((sampleId == null || sampleId.intValue()==0) && (platformunitInstance == null || platformunitInstance.getSampleId()==null || platformunitInstance.getSampleId().intValue()==0)){//new platform unit
 					action = new String("create");
@@ -1704,7 +1776,7 @@ public class PlatformUnitController extends WaspController {
 		
 		//check for barcode. Since barcode is outside of Sample, @Valid is unable to to perform this check		
 		if(barcode==null || "".equals(barcode)){
-			String msg = messageService.getMessage(metaHelperWebapp.getArea()+".barcode_error.error");
+			String msg = messageService.getMessage(metaHelperWebapp.getArea()+".barcode.error");
 			if(msg==null){
 				msg = new String("Barcode cannot be empty.");
 			}
@@ -1733,7 +1805,7 @@ public class PlatformUnitController extends WaspController {
 			}
 		}
 		
-		//this is lanecount from incoming form
+/*		//this is lanecount from incoming form
 		//will need numberOfLanesRequested for the create/update below, as well as for "if(action.equals("update"))" in a few lines
 		Integer numberOfLanesRequested = null;
 		try{//Note:@Valid now checks to see whether lanecount is an integer greater than 0
@@ -1743,7 +1815,18 @@ public class PlatformUnitController extends WaspController {
 			}
 		}
 		catch(Exception e){logger.debug(e.getMessage()); metaHelperWebapp.addValidationError("lanecount", "wasp.unexpected_error.error", result); otherErrorsExist = true;}
-
+*/
+		if(numberOfLanesRequested == null || numberOfLanesRequested.intValue()==0){
+			String msg = messageService.getMessage(metaHelperWebapp.getArea()+".numberOfLanesRequested.error");
+			if(msg==null){
+				msg = new String("Lane Count cannot be empty.");
+			}
+			m.put("numberOfLanesRequestedError", msg);//"Lane count cannot be empty"
+			otherErrorsExist = true;
+			System.out.println("numberOfLanesRequestedError: "+msg);
+		}
+		
+		
 		//CHECK FOR CHANGE IN NUMBER OF LANES and if no longer the same --what to do if less?? if more must create additional lanes??
 		//only if this is an update, determine if the number of lanes changed. 
 		//If true, this will require alterations in the update section below.
@@ -1752,10 +1835,11 @@ public class PlatformUnitController extends WaspController {
 		Integer numberOfLanesInDatabase = null;
 		int numberOfLanesToBeAdded = 0;
 		int numberOfLanesToBeRemoved = 0;
-		if(action.equals("update")){		
+		if(action.equals("update") && numberOfLanesRequested != null && numberOfLanesRequested.intValue()>0){		
 			System.out.println("A");			
 			try{
-				numberOfLanesInDatabase = new Integer(MetaHelper.getMetaValue(metaHelperWebapp.getArea(), "lanecount", platformUnitInDatabase.getSampleMeta()));
+				numberOfLanesInDatabase = sampleService.getNumberOfIndexedCellsOnPlatformUnit(platformUnitInDatabase);
+				System.out.println("AAA");
 				if(numberOfLanesInDatabase==null || numberOfLanesInDatabase.intValue()<=0){
 					throw new Exception("lanecount in database is not valid for platformId " + platformUnitInDatabase.getSampleId().intValue());
 				}
@@ -1788,14 +1872,18 @@ public class PlatformUnitController extends WaspController {
 						System.out.println("D");	
 						if(libraryList!=null && libraryList.size()>0){//don't forget list is permitted to be empty
 							//HERE IS THE ERROR TO CATCH AND PASS BACK
-							metaHelperWebapp.addValidationError("lanecount", metaHelperWebapp.getArea()+".lanecount_valuealteredconflicting.error", result);
-							otherErrorsExist=true;
+							String msg = messageService.getMessage(metaHelperWebapp.getArea()+".numberOfLanesRequested_conflict.error");
+							if(msg==null){
+								msg = new String("Action not permitted at this time. To reduce the number of lanes, remove libraries on the lanes that will be lost.");
+							}
+							m.put("numberOfLanesRequestedError", msg);//"Lane count cannot be empty"
+							otherErrorsExist = true;
 							System.out.println("found problem with number of lanes being reduced");
 							break;
 						}
 					}
 				}
-			}catch(Exception e){logger.debug(e.getMessage()); metaHelperWebapp.addValidationError("lanecount", "wasp.unexpected_error.error", result); otherErrorsExist = true;}
+			}catch(Exception e){logger.debug(e.getMessage()); System.out.println("in catch, but why"); otherErrorsExist = true;}
 		}
 //		if(numberOfLanesRequested.intValue()==8){
 //			metaHelperWebapp.addValidationError("lanecount", metaHelperWebapp.getArea()+".lanecount_valueinvalid.error", result);
@@ -1811,6 +1899,7 @@ System.out.println("5");
 			m.put("sampleSubtypeId", sampleSubtypeId);
 			m.put("sampleId", sampleId);
 			m.put("barcode", barcode);
+			m.put("numberOfCellsOnThisPlatformUnit", numberOfLanesRequested);
 			Map filterMap = new HashMap();
 			filterMap.put("sampleType.iName", "platformunit");
 			List<String> orderByColumnNames = new ArrayList<String>();
@@ -1823,10 +1912,16 @@ System.out.println("5.2");
 System.out.println("5.3");
 			prepareDistinctSelectListDataForResourceCategoriesForThisSampleSubtype(m, sampleSubtypeDao.findById(sampleSubtypeId));
 System.out.println("5.4");
-			prepareSelectListDataBySampleSubtype(m, sampleSubtypeDao.findById(sampleSubtypeId));
+			//prepareSelectListDataBySampleSubtype(m, sampleSubtypeDao.findById(sampleSubtypeId));
 System.out.println("5.5");			
 			platformunitInstance.setSampleMeta((List<SampleMeta>) metaHelperWebapp.getMetaList());
-System.out.println("5.6");			
+System.out.println("5.6");	
+
+try{
+List<Integer> numberOfCellsList = sampleService.getNumberOfCellsListForThisTypeOfPlatformUnit(sampleSubtype);//throws exception if problems
+m.addAttribute("numberOfCellsList", numberOfCellsList);
+}catch(Exception e){System.out.println("problem in nulberOfCellsList at exception");	}
+
 			return "facility/platformunit/createUpdatePlatformUnit";			
 		}
 		
@@ -3037,7 +3132,25 @@ class SampleBarcodeComparator implements Comparator<Sample> {
 		return arg0.getSampleBarcode().get(0).getBarcode().getBarcode().compareToIgnoreCase(arg1.getSampleBarcode().get(0).getBarcode().getBarcode());
 	}
 }
-
+class SampleLanecountComparator implements Comparator<Sample> {
+	SampleService sampleService;
+	SampleLanecountComparator(SampleService sampleService){
+		this.sampleService = sampleService;
+	}
+	@Override
+	public int compare(Sample arg0, Sample arg1) {
+		
+		Integer lanecount0 = null;
+		Integer lanecount1 = null;
+		
+		try{lanecount0 = sampleService.getNumberOfIndexedCellsOnPlatformUnit(arg0);
+		}catch(Exception e){lanecount0 = new Integer(0);}
+		try{lanecount1 = sampleService.getNumberOfIndexedCellsOnPlatformUnit(arg1);
+		}catch(Exception e){lanecount1 = new Integer(0);}
+		
+		return lanecount0.compareTo(lanecount1);
+	}
+}
 class SampleMetaIsStringComparator implements Comparator<Sample> {
 	
 	String metaKey;

@@ -47,6 +47,7 @@
          <property name="metaList">
          	<list>
          		<value>#{waspPlatformUnit['maxCellNumber']}=1</value>
+         		<value>#{waspPlatformUnit['multiplicationFactor']}=1</value>
          	</list>
          </property>
        </bean>

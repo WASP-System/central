@@ -21,6 +21,7 @@ import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.exception.SampleIndexException;
 import edu.yu.einstein.wasp.exception.SampleMultiplexException;
 import edu.yu.einstein.wasp.exception.SampleParentChildException;
+import edu.yu.einstein.wasp.exception.SampleSubtypeException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Job;
@@ -198,7 +199,15 @@ public interface SampleService extends WaspService {
 	   * @throws SampleTypeException 
 	   */
 	  public Map<Integer, Sample> getIndexedCellsOnPlatformUnit(Sample platformUnit) throws SampleTypeException;
-	  
+
+	  /**
+	   * Returns Number Of Indexed Cells (lanes) on a platform unit
+	   * @param platformUnit
+	   * @return Integer numberOfIndexedCells
+	   * @throws SampleTypeException 
+	   */
+	  public Integer getNumberOfIndexedCellsOnPlatformUnit(Sample platformUnit) throws SampleTypeException;
+
 	  /**
 	   * Adds a cell to a platform unit. Ensures that the index is unique.
 	   * @param platformUnit
@@ -294,8 +303,65 @@ public interface SampleService extends WaspService {
 	  /**
 	   * Determine whether a platform unit barcodeName is already in the database. 
 	   * @param Sample platformUnit
+	   * @param String barcodeName
 	   * @return boolean
 	   */
 	  public boolean platformUnitBarcodeUsedByAnother(Sample platformUnit, String barcodeName) throws SampleTypeException, SampleException;
+
+	  /**
+	   * Returns List of SampleSubtypes where SampleType.iname = parameter sampleTypeIName. List ordered ascending by samplesubtype.name. 
+	   * If the SampleType is not found, throw SampleTypeException. If SampleType is valid but not entries in SampleSubtype, then
+	   * return is an empty list (list.size()=0)
+	   * @param String sampleTypeIName
+	   * @return List<SampleSubtype>
+	   */
+	  public List<SampleSubtype> getSampleSubtypesBySampleTypeIName(String sampleTypeIName) throws SampleTypeException;
+
+	  /**
+	   * Returns a SampleSubtype with id of sampleSubtypeId. 
+	   * If the id not in database, return empty object (sampleSubtype.getSampleSubtypeId is null).
+	   * @param Integer sampleSubtypeId
+	   * @return SampleSubtype
+	   */
+	  public SampleSubtype getSampleSubtypeById(Integer sampleSubtypeId);
+
+	  /**
+	   * Returns true if SampleSubtype's SampleType has iname of sampleTypeIName, else return false. 
+	   * If SampleSubtype is null throw SampleSubtype Exception.
+	   * If the samplesubtype's SampleType is null or it's sampleTypeIName is null, throw SampleTypeException.
+	   * @param SampleSubtype sampleSubtype
+	   * @param String sampleTypeIName
+	   * @return boolean
+	   */
+	  public boolean sampleSubtypeIsSpecificSampleType(SampleSubtype sampleSubtype, String sampleTypeIName) throws SampleSubtypeException, SampleTypeException;
 	  
+	  /**
+	   * Returns a Sample with id of sampleId. 
+	   * If the id is not in the database, return an empty object (sample.getSampleId is null). 
+	   * @param Integer sampleId
+	   * @return Sample
+	   */
+	  public Sample getSampleById(Integer sampleId);
+
+	  /**
+	   * Returns true if Sample's SampleType has iname of sampleTypeIName, else return false. 
+	   * If Sample is null throw SampleException.
+	   * If the samplesubtype's SampleType is null or it's sampleTypeIName is null, throw SampleTypeException.
+	   * @param Sample sample
+	   * @param String sampleTypeIName
+	   * @return boolean
+	   */
+	  public boolean sampleIsSpecificSampleType(Sample sample, String sampleTypeIName) throws SampleException, SampleTypeException;
+
+	  /**
+	   * Returns an ordered (ascending) List Of Integers of the number of lanes that are available on a particular type of platformunit (flowcell). 
+	   * If the SampleSubtype is not in the database or is not of type platformunit, throw SampleSubtypeException or SampleTypeException, respectively.
+	   * If the SampleSubtypeMetadata for maxCellNumber is not found throw a SampleSubtypeException.
+	   * If the values for maxCellNumber, and if found multiplicationFactor, are not convertable to numbers, throw NumberFormatException.
+	   * If the values for maxCellNumber and if found multiplicationFactor, are unable to generate a list throw a SampleSubtypeException
+	   * @param SampleSubtype sampleSubtype
+	   * @return List<Integer>
+	   */
+	  public List<Integer> getNumberOfCellsListForThisTypeOfPlatformUnit(SampleSubtype sampleSubtype) throws SampleTypeException, SampleSubtypeException;
+
 }
