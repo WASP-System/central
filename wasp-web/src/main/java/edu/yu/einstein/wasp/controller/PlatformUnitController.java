@@ -1615,8 +1615,6 @@ public class PlatformUnitController extends WaspController {
 		if(sampleId.intValue()<0){
 			sampleId = new Integer(0);
 		}
-		m.put("sampleSubtypeId", sampleSubtypeId);
-		m.put("sampleId", sampleId);
 		
 		try{
 			List<SampleSubtype> sampleSubtypes = sampleService.getSampleSubtypesBySampleTypeIName("platformunit");//throws exception if SampleTypeIName not valid, otherwise return empty (size=0) or full list
@@ -1629,30 +1627,18 @@ public class PlatformUnitController extends WaspController {
 			
 				SampleSubtype sampleSubtype = null;
 				List<Integer> numberOfCellsList;
-				if(!reset.equals("reset")){
-					sampleSubtype = sampleService.getSampleSubtypeById(sampleSubtypeId);
-					if(sampleSubtype.getSampleSubtypeId()==null){
-						throw new Exception("SampleSubtype with ID of " + sampleSubtypeId.toString() + " unexpectedly not found in database");								
-					}
-					if(!sampleService.sampleSubtypeIsSpecificSampleType(sampleSubtype, "platformunit")){
-						throw new Exception("SampleSubtype with ID of " + sampleSubtypeId.toString() + " is unexpectedly not SampleType of platformunit");								
-					}
-					//prepareSelectListDataByResourceCategory(m, resourceCategory);
-					//prepareDistinctSelectListDataForResourceCategoriesForThisSampleSubtype(m, sampleSubtype);
-					//prepareSelectListDataBySampleSubtype(m, sampleSubtype);
-					
-					m.addAttribute("readlengths", getDistinctResourceCategoryMetaListForSampleSubtype(sampleSubtype, "readlength"));
-					m.addAttribute("readTypes", getDistinctResourceCategoryMetaListForSampleSubtype(sampleSubtype, "readType"));
-					
-					numberOfCellsList = sampleService.getNumberOfCellsListForThisTypeOfPlatformUnit(sampleSubtype);//throws exception if problems
-					m.addAttribute("numberOfCellsList", numberOfCellsList);
-				}
 			
 				MetaHelperWebapp metaHelperWebapp = getMetaHelperWebappPlatformUnitInstance();
 			
 				Sample platformunitInstance = null;
 				String barcode;
-				if(sampleId.intValue() > 0){
+				if(sampleId.intValue() < 1){//most likely it's zero
+					platformunitInstance = new Sample();
+					platformunitInstance.setSampleMeta(metaHelperWebapp.getMasterList(SampleMeta.class));
+					barcode = new String("");
+					m.addAttribute("numberOfCellsOnThisPlatformUnit", new Integer(0));
+				}
+				else{//valid sampleId
 					platformunitInstance = sampleService.getSampleById(sampleId);
 					if(platformunitInstance.getSampleId()==null){
 						throw new Exception("Sample with ID of " + platformunitInstance.getSampleId().toString() + " unexpectedly not found in database");								
@@ -1674,36 +1660,31 @@ public class PlatformUnitController extends WaspController {
 					//deal with numberOfCellsOnPlatformUnit
 					Integer numberOfCellsOnThisPlatformUnit = sampleService.getNumberOfIndexedCellsOnPlatformUnit(platformunitInstance);
 					m.addAttribute("numberOfCellsOnThisPlatformUnit", numberOfCellsOnThisPlatformUnit);
-					
-					if(reset.equals("reset")){
-						sampleSubtypeId = new Integer(platformunitInstance.getSampleSubtypeId().intValue());
-						m.put("sampleSubtypeId", sampleSubtypeId);
-						
-						sampleSubtype = sampleService.getSampleSubtypeById(sampleSubtypeId);//throws exceptions //sampleSubtypeDao.getSampleSubtypeBySampleSubtypeId(sampleSubtypeId);
-						if(sampleSubtype.getSampleSubtypeId()==null){
-							throw new Exception("SampleSubtype with ID of " + sampleSubtypeId.toString() + " unexpectedly not found in database");								
-						}
-						if(!sampleService.sampleSubtypeIsSpecificSampleType(sampleSubtype, "platformunit")){
-							throw new Exception("SampleSubtype with ID of " + sampleSubtypeId.toString() + " is unexpectedly not SampleType of platformunit");								
-						}
-						m.addAttribute("readlengths", getDistinctResourceCategoryMetaListForSampleSubtype(sampleSubtype, "readlength"));
-						m.addAttribute("readTypes", getDistinctResourceCategoryMetaListForSampleSubtype(sampleSubtype, "readType"));
-						
-						numberOfCellsList = sampleService.getNumberOfCellsListForThisTypeOfPlatformUnit(sampleSubtype);//throws exception if problems
-						m.addAttribute("numberOfCellsList", numberOfCellsList);
-					}
-				}
-				else{
-					platformunitInstance = new Sample();
-					platformunitInstance.setSampleMeta(metaHelperWebapp.getMasterList(SampleMeta.class));
-					barcode = new String("");
-					m.addAttribute("numberOfCellsOnThisPlatformUnit", new Integer(0));
 				}
 				m.addAttribute(metaHelperWebapp.getParentArea(), platformunitInstance);
+				
+				if(reset.equals("reset")){
+					if(sampleId.intValue() < 1){throw new Exception("Unexpectedly requested reset without providing a valid sampleId");}
+					sampleSubtypeId = new Integer(platformunitInstance.getSampleSubtypeId().intValue());
+				}					
+				sampleSubtype = sampleService.getSampleSubtypeById(sampleSubtypeId);
+				if(sampleSubtype.getSampleSubtypeId()==null){
+					throw new Exception("SampleSubtype with ID of " + sampleSubtypeId.toString() + " unexpectedly not found in database");								
+				}
+				if(!sampleService.sampleSubtypeIsSpecificSampleType(sampleSubtype, "platformunit")){
+					throw new Exception("SampleSubtype with ID of " + sampleSubtypeId.toString() + " is unexpectedly not SampleType of platformunit");								
+				}				
+				m.addAttribute("readlengths", getDistinctResourceCategoryMetaListForSampleSubtype(sampleSubtype, "readlength"));
+				m.addAttribute("readTypes", getDistinctResourceCategoryMetaListForSampleSubtype(sampleSubtype, "readType"));
+				numberOfCellsList = sampleService.getNumberOfCellsListForThisTypeOfPlatformUnit(sampleSubtype);//throws exception if problems
+				m.addAttribute("numberOfCellsList", numberOfCellsList);
 			
 			}//if(sampleSubtypeId.intValue()>0)				
 		}catch(Exception e){logger.debug(e.getMessage());waspErrorMessage("wasp.unexpected_error.error");return "redirect:/dashboard.do";}
 		
+		m.put("sampleSubtypeId", sampleSubtypeId);
+		m.put("sampleId", sampleId);
+
 		return "facility/platformunit/createUpdatePlatformUnit";
 	}
 	
