@@ -53,14 +53,7 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 	@Autowired 
 	private JobRegistry jobRegistry;
 	
-	private JobExplorerWasp jobExplorer;
-	
-	@Autowired
-	void setJobExplorer(JobExplorer jobExplorer){
-		this.jobExplorer = (JobExplorerWasp) jobExplorer;
-	}
-	
-	
+		
 	@Autowired
 	private StubSampleDao stubSampleDao;
 	
@@ -91,7 +84,6 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 		Assert.assertNotNull(channelRegistry);
 		Assert.assertNotNull(jobLauncher);
 		Assert.assertNotNull(jobRegistry);
-		Assert.assertNotNull(jobExplorer);
 		outboundRmiChannel = channelRegistry.getChannel("wasp.channel.rmi.outbound", DirectChannel.class);
 		replyChannel = channelRegistry.getChannel("wasp.channel.rmi.outbound.reply", DirectChannel.class);
 		replyChannel.subscribe(this);
@@ -115,7 +107,7 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 	 * This test exercises the normal sample flow with a DNA sample received.
 	 * The method sets up a listeningChannel and listens on it. It then launches the wasp.sample.mainFlow.v1 flow.
 	 */
-	@Test (groups = "unit-tests")
+	@Test (groups = "unit-tests-batch-integration")
 	public void testDNASampleReceived() throws Exception{
 		try{
 			listeningChannel = channelRegistry.getChannel("wasp.channel.notification.sample", SubscribableChannel.class);
@@ -185,7 +177,7 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 	 * This test exercises the normal sample flow with a DNA sample received.
 	 * The method sets up a listeningChannel and listens on it. It then launches the wasp.sample.mainFlow.v1 flow.
 	 */
-	@Test (groups = "unit-tests")
+	@Test (groups = "unit-tests-batch-integration")
 	public void testLibrarySampleReceived() throws Exception{
 		try{
 			listeningChannel = channelRegistry.getChannel("wasp.channel.notification.library", SubscribableChannel.class);
@@ -255,7 +247,7 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 	 * Tests aborting of batch job when a sample is aborted because of failing QC
 	 * @throws Exception
 	 */
-	@Test (groups = "unit-tests")
+	@Test (groups = "unit-tests-batch-integration")
 	public void testSampleFailedQC() throws Exception{
 		try{
 			listeningChannel = channelRegistry.getChannel("wasp.channel.notification.sample", SubscribableChannel.class);
@@ -322,45 +314,6 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 		
 	}
 	
-	/**
-	 * API extension testing. Testing access of state information via API extension. After running testDNASampleReceived() and testLibrarySampleReceived()
-	 * the Batch tables should contain two steps called 'wasp.sample.step.listenForSampleReceived' with a Batch Status of Completed.
-	 * Only one of these should match the supplied jobId and sampleId.
-	 */
-	@Test(groups = "unit-tests", dependsOnMethods={"testDNASampleReceived", "testLibrarySampleReceived"})
-	public void testGettingStateWithAPI(){
-		Map<String, String> parameterMap = new HashMap<String, String>();
-		parameterMap.put(SAMPLE_ID_KEY, SAMPLE_ID.toString());
-		parameterMap.put(JOB_ID_KEY, JOB_ID.toString());
-		StepExecution stepExecution = null;
-		try {
-			stepExecution = jobExplorer.getStepExecutionByStepNameAndParameterMap("listenForSampleReceived", parameterMap);
-		} catch (BatchDaoDataRetrievalException e) {
-			Assert.fail("Unable to get status");
-		}
-		Assert.assertNotNull(stepExecution);
-		Assert.assertEquals(stepExecution.getStatus(), BatchStatus.COMPLETED);
-	}
-	
-	/**
-	 * API extension testing. Testing access of state information via API extension. After running testDNASampleReceived() and testLibrarySampleReceived()
-	 * the Batch tables should contain two steps called 'wasp.sample.step.listenForSampleReceived' with a Batch Status of Completed.
-	 * Both of these should match the supplied jobId, so if the sampleId parameter is absent to distinguish them this test should throw
-	 * an exception.
-	 */
-	@Test(groups = "unit-tests", dependsOnMethods={"testDNASampleReceived", "testLibrarySampleReceived"})
-	public void testGettingStateWithAPIFailureOnMoreThanOneResult(){
-		Map<String, String> parameterMap = new HashMap<String, String>();
-		parameterMap.put(JOB_ID_KEY, JOB_ID.toString());
-		try {
-			StepExecution stepExecution = jobExplorer.getStepExecutionByStepNameAndParameterMap("listenForSampleReceived", parameterMap);
-		} catch (BatchDaoDataRetrievalException e) {
-			Assert.assertEquals(e.getMessage(), "More than one StepExecution object returned with given step name and parameter map");
-			return;
-		}
-		Assert.fail("Expected an BatchDaoDataRetrievalException but got none");
-	}
-
 	@Override
 	public void handleMessage(Message<?> message) throws MessagingException {
 		logger.debug("Message recieved by handleMessage(): "+message.toString());

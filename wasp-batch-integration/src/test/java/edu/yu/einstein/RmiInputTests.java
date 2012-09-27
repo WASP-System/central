@@ -55,7 +55,7 @@ public class RmiInputTests extends AbstractTestNGSpringContextTests implements M
 	}
 
 	
-	@Test(groups = "unit-tests")
+	@Test(groups = "unit-tests-batch-integration")
 	public void testSendMessage() {
 		try{ 
 			// send run started message into outboundRmiChannel
@@ -93,7 +93,7 @@ public class RmiInputTests extends AbstractTestNGSpringContextTests implements M
 		}
 	}
 	
-	@Test(groups = "unit-tests", dependsOnMethods = "testSendMessage")
+	@Test(groups = "unit-tests-batch-integration", dependsOnMethods = "testSendMessage")
 	public void testUnknownTarget() throws Exception{
 		try{ 
 			// send run started message into outboundRmiChannel

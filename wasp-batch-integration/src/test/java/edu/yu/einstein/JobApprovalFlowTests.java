@@ -83,7 +83,7 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 	 * This test exercises the approvalFlow.
 	 * The method sets up a listeningChannel and listens on it. it then launches the chipSeq.waspJob.jobflow.v1.
 	 */
-	@Test (groups = "unit-tests")
+	@Test (groups = "unit-tests-batch-integration")
 	public void testJobApproved() throws Exception{
 		try{
 			// setup job execution for the 'chipSeq.waspJob.jobflow.v1' job
@@ -156,7 +156,7 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 	 * This test exercises the approvalFlow. In this case one approval task receives an ABANDONED signal to signify rejection.
 	 * The method sets up a listeningChannel and listens on it. it then launches the chipSeq.waspJob.jobflow.v1.
 	 */
-	@Test (groups = "unit-tests")
+	@Test (groups = "unit-tests-batch-integration")
 	public void testJobNotApproved() throws Exception{
 		try{
 			// setup job execution for the 'chipSeq.waspJob.jobflow.v1' job

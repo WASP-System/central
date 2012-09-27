@@ -20,6 +20,7 @@
     ]]>
 	</description>
 	<properties>
+		<maven.test.skip>true</maven.test.skip>
 		<maven.test.failure.ignore>true</maven.test.failure.ignore>
 		<module.version>0.1.0-SNAPSHOT</module.version>
 	</properties>
