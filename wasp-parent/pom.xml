@@ -4,8 +4,8 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-	    	<groupId>edu.yu.einstein.wasp</groupId>
-	        <version>1.0.0</version>
+	    <groupId>edu.yu.einstein.wasp</groupId>
+	    <version>1.0.0</version>
 		<artifactId>bom</artifactId>
 	</parent>
 
@@ -88,16 +88,20 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 		<project.build.outputEncoding>UTF-8</project.build.outputEncoding>
 		<site.basedir>${project.basedir}</site.basedir>
 		<module.version>0.1.0-SNAPSHOT</module.version>
-		<spring.version>3.1.2.RELEASE</spring.version>
+		<spring.framework.version>3.1.2.RELEASE</spring.framework.version>
 		<springsec.version>3.1.1.RELEASE</springsec.version>
+		<spring.batch.version>2.1.9.RELEASE</spring.batch.version>
+		<spring.integration.version>2.2.0.M4</spring.integration.version>
 	</properties>
 
 	<modules>
+		<module>../wasp-batch-api-extension</module>
+		<module>../wasp-batch-integration</module>
 		<module>../wasp-core</module>
 		<module>../wasp-tomcat-classloader</module>
 		<module>../wasp-web</module>
-		<!--<module>../wasp-illumina</module>-->
-		<module>../wasp-cli</module>
+		<!-- <module>../wasp-illumina</module> -->
+		<!-- <module>../wasp-cli</module> -->
 		<module>../wasp-doc</module>
 	</modules>
 
@@ -284,14 +288,26 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 				<version>${module.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>edu.yu.einstein.wasp</groupId>
+				<artifactId>wasp-batch-integration</artifactId>
+				<version>${module.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>edu.yu.einstein.wasp</groupId>
+				<artifactId>wasp-batch-api-extension</artifactId>
+				<version>${module.version}</version>
+			</dependency>
+			<!--  if you use aspects in your spring config with, say, jdbc:initalize-database configuration clause, most likely you’ll get assertion error in your JUnit test.
+			The possible workaround would be to switch to aspectjweaver of version 1.6.9. (not latest version 1.6.12) -->
+			<dependency>
 				<groupId>org.aspectj</groupId>
 				<artifactId>aspectjrt</artifactId>
-				<version>1.6.12</version>
+				<version>1.6.9</version>
 			</dependency>
 			<dependency>
 				<groupId>org.aspectj</groupId>
 				<artifactId>aspectjweaver</artifactId>
-				<version>1.6.12</version>
+				<version>1.6.9</version>
 			</dependency>
 			<dependency>
 				<groupId>javax.mail</groupId>
@@ -438,82 +454,82 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-aop</artifactId>
-				<version>${spring.version}</version>
+				<version>${spring.framework.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-asm</artifactId>
-				<version>${spring.version}</version>
+				<version>${spring.framework.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-aspects</artifactId>
-				<version>${spring.version}</version>
+				<version>${spring.framework.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-beans</artifactId>
-				<version>${spring.version}</version>
+				<version>${spring.framework.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-context</artifactId>
-				<version>${spring.version}</version>
+				<version>${spring.framework.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-context-support</artifactId>
-				<version>${spring.version}</version>
+				<version>${spring.framework.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-core</artifactId>
-				<version>${spring.version}</version>
+				<version>${spring.framework.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-expression</artifactId>
-				<version>${spring.version}</version>
+				<version>${spring.framework.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-instrument</artifactId>
-				<version>${spring.version}</version>
+				<version>${spring.framework.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-instrument-tomcat</artifactId>
-				<version>${spring.version}</version>
+				<version>${spring.framework.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-jdbc</artifactId>
-				<version>${spring.version}</version>
+				<version>${spring.framework.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-jms</artifactId>
-				<version>${spring.version}</version>
+				<version>${spring.framework.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-orm</artifactId>
-				<version>${spring.version}</version>
+				<version>${spring.framework.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-oxm</artifactId>
-				<version>${spring.version}</version>
+				<version>${spring.framework.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-test</artifactId>
-				<version>${spring.version}</version>
+				<version>${spring.framework.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-web</artifactId>
-				<version>${spring.version}</version>
+				<version>${spring.framework.version}</version>
 			</dependency>
 <!-- 			<dependency>
 				<groupId>org.springframework</groupId>
@@ -529,7 +545,7 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-tx</artifactId>
-				<version>${spring.version}</version>
+				<version>${spring.framework.version}</version>
 			</dependency>
 <!--			<dependency>
 				<groupId>org.springframework</groupId>
@@ -680,42 +696,42 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 			<dependency>
 				<groupId>org.springframework.integration</groupId>
 				<artifactId>spring-integration-core</artifactId>
-				<version>2.1.0.RELEASE</version>
+				<version>${spring.integration.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.integration</groupId>
 				<artifactId>spring-integration-ip</artifactId>
-				<version>2.1.1.RELEASE</version>
+				<version>${spring.integration.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.integration</groupId>
 				<artifactId>spring-integration-file</artifactId>
-				<version>2.1.0.RELEASE</version>
+				<version>${spring.integration.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.integration</groupId>
 				<artifactId>spring-integration-rmi</artifactId>
-				<version>2.1.1.RELEASE</version>
+				<version>${spring.integration.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.batch</groupId>
 				<artifactId>spring-batch-core</artifactId>
-				<version>2.1.8.RELEASE</version>
+				<version>${spring.batch.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.batch</groupId>
 				<artifactId>spring-batch-infrastructure</artifactId>
-				<version>2.1.8.RELEASE</version>
+				<version>${spring.batch.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.batch</groupId>
 				<artifactId>spring-batch-test</artifactId>
-				<version>2.1.8.RELEASE</version>
+				<version>${spring.batch.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.batch</groupId>
 				<artifactId>spring-batch-integration</artifactId>
-				<version>1.2.0.RELEASE</version>
+				<version>1.2.1.RELEASE</version>
 			</dependency>
 			<dependency>
 				<groupId>junit</groupId>

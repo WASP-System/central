@@ -50,7 +50,7 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 	 * contain two steps called 'wasp.sample.step.listenForSampleReceived' with a Batch Status of Completed.
 	 * Only one of these should match the supplied jobId and sampleId.
 	 */
-	@Test
+	@Test(groups = "unit-tests")
 	public void testGettingStateWithAPI(){
 		Map<String, String> parameterMap = new HashMap<String, String>();
 		parameterMap.put(SAMPLE_ID_KEY, SAMPLE_ID.toString());
@@ -71,7 +71,7 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 	 * Both of these should match the supplied jobId, so if the sampleId parameter is absent to distinguish them this test should throw
 	 * an exception.
 	 */
-	@Test
+	@Test(groups = "unit-tests")
 	public void testGettingStateWithAPIFailureOnMoreThanOneResult(){
 		Map<String, String> parameterMap = new HashMap<String, String>();
 		parameterMap.put(JOB_ID_KEY, JOB_ID.toString());

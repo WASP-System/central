@@ -327,7 +327,7 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 	 * the Batch tables should contain two steps called 'wasp.sample.step.listenForSampleReceived' with a Batch Status of Completed.
 	 * Only one of these should match the supplied jobId and sampleId.
 	 */
-	@Test(dependsOnMethods={"testDNASampleReceived", "testLibrarySampleReceived"})
+	@Test(groups = "unit-tests", dependsOnMethods={"testDNASampleReceived", "testLibrarySampleReceived"})
 	public void testGettingStateWithAPI(){
 		Map<String, String> parameterMap = new HashMap<String, String>();
 		parameterMap.put(SAMPLE_ID_KEY, SAMPLE_ID.toString());
@@ -348,7 +348,7 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 	 * Both of these should match the supplied jobId, so if the sampleId parameter is absent to distinguish them this test should throw
 	 * an exception.
 	 */
-	@Test(dependsOnMethods={"testDNASampleReceived", "testLibrarySampleReceived"})
+	@Test(groups = "unit-tests", dependsOnMethods={"testDNASampleReceived", "testLibrarySampleReceived"})
 	public void testGettingStateWithAPIFailureOnMoreThanOneResult(){
 		Map<String, String> parameterMap = new HashMap<String, String>();
 		parameterMap.put(JOB_ID_KEY, JOB_ID.toString());

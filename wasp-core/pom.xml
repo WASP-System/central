@@ -95,13 +95,14 @@
 							<configuration>
 								<skip>false</skip>
 								<excludedGroups>integration-tests, db-tests, a, ssh</excludedGroups>
+								<includes>
+									 <include>**/Test*.java</include>
+									 <include>**/*Test.java</include>
+									 <include>**/*Tests.java</include>
+									 <include>**/*TestCase.java</include>
+								</includes>
 							</configuration>
 						</execution>
-						<!-- <execution> <id>integration-tests</id> <phase>integration-test</phase> 
-							<goals> <goal>test</goal> </goals> <configuration> <skip>false</skip> <groups>integration-tests</groups> 
-							</configuration> </execution> <execution> <id>db-tests</id> <phase>integration-test</phase> 
-							<goals> <goal>test</goal> </goals> <configuration> <skip>true</skip> <groups>db-tests,a</groups> 
-							<excludedGroups>integration-tests, a</excludedGroups> </configuration> </execution> -->
 					</executions>
 				</plugin>
 			</plugins>

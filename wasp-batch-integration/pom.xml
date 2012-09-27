@@ -122,47 +122,44 @@
 	</dependencies>
 
 	<build>
-		 
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
-					<source>1.5</source>
-					<target>1.5</target>
+					<source>1.6</source>
+					<target>1.6</target>
 				</configuration>
 			</plugin>
-			 
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>exec-maven-plugin</artifactId>
-				<version>1.1</version>
-				<configuration>
-					<mainClass>org.springframework.batch.core.launch.support.CommandLineJobRunner</mainClass>
-					<arguments>
-						<!-- job configuration file -->
-						<argument>classpath:/launch-context.xml</argument>
-						<!-- job name -->
-						<argument>job1</argument>
-					</arguments>
-				</configuration>
-			</plugin>
-		 
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<configuration>
-					<archive>
-						<index>true</index>
-						<manifest>
-							<mainClass>org.springframework.batch.core.launch.support.CommandLineJobRunner</mainClass>
-							<addClasspath>true</addClasspath>
-							<classpathPrefix>lib/</classpathPrefix>
-						</manifest>
-					</archive>
-				</configuration>
-			</plugin>
-		</plugins>
+			</plugins>
+			<pluginManagement>
+				<plugins>
+					<plugin>
+						<artifactId>maven-surefire-plugin</artifactId>
+						<version>2.10</version>
+						
+						<executions>
+							<execution>
+								<id>unit-tests</id>
+								<phase>test</phase>
+								<goals>
+									<goal>test</goal>
+								</goals>
+								<configuration>
+									<skip>${maven.test.skip}</skip>
+									<excludedGroups>integration-tests, db-tests, a, ssh</excludedGroups>
+									<includes>
+										 <include>**/Test*.java</include>
+										 <include>**/*Test.java</include>
+										 <include>**/*Tests.java</include>
+										 <include>**/*TestCase.java</include>
+									</includes>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</pluginManagement>
 	</build>
 	<repositories>
 		<repository>
