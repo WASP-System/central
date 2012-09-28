@@ -798,15 +798,23 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	@Override
 	public boolean platformUnitNameUsedByAnother(Sample platformUnit, String name) throws SampleTypeException, SampleException{
 		
+		//first confirm that the incoming Sample platformUnit (if not null or empty) is in the database and is platformunit
+		if(platformUnit != null && platformUnit.getSampleId() != null && platformUnit.getSampleId().intValue()>0){
+			Sample sample = this.getSampleById(platformUnit.getSampleId());
+			if(sample.getSampleId()==null){
+				throw new SampleException("Sample with ID of " + platformUnit.getSampleId() + " unexpectedly not found in database.");
+			}
+			if(!this.sampleIsSpecificSampleType(sample, "platformunit")){
+				throw new SampleTypeException("Sample with ID of " + platformUnit.getSampleId() + " is NOT of type platformunit.");
+			}
+		}
+		
 		Map<String, Object> filter = new HashMap<String, Object>();
 		filter.put("sampleType.iName", "platformunit");
 		filter.put("name", name);
 		List<Sample> platformUnitsWithThisName = sampleDao.findByMap(filter);//if abc is in database and name==ABC, the record abc comes up in result set. Why I don't know.
 
-		//System.out.println("search name="+name);
-		///for(Sample s : platformUnitsWithThisName){
-		//	System.out.println("database names: " + s.getName());
-		//}
+/*remove constraint as per Andy 9/28/12 
 		//next section deals with it to keep only exact matches
 		List<Sample> samplesToRemove = new ArrayList<Sample>();
 		for(Sample s : platformUnitsWithThisName){
@@ -815,7 +823,7 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 			}
 		}
 		platformUnitsWithThisName.removeAll(samplesToRemove);
-		
+*/		
 		if(platformUnitsWithThisName != null){
 			
 			if(platformUnitsWithThisName.size() > 1){//should never occur
@@ -823,23 +831,11 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 			}			
 			else if(platformUnitsWithThisName.size() == 1){//the name exists in the database
 			
-				if(platformUnit == null || platformUnit.getSampleId() == null || platformUnit.getSampleId().intValue()==0){//if we're creating a new platformunit sample
+				if(platformUnit == null || platformUnit.getSampleId() == null || platformUnit.getSampleId().intValue()==0){
 					return true;
 				}
-				else{//platformUnit.getSampleId() != null && platformUnit.getSampleId().intValue()>0
-				
-					//first confirm that the Sample platformUnit is in the database 
-					Sample sample = sampleDao.getSampleBySampleId(platformUnit.getSampleId().intValue());
-					if(sample==null || sample.getSampleId()==null || sample.getSampleId().intValue()==0){
-						throw new SampleException("Sample for this platformunit unexpectedly not found in database.");
-					}
-					else if(!sample.getSampleType().getIName().equalsIgnoreCase("platformunit")){//and actually represents a subtype platformunit
-						throw new SampleTypeException("This sample is NOT of type platformunit.");
-					}
-				
-					if(platformUnit.getSampleId().intValue() != platformUnitsWithThisName.get(0).getSampleId().intValue()){//this name already exists and is used by another platformunit (then return true)
-						return true;
-					}
+				else if(platformUnit.getSampleId().intValue() != platformUnitsWithThisName.get(0).getSampleId().intValue()){//this name already exists and is used by another platformunit (then return true)
+					return true;
 				}
 			}
 		}
@@ -852,10 +848,22 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	@Override
 	public boolean platformUnitBarcodeUsedByAnother(Sample platformUnit, String barcodeName) throws SampleTypeException, SampleException{
 
+		//first confirm that the incoming Sample platformUnit (if not null or empty) is in the database and is platformunit
+		if(platformUnit != null && platformUnit.getSampleId() != null && platformUnit.getSampleId().intValue()>0){
+			Sample sample = this.getSampleById(platformUnit.getSampleId());
+			if(sample.getSampleId()==null){
+				throw new SampleException("Sample with ID of " + platformUnit.getSampleId() + " unexpectedly not found in database.");
+			}
+			if(!this.sampleIsSpecificSampleType(sample, "platformunit")){
+				throw new SampleTypeException("Sample with ID of " + platformUnit.getSampleId() + " is NOT of type platformunit.");
+			}
+		}
+
 		Map<String, Object> filter = new HashMap<String, Object>();
 		filter.put("barcode", barcodeName);
 		List<Barcode> barcodesWithThisName = barcodeDao.findByMap(filter);
- 
+		
+/*remove constraint as per Andy 9/28/12 
 		//if abc is in database and barcodeName==ABC, the record abc comes up in result set. Why I don't know.
 		//next section deals with it to keep only exact matches
 		List<Barcode> barcodesToRemove = new ArrayList<Barcode>();
@@ -865,7 +873,7 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 			}
 		}
 		barcodesWithThisName.removeAll(barcodesToRemove);
-		
+*/		
 		if(barcodesWithThisName != null){
 			
 			if(barcodesWithThisName.size() > 1){//should never occur
@@ -876,20 +884,8 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 				if(platformUnit == null || platformUnit.getSampleId() == null || platformUnit.getSampleId().intValue()==0){//if we're creating a new platformunit sample
 					return true;
 				}
-				else{ /////platformUnit.getSampleId() != null && platformUnit.getSampleId().intValue()>0
-				
-					//first confirm that the Sample platformUnit is in the database 
-					Sample sample = sampleDao.getSampleBySampleId(platformUnit.getSampleId().intValue());
-					if(sample==null || sample.getSampleId()==null || sample.getSampleId().intValue()==0){
-						throw new SampleException("Sample for this platformunit unexpectedly not found in database.");
-					}
-					else if(!sample.getSampleType().getIName().equalsIgnoreCase("platformunit")){//and actually represents a subtype platformunit
-						throw new SampleTypeException("This sample is NOT of type platformunit.");
-					}
-				
-					if(platformUnit.getSampleId().intValue() != barcodesWithThisName.get(0).getSampleBarcode().get(0).getSampleId().intValue()){//this barcodename already exists and is used by another platformunit (then return true)
-						return true;
-					}
+				else if(platformUnit.getSampleId().intValue() != barcodesWithThisName.get(0).getSampleBarcode().get(0).getSampleId().intValue()){//this barcodename already exists and is used by another platformunit (then return true)
+					return true;
 				}
 			}
 		}
@@ -959,8 +955,9 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	@Override
 	public List<Integer> getNumberOfCellsListForThisTypeOfPlatformUnit(SampleSubtype sampleSubtype) throws SampleTypeException, SampleSubtypeException{
 			
-		//confirm sampleSubtype exists and of proper type (platformunit); exception will be thrown if not OK
-		//do we still want to assert?   ************getSampleSubtypeByIdAndAssertSampleType(sampleSubtype.getSampleSubtypeId(), "platformunit");
+		if(!sampleSubtypeIsSpecificSampleType(sampleSubtype, "platformunit")){
+			throw new SampleSubtypeException("SampleSubtype with Id of " + sampleSubtype.getSampleSubtypeId().toString() + " is not platformunit");
+		}
 		
 		Integer maxCellNumber = null;
 		Integer multiplicationFactor = null;

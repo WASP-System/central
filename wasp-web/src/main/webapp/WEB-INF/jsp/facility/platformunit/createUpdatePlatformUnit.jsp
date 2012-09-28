@@ -43,7 +43,7 @@
 		<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="sampleId" value="<c:out value="${sampleId}" />" />
 		
 		<select class="FormElement ui-widget-content ui-corner-all" name="sampleSubtypeId" size="1" onchange="this.parentNode.submit()">
-			<c:if test='${sampleSubtypeId == 0}'>
+			<c:if test='${sampleSubtypeId <= 0}'>
 				<option value="0">--select--
 			</c:if>			
 			<c:forEach items="${sampleSubtypes}" var="sampleSubtype">
