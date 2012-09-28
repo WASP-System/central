@@ -17,7 +17,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.Assert;
 
-import edu.yu.einstein.wasp.exceptions.BatchDaoDataRetrievalException;
+import edu.yu.einstein.wasp.batch.exceptions.BatchDaoDataRetrievalException;
 
 
 @Repository

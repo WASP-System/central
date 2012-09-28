@@ -17,7 +17,10 @@
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>wasp-core</artifactId>
-			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>wasp-config</artifactId>
 		</dependency>
 		<!--
 		<dependency>

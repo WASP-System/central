@@ -16,10 +16,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.yu.einstein.wasp.batch.core.extension.JobExplorerWasp;
 import edu.yu.einstein.wasp.dao.LabDao;
 import edu.yu.einstein.wasp.dao.LabPendingDao;
 import edu.yu.einstein.wasp.dao.LabUserDao;
@@ -33,6 +35,7 @@ import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabPending;
 import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.Role;
+import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.Statejob;
 import edu.yu.einstein.wasp.model.Task;
@@ -47,6 +50,17 @@ import edu.yu.einstein.wasp.service.TaskService;
 public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 
 	private TaskMappingDao	taskMappingDao;
+	
+	private JobExplorerWasp jobExplorer;
+	
+	/**
+	 * Set JobExplorerWasp
+	 * @param jobExplorer
+	 */
+	@Autowired
+	void setJobExplorer(JobExplorer jobExplorer){
+		this.jobExplorer = (JobExplorerWasp) jobExplorer;
+	}
 
 	/**
 	 * setTaskMappingDao(TaskMappingDao taskMappingDao)
@@ -149,16 +163,7 @@ public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 
 //<<<<<<<<<
 	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public List<TaskMapping> getMappedTasksForCurrentUser(){
-		// TODO: add code
-		return null;
-	}
-
-
+	
 	// returns states that
 	// a) are in the given status
 	// b) are accessible by current user according to the given permission
@@ -414,5 +419,71 @@ public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 		}
 		// total number of tasksPendingDaApproval
 		return labsPendingDaApprovalList.size() + jobsPendingDaApprovalList.size();
+	}
+	
+	// TODO: Everything above here needs to be refactored
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<TaskMapping> getMappedTasksForCurrentUser(){
+		// TODO: add code
+		return null;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Boolean isJobAwaitingPiApproval(Job job){
+		// TODO: add code
+		return false;
+	}
+
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Boolean isJobAwaitingDaApproval(Job job){
+		// TODO: add code
+		return false;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Boolean isSampleReceived(Sample sample){
+		// TODO: add code
+		return false;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Boolean isJobAwaitingLibraryCreation(Sample sample){
+		// TODO: add code
+		return false;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Boolean isLibraryAwaitingPlatformUnitPlacement(Sample sample){
+		// TODO: add code
+		return false;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Boolean isPlatformUnitAwaitingSequenceRunPlacement(Sample sample){
+		// TODO: add code
+		return false;
 	}
 }

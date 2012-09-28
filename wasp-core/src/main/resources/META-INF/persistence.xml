@@ -7,12 +7,11 @@
 
 
     <properties>
-      <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver"/>
-      <property name="javax.persistence.jdbc.user" value="wasp"/>
-      <property name="javax.persistence.jdbc.password" value="waspV2"/>
-      <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost/wasp?zeroDateTimeBehavior=convertToNull&amp;characterEncoding=utf8&amp;useUnicode=true&amp;characterSetResults=utf8&amp;connectionCollation=utf8_general_ci"/>
+      <property name="javax.persistence.jdbc.driver" value="${batch.jdbc.driver}"/>
+      <property name="javax.persistence.jdbc.user" value="${batch.jdbc.user}"/>
+      <property name="javax.persistence.jdbc.password" value="${batch.jdbc.password}"/>
+      <property name="javax.persistence.jdbc.url" value="${batch.jdbc.url}"/>
       <property name="hibernate.hbm2ddl.auto" value="update" />
-     
       
       <!--
       <property name="hibernate.dialect" value="org.hibernate.dialect.MySQL5Dialect"/>

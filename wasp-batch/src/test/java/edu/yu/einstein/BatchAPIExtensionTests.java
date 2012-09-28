@@ -15,9 +15,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import edu.yu.einstein.wasp.batch.core.extension.JobExplorerWasp;
-import edu.yu.einstein.wasp.exceptions.BatchDaoDataRetrievalException;
+import edu.yu.einstein.wasp.batch.exceptions.BatchDaoDataRetrievalException;
 
-@ContextConfiguration(locations={"classpath:test-launch-context.xml"})
+@ContextConfiguration(locations={"classpath:batch-test-context.xml"})
 
 public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 	

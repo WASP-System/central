@@ -15,7 +15,7 @@ import org.springframework.batch.core.repository.dao.StepExecutionDao;
 
 import edu.yu.einstein.wasp.batch.core.extension.dao.WaspJobInstanceDao;
 import edu.yu.einstein.wasp.batch.core.extension.dao.WaspStepExecutionDao;
-import edu.yu.einstein.wasp.exceptions.BatchDaoDataRetrievalException;
+import edu.yu.einstein.wasp.batch.exceptions.BatchDaoDataRetrievalException;
 
 public class WaspBatchJobExplorer extends SimpleJobExplorer implements JobExplorerWasp{
 	

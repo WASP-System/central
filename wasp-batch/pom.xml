@@ -27,6 +27,10 @@
 	
 	<dependencies>
 		<dependency>
+			<groupId>edu.yu.einstein.wasp</groupId>
+			<artifactId>wasp-config</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<scope>test</scope>
@@ -157,4 +161,5 @@
 		</pluginRepository>
 	</pluginRepositories>
  
+	<groupId>edu.yu.einstein.wasp.batch</groupId>
 </project>

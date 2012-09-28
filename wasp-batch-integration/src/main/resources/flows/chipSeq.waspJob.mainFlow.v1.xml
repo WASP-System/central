@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:batch="http://www.springframework.org/schema/batch"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd">
+		
+	<!-- common tasklets defined in config-common-context.xml -->
+	
+	<!-- Define main job approval flow -->
+	<batch:flow id="chipSeq.waspJob.flow.approvals.v1" >
+		<batch:split id="chipSeq.waspJob.postSubmitApprovalTasks" task-executor="taskExecutor">
+			<batch:flow>
+				<batch:step id="chipSeq.waspJob.step.quote">
+					<batch:tasklet ref="listenForJobQuotedTasklet"/>
+				</batch:step>
+			</batch:flow>
+			<batch:flow>
+				<batch:step id="chipSeq.waspJob.step.piApprove">
+					<batch:tasklet ref="listenForJobPiApproveTasklet" />
+				</batch:step>
+			</batch:flow>
+			<batch:flow>
+				<batch:step id="chipSeq.waspJob.step.adminApprove">
+					<batch:tasklet ref="listenForJobAdminApproveTasklet" />
+				</batch:step>
+			</batch:flow>
+			<batch:next on="COMPLETED" to="chipSeq.waspJob.step.approved" />
+			<batch:next on="FAILED" to="chipSeq.waspJob.step.rejected" />
+			<batch:fail on="*"/> <!-- catch all -->
+		</batch:split>
+		<batch:step id="chipSeq.waspJob.step.approved">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.batchint.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.batchint.messages.JobStatusMessageTemplate">
+							<constructor-arg  name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
+							<property name="status" value="ACCEPTED" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+		<batch:step id="chipSeq.waspJob.step.rejected">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.batchint.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.batchint.messages.JobStatusMessageTemplate">
+							<constructor-arg  name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
+							<property name="status" value="ABANDONED" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+	</batch:flow>
+	
+	<batch:flow id="chipSeq.waspJob.flow.exitCondition">
+		<!-- will receive message of COMPLETED if the 'chipSeq.waspJob.flow.approvals.v1' flow is finished -->
+		<!-- or if the job is aborted with an ABANDONED message at time e.g. via a message from the web layer -->
+		<batch:step id="chipSeq.waspJob.step.listenForExitCondition">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.batchint.tasklets.ListenForExitConditionTasklet" scope="step">
+					<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.job" />
+					<constructor-arg name="abortMonitoringChannel" ref="wasp.channel.notification.abort" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.batchint.messages.JobStatusMessageTemplate">
+							<constructor-arg name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
+							<property name="status" value="COMPLETED" />
+						</bean>
+					</constructor-arg>
+				</bean>	
+			</batch:tasklet>
+		</batch:step>
+	</batch:flow>
+	
+	<!-- for dispatching job, call with parameter 'jobId' -->
+	<batch:job id="chipSeq.waspJob.jobflow.v1">
+		<batch:split id="chipSeq.waspJob.jobFlow.split" task-executor="taskExecutor">
+			<batch:flow parent="chipSeq.waspJob.flow.approvals.v1" />
+			<batch:flow parent="chipSeq.waspJob.flow.exitCondition" />
+		</batch:split>
+	</batch:job>
+
+</beans>

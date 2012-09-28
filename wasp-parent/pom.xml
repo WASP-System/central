@@ -96,6 +96,7 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<modules>
 		<module>../wasp-batch</module>
+		<module>../wasp-integration</module>
 		<module>../wasp-batch-integration</module>
 		<module>../wasp-core</module>
 		<module>../wasp-tomcat-classloader</module>
@@ -288,13 +289,23 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 				<version>${module.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>edu.yu.einstein.wasp</groupId>
+				<groupId>edu.yu.einstein.wasp.batchint</groupId>
 				<artifactId>wasp-batch-integration</artifactId>
 				<version>${module.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>edu.yu.einstein.wasp</groupId>
+				<groupId>edu.yu.einstein.wasp.integration</groupId>
+				<artifactId>wasp-integration</artifactId>
+				<version>${module.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>edu.yu.einstein.wasp.batch</groupId>
 				<artifactId>wasp-batch</artifactId>
+				<version>${module.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>edu.yu.einstein.wasp</groupId>
+				<artifactId>wasp-config</artifactId>
 				<version>${module.version}</version>
 			</dependency>
 			<!--  if you use aspects in your spring config with, say, jdbc:initalize-database configuration clause, most likely you’ll get assertion error in your JUnit test.

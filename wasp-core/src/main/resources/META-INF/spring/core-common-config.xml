@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	default-autowire="byName"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd">
+
+   <!--  configure properties files -->
+  <context:property-placeholder location="classpath:/database.properties, classpath:/authentication.properties, classpath:/email.properties, classpath:/wasp.local.properties"/>
+  
+  <bean id="messageSource" class="edu.yu.einstein.wasp.service.impl.WaspMessageSourceImpl" />
+
+  <!-- component scan -->
+  <context:component-scan base-package="edu.yu.einstein.wasp.dao.impl" />
+  <context:component-scan base-package="edu.yu.einstein.wasp.service.impl" /> 
+  <context:component-scan base-package="edu.yu.einstein.wasp.messaging" />
+  <context:component-scan base-package="edu.yu.einstein.wasp.load.service.impl" />
+  <context:component-scan base-package="edu.yu.einstein.wasp.resourcebundle" />
+
+  <!-- mail configuration -->
+  <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+    <property name="host" value="${email.host}"/>
+    <property name="defaultEncoding" value="${email.encoding}" />
+    <property name="javaMailProperties">
+      <props>
+        <prop key="mail.smtp.from">${email.smtp.from}</prop>
+      </props>
+    </property>
+  </bean>
+
+  <bean id="velocityEngine" class="org.springframework.ui.velocity.VelocityEngineFactoryBean">
+    <property name="velocityProperties">
+      <value>
+        resource.loader=class
+        class.resource.loader.class=org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
+      </value>
+    </property>
+  </bean>
+
+  <!-- load constant string value definitions -->
+  <import resource="classpath*:static-values-definition.xml" /> 
+  
+  <!-- loads all the plugin root contexts -->
+  <import resource="classpath*:META-INF/spring/plugin-context-batch.xml" />
+
+  <!-- loads load scripts to update database -->
+  <import resource="classpath*:wasp/**/*Load.xml" />
+
+  <!-- load all other plugins -->
+  <import resource="classpath*:wasp/*waspPlugin.xml" /> 
+
+</beans>
