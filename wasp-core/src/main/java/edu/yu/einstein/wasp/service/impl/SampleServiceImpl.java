@@ -792,103 +792,21 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 		return null;
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean platformUnitNameUsedByAnother(Sample platformUnit, String name) throws SampleTypeException, SampleException{
-		
-		//first confirm that the incoming Sample platformUnit (if not null or empty) is in the database and is platformunit
-		if(platformUnit != null && platformUnit.getSampleId() != null && platformUnit.getSampleId().intValue()>0){
-			Sample sample = this.getSampleById(platformUnit.getSampleId());
-			if(sample.getSampleId()==null){
-				throw new SampleException("Sample with ID of " + platformUnit.getSampleId() + " unexpectedly not found in database.");
-			}
-			if(!this.sampleIsSpecificSampleType(sample, "platformunit")){
-				throw new SampleTypeException("Sample with ID of " + platformUnit.getSampleId() + " is NOT of type platformunit.");
-			}
-		}
-		
-		Map<String, Object> filter = new HashMap<String, Object>();
-		filter.put("sampleType.iName", "platformunit");
-		filter.put("name", name);
-		List<Sample> platformUnitsWithThisName = sampleDao.findByMap(filter);//if abc is in database and name==ABC, the record abc comes up in result set. Why I don't know.
 
-/*remove constraint as per Andy 9/28/12 
-		//next section deals with it to keep only exact matches
-		List<Sample> samplesToRemove = new ArrayList<Sample>();
-		for(Sample s : platformUnitsWithThisName){
-			if(!s.getName().equals(name)){
-				samplesToRemove.add(s);
-			}
-		}
-		platformUnitsWithThisName.removeAll(samplesToRemove);
-*/		
-		if(platformUnitsWithThisName != null){
-			
-			if(platformUnitsWithThisName.size() > 1){//should never occur
-				return true;
-			}			
-			else if(platformUnitsWithThisName.size() == 1){//the name exists in the database
-			
-				if(platformUnit == null || platformUnit.getSampleId() == null || platformUnit.getSampleId().intValue()==0){
-					return true;
-				}
-				else if(platformUnit.getSampleId().intValue() != platformUnitsWithThisName.get(0).getSampleId().intValue()){//this name already exists and is used by another platformunit (then return true)
-					return true;
-				}
-			}
-		}
-		return false;
-	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean platformUnitBarcodeUsedByAnother(Sample platformUnit, String barcodeName) throws SampleTypeException, SampleException{
-
-		//first confirm that the incoming Sample platformUnit (if not null or empty) is in the database and is platformunit
-		if(platformUnit != null && platformUnit.getSampleId() != null && platformUnit.getSampleId().intValue()>0){
-			Sample sample = this.getSampleById(platformUnit.getSampleId());
-			if(sample.getSampleId()==null){
-				throw new SampleException("Sample with ID of " + platformUnit.getSampleId() + " unexpectedly not found in database.");
-			}
-			if(!this.sampleIsSpecificSampleType(sample, "platformunit")){
-				throw new SampleTypeException("Sample with ID of " + platformUnit.getSampleId() + " is NOT of type platformunit.");
-			}
-		}
+	public boolean barcodeNameExists(String barcodeName){
 
 		Map<String, Object> filter = new HashMap<String, Object>();
 		filter.put("barcode", barcodeName);
 		List<Barcode> barcodesWithThisName = barcodeDao.findByMap(filter);
 		
-/*remove constraint as per Andy 9/28/12 
-		//if abc is in database and barcodeName==ABC, the record abc comes up in result set. Why I don't know.
-		//next section deals with it to keep only exact matches
-		List<Barcode> barcodesToRemove = new ArrayList<Barcode>();
-		for(Barcode b : barcodesWithThisName){
-			if(!b.getBarcode().equals(barcodeName)){
-				barcodesToRemove.add(b);
-			}
-		}
-		barcodesWithThisName.removeAll(barcodesToRemove);
-*/		
-		if(barcodesWithThisName != null){
-			
-			if(barcodesWithThisName.size() > 1){//should never occur
-				return true;
-			}			
-			else if(barcodesWithThisName.size() == 1){//the barcodename exists in the database
-			
-				if(platformUnit == null || platformUnit.getSampleId() == null || platformUnit.getSampleId().intValue()==0){//if we're creating a new platformunit sample
-					return true;
-				}
-				else if(platformUnit.getSampleId().intValue() != barcodesWithThisName.get(0).getSampleBarcode().get(0).getSampleId().intValue()){//this barcodename already exists and is used by another platformunit (then return true)
-					return true;
-				}
-			}
-		}
+		if(barcodesWithThisName != null && barcodesWithThisName.size() > 0){
+			return true;
+		}			
 		return false;
 	}
 	
@@ -948,7 +866,19 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 		else if(sample.getSampleType()==null || sample.getSampleType().getIName()==null){throw new SampleTypeException("SampleType is null or it's iname is null");} 
 		return sampleTypeIName.equals(sample.getSampleType().getIName());
 	}
-
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean sampleIsPlatformUnit(Sample sample){
+		
+		if("platformunit".equals(sample.getSampleType().getIName()) && "platformunit".equals(sample.getSampleSubtype().getSampleType().getIName())){
+			return true;
+		}
+		return false;		
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -980,19 +910,46 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 		else if(maxCellNumber.intValue()<=0){throw new SampleSubtypeException("maxCellNumber value invalid for SampleSubtype with Id of " + sampleSubtype.getSampleTypeId().intValue());}
 		
 		numberOfCellsListForPlatformUnit.add(maxCellNumber);	
-		System.out.println("maxCellNumber: " + maxCellNumber.intValue());
+		
 		if (multiplicationFactor != null && multiplicationFactor.intValue() > 1 && multiplicationFactor.intValue() <= maxCellNumber.intValue() ) {
-			Integer cellNum = new Integer(maxCellNumber.intValue());
-			System.out.println("cellNumber: " + cellNum.intValue());
+			Integer cellNum = new Integer(maxCellNumber.intValue());			
 			while (cellNum.intValue() >= multiplicationFactor.intValue()){
-				cellNum = new Integer(cellNum.intValue()/multiplicationFactor.intValue());
-				System.out.println("cellNumber: " + cellNum.intValue());
+				cellNum = new Integer(cellNum.intValue()/multiplicationFactor.intValue());				
 				numberOfCellsListForPlatformUnit.add(cellNum);						
 			}
 		}
 		Collections.sort(numberOfCellsListForPlatformUnit);
 		
 		return numberOfCellsListForPlatformUnit;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean requestedReductionInCellNumberIsProhibited(Sample platformUnitInDatabase, Integer numberOfLanesRequested) throws SampleException, SampleTypeException{
+		
+		Map<Integer,Sample> indexedCellMap = this.getIndexedCellsOnPlatformUnit(platformUnitInDatabase);//throws exception	
+		Integer numberOfLanesInDatabase = indexedCellMap.size();
+		if(numberOfLanesInDatabase.intValue() <= numberOfLanesRequested.intValue()){//can simply add more; no problem
+			return false;
+		}
+		
+		//check for presence of libraries on those lanes that user seems to want to remove. If any found, return true.
+		for(int i = numberOfLanesRequested.intValue() + 1; i <= numberOfLanesInDatabase.intValue(); i++){
+			Integer index = new Integer(i);
+			Sample cell = indexedCellMap.get(index);
+			if(cell == null){
+				//unexpected problem; indexes not ordered
+				throw new SampleException("No cell found for platformUnitId " + platformUnitInDatabase.getSampleId().intValue() + " and cell index " + i);
+			}
+			List<Sample> libraryList = null;
+			libraryList = this.getLibrariesOnCell(cell);//throws exception
+			if(libraryList!=null && libraryList.size()>0){//found at least one library
+				return true;
+			}
+		}
+		return false;
 	}
 
 }

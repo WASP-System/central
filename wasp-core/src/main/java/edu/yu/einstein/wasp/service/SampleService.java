@@ -291,22 +291,13 @@ public interface SampleService extends WaspService {
 	   */
 	  public Run getCurrentRunForPlatformUnit(Sample platformUnit);
 	  
-	  /**
-	   * Determine whether a platform unit name is already in the database. If this is a new platformunit, the id will be null so compare the name to all platformunits. 
-	   * If id is not null, then make sure that the name is associated with that pu, and if not return true.
-	   * @param Sample platformUnit
-	   * @param String platformUnitName 
-	   * @return boolean
-	   */
-	  public boolean platformUnitNameUsedByAnother(Sample platformUnit, String name) throws SampleTypeException, SampleException;
 	  
 	  /**
-	   * Determine whether a platform unit barcodeName is already in the database. 
-	   * @param Sample platformUnit
+	   * Determine whether a barcodeName is already in the database. 
 	   * @param String barcodeName
 	   * @return boolean
 	   */
-	  public boolean platformUnitBarcodeUsedByAnother(Sample platformUnit, String barcodeName) throws SampleTypeException, SampleException;
+	  public boolean barcodeNameExists(String barcodeName);
 
 	  /**
 	   * Returns List of SampleSubtypes where SampleType.iname = parameter sampleTypeIName. List ordered ascending by samplesubtype.name. 
@@ -353,6 +344,14 @@ public interface SampleService extends WaspService {
 	   */
 	  public boolean sampleIsSpecificSampleType(Sample sample, String sampleTypeIName) throws SampleException, SampleTypeException;
 
+	  
+	  /**
+	   * Returns true if Sample is a platform unit (checking both SampleType and SampleSubtype) 
+	   * @param Sample sample
+	   * @return boolean
+	   */
+	  public boolean sampleIsPlatformUnit(Sample sample);
+
 	  /**
 	   * Returns an ordered (ascending) List Of Integers of the number of lanes that are available on a particular type of platformunit (flowcell). 
 	   * If the SampleSubtype is not in the database or is not of type platformunit, throw SampleSubtypeException or SampleTypeException, respectively.
@@ -364,4 +363,12 @@ public interface SampleService extends WaspService {
 	   */
 	  public List<Integer> getNumberOfCellsListForThisTypeOfPlatformUnit(SampleSubtype sampleSubtype) throws SampleTypeException, SampleSubtypeException;
 
+	  /**
+	   * Returns true if requested reduction in number of cells of a platformunit will lead to loss of lanes containing libraries 
+	   * @param Sample sample
+	   * @param Integer numberOfLanesRequested
+	   * @return boolean
+	   */
+	  public boolean requestedReductionInCellNumberIsProhibited(Sample platformUnitInDatabase, Integer numberOfLanesRequested) throws SampleException, SampleTypeException;
+	  
 }

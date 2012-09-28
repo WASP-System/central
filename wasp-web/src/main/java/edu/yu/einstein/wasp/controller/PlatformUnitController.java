@@ -33,6 +33,7 @@ import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -1626,14 +1627,13 @@ public class PlatformUnitController extends WaspController {
 			if(sampleSubtypeId.intValue()>0){//a type of platformunit (flowcell) has been chosen
 			
 				SampleSubtype sampleSubtype = null;
-				List<Integer> numberOfCellsList;
-			
-				MetaHelperWebapp metaHelperWebapp = getMetaHelperWebappPlatformUnitInstance();
-			
 				Sample platformunitInstance = null;
 				String barcode;
-				if(sampleId.intValue() < 1){//most likely it's zero
+				MetaHelperWebapp metaHelperWebapp = getMetaHelperWebappPlatformUnitInstance();			
+				
+				if(sampleId.intValue() < 1){//most likely it's zero; new platformunit
 					platformunitInstance = new Sample();
+					platformunitInstance.setName("fake name to suppress name not empty requirement");//9-28-12
 					platformunitInstance.setSampleMeta(metaHelperWebapp.getMasterList(SampleMeta.class));
 					barcode = new String("");
 					m.addAttribute("numberOfCellsOnThisPlatformUnit", new Integer(0));
@@ -1643,9 +1643,10 @@ public class PlatformUnitController extends WaspController {
 					if(platformunitInstance.getSampleId()==null){
 						throw new Exception("Sample with ID of " + sampleId.toString() + " unexpectedly not found in database");								
 					}
-					if(!sampleService.sampleIsSpecificSampleType(platformunitInstance, "platformunit")){
-						throw new Exception("Sample with ID of " + sampleId.toString() + " unexpectedly not of SampleType 'platformunit'");								
+					if(!sampleService.sampleIsPlatformUnit(platformunitInstance)){
+						throw new Exception("Sample with ID of " + platformunitInstance.getSampleId().toString() + " unexpectedly not of proper SampleType or SampleSubtype to be a 'platformunit'");								
 					}
+					
 					metaHelperWebapp.syncWithMaster(platformunitInstance.getSampleMeta());
 					platformunitInstance.setSampleMeta((List<SampleMeta>)metaHelperWebapp.getMetaList());
 					
@@ -1664,7 +1665,6 @@ public class PlatformUnitController extends WaspController {
 				m.addAttribute(metaHelperWebapp.getParentArea(), platformunitInstance);
 				
 				if(reset.equals("reset")){
-					if(sampleId.intValue() < 1){throw new Exception("Unexpectedly requested reset without providing a valid sampleId");}
 					sampleSubtypeId = new Integer(platformunitInstance.getSampleSubtypeId().intValue());
 				}					
 				sampleSubtype = sampleService.getSampleSubtypeById(sampleSubtypeId);
@@ -1676,13 +1676,12 @@ public class PlatformUnitController extends WaspController {
 				}				
 				m.addAttribute("readlengths", getDistinctResourceCategoryMetaListForSampleSubtype(sampleSubtype, "readlength"));
 				m.addAttribute("readTypes", getDistinctResourceCategoryMetaListForSampleSubtype(sampleSubtype, "readType"));
-				numberOfCellsList = sampleService.getNumberOfCellsListForThisTypeOfPlatformUnit(sampleSubtype);//throws exception if problems
-				m.addAttribute("numberOfCellsList", numberOfCellsList);
+				m.addAttribute("numberOfCellsList", sampleService.getNumberOfCellsListForThisTypeOfPlatformUnit(sampleSubtype));//throws exception if problems
 			
 			}//if(sampleSubtypeId.intValue()>0)				
 		}catch(Exception e){logger.debug(e.getMessage());waspErrorMessage("wasp.unexpected_error.error");return "redirect:/dashboard.do";}
 		
-		m.put("sampleSubtypeId", sampleSubtypeId);
+		m.put("sampleSubtypeId", sampleSubtypeId);//must be down here, as value can cahnge if "reset"
 		m.put("sampleId", sampleId);
 
 		return "facility/platformunit/createUpdatePlatformUnit";
@@ -1721,13 +1720,9 @@ try{
 			if(platformUnitInDatabase.getSampleId()==null){
 				throw new Exception("Sample with ID of " + sampleId.toString() + " unexpectedly not found in database");								
 			}
-			if(!sampleService.sampleIsSpecificSampleType(platformUnitInDatabase, "platformunit")){
-				throw new Exception("Sample with ID of " + sampleId.toString() + " unexpectedly not of SampleType 'platformunit'");								
+			if(!sampleService.sampleIsPlatformUnit(platformUnitInDatabase)){
+				throw new Exception("Sample with ID of " + platformUnitInDatabase.getSampleId().toString() + " unexpectedly not of proper SampleType or SampleSubtype to be a 'platformunit'");								
 			}
-			if(!sampleService.sampleSubtypeIsSpecificSampleType(platformUnitInDatabase.getSampleSubtype(), "platformunit")){
-				throw new Exception("Sample with ID of " + sampleId.toString() + " unexpectedly not of SampleSubtypeType of 'platformunit'");								
-			}
-			
 			action = new String("update");	
 		}
 		else{//action==null
@@ -1739,7 +1734,8 @@ try{
 		metaHelperWebapp.validate(result);
 		
 		boolean otherErrorsExist = false;
-		
+
+		/* PLEASE PLEASE KEEP CODE FOR LATER: it was removed as per Andy, platformunit name will be assigned with barcode; it's not on the form anymore
 		//check whether name has been used; note that @Valid has already checked for name being the empty 
 		if (! result.hasFieldErrors("name")){
 			if(sampleService.platformUnitNameUsedByAnother(platformunitInstance, platformunitInstance.getName())==true){
@@ -1748,140 +1744,72 @@ try{
 				result.addAllErrors(errors);
 			}
 		}
+		 */
 		
 		//check for barcode. Since barcode is outside of Sample, @Valid is unable to to perform this check		
 		if(barcode==null || "".equals(barcode)){
 			String msg = messageService.getMessage(metaHelperWebapp.getArea()+".barcode.error");
-			if(msg==null){
-				msg = new String("Barcode cannot be empty.");
-			}
-			m.put("barcodeError", msg);//"Barcode cannot be empty"
+			m.put("barcodeError", msg==null?new String("Barcode cannot be empty."):msg);//"Barcode cannot be empty"
 			otherErrorsExist = true;
 		}
-		else if(sampleService.platformUnitBarcodeUsedByAnother(platformunitInstance, barcode)==true){
-			String msg = messageService.getMessage(metaHelperWebapp.getArea()+".barcode_exists.error");
-			if(msg==null){
-				msg = new String("Barcode already exists in database.");
+		else if(sampleService.barcodeNameExists(barcode)){
+			if(platformUnitInDatabase==null /* this is new record, name used, so prevent */ || ( platformUnitInDatabase!=null && !barcode.equalsIgnoreCase(platformUnitInDatabase.getSampleBarcode().get(0).getBarcode().getBarcode()) /* existing record, name used but it's not my barcode name, so prevent */  ) ){
+				String msg = messageService.getMessage(metaHelperWebapp.getArea()+".barcode_exists.error");
+				m.put("barcodeError", msg==null?new String("Barcode already exists in database."):msg);//"Barcode already exists in database."
+				otherErrorsExist = true;
 			}
-			m.put("barcodeError", msg);//"Barcode already exists in database."
-			otherErrorsExist = true;					
 		}
-			
-		if(numberOfLanesRequested == null || numberOfLanesRequested.intValue()==0){
-			String msg = messageService.getMessage(metaHelperWebapp.getArea()+".numberOfLanesRequested.error");
-			if(msg==null){
-				msg = new String("Lane Count cannot be empty.");
-			}
-			m.put("numberOfLanesRequestedError", msg);//"Lane count cannot be empty"
-			otherErrorsExist = true;
-		}
-		
-		
-		//CHECK FOR CHANGE IN NUMBER OF LANES and if no longer the same --what to do if less?? if more must create additional lanes??
-		//only if this is an update, determine if the number of lanes changed. 
-		//If true, this will require alterations in the update section below.
-		//If true AND there are libraries on the lanes that no longer will exist, then PREVENT THE UPDATE
-		//if the number of lanes changed AND it was reduced......
-		Integer numberOfLanesInDatabase = null;
-		int numberOfLanesToBeAdded = 0;
-		int numberOfLanesToBeRemoved = 0;
-		if(action.equals("update") && numberOfLanesRequested != null && numberOfLanesRequested.intValue()>0){		
-			System.out.println("A");			
-			try{
-				numberOfLanesInDatabase = sampleService.getNumberOfIndexedCellsOnPlatformUnit(platformUnitInDatabase);
-				System.out.println("AAA");
-				if(numberOfLanesInDatabase==null || numberOfLanesInDatabase.intValue()<=0){
-					throw new Exception("lanecount in database is not valid for platformId " + platformUnitInDatabase.getSampleId().intValue());
-				}
-				else if(numberOfLanesRequested.intValue() > numberOfLanesInDatabase.intValue()){
-					numberOfLanesToBeAdded = numberOfLanesRequested.intValue() - numberOfLanesInDatabase.intValue();
-				}
-				else if(numberOfLanesRequested.intValue() < numberOfLanesInDatabase.intValue()){
-					numberOfLanesToBeRemoved = numberOfLanesInDatabase.intValue() - numberOfLanesRequested.intValue();
-					System.out.println("B");	
-					Map<Integer,Sample> indexedCellMap = null;
-					indexedCellMap = sampleService.getIndexedCellsOnPlatformUnit(platformUnitInDatabase);//throws exception					
-					if(indexedCellMap==null || indexedCellMap.size()==0){
-						throw new Exception("No cells found for platformUnit Id: " + platformUnitInDatabase.getSampleId().intValue());
-					}
-					System.out.println("C");	
-					for(int i = numberOfLanesRequested.intValue() + 1; i <= numberOfLanesInDatabase.intValue(); i++){
-						Integer index = new Integer(i);
-						Sample cell = indexedCellMap.get(index);
-						//System.out.println("cell " + i + ": " + cell.getName());
-						if(cell == null){
-							//seems like this is a problem
-							throw new Exception("No cell found for platformUnitId " + platformUnitInDatabase.getSampleId().intValue() + " and cell index " + i);
-						}
-						List<Sample> libraryList = null;
-						try{
-							libraryList = sampleService.getLibrariesOnCell(cell);
-						}catch(Exception e){
-							throw new Exception("Problem getting libraryList from platformUnitId " + platformUnitInDatabase.getSampleId().intValue() + " and cell index " + i);
-						}
-						System.out.println("D");	
-						if(libraryList!=null && libraryList.size()>0){//don't forget list is permitted to be empty
-							//HERE IS THE ERROR TO CATCH AND PASS BACK
-							String msg = messageService.getMessage(metaHelperWebapp.getArea()+".numberOfLanesRequested_conflict.error");
-							if(msg==null){
-								msg = new String("Action not permitted at this time. To reduce the number of lanes, remove libraries on the lanes that will be lost.");
-							}
-							m.put("numberOfLanesRequestedError", msg);//"Lane count cannot be empty"
-							otherErrorsExist = true;
-							System.out.println("found problem with number of lanes being reduced");
-							break;
-						}
-					}
-				}
-			}catch(Exception e){logger.debug(e.getMessage()); System.out.println("in catch, but why"); otherErrorsExist = true;}
-		}
-//		if(numberOfLanesRequested.intValue()==8){
-//			metaHelperWebapp.addValidationError("lanecount", metaHelperWebapp.getArea()+".lanecount_valueinvalid.error", result);
-//			otherErrorsExist=true;
-//		}
 
+		Integer numberOfLanesToBeAdded = new Integer(0);//may need need later
+		Integer numberOfLanesToBeRemoved = new Integer(0);//may need need later
+		Integer numberOfLanesInDatabase = null;
 		
-		
-		
-System.out.println("4");		
+		if(numberOfLanesRequested == null || numberOfLanesRequested.intValue()<=0){
+			String msg = messageService.getMessage(metaHelperWebapp.getArea()+".numberOfLanesRequested.error");
+			m.put("numberOfLanesRequestedError", msg==null?new String("Lane Count cannot be empty."):msg);//"Lane count cannot be empty"
+			otherErrorsExist = true;
+		}	
+		else if(action.equals("update")){	//if update, CHECK FOR CHANGE IN NUMBER OF LANES and potential loss of libraries 
+			numberOfLanesInDatabase = sampleService.getNumberOfIndexedCellsOnPlatformUnit(platformUnitInDatabase);
+			if(numberOfLanesInDatabase==null || numberOfLanesInDatabase.intValue()<=0){
+				throw new Exception("lanecount in database is not valid for platformunit with Id " + platformUnitInDatabase.getSampleId().intValue());
+			}
+			if(numberOfLanesRequested.intValue() > numberOfLanesInDatabase.intValue()){
+				numberOfLanesToBeAdded = new Integer(numberOfLanesRequested.intValue() - numberOfLanesInDatabase.intValue());
+			}
+			else if(numberOfLanesRequested.intValue() < numberOfLanesInDatabase.intValue()){
+				numberOfLanesToBeRemoved = new Integer(numberOfLanesInDatabase.intValue() - numberOfLanesRequested.intValue());
+				//potential problem, so perform next test
+				if(sampleService.requestedReductionInCellNumberIsProhibited(platformUnitInDatabase, numberOfLanesRequested)){
+					String msg = messageService.getMessage(metaHelperWebapp.getArea()+".numberOfLanesRequested_conflict.error");
+					m.put("numberOfLanesRequestedError", msg==null?new String("Action not permitted at this time. To reduce the number of lanes, remove libraries on the lanes that will be lost."):msg);//"Lane count cannot be empty"
+					otherErrorsExist = true;
+				}
+			}
+		}	
+	
 		if (result.hasErrors() || otherErrorsExist == true){
-System.out.println("5");			
 			m.put("sampleSubtypeId", sampleSubtypeId);
 			m.put("sampleId", sampleId);
 			m.put("barcode", barcode);
 			m.put("numberOfCellsOnThisPlatformUnit", numberOfLanesRequested);
-			Map filterMap = new HashMap();
-			filterMap.put("sampleType.iName", "platformunit");
-			List<String> orderByColumnNames = new ArrayList<String>();
-			orderByColumnNames.add("name");
-System.out.println("5.1");
-			
-			List<SampleSubtype> sampleSubtypes = sampleSubtypeDao.findByMapDistinctOrderBy(filterMap, null, orderByColumnNames, "asc");
-System.out.println("5.2");
-			m.put("sampleSubtypes", sampleSubtypes);
-System.out.println("5.3");
-			prepareDistinctSelectListDataForResourceCategoriesForThisSampleSubtype(m, sampleSubtypeDao.findById(sampleSubtypeId));
-System.out.println("5.4");
-			//prepareSelectListDataBySampleSubtype(m, sampleSubtypeDao.findById(sampleSubtypeId));
-System.out.println("5.5");			
 			platformunitInstance.setSampleMeta((List<SampleMeta>) metaHelperWebapp.getMetaList());
-System.out.println("5.6");	
 
-try{
-List<Integer> numberOfCellsList = sampleService.getNumberOfCellsListForThisTypeOfPlatformUnit(sampleSubtype);//throws exception if problems
-m.addAttribute("numberOfCellsList", numberOfCellsList);
-}catch(Exception e){System.out.println("problem in nulberOfCellsList at exception");	}
+			m.put("sampleSubtypes", sampleService.getSampleSubtypesBySampleTypeIName("platformunit"));//throws exception if SampleTypeIName not valid, otherwise return empty (size=0) or full list
+			m.addAttribute("readlengths", getDistinctResourceCategoryMetaListForSampleSubtype(sampleSubtype, "readlength"));
+			m.addAttribute("readTypes", getDistinctResourceCategoryMetaListForSampleSubtype(sampleSubtype, "readType"));
+			m.addAttribute("numberOfCellsList", sampleService.getNumberOfCellsListForThisTypeOfPlatformUnit(sampleSubtype));//throws exception if problems
 
 			return "facility/platformunit/createUpdatePlatformUnit";			
 		}
-		
-System.out.println("6");
-		if(action.equals("create")){
-System.out.println("7");			
-			//generate and save new platformunit
+	
+
+		if(action.equals("create")){//generate and save new platformunit
+			
+			
 			Sample platformUnit = new Sample();
 
-			platformUnit.setName(platformunitInstance.getName());
+			platformUnit.setName(barcode);//altered as per Andy 2-28-12
 
 			User me = authenticationService.getAuthenticatedUser();
 			platformUnit.setSubmitterUserId(me.getUserId());
@@ -1904,6 +1832,7 @@ System.out.println("7");
 			//save the barcode
 			Barcode barcodeObject = new Barcode();		
 			barcodeObject.setBarcode(barcode);
+			barcodeObject.setBarcodefor("WASP");
 			barcodeObject.setIsActive(new Integer(1));
 			Barcode barcodeDB = this.barcodeDao.save(barcodeObject);//save new barcode in db
 
@@ -1935,13 +1864,10 @@ System.out.println("7");
 				this.sampleSourceDao.save(sampleSource);			 
 			}
 		}
-		else if(action.equals("update")){
-System.out.println("8");		
-			//update and save existing platformunit
-			//Sample platformUnit = sampleDao.getSampleBySampleId(platformunitInstance.getSampleId().intValue());
-
-			platformUnitInDatabase.setName(platformunitInstance.getName());
-
+		else if(action.equals("update")){//update and save existing platformunit
+			
+			platformUnitInDatabase.setName(barcode);//altered as per Andy 2-28-12
+			
 			User me = authenticationService.getAuthenticatedUser();
 			platformUnitInDatabase.setSubmitterUserId(me.getUserId());//should we do this?
 
@@ -1963,6 +1889,7 @@ System.out.println("8");
 			else{//should never happen
 				Barcode barcodeObject = new Barcode();		
 				barcodeObject.setBarcode(barcode);
+				barcodeObject.setBarcodefor("WASP");
 				barcodeObject.setIsActive(new Integer(1));
 				Barcode barcodeDB = this.barcodeDao.save(barcodeObject);//save new barcode in db
 
@@ -1973,6 +1900,38 @@ System.out.println("8");
 			}
 			
 			//deal with the lanes
+			Integer sampleTypeId = sampleTypeDao.getSampleTypeByIName("cell").getSampleTypeId();
+			
+			if(sampleService.requestedReductionInCellNumberIsProhibited(platformUnitInDatabase, numberOfLanesRequested)){//fail safe
+				throw new Exception("fail safe for requestedReductionInCellNumberIsProhibited");
+			}
+			else if(numberOfLanesToBeAdded.intValue() > 0){
+				for(int i = numberOfLanesInDatabase; i < numberOfLanesRequested; i++){
+					
+					Sample cell = new Sample();
+					cell.setSubmitterLabId(platformUnitInDatabase.getSubmitterLabId());
+					cell.setSubmitterUserId(platformUnitInDatabase.getSubmitterUserId());
+					cell.setName(platformUnitInDatabase.getName()+"/"+(i+1));
+					cell.setSampleTypeId(sampleTypeId);
+					cell.setIsGood(1);
+					cell.setIsActive(1);
+					cell.setIsReceived(1);
+					cell.setReceiverUserId(platformUnitInDatabase.getSubmitterUserId());
+					cell.setReceiveDts(new Date());
+					Sample cellDb = this.sampleDao.save(cell);
+
+					SampleSource sampleSource = new SampleSource();
+					sampleSource.setSampleId(platformUnitInDatabase.getSampleId());
+					sampleSource.setSourceSampleId(cellDb.getSampleId());
+					sampleSource.setIndex(i+1);
+					this.sampleSourceDao.save(sampleSource);
+				}
+			}
+			else if(numberOfLanesToBeRemoved.intValue() > 0){
+				//get the list 
+				Map<Integer, Sample> indexedCells = sampleService.getIndexedCellsOnPlatformUnit(platformUnitInDatabase);
+				//for
+			}
 			/*
 			Integer sampleTypeId = sampleTypeDao.getSampleTypeByIName("cell").getSampleTypeId();
 			for (int i = 0; i < numberOfLanes.intValue(); i++) {
