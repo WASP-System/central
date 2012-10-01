@@ -370,5 +370,14 @@ public interface SampleService extends WaspService {
 	   * @return boolean
 	   */
 	  public boolean requestedReductionInCellNumberIsProhibited(Sample platformUnitInDatabase, Integer numberOfLanesRequested) throws SampleException, SampleTypeException;
-	  
+	 
+	  /**
+	   * Returns void. If unsuccessful, throws exceptions. Under transactional control. 
+	   * @param Sample sample
+	   * @param Integer numberOfLanesRequested
+	   * @return void
+	   */
+	  //public boolean createUpdatePlatformUnit(Sample platformUnit, String barcodeName, Integer numberOfLanesRequested, MetaHelperWebapp metaHelperWebapp );
+		
+	
 }

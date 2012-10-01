@@ -931,11 +931,12 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 		
 		Map<Integer,Sample> indexedCellMap = this.getIndexedCellsOnPlatformUnit(platformUnitInDatabase);//throws exception	
 		Integer numberOfLanesInDatabase = indexedCellMap.size();
-		if(numberOfLanesInDatabase.intValue() <= numberOfLanesRequested.intValue()){//can simply add more; no problem
+		if(numberOfLanesInDatabase.intValue() <= numberOfLanesRequested.intValue()){//no loss of lanes, so return false, as action not prohibited
 			return false;
 		}
 		
-		//check for presence of libraries on those lanes that user seems to want to remove. If any found, return true.
+		//user asking to reduce number of lanes
+		//must check for presence of libraries on those lanes that user seems to want to remove. If any found, return true.
 		for(int i = numberOfLanesRequested.intValue() + 1; i <= numberOfLanesInDatabase.intValue(); i++){
 			Integer index = new Integer(i);
 			Sample cell = indexedCellMap.get(index);

@@ -1753,34 +1753,31 @@ try{
 			otherErrorsExist = true;
 		}
 		else if(sampleService.barcodeNameExists(barcode)){
-			if(platformUnitInDatabase==null /* this is new record, name used, so prevent */ || ( platformUnitInDatabase!=null && !barcode.equalsIgnoreCase(platformUnitInDatabase.getSampleBarcode().get(0).getBarcode().getBarcode()) /* existing record, name used but it's not my barcode name, so prevent */  ) ){
+			if(platformUnitInDatabase==null /* this is new record, name used, so prevent */ || ( platformUnitInDatabase!=null && !barcode.equalsIgnoreCase(platformUnitInDatabase.getSampleBarcode().get(0).getBarcode().getBarcode()) /* existing record so update is requested, but barcode name used is not my barcode name, so prevent */  ) ){
 				String msg = messageService.getMessage(metaHelperWebapp.getArea()+".barcode_exists.error");
 				m.put("barcodeError", msg==null?new String("Barcode already exists in database."):msg);//"Barcode already exists in database."
 				otherErrorsExist = true;
 			}
 		}
 
-		Integer numberOfLanesToBeAdded = new Integer(0);//may need need later
-		Integer numberOfLanesToBeRemoved = new Integer(0);//may need need later
 		Integer numberOfLanesInDatabase = null;
 		
-		if(numberOfLanesRequested == null || numberOfLanesRequested.intValue()<=0){
+		if(numberOfLanesRequested == null || numberOfLanesRequested.intValue()<=0){//error on form
 			String msg = messageService.getMessage(metaHelperWebapp.getArea()+".numberOfLanesRequested.error");
 			m.put("numberOfLanesRequestedError", msg==null?new String("Lane Count cannot be empty."):msg);//"Lane count cannot be empty"
 			otherErrorsExist = true;
 		}	
-		else if(action.equals("update")){	//if update, CHECK FOR CHANGE IN NUMBER OF LANES and potential loss of libraries 
+		else if(action.equals("update")){	//if update, CHECK FOR CHANGE IN NUMBER OF LANES and begin to deal with any potential loss of libraries such a lane change would require
 			numberOfLanesInDatabase = sampleService.getNumberOfIndexedCellsOnPlatformUnit(platformUnitInDatabase);
-			if(numberOfLanesInDatabase==null || numberOfLanesInDatabase.intValue()<=0){
+			if(numberOfLanesInDatabase==null || numberOfLanesInDatabase.intValue()<=0){//should never be 0 lanes on a platformunit
 				throw new Exception("lanecount in database is not valid for platformunit with Id " + platformUnitInDatabase.getSampleId().intValue());
 			}
-			if(numberOfLanesRequested.intValue() > numberOfLanesInDatabase.intValue()){
-				numberOfLanesToBeAdded = new Integer(numberOfLanesRequested.intValue() - numberOfLanesInDatabase.intValue());
+			if(numberOfLanesRequested.intValue() > numberOfLanesInDatabase.intValue()){//request to add lanes, so not a problem
+				;
 			}
-			else if(numberOfLanesRequested.intValue() < numberOfLanesInDatabase.intValue()){
-				numberOfLanesToBeRemoved = new Integer(numberOfLanesInDatabase.intValue() - numberOfLanesRequested.intValue());
-				//potential problem, so perform next test
-				if(sampleService.requestedReductionInCellNumberIsProhibited(platformUnitInDatabase, numberOfLanesRequested)){
+			else if(numberOfLanesRequested.intValue() < numberOfLanesInDatabase.intValue()){//request to remove lanes; a potential problem if libraries are on the lanes to be removed
+				// perform next test
+				if(sampleService.requestedReductionInCellNumberIsProhibited(platformUnitInDatabase, numberOfLanesRequested)){//value of true means libraries are assigned to those lanes being asked to be removed. Prohibit this action and inform user to first remove those libraries from the lanes being requested to be removed
 					String msg = messageService.getMessage(metaHelperWebapp.getArea()+".numberOfLanesRequested_conflict.error");
 					m.put("numberOfLanesRequestedError", msg==null?new String("Action not permitted at this time. To reduce the number of lanes, remove libraries on the lanes that will be lost."):msg);//"Lane count cannot be empty"
 					otherErrorsExist = true;
@@ -1806,6 +1803,7 @@ try{
 
 		if(action.equals("create")){//generate and save new platformunit
 			
+			//sampleService.createUpdatePlatformUnit(Sample platformUnit, String barcodeName, Integer numberOfLanesRequested, MetaHelperWebapp metaHelperWebapp, );
 			
 			Sample platformUnit = new Sample();
 
@@ -1843,12 +1841,12 @@ try{
 
 			//create the lanes
 			Integer sampleTypeId = sampleTypeDao.getSampleTypeByIName("cell").getSampleTypeId();
-			for (int i = 0; i < numberOfLanesRequested.intValue(); i++) {
+			for (int i = 1; i <= numberOfLanesRequested.intValue(); i++) {
 
 				Sample cell = new Sample();
 				cell.setSubmitterLabId(platformUnitDb.getSubmitterLabId());
 				cell.setSubmitterUserId(platformUnitDb.getSubmitterUserId());
-				cell.setName(platformUnitDb.getName()+"/"+(i+1));
+				cell.setName(platformUnitDb.getName()+"/"+(i));
 				cell.setSampleTypeId(sampleTypeId);
 				cell.setIsGood(1);
 				cell.setIsActive(1);
@@ -1860,12 +1858,12 @@ try{
 				SampleSource sampleSource = new SampleSource();
 				sampleSource.setSampleId(platformUnitDb.getSampleId());
 				sampleSource.setSourceSampleId(cellDb.getSampleId());
-				sampleSource.setIndex(i+1);
+				sampleSource.setIndex(i);
 				this.sampleSourceDao.save(sampleSource);			 
 			}
 		}
 		else if(action.equals("update")){//update and save existing platformunit
-			
+System.out.println("In A: update");		
 			platformUnitInDatabase.setName(barcode);//altered as per Andy 2-28-12
 			
 			User me = authenticationService.getAuthenticatedUser();
@@ -1901,17 +1899,17 @@ try{
 			
 			//deal with the lanes
 			Integer sampleTypeId = sampleTypeDao.getSampleTypeByIName("cell").getSampleTypeId();
-			
-			if(sampleService.requestedReductionInCellNumberIsProhibited(platformUnitInDatabase, numberOfLanesRequested)){//fail safe
-				throw new Exception("fail safe for requestedReductionInCellNumberIsProhibited");
-			}
-			else if(numberOfLanesToBeAdded.intValue() > 0){
-				for(int i = numberOfLanesInDatabase; i < numberOfLanesRequested; i++){
-					
+System.out.println("In B most of update done. Now deal with lane changes");
+System.out.println("numberOfLanesRequested: " + numberOfLanesRequested.intValue());
+System.out.println("numberOfLanesInDatabase: " + numberOfLanesInDatabase.intValue());
+			if(numberOfLanesRequested.intValue() > numberOfLanesInDatabase.intValue()){//add lanes 
+System.out.println("In C: add lanes");	
+				for(int i = numberOfLanesInDatabase + 1; i <= numberOfLanesRequested; i++){
+System.out.println("In D: add lanes with i = " + i);				
 					Sample cell = new Sample();
 					cell.setSubmitterLabId(platformUnitInDatabase.getSubmitterLabId());
 					cell.setSubmitterUserId(platformUnitInDatabase.getSubmitterUserId());
-					cell.setName(platformUnitInDatabase.getName()+"/"+(i+1));
+					cell.setName(platformUnitInDatabase.getName()+"/"+(i));
 					cell.setSampleTypeId(sampleTypeId);
 					cell.setIsGood(1);
 					cell.setIsActive(1);
@@ -1923,43 +1921,47 @@ try{
 					SampleSource sampleSource = new SampleSource();
 					sampleSource.setSampleId(platformUnitInDatabase.getSampleId());
 					sampleSource.setSourceSampleId(cellDb.getSampleId());
-					sampleSource.setIndex(i+1);
+					sampleSource.setIndex(i);
 					this.sampleSourceDao.save(sampleSource);
 				}
 			}
-			else if(numberOfLanesToBeRemoved.intValue() > 0){
+			else if(numberOfLanesRequested.intValue() < numberOfLanesInDatabase.intValue()){//remove lanes   
+System.out.println("In E: remove lanes");				
+				
+System.out.println("In F: remove lanes, passed the fail safe test");				
 				//get the list 
-				Map<Integer, Sample> indexedCells = sampleService.getIndexedCellsOnPlatformUnit(platformUnitInDatabase);
-				//for
+				//Map<Integer, Sample> indexedCellMap = sampleService.getIndexedCellsOnPlatformUnit(platformUnitInDatabase);
+				for (SampleSource ss : platformUnitInDatabase.getSampleSource()){
+					Sample cell = ss.getSourceSample();
+					if (!cell.getSampleType().getIName().equals("cell")){
+						throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
+					}
+					Integer index = ss.getIndex();
+					if(index.intValue() >= numberOfLanesRequested.intValue() + 1 && index.intValue() <= numberOfLanesInDatabase.intValue()){
+						//check for libraries here - again - as fail safe mechanism
+						List<Sample> libraryList = null;
+						libraryList = sampleService.getLibrariesOnCell(cell);//throws exception
+						if(libraryList!=null && libraryList.size()>0){//found at least one library
+System.out.println("between F and G: unexpectdly found cell " + cell.getSampleId().intValue() + "has " + libraryList.size() + " libraries on it");
+							throw new SampleTypeException("Cell " + cell.getSampleId().intValue() + "unexpectedly has " + libraryList.size() + " libraries on it");
+						}
+						sampleSourceDao.remove(ss);
+						sampleDao.remove(cell);
+						System.out.println("No libraries found on lane i = " + index.intValue());
+						System.out.println("In G: attempting to remove lane i = " + index.intValue());
+						System.out.println("In H: attempting to remove sampleSource with ID: " + ss.getSampleSourceId().intValue());
+						System.out.println("In J: attempting to remove cell with ID: " + cell.getSampleId().intValue());
+					}
+				}
 			}
-			/*
-			Integer sampleTypeId = sampleTypeDao.getSampleTypeByIName("cell").getSampleTypeId();
-			for (int i = 0; i < numberOfLanes.intValue(); i++) {
-
-				Sample cell = new Sample();
-				cell.setSubmitterLabId(platformUnitInDatabase.getSubmitterLabId());
-				cell.setSubmitterUserId(platformUnitInDatabase.getSubmitterUserId());
-				cell.setName(platformUnitInDatabase.getName()+"/"+(i+1));
-				cell.setSampleTypeId(sampleTypeId);
-				cell.setIsGood(1);
-				cell.setIsActive(1);
-				cell.setIsReceived(1);
-				cell.setReceiverUserId(platformUnitInDatabase.getSubmitterUserId());
-				cell.setReceiveDts(new Date());
-				Sample cellDb = this.sampleDao.save(cell);
-
-				SampleSource sampleSource = new SampleSource();
-				sampleSource.setSampleId(platformUnitInDatabase.getSampleId());
-				sampleSource.setSourceSampleId(cellDb.getSampleId());
-				sampleSource.setIndex(i+1);
-				this.sampleSourceDao.save(sampleSource);			 
+			else if(numberOfLanesRequested.intValue() == numberOfLanesInDatabase.intValue()){
+				System.out.println("NO CHANGE IN LANE NUMBER REQUESTED");
 			}
-			*/
 		}
 		else{
 			throw new Exception("Unexpectedly encountered action whose value is neither create or update");
 		}
-		
+System.out.println("end of the POST method");		
 		
 }catch(Exception e){logger.debug(e.getMessage());waspErrorMessage("wasp.unexpected_error.error");return "redirect:/dashboard.do";}
 
