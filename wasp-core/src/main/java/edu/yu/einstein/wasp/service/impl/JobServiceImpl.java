@@ -50,7 +50,6 @@ import edu.yu.einstein.wasp.dao.StateDao;
 import edu.yu.einstein.wasp.dao.StatejobDao;
 import edu.yu.einstein.wasp.dao.TaskDao;
 import edu.yu.einstein.wasp.exception.FileMoveException;
-import edu.yu.einstein.wasp.model.AcctJobquotecurrent;
 import edu.yu.einstein.wasp.model.File;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobCellSelection;
@@ -636,5 +635,29 @@ public class JobServiceImpl extends WaspServiceImpl implements JobService {
 		}
 		
 		return new ArrayList<Job>(jobs);//return as list rather than as set
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<Job> getJobsSubmittedOrViewableByUser(User user){
+		
+		List<Job> jobList = new ArrayList<Job>();
+		List<JobUser> jobUserList = new ArrayList<JobUser>();
+		
+		Map m = new HashMap();
+		m.put("UserId", user.getUserId().intValue());
+		List<String> orderByColumnNames = new ArrayList<String>();
+		orderByColumnNames.add("jobId");
+		
+		jobUserList = this.jobUserDao.findByMapDistinctOrderBy(m, null, orderByColumnNames, "desc");//default order is by jobId/desc
+		
+		for(JobUser jobUser : jobUserList){
+			jobList.add(jobUser.getJob());
+		}		
+		
+		return jobList;
+		
 	}
 }

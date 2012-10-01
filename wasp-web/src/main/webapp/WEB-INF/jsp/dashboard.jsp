@@ -14,7 +14,9 @@
 			<li><a href="#tabs-daAdmin">Dept Admin</a></li>
 		</sec:authorize>
 		<sec:authorize access="hasRole('da-${labs[0].departmentId}') or hasRole('su') or hasRole('lu-*') or hasRole('ft-*') or hasRole('ga') or hasRole('fm')"> 
-			<li><a href="#tabs-labUtils">Lab Utils</a></li>
+			<c:if test="${labCount > 0}">
+				<li><a href="#tabs-labUtils">Lab Utils</a></li>
+			</c:if>
 		</sec:authorize>
 		<sec:authorize
 			access="hasRole('jv-*') or hasRole('jd-*') or hasRole('su') or hasRole('ga') or hasRole('lu-*') or hasRole('fm') or hasRole('ft')">
@@ -72,6 +74,14 @@
 				<li>
 					<a href='<c:url value="/department/list.do"/>'>Department Management</a>&nbsp;
 				</li>
+				<sec:authorize	access="hasRole('da-*')">
+				<li>
+					<a href='<c:url value="/lab/list.do"/>'>Lab Utils</a>
+				</li>
+				<li>
+						<a href='<c:url value="/job2quote/list.do"/>'>List Job Quotes</a>
+					</li>
+				</sec:authorize>
 			</ul>
 		</div>
 	</sec:authorize>
@@ -79,8 +89,8 @@
 
 
 	<sec:authorize access="hasRole('da-${labs[0].departmentId}') or hasRole('ft') or hasRole('su') or hasRole('ga') or hasRole('lu-${labs[0].labId}')">
-		<div id="tabs-labUtils">
-				
+		<c:if test="${labCount > 0}">
+		   <div id="tabs-labUtils">				
 				<ul class="navTabs">
 					<c:forEach items="${labs}" var="l">
 						<br /><b><c:out value="${l.name}" /> </b>
@@ -99,8 +109,9 @@
 							</li>							
 						</sec:authorize>
 					</c:forEach>
-			</ul>
-		</div>
+				</ul>
+			</div>
+		</c:if>
 	</sec:authorize>
 
 	<div>
@@ -109,7 +120,8 @@
 				<ul class="navTabs">
 					<sec:authorize access="hasRole('jv-*')">
 						<li>
-							<a href='<c:url value="/job/list.do?userId=${me.getUserId()}"/>'>My	Viewable Jobs (<c:out value="${jobViewableCount}" />)</a>
+						<!--  	8/16/12 this call no longer requires the ?userId, since the controller JobController.getListJSON automatically inquires who the viewer is, based on roles, and shows only what the user can see <a href='<c:url value="/job/list.do?userId=${me.getUserId()}"/>'>My	Viewable Jobs (<c:out value="${jobViewableCount}" />)</a>  -->
+						<a href='<c:url value="/job/list.do"/>'>My	Viewable Jobs (<c:out value="${jobViewableCount}" />)</a>
 						</li>
 					</sec:authorize>
 					<sec:authorize access="hasRole('jd-*')">
@@ -141,7 +153,7 @@
 			<ul class="navTabs">
 				<sec:authorize access="hasRole('fm')">
 					<li>
-						<a href='<c:url value="/job2quote/list.do?showall=true"/>'>List of All Job Quotes</a>
+						<a href='<c:url value="/job2quote/list.do"/>'>List All Job Quotes</a>
 					</li>
 				</sec:authorize>
 			</ul>
@@ -165,8 +177,10 @@
 			<h2>Platform Unit Utils</h2>
 			<ul class="navTabs">
 				<li>
-					<a
-						href='<c:url value="/facility/platformunit/limitPriorToPlatUnitAssign.do" />'>List / Create</a>
+					<a href='<c:url value="/facility/platformunit/createUpdatePlatformUnit.do?resourceCategoryId=0&sampleSubtypeId=0" />'>New Platform Unit</a>
+				</li>
+				<li>
+					<a href='<c:url value="/facility/platformunit/limitPriorToPlatUnitAssign.do" />'>List / Create</a>
 				</li>
 				<li>
 					<a href='<c:url value="/facility/platformunit/limitPriorToAssign.do?resourceCategoryId=0" />'>Platform Unit assignment</a>

@@ -15,6 +15,7 @@
   </div>
   </form>
 
+<c:if test='${userIsPI=="false"}'>
  <hr /><br />
   <h1><fmt:message key="labPending.createNewLab.label" /></h1>
   <div class="instructions"><fmt:message key="labPending.newPiNote.label" /></div>
@@ -42,12 +43,9 @@
     <c:set var="_metaList" value = "${labPending.labPendingMeta}" scope="request" />
     <c:import url="/WEB-INF/jsp/meta_rw.jsp"/>
     </table>
-
     <div class="submit">
       <input class="FormElement ui-widget-content ui-corner-all" type="submit" value="<fmt:message key="labPending.newLabSubmit.label"/>" />
-    </div>
-
-  </table>
+    </div>  
   </form:form>
-
+</c:if>
 

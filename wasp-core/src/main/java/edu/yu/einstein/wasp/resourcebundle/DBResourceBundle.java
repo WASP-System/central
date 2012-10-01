@@ -22,10 +22,11 @@ import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -38,7 +39,7 @@ import edu.yu.einstein.wasp.service.WaspSqlService;
 import edu.yu.einstein.wasp.service.impl.WaspMessageSourceImpl;
 
 @Component
-public class DBResourceBundle implements ApplicationContextAware, InitializingBean{
+public class DBResourceBundle implements ApplicationContextAware{
 
 	@Autowired
 	private WaspSqlService waspSqlService;
@@ -62,9 +63,8 @@ public class DBResourceBundle implements ApplicationContextAware, InitializingBe
 	}
 	
 
-	// PostInitialized... b/c Resource and Workflow need uifields set within them
-	@Override
-	public void afterPropertiesSet() throws Exception {
+	@PostConstruct
+	public void init() throws Exception {
 		
 		// process uifields initialization file uifield_init.sql if present
 		final String uiFieldInitFileName = "uifield_init.sql";

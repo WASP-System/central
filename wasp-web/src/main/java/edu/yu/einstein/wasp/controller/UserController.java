@@ -2,14 +2,11 @@ package edu.yu.einstein.wasp.controller;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -34,21 +31,20 @@ import edu.yu.einstein.wasp.dao.ConfirmEmailAuthDao;
 import edu.yu.einstein.wasp.dao.DepartmentUserDao;
 import edu.yu.einstein.wasp.dao.UserMetaDao;
 import edu.yu.einstein.wasp.exception.LoginNameException;
-import edu.yu.einstein.wasp.model.DepartmentUser;
-import edu.yu.einstein.wasp.model.LabPending;
+import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.MetaBase;
-import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserMeta;
-import edu.yu.einstein.wasp.model.Userrole;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.EmailService;
+import edu.yu.einstein.wasp.service.FilterService;
 import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.RoleService;
 import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 import edu.yu.einstein.wasp.util.MetaHelper;
+import edu.yu.einstein.wasp.util.StringHelper;
 
 
 /**
@@ -72,6 +68,9 @@ public class UserController extends WaspController {
 	
 	@Autowired
 	private EmailService emailService;
+	
+	@Autowired
+	private FilterService	filterService;
 	
 	@Autowired
 	private RoleService roleService;
@@ -136,14 +135,18 @@ public class UserController extends WaspController {
 			for (LabUser uLab:uLabs) {
 				Map cell = new HashMap();
 				cell.put("id", uLab.getLabId());
-				 					
+				
+				User pi = userDao.getUserByUserId(uLab.getLab().getPrimaryUserId().intValue());
+				
 				List<String> cellList = new ArrayList<String>(
 						Arrays.asList(
 								new String[] {
 										"<a href=/wasp/job/list.do?labId=" 
 										+ uLab.getLabId().intValue() 
 										+ "&userId=" + userId + ">" + 
-											uLab.getLab().getName() + "</a>"
+											//uLab.getLab().getName() + 
+											pi.getFirstName() + " " + pi.getLastName() + " " + "Lab" +
+											"</a>"
 								}
 						)
 				);
@@ -174,51 +177,64 @@ public class UserController extends WaspController {
 		String sord = request.getParameter("sord");
 		String sidx = request.getParameter("sidx");
 		String search = request.getParameter("_search");
-		String searchField = request.getParameter("searchField");
-		String searchString = request.getParameter("searchString");
-		String selId = request.getParameter("selId");
+		String searchField = request.getParameter("searchField");//no longer user; replaced by filterToolbar items
+		String searchString = request.getParameter("searchString");//no longer user; replaced by filterToolbar items
+		
+		//Parameter coming from url anchor within lab grid (not coming from the filterToolbar)
+		String userIdFromURL = request.getParameter("selId");//if not passed, userId is the empty string (interestingly, it's value is not null)
+		//System.out.println("selId = " + userIdFromURL);System.out.println("sidx = " + sidx);System.out.println("sord = " + sord);System.out.println("search = " + search);System.out.println("selId = " + selId);
+
+		//Parameters coming from grid's toolbar
+		//The jobGrid's toolbar's is it's search capability. The toolbar's attribute stringResult is currently set to false, 
+		//meaning that each parameter on the toolbar is sent as a key:value pair
+		String login = request.getParameter("login");//null if this parameter is not passed
+		String firstName = request.getParameter("firstName");//null if this parameter is not passed
+		String lastName = request.getParameter("lastName");//null if this parameter is not passed
+		String email = request.getParameter("email");//null if this parameter is not passed
+		//System.out.println("login = " + login);System.out.println("firstName = " + firstName);System.out.println("lastName = " + lastName);System.out.println("email = " + email);
 		
 		//result
 		Map <String, Object> jqgrid = new HashMap<String, Object>();
-		
+
 		List<User> userList = new ArrayList<User>();
 		
-		if (!StringUtils.isEmpty(selId)) {
-
-			userList.add(this.userDao.getUserByUserId(Integer.parseInt(selId)));
-		
-		} else if (!StringUtils.isEmpty(search) && !StringUtils.isEmpty(searchField) && !StringUtils.isEmpty(searchString) ) {
-		
-			Map<String, String> m = new HashMap<String, String>();
-
-			m.put(searchField, searchString);
-
-			if (sidx.isEmpty()) {
-				userList = this.userDao.findByMap(m);
-			} else {
-				List<String> sidxList =  new ArrayList<String>();
-				sidxList.add(sidx);
-				userList = this.userDao.findByMapDistinctOrderBy(m, null, sidxList, sord);
+		Map m = new HashMap();
+		if(userIdFromURL != null && !userIdFromURL.isEmpty()){
+			Integer userIdAsInteger = StringHelper.convertStringToInteger(userIdFromURL.trim());//returns null is unable to convert
+			if(userIdAsInteger == null){
+				userIdAsInteger = new Integer(0);//fake it; perform search below and no user will appear in the result set
 			}
-
-			if ("ne".equals(request.getParameter("searchOper"))) {
-				List<User> all = new ArrayList<User>(sidx.isEmpty() ? 
-						this.userDao.findAll() : this.userDao.findAllOrderBy(sidx, sord));
-
-				for (Iterator<User> it = userList.iterator(); it.hasNext();) {
-					User exclude = it.next();
-					all.remove(exclude);
-
-				}
-				userList = all;
-			}
-			
-		} else {
-			
-			userList = sidx.isEmpty() ? this.userDao.findAll() : this.userDao.findAllOrderBy(sidx, sord);
+			m.put("UserId", userIdAsInteger.intValue());
 		}
+		else{
+			if(login != null){
+				m.put("login", login);
+			}
+			if(firstName != null){
+				m.put("firstName", firstName);
+			}
+			if(lastName != null){
+				m.put("lastName", lastName);
+			}
+			if(email != null){
+				m.put("email", email);
+			}
+		}
+		List<String> orderByList = new ArrayList<String>();
+		if(sidx != null && !sidx.isEmpty() && sord != null && !sord.isEmpty() ){
+			orderByList.add(sidx);
+		}
+		else{//default orderBy will be userId/desc (rationale: so that when a new user is created using the grid, the viewer sees a link to prompt that they should assign a role)
+			orderByList.add("UserId");
+			sord = "desc";
+		}
+		userList = this.userDao.findByMapDistinctOrderBy(m, null, orderByList, sord);
 
-		userService.reverseSortUsersByUserId(userList);
+		//perform ONLY if the viewer is A DA but is NOT any other type of facility member
+		if(authenticationService.isOnlyDepartmentAdministrator()){//remove users not in the DA's department
+			List<User> usersToKeep = filterService.filterUserListForDA(userList);
+			userList.retainAll(usersToKeep);
+		}		
 		
 		try {
 			int pageIndex = Integer.parseInt(request.getParameter("page"));		// index of page
@@ -279,7 +295,7 @@ public class UserController extends WaspController {
 				}
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 							user.getLogin(),
-//							user.getPassword(),
+							//user.getPassword(),
 							user.getFirstName(),
 							user.getLastName(),	
 							rolesAsString,
@@ -291,22 +307,19 @@ public class UserController extends WaspController {
 				for(UserMeta meta:userMeta) {
 					cellList.add(meta.getV());
 				}
-				
-				 
-				cell.put("cell", cellList);
-				 
+								 
+				cell.put("cell", cellList);				 
 				rows.add(cell);
 			}
 
-			 
 			jqgrid.put("rows",rows);
 			 
 			return outputJSON(jqgrid, response); 	
 			 
-		} catch (Throwable e) {
+		} 
+		catch (Throwable e) {
 			throw new IllegalStateException("Can't marshall to JSON "+userList,e);
-		}
-	
+		}	
 	}
 
 	/**

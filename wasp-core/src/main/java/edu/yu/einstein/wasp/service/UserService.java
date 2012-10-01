@@ -16,7 +16,6 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import edu.yu.einstein.wasp.dao.UserDao;
-import edu.yu.einstein.wasp.exception.FileMoveException;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserPending;
 
