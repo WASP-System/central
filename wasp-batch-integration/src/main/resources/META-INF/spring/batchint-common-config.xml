@@ -56,5 +56,8 @@
 	<import resource="classpath:flows/chipSeq.waspJob.mainFlow.v1.xml" />
 	<import resource="classpath:flows/sample.mainFlow.v1.xml" />
 	
+	<!-- loads all the plugin root contexts -->
+  	<import resource="classpath*:META-INF/spring/plugin-context-batch.xml" />
+	
 
 </beans>
