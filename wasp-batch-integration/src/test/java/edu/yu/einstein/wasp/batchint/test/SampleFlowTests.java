@@ -31,12 +31,12 @@ import edu.yu.einstein.wasp.batchint.messages.LibraryStatusMessageTemplate;
 import edu.yu.einstein.wasp.batchint.messages.SampleStatusMessageTemplate;
 import edu.yu.einstein.wasp.batchint.messages.WaspJobTask;
 import edu.yu.einstein.wasp.batchint.messages.WaspSampleTask;
-import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
 import edu.yu.einstein.wasp.batchint.test.stubs.StubSampleDao;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
+import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
 import edu.yu.einstein.wasp.model.SampleType;
 
-@ContextConfiguration(locations={"classpath:batchint-test-launch-context.xml", "classpath:RmiMessageSend-context.xml"})
+@ContextConfiguration(locations={"/batchint-test-launch-context.xml", "/RmiMessageSend-context.xml"})
 
 public class SampleFlowTests extends AbstractTestNGSpringContextTests implements MessageHandler {
 	

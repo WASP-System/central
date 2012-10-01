@@ -32,7 +32,7 @@ import edu.yu.einstein.wasp.integration.messages.WaspMessageType;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 
 
-@ContextConfiguration(locations={"classpath:batchint-test-launch-context.xml", "classpath:RmiMessageSend-context.xml"})
+@ContextConfiguration(locations={"/batchint-test-launch-context.xml", "/RmiMessageSend-context.xml"})
 
 public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests implements MessageHandler {
 	
