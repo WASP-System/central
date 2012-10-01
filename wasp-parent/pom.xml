@@ -269,6 +269,16 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 			<version>4.8.1</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework.batch</groupId>
+			<artifactId>spring-batch-integration</artifactId>
+			<exclusions>
+				<exclusion>
+					<artifactId>slf4j-log4j12</artifactId>
+					<groupId>org.slf4j</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
 	</dependencies>
 
 	<dependencyManagement>

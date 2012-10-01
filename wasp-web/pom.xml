@@ -22,29 +22,6 @@
 			<groupId>${project.groupId}</groupId>
 			<artifactId>wasp-config</artifactId>
 		</dependency>
-		<!--
-		<dependency>
-			<groupId>org.springframework.batch</groupId>
-			<artifactId>spring-batch-admin-resources</artifactId>
-			<version>1.2.1.RELEASE</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.slf4j</groupId>
-					<artifactId>slf4j-log4j12</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-			<version>1.6.2</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.batch</groupId>
-			<artifactId>spring-batch-admin-manager</artifactId>
-			<version>1.2.1.RELEASE</version>
-		</dependency>
-		-->
 		<dependency>
 			<groupId>org.aspectj</groupId>
 			<artifactId>aspectjrt</artifactId>
@@ -380,10 +357,6 @@
 		<dependency>
 			<groupId>org.springframework.batch</groupId>
 			<artifactId>spring-batch-test</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.batch</groupId>
-			<artifactId>spring-batch-integration</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
