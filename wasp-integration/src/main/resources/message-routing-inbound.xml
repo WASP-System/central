@@ -1,28 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans
-	xsi:schemaLocation=" http://www.springframework.org/schema/beans 
-  http://www.springframework.org/schema/beans/spring-beans.xsd     
-  http://www.springframework.org/schema/context  
-  http://www.springframework.org/schema/context/spring-context.xsd 
-  http://www.springframework.org/schema/integration
-  http://www.springframework.org/schema/integration/spring-integration.xsd
-  http://www.springframework.org/schema/integration/file
-  http://www.springframework.org/schema/integration/file/spring-integration-file.xsd
-  http://www.springframework.org/schema/integration/rmi
-  http://www.springframework.org/schema/integration/rmi/spring-integration-rmi-2.1.xsd
-  http://www.springframework.org/schema/batch 
-  http://www.springframework.org/schema/batch/spring-batch.xsd
-  http://www.springframework.org/schema/integration/ip
-  http://www.springframework.org/schema/integration/ip/spring-integration-ip.xsd
-  "
-	xmlns:context="http://www.springframework.org/schema/context"
-	xmlns:batch="http://www.springframework.org/schema/batch"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:int="http://www.springframework.org/schema/integration"
-	xmlns:file="http://www.springframework.org/schema/integration/file"
-	xmlns:rmi="http://www.springframework.org/schema/integration/rmi"
-	xmlns:ip="http://www.springframework.org/schema/integration/ip"
-	xmlns="http://www.springframework.org/schema/beans">
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:int-rmi="http://www.springframework.org/schema/integration/rmi"
+	xsi:schemaLocation="http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration-2.2.xsd
+		http://www.springframework.org/schema/integration/rmi http://www.springframework.org/schema/integration/rmi/spring-integration-rmi.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 	
 	<!-- default logging channel -->
 	<int:logging-channel-adapter id='wasp.channel.defaultLogging' log-full-message="true" level="DEBUG" />
@@ -48,7 +31,7 @@
     
         	
     <!-- defines a route to inject messages into the system from within the WASP System-->
-    <rmi:inbound-gateway id="internalRmiGateway"
+    <int-rmi:inbound-gateway id="internalRmiGateway"
     	request-channel="wasp.channel.rmi.inbound" 
     	reply-channel="wasp.channel.rmi.internal.reply" 
     	registry-port="23532" />
@@ -64,7 +47,7 @@
     <int:channel id="wasp.channel.rmi.secure.reply" />
         
     <!-- defines a secure route to inject messages into the system from outside the WASP System-->
-    <rmi:inbound-gateway id="externalSecureRmiGateway"
+    <int-rmi:inbound-gateway id="externalSecureRmiGateway"
     	request-channel="wasp.channel.rmi.secure.inbound0" 
     	reply-channel="wasp.channel.rmi.secure.reply"
     	registry-port="23532" />

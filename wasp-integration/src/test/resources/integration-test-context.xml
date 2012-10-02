@@ -8,8 +8,5 @@
 
 	<!-- import common configuration  -->
 	<import resource="classpath:/META-INF/spring/integration-common-config.xml" />
-
-	
-	
 	
 </beans>

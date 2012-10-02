@@ -118,12 +118,7 @@
 			<groupId>${project.groupId}</groupId>
 			<artifactId>wasp-config</artifactId>
 		</dependency>
-		<dependency>
-		    <groupId>${project.groupId}</groupId>
-			<artifactId>wasp-cli</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-
+		
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-vfs2</artifactId>
