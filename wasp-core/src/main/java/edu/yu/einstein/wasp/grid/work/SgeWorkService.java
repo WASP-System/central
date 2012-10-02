@@ -330,7 +330,8 @@ public class SgeWorkService implements GridWorkService {
 		}
 
 		public void setMemory(int memInGB) {
-			this.memory = "#$ -l mem_free=" + memInGB + "G\n";
+			this.memory = "#$ -l mem_free=" + memInGB + "G\n" +
+					"memory=" + memInGB + "\n";
 		}
 		
 		public String getProcs() {
@@ -338,7 +339,8 @@ public class SgeWorkService implements GridWorkService {
 		}
 
 		public void setProcs(Integer threads) {
-			this.procs = "#$ -l p=" + threads.toString() + "\n";
+			this.procs = "#$ -l p=" + threads.toString() + "\n" +
+					"threads=" + threads + "\n";
 		}
 
 		public String toString() {
@@ -349,7 +351,8 @@ public class SgeWorkService implements GridWorkService {
 			if (w.getMode() != ExecutionMode.MPI)
 				numProcs = getProcs();
 			
-			return header + "\n\n##### resource requests\n\n" +
+			return header + 
+					"\n\n##### resource requests\n\n" +
 					getAccount() + 
 					getQueue() +
 					getMaxRunTime() +
@@ -360,8 +363,10 @@ public class SgeWorkService implements GridWorkService {
 					numProcs +
 					getMemory() + 
 					"\n\n##### preamble \n\n" +
-					preamble + "\n\n##### command \n\n" +
-					command + "\n\n##### postscript\n\n" +
+					preamble + 
+					"\n\n##### command \n\n" +
+					command + 
+					"\n\n##### postscript\n\n" +
 					postscript;
 		}
 
