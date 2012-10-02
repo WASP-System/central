@@ -15,6 +15,8 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.SampleException;
@@ -28,10 +30,12 @@ import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleDraft;
+import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.SampleType;
 
 @Service
+@Transactional
 public interface SampleService extends WaspService {
 
 	/**
@@ -344,7 +348,26 @@ public interface SampleService extends WaspService {
 	   */
 	  public boolean sampleIsSpecificSampleType(Sample sample, String sampleTypeIName) throws SampleException, SampleTypeException;
 
-	  
+	  /**
+	   * Returns true if Sample is in database, else returns false
+	   * True defined as sample != null && sample.getSampleId() != null && sample.getSampleId().intVal() > 0
+	   * then use sample.getSampleId().intVal() to pull a sample from the database and the 
+	   * sampleReturnedFromDatabase.getSampleId() != null && sampleReturnedFromDatabase.getSampleId().intVal > 0 
+	   * @param Sample sample
+	   * @return boolean
+	   */
+	  public boolean sampleIsInDatabase(Sample sample);
+
+	  /**
+	   * Returns true if SampleId represents a sample in database, else returns false
+	   * True defined as sampleId != null && sampleId.intVal() > 0
+	   * then use sampleId().intVal() to pull a sample from the database and the 
+	   * sampleReturnedFromDatabase.getSampleId() != null && sampleReturnedFromDatabase.getSampleId().intVal > 0 
+	   * @param Integer sampleId
+	   * @return boolean
+	   */
+	  public boolean sampleIdIsInDatabase(Integer sampleId);
+
 	  /**
 	   * Returns true if Sample is a platform unit (checking both SampleType and SampleSubtype) 
 	   * @param Sample sample
@@ -372,12 +395,18 @@ public interface SampleService extends WaspService {
 	  public boolean requestedReductionInCellNumberIsProhibited(Sample platformUnitInDatabase, Integer numberOfLanesRequested) throws SampleException, SampleTypeException;
 	 
 	  /**
-	   * Returns void. If unsuccessful, throws exceptions. Under transactional control. 
-	   * @param Sample sample
+	   * Create or update platform unit. If platformUnitId==null or platformUnitId.intVal()<=0, create new platformunit, otherwise update.
+	   * If create/update is unsuccessful, throw exception, else return void. Under transactional control. 
+	   * If this is an update and numberOfLanesRequested > numberOfLanesInDatabase, then add additional lanes.
+	   * If this is an update and  numberOfLanesRequested < numberOfLanesInDatabase, then remove extra lanes ONLY IF THE LANES TO BE REMOVED DO NOT CONTAIN LIBRARIES.
+	   * @param Sample platformUnit
+	   * @param Sample barcodeName
 	   * @param Integer numberOfLanesRequested
+	   * @param List<SampleMeta> sampleMetaList
+	   * @param SampleSubtype sampleSubtype
 	   * @return void
 	   */
-	  //public boolean createUpdatePlatformUnit(Sample platformUnit, String barcodeName, Integer numberOfLanesRequested, MetaHelperWebapp metaHelperWebapp );
+	  public void createUpdatePlatformUnit(Sample platformUnit, SampleSubtype sampleSubtype, String barcodeName, Integer numberOfLanesRequested, List<SampleMeta> sampleMetaList) throws SampleException, SampleTypeException, SampleSubtypeException;
 		
 	
 }

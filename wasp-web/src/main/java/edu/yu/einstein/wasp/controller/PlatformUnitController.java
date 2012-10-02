@@ -1800,12 +1800,33 @@ try{
 			return "facility/platformunit/createUpdatePlatformUnit";			
 		}
 	
+		
+		if(action.equals("create")){
+			System.out.println("in create1");
+			sampleService.createUpdatePlatformUnit(platformunitInstance, sampleSubtype, barcode, numberOfLanesRequested, (List<SampleMeta>)metaHelperWebapp.getMetaList());
+		}
+		else if(action.equals("update")){
+			System.out.println("in update1");
+			sampleService.createUpdatePlatformUnit(platformUnitInDatabase, sampleSubtype, barcode, numberOfLanesRequested, (List<SampleMeta>)metaHelperWebapp.getMetaList());
+		}
+		else{//action == null
+			System.out.println("in Unexpectedly1");
+			throw new Exception("Unexpectedly encountered action whose value is neither create or update");
+		}
+		System.out.println("end of the POST method");		
+		
+	}catch(Exception e){logger.debug(e.getMessage());waspErrorMessage("wasp.unexpected_error.error");return "redirect:/dashboard.do";}
 
+				return "redirect:/facility/platformunit/list.do"; 
+
+		
+/*
 		if(action.equals("create")){//generate and save new platformunit
 			
-			//sampleService.createUpdatePlatformUnit(Sample platformUnit, String barcodeName, Integer numberOfLanesRequested, MetaHelperWebapp metaHelperWebapp, );
 			
 			Sample platformUnit = new Sample();
+			//sampleService.createUpdatePlatformUnit(Sample platformUnit, String barcodeName, Integer numberOfLanesRequested, MetaHelperWebapp metaHelperWebapp, );
+			//sampleService.createUpdatePlatformUnit(null, barcode, numberOfLanesRequested, (List<SampleMeta>)metaHelperWebapp.getMetaList());
 
 			platformUnit.setName(barcode);//altered as per Andy 2-28-12
 
@@ -1961,11 +1982,7 @@ System.out.println("between F and G: unexpectdly found cell " + cell.getSampleId
 		else{
 			throw new Exception("Unexpectedly encountered action whose value is neither create or update");
 		}
-System.out.println("end of the POST method");		
-		
-}catch(Exception e){logger.debug(e.getMessage());waspErrorMessage("wasp.unexpected_error.error");return "redirect:/dashboard.do";}
-
-		return "redirect:/facility/platformunit/list.do"; 
+		*/
 	}
 	
 
