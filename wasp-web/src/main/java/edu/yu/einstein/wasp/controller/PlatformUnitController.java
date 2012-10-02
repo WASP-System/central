@@ -115,7 +115,7 @@ import edu.yu.einstein.wasp.util.StringHelper;
 
 
 @Controller
-@Transactional
+
 @RequestMapping("/facility/platformunit")
 public class PlatformUnitController extends WaspController {
 	

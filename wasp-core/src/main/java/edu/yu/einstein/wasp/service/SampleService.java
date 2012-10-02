@@ -35,7 +35,6 @@ import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.SampleType;
 
 @Service
-@Transactional
 public interface SampleService extends WaspService {
 
 	/**

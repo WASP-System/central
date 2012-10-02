@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.management.RuntimeErrorException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -1003,20 +1005,11 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 			numberOfLanesInDatabase = this.getNumberOfIndexedCellsOnPlatformUnit(pu);
 			if(numberOfLanesInDatabase==null || numberOfLanesInDatabase.intValue()<=0){//should never be 0 lanes on a platformunit
 				throw new SampleException("lanecount in database is not valid for platformunit with Id " + pu.getSampleId().intValue());
-			}
-			if(numberOfLanesRequested.intValue() > numberOfLanesInDatabase.intValue()){//request to add lanes, so not a problem
-				;
-			}
-			else if(numberOfLanesRequested.intValue() < numberOfLanesInDatabase.intValue()){//request to remove lanes; a potential problem if libraries are on the lanes to be removed
-				// perform next test
-				if(this.requestedReductionInCellNumberIsProhibited(pu, numberOfLanesRequested)){//value of true means libraries are assigned to those lanes being asked to be removed. Prohibit this action and inform user to first remove those libraries from the lanes being requested to be removed
-					throw new SampleException("Sample Exception during platform unit update: Action not permitted at this time. To reduce the number of lanes, remove libraries on the lanes that will be lost.");
-				}
-			}
-			
+			}			
 			action = new String("update");			
 		}
 		else{
+			numberOfLanesInDatabase = new Integer(0);
 			pu = new Sample();
 		}
 		
@@ -1049,6 +1042,17 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 			}
 		}
 		
+		if(numberOfLanesRequested.intValue() >= numberOfLanesInDatabase.intValue()){//request to add lanes or no change in lane number, so not a problem
+			;
+		}
+		else if(numberOfLanesRequested.intValue() < numberOfLanesInDatabase.intValue()){//request to remove lanes; a potential problem if libraries are on the lanes to be removed
+			// perform next test
+			if(this.requestedReductionInCellNumberIsProhibited(pu, numberOfLanesRequested)){//value of true means libraries are assigned to those lanes being asked to be removed. Prohibit this action and inform user to first remove those libraries from the lanes being requested to be removed
+				throw new SampleException("Sample Exception during platform unit update: Action not permitted at this time. To reduce the number of lanes, remove libraries on the lanes that will be lost.");
+			}
+		}
+		
+		
 		if(barcodeName == null || "".equalsIgnoreCase(barcodeName)){
 			throw new SampleException("Barcode Name cannot be empty");
 		}
@@ -1062,7 +1066,7 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 		else if(sampleMetaList == null){
 			throw new SampleException("SampleMetaList cannot be null");
 		}
-
+try{
 		if(action.equals("create")){//generate and save new platformunit
 			System.out.println("in create2");
 			pu.setName(barcodeName);//sample.name will be set to the barcode name; as per Andy 9-28-12
@@ -1084,6 +1088,7 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 			if(platformUnitDb==null || platformUnitDb.getSampleId()==null || platformUnitDb.getSampleId().intValue()<=0){
 				throw new SampleException("new platform unit unexpectedly not saved");
 			}
+			if(1==1){throw new SampleException("testing the runtime exception");}
 			//save the metadata; no way to check as this returns void
 			sampleMetaDao.updateBySampleId(platformUnitDb.getSampleId(), sampleMetaList); // persist the metadata
 			
@@ -1106,7 +1111,8 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 			}
 			
 			//create the lanes
-			for (int i = 1; i <= numberOfLanesRequested.intValue(); i++) {
+			if(numberOfLanesRequested.intValue() > numberOfLanesInDatabase.intValue()){//add lanes 
+			  for (int i = numberOfLanesInDatabase + 1; i <= numberOfLanesRequested.intValue(); i++) {
 
 				Sample cell = new Sample();
 				cell.setSubmitterLabId(platformUnitDb.getSubmitterLabId());
@@ -1131,6 +1137,7 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 				if(sampleSourceDb==null || sampleSourceDb.getSampleId()==null || sampleSourceDb.getSampleId().intValue() <= 0){
 					throw new SampleException("new samplesource unexpectedly not saved");
 				}
+			  }
 			}
 		}
 		else if(action.equals("update")){//update and save existing platformunit
@@ -1240,9 +1247,9 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 			System.out.println("in Unexpectedly3");
 			throw new SampleException("Unexpectedly encountered action whose value is neither create or update");
 		}
+}catch (Exception e){	throw new RuntimeException(e.getMessage());	}
 		
-		
-		 if(1==1){System.out.println("FORCE A ROLLBACK FOR TESTING"); throw new SampleException("FORCE A ROLLBACK FOR TESTING");}
+		 //if(1==1){System.out.println("FORCE A ROLLBACK FOR TESTING"); throw new RuntimeException();}
 		 
 		
 		return;
