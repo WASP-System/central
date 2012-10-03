@@ -247,17 +247,8 @@ public class PlatformUnitController extends WaspController {
 	private final MetaHelperWebapp getMetaHelperWebappPlatformUnitInstance() {
 		return new MetaHelperWebapp("platformunitInstance", SampleMeta.class, request.getSession());
 	}
-	
-	@RequestMapping(value="/selid/list", method=RequestMethod.GET)
-	@PreAuthorize("hasRole('su') or hasRole('ft')")
-	public String showSelectedSampleListShell(ModelMap m) {
-		m.addAttribute("_metaList", getMetaHelperWebapp().getMasterList(SampleMeta.class));
-		m.addAttribute(JQFieldTag.AREA_ATTR, "platformunitById");
-		m.addAttribute("_metaDataMessages", MetaHelper.getMetadataMessages(request.getSession()));
 
-		return "facility/platformunit/selid/list";
-	}
-
+	//entry to platformunit grid
 	@RequestMapping(value="/list.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public String showListShell(ModelMap m) {
@@ -268,12 +259,7 @@ public class PlatformUnitController extends WaspController {
 		return "facility/platformunit/list";
 	}
 	
-	
-	
-	
-	
-	
-	
+	//the platformunit grid
 	@RequestMapping(value="/listJSON_platformUnitGrid", method=RequestMethod.GET)
 	public String getListJSON(HttpServletResponse response) {
 		
@@ -578,974 +564,8 @@ public class PlatformUnitController extends WaspController {
 			throw new IllegalStateException("Can't marshall to JSON " + platformUnitList, e);
 		}	
 	}	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	/**
-	 * View platform unit by selId parameter
-	 * 
-	 * @param response
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	@RequestMapping(value="/selid/listJSON", method=RequestMethod.GET)
-	public @ResponseBody
-	String getPlatformUnitBySelIdListJson(HttpServletResponse response) {
-		
-		Map<String, Object> jqgrid = new HashMap<String, Object>();
 
-		List<Sample> sampleList;
-
-		// First, search for sampletypeid which its iname is "platform unit"
-		Map<String, String> sampleTypeQueryMap = new HashMap<String, String>();
-		sampleTypeQueryMap.put("iName", "platformunit");
-		List<SampleType> sampleTypeList = sampleTypeDao.findByMap(sampleTypeQueryMap);
-		if (sampleTypeList.size() == 0)
-			return "'Platform Unit' sample type is not defined!";
-		// Then, use the sampletypeid to pull all platformunits from the sample
-		// table
-		Map<String, Object> sampleListBaseQueryMap = new HashMap<String, Object>();
-		sampleListBaseQueryMap.put("sampleTypeId", sampleTypeList.get(0).getSampleTypeId());
-
-		if (request.getParameter("_search") == null 
-				|| request.getParameter("_search").equals("false") 
-				|| StringUtils.isEmpty(request.getParameter("searchString"))) {
-			sampleList = sampleDao.findByMap(sampleListBaseQueryMap);
-
-		} else {
-
-			sampleListBaseQueryMap.put(request.getParameter("searchField"), request.getParameter("searchString"));
-
-			sampleList = this.sampleDao.findByMap(sampleListBaseQueryMap);
-
-			if ("ne".equals(request.getParameter("searchOper"))) {
-				Map allSampleListBaseQueryMap = new HashMap();
-				allSampleListBaseQueryMap.put("sampleTypeId", 5);
-
-				List<Sample> allSampleList = sampleDao.findByMap(allSampleListBaseQueryMap);
-				for (Sample excludeSample : allSampleList) {
-					allSampleList.remove(excludeSample);
-				}
-				sampleList = allSampleList;
-			}
-		}
-
-	try {
-		ObjectMapper mapper = new ObjectMapper();
-		
-		int pageIndex = Integer.parseInt(request.getParameter("page")); // index of page
-		int pageRowNum = Integer.parseInt(request.getParameter("rows")); // number of rows in one page
-		int rowNum = sampleList.size(); // total number of rows
-		int pageNum = (rowNum + pageRowNum - 1) / pageRowNum; // total number of pages
-
-		jqgrid.put("records", rowNum + "");
-		jqgrid.put("total", pageNum + "");
-		jqgrid.put("page", pageIndex + "");
-
-		Map<String, String> sampleData = new HashMap<String, String>();
-
-		sampleData.put("page", pageIndex + "");
-		sampleData.put("selId", StringUtils.isEmpty(request.getParameter("selId")) ? "" : request.getParameter("selId"));
-		jqgrid.put("sampledata", sampleData);
-
-		List<Map> rows = new ArrayList<Map>();
-
-		int frId = pageRowNum * (pageIndex - 1);
-		int toId = pageRowNum * pageIndex;
-		toId = toId <= rowNum ? toId : rowNum;
-
-		/*
-		 * if the selId is set, change the page index to the one contains
-		 * the selId
-		 */
-		if (!StringUtils.isEmpty(request.getParameter("selId"))) {
-			int selId = Integer.parseInt(request.getParameter("selId"));
-			int selIndex = sampleList.indexOf(this.sampleDao.findById(selId));
-			frId = selIndex;
-			toId = frId + 1;
-
-			jqgrid.put("records", "1");
-			jqgrid.put("total", "1");
-			jqgrid.put("page", "1");
-		}
-
-		List<Sample> samplePage = sampleList.subList(frId, toId);
-		for (Sample sample : samplePage) {
-			Map cell = new HashMap();
-			cell.put("id", sample.getSampleId());
-
-			List<SampleMeta> sampleMetaList = getMetaHelperWebapp().syncWithMaster(sample.getSampleMeta());
-			List<String> cellList = new ArrayList<String>(Arrays.asList(new String[] { sample.getName(), sample.getUser().getFirstName() }));
-
-			for (SampleMeta meta : sampleMetaList) {
-				cellList.add(meta.getV());
-			}
-
-			cell.put("cell", cellList);
-
-			rows.add(cell);
-		}
-
-		jqgrid.put("rows", rows);
-
-		String json = mapper.writeValueAsString(jqgrid);
-		return json;
-
-	} catch (Exception e) {
-			throw new IllegalStateException("Can't marshall to JSON " + sampleList, e);
-		}
-	}
-
-	@RequestMapping(value="/instance/list.do", method=RequestMethod.GET)
-	@PreAuthorize("hasRole('su') or hasRole('ft')")
-	public String showPlatformunitInstanceListShell(ModelMap m) {
-		m.addAttribute("_metaList", getMetaHelperWebappPlatformUnitInstance().getMasterList(SampleMeta.class));
-		m.addAttribute(JQFieldTag.AREA_ATTR, "platformunitInstance");
-		m.addAttribute("_metaDataMessages", MetaHelper.getMetadataMessages(request.getSession()));
-		
-		prepareSelectListData(m);
-
-		return "facility/platformunit/instance/list";
-	}
-	@Override
-	protected void prepareSelectListData(ModelMap m) {
-		super.prepareSelectListData(m);
-
-		/**** Begin Lane Count calculations  ****/
-		
-		Map<String, Integer> sampleSubtypeMetaMap = new HashMap<String, Integer>();
-		sampleSubtypeMetaMap.put("sampleSubtypeId", new Integer(request.getParameter("sampleSubtypeId")));
-
-		List <SampleSubtypeMeta> sampleSubtypeMetaList = new ArrayList <SampleSubtypeMeta> (this.sampleSubtypeMetaDao.findByMap(sampleSubtypeMetaMap));
-		
-		Integer maxCellNum = null;
-		Integer multFactor = null;
-		
-		
-		List <LaneOptions> laneOptionsMap = new ArrayList <LaneOptions> ();
-		
-		for (SampleSubtypeMeta sampleSubtypeMeta : sampleSubtypeMetaList) {
-			if (sampleSubtypeMeta.getK().matches(".*\\.maxCellNumber")) {
-				maxCellNum = new Integer(sampleSubtypeMeta.getV());
-			}
-			else if (sampleSubtypeMeta.getK().matches(".*\\.multiplicationFactor")) {
-				multFactor = new Integer(sampleSubtypeMeta.getV());
-			}
-		}
-		if (multFactor == null || multFactor.intValue() <= 1) {
-			laneOptionsMap.add(new LaneOptions(maxCellNum, maxCellNum.toString()));
-		}
-		else {
-			laneOptionsMap.add(new LaneOptions(maxCellNum, maxCellNum.toString()));
-			Integer cellNum = maxCellNum;
-			while (cellNum >= multFactor){
-				cellNum = new Integer(cellNum/multFactor.intValue());
-				laneOptionsMap.add(new LaneOptions(cellNum, cellNum.toString()));
-			}
-		}
-		m.addAttribute("lanes", laneOptionsMap);
-		
-		/**** End Lane Count calculations  ****/
-
-	}
-
-	
-	/* SELECT FOR Subtypes List based on what type of machine was selected by user
-	 * example: select * from samplesubtyperesourcecategory stsrc, samplesubtype sts 
-	 * where stsrc.resourcecategoryid = 4 and stsrc.samplesubtypeid = sts.samplesubtypeid;
-	 * 
-	 */
-	
-	
-	/**
-	 * Displays a list of SampleSubtypes (e.g. illuminaFlowcellV3) based on the machine_type/resourcecategory (e.g. Illumina HiSeq 2000) 
-	 * selected by the user.
-	 * 
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	@RequestMapping(value="/listJSON.do", method=RequestMethod.GET)
-	public @ResponseBody
-	String getListJson() {
-
-		String sord = request.getParameter("sord");
-		String sidx = request.getParameter("sidx");
-
-		Map<String, Object> jqgrid = new HashMap<String, Object>();
-		
-		List<SampleSubtype> sampleSubtypeList = new ArrayList<SampleSubtype> ();
-
-		// First, search for sampletypeid which its iname is "platform unit"
-		Map<String, String> sampleTypeQueryMap = new HashMap<String, String>();
-		sampleTypeQueryMap.put("iName", "platformunit");
-		List<SampleType> sampleTypeList = sampleTypeDao.findByMap(sampleTypeQueryMap);
-		if (sampleTypeList.size() == 0)
-			return "'Platform Unit' sample type is not defined!";
-		
-		// Then, use the sampletypeid to pull all platformunits from the sample
-		// table
-		Map<String, Object> sampleSubtypeListBaseQueryMap = new HashMap<String, Object>();
-		sampleSubtypeListBaseQueryMap.put("sampleTypeId", sampleTypeList.get(0).getSampleTypeId());
-		
-		Map<String, Object> searchParamMap = new HashMap<String, Object>();
-
-		List<String> orderConstraints = new ArrayList<String>();
-		orderConstraints.add("name");
-
-		if (request.getParameter("_search") == null 
-				|| request.getParameter("_search").equals("false") 
-				|| StringUtils.isEmpty(request.getParameter("searchString"))) {
-
-			sampleSubtypeList = sidx.isEmpty() ? sampleSubtypeDao.findByMap(sampleSubtypeListBaseQueryMap) : this.sampleSubtypeDao.findByMapDistinctOrderBy(sampleSubtypeListBaseQueryMap, null, orderConstraints, sord);
-
-
-		} else {
-
-			searchParamMap.put(request.getParameter("searchField"), request.getParameter("searchString"));
-
-			sampleSubtypeList = this.sampleSubtypeDao.findByMap(searchParamMap);
-
-			if ("ne".equals(request.getParameter("searchOper"))) {
-				Map allSampleSubtypeListBaseQueryMap = new HashMap();
-				allSampleSubtypeListBaseQueryMap.put("sampleTypeId", 5);
-				
-				List<SampleSubtype> allSampleSubtypeList = new ArrayList<SampleSubtype>(sidx.isEmpty() ?  this.sampleSubtypeDao.findByMap(allSampleSubtypeListBaseQueryMap) : this.sampleSubtypeDao.findByMapDistinctOrderBy(allSampleSubtypeListBaseQueryMap, null, orderConstraints, sord));
-
-				for (SampleSubtype excludeSampleSubtype : allSampleSubtypeList) {
-					allSampleSubtypeList.remove(excludeSampleSubtype);
-				}
-				sampleSubtypeList = allSampleSubtypeList;
-			}
-		}
-
-	try {
-		
-		Map<String, Integer> resourceCategoryMap = new HashMap<String, Integer>();
-		
-		//resourceCategoryMap.put("resourcecategoryId", (Integer) request.getSession().getAttribute("resourceCategoryId"));
-		resourceCategoryMap.put("resourcecategoryId", new Integer(request.getParameter("resourceCategoryId")));
-
-		List<SampleSubtype> sampleSubtypeFilteredList = new ArrayList<SampleSubtype> ();
-
-		for (SampleSubtypeResourceCategory sampleSubtypeResCat : this.sampleSubtypeResourceCategoryDao.findByMap(resourceCategoryMap)) {
-			for(SampleSubtype sampleSubtype : sampleSubtypeList) {
-				if (sampleSubtype.getSampleSubtypeId().intValue() == sampleSubtypeResCat.getSampleSubtypeId().intValue()) 
-					sampleSubtypeFilteredList.add(sampleSubtype);
-				
-			}
-		
-		}
-		sampleSubtypeList = sampleSubtypeFilteredList;
-		
-		ObjectMapper mapper = new ObjectMapper();
-
-		int pageIndex = Integer.parseInt(request.getParameter("page")); // index of page
-		int pageRowNum = Integer.parseInt(request.getParameter("rows")); // number of rows in one page
-		int rowNum = sampleSubtypeList.size(); // total number of rows
-		int pageNum = (rowNum + pageRowNum - 1) / pageRowNum; // total number of pages
-
-		jqgrid.put("records", rowNum + "");
-		jqgrid.put("total", pageNum + "");
-		jqgrid.put("page", pageIndex + "");
-
-		Map<String, String> sampleData = new HashMap<String, String>();
-
-		sampleData.put("page", pageIndex + "");
-		sampleData.put("selId", StringUtils.isEmpty(request.getParameter("selId")) ? "" : request.getParameter("selId"));
-		jqgrid.put("sampledata", sampleData);
-
-		List<Map> rows = new ArrayList<Map>();
-
-		int frId = pageRowNum * (pageIndex - 1);
-		int toId = pageRowNum * pageIndex;
-		toId = toId <= rowNum ? toId : rowNum;
-
-		/*
-		 * if the selId is set, change the page index to the one contains
-		 * the selId
-		 */
-		if (!StringUtils.isEmpty(request.getParameter("selId"))) {
-			int selId = Integer.parseInt(request.getParameter("selId"));
-			int selIndex = sampleSubtypeList.indexOf(this.sampleSubtypeDao.findById(selId));
-			frId = selIndex;
-			toId = frId + 1;
-
-			jqgrid.put("records", "1");
-			jqgrid.put("total", "1");
-			jqgrid.put("page", "1");
-		}
-
-		List<SampleSubtype> sampleSubtypePage = sampleSubtypeList.subList(frId, toId);
-		for (SampleSubtype sampleSubtype : sampleSubtypePage) {
-			Map cell = new HashMap();
-			cell.put("id", sampleSubtype.getSampleSubtypeId());
-			cell.put("sampleSubtypeId", sampleSubtype.getSampleSubtypeId());
-
-
-			List<SampleSubtypeMeta> sampleSubtypeMetaList = getMetaHelperWebapp().syncWithMaster(sampleSubtype.getSampleSubtypeMeta());
-			
-			List<String> cellList = new ArrayList<String>(
-					Arrays.asList(
-							new String[] { 
-									"<a href=/wasp/facility/platformunit/instance/list.do?sampleSubtypeId="+sampleSubtype.getSampleSubtypeId()+"&sampleTypeId="+sampleSubtype.getSampleTypeId()+">" + 
-											sampleSubtype.getName() + "</a>" }));
-
-			for (SampleSubtypeMeta meta : sampleSubtypeMetaList) {
-				cellList.add(meta.getV());
-			}
-
-			cell.put("cell", cellList);
-
-			rows.add(cell);
-		}
-
-		jqgrid.put("rows", rows);
-
-		String json = mapper.writeValueAsString(jqgrid);
-		return json;
-
-	} catch (Exception e) {
-			throw new IllegalStateException("Can't marshall to JSON " + sampleSubtypeList, e);
-		}
-	}
-	
-	/**
-	 * Displays Platform Unit list filtered by sampleSubtypeId
-	 * 
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	@RequestMapping(value="/instance/listJSON.do", method=RequestMethod.GET)
-	public @ResponseBody
-	String getPlatformInstanceListJson() {
-
-		String sord = request.getParameter("sord");
-		String sidx = request.getParameter("sidx");
-
-		Map<String, Object> jqgrid = new HashMap<String, Object>();
-
-		List<Sample> sampleList;
-
-		Map<String, Integer> sampleListBaseQueryMap = new HashMap<String, Integer>();
-		Map<String, String> searchParamMap = new HashMap<String, String>();
-
-		sampleListBaseQueryMap.put("sampleSubtypeId", new Integer(request.getParameter("sampleSubtypeId")));
-		sampleListBaseQueryMap.put("sampleTypeId", new Integer(request.getParameter("sampleTypeId")));
-
-		
-		List<String> orderConstraints = new ArrayList<String>();
-		orderConstraints.add("name");
-
-		if (request.getParameter("_search") == null || StringUtils.isEmpty(request.getParameter("searchString"))) {
-			sampleList = sidx.isEmpty() ? this.sampleDao.findByMap(sampleListBaseQueryMap) : this.sampleDao.findByMapDistinctOrderBy(sampleListBaseQueryMap, null, orderConstraints, sord);
-		} else {
-
-			searchParamMap.put(request.getParameter("searchField"), request.getParameter("searchString"));
-
-			sampleList = this.sampleDao.findByMap(searchParamMap);
-
-			if ("ne".equals(request.getParameter("searchOper"))) {
-				List<Sample> allSamples = new ArrayList<Sample>(sidx.isEmpty() ?  this.sampleDao.findByMap(sampleListBaseQueryMap) : this.sampleDao.findByMapDistinctOrderBy(sampleListBaseQueryMap, null, orderConstraints, sord));
-
-				for (Iterator<Sample> it = sampleList.iterator(); it.hasNext();) {
-					Sample excludeSample = it.next();
-					allSamples.remove(excludeSample);
-				
-				}
-				sampleList = allSamples;
-			}
-		}
-
-	try {
-		ObjectMapper mapper = new ObjectMapper();
-		
-		Map<Integer, Integer> allSampleBarcode = new TreeMap<Integer, Integer>();
-		for (SampleBarcode sampleBarcode : this.sampleBarcodeDao.findAll()) {
-			if (sampleBarcode != null) {
-				
-				allSampleBarcode.put(sampleBarcode.getSampleId(), sampleBarcode.getBarcodeId());
-			}
-		}
-		
-		Map<Integer, String> allBarcode = new TreeMap<Integer, String>();
-		for (Barcode barcode : this.barcodeDao.findAll()) {
-			if (barcode != null) {
-				
-				allBarcode.put(barcode.getBarcodeId(), barcode.getBarcode());
-			}
-		}
-
-		int pageIndex = Integer.parseInt(request.getParameter("page")); // index of page
-		int pageRowNum = Integer.parseInt(request.getParameter("rows")); // number of rows in one page
-		int rowNum = sampleList.size(); // total number of rows
-		int pageNum = (rowNum + pageRowNum - 1) / pageRowNum; // total number of pages
-
-		jqgrid.put("records", rowNum + "");
-		jqgrid.put("total", pageNum + "");
-		jqgrid.put("page", pageIndex + "");
-
-		Map<String, String> sampleData = new HashMap<String, String>();
-
-		sampleData.put("page", pageIndex + "");
-		sampleData.put("selId", StringUtils.isEmpty(request.getParameter("selId")) ? "" : request.getParameter("selId"));
-		jqgrid.put("sampledata", sampleData);
-		
-		/***** Begin Sort by name *****/
-		class PlatformUnitNameComparator implements Comparator<Sample> {
-			@Override
-			public int compare(Sample arg0, Sample arg1) {
-				return arg0.getName().compareToIgnoreCase(arg1.getName());
-			}
-		}
-		if (sidx.equals("name")) {
-			Collections.sort(sampleList, new PlatformUnitNameComparator());
-			if (sord.equals("desc"))
-				Collections.reverse(sampleList);
-		}
-		/***** End Sort by name *****/
-
-		List<Map> rows = new ArrayList<Map>();
-
-		int frId = pageRowNum * (pageIndex - 1);
-		int toId = pageRowNum * pageIndex;
-		toId = toId <= rowNum ? toId : rowNum;
-
-		/*
-		 * if the selId is set, change the page index to the one contains
-		 * the selId
-		 */
-		if (!StringUtils.isEmpty(request.getParameter("selId"))) {
-			int selId = Integer.parseInt(request.getParameter("selId"));
-			int selIndex = sampleList.indexOf(sampleDao.findById(selId));
-			frId = selIndex;
-			toId = frId + 1;
-
-			jqgrid.put("records", "1");
-			jqgrid.put("total", "1");
-			jqgrid.put("page", "1");
-		}
-
-		List<Sample> samplePage = sampleList.subList(frId, toId);
-		for (Sample sample : samplePage) {
-			Map cell = new HashMap();
-			cell.put("id", sample.getSampleId());
-
-			List<SampleMeta> sampleMetaList = getMetaHelperWebapp().syncWithMaster(sample.getSampleMeta());
-			
-			List<String> cellList = new ArrayList<String>(
-					Arrays.asList(
-							new String[] { 
-										sample.getName() + " (<a href=/wasp/facility/platformunit/showPlatformUnit/"+sample.getSampleId()+".do>details</a>)",
-										allSampleBarcode.get(sample.getSampleId())==null? "" : allBarcode.get(allSampleBarcode.get(sample.getSampleId())),
-										sample.getSampleSubtype()==null?"": sample.getSampleSubtype().getName(), 
-										sample.getUser().getFirstName()+" "+sample.getUser().getLastName(),
-										this.sampleMetaDao.getSampleMetaByKSampleId("platformunitInstance.lanecount", sample.getSampleId()).getV(),
-										this.sampleMetaDao.getSampleMetaByKSampleId("platformunitInstance.comment", sample.getSampleId()).getV()}));
-
-			for (SampleMeta meta : sampleMetaList) {
-				cellList.add(meta.getV());
-			}
-
-			cell.put("cell", cellList);
-
-			rows.add(cell);
-		}
-
-		jqgrid.put("rows", rows);
-
-		String json = mapper.writeValueAsString(jqgrid);
-		return json;
-
-	} catch (Exception e) {
-			throw new IllegalStateException("Can't marshall to JSON " + sampleList, e);
-		}
-	}
-
-	@RequestMapping(value="/instance/updateJSON", method=RequestMethod.POST)
-	public String updateJson(
-			@RequestParam("id") Integer sampleId,
-			@Valid Sample sampleForm, 
-			ModelMap m, 
-			HttpServletResponse response) {
-
-		List<SampleMeta> sampleMetaList = getMetaHelperWebapp().getFromJsonForm(request, SampleMeta.class);
-		sampleForm.setSampleMeta(sampleMetaList);
-		//sampleForm.setSampleId(sampleId); //do not set id here.  It will throw the "detached entity exception" when calling persist() on this object.
-		if (sampleId == null || sampleId == 0) {
-			//check if barcode already exists in Db; if 'true', do not allow to proceed.
-			if(this.barcodeDao.getBarcodeByBarcode(request.getParameter("barcode")).getBarcode() != null && 
-					this.barcodeDao.getBarcodeByBarcode(request.getParameter("barcode")).getBarcode().length() != 0) {
-				try{
-					response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-					response.getWriter().println(messageService.getMessage("platformunitInstance.barcode_exists.error"));
-					return null;
-				} catch (Throwable e) {
-					throw new IllegalStateException("Cant output validation error "+messageService.getMessage("platformunitInstance.barcode_exists.error"),e);
-				}
-				
-			}
-			
-			//check if Sample Name already exists in db; if 'true', do not allow to proceed.
-			if(this.sampleDao.getSampleByName(request.getParameter("name")).getName() != null) {
-				
-				try{
-					response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-					response.getWriter().println(messageService.getMessage("platformunitInstance.name_exists.error"));
-					return null;
-				} catch (Throwable e) {
-					throw new IllegalStateException("Cant output validation error "+messageService.getMessage("platformunitInstance.name_exists.error"),e);
-				}
-				
-			}
-			if(request.getParameter("platformunitInstance.lanecount") == null || request.getParameter("platformunitInstance.lanecount").equals("")) {
-				
-				try{
-					response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-					response.getWriter().println(messageService.getMessage("platformunitInstance.lanecount_empty.error"));
-					return null;
-				} catch (Throwable e) {
-					throw new IllegalStateException("Cant output validation error "+messageService.getMessage("platformunitInstance.lanecount_empty.error"),e);
-				}
-			}
-		}
-		sampleForm.setSampleSubtypeId(new Integer(request.getParameter("sampleSubtypeId")));
-		preparePlatformUnit(sampleForm, sampleId);
-		Integer laneCount = new Integer(request.getParameter("platformunitInstance.lanecount")==null || request.getParameter("platformunitInstance.lanecount").equals("")?request.getParameter("lanecountForEditBox"):request.getParameter("platformunitInstance.lanecount"));
-		updatePlatformUnitInstance(sampleForm, laneCount, sampleId, request.getParameter("platformunitInstance.comment"));
-
-		try {
-			response.getWriter().println(messageService.getMessage("platformunitInstance.updated_success.label"));
-			return null;
-		} catch (Throwable e) {
-			throw new IllegalStateException("Cannot output success message ", e);
-		}
-
-	}
-
-	@RequestMapping(value="/view/{sampleId}.do", method=RequestMethod.GET)
-	@PreAuthorize("hasRole('su') or hasRole('ft')")
-	public String viewPlatformUnit(
-			 @PathVariable("sampleId") Integer sampleId,
-			 ModelMap m) {
-		Sample sample = sampleDao.getSampleBySampleId(sampleId);
-
-		sample.setSampleMeta(getMetaHelperWebapp().syncWithMaster(sample.getSampleMeta()));
-
-		m.put("sample", sample);
-
-		return "facility/platformunit/detail_ro";
-	}
-
-	@RequestMapping(value="/modify/{sampleId}.do", method=RequestMethod.GET)
-	@PreAuthorize("hasRole('su') or hasRole('ft')")
-	public String updatePlatformUnitForm(
-			 @PathVariable("sampleId") Integer sampleId,
-			 ModelMap m) {
-		Sample sample = sampleDao.getSampleBySampleId(sampleId);
-
-		sample.setSampleMeta(getMetaHelperWebapp().syncWithMaster(sample.getSampleMeta()));
-
-		m.put("sample", sample);
-
-		return "facility/platformunit/detail_rw";
-	}
-
-	@RequestMapping(value="/modify/{sampleId}.do", method=RequestMethod.POST)
-	@PreAuthorize("hasRole('su') or hasRole('ft')")
-	public String modifyPlatformUnit(
-		@PathVariable("sampleId") Integer sampleId,
-		@Valid Sample sampleForm,
-		BindingResult result,
-		SessionStatus status,
-		ModelMap m) {
-
-		preparePlatformUnit(sampleForm, sampleId);
-
-		return validateAndUpdatePlatformUnit(sampleForm, result, status, m);
-	}
-
-
-	/**
-	 * 
-	 * @param sampleForm
-	 * @return
-	 */
-	public Sample preparePlatformUnit(Sample sampleForm, Integer sampleId) {
-		if (sampleId == null || sampleId.intValue() == 0) {
-			User me = authenticationService.getAuthenticatedUser();
-			sampleForm.setSubmitterUserId(me.getUserId());
-
-			SampleType sampleType = sampleTypeDao.getSampleTypeByIName("platformunit");
-			sampleForm.setSampleTypeId(sampleType.getSampleTypeId());
-			sampleForm.setSubmitterLabId(1);
-	
-			sampleForm.setReceiverUserId(sampleForm.getSubmitterUserId());
-			sampleForm.setReceiveDts(new Date());
-			sampleForm.setIsReceived(1);
-			sampleForm.setIsActive(1);
-			sampleForm.setIsGood(1);
-			
-		} else {
-			Sample sampleDb =	sampleDao.getSampleBySampleId(sampleId);
-			
-			//SampleBarcode resourceBarcodeDB = this.sampleBarcodeDao.getSampleBarcodeBySampleId(sampleForm.getSampleId());
-
-
-			// TODO do compares that i am the same sample as sampleform, and not new
-	
-			// fetches the updates
-			// sampleDb.setName(sampleForm.getName());
-	
-	
-			sampleForm.setSubmitterUserId(sampleDb.getSubmitterUserId());
-			sampleForm.setSubmitterLabId(sampleDb.getSubmitterLabId());
-			sampleForm.setSampleTypeId(sampleDb.getSampleTypeId());
-	
-			sampleForm.setReceiverUserId(sampleDb.getReceiverUserId());
-			sampleForm.setReceiveDts(sampleDb.getReceiveDts());
-			sampleForm.setIsReceived(sampleDb.getIsReceived());
-			sampleForm.setIsActive(sampleDb.getIsActive());
-			sampleForm.setIsGood(1);
-			sampleForm.setSampleId(sampleId);
-		}
-		return sampleForm;
-	}
-	
-
-	/**
-	 * Creates cells based on number of lanes selected by the user 
-	 * 
-	 * @param sampleForm
-	 * @param laneNumber
-	 * @return
-	 */
-	public String createUpdateCell(Sample sampleForm, Integer laneNumber, Integer sampleId) {
-		
-		Integer sampleTypeId = sampleTypeDao.getSampleTypeByIName("cell").getSampleTypeId();
-        Sample sampleDb = null;
-
-		if (sampleId == null || sampleId.intValue() == 0) {
-
-			for (int i = 0; i < laneNumber.intValue(); i++) {
-				 Sample cell = new Sample();
-				 cell.setSubmitterLabId(sampleForm.getSubmitterLabId());
-				 cell.setSubmitterUserId(sampleForm.getSubmitterUserId());
-				 cell.setName(sampleForm.getName()+"/"+(i+1));
-				 cell.setSampleTypeId(sampleTypeId);
-				 cell.setIsGood(1);
-				 cell.setIsActive(1);
-				 cell.setIsReceived(1);
-				 cell.setReceiverUserId(sampleForm.getSubmitterUserId());
-				 cell.setReceiveDts(new Date());
-				 sampleDb = this.sampleDao.save(cell);
-				 
-				 SampleSource sampleSource = new SampleSource();
-				 sampleSource.setSampleId(sampleForm.getSampleId());
-				 sampleSource.setSourceSampleId(sampleDb.getSampleId());
-				 sampleSource.setIndex(i+1);
-				 this.sampleSourceDao.save(sampleSource);
-	 			 
-			 }
-		}
-		else {
-			
-			Map<String, Integer> sampleSourceMap = new HashMap<String, Integer>();
-			Map<String, Integer> sampleMap = new HashMap<String, Integer>();
-
-			sampleSourceMap.put("sampleId", sampleForm.getSampleId());
-			List <SampleSource> sampleSourceList= this.sampleSourceDao.findByMap(sampleSourceMap);
-			/** If the user changed the sample name, update all corresponding cells names **/
-			for (Iterator<SampleSource> it = sampleSourceList.iterator(); it.hasNext();) {
-				SampleSource tr = it.next();
-				Sample cell = this.sampleDao.findById(tr.getSourceSampleId());
-				String cellName = cell.getName();
-				String subString = cellName.substring(cellName.lastIndexOf("/"), cellName.length());
-				cell.setName(sampleForm.getName().concat(subString));
-				this.sampleDao.merge(cell);
-								
-			}
-			
-		}
-		return "redirect:/facility/platformunit/ok";
-	}
-
-	public String validateAndUpdatePlatformUnit(
-		Sample sampleForm,
-		BindingResult result,
-		SessionStatus status,
-		ModelMap m) {
-		MetaHelperWebapp metaHelper = getMetaHelperWebapp();
-		List<SampleMeta> sampleMetaList = metaHelper.getFromRequest(request, SampleMeta.class);
-
-		metaHelper.validate(result);
-
-		if (result.hasErrors()) {
-			// TODO REAL ERROR
-			waspErrorMessage("hello.error");
-
-			sampleForm.setSampleMeta(sampleMetaList);
-			m.put("sample", sampleForm);
-
-			return "facility/platformunit/detail_rw";
-		}
-
-		sampleForm.setSampleMeta(sampleMetaList);
-
-		String returnString = updatePlatformUnit(sampleForm);
-
-
-		return returnString;
-	}
-
-
-	// TODO move to service?
-	public String updatePlatformUnit( Sample sampleForm) {
-	
-		Sample sampleDb;
-		if (sampleForm.getSampleId() == null || sampleForm.getSampleId().intValue() == 0) {
-			sampleDb = sampleDao.save(sampleForm);
-		} else {
-			sampleDb = sampleDao.merge(sampleForm);
-		}
-
-		sampleMetaDao.updateBySampleId(sampleDb.getSampleId(), sampleForm.getSampleMeta());
-
-		return "redirect:/facility/platformunit/ok";
-	}
-	
-	/**
-	 * 
-	 * @param sampleForm
-	 * @param sampleBarcode
-	 * @param laneCount
-	 * @return
-	 */
-	public String updatePlatformUnitInstance( Sample sampleForm, Integer laneCount, Integer sampleId, String comment) {
-	
-		Sample sampleDb;
-		if (sampleId == null || sampleId.intValue() == 0) {
-			
-			sampleDb = sampleDao.save(sampleForm);
-			
-			SampleBarcode sampleBarcode = new SampleBarcode();
-			Barcode barcode = new Barcode();
-			
-			barcode.setBarcode(request.getParameter("barcode")==null? "" : request.getParameter("barcode"));
-			barcode.setIsActive(new Integer(1));
-
-			sampleBarcode.setBarcode(barcode);
-			
-			Barcode barcodeDB = this.barcodeDao.save(barcode);//save new barcode
-			sampleBarcode.setBarcodeId(barcodeDB.getBarcodeId()); // set new barcodeId in samplebarcode
-
-			sampleBarcode.setSampleId(sampleDb.getSampleId());
-			this.sampleBarcodeDao.save(sampleBarcode);
-		
-		} else {
-			sampleDb = sampleDao.merge(sampleForm);
-			
-			SampleBarcode sampleBarcodeDb = this.sampleBarcodeDao.getSampleBarcodeBySampleId(sampleId);
-
-			if (sampleBarcodeDb == null || sampleBarcodeDb.getBarcode() == null) {
-				SampleBarcode sampleBarcode = new SampleBarcode();
-				Barcode barcode = new Barcode();
-				
-				barcode.setBarcode(request.getParameter("barcode")==null? "" : request.getParameter("barcode"));
-				barcode.setIsActive(1);
-				sampleBarcode.setBarcode(barcode);
-				
-				Barcode barcodeDb = this.barcodeDao.save(barcode);
-				sampleBarcode.setBarcodeId(barcodeDb.getBarcodeId());
-			
-				sampleBarcode.setSampleId(sampleForm.getSampleId());
-				this.sampleBarcodeDao.save(sampleBarcode);
-				
-			}
-			else { 
-				sampleBarcodeDb.getBarcode().setBarcode(request.getParameter("barcode")==null? "" : request.getParameter("barcode"));
-				this.sampleBarcodeDao.merge(sampleBarcodeDb);
-			}
-
-		}
-		
-		List<SampleMeta> mySampleMeta = sampleDb.getSampleMeta();
-		MetaHelperWebapp sampleMetaHelper = getMetaHelperWebappPlatformUnitInstance();
-		sampleMetaHelper.syncWithMaster(mySampleMeta);
-		try {
-			sampleMetaHelper.setMetaValueByName("lanecount", laneCount.toString());
-			sampleMetaHelper.setMetaValueByName("comment", comment);
-		} catch (MetadataException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} // set a value for a member of the list by name
-		sampleMetaDao.updateBySampleId(sampleDb.getSampleId(), (List<SampleMeta>) sampleMetaHelper.getMetaList()); // now we get the list and persist it
-
-		createUpdateCell(sampleDb, laneCount, sampleId);
-		createState(sampleId, sampleDb);
-		
-		return "redirect:/facility/platformunit/ok";
-	}
-	
-	/**
-	 * Inserts a record in State table and Sets state name to  "Platform Unit" and state status to "CREATED" 
-	 * Also inserts a new record in Samplestate table
-	 * 
-	 * @param sampleDb
-	 */
-	public void createState(Integer sampleId, Sample sampleDb) {
-		
-		Map<String, String> taskQueryMap = new HashMap<String, String>();
-		taskQueryMap.put("iName", "assignLibraryToPlatformUnit");
-		List <Task> task = new ArrayList <Task> (this.taskDao.findByMap(taskQueryMap));
-
-		if (sampleId == null || sampleId.intValue() == 0) {
-
-			State state = new State();
-			state.setTaskId(task.get(0).getTaskId());
-			state.setName(task.get(0).getName());
-			state.setStatus("CREATED");
-			state.setLastUpdTs(new Date());
-			State stateDb = this.stateDao.save(state);
-			
-			Statesample stateSample = new Statesample();
-			stateSample.setSampleId(sampleDb.getSampleId());
-			stateSample.setStateId(stateDb.getStateId());
-			this.stateSampleDao.save(stateSample);
-		}
-
-	}
-
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	private List<ResourceCategory> getResourceCategoriesForMPS(){
-		
-		List<ResourceCategory> resourceCategories = null;
-		
-		ResourceType resourceType = resourceTypeDao.getResourceTypeByIName("mps");
-		if(resourceType == null || resourceType.getResourceTypeId()==null || resourceType.getResourceTypeId().intValue()==0){
-			return resourceCategories;//empty list
-		}
-		
-		Map<String, Integer> filterForResourceCategory = new HashMap<String, Integer>();
-		filterForResourceCategory.put("resourceTypeId", resourceType.getResourceTypeId());
-		resourceCategories = resourceCategoryDao.findByMap(filterForResourceCategory);
-		return resourceCategories;
-	}
-	
-	private List<SampleSubtype> getSampleSubtypesForThisResourceCategory(ResourceCategory resourceCategory){
-		
-		List<SampleSubtype> sampleSubtypes = new ArrayList<SampleSubtype>();
-		
-		for(SampleSubtypeResourceCategory ssrc : resourceCategory.getSampleSubtypeResourceCategory()){
-			sampleSubtypes.add(ssrc.getSampleSubtype());
-		}
-		return sampleSubtypes;
-	}
-	
-	private boolean resourceCategoryAndSampleSubtypeAreIncompatible(Integer resourceCategoryId, Integer sampleSubtypeId){
-		
-		boolean incompatible = false;
-		
-		SampleSubtypeResourceCategory ssrc = sampleSubtypeResourceCategoryDao.getSampleSubtypeResourceCategoryBySampleSubtypeIdResourceCategoryId(sampleSubtypeId, resourceCategoryId);
-		if(ssrc == null || ssrc.getSampleSubtypeResourceCategoryId()==null || ssrc.getSampleSubtypeResourceCategoryId().intValue()==0){
-			incompatible = true;
-		}
-		return incompatible;
-	}
-	
-	private void prepareSelectListDataByResourceCategory(ModelMap m, ResourceCategory resourceCategory) {
-		
-		List<SelectOptionsMeta> readTypeList = new ArrayList<SelectOptionsMeta>();
-		List<SelectOptionsMeta> readlengthList = new ArrayList<SelectOptionsMeta>();
-		List<ResourceCategoryMeta> rcMetaList = resourceCategory.getResourceCategoryMeta();
-		for(ResourceCategoryMeta rcm : rcMetaList){
-			
-			//System.out.println(rcm.getK() + " : " + rcm.getV());			
-			if( rcm.getK().indexOf("readType") > -1 ){
-				String[] tokens = rcm.getV().split(";");//rcm.getV() will be single:single;paired:paired
-				for(String token : tokens){//token could be single:single
-					String[] colonTokens = token.split(":");
-					readTypeList.add(new SelectOptionsMeta(colonTokens[0], colonTokens[1]));
-				}
-			}
-			if( rcm.getK().indexOf("readlength") > -1 ){
-				String[] tokens = rcm.getV().split(";");//rcm.getV() will be 50:50;100:100
-				for(String token : tokens){//token could be 50:50
-					String[] colonTokens = token.split(":");
-					readlengthList.add(new SelectOptionsMeta(colonTokens[0], colonTokens[1]));
-				}
-			}				
-		}
-		m.put("readTypes", readTypeList);//contains list like single:single as one entry and paired:paired as a second entry
-		m.put("readlengths", readlengthList);
-	}
-
-	private void prepareDistinctSelectListDataForResourceCategoriesForThisSampleSubtype(ModelMap m, SampleSubtype sampleSubtype) {
-		
-		List<SelectOptionsMeta> readTypeList = new ArrayList<SelectOptionsMeta>();
-		List<SelectOptionsMeta> readlengthList = new ArrayList<SelectOptionsMeta>();
-		Set<SelectOptionsMeta> readTypeSet = new LinkedHashSet<SelectOptionsMeta>();
-		Set<SelectOptionsMeta> readlengthSet = new LinkedHashSet<SelectOptionsMeta>();
-		
-		List<SampleSubtypeResourceCategory> sampleSubtypeResourceCategoryList = sampleSubtype.getSampleSubtypeResourceCategory();
-		for(SampleSubtypeResourceCategory ssrc : sampleSubtypeResourceCategoryList){			
-		
-			List<ResourceCategoryMeta> rcMetaList = ssrc.getResourceCategory().getResourceCategoryMeta();
-			for(ResourceCategoryMeta rcm : rcMetaList){
-			
-				if( rcm.getK().indexOf("readType") > -1 ){
-					String[] tokens = rcm.getV().split(";");//rcm.getV() will be single:single;paired:paired
-					for(String token : tokens){//token could be single:single
-						String[] colonTokens = token.split(":");
-						readTypeSet.add(new SelectOptionsMeta(colonTokens[0], colonTokens[1]));//for distinct
-					}
-				}
-				if( rcm.getK().indexOf("readlength") > -1 ){
-					String[] tokens = rcm.getV().split(";");//rcm.getV() will be 50:50;100:100
-					for(String token : tokens){//token could be 50:50
-						String[] colonTokens = token.split(":");
-						readlengthSet.add(new SelectOptionsMeta(colonTokens[0], colonTokens[1]));//for distinct
-					}
-				}				
-			}
-			
-		}//for(SampleSubtypeResourceCategory ...){
-		readTypeList.addAll(readTypeSet);
-		readlengthList.addAll(readlengthSet);
-		m.put("readTypes", readTypeList);//contains list like single:single as one entry and paired:paired as a second entry
-		m.put("readlengths", readlengthList);//contains list of entries such as 50:50
-
-	}
-	
+	//helper method for createUpdatePlatformUnit
 	private List<SelectOptionsMeta> getDistinctResourceCategoryMetaListForSampleSubtype(SampleSubtype sampleSubtype, String meta) {
 		
 		List<SelectOptionsMeta> list = new ArrayList<SelectOptionsMeta>();
@@ -1572,37 +592,7 @@ public class PlatformUnitController extends WaspController {
 		return list;
 	}
 	
-	
-	private void prepareSelectListDataBySampleSubtype(ModelMap m, SampleSubtype sampleSubtype) {
-		Integer maxCellNumber = null;
-		Integer multiplicationFactor = null;
-		List <SelectOptionsMeta> numberOfLanesAvailableList = new ArrayList<SelectOptionsMeta>();				
-		
-		List<SampleSubtypeMeta> ssMetaList = sampleSubtype.getSampleSubtypeMeta();
-		for(SampleSubtypeMeta ssm : ssMetaList){
-			if( ssm.getK().indexOf("maxCellNumber") > -1 ){
-				maxCellNumber = new Integer(ssm.getV());  
-			}
-			if( ssm.getK().indexOf("multiplicationFactor") > -1 ){
-				multiplicationFactor = new Integer(ssm.getV());  
-			}				 
-		}
-		if (multiplicationFactor == null || multiplicationFactor.intValue() <= 1) {
-			numberOfLanesAvailableList.add(new SelectOptionsMeta(maxCellNumber.toString(), maxCellNumber.toString()));	
-		}
-		else {
-			Integer cellNum = new Integer(maxCellNumber.intValue());
-			while (cellNum.intValue() >= multiplicationFactor.intValue()){
-				cellNum = new Integer(cellNum.intValue()/multiplicationFactor.intValue());
-				numberOfLanesAvailableList.add(new SelectOptionsMeta(cellNum.toString(), cellNum.toString()));						
-			}
-		}
-		m.put("lanes", numberOfLanesAvailableList);
-	}
-	
-	/**
-	 * createUpdatePlatformUnit
-	 */
+	//createUpdatePlatformunit - GET
 	@RequestMapping(value="/createUpdatePlatformUnit.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public String createUpdatePlatformUnit(@RequestParam("sampleSubtypeId") Integer sampleSubtypeId, 
@@ -1687,6 +677,7 @@ public class PlatformUnitController extends WaspController {
 		return "facility/platformunit/createUpdatePlatformUnit";
 	}
 	
+	//createUpdatePlatformunit - Post
 	@RequestMapping(value="/createUpdatePlatformUnit.do", method=RequestMethod.POST)
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public String createUpdatePlatformUnitPost(
@@ -1699,290 +690,124 @@ public class PlatformUnitController extends WaspController {
 			 SessionStatus status, 		
 			ModelMap m) throws MetadataException {
 	
-try{		
-		String action = null;
-		Sample platformUnitInDatabase = null;
-		SampleSubtype sampleSubtype = null;
-		
-		sampleSubtype = sampleService.getSampleSubtypeById(sampleSubtypeId);
-		if(sampleSubtype.getSampleSubtypeId()==null){
-			throw new Exception("SampleSubtype with ID of " + sampleSubtypeId.toString() + " unexpectedly not found in database");								
-		}
-		if(!sampleService.sampleSubtypeIsSpecificSampleType(sampleSubtype, "platformunit")){
-			throw new Exception("SampleSubtype with ID of " + sampleSubtypeId.toString() + " is unexpectedly not SampleType of platformunit");								
-		}
-		
-		if(sampleId.intValue()==0 && (platformunitInstance.getSampleId()==null || platformunitInstance.getSampleId().intValue()==0)){//new platform unit
-			action = new String("create");
-		}
-		else if(sampleId.intValue()>0 && platformunitInstance.getSampleId().intValue()>0 && sampleId.intValue()==platformunitInstance.getSampleId().intValue()){//update existing platform unit
-			platformUnitInDatabase = sampleService.getSampleById(sampleId);
-			if(platformUnitInDatabase.getSampleId()==null){
-				throw new Exception("Sample with ID of " + sampleId.toString() + " unexpectedly not found in database");								
+		try{		
+			String action = null;
+			Sample platformUnitInDatabase = null;
+			SampleSubtype sampleSubtype = null;
+			
+			sampleSubtype = sampleService.getSampleSubtypeById(sampleSubtypeId);
+			if(sampleSubtype.getSampleSubtypeId()==null){
+				throw new Exception("SampleSubtype with ID of " + sampleSubtypeId.toString() + " unexpectedly not found in database");								
 			}
-			if(!sampleService.sampleIsPlatformUnit(platformUnitInDatabase)){
-				throw new Exception("Sample with ID of " + platformUnitInDatabase.getSampleId().toString() + " unexpectedly not of proper SampleType or SampleSubtype to be a 'platformunit'");								
+			if(!sampleService.sampleSubtypeIsSpecificSampleType(sampleSubtype, "platformunit")){
+				throw new Exception("SampleSubtype with ID of " + sampleSubtypeId.toString() + " is unexpectedly not SampleType of platformunit");								
 			}
-			action = new String("update");	
-		}
-		else{//action==null
-			throw new Exception("PlatformUnitController.java/createUpdatePlatformUnit.do POST: Unexpected paramater problems");
-		}
-
-		MetaHelperWebapp metaHelperWebapp = getMetaHelperWebappPlatformUnitInstance();
-		metaHelperWebapp.getFromRequest(request, SampleMeta.class);
-		metaHelperWebapp.validate(result);
-		
-		boolean otherErrorsExist = false;
-
-		/* PLEASE PLEASE KEEP CODE FOR LATER: it was removed as per Andy, platformunit name will be assigned with barcode; it's not on the form anymore
-		//check whether name has been used; note that @Valid has already checked for name being the empty 
-		if (! result.hasFieldErrors("name")){
-			if(sampleService.platformUnitNameUsedByAnother(platformunitInstance, platformunitInstance.getName())==true){
-				Errors errors=new BindException(result.getTarget(), metaHelperWebapp.getParentArea());
-				errors.rejectValue("name", metaHelperWebapp.getArea()+".name_exists.error", metaHelperWebapp.getArea()+".name_exists.error");
-				result.addAllErrors(errors);
+			
+			if(sampleId.intValue()==0 && (platformunitInstance.getSampleId()==null || platformunitInstance.getSampleId().intValue()==0)){//new platform unit
+				action = new String("create");
 			}
-		}
-		 */
-		
-		//check for barcode. Since barcode is outside of Sample, @Valid is unable to to perform this check		
-		if(barcode==null || "".equals(barcode)){
-			String msg = messageService.getMessage(metaHelperWebapp.getArea()+".barcode.error");
-			m.put("barcodeError", msg==null?new String("Barcode cannot be empty."):msg);//"Barcode cannot be empty"
-			otherErrorsExist = true;
-		}
-		else if(sampleService.barcodeNameExists(barcode)){
-			if(platformUnitInDatabase==null /* this is new record, name used, so prevent */ || ( platformUnitInDatabase!=null && !barcode.equalsIgnoreCase(platformUnitInDatabase.getSampleBarcode().get(0).getBarcode().getBarcode()) /* existing record so update is requested, but barcode name used is not my barcode name, so prevent */  ) ){
-				String msg = messageService.getMessage(metaHelperWebapp.getArea()+".barcode_exists.error");
-				m.put("barcodeError", msg==null?new String("Barcode already exists in database."):msg);//"Barcode already exists in database."
+			else if(sampleId.intValue()>0 && platformunitInstance.getSampleId().intValue()>0 && sampleId.intValue()==platformunitInstance.getSampleId().intValue()){//update existing platform unit
+				platformUnitInDatabase = sampleService.getSampleById(sampleId);
+				if(platformUnitInDatabase.getSampleId()==null){
+					throw new Exception("Sample with ID of " + sampleId.toString() + " unexpectedly not found in database");								
+				}
+				if(!sampleService.sampleIsPlatformUnit(platformUnitInDatabase)){
+					throw new Exception("Sample with ID of " + platformUnitInDatabase.getSampleId().toString() + " unexpectedly not of proper SampleType or SampleSubtype to be a 'platformunit'");								
+				}
+				action = new String("update");	
+			}
+			else{//action==null
+				throw new Exception("PlatformUnitController.java/createUpdatePlatformUnit.do POST: Unexpected paramater problems");
+			}
+	
+			MetaHelperWebapp metaHelperWebapp = getMetaHelperWebappPlatformUnitInstance();
+			metaHelperWebapp.getFromRequest(request, SampleMeta.class);
+			metaHelperWebapp.validate(result);
+			
+			boolean otherErrorsExist = false;
+	
+			/* PLEASE PLEASE KEEP CODE FOR LATER: it was removed as per Andy, platformunit name will be assigned with barcode; it's not on the form anymore
+			//check whether name has been used; note that @Valid has already checked for name being the empty 
+			if (! result.hasFieldErrors("name")){
+				if(sampleService.platformUnitNameUsedByAnother(platformunitInstance, platformunitInstance.getName())==true){
+					Errors errors=new BindException(result.getTarget(), metaHelperWebapp.getParentArea());
+					errors.rejectValue("name", metaHelperWebapp.getArea()+".name_exists.error", metaHelperWebapp.getArea()+".name_exists.error");
+					result.addAllErrors(errors);
+				}
+			}
+			 */
+			
+			//check for barcode. Since barcode is outside of Sample, @Valid is unable to to perform this check		
+			if(barcode==null || "".equals(barcode)){
+				String msg = messageService.getMessage(metaHelperWebapp.getArea()+".barcode.error");
+				m.put("barcodeError", msg==null?new String("Barcode cannot be empty."):msg);//"Barcode cannot be empty"
 				otherErrorsExist = true;
 			}
-		}
-
-		Integer numberOfLanesInDatabase = null;
-		
-		if(numberOfLanesRequested == null || numberOfLanesRequested.intValue()<=0){//error on form
-			String msg = messageService.getMessage(metaHelperWebapp.getArea()+".numberOfLanesRequested.error");
-			m.put("numberOfLanesRequestedError", msg==null?new String("Lane Count cannot be empty."):msg);//"Lane count cannot be empty"
-			otherErrorsExist = true;
-		}	
-		else if(action.equals("update")){	//if update, CHECK FOR CHANGE IN NUMBER OF LANES and begin to deal with any potential loss of libraries such a lane change would require
-			numberOfLanesInDatabase = sampleService.getNumberOfIndexedCellsOnPlatformUnit(platformUnitInDatabase);
-			if(numberOfLanesInDatabase==null || numberOfLanesInDatabase.intValue()<=0){//should never be 0 lanes on a platformunit
-				throw new Exception("lanecount in database is not valid for platformunit with Id " + platformUnitInDatabase.getSampleId().intValue());
-			}
-			if(numberOfLanesRequested.intValue() > numberOfLanesInDatabase.intValue()){//request to add lanes, so not a problem
-				;
-			}
-			else if(numberOfLanesRequested.intValue() < numberOfLanesInDatabase.intValue()){//request to remove lanes; a potential problem if libraries are on the lanes to be removed
-				// perform next test
-				if(sampleService.requestedReductionInCellNumberIsProhibited(platformUnitInDatabase, numberOfLanesRequested)){//value of true means libraries are assigned to those lanes being asked to be removed. Prohibit this action and inform user to first remove those libraries from the lanes being requested to be removed
-					String msg = messageService.getMessage(metaHelperWebapp.getArea()+".numberOfLanesRequested_conflict.error");
-					m.put("numberOfLanesRequestedError", msg==null?new String("Action not permitted at this time. To reduce the number of lanes, remove libraries on the lanes that will be lost."):msg);//"Lane count cannot be empty"
+			else if(sampleService.barcodeNameExists(barcode)){
+				if(platformUnitInDatabase==null /* this is new record, name used, so prevent */ || ( platformUnitInDatabase!=null && !barcode.equalsIgnoreCase(platformUnitInDatabase.getSampleBarcode().get(0).getBarcode().getBarcode()) /* existing record so update is requested, but barcode name used is not my barcode name, so prevent */  ) ){
+					String msg = messageService.getMessage(metaHelperWebapp.getArea()+".barcode_exists.error");
+					m.put("barcodeError", msg==null?new String("Barcode already exists in database."):msg);//"Barcode already exists in database."
 					otherErrorsExist = true;
 				}
 			}
-		}	
 	
-		if (result.hasErrors() || otherErrorsExist == true){
-			m.put("sampleSubtypeId", sampleSubtypeId);
-			m.put("sampleId", sampleId);
-			m.put("barcode", barcode);
-			m.put("numberOfCellsOnThisPlatformUnit", numberOfLanesRequested);
-			platformunitInstance.setSampleMeta((List<SampleMeta>) metaHelperWebapp.getMetaList());
-
-			m.put("sampleSubtypes", sampleService.getSampleSubtypesBySampleTypeIName("platformunit"));//throws exception if SampleTypeIName not valid, otherwise return empty (size=0) or full list
-			m.addAttribute("readlengths", getDistinctResourceCategoryMetaListForSampleSubtype(sampleSubtype, "readlength"));
-			m.addAttribute("readTypes", getDistinctResourceCategoryMetaListForSampleSubtype(sampleSubtype, "readType"));
-			m.addAttribute("numberOfCellsList", sampleService.getNumberOfCellsListForThisTypeOfPlatformUnit(sampleSubtype));//throws exception if problems
-
-			return "facility/platformunit/createUpdatePlatformUnit";			
-		}
-	
-		
-		if(action.equals("create")){
-			System.out.println("in create1");
-			sampleService.createUpdatePlatformUnit(platformunitInstance, sampleSubtype, barcode, numberOfLanesRequested, (List<SampleMeta>)metaHelperWebapp.getMetaList());
-		}
-		else if(action.equals("update")){
-			System.out.println("in update1");
-			sampleService.createUpdatePlatformUnit(platformUnitInDatabase, sampleSubtype, barcode, numberOfLanesRequested, (List<SampleMeta>)metaHelperWebapp.getMetaList());
-		}
-		else{//action == null
-			System.out.println("in Unexpectedly1");
-			throw new Exception("Unexpectedly encountered action whose value is neither create or update");
-		}
-		System.out.println("end of the POST method");		
-		
-	}catch(Exception e){logger.debug(e.getMessage());waspErrorMessage("wasp.unexpected_error.error");return "redirect:/dashboard.do";}
-
-				return "redirect:/facility/platformunit/list.do"; 
-
-		
-/*
-		if(action.equals("create")){//generate and save new platformunit
+			Integer numberOfLanesInDatabase = null;
 			
-			
-			Sample platformUnit = new Sample();
-			//sampleService.createUpdatePlatformUnit(Sample platformUnit, String barcodeName, Integer numberOfLanesRequested, MetaHelperWebapp metaHelperWebapp, );
-			//sampleService.createUpdatePlatformUnit(null, barcode, numberOfLanesRequested, (List<SampleMeta>)metaHelperWebapp.getMetaList());
-
-			platformUnit.setName(barcode);//altered as per Andy 2-28-12
-
-			User me = authenticationService.getAuthenticatedUser();
-			platformUnit.setSubmitterUserId(me.getUserId());
-
-			SampleType sampleType = sampleTypeDao.getSampleTypeByIName("platformunit");
-			platformUnit.setSampleTypeId(sampleType.getSampleTypeId());		
-			platformUnit.setSampleSubtypeId(sampleSubtypeId);
-
-			platformUnit.setSubmitterLabId(1);//Ed
-			platformUnit.setReceiverUserId(platformUnit.getSubmitterUserId());//Ed
-			platformUnit.setReceiveDts(new Date());//Ed
-			platformUnit.setIsReceived(1);//Ed
-			platformUnit.setIsActive(1);//Ed
-			platformUnit.setIsGood(1);//Ed
-
-			Sample platformUnitDb = sampleDao.save(platformUnit);
-			//save the metadata
-			sampleMetaDao.updateBySampleId(platformUnitDb.getSampleId(), (List<SampleMeta>)metaHelperWebapp.getMetaList()); // now we get the list and persist it
-
-			//save the barcode
-			Barcode barcodeObject = new Barcode();		
-			barcodeObject.setBarcode(barcode);
-			barcodeObject.setBarcodefor("WASP");
-			barcodeObject.setIsActive(new Integer(1));
-			Barcode barcodeDB = this.barcodeDao.save(barcodeObject);//save new barcode in db
-
-			SampleBarcode sampleBarcode = new SampleBarcode();	
-			sampleBarcode.setBarcodeId(barcodeDB.getBarcodeId()); // set new barcodeId in samplebarcode
-			sampleBarcode.setSampleId(platformUnitDb.getSampleId());
-			this.sampleBarcodeDao.save(sampleBarcode);
-
-			//create the lanes
-			Integer sampleTypeId = sampleTypeDao.getSampleTypeByIName("cell").getSampleTypeId();
-			for (int i = 1; i <= numberOfLanesRequested.intValue(); i++) {
-
-				Sample cell = new Sample();
-				cell.setSubmitterLabId(platformUnitDb.getSubmitterLabId());
-				cell.setSubmitterUserId(platformUnitDb.getSubmitterUserId());
-				cell.setName(platformUnitDb.getName()+"/"+(i));
-				cell.setSampleTypeId(sampleTypeId);
-				cell.setIsGood(1);
-				cell.setIsActive(1);
-				cell.setIsReceived(1);
-				cell.setReceiverUserId(platformUnitDb.getSubmitterUserId());
-				cell.setReceiveDts(new Date());
-				Sample cellDb = this.sampleDao.save(cell);
-
-				SampleSource sampleSource = new SampleSource();
-				sampleSource.setSampleId(platformUnitDb.getSampleId());
-				sampleSource.setSourceSampleId(cellDb.getSampleId());
-				sampleSource.setIndex(i);
-				this.sampleSourceDao.save(sampleSource);			 
-			}
-		}
-		else if(action.equals("update")){//update and save existing platformunit
-System.out.println("In A: update");		
-			platformUnitInDatabase.setName(barcode);//altered as per Andy 2-28-12
-			
-			User me = authenticationService.getAuthenticatedUser();
-			platformUnitInDatabase.setSubmitterUserId(me.getUserId());//should we do this?
-
-			//no need to reset sample type as it's still a platformunit, but the samplesubtype (type of flow cell) might change
-			platformUnitInDatabase.setSampleSubtypeId(sampleSubtypeId);
-
-			platformUnitInDatabase = sampleDao.save(platformUnitInDatabase);
-			//save the metadata
-			sampleMetaDao.updateBySampleId(platformUnitInDatabase.getSampleId(), (List<SampleMeta>)metaHelperWebapp.getMetaList()); // now we get the list and persist it
-
-			//update the barcode
-			List<SampleBarcode> sampleBarcodeList = platformUnitInDatabase.getSampleBarcode();
-			if(sampleBarcodeList != null && sampleBarcodeList.size() > 0){
-				SampleBarcode sampleBarcode = sampleBarcodeList.get(0);
-				Barcode existingBarcode = sampleBarcode.getBarcode();
-				existingBarcode.setBarcode(barcode);
-				this.barcodeDao.save(existingBarcode);
-			}
-			else{//should never happen
-				Barcode barcodeObject = new Barcode();		
-				barcodeObject.setBarcode(barcode);
-				barcodeObject.setBarcodefor("WASP");
-				barcodeObject.setIsActive(new Integer(1));
-				Barcode barcodeDB = this.barcodeDao.save(barcodeObject);//save new barcode in db
-
-				SampleBarcode sampleBarcode = new SampleBarcode();	
-				sampleBarcode.setBarcodeId(barcodeDB.getBarcodeId()); // set new barcodeId in samplebarcode
-				sampleBarcode.setSampleId(platformUnitInDatabase.getSampleId());
-				this.sampleBarcodeDao.save(sampleBarcode);
-			}
-			
-			//deal with the lanes
-			Integer sampleTypeId = sampleTypeDao.getSampleTypeByIName("cell").getSampleTypeId();
-System.out.println("In B most of update done. Now deal with lane changes");
-System.out.println("numberOfLanesRequested: " + numberOfLanesRequested.intValue());
-System.out.println("numberOfLanesInDatabase: " + numberOfLanesInDatabase.intValue());
-			if(numberOfLanesRequested.intValue() > numberOfLanesInDatabase.intValue()){//add lanes 
-System.out.println("In C: add lanes");	
-				for(int i = numberOfLanesInDatabase + 1; i <= numberOfLanesRequested; i++){
-System.out.println("In D: add lanes with i = " + i);				
-					Sample cell = new Sample();
-					cell.setSubmitterLabId(platformUnitInDatabase.getSubmitterLabId());
-					cell.setSubmitterUserId(platformUnitInDatabase.getSubmitterUserId());
-					cell.setName(platformUnitInDatabase.getName()+"/"+(i));
-					cell.setSampleTypeId(sampleTypeId);
-					cell.setIsGood(1);
-					cell.setIsActive(1);
-					cell.setIsReceived(1);
-					cell.setReceiverUserId(platformUnitInDatabase.getSubmitterUserId());
-					cell.setReceiveDts(new Date());
-					Sample cellDb = this.sampleDao.save(cell);
-
-					SampleSource sampleSource = new SampleSource();
-					sampleSource.setSampleId(platformUnitInDatabase.getSampleId());
-					sampleSource.setSourceSampleId(cellDb.getSampleId());
-					sampleSource.setIndex(i);
-					this.sampleSourceDao.save(sampleSource);
+			if(numberOfLanesRequested == null || numberOfLanesRequested.intValue()<=0){//error on form
+				String msg = messageService.getMessage(metaHelperWebapp.getArea()+".numberOfLanesRequested.error");
+				m.put("numberOfLanesRequestedError", msg==null?new String("Lane Count cannot be empty."):msg);//"Lane count cannot be empty"
+				otherErrorsExist = true;
+			}	
+			else if(action.equals("update")){	//if update, CHECK FOR CHANGE IN NUMBER OF LANES and begin to deal with any potential loss of libraries such a lane change would require
+				numberOfLanesInDatabase = sampleService.getNumberOfIndexedCellsOnPlatformUnit(platformUnitInDatabase);
+				if(numberOfLanesInDatabase==null || numberOfLanesInDatabase.intValue()<=0){//should never be 0 lanes on a platformunit
+					throw new Exception("lanecount in database is not valid for platformunit with Id " + platformUnitInDatabase.getSampleId().intValue());
 				}
-			}
-			else if(numberOfLanesRequested.intValue() < numberOfLanesInDatabase.intValue()){//remove lanes   
-System.out.println("In E: remove lanes");				
-				
-System.out.println("In F: remove lanes, passed the fail safe test");				
-				//get the list 
-				//Map<Integer, Sample> indexedCellMap = sampleService.getIndexedCellsOnPlatformUnit(platformUnitInDatabase);
-				for (SampleSource ss : platformUnitInDatabase.getSampleSource()){
-					Sample cell = ss.getSourceSample();
-					if (!cell.getSampleType().getIName().equals("cell")){
-						throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
-					}
-					Integer index = ss.getIndex();
-					if(index.intValue() >= numberOfLanesRequested.intValue() + 1 && index.intValue() <= numberOfLanesInDatabase.intValue()){
-						//check for libraries here - again - as fail safe mechanism
-						List<Sample> libraryList = null;
-						libraryList = sampleService.getLibrariesOnCell(cell);//throws exception
-						if(libraryList!=null && libraryList.size()>0){//found at least one library
-System.out.println("between F and G: unexpectdly found cell " + cell.getSampleId().intValue() + "has " + libraryList.size() + " libraries on it");
-							throw new SampleTypeException("Cell " + cell.getSampleId().intValue() + "unexpectedly has " + libraryList.size() + " libraries on it");
-						}
-						sampleSourceDao.remove(ss);
-						sampleDao.remove(cell);
-						System.out.println("No libraries found on lane i = " + index.intValue());
-						System.out.println("In G: attempting to remove lane i = " + index.intValue());
-						System.out.println("In H: attempting to remove sampleSource with ID: " + ss.getSampleSourceId().intValue());
-						System.out.println("In J: attempting to remove cell with ID: " + cell.getSampleId().intValue());
+				if(numberOfLanesRequested.intValue() > numberOfLanesInDatabase.intValue()){//request to add lanes, so not a problem
+					;
+				}
+				else if(numberOfLanesRequested.intValue() < numberOfLanesInDatabase.intValue()){//request to remove lanes; a potential problem if libraries are on the lanes to be removed
+					// perform next test
+					if(sampleService.requestedReductionInCellNumberIsProhibited(platformUnitInDatabase, numberOfLanesRequested)){//value of true means libraries are assigned to those lanes being asked to be removed. Prohibit this action and inform user to first remove those libraries from the lanes being requested to be removed
+						String msg = messageService.getMessage(metaHelperWebapp.getArea()+".numberOfLanesRequested_conflict.error");
+						m.put("numberOfLanesRequestedError", msg==null?new String("Action not permitted at this time. To reduce the number of lanes, remove libraries on the lanes that will be lost."):msg);//"Lane count cannot be empty"
+						otherErrorsExist = true;
 					}
 				}
+			}	
+		
+			if (result.hasErrors() || otherErrorsExist == true){
+				m.put("sampleSubtypeId", sampleSubtypeId);
+				m.put("sampleId", sampleId);
+				m.put("barcode", barcode);
+				m.put("numberOfCellsOnThisPlatformUnit", numberOfLanesRequested);
+				platformunitInstance.setSampleMeta((List<SampleMeta>) metaHelperWebapp.getMetaList());
+	
+				m.put("sampleSubtypes", sampleService.getSampleSubtypesBySampleTypeIName("platformunit"));//throws exception if SampleTypeIName not valid, otherwise return empty (size=0) or full list
+				m.addAttribute("readlengths", getDistinctResourceCategoryMetaListForSampleSubtype(sampleSubtype, "readlength"));
+				m.addAttribute("readTypes", getDistinctResourceCategoryMetaListForSampleSubtype(sampleSubtype, "readType"));
+				m.addAttribute("numberOfCellsList", sampleService.getNumberOfCellsListForThisTypeOfPlatformUnit(sampleSubtype));//throws exception if problems
+	
+				return "facility/platformunit/createUpdatePlatformUnit";			
 			}
-			else if(numberOfLanesRequested.intValue() == numberOfLanesInDatabase.intValue()){
-				System.out.println("NO CHANGE IN LANE NUMBER REQUESTED");
+			
+			if(action.equals("create")){
+				System.out.println("in create1");
+				sampleService.createUpdatePlatformUnit(platformunitInstance, sampleSubtype, barcode, numberOfLanesRequested, (List<SampleMeta>)metaHelperWebapp.getMetaList());
 			}
-		}
-		else{
-			throw new Exception("Unexpectedly encountered action whose value is neither create or update");
-		}
-		*/
+			else if(action.equals("update")){
+				System.out.println("in update1");
+				sampleService.createUpdatePlatformUnit(platformUnitInDatabase, sampleSubtype, barcode, numberOfLanesRequested, (List<SampleMeta>)metaHelperWebapp.getMetaList());
+			}
+			else{//action == null
+				System.out.println("in Unexpectedly1");
+				throw new Exception("Unexpectedly encountered action whose value is neither create or update");
+			}
+			System.out.println("end of the POST method");		
+			
+		}catch(Exception e){logger.debug(e.getMessage());waspErrorMessage("wasp.unexpected_error.error");return "redirect:/dashboard.do";}
+	
+		return "redirect:/facility/platformunit/list.do"; 
 	}
 	
 
@@ -2089,25 +914,7 @@ System.out.println("between F and G: unexpectdly found cell " + cell.getSampleId
 		return "facility/platformunit/limitPriorToAssign"; 
 	}
 	
-	/**
-	 * limitPriorToPlatformUnitAssignment
-	 */
-	@RequestMapping(value="/limitPriorToPlatUnitAssign.do", method=RequestMethod.GET)
-	@PreAuthorize("hasRole('su') or hasRole('ft')")
-	public String limitPriorToPlatUnitAssignForm(ModelMap m) {
-		
-		ResourceType resourceType = resourceTypeDao.getResourceTypeByIName("mps");
-		//if(resourceType.getResourceTypeId()==0){
-			//waspErrorMessage("platformunit.resourceCategoryNotFound.error");
-			//return "redirect:/dashboard.do";
-		//}
-		Map filterForResourceCategory = new HashMap();
-		filterForResourceCategory.put("resourceTypeId", resourceType.getResourceTypeId());
-		List<ResourceCategory> resourceCategories = resourceCategoryDao.findByMap(filterForResourceCategory);
-		
-		m.put("resourceCategories", resourceCategories);
-		return "facility/platformunit/limitPriorToPlatUnitAssign"; 
-	}
+
 	
 	
 	
@@ -3032,6 +1839,1014 @@ System.out.println("between F and G: unexpectdly found cell " + cell.getSampleId
 		//return "redirect:/dashboard.do";
 		return "redirect:/facility/platformunit/showPlatformUnit/" + platformUnitId.intValue() + ".do";
 	}
+	
+	
+//****************************************************************************
+///no longer used I think
+	@RequestMapping(value="/selid/list", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('su') or hasRole('ft')")
+	public String showSelectedSampleListShell(ModelMap m) {
+		m.addAttribute("_metaList", getMetaHelperWebapp().getMasterList(SampleMeta.class));
+		m.addAttribute(JQFieldTag.AREA_ATTR, "platformunitById");
+		m.addAttribute("_metaDataMessages", MetaHelper.getMetadataMessages(request.getSession()));
+
+		return "facility/platformunit/selid/list";
+	}
+	
+	/**
+	 * View platform unit by selId parameter
+	 * 
+	 * @param response
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value="/selid/listJSON", method=RequestMethod.GET)
+	public @ResponseBody
+	String getPlatformUnitBySelIdListJson(HttpServletResponse response) {
+		
+		Map<String, Object> jqgrid = new HashMap<String, Object>();
+
+		List<Sample> sampleList;
+
+		// First, search for sampletypeid which its iname is "platform unit"
+		Map<String, String> sampleTypeQueryMap = new HashMap<String, String>();
+		sampleTypeQueryMap.put("iName", "platformunit");
+		List<SampleType> sampleTypeList = sampleTypeDao.findByMap(sampleTypeQueryMap);
+		if (sampleTypeList.size() == 0)
+			return "'Platform Unit' sample type is not defined!";
+		// Then, use the sampletypeid to pull all platformunits from the sample
+		// table
+		Map<String, Object> sampleListBaseQueryMap = new HashMap<String, Object>();
+		sampleListBaseQueryMap.put("sampleTypeId", sampleTypeList.get(0).getSampleTypeId());
+
+		if (request.getParameter("_search") == null 
+				|| request.getParameter("_search").equals("false") 
+				|| StringUtils.isEmpty(request.getParameter("searchString"))) {
+			sampleList = sampleDao.findByMap(sampleListBaseQueryMap);
+
+		} else {
+
+			sampleListBaseQueryMap.put(request.getParameter("searchField"), request.getParameter("searchString"));
+
+			sampleList = this.sampleDao.findByMap(sampleListBaseQueryMap);
+
+			if ("ne".equals(request.getParameter("searchOper"))) {
+				Map allSampleListBaseQueryMap = new HashMap();
+				allSampleListBaseQueryMap.put("sampleTypeId", 5);
+
+				List<Sample> allSampleList = sampleDao.findByMap(allSampleListBaseQueryMap);
+				for (Sample excludeSample : allSampleList) {
+					allSampleList.remove(excludeSample);
+				}
+				sampleList = allSampleList;
+			}
+		}
+
+	try {
+		ObjectMapper mapper = new ObjectMapper();
+		
+		int pageIndex = Integer.parseInt(request.getParameter("page")); // index of page
+		int pageRowNum = Integer.parseInt(request.getParameter("rows")); // number of rows in one page
+		int rowNum = sampleList.size(); // total number of rows
+		int pageNum = (rowNum + pageRowNum - 1) / pageRowNum; // total number of pages
+
+		jqgrid.put("records", rowNum + "");
+		jqgrid.put("total", pageNum + "");
+		jqgrid.put("page", pageIndex + "");
+
+		Map<String, String> sampleData = new HashMap<String, String>();
+
+		sampleData.put("page", pageIndex + "");
+		sampleData.put("selId", StringUtils.isEmpty(request.getParameter("selId")) ? "" : request.getParameter("selId"));
+		jqgrid.put("sampledata", sampleData);
+
+		List<Map> rows = new ArrayList<Map>();
+
+		int frId = pageRowNum * (pageIndex - 1);
+		int toId = pageRowNum * pageIndex;
+		toId = toId <= rowNum ? toId : rowNum;
+
+		/*
+		 * if the selId is set, change the page index to the one contains
+		 * the selId
+		 */
+		if (!StringUtils.isEmpty(request.getParameter("selId"))) {
+			int selId = Integer.parseInt(request.getParameter("selId"));
+			int selIndex = sampleList.indexOf(this.sampleDao.findById(selId));
+			frId = selIndex;
+			toId = frId + 1;
+
+			jqgrid.put("records", "1");
+			jqgrid.put("total", "1");
+			jqgrid.put("page", "1");
+		}
+
+		List<Sample> samplePage = sampleList.subList(frId, toId);
+		for (Sample sample : samplePage) {
+			Map cell = new HashMap();
+			cell.put("id", sample.getSampleId());
+
+			List<SampleMeta> sampleMetaList = getMetaHelperWebapp().syncWithMaster(sample.getSampleMeta());
+			List<String> cellList = new ArrayList<String>(Arrays.asList(new String[] { sample.getName(), sample.getUser().getFirstName() }));
+
+			for (SampleMeta meta : sampleMetaList) {
+				cellList.add(meta.getV());
+			}
+
+			cell.put("cell", cellList);
+
+			rows.add(cell);
+		}
+
+		jqgrid.put("rows", rows);
+
+		String json = mapper.writeValueAsString(jqgrid);
+		return json;
+
+	} catch (Exception e) {
+			throw new IllegalStateException("Can't marshall to JSON " + sampleList, e);
+		}
+	}
+
+	@RequestMapping(value="/instance/list.do", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('su') or hasRole('ft')")
+	public String showPlatformunitInstanceListShell(ModelMap m) {
+		m.addAttribute("_metaList", getMetaHelperWebappPlatformUnitInstance().getMasterList(SampleMeta.class));
+		m.addAttribute(JQFieldTag.AREA_ATTR, "platformunitInstance");
+		m.addAttribute("_metaDataMessages", MetaHelper.getMetadataMessages(request.getSession()));
+		
+		prepareSelectListData(m);
+
+		return "facility/platformunit/instance/list";
+	}
+	@Override
+	protected void prepareSelectListData(ModelMap m) {
+		super.prepareSelectListData(m);
+
+		/**** Begin Lane Count calculations  ****/
+		
+		Map<String, Integer> sampleSubtypeMetaMap = new HashMap<String, Integer>();
+		sampleSubtypeMetaMap.put("sampleSubtypeId", new Integer(request.getParameter("sampleSubtypeId")));
+
+		List <SampleSubtypeMeta> sampleSubtypeMetaList = new ArrayList <SampleSubtypeMeta> (this.sampleSubtypeMetaDao.findByMap(sampleSubtypeMetaMap));
+		
+		Integer maxCellNum = null;
+		Integer multFactor = null;
+		
+		
+		List <LaneOptions> laneOptionsMap = new ArrayList <LaneOptions> ();
+		
+		for (SampleSubtypeMeta sampleSubtypeMeta : sampleSubtypeMetaList) {
+			if (sampleSubtypeMeta.getK().matches(".*\\.maxCellNumber")) {
+				maxCellNum = new Integer(sampleSubtypeMeta.getV());
+			}
+			else if (sampleSubtypeMeta.getK().matches(".*\\.multiplicationFactor")) {
+				multFactor = new Integer(sampleSubtypeMeta.getV());
+			}
+		}
+		if (multFactor == null || multFactor.intValue() <= 1) {
+			laneOptionsMap.add(new LaneOptions(maxCellNum, maxCellNum.toString()));
+		}
+		else {
+			laneOptionsMap.add(new LaneOptions(maxCellNum, maxCellNum.toString()));
+			Integer cellNum = maxCellNum;
+			while (cellNum >= multFactor){
+				cellNum = new Integer(cellNum/multFactor.intValue());
+				laneOptionsMap.add(new LaneOptions(cellNum, cellNum.toString()));
+			}
+		}
+		m.addAttribute("lanes", laneOptionsMap);
+		
+		/**** End Lane Count calculations  ****/
+
+	}
+
+	
+	/* SELECT FOR Subtypes List based on what type of machine was selected by user
+	 * example: select * from samplesubtyperesourcecategory stsrc, samplesubtype sts 
+	 * where stsrc.resourcecategoryid = 4 and stsrc.samplesubtypeid = sts.samplesubtypeid;
+	 * 
+	 */
+	
+	
+	/**
+	 * Displays a list of SampleSubtypes (e.g. illuminaFlowcellV3) based on the machine_type/resourcecategory (e.g. Illumina HiSeq 2000) 
+	 * selected by the user.
+	 * 
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value="/listJSON.do", method=RequestMethod.GET)
+	public @ResponseBody
+	String getListJson() {
+
+		String sord = request.getParameter("sord");
+		String sidx = request.getParameter("sidx");
+
+		Map<String, Object> jqgrid = new HashMap<String, Object>();
+		
+		List<SampleSubtype> sampleSubtypeList = new ArrayList<SampleSubtype> ();
+
+		// First, search for sampletypeid which its iname is "platform unit"
+		Map<String, String> sampleTypeQueryMap = new HashMap<String, String>();
+		sampleTypeQueryMap.put("iName", "platformunit");
+		List<SampleType> sampleTypeList = sampleTypeDao.findByMap(sampleTypeQueryMap);
+		if (sampleTypeList.size() == 0)
+			return "'Platform Unit' sample type is not defined!";
+		
+		// Then, use the sampletypeid to pull all platformunits from the sample
+		// table
+		Map<String, Object> sampleSubtypeListBaseQueryMap = new HashMap<String, Object>();
+		sampleSubtypeListBaseQueryMap.put("sampleTypeId", sampleTypeList.get(0).getSampleTypeId());
+		
+		Map<String, Object> searchParamMap = new HashMap<String, Object>();
+
+		List<String> orderConstraints = new ArrayList<String>();
+		orderConstraints.add("name");
+
+		if (request.getParameter("_search") == null 
+				|| request.getParameter("_search").equals("false") 
+				|| StringUtils.isEmpty(request.getParameter("searchString"))) {
+
+			sampleSubtypeList = sidx.isEmpty() ? sampleSubtypeDao.findByMap(sampleSubtypeListBaseQueryMap) : this.sampleSubtypeDao.findByMapDistinctOrderBy(sampleSubtypeListBaseQueryMap, null, orderConstraints, sord);
+
+
+		} else {
+
+			searchParamMap.put(request.getParameter("searchField"), request.getParameter("searchString"));
+
+			sampleSubtypeList = this.sampleSubtypeDao.findByMap(searchParamMap);
+
+			if ("ne".equals(request.getParameter("searchOper"))) {
+				Map allSampleSubtypeListBaseQueryMap = new HashMap();
+				allSampleSubtypeListBaseQueryMap.put("sampleTypeId", 5);
+				
+				List<SampleSubtype> allSampleSubtypeList = new ArrayList<SampleSubtype>(sidx.isEmpty() ?  this.sampleSubtypeDao.findByMap(allSampleSubtypeListBaseQueryMap) : this.sampleSubtypeDao.findByMapDistinctOrderBy(allSampleSubtypeListBaseQueryMap, null, orderConstraints, sord));
+
+				for (SampleSubtype excludeSampleSubtype : allSampleSubtypeList) {
+					allSampleSubtypeList.remove(excludeSampleSubtype);
+				}
+				sampleSubtypeList = allSampleSubtypeList;
+			}
+		}
+
+	try {
+		
+		Map<String, Integer> resourceCategoryMap = new HashMap<String, Integer>();
+		
+		//resourceCategoryMap.put("resourcecategoryId", (Integer) request.getSession().getAttribute("resourceCategoryId"));
+		resourceCategoryMap.put("resourcecategoryId", new Integer(request.getParameter("resourceCategoryId")));
+
+		List<SampleSubtype> sampleSubtypeFilteredList = new ArrayList<SampleSubtype> ();
+
+		for (SampleSubtypeResourceCategory sampleSubtypeResCat : this.sampleSubtypeResourceCategoryDao.findByMap(resourceCategoryMap)) {
+			for(SampleSubtype sampleSubtype : sampleSubtypeList) {
+				if (sampleSubtype.getSampleSubtypeId().intValue() == sampleSubtypeResCat.getSampleSubtypeId().intValue()) 
+					sampleSubtypeFilteredList.add(sampleSubtype);
+				
+			}
+		
+		}
+		sampleSubtypeList = sampleSubtypeFilteredList;
+		
+		ObjectMapper mapper = new ObjectMapper();
+
+		int pageIndex = Integer.parseInt(request.getParameter("page")); // index of page
+		int pageRowNum = Integer.parseInt(request.getParameter("rows")); // number of rows in one page
+		int rowNum = sampleSubtypeList.size(); // total number of rows
+		int pageNum = (rowNum + pageRowNum - 1) / pageRowNum; // total number of pages
+
+		jqgrid.put("records", rowNum + "");
+		jqgrid.put("total", pageNum + "");
+		jqgrid.put("page", pageIndex + "");
+
+		Map<String, String> sampleData = new HashMap<String, String>();
+
+		sampleData.put("page", pageIndex + "");
+		sampleData.put("selId", StringUtils.isEmpty(request.getParameter("selId")) ? "" : request.getParameter("selId"));
+		jqgrid.put("sampledata", sampleData);
+
+		List<Map> rows = new ArrayList<Map>();
+
+		int frId = pageRowNum * (pageIndex - 1);
+		int toId = pageRowNum * pageIndex;
+		toId = toId <= rowNum ? toId : rowNum;
+
+		/*
+		 * if the selId is set, change the page index to the one contains
+		 * the selId
+		 */
+		if (!StringUtils.isEmpty(request.getParameter("selId"))) {
+			int selId = Integer.parseInt(request.getParameter("selId"));
+			int selIndex = sampleSubtypeList.indexOf(this.sampleSubtypeDao.findById(selId));
+			frId = selIndex;
+			toId = frId + 1;
+
+			jqgrid.put("records", "1");
+			jqgrid.put("total", "1");
+			jqgrid.put("page", "1");
+		}
+
+		List<SampleSubtype> sampleSubtypePage = sampleSubtypeList.subList(frId, toId);
+		for (SampleSubtype sampleSubtype : sampleSubtypePage) {
+			Map cell = new HashMap();
+			cell.put("id", sampleSubtype.getSampleSubtypeId());
+			cell.put("sampleSubtypeId", sampleSubtype.getSampleSubtypeId());
+
+
+			List<SampleSubtypeMeta> sampleSubtypeMetaList = getMetaHelperWebapp().syncWithMaster(sampleSubtype.getSampleSubtypeMeta());
+			
+			List<String> cellList = new ArrayList<String>(
+					Arrays.asList(
+							new String[] { 
+									"<a href=/wasp/facility/platformunit/instance/list.do?sampleSubtypeId="+sampleSubtype.getSampleSubtypeId()+"&sampleTypeId="+sampleSubtype.getSampleTypeId()+">" + 
+											sampleSubtype.getName() + "</a>" }));
+
+			for (SampleSubtypeMeta meta : sampleSubtypeMetaList) {
+				cellList.add(meta.getV());
+			}
+
+			cell.put("cell", cellList);
+
+			rows.add(cell);
+		}
+
+		jqgrid.put("rows", rows);
+
+		String json = mapper.writeValueAsString(jqgrid);
+		return json;
+
+	} catch (Exception e) {
+			throw new IllegalStateException("Can't marshall to JSON " + sampleSubtypeList, e);
+		}
+	}
+	
+	/**
+	 * Displays Platform Unit list filtered by sampleSubtypeId
+	 * 
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value="/instance/listJSON.do", method=RequestMethod.GET)
+	public @ResponseBody
+	String getPlatformInstanceListJson() {
+
+		String sord = request.getParameter("sord");
+		String sidx = request.getParameter("sidx");
+
+		Map<String, Object> jqgrid = new HashMap<String, Object>();
+
+		List<Sample> sampleList;
+
+		Map<String, Integer> sampleListBaseQueryMap = new HashMap<String, Integer>();
+		Map<String, String> searchParamMap = new HashMap<String, String>();
+
+		sampleListBaseQueryMap.put("sampleSubtypeId", new Integer(request.getParameter("sampleSubtypeId")));
+		sampleListBaseQueryMap.put("sampleTypeId", new Integer(request.getParameter("sampleTypeId")));
+
+		
+		List<String> orderConstraints = new ArrayList<String>();
+		orderConstraints.add("name");
+
+		if (request.getParameter("_search") == null || StringUtils.isEmpty(request.getParameter("searchString"))) {
+			sampleList = sidx.isEmpty() ? this.sampleDao.findByMap(sampleListBaseQueryMap) : this.sampleDao.findByMapDistinctOrderBy(sampleListBaseQueryMap, null, orderConstraints, sord);
+		} else {
+
+			searchParamMap.put(request.getParameter("searchField"), request.getParameter("searchString"));
+
+			sampleList = this.sampleDao.findByMap(searchParamMap);
+
+			if ("ne".equals(request.getParameter("searchOper"))) {
+				List<Sample> allSamples = new ArrayList<Sample>(sidx.isEmpty() ?  this.sampleDao.findByMap(sampleListBaseQueryMap) : this.sampleDao.findByMapDistinctOrderBy(sampleListBaseQueryMap, null, orderConstraints, sord));
+
+				for (Iterator<Sample> it = sampleList.iterator(); it.hasNext();) {
+					Sample excludeSample = it.next();
+					allSamples.remove(excludeSample);
+				
+				}
+				sampleList = allSamples;
+			}
+		}
+
+	try {
+		ObjectMapper mapper = new ObjectMapper();
+		
+		Map<Integer, Integer> allSampleBarcode = new TreeMap<Integer, Integer>();
+		for (SampleBarcode sampleBarcode : this.sampleBarcodeDao.findAll()) {
+			if (sampleBarcode != null) {
+				
+				allSampleBarcode.put(sampleBarcode.getSampleId(), sampleBarcode.getBarcodeId());
+			}
+		}
+		
+		Map<Integer, String> allBarcode = new TreeMap<Integer, String>();
+		for (Barcode barcode : this.barcodeDao.findAll()) {
+			if (barcode != null) {
+				
+				allBarcode.put(barcode.getBarcodeId(), barcode.getBarcode());
+			}
+		}
+
+		int pageIndex = Integer.parseInt(request.getParameter("page")); // index of page
+		int pageRowNum = Integer.parseInt(request.getParameter("rows")); // number of rows in one page
+		int rowNum = sampleList.size(); // total number of rows
+		int pageNum = (rowNum + pageRowNum - 1) / pageRowNum; // total number of pages
+
+		jqgrid.put("records", rowNum + "");
+		jqgrid.put("total", pageNum + "");
+		jqgrid.put("page", pageIndex + "");
+
+		Map<String, String> sampleData = new HashMap<String, String>();
+
+		sampleData.put("page", pageIndex + "");
+		sampleData.put("selId", StringUtils.isEmpty(request.getParameter("selId")) ? "" : request.getParameter("selId"));
+		jqgrid.put("sampledata", sampleData);
+		
+		/***** Begin Sort by name *****/
+		class PlatformUnitNameComparator implements Comparator<Sample> {
+			@Override
+			public int compare(Sample arg0, Sample arg1) {
+				return arg0.getName().compareToIgnoreCase(arg1.getName());
+			}
+		}
+		if (sidx.equals("name")) {
+			Collections.sort(sampleList, new PlatformUnitNameComparator());
+			if (sord.equals("desc"))
+				Collections.reverse(sampleList);
+		}
+		/***** End Sort by name *****/
+
+		List<Map> rows = new ArrayList<Map>();
+
+		int frId = pageRowNum * (pageIndex - 1);
+		int toId = pageRowNum * pageIndex;
+		toId = toId <= rowNum ? toId : rowNum;
+
+		/*
+		 * if the selId is set, change the page index to the one contains
+		 * the selId
+		 */
+		if (!StringUtils.isEmpty(request.getParameter("selId"))) {
+			int selId = Integer.parseInt(request.getParameter("selId"));
+			int selIndex = sampleList.indexOf(sampleDao.findById(selId));
+			frId = selIndex;
+			toId = frId + 1;
+
+			jqgrid.put("records", "1");
+			jqgrid.put("total", "1");
+			jqgrid.put("page", "1");
+		}
+
+		List<Sample> samplePage = sampleList.subList(frId, toId);
+		for (Sample sample : samplePage) {
+			Map cell = new HashMap();
+			cell.put("id", sample.getSampleId());
+
+			List<SampleMeta> sampleMetaList = getMetaHelperWebapp().syncWithMaster(sample.getSampleMeta());
+			
+			List<String> cellList = new ArrayList<String>(
+					Arrays.asList(
+							new String[] { 
+										sample.getName() + " (<a href=/wasp/facility/platformunit/showPlatformUnit/"+sample.getSampleId()+".do>details</a>)",
+										allSampleBarcode.get(sample.getSampleId())==null? "" : allBarcode.get(allSampleBarcode.get(sample.getSampleId())),
+										sample.getSampleSubtype()==null?"": sample.getSampleSubtype().getName(), 
+										sample.getUser().getFirstName()+" "+sample.getUser().getLastName(),
+										this.sampleMetaDao.getSampleMetaByKSampleId("platformunitInstance.lanecount", sample.getSampleId()).getV(),
+										this.sampleMetaDao.getSampleMetaByKSampleId("platformunitInstance.comment", sample.getSampleId()).getV()}));
+
+			for (SampleMeta meta : sampleMetaList) {
+				cellList.add(meta.getV());
+			}
+
+			cell.put("cell", cellList);
+
+			rows.add(cell);
+		}
+
+		jqgrid.put("rows", rows);
+
+		String json = mapper.writeValueAsString(jqgrid);
+		return json;
+
+	} catch (Exception e) {
+			throw new IllegalStateException("Can't marshall to JSON " + sampleList, e);
+		}
+	}
+
+	@RequestMapping(value="/instance/updateJSON", method=RequestMethod.POST)
+	public String updateJson(
+			@RequestParam("id") Integer sampleId,
+			@Valid Sample sampleForm, 
+			ModelMap m, 
+			HttpServletResponse response) {
+
+		List<SampleMeta> sampleMetaList = getMetaHelperWebapp().getFromJsonForm(request, SampleMeta.class);
+		sampleForm.setSampleMeta(sampleMetaList);
+		//sampleForm.setSampleId(sampleId); //do not set id here.  It will throw the "detached entity exception" when calling persist() on this object.
+		if (sampleId == null || sampleId == 0) {
+			//check if barcode already exists in Db; if 'true', do not allow to proceed.
+			if(this.barcodeDao.getBarcodeByBarcode(request.getParameter("barcode")).getBarcode() != null && 
+					this.barcodeDao.getBarcodeByBarcode(request.getParameter("barcode")).getBarcode().length() != 0) {
+				try{
+					response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+					response.getWriter().println(messageService.getMessage("platformunitInstance.barcode_exists.error"));
+					return null;
+				} catch (Throwable e) {
+					throw new IllegalStateException("Cant output validation error "+messageService.getMessage("platformunitInstance.barcode_exists.error"),e);
+				}
+				
+			}
+			
+			//check if Sample Name already exists in db; if 'true', do not allow to proceed.
+			if(this.sampleDao.getSampleByName(request.getParameter("name")).getName() != null) {
+				
+				try{
+					response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+					response.getWriter().println(messageService.getMessage("platformunitInstance.name_exists.error"));
+					return null;
+				} catch (Throwable e) {
+					throw new IllegalStateException("Cant output validation error "+messageService.getMessage("platformunitInstance.name_exists.error"),e);
+				}
+				
+			}
+			if(request.getParameter("platformunitInstance.lanecount") == null || request.getParameter("platformunitInstance.lanecount").equals("")) {
+				
+				try{
+					response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+					response.getWriter().println(messageService.getMessage("platformunitInstance.lanecount_empty.error"));
+					return null;
+				} catch (Throwable e) {
+					throw new IllegalStateException("Cant output validation error "+messageService.getMessage("platformunitInstance.lanecount_empty.error"),e);
+				}
+			}
+		}
+		sampleForm.setSampleSubtypeId(new Integer(request.getParameter("sampleSubtypeId")));
+		preparePlatformUnit(sampleForm, sampleId);
+		Integer laneCount = new Integer(request.getParameter("platformunitInstance.lanecount")==null || request.getParameter("platformunitInstance.lanecount").equals("")?request.getParameter("lanecountForEditBox"):request.getParameter("platformunitInstance.lanecount"));
+		updatePlatformUnitInstance(sampleForm, laneCount, sampleId, request.getParameter("platformunitInstance.comment"));
+
+		try {
+			response.getWriter().println(messageService.getMessage("platformunitInstance.updated_success.label"));
+			return null;
+		} catch (Throwable e) {
+			throw new IllegalStateException("Cannot output success message ", e);
+		}
+
+	}
+
+	@RequestMapping(value="/view/{sampleId}.do", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('su') or hasRole('ft')")
+	public String viewPlatformUnit(
+			 @PathVariable("sampleId") Integer sampleId,
+			 ModelMap m) {
+		Sample sample = sampleDao.getSampleBySampleId(sampleId);
+
+		sample.setSampleMeta(getMetaHelperWebapp().syncWithMaster(sample.getSampleMeta()));
+
+		m.put("sample", sample);
+
+		return "facility/platformunit/detail_ro";
+	}
+
+	@RequestMapping(value="/modify/{sampleId}.do", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('su') or hasRole('ft')")
+	public String updatePlatformUnitForm(
+			 @PathVariable("sampleId") Integer sampleId,
+			 ModelMap m) {
+		Sample sample = sampleDao.getSampleBySampleId(sampleId);
+
+		sample.setSampleMeta(getMetaHelperWebapp().syncWithMaster(sample.getSampleMeta()));
+
+		m.put("sample", sample);
+
+		return "facility/platformunit/detail_rw";
+	}
+
+	@RequestMapping(value="/modify/{sampleId}.do", method=RequestMethod.POST)
+	@PreAuthorize("hasRole('su') or hasRole('ft')")
+	public String modifyPlatformUnit(
+		@PathVariable("sampleId") Integer sampleId,
+		@Valid Sample sampleForm,
+		BindingResult result,
+		SessionStatus status,
+		ModelMap m) {
+
+		preparePlatformUnit(sampleForm, sampleId);
+
+		return validateAndUpdatePlatformUnit(sampleForm, result, status, m);
+	}
+
+
+	/**
+	 * 
+	 * @param sampleForm
+	 * @return
+	 */
+	public Sample preparePlatformUnit(Sample sampleForm, Integer sampleId) {
+		if (sampleId == null || sampleId.intValue() == 0) {
+			User me = authenticationService.getAuthenticatedUser();
+			sampleForm.setSubmitterUserId(me.getUserId());
+
+			SampleType sampleType = sampleTypeDao.getSampleTypeByIName("platformunit");
+			sampleForm.setSampleTypeId(sampleType.getSampleTypeId());
+			sampleForm.setSubmitterLabId(1);
+	
+			sampleForm.setReceiverUserId(sampleForm.getSubmitterUserId());
+			sampleForm.setReceiveDts(new Date());
+			sampleForm.setIsReceived(1);
+			sampleForm.setIsActive(1);
+			sampleForm.setIsGood(1);
+			
+		} else {
+			Sample sampleDb =	sampleDao.getSampleBySampleId(sampleId);
+			
+			//SampleBarcode resourceBarcodeDB = this.sampleBarcodeDao.getSampleBarcodeBySampleId(sampleForm.getSampleId());
+
+
+			// TODO do compares that i am the same sample as sampleform, and not new
+	
+			// fetches the updates
+			// sampleDb.setName(sampleForm.getName());
+	
+	
+			sampleForm.setSubmitterUserId(sampleDb.getSubmitterUserId());
+			sampleForm.setSubmitterLabId(sampleDb.getSubmitterLabId());
+			sampleForm.setSampleTypeId(sampleDb.getSampleTypeId());
+	
+			sampleForm.setReceiverUserId(sampleDb.getReceiverUserId());
+			sampleForm.setReceiveDts(sampleDb.getReceiveDts());
+			sampleForm.setIsReceived(sampleDb.getIsReceived());
+			sampleForm.setIsActive(sampleDb.getIsActive());
+			sampleForm.setIsGood(1);
+			sampleForm.setSampleId(sampleId);
+		}
+		return sampleForm;
+	}
+	
+
+	/**
+	 * Creates cells based on number of lanes selected by the user 
+	 * 
+	 * @param sampleForm
+	 * @param laneNumber
+	 * @return
+	 */
+	public String createUpdateCell(Sample sampleForm, Integer laneNumber, Integer sampleId) {
+		
+		Integer sampleTypeId = sampleTypeDao.getSampleTypeByIName("cell").getSampleTypeId();
+        Sample sampleDb = null;
+
+		if (sampleId == null || sampleId.intValue() == 0) {
+
+			for (int i = 0; i < laneNumber.intValue(); i++) {
+				 Sample cell = new Sample();
+				 cell.setSubmitterLabId(sampleForm.getSubmitterLabId());
+				 cell.setSubmitterUserId(sampleForm.getSubmitterUserId());
+				 cell.setName(sampleForm.getName()+"/"+(i+1));
+				 cell.setSampleTypeId(sampleTypeId);
+				 cell.setIsGood(1);
+				 cell.setIsActive(1);
+				 cell.setIsReceived(1);
+				 cell.setReceiverUserId(sampleForm.getSubmitterUserId());
+				 cell.setReceiveDts(new Date());
+				 sampleDb = this.sampleDao.save(cell);
+				 
+				 SampleSource sampleSource = new SampleSource();
+				 sampleSource.setSampleId(sampleForm.getSampleId());
+				 sampleSource.setSourceSampleId(sampleDb.getSampleId());
+				 sampleSource.setIndex(i+1);
+				 this.sampleSourceDao.save(sampleSource);
+	 			 
+			 }
+		}
+		else {
+			
+			Map<String, Integer> sampleSourceMap = new HashMap<String, Integer>();
+			Map<String, Integer> sampleMap = new HashMap<String, Integer>();
+
+			sampleSourceMap.put("sampleId", sampleForm.getSampleId());
+			List <SampleSource> sampleSourceList= this.sampleSourceDao.findByMap(sampleSourceMap);
+			/** If the user changed the sample name, update all corresponding cells names **/
+			for (Iterator<SampleSource> it = sampleSourceList.iterator(); it.hasNext();) {
+				SampleSource tr = it.next();
+				Sample cell = this.sampleDao.findById(tr.getSourceSampleId());
+				String cellName = cell.getName();
+				String subString = cellName.substring(cellName.lastIndexOf("/"), cellName.length());
+				cell.setName(sampleForm.getName().concat(subString));
+				this.sampleDao.merge(cell);
+								
+			}
+			
+		}
+		return "redirect:/facility/platformunit/ok";
+	}
+
+	public String validateAndUpdatePlatformUnit(
+		Sample sampleForm,
+		BindingResult result,
+		SessionStatus status,
+		ModelMap m) {
+		MetaHelperWebapp metaHelper = getMetaHelperWebapp();
+		List<SampleMeta> sampleMetaList = metaHelper.getFromRequest(request, SampleMeta.class);
+
+		metaHelper.validate(result);
+
+		if (result.hasErrors()) {
+			// TODO REAL ERROR
+			waspErrorMessage("hello.error");
+
+			sampleForm.setSampleMeta(sampleMetaList);
+			m.put("sample", sampleForm);
+
+			return "facility/platformunit/detail_rw";
+		}
+
+		sampleForm.setSampleMeta(sampleMetaList);
+
+		String returnString = updatePlatformUnit(sampleForm);
+
+
+		return returnString;
+	}
+
+
+	// TODO move to service?
+	public String updatePlatformUnit( Sample sampleForm) {
+	
+		Sample sampleDb;
+		if (sampleForm.getSampleId() == null || sampleForm.getSampleId().intValue() == 0) {
+			sampleDb = sampleDao.save(sampleForm);
+		} else {
+			sampleDb = sampleDao.merge(sampleForm);
+		}
+
+		sampleMetaDao.updateBySampleId(sampleDb.getSampleId(), sampleForm.getSampleMeta());
+
+		return "redirect:/facility/platformunit/ok";
+	}
+	
+	/**
+	 * 
+	 * @param sampleForm
+	 * @param sampleBarcode
+	 * @param laneCount
+	 * @return
+	 */
+	public String updatePlatformUnitInstance( Sample sampleForm, Integer laneCount, Integer sampleId, String comment) {
+	
+		Sample sampleDb;
+		if (sampleId == null || sampleId.intValue() == 0) {
+			
+			sampleDb = sampleDao.save(sampleForm);
+			
+			SampleBarcode sampleBarcode = new SampleBarcode();
+			Barcode barcode = new Barcode();
+			
+			barcode.setBarcode(request.getParameter("barcode")==null? "" : request.getParameter("barcode"));
+			barcode.setIsActive(new Integer(1));
+
+			sampleBarcode.setBarcode(barcode);
+			
+			Barcode barcodeDB = this.barcodeDao.save(barcode);//save new barcode
+			sampleBarcode.setBarcodeId(barcodeDB.getBarcodeId()); // set new barcodeId in samplebarcode
+
+			sampleBarcode.setSampleId(sampleDb.getSampleId());
+			this.sampleBarcodeDao.save(sampleBarcode);
+		
+		} else {
+			sampleDb = sampleDao.merge(sampleForm);
+			
+			SampleBarcode sampleBarcodeDb = this.sampleBarcodeDao.getSampleBarcodeBySampleId(sampleId);
+
+			if (sampleBarcodeDb == null || sampleBarcodeDb.getBarcode() == null) {
+				SampleBarcode sampleBarcode = new SampleBarcode();
+				Barcode barcode = new Barcode();
+				
+				barcode.setBarcode(request.getParameter("barcode")==null? "" : request.getParameter("barcode"));
+				barcode.setIsActive(1);
+				sampleBarcode.setBarcode(barcode);
+				
+				Barcode barcodeDb = this.barcodeDao.save(barcode);
+				sampleBarcode.setBarcodeId(barcodeDb.getBarcodeId());
+			
+				sampleBarcode.setSampleId(sampleForm.getSampleId());
+				this.sampleBarcodeDao.save(sampleBarcode);
+				
+			}
+			else { 
+				sampleBarcodeDb.getBarcode().setBarcode(request.getParameter("barcode")==null? "" : request.getParameter("barcode"));
+				this.sampleBarcodeDao.merge(sampleBarcodeDb);
+			}
+
+		}
+		
+		List<SampleMeta> mySampleMeta = sampleDb.getSampleMeta();
+		MetaHelperWebapp sampleMetaHelper = getMetaHelperWebappPlatformUnitInstance();
+		sampleMetaHelper.syncWithMaster(mySampleMeta);
+		try {
+			sampleMetaHelper.setMetaValueByName("lanecount", laneCount.toString());
+			sampleMetaHelper.setMetaValueByName("comment", comment);
+		} catch (MetadataException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} // set a value for a member of the list by name
+		sampleMetaDao.updateBySampleId(sampleDb.getSampleId(), (List<SampleMeta>) sampleMetaHelper.getMetaList()); // now we get the list and persist it
+
+		createUpdateCell(sampleDb, laneCount, sampleId);
+		createState(sampleId, sampleDb);
+		
+		return "redirect:/facility/platformunit/ok";
+	}
+	
+	/**
+	 * Inserts a record in State table and Sets state name to  "Platform Unit" and state status to "CREATED" 
+	 * Also inserts a new record in Samplestate table
+	 * 
+	 * @param sampleDb
+	 */
+	public void createState(Integer sampleId, Sample sampleDb) {
+		
+		Map<String, String> taskQueryMap = new HashMap<String, String>();
+		taskQueryMap.put("iName", "assignLibraryToPlatformUnit");
+		List <Task> task = new ArrayList <Task> (this.taskDao.findByMap(taskQueryMap));
+
+		if (sampleId == null || sampleId.intValue() == 0) {
+
+			State state = new State();
+			state.setTaskId(task.get(0).getTaskId());
+			state.setName(task.get(0).getName());
+			state.setStatus("CREATED");
+			state.setLastUpdTs(new Date());
+			State stateDb = this.stateDao.save(state);
+			
+			Statesample stateSample = new Statesample();
+			stateSample.setSampleId(sampleDb.getSampleId());
+			stateSample.setStateId(stateDb.getStateId());
+			this.stateSampleDao.save(stateSample);
+		}
+
+	}
+
+	/**
+	 * limitPriorToPlatformUnitAssignment
+	 */
+	@RequestMapping(value="/limitPriorToPlatUnitAssign.do", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('su') or hasRole('ft')")
+	public String limitPriorToPlatUnitAssignForm(ModelMap m) {
+		
+		ResourceType resourceType = resourceTypeDao.getResourceTypeByIName("mps");
+		//if(resourceType.getResourceTypeId()==0){
+			//waspErrorMessage("platformunit.resourceCategoryNotFound.error");
+			//return "redirect:/dashboard.do";
+		//}
+		Map filterForResourceCategory = new HashMap();
+		filterForResourceCategory.put("resourceTypeId", resourceType.getResourceTypeId());
+		List<ResourceCategory> resourceCategories = resourceCategoryDao.findByMap(filterForResourceCategory);
+		
+		m.put("resourceCategories", resourceCategories);
+		return "facility/platformunit/limitPriorToPlatUnitAssign"; 
+	}
+	
+/* not used anymore	
+	private List<ResourceCategory> getResourceCategoriesForMPS(){
+		
+		List<ResourceCategory> resourceCategories = null;
+		
+		ResourceType resourceType = resourceTypeDao.getResourceTypeByIName("mps");
+		if(resourceType == null || resourceType.getResourceTypeId()==null || resourceType.getResourceTypeId().intValue()==0){
+			return resourceCategories;//empty list
+		}
+		
+		Map<String, Integer> filterForResourceCategory = new HashMap<String, Integer>();
+		filterForResourceCategory.put("resourceTypeId", resourceType.getResourceTypeId());
+		resourceCategories = resourceCategoryDao.findByMap(filterForResourceCategory);
+		return resourceCategories;
+	}
+*/
+	
+/* not used anymore	
+	private List<SampleSubtype> getSampleSubtypesForThisResourceCategory(ResourceCategory resourceCategory){
+		
+		List<SampleSubtype> sampleSubtypes = new ArrayList<SampleSubtype>();
+		
+		for(SampleSubtypeResourceCategory ssrc : resourceCategory.getSampleSubtypeResourceCategory()){
+			sampleSubtypes.add(ssrc.getSampleSubtype());
+		}
+		return sampleSubtypes;
+	}
+*/
+	
+/* not used anymore	
+	private boolean resourceCategoryAndSampleSubtypeAreIncompatible(Integer resourceCategoryId, Integer sampleSubtypeId){
+		
+		boolean incompatible = false;
+		
+		SampleSubtypeResourceCategory ssrc = sampleSubtypeResourceCategoryDao.getSampleSubtypeResourceCategoryBySampleSubtypeIdResourceCategoryId(sampleSubtypeId, resourceCategoryId);
+		if(ssrc == null || ssrc.getSampleSubtypeResourceCategoryId()==null || ssrc.getSampleSubtypeResourceCategoryId().intValue()==0){
+			incompatible = true;
+		}
+		return incompatible;
+	}
+*/	
+	
+/* not used anymore	
+	private void prepareSelectListDataByResourceCategory(ModelMap m, ResourceCategory resourceCategory) {
+		
+		List<SelectOptionsMeta> readTypeList = new ArrayList<SelectOptionsMeta>();
+		List<SelectOptionsMeta> readlengthList = new ArrayList<SelectOptionsMeta>();
+		List<ResourceCategoryMeta> rcMetaList = resourceCategory.getResourceCategoryMeta();
+		for(ResourceCategoryMeta rcm : rcMetaList){
+			
+			//System.out.println(rcm.getK() + " : " + rcm.getV());			
+			if( rcm.getK().indexOf("readType") > -1 ){
+				String[] tokens = rcm.getV().split(";");//rcm.getV() will be single:single;paired:paired
+				for(String token : tokens){//token could be single:single
+					String[] colonTokens = token.split(":");
+					readTypeList.add(new SelectOptionsMeta(colonTokens[0], colonTokens[1]));
+				}
+			}
+			if( rcm.getK().indexOf("readlength") > -1 ){
+				String[] tokens = rcm.getV().split(";");//rcm.getV() will be 50:50;100:100
+				for(String token : tokens){//token could be 50:50
+					String[] colonTokens = token.split(":");
+					readlengthList.add(new SelectOptionsMeta(colonTokens[0], colonTokens[1]));
+				}
+			}				
+		}
+		m.put("readTypes", readTypeList);//contains list like single:single as one entry and paired:paired as a second entry
+		m.put("readlengths", readlengthList);
+	}
+*/	
+	
+	
+/* not used anymore
+	private void prepareDistinctSelectListDataForResourceCategoriesForThisSampleSubtype(ModelMap m, SampleSubtype sampleSubtype) {
+		
+		List<SelectOptionsMeta> readTypeList = new ArrayList<SelectOptionsMeta>();
+		List<SelectOptionsMeta> readlengthList = new ArrayList<SelectOptionsMeta>();
+		Set<SelectOptionsMeta> readTypeSet = new LinkedHashSet<SelectOptionsMeta>();
+		Set<SelectOptionsMeta> readlengthSet = new LinkedHashSet<SelectOptionsMeta>();
+		
+		List<SampleSubtypeResourceCategory> sampleSubtypeResourceCategoryList = sampleSubtype.getSampleSubtypeResourceCategory();
+		for(SampleSubtypeResourceCategory ssrc : sampleSubtypeResourceCategoryList){			
+		
+			List<ResourceCategoryMeta> rcMetaList = ssrc.getResourceCategory().getResourceCategoryMeta();
+			for(ResourceCategoryMeta rcm : rcMetaList){
+			
+				if( rcm.getK().indexOf("readType") > -1 ){
+					String[] tokens = rcm.getV().split(";");//rcm.getV() will be single:single;paired:paired
+					for(String token : tokens){//token could be single:single
+						String[] colonTokens = token.split(":");
+						readTypeSet.add(new SelectOptionsMeta(colonTokens[0], colonTokens[1]));//for distinct
+					}
+				}
+				if( rcm.getK().indexOf("readlength") > -1 ){
+					String[] tokens = rcm.getV().split(";");//rcm.getV() will be 50:50;100:100
+					for(String token : tokens){//token could be 50:50
+						String[] colonTokens = token.split(":");
+						readlengthSet.add(new SelectOptionsMeta(colonTokens[0], colonTokens[1]));//for distinct
+					}
+				}				
+			}
+			
+		}//for(SampleSubtypeResourceCategory ...){
+		readTypeList.addAll(readTypeSet);
+		readlengthList.addAll(readlengthSet);
+		m.put("readTypes", readTypeList);//contains list like single:single as one entry and paired:paired as a second entry
+		m.put("readlengths", readlengthList);//contains list of entries such as 50:50
+
+	}
+*/
+/* not used anymore	
+	private void prepareSelectListDataBySampleSubtype(ModelMap m, SampleSubtype sampleSubtype) {
+		Integer maxCellNumber = null;
+		Integer multiplicationFactor = null;
+		List <SelectOptionsMeta> numberOfLanesAvailableList = new ArrayList<SelectOptionsMeta>();				
+		
+		List<SampleSubtypeMeta> ssMetaList = sampleSubtype.getSampleSubtypeMeta();
+		for(SampleSubtypeMeta ssm : ssMetaList){
+			if( ssm.getK().indexOf("maxCellNumber") > -1 ){
+				maxCellNumber = new Integer(ssm.getV());  
+			}
+			if( ssm.getK().indexOf("multiplicationFactor") > -1 ){
+				multiplicationFactor = new Integer(ssm.getV());  
+			}				 
+		}
+		if (multiplicationFactor == null || multiplicationFactor.intValue() <= 1) {
+			numberOfLanesAvailableList.add(new SelectOptionsMeta(maxCellNumber.toString(), maxCellNumber.toString()));	
+		}
+		else {
+			Integer cellNum = new Integer(maxCellNumber.intValue());
+			while (cellNum.intValue() >= multiplicationFactor.intValue()){
+				cellNum = new Integer(cellNum.intValue()/multiplicationFactor.intValue());
+				numberOfLanesAvailableList.add(new SelectOptionsMeta(cellNum.toString(), cellNum.toString()));						
+			}
+		}
+		m.put("lanes", numberOfLanesAvailableList);
+	}
+*/	
+//****************************************************************************//****************************************************************************	
+//there are comparator classes below that need to be moved	
 }
 
 class JobComparator implements Comparator<Job> {
