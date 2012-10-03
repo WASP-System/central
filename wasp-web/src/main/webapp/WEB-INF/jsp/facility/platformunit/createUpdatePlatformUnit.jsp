@@ -28,7 +28,8 @@
 				<option value="<c:out value="${sampleSubtype.sampleSubtypeId}"/>" <c:out value="${selectedFlag2}"/> ><c:out value="${sampleSubtype.name}" /> 
 			</c:forEach>
 		 </select>
-	</form> 
+		 <span class="requiredField">*</span>
+	</form> 	
 	</td>
 	<td>&nbsp;</td>
 </tr>

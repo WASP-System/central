@@ -850,9 +850,8 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	 * {@inheritDoc}
 	 */
 	@Override
-	 public boolean sampleSubtypeIsSpecificSampleType(SampleSubtype sampleSubtype, String sampleTypeIName) throws SampleSubtypeException, SampleTypeException{
-		if(sampleSubtype==null){throw new SampleSubtypeException("SampleSubtype is null");} 
-		else if(sampleSubtype.getSampleType()==null || sampleSubtype.getSampleType().getIName()==null){throw new SampleTypeException("SampleType is null or it's iname is null");} 
+	 public boolean sampleSubtypeIsSpecificSampleType(SampleSubtype sampleSubtype, String sampleTypeIName){
+		if(sampleTypeIName==null || sampleSubtype==null || sampleSubtype.getSampleType()==null || sampleSubtype.getSampleType().getIName()==null){return false;} 
 		return sampleTypeIName.equals(sampleSubtype.getSampleType().getIName());
 	}
 	
@@ -869,10 +868,18 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean sampleIsSpecificSampleType(Sample sample, String sampleTypeIName) throws SampleException, SampleTypeException{
-		if(sample==null){throw new SampleException("Sample is null");} 
-		else if(sample.getSampleType()==null || sample.getSampleType().getIName()==null){throw new SampleTypeException("SampleType is null or it's iname is null");} 
+	public boolean sampleIsSpecificSampleType(Sample sample, String sampleTypeIName){
+		if(sampleTypeIName==null || sample==null || sample.getSampleType()==null || sample.getSampleType().getIName()==null){return false;} 
 		return sampleTypeIName.equals(sample.getSampleType().getIName());
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean sampleIsSpecificSampleSubtype(Sample sample, String sampleSubtypeIName){
+		if(sampleSubtypeIName==null || sample==null || sample.getSampleSubtype()==null || sample.getSampleSubtype().getIName()==null){return false;} 
+		return sampleSubtypeIName.equals(sample.getSampleSubtype().getIName());
 	}
 	
 	/**
@@ -896,6 +903,15 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 		return sample.getSampleId()!=null && sample.getSampleId().intValue() > 0?true:false;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean sampleIdIsValid(Sample sample){
+		
+		if(sample == null || sample.getSampleId()==null || sample.getSampleId().intValue() <= 0){return false;}
+		return true;
+	}
 	
 	/**
 	 * {@inheritDoc}
@@ -909,6 +925,34 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 		return false;		
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Sample getPlatformUnit(Integer sampleId)  throws NumberFormatException, SampleException, SampleTypeException, SampleSubtypeException {
+		
+		if(sampleId==null){throw new NumberFormatException("SampleId is null");}
+		
+		Sample sample = sampleDao.getSampleBySampleId(sampleId.intValue());
+		if(!sampleIdIsValid(sample)){throw new SampleException("Sample with sampleId of " + sampleId.intValue() + " not in database.");}
+		else if(!this.sampleIsSpecificSampleType(sample, "platformunit")){throw new SampleTypeException("Sample with sampleId of " + sampleId.intValue() + " not of sampleType platformunit.");}
+		else if(!this.sampleSubtypeIsSpecificSampleType(sample.getSampleSubtype(), "platformunit")){throw new SampleSubtypeException("Sample with sampleId of " + sampleId.intValue() + " not of sampleSubtype platformunit.");}
+		//could have used this.sampleIsPlatformUnit(sample) as well for the two lines immediately above
+		
+		return sample;		
+	}
+	
+	public SampleSubtype getSampleSubtypeConfirmedForPlatformunit(Integer sampleSubtypeId) throws NumberFormatException, SampleSubtypeException{
+		
+		if(sampleSubtypeId==null){throw new NumberFormatException("SampleSubtypeId is null");}
+
+		SampleSubtype sampleSubtype = sampleSubtypeDao.getSampleSubtypeBySampleSubtypeId(sampleSubtypeId.intValue());
+		if(sampleSubtype==null || sampleSubtype.getSampleSubtypeId()==null || sampleSubtype.getSampleSubtypeId().intValue() <= 0){throw new SampleSubtypeException("SampleSubtype with sampleSubtypeId of " + sampleSubtypeId.intValue() + " not in database.");}
+		else if(!this.sampleSubtypeIsSpecificSampleType(sampleSubtype, "platformunit")){throw new SampleSubtypeException("SampleSubtype with sampleSubtypeId of " + sampleSubtypeId.intValue() + " not of sampletype platformunit.");}
+		return sampleSubtype;		
+	}
+
+	  
 	/**
 	 * {@inheritDoc}
 	 */
@@ -1149,7 +1193,7 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 			}
 			
 			//lanes
-			//if create new platformunit or update and add addeal with the lanes during update, which could include addition of new lanes or loss of existing lanes
+			//if create new platformunit, or add/remove additional lanes during and update
 			if(numberOfLanesRequested.intValue() > numberOfLanesInDatabase.intValue()){//add lanes; can be create new record (where numberOfLanesInDatabase = 0) or an update to add some more lanes 
 	
 				for(int i = numberOfLanesInDatabase + 1; i <= numberOfLanesRequested; i++){//add additional lanes

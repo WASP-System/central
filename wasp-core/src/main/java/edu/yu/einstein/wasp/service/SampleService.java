@@ -321,13 +321,11 @@ public interface SampleService extends WaspService {
 
 	  /**
 	   * Returns true if SampleSubtype's SampleType has iname of sampleTypeIName, else return false. 
-	   * If SampleSubtype is null throw SampleSubtype Exception.
-	   * If the samplesubtype's SampleType is null or it's sampleTypeIName is null, throw SampleTypeException.
 	   * @param SampleSubtype sampleSubtype
 	   * @param String sampleTypeIName
 	   * @return boolean
 	   */
-	  public boolean sampleSubtypeIsSpecificSampleType(SampleSubtype sampleSubtype, String sampleTypeIName) throws SampleSubtypeException, SampleTypeException;
+	  public boolean sampleSubtypeIsSpecificSampleType(SampleSubtype sampleSubtype, String sampleTypeIName);
 	  
 	  /**
 	   * Returns a Sample with id of sampleId. 
@@ -338,14 +336,22 @@ public interface SampleService extends WaspService {
 	  public Sample getSampleById(Integer sampleId);
 
 	  /**
-	   * Returns true if Sample's SampleType has iname of sampleTypeIName, else return false. 
-	   * If Sample is null throw SampleException.
-	   * If the samplesubtype's SampleType is null or it's sampleTypeIName is null, throw SampleTypeException.
+	   * Returns true if sample.getSampleType().getIName.equals(sampleTypeIName). 
+	   * If sampleTypeIName==null or sample==null or sample.getSampleType()==null or sample.getSampleType().getIName == null, return false.
 	   * @param Sample sample
-	   * @param String sampleTypeIName
+	   * @param String sampleTypeIName (such as "platformunit")
 	   * @return boolean
 	   */
-	  public boolean sampleIsSpecificSampleType(Sample sample, String sampleTypeIName) throws SampleException, SampleTypeException;
+	  public boolean sampleIsSpecificSampleType(Sample sample, String sampleTypeIName);
+
+	  /**
+	   * Returns true if sample.getSampleSubtype().getIName.equals(sampleSubtypeIName). 
+	   * If sampleSubtypeIName==null or sample==null or sample.getSampleSubtype()==null or sample.getSampleSubtype().getIName == null, return false.
+	   * @param Sample sample
+	   * @param String sampleSubtypeIName (such as "platformunit")
+	   * @return boolean
+	   */
+	  public boolean sampleIsSpecificSampleSubtype(Sample sample, String sampleSubtypeIName);
 
 	  /**
 	   * Returns true if Sample is in database, else returns false
@@ -368,12 +374,36 @@ public interface SampleService extends WaspService {
 	  public boolean sampleIdIsInDatabase(Integer sampleId);
 
 	  /**
+	   * Returns true if sample != null && sample.getSampleId() != null && sample.getSampleId().intVal() > 0, else false
+	   * @param Sample sample
+	   * @return boolean
+	   */
+	  public boolean sampleIdIsValid(Sample sample);
+
+	  /**
 	   * Returns true if Sample is a platform unit (checking both SampleType and SampleSubtype) 
 	   * @param Sample sample
 	   * @return boolean
 	   */
 	  public boolean sampleIsPlatformUnit(Sample sample);
 
+	  /**
+	   * Returns Sample if it exists in database and if it is a platform unit (its sampletype and samplesubtype both have inames of platformunit) 
+	   * If sample not found in database or it is not a platformunit in sampletype and samplesubtype, throw NumberFormatException, SampleException, SampleTypeException, or SampleSubtype Exception. 
+	   * @param Sample sample
+	   * @return Sample
+	   */
+	  public Sample getPlatformUnit(Integer sampleId) throws NumberFormatException, SampleException, SampleTypeException, SampleSubtypeException;
+
+	  /**
+	   * Returns SampleSubtype if it exists in database and if its sampletype is a platform unit 
+	   * If sampleSubtype not found in database or if it is not of sampletype platformunit, throws NumberFormatException or SampleSubtype Exception. 
+	   * @param SampleSubtype sampleSubtype
+	   * @return SampleSubtype
+	   */
+	  public SampleSubtype getSampleSubtypeConfirmedForPlatformunit(Integer sampleSubtypeId) throws NumberFormatException, SampleSubtypeException;
+
+	  
 	  /**
 	   * Returns an ordered (ascending) List Of Integers of the number of lanes that are available on a particular type of platformunit (flowcell). 
 	   * If the SampleSubtype is not in the database or is not of type platformunit, throw SampleSubtypeException or SampleTypeException, respectively.

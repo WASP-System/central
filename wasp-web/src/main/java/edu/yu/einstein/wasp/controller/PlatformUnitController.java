@@ -629,24 +629,18 @@ public class PlatformUnitController extends WaspController {
 					m.addAttribute("numberOfCellsOnThisPlatformUnit", new Integer(0));
 				}
 				else{//valid sampleId
-					platformunitInstance = sampleService.getSampleById(sampleId);
-					if(platformunitInstance.getSampleId()==null){
-						throw new Exception("Sample with ID of " + sampleId.toString() + " unexpectedly not found in database");								
-					}
-					if(!sampleService.sampleIsPlatformUnit(platformunitInstance)){
-						throw new Exception("Sample with ID of " + platformunitInstance.getSampleId().toString() + " unexpectedly not of proper SampleType or SampleSubtype to be a 'platformunit'");								
-					}
+					platformunitInstance = sampleService.getPlatformUnit(sampleId.intValue());//throws exception if not valid platformunit in database (checks both sampleType and sampleSubtype)
 					
 					metaHelperWebapp.syncWithMaster(platformunitInstance.getSampleMeta());
 					platformunitInstance.setSampleMeta((List<SampleMeta>)metaHelperWebapp.getMetaList());
 					
+					if(reset.equals("reset")){//reset permitted only when sampleId > 0
+						sampleSubtypeId = new Integer(platformunitInstance.getSampleSubtypeId().intValue());
+					}
+					
 					//deal with barcode
 					List<SampleBarcode> sampleBarcodeList = platformunitInstance.getSampleBarcode();
-					if(sampleBarcodeList.size()>0){
-						barcode = sampleBarcodeList.get(0).getBarcode().getBarcode();
-					}
-					else{barcode = new String("");}
-					m.addAttribute("barcode", barcode);
+					m.addAttribute("barcode", sampleBarcodeList.size()>0 ? sampleBarcodeList.get(0).getBarcode().getBarcode() : new String(""));
 					
 					//deal with numberOfCellsOnPlatformUnit
 					Integer numberOfCellsOnThisPlatformUnit = sampleService.getNumberOfIndexedCellsOnPlatformUnit(platformunitInstance);
@@ -654,21 +648,12 @@ public class PlatformUnitController extends WaspController {
 				}
 				m.addAttribute(metaHelperWebapp.getParentArea(), platformunitInstance);
 				
-				if(reset.equals("reset")){
-					sampleSubtypeId = new Integer(platformunitInstance.getSampleSubtypeId().intValue());
-				}					
-				sampleSubtype = sampleService.getSampleSubtypeById(sampleSubtypeId);
-				if(sampleSubtype.getSampleSubtypeId()==null){
-					throw new Exception("SampleSubtype with ID of " + sampleSubtypeId.toString() + " unexpectedly not found in database");								
-				}
-				if(!sampleService.sampleSubtypeIsSpecificSampleType(sampleSubtype, "platformunit")){
-					throw new Exception("SampleSubtype with ID of " + sampleSubtypeId.toString() + " is unexpectedly not SampleType of platformunit");								
-				}				
+				sampleSubtype = sampleService.getSampleSubtypeConfirmedForPlatformunit(sampleSubtypeId);//if not in database or not of type and subtype platformunit, throw exception
 				m.addAttribute("readlengths", getDistinctResourceCategoryMetaListForSampleSubtype(sampleSubtype, "readlength"));
 				m.addAttribute("readTypes", getDistinctResourceCategoryMetaListForSampleSubtype(sampleSubtype, "readType"));
 				m.addAttribute("numberOfCellsList", sampleService.getNumberOfCellsListForThisTypeOfPlatformUnit(sampleSubtype));//throws exception if problems
 			
-			}//if(sampleSubtypeId.intValue()>0)				
+			}//end of if(sampleSubtypeId.intValue()>0)				
 		}catch(Exception e){logger.debug(e.getMessage());waspErrorMessage("wasp.unexpected_error.error");return "redirect:/dashboard.do";}
 		
 		m.put("sampleSubtypeId", sampleSubtypeId);//must be down here, as value can cahnge if "reset"
@@ -695,25 +680,14 @@ public class PlatformUnitController extends WaspController {
 			Sample platformUnitInDatabase = null;
 			SampleSubtype sampleSubtype = null;
 			
-			sampleSubtype = sampleService.getSampleSubtypeById(sampleSubtypeId);
-			if(sampleSubtype.getSampleSubtypeId()==null){
-				throw new Exception("SampleSubtype with ID of " + sampleSubtypeId.toString() + " unexpectedly not found in database");								
-			}
-			if(!sampleService.sampleSubtypeIsSpecificSampleType(sampleSubtype, "platformunit")){
-				throw new Exception("SampleSubtype with ID of " + sampleSubtypeId.toString() + " is unexpectedly not SampleType of platformunit");								
-			}
+			sampleSubtype = sampleService.getSampleSubtypeConfirmedForPlatformunit(sampleSubtypeId);//if not in database or not of type and subtype platformunit, throw exception
 			
 			if(sampleId.intValue()==0 && (platformunitInstance.getSampleId()==null || platformunitInstance.getSampleId().intValue()==0)){//new platform unit
 				action = new String("create");
 			}
 			else if(sampleId.intValue()>0 && platformunitInstance.getSampleId().intValue()>0 && sampleId.intValue()==platformunitInstance.getSampleId().intValue()){//update existing platform unit
-				platformUnitInDatabase = sampleService.getSampleById(sampleId);
-				if(platformUnitInDatabase.getSampleId()==null){
-					throw new Exception("Sample with ID of " + sampleId.toString() + " unexpectedly not found in database");								
-				}
-				if(!sampleService.sampleIsPlatformUnit(platformUnitInDatabase)){
-					throw new Exception("Sample with ID of " + platformUnitInDatabase.getSampleId().toString() + " unexpectedly not of proper SampleType or SampleSubtype to be a 'platformunit'");								
-				}
+				
+				platformUnitInDatabase = sampleService.getPlatformUnit(sampleId.intValue());//throws exception if not valid platformunit in database (checks both sampleType and sampleSubtype)
 				action = new String("update");	
 			}
 			else{//action==null
@@ -792,18 +766,18 @@ public class PlatformUnitController extends WaspController {
 			}
 			
 			if(action.equals("create")){
-				System.out.println("in create1");
+				//System.out.println("in create1");
 				sampleService.createUpdatePlatformUnit(platformunitInstance, sampleSubtype, barcode, numberOfLanesRequested, (List<SampleMeta>)metaHelperWebapp.getMetaList());
 			}
 			else if(action.equals("update")){
-				System.out.println("in update1");
+				//System.out.println("in update1");
 				sampleService.createUpdatePlatformUnit(platformUnitInDatabase, sampleSubtype, barcode, numberOfLanesRequested, (List<SampleMeta>)metaHelperWebapp.getMetaList());
 			}
 			else{//action == null
-				System.out.println("in Unexpectedly1");
+				//System.out.println("in Unexpectedly1");
 				throw new Exception("Unexpectedly encountered action whose value is neither create or update");
 			}
-			System.out.println("end of the POST method");		
+			//System.out.println("end of the POST method");		
 			
 		}catch(Exception e){logger.debug(e.getMessage());waspErrorMessage("wasp.unexpected_error.error");return "redirect:/dashboard.do";}
 	
