@@ -700,7 +700,8 @@ public class PlatformUnitController extends WaspController {
 			
 			boolean otherErrorsExist = false;
 	
-			/* PLEASE PLEASE KEEP CODE FOR LATER: it was removed as per Andy, platformunit name will be assigned with barcode; it's not on the form anymore
+			/* PLEASE PLEASE KEEP CODE FOR LATER (I need it for reference: it was removed as per Andy, platformunit name will be assigned with barcode; it's not on the form anymore
+			//SAVE THIS CODE, JUST IN CASE WE WANT TO PUT NAME BACK ONTO THE FORM
 			//check whether name has been used; note that @Valid has already checked for name being the empty 
 			if (! result.hasFieldErrors("name")){
 				if(sampleService.platformUnitNameUsedByAnother(platformunitInstance, platformunitInstance.getName())==true){

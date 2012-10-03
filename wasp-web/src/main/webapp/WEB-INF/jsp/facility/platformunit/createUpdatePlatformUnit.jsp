@@ -38,6 +38,16 @@
   	
   	<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="sampleId" id="sampleId" value="<c:out value="${sampleId}" />" />
   	<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="sampleSubtypeId" id="sampleSubtypeId" value="<c:out value="${sampleSubtypeId}" />" />
+
+	<%-- removed as per Andy 9/28/12; name will be taken from barcode. Also had to add form:hidden to compensate 
+		SAVE THIS CODE, JUST IN CASE WE WANT TO PUT NAME BACK ONTO THE FORM
+	<tr class="FormData">
+        <td class="CaptionTD"><fmt:message key="platformunitInstance.name.label" />:</td>
+        <td class="DataTD"><form:input cssClass="FormElement ui-widget-content ui-corner-all" path="name" /><span class="requiredField">*</span></td>
+        <td class="CaptionTD error"><form:errors path="name" /></td>
+	</tr>
+	--%>
+
 	<%--next line needed to suppress validation requirement for sample.name not to be null - so do not remove next line; recall the we decided to use the barcodeName as sample.name--%>
 	<form:hidden path="name"/>
 	<tr class="FormData">
