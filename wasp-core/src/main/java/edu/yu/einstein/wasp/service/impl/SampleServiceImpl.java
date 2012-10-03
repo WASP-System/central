@@ -994,8 +994,9 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 		SampleType sampleTypeForPlatformUnit = null;
 		SampleType sampleTypeForCell = null;
 		Integer numberOfLanesInDatabase = null;
+		boolean platformUnitNameHasBeenChanged = false;
 		
-		if(sampleIsInDatabase(platformUnit)){
+		if(sampleIsInDatabase(platformUnit)){//this is an update of an existing record
 			pu = platformUnit;
 			if(!sampleIsPlatformUnit(platformUnit)){
 				throw new SampleException("Sample with Id of " + pu.getSampleId().toString() + " unexpectedly NOT a platformUnit either in sampletype or samplesubtype");
@@ -1005,10 +1006,17 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 			numberOfLanesInDatabase = this.getNumberOfIndexedCellsOnPlatformUnit(pu);
 			if(numberOfLanesInDatabase==null || numberOfLanesInDatabase.intValue()<=0){//should never be 0 lanes on a platformunit
 				throw new SampleException("lanecount in database is not valid for platformunit with Id " + pu.getSampleId().intValue());
-			}			
+			}	
+			
+			//if update, determine whether platformunit name has been changed
+			if(barcodeName != null && !barcodeName.equals(platformUnit.getName())){
+				platformUnitNameHasBeenChanged = true;
+			}
+			System.out.println("The name of the pu sample is : " + platformUnit.getName());
+
 			action = new String("update");			
 		}
-		else{
+		else{//request for a new platformunit record 
 			numberOfLanesInDatabase = new Integer(0);
 			pu = new Sample();
 		}
@@ -1062,103 +1070,37 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 				throw new SampleException("Barcode Name used by another sample");
 			}
 		}
-		
-		else if(sampleMetaList == null){
+
+		if(sampleMetaList == null){
 			throw new SampleException("SampleMetaList cannot be null");
 		}
-try{
-		if(action.equals("create")){//generate and save new platformunit
-			System.out.println("in create2");
+		
+		try{	
 			pu.setName(barcodeName);//sample.name will be set to the barcode name; as per Andy 9-28-12
-
+	
 			User me = authenticationService.getAuthenticatedUser();
 			pu.setSubmitterUserId(me.getUserId());
-
-			pu.setSampleTypeId(sampleTypeForPlatformUnit.getSampleTypeId());		
-			pu.setSampleSubtypeId(sampleSubtype.getSampleSubtypeId());//parameter
-
-			pu.setSubmitterLabId(1);//Ed
-			pu.setReceiverUserId(platformUnit.getSubmitterUserId());//Ed
-			pu.setReceiveDts(new Date());//Ed
-			pu.setIsReceived(1);//Ed
-			pu.setIsActive(1);//Ed
-			pu.setIsGood(1);//Ed
-
+					
+			pu.setSampleSubtypeId(sampleSubtype.getSampleSubtypeId());//sampleSubtype is a parameter
+	
+			if(action.equals("create")){//new record
+				pu.setSampleTypeId(sampleTypeForPlatformUnit.getSampleTypeId());
+				pu.setSubmitterLabId(1);//Ed
+				pu.setReceiverUserId(platformUnit.getSubmitterUserId());//Ed
+				pu.setReceiveDts(new Date());//Ed
+				pu.setIsReceived(1);//Ed
+				pu.setIsActive(1);//Ed
+				pu.setIsGood(1);//Ed
+			}
 			Sample platformUnitDb = sampleDao.save(pu);
 			if(platformUnitDb==null || platformUnitDb.getSampleId()==null || platformUnitDb.getSampleId().intValue()<=0){
 				throw new SampleException("new platform unit unexpectedly not saved");
 			}
-			if(1==1){throw new SampleException("testing the runtime exception");}
-			//save the metadata; no way to check as this returns void
-			sampleMetaDao.updateBySampleId(platformUnitDb.getSampleId(), sampleMetaList); // persist the metadata
-			
-			//save the new barcode
-			Barcode barcodeObject = new Barcode();		
-			barcodeObject.setBarcode(barcodeName);
-			barcodeObject.setBarcodefor("WASP");
-			barcodeObject.setIsActive(new Integer(1));
-			Barcode barcodeDb = this.barcodeDao.save(barcodeObject);//save new barcode in db
-			if(barcodeDb==null || barcodeDb.getBarcodeId()==null || barcodeDb.getBarcodeId().intValue()<=0){
-				throw new SampleException("new barcode unexpectedly not saved");
-			}
-			
-			SampleBarcode sampleBarcode = new SampleBarcode();	
-			sampleBarcode.setBarcodeId(barcodeDb.getBarcodeId()); // set new barcodeId in samplebarcode
-			sampleBarcode.setSampleId(platformUnitDb.getSampleId());
-			SampleBarcode sampleBarcodeInDb = this.sampleBarcodeDao.save(sampleBarcode);
-			if(sampleBarcodeInDb==null || sampleBarcodeInDb.getSampleBarcode()==null || sampleBarcodeInDb.getSampleBarcode().intValue()<=0){
-				throw new SampleException("new samplebarcode unexpectedly not saved");
-			}
-			
-			//create the lanes
-			if(numberOfLanesRequested.intValue() > numberOfLanesInDatabase.intValue()){//add lanes 
-			  for (int i = numberOfLanesInDatabase + 1; i <= numberOfLanesRequested.intValue(); i++) {
-
-				Sample cell = new Sample();
-				cell.setSubmitterLabId(platformUnitDb.getSubmitterLabId());
-				cell.setSubmitterUserId(platformUnitDb.getSubmitterUserId());
-				cell.setName(platformUnitDb.getName()+"/"+(i));
-				cell.setSampleTypeId(sampleTypeForCell.getSampleTypeId());
-				cell.setIsGood(1);
-				cell.setIsActive(1);
-				cell.setIsReceived(1);
-				cell.setReceiverUserId(platformUnitDb.getSubmitterUserId());
-				cell.setReceiveDts(new Date());
-				Sample cellDb = this.sampleDao.save(cell);
-				if(cellDb==null || cellDb.getSampleId()==null || cell.getSampleId().intValue() <= 0){
-					throw new SampleException("new cell unexpectedly not saved");
-				}
-
-				SampleSource sampleSource = new SampleSource();
-				sampleSource.setSampleId(platformUnitDb.getSampleId());
-				sampleSource.setSourceSampleId(cellDb.getSampleId());
-				sampleSource.setIndex(i);
-				SampleSource sampleSourceDb = this.sampleSourceDao.save(sampleSource);
-				if(sampleSourceDb==null || sampleSourceDb.getSampleId()==null || sampleSourceDb.getSampleId().intValue() <= 0){
-					throw new SampleException("new samplesource unexpectedly not saved");
-				}
-			  }
-			}
-		}
-		else if(action.equals("update")){//update and save existing platformunit
-			System.out.println("in update2");
-			pu.setName(barcodeName);//set sample name to barcodeName; as per Andy 9-28-12
-			
-			User me = authenticationService.getAuthenticatedUser();
-			pu.setSubmitterUserId(me.getUserId());//should we do this? it represents the last person to update this record
-
-			//no need to reset sample type; it's still a platformunit
-			pu.setSampleSubtypeId(sampleSubtype.getSampleSubtypeId());//by contrast, samplesubtype (type of flow cell) might change
-			Sample platformUnitDb = sampleDao.save(pu);
-			if(platformUnitDb==null || platformUnitDb.getSampleId()==null || platformUnitDb.getSampleId().intValue()<=0){
-				throw new SampleException("updated platform unit unexpectedly not saved");
-			}
-			//save the metadata; no way to check as this returns void
-			sampleMetaDao.updateBySampleId(platformUnitDb.getSampleId(), sampleMetaList); // persist the metadata
-
-			//update the barcode
-			List<SampleBarcode> sampleBarcodeList = platformUnitDb.getSampleBarcode();
-			if(sampleBarcodeList != null && sampleBarcodeList.size() > 0){
+			sampleMetaDao.updateBySampleId(platformUnitDb.getSampleId(), sampleMetaList); // persist the metadata; no way to check as this returns void
+		
+			//barcode
+			List<SampleBarcode> sampleBarcodeList = platformUnitDb.getSampleBarcode();//any barcodes exist for this platform unit?
+			if(sampleBarcodeList != null && sampleBarcodeList.size() > 0){//this is an update
 				SampleBarcode sampleBarcode = sampleBarcodeList.get(0);
 				Barcode existingBarcode = sampleBarcode.getBarcode();
 				existingBarcode.setBarcode(barcodeName);//update the barcodeName
@@ -1167,7 +1109,7 @@ try{
 					throw new SampleException("updated barcode unexpectedly not saved");
 				}
 			}
-			else{//should never happen, but just in case, if don't find barcode, then add it here and now
+			else{//new barcode for a new platformunit
 				Barcode barcodeObject = new Barcode();		
 				barcodeObject.setBarcode(barcodeName);
 				barcodeObject.setBarcodefor("WASP");
@@ -1184,12 +1126,33 @@ try{
 					throw new SampleException("new samplebarcode in update area unexpectedly not saved");
 				}
 			}
+		
+			//The name of the platformunit (such as 102A4; which is the barcode name) is also part of the name of the cell (102A4/1)
+			//and if the name of the platformunit is being updated, then the names of the cells also have to be updated
+			//Do this only if needed: action == update [since no cells yet exist] and the name has been changed (and cells exist - which they should).
+			if(action.equals("update") && platformUnitNameHasBeenChanged){
+				List<SampleSource> sampleSourceList = platformUnitDb.getSampleSource();
+				if(sampleSourceList != null && sampleSourceList.size() > 0){//should be true for all updates
+					for (SampleSource ss : sampleSourceList){
+						Sample cell = ss.getSourceSample();
+						if (!cell.getSampleType().getIName().equals("cell")){
+							throw new SampleTypeException("Expected 'cell' while updating cell name but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
+						}
+						Integer index = ss.getIndex();
+						cell.setName(barcodeName +"/"+(index.intValue()));
+						Sample cellDb = this.sampleDao.save(cell);
+						if(cellDb==null || cellDb.getSampleId()==null || cell.getSampleId().intValue() <= 0){
+							throw new SampleException("updated cell unexpectedly not saved during update of cell name");
+						}
+					}
+				}
+			}
 			
-			//deal with the lanes during update, which could include addition of new lanes or loss of existing lanes
-			//above we already confirmed that loss of lanes is permitted (addition is always permitted)
-			if(numberOfLanesRequested.intValue() > numberOfLanesInDatabase.intValue()){//add lanes 
+			//lanes
+			//if create new platformunit or update and add addeal with the lanes during update, which could include addition of new lanes or loss of existing lanes
+			if(numberOfLanesRequested.intValue() > numberOfLanesInDatabase.intValue()){//add lanes; can be create new record (where numberOfLanesInDatabase = 0) or an update to add some more lanes 
 	
-				for(int i = numberOfLanesInDatabase + 1; i <= numberOfLanesRequested; i++){
+				for(int i = numberOfLanesInDatabase + 1; i <= numberOfLanesRequested; i++){//add additional lanes
 				
 					Sample cell = new Sample();
 					cell.setSubmitterLabId(platformUnitDb.getSubmitterLabId());
@@ -1203,20 +1166,20 @@ try{
 					cell.setReceiveDts(new Date());
 					Sample cellDb = this.sampleDao.save(cell);
 					if(cellDb==null || cellDb.getSampleId()==null || cell.getSampleId().intValue() <= 0){
-						throw new SampleException("new cell unexpectedly not saved during update of platformunit");
+						throw new SampleException("new cell unexpectedly not saved during create or update of platformunit");
 					}
-
+	
 					SampleSource sampleSource = new SampleSource();
 					sampleSource.setSampleId(platformUnitDb.getSampleId());
 					sampleSource.setSourceSampleId(cellDb.getSampleId());
 					sampleSource.setIndex(i);
 					SampleSource sampleSourceDb = this.sampleSourceDao.save(sampleSource);
 					if(sampleSourceDb==null || sampleSourceDb.getSampleId()==null || sampleSourceDb.getSampleId().intValue() <= 0){
-						throw new SampleException("new samplesource unexpectedly not saved during update of platformunit");
+						throw new SampleException("new samplesource unexpectedly not saved during create or update of platformunit");
 					}
 				}
 			}
-			else if(numberOfLanesRequested.intValue() < numberOfLanesInDatabase.intValue()){//remove lanes ; already confirmed this is legal  
+			else if(numberOfLanesRequested.intValue() < numberOfLanesInDatabase.intValue()){//update requests to remove lanes; above we already confirmed that this will NOT result in loss of info  with this call (if(this.requestedReductionInCellNumberIsProhibited(pu, numberOfLanesRequested))  
 				
 				//get the list 
 				//Map<Integer, Sample> indexedCellMap = sampleService.getIndexedCellsOnPlatformUnit(platformUnitInDatabase);
@@ -1227,30 +1190,22 @@ try{
 					}
 					Integer index = ss.getIndex();
 					if(index.intValue() >= numberOfLanesRequested.intValue() + 1 && index.intValue() <= numberOfLanesInDatabase.intValue()){
-						//check for libraries here, just as a final fail safe mechanism
+						//check for present of any libraries on these cells (just as a final fail safe mechanism, as this was tested above)
 						List<Sample> libraryList = null;
 						libraryList = this.getLibrariesOnCell(cell);//throws exception
 						if(libraryList!=null && libraryList.size()>0){//found at least one library
 							throw new SampleException("Cell " + cell.getSampleId().intValue() + "unexpectedly has " + libraryList.size() + " libraries on it. Unable to remove this lane");
 						}
-						sampleSourceDao.remove(ss);
-						sampleDao.remove(cell);
+						sampleSourceDao.remove(ss);//no additional samplesourcemeta needs to be removed here
+						sampleDao.remove(cell);//no additional samplemeta needs to be removed here
 					}
 				}
 			}
-			else if(numberOfLanesRequested.intValue() == numberOfLanesInDatabase.intValue()){
+			else if(numberOfLanesRequested.intValue() == numberOfLanesInDatabase.intValue()){//do nothing
 				;
-				System.out.println("NO CHANGE IN LANE NUMBER REQUESTED");
 			}
-		}
-		else{
-			System.out.println("in Unexpectedly3");
-			throw new SampleException("Unexpectedly encountered action whose value is neither create or update");
-		}
-}catch (Exception e){	throw new RuntimeException(e.getMessage());	}
-		
-		 //if(1==1){System.out.println("FORCE A ROLLBACK FOR TESTING"); throw new RuntimeException();}
-		 
+	
+		}catch (Exception e){	throw new RuntimeException(e.getMessage());	}
 		
 		return;
 	}
