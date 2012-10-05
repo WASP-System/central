@@ -806,8 +806,9 @@ public class PlatformUnitController extends WaspController {
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public String showPlatformUnit(@PathVariable("sampleId") Integer sampleId, ModelMap m){
 		
+		Sample platformUnit2; 
 		try{
-			Sample platformUnit2 = sampleService.getPlatformUnit(sampleId);
+			platformUnit2 = sampleService.getPlatformUnit(sampleId);
 			m.addAttribute("platformUnitSampleId", platformUnit2.getSampleId().toString());
 			m.addAttribute("platformUnitSampleSubtypeId", platformUnit2.getSampleSubtype().getSampleSubtypeId().toString());
 			m.addAttribute("typeOfPlatformUnit", platformUnit2.getSampleSubtype().getName());
@@ -823,12 +824,22 @@ public class PlatformUnitController extends WaspController {
 			String comment = MetaHelperWebapp.getMetaValue(area, "comment", platformUnit2.getSampleMeta());
 			m.addAttribute("comment", comment);			
 			
+			/*
+			Map<Integer, Sample> indexedCellMap = sampleService.getIndexedCellsOnPlatformUnit(platformUnit2);//Integer is the index in the samplesource.
+			for(int i = 1; i <= indexedCellMap.size(); i++){
+				
+				Sample cell = indexedCellMap.get(new Integer(i));
+				List<Sample> libraryList = sampleService.getLibrariesOnCell(cell);//throws exception
+				
+				
+			}
+			*/
 		}catch(Exception e){logger.debug(e.getMessage());waspErrorMessage("wasp.unexpected_error.error");return "redirect:/dashboard.do";}
 	
 		
 		
 		
-		Sample platformUnit = sampleDao.getSampleBySampleId(sampleId.intValue());
+		Sample platformUnit = platformUnit2;//sampleDao.getSampleBySampleId(sampleId.intValue());
 		if( platformUnit==null || platformUnit.getSampleId()==null || platformUnit.getSampleId().intValue()==0 || ! "platformunit".equals(platformUnit.getSampleType().getIName()) ){
 			waspErrorMessage("platformunit.flowcellNotFoundNotUnique.error");
 			return "redirect:/dashboard.do";
