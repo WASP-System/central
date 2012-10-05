@@ -3,6 +3,26 @@
 <title><fmt:message key="pageTitle.facility/platformunit/showPlatformUnit.label"/></title>
 <h1><fmt:message key="pageTitle.facility/platformunit/showPlatformUnit.label"/></h1>
 <br /> 
+
+<table class="EditTable ui-widget ui-widget-content">
+<tr class="FormData"><td class="CaptionTD"><fmt:message key="platformunitShow.typeOfPlatformUnit.label"/>:</td><td class="DataTD"><c:out value="${typeOfPlatformUnit}" /></td></tr>
+<tr class="FormData"><td class="CaptionTD"><fmt:message key="platformunitShow.barcodeName.label"/>:</td><td class="DataTD"><c:out value="${barcodeName}" /></td></tr>
+<tr class="FormData"><td class="CaptionTD"><fmt:message key="platformunitShow.readType.label"/>:</td><td class="DataTD"><c:out value="${readType}" /></td></tr>
+<tr class="FormData"><td class="CaptionTD"><fmt:message key="platformunitShow.readlength.label"/>:</td><td class="DataTD"><c:out value="${readlength}" /></td></tr>
+<tr class="FormData"><td class="CaptionTD"><fmt:message key="platformunitShow.numberOfCellsOnThisPlatformUnit.label"/>:</td><td class="DataTD"><c:out value="${numberOfCellsOnThisPlatformUnit}" /></td></tr>
+<tr class="FormData"><td class="CaptionTD"><fmt:message key="platformunitShow.comment.label"/>:</td><td class="DataTD"><textarea style='font-size:9px' READONLY cols='30' rows='4' wrap='virtual'><c:out value="${comment}" /></textarea></td></tr>
+<tr><td colspan='2' style='text-align:center; padding:10px' >
+<a href='<c:url value="/facility/platformunit/createUpdatePlatformUnit.do?sampleSubtypeId=${platformUnitSampleSubtypeId}&sampleId=${platformUnitSampleId}" />'>Edit</a> | <a href='#' onclick = 'if(confirm("Do you really want to delete this platform unit record?")){location.href="<c:url value="/facility/platformunit/deletePlatformUnit.do?sampleId=${platformUnitSampleId}" />";}'>Delete</a> | <a href='<c:url value="/facility/platformunit/addPlatformUnitToRun.do?sampleId=${platformUnitSampleId}" />'>Add To Run</a> 
+</td></tr>
+</table>
+
+
+
+
+
+
+
+<br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
 <c:set var="idCounter" value="0" scope="page" />
 <c:set var="idNewControlCounter" value="0" scope="page" />
 

@@ -1241,7 +1241,9 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 							throw new SampleException("Cell " + cell.getSampleId().intValue() + "unexpectedly has " + libraryList.size() + " libraries on it. Unable to remove this lane");
 						}
 						sampleSourceDao.remove(ss);//no additional samplesourcemeta needs to be removed here
+						sampleSourceDao.flush(ss);
 						sampleDao.remove(cell);//no additional samplemeta needs to be removed here
+						sampleDao.flush(cell);
 					}
 				}
 			}
@@ -1253,5 +1255,114 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 		
 		return;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void deletePlatformUnit(Integer platformUnitId) throws NumberFormatException, SampleException, SampleTypeException, SampleSubtypeException{
 		
+		try{
+			Sample platformUnit = this.getPlatformUnit(platformUnitId);//throws exceptions if not valid pu
+	
+			for (SampleSource puCellLink : platformUnit.getSampleSource()){//represents pu-cell link
+				Sample cell = puCellLink.getSourceSample();//cell is the lane
+				if (!cell.getSampleType().getIName().equals("cell")){
+					throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
+				}
+				for(SampleSource cellLibraryLink : cell.getSampleSource()){// represents the cell-library link
+					
+					this.removeLibraryFromCellOfPlatformUnit(cellLibraryLink);//remove each cell-lib link, along with the links metadata(the library itself, of course, remains untouched)
+					
+					//if (!cellLibraryLink.getSourceSample().getSampleType().getIName().equals("library")){
+						//throw new SampleTypeException("Expected 'library' but got Sample of type '" + cellLibraryLink.getSourceSample().getSampleType().getIName() + "' instead.");
+					//}
+					//if (!cellLibraryLink.getSample().getSampleType().getIName().equals("cell")){
+						//throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cellLibraryLink.getSample().getSampleType().getIName() + "' instead.");
+					//}
+					for(SampleSourceMeta cellLibraryLinkMeta : cellLibraryLink.getSampleSourceMeta()){//represents the pM applied and the jobId
+						//sampleSourceMetaDao.remove(cellLibraryLinkMeta);
+						//sampleSourceMetaDao.flush(cellLibraryLinkMeta);
+					}
+					//sampleSourceDao.remove(cellLibraryLink);//represents the cell-library link (libraries, of course, will remain untouched)
+					//sampleSourceDao.flush(cellLibraryLink);
+				}
+				
+				this.removeCellFromPlatformUnit(puCellLink);//removes the pu-cell link
+				
+				for(SampleSourceMeta puCellLinkMeta : puCellLink.getSampleSourceMeta()){//currently there is no meta here; the code is here in case that changes
+					//sampleSourceMetaDao.remove(puCellLinkMeta);
+					//sampleSourceMetaDao.flush(puCellLinkMeta);
+				}
+				//sampleSourceDao.remove(puCellLink);//represents the pu-cell link (has not meta)
+				//sampleSourceDao.flush(puCellLink);
+				
+				for(SampleMeta cellMeta : cell.getSampleMeta()){//currently there is no meta here; code is her in case that changes.
+					//sampleMetaDao.remove(cellMeta);
+					//sampleMetaDao.flush(cellMeta);
+				}
+				//sampleDao.remove(cell);//represents the cell (has no meta)
+				//sampleDao.flush(cell);
+			}
+			
+			this.removePlatformUnit(platformUnit);
+			
+			for(SampleMeta platformUnitMeta : platformUnit.getSampleMeta()){//represents pu meta such as readlength, readType, comments
+				//sampleMetaDao.remove(platformUnitMeta);
+				////sampleMetaDao.flush(platformUnitMeta);
+			}
+			//sampleDao.remove(platformUnit);
+			//sampleDao.flush(platformUnit);
+			System.out.println("leaving delatePlatformUnit");
+		}catch (Exception e){	throw new RuntimeException(e.getMessage());	}
+	}
+	private void removeLibraryFromCellOfPlatformUnit(SampleSource cellLibraryLink)throws SampleTypeException{
+		if (!cellLibraryLink.getSourceSample().getSampleType().getIName().equals("library")){
+			throw new SampleTypeException("Expected 'library' but got Sample of type '" + cellLibraryLink.getSourceSample().getSampleType().getIName() + "' instead.");
+		}
+		if (!cellLibraryLink.getSample().getSampleType().getIName().equals("cell")){
+			throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cellLibraryLink.getSample().getSampleType().getIName() + "' instead.");
+		}
+		this.removeSampleSourceAndItsMeta(cellLibraryLink);//currently the cellLibraryLink meta represents the pM applied and the jobId
+		//for(SampleSourceMeta cellLibraryLinkMeta : cellLibraryLink.getSampleSourceMeta()){//represents the pM applied and the jobId
+			//sampleSourceMetaDao.remove(cellLibraryLinkMeta);
+			//sampleSourceMetaDao.flush(cellLibraryLinkMeta);
+		//}
+		//sampleSourceDao.remove(cellLibraryLink);//represents the cell-library link (libraries, of course, will remain untouched)
+		//sampleSourceDao.flush(cellLibraryLink);
+	}
+	private void removeCellFromPlatformUnit(SampleSource puCellLink)throws SampleTypeException{
+		Sample cell = puCellLink.getSourceSample();//cell is the lane
+		if (!cell.getSampleType().getIName().equals("cell")){
+			throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
+		}
+		if(!puCellLink.getSample().getSampleType().getIName().equals("platformunit")){
+			throw new SampleTypeException("Expected 'platformunit' but got Sample of type '" + puCellLink.getSample().getSampleType().getIName() + "' instead.");			
+		}
+		this.removeSampleSourceAndItsMeta(puCellLink);//first, remove the samplesource link (currently this is no meta here, but if in the future there is, it will be taken care of automatically)
+		this.removeSampleAndItsMeta(cell);//second, remove the cell itself (currently this is no meta here, but if in the future there is, it will be taken care of automatically)
+	}
+	private void removePlatformUnit(Sample platformUnit)throws SampleTypeException{
+		if (!platformUnit.getSampleType().getIName().equals("platformunit")){
+			throw new SampleTypeException("Expected 'platformunit' but got Sample of type '" + platformUnit.getSampleType().getIName() + "' instead.");
+		}
+		this.removeSampleAndItsMeta(platformUnit);//currently, meta includes readlength, readType, comments
+	}
+	private void removeSampleSourceAndItsMeta(SampleSource sampleSource){
+		for(SampleSourceMeta meta : sampleSource.getSampleSourceMeta()){
+			//sampleSourceMetaDao.remove(meta);
+			//sampleSourceMetaDao.flush(meta);
+		}
+		//sampleSourceDao.remove(sampleSource);
+		//sampleSourceDao.flush(sampleSource);
+	}
+	private void removeSampleAndItsMeta(Sample sample){
+		for(SampleMeta meta : sample.getSampleMeta()){
+			//sampleMetaDao.remove(meta);
+			//sampleMetaDao.flush(meta);
+		}
+		//sampleDao.remove(sample);
+		//sampleDao.flush(sample);
+	}
+
 }

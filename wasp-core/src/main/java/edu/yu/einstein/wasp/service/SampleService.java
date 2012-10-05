@@ -437,5 +437,11 @@ public interface SampleService extends WaspService {
 	   */
 	  public void createUpdatePlatformUnit(Sample platformUnit, SampleSubtype sampleSubtype, String barcodeName, Integer numberOfLanesRequested, List<SampleMeta> sampleMetaList) throws SampleException, SampleTypeException, SampleSubtypeException;
 		
-	
+	  /**
+	   * Deletes platform unit 
+	   * @param Sample sample
+	   * @return void
+	   */
+	  public void deletePlatformUnit(Integer platformUnitId) throws NumberFormatException, SampleException, SampleTypeException, SampleSubtypeException;
+
 }

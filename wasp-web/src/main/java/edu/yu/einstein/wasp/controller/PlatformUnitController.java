@@ -591,6 +591,22 @@ public class PlatformUnitController extends WaspController {
 		}	
 		return list;
 	}
+
+	//deletePlatformunit - GET
+	@RequestMapping(value="/deletePlatformUnit.do", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('su') or hasRole('ft')")
+	public String deletePlatformUnit(@RequestParam("sampleId") Integer sampleId, ModelMap m) {	
+
+		try{			
+			sampleService.deletePlatformUnit(sampleId);
+			
+		}catch(Exception e){logger.debug(e.getMessage());waspErrorMessage("wasp.unexpected_error.error");return "redirect:/dashboard.do";}
+
+		waspMessage("platformunitInstance.deleted_success.label");
+		//return "redirect:facilit/platformunit/list.do";
+		return "redirect:/dashboard.do";
+	}
+	
 	
 	//createUpdatePlatformunit - GET
 	@RequestMapping(value="/createUpdatePlatformUnit.do", method=RequestMethod.GET)
@@ -786,7 +802,162 @@ public class PlatformUnitController extends WaspController {
 	}
 	
 
+	@RequestMapping(value = "/showPlatformUnit/{sampleId}.do", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('su') or hasRole('ft')")
+	public String showPlatformUnit(@PathVariable("sampleId") Integer sampleId, ModelMap m){
+		
+		try{
+			Sample platformUnit2 = sampleService.getPlatformUnit(sampleId);
+			m.addAttribute("platformUnitSampleId", platformUnit2.getSampleId().toString());
+			m.addAttribute("platformUnitSampleSubtypeId", platformUnit2.getSampleSubtype().getSampleSubtypeId().toString());
+			m.addAttribute("typeOfPlatformUnit", platformUnit2.getSampleSubtype().getName());
+			m.addAttribute("barcodeName", platformUnit2.getSampleBarcode().get(0).getBarcode().getBarcode());
+			m.addAttribute("numberOfCellsOnThisPlatformUnit", sampleService.getNumberOfIndexedCellsOnPlatformUnit(platformUnit2).toString());
+			
+			MetaHelperWebapp metaHelperWebapp = getMetaHelperWebappPlatformUnitInstance();
+			String area = metaHelperWebapp.getArea();
+			String readlength = MetaHelperWebapp.getMetaValue(area, "readlength", platformUnit2.getSampleMeta());
+			m.addAttribute("readlength", readlength);
+			String readType = MetaHelperWebapp.getMetaValue(area, "readType", platformUnit2.getSampleMeta());
+			m.addAttribute("readType", readType);	
+			String comment = MetaHelperWebapp.getMetaValue(area, "comment", platformUnit2.getSampleMeta());
+			m.addAttribute("comment", comment);			
+			
+		}catch(Exception e){logger.debug(e.getMessage());waspErrorMessage("wasp.unexpected_error.error");return "redirect:/dashboard.do";}
 	
+		
+		
+		
+		Sample platformUnit = sampleDao.getSampleBySampleId(sampleId.intValue());
+		if( platformUnit==null || platformUnit.getSampleId()==null || platformUnit.getSampleId().intValue()==0 || ! "platformunit".equals(platformUnit.getSampleType().getIName()) ){
+			waspErrorMessage("platformunit.flowcellNotFoundNotUnique.error");
+			return "redirect:/dashboard.do";
+		}
+		
+		//is this flowcell on a run?
+		List<Run> runList = platformUnit.getRun();
+		m.put("runList", runList);
+		//if this flowcell is on a run, it gets locked to the addition of new user-libraries
+		//locking the flowcell is recorded as its task, Assign Library To Platform Unit, changing from CREATED to COMPLETED/FINALIZED
+		//There are conditions under which the flow cell may need to be unlocked. Currently this will be 
+		//visible on a the platform unit form only to superuser, who may unlock and later relock the flow cell.
+		//Here, just determine if it's locked
+		String platformUnitStatus = "UNKNOWN";
+		List<Statesample> stateSampleList = platformUnit.getStatesample();
+		Task task = taskDao.getTaskByIName("assignLibraryToPlatformUnit");
+		if(task==null || task.getTaskId().intValue()==0){
+			//TODO we have a problem; don't know how to deal with this
+			//however we'll simply leave platformUnitIsLocked as "UNKNOWN"
+		}
+		for(Statesample stateSample : stateSampleList){
+			if(stateSample.getState().getTaskId().intValue() == task.getTaskId().intValue()){
+				platformUnitStatus = stateSample.getState().getStatus().toUpperCase();
+			}
+		}
+		m.put("platformUnitStatus", platformUnitStatus);
+		
+		StringBuffer readType = new StringBuffer("<option value=''>---SELECT A READ TYPE---</option>");
+		StringBuffer readLength = new StringBuffer("<option value=''>---SELECT A READ LENGTH---</option>");
+		
+		Map<Integer, String> technicians = new HashMap<Integer, String>();
+		List<User> allUsers = userDao.findAll();
+		for(User user : allUsers){
+			for(Userrole userrole : user.getUserrole()){
+				if(userrole.getRole().getRoleName().equals("fm") || userrole.getRole().getRoleName().equals("ft")){
+					technicians.put(userrole.getUser().getUserId(), user.getNameFstLst());
+				}
+			}
+		}
+		m.put("technicians", technicians);
+/*		
+		if(runList.size() > 0){//a run for this platform unit exists
+			Run run = runList.get(0);//should only be one, I hope
+			String currentReadLength = "";
+			String currentReadType = "";
+			List<RunMeta> runMetaList = run.getRunMeta();
+			for(RunMeta rm : runMetaList){
+				if(rm.getK().indexOf("readlength") > -1){
+					currentReadLength = new String(rm.getV());
+				}
+				if(rm.getK().indexOf("readType") > -1){
+					currentReadType = new String(rm.getV());
+				}
+			}
+			Resource resource = run.getResource();
+			ResourceCategory resourceCategory = resource.getResourceCategory();
+			List<ResourceCategoryMeta> resourceCategoryMetaList = resourceCategory.getResourceCategoryMeta();
+			for(ResourceCategoryMeta rcm : resourceCategoryMetaList){
+				if( rcm.getK().indexOf("readType") > -1 ){
+					String[] tokens = rcm.getV().split(";");//rcm.getV() will be single:single;paired:paired
+					for(String token : tokens){//token could be single:single
+						String [] innerTokens = token.split(":");
+						if(currentReadType.equalsIgnoreCase(innerTokens[0])){
+							readType.append("<option SELECTED value='"+innerTokens[0]+"'>"+innerTokens[1]+"</option>");
+						}
+						else{
+							readType.append("<option value='"+innerTokens[0]+"'>"+innerTokens[1]+"</option>");
+						}
+					}
+				}
+				if( rcm.getK().indexOf("readlength") > -1 ){
+					String[] tokens = rcm.getV().split(";");//rcm.getV() will be 50:50;100:100
+					for(String token : tokens){//token could be 50:50
+						String [] innerTokens = token.split(":");
+						if(currentReadLength.equalsIgnoreCase(innerTokens[0])){
+							readLength.append("<option SELECTED value='"+innerTokens[0]+"'>"+innerTokens[1]+"</option>");
+						}
+						else{
+							readLength.append("<option value='"+innerTokens[0]+"'>"+innerTokens[1]+"</option>");
+						}
+					}
+				}
+			}
+			m.put("readType", new String(readType));
+			m.put("readLength", new String(readLength));
+		}
+*/		
+		List<Resource> resourceList= resourceDao.findAll(); 
+		List<Resource> filteredResourceList = new ArrayList();
+		for(Resource resource : resourceList){
+			//logger.debug("resource: " + resource.getName());
+			for(SampleSubtypeResourceCategory ssrc : resource.getResourceCategory().getSampleSubtypeResourceCategory()){
+				if(ssrc.getSampleSubtypeId().intValue() == platformUnit.getSampleSubtypeId().intValue()){
+					filteredResourceList.add(resource);
+					//logger.debug("it's a match");					
+				}
+			}
+		}
+		m.put("resources", filteredResourceList);
+		
+		List<Adaptor> allAdaptors = adaptorDao.findAll();
+		Map adaptorList = new HashMap();
+		for(Adaptor adaptor : allAdaptors){
+			adaptorList.put(adaptor.getAdaptorId().toString(), adaptor);
+		}
+		m.addAttribute("adaptors", adaptorList);
+		
+		SampleSubtype sampleSubtype = sampleSubtypeDao.getSampleSubtypeByIName("controlLibrarySample");
+		if(sampleSubtype.getSampleSubtypeId().intValue()==0){
+			//TODO throw error and get out of here ; probably go to dashboard, but would be best to go back from where you came from
+			logger.debug("Unable to find sampleSubtype of controlLibrarySample");
+		}
+		
+		Map controlFilterMap = new HashMap();
+		controlFilterMap.put("sampleSubtypeId", sampleSubtype.getSampleSubtypeId());
+		List<Sample> controlLibraryList = sampleDao.findByMap(controlFilterMap);
+		for(Sample sample : controlLibraryList){
+			logger.debug("control: " + sample.getName());
+			if(sample.getIsActive().intValue()==0){
+				controlLibraryList.remove(sample);
+			}
+		}
+		sampleService.sortSamplesBySampleName(controlLibraryList);
+		m.addAttribute("controlLibraryList", controlLibraryList);
+		
+		m.put("platformUnit", platformUnit);
+		return "facility/platformunit/showPlatformUnit";
+		//return "redirect:/dashboard.do";
+	}
 	
 	
 	
@@ -1253,140 +1424,7 @@ public class PlatformUnitController extends WaspController {
 		return;  
 	}
 	
-	@RequestMapping(value = "/showPlatformUnit/{sampleId}.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('su') or hasRole('ft')")
-	public String showPlatformUnit(@PathVariable("sampleId") Integer sampleId, ModelMap m){
-		
-		Sample platformUnit = sampleDao.getSampleBySampleId(sampleId.intValue());
-		if( platformUnit==null || platformUnit.getSampleId()==null || platformUnit.getSampleId().intValue()==0 || ! "platformunit".equals(platformUnit.getSampleType().getIName()) ){
-			waspErrorMessage("platformunit.flowcellNotFoundNotUnique.error");
-			return "redirect:/dashboard.do";
-		}
-		
-		//is this flowcell on a run?
-		List<Run> runList = platformUnit.getRun();
-		m.put("runList", runList);
-		//if this flowcell is on a run, it gets locked to the addition of new user-libraries
-		//locking the flowcell is recorded as its task, Assign Library To Platform Unit, changing from CREATED to COMPLETED/FINALIZED
-		//There are conditions under which the flow cell may need to be unlocked. Currently this will be 
-		//visible on a the platform unit form only to superuser, who may unlock and later relock the flow cell.
-		//Here, just determine if it's locked
-		String platformUnitStatus = "UNKNOWN";
-		List<Statesample> stateSampleList = platformUnit.getStatesample();
-		Task task = taskDao.getTaskByIName("assignLibraryToPlatformUnit");
-		if(task==null || task.getTaskId().intValue()==0){
-			//TODO we have a problem; don't know how to deal with this
-			//however we'll simply leave platformUnitIsLocked as "UNKNOWN"
-		}
-		for(Statesample stateSample : stateSampleList){
-			if(stateSample.getState().getTaskId().intValue() == task.getTaskId().intValue()){
-				platformUnitStatus = stateSample.getState().getStatus().toUpperCase();
-			}
-		}
-		m.put("platformUnitStatus", platformUnitStatus);
-		
-		StringBuffer readType = new StringBuffer("<option value=''>---SELECT A READ TYPE---</option>");
-		StringBuffer readLength = new StringBuffer("<option value=''>---SELECT A READ LENGTH---</option>");
-		
-		Map<Integer, String> technicians = new HashMap<Integer, String>();
-		List<User> allUsers = userDao.findAll();
-		for(User user : allUsers){
-			for(Userrole userrole : user.getUserrole()){
-				if(userrole.getRole().getRoleName().equals("fm") || userrole.getRole().getRoleName().equals("ft")){
-					technicians.put(userrole.getUser().getUserId(), user.getNameFstLst());
-				}
-			}
-		}
-		m.put("technicians", technicians);
-/*		
-		if(runList.size() > 0){//a run for this platform unit exists
-			Run run = runList.get(0);//should only be one, I hope
-			String currentReadLength = "";
-			String currentReadType = "";
-			List<RunMeta> runMetaList = run.getRunMeta();
-			for(RunMeta rm : runMetaList){
-				if(rm.getK().indexOf("readlength") > -1){
-					currentReadLength = new String(rm.getV());
-				}
-				if(rm.getK().indexOf("readType") > -1){
-					currentReadType = new String(rm.getV());
-				}
-			}
-			Resource resource = run.getResource();
-			ResourceCategory resourceCategory = resource.getResourceCategory();
-			List<ResourceCategoryMeta> resourceCategoryMetaList = resourceCategory.getResourceCategoryMeta();
-			for(ResourceCategoryMeta rcm : resourceCategoryMetaList){
-				if( rcm.getK().indexOf("readType") > -1 ){
-					String[] tokens = rcm.getV().split(";");//rcm.getV() will be single:single;paired:paired
-					for(String token : tokens){//token could be single:single
-						String [] innerTokens = token.split(":");
-						if(currentReadType.equalsIgnoreCase(innerTokens[0])){
-							readType.append("<option SELECTED value='"+innerTokens[0]+"'>"+innerTokens[1]+"</option>");
-						}
-						else{
-							readType.append("<option value='"+innerTokens[0]+"'>"+innerTokens[1]+"</option>");
-						}
-					}
-				}
-				if( rcm.getK().indexOf("readlength") > -1 ){
-					String[] tokens = rcm.getV().split(";");//rcm.getV() will be 50:50;100:100
-					for(String token : tokens){//token could be 50:50
-						String [] innerTokens = token.split(":");
-						if(currentReadLength.equalsIgnoreCase(innerTokens[0])){
-							readLength.append("<option SELECTED value='"+innerTokens[0]+"'>"+innerTokens[1]+"</option>");
-						}
-						else{
-							readLength.append("<option value='"+innerTokens[0]+"'>"+innerTokens[1]+"</option>");
-						}
-					}
-				}
-			}
-			m.put("readType", new String(readType));
-			m.put("readLength", new String(readLength));
-		}
-*/		
-		List<Resource> resourceList= resourceDao.findAll(); 
-		List<Resource> filteredResourceList = new ArrayList();
-		for(Resource resource : resourceList){
-			//logger.debug("resource: " + resource.getName());
-			for(SampleSubtypeResourceCategory ssrc : resource.getResourceCategory().getSampleSubtypeResourceCategory()){
-				if(ssrc.getSampleSubtypeId().intValue() == platformUnit.getSampleSubtypeId().intValue()){
-					filteredResourceList.add(resource);
-					//logger.debug("it's a match");					
-				}
-			}
-		}
-		m.put("resources", filteredResourceList);
-		
-		List<Adaptor> allAdaptors = adaptorDao.findAll();
-		Map adaptorList = new HashMap();
-		for(Adaptor adaptor : allAdaptors){
-			adaptorList.put(adaptor.getAdaptorId().toString(), adaptor);
-		}
-		m.addAttribute("adaptors", adaptorList);
-		
-		SampleSubtype sampleSubtype = sampleSubtypeDao.getSampleSubtypeByIName("controlLibrarySample");
-		if(sampleSubtype.getSampleSubtypeId().intValue()==0){
-			//TODO throw error and get out of here ; probably go to dashboard, but would be best to go back from where you came from
-			logger.debug("Unable to find sampleSubtype of controlLibrarySample");
-		}
-		
-		Map controlFilterMap = new HashMap();
-		controlFilterMap.put("sampleSubtypeId", sampleSubtype.getSampleSubtypeId());
-		List<Sample> controlLibraryList = sampleDao.findByMap(controlFilterMap);
-		for(Sample sample : controlLibraryList){
-			logger.debug("control: " + sample.getName());
-			if(sample.getIsActive().intValue()==0){
-				controlLibraryList.remove(sample);
-			}
-		}
-		sampleService.sortSamplesBySampleName(controlLibraryList);
-		m.addAttribute("controlLibraryList", controlLibraryList);
-		
-		m.put("platformUnit", platformUnit);
-		return "facility/platformunit/showPlatformUnit";
-		//return "redirect:/dashboard.do";
-	}
+
 	
 	/*
 	 * update State of PlatformUnit (as far as it being available for accepting user libraries)
