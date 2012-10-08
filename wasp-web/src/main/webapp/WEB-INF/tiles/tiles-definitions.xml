@@ -361,8 +361,15 @@
 		<put-attribute name="grid-columns" value="/WEB-INF/jsp/uiField/grid_columns.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/uiField/list.jsp" />
 	</definition>
-	
+
 	<definition name="facility/platformunit/list" extends="template-grid">
+		<put-attribute name="area" value="platformunit" />
+		<put-attribute name="grid-columns" value="/WEB-INF/jsp/facility/platformunit/grid_columns.jsp" />
+		<put-attribute name="grid-customAttributes" value="/WEB-INF/jsp/facility/platformunit/grid_customAttributes.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/facility/platformunit/list.jsp" />
+	</definition>
+	
+	<definition name="facility/platformunit/list_______DUBINDUBINDUBINDUBINDUBIN***************" extends="template-grid">
 		<put-attribute name="area" value="platformunit" />
 		<put-attribute name="grid-columns" value="/WEB-INF/jsp/facility/platformunit/allplatformunit_grid_columns.jsp" />
 		<put-attribute name="grid-customAttributes" value="/WEB-INF/jsp/facility/platformunit/allplatformunit_grid_customAttributes.jsp" />
