@@ -1925,14 +1925,6 @@ public class PlatformUnitController extends WaspController {
 				sampleList = allSampleList;
 			}
 		}
-<<<<<<< HEAD
-		//check that this represents a cell->lib link
-		Sample putativeLibrary = sampleSource.getSourceSample();
-		Sample putativeCell = sampleSource.getSample();
-		if( ! sampleService.isLibrary(putativeLibrary) || ! putativeCell.getSampleType().getIName().equals("cell") ){
-			waspErrorMessage("platformunit.samplesourceTypeError.error");
-			return; 
-=======
 
 	try {
 		ObjectMapper mapper = new ObjectMapper();
@@ -1971,7 +1963,6 @@ public class PlatformUnitController extends WaspController {
 			jqgrid.put("records", "1");
 			jqgrid.put("total", "1");
 			jqgrid.put("page", "1");
->>>>>>> master
 		}
 
 		List<Sample> samplePage = sampleList.subList(frId, toId);

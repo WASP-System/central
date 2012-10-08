@@ -859,6 +859,7 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	 */
 	@Override
 	public boolean barcodeNameExists(String barcodeName){
+		
 		Map<String, Object> filter = new HashMap<String, Object>();
 		filter.put("barcode", barcodeName);
 		List<Barcode> barcodesWithThisName = barcodeDao.findByMap(filter);
@@ -1077,7 +1078,7 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 		}
 		return false;
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
