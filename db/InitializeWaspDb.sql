@@ -1745,6 +1745,7 @@ join samplesubtype st on concat(w.iname, t.iname, 'Sample') = st.iname;
 create table taskmapping (
   taskmappingid int(10) primary key not null auto_increment,
   iname varchar(50),
+  name varchar(50),
   stepname varchar(255)  not null,
   status varchar(50) not null,
   listmap varchar(255) default null,

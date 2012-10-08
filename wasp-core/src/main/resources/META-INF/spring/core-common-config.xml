@@ -51,7 +51,7 @@
   </bean>
 
   <!-- load constant string value definitions -->
-  <import resource="classpath*:static-values-definition.xml" /> 
+  <import resource="classpath*:wasp/static-values-definition.xml" /> 
 
   <!-- loads load scripts to update database -->
   <import resource="classpath*:wasp/**/*Load.xml" />

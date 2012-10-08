@@ -35,6 +35,7 @@ public class TaskMappingLoadServiceImpl extends WaspLoadServiceImpl implements	T
 			tmQuery.put("iName", tm.getIName());
 			tmQuery.put("stepName", tm.getStepName());
 			tmQuery.put("status", tm.getStatus());
+			tmQuery.put("listMap", tm.getListMap());
 			tmQuery.put("permission", tm.getPermission());
 			List<TaskMapping> matchingTM = taskMappingDao.findByMap(tmQuery);
 			if (matchingTM==null || matchingTM.isEmpty()){

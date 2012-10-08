@@ -429,7 +429,7 @@ public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 	@Override
 	public List<TaskMapping> getMappedTasksForCurrentUser(){
 		// TODO: add code
-		return null;
+		return new ArrayList<TaskMapping>();
 	}
 	
 	/**

@@ -1,36 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <beans xmlns="http://www.springframework.org/schema/beans"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://www.springframework.org/schema/beans
-        http://www.springframework.org/schema/beans/spring-beans-3.1.xsd"
-    default-autowire="byName">
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	default-autowire="byName"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
 
-  <bean id="assignLibraryToPlatformUnitTask" class="edu.yu.einstein.wasp.load.TaskMappingLoader">
-  
-  	<property name="area" value="assignLibraryToPlatformUnitTask" />
-    
-    <property name="uiFieldsFromWrapper">
-      <list>
-        <bean id="assignLibraryToPlatformUnitTaskUiField" class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper">
-        	<property name="baseLocale" value="en_US" />
-    		<property name="baseName" value="description" />
-        	<property name="label" value="Assign library to platformunit" />
-        </bean>
-      </list>
-    </property>
-
-    <property name="taskMapping">
-      <list>
-        <bean class="edu.yu.einstein.wasp.model.TaskMapping">
-          <property name="stepName" value="assignLibraryToPlatformUnit" />
-          <property name="status" value="STARTED" />
-         <!-- <property name="listMap" value="/facility/platformunit/limitPriorToAssign.do?resourceCategoryId=0" />  --> 
-           <property name="listMap" value="/task/assignLibraries/lists.do" />
-          <property name="permission" value="hasRole('su') or hasRole('fm') or hasRole('ft')" />
-        </bean>
-      </list>
-    </property>
-
-  </bean>
+	<bean id="assignLibraryToPlatformUnitTaskMapping" class="edu.yu.einstein.wasp.load.TaskMappingLoader">
+		<property name="iName" value="assignLibraryToPlatformUnitTask" />
+		<property name="name" value="Assign library to platformunit" />
+		<property name="taskMapping">
+			<list>
+				<bean class="edu.yu.einstein.wasp.model.TaskMapping">
+	          		<property name="stepName" value="wasp.sample.step.assignLibraryToPlatformUnit" />
+					<property name="status" value="STARTED" />
+					<property name="listMap" value="/task/assignLibraries/lists.do" />
+					<property name="permission" value="hasRole('su') or hasRole('fm') or hasRole('ft')" />
+				</bean>
+			</list>
+		</property>
+	</bean>
 </beans>
+
