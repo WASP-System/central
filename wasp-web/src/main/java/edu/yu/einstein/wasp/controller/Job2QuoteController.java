@@ -108,9 +108,9 @@ public class Job2QuoteController extends WaspController {
 		String userId = request.getParameter("userId");
 		String showall = request.getParameter("showall");
 		
-		String jobIdAsString = request.getParameter("jobId");//if not passed, jobIdAsString will be null
-		String submitterNameAndLogin = request.getParameter("submitter");//if not passed, will be null
-		String piNameAndLogin = request.getParameter("lab");//if not passed, will be null
+		String jobIdAsString = request.getParameter("jobId")==null?null:request.getParameter("jobId").trim();//if not passed, jobIdAsString will be null
+		String submitterNameAndLogin = request.getParameter("submitter")==null?null:request.getParameter("submitter").trim();//if not passed, will be null
+		String piNameAndLogin = request.getParameter("lab")==null?null:request.getParameter("lab").trim();//if not passed, will be null
 		System.out.println("jobIdAsString = " + jobIdAsString);System.out.println("submitterNameAndLogin = " + submitterNameAndLogin);System.out.println("piNameAndLogin = " + piNameAndLogin);
 
 		//DEAL WITH PARAMETERS

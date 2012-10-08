@@ -3,12 +3,26 @@
 <title><fmt:message key="pageTitle.facility/platformunit/showPlatformUnit.label"/></title>
 <h1><fmt:message key="pageTitle.facility/platformunit/showPlatformUnit.label"/></h1>
 <br /> 
+
+<table class="EditTable ui-widget ui-widget-content">
+<tr class="FormData"><td class="CaptionTD"><fmt:message key="platformunitShow.typeOfPlatformUnit.label"/>:</td><td class="DataTD"><c:out value="${typeOfPlatformUnit}" /></td></tr>
+<tr class="FormData"><td class="CaptionTD"><fmt:message key="platformunitShow.barcodeName.label"/>:</td><td class="DataTD"><c:out value="${barcodeName}" /></td></tr>
+<tr class="FormData"><td class="CaptionTD"><fmt:message key="platformunitShow.readType.label"/>:</td><td class="DataTD"><c:out value="${readType}" /></td></tr>
+<tr class="FormData"><td class="CaptionTD"><fmt:message key="platformunitShow.readlength.label"/>:</td><td class="DataTD"><c:out value="${readlength}" /></td></tr>
+<tr class="FormData"><td class="CaptionTD"><fmt:message key="platformunitShow.numberOfCellsOnThisPlatformUnit.label"/>:</td><td class="DataTD"><c:out value="${numberOfCellsOnThisPlatformUnit}" /></td></tr>
+<tr class="FormData"><td class="CaptionTD"><fmt:message key="platformunitShow.comment.label"/>:</td><td class="DataTD"><textarea style='font-size:9px' READONLY cols='30' rows='4' wrap='virtual'><c:out value="${comment}" /></textarea></td></tr>
+<tr><td colspan='2' style='text-align:center; padding:10px' >
+<a href='<c:url value="/facility/platformunit/createUpdatePlatformUnit.do?sampleSubtypeId=${platformUnitSampleSubtypeId}&sampleId=${platformUnitSampleId}" />'>Edit</a> | <a href='javascript:' onclick = 'if(confirm("Do you really want to delete this platform unit record?")){location.href="<c:url value="/facility/platformunit/deletePlatformUnit.do?sampleId=${platformUnitSampleId}" />";}'>Delete</a> | <a href='<c:url value="/facility/platformunit/addPlatformUnitToRun.do?sampleId=${platformUnitSampleId}" />'>Add To Run</a> 
+</td></tr>
+</table>
+
 <c:set var="idCounter" value="0" scope="page" />
 <c:set var="idNewControlCounter" value="0" scope="page" />
 
+<%-- commetned out 10-5-12
 <table class="EditTable ui-widget ui-widget-content">
-<tr class="FormData"><td class="CaptionTD"><fmt:message key="showPlatformUnit.platformUnit.label"/>:</td><td class="DataTD"><c:out value="${platformUnit.name}" /></td></tr>
 <tr class="FormData"><td class="CaptionTD"><fmt:message key="showPlatformUnit.type.label"/>:</td><td class="DataTD"><c:out value="${platformUnit.sampleSubtype.name}" /></td></tr>
+<tr class="FormData"><td class="CaptionTD"><fmt:message key="showPlatformUnit.platformUnit.label"/>:</td><td class="DataTD"><c:out value="${platformUnit.name}" /></td></tr>
 <c:forEach items="${platformUnit.sampleBarcode}" var="sampleBarcodeItem">
 	<tr class="FormData"><td class="CaptionTD"><fmt:message key="showPlatformUnit.barcode.label"/>:</td><td class="DataTD"><c:out value="${sampleBarcodeItem.barcode.barcode}" /></td></tr></c:forEach>
 <!--  <tr class="FormData"><td class="CaptionTD">Lanes:</td><td class="DataTD"><c:out value="${platformUnit.sampleSource.size()}" /></td></tr> -->
@@ -22,6 +36,9 @@
 		<tr class="FormData"><td class="CaptionTD" style="text-transform: capitalize"><c:out value="${fn:toLowerCase(fn:substringAfter(pusm.k, '.'))}" />:</td><td class="DataTD"><textarea style='font-size:9px' READONLY cols='25' rows='4' wrap='virtual'><c:out value="${pusm.v}" /></textarea></td></tr>
 	</c:if>
 </c:forEach>
+--%>
+
+<%-- was commented out a long time ago
 <sec:authorize access="hasRole('su')">
 <c:if test="${runList.size() > 0}">
 <c:choose>
@@ -52,7 +69,14 @@
 </c:choose>
 </c:if>
 </sec:authorize>
+--%>
+
+<%-- commented out 10-5-12
+<tr><td colspan='2' style='text-align:center; padding:10px' >
+<a href='<c:url value="/facility/platformunit/createUpdatePlatformUnit.do?sampleSubtypeId=${platformUnit.sampleSubtypeId}&sampleId=${platformUnit.sampleId}" />'>Edit</a> | <a href='<c:url value="/facility/platformunit/deletePlatformUnit.do?sampleId=${platformUnit.sampleId}" />'>Delete</a> | <a href='<c:url value="/facility/platformunit/addToRun.do?sampleId=${platformUnit.sampleId}" />'>Add To Run</a> 
+</td></tr>
 </table>
+--%>
 
 <br />
 

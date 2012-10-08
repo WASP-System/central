@@ -183,11 +183,11 @@ public class JobController extends WaspController {
 		//If stringResult = true, the parameters containing values would have been sent as a key named filters in JSON format 
 		//see http://www.trirand.com/jqgridwiki/doku.php?id=wiki:toolbar_searching
 		//below we capture parameters on job grid's search toolbar by name (key:value).
-		String jobIdAsString = request.getParameter("jobId");//if not passed, jobIdAsString will be null
-		String jobname = request.getParameter("name");//if not passed, will be null
-		String submitterNameAndLogin = request.getParameter("submitter");//if not passed, will be null
-		String piNameAndLogin = request.getParameter("pi");//if not passed, will be null
-		String createDateAsString = request.getParameter("createts");//if not passed, will be null
+		String jobIdAsString = request.getParameter("jobId")==null?null:request.getParameter("jobId").trim();//if not passed, jobIdAsString will be null
+		String jobname = request.getParameter("name")==null?null:request.getParameter("name").trim();//if not passed, will be null
+		String submitterNameAndLogin = request.getParameter("submitter")==null?null:request.getParameter("submitter").trim();//if not passed, will be null
+		String piNameAndLogin = request.getParameter("pi")==null?null:request.getParameter("pi").trim();//if not passed, will be null
+		String createDateAsString = request.getParameter("createts")==null?null:request.getParameter("createts").trim();//if not passed, will be null
 		//System.out.println("jobIdAsString = " + jobIdAsString);System.out.println("jobname = " + jobname);System.out.println("submitterNameAndLogin = " + submitterNameAndLogin);System.out.println("piNameAndLogin = " + piNameAndLogin);System.out.println("createDateAsString = " + createDateAsString);
 
 		//Additional URL parameters coming from a call from the userGrid (example: job/list.do?userId=2&labId=3). [A similar url call came from dashboard, but on 8/16/12 it was altered and no longer sends any parameter]  
