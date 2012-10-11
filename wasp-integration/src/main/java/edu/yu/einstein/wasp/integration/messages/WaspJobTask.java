@@ -1,6 +1,5 @@
-package edu.yu.einstein.wasp.batchint.messages;
+package edu.yu.einstein.wasp.integration.messages;
 
-import edu.yu.einstein.wasp.integration.messages.WaspTask;
 
 public class WaspJobTask extends WaspTask{
 	// constant for use with message headers

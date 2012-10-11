@@ -107,47 +107,6 @@ public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 	private AuthenticationService	authenticationService;
 	
 
-// >>>>>>> TODO: REMOVE
-	
-	@Autowired
-	private TaskDao taskDao;
-	
-	@Override
-	public List<State> getJobCreatedStates() {
-		return taskDao.getStatesByTaskIName("Start Job", "CREATED");
-	}
-
-	@Override
-	public List<State> getQuoteJobStates() {
-		return taskDao.getStatesByTaskIName("Quote Job", "COMPLETED");
-	}
-
-	@Override
-	public List<State> getJob2QuoteStates() {
-		return taskDao.getStatesByTaskIName("Quote Job", "CREATED");
-	}
-
-	@Override
-	public List<State> getPiApprovedStates() {
-		return taskDao.getStatesByTaskIName("PI Approval", "COMPLETED");
-	}
-
-	@Override
-	public List<State> getDaApprovedStates() {
-		return taskDao.getStatesByTaskIName("DA Approval", "COMPLETED");
-	}
-
-	@Override
-	public List<State> getSampleReceivedStates() {
-		return taskDao.getStatesByTaskIName("Receive Sample", "COMPLETED");
-	}
-	@Override
-	public List<State> getSampleNotYetReceivedStates() {
-		return taskDao.getStatesByTaskIName("Receive Sample", "CREATED");
-	}
-	
-
-	
 	private String expand(String perm, State state) {
 
 		if (state == null || state.getStatejob() == null || state.getStatejob().isEmpty() || state.getStatejob().get(0).getJob() == null || state.getStatejob().get(0).getJob().getLab() == null)
@@ -161,8 +120,6 @@ public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 
 	}
 
-//<<<<<<<<<
-	
 	
 	// returns states that
 	// a) are in the given status

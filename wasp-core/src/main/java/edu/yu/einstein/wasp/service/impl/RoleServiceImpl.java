@@ -23,36 +23,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.dao.DepartmentUserDao;
-import edu.yu.einstein.wasp.dao.FileDao;
-import edu.yu.einstein.wasp.dao.JobCellSelectionDao;
-import edu.yu.einstein.wasp.dao.JobDraftDao;
-import edu.yu.einstein.wasp.dao.JobFileDao;
-import edu.yu.einstein.wasp.dao.JobMetaDao;
-import edu.yu.einstein.wasp.dao.JobResourcecategoryDao;
-import edu.yu.einstein.wasp.dao.JobSampleDao;
-import edu.yu.einstein.wasp.dao.JobSoftwareDao;
-import edu.yu.einstein.wasp.dao.JobUserDao;
-import edu.yu.einstein.wasp.dao.LabDao;
-import edu.yu.einstein.wasp.dao.ResourceCategoryDao;
-import edu.yu.einstein.wasp.dao.ResourceDao;
-import edu.yu.einstein.wasp.dao.ResourceTypeDao;
-import edu.yu.einstein.wasp.dao.RoleDao;
-import edu.yu.einstein.wasp.dao.SampleDao;
-import edu.yu.einstein.wasp.dao.SampleFileDao;
-import edu.yu.einstein.wasp.dao.SampleJobCellSelectionDao;
-import edu.yu.einstein.wasp.dao.SampleMetaDao;
-import edu.yu.einstein.wasp.dao.SampleSubtypeDao;
-import edu.yu.einstein.wasp.dao.SampleTypeDao;
-import edu.yu.einstein.wasp.dao.SoftwareDao;
-import edu.yu.einstein.wasp.dao.StateDao;
-import edu.yu.einstein.wasp.dao.StatejobDao;
-import edu.yu.einstein.wasp.dao.TaskDao;
 import edu.yu.einstein.wasp.model.DepartmentUser;
 import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Userrole;
 import edu.yu.einstein.wasp.service.RoleService;
-import edu.yu.einstein.wasp.service.TaskService;
 
 @Service
 @Transactional
@@ -61,83 +36,7 @@ public class RoleServiceImpl extends WaspServiceImpl implements RoleService {
 	@Autowired
 	private DepartmentUserDao departmentUserDao;
 	
-	@Autowired
-	private JobDraftDao jobDraftDao;
-	
-	@Autowired
-	private SampleMetaDao sampleMetaDao;
-	
-	@Autowired
-	private TaskDao taskDao;
 
-	@Autowired
-	private TaskService taskService;
-	 
-	@Autowired
-	private JobMetaDao jobMetaDao;
-
-	@Autowired
-	protected LabDao labDao;
-
-	@Autowired
-	protected JobUserDao jobUserDao;
-
-	@Autowired
-	protected RoleDao roleDao;
-
-	@Autowired
-	protected ResourceDao resourceDao;
-
-	@Autowired
-	protected ResourceCategoryDao resourceCategoryDao;
-
-	@Autowired
-	protected SoftwareDao softwareDao;
-
-	@Autowired
-	protected ResourceTypeDao resourceTypeDao;
-
-	@Autowired
-	protected SampleDao sampleDao;
-
-	@Autowired
-	protected SampleFileDao sampleFileDao;
-
-	@Autowired
-	protected JobSampleDao jobSampleDao;
-	
-	@Autowired
-	protected SampleTypeDao sampleTypeDao;
-	
-	@Autowired
-	protected SampleSubtypeDao sampleSubtypeDao;
-
-	@Autowired
-	protected StatejobDao statejobDao;
-
-	@Autowired
-	protected StateDao stateDao;
-
-	@Autowired
-	protected SampleSubtypeDao subSampleTypeDao;
-
-	@Autowired
-	protected FileDao fileDao;
-
-	@Autowired
-	protected JobCellSelectionDao jobCellSelectionDao;
-	
-	@Autowired
-	protected SampleJobCellSelectionDao sampleJobCellSelectionDao;
-	
-	@Autowired
-	protected JobSoftwareDao jobSoftwareDao;
-	
-	@Autowired
-	protected JobResourcecategoryDao jobResourcecategoryDao;
-	
-	@Autowired
-	protected JobFileDao jobFileDao;
 
 	 /**
 	   * {@inheritDoc}

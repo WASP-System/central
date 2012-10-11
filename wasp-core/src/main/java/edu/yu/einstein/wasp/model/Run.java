@@ -698,38 +698,4 @@ public class Run extends WaspModel {
 
 
 
-	/** 
-	 * staterun
-	 *
-	 */
-	@NotAudited
-	@OneToMany
-	@JoinColumn(name="runid", insertable=false, updatable=false)
-	protected List<Staterun> staterun;
-
-
-	/** 
-	 * getStaterun()
-	 *
-	 * @return staterun
-	 *
-	 */
-	@JsonIgnore
-	public List<Staterun> getStaterun() {
-		return this.staterun;
-	}
-
-
-	/** 
-	 * setStaterun
-	 *
-	 * @param staterun
-	 *
-	 */
-	public void setStaterun (List<Staterun> staterun) {
-		this.staterun = staterun;
-	}
-
-
-
 }

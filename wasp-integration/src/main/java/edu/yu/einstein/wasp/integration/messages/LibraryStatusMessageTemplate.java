@@ -1,23 +1,19 @@
-package edu.yu.einstein.wasp.batchint.messages;
+package edu.yu.einstein.wasp.integration.messages;
 
 import org.springframework.integration.Message;
 import org.springframework.integration.support.MessageBuilder;
 
 import edu.yu.einstein.wasp.integration.exceptions.WaspMessageBuildingException;
-import edu.yu.einstein.wasp.integration.messages.WaspMessageType;
-import edu.yu.einstein.wasp.integration.messages.WaspStatus;
-import edu.yu.einstein.wasp.integration.messages.WaspStatusMessageTemplate;
 
 /**
- * Handling Wasp Sample Status Messages. If not task is defined the default is WaspTask.NOTIFY_STATUS
+ * Handling Wasp Library Status Messages. If not task is defined the default is WaspTask.NOTIFY_STATUS
  * @author andymac
  *
  */
-public class SampleStatusMessageTemplate extends WaspStatusMessageTemplate{
+public class LibraryStatusMessageTemplate extends  WaspStatusMessageTemplate{
 	
 	protected Integer sampleId;
 	
-
 	public Integer getsampleId() {
 		return sampleId;
 	}
@@ -26,10 +22,11 @@ public class SampleStatusMessageTemplate extends WaspStatusMessageTemplate{
 		this.sampleId = sampleId;
 	}
 	
-	public SampleStatusMessageTemplate(Integer sampleId){
+	public LibraryStatusMessageTemplate(Integer sampleId){
 		super();
 		this.sampleId = sampleId;
 	}
+	
 	
 	/**
 	 * Build a Spring Integration Message using the sampleId header, task header if not null, and the WaspStatus as payload .
@@ -44,16 +41,16 @@ public class SampleStatusMessageTemplate extends WaspStatusMessageTemplate{
 		try {
 			if (this.task == null){
 				message = MessageBuilder.withPayload(status)
-						.setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.SAMPLE)
+						.setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.LIBRARY)
 						.setHeader(TARGET_KEY, target)
-						.setHeader(WaspJobParameters.SAMPLE_ID, sampleId)
+						.setHeader(WaspJobParameters.LIBRARY_ID, sampleId)
 						.setPriority(status.getPriority())
 						.build();
 			} else {
 				message = MessageBuilder.withPayload(status)
-						.setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.SAMPLE)
+						.setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.LIBRARY)
 						.setHeader(TARGET_KEY, target)
-						.setHeader(WaspJobParameters.SAMPLE_ID, sampleId)
+						.setHeader(WaspJobParameters.LIBRARY_ID, sampleId)
 						.setHeader(WaspJobTask.HEADER_KEY, task)
 						.setPriority(status.getPriority())
 						.build();
@@ -88,10 +85,10 @@ public class SampleStatusMessageTemplate extends WaspStatusMessageTemplate{
 	 */
 	public static boolean actUponMessage(Message<?> message, Integer sampleId ){
 		if (sampleId != null &&
-				message.getHeaders().containsKey(WaspJobParameters.SAMPLE_ID) && 
-				((Integer) message.getHeaders().get(WaspJobParameters.SAMPLE_ID)).equals(sampleId) &&
+				message.getHeaders().containsKey(WaspJobParameters.LIBRARY_ID) && 
+				((Integer) message.getHeaders().get(WaspJobParameters.LIBRARY_ID)).equals(sampleId) &&
 				message.getHeaders().containsKey(WaspMessageType.HEADER_KEY) && 
-				((String) message.getHeaders().get(WaspMessageType.HEADER_KEY)).equals(WaspMessageType.SAMPLE))
+				((String) message.getHeaders().get(WaspMessageType.HEADER_KEY)).equals(WaspMessageType.LIBRARY))
 			return true;
 		return false;
 	}

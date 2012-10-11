@@ -64,10 +64,7 @@ public class Job2QuoteController extends WaspController {
 	private JobDao			jobDao;
 	@Autowired
 	private LabDao			labDao;
-	@Autowired
-	private StateDao		stateDao;
-	@Autowired
-	private StatejobDao		statejobDao;
+
 	@Autowired
 	private FilterService	filterService;
 	@Autowired

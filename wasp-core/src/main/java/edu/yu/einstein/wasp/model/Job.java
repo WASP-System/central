@@ -847,37 +847,7 @@ public class Job extends WaspModel {
 
 
 
-	/** 
-	 * statejob
-	 *
-	 */
-	@NotAudited
-	@OneToMany
-	@JoinColumn(name="jobid", insertable=false, updatable=false)
-	protected List<Statejob> statejob;
 
-
-	/** 
-	 * getStatejob()
-	 *
-	 * @return statejob
-	 *
-	 */
-	@JsonIgnore
-	public List<Statejob> getStatejob() {
-		return this.statejob;
-	}
-
-
-	/** 
-	 * setStatejob
-	 *
-	 * @param statejob
-	 *
-	 */
-	public void setStatejob (List<Statejob> statejob) {
-		this.statejob = statejob;
-	}
 
 
 

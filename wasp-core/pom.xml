@@ -115,6 +115,10 @@
 			<artifactId>wasp-batch</artifactId>
 		</dependency>
 		<dependency>
+			 <groupId>${project.groupId}.integration</groupId>
+			<artifactId>wasp-integration</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>wasp-config</artifactId>
 		</dependency>

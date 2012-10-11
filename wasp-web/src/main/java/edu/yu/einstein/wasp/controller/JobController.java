@@ -108,10 +108,7 @@ public class JobController extends WaspController {
 		return this.roleDao;
 	}
 
-	@Autowired
-	private TaskDao		taskDao;
-	@Autowired
-	private StateDao	stateDao;
+
 	@Autowired
 	private LabDao		labDao;
 	@Autowired

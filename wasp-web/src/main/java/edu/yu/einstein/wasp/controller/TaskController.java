@@ -32,25 +32,7 @@ import edu.yu.einstein.wasp.service.SampleService;
 @RequestMapping("/task")
 public class TaskController extends WaspController {
 
-  private TaskDao taskDao;
-  @Autowired
-  public void setTaskDao(TaskDao taskDao) {
-    this.taskDao = taskDao;
-  }
-  public TaskDao getTaskDao() {
-    return this.taskDao;
-  }
-
-  private StateDao stateDao;
-  @Autowired
-  public void setStateDao(StateDao stateDao) {
-    this.stateDao = stateDao;
-  }
-  public StateDao getStateDao() {
-    return this.stateDao;
-  }
-
-  @Autowired
+   @Autowired
   private SampleDao sampleDao;
   
   @Autowired

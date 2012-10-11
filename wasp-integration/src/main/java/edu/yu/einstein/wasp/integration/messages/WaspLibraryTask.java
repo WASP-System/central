@@ -1,4 +1,4 @@
-package edu.yu.einstein.wasp.batchint.messages;
+package edu.yu.einstein.wasp.integration.messages;
 
 public class WaspLibraryTask extends WaspSampleTask{
 	// constant for use with message headers

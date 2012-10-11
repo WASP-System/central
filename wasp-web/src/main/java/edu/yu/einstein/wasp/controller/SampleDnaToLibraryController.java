@@ -99,10 +99,7 @@ public class SampleDnaToLibraryController extends WaspController {
   private SampleSubtypeDao sampleSubtypeDao;
   @Autowired
   private JobSampleDao jobSampleDao;
-  @Autowired
-  private TaskDao taskDao;
-  @Autowired
-  private StateDao stateDao;
+
   @Autowired
   private SampleService sampleService;
   @Autowired

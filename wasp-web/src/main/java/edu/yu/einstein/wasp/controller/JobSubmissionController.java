@@ -199,9 +199,6 @@ public class JobSubmissionController extends WaspController {
 	
 	@Autowired
 	protected SampleSubtypeDao sampleSubtypeDao;
-
-	@Autowired
-	protected TaskDao taskDao;
 	
 	@Autowired
 	protected SampleSubtypeDao subSampleTypeDao;

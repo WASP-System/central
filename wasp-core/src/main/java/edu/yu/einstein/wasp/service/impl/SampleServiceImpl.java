@@ -145,9 +145,6 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	private BarcodeDao barcodeDao;
 	
 	@Autowired
-	  private TaskDao taskDao;
-	
-	@Autowired
 	  private RunDao runDao;
 
 	public void setSampleMetaDao(SampleMetaDao sampleMetaDao) {

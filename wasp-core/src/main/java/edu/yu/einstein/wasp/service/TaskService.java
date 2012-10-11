@@ -14,13 +14,11 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import edu.yu.einstein.wasp.dao.TaskDao;
 import edu.yu.einstein.wasp.dao.TaskMappingDao;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.LabPending;
 import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.Sample;
-import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.TaskMapping;
 import edu.yu.einstein.wasp.model.UserPending;
 
@@ -32,24 +30,6 @@ public interface TaskService extends WaspService {
 
 
 	public void setTaskMappingDao(TaskMappingDao taskMappingDao);
-// >>>>> TODO: REMOVE
-	public List<State> getJobCreatedStates();
-
-	public List<State> getQuoteJobStates();
-
-	public List<State> getJob2QuoteStates();
-
-	public List<State> getPiApprovedStates();
-
-	public List<State> getDaApprovedStates();
-
-	public List<State> getSampleReceivedStates();
-	
-	public List<State> getSampleNotYetReceivedStates();
-// <<<<<<<
-	
-
-	public List<State> filterStatesByStatusAndPermission(List<State> states, String status, String permsission);
 
 	public int getLabManagerPendingTasks();
 

@@ -286,38 +286,6 @@ public class RunCell extends WaspModel {
 
 
 
-	/** 
-	 * stateRunCell
-	 *
-	 */
-	@NotAudited
-	@OneToMany
-	@JoinColumn(name="runcellid", insertable=false, updatable=false)
-	protected List<StateRunCell> stateRunCell;
-
-
-	/** 
-	 * getStateruncell()
-	 *
-	 * @return stateRunCell
-	 *
-	 */
-	@JsonIgnore
-	public List<StateRunCell> getStateRunCell() {
-		return this.stateRunCell;
-	}
-
-
-	/** 
-	 * setStateruncell
-	 *
-	 * @param stateRunCell
-	 *
-	 */
-	public void setStateRunCell (List<StateRunCell> stateRunCell) {
-		this.stateRunCell = stateRunCell;
-	}
-
 
 
 }

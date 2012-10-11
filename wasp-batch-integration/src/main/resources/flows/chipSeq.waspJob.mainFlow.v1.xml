@@ -34,7 +34,7 @@
 				<bean class="edu.yu.einstein.wasp.batchint.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
-						<bean class="edu.yu.einstein.wasp.batchint.messages.JobStatusMessageTemplate">
+						<bean class="edu.yu.einstein.wasp.integration.messages.JobStatusMessageTemplate">
 							<constructor-arg  name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
 							<property name="status" value="ACCEPTED" />
 						</bean>
@@ -47,7 +47,7 @@
 				<bean class="edu.yu.einstein.wasp.batchint.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
-						<bean class="edu.yu.einstein.wasp.batchint.messages.JobStatusMessageTemplate">
+						<bean class="edu.yu.einstein.wasp.integration.messages.JobStatusMessageTemplate">
 							<constructor-arg  name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
 							<property name="status" value="ABANDONED" />
 						</bean>
@@ -66,7 +66,7 @@
 					<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.job" />
 					<constructor-arg name="abortMonitoringChannel" ref="wasp.channel.notification.abort" />
 					<constructor-arg name="messageTemplate">
-						<bean class="edu.yu.einstein.wasp.batchint.messages.JobStatusMessageTemplate">
+						<bean class="edu.yu.einstein.wasp.integration.messages.JobStatusMessageTemplate">
 							<constructor-arg name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
 							<property name="status" value="COMPLETED" />
 						</bean>

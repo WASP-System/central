@@ -33,6 +33,9 @@ public class TaskMapping extends WaspModel {
 	@Column(name="iname")
 	private String iName;
 	
+	@Column(name="name")
+	private String name;
+	
 	@Column(name="stepname")
 	private String stepName;
 
@@ -69,6 +72,14 @@ public class TaskMapping extends WaspModel {
 
 	public String getIName () {
 		return this.iName;
+	}
+	
+	public void setName (String name) {
+		this.name = name;
+	}
+
+	public String getName () {
+		return this.name;
 	}
 
 

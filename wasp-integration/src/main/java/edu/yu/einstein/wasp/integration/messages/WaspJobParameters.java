@@ -1,4 +1,4 @@
-package edu.yu.einstein.wasp.batchint.messages;
+package edu.yu.einstein.wasp.integration.messages;
 
 public class WaspJobParameters {
 	

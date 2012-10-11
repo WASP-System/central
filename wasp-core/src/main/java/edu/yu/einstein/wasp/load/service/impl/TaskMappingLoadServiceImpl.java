@@ -31,31 +31,24 @@ public class TaskMappingLoadServiceImpl extends WaspLoadServiceImpl implements	T
 				tm.setDashboardSortOrder(1); // default to 1
 			if (tm.getIName() == null)
 				tm.setIName(iname);
-			Map<String, Object> tmQuery = new HashMap<String, Object>();
-			tmQuery.put("iName", tm.getIName());
-			tmQuery.put("stepName", tm.getStepName());
-			tmQuery.put("status", tm.getStatus());
-			tmQuery.put("listMap", tm.getListMap());
-			tmQuery.put("permission", tm.getPermission());
-			List<TaskMapping> matchingTM = taskMappingDao.findByMap(tmQuery);
-			if (matchingTM==null || matchingTM.isEmpty()){
+			TaskMapping dbTm = taskMappingDao.getTaskMappingByIName(tm.getIName());
+			if (dbTm==null || dbTm.getTaskMappingId() == 0){
 				// is new
 				tm.setIsActive(1);
 				taskMappingDao.save(tm);
 			} else {
 				// exists so update if changed
-				TaskMapping dbTm = matchingTM.get(0);
-				if (!dbTm.getIName().equals(tm.getIName()))
-					dbTm.setIName(tm.getIName()); 
-				if (!dbTm.getStepName().equals(tm.getStepName()))
+				if ( (dbTm.getName() == null && tm.getName() != null) || !dbTm.getName().equals(tm.getName()))
+					dbTm.setName(tm.getName()); 
+				if ( (dbTm.getStepName() == null && tm.getStepName() != null) || !dbTm.getStepName().equals(tm.getStepName()))
 					dbTm.setStepName(tm.getStepName()); 
-				if (!dbTm.getStatus().equals(tm.getStatus()))
+				if ( (dbTm.getStatus() == null && tm.getStatus() != null) || !dbTm.getStatus().equals(tm.getStatus()))
 					dbTm.setStatus(tm.getStatus()); 
-				if (!dbTm.getPermission().equals(tm.getPermission()))
+				if ( (dbTm.getPermission() == null && tm.getPermission() != null) || !dbTm.getPermission().equals(tm.getPermission()))
 					dbTm.setPermission(tm.getPermission()); 
-				if (!dbTm.getListMap().equals(tm.getListMap()))
+				if ( (dbTm.getListMap() == null && tm.getListMap() != null) || !dbTm.getListMap().equals(tm.getListMap()))
 					dbTm.setListMap(tm.getListMap()); 
-				if (!dbTm.getDashboardSortOrder().equals(tm.getDashboardSortOrder()))
+				if ( (dbTm.getDashboardSortOrder() == null && tm.getDashboardSortOrder() != null) || !dbTm.getDashboardSortOrder().equals(tm.getDashboardSortOrder()))
 					dbTm.setDashboardSortOrder(tm.getDashboardSortOrder());
 				dbTm.setIsActive(1);
 			}

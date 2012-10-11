@@ -179,8 +179,6 @@ public class PlatformUnitController extends WaspController {
 	@Autowired
 	private ResourceDao resourceDao;
 
-	@Autowired
-	private StateDao stateDao;
 
 	@Autowired
 	private SampleMetaDao sampleMetaDao;
@@ -191,8 +189,6 @@ public class PlatformUnitController extends WaspController {
 	@Autowired
 	private SampleSourceMetaDao sampleSourceMetaDao;
 
-	@Autowired
-	private StatesampleDao stateSampleDao;
 	
 	@Autowired
 	private SampleSubtypeDao sampleSubtypeDao;
@@ -200,8 +196,6 @@ public class PlatformUnitController extends WaspController {
 	@Autowired
 	private SampleSubtypeResourceCategoryDao sampleSubtypeResourceCategoryDao;
 
-	@Autowired
-	private TaskDao taskDao;
 
 	@Autowired
 	private SampleTypeDao sampleTypeDao;

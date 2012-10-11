@@ -20,10 +20,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.hibernate.service.jta.platform.internal.WeblogicJtaPlatform;
+import org.openqa.selenium.browserlaunchers.WindowsProxyManager;
+import org.springframework.batch.core.BatchStatus;
+import org.springframework.batch.core.StepExecution;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.yu.einstein.wasp.batch.core.extension.WaspBatchJobExplorer;
+import edu.yu.einstein.wasp.batch.exceptions.ParameterValueRetrievalException;
 import edu.yu.einstein.wasp.dao.FileDao;
 import edu.yu.einstein.wasp.dao.JobCellSelectionDao;
 import edu.yu.einstein.wasp.dao.JobDao;
@@ -50,6 +56,7 @@ import edu.yu.einstein.wasp.dao.StateDao;
 import edu.yu.einstein.wasp.dao.StatejobDao;
 import edu.yu.einstein.wasp.dao.TaskDao;
 import edu.yu.einstein.wasp.exception.FileMoveException;
+import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.model.File;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobCellSelection;
@@ -80,6 +87,7 @@ import edu.yu.einstein.wasp.model.Statesample;
 import edu.yu.einstein.wasp.model.Task;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.service.JobService;
+import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.TaskService;
 
 @Service
@@ -116,9 +124,6 @@ public class JobServiceImpl extends WaspServiceImpl implements JobService {
 	
 	@Autowired
 	private SampleMetaDao sampleMetaDao;
-	
-	@Autowired
-	private TaskDao taskDao;
 
 	@Autowired
 	private TaskService taskService;
@@ -163,12 +168,6 @@ public class JobServiceImpl extends WaspServiceImpl implements JobService {
 	protected SampleSubtypeDao sampleSubtypeDao;
 
 	@Autowired
-	protected StatejobDao statejobDao;
-
-	@Autowired
-	protected StateDao stateDao;
-
-	@Autowired
 	protected SampleSubtypeDao subSampleTypeDao;
 
 	@Autowired
@@ -188,6 +187,9 @@ public class JobServiceImpl extends WaspServiceImpl implements JobService {
 	
 	@Autowired
 	protected JobFileDao jobFileDao;
+	
+	@Autowired
+	protected WaspBatchJobExplorer batchJobExplorer;
 
 	 /**
 	   * {@inheritDoc}
@@ -208,25 +210,32 @@ public class JobServiceImpl extends WaspServiceImpl implements JobService {
 	}
 	
 	/**
-	   * {@inheritDoc}
-	   */
+	 * {@inheritDoc}
+	 */
 	@Override
 	public List<Sample> getSubmittedSamplesAwaitingSubmission(Job job){
 		
 		List<Sample> submittedSamplesAwaitingSubmissionList = new ArrayList<Sample>();
 		
-		List<Sample> submittedSampleList = getSubmittedSamples(job);
-		
-		Task receiveSampleTask = taskDao.getTaskByIName("Receive Sample");
-		
-		for(Sample sample : submittedSampleList){
-			List<Statesample> stateSampleList = sample.getStatesample();
-			for(Statesample stateSample : stateSampleList){
-				if(stateSample.getState().getTask().getIName().equals(receiveSampleTask.getIName()) && stateSample.getState().getStatus().equals("CREATED")){
-					submittedSamplesAwaitingSubmissionList.add(sample);
-					break;
+		Map<String, String> parameterMap = new HashMap<String, String>();
+		parameterMap.put(WaspJobParameters.JOB_ID, job.getJobId().toString());
+		List<StepExecution> stepExecutions = batchJobExplorer.getStepExecutionsByStepNameAndParameterMap("wasp.sample.step.listenForSampleReceived", parameterMap);
+		for (StepExecution se: stepExecutions){
+			if (se.getExitStatus().equals(BatchStatus.STARTED)){
+				Integer sampleId = null;
+				try{
+					sampleId = Integer.valueOf(batchJobExplorer.getJobParameterValueByKey(se, WaspJobParameters.SAMPLE_ID));
+				} catch (ParameterValueRetrievalException e){
+					logger.error(e.getMessage());
+					continue;
 				}
-			}
+				Sample sample = sampleDao.getSampleBySampleId(sampleId);
+				if (sample == null){
+					logger.error("Sample with sample id '"+sampleId+"' does not have a match in the database!");
+					continue;
+				}
+				submittedSamplesAwaitingSubmissionList.add(sample);
+			}	
 		}
 		return submittedSamplesAwaitingSubmissionList;
 	}

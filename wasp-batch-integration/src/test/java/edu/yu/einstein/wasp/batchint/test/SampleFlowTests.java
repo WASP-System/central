@@ -26,12 +26,12 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import edu.yu.einstein.wasp.batchint.messages.JobStatusMessageTemplate;
-import edu.yu.einstein.wasp.batchint.messages.LibraryStatusMessageTemplate;
-import edu.yu.einstein.wasp.batchint.messages.SampleStatusMessageTemplate;
-import edu.yu.einstein.wasp.batchint.messages.WaspJobTask;
-import edu.yu.einstein.wasp.batchint.messages.WaspSampleTask;
 import edu.yu.einstein.wasp.batchint.test.stubs.StubSampleDao;
+import edu.yu.einstein.wasp.integration.messages.JobStatusMessageTemplate;
+import edu.yu.einstein.wasp.integration.messages.LibraryStatusMessageTemplate;
+import edu.yu.einstein.wasp.integration.messages.SampleStatusMessageTemplate;
+import edu.yu.einstein.wasp.integration.messages.WaspJobTask;
+import edu.yu.einstein.wasp.integration.messages.WaspSampleTask;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
 import edu.yu.einstein.wasp.model.SampleType;

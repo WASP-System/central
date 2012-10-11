@@ -26,10 +26,7 @@
 	</properties>
 	
 	<dependencies>
-		<dependency>
-      		<groupId>edu.yu.einstein.wasp</groupId>
-      		<artifactId>wasp-core</artifactId>
-    	</dependency>
+		
     	<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>

@@ -14,9 +14,7 @@ import edu.yu.einstein.wasp.dao.JobDao;
 import edu.yu.einstein.wasp.dao.JobDraftDao;
 import edu.yu.einstein.wasp.dao.LabDao;
 import edu.yu.einstein.wasp.dao.LabPendingDao;
-import edu.yu.einstein.wasp.dao.TaskDao;
 import edu.yu.einstein.wasp.model.Lab;
-import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.TaskMapping;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.TaskService;
@@ -42,9 +40,7 @@ public class DashboardController extends WaspController {
 
 	@Autowired
 	private LabPendingDao labPendingDao;
-	
-	@Autowired
-	private TaskDao taskDao;
+
 	
 	@Autowired
 	private TaskService taskService;
