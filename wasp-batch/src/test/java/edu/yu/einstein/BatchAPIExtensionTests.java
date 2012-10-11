@@ -16,6 +16,7 @@ import org.testng.annotations.Test;
 
 import edu.yu.einstein.wasp.batch.core.extension.JobExplorerWasp;
 import edu.yu.einstein.wasp.batch.exceptions.BatchDaoDataRetrievalException;
+import edu.yu.einstein.wasp.batch.exceptions.ParameterValueRetrievalException;
 
 @ContextConfiguration(locations={"classpath:batch-test-context.xml"})
 
@@ -33,6 +34,8 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 	private final String JOB_ID_KEY = "jobId";
 	
 	private final String SAMPLE_ID_KEY = "sampleId";
+	
+	private final String SAMPLE_ID_KEY_WRONG = "wrongKey";
 	
 	private final Integer JOB_ID = 1;
 
@@ -57,7 +60,7 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 		parameterMap.put(JOB_ID_KEY, JOB_ID.toString());
 		StepExecution stepExecution = null;
 		try {
-			stepExecution = jobExplorer.getStepExecutionByStepNameAndParameterMap("listenForSampleReceived", parameterMap);
+			stepExecution = jobExplorer.getStepExecution("listenForSampleReceived", parameterMap, false);
 		} catch (BatchDaoDataRetrievalException e) {
 			Assert.fail("Unable to get status");
 		}
@@ -76,12 +79,53 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 		Map<String, String> parameterMap = new HashMap<String, String>();
 		parameterMap.put(JOB_ID_KEY, JOB_ID.toString());
 		try {
-			StepExecution stepExecution = jobExplorer.getStepExecutionByStepNameAndParameterMap("listenForSampleReceived", parameterMap);
+			StepExecution stepExecution = jobExplorer.getStepExecution("listenForSampleReceived", parameterMap, false);
 		} catch (BatchDaoDataRetrievalException e) {
 			Assert.assertEquals(e.getMessage(), "More than one StepExecution object returned with given step name and parameter map");
 			return;
 		}
 		Assert.fail("Expected an BatchDaoDataRetrievalException but got none");
+	}
+	
+	@Test(groups = "unit-tests", dependsOnMethods="testGettingStateWithAPI")
+	public void testGettingParametersFromStepExecution(){
+		Map<String, String> parameterMap = new HashMap<String, String>();
+		parameterMap.put(SAMPLE_ID_KEY, SAMPLE_ID.toString());
+		parameterMap.put(JOB_ID_KEY, JOB_ID.toString());
+		StepExecution stepExecution = null;
+		try {
+			stepExecution = jobExplorer.getStepExecution("listenForSampleReceived", parameterMap, false);
+		} catch (BatchDaoDataRetrievalException e) {
+			Assert.fail("Unable to get status");
+		}
+		String value = null;
+		try{
+			value = jobExplorer.getJobParameterValueByKey(stepExecution, SAMPLE_ID_KEY);
+		} catch (ParameterValueRetrievalException e){
+			Assert.fail("Caught unexpected ParameterValueRetrievalException: " + e.getMessage());
+		}
+		Assert.assertEquals(value, SAMPLE_ID.toString());
+	}
+	
+	@Test(groups = "unit-tests", dependsOnMethods="testGettingStateWithAPI")
+	public void testGettingParametersFromStepExecutionNoKey(){
+		Map<String, String> parameterMap = new HashMap<String, String>();
+		parameterMap.put(SAMPLE_ID_KEY, SAMPLE_ID.toString());
+		parameterMap.put(JOB_ID_KEY, JOB_ID.toString());
+		StepExecution stepExecution = null;
+		try {
+			stepExecution = jobExplorer.getStepExecution("listenForSampleReceived", parameterMap, false);
+		} catch (BatchDaoDataRetrievalException e) {
+			Assert.fail("Unable to get status");
+		}
+		String value = null;
+		try{
+			value = jobExplorer.getJobParameterValueByKey(stepExecution, SAMPLE_ID_KEY_WRONG);
+		} catch (ParameterValueRetrievalException e){
+			logger.debug("Caught expected ParameterValueRetrievalException: " + e.getMessage());
+			return;
+		}
+		Assert.fail("Didn't catch expected ParameterValueRetrievalException");
 	}
 	
 }

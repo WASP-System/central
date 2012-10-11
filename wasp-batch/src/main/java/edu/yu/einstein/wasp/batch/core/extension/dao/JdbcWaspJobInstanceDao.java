@@ -29,16 +29,16 @@ public class JdbcWaspJobInstanceDao extends JdbcJobInstanceDao implements WaspJo
 		if (parameterMap.isEmpty())
 			return null;
 		final List<Long> jobInstanceIds = new ArrayList<Long>();
-		String sql = "select distinct JOB_INSTANCE_ID from BATCH_JOB_PARAMS where TYPE_CD = 'STRING'";
+		String sql = "select distinct JOB_INSTANCE_ID from %PREFIX%JOB_PARAMS where TYPE_CD = 'STRING'";
 		int index = 1;
 		MapSqlParameterSource parameterSource = new MapSqlParameterSource();
 		for (String key: parameterMap.keySet()){
-			sql += " and JOB_INSTANCE_ID in (select JOB_INSTANCE_ID from BATCH_JOB_PARAMS where KEY_NAME = :key"+index+" and STRING_VAL = :val"+index+" )";
+			sql += " and JOB_INSTANCE_ID in (select JOB_INSTANCE_ID from %PREFIX%JOB_PARAMS where KEY_NAME = :key"+index+" and STRING_VAL = :val"+index+" )";
 			parameterSource.addValue("key"+index, key);
 			parameterSource.addValue("val"+index, parameterMap.get(key));
 			index++;
 		}
-		logger.debug("Built SQL string: " + sql);
+		logger.debug("Built SQL string: " + getQuery(sql));
 		for (String key: parameterSource.getValues().keySet())
 			logger.debug("Parameter: " + key + "=" + parameterSource.getValues().get(key).toString());
 		
@@ -53,8 +53,26 @@ public class JdbcWaspJobInstanceDao extends JdbcJobInstanceDao implements WaspJo
 			}
 		};
 		
-		getJdbcTemplate().query(sql, mapper, parameterSource);
+		getJdbcTemplate().query(getQuery(sql), mapper, parameterSource);
 		return jobInstanceIds;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<Long> getJobInstanceIdsByExclusivelyMatchingParameters(Map<String, String> parameterMap){
+		List<Long> jobInstanceIds = getJobInstanceIdsByMatchingParameters(parameterMap);
+		List<Long> exclusiveJobInstanceIds = new ArrayList<Long>();
+		for (Long id: jobInstanceIds){
+			MapSqlParameterSource parameterSource = new MapSqlParameterSource();
+			parameterSource.addValue("val", id);
+			String sql = "select count(JOB_INSTANCE_ID) from %PREFIX%JOB_PARAMS where TYPE_CD = 'STRING' and JOB_INSTANCE_ID = :val";
+			int count = getJdbcTemplate().queryForInt(getQuery(sql), parameterSource);
+			if (count == parameterMap.size())
+				exclusiveJobInstanceIds.add(id);
+		}
+		return exclusiveJobInstanceIds;
 	}
 	
 

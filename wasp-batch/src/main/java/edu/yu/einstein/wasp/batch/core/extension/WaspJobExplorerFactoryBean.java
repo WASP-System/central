@@ -13,8 +13,10 @@ import org.springframework.jdbc.support.incrementer.AbstractDataFieldMaxValueInc
 import org.springframework.jdbc.support.incrementer.DataFieldMaxValueIncrementer;
 import org.springframework.util.Assert;
 
+import edu.yu.einstein.wasp.batch.core.extension.dao.JdbcWaspJobExecutionDao;
 import edu.yu.einstein.wasp.batch.core.extension.dao.JdbcWaspJobInstanceDao;
 import edu.yu.einstein.wasp.batch.core.extension.dao.JdbcWaspStepExecutionDao;
+import edu.yu.einstein.wasp.batch.core.extension.dao.WaspJobExecutionDao;
 import edu.yu.einstein.wasp.batch.core.extension.dao.WaspJobInstanceDao;
 import edu.yu.einstein.wasp.batch.core.extension.dao.WaspStepExecutionDao;
 
@@ -37,7 +39,7 @@ public class WaspJobExplorerFactoryBean extends JobExplorerFactoryBean implement
 	
 	private WaspJobInstanceDao waspJobInstanceDao;
 	
-	private JobExecutionDao jobExecutionDao;
+	private WaspJobExecutionDao waspJobExecutionDao;
 	
 	@Override
 	public void afterPropertiesSet() throws Exception {
@@ -45,7 +47,7 @@ public class WaspJobExplorerFactoryBean extends JobExplorerFactoryBean implement
 		super.afterPropertiesSet();
 		jdbcTemplateW = new SimpleJdbcTemplate(dataSourceW);
 		waspJobInstanceDao = createJobInstanceDao();
-		jobExecutionDao = createJobExecutionDao();
+		waspJobExecutionDao = createJobExecutionDao();
 	}
 
 
@@ -86,7 +88,7 @@ public class WaspJobExplorerFactoryBean extends JobExplorerFactoryBean implement
 	protected WaspStepExecutionDao createStepExecutionDao() throws Exception {
 		JdbcWaspStepExecutionDao dao = new JdbcWaspStepExecutionDao();
 		dao.setWaspJobInstanceDao(waspJobInstanceDao);
-		dao.setJobExecutionDao(jobExecutionDao);
+		dao.setJobExecutionDao(waspJobExecutionDao);
 		dao.setJdbcTemplate(jdbcTemplateW);
 		dao.setStepExecutionIncrementer(incrementerW);
 		dao.setTablePrefix(tablePrefixW);
@@ -95,9 +97,20 @@ public class WaspJobExplorerFactoryBean extends JobExplorerFactoryBean implement
 	}
 	
 	@Override
+	protected WaspJobExecutionDao createJobExecutionDao() throws Exception {
+		JdbcWaspJobExecutionDao dao = new JdbcWaspJobExecutionDao();
+		dao.setWaspJobInstanceDao(waspJobInstanceDao);
+		dao.setJdbcTemplate(jdbcTemplateW);
+		dao.setJobExecutionIncrementer(incrementerW);
+		dao.setTablePrefix(tablePrefixW);
+		dao.afterPropertiesSet();
+		return dao;
+	}
+	
+	@Override
 	public Object getObject() throws Exception {
 		return new WaspBatchJobExplorer(waspJobInstanceDao,
-			jobExecutionDao, createStepExecutionDao(),
+				waspJobExecutionDao, createStepExecutionDao(),
 			createExecutionContextDao());
 	}
 
