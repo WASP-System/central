@@ -94,8 +94,6 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 	</properties>
 
 	<modules>
-		<module>../wasp-batch</module>
-		<module>../wasp-integration</module>
 		<module>../wasp-batch-integration</module>
 		<module>../wasp-core</module>
 		<module>../wasp-tomcat-classloader</module>
@@ -297,16 +295,6 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 				<version>${module.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>edu.yu.einstein.wasp.integration</groupId>
-				<artifactId>wasp-integration</artifactId>
-				<version>${module.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>edu.yu.einstein.wasp.batch</groupId>
-				<artifactId>wasp-batch</artifactId>
-				<version>${module.version}</version>
-			</dependency>
-			<dependency>
 				<groupId>edu.yu.einstein.wasp</groupId>
 				<artifactId>wasp-config</artifactId>
 				<version>${module.version}</version>
@@ -322,6 +310,11 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 				<groupId>org.aspectj</groupId>
 				<artifactId>aspectjweaver</artifactId>
 				<version>1.6.9</version>
+			</dependency>
+			<dependency>
+				<groupId>hsqldb</groupId>
+				<artifactId>hsqldb</artifactId>
+				<version>1.8.0.7</version>
 			</dependency>
 			<dependency>
 				<groupId>javax.mail</groupId>

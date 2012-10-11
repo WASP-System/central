@@ -1,4 +1,4 @@
-package edu.yu.einstein;
+package edu.yu.einstein.wasp.batch.test;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,7 +18,7 @@ import edu.yu.einstein.wasp.batch.core.extension.JobExplorerWasp;
 import edu.yu.einstein.wasp.batch.exceptions.BatchDaoDataRetrievalException;
 import edu.yu.einstein.wasp.batch.exceptions.ParameterValueRetrievalException;
 
-@ContextConfiguration(locations={"classpath:batch-test-context.xml"})
+@ContextConfiguration(locations={"classpath:batch/batch-test-context.xml"})
 
 public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 	

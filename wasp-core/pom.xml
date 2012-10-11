@@ -111,14 +111,6 @@
 
 	<dependencies>
 		<dependency>
-			 <groupId>${project.groupId}.batch</groupId>
-			<artifactId>wasp-batch</artifactId>
-		</dependency>
-		<dependency>
-			 <groupId>${project.groupId}.integration</groupId>
-			<artifactId>wasp-integration</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>wasp-config</artifactId>
 		</dependency>
@@ -140,6 +132,10 @@
 			<dependency>
 				<groupId>org.aspectj</groupId>
 				<artifactId>aspectjweaver</artifactId>
+			</dependency>
+			<dependency>
+				<groupId>hsqldb</groupId>
+				<artifactId>hsqldb</artifactId>
 			</dependency>
 			<dependency>
 				<groupId>javax.mail</groupId>
@@ -332,6 +328,26 @@
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-tx</artifactId>
 			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-aop</artifactId>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.batch</groupId>
+				<artifactId>spring-batch-core</artifactId>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.batch</groupId>
+				<artifactId>spring-batch-infrastructure</artifactId>
+			</dependency>
+			<dependency>
+				 <groupId>org.springframework.integration</groupId>
+				 <artifactId>spring-integration-core</artifactId>
+			</dependency> 
+			<dependency>
+				 <groupId>org.springframework.integration</groupId>
+				 <artifactId>spring-integration-rmi</artifactId>
+			</dependency> 
 <!--
 			<dependency>
 				<groupId>org.springframework</groupId>

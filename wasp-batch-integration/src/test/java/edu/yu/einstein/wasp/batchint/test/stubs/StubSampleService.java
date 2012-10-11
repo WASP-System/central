@@ -13,12 +13,14 @@ import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.exception.SampleIndexException;
 import edu.yu.einstein.wasp.exception.SampleMultiplexException;
 import edu.yu.einstein.wasp.exception.SampleParentChildException;
+import edu.yu.einstein.wasp.exception.SampleSubtypeException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleDraft;
+import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.service.AuthenticationService;
@@ -261,18 +263,131 @@ public class StubSampleService implements SampleService {
 		return false;
 	}
 
+
 	@Override
-	public boolean platformUnitNameExists(String name)
+	public Integer getNumberOfIndexedCellsOnPlatformUnit(Sample platformUnit)
 			throws SampleTypeException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean barcodeNameExists(String barcodeName) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	public boolean platformUnitBarcodeNameExists(String barcodeName)
-			throws SampleTypeException {
+	public List<SampleSubtype> getSampleSubtypesBySampleTypeIName(
+			String sampleTypeIName) throws SampleTypeException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public SampleSubtype getSampleSubtypeById(Integer sampleSubtypeId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean sampleSubtypeIsSpecificSampleType(
+			SampleSubtype sampleSubtype, String sampleTypeIName) {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	@Override
+	public Sample getSampleById(Integer sampleId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean sampleIsSpecificSampleType(Sample sample,
+			String sampleTypeIName) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean sampleIsSpecificSampleSubtype(Sample sample,
+			String sampleSubtypeIName) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean sampleIsInDatabase(Sample sample) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean sampleIdIsInDatabase(Integer sampleId) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean sampleIdIsValid(Sample sample) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean sampleIsPlatformUnit(Sample sample) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public Sample getPlatformUnit(Integer sampleId)
+			throws NumberFormatException, SampleException, SampleTypeException,
+			SampleSubtypeException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public SampleSubtype getSampleSubtypeConfirmedForPlatformunit(
+			Integer sampleSubtypeId) throws NumberFormatException,
+			SampleSubtypeException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<Integer> getNumberOfCellsListForThisTypeOfPlatformUnit(
+			SampleSubtype sampleSubtype) throws SampleTypeException,
+			SampleSubtypeException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean requestedReductionInCellNumberIsProhibited(
+			Sample platformUnitInDatabase, Integer numberOfLanesRequested)
+			throws SampleException, SampleTypeException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void createUpdatePlatformUnit(Sample platformUnit,
+			SampleSubtype sampleSubtype, String barcodeName,
+			Integer numberOfLanesRequested, List<SampleMeta> sampleMetaList)
+			throws SampleException, SampleTypeException, SampleSubtypeException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void deletePlatformUnit(Integer platformUnitId)
+			throws NumberFormatException, SampleException, SampleTypeException,
+			SampleSubtypeException {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

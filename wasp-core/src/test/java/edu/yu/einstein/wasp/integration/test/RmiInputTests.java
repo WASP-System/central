@@ -20,7 +20,7 @@ import edu.yu.einstein.wasp.integration.messages.WaspMessageType;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
 
-@ContextConfiguration(locations={"classpath:integration-test-context.xml"})
+@ContextConfiguration(locations={"classpath:integration/integration-test-context.xml"})
 public class RmiInputTests extends AbstractTestNGSpringContextTests implements MessageHandler{ // AbstractTestNGSpringContextTests extension for @Autowired to work
 	
 	@Autowired

@@ -2,15 +2,11 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
-
-	<!-- common configuration imports -->
 	
+	<!-- import local configuration -->
+	<import resource="integration-test-local-config.xml" />
+
+	<!-- import common configuration  -->
+	<import resource="classpath:/META-INF/spring/integration/integration-common-config.xml" />
 	
-	<!-- message routing -->
-	<import resource="classpath:message-routing-inbound.xml" />
-	<import resource="classpath:message-routing-internal.xml" />
-	
-
-
-
 </beans>

@@ -7,7 +7,7 @@
 	<import resource="batch-test-local-context.xml" />
 
 	<!-- import common configuration  -->
-	<import resource="classpath:META-INF/spring/batch-common-config.xml" />
+	<import resource="classpath:META-INF/spring/batch/batch-common-config.xml" />
 	
 	
 </beans>
