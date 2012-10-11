@@ -19,15 +19,19 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
+import edu.yu.einstein.wasp.exception.ResourceException;
 import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.exception.SampleIndexException;
 import edu.yu.einstein.wasp.exception.SampleMultiplexException;
 import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleSubtypeException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
+import edu.yu.einstein.wasp.exception.RunException;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Run;
+import edu.yu.einstein.wasp.model.Resource;
+import edu.yu.einstein.wasp.model.RunMeta;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleMeta;
@@ -444,4 +448,48 @@ public interface SampleService extends WaspService {
 	   */
 	  public void deletePlatformUnit(Integer platformUnitId) throws NumberFormatException, SampleException, SampleTypeException, SampleSubtypeException;
 
+	  /**
+	   * Gets list of all massively-parallel sequencing machines 
+	   * @return List<Resource>
+	   */
+	  public List<Resource> getAllMassivelyParallelSequencingMachines();
+	  
+	  /**
+	   * Gets list of all massively-parallel sequencing machines compatible with platformUnit (actually compatible with the platformUnit's sampleSubtype)
+	   * @param Sample platformUnit
+	   * @return List<Resource>
+	   */
+	  public List<Resource> getSequencingMachinesCompatibleWithPU(Sample platformUnit) throws SampleException;
+
+	  /**
+	   * Gets sequencing machine (resource) given resourceId
+	   * @param Integer resourceId
+	   * @return Resource
+	   */
+	  public Resource getSequencingMachineByResourceId(Integer resourceId) throws ResourceException;
+
+	  /**
+	   * Gets sequence run record from database. If not found or if not massively-parallel sequence run, throw exception
+	   * @param Integer runId
+	   * @return Run run
+	   */
+	  public Run getSequenceRun(Integer runId) throws RunException;
+	   
+	  /**
+	   * Create of update sequence run. Check parameters for compatibility and if problem throw exception
+	   * @param Run runInstance
+	   * @param List<RunMeta> runMetaList
+	   * @param Integer platformUnitId (for a sample)
+	   * @param Integer resourceId (for a resource)
+	   * @return void
+	   */
+	  public void createUpdateSequenceRun(Run runInstance, List<RunMeta> runMetaList, Integer platformUnitId, Integer resourceId)throws Exception;
+	  
+	  /**
+	   * Determine whether the samplesubtype of a platformunit (ie.: the type of flowcell) is compatible with a mps sequencing machine
+	   * @param Sample platformUnit
+	   * @param Resource sequencingMachineInstance
+	   * @return boolean
+	   */
+	  public boolean platformUnitIsCompatibleWithSequencingMachine(Sample platformUnit, Resource sequencingMachineInstance);
 }

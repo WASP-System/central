@@ -12,7 +12,7 @@
 <tr class="FormData"><td class="CaptionTD"><fmt:message key="platformunitShow.numberOfCellsOnThisPlatformUnit.label"/>:</td><td class="DataTD"><c:out value="${numberOfCellsOnThisPlatformUnit}" /></td></tr>
 <tr class="FormData"><td class="CaptionTD"><fmt:message key="platformunitShow.comment.label"/>:</td><td class="DataTD"><textarea style='font-size:9px' READONLY cols='30' rows='4' wrap='virtual'><c:out value="${comment}" /></textarea></td></tr>
 <tr><td colspan='2' style='text-align:center; padding:10px' >
-<a href='<c:url value="/facility/platformunit/createUpdatePlatformUnit.do?sampleSubtypeId=${platformUnitSampleSubtypeId}&sampleId=${platformUnitSampleId}" />'>Edit</a> | <a href='javascript:' onclick = 'if(confirm("Do you really want to delete this platform unit record?")){location.href="<c:url value="/facility/platformunit/deletePlatformUnit.do?sampleId=${platformUnitSampleId}" />";}'>Delete</a> | <a href='<c:url value="/facility/platformunit/addPlatformUnitToRun.do?sampleId=${platformUnitSampleId}" />'>Add To Run</a> 
+<a href='<c:url value="/facility/platformunit/createUpdatePlatformUnit.do?sampleSubtypeId=${platformUnitSampleSubtypeId}&sampleId=${platformUnitSampleId}" />'>Edit</a> | <a href='javascript:' onclick = 'if(confirm("Do you really want to delete this platform unit record?")){location.href="<c:url value="/facility/platformunit/deletePlatformUnit.do?sampleId=${platformUnitSampleId}" />";}'>Delete</a> | <a href='<c:url value="/run/createUpdateRun.do?resourceId=0&runId=0&platformUnitId=${platformUnitSampleId}" />'>Add To Run</a> 
 </td></tr>
 </table>
 

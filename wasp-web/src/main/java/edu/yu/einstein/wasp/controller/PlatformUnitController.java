@@ -772,8 +772,10 @@ public class PlatformUnitController extends WaspController {
 				m.put("sampleId", sampleId);
 				m.put("barcode", barcode);
 				m.put("numberOfCellsOnThisPlatformUnit", numberOfLanesRequested);
-				platformunitInstance.setSampleMeta((List<SampleMeta>) metaHelperWebapp.getMetaList());
-	
+				platformunitInstance.setSampleMeta((List<SampleMeta>) metaHelperWebapp.getMetaList());	
+				//DO I NEED THIS Next line??? It seems to be sent back automagically, even if the next line is missing (next line added 10-10-12)
+				m.addAttribute(metaHelperWebapp.getParentArea(), platformunitInstance);//metaHelperWebapp.getParentArea() is sample
+				
 				m.put("sampleSubtypes", sampleService.getSampleSubtypesBySampleTypeIName("platformunit"));//throws exception if SampleTypeIName not valid, otherwise return empty (size=0) or full list
 				m.addAttribute("readlengths", getDistinctResourceCategoryMetaListForSampleSubtype(sampleSubtype, "readlength"));
 				m.addAttribute("readTypes", getDistinctResourceCategoryMetaListForSampleSubtype(sampleSubtype, "readType"));
@@ -1410,6 +1412,9 @@ public class PlatformUnitController extends WaspController {
 	
 	private void removeLibraryFromLane(Integer sampleSourceId){
 
+		//as of 10-5-12, there is a sampleService method to replace this
+		//when I update, that method shold be called in a try - catch 
+		
 		SampleSource sampleSource = sampleSourceDao.getSampleSourceBySampleSourceId(sampleSourceId);//this samplesource should represent a cell->lib link, where sampleid is the cell and source-sampleid is the library 
 		if(sampleSource.getSampleSourceId()==0){//check for existence
 			waspErrorMessage("platformunit.sampleSourceNotExist.error");

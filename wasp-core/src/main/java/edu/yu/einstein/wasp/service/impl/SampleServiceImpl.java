@@ -16,6 +16,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 //import edu.yu.einstein.wasp.controller.PlatformUnitController.SelectOptionsMeta;
 import edu.yu.einstein.wasp.dao.AdaptorDao;
 import edu.yu.einstein.wasp.dao.BarcodeDao;
+import edu.yu.einstein.wasp.dao.ResourceDao;
 import edu.yu.einstein.wasp.dao.RunDao;
 import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.dao.SampleBarcodeDao;
@@ -41,6 +43,8 @@ import edu.yu.einstein.wasp.dao.StateDao;
 import edu.yu.einstein.wasp.dao.TaskDao;
 import edu.yu.einstein.wasp.dao.WorkflowDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
+import edu.yu.einstein.wasp.exception.ResourceException;
+import edu.yu.einstein.wasp.exception.RunException;
 import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.exception.SampleIndexException;
 import edu.yu.einstein.wasp.exception.SampleMultiplexException;
@@ -51,7 +55,10 @@ import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Barcode;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
+import edu.yu.einstein.wasp.model.Resource;
+import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.Run;
+import edu.yu.einstein.wasp.model.RunMeta;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleBarcode;
 import edu.yu.einstein.wasp.model.SampleDraft;
@@ -149,6 +156,9 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	
 	@Autowired
 	  private RunDao runDao;
+	
+	@Autowired
+	  private ResourceDao resourceDao;
 
 	public void setSampleMetaDao(SampleMetaDao sampleMetaDao) {
 		this.sampleMetaDao = sampleMetaDao;
@@ -1282,6 +1292,142 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 			
 		}catch (Exception e){	throw new RuntimeException(e.getMessage());	}
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<Resource> getAllMassivelyParallelSequencingMachines(){
+		
+		Map<String,String> filterMap = new HashMap<String,String>();
+		filterMap.put("resourceType.iName", "mps");
+		List<String> orderByColumnNames = new ArrayList<String>();
+		orderByColumnNames.add("name");
+		return resourceDao.findByMapDistinctOrderBy(filterMap, null, orderByColumnNames, "asc");	
+	}
+	 
+	/**
+	 * Gets list of all massively-parallel sequencing machines compatible with platformUnit (actually compatible with the platformUnit's sampleSubtype)
+	 * @param Sample platformUnit
+	 * @return List<Resource>
+	*/
+	  public List<Resource> getSequencingMachinesCompatibleWithPU(Sample platformUnit) throws SampleException{
+		if(!this.sampleIsPlatformUnit(platformUnit)){
+			throw new SampleException("Expected platformUnit for SampleId " + platformUnit.getSampleId().intValue() + " but sample failed in sampletype and/or samplesubtype");
+		}
+		
+		List<Resource> resources = this.getAllMassivelyParallelSequencingMachines();
+		Set<Resource> filteredResourceSet = new LinkedHashSet();//use set to make list distinct
+		for(Resource resource : resources){
+			for(SampleSubtypeResourceCategory ssrc : resource.getResourceCategory().getSampleSubtypeResourceCategory()){
+				if(ssrc.getSampleSubtypeId().intValue() == platformUnit.getSampleSubtypeId().intValue()){
+					filteredResourceSet.add(resource);				
+				}
+			}
+		}
+		return new ArrayList(filteredResourceSet);
+	  }
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Resource getSequencingMachineByResourceId(Integer resourceId) throws ResourceException{
+		
+		Resource resource = resourceDao.getResourceByResourceId(resourceId);
+		if(resource==null || resource.getResourceId()==null || resource.getResourceId().intValue() <= 0){
+			throw new ResourceException("Resource of Id " + resourceId.intValue() + " does NOT exist in database");
+		}
+		else if( !"mps".equals(resource.getResourceType().getIName()) ){
+			throw new ResourceException("Resource of Id " + resourceId.intValue() + " is not a massively parallel sequening machine through its resourcetype");
+		}
+		else if( !"mps".equals(resource.getResourceCategory().getResourceType().getIName()) ){
+			throw new ResourceException("Resource of Id " + resourceId.intValue() + " is not a massively parallel sequening machine through its resourcecategory");
+		}
+		return resource;
+		
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Run getSequenceRun(Integer runId) throws RunException{
+		Run run = runDao.getRunByRunId(runId.intValue());
+		if(run==null||run.getRunId()==null||run.getRunId().intValue()<=0){
+			throw new RunException("Run with runId of " + runId.intValue() + " not found in database");
+		}
+		else if(!run.getResourceCategory().getResourceType().getIName().equals("mps")){
+			throw new RunException("Run with runId of " + runId.intValue() + " does not have resourcecategory of mps");
+		}
+		else if(!run.getResource().getResourceType().getIName().equals("mps")){
+			throw new RunException("Run with runId of " + runId.intValue() + " does not have resource whose resourcetype is mps");
+		}
+		else if(!run.getResource().getResourceCategory().getResourceType().getIName().equals("mps")){
+			throw new RunException("Run with runId of " + runId.intValue() + " does not have resource whose resourcecategory is mps");
+		}
+		return run;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean platformUnitIsCompatibleWithSequencingMachine(Sample platformUnit, Resource sequencingMachineInstance){
+		
+		if(platformUnit==null || sequencingMachineInstance==null){
+			return false;
+		}
+		SampleSubtype sampleSubtypeOnPlatformUnit = platformUnit.getSampleSubtype();
+		for(SampleSubtypeResourceCategory ssrc : sequencingMachineInstance.getResourceCategory().getSampleSubtypeResourceCategory()){
+			if(ssrc.getSampleSubtype().getSampleSubtypeId().intValue()==sampleSubtypeOnPlatformUnit.getSampleSubtypeId().intValue()){
+				return true;
+			}
+		}
+		return false;
+	}
+
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+    public void createUpdateSequenceRun(Run runInstance, List<RunMeta> runMetaList, Integer platformUnitId, Integer resourceId)throws Exception{
+		
+		//first check compatibility, then perform create or update
+		
+		//check paramaters and parameter compatibility
+		String action = new String("create");
+		Sample platformUnit = null;
+		Resource sequencingMachineInstance = null;
+		//ResourceCategory resourceCategory = null;
+		
+		if(runInstance==null || runMetaList==null || platformUnitId == null || platformUnitId.intValue()<=0 || resourceId==null || resourceId.intValue()<=0){
+			throw new Exception("parameter error in sampleservice.createUpdateSequenceRun");
+		}
+		
+		//database create or update
+				
+		if(runInstance.getRunId()==null || runInstance.getRunId().intValue()>0){
+			action = new String("update");
+		}
+		
+		try{
+			platformUnit = this.getPlatformUnit(platformUnitId);//throws exception if not found or if not a platformUnit
+			sequencingMachineInstance = this.getSequencingMachineByResourceId(resourceId);//throws exception if not found or if not for massively-parallel seq.
+		}catch (Exception e){ throw e; }
+		
+		if(!this.platformUnitIsCompatibleWithSequencingMachine(platformUnit, sequencingMachineInstance)){
+			System.out.println("platformUnit is not compatible with sequencing machine");
+			throw new Exception("platformUnit (ID: " + platformUnit.getSampleId().toString() + ") is not compatible with sequencing machine (ID: " + sequencingMachineInstance.getResourceId().toString()+").");
+		}
+		System.out.println("platformUnit IS compatbile with sequencing machine");
+		try{
+			
+		}catch (Exception e){	throw new RuntimeException(e.getMessage());	}
+		
+	}
+
 	private void removeLibraryFromCellOfPlatformUnit(SampleSource cellLibraryLink)throws SampleTypeException{
 		if (!cellLibraryLink.getSourceSample().getSampleType().getIName().equals("library")){
 			throw new SampleTypeException("Expected 'library' but got Sample of type '" + cellLibraryLink.getSourceSample().getSampleType().getIName() + "' instead.");
