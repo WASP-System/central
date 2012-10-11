@@ -492,4 +492,12 @@ public interface SampleService extends WaspService {
 	   * @return boolean
 	   */
 	  public boolean platformUnitIsCompatibleWithSequencingMachine(Sample platformUnit, Resource sequencingMachineInstance);
+	  
+	  /**
+	   * Delete sequence run
+	   * @param Run run
+	   * @return void
+	   */
+	  public void deleteSequenceRun(Run run);
+	  
 }

@@ -568,17 +568,13 @@ public class RunController extends WaspController {
 					}
 	
 				}
-				System.out.println("the parent are is: " + metaHelperWebapp.getParentArea());
 				m.addAttribute(metaHelperWebapp.getParentArea(), runInstance);//metaHelperWebapp.getParentArea() is run
 				
 				Resource requestedSequencingMachine = sampleService.getSequencingMachineByResourceId(resourceId);
 				m.addAttribute("readlengths", getResourceCategoryMetaList(requestedSequencingMachine.getResourceCategory(), "readlength"));
 				m.addAttribute("readTypes", getResourceCategoryMetaList(requestedSequencingMachine.getResourceCategory(), "readType"));
 
-				m.put("technicians", userService.getFacilityTechnicians());
-				for(User user : userService.getFacilityTechnicians()){
-					System.out.println(user.getFirstName() + " " + user.getLastName());
-				}				
+				m.put("technicians", userService.getFacilityTechnicians());				
 			}
 			
 			m.addAttribute("runId", runId);

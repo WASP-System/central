@@ -65,7 +65,7 @@
         <td class="DataTD"><c:out value="${run.name}" /><span class="requiredField">*</span></td>
         <td class="CaptionTD error"><form:errors path="name" /></td>
 	</tr>
-	<form:hidden path="name"/>
+	<form:hidden path="name" value="${run.name}" />
 
 	<c:set var="_area" value = "run" scope="request"/>
 	<c:set var="_metaArea" value = "runInstance" scope="request"/>

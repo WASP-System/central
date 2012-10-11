@@ -32,6 +32,7 @@ import edu.yu.einstein.wasp.dao.AdaptorDao;
 import edu.yu.einstein.wasp.dao.BarcodeDao;
 import edu.yu.einstein.wasp.dao.ResourceDao;
 import edu.yu.einstein.wasp.dao.RunDao;
+import edu.yu.einstein.wasp.dao.RunMetaDao;
 import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.dao.SampleBarcodeDao;
 import edu.yu.einstein.wasp.dao.SampleMetaDao;
@@ -156,6 +157,9 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	
 	@Autowired
 	  private RunDao runDao;
+	
+	@Autowired
+	  private RunMetaDao runMetaDao;
 	
 	@Autowired
 	  private ResourceDao resourceDao;
@@ -1400,34 +1404,65 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 		String action = new String("create");
 		Sample platformUnit = null;
 		Resource sequencingMachineInstance = null;
-		//ResourceCategory resourceCategory = null;
+		ResourceCategory resourceCategory = null;
+		Run run = null;
 		
 		if(runInstance==null || runMetaList==null || platformUnitId == null || platformUnitId.intValue()<=0 || resourceId==null || resourceId.intValue()<=0){
 			throw new Exception("parameter error in sampleservice.createUpdateSequenceRun");
 		}
 		
 		//database create or update
-				
-		if(runInstance.getRunId()==null || runInstance.getRunId().intValue()>0){
-			action = new String("update");
-		}
-		
-		try{
-			platformUnit = this.getPlatformUnit(platformUnitId);//throws exception if not found or if not a platformUnit
-			sequencingMachineInstance = this.getSequencingMachineByResourceId(resourceId);//throws exception if not found or if not for massively-parallel seq.
+		try{//regular (rather than runtime) exceptions
+			if(runInstance.getRunId()!=null && runInstance.getRunId().intValue()>0){
+				run = this.getSequenceRun(runInstance.getRunId());//throws an exception if problem
+				action = new String("update");
+			}
+			else{
+				run = new Run();
+			}
+			platformUnit = this.getPlatformUnit(platformUnitId);//throws exception if not found in db or if not a platformUnit
+			sequencingMachineInstance = this.getSequencingMachineByResourceId(resourceId);//throws exception if not found in db or if not for massively-parallel seq.
+			resourceCategory = sequencingMachineInstance.getResourceCategory();
+			if(resourceCategory==null || resourceCategory.getResourceCategoryId()==null || resourceCategory.getResourceCategoryId().intValue()<=0){
+				throw new Exception("Problem with resourcecategory in sampleservice.createUpdateSequenceRun");
+			}
+			if(!this.platformUnitIsCompatibleWithSequencingMachine(platformUnit, sequencingMachineInstance)){
+				throw new Exception("platformUnit (ID: " + platformUnit.getSampleId().toString() + ") is not compatible with sequencing machine (ID: " + sequencingMachineInstance.getResourceId().toString()+").");
+			}			
 		}catch (Exception e){ throw e; }
 		
-		if(!this.platformUnitIsCompatibleWithSequencingMachine(platformUnit, sequencingMachineInstance)){
-			System.out.println("platformUnit is not compatible with sequencing machine");
-			throw new Exception("platformUnit (ID: " + platformUnit.getSampleId().toString() + ") is not compatible with sequencing machine (ID: " + sequencingMachineInstance.getResourceId().toString()+").");
-		}
-		System.out.println("platformUnit IS compatbile with sequencing machine");
 		try{
+			run.setName(runInstance.getName());//set by system
+			run.setUserId(runInstance.getUserId());
+			run.setStartts(new Date());//THIS MUST CHANGE so that it's gotten from param or the runInstance object
+			
+			run.setResourceId(sequencingMachineInstance.getResourceId());
+			run.setResourceCategoryId(resourceCategory.getResourceCategoryId());
+			run.setSampleId(platformUnitId);
+			
+			Run runDB = runDao.save(run);
+			if(runDB==null || runDB.getRunId()==null || runDB.getRunId().intValue()<=0){
+				throw new SampleException("new run unexpectedly not saved");
+			}
+			runMetaDao.updateByRunId(runDB.getRunId(), runMetaList); // persist the metadata; no way to check as this returns void
 			
 		}catch (Exception e){	throw new RuntimeException(e.getMessage());	}
-		
+		return;
 	}
-
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void deleteSequenceRun(Run run){
+		for(RunMeta runMeta : run.getRunMeta()){
+			runMetaDao.remove(runMeta);
+			runMetaDao.flush(runMeta);
+		}
+		runDao.remove(run);
+		runDao.flush(run);
+		return;
+	}
+	
 	private void removeLibraryFromCellOfPlatformUnit(SampleSource cellLibraryLink)throws SampleTypeException{
 		if (!cellLibraryLink.getSourceSample().getSampleType().getIName().equals("library")){
 			throw new SampleTypeException("Expected 'library' but got Sample of type '" + cellLibraryLink.getSourceSample().getSampleType().getIName() + "' instead.");
