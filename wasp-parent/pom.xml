@@ -94,7 +94,7 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 	</properties>
 
 	<modules>
-		<module>../wasp-batch-integration</module>
+		<module>../wasp-daemon</module>
 		<module>../wasp-core</module>
 		<module>../wasp-tomcat-classloader</module>
 		<module>../wasp-web</module>
@@ -290,7 +290,7 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 				<version>${module.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>edu.yu.einstein.wasp.batchint</groupId>
+				<groupId>edu.yu.einstein.wasp</groupId>
 				<artifactId>wasp-daemon</artifactId>
 				<version>${module.version}</version>
 			</dependency>
