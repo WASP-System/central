@@ -195,7 +195,7 @@ public class JobServiceImpl extends WaspServiceImpl implements JobService {
 	@Override
 	public List<Sample> getSubmittedSamples(Job job){
 		
-		List<Sample> submittedSamplesList = new ArrayList();
+		List<Sample> submittedSamplesList = new ArrayList<Sample>();
 		if(job != null && job.getJobId().intValue()>0){
 			for(JobSample jobSample : job.getJobSample()){
 				  Sample sample  = jobSample.getSample();//includes submitted samples that are macromolecules, submitted samples that are libraries, and facility-generated libraries generated from a macromolecule
@@ -204,6 +204,7 @@ public class JobServiceImpl extends WaspServiceImpl implements JobService {
 				  }
 			  }	
 		}
+		
 		return submittedSamplesList;		
 	}
 	
