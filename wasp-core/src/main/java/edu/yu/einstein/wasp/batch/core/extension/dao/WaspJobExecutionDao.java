@@ -7,6 +7,7 @@ import java.util.Map;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.repository.dao.JobExecutionDao;
 
 public interface WaspJobExecutionDao extends JobExecutionDao{
@@ -29,5 +30,10 @@ public interface WaspJobExecutionDao extends JobExecutionDao{
 
 	public List<JobExecution> getJobExecutions(String name, Map<String, String> parameterMap, Boolean exclusive, BatchStatus batchStatus, ExitStatus exitStatus);
 	
-
+	/**
+	 * Obtains the list of job parameters for a given JobExecution
+	 * @param stepExecution
+	 * @return
+	 */
+	public JobParameters getJobParameters(JobExecution jobExecution);
 }

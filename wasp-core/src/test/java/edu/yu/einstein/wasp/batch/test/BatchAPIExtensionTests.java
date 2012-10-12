@@ -42,8 +42,6 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 	
 	private final Integer JOB_ID_1 = 1;
 	
-	private final Integer JOB_ID_2 = 2;
-
 	private final Integer SAMPLE_ID_1 = 1;
 	
 	private final Integer SAMPLE_ID_2 = 2;
@@ -102,7 +100,7 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 		Map<String, String> parameterMap = new HashMap<String, String>();
 		parameterMap.put(SAMPLE_ID_KEY, SAMPLE_ID_1.toString());
 		List<StepExecution> stepExecutions = jobExplorer.getStepExecutions("listenForJobApproved", parameterMap, false, BatchStatus.STARTED);
-		Assert.assertTrue(stepExecutions.size() == 1); // expect to be STARTED
+		Assert.assertEquals(stepExecutions.size(), 1); // expect to be STARTED
 	}
 	
 	/**
@@ -114,7 +112,7 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 		Map<String, String> parameterMap = new HashMap<String, String>();
 		parameterMap.put(SAMPLE_ID_KEY, SAMPLE_ID_2.toString());
 		List<StepExecution> stepExecutions = jobExplorer.getStepExecutions("listenForJobApproved", parameterMap, false, BatchStatus.STARTED);
-		Assert.assertTrue(stepExecutions.size() == 0); //expect to be COMPLETE
+		Assert.assertTrue(stepExecutions.isEmpty()); //expect to be COMPLETE
 	}
 	
 	/**
@@ -123,9 +121,45 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 	@Test(groups = "unit-tests")
 	public void testGettingStepExecutionNormalTest5(){
 		List<StepExecution> stepExecutions = jobExplorer.getStepExecutions();
-		Assert.assertTrue(stepExecutions.size() == 8); 
+		Assert.assertEquals(stepExecutions.size(), 8); 
 	}
 	
+	/**
+	 * API extension testing. Testing getting all StepExecutions but not providing correct number of parameters
+	 */
+	@Test(groups = "unit-tests")
+	public void testGettingStepExecutionNormalTest6(){
+		Map<String, String> parameterMap = new HashMap<String, String>();
+		parameterMap.put(SAMPLE_ID_KEY, "*");
+		List<StepExecution> stepExecutions = jobExplorer.getStepExecutions(parameterMap, true);
+		Assert.assertTrue(stepExecutions.isEmpty()); 
+	}
+	
+	/**
+	 * API extension testing. Testing getting all StepExecutions 
+	 */
+	@Test(groups = "unit-tests")
+	public void testGettingStepExecutionNormalTest7(){
+		Map<String, String> parameterMap = new HashMap<String, String>();
+		parameterMap.put(SAMPLE_ID_KEY, "*");
+		parameterMap.put(JOB_ID_KEY, JOB_ID_1.toString());
+		List<StepExecution> stepExecutions = jobExplorer.getStepExecutions(parameterMap, true);
+		Assert.assertEquals(stepExecutions.size(), 8); 
+	}
+	
+	/**
+	 * API extension testing. Testing getting all StepExecutions for sample 2
+	 */
+	@Test(groups = "unit-tests")
+	public void testGettingStepExecutionNormalTest8(){
+		Map<String, String> parameterMap = new HashMap<String, String>();
+		parameterMap.put(SAMPLE_ID_KEY, SAMPLE_ID_2.toString());
+		parameterMap.put(JOB_ID_KEY,"*");
+		List<StepExecution> stepExecutions = jobExplorer.getStepExecutions(parameterMap, true);
+		Assert.assertEquals(stepExecutions.size(), 5); 
+	}
+	
+		
 	/**
 	 * API extension testing. Testing access of state information via API extension.The test Batch db tables should contain two steps called 
 	 * 'wasp.sample.step.listenForSampleReceived' with a Batch Status of Completed.
@@ -144,6 +178,8 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 		}
 		Assert.fail("Expected an BatchDaoDataRetrievalException but got none");
 	}
+	
+	
 	/**
 	 * Test extracting a job parameter given a step execution
 	 */
@@ -215,7 +251,7 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 	@Test(groups = "unit-tests")
 	public void testGettingJobExecutionNormalTest2(){
 		List<JobExecution> jobExecutions = jobExplorer.getJobExecutions(BatchStatus.COMPLETED);
-		Assert.assertTrue(jobExecutions.size() == 1); 
+		Assert.assertEquals(jobExecutions.size(), 1); 
 	}
 	
 	/**
@@ -224,7 +260,18 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 	@Test(groups = "unit-tests")
 	public void testGettingJobExecutionNormalTest3(){
 		List<JobExecution> jobExecutions = jobExplorer.getJobExecutions(BatchStatus.COMPLETED, ExitStatus.EXECUTING);
-		Assert.assertTrue(jobExecutions.size() == 0); 
+		Assert.assertTrue(jobExecutions.isEmpty()); 
+	}
+	
+	/**
+	 * API extension testing. Testing getting all JobExecutions with a jobId parameter key
+	 */
+	@Test(groups = "unit-tests")
+	public void testGettingJobExecutionNormalTest4(){
+		Map<String, String> parameterMap = new HashMap<String, String>();
+		parameterMap.put(JOB_ID_KEY, "*");
+		List<JobExecution> jobExecutions = jobExplorer.getJobExecutions(parameterMap, false);
+		Assert.assertEquals(jobExecutions.size(), 2); 
 	}
 	
 	/**
@@ -243,6 +290,53 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 			return;
 		}
 		Assert.fail("Expected an BatchDaoDataRetrievalException but got none");
+	}
+	
+	/**
+	 * Test extracting a job parameter given a job execution
+	 */
+	@Test(groups = "unit-tests", dependsOnMethods="testGettingJobExecutionNormalTest1")
+	public void testGettingParametersFromJobExecution(){
+		Map<String, String> parameterMap = new HashMap<String, String>();
+		parameterMap.put(SAMPLE_ID_KEY, SAMPLE_ID_1.toString());
+		parameterMap.put(JOB_ID_KEY, JOB_ID_1.toString());
+		JobExecution jobExecution = null;
+		try {
+			jobExecution = jobExplorer.getJobExecution("wasp.sample.jobflow.v1", parameterMap, false);
+		} catch (BatchDaoDataRetrievalException e) {
+			Assert.fail("Unable to get status");
+		}
+		String value = null;
+		try{
+			value = jobExplorer.getJobParameterValueByKey(jobExecution, SAMPLE_ID_KEY);
+		} catch (ParameterValueRetrievalException e){
+			Assert.fail("Caught unexpected ParameterValueRetrievalException: " + e.getMessage());
+		}
+		Assert.assertEquals(value, SAMPLE_ID_1.toString());
+	}
+	
+	/**
+	 * Test attempting to extract a non-existent parameter from a StepExecution
+	 */
+	@Test(groups = "unit-tests", dependsOnMethods="testGettingJobExecutionNormalTest1")
+	public void testGettingParametersFromJobExecutionNoKey(){
+		Map<String, String> parameterMap = new HashMap<String, String>();
+		parameterMap.put(SAMPLE_ID_KEY, SAMPLE_ID_1.toString());
+		parameterMap.put(JOB_ID_KEY, JOB_ID_1.toString());
+		JobExecution JobExecution = null;
+		try {
+			JobExecution = jobExplorer.getJobExecution("wasp.sample.jobflow.v1", parameterMap, false);
+		} catch (BatchDaoDataRetrievalException e) {
+			Assert.fail("Unable to get status");
+		}
+		String value = null;
+		try{
+			value = jobExplorer.getJobParameterValueByKey(JobExecution, SAMPLE_ID_KEY_WRONG);
+		} catch (ParameterValueRetrievalException e){
+			logger.debug("Caught expected ParameterValueRetrievalException: " + e.getMessage());
+			return;
+		}
+		Assert.fail("Didn't catch expected ParameterValueRetrievalException");
 	}
 	
 	

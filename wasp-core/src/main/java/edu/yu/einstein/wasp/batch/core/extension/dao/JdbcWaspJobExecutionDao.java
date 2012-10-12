@@ -10,6 +10,8 @@ import org.apache.log4j.Logger;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.JobParameters;
+import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.repository.dao.JdbcJobExecutionDao;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.jdbc.core.RowMapper;
@@ -98,6 +100,14 @@ public class JdbcWaspJobExecutionDao extends JdbcJobExecutionDao implements Wasp
 		
 		getJdbcTemplate().query(getQuery(sql), mapper, parameterSource);
 		return JobExecutions;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public JobParameters getJobParameters(JobExecution jobExecution){
+		return (waspJobInstanceDao.getJobInstance(jobExecution).getJobParameters());
 	}
 
 	

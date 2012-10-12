@@ -622,6 +622,17 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * @throws ParameterValueRetrievalException
 	 */
 	String getJobParameterValueByKey(StepExecution se, String key) throws ParameterValueRetrievalException;
+
+	
+	/**
+	 * Given a parameter map key, attempt to get the requested parameter and cast to requested type.
+	 * @param je
+	 * @param key
+	 * @param clazz
+	 * @return
+	 * @throws ParameterValueRetrievalException
+	 */
+	String getJobParameterValueByKey(JobExecution je, String key) throws ParameterValueRetrievalException;
 	
 	
 

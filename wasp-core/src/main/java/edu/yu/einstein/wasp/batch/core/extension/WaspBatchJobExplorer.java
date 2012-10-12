@@ -408,7 +408,25 @@ public class WaspBatchJobExplorer extends SimpleJobExplorer implements JobExplor
 	 */
 	@Override
 	public String getJobParameterValueByKey(StepExecution se, String key) throws ParameterValueRetrievalException{
-		Map<String, JobParameter> parameters = stepExecutionDao.getJobParametersGivenStepExecution(se).getParameters();
+		Map<String, JobParameter> parameters = stepExecutionDao.getJobParameters(se).getParameters();
+		if (parameters == null)
+			throw new ParameterValueRetrievalException("Parameter value returned was null for key '" + key + "'");
+		try{
+			JobParameter parameter = parameters.get(key);
+			if (parameter == null)
+				throw new ParameterValueRetrievalException("Parameter value returned was null for key '" + key + "'");
+			return (String) parameter.getValue();
+		} catch(ClassCastException e){
+			throw new ParameterValueRetrievalException("Cannot cast parameter value obtained with key '" + key + "' to 'String'");
+		}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getJobParameterValueByKey(JobExecution je, String key) throws ParameterValueRetrievalException{
+		Map<String, JobParameter> parameters = jobExecutionDao.getJobParameters(je).getParameters();
 		if (parameters == null)
 			throw new ParameterValueRetrievalException("Parameter value returned was null for key '" + key + "'");
 		try{

@@ -117,7 +117,7 @@ public class JdbcWaspStepExecutionDao extends JdbcStepExecutionDao implements Wa
 	 * {@inheritDoc}
 	 */
 	@Override
-	public JobParameters getJobParametersGivenStepExecution(StepExecution stepExecution){
+	public JobParameters getJobParameters(StepExecution stepExecution){
 		return (waspJobInstanceDao.getJobInstance(jobExecutionDao.getJobExecution(stepExecution.getJobExecutionId()))).getJobParameters();
 	}
 	

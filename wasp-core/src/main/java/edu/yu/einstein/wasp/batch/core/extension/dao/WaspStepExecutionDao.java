@@ -33,6 +33,6 @@ public interface WaspStepExecutionDao extends StepExecutionDao{
 	 * @param stepExecution
 	 * @return
 	 */
-	public JobParameters getJobParametersGivenStepExecution(StepExecution stepExecution);
+	public JobParameters getJobParameters(StepExecution stepExecution);
 
 }

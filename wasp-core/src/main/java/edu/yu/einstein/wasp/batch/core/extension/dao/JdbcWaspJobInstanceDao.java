@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.codehaus.plexus.util.StringUtils;
 import org.springframework.batch.core.repository.dao.JdbcJobInstanceDao;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.jdbc.core.RowMapper;
@@ -33,9 +34,15 @@ public class JdbcWaspJobInstanceDao extends JdbcJobInstanceDao implements WaspJo
 		int index = 1;
 		MapSqlParameterSource parameterSource = new MapSqlParameterSource();
 		for (String key: parameterMap.keySet()){
-			sql += " and JOB_INSTANCE_ID in (select JOB_INSTANCE_ID from %PREFIX%JOB_PARAMS where KEY_NAME = :key"+index+" and STRING_VAL = :val"+index+" )";
+			sql += " and JOB_INSTANCE_ID in (select JOB_INSTANCE_ID from %PREFIX%JOB_PARAMS where KEY_NAME = :key"+index+" and STRING_VAL ";
+			if (parameterMap.get(key).equals("*")){
+				sql += "LIKE '%' )";
+			} else {
+				sql += "= :val"+index+" )";
+				parameterSource.addValue("val"+index, parameterMap.get(key));
+			}		
 			parameterSource.addValue("key"+index, key);
-			parameterSource.addValue("val"+index, parameterMap.get(key));
+			
 			index++;
 		}
 		logger.debug("Built SQL string: " + getQuery(sql));
