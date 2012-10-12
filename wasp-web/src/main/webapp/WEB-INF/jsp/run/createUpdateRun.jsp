@@ -62,7 +62,7 @@
   
 	<tr class="FormData">
         <td class="CaptionTD"><fmt:message key="runInstance.name.label" />:</td>
-        <td class="DataTD"><c:out value="${run.name}" /><span class="requiredField">*</span></td>
+        <td class="DataTD"><c:out value="${run.name}" /><span class="requiredField"></span></td>
         <td class="CaptionTD error"><form:errors path="name" /></td>
 	</tr>
 	<form:hidden path="name" value="${run.name}" />
@@ -88,6 +88,18 @@
         	<span class="requiredField">*</span></td>
         <td class="CaptionTD error"><c:out value="${technicianError}" /> </td>
 	</tr>
+
+	<tr class="FormData"><%--<c:out value="${dateRunStarted}" />  --%>
+        <td nowrap class="CaptionTD"><fmt:message key="runInstance.dateRunStarted.label" />:</td>
+        <td class="DataTD"><input class="FormElement ui-widget-content ui-corner-all"  type="text" name = "dateRunStarted" id="dateRunStarted" value="${dateRunStarted}" /><span class="requiredField">*</span></td>
+        <td class="CaptionTD error"><c:out value="${dateRunStartedError}" /></td>
+	</tr>
+	<tr class="FormData"><%--<c:out value="${dateRunEnded}" />  --%>
+        <td nowrap class="CaptionTD"><fmt:message key="runInstance.dateRunEnded.label" />:</td>
+        <td class="DataTD"><c:out value="${dateRunEnded}" /><span class="requiredField"></span></td>
+        <td class="CaptionTD error"><c:out value="${dateRunEndedError}" /></td>
+	</tr>
+
 
 	<tr><td colspan="3">
     	<div class="submit">

@@ -1431,10 +1431,11 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 			}			
 		}catch (Exception e){ throw e; }
 		
-		try{
+		try{//runtime exceptions
 			run.setName(runInstance.getName());//set by system
 			run.setUserId(runInstance.getUserId());
-			run.setStartts(new Date());//THIS MUST CHANGE so that it's gotten from param or the runInstance object
+			//run.setStartts(new Date());//THIS MUST CHANGE so that it's gotten from param or the runInstance object
+			run.setStartts(runInstance.getStartts());
 			
 			run.setResourceId(sequencingMachineInstance.getResourceId());
 			run.setResourceCategoryId(resourceCategory.getResourceCategoryId());

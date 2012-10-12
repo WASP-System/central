@@ -1,5 +1,7 @@
 package edu.yu.einstein.wasp.controller;
 
+import java.text.Format;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -526,6 +528,9 @@ public class RunController extends WaspController {
 		
 		
 		try{
+			Format formatter = new SimpleDateFormat("MM/dd/yyyy");
+			String dateRunStarted = new String("");
+			String dateRunEnded = new String("COMPLETED_BY_SYSTEM");
 			Sample platformUnit = null; 
 			platformUnit = sampleService.getPlatformUnit(platformUnitId);
 			
@@ -563,6 +568,14 @@ public class RunController extends WaspController {
 					metaHelperWebapp.syncWithMaster(runInstance.getRunMeta());
 					runInstance.setRunMeta((List<RunMeta>)metaHelperWebapp.getMetaList());
 					
+					dateRunStarted = new String(formatter.format(runInstance.getStartts()));//MM/dd/yyyy
+					
+					if(runInstance.getEnDts()!=null){
+						try{
+							dateRunEnded = new String(formatter.format(runInstance.getEnDts()));//MM/dd/yyyy
+						}catch(Exception e){dateRunEnded=new String("UNEXPECTED PROBLEM WITH DATE");}
+					}
+					
 					if(reset.equals("reset")){//reset permitted only when runId > 0
 						resourceId = new Integer(runInstance.getResourceId().intValue());
 					}
@@ -574,7 +587,9 @@ public class RunController extends WaspController {
 				m.addAttribute("readlengths", getResourceCategoryMetaList(requestedSequencingMachine.getResourceCategory(), "readlength"));
 				m.addAttribute("readTypes", getResourceCategoryMetaList(requestedSequencingMachine.getResourceCategory(), "readType"));
 
-				m.put("technicians", userService.getFacilityTechnicians());				
+				m.addAttribute("technicians", userService.getFacilityTechnicians());
+				m.addAttribute("dateRunStarted", dateRunStarted);
+				m.addAttribute("dateRunEnded", dateRunEnded);
 			}
 			
 			m.addAttribute("runId", runId);
@@ -595,6 +610,7 @@ public class RunController extends WaspController {
 			@RequestParam("resourceId") Integer resourceId,
 			@RequestParam("runId") Integer runId,
 			@RequestParam("platformUnitId") Integer platformUnitId,
+			@RequestParam("dateRunStarted") String dateRunStarted,
 			@Valid Run runInstance, 
 			 BindingResult result,
 			 SessionStatus status, 		
@@ -639,13 +655,31 @@ public class RunController extends WaspController {
 			}
 			 */
 			
+			Date dateRunStartedAsDateObject = null;
+			
 			//check for runInstance.UserId, which cannot be empty 		
 			if(runInstance.getUserId()==null || runInstance.getUserId().intValue()<=0){
 				String msg = messageService.getMessage(metaHelperWebapp.getArea()+".technician.error");//area here is runInstance
 				m.put("technicianError", msg==null?new String("Technician cannot be empty."):msg);
 				otherErrorsExist = true;
 			}
-			
+			//check dateRunStarted
+			if(dateRunStarted==null || "".equals(dateRunStarted.trim())){
+				String msg = messageService.getMessage(metaHelperWebapp.getArea()+".dateRunStarted.error");//area here is runInstance
+				m.put("dateRunStartedError", msg==null?new String("Cannot be empty."):msg);
+				otherErrorsExist = true;
+			}			
+			else{
+				try{
+		
+					Format formatter = new SimpleDateFormat("MM/dd/yyyy");
+					dateRunStartedAsDateObject = (Date) formatter.parseObject(dateRunStarted.trim()); 				
+				}catch(Exception e){
+					String msg = messageService.getMessage(metaHelperWebapp.getArea()+".dateRunStartedFormat.error");//area here is runInstance
+					m.put("dateRunStartedError", msg==null?new String("Incorrect Format"):msg);
+					otherErrorsExist = true;
+				}
+			}
 			
 			
 			if (result.hasErrors()||otherErrorsExist){
@@ -682,7 +716,8 @@ public class RunController extends WaspController {
 				m.addAttribute("readlengths", getResourceCategoryMetaList(requestedSequencingMachine.getResourceCategory(), "readlength"));
 				m.addAttribute("readTypes", getResourceCategoryMetaList(requestedSequencingMachine.getResourceCategory(), "readType"));
 
-				m.put("technicians", userService.getFacilityTechnicians());
+				m.addAttribute("technicians", userService.getFacilityTechnicians());
+				m.addAttribute("dateRunStarted",dateRunStarted);
 								
 				m.addAttribute("runId", runId);
 				m.addAttribute("resourceId", resourceId);
@@ -696,10 +731,12 @@ public class RunController extends WaspController {
 			if(action.equals("create")){
 				//System.out.println("in create1");
 				//if create, then set startts to the date in the parameter (currently that parameter does not exit)
+				runInstance.setStartts(dateRunStartedAsDateObject);
 				sampleService.createUpdateSequenceRun(runInstance, (List<RunMeta>)metaHelperWebapp.getMetaList(), platformUnitId, resourceId);
 			}
 			else if(action.equals("update")){
 				//System.out.println("in update1");
+				runInstance.setStartts(dateRunStartedAsDateObject);
 				sampleService.createUpdateSequenceRun(runInstance, (List<RunMeta>)metaHelperWebapp.getMetaList(), platformUnitId, resourceId);
 			}
 			else{//action == null
