@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+	
+	
+	<!-- create beans for classes containing constants -->
+	<bean id="waspJobParameters" class="edu.yu.einstein.wasp.integration.messages.WaspJobParameters" />
+	<bean id='jobTasks' class="edu.yu.einstein.wasp.integration.messages.WaspJobTask" />
+	<bean id='sampleTasks' class="edu.yu.einstein.wasp.integration.messages.WaspSampleTask" />
+	<bean id='libraryTasks' class="edu.yu.einstein.wasp.integration.messages.WaspLibraryTask" />
+	
+	<!-- create common tasklet beans -->
+	<bean id="listenForJobQuotedTasklet" class="edu.yu.einstein.wasp.daemon.tasklets.ListenForStatusTasklet" scope="step">
+		<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.job" />
+		<constructor-arg name="abortMonitoringChannel" ref="wasp.channel.notification.abort" />
+		<constructor-arg name="messageTemplate">
+			<bean class="edu.yu.einstein.wasp.integration.messages.JobStatusMessageTemplate" >
+				<constructor-arg  name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
+				<property name="task" value="#{jobTasks.QUOTE}" />
+				<property name="status" value="COMPLETED" />
+			</bean>
+		</constructor-arg>
+	</bean>
+	
+	<bean id="listenForJobPiApproveTasklet" class="edu.yu.einstein.wasp.daemon.tasklets.ListenForStatusTasklet" scope="step">
+		<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.job" />
+		<constructor-arg name="abortMonitoringChannel" ref="wasp.channel.notification.abort" />
+		<constructor-arg name="messageTemplate">
+			<bean class="edu.yu.einstein.wasp.integration.messages.JobStatusMessageTemplate">
+				<constructor-arg  name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
+				<property name="task" value="#{jobTasks.PI_APPROVE}" />
+				<property name="status" value="COMPLETED" />
+			</bean>
+		</constructor-arg>
+	</bean>
+	
+	<bean id="listenForJobAdminApproveTasklet" class="edu.yu.einstein.wasp.daemon.tasklets.ListenForStatusTasklet" scope="step">
+		<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.job" />
+		<constructor-arg name="abortMonitoringChannel" ref="wasp.channel.notification.abort" />
+		<constructor-arg name="messageTemplate">
+			<bean class="edu.yu.einstein.wasp.integration.messages.JobStatusMessageTemplate">
+				<constructor-arg  name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
+				<property name="task" value="#{jobTasks.ADMIN_APPROVE}" />
+				<property name="status" value="COMPLETED" />
+			</bean>
+		</constructor-arg>
+	</bean>
+	
+	
+	<!-- import batch flows -->
+	<import resource="classpath:flows/*Flow.xml" />
+	<import resource="classpath:flows/chipSeq.waspJob.mainFlow.v1.xml" />
+	<import resource="classpath:flows/sample.mainFlow.v1.xml" />
+	
+	<!-- loads all the plugin root contexts -->
+  	<import resource="classpath*:META-INF/spring/plugin-context-batch.xml" />
+	
+
+</beans>
