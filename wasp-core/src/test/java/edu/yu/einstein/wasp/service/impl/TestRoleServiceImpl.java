@@ -73,7 +73,7 @@ public class TestRoleServiceImpl {
 	  expect(mockDepartmentUserDao.findByMap(departmentuserQueryMap)).andReturn(departmentUsers);
 	  replay(mockDepartmentUserDao);
 	  
-	  Assert.assertEquals(roleServiceImpl.getUniqueSortedRoleList(user), roles);
+	  Assert.assertEquals(roles, roleServiceImpl.getUniqueSortedRoleList(user));
 	  
 	  verify(mockDepartmentUserDao);
 	  
@@ -154,8 +154,8 @@ public class TestRoleServiceImpl {
 
 	  replay(mockDepartmentUserDao);
 	  
-	  Assert.assertEquals(roleServiceImpl.getCompleteSortedRoleList(testUser1), expectedListOfRoles1);
-	  Assert.assertEquals(roleServiceImpl.getCompleteSortedRoleList(testUser2), expectedListOfRoles2);
+	  Assert.assertEquals(expectedListOfRoles1, roleServiceImpl.getCompleteSortedRoleList(testUser1));
+	  Assert.assertEquals(expectedListOfRoles2, roleServiceImpl.getCompleteSortedRoleList(testUser2));
 	  
 	  verify(mockDepartmentUserDao);
 	  
