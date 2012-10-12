@@ -12,7 +12,7 @@
 <tr class="FormData"><td class="CaptionTD"><fmt:message key="platformunitShow.numberOfCellsOnThisPlatformUnit.label"/>:</td><td class="DataTD"><c:out value="${numberOfCellsOnThisPlatformUnit}" /></td></tr>
 <tr class="FormData"><td class="CaptionTD"><fmt:message key="platformunitShow.comment.label"/>:</td><td class="DataTD"><textarea style='font-size:9px' READONLY cols='30' rows='4' wrap='virtual'><c:out value="${comment}" /></textarea></td></tr>
 <tr><td colspan='2' style='text-align:center; padding:10px' >
-<a href='<c:url value="/facility/platformunit/createUpdatePlatformUnit.do?sampleSubtypeId=${platformUnitSampleSubtypeId}&sampleId=${platformUnitSampleId}" />'>Edit</a> | <a href='javascript:' onclick = 'if(confirm("Do you really want to delete this platform unit record?")){location.href="<c:url value="/facility/platformunit/deletePlatformUnit.do?sampleId=${platformUnitSampleId}" />";}'>Delete</a> | <a href='<c:url value="/run/createUpdateRun.do?resourceId=0&runId=0&platformUnitId=${platformUnitSampleId}" />'>Add To Run</a> 
+<a href='<c:url value="/facility/platformunit/createUpdatePlatformUnit.do?sampleSubtypeId=${platformUnitSampleSubtypeId}&sampleId=${platformUnitSampleId}" />'>Edit</a> | <a href='javascript:void(0)' onclick = 'if(confirm("Do you really want to delete this platform unit record?")){location.href="<c:url value="/facility/platformunit/deletePlatformUnit.do?sampleId=${platformUnitSampleId}" />";}'>Delete</a> | <a href='<c:url value="/run/createUpdateRun.do?resourceId=0&runId=0&platformUnitId=${platformUnitSampleId}" />'>Add To Run</a> 
 </td></tr>
 </table>
 
@@ -123,6 +123,37 @@
 </div>
 </c:if>
 
+<br>
+<c:if test="${sequenceRuns.size() > 0}">
+<table class="data">
+<tr>
+<td class="value-centered-small-heavyborder" nowrap>Run</td>
+<td class="value-centered-small-heavyborder" nowrap>Machine</td>
+<td class="value-centered-small-heavyborder" nowrap>Length</td>
+<td class="value-centered-small-heavyborder" nowrap>Type</td>
+<td class="value-centered-small-heavyborder" nowrap>Start</td>
+<td class="value-centered-small-heavyborder" nowrap>End</td>
+<td class="value-centered-small-heavyborder" nowrap>Status</td>
+<td class="value-centered-small-heavyborder" nowrap>Action</td>
+</tr>
+<c:forEach items="${sequenceRuns}" var="sequenceRun" varStatus="status">
+<tr>
+<td class="value-centered-small"><c:out value="${sequenceRun.getName()}" /></td>
+<td class="value-centered-small"><c:out value="${sequenceRun.resource.name}" /> - <c:out value="${sequenceRun.resourceCategory.name}" /></td>
+<td class="value-centered-small"><c:out value="${readLengthForRuns.get(status.index)}" /></td>
+<td class="value-centered-small"><c:out value="${readTypeForRuns.get(status.index)}" /></td>
+<td class="value-centered-small"><c:out value="${startDateForRuns.get(status.index)}" /></td>
+<td class="value-centered-small"><c:out value="${endDateForRuns.get(status.index)}" /></td>
+<td class="value-centered-small"><c:out value="${statusForRuns.get(status.index)}" /></td>
+<%-- <td class="value-centered-small"><a href="/wasp/run/createUpdateRun.do?resourceId=<c:out value="${sequenceRun.resource.resourceId}" />&runId=<c:out value="${sequenceRun.runId}" />&platformUnitId=<c:out value="${sequenceRun.sampleId}" />">edit</a> | <a href='javascript:void(0)' onclick = 'if(confirm("Do you really want to delete this run record?")){location.href="<c:url value="/run/deleteRun.do?runId=${sequenceRun.runId}" />";}'>delete</a></td>--%>
+<td class="value-centered-small"><a href='<c:url value="/run/createUpdateRun.do?resourceId=${sequenceRun.resource.resourceId}&runId=${sequenceRun.runId}&platformUnitId=${sequenceRun.sampleId}" />'>edit</a> | <a href='javascript:void(0)' onclick = 'if(confirm("Do you really want to delete this run record?")){location.href="<c:url value="/run/deleteRun.do?runId=${sequenceRun.runId}" />";}'>delete</a></td>
+
+</tr>
+</c:forEach>
+</table>
+
+</c:if>
+<br><br>
 
 <c:if test="${runList.size() > 0}">
 		<form id="newRunForm"  method='post' action="<c:url value="/facility/platformunit/createNewRun.do" />" >

@@ -611,6 +611,7 @@ public class RunController extends WaspController {
 			@RequestParam("runId") Integer runId,
 			@RequestParam("platformUnitId") Integer platformUnitId,
 			@RequestParam("dateRunStarted") String dateRunStarted,
+			@RequestParam("dateRunEnded") String dateRunEnded,
 			@Valid Run runInstance, 
 			 BindingResult result,
 			 SessionStatus status, 		
@@ -718,6 +719,7 @@ public class RunController extends WaspController {
 
 				m.addAttribute("technicians", userService.getFacilityTechnicians());
 				m.addAttribute("dateRunStarted",dateRunStarted);
+				m.addAttribute("dateRunEnded",dateRunEnded);
 								
 				m.addAttribute("runId", runId);
 				m.addAttribute("resourceId", resourceId);
@@ -750,5 +752,11 @@ public class RunController extends WaspController {
 		return "redirect:/facility/platformunit/showPlatformUnit/"+platformUnitId.intValue()+".do";  /*return "redirect:/dashboard.do";*/
 	}
 	
-	
+	//createUpdatePlatformunit - GET
+	@RequestMapping(value="/deleteRun.do", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('su') or hasRole('ft')")
+	public String deleteRun(@RequestParam("runId") Integer runId,
+			ModelMap m) {	
+		return "redirect:/dashboard.do";
+	}
 }

@@ -248,6 +248,10 @@ public class PlatformUnitController extends WaspController {
 		return new MetaHelperWebapp("platformunitInstance", SampleMeta.class, request.getSession());
 	}
 
+	private final MetaHelperWebapp getMetaHelperWebappRunInstance() {
+		return new MetaHelperWebapp("runInstance", RunMeta.class, request.getSession());
+	}
+
 	//entry to platformunit grid
 	@RequestMapping(value="/list.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
@@ -836,6 +840,58 @@ public class PlatformUnitController extends WaspController {
 				
 			}
 			*/
+			
+			List<Run> sequenceRuns = platformUnit2.getRun();
+			m.addAttribute("sequenceRuns", sequenceRuns);
+			
+			metaHelperWebapp = getMetaHelperWebappRunInstance();//********note this is now runInstance
+			String area2 = metaHelperWebapp.getArea();
+			Format formatter = new SimpleDateFormat("MM/dd/yyyy");
+			
+			List<String>readLengthForRuns = new ArrayList<String>();
+			List<String>readTypeForRuns = new ArrayList<String>();
+			List<String>startDateForRuns = new ArrayList<String>();
+			List<String>endDateForRuns = new ArrayList<String>();
+			List<String>statusForRuns = new ArrayList<String>();
+			for(Run sequenceRun : sequenceRuns){
+				
+				String readlength2 = new String("unknown");
+				try{
+					readlength2 = MetaHelperWebapp.getMetaValue(area2, "readlength", sequenceRun.getRunMeta());					
+				}catch(Exception e){}
+				readLengthForRuns.add(readlength2);
+				
+				String readType2 = new String("unknown");
+				try{
+					readType2 = MetaHelperWebapp.getMetaValue(area2, "readType", sequenceRun.getRunMeta());
+				}catch(Exception e){}
+				readTypeForRuns.add(readType2);
+				
+				String dateRunStarted = new String("not set");
+				if(sequenceRun.getStartts()!=null){
+					try{				
+						dateRunStarted = new String(formatter.format(sequenceRun.getStartts()));//MM/dd/yyyy
+					}catch(Exception e){}					
+				}
+				startDateForRuns.add(dateRunStarted);
+				
+				String dateRunEnded = new String("not set");
+				if(sequenceRun.getEnDts()!=null){					
+					try{				
+						dateRunEnded = new String(formatter.format(sequenceRun.getEnDts()));//MM/dd/yyyy
+					}catch(Exception e){}
+					
+				}
+				endDateForRuns.add(dateRunEnded);
+				
+				statusForRuns.add(new String("???"));
+			}
+			m.addAttribute("readLengthForRuns", readLengthForRuns);
+			m.addAttribute("readTypeForRuns", readTypeForRuns);	
+			m.addAttribute("startDateForRuns", startDateForRuns);	
+			m.addAttribute("endDateForRuns", endDateForRuns);	
+			m.addAttribute("statusForRuns", statusForRuns);	
+			
 		}catch(Exception e){logger.debug(e.getMessage());waspErrorMessage("wasp.unexpected_error.error");return "redirect:/dashboard.do";}
 	
 		

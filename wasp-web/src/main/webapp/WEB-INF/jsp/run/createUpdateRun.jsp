@@ -59,6 +59,7 @@
   	<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="runId" id="runId" value="<c:out value="${runId}" />" />
   	<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="platformUnitId" id="platformUnitId" value="<c:out value="${platformUnitId}" />" />
   	<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="resourceId" id="resourceId" value="<c:out value="${resourceId}" />" />
+  	<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="dateRunEnded" id="dateRunEnded" value="<c:out value="${dateRunEnded}" />" />
   
 	<tr class="FormData">
         <td class="CaptionTD"><fmt:message key="runInstance.name.label" />:</td>
@@ -99,7 +100,6 @@
         <td class="DataTD"><c:out value="${dateRunEnded}" /><span class="requiredField"></span></td>
         <td class="CaptionTD error"><c:out value="${dateRunEndedError}" /></td>
 	</tr>
-
 
 	<tr><td colspan="3">
     	<div class="submit">
