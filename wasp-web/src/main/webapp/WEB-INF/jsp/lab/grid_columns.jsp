@@ -15,6 +15,10 @@ _navAttr={edit:true,view:false,add:false,del:false,search:false,refresh:true,bef
 		if(url.indexOf('selId') != -1){<%-- url contains this string (indicating coming from jobGrid), upon refresh, change url to remove; will cause a COMPLETE refresh of page rather than a JSON call--%> 
 			window.location.replace('list.do'); <%-- completely refresh the page, without the userId and labId request parameters --%>
 		}
+		<%--http://stackoverflow.com/questions/7089643/programmatically-sorting-the-jqgrid 
+		with next line, sortname is set to "" and with that sidx is also set to "" 
+		so that with reload grid, sidx is not controlling anything--%>
+		$("#grid_id").setGridParam({sortname:''});
 	}
 }
 

@@ -40,6 +40,9 @@ public class JQFieldTag extends BodyTagSupport {
 	
 	Logger log=Logger.getLogger(JQFieldTag.class);
 	
+	//width of a column; not required
+	private String columnWidth;
+	private Integer columnWidthAsInteger;
 	
 	//field name
 	private String name;
@@ -191,6 +194,11 @@ public class JQFieldTag extends BodyTagSupport {
 		this.defaultSelect = ds;
 	}
 	
+	public void setColumnWidth(String w) {
+		
+		this.columnWidth = w;
+	}
+	
 	//get locale-specific message
 	private String getMessage(String key, String defaultMessage) {
 		String r=getMessage(key);
@@ -302,6 +310,12 @@ public class JQFieldTag extends BodyTagSupport {
 				editrules="{custom:true,custom_func:_validate_regexp}";
 			}
 			
+			try{
+				columnWidthAsInteger = new Integer(columnWidth);
+			}
+			catch(Exception e){
+					columnWidthAsInteger = new Integer(200);
+			}
 			
 			//init js column definition 
 			String buf="var "+jsName+"={\n"+
@@ -312,7 +326,8 @@ public class JQFieldTag extends BodyTagSupport {
 		     "jq:{\n"+
 			 		"	name:'"+name+"', \n"+
 			 		"	index:'"+name+"', \n"+
-					"	width:80, \n"+
+					//"	width:80, \n"+
+					"	width:"+columnWidthAsInteger.toString()+", \n"+
 					"	align:'left',\n"+
 					"	sortable:false,\n"+	
 					"	editHidden:false,\n"+	

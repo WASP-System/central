@@ -187,10 +187,10 @@ public class UserController extends WaspController {
 		//Parameters coming from grid's toolbar
 		//The jobGrid's toolbar's is it's search capability. The toolbar's attribute stringResult is currently set to false, 
 		//meaning that each parameter on the toolbar is sent as a key:value pair
-		String login = request.getParameter("login");//null if this parameter is not passed
-		String firstName = request.getParameter("firstName");//null if this parameter is not passed
-		String lastName = request.getParameter("lastName");//null if this parameter is not passed
-		String email = request.getParameter("email");//null if this parameter is not passed
+		String login = request.getParameter("login")==null?null:request.getParameter("login").trim();//null if this parameter is not passed
+		String firstName = request.getParameter("firstName")==null?null:request.getParameter("firstName").trim();//null if this parameter is not passed
+		String lastName = request.getParameter("lastName")==null?null:request.getParameter("lastName").trim();//null if this parameter is not passed
+		String email = request.getParameter("email")==null?null:request.getParameter("email").trim();//null if this parameter is not passed
 		//System.out.println("login = " + login);System.out.println("firstName = " + firstName);System.out.println("lastName = " + lastName);System.out.println("email = " + email);
 		
 		//result

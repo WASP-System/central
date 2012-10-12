@@ -6,36 +6,36 @@
         http://www.springframework.org/schema/beans/spring-beans-3.1.xsd"
     default-autowire="byName">
    
-  <bean id="illuminaFlowcellV3UiFieldArea" class="java.lang.String">
-  	<constructor-arg><value>illuminaFlowcellV3</value></constructor-arg>
+  <bean id="illuminaFlowcellMiSeqV1UiFieldArea" class="java.lang.String">
+  	<constructor-arg><value>illuminaFlowcellMiSeqV1</value></constructor-arg>
   </bean>
    
-  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="illuminaFlowcellV3UiFieldWrapper">
+  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="illuminaFlowcellMiSeqV1UiFieldWrapper">
     <property name="baseLocale" value="en_US" />
-    <property name="baseArea" value="#{illuminaFlowcellV3UiFieldArea}" />
+    <property name="baseArea" value="#{illuminaFlowcellMiSeqV1UiFieldArea}" />
   </bean>
   
    
 
-  <bean id="illuminaFlowcellV3SampleLoad" class="edu.yu.einstein.wasp.load.SampleSubtypeLoader">
-  	<property name="name" value="Illumina Flow Cell Version 3" />
-    <property name="area" value="#{illuminaFlowcellV3UiFieldArea}" />
+  <bean id="illuminaFlowcellMiSeqV1SampleLoad" class="edu.yu.einstein.wasp.load.SampleSubtypeLoader">
+  	<property name="name" value="Illumina Flow Cell MiSeq V1" />
+    <property name="area" value="#{illuminaFlowcellMiSeqV1UiFieldArea}" />
     <property name="sampleType" value="#{waspSampleType['platformunit']}" />
     <property name="compatibleResourcesByIName">
   		<list>
-  			<bean class="java.lang.String" depends-on="illuminaHiSeq2000">
-  				<constructor-arg type="String" value="illuminaHiSeq2000" />
+  			<bean class="java.lang.String" depends-on="illuminaMiSeq100">
+  				<constructor-arg type="String" value="illuminaMiSeq100" />
   			</bean>
   		</list>
   	</property>
   	
   	<property name="uiFieldsFromWrapper">
   		<list>
-	  		<bean parent="illuminaFlowcellV3UiFieldWrapper">
+	  		<bean parent="illuminaFlowcellMiSeqV1UiFieldWrapper">
 	          <property name="baseName" value="#{waspPlatformUnit['cellName']}" />
 	          <property name="label" value="Lane" />
 	        </bean>
-	        <bean parent="illuminaFlowcellV3UiFieldWrapper">
+	        <bean parent="illuminaFlowcellMiSeqV1UiFieldWrapper">
 	          <property name="baseName" value="#{waspPlatformUnit['platformUnitName']}" />
 	          <property name="label" value="Flow Cell" />
 	        </bean>
@@ -43,11 +43,11 @@
   	</property>
   	<property name="metaFromWrapper">
        <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
-         <property name="area" value="#{illuminaFlowcellV3UiFieldArea}" />
+         <property name="area" value="#{illuminaFlowcellMiSeqV1UiFieldArea}" />
          <property name="metaList">
          	<list>
-         		<value>#{waspPlatformUnit['maxCellNumber']}=8</value>
-         		<value>#{waspPlatformUnit['multiplicationFactor']}=2</value>
+         		<value>#{waspPlatformUnit['maxCellNumber']}=1</value>
+         		<value>#{waspPlatformUnit['multiplicationFactor']}=1</value>
          	</list>
          </property>
        </bean>

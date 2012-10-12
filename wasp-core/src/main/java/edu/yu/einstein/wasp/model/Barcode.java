@@ -26,6 +26,7 @@ import javax.persistence.Table;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
+import org.hibernate.validator.constraints.NotEmpty;
 
 @Entity
 @Audited
@@ -68,6 +69,7 @@ public class Barcode extends WaspModel {
 	 *
 	 */
 	@Column(name="barcode")
+	@NotEmpty
 	protected String barcode;
 
 	/**
