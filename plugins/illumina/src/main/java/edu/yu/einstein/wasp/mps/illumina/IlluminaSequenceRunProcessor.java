@@ -10,6 +10,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -19,10 +20,9 @@ import edu.yu.einstein.wasp.dao.SampleSourceDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.model.Sample;
-import edu.yu.einstein.wasp.model.SampleCell;
+import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.mps.SequenceRunProcessor;
-import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.util.MetaHelper;
 
 /**
@@ -91,16 +91,24 @@ public class IlluminaSequenceRunProcessor implements SequenceRunProcessor {
 		BufferedWriter bw = new BufferedWriter(new FileWriter(f, false));
 		bw.write(getSampleSheetHeader());
 		bw.newLine();
-		for (Sample cell : sampleSourceDao.getDerivedSamplesByParentSampleId(platformUnit.getSampleId())) {
-			if (!cell.getSampleType().getIName().equals("cell"))
+		Map<Integer,Sample> cells = sampleService.getIndexedCellsOnPlatformUnit(platformUnit);
+		for (Integer cellid : cells.keySet())) {
+			Sample cell = cells.get(cellid);
+			
+			if (!cell.getSampleType().getIName().equals("cell")) {
+				logger.warn("Expected cell, saw " + cell.getSampleType().getIName());
 				continue;
+			}
 			
 			List<SampleMeta> cellMD = cell.getSampleMeta();
 			
-			for (Sample lane : sampleSourceDao.getDerivedSamplesByParentSampleId(cell.getSampleId())) {
+			for (Sample library : sampleService.getLibrariesOnCellWithoutControls(cell)) {
+				library.g
 				String iname = lane.getSampleType().getIName();
-				if ( (!iname.equals("library") && (!iname.equals("facilityLibrary"))))
+				if ( (!iname.equals("library") && (!iname.equals("facilityLibrary")))) {
+					logger.warn("Expected library, saw " + iname);
 					continue;
+				}
 				
 				List<SampleMeta> libraryMD = lane.getSampleMeta();
 				
