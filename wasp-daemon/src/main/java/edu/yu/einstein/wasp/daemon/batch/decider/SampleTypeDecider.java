@@ -1,4 +1,4 @@
-package edu.yu.einstein.wasp.daemon.decider;
+package edu.yu.einstein.wasp.daemon.batch.decider;
 
 import java.util.ArrayList;
 import java.util.List;

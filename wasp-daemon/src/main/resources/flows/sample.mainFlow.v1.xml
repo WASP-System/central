@@ -6,9 +6,9 @@
 
 	<!-- common tasklets defined in config-common-context.xml -->
 	
-	<bean id="wasp.sample.typeDecider" class="edu.yu.einstein.wasp.daemon.decider.SampleTypeDecider" />
+	<bean id="wasp.sample.typeDecider" class="edu.yu.einstein.wasp.daemon.batch.decider.SampleTypeDecider" />
 			
-	<bean id="waspNotifyLibraryCreatedTasklet" class="edu.yu.einstein.wasp.daemon.tasklets.NotifyStatusTasklet" scope="step">
+	<bean id="waspNotifyLibraryCreatedTasklet" class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 		<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 		<constructor-arg name="messageTemplate">
 			<bean class="edu.yu.einstein.wasp.integration.messages.LibraryStatusMessageTemplate">
@@ -26,7 +26,7 @@
 				<batch:step id="wasp.sample.step.listenForSampleReceived">
 					<!-- Listen for sample CREATED message: tells us sample is physically received -->
 					<batch:tasklet>
-						<bean class="edu.yu.einstein.wasp.daemon.tasklets.ListenForStatusTasklet" scope="step">
+						<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForStatusTasklet" scope="step">
 							<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.sample" />
 							<constructor-arg name="abortMonitoringChannel" ref="wasp.channel.notification.abort"/>
 							<constructor-arg name="messageTemplate">
@@ -43,7 +43,7 @@
 				<batch:step id="wasp.sample.step.listenForJobApproved">
 					<!-- Listen for job ACCEPTED message: tells us job is approved -->
 					<batch:tasklet>
-						<bean class="edu.yu.einstein.wasp.daemon.tasklets.ListenForStatusTasklet" scope="step">
+						<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForStatusTasklet" scope="step">
 							<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.job" />
 							<constructor-arg name="abortMonitoringChannel" ref="wasp.channel.notification.abort"/>
 							<constructor-arg name="messageTemplate">
@@ -70,7 +70,7 @@
 			<!-- Wait for QC result to be notified. If failed abandon this sample flow otherwise sample ready -->
 			<!-- for library making -->
 			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.daemon.tasklets.ListenForStatusTasklet" scope="step">
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForStatusTasklet" scope="step">
 					<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.sample" />
 					<constructor-arg name="abortMonitoringChannel" ref="wasp.channel.notification.abort"/>
 					<constructor-arg name="messageTemplate">
@@ -89,7 +89,7 @@
 		<batch:step id="wasp.sample.step.notifySampleReady">
 			<!-- publish that sample is ready for further processing -->
 			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.daemon.tasklets.NotifyStatusTasklet" scope="step">
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
 						<bean class="edu.yu.einstein.wasp.integration.messages.SampleStatusMessageTemplate">
@@ -103,7 +103,7 @@
 		<batch:step id="wasp.sample.step.notifySampleAbandoned">
 			<!-- publish that sample had been abandoned  -->
 			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.daemon.tasklets.NotifyStatusTasklet" scope="step">
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
 						<bean class="edu.yu.einstein.wasp.integration.messages.SampleStatusMessageTemplate">
@@ -125,7 +125,7 @@
 		<!-- e.g. via a message from the web layer -->
 		<batch:step id="wasp.sample.step.listenForExitCondition">
 			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.daemon.tasklets.ListenForExitConditionTasklet" scope="step">
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForExitConditionTasklet" scope="step">
 					<constructor-arg name="inputSubscribableChannels">
 						<set>
 							<ref bean="wasp.channel.notification.sample" />

@@ -14,7 +14,7 @@
 	<bean id='libraryTasks' class="edu.yu.einstein.wasp.integration.messages.WaspLibraryTask" />
 	
 	<!-- create common tasklet beans -->
-	<bean id="listenForJobQuotedTasklet" class="edu.yu.einstein.wasp.daemon.tasklets.ListenForStatusTasklet" scope="step">
+	<bean id="listenForJobQuotedTasklet" class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForStatusTasklet" scope="step">
 		<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.job" />
 		<constructor-arg name="abortMonitoringChannel" ref="wasp.channel.notification.abort" />
 		<constructor-arg name="messageTemplate">
@@ -26,7 +26,7 @@
 		</constructor-arg>
 	</bean>
 	
-	<bean id="listenForJobPiApproveTasklet" class="edu.yu.einstein.wasp.daemon.tasklets.ListenForStatusTasklet" scope="step">
+	<bean id="listenForJobPiApproveTasklet" class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForStatusTasklet" scope="step">
 		<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.job" />
 		<constructor-arg name="abortMonitoringChannel" ref="wasp.channel.notification.abort" />
 		<constructor-arg name="messageTemplate">
@@ -38,7 +38,7 @@
 		</constructor-arg>
 	</bean>
 	
-	<bean id="listenForJobAdminApproveTasklet" class="edu.yu.einstein.wasp.daemon.tasklets.ListenForStatusTasklet" scope="step">
+	<bean id="listenForJobAdminApproveTasklet" class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForStatusTasklet" scope="step">
 		<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.job" />
 		<constructor-arg name="abortMonitoringChannel" ref="wasp.channel.notification.abort" />
 		<constructor-arg name="messageTemplate">

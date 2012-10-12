@@ -1,4 +1,4 @@
-package edu.yu.einstein.wasp.daemon.tasklets;
+package edu.yu.einstein.wasp.daemon.batch.tasklets;
 
 import org.springframework.batch.repeat.RepeatStatus;
 
