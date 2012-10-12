@@ -47,48 +47,51 @@ public class JdbcWaspStepExecutionDao extends JdbcStepExecutionDao implements Wa
 	 */
 	@Override
 	public List<StepExecution> getStepExecutions(String name, Map<String, String> parameterMap, Boolean exclusive, BatchStatus batchStatus, ExitStatus exitStatus){
-		Assert.notNull(parameterMap, "parameterMap must not be null");
 		Assert.notNull(waspJobInstanceDao, "waspJobInstanceDao cannot be  null");
 		Assert.notNull(jobExecutionDao, "jobExecutionDao cannot be null");
-		if (exclusive == null)
-			exclusive = false;
-		List<Long> jobInstanceIds = null;
-		if (exclusive){
-			jobInstanceIds = waspJobInstanceDao.getJobInstanceIdsByExclusivelyMatchingParameters(parameterMap);
-		} else {
-			jobInstanceIds = waspJobInstanceDao.getJobInstanceIdsByMatchingParameters(parameterMap);
-		}
-		if (jobInstanceIds == null || jobInstanceIds.isEmpty())
-			return null;
+		final List<StepExecution> stepExecutions = new ArrayList<StepExecution>();
+		
 		MapSqlParameterSource parameterSource = new MapSqlParameterSource();
-		String sql = "select SE.JOB_EXECUTION_ID, STEP_EXECUTION_ID from %PREFIX%STEP_EXECUTION SE, %PREFIX%JOB_EXECUTION JE where STEP_NAME LIKE :name ";
+		String sql = "select SE.JOB_EXECUTION_ID, STEP_EXECUTION_ID from %PREFIX%STEP_EXECUTION SE, %PREFIX%JOB_EXECUTION JE where STEP_NAME LIKE :name and JE.JOB_EXECUTION_ID = SE.JOB_EXECUTION_ID";
 		if (name == null)
 			name = "";
 		parameterSource.addValue("name", "%"+name);
 		if (batchStatus != null){
-			sql += "and STATUS = :status ";
+			sql += " and STATUS = :status ";
 			parameterSource.addValue("status", batchStatus);
 		}
 		if (exitStatus != null){
-			sql += "and EXIT_CODE = :exitStatus ";
+			sql += " and EXIT_CODE = :exitStatus ";
 			parameterSource.addValue("exitStatus", exitStatus.getExitCode());
 		}
-		
-		sql += "and JE.JOB_EXECUTION_ID = SE.JOB_EXECUTION_ID and JE.JOB_INSTANCE_ID in ( ";
-		
-		int index = 1;
-		for (Long id: jobInstanceIds){
-			parameterSource.addValue("id"+index, id);
-			if (index > 1)
-				sql += ",";
-			sql += " :id" + index;
-			index++;
+		if (parameterMap != null){
+			if (exclusive == null)
+				exclusive = false;
+			List<Long> jobInstanceIds = null;
+			if (exclusive){
+				jobInstanceIds = waspJobInstanceDao.getJobInstanceIdsByExclusivelyMatchingParameters(parameterMap);
+			} else {
+				jobInstanceIds = waspJobInstanceDao.getJobInstanceIdsByMatchingParameters(parameterMap);
+			}
+			if (jobInstanceIds == null || jobInstanceIds.isEmpty())
+				return stepExecutions;
+
+			sql += " and JE.JOB_INSTANCE_ID in ( ";
+			
+			int index = 1;
+			for (Long id: jobInstanceIds){
+				parameterSource.addValue("id"+index, id);
+				if (index > 1)
+					sql += ",";
+				sql += " :id" + index;
+				index++;
+			}
+			sql += " )";
 		}
-		sql += " )";
 		logger.debug("Built SQL string: " + getQuery(sql));
 		for (String key: parameterSource.getValues().keySet())
 			logger.debug("Parameter: " + key + "=" + parameterSource.getValues().get(key).toString());
-		final List<StepExecution> stepExecutions = new ArrayList<StepExecution>();
+
 		RowMapper<StepExecution> mapper = new RowMapper<StepExecution>() {
 			
 			@Override

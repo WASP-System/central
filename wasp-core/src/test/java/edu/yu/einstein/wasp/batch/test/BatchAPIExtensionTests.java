@@ -118,6 +118,15 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 	}
 	
 	/**
+	 * API extension testing. Testing getting all StepExecutions
+	 */
+	@Test(groups = "unit-tests")
+	public void testGettingStepExecutionNormalTest5(){
+		List<StepExecution> stepExecutions = jobExplorer.getStepExecutions();
+		Assert.assertTrue(stepExecutions.size() == 8); 
+	}
+	
+	/**
 	 * API extension testing. Testing access of state information via API extension.The test Batch db tables should contain two steps called 
 	 * 'wasp.sample.step.listenForSampleReceived' with a Batch Status of Completed.
 	 * Both of these should match the supplied jobId, so if the sampleId parameter is absent to distinguish them this test should throw
@@ -198,6 +207,24 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 			Assert.fail("Got unexpected BatchDaoDataRetrievalException");
 		}
 		Assert.assertEquals(jobExecution.getId(), new Long(2));
+	}
+	
+	/**
+	 * API extension testing. Testing getting all JobExecutions with BatchStatus=COMPLETED. Should be 1
+	 */
+	@Test(groups = "unit-tests")
+	public void testGettingJobExecutionNormalTest2(){
+		List<JobExecution> jobExecutions = jobExplorer.getJobExecutions(BatchStatus.COMPLETED);
+		Assert.assertTrue(jobExecutions.size() == 1); 
+	}
+	
+	/**
+	 * API extension testing. Testing getting all JobExecutions with BatchStatus=COMPLETED and ExitStatus=EXECUTION. Should be impossible
+	 */
+	@Test(groups = "unit-tests")
+	public void testGettingJobExecutionNormalTest3(){
+		List<JobExecution> jobExecutions = jobExplorer.getJobExecutions(BatchStatus.COMPLETED, ExitStatus.EXECUTING);
+		Assert.assertTrue(jobExecutions.size() == 0); 
 	}
 	
 	/**

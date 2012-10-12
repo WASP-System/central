@@ -36,49 +36,51 @@ public class JdbcWaspJobExecutionDao extends JdbcJobExecutionDao implements Wasp
 	 */
 	@Override
 	public List<JobExecution> getJobExecutions(String name, Map<String, String> parameterMap, Boolean exclusive, BatchStatus batchStatus, ExitStatus exitStatus){
-		Assert.notNull(parameterMap, "parameterMap must not be null");
 		Assert.notNull(waspJobInstanceDao, "waspJobInstanceDao cannot be  null");
 		final List<JobExecution> JobExecutions = new ArrayList<JobExecution>();
-		if (exclusive == null)
-			exclusive = false;
-		List<Long> jobInstanceIds = null;
-		if (exclusive){
-			jobInstanceIds = waspJobInstanceDao.getJobInstanceIdsByExclusivelyMatchingParameters(parameterMap);
-		} else {
-			jobInstanceIds = waspJobInstanceDao.getJobInstanceIdsByMatchingParameters(parameterMap);
-		}
-		if (jobInstanceIds == null || jobInstanceIds.isEmpty())
-			return JobExecutions;
+		
 		MapSqlParameterSource parameterSource = new MapSqlParameterSource();
 		
 		
 		String sql = "SELECT E.JOB_EXECUTION_ID from %PREFIX%JOB_EXECUTION E, %PREFIX%JOB_INSTANCE I where "
-			+ "E.JOB_INSTANCE_ID=I.JOB_INSTANCE_ID and I.JOB_NAME LIKE :name ";
+			+ "E.JOB_INSTANCE_ID=I.JOB_INSTANCE_ID and I.JOB_NAME LIKE :name";
 		
 		if (name == null)
 			name = "";
 		parameterSource.addValue("name", "%"+name);
 		
 		if (batchStatus != null){
-			sql += "and STATUS = :status ";
+			sql += " and STATUS = :status ";
 			parameterSource.addValue("status", batchStatus);
 		}
 		if (exitStatus != null){
-			sql += "and EXIT_CODE = :exitStatus ";
+			sql += " and EXIT_CODE = :exitStatus ";
 			parameterSource.addValue("exitStatus", exitStatus.getExitCode());
 		}
-		
-		sql += "and E.JOB_INSTANCE_ID in ( ";
-		
-		int index = 1;
-		for (Long id: jobInstanceIds){
-			parameterSource.addValue("id"+index, id);
-			if (index > 1)
-				sql += ",";
-			sql += " :id" + index;
-			index++;
+		if (parameterMap != null){
+			if (exclusive == null)
+				exclusive = false;
+			List<Long> jobInstanceIds = null;
+			if (exclusive){
+				jobInstanceIds = waspJobInstanceDao.getJobInstanceIdsByExclusivelyMatchingParameters(parameterMap);
+			} else {
+				jobInstanceIds = waspJobInstanceDao.getJobInstanceIdsByMatchingParameters(parameterMap);
+			}
+			if (jobInstanceIds == null || jobInstanceIds.isEmpty())
+				return JobExecutions;
+			
+			sql += " and E.JOB_INSTANCE_ID in ( ";
+			
+			int index = 1;
+			for (Long id: jobInstanceIds){
+				parameterSource.addValue("id"+index, id);
+				if (index > 1)
+					sql += ",";
+				sql += " :id" + index;
+				index++;
+			}
+			sql += " )";
 		}
-		sql += " )";
 		logger.debug("Built SQL string: " + getQuery(sql));
 		for (String key: parameterSource.getValues().keySet())
 			logger.debug("Parameter: " + key + "=" + parameterSource.getValues().get(key).toString());

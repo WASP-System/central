@@ -167,6 +167,53 @@ public class WaspBatchJobExplorer extends SimpleJobExplorer implements JobExplor
 		return getStepExecutions(null, parameterMap, exclusive, null, exitStatus);
 	}
 	
+	@Override
+	public List<StepExecution> getStepExecutions(String name) {
+		return stepExecutionDao.getStepExecutions(name, null, null, null, null);
+	}
+
+
+	@Override
+	public List<StepExecution> getStepExecutions() {
+		return stepExecutionDao.getStepExecutions(null, null, null, null, null);
+	}
+
+
+	@Override
+	public List<StepExecution> getStepExecutions(String name, BatchStatus batchStatus, ExitStatus exitStatus) {
+		return stepExecutionDao.getStepExecutions(name, null, null, batchStatus, exitStatus);
+	}
+
+
+	@Override
+	public List<StepExecution> getStepExecutions(BatchStatus batchStatus, ExitStatus exitStatus) {
+		return stepExecutionDao.getStepExecutions(null, null, null, batchStatus, exitStatus);
+	}
+	
+
+	@Override
+	public List<StepExecution> getStepExecutions(String name, BatchStatus batchStatus) {
+		return stepExecutionDao.getStepExecutions(name, null, null, batchStatus, null);
+	}
+
+
+	@Override
+	public List<StepExecution> getStepExecutions(BatchStatus batchStatus) {
+		return stepExecutionDao.getStepExecutions(null, null, null, batchStatus, null);
+	}
+
+
+	@Override
+	public List<StepExecution> getStepExecutions(String name, ExitStatus exitStatus) {
+		return stepExecutionDao.getStepExecutions(name, null, null, null, exitStatus);
+	}
+
+
+	@Override
+	public List<StepExecution> getStepExecutions(ExitStatus exitStatus) {
+		return stepExecutionDao.getStepExecutions(null, null, null, null, exitStatus);
+	}
+	
 	// getJobExecution/s methods
 	
 	/**
@@ -295,6 +342,54 @@ public class WaspBatchJobExplorer extends SimpleJobExplorer implements JobExplor
 		return getJobExecutions(null, parameterMap, exclusive, null, exitStatus);
 	}
 	
+	
+	@Override
+	public List<JobExecution> getJobExecutions(String name) {
+		return jobExecutionDao.getJobExecutions(name, null, null, null, null);
+	}
+
+
+	@Override
+	public List<JobExecution> getJobExecutions() {
+		return jobExecutionDao.getJobExecutions(null, null, null, null, null);
+	}
+
+
+	@Override
+	public List<JobExecution> getJobExecutions(String name, BatchStatus batchStatus, ExitStatus exitStatus) {
+		return jobExecutionDao.getJobExecutions(name, null, null, batchStatus, exitStatus);
+	}
+
+
+	@Override
+	public List<JobExecution> getJobExecutions(BatchStatus batchStatus, ExitStatus exitStatus) {
+		return jobExecutionDao.getJobExecutions(null, null, null, batchStatus, exitStatus);
+	}
+	
+
+	@Override
+	public List<JobExecution> getJobExecutions(String name, BatchStatus batchStatus) {
+		return jobExecutionDao.getJobExecutions(name, null, null, batchStatus, null);
+	}
+
+
+	@Override
+	public List<JobExecution> getJobExecutions(BatchStatus batchStatus) {
+		return jobExecutionDao.getJobExecutions(null, null, null, batchStatus, null);
+	}
+
+
+	@Override
+	public List<JobExecution> getJobExecutions(String name, ExitStatus exitStatus) {
+		return jobExecutionDao.getJobExecutions(name, null, null, null, exitStatus);
+	}
+
+
+	@Override
+	public List<JobExecution> getJobExecutions(ExitStatus exitStatus) {
+		return jobExecutionDao.getJobExecutions(null, null, null, null, exitStatus);
+	}
+
 
 	/**
 	 * {@inheritDoc}
@@ -325,6 +420,12 @@ public class WaspBatchJobExplorer extends SimpleJobExplorer implements JobExplor
 			throw new ParameterValueRetrievalException("Cannot cast parameter value obtained with key '" + key + "' to 'String'");
 		}
 	}
-	
+
+
+
+
+
+
+
 
 }

@@ -51,7 +51,6 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * @param parameterMap
 	 * @param exclusive
 	 * @return
-	 * @throws BatchDaoDataRetrievalException
 	 */
 	public List<StepExecution> getStepExecutions(String name, Map<String, String> parameterMap, Boolean exclusive);
 	
@@ -64,9 +63,20 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * @param parameterMap
 	 * @param exclusive
 	 * @return
-	 * @throws BatchDaoDataRetrievalException
 	 */
 	public List<StepExecution> getStepExecutions(Map<String, String> parameterMap, Boolean exclusive);
+	
+	/**
+	 * Get ALL StepExecutions for the batch step identified by the provided step name. 
+	 * @param name
+	 * @return
+	 */
+	public List<StepExecution> getStepExecutions(String name);
+	
+	/**
+	 * Get ALL StepExecutions. Returns empty list if no results obtained.
+	 */
+	public List<StepExecution> getStepExecutions();
 	
 	/**
 	 * Expects a SINGLE StepExecution for the batch step identified by the provided step name and matching the provided parameters. Returns null if
@@ -111,7 +121,6 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * @param batchStatus (may be null)
 	 * @param exitStatus (may be null)
 	 * @return
-	 * @throws BatchDaoDataRetrievalException
 	 */
 	public List<StepExecution> getStepExecutions(String name, Map<String, String> parameterMap, Boolean exclusive, BatchStatus batchStatus, ExitStatus exitStatus);
 	
@@ -126,9 +135,26 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * @param batchStatus (may be null)
 	 * @param exitStatus (may be null)
 	 * @return
-	 * @throws BatchDaoDataRetrievalException
 	 */
 	public List<StepExecution> getStepExecutions(Map<String, String> parameterMap, Boolean exclusive, BatchStatus batchStatus, ExitStatus exitStatus);
+	
+	/**
+	 * Get ALL StepExecutions for the batch step identified by the provided step name. Returns empty list if no results obtained.
+	 * If not null, the provided BatchStatus and/or exit status must match
+	 * @param name
+	 * @param batchStatus (may be null)
+	 * @param exitStatus (may be null)
+	 * @return
+	 */
+	public List<StepExecution> getStepExecutions(String name, BatchStatus batchStatus, ExitStatus exitStatus);
+	
+	/**
+	 * Get ALL StepExecutions for the provided BatchStatus and exit status.
+	 * @param batchStatus (may be null)
+	 * @param exitStatus (may be null)
+	 * @return
+	 */
+	public List<StepExecution> getStepExecutions(BatchStatus batchStatus, ExitStatus exitStatus);
 	
 		// batchStatus only
 	
@@ -172,7 +198,6 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * @param exclusive
 	 * @param batchStatus (may be null)
 	 * @return
-	 * @throws BatchDaoDataRetrievalException
 	 */
 	public List<StepExecution> getStepExecutions(String name, Map<String, String> parameterMap, Boolean exclusive, BatchStatus batchStatus);
 	
@@ -186,9 +211,27 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * @param exclusive
 	 * @param batchStatus (may be null)
 	 * @return
-	 * @throws BatchDaoDataRetrievalException
 	 */
 	public List<StepExecution> getStepExecutions(Map<String, String> parameterMap, Boolean exclusive, BatchStatus batchStatus);
+	
+	/**
+	 * Get ALL StepExecutions for the batch step identified by the provided step name. Returns empty list if
+	 * no results obtained.
+	 * If 'exclusive' is false, a subset of the job parameters may be provided and others are ignored, otherwise
+	 * if true, there must be an exact correlation between all job parameters and those in parameterMap.
+	 * If not null, the provided BatchStatus must match
+	 * @param name 
+	 * @param batchStatus (may be null)
+	 * @return
+	 */
+	public List<StepExecution> getStepExecutions(String name, BatchStatus batchStatus);
+	
+	/**
+	 * Get ALL StepExecutions for the provided BatchStatus
+	 * @param batchStatus (may be null)
+	 * @return
+	 */
+	public List<StepExecution> getStepExecutions(BatchStatus batchStatus);
 	
 		// exit Status only
 	
@@ -232,7 +275,6 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * @param exclusive
 	 * @param exitStatus (may be null)
 	 * @return
-	 * @throws BatchDaoDataRetrievalException
 	 */
 	public List<StepExecution> getStepExecutions(String name, Map<String, String> parameterMap, Boolean exclusive, ExitStatus exitStatus);
 	
@@ -246,9 +288,26 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * @param exclusive
 	 * @param exitStatus (may be null)
 	 * @return
-	 * @throws BatchDaoDataRetrievalException
 	 */
 	public List<StepExecution> getStepExecutions(Map<String, String> parameterMap, Boolean exclusive, ExitStatus exitStatus);
+	
+	/**
+	 * Get ALL StepExecutions for the batch step identified by the provided step name. Returns empty list if
+	 * no results obtained.
+	 * if true, there must be an exact correlation between all job parameters and those in parameterMap.
+	 * If not null, the provided exit status must match
+	 * @param name
+	 * @param exitStatus (may be null)
+	 * @return
+	 */
+	public List<StepExecution> getStepExecutions(String name, ExitStatus exitStatus);
+	
+	/**
+	 * Get ALL StepExecutions for the provided exit status.
+	 * @param exitStatus (may be null)
+	 * @return
+	 */
+	public List<StepExecution> getStepExecutions(ExitStatus exitStatus);
 
 	// getJobExecution/s methods
 	
@@ -286,7 +345,6 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * @param parameterMap
 	 * @param exclusive
 	 * @return
-	 * @throws BatchDaoDataRetrievalException
 	 */
 	public List<JobExecution> getJobExecutions(String name, Map<String, String> parameterMap, Boolean exclusive);
 	
@@ -299,9 +357,20 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * @param parameterMap
 	 * @param exclusive
 	 * @return
-	 * @throws BatchDaoDataRetrievalException
 	 */
 	public List<JobExecution> getJobExecutions(Map<String, String> parameterMap, Boolean exclusive);
+	
+	/**
+	 * Get ALL JobExecutions for the batch step identified by the provided step name. 
+	 * @param name
+	 * @return
+	 */
+	public List<JobExecution> getJobExecutions(String name);
+	
+	/**
+	 * Get ALL JobExecutions. Returns empty list if no results obtained.
+	 */
+	public List<JobExecution> getJobExecutions();
 	
 	/**
 	 * Expects a SINGLE JobExecution for the batch step identified by the provided step name and matching the provided parameters. Returns null if
@@ -346,7 +415,6 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * @param batchStatus (may be null)
 	 * @param exitStatus (may be null)
 	 * @return
-	 * @throws BatchDaoDataRetrievalException
 	 */
 	public List<JobExecution> getJobExecutions(String name, Map<String, String> parameterMap, Boolean exclusive, BatchStatus batchStatus, ExitStatus exitStatus);
 	
@@ -361,9 +429,26 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * @param batchStatus (may be null)
 	 * @param exitStatus (may be null)
 	 * @return
-	 * @throws BatchDaoDataRetrievalException
 	 */
 	public List<JobExecution> getJobExecutions(Map<String, String> parameterMap, Boolean exclusive, BatchStatus batchStatus, ExitStatus exitStatus);
+	
+	/**
+	 * Get ALL JobExecution for the batch step identified by the provided job name. Returns empty list if no results obtained.
+	 * If not null, the provided BatchStatus and/or exit status must match
+	 * @param name
+	 * @param batchStatus (may be null)
+	 * @param exitStatus (may be null)
+	 * @return
+	 */
+	public List<JobExecution> getJobExecutions(String name, BatchStatus batchStatus, ExitStatus exitStatus);
+	
+	/**
+	 * Get ALL JobExecution for the batch step identified by the provided BatchStatus and exit status
+	 * @param batchStatus (may be null)
+	 * @param exitStatus (may be null)
+	 * @return
+	 */
+	public List<JobExecution> getJobExecutions(BatchStatus batchStatus, ExitStatus exitStatus);
 	
 		// batchStatus only
 	
@@ -407,7 +492,6 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * @param exclusive
 	 * @param batchStatus (may be null)
 	 * @return
-	 * @throws BatchDaoDataRetrievalException
 	 */
 	public List<JobExecution> getJobExecutions(String name, Map<String, String> parameterMap, Boolean exclusive, BatchStatus batchStatus);
 	
@@ -421,9 +505,27 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * @param exclusive
 	 * @param batchStatus (may be null)
 	 * @return
-	 * @throws BatchDaoDataRetrievalException
 	 */
 	public List<JobExecution> getJobExecutions(Map<String, String> parameterMap, Boolean exclusive, BatchStatus batchStatus);
+	
+	/**
+	 * Get ALL JobExecutions for the batch step identified by the provided job name. Returns empty list if
+	 * no results obtained.
+	 * If 'exclusive' is false, a subset of the job parameters may be provided and others are ignored, otherwise
+	 * if true, there must be an exact correlation between all job parameters and those in parameterMap.
+	 * If not null, the provided BatchStatus must match
+	 * @param name 
+	 * @param batchStatus (may be null)
+	 * @return
+	 */
+	public List<JobExecution> getJobExecutions(String name, BatchStatus batchStatus);
+	
+	/**
+	 * Get ALL JobExecutions with the provided BatchStatus
+	 * @param batchStatus (may be null)
+	 * @return
+	 */
+	public List<JobExecution> getJobExecutions(BatchStatus batchStatus);
 	
 		// exit Status only
 	
@@ -467,7 +569,6 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * @param exclusive
 	 * @param exitStatus (may be null)
 	 * @return
-	 * @throws BatchDaoDataRetrievalException
 	 */
 	public List<JobExecution> getJobExecutions(String name, Map<String, String> parameterMap, Boolean exclusive, ExitStatus exitStatus);
 	
@@ -481,9 +582,27 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * @param exclusive
 	 * @param exitStatus (may be null)
 	 * @return
-	 * @throws BatchDaoDataRetrievalException
 	 */
 	public List<JobExecution> getJobExecutions(Map<String, String> parameterMap, Boolean exclusive, ExitStatus exitStatus);
+	
+	/**
+	 * Get ALL JobExecutions for the batch step identified by the provided job name. Returns empty list if
+	 * no results obtained.
+	 * if true, there must be an exact correlation between all job parameters and those in parameterMap.
+	 * If not null, the provided exit status must match
+	 * @param name
+	 * @param exitStatus (may be null)
+	 * @return
+	 */
+	public List<JobExecution> getJobExecutions(String name, ExitStatus exitStatus);
+	
+	/**
+	 * Get ALL JobExecutions for the provided exit status must match
+	 * @param name
+	 * @param exitStatus (may be null)
+	 * @return
+	 */
+	public List<JobExecution> getJobExecutions(ExitStatus exitStatus);
 	
 	// other methods
 	
@@ -503,5 +622,7 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * @throws ParameterValueRetrievalException
 	 */
 	String getJobParameterValueByKey(StepExecution se, String key) throws ParameterValueRetrievalException;
+	
+	
 
 }

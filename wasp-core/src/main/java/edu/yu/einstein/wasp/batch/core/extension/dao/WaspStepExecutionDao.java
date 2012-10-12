@@ -19,7 +19,7 @@ public interface WaspStepExecutionDao extends StepExecutionDao{
 	 * if true, there must be an exact correlation between all job parameters and those in parameterMap.
 	 * If not null, the provided BatchStatus and/or exit status must match
 	 * @param name (may be null)
-	 * @param parameterMap
+	 * @param parameterMap (may be null)
 	 * @Param exclusive (defaults to false if null)
 	 * @param batchStatus (may be null)
 	 * @param exitStatus (may be null)
