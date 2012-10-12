@@ -26,8 +26,6 @@ import edu.yu.einstein.wasp.dao.LabDao;
 import edu.yu.einstein.wasp.dao.LabPendingDao;
 import edu.yu.einstein.wasp.dao.LabUserDao;
 import edu.yu.einstein.wasp.dao.RoleDao;
-import edu.yu.einstein.wasp.dao.StateDao;
-import edu.yu.einstein.wasp.dao.TaskDao;
 import edu.yu.einstein.wasp.dao.TaskMappingDao;
 import edu.yu.einstein.wasp.dao.UserPendingDao;
 import edu.yu.einstein.wasp.model.Job;
@@ -36,9 +34,6 @@ import edu.yu.einstein.wasp.model.LabPending;
 import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.Sample;
-import edu.yu.einstein.wasp.model.State;
-import edu.yu.einstein.wasp.model.Statejob;
-import edu.yu.einstein.wasp.model.Task;
 import edu.yu.einstein.wasp.model.TaskMapping;
 import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.security.SecurityUtil;
@@ -87,9 +82,6 @@ public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 
 	@Autowired
 	private UserPendingDao			userPendingDao;
-
-	@Autowired
-	private StateDao				stateDao;
 
 	@Autowired
 	private RoleDao					roleDao;
