@@ -13,23 +13,30 @@ package edu.yu.einstein.wasp.service.impl;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.management.RuntimeErrorException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+//import edu.yu.einstein.wasp.controller.PlatformUnitController.SelectOptionsMeta;
 import edu.yu.einstein.wasp.dao.AdaptorDao;
+import edu.yu.einstein.wasp.dao.BarcodeDao;
 import edu.yu.einstein.wasp.dao.RunDao;
 import edu.yu.einstein.wasp.dao.SampleDao;
+import edu.yu.einstein.wasp.dao.SampleBarcodeDao;
 import edu.yu.einstein.wasp.dao.SampleMetaDao;
 import edu.yu.einstein.wasp.dao.SampleSourceDao;
 import edu.yu.einstein.wasp.dao.SampleSourceMetaDao;
 import edu.yu.einstein.wasp.dao.SampleTypeDao;
+import edu.yu.einstein.wasp.dao.SampleSubtypeDao;
 import edu.yu.einstein.wasp.dao.StateDao;
 import edu.yu.einstein.wasp.dao.TaskDao;
 import edu.yu.einstein.wasp.dao.WorkflowDao;
@@ -39,7 +46,9 @@ import edu.yu.einstein.wasp.exception.SampleIndexException;
 import edu.yu.einstein.wasp.exception.SampleMultiplexException;
 import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
+import edu.yu.einstein.wasp.exception.SampleSubtypeException;
 import edu.yu.einstein.wasp.model.Adaptor;
+import edu.yu.einstein.wasp.model.Barcode;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
 import edu.yu.einstein.wasp.model.Run;
@@ -51,11 +60,13 @@ import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.SampleSourceMeta;
 import edu.yu.einstein.wasp.model.SampleSubtype;
+import edu.yu.einstein.wasp.model.SampleSubtypeMeta;
 import edu.yu.einstein.wasp.model.SampleSubtypeResourceCategory;
 import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.Statesample;
 import edu.yu.einstein.wasp.model.Task;
+import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.WorkflowSampleSubtype;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.SampleService;
@@ -107,6 +118,9 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	private WorkflowDao workflowDao;
 	
 	@Autowired
+	private SampleBarcodeDao sampleBarcodeDao;
+
+	@Autowired
 	private SampleMetaDao sampleMetaDao;
 	
 	@Autowired
@@ -119,10 +133,16 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	private SampleTypeDao sampleTypeDao;
 
 	@Autowired
+	private SampleSubtypeDao sampleSubtypeDao;
+
+	@Autowired
 	private StateDao stateDao;
 	
 	@Autowired
 	  private AdaptorDao adaptorDao;
+	
+	@Autowired
+	private BarcodeDao barcodeDao;
 	
 	@Autowired
 	  private TaskDao taskDao;
@@ -496,6 +516,16 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	   * {@inheritDoc}
 	   */
 	  @Override
+	  public Integer getNumberOfIndexedCellsOnPlatformUnit(Sample platformUnit) throws SampleTypeException{
+
+		  Map<Integer, Sample> indexedCells = getIndexedCellsOnPlatformUnit(platformUnit);
+		  return new Integer(indexedCells.size());
+	  }
+	  
+	  /**
+	   * {@inheritDoc}
+	   */
+	  @Override
 	  public void addCellToPlatformUnit(Sample platformUnit, Sample cell, Integer index) throws SampleTypeException, SampleIndexException{
 		  if (!platformUnit.getSampleType().getIName().equals("platformunit")){
 			  throw new SampleTypeException("Expected 'platformunit' but got Sample of type '" + platformUnit.getSampleType().getIName() + "' instead.");
@@ -770,21 +800,229 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 		return null;
 	}
 	
+
+	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean platformUnitNameExists(String name) throws SampleTypeException{
-		SampleType sampleType = sampleTypeDao.getSampleTypeByIName("platformunit");
-		if(sampleType == null || sampleType.getSampleTypeId()==null || sampleType.getSampleTypeId().intValue()==0){
-			throw new SampleTypeException("SampleType for platformunit unexpectedly not found.");
-		}
+	public boolean barcodeNameExists(String barcodeName){
+
 		Map<String, Object> filter = new HashMap<String, Object>();
-		filter.put("sampleTypeId", sampleType.getSampleTypeId());
-		filter.put("name", name);
-		List<Sample> platformUnits = sampleDao.findByMap(filter);
-		if(platformUnits != null && platformUnits.size() > 0){
+		filter.put("barcode", barcodeName);
+		List<Barcode> barcodesWithThisName = barcodeDao.findByMap(filter);
+		
+		if(barcodesWithThisName != null && barcodesWithThisName.size() > 0){
 			return true;
+		}			
+		return false;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<SampleSubtype> getSampleSubtypesBySampleTypeIName(String sampleTypeIName) throws SampleTypeException{
+		
+		SampleType sampleType = sampleTypeDao.getSampleTypeByIName(sampleTypeIName);
+		if(sampleType==null||sampleType.getSampleTypeId()==null||sampleType.getSampleTypeId().intValue()==0){
+			throw new SampleTypeException("SampleType not found: iname = " + sampleTypeIName);
+		}
+		
+		Map<String,String> filterMap = new HashMap<String,String>();
+		filterMap.put("sampleType.iName", sampleType.getIName());
+		List<String> orderByColumnNames = new ArrayList<String>();
+		orderByColumnNames.add("name");
+		return sampleSubtypeDao.findByMapDistinctOrderBy(filterMap, null, orderByColumnNames, "asc");
+
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	 public SampleSubtype getSampleSubtypeById(Integer sampleSubtypeId){
+		
+		return sampleSubtypeDao.getSampleSubtypeBySampleSubtypeId(sampleSubtypeId.intValue());
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	 public boolean sampleSubtypeIsSpecificSampleType(SampleSubtype sampleSubtype, String sampleTypeIName){
+		if(sampleTypeIName==null || sampleSubtype==null || sampleSubtype.getSampleType()==null || sampleSubtype.getSampleType().getIName()==null){return false;} 
+		return sampleTypeIName.equals(sampleSubtype.getSampleType().getIName());
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Sample getSampleById(Integer sampleId){
+		
+		return sampleDao.getSampleBySampleId(sampleId.intValue());
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean sampleIsSpecificSampleType(Sample sample, String sampleTypeIName){
+		if(sampleTypeIName==null || sample==null || sample.getSampleType()==null || sample.getSampleType().getIName()==null){return false;} 
+		return sampleTypeIName.equals(sample.getSampleType().getIName());
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean sampleIsSpecificSampleSubtype(Sample sample, String sampleSubtypeIName){
+		if(sampleSubtypeIName==null || sample==null || sample.getSampleSubtype()==null || sample.getSampleSubtype().getIName()==null){return false;} 
+		return sampleSubtypeIName.equals(sample.getSampleSubtype().getIName());
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean sampleIsInDatabase(Sample sample){
+		
+		if(sample == null){return false;}
+		return this.sampleIdIsInDatabase(sample.getSampleId());
+	}
+	 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean sampleIdIsInDatabase(Integer sampleId){
+		
+		if(sampleId == null || sampleId.intValue() <= 0){return false;}
+		Sample sample = this.getSampleById(sampleId.intValue());
+		return sample.getSampleId()!=null && sample.getSampleId().intValue() > 0?true:false;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean sampleIdIsValid(Sample sample){
+		
+		if(sample == null || sample.getSampleId()==null || sample.getSampleId().intValue() <= 0){return false;}
+		return true;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean sampleIsPlatformUnit(Sample sample){
+		
+		if("platformunit".equals(sample.getSampleType().getIName()) && "platformunit".equals(sample.getSampleSubtype().getSampleType().getIName())){
+			return true;
+		}
+		return false;		
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Sample getPlatformUnit(Integer sampleId)  throws NumberFormatException, SampleException, SampleTypeException, SampleSubtypeException {
+		
+		if(sampleId==null){throw new NumberFormatException("SampleId is null");}
+		
+		Sample sample = sampleDao.getSampleBySampleId(sampleId.intValue());
+		if(!sampleIdIsValid(sample)){throw new SampleException("Sample with sampleId of " + sampleId.intValue() + " not in database.");}
+		else if(!this.sampleIsSpecificSampleType(sample, "platformunit")){throw new SampleTypeException("Sample with sampleId of " + sampleId.intValue() + " not of sampleType platformunit.");}
+		else if(!this.sampleSubtypeIsSpecificSampleType(sample.getSampleSubtype(), "platformunit")){throw new SampleSubtypeException("Sample with sampleId of " + sampleId.intValue() + " not of sampleSubtype platformunit.");}
+		//could have used this.sampleIsPlatformUnit(sample) as well for the two lines immediately above
+		
+		return sample;		
+	}
+	
+	public SampleSubtype getSampleSubtypeConfirmedForPlatformunit(Integer sampleSubtypeId) throws NumberFormatException, SampleSubtypeException{
+		
+		if(sampleSubtypeId==null){throw new NumberFormatException("SampleSubtypeId is null");}
+
+		SampleSubtype sampleSubtype = sampleSubtypeDao.getSampleSubtypeBySampleSubtypeId(sampleSubtypeId.intValue());
+		if(sampleSubtype==null || sampleSubtype.getSampleSubtypeId()==null || sampleSubtype.getSampleSubtypeId().intValue() <= 0){throw new SampleSubtypeException("SampleSubtype with sampleSubtypeId of " + sampleSubtypeId.intValue() + " not in database.");}
+		else if(!this.sampleSubtypeIsSpecificSampleType(sampleSubtype, "platformunit")){throw new SampleSubtypeException("SampleSubtype with sampleSubtypeId of " + sampleSubtypeId.intValue() + " not of sampletype platformunit.");}
+		return sampleSubtype;		
+	}
+
+	  
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<Integer> getNumberOfCellsListForThisTypeOfPlatformUnit(SampleSubtype sampleSubtype) throws SampleTypeException, SampleSubtypeException{
+			
+		if(!sampleSubtypeIsSpecificSampleType(sampleSubtype, "platformunit")){
+			throw new SampleSubtypeException("SampleSubtype with Id of " + sampleSubtype.getSampleSubtypeId().toString() + " is not platformunit");
+		}
+		
+		Integer maxCellNumber = null;
+		Integer multiplicationFactor = null;
+		List<Integer> numberOfCellsListForPlatformUnit = new ArrayList<Integer>();
+		
+		List<SampleSubtypeMeta> ssMetaList = sampleSubtype.getSampleSubtypeMeta();
+		for(SampleSubtypeMeta ssm : ssMetaList){
+			if( ssm.getK().indexOf("maxCellNumber") > -1 ){
+				try{
+					maxCellNumber = new Integer(ssm.getV()); //could throw NumberFormatException
+				}catch(Exception e){throw new SampleSubtypeException("maxCellNumber value invalid for SampleSubtype with Id of " + sampleSubtype.getSampleTypeId().intValue());}
+			}
+			if( ssm.getK().indexOf("multiplicationFactor") > -1 ){
+				try{
+					multiplicationFactor = new Integer(ssm.getV());  //could throw NumberFormatException
+				}catch(Exception e){throw new SampleSubtypeException("multiplicationFactor value invalid for SampleSubtype with Id of " + sampleSubtype.getSampleTypeId().intValue());}
+			}				 
+		}
+		if(maxCellNumber==null){throw new SampleSubtypeException("maxCellNumber not found for SampleSubtype with Id of " + sampleSubtype.getSampleTypeId().intValue());}
+		else if(maxCellNumber.intValue()<=0){throw new SampleSubtypeException("maxCellNumber value invalid for SampleSubtype with Id of " + sampleSubtype.getSampleTypeId().intValue());}
+		
+		numberOfCellsListForPlatformUnit.add(maxCellNumber);	
+		
+		if (multiplicationFactor != null && multiplicationFactor.intValue() > 1 && multiplicationFactor.intValue() <= maxCellNumber.intValue() ) {
+			Integer cellNum = new Integer(maxCellNumber.intValue());			
+			while (cellNum.intValue() >= multiplicationFactor.intValue()){
+				cellNum = new Integer(cellNum.intValue()/multiplicationFactor.intValue());				
+				numberOfCellsListForPlatformUnit.add(cellNum);						
+			}
+		}
+		Collections.sort(numberOfCellsListForPlatformUnit);
+		
+		return numberOfCellsListForPlatformUnit;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean requestedReductionInCellNumberIsProhibited(Sample platformUnitInDatabase, Integer numberOfLanesRequested) throws SampleException, SampleTypeException{
+		
+		Map<Integer,Sample> indexedCellMap = this.getIndexedCellsOnPlatformUnit(platformUnitInDatabase);//throws exception	
+		Integer numberOfLanesInDatabase = indexedCellMap.size();
+		if(numberOfLanesInDatabase.intValue() <= numberOfLanesRequested.intValue()){//no loss of lanes, so return false, as action not prohibited
+			return false;
+		}
+		
+		//user asking to reduce number of lanes
+		//must check for presence of libraries on those lanes that user seems to want to remove. If any found, return true.
+		for(int i = numberOfLanesRequested.intValue() + 1; i <= numberOfLanesInDatabase.intValue(); i++){
+			Integer index = new Integer(i);
+			Sample cell = indexedCellMap.get(index);
+			if(cell == null){
+				//unexpected problem; indexes not ordered
+				throw new SampleException("No cell found for platformUnitId " + platformUnitInDatabase.getSampleId().intValue() + " and cell index " + i);
+			}
+			List<Sample> libraryList = null;
+			libraryList = this.getLibrariesOnCell(cell);//throws exception
+			if(libraryList!=null && libraryList.size()>0){//found at least one library
+				return true;
+			}
 		}
 		return false;
 	}
@@ -793,31 +1031,310 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean platformUnitBarcodeNameExists(String barcodeName) throws SampleTypeException{
-		SampleType sampleType = sampleTypeDao.getSampleTypeByIName("platformunit");
-		if(sampleType == null || sampleType.getSampleTypeId()==null || sampleType.getSampleTypeId().intValue()==0){
-			throw new SampleTypeException("SampleType for platformunit unexpectedly not found.");
+	public void createUpdatePlatformUnit(Sample platformUnit, SampleSubtype sampleSubtype, String barcodeName, Integer numberOfLanesRequested, List<SampleMeta> sampleMetaList) throws SampleException, SampleTypeException, SampleSubtypeException{
+	
+		String action = new String("create");
+		Sample pu = null;
+		SampleType sampleTypeForPlatformUnit = null;
+		SampleType sampleTypeForCell = null;
+		Integer numberOfLanesInDatabase = null;
+		boolean platformUnitNameHasBeenChanged = false;
+		
+		if(sampleIsInDatabase(platformUnit)){//this is an update of an existing record
+			pu = platformUnit;
+			if(!sampleIsPlatformUnit(platformUnit)){
+				throw new SampleException("Sample with Id of " + pu.getSampleId().toString() + " unexpectedly NOT a platformUnit either in sampletype or samplesubtype");
+			}
+			
+			//check this first, since it could throw an exception, so no need to proceed with the update unless this is OK
+			numberOfLanesInDatabase = this.getNumberOfIndexedCellsOnPlatformUnit(pu);
+			if(numberOfLanesInDatabase==null || numberOfLanesInDatabase.intValue()<=0){//should never be 0 lanes on a platformunit
+				throw new SampleException("lanecount in database is not valid for platformunit with Id " + pu.getSampleId().intValue());
+			}	
+			
+			//if update, determine whether platformunit name has been changed
+			if(barcodeName != null && !barcodeName.equals(platformUnit.getName())){
+				platformUnitNameHasBeenChanged = true;
+			}
+			System.out.println("The name of the pu sample is : " + platformUnit.getName());
+
+			action = new String("update");			
 		}
-		Map<String, Object> filter = new HashMap<String, Object>();
-		filter.put("sampleTypeId", sampleType.getSampleTypeId());
-		List<Sample> platformUnits = sampleDao.findByMap(filter);
-		for(Sample pu : platformUnits){
-			List<SampleMeta> sampleMetaList = pu.getSampleMeta();
-			for(SampleMeta sm : sampleMetaList){
-				if(sm.getK().indexOf("barcode") > -1){
-					if(sm.getV().equalsIgnoreCase(barcodeName)){
-						return true;
+		else{//request for a new platformunit record 
+			numberOfLanesInDatabase = new Integer(0);
+			pu = new Sample();
+		}
+		
+		if(!this.sampleSubtypeIsSpecificSampleType(sampleSubtype, "platformunit")){
+			throw new SampleSubtypeException("SampleSubtype with ID of " + sampleSubtype.getSampleSubtypeId().toString() + " is unexpectedly not SampleType of platformunit");								
+		}
+		sampleTypeForPlatformUnit = sampleTypeDao.getSampleTypeByIName("platformunit");
+		if(sampleTypeForPlatformUnit==null || sampleTypeForPlatformUnit.getSampleTypeId()==null || sampleTypeForPlatformUnit.getSampleTypeId().intValue()<=0){
+			throw new SampleTypeException("SampleType of type platformunit unexpectedly not found");
+		}
+		sampleTypeForCell = sampleTypeDao.getSampleTypeByIName("cell");
+		if(sampleTypeForCell==null || sampleTypeForCell.getSampleTypeId()==null || sampleTypeForCell.getSampleTypeId().intValue()<=0){
+			throw new SampleTypeException("SampleType of type cell unexpectedly not found");
+		}
+		
+		if(numberOfLanesRequested == null || numberOfLanesRequested.intValue() <= 0){
+			throw new SampleException("Number of lanes requested not valid value");
+		}
+		else{//confirm numberOfLanesRequested is a valid value for this subtype of platformUnit
+			List<Integer> numberOfCellsList = this.getNumberOfCellsListForThisTypeOfPlatformUnit(sampleSubtype);
+			boolean foundIt = false;
+			for(Integer numberOfCellsAllowed : numberOfCellsList){
+				if(numberOfCellsAllowed.intValue()==numberOfLanesRequested.intValue()){
+					foundIt = true;
+					break;
+				}
+			}
+			if(!foundIt){
+				throw new SampleException("Number of lanes requested is not compatible with the requested sampleSubtype");
+			}
+		}
+		
+		if(numberOfLanesRequested.intValue() >= numberOfLanesInDatabase.intValue()){//request to add lanes or no change in lane number, so not a problem
+			;
+		}
+		else if(numberOfLanesRequested.intValue() < numberOfLanesInDatabase.intValue()){//request to remove lanes; a potential problem if libraries are on the lanes to be removed
+			// perform next test
+			if(this.requestedReductionInCellNumberIsProhibited(pu, numberOfLanesRequested)){//value of true means libraries are assigned to those lanes being asked to be removed. Prohibit this action and inform user to first remove those libraries from the lanes being requested to be removed
+				throw new SampleException("Sample Exception during platform unit update: Action not permitted at this time. To reduce the number of lanes, remove libraries on the lanes that will be lost.");
+			}
+		}
+		
+		
+		if(barcodeName == null || "".equalsIgnoreCase(barcodeName)){
+			throw new SampleException("Barcode Name cannot be empty");
+		}
+		else if(this.barcodeNameExists(barcodeName)){
+			if("create".equals(action) /* this is new platformUnit, and barcode name already used, so prevent */ 
+					|| ( "update".equals(action) && !barcodeName.equalsIgnoreCase(pu.getSampleBarcode().get(0).getBarcode().getBarcode()) /* existing record being updated, but barcode name used is not my barcode name, so prevent */  ) ){
+				throw new SampleException("Barcode Name used by another sample");
+			}
+		}
+
+		if(sampleMetaList == null){
+			throw new SampleException("SampleMetaList cannot be null");
+		}
+		
+		try{	
+			pu.setName(barcodeName);//sample.name will be set to the barcode name; as per Andy 9-28-12
+	
+			User me = authenticationService.getAuthenticatedUser();
+			pu.setSubmitterUserId(me.getUserId());
+					
+			pu.setSampleSubtypeId(sampleSubtype.getSampleSubtypeId());//sampleSubtype is a parameter
+	
+			if(action.equals("create")){//new record
+				pu.setSampleTypeId(sampleTypeForPlatformUnit.getSampleTypeId());
+				pu.setSubmitterLabId(1);//Ed
+				pu.setReceiverUserId(platformUnit.getSubmitterUserId());//Ed
+				pu.setReceiveDts(new Date());//Ed
+				pu.setIsReceived(1);//Ed
+				pu.setIsActive(1);//Ed
+				pu.setIsGood(1);//Ed
+			}
+			Sample platformUnitDb = sampleDao.save(pu);
+			if(platformUnitDb==null || platformUnitDb.getSampleId()==null || platformUnitDb.getSampleId().intValue()<=0){
+				throw new SampleException("new platform unit unexpectedly not saved");
+			}
+			sampleMetaDao.updateBySampleId(platformUnitDb.getSampleId(), sampleMetaList); // persist the metadata; no way to check as this returns void
+		
+			//barcode
+			List<SampleBarcode> sampleBarcodeList = platformUnitDb.getSampleBarcode();//any barcodes exist for this platform unit?
+			if(sampleBarcodeList != null && sampleBarcodeList.size() > 0){//this is an update
+				SampleBarcode sampleBarcode = sampleBarcodeList.get(0);
+				Barcode existingBarcode = sampleBarcode.getBarcode();
+				existingBarcode.setBarcode(barcodeName);//update the barcodeName
+				Barcode barcodeDb = this.barcodeDao.save(existingBarcode);
+				if(barcodeDb==null || barcodeDb.getBarcodeId()==null || barcodeDb.getBarcodeId().intValue()<=0){
+					throw new SampleException("updated barcode unexpectedly not saved");
+				}
+			}
+			else{//new barcode for a new platformunit
+				Barcode barcodeObject = new Barcode();		
+				barcodeObject.setBarcode(barcodeName);
+				barcodeObject.setBarcodefor("WASP");
+				barcodeObject.setIsActive(new Integer(1));
+				Barcode barcodeDb = this.barcodeDao.save(barcodeObject);//save new barcode in db
+				if(barcodeDb==null || barcodeDb.getBarcodeId()==null || barcodeDb.getBarcodeId().intValue()<=0){
+					throw new SampleException("updated barcode unexpectedly not saved");
+				}
+				SampleBarcode sampleBarcode = new SampleBarcode();	
+				sampleBarcode.setBarcodeId(barcodeDb.getBarcodeId()); // set new barcodeId in samplebarcode
+				sampleBarcode.setSampleId(platformUnitDb.getSampleId());
+				SampleBarcode sampleBarcodeDb = this.sampleBarcodeDao.save(sampleBarcode);
+				if(sampleBarcodeDb==null || sampleBarcodeDb.getSampleBarcode()==null || sampleBarcodeDb.getSampleBarcode().intValue()<=0){
+					throw new SampleException("new samplebarcode in update area unexpectedly not saved");
+				}
+			}
+		
+			//The name of the platformunit (such as 102A4; which is the barcode name) is also part of the name of the cell (102A4/1)
+			//and if the name of the platformunit is being updated, then the names of the cells also have to be updated
+			//Do this only if needed: action == update [since no cells yet exist] and the name has been changed (and cells exist - which they should).
+			if(action.equals("update") && platformUnitNameHasBeenChanged){
+				List<SampleSource> sampleSourceList = platformUnitDb.getSampleSource();
+				if(sampleSourceList != null && sampleSourceList.size() > 0){//should be true for all updates
+					for (SampleSource ss : sampleSourceList){
+						Sample cell = ss.getSourceSample();
+						if (!cell.getSampleType().getIName().equals("cell")){
+							throw new SampleTypeException("Expected 'cell' while updating cell name but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
+						}
+						Integer index = ss.getIndex();
+						cell.setName(barcodeName +"/"+(index.intValue()));
+						Sample cellDb = this.sampleDao.save(cell);
+						if(cellDb==null || cellDb.getSampleId()==null || cell.getSampleId().intValue() <= 0){
+							throw new SampleException("updated cell unexpectedly not saved during update of cell name");
+						}
 					}
 				}
 			}
-			List<SampleBarcode> sampleBarcodeList  = pu.getSampleBarcode();
-			for(SampleBarcode sb : sampleBarcodeList){
-				if(sb.getBarcode().getBarcode().equalsIgnoreCase(barcodeName)){
-					return true;
+			
+			//lanes
+			//if create new platformunit, or add/remove additional lanes during and update
+			if(numberOfLanesRequested.intValue() > numberOfLanesInDatabase.intValue()){//add lanes; can be create new record (where numberOfLanesInDatabase = 0) or an update to add some more lanes 
+	
+				for(int i = numberOfLanesInDatabase + 1; i <= numberOfLanesRequested; i++){//add additional lanes
+				
+					Sample cell = new Sample();
+					cell.setSubmitterLabId(platformUnitDb.getSubmitterLabId());
+					cell.setSubmitterUserId(platformUnitDb.getSubmitterUserId());
+					cell.setName(platformUnitDb.getName()+"/"+(i));
+					cell.setSampleTypeId(sampleTypeForCell.getSampleTypeId());
+					cell.setIsGood(1);
+					cell.setIsActive(1);
+					cell.setIsReceived(1);
+					cell.setReceiverUserId(platformUnitDb.getSubmitterUserId());
+					cell.setReceiveDts(new Date());
+					Sample cellDb = this.sampleDao.save(cell);
+					if(cellDb==null || cellDb.getSampleId()==null || cell.getSampleId().intValue() <= 0){
+						throw new SampleException("new cell unexpectedly not saved during create or update of platformunit");
+					}
+	
+					SampleSource sampleSource = new SampleSource();
+					sampleSource.setSampleId(platformUnitDb.getSampleId());
+					sampleSource.setSourceSampleId(cellDb.getSampleId());
+					sampleSource.setIndex(i);
+					SampleSource sampleSourceDb = this.sampleSourceDao.save(sampleSource);
+					if(sampleSourceDb==null || sampleSourceDb.getSampleId()==null || sampleSourceDb.getSampleId().intValue() <= 0){
+						throw new SampleException("new samplesource unexpectedly not saved during create or update of platformunit");
+					}
 				}
-			}		
-		}		
-		return false;		
+			}
+			else if(numberOfLanesRequested.intValue() < numberOfLanesInDatabase.intValue()){//update requests to remove lanes; above we already confirmed that this will NOT result in loss of info  with this call (if(this.requestedReductionInCellNumberIsProhibited(pu, numberOfLanesRequested))  
+				
+				//get the list 
+				//Map<Integer, Sample> indexedCellMap = sampleService.getIndexedCellsOnPlatformUnit(platformUnitInDatabase);
+				for (SampleSource ss : platformUnitDb.getSampleSource()){
+					Sample cell = ss.getSourceSample();
+					if (!cell.getSampleType().getIName().equals("cell")){
+						throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
+					}
+					Integer index = ss.getIndex();
+					if(index.intValue() >= numberOfLanesRequested.intValue() + 1 && index.intValue() <= numberOfLanesInDatabase.intValue()){
+						//check for present of any libraries on these cells (just as a final fail safe mechanism, as this was tested above)
+						List<Sample> libraryList = null;
+						libraryList = this.getLibrariesOnCell(cell);//throws exception
+						if(libraryList!=null && libraryList.size()>0){//found at least one library
+							throw new SampleException("Cell " + cell.getSampleId().intValue() + "unexpectedly has " + libraryList.size() + " libraries on it. Unable to remove this lane");
+						}
+						//first deletes each pu-cell link and its meta (if any) AND THEN ALSO deletes the cell and the cell's meta (if any)
+						this.deleteCellFromPlatformUnit(ss);
+					}
+				}
+			}
+			else if(numberOfLanesRequested.intValue() == numberOfLanesInDatabase.intValue()){//do nothing
+				;
+			}
+	
+		}catch (Exception e){	throw new RuntimeException(e.getMessage());	}
+		
+		return;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void deletePlatformUnit(Integer platformUnitId) throws NumberFormatException, SampleException, SampleTypeException, SampleSubtypeException{
+		
+		try{
+			Sample platformUnit = this.getPlatformUnit(platformUnitId);//throws exceptions if not valid pu
+	
+			for (SampleSource puCellLink : platformUnit.getSampleSource()){//represents pu-cell link
+				Sample cell = puCellLink.getSourceSample();//cell is the lane
+				if (!cell.getSampleType().getIName().equals("cell")){//confirm its a cell
+					throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
+				}
+				for(SampleSource cellLibraryLink : cell.getSampleSource()){// each cellLibraryLink represents a cell-library link
+		
+					//deletes each cell-lib link, along with the links metadata (if any)
+					//NOTE: the library itself, of course, remains untouched
+					this.removeLibraryFromCellOfPlatformUnit(cellLibraryLink);
+				}
+				//first deletes each pu-cell link and its meta (if any) AND THEN ALSO deletes the cell and the cell's meta (if any)
+				this.deleteCellFromPlatformUnit(puCellLink);
+			}
+			//deletes the platformunit itself and its meta (if any) and its barcode/samplebarcode
+			this.deletePlatformUnit(platformUnit);
+			
+		}catch (Exception e){	throw new RuntimeException(e.getMessage());	}
+	}
+	private void removeLibraryFromCellOfPlatformUnit(SampleSource cellLibraryLink)throws SampleTypeException{
+		if (!cellLibraryLink.getSourceSample().getSampleType().getIName().equals("library")){
+			throw new SampleTypeException("Expected 'library' but got Sample of type '" + cellLibraryLink.getSourceSample().getSampleType().getIName() + "' instead.");
+		}
+		if (!cellLibraryLink.getSample().getSampleType().getIName().equals("cell")){
+			throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cellLibraryLink.getSample().getSampleType().getIName() + "' instead.");
+		}
+		this.deleteSampleSourceAndItsMeta(cellLibraryLink);//currently the cellLibraryLink meta represents the pM applied and the jobId
+	}
+	private void deleteCellFromPlatformUnit(SampleSource puCellLink)throws SampleTypeException{
+		Sample cell = puCellLink.getSourceSample();//cell is the lane
+		if (!cell.getSampleType().getIName().equals("cell")){
+			throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
+		}
+		if(!puCellLink.getSample().getSampleType().getIName().equals("platformunit")){
+			throw new SampleTypeException("Expected 'platformunit' but got Sample of type '" + puCellLink.getSample().getSampleType().getIName() + "' instead.");			
+		}
+		this.deleteSampleSourceAndItsMeta(puCellLink);//first, remove the samplesource link (currently this is no meta here, but if in the future there is, it will be taken care of automatically)
+		this.deleteSampleAndItsMeta(cell);//second, remove the cell itself (currently this is no meta here, but if in the future there is, it will be taken care of automatically)
+	}
+	private void deletePlatformUnit(Sample platformUnit)throws SampleTypeException{
+		if (!platformUnit.getSampleType().getIName().equals("platformunit")){
+			throw new SampleTypeException("Expected 'platformunit' but got Sample of type '" + platformUnit.getSampleType().getIName() + "' instead.");
+		}
+		this.deleteSampleBarcode(platformUnit);
+		this.deleteSampleAndItsMeta(platformUnit);//currently, meta includes readlength, readType, comments
+	}
+	private void deleteSampleBarcode(Sample sample){
+		List<SampleBarcode> sampleBarcodeList = sample.getSampleBarcode();
+		for(SampleBarcode sampleBarcode : sampleBarcodeList){
+			Barcode barcode = sampleBarcode.getBarcode();
+			sampleBarcodeDao.remove(sampleBarcode);
+			sampleBarcodeDao.flush(sampleBarcode);
+			barcodeDao.remove(barcode);
+			barcodeDao.flush(barcode);
+		}
+	}
+	private void deleteSampleSourceAndItsMeta(SampleSource sampleSource){
+		for(SampleSourceMeta meta : sampleSource.getSampleSourceMeta()){
+			sampleSourceMetaDao.remove(meta);
+			sampleSourceMetaDao.flush(meta);
+		}
+		sampleSourceDao.remove(sampleSource);
+		sampleSourceDao.flush(sampleSource);
+	}
+	private void deleteSampleAndItsMeta(Sample sample){
+		for(SampleMeta meta : sample.getSampleMeta()){
+			sampleMetaDao.remove(meta);
+			sampleMetaDao.flush(meta);
+		}
+		sampleDao.remove(sample);
+		sampleDao.flush(sample);
+	}
+	
+
 }
