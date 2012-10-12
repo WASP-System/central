@@ -38,6 +38,7 @@ public class JdbcWaspJobExecutionDao extends JdbcJobExecutionDao implements Wasp
 	public List<JobExecution> getJobExecutions(String name, Map<String, String> parameterMap, Boolean exclusive, BatchStatus batchStatus, ExitStatus exitStatus){
 		Assert.notNull(parameterMap, "parameterMap must not be null");
 		Assert.notNull(waspJobInstanceDao, "waspJobInstanceDao cannot be  null");
+		final List<JobExecution> JobExecutions = new ArrayList<JobExecution>();
 		if (exclusive == null)
 			exclusive = false;
 		List<Long> jobInstanceIds = null;
@@ -47,7 +48,7 @@ public class JdbcWaspJobExecutionDao extends JdbcJobExecutionDao implements Wasp
 			jobInstanceIds = waspJobInstanceDao.getJobInstanceIdsByMatchingParameters(parameterMap);
 		}
 		if (jobInstanceIds == null || jobInstanceIds.isEmpty())
-			return null;
+			return JobExecutions;
 		MapSqlParameterSource parameterSource = new MapSqlParameterSource();
 		
 		
@@ -64,7 +65,7 @@ public class JdbcWaspJobExecutionDao extends JdbcJobExecutionDao implements Wasp
 		}
 		if (exitStatus != null){
 			sql += "and EXIT_CODE = :exitStatus ";
-			parameterSource.addValue("exitStatus", exitStatus);
+			parameterSource.addValue("exitStatus", exitStatus.getExitCode());
 		}
 		
 		sql += "and E.JOB_INSTANCE_ID in ( ";
@@ -81,7 +82,6 @@ public class JdbcWaspJobExecutionDao extends JdbcJobExecutionDao implements Wasp
 		logger.debug("Built SQL string: " + getQuery(sql));
 		for (String key: parameterSource.getValues().keySet())
 			logger.debug("Parameter: " + key + "=" + parameterSource.getValues().get(key).toString());
-		final List<JobExecution> JobExecutions = new ArrayList<JobExecution>();
 		RowMapper<JobExecution> mapper = new RowMapper<JobExecution>() {
 			
 			@Override

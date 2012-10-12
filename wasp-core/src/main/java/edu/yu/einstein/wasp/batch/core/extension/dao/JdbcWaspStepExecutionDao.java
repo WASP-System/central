@@ -71,7 +71,7 @@ public class JdbcWaspStepExecutionDao extends JdbcStepExecutionDao implements Wa
 		}
 		if (exitStatus != null){
 			sql += "and EXIT_CODE = :exitStatus ";
-			parameterSource.addValue("exitStatus", exitStatus);
+			parameterSource.addValue("exitStatus", exitStatus.getExitCode());
 		}
 		
 		sql += "and JE.JOB_EXECUTION_ID = SE.JOB_EXECUTION_ID and JE.JOB_INSTANCE_ID in ( ";
