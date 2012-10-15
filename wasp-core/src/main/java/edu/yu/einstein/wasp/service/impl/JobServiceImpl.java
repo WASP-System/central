@@ -94,6 +94,11 @@ public class JobServiceImpl extends WaspServiceImpl implements JobService {
 		this.taskDao = taskDao;
 	}
 	
+	public void setTaskService(TaskService taskService) {
+		
+		this.taskService = taskService;
+	}
+	
 	/**
 	 * setJobDao(JobDao jobDao)
 	 * 
