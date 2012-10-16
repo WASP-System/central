@@ -44,6 +44,8 @@ public class SgeWorkService implements GridWorkService {
 	}
 
 	private GridTransportService transportService;
+	
+	private SoftwareManager softwareManager;
 
 	@Autowired
 	protected GridFileService waspGridFileService;
@@ -64,13 +66,22 @@ public class SgeWorkService implements GridWorkService {
 	public GridTransportService getTransportService() {
 		return this.transportService;
 	}
+	
+	public SoftwareManager getSoftwareManager() {
+		return softwareManager;
+	}
+
+	public void setSoftwareManager(SoftwareManager softwareManager) {
+		this.softwareManager = softwareManager;
+	}
 
 	/**
 	 * {@inheritDoc}
 	 * @throws GridUnresolvableHostException 
+	 * @throws GridExecutionException 
 	 */
 	@Override
-	public GridResult execute(WorkUnit w) throws GridAccessException, GridUnresolvableHostException {
+	public GridResult execute(WorkUnit w) throws GridAccessException, GridUnresolvableHostException, GridExecutionException {
 		if (w.getWorkingDirectory() == null)
 			throw new GridAccessException("must set working directory");
 		return startJob(w);
@@ -200,7 +211,7 @@ public class SgeWorkService implements GridWorkService {
 	}
 
 
-	private GridResult startJob(WorkUnit w) throws GridAccessException, GridUnresolvableHostException {
+	private GridResult startJob(WorkUnit w) throws GridAccessException, GridUnresolvableHostException, GridExecutionException {
 
 		String host;
 		UUID resultID = UUID.randomUUID();
@@ -287,6 +298,7 @@ public class SgeWorkService implements GridWorkService {
 		protected String name = "not_set";
 		protected String header = "";
 		protected String preamble = "";
+		protected String configuration = "";
 		protected String command = "";
 		protected String postscript = "";
 		private String account = "";
@@ -299,7 +311,7 @@ public class SgeWorkService implements GridWorkService {
 		private String memory = "";
 		private String procs = "";
 
-		public SgeSubmissionScript(WorkUnit w) {
+		public SgeSubmissionScript(WorkUnit w) throws GridExecutionException {
 			this.w = w;
 			this.name = w.getId();
 			header = "#!/bin/bash\n#\n" +
@@ -318,6 +330,7 @@ public class SgeWorkService implements GridWorkService {
 											// physical path
 					"echo $JOB_ID >> " + namePrefix + "${WASPNAME}.start\n" +
 					"echo submitted to host `hostname -f` `date` 1>&2";
+			configuration = softwareManager.getConfiguration(w);
 			command = w.getCommand();
 			postscript = "echo \"##### begin ${WASPNAME}\" > " + namePrefix + "${WASPNAME}.command\n\n" +
 					"awk '/^##### preamble/,/^##### postscript|~$/' " + namePrefix + "${WASPNAME}.sh | sed 's/^##### .*$//g' | grep -v \"^$\" >> " + namePrefix + "${WASPNAME}.command\n" +
@@ -364,6 +377,8 @@ public class SgeWorkService implements GridWorkService {
 					getMemory() + 
 					"\n\n##### preamble \n\n" +
 					preamble + 
+					"\n\n##### configuration \n\n" +
+					configuration +
 					"\n\n##### command \n\n" +
 					command + 
 					"\n\n##### postscript\n\n" +

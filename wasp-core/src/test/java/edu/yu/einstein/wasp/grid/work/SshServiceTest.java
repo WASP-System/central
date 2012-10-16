@@ -66,7 +66,7 @@ public class SshServiceTest {
 	}
 
 	@Test(groups = { "ssh" })
-	public void execute() throws GridAccessException, GridUnresolvableHostException {
+	public void execute() throws GridAccessException, GridUnresolvableHostException, GridExecutionException {
 		try {
 			WorkUnit w = new WorkUnit();
 			w.setCommand("hostname -f");
@@ -93,7 +93,7 @@ public class SshServiceTest {
 	}
 
 	@Test(groups = { "ssh" })
-	public void executeLocal() throws GridAccessException, GridUnresolvableHostException {
+	public void executeLocal() throws GridAccessException, GridUnresolvableHostException, GridExecutionException {
 		WorkUnit w = new WorkUnit();
 		w.setCommand("hostname -f");
 		GridResult result = this.localhostWork.execute(w);
