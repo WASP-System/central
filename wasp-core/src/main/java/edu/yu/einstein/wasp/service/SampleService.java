@@ -498,6 +498,6 @@ public interface SampleService extends WaspService {
 	   * @param Run run
 	   * @return void
 	   */
-	  public void deleteSequenceRun(Run run);
+	  public void deleteSequenceRun(Run run)throws Exception;
 	  
 }

@@ -735,11 +735,13 @@ public class RunController extends WaspController {
 				//if create, then set startts to the date in the parameter (currently that parameter does not exit)
 				runInstance.setStartts(dateRunStartedAsDateObject);
 				sampleService.createUpdateSequenceRun(runInstance, (List<RunMeta>)metaHelperWebapp.getMetaList(), platformUnitId, resourceId);
+				waspMessage("runInstance.created_success.label");
 			}
 			else if(action.equals("update")){
 				//System.out.println("in update1");
 				runInstance.setStartts(dateRunStartedAsDateObject);
 				sampleService.createUpdateSequenceRun(runInstance, (List<RunMeta>)metaHelperWebapp.getMetaList(), platformUnitId, resourceId);
+				waspMessage("runInstance.updated_success.label");
 			}
 			else{//action == null
 				//System.out.println("in Unexpectedly1");
@@ -756,7 +758,11 @@ public class RunController extends WaspController {
 	@RequestMapping(value="/deleteRun.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public String deleteRun(@RequestParam("runId") Integer runId,
-			ModelMap m) {	
-		return "redirect:/dashboard.do";
+			ModelMap m) {
+		try{
+			Run run = sampleService.getSequenceRun(runId);//exception if not msp run or not in db
+			sampleService.deleteSequenceRun(run);
+			return "redirect:/facility/platformunit/showPlatformUnit/"+run.getSampleId().intValue()+".do";
+		}catch(Exception e){logger.debug(e.getMessage());waspErrorMessage("wasp.unexpected_error.error");return "redirect:/dashboard.do";}
 	}
 }

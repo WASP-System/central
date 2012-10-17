@@ -1454,13 +1454,10 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void deleteSequenceRun(Run run){
-		for(RunMeta runMeta : run.getRunMeta()){
-			runMetaDao.remove(runMeta);
-			runMetaDao.flush(runMeta);
-		}
-		runDao.remove(run);
-		runDao.flush(run);
+	public void deleteSequenceRun(Run run)throws Exception{
+		try{
+		deleteSequenceRunAndItsMeta(run);
+		}catch (Exception e){	throw new RuntimeException(e.getMessage());	}
 		return;
 	}
 	
@@ -1517,6 +1514,14 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 		sampleDao.remove(sample);
 		sampleDao.flush(sample);
 	}
-	
+	private void deleteSequenceRunAndItsMeta(Run run){
+		for(RunMeta runMeta : run.getRunMeta()){
+			runMetaDao.remove(runMeta);
+			runMetaDao.flush(runMeta);
+		}
+		runDao.remove(run);
+		runDao.flush(run);
+		return;
+	}
 
 }

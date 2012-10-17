@@ -791,10 +791,12 @@ public class PlatformUnitController extends WaspController {
 			if(action.equals("create")){
 				//System.out.println("in create1");
 				sampleService.createUpdatePlatformUnit(platformunitInstance, sampleSubtype, barcode, numberOfLanesRequested, (List<SampleMeta>)metaHelperWebapp.getMetaList());
+				waspMessage("platformunitInstance.created_success.label");
 			}
 			else if(action.equals("update")){
 				//System.out.println("in update1");
 				sampleService.createUpdatePlatformUnit(platformUnitInDatabase, sampleSubtype, barcode, numberOfLanesRequested, (List<SampleMeta>)metaHelperWebapp.getMetaList());
+				waspMessage("platformunitInstance.updated_success.label");
 			}
 			else{//action == null
 				//System.out.println("in Unexpectedly1");
