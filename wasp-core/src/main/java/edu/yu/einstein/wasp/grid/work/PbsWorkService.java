@@ -465,4 +465,28 @@ public class PbsWorkService implements GridWorkService {
 
 	}
 
+	@Override
+	public void setName(String name) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setSoftwareManager(SoftwareManager softwareManager) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setJobNamePrefix(String name) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
