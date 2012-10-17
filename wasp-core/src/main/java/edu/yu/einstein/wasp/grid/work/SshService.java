@@ -27,6 +27,13 @@ public class SshService implements GridWorkService, GridTransportService {
 	private String hostKeyChecking = "no";
 	private static File identityFile;
 	
+	private String name;
+	
+	private SoftwareManager softwareManager;
+	
+	// not used in ssh implementation
+	private String jobNamePrefix;
+	
 	private static final Log logger = LogFactory.getLog(SshService.class);
 
 	@Override
@@ -119,6 +126,27 @@ public class SshService implements GridWorkService, GridTransportService {
 	
 	public GridHostResolver getHostResolver() {
 		return this.hostResolver;
+	}
+
+	@Override
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	@Override
+	public String getName() {
+		return this.name;
+	}
+
+	@Override
+	public void setSoftwareManager(SoftwareManager softwareManager) {
+		this.softwareManager = softwareManager;
+		
+	}
+
+	@Override
+	public void setJobNamePrefix(String name) {
+		this.jobNamePrefix = name;
 	}
 
 }
