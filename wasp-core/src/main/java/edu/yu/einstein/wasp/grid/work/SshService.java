@@ -1,6 +1,8 @@
 package edu.yu.einstein.wasp.grid.work;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -143,10 +145,25 @@ public class SshService implements GridWorkService, GridTransportService {
 		this.softwareManager = softwareManager;
 		
 	}
+	@Override
+	public SoftwareManager getSoftwareManager() {
+		return softwareManager;
+	}
 
 	@Override
 	public void setJobNamePrefix(String name) {
 		this.jobNamePrefix = name;
+	}
+
+	@Override
+	public void setAvailableParallelEnvironments(List<String> pe) {
+		// MPI PE not available in direct ssh mode 
+	}
+
+	@Override
+	public List<String> getAvailableParallelEnvironments() {
+		// MPI PE not available in direct ssh mode
+		return new ArrayList<String>();
 	}
 
 }

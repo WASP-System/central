@@ -19,6 +19,8 @@ import edu.yu.einstein.wasp.grid.SingleHostResolver;
 public class LocalhostTransportService implements GridTransportService {
 	
 	private static final Log logger = LogFactory.getLog(SshService.class);
+	
+	private SoftwareManager softwareManager;
 
 	/**
 	 * {@inheritDoc}
@@ -37,6 +39,16 @@ public class LocalhostTransportService implements GridTransportService {
 	@Override
 	public GridHostResolver getHostResolver() {
 		return new SingleHostResolver("localhost", System.getProperty("user.name").toString());
+	}
+
+	@Override
+	public void setSoftwareManager(SoftwareManager swm) {
+		this.softwareManager = swm;
+	}
+
+	@Override
+	public SoftwareManager getSoftwareManager() {
+		return softwareManager;
 	}
 
 }

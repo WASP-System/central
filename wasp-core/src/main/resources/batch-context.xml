@@ -21,7 +21,7 @@
   default-autowire="byName">
 
    <!--  configure properties files -->
-    <bean id="propertyPlaceholderConfigurer"  
+  <bean id="propertyPlaceholderConfigurer"  
     class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">  
       <property name="locations">  
         <list>  
@@ -31,6 +31,14 @@
           <value>classpath:/wasp.local.properties</value>
         </list>  
       </property>  
+  </bean>
+  
+  <bean id="waspLocalProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+	<property name="locations">
+	  <list>
+	    <value>classpath:/wasp.local.properties</value>
+      </list>
+	</property>
   </bean> 
   
   <bean id="messageSource" class="edu.yu.einstein.wasp.service.impl.WaspMessageSourceImpl" >

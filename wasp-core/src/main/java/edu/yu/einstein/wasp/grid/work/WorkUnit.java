@@ -4,6 +4,7 @@
 package edu.yu.einstein.wasp.grid.work;
 
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import edu.yu.einstein.wasp.grid.GridHostResolver;
@@ -68,6 +69,11 @@ public class WorkUnit {
 	private Set<String> resultFiles;
 	
 	/**
+	 * List of software packages that need to be configured by a {@link SoftwareManager}.
+	 */
+	private List<SoftwareComponent> softwareDependencies;
+	
+	/**
 	 * Set of plugins that this workunit is dependent upon, useful for GridHostResolver to determine target system.
 	 */
 	private Set<String> pluginDependencies;
@@ -75,7 +81,7 @@ public class WorkUnit {
 	/**
 	 * whether or not to delete the remote working directory after successful completion.
 	 */
-	private boolean clean = false;
+	private boolean clean = true;
 	
 	/**
 	 * whether or not to copy results files to the remote archive upon completion.  Execution of subsequent steps on the 
@@ -220,6 +226,20 @@ public class WorkUnit {
 	
 	public void setUser(String user) {
 		this.user = user;
+	}
+
+	/**
+	 * @return the softwareDependencies
+	 */
+	public List<SoftwareComponent> getSoftwareDependencies() {
+		return softwareDependencies;
+	}
+
+	/**
+	 * @param softwareDependencies the softwareDependencies to set
+	 */
+	public void setSoftwareDependencies(List<SoftwareComponent> softwareDependencies) {
+		this.softwareDependencies = softwareDependencies;
 	}
 	
 

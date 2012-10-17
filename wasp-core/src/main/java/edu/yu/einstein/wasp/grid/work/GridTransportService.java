@@ -34,6 +34,17 @@ public interface GridTransportService {
 	 */
 	public GridTransportConnection connect(String hostname) throws GridAccessException, GridUnresolvableHostException;
 	
+	/**
+	 * @return
+	 */
 	public GridHostResolver getHostResolver();
+	
+	/**
+	 * configure a bean for resolving versions of software
+	 * @param swm
+	 */
+	public void setSoftwareManager(SoftwareManager swm);
+	
+	public SoftwareManager getSoftwareManager();
 
 }

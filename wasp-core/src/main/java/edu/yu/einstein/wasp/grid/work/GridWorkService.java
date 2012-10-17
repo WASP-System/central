@@ -3,6 +3,8 @@
  */
 package edu.yu.einstein.wasp.grid.work;
 
+import java.util.List;
+
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.grid.GridAccessException;
 import edu.yu.einstein.wasp.grid.GridExecutionException;
@@ -61,15 +63,18 @@ public interface GridWorkService {
 	public String getName();
 	
 	/**
-	 * Software manager implements the strategy for ensuring that software is configured into the environment.
-	 * @param softwareManager
-	 */
-	public void setSoftwareManager(SoftwareManager softwareManager);
-	
-	/**
 	 * Prefix for the names of jobs that are sent to the scheduler. 
 	 * @param name Defaults to WASP.
 	 */
 	public void setJobNamePrefix(String name);
+	
+	/**
+	 * Set the parallel environment strings.
+	 * @param pe
+	 */
+	public void setAvailableParallelEnvironments(List<String> pe);
+	
+	public List<String> getAvailableParallelEnvironments();
+	
 
 }
