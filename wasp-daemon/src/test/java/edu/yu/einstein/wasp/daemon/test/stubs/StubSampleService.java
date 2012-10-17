@@ -157,7 +157,7 @@ public class StubSampleService implements SampleService {
 	}
 
 	@Override
-	public List<Sample> getAvailableAndCompatibleFlowCells(Job job) {
+	public List<Sample> getAvailableAndCompatiblePlatformUnits(Job job) {
 		// Auto-generated method stub
 		return null;
 	}
@@ -226,7 +226,7 @@ public class StubSampleService implements SampleService {
 	}
 
 	@Override
-	public List<Sample> platformUnitsAwaitingLibraries() {
+	public List<Sample> getAvailablePlatformUnits() {
 		// Auto-generated method stub
 		return null;
 	}

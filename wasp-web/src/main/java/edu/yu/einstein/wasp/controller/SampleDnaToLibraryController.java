@@ -285,16 +285,16 @@ public class SampleDnaToLibraryController extends WaspController {
 		
 		
 		
-		List<Sample> submittedSamplesList = jobService.getSubmittedSamples(job);
-		List<Sample> macromoleculeSubmittedSamplesList = new ArrayList<Sample>();
-		List<Sample> librarySubmittedSamplesList = new ArrayList<Sample>();
-		Map<Sample, String> speciesMap = new HashMap<Sample, String>();
-		Map<Sample, String> receivedStatusMap = new HashMap<Sample, String>();
-		Map<Sample, String> receiveSampleStatusMap = new HashMap<Sample, String>();// created 5/7/12
-		Map<Sample, String> createLibraryStatusMap = new HashMap<Sample, String>();
-		Map<Sample, String> assignLibraryToPlatformUnitStatusMap = new HashMap<Sample, String>();
-		Map<Sample, List<Sample>> facilityLibraryMap = new HashMap<Sample, List<Sample>>();//key is a submitted sample (macromolecule) and value is list of facility-generated libraries created from that macromolecule)
-		Map<Sample, Adaptor> libraryAdaptorMap = new HashMap<Sample, Adaptor>();//key is library and value is the adaptor used for that library
+	  List<Sample> submittedSamplesList = jobService.getSubmittedSamples(job);
+	  List<Sample> macromoleculeSubmittedSamplesList = new ArrayList<Sample>();
+	  List<Sample> librarySubmittedSamplesList = new ArrayList<Sample>();
+	  Map<Sample, String> speciesMap = new HashMap<Sample, String>();
+	  Map<Sample, String> receivedStatusMap = new HashMap<Sample, String>();
+	  Map<Sample, String> receiveSampleStatusMap = new HashMap<Sample, String>();// created 5/7/12
+	  Map<Sample, String> createLibraryStatusMap = new HashMap<Sample, String>();
+	  Map<Sample, String> assignLibraryToPlatformUnitStatusMap = new HashMap<Sample, String>();
+	  Map<Sample, List<Sample>> facilityLibraryMap = new HashMap<Sample, List<Sample>>();//key is a submitted sample (macromolecule) and value is list of facility-generated libraries created from that macromolecule)
+	  Map<Sample, Adaptor> libraryAdaptorMap = new HashMap<Sample, Adaptor>();//key is library and value is the adaptor used for that library
 		
 		SampleType macromoleculeDnaType = sampleTypeDao.getSampleTypeByIName("dna");
 		SampleType macromoleculeRnaType = sampleTypeDao.getSampleTypeByIName("rna");
@@ -381,7 +381,7 @@ public class SampleDnaToLibraryController extends WaspController {
 			}
 		}
 		
-		List<Sample> availableAndCompatibleFlowCells = sampleService.getAvailableAndCompatibleFlowCells(job);//available flowCells that are compatible with this job
+		List<Sample> availableAndCompatibleFlowCells = sampleService.getAvailableAndCompatiblePlatformUnits(job);//available flowCells that are compatible with this job
 		for(Sample flowCell : availableAndCompatibleFlowCells){
 			try{
 				for (Sample cell: sampleService.getIndexedCellsOnPlatformUnit(flowCell).values()){

@@ -81,6 +81,7 @@ import edu.yu.einstein.wasp.model.SampleDraftMeta;
 import edu.yu.einstein.wasp.model.SampleFile;
 import edu.yu.einstein.wasp.model.SampleJobCellSelection;
 import edu.yu.einstein.wasp.model.SampleMeta;
+import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
@@ -606,14 +607,16 @@ public class JobServiceImpl extends WaspServiceImpl implements JobService {
 		List<Job> JobsAwaitingLibraryCreation = new ArrayList<Job>();
 		
 		List<StepExecution> stepExecutions = batchJobExplorer.getStepExecutions("wasp.library.step.listenForLibraryCreated", BatchStatus.STARTED);
+		Set<Integer> uniqueJobIds = new HashSet<Integer>(); // just to be sure no duplicates, store the job ids in a Set
 		for (StepExecution stepExecution: stepExecutions){
-			Integer jobId = null;
 			try{
-				jobId = Integer.valueOf(batchJobExplorer.getJobParameterValueByKey(stepExecution, WaspJobParameters.JOB_ID));
+				uniqueJobIds.add( Integer.valueOf(batchJobExplorer.getJobParameterValueByKey(stepExecution, WaspJobParameters.JOB_ID)) );
 			} catch (ParameterValueRetrievalException e){
 				logger.error(e.getMessage());
 				continue;
 			}
+		}
+		for (Integer jobId: uniqueJobIds){
 			Job job = jobDao.getJobByJobId(jobId);
 			if (job == null){
 				logger.error("Job with job id '"+jobId+"' does not have a match in the database!");
@@ -629,28 +632,50 @@ public class JobServiceImpl extends WaspServiceImpl implements JobService {
 	 */
 	@Override
 	public List<Job> getJobsWithLibrariesToGoOnFlowCell(){
-		
-		
-		
 		List<Job> jobsWithLibrariesToGoOnFlowCell = new ArrayList<Job>();
-		
-		List<StepExecution> stepExecutions = batchJobExplorer.getStepExecutions("wasp.library.step.listenForLibraryCreated", BatchStatus.STARTED);
-		for (StepExecution stepExecution: stepExecutions){
-			Integer jobId = null;
-			try{
-				jobId = Integer.valueOf(batchJobExplorer.getJobParameterValueByKey(stepExecution, WaspJobParameters.JOB_ID));
-			} catch (ParameterValueRetrievalException e){
-				logger.error(e.getMessage());
-				continue;
+		for (Job job: getActiveJobs()){
+			Map<Integer, Integer> librariesForJobWithAnalysisFlow = new HashMap<Integer, Integer>();
+			Map<String, String> parameterMap = new HashMap<String, String>();
+			parameterMap.put(WaspJobParameters.JOB_ID, job.getJobId().toString());
+			// get all 'wasp.analysis.step.waitForData' StepExecutions for current job
+			// the job may have many libraries and each library may need to be run more than once
+			for (StepExecution stepExecution: batchJobExplorer.getStepExecutions("wasp.analysis.step.waitForData", parameterMap, false) ){
+				try{
+					Integer libraryId =  Integer.valueOf(batchJobExplorer.getJobParameterValueByKey(stepExecution, WaspJobParameters.LIBRARY_ID));
+					// put to list of all sample id's on all analysis flows (librariesInAnalysisFlow)
+					if (librariesForJobWithAnalysisFlow.containsKey(libraryId)){
+						librariesForJobWithAnalysisFlow.put(libraryId, librariesForJobWithAnalysisFlow.get(libraryId) + 1);
+					} else {
+						librariesForJobWithAnalysisFlow.put(libraryId, 1);
+					}
+				} catch (ParameterValueRetrievalException e){
+					logger.error(e.getMessage());
+					continue;
+				} catch (NumberFormatException e){
+					logger.error(e.getMessage());
+					continue;
+				}
+				
+				for (Integer libraryId: librariesForJobWithAnalysisFlow.keySet()){
+					Sample library = sampleDao.getSampleBySampleId(libraryId);
+					if (library.getSampleId() == 0){
+						logger.error("Cannot find Sample with id=" + libraryId);
+						continue;
+					}
+					List<SampleSource> sampleSources = library.getSampleSource(); // library -> cell relationships
+					Integer numberOfLibraryInstancesOnCells = 0;
+					if (sampleSources != null)
+						numberOfLibraryInstancesOnCells = sampleSources.size();
+					
+					Integer numberOfAnalysisFlowsForLibrary = librariesForJobWithAnalysisFlow.get(libraryId);
+					
+					if (numberOfAnalysisFlowsForLibrary > numberOfLibraryInstancesOnCells)
+						jobsWithLibrariesToGoOnFlowCell.add(job);
+					
+				}
 			}
-			Job job = jobDao.getJobByJobId(jobId);
-			if (job == null){
-				logger.error("Job with job id '"+jobId+"' does not have a match in the database!");
-				continue;
-			}
-			JobsAwaitingLibraryCreation.add(job);
 		}
-		return JobsAwaitingLibraryCreation;
+		return jobsWithLibrariesToGoOnFlowCell;
 	}
 
 	/**

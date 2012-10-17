@@ -8,5 +8,6 @@
 
 	<!-- import common configuration  -->
 	<import resource="classpath:/META-INF/spring/integration/integration-common-config.xml" />
+	<import resource="classpath:/META-INF/spring/integration/RmiMessageSend-context.xml" />
 	
 </beans>

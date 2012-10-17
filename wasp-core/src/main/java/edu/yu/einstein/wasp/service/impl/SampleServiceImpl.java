@@ -44,8 +44,6 @@ import edu.yu.einstein.wasp.dao.SampleSourceDao;
 import edu.yu.einstein.wasp.dao.SampleSourceMetaDao;
 import edu.yu.einstein.wasp.dao.SampleTypeDao;
 import edu.yu.einstein.wasp.dao.SampleSubtypeDao;
-import edu.yu.einstein.wasp.dao.StateDao;
-import edu.yu.einstein.wasp.dao.TaskDao;
 import edu.yu.einstein.wasp.dao.WorkflowDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.SampleException;
@@ -71,9 +69,6 @@ import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.SampleSubtypeMeta;
 import edu.yu.einstein.wasp.model.SampleSubtypeResourceCategory;
 import edu.yu.einstein.wasp.model.SampleType;
-import edu.yu.einstein.wasp.model.State;
-import edu.yu.einstein.wasp.model.Statesample;
-import edu.yu.einstein.wasp.model.Task;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.WorkflowSampleSubtype;
 import edu.yu.einstein.wasp.service.AuthenticationService;
@@ -164,10 +159,9 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 		return this.getSampleDao().getSampleByName(name);
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public List<Sample> findAllPlatformUnits() {
-		Map queryMap = new HashMap();
+		Map<String, String> queryMap = new HashMap<String, String>();
 		queryMap.put("sampleType.iName", "platformunit");
 		return sampleDao.findByMap(queryMap);
 	}
@@ -439,38 +433,71 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	   */
 	  @Override
 	  public List<Sample> getAvailablePlatformUnits(){
-		// TODO: Write test!!
-		  List<Sample> availableFlowCellList = new ArrayList<Sample>();
+		  // TODO: Write test!!
 		  
-		  SampleType sampleType = sampleTypeDao.getSampleTypeByIName("platformunit");
-		  if(sampleType==null || sampleType.getSampleTypeId()==null || sampleType.getSampleTypeId().intValue()==0){
-			  //exception or something
-		  }
-		  Map<String, Integer> filterMap = new HashMap<String, Integer>();
-		  filterMap.put("sampleTypeId", sampleType.getSampleTypeId());
-		  List<Sample> allFlowCellsList = sampleDao.findByMap(filterMap);
+		  List<Sample> availablePlatformUnits = new ArrayList<Sample>();
+		  List<Sample> allPlatformUnits = findAllPlatformUnits(); 
+		  if (allPlatformUnits == null || allPlatformUnits.isEmpty())
+			  return availablePlatformUnits;
+		
+		  // get platform units that are not associated with currently executing or completed runs
+		  Map<String, String> parameterMap = new HashMap<String, String>();
 		  
-		  for(Sample sample : allFlowCellsList){
-			  List<Statesample> stateSampleList = sample.getStatesample();
-			  for(Statesample stateSample : stateSampleList){
-				  if(stateSample.getState().getStatus().equals("CREATED")){
-					  availableFlowCellList.add(sample);
-				  }
+		  // get job executions for ALL platform units on all runs and record those associated with runs that are currently executing or have completed
+		  // successfully (COMPLETED) or have failed QC or been rejected (FAILED). If run is in status STOPPED (aborted) the platform unit
+		  // should be made available for adding more libraries. Might want to review this use case!!
+		  
+		  // 'run' batch jobs are provided two parameters, runId and platformUnitId (sampleId value)
+		  // we can obtain all run job executions by selecting jobs which have these parameters (regardless of the values as specified by "*")
+		  parameterMap.put(WaspJobParameters.RUN_ID, "*");
+		  parameterMap.put(WaspJobParameters.PLATFORM_UNIT_ID, "*");
+		  Set<Integer> IdsForPlatformUnitsNotAvailable = new HashSet<Integer>();
+		  List<JobExecution> allRelevantJobExecutions = new ArrayList<JobExecution>();
+		  allRelevantJobExecutions.addAll( batchJobExplorer.getJobExecutions(parameterMap, true, ExitStatus.EXECUTING) );
+		  allRelevantJobExecutions.addAll( batchJobExplorer.getJobExecutions(parameterMap, true, ExitStatus.COMPLETED) );
+		  allRelevantJobExecutions.addAll( batchJobExplorer.getJobExecutions(parameterMap, true, ExitStatus.FAILED) );
+		  
+		  // make platform unit available again if ExitStatus is STOPPED (aborted) 
+		  // so comment the following line out for now:
+		  // allRelevantJobExecutions.addAll( batchJobExplorer.getJobExecutions(parameterMap, true, ExitStatus.STOPPED) );
+		  
+		  // get sample id for all platform units associated with the batch job executions retrieved
+		  for (JobExecution je: allRelevantJobExecutions){
+			  try{
+				  String puIdStr = batchJobExplorer.getJobParameterValueByKey(je, WaspJobParameters.PLATFORM_UNIT_ID);
+				  IdsForPlatformUnitsNotAvailable.add(Integer.valueOf(puIdStr));
+			  } catch (ParameterValueRetrievalException e){
+				  logger.error(e);
+				  continue;
+			  } catch (NumberFormatException e){
+				  logger.error(e);
+				  continue;
 			  }
 		  }
 		  
-		  return availableFlowCellList;
+		  // collect platform unit objects whose id's are not in the IdsForPlatformUnitsNotAvailable list
+		  for (Sample pu: allPlatformUnits){
+			  if (! IdsForPlatformUnitsNotAvailable.contains( pu.getSampleId() ) )
+				  availablePlatformUnits.add(pu);
+		  }
+		  
+		  return availablePlatformUnits; 
 	  }
 	  
-	  public List<Sample> getAvailableAndCompatibleFlowCells(Job job){
+	  
+	  /**
+	   * {@inheritDoc}
+	   */
+	  @Override
+	  public List<Sample> getAvailableAndCompatiblePlatformUnits(Job job){
 		  // TODO: Write test!!
-		  List<Sample> availableFlowCells = getAvailablePlatformUnits();
+		  List<Sample> availablePlatformUnits = getAvailablePlatformUnits();
 		  List<Sample> availableAndCompatibleFlowCells = new ArrayList<Sample>();
-		  for(Sample flowCell : availableFlowCells){
-			  for(SampleSubtypeResourceCategory ssrc : flowCell.getSampleSubtype().getSampleSubtypeResourceCategory()){
+		  for(Sample pu : availablePlatformUnits){
+			  for(SampleSubtypeResourceCategory ssrc : pu.getSampleSubtype().getSampleSubtypeResourceCategory()){
 				  for(JobResourcecategory jrc : job.getJobResourcecategory()){
 					  if(ssrc.getResourcecategoryId().intValue() == jrc.getResourcecategoryId().intValue()){
-						  availableAndCompatibleFlowCells.add(flowCell);
+						  availableAndCompatibleFlowCells.add(pu);
 					  }
 				  }
 			  }
@@ -765,62 +792,6 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 		  return clone;
 	  }
 	  
-	  /**
-	   * {@inheritDoc}
-	   */
-	  @Override
-	  public List<Sample> platformUnitsAwaitingLibraries(){
-		  // get platform units that are not associated with currently executing or completed runs
-		  Map<String, String> parameterMap = new HashMap<String, String>();
-		  parameterMap.put(WaspJobParameters.RUN_ID, "*");
-		  parameterMap.put(WaspJobParameters.PLATFORM_UNIT_ID, "*");
-		  Set<Integer> platformUnitsNotAvailable = new HashSet<Integer>();
-		  List<JobExecution> allRelevantJobExecutions = new ArrayList<JobExecution>();
-		  List<JobExecution> jobExecutions = batchJobExplorer.getJobExecutions(parameterMap, true, ExitStatus.EXECUTING);
-		  if (jobExecutions != null)
-			  allRelevantJobExecutions.addAll(jobExecutions);
-		  jobExecutions = batchJobExplorer.getJobExecutions(parameterMap, true, ExitStatus.COMPLETED);
-		  if (jobExecutions != null)
-			  allRelevantJobExecutions.addAll(jobExecutions);
-		  jobExecutions = batchJobExplorer.getJobExecutions(parameterMap, true, ExitStatus.FAILED);
-		  if (jobExecutions != null)
-			  allRelevantJobExecutions.addAll(jobExecutions);
-		  for (JobExecution je: allRelevantJobExecutions){
-			  try{
-				  String paramaterVal = batchJobExplorer.getJobParameterValueByKey(je, WaspJobParameters.PLATFORM_UNIT_ID);
-				  platformUnitsNotAvailable.add(Integer.valueOf(paramaterVal));
-			  } catch (ParameterValueRetrievalException e){
-				  logger.error(e);
-				  continue;
-			  } catch (NumberFormatException e){
-				  logger.error(e);
-				  continue;
-			  }
-		  }
-		  List<Sample> platformUnits = getAvailablePlatformUnits() //DOH!
-		  
-		  
-			Map stateMap = new HashMap(); 
-			Task task = taskDao.getTaskByIName("assignLibraryToPlatformUnit");
-			if(task == null || task.getTaskId() == null){
-				//waspErrorMessage("platformunit.taskNotFound.error"); maybe throw exception?????
-			}
-			stateMap.put("taskId", task.getTaskId()); 	
-			stateMap.put("status", "CREATED"); 
-			List<State> stateList = stateDao.findByMap(stateMap);
-			
-			Set<Sample> samples = new HashSet<Sample>();//use set to avoid duplicates
-			for(State state : stateList){
-				List<Statesample> statesampleList = state.getStatesample();
-				for(Statesample statesample : statesampleList){
-					if(statesample.getSample().getSampleType().getIName().equals("platformunit")){
-						samples.add(statesample.getSample());
-					}
-				}
-			}
-			
-			return new ArrayList<Sample>(samples);//return as list rather than as set
-	  }
 
 	/**
 	 * {@inheritDoc}

@@ -193,7 +193,7 @@ public interface SampleService extends WaspService {
 	   * @return List<Sample>
 	   * 
 	   */
-	  public List<Sample> getAvailableAndCompatibleFlowCells(Job job);
+	  public List<Sample> getAvailableAndCompatiblePlatformUnits(Job job);
 
 	  
 	  /**
@@ -280,12 +280,6 @@ public interface SampleService extends WaspService {
 	   */
 	  public SampleDraft cloneSampleDraft(SampleDraft sampleDraft);
 
-	  /**
-	   * Returns list of samples that are platformUnits with task assignLibraryToPlatformUnit and status = CREATED (so, it's not yet part of a sequence run)
-	   * @param none
-	   * @return List<Sample>
-	   */
-	  public List<Sample> platformUnitsAwaitingLibraries();
 	  
 	  /**
 	   * Get the run on which a given platform unit has been placed. If the platform unit is not currently associated with an active run or is not associated with a run 

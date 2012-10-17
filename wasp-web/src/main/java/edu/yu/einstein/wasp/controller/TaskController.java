@@ -64,7 +64,7 @@ public class TaskController extends WaspController {
 	  jobService.sortJobsByJobId(jobsActiveAndWithLibrariesToGoOnFlowCell);	  
 	  m.addAttribute("jobList", jobsActiveAndWithLibrariesToGoOnFlowCell);
 	  
-	  List<Sample> activePlatformUnits = sampleService.platformUnitsAwaitingLibraries();
+	  List<Sample> activePlatformUnits = sampleService.getAvailablePlatformUnits();
 	  sampleService.sortSamplesBySampleName(activePlatformUnits);	  
 	  m.addAttribute("activePlatformUnits", activePlatformUnits);
 	  

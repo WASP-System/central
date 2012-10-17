@@ -8,6 +8,5 @@
 	<!-- local imports  -->
 	<context:component-scan base-package="edu.yu.einstein.wasp.integration.test.stubs" />
 	<context:property-placeholder location="classpath:integration.properties" ignore-unresolvable="true"/>
-	<import resource="RmiMessageSend-context.xml"/>
 
 </beans>
