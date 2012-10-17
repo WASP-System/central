@@ -7,6 +7,8 @@ import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.model.Sample;
 
 /**
+ * 
+ * Interface defines the required methods for a plugin class that handles data from a sequencer.
  * @author calder
  *
  */
