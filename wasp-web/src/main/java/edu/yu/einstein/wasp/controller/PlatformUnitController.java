@@ -906,8 +906,8 @@ public class PlatformUnitController extends WaspController {
 		}
 		
 		//is this flowcell on a run?
-		List<Run> runList = platformUnit.getRun();
-		m.put("runList", runList);
+		//////10-17-12List<Run> runList = platformUnit.getRun();
+		//////10-17-12m.put("runList", runList);
 		//if this flowcell is on a run, it gets locked to the addition of new user-libraries
 		//locking the flowcell is recorded as its task, Assign Library To Platform Unit, changing from CREATED to COMPLETED/FINALIZED
 		//There are conditions under which the flow cell may need to be unlocked. Currently this will be 
@@ -940,53 +940,7 @@ public class PlatformUnitController extends WaspController {
 			}
 		}
 		m.put("technicians", technicians);
-/*		
-		if(runList.size() > 0){//a run for this platform unit exists
-			Run run = runList.get(0);//should only be one, I hope
-			String currentReadLength = "";
-			String currentReadType = "";
-			List<RunMeta> runMetaList = run.getRunMeta();
-			for(RunMeta rm : runMetaList){
-				if(rm.getK().indexOf("readlength") > -1){
-					currentReadLength = new String(rm.getV());
-				}
-				if(rm.getK().indexOf("readType") > -1){
-					currentReadType = new String(rm.getV());
-				}
-			}
-			Resource resource = run.getResource();
-			ResourceCategory resourceCategory = resource.getResourceCategory();
-			List<ResourceCategoryMeta> resourceCategoryMetaList = resourceCategory.getResourceCategoryMeta();
-			for(ResourceCategoryMeta rcm : resourceCategoryMetaList){
-				if( rcm.getK().indexOf("readType") > -1 ){
-					String[] tokens = rcm.getV().split(";");//rcm.getV() will be single:single;paired:paired
-					for(String token : tokens){//token could be single:single
-						String [] innerTokens = token.split(":");
-						if(currentReadType.equalsIgnoreCase(innerTokens[0])){
-							readType.append("<option SELECTED value='"+innerTokens[0]+"'>"+innerTokens[1]+"</option>");
-						}
-						else{
-							readType.append("<option value='"+innerTokens[0]+"'>"+innerTokens[1]+"</option>");
-						}
-					}
-				}
-				if( rcm.getK().indexOf("readlength") > -1 ){
-					String[] tokens = rcm.getV().split(";");//rcm.getV() will be 50:50;100:100
-					for(String token : tokens){//token could be 50:50
-						String [] innerTokens = token.split(":");
-						if(currentReadLength.equalsIgnoreCase(innerTokens[0])){
-							readLength.append("<option SELECTED value='"+innerTokens[0]+"'>"+innerTokens[1]+"</option>");
-						}
-						else{
-							readLength.append("<option value='"+innerTokens[0]+"'>"+innerTokens[1]+"</option>");
-						}
-					}
-				}
-			}
-			m.put("readType", new String(readType));
-			m.put("readLength", new String(readLength));
-		}
-*/		
+		
 		List<Resource> resourceList= resourceDao.findAll(); 
 		List<Resource> filteredResourceList = new ArrayList();
 		for(Resource resource : resourceList){
