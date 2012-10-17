@@ -136,22 +136,20 @@
 <td class="value-centered-small-heavyborder" nowrap>Status</td>
 <td class="value-centered-small-heavyborder" nowrap>Action</td>
 </tr>
-<c:forEach items="${sequenceRuns}" var="sequenceRun" varStatus="status">
+<c:forEach items="${sequenceRuns}" var="sequenceRun">
 <tr>
 <td class="value-centered-small"><c:out value="${sequenceRun.getName()}" /></td>
 <td class="value-centered-small"><c:out value="${sequenceRun.resource.name}" /> - <c:out value="${sequenceRun.resourceCategory.name}" /></td>
-<td class="value-centered-small"><c:out value="${readLengthForRuns.get(status.index)}" /></td>
-<td class="value-centered-small"><c:out value="${readTypeForRuns.get(status.index)}" /></td>
-<td class="value-centered-small"><c:out value="${startDateForRuns.get(status.index)}" /></td>
-<td class="value-centered-small"><c:out value="${endDateForRuns.get(status.index)}" /></td>
-<td class="value-centered-small"><c:out value="${statusForRuns.get(status.index)}" /></td>
-<%-- <td class="value-centered-small"><a href="/wasp/run/createUpdateRun.do?resourceId=<c:out value="${sequenceRun.resource.resourceId}" />&runId=<c:out value="${sequenceRun.runId}" />&platformUnitId=<c:out value="${sequenceRun.sampleId}" />">edit</a> | <a href='javascript:void(0)' onclick = 'if(confirm("Do you really want to delete this run record?")){location.href="<c:url value="/run/deleteRun.do?runId=${sequenceRun.runId}" />";}'>delete</a></td>--%>
+<c:set var="detailMap" value="${runDetails[sequenceRun.runId]}" scope="page" />
+<td class="value-centered-small"><c:out value='${detailMap["readlength"]}' /></td>
+<td class="value-centered-small"><c:out value='${detailMap["readType"]}' /></td>
+<td class="value-centered-small"><c:out value='${detailMap["dateRunStarted"]}' /></td>
+<td class="value-centered-small"><c:out value='${detailMap["dateRunEnded"]}' /></td>
+<td class="value-centered-small"><c:out value='${detailMap["runStatus"]}' /></td>
 <td class="value-centered-small"><a href='<c:url value="/run/createUpdateRun.do?resourceId=${sequenceRun.resource.resourceId}&runId=${sequenceRun.runId}&platformUnitId=${sequenceRun.sampleId}" />'>edit</a> | <a href='javascript:void(0)' onclick = 'if(confirm("Do you really want to delete this run record?")){location.href="<c:url value="/run/deleteRun.do?runId=${sequenceRun.runId}" />";}'>delete</a></td>
-
 </tr>
 </c:forEach>
 </table>
-
 </c:if>
 <br><br>
 

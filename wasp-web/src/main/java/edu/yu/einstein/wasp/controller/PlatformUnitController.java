@@ -850,24 +850,24 @@ public class PlatformUnitController extends WaspController {
 			String area2 = metaHelperWebapp.getArea();
 			Format formatter = new SimpleDateFormat("MM/dd/yyyy");
 			
-			List<String>readLengthForRuns = new ArrayList<String>();
-			List<String>readTypeForRuns = new ArrayList<String>();
-			List<String>startDateForRuns = new ArrayList<String>();
-			List<String>endDateForRuns = new ArrayList<String>();
-			List<String>statusForRuns = new ArrayList<String>();
+			Map<Integer, Map<String, String>> runDetails = new HashMap<Integer, Map<String, String>>();
 			for(Run sequenceRun : sequenceRuns){
+				
+				Map<String,String> detailMap = new HashMap<String, String>();
 				
 				String readlength2 = new String("unknown");
 				try{
 					readlength2 = MetaHelperWebapp.getMetaValue(area2, "readlength", sequenceRun.getRunMeta());					
 				}catch(Exception e){}
-				readLengthForRuns.add(readlength2);
+				////readLengthForRuns.add(readlength2);
+				detailMap.put("readlength", readlength2);
 				
 				String readType2 = new String("unknown");
 				try{
 					readType2 = MetaHelperWebapp.getMetaValue(area2, "readType", sequenceRun.getRunMeta());
 				}catch(Exception e){}
-				readTypeForRuns.add(readType2);
+				////readTypeForRuns.add(readType2);
+				detailMap.put("readType", readType2);
 				
 				String dateRunStarted = new String("not set");
 				if(sequenceRun.getStartts()!=null){
@@ -875,7 +875,8 @@ public class PlatformUnitController extends WaspController {
 						dateRunStarted = new String(formatter.format(sequenceRun.getStartts()));//MM/dd/yyyy
 					}catch(Exception e){}					
 				}
-				startDateForRuns.add(dateRunStarted);
+				////startDateForRuns.add(dateRunStarted);
+				detailMap.put("dateRunStarted", dateRunStarted);
 				
 				String dateRunEnded = new String("not set");
 				if(sequenceRun.getEnDts()!=null){					
@@ -884,20 +885,19 @@ public class PlatformUnitController extends WaspController {
 					}catch(Exception e){}
 					
 				}
-				endDateForRuns.add(dateRunEnded);
+				////endDateForRuns.add(dateRunEnded);
+				detailMap.put("dateRunEnded", dateRunEnded);
 				
-				statusForRuns.add(new String("???"));
+				////statusForRuns.add(new String("???"));
+				detailMap.put("runStatus", new String("???"));
+				
+				runDetails.put(sequenceRun.getRunId(), detailMap);
 			}
-			m.addAttribute("readLengthForRuns", readLengthForRuns);
-			m.addAttribute("readTypeForRuns", readTypeForRuns);	
-			m.addAttribute("startDateForRuns", startDateForRuns);	
-			m.addAttribute("endDateForRuns", endDateForRuns);	
-			m.addAttribute("statusForRuns", statusForRuns);	
-			
+			m.addAttribute("runDetails", runDetails);
 		}catch(Exception e){logger.debug(e.getMessage());waspErrorMessage("wasp.unexpected_error.error");return "redirect:/dashboard.do";}
 	
 		
-		
+		//10-17-12 the remainder of this page (the items on the flow cell) was not reviewed; it can no doubt do with work
 		
 		Sample platformUnit = platformUnit2;//sampleDao.getSampleBySampleId(sampleId.intValue());
 		if( platformUnit==null || platformUnit.getSampleId()==null || platformUnit.getSampleId().intValue()==0 || ! "platformunit".equals(platformUnit.getSampleType().getIName()) ){
