@@ -13,6 +13,7 @@ package edu.yu.einstein.wasp.service;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.batch.core.BatchStatus;
 import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
@@ -117,7 +118,7 @@ public interface SampleService extends WaspService {
 	   * @param Sample
 	   * @return String
 	   */
-	  public String getReceiveSampleStatus(final Sample sample);
+	  public BatchStatus getReceiveSampleStatus(final Sample sample);
 	  
 	  /**
 	   * Accepts and (in-situ) sorts list of samples by sample name 
@@ -131,14 +132,14 @@ public interface SampleService extends WaspService {
 	   * @param String status
 	   * @return String 
 	   */
-	  public String convertReceiveSampleStatusForWeb(String internalStatus);
+	  public String convertReceiveSampleStatusForWeb(BatchStatus internalStatus);
 
 	  /**
 	   * Converts sample's Receive Sample status from web meaning (human-comprehensible meaning) to enum consistent value for internal storage
 	   * @param String webStatus
 	   * @return String 
 	   */
-	  public String convertReceiveSampleStatusForInternalStorage(String webStatus);
+	  public BatchStatus convertReceiveSampleStatusForInternalStorage(String webStatus);
 
 	  /**
 	   * Gets list of Receive Sample options for web display
@@ -184,7 +185,7 @@ public interface SampleService extends WaspService {
 	   * @param void
 	   * @return List<Sample>
 	   */
-	  public List<Sample> getAvailableFlowCells();
+	  public List<Sample> getAvailablePlatformUnits();
 	  
 	  /**
 	   * Returns list of samples that are flow cells to which libraries can be added AND are compatible with the parameter job

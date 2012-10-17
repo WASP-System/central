@@ -9,13 +9,13 @@
 
 	<!-- for library, call with parameters sampleid and jobid -->
 	<batch:flow id="library.mainFlow.v1">
-		<batch:step id="library.mainFlow.listenForLibrary" next="library.mainFlow.libraryQC">
+		<batch:step id="wasp.library.step.listenForLibraryCreated" next="wasp.library.step.libraryQC">
 			<!-- tasklet class: listenForLibraryTasklet -->
 		</batch:step>
-		<batch:step id="library.mainFlow.libraryQC" next="library.mainFlow.successfullyProcessed">
+		<batch:step id="wasp.library.step.libraryQC" next="wasp.library.notifyLibraryReady">
 			<!-- tasklet class: sampleQCTasklet -->
 		</batch:step>
-		<batch:step id="library.mainFlow.successfullyProcessed">
+		<batch:step id="wasp.library.notifyLibraryReady">
 			
 		</batch:step>
 	</batch:flow>

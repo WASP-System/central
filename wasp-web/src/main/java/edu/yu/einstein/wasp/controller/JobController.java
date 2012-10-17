@@ -812,12 +812,12 @@ public class JobController extends WaspController {
 	@PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('fm') or hasRole('ft') or hasRole('ga')")
 	public String jobsAwaitingLibraryCreation(ModelMap m) {
 		  
-		List<Job> jobsWithLibraryCreatedTask = jobService.getJobsWithLibraryCreatedTask();
+		List<Job> jobsAwaitingLibraryCreation = jobService.getJobsAwaitingLibraryCreation();
 		List<Job> jobsActive = jobService.getActiveJobs();
 		    
 		List<Job> jobsActiveAndWithLibraryCreatedTask = new ArrayList<Job>();
 		for(Job jobActive : jobsActive){
-		    for(Job jobAwaiting : jobsWithLibraryCreatedTask){
+		    for(Job jobAwaiting : jobsAwaitingLibraryCreation){
 		    	if(jobActive.getJobId().intValue()==jobAwaiting.getJobId().intValue()){
 		    		jobsActiveAndWithLibraryCreatedTask.add(jobActive);
 		    		break;

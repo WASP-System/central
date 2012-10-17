@@ -22,10 +22,17 @@ import java.util.Set;
 
 import javax.management.RuntimeErrorException;
 
+import org.springframework.batch.core.BatchStatus;
+import org.springframework.batch.core.ExitStatus;
+import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.StepExecution;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.yu.einstein.wasp.batch.core.extension.JobExplorerWasp;
+import edu.yu.einstein.wasp.batch.core.extension.WaspBatchJobExplorer;
+import edu.yu.einstein.wasp.batch.exceptions.ParameterValueRetrievalException;
 //import edu.yu.einstein.wasp.controller.PlatformUnitController.SelectOptionsMeta;
 import edu.yu.einstein.wasp.dao.AdaptorDao;
 import edu.yu.einstein.wasp.dao.BarcodeDao;
@@ -47,6 +54,7 @@ import edu.yu.einstein.wasp.exception.SampleMultiplexException;
 import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.SampleSubtypeException;
+import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Barcode;
 import edu.yu.einstein.wasp.model.Job;
@@ -136,9 +144,6 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	private SampleSubtypeDao sampleSubtypeDao;
 
 	@Autowired
-	private StateDao stateDao;
-	
-	@Autowired
 	  private AdaptorDao adaptorDao;
 	
 	@Autowired
@@ -147,6 +152,9 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	@Autowired
 	  private RunDao runDao;
 
+	@Autowired
+	protected WaspBatchJobExplorer batchJobExplorer;
+	
 	public void setSampleMetaDao(SampleMetaDao sampleMetaDao) {
 		this.sampleMetaDao = sampleMetaDao;
 	}
@@ -249,15 +257,16 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	   * {@inheritDoc}
 	   */
 	  @Override
-	  public String getReceiveSampleStatus(final Sample sample){
+	  public BatchStatus getReceiveSampleStatus(final Sample sample){
 		// TODO: Write test!!
-		  String sampleReceivedStatus = "UNKNOWN";
-		  List<Statesample> statesamples = sample.getStatesample();
-		  for(Statesample ss : statesamples){
-			if(ss.getState().getTask().getIName().equals("Receive Sample")){
-				sampleReceivedStatus = ss.getState().getStatus();
-			}
-	  	  }
+		  BatchStatus sampleReceivedStatus = BatchStatus.UNKNOWN;
+		  Map<String, String> parameterMap = new HashMap<String, String>();
+		  parameterMap.put(WaspJobParameters.SAMPLE_ID, sample.getSampleId().toString());
+		  StepExecution stepExecution = batchJobExplorer.getMostRecentlyStartedStepExecutionInList(
+				  batchJobExplorer.getStepExecutions("wasp.sample.step.listenForSampleReceived", parameterMap, false)   );
+		  if (stepExecution != null){
+			  sampleReceivedStatus = stepExecution.getStatus();
+		  }
 		  return sampleReceivedStatus;
 	  }
 	  
@@ -280,22 +289,22 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	   * {@inheritDoc}
 	   */
 	  @Override
-	  public String convertReceiveSampleStatusForWeb(String internalStatus){
+	  public String convertReceiveSampleStatusForWeb(BatchStatus internalStatus){
 		  // TODO: Write test!!
-		  if(internalStatus.equals("CREATED")){
-			  return new String("NOT ARRIVED");
+		  if(internalStatus.equals(BatchStatus.STARTED)){
+			  return "NOT ARRIVED";
 			}
-			else if(internalStatus.equals("RECEIVED") || internalStatus.equals("COMPLETED") || internalStatus.equals("FINALIZED")){
-				return new String("RECEIVED");
+			else if(internalStatus.equals(BatchStatus.COMPLETED)){
+				return "RECEIVED";
 			}
-			else if(internalStatus.equals("WITHDRAWN") || internalStatus.equals("ABANDONED") ){
-				return new String("WITHDRAWN");
+			else if(internalStatus.equals(BatchStatus.FAILED)){
+				return "FAILED QC";
 			}
-			else if(internalStatus.equals("UNKNOWN")){
-				return new String("UNKNOWN");
+			else if(internalStatus.equals(BatchStatus.STOPPED)){
+				return "WITHDRAWN";
 			}
-			else{
-				return new String(internalStatus);
+			else {
+				return "UNKNOWN";
 			}
 	  }
 	  
@@ -303,22 +312,22 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	   * {@inheritDoc}
 	   */
 	  @Override
-	  public String convertReceiveSampleStatusForInternalStorage(String webStatus){
+	  public BatchStatus convertReceiveSampleStatusForInternalStorage(String webStatus){
 		  // TODO: Write test!!
 		  if(webStatus.equals("NOT ARRIVED")){
-			  return new String("CREATED");
+			  return BatchStatus.STARTED;
 			}
 			else if(webStatus.equals("RECEIVED")){
-				return new String("COMPLETED");
+				return BatchStatus.COMPLETED;
+			}
+			else if(webStatus.equals("FAILED QC")){
+				return BatchStatus.FAILED;
 			}
 			else if(webStatus.equals("WITHDRAWN")){
-				return new String("ABANDONED");
-			}
-			else if(webStatus.equals("UNKNOWN")){
-				return new String("UNKNOWN");
+				return BatchStatus.STOPPED;
 			}
 			else{
-				return new String(webStatus);
+				return BatchStatus.UNKNOWN;
 			}
 	  }
 	  
@@ -328,10 +337,10 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	  @Override
 	  public List<String> getReceiveSampleStatusOptionsForWeb(){
 		  // TODO: Write test!!
-		  String [] stringList = {"CREATED", "COMPLETED", "ABANDONED", "UNKNOWN"};
+		  BatchStatus [] statusList = {BatchStatus.STARTED, BatchStatus.COMPLETED, BatchStatus.FAILED, BatchStatus.STOPPED, BatchStatus.UNKNOWN};
 		  List<String> options = new ArrayList<String>();
-		  for(String str : stringList){
-			  options.add(convertReceiveSampleStatusForWeb(str));
+		  for(BatchStatus status : statusList){
+			  options.add(convertReceiveSampleStatusForWeb(status));
 		  }
 		  return options;
 	  }
@@ -429,7 +438,7 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	   * {@inheritDoc}
 	   */
 	  @Override
-	  public List<Sample> getAvailableFlowCells(){
+	  public List<Sample> getAvailablePlatformUnits(){
 		// TODO: Write test!!
 		  List<Sample> availableFlowCellList = new ArrayList<Sample>();
 		  
@@ -455,7 +464,7 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	  
 	  public List<Sample> getAvailableAndCompatibleFlowCells(Job job){
 		  // TODO: Write test!!
-		  List<Sample> availableFlowCells = getAvailableFlowCells();
+		  List<Sample> availableFlowCells = getAvailablePlatformUnits();
 		  List<Sample> availableAndCompatibleFlowCells = new ArrayList<Sample>();
 		  for(Sample flowCell : availableFlowCells){
 			  for(SampleSubtypeResourceCategory ssrc : flowCell.getSampleSubtype().getSampleSubtypeResourceCategory()){
@@ -761,6 +770,35 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	   */
 	  @Override
 	  public List<Sample> platformUnitsAwaitingLibraries(){
+		  // get platform units that are not associated with currently executing or completed runs
+		  Map<String, String> parameterMap = new HashMap<String, String>();
+		  parameterMap.put(WaspJobParameters.RUN_ID, "*");
+		  parameterMap.put(WaspJobParameters.PLATFORM_UNIT_ID, "*");
+		  Set<Integer> platformUnitsNotAvailable = new HashSet<Integer>();
+		  List<JobExecution> allRelevantJobExecutions = new ArrayList<JobExecution>();
+		  List<JobExecution> jobExecutions = batchJobExplorer.getJobExecutions(parameterMap, true, ExitStatus.EXECUTING);
+		  if (jobExecutions != null)
+			  allRelevantJobExecutions.addAll(jobExecutions);
+		  jobExecutions = batchJobExplorer.getJobExecutions(parameterMap, true, ExitStatus.COMPLETED);
+		  if (jobExecutions != null)
+			  allRelevantJobExecutions.addAll(jobExecutions);
+		  jobExecutions = batchJobExplorer.getJobExecutions(parameterMap, true, ExitStatus.FAILED);
+		  if (jobExecutions != null)
+			  allRelevantJobExecutions.addAll(jobExecutions);
+		  for (JobExecution je: allRelevantJobExecutions){
+			  try{
+				  String paramaterVal = batchJobExplorer.getJobParameterValueByKey(je, WaspJobParameters.PLATFORM_UNIT_ID);
+				  platformUnitsNotAvailable.add(Integer.valueOf(paramaterVal));
+			  } catch (ParameterValueRetrievalException e){
+				  logger.error(e);
+				  continue;
+			  } catch (NumberFormatException e){
+				  logger.error(e);
+				  continue;
+			  }
+		  }
+		  List<Sample> platformUnits = getAvailablePlatformUnits() //DOH!
+		  
 		  
 			Map stateMap = new HashMap(); 
 			Task task = taskDao.getTaskByIName("assignLibraryToPlatformUnit");

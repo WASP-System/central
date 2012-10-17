@@ -23,12 +23,15 @@ import java.util.Set;
 import org.hibernate.service.jta.platform.internal.WeblogicJtaPlatform;
 import org.openqa.selenium.browserlaunchers.WindowsProxyManager;
 import org.springframework.batch.core.BatchStatus;
+import org.springframework.batch.core.ExitStatus;
+import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.batch.core.extension.WaspBatchJobExplorer;
+import edu.yu.einstein.wasp.batch.exceptions.BatchDaoDataRetrievalException;
 import edu.yu.einstein.wasp.batch.exceptions.ParameterValueRetrievalException;
 import edu.yu.einstein.wasp.dao.FileDao;
 import edu.yu.einstein.wasp.dao.JobCellSelectionDao;
@@ -190,7 +193,7 @@ public class JobServiceImpl extends WaspServiceImpl implements JobService {
 	@Override
 	public List<Sample> getSubmittedSamples(Job job){
 		
-		List<Sample> submittedSamplesList = new ArrayList();
+		List<Sample> submittedSamplesList = new ArrayList<Sample>();
 		if(job != null && job.getJobId().intValue()>0){
 			for(JobSample jobSample : job.getJobSample()){
 				  Sample sample  = jobSample.getSample();//includes submitted samples that are macromolecules, submitted samples that are libraries, and facility-generated libraries generated from a macromolecule
@@ -206,31 +209,29 @@ public class JobServiceImpl extends WaspServiceImpl implements JobService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<Sample> getSubmittedSamplesAwaitingSubmission(Job job){
+	public List<Sample> getSubmittedSamplesNotYetReceived(Job job){
 		
-		List<Sample> submittedSamplesAwaitingSubmissionList = new ArrayList<Sample>();
+		List<Sample> submittedSamplesNotYetReceivedList = new ArrayList<Sample>();
 		
 		Map<String, String> parameterMap = new HashMap<String, String>();
 		parameterMap.put(WaspJobParameters.JOB_ID, job.getJobId().toString());
-		List<StepExecution> stepExecutions = batchJobExplorer.getStepExecutionsByStepNameAndParameterMap("wasp.sample.step.listenForSampleReceived", parameterMap);
-		for (StepExecution se: stepExecutions){
-			if (se.getExitStatus().equals(BatchStatus.STARTED)){
-				Integer sampleId = null;
-				try{
-					sampleId = Integer.valueOf(batchJobExplorer.getJobParameterValueByKey(se, WaspJobParameters.SAMPLE_ID));
-				} catch (ParameterValueRetrievalException e){
-					logger.error(e.getMessage());
-					continue;
-				}
-				Sample sample = sampleDao.getSampleBySampleId(sampleId);
-				if (sample == null){
-					logger.error("Sample with sample id '"+sampleId+"' does not have a match in the database!");
-					continue;
-				}
-				submittedSamplesAwaitingSubmissionList.add(sample);
-			}	
+		List<StepExecution> stepExecutions = batchJobExplorer.getStepExecutions("wasp.sample.step.listenForSampleReceived", parameterMap, false, BatchStatus.STARTED);
+		for (StepExecution stepExecution: stepExecutions){
+			Integer sampleId = null;
+			try{
+				sampleId = Integer.valueOf(batchJobExplorer.getJobParameterValueByKey(stepExecution, WaspJobParameters.SAMPLE_ID));
+			} catch (ParameterValueRetrievalException e){
+				logger.error(e.getMessage());
+				continue;
+			}
+			Sample sample = sampleDao.getSampleBySampleId(sampleId);
+			if (sample == null){
+				logger.error("Sample with sample id '"+sampleId+"' does not have a match in the database!");
+				continue;
+			}
+			submittedSamplesNotYetReceivedList.add(sample);
 		}
-		return submittedSamplesAwaitingSubmissionList;
+		return submittedSamplesNotYetReceivedList;
 	}
 	
 	 /**
@@ -241,21 +242,27 @@ public class JobServiceImpl extends WaspServiceImpl implements JobService {
 		
 		List<Job> activeJobList = new ArrayList<Job>();
 		
-		List<State> states = taskService.getJobCreatedStates(); //return taskDao.getStatesByTaskIName("Start Job", "CREATED");
-		if(states==null){
-			return activeJobList;
-		}
-		Set<Job> jobsSet = new HashSet<Job>();//to filter out any duplicates
-		for(State state : states){
-			List<Statejob> stateJobList = state.getStatejob();
-			for(Statejob stateJob : stateJobList){
-				jobsSet.add(stateJob.getJob());
+		Map<String, String> parameterMap = new HashMap<String, String>();
+		// get all job executions from the Batch database which only have one parameter which is job_id but we want all
+		// jobIds (so use '*'). Also only get those with a BatchStatus of STARTED. Then get the value of the job ids from the parameter
+		parameterMap.put(WaspJobParameters.JOB_ID, "*");
+		List<JobExecution> jobExecutions = batchJobExplorer.getJobExecutions(parameterMap, true, BatchStatus.STARTED);
+		for (JobExecution jobExecution: jobExecutions){
+			try{
+				String parameterVal = batchJobExplorer.getJobParameterValueByKey(jobExecution, WaspJobParameters.JOB_ID);
+				Job job = jobDao.getJobByJobId(Integer.valueOf(parameterVal));
+				if (job.getJobId() == 0){
+					logger.error("Expected a job object with id '"+parameterVal+"' but got none");
+				} else {
+					activeJobList.add(job);
+				}
+			} catch(ParameterValueRetrievalException e){
+				logger.error(e);
+			} catch(NumberFormatException e){
+				logger.error(e);
 			}
+			
 		}
-		for(Job job : jobsSet){
-			activeJobList.add(job);
-		}
-		
 		sortJobsByJobId(activeJobList);
 		
 		return activeJobList;
@@ -265,36 +272,18 @@ public class JobServiceImpl extends WaspServiceImpl implements JobService {
 	   * {@inheritDoc}
 	   */
 	@Override
-	public List<Job> getJobsAwaitingSubmittedSamples(){
+	public List<Job> getJobsAwaitingReceivingOfSamples(){
 		
-		List<Job> jobsAwaitingSubmittedSamplesList = new ArrayList<Job>();
+		List<Job> jobsAwaitingReceivingOfSamples = new ArrayList<Job>();
 		
-		List<State> states = taskService.getSampleNotYetReceivedStates(); ////////return taskDao.getStatesByTaskIName("Receive Sample", "CREATED");
-		if(states==null){
-			return jobsAwaitingSubmittedSamplesList;
-		}
-		Set<Sample> sampleSet = new HashSet<Sample>();//to filter out any duplicates
-		for(State state : states){
-			List<Statesample> stateSampleList = state.getStatesample();
-			for(Statesample stateSample : stateSampleList){
-				sampleSet.add(stateSample.getSample());//all samples with task receive sample = created
-			}
-		}
-		Set<Job> jobSet = new HashSet<Job>();
-		for(Sample sample : sampleSet){
-			List<JobSample> jobSampleList = sample.getJobSample();
-			for(JobSample jobSample : jobSampleList){
-				jobSet.add(jobSample.getJob());//unique set of jobs that have at least one sample with task receive sample = created
-			}
+		for (Job job: getActiveJobs()){
+			if (! getSubmittedSamplesNotYetReceived(job).isEmpty()) // some samples not yet received
+				jobsAwaitingReceivingOfSamples.add(job);
 		}
 		
-		for(Job job : jobSet){
-			jobsAwaitingSubmittedSamplesList.add(job);
-		}
+		sortJobsByJobId(jobsAwaitingReceivingOfSamples);
 		
-		sortJobsByJobId(jobsAwaitingSubmittedSamplesList);
-		
-		return jobsAwaitingSubmittedSamplesList;
+		return jobsAwaitingReceivingOfSamples;
 	}
 	
 	/**
@@ -334,66 +323,97 @@ public class JobServiceImpl extends WaspServiceImpl implements JobService {
 				  extraJobDetailsMap.put("Read Type", jobMeta.getV().toUpperCase());
 			  }
 		  }
-
-		  // 6/11/12 added next section related to DA approval, PI approval, and the quote states
-		  List<Statejob> statejobs = job.getStatejob();
-		  for(Statejob statejob : statejobs){
-			  State state = statejob.getState();
-			  if(state.getTask().getIName().equals("DA Approval")){
-				  if(state.getStatus().equals("CREATED")){
-					  extraJobDetailsMap.put("DA Approval", "Awaiting Response");
-				  }
-				  else if(state.getStatus().equals("COMPLETED") || state.getStatus().equals("FINALIZED")){
-					  extraJobDetailsMap.put("DA Approval", "Approved");
-				  }
-				  else if(state.getStatus().equals("ABANDONED")){
-					  extraJobDetailsMap.put("DA Approval", "Rejected");
-				  }
-				  else{
-					  extraJobDetailsMap.put("DA Approval", "Unknown");
-				  }
-			  }
-			  if(state.getTask().getIName().equals("PI Approval")){
-				  if(state.getStatus().equals("CREATED")){
-					  extraJobDetailsMap.put("PI Approval", "Awaiting Response");
-				  }
-				  else if(state.getStatus().equals("COMPLETED") || state.getStatus().equals("FINALIZED")){
-					  extraJobDetailsMap.put("PI Approval", "Approved");
-				  }
-				  else if(state.getStatus().equals("ABANDONED")){
-					  extraJobDetailsMap.put("PI Approval", "Rejected");
-				  }
-				  else{
-					  extraJobDetailsMap.put("PI Approval", "Unknown");
-				  }
-			  }
-			  if(state.getTask().getIName().equals("Quote Job")){
-				  if(state.getStatus().equals("CREATED")){
-					  extraJobDetailsMap.put("Quote Job Price", "Awaiting Quote");
-				  }
-				  else if(state.getStatus().equals("COMPLETED") || state.getStatus().equals("FINALIZED")){
-					  try{
-						  Float price = new Float(job.getAcctJobquotecurrent().get(0).getAcctQuote().getAmount());
-						  extraJobDetailsMap.put("Quote Job Price", "$"+String.format("%.2f", price));
-					  }
-					  catch(Exception e){
-						  extraJobDetailsMap.put("Quote Job Price", "Unknown"); 
-					  }					  
-				  }
-				  else {
-					  extraJobDetailsMap.put("Quote Job Price", "Unknown");
-				  }
-			  }
-		  }
-		  if(extraJobDetailsMap.containsKey("DA Approval")==false){
-			  extraJobDetailsMap.put("DA Approval", "Not Yet Set");
-		  }
-		  if(extraJobDetailsMap.containsKey("PI Approval")==false){
+		  
+		  Map<String, String> parameterMap = new HashMap<String, String>();
+		  parameterMap.put(WaspJobParameters.JOB_ID, job.getJobId().toString());
+		  // when getting stepExecutions from batch job explorer, get status from the most recently started one
+		  // in case job was re-run. This is defensive programming as theoretically this shouldn't happen and there
+		  // should only be one entry returned anyway.
+		  StepExecution stepExecution = batchJobExplorer.getMostRecentlyStartedStepExecutionInList(
+				  batchJobExplorer.getStepExecutions("step.piApprove", parameterMap, true)
+				);
+		  if (stepExecution == null){
 			  extraJobDetailsMap.put("PI Approval", "Not Yet Set");
 		  }
-		  if(extraJobDetailsMap.containsKey("Quote Job Price")==false){
+		  else {
+			  ExitStatus adminApprovalStatus = stepExecution.getExitStatus();
+			  if(adminApprovalStatus.equals(ExitStatus.EXECUTING)){
+				  extraJobDetailsMap.put("PI Approval", "Awaiting Response");
+			  }
+			  else if(adminApprovalStatus.equals(ExitStatus.COMPLETED)){
+				  extraJobDetailsMap.put("PI Approval", "Approved");
+			  }
+			  else if(adminApprovalStatus.equals(ExitStatus.FAILED)){
+				  extraJobDetailsMap.put("PI Approval", "Rejected");
+			  }
+			  else if(adminApprovalStatus.equals(ExitStatus.STOPPED)){
+				  extraJobDetailsMap.put("PI Approval", "Abandoned");
+			  }
+			  else{
+				  extraJobDetailsMap.put("PI Approval", "Unknown");
+			  }
+		  }
+		  
+		  
+		  stepExecution = batchJobExplorer.getMostRecentlyStartedStepExecutionInList(
+				  batchJobExplorer.getStepExecutions("step.adminApprove", parameterMap, true)
+				);
+		  if (stepExecution == null){
+			  extraJobDetailsMap.put("DA Approval", "Not Yet Set");
+		  }
+		  else {
+			  ExitStatus adminApprovalStatus = stepExecution.getExitStatus();
+			  if(adminApprovalStatus.equals(ExitStatus.EXECUTING)){
+				  extraJobDetailsMap.put("DA Approval", "Awaiting Response");
+			  }
+			  else if(adminApprovalStatus.equals(ExitStatus.COMPLETED)){
+				  extraJobDetailsMap.put("DA Approval", "Approved");
+			  }
+			  else if(adminApprovalStatus.equals(ExitStatus.FAILED)){
+				  extraJobDetailsMap.put("DA Approval", "Rejected");
+			  }
+			  else if(adminApprovalStatus.equals(ExitStatus.STOPPED)){
+				  extraJobDetailsMap.put("DA Approval", "Abandoned");
+			  }
+			  else{
+				  extraJobDetailsMap.put("DA Approval", "Unknown");
+			  }
+		  }
+		  		  
+		  stepExecution = batchJobExplorer.getMostRecentlyStartedStepExecutionInList(
+				  batchJobExplorer.getStepExecutions("step.quote", parameterMap, true)
+				);
+		  if (stepExecution == null){
 			  extraJobDetailsMap.put("Quote Job Price", "Not Yet Set");
 		  }
+		  else {
+			  ExitStatus adminApprovalStatus = stepExecution.getExitStatus();
+			  if(adminApprovalStatus.equals(ExitStatus.EXECUTING)){
+				  extraJobDetailsMap.put("Quote Job Price", "Awaiting Response");
+			  }
+			  else if(adminApprovalStatus.equals(ExitStatus.COMPLETED)){
+				  try{
+					  Float price = new Float(job.getAcctJobquotecurrent().get(0).getAcctQuote().getAmount());
+					  extraJobDetailsMap.put("Quote Job Price", "$"+String.format("%.2f", price));
+				  }
+				  catch(Exception e){
+					  logger.error("JobServiceImpl::getExtraJobDetails(): " + e);
+					  extraJobDetailsMap.put("Quote Job Price", "$?.??"); 
+				  }	
+			  }
+			  else if(adminApprovalStatus.equals(ExitStatus.FAILED)){
+				  extraJobDetailsMap.put("Quote Job Price", "Rejected");
+			  }
+			  else if(adminApprovalStatus.equals(ExitStatus.STOPPED)){
+				  extraJobDetailsMap.put("Quote Job Price", "Abandoned");
+			  }
+			  else{
+				  extraJobDetailsMap.put("Quote Job Price", "Unknown");
+			  }
+		  }
+		 
+
+		 
 		  
 		  return extraJobDetailsMap;	  
 	  }
@@ -543,20 +563,7 @@ public class JobServiceImpl extends WaspServiceImpl implements JobService {
 				}
 			}
 			
-			State state = new State(); 
-			
-			Task jobCreateTask = taskDao.getTaskByIName("Start Job");
-			state.setTaskId(jobCreateTask.getTaskId());
-			state.setName(jobCreateTask.getName());
-			state.setStartts(new Date());
-			state.setStatus("CREATED"); 
-			stateDao.save(state);
-			
-			Statejob statejob = new Statejob();
-			statejob.setStateId(state.getStateId());
-			statejob.setJobId(job.getJobId());
-			statejobDao.save(statejob);
-			
+						
 			// update the jobdraft
 			jobDraft.setStatus("SUBMITTED");
 			jobDraft.setSubmittedjobId(jobDb.getJobId());
@@ -585,6 +592,8 @@ public class JobServiceImpl extends WaspServiceImpl implements JobService {
 				jobFileDao.save(jobFile);
 			}
 			
+			// TODO: start job flow
+			
 			return jobDb;
 	  }
 	  
@@ -592,25 +601,27 @@ public class JobServiceImpl extends WaspServiceImpl implements JobService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<Job> getJobsWithLibraryCreatedTask(){
+	public List<Job> getJobsAwaitingLibraryCreation(){
 		
-		Map stateMap = new HashMap(); 
-		Task task = taskDao.getTaskByIName("Create Library");
-		if(task == null || task.getTaskId() == null){
-			//waspErrorMessage("platformunit.taskNotFound.error"); maybe throw exception?????
-		}
-		stateMap.put("taskId", task.getTaskId()); 	
-		stateMap.put("status", "CREATED"); 
-		List<State> stateList = stateDao.findByMap(stateMap);
+		List<Job> JobsAwaitingLibraryCreation = new ArrayList<Job>();
 		
-		Set<Job> jobs = new HashSet<Job>();//use set to avoid duplicates
-		for(State state : stateList){
-			List<Statejob> stateJobList = state.getStatejob();
-			for(Statejob stateJob : stateJobList){
-				jobs.add(stateJob.getJob());
+		List<StepExecution> stepExecutions = batchJobExplorer.getStepExecutions("wasp.library.step.listenForLibraryCreated", BatchStatus.STARTED);
+		for (StepExecution stepExecution: stepExecutions){
+			Integer jobId = null;
+			try{
+				jobId = Integer.valueOf(batchJobExplorer.getJobParameterValueByKey(stepExecution, WaspJobParameters.JOB_ID));
+			} catch (ParameterValueRetrievalException e){
+				logger.error(e.getMessage());
+				continue;
 			}
+			Job job = jobDao.getJobByJobId(jobId);
+			if (job == null){
+				logger.error("Job with job id '"+jobId+"' does not have a match in the database!");
+				continue;
+			}
+			JobsAwaitingLibraryCreation.add(job);
 		}
-		return new ArrayList<Job>(jobs);//return as list rather than as set
+		return JobsAwaitingLibraryCreation;
 	}
 	
 	/**
@@ -619,24 +630,27 @@ public class JobServiceImpl extends WaspServiceImpl implements JobService {
 	@Override
 	public List<Job> getJobsWithLibrariesToGoOnFlowCell(){
 		
-		Map stateMap = new HashMap(); 
-		Task task = taskDao.getTaskByIName("assignLibraryToPlatformUnit");
-		if(task == null || task.getTaskId() == null){
-			//waspErrorMessage("platformunit.taskNotFound.error"); maybe throw exception?????
-		}
-		stateMap.put("taskId", task.getTaskId()); 	
-		stateMap.put("status", "CREATED"); 
-		List<State> stateList = stateDao.findByMap(stateMap);
 		
-		Set<Job> jobs = new HashSet<Job>();//use set to avoid duplicates
-		for(State state : stateList){
-			List<Statejob> stateJobList = state.getStatejob();
-			for(Statejob stateJob : stateJobList){
-				jobs.add(stateJob.getJob());
+		
+		List<Job> jobsWithLibrariesToGoOnFlowCell = new ArrayList<Job>();
+		
+		List<StepExecution> stepExecutions = batchJobExplorer.getStepExecutions("wasp.library.step.listenForLibraryCreated", BatchStatus.STARTED);
+		for (StepExecution stepExecution: stepExecutions){
+			Integer jobId = null;
+			try{
+				jobId = Integer.valueOf(batchJobExplorer.getJobParameterValueByKey(stepExecution, WaspJobParameters.JOB_ID));
+			} catch (ParameterValueRetrievalException e){
+				logger.error(e.getMessage());
+				continue;
 			}
+			Job job = jobDao.getJobByJobId(jobId);
+			if (job == null){
+				logger.error("Job with job id '"+jobId+"' does not have a match in the database!");
+				continue;
+			}
+			JobsAwaitingLibraryCreation.add(job);
 		}
-		
-		return new ArrayList<Job>(jobs);//return as list rather than as set
+		return JobsAwaitingLibraryCreation;
 	}
 
 	/**

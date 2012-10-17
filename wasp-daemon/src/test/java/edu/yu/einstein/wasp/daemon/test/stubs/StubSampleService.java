@@ -151,7 +151,7 @@ public class StubSampleService implements SampleService {
 	}
 
 	@Override
-	public List<Sample> getAvailableFlowCells() {
+	public List<Sample> getAvailablePlatformUnits() {
 		// Auto-generated method stub
 		return null;
 	}

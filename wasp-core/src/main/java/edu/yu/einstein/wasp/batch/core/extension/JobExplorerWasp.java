@@ -634,6 +634,18 @@ public interface JobExplorerWasp extends JobExplorer {
 	 */
 	String getJobParameterValueByKey(JobExecution je, String key) throws ParameterValueRetrievalException;
 	
+	/**
+	 * Get the most recently started StepExecution from the provided list or null.
+	 * @param stepExecutions
+	 * @return
+	 */
+	public StepExecution getMostRecentlyStartedStepExecutionInList(List<StepExecution> stepExecutions);
 	
+	/**
+	 * Get the most recently started JobExecution from the provided list or null.
+	 * @param stepExecutions
+	 * @return
+	 */
+	public JobExecution getMostRecentlyStartedJobExecutionInList(List<JobExecution> jobExecutions);
 
 }

@@ -99,12 +99,12 @@ public class TaskController extends WaspController {
   @PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('ft')")
   public String listSampleReceive(ModelMap m) {
 
-    List<Job> jobsAwaitingSubmittedSamples = jobService.getJobsAwaitingSubmittedSamples();
+    List<Job> jobsAwaitingReceivingOfSamples = jobService.getJobsAwaitingReceivingOfSamples();
     List<Job> jobsActive = jobService.getActiveJobs();
     
     List<Job> jobsActiveAndAwaitingSubmittedSamples = new ArrayList<Job>();
     for(Job jobActive : jobsActive){
-    	for(Job jobAwaiting : jobsAwaitingSubmittedSamples){
+    	for(Job jobAwaiting : jobsAwaitingReceivingOfSamples){
     		if(jobActive.getJobId().intValue()==jobAwaiting.getJobId().intValue()){
     			jobsActiveAndAwaitingSubmittedSamples.add(jobActive);
     			break;
@@ -115,7 +115,7 @@ public class TaskController extends WaspController {
 
     Map<Job, List<Sample>> jobAndSampleMap = new HashMap<Job, List<Sample>>();
     for(Job job : jobsActiveAndAwaitingSubmittedSamples){
-    	List<Sample> newSampleList = jobService.getSubmittedSamplesAwaitingSubmission(job);
+    	List<Sample> newSampleList = jobService.getSubmittedSamplesNotYetReceived(job);
     	sampleService.sortSamplesBySampleName(newSampleList);    	
     	jobAndSampleMap.put(job, newSampleList);
     }

@@ -12,6 +12,7 @@ import org.springframework.batch.core.JobParameter;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.explore.support.SimpleJobExplorer;
 import org.springframework.batch.core.repository.dao.ExecutionContextDao;
+import org.springframework.util.Assert;
 
 import edu.yu.einstein.wasp.batch.core.extension.dao.WaspJobExecutionDao;
 import edu.yu.einstein.wasp.batch.core.extension.dao.WaspJobInstanceDao;
@@ -437,6 +438,42 @@ public class WaspBatchJobExplorer extends SimpleJobExplorer implements JobExplor
 		} catch(ClassCastException e){
 			throw new ParameterValueRetrievalException("Cannot cast parameter value obtained with key '" + key + "' to 'String'");
 		}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public StepExecution getMostRecentlyStartedStepExecutionInList(List<StepExecution> stepExecutions){
+		StepExecution stepExecution = null;
+		if (stepExecutions == null)
+			return null;
+		for(StepExecution se: stepExecutions){
+			if (stepExecution == null || se.getStartTime().after(stepExecution.getStartTime())){
+				stepExecution = se;
+			} else if (se.getStartTime().equals(stepExecution.getStartTime()) && se.getId() > stepExecution.getId()){
+				stepExecution = se;
+			}
+		}
+		return stepExecution;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public JobExecution getMostRecentlyStartedJobExecutionInList(List<JobExecution> jobExecutions){
+		JobExecution jobExecution = null;
+		if (jobExecutions == null)
+			return null;
+		for(JobExecution je: jobExecutions){
+			if (jobExecution == null || je.getStartTime().after(jobExecution.getStartTime())){
+				jobExecution = je;
+			} else if (je.getStartTime().equals(jobExecution.getStartTime()) && je.getId() > jobExecution.getId()){
+				jobExecution = je;
+			}
+		}
+		return jobExecution;
 	}
 
 

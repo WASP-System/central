@@ -228,6 +228,24 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 	}
 	
 	/**
+	 * Test getting most recent StepExecution from list. Should be id's 6-8 matching the date but 8 is the highest id
+	 */
+	@Test(groups = "unit-tests", dependsOnMethods="testGettingStepExecutionNormalTest1")
+	public void testGettingMostRecentStepExecution1(){
+		StepExecution stepExecution = jobExplorer.getMostRecentlyStartedStepExecutionInList(jobExplorer.getStepExecutions());
+		Assert.assertEquals(stepExecution.getId(), new Long(8));
+	}
+	
+	/**
+	 * Test getting most recent StepExecution from list
+	 */
+	@Test(groups = "unit-tests", dependsOnMethods="testGettingStepExecutionNormalTest1")
+	public void testGettingMostRecentStepExecution2(){
+		StepExecution stepExecution = jobExplorer.getMostRecentlyStartedStepExecutionInList(jobExplorer.getStepExecutions("listenForExitCondition"));
+		Assert.assertEquals(stepExecution.getId(), new Long(6));
+	}
+	
+	/**
 	 * API extension testing. Testing access of state information via API extension. The test Batch db tables should contain two job instances
 	 * Both of these should match the supplied jobId, so if the sampleId parameter is absent to distinguish them this test should throw
 	 * an exception, but since only JobExecution 2 is in ExitStatus=UNKNOWN it should be ok
@@ -337,6 +355,15 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 			return;
 		}
 		Assert.fail("Didn't catch expected ParameterValueRetrievalException");
+	}
+	
+	/**
+	 * Test getting most recent JobExecution from list if the list is null
+	 */
+	@Test(groups = "unit-tests")
+	public void testGettingMostRecentJobExecution(){
+		StepExecution stepExecution = jobExplorer.getMostRecentlyStartedStepExecutionInList(null);
+		Assert.assertNull(stepExecution);
 	}
 	
 	

@@ -52,11 +52,11 @@ public interface JobService extends WaspService {
 	public List<Sample> getSubmittedSamples(Job job);
 	
 	/**
-	 * getSubmittedSamplesAwaitingSubmission
+	 * getSubmittedSamplesNotYetReceived
 	 * @param Job 
 	 * @return List<Sample>
 	 */
-	public List<Sample> getSubmittedSamplesAwaitingSubmission(Job job);
+	public List<Sample> getSubmittedSamplesNotYetReceived(Job job);
 
 	/**
 	 * getActive Jobs() returns list of active jobs (state of Start Job = Created)
@@ -67,12 +67,12 @@ public interface JobService extends WaspService {
 	public List<Job> getActiveJobs();
 	
 	/**
-	 * getJobsAwaitingSubmittedSamples() returns list of jobs (with samples having task of Receive Sample = Created)
+	 * getJobsAwaitingReceivingOfSamples() returns list of jobs (with samples having task of Receive Sample = Created)
 	 * @param none
 	 * @return List<Job>
 	 * 
 	 */
-	public List<Job> getJobsAwaitingSubmittedSamples();
+	public List<Job> getJobsAwaitingReceivingOfSamples();
 	
 	/**
 	 * sortJobsByJobId 
@@ -97,12 +97,12 @@ public interface JobService extends WaspService {
 	public Job createJobFromJobDraft(JobDraft jobdraft, User user) throws FileMoveException;
 	
 	/**
-	 * getJobsWithLibraryCreatedTask() returns list of unique jobs with a state whose task = Create Library and status = Created)
+	 * getJobsAwaitingLibraryCreation() returns list of unique jobs with a state whose task = Create Library and status = Created)
 	 * @param none
 	 * @return List<Job>
 	 * 
 	 */
-	public List<Job> getJobsWithLibraryCreatedTask();
+	public List<Job> getJobsAwaitingLibraryCreation();
 	
 	/**
 	 * getJobsWithLibrariesToGoOnFlowCell() returns list of unique jobs with one or more of the job's samples (either facility library or user-submitted library) whose state = assignLibraryToPlatformUnit and status = Created)
