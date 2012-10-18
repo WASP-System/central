@@ -3,7 +3,7 @@ package edu.yu.einstein.wasp.integration.messages;
 import org.springframework.integration.Message;
 import org.springframework.integration.support.MessageBuilder;
 
-import edu.yu.einstein.wasp.integration.exceptions.WaspMessageBuildingException;
+import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 
 /**
  * Handling Wasp Sample Status Messages. If not task is defined the default is WaspTask.NOTIFY_STATUS

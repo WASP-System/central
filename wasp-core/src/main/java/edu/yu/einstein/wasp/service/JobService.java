@@ -17,13 +17,15 @@ import org.springframework.stereotype.Service;
 
 import edu.yu.einstein.wasp.dao.JobDao;
 import edu.yu.einstein.wasp.exception.FileMoveException;
+import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
+import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.User;
 
 @Service
-public interface JobService extends WaspService {
+public interface JobService extends WaspMessageHandlingService {
 
 	/**
 	 * setJobDao(JobDao jobDao)
@@ -123,4 +125,57 @@ public interface JobService extends WaspService {
 	 * 
 	 */
 	public List<Job> getJobsSubmittedOrViewableByUser(User user);
+	
+	/**
+	 * Returns true if provided job is awaiting PI approval, otherwise returns false
+	 * @param job
+	 * @return
+	 */
+	public Boolean isJobAwaitingPiApproval(Job job);
+
+	
+	/**
+	 * Returns true if provided job is awaiting administrator approval, otherwise returns false
+	 * @param job
+	 * @return
+	 */
+	public Boolean isJobAwaitingDaApproval(Job job);
+	
+	/**
+	 * Returns true if provided job is awaiting quoting, otherwise returns false
+	 * @param job
+	 * @return
+	 */
+	public Boolean isJobAwaitingQuote(Job job);
+	
+	/**
+	 * Returns true if provided sample is received, otherwise returns false
+	 * @param sample
+	 * @return
+	 */
+	public Boolean isJobAwaitingLibraryCreation(Job job, Sample sample);
+	
+	/**
+	 * Updates the Job Quote Status for job
+	 * @param jobId
+	 * @param status
+	 * @throws WaspMessageBuildingException
+	 */
+	public void updateJobQuoteStatus(Job job, WaspStatus status) throws WaspMessageBuildingException;
+	
+	/**
+	 * Updates the Job DA approval Status for job
+	 * @param jobId
+	 * @param status
+	 * @throws WaspMessageBuildingException
+	 */
+	public void updateJobDaApprovalStatus(Job job, WaspStatus status) throws WaspMessageBuildingException;
+	
+	/**
+	 * Updates the Job Pi Approval Status for job
+	 * @param jobId
+	 * @param status
+	 * @throws WaspMessageBuildingException
+	 */
+	public void updateJobPiApprovalStatus(Job job, WaspStatus status) throws WaspMessageBuildingException;
 }

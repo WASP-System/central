@@ -20,39 +20,42 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.management.RuntimeErrorException;
+import javax.annotation.PostConstruct;
 
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.integration.Message;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.yu.einstein.wasp.batch.core.extension.JobExplorerWasp;
 import edu.yu.einstein.wasp.batch.core.extension.WaspBatchJobExplorer;
 import edu.yu.einstein.wasp.batch.exceptions.ParameterValueRetrievalException;
-//import edu.yu.einstein.wasp.controller.PlatformUnitController.SelectOptionsMeta;
 import edu.yu.einstein.wasp.dao.AdaptorDao;
 import edu.yu.einstein.wasp.dao.BarcodeDao;
 import edu.yu.einstein.wasp.dao.RunDao;
-import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.dao.SampleBarcodeDao;
+import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.dao.SampleMetaDao;
 import edu.yu.einstein.wasp.dao.SampleSourceDao;
 import edu.yu.einstein.wasp.dao.SampleSourceMetaDao;
-import edu.yu.einstein.wasp.dao.SampleTypeDao;
 import edu.yu.einstein.wasp.dao.SampleSubtypeDao;
+import edu.yu.einstein.wasp.dao.SampleTypeDao;
 import edu.yu.einstein.wasp.dao.WorkflowDao;
+import edu.yu.einstein.wasp.exception.InvalidParameterException;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.exception.SampleIndexException;
 import edu.yu.einstein.wasp.exception.SampleMultiplexException;
 import edu.yu.einstein.wasp.exception.SampleParentChildException;
-import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.SampleSubtypeException;
+import edu.yu.einstein.wasp.exception.SampleTypeException;
+import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
+import edu.yu.einstein.wasp.integration.messages.SampleStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
+import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Barcode;
 import edu.yu.einstein.wasp.model.Job;
@@ -74,10 +77,11 @@ import edu.yu.einstein.wasp.model.WorkflowSampleSubtype;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.util.MetaHelper;
+//import edu.yu.einstein.wasp.controller.PlatformUnitController.SelectOptionsMeta;
 
 @Service
 @Transactional
-public class SampleServiceImpl extends WaspServiceImpl implements SampleService {
+public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements SampleService {
 
 	private SampleDao	sampleDao;
 
@@ -132,8 +136,6 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	@Autowired
 	private SampleSourceMetaDao sampleSourceMetaDao;
 	
-	@Autowired
-	private SampleTypeDao sampleTypeDao;
 
 	@Autowired
 	private SampleSubtypeDao sampleSubtypeDao;
@@ -145,14 +147,30 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	private BarcodeDao barcodeDao;
 	
 	@Autowired
-	  private RunDao runDao;
+	 private RunDao runDao;
 
 	@Autowired
 	protected WaspBatchJobExplorer batchJobExplorer;
+		
+	private SampleTypeDao sampleTypeDao;
 	
+
+	/**
+	 * Setter for the sampleMetaDao
+	 * @param sampleMetaDao
+	 */
+	@Autowired
 	public void setSampleMetaDao(SampleMetaDao sampleMetaDao) {
 		this.sampleMetaDao = sampleMetaDao;
 	}
+	
+	@PostConstruct
+	@Override
+	protected void initialize() {
+		// need to initialize the message channels
+		super.initialize();
+	}
+	
 
 	@Override
 	public Sample getSampleByName(final String name) {
@@ -253,6 +271,8 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	  @Override
 	  public BatchStatus getReceiveSampleStatus(final Sample sample){
 		// TODO: Write test!!
+		  if (sample == null || sample.getSampleId() == 0)
+			  throw new InvalidParameterException("Sample is either null or doesn't exist");
 		  BatchStatus sampleReceivedStatus = BatchStatus.UNKNOWN;
 		  Map<String, String> parameterMap = new HashMap<String, String>();
 		  parameterMap.put(WaspJobParameters.SAMPLE_ID, sample.getSampleId().toString());
@@ -263,6 +283,19 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 		  }
 		  return sampleReceivedStatus;
 	  }
+	  
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Boolean isSampleReceived(Sample sample){
+		if (sample == null || sample.getSampleId() == 0)
+			throw new InvalidParameterException("Sample is either null or doesn't exist");
+		if (getReceiveSampleStatus(sample).isGreaterThan(BatchStatus.STARTED))
+			return true;
+		return false;
+	}
+		
 	  
 	  /**
 	   * {@inheritDoc}
@@ -302,28 +335,7 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 			}
 	  }
 	  
-	  /**
-	   * {@inheritDoc}
-	   */
-	  @Override
-	  public BatchStatus convertReceiveSampleStatusForInternalStorage(String webStatus){
-		  // TODO: Write test!!
-		  if(webStatus.equals("NOT ARRIVED")){
-			  return BatchStatus.STARTED;
-			}
-			else if(webStatus.equals("RECEIVED")){
-				return BatchStatus.COMPLETED;
-			}
-			else if(webStatus.equals("FAILED QC")){
-				return BatchStatus.FAILED;
-			}
-			else if(webStatus.equals("WITHDRAWN")){
-				return BatchStatus.STOPPED;
-			}
-			else{
-				return BatchStatus.UNKNOWN;
-			}
-	  }
+
 	  
 	  /**
 	   * {@inheritDoc}
@@ -343,24 +355,21 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 	   * {@inheritDoc}
 	   */
 	  @Override
-	  public boolean updateSampleReceiveStatus(final Sample sample, final String status){
+	  public void updateSampleReceiveStatus(final Sample sample, final WaspStatus status) throws WaspMessageBuildingException{
 		  // TODO: Write test!!
-		  if(sample.getSampleId()==0){
-			  return false;
-		  }
-		  List<Statesample> statesamples = sample.getStatesample();
-		  for(Statesample ss : statesamples){
-			if(ss.getState().getTask().getIName().equals("Receive Sample")){
-				State state = ss.getState();
-				String newInternalStatus = convertReceiveSampleStatusForInternalStorage(status);
-				if(!state.getStatus().equals(newInternalStatus)){					
-					state.setStatus(newInternalStatus);
-					stateDao.save(state);
-					break;
-				}
-			}
-	  	  }
-		  return true;
+		  if (sample == null || sample.getSampleId()==0)
+				throw new InvalidParameterException("Sample is null or doesn't exist");
+
+		  if (status == null || (status != WaspStatus.CREATED && status != WaspStatus.ABANDONED))
+			  throw new InvalidParameterException("WaspStatus is null, or not CREATED or ABANDONED");
+		  
+		  SampleStatusMessageTemplate messageTemplate = new SampleStatusMessageTemplate(sample.getSampleId());
+		  messageTemplate.setStatus(status); // sample received (CREATED) or abandoned (ABANDONED)
+		  Message<?> message = null;
+		  message = messageTemplate.build();
+		  logger.debug("Sending message via '" + OUTBOUND_MSG_CHANNEL_NAME + "': "+message.toString());
+		  outboundRmiChannel.send(message);
+
 	  }
 	  
 	  /**
@@ -1393,6 +1402,63 @@ public class SampleServiceImpl extends WaspServiceImpl implements SampleService 
 		sampleDao.remove(sample);
 		sampleDao.flush(sample);
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Boolean isLibraryAwaitingPlatformUnitPlacement(Sample library) throws SampleTypeException{
+		if (library == null || library.getSampleId()==0){
+			throw new InvalidParameterException("Sample is null or doesn't exist");
+		}
+		Integer sampleId = library.getSampleId();
+		if (!isLibrary(library)){
+			throw new SampleTypeException("Expected a library but got Sample of type '" + library.getSampleType().getIName() + "' instead.");
+		}
+		Map<String, String> parameterMap = new HashMap<String, String>();
+		parameterMap.put(WaspJobParameters.LIBRARY_ID, sampleId.toString());
+		// get all 'wasp.analysis.step.waitForData' StepExecutions for current job
+		// the job may have many libraries and each library may need to be run more than once
+		Integer libraryAnalysisStepExecutions = batchJobExplorer.getStepExecutions("wasp.analysis.step.waitForData", parameterMap, false).size();
+		Integer numberOfLibraryInstancesOnCells = 0;
+		List<SampleSource> sampleSources = library.getSampleSource(); // library -> cell relationships
+		if (sampleSources != null)
+			numberOfLibraryInstancesOnCells = sampleSources.size();
+		
+		if (numberOfLibraryInstancesOnCells < libraryAnalysisStepExecutions)
+			return true;
+		return false;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Boolean isPlatformUnitAwaitingSequenceRunPlacement(Sample platformUnit) throws SampleTypeException{
+		if (platformUnit == null || platformUnit.getSampleId()==0){
+			throw new InvalidParameterException("Sample is null or doesn't exist");
+		}
+		if (!sampleIsPlatformUnit(platformUnit)){
+			throw new SampleTypeException("Expected a platform unit but got Sample of type '" + platformUnit.getSampleType().getIName() + "' instead.");
+		}
+		Map<String, String> parameterMap = new HashMap<String, String>();
+		parameterMap.put(WaspJobParameters.PLATFORM_UNIT_ID, platformUnit.getSampleId().toString());
+		
+		// get the most recent run start step associated with this platform unit (i.e. from the most recent run). 
+		// If it exists and has not been abandoned then the platform unit is not awaiting sequence run placement. 
+		StepExecution stepExecution = batchJobExplorer.getMostRecentlyStartedStepExecutionInList(
+				batchJobExplorer.getStepExecutions("wasp.analysis.run.listenForRunStart", parameterMap, false)
+			);
+		if (stepExecution == null)
+			return true;
+		
+		// the step exists so check if the host run job has been aborted (STOPPED). If so we free up the platform unit
+		if (batchJobExplorer.getJobExecution(stepExecution.getJobExecutionId()).getExitStatus().equals(ExitStatus.STOPPED))
+			return true;
+		return false;
+	}
+
+	
 	
 
 }

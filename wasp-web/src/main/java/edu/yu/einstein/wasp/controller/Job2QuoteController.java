@@ -26,25 +26,20 @@ import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.dao.AcctJobquotecurrentDao;
 import edu.yu.einstein.wasp.dao.AcctQuoteDao;
 import edu.yu.einstein.wasp.dao.AcctQuoteMetaDao;
-import edu.yu.einstein.wasp.dao.JobDao;
 import edu.yu.einstein.wasp.dao.LabDao;
-import edu.yu.einstein.wasp.dao.StateDao;
-import edu.yu.einstein.wasp.dao.StatejobDao;
+import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
+import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.model.AcctJobquotecurrent;
 import edu.yu.einstein.wasp.model.AcctQuote;
 import edu.yu.einstein.wasp.model.AcctQuoteMeta;
-import edu.yu.einstein.wasp.model.Department;
-import edu.yu.einstein.wasp.model.DepartmentUser;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.MetaBase;
-import edu.yu.einstein.wasp.model.State;
-import edu.yu.einstein.wasp.model.Statejob;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.service.AuthenticationService;
-import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.FilterService;
-import edu.yu.einstein.wasp.service.TaskService;
+import edu.yu.einstein.wasp.service.JobService;
+import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 import edu.yu.einstein.wasp.util.MetaHelper;
 import edu.yu.einstein.wasp.util.StringHelper;
@@ -61,14 +56,14 @@ public class Job2QuoteController extends WaspController {
 	@Autowired
 	private AcctJobquotecurrentDao acctJobquotecurrentDao;
 	@Autowired
-	private JobDao			jobDao;
+	private JobService jobService;
+	
 	@Autowired
 	private LabDao			labDao;
 
 	@Autowired
 	private FilterService	filterService;
-	@Autowired
-	private TaskService		taskService;
+
 	@Autowired
 	private MessageService	messageService;
 	@Autowired
@@ -181,7 +176,7 @@ public class Job2QuoteController extends WaspController {
 		orderByColumnNames.add("jobId");
 		
 		//if Map m has no entries, SQL will find ALL jobs
-		jobList = this.jobDao.findByMapDistinctOrderBy(m, null, orderByColumnNames, "desc");//default order is by jobId/desc		
+		jobList = this.jobService.getJobDao().findByMapDistinctOrderBy(m, null, orderByColumnNames, "desc");//default order is by jobId/desc		
 		
 		//perform ONLY if the viewer is A DA but is NOT any other type of facility member
 		if(authenticationService.isOnlyDepartmentAdministrator()){//remove jobs not in the DA's department
@@ -217,80 +212,7 @@ public class Job2QuoteController extends WaspController {
 		}
 		job2quoteList.addAll(jobList);
 		
-		/* don't need; state tables are a thing of the past
-		List<State> stateList = taskService.getJob2QuoteStates();
-		for (State st : stateList) {
-			Map m = new HashMap();
-			m.put("stateId", st.getStateId());
-			List<Statejob> sjList = statejobDao.findByMap(m);
-			for (Statejob sj : sjList) {
-				jobList.add(sj.getJob());
-			}
-		}
-*/
-		
-		
-/*		
-		if(!search.equals("true") && !StringUtils.isEmpty(showall) && showall.equals("true")){
-			job2quoteList = jobDao.findAll();
-		}
-		else if (!search.equals("true") && StringUtils.isEmpty(userId)) {
-			if (StringUtils.isEmpty(sidx)) {
-				job2quoteList = jobList;
-			} else {
-				job2quoteList = this.jobDao.findAllOrderBy(sidx, sord);
-				job2quoteList.retainAll(jobList);
-			}
-		} else {
-			Map m = new HashMap();
-
-			if (search.equals("true") && !searchStr.isEmpty())
-				m.put(request.getParameter("searchField"), request.getParameter("searchString"));
-
-			if (!StringUtils.isEmpty(userId))
-				m.put("UserId", Integer.parseInt(userId));
-
-			job2quoteList = this.jobDao.findByMap(m);
-			job2quoteList.retainAll(jobList);
-		}
-		
-		//restrict what a DA can see if the individual's sole role is that of DA (based on deptId)
-		if(authenticationService.hasRole("da-*") 
-			&& !authenticationService.hasRole("ft") 
-			&& !authenticationService.hasRole("fm") 
-			&& !authenticationService.hasRole("ga") 
-			&& !authenticationService.hasRole("su")){
-			
-			List<Integer> departmentIds = new ArrayList<Integer>();
-			
-			for (String role: authenticationService.getRoles()) {			
-				
-				String[] splitRole = role.split("-");
-				if (splitRole.length != 2) { continue; }
-				if (splitRole[1].equals("*")) { continue; }				
-				if(splitRole[0].equals("da")){
-					try { departmentIds.add(Integer.parseInt(splitRole[1])); } 
-					catch (Exception e)	{ continue; }
-				}
-			}
-			List<Job> jobsToRemove = new ArrayList<Job>();
-			for (Job job : job2quoteList){
-				boolean valid = false;
-				for(Integer deptId : departmentIds){
-					if( deptId.intValue() == job.getLab().getDepartment().getDepartmentId().intValue() ){
-						valid = true;
-						break;
-					}
-				}
-				if(valid == false){
-					jobsToRemove.add(job);//cannot remove from job2quoteList right here, as will throw ConcurrentModificationException
-				}				
-			}
-			for(Job job : jobsToRemove){
-				job2quoteList.remove(job);
-			}
-		}
-*/		
+	
 		try {
 			// index of page
 			int pageIndex = Integer.parseInt(request.getParameter("page")); 
@@ -322,7 +244,7 @@ public class Job2QuoteController extends WaspController {
 			 */
 			if (!StringUtils.isEmpty(request.getParameter("selId"))) {
 				int selId = Integer.parseInt(request.getParameter("selId"));
-				int selIndex = job2quoteList.indexOf(jobDao.findById(selId));
+				int selIndex = job2quoteList.indexOf(jobService.getJobDao().findById(selId));
 				frId = selIndex;
 				toId = frId + 1;
 
@@ -397,14 +319,16 @@ public class Job2QuoteController extends WaspController {
 			acctJobquotecurrent.setJobId(jobId);
 			acctJobquotecurrentDao.persist(acctJobquotecurrent);
 		}
-		
-		Map qMap = new HashMap();
-		qMap.put("jobId", jobId);
-		qMap.put("state.task.iName", "Quote Job");
-		List<Statejob> sjList = statejobDao.findByMap(qMap);
-		for (Statejob sj : sjList) {
-			State st = stateDao.getStateByStateId(sj.getStateId());
-			st.setStatus("COMPLETED");
+		try{
+			jobService.updateJobQuoteStatus(jobService.getJobDao().getJobByJobId(jobId), WaspStatus.CREATED);
+		} catch (WaspMessageBuildingException e){
+			logger.error(e.getMessage());
+			try {
+				response.getWriter().println(this.messageService.getMessage("wasp.integration_message_send.error"));
+				return null;
+			} catch (Throwable t) {
+				throw new IllegalStateException("Cant output message sending failure message", t);
+			}
 		}
 		
 		

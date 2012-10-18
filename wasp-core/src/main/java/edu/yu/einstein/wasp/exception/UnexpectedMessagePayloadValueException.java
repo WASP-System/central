@@ -1,4 +1,4 @@
-package edu.yu.einstein.wasp.integration.exceptions;
+package edu.yu.einstein.wasp.exception;
 
 /**
  * Exception thrown during failure to build WASP messages

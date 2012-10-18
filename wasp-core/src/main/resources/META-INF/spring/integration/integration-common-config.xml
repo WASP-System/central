@@ -7,6 +7,7 @@
 	
 	
 	<!-- message routing -->
+	<import resource="message-routing-common-config.xml" />
 	<import resource="message-routing-inbound.xml" />
 	<import resource="message-routing-internal.xml" />
 	

@@ -381,58 +381,9 @@ public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 		return new ArrayList<TaskMapping>();
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Boolean isJobAwaitingPiApproval(Job job){
-		// TODO: add code
-		return false;
-	}
 
 	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Boolean isJobAwaitingDaApproval(Job job){
-		// TODO: add code
-		return false;
-	}
+
 	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Boolean isSampleReceived(Sample sample){
-		// TODO: add code
-		return false;
-	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Boolean isJobAwaitingLibraryCreation(Sample sample){
-		// TODO: add code
-		return false;
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Boolean isLibraryAwaitingPlatformUnitPlacement(Sample sample){
-		// TODO: add code
-		return false;
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Boolean isPlatformUnitAwaitingSequenceRunPlacement(Sample sample){
-		// TODO: add code
-		return false;
-	}
 }

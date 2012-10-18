@@ -7,7 +7,11 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
   <!-- import batch common config (required for autowiring JobExplorer etc) -->
-  <import resource="classpath*:META-INF/spring/batch-common-config.xml" />
+  <import resource="batch/batch-common-config.xml" />
+  
+  <!-- common integration: message sending imports (required for sending messages)-->
+  <import resource="integration/message-routing-common-config.xml"/>
+  <import resource="integration/RmiMessageSend-context.xml"/>
   
   <bean id="messageSource" class="edu.yu.einstein.wasp.service.impl.WaspMessageSourceImpl" />
 
@@ -20,6 +24,7 @@
   
   <context:annotation-config/>
   
+   
   
   <!-- mail configuration -->
   <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">

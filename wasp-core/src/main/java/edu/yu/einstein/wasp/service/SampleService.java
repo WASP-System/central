@@ -16,8 +16,6 @@ import java.util.Map;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.stereotype.Service;
 
-import org.springframework.transaction.annotation.Transactional;
-
 import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.SampleException;
@@ -26,6 +24,8 @@ import edu.yu.einstein.wasp.exception.SampleMultiplexException;
 import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleSubtypeException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
+import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
+import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Run;
@@ -36,7 +36,7 @@ import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.SampleType;
 
 @Service
-public interface SampleService extends WaspService {
+public interface SampleService extends WaspMessageHandlingService {
 
 	/**
 	 * setSampleDao(SampleDao sampleDao)
@@ -121,6 +121,13 @@ public interface SampleService extends WaspService {
 	  public BatchStatus getReceiveSampleStatus(final Sample sample);
 	  
 	  /**
+		 * Returns true if provided sample is received, otherwise returns false
+		 * @param sample
+		 * @return
+		 */
+		public Boolean isSampleReceived(Sample sample);
+	  
+	  /**
 	   * Accepts and (in-situ) sorts list of samples by sample name 
 	   * @param List<Sample>
 	   * @return void
@@ -135,13 +142,6 @@ public interface SampleService extends WaspService {
 	  public String convertReceiveSampleStatusForWeb(BatchStatus internalStatus);
 
 	  /**
-	   * Converts sample's Receive Sample status from web meaning (human-comprehensible meaning) to enum consistent value for internal storage
-	   * @param String webStatus
-	   * @return String 
-	   */
-	  public BatchStatus convertReceiveSampleStatusForInternalStorage(String webStatus);
-
-	  /**
 	   * Gets list of Receive Sample options for web display
 	   * @param none
 	   * @return List<String> containing the list of Receive Sample Options for web display 
@@ -149,12 +149,12 @@ public interface SampleService extends WaspService {
 	  public List<String> getReceiveSampleStatusOptionsForWeb();
 	  
 	  /**
-	   * Updates sample's Receive Sample status
+	   * Updates sample's Receive Sample status. Sends message via Spring Integration
 	   * @param Sample sample
 	   * @param String status (from web)
 	   * @return boolean
 	   */
-	  public boolean updateSampleReceiveStatus(final Sample sample, final String status);
+	  public void updateSampleReceiveStatus(final Sample sample, final WaspStatus status) throws WaspMessageBuildingException;
 	  
 	  /**
 	   * Returns boolean informing whether a sample has been processed by the facility
@@ -467,5 +467,19 @@ public interface SampleService extends WaspService {
 	   * @return void
 	   */
 	  public void deletePlatformUnit(Integer platformUnitId) throws NumberFormatException, SampleException, SampleTypeException, SampleSubtypeException;
+	  
+	  /**
+		 * Returns true if provided library sample is in a state of awaiting placement on a platform unit, otherwise returns false
+		 * @param sample
+		 * @return
+		 */
+		public Boolean isLibraryAwaitingPlatformUnitPlacement(Sample library) throws SampleTypeException;
+		
+		/**
+		 * Returns true if provided platform unit sample is in a state of awaiting placement on a sequencing run, otherwise returns false
+		 * @param sample
+		 * @return
+		 */
+		public Boolean isPlatformUnitAwaitingSequenceRunPlacement(Sample platformUnit) throws SampleTypeException;
 
 }

@@ -5,13 +5,6 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration-2.2.xsd
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<!-- registry to store and access message channel beans -->
-	<bean id="messageRegistry" class="edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry" />
-	
-	<!-- This is a custom bean post-processor that can register all message channels to the messageRegistry as they are created -->
-	<bean id="messageRegistryBeanPostProcessor" class="edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistryBeanPostProcessor">
-    	<property name="messageRegistry" ref="messageRegistry"/>
-	</bean>
 
 	<!-- priority channels -->
 	<int:channel id="wasp.channel.priority.job">

@@ -2,7 +2,7 @@ package edu.yu.einstein.wasp.integration.messages;
 
 import org.springframework.integration.Message;
 
-import edu.yu.einstein.wasp.integration.exceptions.WaspMessageBuildingException;
+import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 
 /**
  * Interface defining status message templates

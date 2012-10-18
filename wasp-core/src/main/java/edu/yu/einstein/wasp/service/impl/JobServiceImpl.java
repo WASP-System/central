@@ -20,18 +20,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.hibernate.service.jta.platform.internal.WeblogicJtaPlatform;
-import org.openqa.selenium.browserlaunchers.WindowsProxyManager;
+import javax.annotation.PostConstruct;
+
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.integration.Message;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.batch.core.extension.WaspBatchJobExplorer;
-import edu.yu.einstein.wasp.batch.exceptions.BatchDaoDataRetrievalException;
 import edu.yu.einstein.wasp.batch.exceptions.ParameterValueRetrievalException;
 import edu.yu.einstein.wasp.dao.FileDao;
 import edu.yu.einstein.wasp.dao.JobCellSelectionDao;
@@ -56,7 +56,14 @@ import edu.yu.einstein.wasp.dao.SampleSubtypeDao;
 import edu.yu.einstein.wasp.dao.SampleTypeDao;
 import edu.yu.einstein.wasp.dao.SoftwareDao;
 import edu.yu.einstein.wasp.exception.FileMoveException;
+import edu.yu.einstein.wasp.exception.InvalidParameterException;
+import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
+import edu.yu.einstein.wasp.integration.messages.JobStatusMessageTemplate;
+import edu.yu.einstein.wasp.integration.messages.SampleStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
+import edu.yu.einstein.wasp.integration.messages.WaspJobTask;
+import edu.yu.einstein.wasp.integration.messages.WaspStatus;
+import edu.yu.einstein.wasp.integration.messages.WaspTask;
 import edu.yu.einstein.wasp.model.File;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobCellSelection;
@@ -84,12 +91,11 @@ import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.service.JobService;
-import edu.yu.einstein.wasp.service.SampleService;
-import edu.yu.einstein.wasp.service.TaskService;
+
 
 @Service
 @Transactional
-public class JobServiceImpl extends WaspServiceImpl implements JobService {
+public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements JobService {
 
 	private JobDao	jobDao;
 
@@ -122,9 +128,6 @@ public class JobServiceImpl extends WaspServiceImpl implements JobService {
 	@Autowired
 	private SampleMetaDao sampleMetaDao;
 
-	@Autowired
-	private TaskService taskService;
-	 
 	@Autowired
 	private JobMetaDao jobMetaDao;
 
@@ -187,13 +190,22 @@ public class JobServiceImpl extends WaspServiceImpl implements JobService {
 	
 	@Autowired
 	protected WaspBatchJobExplorer batchJobExplorer;
+	
+	@PostConstruct
+	@Override
+	protected void initialize() {
+		// need to initialize the message channels
+		super.initialize();
+	}
 
 	 /**
 	   * {@inheritDoc}
 	   */
 	@Override
-	public List<Sample> getSubmittedSamples(Job job){
-		
+	public List<Sample> getSubmittedSamples(Job job) throws InvalidParameterException{
+				if (job == null || job.getJobId() == 0){
+					throw new InvalidParameterException("Invalid Job or no Job provided");
+				}
 		List<Sample> submittedSamplesList = new ArrayList<Sample>();
 		if(job != null && job.getJobId().intValue()>0){
 			for(JobSample jobSample : job.getJobSample()){
@@ -211,6 +223,9 @@ public class JobServiceImpl extends WaspServiceImpl implements JobService {
 	 */
 	@Override
 	public List<Sample> getSubmittedSamplesNotYetReceived(Job job){
+		if (job == null || job.getJobId() == 0){
+			throw new InvalidParameterException("Invalid Job or no Job provided");
+		}
 		
 		List<Sample> submittedSamplesNotYetReceivedList = new ArrayList<Sample>();
 		
@@ -292,6 +307,9 @@ public class JobServiceImpl extends WaspServiceImpl implements JobService {
 	   */
 	  @Override
 	  public void sortJobsByJobId(List<Job> jobs){
+			if (jobs == null){
+				throw new InvalidParameterException("No Job listprovided");
+			}
 		  class JobIdComparator implements Comparator<Job> {
 			    @Override
 			    public int compare(Job arg0, Job arg1) {
@@ -301,12 +319,69 @@ public class JobServiceImpl extends WaspServiceImpl implements JobService {
 		  Collections.sort(jobs, new JobIdComparator());//sort by job ID 
 	  }
 	  
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public Boolean isJobAwaitingPiApproval(Job job){
+			if (job == null || job.getJobId() == 0){
+				throw new InvalidParameterException("Invalid Job or no Job provided");
+			}
+			Map<String, String> parameterMap = new HashMap<String, String>();
+			parameterMap.put(WaspJobParameters.JOB_ID, job.getJobId().toString());
+			StepExecution stepExecution = batchJobExplorer.getMostRecentlyStartedStepExecutionInList(
+					batchJobExplorer.getStepExecutions("step.piApprove", parameterMap, true)
+				);
+			if(stepExecution != null && stepExecution.getExitStatus().equals(ExitStatus.EXECUTING))
+				return true;
+			return false;
+		}
+	
+		
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public Boolean isJobAwaitingDaApproval(Job job){
+			if (job == null || job.getJobId() == 0){
+				throw new InvalidParameterException("Invalid Job or no Job provided");
+			}
+			Map<String, String> parameterMap = new HashMap<String, String>();
+			parameterMap.put(WaspJobParameters.JOB_ID, job.getJobId().toString());
+			StepExecution stepExecution = batchJobExplorer.getMostRecentlyStartedStepExecutionInList(
+					batchJobExplorer.getStepExecutions("step.adminApprove", parameterMap, true)
+				);
+			if(stepExecution != null && stepExecution.getExitStatus().equals(ExitStatus.EXECUTING))
+				return true;
+			return false;
+		}
+		
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public Boolean isJobAwaitingQuote(Job job){
+			if (job == null || job.getJobId() == 0){
+				throw new InvalidParameterException("Invalid Job or no Job provided");
+			}
+			Map<String, String> parameterMap = new HashMap<String, String>();
+			parameterMap.put(WaspJobParameters.JOB_ID, job.getJobId().toString());
+			StepExecution stepExecution = batchJobExplorer.getMostRecentlyStartedStepExecutionInList(
+					batchJobExplorer.getStepExecutions("step.quote", parameterMap, true)
+				);
+			if(stepExecution != null && stepExecution.getExitStatus().equals(ExitStatus.EXECUTING))
+				return true;
+			return false;
+		}
+	  
 	  /**
 	   * {@inheritDoc}
 	   */
 	  @Override
 	  public Map<String, String> getExtraJobDetails(Job job){
-		    
+			if (job == null || job.getJobId() == 0){
+				throw new InvalidParameterException("Invalid Job or no Job provided");
+			}
 		  Map<String, String> extraJobDetailsMap = new HashMap<String, String>();
 
 		  List<JobResourcecategory> jobResourceCategoryList = job.getJobResourcecategory();
@@ -424,6 +499,12 @@ public class JobServiceImpl extends WaspServiceImpl implements JobService {
 	   */
 	  @Override
 	  public Job createJobFromJobDraft(JobDraft jobDraft, User user) throws FileMoveException{
+			if (jobDraft == null || jobDraft.getJobDraftId() == 0){
+				throw new InvalidParameterException("Invalid JobDraft or no JobDraft provided");
+			}
+			if (user == null || user.getUserId() == 0){
+				throw new InvalidParameterException("Invalid User or no User provided");
+			}
 		  	
 			// Copies JobDraft to a new Job
 			Job job = new Job();
@@ -683,6 +764,9 @@ public class JobServiceImpl extends WaspServiceImpl implements JobService {
 	 */
 	@Override
 	public List<Job> getJobsSubmittedOrViewableByUser(User user){
+		if (user == null || user.getUserId() == 0){
+			throw new InvalidParameterException("Invalid User or no User provided");
+		}
 		
 		List<Job> jobList = new ArrayList<Job>();
 		List<JobUser> jobUserList = new ArrayList<JobUser>();
@@ -700,5 +784,83 @@ public class JobServiceImpl extends WaspServiceImpl implements JobService {
 		
 		return jobList;
 		
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Boolean isJobAwaitingLibraryCreation(Job job, Sample sample){
+		if (sample == null || sample.getSampleId() == 0){
+			throw new InvalidParameterException("Invalid Sample or no Sample provided");
+		}
+		Integer sampleId = sample.getSampleId();
+		if (job == null || job.getJobId() == 0){
+			throw new InvalidParameterException("Invalid Job or no Job provided");
+		}
+		boolean sampleIsInJob = false;
+		for (Sample s: job.getSample()){
+			if (s.getSampleId().equals(sampleId)){
+				sampleIsInJob = true;
+				break;
+			}
+		}
+		if (!sampleIsInJob){
+			logger.error("supplied sample is not associated with supplied job");
+			return false;
+		}
+		Map<String, String> parameterMap = new HashMap<String, String>();
+		parameterMap.put(WaspJobParameters.SAMPLE_ID, sampleId.toString());
+		parameterMap.put(WaspJobParameters.JOB_ID, job.getJobId().toString());
+		StepExecution stepExecution = batchJobExplorer.getMostRecentlyStartedStepExecutionInList(
+				batchJobExplorer.getStepExecutions("wasp.library.step.listenForLibraryCreated", parameterMap, true, BatchStatus.STARTED)
+			);
+		if (stepExecution != null)
+			return true;
+		return false;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void updateJobQuoteStatus(Job job, WaspStatus status) throws WaspMessageBuildingException{
+		updateJobStatus(job, status, WaspJobTask.QUOTE);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void updateJobDaApprovalStatus(Job job, WaspStatus status) throws WaspMessageBuildingException{
+		updateJobStatus(job, status, WaspJobTask.ADMIN_APPROVE);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void updateJobPiApprovalStatus(Job job, WaspStatus status) throws WaspMessageBuildingException{
+		updateJobStatus(job, status, WaspJobTask.QUOTE);
+	}
+	
+	private void updateJobStatus(Job job, WaspStatus status, String task) throws WaspMessageBuildingException{
+		// TODO: Write test!!
+		if (job == null || job.getJobId()==0)
+			throw new InvalidParameterException("Job is null or doesn't exist");
+
+		if (status == null || (status != WaspStatus.CREATED && status != WaspStatus.ABANDONED))
+			throw new InvalidParameterException("WaspStatus is null, or not CREATED or ABANDONED");
+		
+		if (task == null)
+			throw new InvalidParameterException("WaspTask is null");
+		  
+		JobStatusMessageTemplate messageTemplate = new JobStatusMessageTemplate(job.getJobId());
+		messageTemplate.setTask(task);
+		messageTemplate.setStatus(status); // sample received (CREATED) or abandoned (ABANDONED)
+		Message<?> message = null;
+		message = messageTemplate.build();
+		logger.debug("Sending message via '" + OUTBOUND_MSG_CHANNEL_NAME + "': "+message.toString());
+		outboundRmiChannel.send(message);
 	}
 }
