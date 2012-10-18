@@ -1,5 +1,43 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
+<wasp:field name="name"  type="text" sortable="true" searchable="false" editable="true" columnWidth="260"/>
+<wasp:field name="platformUnitBarcode"  type="text" sortable="true" searchable="false" editable="true" columnWidth="100"/>
+<wasp:field name="machine"  type="text" sortable="true" searchable="false" editable="true" columnWidth="170"/>
+<wasp:field name="readlength"  type="text" sortable="true" searchable="false" editable="false" columnWidth="65"/>
+<wasp:field name="readType"  type="text" sortable="true" searchable="false" editable="false" columnWidth="60"/>
+<wasp:field name="dateRunStarted"  type="text" sortable="true" searchable="false" editable="false" columnWidth="70"/>
+<wasp:field name="dateRunEnded"  type="text" sortable="true" searchable="false" editable="false" columnWidth="70"/>
+<wasp:field name="statusForRun"  type="text" sortable="true" searchable="false" editable="false" columnWidth="90"/>
+
+ _url='/wasp/run/listJSON.do?selId=${param.selId}';
+
+_navAttr=
+	{edit:false,view:false,add:false,del:false,search:false,refresh:true,beforeRefresh: 
+		function () { 
+			<%--http://stackoverflow.com/questions/5070065/jqgrid-sort-icon-on-columns-are-not-reset-after-triggerreloadgrid-call 
+			var myGrid = jQuery("#grid_id");
+    		$("span.s-ico",myGrid[0].grid.hDiv).hide();
+    		--%>
+			<%--http://stackoverflow.com/questions/7089643/programmatically-sorting-the-jqgrid 
+			with next line, sortname is set to "date" and with that sidx is also set to "date" 
+			so that with reload grid, sidx is date and it is the icon being displayed 
+			var myGrid = jQuery("#grid_id");
+    		$("span.s-ico",myGrid[0].grid.hDiv).hide();
+    		$("#grid_id").setGridParam({sortname:'date'});
+    		$("#grid_id").setGridParam({sortorder:'desc'});
+			$("span.s-ico",myGrid[0].grid.hDiv).show();--%>
+			
+			$("#grid_id").setGridParam({sortname:''});
+		}
+	}
+
+_viewAttr={width:600};
+
+
+
+
+<%-- 
+ 
 <wasp:field name="name" type="text"/>
 
 <wasp:field name="resourceName" type="text" sortable="true" showLink="true" baseLinkURL="/wasp/resource/list.do" idCol="2"/>
@@ -13,6 +51,7 @@
 <wasp:field name="resourceId" type="select" items="${machines}" itemValue="resourceId" defaultSelect="true" itemLabel="name" hidden="true" editHidden="true" />
 
 <wasp:field name="sampleId" type="select" items="${flowcells}" itemValue="sampleId" defaultSelect="true" itemLabel="name" hidden="true" editHidden="true" />
+
 
 _navAttr={edit:false,view:true,add:true,del:false};
 
@@ -65,3 +104,4 @@ _addAttr['beforeShowForm'] = function(formId) {
 		}
 	});
 };
+--%>

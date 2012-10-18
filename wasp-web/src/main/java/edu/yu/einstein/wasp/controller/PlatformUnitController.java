@@ -296,7 +296,7 @@ public class PlatformUnitController extends WaspController {
 		//System.out.println("resourceCategoryNameFromGrid = " + resourceCategoryNameFromGrid);
 		
 		List<Sample> tempPlatformUnitList =  new ArrayList<Sample>();
-		List<Sample> platformUnitsFoundInSearch = new ArrayList<Sample>();//not currently used
+		List<Sample> platformUnitsFoundInSearch = new ArrayList<Sample>();
 		List<Sample> platformUnitList = new ArrayList<Sample>();
 		
 		Date dateFromGridAsDate = null;

@@ -1,9 +1,12 @@
 package edu.yu.einstein.wasp.controller;
 
+import java.text.DateFormat;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -269,40 +272,191 @@ public class RunController extends WaspController {
 	@RequestMapping(value="/listJSON", method=RequestMethod.GET)	
 	public String getListJSON(HttpServletResponse response) {
 		
-		String search = request.getParameter("_search");
-		String searchStr = request.getParameter("searchString");
-	
-		String sord = request.getParameter("sord");
-		String sidx = request.getParameter("sidx");
-		
-		String resourceId = request.getParameter("resourceId") == null ? "" : request.getParameter("resourceId");
-		String sampleId = request.getParameter("sampleId") == null ? "" : request.getParameter("sampleId");
-		
 		//result
 		Map <String, Object> jqgrid = new HashMap<String, Object>();
-		
-		List<Run> runList;
-		
-		if (!search.equals("true")	&& resourceId.isEmpty()	&& sampleId.isEmpty()) {
-			if ("resourceName".equals(sidx))
-				sidx = "resource.name";
 
-			runList = sidx.isEmpty() ? this.runDao.findAll() : this.runDao.findAllOrderBy(sidx, sord);
-		} else {
-			  Map m = new HashMap();
-			  
-			  if (search.equals("true") && !searchStr.isEmpty())
-				  m.put(request.getParameter("searchField"), request.getParameter("searchString"));
-			  
-			  if (!resourceId.isEmpty())
-				  m.put("resourceId", Integer.parseInt(resourceId));
-			  
-			  if (!sampleId.isEmpty())
-				  m.put("sampleId", Integer.parseInt(sampleId));
-			  				  
-			  runList = this.runDao.findByMap(m);
+		//Parameters coming from the jobGrid
+		String sord = request.getParameter("sord");//grid is set so that this always has a value
+		String sidx = request.getParameter("sidx");//grid is set so that this always has a value
+		String search = request.getParameter("_search");//from grid (will return true or false, depending on the toolbar's parameters)
+		System.out.println("sidx = " + sidx);System.out.println("sord = " + sord);System.out.println("search = " + search);
+
+		//Parameters coming from grid's toolbar
+		//The jobGrid's toolbar's is it's search capability. The toolbar's attribute stringResult is currently set to false, 
+		//meaning that each parameter on the toolbar is sent as a key:value pair
+		//If stringResult = true, the parameters containing values would have been sent as a key named filters in JSON format 
+		//see http://www.trirand.com/jqgridwiki/doku.php?id=wiki:toolbar_searching
+		//below we capture parameters on job grid's search toolbar by name (key:value).
+		String nameFromGrid = request.getParameter("name")==null?null:request.getParameter("name").trim();//if not passed,  will be null
+		String platformUnitBarcodeFromGrid = request.getParameter("platformUnitBarcode")==null?null:request.getParameter("platformUnitBarcode").trim();//if not passed, will be null
+		String machineAndMachineTypeFromGrid = request.getParameter("machine")==null?null:request.getParameter("machine").trim();//if not passed, will be null
+		String readTypeFromGrid = request.getParameter("readType")==null?null:request.getParameter("readType").trim();//if not passed, will be null
+		String readlengthFromGrid = request.getParameter("readlength")==null?null:request.getParameter("readlength").trim();//if not passed, will be null
+		String dateRunStartedFromGridAsString = request.getParameter("dateRunStarted")==null?null:request.getParameter("dateRunStarted").trim();//if not passed, will be null
+		String dateRunEndedFromGridAsString = request.getParameter("dateRunEnded")==null?null:request.getParameter("dateRunEnded").trim();//if not passed, will be null
+		String statusForRunFromGrid = request.getParameter("statusForRun")==null?null:request.getParameter("statusForRun").trim();//if not passed, will be null
+		System.out.println("nameFromGrid = " + nameFromGrid);System.out.println("platformUnitBarcodeFromGrid = " + platformUnitBarcodeFromGrid);
+		System.out.println("machineAndMachineTypeFromGrid = " + machineAndMachineTypeFromGrid); 
+		System.out.println("readTypeFromGrid = " + readTypeFromGrid);System.out.println("readlengthFromGrid = " + readlengthFromGrid);
+		System.out.println("dateRunStartedFromGridAsString = " + dateRunStartedFromGridAsString);System.out.println("dateRunEndedFromGridAsString = " + dateRunEndedFromGridAsString);
+		System.out.println("statusForRunFromGrid = " + statusForRunFromGrid);
+	
+		List<Run> tempRunList =  new ArrayList<Run>();
+		List<Run> runsFoundInSearch = new ArrayList<Run>();//not currently used
+		List<Run> runList = new ArrayList<Run>();
+
+		//convert dates (as string) to datatype Date
+		Date dateRunStartedFromGridAsDate = null;
+		if(dateRunStartedFromGridAsString != null){//this is MM/dd/yyyy coming from grid
+			DateFormat formatter;
+			formatter = new SimpleDateFormat("MM/dd/yyyy");
+			try{				
+				dateRunStartedFromGridAsDate = (Date)formatter.parse(dateRunStartedFromGridAsString); 
+			}
+			catch(Exception e){ 
+				dateRunStartedFromGridAsDate = new Date(0);//fake it; parameter of 0 sets date to 01/01/1970 which is NOT in this database. So result set will be empty
+			}
+		}		
+		Date dateRunEndedFromGridAsDate = null;
+		if(dateRunEndedFromGridAsString != null){//this is MM/dd/yyyy coming from grid
+			DateFormat formatter;
+			formatter = new SimpleDateFormat("MM/dd/yyyy");
+			try{				
+				dateRunEndedFromGridAsDate = (Date)formatter.parse(dateRunEndedFromGridAsString); 
+			}
+			catch(Exception e){ 
+				dateRunEndedFromGridAsDate = new Date(0);//fake it; parameter of 0 sets date to 01/01/1970 which is NOT in this database. So result set will be empty
+			}
 		}
+		
+		Map queryMap = new HashMap();
+		queryMap.put("resource.resourceType.iName", "mps");//restrict to mps
+		queryMap.put("resourceCategory.resourceType.iName", "mps");//restrict to mps
+		//deal with those attributes that can be searched for directly in table sample (sample.name and sample.sampleSubtype)
+		if(nameFromGrid != null){
+			queryMap.put("name", nameFromGrid);//and restrict to the passed name
+		}		
+		
+		List<String> orderByColumnNames = new ArrayList<String>();
+		orderByColumnNames.add("startts");//start run
+		String direction = "desc";
+		if(sidx!=null && sidx.equals("dateRunStarted") && sord !=null && sord.equals("asc")){
+			direction = new String("asc");
+		}
+		tempRunList = runDao.findByMapDistinctOrderBy(queryMap, null, orderByColumnNames, direction);			
 
+		if(platformUnitBarcodeFromGrid != null || machineAndMachineTypeFromGrid != null || readTypeFromGrid != null 
+				|| readlengthFromGrid != null || dateRunStartedFromGridAsString != null || dateRunEndedFromGridAsString != null
+				|| statusForRunFromGrid != null){
+			
+			if(platformUnitBarcodeFromGrid != null){
+				for(Run run : tempRunList){
+					List<SampleBarcode> sbList = run.getSample().getSampleBarcode();
+					if(sbList.get(0).getBarcode().getBarcode().equalsIgnoreCase(platformUnitBarcodeFromGrid)){
+						runsFoundInSearch.add(run);
+					}
+				}
+				tempRunList.retainAll(runsFoundInSearch);
+				runsFoundInSearch.clear();
+			}			
+			if(readTypeFromGrid != null){
+				for(Run run : tempRunList){
+					List<RunMeta> runMetaList = run.getRunMeta();
+					for(RunMeta rm : runMetaList){
+						if(rm.getK().indexOf("readType") > -1){
+							if(rm.getV().equalsIgnoreCase(readTypeFromGrid)){
+								runsFoundInSearch.add(run);
+							}
+							break;//out of inner for loop
+						}
+					}					
+				}
+				tempRunList.retainAll(runsFoundInSearch);
+				runsFoundInSearch.clear();
+			}			
+			if(readlengthFromGrid != null){
+				for(Run run : tempRunList){
+					List<RunMeta> runMetaList = run.getRunMeta();
+					for(RunMeta rm : runMetaList){
+						if(rm.getK().indexOf("readlength") > -1){
+							if(rm.getV().equalsIgnoreCase(readlengthFromGrid)){
+								runsFoundInSearch.add(run);
+							}
+							break;//out of inner for loop
+						}
+					}					
+				}
+				tempRunList.retainAll(runsFoundInSearch);
+				runsFoundInSearch.clear();
+			}		
+
+			if(dateRunStartedFromGridAsDate != null){
+				SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+				String dateToSearchFor = formatter.format(dateRunStartedFromGridAsDate);
+				for(Run run : tempRunList){
+					if(formatter.format(run.getStartts()).equals(dateToSearchFor)){
+						runsFoundInSearch.add(run);
+					}
+				}
+				tempRunList.retainAll(runsFoundInSearch);
+				runsFoundInSearch.clear();
+			}
+			if(dateRunEndedFromGridAsDate != null){
+				SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+				String dateToSearchFor = formatter.format(dateRunEndedFromGridAsDate);
+				for(Run run : tempRunList){
+					if(formatter.format(run.getEnDts()).equals(dateToSearchFor)){
+						runsFoundInSearch.add(run);
+					}
+				}
+				tempRunList.retainAll(runsFoundInSearch);
+				runsFoundInSearch.clear();
+			}
+			
+			if(machineAndMachineTypeFromGrid != null){
+				String[] tokens =  machineAndMachineTypeFromGrid.split("-");
+				String machineName = tokens[0].trim();
+				for(Run run: tempRunList){
+					if(machineName.equalsIgnoreCase(run.getResource().getName())){
+						runsFoundInSearch.add(run);
+					}
+				}
+				tempRunList.retainAll(runsFoundInSearch);
+				runsFoundInSearch.clear();
+			}
+						
+			//must deal with status, but how?
+			if(statusForRunFromGrid != null){
+				//for(Run run : tempRunList){
+					//if(run.status.equals(statusForRunFromGrid)){
+					//	runsFoundInSearch.add(run);
+					//}
+				//}
+				//tempRunList.retainAll(runsFoundInSearch);
+				//runsFoundInSearch.clear();
+			}
+		}
+		
+		runList.addAll(tempRunList);
+		
+		//finally deal with sorting
+		if( sidx != null && !sidx.isEmpty() && !sidx.equals("dateRunStarted") && sord != null && !sord.isEmpty() ){//if sidx==dateRunStarted, it's taken care of above
+			
+			boolean indexSorted = false;
+			
+			if(sidx.equals("name")){Collections.sort(runList, new RunNameComparator()); indexSorted = true;}
+			else if(sidx.equals("platformUnitBarcode")){Collections.sort(runList, new RunPlatformUnitBarcodeComparator()); indexSorted = true;}
+			else if(sidx.equals("machine")){Collections.sort(runList, new MachineNameComparator()); indexSorted = true;}
+			else if(sidx.equals("readlength")){Collections.sort(runList, new RunMetaIsStringComparator("readlength")); indexSorted = true;}
+			else if(sidx.equals("readType")){Collections.sort(runList, new RunMetaIsStringComparator("readType")); indexSorted = true;}
+			else if(sidx.equals("dateRunEnded")){Collections.sort(runList, new DateRunEndedComparator()); indexSorted = true;}
+			else if(sidx.equals("statusForRun")){Collections.sort(runList, new RunStatusComparator()); indexSorted = true;}
+
+			if(indexSorted == true && sord.equals("desc")){//must be last
+				Collections.reverse(runList);
+			}
+		}
+	
 		try {
 			int pageIndex = Integer.parseInt(request.getParameter("page"));		// index of page
 			int pageRowNum = Integer.parseInt(request.getParameter("rows"));	// number of rows in one page
@@ -338,43 +492,80 @@ public class RunController extends WaspController {
 			}				
 
 			List<Run> runPage = runList.subList(frId, toId);
-			for (Run run:runPage) {
-				Map cell = new HashMap();
-				cell.put("id", run.getRunId());
-				 
-				List<RunMeta> runMeta = getMetaHelperWebapp().syncWithMaster(run.getRunMeta());
+			for (Run run:runPage) {				
 				
-				User user = userDao.getById(run.getUserId());
-				 					
-				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
-							run.getName(),
-							run.getResource().getName(),
-							run.getResourceId().toString(),
-							run.getSample().getName(),
-							run.getSampleId().toString(),
-							user.getFirstName() + " " + user.getLastName(),
-							"", // placeholder for resourceId, refer to the list of columns on gridcolumns.jsp
-							""  // placeholder for sampleId, refer to the list of columns on gridcolumns.jsp
-				}));
-				 
-				for (RunMeta meta:runMeta) {
-					cellList.add(meta.getV());
+			  //10-17-12
+				MetaHelperWebapp metaHelperWebapp = getMetaHelperWebappRunInstance();
+				String area2 = metaHelperWebapp.getArea();
+				Format formatter = new SimpleDateFormat("MM/dd/yyyy");
+			
+				String readlength = new String("unknown");
+				try{
+					readlength = MetaHelperWebapp.getMetaValue(area2, "readlength", run.getRunMeta());					
+				}catch(Exception e){}
+				
+				String readType = new String("unknown");
+				try{
+					readType = MetaHelperWebapp.getMetaValue(area2, "readType", run.getRunMeta());
+				}catch(Exception e){}
+				
+				String dateRunStarted = new String("not set");
+				if(run.getStartts()!=null){
+					try{				
+						dateRunStarted = new String(formatter.format(run.getStartts()));//MM/dd/yyyy
+					}catch(Exception e){}					
 				}
 				
-				 
-				cell.put("cell", cellList);
-				 
+				String dateRunEnded = new String("not set");
+				if(run.getEnDts()!=null){					
+					try{				
+						dateRunEnded = new String(formatter.format(run.getEnDts()));//MM/dd/yyyy
+					}catch(Exception e){}					
+				}
+				
+				String statusForRun = new String("???");
+				
+				//deal with platformUnit and its barcode
+				Sample platformUnit = null;
+				String platformUnitType = null;
+				String platformUnitBarcode = null;
+				try{
+					platformUnit = sampleService.getPlatformUnit(run.getSampleId());
+					platformUnitType = platformUnit.getSampleSubtype().getName();//not used
+					List<SampleBarcode> sampleBarcodeList = platformUnit.getSampleBarcode();
+					platformUnitBarcode = sampleBarcodeList.size()>0 ? sampleBarcodeList.get(0).getBarcode().getBarcode() : new String("");
+					
+				}catch(Exception e){platformUnitType = new String("???"); platformUnitBarcode = new String("???");}
+				
+								
+				Map cell = new HashMap();
+				cell.put("id", run.getRunId());	//used??			 
+				List<RunMeta> runMeta = getMetaHelperWebapp().syncWithMaster(run.getRunMeta());	//used??			
+				User user = userDao.getById(run.getUserId());//used??
+								
+				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
+						"<a href=/wasp/facility/platformunit/showPlatformUnit/"+platformUnit.getSampleId()+".do>"+run.getName()+"</a>",
+						platformUnitBarcode,
+						run.getResource().getName() + " - " + run.getResource().getResourceCategory().getName(),
+						readlength,
+						readType,
+						dateRunStarted,
+						dateRunEnded,
+						statusForRun
+				}));
+				
+				for (RunMeta meta:runMeta) {//actually used??
+					cellList.add(meta.getV());
+				}					 
+				cell.put("cell", cellList);			 
 				rows.add(cell);
 			}
-
 			 
 			jqgrid.put("rows",rows);
 			 
 			return outputJSON(jqgrid, response); 	
 			 
-		} catch (Throwable e) {
-			throw new IllegalStateException("Can't marshall to JSON " + runList,e);
-		}
+		} catch (Throwable e) {throw new IllegalStateException("Can't marshall to JSON " + runList,e);}
 	
 	}
 
@@ -766,3 +957,75 @@ public class RunController extends WaspController {
 		}catch(Exception e){logger.debug(e.getMessage());waspErrorMessage("wasp.unexpected_error.error");return "redirect:/dashboard.do";}
 	}
 }
+
+//comparators - need to be moved
+class RunNameComparator implements Comparator<Run> {
+	@Override
+	public int compare(Run arg0, Run arg1) {
+		return arg0.getName().compareToIgnoreCase(arg1.getName());
+	}
+}
+class RunStatusComparator implements Comparator<Run> {
+	@Override
+	public int compare(Run arg0, Run arg1) {
+		////return arg0.getStatus().compareToIgnoreCase(arg1.getStatus());
+		return 1;
+	}
+}
+class MachineNameComparator implements Comparator<Run> {
+	@Override
+	public int compare(Run arg0, Run arg1) {
+		return arg0.getResource().getName().compareToIgnoreCase(arg1.getResource().getName());
+	}
+}
+class RunPlatformUnitBarcodeComparator implements Comparator<Run> {
+	@Override
+	public int compare(Run arg0, Run arg1) {
+		return arg0.getSample().getSampleBarcode().get(0).getBarcode().getBarcode().compareToIgnoreCase(arg1.getSample().getSampleBarcode().get(0).getBarcode().getBarcode());
+	}
+}
+class DateRunEndedComparator implements Comparator<Run> {
+	@Override
+	public int compare(Run arg0, Run arg1) {
+		Date date0 = arg0.getEnDts()==null?new Date(0):arg0.getEnDts();
+		Date date1 = arg1.getEnDts()==null?new Date(0):arg1.getEnDts();
+		
+		return date0.compareTo(date1);
+	}
+}
+class RunMetaIsStringComparator implements Comparator<Run> {
+	
+	String metaKey;
+	
+	RunMetaIsStringComparator(String metaKey){
+		this.metaKey = new String(metaKey);
+	}
+	@Override
+	public int compare(Run arg0, Run arg1) {
+		
+		String metaValue0 = null;
+		String metaValue1 = null;
+		
+		List<RunMeta> metaList0 = arg0.getRunMeta();
+		for(RunMeta rm : metaList0){
+			if(rm.getK().indexOf(metaKey) > -1){
+				metaValue0 = new String(rm.getV());
+				break;
+			}
+		}		
+		
+		List<RunMeta> metaList1 = arg1.getRunMeta();
+		for(RunMeta rm : metaList1){
+			if(rm.getK().indexOf(metaKey) > -1){
+				metaValue1 = new String(rm.getV());
+				break;
+			}
+		}
+		
+		if(metaValue0==null){metaValue0=new String("");} 
+		if(metaValue1==null){metaValue1=new String("");}
+		
+		return metaValue0.compareToIgnoreCase(metaValue1);
+	}
+}
+
