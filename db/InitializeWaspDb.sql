@@ -825,7 +825,7 @@ insert into sampletype values
 (7, 1, 'protein', 'Protein'),
 (8, 1, 'cellPrimary', 'Primary Cell'),
 (9, 1, 'cellLine', 'Cell Line'),
-(10, 1, 'facilityLibrary', 'Library');
+(10, 1, 'facilityLibrary', 'Facility Library');
 
 
 

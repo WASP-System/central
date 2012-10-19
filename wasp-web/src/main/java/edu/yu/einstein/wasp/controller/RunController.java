@@ -303,7 +303,7 @@ public class RunController extends WaspController {
 		System.out.println("statusForRunFromGrid = " + statusForRunFromGrid);
 	
 		List<Run> tempRunList =  new ArrayList<Run>();
-		List<Run> runsFoundInSearch = new ArrayList<Run>();//not currently used
+		List<Run> runsFoundInSearch = new ArrayList<Run>();
 		List<Run> runList = new ArrayList<Run>();
 
 		//convert dates (as string) to datatype Date

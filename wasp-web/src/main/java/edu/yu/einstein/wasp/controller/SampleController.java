@@ -30,6 +30,7 @@ import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.dao.AdaptorDao;
 import edu.yu.einstein.wasp.dao.AdaptorsetDao;
 import edu.yu.einstein.wasp.dao.JobDao;
+import edu.yu.einstein.wasp.dao.JobSampleDao;
 import edu.yu.einstein.wasp.dao.RunDao;
 import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.dao.SampleMetaDao;
@@ -79,7 +80,10 @@ public class SampleController extends WaspController {
   
   @Autowired
   private JobDao jobDao;
-  
+
+  @Autowired
+  private JobSampleDao jobSampleDao;
+
   @Autowired
   private UserDao userDao;
   
@@ -204,9 +208,49 @@ public class SampleController extends WaspController {
 
 		// result
 		Map<String, Object> jqgrid = new HashMap<String, Object>();
+		
+		//Parameters coming from the jobGrid
+		String sord = request.getParameter("sord");//grid is set so that this always has a value
+		String sidx = request.getParameter("sidx");//grid is set so that this always has a value
+		String search = request.getParameter("_search");//from grid (will return true or false, depending on the toolbar's parameters)
+		System.out.println("sidx = " + sidx);System.out.println("sord = " + sord);System.out.println("search = " + search);
+		//String selIdAsString = request.getParameter("selId");
+		//System.out.println("selIdAsString = " + selIdAsString);
+		//Parameters coming from grid's toolbar
+		//The jobGrid's toolbar's is it's search capability. The toolbar's attribute stringResult is currently set to false, 
+		//meaning that each parameter on the toolbar is sent as a key:value pair
+		//If stringResult = true, the parameters containing values would have been sent as a key named filters in JSON format 
+		//see http://www.trirand.com/jqgridwiki/doku.php?id=wiki:toolbar_searching
+		//below we capture parameters on job grid's search toolbar by name (key:value).
+		String nameFromGrid = request.getParameter("name")==null?null:request.getParameter("name").trim();//if not passed,  will be null
+		String typeFromGrid = request.getParameter("typeFromGrid")==null?null:request.getParameter("typeFromGrid").trim();//if not passed, will be null
+		String subTypeFromGrid = request.getParameter("subTypeFromGrid")==null?null:request.getParameter("subTypeFromGrid").trim();//if not passed, will be null
+		String jobIdFromGrid = request.getParameter("jobIdFromGrid")==null?null:request.getParameter("jobIdFromGrid").trim();//if not passed, will be null
+		String submitterFromGrid = request.getParameter("submitterFromGrid")==null?null:request.getParameter("submitterFromGrid").trim();//if not passed, will be null
+		String piFromGrid = request.getParameter("piFromGrid")==null?null:request.getParameter("piFromGrid").trim();//if not passed, will be null
+		System.out.println("nameFromGrid = " + nameFromGrid);System.out.println("typeFromGrid = " + typeFromGrid);
+		System.out.println("subTypeFromGrid = " + subTypeFromGrid);System.out.println("jobIdFromGrid = " + jobIdFromGrid);
+		System.out.println("submitterFromGrid = " + submitterFromGrid);System.out.println("piFromGrid = " + piFromGrid);
+		
+		List<JobSample> tempJobSampleList = new ArrayList<JobSample>();
+		List<JobSample> jobSamplesFoundInSearch = new ArrayList<JobSample>();//not currently used
+		List<JobSample> jobSampleList = new ArrayList<JobSample>();
+		
+		Map queryMap = new HashMap();
+		List<String> orderByColumnNames = new ArrayList<String>();
+		orderByColumnNames.add("startts");//start run
+		String direction = "desc";
+		if(sidx!=null && sidx.equals("jobId") && sord !=null && sord.equals("asc")){
+			direction = new String("asc");
+		}
+		tempJobSampleList = jobSampleDao.findAllOrderBy("jobId", direction);
 
-		List<Sample> sampleList = new ArrayList<Sample>();
-
+		jobSampleList = tempJobSampleList;
+		
+		///////////////////List<Sample> sampleList = sampleDao.findAll();
+		String selId = request.getParameter("selId");
+		
+/*
 		String sord = request.getParameter("sord");
 		String sidx = request.getParameter("sidx");
 		String search = request.getParameter("_search");
@@ -248,7 +292,7 @@ public class SampleController extends WaspController {
 			
 			sampleList = sidx.isEmpty() ? this.sampleDao.findAll() : this.sampleDao.findAllOrderBy(sidx, sord);
 		}
-
+*/
 		try {
 
 			Map<Integer, String> allSampleTypes = new TreeMap<Integer, String>();
@@ -276,19 +320,31 @@ public class SampleController extends WaspController {
 			}
 
 			// Remove all samples whose sampletypecategory is not "biomaterial" and also remove all control libraries
-			List<Sample> sampleListFiltered = new ArrayList<Sample> ();
-			for (Sample sample : sampleList) {
-				if (sample.getSampleType().getSampleTypeCategory().getIName().equals("biomaterial")) {
-					if ( ! sample.getSampleSubtype().getIName().equals("controlLibrarySample")){//exclude controlLibraries
-						sampleListFiltered.add(sample);
-					}
-				}
-			}
-			sampleList = sampleListFiltered;
+//			List<Sample> sampleListFiltered = new ArrayList<Sample> ();
+//			for (Sample sample : sampleList) {
+//				if (sample.getSampleType().getSampleTypeCategory().getIName().equals("biomaterial")) {
+//					if ( ! sample.getSampleSubtype().getIName().equals("controlLibrarySample")){//exclude controlLibraries
+//						sampleListFiltered.add(sample);
+//					}
+//				}
+//			}
+///			sampleList = sampleListFiltered;
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
 			
 			int pageIndex = Integer.parseInt(request.getParameter("page"));		// index of page
 			int pageRowNum = Integer.parseInt(request.getParameter("rows"));	// number of rows in one page
-			int rowNum = sampleList.size();										// total number of rows
+///			int rowNum = sampleList.size();										// total number of rows
+int rowNum = jobSampleList.size();	
 			int pageNum = (rowNum + pageRowNum - 1) / pageRowNum;				// total number of pages
 			
 			jqgrid.put("records", rowNum + "");
@@ -308,11 +364,11 @@ public class SampleController extends WaspController {
 				}
 			}
 
-			if (sidx.equals("submitterUserId")) {
-				Collections.sort(sampleList, new SampleSubmitterNameComparator());
-				if (sord.equals("desc"))
-					Collections.reverse(sampleList);
-			}
+//			if (sidx.equals("submitterUserId")) {
+//				Collections.sort(sampleList, new SampleSubmitterNameComparator());
+//				if (sord.equals("desc"))
+//					Collections.reverse(sampleList);
+//			}
 			/***** End Sort by User last name *****/
 
 			List<Map> rows = new ArrayList<Map>();
@@ -335,15 +391,17 @@ public class SampleController extends WaspController {
 
 			//List<Sample> samplePage = sampleList.subList(frId, toId);
 			//for (Sample sample:samplePage) {
-			List<Sample> samplePage = sampleList.subList(frId, toId);
-			for (Sample sample : samplePage) {
+//			List<Sample> samplePage = sampleList.subList(frId, toId);
+			List<JobSample> jobSamplePage = jobSampleList.subList(frId, toId);
+//			for (Sample sample : samplePage) {
+			for (JobSample jobSample : jobSamplePage) {
 
 				Map cell = new HashMap();
-				cell.put("id", sample.getSampleId());
+				cell.put("id", jobSample.getSampleId());
 
-				List<SampleMeta> sampleMeta = getMetaHelperWebapp().syncWithMaster(sample.getSampleMeta());
+				//List<SampleMeta> sampleMeta = getMetaHelperWebapp().syncWithMaster(sample.getSampleMeta());
 
-				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
+/*				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 						sample.getName(),
 						(sample.getSampleTypeId() == null)? "": allSampleTypes.get(sample.getSampleTypeId()),
 						(sample.getSampleSubtypeId() == null)? "": allSubSampleTypes.get(sample.getSampleSubtypeId()),
@@ -352,10 +410,22 @@ public class SampleController extends WaspController {
 						(sample.getSampleSubtype().getIName().indexOf("FacilityLibrary") > -1) ? "N/A" : sampleService.convertReceiveSampleStatusForWeb(sampleService.getReceiveSampleStatus(sample)),//facility-generated libraries have no receive sample information as they were created by the facility
 						allRuns.get(sample.getSampleId())
 				}));
-
-				for (SampleMeta meta : sampleMeta) {
-					cellList.add(meta.getV());
-				}
+*/
+				
+				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
+						jobSample.getSample().getName(),
+						jobSample.getSample().getSampleType().getName(),
+						jobSample.getSample().getSampleSubtype().getName(),
+						"J"+jobSample.getJobId().intValue(),
+						jobSample.getJob().getUser().getFirstName() + " " + jobSample.getJob().getUser().getLastName(),
+						jobSample.getJob().getLab().getUser().getFirstName() + " " + jobSample.getJob().getLab().getUser().getLastName(),
+						" ",
+						" "
+				}));
+				
+				//for (SampleMeta meta : sampleMeta) {
+				//	cellList.add(meta.getV());
+				//}
 
 				cell.put("cell", cellList);
 
@@ -367,7 +437,7 @@ public class SampleController extends WaspController {
 			return outputJSON(jqgrid, response);
 
 		} catch (Throwable e) {
-			throw new IllegalStateException("Can't marshall to JSON " + sampleList, e);
+			throw new IllegalStateException("Can't marshall to JSON " + jobSampleList, e);
 		}
 	}
 
@@ -568,3 +638,4 @@ public class SampleController extends WaspController {
 		return "redirect:/sample/listControlLibraries.do";
 	}
 }
+

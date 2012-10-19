@@ -34,18 +34,22 @@ import edu.yu.einstein.wasp.model.ResourceCategoryMeta;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleBarcode;
 import edu.yu.einstein.wasp.model.SampleSubtype;
+import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.JobSample;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.dao.LabDao;
 import edu.yu.einstein.wasp.dao.JobDao;
+import edu.yu.einstein.wasp.dao.JobSampleDao;
 import edu.yu.einstein.wasp.dao.DepartmentDao;
 import edu.yu.einstein.wasp.dao.ResourceDao;
 import edu.yu.einstein.wasp.dao.ResourceCategoryDao;
 import edu.yu.einstein.wasp.dao.RunDao;
 import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.dao.SampleSubtypeDao;
+import edu.yu.einstein.wasp.dao.SampleTypeDao;
 import edu.yu.einstein.wasp.service.FilterService;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 
@@ -74,6 +78,9 @@ public class AutoCompleteController extends WaspController{
 	private JobDao jobDao;
 
 	@Autowired
+	private JobSampleDao jobSampleDao;
+
+	@Autowired
 	private DepartmentDao departmentDao;
 
 	@Autowired
@@ -90,6 +97,9 @@ public class AutoCompleteController extends WaspController{
 	
 	@Autowired
 	private SampleSubtypeDao sampleSubtypeDao;
+
+	@Autowired
+	private SampleTypeDao sampleTypeDao;
 
 	@Autowired
 	private FilterService filterService;
@@ -645,6 +655,71 @@ public class AutoCompleteController extends WaspController{
 	      for (Run r: runList){
 	      	 if(r.getName().indexOf(str) > -1){//note: if str equals "", this, perhaps unexpectedly, evaluates to true
 	       		 jsonString = jsonString + "\""+ r.getName()+"\",";
+	       	 }
+	      }
+	      jsonString = jsonString.replaceAll(",$", "") + "]}";
+	      return jsonString;                
+	  }
+	  
+		/**
+	   * Obtains a json message containing list of ALL sample types that are biomaterials"
+	   * Order ascending
+	   * Used to populate a JQuery autocomplete managed input box
+	   * @param str
+	   * @return json message
+	   */
+	  @RequestMapping(value="/getSampleTypesThatAreBiomaterialsForDisplay", method=RequestMethod.GET)
+	  public @ResponseBody String getAllSampleTypesThatAreBiomaterials(@RequestParam String str) {
+		  
+		  Map queryMap = new HashMap();
+		  queryMap.put("sampleTypeCategory.iName", "biomaterial");
+		  List<String> orderByColumnNames = new ArrayList<String>();
+		  orderByColumnNames.add("name");
+		  String direction = "asc";
+		  List<SampleType> sampleTypeList = sampleTypeDao.findByMapDistinctOrderBy(queryMap, null, orderByColumnNames, direction);
+		  Set<String> theSet = new HashSet<String>();
+		  for(SampleType st : sampleTypeList){//for distinct
+			  theSet.add(st.getName());
+		  }
+		  List<String> theList = new ArrayList<String>();
+		  theList.addAll(theSet);
+		  Collections.sort(theList);//the set is not guarranteed to be ordered 
+	      String jsonString = new String();
+	      jsonString = jsonString + "{\"source\": [";
+	      for (String r: theList){
+	      	 if(r.indexOf(str) > -1){//note: if str equals "", this, perhaps unexpectedly, evaluates to true
+	       		 jsonString = jsonString + "\""+ r +"\",";
+	       	 }
+	      }
+	      jsonString = jsonString.replaceAll(",$", "") + "]}";
+	      return jsonString;                
+	  }
+	  
+		/**
+	   * Obtains a json message containing list of sample names (distinct) that were submitted via a job - so samples (those that are a biomaterial and also user-submitted libraries) as well as facility-generated libraries"
+	   * Order ascending
+	   * Used to populate a JQuery autocomplete managed input box
+	   * @param str
+	   * @return json message
+	   */
+	  @RequestMapping(value="/getSampleNamesFromJobsForDisplay", method=RequestMethod.GET)
+	  public @ResponseBody String getAllSampleNamesFromJobs(@RequestParam String str) {
+		  
+		  List<JobSample> jobSampleList = new ArrayList<JobSample>();
+		  jobSampleList = jobSampleDao.findAll();
+		  Set<String> theSet = new HashSet<String>();
+		  for(JobSample js : jobSampleList){//use set for distinct
+			  theSet.add(js.getSample().getName());
+		  }
+		  List<String> theList = new ArrayList<String>();
+		  theList.addAll(theSet);
+		  Collections.sort(theList);
+		  
+	      String jsonString = new String();
+	      jsonString = jsonString + "{\"source\": [";
+	      for (String r: theList){
+	      	 if(r.indexOf(str) > -1){//note: if str equals "", this, perhaps unexpectedly, evaluates to true
+	       		 jsonString = jsonString + "\""+ r +"\",";
 	       	 }
 	      }
 	      jsonString = jsonString.replaceAll(",$", "") + "]}";
