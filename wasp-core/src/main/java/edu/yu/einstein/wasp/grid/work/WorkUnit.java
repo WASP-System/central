@@ -83,6 +83,10 @@ public class WorkUnit {
 	 */
 	private boolean provisionResults = false;
 	
+	/**
+	 * String representation of the user requesting the unit of work
+	 */
+	private String user;
 	
 	/**
 	 * ExecutionMode is the method by which jobs are executed, is handled by the underlying WorkService implementation,
@@ -96,6 +100,16 @@ public class WorkUnit {
 		 * Handle processing at the process level.  Default.
 		 */
 		PROCESS, MPI;
+	}
+	
+	public enum ProcessMode {
+		/**
+		 * How a remote system should determine the number of processors
+		 */
+		SINGLE, // single threaded 
+		FIXED,  // the job requests a fixed number of threads  
+		FILL,   // the GridHostResolver can pick the number of threads
+		MPI;    // MPI
 	}
 	
 	/**
@@ -198,6 +212,14 @@ public class WorkUnit {
 	 */
 	public void setWrapperCommand(String wrapperCommand) {
 		this.wrapperCommand = wrapperCommand;
+	}
+	
+	public String getUser() {
+		return user;
+	}
+	
+	public void setUser(String user) {
+		this.user = user;
 	}
 	
 
