@@ -147,11 +147,9 @@ $(document).ready(function() {
 	
 	//function to validate the user-entered data 
 	validate = function(){
-		/*
+
 		var readlength = $('#gs_readlength').val();
 		readlength = readlength.replace(/^\s+|\s+$/g,'');//trim 
-		var lanecount = $('#gs_lanecount').val();
-		lanecount = lanecount.replace(/^\s+|\s+$/g,'');//trim 
 		var numberFormat=new RegExp("^[0-9]+$");
 		if(typeof(readlength) !== 'undefined' && readlength != null && readlength.length>0){
 			if(!numberFormat.test(readlength)){
@@ -159,23 +157,26 @@ $(document).ready(function() {
 				return true;//do not perform search 
 			}
 		}
-		if(typeof(lanecount) !== 'undefined' && lanecount != null && lanecount.length>0){
-			if(!numberFormat.test(lanecount)){
-				alert("Lanes must be an integer");
-				return true;//do not perform search 
-			}
-		}
 		
-		var date = $('#gs_date').val();	
-		date = date.replace(/^\s+|\s+$/g,'');//trim 
-		if(typeof(date) !== 'undefined' && date != null && date.length>0){
+		var dateRunStarted = $('#gs_dateRunStarted').val();	
+		dateRunStarted = dateRunStarted.replace(/^\s+|\s+$/g,'');//trim 
+		if(typeof(dateRunStarted) !== 'undefined' && dateRunStarted != null && dateRunStarted.length>0){
 			var dateFormat=new RegExp("^[0-1][0-9]/[0-3][0-9]/[1-2][0-9][0-9][0-9]$");
-			if(!dateFormat.test(date)){
+			if(!dateFormat.test(dateRunStarted)){
 				alert("Required date format: MM/DD/YYYY. It is best to use calendar to select date.");
 				return true;//do not perform search 
 			}
 		}
-		*/
+		var dateRunEnded = $('#gs_dateRunEnded').val();	
+		dateRunEnded = dateRunEnded.replace(/^\s+|\s+$/g,'');//trim 
+		if(typeof(dateRunEnded) !== 'undefined' && dateRunEnded != null && dateRunEnded.length>0){
+			var dateFormat=new RegExp("^[0-1][0-9]/[0-3][0-9]/[1-2][0-9][0-9][0-9]$");
+			if(!dateFormat.test(dateRunEnded)){
+				alert("Required date format: MM/DD/YYYY. It is best to use calendar to select date.");
+				return true;//do not perform search 
+			}
+		}
+		 
 		return false;//perform search 
 	};
 	

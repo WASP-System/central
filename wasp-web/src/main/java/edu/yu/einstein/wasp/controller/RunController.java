@@ -280,7 +280,8 @@ public class RunController extends WaspController {
 		String sidx = request.getParameter("sidx");//grid is set so that this always has a value
 		String search = request.getParameter("_search");//from grid (will return true or false, depending on the toolbar's parameters)
 		System.out.println("sidx = " + sidx);System.out.println("sord = " + sord);System.out.println("search = " + search);
-
+//String selIdAsString = request.getParameter("selId");
+//System.out.println("selIdAsString = " + selIdAsString);
 		//Parameters coming from grid's toolbar
 		//The jobGrid's toolbar's is it's search capability. The toolbar's attribute stringResult is currently set to false, 
 		//meaning that each parameter on the toolbar is sent as a key:value pair
@@ -540,12 +541,12 @@ public class RunController extends WaspController {
 								
 				Map cell = new HashMap();
 				cell.put("id", run.getRunId());	//used??			 
-				List<RunMeta> runMeta = getMetaHelperWebapp().syncWithMaster(run.getRunMeta());	//used??			
+				//List<RunMeta> runMeta = getMetaHelperWebapp().syncWithMaster(run.getRunMeta());	//used??			
 				User user = userDao.getById(run.getUserId());//used??
 								
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 						"<a href=/wasp/facility/platformunit/showPlatformUnit/"+platformUnit.getSampleId()+".do>"+run.getName()+"</a>",
-						platformUnitBarcode,
+						"<a href=/wasp/facility/platformunit/showPlatformUnit/"+platformUnit.getSampleId()+".do>"+platformUnitBarcode+"</a>",
 						run.getResource().getName() + " - " + run.getResource().getResourceCategory().getName(),
 						readlength,
 						readType,
@@ -554,9 +555,9 @@ public class RunController extends WaspController {
 						statusForRun
 				}));
 				
-				for (RunMeta meta:runMeta) {//actually used??
-					cellList.add(meta.getV());
-				}					 
+				//for (RunMeta meta:runMeta) {//actually used??
+				//	cellList.add(meta.getV());
+				//}					 
 				cell.put("cell", cellList);			 
 				rows.add(cell);
 			}
