@@ -44,6 +44,9 @@ public UserDao getUserDao() {
   
   @Autowired
   private ConfirmEmailAuthDao confirmEmailAuthDao;
+  public void setconfirmEmailAuthDao(ConfirmEmailAuthDao confirmEmailAuthDao) {
+	    this.confirmEmailAuthDao = confirmEmailAuthDao;
+	  }
 
   
   @Override
@@ -55,10 +58,15 @@ public String getUniqueLoginName(final User user){
 		String loginLastName = user.getLastName();
 		loginLastName = loginLastName.replaceAll(" ", "");
 		int posOfQuote = StringUtils.indexOf(loginLastName, "'"); // e.g. O'Broin
+		int posOfHyphen = StringUtils.indexOf(loginLastName, "-");
 		if (posOfQuote != -1 && (posOfQuote - 1) != -1 && (posOfQuote < loginLastName.length())){
 			loginBase += loginLastName.substring(posOfQuote -1, posOfQuote);
 			loginBase += loginLastName.substring(posOfQuote + 1);
-		} else {
+		}
+		else if (posOfHyphen != -1 && (posOfHyphen - 1) != -1 && (posOfHyphen < loginLastName.length())){
+			loginBase += loginLastName.substring(0, posOfHyphen);
+			loginBase += loginLastName.substring(posOfHyphen + 1);
+		}else {
 			loginBase += loginLastName;
 		}
 		loginBase = loginBase.replaceAll("[^\\w-]", "").toLowerCase();
