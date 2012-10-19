@@ -58,12 +58,13 @@ import edu.yu.einstein.wasp.dao.SoftwareDao;
 import edu.yu.einstein.wasp.exception.FileMoveException;
 import edu.yu.einstein.wasp.exception.InvalidParameterException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
+import edu.yu.einstein.wasp.integration.messages.BatchJobLaunchMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.JobStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.SampleStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspJobTask;
-import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.WaspTask;
+import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 import edu.yu.einstein.wasp.model.File;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobCellSelection;
@@ -644,8 +645,8 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 					sampleJobCellSelectionDao.save(sampleJobCellSelection);
 				}
 			}
-			
-						
+			Map<String, String> jobParameters
+			BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate(batchJobLaunchContext)
 			// update the jobdraft
 			jobDraft.setStatus("SUBMITTED");
 			jobDraft.setSubmittedjobId(jobDb.getJobId());
@@ -858,9 +859,6 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		JobStatusMessageTemplate messageTemplate = new JobStatusMessageTemplate(job.getJobId());
 		messageTemplate.setTask(task);
 		messageTemplate.setStatus(status); // sample received (CREATED) or abandoned (ABANDONED)
-		Message<?> message = null;
-		message = messageTemplate.build();
-		logger.debug("Sending message via '" + OUTBOUND_MSG_CHANNEL_NAME + "': "+message.toString());
-		outboundRmiChannel.send(message);
+		sendOutboundMessage(messageTemplate.build());
 	}
 }

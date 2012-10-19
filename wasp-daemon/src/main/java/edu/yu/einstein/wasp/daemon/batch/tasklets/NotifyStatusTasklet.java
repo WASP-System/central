@@ -10,7 +10,7 @@ import org.springframework.integration.Message;
 import org.springframework.integration.MessageChannel;
 
 import edu.yu.einstein.wasp.integration.messages.StatusMessageTemplate;
-import edu.yu.einstein.wasp.integration.messages.WaspStatus;
+import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 
 public class NotifyStatusTasklet extends WaspTasklet implements Tasklet {
 	

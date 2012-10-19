@@ -32,7 +32,7 @@ import edu.yu.einstein.wasp.integration.messages.LibraryStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.SampleStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.WaspJobTask;
 import edu.yu.einstein.wasp.integration.messages.WaspSampleTask;
-import edu.yu.einstein.wasp.integration.messages.WaspStatus;
+import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
 import edu.yu.einstein.wasp.model.SampleType;
 

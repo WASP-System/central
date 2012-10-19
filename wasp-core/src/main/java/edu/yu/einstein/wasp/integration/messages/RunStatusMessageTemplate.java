@@ -4,6 +4,7 @@ import org.springframework.integration.Message;
 import org.springframework.integration.support.MessageBuilder;
 
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
+import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 
 /**
  * Handling WaspRunStatus messages.
@@ -78,7 +79,7 @@ public  class RunStatusMessageTemplate extends WaspStatusMessageTemplate{
 	}
 	
 	/**
-	 * Takes a message and checks it's headers against the supplied runId and/or platformUnitId value (one of these may be null) and task to see if the message should be acted upon or not
+	 * Takes a message and checks its headers against the supplied runId and/or platformUnitId value (one of these may be null) and task to see if the message should be acted upon or not
 	 * @param message
 	 * @param jobId 
 	 * @param task
@@ -95,7 +96,7 @@ public  class RunStatusMessageTemplate extends WaspStatusMessageTemplate{
 
 	
 	/**
-	 * Takes a message and checks it's headers against the supplied runId and/or platformUnitId value (one of these may be null) and the 
+	 * Takes a message and checks its headers against the supplied runId and/or platformUnitId value (one of these may be null) and the 
 	 * payload type to see if the message should be acted upon or not
 	 * @param message
 	 * @param runId (may be null)
@@ -119,7 +120,7 @@ public  class RunStatusMessageTemplate extends WaspStatusMessageTemplate{
 	}
 	
 	/**
-	 * Takes a message and checks it's headers against the supplied runId and/or platformUnitId value (one of these may be null), task and the 
+	 * Takes a message and checks its headers against the supplied runId and/or platformUnitId value (one of these may be null), task and the 
 	 * payload type to see if the message should be acted upon or not
 	 * @param message
 	 * @param runId (may be null)

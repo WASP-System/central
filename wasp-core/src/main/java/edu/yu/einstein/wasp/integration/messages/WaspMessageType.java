@@ -11,5 +11,6 @@ public class WaspMessageType {
 	public static final String LIBRARY = "library";
 	public static final String ANALYSIS = "analysis";
 	public static final String GENERIC = "generic";
+	public static final String LAUNCH_BATCH_JOB = "launchBatchJob";
 
 }

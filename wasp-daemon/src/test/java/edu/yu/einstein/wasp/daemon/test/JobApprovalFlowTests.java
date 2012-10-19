@@ -29,7 +29,7 @@ import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
 import edu.yu.einstein.wasp.integration.messages.JobStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.WaspJobTask;
 import edu.yu.einstein.wasp.integration.messages.WaspMessageType;
-import edu.yu.einstein.wasp.integration.messages.WaspStatus;
+import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 
 
 @ContextConfiguration(locations={"/daemon-test-launch-context.xml", "classpath:/RmiMessageSend-context.xml"})

@@ -55,7 +55,7 @@ import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.SampleStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
-import edu.yu.einstein.wasp.integration.messages.WaspStatus;
+import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Barcode;
 import edu.yu.einstein.wasp.model.Job;
@@ -365,11 +365,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  
 		  SampleStatusMessageTemplate messageTemplate = new SampleStatusMessageTemplate(sample.getSampleId());
 		  messageTemplate.setStatus(status); // sample received (CREATED) or abandoned (ABANDONED)
-		  Message<?> message = null;
-		  message = messageTemplate.build();
-		  logger.debug("Sending message via '" + OUTBOUND_MSG_CHANNEL_NAME + "': "+message.toString());
-		  outboundRmiChannel.send(message);
-
+		  sendOutboundMessage(messageTemplate.build());
 	  }
 	  
 	  /**

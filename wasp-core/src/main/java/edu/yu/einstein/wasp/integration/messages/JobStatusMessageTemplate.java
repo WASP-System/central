@@ -4,6 +4,7 @@ import org.springframework.integration.Message;
 import org.springframework.integration.support.MessageBuilder;
 
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
+import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 
 /**
  * Handling WaspJobStatus messages. If not task is defined the default is WaspTask.NOTIFY_STATUS
@@ -62,7 +63,7 @@ public class JobStatusMessageTemplate extends WaspStatusMessageTemplate {
 	}
 	
 	/**
-	 * Takes a message and checks it's headers against the supplied jobId value and task to see if the message should be acted upon or not
+	 * Takes a message and checks its headers against the supplied jobId value and task to see if the message should be acted upon or not
 	 * @param message
 	 * @param jobId 
 	 * @param task
@@ -79,7 +80,7 @@ public class JobStatusMessageTemplate extends WaspStatusMessageTemplate {
 
 	
 	/**
-	 * Takes a message and checks it's headers against the supplied jobId value to see if the message should be acted upon or not
+	 * Takes a message and checks its headers against the supplied jobId value to see if the message should be acted upon or not
 	 * @param message
 	 * @param jobId 
 	 * @return
@@ -95,7 +96,7 @@ public class JobStatusMessageTemplate extends WaspStatusMessageTemplate {
 	}
 	
 	/**
-	 * Takes a message and checks it's headers against the supplied jobId value and task to see if the message should be acted upon or not
+	 * Takes a message and checks its headers against the supplied jobId value and task to see if the message should be acted upon or not
 	 * @param message
 	 * @param jobId 
 	 * @param task

@@ -5,9 +5,9 @@ import org.springframework.integration.support.MessageBuilder;
 
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.WaspMessageType;
-import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.WaspStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.WaspTask;
+import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 
 public class GenericStatusMessageTemplate extends WaspStatusMessageTemplate {
 
@@ -47,7 +47,7 @@ public class GenericStatusMessageTemplate extends WaspStatusMessageTemplate {
 	}
 	
 	/**
-	 * Takes a message and checks it's headers to see if the message should be acted upon or not
+	 * Takes a message and checks its headers to see if the message should be acted upon or not
 	 * @param message
 	 * @param task
 	 * @return
@@ -61,7 +61,7 @@ public class GenericStatusMessageTemplate extends WaspStatusMessageTemplate {
 
 	
 	/**
-	 * Takes a message and checks it's headers to see if the message should be acted upon or not
+	 * Takes a message and checks its headers to see if the message should be acted upon or not
 	 * @param message
 	 * @param task
 	 * @return

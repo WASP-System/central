@@ -22,7 +22,7 @@ import org.springframework.integration.core.SubscribableChannel;
 
 import edu.yu.einstein.wasp.integration.messages.StatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.WaspJobTask;
-import edu.yu.einstein.wasp.integration.messages.WaspStatus;
+import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 
 /**
  * Listens on the provided subscribable channel(s) for relevant completion messages. Also monitors the abort monitoring channel
