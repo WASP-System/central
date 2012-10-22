@@ -31,6 +31,7 @@ import edu.yu.einstein.wasp.model.Workflow;
 import edu.yu.einstein.wasp.model.WorkflowMeta;
 import edu.yu.einstein.wasp.model.WorkflowResourceType;
 import edu.yu.einstein.wasp.model.WorkflowSampleSubtype;
+import edu.yu.einstein.wasp.service.WorkflowService;
 
 @Service
 @Transactional
@@ -65,6 +66,9 @@ public class WorkflowLoadServiceImpl extends WaspLoadServiceImpl implements	Work
 
 	@Autowired
 	ResourceTypeDao resourceTypeDao;
+	
+	@Autowired
+	private WorkflowService workflowService;
 	
 	private Workflow addOrUpdateWorkflow(String iname, String name, Integer isActive, List<String> dependencies){
 		Workflow workflow = workflowDao.getWorkflowByIName(iname);
@@ -259,7 +263,8 @@ public class WorkflowLoadServiceImpl extends WaspLoadServiceImpl implements	Work
 	
 	
 	@Override
-	public void update(String iname, String name, Integer isActive, List<WorkflowMeta> meta, List<String> dependencies, Set<String> sampleSubtypes){
+	public void update(String iname, String name, Integer isActive, List<WorkflowMeta> meta, List<String> dependencies, 
+			Set<String> sampleSubtypes, List<String> pageFlowOrder, String jobFlowBatchJobName){
 		if (isActive == null)
 	  	  isActive = 1;
 	    
@@ -268,6 +273,9 @@ public class WorkflowLoadServiceImpl extends WaspLoadServiceImpl implements	Work
 	    syncWorkflowMeta(workflow, meta);
 
 	    syncWorkflowSampleSubtypes(workflow, sampleSubtypes);
+	    
+	    workflowService.setJobFlowBatchJobName(workflow, jobFlowBatchJobName);
+	    workflowService.setPageFlowOrder(workflow, pageFlowOrder);
 
 	}
 

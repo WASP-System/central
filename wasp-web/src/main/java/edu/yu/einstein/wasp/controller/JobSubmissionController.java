@@ -107,6 +107,7 @@ import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.service.WorkflowService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 import edu.yu.einstein.wasp.util.MetaHelper;
 
@@ -204,6 +205,9 @@ public class JobSubmissionController extends WaspController {
 	
 	@Autowired
 	protected WorkflowDao workflowDao;
+	
+	@Autowired
+	protected WorkflowService workflowService;
 
 	@Autowired
 	protected WorkflowresourcecategoryDao workflowresourcecategoryDao;
@@ -249,30 +253,21 @@ public class JobSubmissionController extends WaspController {
 		return new MetaHelperWebapp(JobDraftMeta.class, request.getSession());
 	}
 	
-	final public String defaultPageFlow = "/jobsubmit/modifymeta/{n};/jobsubmit/samples/{n};/jobsubmit/cells/{n};/jobsubmit/verify/{n};/jobsubmit/submit/{n};/jobsubmit/ok";
+	final public String[] defaultPageFlow = {"/jobsubmit/modifymeta/{n}","/jobsubmit/samples/{n}","/jobsubmit/cells/{n}","/jobsubmit/verify/{n}","/jobsubmit/submit/{n}","/jobsubmit/ok"};
+	
+	
 
 	public String nextPage(JobDraft jobDraft) {
-		String pageFlow = this.defaultPageFlow;
+		String[] pageFlowArray = workflowService.getPageFlowOrder(jobDraft.getWorkflow());
+		if (pageFlowArray.length == 0)
+			pageFlowArray = defaultPageFlow;
 
-		try {
-			List<WorkflowMeta> wfmList = jobDraft.getWorkflow().getWorkflowMeta();
-			for (WorkflowMeta wfm : wfmList) {
-				if (wfm.getK().equals("workflow.submitpageflow")) {
-					pageFlow = wfm.getV();
-					break;
-			}
-		}
-		} catch (Exception e) {
-		}
-
+		
 		String context = request.getContextPath();
 		String uri = request.getRequestURI();
 	
 		// strips context, lead slash ("/"), spring mapping
 		String currentMapping = uri.replaceFirst(context, "").replaceFirst("\\.do.*$", "");
-
-
-		String pageFlowArray[] = pageFlow.split(";");
 
 		int found = -1;
 		for (int i=0; i < pageFlowArray.length -1; i++) {
@@ -1768,14 +1763,10 @@ public class JobSubmissionController extends WaspController {
 	 *
 	 */
 
-	protected List getPageFlowMap(JobDraft jobDraft) {
-		String pageFlow = this.defaultPageFlow;
-
-		try{
-			pageFlow = MetaHelper.getMetaValue("workflow", "submitpageflow", jobDraft.getWorkflow().getWorkflowMeta());
-		} catch(MetadataException e){
-			logger.debug("No page flow defined (workflowMeta workflow.submitpageflow) so using default page flow");
-		}
+	protected List<String[]> getPageFlowMap(JobDraft jobDraft) {
+		String[] pageFlowArray = (String[]) workflowService.getPageFlowOrder(jobDraft.getWorkflow()).toArray();
+		if (pageFlowArray.length == 0)
+			pageFlowArray = defaultPageFlow;
 		
 
 		String context = request.getContextPath();
@@ -1785,11 +1776,8 @@ public class JobSubmissionController extends WaspController {
 		String currentMapping = uri.replaceFirst(context, "").replaceFirst("\\.do.*$", "");
 
 
-		String pageFlowArray[] = pageFlow.split(";");
-
 		List<String[]> rt = new ArrayList<String[]>(); 
 
-		int found = -1;
 		for (int i=0; i < pageFlowArray.length -1; i++) {
 			String page = pageFlowArray[i];
 			String mapPage = page.replaceAll("^/", "");

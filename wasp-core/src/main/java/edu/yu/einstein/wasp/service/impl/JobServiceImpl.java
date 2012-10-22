@@ -31,6 +31,7 @@ import org.springframework.integration.Message;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.batch.core.extension.WaspBatchJobExplorer;
 import edu.yu.einstein.wasp.dao.FileDao;
 import edu.yu.einstein.wasp.dao.JobCellSelectionDao;
@@ -203,10 +204,9 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	   * {@inheritDoc}
 	   */
 	@Override
-	public List<Sample> getSubmittedSamples(Job job) throws InvalidParameterException{
-				if (job == null || job.getJobId() == 0){
-					throw new InvalidParameterException("Invalid Job or no Job provided");
-				}
+	public List<Sample> getSubmittedSamples(Job job){
+		Assert.assertParameterNotNull(job, "No Job provided");
+		Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
 		List<Sample> submittedSamplesList = new ArrayList<Sample>();
 		if(job != null && job.getJobId().intValue()>0){
 			for(JobSample jobSample : job.getJobSample()){
@@ -224,9 +224,8 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	 */
 	@Override
 	public List<Sample> getSubmittedSamplesNotYetReceived(Job job){
-		if (job == null || job.getJobId() == 0){
-			throw new InvalidParameterException("Invalid Job or no Job provided");
-		}
+		Assert.assertParameterNotNull(job, "No Job provided");
+		Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
 		
 		List<Sample> submittedSamplesNotYetReceivedList = new ArrayList<Sample>();
 		
@@ -308,9 +307,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	   */
 	  @Override
 	  public void sortJobsByJobId(List<Job> jobs){
-			if (jobs == null){
-				throw new InvalidParameterException("No Job listprovided");
-			}
+		  Assert.assertParameterNotNull(jobs, "No Job list provided");
 		  class JobIdComparator implements Comparator<Job> {
 			    @Override
 			    public int compare(Job arg0, Job arg1) {
@@ -325,9 +322,8 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		 */
 		@Override
 		public Boolean isJobAwaitingPiApproval(Job job){
-			if (job == null || job.getJobId() == 0){
-				throw new InvalidParameterException("Invalid Job or no Job provided");
-			}
+			Assert.assertParameterNotNull(job, "No Job provided");
+			Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
 			Map<String, String> parameterMap = new HashMap<String, String>();
 			parameterMap.put(WaspJobParameters.JOB_ID, job.getJobId().toString());
 			StepExecution stepExecution = batchJobExplorer.getMostRecentlyStartedStepExecutionInList(
@@ -344,9 +340,8 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		 */
 		@Override
 		public Boolean isJobAwaitingDaApproval(Job job){
-			if (job == null || job.getJobId() == 0){
-				throw new InvalidParameterException("Invalid Job or no Job provided");
-			}
+			Assert.assertParameterNotNull(job, "No Job provided");
+			Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
 			Map<String, String> parameterMap = new HashMap<String, String>();
 			parameterMap.put(WaspJobParameters.JOB_ID, job.getJobId().toString());
 			StepExecution stepExecution = batchJobExplorer.getMostRecentlyStartedStepExecutionInList(
@@ -362,9 +357,8 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		 */
 		@Override
 		public Boolean isJobAwaitingQuote(Job job){
-			if (job == null || job.getJobId() == 0){
-				throw new InvalidParameterException("Invalid Job or no Job provided");
-			}
+			Assert.assertParameterNotNull(job, "No Job provided");
+			Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
 			Map<String, String> parameterMap = new HashMap<String, String>();
 			parameterMap.put(WaspJobParameters.JOB_ID, job.getJobId().toString());
 			StepExecution stepExecution = batchJobExplorer.getMostRecentlyStartedStepExecutionInList(
@@ -380,9 +374,8 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	   */
 	  @Override
 	  public Map<String, String> getExtraJobDetails(Job job){
-			if (job == null || job.getJobId() == 0){
-				throw new InvalidParameterException("Invalid Job or no Job provided");
-			}
+		  Assert.assertParameterNotNull(job, "No Job provided");
+		  Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
 		  Map<String, String> extraJobDetailsMap = new HashMap<String, String>();
 
 		  List<JobResourcecategory> jobResourceCategoryList = job.getJobResourcecategory();
@@ -500,12 +493,10 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	   */
 	  @Override
 	  public Job createJobFromJobDraft(JobDraft jobDraft, User user) throws FileMoveException{
-			if (jobDraft == null || jobDraft.getJobDraftId() == 0){
-				throw new InvalidParameterException("Invalid JobDraft or no JobDraft provided");
-			}
-			if (user == null || user.getUserId() == 0){
-				throw new InvalidParameterException("Invalid User or no User provided");
-			}
+		  	Assert.assertParameterNotNull(jobDraft, "No JobDraft provided");
+			Assert.assertParameterNotNullNotZero(jobDraft.getJobDraftId(), "Invalid JobDraft Provided");
+			Assert.assertParameterNotNull(user, "No User provided");
+			Assert.assertParameterNotNullNotZero(user.getUserId(), "Invalid User Provided");
 		  	
 			// Copies JobDraft to a new Job
 			Job job = new Job();
@@ -767,9 +758,8 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	 */
 	@Override
 	public List<Job> getJobsSubmittedOrViewableByUser(User user){
-		if (user == null || user.getUserId() == 0){
-			throw new InvalidParameterException("Invalid User or no User provided");
-		}
+		Assert.assertParameterNotNull(user, "No User provided");
+		Assert.assertParameterNotNullNotZero(user.getUserId(), "Invalid User Provided");
 		
 		List<Job> jobList = new ArrayList<Job>();
 		List<JobUser> jobUserList = new ArrayList<JobUser>();
@@ -794,13 +784,11 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	 */
 	@Override
 	public Boolean isJobAwaitingLibraryCreation(Job job, Sample sample){
-		if (sample == null || sample.getSampleId() == 0){
-			throw new InvalidParameterException("Invalid Sample or no Sample provided");
-		}
+		Assert.assertParameterNotNull(sample, "No Sample provided");
 		Integer sampleId = sample.getSampleId();
-		if (job == null || job.getJobId() == 0){
-			throw new InvalidParameterException("Invalid Job or no Job provided");
-		}
+		Assert.assertParameterNotNullNotZero(sampleId, "Invalid Sample Provided");
+		Assert.assertParameterNotNull(job, "No Job provided");
+		Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
 		boolean sampleIsInJob = false;
 		for (Sample s: job.getSample()){
 			if (s.getSampleId().equals(sampleId)){
@@ -849,14 +837,13 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	
 	private void updateJobStatus(Job job, WaspStatus status, String task) throws WaspMessageBuildingException{
 		// TODO: Write test!!
-		if (job == null || job.getJobId()==0)
-			throw new InvalidParameterException("Job is null or doesn't exist");
-
-		if (status == null || (status != WaspStatus.CREATED && status != WaspStatus.ABANDONED))
+		Assert.assertParameterNotNull(job, "No Job provided");
+		Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
+		Assert.assertParameterNotNull(status, "No Status provided");
+		if (status != WaspStatus.CREATED && status != WaspStatus.ABANDONED)
 			throw new InvalidParameterException("WaspStatus is null, or not CREATED or ABANDONED");
 		
-		if (task == null)
-			throw new InvalidParameterException("WaspTask is null");
+		Assert.assertParameterNotNull(task, "No Task provided");
 		  
 		JobStatusMessageTemplate messageTemplate = new JobStatusMessageTemplate(job.getJobId());
 		messageTemplate.setTask(task);

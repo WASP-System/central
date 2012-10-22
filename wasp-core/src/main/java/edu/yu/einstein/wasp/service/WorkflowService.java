@@ -8,6 +8,7 @@ public interface WorkflowService extends WaspService {
 	
 	/**
 	 * Get name of Batch Flow Job specified for the current workflow.
+	 * Returns null if not found.
 	 * @return
 	 */
 	public String getJobFlowBatchJobName(Workflow workflow);
@@ -21,10 +22,11 @@ public interface WorkflowService extends WaspService {
 	
 	/**
 	 * Get the list of pages specified for the current workflow. 
+	 * Returns an empty array if nothing found.
 	 * @param workflow
 	 * @return
 	 */
-	public List<String> getPageFlowOrder(Workflow workflow);
+	public String[] getPageFlowOrder(Workflow workflow);
 	
 	/**
 	 * Set the list of pages specified for the current workflow. 
