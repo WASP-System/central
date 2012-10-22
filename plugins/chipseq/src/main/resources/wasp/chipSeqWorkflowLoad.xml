@@ -19,7 +19,7 @@
   </bean>
 
 
-  <bean id="chipSeqWorkflow" class="edu.yu.einstein.wasp.load.WorkflowLoader" depends-on="chipSeqDnaSampleSubtypeResource,chipSeqLibrarySampleSubtypeResource">
+  <bean id="chipSeqWorkflow" class="edu.yu.einstein.wasp.load.WorkflowLoader" depends-on="chipSeqDnaSampleSubtypeResource">
     <property name="area" value="#{chipSeqWorkflowArea}" />
     <property name="domain" value="#{chipSeqPluginDomain}" />
     <property name="name" value="Chip Seq" />
@@ -37,6 +37,8 @@
 		<value>/jobsubmit/ok</value>
       </list>
     </property>
+    
+    <property name="jobFlowBatchJob" ref="chipSeq.waspJob.jobflow.v1"  />
 
     <property name="dependencies">
       <list>
