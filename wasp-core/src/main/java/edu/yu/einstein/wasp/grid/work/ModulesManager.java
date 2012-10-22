@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.yu.einstein.wasp.grid.GridExecutionException;
+import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 
 /**
  * Called to get the configuration string for loading software modules.
@@ -45,9 +46,14 @@ public class ModulesManager extends HashMap<String, String> implements
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see edu.yu.einstein.wasp.grid.work.SoftwareManager#getConfiguration(edu.yu.einstein.wasp.grid.work.WorkUnit)
+	 */
 	@Override
 	public String getConfiguration(WorkUnit w) throws GridExecutionException {
 		String result = "";
+		
+		// configure software dependencies that are loaded via modules
 		for (SoftwareComponent sw : w.getSoftwareDependencies()) {
 
 			String name = sw.getName();
@@ -69,7 +75,37 @@ public class ModulesManager extends HashMap<String, String> implements
 			result += new StringBuilder().append(
 					"module load " + name + "/" + version + "\n").toString();
 		}
-		result += "module list" + "\n";
+		result += "module list" + "\n\n";
+		
+		// configure the number of processes that will be used.
+		int procs = 1;
+		for (SoftwareComponent sw : w.getSoftwareDependencies()) {
+			if (w.getProcessMode().equals(ProcessMode.SINGLE)) break;
+			if (w.getProcessMode().equals(ProcessMode.FIXED)) {
+				procs = w.getProcessorRequirements().intValue();
+				break;
+			}
+			String pkey = sw.getName() + ".env.processors";
+			if (w.getProcessMode().equals(ProcessMode.MAX)) {
+				if (this.containsKey(pkey)) {
+					Integer p = new Integer(this.get(pkey));
+					if (p > procs) procs = p.intValue();
+				}
+			}
+			
+			// sum mode leaves "one for the pot"
+			if (w.getProcessMode().equals(ProcessMode.SUM)) {
+				if (this.containsKey(pkey)) {
+					Integer p = new Integer(this.get(pkey));
+					procs += p.intValue();
+				} else {
+					procs++;
+				}
+			}
+			
+			w.setProcessorRequirements(new Integer(procs));
+		}
+		
 		return result;
 	}
 

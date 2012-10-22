@@ -94,6 +94,27 @@ public class WorkUnit {
 	 */
 	private String user;
 	
+	
+	/**
+	 * Method for determining how many processors are necessary to execute this task.
+	 */
+	private ProcessMode processMode = ProcessMode.MAX;
+	
+	/**
+	 * get the ProcessMode
+	 * @return
+	 */
+	public ProcessMode getProcessMode() {
+		return processMode;
+	}
+	/**
+	 * set the ProcessMode
+	 * @param mode
+	 */
+	public void setProcessMode(ProcessMode mode) {
+		this.processMode = mode;
+	}
+	
 	/**
 	 * ExecutionMode is the method by which jobs are executed, is handled by the underlying WorkService implementation,
 	 * and is not guaranteed to have any additional effects.  Future implementation may include ARRAY, MPI.
@@ -108,14 +129,24 @@ public class WorkUnit {
 		PROCESS, MPI;
 	}
 	
+	/**
+	 * How a remote system should determine the number of processors used. 
+	 * 
+	 *  SINGLE: WorkUnit will run in a single thread.
+	 *  FIXED:  WorkUnit will require one or more processors, specified by the work unit.  It is possible that some
+	 *  	work units will never be executed it this value is set higher than the largest machine on the grid.
+	 *  MAX:	(DEFAULT) The GridHostResolver determines the number of processors to allocate.  Choosing the maximum value
+	 *  	of all configured software. e.g. if host.software.foo.env.processors=8, a work unit declaring a
+	 *  	dependency of foo will use 8 processors.
+	 *  SUM:	The GridHostResolver sums up all of the configured software requirements to determine the number
+	 *      of required processors
+	 *  MPI:	The GridHostResolver must determine a number of processes and parallel environment.   
+	 * 
+	 * @author calder
+	 *
+	 */
 	public enum ProcessMode {
-		/**
-		 * How a remote system should determine the number of processors
-		 */
-		SINGLE, // single threaded 
-		FIXED,  // the job requests a fixed number of threads  
-		FILL,   // the GridHostResolver can pick the number of threads
-		MPI;    // MPI
+		SINGLE, FIXED, MAX, SUM, MPI;    
 	}
 	
 	/**
@@ -165,7 +196,8 @@ public class WorkUnit {
 	}
 
 	/**
-	 * Set the number of processors/threads required.
+	 * Set the number of processors/threads required. It is possible to set this manually, however this
+	 * value will override any default setting made in configuration.
 	 * @param processors
 	 */
 	public void setProcessorRequirements(Integer processorRequirements) {
