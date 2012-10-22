@@ -2,8 +2,8 @@
  <br />
 <title><fmt:message key="pageTitle.facility/platformunit/showPlatformUnit.label"/></title>
 <h1><fmt:message key="pageTitle.facility/platformunit/showPlatformUnit.label"/></h1>
-<br /> 
-
+ 
+<div>
 <table class="EditTable ui-widget ui-widget-content">
 <tr class="FormData"><td class="CaptionTD"><fmt:message key="platformunitShow.typeOfPlatformUnit.label"/>:</td><td class="DataTD"><c:out value="${typeOfPlatformUnit}" /></td></tr>
 <tr class="FormData"><td class="CaptionTD"><fmt:message key="platformunitShow.barcodeName.label"/>:</td><td class="DataTD"><c:out value="${barcodeName}" /></td></tr>
@@ -12,171 +12,46 @@
 <tr class="FormData"><td class="CaptionTD"><fmt:message key="platformunitShow.numberOfCellsOnThisPlatformUnit.label"/>:</td><td class="DataTD"><c:out value="${numberOfCellsOnThisPlatformUnit}" /></td></tr>
 <tr class="FormData"><td class="CaptionTD"><fmt:message key="platformunitShow.comment.label"/>:</td><td class="DataTD"><textarea style='font-size:9px' READONLY cols='30' rows='4' wrap='virtual'><c:out value="${comment}" /></textarea></td></tr>
 <tr><td colspan='2' style='text-align:center; padding:10px' >
-<a href='<c:url value="/facility/platformunit/createUpdatePlatformUnit.do?sampleSubtypeId=${platformUnitSampleSubtypeId}&sampleId=${platformUnitSampleId}" />'>Edit</a> | <a href='javascript:' onclick = 'if(confirm("Do you really want to delete this platform unit record?")){location.href="<c:url value="/facility/platformunit/deletePlatformUnit.do?sampleId=${platformUnitSampleId}" />";}'>Delete</a> | <a href='<c:url value="/facility/platformunit/addPlatformUnitToRun.do?sampleId=${platformUnitSampleId}" />'>Add To Run</a> 
+<a href='<c:url value="/facility/platformunit/createUpdatePlatformUnit.do?sampleSubtypeId=${platformUnitSampleSubtypeId}&sampleId=${platformUnitSampleId}" />'>Edit</a> | <a href='javascript:void(0)' onclick = 'if(confirm("Do you really want to delete this platform unit record?")){location.href="<c:url value="/facility/platformunit/deletePlatformUnit.do?sampleId=${platformUnitSampleId}" />";}'>Delete</a> | <a href='<c:url value="/run/createUpdateRun.do?resourceId=0&runId=0&platformUnitId=${platformUnitSampleId}" />'>Add To Run</a> 
 </td></tr>
 </table>
+</div>
 
 <c:set var="idCounter" value="0" scope="page" />
 <c:set var="idNewControlCounter" value="0" scope="page" />
 
-<%-- commetned out 10-5-12
-<table class="EditTable ui-widget ui-widget-content">
-<tr class="FormData"><td class="CaptionTD"><fmt:message key="showPlatformUnit.type.label"/>:</td><td class="DataTD"><c:out value="${platformUnit.sampleSubtype.name}" /></td></tr>
-<tr class="FormData"><td class="CaptionTD"><fmt:message key="showPlatformUnit.platformUnit.label"/>:</td><td class="DataTD"><c:out value="${platformUnit.name}" /></td></tr>
-<c:forEach items="${platformUnit.sampleBarcode}" var="sampleBarcodeItem">
-	<tr class="FormData"><td class="CaptionTD"><fmt:message key="showPlatformUnit.barcode.label"/>:</td><td class="DataTD"><c:out value="${sampleBarcodeItem.barcode.barcode}" /></td></tr></c:forEach>
-<!--  <tr class="FormData"><td class="CaptionTD">Lanes:</td><td class="DataTD"><c:out value="${platformUnit.sampleSource.size()}" /></td></tr> -->
-<c:forEach items="${platformUnit.sampleMeta}" var="pusm">
-	<c:if test="${fn:substringAfter(pusm.k, '.') != 'comment'}">
-		<tr class="FormData"><td class="CaptionTD" style="text-transform: capitalize"><c:out value="${fn:toLowerCase(fn:substringAfter(pusm.k, '.'))}" />:</td><td class="DataTD"><c:out value="${pusm.v}" /></td></tr>
-	</c:if>
+<c:if test="${sequenceRuns.size() > 0}">
+<div>
+<table class="data">
+<tr>
+<td class="value-centered-small-heavyborder" nowrap>Run</td>
+<td class="value-centered-small-heavyborder" nowrap>Machine</td>
+<td class="value-centered-small-heavyborder" nowrap>Length</td>
+<td class="value-centered-small-heavyborder" nowrap>Type</td>
+<td class="value-centered-small-heavyborder" nowrap>Start</td>
+<td class="value-centered-small-heavyborder" nowrap>End</td>
+<td class="value-centered-small-heavyborder" nowrap>Status</td>
+<td class="value-centered-small-heavyborder" nowrap>Action</td>
+</tr>
+<c:forEach items="${sequenceRuns}" var="sequenceRun">
+<tr>
+<td class="value-centered-small"><c:out value="${sequenceRun.getName()}" /></td>
+<td class="value-centered-small"><c:out value="${sequenceRun.resource.name}" /> - <c:out value="${sequenceRun.resourceCategory.name}" /></td>
+<c:set var="detailMap" value="${runDetails[sequenceRun.runId]}" scope="page" />
+<td class="value-centered-small"><c:out value='${detailMap["readlength"]}' /></td>
+<td class="value-centered-small"><c:out value='${detailMap["readType"]}' /></td>
+<td class="value-centered-small"><c:out value='${detailMap["dateRunStarted"]}' /></td>
+<td class="value-centered-small"><c:out value='${detailMap["dateRunEnded"]}' /></td>
+<td class="value-centered-small"><c:out value='${detailMap["runStatus"]}' /></td>
+<td class="value-centered-small"><a href='<c:url value="/run/createUpdateRun.do?resourceId=${sequenceRun.resource.resourceId}&runId=${sequenceRun.runId}&platformUnitId=${sequenceRun.sampleId}" />'>edit</a> | <a href='javascript:void(0)' onclick = 'if(confirm("Do you really want to delete this run record?")){location.href="<c:url value="/run/deleteRun.do?runId=${sequenceRun.runId}" />";}'>delete</a></td>
+</tr>
 </c:forEach>
-<c:forEach items="${platformUnit.sampleMeta}" var="pusm">
-	<c:if test="${fn:substringAfter(pusm.k, '.') == 'comment' && pusm.v != '' }">
-		<tr class="FormData"><td class="CaptionTD" style="text-transform: capitalize"><c:out value="${fn:toLowerCase(fn:substringAfter(pusm.k, '.'))}" />:</td><td class="DataTD"><textarea style='font-size:9px' READONLY cols='25' rows='4' wrap='virtual'><c:out value="${pusm.v}" /></textarea></td></tr>
-	</c:if>
-</c:forEach>
---%>
-
-<%-- was commented out a long time ago
-<sec:authorize access="hasRole('su')">
-<c:if test="${runList.size() > 0}">
-<c:choose>
-	<c:when test="${platformUnitStatus == 'UNKNOWN'}">
-		<tr class="FormData"><td colspan="2" class="CaptionTD" style="text-align:center"><hr><br /><fmt:message key="showPlatformUnit.platformUnitStatus.label"/>: <c:out value="${platformUnitStatus}" /></td></tr>
-	</c:when>
-	<c:otherwise>
-		<tr class="FormData">
-			<td colspan="2" class="DataTD" style="text-align:center">
-				<form method='post' action="<c:url value="/facility/platformunit/lockPlatformUnit.do" />" >
-					<input type='hidden' name='platformUnitId' value='<c:out value="${platformUnit.sampleId}" />'/>
-					<c:set var="created" value="" scope="page" />
-					<c:set var="completed" value="" scope="page" />
-					<c:if test="${platformUnitStatus == 'CREATED'}">
-						<c:set var="created" value="checked" scope="page" />
-					</c:if>
-					<c:if test="${platformUnitStatus == 'COMPLETED' || platformUnitStatus == 'FINALIZED'}">
-						<c:set var="completed" value="checked" scope="page" />
-					</c:if>
-					<hr><br />
-					<input type="radio" name="lock" <c:out value="${created}" /> value="CREATED"> <fmt:message key="showPlatformUnit.unlocked.label"/> 
-					&nbsp;&nbsp;<input type="radio" name="lock" <c:out value="${completed}" /> value="COMPLETED"> <fmt:message key="showPlatformUnit.locked.label"/>&nbsp;&nbsp;<input type="button" value="<fmt:message key="showPlatformUnit.update.label"/>" onclick='this.form.submit()' /> &nbsp;&nbsp;<input type="button" value="<fmt:message key="showPlatformUnit.reset.label"/>" onclick='this.form.reset()' /> 
-					<br /> 
-				</form>
-			</td>
-		</tr>
-	</c:otherwise>
-</c:choose>
-</c:if>
-</sec:authorize>
---%>
-
-<%-- commented out 10-5-12
-<tr><td colspan='2' style='text-align:center; padding:10px' >
-<a href='<c:url value="/facility/platformunit/createUpdatePlatformUnit.do?sampleSubtypeId=${platformUnit.sampleSubtypeId}&sampleId=${platformUnit.sampleId}" />'>Edit</a> | <a href='<c:url value="/facility/platformunit/deletePlatformUnit.do?sampleId=${platformUnit.sampleId}" />'>Delete</a> | <a href='<c:url value="/facility/platformunit/addToRun.do?sampleId=${platformUnit.sampleId}" />'>Add To Run</a> 
-</td></tr>
 </table>
---%>
-
-<br />
-
-<c:if test="${runList.size()==0}">
-<div id="newCreateRunButtonDiv">
-	<input type="button" value="<fmt:message key="showPlatformUnit.createNewRun.label"/>" onclick='toggleDisplayOfCreateNewRunForm("create")' />
-</div>
-<div id="newCreateRunFormDiv" style="display:none">
-		<form id="newRunForm"  method='post' action="<c:url value="/facility/platformunit/createNewRun.do" />" >
-		<input type='hidden' name='platformUnitId' value='<c:out value="${platformUnit.sampleId}" />'/>
-		<table class="EditTable ui-widget ui-widget-content">
-			<tr class="FormData"><td colspan="2" class="CaptionTD" style="text-align:center;color:red"><fmt:message key="showPlatformUnit.warning1.label"/></td></tr>
-			<tr class="FormData"><td class="CaptionTD"><fmt:message key="showPlatformUnit.runName.label"/>: </td><td class="DataTD"><input type='text' name='runName' id='runName' size='25' maxlength='30' /></td></tr>
-			<tr class="FormData"><td class="CaptionTD"><fmt:message key="showPlatformUnit.machine.label"/>: </td><td class="DataTD">
-				<select id="resourceId" name="resourceId" >
-		  			<option value=""><fmt:message key="showPlatformUnit.selectMachine.label"/></option>
-						<c:forEach items="${resources}" var="resource">
-							<option value='<c:out value="${resource.getResourceId()}" />'><c:out value="${resource.getName()}" /> - <c:out value="${resource.getResourceCategory().getName()}" /></option>
-						</c:forEach> 
-				</select>			
-			</td></tr>
-			<tr class="FormData"><td class="CaptionTD"><fmt:message key="showPlatformUnit.readLength.label"/>: </td><td class="DataTD">
-				<select id="readLength" name="readLength">
-				</select>			
-			</td></tr>
-			<tr class="FormData"><td class="CaptionTD"><fmt:message key="showPlatformUnit.readType.label"/>: </td><td class="DataTD">
-				<select id="readType" name="readType">
-				</select>			
-			</td></tr>
-			<tr class="FormData"><td class="CaptionTD"><fmt:message key="showPlatformUnit.runTechnician.label"/>: </td><td class="DataTD">
-				<select id="technicianId" name="technicianId" >
-		  			<option value=""><fmt:message key="showPlatformUnit.selectTechnician.label"/></option>
-						<c:forEach items="${technicians.keySet()}" var="technicianId">
-							<option value='<c:out value="${technicianId}" />'><c:out value="${technicians.get(technicianId)}" /></option>
-						</c:forEach> 
-				</select>			
-			</td></tr>
-			<tr class="FormData"><td class="CaptionTD"><fmt:message key="showPlatformUnit.startDate.label"/>: </td><td class="DataTD"><input type="text" name = "runStartDate" id="runStartDate" value="" /></td></tr>
-			<tr class="FormData"><td colspan="2" class="CaptionTD">
-				<input id="submitButtonCreateNewRun" disabled = "disabled" type="button" value="<fmt:message key="showPlatformUnit.submit.label"/>" onclick='validateCreateNewRunForm()' />&nbsp;<input type="button" value="<fmt:message key="showPlatformUnit.cancel.label"/>" onclick='toggleDisplayOfCreateNewRunForm("cancel")' />
-			</td></tr>
-		</table>
-		</form>
 </div>
 </c:if>
-
-
-<c:if test="${runList.size() > 0}">
-		<form id="newRunForm"  method='post' action="<c:url value="/facility/platformunit/createNewRun.do" />" >
-		<input type='hidden' name='platformUnitId' value='<c:out value="${platformUnit.sampleId}" />'/>
-		<input type='hidden' name='runId' value='<c:out value="${runList.get(0).getRunId()}" />'/>
-		<table class="EditTable ui-widget ui-widget-content">
-			<tr class="FormData"><td colspan="2" class="CaptionTD" style="text-align:center;color:red"><fmt:message key="showPlatformUnit.warning2.label"/></td></tr>
-			<tr class="FormData"><td class="CaptionTD"><fmt:message key="showPlatformUnit.runName.label"/>: </td><td class="DataTD"><input type='text' name='runName' id='runName' size='25' maxlength='30' value='<c:out value="${runList.get(0).name}" />'  /></td></tr>
-			<tr class="FormData"><td class="CaptionTD"><fmt:message key="showPlatformUnit.machine.label"/>: </td><td class="DataTD">
-				<select id="resourceId" name="resourceId" >
-		  			<option value=""><fmt:message key="showPlatformUnit.selectMachine.label"/></option>
-						<c:forEach items="${resources}" var="resource">
-							<c:set var="selected" value="" scope="page" />
-							<c:if test="${resource.getResourceId() == runList.get(0).getResourceId()}">
-								<c:set var="selected" value="SELECTED" scope="page" />
-							</c:if>
-							<option value='<c:out value="${resource.getResourceId()}" />'    <c:out value="${selected}" />     ><c:out value="${resource.getName()}" /> - <c:out value="${resource.getResourceCategory().getName()}" /></option>
-						</c:forEach> 
-				</select>			
-			</td></tr>
- 			<tr class="FormData"><td class="CaptionTD"><fmt:message key="showPlatformUnit.readLength.label"/>: </td><td class="DataTD">
-				<select id="readLength" name="readLength">
-					<c:out value="${readLength}" escapeXml="false" />
-				</select>			
-			</td></tr>
-			<tr class="FormData"><td class="CaptionTD"><fmt:message key="showPlatformUnit.readType.label"/>: </td><td class="DataTD">
-				<select id="readType" name="readType">
-					<c:out value="${readType}"  escapeXml="false" />
-				</select>			
-			</td></tr>
-			<tr class="FormData"><td class="CaptionTD"><fmt:message key="showPlatformUnit.runTechnician.label"/>: </td><td class="DataTD">
-				<select id="technicianId" name="technicianId" >
-		  			<option value=""><fmt:message key="showPlatformUnit.selectTechnician.label"/></option>
-						<c:forEach items="${technicians.keySet()}" var="technicianId">
-						<c:set var="selected" value="" scope="page" />
-							<c:if test="${technicianId == runList.get(0).getUserId()}">
-								<c:set var="selected" value="SELECTED" scope="page" />
-							</c:if>
-							<option value='<c:out value="${technicianId}" />' <c:out value="${selected}" />><c:out value="${technicians.get(technicianId)}" /></option>
-						</c:forEach> 
-				</select>			
-			</td></tr>
-			<c:set var="date" value="${runList.get(0).getStartts()}" />
-			<tr class="FormData"><td class="CaptionTD"><fmt:message key="showPlatformUnit.startDate.label"/>: </td><td class="DataTD"><input type="text" name = "runStartDate" id="runStartDate" value="<fmt:formatDate pattern="MM/dd/yyyy" value="${date}" />" /></td></tr>
-			<tr class="FormData"><td colspan="2" class="CaptionTD">
-				<input id="submitButtonCreateNewRun" type="button" value="<fmt:message key="showPlatformUnit.update.label"/>" onclick='validateCreateNewRunForm()' />&nbsp;<input type="button" value="<fmt:message key="showPlatformUnit.reset.label"/>" onclick='location.href="<c:url value="/facility/platformunit/showPlatformUnit/${platformUnit.sampleId}.do" />"' />
-			</td></tr>
-		</table>
-		</form>
-</c:if>
-
 
 <c:if test="${platformUnit.sampleSource.size() > 0}">
-<br />
+
 <div class="fixed-width_scrollable">
 	<table class="data" >
 		<tr><td colspan="${platformUnit.sampleSource.size()}" class="label-centered" style="background-color:#FAF2D6" nowrap><c:out value="${platformUnit.name}" /></td></tr>
