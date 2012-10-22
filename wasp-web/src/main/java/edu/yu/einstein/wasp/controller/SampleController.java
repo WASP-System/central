@@ -313,6 +313,9 @@ public class SampleController extends WaspController {
 		if(sampleNameFromGrid != null){
 			queryMap.put("sample.name", sampleNameFromGrid);
 		}
+		if(selIdAsString != null){//coming from job grid's list of samples
+			queryMap.put("sampleId", Integer.parseInt(selIdAsString));
+		}
 		List<String> orderByColumnNames = new ArrayList<String>();
 		if(sidx!=null && !"".equals(sidx)){//sord is apparently never null; default is desc
 			if(sidx.equals("jobId")){
@@ -364,7 +367,7 @@ public class SampleController extends WaspController {
 			toId = toId <= rowNum ? toId : rowNum;
 
 			// if the selId is set, change the page index to the one contains the selId 
-			if (!StringUtils.isEmpty(request.getParameter("selIdAsString"))) {
+/*			if (!StringUtils.isEmpty(request.getParameter("selIdAsString"))) {
 				int selId = Integer.parseInt(request.getParameter("selIdAsString"));
 				int selIndex = jobSampleList.indexOf(sampleDao.findById(selId));
 				frId = selIndex;
@@ -374,7 +377,7 @@ public class SampleController extends WaspController {
 				jqgrid.put("total", "1");
 				jqgrid.put("page", "1");
 			}
-
+*/
 			List<JobSample> jobSamplePage = jobSampleList.subList(frId, toId);
 			for (JobSample jobSample : jobSamplePage) {
 
