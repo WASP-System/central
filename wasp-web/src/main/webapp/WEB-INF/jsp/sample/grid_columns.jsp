@@ -1,7 +1,7 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
-<wasp:field name="name"  type="text" sortable="true" searchable="false" editable="false" columnWidth="120"/>
-<wasp:field name="type"  type="text" sortable="true" searchable="false" editable="false" columnWidth="60"/>
+<wasp:field name="name"  type="text" sortable="true" searchable="false" editable="false" columnWidth="130"/>
+<wasp:field name="type"  type="text" sortable="true" searchable="false" editable="false" columnWidth="70"/>
 <wasp:field name="subtype"  type="text" sortable="true" searchable="false" editable="false" columnWidth="100"/>
 <wasp:field name="jobId"  type="text" sortable="true" searchable="false" editable="false" columnWidth="45"/>
 <wasp:field name="submitter"  type="text" sortable="true" searchable="false" editable="false" columnWidth="100"/>

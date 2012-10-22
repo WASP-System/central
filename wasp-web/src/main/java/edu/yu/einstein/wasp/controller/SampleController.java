@@ -394,8 +394,9 @@ public class SampleController extends WaspController {
 				
 				cell.put("cell", cellList);
 				rows.add(cell);
-				jqgrid.put("rows", rows);
+				
 			}
+			jqgrid.put("rows", rows);
 			return outputJSON(jqgrid, response);
 
 		} catch (Throwable e) {	throw new IllegalStateException("Can't marshall to JSON " + jobSampleList, e);}
