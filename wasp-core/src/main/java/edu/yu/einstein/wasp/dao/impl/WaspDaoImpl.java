@@ -218,14 +218,17 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 					qString += ", ";
 				}
 				qString += "h." + orderByColumnName;
+				if (direction != null && !"".equals(direction)) {
+					qString += " " + direction;
+				}
 				firstOrderBy = false;
 			}
-			if (firstOrderBy == false && direction != null && !"".equals(direction)) {
-				qString += " " + direction;
-			}
+			//if (firstOrderBy == false && direction != null && !"".equals(direction)) {
+			//	qString += " " + direction;
+			//}
 		}
 		// logger.debug("ROBERT: " + qString);
-
+		//System.out.println("ROBERT: " + qString);
 		Query q = entityManager.createQuery(qString);
 
 		for (Object key : m.keySet()) {

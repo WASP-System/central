@@ -135,6 +135,35 @@ $(document).ready(function() {
 	
 	//function to validate the user-entered data 
 	validate = function(){
+		
+		var jobId = $('#gs_jobId').val();
+		if(typeof(jobId) !== 'undefined' && jobId != null && jobId.length>0){
+			var numberFormat=new RegExp("^[0-9]+$");
+			if(!numberFormat.test(jobId)){
+				alert("Required jobId format: all digits");
+				return true;//do not perform search 
+			}
+		}
+		
+		var properNameAndLoginFormat=new RegExp("^.*?\\({1}([-\\w+]+)\\){1}$");
+		
+		var submitter = $('#gs_submitter').val();//may not always be defined 
+		if(typeof(submitter) !== 'undefined' && submitter != null && submitter.length>0){
+			//could have subsituted if(typeof(submitter) !== 'undefined' && submitter != null && submitter.length>0) with if(submitter && submitter.length>0)  
+			if(!properNameAndLoginFormat.test(submitter)){
+				alert("Required Submitter format: firstname lastname (login). It is best to select name from list.");
+				return true;//do not perform search 
+			}
+		}
+		
+		var pi = $('#gs_pi').val();	//may not always be defined 
+		if(typeof(pi) !== 'undefined' && pi != null && pi.length>0){
+			//could have subsituted if(typeof(pi) !== 'undefined' && pi != null && pi.length>0) with if(pi && pi.length>0)  
+			if(!properNameAndLoginFormat.test(pi)){
+				alert("Required PI format: firstname lastname (login). It is best to select name from list.");
+				return true;//do not perform search 
+			}
+		}
 /*
 		var readlength = $('#gs_readlength').val();
 		readlength = readlength.replace(/^\s+|\s+$/g,'');//trim 

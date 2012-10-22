@@ -31,6 +31,7 @@ import edu.yu.einstein.wasp.dao.AdaptorDao;
 import edu.yu.einstein.wasp.dao.AdaptorsetDao;
 import edu.yu.einstein.wasp.dao.JobDao;
 import edu.yu.einstein.wasp.dao.JobSampleDao;
+import edu.yu.einstein.wasp.dao.LabDao;
 import edu.yu.einstein.wasp.dao.RunDao;
 import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.dao.SampleMetaDao;
@@ -42,6 +43,7 @@ import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Adaptorset;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobSample;
+import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
@@ -55,6 +57,7 @@ import edu.yu.einstein.wasp.service.AdaptorService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 import edu.yu.einstein.wasp.util.MetaHelper;
+import edu.yu.einstein.wasp.util.StringHelper;
 
 @Controller
 @Transactional
@@ -86,6 +89,9 @@ public class SampleController extends WaspController {
 
   @Autowired
   private UserDao userDao;
+ 
+  @Autowired
+  private LabDao labDao;
   
   @Autowired
   private RunDao runDao;
@@ -222,32 +228,115 @@ public class SampleController extends WaspController {
 		//If stringResult = true, the parameters containing values would have been sent as a key named filters in JSON format 
 		//see http://www.trirand.com/jqgridwiki/doku.php?id=wiki:toolbar_searching
 		//below we capture parameters on job grid's search toolbar by name (key:value).
-		String nameFromGrid = request.getParameter("name")==null?null:request.getParameter("name").trim();//if not passed,  will be null
-		String typeFromGrid = request.getParameter("typeFromGrid")==null?null:request.getParameter("typeFromGrid").trim();//if not passed, will be null
-		String subTypeFromGrid = request.getParameter("subTypeFromGrid")==null?null:request.getParameter("subTypeFromGrid").trim();//if not passed, will be null
-		String jobIdFromGrid = request.getParameter("jobIdFromGrid")==null?null:request.getParameter("jobIdFromGrid").trim();//if not passed, will be null
-		String submitterFromGrid = request.getParameter("submitterFromGrid")==null?null:request.getParameter("submitterFromGrid").trim();//if not passed, will be null
-		String piFromGrid = request.getParameter("piFromGrid")==null?null:request.getParameter("piFromGrid").trim();//if not passed, will be null
-		System.out.println("nameFromGrid = " + nameFromGrid);System.out.println("typeFromGrid = " + typeFromGrid);
-		System.out.println("subTypeFromGrid = " + subTypeFromGrid);System.out.println("jobIdFromGrid = " + jobIdFromGrid);
-		System.out.println("submitterFromGrid = " + submitterFromGrid);System.out.println("piFromGrid = " + piFromGrid);
+		String sampleNameFromGrid = request.getParameter("name")==null?null:request.getParameter("name").trim();//if not passed,  will be null
+		String typeFromGrid = request.getParameter("type")==null?null:request.getParameter("type").trim();//if not passed, will be null
+		//not used String subTypeFromGrid = request.getParameter("subTypeFromGrid")==null?null:request.getParameter("subTypeFromGrid").trim();//if not passed, will be null
+		String jobIdFromGridAsString = request.getParameter("jobId")==null?null:request.getParameter("jobId").trim();//if not passed, will be null
+		String submitterNameAndLoginFromGrid = request.getParameter("submitter")==null?null:request.getParameter("submitter").trim();//if not passed, will be null
+		String piNameAndLoginFromGrid = request.getParameter("pi")==null?null:request.getParameter("pi").trim();//if not passed, will be null
+		System.out.println("sampleNameFromGrid = " + sampleNameFromGrid);
+		System.out.println("typeFromGrid = " + typeFromGrid);
+		//not used System.out.println("subTypeFromGrid = " + subTypeFromGrid);
+		System.out.println("jobIdFromGridAsString = " + jobIdFromGridAsString);
+		System.out.println("submitterNameAndLoginFromGrid = " + submitterNameAndLoginFromGrid);System.out.println("piNameAndLoginFromGrid = " + piNameAndLoginFromGrid);
+		
+		//DEAL WITH PARAMETERS
+		
+		//deal with jobId
+		Integer jobId = null;
+		if(jobIdFromGridAsString != null){//something was passed
+			jobId = StringHelper.convertStringToInteger(jobIdFromGridAsString);//returns null is unable to convert
+			if(jobId == null){//perhaps the passed value was abc, which is not a valid jobId
+				jobId = new Integer(0);//fake it so that result set will be empty; this way, the search will be performed with jobId = 0 and will come up with an empty result set
+			}
+		}		
+	
+		//deal with submitter from grid 
+		User submitter = null;
+		//from grid
+		if(submitterNameAndLoginFromGrid != null){//something was passed; expecting firstname lastname (login)
+			String submitterLogin = StringHelper.getLoginFromFormattedNameAndLogin(submitterNameAndLoginFromGrid.trim());//if fails, returns empty string
+			if(submitterLogin.isEmpty()){//most likely incorrect format !!!!for later, if some passed in amy can always do search for users with first or last name of amy, but would need to be done by searching every job
+				submitter = new User();
+				submitter.setUserId(new Integer(0));//fake it; perform search below and no user will appear in the result set
+			}
+			else{
+				submitter = userDao.getUserByLogin(submitterLogin);
+				if(submitter.getUserId()==null){//if not found in database, submitter is NOT null and getUserId()=null
+					submitter.setUserId(new Integer(0));//fake it; perform search below and no user will appear in the result set
+				}
+			}
+		}
+		
+		//deal with PI (lab)
+		User pi = null;
+		Lab piLab = null;//this is what's tested below
+		if(piNameAndLoginFromGrid != null){//something was passed; expecting firstname lastname (login)
+			String piLogin = StringHelper.getLoginFromFormattedNameAndLogin(piNameAndLoginFromGrid.trim());//if fails, returns empty string
+			if(piLogin.isEmpty()){//likely incorrect format
+				piLab = new Lab();
+				piLab.setLabId(new Integer(0));//fake it; result set will come up empty
+			}
+			else{
+				pi = userDao.getUserByLogin(piLogin);//if User not found, pi object is NOT null and pi.getUnserId()=null
+				if(pi.getUserId()==null){
+					piLab = new Lab();
+					piLab.setLabId(new Integer(0));//fake it; result set will come up empty
+				}
+				else{
+					piLab = labDao.getLabByPrimaryUserId(pi.getUserId().intValue());//if the Lab not found, piLab object is NOT null and piLab.getLabId()=null
+					if(piLab.getLabId()==null){
+						piLab.setLabId(new Integer(0));//fake it; result set will come up empty
+					}
+				}
+			}
+		}
 		
 		List<JobSample> tempJobSampleList = new ArrayList<JobSample>();
-		List<JobSample> jobSamplesFoundInSearch = new ArrayList<JobSample>();//not currently used
+		//List<JobSample> jobSamplesFoundInSearch = new ArrayList<JobSample>();//not currently used
 		List<JobSample> jobSampleList = new ArrayList<JobSample>();
 		
 		Map queryMap = new HashMap();
-		List<String> orderByColumnNames = new ArrayList<String>();
-		orderByColumnNames.add("startts");//start run
-		String direction = "desc";
-		if(sidx!=null && sidx.equals("jobId") && sord !=null && sord.equals("asc")){
-			direction = new String("asc");
+		if(jobId != null){
+			queryMap.put("jobId", jobId.intValue());
 		}
-		tempJobSampleList = jobSampleDao.findAllOrderBy("jobId", direction);
-
+		if(submitter != null){
+			queryMap.put("job.UserId", submitter.getUserId().intValue());
+		}
+		if(piLab != null){
+			queryMap.put("job.labId", piLab.getLabId().intValue());
+		}
+		if(typeFromGrid != null){
+			queryMap.put("sample.sampleType.name", typeFromGrid);
+		}
+		if(sampleNameFromGrid != null){
+			queryMap.put("sample.name", sampleNameFromGrid);
+		}
+		List<String> orderByColumnNames = new ArrayList<String>();
+		if(sidx!=null && !"".equals(sidx)){//sord is apparently never null; default is desc
+			if(sidx.equals("jobId")){
+				orderByColumnNames.add("jobId");
+			}
+			else if(sidx.equals("name")){
+				orderByColumnNames.add("sample.name");
+			}
+			else if(sidx.equals("type")){
+				orderByColumnNames.add("sample.sampleType.name");
+			}
+			else if(sidx.equals("submitter")){
+				orderByColumnNames.add("job.user.lastName"); orderByColumnNames.add("job.user.firstName");
+			}
+			else if(sidx.equals("pi")){
+				orderByColumnNames.add("job.lab.user.lastName"); orderByColumnNames.add("job.lab.user.firstName");
+			}
+		}
+		else if(sidx==null || "".equals(sidx)){
+			orderByColumnNames.add("jobId");
+		}
+		tempJobSampleList = jobSampleDao.findByMapDistinctOrderBy(queryMap, null, orderByColumnNames, sord);
+		
 		jobSampleList = tempJobSampleList;
 		
-		///////////////////List<Sample> sampleList = sampleDao.findAll();
 		String selId = request.getParameter("selId");
 		
 /*
@@ -343,8 +432,8 @@ public class SampleController extends WaspController {
 			
 			int pageIndex = Integer.parseInt(request.getParameter("page"));		// index of page
 			int pageRowNum = Integer.parseInt(request.getParameter("rows"));	// number of rows in one page
-///			int rowNum = sampleList.size();										// total number of rows
-int rowNum = jobSampleList.size();	
+			///			int rowNum = sampleList.size();										// total number of rows
+			int rowNum = jobSampleList.size();	// total number of rows
 			int pageNum = (rowNum + pageRowNum - 1) / pageRowNum;				// total number of pages
 			
 			jqgrid.put("records", rowNum + "");
