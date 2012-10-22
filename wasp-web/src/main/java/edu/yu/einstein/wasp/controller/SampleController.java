@@ -219,7 +219,8 @@ public class SampleController extends WaspController {
 		String sord = request.getParameter("sord");//grid is set so that this always has a value
 		String sidx = request.getParameter("sidx");//grid is set so that this always has a value
 		String search = request.getParameter("_search");//from grid (will return true or false, depending on the toolbar's parameters)
-		System.out.println("sidx = " + sidx);System.out.println("sord = " + sord);System.out.println("search = " + search);
+		String selIdAsString = request.getParameter("selId");//not really used here
+		//System.out.println("sidx = " + sidx);System.out.println("sord = " + sord);System.out.println("search = " + search);
 		//String selIdAsString = request.getParameter("selId");
 		//System.out.println("selIdAsString = " + selIdAsString);
 		//Parameters coming from grid's toolbar
@@ -229,16 +230,16 @@ public class SampleController extends WaspController {
 		//see http://www.trirand.com/jqgridwiki/doku.php?id=wiki:toolbar_searching
 		//below we capture parameters on job grid's search toolbar by name (key:value).
 		String sampleNameFromGrid = request.getParameter("name")==null?null:request.getParameter("name").trim();//if not passed,  will be null
-		String typeFromGrid = request.getParameter("type")==null?null:request.getParameter("type").trim();//if not passed, will be null
+		String typeFromGrid = request.getParameter("type")==null?null:request.getParameter("type").trim();//this is the iname; if not passed, will be null
 		//not used String subTypeFromGrid = request.getParameter("subTypeFromGrid")==null?null:request.getParameter("subTypeFromGrid").trim();//if not passed, will be null
 		String jobIdFromGridAsString = request.getParameter("jobId")==null?null:request.getParameter("jobId").trim();//if not passed, will be null
 		String submitterNameAndLoginFromGrid = request.getParameter("submitter")==null?null:request.getParameter("submitter").trim();//if not passed, will be null
 		String piNameAndLoginFromGrid = request.getParameter("pi")==null?null:request.getParameter("pi").trim();//if not passed, will be null
-		System.out.println("sampleNameFromGrid = " + sampleNameFromGrid);
-		System.out.println("typeFromGrid = " + typeFromGrid);
+		//System.out.println("sampleNameFromGrid = " + sampleNameFromGrid);
+		//System.out.println("typeFromGrid = " + typeFromGrid);
 		//not used System.out.println("subTypeFromGrid = " + subTypeFromGrid);
-		System.out.println("jobIdFromGridAsString = " + jobIdFromGridAsString);
-		System.out.println("submitterNameAndLoginFromGrid = " + submitterNameAndLoginFromGrid);System.out.println("piNameAndLoginFromGrid = " + piNameAndLoginFromGrid);
+		//System.out.println("jobIdFromGridAsString = " + jobIdFromGridAsString);
+		//System.out.println("submitterNameAndLoginFromGrid = " + submitterNameAndLoginFromGrid);System.out.println("piNameAndLoginFromGrid = " + piNameAndLoginFromGrid);
 		
 		//DEAL WITH PARAMETERS
 		
@@ -333,103 +334,14 @@ public class SampleController extends WaspController {
 		else if(sidx==null || "".equals(sidx)){
 			orderByColumnNames.add("jobId");
 		}
-		tempJobSampleList = jobSampleDao.findByMapDistinctOrderBy(queryMap, null, orderByColumnNames, sord);
-		
+		tempJobSampleList = jobSampleDao.findByMapDistinctOrderBy(queryMap, null, orderByColumnNames, sord);		
 		jobSampleList = tempJobSampleList;
 		
-		String selId = request.getParameter("selId");
-		
-/*
-		String sord = request.getParameter("sord");
-		String sidx = request.getParameter("sidx");
-		String search = request.getParameter("_search");
-		String searchField = request.getParameter("searchField");
-		String searchString = request.getParameter("searchString");
-		String selId = request.getParameter("selId");
+		//****** will need some mechanism to handle the column RECEIVED? which is currently blank;
+		//will likely need comparator to order by that non-existent column (or even select by that column)
 
-		if (!StringUtils.isEmpty(selId)) {
-
-			sampleList.add(this.sampleDao.getSampleBySampleId(Integer.parseInt(selId)));
-		
-		} else if (!StringUtils.isEmpty(search) && !StringUtils.isEmpty(searchField) && !StringUtils.isEmpty(searchString) ) {
-		
-			Map<String, String> m = new HashMap<String, String>();
-
-			m.put(searchField, searchString);
-
-			if (sidx.isEmpty()) {
-				sampleList = this.sampleDao.findByMap(m);
-			} else {
-				List<String> sidxList =  new ArrayList<String>();
-				sidxList.add(sidx);
-				sampleList = this.sampleDao.findByMapDistinctOrderBy(m, null, sidxList, sord);
-			}
-
-			if ("ne".equals(request.getParameter("searchOper"))) {
-				List<Sample> allSamples = new ArrayList<Sample>(sidx.isEmpty() ? 
-						this.sampleDao.findAll() : this.sampleDao.findAllOrderBy(sidx, sord));
-
-				for (Iterator<Sample> it = sampleList.iterator(); it.hasNext();) {
-					Sample excludeSample = it.next();
-					allSamples.remove(excludeSample);
-
-				}
-				sampleList = allSamples;
-			}
-			
-		} else {
-			
-			sampleList = sidx.isEmpty() ? this.sampleDao.findAll() : this.sampleDao.findAllOrderBy(sidx, sord);
-		}
-*/
 		try {
 
-			Map<Integer, String> allSampleTypes = new TreeMap<Integer, String>();
-			for (SampleType sampleType : this.getSampleTypeDao().findAll()) {
-				allSampleTypes.put(sampleType.getSampleTypeId(), sampleType.getName());
-			}
-			Map<Integer, String> allSubSampleTypes = new TreeMap<Integer, String>();
-			for (SampleSubtype sampleSubtype : sampleSubtypeDao.findAll()) {
-				allSubSampleTypes.put(sampleSubtype.getSampleSubtypeId(), sampleSubtype.getName());
-			}
-
-			Map<Integer, String> allJobs = new TreeMap<Integer, String>();
-			for (Job job : jobDao.findAll()) {
-				allJobs.put(job.getJobId(), job.getName());
-			}
-
-			Map<Integer, String> allUsers = new TreeMap<Integer, String>();
-			for (User user : userDao.findAll()) {
-				allUsers.put(user.getUserId(), user.getLastName() + ", " + user.getFirstName());
-			}
-
-			Map<Integer, String> allRuns = new TreeMap<Integer, String>();
-			for (Run run : runDao.findAll()) {
-				allRuns.put(run.getSampleId(), run.getName());
-			}
-
-			// Remove all samples whose sampletypecategory is not "biomaterial" and also remove all control libraries
-//			List<Sample> sampleListFiltered = new ArrayList<Sample> ();
-//			for (Sample sample : sampleList) {
-//				if (sample.getSampleType().getSampleTypeCategory().getIName().equals("biomaterial")) {
-//					if ( ! sample.getSampleSubtype().getIName().equals("controlLibrarySample")){//exclude controlLibraries
-//						sampleListFiltered.add(sample);
-//					}
-//				}
-//			}
-///			sampleList = sampleListFiltered;
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
 			int pageIndex = Integer.parseInt(request.getParameter("page"));		// index of page
 			int pageRowNum = Integer.parseInt(request.getParameter("rows"));	// number of rows in one page
 			///			int rowNum = sampleList.size();										// total number of rows
@@ -442,23 +354,8 @@ public class SampleController extends WaspController {
 
 			Map<String, String> sampleData = new HashMap<String, String>();
 			sampleData.put("page", pageIndex + "");
-			sampleData.put("selId", StringUtils.isEmpty(selId) ? "" : selId);
+			sampleData.put("selId", StringUtils.isEmpty(selIdAsString) ? "" : selIdAsString);
 			jqgrid.put("sampledata", sampleData);
-			 
-			/***** Begin Sort by User last name *****/
-			class SampleSubmitterNameComparator implements Comparator<Sample> {
-				@Override
-				public int compare(Sample arg0, Sample arg1) {
-					return arg0.getUser().getLastName().compareToIgnoreCase(arg1.getUser().getLastName());
-				}
-			}
-
-//			if (sidx.equals("submitterUserId")) {
-//				Collections.sort(sampleList, new SampleSubmitterNameComparator());
-//				if (sord.equals("desc"))
-//					Collections.reverse(sampleList);
-//			}
-			/***** End Sort by User last name *****/
 
 			List<Map> rows = new ArrayList<Map>();
 
@@ -467,40 +364,23 @@ public class SampleController extends WaspController {
 			toId = toId <= rowNum ? toId : rowNum;
 
 			// if the selId is set, change the page index to the one contains the selId 
-//			if (!StringUtils.isEmpty(request.getParameter("selId"))) {
-//				int selId = Integer.parseInt(request.getParameter("selId"));
-//				int selIndex = sampleList.indexOf(sampleDao.findById(selId));
-//				frId = selIndex;
-//				toId = frId + 1;
-//
-//				jqgrid.put("records", "1");
-//				jqgrid.put("total", "1");
-//				jqgrid.put("page", "1");
-//			}
+			if (!StringUtils.isEmpty(request.getParameter("selIdAsString"))) {
+				int selId = Integer.parseInt(request.getParameter("selIdAsString"));
+				int selIndex = jobSampleList.indexOf(sampleDao.findById(selId));
+				frId = selIndex;
+				toId = frId + 1;
 
-			//List<Sample> samplePage = sampleList.subList(frId, toId);
-			//for (Sample sample:samplePage) {
-//			List<Sample> samplePage = sampleList.subList(frId, toId);
+				jqgrid.put("records", "1");
+				jqgrid.put("total", "1");
+				jqgrid.put("page", "1");
+			}
+
 			List<JobSample> jobSamplePage = jobSampleList.subList(frId, toId);
-//			for (Sample sample : samplePage) {
 			for (JobSample jobSample : jobSamplePage) {
 
 				Map cell = new HashMap();
 				cell.put("id", jobSample.getSampleId());
 
-				//List<SampleMeta> sampleMeta = getMetaHelperWebapp().syncWithMaster(sample.getSampleMeta());
-
-/*				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
-						sample.getName(),
-						(sample.getSampleTypeId() == null)? "": allSampleTypes.get(sample.getSampleTypeId()),
-						(sample.getSampleSubtypeId() == null)? "": allSubSampleTypes.get(sample.getSampleSubtypeId()),
-						(sample.getSubmitterJobId() == null)? "" : allJobs.get(sample.getSubmitterJobId()),
-						allUsers.get(sample.getSubmitterUserId()),
-						(sample.getSampleSubtype().getIName().indexOf("FacilityLibrary") > -1) ? "N/A" : sampleService.convertReceiveSampleStatusForWeb(sampleService.getReceiveSampleStatus(sample)),//facility-generated libraries have no receive sample information as they were created by the facility
-						allRuns.get(sample.getSampleId())
-				}));
-*/
-				
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 						jobSample.getSample().getName(),
 						jobSample.getSample().getSampleType().getName(),
@@ -512,22 +392,13 @@ public class SampleController extends WaspController {
 						" "
 				}));
 				
-				//for (SampleMeta meta : sampleMeta) {
-				//	cellList.add(meta.getV());
-				//}
-
 				cell.put("cell", cellList);
-
 				rows.add(cell);
-
 				jqgrid.put("rows", rows);
-
 			}
 			return outputJSON(jqgrid, response);
 
-		} catch (Throwable e) {
-			throw new IllegalStateException("Can't marshall to JSON " + jobSampleList, e);
-		}
+		} catch (Throwable e) {	throw new IllegalStateException("Can't marshall to JSON " + jobSampleList, e);}
 	}
 
 	@RequestMapping(value="/listControlLibraries", method=RequestMethod.GET)

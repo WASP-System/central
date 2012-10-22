@@ -695,6 +695,41 @@ public class AutoCompleteController extends WaspController{
 	      return jsonString;                
 	  }
 	  
+	  
+		/**
+	   * TEST - json message contain list of all biomaterial sampletypes where each entry in the list looks something like "name" but once selected, it is "iname" that is actually put into the autocomplete input box"
+	   * Used to populate a JQuery autocomplete managed input box
+	   * @param piNameFragment
+	   * @return json message
+	   */
+	  @RequestMapping(value="/getSampleTypesThatAreBiomaterialsForDisplayAsLabelValue", method=RequestMethod.GET)
+	  public @ResponseBody String getAllSampleTypesThatAreBiomaterialsAsLabelValue(@RequestParam String str) {
+	      
+		  Map queryMap = new HashMap();
+		  queryMap.put("sampleTypeCategory.iName", "biomaterial");
+		  List<String> orderByColumnNames = new ArrayList<String>();
+		  orderByColumnNames.add("name");
+		  String direction = "asc";
+		  List<SampleType> sampleTypeList = sampleTypeDao.findByMapDistinctOrderBy(queryMap, null, orderByColumnNames, direction);
+		 
+	      StringBuilder sb = new StringBuilder();
+	      sb.append("{\"source\": [");
+	      int counter = 0;
+	      for (SampleType st : sampleTypeList){
+	    	  if(counter++ > 0){
+	    		  sb.append(",");
+	    	  }
+	    	  sb.append("{\"label\": \""+st.getName()+"\", \"value\":\""+st.getIName()+"\"}");
+	      }
+	      sb.append("]}");
+	      
+	      String jsonOutput = new String(sb);
+	      System.out.println("jsonOutput: " + jsonOutput);
+	      
+	      return jsonOutput; 
+	  }
+	  
+	  
 		/**
 	   * Obtains a json message containing list of sample names (distinct) that were submitted via a job - so samples (those that are a biomaterial and also user-submitted libraries) as well as facility-generated libraries"
 	   * Order ascending
