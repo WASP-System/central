@@ -28,6 +28,7 @@ import edu.yu.einstein.wasp.dao.UserPendingMetaDao;
 import edu.yu.einstein.wasp.model.Barcode;
 import edu.yu.einstein.wasp.model.Department;
 import edu.yu.einstein.wasp.model.MetaBase;
+import edu.yu.einstein.wasp.model.Resource;
 import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.ResourceCategoryMeta;
 import edu.yu.einstein.wasp.model.Sample;
@@ -36,10 +37,13 @@ import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Lab;
+import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.dao.LabDao;
 import edu.yu.einstein.wasp.dao.JobDao;
 import edu.yu.einstein.wasp.dao.DepartmentDao;
+import edu.yu.einstein.wasp.dao.ResourceDao;
 import edu.yu.einstein.wasp.dao.ResourceCategoryDao;
+import edu.yu.einstein.wasp.dao.RunDao;
 import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.dao.SampleSubtypeDao;
 import edu.yu.einstein.wasp.service.FilterService;
@@ -74,6 +78,12 @@ public class AutoCompleteController extends WaspController{
 
 	@Autowired
 	private ResourceCategoryDao resourceCategoryDao;
+
+	@Autowired
+	private ResourceDao resourceDao;
+
+	@Autowired
+	private RunDao runDao;
 
 	@Autowired
 	private SampleDao sampleDao;
@@ -581,4 +591,64 @@ public class AutoCompleteController extends WaspController{
 	      jsonString = jsonString.replaceAll(",$", "") + "]}";
 	      return jsonString;                 
 	  }
+	  
+		/**
+	   * Obtains a json message containing list of ALL resourceNames for resources of type "MPS" (list of names of sequencing machines), such as X123)
+	   * ALSO TAG ON THE RESOURCE CATEGORY FOR DISPLAY
+	   * Order ascending
+	   * Used to populate a JQuery autocomplete managed input box
+	   * @param str
+	   * @return json message
+	   */
+	  @RequestMapping(value="/getMpsResourceNamesAndCategoryForDisplay", method=RequestMethod.GET)
+	  public @ResponseBody String getAllMpsResourcesAndCategory(@RequestParam String str) {
+		  
+		  Map queryMap = new HashMap();
+		  queryMap.put("resourceType.iName", "mps");
+		  List<String> orderByColumnNames = new ArrayList<String>();
+		  orderByColumnNames.add("name");
+		  String direction = "asc";
+		  List<Resource> resourceList = resourceDao.findByMapDistinctOrderBy(queryMap, null, orderByColumnNames, direction);
+	      
+	      String jsonString = new String();
+	      jsonString = jsonString + "{\"source\": [";
+	      for (Resource r : resourceList){
+	      	 if(r.getName().indexOf(str) > -1){//note: if str equals "", this, perhaps unexpectedly, evaluates to true
+	      		 String machineAndType = r.getName() + " - " + r.getResourceCategory().getName();
+	       		 jsonString = jsonString + "\""+ machineAndType +"\",";
+	       	 }
+	      }
+	      jsonString = jsonString.replaceAll(",$", "") + "]}";
+	      return jsonString;                 
+	  }
+	  
+		/**
+	   * Obtains a json message containing list of ALL sequence run names"
+	   * Order ascending
+	   * Used to populate a JQuery autocomplete managed input box
+	   * @param str
+	   * @return json message
+	   */
+	  @RequestMapping(value="/getSequenceRunNamesForDisplay", method=RequestMethod.GET)
+	  public @ResponseBody String getAllSequenceRunNames(@RequestParam String str) {
+		  
+		  Map queryMap = new HashMap();
+		  queryMap.put("resource.resourceType.iName", "mps");
+		  queryMap.put("resourceCategory.resourceType.iName", "mps");
+		  List<String> orderByColumnNames = new ArrayList<String>();
+		  orderByColumnNames.add("name");
+		  String direction = "asc";
+		  List<Run> runList = runDao.findByMapDistinctOrderBy(queryMap, null, orderByColumnNames, direction);
+			
+	      String jsonString = new String();
+	      jsonString = jsonString + "{\"source\": [";
+	      for (Run r: runList){
+	      	 if(r.getName().indexOf(str) > -1){//note: if str equals "", this, perhaps unexpectedly, evaluates to true
+	       		 jsonString = jsonString + "\""+ r.getName()+"\",";
+	       	 }
+	      }
+	      jsonString = jsonString.replaceAll(",$", "") + "]}";
+	      return jsonString;                
+	  }
+	 
 }

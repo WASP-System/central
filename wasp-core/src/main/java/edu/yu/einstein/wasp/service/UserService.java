@@ -36,5 +36,11 @@ public interface UserService extends WaspService {
 	 */
   public void reverseSortUsersByUserId(List<User> users);
   
+  /**
+	 * get list of facility technicians (distinct list of users with role of fm or ft).
+	 * @return List<User>
+	 */
+  public List<User> getFacilityTechnicians();
+  
 }
 
