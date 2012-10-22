@@ -1,4 +1,4 @@
-package edu.yu.einstein.wasp.batch.exceptions;
+package edu.yu.einstein.wasp.exception;
 
 
 /**

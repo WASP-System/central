@@ -18,8 +18,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import edu.yu.einstein.wasp.batch.core.extension.JobExplorerWasp;
-import edu.yu.einstein.wasp.batch.exceptions.BatchDaoDataRetrievalException;
-import edu.yu.einstein.wasp.batch.exceptions.ParameterValueRetrievalException;
+import edu.yu.einstein.wasp.exception.BatchDaoDataRetrievalException;
+import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
 
 @ContextConfiguration(locations={"classpath:batch/batch-test-context.xml"})
 

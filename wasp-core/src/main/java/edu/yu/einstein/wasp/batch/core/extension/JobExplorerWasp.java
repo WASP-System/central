@@ -10,8 +10,8 @@ import org.springframework.batch.core.JobInstance;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.explore.JobExplorer;
 
-import edu.yu.einstein.wasp.batch.exceptions.BatchDaoDataRetrievalException;
-import edu.yu.einstein.wasp.batch.exceptions.ParameterValueRetrievalException;
+import edu.yu.einstein.wasp.exception.BatchDaoDataRetrievalException;
+import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
 
 public interface JobExplorerWasp extends JobExplorer {
 	

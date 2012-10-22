@@ -42,6 +42,9 @@ public class WorkflowLoader extends WaspResourceLoader {
   
   private Integer isActive;
   
+  private String jobFlowBatchJob = "";
+  public void setJobFlowBatchJob(String jobFlowBatchJob){ this.jobFlowBatchJob = jobFlowBatchJob; }
+  
   public Integer getIsActive() {
 	return isActive;
   }
@@ -60,9 +63,14 @@ public class WorkflowLoader extends WaspResourceLoader {
 	  pageFlowWorkflowMeta.setK("workflow.submitpageflow");
 	  pageFlowWorkflowMeta.setV(pageFlowString);
 	  pageFlowWorkflowMeta.setPosition(0);
+	  WorkflowMeta jobFlowBatchJobMeta = new WorkflowMeta();
+	  jobFlowBatchJobMeta.setK("workflow.jobFlowBatchJob");
+	  jobFlowBatchJobMeta.setV(jobFlowBatchJob);
+	  jobFlowBatchJobMeta.setPosition(0);
 	  if (meta == null)
 		  meta = new ArrayList<WorkflowMeta>();
 	  meta.add(pageFlowWorkflowMeta);
+	  meta.add(jobFlowBatchJobMeta);
 	  
 	  workflowLoadService.update(iname, name, isActive, meta, dependencies, sampleSubtypes);
 	  workflowLoadService.updateUiFields(uiFields);

@@ -32,7 +32,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.batch.core.extension.WaspBatchJobExplorer;
-import edu.yu.einstein.wasp.batch.exceptions.ParameterValueRetrievalException;
 import edu.yu.einstein.wasp.dao.FileDao;
 import edu.yu.einstein.wasp.dao.JobCellSelectionDao;
 import edu.yu.einstein.wasp.dao.JobDao;
@@ -57,6 +56,7 @@ import edu.yu.einstein.wasp.dao.SampleTypeDao;
 import edu.yu.einstein.wasp.dao.SoftwareDao;
 import edu.yu.einstein.wasp.exception.FileMoveException;
 import edu.yu.einstein.wasp.exception.InvalidParameterException;
+import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.BatchJobLaunchMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.JobStatusMessageTemplate;
@@ -645,7 +645,9 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 					sampleJobCellSelectionDao.save(sampleJobCellSelection);
 				}
 			}
-			Map<String, String> jobParameters
+			Map<String, String> jobParameters = new HashMap<String, String>();
+			jobParameters.put(WaspJobParameters.JOB_ID, jobDb.getJobId().toString());
+			// TODO: get batch job name from config
 			BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate(batchJobLaunchContext)
 			// update the jobdraft
 			jobDraft.setStatus("SUBMITTED");
