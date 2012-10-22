@@ -31,7 +31,7 @@ public class NotifyStatusTasklet extends WaspTasklet implements Tasklet {
 	@Override
 	public RepeatStatus execute(StepContribution stepContribution, ChunkContext chunkContext) throws Exception {
 		logger.debug("execute() invoked");
-		Message<WaspStatus> message = messageTemplate.build();
+		Message<WaspStatus> message = (Message<WaspStatus>) messageTemplate.build();
 		logger.debug("sending message: "+message);
 		messageChannel.send(message);
 		return RepeatStatus.FINISHED;

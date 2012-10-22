@@ -3,21 +3,30 @@ package edu.yu.einstein.wasp.daemon.test.stubs;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.batch.core.BatchStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.integration.Message;
+import org.springframework.integration.MessagingException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
+import edu.yu.einstein.wasp.exception.ResourceException;
+import edu.yu.einstein.wasp.exception.RunException;
 import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.exception.SampleIndexException;
 import edu.yu.einstein.wasp.exception.SampleMultiplexException;
 import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleSubtypeException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
+import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
+import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.Resource;
 import edu.yu.einstein.wasp.model.Run;
+import edu.yu.einstein.wasp.model.RunMeta;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleMeta;
@@ -97,7 +106,7 @@ public class StubSampleService implements SampleService {
 	}
 
 	@Override
-	public String getReceiveSampleStatus(Sample sample) {
+	public BatchStatus getReceiveSampleStatus(Sample sample) {
 		// Auto-generated method stub
 		return null;
 	}
@@ -108,17 +117,8 @@ public class StubSampleService implements SampleService {
 
 	}
 
-	@Override
-	public String convertReceiveSampleStatusForWeb(String internalStatus) {
-		// Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String convertReceiveSampleStatusForInternalStorage(String webStatus) {
-		// Auto-generated method stub
-		return null;
-	}
+	
+	
 
 	@Override
 	public List<String> getReceiveSampleStatusOptionsForWeb() {
@@ -126,12 +126,7 @@ public class StubSampleService implements SampleService {
 		return null;
 	}
 
-	@Override
-	public boolean updateSampleReceiveStatus(Sample sample, String status) {
-		// Auto-generated method stub
-		return false;
-	}
-
+	
 	@Override
 	public boolean submittedSampleHasBeenProcessedByFacility(Sample sample) {
 		// Auto-generated method stub
@@ -150,11 +145,6 @@ public class StubSampleService implements SampleService {
 		return null;
 	}
 
-	@Override
-	public List<Sample> getAvailablePlatformUnits() {
-		// Auto-generated method stub
-		return null;
-	}
 
 	@Override
 	public List<Sample> getAvailableAndCompatiblePlatformUnits(Job job) {
@@ -386,6 +376,99 @@ public class StubSampleService implements SampleService {
 	public void deletePlatformUnit(Integer platformUnitId)
 			throws NumberFormatException, SampleException, SampleTypeException,
 			SampleSubtypeException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void sendOutboundMessage(Message<?> message)
+			throws WaspMessageBuildingException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void handleMessage(Message<?> arg0) throws MessagingException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public Boolean isSampleReceived(Sample sample) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String convertReceiveSampleStatusForWeb(BatchStatus internalStatus) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void updateSampleReceiveStatus(Sample sample, WaspStatus status)
+			throws WaspMessageBuildingException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public Boolean isLibraryAwaitingPlatformUnitPlacement(Sample library)
+			throws SampleTypeException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Boolean isPlatformUnitAwaitingSequenceRunPlacement(
+			Sample platformUnit) throws SampleTypeException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<Resource> getAllMassivelyParallelSequencingMachines() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<Resource> getSequencingMachinesCompatibleWithPU(
+			Sample platformUnit) throws SampleException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Resource getSequencingMachineByResourceId(Integer resourceId)
+			throws ResourceException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Run getSequenceRun(Integer runId) throws RunException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void createUpdateSequenceRun(Run runInstance,
+			List<RunMeta> runMetaList, Integer platformUnitId,
+			Integer resourceId) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean platformUnitIsCompatibleWithSequencingMachine(
+			Sample platformUnit, Resource sequencingMachineInstance) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void deleteSequenceRun(Run run) throws Exception {
 		// TODO Auto-generated method stub
 		
 	}
