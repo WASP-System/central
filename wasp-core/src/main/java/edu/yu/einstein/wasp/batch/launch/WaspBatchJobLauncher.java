@@ -19,9 +19,12 @@ import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.exception.InvalidParameterException;
 import edu.yu.einstein.wasp.exception.WaspBatchJobExecutionException;
 
+/**
+ * WaspBatchJobLauncher. Launch Spring Batch jobs
+ * @author asmclellan
+ *
+ */
 public class WaspBatchJobLauncher implements BatchJobLauncher{
-	
-	private BatchJobLaunchContext batchJobLaunchContext;
 	
 	private JobLauncher jobLauncher;
 	
@@ -29,8 +32,7 @@ public class WaspBatchJobLauncher implements BatchJobLauncher{
 	
 	
 	
-	public WaspBatchJobLauncher(BatchJobLaunchContext batchJobLaunchContext, JobLauncher jobLauncher, JobRegistry jobRegistry) {
-		this.batchJobLaunchContext = batchJobLaunchContext;
+	public WaspBatchJobLauncher(JobLauncher jobLauncher, JobRegistry jobRegistry) {
 		this.jobLauncher = jobLauncher;
 		this.jobRegistry = jobRegistry;
 	}
@@ -43,14 +45,7 @@ public class WaspBatchJobLauncher implements BatchJobLauncher{
 		this.jobRegistry = jobRegistry;
 	}
 
-	public BatchJobLaunchContext getBatchJobLaunchContext() {
-		return batchJobLaunchContext;
-	}
-
-	public void setBatchJobLaunchContext( BatchJobLaunchContext batchJobLaunchContext) {
-		this.batchJobLaunchContext = batchJobLaunchContext;
-	}
-
+	
 	public JobLauncher getjobLauncher() {
 		return jobLauncher;
 	}
@@ -60,7 +55,7 @@ public class WaspBatchJobLauncher implements BatchJobLauncher{
 	}
 
 	@Override
-	public void launch() throws WaspBatchJobExecutionException{
+	public void launch(BatchJobLaunchContext batchJobLaunchContext) throws WaspBatchJobExecutionException{
 		launchBatchJob(batchJobLaunchContext, jobLauncher, jobRegistry);
 	}
 	
