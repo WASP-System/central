@@ -313,7 +313,7 @@ public class SampleController extends WaspController {
 		if(sampleNameFromGrid != null){
 			queryMap.put("sample.name", sampleNameFromGrid);
 		}
-		if(selIdAsString != null){//coming from job grid's list of samples
+		if(selIdAsString != null && !"".equals(selIdAsString)){//coming from job grid's list of samples
 			queryMap.put("sampleId", Integer.parseInt(selIdAsString));
 		}
 		List<String> orderByColumnNames = new ArrayList<String>();
