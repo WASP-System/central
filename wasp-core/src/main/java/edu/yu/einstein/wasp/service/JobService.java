@@ -94,9 +94,9 @@ public interface JobService extends WaspMessageHandlingService {
 	 * Create a Job object from a job draft. Also handle dependencies.
 	 * @param jobdraft
 	 * @return entity-managed Job object
-	 * @throws FileMoveException 
+	 * @throws FileMoveException, WaspMessageBuildingException 
 	 */
-	public Job createJobFromJobDraft(JobDraft jobdraft, User user) throws FileMoveException;
+	public Job createJobFromJobDraft(JobDraft jobdraft, User user) throws FileMoveException, WaspMessageBuildingException;
 	
 	/**
 	 * getJobsAwaitingLibraryCreation() returns list of unique jobs for which at least one library must be created from a sample.

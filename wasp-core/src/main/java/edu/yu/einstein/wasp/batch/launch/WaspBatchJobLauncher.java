@@ -15,6 +15,7 @@ import org.springframework.batch.core.repository.JobExecutionAlreadyRunningExcep
 import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
 import org.springframework.batch.core.repository.JobRestartException;
 
+import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.exception.InvalidParameterException;
 import edu.yu.einstein.wasp.exception.WaspBatchJobExecutionException;
 
@@ -65,12 +66,11 @@ public class WaspBatchJobLauncher implements BatchJobLauncher{
 	
 	public static JobExecution launchBatchJob(BatchJobLaunchContext batchJobLaunchContext, JobLauncher jobLauncher, JobRegistry jobRegistry) throws WaspBatchJobExecutionException{
 		try{
-			if (jobLauncher == null)
-				throw new InvalidParameterException("No JobLauncher set");
-			if (jobRegistry == null)
-				throw new InvalidParameterException("No JobRegistry set");
-			if (batchJobLaunchContext == null)
-				throw new InvalidParameterException("No BatchJobLaunchContext set");
+			Assert.assertParameterNotNull(batchJobLaunchContext, "No BatchJobLaunchContext set");
+			Assert.assertParameterNotNull(batchJobLaunchContext.getJobParameters(), "No BatchJobLaunchContext.jobParameters set");
+			Assert.assertParameterNotNull(batchJobLaunchContext.getJobName(), "No BatchJobLaunchContext.jobName set");
+			Assert.assertParameterNotNull(jobLauncher, "No JobLauncher set");
+			Assert.assertParameterNotNull(jobRegistry, "No JobRegistry set");
 		} catch (InvalidParameterException e){
 			throw new WaspBatchJobExecutionException("Method parameters incomplete: " + e.getMessage(), e);
 		}

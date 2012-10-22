@@ -33,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.batch.core.extension.WaspBatchJobExplorer;
+import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
 import edu.yu.einstein.wasp.dao.FileDao;
 import edu.yu.einstein.wasp.dao.JobCellSelectionDao;
 import edu.yu.einstein.wasp.dao.JobDao;
@@ -93,6 +94,7 @@ import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.service.JobService;
+import edu.yu.einstein.wasp.service.WorkflowService;
 
 
 @Service
@@ -192,6 +194,9 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	
 	@Autowired
 	protected WaspBatchJobExplorer batchJobExplorer;
+	
+	@Autowired
+	protected WorkflowService workflowService;
 	
 	@PostConstruct
 	@Override
@@ -492,7 +497,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	   * {@inheritDoc}
 	   */
 	  @Override
-	  public Job createJobFromJobDraft(JobDraft jobDraft, User user) throws FileMoveException{
+	  public Job createJobFromJobDraft(JobDraft jobDraft, User user) throws FileMoveException, WaspMessageBuildingException{
 		  	Assert.assertParameterNotNull(jobDraft, "No JobDraft provided");
 			Assert.assertParameterNotNullNotZero(jobDraft.getJobDraftId(), "Invalid JobDraft Provided");
 			Assert.assertParameterNotNull(user, "No User provided");
@@ -636,14 +641,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 					sampleJobCellSelectionDao.save(sampleJobCellSelection);
 				}
 			}
-			Map<String, String> jobParameters = new HashMap<String, String>();
-			jobParameters.put(WaspJobParameters.JOB_ID, jobDb.getJobId().toString());
-			// TODO: get batch job name from config
-			BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate(batchJobLaunchContext)
-			// update the jobdraft
-			jobDraft.setStatus("SUBMITTED");
-			jobDraft.setSubmittedjobId(jobDb.getJobId());
-			jobDraftDao.save(jobDraft); 
+			
 			
 			// jobDraftFile -> jobFile
 			for(JobDraftFile jdf: jobDraft.getJobDraftFile()){
@@ -668,8 +666,18 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 				jobFileDao.save(jobFile);
 			}
 			
-			// TODO: start job flow
+			// send message to initiate job processing
+			Map<String, String> jobParameters = new HashMap<String, String>();
+			jobParameters.put(WaspJobParameters.JOB_ID, jobDb.getJobId().toString());
+			String batchJobName = workflowService.getJobFlowBatchJobName(jobDraft.getWorkflow());
+			BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( new BatchJobLaunchContext(batchJobName, jobParameters) );
+			sendOutboundMessage(batchJobLaunchMessageTemplate.build());
 			
+			// update the jobdraft
+			jobDraft.setStatus("SUBMITTED");
+			jobDraft.setSubmittedjobId(jobDb.getJobId());
+			jobDraftDao.save(jobDraft); 
+						
 			return jobDb;
 	  }
 	  
