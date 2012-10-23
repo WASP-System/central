@@ -1741,7 +1741,7 @@ public class PlatformUnitController extends WaspController {
 			Run newRun = new Run();
 			newRun.setResource(machineInstance);
 			newRun.setName(runName.trim());
-			newRun.setSample(platformUnit);//set the flow cell
+			newRun.setPlatformUnit(platformUnit);//set the flow cell
 			newRun.setUserId(technicianId);
 			newRun.setStartts(dateStart);
 			newRun = runDao.save(newRun);
@@ -1823,7 +1823,7 @@ public class PlatformUnitController extends WaspController {
 			}
 			run.setResource(machineInstance);
 			run.setName(runName.trim());
-			run.setSample(platformUnit);
+			run.setPlatformUnit(platformUnit);
 			run.setUserId(technicianId);
 			run.setStartts(dateStart);
 
