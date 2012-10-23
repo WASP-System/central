@@ -37,41 +37,44 @@ public class TestUserServiceImpl {
 	  
 	  
 	  User userExists = new User();
-	  userNew.setUserId(123);
+	  userExists.setUserId(123);
 	  userExists.setFirstName("Jane");
 	  userExists.setLastName("Doe");
 	  
 	  User user_apostrophe = new User();
-	  userNew.setUserId(123);
+	  user_apostrophe.setUserId(123);
 	  user_apostrophe.setFirstName("Jane");
 	  user_apostrophe.setLastName("O'Brien");
 	  
 	  User user_hyphen = new User();
-	  userNew.setUserId(123);
+	  user_hyphen.setUserId(123);
 	  user_hyphen.setFirstName("Jane");
 	  user_hyphen.setLastName("Some-Lastname");
 	  
 	  User user_apostrophe_middle = new User();
-	  userNew.setUserId(123);
+	  user_apostrophe_middle.setUserId(123);
 	  user_apostrophe_middle.setFirstName("Jane");
 	  user_apostrophe_middle.setLastName("Some'Lastname");
 	  
 	  User userBlank = new User();//use this to break out of the while loop
 	  
-	  
 	  userServiceImpl.setUserDao(mockUserDao);
 	  
 	  expect(mockUserDao.getUserByLogin("jdoe")).andReturn(userExists);
 	  expect(mockUserDao.getUserByLogin("jdoe1")).andReturn(userBlank);
+	  expect(mockUserDao.getUserByLogin("jgreally")).andReturn(userBlank);
+	  expect(mockUserDao.getUserByLogin("jobrien")).andReturn(userBlank);
+	  //expect(mockUserDao.getUserByLogin("jsomelastname")).andReturn(userBlank);
+	  expect(mockUserDao.getUserByLogin("jsomelastname")).andReturn(userBlank);
+
 	  replay(mockUserDao);
 	  Assert.assertEquals("jdoe1", userServiceImpl.getUniqueLoginName(userExists));
+	  Assert.assertEquals("jgreally", userServiceImpl.getUniqueLoginName(userNew));
+	  Assert.assertEquals("jobrien", userServiceImpl.getUniqueLoginName(user_apostrophe));
+	  //Assert.assertEquals("jsomelastname", userServiceImpl.getUniqueLoginName(user_apostrophe_middle));
+	  Assert.assertEquals("jsomelastname", userServiceImpl.getUniqueLoginName(user_hyphen));
 
-	  
-	  
-	  
-	  
-	  
-	  
+	  verify(mockUserDao);
 	  
 	  
   }
