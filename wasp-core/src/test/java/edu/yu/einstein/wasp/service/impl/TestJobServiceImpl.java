@@ -14,7 +14,6 @@ import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 
 import org.easymock.EasyMock;
-import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.testng.annotations.Test;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.AfterMethod;
@@ -24,7 +23,6 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.AfterTest;
 
 import edu.yu.einstein.wasp.dao.TaskDao;
-import edu.yu.einstein.wasp.dao.impl.DepartmentUserDaoImpl;
 import edu.yu.einstein.wasp.dao.impl.TaskDaoImpl;
 import edu.yu.einstein.wasp.model.AcctJobquotecurrent;
 import edu.yu.einstein.wasp.model.AcctQuote;
