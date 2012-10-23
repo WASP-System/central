@@ -32,6 +32,10 @@ import edu.yu.einstein.wasp.service.RoleService;
 @Service
 @Transactional
 public class RoleServiceImpl extends WaspServiceImpl implements RoleService {
+	
+	public void setDepartmentUserDao(DepartmentUserDao departmentUserDao) {
+		this.departmentUserDao = departmentUserDao;
+	}
 
 	@Autowired
 	private DepartmentUserDao departmentUserDao;

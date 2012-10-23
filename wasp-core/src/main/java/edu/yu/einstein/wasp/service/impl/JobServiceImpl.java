@@ -102,7 +102,7 @@ import edu.yu.einstein.wasp.service.WorkflowService;
 public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements JobService {
 
 	private JobDao	jobDao;
-
+	
 	/**
 	 * setJobDao(JobDao jobDao)
 	 * 
@@ -221,6 +221,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 				  }
 			  }	
 		}
+		
 		return submittedSamplesList;		
 	}
 	
