@@ -112,7 +112,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>wasp-config</artifactId>
+			<artifactId>wasp-cli</artifactId>
 		</dependency>
 		
 		<dependency>
