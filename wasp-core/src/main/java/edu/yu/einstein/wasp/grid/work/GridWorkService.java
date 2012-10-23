@@ -35,8 +35,9 @@ public interface GridWorkService {
 	 * @return
 	 * @throws GridAccessException
 	 * @throws GridUnresolvableHostException
+	 * @throws GridExecutionException 
 	 */
-	public GridResult execute(WorkUnit w) throws GridAccessException, GridUnresolvableHostException;
+	public GridResult execute(WorkUnit w) throws GridAccessException, GridUnresolvableHostException, GridExecutionException;
 	
 	/**
 	 * Tests to see if the particular {@link GridWorkService} execution is still running. Throws a @{link GridException}
