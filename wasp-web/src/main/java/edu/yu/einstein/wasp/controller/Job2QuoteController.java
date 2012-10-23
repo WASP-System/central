@@ -1,11 +1,13 @@
 package edu.yu.einstein.wasp.controller;
 
+import java.text.DateFormat;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -111,7 +113,9 @@ public class Job2QuoteController extends WaspController {
 		String jobIdAsString = request.getParameter("jobId")==null?null:request.getParameter("jobId").trim();//if not passed, jobIdAsString will be null
 		String submitterNameAndLogin = request.getParameter("submitter")==null?null:request.getParameter("submitter").trim();//if not passed, will be null
 		String piNameAndLogin = request.getParameter("lab")==null?null:request.getParameter("lab").trim();//if not passed, will be null
-		System.out.println("jobIdAsString = " + jobIdAsString);System.out.println("submitterNameAndLogin = " + submitterNameAndLogin);System.out.println("piNameAndLogin = " + piNameAndLogin);
+		String submittedOnDateAsString = request.getParameter("submitted_on")==null?null:request.getParameter("submitted_on").trim();//if not passed, will be null
+		System.out.println("jobIdAsString = " + jobIdAsString);System.out.println("submitterNameAndLogin = " + submitterNameAndLogin);
+		System.out.println("piNameAndLogin = " + piNameAndLogin);System.out.println("submittedOnDateAsString = " + submittedOnDateAsString);
 
 		//DEAL WITH PARAMETERS
 		//deal with jobId
@@ -122,8 +126,6 @@ public class Job2QuoteController extends WaspController {
 				jobId = new Integer(0);//fake it so that result set will be empty; this way, the search will be performed with jobId = 0 and will come up with an empty result set
 			}
 		}		
-				
-		//nothing to do to deal with jobname
 				
 		//deal with submitter from grid and userId from URL (note that submitterNameAndLogin and userIdFromURL can both be null, but if either is not null, only one should be not null)
 		User submitter = null;
@@ -166,6 +168,20 @@ public class Job2QuoteController extends WaspController {
 			}
 		}
 		
+		//deal with submittedOnDateAsString
+		Date submittedOnAsDate = null;
+		if(submittedOnDateAsString != null){
+			DateFormat formatter;
+		
+			formatter = new SimpleDateFormat("MM/dd/yyyy");//this is the format that the date is coming in from the Grid
+			try{				
+				submittedOnAsDate = (Date)formatter.parse(submittedOnDateAsString); 
+			}
+			catch(Exception e){ 
+				submittedOnAsDate = new Date(0);//fake it; parameter of 0 sets date to 01/01/1970 which is NOT in this database. So result set will be empty
+			}	
+		}
+		
 		List<Job> jobList = new ArrayList();
 		List<Job> job2quoteList = new ArrayList();
 		
@@ -180,120 +196,54 @@ public class Job2QuoteController extends WaspController {
 			m.put("labId", piLab.getLabId().intValue());
 		}
 		
-		List<String> orderByColumnNames = new ArrayList<String>();
-		orderByColumnNames.add("jobId");
+		Map dateMap = new HashMap();
+		if(submittedOnAsDate != null){
+			dateMap.put("createts", submittedOnAsDate);
+		}
 		
-		//if Map m has no entries, SQL will find ALL jobs
-		jobList = this.jobDao.findByMapDistinctOrderBy(m, null, orderByColumnNames, "desc");//default order is by jobId/desc		
+		List<String> orderByColumnAndDirection = new ArrayList<String>();		
+		if(sidx!=null && !"".equals(sidx)){//sord is apparently never null; default is desc
+			if(sidx.equals("jobId")){
+				orderByColumnAndDirection.add("jobId " + sord);
+			}
+			else if(sidx.equals("name")){//job.name
+				orderByColumnAndDirection.add("name " + sord);
+			}
+			else if(sidx.equals("submitter")){
+				orderByColumnAndDirection.add("user.lastName " + sord); orderByColumnAndDirection.add("user.firstName " + sord);
+			}
+			else if(sidx.equals("lab")){
+				orderByColumnAndDirection.add("lab.user.lastName " + sord); orderByColumnAndDirection.add("lab.user.firstName " + sord);
+			}
+			else if(sidx.equals("submitted_on")){
+				orderByColumnAndDirection.add("createts " + sord); 
+			}
+		}
+		else if(sidx==null || "".equals(sidx)){
+			orderByColumnAndDirection.add("jobId desc");
+		}
+		
+		jobList = this.jobDao.findByMapsIncludesDatesDistinctOrderBy(m, dateMap, null, orderByColumnAndDirection);
 		
 		//perform ONLY if the viewer is A DA but is NOT any other type of facility member
 		if(authenticationService.isOnlyDepartmentAdministrator()){//remove jobs not in the DA's department
 			List<Job> jobsToKeep = filterService.filterJobListForDA(jobList);
 			jobList.retainAll(jobsToKeep);
 		}
-		
+
+		//orderby amount is special; must be done by comparator
 		if(sidx != null && !sidx.isEmpty() && sord != null && !sord.isEmpty() ){
 			
-			//resultset within jobList is currently sorted by jobId/desc.
-			if(sidx.equals("jobId") && sord.equals("asc")){
-				Collections.sort(jobList, new JobIdComparator());
-			}
-			
-			else if(sidx.equals("submitter")){
-				Collections.sort(jobList, new SubmitterLastNameFirstNameComparator());
-				if(sord.equals("desc")){
-					Collections.reverse(jobList);
-				}
-			}
-			else if(sidx.equals("lab")){
-				Collections.sort(jobList, new PILastNameFirstNameComparator());	
-				if(sord.equals("desc")){
-					Collections.reverse(jobList);
-				}
-			}
-			else if(sidx.equals("amount")){
+			if(sidx.equals("amount")){
 				Collections.sort(jobList, new QuoteAmountComparator());	
 				if(sord.equals("desc")){
 					Collections.reverse(jobList);
 				}
 			}						
 		}
+	
 		job2quoteList.addAll(jobList);
-		
-		/* don't need; state tables are a thing of the past
-		List<State> stateList = taskService.getJob2QuoteStates();
-		for (State st : stateList) {
-			Map m = new HashMap();
-			m.put("stateId", st.getStateId());
-			List<Statejob> sjList = statejobDao.findByMap(m);
-			for (Statejob sj : sjList) {
-				jobList.add(sj.getJob());
-			}
-		}
-*/
-		
-		
-/*		
-		if(!search.equals("true") && !StringUtils.isEmpty(showall) && showall.equals("true")){
-			job2quoteList = jobDao.findAll();
-		}
-		else if (!search.equals("true") && StringUtils.isEmpty(userId)) {
-			if (StringUtils.isEmpty(sidx)) {
-				job2quoteList = jobList;
-			} else {
-				job2quoteList = this.jobDao.findAllOrderBy(sidx, sord);
-				job2quoteList.retainAll(jobList);
-			}
-		} else {
-			Map m = new HashMap();
 
-			if (search.equals("true") && !searchStr.isEmpty())
-				m.put(request.getParameter("searchField"), request.getParameter("searchString"));
-
-			if (!StringUtils.isEmpty(userId))
-				m.put("UserId", Integer.parseInt(userId));
-
-			job2quoteList = this.jobDao.findByMap(m);
-			job2quoteList.retainAll(jobList);
-		}
-		
-		//restrict what a DA can see if the individual's sole role is that of DA (based on deptId)
-		if(authenticationService.hasRole("da-*") 
-			&& !authenticationService.hasRole("ft") 
-			&& !authenticationService.hasRole("fm") 
-			&& !authenticationService.hasRole("ga") 
-			&& !authenticationService.hasRole("su")){
-			
-			List<Integer> departmentIds = new ArrayList<Integer>();
-			
-			for (String role: authenticationService.getRoles()) {			
-				
-				String[] splitRole = role.split("-");
-				if (splitRole.length != 2) { continue; }
-				if (splitRole[1].equals("*")) { continue; }				
-				if(splitRole[0].equals("da")){
-					try { departmentIds.add(Integer.parseInt(splitRole[1])); } 
-					catch (Exception e)	{ continue; }
-				}
-			}
-			List<Job> jobsToRemove = new ArrayList<Job>();
-			for (Job job : job2quoteList){
-				boolean valid = false;
-				for(Integer deptId : departmentIds){
-					if( deptId.intValue() == job.getLab().getDepartment().getDepartmentId().intValue() ){
-						valid = true;
-						break;
-					}
-				}
-				if(valid == false){
-					jobsToRemove.add(job);//cannot remove from job2quoteList right here, as will throw ConcurrentModificationException
-				}				
-			}
-			for(Job job : jobsToRemove){
-				job2quoteList.remove(job);
-			}
-		}
-*/		
 		try {
 			// index of page
 			int pageIndex = Integer.parseInt(request.getParameter("page")); 
@@ -346,7 +296,7 @@ public class Job2QuoteController extends WaspController {
 				List<AcctQuoteMeta> itemMetaList = ajqcList.isEmpty() ? new ArrayList() : 
 					getMetaHelperWebapp().syncWithMaster(ajqcList.get(0).getAcctQuote().getAcctQuoteMeta());
 				
-				Format formatter = new SimpleDateFormat("MM/dd/yyyy");
+				Format formatterForDisplay = new SimpleDateFormat("MM/dd/yyyy");
 				
 				List<String> cellList = new ArrayList<String>(
 					Arrays.asList(new String[] { 
@@ -355,7 +305,7 @@ public class Job2QuoteController extends WaspController {
 						String.format("%.2f", amount),
 						user.getNameFstLst(), 
 						item.getLab().getUser().getNameFstLst(),
-						formatter.format(item.getCreatets())//item.getLastUpdTs().toString() 
+						formatterForDisplay.format(item.getCreatets())//item.getLastUpdTs().toString() 
 					}));
 
 				for (AcctQuoteMeta meta : itemMetaList) {

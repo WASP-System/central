@@ -2,7 +2,7 @@
 
 <wasp:field name="jobId" type="text" sortable="true" searchable="true" editable="false"/>
 
-<wasp:field name="name" type="text" sortable="false" searchable="false"/>
+<wasp:field name="name" type="text" sortable="true" searchable="false"/>
 
 <wasp:field name="amount" type="currency" sortable="true" searchable="false"/>
 
@@ -10,7 +10,7 @@
 
 <wasp:field name="lab" type="text" sortable="true" searchable="false" editable="false"/>
 
-<wasp:field name="submitted_on"  type="text" sortable="false" searchable="false" editable="false"/>
+<wasp:field name="submitted_on"  type="text" sortable="true" searchable="false" editable="false"/>
 
 _url='/wasp/job2quote/listJSON.do?showall=${param.showall}';
   

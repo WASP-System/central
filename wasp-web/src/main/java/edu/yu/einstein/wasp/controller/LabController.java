@@ -181,7 +181,7 @@ public class LabController extends WaspController {
 			if(!piLogin.isEmpty()){//likely incorrect format
 				pi = userDao.getUserByLogin(piLogin);//if User not found, pi object is NOT null and pi.getUnserId()=null
 				if(pi.getUserId()==null){//fake it
-					pi.setUserId(0);
+					pi.setUserId(new Integer(0));
 				}
 			}
 		}
@@ -189,7 +189,7 @@ public class LabController extends WaspController {
 		if(departmentName != null){
 			department = deptDao.getDepartmentByName(departmentName.trim());
 			if(department.getDepartmentId()==null){//not found in department list
-				department.setDepartmentId(0);
+				department.setDepartmentId(new Integer(0));
 			}
 		}
 		

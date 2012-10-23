@@ -65,7 +65,17 @@ $(document).ready(function() {
 			}
 		}
 	});
- 
+
+	jQuery("#grid_id").jqGrid('setColProp', 'submitted_on',
+	{
+		search:true,
+		sopt:['eq'],
+		searchoptions: {
+			dataInit: function(elem) {	
+				jQuery(elem).datepicker();
+			}
+		}
+	});
 
 //function to validate the user-entered data 
 validate = function(){
@@ -98,17 +108,16 @@ validate = function(){
 			return true;//do not perform search 
 		}
 	}
-/*
-//var name = $('#gs_name').val(); 
-	var createts = $('#gs_createts').val();		 
-	if(typeof(createts) !== 'undefined' && createts != null && createts.length>0){
+	
+	var submitted_on = $('#gs_submitted_on').val();		 
+	if(typeof(submitted_on) !== 'undefined' && submitted_on != null && submitted_on.length>0){
 		var dateFormat=new RegExp("^[0-1][0-9]/[0-3][0-9]/[1-2][0-9][0-9][0-9]$");
-		if(!dateFormat.test(createts)){
+		if(!dateFormat.test(submitted_on)){
 			alert("Required date format: MM/DD/YYYY. It is best to use calendar to select date.");
 			return true;//do not perform search 
 		}
 	}
-*/
+
 	return false;//perform search 
 };
 

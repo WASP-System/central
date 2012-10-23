@@ -1,20 +1,20 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
-<wasp:field name="login" type="text" sortable="true" searchable="false"/>
+<wasp:field name="login" type="text" sortable="true" searchable="false" columnWidth="120"/>
 
 <%-- <wasp:field name="password" type="password" hidden="true" editHidden="true" /> --%>
 
-<wasp:field name="firstName" type="text" sortable="true" searchable="false"/>
+<wasp:field name="firstName" type="text" sortable="true" searchable="false" columnWidth="120"/>
 
-<wasp:field name="lastName" type="text" sortable="true" searchable="false"/>
+<wasp:field name="lastName" type="text" sortable="true" searchable="false" columnWidth="120"/>
 
-<wasp:field name="roles" type="text" sortable="false" searchable="false"/>
+<wasp:field name="roles" type="text" sortable="false" searchable="false" columnWidth="200"/>
 
-<wasp:field name="email" type="text" sortable="true" searchable="false"/>
+<wasp:field name="email" type="text" sortable="true" searchable="false" columnWidth="200"/>
 
 <wasp:field name="locale" type="select" items="${locales}" itemValue="key" itemLabel="value"  hidden="true" sortable="false" searchable="false"/> 
 
-<wasp:field name="isActive"  type="checkbox" hidden="false" editHidden="true" sortable="false" searchable="false"/>
+<wasp:field name="isActive"  type="checkbox" hidden="false" editHidden="true" sortable="false" searchable="false" columnWidth="70"/>
 
 _url='/wasp/user/listJSON.do?selId=${param.selId}';
 
