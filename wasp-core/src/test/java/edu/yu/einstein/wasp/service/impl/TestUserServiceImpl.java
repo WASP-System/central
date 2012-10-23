@@ -6,6 +6,7 @@ import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 
+import org.easymock.EasyMock;
 import org.testng.annotations.Test;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.AfterMethod;
@@ -19,7 +20,9 @@ import edu.yu.einstein.wasp.dao.UserDao;
 import edu.yu.einstein.wasp.dao.impl.ConfirmEmailAuthDaoImpl;
 import edu.yu.einstein.wasp.dao.impl.TaskDaoImpl;
 import edu.yu.einstein.wasp.dao.impl.UserDaoImpl;
+import edu.yu.einstein.wasp.model.ConfirmEmailAuth;
 import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.model.UserPending;
 
 public class TestUserServiceImpl {
 	
@@ -64,14 +67,14 @@ public class TestUserServiceImpl {
 	  expect(mockUserDao.getUserByLogin("jdoe1")).andReturn(userBlank);
 	  expect(mockUserDao.getUserByLogin("jgreally")).andReturn(userBlank);
 	  expect(mockUserDao.getUserByLogin("jobrien")).andReturn(userBlank);
-	  //expect(mockUserDao.getUserByLogin("jsomelastname")).andReturn(userBlank);
+	  expect(mockUserDao.getUserByLogin("jsomelastname")).andReturn(userBlank);
 	  expect(mockUserDao.getUserByLogin("jsomelastname")).andReturn(userBlank);
 
 	  replay(mockUserDao);
 	  Assert.assertEquals("jdoe1", userServiceImpl.getUniqueLoginName(userExists));
 	  Assert.assertEquals("jgreally", userServiceImpl.getUniqueLoginName(userNew));
 	  Assert.assertEquals("jobrien", userServiceImpl.getUniqueLoginName(user_apostrophe));
-	  //Assert.assertEquals("jsomelastname", userServiceImpl.getUniqueLoginName(user_apostrophe_middle));
+	  Assert.assertEquals("jsomelastname", userServiceImpl.getUniqueLoginName(user_apostrophe_middle));
 	  Assert.assertEquals("jsomelastname", userServiceImpl.getUniqueLoginName(user_hyphen));
 
 	  verify(mockUserDao);
@@ -81,7 +84,36 @@ public class TestUserServiceImpl {
   
   @Test
   public void getNewAuthcodeForUser() {
+	  User user = new User();
+	  user.setUserId(123);
 	  
+	  userServiceImpl.setconfirmEmailAuthDao(mockConfirmEmailAuthDao);
+	  ConfirmEmailAuth confirmEmailAuth = new ConfirmEmailAuth();
+	  
+	  expect(mockConfirmEmailAuthDao.getConfirmEmailAuthByUserId(123)).andReturn(confirmEmailAuth);
+      expect(mockConfirmEmailAuthDao.save(confirmEmailAuth)).andReturn(confirmEmailAuth);
+
+	  replay(mockConfirmEmailAuthDao);
+	  Assert.assertNotNull(userServiceImpl.getNewAuthcodeForUser(user));
+	  verify(mockConfirmEmailAuthDao);
+	  
+	  
+  }
+  
+  @Test
+  public void getNewAuthcodeForUserPending() {
+	  UserPending userPending = new UserPending();
+	  userPending.setUserPendingId(123);
+	  
+	  userServiceImpl.setconfirmEmailAuthDao(mockConfirmEmailAuthDao);
+	  ConfirmEmailAuth confirmEmailAuth = new ConfirmEmailAuth();
+	  
+	  expect(mockConfirmEmailAuthDao.getConfirmEmailAuthByUserpendingId(123)).andReturn(confirmEmailAuth);
+      expect(mockConfirmEmailAuthDao.save(confirmEmailAuth)).andReturn(confirmEmailAuth);
+
+	  replay(mockConfirmEmailAuthDao);
+	  Assert.assertNotNull(userServiceImpl.getNewAuthcodeForUserPending(userPending));
+	  verify(mockConfirmEmailAuthDao);
 	  
 	  
   }
@@ -91,6 +123,8 @@ public class TestUserServiceImpl {
 
   @AfterMethod
   public void afterMethod() {
+	  EasyMock.reset(mockConfirmEmailAuthDao);
+	  EasyMock.reset(mockUserDao);
   }
 
   @BeforeClass

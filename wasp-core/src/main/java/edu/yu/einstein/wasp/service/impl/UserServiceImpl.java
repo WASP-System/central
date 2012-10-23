@@ -60,7 +60,9 @@ public String getUniqueLoginName(final User user){
 		int posOfQuote = StringUtils.indexOf(loginLastName, "'"); // e.g. O'Broin
 		int posOfHyphen = StringUtils.indexOf(loginLastName, "-");
 		if (posOfQuote != -1 && (posOfQuote - 1) != -1 && (posOfQuote < loginLastName.length())){
-			loginBase += loginLastName.substring(posOfQuote -1, posOfQuote);
+			//loginBase += loginLastName.substring(posOfQuote -1, posOfQuote);
+			//loginBase += loginLastName.substring(posOfQuote + 1);
+			loginBase += loginLastName.substring(0, posOfQuote);
 			loginBase += loginLastName.substring(posOfQuote + 1);
 		}
 		else if (posOfHyphen != -1 && (posOfHyphen - 1) != -1 && (posOfHyphen < loginLastName.length())){
