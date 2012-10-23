@@ -38,14 +38,16 @@ public class SgeWorkService implements GridWorkService {
 	
 	private static final Logger logger = Logger.getLogger(SgeWorkService.class);
 
-	private String namePrefix = "WASP-";
-	public void setNamePrefix(String np) {
-		this.namePrefix = np + "-";
+	private String jobNamePrefix = "WASP-";
+	public void setJobNamePrefix(String np) {
+		this.jobNamePrefix = np + "-";
 	}
 
 	private GridTransportService transportService;
 	
 	private SoftwareManager softwareManager;
+	
+	private String name;
 
 	@Autowired
 	protected GridFileService waspGridFileService;
@@ -105,7 +107,7 @@ public class SgeWorkService implements GridWorkService {
 		GridTransportConnection conn = transportService.connect(g.getHostname());
 		WorkUnit w = new WorkUnit();
 		w.setConnection(conn);
-		w.setCommand("qstat -xml -j " + this.namePrefix + "-" + g.getUuid().toString() + " | sed 's/<\\([/]\\)*>/<\\1a>/g'");
+		w.setCommand("qstat -xml -j " + this.jobNamePrefix + "-" + g.getUuid().toString() + " | sed 's/<\\([/]\\)*>/<\\1a>/g'");
 		GridResult result = conn.sendExecToRemote(w);
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder docBuilder;
@@ -179,7 +181,7 @@ public class SgeWorkService implements GridWorkService {
 
 	private boolean testSgeFileExists(String hostname, String workingDirectory, String id, String suffix) throws GridAccessException {
 		try {
-			return waspGridFileService.exists(hostname, workingDirectory + namePrefix + id + "." + suffix);
+			return waspGridFileService.exists(hostname, workingDirectory + jobNamePrefix + id + "." + suffix);
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new GridAccessException("Unable to connect to remote host: ", e.getCause());
@@ -194,7 +196,7 @@ public class SgeWorkService implements GridWorkService {
 		GridTransportConnection conn = transportService.connect(hostname);
 		WorkUnit w = new WorkUnit();
 		w.setConnection(conn);
-		w.setCommand("cd $HOME/" + workingDirectory + " && tar --remove-files -czvf " + namePrefix + id + ".tar.gz " + namePrefix + id + ".*");
+		w.setCommand("cd $HOME/" + workingDirectory + " && tar --remove-files -czvf " + jobNamePrefix + id + ".tar.gz " + jobNamePrefix + id + ".*");
 		conn.sendExecToRemote(w);
 	}
 	
@@ -206,7 +208,7 @@ public class SgeWorkService implements GridWorkService {
 		GridTransportConnection conn = transportService.connect(hostname);
 		WorkUnit w = new WorkUnit();
 		w.setConnection(conn);
-		w.setCommand("cd $HOME/" + workingDirectory + " && tar --remove-files -czvf " + namePrefix + id + "-FAILED-`date +%s`.tar.gz " + namePrefix + id + ".*");
+		w.setCommand("cd $HOME/" + workingDirectory + " && tar --remove-files -czvf " + jobNamePrefix + id + "-FAILED-`date +%s`.tar.gz " + jobNamePrefix + id + ".*");
 		conn.sendExecToRemote(w);
 	}
 
@@ -255,7 +257,7 @@ public class SgeWorkService implements GridWorkService {
 		}
 		try {
 			host = transportService.getHostResolver().getHostname(w);
-			waspGridFileService.put(script, host, w.getWorkingDirectory() + namePrefix + w.getId() + ".sh");
+			waspGridFileService.put(script, host, w.getWorkingDirectory() + jobNamePrefix + w.getId() + ".sh");
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new GridAccessException("unable to begin grid transaction ", e.getCause());
@@ -264,7 +266,7 @@ public class SgeWorkService implements GridWorkService {
 		}
 
 		transportService.connect(w);
-		String submit = "cd " + w.getWorkingDirectory() + " && qsub " + namePrefix + w.getId() + ".sh";
+		String submit = "cd " + w.getWorkingDirectory() + " && qsub " + jobNamePrefix + w.getId() + ".sh";
 		w.setWrapperCommand(submit);
 		GridResultImpl result = (GridResultImpl) w.getConnection().sendExecToRemote(w);
 		result.setUuid(resultID);
@@ -315,11 +317,11 @@ public class SgeWorkService implements GridWorkService {
 			this.w = w;
 			this.name = w.getId();
 			header = "#!/bin/bash\n#\n" +
-					"#$ -N " + namePrefix + name + "\n" +
+					"#$ -N " + jobNamePrefix + name + "\n" +
 					"#$ -S /bin/bash\n" +
 					"#$ -V\n" +
-					"#$ -o $HOME/" + w.getWorkingDirectory() + namePrefix + name + ".out\n" +
-					"#$ -e $HOME/" + w.getWorkingDirectory() + namePrefix + name + ".err\n";
+					"#$ -o $HOME/" + w.getWorkingDirectory() + jobNamePrefix + name + ".out\n" +
+					"#$ -e $HOME/" + w.getWorkingDirectory() + jobNamePrefix + name + ".err\n";
 			preamble = "cd $HOME/" + w.getWorkingDirectory() + "\n" +
 					"WASPNAME=" + name + "\n" +
 					"set -o errexit\n" + // die if any script returns non 0 exit
@@ -328,14 +330,14 @@ public class SgeWorkService implements GridWorkService {
 											// non 0 exit code
 					"set -o physical\n" + // replace symbolic links with
 											// physical path
-					"echo $JOB_ID >> " + namePrefix + "${WASPNAME}.start\n" +
+					"echo $JOB_ID >> " + jobNamePrefix + "${WASPNAME}.start\n" +
 					"echo submitted to host `hostname -f` `date` 1>&2";
 			configuration = softwareManager.getConfiguration(w);
 			command = w.getCommand();
-			postscript = "echo \"##### begin ${WASPNAME}\" > " + namePrefix + "${WASPNAME}.command\n\n" +
-					"awk '/^##### preamble/,/^##### postscript|~$/' " + namePrefix + "${WASPNAME}.sh | sed 's/^##### .*$//g' | grep -v \"^$\" >> " + namePrefix + "${WASPNAME}.command\n" +
-					"echo \"##### end ${WASPNAME}\" >> " + namePrefix + "${WASPNAME}.command\n" + 
-					"touch " + namePrefix + "${WASPNAME}.end\n";
+			postscript = "echo \"##### begin ${WASPNAME}\" > " + jobNamePrefix + "${WASPNAME}.command\n\n" +
+					"awk '/^##### preamble/,/^##### postscript|~$/' " + jobNamePrefix + "${WASPNAME}.sh | sed 's/^##### .*$//g' | grep -v \"^$\" >> " + jobNamePrefix + "${WASPNAME}.command\n" +
+					"echo \"##### end ${WASPNAME}\" >> " + jobNamePrefix + "${WASPNAME}.command\n" + 
+					"touch " + jobNamePrefix + "${WASPNAME}.end\n";
 		}
 		
 		public String getMemory() {
@@ -483,6 +485,16 @@ public class SgeWorkService implements GridWorkService {
 			this.mailCircumstances = "#$ -m " + mailCircumstances + "\n";
 		}
 
+	}
+
+	@Override
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	@Override
+	public String getName() {
+		return this.name;
 	}
 
 }

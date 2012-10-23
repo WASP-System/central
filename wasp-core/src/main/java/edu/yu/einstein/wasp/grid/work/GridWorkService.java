@@ -48,5 +48,28 @@ public interface GridWorkService {
 	 * @throws GridException
 	 */
 	public boolean isFinished(GridResult g) throws GridAccessException, GridExecutionException, GridUnresolvableHostException;
+	
+	/**
+	 * Set the name of the server.  This is the hook for configuration of software on this server.
+	 * @param name
+	 */
+	public void setName(String name);
+	
+	/**
+	 * @return WASP name for this server
+	 */
+	public String getName();
+	
+	/**
+	 * Software manager implements the strategy for ensuring that software is configured into the environment.
+	 * @param softwareManager
+	 */
+	public void setSoftwareManager(SoftwareManager softwareManager);
+	
+	/**
+	 * Prefix for the names of jobs that are sent to the scheduler. 
+	 * @param name Defaults to WASP.
+	 */
+	public void setJobNamePrefix(String name);
 
 }
