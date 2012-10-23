@@ -18,7 +18,6 @@ import org.testng.annotations.AfterTest;
 import edu.yu.einstein.wasp.dao.ConfirmEmailAuthDao;
 import edu.yu.einstein.wasp.dao.UserDao;
 import edu.yu.einstein.wasp.dao.impl.ConfirmEmailAuthDaoImpl;
-import edu.yu.einstein.wasp.dao.impl.TaskDaoImpl;
 import edu.yu.einstein.wasp.dao.impl.UserDaoImpl;
 import edu.yu.einstein.wasp.model.ConfirmEmailAuth;
 import edu.yu.einstein.wasp.model.User;
@@ -59,6 +58,11 @@ public class TestUserServiceImpl {
 	  user_apostrophe_middle.setFirstName("Jane");
 	  user_apostrophe_middle.setLastName("Some'Lastname");
 	  
+	  User user_apostrophe_beg = new User();
+	  user_apostrophe_beg.setUserId(123);
+	  user_apostrophe_beg.setFirstName("Jane");
+	  user_apostrophe_beg.setLastName("'SomeLastname");
+	  
 	  User userBlank = new User();//use this to break out of the while loop
 	  
 	  userServiceImpl.setUserDao(mockUserDao);
@@ -69,6 +73,8 @@ public class TestUserServiceImpl {
 	  expect(mockUserDao.getUserByLogin("jobrien")).andReturn(userBlank);
 	  expect(mockUserDao.getUserByLogin("jsomelastname")).andReturn(userBlank);
 	  expect(mockUserDao.getUserByLogin("jsomelastname")).andReturn(userBlank);
+	  expect(mockUserDao.getUserByLogin("jsomelastname")).andReturn(userBlank);
+
 
 	  replay(mockUserDao);
 	  Assert.assertEquals("jdoe1", userServiceImpl.getUniqueLoginName(userExists));
@@ -76,9 +82,9 @@ public class TestUserServiceImpl {
 	  Assert.assertEquals("jobrien", userServiceImpl.getUniqueLoginName(user_apostrophe));
 	  Assert.assertEquals("jsomelastname", userServiceImpl.getUniqueLoginName(user_apostrophe_middle));
 	  Assert.assertEquals("jsomelastname", userServiceImpl.getUniqueLoginName(user_hyphen));
+	  Assert.assertEquals("jsomelastname", userServiceImpl.getUniqueLoginName(user_apostrophe_beg));
 
 	  verify(mockUserDao);
-	  
 	  
   }
   
@@ -97,7 +103,6 @@ public class TestUserServiceImpl {
 	  Assert.assertNotNull(userServiceImpl.getNewAuthcodeForUser(user));
 	  verify(mockConfirmEmailAuthDao);
 	  
-	  
   }
   
   @Test
@@ -114,7 +119,6 @@ public class TestUserServiceImpl {
 	  replay(mockConfirmEmailAuthDao);
 	  Assert.assertNotNull(userServiceImpl.getNewAuthcodeForUserPending(userPending));
 	  verify(mockConfirmEmailAuthDao);
-	  
 	  
   }
   @BeforeMethod
