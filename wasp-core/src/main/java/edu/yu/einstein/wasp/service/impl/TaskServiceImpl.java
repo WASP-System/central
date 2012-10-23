@@ -11,10 +11,7 @@
 package edu.yu.einstein.wasp.service.impl;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,14 +26,10 @@ import edu.yu.einstein.wasp.dao.RoleDao;
 import edu.yu.einstein.wasp.dao.TaskMappingDao;
 import edu.yu.einstein.wasp.dao.UserPendingDao;
 import edu.yu.einstein.wasp.model.Job;
-import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabPending;
 import edu.yu.einstein.wasp.model.LabUser;
-import edu.yu.einstein.wasp.model.Role;
-import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.TaskMapping;
 import edu.yu.einstein.wasp.model.UserPending;
-import edu.yu.einstein.wasp.security.SecurityUtil;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.TaskService;
 
@@ -57,29 +50,6 @@ public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 		this.jobExplorer = (JobExplorerWasp) jobExplorer;
 	}
 
-	/**
-	 * setTaskMappingDao(TaskMappingDao taskMappingDao)
-	 * 
-	 * @param taskMappingDao
-	 * 
-	 */
-	@Override
-	@Autowired
-	public void setTaskMappingDao(TaskMappingDao taskMappingDao) {
-		this.taskMappingDao = taskMappingDao;
-	}
-
-	/**
-	 * getTaskMappingDao();
-	 * 
-	 * @return taskMappingDao
-	 * 
-	 */
-	@Override
-	public TaskMappingDao getTaskMappingDao() {
-		return this.taskMappingDao;
-	}
-
 	@Autowired
 	private UserPendingDao			userPendingDao;
 
@@ -98,7 +68,7 @@ public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 	@Autowired
 	private AuthenticationService	authenticationService;
 	
-
+/*
 	private String expand(String perm, State state) {
 
 		if (state == null || state.getStatejob() == null || state.getStatejob().isEmpty() || state.getStatejob().get(0).getJob() == null || state.getStatejob().get(0).getJob().getLab() == null)
@@ -162,7 +132,7 @@ public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 
 		return result;
 	}
-
+*/
 	@Override
 	public int getLabManagerPendingTasks() {
 		List<UserPending> newUsersPendingLmApprovalList = new ArrayList<UserPending>();
@@ -174,7 +144,7 @@ public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 
 	@Override
 	public int getLabManagerPendingTasks(List<UserPending> newUsersPendingLmApprovalList, List<LabUser> existingUsersPendingLmApprovalList, List<Job> jobsPendingLmApprovalList) {
-
+/*
 		// three tasks awaiting Lab Manager or PI from lab where labid = labId
 		// 1. approve or reject new users that have applied to join a lab
 		// 2. approve or reject existing users that have applied to join a lab
@@ -286,7 +256,8 @@ public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 			}
 		}
 		return newUsersPendingLmApprovalList.size() + existingUsersPendingLmApprovalList.size() + jobsPendingLmApprovalList.size();	
-		
+*/		
+		return 0;
 	}
 
 	@Override
@@ -298,7 +269,7 @@ public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 
 	@Override
 	public int getDepartmentAdminPendingTasks(List<LabPending> labsPendingDaApprovalList, List<Job> jobsPendingDaApprovalList) {
-
+/*
 		Map themap = new HashMap();
 		Task task = taskDao.getTaskByIName("DA Approval");
 
@@ -368,6 +339,8 @@ public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 		}
 		// total number of tasksPendingDaApproval
 		return labsPendingDaApprovalList.size() + jobsPendingDaApprovalList.size();
+*/
+		return 0;
 	}
 	
 	// TODO: Everything above here needs to be refactored

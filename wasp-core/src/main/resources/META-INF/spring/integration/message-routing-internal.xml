@@ -91,14 +91,7 @@
 		<int:recipient channel="wasp.channel.batch.success" selector-expression="!payload.equals('ABANDONED') and !payload.equals('FAILED')" />
 	</int:recipient-list-router>
 	
-	<!-- define service activator to handle requests to kick off batch jobs -->
-	<int:service-activator input-channel="wasp.channel.queue.launch" output-channel="wasp.channel.primaryReply"  method="launch" >
-		<bean id="batchJobLauncher" class="edu.yu.einstein.wasp.batch.launch.WaspBatchJobLauncher">
-			<constructor-arg name="jobLauncher" ref="jobLauncher" />
-			<constructor-arg name="jobRegistry" ref="jobRegistry" />
-		</bean>
-	</int:service-activator>
-	
+		
 	<bean id="waspMessageType" class="edu.yu.einstein.wasp.integration.messages.WaspMessageType" />
 	
 	<!-- header-router to sort inbound messages into appropriate channels -->

@@ -273,11 +273,8 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	  @Override
 	  public boolean isSampleNameUniqueWithinJob(Sample sampleIn, SampleType sampleType, Job job){
 		  Assert.assertParameterNotNull(sampleIn, "Invalid sampleIn Provided");
-		  Assert.assertParameterNotNullNotZero(sampleIn.getSampleId(), "Invalid sampleIn Provided");
 		  Assert.assertParameterNotNull(sampleType, "Invalid sampleType Provided");
-		  Assert.assertParameterNotNullNotZero(sampleType.getSampleTypeId(), "Invalid sampleType Provided");
 		  Assert.assertParameterNotNull(job, "Invalid sampleIn Provided");
-		  Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid job Provided");
 		  List<Sample> samplesInThisJob = job.getSample();
 		  for(Sample sample : samplesInThisJob){
 			  if (sampleIn.getSampleId() != null && sample.getSampleId().intValue() == sampleIn.getSampleId().intValue())

@@ -1,46 +1,8 @@
 package edu.yu.einstein.wasp.service.impl;
 
-import static org.easymock.EasyMock.createMockBuilder;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import junit.framework.Assert;
-
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
-
-import org.easymock.EasyMock;
-import org.testng.annotations.Test;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeTest;
-import org.testng.annotations.AfterTest;
-
-import edu.yu.einstein.wasp.dao.TaskDao;
-import edu.yu.einstein.wasp.dao.impl.TaskDaoImpl;
-import edu.yu.einstein.wasp.model.AcctJobquotecurrent;
-import edu.yu.einstein.wasp.model.AcctQuote;
-import edu.yu.einstein.wasp.model.Job;
-import edu.yu.einstein.wasp.model.JobMeta;
-import edu.yu.einstein.wasp.model.JobResourcecategory;
-import edu.yu.einstein.wasp.model.JobSample;
-import edu.yu.einstein.wasp.model.ResourceCategory;
-import edu.yu.einstein.wasp.model.ResourceType;
-import edu.yu.einstein.wasp.model.Sample;
-import edu.yu.einstein.wasp.model.State;
-import edu.yu.einstein.wasp.model.Statejob;
-import edu.yu.einstein.wasp.model.Statesample;
-import edu.yu.einstein.wasp.model.Task;
-import edu.yu.einstein.wasp.service.TaskService;
 
 public class TestJobServiceImpl {
-	
+/*	REMOVE TEMPORARILY UNTIL FIXED UP FOR NEW WAY OF TASK HANDLING (A S MCLELLAN)
   TaskDao mockTaskDao;
 	
   JobServiceImpl jobServiceImpl = new JobServiceImpl();
@@ -571,5 +533,5 @@ public class TestJobServiceImpl {
   @AfterTest
   public void afterTest() {
   }
-
+*/
 }

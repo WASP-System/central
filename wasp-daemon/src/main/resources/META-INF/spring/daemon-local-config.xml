@@ -5,11 +5,9 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 		
-	<!-- TODO: the contents of this file need re-evaluating. Look at working test version for clues -->
-	
-	<import resource="classpath:META-INF/spring/batch/batch-common-config.xml" />
-	<import resource="classpath:META-INF/spring/integration/integration-common-config.xml" />
-		
+	<!-- import batch and integration common config -->
+ 	<import resource="classpath:META-INF/spring/batch-integration-common-config.xml" />
+			
 	<context:component-scan base-package="edu.yu.einstein.wasp.daemon.dao.impl" />
 	<context:component-scan base-package="edu.yu.einstein.wasp.daemon.service.impl" />
 
