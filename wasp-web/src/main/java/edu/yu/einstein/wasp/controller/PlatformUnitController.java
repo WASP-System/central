@@ -248,6 +248,10 @@ public class PlatformUnitController extends WaspController {
 		return new MetaHelperWebapp("platformunitInstance", SampleMeta.class, request.getSession());
 	}
 
+	private final MetaHelperWebapp getMetaHelperWebappRunInstance() {
+		return new MetaHelperWebapp("runInstance", RunMeta.class, request.getSession());
+	}
+
 	//entry to platformunit grid
 	@RequestMapping(value="/list.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
@@ -292,7 +296,7 @@ public class PlatformUnitController extends WaspController {
 		//System.out.println("resourceCategoryNameFromGrid = " + resourceCategoryNameFromGrid);
 		
 		List<Sample> tempPlatformUnitList =  new ArrayList<Sample>();
-		List<Sample> platformUnitsFoundInSearch = new ArrayList<Sample>();//not currently used
+		List<Sample> platformUnitsFoundInSearch = new ArrayList<Sample>();
 		List<Sample> platformUnitList = new ArrayList<Sample>();
 		
 		Date dateFromGridAsDate = null;
@@ -772,8 +776,10 @@ public class PlatformUnitController extends WaspController {
 				m.put("sampleId", sampleId);
 				m.put("barcode", barcode);
 				m.put("numberOfCellsOnThisPlatformUnit", numberOfLanesRequested);
-				platformunitInstance.setSampleMeta((List<SampleMeta>) metaHelperWebapp.getMetaList());
-	
+				platformunitInstance.setSampleMeta((List<SampleMeta>) metaHelperWebapp.getMetaList());	
+				//DO I NEED THIS Next line??? It seems to be sent back automagically, even if the next line is missing (next line added 10-10-12)
+				m.addAttribute(metaHelperWebapp.getParentArea(), platformunitInstance);//metaHelperWebapp.getParentArea() is sample
+				
 				m.put("sampleSubtypes", sampleService.getSampleSubtypesBySampleTypeIName("platformunit"));//throws exception if SampleTypeIName not valid, otherwise return empty (size=0) or full list
 				m.addAttribute("readlengths", getDistinctResourceCategoryMetaListForSampleSubtype(sampleSubtype, "readlength"));
 				m.addAttribute("readTypes", getDistinctResourceCategoryMetaListForSampleSubtype(sampleSubtype, "readType"));
@@ -785,10 +791,12 @@ public class PlatformUnitController extends WaspController {
 			if(action.equals("create")){
 				//System.out.println("in create1");
 				sampleService.createUpdatePlatformUnit(platformunitInstance, sampleSubtype, barcode, numberOfLanesRequested, (List<SampleMeta>)metaHelperWebapp.getMetaList());
+				waspMessage("platformunitInstance.created_success.label");
 			}
 			else if(action.equals("update")){
 				//System.out.println("in update1");
 				sampleService.createUpdatePlatformUnit(platformUnitInDatabase, sampleSubtype, barcode, numberOfLanesRequested, (List<SampleMeta>)metaHelperWebapp.getMetaList());
+				waspMessage("platformunitInstance.updated_success.label");
 			}
 			else{//action == null
 				//System.out.println("in Unexpectedly1");
@@ -834,10 +842,62 @@ public class PlatformUnitController extends WaspController {
 				
 			}
 			*/
+			
+			List<Run> sequenceRuns = platformUnit2.getRun();
+			m.addAttribute("sequenceRuns", sequenceRuns);
+			
+			metaHelperWebapp = getMetaHelperWebappRunInstance();//********note this is now runInstance
+			String area2 = metaHelperWebapp.getArea();
+			Format formatter = new SimpleDateFormat("MM/dd/yyyy");
+			
+			Map<Integer, Map<String, String>> runDetails = new HashMap<Integer, Map<String, String>>();
+			for(Run sequenceRun : sequenceRuns){
+				
+				Map<String,String> detailMap = new HashMap<String, String>();
+				
+				String readlength2 = new String("unknown");
+				try{
+					readlength2 = MetaHelperWebapp.getMetaValue(area2, "readlength", sequenceRun.getRunMeta());					
+				}catch(Exception e){}
+				////readLengthForRuns.add(readlength2);
+				detailMap.put("readlength", readlength2);
+				
+				String readType2 = new String("unknown");
+				try{
+					readType2 = MetaHelperWebapp.getMetaValue(area2, "readType", sequenceRun.getRunMeta());
+				}catch(Exception e){}
+				////readTypeForRuns.add(readType2);
+				detailMap.put("readType", readType2);
+				
+				String dateRunStarted = new String("not set");
+				if(sequenceRun.getStartts()!=null){
+					try{				
+						dateRunStarted = new String(formatter.format(sequenceRun.getStartts()));//MM/dd/yyyy
+					}catch(Exception e){}					
+				}
+				////startDateForRuns.add(dateRunStarted);
+				detailMap.put("dateRunStarted", dateRunStarted);
+				
+				String dateRunEnded = new String("not set");
+				if(sequenceRun.getEnDts()!=null){					
+					try{				
+						dateRunEnded = new String(formatter.format(sequenceRun.getEnDts()));//MM/dd/yyyy
+					}catch(Exception e){}
+					
+				}
+				////endDateForRuns.add(dateRunEnded);
+				detailMap.put("dateRunEnded", dateRunEnded);
+				
+				////statusForRuns.add(new String("???"));
+				detailMap.put("runStatus", new String("???"));
+				
+				runDetails.put(sequenceRun.getRunId(), detailMap);
+			}
+			m.addAttribute("runDetails", runDetails);
 		}catch(Exception e){logger.debug(e.getMessage());waspErrorMessage("wasp.unexpected_error.error");return "redirect:/dashboard.do";}
 	
 		
-		
+		//10-17-12 the remainder of this page (the items on the flow cell) was not reviewed; it can no doubt do with work
 		
 		Sample platformUnit = platformUnit2;//sampleDao.getSampleBySampleId(sampleId.intValue());
 		if( platformUnit==null || platformUnit.getSampleId()==null || platformUnit.getSampleId().intValue()==0 || ! "platformunit".equals(platformUnit.getSampleType().getIName()) ){
@@ -846,8 +906,8 @@ public class PlatformUnitController extends WaspController {
 		}
 		
 		//is this flowcell on a run?
-		List<Run> runList = platformUnit.getRun();
-		m.put("runList", runList);
+		//////10-17-12List<Run> runList = platformUnit.getRun();
+		//////10-17-12m.put("runList", runList);
 		//if this flowcell is on a run, it gets locked to the addition of new user-libraries
 		//locking the flowcell is recorded as its task, Assign Library To Platform Unit, changing from CREATED to COMPLETED/FINALIZED
 		//There are conditions under which the flow cell may need to be unlocked. Currently this will be 
@@ -880,53 +940,7 @@ public class PlatformUnitController extends WaspController {
 			}
 		}
 		m.put("technicians", technicians);
-/*		
-		if(runList.size() > 0){//a run for this platform unit exists
-			Run run = runList.get(0);//should only be one, I hope
-			String currentReadLength = "";
-			String currentReadType = "";
-			List<RunMeta> runMetaList = run.getRunMeta();
-			for(RunMeta rm : runMetaList){
-				if(rm.getK().indexOf("readlength") > -1){
-					currentReadLength = new String(rm.getV());
-				}
-				if(rm.getK().indexOf("readType") > -1){
-					currentReadType = new String(rm.getV());
-				}
-			}
-			Resource resource = run.getResource();
-			ResourceCategory resourceCategory = resource.getResourceCategory();
-			List<ResourceCategoryMeta> resourceCategoryMetaList = resourceCategory.getResourceCategoryMeta();
-			for(ResourceCategoryMeta rcm : resourceCategoryMetaList){
-				if( rcm.getK().indexOf("readType") > -1 ){
-					String[] tokens = rcm.getV().split(";");//rcm.getV() will be single:single;paired:paired
-					for(String token : tokens){//token could be single:single
-						String [] innerTokens = token.split(":");
-						if(currentReadType.equalsIgnoreCase(innerTokens[0])){
-							readType.append("<option SELECTED value='"+innerTokens[0]+"'>"+innerTokens[1]+"</option>");
-						}
-						else{
-							readType.append("<option value='"+innerTokens[0]+"'>"+innerTokens[1]+"</option>");
-						}
-					}
-				}
-				if( rcm.getK().indexOf("readlength") > -1 ){
-					String[] tokens = rcm.getV().split(";");//rcm.getV() will be 50:50;100:100
-					for(String token : tokens){//token could be 50:50
-						String [] innerTokens = token.split(":");
-						if(currentReadLength.equalsIgnoreCase(innerTokens[0])){
-							readLength.append("<option SELECTED value='"+innerTokens[0]+"'>"+innerTokens[1]+"</option>");
-						}
-						else{
-							readLength.append("<option value='"+innerTokens[0]+"'>"+innerTokens[1]+"</option>");
-						}
-					}
-				}
-			}
-			m.put("readType", new String(readType));
-			m.put("readLength", new String(readLength));
-		}
-*/		
+		
 		List<Resource> resourceList= resourceDao.findAll(); 
 		List<Resource> filteredResourceList = new ArrayList();
 		for(Resource resource : resourceList){
@@ -1410,6 +1424,9 @@ public class PlatformUnitController extends WaspController {
 	
 	private void removeLibraryFromLane(Integer sampleSourceId){
 
+		//as of 10-5-12, there is a sampleService method to replace this
+		//when I update, that method shold be called in a try - catch 
+		
 		SampleSource sampleSource = sampleSourceDao.getSampleSourceBySampleSourceId(sampleSourceId);//this samplesource should represent a cell->lib link, where sampleid is the cell and source-sampleid is the library 
 		if(sampleSource.getSampleSourceId()==0){//check for existence
 			waspErrorMessage("platformunit.sampleSourceNotExist.error");

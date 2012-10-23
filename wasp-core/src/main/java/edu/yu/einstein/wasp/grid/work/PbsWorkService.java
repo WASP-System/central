@@ -29,14 +29,14 @@ import edu.yu.einstein.wasp.grid.file.GridFileService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
 
 /**
- * {@link GridWorkService} implementation for Sun Grid Engine.  Tested with Grid Engine v6.1.
+ * {@link GridWorkService} implementation for PBS/torque.  Based on version 2.4.6.
  * 
  * @author calder
  * 
  */
-public class SgeWorkService implements GridWorkService {
+public class PbsWorkService implements GridWorkService {
 	
-	private static final Logger logger = Logger.getLogger(SgeWorkService.class);
+	private static final Logger logger = Logger.getLogger(PbsWorkService.class);
 
 	private String namePrefix = "WASP-";
 	public void setNamePrefix(String np) {
@@ -44,8 +44,6 @@ public class SgeWorkService implements GridWorkService {
 	}
 
 	private GridTransportService transportService;
-	
-	private SoftwareManager softwareManager;
 
 	@Autowired
 	protected GridFileService waspGridFileService;
@@ -66,22 +64,13 @@ public class SgeWorkService implements GridWorkService {
 	public GridTransportService getTransportService() {
 		return this.transportService;
 	}
-	
-	public SoftwareManager getSoftwareManager() {
-		return softwareManager;
-	}
-
-	public void setSoftwareManager(SoftwareManager softwareManager) {
-		this.softwareManager = softwareManager;
-	}
 
 	/**
 	 * {@inheritDoc}
 	 * @throws GridUnresolvableHostException 
-	 * @throws GridExecutionException 
 	 */
 	@Override
-	public GridResult execute(WorkUnit w) throws GridAccessException, GridUnresolvableHostException, GridExecutionException {
+	public GridResult execute(WorkUnit w) throws GridAccessException, GridUnresolvableHostException {
 		if (w.getWorkingDirectory() == null)
 			throw new GridAccessException("must set working directory");
 		return startJob(w);
@@ -128,7 +117,7 @@ public class SgeWorkService implements GridWorkService {
 				if (jatstatus.getLength() > 0) {
 					String status = jatstatus.item(0).getTextContent();
 					int bits = new Integer(status).intValue();
-					if ((bits & SgeSubmissionScript.ERROR) == SgeSubmissionScript.ERROR) {
+					if ((bits & PbsSubmissionScript.ERROR) == PbsSubmissionScript.ERROR) {
 						died = true;
 					}
 				}
@@ -211,7 +200,7 @@ public class SgeWorkService implements GridWorkService {
 	}
 
 
-	private GridResult startJob(WorkUnit w) throws GridAccessException, GridUnresolvableHostException, GridExecutionException {
+	private GridResult startJob(WorkUnit w) throws GridAccessException, GridUnresolvableHostException {
 
 		String host;
 		UUID resultID = UUID.randomUUID();
@@ -224,7 +213,7 @@ public class SgeWorkService implements GridWorkService {
 		try {
 			script = File.createTempFile("wasp-", ".sge");
 			BufferedWriter scriptHandle = new BufferedWriter(new FileWriter(script));
-			SgeSubmissionScript sss = new SgeSubmissionScript(w);
+			PbsSubmissionScript sss = new PbsSubmissionScript(w);
 			GridHostResolver ghr = transportService.getHostResolver();
 			if (ghr.getAccount(w) != null)
 				sss.setAccount(ghr.getAccount(w));
@@ -284,7 +273,7 @@ public class SgeWorkService implements GridWorkService {
 	 * @author calder
 	 * 
 	 */
-	private class SgeSubmissionScript {
+	private class PbsSubmissionScript {
 
 		public static final int HELD = 16;
 		public static final int QUEUED = 64;
@@ -298,7 +287,6 @@ public class SgeWorkService implements GridWorkService {
 		protected String name = "not_set";
 		protected String header = "";
 		protected String preamble = "";
-		protected String configuration = "";
 		protected String command = "";
 		protected String postscript = "";
 		private String account = "";
@@ -311,7 +299,7 @@ public class SgeWorkService implements GridWorkService {
 		private String memory = "";
 		private String procs = "";
 
-		public SgeSubmissionScript(WorkUnit w) throws GridExecutionException {
+		public PbsSubmissionScript(WorkUnit w) {
 			this.w = w;
 			this.name = w.getId();
 			header = "#!/bin/bash\n#\n" +
@@ -328,9 +316,8 @@ public class SgeWorkService implements GridWorkService {
 											// non 0 exit code
 					"set -o physical\n" + // replace symbolic links with
 											// physical path
-					"echo $JOB_ID >> " + namePrefix + "${WASPNAME}.start\n" +
+					"echo $PBS_JOBID >> " + namePrefix + "${WASPNAME}.start\n" +
 					"echo submitted to host `hostname -f` `date` 1>&2";
-			configuration = softwareManager.getConfiguration(w);
 			command = w.getCommand();
 			postscript = "echo \"##### begin ${WASPNAME}\" > " + namePrefix + "${WASPNAME}.command\n\n" +
 					"awk '/^##### preamble/,/^##### postscript|~$/' " + namePrefix + "${WASPNAME}.sh | sed 's/^##### .*$//g' | grep -v \"^$\" >> " + namePrefix + "${WASPNAME}.command\n" +
@@ -343,8 +330,7 @@ public class SgeWorkService implements GridWorkService {
 		}
 
 		public void setMemory(int memInGB) {
-			this.memory = "#$ -l mem_free=" + memInGB + "G\n" +
-					"memory=" + memInGB + "\n";
+			this.memory = "#$ -l mem_free=" + memInGB + "G\n";
 		}
 		
 		public String getProcs() {
@@ -352,8 +338,7 @@ public class SgeWorkService implements GridWorkService {
 		}
 
 		public void setProcs(Integer threads) {
-			this.procs = "#$ -l p=" + threads.toString() + "\n" +
-					"threads=" + threads + "\n";
+			this.procs = "#$ -l p=" + threads.toString() + "\n";
 		}
 
 		public String toString() {
@@ -364,8 +349,7 @@ public class SgeWorkService implements GridWorkService {
 			if (w.getMode() != ExecutionMode.MPI)
 				numProcs = getProcs();
 			
-			return header + 
-					"\n\n##### resource requests\n\n" +
+			return header + "\n\n##### resource requests\n\n" +
 					getAccount() + 
 					getQueue() +
 					getMaxRunTime() +
@@ -376,12 +360,8 @@ public class SgeWorkService implements GridWorkService {
 					numProcs +
 					getMemory() + 
 					"\n\n##### preamble \n\n" +
-					preamble + 
-					"\n\n##### configuration \n\n" +
-					configuration +
-					"\n\n##### command \n\n" +
-					command + 
-					"\n\n##### postscript\n\n" +
+					preamble + "\n\n##### command \n\n" +
+					command + "\n\n##### postscript\n\n" +
 					postscript;
 		}
 

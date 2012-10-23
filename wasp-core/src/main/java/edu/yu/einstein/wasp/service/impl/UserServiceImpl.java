@@ -12,7 +12,10 @@
 package edu.yu.einstein.wasp.service.impl;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,9 +24,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.dao.ConfirmEmailAuthDao;
 import edu.yu.einstein.wasp.dao.UserDao;
+import edu.yu.einstein.wasp.dao.UserroleDao;
 import edu.yu.einstein.wasp.model.ConfirmEmailAuth;
+import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserPending;
+import edu.yu.einstein.wasp.model.Userrole;
 import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.util.AuthCode;
 
@@ -44,9 +50,14 @@ public UserDao getUserDao() {
   
   @Autowired
   private ConfirmEmailAuthDao confirmEmailAuthDao;
+
   public void setconfirmEmailAuthDao(ConfirmEmailAuthDao confirmEmailAuthDao) {
 	    this.confirmEmailAuthDao = confirmEmailAuthDao;
-	  }
+  }
+  
+  @Autowired
+  private UserroleDao userroleDao;
+
 
   
   @Override
@@ -113,6 +124,30 @@ public String getUniqueLoginName(final User user){
 			    }
 		  }
 		  Collections.sort(users, new UserIdComparator());//reverse sort by job ID 
+	  }
+	  
+	  /**
+	   * {@inheritDoc}
+	   */
+	  @Override
+	  public List<User> getFacilityTechnicians(){
+		  
+		  Set<User> theSet = new HashSet<User>();
+		  List<User> facilityTechnicians = new ArrayList<User>();
+		  for(Userrole userRole : userroleDao.findAll()){			  
+			  if(userRole.getRole().getRoleName().equals("fm")||userRole.getRole().getRoleName().equals("ft")){
+				  theSet.add(userRole.getUser());//for distinct
+			  }
+		  }
+		  class LastNameFirstNameComparator implements Comparator<User> {
+				@Override
+				public int compare(User arg0, User arg1) {
+					return arg0.getLastName().concat(arg0.getFirstName()).compareToIgnoreCase(arg1.getLastName().concat(arg1.getFirstName()));
+				}
+		  }
+		  facilityTechnicians.addAll(theSet);
+		  Collections.sort(facilityTechnicians, new LastNameFirstNameComparator());//asc
+		  return facilityTechnicians;
 	  }
 }
 
