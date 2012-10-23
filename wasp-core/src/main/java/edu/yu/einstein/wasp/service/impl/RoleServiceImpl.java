@@ -47,6 +47,7 @@ import edu.yu.einstein.wasp.dao.SoftwareDao;
 import edu.yu.einstein.wasp.dao.StateDao;
 import edu.yu.einstein.wasp.dao.StatejobDao;
 import edu.yu.einstein.wasp.dao.TaskDao;
+import edu.yu.einstein.wasp.dao.WorkflowDao;
 import edu.yu.einstein.wasp.model.DepartmentUser;
 import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.User;
@@ -57,6 +58,10 @@ import edu.yu.einstein.wasp.service.TaskService;
 @Service
 @Transactional
 public class RoleServiceImpl extends WaspServiceImpl implements RoleService {
+	
+	public void setDepartmentUserDao(DepartmentUserDao departmentUserDao) {
+		this.departmentUserDao = departmentUserDao;
+	}
 
 	@Autowired
 	private DepartmentUserDao departmentUserDao;
