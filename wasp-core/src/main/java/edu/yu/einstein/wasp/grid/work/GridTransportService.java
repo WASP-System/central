@@ -46,5 +46,7 @@ public interface GridTransportService {
 	public void setSoftwareManager(SoftwareManager swm);
 	
 	public SoftwareManager getSoftwareManager();
+	
+	public String getConfiguredSetting(String key);
 
 }

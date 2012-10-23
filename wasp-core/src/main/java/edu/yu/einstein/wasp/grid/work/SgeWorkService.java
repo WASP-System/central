@@ -46,6 +46,8 @@ public class SgeWorkService implements GridWorkService {
 
 	private GridTransportService transportService;
 	
+	private GridFileService gridFileService;
+	
 	private String name;
 	
 	private List<String> parallelEnvironments;
@@ -500,4 +502,14 @@ public class SgeWorkService implements GridWorkService {
 	public String getName() {
 		return this.name;
 	}
+
+	@Override
+	public GridFileService getGridFileService() {
+		return gridFileService;
+	}
+	
+	public void setGridFileService(GridFileService gridFileService) {
+		this.gridFileService = gridFileService;
+	}
+	
 }

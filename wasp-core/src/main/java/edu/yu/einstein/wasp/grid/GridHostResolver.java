@@ -3,6 +3,8 @@ package edu.yu.einstein.wasp.grid;
 import java.util.List;
 import java.util.Set;
 
+import edu.yu.einstein.wasp.exception.GridException;
+import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 
@@ -105,6 +107,26 @@ public interface GridHostResolver {
 	 * @return string or null
 	 */
 	public String getParallelEnvironmentString(WorkUnit w);
+	
+	/**
+	 * Pass through method to execute a {@link WorkUnit}.
+	 * @param w
+	 * @return
+	 * @throws GridAccessException
+	 * @throws GridUnresolvableHostException
+	 * @throws GridExecutionException 
+	 */
+	public GridResult execute(WorkUnit w) throws GridAccessException, GridUnresolvableHostException, GridExecutionException;
+	
+	/**
+	 * Pass through method to Test to see if the particular {@link GridWorkService} execution is still running. Throws a @{link GridException}
+	 * if it is not running or did not complete.
+	 * @param g
+	 * @return
+	 * @throws GridUnresolvableHostException 
+	 * @throws GridException
+	 */
+	public boolean isFinished(GridResult g) throws GridAccessException, GridExecutionException, GridUnresolvableHostException;
 	
 	
 }

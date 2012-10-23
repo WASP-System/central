@@ -116,6 +116,9 @@
   <!-- load constant string value definitions -->
   <import resource="classpath*:static-values-definition.xml" /> 
   
+  <!-- load local configuration context -->
+  <import resource="classpath*:/wasp-local-context.xml" />
+  
   <!-- loads all the plugin root contexts -->
   <import resource="classpath*:META-INF/spring/plugin-context-batch.xml" />
 

@@ -24,7 +24,6 @@ public class ModulesManager extends HashMap<String, String> implements
 	private static final Logger logger = Logger.getLogger(SgeWorkService.class);
 
 	// wasp instance properties
-	@Autowired
 	private Properties waspLocalProperties;
 
 	private String name;
@@ -32,13 +31,14 @@ public class ModulesManager extends HashMap<String, String> implements
 	/**
 	 * 
 	 */
-	public ModulesManager(String name) {
+	public ModulesManager(String name, Properties waspLocalProperties) {
 		this.name = name;
+		this.waspLocalProperties = waspLocalProperties;
 		String prefix = this.name + ".software.";
-		for (String key : waspLocalProperties.stringPropertyNames()) {
+		for (String key : this.waspLocalProperties.stringPropertyNames()) {
 			if (key.startsWith(prefix)) {
 				String newKey = key.replaceFirst(prefix, "");
-				String value = waspLocalProperties.getProperty(key);
+				String value = this.waspLocalProperties.getProperty(key);
 				this.put(newKey, value);
 				logger.debug("Configured software property for host \""
 						+ this.name + "\": " + newKey + "=" + value);

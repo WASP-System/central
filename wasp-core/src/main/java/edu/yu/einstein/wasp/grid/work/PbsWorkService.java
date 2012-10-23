@@ -501,4 +501,10 @@ public class PbsWorkService implements GridWorkService {
 		return null;
 	}
 
+	@Override
+	public GridFileService getGridFileService() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

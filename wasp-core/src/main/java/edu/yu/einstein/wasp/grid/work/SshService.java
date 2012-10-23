@@ -2,7 +2,10 @@ package edu.yu.einstein.wasp.grid.work;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -12,6 +15,7 @@ import com.jcraft.jsch.UserInfo;
 import edu.yu.einstein.wasp.grid.GridAccessException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
+import edu.yu.einstein.wasp.grid.file.GridFileService;
 /**
  * Service that implements both the {@link GridTransportService} and {@link GridWorkService} interfaces.  
  * Provides methods to execute basic shell commands (GridWorkService) over an key authenticated
@@ -31,10 +35,34 @@ public class SshService implements GridWorkService, GridTransportService {
 	
 	private String name;
 	
+	private Map<String, String> settings = new HashMap<String, String>();
+	
 	private SoftwareManager softwareManager;
 	
-	// not used in ssh implementation
+	private GridFileService gridFileService;
+	
+	// not used in ssh only implementation
 	private String jobNamePrefix;
+	
+	private Properties localProperties;
+
+	public Properties getLocalProperties() {
+		return localProperties;
+	}
+
+	public void setLocalProperties(Properties waspLocalProperties) {
+		this.localProperties = waspLocalProperties;
+		String prefix = this.name + ".settings.";
+		for (String key : this.localProperties.stringPropertyNames()) {
+			if (key.startsWith(prefix)) {
+				String newKey = key.replaceFirst(prefix, "");
+				String value = this.localProperties.getProperty(key);
+				settings.put(newKey, value);
+				logger.debug("Configured setting for host \""
+						+ this.name + "\": " + newKey + "=" + value);
+			}
+		}
+	}
 	
 	private static final Log logger = LogFactory.getLog(SshService.class);
 
@@ -164,6 +192,16 @@ public class SshService implements GridWorkService, GridTransportService {
 	public List<String> getAvailableParallelEnvironments() {
 		// MPI PE not available in direct ssh mode
 		return new ArrayList<String>();
+	}
+
+	@Override
+	public GridFileService getGridFileService() {
+		return gridFileService;
+	}
+
+	@Override
+	public String getConfiguredSetting(String key) {
+		return settings.get(key);
 	}
 
 }

@@ -547,7 +547,7 @@ public class Run extends WaspModel {
 	 * @param sample
 	 *
 	 */
-	public void setSample (Sample sample) {
+	public void setPlatformUnit (Sample sample) {
 		this.sample = sample;
 		this.sampleId = sample.sampleId;
 	}
@@ -559,7 +559,7 @@ public class Run extends WaspModel {
 	 *
 	 */
 	
-	public Sample getSample () {
+	public Sample getPlatformUnit () {
 		return this.sample;
 	}
 

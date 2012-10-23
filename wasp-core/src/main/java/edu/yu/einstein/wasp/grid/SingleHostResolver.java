@@ -9,6 +9,7 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 
@@ -169,6 +170,18 @@ public class SingleHostResolver extends AbstractGridHostResolver implements Grid
 	public String getParallelEnvironmentString(WorkUnit w) {
 		// TODO: too simplistic, only works with one PE
 		return (String) gws.getAvailableParallelEnvironments().toArray()[0];
+	}
+
+	@Override
+	public GridResult execute(WorkUnit w) throws GridAccessException,
+			GridUnresolvableHostException, GridExecutionException {
+		return getGridWorkService(w).execute(w);
+	}
+
+	@Override
+	public boolean isFinished(GridResult g) throws GridAccessException,
+			GridExecutionException, GridUnresolvableHostException {
+		return gws.isFinished(g);
 	}
 
 }

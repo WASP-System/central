@@ -51,4 +51,10 @@ public class LocalhostTransportService implements GridTransportService {
 		return softwareManager;
 	}
 
+	@Override
+	public String getConfiguredSetting(String key) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
