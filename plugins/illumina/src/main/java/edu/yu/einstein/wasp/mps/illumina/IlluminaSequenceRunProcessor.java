@@ -7,34 +7,43 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import edu.yu.einstein.wasp.dao.SampleSourceDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
+import edu.yu.einstein.wasp.grid.GridAccessException;
+import edu.yu.einstein.wasp.grid.GridExecutionException;
+import edu.yu.einstein.wasp.grid.GridHostResolver;
+import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
+import edu.yu.einstein.wasp.grid.file.GridFileService;
+import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
+import edu.yu.einstein.wasp.grid.work.SoftwareComponent;
+import edu.yu.einstein.wasp.grid.work.WorkUnit;
+import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 import edu.yu.einstein.wasp.model.Adaptor;
+import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.mps.SequenceRunProcessor;
 import edu.yu.einstein.wasp.service.AdaptorService;
 import edu.yu.einstein.wasp.service.SampleService;
-import edu.yu.einstein.wasp.model.SampleMeta;
-import edu.yu.einstein.wasp.mps.SequenceRunProcessor;
-import edu.yu.einstein.wasp.util.MetaHelper;
-import edu.yu.einstein.wasp.util.SampleWrapper;
 
 /**
  * @author calder
  * 
  */
+@Component
 public class IlluminaSequenceRunProcessor implements SequenceRunProcessor {
 
-	private static Log logger = LogFactory.getLog(SequenceRunProcessor.class);
+	private static Log logger = LogFactory.getLog(IlluminaSequenceRunProcessor.class);
 
 	@Autowired
 	private SampleService sampleService;
@@ -47,10 +56,57 @@ public class IlluminaSequenceRunProcessor implements SequenceRunProcessor {
 
 	/**
 	 * {@inheritDoc}
+	 * @throws GridUnresolvableHostException, GridAccessException, GridExecutionException 
 	 */
 	@Override
-	public void preProcess(Sample platformUnit, String pathToData,
-			String outputFolder, GridWorkService gws) {
+	public void preProcess(Run run, GridHostResolver ghs) throws GridUnresolvableHostException, GridAccessException, GridExecutionException {
+		WorkUnit w = new WorkUnit();
+		
+		Sample platformUnit = run.getPlatformUnit();
+		
+		List<SoftwareComponent> sd = new ArrayList<SoftwareComponent>();
+		sd.add(new CasavaSoftwareComponent());
+		w.setCommand("touch start-illumina-pipeline.txt");
+		w.setSoftwareDependencies(sd);
+		w.setProcessMode(ProcessMode.SINGLE);
+		
+		GridWorkService gws = ghs.getGridWorkService(w);
+		GridFileService gfs = gws.getGridFileService();
+		String hostname = ghs.getHostname(w);
+		logger.debug("sending illumina processing job to " + hostname);
+		
+		String directory = "";
+		
+		try {
+			directory = gws.getTransportService().getConfiguredSetting("illumina.data.dir") + "/" + run.getName();
+			logger.debug("configured remote directory as " + directory);
+			File f = createSampleSheet(platformUnit);
+			gfs.put(f, hostname, directory + "/" + "SampleSheet.csv");
+			f.delete();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new GridExecutionException("unable to pre-process illumina sample sheet", e);
+		}
+		
+		logger.debug("touching remote file");
+		w.setWorkingDirectory(directory);		
+		GridResult result = ghs.execute(w);
+		
+		while (gws.isFinished(result)) {
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				throw new GridExecutionException("unable to sleep for sample sheet", e);
+			}
+		}
+
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void processSequenceRun(Run run, GridHostResolver ghs) throws GridUnresolvableHostException, GridAccessException, GridExecutionException {
 		// TODO Auto-generated method stub
 
 	}
@@ -59,8 +115,7 @@ public class IlluminaSequenceRunProcessor implements SequenceRunProcessor {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void processSequenceRun(Sample platformUnit, String pathToData,
-			String outputFolder, GridWorkService gws) {
+	public void postProcess(Run run, GridHostResolver ghs) throws GridUnresolvableHostException, GridAccessException, GridExecutionException {
 		// TODO Auto-generated method stub
 
 	}
@@ -69,18 +124,7 @@ public class IlluminaSequenceRunProcessor implements SequenceRunProcessor {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void postProcess(Sample platformUnit, String pathToData,
-			String outputFolder, GridWorkService gws) {
-		// TODO Auto-generated method stub
-
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void stage(Sample platformUnit, String pathToData,
-			String outputFolder, GridWorkService gws) {
+	public void stage(Run run, GridHostResolver ghs) throws GridUnresolvableHostException, GridAccessException, GridExecutionException {
 		// TODO Auto-generated method stub
 
 	}
@@ -100,12 +144,11 @@ public class IlluminaSequenceRunProcessor implements SequenceRunProcessor {
 			MetadataException, SampleTypeException {
 
 		File f = File.createTempFile("wasp_iss", ".txt");
-		logger.debug("created temporary file: "
-				+ f.getAbsolutePath().toString());
+		logger.debug("created temporary file: " + f.getAbsolutePath().toString());
 		BufferedWriter bw = new BufferedWriter(new FileWriter(f, false));
 		bw.write(getSampleSheetHeader());
 		bw.newLine();
-
+		
 		// throws SampleTypeException
 		Map<Integer, Sample> cells = sampleService
 				.getIndexedCellsOnPlatformUnit(platformUnit);
@@ -137,7 +180,7 @@ public class IlluminaSequenceRunProcessor implements SequenceRunProcessor {
 				// TODO:implement this job service method to get JobSampleMeta
 				// from sample and platform unit
 				String genome = "null";
-				String jobname = "nukk";
+				String jobname = "null";
 				String control = "N";
 				String recipe = "recipe";
 
@@ -148,7 +191,7 @@ public class IlluminaSequenceRunProcessor implements SequenceRunProcessor {
 				bw.write(line);
 				bw.newLine();
 			}
-			
+						
 			// if there is one control sample in the lane and no libraries, set the control flag
 			if ((libraries.size() == 0) && (all.size() == 1)) {
 				Adaptor a = new Adaptor();

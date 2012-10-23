@@ -50,7 +50,7 @@ public class IlluminaSequenceRunProcessorTest extends AbstractTestNGSpringContex
 		
 		System.out.println(platformUnit.getSampleId());
 		
-		System.out.println(sampleSourceDao.getParentSampleByDerivedSampleId(platformUnit.getSampleId()).getSampleId());
+		//System.out.println(sampleSourceDao.getParentSampleByDerivedSampleId(platformUnit.getSampleId()).getSampleId());
 		
 		
 //		for (Sample c : sampleSourceDao.getParentSampleByDerivedSampleId(platformUnit.getSampleId())) {
