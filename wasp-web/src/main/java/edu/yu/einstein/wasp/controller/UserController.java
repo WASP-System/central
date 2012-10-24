@@ -226,7 +226,7 @@ public class UserController extends WaspController {
 		}
 		else{//default orderBy will be userId/desc (rationale: so that when a new user is created using the grid, the viewer sees a link to prompt that they should assign a role)
 			orderByList.add("UserId");
-			sord = "desc";
+			sord = new String("desc");
 		}
 		userList = this.userDao.findByMapDistinctOrderBy(m, null, orderByList, sord);
 

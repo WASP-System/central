@@ -1,11 +1,11 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
-<wasp:field name="name" type="text" sortable="true" searchable="false"/> 
-<wasp:field name="primaryUser" type="text" sortable="true" searchable="false" showLink="true" baseLinkURL="/wasp/user/list.do" idCol="2"/>
+<wasp:field name="name" type="text" sortable="true" searchable="false" columnWidth="200"/> 
+<wasp:field name="primaryUser" type="text" sortable="true" searchable="false" showLink="true" baseLinkURL="/wasp/user/list.do" idCol="2" columnWidth="200"/>
 <wasp:field name="primaryUserId" type="hidden" />
-<wasp:field name="departmentId"  sortable="true" searchable="false" type="select" items="${departments}" itemValue="departmentId" itemLabel="name"/>
-<wasp:field name="isActive"  sortable="false" searchable="false" type="checkbox" />
-<wasp:field name="list_users" type="text" sortable="false" searchable="false" editable="false"/>
+<wasp:field name="departmentId"  sortable="true" searchable="false" type="select" items="${departments}" itemValue="departmentId" itemLabel="name" columnWidth="200"/>
+<wasp:field name="isActive"  sortable="false" searchable="false" type="checkbox" columnWidth="70"/>
+<wasp:field name="list_users" type="text" sortable="false" searchable="false" editable="false" columnWidth="100"/>
 
 _url='/wasp/lab/listJSON.do?selId=${param.selId}';
 
