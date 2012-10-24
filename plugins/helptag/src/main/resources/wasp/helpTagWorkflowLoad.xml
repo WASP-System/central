@@ -37,6 +37,8 @@
 		<value>/jobsubmit/ok</value>
       </list>
     </property>
+    
+    <property name="jobFlowBatchJob" ref="default.waspJob.jobflow.v1"  />
 
     <property name="dependencies">
       <list>
