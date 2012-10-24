@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.UUID;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -45,9 +46,11 @@ public class SgeWorkService implements GridWorkService {
 
 	private GridTransportService transportService;
 	
-	private SoftwareManager softwareManager;
+	private GridFileService gridFileService;
 	
 	private String name;
+	
+	private List<String> parallelEnvironments;
 
 	@Autowired
 	protected GridFileService waspGridFileService;
@@ -67,14 +70,6 @@ public class SgeWorkService implements GridWorkService {
 	@Override
 	public GridTransportService getTransportService() {
 		return this.transportService;
-	}
-	
-	public SoftwareManager getSoftwareManager() {
-		return softwareManager;
-	}
-
-	public void setSoftwareManager(SoftwareManager softwareManager) {
-		this.softwareManager = softwareManager;
 	}
 
 	/**
@@ -279,6 +274,17 @@ public class SgeWorkService implements GridWorkService {
 		}
 		return (GridResult) result;
 	}
+	
+	@Override
+	public void setAvailableParallelEnvironments(List<String> pe) {
+		this.parallelEnvironments = pe;
+		
+	}
+	
+	@Override
+	public List<String> getAvailableParallelEnvironments() {
+		return this.parallelEnvironments;
+	}
 
 	/**
 	 * Inner class representing a standard SGE submission script.
@@ -332,7 +338,7 @@ public class SgeWorkService implements GridWorkService {
 											// physical path
 					"echo $JOB_ID >> " + jobNamePrefix + "${WASPNAME}.start\n" +
 					"echo submitted to host `hostname -f` `date` 1>&2";
-			configuration = softwareManager.getConfiguration(w);
+			configuration = transportService.getSoftwareManager().getConfiguration(w);
 			command = w.getCommand();
 			postscript = "echo \"##### begin ${WASPNAME}\" > " + jobNamePrefix + "${WASPNAME}.command\n\n" +
 					"awk '/^##### preamble/,/^##### postscript|~$/' " + jobNamePrefix + "${WASPNAME}.sh | sed 's/^##### .*$//g' | grep -v \"^$\" >> " + jobNamePrefix + "${WASPNAME}.command\n" +
@@ -497,4 +503,13 @@ public class SgeWorkService implements GridWorkService {
 		return this.name;
 	}
 
+	@Override
+	public GridFileService getGridFileService() {
+		return gridFileService;
+	}
+	
+	public void setGridFileService(GridFileService gridFileService) {
+		this.gridFileService = gridFileService;
+	}
+	
 }

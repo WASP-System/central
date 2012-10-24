@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.UUID;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -463,6 +464,47 @@ public class PbsWorkService implements GridWorkService {
 			this.mailCircumstances = "#$ -m " + mailCircumstances + "\n";
 		}
 
+	}
+
+	@Override
+	public void setName(String name) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public void setSoftwareManager(SoftwareManager softwareManager) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setJobNamePrefix(String name) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setAvailableParallelEnvironments(List<String> pe) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public List<String> getAvailableParallelEnvironments() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public GridFileService getGridFileService() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

@@ -62,4 +62,27 @@
   <!-- load all other plugins -->
   <import resource="classpath*:wasp/*waspPlugin.xml" /> 
 
+  <!-- load site specific properties -->
+  <bean id="waspLocalProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+    <property name="locations">
+      <list>
+        <value>classpath:/wasp.site.properties</value>
+      </list>
+    </property>
+  </bean> 
+
+  <!-- load site specific genome configuration -->
+  <bean id="localGenomesProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+    <property name="locations">
+      <list>
+        <value>classpath:/genomes.properties</value>
+      </list>
+    </property>
+  </bean>
+
+  <!-- load local configuration context -->
+  <import resource="classpath*:/wasp-site-context.xml" />
+
+
+
 </beans>

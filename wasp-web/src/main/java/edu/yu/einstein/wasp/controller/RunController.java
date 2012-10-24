@@ -352,7 +352,7 @@ public class RunController extends WaspController {
 			
 			if(platformUnitBarcodeFromGrid != null){
 				for(Run run : tempRunList){
-					List<SampleBarcode> sbList = run.getSample().getSampleBarcode();
+					List<SampleBarcode> sbList = run.getPlatformUnit().getSampleBarcode();
 					if(sbList.get(0).getBarcode().getBarcode().equalsIgnoreCase(platformUnitBarcodeFromGrid)){
 						runsFoundInSearch.add(run);
 					}
@@ -982,7 +982,7 @@ class MachineNameComparator implements Comparator<Run> {
 class RunPlatformUnitBarcodeComparator implements Comparator<Run> {
 	@Override
 	public int compare(Run arg0, Run arg1) {
-		return arg0.getSample().getSampleBarcode().get(0).getBarcode().getBarcode().compareToIgnoreCase(arg1.getSample().getSampleBarcode().get(0).getBarcode().getBarcode());
+		return arg0.getPlatformUnit().getSampleBarcode().get(0).getBarcode().getBarcode().compareToIgnoreCase(arg1.getPlatformUnit().getSampleBarcode().get(0).getBarcode().getBarcode());
 	}
 }
 class DateRunEndedComparator implements Comparator<Run> {
