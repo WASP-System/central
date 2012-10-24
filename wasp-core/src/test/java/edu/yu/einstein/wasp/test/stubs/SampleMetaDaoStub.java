@@ -143,4 +143,12 @@ public class SampleMetaDaoStub implements SampleMetaDao {
 		return stubSampleMetaList;
 	}
 
+	@Override
+	public List<SampleMeta> findByMapsIncludesDatesDistinctOrderBy(Map m,
+			Map dateMap, List<String> distinctColumnNames,
+			List<String> orderByColumnAndDirectionList) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

@@ -165,4 +165,12 @@ public class StubSampleDao implements SampleDao {
 		return null;
 	}
 
+	@Override
+	public List<Sample> findByMapsIncludesDatesDistinctOrderBy(Map m,
+			Map dateMap, List<String> distinctColumnNames,
+			List<String> orderByColumnAndDirectionList) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
