@@ -10,7 +10,6 @@
 		<relativePath>../wasp-parent/pom.xml</relativePath>
 	</parent>
 	<artifactId>wasp-daemon</artifactId>
-	<version>${module.version}</version>
 	<packaging>jar</packaging>
 	<name>WASP System Batch processing component</name>
 	<url>http://waspsystem.org/</url>
@@ -23,6 +22,8 @@
 		<maven.test.skip>true</maven.test.skip>
 		<maven.test.failure.ignore>true</maven.test.failure.ignore>
 		<module.version>0.1.0-SNAPSHOT</module.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.build.outputEncoding>UTF-8</project.build.outputEncoding>
 	</properties>
 	
 	<dependencies>
@@ -128,6 +129,42 @@
 					<target>1.6</target>
 				</configuration>
 			</plugin>
+			<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-shade-plugin</artifactId>
+			<version>1.5</version>
+			<executions>
+			<execution>
+			<phase>package</phase>
+			<goals>
+			<goal>shade</goal>
+			</goals>
+			<configuration>
+			<transformers>
+			<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+			<mainClass>edu.yu.einstein.wasp.daemon.StartDaemon</mainClass>
+			</transformer>
+			<transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+			<resource>META-INF/spring.handlers</resource>
+			</transformer>
+			<transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+			<resource>META-INF/spring.schemas</resource>
+			</transformer>
+			</transformers>
+			<filters>
+			<filter>
+			<artifact>edu.yu.einstein.wasp:wasp-cli</artifact>
+			<excludes>
+			<exclude>commons-logging.properties</exclude>
+			<exclude>simplelog.properties</exclude>
+			</excludes>
+			</filter>
+			</filters>
+			</configuration>
+			</execution>
+			</executions>
+			</plugin>
+
 			</plugins>
 			<pluginManagement>
 				<plugins>
@@ -157,6 +194,8 @@
 					</plugin>
 				</plugins>
 			</pluginManagement>
+
+			
 	</build>
 	<repositories>
 		<repository>
@@ -175,6 +214,48 @@
 			</snapshots>
 		</pluginRepository>
 	</pluginRepositories>
+
+	<dependencyManagement>
+	<dependencies>
+	<dependency>
+	<groupId>edu.yu.einstein.wasp</groupId>
+	<artifactId>bom</artifactId>
+	<version>1.0.0</version>
+	<type>pom</type>
+	<scope>import</scope>
+	</dependency>
+	</dependencies>
+	</dependencyManagement>
+
+
+	<profiles>
+	<profile>
+	<id>deploy</id>
+	<build>
+	<plugins>
+	<plugin>
+	<artifactId>maven-antrun-plugin</artifactId>
+	<executions>
+	<execution>
+	<phase>prepare-package</phase>
+	<goals>
+	<goal>run</goal>
+	</goals>
+	<configuration>
+	<tasks>
+	<delete file="${project.build.outputDirectory}/log4j.properties"/>
+	<delete file="${project.build.outputDirectory}/log4j.debug.properties"/>
+	<copy file="src/main/resources/log4j.debug.properties"
+	tofile="${project.build.outputDirectory}/log4j.properties"/>
+	</tasks>
+	</configuration>
+	</execution>
+	</executions>
+	</plugin>
+	</plugins>
+	</build>
+	</profile>
+	</profiles>
  
 	<groupId>edu.yu.einstein.wasp.daemon</groupId>
 </project>

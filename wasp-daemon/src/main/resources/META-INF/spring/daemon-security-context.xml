@@ -4,19 +4,5 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-		<beans:bean id="waspUserDetailsService"
-			class="edu.yu.einstein.wasp.daemon.security.WaspJdbcDaoImpl">
-			<beans:property name="dataSource" ref="dataSource" />
-		</beans:bean>
-
-		<authentication-manager alias="authenticationManager">
-
-
-		<authentication-provider user-service-ref="waspUserDetailsService">
-			<password-encoder hash="sha" />
-		</authentication-provider>
-
-		<!-- no password encoder to reauth -->
-		<authentication-provider user-service-ref="waspUserDetailsService" />
-	</authentication-manager>
+	
 </beans:beans>
