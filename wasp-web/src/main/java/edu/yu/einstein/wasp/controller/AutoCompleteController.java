@@ -37,11 +37,13 @@ import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.JobUser;
 import edu.yu.einstein.wasp.model.JobSample;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.dao.LabDao;
 import edu.yu.einstein.wasp.dao.JobDao;
+import edu.yu.einstein.wasp.dao.JobUserDao;
 import edu.yu.einstein.wasp.dao.JobSampleDao;
 import edu.yu.einstein.wasp.dao.DepartmentDao;
 import edu.yu.einstein.wasp.dao.ResourceDao;
@@ -79,6 +81,9 @@ public class AutoCompleteController extends WaspController{
 
 	@Autowired
 	private JobSampleDao jobSampleDao;
+
+	@Autowired
+	private JobUserDao jobUserDao;
 
 	@Autowired
 	private DepartmentDao departmentDao;
@@ -142,6 +147,7 @@ public class AutoCompleteController extends WaspController{
 	/**
 	   * Obtains a json message containing list of all PIs where each entry in the list looks something like "Peter Piper (PPiper)"
 	   * 9/4/12 added filter so that if the viewer is just a DA, then restrict PIs to those covered by the DA's department(s)
+ 	   * 10/24/12 added filter so that if viewer is a regular user (not facility user) then the list is their lab's pi(s) and any other pi whose jobs they can view (specifically for jobGrid)
 	   * OrderBy lastname, then firstname ascending
 	   * Used to populate a JQuery autocomplete managed input box
 	   * @param piNameFragment
@@ -150,13 +156,34 @@ public class AutoCompleteController extends WaspController{
 	  @RequestMapping(value="/getPiNamesAndLoginForDisplay", method=RequestMethod.GET)
 	  public @ResponseBody String getPINames(@RequestParam String piNameFragment) {
 	      
-		  List<Lab> labList = labDao.findAll();
+		  List<Lab> labList = new ArrayList<Lab>();
+		  
 		  //perform next if block ONLY if the viewer is A DA but is NOT any other type of facility member; this will restrict the PI's that are 
 		  //visible and available via this autocomplete widget to those labs that are in departments that this DA controls  
-		  if(authenticationService.isOnlyDepartmentAdministrator()){//if viewer is just a DA, then retain only labs in the DA's department(s)
-			  List<Lab> labsToKeep = filterService.filterLabListForDA(labList);
-			  labList.retainAll(labsToKeep);
-		  }
+	      if(authenticationService.isFacilityMember()){
+	    	  
+	    	  labList = labDao.findAll();
+	    	  
+	    	  if(authenticationService.isOnlyDepartmentAdministrator()){//if viewer is just a DA, then retain only labs in the DA's department(s)
+	    		  List<Lab> labsToKeep = filterService.filterLabListForDA(labList);
+	    		  labList.retainAll(labsToKeep);
+	    	  }
+	      }
+	      else{//regular user (labmember, viewer, pi)
+	    	  Set<Lab> selectLabsList = new LinkedHashSet<Lab>();
+	    	  User viewer = authenticationService.getAuthenticatedUser();
+	    	  selectLabsList.addAll(viewer.getLab());//current web viewer's labs
+	    	  //now get labs whose jobs this viewer can view
+	    	  Map filterMap = new HashMap();
+	    	  filterMap.put("UserId", viewer.getUserId().intValue());
+	    	  List<JobUser> jobUserList = jobUserDao.findByMap(filterMap);
+	    	  for(JobUser jobUser : jobUserList){
+	    		  Job job = jobUser.getJob();
+	    		  selectLabsList.add(job.getLab());
+	    	  }
+	    	  labList.addAll(selectLabsList);	    	  
+	      }
+	      
 	      List<User> userList = new ArrayList<User>();
 	      for(Lab lab : labList){
 	    	  userList.add(lab.getUser());//PI of lab
@@ -226,8 +253,9 @@ public class AutoCompleteController extends WaspController{
 	  }
 	  
 	  /**
-	   * Obtains a json message containing a list of all job names from the job list. 
-	   * 9/4/12 added filter so that if the viewer is just a DA, then restrict jobNames to those in jobs covered by the DA's department(s)
+	   * Obtains a json message containing a list of all names from the job list. 
+	   * 9/4/12 added filter so that if the viewer is just a DA, then restrict jobNames to those in jobs covered by the DA's department(s)	  
+	   *  10/24/12 added filter so that if viewer is a regular user (not facility user) then  list job names of jobs that belong to them and any other job they can view (specifically for jobGrid)
 	   * Used to populate a JQuery autocomplete managed input box
 	   * @param jobName
 	   * @return
@@ -235,18 +263,44 @@ public class AutoCompleteController extends WaspController{
 	  @RequestMapping(value="/getJobNamesForDisplay", method=RequestMethod.GET)
 	  public @ResponseBody String getJobNames(@RequestParam String jobName) {
 		  	
-		  	 List<Job> jobList = jobDao.findAll();
+		  	 List<Job> jobList = new ArrayList<Job>();
 		  	 //perform next if block ONLY if the viewer is A DA but is NOT any other type of facility member; this will restrict the job names that are 
 		  	 //visible and available via this autocomplete widget to those jobs that are in departments that this DA controls  
-			 if(authenticationService.isOnlyDepartmentAdministrator()){//if viewer is just a DA, then retain only jobs in the DA's department(s)
-				 List<Job> jobsToKeep = filterService.filterJobListForDA(jobList);
-				 jobList.retainAll(jobsToKeep);
-			 }
+		  	 if(authenticationService.isFacilityMember()){
+		  		 
+		  		jobList = jobDao.findAll();
+		  		
+		  		if(authenticationService.isOnlyDepartmentAdministrator()){//if viewer is just a DA, then retain only jobs in the DA's department(s)
+		  			List<Job> jobsToKeep = filterService.filterJobListForDA(jobList);
+		  			jobList.retainAll(jobsToKeep);
+		  		}
+		  	 }
+		  	else{//regular user (labmember, viewer, pi)
+		    	  Set<Job> selectJobsList = new LinkedHashSet<Job>();
+		    	  User viewer = authenticationService.getAuthenticatedUser();
+		    	  selectJobsList.addAll(viewer.getJob());//list of viewer's jobs
+		    	  //now get other jobs this viewer can view
+		    	  Map filterMap = new HashMap();
+		    	  filterMap.put("UserId", viewer.getUserId().intValue());
+		    	  List<JobUser> jobUserList = jobUserDao.findByMap(filterMap);
+		    	  for(JobUser jobUser : jobUserList){
+		    		  Job job = jobUser.getJob();
+		    		  selectJobsList.add(job);
+		    	  }
+		    	  jobList.addAll(selectJobsList);	    	  
+		      }
+		  	 
+		  	 List<String> jobNameList = new ArrayList<String>();
+		  	 for(Job job : jobList){
+		  		 jobNameList.add(job.getName());
+		  	 }
+		  	 Collections.sort(jobNameList);
+		  	 
 	         String jsonString = new String();
 	         jsonString = jsonString + "{\"source\": [";
-	         for (Job job : jobList){
-	        	 if(job.getName().indexOf(jobName) > -1){
-	        		 jsonString = jsonString + "\""+ job.getName() + "\",";
+	         for (String theName : jobNameList){
+	        	 if(theName.indexOf(jobName) > -1){
+	        		 jsonString = jsonString + "\""+ theName + "\",";
 	        	 }
 	         }
 	         jsonString = jsonString.replaceAll(",$", "") + "]}";
@@ -256,6 +310,7 @@ public class AutoCompleteController extends WaspController{
 		/**
 	   * Obtains a json message containing list of ALL users where each entry in the list looks something like "Peter Piper (PPiper)"
 	   * 9/4/12 added filter so that if the viewer is just a DA, then restrict UserNames and Logins to those covered by the DA's department(s)
+	   * 10/24/12 added filter so that if viewer is a regular user (not facility user) then the list is themselves and any other submitters whose jobs they can view (specifically for jobGrid)
 	   * Order by lastname then firstname, ascending
 	   * Used to populate a JQuery autocomplete managed input box
 	   * @param adminNameFragment
@@ -264,17 +319,43 @@ public class AutoCompleteController extends WaspController{
 	  @RequestMapping(value="/getAllUserNamesAndLoginForDisplay", method=RequestMethod.GET)
 	  public @ResponseBody String getAllUserNames(@RequestParam String adminNameFragment) {
 		  
-		  List<String> orderbyList = new ArrayList<String>();
-		  orderbyList.add("lastName");
-		  orderbyList.add("firstName");
-	      List<User> userList = userDao.findByMapDistinctOrderBy(new HashMap(), null, orderbyList, "asc");
+	      List<User> userList = new ArrayList<User>();
 	      
 		  //perform next if block ONLY if the viewer is A DA but is NOT any other type of facility member; this will restrict the Users that are 
 		  //visible and available via this autocomplete widget to those that are in departments that this DA controls  
-		  if(authenticationService.isOnlyDepartmentAdministrator()){//if viewer is just a DA, then retain only users in the DA's department(s)
-			  List<User> usersToKeep = filterService.filterUserListForDA(userList);
-			  userList.retainAll(usersToKeep);
+	      if(authenticationService.isFacilityMember()){
+	    	  
+			  List<String> orderbyList = new ArrayList<String>();
+			  orderbyList.add("lastName");
+			  orderbyList.add("firstName");
+		      userList = userDao.findByMapDistinctOrderBy(new HashMap(), null, orderbyList, "asc");
+	    	  
+	    	  if(authenticationService.isOnlyDepartmentAdministrator()){//if viewer is just a DA, then retain only users in the DA's department(s)
+	    		  List<User> usersToKeep = filterService.filterUserListForDA(userList);
+	    		  userList.retainAll(usersToKeep);
+	    	  }
 		  }
+	      else{//regular user (labmember, viewer, pi)
+	    	  Set<User> selectUserList = new LinkedHashSet<User>();
+	    	  User viewer = authenticationService.getAuthenticatedUser();
+	    	  selectUserList.add(viewer);//current web viewer
+	    	  //now get other submitters whose jobs this viewer can view
+	    	  Map filterMap = new HashMap();
+	    	  filterMap.put("UserId", viewer.getUserId().intValue());
+	    	  List<JobUser> jobUserList = jobUserDao.findByMap(filterMap);
+	    	  for(JobUser jobUser : jobUserList){
+	    		  Job job = jobUser.getJob();
+	    		  selectUserList.add(job.getUser());
+	    	  }
+	    	  userList.addAll(selectUserList);
+	    	  class LastNameFirstNameComparator implements Comparator<User> {
+	  	    	@Override
+	  	    	public int compare(User arg0, User arg1) {
+	  	    		return arg0.getLastName().concat(arg0.getFirstName()).compareToIgnoreCase(arg1.getLastName().concat(arg1.getFirstName()));
+	  	    	}
+	  	      }
+	  	      Collections.sort(userList, new LastNameFirstNameComparator());
+	      }
 	      
 	      String jsonString = new String();
 	      jsonString = jsonString + "{\"source\": [";
