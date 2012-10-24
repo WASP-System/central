@@ -36,7 +36,7 @@ public class TaskMappingLoader extends WaspLoader {
 	@PostConstruct 
 	  public void init() throws Exception{
 		logger.info("task loader started for taskMapping "+ iname);
-		taskMappingLoadService.update(iname, taskMapping);
+		taskMappingLoadService.update(iname, name, taskMapping);
 		taskMappingLoadService.updateUiFields(uiFields); 
 
 	}

@@ -21,7 +21,7 @@ public class TaskMappingLoadServiceImpl extends WaspLoadServiceImpl implements	T
 	private TaskMappingDao taskMappingDao;
 	
 	@Override
-	public void update(String iname, List<TaskMapping> taskMapping){
+	public void update(String iname, String name, List<TaskMapping> taskMapping){
 		// no taskmapping in property
 		if (taskMapping == null) { taskMapping = new ArrayList<TaskMapping>(); }
 
@@ -31,8 +31,10 @@ public class TaskMappingLoadServiceImpl extends WaspLoadServiceImpl implements	T
 				tm.setDashboardSortOrder(1); // default to 1
 			if (tm.getIName() == null)
 				tm.setIName(iname);
+			if (tm.getName() == null)
+				tm.setName(name);
 			TaskMapping dbTm = taskMappingDao.getTaskMappingByIName(tm.getIName());
-			if (dbTm==null || dbTm.getTaskMappingId() == 0){
+			if (dbTm.getTaskMappingId() == null || dbTm.getTaskMappingId() == 0){
 				// is new
 				tm.setIsActive(1);
 				taskMappingDao.save(tm);

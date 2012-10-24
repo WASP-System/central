@@ -6,6 +6,6 @@ import edu.yu.einstein.wasp.model.TaskMapping;
 
 public interface TaskMappingLoadService extends WaspLoadService {
 	
-	public void update(String iname, List<TaskMapping> taskMapping);
+	public void update(String iname, String name, List<TaskMapping> taskMapping);
 
 }

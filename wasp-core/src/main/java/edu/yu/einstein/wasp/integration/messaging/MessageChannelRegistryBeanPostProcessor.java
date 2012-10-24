@@ -1,11 +1,14 @@
 package edu.yu.einstein.wasp.integration.messaging;
 
 
+import javax.annotation.PostConstruct;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.integration.MessageChannel;
+import org.springframework.util.Assert;
 
 /**
  * Registers any beans implementing the {@link MessageChannel} interface with the injected {@link MessageChannelRegistry}
@@ -21,6 +24,15 @@ public class MessageChannelRegistryBeanPostProcessor implements BeanPostProcesso
 	
 	public MessageChannelRegistry getMessageRegistry() {
 		return messageRegistry;
+	}
+	
+	/**
+	 * Make sure the registry is set before use.
+	 * 
+	*/
+	@PostConstruct
+	public void initialization() throws Exception {
+		Assert.notNull(messageRegistry, "messageRegistry must not be null");
 	}
 	
 	@Required

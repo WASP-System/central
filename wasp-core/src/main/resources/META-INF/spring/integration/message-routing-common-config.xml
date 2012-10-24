@@ -12,6 +12,6 @@
 	<bean id="messageRegistryBeanPostProcessor" class="edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistryBeanPostProcessor">
     	<property name="messageRegistry" ref="messageRegistry"/>
 	</bean>
-		
+			
 </beans>
 

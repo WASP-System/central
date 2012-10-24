@@ -101,7 +101,7 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 		
 	/**
 	 * This test exercises the normal sample flow with a DNA sample received.
-	 * The method sets up a listeningChannel and listens on it. It then launches the wasp.sample.mainFlow.v1 flow.
+	 * The method sets up a listeningChannel and listens on it. It then launches the wasp.default.sample.mainFlow.v1 flow.
 	 */
 	@Test (groups = "unit-tests-batch-integration")
 	public void testDNASampleReceived() throws Exception{
@@ -114,8 +114,8 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 			sampleType.setIName("dna");
 			stubSampleDao.sample.setSampleType(sampleType);
 			
-			// setup job execution for the 'wasp.sample.mainFlow.v1' job
-			Job job = jobRegistry.getJob("wasp.sample.jobflow.v1"); // get the 'wasp.sample.mainFlow.v1' job from the context
+			// setup job execution for the 'wasp.default.sample.mainFlow.v1' job
+			Job job = jobRegistry.getJob("wasp.sample.jobflow.v1"); // get the 'wasp.default.sample.mainFlow.v1' job from the context
 			Map<String, JobParameter> parameterMap = new HashMap<String, JobParameter>();
 			parameterMap.put( JOB_ID_KEY, new JobParameter(JOB_ID.toString()) );
 			parameterMap.put( SAMPLE_ID_KEY, new JobParameter(SAMPLE_ID.toString()) );
@@ -171,7 +171,7 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 	
 	/**
 	 * This test exercises the normal sample flow with a DNA sample received.
-	 * The method sets up a listeningChannel and listens on it. It then launches the wasp.sample.mainFlow.v1 flow.
+	 * The method sets up a listeningChannel and listens on it. It then launches the wasp.default.sample.mainFlow.v1 flow.
 	 */
 	@Test (groups = "unit-tests-batch-integration")
 	public void testLibrarySampleReceived() throws Exception{
@@ -184,8 +184,8 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 			sampleType.setIName("library");
 			stubSampleDao.sample.setSampleType(sampleType);
 			
-			// setup job execution for the 'wasp.sample.mainFlow.v1' job
-			Job job = jobRegistry.getJob("wasp.sample.jobflow.v1"); // get the 'wasp.sample.mainFlow.v1' job from the context
+			// setup job execution for the 'wasp.default.sample.mainFlow.v1' job
+			Job job = jobRegistry.getJob("wasp.sample.jobflow.v1"); // get the 'wasp.default.sample.mainFlow.v1' job from the context
 			Map<String, JobParameter> parameterMap = new HashMap<String, JobParameter>();
 			parameterMap.put( JOB_ID_KEY, new JobParameter(JOB_ID.toString()) );
 			parameterMap.put( SAMPLE_ID_KEY, new JobParameter(SAMPLE_ID2.toString()) );
@@ -254,8 +254,8 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 			sampleType.setIName("sample");
 			stubSampleDao.sample.setSampleType(sampleType);
 			
-			// setup job execution for the 'wasp.sample.mainFlow.v1' job
-			Job job = jobRegistry.getJob("wasp.sample.jobflow.v1"); // get the 'wasp.sample.mainFlow.v1' job from the context
+			// setup job execution for the 'wasp.default.sample.mainFlow.v1' job
+			Job job = jobRegistry.getJob("wasp.sample.jobflow.v1"); // get the 'wasp.default.sample.mainFlow.v1' job from the context
 			Map<String, JobParameter> parameterMap = new HashMap<String, JobParameter>();
 			parameterMap.put( JOB_ID_KEY, new JobParameter(JOB_ID.toString()) );
 			parameterMap.put( SAMPLE_ID_KEY, new JobParameter(SAMPLE_ID3.toString()) );

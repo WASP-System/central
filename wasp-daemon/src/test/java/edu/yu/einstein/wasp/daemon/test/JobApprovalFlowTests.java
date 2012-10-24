@@ -81,13 +81,13 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 		
 	/**
 	 * This test exercises the approvalFlow.
-	 * The method sets up a listeningChannel and listens on it. it then launches the chipSeq.waspJob.jobflow.v1.
+	 * The method sets up a listeningChannel and listens on it. it then launches the default.waspJob.jobflow.v1.
 	 */
 	@Test (groups = "unit-tests-batch-integration")
 	public void testJobApproved() throws Exception{
 		try{
-			// setup job execution for the 'chipSeq.waspJob.jobflow.v1' job
-			Job job = jobRegistry.getJob("chipSeq.waspJob.jobflow.v1"); // get the 'chipSeq.waspJob.jobflow.v1' job from the context
+			// setup job execution for the 'default.waspJob.jobflow.v1' job
+			Job job = jobRegistry.getJob("default.waspJob.jobflow.v1"); // get the 'default.waspJob.jobflow.v1' job from the context
 			Map<String, JobParameter> parameterMap = new HashMap<String, JobParameter>();
 			parameterMap.put( JOB_ID_KEY, new JobParameter(JOB_ID.toString()) );
 			JobExecution jobExecution = jobLauncher.run(job, new JobParameters(parameterMap));
@@ -154,13 +154,13 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 	
 	/**
 	 * This test exercises the approvalFlow. In this case one approval task receives an ABANDONED signal to signify rejection.
-	 * The method sets up a listeningChannel and listens on it. it then launches the chipSeq.waspJob.jobflow.v1.
+	 * The method sets up a listeningChannel and listens on it. it then launches the default.waspJob.jobflow.v1.
 	 */
 	@Test (groups = "unit-tests-batch-integration")
 	public void testJobNotApproved() throws Exception{
 		try{
-			// setup job execution for the 'chipSeq.waspJob.jobflow.v1' job
-			Job job = jobRegistry.getJob("chipSeq.waspJob.jobflow.v1"); // get the 'chipSeq.waspJob.jobflow.v1' job from the context
+			// setup job execution for the 'default.waspJob.jobflow.v1' job
+			Job job = jobRegistry.getJob("default.waspJob.jobflow.v1"); // get the 'default.waspJob.jobflow.v1' job from the context
 			Map<String, JobParameter> parameterMap = new HashMap<String, JobParameter>();
 			parameterMap.put( JOB_ID_KEY, new JobParameter(JOB_ID2.toString()) );
 			JobExecution jobExecution = jobLauncher.run(job, new JobParameters(parameterMap));

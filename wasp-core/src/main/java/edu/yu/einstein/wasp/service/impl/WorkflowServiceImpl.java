@@ -4,19 +4,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-
-import com.sun.jna.platform.win32.W32FileMonitor;
 
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.dao.WorkflowMetaDao;
-import edu.yu.einstein.wasp.exception.InvalidParameterException;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.model.Workflow;
 import edu.yu.einstein.wasp.model.WorkflowMeta;
 import edu.yu.einstein.wasp.service.WorkflowService;
 import edu.yu.einstein.wasp.util.MetaHelper;
 
+@Service
+@Transactional
 public class WorkflowServiceImpl extends WaspServiceImpl implements WorkflowService{
 	
 	public static final String JOB_FLOW_BATCH_META_KEY = "jobFlowBatchJob";
@@ -59,21 +60,7 @@ public class WorkflowServiceImpl extends WaspServiceImpl implements WorkflowServ
 	public void setJobFlowBatchJobName(Workflow workflow, String name) {
 		Assert.assertParameterNotNull(workflow, "workflow cannot be null");
 		Assert.assertParameterNotNull(name, "name cannot be null");
-		List<WorkflowMeta> workflowMetaList = workflow.getWorkflowMeta();
-		if (workflowMetaList == null)
-			workflowMetaList = new ArrayList<WorkflowMeta>();
-		WorkflowMeta jobFlowBatchJobNameMeta = null;
-		try{
-			jobFlowBatchJobNameMeta = MetaHelper.getMetaObjectFromList(WORKFLOW_AREA, JOB_FLOW_BATCH_META_KEY, workflowMetaList);
-		} catch(MetadataException e) {
-			// doesn't exist so create
-			jobFlowBatchJobNameMeta = new WorkflowMeta();
-			jobFlowBatchJobNameMeta.setK(WORKFLOW_AREA + "." + JOB_FLOW_BATCH_META_KEY);
-			jobFlowBatchJobNameMeta.setPosition(0);
-			jobFlowBatchJobNameMeta.setWorkflowId(workflow.getWorkflowId());
-		}
-		jobFlowBatchJobNameMeta.setV(name);
-		workflowMetaDao.save(jobFlowBatchJobNameMeta);
+		setMeta(workflow, JOB_FLOW_BATCH_META_KEY, name);
 	}
 
 	/**
@@ -104,21 +91,36 @@ public class WorkflowServiceImpl extends WaspServiceImpl implements WorkflowServ
 	public void setPageFlowOrder(Workflow workflow, List<String> pageList) {
 		Assert.assertParameterNotNull(workflow, "workflow cannot be null");
 		Assert.assertParameterNotNull(pageList, "pageList cannot be null");
+		setMeta(workflow, PAGE_FLOW_ORDER_META_KEY, StringUtils.collectionToDelimitedString(pageList, DELIMITER));
+	}
+	
+	private void setMeta(Workflow workflow, String metaKey, String metaValue){
+		System.out.println("setMeta("+workflow.getIName()+", "+metaKey+", "+metaValue+")");
+		Assert.assertParameterNotNull(workflow, "workflow cannot be null");
+		Assert.assertParameterNotNull(metaKey, "metaKey cannot be null");
+		Assert.assertParameterNotNull(metaValue, "metaValue cannot be null");
 		List<WorkflowMeta> workflowMetaList = workflow.getWorkflowMeta();
 		if (workflowMetaList == null)
 			workflowMetaList = new ArrayList<WorkflowMeta>();
-		WorkflowMeta pageFlowWorkflowMeta = null;
+		WorkflowMeta jobFlowBatchJobNameMeta = null;
 		try{
-			pageFlowWorkflowMeta = MetaHelper.getMetaObjectFromList(WORKFLOW_AREA, PAGE_FLOW_ORDER_META_KEY, workflowMetaList);
+			System.out.println("MetaHelper.getMetaObjectFromList("+WORKFLOW_AREA+", "+metaKey+", "+workflowMetaList+")");
+			jobFlowBatchJobNameMeta = MetaHelper.getMetaObjectFromList(WORKFLOW_AREA, metaKey, workflowMetaList);
+			
+			if (jobFlowBatchJobNameMeta.getV().equals(metaValue)){ // no change in value
+				System.out.println(jobFlowBatchJobNameMeta.getV()+"="+metaValue+", so not changing");
+				return;
+			}
+			System.out.println(jobFlowBatchJobNameMeta.getV()+"!="+metaValue+", so going to update");
 		} catch(MetadataException e) {
 			// doesn't exist so create
-			pageFlowWorkflowMeta = new WorkflowMeta();
-			pageFlowWorkflowMeta.setK(WORKFLOW_AREA + "." + PAGE_FLOW_ORDER_META_KEY);
-			pageFlowWorkflowMeta.setPosition(0);
-			pageFlowWorkflowMeta.setWorkflowId(workflow.getWorkflowId());
+			jobFlowBatchJobNameMeta = new WorkflowMeta();
+			jobFlowBatchJobNameMeta.setK(WORKFLOW_AREA + "." + metaKey);
+			System.out.println("creating new meta object: "+jobFlowBatchJobNameMeta.getK());
 		}
-		pageFlowWorkflowMeta.setV( StringUtils.collectionToDelimitedString(pageList, DELIMITER) );
-		workflowMetaDao.save(pageFlowWorkflowMeta);
+		jobFlowBatchJobNameMeta.setV(metaValue);
+		System.out.println("updating: "+workflow.getWorkflowId()+", "+jobFlowBatchJobNameMeta.toString());
+		workflowMetaDao.updateByWorkflowId(workflow.getWorkflowId(), jobFlowBatchJobNameMeta);
 	}
 	
 	

@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,8 +18,8 @@ public class JobStatusServiceImpl {
 	private JobExplorerWasp jobExplorer;
 	
 	@Autowired
-	void setJobExplorer(JobExplorerWasp jobExplorer){
-		this.jobExplorer = jobExplorer;
+	void setJobExplorer(JobExplorer jobExplorer){
+		this.jobExplorer = (JobExplorerWasp) jobExplorer;
 	}
 	
 	public Set<JobExecution> findAllRunningJobExecutions(){

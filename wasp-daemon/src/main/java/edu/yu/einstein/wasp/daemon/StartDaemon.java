@@ -8,5 +8,6 @@ public class StartDaemon {
   public static void main(final String[] args) throws Exception {
     @SuppressWarnings("unused")
 	ApplicationContext ctx = new ClassPathXmlApplicationContext("META-INF/spring/daemon-launch-context.xml");
+    System.out.println("\n\nSpring Batch Daemon Application Launched Successfully...");
   }
 }

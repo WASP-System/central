@@ -6,11 +6,6 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
-  <!-- import batch and integration common config -->
-  <import resource="batch-integration-common-config.xml" />
-  
-  <import resource="integration/RmiMessageSend-context.xml"/>
-  
   <bean id="messageSource" class="edu.yu.einstein.wasp.service.impl.WaspMessageSourceImpl" />
 
   <!-- component scan -->

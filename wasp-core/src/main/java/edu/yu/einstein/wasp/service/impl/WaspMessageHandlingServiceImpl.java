@@ -1,13 +1,12 @@
 package edu.yu.einstein.wasp.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessagingException;
 import org.springframework.integration.channel.DirectChannel;
 
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
-import edu.yu.einstein.wasp.exception.WaspMessageChannelNotFoundException;
-import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
 import edu.yu.einstein.wasp.service.WaspMessageHandlingService;
 
 public abstract class WaspMessageHandlingServiceImpl extends WaspServiceImpl implements	WaspMessageHandlingService {
@@ -19,10 +18,11 @@ public abstract class WaspMessageHandlingServiceImpl extends WaspServiceImpl imp
 	public static final Long MESSAGE_SEND_TIMEOUT = new Long(5000); // 5s
 	
 	@Autowired
-	private MessageChannelRegistry channelRegistry;
-	
+	@Qualifier(REPLY_MSG_CHANNEL_NAME)
 	private DirectChannel replyChannel; // when sending messages we should check for a response and handle it
 	
+	@Autowired
+	@Qualifier(OUTBOUND_MSG_CHANNEL_NAME)
 	private DirectChannel outboundRmiChannel; // channel to send messages out of system
 	
 	/**
@@ -32,16 +32,7 @@ public abstract class WaspMessageHandlingServiceImpl extends WaspServiceImpl imp
 	 *     protected void initialize(){ super.initialize(); }
 	 */
 	protected void initialize(){
-		// subscribe to outbound message channel after dependency injection
-		outboundRmiChannel = channelRegistry.getChannel(OUTBOUND_MSG_CHANNEL_NAME, DirectChannel.class);
-		if (outboundRmiChannel == null)
-			throw new WaspMessageChannelNotFoundException("Cannot obtain a message channel called '" + OUTBOUND_MSG_CHANNEL_NAME + "'. No such channel in registry");
 		outboundRmiChannel.subscribe(this);
-		
-		// subscribe to reply channel after dependency injection
-		replyChannel = channelRegistry.getChannel(REPLY_MSG_CHANNEL_NAME, DirectChannel.class);
-		if (replyChannel == null)
-			throw new WaspMessageChannelNotFoundException("Cannot obtain a message channel called '" + REPLY_MSG_CHANNEL_NAME + "'. No such channel in registry");
 		replyChannel.subscribe(this);
 	}
 	

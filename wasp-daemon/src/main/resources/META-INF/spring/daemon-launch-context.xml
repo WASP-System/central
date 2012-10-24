@@ -14,30 +14,6 @@
 	<!-- load core components and plugins -->
 	<import resource="core-common-config.xml" />
 
-	<!-- load persistence -->
-	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
-	  <property name="driverClassName"><value>${db.jdbc.driver}</value></property>
-	  <property name="url"><value>${db.jdbc.url}</value></property>
-	  <property name="username"><value>${db.jdbc.username}</value></property>
-	  <property name="password"><value>${db.jdbc.password}</value></property>
-	  <property name="defaultAutoCommit"><value>${db.jdbc.auto_commit}</value></property>
-	</bean>
-	<bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
-	  <property name="persistenceUnitName" value="waspPU" />
-	  <property name="dataSource" ref="dataSource" />
-	  <property name="jpaVendorAdapter">
-	    <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
-	      <property name="database"><value>${db.jdbc.database}</value></property>
-	      <property name="showSql"><value>${db.jdbc.show_sql}</value></property>
-	      <property name="generateDdl"><value>${db.jdbc.hbm2ddl_auto}</value></property>
-	    </bean>
-	  </property>   
-	  <property name="packagesToScan" value="edu.yu.einstein.wasp.model" />
-	</bean>
-	<bean name="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
-	  <property name="entityManagerFactory" ref="entityManagerFactory" />
-	</bean>
-
 	<!-- Enable @Transactional support -->
 	<tx:annotation-driven transaction-manager="transactionManager" />
 	<bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor" /> 

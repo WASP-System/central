@@ -34,7 +34,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.batch.core.extension.JobExplorerWasp;
-import edu.yu.einstein.wasp.batch.core.extension.WaspBatchJobExplorer;
 import edu.yu.einstein.wasp.dao.AdaptorDao;
 import edu.yu.einstein.wasp.dao.BarcodeDao;
 import edu.yu.einstein.wasp.dao.ResourceDao;
@@ -159,7 +158,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	@Autowired
 	 private RunDao runDao;
 
-	protected JobExplorerWasp batchJobExplorer;
+	private JobExplorerWasp batchJobExplorer;
 	
 	@Autowired
 	public void setBatchJobExplorer(JobExplorer jobExplorer){

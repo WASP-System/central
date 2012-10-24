@@ -8,7 +8,7 @@
 	<bean id="taskExecutor" class="org.springframework.core.task.SimpleAsyncTaskExecutor" />
 
 	<!-- for library, call with parameters sampleid and jobid -->
-	<batch:flow id="library.mainFlow.v1">
+	<batch:flow id="default.library.mainFlow.v1">
 		<batch:step id="wasp.library.step.listenForLibraryCreated" next="wasp.library.step.libraryQC">
 			<!-- tasklet class: listenForLibraryTasklet -->
 		</batch:step>

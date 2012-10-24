@@ -6,13 +6,26 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 		
 	<!-- import batch and integration common config -->
+	<import resource="classpath:META-INF/spring/integration/integration-common-config.xml" />
  	<import resource="classpath:META-INF/spring/batch-integration-common-config.xml" />
 			
 	<context:component-scan base-package="edu.yu.einstein.wasp.daemon.dao.impl" />
 	<context:component-scan base-package="edu.yu.einstein.wasp.daemon.service.impl" />
 
 	<!-- local properties beanPostProcessor -->
-	<context:property-placeholder location="classpath:/batch-mysql.properties, classpath:daemon.properties, classpath:database.properties" ignore-unresolvable="true"/>
+	<bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">  
+		<property name="locations">  
+			<list>  
+				<value>classpath:batch-database.properties</value>
+				<value>classpath:database.properties</value>
+				<value>classpath:authentication.properties</value>
+				<value>classpath:email.properties</value>
+				<value>classpath:wasp.site.properties</value>
+				<value>classpath:daemon.properties</value>
+			</list>  
+		</property>  
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+	</bean>
 	
 	<!-- local imports  -->
 	<import resource="daemon-persistence-config.xml" />

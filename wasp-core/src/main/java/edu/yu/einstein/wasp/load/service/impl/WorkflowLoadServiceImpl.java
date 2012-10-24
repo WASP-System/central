@@ -3,6 +3,7 @@ package edu.yu.einstein.wasp.load.service.impl;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,6 +33,7 @@ import edu.yu.einstein.wasp.model.WorkflowMeta;
 import edu.yu.einstein.wasp.model.WorkflowResourceType;
 import edu.yu.einstein.wasp.model.WorkflowSampleSubtype;
 import edu.yu.einstein.wasp.service.WorkflowService;
+import edu.yu.einstein.wasp.service.impl.WorkflowServiceImpl;
 
 @Service
 @Transactional
@@ -165,7 +167,7 @@ public class WorkflowLoadServiceImpl extends WaspLoadServiceImpl implements	Work
 	    return workflow;
 	}
 	
-	private void syncWorkflowMeta(Workflow workflow, List<WorkflowMeta> meta){
+	private void syncWorkflowMeta(Workflow workflow, List<WorkflowMeta> meta, Set<String> doNotDeleteKeyList){
 	    int lastPosition = 0;
 	    Map<String, WorkflowMeta> oldWorkflowMetas  = new HashMap<String, WorkflowMeta>();
 
@@ -211,9 +213,11 @@ public class WorkflowLoadServiceImpl extends WaspLoadServiceImpl implements	Work
 	      workflowMetaDao.save(workflowMeta);
 	    }
 
-	    // delete the left overs
+	    // delete the left overs if not in the do not delete list
 	    for (String workflowMetaKey : oldWorkflowMetas.keySet()) {
 	      WorkflowMeta workflowMeta = oldWorkflowMetas.get(workflowMetaKey);
+	      if (doNotDeleteKeyList.contains(workflowMeta.getK()))
+	    	  continue;
 	      workflowMetaDao.remove(workflowMeta);
 	      workflowMetaDao.flush(workflowMeta);
 	    }
@@ -269,8 +273,12 @@ public class WorkflowLoadServiceImpl extends WaspLoadServiceImpl implements	Work
 	  	  isActive = 1;
 	    
 	    Workflow workflow = addOrUpdateWorkflow(iname, name, isActive, dependencies);
+	    
+	    Set<String> doNotDeleteKeyList = new HashSet<String>();
+	    doNotDeleteKeyList.add(WorkflowServiceImpl.WORKFLOW_AREA + "." + WorkflowServiceImpl.JOB_FLOW_BATCH_META_KEY);
+	    doNotDeleteKeyList.add(WorkflowServiceImpl.WORKFLOW_AREA + "." + WorkflowServiceImpl.PAGE_FLOW_ORDER_META_KEY);
 
-	    syncWorkflowMeta(workflow, meta);
+	    syncWorkflowMeta(workflow, meta, doNotDeleteKeyList);
 
 	    syncWorkflowSampleSubtypes(workflow, sampleSubtypes);
 	    
