@@ -539,16 +539,12 @@ public class JobController extends WaspController {
 		List<JobUser> jobUserList = job.getJobUser();
 		jobUserList.size();
 
-		List<Statejob> stateJobList = job.getStatejob();
-		stateJobList.size();
-
 		m.addAttribute("now", now);
 		m.addAttribute("job", job);
 		m.addAttribute("jobmeta", jobMetaList);
 		m.addAttribute("jobsample", jobSampleList);
 		m.addAttribute("jobfile", jobFileList);
 		m.addAttribute("jobuser", jobUserList);
-		m.addAttribute("statejob", stateJobList);
 
 		return "job/detail";
 	}
@@ -615,42 +611,6 @@ public class JobController extends WaspController {
     return "redirect:/job/detail/" + jobId + ".do";
   }
 
-  @RequestMapping(value = "/pending/detail_ro/{deptId}/{labId}/{jobId}.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('da-' + #deptId) or hasRole('lm-' + #labId) or hasRole('pi-' + #labId)")
-	public String pendingDetailRO(@PathVariable("deptId") Integer deptId,@PathVariable("labId") Integer labId,
-			@PathVariable("jobId") Integer jobId, ModelMap m) {
-	  
-	  String now = (new Date()).toString();
-
-
-	    Job job = this.getJobDao().getById(jobId);
-
-	    List<JobMeta> jobMetaList = job.getJobMeta();
-	    jobMetaList.size();
-
-	    List<JobSample> jobSampleList = job.getJobSample();
-	    jobSampleList.size();
-
-	    List<JobFile> jobFileList = job.getJobFile();
-	    jobFileList.size();
-
-	    List<JobUser> jobUserList = job.getJobUser();
-	    jobUserList.size();
-
-	    List<Statejob> stateJobList = job.getStatejob();
-	    stateJobList.size();
-
-	    m.addAttribute("now", now);
-	    m.addAttribute("job", job);
-	    m.addAttribute("jobmeta", jobMetaList);
-	    m.addAttribute("jobsample", jobSampleList);
-	    m.addAttribute("jobfile", jobFileList);
-	    m.addAttribute("jobuser", jobUserList);
-	    m.addAttribute("statejob", stateJobList);
-	   // m.addAttribute("actingasrole", actingAsRole);
-	    
-	    return "job/pendingjob/detail_ro";
-  }
  
   /* 5/15/12 should not longer be user
   @RequestMapping(value = "/allpendinglmapproval/{action}/{labId}/{jobId}.do", method = RequestMethod.GET)

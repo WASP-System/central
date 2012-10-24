@@ -65,15 +65,6 @@
       </p>
     </c:forEach>
 
-    <h2>State</h2>
-    <c:forEach items="${statejob}" var="s">
-      <p>
-      <c:out value="${s.state.name}"/>
-      <c:out value="${s.state.task.name}"/>
-      <c:out value="${s.state.status}"/>
-      </p>
-    </c:forEach>
-
     <h2>FILES</h2>
     <c:forEach items="${jobfile}" var="f">
       <p>
