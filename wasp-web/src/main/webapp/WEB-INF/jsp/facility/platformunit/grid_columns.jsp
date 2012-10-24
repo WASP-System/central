@@ -3,10 +3,10 @@
 <wasp:field name="date"  type="text" sortable="true" searchable="false" editable="false" columnWidth="70"/>
 <wasp:field name="name"  type="text" sortable="true" searchable="false" editable="false" columnWidth="100"/>
 <wasp:field name="barcode"  type="text" sortable="true" searchable="false" editable="false" columnWidth="100"/>
-<wasp:field name="sampleSubtypeName"  type="text" sortable="true" searchable="false" editable="false" columnWidth="200"/>
-<wasp:field name="readType"  type="text" sortable="true" searchable="false" editable="false" columnWidth="75"/>
-<wasp:field name="readlength"  type="text" sortable="true" searchable="false" editable="false" columnWidth="80"/>
-<wasp:field name="lanecount"  type="text" sortable="true" searchable="false" editable="false" columnWidth="75"/>
+<wasp:field name="sampleSubtypeName"  type="text" sortable="true" searchable="false" editable="false" columnWidth="190"/>
+<wasp:field name="readType"  type="text" sortable="true" searchable="false" editable="false" columnWidth="80"/>
+<wasp:field name="readlength"  type="text" sortable="true" searchable="false" editable="false" columnWidth="90"/>
+<wasp:field name="lanecount"  type="text" sortable="true" searchable="false" editable="false" columnWidth="65"/>
 
  _url='/wasp/facility/platformunit/listJSON_platformUnitGrid.do?selId=${param.selId}';
 

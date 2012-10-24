@@ -444,7 +444,7 @@ public class AutoCompleteController extends WaspController{
 	  }
 	  
 		/**
-	   * Obtains a json message containing list of ALL platformUnit names"
+	   * Obtains a json message containing (UNIQUE) list of ALL platformUnit names"
 	   * Order ascending
 	   * Used to populate a JQuery autocomplete managed input box
 	   * @param str
@@ -458,13 +458,20 @@ public class AutoCompleteController extends WaspController{
 		  List<String> orderByColumnNames = new ArrayList<String>();
 		  orderByColumnNames.add("name");
 		  String direction = "asc";
+		  
 		  List<Sample> sampleList = sampleDao.findByMapDistinctOrderBy(queryMap, null, orderByColumnNames, direction);
 			
+		  //make list unique
+		  Set<String> theOrderedSet = new LinkedHashSet<String>();//linkedHashSet retains insertion order (which we need)
+		  for (Sample s: sampleList){
+			  theOrderedSet.add(s.getName());//unique and retains insert order (which is ordered by name asc)
+		  }
+		  
 	      String jsonString = new String();
 	      jsonString = jsonString + "{\"source\": [";
-	      for (Sample s: sampleList){
-	      	 if(s.getName().indexOf(str) > -1){//note: if str equals "", this, perhaps unexpectedly, evaluates to true
-	       		 jsonString = jsonString + "\""+ s.getName()+"\",";
+	      for (String platformUnitName: theOrderedSet){
+	      	 if(platformUnitName.indexOf(str) > -1){//note: if str equals "", this, perhaps unexpectedly, evaluates to true
+	       		 jsonString = jsonString + "\""+ platformUnitName +"\",";
 	       	 }
 	      }
 	      jsonString = jsonString.replaceAll(",$", "") + "]}";
@@ -472,7 +479,7 @@ public class AutoCompleteController extends WaspController{
 	  }
 	  
 		/**
-	   * Obtains a json message containing list of ALL platformUnit barcodes"
+	   * Obtains a json message containing UNIQUE list of ALL platformUnit barcodes"
 	   * Order ascending
 	   * Used to populate a JQuery autocomplete managed input box
 	   * @param str
@@ -491,9 +498,15 @@ public class AutoCompleteController extends WaspController{
 		  }
 		  Collections.sort(platformUnitBarcodeList);
 		  
+		  //make list unique
+		  Set<String> theOrderedSet = new LinkedHashSet<String>();//linkedHashSet retains insertion order (which we need)
+		  for (String platformUnitBarcode : platformUnitBarcodeList){
+			  theOrderedSet.add(platformUnitBarcode);//unique and retains insert order (which is ordered by name asc)
+		  }
+		  
 	      String jsonString = new String();
 	      jsonString = jsonString + "{\"source\": [";
-	      for (String barcodeAsString : platformUnitBarcodeList){
+	      for (String barcodeAsString : theOrderedSet){
 	      	 if(barcodeAsString.indexOf(str) > -1){//note: if str equals "", this, perhaps unexpectedly, evaluates to true
 	       		 jsonString = jsonString + "\""+ barcodeAsString +"\",";
 	       	 }

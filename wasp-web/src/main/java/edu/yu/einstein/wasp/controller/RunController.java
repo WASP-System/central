@@ -338,17 +338,34 @@ public class RunController extends WaspController {
 			queryMap.put("name", nameFromGrid);//and restrict to the passed name
 		}		
 		
-		List<String> orderByColumnNames = new ArrayList<String>();
-		orderByColumnNames.add("startts");//start run
-		String direction = "desc";
-		if(sidx!=null && sidx.equals("dateRunStarted") && sord !=null && sord.equals("asc")){
-			direction = new String("asc");
+		Map dateMap = new HashMap();
+		if(dateRunStartedFromGridAsDate != null){
+			dateMap.put("startts", dateRunStartedFromGridAsDate);
 		}
-		tempRunList = runDao.findByMapDistinctOrderBy(queryMap, null, orderByColumnNames, direction);			
+		if(dateRunEndedFromGridAsDate != null){
+			dateMap.put("enDts", dateRunEndedFromGridAsDate);
+		}
 
+		List<String> orderByColumnAndDirection = new ArrayList<String>();		
+		if(sidx!=null && !"".equals(sidx)){//sord is apparently never null; default is desc
+			if(sidx.equals("dateRunStarted")){
+				orderByColumnAndDirection.add("startts " + sord);
+			}
+			else if(sidx.equals("dateRunEnded")){
+				orderByColumnAndDirection.add("enDts " + sord);
+			}
+			else if(sidx.equals("name")){//run.name
+				orderByColumnAndDirection.add("name " + sord);
+			}
+		}
+		else if(sidx==null || "".equals(sidx)){
+			orderByColumnAndDirection.add("startts desc");
+		}
+		tempRunList = runDao.findByMapsIncludesDatesDistinctOrderBy(queryMap, dateMap, null, orderByColumnAndDirection);
+
+		//deal with searching for attributes that cannot directly be dealt with by the SQL statement
 		if(platformUnitBarcodeFromGrid != null || machineAndMachineTypeFromGrid != null || readTypeFromGrid != null 
-				|| readlengthFromGrid != null || dateRunStartedFromGridAsString != null || dateRunEndedFromGridAsString != null
-				|| statusForRunFromGrid != null){
+				|| readlengthFromGrid != null || statusForRunFromGrid != null){
 			
 			if(platformUnitBarcodeFromGrid != null){
 				for(Run run : tempRunList){
@@ -390,30 +407,7 @@ public class RunController extends WaspController {
 				tempRunList.retainAll(runsFoundInSearch);
 				runsFoundInSearch.clear();
 			}		
-
-			if(dateRunStartedFromGridAsDate != null){
-				SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-				String dateToSearchFor = formatter.format(dateRunStartedFromGridAsDate);
-				for(Run run : tempRunList){
-					if(formatter.format(run.getStartts()).equals(dateToSearchFor)){
-						runsFoundInSearch.add(run);
-					}
-				}
-				tempRunList.retainAll(runsFoundInSearch);
-				runsFoundInSearch.clear();
-			}
-			if(dateRunEndedFromGridAsDate != null){
-				SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-				String dateToSearchFor = formatter.format(dateRunEndedFromGridAsDate);
-				for(Run run : tempRunList){
-					if(formatter.format(run.getEnDts()).equals(dateToSearchFor)){
-						runsFoundInSearch.add(run);
-					}
-				}
-				tempRunList.retainAll(runsFoundInSearch);
-				runsFoundInSearch.clear();
-			}
-			
+		
 			if(machineAndMachineTypeFromGrid != null){
 				String[] tokens =  machineAndMachineTypeFromGrid.split("-");
 				String machineName = tokens[0].trim();
@@ -440,18 +434,15 @@ public class RunController extends WaspController {
 		
 		runList.addAll(tempRunList);
 		
-		//finally deal with sorting
+		//finally deal with sorting of items that cannot be sorted directly by the SQL statement
 		if( sidx != null && !sidx.isEmpty() && !sidx.equals("dateRunStarted") && sord != null && !sord.isEmpty() ){//if sidx==dateRunStarted, it's taken care of above
 			
 			boolean indexSorted = false;
 			
-			if(sidx.equals("name")){Collections.sort(runList, new RunNameComparator()); indexSorted = true;}
-			else if(sidx.equals("platformUnitBarcode")){Collections.sort(runList, new RunPlatformUnitBarcodeComparator()); indexSorted = true;}
+			if(sidx.equals("platformUnitBarcode")){Collections.sort(runList, new RunPlatformUnitBarcodeComparator()); indexSorted = true;}
 			else if(sidx.equals("machine")){Collections.sort(runList, new MachineNameComparator()); indexSorted = true;}
 			else if(sidx.equals("readlength")){Collections.sort(runList, new RunMetaIsStringComparator("readlength")); indexSorted = true;}
 			else if(sidx.equals("readType")){Collections.sort(runList, new RunMetaIsStringComparator("readType")); indexSorted = true;}
-			else if(sidx.equals("dateRunEnded")){Collections.sort(runList, new DateRunEndedComparator()); indexSorted = true;}
-			else if(sidx.equals("statusForRun")){Collections.sort(runList, new RunStatusComparator()); indexSorted = true;}
 
 			if(indexSorted == true && sord.equals("desc")){//must be last
 				Collections.reverse(runList);
