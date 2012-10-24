@@ -99,6 +99,32 @@ public interface WaspDao<E> {
   
   public List<E> findByMapOrderBy(final Map m, final List<String> orderByColumnNames, final String direction);
 
+  /**
+   * Generates and executes SQL statement that includes
+   * 	1. multiple (optional) WHERE attributes 
+   * 	2. multiple (optional) DISTINCT attributes 
+   * 	3. multiple (optional) ORDER BY attributes 
+   * 	4. single (optional) direction (DESC or ASC) for ORDER BY  (if there is at least one ORDER BY attribute)
+   * 
+   * 	@param final Map m for the multiple (may be null) WHERE attributes
+   * 	@param final Map dateMap for the multiple (may be null) WHERE attributes that are dates (just the date part)
+   * 			ie.: where DATE(createts) := dateObject 
+   * 	@param final List<String> distinctColumnNames for the multiple (may be null) DISTINCT attributes
+   * 	@param final List<String> orderByColumnAndDirectionList for the multiple (may be null) ORDER BY attributes
+   * 	@return List of objects returned by the database that fulfill the query 
+   * 
+   * example use:
+   * 	Map whereConstraints = new HashMap();
+   *	whereConstraints.put("isInternal", 1);
+   *	whereConstraints.put("isActive", 1);
+   *	List<String> distinctConstraints = new ArrayList<String>();
+   *	distinctConstraints.add("name");	  
+   *	List<String> orderConstraints = new ArrayList<String>();
+   *	orderConstraints.add("name direction");	//ie: "jobId desc"  
+   *	List<Department> departmentList = this.getDepartmentService().findByMapDistinctOrderBy(whereConstraints, distinctConstraints, orderConstraints, direction);
+   */
+   public List<E> findByMapsIncludesDatesDistinctOrderBy(final Map m, final Map dateMap, List<String> distinctColumnNames, final List<String> orderByColumnAndDirectionList);
+
   public List findDistinctMetaOrderBy(String metaKeyName, String direction);
 
   /**

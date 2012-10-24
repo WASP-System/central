@@ -525,7 +525,7 @@ public class SampleDnaToLibraryController extends WaspController {
 	  
 	  Sample library = new Sample();
 	  library.setSampleSubtype(librarySampleSubtype);
-	  library.setSampleType(sampleTypeDao.getSampleTypeByIName("library"));
+	  library.setSampleType(sampleTypeDao.getSampleTypeByIName("facilityLibrary"));
 	  library.setSampleMeta(libraryMeta);
 	  m.put("sample", library); 	
 
