@@ -1383,6 +1383,26 @@ create table samplefile (
 ) ENGINE=InnoDB charset=utf8;
 
 
+create table samplesourcefile ( 
+  samplesourcefileid int(10)  primary key auto_increment,
+  samplesourceid int(10) , 
+  fileid int(10) , 
+
+  iname varchar(2048), -- 
+  name varchar(250), 
+  description varchar(2048), 
+
+  isactive int(1)  default 1, 
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
+
+  foreign key fk_samplesourcefile_sid (samplesourceid) references samplesource(samplesourceid),
+  foreign key fk_samplesourcefile_fid (fileid) references file(fileid) -- ,
+
+  -- constraint unique index u_samplefile_iname_jid (iname, sampleid)
+) ENGINE=InnoDB charset=utf8;
+
+
 -- adaptors 
 
 create table adaptorset(
